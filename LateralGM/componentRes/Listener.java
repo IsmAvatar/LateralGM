@@ -193,7 +193,7 @@ public class Listener extends TransferHandler implements ActionListener
 		TreePath p = dl.getPath();
 		if (p== null)
 			return false;
-		//if 
+		//if (LGM.prefs.emulate)
 		return true;
 		}
 
