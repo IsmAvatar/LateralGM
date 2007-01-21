@@ -44,20 +44,26 @@ import componentRes.GmMenuBar;
 import componentRes.GmTreeGraphics;
 import componentRes.Listener;
 import componentRes.ResNode;
+import SubFrames.*;
 
 import fileRes.Gm6File;
 
 public class LGM extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
+
 	public static final JFrame frame = new JFrame("Lateral GM 6.1");
-	public static final Listener listener = new Listener(); 
+
+	public static final Listener listener = new Listener();
+
 	public static JTree tree;
+
 	public static ResNode root;
+
 	public static Gm6File currentFile = new Gm6File();
 
-	public static String[] kinds = { "","Object","Sprite","Sound","Room","","Background","Script","Path","Font",
-			"Info","GM","Timeline" };
+	public static String[] kinds = { "","Object","Sprite","Sound","Room","","Background","Script","Path",
+			"Font","Info","GM","Timeline" };
 
 	public LGM()
 		{
@@ -100,7 +106,7 @@ public class LGM extends JPanel
 
 	public void createTree(boolean populate)
 		{
-		createTree(new ResNode("Root",(byte)0,(byte)0,null),populate);
+		createTree(new ResNode("Root",(byte) 0,(byte) 0,null),populate);
 		}
 
 	public void createTree(ResNode newroot,boolean populate)
@@ -139,19 +145,26 @@ public class LGM extends JPanel
 			{
 			tree.setSelectionRow(0);
 			}
+
+		/*
+		 * Setup the rest of the main window
+		 */
+
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(200,100));
 		JDesktopPane MDI = new JDesktopPane();
-//		MDI.setPreferredSize(new Dimension(400,600));
 		JScrollPane scroll2 = new JScrollPane(MDI);
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
 		add(split);
-		JInternalFrame test = new JInternalFrame("test yay!!!",true,true,true,true);
-		test.setVisible(true);
-		test.setSize(300,300);
-		MDI.add(test);
+		JInternalFrame welcome = new GameInformation();// new JInternalFrame("Welcome to
+		// LGM!",true,true,true,true);
+		welcome.setVisible(true);
+		welcome.setSize(300,300);
+		MDI.add(welcome);
 		}
+
+	
 
 	public static void main(String[] args)
 		{

@@ -96,7 +96,7 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("Manual",KeyEvent.VK_M,KeyEvent.VK_F1,0);
 		menu.addItem("About",KeyEvent.VK_A);
 		}
-
+	
 	public class GmMenu extends JMenu
 		{
 		private static final long serialVersionUID = 1L;
