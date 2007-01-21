@@ -31,22 +31,6 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 	{
 	private static final long serialVersionUID = 1L;
 
-	public void mouseReleased(MouseEvent arg0)
-		{
-		}
-
-	public void mouseClicked(MouseEvent arg0)
-		{
-		}
-
-	public void mouseEntered(MouseEvent arg0)
-		{
-		}
-
-	public void mouseExited(MouseEvent arg0)
-		{
-		}
-
 	public void actionPerformed(ActionEvent e)
 		{
 		JTree tree = LGM.tree;
@@ -306,4 +290,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				}
 			}
 		}
+
+	//Unused
+	public void mouseReleased(MouseEvent arg0) { }
+	public void mouseClicked(MouseEvent arg0) { }
+	public void mouseEntered(MouseEvent arg0) { }
+	public void mouseExited(MouseEvent arg0) { }
 	}
