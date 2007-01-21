@@ -6,9 +6,11 @@ import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -22,6 +24,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.rtf.RTFEditorKit;
+
 
 import componentRes.CustomFileFilter;
 
@@ -154,15 +157,23 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		if (fc.getSelectedFile() != null)
 			{
 			String name = fc.getSelectedFile().getPath();
-			if (name.endsWith("")) name += ".rtf";
+			if (!name.endsWith(".rtf")) name += ".rtf";
 			try
 				{
-				BufferedWriter out = new BufferedWriter(new FileWriter(name));
-				out.write(rtf.toString());
-				out.close();
+				FileOutputStream i = new FileOutputStream(new File(name));
+				rtf.write(i,editor.getDocument(),0, 0);
+				i.close();
+				
+				
+				
 				}
 			catch (IOException e)
 				{
+				}
+			catch (BadLocationException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 				}
 
 			}
