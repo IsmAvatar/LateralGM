@@ -1,11 +1,22 @@
 package mainRes;
 
 /*
- * Special thanks to the following people:
- * GMGuru from the GJava forums for unlimited support and pointers,
+ * Credit goes out to:
+ * IsmAvatar from everywhere as project leader, lead programmer, and file format expert
+ * TGMG from the G-Java forums for unlimited support and pointers,
  *  and finding ways to break things that I thought couldn't be broken
- * Deudeu from the SDN Java Forums for his Drag and Drop tree
+ *  and G-Java, which we hope will be incorporated as the primary compiler
+ *  and finding CVS/SVN which helped teamwork and version control
+ * Clam from the LGM forum for most of the Save and Load code
+ *  which I then proceeded to break and refix; and starting the MDI desktop
  * DeathFinder from the GMC for providing graphics
+ * Professor Mark Overmars for providing GM6 and its file format which inspired this,
+ *  and then up and deciding to be an a-hole about it by the time GM7 came out.
+ * Everyone else from the GMC forums, G-Java forums, LGM forum, etc. who helped out,
+ *  gave tips, acknowledged LGM's presence, or have works that aided in its creation
+ *  like (pardon any forgotten names):
+ *  Porfirio, CAMD, pythonpoole, andrewmc, RhysAndrews, Yourself, GearGOD,
+ *  roach, h0bbel, monkey dude, evilish, Natso, Appleman1234
  */
 
 import java.awt.BorderLayout;

@@ -10,7 +10,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import mainRes.LGM;
@@ -26,67 +25,16 @@ public class Listener extends TransferHandler implements ActionListener
 		{
 		JTree tree = LGM.tree;
 		String com = e.getActionCommand();
-		if (com == "Exit") LGM.frame.dispose();
-		if (com == "Expand") for (int m = 0; m < tree.getRowCount(); m++)
-			tree.expandRow(m);
-		if (com == "Collapse") for (int m = tree.getRowCount() - 1; m >= 0; m--)
-			tree.collapseRow(m);
-		if (com == "Rename") tree.startEditingAtPath(tree.getLeadSelectionPath());
-		if (com == "Delete")
+		if (com == "New")
 			{
-			if (JOptionPane.showConfirmDialog(null,"Delete this resource?","Delete",JOptionPane.YES_NO_OPTION) == 0)
-				{
-				DefaultMutableTreeNode me = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-				DefaultMutableTreeNode next = me.getNextSibling();
-				if (next == null) next = (DefaultMutableTreeNode) me.getParent();
-				if (next.isRoot()) next = (DefaultMutableTreeNode) next.getFirstChild();
-				tree.setSelectionPath(new TreePath(next.getPath()));
-				me.removeFromParent();
-				tree.updateUI();
-				}
-			}
-
-		if (com == "Group")
-			{
-			DefaultMutableTreeNode n = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-			ResNode b = (ResNode) n.getParent();
-			int pos = b.getIndex(n);
-			String name = JOptionPane.showInputDialog("Group Name?","Group");
-			if (name == "") return;
-			ResNode g = new ResNode(name,b.kind,ResNode.STATUS_GROUP);
-			b.insert(g,pos);
-			tree.expandPath(new TreePath(b.getPath()));
-			TreePath path = new TreePath(g.getPath());
-			tree.expandPath(path);
-			tree.collapsePath(path);
-			tree.setSelectionPath(path);
-			tree.updateUI();
-			}
-		if (com == "Add Group")
-			{
-			DefaultMutableTreeNode n = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-			ResNode b;
-			int pos;
-			if (n.getAllowsChildren())
-				{
-				b = (ResNode) n;
-				pos = b.getChildCount();
-				}
-			else
-				{
-				b = (ResNode) n.getParent();
-				pos = b.getIndex(n) + 1;
-				}
-			String name = JOptionPane.showInputDialog("Group Name?","Group");
-			if (name == "") return;
-			ResNode g = new ResNode(name,b.kind,ResNode.STATUS_GROUP);
-			b.insert(g,pos);
-			tree.expandPath(new TreePath(b.getPath()));
-			TreePath path = new TreePath(g.getPath());
-			tree.expandPath(path);
-			tree.collapsePath(path);
-			tree.setSelectionPath(path);
-			tree.updateUI();
+			LGM f = new LGM();
+			f.createTree(true);
+			f.createToolBar();
+			f.setOpaque(true);
+			LGM.frame.setContentPane(f);
+			LGM.currentFile = new Gm6File();
+			f.updateUI();
+			return;
 			}
 		if (com == "Open...")
 			{
@@ -119,6 +67,11 @@ public class Listener extends TransferHandler implements ActionListener
 						}
 					}
 				}
+			return;
+			}
+		if (com == "Save")
+			{
+			return; // make a .gb1 file for backup, in case this corrupts the file.
 			}
 		if (com == "Save As...")
 			{
@@ -153,20 +106,90 @@ public class Listener extends TransferHandler implements ActionListener
 						}
 					}
 				}
+			return;
 			}
-		if (com == "Save")
+		if (com == "Exit")
 			{
-			return; // make a .gb1 file for backup, in case this corrupts the file.
+			LGM.frame.dispose();
+			return;
 			}
-		if (com == "New")
+		if (com == "Group")
 			{
-			LGM f = new LGM();
-			f.createTree(true);
-			f.createToolBar();
-			f.setOpaque(true);
-			LGM.frame.setContentPane(f);
-			LGM.currentFile = new Gm6File();
-			f.updateUI();
+			ResNode n = (ResNode)tree.getLastSelectedPathComponent();
+			if (n == null) return;
+			ResNode b = (ResNode)n.getParent();
+			int pos = b.getIndex(n);
+			String name = JOptionPane.showInputDialog("Group Name?","group");
+			if (name == "") return;
+			ResNode g = new ResNode(name,b.kind,ResNode.STATUS_GROUP);
+			b.insert(g,pos);
+			tree.expandPath(new TreePath(b.getPath()));
+			TreePath path = new TreePath(g.getPath());
+			tree.expandPath(path);
+			tree.collapsePath(path);
+			tree.setSelectionPath(path);
+			tree.updateUI();
+			return;
+			}
+		if (com == "Add Group")
+			{
+			ResNode n = (ResNode) tree.getLastSelectedPathComponent();
+			if (n == null) return;
+			ResNode b;
+			int pos;
+			if (n.getAllowsChildren())
+				{
+				b = (ResNode) n;
+				pos = b.getChildCount();
+				}
+			else
+				{
+				b = (ResNode) n.getParent();
+				pos = b.getIndex(n) + 1;
+				}
+			String name = JOptionPane.showInputDialog("Group Name?","Group");
+			if (name == "") return;
+			ResNode g = new ResNode(name,b.kind,ResNode.STATUS_GROUP);
+			b.insert(g,pos);
+			tree.expandPath(new TreePath(b.getPath()));
+			TreePath path = new TreePath(g.getPath());
+			tree.expandPath(path);
+			tree.collapsePath(path);
+			tree.setSelectionPath(path);
+			tree.updateUI();
+			return;
+			}
+		if (com == "Rename")
+			{
+			tree.startEditingAtPath(tree.getLeadSelectionPath());
+			return;
+			}
+		if (com == "Delete")
+			{
+			if (JOptionPane.showConfirmDialog(null,"Delete this resource?","Delete",JOptionPane.YES_NO_OPTION) == 0)
+				{
+				ResNode me = (ResNode)tree.getLastSelectedPathComponent();
+				if (me == null) return;
+				ResNode next = (ResNode)me.getNextSibling();
+				if (next == null) next = (ResNode)me.getParent();
+				if (next.isRoot()) next = (ResNode)next.getFirstChild();
+				tree.setSelectionPath(new TreePath(next.getPath()));
+				me.removeFromParent();
+				tree.updateUI();
+				}
+			return;
+			}
+		if (com == "Expand")
+			{
+			for (int m = 0; m < tree.getRowCount(); m++)
+				tree.expandRow(m);
+			return;
+			}
+		if (com == "Collapse")
+			{
+			for (int m = tree.getRowCount() - 1; m >= 0; m--)
+			tree.collapseRow(m);
+			return;
 			}
 		}
 
@@ -181,7 +204,7 @@ public class Listener extends TransferHandler implements ActionListener
 
 	public int getSourceActions(JComponent c)
 		{
-		return COPY_OR_MOVE;
+		return MOVE;
 		}
 
 	public boolean canImport(TransferHandler.TransferSupport support)
