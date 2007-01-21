@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,7 +25,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.rtf.RTFEditorKit;
-
 
 import componentRes.CustomFileFilter;
 
@@ -149,6 +149,33 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		return item;
 		}
 
+	public void load_from_file()
+		{
+		JFileChooser fc = new JFileChooser();
+		fc.setFileFilter(new CustomFileFilter(".rtf","Rich text Files"));
+		fc.showOpenDialog(this);
+		if (fc.getSelectedFile() != null)
+			{
+			String name = fc.getSelectedFile().getPath();
+			
+			try
+				{
+				FileInputStream i = new FileInputStream(new File(name));
+				rtf.read(i,editor.getDocument(),0);
+				i.close();
+				}
+			catch (IOException e)
+				{
+				}
+			catch (BadLocationException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+
+			}
+		}
+
 	public void save_to_file()
 		{
 		JFileChooser fc = new JFileChooser();
@@ -161,11 +188,9 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			try
 				{
 				FileOutputStream i = new FileOutputStream(new File(name));
-				rtf.write(i,editor.getDocument(),0, 0);
+				rtf.write(i,editor.getDocument(),0,0);
 				i.close();
-				
-				
-				
+
 				}
 			catch (IOException e)
 				{
@@ -186,7 +211,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		System.out.println(com);
 		if (com.equals("Load from a file"))
 			{
-
+			load_from_file();
 			}
 		if (com.equals("Save to a file"))
 			{
