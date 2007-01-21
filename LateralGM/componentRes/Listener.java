@@ -188,18 +188,13 @@ public class Listener extends TransferHandler implements ActionListener
 		{
 		if (!support.isDataFlavorSupported(ResNode.NODE_FLAVOR))
 			return false;
-		JTree.DropLocation drop = (JTree.DropLocation)support.getDropLocation();
-
-		//int sib = drop.getChildIndex(); //this will be useful to determine sibling position
-		TreePath dropPath = drop.getPath();
-		if (dropPath == null) return false;
-		Object[] dropPathObj = dropPath.getPath();
-		ResNode dropPathNode = (ResNode)dropPathObj[dropPathObj.length-1];
-
+		TreePath drop = ((JTree.DropLocation)support.getDropLocation()).getPath();
+		if (drop == null) return false;
+		ResNode dropNode = (ResNode)drop.getLastPathComponent();
 		ResNode dragNode = (ResNode)((JTree)support.getComponent()).getLastSelectedPathComponent();
-		if (dragNode == dropPathNode) return false;
-		if (Prefs.groupKind && dropPathNode.kind != dragNode.kind) return false;
-		if (Prefs.protectLeaf && dropPathNode.status == ResNode.STATUS_SECONDARY) return false;
+		if (dragNode == dropNode) return false;
+		if (Prefs.groupKind && dropNode.kind != dragNode.kind) return false;
+		if (Prefs.protectLeaf && dropNode.status == ResNode.STATUS_SECONDARY) return false;
 		return true;
 		}
 
@@ -207,7 +202,19 @@ public class Listener extends TransferHandler implements ActionListener
 		{
 		if (!canImport(support))
 			return false;
-		
+		JTree.DropLocation drop = (JTree.DropLocation)support.getDropLocation();
+		int dropIndex = drop.getChildIndex();
+		ResNode dropNode = (ResNode)drop.getPath().getLastPathComponent();
+		ResNode dragNode = (ResNode)((JTree)support.getComponent()).getLastSelectedPathComponent();
+		if (dropIndex == -1)
+			{
+			dropIndex = dropNode.getChildCount();
+			}
+		if (dropNode == dragNode.getParent() &&
+				dropIndex > dragNode.getParent().getIndex(dragNode))
+			dropIndex--;
+		dropNode.insert(dragNode,dropIndex);
+		LGM.tree.updateUI();
 		return true;
 		}
 	}
