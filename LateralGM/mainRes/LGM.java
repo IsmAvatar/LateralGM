@@ -157,7 +157,7 @@ public class LGM extends JPanel
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
 		add(split);
-		JInternalFrame welcome = new GameInformation();// new JInternalFrame("Welcome to
+		JInternalFrame welcome = new GameInformationFrame();// new JInternalFrame("Welcome to
 		// LGM!",true,true,true,true);
 		welcome.setVisible(true);
 		welcome.setSize(300,300);
