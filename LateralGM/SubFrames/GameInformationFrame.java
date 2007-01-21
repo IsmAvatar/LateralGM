@@ -1,11 +1,18 @@
 package SubFrames;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -16,13 +23,17 @@ import javax.swing.JToolBar;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.rtf.RTFEditorKit;
 
+import componentRes.CustomFileFilter;
+
 import resourcesRes.GameInformation;
 
 import mainRes.LGM;
 
-public class GameInformationFrame extends JInternalFrame
+public class GameInformationFrame extends JInternalFrame implements ActionListener
 	{
-	private JEditorPane editor;
+	private static JEditorPane editor;
+
+	private static RTFEditorKit rtf = new RTFEditorKit();
 
 	public GameInformationFrame()
 		{
@@ -36,10 +47,23 @@ public class GameInformationFrame extends JInternalFrame
 			{
 			JMenu Fmenu = new JMenu("File");
 			menuBar.add(Fmenu);
+			Fmenu.addActionListener(this);
 
-			// Create a menu item
-			JMenuItem item = new JMenuItem("Load from a file");
-			// item.addActionListener(actionListener);
+			// Create a file menu items
+			JMenuItem item = addItem("Load from a file");
+			Fmenu.add(item);
+			item = addItem("Save to a file");
+			Fmenu.add(item);
+			Fmenu.addSeparator();
+			item = addItem("Options...");
+			item.setEnabled(false);
+			Fmenu.add(item);
+			Fmenu.addSeparator();
+			item = addItem("Print...");
+			item.setEnabled(false);
+			Fmenu.add(item);
+			Fmenu.addSeparator();
+			item = addItem("Close saving changes");
 			Fmenu.add(item);
 			}
 
@@ -83,7 +107,7 @@ public class GameInformationFrame extends JInternalFrame
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BorderLayout());
 		getContentPane().add(topPanel,BorderLayout.CENTER);
-		RTFEditorKit rtf = new RTFEditorKit();
+
 		editor = new JEditorPane();
 		editor.setEditable(false);
 		editor.setEditorKit(rtf);
@@ -95,16 +119,68 @@ public class GameInformationFrame extends JInternalFrame
 		topPanel.add(scroller,BorderLayout.CENTER);
 
 		GameInformation gi = new GameInformation();
+
+		add_rtf(gi.GameInfoStr);
+
+		}
+
+	public static void add_rtf(String str)
+		{
 		try
 			{
-			rtf.read(new ByteArrayInputStream(gi.GameInfoStr.getBytes()),editor.getDocument(),0);
+			rtf.read(new ByteArrayInputStream(str.getBytes()),editor.getDocument(),0);
 			}
 		catch (Exception e)
 			{
 			e.printStackTrace();
 			}
+		}
 
-		// gi.GameInfoStr;
+	public JMenuItem addItem(String name)
+		{
+		JMenuItem item = new JMenuItem(name);
+		item.setIcon(LGM.findIcon(name + ".png"));
+		item.setActionCommand(name);
+		item.addActionListener(this);
+		add(item);
+		return item;
+		}
+
+	public void save_to_file()
+		{
+		JFileChooser fc = new JFileChooser();
+		fc.setFileFilter(new CustomFileFilter(".rtf","Rich text Files"));
+		fc.showSaveDialog(this);
+		if (fc.getSelectedFile() != null)
+			{
+			String name = fc.getSelectedFile().getPath();
+			if (name.endsWith("")) name += ".rtf";
+			try
+				{
+				BufferedWriter out = new BufferedWriter(new FileWriter(name));
+				out.write(rtf.toString());
+				out.close();
+				}
+			catch (IOException e)
+				{
+				}
+
+			}
 
 		}
+
+	public void actionPerformed(ActionEvent arg0)
+		{
+		String com = arg0.getActionCommand();
+		System.out.println(com);
+		if (com.equals("Load from a file"))
+			{
+
+			}
+		if (com.equals("Save to a file"))
+			{
+			save_to_file();
+			}
+		}
+
 	}
