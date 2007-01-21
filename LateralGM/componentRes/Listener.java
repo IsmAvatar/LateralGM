@@ -193,6 +193,7 @@ public class Listener extends TransferHandler implements ActionListener
 		ResNode dropNode = (ResNode)drop.getLastPathComponent();
 		ResNode dragNode = (ResNode)((JTree)support.getComponent()).getLastSelectedPathComponent();
 		if (dragNode == dropNode) return false;
+		if (dragNode.isNodeDescendant(dropNode)) return false;
 		if (Prefs.groupKind && dropNode.kind != dragNode.kind) return false;
 		if (Prefs.protectLeaf && dropNode.status == ResNode.STATUS_SECONDARY) return false;
 		return true;
