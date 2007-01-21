@@ -208,6 +208,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 		}
 
+	
+	
 	public static void add_rtf(String str)
 		{
 		try

@@ -59,6 +59,7 @@ public class LGM extends JPanel
 
 	public static String[] kinds = { "","Object","Sprite","Sound","Room","","Background","Script","Path",
 			"Font","Info","GM","Timeline" };
+public static JDesktopPane MDI;
 
 	public LGM()
 		{
@@ -109,6 +110,7 @@ public class LGM extends JPanel
 		root = newroot;
 		tree = new JTree(new DefaultTreeModel(root));
 		tree.setEditable(true);
+		tree.addMouseListener(listener);
 		tree.setScrollsOnExpand(true);
 		tree.setTransferHandler(listener);
 		tree.setDragEnabled(true);
@@ -147,7 +149,7 @@ public class LGM extends JPanel
 
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(200,100));
-		JDesktopPane MDI = new JDesktopPane();
+		MDI = new JDesktopPane();
 		JScrollPane scroll2 = new JScrollPane(MDI);
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
@@ -158,6 +160,7 @@ public class LGM extends JPanel
 		MDI.add(welcome);
 		}
 
+	
 	public static void main(String[] args)
 		{
 		frame.setSize(600,600);

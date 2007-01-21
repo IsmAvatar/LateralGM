@@ -3,21 +3,28 @@ package componentRes;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.TreePath;
+
+import SubFrames.GameInformationFrame;
+
+import resourcesRes.Resource;
 
 import mainRes.LGM;
 import mainRes.Prefs;
 import fileRes.Gm6File;
 import fileRes.Gm6FormatException;
 
-public class Listener extends TransferHandler implements ActionListener
+public class Listener extends TransferHandler implements ActionListener, MouseListener 
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -240,5 +247,51 @@ public class Listener extends TransferHandler implements ActionListener
 		dropNode.insert(dragNode,dropIndex);
 		LGM.tree.updateUI();
 		return true;
+		}
+
+	public void mouseClicked(MouseEvent arg0)
+		{
+		// TODO Auto-generated method stub
+		
+		}
+
+	public void mouseEntered(MouseEvent arg0)
+		{
+		// TODO Auto-generated method stub
+		
+		}
+
+	public void mouseExited(MouseEvent arg0)
+		{
+		// TODO Auto-generated method stub
+		
+		}
+
+	public void mousePressed(MouseEvent e)
+		{
+		int selRow = LGM.tree.getRowForLocation(e.getX(), e.getY());
+    TreePath selPath = LGM.tree.getPathForLocation(e.getX(), e.getY());
+    if(selRow != -1) {
+        if(e.getClickCount() == 1) {
+            //mySingleClick(selRow, selPath);
+        }
+        else if(e.getClickCount() == 2) {
+            //myDoubleClick(selRow, selPath);
+        ResNode node = (ResNode)selPath.getLastPathComponent();
+        if (node.kind == Resource.GAMEINFO)
+        	{
+        	JInternalFrame gameinfo = new GameInformationFrame();
+      		gameinfo.setVisible(true);
+      		LGM.MDI.add(gameinfo);
+        	}
+        }
+    }
+		
+		}
+
+	public void mouseReleased(MouseEvent arg0)
+		{
+		// TODO Auto-generated method stub
+		
 		}
 	}
