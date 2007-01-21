@@ -96,7 +96,7 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("Manual",KeyEvent.VK_M,KeyEvent.VK_F1,0);
 		menu.addItem("About",KeyEvent.VK_A);
 		}
-	
+
 	public class GmMenu extends JMenu
 		{
 		private static final long serialVersionUID = 1L;
@@ -108,8 +108,8 @@ public class GmMenuBar extends JMenuBar
 
 		public JMenuItem addItem(String name,int alt)
 			{
-			JMenuItem item = new JMenuItem(name.replaceAll("Add ",""),alt);
-			item.setIcon(LGM.findIcon(name.replaceAll("Add ","") + ".png"));
+			JMenuItem item = new JMenuItem(name.replaceAll("Add ","").replaceAll("Insert ",""),alt);
+			item.setIcon(LGM.findIcon(name.replaceAll("Add ","").replaceAll("Insert ","") + ".png"));
 			item.setActionCommand(name);
 			item.addActionListener(LGM.listener);
 			add(item);

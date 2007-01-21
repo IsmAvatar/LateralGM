@@ -3,7 +3,7 @@ package mainRes;
 /*
  * Credit goes out to:
  * IsmAvatar from everywhere as project leader, lead programmer, and file format expert
- * TGMG from the G-Java forums for unlimited support and pointers,
+ * TGMG from the G-Java forums has been an invaluable asset and programmer for the team,
  *  and finding ways to break things that I thought couldn't be broken
  *  and G-Java, which we hope will be incorporated as the primary compiler
  *  and finding CVS/SVN which helped teamwork and version control
@@ -59,7 +59,7 @@ public class LGM extends JPanel
 
 	public static String[] kinds = { "","Object","Sprite","Sound","Room","","Background","Script","Path",
 			"Font","Info","GM","Timeline" };
-public static JDesktopPane MDI;
+	public static JDesktopPane MDI;
 
 	public LGM()
 		{

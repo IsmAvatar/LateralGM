@@ -139,51 +139,56 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			LGM.frame.dispose();
 			return;
 			}
-		if (com == "Group")
+		if (com.startsWith("Insert "))
 			{
-			ResNode n = (ResNode) tree.getLastSelectedPathComponent();
-			if (n == null) return;
-			ResNode b = (ResNode) n.getParent();
-			int pos = b.getIndex(n);
-			String name = JOptionPane.showInputDialog("Group Name?","group");
-			if (name == "") return;
-			ResNode g = new ResNode(name,b.kind,ResNode.STATUS_GROUP);
-			b.insert(g,pos);
-			tree.expandPath(new TreePath(b.getPath()));
-			TreePath path = new TreePath(g.getPath());
-			tree.expandPath(path);
-			tree.collapsePath(path);
-			tree.setSelectionPath(path);
-			tree.updateUI();
-			return;
+			ResNode node = (ResNode)tree.getLastSelectedPathComponent();
+			if (node == null) return;
+			ResNode parent = (ResNode)node.getParent();
+			int pos = parent.getIndex(node);
+			com = com.replaceAll("Insert ","");
+			if (com == "Group")
+				{
+				String name = JOptionPane.showInputDialog("Group Name?","group");
+				if (name == "") return;
+				ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
+				parent.insert(g,pos);
+				tree.expandPath(new TreePath(parent.getPath()));
+				tree.setSelectionPath(new TreePath(g.getPath()));
+				tree.updateUI();
+				return;
+				}
 			}
-		if (com == "Add Group")
+		if (com.startsWith("Add "))
 			{
-			ResNode n = (ResNode) tree.getLastSelectedPathComponent();
-			if (n == null) return;
-			ResNode b;
+			ResNode node = (ResNode) tree.getLastSelectedPathComponent();
+			if (node == null) return;
+			ResNode parent;
 			int pos;
-			if (n.getAllowsChildren())
+			com = com.replaceAll("Add ","");
+			if (com == "Group")
 				{
-				b = (ResNode) n;
-				pos = b.getChildCount();
+				if (node.getAllowsChildren())
+					{
+					parent = (ResNode)node;
+					pos = parent.getChildCount();
+					}
+				else
+					{
+					parent = (ResNode)node.getParent();
+					pos = parent.getIndex(node) + 1;
+					}
+				String name = JOptionPane.showInputDialog("Group Name?","Group");
+				if (name == "") return;
+				ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
+				parent.insert(g,pos);
+				tree.expandPath(new TreePath(parent.getPath()));
+				TreePath path = new TreePath(g.getPath());
+				tree.expandPath(path);
+				tree.collapsePath(path);
+				tree.setSelectionPath(path);
+				tree.updateUI();
+				return;
 				}
-			else
-				{
-				b = (ResNode) n.getParent();
-				pos = b.getIndex(n) + 1;
-				}
-			String name = JOptionPane.showInputDialog("Group Name?","Group");
-			if (name == "") return;
-			ResNode g = new ResNode(name,b.kind,ResNode.STATUS_GROUP);
-			b.insert(g,pos);
-			tree.expandPath(new TreePath(b.getPath()));
-			TreePath path = new TreePath(g.getPath());
-			tree.expandPath(path);
-			tree.collapsePath(path);
-			tree.setSelectionPath(path);
-			tree.updateUI();
-			return;
 			}
 		if (com == "Rename")
 			{
@@ -269,41 +274,36 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		TreePath selPath = LGM.tree.getPathForLocation(e.getX(),e.getY());
 		if (selRow != -1)
 			{
-			
-		if (e.getModifiers()
-			== InputEvent.BUTTON3_MASK)
-			{
-			ResNode node = (ResNode) selPath.getLastPathComponent();
-			
-      //		Create the popup menu.
-			JPopupMenu popup = new JPopupMenu();
-			JMenuItem menuItem = new JMenuItem("A popup menu item");
-	    menuItem.addActionListener(this);
-	    popup.add(menuItem);
-	    menuItem = new JMenuItem("Another popup menu item");
-	    menuItem.addActionListener(this);
-	    popup.add(menuItem);
-	    popup.show(e.getComponent(),
-          e.getX(), e.getY());
-			} else {
-			
-			if (e.getClickCount() == 1)
+			if (e.getModifiers() == InputEvent.BUTTON3_MASK)
 				{
-				// unused for now
+//				ResNode node = (ResNode)selPath.getLastPathComponent();
+				LGM.tree.setSelectionPath(selPath);
+				JPopupMenu popup = new JPopupMenu();
+				JMenuItem menuItem = new JMenuItem("A popup menu item");
+				menuItem.addActionListener(this);
+				popup.add(menuItem);
+				menuItem = new JMenuItem("Another popup menu item");
+				menuItem.addActionListener(this);
+				popup.add(menuItem);
+				popup.show(e.getComponent(),e.getX(),e.getY());
 				}
-			else if (e.getClickCount() == 2)
+			else
 				{
-				ResNode node = (ResNode) selPath.getLastPathComponent();
-				if (node.kind == Resource.GAMEINFO)
+				if (e.getClickCount() == 1)
 					{
-					JInternalFrame gameinfo = new GameInformationFrame();
-					gameinfo.setVisible(true);
-					LGM.MDI.add(gameinfo);
+					// unused for now
+					}
+				else if (e.getClickCount() == 2)
+					{
+					ResNode node = (ResNode) selPath.getLastPathComponent();
+					if (node.kind == Resource.GAMEINFO)
+						{
+						JInternalFrame gameinfo = new GameInformationFrame();
+						gameinfo.setVisible(true);
+						LGM.MDI.add(gameinfo);
+						}
 					}
 				}
 			}
-			}
-
 		}
-
 	}
