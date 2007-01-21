@@ -42,17 +42,17 @@ public class GmMenuBar extends JMenuBar
 		GmMenu sub = new GmMenu("Insert");
 		sub.setMnemonic(KeyEvent.VK_I);
 		menu.add(sub);
-		sub.addItem("Group",KeyEvent.VK_G);
+		sub.addItem("Insert Group",KeyEvent.VK_G);
 		sub.add(new JSeparator());
-		sub.addItem("Sprite",KeyEvent.VK_I);
-		sub.addItem("Sound",KeyEvent.VK_M);
-		sub.addItem("Background",KeyEvent.VK_B);
-		sub.addItem("Path",KeyEvent.VK_P);
-		sub.addItem("Script",KeyEvent.VK_S);
-		sub.addItem("Font",KeyEvent.VK_F);
-		sub.addItem("Timeline",KeyEvent.VK_T);
-		sub.addItem("Object",KeyEvent.VK_O);
-		sub.addItem("Room",KeyEvent.VK_R);
+		sub.addItem("Insert Sprite",KeyEvent.VK_I);
+		sub.addItem("Insert Sound",KeyEvent.VK_M);
+		sub.addItem("Insert Background",KeyEvent.VK_B);
+		sub.addItem("Insert Path",KeyEvent.VK_P);
+		sub.addItem("Insert Script",KeyEvent.VK_S);
+		sub.addItem("Insert Font",KeyEvent.VK_F);
+		sub.addItem("Insert Timeline",KeyEvent.VK_T);
+		sub.addItem("Insert Object",KeyEvent.VK_O);
+		sub.addItem("Insert Room",KeyEvent.VK_R);
 
 		sub = new GmMenu("Add");
 		sub.setMnemonic(KeyEvent.VK_I);

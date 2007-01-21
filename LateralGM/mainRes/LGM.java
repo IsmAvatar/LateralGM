@@ -28,7 +28,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -39,12 +38,12 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import resourcesRes.Resource;
+import SubFrames.GameInformationFrame;
 
 import componentRes.GmMenuBar;
 import componentRes.GmTreeGraphics;
 import componentRes.Listener;
 import componentRes.ResNode;
-import SubFrames.*;
 
 import fileRes.Gm6File;
 
@@ -56,10 +55,10 @@ public class LGM extends JPanel
 	public static JTree tree;
 	public static ResNode root;
 	public static Gm6File currentFile = new Gm6File();
-
+	public static JDesktopPane MDI;
+	public static GameInformationFrame gameInfo = new GameInformationFrame();
 	public static String[] kinds = { "","Object","Sprite","Sound","Room","","Background","Script","Path",
 			"Font","Info","GM","Timeline" };
-	public static JDesktopPane MDI;
 
 	public LGM()
 		{
@@ -154,13 +153,11 @@ public class LGM extends JPanel
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
 		add(split);
-		JInternalFrame welcome = new GameSettingFrame();// new JInternalFrame("Welcome to
-		// LGM!",true,true,true,true);
-		welcome.setVisible(true);
-		MDI.add(welcome);
+		gameInfo.setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
+		MDI.add(gameInfo);
+		gameInfo.setVisible(true);
 		}
 
-	
 	public static void main(String[] args)
 		{
 		frame.setSize(600,600);

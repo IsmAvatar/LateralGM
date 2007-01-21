@@ -7,6 +7,8 @@ import java.util.Arrays;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import mainRes.Prefs;
+
 import resourcesRes.ResId;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable
@@ -44,11 +46,6 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		this.kind = (byte)kind;
 		}
 
-/*	public boolean isLeaf()
-		{
-		return (getChildCount() > 0);
-		}*/
-
 	public ResNode addChild(String name, byte stat, byte type)
 		{
 		ResNode b = new ResNode(name,stat,type);
@@ -59,6 +56,11 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	public ResNode addChild(String name, int stat, int type)
 		{
 		return addChild(name,(byte)stat,(byte)type);
+		}
+
+	public boolean getAllowsChildren()
+		{
+		return !(Prefs.protectLeaf && status == STATUS_SECONDARY);
 		}
 
 	public DataFlavor[] getTransferDataFlavors()

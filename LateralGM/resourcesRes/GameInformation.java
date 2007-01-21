@@ -14,6 +14,6 @@ public class GameInformation
 	public boolean StayOnTop = false;
 	public boolean PauseGame = true;
 	public String GameInfoStr = "{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033{\\fonttbl{\\f0\\fnil Arial;}}"
-			+ "{\\colortbl ;\\red0\\green0\\blue0;}\\viewkind4\\uc1\\pard\\cf1\\f0\\fs24 \\par}";
+			+ "{\\colortbl ;\\red0\\green0\\blue0;}\\viewkind4\\uc1\\pard\\cf1\\f0\\fs24}";
 	// the default rtf string is almost exactly the same as in fresh gm files (no linebreaks in this one)
 	}

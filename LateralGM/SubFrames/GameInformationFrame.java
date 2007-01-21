@@ -159,7 +159,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			m_cbSizes.setEditable(true);
 			lst = new ActionListener()
 				{
-//					private int m_fontSize;
+					// private int m_fontSize;
 
 					public void actionPerformed(ActionEvent e)
 						{
@@ -172,7 +172,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 							{
 							return;
 							}
-//						m_fontSize = fontSize;
+						// m_fontSize = fontSize;
 						MutableAttributeSet attr = new SimpleAttributeSet();
 						StyleConstants.setFontSize(attr,fontSize);
 						// setAttributeSet(attr);
@@ -205,11 +205,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		topPanel.add(scroller,BorderLayout.CENTER);
 
 		add_rtf(gi.GameInfoStr);
-
 		}
 
-	
-	
 	public static void add_rtf(String str)
 		{
 		try
@@ -283,9 +280,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				}
-
 			}
-
 		}
 
 	public void actionPerformed(ActionEvent arg0)

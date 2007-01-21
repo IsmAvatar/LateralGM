@@ -10,7 +10,6 @@ import java.io.File;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -18,12 +17,9 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.TreePath;
 
-import SubFrames.GameInformationFrame;
-
-import resourcesRes.Resource;
-
 import mainRes.LGM;
 import mainRes.Prefs;
+import resourcesRes.Resource;
 import fileRes.Gm6File;
 import fileRes.Gm6FormatException;
 
@@ -35,7 +31,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		{
 		JTree tree = LGM.tree;
 		String com = e.getActionCommand();
-		if (com == "New")
+		if (com.equals("New"))
 			{
 			LGM f = new LGM();
 			f.createTree(true);
@@ -46,7 +42,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			f.updateUI();
 			return;
 			}
-		if (com == "Open...")
+		if (com.equals("Open..."))
 			{
 			JFileChooser fc = new JFileChooser();
 			fc.setFileFilter(new CustomFileFilter(".gm6","Game Maker 6 Files"));
@@ -79,11 +75,11 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				}
 			return;
 			}
-		if (com == "Save")
+		if (com.equals("Save"))
 			{
 			return; // make a .gb1 file for backup, in case this corrupts the file.
 			}
-		if (com == "Save As...")
+		if (com.equals("Save As..."))
 			{
 			if (true) return;
 			JFileChooser fc = new JFileChooser();
@@ -118,7 +114,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				}
 			return;
 			}
-		if (com == "Exit")
+		if (com.equals("Exit"))
 			{
 			LGM.frame.dispose();
 			return;
@@ -130,7 +126,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			ResNode parent = (ResNode)node.getParent();
 			int pos = parent.getIndex(node);
 			com = com.replaceAll("Insert ","");
-			if (com == "Group")
+			if (com.equals("Group"))
 				{
 				String name = JOptionPane.showInputDialog("Group Name?","group");
 				if (name == "") return;
@@ -148,38 +144,35 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			if (node == null) return;
 			ResNode parent;
 			int pos;
-			com = com.replaceAll("Add ","");
-			if (com == "Group")
+			if (node.getAllowsChildren())
 				{
-				if (node.getAllowsChildren())
-					{
-					parent = (ResNode)node;
-					pos = parent.getChildCount();
-					}
-				else
-					{
-					parent = (ResNode)node.getParent();
-					pos = parent.getIndex(node) + 1;
-					}
+				parent = (ResNode)node;
+				pos = parent.getChildCount();
+				}
+			else
+				{
+				parent = (ResNode)node.getParent();
+				pos = parent.getIndex(node) + 1;
+				}
+			com = com.replaceAll("Add ","");
+			if (com.equals("Group"))
+				{
 				String name = JOptionPane.showInputDialog("Group Name?","Group");
 				if (name == "") return;
 				ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
 				parent.insert(g,pos);
 				tree.expandPath(new TreePath(parent.getPath()));
-				TreePath path = new TreePath(g.getPath());
-				tree.expandPath(path);
-				tree.collapsePath(path);
-				tree.setSelectionPath(path);
+				tree.setSelectionPath(new TreePath(g.getPath()));
 				tree.updateUI();
 				return;
 				}
 			}
-		if (com == "Rename")
+		if (com.equals("Rename"))
 			{
 			tree.startEditingAtPath(tree.getLeadSelectionPath());
 			return;
 			}
-		if (com == "Delete")
+		if (com.equals("Delete"))
 			{
 			if (JOptionPane.showConfirmDialog(null,"Delete this resource?","Delete",JOptionPane.YES_NO_OPTION) == 0)
 				{
@@ -194,13 +187,13 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				}
 			return;
 			}
-		if (com == "Expand")
+		if (com.equals("Expand"))
 			{
 			for (int m = 0; m < tree.getRowCount(); m++)
 				tree.expandRow(m);
 			return;
 			}
-		if (com == "Collapse")
+		if (com.equals("Collapse"))
 			{
 			for (int m = tree.getRowCount() - 1; m >= 0; m--)
 				tree.collapseRow(m);
@@ -248,6 +241,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (dropNode == dragNode.getParent() && dropIndex > dragNode.getParent().getIndex(dragNode)) dropIndex--;
 		dropNode.insert(dragNode,dropIndex);
+		LGM.tree.expandPath(new TreePath(dropNode.getPath()));
 		LGM.tree.updateUI();
 		return true;
 		}
@@ -282,9 +276,9 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					ResNode node = (ResNode) selPath.getLastPathComponent();
 					if (node.kind == Resource.GAMEINFO)
 						{
-						JInternalFrame gameinfo = new GameInformationFrame();
-						gameinfo.setVisible(true);
-						LGM.MDI.add(gameinfo);
+						//JInternalFrame gameinfo = new GameInformationFrame();
+						LGM.gameInfo.setVisible(true);
+//						LGM.MDI.add(LGM.gameInfo);
 						}
 					}
 				}
