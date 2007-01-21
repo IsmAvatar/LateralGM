@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
@@ -204,14 +205,22 @@ public class GmStreamEncoder
 			}
 		}
 
-	public void writeTree(ResNode node) throws IOException
+	public void writeTree(ResNode root) throws IOException
 		{
-		writei(node.status);
-		writei(node.kind);
-		if (node.resourceId != null)
-			writei(node.resourceId.value);
-		else
-			writei(0);
+		Enumeration e = root.preorderEnumeration();
+		e.nextElement();
+		while (e.hasMoreElements())
+			{
+			ResNode node = (ResNode)e.nextElement();
+			writei(node.status);
+			writei(node.kind);
+			if (node.resourceId != null)
+				writei(node.resourceId.value);
+			else
+				writei(0);
+			writeStr((String)node.getUserObject());
+			writei(node.getChildCount());
+			}
 		}
 
 	public void writeTree(ResNode node,Gm6File src) throws IOException

@@ -3135,10 +3135,7 @@ public class Gm6File
 			out.writei(540);
 			out.writei(0);// room indexes in tree order
 
-			for (int i = 0; i < root.getChildCount(); i++)
-				{
-				out.writeTree((ResNode) root.getChildAt(i),this);
-				}
+			out.writeTree(root);
 			out.close();
 			}
 		catch (FileNotFoundException ex)

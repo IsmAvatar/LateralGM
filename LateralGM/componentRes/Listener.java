@@ -55,9 +55,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					try
 						{
 						ResNode newroot = new ResNode("Root",0,0,null);
-						Gm6File newfile = new Gm6File();
-						newfile.LoadGm6File(fc.getSelectedFile().getPath(),newroot);
-						LGM.currentFile = newfile;
+						LGM.currentFile = new Gm6File();
+						LGM.currentFile.LoadGm6File(fc.getSelectedFile().getPath(),newroot);
 						LGM f = new LGM();
 						f.createTree(newroot,false);
 						tree.setSelectionPath(new TreePath(LGM.root).pathByAddingChild(LGM.root.getChildAt(0)));
@@ -81,11 +80,9 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.equals("Save As..."))
 			{
-			if (true) return;
 			JFileChooser fc = new JFileChooser();
 			fc.setFileFilter(new CustomFileFilter(".gm6","Game Maker 6 Files"));
-			boolean done = false;
-			while (!done)
+			while (true)
 				{
 				fc.showSaveDialog(LGM.frame);
 				if (fc.getSelectedFile() != null)
@@ -96,7 +93,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					if (!altered.exists())
 						{
 						LGM.currentFile.WriteGm6File(altered.getPath(),LGM.root);
-						done = true;
+						return;
 						}
 					else
 						{
@@ -106,13 +103,12 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						if (result == 0)
 							{
 							LGM.currentFile.WriteGm6File(altered.getPath(),LGM.root);
-							done = true;
+							return;
 							}
-						else if (result == 2) done = true;
+						else if (result == 2) return;
 						}
 					}
 				}
-			return;
 			}
 		if (com.equals("Exit"))
 			{
