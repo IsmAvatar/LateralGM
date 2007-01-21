@@ -7,8 +7,8 @@ import java.util.Arrays;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import mainRes.LGM;
 import mainRes.Prefs;
-
 import resourcesRes.ResId;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable
@@ -60,7 +60,11 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 
 	public boolean getAllowsChildren()
 		{
-		return !(Prefs.protectLeaf && status == STATUS_SECONDARY);
+		if (Prefs.protectLeaf && status == STATUS_SECONDARY)
+			return false;
+		if (Prefs.protectRoot && this == LGM.root)
+			return false;
+		return true;
 		}
 
 	public DataFlavor[] getTransferDataFlavors()
