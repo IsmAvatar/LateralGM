@@ -51,15 +51,10 @@ import fileRes.Gm6File;
 public class LGM extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
-
 	public static final JFrame frame = new JFrame("Lateral GM 6.1");
-
 	public static final Listener listener = new Listener();
-
 	public static JTree tree;
-
 	public static ResNode root;
-
 	public static Gm6File currentFile = new Gm6File();
 
 	public static String[] kinds = { "","Object","Sprite","Sound","Room","","Background","Script","Path",
@@ -162,8 +157,6 @@ public class LGM extends JPanel
 		welcome.setVisible(true);
 		MDI.add(welcome);
 		}
-
-	
 
 	public static void main(String[] args)
 		{
