@@ -160,7 +160,6 @@ public class LGM extends JPanel
 		JInternalFrame welcome = new GameInformationFrame();// new JInternalFrame("Welcome to
 		// LGM!",true,true,true,true);
 		welcome.setVisible(true);
-		welcome.setSize(300,300);
 		MDI.add(welcome);
 		}
 

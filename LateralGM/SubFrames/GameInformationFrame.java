@@ -2,6 +2,7 @@ package SubFrames;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
@@ -25,6 +27,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import componentRes.CustomFileFilter;
@@ -41,10 +46,16 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 	public static GameInformation gi = new GameInformation();
 
+	private JComboBox m_cbFonts;
+
+	private JComboBox m_cbSizes;
+
 	public GameInformationFrame()
 		{
 		super("Game Information",true,true,true,true);
 
+		
+		setSize(600,400);
 		// Setup the Menu
 		// Create the menu bar
 		JMenuBar menuBar = new JMenuBar();
@@ -127,6 +138,95 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			but.setActionCommand("Save");
 			but.addActionListener(this);
 			tool.add(but);
+			
+			GraphicsEnvironment ge = GraphicsEnvironment.
+
+			getLocalGraphicsEnvironment();
+
+			String[] fontNames = ge.getAvailableFontFamilyNames();
+
+			tool.addSeparator();
+
+			m_cbFonts = new JComboBox(fontNames);
+
+			m_cbFonts.setMaximumSize(m_cbFonts.getPreferredSize());
+
+			m_cbFonts.setEditable(true);
+
+			ActionListener lst = new ActionListener() {
+
+			private String m_fontName;
+
+			public void actionPerformed(ActionEvent e) {
+
+			m_fontName = m_cbFonts.getSelectedItem().toString();
+
+			MutableAttributeSet attr = new SimpleAttributeSet();
+
+			StyleConstants.setFontFamily(attr, m_fontName);
+
+			//setAttributeSet(attr);
+
+			//m_monitor.grabFocus();
+
+			}
+
+			};
+
+			m_cbFonts.addActionListener(lst);
+
+			tool.add(m_cbFonts);
+
+			tool.addSeparator();
+
+			m_cbSizes = new JComboBox(new String[] {"8", "9", "10",
+
+			"11", "12", "14", "16", "18", "20", "22", "24", "26",
+
+			"28", "36", "48", "72"});
+
+			m_cbSizes.setMaximumSize(m_cbSizes.getPreferredSize());
+
+			m_cbSizes.setEditable(true);
+
+			lst = new ActionListener() {
+
+			private int m_fontSize;
+
+			public void actionPerformed(ActionEvent e) {
+
+			int fontSize = 0;
+
+			try {
+
+			fontSize = Integer.parseInt(m_cbSizes.
+
+			getSelectedItem().toString());
+
+			}
+
+			catch (NumberFormatException ex) { return; }
+
+			m_fontSize = fontSize;
+
+			MutableAttributeSet attr = new SimpleAttributeSet();
+
+			StyleConstants.setFontSize(attr, fontSize);
+
+			//setAttributeSet(attr);
+
+			//m_monitor.grabFocus();
+
+			}
+
+			};
+
+			m_cbSizes.addActionListener(lst);
+
+			tool.add(m_cbSizes);
+
+			tool.addSeparator();
+			
 			but = new JButton(LGM.findIcon("Bcolor.png"));
 			but.setActionCommand("BackgroundColor");
 			but.addActionListener(this);
