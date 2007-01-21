@@ -1,6 +1,7 @@
 package SubFrames;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
@@ -38,6 +39,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 	private static RTFEditorKit rtf = new RTFEditorKit();
 
+	public static GameInformation gi = new GameInformation();
+
 	public GameInformationFrame()
 		{
 		super("Game Information",true,true,true,true);
@@ -72,13 +75,31 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 			// Create Edit menu
 			{
-			JMenu Fmenu = new JMenu("Edit");
-			menuBar.add(Fmenu);
+			JMenu Emenu = new JMenu("Edit");
+			menuBar.add(Emenu);
 
 			// Create a menu item
-			JMenuItem item = new JMenuItem("Undo");
-			// item.addActionListener(actionListener);
-			Fmenu.add(item);
+			JMenuItem item = addItem("Undo");
+			Emenu.add(item);
+			item.setEnabled(false);
+			Emenu.addSeparator();
+			item = addItem("Cut");
+			Emenu.add(item);
+			item.setEnabled(false);
+			item = addItem("Copy");
+			Emenu.add(item);
+			item.setEnabled(false);
+			item = addItem("Paste");
+			Emenu.add(item);
+			item.setEnabled(false);
+			Emenu.addSeparator();
+			item = addItem("Select All");
+			Emenu.add(item);
+			item.setEnabled(false);
+			Emenu.addSeparator();
+			item = addItem("Goto line");
+			Emenu.add(item);
+			item.setEnabled(false);
 			}
 
 			// Create Format menu
@@ -87,7 +108,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			menuBar.add(Fmenu);
 
 			// Create a menu item
-			JMenuItem item = new JMenuItem("Font...");
+			JMenuItem item = addItem("Font...");
 			// item.addActionListener(actionListener);
 			Fmenu.add(item);
 			}
@@ -95,16 +116,22 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		// Install the menu bar in the frame
 		setJMenuBar(menuBar);
 
-		// Setup the toolbar
-		JToolBar tool = new JToolBar();
-		tool.setFloatable(false);
-		add("North",tool);
+			// Setup the toolbar
+			{
+			JToolBar tool = new JToolBar();
+			tool.setFloatable(false);
+			add("North",tool);
 
-		// Setup the buttons
-		JButton but = new JButton(LGM.findIcon("save.png"));
-		but.setActionCommand("Save");
-		// but.addActionListener(listener);
-		tool.add(but);
+			// Setup the buttons
+			JButton but = new JButton(LGM.findIcon("save.png"));
+			but.setActionCommand("Save");
+			but.addActionListener(this);
+			tool.add(but);
+			but = new JButton(LGM.findIcon("Bcolor.png"));
+			but.setActionCommand("BackgroundColor");
+			but.addActionListener(this);
+			tool.add(but);
+			}
 
 		// Create an RTF editor window
 		JPanel topPanel = new JPanel();
@@ -112,16 +139,14 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		getContentPane().add(topPanel,BorderLayout.CENTER);
 
 		editor = new JEditorPane();
-		editor.setEditable(false);
+		// editor.setEditable(false);
 		editor.setEditorKit(rtf);
-		// editor.setBackground(Color.);
+		editor.setBackground(new Color(gi.BackgroundColor));
 
 		// This text could be big so add a scroll pane
 		JScrollPane scroller = new JScrollPane();
 		scroller.getViewport().add(editor);
 		topPanel.add(scroller,BorderLayout.CENTER);
-
-		GameInformation gi = new GameInformation();
 
 		add_rtf(gi.GameInfoStr);
 
@@ -157,7 +182,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		if (fc.getSelectedFile() != null)
 			{
 			String name = fc.getSelectedFile().getPath();
-			
+
 			try
 				{
 				FileInputStream i = new FileInputStream(new File(name));
