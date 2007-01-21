@@ -3,6 +3,7 @@ package componentRes;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -10,7 +11,9 @@ import java.io.File;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.TreePath;
@@ -24,9 +27,25 @@ import mainRes.Prefs;
 import fileRes.Gm6File;
 import fileRes.Gm6FormatException;
 
-public class Listener extends TransferHandler implements ActionListener, MouseListener 
+public class Listener extends TransferHandler implements ActionListener,MouseListener
 	{
 	private static final long serialVersionUID = 1L;
+
+	public void mouseReleased(MouseEvent arg0)
+		{
+		}
+
+	public void mouseClicked(MouseEvent arg0)
+		{
+		}
+
+	public void mouseEntered(MouseEvent arg0)
+		{
+		}
+
+	public void mouseExited(MouseEvent arg0)
+		{
+		}
 
 	public void actionPerformed(ActionEvent e)
 		{
@@ -122,9 +141,9 @@ public class Listener extends TransferHandler implements ActionListener, MouseLi
 			}
 		if (com == "Group")
 			{
-			ResNode n = (ResNode)tree.getLastSelectedPathComponent();
+			ResNode n = (ResNode) tree.getLastSelectedPathComponent();
 			if (n == null) return;
-			ResNode b = (ResNode)n.getParent();
+			ResNode b = (ResNode) n.getParent();
 			int pos = b.getIndex(n);
 			String name = JOptionPane.showInputDialog("Group Name?","group");
 			if (name == "") return;
@@ -175,11 +194,11 @@ public class Listener extends TransferHandler implements ActionListener, MouseLi
 			{
 			if (JOptionPane.showConfirmDialog(null,"Delete this resource?","Delete",JOptionPane.YES_NO_OPTION) == 0)
 				{
-				ResNode me = (ResNode)tree.getLastSelectedPathComponent();
+				ResNode me = (ResNode) tree.getLastSelectedPathComponent();
 				if (me == null) return;
-				ResNode next = (ResNode)me.getNextSibling();
-				if (next == null) next = (ResNode)me.getParent();
-				if (next.isRoot()) next = (ResNode)next.getFirstChild();
+				ResNode next = (ResNode) me.getNextSibling();
+				if (next == null) next = (ResNode) me.getParent();
+				if (next.isRoot()) next = (ResNode) next.getFirstChild();
 				tree.setSelectionPath(new TreePath(next.getPath()));
 				me.removeFromParent();
 				tree.updateUI();
@@ -195,19 +214,18 @@ public class Listener extends TransferHandler implements ActionListener, MouseLi
 		if (com == "Collapse")
 			{
 			for (int m = tree.getRowCount() - 1; m >= 0; m--)
-			tree.collapseRow(m);
+				tree.collapseRow(m);
 			return;
 			}
 		}
 
-  protected Transferable createTransferable(JComponent c)
-  	{
-  	ResNode n = (ResNode)((JTree)c).getLastSelectedPathComponent();
+	protected Transferable createTransferable(JComponent c)
+		{
+		ResNode n = (ResNode) ((JTree) c).getLastSelectedPathComponent();
 
-  	if (Prefs.protectRoot)
-  		if (n.status == 1 || n.kind == 10 || n.kind == 11) return null;
-  	return n;
-  	}
+		if (Prefs.protectRoot) if (n.status == 1 || n.kind == 10 || n.kind == 11) return null;
+		return n;
+		}
 
 	public int getSourceActions(JComponent c)
 		{
@@ -216,12 +234,11 @@ public class Listener extends TransferHandler implements ActionListener, MouseLi
 
 	public boolean canImport(TransferHandler.TransferSupport support)
 		{
-		if (!support.isDataFlavorSupported(ResNode.NODE_FLAVOR))
-			return false;
-		TreePath drop = ((JTree.DropLocation)support.getDropLocation()).getPath();
+		if (!support.isDataFlavorSupported(ResNode.NODE_FLAVOR)) return false;
+		TreePath drop = ((JTree.DropLocation) support.getDropLocation()).getPath();
 		if (drop == null) return false;
-		ResNode dropNode = (ResNode)drop.getLastPathComponent();
-		ResNode dragNode = (ResNode)((JTree)support.getComponent()).getLastSelectedPathComponent();
+		ResNode dropNode = (ResNode) drop.getLastPathComponent();
+		ResNode dragNode = (ResNode) ((JTree) support.getComponent()).getLastSelectedPathComponent();
 		if (dragNode == dropNode) return false;
 		if (dragNode.isNodeDescendant(dropNode)) return false;
 		if (Prefs.groupKind && dropNode.kind != dragNode.kind) return false;
@@ -231,67 +248,62 @@ public class Listener extends TransferHandler implements ActionListener, MouseLi
 
 	public boolean importData(TransferHandler.TransferSupport support)
 		{
-		if (!canImport(support))
-			return false;
-		JTree.DropLocation drop = (JTree.DropLocation)support.getDropLocation();
+		if (!canImport(support)) return false;
+		JTree.DropLocation drop = (JTree.DropLocation) support.getDropLocation();
 		int dropIndex = drop.getChildIndex();
-		ResNode dropNode = (ResNode)drop.getPath().getLastPathComponent();
-		ResNode dragNode = (ResNode)((JTree)support.getComponent()).getLastSelectedPathComponent();
+		ResNode dropNode = (ResNode) drop.getPath().getLastPathComponent();
+		ResNode dragNode = (ResNode) ((JTree) support.getComponent()).getLastSelectedPathComponent();
 		if (dropIndex == -1)
 			{
 			dropIndex = dropNode.getChildCount();
 			}
-		if (dropNode == dragNode.getParent() &&
-				dropIndex > dragNode.getParent().getIndex(dragNode))
-			dropIndex--;
+		if (dropNode == dragNode.getParent() && dropIndex > dragNode.getParent().getIndex(dragNode)) dropIndex--;
 		dropNode.insert(dragNode,dropIndex);
 		LGM.tree.updateUI();
 		return true;
 		}
 
-	public void mouseClicked(MouseEvent arg0)
-		{
-		// TODO Auto-generated method stub
-		
-		}
-
-	public void mouseEntered(MouseEvent arg0)
-		{
-		// TODO Auto-generated method stub
-		
-		}
-
-	public void mouseExited(MouseEvent arg0)
-		{
-		// TODO Auto-generated method stub
-		
-		}
-
 	public void mousePressed(MouseEvent e)
 		{
-		int selRow = LGM.tree.getRowForLocation(e.getX(), e.getY());
-    TreePath selPath = LGM.tree.getPathForLocation(e.getX(), e.getY());
-    if(selRow != -1) {
-        if(e.getClickCount() == 1) {
-            //mySingleClick(selRow, selPath);
-        }
-        else if(e.getClickCount() == 2) {
-            //myDoubleClick(selRow, selPath);
-        ResNode node = (ResNode)selPath.getLastPathComponent();
-        if (node.kind == Resource.GAMEINFO)
-        	{
-        	JInternalFrame gameinfo = new GameInformationFrame();
-      		gameinfo.setVisible(true);
-      		LGM.MDI.add(gameinfo);
-        	}
-        }
-    }
-		
+		int selRow = LGM.tree.getRowForLocation(e.getX(),e.getY());
+		TreePath selPath = LGM.tree.getPathForLocation(e.getX(),e.getY());
+		if (selRow != -1)
+			{
+			
+		if (e.getModifiers()
+			== InputEvent.BUTTON3_MASK)
+			{
+			ResNode node = (ResNode) selPath.getLastPathComponent();
+			
+      //		Create the popup menu.
+			JPopupMenu popup = new JPopupMenu();
+			JMenuItem menuItem = new JMenuItem("A popup menu item");
+	    menuItem.addActionListener(this);
+	    popup.add(menuItem);
+	    menuItem = new JMenuItem("Another popup menu item");
+	    menuItem.addActionListener(this);
+	    popup.add(menuItem);
+	    popup.show(e.getComponent(),
+          e.getX(), e.getY());
+			} else {
+			
+			if (e.getClickCount() == 1)
+				{
+				// unused for now
+				}
+			else if (e.getClickCount() == 2)
+				{
+				ResNode node = (ResNode) selPath.getLastPathComponent();
+				if (node.kind == Resource.GAMEINFO)
+					{
+					JInternalFrame gameinfo = new GameInformationFrame();
+					gameinfo.setVisible(true);
+					LGM.MDI.add(gameinfo);
+					}
+				}
+			}
+			}
+
 		}
 
-	public void mouseReleased(MouseEvent arg0)
-		{
-		// TODO Auto-generated method stub
-		
-		}
 	}
