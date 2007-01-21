@@ -1,7 +1,5 @@
 package componentRes;
-//test
 
-import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +14,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import mainRes.LGM;
+import mainRes.Prefs;
 import fileRes.Gm6File;
 import fileRes.Gm6FormatException;
 
@@ -175,8 +174,8 @@ public class Listener extends TransferHandler implements ActionListener
   	{
   	ResNode n = (ResNode)((JTree)c).getLastSelectedPathComponent();
 
-  	//if (LGM.prefs.emulate)
-  	if (n.status == 1 || n.kind == 10 || n.kind == 11) return null;
+  	if (Prefs.protectRoot)
+  		if (n.status == 1 || n.kind == 10 || n.kind == 11) return null;
   	return n;
   	}
 
@@ -189,19 +188,18 @@ public class Listener extends TransferHandler implements ActionListener
 		{
 		if (!support.isDataFlavorSupported(ResNode.NODE_FLAVOR))
 			return false;
-		JTree.DropLocation dl = (JTree.DropLocation)support.getDropLocation();
-		TreePath p = dl.getPath();
-		if (p== null)
-			return false;
-		//if (LGM.prefs.emulate)
-		return true;
-		}
+		JTree.DropLocation drop = (JTree.DropLocation)support.getDropLocation();
 
-	public boolean canImport(JComponent c, DataFlavor[] flavors)
-		{
-		if (c instanceof JTree == false)
-			return super.canImport(c,flavors);
-		((JTree)c).getDropLocation().getPath();
+		//int sib = drop.getChildIndex(); //this will be useful to determine sibling position
+		TreePath dropPath = drop.getPath();
+		if (dropPath == null) return false;
+		Object[] dropPathObj = dropPath.getPath();
+		ResNode dropPathNode = (ResNode)dropPathObj[dropPathObj.length-1];
+
+		ResNode dragNode = (ResNode)((JTree)support.getComponent()).getLastSelectedPathComponent();
+		if (dragNode == dropPathNode) return false;
+		if (Prefs.groupKind && dropPathNode.kind != dragNode.kind) return false;
+		if (Prefs.protectLeaf && dropPathNode.status == ResNode.STATUS_SECONDARY) return false;
 		return true;
 		}
 

@@ -109,6 +109,9 @@ public class LGM extends JPanel
 			{
 			ResNode r = root.addChild("Sprites",ResNode.STATUS_PRIMARY,Resource.SPRITE);
 			r.addChild("TestNode",ResNode.STATUS_SECONDARY,Resource.SPRITE);
+			ResNode g = r.addChild("TestGroup",ResNode.STATUS_GROUP,Resource.SPRITE);
+			g.addChild("GroupNode",ResNode.STATUS_SECONDARY,Resource.SPRITE);
+			g.addChild("Child2",ResNode.STATUS_SECONDARY,Resource.SPRITE);
 			root.addChild("Sounds",ResNode.STATUS_PRIMARY,Resource.SOUND);
 			root.addChild("Backgrounds",ResNode.STATUS_PRIMARY,Resource.BACKGROUND);
 			root.addChild("Paths",ResNode.STATUS_PRIMARY,Resource.PATH);
