@@ -112,7 +112,7 @@ public class GmStreamDecoder
 		_in.close();
 		}
 
-	public void readContents(ResNode root) throws IOException
+	public void readTree(ResNode root) throws IOException
 		{
 		Stack<ResNode> path = new Stack<ResNode>();
 		Stack<Integer> left = new Stack<Integer>();

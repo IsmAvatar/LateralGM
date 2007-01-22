@@ -2512,7 +2512,7 @@ public class Gm6File
 								+ ver);
 				}
 			in.skip(in.readi() * 4);// room indexes in tree order;
-			in.readContents(root);
+			in.readTree(root);
 			clock.stop();
 			System.out.println("time taken to load file: " + clock.getElapsed() + " ms");
 			}
