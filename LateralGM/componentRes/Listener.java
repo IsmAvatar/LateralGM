@@ -56,7 +56,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						{
 						ResNode newroot = new ResNode("Root",0,0,null);
 						LGM.currentFile = new Gm6File();
-						LGM.currentFile.LoadGm6File(fc.getSelectedFile().getPath(),newroot);
+						LGM.currentFile.ReadGm6File(fc.getSelectedFile().getPath(),newroot);
 						LGM f = new LGM();
 						f.createTree(newroot,false);
 						tree.setSelectionPath(new TreePath(LGM.root).pathByAddingChild(LGM.root.getChildAt(0)));
@@ -84,30 +84,20 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			fc.setFileFilter(new CustomFileFilter(".gm6","Game Maker 6 Files"));
 			while (true)
 				{
-				fc.showSaveDialog(LGM.frame);
-				if (fc.getSelectedFile() != null)
+				if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
+				String filename = fc.getSelectedFile().getPath();
+				if (!filename.endsWith(".gm6")) filename += ".gm6";
+				int result = 0;
+				if (new File(filename).exists())
+					result = JOptionPane.showConfirmDialog(LGM.frame,filename
+							+ " already exists. Do you wish to replace it?","Save File",
+							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
+				if (result == 0)
 					{
-					String alteredstr = fc.getSelectedFile().getPath();
-					if (!alteredstr.endsWith(".gm6")) alteredstr += ".gm6";
-					File altered = new File(alteredstr);
-					if (!altered.exists())
-						{
-						LGM.currentFile.WriteGm6File(altered.getPath(),LGM.root);
-						return;
-						}
-					else
-						{
-						int result = JOptionPane.showConfirmDialog(LGM.frame,altered.getPath()
-								+ " already exists. Do you wish to replace it?","Save File",JOptionPane.YES_NO_CANCEL_OPTION,
-								JOptionPane.WARNING_MESSAGE);
-						if (result == 0)
-							{
-							LGM.currentFile.WriteGm6File(altered.getPath(),LGM.root);
-							return;
-							}
-						else if (result == 2) return;
-						}
+					LGM.currentFile.WriteGm6File(filename,LGM.root);
+					return;
 					}
+				if (result == 2) return;
 				}
 			}
 		if (com.equals("Exit"))

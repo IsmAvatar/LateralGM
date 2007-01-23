@@ -1,14 +1,17 @@
 package fileRes;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Random;
-import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
 
@@ -99,27 +102,22 @@ public class Gm6File
 
 	public Gm6File()
 		{
-		Random r = new Random();
-		GameId = r.nextInt(100000001);
+		GameId = new Random().nextInt(100000001);
 		GameIconData = new byte[0];
-		/*try
+		try
 			{
-			FileInputStream in = new FileInputStream(
-					new File(Gm6File.class.getResource("default.ico").toURI()));
+			BufferedInputStream in = new BufferedInputStream(new FileInputStream(
+					new File(Gm6File.class.getResource("default.ico").toURI())));
 			ByteArrayOutputStream dat = new ByteArrayOutputStream();
-			boolean done = false;
-			while (!done)
+			int val = in.read();
+			while (val != -1)
 				{
-				int val = in.read();
-				if (val != -1)
-					dat.write(val);
-				else
-					done = true;
+				dat.write(val);
+				val = in.read();
 				}
 			GameIconData = dat.toByteArray();
-
 			}
-		catch (FileNotFoundException ex)
+		catch (Exception ex)
 			{
 			GameIconData = new byte[0];
 			System.err
@@ -127,18 +125,6 @@ public class Gm6File
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
 			}
-		catch (IOException ex)
-			{
-			GameIconData = new byte[0];
-			System.err.println("error reading default icon");
-			System.err.println(ex.getMessage());
-			ex.printStackTrace();
-			}
-		catch (URISyntaxException ex)
-			{
-			System.err.println(ex.getMessage());
-			ex.printStackTrace();
-			}*/
 		}
 
 	// <editor-fold defaultstate="collapsed" desc=" Constants For Resource Properties ">
@@ -1663,7 +1649,7 @@ public class Gm6File
 			}
 		}
 
-	public void LoadGm6File(String FileName,ResNode root) throws Gm6FormatException
+	public void ReadGm6File(String FileName,ResNode root) throws Gm6FormatException
 		{
 		clearSprites();
 		clearSounds();
@@ -1689,242 +1675,180 @@ public class Gm6File
 						+ identifier);
 			int ver = in.readi();
 			if (ver != 600) throw new Gm6FormatException("GM version unsupported or file corrupt: " + ver);
-			GameId = in.readi();// System.out.println("Game id: "+GameId);
+			GameId = in.readi();
 			in.skip(16);// unknown bytes following game id
 			ver = in.readi();
-			if (ver != 600) throw new Gm6FormatException("GM version unsupported or file corrupt: " + ver);// GM
-			// version
-			// again
-			StartFullscreen = in.readBool();// System.out.println("Start fullscreen: "+StartFullscreen);
-			Interpolate = in.readBool();// System.out.println("Interpolate: "+Interpolate);
-			DontDrawBorder = in.readBool();// System.out.println("don't draw border: "+DontDrawBorder);
-			DisplayCursor = in.readBool();// System.out.println("Display cursor: "+DisplayCursor);
-			Scaling = in.readi();// System.out.println("Scaling: "+Scaling);
-			AllowWindowResize = in.readBool();// System.out.println("Allow player to resize window:
-			// "+AllowWindowResize);
-			AlwaysOnTop = in.readBool();// System.out.println("always on top: "+AlwaysOnTop);
-			ColorOutsideRoom = in.readi();// System.out.println("color outside room: "+ColorOutsideRoom);
-			SetResolution = in.readBool();// System.out.println("set the screen res: "+SetResolution);
+			if (ver != 600)
+				throw new Gm6FormatException("GM version unsupported or file corrupt: " + ver);
+			StartFullscreen = in.readBool();
+			Interpolate = in.readBool();
+			DontDrawBorder = in.readBool();
+			DisplayCursor = in.readBool();
+			Scaling = in.readi();
+			AllowWindowResize = in.readBool();
+			AlwaysOnTop = in.readBool();
+			ColorOutsideRoom = in.readi();
+			SetResolution = in.readBool();
 			ColorDepth = (byte) in.readi();
 			Resolution = (byte) in.readi();
 			Frequency = (byte) in.readi();
-			if (SetResolution)
-				{
-				// System.out.println(" color depth: "+ColorDepth);
-				// System.out.println(" resolution: "+Resolution);
-				// System.out.println(" frequency: "+Frequency);
-				}
-			DontShowButtons = in.readBool();// System.out.println("don't show buttons: "+DontShowButtons);
-			UseSynchronization = in.readBool();// System.out.println("use synchronization to avoid tearing:
-			// "+UseSynchronization);
-			LetF4SwitchFullscreen = in.readBool();// System.out.println("let f4 toggle fullscreen:
-			// "+LetF4SwitchFullscreen);
-			LetF1ShowGameInfo = in.readBool();// System.out.println("let f1 show the game info:
-			// "+LetF1ShowGameInfo);
-			LetEscEndGame = in.readBool();// System.out.println("let esc end the game: "+LetEscEndGame);
-			LetF5SaveF6Load = in.readBool();// System.out.println("let f5+f6 save+load: "+LetF5SaveF6Load);
-			GamePriority = (byte) in.readi();// System.out.println("game priority: "+GamePriority);
-			FreezeOnLoseFocus = in.readBool();// System.out.println("Freeze game on loss of focus:
-			// "+FreezeOnLoseFocus);
-			LoadBarMode = (byte) in.readi();// System.out.println("loading bar mode: "+LoadBarMode);
+			DontShowButtons = in.readBool();
+			UseSynchronization = in.readBool();
+			LetF4SwitchFullscreen = in.readBool();
+			LetF1ShowGameInfo = in.readBool();
+			LetEscEndGame = in.readBool();
+			LetF5SaveF6Load = in.readBool();
+			GamePriority = (byte) in.readi();
+			FreezeOnLoseFocus = in.readBool();
+			LoadBarMode = (byte) in.readi();
 			if (LoadBarMode == LOADBAR_CUSTOM)
 				{
 				if (in.readi() != -1)
-					{
-					int length = in.readi();
-					BackLoadBar = ImageIO.read(new ByteArrayInputStream(in.decompress(length)));// read in back image
-					}
+					BackLoadBar = in.readImage();
 				if (in.readi() != -1)
-					{
-					int length = in.readi();
-					FrontLoadBar = ImageIO.read(new ByteArrayInputStream(in.decompress(length)));// read in front image
-					}
+					FrontLoadBar = in.readImage();
 				}
-			ShowCustomLoadImage = in.readBool();// System.out.println("Show custom loading image:
-			// "+ShowCustomLoadImage);
+			ShowCustomLoadImage = in.readBool();
 			if (ShowCustomLoadImage)
-				{
 				if (in.readi() != -1)
-					{
-					int length = in.readi();
-					LoadingImage = ImageIO.read(new ByteArrayInputStream(in.decompress(length)));// read in the image
-					}
-				}
-			ImagePartiallyTransparent = in.readBool();// System.out.println("make the loading image partially
-			// transparent: "+ImagePartiallyTransparent);
-			LoadImageAlpha = in.readi();// System.out.println("load image alpha: "+LoadImageAlpha);
-			ScaleProgressBar = in.readBool();// System.out.println("scale progress bar: "+ScaleProgressBar);
+					LoadingImage = in.readImage();
+			ImagePartiallyTransparent = in.readBool();
+			LoadImageAlpha = in.readi();
+			ScaleProgressBar = in.readBool();
 
-			int length = in.readi();// System.out.println("ico data length: "+length);
+			int length = in.readi();
 			GameIconData = new byte[length];
 			in.read(GameIconData,0,length);
 			// GameIcon=(BufferedImage)new ICOFile(new
 			// ByteArrayInputStream(GameIconData)).getDescriptor(0).getImageRGB();
 
-			DisplayErrors = in.readBool();// System.out.println("display errors: "+DisplayErrors);
-			WriteToLog = in.readBool();// System.out.println("write errors to log: "+WriteToLog);
-			AbortOnError = in.readBool();// System.out.println("abort on all errors: "+AbortOnError);
-			TreatUninitializedAs0 = in.readBool();// System.out.println("treat uninited as 0:
-			// "+TreatUninitializedAs0);
-			Author = in.readStr();// System.out.println("Author :"+Author);
-			Version = in.readi();// System.out.println("Version: "+Version);
-			LastChanged = in.readD();// System.out.println("last changed: "+LastChanged);
-			Information = in.readStr();// System.out.println("Info:\n"+Information);
-			int no = in.readi();// System.out.println("no of constants: "+no);
+			DisplayErrors = in.readBool();
+			WriteToLog = in.readBool();
+			AbortOnError = in.readBool();
+			TreatUninitializedAs0 = in.readBool();
+			Author = in.readStr();
+			Version = in.readi();
+			LastChanged = in.readD();
+			Information = in.readStr();
+			int no = in.readi();
 			for (int i = 0; i < no; i++)
 				{
 				Constant con = addConstant();
-				con.Name = in.readStr();// System.out.println("Constant "+j+" Name: "+con.Name);
-				con.Value = in.readStr();// System.out.println("Constant "+j+" value: "+con.Value);
+				con.Name = in.readStr();
+				con.Value = in.readStr();
 				}
-			no = in.readi();// System.out.println("no of include files: "+no);
+			no = in.readi();
 			for (int i = 0; i < no; i++)
 				{
 				IncludeFile inc = addIncludeFile();
-				inc.FilePath = in.readStr();// System.out.println("Include file "+j+" filepath: "+inc.FilePath);
+				inc.FilePath = in.readStr();
 				}
-			IncludeFolder = in.readi();// System.out.println("include folder: "+IncludeFolder);
-			OverwriteExisting = in.readBool();// System.out.println("Overwrite existing files: "+OverwriteExisting);
-			RemoveAtGameEnd = in.readBool();// System.out.println("Remove files at game end: "+RemoveAtGameEnd);
+			IncludeFolder = in.readi();
+			OverwriteExisting = in.readBool();
+			RemoveAtGameEnd = in.readBool();
 			ver = in.readi();
 			if (ver != 400)
-				{
 				throw new Gm6FormatException("Before sounds - GM version unsupported or file corrupt: " + ver);
-				}
 			// SOUNDS
-			no = in.readi();// System.out.println("No of sounds: "+no);
+			no = in.readi();
 			LastSoundId = 0;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
 					Sound snd = addSound();
-					snd.Name = in.readStr();// System.out.println("sound "+i+" name: "+snd.Name);
+					snd.Name = in.readStr();
 					ver = in.readi();
 					if (ver != 600)
-						{
-						throw new Gm6FormatException("In sound " + i + " - GM version unsupported or file corrupt: "
-								+ ver);
-						}
-					snd.Type = (byte) in.readi();// System.out.println("sound "+i+" type: "+snd.Type);
-					snd.FileType = in.readStr();// System.out.println("sound "+i+" file type: "+snd.FileType);
-					snd.FileName = in.readStr();// System.out.println("sound "+i+" file path: "+snd.FileName);
+						throw new Gm6FormatException("In sound " + i
+								+ " - GM version unsupported or file corrupt: " + ver);
+					snd.Type = (byte) in.readi();
+					snd.FileType = in.readStr();
+					snd.FileName = in.readStr();
 					if (in.readBool())
-						{
 						snd.Data = in.decompress(in.readi());
-						// System.out.println("copying sound data of length "+snd.Data.length);
-						}
-					int effects = in.readi();// System.out.println("effects : "+effects);
-					snd.Chorus = Sound.getChorus(effects);// System.out.println("sound "+i+" chorus: "+snd.Chorus);
-					snd.Echo = Sound.getEcho(effects);// System.out.println("sound "+i+" echo: "+snd.Echo);
-					snd.Flanger = Sound.getFlanger(effects);// System.out.println("sound "+i+" flanger: "+snd.Flanger);
-					snd.Gargle = Sound.getGargle(effects);// System.out.println("sound "+i+" gargle: "+snd.Gargle);
-					snd.Reverb = Sound.getReverb(effects);// System.out.println("sound "+i+" reverb: "+snd.Reverb);
-					snd.Volume = in.readD();// System.out.println("sound "+i+" volume: "+snd.Volume);
-					snd.Pan = in.readD();// System.out.println("sound "+i+" pan: "+snd.Pan);
-					snd.Preload = in.readBool();// System.out.println("sound "+i+" preload: "+snd.Preload);
+					int effects = in.readi();
+					snd.Chorus = Sound.getChorus(effects);
+					snd.Echo = Sound.getEcho(effects);
+					snd.Flanger = Sound.getFlanger(effects);
+					snd.Gargle = Sound.getGargle(effects);
+					snd.Reverb = Sound.getReverb(effects);
+					snd.Volume = in.readD();
+					snd.Pan = in.readD();
+					snd.Preload = in.readBool();
 					}
 				else
-					{
 					LastSoundId++;
-					}
 				}
 
 			ver = in.readi();
 			if (ver != 400)
-				{
 				throw new Gm6FormatException("Before Sprites - GM version unsupported or file corrupt: " + ver);
-				}
 			// SPRITES
-			no = in.readi();// System.out.println("no of sprites: "+no);
+			no = in.readi();
 			LastSpriteId = 0;
 			for (int i = 0; i < no; i++)
 				{
-				if (in.readBool())// sprite exists
+				if (in.readBool())
 					{
 					Sprite spr = addSprite();
-					spr.Name = in.readStr();// System.out.println("sprite "+i+" name: "+spr.Name);
+					spr.Name = in.readStr();
 					ver = in.readi();
 					if (ver != 542)
-						{
-						throw new Gm6FormatException("In sprite " + i + " - GM version unsupported or file corrupt: "
-								+ ver);
-						}
-					spr.Width = in.readi();// System.out.println("sprite "+i+" width: "+spr.Width);
-					spr.Height = in.readi();// System.out.println("sprite "+i+" height: "+spr.Height);
-					spr.BoundingBoxLeft = in.readi();// System.out.println("sprite "+i+" bbox left:
-					// "+spr.BoundingBoxLeft);
-					spr.BoundingBoxRight = in.readi();// System.out.println("sprite "+i+" bbox right:
-					// "+spr.BoundingBoxRight);
-					spr.BoundingBoxBottom = in.readi();// System.out.println("sprite "+i+" bbox bottom:
-					// "+spr.BoundingBoxBottom);
-					spr.BoundingBoxTop = in.readi();// System.out.println("sprite "+i+" bbox top: "+spr.BoundingBoxTop);
-					spr.Transparent = in.readBool();// System.out.println("sprite "+i+" transparent: "+spr.Transparent);
-					spr.SmoothEdges = in.readBool();// System.out.println("sprite "+i+" smooth edges:
-					// "+spr.SmoothEdges);
-					spr.Preload = in.readBool();// System.out.println("sprite "+i+" preload: "+spr.Preload);
-					spr.BoundingBoxMode = (byte) in.readi();// System.out.println("sprite "+i+" bbox mode:
-					// "+spr.BoundingBoxMode);
-					spr.PreciseCC = in.readBool();// System.out.println("sprite "+i+" precise cc: "+spr.PreciseCC);
-					spr.OriginX = in.readi();// System.out.println("sprite "+i+" x origin: "+spr.OriginX);
-					spr.OriginY = in.readi();// System.out.println("sprite "+i+" y origin: "+spr.OriginY);
-					int nosub = in.readi();// System.out.println("sprite "+i+" no of sub images: "+nosub);
+						throw new Gm6FormatException("In sprite " + i
+								+ " - GM version unsupported or file corrupt: " + ver);
+					spr.Width = in.readi();
+					spr.Height = in.readi();
+					spr.BoundingBoxLeft = in.readi();
+					spr.BoundingBoxRight = in.readi();
+					spr.BoundingBoxBottom = in.readi();
+					spr.BoundingBoxTop = in.readi();
+					spr.Transparent = in.readBool();
+					spr.SmoothEdges = in.readBool();
+					spr.Preload = in.readBool();
+					spr.BoundingBoxMode = (byte) in.readi();
+					spr.PreciseCC = in.readBool();
+					spr.OriginX = in.readi();
+					spr.OriginY = in.readi();
+					int nosub = in.readi();
 					for (int j = 0; j < nosub; j++)
 						{
-						// System.out.println("loading sprite "+i+" sub image "+j);
 						in.skip(4);
 						spr.addSubImage(ImageIO.read(new ByteArrayInputStream(in.decompress(in.readi()))));
 						}
 					}
 				else
-					{
 					LastSpriteId++;
-					}
 				}
 
 			ver = in.readi();
 			if (ver != 400)
-				{
 				throw new Gm6FormatException("Before Backgrounds - GM version unsupported or file corrupt: " + ver);
-				}
 			// BACKGROUNDS
-			no = in.readi();// System.out.println("no of backgrounds: "+no);
+			no = in.readi();
 			LastBackgroundId = 0;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
 					Background back = addBackground();
-					back.Name = in.readStr();// System.out.println("background "+i+" name: "+back.Name);
+					back.Name = in.readStr();
 					ver = in.readi();
 					if (ver != 543)
-						{
 						throw new Gm6FormatException("In Background " + i
 								+ " - GM version unsupported or file corrupt: " + ver);
-						}
-					back.Width = in.readi();// System.out.println("background "+i+" width: "+back.Width);
-					back.Height = in.readi();// System.out.println("background "+i+" height: "+back.Height);
-					back.Transparent = in.readBool();// System.out.println("background "+i+" transparent:
-					// "+back.Transparent);
-					back.SmoothEdges = in.readBool();// System.out.println("background "+i+" smooth edges:
-					// "+back.SmoothEdges);
-					back.Preload = in.readBool();// System.out.println("background "+i+" preload: "+back.Preload);
-					back.UseAsTileSet = in.readBool();// System.out.println("background "+i+" use as tile set:
-					// "+back.UseAsTileSet);
+					back.Width = in.readi();
+					back.Height = in.readi();
+					back.Transparent = in.readBool();
+					back.SmoothEdges = in.readBool();
+					back.Preload = in.readBool();
+					back.UseAsTileSet = in.readBool();
 					back.TileWidth = in.readi();
 					back.TileHeight = in.readi();
 					back.HorizOffset = in.readi();
 					back.VertOffset = in.readi();
 					back.HorizSep = in.readi();
 					back.VertSep = in.readi();
-					/*
-					 * if(back.UseAsTileSet) { //System.out.println("background "+i+" tile width: "+back.TileWidth);
-					 * //System.out.println("background "+i+" tile height: "+back.TileHeight);
-					 * //System.out.println("background "+i+" horiz offset: "+ back.HorizOffset);
-					 * //System.out.println("background "+i+" vert offset: "+back.VertOffset);
-					 * //System.out.println("background "+i+" horiz separation: "+back.HorizSep);
-					 * //System.out.println("background "+i+" vert separation: "+back.VertSep); }
-					 */
 					if (in.readBool())
 						{
 						in.skip(4);// 0A
@@ -1932,120 +1856,96 @@ public class Gm6File
 						}
 					}
 				else
-					{
 					LastBackgroundId++;
-					}
 				}
 			ver = in.readi();
 			if (ver != 420)
-				{
 				throw new Gm6FormatException("Before Paths - GM version unsupported or file corrupt: " + ver);
-				}
 			// PATHS
-			no = in.readi();// System.out.println("no of paths: "+no);
+			no = in.readi();
 			LastPathId = 0;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
 					Path path = addPath();
-					path.Name = in.readStr();// System.out.println("path "+i+" name: "+path.Name);
+					path.Name = in.readStr();
 					ver = in.readi();
 					if (ver != 530)
-						{
 						throw new Gm6FormatException("In Path " + i + " - GM version unsupported or file corrupt: "
 								+ ver);
-						}
-					path.Smooth = in.readBool();// System.out.println("path "+i+" smooth: "+path.Smooth);
-					path.Closed = in.readBool();// System.out.println("path "+i+" closed: "+path.Closed);
-					path.Precision = in.readi();// System.out.println("path "+i+" precision: "+path.Precision);
-					path.BackgroundRoom = rmids.get(in.readi());// System.out.println("path "+i+" background id:
-					// "+path.BackgroundRoom);
-					path.SnapX = in.readi();// System.out.println("path "+i+" x snap: "+path.SnapX);
-					path.SnapY = in.readi();// System.out.println("path "+i+" y snap: "+path.SnapY);
-					int nopoints = in.readi();// System.out.println("path "+i+" no of points: "+nopoints);
+					path.Smooth = in.readBool();
+					path.Closed = in.readBool();
+					path.Precision = in.readi();
+					path.BackgroundRoom = rmids.get(in.readi());
+					path.SnapX = in.readi();
+					path.SnapY = in.readi();
+					int nopoints = in.readi();
 					for (int j = 0; j < nopoints; j++)
 						{
 						Point point = path.addPoint();
-						point.X = (int) in.readD();// System.out.println("path "+i+" point "+j+" x: "+point.X);
-						point.Y = (int) in.readD();// System.out.println("path "+i+" point "+j+" y: "+point.Y);
-						point.Speed = (int) in.readD();// System.out.println("path "+i+" point "+j+" speed:
-						// "+point.Speed);
+						point.X = (int) in.readD();
+						point.Y = (int) in.readD();
+						point.Speed = (int) in.readD();
 						}
 					}
 				else
-					{
 					LastPathId++;
-					}
 				}
 			ver = in.readi();
 			if (ver != 400)
-				{
 				throw new Gm6FormatException("Before Scripts - GM version unsupported or file corrupt: " + ver);
-				}
 			// SCRIPTS
-			no = in.readi();// System.out.println("no of scripts: "+no);
+			no = in.readi();
 			LastScriptId = 0;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
 					Script scr = addScript();
-					scr.Name = in.readStr();// System.out.println("script "+i+" name: "+scr.Name);
+					scr.Name = in.readStr();
 					ver = in.readi();
 					if (ver != 400)
-						{
-						throw new Gm6FormatException("In script " + i + " - GM version unsupported or file corrupt: "
-								+ ver);
-						}
-					scr.ScriptStr = in.readStr();// System.out.println("script "+i+" script text:\n"+scr.ScriptStr);
+						throw new Gm6FormatException("In script " + i
+								+ " - GM version unsupported or file corrupt: " + ver);
+					scr.ScriptStr = in.readStr();
 					}
 				else
-					{
 					LastScriptId++;
-					}
 				}
 
 			ver = in.readi();
 			if (ver != 540)
 				throw new Gm6FormatException("Before Fonts - GM version unsupported or file corrupt: " + ver);
 			// FONTS
-			no = in.readi();// System.out.println("no of fonts: "+no);
+			no = in.readi();
 			LastFontId = 0;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
 					Font font = addFont();
-					font.Name = in.readStr(); // System.out.println("Font "+i+" Name: "+font.Name);
+					font.Name = in.readStr();
 					ver = in.readi();
 					if (ver != 540)
-						{
-						throw new Gm6FormatException("In Font " + i + " - GM version unsupported or file corrupt: "
-								+ ver);
-						}
-					font.FontName = in.readStr();// System.out.println("Font "+i+" font name: "+font.FontName);
-					font.Size = in.readi();// System.out.println("Font "+i+" size: "+font.Size);
-					font.Bold = in.readBool();// System.out.println("Font "+i+" bold: "+font.Bold);
-					font.Italic = in.readBool();// System.out.println("Font "+i+" italic: "+font.Italic);
-					font.CharRangeMin = in.readi();// System.out.println("Font "+i+" minimum char:
-					// "+font.CharRangeMin);
-					font.CharRangeMax = in.readi();// System.out.println("Font "+i+" maximum char:
-					// "+font.CharRangeMax);
+						throw new Gm6FormatException("In Font " + i
+								+ " - GM version unsupported or file corrupt: " + ver);
+					font.FontName = in.readStr();
+					font.Size = in.readi();
+					font.Bold = in.readBool();
+					font.Italic = in.readBool();
+					font.CharRangeMin = in.readi();
+					font.CharRangeMax = in.readi();
 					}
 				else
-					{
 					LastFontId++;
-					}
 				}
 
 			ver = in.readi();
 			if (ver != 500)
-				{
 				throw new Gm6FormatException("Before Timelines - GM version unsupported or file corrupt: " + ver);
-				}
 			// TIMELINES
-			no = in.readi();// System.out.println("no of time lines: "+no);
+			no = in.readi();
 			LastTimelineId = 0;
 			for (int i = 0; i < no; i++)
 				{
@@ -2053,22 +1953,21 @@ public class Gm6File
 					{
 					Timeline time = addTimeline();
 					time.Id = timeids.get(i);
-					time.Name = in.readStr();// System.out.println("Timeline "+i+" name: "+time.Name);
+					time.Name = in.readStr();
 					ver = in.readi();
 					if (ver != 500)
 						throw new Gm6FormatException("In Timeline " + i
 								+ " - GM version unsupported or file corrupt: " + ver);
-					int nomoms = in.readi();// System.out.println("Timeline "+i+" no of moments: "+nomoms);
+					int nomoms = in.readi();
 					for (int j = 0; j < nomoms; j++)
 						{
 						Moment mom = time.addMoment();
-						mom.stepNo = in.readi();// System.out.println("Timeline "+i+" moment listindex "+j+" moment
-						// number: "+mom.stepNo);
+						mom.stepNo = in.readi();
 						ver = in.readi();
 						if (ver != 400)
 							throw new Gm6FormatException("In Object " + i + ", Main event type " + j
 									+ " - GM version unsupported or file corrupt: " + ver);
-						int noacts = in.readi();// System.out.println("object "+i+" event "+j+" no of actions: "+noacts);
+						int noacts = in.readi();
 						for (int k = 0; k < noacts; k++)
 							{
 							in.skip(4);
@@ -2085,9 +1984,7 @@ public class Gm6File
 							act.NoArguments = in.readi();
 							int[] argkinds = new int[in.readi()];
 							for (int l = 0; l < argkinds.length; l++)
-								{
 								argkinds[l] = in.readi();
-								}
 							int id = in.readi();
 							switch (id)
 								{
@@ -2153,15 +2050,13 @@ public class Gm6File
 						}
 					}
 				else
-					{
 					LastTimelineId++;
-					}
 				}
 			ver = in.readi();
 			if (ver != 400)
 				throw new Gm6FormatException("Before Objects - GM version unsupported or file corrupt: " + ver);
 			// OBJECTS
-			no = in.readi();// System.out.println("no of objects: "+no);
+			no = in.readi();
 			LastGmObjectId = 0;
 			for (int i = 0; i < no; i++)
 				{
@@ -2169,26 +2064,22 @@ public class Gm6File
 					{
 					GmObject obj = addGmObject();
 					obj.Id = objids.get(i);
-					obj.Name = in.readStr();// System.out.println("object "+i+" name: "+obj.Name);
+					obj.Name = in.readStr();
 					ver = in.readi();
 					if (ver != 430)
-						throw new Gm6FormatException("In Object " + i + " - GM version unsupported or file corrupt: "
-								+ ver);
+						throw new Gm6FormatException("In Object " + i
+								+ " - GM version unsupported or file corrupt: " + ver);
 					int temp = in.readi();
 					if (getSpriteUnsafe(temp) != null)
-						{
-						obj.Sprite = getSpriteUnsafe(temp).Id;// System.out.println("object "+i+" sprite: "+obj.Sprite);
-						}
-					obj.Solid = in.readBool();// System.out.println("object "+i+" solid: "+obj.Solid);
-					obj.Visible = in.readBool();// System.out.println("object "+i+" visible: "+obj.Visible);
-					obj.Depth = in.readi();// System.out.println("object "+i+" depth: "+obj.Depth);
-					obj.Persistent = in.readBool();// System.out.println("object "+i+" persistent: "+obj.Persistent);
-					obj.Parent = objids.get(in.readi());// System.out.println("object "+i+" parent: "+obj.Parent);
+						obj.Sprite = getSpriteUnsafe(temp).Id;
+					obj.Solid = in.readBool();
+					obj.Visible = in.readBool();
+					obj.Depth = in.readi();
+					obj.Persistent = in.readBool();
+					obj.Parent = objids.get(in.readi());
 					temp = in.readi();
 					if (getSpriteUnsafe(temp) != null)
-						{
-						obj.Mask = getSpriteUnsafe(temp).Id;// System.out.println("object "+i+" mask: "+obj.Mask);
-						}
+						obj.Mask = getSpriteUnsafe(temp).Id;
 					in.skip(4);
 					for (int j = 0; j < 11; j++)
 						{
@@ -2200,49 +2091,31 @@ public class Gm6File
 								{
 								Event ev = obj.MainEvents[j].addEvent();
 								if (j == MainEvent.EV_COLLISION)
-									{
-									ev.Other = objids.get(first);// System.out.println("object "+i+" main event type "+j+" sub
-									// type collision event with "+ev.Other);
-									}
+									ev.Other = objids.get(first);
 								else
-									{
-									ev.Id = first;// System.out.println("object "+i+" main event type "+j+" sub type "+ev.Id);
-									}
+									ev.Id = first;
 								ver = in.readi();
 								if (ver != 400)
 									throw new Gm6FormatException("In Object " + i + ", Main event type " + j
 											+ " - GM version unsupported or file corrupt: " + ver);
-								int noacts = in.readi();// System.out.println("object "+i+" event "+j+" no of actions:
-								// "+noacts);
+								int noacts = in.readi();
 								for (int k = 0; k < noacts; k++)
 									{
 									in.skip(4);
 									Action act = ev.addAction();
-									act.LibraryId = in.readi();// System.out.println("object "+i+" event "+j+" action "+k+" lib
-									// id: "+act.LibraryId);
-									act.LibActionId = in.readi();// System.out.println("object "+i+" event "+j+" action "+k+"
-									// libaction id: "+act.LibActionId);
-									act.ActionKind = (byte) in.readi();// System.out.println("object "+i+" event "+j+" action
-									// "+k+" kind: "+act.ActionKind);
-									act.AllowRelative = in.readBool();// System.out.println("object "+i+" event "+j+" action
-									// "+k+" can be relative: "+act.AllowRelative);
-									act.Question = in.readBool();// System.out.println("object "+i+" event "+j+" action "+k+"
-									// is a question: "+act.Question);
-									act.CanApplyTo = in.readBool();// System.out.println("object "+i+" event "+j+" action "+k+"
-									// can apply to: "+act.CanApplyTo);
-									act.ExecType = (byte) in.readi();// System.out.println("object "+i+" event "+j+" action
-									// "+k+" exec type: "+act.ExecType);
-									act.ExecFunction = in.readStr();// System.out.println("object "+i+" event "+j+" action "+k+"
-									// exec function: "+act.ExecFunction);
-									act.ExecCode = in.readStr();// System.out.println("object "+i+" event "+j+" action "+k+"
-									// exec code: "+act.ExecCode);
-									act.NoArguments = in.readi();// System.out.println("object "+i+" event "+j+" action "+k+"
-									// no of args: "+act.NoArguments);
+									act.LibraryId = in.readi();
+									act.LibActionId = in.readi();
+									act.ActionKind = (byte) in.readi();
+									act.AllowRelative = in.readBool();
+									act.Question = in.readBool();
+									act.CanApplyTo = in.readBool();
+									act.ExecType = (byte) in.readi();
+									act.ExecFunction = in.readStr();
+									act.ExecCode = in.readStr();
+									act.NoArguments = in.readi();
 									int[] argkinds = new int[in.readi()];
 									for (int l = 0; l < argkinds.length; l++)
-										{
 										argkinds[l] = in.readi();
-										}
 									int id = in.readi();
 									switch (id)
 										{
@@ -2255,10 +2128,8 @@ public class Gm6File
 										default:
 											act.AppliesTo = objids.get(id);
 										}
-									act.Relative = in.readBool();// System.out.println("object "+i+" event "+j+" action "+k+"
-									// relative: "+act.Relative);
-									int actualnoargs = in.readi();// System.out.println("object "+i+" event "+j+" action "+k+"
-									// no of args inserted: "+actualnoargs);
+									act.Relative = in.readBool();
+									int actualnoargs = in.readi();
 									for (int l = 0; l < actualnoargs; l++)
 										{
 										if (l < act.NoArguments)
@@ -2298,10 +2169,6 @@ public class Gm6File
 													act.Arguments[l].Val = strval;
 													break;
 												}
-											// System.out.println("object "+i+" event "+j+" action "+k+" arg "+l+" str val:
-											// "+act.Arguments[l].Val);
-											// System.out.println("object "+i+" event "+j+" action "+k+" arg "+l+" res id val:
-											// "+act.Arguments[l].Res);
 											}
 										else
 											{
@@ -2309,28 +2176,22 @@ public class Gm6File
 											in.skip(length);
 											}
 										}
-									act.Not = in.readBool();// System.out.println("object "+i+" event "+j+" action "+k+" not:
-									// "+act.Not);
+									act.Not = in.readBool();
 									}
 								}
 							else
-								{
-								// System.out.println("finished all subevents under main type "+j);
 								done = true;
-								}
 							}
 						}
 					}
 				else
-					{
 					LastGmObjectId++;
-					}
 				}
 			ver = in.readi();
 			if (ver != 420)
 				throw new Gm6FormatException("Before Rooms - GM version unsupported or file corrupt: " + ver);
 			// ROOMS
-			no = in.readi();// System.out.println("no of rooms: "+no);
+			no = in.readi();
 			LastRoomId = 0;
 			for (int i = 0; i < no; i++)
 				{
@@ -2339,120 +2200,89 @@ public class Gm6File
 					Room rm = addRoom();
 					rm.Id = rmids.get(i);
 					rm.Name = in.readStr();
-					// System.out.println("room "+i+" name: "+rm.Name);
 					ver = in.readi();
 					if (ver != 541)
-						throw new Gm6FormatException("In Room " + i + " - GM version unsupported or file corrupt: "
-								+ ver);
-					rm.Caption = in.readStr();// System.out.println("room "+i+" caption: "+rm.Caption);
-					rm.Width = in.readi();// System.out.println("room "+i+" width: "+rm.Width);
-					rm.Height = in.readi();// System.out.println("room "+i+" height: "+rm.Height);
-					rm.SnapY = in.readi();// System.out.println("room "+i+" y snap: "+rm.SnapY);
-					rm.SnapX = in.readi();// System.out.println("room "+i+" x snap: "+rm.SnapX);
-					rm.IsometricGrid = in.readBool();// System.out.println("room "+i+" iso grid: "+rm.IsometricGrid);
-					rm.Speed = in.readi();// System.out.println("room "+i+" speed: "+rm.Speed);
-					rm.Persistent = in.readBool();// System.out.println("room "+i+" persistent: "+rm.Persistent);
-					rm.BackgroundColor = in.readi();// System.out.println("room "+i+" background color:
-					// "+rm.BackgroundColor);
-					rm.DrawBackgroundColor = in.readBool();// System.out.println("room "+i+" draw background color:
-					// "+rm.DrawBackgroundColor);
-					rm.CreationCode = in.readStr();// System.out.println("room "+i+" creation code: "+rm.CreationCode);
-					int nobackgrounds = in.readi();// System.out.println("room "+i+" no of backgrounds:
-					// "+nobackgrounds);
+						throw new Gm6FormatException("In Room " + i
+								+ " - GM version unsupported or file corrupt: " + ver);
+					rm.Caption = in.readStr();
+					rm.Width = in.readi();
+					rm.Height = in.readi();
+					rm.SnapY = in.readi();
+					rm.SnapX = in.readi();
+					rm.IsometricGrid = in.readBool();
+					rm.Speed = in.readi();
+					rm.Persistent = in.readBool();
+					rm.BackgroundColor = in.readi();
+					rm.DrawBackgroundColor = in.readBool();
+					rm.CreationCode = in.readStr();
+					int nobackgrounds = in.readi();
 					for (int j = 0; j < nobackgrounds; j++)
 						{
 						BackgroundDef bk = rm.BackgroundDefs[j];
-						bk.Visible = in.readBool();// System.out.println("room "+i+" background "+j+" visible:
-						// "+bk.Visible);
-						bk.Foreground = in.readBool();// System.out.println("room "+i+" background "+j+" foreground:
-						// "+bk.Foreground);
+						bk.Visible = in.readBool();
+						bk.Foreground = in.readBool();
 						Background temp = getBackgroundUnsafe(in.readi());
 						if (temp != null)
-							{
-							bk.BackgroundId = temp.Id;// System.out.println("room "+i+" background "+j+" background id:
-							// "+bk.BackgroundId);
-							}
-						bk.X = in.readi();// System.out.println("room "+i+" background "+j+" x: "+bk.X);
-						bk.Y = in.readi();// System.out.println("room "+i+" background "+j+" y: "+bk.Y);
-						bk.TileHoriz = in.readBool();// System.out.println("room "+i+" background "+j+" tile
-						// horizontally: "+bk.TileHoriz);
-						bk.TileVert = in.readBool();// System.out.println("room "+i+" background "+j+" tile vertically:
-						// "+bk.TileVert);
-						bk.HorizSpeed = in.readi();// System.out.println("room "+i+" background "+j+" hspeed:
-						// "+bk.HorizSpeed);
-						bk.VertSpeed = in.readi();// System.out.println("room "+i+" background "+j+" vspeed:
-						// "+bk.VertSpeed);
-						bk.Stretch = in.readBool();// System.out.println("room "+i+" background "+j+" stretch:
-						// "+bk.Stretch);
+							bk.BackgroundId = temp.Id;
+						bk.X = in.readi();
+						bk.Y = in.readi();
+						bk.TileHoriz = in.readBool();
+						bk.TileVert = in.readBool();
+						bk.HorizSpeed = in.readi();
+						bk.VertSpeed = in.readi();
+						bk.Stretch = in.readBool();
 						}
-					rm.EnableViews = in.readBool();// System.out.println("room "+i+" enable the use of views:
-					// "+rm.EnableViews);
-					int noviews = in.readi();// System.out.println("room "+i+" no of views: "+noviews);
+					rm.EnableViews = in.readBool();
+					int noviews = in.readi();
 					for (int j = 0; j < noviews; j++)
 						{
 						View vw = rm.Views[j];
-						vw.Enabled = in.readBool();// System.out.println("room "+i+" view "+j+" enabled when room starts:
-						// "+vw.Enabled);
-						vw.ViewX = in.readi();// System.out.println("room "+i+" view "+j+" x: "+vw.ViewX);
-						vw.ViewY = in.readi();// System.out.println("room "+i+" view "+j+" y: "+vw.ViewY);
-						vw.ViewW = in.readi();// System.out.println("room "+i+" view "+j+" width: "+vw.ViewW);
-						vw.ViewH = in.readi();// System.out.println("room "+i+" view "+j+" height: "+vw.ViewH);
-						vw.PortX = in.readi();// System.out.println("room "+i+" view "+j+" port x: "+vw.PortX);
-						vw.PortY = in.readi();// System.out.println("room "+i+" view "+j+" port y: "+vw.PortY);
-						vw.PortW = in.readi();// System.out.println("room "+i+" view "+j+" port width: "+vw.PortW);
-						vw.PortH = in.readi();// System.out.println("room "+i+" view "+j+" port height: "+vw.PortH);
-						vw.Hbor = in.readi();// System.out.println("room "+i+" view "+j+" horiz border: "+vw.Hbor);
-						vw.VBor = in.readi();// System.out.println("room "+i+" view "+j+" vert border: "+vw.VBor);
-						vw.HSpeed = in.readi();// System.out.println("room "+i+" view "+j+" horiz speed: "+vw.HSpeed);
-						vw.VSpeed = in.readi();// System.out.println("room "+i+" view "+j+" vert speed: "+vw.VSpeed);
+						vw.Enabled = in.readBool();
+						vw.ViewX = in.readi();
+						vw.ViewY = in.readi();
+						vw.ViewW = in.readi();
+						vw.ViewH = in.readi();
+						vw.PortX = in.readi();
+						vw.PortY = in.readi();
+						vw.PortW = in.readi();
+						vw.PortH = in.readi();
+						vw.Hbor = in.readi();
+						vw.VBor = in.readi();
+						vw.HSpeed = in.readi();
+						vw.VSpeed = in.readi();
 						GmObject temp = getGmObjectUnsafe(in.readi());
 						if (temp != null)
-							{
-							vw.ObjectFollowing = temp.Id;// System.out.println("room "+i+" view "+j+" object to follow:
-							// "+vw.ObjectFollowing.value);
-							}
+							vw.ObjectFollowing = temp.Id;
 						}
-					int noinstances = in.readi();// System.out.println("room "+i+" no of instances placed:
-					// "+noinstances);
+					int noinstances = in.readi();
 					for (int j = 0; j < noinstances; j++)
 						{
 						Instance inst = rm.addInstance();
-						inst.X = in.readi();// System.out.println("room "+i+" instance "+j+" x: "+inst.X);
-						inst.Y = in.readi();// System.out.println("room "+i+" instance "+j+" y: "+inst.Y);
+						inst.X = in.readi();
+						inst.Y = in.readi();
 						GmObject temp = getGmObjectUnsafe(in.readi());
 						if (temp != null)
-							{
-							inst.GmObjectId = temp.Id;// System.out.println("room "+i+" instance "+j+" object id:
-							// "+inst.GmObjectId);
-							}
-						inst.InstanceId = in.readi();// System.out.println("room "+i+" instance "+j+" instance id:
-						// "+inst.InstanceId);
-						inst.CreationCode = in.readStr();// System.out.println("room "+i+" instance "+j+" creation code:
-						// "+inst.CreationCode);
-						inst.Locked = in.readBool();// System.out.println("room "+i+" instance "+j+" locked:
-						// "+inst.Locked);
+							inst.GmObjectId = temp.Id;
+						inst.InstanceId = in.readi();
+						inst.CreationCode = in.readStr();
+						inst.Locked = in.readBool();
 						}
-					int notiles = in.readi();// System.out.println("room "+i+" no of tiles: "+notiles);
+					int notiles = in.readi();
 					for (int j = 0; j < notiles; j++)
 						{
 						Tile ti = rm.addTile();
-						ti.X = in.readi();// System.out.println("room "+i+" tile "+j+" x: "+ti.X);
-						ti.Y = in.readi();// System.out.println("room "+i+" tile "+j+" y: "+ti.Y);
+						ti.X = in.readi();
+						ti.Y = in.readi();
 						Background temp = getBackgroundUnsafe(in.readi());
 						if (temp != null)
-							{
-							ti.BackgroundId = temp.Id;// System.out.println("room "+i+" tile "+j+" background id:
-							// "+ti.BackgroundId.value);
-							}
-						ti.TileX = in.readi();// System.out.println("room "+i+" tile "+j+" x location in tile set:
-						// "+ti.TileX);
-						ti.TileY = in.readi();// System.out.println("room "+i+" tile "+j+" y location in tile set:
-						// "+ti.TileY);
-						ti.Width = in.readi();// System.out.println("room "+i+" tile "+j+" width: "+ti.Width);
-						ti.Height = in.readi();// System.out.println("room "+i+" tile "+j+" height: "+ti.Height);
-						ti.Depth = in.readi();// System.out.println("room "+i+" tile "+j+" depth: "+ti.Depth);
-						ti.TileId = in.readi();// System.out.println("room "+i+" tile "+j+" tile id: "+ti.TileId);
-						ti.Locked = in.readBool();// System.out.println("room "+i+" tile "+j+" locked: "+ti.Locked);
+							ti.BackgroundId = temp.Id;
+						ti.TileX = in.readi();
+						ti.TileY = in.readi();
+						ti.Width = in.readi();
+						ti.Height = in.readi();
+						ti.Depth = in.readi();
+						ti.TileId = in.readi();
+						ti.Locked = in.readBool();
 						}
 					rm.RememberWindowSize = in.readBool();
 					rm.EditorWidth = in.readi();
@@ -2470,9 +2300,7 @@ public class Gm6File
 					rm.ScrollBarY = in.readi();
 					}
 				else
-					{
 					LastRoomId++;
-					}
 				}
 			LastInstanceId = in.readi();
 			LastTileId = in.readi();
@@ -2491,13 +2319,11 @@ public class Gm6File
 			GameInfo.AllowResize = in.readBool();
 			GameInfo.StayOnTop = in.readBool();
 			GameInfo.PauseGame = in.readBool();
-			GameInfo.GameInfoStr = in.readStr();// System.out.println("game info: "+GameInfo.GameInfoStr);
+			GameInfo.GameInfoStr = in.readStr();
 			ver = in.readi();
 			if (ver != 500)
-				{
 				throw new Gm6FormatException("After Game Information - GM version unsupported or file corrupt: "
 						+ ver);
-				}
 			no = in.readi();
 			for (int j = 0; j < no; j++)
 				{
@@ -2506,25 +2332,15 @@ public class Gm6File
 				}
 			ver = in.readi();
 			if (ver != 540)
-				{
 				throw new Gm6FormatException(
 						"In the second version after Game Information - GM version unsupported or file corrupt: "
 								+ ver);
-				}
 			in.skip(in.readi() * 4);// room indexes in tree order;
 			in.readTree(root);
 			clock.stop();
 			System.out.println("time taken to load file: " + clock.getElapsed() + " ms");
 			}
-		catch (FileNotFoundException ex)
-			{
-			throw new Gm6FormatException(ex.getMessage());
-			}
-		catch (IOException ex)
-			{
-			throw new Gm6FormatException(ex.getMessage());
-			}
-		catch (DataFormatException ex)
+		catch (Exception ex)
 			{
 			throw new Gm6FormatException(ex.getMessage());
 			}
@@ -2533,9 +2349,7 @@ public class Gm6File
 			try
 				{
 				if (in != null)
-					{
 					in.close();
-					}
 				}
 			catch (IOException ex)
 				{
@@ -2585,18 +2399,14 @@ public class Gm6File
 					out.writeImage(BackLoadBar);
 					}
 				else
-					{
 					out.writei(-1);
-					}
 				if (FrontLoadBar != null)
 					{
 					out.writei(10);
 					out.writeImage(FrontLoadBar);
 					}
 				else
-					{
 					out.writei(-1);
-					}
 				}
 			out.writeBool(this.ShowCustomLoadImage);
 			if (this.ShowCustomLoadImage)
@@ -2607,9 +2417,7 @@ public class Gm6File
 					out.writeImage(LoadingImage);
 					}
 				else
-					{
 					out.writei(-1);
-					}
 				}
 			out.writeBool(this.ImagePartiallyTransparent);
 			out.writei(this.LoadImageAlpha);
@@ -2635,9 +2443,7 @@ public class Gm6File
 				}
 			out.writei(this.NoIncludeFiles());
 			for (int i = 0; i < this.NoIncludeFiles(); i++)
-				{
 				out.writeStr(this.getIncludeFile(i).FilePath);
-				}
 			out.writei(this.IncludeFolder);
 			out.writeBool(this.OverwriteExisting);
 			out.writeBool(this.RemoveAtGameEnd);
@@ -2662,9 +2468,7 @@ public class Gm6File
 						out.compress(snd.Data);
 						}
 					else
-						{
 						out.writeBool(false);
-						}
 					out.writei(Sound.makeEffects(snd.Chorus,snd.Echo,snd.Flanger,snd.Gargle,snd.Reverb));
 					out.writeD(snd.Volume);
 					out.writeD(snd.Pan);
@@ -2736,9 +2540,7 @@ public class Gm6File
 						out.writeImage(back.BackgroundImage);
 						}
 					else
-						{
 						out.writeBool(false);
-						}
 					}
 				}
 
@@ -2840,30 +2642,19 @@ public class Gm6File
 							for (int l = 0; l < 8; l++)
 								{
 								if (l < act.NoArguments)
-									{
 									out.writei(act.Arguments[l].Kind);
-									}
 								else
-									{
 									out.writei(0);
-									}
 								}
 							if (act.AppliesTo != null)
 								{
 								if (act.AppliesTo.value >= 0)
-									{
 									out.writeId(act.AppliesTo,Resource.GMOBJECT,-100,this);
-									}
-								else
-									// self/other are exceptions to the system
-									{
+								else //self/other are exceptions to the system
 									out.writei(act.AppliesTo.value);
-									}
 								}
 							else
-								{
 								out.writei(-100);
-								}
 							out.writeBool(act.Relative);
 							out.writei(8);
 							for (int l = 0; l < 8; l++)
@@ -2889,9 +2680,7 @@ public class Gm6File
 										}
 									}
 								else
-									{
 									out.writeStr("");
-									}
 								}
 							out.writeBool(act.Not);
 							}
@@ -2924,13 +2713,9 @@ public class Gm6File
 							{
 							Event ev = obj.MainEvents[j].getEventList(k);
 							if (j == MainEvent.EV_COLLISION)
-								{
 								out.writeId(ev.Other,Resource.GMOBJECT,this);
-								}
 							else
-								{
 								out.writei(ev.Id);
-								}
 							out.writei(400);
 							out.writei(ev.NoActions());
 							for (int l = 0; l < ev.NoActions(); l++)
@@ -2951,30 +2736,19 @@ public class Gm6File
 								for (int m = 0; m < 8; m++)
 									{
 									if (m < act.NoArguments)
-										{
 										out.writei(act.Arguments[m].Kind);
-										}
 									else
-										{
 										out.writei(0);
-										}
 									}
 								if (act.AppliesTo != null)
 									{
 									if (act.AppliesTo.value >= 0)
-										{
 										out.writeId(act.AppliesTo,Resource.GMOBJECT,-100,this);
-										}
-									else
-										// self/other are exceptions to the system
-										{
+									else //self/other are exceptions to the system
 										out.writei(act.AppliesTo.value);
-										}
 									}
 								else
-									{
 									out.writei(-100);
-									}
 								out.writeBool(act.Relative);
 								out.writei(8);
 								for (int m = 0; m < 8; m++)
@@ -3000,9 +2774,7 @@ public class Gm6File
 											}
 										}
 									else
-										{
 										out.writeStr("");
-										}
 									}
 								out.writeBool(act.Not);
 								}

@@ -79,24 +79,25 @@ public class LGM extends JPanel
 		return ico;
 		}
 
+	public JButton makeButton(String name)
+		{
+		JButton but = new JButton(LGM.findIcon(name+".png"));
+		but.setActionCommand(name);
+		but.setToolTipText(name);
+		but.addActionListener(listener);
+		return but;
+		}
+
 	public void createToolBar()
 		{
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		add("North",tool);
-		JButton but = new JButton(LGM.findIcon("new.png"));
-		but.setActionCommand("New");
-		but.addActionListener(listener);
-		tool.add(but);
-		but = new JButton(LGM.findIcon("Open....png"));
-		but.setActionCommand("Open...");
-		but.addActionListener(listener);
-		tool.add(but);
-		but = new JButton(LGM.findIcon("save.png"));
-		tool.add(but);
+		tool.add(makeButton("New"));
+		tool.add(makeButton("Open..."));
+		tool.add(makeButton("Save"));
 		tool.add(new JToolBar.Separator());
-		but = new JButton(LGM.findIcon("save as....png"));
-		tool.add(but);
+		tool.add(makeButton("Save As..."));
 		}
 
 	public void createTree(boolean populate)
