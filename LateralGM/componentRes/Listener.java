@@ -20,6 +20,7 @@ import javax.swing.tree.TreePath;
 import mainRes.LGM;
 import mainRes.Prefs;
 import resourcesRes.Resource;
+import SubFrames.ScriptFrame;
 import fileRes.Gm6File;
 import fileRes.Gm6FormatException;
 
@@ -160,10 +161,11 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.equals("Delete"))
 			{
+			ResNode me = (ResNode) tree.getLastSelectedPathComponent();
+			if (me == null) return;
+			if (Prefs.protectRoot && me.status == ResNode.STATUS_PRIMARY) return;
 			if (JOptionPane.showConfirmDialog(null,"Delete this resource?","Delete",JOptionPane.YES_NO_OPTION) == 0)
 				{
-				ResNode me = (ResNode) tree.getLastSelectedPathComponent();
-				if (me == null) return;
 				ResNode next = (ResNode) me.getNextSibling();
 				if (next == null) next = (ResNode) me.getParent();
 				if (next.isRoot()) next = (ResNode) next.getFirstChild();
@@ -264,7 +266,17 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						{
 						//JInternalFrame gameinfo = new GameInformationFrame();
 						LGM.gameInfo.setVisible(true);
+						return;
 //						LGM.MDI.add(LGM.gameInfo);
+						}
+					if (node.kind == Resource.SCRIPT)
+						{
+						if (Prefs.protectLeaf && node.status != ResNode.STATUS_SECONDARY) return;
+						ScriptFrame sf = new ScriptFrame();
+//						sf.setScript();
+						LGM.MDI.add(sf);
+						sf.setVisible(true);
+						return;
 						}
 					}
 				}

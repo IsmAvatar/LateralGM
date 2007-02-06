@@ -135,9 +135,9 @@ public class GmStreamDecoder
 			int ind = readi();
 			String name = readStr();
 			ResNode node = path.peek().addChild(name,status,type);
-			if (status == ResNode.STATUS_SECONDARY)
+			if (status == ResNode.STATUS_SECONDARY && type != 10 && type != 11)
 				{
-				LGM.currentFile.getResUnsafe(node,ind);
+				node.resourceId = LGM.currentFile.getUnsafe(node.kind,ind).Id;
 				}
 			int contents = readi();
 			if (contents > 0)

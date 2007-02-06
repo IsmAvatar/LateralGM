@@ -1,6 +1,6 @@
 package resourcesRes;
 public class Constant
 {
-    public String Name="";
-    public String Value="";
+    public String name="";
+    public String value="";
 }

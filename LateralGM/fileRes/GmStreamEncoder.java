@@ -121,37 +121,7 @@ public class GmStreamEncoder
 
 	public void writeId(ResId id,byte type,int noneval,Gm6File src) throws IOException
 		{
-		Resource res = null;
-		switch (type)
-			{
-			case Resource.SPRITE:
-				res = src.getSprite(id);
-				break;
-			case Resource.SOUND:
-				res = src.getSound(id);
-				break;
-			case Resource.BACKGROUND:
-				res = src.getBackground(id);
-				break;
-			case Resource.PATH:
-				res = src.getPath(id);
-				break;
-			case Resource.SCRIPT:
-				res = src.getScript(id);
-				break;
-			case Resource.FONT:
-				res = src.getFont(id);
-				break;
-			case Resource.TIMELINE:
-				res = src.getTimeline(id);
-				break;
-			case Resource.GMOBJECT:
-				res = src.getGmObject(id);
-				break;
-			case Resource.ROOM:
-				res = src.getRoom(id);
-				break;
-			}
+		Resource res = src.get(type,id);
 		if (id != null && res != null)
 			{
 			writei(id.value);
@@ -168,31 +138,31 @@ public class GmStreamEncoder
 		switch (type)
 			{
 			case Argument.ARG_SPRITE:
-				res = src.getSprite(id);
+				res = src.get(Resource.SPRITE,id);
 				break;
 			case Argument.ARG_SOUND:
-				res = src.getSound(id);
+				res = src.get(Resource.SOUND,id);
 				break;
 			case Argument.ARG_BACKGROUND:
-				res = src.getBackground(id);
+				res = src.get(Resource.BACKGROUND,id);
 				break;
 			case Argument.ARG_PATH:
-				res = src.getPath(id);
+				res = src.get(Resource.PATH,id);
 				break;
 			case Argument.ARG_SCRIPT:
-				res = src.getScript(id);
+				res = src.get(Resource.SCRIPT,id);
 				break;
 			case Argument.ARG_FONT:
-				res = src.getFont(id);
+				res = src.get(Resource.FONT,id);
 				break;
 			case Argument.ARG_TIMELINE:
-				res = src.getTimeline(id);
+				res = src.get(Resource.TIMELINE,id);
 				break;
 			case Argument.ARG_GMOBJECT:
-				res = src.getGmObject(id);
+				res = src.get(Resource.GMOBJECT,id);
 				break;
 			case Argument.ARG_ROOM:
-				res = src.getRoom(id);
+				res = src.get(Resource.ROOM,id);
 				break;
 			}
 		if (id != null && res != null)
