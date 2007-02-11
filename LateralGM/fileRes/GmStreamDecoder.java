@@ -49,7 +49,6 @@ public class GmStreamDecoder
 		int d = _in.read();
 		if (a == -1 || b == -1 || c == -1 || d == -1) throw new IOException("unexpected end of file reached");
 		long result = (a | (b << 8) | (c << 16) | (d << 24));
-		if ((result & 0x80000000L) == 0x80000000L) result = -(0x100000000L - result);
 		return (int) result;
 		}
 

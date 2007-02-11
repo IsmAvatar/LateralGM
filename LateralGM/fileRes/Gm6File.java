@@ -18,6 +18,7 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 
+import mainRes.Prefs;
 import resourcesRes.Background;
 import resourcesRes.Constant;
 import resourcesRes.Font;
@@ -147,7 +148,6 @@ public class Gm6File
 		}
 
 	// <editor-fold defaultstate="collapsed" desc=" Constants For Resource Properties ">
-	public String[] prefixes = { "","obj_","spr_","snd_","rm_","","bk_","scr_","path_","font_","","","time_" };
 	//TODO add option to interface
 
 	public static final byte COLOR_NOCHANGE = 0;
@@ -363,7 +363,7 @@ public class Gm6File
 				{
 				lastId[Resource.SPRITE]++;
 				spr2.Id.value = lastId[Resource.SPRITE];
-				spr2.name = prefixes[Resource.SPRITE] + lastId[Resource.SPRITE];
+				spr2.name = Prefs.prefixes[Resource.SPRITE] + lastId[Resource.SPRITE];
 				resMap.get(Resource.SPRITE).add(spr2);
 				}
 			else
@@ -374,7 +374,6 @@ public class Gm6File
 			}
 		return spr2;
 		}
-
 	public Sound duplicateSound(ResId id,boolean update)
 		{
 		Sound snd2 = null;
@@ -399,7 +398,7 @@ public class Gm6File
 				{
 				lastId[Resource.SOUND]++;
 				snd2.Id.value = lastId[Resource.SOUND];
-				snd2.name = prefixes[Resource.SOUND] + lastId[Resource.SOUND];
+				snd2.name = Prefs.prefixes[Resource.SOUND] + lastId[Resource.SOUND];
 				resMap.get(Resource.SOUND).add(snd2);
 				}
 			else
@@ -410,7 +409,6 @@ public class Gm6File
 			}
 		return snd2;
 		}
-
 	public Background duplicateBackground(ResId id,boolean update)
 		{
 		Background back2 = null;
@@ -435,7 +433,7 @@ public class Gm6File
 				{
 				lastId[Resource.BACKGROUND]++;
 				back2.Id.value = lastId[Resource.BACKGROUND];
-				back2.name = prefixes[Resource.BACKGROUND] + lastId[Resource.BACKGROUND];
+				back2.name = Prefs.prefixes[Resource.BACKGROUND] + lastId[Resource.BACKGROUND];
 				resMap.get(Resource.BACKGROUND).add(back2);
 				}
 			else
@@ -446,7 +444,6 @@ public class Gm6File
 			}
 		return back2;
 		}
-
 	public Path duplicatePath(ResId id,boolean update)
 		{
 		Path path2 = null;
@@ -472,7 +469,7 @@ public class Gm6File
 				{
 				lastId[Resource.PATH]++;
 				path2.Id.value = lastId[Resource.PATH];
-				path2.name = prefixes[Resource.PATH] + lastId[Resource.PATH];
+				path2.name = Prefs.prefixes[Resource.PATH] + lastId[Resource.PATH];
 				resMap.get(Resource.PATH).add(path2);
 				}
 			else
@@ -495,7 +492,7 @@ public class Gm6File
 				{
 				lastId[Resource.SCRIPT]++;
 				scr2.Id.value = lastId[Resource.SCRIPT];
-				scr2.name = prefixes[Resource.SCRIPT] + lastId[Resource.SCRIPT];
+				scr2.name = Prefs.prefixes[Resource.SCRIPT] + lastId[Resource.SCRIPT];
 				resMap.get(Resource.SCRIPT).add(scr2);
 				}
 			else
@@ -523,7 +520,7 @@ public class Gm6File
 				{
 				lastId[Resource.FONT]++;
 				font2.Id.value = lastId[Resource.FONT];
-				font2.name = prefixes[Resource.FONT] + lastId[Resource.FONT];
+				font2.name = Prefs.prefixes[Resource.FONT] + lastId[Resource.FONT];
 				resMap.get(Resource.FONT).add(font2);
 				}
 			else
@@ -575,7 +572,7 @@ public class Gm6File
 				{
 				lastId[Resource.TIMELINE]++;
 				time2.Id.value = lastId[Resource.TIMELINE];
-				time2.name = prefixes[Resource.TIMELINE] + lastId[Resource.TIMELINE];
+				time2.name = Prefs.prefixes[Resource.TIMELINE] + lastId[Resource.TIMELINE];
 				resMap.get(Resource.TIMELINE).add(time2);
 				}
 			else
@@ -639,7 +636,7 @@ public class Gm6File
 				{
 				lastId[Resource.GMOBJECT]++;
 				obj2.Id.value = lastId[Resource.GMOBJECT];
-				obj2.name = prefixes[Resource.GMOBJECT] + lastId[Resource.GMOBJECT];
+				obj2.name = Prefs.prefixes[Resource.GMOBJECT] + lastId[Resource.GMOBJECT];
 				resMap.get(Resource.GMOBJECT).add(obj2);
 				}
 			else
@@ -746,7 +743,7 @@ public class Gm6File
 				{
 				lastId[Resource.ROOM]++;
 				rm2.Id.value = lastId[Resource.ROOM];
-				rm2.name = prefixes[Resource.ROOM] + lastId[Resource.ROOM];
+				rm2.name = Prefs.prefixes[Resource.ROOM] + lastId[Resource.ROOM];
 				resMap.get(Resource.ROOM).add(rm2);
 				}
 			else
@@ -1513,7 +1510,7 @@ public class Gm6File
 				else
 					out.writei(-1);
 				}
-			out.writeBool(this.ShowCustomLoadImage);
+			out.writeBool(ShowCustomLoadImage);
 			if (this.ShowCustomLoadImage)
 				{
 				if (this.LoadingImage != null)
@@ -1524,34 +1521,34 @@ public class Gm6File
 				else
 					out.writei(-1);
 				}
-			out.writeBool(this.ImagePartiallyTransparent);
-			out.writei(this.LoadImageAlpha);
-			out.writeBool(this.ScaleProgressBar);
-			out.write(this.GameIconData);
-			out.writeBool(this.DisplayErrors);
-			out.writeBool(this.WriteToLog);
-			out.writeBool(this.AbortOnError);
-			out.writeBool(this.TreatUninitializedAs0);
-			out.writeStr(this.Author);
-			out.writei(this.Version);
+			out.writeBool(ImagePartiallyTransparent);
+			out.writei(LoadImageAlpha);
+			out.writeBool(ScaleProgressBar);
+			out.write(GameIconData);
+			out.writeBool(DisplayErrors);
+			out.writeBool(WriteToLog);
+			out.writeBool(AbortOnError);
+			out.writeBool(TreatUninitializedAs0);
+			out.writeStr(Author);
+			out.writei(Version);
 
 			Calendar then = Calendar.getInstance();
 			then.set(1899,11,29,23,59,59);
 			out.writeD((savetime - then.getTimeInMillis()) / 86400000.0);
 
-			out.writeStr(this.Information);
-			out.writei(this.constants.size());
-			for (int i = 0; i < this.constants.size(); i++)
+			out.writeStr(Information);
+			out.writei(constants.size());
+			for (int i = 0; i < constants.size(); i++)
 				{
-				out.writeStr(this.constants.get(i).name);
-				out.writeStr(this.constants.get(i).value);
+				out.writeStr(constants.get(i).name);
+				out.writeStr(constants.get(i).value);
 				}
-			out.writei(this.includes.size());
-			for (int i = 0; i < this.includes.size(); i++)
-				out.writeStr(this.includes.get(i).filePath);
-			out.writei(this.IncludeFolder);
-			out.writeBool(this.OverwriteExisting);
-			out.writeBool(this.RemoveAtGameEnd);
+			out.writei(includes.size());
+			for (int i = 0; i < includes.size(); i++)
+				out.writeStr(includes.get(i).filePath);
+			out.writei(IncludeFolder);
+			out.writeBool(OverwriteExisting);
+			out.writeBool(RemoveAtGameEnd);
 
 			// SOUNDS
 			out.writei(400);
@@ -1988,8 +1985,8 @@ public class Gm6File
 					out.writei(rm.ScrollBarY);
 					}
 				}
-			out.writei(this.LastInstanceId);
-			out.writei(this.LastTileId);
+			out.writei(LastInstanceId);
+			out.writei(LastTileId);
 
 			// GAME SETTINGS
 			out.writei(600);

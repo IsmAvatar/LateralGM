@@ -16,7 +16,7 @@ package mainRes;
  *  gave tips, acknowledged LGM's presence, or have works that aided in its creation,
  *  including but certainly not limited to (and pardon the many forgotten names):
  *  Porfirio, CAMD, pythonpoole, andrewmc, RhysAndrews, Yourself, GearGOD,
- *  roach, h0bbel, monkey dude, evilish, Natso, Appleman1234
+ *  roach, Bendodge, h0bbel, monkey dude, evilish, Natso, Appleman1234
  */
 
 import java.awt.BorderLayout;
@@ -43,6 +43,7 @@ import SubFrames.*;
 import componentRes.GmMenuBar;
 import componentRes.GmTreeGraphics;
 import componentRes.Listener;
+import componentRes.MDIPane;
 import componentRes.ResNode;
 
 import fileRes.Gm6File;
@@ -146,7 +147,7 @@ public class LGM extends JPanel
 
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(200,100));
-		MDI = new JDesktopPane();
+		MDI = new MDIPane();
 		JScrollPane scroll2 = new JScrollPane(MDI);
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
