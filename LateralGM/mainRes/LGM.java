@@ -38,7 +38,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import resourcesRes.Resource;
-import SubFrames.GameInformationFrame;
+import SubFrames.*;
 
 import componentRes.GmMenuBar;
 import componentRes.GmTreeGraphics;
@@ -57,6 +57,7 @@ public class LGM extends JPanel
 	public static Gm6File currentFile = new Gm6File();
 	public static JDesktopPane MDI;
 	public static GameInformationFrame gameInfo = new GameInformationFrame();
+	public static GameSettingFrame gameSet = new GameSettingFrame();
 	public static String[] kinds = { "","Object","Sprite","Sound","Room","","Background","Script","Path",
 			"Font","Info","GM","Timeline" };
 
@@ -150,8 +151,8 @@ public class LGM extends JPanel
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
 		add(split);
-		gameInfo.setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
-		MDI.add(gameInfo);
+		//.setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
+		MDI.add(gameSet);
 		gameInfo.setVisible(true);
 		}
 

@@ -4,11 +4,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 
 public class GameSettingFrame extends JInternalFrame implements ActionListener
@@ -32,8 +37,29 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 			tabbedPane.setMnemonicAt(0,KeyEvent.VK_1);
 			panel1.setLayout(new BoxLayout(panel1,BoxLayout.PAGE_AXIS));
 			startFullscreen = new JCheckBox("Start in FullScreen Mode");
-
+			
+			JPanel scaling = new JPanel();
+			scaling.setBorder(BorderFactory.createTitledBorder("Scaling"));
+			scaling.setLayout(new BoxLayout(scaling,BoxLayout.PAGE_AXIS));
+			ButtonGroup group = new ButtonGroup();
+	    JRadioButton option;
+	    option = new JRadioButton("Fixed scale (in %)");
+			group.add(option);
+			scaling.add(option);
+			option = new JRadioButton("Keep aspect ratio)");
+			group.add(option);
+			scaling.add(option);
+			option = new JRadioButton("Full scale)");
+			group.add(option);
+			scaling.add(option);
+			
+			
 			JCheckBox Interpolatecolors = new JCheckBox("Interpolate colors between pixels");
+			JLabel backcolor = new JLabel(" Color outside the room region:");
+			JButton colorbutton = new JButton("Set color!");
+			//colorbutton.setBackground(arg0);
+			colorbutton.setHideActionText(true);
+			
 			JCheckBox ResizeWindow = new JCheckBox("Allow the player to resize the game window");
 			JCheckBox StayOnTop = new JCheckBox("Let the game window always stay on top");
 			JCheckBox DrawBorderedWindow = new JCheckBox("Don't draw a border in windowed mode");
@@ -41,7 +67,10 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 			JCheckBox DisplayMouse = new JCheckBox("Display Mouse");
 			JCheckBox FreezeGame = new JCheckBox("Freeze the game when the game looses focus");
 			panel1.add(startFullscreen);
+			panel1.add(scaling);
 			panel1.add(Interpolatecolors);
+			panel1.add(backcolor);
+			panel1.add(colorbutton);
 			panel1.add(ResizeWindow);
 			panel1.add(StayOnTop);
 			panel1.add(DrawBorderedWindow);

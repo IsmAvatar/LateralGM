@@ -10,12 +10,15 @@ import java.io.File;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.TreePath;
+
+import SubFrames.GameSettingFrame;
 
 import mainRes.LGM;
 import mainRes.Prefs;
@@ -269,8 +272,15 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						return;
 //						LGM.MDI.add(LGM.gameInfo);
 						}
+
+					if (node.kind == Resource.GAMESETTINGS)
+						{
+						LGM.gameSet.setVisible(true);
+						}
+
 					if (node.kind == Resource.SCRIPT)
 						{
+						if (node.status == ResNode.STATUS_PRIMARY) return;
 						if (Prefs.protectLeaf && node.status != ResNode.STATUS_SECONDARY) return;
 						ScriptFrame sf = new ScriptFrame();
 //						sf.setScript();
@@ -278,6 +288,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						sf.setVisible(true);
 						return;
 						}
+
 					}
 				}
 			}

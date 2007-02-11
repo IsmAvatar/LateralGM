@@ -758,7 +758,7 @@ public class Gm6File
 		return rm2;
 		}
 
-	public GameInformation GameInfo = new GameInformation();
+	public static GameInformation GameInfo = new GameInformation();
 
 	public void ReadGm6File(String FileName,ResNode root) throws Gm6FormatException
 		{
