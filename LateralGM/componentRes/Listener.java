@@ -20,6 +20,8 @@ import javax.swing.tree.TreePath;
 import mainRes.LGM;
 import mainRes.Prefs;
 import resourcesRes.Resource;
+import SubFrames.GameInformationFrame;
+import SubFrames.GameSettingFrame;
 import SubFrames.ScriptFrame;
 import fileRes.Gm6File;
 import fileRes.Gm6FormatException;
@@ -73,6 +75,12 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						}
 					}
 				}
+			LGM.gameInfo.setVisible(false);
+			LGM.gameInfo = new GameInformationFrame();
+			LGM.MDI.add(LGM.gameInfo);
+			LGM.gameSet.setVisible(false);
+			LGM.gameSet = new GameSettingFrame();
+			LGM.MDI.add(LGM.gameSet);
 			return;
 			}
 		if (com.equals("Save"))
@@ -279,7 +287,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						{
 						if (node.status == ResNode.STATUS_PRIMARY) return;
 						if (Prefs.protectLeaf && node.status != ResNode.STATUS_SECONDARY) return;
-						ScriptFrame sf = new ScriptFrame();
+						ScriptFrame sf = new ScriptFrame(node.resourceId);
 //						sf.setScript();
 						LGM.MDI.add(sf);
 						sf.setVisible(true);

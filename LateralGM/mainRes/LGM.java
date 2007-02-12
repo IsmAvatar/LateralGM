@@ -154,7 +154,8 @@ public class LGM extends JPanel
 		add(split);
 		//.setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
 		MDI.add(gameSet);
-		gameInfo.setVisible(true);
+		MDI.add(gameInfo);
+		//gameInfo.setVisible(true);
 		}
 
 	public static void main(String[] args)

@@ -103,7 +103,7 @@ public class Gm6File
 		}
 
 	public static int[] lastId = new int[15];
-	private static final Map<Integer,List<Resource>> resMap;
+	public static final Map<Integer,List<Resource>> resMap;
 	static
 	{
 		Map<Integer,List<Resource>> map = new HashMap<Integer,List<Resource>>();
