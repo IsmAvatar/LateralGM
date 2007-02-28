@@ -45,7 +45,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	public GameInformationFrame()
 		{
 		super("Game Information",true,true,true,true);
-
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(600,400);
 		// Setup the Menu
 		// Create the menu bar

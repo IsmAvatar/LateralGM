@@ -1,8 +1,6 @@
 package SubFrames;
 
 import java.awt.BorderLayout;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;

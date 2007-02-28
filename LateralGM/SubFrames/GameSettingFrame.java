@@ -3,7 +3,6 @@ package SubFrames;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -21,13 +20,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.SpringLayout;
-import javax.swing.border.Border;
 
 import mainRes.LGM;
-
-import fileRes.Gm6File;
 
 public class GameSettingFrame extends JInternalFrame implements ActionListener
 	{
@@ -40,6 +34,7 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 	public GameSettingFrame()
 		{
 		super("Game Settings",true,true,true,true);
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(540,470);
 		setLayout(new FlowLayout());
 		tabbedPane.setPreferredSize(new Dimension(530,400));
