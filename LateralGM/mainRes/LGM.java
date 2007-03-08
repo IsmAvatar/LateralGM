@@ -21,9 +21,7 @@ package mainRes;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.MouseEvent;
 import java.net.URL;
-import java.util.EventObject;
 
 import javax.swing.DropMode;
 import javax.swing.ImageIcon;
@@ -35,8 +33,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
-import javax.swing.tree.DefaultTreeCellEditor;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -46,6 +42,7 @@ import SubFrames.GameInformationFrame;
 import SubFrames.GameSettingFrame;
 
 import componentRes.GmMenuBar;
+import componentRes.GmTreeEditor;
 import componentRes.GmTreeGraphics;
 import componentRes.Listener;
 import componentRes.MDIPane;
@@ -116,30 +113,18 @@ public class LGM extends JPanel
 		{
 		root = newroot;
 		tree = new JTree(new DefaultTreeModel(root));
+		GmTreeGraphics renderer = new GmTreeGraphics();
+		GmTreeEditor editor = new GmTreeEditor(tree, renderer);
 		tree.setEditable(true);
 		tree.addMouseListener(listener);
 		tree.setScrollsOnExpand(true);
 		tree.setTransferHandler(listener);
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.ON_OR_INSERT);
-		tree.setCellRenderer(new GmTreeGraphics());
+		tree.setCellRenderer(renderer);
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
-		tree.setCellEditor(new DefaultTreeCellEditor(tree,(DefaultTreeCellRenderer)tree.getCellRenderer())
-	    	{
-			public boolean isCellEditable(EventObject event)
-				{
-				if (event != null && event.getSource() instanceof JTree && event instanceof MouseEvent)
-					{
-		        	TreePath path = tree.getPathForLocation(
-						((MouseEvent)event).getX(),
-						((MouseEvent)event).getY());
-		        	if(path.getPathCount() <= 2)
-		        		return false;
-					}
-				return super.isCellEditable(event);
-				}
-	    	});
+		tree.setCellEditor(editor);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		if (populate)
 			{
@@ -190,10 +175,5 @@ public class LGM extends JPanel
 		f.setOpaque(true);
 		frame.setContentPane(f);
 		frame.setVisible(true);
-		for (int m = 0; m < tree.getRowCount(); m++)
-			tree.expandRow(m);
-		for (int m = tree.getRowCount() - 1; m >= 0; m--)
-			tree.collapseRow(m);
-		tree.updateUI();
 		}
 	}
