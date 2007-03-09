@@ -34,7 +34,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		{
 		JTree tree = LGM.tree;
 		String com = e.getActionCommand();
-		if (com.equals("New"))
+		if (com.endsWith(".NEW")) //$NON-NLS-1$
 			{
 			LGM f = new LGM();
 			f.createTree(true);
@@ -45,10 +45,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			f.updateUI();
 			return;
 			}
-		if (com.equals("Open..."))
+		if (com.endsWith(".OPEN")) //$NON-NLS-1$
 			{
 			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new CustomFileFilter(".gm6","Game Maker 6 Files"));
+			fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-2$
 			fc.showOpenDialog(LGM.frame);
 
 			if (fc.getSelectedFile() != null)
@@ -70,8 +70,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						}
 					catch (Gm6FormatException ex)
 						{
-						JOptionPane.showMessageDialog(LGM.frame,"error occured in:\n" + ex.stackAsString()
-								+ "\nmessage: " + ex.getMessage(),"Error Loading File",JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(LGM.frame,String.format(Messages.getString("Listener.ERROR_MESSAGE"), ex.stackAsString(), ex.getMessage()), Messages.getString("Listener.ERROR_TITLE"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 						}
 					}
 				}
@@ -83,14 +82,14 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			LGM.MDI.add(LGM.gameSet);
 			return;
 			}
-		if (com.equals("Save"))
+		if (com.endsWith(".SAVE")) //$NON-NLS-1$
 			{
 			return; // make a .gb1 file for backup, in case this corrupts the file.
 			}
-		if (com.equals("Save As..."))
+		if (com.endsWith(".SAVEAS")) //$NON-NLS-1$
 			{
 			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new CustomFileFilter(".gm6","Game Maker 6 Files"));
+			fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-2$
 			while (true)
 				{
 				if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
@@ -98,8 +97,9 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				if (!filename.endsWith(".gm6")) filename += ".gm6";
 				int result = 0;
 				if (new File(filename).exists())
-					result = JOptionPane.showConfirmDialog(LGM.frame,filename
-							+ " already exists. Do you wish to replace it?","Save File",
+					result = JOptionPane.showConfirmDialog(LGM.frame,
+							String.format(Messages.getString("Listener.CONFIRM_REPLACE"), filename), //$NON-NLS-1$
+							Messages.getString("Listener.CONFIRM_REPLACE_TITLE"), //$NON-NLS-1$
 							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
 				if (result == 0)
 					{
@@ -109,21 +109,21 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				if (result == 2) return;
 				}
 			}
-		if (com.equals("Exit"))
+		if (com.endsWith(".EXIT")) //$NON-NLS-1$
 			{
 			LGM.frame.dispose();
 			return;
 			}
-		if (com.startsWith("Insert "))
+		if (com.contains(".INSERT_")) //$NON-NLS-1$
 			{
 			ResNode node = (ResNode)tree.getLastSelectedPathComponent();
 			if (node == null) return;
 			ResNode parent = (ResNode)node.getParent();
 			int pos = parent.getIndex(node);
-			com = com.replaceAll("Insert ","");
-			if (com.equals("Group"))
+			com = com.substring(com.lastIndexOf('_') + 1);
+			if (com.equals("GROUP")) //$NON-NLS-1$
 				{
-				String name = JOptionPane.showInputDialog("Group Name?","group");
+				String name = JOptionPane.showInputDialog(Messages.getString("Listener.INPUT_GROUPNAME"),"group"); //$NON-NLS-1$
 				if (name == "") return;
 				ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
 				parent.insert(g,pos);
@@ -133,7 +133,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				return;
 				}
 			}
-		if (com.startsWith("Add "))
+		if (com.contains(".ADD_")) //$NON-NLS-1$
 			{
 			ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 			if (node == null) return;
@@ -149,10 +149,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				parent = (ResNode)node.getParent();
 				pos = parent.getIndex(node) + 1;
 				}
-			com = com.replaceAll("Add ","");
-			if (com.equals("Group"))
+			com = com.substring(com.lastIndexOf('_') + 1);
+			if (com.equals("GROUP")) //$NON-NLS-1$
 				{
-				String name = JOptionPane.showInputDialog("Group Name?","Group");
+				String name = JOptionPane.showInputDialog(Messages.getString("Listener.INPUT_GROUPNAME"),"Group"); //$NON-NLS-1$
 				if (name == "") return;
 				ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
 				parent.insert(g,pos);
@@ -162,17 +162,17 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				return;
 				}
 			}
-		if (com.equals("Rename"))
+		if (com.endsWith(".RENAME")) //$NON-NLS-1$
 			{
 			tree.startEditingAtPath(tree.getLeadSelectionPath());
 			return;
 			}
-		if (com.equals("Delete"))
+		if (com.endsWith(".DELETE")) //$NON-NLS-1$
 			{
 			ResNode me = (ResNode) tree.getLastSelectedPathComponent();
 			if (me == null) return;
 			if (Prefs.protectRoot && me.status == ResNode.STATUS_PRIMARY) return;
-			if (JOptionPane.showConfirmDialog(null,"Delete this resource?","Delete",JOptionPane.YES_NO_OPTION) == 0)
+			if (JOptionPane.showConfirmDialog(null,Messages.getString("Listener.CONFIRM_DELETERESOURCE"),Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$ //$NON-NLS-2$
 				{
 				ResNode next = (ResNode) me.getNextSibling();
 				if (next == null) next = (ResNode) me.getParent();
@@ -183,13 +183,13 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				}
 			return;
 			}
-		if (com.equals("Expand"))
+		if (com.endsWith(".EXPAND")) //$NON-NLS-1$
 			{
 			for (int m = 0; m < tree.getRowCount(); m++)
 				tree.expandRow(m);
 			return;
 			}
-		if (com.equals("Collapse"))
+		if (com.endsWith(".COLLAPSE")) //$NON-NLS-1$
 			{
 			for (int m = tree.getRowCount() - 1; m >= 0; m--)
 				tree.collapseRow(m);

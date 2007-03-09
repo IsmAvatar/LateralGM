@@ -17,7 +17,7 @@ public class LibManager
     {
         public boolean accept(File dir,String name)
         {
-            return name.toLowerCase().endsWith(".lib");
+            return name.toLowerCase().endsWith(".lib"); //$NON-NLS-1$
         }
     }
     private static ArrayList<Library> Libs=new ArrayList<Library>();
@@ -93,7 +93,8 @@ public class LibManager
         Arrays.sort(files);//listFiles does not guarantee a particular order
         for(int i=0;i<files.length;i++)
         {
-            System.out.println("loading lib file"+files[i].getPath());
+            System.out.printf(Messages.getString("LibManager.LOADING"), files[i].getPath()); //$NON-NLS-1$
+            System.out.println();
             try
             {
                 LoadLibFile(files[i].getPath());
@@ -114,7 +115,7 @@ public class LibManager
             int version=in.readi();
             if (version!=520)
             {
-                throw new LibFormatException("Unsupported Library file, or corrupt/invalid file: "+FileName);
+                throw new LibFormatException(String.format(Messages.getString("LibManager.ERROR_INVALIDFILE"), FileName)); //$NON-NLS-1$
             }
             //System.out.println("GM version: "+version);
             lib=new Library();
@@ -134,7 +135,7 @@ public class LibManager
                 int ver=in.readi();
                 if (ver!=520)
                 {
-                    throw new LibFormatException("Unsupported action definition, or corrupt/invalid in action "+j+", Library: "+FileName+" - as read, version = "+ver);
+                    throw new LibFormatException(String.format(Messages.getString("LibManager.ERROR_INVALIDACTION"), j, FileName, ver)); //$NON-NLS-1$
                 }
                 
                 LibAction act=lib.addLibAction();
@@ -199,11 +200,11 @@ public class LibManager
         }
         catch (FileNotFoundException ex)
         {
-            throw new LibFormatException("Error opening File "+FileName+" : The file was not found");
+            throw new LibFormatException(String.format(Messages.getString("LibManager.ERROR_NOTFOUND"), FileName)); //$NON-NLS-1$
         }
         catch (IOException ex)
         {
-            throw new LibFormatException("Error reading file "+FileName+" :\n"+ex.getMessage());
+            throw new LibFormatException(String.format(Messages.getString("LibManager.ERROR_READING"), FileName, ex.getMessage())); //$NON-NLS-1$
         }
         finally
         {
@@ -217,7 +218,7 @@ public class LibManager
             }
             catch (IOException ex)
             {
-                throw new LibFormatException("File closing failsafe has failed");
+                throw new LibFormatException(Messages.getString("LibManager.ERROR_CLOSEFAILED")); //$NON-NLS-1$
             }
         }
         Libs.add(lib);

@@ -47,7 +47,7 @@ public class GmStreamDecoder
 		int b = _in.read();
 		int c = _in.read();
 		int d = _in.read();
-		if (a == -1 || b == -1 || c == -1 || d == -1) throw new IOException("unexpected end of file reached");
+		if (a == -1 || b == -1 || c == -1 || d == -1) throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF"));
 		long result = (a | (b << 8) | (c << 16) | (d << 24));
 		return (int) result;
 		}
@@ -56,14 +56,14 @@ public class GmStreamDecoder
 		{
 		byte data[] = new byte[readi()];
 		long check = _in.read(data);
-		if (check < data.length) throw new IOException("unexpected end of file reached");
+		if (check < data.length) throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF"));
 		return new String(data);
 		}
 
 	public boolean readBool() throws IOException
 		{
 		int val = readi();
-		if (val != 0 && val != 1) throw new IOException("invalid boolean data: " + val);
+		if (val != 0 && val != 1) throw new IOException(String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"), val));
 		if (val == 0) return false;
 		return true;
 		}

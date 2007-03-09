@@ -37,15 +37,15 @@ public class ScriptFrame extends JInternalFrame
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
-		add("North",tool);
+		add("North",tool); //$NON-NLS-1$
 		// Setup the buttons
-		JButton but = new JButton(LGM.findIcon("save.png"));
-		but.setActionCommand("Save");
+		JButton but = new JButton(LGM.findIcon("save.png")); //$NON-NLS-1$
+		but.setActionCommand("Save"); //$NON-NLS-1$
 //		but.addActionListener(this);
 		tool.add(but);
 		tool.addSeparator();
-		tool.add(new JLabel("Name:"));
-		name = new JTextField(new NameDocument(),"",13);
+		tool.add(new JLabel(Messages.getString("ScriptFrame.NAME"))); //$NON-NLS-1$
+		name = new JTextField(new NameDocument(),"",13); //$NON-NLS-1$
 		name.setMaximumSize(name.getPreferredSize());
 		tool.add(name);
 		//the code text area

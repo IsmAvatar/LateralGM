@@ -55,7 +55,8 @@ public class Sprite extends Resource
         }
         catch (IOException ex)
         {
-            System.err.println("error getting image data for subimage "+NoSubImages()+" sprite "+Id.value);
+            System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"), NoSubImages(), Id.value);
+            System.err.println();
         }
         return result;
     }

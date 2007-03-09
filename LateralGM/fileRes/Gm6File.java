@@ -127,7 +127,7 @@ public class Gm6File
 		try
 			{
 			BufferedInputStream in = new BufferedInputStream(new FileInputStream(
-					new File(Gm6File.class.getResource("default.ico").toURI())));
+					new File(Gm6File.class.getResource("default.ico").toURI()))); //$NON-NLS-1$
 			ByteArrayOutputStream dat = new ByteArrayOutputStream();
 			int val = in.read();
 			while (val != -1)
@@ -140,8 +140,7 @@ public class Gm6File
 		catch (Exception ex)
 			{
 			GameIconData = new byte[0];
-			System.err
-					.println("default icon not found, any saved files will have no icon unless one is assigned manually.");
+			System.err.println(Messages.getString("Gm6File.NOICON")); //$NON-NLS-1$
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
 			}
@@ -210,10 +209,10 @@ public class Gm6File
 	public boolean WriteToLog = false;
 	public boolean AbortOnError = false;
 	public boolean TreatUninitializedAs0 = false;
-	public String Author = "";
+	public String Author = ""; //$NON-NLS-1$
 	public int Version = 100;
 	public double LastChanged = 0;
-	public String Information = "";
+	public String Information = ""; //$NON-NLS-1$
 	public int IncludeFolder = INCLUDE_MAIN;
 	public boolean OverwriteExisting = false;
 	public boolean RemoveAtGameEnd = false;
@@ -771,15 +770,14 @@ public class Gm6File
 			idStack rmids = new idStack(); // room ids
 			int identifier = in.readi();
 			if (identifier != 1234321)
-				throw new Gm6FormatException(FileName + " is not a valid gm6 file, initial identifier is invalid: "
-						+ identifier);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_INVALID"), FileName, identifier)); //$NON-NLS-1$
 			int ver = in.readi();
-			if (ver != 600) throw new Gm6FormatException("GM version unsupported or file corrupt: " + ver);
+			if (ver != 600) throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED"), ver)); //$NON-NLS-1$
 			GameId = in.readi();
 			in.skip(16);// unknown bytes following game id
 			ver = in.readi();
 			if (ver != 600)
-				throw new Gm6FormatException("GM version unsupported or file corrupt: " + ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED"), ver)); //$NON-NLS-1$
 			StartFullscreen = in.readBool();
 			Interpolate = in.readBool();
 			DontDrawBorder = in.readBool();
@@ -849,7 +847,7 @@ public class Gm6File
 			RemoveAtGameEnd = in.readBool();
 			ver = in.readi();
 			if (ver != 400)
-				throw new Gm6FormatException("Before sounds - GM version unsupported or file corrupt: " + ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFORESOUNDS"), ver)); //$NON-NLS-1$
 			// SOUNDS
 			no = in.readi();
 			lastId[Resource.SOUND] = 0;
@@ -861,8 +859,7 @@ public class Gm6File
 					snd.name = in.readStr();
 					ver = in.readi();
 					if (ver != 600)
-						throw new Gm6FormatException("In sound " + i
-								+ " - GM version unsupported or file corrupt: " + ver);
+						throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INSOUND"), i, ver)); //$NON-NLS-1$
 					snd.Type = (byte) in.readi();
 					snd.FileType = in.readStr();
 					snd.FileName = in.readStr();
@@ -884,7 +881,7 @@ public class Gm6File
 
 			ver = in.readi();
 			if (ver != 400)
-				throw new Gm6FormatException("Before Sprites - GM version unsupported or file corrupt: " + ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFORESPRITES"), ver)); //$NON-NLS-1$
 			// SPRITES
 			no = in.readi();
 			lastId[Resource.SPRITE] = 0;
@@ -896,8 +893,7 @@ public class Gm6File
 					spr.name = in.readStr();
 					ver = in.readi();
 					if (ver != 542)
-						throw new Gm6FormatException("In sprite " + i
-								+ " - GM version unsupported or file corrupt: " + ver);
+						throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INSPRITE"), i, ver)); //$NON-NLS-1$
 					spr.Width = in.readi();
 					spr.Height = in.readi();
 					spr.BoundingBoxLeft = in.readi();
@@ -924,7 +920,7 @@ public class Gm6File
 
 			ver = in.readi();
 			if (ver != 400)
-				throw new Gm6FormatException("Before Backgrounds - GM version unsupported or file corrupt: " + ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREBACKGROUNDS"), ver)); //$NON-NLS-1$
 			// BACKGROUNDS
 			no = in.readi();
 			lastId[Resource.BACKGROUND] = 0;
@@ -936,8 +932,7 @@ public class Gm6File
 					back.name = in.readStr();
 					ver = in.readi();
 					if (ver != 543)
-						throw new Gm6FormatException("In Background " + i
-								+ " - GM version unsupported or file corrupt: " + ver);
+						throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INBACKGROUND"), i, ver)); //$NON-NLS-1$
 					back.Width = in.readi();
 					back.Height = in.readi();
 					back.Transparent = in.readBool();
@@ -961,7 +956,7 @@ public class Gm6File
 				}
 			ver = in.readi();
 			if (ver != 420)
-				throw new Gm6FormatException("Before Paths - GM version unsupported or file corrupt: " + ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREPATHS"), ver)); //$NON-NLS-1$
 			// PATHS
 			no = in.readi();
 			lastId[Resource.PATH] = 0;
@@ -973,8 +968,7 @@ public class Gm6File
 					path.name = in.readStr();
 					ver = in.readi();
 					if (ver != 530)
-						throw new Gm6FormatException("In Path " + i + " - GM version unsupported or file corrupt: "
-								+ ver);
+						throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INPATH"), i, ver)); //$NON-NLS-1$
 					path.Smooth = in.readBool();
 					path.Closed = in.readBool();
 					path.Precision = in.readi();
@@ -995,7 +989,7 @@ public class Gm6File
 				}
 			ver = in.readi();
 			if (ver != 400)
-				throw new Gm6FormatException("Before Scripts - GM version unsupported or file corrupt: " + ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFORESCRIPTS"), ver)); //$NON-NLS-1$
 			// SCRIPTS
 			no = in.readi();
 			lastId[Resource.SCRIPT] = 0;
@@ -1007,8 +1001,7 @@ public class Gm6File
 					scr.name = in.readStr();
 					ver = in.readi();
 					if (ver != 400)
-						throw new Gm6FormatException("In script " + i
-								+ " - GM version unsupported or file corrupt: " + ver);
+						throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INSCRIPT"), i, ver)); //$NON-NLS-1$
 					scr.ScriptStr = in.readStr();
 					}
 				else
@@ -1017,7 +1010,7 @@ public class Gm6File
 
 			ver = in.readi();
 			if (ver != 540)
-				throw new Gm6FormatException("Before Fonts - GM version unsupported or file corrupt: " + ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREFONTS"), ver)); //$NON-NLS-1$
 			// FONTS
 			no = in.readi();
 			lastId[Resource.FONT] = 0;
@@ -1029,8 +1022,7 @@ public class Gm6File
 					font.name = in.readStr();
 					ver = in.readi();
 					if (ver != 540)
-						throw new Gm6FormatException("In Font " + i
-								+ " - GM version unsupported or file corrupt: " + ver);
+						throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INFONT"), i, ver)); //$NON-NLS-1$
 					font.FontName = in.readStr();
 					font.Size = in.readi();
 					font.Bold = in.readBool();
@@ -1044,7 +1036,7 @@ public class Gm6File
 
 			ver = in.readi();
 			if (ver != 500)
-				throw new Gm6FormatException("Before Timelines - GM version unsupported or file corrupt: " + ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFORETIMELINES"), ver)); //$NON-NLS-1$
 			// TIMELINES
 			no = in.readi();
 			lastId[Resource.TIMELINE] = 0;
@@ -1057,8 +1049,7 @@ public class Gm6File
 					time.name = in.readStr();
 					ver = in.readi();
 					if (ver != 500)
-						throw new Gm6FormatException("In Timeline " + i
-								+ " - GM version unsupported or file corrupt: " + ver);
+						throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INTIMELINE"), i, ver)); //$NON-NLS-1$
 					int nomoms = in.readi();
 					for (int j = 0; j < nomoms; j++)
 						{
@@ -1066,8 +1057,7 @@ public class Gm6File
 						mom.stepNo = in.readi();
 						ver = in.readi();
 						if (ver != 400)
-							throw new Gm6FormatException("In Object " + i + ", Main event type " + j
-									+ " - GM version unsupported or file corrupt: " + ver);
+							throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INTIMELINEMOMENT"), i, j, ver)); //$NON-NLS-1$
 						int noacts = in.readi();
 						for (int k = 0; k < noacts; k++)
 							{
@@ -1155,7 +1145,7 @@ public class Gm6File
 				}
 			ver = in.readi();
 			if (ver != 400)
-				throw new Gm6FormatException("Before Objects - GM version unsupported or file corrupt: " + ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREOBJECTS"), ver)); //$NON-NLS-1$
 			// OBJECTS
 			no = in.readi();
 			lastId[Resource.GMOBJECT] = 0;
@@ -1168,8 +1158,7 @@ public class Gm6File
 					obj.name = in.readStr();
 					ver = in.readi();
 					if (ver != 430)
-						throw new Gm6FormatException("In Object " + i
-								+ " - GM version unsupported or file corrupt: " + ver);
+						throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INOBJECT"), i, ver)); //$NON-NLS-1$
 					int temp = in.readi();
 					if (getUnsafe(Resource.SPRITE,temp) != null)
 						obj.Sprite = getUnsafe(Resource.SPRITE,temp).Id;
@@ -1197,8 +1186,7 @@ public class Gm6File
 									ev.Id = first;
 								ver = in.readi();
 								if (ver != 400)
-									throw new Gm6FormatException("In Object " + i + ", Main event type " + j
-											+ " - GM version unsupported or file corrupt: " + ver);
+									throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INOBJECTEVENT"), i, j, ver)); //$NON-NLS-1$
 								int noacts = in.readi();
 								for (int k = 0; k < noacts; k++)
 									{
@@ -1290,7 +1278,7 @@ public class Gm6File
 				}
 			ver = in.readi();
 			if (ver != 420)
-				throw new Gm6FormatException("Before Rooms - GM version unsupported or file corrupt: " + ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREROOMS"), ver)); //$NON-NLS-1$
 			// ROOMS
 			no = in.readi();
 			lastId[Resource.ROOM] = 0;
@@ -1303,8 +1291,7 @@ public class Gm6File
 					rm.name = in.readStr();
 					ver = in.readi();
 					if (ver != 541)
-						throw new Gm6FormatException("In Room " + i
-								+ " - GM version unsupported or file corrupt: " + ver);
+						throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_INROOM"), i, ver)); //$NON-NLS-1$
 					rm.Caption = in.readStr();
 					rm.Width = in.readi();
 					rm.Height = in.readi();
@@ -1407,8 +1394,7 @@ public class Gm6File
 			LastTileId = in.readi();
 			ver = in.readi();
 			if (ver != 600)
-				throw new Gm6FormatException("Before Game Information - GM version unsupported or file corrupt: "
-						+ ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREINFO"), ver)); //$NON-NLS-1$
 			GameInfo.BackgroundColor = in.readi();
 			GameInfo.MimicGameWindow = in.readBool();
 			GameInfo.FormCaption = in.readStr();
@@ -1423,8 +1409,7 @@ public class Gm6File
 			GameInfo.GameInfoStr = in.readStr();
 			ver = in.readi();
 			if (ver != 500)
-				throw new Gm6FormatException("After Game Information - GM version unsupported or file corrupt: "
-						+ ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_AFTERINFO"), ver)); //$NON-NLS-1$
 			no = in.readi();
 			for (int j = 0; j < no; j++)
 				{
@@ -1433,13 +1418,12 @@ public class Gm6File
 				}
 			ver = in.readi();
 			if (ver != 540)
-				throw new Gm6FormatException(
-						"In the second version after Game Information - GM version unsupported or file corrupt: "
-								+ ver);
+				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED_AFTERINFO2"), ver)); //$NON-NLS-1$
 			in.skip(in.readi() * 4);// room indexes in tree order;
 			in.readTree(root);
 			clock.stop();
-			System.out.println("time taken to load file: " + clock.getElapsed() + " ms");
+			System.out.printf(Messages.getString("Gm6File.LOADTIME"), clock.getElapsed()); //$NON-NLS-1$
+			System.out.println();
 			}
 		catch (Exception ex)
 			{
@@ -1455,7 +1439,7 @@ public class Gm6File
 				}
 			catch (IOException ex)
 				{
-				throw new Gm6FormatException("For some reason, the file closing failsafe has failed");
+				throw new Gm6FormatException(Messages.getString("Gm6File.ERROR_CLOSEFAILED")); //$NON-NLS-1$
 				}
 			}
 		}
@@ -1782,7 +1766,7 @@ public class Gm6File
 										}
 									}
 								else
-									out.writeStr("");
+									out.writeStr(""); //$NON-NLS-1$
 								}
 							out.writeBool(act.Not);
 							}
@@ -1876,7 +1860,7 @@ public class Gm6File
 											}
 										}
 									else
-										out.writeStr("");
+										out.writeStr(""); //$NON-NLS-1$
 									}
 								out.writeBool(act.Not);
 								}

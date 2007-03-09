@@ -44,7 +44,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 	public GameInformationFrame()
 		{
-		super("Game Information",true,true,true,true);
+		super(Messages.getString("GameInformationFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(600,400);
 		// Setup the Menu
@@ -53,64 +53,64 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 			// Create File menu
 			{
-			JMenu Fmenu = new JMenu("File");
+			JMenu Fmenu = new JMenu(Messages.getString("GameInformationFrame.MENU_FILE")); //$NON-NLS-1$
 			menuBar.add(Fmenu);
 			Fmenu.addActionListener(this);
 
 			// Create a file menu items
-			JMenuItem item = addItem("Load from a file");
+			JMenuItem item = addItem("GameInformationFrame.LOAD"); //$NON-NLS-1$
 			Fmenu.add(item);
-			item = addItem("Save to a file");
+			item = addItem("GameInformationFrame.SAVE"); //$NON-NLS-1$
 			Fmenu.add(item);
 			Fmenu.addSeparator();
-			item = addItem("Options...");
+			item = addItem("GameInformationFrame.OPTIONS"); //$NON-NLS-1$
 			item.setEnabled(false);
 			Fmenu.add(item);
 			Fmenu.addSeparator();
-			item = addItem("Print...");
+			item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
 			item.setEnabled(false);
 			Fmenu.add(item);
 			Fmenu.addSeparator();
-			item = addItem("Close saving changes");
+			item = addItem("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
 			Fmenu.add(item);
 			}
 
 			// Create Edit menu
 			{
-			JMenu Emenu = new JMenu("Edit");
+			JMenu Emenu = new JMenu(Messages.getString("GameInformationFrame.MENU_EDIT")); //$NON-NLS-1$
 			menuBar.add(Emenu);
 
 			// Create a menu item
-			JMenuItem item = addItem("Undo");
+			JMenuItem item = addItem("GameInformationFrame.UNDO"); //$NON-NLS-1$
 			Emenu.add(item);
 			item.setEnabled(false);
 			Emenu.addSeparator();
-			item = addItem("Cut");
+			item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
 			Emenu.add(item);
 			item.setEnabled(false);
-			item = addItem("Copy");
+			item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
 			Emenu.add(item);
 			item.setEnabled(false);
-			item = addItem("Paste");
-			Emenu.add(item);
-			item.setEnabled(false);
-			Emenu.addSeparator();
-			item = addItem("Select All");
+			item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
 			Emenu.add(item);
 			item.setEnabled(false);
 			Emenu.addSeparator();
-			item = addItem("Goto line");
+			item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
+			Emenu.add(item);
+			item.setEnabled(false);
+			Emenu.addSeparator();
+			item = addItem("GameInformationFrame.GOTO"); //$NON-NLS-1$
 			Emenu.add(item);
 			item.setEnabled(false);
 			}
 
 			// Create Format menu
 			{
-			JMenu Fmenu = new JMenu("Format");
+			JMenu Fmenu = new JMenu(Messages.getString("GameInformationFrame.MENU_FORMAT")); //$NON-NLS-1$
 			menuBar.add(Fmenu);
 
 			// Create a menu item
-			JMenuItem item = addItem("Font...");
+			JMenuItem item = addItem("GameInformationFrame.FONT"); //$NON-NLS-1$
 			// item.addActionListener(actionListener);
 			Fmenu.add(item);
 			}
@@ -126,7 +126,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 			// Setup the buttons
 			JButton but = new JButton(LGM.findIcon("save.png"));
-			but.setActionCommand("Save");
+			but.setActionCommand("GameInformationFrame.SAVE"); //$NON-NLS-1$
 			but.addActionListener(this);
 			tool.add(but);
 
@@ -219,11 +219,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			}
 		}
 
-	public JMenuItem addItem(String name)
+	public JMenuItem addItem(String key)
 		{
-		JMenuItem item = new JMenuItem(name);
-		item.setIcon(LGM.findIcon(name + ".png"));
-		item.setActionCommand(name);
+		JMenuItem item = new JMenuItem(Messages.getString(key));
+		item.setIcon(LGM.getIconForKey(key));
+		item.setActionCommand(key);
 		item.addActionListener(this);
 		add(item);
 		return item;
@@ -232,7 +232,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	public void load_from_file()
 		{
 		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".rtf","Rich text Files"));
+		fc.setFileFilter(new CustomFileFilter(".rtf",Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-2$
 		fc.showOpenDialog(this);
 		if (fc.getSelectedFile() != null)
 			{
@@ -259,7 +259,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	public void save_to_file()
 		{
 		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".rtf","Rich text Files"));
+		fc.setFileFilter(new CustomFileFilter(".rtf",Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-2$
 		fc.showSaveDialog(this);
 		if (fc.getSelectedFile() != null)
 			{
@@ -287,11 +287,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		{
 		String com = arg0.getActionCommand();
 		System.out.println(com);
-		if (com.equals("Load from a file"))
+		if (com.equals("GameInformationFrame.LOAD")) //$NON-NLS-1$
 			{
 			load_from_file();
 			}
-		if (com.equals("Save to a file"))
+		if (com.equals("GameInformationFrame.SAVE")) //$NON-NLS-1$
 			{
 			save_to_file();
 			}

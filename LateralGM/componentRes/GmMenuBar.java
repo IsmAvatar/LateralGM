@@ -19,82 +19,82 @@ public class GmMenuBar extends JMenuBar
 
 	public GmMenuBar()
 		{
-		menu = new GmMenu("File");
+		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
 		menu.setMnemonic(KeyEvent.VK_F);
 		add(menu);
 
-		menu.addItem("New",KeyEvent.VK_N,KeyEvent.VK_N,ActionEvent.CTRL_MASK);
-		menu.addItem("Open...",KeyEvent.VK_O,KeyEvent.VK_O,ActionEvent.CTRL_MASK);
-		menu.addItem("Save",KeyEvent.VK_S,KeyEvent.VK_S,ActionEvent.CTRL_MASK);
-		menu.addItem("Save As...",KeyEvent.VK_A);
+		menu.addItem("GmMenuBar.NEW",KeyEvent.VK_N,KeyEvent.VK_N,ActionEvent.CTRL_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.OPEN",KeyEvent.VK_O,KeyEvent.VK_O,ActionEvent.CTRL_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.SAVE",KeyEvent.VK_S,KeyEvent.VK_S,ActionEvent.CTRL_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.SAVEAS",KeyEvent.VK_A); //$NON-NLS-1$
 		menu.add(new JSeparator());
-		JCheckBoxMenuItem check = new JCheckBoxMenuItem("Advanced Mode");
+		JCheckBoxMenuItem check = new JCheckBoxMenuItem(Messages.getString("GmMenuBar.ADVANCED")); //$NON-NLS-1$
 		check.setMnemonic(KeyEvent.VK_V);
 		menu.add(check);
-		menu.addItem("Preferences...",KeyEvent.VK_P);
+		menu.addItem("GmMenuBar.PREFERENCES",KeyEvent.VK_P); //$NON-NLS-1$
 		menu.add(new JSeparator());
-		menu.addItem("Exit",KeyEvent.VK_X,KeyEvent.VK_F4,ActionEvent.ALT_MASK);
+		menu.addItem("GmMenuBar.EXIT",KeyEvent.VK_X,KeyEvent.VK_F4,ActionEvent.ALT_MASK); //$NON-NLS-1$
 
-		menu = new GmMenu("Edit");
+		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_EDIT")); //$NON-NLS-1$
 		menu.setMnemonic(KeyEvent.VK_E);
 		add(menu);
 
-		GmMenu sub = new GmMenu("Insert");
+		GmMenu sub = new GmMenu(Messages.getString("GmMenuBar.MENU_INSERT")); //$NON-NLS-1$
 		sub.setMnemonic(KeyEvent.VK_I);
 		menu.add(sub);
-		sub.addItem("Insert Group",KeyEvent.VK_G);
+		sub.addItem("GmMenuBar.INSERT_GROUP",KeyEvent.VK_G); //$NON-NLS-1$
 		sub.add(new JSeparator());
-		sub.addItem("Insert Sprite",KeyEvent.VK_I);
-		sub.addItem("Insert Sound",KeyEvent.VK_M);
-		sub.addItem("Insert Background",KeyEvent.VK_B);
-		sub.addItem("Insert Path",KeyEvent.VK_P);
-		sub.addItem("Insert Script",KeyEvent.VK_S);
-		sub.addItem("Insert Font",KeyEvent.VK_F);
-		sub.addItem("Insert Timeline",KeyEvent.VK_T);
-		sub.addItem("Insert Object",KeyEvent.VK_O);
-		sub.addItem("Insert Room",KeyEvent.VK_R);
+		sub.addItem("GmMenuBar.INSERT_SPRITE",KeyEvent.VK_I); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.INSERT_SOUND",KeyEvent.VK_M); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.INSERT_BACKGROUND",KeyEvent.VK_B); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.INSERT_PATH",KeyEvent.VK_P); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.INSERT_SCRIPT",KeyEvent.VK_S); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.INSERT_FONT",KeyEvent.VK_F); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.INSERT_TIMELINE",KeyEvent.VK_T); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.INSERT_OBJECT",KeyEvent.VK_O); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.INSERT_ROOM",KeyEvent.VK_R); //$NON-NLS-1$
 
-		sub = new GmMenu("Add");
+		sub = new GmMenu(Messages.getString("GmMenuBar.MENU_ADD")); //$NON-NLS-1$
 		sub.setMnemonic(KeyEvent.VK_I);
 		menu.add(sub);
-		sub.addItem("Add Group",KeyEvent.VK_G);
+		sub.addItem("GmMenuBar.ADD_GROUP",KeyEvent.VK_G); //$NON-NLS-1$
 		sub.add(new JSeparator());
-		sub.addItem("Add Sprite",KeyEvent.VK_I);
-		sub.addItem("Add Sound",KeyEvent.VK_M);
-		sub.addItem("Add Background",KeyEvent.VK_B);
-		sub.addItem("Add Path",KeyEvent.VK_P);
-		sub.addItem("Add Script",KeyEvent.VK_S);
-		sub.addItem("Add Font",KeyEvent.VK_F);
-		sub.addItem("Add Timeline",KeyEvent.VK_T);
-		sub.addItem("Add Object",KeyEvent.VK_O);
-		sub.addItem("Add Room",KeyEvent.VK_R);
+		sub.addItem("GmMenuBar.ADD_SPRITE",KeyEvent.VK_I); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.ADD_SOUND",KeyEvent.VK_M); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.ADD_BACKGROUND",KeyEvent.VK_B); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.ADD_PATH",KeyEvent.VK_P); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.ADD_SCRIPT",KeyEvent.VK_S); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.ADD_FONT",KeyEvent.VK_F); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.ADD_TIMELINE",KeyEvent.VK_T); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.ADD_OBJECT",KeyEvent.VK_O); //$NON-NLS-1$
+		sub.addItem("GmMenuBar.ADD_ROOM",KeyEvent.VK_R); //$NON-NLS-1$
 
 		menu.add(new JSeparator());
-		menu.addItem("Rename",KeyEvent.VK_R,KeyEvent.VK_F2,0);
-		menu.addItem("Delete",KeyEvent.VK_D,KeyEvent.VK_DELETE,ActionEvent.SHIFT_MASK);
-		menu.addItem("Copy",KeyEvent.VK_C,KeyEvent.VK_INSERT,ActionEvent.ALT_MASK);
+		menu.addItem("GmMenuBar.RENAME",KeyEvent.VK_R,KeyEvent.VK_F2,0); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.DELETE",KeyEvent.VK_D,KeyEvent.VK_DELETE,ActionEvent.SHIFT_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.COPY",KeyEvent.VK_C,KeyEvent.VK_INSERT,ActionEvent.ALT_MASK); //$NON-NLS-1$
 		menu.add(new JSeparator());
-		menu.addItem("Properties",KeyEvent.VK_P,KeyEvent.VK_ENTER,ActionEvent.ALT_MASK);
+		menu.addItem("GmMenuBar.PROPERTIES",KeyEvent.VK_P,KeyEvent.VK_ENTER,ActionEvent.ALT_MASK); //$NON-NLS-1$
 
-		menu = new GmMenu("Resources");
+		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_RESOURCES")); //$NON-NLS-1$
 		menu.setMnemonic(KeyEvent.VK_R);
 		add(menu);
 
-		menu.addItem("Verify Names",KeyEvent.VK_V);
-		menu.addItem("Syntax Check",KeyEvent.VK_S);
+		menu.addItem("GmMenuBar.VERIFYNAMES",KeyEvent.VK_V); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.SYNTAXCHECK",KeyEvent.VK_S); //$NON-NLS-1$
 		menu.add(new JSeparator());
-		menu.addItem("Find...",KeyEvent.VK_F,KeyEvent.VK_F,ActionEvent.ALT_MASK + ActionEvent.CTRL_MASK);
-		menu.addItem("Annotate",KeyEvent.VK_A);
+		menu.addItem("GmMenuBar.FIND",KeyEvent.VK_F,KeyEvent.VK_F,ActionEvent.ALT_MASK + ActionEvent.CTRL_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.ANNOTATE",KeyEvent.VK_A); //$NON-NLS-1$
 		menu.add(new JSeparator());
-		menu.addItem("Expand",KeyEvent.VK_E);
-		menu.addItem("Collapse",KeyEvent.VK_C);
+		menu.addItem("GmMenuBar.EXPAND",KeyEvent.VK_E); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.COLLAPSE",KeyEvent.VK_C); //$NON-NLS-1$
 
-		menu = new GmMenu("Help");
+		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_HELP")); //$NON-NLS-1$
 		menu.setMnemonic(KeyEvent.VK_H);
 		add(menu);
 
-		menu.addItem("Manual",KeyEvent.VK_M,KeyEvent.VK_F1,0);
-		menu.addItem("About",KeyEvent.VK_A);
+		menu.addItem("GmMenuBar.MANUAL",KeyEvent.VK_M,KeyEvent.VK_F1,0); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.ABOUT",KeyEvent.VK_A); //$NON-NLS-1$
 		}
 
 	public class GmMenu extends JMenu
@@ -106,22 +106,18 @@ public class GmMenuBar extends JMenuBar
 			super(s);
 			}
 
-		public JMenuItem addItem(String name,int alt)
+		public JMenuItem addItem(String key,int alt)
 			{
-			JMenuItem item = new JMenuItem(name.replaceAll("Add ","").replaceAll("Insert ",""),alt);
-			item.setIcon(LGM.findIcon(name.replaceAll("Add ","").replaceAll("Insert ","") + ".png"));
-			item.setActionCommand(name);
-			item.addActionListener(LGM.listener);
-			add(item);
-			return item;
+			return addItem(key,alt,-1,-1);
 			}
 
-		public JMenuItem addItem(String name,int alt,int shortcut,int control)
+		public JMenuItem addItem(String key,int alt,int shortcut,int control)
 			{
-			JMenuItem item = new JMenuItem(name,alt);
-			item.setIcon(LGM.findIcon(name + ".png"));
-			item.setActionCommand(name);
-			item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
+			JMenuItem item = new JMenuItem(Messages.getString(key),alt);
+			item.setIcon(LGM.getIconForKey(key));
+			item.setActionCommand(key);
+			if (shortcut >= 0)
+				item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
 			item.addActionListener(LGM.listener);
 			add(item);
 			return item;

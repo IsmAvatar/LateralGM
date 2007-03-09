@@ -33,7 +33,7 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 
 	public GameSettingFrame()
 		{
-		super("Game Settings",true,true,true,true);
+		super(Messages.getString("GameSettingFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(540,470);
 		setLayout(new FlowLayout());
@@ -44,43 +44,43 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 			// Graphics tab
 			{
 			JComponent panel1 = new JPanel(false);
-			tabbedPane.addTab("Graphics",null,panel1,"Configure Graphics settings");
+			tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_GRAPHICS"),null,panel1,Messages.getString("GameSettingFrame.HINT_GRAPHICS")); //$NON-NLS-1$ //$NON-NLS-2$
 			tabbedPane.setMnemonicAt(0,KeyEvent.VK_1);
 			panel1.setLayout(new BoxLayout(panel1,BoxLayout.PAGE_AXIS));
-			startFullscreen = new JCheckBox("Start in FullScreen Mode",LGM.currentFile.StartFullscreen);
+			startFullscreen = new JCheckBox(Messages.getString("GameSettingFrame.FULLSCREEN"),LGM.currentFile.StartFullscreen); //$NON-NLS-1$
 
 			JPanel scaling = new JPanel();
-			scaling.setBorder(BorderFactory.createTitledBorder("Scaling"));
+			scaling.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.SCALING_TITLE"))); //$NON-NLS-1$
 			scaling.setLayout(new BoxLayout(scaling,BoxLayout.PAGE_AXIS));
 			ButtonGroup group = new ButtonGroup();
 			JRadioButton option;
-			option = new JRadioButton("Fixed scale (in %)");
+			option = new JRadioButton(Messages.getString("GameSettingFrame.SCALING_FIXED")); //$NON-NLS-1$
 			group.add(option);
 			scaling.add(option);
-			option = new JRadioButton("Keep aspect ratio");
+			option = new JRadioButton(Messages.getString("GameSettingFrame.SCALING_RATIO")); //$NON-NLS-1$
 			group.add(option);
 			scaling.add(option);
-			option = new JRadioButton("Full scale");
+			option = new JRadioButton(Messages.getString("GameSettingFrame.SCALING_FULL")); //$NON-NLS-1$
 			group.add(option);
 			scaling.add(option);
 
-			JCheckBox Interpolatecolors = new JCheckBox("Interpolate colors between pixels",
+			JCheckBox Interpolatecolors = new JCheckBox(Messages.getString("GameSettingFrame.INTERPOLATE"), //$NON-NLS-1$
 					LGM.currentFile.Interpolate);
-			JLabel backcolor = new JLabel(" Color outside the room region:");
-			JButton colorbutton = new JButton("Set color!");
+			JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
+			JButton colorbutton = new JButton(Messages.getString("GameSettingFrame.SETCOLOR")); //$NON-NLS-1$
 			colorbutton.setBackground(new Color(LGM.currentFile.ColorOutsideRoom));
 			colorbutton.setHideActionText(true);
 
-			JCheckBox ResizeWindow = new JCheckBox("Allow the player to resize the game window",
+			JCheckBox ResizeWindow = new JCheckBox(Messages.getString("GameSettingFrame.RESIZE"), //$NON-NLS-1$
 					LGM.currentFile.AllowWindowResize);
-			JCheckBox StayOnTop = new JCheckBox("Let the game window always stay on top",
+			JCheckBox StayOnTop = new JCheckBox(Messages.getString("GameSettingFrame.STAYONTOP"), //$NON-NLS-1$
 					LGM.currentFile.AlwaysOnTop);
-			JCheckBox DrawBorderedWindow = new JCheckBox("Don't draw a border in windowed mode",
+			JCheckBox DrawBorderedWindow = new JCheckBox(Messages.getString("GameSettingFrame.NOBORDER"), //$NON-NLS-1$
 					LGM.currentFile.DontDrawBorder);
-			JCheckBox DrawButtonsCaption = new JCheckBox("Don't show the buttons in the window caption",
+			JCheckBox DrawButtonsCaption = new JCheckBox(Messages.getString("GameSettingFrame.NOBUTTONS"), //$NON-NLS-1$
 					LGM.currentFile.DontShowButtons);
-			JCheckBox DisplayMouse = new JCheckBox("Display Mouse",LGM.currentFile.DisplayCursor);
-			JCheckBox FreezeGame = new JCheckBox("Freeze the game when the game looses focus",
+			JCheckBox DisplayMouse = new JCheckBox(Messages.getString("GameSettingFrame.DISPLAYCURSOR"),LGM.currentFile.DisplayCursor); //$NON-NLS-1$
+			JCheckBox FreezeGame = new JCheckBox(Messages.getString("GameSettingFrame.FREEZE"), //$NON-NLS-1$
 					LGM.currentFile.FreezeOnLoseFocus);
 			panel1.add(startFullscreen);
 			panel1.add(scaling);
@@ -96,69 +96,69 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 			}
 
 		JComponent panel2 = new JPanel(false);
-		tabbedPane.addTab("Resolution",null,panel2,"Configure Resolution");
+		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_RESOLUTION"),null,panel2,Messages.getString("GameSettingFrame.HINT_RESOLUTION")); //$NON-NLS-1$ //$NON-NLS-2$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 
 			// other tab
 			{
 			JComponent panel3 = new JPanel(false);
-			tabbedPane.addTab("Other",null,panel3,"Configure Other Settings");
+			tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_OTHER"),null,panel3,Messages.getString("GameSettingFrame.HINT_OTHER")); //$NON-NLS-1$ //$NON-NLS-2$
 			tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 			panel3.setLayout(new BoxLayout(panel3,BoxLayout.PAGE_AXIS));
 			JPanel Dkeys = new JPanel();
-			Dkeys.setBorder(BorderFactory.createTitledBorder("Default Keys"));
+			Dkeys.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.TITLE_KEYS"))); //$NON-NLS-1$
 			Dkeys.setLayout(new BoxLayout(Dkeys,BoxLayout.PAGE_AXIS));
 			panel3.add(Dkeys);
-			JCheckBox ESC = new JCheckBox("Let <ESC> end the game",LGM.currentFile.LetEscEndGame);
-			JCheckBox F1 = new JCheckBox("Let <F1> show the game information",LGM.currentFile.LetF1ShowGameInfo);
-			JCheckBox F4 = new JCheckBox("Let <F4> switch between screen modes",
+			JCheckBox ESC = new JCheckBox(Messages.getString("GameSettingFrame.KEY_ENDGAME"),LGM.currentFile.LetEscEndGame); //$NON-NLS-1$
+			JCheckBox F1 = new JCheckBox(Messages.getString("GameSettingFrame.KEY_INFO"),LGM.currentFile.LetF1ShowGameInfo); //$NON-NLS-1$
+			JCheckBox F4 = new JCheckBox(Messages.getString("GameSettingFrame.KEY_SWITCHFULLSCREEN"), //$NON-NLS-1$
 					LGM.currentFile.LetF4SwitchFullscreen);
-			JCheckBox F5 = new JCheckBox("Let <F5> save the game and <F6> load the game",
+			JCheckBox F5 = new JCheckBox(Messages.getString("GameSettingFrame.SAVELOAD"), //$NON-NLS-1$
 					LGM.currentFile.LetF5SaveF6Load);
 			Dkeys.add(ESC);
 			Dkeys.add(F1);
 			Dkeys.add(F4);
 			Dkeys.add(F5);
 			JPanel GPP = new JPanel();
-			GPP.setBorder(BorderFactory.createTitledBorder("Game Process Priority"));
+			GPP.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.TITLE_PRIORITY"))); //$NON-NLS-1$
 			GPP.setLayout(new BoxLayout(GPP,BoxLayout.PAGE_AXIS));
 			panel3.add(GPP);
 
 			ButtonGroup group = new ButtonGroup();
 			JRadioButton option;
-			option = new JRadioButton("Normal");
+			option = new JRadioButton(Messages.getString("GameSettingFrame.PRIORITY_NORMAL")); //$NON-NLS-1$
 			group.add(option);
 			GPP.add(option);
-			option = new JRadioButton("High");
+			option = new JRadioButton(Messages.getString("GameSettingFrame.PRIORITY_HIGH")); //$NON-NLS-1$
 			group.add(option);
 			GPP.add(option);
-			option = new JRadioButton("Highest");
+			option = new JRadioButton(Messages.getString("GameSettingFrame.PRIORITY_HIHGEST")); //$NON-NLS-1$
 			group.add(option);
 			GPP.add(option);
 			}
 
 		JComponent panel4 = new JPanel(false);
-		tabbedPane.addTab("Loading",null,panel4,"Configure Loading Settings");
+		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_LOADING"),null,panel4,Messages.getString("GameSettingFrame.HINT_LOADING")); //$NON-NLS-1$ //$NON-NLS-2$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 
 		JComponent panel5 = new JPanel(false);
-		tabbedPane.addTab("Constants",null,panel5,"Configure Constants");
+		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_CONSTANTS"),null,panel5,Messages.getString("GameSettingFrame.HINT_CONSTANTS")); //$NON-NLS-1$ //$NON-NLS-2$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 
 		JComponent panel6 = new JPanel(false);
-		tabbedPane.addTab("Include",null,panel6,"Configure Includes");
+		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_INCLUDE"),null,panel6,Messages.getString("GameSettingFrame.HINT_INCLUDE")); //$NON-NLS-1$ //$NON-NLS-2$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 
 			// error tab
 			{
 			JComponent panel7 = new JPanel(false);
-			tabbedPane.addTab("Errors",null,panel7,"Configure Error handling");
+			tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_ERRORS"),null,panel7,Messages.getString("GameSettingFrame.HINT_ERRORS")); //$NON-NLS-1$ //$NON-NLS-2$
 			tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 			panel7.setLayout(new BoxLayout(panel7,BoxLayout.PAGE_AXIS));
-			JCheckBox DEM = new JCheckBox("Display error messages",LGM.currentFile.DisplayErrors);
-			JCheckBox WGE = new JCheckBox("Write game error messages to file game_errors.log",LGM.currentFile.WriteToLog);
-			JCheckBox Abort = new JCheckBox("Abort on all error messages",LGM.currentFile.AbortOnError);
-			JCheckBox TUV0 = new JCheckBox("Treat uninitialized variables as 0",LGM.currentFile.TreatUninitializedAs0);
+			JCheckBox DEM = new JCheckBox(Messages.getString("GameSettingFrame.ERRORS_DISPLAY"),LGM.currentFile.DisplayErrors); //$NON-NLS-1$
+			JCheckBox WGE = new JCheckBox(Messages.getString("GameSettingFrame.ERRORS_LOG"),LGM.currentFile.WriteToLog); //$NON-NLS-1$
+			JCheckBox Abort = new JCheckBox(Messages.getString("GameSettingFrame.ERRORS_ABORT"),LGM.currentFile.AbortOnError); //$NON-NLS-1$
+			JCheckBox TUV0 = new JCheckBox(Messages.getString("GameSettingFrame.UNINITZERO"),LGM.currentFile.TreatUninitializedAs0); //$NON-NLS-1$
 			panel7.add(DEM);
 			panel7.add(WGE);
 			panel7.add(Abort);
@@ -167,29 +167,29 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 
 				{
 		JComponent panel8 = new JPanel(false);
-		tabbedPane.addTab("Info",null,panel8,"Configure Information");
+		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_INFO"),null,panel8,Messages.getString("GameSettingFrame.HINT_INFO")); //$NON-NLS-1$ //$NON-NLS-2$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 		panel8.setLayout(new FlowLayout());
-		JLabel label = new JLabel("Author");
+		JLabel label = new JLabel(Messages.getString("GameSettingFrame.AUTHOR")); //$NON-NLS-1$
 		label.setPreferredSize(new Dimension(80,25));
 		panel8.add(label);
 		 JTextField box = new JTextField(LGM.currentFile.Author);
 		 box.setPreferredSize(new Dimension(390,25));
 		 panel8.add(box);
-		 label = new JLabel("Version");
+		 label = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
 		 label.setPreferredSize(new Dimension(80,25));
 		 panel8.add(label);
 		 box = new JTextField(""+LGM.currentFile.Version);
 		 box.setPreferredSize(new Dimension(390,25));
 		 panel8.add(box);
-		 label = new JLabel("Last Changed");
+		 label = new JLabel(Messages.getString("GameSettingFrame.LASTCHANGED")); //$NON-NLS-1$
 		 label.setPreferredSize(new Dimension(80,25));
 		 panel8.add(label);
 		 box = new JTextField(""+LGM.currentFile.LastChanged);
 		 box.setPreferredSize(new Dimension(390,25));
 		 box.setEnabled(false);
 		 panel8.add(box);
-		 label = new JLabel("Information");
+		 label = new JLabel(Messages.getString("GameSettingFrame.INFORMATION")); //$NON-NLS-1$
 		 label.setPreferredSize(new Dimension(70,25));
 		 panel8.add(label);
 		 JTextArea boxa = new JTextArea(LGM.currentFile.Information);
@@ -198,9 +198,9 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 		 panel8.add(boxa);
 				}
 
-		JButton okButton = new JButton("Save");
+		JButton okButton = new JButton(Messages.getString("GameSettingFrame.BUTTON_SAVE")); //$NON-NLS-1$
 		getContentPane().add(okButton);
-		JButton cancelButton = new JButton("Don't save");
+		JButton cancelButton = new JButton(Messages.getString("GameSettingFrame.BUTTON_DISCARD")); //$NON-NLS-1$
 		add(cancelButton);
 
 		}
