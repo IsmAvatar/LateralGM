@@ -10,7 +10,7 @@ import javax.swing.tree.TreePath;
 public class GmTreeEditor extends DefaultTreeCellEditor
 	{
 
-	public GmTreeEditor(JTree tree,GmTreeGraphics renderer)
+	public GmTreeEditor(JTree tree, GmTreeGraphics renderer)
 		{
 		super(tree,renderer);
 		}
@@ -25,8 +25,8 @@ public class GmTreeEditor extends DefaultTreeCellEditor
 		return super.isCellEditable(event);
 		}
 
-	protected void determineOffset(JTree tree,Object value,boolean isSelected,boolean expanded,boolean leaf,
-			int row)
+	protected void determineOffset(JTree tree, Object value, boolean isSelected, boolean expanded,
+			boolean leaf, int row)
 		{
 		if (renderer != null)
 			{

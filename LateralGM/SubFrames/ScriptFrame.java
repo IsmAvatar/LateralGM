@@ -26,11 +26,11 @@ public class ScriptFrame extends JInternalFrame
 	public static GameInformation gi = new GameInformation();
 	public static JTextField name;
 	public static JTextArea code;
-	
+
 	public ScriptFrame(ResId id)
 		{
 		super("ScriptName",true,true,true,true);
-		Script scr = (Script)Gm6File.resMap.get(Resource.SCRIPT).get(1);
+		Script scr = (Script) Gm6File.resMap.get(Resource.SCRIPT).get(1);
 		this.setTitle(scr.name);
 		setSize(600,400);
 		// Setup the toolbar
@@ -41,14 +41,14 @@ public class ScriptFrame extends JInternalFrame
 		// Setup the buttons
 		JButton but = new JButton(LGM.findIcon("save.png")); //$NON-NLS-1$
 		but.setActionCommand("Save"); //$NON-NLS-1$
-//		but.addActionListener(this);
+		// but.addActionListener(this);
 		tool.add(but);
 		tool.addSeparator();
 		tool.add(new JLabel(Messages.getString("ScriptFrame.NAME"))); //$NON-NLS-1$
 		name = new JTextField(new NameDocument(),"",13); //$NON-NLS-1$
 		name.setMaximumSize(name.getPreferredSize());
 		tool.add(name);
-		//the code text area
+		// the code text area
 		code = new JTextArea();
 		code.setFont(Prefs.codeFont);
 		JScrollPane codePane = new JScrollPane(code);

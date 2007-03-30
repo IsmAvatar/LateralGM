@@ -85,7 +85,7 @@ public class LGM extends JPanel
 			}
 		return ico;
 		}
-	
+
 	public static ImageIcon getIconForKey(String key)
 		{
 		Properties iconProps = new Properties();
@@ -97,7 +97,7 @@ public class LGM extends JPanel
 		catch (IOException e)
 			{
 			System.err.println("Unable to read icons.properties");
-			}	
+			}
 		String filename = iconProps.getProperty(key,""); //$NON-NLS-1$
 		if (filename != "") //$NON-NLS-1$
 			return findIcon(filename);
@@ -130,12 +130,12 @@ public class LGM extends JPanel
 		createTree(new ResNode("Root",(byte) 0,(byte) 0,null),populate); //$NON-NLS-1$
 		}
 
-	public void createTree(ResNode newroot,boolean populate)
+	public void createTree(ResNode newroot, boolean populate)
 		{
 		root = newroot;
 		tree = new JTree(new DefaultTreeModel(root));
 		GmTreeGraphics renderer = new GmTreeGraphics();
-		GmTreeEditor editor = new GmTreeEditor(tree, renderer);
+		GmTreeEditor editor = new GmTreeEditor(tree,renderer);
 		tree.setEditable(true);
 		tree.addMouseListener(listener);
 		tree.setScrollsOnExpand(true);
@@ -178,10 +178,10 @@ public class LGM extends JPanel
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
 		add(split);
-		//.setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
+		// .setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
 		MDI.add(gameSet);
 		MDI.add(gameInfo);
-		//gameInfo.setVisible(true);
+		// gameInfo.setVisible(true);
 		}
 
 	public static void main(String[] args)

@@ -70,7 +70,11 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						}
 					catch (Gm6FormatException ex)
 						{
-						JOptionPane.showMessageDialog(LGM.frame,String.format(Messages.getString("Listener.ERROR_MESSAGE"), ex.stackAsString(), ex.getMessage()), Messages.getString("Listener.ERROR_TITLE"), JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+						JOptionPane
+								.showMessageDialog(
+										LGM.frame,
+										String.format(
+												Messages.getString("Listener.ERROR_MESSAGE"),ex.stackAsString(),ex.getMessage()),Messages.getString("Listener.ERROR_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 						}
 					}
 				}
@@ -97,8 +101,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				if (!filename.endsWith(".gm6")) filename += ".gm6";
 				int result = 0;
 				if (new File(filename).exists())
-					result = JOptionPane.showConfirmDialog(LGM.frame,
-							String.format(Messages.getString("Listener.CONFIRM_REPLACE"), filename), //$NON-NLS-1$
+					result = JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
+							.getString("Listener.CONFIRM_REPLACE"),filename), //$NON-NLS-1$
 							Messages.getString("Listener.CONFIRM_REPLACE_TITLE"), //$NON-NLS-1$
 							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
 				if (result == 0)
@@ -116,9 +120,9 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.contains(".INSERT_")) //$NON-NLS-1$
 			{
-			ResNode node = (ResNode)tree.getLastSelectedPathComponent();
+			ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 			if (node == null) return;
-			ResNode parent = (ResNode)node.getParent();
+			ResNode parent = (ResNode) node.getParent();
 			int pos = parent.getIndex(node);
 			com = com.substring(com.lastIndexOf('_') + 1);
 			if (com.equals("GROUP")) //$NON-NLS-1$
@@ -141,12 +145,12 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			int pos;
 			if (node.getAllowsChildren())
 				{
-				parent = (ResNode)node;
+				parent = (ResNode) node;
 				pos = parent.getChildCount();
 				}
 			else
 				{
-				parent = (ResNode)node.getParent();
+				parent = (ResNode) node.getParent();
 				pos = parent.getIndex(node) + 1;
 				}
 			com = com.substring(com.lastIndexOf('_') + 1);
@@ -172,7 +176,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			ResNode me = (ResNode) tree.getLastSelectedPathComponent();
 			if (me == null) return;
 			if (Prefs.protectRoot && me.status == ResNode.STATUS_PRIMARY) return;
-			if (JOptionPane.showConfirmDialog(null,Messages.getString("Listener.CONFIRM_DELETERESOURCE"),Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$ //$NON-NLS-2$
+			if (JOptionPane
+					.showConfirmDialog(
+							null,
+							Messages.getString("Listener.CONFIRM_DELETERESOURCE"),Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$ //$NON-NLS-2$
 				{
 				ResNode next = (ResNode) me.getNextSibling();
 				if (next == null) next = (ResNode) me.getParent();
@@ -250,7 +257,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			{
 			if (e.getModifiers() == InputEvent.BUTTON3_MASK)
 				{
-//				ResNode node = (ResNode)selPath.getLastPathComponent();
+				// ResNode node = (ResNode)selPath.getLastPathComponent();
 				LGM.tree.setSelectionPath(selPath);
 				JPopupMenu popup = new JPopupMenu();
 				JMenuItem menuItem = new JMenuItem("A popup menu item");
@@ -272,10 +279,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					ResNode node = (ResNode) selPath.getLastPathComponent();
 					if (node.kind == Resource.GAMEINFO)
 						{
-						//JInternalFrame gameinfo = new GameInformationFrame();
+						// JInternalFrame gameinfo = new GameInformationFrame();
 						LGM.gameInfo.setVisible(true);
 						return;
-//						LGM.MDI.add(LGM.gameInfo);
+						// LGM.MDI.add(LGM.gameInfo);
 						}
 
 					if (node.kind == Resource.GAMESETTINGS)
@@ -288,7 +295,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						if (node.status == ResNode.STATUS_PRIMARY) return;
 						if (Prefs.protectLeaf && node.status != ResNode.STATUS_SECONDARY) return;
 						ScriptFrame sf = new ScriptFrame(node.resourceId);
-//						sf.setScript();
+						// sf.setScript();
 						LGM.MDI.add(sf);
 						sf.setVisible(true);
 						return;
@@ -299,9 +306,20 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		}
 
-	//Unused
-	public void mouseReleased(MouseEvent arg0) { }
-	public void mouseClicked(MouseEvent arg0) { }
-	public void mouseEntered(MouseEvent arg0) { }
-	public void mouseExited(MouseEvent arg0) { }
+	// Unused
+	public void mouseReleased(MouseEvent arg0)
+		{
+		}
+
+	public void mouseClicked(MouseEvent arg0)
+		{
+		}
+
+	public void mouseEntered(MouseEvent arg0)
+		{
+		}
+
+	public void mouseExited(MouseEvent arg0)
+		{
+		}
 	}

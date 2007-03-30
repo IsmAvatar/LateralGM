@@ -30,20 +30,20 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		this.kind = kind;
 		resourceId = res;
 		}
-	
+
 	public ResNode(String name, int status, int kind, ResId res)
 		{
 		super(name);
-		this.status = (byte)status;
-		this.kind = (byte)kind;
+		this.status = (byte) status;
+		this.kind = (byte) kind;
 		resourceId = res;
 		}
 
 	public ResNode(String name, int status, int kind)
 		{
 		super(name);
-		this.status = (byte)status;
-		this.kind = (byte)kind;
+		this.status = (byte) status;
+		this.kind = (byte) kind;
 		}
 
 	public ResNode addChild(String name, byte stat, byte type)
@@ -55,15 +55,13 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 
 	public ResNode addChild(String name, int stat, int type)
 		{
-		return addChild(name,(byte)stat,(byte)type);
+		return addChild(name,(byte) stat,(byte) type);
 		}
 
 	public boolean getAllowsChildren()
 		{
-		if (Prefs.protectLeaf && status == STATUS_SECONDARY)
-			return false;
-		if (Prefs.protectRoot && this == LGM.root)
-			return false;
+		if (Prefs.protectLeaf && status == STATUS_SECONDARY) return false;
+		if (Prefs.protectRoot && this == LGM.root) return false;
 		return true;
 		}
 

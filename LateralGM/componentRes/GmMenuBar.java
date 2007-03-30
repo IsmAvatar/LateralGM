@@ -106,18 +106,17 @@ public class GmMenuBar extends JMenuBar
 			super(s);
 			}
 
-		public JMenuItem addItem(String key,int alt)
+		public JMenuItem addItem(String key, int alt)
 			{
 			return addItem(key,alt,-1,-1);
 			}
 
-		public JMenuItem addItem(String key,int alt,int shortcut,int control)
+		public JMenuItem addItem(String key, int alt, int shortcut, int control)
 			{
 			JMenuItem item = new JMenuItem(Messages.getString(key),alt);
 			item.setIcon(LGM.getIconForKey(key));
 			item.setActionCommand(key);
-			if (shortcut >= 0)
-				item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
+			if (shortcut >= 0) item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
 			item.addActionListener(LGM.listener);
 			add(item);
 			return item;

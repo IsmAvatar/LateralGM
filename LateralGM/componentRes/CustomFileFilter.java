@@ -8,7 +8,7 @@ public class CustomFileFilter extends FileFilter
 	private String extension;
 	private String desc;
 
-	public CustomFileFilter(String extension,String desc)
+	public CustomFileFilter(String extension, String desc)
 		{
 		this.extension = extension;
 		this.desc = desc;

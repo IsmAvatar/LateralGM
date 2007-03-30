@@ -37,7 +37,7 @@ public class GmStreamEncoder
 		write(b,0,b.length);
 		}
 
-	public void write(byte[] b,int off,int len) throws IOException
+	public void write(byte[] b, int off, int len) throws IOException
 		{
 		writei(len);
 		_out.write(b,off,len);
@@ -114,12 +114,12 @@ public class GmStreamEncoder
 			}
 		}
 
-	public void writeId(ResId id,byte type,Gm6File src) throws IOException
+	public void writeId(ResId id, byte type, Gm6File src) throws IOException
 		{
 		writeId(id,type,-1,src);
 		}
 
-	public void writeId(ResId id,byte type,int noneval,Gm6File src) throws IOException
+	public void writeId(ResId id, byte type, int noneval, Gm6File src) throws IOException
 		{
 		Resource res = src.get(type,id);
 		if (id != null && res != null)
@@ -132,7 +132,7 @@ public class GmStreamEncoder
 			}
 		}
 
-	public void writeIdStr(ResId id,byte type,Gm6File src) throws IOException
+	public void writeIdStr(ResId id, byte type, Gm6File src) throws IOException
 		{
 		Resource res = null;
 		switch (type)
@@ -181,14 +181,14 @@ public class GmStreamEncoder
 		e.nextElement();
 		while (e.hasMoreElements())
 			{
-			ResNode node = (ResNode)e.nextElement();
+			ResNode node = (ResNode) e.nextElement();
 			writei(node.status);
 			writei(node.kind);
 			if (node.resourceId != null)
 				writei(node.resourceId.value);
 			else
 				writei(0);
-			writeStr((String)node.getUserObject());
+			writeStr((String) node.getUserObject());
 			writei(node.getChildCount());
 			}
 		}

@@ -36,7 +36,7 @@ public class GmStreamDecoder
 		return read(b,0,b.length);
 		}
 
-	public int read(byte b[],int off,int len) throws IOException
+	public int read(byte b[], int off, int len) throws IOException
 		{
 		return _in.read(b,off,len);
 		}
@@ -47,7 +47,8 @@ public class GmStreamDecoder
 		int b = _in.read();
 		int c = _in.read();
 		int d = _in.read();
-		if (a == -1 || b == -1 || c == -1 || d == -1) throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF"));
+		if (a == -1 || b == -1 || c == -1 || d == -1)
+			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF"));
 		long result = (a | (b << 8) | (c << 16) | (d << 24));
 		return (int) result;
 		}
@@ -63,7 +64,8 @@ public class GmStreamDecoder
 	public boolean readBool() throws IOException
 		{
 		int val = readi();
-		if (val != 0 && val != 1) throw new IOException(String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"), val));
+		if (val != 0 && val != 1)
+			throw new IOException(String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val));
 		if (val == 0) return false;
 		return true;
 		}
@@ -83,7 +85,7 @@ public class GmStreamDecoder
 		return Double.longBitsToDouble(result);
 		}
 
-	public byte[] decompress(int length) throws IOException, DataFormatException
+	public byte[] decompress(int length) throws IOException,DataFormatException
 		{
 		Inflater decompresser = new Inflater();
 		byte[] compressedData = new byte[length];
@@ -100,7 +102,7 @@ public class GmStreamDecoder
 		return baos.toByteArray();
 		}
 
-	public BufferedImage readImage() throws IOException, DataFormatException
+	public BufferedImage readImage() throws IOException,DataFormatException
 		{
 		int length = readi();
 		return ImageIO.read(new ByteArrayInputStream(decompress(length)));
@@ -129,8 +131,8 @@ public class GmStreamDecoder
 		int cur = 11;
 		while (cur-- > 0)
 			{
-			byte status = (byte)readi();
-			byte type = (byte)readi();
+			byte status = (byte) readi();
+			byte type = (byte) readi();
 			int ind = readi();
 			String name = readStr();
 			ResNode node = path.peek().addChild(name,status,type);

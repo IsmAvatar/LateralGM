@@ -25,9 +25,9 @@ public class MDIManager extends DefaultDesktopManager
 		super.endDraggingFrame(f);
 		resizeDesktop();
 		}
-	
+
 	public void resizeDesktop()
 		{
-		
+
 		}
 	}

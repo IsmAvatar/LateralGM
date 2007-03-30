@@ -25,8 +25,8 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 			kindIcons[i] = LGM.kinds[i] == "" ? null : LGM.findIcon(LGM.kinds[i] + ".png");
 		}
 
-	public Component getTreeCellRendererComponent(JTree tree,Object val,boolean sel,boolean exp,boolean leaf,
-			int row,boolean focus)
+	public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel, boolean exp,
+			boolean leaf, int row, boolean focus)
 		{
 		last = (ResNode) val;
 		super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
@@ -39,7 +39,7 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		return getClosedIcon();
 		}
 
-	public Icon getNodeIcon(JTree tree,Object val,boolean sel,boolean exp,boolean leaf,int row)
+	public Icon getNodeIcon(JTree tree, Object val, boolean sel, boolean exp, boolean leaf, int row)
 		{
 		ResNode node = (ResNode) val;
 		if (leaf) if (node.status == ResNode.STATUS_SECONDARY) return kindIcons[node.kind];

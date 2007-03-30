@@ -1,5 +1,6 @@
 package resourcesRes;
+
 public class Script extends Resource
-{
-    public String ScriptStr="";
-}
+	{
+	public String ScriptStr = "";
+	}

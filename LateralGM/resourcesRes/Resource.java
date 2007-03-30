@@ -23,5 +23,5 @@ public abstract class Resource implements Comparable<Resource>
 		if (res.Id.value > Id.value) return 1;
 		return res.Id.value < Id.value ? -1 : 0;
 		}
-//	protected abstract Object clone();
+	// protected abstract Object clone();
 	}

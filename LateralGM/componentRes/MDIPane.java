@@ -10,7 +10,7 @@ public class MDIPane extends JDesktopPane
 	private static final long serialVersionUID = 1L;
 	MDIManager manager = new MDIManager(this);
 
-	public void setBounds(int x,int y,int w,int h)
+	public void setBounds(int x, int y, int w, int h)
 		{
 		super.setBounds(x,y,w,h);
 		checkDesktopSize();
@@ -18,7 +18,7 @@ public class MDIPane extends JDesktopPane
 
 	public Component add(JInternalFrame f)
 		{
-//		JInternalFrame[] frames = getAllFrames();
+		// JInternalFrame[] frames = getAllFrames();
 		Component ret = super.add(f);
 		return ret;
 		}
@@ -31,6 +31,6 @@ public class MDIPane extends JDesktopPane
 
 	private void checkDesktopSize()
 		{
-		
+
 		}
 	}

@@ -27,7 +27,8 @@ public class Room extends Resource
 	public boolean DrawBackgroundColor = true;
 	public String CreationCode = "";
 	public boolean RememberWindowSize = true;
-	public int EditorWidth = 200;// **may not be relevant to swing, or may not produce the same effect in the LGM GUI
+	public int EditorWidth = 200;// **may not be relevant to swing, or may not produce the same effect in the
+																// LGM GUI
 	public int EditorHeight = 200;// **
 	public boolean ShowGrid = true;
 	public boolean ShowObjects = true;
