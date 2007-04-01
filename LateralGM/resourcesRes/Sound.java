@@ -1,5 +1,8 @@
 package resourcesRes;
 
+import mainRes.Prefs;
+import fileRes.ResourceList;
+
 public class Sound extends Resource
 	{
 	public static final byte SOUND_NORMAL = 0;
@@ -59,5 +62,35 @@ public class Sound extends Resource
 		if (gargle) result += 8;
 		if (reverb) result += 16;
 		return result;
+		}
+
+	public Sound copy(boolean update, ResourceList src)
+		{
+		Sound snd = new Sound();
+		snd.Type = Type;
+		snd.FileType = FileType;
+		snd.FileName = FileName;
+		snd.Chorus = Chorus;
+		snd.Echo = Echo;
+		snd.Flanger = Flanger;
+		snd.Gargle = Gargle;
+		snd.Reverb = Reverb;
+		snd.Volume = Volume;
+		snd.Pan = Pan;
+		snd.Preload = Preload;
+		snd.Data = new byte[Data.length];
+		System.arraycopy(Data,0,snd.Data,0,Data.length);
+		if (update)
+			{
+			snd.Id.value = ++src.LastId;
+			snd.name = Prefs.prefixes[Resource.SOUND] + src.LastId;
+			src.add(snd);
+			}
+		else
+			{
+			snd.Id = Id;
+			snd.name = name;
+			}
+		return snd;
 		}
 	}

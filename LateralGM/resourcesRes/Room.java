@@ -2,7 +2,11 @@ package resourcesRes;
 
 import java.util.ArrayList;
 
+import fileRes.Gm6File;
+import fileRes.ResourceList;
+
 import mainRes.LGM;
+import mainRes.Prefs;
 import resourcesRes.subRes.BackgroundDef;
 import resourcesRes.subRes.Instance;
 import resourcesRes.subRes.Tile;
@@ -28,7 +32,7 @@ public class Room extends Resource
 	public String CreationCode = "";
 	public boolean RememberWindowSize = true;
 	public int EditorWidth = 200;// **may not be relevant to swing, or may not produce the same effect in the
-																// LGM GUI
+	// LGM GUI
 	public int EditorHeight = 200;// **
 	public boolean ShowGrid = true;
 	public boolean ShowObjects = true;
@@ -45,6 +49,27 @@ public class Room extends Resource
 	public View[] Views = new View[8];
 	public boolean EnableViews = false;
 	private ArrayList<Instance> Instances = new ArrayList<Instance>();
+	private Gm6File Parent;
+
+	public Room()
+		{
+		Parent = LGM.currentFile;
+		for (int j = 0; j < 8; j++)
+			{
+			Views[j] = new View();
+			BackgroundDefs[j] = new BackgroundDef();
+			}
+		}
+
+	public Room(Gm6File Parent)// Rooms are special - they need to know what file they belong to
+		{
+		this.Parent = Parent;
+		for (int j = 0; j < 8; j++)
+			{
+			Views[j] = new View();
+			BackgroundDefs[j] = new BackgroundDef();
+			}
+		}
 
 	public int NoInstances()
 		{
@@ -58,21 +83,11 @@ public class Room extends Resource
 		return Tiles.size();
 		}
 
-	public Room()
-		{
-		for (int j = 0; j < 8; j++)
-			{
-			Views[j] = new View();
-			BackgroundDefs[j] = new BackgroundDef();
-			}
-		}
-
 	public Instance addInstance()
 		{
 		Instance inst = new Instance();
+		inst.InstanceId = ++Parent.LastInstanceId;
 		Instances.add(inst);
-		LGM.currentFile.LastInstanceId++;
-		inst.InstanceId = LGM.currentFile.LastInstanceId;
 		return inst;
 		}
 
@@ -112,9 +127,8 @@ public class Room extends Resource
 	public Tile addTile()
 		{
 		Tile tile = new Tile();
+		tile.TileId = ++Parent.LastTileId;
 		Tiles.add(tile);
-		LGM.currentFile.LastTileId++;
-		tile.TileId = LGM.currentFile.LastTileId;
 		return tile;
 		}
 
@@ -149,5 +163,107 @@ public class Room extends Resource
 	public void clearTiles()
 		{
 		Tiles.clear();
+		}
+
+	public Room copy(boolean update, ResourceList src)
+		{
+		Room rm = new Room();
+		rm = new Room();
+		rm.Caption = Caption;
+		rm.Width = Width;
+		rm.Height = Height;
+		rm.SnapX = SnapX;
+		rm.SnapY = SnapY;
+		rm.IsometricGrid = IsometricGrid;
+		rm.Speed = Speed;
+		rm.Persistent = Persistent;
+		rm.BackgroundColor = BackgroundColor;
+		rm.DrawBackgroundColor = DrawBackgroundColor;
+		rm.CreationCode = CreationCode;
+		rm.RememberWindowSize = RememberWindowSize;
+		rm.EditorWidth = EditorWidth;
+		rm.EditorHeight = EditorHeight;
+		rm.ShowGrid = ShowGrid;
+		rm.ShowObjects = ShowObjects;
+		rm.ShowTiles = ShowTiles;
+		rm.ShowBackgrounds = ShowBackgrounds;
+		rm.ShowForegrounds = ShowForegrounds;
+		rm.ShowViews = ShowViews;
+		rm.DeleteUnderlyingObjects = DeleteUnderlyingObjects;
+		rm.DeleteUnderlyingTiles = DeleteUnderlyingTiles;
+		rm.CurrentTab = CurrentTab;
+		rm.ScrollBarX = ScrollBarX;
+		rm.ScrollBarY = ScrollBarY;
+		rm.EnableViews = EnableViews;
+		for (int i = 0; i < this.NoInstances(); i++)
+			{
+			Instance inst = getInstanceList(i);
+			Instance inst2 = rm.addInstance();
+			inst2.CreationCode = inst.CreationCode;
+			inst2.Locked = inst.Locked;
+			inst2.GmObjectId = inst.GmObjectId;
+			inst2.X = inst.X;
+			inst2.Y = inst.Y;
+			}
+		for (int i = 0; i < this.NoTiles(); i++)
+			{
+			Tile tile = getTileList(i);
+			Tile tile2 = rm.addTile();
+			tile2.BackgroundId = tile.BackgroundId;
+			tile2.Depth = tile.Depth;
+			tile2.Height = tile.Height;
+			tile2.Locked = tile.Locked;
+			tile2.TileX = tile.TileX;
+			tile2.TileY = tile.TileY;
+			tile2.Width = tile.Width;
+			tile2.X = tile.X;
+			tile2.Y = tile.Y;
+			}
+		for (int i = 0; i < 8; i++)
+			{
+			View view = Views[i];
+			View view2 = rm.Views[i];
+			view2.Enabled = view.Enabled;
+			view2.ViewX = view.ViewX;
+			view2.ViewY = view.ViewY;
+			view2.ViewW = view.ViewW;
+			view2.ViewH = view.ViewH;
+			view2.PortX = view.PortX;
+			view2.PortY = view.PortY;
+			view2.PortW = view.PortW;
+			view2.PortH = view.PortH;
+			view2.Hbor = view.Hbor;
+			view2.VBor = view.VBor;
+			view2.HSpeed = view.HSpeed;
+			view2.VSpeed = view.VSpeed;
+			view2.ObjectFollowing = view.ObjectFollowing;
+			}
+		for (int i = 0; i < 8; i++)
+			{
+			BackgroundDef back = BackgroundDefs[i];
+			BackgroundDef back2 = rm.BackgroundDefs[i];
+			back2.Visible = back.Visible;
+			back2.Foreground = back.Foreground;
+			back2.BackgroundId = back.BackgroundId;
+			back2.X = back.X;
+			back2.Y = back.Y;
+			back2.TileHoriz = back.TileHoriz;
+			back2.TileVert = back.TileVert;
+			back2.HorizSpeed = back.HorizSpeed;
+			back2.VertSpeed = back.VertSpeed;
+			back2.Stretch = back.Stretch;
+			}
+		if (update)
+			{
+			rm.Id.value = ++src.LastId;
+			rm.name = Prefs.prefixes[Resource.ROOM] + src.LastId;
+			src.add(rm);
+			}
+		else
+			{
+			rm.Id = this.Id;
+			rm.name = this.name;
+			}
+		return rm;
 		}
 	}

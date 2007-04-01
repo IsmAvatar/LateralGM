@@ -14,11 +14,9 @@ import mainRes.LGM;
 import mainRes.Prefs;
 import resourcesRes.GameInformation;
 import resourcesRes.ResId;
-import resourcesRes.Resource;
 import resourcesRes.Script;
 
 import componentRes.NameDocument;
-import fileRes.Gm6File;
 
 public class ScriptFrame extends JInternalFrame
 	{
@@ -30,7 +28,7 @@ public class ScriptFrame extends JInternalFrame
 	public ScriptFrame(ResId id)
 		{
 		super("ScriptName",true,true,true,true);
-		Script scr = (Script) Gm6File.resMap.get(Resource.SCRIPT).get(1);
+		Script scr = LGM.currentFile.Scripts.getList(0);
 		this.setTitle(scr.name);
 		setSize(600,400);
 		// Setup the toolbar

@@ -197,14 +197,14 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		editor = new JEditorPane();
 		// editor.setEditable(false);
 		editor.setEditorKit(rtf);
-		editor.setBackground(new Color(fileRes.Gm6File.GameInfo.BackgroundColor));
+		editor.setBackground(new Color(LGM.currentFile.GameInfo.BackgroundColor));
 
 		// This text could be big so add a scroll pane
 		JScrollPane scroller = new JScrollPane();
 		scroller.getViewport().add(editor);
 		topPanel.add(scroller,BorderLayout.CENTER);
 
-		add_rtf(fileRes.Gm6File.GameInfo.GameInfoStr);
+		add_rtf(LGM.currentFile.GameInfo.GameInfoStr);
 		}
 
 	public static void add_rtf(String str)

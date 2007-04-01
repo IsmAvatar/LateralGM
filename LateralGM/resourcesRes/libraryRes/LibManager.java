@@ -179,7 +179,7 @@ public class LibManager
 						arg.Caption = in.readStr();// System.out.println("argument "+k+" caption: "+arg.Caption);
 						arg.Kind = (byte) in.readi();// System.out.println("argument "+k+" kind: "+arg.Kind);
 						arg.DefaultVal = in.readStr();// System.out.println("argument "+k+" default value:
-																					// "+arg.DefaultVal);
+						// "+arg.DefaultVal);
 						arg.Menu = in.readStr();
 						/*
 						 * if (arg.Kind==Argument.ARG_MENU) { System.out.println("argument "+k+" menu string is:

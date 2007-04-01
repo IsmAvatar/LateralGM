@@ -13,6 +13,8 @@ import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
 
+import resourcesRes.Resource;
+
 import mainRes.LGM;
 
 import componentRes.ResNode;
@@ -127,7 +129,7 @@ public class GmStreamDecoder
 		{
 		Stack<ResNode> path = new Stack<ResNode>();
 		Stack<Integer> left = new Stack<Integer>();
-		path.add(root);
+		path.push(root);
 		int cur = 11;
 		while (cur-- > 0)
 			{
@@ -136,9 +138,9 @@ public class GmStreamDecoder
 			int ind = readi();
 			String name = readStr();
 			ResNode node = path.peek().addChild(name,status,type);
-			if (status == ResNode.STATUS_SECONDARY && type != 10 && type != 11)
+			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO && type != Resource.GAMESETTINGS)
 				{
-				node.resourceId = LGM.currentFile.getUnsafe(node.kind,ind).Id;
+				node.resourceId = LGM.currentFile.getList(node.kind).getUnsafe(ind).Id;
 				}
 			int contents = readi();
 			if (contents > 0)

@@ -2,6 +2,10 @@ package resourcesRes;
 
 import java.util.ArrayList;
 
+import mainRes.Prefs;
+
+import fileRes.ResourceList;
+
 import resourcesRes.subRes.Point;
 
 public class Path extends Resource
@@ -40,5 +44,36 @@ public class Path extends Resource
 	public void clearPoints()
 		{
 		Points.clear();
+		}
+
+	public Path copy(boolean update, ResourceList src)
+		{
+		Path path = new Path();
+		path.Smooth = Smooth;
+		path.Closed = Closed;
+		path.Precision = Precision;
+		path.BackgroundRoom = BackgroundRoom;
+		path.SnapX = SnapX;
+		path.SnapY = SnapY;
+		for (int i = 0; i < NoPoints(); i++)
+			{
+			Point point2 = path.addPoint();
+			Point point = getPoint(i);
+			point2.X = point.X;
+			point2.Y = point.Y;
+			point2.Speed = point.Speed;
+			}
+		if (update)
+			{
+			path.Id.value = ++src.LastId;
+			path.name = Prefs.prefixes[Resource.PATH] + src.LastId;
+			src.add(path);
+			}
+		else
+			{
+			path.Id = Id;
+			path.name = name;
+			}
+		return path;
 		}
 	}

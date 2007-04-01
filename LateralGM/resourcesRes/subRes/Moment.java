@@ -23,7 +23,7 @@ public class Moment
 		}
 
 	public Action addAction(int LibId, int LibActionId)// adds an action set to the properties of given
-																											// LibAction
+	// LibAction
 		{
 		Action act = new Action();
 		LibAction lact = LibManager.getLibAction(LibId,LibActionId);

@@ -5,7 +5,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+
+import fileRes.ResourceList;
 import mainRes.LGM;
+import mainRes.Prefs;
 
 public class Sprite extends Resource
 	{
@@ -97,5 +100,39 @@ public class Sprite extends Resource
 			return bf2;
 			}
 		return null;
+		}
+
+	public Sprite copy(boolean update, ResourceList src)
+		{
+		Sprite spr = new Sprite();
+		spr.Width = Width;
+		spr.Height = Height;
+		spr.Transparent = Transparent;
+		spr.PreciseCC = PreciseCC;
+		spr.SmoothEdges = SmoothEdges;
+		spr.Preload = Preload;
+		spr.OriginX = OriginX;
+		spr.OriginY = OriginY;
+		spr.BoundingBoxMode = BoundingBoxMode;
+		spr.BoundingBoxLeft = BoundingBoxLeft;
+		spr.BoundingBoxRight = BoundingBoxRight;
+		spr.BoundingBoxTop = BoundingBoxTop;
+		spr.BoundingBoxBottom = BoundingBoxBottom;
+		for (int j = 0; j < NoSubImages(); j++)
+			{
+			spr.addSubImage(copySubImage(j));
+			}
+		if (update)
+			{
+			spr.Id.value = ++src.LastId;
+			spr.name = Prefs.prefixes[Resource.SPRITE] + src.LastId;
+			src.add(spr);
+			}
+		else
+			{
+			spr.Id = Id;
+			spr.name = name;
+			}
+		return spr;
 		}
 	}

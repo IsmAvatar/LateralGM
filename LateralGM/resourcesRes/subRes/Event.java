@@ -113,8 +113,8 @@ public class Event
 		return act;
 		}
 
-	public Action addAction(int LibId, int LibActionId, LibManager src)// adds an action preset to the
-																																			// properties of given LibAction
+	public Action addAction(int LibId, int LibActionId)// adds an action preset to the
+	// properties of given LibAction
 		{
 		Action act = new Action();
 		LibAction lact = LibManager.getLibAction(LibId,LibActionId);

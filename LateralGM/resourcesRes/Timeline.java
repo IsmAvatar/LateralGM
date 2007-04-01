@@ -2,6 +2,11 @@ package resourcesRes;
 
 import java.util.ArrayList;
 
+import mainRes.Prefs;
+
+import fileRes.ResourceList;
+
+import resourcesRes.subRes.Action;
 import resourcesRes.subRes.Moment;
 
 public class Timeline extends Resource
@@ -53,5 +58,52 @@ public class Timeline extends Resource
 	public void clearMoments()
 		{
 		Moments.clear();
+		}
+
+	public Timeline copy(boolean update, ResourceList src)
+		{
+		Timeline time = new Timeline();
+		for (int i = 0; i < NoMoments(); i++)
+			{
+			Moment mom = getMomentList(i);
+			Moment mom2 = time.addMoment();
+			mom2.stepNo = mom.stepNo;
+			for (int j = 0; j < mom.NoActions(); j++)
+				{
+				Action act = mom.getAction(j);
+				Action act2 = mom2.addAction();
+				act2.LibraryId = act.LibraryId;
+				act2.LibActionId = act.LibActionId;
+				act2.ActionKind = act.ActionKind;
+				act2.AllowRelative = act.AllowRelative;
+				act2.Question = act.Question;
+				act2.CanApplyTo = act.CanApplyTo;
+				act2.ExecType = act.ExecType;
+				act2.ExecFunction = act.ExecFunction;
+				act2.ExecCode = act.ExecCode;
+				act2.Relative = act.Relative;
+				act2.Not = act.Not;
+				act2.AppliesTo = act.AppliesTo;
+				act2.NoArguments = act.NoArguments;
+				for (int k = 0; k < act.NoArguments; k++)
+					{
+					act2.Arguments[k].Kind = act.Arguments[k].Kind;
+					act2.Arguments[k].Res = act.Arguments[k].Res;
+					act2.Arguments[k].Val = act.Arguments[k].Val;
+					}
+				}
+			}
+		if (update)
+			{
+			time.Id.value = ++src.LastId;
+			time.name = Prefs.prefixes[Resource.TIMELINE] + src.LastId;
+			src.add(time);
+			}
+		else
+			{
+			time.Id = Id;
+			time.name = name;
+			}
+		return time;
 		}
 	}

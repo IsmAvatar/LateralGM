@@ -1,5 +1,7 @@
 package resourcesRes;
 
+import fileRes.ResourceList;
+
 public abstract class Resource implements Comparable<Resource>
 	{
 	public static final byte SPRITE = 2;
@@ -20,8 +22,8 @@ public abstract class Resource implements Comparable<Resource>
 
 	public int compareTo(Resource res)
 		{
-		if (res.Id.value > Id.value) return 1;
-		return res.Id.value < Id.value ? -1 : 0;
+		return res.Id.value == Id.value ? 0 : (res.Id.value < Id.value ? -1 : 1);
 		}
-	// protected abstract Object clone();
+
+	public abstract Resource copy(boolean update, ResourceList src);
 	}

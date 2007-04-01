@@ -121,7 +121,7 @@ public class GmStreamEncoder
 
 	public void writeId(ResId id, byte type, int noneval, Gm6File src) throws IOException
 		{
-		Resource res = src.get(type,id);
+		Resource res = src.getList(type).get(id);
 		if (id != null && res != null)
 			{
 			writei(id.value);
@@ -138,31 +138,31 @@ public class GmStreamEncoder
 		switch (type)
 			{
 			case Argument.ARG_SPRITE:
-				res = src.get(Resource.SPRITE,id);
+				res = src.Sprites.get(id);
 				break;
 			case Argument.ARG_SOUND:
-				res = src.get(Resource.SOUND,id);
+				res = src.Sounds.get(id);
 				break;
 			case Argument.ARG_BACKGROUND:
-				res = src.get(Resource.BACKGROUND,id);
+				res = src.Backgrounds.get(id);
 				break;
 			case Argument.ARG_PATH:
-				res = src.get(Resource.PATH,id);
+				res = src.Paths.get(id);
 				break;
 			case Argument.ARG_SCRIPT:
-				res = src.get(Resource.SCRIPT,id);
+				res = src.Scripts.get(id);
 				break;
 			case Argument.ARG_FONT:
-				res = src.get(Resource.FONT,id);
+				res = src.Fonts.get(id);
 				break;
 			case Argument.ARG_TIMELINE:
-				res = src.get(Resource.TIMELINE,id);
+				res = src.Timelines.get(id);
 				break;
 			case Argument.ARG_GMOBJECT:
-				res = src.get(Resource.GMOBJECT,id);
+				res = src.GmObjects.get(id);
 				break;
 			case Argument.ARG_ROOM:
-				res = src.get(Resource.ROOM,id);
+				res = src.Rooms.get(id);
 				break;
 			}
 		if (id != null && res != null)
