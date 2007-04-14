@@ -190,6 +190,12 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				}
 			return;
 			}
+		if (com.endsWith(".DEFRAGIDS"))
+			{
+			if (JOptionPane.showConfirmDialog(LGM.frame,Messages.getString("Listener.CONFIRM_DEFRAGIDS"),Messages
+					.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"),JOptionPane.YES_NO_OPTION) == 0)
+				LGM.currentFile.DefragIds();
+			}
 		if (com.endsWith(".EXPAND")) //$NON-NLS-1$
 			{
 			for (int m = 0; m < tree.getRowCount(); m++)

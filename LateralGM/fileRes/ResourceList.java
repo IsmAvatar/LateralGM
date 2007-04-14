@@ -149,4 +149,14 @@ public class ResourceList<R extends Resource>
 		if (SrcIndex >= 0 && SrcIndex < Resources.size() && Replacement != null)
 			Resources.set(SrcIndex,Replacement);
 		}
+	
+	public void defragIds()
+		{
+		sort();
+		for(int i=0;i<Resources.size();i++)
+			{
+			Resources.get(i).Id.value=i;
+			}
+		LastId=Resources.size()-1;
+		}
 	}

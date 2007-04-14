@@ -80,6 +80,7 @@ public class GmMenuBar extends JMenuBar
 		menu.setMnemonic(KeyEvent.VK_R);
 		add(menu);
 
+		menu.addItem("GmMenuBar.DEFRAGIDS",KeyEvent.VK_D);
 		menu.addItem("GmMenuBar.VERIFYNAMES",KeyEvent.VK_V); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SYNTAXCHECK",KeyEvent.VK_S); //$NON-NLS-1$
 		menu.add(new JSeparator());

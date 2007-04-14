@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
@@ -1493,5 +1494,12 @@ public class Gm6File
 				ex2.printStackTrace();
 				}
 			}
+		}
+
+	public void DefragIds()
+		{
+		Iterator iter = resMap.values().iterator();
+		while (iter.hasNext())
+			((ResourceList) iter.next()).defragIds();
 		}
 	}
