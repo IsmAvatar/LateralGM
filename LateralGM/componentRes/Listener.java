@@ -7,6 +7,8 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.util.Enumeration;
+import java.util.EventObject;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -15,18 +17,21 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.tree.TreePath;
 
 import mainRes.LGM;
 import mainRes.Prefs;
+import resourcesRes.Font;
 import resourcesRes.Resource;
+import resourcesRes.Script;
 import SubFrames.GameInformationFrame;
 import SubFrames.GameSettingFrame;
-import SubFrames.ScriptFrame;
 import fileRes.Gm6File;
 import fileRes.Gm6FormatException;
 
-public class Listener extends TransferHandler implements ActionListener,MouseListener
+public class Listener extends TransferHandler implements ActionListener,MouseListener,CellEditorListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -42,13 +47,19 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			f.setOpaque(true);
 			LGM.frame.setContentPane(f);
 			LGM.currentFile = new Gm6File();
+			LGM.gameSet.dispose();
+			LGM.gameSet = new GameSettingFrame();
+			LGM.MDI.add(LGM.gameSet);
+			LGM.gameInfo.dispose();
+			LGM.gameInfo = new GameInformationFrame();
+			LGM.MDI.add(LGM.gameInfo);
 			f.updateUI();
 			return;
 			}
 		if (com.endsWith(".OPEN")) //$NON-NLS-1$
 			{
 			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-2$
+			fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$//$NON-NLS-2$
 			fc.showOpenDialog(LGM.frame);
 
 			if (fc.getSelectedFile() != null)
@@ -57,7 +68,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					{
 					try
 						{
-						ResNode newroot = new ResNode("Root",0,0,null);
+						ResNode newroot = new ResNode("Root",0,0,null); //$NON-NLS-1$
 						LGM.currentFile = new Gm6File();
 						LGM.currentFile.ReadGm6File(fc.getSelectedFile().getPath(),newroot);
 						LGM f = new LGM();
@@ -74,14 +85,14 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 								.showMessageDialog(
 										LGM.frame,
 										String.format(
-												Messages.getString("Listener.ERROR_MESSAGE"),ex.stackAsString(),ex.getMessage()),Messages.getString("Listener.ERROR_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+												Messages.getString("Listener.ERROR_MESSAGE"),ex.stackAsString(),ex.getMessage()),Messages.getString("Listener.ERROR_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 					}
 				}
-			LGM.gameInfo.setVisible(false);
+			LGM.gameInfo.dispose();
 			LGM.gameInfo = new GameInformationFrame();
 			LGM.MDI.add(LGM.gameInfo);
-			LGM.gameSet.setVisible(false);
+			LGM.gameSet.dispose();
 			LGM.gameSet = new GameSettingFrame();
 			LGM.MDI.add(LGM.gameSet);
 			return;
@@ -93,12 +104,12 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		if (com.endsWith(".SAVEAS")) //$NON-NLS-1$
 			{
 			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-2$
+			fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$//$NON-NLS-2$
 			while (true)
 				{
 				if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 				String filename = fc.getSelectedFile().getPath();
-				if (!filename.endsWith(".gm6")) filename += ".gm6";
+				if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
 				int result = 0;
 				if (new File(filename).exists())
 					result = JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
@@ -107,6 +118,12 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
 				if (result == 0)
 					{
+					Enumeration<ResNode> nodes = LGM.root.preorderEnumeration();
+					while (nodes.hasMoreElements())
+						{
+						ResNode node = nodes.nextElement();
+						if (node.frame != null) node.frame.updateResource(); // update open frames
+						}
 					LGM.currentFile.WriteGm6File(filename,LGM.root);
 					return;
 					}
@@ -128,7 +145,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			if (com.equals("GROUP")) //$NON-NLS-1$
 				{
 				String name = JOptionPane.showInputDialog(Messages.getString("Listener.INPUT_GROUPNAME"),"group"); //$NON-NLS-1$
-				if (name == "") return;
+				if (name == "" || name == null) return; //$NON-NLS-1$
 				ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
 				parent.insert(g,pos);
 				tree.expandPath(new TreePath(parent.getPath()));
@@ -157,18 +174,45 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			if (com.equals("GROUP")) //$NON-NLS-1$
 				{
 				String name = JOptionPane.showInputDialog(Messages.getString("Listener.INPUT_GROUPNAME"),"Group"); //$NON-NLS-1$
-				if (name == "") return;
-				ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
+				if (name == "" || name == null) return; //$NON-NLS-1$
+				ResNode g = new ResNode(name,ResNode.STATUS_GROUP,parent.kind);
 				parent.insert(g,pos);
 				tree.expandPath(new TreePath(parent.getPath()));
 				tree.setSelectionPath(new TreePath(g.getPath()));
 				tree.updateUI();
 				return;
 				}
+			if (com.equals("SCRIPT")) //$NON-NLS-1$
+				{
+				// TODO Maybe make this non-dependent on the order of nodes
+				if (node.kind != Resource.SCRIPT) parent = (ResNode) LGM.root.getChildAt(5);
+
+				Script scr = LGM.currentFile.Scripts.add();
+				ResNode g = new ResNode(scr.name,ResNode.STATUS_SECONDARY,Resource.SCRIPT,scr.Id);
+				parent.insert(g,pos);
+				tree.expandPath(new TreePath(parent.getPath()));
+				tree.setSelectionPath(new TreePath(g.getPath()));
+				tree.updateUI();
+				g.openFrame();
+				return;
+				}
+			if (com.equals("FONT")) //$NON-NLS-1$
+				{
+				if (node.kind != Resource.FONT) parent = (ResNode) LGM.root.getChildAt(5);
+				Font font = LGM.currentFile.Fonts.add();
+				ResNode g = new ResNode(font.name,ResNode.STATUS_SECONDARY,Resource.FONT,font.Id);
+				parent.insert(g,pos);
+				tree.expandPath(new TreePath(parent.getPath()));
+				tree.setSelectionPath(new TreePath(g.getPath()));
+				tree.updateUI();
+				g.openFrame();
+				return;
+				}
 			}
 		if (com.endsWith(".RENAME")) //$NON-NLS-1$
 			{
-			tree.startEditingAtPath(tree.getLeadSelectionPath());
+			if (tree.getCellEditor().isCellEditable(new EventObject(LGM.tree)))
+				tree.startEditingAtPath(tree.getLeadSelectionPath());
 			return;
 			}
 		if (com.endsWith(".DELETE")) //$NON-NLS-1$
@@ -186,14 +230,15 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				if (next.isRoot()) next = (ResNode) next.getFirstChild();
 				tree.setSelectionPath(new TreePath(next.getPath()));
 				me.removeFromParent();
+				LGM.currentFile.getList(me.kind).remove(me.resourceId);
 				tree.updateUI();
 				}
 			return;
 			}
-		if (com.endsWith(".DEFRAGIDS"))
+		if (com.endsWith(".DEFRAGIDS")) //$NON-NLS-1$
 			{
-			if (JOptionPane.showConfirmDialog(LGM.frame,Messages.getString("Listener.CONFIRM_DEFRAGIDS"),Messages
-					.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"),JOptionPane.YES_NO_OPTION) == 0)
+			if (JOptionPane.showConfirmDialog(LGM.frame,Messages.getString("Listener.CONFIRM_DEFRAGIDS"),Messages //$NON-NLS-1$
+					.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$
 				LGM.currentFile.DefragIds();
 			}
 		if (com.endsWith(".EXPAND")) //$NON-NLS-1$
@@ -285,47 +330,55 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					ResNode node = (ResNode) selPath.getLastPathComponent();
 					if (node.kind == Resource.GAMEINFO)
 						{
-						// JInternalFrame gameinfo = new GameInformationFrame();
 						LGM.gameInfo.setVisible(true);
 						return;
-						// LGM.MDI.add(LGM.gameInfo);
 						}
-
 					if (node.kind == Resource.GAMESETTINGS)
 						{
 						LGM.gameSet.setVisible(true);
-						}
-
-					if (node.kind == Resource.SCRIPT)
-						{
-						if (node.status == ResNode.STATUS_PRIMARY) return;
-						if (Prefs.protectLeaf && node.status != ResNode.STATUS_SECONDARY) return;
-						ScriptFrame sf = new ScriptFrame(node.resourceId);
-						// sf.setScript();
-						LGM.MDI.add(sf);
-						sf.setVisible(true);
 						return;
 						}
-
+					// kind must be a Resource kind
+					if (node.status == ResNode.STATUS_PRIMARY) return;
+					if (Prefs.protectLeaf && node.status != ResNode.STATUS_SECONDARY) return;
+					node.openFrame();
+					return;
 					}
 				}
 			}
 		}
 
 	// Unused
-	public void mouseReleased(MouseEvent arg0)
+	public void mouseReleased(MouseEvent e)
 		{
 		}
 
-	public void mouseClicked(MouseEvent arg0)
+	public void mouseClicked(MouseEvent e)
 		{
 		}
 
-	public void mouseEntered(MouseEvent arg0)
+	public void mouseEntered(MouseEvent e)
 		{
 		}
 
-	public void mouseExited(MouseEvent arg0)
+	public void mouseExited(MouseEvent e)
 		{
+		}
+
+	public void editingCanceled(ChangeEvent e)
+		{
+		}
+
+	public void editingStopped(ChangeEvent e)
+		{
+		ResNode node = (ResNode) LGM.tree.getLastSelectedPathComponent();
+		if (node.status == ResNode.STATUS_SECONDARY && node.kind != Resource.GAMEINFO
+				&& node.kind != Resource.GAMESETTINGS)
+			{
+			String txt = ((String) node.getUserObject()).replaceAll("\\W",""); //$NON-NLS-1$ //$NON-NLS-2$
+			if (!Character.toString(txt.charAt(0)).matches("[A-Za-z_]")) txt = txt.substring(1); //$NON-NLS-1$
+			node.setUserObject(txt);
+			node.updateFrame();
+			}
 		}
 	}

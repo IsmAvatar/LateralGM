@@ -2,15 +2,14 @@ package resourcesRes;
 
 import java.util.ArrayList;
 
-import fileRes.Gm6File;
-import fileRes.ResourceList;
-
 import mainRes.LGM;
 import mainRes.Prefs;
 import resourcesRes.subRes.BackgroundDef;
 import resourcesRes.subRes.Instance;
 import resourcesRes.subRes.Tile;
 import resourcesRes.subRes.View;
+import fileRes.Gm6File;
+import fileRes.ResourceList;
 
 public class Room extends Resource
 	{
@@ -53,6 +52,7 @@ public class Room extends Resource
 
 	public Room()
 		{
+		name = Prefs.prefixes[Resource.ROOM];
 		Parent = LGM.currentFile;
 		for (int j = 0; j < 8; j++)
 			{

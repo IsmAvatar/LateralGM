@@ -15,8 +15,6 @@ import javax.imageio.ImageIO;
 
 import resourcesRes.Resource;
 
-import mainRes.LGM;
-
 import componentRes.ResNode;
 
 public class GmStreamDecoder
@@ -50,7 +48,7 @@ public class GmStreamDecoder
 		int c = _in.read();
 		int d = _in.read();
 		if (a == -1 || b == -1 || c == -1 || d == -1)
-			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF"));
+			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
 		long result = (a | (b << 8) | (c << 16) | (d << 24));
 		return (int) result;
 		}
@@ -59,7 +57,7 @@ public class GmStreamDecoder
 		{
 		byte data[] = new byte[readi()];
 		long check = _in.read(data);
-		if (check < data.length) throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF"));
+		if (check < data.length) throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
 		return new String(data);
 		}
 
@@ -67,7 +65,7 @@ public class GmStreamDecoder
 		{
 		int val = readi();
 		if (val != 0 && val != 1)
-			throw new IOException(String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val));
+			throw new IOException(String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
 		if (val == 0) return false;
 		return true;
 		}
@@ -125,7 +123,7 @@ public class GmStreamDecoder
 		return total;
 		}
 
-	public void readTree(ResNode root) throws IOException
+	public void readTree(ResNode root, Gm6File src) throws IOException
 		{
 		Stack<ResNode> path = new Stack<ResNode>();
 		Stack<Integer> left = new Stack<Integer>();
@@ -140,7 +138,9 @@ public class GmStreamDecoder
 			ResNode node = path.peek().addChild(name,status,type);
 			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO && type != Resource.GAMESETTINGS)
 				{
-				node.resourceId = LGM.currentFile.getList(node.kind).getUnsafe(ind).Id;
+				node.resourceId = src.getList(node.kind).getUnsafe(ind).Id;
+				node.setUserObject(src.getList(node.kind).getUnsafe(ind).name); // GM actually ignores the name given
+				// in the tree data
 				}
 			int contents = readi();
 			if (contents > 0)

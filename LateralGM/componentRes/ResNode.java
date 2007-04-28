@@ -3,6 +3,7 @@ package componentRes;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.beans.PropertyVetoException;
 import java.util.Arrays;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -10,6 +11,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import mainRes.LGM;
 import mainRes.Prefs;
 import resourcesRes.ResId;
+import resourcesRes.Resource;
+import SubFrames.FontFrame;
+import SubFrames.ResourceFrame;
+import SubFrames.ScriptFrame;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable
 	{
@@ -22,6 +27,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	public byte status;
 	public byte kind;
 	public ResId resourceId;
+	public ResourceFrame frame = null;
 
 	public ResNode(String name, byte status, byte kind, ResId res)
 		{
@@ -79,5 +85,54 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		{
 		if (flavor != NODE_FLAVOR) throw new UnsupportedFlavorException(flavor);
 		return this;
+		}
+
+	public void openFrame()
+		{
+		if (frame == null)
+			{
+			ResourceFrame rf = null;
+			switch (kind)
+				{
+				case Resource.SCRIPT:
+					rf = new ScriptFrame(LGM.currentFile.Scripts.get(resourceId),this);
+					break;
+				case Resource.FONT:
+					rf = new FontFrame(LGM.currentFile.Fonts.get(resourceId),this);
+					break;
+				}
+			if (rf != null)
+				{
+				frame = rf;
+				LGM.MDI.add(rf);
+				rf.setVisible(true);
+				}
+			}
+		else
+			{
+			frame.toFront();
+			try
+				{
+				frame.setIcon(false);
+				}
+			catch (PropertyVetoException e)
+				{
+				e.printStackTrace();
+				}
+			}
+		}
+
+	public void updateFrame()
+		{
+		if (status == STATUS_SECONDARY)
+			{
+			String txt = (String) getUserObject();
+			LGM.currentFile.getList(kind).get(resourceId).name = txt;
+			if (frame != null)
+				{
+				frame.setTitle(txt);
+				frame.name.setText(txt);
+				}
+			}
 		}
 	}

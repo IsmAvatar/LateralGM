@@ -4,11 +4,12 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
 
-import fileRes.ResourceList;
 import mainRes.LGM;
 import mainRes.Prefs;
+import fileRes.ResourceList;
 
 public class Sprite extends Resource
 	{
@@ -30,6 +31,11 @@ public class Sprite extends Resource
 	public int BoundingBoxTop = 0;
 	public int BoundingBoxBottom = 0;
 	private ArrayList<BufferedImage> SubImages = new ArrayList<BufferedImage>();
+
+	public Sprite()
+		{
+		name = Prefs.prefixes[Resource.SPRITE];
+		}
 
 	public int NoSubImages()
 		{

@@ -3,15 +3,18 @@ package resourcesRes;
 import java.util.ArrayList;
 
 import mainRes.Prefs;
-
-import fileRes.ResourceList;
-
 import resourcesRes.subRes.Action;
 import resourcesRes.subRes.Moment;
+import fileRes.ResourceList;
 
 public class Timeline extends Resource
 	{
 	private ArrayList<Moment> Moments = new ArrayList<Moment>();
+
+	public Timeline()
+		{
+		name = Prefs.prefixes[Resource.TIMELINE];
+		}
 
 	public int NoMoments()
 		{

@@ -3,10 +3,8 @@ package resourcesRes;
 import java.util.ArrayList;
 
 import mainRes.Prefs;
-
-import fileRes.ResourceList;
-
 import resourcesRes.subRes.Point;
+import fileRes.ResourceList;
 
 public class Path extends Resource
 	{
@@ -17,6 +15,11 @@ public class Path extends Resource
 	public int SnapX = 16;
 	public int SnapY = 16;
 	private ArrayList<Point> Points = new ArrayList<Point>();
+
+	public Path()
+		{
+		name = Prefs.prefixes[Resource.PATH];
+		}
 
 	public int NoPoints()
 		{

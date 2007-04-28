@@ -1,6 +1,7 @@
 package componentRes;
 
 import java.io.File;
+
 import javax.swing.filechooser.FileFilter;
 
 public class CustomFileFilter extends FileFilter

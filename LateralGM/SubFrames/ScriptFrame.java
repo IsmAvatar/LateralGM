@@ -2,60 +2,65 @@ package SubFrames;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JButton;
-import javax.swing.JInternalFrame;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
 import mainRes.LGM;
 import mainRes.Prefs;
-import resourcesRes.GameInformation;
-import resourcesRes.ResId;
 import resourcesRes.Script;
 
-import componentRes.NameDocument;
+import componentRes.ResNode;
 
-public class ScriptFrame extends JInternalFrame
+public class ScriptFrame extends ResourceFrame<Script>
 	{
 	private static final long serialVersionUID = 1L;
-	public static GameInformation gi = new GameInformation();
-	public static JTextField name;
-	public static JTextArea code;
+	private static final ImageIcon frameIcon = LGM.findIcon("script.png"); //$NON-NLS-1$
+	private static final ImageIcon saveIcon = LGM.findIcon("save.png"); //$NON-NLS-1$
+	public JTextArea code;
 
-	public ScriptFrame(ResId id)
+	public ScriptFrame(Script res, ResNode node)
 		{
-		super("ScriptName",true,true,true,true);
-		Script scr = LGM.currentFile.Scripts.getList(0);
-		this.setTitle(scr.name);
+		super(res,node);
 		setSize(600,400);
+		setFrameIcon(frameIcon);
 		// Setup the toolbar
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 		add("North",tool); //$NON-NLS-1$
 		// Setup the buttons
-		JButton but = new JButton(LGM.findIcon("save.png")); //$NON-NLS-1$
-		but.setActionCommand("Save"); //$NON-NLS-1$
-		// but.addActionListener(this);
-		tool.add(but);
+		save.setIcon(saveIcon);
+		tool.add(save);
 		tool.addSeparator();
 		tool.add(new JLabel(Messages.getString("ScriptFrame.NAME"))); //$NON-NLS-1$
-		name = new JTextField(new NameDocument(),"",13); //$NON-NLS-1$
+		name.setColumns(13);
 		name.setMaximumSize(name.getPreferredSize());
 		tool.add(name);
 		// the code text area
 		code = new JTextArea();
 		code.setFont(Prefs.codeFont);
+		code.setText(res.ScriptStr);
 		JScrollPane codePane = new JScrollPane(code);
 		getContentPane().add(codePane,BorderLayout.CENTER);
 		}
 
-	public void setScript(Script s)
+	public void revertResource()
 		{
-		name.setText(s.name);
-		code.setText(s.ScriptStr);
+		LGM.currentFile.Scripts.replace(res.Id,resOriginal);
+		}
+
+	public void updateResource()
+		{
+		res.ScriptStr = code.getText();
+		res.name = name.getText();
+		resOriginal = (Script) res.copy(false,null);
+		}
+
+	public boolean resourceChanged()
+		{
+		return (!code.getText().equals(res.ScriptStr)) || (!res.name.equals(resOriginal.name));
 		}
 	}

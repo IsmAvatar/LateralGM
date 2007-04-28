@@ -1,11 +1,16 @@
 package resourcesRes;
 
-import fileRes.ResourceList;
 import mainRes.Prefs;
+import fileRes.ResourceList;
 
 public class Script extends Resource
 	{
 	public String ScriptStr = "";
+
+	public Script()
+		{
+		name = Prefs.prefixes[Resource.SCRIPT];
+		}
 
 	public Script copy(boolean update, ResourceList src)
 		{
@@ -19,8 +24,8 @@ public class Script extends Resource
 			}
 		else
 			{
-			scr.Id = scr.Id;
-			scr.name = scr.name;
+			scr.Id = Id;
+			scr.name = name;
 			}
 		return scr;
 		}

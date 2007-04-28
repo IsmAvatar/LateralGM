@@ -21,6 +21,11 @@ public class Background extends Resource
 	public int VertSep = 0;
 	public BufferedImage BackgroundImage = null;
 
+	public Background()
+		{
+		name = Prefs.prefixes[Resource.BACKGROUND];
+		}
+
 	public BufferedImage copyBackgroundImage()
 		{
 		if (BackgroundImage != null)

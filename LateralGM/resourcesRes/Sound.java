@@ -23,6 +23,11 @@ public class Sound extends Resource
 	public boolean Preload = true;
 	public byte[] Data;
 
+	public Sound()
+		{
+		name = Prefs.prefixes[Resource.SOUND];
+		}
+
 	public static boolean getReverb(int effects)
 		{
 		if ((effects & 16) == 16) return true;

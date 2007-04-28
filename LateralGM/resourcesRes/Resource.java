@@ -2,6 +2,7 @@ package resourcesRes;
 
 import fileRes.ResourceList;
 
+//TODO Implement Resource.equals method
 public abstract class Resource implements Comparable<Resource>
 	{
 	public static final byte SPRITE = 2;

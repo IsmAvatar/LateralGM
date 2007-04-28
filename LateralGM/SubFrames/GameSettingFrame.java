@@ -22,6 +22,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import mainRes.LGM;
+import fileRes.Gm6File;
 
 public class GameSettingFrame extends JInternalFrame implements ActionListener
 	{
@@ -36,6 +37,7 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 		super(Messages.getString("GameSettingFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(540,470);
+		setFrameIcon(LGM.findIcon("gm.png"));
 		setLayout(new FlowLayout());
 		tabbedPane.setPreferredSize(new Dimension(530,400));
 		setResizable(false);
@@ -210,9 +212,9 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 			label = new JLabel(Messages.getString("GameSettingFrame.LASTCHANGED")); //$NON-NLS-1$
 			label.setPreferredSize(new Dimension(80,25));
 			panel8.add(label);
-			box = new JTextField("" + LGM.currentFile.LastChanged);
+			box = new JTextField(Gm6File.gmTimeToString(LGM.currentFile.LastChanged));
 			box.setPreferredSize(new Dimension(390,25));
-			box.setEnabled(false);
+			box.setEditable(false);
 			panel8.add(box);
 			label = new JLabel(Messages.getString("GameSettingFrame.INFORMATION")); //$NON-NLS-1$
 			label.setPreferredSize(new Dimension(70,25));

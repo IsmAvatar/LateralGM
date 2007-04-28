@@ -1,11 +1,10 @@
 package fileRes;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import resourcesRes.ResId;
 import resourcesRes.Resource;
-
-import java.util.ArrayList;
 
 public class ResourceList<R extends Resource>
 	{
@@ -40,6 +39,7 @@ public class ResourceList<R extends Resource>
 			{
 			res = (R) type.newInstance();
 			res.Id.value = ++LastId;
+			res.name += LastId;
 			Resources.add(res);
 			}
 		catch (Exception e)
@@ -149,14 +149,14 @@ public class ResourceList<R extends Resource>
 		if (SrcIndex >= 0 && SrcIndex < Resources.size() && Replacement != null)
 			Resources.set(SrcIndex,Replacement);
 		}
-	
+
 	public void defragIds()
 		{
 		sort();
-		for(int i=0;i<Resources.size();i++)
+		for (int i = 0; i < Resources.size(); i++)
 			{
-			Resources.get(i).Id.value=i;
+			Resources.get(i).Id.value = i;
 			}
-		LastId=Resources.size()-1;
+		LastId = Resources.size() - 1;
 		}
 	}

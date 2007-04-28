@@ -1,10 +1,10 @@
 package resourcesRes;
 
 import mainRes.Prefs;
-import fileRes.ResourceList;
 import resourcesRes.subRes.Action;
 import resourcesRes.subRes.Event;
 import resourcesRes.subRes.MainEvent;
+import fileRes.ResourceList;
 
 public class GmObject extends Resource
 	{
@@ -22,6 +22,7 @@ public class GmObject extends Resource
 
 	public GmObject()
 		{
+		name = Prefs.prefixes[Resource.GMOBJECT];
 		for (int j = 0; j < 11; j++)
 			{
 			MainEvents[j] = new MainEvent();

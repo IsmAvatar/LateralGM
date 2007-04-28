@@ -36,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.UIManager;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -62,8 +63,8 @@ public class LGM extends JPanel
 	public static ResNode root;
 	public static Gm6File currentFile = new Gm6File();
 	public static JDesktopPane MDI;
-	public static GameInformationFrame gameInfo = new GameInformationFrame();
-	public static GameSettingFrame gameSet = new GameSettingFrame();
+	public static GameInformationFrame gameInfo;
+	public static GameSettingFrame gameSet;
 	public static String[] kinds = { "","Object","Sprite","Sound","Room","","Background","Script","Path", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$
 			"Font","Info","GM","Timeline" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
@@ -136,6 +137,7 @@ public class LGM extends JPanel
 		tree = new JTree(new DefaultTreeModel(root));
 		GmTreeGraphics renderer = new GmTreeGraphics();
 		GmTreeEditor editor = new GmTreeEditor(tree,renderer);
+		editor.addCellEditorListener(listener);
 		tree.setEditable(true);
 		tree.addMouseListener(listener);
 		tree.setScrollsOnExpand(true);
@@ -182,6 +184,23 @@ public class LGM extends JPanel
 		MDI.add(gameSet);
 		MDI.add(gameInfo);
 		// gameInfo.setVisible(true);
+		}
+
+	static
+		{
+		try
+			{
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			// TODO At some point, add LAF as an option
+			}
+		catch (Exception e)
+			{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
+		gameInfo = new GameInformationFrame();
+		gameSet = new GameSettingFrame();
 		}
 
 	public static void main(String[] args)

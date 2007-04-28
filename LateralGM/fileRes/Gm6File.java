@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -119,6 +120,25 @@ public class Gm6File
 			}
 		}
 
+	public static Calendar gmBaseTime()
+		{
+		Calendar res = Calendar.getInstance();
+		res.set(1899,11,29,23,59,59);
+		return res;
+		}
+
+	public static double longTimeToGmTime(long time)
+		{
+		return (time - gmBaseTime().getTimeInMillis()) / 86400000d;
+		}
+
+	public static String gmTimeToString(double time)
+		{
+		Calendar base = gmBaseTime();
+		base.setTimeInMillis(base.getTimeInMillis() + ((long) (time * 86400000)));
+		return DateFormat.getDateTimeInstance().format(base.getTime());
+		}
+
 	// Constants For Resource Properties
 	public static final byte COLOR_NOCHANGE = 0;
 	public static final byte COLOR_16 = 1;
@@ -181,7 +201,7 @@ public class Gm6File
 	public boolean TreatUninitializedAs0 = false;
 	public String Author = ""; //$NON-NLS-1$
 	public int Version = 100;
-	public double LastChanged = 0;
+	public double LastChanged = longTimeToGmTime(System.currentTimeMillis());
 	public String Information = ""; //$NON-NLS-1$
 	public int IncludeFolder = INCLUDE_MAIN;
 	public boolean OverwriteExisting = false;
@@ -894,7 +914,7 @@ public class Gm6File
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.readi() * 4);// room indexes in tree order;
-			in.readTree(root);
+			in.readTree(root,this);
 			System.out.printf(Messages.getString("Gm6File.LOADTIME"),System.currentTimeMillis() - startTime); //$NON-NLS-1$
 			System.out.println();
 			}
@@ -987,10 +1007,8 @@ public class Gm6File
 			out.writeBool(TreatUninitializedAs0);
 			out.writeStr(Author);
 			out.writei(Version);
-
-			Calendar then = Calendar.getInstance();
-			then.set(1899,11,29,23,59,59);
-			out.writeD((savetime - then.getTimeInMillis()) / 86400000.0);
+			LastChanged = longTimeToGmTime(savetime);
+			out.writeD(LastChanged);
 
 			out.writeStr(Information);
 			out.writei(constants.size());
@@ -1498,8 +1516,17 @@ public class Gm6File
 
 	public void DefragIds()
 		{
-		Iterator iter = resMap.values().iterator();
+		Iterator<ResourceList> iter = resMap.values().iterator();
 		while (iter.hasNext())
-			((ResourceList) iter.next()).defragIds();
+			iter.next().defragIds();
+		LastInstanceId = 100000;
+		LastTileId = 100000;
+		for (int i = 0; i < Rooms.count(); i++)
+			{
+			for (int j = 0; j < Rooms.getList(i).NoInstances(); j++)
+				Rooms.getList(i).getInstanceList(j).InstanceId = ++LastInstanceId;
+			for (int j = 0; j < Rooms.getList(i).NoTiles(); j++)
+				Rooms.getList(i).getTileList(j).TileId = ++LastTileId;
+			}
 		}
 	}

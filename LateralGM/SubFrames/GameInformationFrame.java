@@ -47,6 +47,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		super(Messages.getString("GameInformationFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(600,400);
+		setFrameIcon(LGM.findIcon("info.png"));
 		// Setup the Menu
 		// Create the menu bar
 		JMenuBar menuBar = new JMenuBar();
