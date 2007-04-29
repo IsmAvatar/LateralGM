@@ -27,11 +27,15 @@ public class CustomFileFilter extends FileFilter
 
 	public boolean accept(File f)
 		{
+		if (ext.size() == 0) return true;
 		if (f.isDirectory()) return true;
 		String s = f.getPath();
-		s = s.substring(s.lastIndexOf("."));
-		if (ext.size() == 0) return true;
-		return ext.contains(s);
+		for (String e : ext)
+			{
+			if (s.endsWith(e))
+				return true;
+			}
+		return false;
 		}
 
 	public String getDescription()

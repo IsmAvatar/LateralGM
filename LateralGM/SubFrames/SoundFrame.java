@@ -25,7 +25,6 @@ import resourcesRes.Sound;
 
 import componentRes.CustomFileFilter;
 import componentRes.IndexButtonGroup;
-import componentRes.Messages;
 import componentRes.ResNode;
 
 public class SoundFrame extends ResourceFrame<Sound>

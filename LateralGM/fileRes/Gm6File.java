@@ -321,7 +321,7 @@ public class Gm6File
 						.getString("Gm6File.ERROR_UNSUPPORTED_BEFORESOUNDS"),ver)); //$NON-NLS-1$
 			// SOUNDS
 			no = in.readi();
-			Sprites.LastId = -1;
+			Sounds.LastId = -1;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
