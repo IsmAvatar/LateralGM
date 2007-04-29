@@ -34,6 +34,7 @@ import fileRes.Gm6FormatException;
 public class Listener extends TransferHandler implements ActionListener,MouseListener,CellEditorListener
 	{
 	private static final long serialVersionUID = 1L;
+	JFileChooser fc = new JFileChooser("C:/gm/");
 
 	public void actionPerformed(ActionEvent e)
 		{
@@ -58,7 +59,6 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.endsWith(".OPEN")) //$NON-NLS-1$
 			{
-			JFileChooser fc = new JFileChooser();
 			fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$//$NON-NLS-2$
 			fc.showOpenDialog(LGM.frame);
 
@@ -118,10 +118,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
 				if (result == 0)
 					{
-					Enumeration<ResNode> nodes = LGM.root.preorderEnumeration();
+					Enumeration nodes = LGM.root.preorderEnumeration();
 					while (nodes.hasMoreElements())
 						{
-						ResNode node = nodes.nextElement();
+						ResNode node = (ResNode)nodes.nextElement();
 						if (node.frame != null) node.frame.updateResource(); // update open frames
 						}
 					LGM.currentFile.WriteGm6File(filename,LGM.root);

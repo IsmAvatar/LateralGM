@@ -1,5 +1,6 @@
 package fileRes;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -331,19 +332,15 @@ public class Gm6File
 					if (ver != 600)
 						throw new Gm6FormatException(String.format(Messages
 								.getString("Gm6File.ERROR_UNSUPPORTED_INSOUND"),i,ver)); //$NON-NLS-1$
-					snd.Type = (byte) in.readi();
+					snd.kind = (byte) in.readi();
 					snd.FileType = in.readStr();
 					snd.FileName = in.readStr();
 					if (in.readBool()) snd.Data = in.decompress(in.readi());
 					int effects = in.readi();
-					snd.Chorus = Sound.getChorus(effects);
-					snd.Echo = Sound.getEcho(effects);
-					snd.Flanger = Sound.getFlanger(effects);
-					snd.Gargle = Sound.getGargle(effects);
-					snd.Reverb = Sound.getReverb(effects);
-					snd.Volume = in.readD();
-					snd.Pan = in.readD();
-					snd.Preload = in.readBool();
+					snd.setEffects(effects);
+					snd.volume = in.readD();
+					snd.pan = in.readD();
+					snd.preload = in.readBool();
 					}
 				else
 					Sounds.LastId++;
@@ -887,7 +884,8 @@ public class Gm6File
 			if (ver != 600)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREINFO"),ver)); //$NON-NLS-1$
-			GameInfo.BackgroundColor = in.readi();
+			int bc = in.readi();
+			if (bc >= 0) GameInfo.BackgroundColor = new Color(bc);
 			GameInfo.MimicGameWindow = in.readBool();
 			GameInfo.FormCaption = in.readStr();
 			GameInfo.Left = in.readi();
@@ -1035,7 +1033,7 @@ public class Gm6File
 					{
 					out.writeStr(snd.name);
 					out.writei(600);
-					out.writei(snd.Type);
+					out.writei(snd.kind);
 					out.writeStr(snd.FileType);
 					out.writeStr(snd.FileName);
 					if (snd.Data != null)
@@ -1045,10 +1043,10 @@ public class Gm6File
 						}
 					else
 						out.writeBool(false);
-					out.writei(Sound.makeEffects(snd.Chorus,snd.Echo,snd.Flanger,snd.Gargle,snd.Reverb));
-					out.writeD(snd.Volume);
-					out.writeD(snd.Pan);
-					out.writeBool(snd.Preload);
+					out.writei(snd.getEffects());
+					out.writeD(snd.volume);
+					out.writeD(snd.pan);
+					out.writeBool(snd.preload);
 					}
 				}
 
@@ -1466,7 +1464,7 @@ public class Gm6File
 
 			// GAME SETTINGS
 			out.writei(600);
-			out.writei(GameInfo.BackgroundColor);
+			out.writei(GameInfo.BackgroundColor.getRGB());
 			out.writeBool(GameInfo.MimicGameWindow);
 			out.writeStr(GameInfo.FormCaption);
 			out.writei(GameInfo.Left);

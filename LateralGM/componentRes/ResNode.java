@@ -15,6 +15,7 @@ import resourcesRes.Resource;
 import SubFrames.FontFrame;
 import SubFrames.ResourceFrame;
 import SubFrames.ScriptFrame;
+import SubFrames.SoundFrame;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable
 	{
@@ -94,6 +95,9 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 			ResourceFrame rf = null;
 			switch (kind)
 				{
+				case Resource.SOUND:
+					rf = new SoundFrame(LGM.currentFile.Sounds.get(resourceId),this);
+					break;
 				case Resource.SCRIPT:
 					rf = new ScriptFrame(LGM.currentFile.Scripts.get(resourceId),this);
 					break;

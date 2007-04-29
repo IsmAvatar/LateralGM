@@ -1,7 +1,6 @@
 package SubFrames;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,11 +20,16 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import mainRes.LGM;
@@ -41,6 +45,9 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	public static GameInformation gi = new GameInformation();
 	private JComboBox m_cbFonts;
 	private JComboBox m_cbSizes;
+	private JToggleButton m_tbBold;
+	private JToggleButton m_tbItalic;
+	private JToggleButton m_tbUnderline;
 
 	public GameInformationFrame()
 		{
@@ -184,6 +191,20 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			m_cbSizes.addActionListener(lst);
 			tool.add(m_cbSizes);
 			tool.addSeparator();
+
+			m_tbBold = new JToggleButton("B");
+			//m_tbBold.setFont(new java.awt.Font("Courier New",java.awt.Font.BOLD,10));
+			tool.add(m_tbBold);
+			m_tbItalic = new JToggleButton("I");
+			//m_tbItalic.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.ITALIC));
+			tool.add(m_tbItalic);
+			m_tbUnderline = new JToggleButton("U");
+			//m_tbUnderline = new JToggleButton("<html><u>U</u></html>");
+			//m_tbUnderline.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.PLAIN));
+			//m_tbUnderline.setMaximumSize(m_tbBold.getSize());
+			tool.add(m_tbUnderline);
+
+			tool.addSeparator();
 			but = new JButton(LGM.findIcon("Bcolor.png"));
 			but.setActionCommand("BackgroundColor");
 			but.addActionListener(this);
@@ -198,7 +219,25 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		editor = new JEditorPane();
 		// editor.setEditable(false);
 		editor.setEditorKit(rtf);
-		editor.setBackground(new Color(LGM.currentFile.GameInfo.BackgroundColor));
+		editor.setBackground(LGM.currentFile.GameInfo.BackgroundColor);
+		editor.addCaretListener(new CaretListener()
+			{
+				public void caretUpdate(CaretEvent ce)
+					{
+					StyledDocument d = (StyledDocument) editor.getDocument();
+					AttributeSet as = d.getCharacterElement(ce.getDot()).getAttributes();
+					Object f = as.getAttribute(StyleConstants.Family);
+					Object s = as.getAttribute(StyleConstants.Size);
+					Object b = as.getAttribute(StyleConstants.Bold);
+					Object i = as.getAttribute(StyleConstants.Italic);
+					Object u = as.getAttribute(StyleConstants.Underline);
+					if (f instanceof String) m_cbFonts.setSelectedItem((String)f);
+					if (s instanceof Integer) m_cbSizes.setSelectedItem((Integer)s);
+					if (b instanceof Boolean) m_tbBold.setSelected((Boolean)b);
+					if (i instanceof Boolean) m_tbItalic.setSelected((Boolean)i);
+					if (u instanceof Boolean) m_tbUnderline.setSelected((Boolean)u);
+					}
+			});
 
 		// This text could be big so add a scroll pane
 		JScrollPane scroller = new JScrollPane();

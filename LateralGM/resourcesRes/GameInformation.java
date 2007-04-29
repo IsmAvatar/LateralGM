@@ -1,8 +1,10 @@
 package resourcesRes;
 
+import java.awt.Color;
+
 public class GameInformation
 	{
-	public int BackgroundColor = 0xFFFFFF;
+	public Color BackgroundColor = new Color(0xFFFFE1);
 	public boolean MimicGameWindow = false;
 	public String FormCaption = "";
 	public int Left = -1;
