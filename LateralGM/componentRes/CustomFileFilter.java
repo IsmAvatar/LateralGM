@@ -30,12 +30,10 @@ public class CustomFileFilter extends FileFilter
 		if (ext.size() == 0) return true;
 		if (f.isDirectory()) return true;
 		String s = f.getPath();
-		for (String e : ext)
-			{
-			if (s.endsWith(e))
-				return true;
-			}
-		return false;
+		int p = s.indexOf(".");
+		if (p == -1) return false;
+		s = s.substring(p);
+		return ext.contains(s);
 		}
 
 	public String getDescription()

@@ -1,9 +1,6 @@
 package componentRes;
 
 import java.awt.Container;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -11,44 +8,56 @@ import javax.swing.ButtonGroup;
 public class IndexButtonGroup
 	{
 	private static final long serialVersionUID = 1L;
-	private Hashtable<AbstractButton,Integer> map;
+	private class But
+		{
+		AbstractButton b;
+		int i;
+		But(AbstractButton b, int i)
+			{
+			this.b = b;
+			this.i = i;
+			}
+		}
+	private But bm[];
+	private int bs;
 	private ButtonGroup g;
 
-	public IndexButtonGroup()
+	public IndexButtonGroup(int s)
 		{
 		g = new ButtonGroup();
-		map = new Hashtable<AbstractButton,Integer>();
+		bm = new But[s];
+		bs = 0;
 		}
 
 	public void add(AbstractButton b, int value)
 		{
 		g.add(b);
-		map.put(b,value);
+		bm[bs++] = new But(b,value);
 		}
 
 	public int getValue()
 		{
 		int value = 0;
-		for (Map.Entry e : map.entrySet())
+		for (But b : bm)
 			{
-			if (((AbstractButton)e.getKey()).isSelected()) value |= (Integer)e.getValue();
+			if (b.b.isSelected()) value |= b.i;
 			}
 		return value;
 		}
 
 	public void setValue(int value)
 		{
-		for (Map.Entry e : map.entrySet())
+		for (But b : bm)
 			{
-			if (((Integer)e.getValue() & value) != 0) ((AbstractButton)e.getKey()).setSelected(true);
+			if (((b.i & value) != 0) || (b.i == value)) b.b.setSelected(true);
 			}
 		}
-	
+
 	public void populate(Container c)
 		{
-		for (Enumeration<AbstractButton> e = map.keys(); e.hasMoreElements();)
+		for (But b : bm)
 			{
-			c.add(e.nextElement());
+			c.add(b.b);
 			}
 		}
 	}

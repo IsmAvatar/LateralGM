@@ -4,8 +4,11 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -63,7 +66,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		fc.addChoosableFileFilter(new CustomFileFilter(s[1],Messages.getString("SoundFrame.FORMAT_MID"))); //$NON-NLS-1$//$NON-NLS-2$
 		fc.addChoosableFileFilter(new CustomFileFilter(s[2],Messages.getString("SoundFrame.FORMAT_MP3"))); //$NON-NLS-1$//$NON-NLS-2$
 
-		setSize(250,390);
+		setSize(250,550);
 		setResizable(false);
 		setMaximizable(false);
 		setFrameIcon(frameIcon);
@@ -79,40 +82,42 @@ public class SoundFrame extends ResourceFrame<Sound>
 		add(name);
 
 		load = new JButton(Messages.getString("SoundFrame.LOAD"),loadIcon); //$NON-NLS-1$
-		load.setPreferredSize(new Dimension(180,20));
+		load.setPreferredSize(new Dimension(130,26));
 		load.addActionListener(this);
 		add(load);
 
 		play = new JButton(playIcon);
+		play.setPreferredSize(new Dimension(26,26));
 		play.addActionListener(this);
 		add(play);
 		stop = new JButton(stopIcon);
-		play.addActionListener(this);
+		stop.setPreferredSize(new Dimension(26,26));
+		stop.addActionListener(this);
 		add(stop);
 
+		addGap(40,1);
 		store = new JButton(Messages.getString("SoundFrame.STORE"),storeIcon);
+		store.setPreferredSize(new Dimension(130,26));
 		store.addActionListener(this);
 		add(store);
+		addGap(40,1);
 
-		label = new JLabel(Messages.getString("SoundFrame.FILE")); //$NON-NLS-1$
-		label.setPreferredSize(new Dimension(40,14));
-		label.setHorizontalAlignment(SwingConstants.RIGHT);
-		add(label);
-		filename = new JLabel(res.FileName);
+		filename = new JLabel(Messages.getString("SoundFrame.FILE") + res.FileName);
+		filename.setPreferredSize(new Dimension(200,14));
 		add(filename);
 
-		kind = new IndexButtonGroup();
+		kind = new IndexButtonGroup(4);
 		AbstractButton b = new JRadioButton(Messages.getString("SoundFrame.NORMAL"));
-		b.setPreferredSize(new Dimension(110,16));
+		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.NORMAL);
 		b = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND"));
-		b.setPreferredSize(new Dimension(110,16));
+		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.BACKGROUND);
 		b = new JRadioButton(Messages.getString("SoundFrame.THREE"));
-		b.setPreferredSize(new Dimension(110,16));
+		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.THREE);
 		b = new JRadioButton(Messages.getString("SoundFrame.MULT"));
-		b.setPreferredSize(new Dimension(110,16));
+		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.MULTIMEDIA);
 		kind.setValue(res.kind);
 		JPanel p = new JPanel();
@@ -122,34 +127,36 @@ public class SoundFrame extends ResourceFrame<Sound>
 		add(p);
 
 		// these are in bit order as appears in a GM6 file, not the same as GM shows them
-		effects = new IndexButtonGroup();
+		effects = new IndexButtonGroup(5);
 		b = new JCheckBox(Messages.getString("SoundFrame.CHORUS"));
-		b.setPreferredSize(new Dimension(110,16));
+		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,1);
 		b = new JCheckBox(Messages.getString("SoundFrame.ECHO"));
-		b.setPreferredSize(new Dimension(110,16));
+		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,2);
 		b = new JCheckBox(Messages.getString("SoundFrame.FLANGER"));
-		b.setPreferredSize(new Dimension(110,16));
+		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,4);
 		b = new JCheckBox(Messages.getString("SoundFrame.GARGLE"));
-		b.setPreferredSize(new Dimension(110,16));
+		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,8);
 		b = new JCheckBox(Messages.getString("SoundFrame.REVERB"));
-		b.setPreferredSize(new Dimension(110,16));
+		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,16);
 		effects.setValue(res.getEffects());
 		p = new JPanel();
 		p.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.EFFECTS"))); //$NON-NLS-1$
-		p.setPreferredSize(new Dimension(220,110));
+		p.setPreferredSize(new Dimension(220,90));
 		effects.populate(p);
 		add(p);
 
 		label = new JLabel(Messages.getString("SoundFrame.VOLUME")); //$NON-NLS-1$
-		label.setPreferredSize(new Dimension(40,14));
+		label.setPreferredSize(new Dimension(60,14));
 		label.setHorizontalAlignment(SwingConstants.RIGHT);
 		add(label);
 		volume = new JSlider(0,100,100);
+		volume.setMajorTickSpacing(10);
+		volume.setPaintTicks(true);
 		add(volume);
 
 		label = new JLabel(Messages.getString("SoundFrame.PAN")); //$NON-NLS-1$
@@ -157,15 +164,19 @@ public class SoundFrame extends ResourceFrame<Sound>
 		label.setHorizontalAlignment(SwingConstants.RIGHT);
 		add(label);
 		pan = new JSlider(-100,100,0);
-		add(volume);
+		pan.setMajorTickSpacing(20);
+		pan.setPaintTicks(true);
+		add(pan);
 
-		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD"));
-		preload.setPreferredSize(new Dimension(110,16));
+		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD"),res.preload);
+		preload.setPreferredSize(new Dimension(200,20));
 		add(preload);
 
+		addGap(50,1);
 		edit = new JButton(Messages.getString("SoundFrame.EDIT"),editIcon);
 		edit.addActionListener(this);
 		add(edit);
+		addGap(50,1);
 
 		save.setPreferredSize(new Dimension(100,27));
 		save.setIcon(saveIcon);
@@ -176,9 +187,18 @@ public class SoundFrame extends ResourceFrame<Sound>
 		Data = res.Data;
 		}
 
+	//adds a blank JLabel to fill in space - maybe extract to ResourceFrame?
+	private void addGap(int w, int h)
+		{
+		JLabel l = new JLabel();
+		l.setPreferredSize(new Dimension(w,h));
+		add(l);
+		}
+
 	public boolean resourceChanged()
 		{
-		if (res.name.equals(name.getText()) || modified || !res.FileName.equals(filename)
+		if (!res.name.equals(name.getText()) || modified
+				|| !res.FileName.equals(filename.getText().substring(Messages.getString("SoundFrame.FILE").length()))
 				|| res.kind != kind.getValue() || res.getEffects() != effects.getValue()
 				|| res.volume != (double) volume.getValue() / 100.0 || res.pan != (double) pan.getValue() / 100.0
 				|| res.preload != preload.isSelected()) return true;
@@ -224,19 +244,22 @@ public class SoundFrame extends ResourceFrame<Sound>
 			try
 				{
 				BufferedInputStream in = new BufferedInputStream(new FileInputStream(fc.getSelectedFile()));
-				ByteArrayOutputStream dat = new ByteArrayOutputStream();
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				int val = in.read();
 				while (val != -1)
 					{
-					dat.write(val);
+					out.write(val);
 					val = in.read();
 					}
-				Data = dat.toByteArray();
+				Data = out.toByteArray();
+				out.close();
+				in.close();
 				}
 			catch (Exception ex)
 				{
 				ex.printStackTrace();
 				}
+			modified = true;
 			return;
 			}
 		if (e.getSource() == play)
@@ -249,6 +272,24 @@ public class SoundFrame extends ResourceFrame<Sound>
 			}
 		if (e.getSource() == store)
 			{
+			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
+			try
+				{
+				ByteArrayInputStream in = new ByteArrayInputStream(Data);
+				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(fc.getSelectedFile()));
+				int val = in.read();
+				while (val != -1)
+					{
+					out.write(val);
+					val = in.read();
+					}
+				out.close();
+				in.close();
+				}
+			catch (Exception ex)
+				{
+				ex.printStackTrace();
+				}
 			return;
 			}
 		if (e.getSource() == edit)

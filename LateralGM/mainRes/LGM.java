@@ -9,9 +9,11 @@ package mainRes;
  *  and finding CVS/SVN which helped teamwork and version control
  * Clam from the LGM forum for most of the Save and Load code
  *  which I then proceeded to break and refix; and starting the MDI desktop
+ * Quadduc from the LGM forum for technical things like format fix and license
+ *  as well as amazing bug fixes, some MDI code/fixes, and string externalization
  * DeathFinder from the GMC for providing the default graphics
  * Professor Mark Overmars for providing GM6 and its file format which inspired this,
- *  and then up and deciding to be an a-hole about it by the time GM7 came out.
+ *  and then up and deciding to be a jerk about it by the time GM7 came out.
  * Everyone else from the GMC forums, G-Java forums, LGM forum, etc. who helped out,
  *  gave tips, acknowledged LGM's presence, or have works that aided in its creation,
  *  including but certainly not limited to (and pardon the many forgotten names):
@@ -57,7 +59,7 @@ import fileRes.Gm6File;
 public class LGM extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
-	public static final JFrame frame = new JFrame("Lateral GM 6.1"); //$NON-NLS-1$
+	public static final JFrame frame = new JFrame("Lateral GM 6.1: <new game>"); //$NON-NLS-1$
 	public static final Listener listener = new Listener();
 	public static JTree tree;
 	public static ResNode root;

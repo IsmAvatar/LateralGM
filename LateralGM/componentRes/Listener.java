@@ -34,7 +34,7 @@ import fileRes.Gm6FormatException;
 public class Listener extends TransferHandler implements ActionListener,MouseListener,CellEditorListener
 	{
 	private static final long serialVersionUID = 1L;
-	JFileChooser fc = new JFileChooser("C:/gm/");
+	JFileChooser fc = new JFileChooser();
 
 	public void actionPerformed(ActionEvent e)
 		{
@@ -70,6 +70,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						{
 						ResNode newroot = new ResNode("Root",0,0,null); //$NON-NLS-1$
 						LGM.currentFile = new Gm6File();
+						LGM.frame.setTitle("Lateral GM 6.1: "+fc.getSelectedFile().getName());
 						LGM.currentFile.ReadGm6File(fc.getSelectedFile().getPath(),newroot);
 						LGM f = new LGM();
 						f.createTree(newroot,false);
