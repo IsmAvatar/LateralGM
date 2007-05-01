@@ -41,13 +41,13 @@ import componentRes.ResNode;
 public class SoundFrame extends ResourceFrame<Sound>
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon frameIcon = LGM.findIcon("sound.png"); //$NON-NLS-1$
-	private static final ImageIcon loadIcon = LGM.findIcon("open....png"); //$NON-NLS-1$
-	private static final ImageIcon playIcon = LGM.findIcon("sound.png"); //$NON-NLS-1$
-	private static final ImageIcon stopIcon = LGM.findIcon("room.png"); //$NON-NLS-1$
-	private static final ImageIcon storeIcon = LGM.findIcon("save.png"); //$NON-NLS-1$
-	private static final ImageIcon editIcon = LGM.findIcon("sound.png"); //$NON-NLS-1$
-	private static final ImageIcon saveIcon = LGM.findIcon("save.png"); //$NON-NLS-1$
+	private static final ImageIcon frameIcon = LGM.getIconForKey("SoundFrame.SOUND"); //$NON-NLS-1$
+	private static final ImageIcon loadIcon = LGM.getIconForKey("SoundFrame.LOAD"); //$NON-NLS-1$
+	private static final ImageIcon playIcon = LGM.getIconForKey("SoundFrame.PLAY"); //$NON-NLS-1$
+	private static final ImageIcon stopIcon = LGM.getIconForKey("SoundFrame.STOP"); //$NON-NLS-1$
+	private static final ImageIcon storeIcon = LGM.getIconForKey("SoundFrame.STORE"); //$NON-NLS-1$
+	private static final ImageIcon editIcon = LGM.getIconForKey("SoundFrame.EDIT"); //$NON-NLS-1$
+	private static final ImageIcon saveIcon = LGM.getIconForKey("SoundFrame.SAVE"); //$NON-NLS-1$
 
 	public JButton load;
 	public JButton play;
@@ -224,7 +224,9 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 		String n = filename.getText();
 		res.FileName = n;
-		res.FileType = n.substring(n.lastIndexOf("."));
+		res.FileType = CustomFileFilter.getExtension(n);
+		if(res.FileType == null)
+			res.FileType = "";
 		res.kind = kind.getValue();
 		res.setEffects(effects.getValue());
 		res.volume = (double) volume.getValue() / 100.0;
