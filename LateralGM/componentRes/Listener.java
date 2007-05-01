@@ -1,3 +1,25 @@
+/*
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007 TGMG <thegamemakerguru@hotmail.com>
+ * Copyright (C) 2007 Clam
+ * 
+ * This file is part of Lateral GM.
+ * 
+ * Lateral GM is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lateral GM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License (COPYING) for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lateral GM; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package componentRes;
 
 import java.awt.datatransfer.Transferable;
@@ -70,7 +92,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						{
 						ResNode newroot = new ResNode("Root",0,0,null); //$NON-NLS-1$
 						LGM.currentFile = new Gm6File();
-						LGM.frame.setTitle("Lateral GM 6.1: "+fc.getSelectedFile().getName());
+						LGM.frame.setTitle("Lateral GM 6.1: " + fc.getSelectedFile().getName());
 						LGM.currentFile.ReadGm6File(fc.getSelectedFile().getPath(),newroot);
 						LGM f = new LGM();
 						f.createTree(newroot,false);
@@ -122,7 +144,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					Enumeration nodes = LGM.root.preorderEnumeration();
 					while (nodes.hasMoreElements())
 						{
-						ResNode node = (ResNode)nodes.nextElement();
+						ResNode node = (ResNode) nodes.nextElement();
 						if (node.frame != null) node.frame.updateResource(); // update open frames
 						}
 					LGM.currentFile.WriteGm6File(filename,LGM.root);
@@ -253,6 +275,11 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			for (int m = tree.getRowCount() - 1; m >= 0; m--)
 				tree.collapseRow(m);
 			return;
+			}
+		if (com.endsWith(".ABOUT")) //$NON-NLS-1$
+			{
+			JOptionPane.showMessageDialog(null,Messages.getString("Listener.ABOUT_MESSAGE"),Messages
+					.getString("Listener.ABOUT_TITLE"),JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 

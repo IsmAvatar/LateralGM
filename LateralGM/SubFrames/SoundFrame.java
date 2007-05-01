@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2007 IsmAvatar<cmagicj@nni.com>
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package SubFrames;
 
 import java.awt.Dimension;
@@ -239,7 +247,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 				else
 					JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
 							+ Messages.getString("SoundFrame.FILE_MISSING"),Messages.getString("SoundFrame.FILE_OPEN"),
-							JOptionPane.OK_OPTION);
+							JOptionPane.WARNING_MESSAGE);
 				}
 			try
 				{

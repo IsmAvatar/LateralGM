@@ -1,25 +1,27 @@
+/*
+ * Copyright (C) 2006,2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2006,2007 TGMG <thegamemakerguru@hotmail.com>
+ * Copyright (C) 2007 Quadduc
+ * 
+ * This file is part of Lateral GM.
+ * 
+ * Lateral GM is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lateral GM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License (COPYING) for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lateral GM; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package mainRes;
 
-/*
- * Credit goes out to:
- * IsmAvatar from everywhere as project leader, lead programmer, and file format expert
- * TGMG from the G-Java forums has been an invaluable asset and programmer for the team,
- *  and finding ways to break things that I thought couldn't be broken
- *  and G-Java, which we hope will be incorporated as the primary compiler
- *  and finding CVS/SVN which helped teamwork and version control
- * Clam from the LGM forum for most of the Save and Load code
- *  which I then proceeded to break and refix; and starting the MDI desktop
- * Quadduc from the LGM forum for technical things like format fix and license
- *  as well as amazing bug fixes, some MDI code/fixes, and string externalization
- * DeathFinder from the GMC for providing the default graphics
- * Professor Mark Overmars for providing GM6 and its file format which inspired this,
- *  and then up and deciding to be a jerk about it by the time GM7 came out.
- * Everyone else from the GMC forums, G-Java forums, LGM forum, etc. who helped out,
- *  gave tips, acknowledged LGM's presence, or have works that aided in its creation,
- *  including but certainly not limited to (and pardon the many forgotten names):
- *  Porfirio, CAMD, pythonpoole, andrewmc, RhysAndrews, Yourself, GearGOD,
- *  roach, Bendodge, h0bbel, monkey dude, evilish, Natso, Appleman1234
- */
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
