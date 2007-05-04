@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2006 Clam
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.resources;
 
 import java.util.ArrayList;
@@ -10,7 +18,6 @@ import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
-
 
 public class Room extends Resource
 	{

@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2006, 2007 Clam
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.file;
 
 import java.awt.image.BufferedImage;
@@ -15,8 +24,6 @@ import javax.imageio.ImageIO;
 
 import org.lateralgm.components.ResNode;
 import org.lateralgm.resources.Resource;
-
-
 
 public class GmStreamDecoder
 	{

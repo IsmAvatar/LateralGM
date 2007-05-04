@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2006 Clam
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.resources.sub;
 
 import java.util.ArrayList;
@@ -5,7 +13,6 @@ import java.util.ArrayList;
 import org.lateralgm.resources.ResId;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
-
 
 public class Event
 	{

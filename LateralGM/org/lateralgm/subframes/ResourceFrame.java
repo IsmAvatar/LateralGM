@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2007 Clam
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.subframes;
 
 import java.awt.event.ActionEvent;
@@ -15,8 +23,6 @@ import org.lateralgm.components.NameDocument;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.resources.Resource;
-
-
 
 // Provides common functionality and structure to Resource editing frames
 public abstract class ResourceFrame<R extends Resource> extends JInternalFrame implements DocumentListener,

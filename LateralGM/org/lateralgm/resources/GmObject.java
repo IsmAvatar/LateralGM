@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2006 Clam
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.resources;
 
 import org.lateralgm.file.ResourceList;
@@ -5,7 +13,6 @@ import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
-
 
 public class GmObject extends Resource
 	{

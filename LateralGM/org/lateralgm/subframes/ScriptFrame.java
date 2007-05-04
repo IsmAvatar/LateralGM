@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
+ * Copyright (C) 2006 Clam
+ * Copyright (C) 2006 IsmAvatar <cmagicj@nni.com>
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
@@ -12,8 +22,6 @@ import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.Script;
-
-
 
 public class ScriptFrame extends ResourceFrame<Script>
 	{

@@ -1,10 +1,17 @@
+/*
+ * Copyright (C) 2006 Clam
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.resources;
 
 import java.awt.image.BufferedImage;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
-
 
 public class Background extends Resource
 	{

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@hotmail.com>
+ * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
@@ -21,7 +21,6 @@
  */
 
 package org.lateralgm.main;
-
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -55,9 +54,6 @@ import org.lateralgm.file.Gm6File;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
-
-
-
 
 public class LGM extends JPanel
 	{

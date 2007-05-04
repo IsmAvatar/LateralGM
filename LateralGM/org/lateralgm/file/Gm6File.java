@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2007 Clam
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2006, 2007 Clam
+ * Copyright (C) 2006, 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.

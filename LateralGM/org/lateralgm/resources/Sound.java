@@ -1,8 +1,16 @@
+/*
+ * Copyright (C) 2006 Clam
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.resources;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
-
 
 public class Sound extends Resource
 	{
@@ -56,7 +64,7 @@ public class Sound extends Resource
 
 	public static int makeEffects(boolean chorus, boolean echo, boolean flanger, boolean gargle, boolean reverb)
 		{
-		return (chorus?1:0) | (echo?2:0) | (flanger?4:0) | (gargle?8:0) | (reverb?16:0);
+		return (chorus ? 1 : 0) | (echo ? 2 : 0) | (flanger ? 4 : 0) | (gargle ? 8 : 0) | (reverb ? 16 : 0);
 		}
 
 	public void setEffects(int val)

@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007 Clam
+ * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.subframes;
 
 import java.awt.Color;
@@ -23,7 +34,6 @@ import javax.swing.JTextField;
 
 import org.lateralgm.file.Gm6File;
 import org.lateralgm.main.LGM;
-
 
 public class GameSettingFrame extends JInternalFrame implements ActionListener
 	{

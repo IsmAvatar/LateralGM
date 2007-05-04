@@ -1,3 +1,14 @@
+/*
+ * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007 Clam
+ * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
@@ -35,8 +46,6 @@ import javax.swing.text.rtf.RTFEditorKit;
 import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.main.LGM;
 import org.lateralgm.resources.GameInformation;
-
-
 
 public class GameInformationFrame extends JInternalFrame implements ActionListener
 	{
@@ -194,15 +203,15 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			tool.addSeparator();
 
 			m_tbBold = new JToggleButton("B");
-			//m_tbBold.setFont(new java.awt.Font("Courier New",java.awt.Font.BOLD,10));
+			// m_tbBold.setFont(new java.awt.Font("Courier New",java.awt.Font.BOLD,10));
 			tool.add(m_tbBold);
 			m_tbItalic = new JToggleButton("I");
-			//m_tbItalic.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.ITALIC));
+			// m_tbItalic.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.ITALIC));
 			tool.add(m_tbItalic);
 			m_tbUnderline = new JToggleButton("U");
-			//m_tbUnderline = new JToggleButton("<html><u>U</u></html>");
-			//m_tbUnderline.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.PLAIN));
-			//m_tbUnderline.setMaximumSize(m_tbBold.getSize());
+			// m_tbUnderline = new JToggleButton("<html><u>U</u></html>");
+			// m_tbUnderline.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.PLAIN));
+			// m_tbUnderline.setMaximumSize(m_tbBold.getSize());
 			tool.add(m_tbUnderline);
 
 			tool.addSeparator();
@@ -232,11 +241,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 					Object b = as.getAttribute(StyleConstants.Bold);
 					Object i = as.getAttribute(StyleConstants.Italic);
 					Object u = as.getAttribute(StyleConstants.Underline);
-					if (f instanceof String) m_cbFonts.setSelectedItem((String)f);
-					if (s instanceof Integer) m_cbSizes.setSelectedItem((Integer)s);
-					if (b instanceof Boolean) m_tbBold.setSelected((Boolean)b);
-					if (i instanceof Boolean) m_tbItalic.setSelected((Boolean)i);
-					if (u instanceof Boolean) m_tbUnderline.setSelected((Boolean)u);
+					if (f instanceof String) m_cbFonts.setSelectedItem((String) f);
+					if (s instanceof Integer) m_cbSizes.setSelectedItem((Integer) s);
+					if (b instanceof Boolean) m_tbBold.setSelected((Boolean) b);
+					if (i instanceof Boolean) m_tbItalic.setSelected((Boolean) i);
+					if (u instanceof Boolean) m_tbUnderline.setSelected((Boolean) u);
 					}
 			});
 
