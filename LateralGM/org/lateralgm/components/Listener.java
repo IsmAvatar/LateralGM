@@ -47,12 +47,13 @@ import org.lateralgm.file.Gm6File;
 import org.lateralgm.file.Gm6FormatException;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.PrefsStore;
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Script;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
-
 
 public class Listener extends TransferHandler implements ActionListener,MouseListener,CellEditorListener
 	{
@@ -62,7 +63,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 	public void actionPerformed(ActionEvent e)
 		{
 		JTree tree = LGM.tree;
-		String com = e.getActionCommand();
+		String[] args = e.getActionCommand().split(" ");
+		String com = args[0];
 		if (com.endsWith(".NEW")) //$NON-NLS-1$
 			{
 			LGM f = new LGM();
@@ -82,36 +84,43 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.endsWith(".OPEN")) //$NON-NLS-1$
 			{
-			fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$//$NON-NLS-2$
-			fc.showOpenDialog(LGM.frame);
-
-			if (fc.getSelectedFile() != null)
+			File file;
+			String filename;
+			if (args.length > 1)
 				{
-				if (fc.getSelectedFile().exists())
-					{
-					try
-						{
-						ResNode newroot = new ResNode("Root",0,0,null); //$NON-NLS-1$
-						LGM.currentFile = new Gm6File();
-						LGM.frame.setTitle("Lateral GM 6.1: " + fc.getSelectedFile().getName());
-						LGM.currentFile.ReadGm6File(fc.getSelectedFile().getPath(),newroot);
-						LGM f = new LGM();
-						f.createTree(newroot,false);
-						tree.setSelectionPath(new TreePath(LGM.root).pathByAddingChild(LGM.root.getChildAt(0)));
-						f.createToolBar();
-						f.setOpaque(true);
-						LGM.frame.setContentPane(f);
-						f.updateUI();
-						}
-					catch (Gm6FormatException ex)
-						{
-						JOptionPane
-								.showMessageDialog(
-										LGM.frame,
-										String.format(
-												Messages.getString("Listener.ERROR_MESSAGE"),ex.stackAsString(),ex.getMessage()),Messages.getString("Listener.ERROR_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$ //$NON-NLS-2$
-						}
-					}
+				filename = Util.URLDecode(args[1]);
+				file = new File(filename);
+				}
+			else
+				{
+				fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$//$NON-NLS-2$
+				fc.showOpenDialog(LGM.frame);
+				file = fc.getSelectedFile();
+				if (file == null) return;
+				filename = file.getPath();
+				}
+			if (!file.exists()) return;
+			try
+				{
+				ResNode newroot = new ResNode("Root",0,0,null); //$NON-NLS-1$
+				PrefsStore.addRecentFile(filename);
+				LGM.currentFile = new Gm6File();
+				LGM.frame.setTitle("Lateral GM 6.1: " + file.getName());
+				((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+				LGM.currentFile.ReadGm6File(filename,newroot);
+				LGM f = new LGM();
+				f.createTree(newroot,false);
+				tree.setSelectionPath(new TreePath(LGM.root).pathByAddingChild(LGM.root.getChildAt(0)));
+				f.createToolBar();
+				f.setOpaque(true);
+				LGM.frame.setContentPane(f);
+				f.updateUI();
+				}
+			catch (Gm6FormatException ex)
+				{
+				JOptionPane.showMessageDialog(LGM.frame,String.format(Messages.getString("Listener.ERROR_MESSAGE"), //$NON-NLS-1$
+						ex.stackAsString(),ex.getMessage()),Messages.getString("Listener.ERROR_TITLE"), //$NON-NLS-1$
+						JOptionPane.ERROR_MESSAGE);
 				}
 			LGM.gameInfo.dispose();
 			LGM.gameInfo = new GameInformationFrame();
