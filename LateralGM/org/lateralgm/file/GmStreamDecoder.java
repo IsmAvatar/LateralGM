@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 Clam
+ * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Clam
+ * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.

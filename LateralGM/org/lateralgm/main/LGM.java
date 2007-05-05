@@ -2,6 +2,7 @@
  * Copyright (C) 2006, 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * 

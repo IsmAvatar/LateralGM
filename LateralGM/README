@@ -4,7 +4,7 @@ TGMG <thegamemakerguru@gmail.com> for various programming,
  and finding ways to break things that I thought couldn't be broken
  and G-Java, which we hope will be incorporated as the primary compiler
  and finding CVS/SVN which helped teamwork and version control
-Clam from the LGM forum for most of the Save and Load code
+Clam <ebordin@aapt.net.au> from the LGM forum for most of the Save and Load code
  which I then proceeded to break and refix; and starting the MDI desktop
 Quadduc <quadduc@gmail.com> from the LGM forum for technical things like format fix and license
  as well as amazing bug fixes, some MDI code/fixes, and string externalization
