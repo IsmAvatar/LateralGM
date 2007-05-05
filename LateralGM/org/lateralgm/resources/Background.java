@@ -46,6 +46,7 @@ public class Background extends Resource
 		return null;
 		}
 
+	@SuppressWarnings("unchecked")
 	public Background copy(boolean update, ResourceList src)
 		{
 		Background back = new Background();

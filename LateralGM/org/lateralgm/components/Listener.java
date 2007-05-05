@@ -151,7 +151,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
 				if (result == 0)
 					{
-					Enumeration nodes = LGM.root.preorderEnumeration();
+					Enumeration<?> nodes = LGM.root.preorderEnumeration();
 					while (nodes.hasMoreElements())
 						{
 						ResNode node = (ResNode) nodes.nextElement();

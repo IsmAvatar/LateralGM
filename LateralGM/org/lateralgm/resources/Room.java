@@ -173,6 +173,7 @@ public class Room extends Resource
 		Tiles.clear();
 		}
 
+	@SuppressWarnings("unchecked")
 	public Room copy(boolean update, ResourceList src)
 		{
 		Room rm = new Room();

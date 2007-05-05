@@ -20,6 +20,7 @@ public class Script extends Resource
 		name = Prefs.prefixes[Resource.SCRIPT];
 		}
 
+	@SuppressWarnings("unchecked")
 	public Script copy(boolean update, ResourceList src)
 		{
 		Script scr = new Script();

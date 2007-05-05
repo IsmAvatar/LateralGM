@@ -19,9 +19,9 @@ public class ResourceList<R extends Resource>
 	{
 	private ArrayList<R> Resources = new ArrayList<R>();
 
-	private Class type; // used as a workaround for add()
+	private Class<R> type; // used as a workaround for add()
 
-	ResourceList(Class type) // it's *YOUR* problem if this class doesn't extend Resource (you shouldn't really
+	ResourceList(Class<R> type) // it's *YOUR* problem if this class doesn't extend Resource (you shouldn't really
 	// need to construct a ResourceList manually anyway)
 		{
 		this.type = type;
@@ -46,7 +46,7 @@ public class ResourceList<R extends Resource>
 		R res = null;
 		try
 			{
-			res = (R) type.newInstance();
+			res = type.newInstance();
 			res.Id.value = ++LastId;
 			res.name += LastId;
 			Resources.add(res);
@@ -136,6 +136,7 @@ public class ResourceList<R extends Resource>
 		Collections.sort(Resources);
 		}
 
+	@SuppressWarnings("unchecked")
 	public R duplicate(ResId id, boolean update)
 		{
 		R res = get(id);

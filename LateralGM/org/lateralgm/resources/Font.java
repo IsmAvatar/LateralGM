@@ -25,6 +25,7 @@ public class Font extends Resource
 		name = Prefs.prefixes[Resource.FONT];
 		}
 
+	@SuppressWarnings("unchecked")
 	public Font copy(boolean update, ResourceList src)
 		{
 		Font font = new Font();

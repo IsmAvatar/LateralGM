@@ -96,7 +96,7 @@ public class Gm6File
 			}
 		}
 
-	private Map<Integer,ResourceList> resMap = new HashMap<Integer,ResourceList>();
+	private Map<Integer,ResourceList<?>> resMap = new HashMap<Integer,ResourceList<?>>();
 	public ResourceList<Sprite> Sprites = new ResourceList<Sprite>(Sprite.class);
 	public ResourceList<Sound> Sounds = new ResourceList<Sound>(Sound.class);
 	public ResourceList<Background> Backgrounds = new ResourceList<Background>(Background.class);
@@ -236,14 +236,14 @@ public class Gm6File
 	public BufferedImage GameIcon;// icon as image for display purposes
 
 	// Returns the ResourceList corresponding to given Resource constant
-	public ResourceList getList(int res)
+	public ResourceList<?> getList(int res)
 		{
 		return resMap.get(res);
 		}
 
 	public void clearAll()
 		{
-		for (ResourceList l : resMap.values())
+		for (ResourceList<?> l : resMap.values())
 			l.clear();
 		constants.clear();
 		includes.clear();
@@ -1537,7 +1537,7 @@ public class Gm6File
 
 	public void DefragIds()
 		{
-		Iterator<ResourceList> iter = resMap.values().iterator();
+		Iterator<ResourceList<?>> iter = resMap.values().iterator();
 		while (iter.hasNext())
 			iter.next().defragIds();
 		LastInstanceId = 100000;

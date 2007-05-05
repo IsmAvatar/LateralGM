@@ -116,6 +116,7 @@ public class Sprite extends Resource
 		return null;
 		}
 
+	@SuppressWarnings("unchecked")
 	public Sprite copy(boolean update, ResourceList src)
 		{
 		Sprite spr = new Sprite();

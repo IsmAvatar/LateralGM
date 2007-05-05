@@ -38,6 +38,7 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 	public String titleSuffix = ""; //$NON-NLS-1$
 	public ResNode node; // node this frame is linked to
 
+	@SuppressWarnings("unchecked")
 	public ResourceFrame(R res, ResNode node)
 		{
 		super("",true,true,true,true); //$NON-NLS-1$

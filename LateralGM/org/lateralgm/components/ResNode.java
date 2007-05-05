@@ -38,7 +38,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	public byte status;
 	public byte kind;
 	public ResId resourceId;
-	public ResourceFrame frame = null;
+	public ResourceFrame<?> frame = null;
 
 	public ResNode(String name, byte status, byte kind, ResId res)
 		{
@@ -102,7 +102,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		{
 		if (frame == null)
 			{
-			ResourceFrame rf = null;
+			ResourceFrame<?> rf = null;
 			switch (kind)
 				{
 				case Resource.SOUND:

@@ -185,7 +185,7 @@ public class GmStreamEncoder
 
 	public void writeTree(ResNode root) throws IOException
 		{
-		Enumeration e = root.preorderEnumeration();
+		Enumeration<?> e = root.preorderEnumeration();
 		e.nextElement();
 		while (e.hasMoreElements())
 			{

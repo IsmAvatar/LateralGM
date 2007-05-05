@@ -57,6 +57,7 @@ public class Path extends Resource
 		Points.clear();
 		}
 
+	@SuppressWarnings("unchecked")
 	public Path copy(boolean update, ResourceList src)
 		{
 		Path path = new Path();

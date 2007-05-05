@@ -37,6 +37,7 @@ public class GmObject extends Resource
 			}
 		}
 
+	@SuppressWarnings("unchecked")
 	public GmObject copy(boolean update, ResourceList src)
 		{
 		GmObject obj = new GmObject();

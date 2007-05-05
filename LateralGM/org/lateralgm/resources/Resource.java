@@ -47,5 +47,6 @@ public abstract class Resource implements Comparable<Resource>
 		return res.Id.value == Id.value ? 0 : (res.Id.value < Id.value ? -1 : 1);
 		}
 
+	@SuppressWarnings("unchecked")
 	public abstract Resource copy(boolean update, ResourceList src);
 	}

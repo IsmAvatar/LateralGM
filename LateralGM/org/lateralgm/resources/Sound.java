@@ -81,6 +81,7 @@ public class Sound extends Resource
 		return makeEffects(chorus,echo,flanger,gargle,reverb);
 		}
 
+	@SuppressWarnings("unchecked")
 	public Sound copy(boolean update, ResourceList src)
 		{
 		Sound snd = new Sound();

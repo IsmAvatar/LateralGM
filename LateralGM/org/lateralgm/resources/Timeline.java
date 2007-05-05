@@ -71,6 +71,7 @@ public class Timeline extends Resource
 		Moments.clear();
 		}
 
+	@SuppressWarnings("unchecked")
 	public Timeline copy(boolean update, ResourceList src)
 		{
 		Timeline time = new Timeline();
