@@ -19,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -29,14 +28,18 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -55,6 +58,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	public static GameInformation gi = new GameInformation();
 	private JComboBox m_cbFonts;
 	private JComboBox m_cbSizes;
+	private JSpinner m_sSizes;
 	private JToggleButton m_tbBold;
 	private JToggleButton m_tbItalic;
 	private JToggleButton m_tbUnderline;
@@ -64,7 +68,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		super(Messages.getString("GameInformationFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(600,400);
-		setFrameIcon(LGM.findIcon("info.png"));
+		setFrameIcon(LGM.getIconForKey("GameInformationFrame.INFO")); //$NON-NLS-1$
 		// Setup the Menu
 		// Create the menu bar
 		JMenuBar menuBar = new JMenuBar();
@@ -140,10 +144,10 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			{
 			JToolBar tool = new JToolBar();
 			tool.setFloatable(false);
-			add("North",tool);
+			add("North",tool); //$NON-NLS-1$
 
 			// Setup the buttons
-			JButton but = new JButton(LGM.findIcon("save.png"));
+			JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.SAVE")); //$NON-NLS-1$
 			but.setActionCommand("GameInformationFrame.SAVE"); //$NON-NLS-1$
 			but.addActionListener(this);
 			tool.add(but);
@@ -171,6 +175,19 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			m_cbFonts.addActionListener(lst);
 			tool.add(m_cbFonts);
 			tool.addSeparator();
+			m_sSizes = new JSpinner(new SpinnerNumberModel(12,1,100,1));
+			m_sSizes.setMaximumSize(m_sSizes.getPreferredSize());
+			//m_sSizes.setEditor(new JSpinner.DefaultEditor(m_sSizes));
+			m_sSizes.addChangeListener(new ChangeListener()
+				{
+					public void stateChanged(ChangeEvent arg0)
+						{
+//						int wtfgod = ((SpinnerNumberModel)m_sSizes.getModel()).getNumber().intValue();
+						//TODO: code this! Also, make the RTFEditor stop losing focus.
+						}
+				});
+			tool.add(m_sSizes);
+
 			m_cbSizes = new JComboBox(new String[] { "8","9","10","11","12","14","16","18","20","22","24","26",
 					"28","36","48","72" });
 			m_cbSizes.setMaximumSize(m_cbSizes.getPreferredSize());
@@ -215,7 +232,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			tool.add(m_tbUnderline);
 
 			tool.addSeparator();
-			but = new JButton(LGM.findIcon("Bcolor.png"));
+			but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
 			but.setActionCommand("BackgroundColor");
 			but.addActionListener(this);
 			tool.add(but);
@@ -282,61 +299,57 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	public void load_from_file()
 		{
 		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".rtf",Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-2$
-		fc.showOpenDialog(this);
-		if (fc.getSelectedFile() != null)
+		fc.setFileFilter(new CustomFileFilter(".rtf",Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fc.setDialogTitle(Messages.getString("GameInformationFrame.LOAD_TITLE")); //$NON-NLS-1$
+		if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
+		boolean repeat = true;
+		while (repeat)
 			{
-			String name = fc.getSelectedFile().getPath();
-
-			try
-				{
-				FileInputStream i = new FileInputStream(new File(name));
-				rtf.read(i,editor.getDocument(),0);
-				i.close();
-				}
-			catch (IOException e)
-				{
-				}
-			catch (BadLocationException e)
-				{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				}
-
+			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
+			if (fc.getSelectedFile().exists())
+				repeat = false;
+			else
+				JOptionPane
+						.showMessageDialog(
+								null,
+								fc.getSelectedFile().getName() + Messages.getString("SoundFrame.FILE_MISSING"),Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-1$ //$NON-NLS-2$
+								JOptionPane.WARNING_MESSAGE);
+			}
+		try
+			{
+			FileInputStream i = new FileInputStream(fc.getSelectedFile());
+			rtf.read(i,editor.getDocument(),0);
+			i.close();
+			}
+		catch (Exception e)
+			{
+			e.printStackTrace();
 			}
 		}
 
 	public void save_to_file()
 		{
 		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".rtf",Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-2$
-		fc.showSaveDialog(this);
-		if (fc.getSelectedFile() != null)
+		fc.setFileFilter(new CustomFileFilter(".rtf",Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fc.setDialogTitle(Messages.getString("GameInformationFrame.SAVE_TITLE")); //$NON-NLS-1$
+		if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+		String name = fc.getSelectedFile().getPath();
+		if (CustomFileFilter.getExtension(name) == null) name += ".rtf"; //$NON-NLS-1$
+		try
 			{
-			String name = fc.getSelectedFile().getPath();
-			if (!name.endsWith(".rtf")) name += ".rtf";
-			try
-				{
-				FileOutputStream i = new FileOutputStream(new File(name));
-				rtf.write(i,editor.getDocument(),0,0);
-				i.close();
-
-				}
-			catch (IOException e)
-				{
-				}
-			catch (BadLocationException e)
-				{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				}
+			FileOutputStream i = new FileOutputStream(new File(name));
+			rtf.write(i,editor.getDocument(),0,0);
+			i.close();
+			}
+		catch (Exception e)
+			{
+			e.printStackTrace();
 			}
 		}
 
 	public void actionPerformed(ActionEvent arg0)
 		{
 		String com = arg0.getActionCommand();
-		System.out.println(com);
 		if (com.equals("GameInformationFrame.LOAD")) //$NON-NLS-1$
 			{
 			load_from_file();
