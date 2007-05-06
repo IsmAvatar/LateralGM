@@ -11,6 +11,19 @@
 
 package org.lateralgm.subframes;
 
+/*
+ * TODO:
+ * Code updateResource, revertResource, and resourceChanged
+ * Fix Underline button to work!
+ * Make the RTFEditor stop losing focus.
+ * Stolen from Font Family listener. Not sure what m_monitor was... 
+ * 	String m_fontName = m_cbFonts.getSelectedItem().toString();
+ * 	MutableAttributeSet attr = new SimpleAttributeSet();
+ * 	StyleConstants.setFontFamily(attr,m_fontName);
+ * 	// setAttributeSet(attr);
+ * 	// m_monitor.grabFocus();
+ */
+
 import java.awt.BorderLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
@@ -39,16 +52,18 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.InternalFrameEvent;
 import javax.swing.text.AttributeSet;
-import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import org.lateralgm.components.CustomFileFilter;
+import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.resources.GameInformation;
+import org.lateralgm.resources.Resource;
 
 public class GameInformationFrame extends JInternalFrame implements ActionListener
 	{
@@ -57,11 +72,15 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	private static RTFEditorKit rtf = new RTFEditorKit();
 	public static GameInformation gi = new GameInformation();
 	private JComboBox m_cbFonts;
-	private JComboBox m_cbSizes;
 	private JSpinner m_sSizes;
 	private JToggleButton m_tbBold;
 	private JToggleButton m_tbItalic;
 	private JToggleButton m_tbUnderline;
+
+	// These prevent the Formatting Bar things from firing when the caret moves
+	// because that would cause the selection to conform the text to the caret format
+	private static boolean fFamilyChange = false;
+	private static boolean fSizeChange = false;
 
 	public GameInformationFrame()
 		{
@@ -160,15 +179,14 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			m_cbFonts.setEditable(true);
 			ActionListener lst = new ActionListener()
 				{
-					private String m_fontName;
-
 					public void actionPerformed(ActionEvent e)
 						{
-						m_fontName = m_cbFonts.getSelectedItem().toString();
-						MutableAttributeSet attr = new SimpleAttributeSet();
-						StyleConstants.setFontFamily(attr,m_fontName);
-						// setAttributeSet(attr);
-						// m_monitor.grabFocus();
+						if (fFamilyChange)
+							{
+							fFamilyChange = false;
+							return;
+							}
+						setSelectionAttribute(StyleConstants.Family,m_cbFonts.getSelectedItem().toString());
 						}
 				};
 
@@ -177,58 +195,56 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			tool.addSeparator();
 			m_sSizes = new JSpinner(new SpinnerNumberModel(12,1,100,1));
 			m_sSizes.setMaximumSize(m_sSizes.getPreferredSize());
-			//m_sSizes.setEditor(new JSpinner.DefaultEditor(m_sSizes));
 			m_sSizes.addChangeListener(new ChangeListener()
 				{
 					public void stateChanged(ChangeEvent arg0)
 						{
-//						int wtfgod = ((SpinnerNumberModel)m_sSizes.getModel()).getNumber().intValue();
-						//TODO: code this! Also, make the RTFEditor stop losing focus.
+						if (fSizeChange)
+							{
+							fSizeChange = false;
+							return;
+							}
+						setSelectionAttribute(StyleConstants.Size,m_sSizes.getValue());
 						}
 				});
 			tool.add(m_sSizes);
-
-			m_cbSizes = new JComboBox(new String[] { "8","9","10","11","12","14","16","18","20","22","24","26",
-					"28","36","48","72" });
-			m_cbSizes.setMaximumSize(m_cbSizes.getPreferredSize());
-			m_cbSizes.setEditable(true);
-			lst = new ActionListener()
-				{
-					// private int m_fontSize;
-
-					public void actionPerformed(ActionEvent e)
-						{
-						int fontSize = 0;
-						try
-							{
-							fontSize = Integer.parseInt(m_cbSizes.getSelectedItem().toString());
-							}
-						catch (NumberFormatException ex)
-							{
-							return;
-							}
-						// m_fontSize = fontSize;
-						MutableAttributeSet attr = new SimpleAttributeSet();
-						StyleConstants.setFontSize(attr,fontSize);
-						// setAttributeSet(attr);
-						// m_monitor.grabFocus();
-						}
-				};
-
-			m_cbSizes.addActionListener(lst);
-			tool.add(m_cbSizes);
 			tool.addSeparator();
 
 			m_tbBold = new JToggleButton("B");
 			// m_tbBold.setFont(new java.awt.Font("Courier New",java.awt.Font.BOLD,10));
+			lst = new ActionListener()
+				{
+					public void actionPerformed(ActionEvent arg0)
+						{
+						setSelectionAttribute(StyleConstants.Bold,m_tbBold.isSelected());
+						}
+				};
+			m_tbBold.addActionListener(lst);
 			tool.add(m_tbBold);
 			m_tbItalic = new JToggleButton("I");
 			// m_tbItalic.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.ITALIC));
+			lst = new ActionListener()
+				{
+					public void actionPerformed(ActionEvent arg0)
+						{
+						setSelectionAttribute(StyleConstants.Italic,m_tbItalic.isSelected());
+						}
+				};
+			m_tbItalic.addActionListener(lst);
 			tool.add(m_tbItalic);
 			m_tbUnderline = new JToggleButton("U");
 			// m_tbUnderline = new JToggleButton("<html><u>U</u></html>");
 			// m_tbUnderline.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.PLAIN));
 			// m_tbUnderline.setMaximumSize(m_tbBold.getSize());
+			lst = new ActionListener()
+				{
+					public void actionPerformed(ActionEvent arg0)
+						{
+						// Grar, underline not working properly
+						setSelectionAttribute(StyleConstants.Underline,m_tbUnderline.isSelected());
+						}
+				};
+			m_tbBold.addActionListener(lst);
 			tool.add(m_tbUnderline);
 
 			tool.addSeparator();
@@ -251,15 +267,19 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			{
 				public void caretUpdate(CaretEvent ce)
 					{
+					fFamilyChange = true;
+					fSizeChange = true;
 					StyledDocument d = (StyledDocument) editor.getDocument();
-					AttributeSet as = d.getCharacterElement(ce.getDot()).getAttributes();
+					int dot = ce.getDot();
+					if (ce.getMark() <= dot) dot--;
+					AttributeSet as = d.getCharacterElement(dot).getAttributes();
 					Object f = as.getAttribute(StyleConstants.Family);
 					Object s = as.getAttribute(StyleConstants.Size);
 					Object b = as.getAttribute(StyleConstants.Bold);
 					Object i = as.getAttribute(StyleConstants.Italic);
 					Object u = as.getAttribute(StyleConstants.Underline);
-					if (f instanceof String) m_cbFonts.setSelectedItem((String) f);
-					if (s instanceof Integer) m_cbSizes.setSelectedItem((Integer) s);
+					if (f instanceof String) m_cbFonts.setSelectedItem(f);
+					if (s instanceof Integer) m_sSizes.setValue(s);
 					if (b instanceof Boolean) m_tbBold.setSelected((Boolean) b);
 					if (i instanceof Boolean) m_tbItalic.setSelected((Boolean) i);
 					if (u instanceof Boolean) m_tbUnderline.setSelected((Boolean) u);
@@ -272,6 +292,17 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		topPanel.add(scroller,BorderLayout.CENTER);
 
 		add_rtf(LGM.currentFile.GameInfo.GameInfoStr);
+		}
+
+	public void setSelectionAttribute(Object key, Object value)
+		{
+		StyledDocument sd = (StyledDocument) editor.getDocument();
+		int a = editor.getSelectionStart();
+		int b = editor.getSelectionEnd();
+		if (a == b) return;
+		SimpleAttributeSet sas = new SimpleAttributeSet();
+		sas.addAttribute(key,value);
+		sd.setCharacterAttributes(a,b - a,sas,false);
 		}
 
 	public static void add_rtf(String str)
@@ -347,6 +378,31 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			}
 		}
 
+	public Object getUserObject()
+		{
+		for (int m = 0; m < LGM.root.getChildCount(); m++)
+			{
+			ResNode n = (ResNode) LGM.root.getChildAt(m);
+			if (n.kind == Resource.GAMEINFO) return n.getUserObject();
+			}
+		return org.lateralgm.main.Messages.getString("LGM.GAMEINFO"); //$NON-NLS-1$
+		}
+
+	public void updateResource()
+		{
+
+		}
+
+	public void revertResource()
+		{
+
+		}
+
+	public boolean resourceChanged()
+		{
+		return true;
+		}
+
 	public void actionPerformed(ActionEvent arg0)
 		{
 		String com = arg0.getActionCommand();
@@ -358,5 +414,36 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			{
 			save_to_file();
 			}
+		}
+
+	protected void fireInternalFrameEvent(int id)
+		{
+		if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSING)
+			{
+			if (resourceChanged())
+				{
+				switch (JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
+						.getString("ResourceFrame.KEEPCHANGES"),(String) getUserObject()),Messages //$NON-NLS-1$
+						.getString("ResourceFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$
+					{
+					case 0: // yes
+						updateResource();
+						dispose();
+						LGM.tree.updateUI();
+						break;
+					case 1: // no
+						revertResource();
+						dispose();
+						LGM.tree.updateUI();
+						break;
+					}
+				}
+			else
+				{
+				updateResource();
+				dispose();
+				}
+			}
+		super.fireInternalFrameEvent(id);
 		}
 	}
