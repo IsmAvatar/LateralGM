@@ -8,13 +8,14 @@
 
 package org.lateralgm.main;
 
+import java.awt.Rectangle;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 public class Util
 	{
-	public static final String URLEncode(String s)
+	public static final String urlEncode(String s)
 		{
 		try
 			{
@@ -26,7 +27,7 @@ public class Util
 			}
 		}
 
-	public static final String URLDecode(String s)
+	public static final String urlDecode(String s)
 		{
 		try
 			{
@@ -36,5 +37,28 @@ public class Util
 			{
 			throw new Error(e);
 			}
+		}
+
+	public static final Rectangle stringToRectangle(String s, Rectangle defaultValue)
+		{
+		if (s == null) return defaultValue;
+		String[] sa = s.split(" +");
+		if (sa.length != 4) return defaultValue;
+		int[] ia = new int[4];
+		for (int i = 0; i < 4; i++)
+			try
+				{
+				ia[i] = Integer.parseInt(sa[i]);
+				}
+			catch (NumberFormatException e)
+				{
+				return defaultValue;
+				}
+		return new Rectangle(ia[0],ia[1],ia[2],ia[3]);
+		}
+
+	public static final String rectangleToString(Rectangle r)
+		{
+		return String.format("%d %d %d %d",r.x,r.y,r.width,r.height);
 		}
 	}

@@ -45,6 +45,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.lateralgm.components.FramePrefsHandler;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeEditor;
 import org.lateralgm.components.GmTreeGraphics;
@@ -204,12 +205,11 @@ public class LGM extends JPanel
 			}
 		gameInfo = new GameInformationFrame();
 		gameSet = new GameSettingFrame();
+
 		}
 
 	public static void main(String[] args)
 		{
-		frame.setSize(600,600);
-		frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setJMenuBar(new GmMenuBar());
 		LGM f = new LGM();
@@ -217,6 +217,7 @@ public class LGM extends JPanel
 		f.createToolBar();
 		f.setOpaque(true);
 		frame.setContentPane(f);
+		new FramePrefsHandler(frame);
 		frame.setVisible(true);
 		}
 	}

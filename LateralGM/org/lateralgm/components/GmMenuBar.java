@@ -64,7 +64,7 @@ public class GmMenuBar extends JMenuBar
 			File file = new File(recentList[i]).getAbsoluteFile();
 			String number = Integer.toString(i + 1);
 			JMenuItem item = recentFiles[i] = new JMenuItem(String.format("%s %s  [%s]",number,file.getName(),file.getParent()),number.codePointAt(0));
-			item.setActionCommand("GmMenuBar.OPEN " + Util.URLEncode(file.toString()));
+			item.setActionCommand("GmMenuBar.OPEN " + Util.urlEncode(file.toString()));
 			item.addActionListener(LGM.listener);
 			fileMenu.insert(item,recentFilesPos + i);
 			}

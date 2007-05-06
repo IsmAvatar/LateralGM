@@ -86,7 +86,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			String filename;
 			if (args.length > 1)
 				{
-				filename = Util.URLDecode(args[1]);
+				filename = Util.urlDecode(args[1]);
 				file = new File(filename);
 				}
 			else

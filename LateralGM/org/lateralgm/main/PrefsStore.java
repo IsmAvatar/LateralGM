@@ -8,13 +8,13 @@
 
 package org.lateralgm.main;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
 public class PrefsStore
 	{
 	private static final Preferences prefs = Preferences.userRoot().node("/org/lateralgm");
-
 
 	public static final ArrayList<String> getRecentFiles()
 		{
@@ -23,7 +23,7 @@ public class PrefsStore
 		String[] array = value.split(" ");
 		ArrayList<String> list = new ArrayList<String>(array.length);
 		for (String name : array)
-			list.add(Util.URLDecode(name));
+			list.add(Util.urlDecode(name));
 		return list;
 		}
 
@@ -33,9 +33,29 @@ public class PrefsStore
 		ArrayList<String> oldList = getRecentFiles();
 		oldList.remove(name);
 		String newList;
-		newList = Util.URLEncode(name);
+		newList = Util.urlEncode(name);
 		for (int i = 0; i + 1 < maxcount && i < oldList.size(); i++)
-			newList += " " + Util.URLEncode(oldList.get(i));
+			newList += " " + Util.urlEncode(oldList.get(i));
 		prefs.put("FILE_RECENT",newList);
+		}
+
+	public static final Rectangle getWindowBounds()
+		{
+		return Util.stringToRectangle(prefs.get("WINDOW_BOUNDS",null),new Rectangle(800,600));
+		}
+
+	public static final void setWindowBounds(Rectangle r)
+		{
+		prefs.put("WINDOW_BOUNDS",Util.rectangleToString(r));
+		}
+
+	public static final boolean getWindowMaximized()
+		{
+		return prefs.getBoolean("WINDOW_MAXIMIZED",true);
+		}
+
+	public static final void setWindowMaximized(boolean b)
+		{
+		prefs.putBoolean("WINDOW_MAXIMIZED",b);
 		}
 	}
