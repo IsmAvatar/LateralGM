@@ -156,10 +156,10 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public boolean resourceChanged()
 		{
-		if (!res.name.equals(name.getText()) || !res.FontName.equals(fonts.getSelectedItem().toString())
-				|| res.Size != size.getIntValue() || res.Bold != bold.isSelected()
-				|| res.Italic != italic.isSelected() || res.CharRangeMin != charMin.getIntValue()
-				|| res.CharRangeMax != charMax.getIntValue()) return true;
+		if (!resOriginal.name.equals(name.getText()) || !resOriginal.FontName.equals(fonts.getSelectedItem().toString())
+				|| resOriginal.Size != size.getIntValue() || resOriginal.Bold != bold.isSelected()
+				|| resOriginal.Italic != italic.isSelected() || resOriginal.CharRangeMin != charMin.getIntValue()
+				|| resOriginal.CharRangeMax != charMax.getIntValue()) return true;
 		return false;
 		}
 

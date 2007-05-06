@@ -30,7 +30,7 @@ public class Sound extends Resource
 	public double volume = 1;
 	public double pan = 0;
 	public boolean preload = true;
-	public byte[] Data;
+	public byte[] Data = new byte[0];
 
 	public Sound()
 		{

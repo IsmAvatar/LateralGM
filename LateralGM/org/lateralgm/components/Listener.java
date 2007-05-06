@@ -49,9 +49,7 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.Util;
-import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.Script;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 
@@ -215,32 +213,86 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				tree.updateUI();
 				return;
 				}
+			if (com.equals("SPRITE")) //$NON-NLS-1$
+				{
+				if (node.kind != Resource.SPRITE)
+					{
+					parent = getPrimaryParent(Resource.SPRITE);
+					pos = parent.getChildCount();
+					}
+				}
+			if (com.equals("SOUND")) //$NON-NLS-1$
+				{
+				if (node.kind != Resource.SOUND)
+					{
+					parent = getPrimaryParent(Resource.SOUND);
+					pos = parent.getChildCount();
+					}
+				}
+			if (com.equals("BACKGROUND")) //$NON-NLS-1$
+				{
+				if (node.kind != Resource.BACKGROUND)
+					{
+					parent = getPrimaryParent(Resource.BACKGROUND);
+					pos = parent.getChildCount();
+					}
+				}
+			if (com.equals("PATH")) //$NON-NLS-1$
+				{
+				if (node.kind != Resource.PATH)
+					{
+					parent = getPrimaryParent(Resource.PATH);
+					pos = parent.getChildCount();
+					}
+				}
 			if (com.equals("SCRIPT")) //$NON-NLS-1$
 				{
-				// TODO Maybe make this non-dependent on the order of nodes
-				if (node.kind != Resource.SCRIPT) parent = (ResNode) LGM.root.getChildAt(5);
-
-				Script scr = LGM.currentFile.Scripts.add();
-				ResNode g = new ResNode(scr.name,ResNode.STATUS_SECONDARY,Resource.SCRIPT,scr.Id);
-				parent.insert(g,pos);
-				tree.expandPath(new TreePath(parent.getPath()));
-				tree.setSelectionPath(new TreePath(g.getPath()));
-				tree.updateUI();
-				g.openFrame();
-				return;
+				if (node.kind != Resource.SCRIPT)
+					{
+					parent = getPrimaryParent(Resource.SCRIPT);
+					pos = parent.getChildCount();
+					}
 				}
 			if (com.equals("FONT")) //$NON-NLS-1$
 				{
-				if (node.kind != Resource.FONT) parent = (ResNode) LGM.root.getChildAt(5);
-				Font font = LGM.currentFile.Fonts.add();
-				ResNode g = new ResNode(font.name,ResNode.STATUS_SECONDARY,Resource.FONT,font.Id);
-				parent.insert(g,pos);
-				tree.expandPath(new TreePath(parent.getPath()));
-				tree.setSelectionPath(new TreePath(g.getPath()));
-				tree.updateUI();
-				g.openFrame();
-				return;
+				if (node.kind != Resource.FONT)
+					{
+					parent = getPrimaryParent(Resource.FONT);
+					pos = parent.getChildCount();
+					}
 				}
+			if (com.equals("TIMELINE")) //$NON-NLS-1$
+				{
+				if (node.kind != Resource.TIMELINE)
+					{
+					parent = getPrimaryParent(Resource.TIMELINE);
+					pos = parent.getChildCount();
+					}
+				}
+			if (com.equals("GMOBJECT")) //$NON-NLS-1$
+				{
+				if (node.kind != Resource.GMOBJECT)
+					{
+					parent = getPrimaryParent(Resource.GMOBJECT);
+					pos = parent.getChildCount();
+					}
+				}
+			if (com.equals("ROOM")) //$NON-NLS-1$
+				{
+				if (node.kind != Resource.ROOM)
+					{
+					parent = getPrimaryParent(Resource.ROOM);
+					pos = parent.getChildCount();
+					}
+				}
+			Resource res = LGM.currentFile.getList(parent.kind).add();
+			ResNode g = new ResNode(res.name,ResNode.STATUS_SECONDARY,parent.kind,res.Id);
+			parent.insert(g,pos);
+			tree.expandPath(new TreePath(parent.getPath()));
+			tree.setSelectionPath(new TreePath(g.getPath()));
+			tree.updateUI();
+			g.openFrame();
+			return;
 			}
 		if (com.endsWith(".RENAME")) //$NON-NLS-1$
 			{
@@ -291,6 +343,13 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			JOptionPane.showMessageDialog(null,Messages.getString("Listener.ABOUT_MESSAGE"),Messages
 					.getString("Listener.ABOUT_TITLE"),JOptionPane.INFORMATION_MESSAGE);
 			}
+		}
+
+	private ResNode getPrimaryParent(int Kind)
+		{
+		for (int i = 0; i < LGM.root.getChildCount(); i++)
+			if (((ResNode) LGM.root.getChildAt(i)).kind == Kind) return (ResNode) LGM.root.getChildAt(i);
+		return null;
 		}
 
 	protected Transferable createTransferable(JComponent c)

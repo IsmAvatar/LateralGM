@@ -135,7 +135,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		add(p);
 
 		// these are in bit order as appears in a GM6 file, not the same as GM shows them
-		effects = new IndexButtonGroup(5);
+		effects = new IndexButtonGroup(5,false);
 		b = new JCheckBox(Messages.getString("SoundFrame.CHORUS"));
 		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,1);
@@ -165,6 +165,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		volume = new JSlider(0,100,100);
 		volume.setMajorTickSpacing(10);
 		volume.setPaintTicks(true);
+		volume.setValue((int) (res.volume * 100));
 		add(volume);
 
 		label = new JLabel(Messages.getString("SoundFrame.PAN")); //$NON-NLS-1$
@@ -174,10 +175,12 @@ public class SoundFrame extends ResourceFrame<Sound>
 		pan = new JSlider(-100,100,0);
 		pan.setMajorTickSpacing(20);
 		pan.setPaintTicks(true);
+		pan.setValue((int) (res.pan * 100));
 		add(pan);
 
 		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD"),res.preload);
 		preload.setPreferredSize(new Dimension(200,20));
+		preload.setSelected(res.preload);
 		add(preload);
 
 		addGap(50,1);
@@ -195,7 +198,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		Data = res.Data;
 		}
 
-	//adds a blank JLabel to fill in space - maybe extract to ResourceFrame?
+	// adds a blank JLabel to fill in space - maybe extract to ResourceFrame?
 	private void addGap(int w, int h)
 		{
 		JLabel l = new JLabel();
@@ -205,7 +208,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 	public boolean resourceChanged()
 		{
-		if (!res.name.equals(name.getText()) || modified
+		if (!resOriginal.name.equals(name.getText()) || modified
 				|| !res.FileName.equals(filename.getText().substring(Messages.getString("SoundFrame.FILE").length()))
 				|| res.kind != kind.getValue() || res.getEffects() != effects.getValue()
 				|| res.volume != (double) volume.getValue() / 100.0 || res.pan != (double) pan.getValue() / 100.0
@@ -222,15 +225,15 @@ public class SoundFrame extends ResourceFrame<Sound>
 		{
 		res.name = name.getText();
 
-		String n = filename.getText();
+		String n = filename.getText().substring(Messages.getString("SoundFrame.FILE").length());
 		res.FileName = n;
 		res.FileType = CustomFileFilter.getExtension(n);
-		if(res.FileType == null)
-			res.FileType = "";
+		if (res.FileType == null) res.FileType = "";
 		res.kind = kind.getValue();
 		res.setEffects(effects.getValue());
 		res.volume = (double) volume.getValue() / 100.0;
 		res.pan = (double) pan.getValue() / 100.0;
+		res.preload = preload.isSelected();
 		res.Data = Data;
 		modified = false;
 		resOriginal = (Sound) res.copy(false,null);

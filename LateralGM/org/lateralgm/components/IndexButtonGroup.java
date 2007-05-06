@@ -16,30 +16,38 @@ import javax.swing.ButtonGroup;
 public class IndexButtonGroup
 	{
 	private static final long serialVersionUID = 1L;
+
 	private class But
 		{
 		AbstractButton b;
 		int i;
+
 		But(AbstractButton b, int i)
 			{
 			this.b = b;
 			this.i = i;
 			}
 		}
+
 	private But bm[];
 	private int bs;
-	private ButtonGroup g;
+	private ButtonGroup g = null;
 
-	public IndexButtonGroup(int s)
+	public IndexButtonGroup(int s, boolean exclusive)
 		{
-		g = new ButtonGroup();
+		if (exclusive) g = new ButtonGroup();
 		bm = new But[s];
 		bs = 0;
 		}
 
+	public IndexButtonGroup(int s)
+		{
+		this(s,true);
+		}
+	
 	public void add(AbstractButton b, int value)
 		{
-		g.add(b);
+		if (g != null) g.add(b);
 		bm[bs++] = new But(b,value);
 		}
 
