@@ -26,8 +26,8 @@ import org.lateralgm.resources.Script;
 public class ScriptFrame extends ResourceFrame<Script>
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon frameIcon = LGM.findIcon("script.png"); //$NON-NLS-1$
-	private static final ImageIcon saveIcon = LGM.findIcon("save.png"); //$NON-NLS-1$
+	private static final ImageIcon frameIcon = LGM.getIconForKey("ScriptFrame.SCRIPT"); //$NON-NLS-1$
+	private static final ImageIcon saveIcon = LGM.getIconForKey("ScriptFrame.SAVE"); //$NON-NLS-1$
 	public JTextArea code;
 
 	public ScriptFrame(Script res, ResNode node)

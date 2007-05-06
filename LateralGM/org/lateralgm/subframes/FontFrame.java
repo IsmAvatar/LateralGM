@@ -31,8 +31,8 @@ import org.lateralgm.resources.Font;
 public class FontFrame extends ResourceFrame<Font>
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon frameIcon = LGM.findIcon("font.png"); //$NON-NLS-1$
-	private static final ImageIcon saveIcon = LGM.findIcon("save.png"); //$NON-NLS-1$
+	private static final ImageIcon frameIcon = LGM.getIconForKey("FontFrame.FONT"); //$NON-NLS-1$
+	private static final ImageIcon saveIcon = LGM.getIconForKey("FontFrame.SAVE"); //$NON-NLS-1$
 
 	public JComboBox fonts;
 	public IntegerField size;

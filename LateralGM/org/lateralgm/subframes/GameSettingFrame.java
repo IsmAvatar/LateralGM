@@ -48,7 +48,7 @@ public class GameSettingFrame extends JInternalFrame implements ActionListener
 		super(Messages.getString("GameSettingFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(540,470);
-		setFrameIcon(LGM.findIcon("gm.png"));
+		setFrameIcon(LGM.findIcon("restree/gm.png"));
 		setLayout(new FlowLayout());
 		tabbedPane.setPreferredSize(new Dimension(530,400));
 		setResizable(false);

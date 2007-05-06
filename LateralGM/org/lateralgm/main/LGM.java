@@ -77,10 +77,11 @@ public class LGM extends JPanel
 
 	public static ImageIcon findIcon(String filename)
 		{
-		ImageIcon ico = new ImageIcon("org/lateralgm/icons/" + filename.toLowerCase()); //$NON-NLS-1$
+		String location = "org/lateralgm/icons/" + filename; //$NON-NLS-1$
+		ImageIcon ico = new ImageIcon(location);
 		if (ico.getIconWidth() == -1)
 			{
-			URL url = LGM.class.getClassLoader().getResource("org/lateralgm/icons/" + filename.toLowerCase()); //$NON-NLS-1$
+			URL url = LGM.class.getClassLoader().getResource(location);
 			if (url != null)
 				{
 				ico = new ImageIcon(url);
