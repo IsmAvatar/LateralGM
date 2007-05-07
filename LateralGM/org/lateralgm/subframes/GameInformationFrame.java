@@ -85,7 +85,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	public GameInformationFrame()
 		{
 		super(Messages.getString("GameInformationFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
-		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setSize(600,400);
 		setFrameIcon(LGM.getIconForKey("GameInformationFrame.INFO")); //$NON-NLS-1$
 		// Setup the Menu
@@ -428,20 +428,18 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 					{
 					case 0: // yes
 						updateResource();
-						dispose();
-						LGM.tree.updateUI();
+						setVisible(false);
 						break;
 					case 1: // no
 						revertResource();
-						dispose();
-						LGM.tree.updateUI();
+						setVisible(false);
 						break;
 					}
 				}
 			else
 				{
 				updateResource();
-				dispose();
+				setVisible(false);
 				}
 			}
 		super.fireInternalFrameEvent(id);
