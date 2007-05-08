@@ -25,7 +25,7 @@ import org.lateralgm.subframes.FontFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ScriptFrame;
 import org.lateralgm.subframes.SoundFrame;
-
+import org.lateralgm.subframes.SpriteFrame;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable
 	{
@@ -105,6 +105,9 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 			ResourceFrame<?> rf = null;
 			switch (kind)
 				{
+				case Resource.SPRITE:
+					rf = new SpriteFrame(LGM.currentFile.Sprites.get(resourceId),this);
+					break;
 				case Resource.SOUND:
 					rf = new SoundFrame(LGM.currentFile.Sounds.get(resourceId),this);
 					break;

@@ -8,11 +8,14 @@
 
 package org.lateralgm.subframes;
 
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -51,6 +54,7 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 		name.setDocument(new NameDocument());
 		name.setText(res.name);
 		name.getDocument().addDocumentListener(this);
+		name.setCaretPosition(0);
 		save = new JButton();
 		save.addActionListener(this);
 		}
@@ -61,6 +65,18 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 
 	public abstract boolean resourceChanged();
 
+	void addGap(int w, int h)
+		{
+		addGap(this,w,h);
+		}
+	
+	void addGap(Container c,int w, int h)
+		{
+		JLabel l = new JLabel();
+		l.setPreferredSize(new Dimension(w,h));
+		c.add(l);
+		}
+	
 	public void changedUpdate(DocumentEvent e)
 		{
 		// Not used

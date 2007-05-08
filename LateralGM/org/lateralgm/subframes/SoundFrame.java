@@ -198,14 +198,6 @@ public class SoundFrame extends ResourceFrame<Sound>
 		Data = res.Data;
 		}
 
-	// adds a blank JLabel to fill in space - maybe extract to ResourceFrame?
-	private void addGap(int w, int h)
-		{
-		JLabel l = new JLabel();
-		l.setPreferredSize(new Dimension(w,h));
-		add(l);
-		}
-
 	public boolean resourceChanged()
 		{
 		if (!resOriginal.name.equals(name.getText()) || modified
