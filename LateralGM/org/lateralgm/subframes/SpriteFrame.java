@@ -30,7 +30,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 import org.lateralgm.components.CustomFileFilter;
-// import org.lateralgm.components.ImagePreview;
 import org.lateralgm.components.IndexButtonGroup;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResNode;
@@ -127,7 +126,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 		addGap(side1,160,10);
 		showLab = new JLabel(Messages.getString("SpriteFrame.SHOW")); //$NON-NLS-1$
-		showLab.setPreferredSize(new Dimension(40,16));
+		showLab.setPreferredSize(new Dimension(200,16));
+		showLab.setHorizontalAlignment(JLabel.CENTER);
 		side1.add(showLab);
 		// TODO Possibly get an icon for the arrows
 		subLeft = new JButton("<"); //$NON-NLS-1$
@@ -138,6 +138,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		show = new JLabel();
 		show.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		show.setPreferredSize(new Dimension(30,20));
+		show.setHorizontalAlignment(JLabel.CENTER);
 		side1.add(show);
 		subRight = new JButton(">"); //$NON-NLS-1$
 		subRight.setPreferredSize(new Dimension(45,20));
@@ -154,7 +155,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		transparent.setSelected(res.Transparent);
 		side1.add(transparent);
 
-		addGap(side1,100,35);
+		addGap(side1,100,20);
 
 		save.setPreferredSize(new Dimension(130,24));
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
@@ -226,7 +227,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		addGap(bbox,85,16);
 
 		lab = new JLabel(Messages.getString("SpriteFrame.LEFT")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(40,16));
+		lab.setPreferredSize(new Dimension(25,16));
+		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bbox.add(lab);
 		bboxLeft = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.BoundingBoxLeft);
 		bboxLeft.setPreferredSize(new Dimension(40,20));
@@ -234,13 +236,15 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 		lab = new JLabel(Messages.getString("SpriteFrame.RIGHT")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(45,16));
+		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bbox.add(lab);
 		bboxRight = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.BoundingBoxRight);
 		bboxRight.setPreferredSize(new Dimension(40,20));
 		bbox.add(bboxRight);
 
 		lab = new JLabel(Messages.getString("SpriteFrame.TOP")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(40,16));
+		lab.setPreferredSize(new Dimension(25,16));
+		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bbox.add(lab);
 		bboxTop = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.BoundingBoxTop);
 		bboxTop.setPreferredSize(new Dimension(40,20));
@@ -248,6 +252,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 		lab = new JLabel(Messages.getString("SpriteFrame.BOTTOM")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(45,16));
+		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bbox.add(lab);
 		bboxBottom = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.BoundingBoxBottom);
 		bboxBottom.setPreferredSize(new Dimension(40,20));
@@ -349,7 +354,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 							Messages.getString("SpriteFrame.ERROR_LOADING") + fc.getSelectedFile().getPath()); //$NON-NLS-1$
 					}
 				}
-
 			return;
 			}
 		if (e.getSource() == subRight)
@@ -378,10 +382,12 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			{
 			originX.setIntValue(res.Width / 2);
 			originY.setIntValue(res.Height / 2);
+			return;
 			}
 		if (e.getSource() == auto || e.getSource() == manual || e.getSource() == full)
 			{
 			updatePreview();
+			return;
 			}
 		super.actionPerformed(e);
 		}
@@ -395,9 +401,9 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			{
 			// TODO Implement Auto BBox code
 			bboxLeft.setIntValue(0);
-			bboxRight.setIntValue(res.Width);
+			bboxRight.setIntValue(res.Width - 1);
 			bboxTop.setIntValue(0);
-			bboxBottom.setIntValue(res.Height);
+			bboxBottom.setIntValue(res.Height - 1);
 			bboxLeft.setEnabled(false);
 			bboxRight.setEnabled(false);
 			bboxTop.setEnabled(false);
@@ -424,10 +430,9 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 				show.setText("0"); //$NON-NLS-1$
 				break;
 			default:
-
+				preview.setIcon(new ImageIcon(res.getSubImage(currSub)));
 				subLeft.setEnabled(currSub > 0);
 				subRight.setEnabled(currSub < res.NoSubImages() - 1);
-				preview.setIcon(new ImageIcon(res.getSubImage(currSub)));
 				show.setText(Integer.toString(currSub));
 				break;
 			}
