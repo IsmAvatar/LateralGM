@@ -14,8 +14,7 @@ package org.lateralgm.subframes;
 /*
  * TODO:
  * Code updateResource, revertResource, and resourceChanged
- * Fix Underline button to work!
- * Make the RTFEditor stop losing focus.
+ * Make the RTFEditor grab focus when the user enters a font size
  * Stolen from Font Family listener. Not sure what m_monitor was... 
  * 	String m_fontName = m_cbFonts.getSelectedItem().toString();
  * 	MutableAttributeSet attr = new SimpleAttributeSet();
@@ -167,6 +166,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 			// Setup the buttons
 			JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.SAVE")); //$NON-NLS-1$
+			but.setRequestFocusEnabled(false);
 			but.setActionCommand("GameInformationFrame.SAVE"); //$NON-NLS-1$
 			but.addActionListener(this);
 			tool.add(but);
@@ -175,6 +175,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			String[] fontNames = ge.getAvailableFontFamilyNames();
 			tool.addSeparator();
 			m_cbFonts = new JComboBox(fontNames);
+			m_cbFonts.setRequestFocusEnabled(false);
 			m_cbFonts.setMaximumSize(m_cbFonts.getPreferredSize());
 			m_cbFonts.setEditable(true);
 			ActionListener lst = new ActionListener()
@@ -186,6 +187,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 							fFamilyChange = false;
 							return;
 							}
+						editor.grabFocus();
 						setSelectionAttribute(StyleConstants.Family,m_cbFonts.getSelectedItem().toString());
 						}
 				};
@@ -194,6 +196,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			tool.add(m_cbFonts);
 			tool.addSeparator();
 			m_sSizes = new JSpinner(new SpinnerNumberModel(12,1,100,1));
+			m_sSizes.setRequestFocusEnabled(false);
 			m_sSizes.setMaximumSize(m_sSizes.getPreferredSize());
 			m_sSizes.addChangeListener(new ChangeListener()
 				{
@@ -204,6 +207,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 							fSizeChange = false;
 							return;
 							}
+						editor.grabFocus();
 						setSelectionAttribute(StyleConstants.Size,m_sSizes.getValue());
 						}
 				});
@@ -211,6 +215,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			tool.addSeparator();
 
 			m_tbBold = new JToggleButton("B");
+			m_tbBold.setRequestFocusEnabled(false);
 			// m_tbBold.setFont(new java.awt.Font("Courier New",java.awt.Font.BOLD,10));
 			lst = new ActionListener()
 				{
@@ -222,6 +227,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			m_tbBold.addActionListener(lst);
 			tool.add(m_tbBold);
 			m_tbItalic = new JToggleButton("I");
+			m_tbItalic.setRequestFocusEnabled(false);
 			// m_tbItalic.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.ITALIC));
 			lst = new ActionListener()
 				{
@@ -233,6 +239,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			m_tbItalic.addActionListener(lst);
 			tool.add(m_tbItalic);
 			m_tbUnderline = new JToggleButton("U");
+			m_tbUnderline.setRequestFocusEnabled(false);
 			// m_tbUnderline = new JToggleButton("<html><u>U</u></html>");
 			// m_tbUnderline.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.PLAIN));
 			// m_tbUnderline.setMaximumSize(m_tbBold.getSize());
@@ -240,15 +247,15 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 				{
 					public void actionPerformed(ActionEvent arg0)
 						{
-						// Grar, underline not working properly
 						setSelectionAttribute(StyleConstants.Underline,m_tbUnderline.isSelected());
 						}
 				};
-			m_tbBold.addActionListener(lst);
+			m_tbUnderline.addActionListener(lst);
 			tool.add(m_tbUnderline);
 
 			tool.addSeparator();
 			but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
+			but.setRequestFocusEnabled(false);
 			but.setActionCommand("BackgroundColor");
 			but.addActionListener(this);
 			tool.add(but);
@@ -273,16 +280,16 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 					int dot = ce.getDot();
 					if (ce.getMark() <= dot) dot--;
 					AttributeSet as = d.getCharacterElement(dot).getAttributes();
-					Object f = as.getAttribute(StyleConstants.Family);
-					Object s = as.getAttribute(StyleConstants.Size);
-					Object b = as.getAttribute(StyleConstants.Bold);
-					Object i = as.getAttribute(StyleConstants.Italic);
-					Object u = as.getAttribute(StyleConstants.Underline);
-					if (f instanceof String) m_cbFonts.setSelectedItem(f);
-					if (s instanceof Integer) m_sSizes.setValue(s);
-					if (b instanceof Boolean) m_tbBold.setSelected((Boolean) b);
-					if (i instanceof Boolean) m_tbItalic.setSelected((Boolean) i);
-					if (u instanceof Boolean) m_tbUnderline.setSelected((Boolean) u);
+					String f = StyleConstants.getFontFamily(as);
+					int s = StyleConstants.getFontSize(as);
+					boolean b = StyleConstants.isBold(as);
+					boolean i = StyleConstants.isItalic(as);
+					boolean u = StyleConstants.isUnderline(as);
+					m_cbFonts.setSelectedItem(f);
+					m_sSizes.setValue(s);
+					m_tbBold.setSelected(b);
+					m_tbItalic.setSelected(i);
+					m_tbUnderline.setSelected(u);
 					}
 			});
 
@@ -299,7 +306,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		StyledDocument sd = (StyledDocument) editor.getDocument();
 		int a = editor.getSelectionStart();
 		int b = editor.getSelectionEnd();
-		if (a == b) return;
+		if (a == b)
+			{
+			rtf.getInputAttributes().addAttribute(key, value);
+			return;
+			}
 		SimpleAttributeSet sas = new SimpleAttributeSet();
 		sas.addAttribute(key,value);
 		sd.setCharacterAttributes(a,b - a,sas,false);
