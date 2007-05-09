@@ -13,7 +13,7 @@ package org.lateralgm.subframes;
 
 /*
  * TODO:
- * Code updateResource, revertResource, and resourceChanged
+ * Make the undoable edits contain more than just one letter each
  * Make the RTFEditor grab focus when the user enters a font size
  * Stolen from Font Family listener. Not sure what m_monitor was... 
  * 	String m_fontName = m_cbFonts.getSelectedItem().toString();
@@ -24,15 +24,21 @@ package org.lateralgm.subframes;
  */
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -46,22 +52,30 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
-import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.Resource;
 
 public class GameInformationFrame extends JInternalFrame implements ActionListener
@@ -69,17 +83,21 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	private static final long serialVersionUID = 1L;
 	private static JEditorPane editor;
 	private static RTFEditorKit rtf = new RTFEditorKit();
-	public static GameInformation gi = new GameInformation();
 	private JComboBox m_cbFonts;
 	private JSpinner m_sSizes;
 	private JToggleButton m_tbBold;
 	private JToggleButton m_tbItalic;
 	private JToggleButton m_tbUnderline;
+	protected UndoManager undoManager = new UndoManager();
+	protected final AbstractAction undoAction;
+	protected final AbstractAction redoAction;
 
 	// These prevent the Formatting Bar things from firing when the caret moves
 	// because that would cause the selection to conform the text to the caret format
 	private static boolean fFamilyChange = false;
 	private static boolean fSizeChange = false;
+
+	private static boolean documentChanged = false;
 
 	public GameInformationFrame()
 		{
@@ -120,10 +138,45 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			JMenu Emenu = new JMenu(Messages.getString("GameInformationFrame.MENU_EDIT")); //$NON-NLS-1$
 			menuBar.add(Emenu);
 
+			undoAction = new AbstractAction(Messages.getString("GameInformationFrame.UNDO"))
+				{
+					private static final long serialVersionUID = 1L;
+
+					public void actionPerformed(ActionEvent ae)
+						{
+						try
+							{
+							undoManager.undo();
+							}
+						catch (CannotUndoException e)
+							{
+							}
+						updateUndo();
+						}
+				};
+			redoAction = new AbstractAction(Messages.getString("GameInformationFrame.REDO"))
+				{
+					private static final long serialVersionUID = 1L;
+
+					public void actionPerformed(ActionEvent ae)
+						{
+						try
+							{
+							undoManager.redo();
+							}
+						catch (CannotRedoException e)
+							{
+							}
+						updateUndo();
+						}
+				};
 			// Create a menu item
-			JMenuItem item = addItem("GameInformationFrame.UNDO"); //$NON-NLS-1$
+			JMenuItem item = new JMenuItem(undoAction); //$NON-NLS-1$
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
 			Emenu.add(item);
-			item.setEnabled(false);
+			item = new JMenuItem(redoAction); //$NON-NLS-1$
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
+			Emenu.add(item);
 			Emenu.addSeparator();
 			item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
 			Emenu.add(item);
@@ -256,7 +309,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			tool.addSeparator();
 			but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
 			but.setRequestFocusEnabled(false);
-			but.setActionCommand("BackgroundColor");
+			but.setActionCommand("GameInformationFrame.COLOR");
 			but.addActionListener(this);
 			tool.add(but);
 			}
@@ -269,7 +322,32 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		editor = new JEditorPane();
 		// editor.setEditable(false);
 		editor.setEditorKit(rtf);
-		editor.setBackground(LGM.currentFile.GameInfo.BackgroundColor);
+
+		editor.getDocument().addDocumentListener(new DocumentListener()
+			{
+				public void removeUpdate(DocumentEvent e)
+					{
+					documentChanged = true;
+					}
+
+				public void changedUpdate(DocumentEvent e)
+					{
+					documentChanged = true;
+					}
+
+				public void insertUpdate(DocumentEvent e)
+					{
+					documentChanged = true;
+					}
+			});
+		editor.getDocument().addUndoableEditListener(new UndoableEditListener()
+			{
+				public void undoableEditHappened(UndoableEditEvent e)
+					{
+					undoManager.addEdit(e.getEdit());
+					updateUndo();
+					}
+			});
 		editor.addCaretListener(new CaretListener()
 			{
 				public void caretUpdate(CaretEvent ce)
@@ -297,8 +375,25 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		JScrollPane scroller = new JScrollPane();
 		scroller.getViewport().add(editor);
 		topPanel.add(scroller,BorderLayout.CENTER);
+		revertResource();
+		}
 
-		add_rtf(LGM.currentFile.GameInfo.GameInfoStr);
+	public void updateUndo()
+		{
+		undoAction.setEnabled(undoManager.canUndo());
+		redoAction.setEnabled(undoManager.canRedo());
+		}
+
+	public void setEditorBackground(Color c)
+		{
+		editor.setBackground(c);
+		Color sc = new Color(c.getRed() > 127 ? 0 : 255,c.getGreen() > 127 ? 0 : 255,c.getBlue() > 127 ? 0 : 255);
+		editor.setSelectedTextColor(c);
+		editor.setSelectionColor(sc);
+		Color cc = new Color((c.getRed() + sc.getRed()) / 2,(c.getGreen() + sc.getGreen()) / 2,
+				(c.getBlue() + sc.getBlue()) / 2);
+		editor.setCaretColor(cc);
+		documentChanged = true;
 		}
 
 	public void setSelectionAttribute(Object key, Object value)
@@ -308,7 +403,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		int b = editor.getSelectionEnd();
 		if (a == b)
 			{
-			rtf.getInputAttributes().addAttribute(key, value);
+			rtf.getInputAttributes().addAttribute(key,value);
 			return;
 			}
 		SimpleAttributeSet sas = new SimpleAttributeSet();
@@ -351,11 +446,10 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			if (fc.getSelectedFile().exists())
 				repeat = false;
 			else
-				JOptionPane
-						.showMessageDialog(
-								null,
-								fc.getSelectedFile().getName() + Messages.getString("SoundFrame.FILE_MISSING"),Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-1$ //$NON-NLS-2$
-								JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
+						+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
+						Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-2$
+						JOptionPane.WARNING_MESSAGE);
 			}
 		try
 			{
@@ -401,17 +495,34 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 	public void updateResource()
 		{
-
+		LGM.currentFile.GameInfo.BackgroundColor = editor.getBackground();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try
+			{
+			rtf.write(baos,editor.getDocument(),0,0);
+			LGM.currentFile.GameInfo.GameInfoStr = baos.toString("UTF-8");
+			}
+		catch (IOException e)
+			{
+			}
+		catch (BadLocationException e)
+			{
+			}
+		documentChanged = false;
 		}
 
 	public void revertResource()
 		{
-
+		setEditorBackground(LGM.currentFile.GameInfo.BackgroundColor);
+		editor.setText(LGM.currentFile.GameInfo.GameInfoStr);
+		undoManager.die();
+		updateUndo();
+		documentChanged = false;
 		}
 
 	public boolean resourceChanged()
 		{
-		return true;
+		return documentChanged;
 		}
 
 	public void actionPerformed(ActionEvent arg0)
@@ -425,6 +536,12 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			{
 			save_to_file();
 			}
+		if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
+			{
+			Color c = JColorChooser.showDialog(this,Messages.getString("GameInformationFrame.COLOR"),
+					editor.getBackground());
+			if (c != null) setEditorBackground(c);
+			}
 		}
 
 	protected void fireInternalFrameEvent(int id)
@@ -433,9 +550,9 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			{
 			if (resourceChanged())
 				{
-				switch (JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
-						.getString("ResourceFrame.KEEPCHANGES"),(String) getUserObject()),Messages //$NON-NLS-1$
-						.getString("ResourceFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$
+				switch (JOptionPane.showConfirmDialog(LGM.frame,String.format(
+						Messages.getString("ResourceFrame.KEEPCHANGES"),(String) getUserObject()),
+						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$
 					{
 					case 0: // yes
 						updateResource();
