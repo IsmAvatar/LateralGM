@@ -8,10 +8,13 @@
 
 package org.lateralgm.main;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+
+import org.lateralgm.jedit.SyntaxStyle;
 
 public class Util
 	{
@@ -60,5 +63,32 @@ public class Util
 	public static final String rectangleToString(Rectangle r)
 		{
 		return String.format("%d %d %d %d",r.x,r.y,r.width,r.height);
+		}
+
+	public static final SyntaxStyle stringToSyntaxStyle(String s, SyntaxStyle defaultValue)
+		{
+		String[] a;
+		Color c;
+		try
+			{
+			a = s.split(" ",2);
+			c = new Color(Integer.valueOf(a[0],16));
+			}
+		catch (NullPointerException npe)
+			{
+			return defaultValue;
+			}
+		catch (NumberFormatException nfe)
+			{
+			return defaultValue;
+			}
+		boolean i, b;
+		i = b = false;
+		if (a.length > 1)
+			{
+			i = a[1].matches("(?i).*\\bitalic\\b.*");
+			b = a[1].matches("(?i).*\\bbold\\b.*");
+			}
+		return new SyntaxStyle(c,i,b);
 		}
 	}
