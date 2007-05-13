@@ -26,83 +26,83 @@ public class Room extends Resource
 	public static final byte TAB_TILES = 2;
 	public static final byte TAB_BACKGROUNDS = 3;
 	public static final byte TAB_VIEWS = 4;
-	public String Caption = "";
-	public int Width = 640;
-	public int Height = 480;
-	public int SnapX = 16;
-	public int SnapY = 16;
-	public boolean IsometricGrid = false;
-	public int Speed = 30;
-	public boolean Persistent = false;
-	public int BackgroundColor = 0x000000;
-	public boolean DrawBackgroundColor = true;
-	public String CreationCode = "";
-	public boolean RememberWindowSize = true;
-	public int EditorWidth = 200;// **may not be relevant to swing, or may not produce the same effect in the
+	public String caption = "";
+	public int width = 640;
+	public int height = 480;
+	public int snapX = 16;
+	public int snapY = 16;
+	public boolean isometricGrid = false;
+	public int speed = 30;
+	public boolean persistent = false;
+	public int backgroundColor = 0x000000;
+	public boolean drawBackgroundColor = true;
+	public String creationCode = "";
+	public boolean rememberWindowSize = true;
+	public int editorWidth = 200;// **may not be relevant to swing, or may not produce the same effect in the
 	// LGM GUI
-	public int EditorHeight = 200;// **
-	public boolean ShowGrid = true;
-	public boolean ShowObjects = true;
-	public boolean ShowTiles = true;
-	public boolean ShowBackgrounds = true;
-	public boolean ShowForegrounds = true;
-	public boolean ShowViews = false;
-	public boolean DeleteUnderlyingObjects = true;
-	public boolean DeleteUnderlyingTiles = true;
-	public int CurrentTab = TAB_OBJECTS;
-	public int ScrollBarX = 0;// **
-	public int ScrollBarY = 0;// **
-	public BackgroundDef[] BackgroundDefs = new BackgroundDef[8];
-	public View[] Views = new View[8];
-	public boolean EnableViews = false;
-	private ArrayList<Instance> Instances = new ArrayList<Instance>();
-	private Gm6File Parent;
+	public int editorHeight = 200;// **
+	public boolean showGrid = true;
+	public boolean showObjects = true;
+	public boolean showTiles = true;
+	public boolean showBackgrounds = true;
+	public boolean showForegrounds = true;
+	public boolean showViews = false;
+	public boolean deleteUnderlyingObjects = true;
+	public boolean deleteUnderlyingTiles = true;
+	public int currentTab = TAB_OBJECTS;
+	public int scrollBarX = 0;// **
+	public int scrollBarY = 0;// **
+	public BackgroundDef[] backgroundDefs = new BackgroundDef[8];
+	public View[] views = new View[8];
+	public boolean enableViews = false;
+	private ArrayList<Instance> instances = new ArrayList<Instance>();
+	private Gm6File parent;
 
 	public Room()
 		{
 		setName(Prefs.prefixes[Resource.ROOM]);
-		Parent = LGM.currentFile;
+		parent = LGM.currentFile;
 		for (int j = 0; j < 8; j++)
 			{
-			Views[j] = new View();
-			BackgroundDefs[j] = new BackgroundDef();
+			views[j] = new View();
+			backgroundDefs[j] = new BackgroundDef();
 			}
 		}
 
 	public Room(Gm6File Parent)// Rooms are special - they need to know what file they belong to
 		{
-		this.Parent = Parent;
+		this.parent = Parent;
 		for (int j = 0; j < 8; j++)
 			{
-			Views[j] = new View();
-			BackgroundDefs[j] = new BackgroundDef();
+			views[j] = new View();
+			backgroundDefs[j] = new BackgroundDef();
 			}
 		}
 
 	public int NoInstances()
 		{
-		return Instances.size();
+		return instances.size();
 		}
 
-	private ArrayList<Tile> Tiles = new ArrayList<Tile>();
+	private ArrayList<Tile> tiles = new ArrayList<Tile>();
 
 	public int NoTiles()
 		{
-		return Tiles.size();
+		return tiles.size();
 		}
 
 	public Instance addInstance()
 		{
 		Instance inst = new Instance();
-		inst.InstanceId = ++Parent.LastInstanceId;
-		Instances.add(inst);
+		inst.instanceId = ++parent.lastInstanceId;
+		instances.add(inst);
 		return inst;
 		}
 
 	public Instance getInstance(int InstanceId)
 		{
 		int Index = InstanceIndex(InstanceId);
-		if (Index != -1) return Instances.get(Index);
+		if (Index != -1) return instances.get(Index);
 		return null;
 		}
 
@@ -110,40 +110,40 @@ public class Room extends Resource
 		{
 		for (int i = 0; i < NoInstances(); i++)
 			{
-			if (getInstanceList(i).InstanceId == InstanceId) return i;
+			if (getInstanceList(i).instanceId == InstanceId) return i;
 			}
 		return -1;
 		}
 
 	public Instance getInstanceList(int ListIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoInstances()) return Instances.get(ListIndex);
+		if (ListIndex >= 0 && ListIndex < NoInstances()) return instances.get(ListIndex);
 		return null;
 		}
 
 	public void removeInstance(int InstanceId)
 		{
 		int Index = InstanceIndex(InstanceId);
-		if (Index != -1) Instances.remove(Index);
+		if (Index != -1) instances.remove(Index);
 		}
 
 	public void clearInstances()
 		{
-		Instances.clear();
+		instances.clear();
 		}
 
 	public Tile addTile()
 		{
 		Tile tile = new Tile();
-		tile.TileId = ++Parent.LastTileId;
-		Tiles.add(tile);
+		tile.tileId = ++parent.lastTileId;
+		tiles.add(tile);
 		return tile;
 		}
 
 	public Tile getTile(int TileId)
 		{
 		int Index = TileIndex(TileId);
-		if (Index != -1) return Tiles.get(Index);
+		if (Index != -1) return tiles.get(Index);
 		return null;
 		}
 
@@ -151,26 +151,26 @@ public class Room extends Resource
 		{
 		for (int i = 0; i < NoTiles(); i++)
 			{
-			if (getTileList(i).TileId == TileId) return i;
+			if (getTileList(i).tileId == TileId) return i;
 			}
 		return -1;
 		}
 
 	public Tile getTileList(int ListIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoTiles()) return Tiles.get(ListIndex);
+		if (ListIndex >= 0 && ListIndex < NoTiles()) return tiles.get(ListIndex);
 		return null;
 		}
 
 	public void removeTile(int TileId)
 		{
 		int Index = TileIndex(TileId);
-		if (Index != -1) Tiles.remove(Index);
+		if (Index != -1) tiles.remove(Index);
 		}
 
 	public void clearTiles()
 		{
-		Tiles.clear();
+		tiles.clear();
 		}
 
 	@SuppressWarnings("unchecked")
@@ -178,94 +178,94 @@ public class Room extends Resource
 		{
 		Room rm = new Room();
 		rm = new Room();
-		rm.Caption = Caption;
-		rm.Width = Width;
-		rm.Height = Height;
-		rm.SnapX = SnapX;
-		rm.SnapY = SnapY;
-		rm.IsometricGrid = IsometricGrid;
-		rm.Speed = Speed;
-		rm.Persistent = Persistent;
-		rm.BackgroundColor = BackgroundColor;
-		rm.DrawBackgroundColor = DrawBackgroundColor;
-		rm.CreationCode = CreationCode;
-		rm.RememberWindowSize = RememberWindowSize;
-		rm.EditorWidth = EditorWidth;
-		rm.EditorHeight = EditorHeight;
-		rm.ShowGrid = ShowGrid;
-		rm.ShowObjects = ShowObjects;
-		rm.ShowTiles = ShowTiles;
-		rm.ShowBackgrounds = ShowBackgrounds;
-		rm.ShowForegrounds = ShowForegrounds;
-		rm.ShowViews = ShowViews;
-		rm.DeleteUnderlyingObjects = DeleteUnderlyingObjects;
-		rm.DeleteUnderlyingTiles = DeleteUnderlyingTiles;
-		rm.CurrentTab = CurrentTab;
-		rm.ScrollBarX = ScrollBarX;
-		rm.ScrollBarY = ScrollBarY;
-		rm.EnableViews = EnableViews;
+		rm.caption = caption;
+		rm.width = width;
+		rm.height = height;
+		rm.snapX = snapX;
+		rm.snapY = snapY;
+		rm.isometricGrid = isometricGrid;
+		rm.speed = speed;
+		rm.persistent = persistent;
+		rm.backgroundColor = backgroundColor;
+		rm.drawBackgroundColor = drawBackgroundColor;
+		rm.creationCode = creationCode;
+		rm.rememberWindowSize = rememberWindowSize;
+		rm.editorWidth = editorWidth;
+		rm.editorHeight = editorHeight;
+		rm.showGrid = showGrid;
+		rm.showObjects = showObjects;
+		rm.showTiles = showTiles;
+		rm.showBackgrounds = showBackgrounds;
+		rm.showForegrounds = showForegrounds;
+		rm.showViews = showViews;
+		rm.deleteUnderlyingObjects = deleteUnderlyingObjects;
+		rm.deleteUnderlyingTiles = deleteUnderlyingTiles;
+		rm.currentTab = currentTab;
+		rm.scrollBarX = scrollBarX;
+		rm.scrollBarY = scrollBarY;
+		rm.enableViews = enableViews;
 		for (int i = 0; i < this.NoInstances(); i++)
 			{
 			Instance inst = getInstanceList(i);
 			Instance inst2 = rm.addInstance();
-			inst2.CreationCode = inst.CreationCode;
-			inst2.Locked = inst.Locked;
-			inst2.GmObjectId = inst.GmObjectId;
-			inst2.X = inst.X;
-			inst2.Y = inst.Y;
+			inst2.creationCode = inst.creationCode;
+			inst2.locked = inst.locked;
+			inst2.gmObjectId = inst.gmObjectId;
+			inst2.x = inst.x;
+			inst2.y = inst.y;
 			}
 		for (int i = 0; i < this.NoTiles(); i++)
 			{
 			Tile tile = getTileList(i);
 			Tile tile2 = rm.addTile();
-			tile2.BackgroundId = tile.BackgroundId;
-			tile2.Depth = tile.Depth;
-			tile2.Height = tile.Height;
-			tile2.Locked = tile.Locked;
-			tile2.TileX = tile.TileX;
-			tile2.TileY = tile.TileY;
-			tile2.Width = tile.Width;
-			tile2.X = tile.X;
-			tile2.Y = tile.Y;
+			tile2.backgroundId = tile.backgroundId;
+			tile2.depth = tile.depth;
+			tile2.height = tile.height;
+			tile2.locked = tile.locked;
+			tile2.tileX = tile.tileX;
+			tile2.tileY = tile.tileY;
+			tile2.width = tile.width;
+			tile2.x = tile.x;
+			tile2.y = tile.y;
 			}
 		for (int i = 0; i < 8; i++)
 			{
-			View view = Views[i];
-			View view2 = rm.Views[i];
-			view2.Enabled = view.Enabled;
-			view2.ViewX = view.ViewX;
-			view2.ViewY = view.ViewY;
-			view2.ViewW = view.ViewW;
-			view2.ViewH = view.ViewH;
-			view2.PortX = view.PortX;
-			view2.PortY = view.PortY;
-			view2.PortW = view.PortW;
-			view2.PortH = view.PortH;
-			view2.Hbor = view.Hbor;
-			view2.VBor = view.VBor;
-			view2.HSpeed = view.HSpeed;
-			view2.VSpeed = view.VSpeed;
-			view2.ObjectFollowing = view.ObjectFollowing;
+			View view = views[i];
+			View view2 = rm.views[i];
+			view2.enabled = view.enabled;
+			view2.viewX = view.viewX;
+			view2.viewY = view.viewY;
+			view2.viewW = view.viewW;
+			view2.viewH = view.viewH;
+			view2.portX = view.portX;
+			view2.portY = view.portY;
+			view2.portW = view.portW;
+			view2.portH = view.portH;
+			view2.hbor = view.hbor;
+			view2.vbor = view.vbor;
+			view2.hspeed = view.hspeed;
+			view2.vspeed = view.vspeed;
+			view2.objectFollowing = view.objectFollowing;
 			}
 		for (int i = 0; i < 8; i++)
 			{
-			BackgroundDef back = BackgroundDefs[i];
-			BackgroundDef back2 = rm.BackgroundDefs[i];
-			back2.Visible = back.Visible;
-			back2.Foreground = back.Foreground;
-			back2.BackgroundId = back.BackgroundId;
-			back2.X = back.X;
-			back2.Y = back.Y;
-			back2.TileHoriz = back.TileHoriz;
-			back2.TileVert = back.TileVert;
-			back2.HorizSpeed = back.HorizSpeed;
-			back2.VertSpeed = back.VertSpeed;
-			back2.Stretch = back.Stretch;
+			BackgroundDef back = backgroundDefs[i];
+			BackgroundDef back2 = rm.backgroundDefs[i];
+			back2.visible = back.visible;
+			back2.foreground = back.foreground;
+			back2.backgroundId = back.backgroundId;
+			back2.x = back.x;
+			back2.y = back.y;
+			back2.tileHoriz = back.tileHoriz;
+			back2.tileVert = back.tileVert;
+			back2.horizSpeed = back.horizSpeed;
+			back2.vertSpeed = back.vertSpeed;
+			back2.stretch = back.stretch;
 			}
 		if (update)
 			{
-			rm.setId(new ResId(++src.LastId));
-			rm.setName(Prefs.prefixes[Resource.ROOM] + src.LastId);
+			rm.setId(new ResId(++src.lastId));
+			rm.setName(Prefs.prefixes[Resource.ROOM] + src.lastId);
 			src.add(rm);
 			}
 		else

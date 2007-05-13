@@ -152,7 +152,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		side1.add(edit);
 		transparent = new JCheckBox(Messages.getString("SpriteFrame.TRANSPARENT")); //$NON-NLS-1$
 		transparent.setPreferredSize(new Dimension(160,16));
-		transparent.setSelected(res.Transparent);
+		transparent.setSelected(res.transparent);
 		side1.add(transparent);
 
 		addGap(side1,100,20);
@@ -171,15 +171,15 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 		preciseCC = new JCheckBox(Messages.getString("SpriteFrame.PRECISE_CC")); //$NON-NLS-1$
 		preciseCC.setPreferredSize(new Dimension(180,16));
-		preciseCC.setSelected(res.PreciseCC);
+		preciseCC.setSelected(res.preciseCC);
 		side2.add(preciseCC);
 		smooth = new JCheckBox(Messages.getString("SpriteFrame.SMOOTH")); //$NON-NLS-1$
 		smooth.setPreferredSize(new Dimension(180,16));
-		smooth.setSelected(res.SmoothEdges);
+		smooth.setSelected(res.smoothEdges);
 		side2.add(smooth);
 		preload = new JCheckBox(Messages.getString("SpriteFrame.PRELOAD")); //$NON-NLS-1$
 		preload.setPreferredSize(new Dimension(180,16));
-		preload.setSelected(res.Preload);
+		preload.setSelected(res.preload);
 		side2.add(preload);
 
 		JPanel origin = new JPanel(new FlowLayout());
@@ -189,14 +189,14 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		lab.setPreferredSize(new Dimension(20,16));
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		origin.add(lab);
-		originX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.OriginX);
+		originX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.originX);
 		originX.setPreferredSize(new Dimension(40,20));
 		origin.add(originX);
 		lab = new JLabel(Messages.getString("SpriteFrame.Y")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(20,16));
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		origin.add(lab);
-		originY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.OriginY);
+		originY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.originY);
 		originY.setPreferredSize(new Dimension(40,20));
 		origin.add(originY);
 		centre = new JButton(Messages.getString("SpriteFrame.CENTRE")); //$NON-NLS-1$
@@ -222,7 +222,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		manual.setPreferredSize(new Dimension(85,16));
 		manual.addActionListener(this);
 		bboxGroup.add(manual,Sprite.BBOX_MANUAL);
-		bboxGroup.setValue(res.BoundingBoxMode);
+		bboxGroup.setValue(res.boundingBoxMode);
 		bboxGroup.populate(bbox);
 		addGap(bbox,85,16);
 
@@ -230,7 +230,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		lab.setPreferredSize(new Dimension(25,16));
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bbox.add(lab);
-		bboxLeft = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.BoundingBoxLeft);
+		bboxLeft = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxLeft);
 		bboxLeft.setPreferredSize(new Dimension(40,20));
 		bbox.add(bboxLeft);
 
@@ -238,7 +238,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		lab.setPreferredSize(new Dimension(45,16));
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bbox.add(lab);
-		bboxRight = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.BoundingBoxRight);
+		bboxRight = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxRight);
 		bboxRight.setPreferredSize(new Dimension(40,20));
 		bbox.add(bboxRight);
 
@@ -246,7 +246,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		lab.setPreferredSize(new Dimension(25,16));
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bbox.add(lab);
-		bboxTop = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.BoundingBoxTop);
+		bboxTop = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxTop);
 		bboxTop.setPreferredSize(new Dimension(40,20));
 		bbox.add(bboxTop);
 
@@ -254,7 +254,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		lab.setPreferredSize(new Dimension(45,16));
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bbox.add(lab);
-		bboxBottom = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.BoundingBoxBottom);
+		bboxBottom = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxBottom);
 		bboxBottom.setPreferredSize(new Dimension(40,20));
 		bbox.add(bboxBottom);
 
@@ -277,58 +277,58 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		{
 		System.out.println(!resOriginal.getName().equals(name.getText()));
 		System.out.println(imageChanged);
-		System.out.println(resOriginal.Transparent != transparent.isSelected());
-		System.out.println(resOriginal.PreciseCC != preciseCC.isSelected());
-		System.out.println(resOriginal.SmoothEdges != smooth.isSelected());
-		System.out.println(resOriginal.Preload != preload.isSelected());
-		System.out.println(resOriginal.OriginX != originX.getIntValue());
-		System.out.println(resOriginal.OriginY != originY.getIntValue());
-		System.out.println(resOriginal.BoundingBoxMode != (byte) bboxGroup.getValue());
-		System.out.println(resOriginal.BoundingBoxLeft != bboxLeft.getIntValue());
-		System.out.println(resOriginal.BoundingBoxRight != bboxRight.getIntValue());
-		System.out.println(resOriginal.BoundingBoxTop != bboxTop.getIntValue());
-		System.out.println(resOriginal.BoundingBoxBottom != bboxBottom.getIntValue());
+		System.out.println(resOriginal.transparent != transparent.isSelected());
+		System.out.println(resOriginal.preciseCC != preciseCC.isSelected());
+		System.out.println(resOriginal.smoothEdges != smooth.isSelected());
+		System.out.println(resOriginal.preload != preload.isSelected());
+		System.out.println(resOriginal.originX != originX.getIntValue());
+		System.out.println(resOriginal.originY != originY.getIntValue());
+		System.out.println(resOriginal.boundingBoxMode != (byte) bboxGroup.getValue());
+		System.out.println(resOriginal.boundingBoxLeft != bboxLeft.getIntValue());
+		System.out.println(resOriginal.boundingBoxRight != bboxRight.getIntValue());
+		System.out.println(resOriginal.boundingBoxTop != bboxTop.getIntValue());
+		System.out.println(resOriginal.boundingBoxBottom != bboxBottom.getIntValue());
 
 		// For now, BBOX_AUTO is the same as full, which triggers false changed dialogs
 		if (bboxGroup.getValue() == Sprite.BBOX_MANUAL)
 			return (!resOriginal.getName().equals(name.getText()) || imageChanged
-					|| resOriginal.Transparent != transparent.isSelected()
-					|| resOriginal.PreciseCC != preciseCC.isSelected()
-					|| resOriginal.SmoothEdges != smooth.isSelected() || resOriginal.Preload != preload.isSelected()
-					|| resOriginal.OriginX != originX.getIntValue() || resOriginal.OriginY != originY.getIntValue()
-					|| resOriginal.BoundingBoxMode != (byte) bboxGroup.getValue()
-					|| resOriginal.BoundingBoxLeft != bboxLeft.getIntValue()
-					|| resOriginal.BoundingBoxRight != bboxRight.getIntValue()
-					|| resOriginal.BoundingBoxTop != bboxTop.getIntValue() || resOriginal.BoundingBoxBottom != bboxBottom
+					|| resOriginal.transparent != transparent.isSelected()
+					|| resOriginal.preciseCC != preciseCC.isSelected()
+					|| resOriginal.smoothEdges != smooth.isSelected() || resOriginal.preload != preload.isSelected()
+					|| resOriginal.originX != originX.getIntValue() || resOriginal.originY != originY.getIntValue()
+					|| resOriginal.boundingBoxMode != (byte) bboxGroup.getValue()
+					|| resOriginal.boundingBoxLeft != bboxLeft.getIntValue()
+					|| resOriginal.boundingBoxRight != bboxRight.getIntValue()
+					|| resOriginal.boundingBoxTop != bboxTop.getIntValue() || resOriginal.boundingBoxBottom != bboxBottom
 					.getIntValue());
 		else
 			return (!resOriginal.getName().equals(name.getText()) || imageChanged
-					|| resOriginal.Transparent != transparent.isSelected()
-					|| resOriginal.PreciseCC != preciseCC.isSelected()
-					|| resOriginal.SmoothEdges != smooth.isSelected() || resOriginal.Preload != preload.isSelected()
-					|| resOriginal.OriginX != originX.getIntValue() || resOriginal.OriginY != originY.getIntValue() || resOriginal.BoundingBoxMode != (byte) bboxGroup
+					|| resOriginal.transparent != transparent.isSelected()
+					|| resOriginal.preciseCC != preciseCC.isSelected()
+					|| resOriginal.smoothEdges != smooth.isSelected() || resOriginal.preload != preload.isSelected()
+					|| resOriginal.originX != originX.getIntValue() || resOriginal.originY != originY.getIntValue() || resOriginal.boundingBoxMode != (byte) bboxGroup
 					.getValue());
 		}
 
 	public void revertResource()
 		{
-		LGM.currentFile.Sprites.replace(res.getId(),resOriginal);
+		LGM.currentFile.sprites.replace(res.getId(),resOriginal);
 		}
 
 	public void updateResource()
 		{
 		res.setName(name.getText());
-		res.Transparent = transparent.isSelected();
-		res.PreciseCC = preciseCC.isSelected();
-		res.SmoothEdges = smooth.isSelected();
-		res.Preload = preload.isSelected();
-		res.OriginX = originX.getIntValue();
-		res.OriginY = originY.getIntValue();
-		res.BoundingBoxMode = (byte) bboxGroup.getValue();
-		res.BoundingBoxLeft = bboxLeft.getIntValue();
-		res.BoundingBoxRight = bboxRight.getIntValue();
-		res.BoundingBoxTop = bboxTop.getIntValue();
-		res.BoundingBoxBottom = bboxBottom.getIntValue();
+		res.transparent = transparent.isSelected();
+		res.preciseCC = preciseCC.isSelected();
+		res.smoothEdges = smooth.isSelected();
+		res.preload = preload.isSelected();
+		res.originX = originX.getIntValue();
+		res.originY = originY.getIntValue();
+		res.boundingBoxMode = (byte) bboxGroup.getValue();
+		res.boundingBoxLeft = bboxLeft.getIntValue();
+		res.boundingBoxRight = bboxRight.getIntValue();
+		res.boundingBoxTop = bboxTop.getIntValue();
+		res.boundingBoxBottom = bboxBottom.getIntValue();
 		resOriginal = (Sprite) res.copy(false,null);
 		}
 
@@ -343,8 +343,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 					BufferedImage img = ImageIO.read(fc.getSelectedFile());
 					res.clearSubImages();
 					res.addSubImage(img);
-					res.Width = img.getWidth();
-					res.Height = img.getHeight();
+					res.width = img.getWidth();
+					res.height = img.getHeight();
 					imageChanged = true;
 					updatePreview();
 					}
@@ -380,8 +380,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			}
 		if (e.getSource() == centre)
 			{
-			originX.setIntValue(res.Width / 2);
-			originY.setIntValue(res.Height / 2);
+			originX.setIntValue(res.width / 2);
+			originY.setIntValue(res.height / 2);
 			return;
 			}
 		if (e.getSource() == auto || e.getSource() == manual || e.getSource() == full)
@@ -394,16 +394,16 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public void updatePreview()
 		{
-		width.setText(Messages.getString("SpriteFrame.WIDTH") + res.Width); //$NON-NLS-1$
-		height.setText(Messages.getString("SpriteFrame.HEIGHT") + res.Height); //$NON-NLS-1$
+		width.setText(Messages.getString("SpriteFrame.WIDTH") + res.width); //$NON-NLS-1$
+		height.setText(Messages.getString("SpriteFrame.HEIGHT") + res.height); //$NON-NLS-1$
 		subCount.setText(Messages.getString("SpriteFrame.NO_OF_SUBIMAGES") + res.NoSubImages()); //$NON-NLS-1$
 		if (bboxGroup.getValue() == Sprite.BBOX_AUTO || bboxGroup.getValue() == Sprite.BBOX_FULL)
 			{
 			// TODO Implement Auto BBox code
 			bboxLeft.setIntValue(0);
-			bboxRight.setIntValue(res.Width - 1);
+			bboxRight.setIntValue(res.width - 1);
 			bboxTop.setIntValue(0);
-			bboxBottom.setIntValue(res.Height - 1);
+			bboxBottom.setIntValue(res.height - 1);
 			bboxLeft.setEnabled(false);
 			bboxRight.setEnabled(false);
 			bboxTop.setEnabled(false);

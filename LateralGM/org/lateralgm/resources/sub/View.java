@@ -12,18 +12,18 @@ import org.lateralgm.resources.ResId;
 
 public class View
 	{
-	public boolean Enabled = false;
-	public int ViewX = 0;
-	public int ViewY = 0;
-	public int ViewW = 640;
-	public int ViewH = 480;
-	public int PortX = 0;
-	public int PortY = 0;
-	public int PortW = 640;
-	public int PortH = 480;
-	public int Hbor = 32;
-	public int VBor = 32;
-	public int HSpeed = -1;
-	public int VSpeed = -1;
-	public ResId ObjectFollowing = null;
+	public boolean enabled = false;
+	public int viewX = 0;
+	public int viewY = 0;
+	public int viewW = 640;
+	public int viewH = 480;
+	public int portX = 0;
+	public int portY = 0;
+	public int portW = 640;
+	public int portH = 480;
+	public int hbor = 32;
+	public int vbor = 32;
+	public int hspeed = -1;
+	public int vspeed = -1;
+	public ResId objectFollowing = null;
 	}

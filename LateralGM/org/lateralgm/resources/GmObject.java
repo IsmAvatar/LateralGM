@@ -19,21 +19,21 @@ public class GmObject extends Resource
 	public static final ResId OBJECT_SELF = new ResId(-1);
 	public static final ResId OBJECT_OTHER = new ResId(-2);
 
-	public ResId Sprite = null;
-	public boolean Solid = false;
-	public boolean Visible = true;
-	public int Depth = 0;
-	public boolean Persistent = false;
-	public ResId Parent = null;
-	public ResId Mask = null;
-	public MainEvent[] MainEvents = new MainEvent[11];
+	public ResId sprite = null;
+	public boolean solid = false;
+	public boolean visible = true;
+	public int depth = 0;
+	public boolean persistent = false;
+	public ResId parent = null;
+	public ResId mask = null;
+	public MainEvent[] mainEvents = new MainEvent[11];
 
 	public GmObject()
 		{
 		setName(Prefs.prefixes[Resource.GMOBJECT]);
 		for (int j = 0; j < 11; j++)
 			{
-			MainEvents[j] = new MainEvent();
+			mainEvents[j] = new MainEvent();
 			}
 		}
 
@@ -41,52 +41,52 @@ public class GmObject extends Resource
 	public GmObject copy(boolean update, ResourceList src)
 		{
 		GmObject obj = new GmObject();
-		obj.Sprite = Sprite;
-		obj.Solid = Solid;
-		obj.Visible = Visible;
-		obj.Depth = Depth;
-		obj.Persistent = Persistent;
-		obj.Parent = Parent;
-		obj.Mask = Mask;
+		obj.sprite = sprite;
+		obj.solid = solid;
+		obj.visible = visible;
+		obj.depth = depth;
+		obj.persistent = persistent;
+		obj.parent = parent;
+		obj.mask = mask;
 		for (int i = 0; i < 11; i++)
 			{
-			MainEvent mev = MainEvents[i];
-			MainEvent mev2 = obj.MainEvents[i];
+			MainEvent mev = mainEvents[i];
+			MainEvent mev2 = obj.mainEvents[i];
 			for (int j = 0; j < mev.NoEvents(); j++)
 				{
 				Event ev = mev.getEventList(j);
 				Event ev2 = mev2.addEvent();
-				ev2.Id = ev.Id;
+				ev2.id = ev.id;
 				for (int k = 0; k < ev.NoActions(); k++)
 					{
 					Action act = ev.getAction(k);
 					Action act2 = ev2.addAction();
-					act2.LibraryId = act.LibraryId;
-					act2.LibActionId = act.LibActionId;
-					act2.ActionKind = act.ActionKind;
-					act2.AllowRelative = act.AllowRelative;
-					act2.Question = act.Question;
-					act2.CanApplyTo = act.CanApplyTo;
-					act2.ExecType = act.ExecType;
-					act2.ExecFunction = act.ExecFunction;
-					act2.ExecCode = act.ExecCode;
-					act2.Relative = act.Relative;
-					act2.Not = act.Not;
-					act2.AppliesTo = act.AppliesTo;
-					act2.NoArguments = act.NoArguments;
-					for (int l = 0; l < act.NoArguments; l++)
+					act2.libraryId = act.libraryId;
+					act2.libActionId = act.libActionId;
+					act2.actionKind = act.actionKind;
+					act2.allowRelative = act.allowRelative;
+					act2.question = act.question;
+					act2.canApplyTo = act.canApplyTo;
+					act2.execType = act.execType;
+					act2.execFunction = act.execFunction;
+					act2.execCode = act.execCode;
+					act2.relative = act.relative;
+					act2.not = act.not;
+					act2.appliesTo = act.appliesTo;
+					act2.noArguments = act.noArguments;
+					for (int l = 0; l < act.noArguments; l++)
 						{
-						act2.Arguments[k].Kind = act.Arguments[k].Kind;
-						act2.Arguments[k].Res = act.Arguments[k].Res;
-						act2.Arguments[k].Val = act.Arguments[k].Val;
+						act2.arguments[k].kind = act.arguments[k].kind;
+						act2.arguments[k].res = act.arguments[k].res;
+						act2.arguments[k].val = act.arguments[k].val;
 						}
 					}
 				}
 			}
 		if (update)
 			{
-			obj.setId(new ResId(++src.LastId));
-			obj.setName(Prefs.prefixes[Resource.GMOBJECT] + src.LastId);
+			obj.setId(new ResId(++src.lastId));
+			obj.setName(Prefs.prefixes[Resource.GMOBJECT] + src.lastId);
 			src.add(obj);
 			}
 		else

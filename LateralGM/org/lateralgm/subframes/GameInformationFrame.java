@@ -495,12 +495,12 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 	public void updateResource()
 		{
-		LGM.currentFile.GameInfo.BackgroundColor = editor.getBackground();
+		LGM.currentFile.gameInfo.backgroundColor = editor.getBackground();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try
 			{
 			rtf.write(baos,editor.getDocument(),0,0);
-			LGM.currentFile.GameInfo.GameInfoStr = baos.toString("UTF-8");
+			LGM.currentFile.gameInfo.gameInfoStr = baos.toString("UTF-8");
 			}
 		catch (IOException e)
 			{
@@ -513,8 +513,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 	public void revertResource()
 		{
-		setEditorBackground(LGM.currentFile.GameInfo.BackgroundColor);
-		editor.setText(LGM.currentFile.GameInfo.GameInfoStr);
+		setEditorBackground(LGM.currentFile.gameInfo.backgroundColor);
+		editor.setText(LGM.currentFile.gameInfo.gameInfoStr);
 		undoManager.die();
 		updateUndo();
 		documentChanged = false;

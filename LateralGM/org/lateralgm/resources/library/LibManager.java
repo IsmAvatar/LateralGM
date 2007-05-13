@@ -31,11 +31,11 @@ public class LibManager
 			}
 		}
 
-	private static ArrayList<Library> Libs = new ArrayList<Library>();
+	private static ArrayList<Library> libs = new ArrayList<Library>();
 
 	public static int NoLibs()
 		{
-		return Libs.size();
+		return libs.size();
 		}
 
 	private static LibAction getLibAction(int LibraryId, int LibActionId)
@@ -56,20 +56,20 @@ public class LibManager
 	public static Library addLibrary()
 		{
 		Library lib = new Library();
-		Libs.add(lib);
+		libs.add(lib);
 		return lib;
 		}
 
 	public static Library getLibrary(int id, int n)
 		{
 		int ListIndex = LibraryIndex(id,n);
-		if (ListIndex != -1) return Libs.get(ListIndex);
+		if (ListIndex != -1) return libs.get(ListIndex);
 		return null;
 		}
 
 	public static Library getLibraryList(int ListIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoLibs()) return Libs.get(ListIndex);
+		if (ListIndex >= 0 && ListIndex < NoLibs()) return libs.get(ListIndex);
 		return null;
 		}
 
@@ -105,7 +105,7 @@ public class LibManager
 
 	public static void clearLibraries()
 		{
-		Libs.clear();
+		libs.clear();
 		}
 
 	public static void autoLoad(String libdir)
@@ -142,14 +142,14 @@ public class LibManager
 				}
 			// System.out.println("GM version: "+version);
 			lib = new Library();
-			lib.TabCaption = in.readStr();// System.out.println("tab caption is: "+lib.TabCaption);
+			lib.tabCaption = in.readStr();// System.out.println("tab caption is: "+lib.TabCaption);
 			lib.id = in.readi();// System.out.println("lib id is: "+lib.Id);
 			in.skip(in.readi());// Author
 			in.skip(4);// lib version
 			in.skip(8);// last changed
 			in.skip(in.readi());// info
 			in.skip(in.readi());// initialisation code
-			lib.Advanced = in.readBool();// System.out.println("advanced lib: "+lib.Advanced);
+			lib.advanced = in.readBool();// System.out.println("advanced lib: "+lib.Advanced);
 			in.skip(4);// no of actions/official lib identifier thingy
 			int noacts = in.readi();// System.out.println("no of actions: "+noacts);
 			for (int j = 0; j < noacts; j++)
@@ -165,36 +165,36 @@ public class LibManager
 				LibAction act = new LibAction();
 				lib.libActions.add(act);
 				in.skip(in.readi());// name
-				act.Id = in.readi();// System.out.println("Action id is: "+act.Id);
+				act.id = in.readi();// System.out.println("Action id is: "+act.Id);
 
 				byte[] data = new byte[in.readi()];
 				in.read(data);
-				act.ActImage = ImageIO.read(new ByteArrayInputStream(data));
+				act.actImage = ImageIO.read(new ByteArrayInputStream(data));
 
-				act.Hidden = in.readBool();// System.out.println("hidden: "+act.Hidden);
-				act.Advanced = in.readBool();// System.out.println("advanced: "+act.Advanced);
-				act.RegisteredOnly = in.readBool();// System.out.println("registered only: "+act.RegisteredOnly);
-				act.Description = in.readStr();// System.out.println("description: "+act.Description);
-				act.ListText = in.readStr();// System.out.println("list text: "+act.ListText);
-				act.HintText = in.readStr();// System.out.println("hint text :"+act.HintText);
-				act.ActionKind = (byte) in.readi();// System.out.println("action kind: "+act.ActionKind);
-				act.InterfaceKind = (byte) in.readi();// System.out.println("interface: "+act.InterfaceKind);
-				act.Question = in.readBool();// System.out.println("question: "+act.Question);
-				act.CanApplyTo = in.readBool();// System.out.println("show apply to: "+act.CanApplyTo);
-				act.AllowRelative = in.readBool();// System.out.println("show relative: "+act.AllowRelative);
-				act.NoLibArguments = in.readi();// System.out.println("no of arguments: "+act.NoLibArguments);
+				act.hidden = in.readBool();// System.out.println("hidden: "+act.Hidden);
+				act.advanced = in.readBool();// System.out.println("advanced: "+act.Advanced);
+				act.registeredOnly = in.readBool();// System.out.println("registered only: "+act.RegisteredOnly);
+				act.description = in.readStr();// System.out.println("description: "+act.Description);
+				act.listText = in.readStr();// System.out.println("list text: "+act.ListText);
+				act.hintText = in.readStr();// System.out.println("hint text :"+act.HintText);
+				act.actionKind = (byte) in.readi();// System.out.println("action kind: "+act.ActionKind);
+				act.interfaceKind = (byte) in.readi();// System.out.println("interface: "+act.InterfaceKind);
+				act.question = in.readBool();// System.out.println("question: "+act.Question);
+				act.canApplyTo = in.readBool();// System.out.println("show apply to: "+act.CanApplyTo);
+				act.allowRelative = in.readBool();// System.out.println("show relative: "+act.AllowRelative);
+				act.noLibArguments = in.readi();// System.out.println("no of arguments: "+act.NoLibArguments);
 				// System.out.println("___________________");
 				int noinsertions = in.readi();
 				for (int k = 0; k < noinsertions; k++)
 					{
-					if (k < act.NoLibArguments)
+					if (k < act.noLibArguments)
 						{
-						LibArgument arg = act.LibArguments[k];
-						arg.Caption = in.readStr();// System.out.println("argument "+k+" caption: "+arg.Caption);
-						arg.Kind = (byte) in.readi();// System.out.println("argument "+k+" kind: "+arg.Kind);
-						arg.DefaultVal = in.readStr();// System.out.println("argument "+k+" default value:
+						LibArgument arg = act.libArguments[k];
+						arg.caption = in.readStr();// System.out.println("argument "+k+" caption: "+arg.Caption);
+						arg.kind = (byte) in.readi();// System.out.println("argument "+k+" kind: "+arg.Kind);
+						arg.defaultVal = in.readStr();// System.out.println("argument "+k+" default value:
 						// "+arg.DefaultVal);
-						arg.Menu = in.readStr();
+						arg.menu = in.readStr();
 						/*
 						 * if (arg.Kind==Argument.ARG_MENU) { System.out.println("argument "+k+" menu string is:
 						 * "+arg.Menu); } if (k==act.NoLibArguments-1) { System.out.println("___________________\n"); }
@@ -209,11 +209,11 @@ public class LibManager
 						in.skip(in.readi());// skip Menu string
 						}
 					}
-				act.ExecType = (byte) in.readi();
+				act.execType = (byte) in.readi();
 				// System.out.println("read in exec type: "+act.ExecType);
-				act.ExecFunction = in.readStr();
+				act.execFunction = in.readStr();
 				// System.out.println("read in exec function str: "+act.ExecFunction);
-				act.ExecCode = in.readStr();
+				act.execCode = in.readStr();
 				// System.out.println("read in exec code: "+act.ExecCode);
 				}
 			}
@@ -241,7 +241,7 @@ public class LibManager
 				throw new LibFormatException(Messages.getString("LibManager.ERROR_CLOSEFAILED")); //$NON-NLS-1$
 				}
 			}
-		Libs.add(lib);
+		libs.add(lib);
 		return lib;
 		}
 	}

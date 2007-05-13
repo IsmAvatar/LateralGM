@@ -46,12 +46,12 @@ public abstract class Resource implements Comparable<Resource>
 	EventListenerList listenerList = new EventListenerList();
 	ChangeEvent changeEvent = null;
 
-	private ResId Id = new ResId(0);
+	private ResId id = new ResId(0);
 	private String name = "";
 
 	public int compareTo(Resource res)
 		{
-		return res.Id.getValue() == Id.getValue() ? 0 : (res.Id.getValue() < Id.getValue() ? -1 : 1);
+		return res.id.getValue() == id.getValue() ? 0 : (res.id.getValue() < id.getValue() ? -1 : 1);
 		}
 
 	public void addChangeListener(ChangeListener l)
@@ -83,12 +83,12 @@ public abstract class Resource implements Comparable<Resource>
 
 	public ResId getId()
 		{
-		return Id;
+		return id;
 		}
 
 	public void setId(ResId id)
 		{
-		Id = id;
+		this.id = id;
 		fireStateChanged();
 		}
 

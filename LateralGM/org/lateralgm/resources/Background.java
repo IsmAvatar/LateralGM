@@ -15,19 +15,19 @@ import org.lateralgm.main.Prefs;
 
 public class Background extends Resource
 	{
-	public int Width = 0;
-	public int Height = 0;
-	public boolean Transparent = false;
-	public boolean SmoothEdges = false;
-	public boolean Preload = false;
-	public boolean UseAsTileSet = false;
-	public int TileWidth = 16;
-	public int TileHeight = 16;
-	public int HorizOffset = 0;
-	public int VertOffset = 0;
-	public int HorizSep = 0;
-	public int VertSep = 0;
-	public BufferedImage BackgroundImage = null;
+	public int width = 0;
+	public int height = 0;
+	public boolean transparent = false;
+	public boolean smoothEdges = false;
+	public boolean preload = false;
+	public boolean useAsTileSet = false;
+	public int tileWidth = 16;
+	public int tileHeight = 16;
+	public int horizOffset = 0;
+	public int vertOffset = 0;
+	public int horizSep = 0;
+	public int vertSep = 0;
+	public BufferedImage backgroundImage = null;
 
 	public Background()
 		{
@@ -36,9 +36,9 @@ public class Background extends Resource
 
 	public BufferedImage copyBackgroundImage()
 		{
-		if (BackgroundImage != null)
+		if (backgroundImage != null)
 			{
-			BufferedImage bf = BackgroundImage;
+			BufferedImage bf = backgroundImage;
 			BufferedImage bf2 = new BufferedImage(bf.getWidth(),bf.getHeight(),bf.getType());
 			bf2.setData(bf.getData());
 			return bf2;
@@ -50,23 +50,23 @@ public class Background extends Resource
 	public Background copy(boolean update, ResourceList src)
 		{
 		Background back = new Background();
-		back.Width = Width;
-		back.Height = Height;
-		back.Transparent = Transparent;
-		back.SmoothEdges = SmoothEdges;
-		back.Preload = Preload;
-		back.UseAsTileSet = UseAsTileSet;
-		back.TileWidth = TileWidth;
-		back.TileHeight = TileHeight;
-		back.HorizOffset = HorizOffset;
-		back.VertOffset = VertOffset;
-		back.HorizSep = HorizSep;
-		back.VertSep = VertSep;
-		back.BackgroundImage = copyBackgroundImage();
+		back.width = width;
+		back.height = height;
+		back.transparent = transparent;
+		back.smoothEdges = smoothEdges;
+		back.preload = preload;
+		back.useAsTileSet = useAsTileSet;
+		back.tileWidth = tileWidth;
+		back.tileHeight = tileHeight;
+		back.horizOffset = horizOffset;
+		back.vertOffset = vertOffset;
+		back.horizSep = horizSep;
+		back.vertSep = vertSep;
+		back.backgroundImage = copyBackgroundImage();
 		if (update)
 			{
-			back.setId(new ResId(++src.LastId));
-			back.setName(Prefs.prefixes[Resource.BACKGROUND] + src.LastId);
+			back.setId(new ResId(++src.lastId));
+			back.setName(Prefs.prefixes[Resource.BACKGROUND] + src.lastId);
 			src.add(back);
 			}
 		else

@@ -17,7 +17,7 @@ import org.lateralgm.resources.sub.Moment;
 
 public class Timeline extends Resource
 	{
-	private ArrayList<Moment> Moments = new ArrayList<Moment>();
+	private ArrayList<Moment> moments = new ArrayList<Moment>();
 
 	public Timeline()
 		{
@@ -26,32 +26,32 @@ public class Timeline extends Resource
 
 	public int NoMoments()
 		{
-		return Moments.size();
+		return moments.size();
 		}
 
 	public Moment addMoment()
 		{
-		Moments.add(new Moment());
-		return Moments.get(NoMoments() - 1);
+		moments.add(new Moment());
+		return moments.get(NoMoments() - 1);
 		}
 
 	public Moment getMoment(int stepNo)
 		{
 		int ListIndex = MomentIndex(stepNo);
-		if (ListIndex != -1) return Moments.get(ListIndex);
+		if (ListIndex != -1) return moments.get(ListIndex);
 		return null;
 		}
 
 	public Moment getMomentList(int ListIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoMoments()) return Moments.get(ListIndex);
+		if (ListIndex >= 0 && ListIndex < NoMoments()) return moments.get(ListIndex);
 		return null;
 		}
 
 	public void removeMoment(int MomentVal)
 		{
 		int ListIndex = MomentIndex(MomentVal);
-		if (ListIndex != -1) Moments.remove(ListIndex);
+		if (ListIndex != -1) moments.remove(ListIndex);
 		}
 
 	public int MomentIndex(int stepNo)
@@ -68,7 +68,7 @@ public class Timeline extends Resource
 
 	public void clearMoments()
 		{
-		Moments.clear();
+		moments.clear();
 		}
 
 	@SuppressWarnings("unchecked")
@@ -84,31 +84,31 @@ public class Timeline extends Resource
 				{
 				Action act = mom.getAction(j);
 				Action act2 = mom2.addAction();
-				act2.LibraryId = act.LibraryId;
-				act2.LibActionId = act.LibActionId;
-				act2.ActionKind = act.ActionKind;
-				act2.AllowRelative = act.AllowRelative;
-				act2.Question = act.Question;
-				act2.CanApplyTo = act.CanApplyTo;
-				act2.ExecType = act.ExecType;
-				act2.ExecFunction = act.ExecFunction;
-				act2.ExecCode = act.ExecCode;
-				act2.Relative = act.Relative;
-				act2.Not = act.Not;
-				act2.AppliesTo = act.AppliesTo;
-				act2.NoArguments = act.NoArguments;
-				for (int k = 0; k < act.NoArguments; k++)
+				act2.libraryId = act.libraryId;
+				act2.libActionId = act.libActionId;
+				act2.actionKind = act.actionKind;
+				act2.allowRelative = act.allowRelative;
+				act2.question = act.question;
+				act2.canApplyTo = act.canApplyTo;
+				act2.execType = act.execType;
+				act2.execFunction = act.execFunction;
+				act2.execCode = act.execCode;
+				act2.relative = act.relative;
+				act2.not = act.not;
+				act2.appliesTo = act.appliesTo;
+				act2.noArguments = act.noArguments;
+				for (int k = 0; k < act.noArguments; k++)
 					{
-					act2.Arguments[k].Kind = act.Arguments[k].Kind;
-					act2.Arguments[k].Res = act.Arguments[k].Res;
-					act2.Arguments[k].Val = act.Arguments[k].Val;
+					act2.arguments[k].kind = act.arguments[k].kind;
+					act2.arguments[k].res = act.arguments[k].res;
+					act2.arguments[k].val = act.arguments[k].val;
 					}
 				}
 			}
 		if (update)
 			{
-			time.setId(new ResId(++src.LastId));
-			time.setName(Prefs.prefixes[Resource.TIMELINE] + src.LastId);
+			time.setId(new ResId(++src.lastId));
+			time.setName(Prefs.prefixes[Resource.TIMELINE] + src.lastId);
 			src.add(time);
 			}
 		else

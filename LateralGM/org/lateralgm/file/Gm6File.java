@@ -98,15 +98,15 @@ public class Gm6File
 		}
 
 	private Map<Integer,ResourceList<?>> resMap = new HashMap<Integer,ResourceList<?>>();
-	public ResourceList<Sprite> Sprites = new ResourceList<Sprite>(Sprite.class);
-	public ResourceList<Sound> Sounds = new ResourceList<Sound>(Sound.class);
-	public ResourceList<Background> Backgrounds = new ResourceList<Background>(Background.class);
-	public ResourceList<Path> Paths = new ResourceList<Path>(Path.class);
-	public ResourceList<Script> Scripts = new ResourceList<Script>(Script.class);
-	public ResourceList<Font> Fonts = new ResourceList<Font>(Font.class);
-	public ResourceList<Timeline> Timelines = new ResourceList<Timeline>(Timeline.class);
-	public ResourceList<GmObject> GmObjects = new ResourceList<GmObject>(GmObject.class);
-	public ResourceList<Room> Rooms = new ResourceList<Room>(Room.class);
+	public ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class);
+	public ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class);
+	public ResourceList<Background> backgrounds = new ResourceList<Background>(Background.class);
+	public ResourceList<Path> paths = new ResourceList<Path>(Path.class);
+	public ResourceList<Script> scripts = new ResourceList<Script>(Script.class);
+	public ResourceList<Font> fonts = new ResourceList<Font>(Font.class);
+	public ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class);
+	public ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class);
+	public ResourceList<Room> rooms = new ResourceList<Room>(Room.class);
 	public ArrayList<Constant> constants = new ArrayList<Constant>();
 	public ArrayList<Include> includes = new ArrayList<Include>();
 
@@ -117,21 +117,21 @@ public class Gm6File
 
 	public Gm6File()
 		{
-		resMap.put(new Integer(Resource.SPRITE),Sprites);
-		resMap.put(new Integer(Resource.SOUND),Sounds);
-		resMap.put(new Integer(Resource.BACKGROUND),Backgrounds);
-		resMap.put(new Integer(Resource.PATH),Paths);
-		resMap.put(new Integer(Resource.SCRIPT),Scripts);
-		resMap.put(new Integer(Resource.FONT),Fonts);
-		resMap.put(new Integer(Resource.TIMELINE),Timelines);
-		resMap.put(new Integer(Resource.GMOBJECT),GmObjects);
-		resMap.put(new Integer(Resource.ROOM),Rooms);
+		resMap.put(new Integer(Resource.SPRITE),sprites);
+		resMap.put(new Integer(Resource.SOUND),sounds);
+		resMap.put(new Integer(Resource.BACKGROUND),backgrounds);
+		resMap.put(new Integer(Resource.PATH),paths);
+		resMap.put(new Integer(Resource.SCRIPT),scripts);
+		resMap.put(new Integer(Resource.FONT),fonts);
+		resMap.put(new Integer(Resource.TIMELINE),timelines);
+		resMap.put(new Integer(Resource.GMOBJECT),gmObjects);
+		resMap.put(new Integer(Resource.ROOM),rooms);
 		for (ResourceList<?> rl : resMap.values())
 			{
 			rl.addChangeListener(rcl);
 			}
-		GameId = new Random().nextInt(100000001);
-		GameIconData = new byte[0];
+		gameId = new Random().nextInt(100000001);
+		gameIconData = new byte[0];
 		try
 			{
 			BufferedInputStream in = new BufferedInputStream(new FileInputStream(new File(Gm6File.class
@@ -143,11 +143,11 @@ public class Gm6File
 				dat.write(val);
 				val = in.read();
 				}
-			GameIconData = dat.toByteArray();
+			gameIconData = dat.toByteArray();
 			}
 		catch (Exception ex)
 			{
-			GameIconData = new byte[0];
+			gameIconData = new byte[0];
 			System.err.println(Messages.getString("Gm6File.NOICON")); //$NON-NLS-1$
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
@@ -200,50 +200,50 @@ public class Gm6File
 	public static final byte INCLUDE_TEMP = 1;
 
 	// File Properties
-	public int GameId;// randomized in constructor
-	public boolean StartFullscreen = false;
-	public boolean Interpolate = false;
-	public boolean DontDrawBorder = false;
-	public boolean DisplayCursor = true;
-	public int Scaling = -1;
-	public boolean AllowWindowResize = false;
-	public boolean AlwaysOnTop = false;
-	public int ColorOutsideRoom = 0;
-	public boolean SetResolution = false;
-	public byte ColorDepth = COLOR_NOCHANGE;
-	public byte Resolution = RES_NOCHANGE;
-	public byte Frequency = FREQ_NOCHANGE;
-	public boolean DontShowButtons = false;
-	public boolean UseSynchronization = false;
-	public boolean LetF4SwitchFullscreen = true;
-	public boolean LetF1ShowGameInfo = true;
-	public boolean LetEscEndGame = true;
-	public boolean LetF5SaveF6Load = true;
-	public byte GamePriority = PRIORITY_NORMAL;
-	public boolean FreezeOnLoseFocus = false;
-	public byte LoadBarMode = LOADBAR_DEFAULT;
-	public BufferedImage FrontLoadBar = null;
-	public BufferedImage BackLoadBar = null;
-	public boolean ShowCustomLoadImage = false;
-	public BufferedImage LoadingImage = null;
-	public boolean ImagePartiallyTransparent = false;
-	public int LoadImageAlpha = 255;
-	public boolean ScaleProgressBar = true;
-	public boolean DisplayErrors = true;
-	public boolean WriteToLog = false;
-	public boolean AbortOnError = false;
-	public boolean TreatUninitializedAs0 = false;
-	public String Author = ""; //$NON-NLS-1$
-	public int Version = 100;
-	public double LastChanged = longTimeToGmTime(System.currentTimeMillis());
-	public String Information = ""; //$NON-NLS-1$
-	public int IncludeFolder = INCLUDE_MAIN;
-	public boolean OverwriteExisting = false;
-	public boolean RemoveAtGameEnd = false;
-	public int LastInstanceId = 100000;
-	public int LastTileId = 10000000;
-	public byte[] GameIconData;// actual data is stored to be written on resave (no reason to re-encode)
-	public BufferedImage GameIcon;// icon as image for display purposes
+	public int gameId;// randomized in constructor
+	public boolean startFullscreen = false;
+	public boolean interpolate = false;
+	public boolean dontDrawBorder = false;
+	public boolean displayCursor = true;
+	public int scaling = -1;
+	public boolean allowWindowResize = false;
+	public boolean alwaysOnTop = false;
+	public int colorOutsideRoom = 0;
+	public boolean setResolution = false;
+	public byte colorDepth = COLOR_NOCHANGE;
+	public byte resolution = RES_NOCHANGE;
+	public byte frequency = FREQ_NOCHANGE;
+	public boolean dontShowButtons = false;
+	public boolean useSynchronization = false;
+	public boolean letF4SwitchFullscreen = true;
+	public boolean letF1ShowGameInfo = true;
+	public boolean letEscEndGame = true;
+	public boolean letF5SaveF6Load = true;
+	public byte gamePriority = PRIORITY_NORMAL;
+	public boolean freezeOnLoseFocus = false;
+	public byte loadBarMode = LOADBAR_DEFAULT;
+	public BufferedImage frontLoadBar = null;
+	public BufferedImage backLoadBar = null;
+	public boolean showCustomLoadImage = false;
+	public BufferedImage loadingImage = null;
+	public boolean imagePartiallyTransparent = false;
+	public int loadImageAlpha = 255;
+	public boolean scaleProgressBar = true;
+	public boolean displayErrors = true;
+	public boolean writeToLog = false;
+	public boolean abortOnError = false;
+	public boolean treatUninitializedAs0 = false;
+	public String author = ""; //$NON-NLS-1$
+	public int version = 100;
+	public double lastChanged = longTimeToGmTime(System.currentTimeMillis());
+	public String information = ""; //$NON-NLS-1$
+	public int includeFolder = INCLUDE_MAIN;
+	public boolean overwriteExisting = false;
+	public boolean removeAtGameEnd = false;
+	public int lastInstanceId = 100000;
+	public int lastTileId = 10000000;
+	public byte[] gameIconData;// actual data is stored to be written on resave (no reason to re-encode)
+	public BufferedImage gameIcon;// icon as image for display purposes
 
 	// Returns the ResourceList corresponding to given Resource constant
 	public ResourceList<?> getList(int res)
@@ -259,7 +259,7 @@ public class Gm6File
 		includes.clear();
 		}
 
-	public GameInformation GameInfo = new GameInformation();
+	public GameInformation gameInfo = new GameInformation();
 
 	// TODO externalise the file IO?
 	public void ReadGm6File(String FileName, ResNode root) throws Gm6FormatException
@@ -280,57 +280,57 @@ public class Gm6File
 			int ver = in.readi();
 			if (ver != 600)
 				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED"),ver)); //$NON-NLS-1$
-			GameId = in.readi();
+			gameId = in.readi();
 			in.skip(16);// unknown bytes following game id
 			ver = in.readi();
 			if (ver != 600)
 				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED"),ver)); //$NON-NLS-1$
-			StartFullscreen = in.readBool();
-			Interpolate = in.readBool();
-			DontDrawBorder = in.readBool();
-			DisplayCursor = in.readBool();
-			Scaling = in.readi();
-			AllowWindowResize = in.readBool();
-			AlwaysOnTop = in.readBool();
-			ColorOutsideRoom = in.readi();
-			SetResolution = in.readBool();
-			ColorDepth = (byte) in.readi();
-			Resolution = (byte) in.readi();
-			Frequency = (byte) in.readi();
-			DontShowButtons = in.readBool();
-			UseSynchronization = in.readBool();
-			LetF4SwitchFullscreen = in.readBool();
-			LetF1ShowGameInfo = in.readBool();
-			LetEscEndGame = in.readBool();
-			LetF5SaveF6Load = in.readBool();
-			GamePriority = (byte) in.readi();
-			FreezeOnLoseFocus = in.readBool();
-			LoadBarMode = (byte) in.readi();
-			if (LoadBarMode == LOADBAR_CUSTOM)
+			startFullscreen = in.readBool();
+			interpolate = in.readBool();
+			dontDrawBorder = in.readBool();
+			displayCursor = in.readBool();
+			scaling = in.readi();
+			allowWindowResize = in.readBool();
+			alwaysOnTop = in.readBool();
+			colorOutsideRoom = in.readi();
+			setResolution = in.readBool();
+			colorDepth = (byte) in.readi();
+			resolution = (byte) in.readi();
+			frequency = (byte) in.readi();
+			dontShowButtons = in.readBool();
+			useSynchronization = in.readBool();
+			letF4SwitchFullscreen = in.readBool();
+			letF1ShowGameInfo = in.readBool();
+			letEscEndGame = in.readBool();
+			letF5SaveF6Load = in.readBool();
+			gamePriority = (byte) in.readi();
+			freezeOnLoseFocus = in.readBool();
+			loadBarMode = (byte) in.readi();
+			if (loadBarMode == LOADBAR_CUSTOM)
 				{
-				if (in.readi() != -1) BackLoadBar = in.readImage();
-				if (in.readi() != -1) FrontLoadBar = in.readImage();
+				if (in.readi() != -1) backLoadBar = in.readImage();
+				if (in.readi() != -1) frontLoadBar = in.readImage();
 				}
-			ShowCustomLoadImage = in.readBool();
-			if (ShowCustomLoadImage) if (in.readi() != -1) LoadingImage = in.readImage();
-			ImagePartiallyTransparent = in.readBool();
-			LoadImageAlpha = in.readi();
-			ScaleProgressBar = in.readBool();
+			showCustomLoadImage = in.readBool();
+			if (showCustomLoadImage) if (in.readi() != -1) loadingImage = in.readImage();
+			imagePartiallyTransparent = in.readBool();
+			loadImageAlpha = in.readi();
+			scaleProgressBar = in.readBool();
 
 			int length = in.readi();
-			GameIconData = new byte[length];
-			in.read(GameIconData,0,length);
+			gameIconData = new byte[length];
+			in.read(gameIconData,0,length);
 			// GameIcon=(BufferedImage)new ICOFile(new
 			// ByteArrayInputStream(GameIconData)).getDescriptor(0).getImageRGB();
 
-			DisplayErrors = in.readBool();
-			WriteToLog = in.readBool();
-			AbortOnError = in.readBool();
-			TreatUninitializedAs0 = in.readBool();
-			Author = in.readStr();
-			Version = in.readi();
-			LastChanged = in.readD();
-			Information = in.readStr();
+			displayErrors = in.readBool();
+			writeToLog = in.readBool();
+			abortOnError = in.readBool();
+			treatUninitializedAs0 = in.readBool();
+			author = in.readStr();
+			version = in.readi();
+			lastChanged = in.readD();
+			information = in.readStr();
 			int no = in.readi();
 			for (int i = 0; i < no; i++)
 				{
@@ -345,30 +345,30 @@ public class Gm6File
 				Include inc = new Include();
 				inc.filePath = in.readStr();
 				}
-			IncludeFolder = in.readi();
-			OverwriteExisting = in.readBool();
-			RemoveAtGameEnd = in.readBool();
+			includeFolder = in.readi();
+			overwriteExisting = in.readBool();
+			removeAtGameEnd = in.readBool();
 			ver = in.readi();
 			if (ver != 400)
 				throw new Gm6FormatException(String.format(Messages
 						.getString("Gm6File.ERROR_UNSUPPORTED_BEFORESOUNDS"),ver)); //$NON-NLS-1$
 			// SOUNDS
 			no = in.readi();
-			Sounds.LastId = -1;
+			sounds.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
-					Sound snd = Sounds.add();
+					Sound snd = sounds.add();
 					snd.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 600)
 						throw new Gm6FormatException(String.format(Messages
 								.getString("Gm6File.ERROR_UNSUPPORTED_INSOUND"),i,ver)); //$NON-NLS-1$
 					snd.kind = (byte) in.readi();
-					snd.FileType = in.readStr();
-					snd.FileName = in.readStr();
-					if (in.readBool()) snd.Data = in.decompress(in.readi());
+					snd.fileType = in.readStr();
+					snd.fileName = in.readStr();
+					if (in.readBool()) snd.data = in.decompress(in.readi());
 					int effects = in.readi();
 					snd.setEffects(effects);
 					snd.volume = in.readD();
@@ -376,7 +376,7 @@ public class Gm6File
 					snd.preload = in.readBool();
 					}
 				else
-					Sounds.LastId++;
+					sounds.lastId++;
 				}
 
 			ver = in.readi();
@@ -385,30 +385,30 @@ public class Gm6File
 						.getString("Gm6File.ERROR_UNSUPPORTED_BEFORESPRITES"),ver)); //$NON-NLS-1$
 			// SPRITES
 			no = in.readi();
-			Sprites.LastId = -1;
+			sprites.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
-					Sprite spr = Sprites.add();
+					Sprite spr = sprites.add();
 					spr.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 542)
 						throw new Gm6FormatException(String.format(Messages
 								.getString("Gm6File.ERROR_UNSUPPORTED_INSPRITE"),i,ver)); //$NON-NLS-1$
-					spr.Width = in.readi();
-					spr.Height = in.readi();
-					spr.BoundingBoxLeft = in.readi();
-					spr.BoundingBoxRight = in.readi();
-					spr.BoundingBoxBottom = in.readi();
-					spr.BoundingBoxTop = in.readi();
-					spr.Transparent = in.readBool();
-					spr.SmoothEdges = in.readBool();
-					spr.Preload = in.readBool();
-					spr.BoundingBoxMode = (byte) in.readi();
-					spr.PreciseCC = in.readBool();
-					spr.OriginX = in.readi();
-					spr.OriginY = in.readi();
+					spr.width = in.readi();
+					spr.height = in.readi();
+					spr.boundingBoxLeft = in.readi();
+					spr.boundingBoxRight = in.readi();
+					spr.boundingBoxBottom = in.readi();
+					spr.boundingBoxTop = in.readi();
+					spr.transparent = in.readBool();
+					spr.smoothEdges = in.readBool();
+					spr.preload = in.readBool();
+					spr.boundingBoxMode = (byte) in.readi();
+					spr.preciseCC = in.readBool();
+					spr.originX = in.readi();
+					spr.originY = in.readi();
 					int nosub = in.readi();
 					for (int j = 0; j < nosub; j++)
 						{
@@ -417,7 +417,7 @@ public class Gm6File
 						}
 					}
 				else
-					Sprites.LastId++;
+					sprites.lastId++;
 				}
 
 			ver = in.readi();
@@ -426,37 +426,37 @@ public class Gm6File
 						.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREBACKGROUNDS"),ver)); //$NON-NLS-1$
 			// BACKGROUNDS
 			no = in.readi();
-			Backgrounds.LastId = -1;
+			backgrounds.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
-					Background back = Backgrounds.add();
+					Background back = backgrounds.add();
 					back.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 543)
 						throw new Gm6FormatException(String.format(Messages
 								.getString("Gm6File.ERROR_UNSUPPORTED_INBACKGROUND"),i,ver)); //$NON-NLS-1$
-					back.Width = in.readi();
-					back.Height = in.readi();
-					back.Transparent = in.readBool();
-					back.SmoothEdges = in.readBool();
-					back.Preload = in.readBool();
-					back.UseAsTileSet = in.readBool();
-					back.TileWidth = in.readi();
-					back.TileHeight = in.readi();
-					back.HorizOffset = in.readi();
-					back.VertOffset = in.readi();
-					back.HorizSep = in.readi();
-					back.VertSep = in.readi();
+					back.width = in.readi();
+					back.height = in.readi();
+					back.transparent = in.readBool();
+					back.smoothEdges = in.readBool();
+					back.preload = in.readBool();
+					back.useAsTileSet = in.readBool();
+					back.tileWidth = in.readi();
+					back.tileHeight = in.readi();
+					back.horizOffset = in.readi();
+					back.vertOffset = in.readi();
+					back.horizSep = in.readi();
+					back.vertSep = in.readi();
 					if (in.readBool())
 						{
 						in.skip(4);// 0A
-						back.BackgroundImage = ImageIO.read(new ByteArrayInputStream(in.decompress(in.readi())));
+						back.backgroundImage = ImageIO.read(new ByteArrayInputStream(in.decompress(in.readi())));
 						}
 					}
 				else
-					Backgrounds.LastId++;
+					backgrounds.lastId++;
 				}
 			ver = in.readi();
 			if (ver != 420)
@@ -464,34 +464,34 @@ public class Gm6File
 						.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREPATHS"),ver)); //$NON-NLS-1$
 			// PATHS
 			no = in.readi();
-			Paths.LastId = -1;
+			paths.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
-					Path path = Paths.add();
+					Path path = paths.add();
 					path.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 530)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INPATH"),i,ver)); //$NON-NLS-1$
-					path.Smooth = in.readBool();
-					path.Closed = in.readBool();
-					path.Precision = in.readi();
-					path.BackgroundRoom = rmids.get(in.readi());
-					path.SnapX = in.readi();
-					path.SnapY = in.readi();
+					path.smooth = in.readBool();
+					path.closed = in.readBool();
+					path.precision = in.readi();
+					path.backgroundRoom = rmids.get(in.readi());
+					path.snapX = in.readi();
+					path.snapY = in.readi();
 					int nopoints = in.readi();
 					for (int j = 0; j < nopoints; j++)
 						{
 						Point point = path.addPoint();
-						point.X = (int) in.readD();
-						point.Y = (int) in.readD();
-						point.Speed = (int) in.readD();
+						point.x = (int) in.readD();
+						point.y = (int) in.readD();
+						point.speed = (int) in.readD();
 						}
 					}
 				else
-					Paths.LastId++;
+					paths.lastId++;
 				}
 			ver = in.readi();
 			if (ver != 400)
@@ -499,21 +499,21 @@ public class Gm6File
 						.getString("Gm6File.ERROR_UNSUPPORTED_BEFORESCRIPTS"),ver)); //$NON-NLS-1$
 			// SCRIPTS
 			no = in.readi();
-			Scripts.LastId = -1;
+			scripts.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
-					Script scr = Scripts.add();
+					Script scr = scripts.add();
 					scr.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 400)
 						throw new Gm6FormatException(String.format(Messages
 								.getString("Gm6File.ERROR_UNSUPPORTED_INSCRIPT"),i,ver)); //$NON-NLS-1$
-					scr.ScriptStr = in.readStr();
+					scr.scriptStr = in.readStr();
 					}
 				else
-					Scripts.LastId++;
+					scripts.lastId++;
 				}
 
 			ver = in.readi();
@@ -522,26 +522,26 @@ public class Gm6File
 						.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREFONTS"),ver)); //$NON-NLS-1$
 			// FONTS
 			no = in.readi();
-			Fonts.LastId = -1;
+			fonts.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
-					Font font = Fonts.add();
+					Font font = fonts.add();
 					font.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 540)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INFONT"),i,ver)); //$NON-NLS-1$
-					font.FontName = in.readStr();
-					font.Size = in.readi();
-					font.Bold = in.readBool();
-					font.Italic = in.readBool();
-					font.CharRangeMin = in.readi();
-					font.CharRangeMax = in.readi();
+					font.fontName = in.readStr();
+					font.size = in.readi();
+					font.bold = in.readBool();
+					font.italic = in.readBool();
+					font.charRangeMin = in.readi();
+					font.charRangeMax = in.readi();
 					}
 				else
-					Fonts.LastId++;
+					fonts.lastId++;
 				}
 
 			ver = in.readi();
@@ -552,12 +552,12 @@ public class Gm6File
 			Resource tag = new Script(); // workaround for the case statement below (declared here to prevent
 			// repeated instantiation)
 			no = in.readi();
-			Timelines.LastId = -1;
+			timelines.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
-					Timeline time = Timelines.add();
+					Timeline time = timelines.add();
 					time.setId(timeids.get(i));
 					time.setName(in.readStr());
 					ver = in.readi();
@@ -578,16 +578,16 @@ public class Gm6File
 							{
 							in.skip(4);
 							Action act = mom.addAction();
-							act.LibraryId = in.readi();
-							act.LibActionId = in.readi();
-							act.ActionKind = (byte) in.readi();
-							act.AllowRelative = in.readBool();
-							act.Question = in.readBool();
-							act.CanApplyTo = in.readBool();
-							act.ExecType = (byte) in.readi();
-							act.ExecFunction = in.readStr();
-							act.ExecCode = in.readStr();
-							act.NoArguments = in.readi();
+							act.libraryId = in.readi();
+							act.libActionId = in.readi();
+							act.actionKind = (byte) in.readi();
+							act.allowRelative = in.readBool();
+							act.question = in.readBool();
+							act.canApplyTo = in.readBool();
+							act.execType = (byte) in.readi();
+							act.execFunction = in.readStr();
+							act.execCode = in.readStr();
+							act.noArguments = in.readi();
 							int[] argkinds = new int[in.readi()];
 							for (int l = 0; l < argkinds.length; l++)
 								argkinds[l] = in.readi();
@@ -595,60 +595,60 @@ public class Gm6File
 							switch (id)
 								{
 								case -1:
-									act.AppliesTo = GmObject.OBJECT_SELF;
+									act.appliesTo = GmObject.OBJECT_SELF;
 									break;
 								case -2:
-									act.AppliesTo = GmObject.OBJECT_OTHER;
+									act.appliesTo = GmObject.OBJECT_OTHER;
 									break;
 								default:
-									act.AppliesTo = objids.get(id);
+									act.appliesTo = objids.get(id);
 								}
-							act.Relative = in.readBool();
+							act.relative = in.readBool();
 							int actualnoargs = in.readi();
 
 							for (int l = 0; l < actualnoargs; l++)
 								{
-								if (l < act.NoArguments)
+								if (l < act.noArguments)
 									{
-									act.Arguments[l].Kind = (byte) argkinds[l];
+									act.arguments[l].kind = (byte) argkinds[l];
 									String strval = in.readStr();
 									Resource res = tag;
 									switch (argkinds[l])
 										{
 										case Argument.ARG_SPRITE:
-											res = Sprites.getUnsafe(Integer.parseInt(strval));
+											res = sprites.getUnsafe(Integer.parseInt(strval));
 											break;
 										case Argument.ARG_SOUND:
-											res = Sounds.getUnsafe(Integer.parseInt(strval));
+											res = sounds.getUnsafe(Integer.parseInt(strval));
 											break;
 										case Argument.ARG_BACKGROUND:
-											res = Backgrounds.getUnsafe(Integer.parseInt(strval));
+											res = backgrounds.getUnsafe(Integer.parseInt(strval));
 											break;
 										case Argument.ARG_PATH:
-											res = Paths.getUnsafe(Integer.parseInt(strval));
+											res = paths.getUnsafe(Integer.parseInt(strval));
 											break;
 										case Argument.ARG_SCRIPT:
-											res = Scripts.getUnsafe(Integer.parseInt(strval));
+											res = scripts.getUnsafe(Integer.parseInt(strval));
 											break;
 										case Argument.ARG_GMOBJECT:
-											act.Arguments[l].Res = objids.get(Integer.parseInt(strval));
+											act.arguments[l].res = objids.get(Integer.parseInt(strval));
 											break;
 										case Argument.ARG_ROOM:
-											act.Arguments[l].Res = rmids.get(Integer.parseInt(strval));
+											act.arguments[l].res = rmids.get(Integer.parseInt(strval));
 											break;
 										case Argument.ARG_FONT:
-											res = Fonts.getUnsafe(Integer.parseInt(strval));
+											res = fonts.getUnsafe(Integer.parseInt(strval));
 											break;
 										case Argument.ARG_TIMELINE:
-											act.Arguments[l].Res = timeids.get(Integer.parseInt(strval));
+											act.arguments[l].res = timeids.get(Integer.parseInt(strval));
 											break;
 										default:
-											act.Arguments[l].Val = strval;
+											act.arguments[l].val = strval;
 											break;
 										}
 									if (res != null && res != tag)
 										{
-										act.Arguments[l].Res = res.getId();
+										act.arguments[l].res = res.getId();
 										}
 									}
 								else
@@ -656,12 +656,12 @@ public class Gm6File
 									in.skip(in.readi());
 									}
 								}
-							act.Not = in.readBool();
+							act.not = in.readBool();
 							}
 						}
 					}
 				else
-					Timelines.LastId++;
+					timelines.lastId++;
 				}
 			ver = in.readi();
 			if (ver != 400)
@@ -669,27 +669,27 @@ public class Gm6File
 						.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREOBJECTS"),ver)); //$NON-NLS-1$
 			// OBJECTS
 			no = in.readi();
-			GmObjects.LastId = -1;
+			gmObjects.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
-					GmObject obj = GmObjects.add();
+					GmObject obj = gmObjects.add();
 					obj.setId(objids.get(i));
 					obj.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 430)
 						throw new Gm6FormatException(String.format(Messages
 								.getString("Gm6File.ERROR_UNSUPPORTED_INOBJECT"),i,ver)); //$NON-NLS-1$
-					Sprite temp = Sprites.getUnsafe(in.readi());
-					if (temp != null) obj.Sprite = temp.getId();
-					obj.Solid = in.readBool();
-					obj.Visible = in.readBool();
-					obj.Depth = in.readi();
-					obj.Persistent = in.readBool();
-					obj.Parent = objids.get(in.readi());
-					temp = Sprites.getUnsafe(in.readi());
-					if (temp != null) obj.Mask = temp.getId();
+					Sprite temp = sprites.getUnsafe(in.readi());
+					if (temp != null) obj.sprite = temp.getId();
+					obj.solid = in.readBool();
+					obj.visible = in.readBool();
+					obj.depth = in.readi();
+					obj.persistent = in.readBool();
+					obj.parent = objids.get(in.readi());
+					temp = sprites.getUnsafe(in.readi());
+					if (temp != null) obj.mask = temp.getId();
 					in.skip(4);
 					for (int j = 0; j < 11; j++)
 						{
@@ -699,11 +699,11 @@ public class Gm6File
 							int first = in.readi();
 							if (first != -1)
 								{
-								Event ev = obj.MainEvents[j].addEvent();
+								Event ev = obj.mainEvents[j].addEvent();
 								if (j == MainEvent.EV_COLLISION)
-									ev.Other = objids.get(first);
+									ev.other = objids.get(first);
 								else
-									ev.Id = first;
+									ev.id = first;
 								ver = in.readi();
 								if (ver != 400)
 									throw new Gm6FormatException(String.format(Messages
@@ -713,16 +713,16 @@ public class Gm6File
 									{
 									in.skip(4);
 									Action act = ev.addAction();
-									act.LibraryId = in.readi();
-									act.LibActionId = in.readi();
-									act.ActionKind = (byte) in.readi();
-									act.AllowRelative = in.readBool();
-									act.Question = in.readBool();
-									act.CanApplyTo = in.readBool();
-									act.ExecType = (byte) in.readi();
-									act.ExecFunction = in.readStr();
-									act.ExecCode = in.readStr();
-									act.NoArguments = in.readi();
+									act.libraryId = in.readi();
+									act.libActionId = in.readi();
+									act.actionKind = (byte) in.readi();
+									act.allowRelative = in.readBool();
+									act.question = in.readBool();
+									act.canApplyTo = in.readBool();
+									act.execType = (byte) in.readi();
+									act.execFunction = in.readStr();
+									act.execCode = in.readStr();
+									act.noArguments = in.readi();
 									int[] argkinds = new int[in.readi()];
 									for (int l = 0; l < argkinds.length; l++)
 										argkinds[l] = in.readi();
@@ -730,65 +730,65 @@ public class Gm6File
 									switch (id)
 										{
 										case -1:
-											act.AppliesTo = GmObject.OBJECT_SELF;
+											act.appliesTo = GmObject.OBJECT_SELF;
 											break;
 										case -2:
-											act.AppliesTo = GmObject.OBJECT_OTHER;
+											act.appliesTo = GmObject.OBJECT_OTHER;
 											break;
 										default:
-											act.AppliesTo = objids.get(id);
+											act.appliesTo = objids.get(id);
 										}
-									act.Relative = in.readBool();
+									act.relative = in.readBool();
 									int actualnoargs = in.readi();
 									for (int l = 0; l < actualnoargs; l++)
 										{
-										if (l < act.NoArguments)
+										if (l < act.noArguments)
 											{
-											act.Arguments[l].Kind = (byte) argkinds[l];
+											act.arguments[l].kind = (byte) argkinds[l];
 											String strval = in.readStr();
 											Resource res = tag; // see before Timeline
 											switch (argkinds[l])
 												{
 												case Argument.ARG_SPRITE:
-													res = Sprites.getUnsafe(Integer.parseInt(strval));
+													res = sprites.getUnsafe(Integer.parseInt(strval));
 													break;
 												case Argument.ARG_SOUND:
-													res = Sounds.getUnsafe(Integer.parseInt(strval));
+													res = sounds.getUnsafe(Integer.parseInt(strval));
 													break;
 												case Argument.ARG_BACKGROUND:
-													res = Backgrounds.getUnsafe(Integer.parseInt(strval));
+													res = backgrounds.getUnsafe(Integer.parseInt(strval));
 													break;
 												case Argument.ARG_PATH:
-													res = Paths.getUnsafe(Integer.parseInt(strval));
+													res = paths.getUnsafe(Integer.parseInt(strval));
 													break;
 												case Argument.ARG_SCRIPT:
-													res = Scripts.getUnsafe(Integer.parseInt(strval));
+													res = scripts.getUnsafe(Integer.parseInt(strval));
 													break;
 												case Argument.ARG_GMOBJECT:
-													act.Arguments[l].Res = objids.get(Integer.parseInt(strval));
+													act.arguments[l].res = objids.get(Integer.parseInt(strval));
 													break;
 												case Argument.ARG_ROOM:
-													act.Arguments[l].Res = rmids.get(Integer.parseInt(strval));
+													act.arguments[l].res = rmids.get(Integer.parseInt(strval));
 													break;
 												case Argument.ARG_FONT:
-													res = Fonts.getUnsafe(Integer.parseInt(strval));
+													res = fonts.getUnsafe(Integer.parseInt(strval));
 													break;
 												case Argument.ARG_TIMELINE:
-													act.Arguments[l].Res = timeids.get(Integer.parseInt(strval));
+													act.arguments[l].res = timeids.get(Integer.parseInt(strval));
 													break;
 												default:
-													act.Arguments[l].Val = strval;
+													act.arguments[l].val = strval;
 													break;
 												}
 											if (res != null && res != tag)
 												{
-												act.Arguments[l].Res = res.getId();
+												act.arguments[l].res = res.getId();
 												}
 											}
 										else
 											in.skip(in.readi());
 										}
-									act.Not = in.readBool();
+									act.not = in.readBool();
 									}
 								}
 							else
@@ -797,7 +797,7 @@ public class Gm6File
 						}
 					}
 				else
-					GmObjects.LastId++;
+					gmObjects.lastId++;
 				}
 			ver = in.readi();
 			if (ver != 420)
@@ -805,131 +805,131 @@ public class Gm6File
 						.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREROOMS"),ver)); //$NON-NLS-1$
 			// ROOMS
 			no = in.readi();
-			Rooms.LastId = -1;
+			rooms.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
 				if (in.readBool())
 					{
-					Room rm = Rooms.add(new Room(this));
+					Room rm = rooms.add(new Room(this));
 					rm.setId(rmids.get(i));
 					rm.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 541)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INROOM"),i,ver)); //$NON-NLS-1$
-					rm.Caption = in.readStr();
-					rm.Width = in.readi();
-					rm.Height = in.readi();
-					rm.SnapY = in.readi();
-					rm.SnapX = in.readi();
-					rm.IsometricGrid = in.readBool();
-					rm.Speed = in.readi();
-					rm.Persistent = in.readBool();
-					rm.BackgroundColor = in.readi();
-					rm.DrawBackgroundColor = in.readBool();
-					rm.CreationCode = in.readStr();
+					rm.caption = in.readStr();
+					rm.width = in.readi();
+					rm.height = in.readi();
+					rm.snapY = in.readi();
+					rm.snapX = in.readi();
+					rm.isometricGrid = in.readBool();
+					rm.speed = in.readi();
+					rm.persistent = in.readBool();
+					rm.backgroundColor = in.readi();
+					rm.drawBackgroundColor = in.readBool();
+					rm.creationCode = in.readStr();
 					int nobackgrounds = in.readi();
 					for (int j = 0; j < nobackgrounds; j++)
 						{
-						BackgroundDef bk = rm.BackgroundDefs[j];
-						bk.Visible = in.readBool();
-						bk.Foreground = in.readBool();
-						Background temp = Backgrounds.getUnsafe(in.readi());
-						if (temp != null) bk.BackgroundId = temp.getId();
-						bk.X = in.readi();
-						bk.Y = in.readi();
-						bk.TileHoriz = in.readBool();
-						bk.TileVert = in.readBool();
-						bk.HorizSpeed = in.readi();
-						bk.VertSpeed = in.readi();
-						bk.Stretch = in.readBool();
+						BackgroundDef bk = rm.backgroundDefs[j];
+						bk.visible = in.readBool();
+						bk.foreground = in.readBool();
+						Background temp = backgrounds.getUnsafe(in.readi());
+						if (temp != null) bk.backgroundId = temp.getId();
+						bk.x = in.readi();
+						bk.y = in.readi();
+						bk.tileHoriz = in.readBool();
+						bk.tileVert = in.readBool();
+						bk.horizSpeed = in.readi();
+						bk.vertSpeed = in.readi();
+						bk.stretch = in.readBool();
 						}
-					rm.EnableViews = in.readBool();
+					rm.enableViews = in.readBool();
 					int noviews = in.readi();
 					for (int j = 0; j < noviews; j++)
 						{
-						View vw = rm.Views[j];
-						vw.Enabled = in.readBool();
-						vw.ViewX = in.readi();
-						vw.ViewY = in.readi();
-						vw.ViewW = in.readi();
-						vw.ViewH = in.readi();
-						vw.PortX = in.readi();
-						vw.PortY = in.readi();
-						vw.PortW = in.readi();
-						vw.PortH = in.readi();
-						vw.Hbor = in.readi();
-						vw.VBor = in.readi();
-						vw.HSpeed = in.readi();
-						vw.VSpeed = in.readi();
-						GmObject temp = GmObjects.getUnsafe(in.readi());
-						if (temp != null) vw.ObjectFollowing = temp.getId();
+						View vw = rm.views[j];
+						vw.enabled = in.readBool();
+						vw.viewX = in.readi();
+						vw.viewY = in.readi();
+						vw.viewW = in.readi();
+						vw.viewH = in.readi();
+						vw.portX = in.readi();
+						vw.portY = in.readi();
+						vw.portW = in.readi();
+						vw.portH = in.readi();
+						vw.hbor = in.readi();
+						vw.vbor = in.readi();
+						vw.hspeed = in.readi();
+						vw.vspeed = in.readi();
+						GmObject temp = gmObjects.getUnsafe(in.readi());
+						if (temp != null) vw.objectFollowing = temp.getId();
 						}
 					int noinstances = in.readi();
 					for (int j = 0; j < noinstances; j++)
 						{
 						Instance inst = rm.addInstance();
-						inst.X = in.readi();
-						inst.Y = in.readi();
-						GmObject temp = GmObjects.getUnsafe(in.readi());
-						if (temp != null) inst.GmObjectId = temp.getId();
-						inst.InstanceId = in.readi();
-						inst.CreationCode = in.readStr();
-						inst.Locked = in.readBool();
+						inst.x = in.readi();
+						inst.y = in.readi();
+						GmObject temp = gmObjects.getUnsafe(in.readi());
+						if (temp != null) inst.gmObjectId = temp.getId();
+						inst.instanceId = in.readi();
+						inst.creationCode = in.readStr();
+						inst.locked = in.readBool();
 						}
 					int notiles = in.readi();
 					for (int j = 0; j < notiles; j++)
 						{
 						Tile ti = rm.addTile();
-						ti.X = in.readi();
-						ti.Y = in.readi();
-						Background temp = Backgrounds.getUnsafe(in.readi());
-						if (temp != null) ti.BackgroundId = temp.getId();
-						ti.TileX = in.readi();
-						ti.TileY = in.readi();
-						ti.Width = in.readi();
-						ti.Height = in.readi();
-						ti.Depth = in.readi();
-						ti.TileId = in.readi();
-						ti.Locked = in.readBool();
+						ti.x = in.readi();
+						ti.y = in.readi();
+						Background temp = backgrounds.getUnsafe(in.readi());
+						if (temp != null) ti.backgroundId = temp.getId();
+						ti.tileX = in.readi();
+						ti.tileY = in.readi();
+						ti.width = in.readi();
+						ti.height = in.readi();
+						ti.depth = in.readi();
+						ti.tileId = in.readi();
+						ti.locked = in.readBool();
 						}
-					rm.RememberWindowSize = in.readBool();
-					rm.EditorWidth = in.readi();
-					rm.EditorHeight = in.readi();
-					rm.ShowGrid = in.readBool();
-					rm.ShowObjects = in.readBool();
-					rm.ShowTiles = in.readBool();
-					rm.ShowBackgrounds = in.readBool();
-					rm.ShowForegrounds = in.readBool();
-					rm.ShowViews = in.readBool();
-					rm.DeleteUnderlyingObjects = in.readBool();
-					rm.DeleteUnderlyingTiles = in.readBool();
-					rm.CurrentTab = in.readi();
-					rm.ScrollBarX = in.readi();
-					rm.ScrollBarY = in.readi();
+					rm.rememberWindowSize = in.readBool();
+					rm.editorWidth = in.readi();
+					rm.editorHeight = in.readi();
+					rm.showGrid = in.readBool();
+					rm.showObjects = in.readBool();
+					rm.showTiles = in.readBool();
+					rm.showBackgrounds = in.readBool();
+					rm.showForegrounds = in.readBool();
+					rm.showViews = in.readBool();
+					rm.deleteUnderlyingObjects = in.readBool();
+					rm.deleteUnderlyingTiles = in.readBool();
+					rm.currentTab = in.readi();
+					rm.scrollBarX = in.readi();
+					rm.scrollBarY = in.readi();
 					}
 				else
-					Rooms.LastId++;
+					rooms.lastId++;
 				}
-			LastInstanceId = in.readi();
-			LastTileId = in.readi();
+			lastInstanceId = in.readi();
+			lastTileId = in.readi();
 			ver = in.readi();
 			if (ver != 600)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREINFO"),ver)); //$NON-NLS-1$
 			int bc = in.readi();
-			if (bc >= 0) GameInfo.BackgroundColor = new Color(bc);
-			GameInfo.MimicGameWindow = in.readBool();
-			GameInfo.FormCaption = in.readStr();
-			GameInfo.Left = in.readi();
-			GameInfo.Top = in.readi();
-			GameInfo.Width = in.readi();
-			GameInfo.Height = in.readi();
-			GameInfo.ShowBorder = in.readBool();
-			GameInfo.AllowResize = in.readBool();
-			GameInfo.StayOnTop = in.readBool();
-			GameInfo.PauseGame = in.readBool();
-			GameInfo.GameInfoStr = in.readStr();
+			if (bc >= 0) gameInfo.backgroundColor = new Color(bc);
+			gameInfo.mimicGameWindow = in.readBool();
+			gameInfo.formCaption = in.readStr();
+			gameInfo.left = in.readi();
+			gameInfo.top = in.readi();
+			gameInfo.width = in.readi();
+			gameInfo.height = in.readi();
+			gameInfo.showBorder = in.readBool();
+			gameInfo.allowResize = in.readBool();
+			gameInfo.stayOnTop = in.readBool();
+			gameInfo.pauseGame = in.readBool();
+			gameInfo.gameInfoStr = in.readStr();
 			ver = in.readi();
 			if (ver != 500)
 				throw new Gm6FormatException(String.format(
@@ -976,72 +976,72 @@ public class Gm6File
 			out = new GmStreamEncoder(FileName);
 			out.writei(1234321);
 			out.writei(600);
-			out.writei(GameId);
+			out.writei(gameId);
 			out.fill(4);
 			out.writei(600);
-			out.writeBool(StartFullscreen);
-			out.writeBool(Interpolate);
-			out.writeBool(DontDrawBorder);
-			out.writeBool(DisplayCursor);
-			out.writei(Scaling);
-			out.writeBool(AllowWindowResize);
-			out.writeBool(AlwaysOnTop);
-			out.writei(ColorOutsideRoom);
-			out.writeBool(SetResolution);
-			out.writei(ColorDepth);
-			out.writei(Resolution);
-			out.writei(Frequency);
-			out.writeBool(DontShowButtons);
-			out.writeBool(UseSynchronization);
-			out.writeBool(LetF4SwitchFullscreen);
-			out.writeBool(LetF1ShowGameInfo);
-			out.writeBool(LetEscEndGame);
-			out.writeBool(LetF5SaveF6Load);
-			out.writei(GamePriority);
-			out.writeBool(FreezeOnLoseFocus);
-			out.writei(LoadBarMode);
-			if (LoadBarMode == LOADBAR_CUSTOM)
+			out.writeBool(startFullscreen);
+			out.writeBool(interpolate);
+			out.writeBool(dontDrawBorder);
+			out.writeBool(displayCursor);
+			out.writei(scaling);
+			out.writeBool(allowWindowResize);
+			out.writeBool(alwaysOnTop);
+			out.writei(colorOutsideRoom);
+			out.writeBool(setResolution);
+			out.writei(colorDepth);
+			out.writei(resolution);
+			out.writei(frequency);
+			out.writeBool(dontShowButtons);
+			out.writeBool(useSynchronization);
+			out.writeBool(letF4SwitchFullscreen);
+			out.writeBool(letF1ShowGameInfo);
+			out.writeBool(letEscEndGame);
+			out.writeBool(letF5SaveF6Load);
+			out.writei(gamePriority);
+			out.writeBool(freezeOnLoseFocus);
+			out.writei(loadBarMode);
+			if (loadBarMode == LOADBAR_CUSTOM)
 				{
-				if (BackLoadBar != null)
+				if (backLoadBar != null)
 					{
 					out.writei(10);
-					out.writeImage(BackLoadBar);
+					out.writeImage(backLoadBar);
 					}
 				else
 					out.writei(-1);
-				if (FrontLoadBar != null)
+				if (frontLoadBar != null)
 					{
 					out.writei(10);
-					out.writeImage(FrontLoadBar);
+					out.writeImage(frontLoadBar);
 					}
 				else
 					out.writei(-1);
 				}
-			out.writeBool(ShowCustomLoadImage);
-			if (this.ShowCustomLoadImage)
+			out.writeBool(showCustomLoadImage);
+			if (this.showCustomLoadImage)
 				{
-				if (this.LoadingImage != null)
+				if (this.loadingImage != null)
 					{
 					out.writei(10);
-					out.writeImage(LoadingImage);
+					out.writeImage(loadingImage);
 					}
 				else
 					out.writei(-1);
 				}
-			out.writeBool(ImagePartiallyTransparent);
-			out.writei(LoadImageAlpha);
-			out.writeBool(ScaleProgressBar);
-			out.write(GameIconData);
-			out.writeBool(DisplayErrors);
-			out.writeBool(WriteToLog);
-			out.writeBool(AbortOnError);
-			out.writeBool(TreatUninitializedAs0);
-			out.writeStr(Author);
-			out.writei(Version);
-			LastChanged = longTimeToGmTime(savetime);
-			out.writeD(LastChanged);
+			out.writeBool(imagePartiallyTransparent);
+			out.writei(loadImageAlpha);
+			out.writeBool(scaleProgressBar);
+			out.write(gameIconData);
+			out.writeBool(displayErrors);
+			out.writeBool(writeToLog);
+			out.writeBool(abortOnError);
+			out.writeBool(treatUninitializedAs0);
+			out.writeStr(author);
+			out.writei(version);
+			lastChanged = longTimeToGmTime(savetime);
+			out.writeD(lastChanged);
 
-			out.writeStr(Information);
+			out.writeStr(information);
 			out.writei(constants.size());
 			for (int i = 0; i < constants.size(); i++)
 				{
@@ -1051,28 +1051,28 @@ public class Gm6File
 			out.writei(includes.size());
 			for (int i = 0; i < includes.size(); i++)
 				out.writeStr(includes.get(i).filePath);
-			out.writei(IncludeFolder);
-			out.writeBool(OverwriteExisting);
-			out.writeBool(RemoveAtGameEnd);
+			out.writei(includeFolder);
+			out.writeBool(overwriteExisting);
+			out.writeBool(removeAtGameEnd);
 
 			// SOUNDS
 			out.writei(400);
-			out.writei(Sounds.LastId + 1);
-			for (int i = 0; i <= Sounds.LastId; i++)
+			out.writei(sounds.lastId + 1);
+			for (int i = 0; i <= sounds.lastId; i++)
 				{
-				Sound snd = Sounds.getUnsafe(i);
+				Sound snd = sounds.getUnsafe(i);
 				out.writeBool(snd != null);
 				if (snd != null)
 					{
 					out.writeStr(snd.getName());
 					out.writei(600);
 					out.writei(snd.kind);
-					out.writeStr(snd.FileType);
-					out.writeStr(snd.FileName);
-					if (snd.Data != null)
+					out.writeStr(snd.fileType);
+					out.writeStr(snd.fileName);
+					if (snd.data != null)
 						{
 						out.writeBool(true);
-						out.compress(snd.Data);
+						out.compress(snd.data);
 						}
 					else
 						out.writeBool(false);
@@ -1085,28 +1085,28 @@ public class Gm6File
 
 			// SPRITES
 			out.writei(400);
-			out.writei(Sprites.LastId + 1);
-			for (int i = 0; i <= Sprites.LastId; i++)
+			out.writei(sprites.lastId + 1);
+			for (int i = 0; i <= sprites.lastId; i++)
 				{
-				Sprite spr = Sprites.getUnsafe(i);
+				Sprite spr = sprites.getUnsafe(i);
 				out.writeBool(spr != null);
 				if (spr != null)
 					{
 					out.writeStr(spr.getName());
 					out.writei(542);
-					out.writei(spr.Width);
-					out.writei(spr.Height);
-					out.writei(spr.BoundingBoxLeft);
-					out.writei(spr.BoundingBoxRight);
-					out.writei(spr.BoundingBoxBottom);
-					out.writei(spr.BoundingBoxTop);
-					out.writeBool(spr.Transparent);
-					out.writeBool(spr.SmoothEdges);
-					out.writeBool(spr.Preload);
-					out.writei(spr.BoundingBoxMode);
-					out.writeBool(spr.PreciseCC);
-					out.writei(spr.OriginX);
-					out.writei(spr.OriginY);
+					out.writei(spr.width);
+					out.writei(spr.height);
+					out.writei(spr.boundingBoxLeft);
+					out.writei(spr.boundingBoxRight);
+					out.writei(spr.boundingBoxBottom);
+					out.writei(spr.boundingBoxTop);
+					out.writeBool(spr.transparent);
+					out.writeBool(spr.smoothEdges);
+					out.writeBool(spr.preload);
+					out.writei(spr.boundingBoxMode);
+					out.writeBool(spr.preciseCC);
+					out.writei(spr.originX);
+					out.writei(spr.originY);
 					out.writei(spr.NoSubImages());
 					for (int j = 0; j < spr.NoSubImages(); j++)
 						{
@@ -1119,32 +1119,32 @@ public class Gm6File
 
 			// BACKGROUNDS
 			out.writei(400);
-			out.writei(Backgrounds.LastId + 1);
-			for (int i = 0; i <= Backgrounds.LastId; i++)
+			out.writei(backgrounds.lastId + 1);
+			for (int i = 0; i <= backgrounds.lastId; i++)
 				{
-				Background back = Backgrounds.getUnsafe(i);
+				Background back = backgrounds.getUnsafe(i);
 				out.writeBool(back != null);
 				if (back != null)
 					{
 					out.writeStr(back.getName());
 					out.writei(543);
-					out.writei(back.Width);
-					out.writei(back.Height);
-					out.writeBool(back.Transparent);
-					out.writeBool(back.SmoothEdges);
-					out.writeBool(back.Preload);
-					out.writeBool(back.UseAsTileSet);
-					out.writei(back.TileWidth);
-					out.writei(back.TileHeight);
-					out.writei(back.HorizOffset);
-					out.writei(back.VertOffset);
-					out.writei(back.HorizSep);
-					out.writei(back.VertSep);
-					if (back.BackgroundImage != null)
+					out.writei(back.width);
+					out.writei(back.height);
+					out.writeBool(back.transparent);
+					out.writeBool(back.smoothEdges);
+					out.writeBool(back.preload);
+					out.writeBool(back.useAsTileSet);
+					out.writei(back.tileWidth);
+					out.writei(back.tileHeight);
+					out.writei(back.horizOffset);
+					out.writei(back.vertOffset);
+					out.writei(back.horizSep);
+					out.writei(back.vertSep);
+					if (back.backgroundImage != null)
 						{
 						out.writeBool(true);
 						out.writei(10);
-						out.writeImage(back.BackgroundImage);
+						out.writeImage(back.backgroundImage);
 						}
 					else
 						out.writeBool(false);
@@ -1153,72 +1153,72 @@ public class Gm6File
 
 			// PATHS
 			out.writei(420);
-			out.writei(Paths.LastId + 1);
-			for (int i = 0; i <= Paths.LastId; i++)
+			out.writei(paths.lastId + 1);
+			for (int i = 0; i <= paths.lastId; i++)
 				{
-				Path path = Paths.getUnsafe(i);
+				Path path = paths.getUnsafe(i);
 				out.writeBool(path != null);
 				if (path != null)
 					{
 					out.writeStr(path.getName());
 					out.writei(530);
-					out.writeBool(path.Smooth);
-					out.writeBool(path.Closed);
-					out.writei(path.Precision);
-					out.writeId(path.BackgroundRoom,Resource.ROOM,this);
-					out.writei(path.SnapX);
-					out.writei(path.SnapY);
+					out.writeBool(path.smooth);
+					out.writeBool(path.closed);
+					out.writei(path.precision);
+					out.writeId(path.backgroundRoom,Resource.ROOM,this);
+					out.writei(path.snapX);
+					out.writei(path.snapY);
 					out.writei(path.NoPoints());
 					for (int j = 0; j < path.NoPoints(); j++)
 						{
-						out.writeD(path.getPoint(j).X);
-						out.writeD(path.getPoint(j).Y);
-						out.writeD(path.getPoint(j).Speed);
+						out.writeD(path.getPoint(j).x);
+						out.writeD(path.getPoint(j).y);
+						out.writeD(path.getPoint(j).speed);
 						}
 					}
 				}
 
 			// SCRIPTS
 			out.writei(400);
-			out.writei(Scripts.LastId + 1);
-			for (int i = 0; i <= Scripts.LastId; i++)
+			out.writei(scripts.lastId + 1);
+			for (int i = 0; i <= scripts.lastId; i++)
 				{
-				Script scr = Scripts.getUnsafe(i);
+				Script scr = scripts.getUnsafe(i);
 				out.writeBool(scr != null);
 				if (scr != null)
 					{
 					out.writeStr(scr.getName());
 					out.writei(400);
-					out.writeStr(scr.ScriptStr);
+					out.writeStr(scr.scriptStr);
 					}
 				}
 
 			// FONTS
 			out.writei(540);
-			out.writei(Fonts.LastId + 1);
-			for (int i = 0; i <= Fonts.LastId; i++)
+			out.writei(fonts.lastId + 1);
+			for (int i = 0; i <= fonts.lastId; i++)
 				{
-				Font font = Fonts.getUnsafe(i);
+				Font font = fonts.getUnsafe(i);
 				out.writeBool(font != null);
 				if (font != null)
 					{
 					out.writeStr(font.getName());
 					out.writei(540);
-					out.writeStr(font.FontName);
-					out.writei(font.Size);
-					out.writeBool(font.Bold);
-					out.writeBool(font.Italic);
-					out.writei(font.CharRangeMin);
-					out.writei(font.CharRangeMax);
+					out.writeStr(font.fontName);
+					out.writei(font.size);
+					out.writeBool(font.bold);
+					out.writeBool(font.italic);
+					out.writei(font.charRangeMin);
+					out.writei(font.charRangeMax);
 					}
 				}
 
 			// TIMELINES
 			out.writei(500);
-			out.writei(Timelines.LastId + 1);
-			for (int i = 0; i <= Timelines.LastId; i++)
+			out.writei(timelines.lastId + 1);
+			for (int i = 0; i <= timelines.lastId; i++)
 				{
-				Timeline time = Timelines.getUnsafe(i);
+				Timeline time = timelines.getUnsafe(i);
 				out.writeBool(time != null);
 				if (time != null)
 					{
@@ -1235,41 +1235,41 @@ public class Gm6File
 							{
 							Action act = mom.getAction(k);
 							out.writei(440);
-							out.writei(act.LibraryId);
-							out.writei(act.LibActionId);
-							out.writei(act.ActionKind);
-							out.writeBool(act.AllowRelative);
-							out.writeBool(act.Question);
-							out.writeBool(act.CanApplyTo);
-							out.writei(act.ExecType);
-							out.writeStr(act.ExecFunction);
-							out.writeStr(act.ExecCode);
-							out.writei(act.NoArguments);
+							out.writei(act.libraryId);
+							out.writei(act.libActionId);
+							out.writei(act.actionKind);
+							out.writeBool(act.allowRelative);
+							out.writeBool(act.question);
+							out.writeBool(act.canApplyTo);
+							out.writei(act.execType);
+							out.writeStr(act.execFunction);
+							out.writeStr(act.execCode);
+							out.writei(act.noArguments);
 							out.writei(8);
 							for (int l = 0; l < 8; l++)
 								{
-								if (l < act.NoArguments)
-									out.writei(act.Arguments[l].Kind);
+								if (l < act.noArguments)
+									out.writei(act.arguments[l].kind);
 								else
 									out.writei(0);
 								}
-							if (act.AppliesTo != null)
+							if (act.appliesTo != null)
 								{
-								if (act.AppliesTo.getValue() >= 0)
-									out.writeId(act.AppliesTo,Resource.GMOBJECT,-100,this);
+								if (act.appliesTo.getValue() >= 0)
+									out.writeId(act.appliesTo,Resource.GMOBJECT,-100,this);
 								else
 									// self/other are exceptions to the system
-									out.writei(act.AppliesTo.getValue());
+									out.writei(act.appliesTo.getValue());
 								}
 							else
 								out.writei(-100);
-							out.writeBool(act.Relative);
+							out.writeBool(act.relative);
 							out.writei(8);
 							for (int l = 0; l < 8; l++)
 								{
-								if (l < act.NoArguments)
+								if (l < act.noArguments)
 									{
-									switch (act.Arguments[l].Kind)
+									switch (act.arguments[l].kind)
 										{
 										case Argument.ARG_SPRITE:
 										case Argument.ARG_SOUND:
@@ -1280,17 +1280,17 @@ public class Gm6File
 										case Argument.ARG_ROOM:
 										case Argument.ARG_FONT:
 										case Argument.ARG_TIMELINE:
-											out.writeIdStr(act.Arguments[l].Res,act.Arguments[l].Kind,this);
+											out.writeIdStr(act.arguments[l].res,act.arguments[l].kind,this);
 											break;
 										default:
-											out.writeStr(act.Arguments[l].Val);
+											out.writeStr(act.arguments[l].val);
 											break;
 										}
 									}
 								else
 									out.writeStr(""); //$NON-NLS-1$
 								}
-							out.writeBool(act.Not);
+							out.writeBool(act.not);
 							}
 						}
 					}
@@ -1298,73 +1298,73 @@ public class Gm6File
 
 			// (GM)OBJECTS
 			out.writei(400);
-			out.writei(GmObjects.LastId + 1);
-			for (int i = 0; i <= GmObjects.LastId; i++)
+			out.writei(gmObjects.lastId + 1);
+			for (int i = 0; i <= gmObjects.lastId; i++)
 				{
-				GmObject obj = GmObjects.getUnsafe(i);
+				GmObject obj = gmObjects.getUnsafe(i);
 				out.writeBool(obj != null);
 				if (obj != null)
 					{
 					out.writeStr(obj.getName());
 					out.writei(430);
-					out.writeId(obj.Sprite,Resource.SPRITE,this);
-					out.writeBool(obj.Solid);
-					out.writeBool(obj.Visible);
-					out.writei(obj.Depth);
-					out.writeBool(obj.Persistent);
-					out.writeId(obj.Parent,Resource.GMOBJECT,-100,this);
-					out.writeId(obj.Mask,Resource.SPRITE,this);
+					out.writeId(obj.sprite,Resource.SPRITE,this);
+					out.writeBool(obj.solid);
+					out.writeBool(obj.visible);
+					out.writei(obj.depth);
+					out.writeBool(obj.persistent);
+					out.writeId(obj.parent,Resource.GMOBJECT,-100,this);
+					out.writeId(obj.mask,Resource.SPRITE,this);
 					out.writei(10);
 					for (int j = 0; j < 11; j++)
 						{
-						for (int k = 0; k < obj.MainEvents[j].NoEvents(); k++)
+						for (int k = 0; k < obj.mainEvents[j].NoEvents(); k++)
 							{
-							Event ev = obj.MainEvents[j].getEventList(k);
+							Event ev = obj.mainEvents[j].getEventList(k);
 							if (j == MainEvent.EV_COLLISION)
-								out.writeId(ev.Other,Resource.GMOBJECT,this);
+								out.writeId(ev.other,Resource.GMOBJECT,this);
 							else
-								out.writei(ev.Id);
+								out.writei(ev.id);
 							out.writei(400);
 							out.writei(ev.NoActions());
 							for (int l = 0; l < ev.NoActions(); l++)
 								{
 								Action act = ev.getAction(l);
 								out.writei(440);
-								out.writei(act.LibraryId);
-								out.writei(act.LibActionId);
-								out.writei(act.ActionKind);
-								out.writeBool(act.AllowRelative);
-								out.writeBool(act.Question);
-								out.writeBool(act.CanApplyTo);
-								out.writei(act.ExecType);
-								out.writeStr(act.ExecFunction);
-								out.writeStr(act.ExecCode);
-								out.writei(act.NoArguments);
+								out.writei(act.libraryId);
+								out.writei(act.libActionId);
+								out.writei(act.actionKind);
+								out.writeBool(act.allowRelative);
+								out.writeBool(act.question);
+								out.writeBool(act.canApplyTo);
+								out.writei(act.execType);
+								out.writeStr(act.execFunction);
+								out.writeStr(act.execCode);
+								out.writei(act.noArguments);
 								out.writei(8);
 								for (int m = 0; m < 8; m++)
 									{
-									if (m < act.NoArguments)
-										out.writei(act.Arguments[m].Kind);
+									if (m < act.noArguments)
+										out.writei(act.arguments[m].kind);
 									else
 										out.writei(0);
 									}
-								if (act.AppliesTo != null)
+								if (act.appliesTo != null)
 									{
-									if (act.AppliesTo.getValue() >= 0)
-										out.writeId(act.AppliesTo,Resource.GMOBJECT,-100,this);
+									if (act.appliesTo.getValue() >= 0)
+										out.writeId(act.appliesTo,Resource.GMOBJECT,-100,this);
 									else
 										// self/other are exceptions to the system
-										out.writei(act.AppliesTo.getValue());
+										out.writei(act.appliesTo.getValue());
 									}
 								else
 									out.writei(-100);
-								out.writeBool(act.Relative);
+								out.writeBool(act.relative);
 								out.writei(8);
 								for (int m = 0; m < 8; m++)
 									{
-									if (m < act.NoArguments)
+									if (m < act.noArguments)
 										{
-										switch (act.Arguments[m].Kind)
+										switch (act.arguments[m].kind)
 											{
 											case Argument.ARG_SPRITE:
 											case Argument.ARG_SOUND:
@@ -1375,17 +1375,17 @@ public class Gm6File
 											case Argument.ARG_ROOM:
 											case Argument.ARG_FONT:
 											case Argument.ARG_TIMELINE:
-												out.writeIdStr(act.Arguments[m].Res,act.Arguments[m].Kind,this);
+												out.writeIdStr(act.arguments[m].res,act.arguments[m].kind,this);
 												break;
 											default:
-												out.writeStr(act.Arguments[m].Val);
+												out.writeStr(act.arguments[m].val);
 												break;
 											}
 										}
 									else
 										out.writeStr(""); //$NON-NLS-1$
 									}
-								out.writeBool(act.Not);
+								out.writeBool(act.not);
 								}
 							}
 						out.writei(-1);
@@ -1395,120 +1395,120 @@ public class Gm6File
 
 			// ROOMS
 			out.writei(420);
-			out.writei(Rooms.LastId + 1);
-			for (int i = 0; i <= Rooms.LastId; i++)
+			out.writei(rooms.lastId + 1);
+			for (int i = 0; i <= rooms.lastId; i++)
 				{
-				Room rm = Rooms.getUnsafe(i);
+				Room rm = rooms.getUnsafe(i);
 				out.writeBool(rm != null);
 				if (rm != null)
 					{
 					out.writeStr(rm.getName());
 					out.writei(541);
-					out.writeStr(rm.Caption);
-					out.writei(rm.Width);
-					out.writei(rm.Height);
-					out.writei(rm.SnapY);
-					out.writei(rm.SnapX);
-					out.writeBool(rm.IsometricGrid);
-					out.writei(rm.Speed);
-					out.writeBool(rm.Persistent);
-					out.writei(rm.BackgroundColor);
-					out.writeBool(rm.DrawBackgroundColor);
-					out.writeStr(rm.CreationCode);
+					out.writeStr(rm.caption);
+					out.writei(rm.width);
+					out.writei(rm.height);
+					out.writei(rm.snapY);
+					out.writei(rm.snapX);
+					out.writeBool(rm.isometricGrid);
+					out.writei(rm.speed);
+					out.writeBool(rm.persistent);
+					out.writei(rm.backgroundColor);
+					out.writeBool(rm.drawBackgroundColor);
+					out.writeStr(rm.creationCode);
 					out.writei(8);
 					for (int j = 0; j < 8; j++)
 						{
-						BackgroundDef back = rm.BackgroundDefs[j];
-						out.writeBool(back.Visible);
-						out.writeBool(back.Foreground);
-						out.writeId(back.BackgroundId,Resource.BACKGROUND,this);
-						out.writei(back.X);
-						out.writei(back.Y);
-						out.writeBool(back.TileHoriz);
-						out.writeBool(back.TileVert);
-						out.writei(back.HorizSpeed);
-						out.writei(back.VertSpeed);
-						out.writeBool(back.Stretch);
+						BackgroundDef back = rm.backgroundDefs[j];
+						out.writeBool(back.visible);
+						out.writeBool(back.foreground);
+						out.writeId(back.backgroundId,Resource.BACKGROUND,this);
+						out.writei(back.x);
+						out.writei(back.y);
+						out.writeBool(back.tileHoriz);
+						out.writeBool(back.tileVert);
+						out.writei(back.horizSpeed);
+						out.writei(back.vertSpeed);
+						out.writeBool(back.stretch);
 						}
-					out.writeBool(rm.EnableViews);
+					out.writeBool(rm.enableViews);
 					out.writei(8);
 					for (int j = 0; j < 8; j++)
 						{
-						View view = rm.Views[j];
-						out.writeBool(view.Enabled);
-						out.writei(view.ViewX);
-						out.writei(view.ViewY);
-						out.writei(view.ViewW);
-						out.writei(view.ViewH);
-						out.writei(view.PortX);
-						out.writei(view.PortY);
-						out.writei(view.PortW);
-						out.writei(view.PortH);
-						out.writei(view.Hbor);
-						out.writei(view.VBor);
-						out.writei(view.HSpeed);
-						out.writei(view.VSpeed);
-						out.writeId(view.ObjectFollowing,Resource.GMOBJECT,this);
+						View view = rm.views[j];
+						out.writeBool(view.enabled);
+						out.writei(view.viewX);
+						out.writei(view.viewY);
+						out.writei(view.viewW);
+						out.writei(view.viewH);
+						out.writei(view.portX);
+						out.writei(view.portY);
+						out.writei(view.portW);
+						out.writei(view.portH);
+						out.writei(view.hbor);
+						out.writei(view.vbor);
+						out.writei(view.hspeed);
+						out.writei(view.vspeed);
+						out.writeId(view.objectFollowing,Resource.GMOBJECT,this);
 						}
 					out.writei(rm.NoInstances());
 					for (int j = 0; j < rm.NoInstances(); j++)
 						{
 						Instance in = rm.getInstanceList(j);
-						out.writei(in.X);
-						out.writei(in.Y);
-						out.writeId(in.GmObjectId,Resource.GMOBJECT,this);
-						out.writei(in.InstanceId);
-						out.writeStr(in.CreationCode);
-						out.writeBool(in.Locked);
+						out.writei(in.x);
+						out.writei(in.y);
+						out.writeId(in.gmObjectId,Resource.GMOBJECT,this);
+						out.writei(in.instanceId);
+						out.writeStr(in.creationCode);
+						out.writeBool(in.locked);
 						}
 					out.writei(rm.NoTiles());
 					for (int j = 0; j < rm.NoTiles(); j++)
 						{
 						Tile tile = rm.getTileList(j);
-						out.writei(tile.X);
-						out.writei(tile.Y);
-						out.writeId(tile.BackgroundId,Resource.BACKGROUND,this);
-						out.writei(tile.TileX);
-						out.writei(tile.TileY);
-						out.writei(tile.Width);
-						out.writei(tile.Height);
-						out.writei(tile.Depth);
-						out.writei(tile.TileId);
-						out.writeBool(tile.Locked);
+						out.writei(tile.x);
+						out.writei(tile.y);
+						out.writeId(tile.backgroundId,Resource.BACKGROUND,this);
+						out.writei(tile.tileX);
+						out.writei(tile.tileY);
+						out.writei(tile.width);
+						out.writei(tile.height);
+						out.writei(tile.depth);
+						out.writei(tile.tileId);
+						out.writeBool(tile.locked);
 						}
-					out.writeBool(rm.RememberWindowSize);
-					out.writei(rm.EditorWidth);
-					out.writei(rm.EditorHeight);
-					out.writeBool(rm.ShowGrid);
-					out.writeBool(rm.ShowObjects);
-					out.writeBool(rm.ShowTiles);
-					out.writeBool(rm.ShowBackgrounds);
-					out.writeBool(rm.ShowForegrounds);
-					out.writeBool(rm.ShowViews);
-					out.writeBool(rm.DeleteUnderlyingObjects);
-					out.writeBool(rm.DeleteUnderlyingTiles);
-					out.writei(rm.CurrentTab);
-					out.writei(rm.ScrollBarX);
-					out.writei(rm.ScrollBarY);
+					out.writeBool(rm.rememberWindowSize);
+					out.writei(rm.editorWidth);
+					out.writei(rm.editorHeight);
+					out.writeBool(rm.showGrid);
+					out.writeBool(rm.showObjects);
+					out.writeBool(rm.showTiles);
+					out.writeBool(rm.showBackgrounds);
+					out.writeBool(rm.showForegrounds);
+					out.writeBool(rm.showViews);
+					out.writeBool(rm.deleteUnderlyingObjects);
+					out.writeBool(rm.deleteUnderlyingTiles);
+					out.writei(rm.currentTab);
+					out.writei(rm.scrollBarX);
+					out.writei(rm.scrollBarY);
 					}
 				}
-			out.writei(LastInstanceId);
-			out.writei(LastTileId);
+			out.writei(lastInstanceId);
+			out.writei(lastTileId);
 
 			// GAME SETTINGS
 			out.writei(600);
-			out.writei(GameInfo.BackgroundColor.getRGB());
-			out.writeBool(GameInfo.MimicGameWindow);
-			out.writeStr(GameInfo.FormCaption);
-			out.writei(GameInfo.Left);
-			out.writei(GameInfo.Top);
-			out.writei(GameInfo.Width);
-			out.writei(GameInfo.Height);
-			out.writeBool(GameInfo.ShowBorder);
-			out.writeBool(GameInfo.AllowResize);
-			out.writeBool(GameInfo.StayOnTop);
-			out.writeBool(GameInfo.PauseGame);
-			out.writeStr(GameInfo.GameInfoStr);
+			out.writei(gameInfo.backgroundColor.getRGB());
+			out.writeBool(gameInfo.mimicGameWindow);
+			out.writeStr(gameInfo.formCaption);
+			out.writei(gameInfo.left);
+			out.writei(gameInfo.top);
+			out.writei(gameInfo.width);
+			out.writei(gameInfo.height);
+			out.writeBool(gameInfo.showBorder);
+			out.writeBool(gameInfo.allowResize);
+			out.writeBool(gameInfo.stayOnTop);
+			out.writeBool(gameInfo.pauseGame);
+			out.writeStr(gameInfo.gameInfoStr);
 			out.writei(500);
 
 			out.writei(0);// "how many longints will follow it"
@@ -1550,14 +1550,14 @@ public class Gm6File
 		Iterator<ResourceList<?>> iter = resMap.values().iterator();
 		while (iter.hasNext())
 			iter.next().defragIds();
-		LastInstanceId = 100000;
-		LastTileId = 100000;
-		for (int i = 0; i < Rooms.count(); i++)
+		lastInstanceId = 100000;
+		lastTileId = 100000;
+		for (int i = 0; i < rooms.count(); i++)
 			{
-			for (int j = 0; j < Rooms.getList(i).NoInstances(); j++)
-				Rooms.getList(i).getInstanceList(j).InstanceId = ++LastInstanceId;
-			for (int j = 0; j < Rooms.getList(i).NoTiles(); j++)
-				Rooms.getList(i).getTileList(j).TileId = ++LastTileId;
+			for (int j = 0; j < rooms.getList(i).NoInstances(); j++)
+				rooms.getList(i).getInstanceList(j).instanceId = ++lastInstanceId;
+			for (int j = 0; j < rooms.getList(i).NoTiles(); j++)
+				rooms.getList(i).getTileList(j).tileId = ++lastTileId;
 			}
 		}
 

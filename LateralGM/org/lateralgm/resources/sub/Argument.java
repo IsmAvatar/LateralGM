@@ -30,7 +30,7 @@ public class Argument
 	public static final byte ARG_FONT = 12;
 	public static final byte ARG_TIMELINE = 14;
 
-	public byte Kind = ARG_EXPRESSION;
-	public String Val = "";
-	public ResId Res = null;// for references to Resources
+	public byte kind = ARG_EXPRESSION;
+	public String val = "";
+	public ResId res = null;// for references to Resources
 	}

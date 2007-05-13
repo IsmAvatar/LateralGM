@@ -24,44 +24,44 @@ public class MainEvent
 	public static final byte EV_KEYPRESS = 9;
 	public static final byte EV_KEYRELEASE = 10;
 
-	private ArrayList<Event> Events = new ArrayList<Event>();
+	private ArrayList<Event> events = new ArrayList<Event>();
 
 	public int NoEvents()
 		{
-		return Events.size();
+		return events.size();
 		}
 
 	public Event addEvent()
 		{
 		Event ev = new Event();
-		Events.add(ev);
+		events.add(ev);
 		return ev;
 		}
 
 	public Event getEvent(int id)
 		{
 		int ListIndex = EventIndex(id);
-		if (ListIndex != -1) return Events.get(ListIndex);
+		if (ListIndex != -1) return events.get(ListIndex);
 		return null;
 		}
 
 	public Event getEventList(int ListIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoEvents()) return Events.get(ListIndex);
+		if (ListIndex >= 0 && ListIndex < NoEvents()) return events.get(ListIndex);
 		return null;
 		}
 
 	public void removeEvent(int id)
 		{
 		int ListIndex = EventIndex(id);
-		if (ListIndex != -1) Events.remove(ListIndex);
+		if (ListIndex != -1) events.remove(ListIndex);
 		}
 
 	public int EventIndex(int id)
 		{
 		for (int i = 0; i < NoEvents(); i++)
 			{
-			if (getEventList(i).Id == id)
+			if (getEventList(i).id == id)
 				{
 				return i;
 				}
@@ -71,6 +71,6 @@ public class MainEvent
 
 	public void clearEvents()
 		{
-		Events.clear();
+		events.clear();
 		}
 	}

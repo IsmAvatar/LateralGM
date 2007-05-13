@@ -15,18 +15,18 @@ import org.lateralgm.resources.library.LibManager;
 
 public class Moment
 	{
-	private ArrayList<Action> Actions = new ArrayList<Action>();
+	private ArrayList<Action> actions = new ArrayList<Action>();
 	public int stepNo = 0;
 
 	public int NoActions()
 		{
-		return Actions.size();
+		return actions.size();
 		}
 
 	public Action addAction()
 		{
 		Action act = new Action();
-		Actions.add(act);
+		actions.add(act);
 		return act;
 		}
 
@@ -37,20 +37,20 @@ public class Moment
 		LibAction lact = LibManager.getLibAction(LibId,LibActionId);
 		if (lact != null)
 			{
-			act.LibActionId = LibActionId;
-			act.LibraryId = LibId;
-			act.ActionKind = lact.ActionKind;
-			act.Question = lact.Question;
-			act.CanApplyTo = lact.CanApplyTo;
-			act.AllowRelative = lact.AllowRelative;
-			act.ExecType = lact.ExecType;
-			act.ExecFunction = lact.ExecFunction;
-			act.ExecCode = lact.ExecCode;
-			act.NoArguments = lact.NoLibArguments;
-			for (int i = 0; i < lact.NoLibArguments; i++)
+			act.libActionId = LibActionId;
+			act.libraryId = LibId;
+			act.actionKind = lact.actionKind;
+			act.question = lact.question;
+			act.canApplyTo = lact.canApplyTo;
+			act.allowRelative = lact.allowRelative;
+			act.execType = lact.execType;
+			act.execFunction = lact.execFunction;
+			act.execCode = lact.execCode;
+			act.noArguments = lact.noLibArguments;
+			for (int i = 0; i < lact.noLibArguments; i++)
 				{
-				act.Arguments[i].Kind = lact.LibArguments[i].Kind;
-				switch (act.Arguments[i].Kind)
+				act.arguments[i].kind = lact.libArguments[i].kind;
+				switch (act.arguments[i].kind)
 					{
 					case Argument.ARG_SPRITE:
 					case Argument.ARG_SOUND:
@@ -61,31 +61,31 @@ public class Moment
 					case Argument.ARG_ROOM:
 					case Argument.ARG_FONT:
 					case Argument.ARG_TIMELINE:
-						act.Arguments[i].Res = null;
+						act.arguments[i].res = null;
 						break;
 					default:
-						act.Arguments[i].Val = lact.LibArguments[i].DefaultVal;
+						act.arguments[i].val = lact.libArguments[i].defaultVal;
 						break;
 					}
 				}
 			}
-		Actions.add(act);
+		actions.add(act);
 		return act;
 		}
 
 	public Action getAction(int ListIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoActions()) return Actions.get(ListIndex);
+		if (ListIndex >= 0 && ListIndex < NoActions()) return actions.get(ListIndex);
 		return null;
 		}
 
 	public void removeAction(int ListIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoActions()) Actions.remove(ListIndex);
+		if (ListIndex >= 0 && ListIndex < NoActions()) actions.remove(ListIndex);
 		}
 
 	public void clearActions()
 		{
-		Actions.clear();
+		actions.clear();
 		}
 	}

@@ -12,8 +12,8 @@ import org.lateralgm.resources.sub.Argument;
 
 public class LibArgument
 	{
-	public String Caption = "";
-	public byte Kind = Argument.ARG_EXPRESSION;
-	public String DefaultVal = "";
-	public String Menu = "";
+	public String caption = "";
+	public byte kind = Argument.ARG_EXPRESSION;
+	public String defaultVal = "";
+	public String menu = "";
 	}

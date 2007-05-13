@@ -13,7 +13,7 @@ import org.lateralgm.main.Prefs;
 
 public class Script extends Resource
 	{
-	public String ScriptStr = "";
+	public String scriptStr = "";
 
 	public Script()
 		{
@@ -24,11 +24,11 @@ public class Script extends Resource
 	public Script copy(boolean update, ResourceList src)
 		{
 		Script scr = new Script();
-		scr.ScriptStr = ScriptStr;
+		scr.scriptStr = scriptStr;
 		if (update)
 			{
-			scr.setId(new ResId(++src.LastId));
-			scr.setName(Prefs.prefixes[Resource.SCRIPT] + src.LastId);
+			scr.setId(new ResId(++src.lastId));
+			scr.setName(Prefs.prefixes[Resource.SCRIPT] + src.lastId);
 			src.add(scr);
 			}
 		else

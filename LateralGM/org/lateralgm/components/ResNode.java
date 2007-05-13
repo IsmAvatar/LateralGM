@@ -102,19 +102,19 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 			switch (kind)
 				{
 				case Resource.SPRITE:
-					rf = new SpriteFrame(LGM.currentFile.Sprites.get(resourceId),this);
+					rf = new SpriteFrame(LGM.currentFile.sprites.get(resourceId),this);
 					break;
 				case Resource.SOUND:
-					rf = new SoundFrame(LGM.currentFile.Sounds.get(resourceId),this);
+					rf = new SoundFrame(LGM.currentFile.sounds.get(resourceId),this);
 					break;
 				case Resource.SCRIPT:
-					rf = new ScriptFrame(LGM.currentFile.Scripts.get(resourceId),this);
+					rf = new ScriptFrame(LGM.currentFile.scripts.get(resourceId),this);
 					break;
 				case Resource.FONT:
-					rf = new FontFrame(LGM.currentFile.Fonts.get(resourceId),this);
+					rf = new FontFrame(LGM.currentFile.fonts.get(resourceId),this);
 					break;
 				case Resource.TIMELINE:
-					rf = new TimelineFrame(LGM.currentFile.Timelines.get(resourceId),this);
+					rf = new TimelineFrame(LGM.currentFile.timelines.get(resourceId),this);
 					break;
 				}
 			if (rf != null)

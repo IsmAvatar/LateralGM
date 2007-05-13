@@ -171,7 +171,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 				{
 				
 				}
-			tp.add(l.TabCaption,p);
+			tp.add(l.tabCaption,p);
 			}
 
 		return tp;
@@ -228,7 +228,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 
 	public void revertResource()
 		{
-		LGM.currentFile.Timelines.replace(res.getId(),resOriginal);
+		LGM.currentFile.timelines.replace(res.getId(),resOriginal);
 		}
 
 	public void updateResource()

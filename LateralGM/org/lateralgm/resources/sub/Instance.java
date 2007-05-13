@@ -12,10 +12,10 @@ import org.lateralgm.resources.ResId;
 
 public class Instance
 	{
-	public int X = 0;
-	public int Y = 0;
-	public ResId GmObjectId = null;
-	public int InstanceId = 0;
-	public String CreationCode = "";
-	public boolean Locked = false;
+	public int x = 0;
+	public int y = 0;
+	public ResId gmObjectId = null;
+	public int instanceId = 0;
+	public String creationCode = "";
+	public boolean locked = false;
 	}

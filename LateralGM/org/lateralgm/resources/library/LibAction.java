@@ -21,30 +21,30 @@ public class LibAction
 	public static final byte INTERFACE_CODE = 3;
 	public static final byte INTERFACE_TEXT = 4;
 
-	public int Id = 0;
-	public BufferedImage ActImage;
-	public boolean Hidden = false;
-	public boolean Advanced = false;
-	public boolean RegisteredOnly = false;
-	public String Description = "";
-	public String ListText = "";
-	public String HintText = "";
-	public byte ActionKind = Action.ACT_NORMAL;
-	public byte InterfaceKind = INTERFACE_NORMAL;
-	public boolean Question = false;
-	public boolean CanApplyTo = false;
-	public boolean AllowRelative = false;
-	public byte ExecType = Action.EXEC_FUNCTION;
-	public String ExecFunction = "";
-	public String ExecCode = "";
-	public int NoLibArguments = 0;
-	public LibArgument[] LibArguments = new LibArgument[6];
+	public int id = 0;
+	public BufferedImage actImage;
+	public boolean hidden = false;
+	public boolean advanced = false;
+	public boolean registeredOnly = false;
+	public String description = "";
+	public String listText = "";
+	public String hintText = "";
+	public byte actionKind = Action.ACT_NORMAL;
+	public byte interfaceKind = INTERFACE_NORMAL;
+	public boolean question = false;
+	public boolean canApplyTo = false;
+	public boolean allowRelative = false;
+	public byte execType = Action.EXEC_FUNCTION;
+	public String execFunction = "";
+	public String execCode = "";
+	public int noLibArguments = 0;
+	public LibArgument[] libArguments = new LibArgument[6];
 
 	public LibAction()
 		{
 		for (int i = 0; i < 6; i++)
 			{
-			LibArguments[i] = new LibArgument();
+			libArguments[i] = new LibArgument();
 			}
 		}
 	}

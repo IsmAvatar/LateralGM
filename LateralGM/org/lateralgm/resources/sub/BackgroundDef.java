@@ -12,14 +12,14 @@ import org.lateralgm.resources.ResId;
 
 public class BackgroundDef
 	{
-	public boolean Visible = false;
-	public boolean Foreground = false;
-	public ResId BackgroundId = null;
-	public int X = 0;
-	public int Y = 0;
-	public boolean TileHoriz = true;
-	public boolean TileVert = true;
-	public int HorizSpeed = 0;
-	public int VertSpeed = 0;
-	public boolean Stretch = false;
+	public boolean visible = false;
+	public boolean foreground = false;
+	public ResId backgroundId = null;
+	public int x = 0;
+	public int y = 0;
+	public boolean tileHoriz = true;
+	public boolean tileVert = true;
+	public int horizSpeed = 0;
+	public int vertSpeed = 0;
+	public boolean stretch = false;
 	}

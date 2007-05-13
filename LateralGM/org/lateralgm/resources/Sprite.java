@@ -25,20 +25,20 @@ public class Sprite extends Resource
 	public static final byte BBOX_FULL = 1;
 	public static final byte BBOX_MANUAL = 2;
 
-	public int Width = 32;
-	public int Height = 32;
-	public boolean Transparent = true;
-	public boolean PreciseCC = true;
-	public boolean SmoothEdges = false;
-	public boolean Preload = true;
-	public int OriginX = 0;
-	public int OriginY = 0;
-	public byte BoundingBoxMode = BBOX_AUTO;
-	public int BoundingBoxLeft = 0;
-	public int BoundingBoxRight = 0;
-	public int BoundingBoxTop = 0;
-	public int BoundingBoxBottom = 0;
-	private ArrayList<BufferedImage> SubImages = new ArrayList<BufferedImage>();
+	public int width = 32;
+	public int height = 32;
+	public boolean transparent = true;
+	public boolean preciseCC = true;
+	public boolean smoothEdges = false;
+	public boolean preload = true;
+	public int originX = 0;
+	public int originY = 0;
+	public byte boundingBoxMode = BBOX_AUTO;
+	public int boundingBoxLeft = 0;
+	public int boundingBoxRight = 0;
+	public int boundingBoxTop = 0;
+	public int boundingBoxBottom = 0;
+	private ArrayList<BufferedImage> subImages = new ArrayList<BufferedImage>();
 
 	public Sprite()
 		{
@@ -47,7 +47,7 @@ public class Sprite extends Resource
 
 	public int NoSubImages()
 		{
-		return SubImages.size();
+		return subImages.size();
 		}
 
 	public BufferedImage addSubImage()
@@ -56,7 +56,7 @@ public class Sprite extends Resource
 		try
 			{
 			sub = ImageIO.read(LGM.class.getResource("icons/default_sprite.png"));
-			SubImages.add(sub);
+			subImages.add(sub);
 			}
 		catch (IOException ex)
 			{
@@ -72,7 +72,7 @@ public class Sprite extends Resource
 			{
 			ByteArrayInputStream imagestr = new ByteArrayInputStream(imagedata);
 			result = ImageIO.read(imagestr);
-			SubImages.add(result);
+			subImages.add(result);
 			}
 		catch (IOException ex)
 			{
@@ -84,23 +84,23 @@ public class Sprite extends Resource
 
 	public void addSubImage(BufferedImage image)
 		{
-		SubImages.add(image);
+		subImages.add(image);
 		}
 
 	public BufferedImage getSubImage(int ListIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoSubImages()) return SubImages.get(ListIndex);
+		if (ListIndex >= 0 && ListIndex < NoSubImages()) return subImages.get(ListIndex);
 		return null;
 		}
 
 	public void removeSubImage(int ListIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoSubImages()) SubImages.remove(ListIndex);
+		if (ListIndex >= 0 && ListIndex < NoSubImages()) subImages.remove(ListIndex);
 		}
 
 	public void clearSubImages()
 		{
-		SubImages.clear();
+		subImages.clear();
 		}
 
 	public BufferedImage copySubImage(int ListIndex)// returns a copy of
@@ -120,27 +120,27 @@ public class Sprite extends Resource
 	public Sprite copy(boolean update, ResourceList src)
 		{
 		Sprite spr = new Sprite();
-		spr.Width = Width;
-		spr.Height = Height;
-		spr.Transparent = Transparent;
-		spr.PreciseCC = PreciseCC;
-		spr.SmoothEdges = SmoothEdges;
-		spr.Preload = Preload;
-		spr.OriginX = OriginX;
-		spr.OriginY = OriginY;
-		spr.BoundingBoxMode = BoundingBoxMode;
-		spr.BoundingBoxLeft = BoundingBoxLeft;
-		spr.BoundingBoxRight = BoundingBoxRight;
-		spr.BoundingBoxTop = BoundingBoxTop;
-		spr.BoundingBoxBottom = BoundingBoxBottom;
+		spr.width = width;
+		spr.height = height;
+		spr.transparent = transparent;
+		spr.preciseCC = preciseCC;
+		spr.smoothEdges = smoothEdges;
+		spr.preload = preload;
+		spr.originX = originX;
+		spr.originY = originY;
+		spr.boundingBoxMode = boundingBoxMode;
+		spr.boundingBoxLeft = boundingBoxLeft;
+		spr.boundingBoxRight = boundingBoxRight;
+		spr.boundingBoxTop = boundingBoxTop;
+		spr.boundingBoxBottom = boundingBoxBottom;
 		for (int j = 0; j < NoSubImages(); j++)
 			{
 			spr.addSubImage(copySubImage(j));
 			}
 		if (update)
 			{
-			spr.setId(new ResId(++src.LastId));
-			spr.setName(Prefs.prefixes[Resource.SPRITE] + src.LastId);
+			spr.setId(new ResId(++src.lastId));
+			spr.setName(Prefs.prefixes[Resource.SPRITE] + src.lastId);
 			src.add(spr);
 			}
 		else

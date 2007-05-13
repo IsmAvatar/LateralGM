@@ -13,8 +13,8 @@ import java.util.ArrayList;
 public class Library
 	{
 	public int id = 0;
-	public String TabCaption = "";
-	public boolean Advanced = false;
+	public String tabCaption = "";
+	public boolean advanced = false;
 	public ArrayList<LibAction> libActions = new ArrayList<LibAction>();
 
 	private LibAction addLibAction2()
@@ -27,7 +27,7 @@ public class Library
 	private LibAction getLibAction(int id)
 		{
 		for (int i = 0; i < libActions.size(); i++)
-			if (libActions.get(i).Id == id)
+			if (libActions.get(i).id == id)
 				return libActions.get(i);
 		return null;
 		}

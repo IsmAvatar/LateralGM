@@ -13,12 +13,12 @@ import org.lateralgm.main.Prefs;
 
 public class Font extends Resource
 	{
-	public String FontName = "Arial";
-	public int Size = 12;
-	public boolean Bold = false;
-	public boolean Italic = false;
-	public int CharRangeMin = 32;
-	public int CharRangeMax = 127;
+	public String fontName = "Arial";
+	public int size = 12;
+	public boolean bold = false;
+	public boolean italic = false;
+	public int charRangeMin = 32;
+	public int charRangeMax = 127;
 
 	public Font()
 		{
@@ -29,16 +29,16 @@ public class Font extends Resource
 	public Font copy(boolean update, ResourceList src)
 		{
 		Font font = new Font();
-		font.FontName = FontName;
-		font.Size = Size;
-		font.Bold = Bold;
-		font.Italic = Italic;
-		font.CharRangeMin = CharRangeMin;
-		font.CharRangeMax = CharRangeMax;
+		font.fontName = fontName;
+		font.size = size;
+		font.bold = bold;
+		font.italic = italic;
+		font.charRangeMin = charRangeMin;
+		font.charRangeMax = charRangeMax;
 		if (update)
 			{
-			font.setId(new ResId(++src.LastId));
-			font.setName(Prefs.prefixes[Resource.FONT] + src.LastId);
+			font.setId(new ResId(++src.lastId));
+			font.setName(Prefs.prefixes[Resource.FONT] + src.lastId);
 			src.add(font);
 			}
 		else

@@ -110,7 +110,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		add(store);
 		addGap(40,1);
 
-		filename = new JLabel(Messages.getString("SoundFrame.FILE") + res.FileName);
+		filename = new JLabel(Messages.getString("SoundFrame.FILE") + res.fileName);
 		filename.setPreferredSize(new Dimension(200,14));
 		add(filename);
 
@@ -195,13 +195,13 @@ public class SoundFrame extends ResourceFrame<Sound>
 		save.setAlignmentX(0.5f);
 		add(save);
 
-		Data = res.Data;
+		Data = res.data;
 		}
 
 	public boolean resourceChanged()
 		{
 		if (!resOriginal.getName().equals(name.getText()) || modified
-				|| !res.FileName.equals(filename.getText().substring(Messages.getString("SoundFrame.FILE").length()))
+				|| !res.fileName.equals(filename.getText().substring(Messages.getString("SoundFrame.FILE").length()))
 				|| res.kind != kind.getValue() || res.getEffects() != effects.getValue()
 				|| res.volume != (double) volume.getValue() / 100.0 || res.pan != (double) pan.getValue() / 100.0
 				|| res.preload != preload.isSelected()) return true;
@@ -210,7 +210,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 	public void revertResource()
 		{
-		LGM.currentFile.Sounds.replace(res.getId(),resOriginal);
+		LGM.currentFile.sounds.replace(res.getId(),resOriginal);
 		}
 
 	public void updateResource()
@@ -218,15 +218,15 @@ public class SoundFrame extends ResourceFrame<Sound>
 		res.setName(name.getText());
 
 		String n = filename.getText().substring(Messages.getString("SoundFrame.FILE").length());
-		res.FileName = n;
-		res.FileType = CustomFileFilter.getExtension(n);
-		if (res.FileType == null) res.FileType = "";
+		res.fileName = n;
+		res.fileType = CustomFileFilter.getExtension(n);
+		if (res.fileType == null) res.fileType = "";
 		res.kind = kind.getValue();
 		res.setEffects(effects.getValue());
 		res.volume = (double) volume.getValue() / 100.0;
 		res.pan = (double) pan.getValue() / 100.0;
 		res.preload = preload.isSelected();
-		res.Data = Data;
+		res.data = Data;
 		modified = false;
 		resOriginal = (Sound) res.copy(false,null);
 		}

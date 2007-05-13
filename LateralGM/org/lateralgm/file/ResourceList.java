@@ -20,7 +20,7 @@ import javax.swing.event.EventListenerList;
 
 public class ResourceList<R extends Resource>
 	{
-	private ArrayList<R> Resources = new ArrayList<R>();
+	private ArrayList<R> resources = new ArrayList<R>();
 
 	private Class<R> type; // used as a workaround for add()
 
@@ -35,17 +35,17 @@ public class ResourceList<R extends Resource>
 		this.type = type;
 		}
 
-	public int LastId = -1;
+	public int lastId = -1;
 
 	public int count()
 		{
-		return Resources.size();
+		return resources.size();
 		}
 
 	public R add(R res)
 		{
-		Resources.add(res);
-		res.setId(new ResId(++LastId));
+		resources.add(res);
+		res.setId(new ResId(++lastId));
 		res.addChangeListener(rcl);
 		fireStateChanged();
 		return res;
@@ -57,7 +57,7 @@ public class ResourceList<R extends Resource>
 		try
 			{
 			res = type.newInstance();
-			res.setName(res.getName() + LastId);
+			res.setName(res.getName() + lastId);
 			add(res);
 			}
 		catch (Exception e)
@@ -69,11 +69,11 @@ public class ResourceList<R extends Resource>
 
 	public R getUnsafe(int id)
 		{
-		for (int i = 0; i < Resources.size(); i++)
+		for (int i = 0; i < resources.size(); i++)
 			{
-			if (Resources.get(i).getId().getValue() == id)
+			if (resources.get(i).getId().getValue() == id)
 				{
-				return Resources.get(i);
+				return resources.get(i);
 				}
 			}
 		return null;
@@ -82,20 +82,20 @@ public class ResourceList<R extends Resource>
 	public R get(ResId id)
 		{
 		int ListIndex = index(id);
-		if (ListIndex != -1) return Resources.get(ListIndex);
+		if (ListIndex != -1) return resources.get(ListIndex);
 		return null;
 		}
 
 	public R get(String Name)
 		{
 		int ListIndex = index(Name);
-		if (ListIndex != -1) return Resources.get(ListIndex);
+		if (ListIndex != -1) return resources.get(ListIndex);
 		return null;
 		}
 
 	public R getList(int ListIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < Resources.size()) return Resources.get(ListIndex);
+		if (ListIndex >= 0 && ListIndex < resources.size()) return resources.get(ListIndex);
 		return null;
 		}
 
@@ -113,16 +113,16 @@ public class ResourceList<R extends Resource>
 	
 	public void remove(int index)
 		{
-		Resources.get(index).removeChangeListener(rcl);
-		Resources.remove(index);
+		resources.get(index).removeChangeListener(rcl);
+		resources.remove(index);
 		fireStateChanged();
 		}
 
 	public int index(ResId id)
 		{
-		for (int i = 0; i < Resources.size(); i++)
+		for (int i = 0; i < resources.size(); i++)
 			{
-			if (Resources.get(i).getId() == id)
+			if (resources.get(i).getId() == id)
 				{
 				return i;
 				}
@@ -132,9 +132,9 @@ public class ResourceList<R extends Resource>
 
 	public int index(String Name)
 		{
-		for (int i = 0; i < Resources.size(); i++)
+		for (int i = 0; i < resources.size(); i++)
 			{
-			if (Resources.get(i).getName().equals(Name))
+			if (resources.get(i).getName().equals(Name))
 				{
 				return i;
 				}
@@ -144,18 +144,18 @@ public class ResourceList<R extends Resource>
 
 	public void clear()
 		{
-		if (Resources.size() == 0) return;
-		for (R r : Resources)
+		if (resources.size() == 0) return;
+		for (R r : resources)
 			{
 			r.removeChangeListener(rcl);
 			}
-		Resources.clear();
+		resources.clear();
 		fireStateChanged();
 		}
 
 	public void sort()
 		{
-		Collections.sort(Resources);
+		Collections.sort(resources);
 		}
 
 	@SuppressWarnings("unchecked")
@@ -176,9 +176,9 @@ public class ResourceList<R extends Resource>
 
 	public void replace(int SrcIndex, R Replacement)
 		{
-		if (SrcIndex >= 0 && SrcIndex < Resources.size() && Replacement != null)
+		if (SrcIndex >= 0 && SrcIndex < resources.size() && Replacement != null)
 			{
-			Resources.set(SrcIndex,Replacement);
+			resources.set(SrcIndex,Replacement);
 			Replacement.addChangeListener(rcl);
 			fireStateChanged();
 			}
@@ -187,11 +187,11 @@ public class ResourceList<R extends Resource>
 	public void defragIds()
 		{
 		sort();
-		for (int i = 0; i < Resources.size(); i++)
+		for (int i = 0; i < resources.size(); i++)
 			{
-			Resources.get(i).setId(new ResId(i));
+			resources.get(i).setId(new ResId(i));
 			}
-		LastId = Resources.size() - 1;
+		lastId = resources.size() - 1;
 		}
 
 	public void addChangeListener(ChangeListener l)

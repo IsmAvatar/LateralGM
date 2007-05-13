@@ -20,8 +20,8 @@ public class Sound extends Resource
 	public static final byte MULTIMEDIA = 3;
 
 	public int kind = NORMAL;
-	public String FileType = "";
-	public String FileName = "";
+	public String fileType = "";
+	public String fileName = "";
 	public boolean chorus = false;
 	public boolean echo = false;
 	public boolean flanger = false;
@@ -30,7 +30,7 @@ public class Sound extends Resource
 	public double volume = 1;
 	public double pan = 0;
 	public boolean preload = true;
-	public byte[] Data = new byte[0];
+	public byte[] data = new byte[0];
 
 	public Sound()
 		{
@@ -86,8 +86,8 @@ public class Sound extends Resource
 		{
 		Sound snd = new Sound();
 		snd.kind = kind;
-		snd.FileType = FileType;
-		snd.FileName = FileName;
+		snd.fileType = fileType;
+		snd.fileName = fileName;
 		snd.chorus = chorus;
 		snd.echo = echo;
 		snd.flanger = flanger;
@@ -96,12 +96,12 @@ public class Sound extends Resource
 		snd.volume = volume;
 		snd.pan = pan;
 		snd.preload = preload;
-		snd.Data = new byte[Data.length];
-		System.arraycopy(Data,0,snd.Data,0,Data.length);
+		snd.data = new byte[data.length];
+		System.arraycopy(data,0,snd.data,0,data.length);
 		if (update)
 			{
-			snd.setId(new ResId(++src.LastId));
-			snd.setName(Prefs.prefixes[Resource.SOUND] + src.LastId);
+			snd.setId(new ResId(++src.lastId));
+			snd.setName(Prefs.prefixes[Resource.SOUND] + src.lastId);
 			src.add(snd);
 			}
 		else

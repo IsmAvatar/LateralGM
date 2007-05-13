@@ -71,19 +71,19 @@ public class ScriptFrame extends ResourceFrame<Script>
 
 	public void revertResource()
 		{
-		LGM.currentFile.Scripts.replace(res.getId(),resOriginal);
+		LGM.currentFile.scripts.replace(res.getId(),resOriginal);
 		}
 
 	public void updateResource()
 		{
-		res.ScriptStr = code.getText().replaceAll("\r?\n","\r\n");
+		res.scriptStr = code.getText().replaceAll("\r?\n","\r\n");
 		res.setName(name.getText());
 		resOriginal = (Script) res.copy(false,null);
 		}
 
 	public boolean resourceChanged()
 		{
-		return (!code.getText().equals(res.ScriptStr.replace("\r\n","\n")))
+		return (!code.getText().equals(res.scriptStr.replace("\r\n","\n")))
 				|| (!res.getName().equals(resOriginal.getName()));
 		}
 
@@ -107,7 +107,7 @@ public class ScriptFrame extends ResourceFrame<Script>
 			painter.setBracketHighlightColor(Color.gray);
 			putClientProperty(InputHandler.KEEP_INDENT_PROPERTY,Boolean.TRUE);
 			putClientProperty(InputHandler.SMART_HOME_END_PROPERTY,Boolean.TRUE);
-			setText(res.ScriptStr.replace("\r\n","\n"));
+			setText(res.scriptStr.replace("\r\n","\n"));
 			setCaretPosition(0);
 			LGM.currentFile.addChangeListener(rcl);
 			}

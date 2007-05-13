@@ -32,28 +32,28 @@ public class Action
 
 	// LibAction properties for resave
 	public Library library = null;
-	public int LibActionId = 101;
-	public byte ActionKind = ACT_NORMAL;
-	public boolean AllowRelative = false;
-	public boolean Question = false;
-	public boolean CanApplyTo = false;
-	public byte ExecType = EXEC_FUNCTION;
-	public String ExecFunction = "";
-	public String ExecCode = "";
+	public int libActionId = 101;
+	public byte actionKind = ACT_NORMAL;
+	public boolean allowRelative = false;
+	public boolean question = false;
+	public boolean canApplyTo = false;
+	public byte execType = EXEC_FUNCTION;
+	public String execFunction = "";
+	public String execCode = "";
 
 	// The actual Action properties
-	public boolean Relative = false;
-	public boolean Not = false;
-	public ResId AppliesTo = GmObject.OBJECT_SELF;
+	public boolean relative = false;
+	public boolean not = false;
+	public ResId appliesTo = GmObject.OBJECT_SELF;
 
-	public int NoArguments = 0;
-	public Argument[] Arguments = new Argument[6];
+	public int noArguments = 0;
+	public Argument[] arguments = new Argument[6];
 
 	public Action()
 		{
 		for (int j = 0; j < 6; j++)
 			{
-			Arguments[j] = new Argument();
+			arguments[j] = new Argument();
 			}
 		}
 	}

@@ -146,31 +146,31 @@ public class GmStreamEncoder
 		switch (type)
 			{
 			case Argument.ARG_SPRITE:
-				res = src.Sprites.get(id);
+				res = src.sprites.get(id);
 				break;
 			case Argument.ARG_SOUND:
-				res = src.Sounds.get(id);
+				res = src.sounds.get(id);
 				break;
 			case Argument.ARG_BACKGROUND:
-				res = src.Backgrounds.get(id);
+				res = src.backgrounds.get(id);
 				break;
 			case Argument.ARG_PATH:
-				res = src.Paths.get(id);
+				res = src.paths.get(id);
 				break;
 			case Argument.ARG_SCRIPT:
-				res = src.Scripts.get(id);
+				res = src.scripts.get(id);
 				break;
 			case Argument.ARG_FONT:
-				res = src.Fonts.get(id);
+				res = src.fonts.get(id);
 				break;
 			case Argument.ARG_TIMELINE:
-				res = src.Timelines.get(id);
+				res = src.timelines.get(id);
 				break;
 			case Argument.ARG_GMOBJECT:
-				res = src.GmObjects.get(id);
+				res = src.gmObjects.get(id);
 				break;
 			case Argument.ARG_ROOM:
-				res = src.Rooms.get(id);
+				res = src.rooms.get(id);
 				break;
 			}
 		if (id != null && res != null)
