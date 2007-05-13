@@ -228,12 +228,12 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 
 	public void revertResource()
 		{
-		LGM.currentFile.Timelines.replace(res.Id,resOriginal);
+		LGM.currentFile.Timelines.replace(res.getId(),resOriginal);
 		}
 
 	public void updateResource()
 		{
-		res.name = name.getText();
+		res.setName(name.getText());
 
 		resOriginal = (Timeline) res.copy(false,null);
 		}
