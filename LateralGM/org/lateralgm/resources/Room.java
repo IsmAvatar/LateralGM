@@ -60,7 +60,7 @@ public class Room extends Resource
 
 	public Room()
 		{
-		name = Prefs.prefixes[Resource.ROOM];
+		setName(Prefs.prefixes[Resource.ROOM]);
 		Parent = LGM.currentFile;
 		for (int j = 0; j < 8; j++)
 			{
@@ -264,14 +264,14 @@ public class Room extends Resource
 			}
 		if (update)
 			{
-			rm.Id.value = ++src.LastId;
-			rm.name = Prefs.prefixes[Resource.ROOM] + src.LastId;
+			rm.setId(new ResId(++src.LastId));
+			rm.setName(Prefs.prefixes[Resource.ROOM] + src.LastId);
 			src.add(rm);
 			}
 		else
 			{
-			rm.Id = this.Id;
-			rm.name = this.name;
+			rm.setId(getId());
+			rm.setName(getName());
 			}
 		return rm;
 		}

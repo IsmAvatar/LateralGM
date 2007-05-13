@@ -51,17 +51,12 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 
 	public ResNode(String name, int status, int kind, ResId res)
 		{
-		super(name);
-		this.status = (byte) status;
-		this.kind = (byte) kind;
-		resourceId = res;
+		this(name, (byte) status, (byte) kind, res);
 		}
 
 	public ResNode(String name, int status, int kind)
 		{
-		super(name);
-		this.status = (byte) status;
-		this.kind = (byte) kind;
+		this(name, status, kind, null);
 		}
 
 	public ResNode addChild(String name, byte stat, byte type)
@@ -148,7 +143,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		if (status == STATUS_SECONDARY)
 			{
 			String txt = (String) getUserObject();
-			LGM.currentFile.getList(kind).get(resourceId).name = txt;
+			LGM.currentFile.getList(kind).get(resourceId).setName(txt);
 			if (frame != null)
 				{
 				frame.setTitle(txt);

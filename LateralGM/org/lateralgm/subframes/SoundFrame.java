@@ -200,7 +200,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 	public boolean resourceChanged()
 		{
-		if (!resOriginal.name.equals(name.getText()) || modified
+		if (!resOriginal.getName().equals(name.getText()) || modified
 				|| !res.FileName.equals(filename.getText().substring(Messages.getString("SoundFrame.FILE").length()))
 				|| res.kind != kind.getValue() || res.getEffects() != effects.getValue()
 				|| res.volume != (double) volume.getValue() / 100.0 || res.pan != (double) pan.getValue() / 100.0
@@ -210,12 +210,12 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 	public void revertResource()
 		{
-		LGM.currentFile.Sounds.replace(res.Id,resOriginal);
+		LGM.currentFile.Sounds.replace(res.getId(),resOriginal);
 		}
 
 	public void updateResource()
 		{
-		res.name = name.getText();
+		res.setName(name.getText());
 
 		String n = filename.getText().substring(Messages.getString("SoundFrame.FILE").length());
 		res.FileName = n;

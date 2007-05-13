@@ -22,7 +22,7 @@ public class Font extends Resource
 
 	public Font()
 		{
-		name = Prefs.prefixes[Resource.FONT];
+		setName(Prefs.prefixes[Resource.FONT]);
 		}
 
 	@SuppressWarnings("unchecked")
@@ -37,14 +37,14 @@ public class Font extends Resource
 		font.CharRangeMax = CharRangeMax;
 		if (update)
 			{
-			font.Id.value = ++src.LastId;
-			font.name = Prefs.prefixes[Resource.FONT] + src.LastId;
+			font.setId(new ResId(++src.LastId));
+			font.setName(Prefs.prefixes[Resource.FONT] + src.LastId);
 			src.add(font);
 			}
 		else
 			{
-			font.Id = Id;
-			font.name = name;
+			font.setId(getId());
+			font.setName(getName());
 			}
 		return font;
 		}

@@ -42,7 +42,7 @@ public class Sprite extends Resource
 
 	public Sprite()
 		{
-		name = Prefs.prefixes[Resource.SPRITE];
+		setName(Prefs.prefixes[Resource.SPRITE]);
 		}
 
 	public int NoSubImages()
@@ -76,7 +76,7 @@ public class Sprite extends Resource
 			}
 		catch (IOException ex)
 			{
-			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),NoSubImages(),Id.value);
+			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),NoSubImages(),getId().getValue());
 			System.err.println();
 			}
 		return result;
@@ -139,14 +139,14 @@ public class Sprite extends Resource
 			}
 		if (update)
 			{
-			spr.Id.value = ++src.LastId;
-			spr.name = Prefs.prefixes[Resource.SPRITE] + src.LastId;
+			spr.setId(new ResId(++src.LastId));
+			spr.setName(Prefs.prefixes[Resource.SPRITE] + src.LastId);
 			src.add(spr);
 			}
 		else
 			{
-			spr.Id = Id;
-			spr.name = name;
+			spr.setId(getId());
+			spr.setName(getName());
 			}
 		return spr;
 		}

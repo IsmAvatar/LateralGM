@@ -156,7 +156,7 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public boolean resourceChanged()
 		{
-		return (!resOriginal.name.equals(name.getText())
+		return (!resOriginal.getName().equals(name.getText())
 				|| !resOriginal.FontName.equals(fonts.getSelectedItem().toString())
 				|| resOriginal.Size != size.getIntValue() || resOriginal.Bold != bold.isSelected()
 				|| resOriginal.Italic != italic.isSelected() || resOriginal.CharRangeMin != charMin.getIntValue() || resOriginal.CharRangeMax != charMax
@@ -165,12 +165,12 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public void revertResource()
 		{
-		LGM.currentFile.Fonts.replace(res.Id,resOriginal);
+		LGM.currentFile.Fonts.replace(res.getId(),resOriginal);
 		}
 
 	public void updateResource()
 		{
-		res.name = name.getText();
+		res.setName(name.getText());
 		res.FontName = fonts.getSelectedItem().toString();
 		res.Size = size.getIntValue();
 		res.Bold = bold.isSelected();

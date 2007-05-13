@@ -17,7 +17,7 @@ public class Script extends Resource
 
 	public Script()
 		{
-		name = Prefs.prefixes[Resource.SCRIPT];
+		setName(Prefs.prefixes[Resource.SCRIPT]);
 		}
 
 	@SuppressWarnings("unchecked")
@@ -27,14 +27,14 @@ public class Script extends Resource
 		scr.ScriptStr = ScriptStr;
 		if (update)
 			{
-			scr.Id.value = ++src.LastId;
-			scr.name = Prefs.prefixes[Resource.SCRIPT] + src.LastId;
+			scr.setId(new ResId(++src.LastId));
+			scr.setName(Prefs.prefixes[Resource.SCRIPT] + src.LastId);
 			src.add(scr);
 			}
 		else
 			{
-			scr.Id = Id;
-			scr.name = name;
+			scr.setId(getId());
+			scr.setName(getName());
 			}
 		return scr;
 		}

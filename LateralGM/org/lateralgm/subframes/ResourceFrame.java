@@ -48,11 +48,11 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 		this.res = res;
 		this.node = node;
 		resOriginal = (R) res.copy(false,null);
-		setTitle(res.name);
+		setTitle(res.getName());
 		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 		name = new JTextField();
 		name.setDocument(new NameDocument());
-		name.setText(res.name);
+		name.setText(res.getName());
 		name.getDocument().addDocumentListener(this);
 		name.setCaretPosition(0);
 		save = new JButton();
@@ -86,7 +86,7 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 		{
 		if (e.getDocument() == name.getDocument())
 			{
-			res.name = name.getText();
+			res.setName(name.getText());
 			setTitle(name.getText());
 			node.setUserObject(name.getText());
 			LGM.tree.updateUI();
@@ -97,7 +97,7 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 		{
 		if (e.getDocument() == name.getDocument())
 			{
-			res.name = name.getText();
+			res.setName(name.getText());
 			setTitle(name.getText());
 			node.setUserObject(name.getText());
 			LGM.tree.updateUI();
@@ -131,18 +131,18 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 			if (resourceChanged())
 				{
 				switch (JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
-						.getString("ResourceFrame.KEEPCHANGES"),res.name),Messages //$NON-NLS-1$
+						.getString("ResourceFrame.KEEPCHANGES"),res.getName()),Messages //$NON-NLS-1$
 						.getString("ResourceFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$
 					{
 					case 0: // yes
 						updateResource();
-						node.setUserObject(res.name);
+						node.setUserObject(res.getName());
 						dispose();
 						LGM.tree.updateUI();
 						break;
 					case 1: // no
 						revertResource();
-						node.setUserObject(resOriginal.name);
+						node.setUserObject(resOriginal.getName());
 						dispose();
 						LGM.tree.updateUI();
 						break;

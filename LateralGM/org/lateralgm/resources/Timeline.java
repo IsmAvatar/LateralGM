@@ -21,7 +21,7 @@ public class Timeline extends Resource
 
 	public Timeline()
 		{
-		name = Prefs.prefixes[Resource.TIMELINE];
+		setName(Prefs.prefixes[Resource.TIMELINE]);
 		}
 
 	public int NoMoments()
@@ -107,14 +107,14 @@ public class Timeline extends Resource
 			}
 		if (update)
 			{
-			time.Id.value = ++src.LastId;
-			time.name = Prefs.prefixes[Resource.TIMELINE] + src.LastId;
+			time.setId(new ResId(++src.LastId));
+			time.setName(Prefs.prefixes[Resource.TIMELINE] + src.LastId);
 			src.add(time);
 			}
 		else
 			{
-			time.Id = Id;
-			time.name = name;
+			time.setId(getId());
+			time.setName(getName());
 			}
 		return time;
 		}

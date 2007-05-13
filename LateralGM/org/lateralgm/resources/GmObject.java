@@ -30,7 +30,7 @@ public class GmObject extends Resource
 
 	public GmObject()
 		{
-		name = Prefs.prefixes[Resource.GMOBJECT];
+		setName(Prefs.prefixes[Resource.GMOBJECT]);
 		for (int j = 0; j < 11; j++)
 			{
 			MainEvents[j] = new MainEvent();
@@ -85,14 +85,14 @@ public class GmObject extends Resource
 			}
 		if (update)
 			{
-			obj.Id.value = ++src.LastId;
-			obj.name = Prefs.prefixes[Resource.GMOBJECT] + src.LastId;
+			obj.setId(new ResId(++src.LastId));
+			obj.setName(Prefs.prefixes[Resource.GMOBJECT] + src.LastId);
 			src.add(obj);
 			}
 		else
 			{
-			obj.Id = Id;
-			obj.name = name;
+			obj.setId(getId());
+			obj.setName(getName());
 			}
 		return obj;
 		}

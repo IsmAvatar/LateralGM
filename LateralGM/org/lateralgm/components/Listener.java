@@ -286,7 +286,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					}
 				}
 			Resource res = LGM.currentFile.getList(parent.kind).add();
-			ResNode g = new ResNode(res.name,ResNode.STATUS_SECONDARY,parent.kind,res.Id);
+			ResNode g = new ResNode(res.getName(),ResNode.STATUS_SECONDARY,parent.kind,res.getId());
 			parent.insert(g,pos);
 			tree.expandPath(new TreePath(parent.getPath()));
 			tree.setSelectionPath(new TreePath(g.getPath()));

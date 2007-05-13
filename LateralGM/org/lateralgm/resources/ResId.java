@@ -10,7 +10,7 @@ package org.lateralgm.resources;
 
 public class ResId
 	{
-	public int value;
+	private int value;
 
 	public ResId(int value)
 		{
@@ -20,5 +20,10 @@ public class ResId
 	public String toString()
 		{
 		return Integer.toString(value);
+		}
+
+	public int getValue()
+		{
+		return value;
 		}
 	}

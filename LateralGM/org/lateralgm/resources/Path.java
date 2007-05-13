@@ -26,7 +26,7 @@ public class Path extends Resource
 
 	public Path()
 		{
-		name = Prefs.prefixes[Resource.PATH];
+		setName(Prefs.prefixes[Resource.PATH]);
 		}
 
 	public int NoPoints()
@@ -77,14 +77,14 @@ public class Path extends Resource
 			}
 		if (update)
 			{
-			path.Id.value = ++src.LastId;
-			path.name = Prefs.prefixes[Resource.PATH] + src.LastId;
+			path.setId(new ResId(++src.LastId));
+			path.setName(Prefs.prefixes[Resource.PATH] + src.LastId);
 			src.add(path);
 			}
 		else
 			{
-			path.Id = Id;
-			path.name = name;
+			path.setId(getId());
+			path.setName(getName());
 			}
 		return path;
 		}

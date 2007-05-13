@@ -34,6 +34,7 @@ public abstract class InputHandler extends KeyAdapter
 	 * this property is not set.
 	 */
 	public static final String SMART_HOME_END_PROPERTY = "InputHandler.homeEnd";
+	public static final String KEEP_INDENT_PROPERTY = "InputHandler.keepIndent";
 
 	public static final ActionListener BACKSPACE = new backspace();
 	public static final ActionListener BACKSPACE_WORD = new backspace_word();
@@ -695,7 +696,17 @@ public abstract class InputHandler extends KeyAdapter
 				return;
 				}
 
-			textArea.setSelectedText("\n");
+			if (Boolean.TRUE.equals(textArea.getClientProperty(KEEP_INDENT_PROPERTY))
+					&& textArea.getSelectedText() == null)
+				{
+				int caretLine = textArea.getCaretLine();
+				int caretPos = textArea.getCaretPosition() - textArea.getLineStartOffset(caretLine);
+				String indent = textArea.getLineText(caretLine).split("\\S",2)[0];
+				if (indent.length() > caretPos) indent = indent.substring(0,caretPos);
+				textArea.setSelectedText("\n" + indent);
+				}
+			else
+				textArea.setSelectedText("\n");
 			}
 		}
 

@@ -34,7 +34,7 @@ public class Sound extends Resource
 
 	public Sound()
 		{
-		name = Prefs.prefixes[Resource.SOUND];
+		setName(Prefs.prefixes[Resource.SOUND]);
 		}
 
 	public static boolean getChorus(int effects)
@@ -100,14 +100,14 @@ public class Sound extends Resource
 		System.arraycopy(Data,0,snd.Data,0,Data.length);
 		if (update)
 			{
-			snd.Id.value = ++src.LastId;
-			snd.name = Prefs.prefixes[Resource.SOUND] + src.LastId;
+			snd.setId(new ResId(++src.LastId));
+			snd.setName(Prefs.prefixes[Resource.SOUND] + src.LastId);
 			src.add(snd);
 			}
 		else
 			{
-			snd.Id = Id;
-			snd.name = name;
+			snd.setId(getId());
+			snd.setName(getName());
 			}
 		return snd;
 		}

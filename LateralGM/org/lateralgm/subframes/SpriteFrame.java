@@ -275,7 +275,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	@Override
 	public boolean resourceChanged()
 		{
-		System.out.println(!resOriginal.name.equals(name.getText()));
+		System.out.println(!resOriginal.getName().equals(name.getText()));
 		System.out.println(imageChanged);
 		System.out.println(resOriginal.Transparent != transparent.isSelected());
 		System.out.println(resOriginal.PreciseCC != preciseCC.isSelected());
@@ -291,7 +291,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 		// For now, BBOX_AUTO is the same as full, which triggers false changed dialogs
 		if (bboxGroup.getValue() == Sprite.BBOX_MANUAL)
-			return (!resOriginal.name.equals(name.getText()) || imageChanged
+			return (!resOriginal.getName().equals(name.getText()) || imageChanged
 					|| resOriginal.Transparent != transparent.isSelected()
 					|| resOriginal.PreciseCC != preciseCC.isSelected()
 					|| resOriginal.SmoothEdges != smooth.isSelected() || resOriginal.Preload != preload.isSelected()
@@ -302,7 +302,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 					|| resOriginal.BoundingBoxTop != bboxTop.getIntValue() || resOriginal.BoundingBoxBottom != bboxBottom
 					.getIntValue());
 		else
-			return (!resOriginal.name.equals(name.getText()) || imageChanged
+			return (!resOriginal.getName().equals(name.getText()) || imageChanged
 					|| resOriginal.Transparent != transparent.isSelected()
 					|| resOriginal.PreciseCC != preciseCC.isSelected()
 					|| resOriginal.SmoothEdges != smooth.isSelected() || resOriginal.Preload != preload.isSelected()
@@ -312,12 +312,12 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public void revertResource()
 		{
-		LGM.currentFile.Sprites.replace(res.Id,resOriginal);
+		LGM.currentFile.Sprites.replace(res.getId(),resOriginal);
 		}
 
 	public void updateResource()
 		{
-		res.name = name.getText();
+		res.setName(name.getText());
 		res.Transparent = transparent.isSelected();
 		res.PreciseCC = preciseCC.isSelected();
 		res.SmoothEdges = smooth.isSelected();

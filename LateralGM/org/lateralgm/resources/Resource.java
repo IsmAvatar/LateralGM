@@ -21,6 +21,10 @@
 
 package org.lateralgm.resources;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
+
 import org.lateralgm.file.ResourceList;
 
 //TODO Implement Resource.equals method
@@ -39,12 +43,64 @@ public abstract class Resource implements Comparable<Resource>
 	public static final byte GAMEINFO = 10;
 	public static final byte GAMESETTINGS = 11;
 
-	public ResId Id = new ResId(0);
-	public String name = "";
+	EventListenerList listenerList = new EventListenerList();
+	ChangeEvent changeEvent = null;
+
+	private ResId Id = new ResId(0);
+	private String name = "";
 
 	public int compareTo(Resource res)
 		{
-		return res.Id.value == Id.value ? 0 : (res.Id.value < Id.value ? -1 : 1);
+		return res.Id.getValue() == Id.getValue() ? 0 : (res.Id.getValue() < Id.getValue() ? -1 : 1);
+		}
+
+	public void addChangeListener(ChangeListener l)
+		{
+		listenerList.add(ChangeListener.class,l);
+		}
+
+	public void removeChangeListener(ChangeListener l)
+		{
+		listenerList.remove(ChangeListener.class,l);
+		}
+
+	protected void fireStateChanged()
+		{
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2)
+			{
+			if (listeners[i] == ChangeListener.class)
+				{
+				// Lazily create the event:
+				if (changeEvent == null) changeEvent = new ChangeEvent(this);
+				((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
+				}
+			}
+		}
+
+	public ResId getId()
+		{
+		return Id;
+		}
+
+	public void setId(ResId id)
+		{
+		Id = id;
+		fireStateChanged();
+		}
+
+	public String getName()
+		{
+		return name;
+		}
+
+	public void setName(String name)
+		{
+		this.name = name;
+		fireStateChanged();
 		}
 
 	@SuppressWarnings("unchecked")

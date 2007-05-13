@@ -132,7 +132,7 @@ public class GmStreamEncoder
 		Resource res = src.getList(type).get(id);
 		if (id != null && res != null)
 			{
-			writei(id.value);
+			writei(id.getValue());
 			}
 		else
 			{
@@ -175,7 +175,7 @@ public class GmStreamEncoder
 			}
 		if (id != null && res != null)
 			{
-			writeStr(Integer.toString(id.value));
+			writeStr(Integer.toString(id.getValue()));
 			}
 		else
 			{
@@ -193,7 +193,7 @@ public class GmStreamEncoder
 			writei(node.status);
 			writei(node.kind);
 			if (node.resourceId != null)
-				writei(node.resourceId.value);
+				writei(node.resourceId.getValue());
 			else
 				writei(0);
 			writeStr((String) node.getUserObject());

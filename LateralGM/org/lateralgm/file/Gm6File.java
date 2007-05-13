@@ -40,6 +40,9 @@ import java.util.Map;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
 
 import org.lateralgm.components.ResNode;
 import org.lateralgm.resources.Background;
@@ -83,7 +86,7 @@ public class Gm6File
 				}
 			for (int i = 0; i < ids.size(); i++)
 				{
-				if (ids.get(i).value == id)
+				if (ids.get(i).getValue() == id)
 					{
 					return ids.get(i);
 					}
@@ -107,6 +110,11 @@ public class Gm6File
 	public ArrayList<Constant> constants = new ArrayList<Constant>();
 	public ArrayList<Include> includes = new ArrayList<Include>();
 
+	private final ResourceChangeListener rcl = new ResourceChangeListener();
+
+	EventListenerList listenerList = new EventListenerList();
+	ChangeEvent changeEvent = null;
+
 	public Gm6File()
 		{
 		resMap.put(new Integer(Resource.SPRITE),Sprites);
@@ -118,6 +126,10 @@ public class Gm6File
 		resMap.put(new Integer(Resource.TIMELINE),Timelines);
 		resMap.put(new Integer(Resource.GMOBJECT),GmObjects);
 		resMap.put(new Integer(Resource.ROOM),Rooms);
+		for (ResourceList<?> rl : resMap.values())
+			{
+			rl.addChangeListener(rcl);
+			}
 		GameId = new Random().nextInt(100000001);
 		GameIconData = new byte[0];
 		try
@@ -348,7 +360,7 @@ public class Gm6File
 				if (in.readBool())
 					{
 					Sound snd = Sounds.add();
-					snd.name = in.readStr();
+					snd.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 600)
 						throw new Gm6FormatException(String.format(Messages
@@ -379,7 +391,7 @@ public class Gm6File
 				if (in.readBool())
 					{
 					Sprite spr = Sprites.add();
-					spr.name = in.readStr();
+					spr.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 542)
 						throw new Gm6FormatException(String.format(Messages
@@ -420,7 +432,7 @@ public class Gm6File
 				if (in.readBool())
 					{
 					Background back = Backgrounds.add();
-					back.name = in.readStr();
+					back.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 543)
 						throw new Gm6FormatException(String.format(Messages
@@ -458,7 +470,7 @@ public class Gm6File
 				if (in.readBool())
 					{
 					Path path = Paths.add();
-					path.name = in.readStr();
+					path.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 530)
 						throw new Gm6FormatException(String.format(
@@ -493,7 +505,7 @@ public class Gm6File
 				if (in.readBool())
 					{
 					Script scr = Scripts.add();
-					scr.name = in.readStr();
+					scr.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 400)
 						throw new Gm6FormatException(String.format(Messages
@@ -516,7 +528,7 @@ public class Gm6File
 				if (in.readBool())
 					{
 					Font font = Fonts.add();
-					font.name = in.readStr();
+					font.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 540)
 						throw new Gm6FormatException(String.format(
@@ -546,8 +558,8 @@ public class Gm6File
 				if (in.readBool())
 					{
 					Timeline time = Timelines.add();
-					time.Id = timeids.get(i);
-					time.name = in.readStr();
+					time.setId(timeids.get(i));
+					time.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 500)
 						throw new Gm6FormatException(String.format(Messages
@@ -636,7 +648,7 @@ public class Gm6File
 										}
 									if (res != null && res != tag)
 										{
-										act.Arguments[l].Res = res.Id;
+										act.Arguments[l].Res = res.getId();
 										}
 									}
 								else
@@ -663,21 +675,21 @@ public class Gm6File
 				if (in.readBool())
 					{
 					GmObject obj = GmObjects.add();
-					obj.Id = objids.get(i);
-					obj.name = in.readStr();
+					obj.setId(objids.get(i));
+					obj.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 430)
 						throw new Gm6FormatException(String.format(Messages
 								.getString("Gm6File.ERROR_UNSUPPORTED_INOBJECT"),i,ver)); //$NON-NLS-1$
 					Sprite temp = Sprites.getUnsafe(in.readi());
-					if (temp != null) obj.Sprite = temp.Id;
+					if (temp != null) obj.Sprite = temp.getId();
 					obj.Solid = in.readBool();
 					obj.Visible = in.readBool();
 					obj.Depth = in.readi();
 					obj.Persistent = in.readBool();
 					obj.Parent = objids.get(in.readi());
 					temp = Sprites.getUnsafe(in.readi());
-					if (temp != null) obj.Mask = temp.Id;
+					if (temp != null) obj.Mask = temp.getId();
 					in.skip(4);
 					for (int j = 0; j < 11; j++)
 						{
@@ -770,7 +782,7 @@ public class Gm6File
 												}
 											if (res != null && res != tag)
 												{
-												act.Arguments[l].Res = res.Id;
+												act.Arguments[l].Res = res.getId();
 												}
 											}
 										else
@@ -799,8 +811,8 @@ public class Gm6File
 				if (in.readBool())
 					{
 					Room rm = Rooms.add(new Room(this));
-					rm.Id = rmids.get(i);
-					rm.name = in.readStr();
+					rm.setId(rmids.get(i));
+					rm.setName(in.readStr());
 					ver = in.readi();
 					if (ver != 541)
 						throw new Gm6FormatException(String.format(
@@ -823,7 +835,7 @@ public class Gm6File
 						bk.Visible = in.readBool();
 						bk.Foreground = in.readBool();
 						Background temp = Backgrounds.getUnsafe(in.readi());
-						if (temp != null) bk.BackgroundId = temp.Id;
+						if (temp != null) bk.BackgroundId = temp.getId();
 						bk.X = in.readi();
 						bk.Y = in.readi();
 						bk.TileHoriz = in.readBool();
@@ -851,7 +863,7 @@ public class Gm6File
 						vw.HSpeed = in.readi();
 						vw.VSpeed = in.readi();
 						GmObject temp = GmObjects.getUnsafe(in.readi());
-						if (temp != null) vw.ObjectFollowing = temp.Id;
+						if (temp != null) vw.ObjectFollowing = temp.getId();
 						}
 					int noinstances = in.readi();
 					for (int j = 0; j < noinstances; j++)
@@ -860,7 +872,7 @@ public class Gm6File
 						inst.X = in.readi();
 						inst.Y = in.readi();
 						GmObject temp = GmObjects.getUnsafe(in.readi());
-						if (temp != null) inst.GmObjectId = temp.Id;
+						if (temp != null) inst.GmObjectId = temp.getId();
 						inst.InstanceId = in.readi();
 						inst.CreationCode = in.readStr();
 						inst.Locked = in.readBool();
@@ -872,7 +884,7 @@ public class Gm6File
 						ti.X = in.readi();
 						ti.Y = in.readi();
 						Background temp = Backgrounds.getUnsafe(in.readi());
-						if (temp != null) ti.BackgroundId = temp.Id;
+						if (temp != null) ti.BackgroundId = temp.getId();
 						ti.TileX = in.readi();
 						ti.TileY = in.readi();
 						ti.Width = in.readi();
@@ -1052,7 +1064,7 @@ public class Gm6File
 				out.writeBool(snd != null);
 				if (snd != null)
 					{
-					out.writeStr(snd.name);
+					out.writeStr(snd.getName());
 					out.writei(600);
 					out.writei(snd.kind);
 					out.writeStr(snd.FileType);
@@ -1080,7 +1092,7 @@ public class Gm6File
 				out.writeBool(spr != null);
 				if (spr != null)
 					{
-					out.writeStr(spr.name);
+					out.writeStr(spr.getName());
 					out.writei(542);
 					out.writei(spr.Width);
 					out.writei(spr.Height);
@@ -1114,7 +1126,7 @@ public class Gm6File
 				out.writeBool(back != null);
 				if (back != null)
 					{
-					out.writeStr(back.name);
+					out.writeStr(back.getName());
 					out.writei(543);
 					out.writei(back.Width);
 					out.writei(back.Height);
@@ -1148,7 +1160,7 @@ public class Gm6File
 				out.writeBool(path != null);
 				if (path != null)
 					{
-					out.writeStr(path.name);
+					out.writeStr(path.getName());
 					out.writei(530);
 					out.writeBool(path.Smooth);
 					out.writeBool(path.Closed);
@@ -1175,7 +1187,7 @@ public class Gm6File
 				out.writeBool(scr != null);
 				if (scr != null)
 					{
-					out.writeStr(scr.name);
+					out.writeStr(scr.getName());
 					out.writei(400);
 					out.writeStr(scr.ScriptStr);
 					}
@@ -1190,7 +1202,7 @@ public class Gm6File
 				out.writeBool(font != null);
 				if (font != null)
 					{
-					out.writeStr(font.name);
+					out.writeStr(font.getName());
 					out.writei(540);
 					out.writeStr(font.FontName);
 					out.writei(font.Size);
@@ -1210,7 +1222,7 @@ public class Gm6File
 				out.writeBool(time != null);
 				if (time != null)
 					{
-					out.writeStr(time.name);
+					out.writeStr(time.getName());
 					out.writei(500);
 					out.writei(time.NoMoments());
 					for (int j = 0; j < time.NoMoments(); j++)
@@ -1243,11 +1255,11 @@ public class Gm6File
 								}
 							if (act.AppliesTo != null)
 								{
-								if (act.AppliesTo.value >= 0)
+								if (act.AppliesTo.getValue() >= 0)
 									out.writeId(act.AppliesTo,Resource.GMOBJECT,-100,this);
 								else
 									// self/other are exceptions to the system
-									out.writei(act.AppliesTo.value);
+									out.writei(act.AppliesTo.getValue());
 								}
 							else
 								out.writei(-100);
@@ -1293,7 +1305,7 @@ public class Gm6File
 				out.writeBool(obj != null);
 				if (obj != null)
 					{
-					out.writeStr(obj.name);
+					out.writeStr(obj.getName());
 					out.writei(430);
 					out.writeId(obj.Sprite,Resource.SPRITE,this);
 					out.writeBool(obj.Solid);
@@ -1338,11 +1350,11 @@ public class Gm6File
 									}
 								if (act.AppliesTo != null)
 									{
-									if (act.AppliesTo.value >= 0)
+									if (act.AppliesTo.getValue() >= 0)
 										out.writeId(act.AppliesTo,Resource.GMOBJECT,-100,this);
 									else
 										// self/other are exceptions to the system
-										out.writei(act.AppliesTo.value);
+										out.writei(act.AppliesTo.getValue());
 									}
 								else
 									out.writei(-100);
@@ -1390,7 +1402,7 @@ public class Gm6File
 				out.writeBool(rm != null);
 				if (rm != null)
 					{
-					out.writeStr(rm.name);
+					out.writeStr(rm.getName());
 					out.writei(541);
 					out.writeStr(rm.Caption);
 					out.writei(rm.Width);
@@ -1546,6 +1558,46 @@ public class Gm6File
 				Rooms.getList(i).getInstanceList(j).InstanceId = ++LastInstanceId;
 			for (int j = 0; j < Rooms.getList(i).NoTiles(); j++)
 				Rooms.getList(i).getTileList(j).TileId = ++LastTileId;
+			}
+		}
+
+	public void addChangeListener(ChangeListener l)
+		{
+		listenerList.add(ChangeListener.class,l);
+		}
+
+	public void removeChangeListener(ChangeListener l)
+		{
+		listenerList.remove(ChangeListener.class,l);
+		}
+
+	protected void fireStateChanged(ChangeEvent e)
+		{
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2)
+			{
+			if (listeners[i] == ChangeListener.class)
+				{
+				((ChangeListener) listeners[i + 1]).stateChanged(e);
+				}
+			}
+		}
+
+	protected void fireStateChanged()
+		{
+		// Lazily create the event:
+		if (changeEvent == null) changeEvent = new ChangeEvent(this);
+		fireStateChanged(changeEvent);
+		}
+
+	private class ResourceChangeListener implements ChangeListener
+		{
+		public void stateChanged(ChangeEvent e)
+			{
+			fireStateChanged(e);
 			}
 		}
 	}

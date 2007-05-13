@@ -31,7 +31,7 @@ public class Background extends Resource
 
 	public Background()
 		{
-		name = Prefs.prefixes[Resource.BACKGROUND];
+		setName(Prefs.prefixes[Resource.BACKGROUND]);
 		}
 
 	public BufferedImage copyBackgroundImage()
@@ -65,14 +65,14 @@ public class Background extends Resource
 		back.BackgroundImage = copyBackgroundImage();
 		if (update)
 			{
-			back.Id.value = ++src.LastId;
-			back.name = Prefs.prefixes[Resource.BACKGROUND] + src.LastId;
+			back.setId(new ResId(++src.LastId));
+			back.setName(Prefs.prefixes[Resource.BACKGROUND] + src.LastId);
 			src.add(back);
 			}
 		else
 			{
-			back.Id = Id;
-			back.name = name;
+			back.setId(getId());
+			back.setName(getName());
 			}
 		return back;
 		}
