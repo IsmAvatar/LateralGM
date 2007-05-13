@@ -26,6 +26,7 @@ import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ScriptFrame;
 import org.lateralgm.subframes.SoundFrame;
 import org.lateralgm.subframes.SpriteFrame;
+import org.lateralgm.subframes.TimelineFrame;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable
 	{
@@ -116,6 +117,9 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 					break;
 				case Resource.FONT:
 					rf = new FontFrame(LGM.currentFile.Fonts.get(resourceId),this);
+					break;
+				case Resource.TIMELINE:
+					rf = new TimelineFrame(LGM.currentFile.Timelines.get(resourceId),this);
 					break;
 				}
 			if (rf != null)

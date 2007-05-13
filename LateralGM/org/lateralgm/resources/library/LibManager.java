@@ -23,7 +23,7 @@ import org.lateralgm.file.GmStreamDecoder;
 
 public class LibManager
 	{
-	private static class myFilenameFilter implements FilenameFilter
+	public static class libFilenameFilter implements FilenameFilter
 		{
 		public boolean accept(File dir, String name)
 			{
@@ -38,11 +38,15 @@ public class LibManager
 		return Libs.size();
 		}
 
-	public static LibAction getLibAction(int LibraryId, int LibActionId)
+	private static LibAction getLibAction(int LibraryId, int LibActionId)
 		{
 		int no = noLibraries(LibraryId);
 		for (int i = 0; i < no; i++)
 			{
+//			int ListIndex = LibActionIndex(LibActionId);
+//			if (ListIndex != -1) return libActions.get(ListIndex);
+//			return null;
+			
 			LibAction act = getLibrary(LibraryId,i).getLibAction(LibActionId);
 			if (act != null) return act;
 			}
@@ -106,7 +110,7 @@ public class LibManager
 
 	public static void autoLoad(String libdir)
 		{
-		File[] files = new File(libdir).listFiles(new myFilenameFilter());
+		File[] files = new File(libdir).listFiles(new libFilenameFilter());
 		Arrays.sort(files);// listFiles does not guarantee a particular order
 		for (int i = 0; i < files.length; i++)
 			{
@@ -158,7 +162,8 @@ public class LibManager
 							Messages.getString("LibManager.ERROR_INVALIDACTION"),j,FileName,ver)); //$NON-NLS-1$
 					}
 
-				LibAction act = lib.addLibAction();
+				LibAction act = new LibAction();
+				lib.libActions.add(act);
 				in.skip(in.readi());// name
 				act.Id = in.readi();// System.out.println("Action id is: "+act.Id);
 

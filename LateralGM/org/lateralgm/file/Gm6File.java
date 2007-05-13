@@ -67,8 +67,6 @@ import org.lateralgm.resources.sub.Point;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
-
-
 //TODO Re-implement the icon loading code using com.ctreber.aclib.ico
 public class Gm6File
 	{

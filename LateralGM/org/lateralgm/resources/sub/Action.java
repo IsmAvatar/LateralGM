@@ -10,6 +10,7 @@ package org.lateralgm.resources.sub;
 
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.library.Library;
 
 public class Action
 	{
@@ -30,7 +31,7 @@ public class Action
 	public static final byte EXEC_CODE = 2;
 
 	// LibAction properties for resave
-	public int LibraryId = 1;
+	public Library library = null;
 	public int LibActionId = 101;
 	public byte ActionKind = ACT_NORMAL;
 	public boolean AllowRelative = false;

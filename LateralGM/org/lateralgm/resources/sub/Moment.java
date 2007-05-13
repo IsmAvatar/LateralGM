@@ -30,8 +30,8 @@ public class Moment
 		return act;
 		}
 
-	public Action addAction(int LibId, int LibActionId)// adds an action set to the properties of given
-	// LibAction
+	// adds an action set to the properties of given LibAction
+	public Action addAction(int LibId, int LibActionId)
 		{
 		Action act = new Action();
 		LibAction lact = LibManager.getLibAction(LibId,LibActionId);
