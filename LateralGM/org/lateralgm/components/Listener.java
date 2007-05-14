@@ -305,10 +305,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			ResNode me = (ResNode) tree.getLastSelectedPathComponent();
 			if (me == null) return;
 			if (Prefs.protectRoot && me.status == ResNode.STATUS_PRIMARY) return;
-			if (JOptionPane
-					.showConfirmDialog(
-							null,
-							Messages.getString("Listener.CONFIRM_DELETERESOURCE"),Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$ //$NON-NLS-2$
+			if (JOptionPane.showConfirmDialog(null,Messages.getString("Listener.CONFIRM_DELETERESOURCE"), //$NON-NLS-1$
+					Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$
 				{
 				ResNode next = (ResNode) me.getNextSibling();
 				if (next == null) next = (ResNode) me.getParent();
@@ -322,8 +320,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.endsWith(".DEFRAGIDS")) //$NON-NLS-1$
 			{
-			if (JOptionPane.showConfirmDialog(LGM.frame,Messages.getString("Listener.CONFIRM_DEFRAGIDS"),Messages //$NON-NLS-1$
-					.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$
+			if (JOptionPane.showConfirmDialog(LGM.frame,Messages.getString("Listener.CONFIRM_DEFRAGIDS"), //$NON-NLS-1$
+					Messages.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$
 				LGM.currentFile.defragIds();
 			}
 		if (com.endsWith(".EXPAND")) //$NON-NLS-1$
@@ -345,10 +343,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		}
 
-	private ResNode getPrimaryParent(int Kind)
+	private ResNode getPrimaryParent(int kind)
 		{
 		for (int i = 0; i < LGM.root.getChildCount(); i++)
-			if (((ResNode) LGM.root.getChildAt(i)).kind == Kind) return (ResNode) LGM.root.getChildAt(i);
+			if (((ResNode) LGM.root.getChildAt(i)).kind == kind) return (ResNode) LGM.root.getChildAt(i);
 		return null;
 		}
 

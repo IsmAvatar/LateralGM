@@ -69,9 +69,9 @@ public class Room extends Resource
 			}
 		}
 
-	public Room(Gm6File Parent)// Rooms are special - they need to know what file they belong to
+	public Room(Gm6File parent)// Rooms are special - they need to know what file they belong to
 		{
-		this.parent = Parent;
+		this.parent = parent;
 		for (int j = 0; j < 8; j++)
 			{
 			views[j] = new View();
@@ -79,14 +79,14 @@ public class Room extends Resource
 			}
 		}
 
-	public int NoInstances()
+	public int noInstances()
 		{
 		return instances.size();
 		}
 
 	private ArrayList<Tile> tiles = new ArrayList<Tile>();
 
-	public int NoTiles()
+	public int noTiles()
 		{
 		return tiles.size();
 		}
@@ -99,32 +99,32 @@ public class Room extends Resource
 		return inst;
 		}
 
-	public Instance getInstance(int InstanceId)
+	public Instance getInstance(int instanceId)
 		{
-		int Index = InstanceIndex(InstanceId);
-		if (Index != -1) return instances.get(Index);
+		int index = instanceIndex(instanceId);
+		if (index != -1) return instances.get(index);
 		return null;
 		}
 
-	public int InstanceIndex(int InstanceId)
+	public int instanceIndex(int instanceId)
 		{
-		for (int i = 0; i < NoInstances(); i++)
+		for (int i = 0; i < noInstances(); i++)
 			{
-			if (getInstanceList(i).instanceId == InstanceId) return i;
+			if (getInstanceList(i).instanceId == instanceId) return i;
 			}
 		return -1;
 		}
 
-	public Instance getInstanceList(int ListIndex)
+	public Instance getInstanceList(int listIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoInstances()) return instances.get(ListIndex);
+		if (listIndex >= 0 && listIndex < noInstances()) return instances.get(listIndex);
 		return null;
 		}
 
-	public void removeInstance(int InstanceId)
+	public void removeInstance(int instanceId)
 		{
-		int Index = InstanceIndex(InstanceId);
-		if (Index != -1) instances.remove(Index);
+		int index = instanceIndex(instanceId);
+		if (index != -1) instances.remove(index);
 		}
 
 	public void clearInstances()
@@ -140,32 +140,32 @@ public class Room extends Resource
 		return tile;
 		}
 
-	public Tile getTile(int TileId)
+	public Tile getTile(int tileId)
 		{
-		int Index = TileIndex(TileId);
-		if (Index != -1) return tiles.get(Index);
+		int index = tileIndex(tileId);
+		if (index != -1) return tiles.get(index);
 		return null;
 		}
 
-	public int TileIndex(int TileId)
+	public int tileIndex(int tileId)
 		{
-		for (int i = 0; i < NoTiles(); i++)
+		for (int i = 0; i < noTiles(); i++)
 			{
-			if (getTileList(i).tileId == TileId) return i;
+			if (getTileList(i).tileId == tileId) return i;
 			}
 		return -1;
 		}
 
-	public Tile getTileList(int ListIndex)
+	public Tile getTileList(int listIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoTiles()) return tiles.get(ListIndex);
+		if (listIndex >= 0 && listIndex < noTiles()) return tiles.get(listIndex);
 		return null;
 		}
 
-	public void removeTile(int TileId)
+	public void removeTile(int tileId)
 		{
-		int Index = TileIndex(TileId);
-		if (Index != -1) tiles.remove(Index);
+		int index = tileIndex(tileId);
+		if (index != -1) tiles.remove(index);
 		}
 
 	public void clearTiles()
@@ -204,7 +204,7 @@ public class Room extends Resource
 		rm.scrollBarX = scrollBarX;
 		rm.scrollBarY = scrollBarY;
 		rm.enableViews = enableViews;
-		for (int i = 0; i < this.NoInstances(); i++)
+		for (int i = 0; i < this.noInstances(); i++)
 			{
 			Instance inst = getInstanceList(i);
 			Instance inst2 = rm.addInstance();
@@ -214,7 +214,7 @@ public class Room extends Resource
 			inst2.x = inst.x;
 			inst2.y = inst.y;
 			}
-		for (int i = 0; i < this.NoTiles(); i++)
+		for (int i = 0; i < this.noTiles(); i++)
 			{
 			Tile tile = getTileList(i);
 			Tile tile2 = rm.addTile();

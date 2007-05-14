@@ -267,21 +267,21 @@ public class Gm6File
 	public GameInformation gameInfo = new GameInformation();
 
 	// TODO externalise the file IO?
-	public void readGm6File(String FileName, ResNode root) throws Gm6FormatException
+	public void readGm6File(String fileName, ResNode root) throws Gm6FormatException
 		{
 		clearAll();
 		GmStreamDecoder in = null;
 		try
 			{
 			long startTime = System.currentTimeMillis();
-			in = new GmStreamDecoder(FileName);
+			in = new GmStreamDecoder(fileName);
 			IdStack timeids = new IdStack(); // timeline ids
 			IdStack objids = new IdStack(); // object ids
 			IdStack rmids = new IdStack(); // room ids
 			int identifier = in.readi();
 			if (identifier != 1234321)
 				throw new Gm6FormatException(String.format(
-						Messages.getString("Gm6File.ERROR_INVALID"),FileName,identifier)); //$NON-NLS-1$
+						Messages.getString("Gm6File.ERROR_INVALID"),fileName,identifier)); //$NON-NLS-1$
 			int ver = in.readi();
 			if (ver != 600)
 				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED"),ver)); //$NON-NLS-1$
@@ -554,8 +554,8 @@ public class Gm6File
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFORETIMELINES"),ver)); //$NON-NLS-1$
 			// TIMELINES
-			Resource tag = new Script(); // workaround for the case statement below (declared here to prevent
-			// repeated instantiation)
+			// workaround for the case statement below (declared here to prevent repeated instantiation)
+			Resource tag = new Script();
 			no = in.readi();
 			timelines.lastId = -1;
 			for (int i = 0; i < no; i++)
@@ -1173,8 +1173,8 @@ public class Gm6File
 					out.writeId(path.backgroundRoom,Resource.ROOM,this);
 					out.writei(path.snapX);
 					out.writei(path.snapY);
-					out.writei(path.NoPoints());
-					for (int j = 0; j < path.NoPoints(); j++)
+					out.writei(path.noPoints());
+					for (int j = 0; j < path.noPoints(); j++)
 						{
 						out.writeD(path.getPoint(j).x);
 						out.writeD(path.getPoint(j).y);
@@ -1455,8 +1455,8 @@ public class Gm6File
 						out.writei(view.vspeed);
 						out.writeId(view.objectFollowing,Resource.GMOBJECT,this);
 						}
-					out.writei(rm.NoInstances());
-					for (int j = 0; j < rm.NoInstances(); j++)
+					out.writei(rm.noInstances());
+					for (int j = 0; j < rm.noInstances(); j++)
 						{
 						Instance in = rm.getInstanceList(j);
 						out.writei(in.x);
@@ -1466,8 +1466,8 @@ public class Gm6File
 						out.writeStr(in.creationCode);
 						out.writeBool(in.locked);
 						}
-					out.writei(rm.NoTiles());
-					for (int j = 0; j < rm.NoTiles(); j++)
+					out.writei(rm.noTiles());
+					for (int j = 0; j < rm.noTiles(); j++)
 						{
 						Tile tile = rm.getTileList(j);
 						out.writei(tile.x);
@@ -1559,9 +1559,9 @@ public class Gm6File
 		lastTileId = 100000;
 		for (int i = 0; i < rooms.count(); i++)
 			{
-			for (int j = 0; j < rooms.getList(i).NoInstances(); j++)
+			for (int j = 0; j < rooms.getList(i).noInstances(); j++)
 				rooms.getList(i).getInstanceList(j).instanceId = ++lastInstanceId;
-			for (int j = 0; j < rooms.getList(i).NoTiles(); j++)
+			for (int j = 0; j < rooms.getList(i).noTiles(); j++)
 				rooms.getList(i).getTileList(j).tileId = ++lastTileId;
 			}
 		}

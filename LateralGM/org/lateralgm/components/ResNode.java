@@ -33,9 +33,9 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	private static final long serialVersionUID = 1L;
 	public static final DataFlavor NODE_FLAVOR = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType,"Node");
 	private DataFlavor[] flavors = { NODE_FLAVOR };
-	public static byte STATUS_PRIMARY = 1;
-	public static byte STATUS_GROUP = 2;
-	public static byte STATUS_SECONDARY = 3;
+	public static final byte STATUS_PRIMARY = 1;
+	public static final byte STATUS_GROUP = 2;
+	public static final byte STATUS_SECONDARY = 3;
 	public byte status;
 	public byte kind;
 	public ResId resourceId;

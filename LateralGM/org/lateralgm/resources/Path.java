@@ -29,7 +29,7 @@ public class Path extends Resource
 		setName(Prefs.prefixes[Resource.PATH]);
 		}
 
-	public int NoPoints()
+	public int noPoints()
 		{
 		return points.size();
 		}
@@ -41,15 +41,15 @@ public class Path extends Resource
 		return point;
 		}
 
-	public Point getPoint(int ListIndex)
+	public Point getPoint(int listIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoPoints()) return points.get(ListIndex);
+		if (listIndex >= 0 && listIndex < noPoints()) return points.get(listIndex);
 		return null;
 		}
 
-	public void removePoint(int ListIndex)
+	public void removePoint(int listIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoPoints()) points.remove(ListIndex);
+		if (listIndex >= 0 && listIndex < noPoints()) points.remove(listIndex);
 		}
 
 	public void clearPoints()
@@ -67,7 +67,7 @@ public class Path extends Resource
 		path.backgroundRoom = backgroundRoom;
 		path.snapX = snapX;
 		path.snapY = snapY;
-		for (int i = 0; i < NoPoints(); i++)
+		for (int i = 0; i < noPoints(); i++)
 			{
 			Point point2 = path.addPoint();
 			Point point = getPoint(i);
