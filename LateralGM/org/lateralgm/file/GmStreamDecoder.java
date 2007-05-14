@@ -27,16 +27,16 @@ import org.lateralgm.resources.Resource;
 
 public class GmStreamDecoder
 	{
-	private BufferedInputStream _in;
+	private BufferedInputStream in;
 
 	public GmStreamDecoder(String path) throws FileNotFoundException
 		{
-		_in = new BufferedInputStream(new FileInputStream(path));
+		in = new BufferedInputStream(new FileInputStream(path));
 		}
 
 	public int read() throws IOException
 		{
-		return _in.read();
+		return in.read();
 		}
 
 	public int read(byte b[]) throws IOException
@@ -46,15 +46,15 @@ public class GmStreamDecoder
 
 	public int read(byte b[], int off, int len) throws IOException
 		{
-		return _in.read(b,off,len);
+		return in.read(b,off,len);
 		}
 
 	public int readi() throws IOException
 		{
-		int a = _in.read();
-		int b = _in.read();
-		int c = _in.read();
-		int d = _in.read();
+		int a = in.read();
+		int b = in.read();
+		int c = in.read();
+		int d = in.read();
 		if (a == -1 || b == -1 || c == -1 || d == -1)
 			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
 		long result = (a | (b << 8) | (c << 16) | (d << 24));
@@ -64,7 +64,7 @@ public class GmStreamDecoder
 	public String readStr() throws IOException
 		{
 		byte data[] = new byte[readi()];
-		long check = _in.read(data);
+		long check = in.read(data);
 		if (check < data.length) throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
 		return new String(data);
 		}
@@ -80,14 +80,14 @@ public class GmStreamDecoder
 
 	public double readD() throws IOException
 		{
-		int a = _in.read();
-		int b = _in.read();
-		int c = _in.read();
-		int d = _in.read();
-		int e = _in.read();
-		int f = _in.read();
-		int g = _in.read();
-		int h = _in.read();
+		int a = in.read();
+		int b = in.read();
+		int c = in.read();
+		int d = in.read();
+		int e = in.read();
+		int f = in.read();
+		int g = in.read();
+		int h = in.read();
 		long result = (long) a | (long) b << 8 | (long) c << 16 | (long) d << 24 | (long) e << 32
 				| (long) f << 40 | (long) g << 48 | (long) h << 56;
 		return Double.longBitsToDouble(result);
@@ -97,7 +97,7 @@ public class GmStreamDecoder
 		{
 		Inflater decompresser = new Inflater();
 		byte[] compressedData = new byte[length];
-		_in.read(compressedData,0,length);
+		in.read(compressedData,0,length);
 		decompresser.setInput(compressedData,0,compressedData.length);
 		byte[] result = new byte[100];
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -118,15 +118,15 @@ public class GmStreamDecoder
 
 	public void close() throws IOException
 		{
-		_in.close();
+		in.close();
 		}
 
 	public long skip(long length) throws IOException
 		{
-		long total = _in.skip(length);
+		long total = in.skip(length);
 		while (total < length)
 			{
-			total += _in.skip(length - total);
+			total += in.skip(length - total);
 			}
 		return total;
 		}
@@ -147,7 +147,9 @@ public class GmStreamDecoder
 			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO && type != Resource.GAMESETTINGS)
 				{
 				node.resourceId = src.getList(node.kind).getUnsafe(ind).getId();
-				node.setUserObject(src.getList(node.kind).getUnsafe(ind).getName()); // GM actually ignores the name given
+
+				// GM actually ignores the name given
+				node.setUserObject(src.getList(node.kind).getUnsafe(ind).getName());
 				// in the tree data
 				}
 			int contents = readi();

@@ -29,8 +29,11 @@ public class ResourceList<R extends Resource>
 	EventListenerList listenerList = new EventListenerList();
 	ChangeEvent changeEvent = null;
 
-	ResourceList(Class<R> type) // it's *YOUR* problem if this class doesn't extend Resource (you shouldn't really
-	// need to construct a ResourceList manually anyway)
+	/*
+	 * it's *YOUR* problem if this class doesn't extend Resource
+	 * (you shouldn't really need to construct a ResourceList manually anyway)
+	 */
+	ResourceList(Class<R> type)
 		{
 		this.type = type;
 		}
@@ -51,7 +54,8 @@ public class ResourceList<R extends Resource>
 		return res;
 		}
 
-	public R add()// Be careful when using this with rooms (they default to LGM.currentFile as their owner)
+	// Be careful when using this with rooms (they default to LGM.currentFile as their owner)
+	public R add()
 		{
 		R res = null;
 		try
@@ -81,36 +85,36 @@ public class ResourceList<R extends Resource>
 
 	public R get(ResId id)
 		{
-		int ListIndex = index(id);
-		if (ListIndex != -1) return resources.get(ListIndex);
+		int listIndex = index(id);
+		if (listIndex != -1) return resources.get(listIndex);
 		return null;
 		}
 
-	public R get(String Name)
+	public R get(String name)
 		{
-		int ListIndex = index(Name);
-		if (ListIndex != -1) return resources.get(ListIndex);
+		int listIndex = index(name);
+		if (listIndex != -1) return resources.get(listIndex);
 		return null;
 		}
 
-	public R getList(int ListIndex)
+	public R getList(int listIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < resources.size()) return resources.get(ListIndex);
+		if (listIndex >= 0 && listIndex < resources.size()) return resources.get(listIndex);
 		return null;
 		}
 
 	public void remove(ResId id)
 		{
-		int ListIndex = index(id);
-		if (ListIndex != -1) remove(ListIndex);
+		int listIndex = index(id);
+		if (listIndex != -1) remove(listIndex);
 		}
 
-	public void remove(String Name)
+	public void remove(String name)
 		{
-		int ListIndex = index(Name);
-		if (ListIndex != -1) remove(ListIndex);
+		int listIndex = index(name);
+		if (listIndex != -1) remove(listIndex);
 		}
-	
+
 	public void remove(int index)
 		{
 		resources.get(index).removeChangeListener(rcl);
@@ -130,11 +134,11 @@ public class ResourceList<R extends Resource>
 		return -1;
 		}
 
-	public int index(String Name)
+	public int index(String name)
 		{
 		for (int i = 0; i < resources.size(); i++)
 			{
-			if (resources.get(i).getName().equals(Name))
+			if (resources.get(i).getName().equals(name))
 				{
 				return i;
 				}
@@ -170,16 +174,16 @@ public class ResourceList<R extends Resource>
 	public void replace(ResId srcId, R replacement)
 		{
 		int ind = index(srcId);
-		replace(ind, replacement);
+		replace(ind,replacement);
 		fireStateChanged();
 		}
 
-	public void replace(int SrcIndex, R Replacement)
+	public void replace(int srcIndex, R replacement)
 		{
-		if (SrcIndex >= 0 && SrcIndex < resources.size() && Replacement != null)
+		if (srcIndex >= 0 && srcIndex < resources.size() && replacement != null)
 			{
-			resources.set(SrcIndex,Replacement);
-			Replacement.addChangeListener(rcl);
+			resources.set(srcIndex,replacement);
+			replacement.addChangeListener(rcl);
 			fireStateChanged();
 			}
 		}

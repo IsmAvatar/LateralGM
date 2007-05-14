@@ -28,16 +28,16 @@ import org.lateralgm.resources.sub.Argument;
 
 public class GmStreamEncoder
 	{
-	private BufferedOutputStream _out;
+	private BufferedOutputStream out;
 
-	public GmStreamEncoder(String FilePath) throws FileNotFoundException
+	public GmStreamEncoder(String filePath) throws FileNotFoundException
 		{
-		_out = new BufferedOutputStream(new FileOutputStream(FilePath));
+		out = new BufferedOutputStream(new FileOutputStream(filePath));
 		}
 
 	public void write(int b) throws IOException
 		{
-		_out.write(b);
+		out.write(b);
 		}
 
 	public void write(byte[] b) throws IOException
@@ -48,21 +48,21 @@ public class GmStreamEncoder
 	public void write(byte[] b, int off, int len) throws IOException
 		{
 		writei(len);
-		_out.write(b,off,len);
+		out.write(b,off,len);
 		}
 
 	public void writei(int val) throws IOException
 		{
-		_out.write(val & 255);
-		_out.write((val >> 8) & 255);
-		_out.write((val >> 16) & 255);
-		_out.write((val >> 24) & 255);
+		out.write(val & 255);
+		out.write((val >> 8) & 255);
+		out.write((val >> 16) & 255);
+		out.write((val >> 24) & 255);
 		}
 
 	public void writeStr(String str) throws IOException
 		{
 		writei(str.length());
-		_out.write(str.getBytes("ascii"));
+		out.write(str.getBytes("ascii"));
 		}
 
 	public void writeBool(boolean val) throws IOException
@@ -76,14 +76,14 @@ public class GmStreamEncoder
 	public void writeD(double val) throws IOException
 		{
 		long num = Double.doubleToLongBits(val);
-		_out.write((int) ((num) & 255));
-		_out.write((int) ((num >> 8) & 255));
-		_out.write((int) ((num >> 16) & 255));
-		_out.write((int) ((num >> 24) & 255));
-		_out.write((int) ((num >> 32) & 255));
-		_out.write((int) ((num >> 40) & 255));
-		_out.write((int) ((num >> 48) & 255));
-		_out.write((int) ((num >> 56) & 255));
+		out.write((int) ((num) & 255));
+		out.write((int) ((num >> 8) & 255));
+		out.write((int) ((num >> 16) & 255));
+		out.write((int) ((num >> 24) & 255));
+		out.write((int) ((num >> 32) & 255));
+		out.write((int) ((num >> 40) & 255));
+		out.write((int) ((num >> 48) & 255));
+		out.write((int) ((num >> 56) & 255));
 		}
 
 	public void compress(byte[] data) throws IOException
@@ -99,7 +99,7 @@ public class GmStreamEncoder
 			baos.write(buffer,0,len);
 			}
 		writei(baos.size());
-		_out.write(baos.toByteArray());
+		out.write(baos.toByteArray());
 		}
 
 	public void writeImage(Image image) throws IOException
@@ -111,7 +111,7 @@ public class GmStreamEncoder
 
 	public void close() throws IOException
 		{
-		_out.close();
+		out.close();
 		}
 
 	public void fill(int count) throws IOException

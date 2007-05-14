@@ -105,7 +105,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				LGM.currentFile = new Gm6File();
 				LGM.frame.setTitle("Lateral GM 6.1: " + file.getName());
 				((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-				LGM.currentFile.ReadGm6File(filename,newroot);
+				LGM.currentFile.readGm6File(filename,newroot);
 				LGM f = new LGM();
 				f.createTree(newroot,false);
 				tree.setSelectionPath(new TreePath(LGM.root).pathByAddingChild(LGM.root.getChildAt(0)));
@@ -155,7 +155,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						ResNode node = (ResNode) nodes.nextElement();
 						if (node.frame != null) node.frame.updateResource(); // update open frames
 						}
-					LGM.currentFile.WriteGm6File(filename,LGM.root);
+					LGM.currentFile.writeGm6File(filename,LGM.root);
 					return;
 					}
 				if (result == 2) return;
@@ -324,7 +324,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			{
 			if (JOptionPane.showConfirmDialog(LGM.frame,Messages.getString("Listener.CONFIRM_DEFRAGIDS"),Messages //$NON-NLS-1$
 					.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$
-				LGM.currentFile.DefragIds();
+				LGM.currentFile.defragIds();
 			}
 		if (com.endsWith(".EXPAND")) //$NON-NLS-1$
 			{
