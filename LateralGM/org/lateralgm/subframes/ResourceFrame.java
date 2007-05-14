@@ -25,6 +25,7 @@ import javax.swing.event.InternalFrameEvent;
 import org.lateralgm.components.NameDocument;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
 // Provides common functionality and structure to Resource editing frames

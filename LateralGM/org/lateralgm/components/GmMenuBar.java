@@ -25,6 +25,7 @@ import javax.swing.KeyStroke;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.Util;
+import org.lateralgm.messages.Messages;
 
 
 public class GmMenuBar extends JMenuBar

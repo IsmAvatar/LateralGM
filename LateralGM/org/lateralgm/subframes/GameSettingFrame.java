@@ -34,6 +34,7 @@ import javax.swing.JTextField;
 
 import org.lateralgm.file.Gm6File;
 import org.lateralgm.main.LGM;
+import org.lateralgm.messages.Messages;
 
 public class GameSettingFrame extends JInternalFrame implements ActionListener
 	{

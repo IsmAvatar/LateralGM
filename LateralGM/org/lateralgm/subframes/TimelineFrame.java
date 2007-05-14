@@ -29,6 +29,7 @@ import javax.swing.JTextArea;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;

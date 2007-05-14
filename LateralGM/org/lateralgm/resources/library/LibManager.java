@@ -19,6 +19,7 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 import org.lateralgm.file.GmStreamDecoder;
+import org.lateralgm.messages.Messages;
 
 
 public class LibManager

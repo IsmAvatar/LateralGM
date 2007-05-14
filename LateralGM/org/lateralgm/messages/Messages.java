@@ -6,14 +6,14 @@
  * See LICENSE for details.
  */
 
-package org.lateralgm.resources.library;
+package org.lateralgm.messages;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class Messages
 	{
-	private static final String BUNDLE_NAME = "org.lateralgm.resources.library.messages";
+	private static final String BUNDLE_NAME = "org.lateralgm.messages.messages"; //$NON-NLS-1$
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 

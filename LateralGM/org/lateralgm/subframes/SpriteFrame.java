@@ -34,6 +34,7 @@ import org.lateralgm.components.IndexButtonGroup;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
 
 public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener

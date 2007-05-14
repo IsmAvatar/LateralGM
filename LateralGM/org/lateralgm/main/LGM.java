@@ -53,6 +53,7 @@ import org.lateralgm.components.Listener;
 import org.lateralgm.components.MDIPane;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.file.Gm6File;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;

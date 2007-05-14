@@ -76,6 +76,7 @@ import javax.swing.undo.UndoManager;
 import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
 public class GameInformationFrame extends JInternalFrame implements ActionListener
@@ -490,7 +491,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			ResNode n = (ResNode) LGM.root.getChildAt(m);
 			if (n.kind == Resource.GAMEINFO) return n.getUserObject();
 			}
-		return org.lateralgm.main.Messages.getString("LGM.GAMEINFO"); //$NON-NLS-1$
+		return Messages.getString("LGM.GAMEINFO"); //$NON-NLS-1$
 		}
 
 	public void updateResource()

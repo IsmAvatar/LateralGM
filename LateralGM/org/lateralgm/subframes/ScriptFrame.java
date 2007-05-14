@@ -35,6 +35,7 @@ import org.lateralgm.jedit.Token;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Script;
 

@@ -45,6 +45,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 import org.lateralgm.components.ResNode;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Constant;
 import org.lateralgm.resources.Font;

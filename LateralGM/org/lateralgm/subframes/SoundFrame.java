@@ -36,6 +36,7 @@ import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.components.IndexButtonGroup;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sound;
 
 public class SoundFrame extends ResourceFrame<Sound>

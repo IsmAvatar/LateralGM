@@ -23,6 +23,7 @@ import java.util.zip.Inflater;
 import javax.imageio.ImageIO;
 
 import org.lateralgm.components.ResNode;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
 public class GmStreamDecoder

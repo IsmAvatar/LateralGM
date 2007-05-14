@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.messages.Messages;
 
 public class Sprite extends Resource
 	{
