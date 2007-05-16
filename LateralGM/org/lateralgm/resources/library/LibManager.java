@@ -50,6 +50,7 @@ public class LibManager
 	public static void autoLoad(String libdir)
 		{
 		File[] files = new File(libdir).listFiles(new libFilenameFilter());
+		if (files == null) return;
 		Arrays.sort(files);// listFiles does not guarantee a particular order
 		for (File f : files)
 			{

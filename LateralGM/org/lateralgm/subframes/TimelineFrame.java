@@ -162,11 +162,8 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		if (ll == null) return tp;
 		LibManager.autoLoad(ll);
 
-		//now we have to get each individual Library because Clam made the ArrayList private...
-		int libs = LibManager.NoLibs();
-		for (int m = 0; m < libs; m++)
+		for (Library l: LibManager.libs)
 			{
-			Library l = LibManager.getLibraryList(m);
 			JPanel p = new JPanel();
 			for (LibAction la : l.libActions)
 				{
@@ -183,8 +180,11 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	public String getLibraryLocation()
 		{
 		//see if our singleton exists
-		if (libraryLocation != null) return libraryLocation;
-		if (libraryLocation.equals("")) return null; //we know we have no libraries
+		if (libraryLocation != null)
+			{
+			if (libraryLocation.equals("")) return null; //we know we have no libraries
+			return libraryLocation;
+			}
 
 		//see if we have a "lib" folder
 
