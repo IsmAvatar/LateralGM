@@ -11,7 +11,6 @@ package org.lateralgm.resources.sub;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResId;
 import org.lateralgm.resources.library.LibAction;
-import org.lateralgm.resources.library.Library;
 
 public class Action
 	{

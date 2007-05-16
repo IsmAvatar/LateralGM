@@ -17,7 +17,7 @@ public class Library
 	public boolean advanced = false;
 	public ArrayList<LibAction> libActions = new ArrayList<LibAction>();
 
-	private LibAction addLibAction()
+	public LibAction addLibAction()
 		{
 		LibAction act = new LibAction();
 		libActions.add(act);
@@ -26,9 +26,9 @@ public class Library
 
 	public LibAction getLibAction(int id)
 		{
-		for (int i = 0; i < libActions.size(); i++)
-			if (libActions.get(i).id == id)
-				return libActions.get(i);
+		for (LibAction act : libActions)
+			if (act.id == id)
+				return act;
 		return null;
 		}
 	}

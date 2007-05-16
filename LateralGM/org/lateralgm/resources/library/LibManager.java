@@ -57,7 +57,7 @@ public class LibManager
 			System.out.println();
 			try
 				{
-				LoadLibFile(f.getPath());
+				loadLibFile(f.getPath());
 				}
 			catch (LibFormatException ex)
 				{
@@ -65,7 +65,7 @@ public class LibManager
 			}
 		}
 
-	public static Library LoadLibFile(String FileName) throws LibFormatException
+	public static Library loadLibFile(String FileName) throws LibFormatException
 		{
 		Library lib = null;
 		GmStreamDecoder in = null;
@@ -99,7 +99,7 @@ public class LibManager
 							Messages.getString("LibManager.ERROR_INVALIDACTION"),j,FileName,ver)); //$NON-NLS-1$
 					}
 
-				LibAction act = new LibAction();
+				LibAction act = lib.addLibAction();
 				act.parent = lib;
 				lib.libActions.add(act);
 				in.skip(in.readi());// name
