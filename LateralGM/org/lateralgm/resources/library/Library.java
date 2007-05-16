@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,14 +17,14 @@ public class Library
 	public boolean advanced = false;
 	public ArrayList<LibAction> libActions = new ArrayList<LibAction>();
 
-	private LibAction addLibAction2()
+	private LibAction addLibAction()
 		{
 		LibAction act = new LibAction();
 		libActions.add(act);
 		return act;
 		}
 
-	private LibAction getLibAction(int id)
+	public LibAction getLibAction(int id)
 		{
 		for (int i = 0; i < libActions.size(); i++)
 			if (libActions.get(i).id == id)

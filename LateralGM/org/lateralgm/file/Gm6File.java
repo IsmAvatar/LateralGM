@@ -60,6 +60,8 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.library.LibAction;
+import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.BackgroundDef;
@@ -584,21 +586,35 @@ public class Gm6File
 							{
 							in.skip(4);
 							Action act = mom.addAction();
-							act.libraryId = in.readi();
-							act.libActionId = in.readi();
-							act.actionKind = (byte) in.readi();
-							act.allowRelative = in.readBool();
-							act.question = in.readBool();
-							act.canApplyTo = in.readBool();
-							act.execType = (byte) in.readi();
-							act.execFunction = in.readStr();
-							act.execCode = in.readStr();
-							act.noArguments = in.readi();
+							int libid = in.readi();
+							int actid = in.readi();
+							act.libAction = LibManager.getLibAction(libid,actid);
+							//The libAction will have a null parent, among other things
+							if (act.libAction == null)
+								{
+								act.libAction = new LibAction();
+								act.libAction.id = actid;
+								act.libAction.parentId = libid;
+								act.libAction.actionKind = (byte) in.readi();
+								act.libAction.allowRelative = in.readBool();
+								act.libAction.question = in.readBool();
+								act.libAction.canApplyTo = in.readBool();
+								act.libAction.execType = (byte) in.readi();
+								act.libAction.execFunction = in.readStr();
+								act.libAction.execCode = in.readStr();
+								}
+							else
+								{
+								in.skip(20);
+								in.skip(in.readi());
+								in.skip(in.readi());
+								}
+							act.arguments = new Argument[in.readi()];
 							int[] argkinds = new int[in.readi()];
-							for (int l = 0; l < argkinds.length; l++)
-								argkinds[l] = in.readi();
-							int id = in.readi();
-							switch (id)
+							for (int x : argkinds)
+								x = in.readi();
+							int appliesTo = in.readi();
+							switch (appliesTo)
 								{
 								case -1:
 									act.appliesTo = GmObject.OBJECT_SELF;
@@ -607,16 +623,18 @@ public class Gm6File
 									act.appliesTo = GmObject.OBJECT_OTHER;
 									break;
 								default:
-									act.appliesTo = objids.get(id);
+									act.appliesTo = objids.get(appliesTo);
 								}
 							act.relative = in.readBool();
 							int actualnoargs = in.readi();
 
 							for (int l = 0; l < actualnoargs; l++)
 								{
-								if (l < act.noArguments)
+								if (l < act.arguments.length)
 									{
+									act.arguments[l] = new Argument();
 									act.arguments[l].kind = (byte) argkinds[l];
+
 									String strval = in.readStr();
 									Resource res = tag;
 									switch (argkinds[l])
@@ -719,16 +737,30 @@ public class Gm6File
 									{
 									in.skip(4);
 									Action act = ev.addAction();
-									act.libraryId = in.readi();
-									act.libActionId = in.readi();
-									act.actionKind = (byte) in.readi();
-									act.allowRelative = in.readBool();
-									act.question = in.readBool();
-									act.canApplyTo = in.readBool();
-									act.execType = (byte) in.readi();
-									act.execFunction = in.readStr();
-									act.execCode = in.readStr();
-									act.noArguments = in.readi();
+									int libid = in.readi();
+									int actid = in.readi();
+									act.libAction = LibManager.getLibAction(libid,actid);
+									//The libAction will have a null parent, among other things
+									if (act.libAction == null)
+										{
+										act.libAction = new LibAction();
+										act.libAction.id = actid;
+										act.libAction.parentId = libid;
+										act.libAction.actionKind = (byte) in.readi();
+										act.libAction.allowRelative = in.readBool();
+										act.libAction.question = in.readBool();
+										act.libAction.canApplyTo = in.readBool();
+										act.libAction.execType = (byte) in.readi();
+										act.libAction.execFunction = in.readStr();
+										act.libAction.execCode = in.readStr();
+										}
+									else
+										{
+										in.skip(20);
+										in.skip(in.readi());
+										in.skip(in.readi());
+										}
+									act.arguments = new Argument[in.readi()];
 									int[] argkinds = new int[in.readi()];
 									for (int l = 0; l < argkinds.length; l++)
 										argkinds[l] = in.readi();
@@ -748,8 +780,9 @@ public class Gm6File
 									int actualnoargs = in.readi();
 									for (int l = 0; l < actualnoargs; l++)
 										{
-										if (l < act.noArguments)
+										if (l < act.arguments.length)
 											{
+											act.arguments[l] = new Argument();
 											act.arguments[l].kind = (byte) argkinds[l];
 											String strval = in.readStr();
 											Resource res = tag; // see before Timeline
@@ -1241,24 +1274,21 @@ public class Gm6File
 							{
 							Action act = mom.getAction(k);
 							out.writei(440);
-							out.writei(act.libraryId);
-							out.writei(act.libActionId);
-							out.writei(act.actionKind);
-							out.writeBool(act.allowRelative);
-							out.writeBool(act.question);
-							out.writeBool(act.canApplyTo);
-							out.writei(act.execType);
-							out.writeStr(act.execFunction);
-							out.writeStr(act.execCode);
-							out.writei(act.noArguments);
-							out.writei(8);
-							for (int l = 0; l < 8; l++)
-								{
-								if (l < act.noArguments)
-									out.writei(act.arguments[l].kind);
-								else
-									out.writei(0);
-								}
+							out.writei(act.libAction.parent != null ? act.libAction.parent.id : act.libAction.parentId);
+							out.writei(act.libAction.id);
+							out.writei(act.libAction.actionKind);
+							out.writeBool(act.libAction.allowRelative);
+							out.writeBool(act.libAction.question);
+							out.writeBool(act.libAction.canApplyTo);
+							out.writei(act.libAction.execType);
+							out.writeStr(act.libAction.execFunction);
+							out.writeStr(act.libAction.execCode);
+							out.writei(act.arguments.length);
+
+							out.writei(act.arguments.length);
+							for (Argument arg : act.arguments)
+								out.writei(arg.kind);
+
 							if (act.appliesTo != null)
 								{
 								if (act.appliesTo.getValue() >= 0)
@@ -1270,32 +1300,27 @@ public class Gm6File
 							else
 								out.writei(-100);
 							out.writeBool(act.relative);
-							out.writei(8);
-							for (int l = 0; l < 8; l++)
-								{
-								if (l < act.noArguments)
+
+							out.writei(act.arguments.length);
+							for (Argument arg : act.arguments)
+								switch (arg.kind)
+
 									{
-									switch (act.arguments[l].kind)
-										{
-										case Argument.ARG_SPRITE:
-										case Argument.ARG_SOUND:
-										case Argument.ARG_BACKGROUND:
-										case Argument.ARG_PATH:
-										case Argument.ARG_SCRIPT:
-										case Argument.ARG_GMOBJECT:
-										case Argument.ARG_ROOM:
-										case Argument.ARG_FONT:
-										case Argument.ARG_TIMELINE:
-											out.writeIdStr(act.arguments[l].res,act.arguments[l].kind,this);
-											break;
-										default:
-											out.writeStr(act.arguments[l].val);
-											break;
-										}
+									case Argument.ARG_SPRITE:
+									case Argument.ARG_SOUND:
+									case Argument.ARG_BACKGROUND:
+									case Argument.ARG_PATH:
+									case Argument.ARG_SCRIPT:
+									case Argument.ARG_GMOBJECT:
+									case Argument.ARG_ROOM:
+									case Argument.ARG_FONT:
+									case Argument.ARG_TIMELINE:
+										out.writeIdStr(arg.res,arg.kind,this);
+										break;
+									default:
+										out.writeStr(arg.val);
+										break;
 									}
-								else
-									out.writeStr(""); //$NON-NLS-1$
-								}
 							out.writeBool(act.not);
 							}
 						}
@@ -1336,24 +1361,21 @@ public class Gm6File
 								{
 								Action act = ev.getAction(l);
 								out.writei(440);
-								out.writei(act.libraryId);
-								out.writei(act.libActionId);
-								out.writei(act.actionKind);
-								out.writeBool(act.allowRelative);
-								out.writeBool(act.question);
-								out.writeBool(act.canApplyTo);
-								out.writei(act.execType);
-								out.writeStr(act.execFunction);
-								out.writeStr(act.execCode);
-								out.writei(act.noArguments);
-								out.writei(8);
-								for (int m = 0; m < 8; m++)
-									{
-									if (m < act.noArguments)
-										out.writei(act.arguments[m].kind);
-									else
-										out.writei(0);
-									}
+								out.writei(act.libAction.parent != null ? act.libAction.parent.id : act.libAction.parentId);
+								out.writei(act.libAction.id);
+								out.writei(act.libAction.actionKind);
+								out.writeBool(act.libAction.allowRelative);
+								out.writeBool(act.libAction.question);
+								out.writeBool(act.libAction.canApplyTo);
+								out.writei(act.libAction.execType);
+								out.writeStr(act.libAction.execFunction);
+								out.writeStr(act.libAction.execCode);
+								out.writei(act.arguments.length);
+								
+								out.writei(act.arguments.length);
+								for (Argument arg : act.arguments)
+									out.writei(arg.kind);
+
 								if (act.appliesTo != null)
 									{
 									if (act.appliesTo.getValue() >= 0)
@@ -1365,32 +1387,26 @@ public class Gm6File
 								else
 									out.writei(-100);
 								out.writeBool(act.relative);
-								out.writei(8);
-								for (int m = 0; m < 8; m++)
-									{
-									if (m < act.noArguments)
+								out.writei(act.arguments.length);
+								for (Argument arg : act.arguments)
+									switch (arg.kind)
+
 										{
-										switch (act.arguments[m].kind)
-											{
-											case Argument.ARG_SPRITE:
-											case Argument.ARG_SOUND:
-											case Argument.ARG_BACKGROUND:
-											case Argument.ARG_PATH:
-											case Argument.ARG_SCRIPT:
-											case Argument.ARG_GMOBJECT:
-											case Argument.ARG_ROOM:
-											case Argument.ARG_FONT:
-											case Argument.ARG_TIMELINE:
-												out.writeIdStr(act.arguments[m].res,act.arguments[m].kind,this);
-												break;
-											default:
-												out.writeStr(act.arguments[m].val);
-												break;
-											}
+										case Argument.ARG_SPRITE:
+										case Argument.ARG_SOUND:
+										case Argument.ARG_BACKGROUND:
+										case Argument.ARG_PATH:
+										case Argument.ARG_SCRIPT:
+										case Argument.ARG_GMOBJECT:
+										case Argument.ARG_ROOM:
+										case Argument.ARG_FONT:
+										case Argument.ARG_TIMELINE:
+											out.writeIdStr(arg.res,arg.kind,this);
+											break;
+										default:
+											out.writeStr(arg.val);
+											break;
 										}
-									else
-										out.writeStr(""); //$NON-NLS-1$
-									}
 								out.writeBool(act.not);
 								}
 							}

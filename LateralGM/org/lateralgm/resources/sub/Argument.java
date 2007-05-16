@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -33,4 +33,15 @@ public class Argument
 	public byte kind = ARG_EXPRESSION;
 	public String val = "";
 	public ResId res = null;// for references to Resources
+
+	public Argument(byte kind, String val, ResId res)
+		{
+		this.kind = kind;
+		this.val = val;
+		this.res = res;
+		}
+
+	public Argument()
+		{
+		}
 	}

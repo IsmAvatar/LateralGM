@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -21,7 +21,6 @@ import javax.imageio.ImageIO;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.messages.Messages;
 
-
 public class LibManager
 	{
 	public static class libFilenameFilter implements FilenameFilter
@@ -32,94 +31,33 @@ public class LibManager
 			}
 		}
 
-	private static ArrayList<Library> libs = new ArrayList<Library>();
+	public static ArrayList<Library> libs = new ArrayList<Library>();
 
-	public static int NoLibs()
+	public static LibAction getLibAction(int libraryId, int libActionId)
 		{
-		return libs.size();
-		}
-
-	private static LibAction getLibAction(int LibraryId, int LibActionId)
-		{
-		int no = noLibraries(LibraryId);
-		for (int i = 0; i < no; i++)
+		for(Library l : libs)
 			{
-//			int ListIndex = LibActionIndex(LibActionId);
-//			if (ListIndex != -1) return libActions.get(ListIndex);
-//			return null;
-			
-			LibAction act = getLibrary(LibraryId,i).getLibAction(LibActionId);
-			if (act != null) return act;
-			}
-		return null;
-		}
-
-	public static Library addLibrary()
-		{
-		Library lib = new Library();
-		libs.add(lib);
-		return lib;
-		}
-
-	public static Library getLibrary(int id, int n)
-		{
-		int ListIndex = LibraryIndex(id,n);
-		if (ListIndex != -1) return libs.get(ListIndex);
-		return null;
-		}
-
-	public static Library getLibraryList(int ListIndex)
-		{
-		if (ListIndex >= 0 && ListIndex < NoLibs()) return libs.get(ListIndex);
-		return null;
-		}
-
-	public static int noLibraries(int id)
-		{
-		int nofound = 0;
-		for (int i = 0; i < NoLibs(); i++)
-			{
-			if (getLibraryList(i).id == id)
+			if(l.id==libraryId)
 				{
-				nofound++;
+				LibAction act=l.getLibAction(libActionId);
+				if(act!=null) return act;
 				}
 			}
-		return nofound;
+		return null;
 		}
 
-	private static int LibraryIndex(int id, int n)
-		{
-		int nofound = 0;
-		for (int i = 0; i < NoLibs(); i++)
-			{
-			if (getLibraryList(i).id == id)
-				{
-				if (nofound == n)
-					{
-					return i;
-					}
-				nofound++;
-				}
-			}
-		return -1;
-		}
-
-	public static void clearLibraries()
-		{
-		libs.clear();
-		}
-
+	//XXX : Maybe place the lib finding code here
 	public static void autoLoad(String libdir)
 		{
 		File[] files = new File(libdir).listFiles(new libFilenameFilter());
 		Arrays.sort(files);// listFiles does not guarantee a particular order
-		for (int i = 0; i < files.length; i++)
+		for (File f : files)
 			{
-			System.out.printf(Messages.getString("LibManager.LOADING"),files[i].getPath()); //$NON-NLS-1$
+			System.out.printf(Messages.getString("LibManager.LOADING"),f.getPath()); //$NON-NLS-1$
 			System.out.println();
 			try
 				{
-				LoadLibFile(files[i].getPath());
+				LoadLibFile(f.getPath());
 				}
 			catch (LibFormatException ex)
 				{
@@ -141,21 +79,19 @@ public class LibManager
 				throw new LibFormatException(String.format(
 						Messages.getString("LibManager.ERROR_INVALIDFILE"),FileName)); //$NON-NLS-1$
 				}
-			// System.out.println("GM version: "+version);
 			lib = new Library();
-			lib.tabCaption = in.readStr();// System.out.println("tab caption is: "+lib.TabCaption);
-			lib.id = in.readi();// System.out.println("lib id is: "+lib.Id);
-			in.skip(in.readi());// Author
-			in.skip(4);// lib version
-			in.skip(8);// last changed
-			in.skip(in.readi());// info
-			in.skip(in.readi());// initialisation code
-			lib.advanced = in.readBool();// System.out.println("advanced lib: "+lib.Advanced);
+			lib.tabCaption = in.readStr();
+			lib.id = in.readi();
+			in.skip(in.readi());
+			in.skip(4);
+			in.skip(8);
+			in.skip(in.readi());
+			in.skip(in.readi());
+			lib.advanced = in.readBool();
 			in.skip(4);// no of actions/official lib identifier thingy
-			int noacts = in.readi();// System.out.println("no of actions: "+noacts);
+			int noacts = in.readi();
 			for (int j = 0; j < noacts; j++)
 				{
-				// System.out.println("Action Entry "+j+"------------------");
 				int ver = in.readi();
 				if (ver != 520)
 					{
@@ -164,58 +100,49 @@ public class LibManager
 					}
 
 				LibAction act = new LibAction();
+				act.parent = lib;
 				lib.libActions.add(act);
 				in.skip(in.readi());// name
-				act.id = in.readi();// System.out.println("Action id is: "+act.Id);
+				act.id = in.readi();
 
 				byte[] data = new byte[in.readi()];
 				in.read(data);
 				act.actImage = ImageIO.read(new ByteArrayInputStream(data));
 
-				act.hidden = in.readBool();// System.out.println("hidden: "+act.Hidden);
-				act.advanced = in.readBool();// System.out.println("advanced: "+act.Advanced);
-				act.registeredOnly = in.readBool();// System.out.println("registered only: "+act.RegisteredOnly);
-				act.description = in.readStr();// System.out.println("description: "+act.Description);
-				act.listText = in.readStr();// System.out.println("list text: "+act.ListText);
-				act.hintText = in.readStr();// System.out.println("hint text :"+act.HintText);
-				act.actionKind = (byte) in.readi();// System.out.println("action kind: "+act.ActionKind);
-				act.interfaceKind = (byte) in.readi();// System.out.println("interface: "+act.InterfaceKind);
-				act.question = in.readBool();// System.out.println("question: "+act.Question);
-				act.canApplyTo = in.readBool();// System.out.println("show apply to: "+act.CanApplyTo);
-				act.allowRelative = in.readBool();// System.out.println("show relative: "+act.AllowRelative);
-				act.noLibArguments = in.readi();// System.out.println("no of arguments: "+act.NoLibArguments);
-				// System.out.println("___________________");
+				act.hidden = in.readBool();
+				act.advanced = in.readBool();
+				act.registeredOnly = in.readBool();
+				act.description = in.readStr();
+				act.listText = in.readStr();
+				act.hintText = in.readStr();
+				act.actionKind = (byte) in.readi();
+				act.interfaceKind = (byte) in.readi();
+				act.question = in.readBool();
+				act.canApplyTo = in.readBool();
+				act.allowRelative = in.readBool();
+				act.libArguments = new LibArgument[in.readi()];
 				int noinsertions = in.readi();
 				for (int k = 0; k < noinsertions; k++)
 					{
-					if (k < act.noLibArguments)
+					if (k < act.libArguments.length)
 						{
-						LibArgument arg = act.libArguments[k];
-						arg.caption = in.readStr();// System.out.println("argument "+k+" caption: "+arg.Caption);
-						arg.kind = (byte) in.readi();// System.out.println("argument "+k+" kind: "+arg.Kind);
-						arg.defaultVal = in.readStr();// System.out.println("argument "+k+" default value:
-						// "+arg.DefaultVal);
+						LibArgument arg = act.libArguments[k] = new LibArgument();
+						arg.caption = in.readStr();
+						arg.kind = (byte) in.readi();
+						arg.defaultVal = in.readStr();
 						arg.menu = in.readStr();
-						/*
-						 * if (arg.Kind==Argument.ARG_MENU) { System.out.println("argument "+k+" menu string is:
-						 * "+arg.Menu); } if (k==act.NoLibArguments-1) { System.out.println("___________________\n"); }
-						 * else { System.out.println("___________________"); }
-						 */
 						}
 					else
 						{
-						in.skip(in.readi());// skip arg caption
-						in.skip(4);// skip argument kind
-						in.skip(in.readi());// skip Default value
-						in.skip(in.readi());// skip Menu string
+						in.skip(in.readi());
+						in.skip(4);
+						in.skip(in.readi());
+						in.skip(in.readi());
 						}
 					}
 				act.execType = (byte) in.readi();
-				// System.out.println("read in exec type: "+act.ExecType);
 				act.execFunction = in.readStr();
-				// System.out.println("read in exec function str: "+act.ExecFunction);
 				act.execCode = in.readStr();
-				// System.out.println("read in exec code: "+act.ExecCode);
 				}
 			}
 		catch (FileNotFoundException ex)

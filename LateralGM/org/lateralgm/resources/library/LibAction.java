@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,7 +12,6 @@ import java.awt.image.BufferedImage;
 
 import org.lateralgm.resources.sub.Action;
 
-
 public class LibAction
 	{
 	public static final byte INTERFACE_NORMAL = 0;
@@ -22,6 +21,8 @@ public class LibAction
 	public static final byte INTERFACE_TEXT = 4;
 
 	public int id = 0;
+	public int parentId = -1;//Preserves the id when library is unknown
+	public Library parent = null;
 	public BufferedImage actImage;
 	public boolean hidden = false;
 	public boolean advanced = false;
@@ -37,14 +38,5 @@ public class LibAction
 	public byte execType = Action.EXEC_FUNCTION;
 	public String execFunction = "";
 	public String execCode = "";
-	public int noLibArguments = 0;
-	public LibArgument[] libArguments = new LibArgument[6];
-
-	public LibAction()
-		{
-		for (int i = 0; i < 6; i++)
-			{
-			libArguments[i] = new LibArgument();
-			}
-		}
+	public LibArgument[] libArguments;
 	}

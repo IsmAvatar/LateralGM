@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.Action;
+import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Moment;
 
 public class Timeline extends Resource
@@ -84,25 +85,12 @@ public class Timeline extends Resource
 				{
 				Action act = mom.getAction(j);
 				Action act2 = mom2.addAction();
-				act2.libraryId = act.libraryId;
-				act2.libActionId = act.libActionId;
-				act2.actionKind = act.actionKind;
-				act2.allowRelative = act.allowRelative;
-				act2.question = act.question;
-				act2.canApplyTo = act.canApplyTo;
-				act2.execType = act.execType;
-				act2.execFunction = act.execFunction;
-				act2.execCode = act.execCode;
 				act2.relative = act.relative;
 				act2.not = act.not;
 				act2.appliesTo = act.appliesTo;
-				act2.noArguments = act.noArguments;
-				for (int k = 0; k < act.noArguments; k++)
-					{
-					act2.arguments[k].kind = act.arguments[k].kind;
-					act2.arguments[k].res = act.arguments[k].res;
-					act2.arguments[k].val = act.arguments[k].val;
-					}
+				act2.arguments = new Argument[act.arguments.length];
+				for (int k = 0; k < act.arguments.length; k++)
+					act2.arguments[k] = new Argument(act.arguments[k].kind,act.arguments[k].val,act.arguments[k].res);
 				}
 			}
 		if (update)
