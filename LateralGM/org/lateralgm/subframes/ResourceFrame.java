@@ -29,12 +29,15 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
 // Provides common functionality and structure to Resource editing frames
-public abstract class ResourceFrame<R extends Resource> extends JInternalFrame implements DocumentListener,
-		ActionListener
+public abstract class ResourceFrame<R extends Resource> extends JInternalFrame implements
+		DocumentListener,ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	public JTextField name; // The Resource's name - setup automatically to update the title of the frame and
-	// the ResNode's text
+	/*
+	 * The Resource's name - setup automatically to update the title of the frame and
+	 * the ResNode's text
+	 */
+	public JTextField name;
 	public JButton save; // automatically set up to save and close the frame
 	public R res; // the resource this frame is editing
 	public R resOriginal; // backup of res as it was before changes were made
@@ -122,7 +125,7 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 	public void dispose()
 		{
 		super.dispose();
-		node.frame = null;// allows a new frame to open
+		node.frame = null; // allows a new frame to open
 		}
 
 	protected void fireInternalFrameEvent(int id)
@@ -133,7 +136,8 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 				{
 				switch (JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
 						.getString("ResourceFrame.KEEPCHANGES"),res.getName()),Messages //$NON-NLS-1$
-						.getString("ResourceFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$
+						.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
+						JOptionPane.YES_NO_CANCEL_OPTION))
 					{
 					case 0: // yes
 						updateResource();

@@ -287,12 +287,18 @@ public class Gm6File
 						Messages.getString("Gm6File.ERROR_INVALID"),fileName,identifier)); //$NON-NLS-1$
 			int ver = in.readi();
 			if (ver != 600)
-				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED"),ver)); //$NON-NLS-1$
+				{
+				String msg = Messages.getString("Gm6File.ERROR_UNSUPPORTED"); //$NON-NLS-1$
+				throw new Gm6FormatException(String.format(msg,ver));
+				}
 			gameId = in.readi();
-			in.skip(16);// unknown bytes following game id
+			in.skip(16); // unknown bytes following game id
 			ver = in.readi();
 			if (ver != 600)
-				throw new Gm6FormatException(String.format(Messages.getString("Gm6File.ERROR_UNSUPPORTED"),ver)); //$NON-NLS-1$
+				{
+				String msg = Messages.getString("Gm6File.ERROR_UNSUPPORTED"); //$NON-NLS-1$
+				throw new Gm6FormatException(String.format(msg,ver));
+				}
 			startFullscreen = in.readBool();
 			interpolate = in.readBool();
 			dontDrawBorder = in.readBool();
@@ -459,8 +465,9 @@ public class Gm6File
 					back.vertSep = in.readi();
 					if (in.readBool())
 						{
-						in.skip(4);// 0A
-						back.backgroundImage = ImageIO.read(new ByteArrayInputStream(in.decompress(in.readi())));
+						in.skip(4); // 0A
+						ByteArrayInputStream is = new ByteArrayInputStream(in.decompress(in.readi()));
+						back.backgroundImage = ImageIO.read(is);
 						}
 					}
 				else
@@ -579,8 +586,11 @@ public class Gm6File
 						mom.stepNo = in.readi();
 						ver = in.readi();
 						if (ver != 400)
-							throw new Gm6FormatException(String.format(
-									Messages.getString("Gm6File.ERROR_UNSUPPORTED_INTIMELINEMOMENT"),i,j,ver)); //$NON-NLS-1$
+							{
+							String msg;
+							msg = Messages.getString("Gm6File.ERROR_UNSUPPORTED_INTIMELINEMOMENT"); //$NON-NLS-1$
+							throw new Gm6FormatException(String.format(msg,i,j,ver));
+							}
 						int noacts = in.readi();
 						for (int k = 0; k < noacts; k++)
 							{
@@ -731,7 +741,8 @@ public class Gm6File
 								ver = in.readi();
 								if (ver != 400)
 									throw new Gm6FormatException(String.format(
-											Messages.getString("Gm6File.ERROR_UNSUPPORTED_INOBJECTEVENT"),i,j,ver)); //$NON-NLS-1$
+											Messages.getString("Gm6File.ERROR_UNSUPPORTED_INOBJECTEVENT"), //$NON-NLS-1$
+											i,j,ver));
 								int noacts = in.readi();
 								for (int k = 0; k < noacts; k++)
 									{
@@ -985,7 +996,8 @@ public class Gm6File
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.readi() * 4); // room indexes in tree order;
 			in.readTree(root,this);
-			System.out.printf(Messages.getString("Gm6File.LOADTIME"),System.currentTimeMillis() - startTime); //$NON-NLS-1$
+			System.out.printf(Messages.getString("Gm6File.LOADTIME"), //$NON-NLS-1$
+					System.currentTimeMillis() - startTime);
 			System.out.println();
 			}
 		catch (Exception ex)
@@ -1146,8 +1158,8 @@ public class Gm6File
 					out.writeBool(spr.preciseCC);
 					out.writei(spr.originX);
 					out.writei(spr.originY);
-					out.writei(spr.NoSubImages());
-					for (int j = 0; j < spr.NoSubImages(); j++)
+					out.writei(spr.noSubImages());
+					for (int j = 0; j < spr.noSubImages(); j++)
 						{
 						BufferedImage sub = spr.getSubImage(j);
 						out.writei(10);
@@ -1263,18 +1275,19 @@ public class Gm6File
 					{
 					out.writeStr(time.getName());
 					out.writei(500);
-					out.writei(time.NoMoments());
-					for (int j = 0; j < time.NoMoments(); j++)
+					out.writei(time.noMoments());
+					for (int j = 0; j < time.noMoments(); j++)
 						{
 						Moment mom = time.getMomentList(j);
 						out.writei(mom.stepNo);
 						out.writei(400);
-						out.writei(mom.NoActions());
-						for (int k = 0; k < mom.NoActions(); k++)
+						out.writei(mom.noActions());
+						for (int k = 0; k < mom.noActions(); k++)
 							{
 							Action act = mom.getAction(k);
 							out.writei(440);
-							out.writei(act.libAction.parent != null ? act.libAction.parent.id : act.libAction.parentId);
+							out.writei(act.libAction.parent != null ? act.libAction.parent.id
+									: act.libAction.parentId);
 							out.writei(act.libAction.id);
 							out.writei(act.libAction.actionKind);
 							out.writeBool(act.libAction.allowRelative);
@@ -1348,7 +1361,7 @@ public class Gm6File
 					out.writei(10);
 					for (int j = 0; j < 11; j++)
 						{
-						for (int k = 0; k < obj.mainEvents[j].NoEvents(); k++)
+						for (int k = 0; k < obj.mainEvents[j].noEvents(); k++)
 							{
 							Event ev = obj.mainEvents[j].getEventList(k);
 							if (j == MainEvent.EV_COLLISION)
@@ -1356,12 +1369,13 @@ public class Gm6File
 							else
 								out.writei(ev.id);
 							out.writei(400);
-							out.writei(ev.NoActions());
-							for (int l = 0; l < ev.NoActions(); l++)
+							out.writei(ev.noActions());
+							for (int l = 0; l < ev.noActions(); l++)
 								{
 								Action act = ev.getAction(l);
 								out.writei(440);
-								out.writei(act.libAction.parent != null ? act.libAction.parent.id : act.libAction.parentId);
+								out.writei(act.libAction.parent != null ? act.libAction.parent.id
+										: act.libAction.parentId);
 								out.writei(act.libAction.id);
 								out.writei(act.libAction.actionKind);
 								out.writeBool(act.libAction.allowRelative);

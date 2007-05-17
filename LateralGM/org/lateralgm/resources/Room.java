@@ -38,9 +38,9 @@ public class Room extends Resource
 	public boolean drawBackgroundColor = true;
 	public String creationCode = "";
 	public boolean rememberWindowSize = true;
-	public int editorWidth = 200;// **may not be relevant to swing, or may not produce the same effect in the
-	// LGM GUI
-	public int editorHeight = 200;// **
+	// ** may not be relevant to swing, or may not produce the same effect in the LGM GUI
+	public int editorWidth = 200; // **
+	public int editorHeight = 200; // **
 	public boolean showGrid = true;
 	public boolean showObjects = true;
 	public boolean showTiles = true;
@@ -50,8 +50,8 @@ public class Room extends Resource
 	public boolean deleteUnderlyingObjects = true;
 	public boolean deleteUnderlyingTiles = true;
 	public int currentTab = TAB_OBJECTS;
-	public int scrollBarX = 0;// **
-	public int scrollBarY = 0;// **
+	public int scrollBarX = 0; // **
+	public int scrollBarY = 0; // **
 	public BackgroundDef[] backgroundDefs = new BackgroundDef[8];
 	public View[] views = new View[8];
 	public boolean enableViews = false;
@@ -69,7 +69,7 @@ public class Room extends Resource
 			}
 		}
 
-	public Room(Gm6File parent)// Rooms are special - they need to know what file they belong to
+	public Room(Gm6File parent) // Rooms are special - they need to know what file they belong to
 		{
 		this.parent = parent;
 		for (int j = 0; j < 8; j++)

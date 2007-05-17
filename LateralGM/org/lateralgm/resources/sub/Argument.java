@@ -32,7 +32,7 @@ public class Argument
 
 	public byte kind = ARG_EXPRESSION;
 	public String val = "";
-	public ResId res = null;// for references to Resources
+	public ResId res = null; // for references to Resources
 
 	public Argument(byte kind, String val, ResId res)
 		{

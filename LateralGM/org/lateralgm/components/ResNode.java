@@ -31,7 +31,8 @@ import org.lateralgm.subframes.TimelineFrame;
 public class ResNode extends DefaultMutableTreeNode implements Transferable
 	{
 	private static final long serialVersionUID = 1L;
-	public static final DataFlavor NODE_FLAVOR = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType,"Node");
+	public static final DataFlavor NODE_FLAVOR = new DataFlavor(
+			DataFlavor.javaJVMLocalObjectMimeType,"Node");
 	private DataFlavor[] flavors = { NODE_FLAVOR };
 	public static final byte STATUS_PRIMARY = 1;
 	public static final byte STATUS_GROUP = 2;

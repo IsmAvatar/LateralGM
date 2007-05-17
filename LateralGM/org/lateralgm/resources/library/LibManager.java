@@ -23,7 +23,7 @@ import org.lateralgm.messages.Messages;
 
 public class LibManager
 	{
-	public static class libFilenameFilter implements FilenameFilter
+	public static class LibFilenameFilter implements FilenameFilter
 		{
 		public boolean accept(File dir, String name)
 			{
@@ -35,12 +35,12 @@ public class LibManager
 
 	public static LibAction getLibAction(int libraryId, int libActionId)
 		{
-		for(Library l : libs)
+		for (Library l : libs)
 			{
-			if(l.id==libraryId)
+			if (l.id == libraryId)
 				{
-				LibAction act=l.getLibAction(libActionId);
-				if(act!=null) return act;
+				LibAction act = l.getLibAction(libActionId);
+				if (act != null) return act;
 				}
 			}
 		return null;
@@ -49,9 +49,9 @@ public class LibManager
 	//XXX : Maybe place the lib finding code here
 	public static void autoLoad(String libdir)
 		{
-		File[] files = new File(libdir).listFiles(new libFilenameFilter());
+		File[] files = new File(libdir).listFiles(new LibFilenameFilter());
 		if (files == null) return;
-		Arrays.sort(files);// listFiles does not guarantee a particular order
+		Arrays.sort(files); // listFiles does not guarantee a particular order
 		for (File f : files)
 			{
 			System.out.printf(Messages.getString("LibManager.LOADING"),f.getPath()); //$NON-NLS-1$
@@ -66,19 +66,19 @@ public class LibManager
 			}
 		}
 
-	public static Library loadLibFile(String FileName) throws LibFormatException
+	public static Library loadLibFile(String fileName) throws LibFormatException
 		{
 		Library lib = null;
 		GmStreamDecoder in = null;
 		// int id=-1;
 		try
 			{
-			in = new GmStreamDecoder(FileName);
+			in = new GmStreamDecoder(fileName);
 			int version = in.readi();
 			if (version != 520)
 				{
 				throw new LibFormatException(String.format(
-						Messages.getString("LibManager.ERROR_INVALIDFILE"),FileName)); //$NON-NLS-1$
+						Messages.getString("LibManager.ERROR_INVALIDFILE"),fileName)); //$NON-NLS-1$
 				}
 			lib = new Library();
 			lib.tabCaption = in.readStr();
@@ -89,7 +89,7 @@ public class LibManager
 			in.skip(in.readi());
 			in.skip(in.readi());
 			lib.advanced = in.readBool();
-			in.skip(4);// no of actions/official lib identifier thingy
+			in.skip(4); // no of actions/official lib identifier thingy
 			int noacts = in.readi();
 			for (int j = 0; j < noacts; j++)
 				{
@@ -97,13 +97,13 @@ public class LibManager
 				if (ver != 520)
 					{
 					throw new LibFormatException(String.format(
-							Messages.getString("LibManager.ERROR_INVALIDACTION"),j,FileName,ver)); //$NON-NLS-1$
+							Messages.getString("LibManager.ERROR_INVALIDACTION"),j,fileName,ver)); //$NON-NLS-1$
 					}
 
 				LibAction act = lib.addLibAction();
 				act.parent = lib;
 				lib.libActions.add(act);
-				in.skip(in.readi());// name
+				in.skip(in.readi()); // name
 				act.id = in.readi();
 
 				byte[] data = new byte[in.readi()];
@@ -148,12 +148,13 @@ public class LibManager
 			}
 		catch (FileNotFoundException ex)
 			{
-			throw new LibFormatException(String.format(Messages.getString("LibManager.ERROR_NOTFOUND"),FileName)); //$NON-NLS-1$
+			throw new LibFormatException(String.format(
+					Messages.getString("LibManager.ERROR_NOTFOUND"),fileName)); //$NON-NLS-1$
 			}
 		catch (IOException ex)
 			{
 			throw new LibFormatException(String.format(
-					Messages.getString("LibManager.ERROR_READING"),FileName,ex.getMessage())); //$NON-NLS-1$
+					Messages.getString("LibManager.ERROR_READING"),fileName,ex.getMessage())); //$NON-NLS-1$
 			}
 		finally
 			{
@@ -167,7 +168,8 @@ public class LibManager
 				}
 			catch (IOException ex)
 				{
-				throw new LibFormatException(Messages.getString("LibManager.ERROR_CLOSEFAILED")); //$NON-NLS-1$
+				String msg = Messages.getString("LibManager.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				throw new LibFormatException(msg);
 				}
 			}
 		libs.add(lib);

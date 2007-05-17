@@ -64,7 +64,8 @@ public class GmMenuBar extends JMenuBar
 			{
 			File file = new File(recentList[i]).getAbsoluteFile();
 			String number = Integer.toString(i + 1);
-			JMenuItem item = recentFiles[i] = new JMenuItem(String.format("%s %s  [%s]",number,file.getName(),file.getParent()),number.codePointAt(0));
+			JMenuItem item = recentFiles[i] = new JMenuItem(String.format("%s %s  [%s]",number,
+					file.getName(),file.getParent()),number.codePointAt(0));
 			item.setActionCommand("GmMenuBar.OPEN " + Util.urlEncode(file.toString()));
 			item.addActionListener(LGM.listener);
 			fileMenu.insert(item,recentFilesPos + i);
@@ -136,7 +137,8 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("GmMenuBar.VERIFYNAMES"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SYNTAXCHECK"); //$NON-NLS-1$
 		menu.add(new JSeparator());
-		menu.addItem("GmMenuBar.FIND",KeyEvent.VK_F,ActionEvent.ALT_MASK + ActionEvent.CTRL_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.FIND", //$NON-NLS-1$
+				KeyEvent.VK_F,ActionEvent.ALT_MASK + ActionEvent.CTRL_MASK); 
 		menu.addItem("GmMenuBar.ANNOTATE"); //$NON-NLS-1$
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.EXPAND"); //$NON-NLS-1$

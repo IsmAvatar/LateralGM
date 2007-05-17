@@ -42,7 +42,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon frameIcon = LGM.getIconForKey("SpriteFrame.SPRITE"); //$NON-NLS-1$
 	private static final ImageIcon saveIcon = LGM.getIconForKey("SpriteFrame.SAVE"); //$NON-NLS-1$
-	private static final ImageIcon loadIcon = LGM.getIconForKey("SpriteFrame.LOAD");//$NON-NLS-1$
+	private static final ImageIcon loadIcon = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
 
 	public JButton load;
 	public JLabel width;
@@ -84,7 +84,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		String exts[] = ImageIO.getReaderFileSuffixes();
 		for (int i = 0; i < exts.length; i++)
 			exts[i] = "." + exts[i]; //$NON-NLS-1$
-		CustomFileFilter filt = new CustomFileFilter(exts,Messages.getString("SpriteFrame.ALL_SPI_IMAGES")); //$NON-NLS-1$
+		CustomFileFilter filt = new CustomFileFilter(exts,
+				Messages.getString("SpriteFrame.ALL_SPI_IMAGES")); //$NON-NLS-1$
 		fc.addChoosableFileFilter(filt);
 		for (int i = 0; i < exts.length; i++)
 			{
@@ -184,7 +185,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		side2.add(preload);
 
 		JPanel origin = new JPanel(new FlowLayout());
-		origin.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.ORIGIN"))); //$NON-NLS-1$
+		String t = Messages.getString("SpriteFrame.ORIGIN"); //$NON-NLS-1$
+		origin.setBorder(BorderFactory.createTitledBorder(t));
 		origin.setPreferredSize(new Dimension(200,80));
 		lab = new JLabel(Messages.getString("SpriteFrame.X")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(20,16));
@@ -207,7 +209,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		side2.add(origin);
 
 		JPanel bbox = new JPanel(new FlowLayout());
-		bbox.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.BBOX"))); //$NON-NLS-1$
+		t = Messages.getString("SpriteFrame.BBOX"); //$NON-NLS-1$
+		bbox.setBorder(BorderFactory.createTitledBorder(t));
 		bbox.setPreferredSize(new Dimension(200,120));
 
 		bboxGroup = new IndexButtonGroup(3);
@@ -292,23 +295,33 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 		// For now, BBOX_AUTO is the same as full, which triggers false changed dialogs
 		if (bboxGroup.getValue() == Sprite.BBOX_MANUAL)
-			return (!resOriginal.getName().equals(name.getText()) || imageChanged
+			{
+			if (!resOriginal.getName().equals(name.getText()) || imageChanged
 					|| resOriginal.transparent != transparent.isSelected()
 					|| resOriginal.preciseCC != preciseCC.isSelected()
-					|| resOriginal.smoothEdges != smooth.isSelected() || resOriginal.preload != preload.isSelected()
-					|| resOriginal.originX != originX.getIntValue() || resOriginal.originY != originY.getIntValue()
+					|| resOriginal.smoothEdges != smooth.isSelected()
+					|| resOriginal.preload != preload.isSelected()
+					|| resOriginal.originX != originX.getIntValue()
+					|| resOriginal.originY != originY.getIntValue()
 					|| resOriginal.boundingBoxMode != (byte) bboxGroup.getValue()
 					|| resOriginal.boundingBoxLeft != bboxLeft.getIntValue()
 					|| resOriginal.boundingBoxRight != bboxRight.getIntValue()
-					|| resOriginal.boundingBoxTop != bboxTop.getIntValue() || resOriginal.boundingBoxBottom != bboxBottom
-					.getIntValue());
+					|| resOriginal.boundingBoxTop != bboxTop.getIntValue()
+					|| resOriginal.boundingBoxBottom != bboxBottom.getIntValue()) return true;
+			return false;
+			}
 		else
-			return (!resOriginal.getName().equals(name.getText()) || imageChanged
+			{
+			if (!resOriginal.getName().equals(name.getText()) || imageChanged
 					|| resOriginal.transparent != transparent.isSelected()
 					|| resOriginal.preciseCC != preciseCC.isSelected()
-					|| resOriginal.smoothEdges != smooth.isSelected() || resOriginal.preload != preload.isSelected()
-					|| resOriginal.originX != originX.getIntValue() || resOriginal.originY != originY.getIntValue() || resOriginal.boundingBoxMode != (byte) bboxGroup
-					.getValue());
+					|| resOriginal.smoothEdges != smooth.isSelected()
+					|| resOriginal.preload != preload.isSelected()
+					|| resOriginal.originX != originX.getIntValue()
+					|| resOriginal.originY != originY.getIntValue()
+					|| resOriginal.boundingBoxMode != (byte) bboxGroup.getValue()) return true;
+			return false;
+			}
 		}
 
 	public void revertResource()
@@ -351,15 +364,15 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 					}
 				catch (Throwable t)
 					{
-					JOptionPane.showMessageDialog(LGM.frame,
-							Messages.getString("SpriteFrame.ERROR_LOADING") + fc.getSelectedFile().getPath()); //$NON-NLS-1$
+					String msg = Messages.getString("SpriteFrame.ERROR_LOADING"); //$NON-NLS-1$
+					JOptionPane.showMessageDialog(LGM.frame,msg + fc.getSelectedFile().getPath());
 					}
 				}
 			return;
 			}
 		if (e.getSource() == subRight)
 			{
-			if (currSub < res.NoSubImages() - 1)
+			if (currSub < res.noSubImages() - 1)
 				{
 				currSub += 1;
 				updatePreview();
@@ -397,7 +410,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		{
 		width.setText(Messages.getString("SpriteFrame.WIDTH") + res.width); //$NON-NLS-1$
 		height.setText(Messages.getString("SpriteFrame.HEIGHT") + res.height); //$NON-NLS-1$
-		subCount.setText(Messages.getString("SpriteFrame.NO_OF_SUBIMAGES") + res.NoSubImages()); //$NON-NLS-1$
+		subCount.setText(Messages.getString("SpriteFrame.NO_OF_SUBIMAGES") //$NON-NLS-1$
+				+ res.noSubImages());
 		if (bboxGroup.getValue() == Sprite.BBOX_AUTO || bboxGroup.getValue() == Sprite.BBOX_FULL)
 			{
 			// TODO Implement Auto BBox code
@@ -417,7 +431,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			bboxTop.setEnabled(true);
 			bboxBottom.setEnabled(true);
 			}
-		switch (res.NoSubImages())
+		switch (res.noSubImages())
 			{
 			case 0:
 				subLeft.setEnabled(false);
@@ -433,7 +447,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			default:
 				preview.setIcon(new ImageIcon(res.getSubImage(currSub)));
 				subLeft.setEnabled(currSub > 0);
-				subRight.setEnabled(currSub < res.NoSubImages() - 1);
+				subRight.setEnabled(currSub < res.noSubImages() - 1);
 				show.setText(Integer.toString(currSub));
 				break;
 			}

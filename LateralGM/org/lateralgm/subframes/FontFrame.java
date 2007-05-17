@@ -66,7 +66,8 @@ public class FontFrame extends ResourceFrame<Font>
 		label.setPreferredSize(new Dimension(40,14));
 		label.setHorizontalAlignment(SwingConstants.RIGHT);
 		add(label);
-		fonts = new JComboBox(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
+		fonts = new JComboBox(
+				GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
 		fonts.setEditable(true);
 		fonts.setSelectedItem(res.fontName);
 		fonts.setPreferredSize(new Dimension(180,20));
@@ -95,7 +96,8 @@ public class FontFrame extends ResourceFrame<Font>
 		add(italic);
 
 		JPanel crange = new JPanel();
-		crange.setBorder(BorderFactory.createTitledBorder(Messages.getString("FontFrame.CHARRANGE"))); //$NON-NLS-1$
+		String t = Messages.getString("FontFrame.CHARRANGE"); //$NON-NLS-1$
+		crange.setBorder(BorderFactory.createTitledBorder(t));
 		crange.setPreferredSize(new Dimension(220,110));
 
 		charMin = new IntegerField(0,255,res.charRangeMin);
@@ -157,11 +159,13 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public boolean resourceChanged()
 		{
-		return (!resOriginal.getName().equals(name.getText())
-				|| !resOriginal.fontName.equals(fonts.getSelectedItem().toString())
-				|| resOriginal.size != size.getIntValue() || resOriginal.bold != bold.isSelected()
-				|| resOriginal.italic != italic.isSelected() || resOriginal.charRangeMin != charMin.getIntValue() || resOriginal.charRangeMax != charMax
-				.getIntValue());
+		if (!resOriginal.getName().equals(name.getText())
+				|| !resOriginal.fontName.equals(fonts.getSelectedItem().toString())) return true;
+		if (resOriginal.size != size.getIntValue() || resOriginal.bold != bold.isSelected()
+				|| resOriginal.italic != italic.isSelected()) return true;
+		if (resOriginal.charRangeMin != charMin.getIntValue()
+				|| resOriginal.charRangeMax != charMax.getIntValue()) return true;
+		return false;
 		}
 
 	public void revertResource()
@@ -183,7 +187,8 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public void actionPerformed(ActionEvent e)
 		{
-		if (e.getSource() == fonts || e.getSource() == bold || e.getSource() == italic || e.getSource() == size)
+		if (e.getSource() == fonts || e.getSource() == bold || e.getSource() == italic
+				|| e.getSource() == size)
 			{
 			updatePreview();
 			return;
@@ -233,8 +238,8 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public void updatePreview()
 		{
-		preview.setFont(new java.awt.Font(fonts.getSelectedItem().toString(),makeStyle(bold.isSelected(),italic
-				.isSelected()),size.getIntValue()));
+		preview.setFont(new java.awt.Font(fonts.getSelectedItem().toString(),makeStyle(
+				bold.isSelected(),italic.isSelected()),size.getIntValue()));
 		}
 
 	private static int makeStyle(boolean bold, boolean italic)

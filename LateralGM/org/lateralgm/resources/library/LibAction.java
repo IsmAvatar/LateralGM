@@ -21,7 +21,7 @@ public class LibAction
 	public static final byte INTERFACE_TEXT = 4;
 
 	public int id = 0;
-	public int parentId = -1;//Preserves the id when library is unknown
+	public int parentId = -1; //Preserves the id when library is unknown
 	public Library parent = null;
 	public BufferedImage actImage;
 	public boolean hidden = false;

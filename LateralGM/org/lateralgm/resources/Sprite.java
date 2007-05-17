@@ -46,7 +46,7 @@ public class Sprite extends Resource
 		setName(Prefs.prefixes[Resource.SPRITE]);
 		}
 
-	public int NoSubImages()
+	public int noSubImages()
 		{
 		return subImages.size();
 		}
@@ -77,7 +77,8 @@ public class Sprite extends Resource
 			}
 		catch (IOException ex)
 			{
-			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),NoSubImages(),getId().getValue());
+			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),noSubImages(),
+					getId().getValue());
 			System.err.println();
 			}
 		return result;
@@ -88,15 +89,15 @@ public class Sprite extends Resource
 		subImages.add(image);
 		}
 
-	public BufferedImage getSubImage(int ListIndex)
+	public BufferedImage getSubImage(int listIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoSubImages()) return subImages.get(ListIndex);
+		if (listIndex >= 0 && listIndex < noSubImages()) return subImages.get(listIndex);
 		return null;
 		}
 
-	public void removeSubImage(int ListIndex)
+	public void removeSubImage(int listIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoSubImages()) subImages.remove(ListIndex);
+		if (listIndex >= 0 && listIndex < noSubImages()) subImages.remove(listIndex);
 		}
 
 	public void clearSubImages()
@@ -104,10 +105,10 @@ public class Sprite extends Resource
 		subImages.clear();
 		}
 
-	public BufferedImage copySubImage(int ListIndex)// returns a copy of
+	public BufferedImage copySubImage(int listIndex)// returns a copy of
 	// subimage with given index (new subimage is not added to the sprite)
 		{
-		BufferedImage bf = getSubImage(ListIndex);
+		BufferedImage bf = getSubImage(listIndex);
 		if (bf != null)
 			{
 			BufferedImage bf2 = new BufferedImage(bf.getWidth(),bf.getHeight(),bf.getType());
@@ -134,7 +135,7 @@ public class Sprite extends Resource
 		spr.boundingBoxRight = boundingBoxRight;
 		spr.boundingBoxTop = boundingBoxTop;
 		spr.boundingBoxBottom = boundingBoxBottom;
-		for (int j = 0; j < NoSubImages(); j++)
+		for (int j = 0; j < noSubImages(); j++)
 			{
 			spr.addSubImage(copySubImage(j));
 			}

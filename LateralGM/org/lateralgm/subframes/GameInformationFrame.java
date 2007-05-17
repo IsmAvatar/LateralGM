@@ -84,11 +84,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	private static final long serialVersionUID = 1L;
 	private static JEditorPane editor;
 	private static RTFEditorKit rtf = new RTFEditorKit();
-	private JComboBox m_cbFonts;
-	private JSpinner m_sSizes;
-	private JToggleButton m_tbBold;
-	private JToggleButton m_tbItalic;
-	private JToggleButton m_tbUnderline;
+	private JComboBox cbFonts;
+	private JSpinner sSizes;
+	private JToggleButton tbBold;
+	private JToggleButton tbItalic;
+	private JToggleButton tbUnderline;
 	protected UndoManager undoManager = new UndoManager();
 	protected final AbstractAction undoAction;
 	protected final AbstractAction redoAction;
@@ -112,32 +112,32 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 			// Create File menu
 			{
-			JMenu Fmenu = new JMenu(Messages.getString("GameInformationFrame.MENU_FILE")); //$NON-NLS-1$
-			menuBar.add(Fmenu);
-			Fmenu.addActionListener(this);
+			JMenu fMenu = new JMenu(Messages.getString("GameInformationFrame.MENU_FILE")); //$NON-NLS-1$
+			menuBar.add(fMenu);
+			fMenu.addActionListener(this);
 
 			// Create a file menu items
 			JMenuItem item = addItem("GameInformationFrame.LOAD"); //$NON-NLS-1$
-			Fmenu.add(item);
+			fMenu.add(item);
 			item = addItem("GameInformationFrame.SAVE"); //$NON-NLS-1$
-			Fmenu.add(item);
-			Fmenu.addSeparator();
+			fMenu.add(item);
+			fMenu.addSeparator();
 			item = addItem("GameInformationFrame.OPTIONS"); //$NON-NLS-1$
 			item.setEnabled(false);
-			Fmenu.add(item);
-			Fmenu.addSeparator();
+			fMenu.add(item);
+			fMenu.addSeparator();
 			item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
 			item.setEnabled(false);
-			Fmenu.add(item);
-			Fmenu.addSeparator();
+			fMenu.add(item);
+			fMenu.addSeparator();
 			item = addItem("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
-			Fmenu.add(item);
+			fMenu.add(item);
 			}
 
 			// Create Edit menu
 			{
-			JMenu Emenu = new JMenu(Messages.getString("GameInformationFrame.MENU_EDIT")); //$NON-NLS-1$
-			menuBar.add(Emenu);
+			JMenu eMenu = new JMenu(Messages.getString("GameInformationFrame.MENU_EDIT")); //$NON-NLS-1$
+			menuBar.add(eMenu);
 
 			undoAction = new AbstractAction(Messages.getString("GameInformationFrame.UNDO"))
 				{
@@ -174,39 +174,39 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			// Create a menu item
 			JMenuItem item = new JMenuItem(undoAction); //$NON-NLS-1$
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
-			Emenu.add(item);
+			eMenu.add(item);
 			item = new JMenuItem(redoAction); //$NON-NLS-1$
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
-			Emenu.add(item);
-			Emenu.addSeparator();
+			eMenu.add(item);
+			eMenu.addSeparator();
 			item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
-			Emenu.add(item);
+			eMenu.add(item);
 			item.setEnabled(false);
 			item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
-			Emenu.add(item);
+			eMenu.add(item);
 			item.setEnabled(false);
 			item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
-			Emenu.add(item);
+			eMenu.add(item);
 			item.setEnabled(false);
-			Emenu.addSeparator();
+			eMenu.addSeparator();
 			item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
-			Emenu.add(item);
+			eMenu.add(item);
 			item.setEnabled(false);
-			Emenu.addSeparator();
+			eMenu.addSeparator();
 			item = addItem("GameInformationFrame.GOTO"); //$NON-NLS-1$
-			Emenu.add(item);
+			eMenu.add(item);
 			item.setEnabled(false);
 			}
 
 			// Create Format menu
 			{
-			JMenu Fmenu = new JMenu(Messages.getString("GameInformationFrame.MENU_FORMAT")); //$NON-NLS-1$
-			menuBar.add(Fmenu);
+			JMenu fMenu = new JMenu(Messages.getString("GameInformationFrame.MENU_FORMAT")); //$NON-NLS-1$
+			menuBar.add(fMenu);
 
 			// Create a menu item
 			JMenuItem item = addItem("GameInformationFrame.FONT"); //$NON-NLS-1$
 			// item.addActionListener(actionListener);
-			Fmenu.add(item);
+			fMenu.add(item);
 			}
 
 		// Install the menu bar in the frame
@@ -228,10 +228,10 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			String[] fontNames = ge.getAvailableFontFamilyNames();
 			tool.addSeparator();
-			m_cbFonts = new JComboBox(fontNames);
-			m_cbFonts.setRequestFocusEnabled(false);
-			m_cbFonts.setMaximumSize(m_cbFonts.getPreferredSize());
-			m_cbFonts.setEditable(true);
+			cbFonts = new JComboBox(fontNames);
+			cbFonts.setRequestFocusEnabled(false);
+			cbFonts.setMaximumSize(cbFonts.getPreferredSize());
+			cbFonts.setEditable(true);
 			ActionListener lst = new ActionListener()
 				{
 					public void actionPerformed(ActionEvent e)
@@ -242,17 +242,17 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 							return;
 							}
 						editor.grabFocus();
-						setSelectionAttribute(StyleConstants.Family,m_cbFonts.getSelectedItem().toString());
+						setSelectionAttribute(StyleConstants.Family,cbFonts.getSelectedItem().toString());
 						}
 				};
 
-			m_cbFonts.addActionListener(lst);
-			tool.add(m_cbFonts);
+			cbFonts.addActionListener(lst);
+			tool.add(cbFonts);
 			tool.addSeparator();
-			m_sSizes = new JSpinner(new SpinnerNumberModel(12,1,100,1));
-			m_sSizes.setRequestFocusEnabled(false);
-			m_sSizes.setMaximumSize(m_sSizes.getPreferredSize());
-			m_sSizes.addChangeListener(new ChangeListener()
+			sSizes = new JSpinner(new SpinnerNumberModel(12,1,100,1));
+			sSizes.setRequestFocusEnabled(false);
+			sSizes.setMaximumSize(sSizes.getPreferredSize());
+			sSizes.addChangeListener(new ChangeListener()
 				{
 					public void stateChanged(ChangeEvent arg0)
 						{
@@ -262,38 +262,38 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 							return;
 							}
 						editor.grabFocus();
-						setSelectionAttribute(StyleConstants.Size,m_sSizes.getValue());
+						setSelectionAttribute(StyleConstants.Size,sSizes.getValue());
 						}
 				});
-			tool.add(m_sSizes);
+			tool.add(sSizes);
 			tool.addSeparator();
 
-			m_tbBold = new JToggleButton("B");
-			m_tbBold.setRequestFocusEnabled(false);
+			tbBold = new JToggleButton("B");
+			tbBold.setRequestFocusEnabled(false);
 			// m_tbBold.setFont(new java.awt.Font("Courier New",java.awt.Font.BOLD,10));
 			lst = new ActionListener()
 				{
 					public void actionPerformed(ActionEvent arg0)
 						{
-						setSelectionAttribute(StyleConstants.Bold,m_tbBold.isSelected());
+						setSelectionAttribute(StyleConstants.Bold,tbBold.isSelected());
 						}
 				};
-			m_tbBold.addActionListener(lst);
-			tool.add(m_tbBold);
-			m_tbItalic = new JToggleButton("I");
-			m_tbItalic.setRequestFocusEnabled(false);
+			tbBold.addActionListener(lst);
+			tool.add(tbBold);
+			tbItalic = new JToggleButton("I");
+			tbItalic.setRequestFocusEnabled(false);
 			// m_tbItalic.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.ITALIC));
 			lst = new ActionListener()
 				{
 					public void actionPerformed(ActionEvent arg0)
 						{
-						setSelectionAttribute(StyleConstants.Italic,m_tbItalic.isSelected());
+						setSelectionAttribute(StyleConstants.Italic,tbItalic.isSelected());
 						}
 				};
-			m_tbItalic.addActionListener(lst);
-			tool.add(m_tbItalic);
-			m_tbUnderline = new JToggleButton("U");
-			m_tbUnderline.setRequestFocusEnabled(false);
+			tbItalic.addActionListener(lst);
+			tool.add(tbItalic);
+			tbUnderline = new JToggleButton("U");
+			tbUnderline.setRequestFocusEnabled(false);
 			// m_tbUnderline = new JToggleButton("<html><u>U</u></html>");
 			// m_tbUnderline.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.PLAIN));
 			// m_tbUnderline.setMaximumSize(m_tbBold.getSize());
@@ -301,11 +301,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 				{
 					public void actionPerformed(ActionEvent arg0)
 						{
-						setSelectionAttribute(StyleConstants.Underline,m_tbUnderline.isSelected());
+						setSelectionAttribute(StyleConstants.Underline,tbUnderline.isSelected());
 						}
 				};
-			m_tbUnderline.addActionListener(lst);
-			tool.add(m_tbUnderline);
+			tbUnderline.addActionListener(lst);
+			tool.add(tbUnderline);
 
 			tool.addSeparator();
 			but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
@@ -364,11 +364,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 					boolean b = StyleConstants.isBold(as);
 					boolean i = StyleConstants.isItalic(as);
 					boolean u = StyleConstants.isUnderline(as);
-					m_cbFonts.setSelectedItem(f);
-					m_sSizes.setValue(s);
-					m_tbBold.setSelected(b);
-					m_tbItalic.setSelected(i);
-					m_tbUnderline.setSelected(u);
+					cbFonts.setSelectedItem(f);
+					sSizes.setValue(s);
+					tbBold.setSelected(b);
+					tbItalic.setSelected(i);
+					tbUnderline.setSelected(u);
 					}
 			});
 
@@ -388,7 +388,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	public void setEditorBackground(Color c)
 		{
 		editor.setBackground(c);
-		Color sc = new Color(c.getRed() > 127 ? 0 : 255,c.getGreen() > 127 ? 0 : 255,c.getBlue() > 127 ? 0 : 255);
+		Color sc = new Color(c.getRed() > 127 ? 0 : 255,c.getGreen() > 127 ? 0 : 255,
+				c.getBlue() > 127 ? 0 : 255);
 		editor.setSelectedTextColor(c);
 		editor.setSelectionColor(sc);
 		Color cc = new Color((c.getRed() + sc.getRed()) / 2,(c.getGreen() + sc.getGreen()) / 2,
@@ -412,7 +413,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		sd.setCharacterAttributes(a,b - a,sas,false);
 		}
 
-	public static void add_rtf(String str)
+	public static void addRTF(String str)
 		{
 		try
 			{
@@ -434,10 +435,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		return item;
 		}
 
-	public void load_from_file()
+	public void loadFromFile()
 		{
 		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".rtf",Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fc.setFileFilter(new CustomFileFilter(".rtf", //$NON-NLS-1$
+				Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$
 		fc.setDialogTitle(Messages.getString("GameInformationFrame.LOAD_TITLE")); //$NON-NLS-1$
 		if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
 		boolean repeat = true;
@@ -464,10 +466,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			}
 		}
 
-	public void save_to_file()
+	public void saveToFile()
 		{
 		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".rtf",Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fc.setFileFilter(new CustomFileFilter(".rtf", //$NON-NLS-1$
+				Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$
 		fc.setDialogTitle(Messages.getString("GameInformationFrame.SAVE_TITLE")); //$NON-NLS-1$
 		if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 		String name = fc.getSelectedFile().getPath();
@@ -531,11 +534,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		String com = arg0.getActionCommand();
 		if (com.equals("GameInformationFrame.LOAD")) //$NON-NLS-1$
 			{
-			load_from_file();
+			loadFromFile();
 			}
 		if (com.equals("GameInformationFrame.SAVE")) //$NON-NLS-1$
 			{
-			save_to_file();
+			saveToFile();
 			}
 		if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
 			{
@@ -553,7 +556,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 				{
 				switch (JOptionPane.showConfirmDialog(LGM.frame,String.format(
 						Messages.getString("ResourceFrame.KEEPCHANGES"),(String) getUserObject()),
-						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$
+						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
+						JOptionPane.YES_NO_CANCEL_OPTION))
 					{
 					case 0: // yes
 						updateResource();

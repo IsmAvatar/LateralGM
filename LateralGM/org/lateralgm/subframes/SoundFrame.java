@@ -61,7 +61,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 	public JSlider pan;
 	public JCheckBox preload;
 	public JButton edit;
-	public byte[] Data;
+	public byte[] data;
 	public boolean modified = false;
 	private JFileChooser fc = new JFileChooser();
 
@@ -70,10 +70,15 @@ public class SoundFrame extends ResourceFrame<Sound>
 		super(res,node);
 
 		String s[] = { ".wav",".mid",".mp3" };
-		fc.setFileFilter(new CustomFileFilter(s,Messages.getString("SoundFrame.FORMAT_SOUND"))); //$NON-NLS-1$//$NON-NLS-2$
-		fc.addChoosableFileFilter(new CustomFileFilter(s[0],Messages.getString("SoundFrame.FORMAT_WAV"))); //$NON-NLS-1$//$NON-NLS-2$
-		fc.addChoosableFileFilter(new CustomFileFilter(s[1],Messages.getString("SoundFrame.FORMAT_MID"))); //$NON-NLS-1$//$NON-NLS-2$
-		fc.addChoosableFileFilter(new CustomFileFilter(s[2],Messages.getString("SoundFrame.FORMAT_MP3"))); //$NON-NLS-1$//$NON-NLS-2$
+		String[] d = { Messages.getString("SoundFrame.FORMAT_SOUND"), //$NON-NLS-1$
+				Messages.getString("SoundFrame.FORMAT_WAV"), //$NON-NLS-1$
+				Messages.getString("SoundFrame.FORMAT_MID"), //$NON-NLS-1$
+				Messages.getString("SoundFrame.FORMAT_MP3") }; //$NON-NLS-1$
+
+		fc.setFileFilter(new CustomFileFilter(s,d[0]));
+		fc.addChoosableFileFilter(new CustomFileFilter(s[0],d[1]));
+		fc.addChoosableFileFilter(new CustomFileFilter(s[1],d[2]));
+		fc.addChoosableFileFilter(new CustomFileFilter(s[2],d[3]));
 
 		setSize(250,550);
 		setResizable(false);
@@ -130,7 +135,8 @@ public class SoundFrame extends ResourceFrame<Sound>
 		kind.add(b,Sound.MULTIMEDIA);
 		kind.setValue(res.kind);
 		JPanel p = new JPanel();
-		p.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.KIND"))); //$NON-NLS-1$
+		String t = Messages.getString("SoundFrame.KIND"); //$NON-NLS-1$
+		p.setBorder(BorderFactory.createTitledBorder(t));
 		p.setPreferredSize(new Dimension(220,110));
 		kind.populate(p);
 		add(p);
@@ -154,7 +160,8 @@ public class SoundFrame extends ResourceFrame<Sound>
 		effects.add(b,16);
 		effects.setValue(res.getEffects());
 		p = new JPanel();
-		p.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.EFFECTS"))); //$NON-NLS-1$
+		t = Messages.getString("SoundFrame.EFFECTS"); //$NON-NLS-1$
+		p.setBorder(BorderFactory.createTitledBorder(t));
 		p.setPreferredSize(new Dimension(220,90));
 		effects.populate(p);
 		add(p);
@@ -196,16 +203,19 @@ public class SoundFrame extends ResourceFrame<Sound>
 		save.setAlignmentX(0.5f);
 		add(save);
 
-		Data = res.data;
+		data = res.data;
 		}
 
 	public boolean resourceChanged()
 		{
-		if (!resOriginal.getName().equals(name.getText()) || modified
-				|| !res.fileName.equals(filename.getText().substring(Messages.getString("SoundFrame.FILE").length()))
-				|| res.kind != kind.getValue() || res.getEffects() != effects.getValue()
-				|| res.volume != (double) volume.getValue() / 100.0 || res.pan != (double) pan.getValue() / 100.0
-				|| res.preload != preload.isSelected()) return true;
+		if (!resOriginal.getName().equals(name.getText())
+				|| modified
+				|| !res.fileName.equals(filename.getText().substring(
+						Messages.getString("SoundFrame.FILE").length())) || res.kind != kind.getValue()
+				|| res.getEffects() != effects.getValue()
+				|| res.volume != (double) volume.getValue() / 100.0
+				|| res.pan != (double) pan.getValue() / 100.0 || res.preload != preload.isSelected())
+			return true;
 		return false;
 		}
 
@@ -227,7 +237,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		res.volume = (double) volume.getValue() / 100.0;
 		res.pan = (double) pan.getValue() / 100.0;
 		res.preload = preload.isSelected();
-		res.data = Data;
+		res.data = data;
 		modified = false;
 		resOriginal = (Sound) res.copy(false,null);
 		}
@@ -244,8 +254,8 @@ public class SoundFrame extends ResourceFrame<Sound>
 					repeat = false;
 				else
 					JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
-							+ Messages.getString("SoundFrame.FILE_MISSING"),Messages.getString("SoundFrame.FILE_OPEN"),
-							JOptionPane.WARNING_MESSAGE);
+							+ Messages.getString("SoundFrame.FILE_MISSING"),
+							Messages.getString("SoundFrame.FILE_OPEN"),JOptionPane.WARNING_MESSAGE);
 				}
 			try
 				{
@@ -257,7 +267,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 					out.write(val);
 					val = in.read();
 					}
-				Data = out.toByteArray();
+				data = out.toByteArray();
 				out.close();
 				in.close();
 				}
@@ -281,8 +291,9 @@ public class SoundFrame extends ResourceFrame<Sound>
 			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			try
 				{
-				ByteArrayInputStream in = new ByteArrayInputStream(Data);
-				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(fc.getSelectedFile()));
+				ByteArrayInputStream in = new ByteArrayInputStream(data);
+				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(
+						fc.getSelectedFile()));
 				int val = in.read();
 				while (val != -1)
 					{

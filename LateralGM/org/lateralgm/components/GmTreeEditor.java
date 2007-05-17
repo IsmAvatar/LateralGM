@@ -27,7 +27,8 @@ public class GmTreeEditor extends DefaultTreeCellEditor
 		{
 		if (event != null && event.getSource() instanceof JTree && event instanceof MouseEvent)
 			{
-			TreePath path = tree.getPathForLocation(((MouseEvent) event).getX(),((MouseEvent) event).getY());
+			TreePath path = tree.getPathForLocation(((MouseEvent) event).getX(),
+					((MouseEvent) event).getY());
 			if (path.getPathCount() <= 2) return false;
 			}
 		return super.isCellEditable(event);
@@ -38,7 +39,8 @@ public class GmTreeEditor extends DefaultTreeCellEditor
 		{
 		if (renderer != null)
 			{
-			editingIcon = ((GmTreeGraphics) renderer).getNodeIcon(tree,value,isSelected,expanded,leaf,row);
+			GmTreeGraphics g = (GmTreeGraphics) renderer;
+			editingIcon = g.getNodeIcon(tree,value,isSelected,expanded,leaf,row);
 			offset = renderer.getIconTextGap();
 			if (editingIcon != null) offset += editingIcon.getIconWidth();
 			}

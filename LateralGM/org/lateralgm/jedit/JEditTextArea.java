@@ -8,15 +8,53 @@
  */
 package org.lateralgm.jedit;
 
-import javax.swing.event.*;
-import javax.swing.text.*;
-import javax.swing.undo.*;
-import javax.swing.*;
-import java.awt.datatransfer.*;
-import java.awt.event.*;
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.Enumeration;
 import java.util.Vector;
+
+import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollBar;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.EventListenerList;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.Segment;
+import javax.swing.text.Utilities;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoableEdit;
 
 /**
  * jEdit's text area component. It is more suited for editing program
@@ -54,7 +92,7 @@ public class JEditTextArea extends JComponent
 	 * them left of the horizontal scroll bar. In jEdit, the status
 	 * bar is added this way.
 	 */
-	public static String LEFT_OF_SCROLLBAR = "los";
+	public static final String LEFT_OF_SCROLLBAR = "los";
 
 	/**
 	 * Creates a new JEditTextArea with the default settings.
@@ -387,11 +425,12 @@ public class JEditTextArea extends JComponent
 		else if (line + electricScroll >= firstLine + visibleLines)
 			{
 			newFirstLine = (line - visibleLines) + electricScroll + 1;
-			if (newFirstLine + visibleLines >= getLineCount()) newFirstLine = getLineCount() - visibleLines;
+			if (newFirstLine + visibleLines >= getLineCount())
+				newFirstLine = getLineCount() - visibleLines;
 			if (newFirstLine < 0) newFirstLine = 0;
 			}
 
-		int x = _offsetToX(line,offset);
+		int x = fOffsetToX(line,offset);
 		int width = painter.getFontMetrics().charWidth('w');
 
 		if (x < 0)
@@ -437,7 +476,7 @@ public class JEditTextArea extends JComponent
 		{
 		// don't use cached tokens
 		painter.currentLineTokens = null;
-		return _offsetToX(line,offset);
+		return fOffsetToX(line,offset);
 		}
 
 	/**
@@ -447,7 +486,7 @@ public class JEditTextArea extends JComponent
 	 * @param line The line
 	 * @param offset The offset, from the start of the line
 	 */
-	public int _offsetToX(int line, int offset)
+	public int fOffsetToX(int line, int offset)
 		{
 		TokenMarker tokenMarker = getTokenMarker();
 
@@ -1418,8 +1457,8 @@ public class JEditTextArea extends JComponent
 				{
 				// The MacOS MRJ doesn't convert \r to \n,
 				// so do it here
-				String selection = ((String) clipboard.getContents(this).getTransferData(DataFlavor.stringFlavor)).replace(
-						'\r','\n');
+				String selection = ((String) clipboard.getContents(this).getTransferData(
+						DataFlavor.stringFlavor)).replace('\r','\n');
 
 				int repeatCount = inputHandler.getRepeatCount();
 				StringBuffer buf = new StringBuffer();
@@ -1469,9 +1508,9 @@ public class JEditTextArea extends JComponent
 		}
 
 	// protected members
-	protected static String CENTER = "center";
-	protected static String RIGHT = "right";
-	protected static String BOTTOM = "bottom";
+	protected static final String CENTER = "center";
+	protected static final String RIGHT = "right";
+	protected static final String BOTTOM = "bottom";
 
 	protected static JEditTextArea focusedComponent;
 	protected static Timer caretTimer;
@@ -1671,7 +1710,8 @@ public class JEditTextArea extends JComponent
 				ileft += dim.width;
 				}
 
-			bottom.setBounds(ileft,itop + centerHeight,size.width - rightWidth - ileft - iright,bottomHeight);
+			bottom.setBounds(ileft,itop + centerHeight,size.width - rightWidth - ileft - iright,
+					bottomHeight);
 			}
 
 		// private members
@@ -1884,7 +1924,8 @@ public class JEditTextArea extends JComponent
 				setCaretPosition(dot);
 			}
 
-		private void doDoubleClick(MouseEvent evt, int line, int offset, int dot) throws BadLocationException
+		private void doDoubleClick(MouseEvent evt, int line, int offset, int dot)
+				throws BadLocationException
 			{
 			// Ignore empty lines
 			if (getLineLength(line) == 0) return;

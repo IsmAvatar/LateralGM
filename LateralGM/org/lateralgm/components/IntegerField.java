@@ -20,7 +20,7 @@ public class IntegerField extends JTextField implements DocumentListener
 	private int min;
 	private int max;
 	private int lastGoodVal;
-	private boolean setting = false;// prevents recursive calls of setText
+	private boolean setting = false; // prevents recursive calls of setText
 
 	public IntegerField(int min, int max)
 		{

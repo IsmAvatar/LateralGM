@@ -25,7 +25,7 @@ public class Timeline extends Resource
 		setName(Prefs.prefixes[Resource.TIMELINE]);
 		}
 
-	public int NoMoments()
+	public int noMoments()
 		{
 		return moments.size();
 		}
@@ -33,31 +33,31 @@ public class Timeline extends Resource
 	public Moment addMoment()
 		{
 		moments.add(new Moment());
-		return moments.get(NoMoments() - 1);
+		return moments.get(noMoments() - 1);
 		}
 
 	public Moment getMoment(int stepNo)
 		{
-		int ListIndex = MomentIndex(stepNo);
-		if (ListIndex != -1) return moments.get(ListIndex);
+		int listIndex = momentIndex(stepNo);
+		if (listIndex != -1) return moments.get(listIndex);
 		return null;
 		}
 
-	public Moment getMomentList(int ListIndex)
+	public Moment getMomentList(int listIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoMoments()) return moments.get(ListIndex);
+		if (listIndex >= 0 && listIndex < noMoments()) return moments.get(listIndex);
 		return null;
 		}
 
-	public void removeMoment(int MomentVal)
+	public void removeMoment(int momentVal)
 		{
-		int ListIndex = MomentIndex(MomentVal);
-		if (ListIndex != -1) moments.remove(ListIndex);
+		int listIndex = momentIndex(momentVal);
+		if (listIndex != -1) moments.remove(listIndex);
 		}
 
-	public int MomentIndex(int stepNo)
+	public int momentIndex(int stepNo)
 		{
-		for (int i = 0; i < NoMoments(); i++)
+		for (int i = 0; i < noMoments(); i++)
 			{
 			if (getMomentList(i).stepNo == stepNo)
 				{
@@ -76,12 +76,12 @@ public class Timeline extends Resource
 	public Timeline copy(boolean update, ResourceList src)
 		{
 		Timeline time = new Timeline();
-		for (int i = 0; i < NoMoments(); i++)
+		for (int i = 0; i < noMoments(); i++)
 			{
 			Moment mom = getMomentList(i);
 			Moment mom2 = time.addMoment();
 			mom2.stepNo = mom.stepNo;
-			for (int j = 0; j < mom.NoActions(); j++)
+			for (int j = 0; j < mom.noActions(); j++)
 				{
 				Action act = mom.getAction(j);
 				Action act2 = mom2.addAction();
@@ -90,7 +90,8 @@ public class Timeline extends Resource
 				act2.appliesTo = act.appliesTo;
 				act2.arguments = new Argument[act.arguments.length];
 				for (int k = 0; k < act.arguments.length; k++)
-					act2.arguments[k] = new Argument(act.arguments[k].kind,act.arguments[k].val,act.arguments[k].res);
+					act2.arguments[k] = new Argument(act.arguments[k].kind,act.arguments[k].val,
+							act.arguments[k].res);
 				}
 			}
 		if (update)

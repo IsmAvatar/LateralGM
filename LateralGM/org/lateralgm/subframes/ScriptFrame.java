@@ -116,8 +116,8 @@ public class ScriptFrame extends ResourceFrame<Script>
 		public void updateTokenMarker()
 			{
 			KeywordMap km = new KeywordMap(false);
-			int[] kmResources = { Resource.BACKGROUND,Resource.FONT,Resource.GMOBJECT,Resource.PATH,Resource.ROOM,
-					Resource.SCRIPT,Resource.SOUND,Resource.SPRITE,Resource.TIMELINE };
+			int[] kmResources = { Resource.BACKGROUND,Resource.FONT,Resource.GMOBJECT,Resource.PATH,
+					Resource.ROOM,Resource.SCRIPT,Resource.SOUND,Resource.SPRITE,Resource.TIMELINE };
 			for (int j : kmResources)
 				{
 				ResourceList rl = LGM.currentFile.getList(j);

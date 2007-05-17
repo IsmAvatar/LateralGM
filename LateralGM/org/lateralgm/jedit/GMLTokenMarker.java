@@ -220,7 +220,8 @@ public class GMLTokenMarker extends TokenMarker
 
 		int len = i - lastKeyword;
 		byte id = stdKeywords.lookup(line,lastKeyword,len);
-		if (id == Token.NULL && customKeywords != null) id = customKeywords.lookup(line,lastKeyword,len);
+		if (id == Token.NULL && customKeywords != null)
+			id = customKeywords.lookup(line,lastKeyword,len);
 		if (id != Token.NULL)
 			{
 			if (lastKeyword != lastOffset) addToken(lastKeyword - lastOffset,Token.NULL);

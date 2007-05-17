@@ -69,8 +69,10 @@ public class LGM extends JPanel
 	public static JDesktopPane MDI;
 	public static GameInformationFrame gameInfo;
 	public static GameSettingFrame gameSet;
-	public static String[] kinds = { "","Object","Sprite","Sound","Room","","Background","Script","Path", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$
-			"Font","Info","GM","Timeline" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+	public static String[] kinds = { "", //$NON-NLS-1$
+			"Object","Sprite","Sound","Room", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+			"","Background","Script","Path", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+			"Font","Info","GM","Timeline" }; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 
 	public LGM()
 		{
@@ -95,7 +97,8 @@ public class LGM extends JPanel
 	public static ImageIcon getIconForKey(String key)
 		{
 		Properties iconProps = new Properties();
-		InputStream is = LGM.class.getClassLoader().getResourceAsStream("org/lateralgm/main/icons.properties"); //$NON-NLS-1$
+		InputStream is = LGM.class.getClassLoader().getResourceAsStream(
+				"org/lateralgm/main/icons.properties"); //$NON-NLS-1$
 		try
 			{
 			iconProps.load(is);
@@ -156,17 +159,28 @@ public class LGM extends JPanel
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		if (populate)
 			{
-			root.addChild(Messages.getString("LGM.SPRITES"),ResNode.STATUS_PRIMARY,Resource.SPRITE); //$NON-NLS-1$
-			root.addChild(Messages.getString("LGM.SOUNDS"),ResNode.STATUS_PRIMARY,Resource.SOUND); //$NON-NLS-1$
-			root.addChild(Messages.getString("LGM.BACKGROUNDS"),ResNode.STATUS_PRIMARY,Resource.BACKGROUND); //$NON-NLS-1$
-			root.addChild(Messages.getString("LGM.PATHS"),ResNode.STATUS_PRIMARY,Resource.PATH); //$NON-NLS-1$
-			root.addChild(Messages.getString("LGM.SCRIPTS"),ResNode.STATUS_PRIMARY,Resource.SCRIPT); //$NON-NLS-1$
-			root.addChild(Messages.getString("LGM.FONTS"),ResNode.STATUS_PRIMARY,Resource.FONT); //$NON-NLS-1$
-			root.addChild(Messages.getString("LGM.TIMELINES"),ResNode.STATUS_PRIMARY,Resource.TIMELINE); //$NON-NLS-1$
-			root.addChild(Messages.getString("LGM.OBJECTS"),ResNode.STATUS_PRIMARY,Resource.GMOBJECT); //$NON-NLS-1$
-			root.addChild(Messages.getString("LGM.ROOMS"),ResNode.STATUS_PRIMARY,Resource.ROOM); //$NON-NLS-1$
-			root.addChild(Messages.getString("LGM.GAMEINFO"),ResNode.STATUS_SECONDARY,Resource.GAMEINFO); //$NON-NLS-1$
-			root.addChild(Messages.getString("LGM.GAMESETTINGS"),ResNode.STATUS_SECONDARY,Resource.GAMESETTINGS); //$NON-NLS-1$
+			root.addChild(Messages.getString("LGM.SPRITES"), //$NON-NLS-1$
+					ResNode.STATUS_PRIMARY,Resource.SPRITE);
+			root.addChild(Messages.getString("LGM.SOUNDS"), //$NON-NLS-1$
+					ResNode.STATUS_PRIMARY,Resource.SOUND);
+			root.addChild(Messages.getString("LGM.BACKGROUNDS"), //$NON-NLS-1$
+					ResNode.STATUS_PRIMARY,Resource.BACKGROUND);
+			root.addChild(Messages.getString("LGM.PATHS"), //$NON-NLS-1$
+					ResNode.STATUS_PRIMARY,Resource.PATH);
+			root.addChild(Messages.getString("LGM.SCRIPTS"), //$NON-NLS-1$
+					ResNode.STATUS_PRIMARY,Resource.SCRIPT);
+			root.addChild(Messages.getString("LGM.FONTS"), //$NON-NLS-1$
+					ResNode.STATUS_PRIMARY,Resource.FONT);
+			root.addChild(Messages.getString("LGM.TIMELINES"), //$NON-NLS-1$
+					ResNode.STATUS_PRIMARY,Resource.TIMELINE);
+			root.addChild(Messages.getString("LGM.OBJECTS"), //$NON-NLS-1$
+					ResNode.STATUS_PRIMARY,Resource.GMOBJECT);
+			root.addChild(Messages.getString("LGM.ROOMS"), //$NON-NLS-1$
+					ResNode.STATUS_PRIMARY,Resource.ROOM);
+			root.addChild(Messages.getString("LGM.GAMEINFO"), //$NON-NLS-1$
+					ResNode.STATUS_SECONDARY,Resource.GAMEINFO);
+			root.addChild(Messages.getString("LGM.GAMESETTINGS"), //$NON-NLS-1$
+					ResNode.STATUS_SECONDARY,Resource.GAMESETTINGS);
 			tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
 			}
 		else

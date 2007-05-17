@@ -62,9 +62,11 @@ public class Sound extends Resource
 		return ((effects & 16) != 0);
 		}
 
-	public static int makeEffects(boolean chorus, boolean echo, boolean flanger, boolean gargle, boolean reverb)
+	public static int makeEffects(boolean chorus, boolean echo, boolean flanger, boolean gargle,
+			boolean reverb)
 		{
-		return (chorus ? 1 : 0) | (echo ? 2 : 0) | (flanger ? 4 : 0) | (gargle ? 8 : 0) | (reverb ? 16 : 0);
+		return (chorus ? 1 : 0) | (echo ? 2 : 0) | (flanger ? 4 : 0) | (gargle ? 8 : 0)
+				| (reverb ? 16 : 0);
 		}
 
 	public void setEffects(int val)

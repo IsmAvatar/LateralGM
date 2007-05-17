@@ -103,12 +103,14 @@ public class KeywordMap
 
 	protected int getStringMapKey(String s)
 		{
-		return (Character.toUpperCase(s.charAt(0)) + Character.toUpperCase(s.charAt(s.length() - 1))) % mapLength;
+		return (Character.toUpperCase(s.charAt(0)) + Character.toUpperCase(s.charAt(s.length() - 1)))
+				% mapLength;
 		}
 
 	protected int getSegmentMapKey(Segment s, int off, int len)
 		{
-		return (Character.toUpperCase(s.array[off]) + Character.toUpperCase(s.array[off + len - 1])) % mapLength;
+		return (Character.toUpperCase(s.array[off]) + Character.toUpperCase(s.array[off + len - 1]))
+				% mapLength;
 		}
 
 	// private members

@@ -28,7 +28,8 @@ public class FramePrefsHandler implements ComponentListener,WindowListener,Windo
 		frame.pack(); // makes the frame displayable, so that maximizing works
 		frame.setMinimumSize(frame.getSize());
 		frame.setBounds(PrefsStore.getWindowBounds());
-		int state = frame.getExtendedState() | (PrefsStore.getWindowMaximized() ? JFrame.MAXIMIZED_BOTH : 0);
+		int state = frame.getExtendedState()
+				| (PrefsStore.getWindowMaximized() ? JFrame.MAXIMIZED_BOTH : 0);
 		frame.setExtendedState(state);
 		frame.addComponentListener(this);
 		frame.addWindowListener(this);

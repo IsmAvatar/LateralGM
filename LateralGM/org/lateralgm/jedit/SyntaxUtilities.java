@@ -8,8 +8,13 @@
  */
 package org.lateralgm.jedit;
 
-import javax.swing.text.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+
+import javax.swing.text.Segment;
+import javax.swing.text.TabExpander;
+import javax.swing.text.Utilities;
 
 /**
  * Class with several utility functions used by jEdit's syntax colorizing
@@ -109,8 +114,8 @@ public class SyntaxUtilities
 	 * @param y The y co-ordinate
 	 * @return The x co-ordinate, plus the width of the painted string
 	 */
-	public static int paintSyntaxLine(Segment line, Token tokens, SyntaxStyle[] styles, TabExpander expander,
-			Graphics gfx, int x, int y)
+	public static int paintSyntaxLine(Segment line, Token tokens, SyntaxStyle[] styles,
+			TabExpander expander, Graphics gfx, int x, int y)
 		{
 		Font defaultFont = gfx.getFont();
 		Color defaultColor = gfx.getColor();

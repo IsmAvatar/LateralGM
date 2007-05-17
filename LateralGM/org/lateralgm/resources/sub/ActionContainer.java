@@ -16,7 +16,7 @@ public abstract class ActionContainer
 	{
 	private ArrayList<Action> actions = new ArrayList<Action>();
 
-	public int NoActions()
+	public int noActions()
 		{
 		return actions.size();
 		}
@@ -57,15 +57,15 @@ public abstract class ActionContainer
 		return act;
 		}
 
-	public Action getAction(int ListIndex)
+	public Action getAction(int listIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoActions()) return actions.get(ListIndex);
+		if (listIndex >= 0 && listIndex < noActions()) return actions.get(listIndex);
 		return null;
 		}
 
-	public void removeAction(int ListIndex)
+	public void removeAction(int listIndex)
 		{
-		if (ListIndex >= 0 && ListIndex < NoActions()) actions.remove(ListIndex);
+		if (listIndex >= 0 && listIndex < noActions()) actions.remove(listIndex);
 		}
 
 	public void clearActions()

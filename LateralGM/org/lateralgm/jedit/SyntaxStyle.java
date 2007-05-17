@@ -8,8 +8,11 @@
  */
 package org.lateralgm.jedit;
 
-import java.awt.*;
-import java.util.StringTokenizer;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Toolkit;
 
 /**
  * A simple text style class. It can specify the color, italic flag,
@@ -99,8 +102,8 @@ public class SyntaxStyle
 	 */
 	public void setGraphicsFlags(Graphics gfx, Font font)
 		{
-		Font _font = getStyledFont(font);
-		gfx.setFont(_font);
+		Font f = getStyledFont(font);
+		gfx.setFont(f);
 		gfx.setColor(color);
 		}
 
@@ -109,7 +112,8 @@ public class SyntaxStyle
 	 */
 	public String toString()
 		{
-		return getClass().getName() + "[color=" + color + (italic ? ",italic" : "") + (bold ? ",bold" : "") + "]";
+		return getClass().getName() + "[color=" + color + (italic ? ",italic" : "")
+				+ (bold ? ",bold" : "") + "]";
 		}
 
 	// private members

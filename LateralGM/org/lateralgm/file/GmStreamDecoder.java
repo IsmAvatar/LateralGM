@@ -66,7 +66,8 @@ public class GmStreamDecoder
 		{
 		byte data[] = new byte[readi()];
 		long check = in.read(data);
-		if (check < data.length) throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
+		if (check < data.length)
+			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
 		return new String(data);
 		}
 
@@ -74,7 +75,8 @@ public class GmStreamDecoder
 		{
 		int val = readi();
 		if (val != 0 && val != 1)
-			throw new IOException(String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
+			throw new IOException(
+					String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
 		if (val == 0) return false;
 		return true;
 		}
@@ -145,7 +147,8 @@ public class GmStreamDecoder
 			int ind = readi();
 			String name = readStr();
 			ResNode node = path.peek().addChild(name,status,type);
-			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO && type != Resource.GAMESETTINGS)
+			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO
+					&& type != Resource.GAMESETTINGS)
 				{
 				node.resourceId = src.getList(node.kind).getUnsafe(ind).getId();
 

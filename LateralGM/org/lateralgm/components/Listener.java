@@ -54,7 +54,8 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 
-public class Listener extends TransferHandler implements ActionListener,MouseListener,CellEditorListener
+public class Listener extends TransferHandler implements ActionListener,MouseListener,
+		CellEditorListener
 	{
 	private static final long serialVersionUID = 1L;
 	JFileChooser fc = new JFileChooser();
@@ -92,7 +93,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				}
 			else
 				{
-				fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$//$NON-NLS-2$
+				fc.setFileFilter(new CustomFileFilter(".gm6", //$NON-NLS-1$
+						Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$
 				fc.showOpenDialog(LGM.frame);
 				file = fc.getSelectedFile();
 				if (file == null) return;
@@ -117,9 +119,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				}
 			catch (Gm6FormatException ex)
 				{
-				JOptionPane.showMessageDialog(LGM.frame,String.format(Messages.getString("Listener.ERROR_MESSAGE"), //$NON-NLS-1$
-						ex.stackAsString(),ex.getMessage()),Messages.getString("Listener.ERROR_TITLE"), //$NON-NLS-1$
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(LGM.frame,String.format(
+						Messages.getString("Listener.ERROR_MESSAGE"), //$NON-NLS-1$
+						ex.stackAsString(),ex.getMessage()),
+						Messages.getString("Listener.ERROR_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 				}
 			LGM.gameInfo.dispose();
 			LGM.gameInfo = new GameInformationFrame();
@@ -136,7 +139,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		if (com.endsWith(".SAVEAS")) //$NON-NLS-1$
 			{
 			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new CustomFileFilter(".gm6",Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$//$NON-NLS-2$
+			fc.setFileFilter(new CustomFileFilter(".gm6", //$NON-NLS-1$
+					Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$
 			while (true)
 				{
 				if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
@@ -176,7 +180,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			com = com.substring(com.lastIndexOf('_') + 1);
 			if (com.equals("GROUP")) //$NON-NLS-1$
 				{
-				String name = JOptionPane.showInputDialog(Messages.getString("Listener.INPUT_GROUPNAME"),"group"); //$NON-NLS-1$
+				String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
+				String name = JOptionPane.showInputDialog(msg,"group");
 				if (name == "" || name == null) return; //$NON-NLS-1$
 				ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
 				parent.insert(g,pos);
@@ -205,7 +210,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			com = com.substring(com.lastIndexOf('_') + 1);
 			if (com.equals("GROUP")) //$NON-NLS-1$
 				{
-				String name = JOptionPane.showInputDialog(Messages.getString("Listener.INPUT_GROUPNAME"),"Group"); //$NON-NLS-1$
+				String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
+				String name = JOptionPane.showInputDialog(msg,"Group");
 				if (name == "" || name == null) return; //$NON-NLS-1$
 				ResNode g = new ResNode(name,ResNode.STATUS_GROUP,parent.kind);
 				parent.insert(g,pos);
@@ -306,8 +312,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			ResNode me = (ResNode) tree.getLastSelectedPathComponent();
 			if (me == null) return;
 			if (Prefs.protectRoot && me.status == ResNode.STATUS_PRIMARY) return;
-			if (JOptionPane.showConfirmDialog(null,Messages.getString("Listener.CONFIRM_DELETERESOURCE"), //$NON-NLS-1$
-					Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$
+			String msg = Messages.getString("Listener.CONFIRM_DELETERESOURCE"); //$NON-NLS-1$
+			if (JOptionPane.showConfirmDialog(null,msg,
+					Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"), //$NON-NLS-1$
+					JOptionPane.YES_NO_OPTION) == 0)
 				{
 				ResNode next = (ResNode) me.getNextSibling();
 				if (next == null) next = (ResNode) me.getParent();
@@ -321,9 +329,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.endsWith(".DEFRAGIDS")) //$NON-NLS-1$
 			{
-			if (JOptionPane.showConfirmDialog(LGM.frame,Messages.getString("Listener.CONFIRM_DEFRAGIDS"), //$NON-NLS-1$
-					Messages.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"),JOptionPane.YES_NO_OPTION) == 0) //$NON-NLS-1$
-				LGM.currentFile.defragIds();
+			String msg = Messages.getString("Listener.CONFIRM_DEFRAGIDS"); //$NON-NLS-1$
+			if (JOptionPane.showConfirmDialog(LGM.frame,msg,
+					Messages.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"), //$NON-NLS-1$
+					JOptionPane.YES_NO_OPTION) == 0) LGM.currentFile.defragIds();
 			}
 		if (com.endsWith(".EXPAND")) //$NON-NLS-1$
 			{
@@ -389,7 +398,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			{
 			dropIndex = dropNode.getChildCount();
 			}
-		if (dropNode == dragNode.getParent() && dropIndex > dragNode.getParent().getIndex(dragNode)) dropIndex--;
+		if (dropNode == dragNode.getParent() && dropIndex > dragNode.getParent().getIndex(dragNode))
+			dropIndex--;
 		dropNode.insert(dragNode,dropIndex);
 		LGM.tree.expandPath(new TreePath(dropNode.getPath()));
 		LGM.tree.updateUI();
@@ -472,7 +482,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				&& node.kind != Resource.GAMESETTINGS)
 			{
 			String txt = ((String) node.getUserObject()).replaceAll("\\W",""); //$NON-NLS-1$ //$NON-NLS-2$
-			if (!Character.toString(txt.charAt(0)).matches("[A-Za-z_]")) txt = txt.substring(1); //$NON-NLS-1$
+			if (!Character.toString(txt.charAt(0)).matches("[A-Za-z_]")) //$NON-NLS-1$
+				txt = txt.substring(1);
 			node.setUserObject(txt);
 			node.updateFrame();
 			}

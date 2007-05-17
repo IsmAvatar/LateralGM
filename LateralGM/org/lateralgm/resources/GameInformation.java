@@ -24,7 +24,11 @@ public class GameInformation
 	public boolean allowResize = true;
 	public boolean stayOnTop = false;
 	public boolean pauseGame = true;
-	public String gameInfoStr = "{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033{\\fonttbl{\\f0\\fnil Arial;}}"
-			+ "{\\colortbl ;\\red0\\green0\\blue0;}\\viewkind4\\uc1\\pard\\cf1\\f0\\fs24}";
-	// the default rtf string is almost exactly the same as in fresh gm files (no linebreaks in this one)
+	/*
+	 * the default rtf string is almost exactly the same as in fresh gm files
+	 * (no linebreaks in this one)
+	 */
+	public String gameInfoStr = "{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033{\\fonttbl"
+			+ "{\\f0\\fnil Arial;}}{\\colortbl ;\\red0\\green0\\blue0;}\\viewkind4\\uc1\\pard"
+			+ "\\cf1\\f0\\fs24}";
 	}

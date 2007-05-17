@@ -8,11 +8,14 @@
  */
 package org.lateralgm.jedit;
 
-import javax.swing.KeyStroke;
-import java.awt.event.*;
 import java.awt.Toolkit;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+
+import javax.swing.KeyStroke;
 
 /**
  * The default input handler. It maps sequences of keystrokes into actions
@@ -155,8 +158,9 @@ public class DefaultInputHandler extends InputHandler
 		if (keyCode == KeyEvent.VK_CONTROL || keyCode == KeyEvent.VK_SHIFT || keyCode == KeyEvent.VK_ALT
 				|| keyCode == KeyEvent.VK_META) return;
 
-		if ((modifiers & ~KeyEvent.SHIFT_MASK) != 0 || evt.isActionKey() || keyCode == KeyEvent.VK_BACK_SPACE
-				|| keyCode == KeyEvent.VK_DELETE || keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_TAB
+		if ((modifiers & ~KeyEvent.SHIFT_MASK) != 0 || evt.isActionKey()
+				|| keyCode == KeyEvent.VK_BACK_SPACE || keyCode == KeyEvent.VK_DELETE
+				|| keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_TAB
 				|| keyCode == KeyEvent.VK_ESCAPE)
 			{
 			if (grabAction != null)

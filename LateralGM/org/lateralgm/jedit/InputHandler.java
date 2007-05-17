@@ -8,11 +8,17 @@
  */
 package org.lateralgm.jedit;
 
-import javax.swing.text.*;
-import javax.swing.JPopupMenu;
-import java.awt.event.*;
 import java.awt.Component;
-import java.util.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.Enumeration;
+import java.util.EventObject;
+import java.util.Hashtable;
+
+import javax.swing.JPopupMenu;
+import javax.swing.text.BadLocationException;
 
 /**
  * An input handler converts the user's key strokes into concrete actions.
@@ -141,8 +147,8 @@ public abstract class InputHandler extends KeyAdapter
 		while (en.hasMoreElements())
 			{
 			String name = (String) en.nextElement();
-			ActionListener _listener = getAction(name);
-			if (_listener == listener) return name;
+			ActionListener l = getAction(name);
+			if (l == listener) return name;
 			}
 		return null;
 		}
@@ -276,8 +282,8 @@ public abstract class InputHandler extends KeyAdapter
 			}
 
 		// remember old values, in case action changes them
-		boolean _repeat = repeat;
-		int _repeatCount = getRepeatCount();
+		boolean r = repeat;
+		int rc = getRepeatCount();
 
 		// execute the action
 		if (listener instanceof InputHandler.NonRepeatable)
@@ -296,7 +302,7 @@ public abstract class InputHandler extends KeyAdapter
 				{
 				if (!(listener instanceof InputHandler.NonRecordable))
 					{
-					if (_repeatCount != 1) recorder.actionPerformed(REPEAT,String.valueOf(_repeatCount));
+					if (rc != 1) recorder.actionPerformed(REPEAT,String.valueOf(rc));
 
 					recorder.actionPerformed(listener,actionCommand);
 					}
@@ -304,7 +310,7 @@ public abstract class InputHandler extends KeyAdapter
 
 			// If repeat was true originally, clear it
 			// Otherwise it might have been set by the action, etc
-			if (_repeat)
+			if (r)
 				{
 				repeat = false;
 				repeatCount = 0;
@@ -355,9 +361,9 @@ public abstract class InputHandler extends KeyAdapter
 		{
 		// Clear it *before* it is executed so that executeAction()
 		// resets the repeat count
-		ActionListener _grabAction = grabAction;
+		ActionListener ga = grabAction;
 		grabAction = null;
-		executeAction(_grabAction,evt.getSource(),String.valueOf(evt.getKeyChar()));
+		executeAction(ga,evt.getSource(),String.valueOf(evt.getKeyChar()));
 		}
 
 	// protected members
@@ -811,7 +817,8 @@ public abstract class InputHandler extends KeyAdapter
 
 			textArea.setFirstLine(firstLine);
 
-			int caret = textArea.getLineStartOffset(Math.min(textArea.getLineCount() - 1,line + visibleLines));
+			int l = Math.min(textArea.getLineCount() - 1,line + visibleLines);
+			int caret = textArea.getLineStartOffset(l);
 			if (select)
 				textArea.select(textArea.getMarkPosition(),caret);
 			else

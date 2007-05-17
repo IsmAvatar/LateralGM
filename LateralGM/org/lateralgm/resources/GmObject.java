@@ -53,21 +53,22 @@ public class GmObject extends Resource
 			{
 			MainEvent mev = mainEvents[i];
 			MainEvent mev2 = obj.mainEvents[i];
-			for (int j = 0; j < mev.NoEvents(); j++)
+			for (int j = 0; j < mev.noEvents(); j++)
 				{
 				Event ev = mev.getEventList(j);
 				Event ev2 = mev2.addEvent();
 				ev2.id = ev.id;
-				for (int k = 0; k < ev.NoActions(); k++)
+				for (int k = 0; k < ev.noActions(); k++)
 					{
 					Action act = ev.getAction(k);
 					Action act2 = ev2.addAction();
 					act2.relative = act.relative;
 					act2.not = act.not;
 					act2.appliesTo = act.appliesTo;
-					act2.arguments=new Argument[act.arguments.length];
+					act2.arguments = new Argument[act.arguments.length];
 					for (int l = 0; l < act.arguments.length; l++)
-						act2.arguments[l] = new Argument(act.arguments[l].kind,act.arguments[l].val,act.arguments[l].res);
+						act2.arguments[l] = new Argument(act.arguments[l].kind,act.arguments[l].val,
+								act.arguments[l].res);
 					}
 				}
 			}

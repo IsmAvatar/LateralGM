@@ -38,8 +38,14 @@ import org.lateralgm.resources.library.Library;
 public class TimelineFrame extends ResourceFrame<Timeline> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon frameIcon = LGM.getIconForKey("TimelineFrame.TIMELINE"); //$NON-NLS-1$
-	private static final ImageIcon saveIcon = LGM.getIconForKey("TimelineFrame.SAVE"); //$NON-NLS-1$
+	private static final ImageIcon frameIcon;
+	private static final ImageIcon saveIcon;
+	
+	static
+		{
+		frameIcon = LGM.getIconForKey("TimelineFrame.TIMELINE"); //$NON-NLS-1$
+		saveIcon = LGM.getIconForKey("TimelineFrame.SAVE"); //$NON-NLS-1$
+		}
 
 	public JButton add;
 	public JButton change;
@@ -162,7 +168,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		if (ll == null) return tp;
 		LibManager.autoLoad(ll);
 
-		for (Library l: LibManager.libs)
+		for (Library l : LibManager.libs)
 			{
 			JPanel p = new JPanel();
 			for (LibAction la : l.libActions)
