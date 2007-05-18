@@ -21,8 +21,12 @@ import javax.imageio.ImageIO;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.messages.Messages;
 
-public class LibManager
+public final class LibManager
 	{
+	private LibManager() //should not be instantiated
+		{
+		}
+
 	public static class LibFilenameFilter implements FilenameFilter
 		{
 		public boolean accept(File dir, String name)
@@ -62,6 +66,7 @@ public class LibManager
 				}
 			catch (LibFormatException ex)
 				{
+				System.out.println(ex.getMessage());
 				}
 			}
 		}
@@ -75,7 +80,7 @@ public class LibManager
 			{
 			in = new GmStreamDecoder(fileName);
 			int version = in.readi();
-			if (version != 520)
+			if (version != 520 && version != 500)
 				{
 				throw new LibFormatException(String.format(
 						Messages.getString("LibManager.ERROR_INVALIDFILE"),fileName)); //$NON-NLS-1$
@@ -94,7 +99,7 @@ public class LibManager
 			for (int j = 0; j < noacts; j++)
 				{
 				int ver = in.readi();
-				if (ver != 520)
+				if (ver != version)
 					{
 					throw new LibFormatException(String.format(
 							Messages.getString("LibManager.ERROR_INVALIDACTION"),j,fileName,ver)); //$NON-NLS-1$
@@ -102,8 +107,7 @@ public class LibManager
 
 				LibAction act = lib.addLibAction();
 				act.parent = lib;
-				lib.libActions.add(act);
-				in.skip(in.readi()); // name
+				act.name = in.readStr();
 				act.id = in.readi();
 
 				byte[] data = new byte[in.readi()];
@@ -112,7 +116,7 @@ public class LibManager
 
 				act.hidden = in.readBool();
 				act.advanced = in.readBool();
-				act.registeredOnly = in.readBool();
+				if (ver == 520) act.registeredOnly = in.readBool();
 				act.description = in.readStr();
 				act.listText = in.readStr();
 				act.hintText = in.readStr();
@@ -127,11 +131,12 @@ public class LibManager
 					{
 					if (k < act.libArguments.length)
 						{
-						LibArgument arg = act.libArguments[k] = new LibArgument();
+						LibArgument arg = new LibArgument();
 						arg.caption = in.readStr();
 						arg.kind = (byte) in.readi();
 						arg.defaultVal = in.readStr();
 						arg.menu = in.readStr();
+						act.libArguments[k] = arg;
 						}
 					else
 						{

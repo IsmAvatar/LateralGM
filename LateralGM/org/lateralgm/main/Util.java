@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * IsmAvatar (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -9,16 +10,27 @@
 package org.lateralgm.main;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.ImageFilter;
+import java.awt.image.ImageProducer;
+import java.awt.image.RGBImageFilter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import org.lateralgm.jedit.SyntaxStyle;
 
-public class Util
+public final class Util
 	{
-	public static final String urlEncode(String s)
+	private Util()
+		{
+		}
+
+	public static String urlEncode(String s)
 		{
 		try
 			{
@@ -30,7 +42,7 @@ public class Util
 			}
 		}
 
-	public static final String urlDecode(String s)
+	public static String urlDecode(String s)
 		{
 		try
 			{
@@ -42,7 +54,7 @@ public class Util
 			}
 		}
 
-	public static final Rectangle stringToRectangle(String s, Rectangle defaultValue)
+	public static Rectangle stringToRectangle(String s, Rectangle defaultValue)
 		{
 		if (s == null) return defaultValue;
 		String[] sa = s.split(" +");
@@ -60,12 +72,12 @@ public class Util
 		return new Rectangle(ia[0],ia[1],ia[2],ia[3]);
 		}
 
-	public static final String rectangleToString(Rectangle r)
+	public static String rectangleToString(Rectangle r)
 		{
 		return String.format("%d %d %d %d",r.x,r.y,r.width,r.height);
 		}
 
-	public static final SyntaxStyle stringToSyntaxStyle(String s, SyntaxStyle defaultValue)
+	public static SyntaxStyle stringToSyntaxStyle(String s, SyntaxStyle defaultValue)
 		{
 		String[] a;
 		Color c;
@@ -82,13 +94,28 @@ public class Util
 			{
 			return defaultValue;
 			}
-		boolean i, b;
-		i = b = false;
+		boolean i = false, b = false;
 		if (a.length > 1)
 			{
 			i = a[1].matches("(?i).*\\bitalic\\b.*");
 			b = a[1].matches("(?i).*\\bbold\\b.*");
 			}
 		return new SyntaxStyle(c,i,b);
+		}
+
+	public static Image getTransparentIcon(BufferedImage i)
+		{
+		final BufferedImage fi = i;
+		ImageFilter filter = new RGBImageFilter()
+			{
+				public int filterRGB(int x, int y, int rgb)
+					{
+					if ((rgb | 0xFF000000) == fi.getRGB(0,fi.getHeight() - 1))
+						return 0x00FFFFFF & rgb;
+					return rgb;
+					}
+			};
+		ImageProducer ip = new FilteredImageSource(i.getSource(),filter);
+		return Toolkit.getDefaultToolkit().createImage(ip);
 		}
 	}

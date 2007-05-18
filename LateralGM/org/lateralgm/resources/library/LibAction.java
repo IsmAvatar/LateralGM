@@ -17,12 +17,13 @@ public class LibAction
 	public static final byte INTERFACE_NORMAL = 0;
 	public static final byte INTERFACE_NONE = 1;
 	public static final byte INTERFACE_ARROWS = 2;
-	public static final byte INTERFACE_CODE = 3;
-	public static final byte INTERFACE_TEXT = 4;
+	public static final byte INTERFACE_CODE = 5;
+	public static final byte INTERFACE_TEXT = 6;
 
 	public int id = 0;
 	public int parentId = -1; //Preserves the id when library is unknown
 	public Library parent = null;
+	public String name;
 	public BufferedImage actImage;
 	public boolean hidden = false;
 	public boolean advanced = false;
