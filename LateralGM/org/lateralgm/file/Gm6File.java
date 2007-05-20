@@ -269,7 +269,7 @@ public class Gm6File
 
 	public GameInformation gameInfo = new GameInformation();
 
-	// TODO externalise the file IO?
+	// TODO: externalise the file IO?
 	public void readGm6File(String fileName, ResNode root) throws Gm6FormatException
 		{
 		clearAll();
@@ -621,8 +621,8 @@ public class Gm6File
 								}
 							act.arguments = new Argument[in.readi()];
 							int[] argkinds = new int[in.readi()];
-							for (int x : argkinds)
-								x = in.readi();
+							for (int x = 0; x < argkinds.length; x++)
+								argkinds[x] = in.readi();
 							int appliesTo = in.readi();
 							switch (appliesTo)
 								{
@@ -1275,16 +1275,14 @@ public class Gm6File
 					{
 					out.writeStr(time.getName());
 					out.writei(500);
-					out.writei(time.noMoments());
-					for (int j = 0; j < time.noMoments(); j++)
+					out.writei(time.moments.size());
+					for (Moment mom : time.moments)
 						{
-						Moment mom = time.getMomentList(j);
 						out.writei(mom.stepNo);
 						out.writei(400);
-						out.writei(mom.noActions());
-						for (int k = 0; k < mom.noActions(); k++)
+						out.writei(mom.actions.size());
+						for (Action act : mom.actions)
 							{
-							Action act = mom.getAction(k);
 							out.writei(440);
 							out.writei(act.libAction.parent != null ? act.libAction.parent.id
 									: act.libAction.parentId);
@@ -1369,10 +1367,9 @@ public class Gm6File
 							else
 								out.writei(ev.id);
 							out.writei(400);
-							out.writei(ev.noActions());
-							for (int l = 0; l < ev.noActions(); l++)
+							out.writei(ev.actions.size());
+							for (Action act : ev.actions)
 								{
-								Action act = ev.getAction(l);
 								out.writei(440);
 								out.writei(act.libAction.parent != null ? act.libAction.parent.id
 										: act.libAction.parentId);

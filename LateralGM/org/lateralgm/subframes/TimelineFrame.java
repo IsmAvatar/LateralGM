@@ -25,6 +25,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
@@ -34,9 +37,11 @@ import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.library.Library;
 import org.lateralgm.resources.sub.Action;
+import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.subframes.ScriptFrame.GMLTextArea;
 
-public class TimelineFrame extends ResourceFrame<Timeline> implements ActionListener
+public class TimelineFrame extends ResourceFrame<Timeline> implements ActionListener,
+		ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private final ImageIcon frameIcon = LGM.getIconForKey("TimelineFrame.TIMELINE"); //$NON-NLS-1$$
@@ -118,7 +123,9 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
 		lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
 		side2.add(lab,"North");
-		moments = new JList();
+		moments = new JList(res.moments.toArray());
+		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		moments.addListSelectionListener(this);
 		JScrollPane scroll = new JScrollPane(moments);
 		scroll.setPreferredSize(new Dimension(90,260));
 		side2.add(scroll,"Center");
@@ -262,5 +269,14 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			return;
 			}
 		super.actionPerformed(e);
+		}
+
+	//Moments selection changed
+	public void valueChanged(ListSelectionEvent e)
+		{
+		if (e.getValueIsAdjusting()) return;
+		Moment m = (Moment) moments.getSelectedValue();
+		if (m == null) return;
+		actions.setListData(m.actions.toArray());
 		}
 	}

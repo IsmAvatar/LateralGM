@@ -30,7 +30,6 @@ public class Action
 	public static final byte EXEC_FUNCTION = 1;
 	public static final byte EXEC_CODE = 2;
 
-
 	public LibAction libAction;
 
 	// The actual Action properties
@@ -39,4 +38,9 @@ public class Action
 	public ResId appliesTo = GmObject.OBJECT_SELF;
 
 	public Argument[] arguments;
+
+	public String toString()
+		{
+		return libAction.listText;
+		}
 	}

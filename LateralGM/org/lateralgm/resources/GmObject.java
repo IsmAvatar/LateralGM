@@ -58,9 +58,8 @@ public class GmObject extends Resource
 				Event ev = mev.getEventList(j);
 				Event ev2 = mev2.addEvent();
 				ev2.id = ev.id;
-				for (int k = 0; k < ev.noActions(); k++)
+				for (Action act : ev.actions)
 					{
-					Action act = ev.getAction(k);
 					Action act2 = ev2.addAction();
 					act2.relative = act.relative;
 					act2.not = act.not;

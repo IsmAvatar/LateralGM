@@ -18,72 +18,38 @@ import org.lateralgm.resources.sub.Moment;
 
 public class Timeline extends Resource
 	{
-	private ArrayList<Moment> moments = new ArrayList<Moment>();
+	public ArrayList<Moment> moments = new ArrayList<Moment>();
 
 	public Timeline()
 		{
 		setName(Prefs.prefixes[Resource.TIMELINE]);
 		}
 
-	public int noMoments()
-		{
-		return moments.size();
-		}
-
 	public Moment addMoment()
 		{
-		moments.add(new Moment());
-		return moments.get(noMoments() - 1);
+		Moment m = new Moment();
+		moments.add(m);
+		return m;
 		}
 
 	public Moment getMoment(int stepNo)
 		{
-		int listIndex = momentIndex(stepNo);
-		if (listIndex != -1) return moments.get(listIndex);
+		for (Moment m : moments)
+			if (m.stepNo == stepNo)
+				return m;
 		return null;
-		}
-
-	public Moment getMomentList(int listIndex)
-		{
-		if (listIndex >= 0 && listIndex < noMoments()) return moments.get(listIndex);
-		return null;
-		}
-
-	public void removeMoment(int momentVal)
-		{
-		int listIndex = momentIndex(momentVal);
-		if (listIndex != -1) moments.remove(listIndex);
-		}
-
-	public int momentIndex(int stepNo)
-		{
-		for (int i = 0; i < noMoments(); i++)
-			{
-			if (getMomentList(i).stepNo == stepNo)
-				{
-				return i;
-				}
-			}
-		return -1;
-		}
-
-	public void clearMoments()
-		{
-		moments.clear();
 		}
 
 	@SuppressWarnings("unchecked")
 	public Timeline copy(boolean update, ResourceList src)
 		{
 		Timeline time = new Timeline();
-		for (int i = 0; i < noMoments(); i++)
+		for (Moment mom : moments)
 			{
-			Moment mom = getMomentList(i);
 			Moment mom2 = time.addMoment();
 			mom2.stepNo = mom.stepNo;
-			for (int j = 0; j < mom.noActions(); j++)
+			for (Action act : mom.actions)
 				{
-				Action act = mom.getAction(j);
 				Action act2 = mom2.addAction();
 				act2.relative = act.relative;
 				act2.not = act.not;

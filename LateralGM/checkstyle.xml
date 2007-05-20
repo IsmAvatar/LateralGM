@@ -82,12 +82,10 @@ Checkstyle checker designed for LateralGM and the latest Girard format
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
         <module name="HiddenField">
-            <property name="severity" value="info"/>
+            <property name="tokens" value="VARIABLE_DEF"/>
         </module>
         <module name="IllegalInstantiation"/>
-        <module name="InnerAssignment">
-            <property name="severity" value="info"/>
-        </module>
+        <module name="InnerAssignment"/>
         <module name="MagicNumber">
             <property name="severity" value="ignore"/>
         </module>

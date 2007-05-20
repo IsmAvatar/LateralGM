@@ -14,12 +14,7 @@ import org.lateralgm.resources.library.LibAction;
 
 public abstract class ActionContainer
 	{
-	private ArrayList<Action> actions = new ArrayList<Action>();
-
-	public int noActions()
-		{
-		return actions.size();
-		}
+	public ArrayList<Action> actions = new ArrayList<Action>();
 
 	public Action addAction()
 		{
@@ -55,21 +50,5 @@ public abstract class ActionContainer
 			}
 		actions.add(act);
 		return act;
-		}
-
-	public Action getAction(int listIndex)
-		{
-		if (listIndex >= 0 && listIndex < noActions()) return actions.get(listIndex);
-		return null;
-		}
-
-	public void removeAction(int listIndex)
-		{
-		if (listIndex >= 0 && listIndex < noActions()) actions.remove(listIndex);
-		}
-
-	public void clearActions()
-		{
-		actions.clear();
 		}
 	}

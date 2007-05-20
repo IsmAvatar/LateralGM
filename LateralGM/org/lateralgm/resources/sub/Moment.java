@@ -11,4 +11,9 @@ package org.lateralgm.resources.sub;
 public class Moment extends ActionContainer
 	{
 	public int stepNo = 0;
+
+	public String toString()
+		{
+		return "Step " + stepNo;
+		}
 	}
