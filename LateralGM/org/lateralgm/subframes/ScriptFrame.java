@@ -19,11 +19,16 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 
+import org.lateralgm.components.DocumentUndoManager;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.jedit.GMLTokenMarker;
@@ -93,9 +98,10 @@ public class ScriptFrame extends ResourceFrame<Script>
 		private static final long serialVersionUID = 1L;
 		private final GMLTokenMarker gmlTokenMarker = new GMLTokenMarker();
 		private final ResourceChangeListener rcl = new ResourceChangeListener();
+		private final DocumentUndoManager undoManager = new DocumentUndoManager();
 		private Timer timer;
-
 		private Integer lastUpdateTaskID = 0;
+		private int caretUpdates = 0;
 
 		public GMLTextArea()
 			{
@@ -111,6 +117,10 @@ public class ScriptFrame extends ResourceFrame<Script>
 			setText(res.scriptStr.replace("\r\n","\n"));
 			setCaretPosition(0);
 			LGM.currentFile.addChangeListener(rcl);
+			addCaretListener(undoManager);
+			document.addUndoableEditListener(undoManager);
+			inputHandler.addKeyBinding("C+Z",undoManager.getUndoAction());
+			inputHandler.addKeyBinding("C+Y",undoManager.getRedoAction());
 			}
 
 		public void updateTokenMarker()

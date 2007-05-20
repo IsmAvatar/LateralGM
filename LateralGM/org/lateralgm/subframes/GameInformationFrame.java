@@ -13,7 +13,6 @@ package org.lateralgm.subframes;
 
 /*
  * TODO:
- * Make the undoable edits contain more than just one letter each
  * Make the RTFEditor grab focus when the user enters a font size
  * Stolen from Font Family listener. Not sure what m_monitor was... 
  * 	String m_fontName = m_cbFonts.getSelectedItem().toString();
@@ -70,10 +69,9 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
-import javax.swing.undo.UndoManager;
 
 import org.lateralgm.components.CustomFileFilter;
+import org.lateralgm.components.DocumentUndoManager;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
@@ -89,9 +87,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 	private JToggleButton tbBold;
 	private JToggleButton tbItalic;
 	private JToggleButton tbUnderline;
-	protected UndoManager undoManager = new UndoManager();
-	protected final AbstractAction undoAction;
-	protected final AbstractAction redoAction;
+	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 
 	// These prevent the Formatting Bar things from firing when the caret moves
 	// because that would cause the selection to conform the text to the caret format
@@ -139,43 +135,11 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			JMenu eMenu = new JMenu(Messages.getString("GameInformationFrame.MENU_EDIT")); //$NON-NLS-1$
 			menuBar.add(eMenu);
 
-			undoAction = new AbstractAction(Messages.getString("GameInformationFrame.UNDO"))
-				{
-					private static final long serialVersionUID = 1L;
-
-					public void actionPerformed(ActionEvent ae)
-						{
-						try
-							{
-							undoManager.undo();
-							}
-						catch (CannotUndoException e)
-							{
-							}
-						updateUndo();
-						}
-				};
-			redoAction = new AbstractAction(Messages.getString("GameInformationFrame.REDO"))
-				{
-					private static final long serialVersionUID = 1L;
-
-					public void actionPerformed(ActionEvent ae)
-						{
-						try
-							{
-							undoManager.redo();
-							}
-						catch (CannotRedoException e)
-							{
-							}
-						updateUndo();
-						}
-				};
 			// Create a menu item
-			JMenuItem item = new JMenuItem(undoAction); //$NON-NLS-1$
+			JMenuItem item = new JMenuItem(undoManager.getUndoAction());
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
 			eMenu.add(item);
-			item = new JMenuItem(redoAction); //$NON-NLS-1$
+			item = new JMenuItem(undoManager.getRedoAction());
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
 			eMenu.add(item);
 			eMenu.addSeparator();
@@ -341,14 +305,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 					documentChanged = true;
 					}
 			});
-		editor.getDocument().addUndoableEditListener(new UndoableEditListener()
-			{
-				public void undoableEditHappened(UndoableEditEvent e)
-					{
-					undoManager.addEdit(e.getEdit());
-					updateUndo();
-					}
-			});
+		editor.addCaretListener(undoManager);
+		editor.getDocument().addUndoableEditListener(undoManager);
 		editor.addCaretListener(new CaretListener()
 			{
 				public void caretUpdate(CaretEvent ce)
@@ -377,12 +335,6 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		scroller.getViewport().add(editor);
 		topPanel.add(scroller,BorderLayout.CENTER);
 		revertResource();
-		}
-
-	public void updateUndo()
-		{
-		undoAction.setEnabled(undoManager.canUndo());
-		redoAction.setEnabled(undoManager.canRedo());
 		}
 
 	public void setEditorBackground(Color c)
@@ -520,7 +472,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		setEditorBackground(LGM.currentFile.gameInfo.backgroundColor);
 		editor.setText(LGM.currentFile.gameInfo.gameInfoStr);
 		undoManager.die();
-		updateUndo();
+		undoManager.updateActions();
 		documentChanged = false;
 		}
 
