@@ -87,6 +87,8 @@ import javax.swing.undo.UndoableEdit;
  */
 public class JEditTextArea extends JComponent
 	{
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Adding components with this name to the text area will place
 	 * them left of the horizontal scroll bar. In jEdit, the status
@@ -1731,6 +1733,8 @@ public class JEditTextArea extends JComponent
 
 	class MutableCaretEvent extends CaretEvent
 		{
+		private static final long serialVersionUID = 1L;
+
 		MutableCaretEvent()
 			{
 			super(JEditTextArea.this);
@@ -2007,6 +2011,7 @@ public class JEditTextArea extends JComponent
 
 	class CaretUndo extends AbstractUndoableEdit
 		{
+		private static final long serialVersionUID = 1L;
 		private int start;
 		private int end;
 

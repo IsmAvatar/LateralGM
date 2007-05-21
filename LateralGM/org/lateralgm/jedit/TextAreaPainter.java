@@ -34,6 +34,7 @@ import javax.swing.text.Utilities;
  */
 public class TextAreaPainter extends JComponent implements TabExpander
 	{
+	private static final long serialVersionUID = 1L;
 	static final String EOL_MARKER = ""; // "."
 	static final String EOF_MARKER = ""; // "~"
 
