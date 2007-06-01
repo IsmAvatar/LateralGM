@@ -15,6 +15,8 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.TreePath;
 
+import org.lateralgm.resources.Resource;
+
 public class GmTreeEditor extends DefaultTreeCellEditor
 	{
 
@@ -29,7 +31,14 @@ public class GmTreeEditor extends DefaultTreeCellEditor
 			{
 			TreePath path = tree.getPathForLocation(((MouseEvent) event).getX(),
 					((MouseEvent) event).getY());
-			if (path.getPathCount() <= 2) return false;
+			if (path != null && path.getPathCount() <= 2) return false;
+			}
+		else if (event == null)
+			{
+			ResNode node = ((ResNode) tree.getLastSelectedPathComponent());
+			if (node != null)
+				return node.status != ResNode.STATUS_PRIMARY && node.kind != Resource.GAMEINFO
+						&& node.kind != Resource.GAMESETTINGS;
 			}
 		return super.isCellEditable(event);
 		}

@@ -121,7 +121,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 			if (rf != null)
 				{
 				frame = rf;
-				LGM.MDI.add(rf);
+				LGM.mdi.add(rf);
 				rf.setVisible(true);
 				}
 			}

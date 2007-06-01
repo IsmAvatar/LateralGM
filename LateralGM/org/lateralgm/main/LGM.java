@@ -61,12 +61,12 @@ import org.lateralgm.subframes.GameSettingFrame;
 public class LGM extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
-	public static final JFrame frame = new JFrame("Lateral GM 6.1: <new game>"); //$NON-NLS-1$
-	public static final Listener listener = new Listener();
+	public static JFrame frame = new JFrame("Lateral GM 6.1: <new game>"); //$NON-NLS-1$
+	public static Listener listener = new Listener();
 	public static JTree tree;
 	public static ResNode root;
 	public static Gm6File currentFile = new Gm6File();
-	public static JDesktopPane MDI;
+	public static JDesktopPane mdi;
 	public static GameInformationFrame gameInfo;
 	public static GameSettingFrame gameSet;
 	public static String[] kinds = { "", //$NON-NLS-1$
@@ -194,14 +194,14 @@ public class LGM extends JPanel
 
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(200,100));
-		MDI = new MDIPane();
-		JScrollPane scroll2 = new JScrollPane(MDI);
+		mdi = new MDIPane();
+		JScrollPane scroll2 = new JScrollPane(mdi);
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
 		add(split);
 		// .setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
-		MDI.add(gameSet);
-		MDI.add(gameInfo);
+		mdi.add(gameSet);
+		mdi.add(gameInfo);
 		// gameInfo.setVisible(true);
 		}
 

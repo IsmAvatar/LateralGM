@@ -61,7 +61,7 @@ public class ResourceList<R extends Resource>
 		try
 			{
 			res = type.newInstance();
-			res.setName(res.getName() + lastId);
+			res.setName(res.getName() + (lastId + 1));
 			add(res);
 			}
 		catch (Exception e)

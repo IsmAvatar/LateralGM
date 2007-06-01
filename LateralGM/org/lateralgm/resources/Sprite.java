@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -36,9 +36,9 @@ public class Sprite extends Resource
 	public int originY = 0;
 	public byte boundingBoxMode = BBOX_AUTO;
 	public int boundingBoxLeft = 0;
-	public int boundingBoxRight = 0;
+	public int boundingBoxRight = 31;
 	public int boundingBoxTop = 0;
-	public int boundingBoxBottom = 0;
+	public int boundingBoxBottom = 31;
 	private ArrayList<BufferedImage> subImages = new ArrayList<BufferedImage>();
 
 	public Sprite()

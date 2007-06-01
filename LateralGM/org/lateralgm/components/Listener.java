@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.util.Enumeration;
 import java.util.EventObject;
@@ -75,10 +76,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			LGM.currentFile = new Gm6File();
 			LGM.gameSet.dispose();
 			LGM.gameSet = new GameSettingFrame();
-			LGM.MDI.add(LGM.gameSet);
+			LGM.mdi.add(LGM.gameSet);
 			LGM.gameInfo.dispose();
 			LGM.gameInfo = new GameInformationFrame();
-			LGM.MDI.add(LGM.gameInfo);
+			LGM.mdi.add(LGM.gameInfo);
 			f.updateUI();
 			return;
 			}
@@ -126,10 +127,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				}
 			LGM.gameInfo.dispose();
 			LGM.gameInfo = new GameInformationFrame();
-			LGM.MDI.add(LGM.gameInfo);
+			LGM.mdi.add(LGM.gameInfo);
 			LGM.gameSet.dispose();
 			LGM.gameSet = new GameSettingFrame();
-			LGM.MDI.add(LGM.gameSet);
+			LGM.mdi.add(LGM.gameSet);
 			return;
 			}
 		if (com.endsWith(".SAVE")) //$NON-NLS-1$
@@ -148,8 +149,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
 				int result = 0;
 				if (new File(filename).exists())
-					result = JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
-							.getString("Listener.CONFIRM_REPLACE"),filename), //$NON-NLS-1$
+					result = JOptionPane.showConfirmDialog(LGM.frame,String.format(
+							Messages.getString("Listener.CONFIRM_REPLACE"),filename), //$NON-NLS-1$
 							Messages.getString("Listener.CONFIRM_REPLACE_TITLE"), //$NON-NLS-1$
 							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
 				if (result == 0)
@@ -303,7 +304,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.endsWith(".RENAME")) //$NON-NLS-1$
 			{
-			if (tree.getCellEditor().isCellEditable(new EventObject(LGM.tree)))
+			if (tree.getCellEditor().isCellEditable(null))
 				tree.startEditingAtPath(tree.getLeadSelectionPath());
 			return;
 			}
@@ -321,6 +322,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				if (next == null) next = (ResNode) me.getParent();
 				if (next.isRoot()) next = (ResNode) next.getFirstChild();
 				tree.setSelectionPath(new TreePath(next.getPath()));
+				if (me.frame != null) me.frame.dispose();
 				me.removeFromParent();
 				LGM.currentFile.getList(me.kind).remove(me.resourceId);
 				tree.updateUI();
@@ -348,8 +350,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.endsWith(".ABOUT")) //$NON-NLS-1$
 			{
-			JOptionPane.showMessageDialog(null,Messages.getString("Listener.ABOUT_MESSAGE"),Messages
-					.getString("Listener.ABOUT_TITLE"),JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null,Messages.getString("Listener.ABOUT_MESSAGE"),
+					Messages.getString("Listener.ABOUT_TITLE"),JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 
@@ -481,9 +483,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		if (node.status == ResNode.STATUS_SECONDARY && node.kind != Resource.GAMEINFO
 				&& node.kind != Resource.GAMESETTINGS)
 			{
-			String txt = ((String) node.getUserObject()).replaceAll("\\W",""); //$NON-NLS-1$ //$NON-NLS-2$
-			if (!Character.toString(txt.charAt(0)).matches("[A-Za-z_]")) //$NON-NLS-1$
-				txt = txt.substring(1);
+			String txt = ((String) node.getUserObject()).replaceAll("\\W","").replaceAll("^([0-9]+)","");
 			node.setUserObject(txt);
 			node.updateFrame();
 			}

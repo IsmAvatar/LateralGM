@@ -126,7 +126,7 @@ public class ScriptFrame extends ResourceFrame<Script>
 					Resource.ROOM,Resource.SCRIPT,Resource.SOUND,Resource.SPRITE,Resource.TIMELINE };
 			for (int j : kmResources)
 				{
-				ResourceList rl = LGM.currentFile.getList(j);
+				ResourceList<?> rl = LGM.currentFile.getList(j);
 				for (int i = 0; i < rl.count(); i++)
 					{
 					String n = rl.getList(i).getName();
