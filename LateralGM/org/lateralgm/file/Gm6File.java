@@ -281,19 +281,19 @@ public class Gm6File
 			IdStack timeids = new IdStack(); // timeline ids
 			IdStack objids = new IdStack(); // object ids
 			IdStack rmids = new IdStack(); // room ids
-			int identifier = in.readi();
+			int identifier = in.read4();
 			if (identifier != 1234321)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_INVALID"),fileName,identifier)); //$NON-NLS-1$
-			int ver = in.readi();
+			int ver = in.read4();
 			if (ver != 600)
 				{
 				String msg = Messages.getString("Gm6File.ERROR_UNSUPPORTED"); //$NON-NLS-1$
 				throw new Gm6FormatException(String.format(msg,ver));
 				}
-			gameId = in.readi();
+			gameId = in.read4();
 			in.skip(16); // unknown bytes following game id
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 600)
 				{
 				String msg = Messages.getString("Gm6File.ERROR_UNSUPPORTED"); //$NON-NLS-1$
@@ -303,35 +303,35 @@ public class Gm6File
 			interpolate = in.readBool();
 			dontDrawBorder = in.readBool();
 			displayCursor = in.readBool();
-			scaling = in.readi();
+			scaling = in.read4();
 			allowWindowResize = in.readBool();
 			alwaysOnTop = in.readBool();
-			colorOutsideRoom = in.readi();
+			colorOutsideRoom = in.read4();
 			setResolution = in.readBool();
-			colorDepth = (byte) in.readi();
-			resolution = (byte) in.readi();
-			frequency = (byte) in.readi();
+			colorDepth = (byte) in.read4();
+			resolution = (byte) in.read4();
+			frequency = (byte) in.read4();
 			dontShowButtons = in.readBool();
 			useSynchronization = in.readBool();
 			letF4SwitchFullscreen = in.readBool();
 			letF1ShowGameInfo = in.readBool();
 			letEscEndGame = in.readBool();
 			letF5SaveF6Load = in.readBool();
-			gamePriority = (byte) in.readi();
+			gamePriority = (byte) in.read4();
 			freezeOnLoseFocus = in.readBool();
-			loadBarMode = (byte) in.readi();
+			loadBarMode = (byte) in.read4();
 			if (loadBarMode == LOADBAR_CUSTOM)
 				{
-				if (in.readi() != -1) backLoadBar = in.readImage();
-				if (in.readi() != -1) frontLoadBar = in.readImage();
+				if (in.read4() != -1) backLoadBar = in.readImage();
+				if (in.read4() != -1) frontLoadBar = in.readImage();
 				}
 			showCustomLoadImage = in.readBool();
-			if (showCustomLoadImage) if (in.readi() != -1) loadingImage = in.readImage();
+			if (showCustomLoadImage) if (in.read4() != -1) loadingImage = in.readImage();
 			imagePartiallyTransparent = in.readBool();
-			loadImageAlpha = in.readi();
+			loadImageAlpha = in.read4();
 			scaleProgressBar = in.readBool();
 
-			int length = in.readi();
+			int length = in.read4();
 			gameIconData = new byte[length];
 			in.read(gameIconData,0,length);
 			// GameIcon=(BufferedImage)new ICOFile(new
@@ -342,10 +342,10 @@ public class Gm6File
 			abortOnError = in.readBool();
 			treatUninitializedAs0 = in.readBool();
 			author = in.readStr();
-			version = in.readi();
+			version = in.read4();
 			lastChanged = in.readD();
 			information = in.readStr();
-			int no = in.readi();
+			int no = in.read4();
 			for (int i = 0; i < no; i++)
 				{
 				Constant con = new Constant();
@@ -353,21 +353,21 @@ public class Gm6File
 				con.name = in.readStr();
 				con.value = in.readStr();
 				}
-			no = in.readi();
+			no = in.read4();
 			for (int i = 0; i < no; i++)
 				{
 				Include inc = new Include();
 				inc.filePath = in.readStr();
 				}
-			includeFolder = in.readi();
+			includeFolder = in.read4();
 			overwriteExisting = in.readBool();
 			removeAtGameEnd = in.readBool();
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 400)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFORESOUNDS"),ver)); //$NON-NLS-1$
 			// SOUNDS
-			no = in.readi();
+			no = in.read4();
 			sounds.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
@@ -375,15 +375,15 @@ public class Gm6File
 					{
 					Sound snd = sounds.add();
 					snd.setName(in.readStr());
-					ver = in.readi();
+					ver = in.read4();
 					if (ver != 600)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INSOUND"),i,ver)); //$NON-NLS-1$
-					snd.kind = (byte) in.readi();
+					snd.kind = (byte) in.read4();
 					snd.fileType = in.readStr();
 					snd.fileName = in.readStr();
-					if (in.readBool()) snd.data = in.decompress(in.readi());
-					int effects = in.readi();
+					if (in.readBool()) snd.data = in.decompress(in.read4());
+					int effects = in.read4();
 					snd.setEffects(effects);
 					snd.volume = in.readD();
 					snd.pan = in.readD();
@@ -393,12 +393,12 @@ public class Gm6File
 					sounds.lastId++;
 				}
 
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 400)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFORESPRITES"),ver)); //$NON-NLS-1$
 			// SPRITES
-			no = in.readi();
+			no = in.read4();
 			sprites.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
@@ -406,40 +406,40 @@ public class Gm6File
 					{
 					Sprite spr = sprites.add();
 					spr.setName(in.readStr());
-					ver = in.readi();
+					ver = in.read4();
 					if (ver != 542)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INSPRITE"),i,ver)); //$NON-NLS-1$
-					spr.width = in.readi();
-					spr.height = in.readi();
-					spr.boundingBoxLeft = in.readi();
-					spr.boundingBoxRight = in.readi();
-					spr.boundingBoxBottom = in.readi();
-					spr.boundingBoxTop = in.readi();
+					spr.width = in.read4();
+					spr.height = in.read4();
+					spr.boundingBoxLeft = in.read4();
+					spr.boundingBoxRight = in.read4();
+					spr.boundingBoxBottom = in.read4();
+					spr.boundingBoxTop = in.read4();
 					spr.transparent = in.readBool();
 					spr.smoothEdges = in.readBool();
 					spr.preload = in.readBool();
-					spr.boundingBoxMode = (byte) in.readi();
+					spr.boundingBoxMode = (byte) in.read4();
 					spr.preciseCC = in.readBool();
-					spr.originX = in.readi();
-					spr.originY = in.readi();
-					int nosub = in.readi();
+					spr.originX = in.read4();
+					spr.originY = in.read4();
+					int nosub = in.read4();
 					for (int j = 0; j < nosub; j++)
 						{
 						in.skip(4);
-						spr.addSubImage(ImageIO.read(new ByteArrayInputStream(in.decompress(in.readi()))));
+						spr.addSubImage(ImageIO.read(new ByteArrayInputStream(in.decompress(in.read4()))));
 						}
 					}
 				else
 					sprites.lastId++;
 				}
 
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 400)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREBACKGROUNDS"),ver)); //$NON-NLS-1$
 			// BACKGROUNDS
-			no = in.readi();
+			no = in.read4();
 			backgrounds.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
@@ -447,38 +447,38 @@ public class Gm6File
 					{
 					Background back = backgrounds.add();
 					back.setName(in.readStr());
-					ver = in.readi();
+					ver = in.read4();
 					if (ver != 543)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INBACKGROUND"),i,ver)); //$NON-NLS-1$
-					back.width = in.readi();
-					back.height = in.readi();
+					back.width = in.read4();
+					back.height = in.read4();
 					back.transparent = in.readBool();
 					back.smoothEdges = in.readBool();
 					back.preload = in.readBool();
 					back.useAsTileSet = in.readBool();
-					back.tileWidth = in.readi();
-					back.tileHeight = in.readi();
-					back.horizOffset = in.readi();
-					back.vertOffset = in.readi();
-					back.horizSep = in.readi();
-					back.vertSep = in.readi();
+					back.tileWidth = in.read4();
+					back.tileHeight = in.read4();
+					back.horizOffset = in.read4();
+					back.vertOffset = in.read4();
+					back.horizSep = in.read4();
+					back.vertSep = in.read4();
 					if (in.readBool())
 						{
 						in.skip(4); // 0A
-						ByteArrayInputStream is = new ByteArrayInputStream(in.decompress(in.readi()));
+						ByteArrayInputStream is = new ByteArrayInputStream(in.decompress(in.read4()));
 						back.backgroundImage = ImageIO.read(is);
 						}
 					}
 				else
 					backgrounds.lastId++;
 				}
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 420)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREPATHS"),ver)); //$NON-NLS-1$
 			// PATHS
-			no = in.readi();
+			no = in.read4();
 			paths.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
@@ -486,17 +486,17 @@ public class Gm6File
 					{
 					Path path = paths.add();
 					path.setName(in.readStr());
-					ver = in.readi();
+					ver = in.read4();
 					if (ver != 530)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INPATH"),i,ver)); //$NON-NLS-1$
 					path.smooth = in.readBool();
 					path.closed = in.readBool();
-					path.precision = in.readi();
-					path.backgroundRoom = rmids.get(in.readi());
-					path.snapX = in.readi();
-					path.snapY = in.readi();
-					int nopoints = in.readi();
+					path.precision = in.read4();
+					path.backgroundRoom = rmids.get(in.read4());
+					path.snapX = in.read4();
+					path.snapY = in.read4();
+					int nopoints = in.read4();
 					for (int j = 0; j < nopoints; j++)
 						{
 						Point point = path.addPoint();
@@ -508,12 +508,12 @@ public class Gm6File
 				else
 					paths.lastId++;
 				}
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 400)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFORESCRIPTS"),ver)); //$NON-NLS-1$
 			// SCRIPTS
-			no = in.readi();
+			no = in.read4();
 			scripts.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
@@ -521,7 +521,7 @@ public class Gm6File
 					{
 					Script scr = scripts.add();
 					scr.setName(in.readStr());
-					ver = in.readi();
+					ver = in.read4();
 					if (ver != 400)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INSCRIPT"),i,ver)); //$NON-NLS-1$
@@ -531,12 +531,12 @@ public class Gm6File
 					scripts.lastId++;
 				}
 
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 540)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREFONTS"),ver)); //$NON-NLS-1$
 			// FONTS
-			no = in.readi();
+			no = in.read4();
 			fonts.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
@@ -544,29 +544,29 @@ public class Gm6File
 					{
 					Font font = fonts.add();
 					font.setName(in.readStr());
-					ver = in.readi();
+					ver = in.read4();
 					if (ver != 540)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INFONT"),i,ver)); //$NON-NLS-1$
 					font.fontName = in.readStr();
-					font.size = in.readi();
+					font.size = in.read4();
 					font.bold = in.readBool();
 					font.italic = in.readBool();
-					font.charRangeMin = in.readi();
-					font.charRangeMax = in.readi();
+					font.charRangeMin = in.read4();
+					font.charRangeMax = in.read4();
 					}
 				else
 					fonts.lastId++;
 				}
 
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 500)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFORETIMELINES"),ver)); //$NON-NLS-1$
 			// TIMELINES
 			// workaround for the case statement below (declared here to prevent repeated instantiation)
 			Resource tag = new Script();
-			no = in.readi();
+			no = in.read4();
 			timelines.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
@@ -575,29 +575,29 @@ public class Gm6File
 					Timeline time = timelines.add();
 					time.setId(timeids.get(i));
 					time.setName(in.readStr());
-					ver = in.readi();
+					ver = in.read4();
 					if (ver != 500)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INTIMELINE"),i,ver)); //$NON-NLS-1$
-					int nomoms = in.readi();
+					int nomoms = in.read4();
 					for (int j = 0; j < nomoms; j++)
 						{
 						Moment mom = time.addMoment();
-						mom.stepNo = in.readi();
-						ver = in.readi();
+						mom.stepNo = in.read4();
+						ver = in.read4();
 						if (ver != 400)
 							{
 							String msg;
 							msg = Messages.getString("Gm6File.ERROR_UNSUPPORTED_INTIMELINEMOMENT"); //$NON-NLS-1$
 							throw new Gm6FormatException(String.format(msg,i,j,ver));
 							}
-						int noacts = in.readi();
+						int noacts = in.read4();
 						for (int k = 0; k < noacts; k++)
 							{
 							in.skip(4);
 							Action act = mom.addAction();
-							int libid = in.readi();
-							int actid = in.readi();
+							int libid = in.read4();
+							int actid = in.read4();
 							act.libAction = LibManager.getLibAction(libid,actid);
 							//The libAction will have a null parent, among other things
 							if (act.libAction == null)
@@ -605,25 +605,31 @@ public class Gm6File
 								act.libAction = new LibAction();
 								act.libAction.id = actid;
 								act.libAction.parentId = libid;
-								act.libAction.actionKind = (byte) in.readi();
+								act.libAction.actionKind = (byte) in.read4();
 								act.libAction.allowRelative = in.readBool();
 								act.libAction.question = in.readBool();
 								act.libAction.canApplyTo = in.readBool();
-								act.libAction.execType = (byte) in.readi();
-								act.libAction.execFunction = in.readStr();
-								act.libAction.execCode = in.readStr();
+								act.libAction.execType = (byte) in.read4();
+								if (act.libAction.execType == Action.EXEC_FUNCTION)
+									act.libAction.execInfo = in.readStr();
+								else
+									in.skip(in.read4());
+								if (act.libAction.execType == Action.EXEC_CODE)
+									act.libAction.execInfo = in.readStr();
+								else
+									in.skip(in.read4());
 								}
 							else
 								{
 								in.skip(20);
-								in.skip(in.readi());
-								in.skip(in.readi());
+								in.skip(in.read4());
+								in.skip(in.read4());
 								}
-							act.arguments = new Argument[in.readi()];
-							int[] argkinds = new int[in.readi()];
+							act.arguments = new Argument[in.read4()];
+							int[] argkinds = new int[in.read4()];
 							for (int x = 0; x < argkinds.length; x++)
-								argkinds[x] = in.readi();
-							int appliesTo = in.readi();
+								argkinds[x] = in.read4();
+							int appliesTo = in.read4();
 							switch (appliesTo)
 								{
 								case -1:
@@ -636,7 +642,7 @@ public class Gm6File
 									act.appliesTo = objids.get(appliesTo);
 								}
 							act.relative = in.readBool();
-							int actualnoargs = in.readi();
+							int actualnoargs = in.read4();
 
 							for (int l = 0; l < actualnoargs; l++)
 								{
@@ -687,7 +693,7 @@ public class Gm6File
 									}
 								else
 									{
-									in.skip(in.readi());
+									in.skip(in.read4());
 									}
 								}
 							act.not = in.readBool();
@@ -697,12 +703,12 @@ public class Gm6File
 				else
 					timelines.lastId++;
 				}
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 400)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREOBJECTS"),ver)); //$NON-NLS-1$
 			// OBJECTS
-			no = in.readi();
+			no = in.read4();
 			gmObjects.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
@@ -711,18 +717,18 @@ public class Gm6File
 					GmObject obj = gmObjects.add();
 					obj.setId(objids.get(i));
 					obj.setName(in.readStr());
-					ver = in.readi();
+					ver = in.read4();
 					if (ver != 430)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INOBJECT"),i,ver)); //$NON-NLS-1$
-					Sprite temp = sprites.getUnsafe(in.readi());
+					Sprite temp = sprites.getUnsafe(in.read4());
 					if (temp != null) obj.sprite = temp.getId();
 					obj.solid = in.readBool();
 					obj.visible = in.readBool();
-					obj.depth = in.readi();
+					obj.depth = in.read4();
 					obj.persistent = in.readBool();
-					obj.parent = objids.get(in.readi());
-					temp = sprites.getUnsafe(in.readi());
+					obj.parent = objids.get(in.read4());
+					temp = sprites.getUnsafe(in.read4());
 					if (temp != null) obj.mask = temp.getId();
 					in.skip(4);
 					for (int j = 0; j < 11; j++)
@@ -730,7 +736,7 @@ public class Gm6File
 						boolean done = false;
 						while (!done)
 							{
-							int first = in.readi();
+							int first = in.read4();
 							if (first != -1)
 								{
 								Event ev = obj.mainEvents[j].addEvent();
@@ -738,18 +744,18 @@ public class Gm6File
 									ev.other = objids.get(first);
 								else
 									ev.id = first;
-								ver = in.readi();
+								ver = in.read4();
 								if (ver != 400)
 									throw new Gm6FormatException(String.format(
 											Messages.getString("Gm6File.ERROR_UNSUPPORTED_INOBJECTEVENT"), //$NON-NLS-1$
 											i,j,ver));
-								int noacts = in.readi();
+								int noacts = in.read4();
 								for (int k = 0; k < noacts; k++)
 									{
 									in.skip(4);
 									Action act = ev.addAction();
-									int libid = in.readi();
-									int actid = in.readi();
+									int libid = in.read4();
+									int actid = in.read4();
 									act.libAction = LibManager.getLibAction(libid,actid);
 									//The libAction will have a null parent, among other things
 									if (act.libAction == null)
@@ -757,25 +763,31 @@ public class Gm6File
 										act.libAction = new LibAction();
 										act.libAction.id = actid;
 										act.libAction.parentId = libid;
-										act.libAction.actionKind = (byte) in.readi();
+										act.libAction.actionKind = (byte) in.read4();
 										act.libAction.allowRelative = in.readBool();
 										act.libAction.question = in.readBool();
 										act.libAction.canApplyTo = in.readBool();
-										act.libAction.execType = (byte) in.readi();
-										act.libAction.execFunction = in.readStr();
-										act.libAction.execCode = in.readStr();
+										act.libAction.execType = (byte) in.read4();
+										if (act.libAction.execType == Action.EXEC_FUNCTION)
+											act.libAction.execInfo = in.readStr();
+										else
+											in.skip(in.read4());
+										if (act.libAction.execType == Action.EXEC_CODE)
+											act.libAction.execInfo = in.readStr();
+										else
+											in.skip(in.read4());
 										}
 									else
 										{
 										in.skip(20);
-										in.skip(in.readi());
-										in.skip(in.readi());
+										in.skip(in.read4());
+										in.skip(in.read4());
 										}
-									act.arguments = new Argument[in.readi()];
-									int[] argkinds = new int[in.readi()];
+									act.arguments = new Argument[in.read4()];
+									int[] argkinds = new int[in.read4()];
 									for (int l = 0; l < argkinds.length; l++)
-										argkinds[l] = in.readi();
-									int id = in.readi();
+										argkinds[l] = in.read4();
+									int id = in.read4();
 									switch (id)
 										{
 										case -1:
@@ -788,7 +800,7 @@ public class Gm6File
 											act.appliesTo = objids.get(id);
 										}
 									act.relative = in.readBool();
-									int actualnoargs = in.readi();
+									int actualnoargs = in.read4();
 									for (int l = 0; l < actualnoargs; l++)
 										{
 										if (l < act.arguments.length)
@@ -836,7 +848,7 @@ public class Gm6File
 												}
 											}
 										else
-											in.skip(in.readi());
+											in.skip(in.read4());
 										}
 									act.not = in.readBool();
 									}
@@ -849,12 +861,12 @@ public class Gm6File
 				else
 					gmObjects.lastId++;
 				}
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 420)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREROOMS"),ver)); //$NON-NLS-1$
 			// ROOMS
-			no = in.readi();
+			no = in.read4();
 			rooms.lastId = -1;
 			for (int i = 0; i < no; i++)
 				{
@@ -863,89 +875,89 @@ public class Gm6File
 					Room rm = rooms.add(new Room(this));
 					rm.setId(rmids.get(i));
 					rm.setName(in.readStr());
-					ver = in.readi();
+					ver = in.read4();
 					if (ver != 541)
 						throw new Gm6FormatException(String.format(
 								Messages.getString("Gm6File.ERROR_UNSUPPORTED_INROOM"),i,ver)); //$NON-NLS-1$
 					rm.caption = in.readStr();
-					rm.width = in.readi();
-					rm.height = in.readi();
-					rm.snapY = in.readi();
-					rm.snapX = in.readi();
+					rm.width = in.read4();
+					rm.height = in.read4();
+					rm.snapY = in.read4();
+					rm.snapX = in.read4();
 					rm.isometricGrid = in.readBool();
-					rm.speed = in.readi();
+					rm.speed = in.read4();
 					rm.persistent = in.readBool();
-					rm.backgroundColor = in.readi();
+					rm.backgroundColor = in.read4();
 					rm.drawBackgroundColor = in.readBool();
 					rm.creationCode = in.readStr();
-					int nobackgrounds = in.readi();
+					int nobackgrounds = in.read4();
 					for (int j = 0; j < nobackgrounds; j++)
 						{
 						BackgroundDef bk = rm.backgroundDefs[j];
 						bk.visible = in.readBool();
 						bk.foreground = in.readBool();
-						Background temp = backgrounds.getUnsafe(in.readi());
+						Background temp = backgrounds.getUnsafe(in.read4());
 						if (temp != null) bk.backgroundId = temp.getId();
-						bk.x = in.readi();
-						bk.y = in.readi();
+						bk.x = in.read4();
+						bk.y = in.read4();
 						bk.tileHoriz = in.readBool();
 						bk.tileVert = in.readBool();
-						bk.horizSpeed = in.readi();
-						bk.vertSpeed = in.readi();
+						bk.horizSpeed = in.read4();
+						bk.vertSpeed = in.read4();
 						bk.stretch = in.readBool();
 						}
 					rm.enableViews = in.readBool();
-					int noviews = in.readi();
+					int noviews = in.read4();
 					for (int j = 0; j < noviews; j++)
 						{
 						View vw = rm.views[j];
 						vw.enabled = in.readBool();
-						vw.viewX = in.readi();
-						vw.viewY = in.readi();
-						vw.viewW = in.readi();
-						vw.viewH = in.readi();
-						vw.portX = in.readi();
-						vw.portY = in.readi();
-						vw.portW = in.readi();
-						vw.portH = in.readi();
-						vw.hbor = in.readi();
-						vw.vbor = in.readi();
-						vw.hspeed = in.readi();
-						vw.vspeed = in.readi();
-						GmObject temp = gmObjects.getUnsafe(in.readi());
+						vw.viewX = in.read4();
+						vw.viewY = in.read4();
+						vw.viewW = in.read4();
+						vw.viewH = in.read4();
+						vw.portX = in.read4();
+						vw.portY = in.read4();
+						vw.portW = in.read4();
+						vw.portH = in.read4();
+						vw.hbor = in.read4();
+						vw.vbor = in.read4();
+						vw.hspeed = in.read4();
+						vw.vspeed = in.read4();
+						GmObject temp = gmObjects.getUnsafe(in.read4());
 						if (temp != null) vw.objectFollowing = temp.getId();
 						}
-					int noinstances = in.readi();
+					int noinstances = in.read4();
 					for (int j = 0; j < noinstances; j++)
 						{
 						Instance inst = rm.addInstance();
-						inst.x = in.readi();
-						inst.y = in.readi();
-						GmObject temp = gmObjects.getUnsafe(in.readi());
+						inst.x = in.read4();
+						inst.y = in.read4();
+						GmObject temp = gmObjects.getUnsafe(in.read4());
 						if (temp != null) inst.gmObjectId = temp.getId();
-						inst.instanceId = in.readi();
+						inst.instanceId = in.read4();
 						inst.creationCode = in.readStr();
 						inst.locked = in.readBool();
 						}
-					int notiles = in.readi();
+					int notiles = in.read4();
 					for (int j = 0; j < notiles; j++)
 						{
 						Tile ti = rm.addTile();
-						ti.x = in.readi();
-						ti.y = in.readi();
-						Background temp = backgrounds.getUnsafe(in.readi());
+						ti.x = in.read4();
+						ti.y = in.read4();
+						Background temp = backgrounds.getUnsafe(in.read4());
 						if (temp != null) ti.backgroundId = temp.getId();
-						ti.tileX = in.readi();
-						ti.tileY = in.readi();
-						ti.width = in.readi();
-						ti.height = in.readi();
-						ti.depth = in.readi();
-						ti.tileId = in.readi();
+						ti.tileX = in.read4();
+						ti.tileY = in.read4();
+						ti.width = in.read4();
+						ti.height = in.read4();
+						ti.depth = in.read4();
+						ti.tileId = in.read4();
 						ti.locked = in.readBool();
 						}
 					rm.rememberWindowSize = in.readBool();
-					rm.editorWidth = in.readi();
-					rm.editorHeight = in.readi();
+					rm.editorWidth = in.read4();
+					rm.editorHeight = in.read4();
 					rm.showGrid = in.readBool();
 					rm.showObjects = in.readBool();
 					rm.showTiles = in.readBool();
@@ -954,47 +966,47 @@ public class Gm6File
 					rm.showViews = in.readBool();
 					rm.deleteUnderlyingObjects = in.readBool();
 					rm.deleteUnderlyingTiles = in.readBool();
-					rm.currentTab = in.readi();
-					rm.scrollBarX = in.readi();
-					rm.scrollBarY = in.readi();
+					rm.currentTab = in.read4();
+					rm.scrollBarX = in.read4();
+					rm.scrollBarY = in.read4();
 					}
 				else
 					rooms.lastId++;
 				}
-			lastInstanceId = in.readi();
-			lastTileId = in.readi();
-			ver = in.readi();
+			lastInstanceId = in.read4();
+			lastTileId = in.read4();
+			ver = in.read4();
 			if (ver != 600)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREINFO"),ver)); //$NON-NLS-1$
-			int bc = in.readi();
+			int bc = in.read4();
 			if (bc >= 0) gameInfo.backgroundColor = new Color(bc);
 			gameInfo.mimicGameWindow = in.readBool();
 			gameInfo.formCaption = in.readStr();
-			gameInfo.left = in.readi();
-			gameInfo.top = in.readi();
-			gameInfo.width = in.readi();
-			gameInfo.height = in.readi();
+			gameInfo.left = in.read4();
+			gameInfo.top = in.read4();
+			gameInfo.width = in.read4();
+			gameInfo.height = in.read4();
 			gameInfo.showBorder = in.readBool();
 			gameInfo.allowResize = in.readBool();
 			gameInfo.stayOnTop = in.readBool();
 			gameInfo.pauseGame = in.readBool();
 			gameInfo.gameInfoStr = in.readStr();
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 500)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_AFTERINFO"),ver)); //$NON-NLS-1$
-			no = in.readi();
+			no = in.read4();
 			for (int j = 0; j < no; j++)
 				{
-				length = in.readi();
+				length = in.read4();
 				in.skip(length);
 				}
-			ver = in.readi();
+			ver = in.read4();
 			if (ver != 540)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6File.ERROR_UNSUPPORTED_AFTERINFO2"),ver)); //$NON-NLS-1$
-			in.skip(in.readi() * 4); // room indexes in tree order;
+			in.skip(in.read4() * 4); // room indexes in tree order;
 			in.readTree(root,this);
 			System.out.printf(Messages.getString("Gm6File.LOADTIME"), //$NON-NLS-1$
 					System.currentTimeMillis() - startTime);
@@ -1292,8 +1304,14 @@ public class Gm6File
 							out.writeBool(act.libAction.question);
 							out.writeBool(act.libAction.canApplyTo);
 							out.writei(act.libAction.execType);
-							out.writeStr(act.libAction.execFunction);
-							out.writeStr(act.libAction.execCode);
+							if (act.libAction.execType == Action.EXEC_FUNCTION)
+								out.writeStr(act.libAction.execInfo);
+							else
+								out.writei(0);
+							if (act.libAction.execType == Action.EXEC_CODE)
+								out.writeStr(act.libAction.execInfo);
+							else
+								out.writei(0);
 							out.writei(act.arguments.length);
 
 							out.writei(act.arguments.length);
@@ -1379,8 +1397,14 @@ public class Gm6File
 								out.writeBool(act.libAction.question);
 								out.writeBool(act.libAction.canApplyTo);
 								out.writei(act.libAction.execType);
-								out.writeStr(act.libAction.execFunction);
-								out.writeStr(act.libAction.execCode);
+								if (act.libAction.execType == Action.EXEC_FUNCTION)
+									out.writeStr(act.libAction.execInfo);
+								else
+									out.writei(0);
+								if (act.libAction.execType == Action.EXEC_CODE)
+									out.writeStr(act.libAction.execInfo);
+								else
+									out.writei(0);
 								out.writei(act.arguments.length);
 								
 								out.writei(act.arguments.length);

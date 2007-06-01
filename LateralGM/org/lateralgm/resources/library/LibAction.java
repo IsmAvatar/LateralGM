@@ -37,7 +37,6 @@ public class LibAction
 	public boolean canApplyTo = false;
 	public boolean allowRelative = false;
 	public byte execType = Action.EXEC_FUNCTION;
-	public String execFunction = "";
-	public String execCode = "";
+	public String execInfo = "";
 	public LibArgument[] libArguments;
 	}

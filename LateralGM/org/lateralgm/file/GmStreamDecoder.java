@@ -35,11 +35,6 @@ public class GmStreamDecoder
 		in = new BufferedInputStream(new FileInputStream(path));
 		}
 
-	public int read() throws IOException
-		{
-		return in.read();
-		}
-
 	public int read(byte b[]) throws IOException
 		{
 		return read(b,0,b.length);
@@ -50,21 +45,50 @@ public class GmStreamDecoder
 		return in.read(b,off,len);
 		}
 
-	public int readi() throws IOException
+	public int read() throws IOException
+		{
+		int t = in.read();
+		if (t == -1)
+			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
+		return t;
+		}
+
+	public int read2() throws IOException
+		{
+		int a = in.read();
+		int b = in.read();
+		return (a | (b << 8));
+		}
+
+	public int read3() throws IOException
+		{
+		int a = in.read();
+		int b = in.read();
+		int c = in.read();
+		return (a | (b << 8) | (c << 16));
+		}
+
+	public int read4() throws IOException
 		{
 		int a = in.read();
 		int b = in.read();
 		int c = in.read();
 		int d = in.read();
-		if (a == -1 || b == -1 || c == -1 || d == -1)
-			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
-		long result = (a | (b << 8) | (c << 16) | (d << 24));
-		return (int) result;
+		return (a | (b << 8) | (c << 16) | (d << 24));
 		}
 
 	public String readStr() throws IOException
 		{
-		byte data[] = new byte[readi()];
+		byte data[] = new byte[read4()];
+		long check = in.read(data);
+		if (check < data.length)
+			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
+		return new String(data);
+		}
+
+	public String readStr1() throws IOException
+		{
+		byte data[] = new byte[in.read()];
 		long check = in.read(data);
 		if (check < data.length)
 			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
@@ -73,7 +97,7 @@ public class GmStreamDecoder
 
 	public boolean readBool() throws IOException
 		{
-		int val = readi();
+		int val = read4();
 		if (val != 0 && val != 1)
 			throw new IOException(
 					String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
@@ -115,7 +139,7 @@ public class GmStreamDecoder
 
 	public BufferedImage readImage() throws IOException,DataFormatException
 		{
-		int length = readi();
+		int length = read4();
 		return ImageIO.read(new ByteArrayInputStream(decompress(length)));
 		}
 
@@ -142,9 +166,9 @@ public class GmStreamDecoder
 		int cur = 11;
 		while (cur-- > 0)
 			{
-			byte status = (byte) readi();
-			byte type = (byte) readi();
-			int ind = readi();
+			byte status = (byte) read4();
+			byte type = (byte) read4();
+			int ind = read4();
 			String name = readStr();
 			ResNode node = path.peek().addChild(name,status,type);
 			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO
@@ -156,7 +180,7 @@ public class GmStreamDecoder
 				node.setUserObject(src.getList(node.kind).getUnsafe(ind).getName());
 				// in the tree data
 				}
-			int contents = readi();
+			int contents = read4();
 			if (contents > 0)
 				{
 				left.push(new Integer(cur));
@@ -169,5 +193,18 @@ public class GmStreamDecoder
 				path.pop();
 				}
 			}
+		}
+
+	/**
+	 * Convenience method to retrieve whether the given bit is masked in bits,
+	 * That is, if given flag is set.
+	 * E.g.: to find out if the 3rd flag from right is set in 00011*0*10, use mask(26,4);
+	 * @param bits - A cluster of flags/bits
+	 * @param bit - The desired (and already shifted) bit or bits to mask
+	 * @return Whether bit is masked in bits
+	 */
+	public static boolean mask(int bits, int bit)
+		{
+		return (bits & bit) == bit;
 		}
 	}
