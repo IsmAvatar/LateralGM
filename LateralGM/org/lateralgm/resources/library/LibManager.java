@@ -13,13 +13,14 @@ import static org.lateralgm.file.GmStreamDecoder.mask;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
 
+import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.sub.Action;
@@ -28,14 +29,6 @@ public final class LibManager
 	{
 	private LibManager() //should not be instantiated
 		{
-		}
-
-	public static class LibFilenameFilter implements FilenameFilter
-		{
-		public boolean accept(File dir, String name)
-			{
-			return name.toLowerCase().endsWith(".lib"); //$NON-NLS-1$
-			}
 		}
 
 	public static ArrayList<Library> libs = new ArrayList<Library>();
@@ -56,7 +49,8 @@ public final class LibManager
 	//XXX : Maybe place the lib finding code here
 	public static void autoLoad(String libdir)
 		{
-		File[] files = new File(libdir).listFiles(new LibFilenameFilter());
+		String[] exts = { ".lib", ".lgl" };
+		File[] files = new File(libdir).listFiles(new CustomFileFilter(exts,null));
 		if (files == null) return;
 		Arrays.sort(files); // listFiles does not guarantee a particular order
 		for (File f : files)
@@ -88,7 +82,7 @@ public final class LibManager
 			{
 			in = new GmStreamDecoder(filename);
 			int header = in.read3();
-			if (header == (('L' << 8) | ('G' << 4) | 'L'))
+			if (header == (('L' << 16) | ('G' << 8) | 'L'))
 				lib = loadLgl(in);
 			else if (header == 500 || header == 520)
 				lib = loadLib(in);
@@ -243,15 +237,27 @@ public final class LibManager
 		for (int j = 0; j < acts; j++)
 			{
 			if (in.read2() != 160)
-				throw new LibFormatException(
-						Messages.getString("LibManager.ERROR_INVALIDFILE")); //$NON-NLS-1$
-			LibAction act = new LibAction();
+				throw new LibFormatException(String.format(
+						Messages.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
+						j,"%s",160));  //$NON-NLS-1$
+			LibAction act = lib.addLibAction();
 			act.parent = lib;
 			act.id = in.read2();
 			act.name = in.readStr1();
 
-			byte[] data = new byte[in.read4()];
-			in.read(data);
+			byte[] data = null;
+			try
+				{
+				data = in.decompress(in.read4());
+				}
+			catch (DataFormatException e)
+				{
+				data = null;
+				}
+			if (data == null)
+				throw new LibFormatException(String.format(
+						Messages.getString("LibManager.ERROR_INVALIDICON"), //$NON-NLS-1$
+						j,"%s",160));  //$NON-NLS-1$
 			act.actImage = ImageIO.read(new ByteArrayInputStream(data));
 
 			act.description = in.readStr1();
@@ -266,11 +272,11 @@ public final class LibManager
 			act.allowRelative = mask(tags,4);
 			act.execType = (byte) (tags & 3);
 			act.execInfo = in.readStr();
-			tags = in.read4();
+			tags = in.read();
 			act.actionKind = (byte) (tags >> 4);
 			act.interfaceKind = (byte) (tags & 15);
-			tags = in.read();
-			for (int k = 0; k < tags; k++)
+			act.libArguments = new LibArgument[in.read()];
+			for (int k = 0; k < act.libArguments.length; k++)
 				{
 				LibArgument arg = new LibArgument();
 				arg.caption = in.readStr1();

@@ -200,7 +200,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		}
 
 	//extract to program start or give something to main.Prefs
-	private String libraryLocation = "C:/Program Files/gmaker/Game_Maker61/lib/"; //null; //singleton
+	private String libraryLocation = "org/lateralgm/resources/library/lib/"; //null; //singleton
 
 	public String getLibraryLocation()
 		{

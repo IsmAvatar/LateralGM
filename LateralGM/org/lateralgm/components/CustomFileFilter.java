@@ -9,16 +9,22 @@
 package org.lateralgm.components;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Locale;
 
 import javax.swing.filechooser.FileFilter;
 
-public class CustomFileFilter extends FileFilter
+public class CustomFileFilter extends FileFilter implements FilenameFilter
 	{
 	private ArrayList<String> ext = new ArrayList<String>();
 	private String desc;
-	
+
+	/**
+	 * Gets the extension part of the given filename, including the period
+	 * @param filename
+	 * @return the extension, including period
+	 */
 	public static String getExtension(String filename)
 		{
 		int p = filename.lastIndexOf(".");
@@ -54,5 +60,15 @@ public class CustomFileFilter extends FileFilter
 	public String getDescription()
 		{
 		return desc;
+		}
+
+	public boolean accept(File dir, String name)
+		{
+		if (ext.size() == 0) return true;
+		//if (f.isDirectory()) return true;
+		String s = getExtension(name);
+		if (s == null)
+			return false;
+		return ext.contains(s);
 		}
 	}
