@@ -34,7 +34,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 import org.lateralgm.components.CustomFileFilter;
-import org.lateralgm.components.ImagePreview;
+//import org.lateralgm.components.ImagePreview;
 import org.lateralgm.components.IndexButtonGroup;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResNode;
@@ -86,7 +86,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		super(res,node);
 
 		fc = new JFileChooser();
-		fc.setAccessory(new ImagePreview(fc));
+		//fc.setAccessory(new ImagePreview(fc));
 		String exts[] = ImageIO.getReaderFileSuffixes();
 		for (int i = 0; i < exts.length; i++)
 			exts[i] = "." + exts[i]; //$NON-NLS-1$
