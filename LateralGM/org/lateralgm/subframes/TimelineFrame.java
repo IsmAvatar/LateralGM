@@ -29,6 +29,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
@@ -38,7 +39,6 @@ import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.library.Library;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Moment;
-import org.lateralgm.subframes.ScriptFrame.GMLTextArea;
 
 public class TimelineFrame extends ResourceFrame<Timeline> implements ActionListener,
 		ListSelectionListener
@@ -135,7 +135,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 
 		if (false)
 			{
-			code = new GMLTextArea();
+			code = new GMLTextArea("");
 			JScrollPane codePane = new JScrollPane(code);
 			add(codePane);
 			}
