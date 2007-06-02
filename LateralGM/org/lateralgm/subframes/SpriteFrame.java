@@ -340,8 +340,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 					{
 					BufferedImage img = ImageIO.read(fc.getSelectedFile());
 					//TODO support animated formats
-					ColorConvertOp conv = new ColorConvertOp(
-							ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
+					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
 					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
 							BufferedImage.TYPE_3BYTE_BGR);
 					conv.filter(img,dest);

@@ -43,8 +43,8 @@ import org.lateralgm.resources.Script;
 public class ScriptFrame extends ResourceFrame<Script>
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon frameIcon = LGM.getIconForKey("ScriptFrame.SCRIPT"); //$NON-NLS-1$
-	private static final ImageIcon saveIcon = LGM.getIconForKey("ScriptFrame.SAVE"); //$NON-NLS-1$
+	private static ImageIcon frameIcon = LGM.getIconForKey("ScriptFrame.SCRIPT"); //$NON-NLS-1$
+	private static ImageIcon saveIcon = LGM.getIconForKey("ScriptFrame.SAVE"); //$NON-NLS-1$
 	public GMLTextArea code;
 
 	public ScriptFrame(Script res, ResNode node)

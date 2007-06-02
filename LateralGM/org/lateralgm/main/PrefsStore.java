@@ -16,11 +16,15 @@ import java.util.prefs.Preferences;
 import org.lateralgm.jedit.SyntaxStyle;
 import org.lateralgm.jedit.Token;
 
-public class PrefsStore
+public final class PrefsStore
 	{
+	private PrefsStore()
+		{
+		}
+
 	private static final Preferences PREFS = Preferences.userRoot().node("/org/lateralgm");
 
-	public static final ArrayList<String> getRecentFiles()
+	public static ArrayList<String> getRecentFiles()
 		{
 		String value = PREFS.get("FILE_RECENT",null);
 		if (value == null) return new ArrayList<String>(0);
@@ -31,7 +35,7 @@ public class PrefsStore
 		return list;
 		}
 
-	public static final void addRecentFile(String name)
+	public static void addRecentFile(String name)
 		{
 		int maxcount = PREFS.getInt("FILE_RECENT_COUNT",4);
 		ArrayList<String> oldList = getRecentFiles();
@@ -43,27 +47,27 @@ public class PrefsStore
 		PREFS.put("FILE_RECENT",newList);
 		}
 
-	public static final Rectangle getWindowBounds()
+	public static Rectangle getWindowBounds()
 		{
 		return Util.stringToRectangle(PREFS.get("WINDOW_BOUNDS",null),new Rectangle(800,600));
 		}
 
-	public static final void setWindowBounds(Rectangle r)
+	public static void setWindowBounds(Rectangle r)
 		{
 		PREFS.put("WINDOW_BOUNDS",Util.rectangleToString(r));
 		}
 
-	public static final boolean getWindowMaximized()
+	public static boolean getWindowMaximized()
 		{
 		return PREFS.getBoolean("WINDOW_MAXIMIZED",true);
 		}
 
-	public static final void setWindowMaximized(boolean b)
+	public static void setWindowMaximized(boolean b)
 		{
 		PREFS.putBoolean("WINDOW_MAXIMIZED",b);
 		}
 
-	public static final SyntaxStyle[] getSyntaxStyles()
+	public static SyntaxStyle[] getSyntaxStyles()
 		{
 		SyntaxStyle[] styles = new SyntaxStyle[Token.ID_COUNT];
 		styles[Token.COMMENT1] = new SyntaxStyle(new Color(0x338833),true,false);

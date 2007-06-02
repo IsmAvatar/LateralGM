@@ -64,8 +64,9 @@ public class GmMenuBar extends JMenuBar
 			{
 			File file = new File(recentList[i]).getAbsoluteFile();
 			String number = Integer.toString(i + 1);
-			JMenuItem item = recentFiles[i] = new JMenuItem(String.format("%s %s  [%s]",number,
+			JMenuItem item = new JMenuItem(String.format("%s %s  [%s]",number,
 					file.getName(),file.getParent()),number.codePointAt(0));
+			recentFiles[i] = item;
 			item.setActionCommand("GmMenuBar.OPEN " + Util.urlEncode(file.toString()));
 			item.addActionListener(LGM.listener);
 			fileMenu.insert(item,recentFilesPos + i);
@@ -74,7 +75,8 @@ public class GmMenuBar extends JMenuBar
 
 	public GmMenuBar()
 		{
-		fileMenu = menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
+		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
+		fileMenu = menu;
 		add(menu);
 
 		menu.addItem("GmMenuBar.NEW",KeyEvent.VK_N,ActionEvent.CTRL_MASK); //$NON-NLS-1$
