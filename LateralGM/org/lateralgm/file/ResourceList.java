@@ -20,7 +20,7 @@ import javax.swing.event.EventListenerList;
 
 public class ResourceList<R extends Resource>
 	{
-	private ArrayList<R> resources = new ArrayList<R>();
+	public ArrayList<R> resources = new ArrayList<R>();
 
 	private Class<R> type; // used as a workaround for add()
 

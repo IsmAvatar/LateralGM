@@ -105,4 +105,9 @@ public abstract class Resource implements Comparable<Resource>
 
 	@SuppressWarnings("unchecked")
 	public abstract Resource copy(boolean update, ResourceList src);
+
+	public String toString()
+		{
+		return name;
+		}
 	}

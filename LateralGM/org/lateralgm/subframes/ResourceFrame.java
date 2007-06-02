@@ -73,14 +73,14 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 		{
 		addGap(this,w,h);
 		}
-	
-	void addGap(Container c,int w, int h)
+
+	void addGap(Container c, int w, int h)
 		{
 		JLabel l = new JLabel();
 		l.setPreferredSize(new Dimension(w,h));
 		c.add(l);
 		}
-	
+
 	public void changedUpdate(DocumentEvent e)
 		{
 		// Not used
@@ -134,23 +134,23 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 			{
 			if (resourceChanged())
 				{
-				switch (JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
-						.getString("ResourceFrame.KEEPCHANGES"),res.getName()),Messages //$NON-NLS-1$
-						.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
-						JOptionPane.YES_NO_CANCEL_OPTION))
+				int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(
+						Messages.getString("ResourceFrame.KEEPCHANGES"),res.getName()),Messages //$NON-NLS-1$
+				.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
+						JOptionPane.YES_NO_CANCEL_OPTION);
+				if (ret == JOptionPane.YES_OPTION)
 					{
-					case 0: // yes
-						updateResource();
-						node.setUserObject(res.getName());
-						dispose();
-						LGM.tree.updateUI();
-						break;
-					case 1: // no
-						revertResource();
-						node.setUserObject(resOriginal.getName());
-						dispose();
-						LGM.tree.updateUI();
-						break;
+					updateResource();
+					node.setUserObject(res.getName());
+					dispose();
+					LGM.tree.updateUI();
+					}
+				else if (ret == JOptionPane.NO_OPTION)
+					{
+					revertResource();
+					node.setUserObject(resOriginal.getName());
+					dispose();
+					LGM.tree.updateUI();
 					}
 				}
 			else

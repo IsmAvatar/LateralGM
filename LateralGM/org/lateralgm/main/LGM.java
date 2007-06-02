@@ -148,7 +148,6 @@ public class LGM extends JPanel
 		editor.addCellEditorListener(listener);
 		tree.setEditable(true);
 		tree.addMouseListener(listener);
-		tree.setScrollsOnExpand(true);
 		tree.setTransferHandler(listener);
 		tree.setDragEnabled(true);
 		tree.setDropMode(DropMode.ON_OR_INSERT);

@@ -16,7 +16,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.lateralgm.main.LGM;
 
-
 public class GmTreeGraphics extends DefaultTreeCellRenderer
 	{
 	private ResNode last;
@@ -31,8 +30,8 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		setLeafIcon(getClosedIcon());
 		kindIcons = new Icon[LGM.kinds.length];
 		for (int i = 0; i < kindIcons.length; i++)
-			kindIcons[i] = LGM.kinds[i] == "" ? null : LGM.findIcon(
-					"restree/" + LGM.kinds[i].toLowerCase() + ".png");
+			kindIcons[i] = LGM.kinds[i] == "" ? null : LGM.findIcon("restree/"
+					+ LGM.kinds[i].toLowerCase() + ".png");
 		}
 
 	public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel, boolean exp,

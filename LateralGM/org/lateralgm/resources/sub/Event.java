@@ -103,4 +103,9 @@ public class Event extends ActionContainer
 
 	public int id = 0;
 	public ResId other = null; // For collision Events
+
+	public String toString()
+		{
+		return "" + id;
+		}
 	}

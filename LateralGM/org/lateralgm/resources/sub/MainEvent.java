@@ -10,6 +10,8 @@ package org.lateralgm.resources.sub;
 
 import java.util.ArrayList;
 
+import org.lateralgm.messages.Messages;
+
 public class MainEvent
 	{
 	public static final byte EV_CREATE = 0;
@@ -24,7 +26,16 @@ public class MainEvent
 	public static final byte EV_KEYPRESS = 9;
 	public static final byte EV_KEYRELEASE = 10;
 
-	private ArrayList<Event> events = new ArrayList<Event>();
+	public static final String[] EVENT_STRING = new String[11];
+	static
+		{
+		for (int m = 0; m < 11; m += 1)
+			{
+			Messages.getString("MainEvent.EVENT_STRING" + m);
+			}
+		}
+
+	public ArrayList<Event> events = new ArrayList<Event>();
 
 	public int noEvents()
 		{
