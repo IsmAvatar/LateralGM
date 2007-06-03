@@ -162,15 +162,9 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	public JTabbedPane getLibraryTabs()
 		{
 		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
-
-		//should not have to reload libraries every time
-		String ll = getLibraryLocation();
-		if (ll == null) return tp;
-		LibManager.autoLoad(ll);
-
 		for (Library l : LibManager.libs)
 			{
-			if (l.advanced) continue;
+			//if (l.advanced) continue;
 			JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT,0,0));
 			for (LibAction la : l.libActions)
 				{
@@ -197,49 +191,6 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			tp.add(l.tabCaption,p);
 			}
 		return tp;
-		}
-
-	//extract to program start or give something to main.Prefs
-	private String libraryLocation = "org/lateralgm/resources/library/lib/"; //null; //singleton
-
-	public String getLibraryLocation()
-		{
-		//see if our singleton exists
-		if (libraryLocation != null)
-			{
-			if (libraryLocation.equals("")) return null; //we know we have no libraries
-			return libraryLocation;
-			}
-
-		//see if we have a "lib" folder
-
-		//try and find GM6 (it should have a "lib" folder)
-
-		//ask the user
-		JFileChooser fc = new JFileChooser();
-		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		fc.setDialogTitle("Locate GM6 or Libraries");
-		File loc = new File("");
-		while (!loc.exists())
-			{
-			if (fc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
-				{
-				libraryLocation = "";
-				return null;
-				}
-			loc = fc.getSelectedFile();
-			}
-
-		//see if this folder is just GM6 or the Libraries folder
-		/*
-		 * How this is achieved requires a little philosophy
-		 * Should we check to see if the folder's name is "lib"?
-		 * Should we check if there's any .lib files here?
-		 * Should we check to see if there is a "lib" subfolder?
-		 * Or should we not ask the user and just require a "lib" folder?
-		 */
-
-		return "";
 		}
 
 	@Override

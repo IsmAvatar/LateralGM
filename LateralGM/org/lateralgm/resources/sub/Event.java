@@ -8,6 +8,7 @@
 
 package org.lateralgm.resources.sub;
 
+import org.lateralgm.main.LGM;
 import org.lateralgm.resources.ResId;
 
 public class Event extends ActionContainer
@@ -103,9 +104,13 @@ public class Event extends ActionContainer
 
 	public int id = 0;
 	public ResId other = null; // For collision Events
+	public int mainId = 0;
 
 	public String toString()
 		{
+		if (mainId != MainEvent.EV_COLLISION)
 		return "" + id;
+		else
+			return "collision with "+ LGM.currentFile.gmObjects.get(other).getName();
 		}
 	}

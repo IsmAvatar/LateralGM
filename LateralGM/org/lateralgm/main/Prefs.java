@@ -19,4 +19,6 @@ public class Prefs
 	public static Font codeFont = new Font("Monospaced",Font.PLAIN,12);
 	public static String[] prefixes = { "","obj_","spr_","snd_","rm_","","bk_","scr_","path_",
 			"font_","","","time_" };
+	public static String defaultLibraryPath = "org/lateralgm/resources/library/lib";
+	public static String userLibraryPath = null;
 	}

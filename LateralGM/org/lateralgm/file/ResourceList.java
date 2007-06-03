@@ -20,7 +20,7 @@ import javax.swing.event.EventListenerList;
 
 public class ResourceList<R extends Resource>
 	{
-	public ArrayList<R> resources = new ArrayList<R>();
+	private ArrayList<R> resources = new ArrayList<R>();
 
 	private Class<R> type; // used as a workaround for add()
 
@@ -29,10 +29,6 @@ public class ResourceList<R extends Resource>
 	EventListenerList listenerList = new EventListenerList();
 	ChangeEvent changeEvent = null;
 
-	/*
-	 * it's *YOUR* problem if this class doesn't extend Resource
-	 * (you shouldn't really need to construct a ResourceList manually anyway)
-	 */
 	ResourceList(Class<R> type)
 		{
 		this.type = type;
@@ -193,7 +189,7 @@ public class ResourceList<R extends Resource>
 		sort();
 		for (int i = 0; i < resources.size(); i++)
 			{
-			resources.get(i).setId(new ResId(i));
+			resources.get(i).getId().setValue(i);
 			}
 		lastId = resources.size() - 1;
 		}
@@ -206,6 +202,13 @@ public class ResourceList<R extends Resource>
 	public void removeChangeListener(ChangeListener l)
 		{
 		listenerList.remove(ChangeListener.class,l);
+		}
+
+	@SuppressWarnings("unchecked")
+	public R[] toArray()
+		{
+		Resource[] result = new Resource[resources.size()];
+		return (R[]) resources.toArray(result);
 		}
 
 	protected void fireStateChanged(ChangeEvent e)

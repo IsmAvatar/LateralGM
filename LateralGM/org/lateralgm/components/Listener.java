@@ -43,6 +43,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.file.Gm6File;
+import org.lateralgm.file.Gm6FileReader;
+import org.lateralgm.file.Gm6FileWriter;
 import org.lateralgm.file.Gm6FormatException;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
@@ -104,10 +106,9 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				{
 				ResNode newroot = new ResNode("Root",0,0,null); //$NON-NLS-1$
 				PrefsStore.addRecentFile(filename);
-				LGM.currentFile = new Gm6File();
 				LGM.frame.setTitle("Lateral GM 6.1: " + file.getName());
 				((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-				LGM.currentFile.readGm6File(filename,newroot);
+				LGM.currentFile = Gm6FileReader.readGm6File(filename,newroot);
 				LGM f = new LGM();
 				f.createTree(newroot,false);
 				tree.setSelectionPath(new TreePath(LGM.root).pathByAddingChild(LGM.root.getChildAt(0)));
@@ -159,7 +160,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						ResNode node = (ResNode) nodes.nextElement();
 						if (node.frame != null) node.frame.updateResource(); // update open frames
 						}
-					LGM.currentFile.writeGm6File(filename,LGM.root);
+					Gm6FileWriter.writeGm6File(LGM.currentFile,filename,LGM.root);
 					return;
 					}
 				if (result == 2) return;
@@ -275,7 +276,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					pos = parent.getChildCount();
 					}
 				}
-			if (com.equals("GMOBJECT")) //$NON-NLS-1$
+			if (com.equals("OBJECT")) //$NON-NLS-1$
 				{
 				if (node.kind != Resource.GMOBJECT)
 					{

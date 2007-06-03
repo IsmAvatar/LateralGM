@@ -26,4 +26,9 @@ public class ResId
 		{
 		return value;
 		}
+
+	public void setValue(int value)
+		{
+		this.value = value;
+		}
 	}

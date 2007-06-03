@@ -111,7 +111,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		preview = new JLabel(ii);
 		preview.setPreferredSize(new Dimension(16,16));
 		origin.add(preview);
-		sprite = new JComboBox(LGM.currentFile.sprites.resources.toArray());
+		sprite = new JComboBox(LGM.currentFile.sprites.toArray());
 		sprite.insertItemAt("<no sprite>",0);
 		if (s == null)
 			sprite.setSelectedIndex(0);
@@ -154,7 +154,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		lab = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		parent = new JComboBox(LGM.currentFile.gmObjects.resources.toArray());
+		parent = new JComboBox(LGM.currentFile.gmObjects.toArray());
 		parent.insertItemAt("<no parent>",0);
 		parent.setPreferredSize(new Dimension(110,20));
 		GmObject p = LGM.currentFile.gmObjects.get(res.parent);
@@ -167,7 +167,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		lab = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		mask = new JComboBox(LGM.currentFile.sprites.resources.toArray());
+		mask = new JComboBox(LGM.currentFile.sprites.toArray());
 		mask.insertItemAt("<same as sprite>",0);
 		mask.setPreferredSize(new Dimension(110,20));
 		s = LGM.currentFile.sprites.get(res.sprite);
@@ -274,11 +274,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
 
-		//should not have to reload libraries every time
-		String ll = getLibraryLocation();
-		if (ll == null) return tp;
-		LibManager.autoLoad(ll);
-
 		for (Library l : LibManager.libs)
 			{
 			if (l.advanced) continue;
@@ -308,49 +303,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			tp.add(l.tabCaption,p);
 			}
 		return tp;
-		}
-
-	//extract to program start or give something to main.Prefs
-	private String libraryLocation = "org/lateralgm/resources/library/lib/"; //null; //singleton
-
-	public String getLibraryLocation()
-		{
-		//see if our singleton exists
-		if (libraryLocation != null)
-			{
-			if (libraryLocation.equals("")) return null; //we know we have no libraries
-			return libraryLocation;
-			}
-
-		//see if we have a "lib" folder
-
-		//try and find GM6 (it should have a "lib" folder)
-
-		//ask the user
-		JFileChooser fc = new JFileChooser();
-		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		fc.setDialogTitle("Locate GM6 or Libraries");
-		File loc = new File("");
-		while (!loc.exists())
-			{
-			if (fc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
-				{
-				libraryLocation = "";
-				return null;
-				}
-			loc = fc.getSelectedFile();
-			}
-
-		//see if this folder is just GM6 or the Libraries folder
-		/*
-		 * How this is achieved requires a little philosophy
-		 * Should we check to see if the folder's name is "lib"?
-		 * Should we check if there's any .lib files here?
-		 * Should we check to see if there is a "lib" subfolder?
-		 * Or should we not ask the user and just require a "lib" folder?
-		 */
-
-		return "";
 		}
 
 	@Override
