@@ -502,19 +502,19 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			{
 			if (resourceChanged())
 				{
-				switch (JOptionPane.showConfirmDialog(LGM.frame,String.format(
+				int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(
 						Messages.getString("ResourceFrame.KEEPCHANGES"),(String) getUserObject()),
 						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
-						JOptionPane.YES_NO_CANCEL_OPTION))
+						JOptionPane.YES_NO_CANCEL_OPTION);
+				if (ret == JOptionPane.YES_OPTION)
 					{
-					case 0: // yes
-						updateResource();
-						setVisible(false);
-						break;
-					case 1: // no
-						revertResource();
-						setVisible(false);
-						break;
+					updateResource();
+					setVisible(false);
+					}
+				else if (ret == JOptionPane.NO_OPTION)
+					{
+					revertResource();
+					setVisible(false);
 					}
 				}
 			else
