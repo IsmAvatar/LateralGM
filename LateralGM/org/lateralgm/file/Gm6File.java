@@ -22,15 +22,11 @@
 
 package org.lateralgm.file;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,12 +35,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
-import javax.imageio.ImageIO;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
-import org.lateralgm.components.ResNode;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Constant;
@@ -53,25 +47,12 @@ import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
-import org.lateralgm.resources.ResId;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
-import org.lateralgm.resources.library.LibAction;
-import org.lateralgm.resources.library.LibManager;
-import org.lateralgm.resources.sub.Action;
-import org.lateralgm.resources.sub.Argument;
-import org.lateralgm.resources.sub.BackgroundDef;
-import org.lateralgm.resources.sub.Event;
-import org.lateralgm.resources.sub.Instance;
-import org.lateralgm.resources.sub.MainEvent;
-import org.lateralgm.resources.sub.Moment;
-import org.lateralgm.resources.sub.Point;
-import org.lateralgm.resources.sub.Tile;
-import org.lateralgm.resources.sub.View;
 
 //TODO Re-implement the icon loading code using com.ctreber.aclib.ico
 public class Gm6File
@@ -229,7 +210,7 @@ public class Gm6File
 	// Returns the ResourceList corresponding to given Resource constant
 	public ResourceList<?> getList(int res)
 		{
-		return resMap.get((byte)res);
+		return resMap.get((byte) res);
 		}
 
 	public void clearAll()

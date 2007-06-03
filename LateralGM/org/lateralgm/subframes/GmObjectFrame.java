@@ -15,7 +15,6 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -24,7 +23,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -40,6 +38,7 @@ import javax.swing.tree.TreeSelectionModel;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResNode;
+import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
@@ -61,7 +60,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	private static ImageIcon infoIcon = LGM.getIconForKey("GmObjectFrame.INFO"); //$NON-NLS-1$
 
 	public JLabel preview;
-	public JComboBox sprite;
+	public ResourceMenu sprite;
+	public JComboBox sp2;
 	public JButton newsprite;
 	public JButton edit;
 	public JCheckBox visible;
@@ -111,14 +111,16 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		preview = new JLabel(ii);
 		preview.setPreferredSize(new Dimension(16,16));
 		origin.add(preview);
-		sprite = new JComboBox(LGM.currentFile.sprites.toArray());
-		sprite.insertItemAt("<no sprite>",0);
+		/*sp2 = new JComboBox(LGM.currentFile.sprites.resources.toArray());
+		sp2.insertItemAt("<no sprite>",0);
 		if (s == null)
-			sprite.setSelectedIndex(0);
+			sp2.setSelectedIndex(0);
 		else
-			sprite.setSelectedItem(s);
-		sprite.setPreferredSize(new Dimension(140,20));
-		sprite.addActionListener(this);
+			sp2.setSelectedItem(s);
+		sp2.setPreferredSize(new Dimension(140,20));
+		sp2.addActionListener(this);
+		origin.add(sp2);*/
+		sprite = new ResourceMenu((byte) 0, 140);
 		origin.add(sprite);
 		newsprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
 		newsprite.setPreferredSize(new Dimension(80,20));
@@ -187,7 +189,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		addGap(side1,160,16);
 
 		save.setPreferredSize(new Dimension(130,24));
-		save.setText(Messages.getString("TimelineFrame.SAVE")); //$NON-NLS-1$
+		save.setText(Messages.getString("GmObjectFrame.SAVE")); //$NON-NLS-1$
 		save.setIcon(saveIcon);
 		side1.add(save);
 
