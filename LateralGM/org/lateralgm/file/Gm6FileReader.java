@@ -1,6 +1,29 @@
+/*
+ * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006, 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * 
+ * This file is part of Lateral GM.
+ * 
+ * Lateral GM is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * Lateral GM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License (COPYING) for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Lateral GM; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
 package org.lateralgm.file;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
@@ -8,6 +31,7 @@ import java.util.zip.DataFormatException;
 import javax.imageio.ImageIO;
 
 import org.lateralgm.components.ResNode;
+import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Constant;
@@ -176,8 +200,8 @@ public final class Gm6FileReader
 		int length = in.read4();
 		f.gameIconData = new byte[length];
 		in.read(f.gameIconData,0,length);
-		// GameIcon=(BufferedImage)new ICOFile(new
-		// ByteArrayInputStream(GameIconData)).getDescriptor(0).getImageRGB();
+		f.gameIcon = (BufferedImage) new ICOFile(new ByteArrayInputStream(f.gameIconData)).getDescriptor(
+				0).getImageRGB();
 
 		f.displayErrors = in.readBool();
 		f.writeToLog = in.readBool();

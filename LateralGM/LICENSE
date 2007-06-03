@@ -19,3 +19,18 @@ GNU General Public License (COPYING) for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA.
+
+The package org.lateralgm.file.iconio is based on AC.lib-ICO
+which is licensed as follows:
+
+Copyright (c) 2006 by Christian Treber, ct@ctreber.com
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice appear in all copies
+and that both that copyright notice and this permission notice
+appear in supporting documentation.
+This software is provided "as is" without express or implied warranty.
+
+
+
