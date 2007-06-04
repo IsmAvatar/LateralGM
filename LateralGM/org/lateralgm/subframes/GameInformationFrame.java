@@ -270,7 +270,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			tool.addSeparator();
 			but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
 			but.setRequestFocusEnabled(false);
-			but.setActionCommand("GameInformationFrame.COLOR");
+			but.setActionCommand("GameInformationFrame.COLOR"); //$NON-NLS-1$
 			but.addActionListener(this);
 			tool.add(but);
 			}
@@ -399,7 +399,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			else
 				JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
 						+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
-						Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-2$
+						Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-1$
 						JOptionPane.WARNING_MESSAGE);
 			}
 		try
@@ -490,8 +490,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			}
 		if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
 			{
-			Color c = JColorChooser.showDialog(this,Messages.getString("GameInformationFrame.COLOR"),
-					editor.getBackground());
+			String colorStr = Messages.getString("GameInformationFrame.COLOR"); //$NON-NLS-1$
+			Color c = JColorChooser.showDialog(this,colorStr,editor.getBackground());
 			if (c != null) setEditorBackground(c);
 			}
 		}
@@ -503,7 +503,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			if (resourceChanged())
 				{
 				int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(
-						Messages.getString("ResourceFrame.KEEPCHANGES"),(String) getUserObject()),
+						Messages.getString("ResourceFrame.KEEPCHANGES"),(String) getUserObject()), //$NON-NLS-1$
 						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
 						JOptionPane.YES_NO_CANCEL_OPTION);
 				if (ret == JOptionPane.YES_OPTION)

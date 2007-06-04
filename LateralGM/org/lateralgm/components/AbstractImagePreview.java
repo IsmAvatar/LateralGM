@@ -81,7 +81,7 @@ public abstract class AbstractImagePreview extends JLabel
 		int width = Math.abs(x1 - x2);
 		int height = Math.abs(y1 - y2);
 		drawInvertedHorizontalLine(g,src,left,top,width);
-		drawInvertedHorizontalLine(g,src,left,Math.max(y1,y2),width+1);
+		drawInvertedHorizontalLine(g,src,left,Math.max(y1,y2),width + 1);
 		drawInvertedVerticalLine(g,src,left,top,height);
 		drawInvertedVerticalLine(g,src,Math.max(x1,x2),top,height);
 		}

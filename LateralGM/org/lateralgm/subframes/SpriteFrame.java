@@ -10,19 +10,15 @@ package org.lateralgm.subframes;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
-import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -32,8 +28,6 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
-import org.lateralgm.components.CustomFileFilter;
-// import org.lateralgm.components.ImagePreview;
 import org.lateralgm.components.IndexButtonGroup;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResNode;

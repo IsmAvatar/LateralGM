@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -51,10 +52,10 @@ public final class LibManager
 
 	public static void autoLoad()
 		{
-		String[] exts = { ".lib",".lgl" };
-		List<File> files = Arrays.asList(new File(Prefs.defaultLibraryPath).listFiles(new CustomFileFilter(
-				exts,null)));
-		if (Prefs.userLibraryPath != null && Prefs.userLibraryPath != "")
+		String[] exts = { ".lib",".lgl" }; //$NON-NLS-1$ //$NON-NLS-2$
+		File[] ff = new File(Prefs.defaultLibraryPath).listFiles(new CustomFileFilter(exts,null));
+		List<File> files = Arrays.asList(ff);
+		if (Prefs.userLibraryPath != null && Prefs.userLibraryPath != "") //$NON-NLS-1$
 			{
 			files.addAll(Arrays.asList(new File(Prefs.userLibraryPath).listFiles(new CustomFileFilter(
 					exts,null))));
@@ -142,7 +143,10 @@ public final class LibManager
 	public static Library loadLib(GmStreamDecoder in) throws LibFormatException,IOException
 		{
 		if (in.read() != 0)
-			throw new LibFormatException(Messages.getString("LibManager.ERROR_INVALIDFILE")); //$NON-NLS-1$
+			{
+			String invalidFile = Messages.getString("LibManager.ERROR_INVALIDFILE"); //$NON-NLS-1$
+			throw new LibFormatException(invalidFile);
+			}
 		Library lib = new Library();
 		lib.tabCaption = in.readStr();
 		lib.id = in.read4();
@@ -228,7 +232,10 @@ public final class LibManager
 	public static Library loadLgl(GmStreamDecoder in) throws LibFormatException,IOException
 		{
 		if (in.read2() != 160)
-			throw new LibFormatException(Messages.getString("LibManager.ERROR_INVALIDFILE")); //$NON-NLS-1$
+			{
+			String invalidFile = Messages.getString("LibManager.ERROR_INVALIDFILE"); //$NON-NLS-1$
+			throw new LibFormatException(invalidFile);
+			}
 		Library lib = new Library();
 		lib.id = in.read3();
 		lib.tabCaption = in.readStr1();

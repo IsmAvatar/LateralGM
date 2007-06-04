@@ -14,16 +14,13 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -33,10 +30,6 @@ import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
-import org.lateralgm.resources.library.LibAction;
-import org.lateralgm.resources.library.LibManager;
-import org.lateralgm.resources.library.Library;
-import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Moment;
 
 public class TimelineFrame extends ResourceFrame<Timeline> implements ActionListener,

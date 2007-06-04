@@ -5,52 +5,39 @@
 
 package org.lateralgm.subframes;
 
-import org.lateralgm.components.ResNode;
-import org.lateralgm.resources.Background;
-
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Rectangle;
-import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
-import javax.swing.border.BevelBorder;
 
-import org.lateralgm.components.CustomFileFilter;
-// import org.lateralgm.components.ImagePreview;
 import org.lateralgm.components.BackgroundPreview;
-import org.lateralgm.components.IndexButtonGroup;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResNode;
-import org.lateralgm.components.SubimagePreview;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.Background;
 
 public class BackgroundFrame extends ResourceFrame<Background>
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon frameIcon = LGM.getIconForKey("BackgroundFrame.BACKGROUND"); //$NON-NLS-1$
+	private static ImageIcon frameIcon;
+	static
+		{
+		frameIcon = LGM.getIconForKey("BackgroundFrame.BACKGROUND"); //$NON-NLS-1$
+		}
 	private static ImageIcon loadIcon = LGM.getIconForKey("BackgroundFrame.LOAD"); //$NON-NLS-1$
 	private static ImageIcon saveIcon = LGM.getIconForKey("BackgroundFrame.SAVE"); //$NON-NLS-1$
 	public JButton load;
@@ -134,7 +121,8 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		JPanel group = new JPanel(new FlowLayout()); // BoxLayout does what it wants, so this has to be
 		// separate to stay a constant size
 		group.setPreferredSize(new Dimension(180,270));
-		group.setBorder(BorderFactory.createTitledBorder(Messages.getString("BackgroundFrame.TILE_PROPERTIES"))); //$NON-NLS-1$
+		String tileProps = Messages.getString("BackgroundFrame.TILE_PROPERTIES"); //$NON-NLS-1$
+		group.setBorder(BorderFactory.createTitledBorder(tileProps));
 
 		JLabel lab = new JLabel(Messages.getString("BackgroundFrame.TILE_WIDTH")); //$NON-NLS-1$
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);

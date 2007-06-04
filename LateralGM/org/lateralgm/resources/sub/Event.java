@@ -111,6 +111,6 @@ public class Event extends ActionContainer
 		if (mainId != MainEvent.EV_COLLISION)
 		return "" + id;
 		else
-			return "collision with "+ LGM.currentFile.gmObjects.get(other).getName();
+			return "collision with " + LGM.currentFile.gmObjects.get(other).getName();
 		}
 	}

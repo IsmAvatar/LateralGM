@@ -185,11 +185,11 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		JPanel side2 = new JPanel(new BorderLayout());
 		side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
 		lab = new JLabel(Messages.getString("GmObjectFrame.EVENTS")); //$NON-NLS-1$
-		side2.add(lab,"North");
+		side2.add(lab,"North"); //$NON-NLS-1$
 		events = makeEventTree(res);
 		JScrollPane scroll = new JScrollPane(events);
 		scroll.setPreferredSize(new Dimension(90,260));
-		side2.add(scroll,"Center");
+		side2.add(scroll,"Center"); //$NON-NLS-1$
 
 		add(side1);
 		add(side2);
@@ -202,20 +202,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		else
 			{
-			JPanel side3 = new JPanel(new BorderLayout());
-			side3.setMinimumSize(new Dimension(0,0));
-			side3.setPreferredSize(new Dimension(100,260));
-			lab = new JLabel(Messages.getString("GmObjectFrame.ACTIONS")); //$NON-NLS-1$
-			side3.add(lab,"North");
-			actions = new JList();
-			scroll = new JScrollPane(actions);
-			side3.add(scroll,"Center");
-
-			JTabbedPane side4 = makeLibraryTabs();
-			side4.setPreferredSize(new Dimension(165,260)); //319
-
-			add(side3);
-			add(side4);
+			addActionPane(this);
 			}
 		}
 
@@ -265,10 +252,10 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		JPanel side3 = new JPanel(new BorderLayout());
 		side3.setPreferredSize(new Dimension(100,319));
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.ACTIONS")); //$NON-NLS-1$
-		side3.add(lab,"North");
+		side3.add(lab,"North"); //$NON-NLS-1$
 		JList list = new JList();
 		JScrollPane scroll = new JScrollPane(list);
-		side3.add(scroll,"Center");
+		side3.add(scroll,"Center"); //$NON-NLS-1$
 
 		JTabbedPane side4 = GmObjectFrame.makeLibraryTabs();
 		side4.setPreferredSize(new Dimension(165,319)); //319

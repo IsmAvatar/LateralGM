@@ -23,9 +23,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.jedit.SyntaxStyle;
@@ -46,7 +44,8 @@ public final class Util
 		String exts[] = ImageIO.getReaderFileSuffixes();
 		for (int i = 0; i < exts.length; i++)
 			exts[i] = "." + exts[i]; //$NON-NLS-1$
-		CustomFileFilter filt = new CustomFileFilter(exts,Messages.getString("Util.ALL_SPI_IMAGES"));//$NON-NLS-1$
+		String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
+		CustomFileFilter filt = new CustomFileFilter(exts,allSpiImages);
 		imageFc.addChoosableFileFilter(filt);
 		for (int i = 0; i < exts.length; i++)
 			{
