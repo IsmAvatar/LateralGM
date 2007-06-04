@@ -1,9 +1,8 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
- * This file is part of Lateral GM.
- * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
- * See LICENSE for details.
+ * This file is part of Lateral GM. Lateral GM is free software and comes with ABSOLUTELY NO
+ * WARRANTY. See LICENSE for details.
  */
 
 package org.lateralgm.subframes;
@@ -34,12 +33,13 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 import org.lateralgm.components.CustomFileFilter;
-//import org.lateralgm.components.ImagePreview;
+// import org.lateralgm.components.ImagePreview;
 import org.lateralgm.components.IndexButtonGroup;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.components.SubimagePreview;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
 
@@ -76,7 +76,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	public IntegerField bboxRight;
 	public IntegerField bboxTop;
 	public IntegerField bboxBottom;
-	private JFileChooser fc;
 	public boolean imageChanged = false;
 
 	public SubimagePreview preview;
@@ -84,21 +83,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	public SpriteFrame(Sprite res, ResNode node)
 		{
 		super(res,node);
-
-		fc = new JFileChooser();
-		//fc.setAccessory(new ImagePreview(fc));
-		String exts[] = ImageIO.getReaderFileSuffixes();
-		for (int i = 0; i < exts.length; i++)
-			exts[i] = "." + exts[i]; //$NON-NLS-1$
-		CustomFileFilter filt = new CustomFileFilter(exts,
-				Messages.getString("SpriteFrame.ALL_SPI_IMAGES")); //$NON-NLS-1$
-		fc.addChoosableFileFilter(filt);
-		for (int i = 0; i < exts.length; i++)
-			{
-			fc.addChoosableFileFilter(new CustomFileFilter(exts[i],exts[i]
-					+ Messages.getString("SpriteFrame.FILES"))); //$NON-NLS-1$
-			}
-		fc.setFileFilter(filt);
 
 		setSize(560,320);
 		setMinimumSize(new Dimension(560,320));
@@ -334,32 +318,27 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		{
 		if (e.getSource() == load)
 			{
-			if (fc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+			try
 				{
-				try
+				BufferedImage img = Util.getValidImage();
+				if (img != null)
 					{
-					BufferedImage img = ImageIO.read(fc.getSelectedFile());
-					//TODO support animated formats
-					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
-					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
-							BufferedImage.TYPE_3BYTE_BGR);
-					conv.filter(img,dest);
 					res.clearSubImages();
-					res.addSubImage(dest);
-					res.width = dest.getWidth();
-					res.height = dest.getHeight();
+					res.addSubImage(img);
+					res.width = img.getWidth();
+					res.height = img.getHeight();
 					imageChanged = true;
 					currSub = 0;
 					preview.setIcon(new ImageIcon(res.getSubImage(0)));
 					updateInfo();
 					updateBoundingBox();
 					}
-				catch (Throwable t)
-					{
-					t.printStackTrace();
-					String msg = Messages.getString("SpriteFrame.ERROR_LOADING"); //$NON-NLS-1$
-					JOptionPane.showMessageDialog(LGM.frame,msg + fc.getSelectedFile().getPath());
-					}
+				}
+			catch (Throwable t) // Includes out of memory errors
+				{
+				//t.printStackTrace();
+				String msg = Messages.getString("SpriteFrame.ERROR_LOADING"); //$NON-NLS-1$
+				JOptionPane.showMessageDialog(LGM.frame,msg + Util.imageFc.getSelectedFile().getPath());
 				}
 			return;
 			}
@@ -413,7 +392,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 				+ res.noSubImages());
 		}
 
-	//TODO cache auto bbox
+	// TODO cache auto bbox
 	public void updateBoundingBox()
 		{
 		int mode = bboxGroup.getValue();

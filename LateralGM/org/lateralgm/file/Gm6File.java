@@ -24,6 +24,7 @@ package org.lateralgm.file;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +40,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Constant;
@@ -104,6 +106,8 @@ public class Gm6File
 				val = in.read();
 				}
 			gameIconData = dat.toByteArray();
+			gameIcon = (BufferedImage) new ICOFile(new ByteArrayInputStream(gameIconData)).getDescriptor(
+					0).getImageRGB();
 			}
 		catch (Exception ex)
 			{
@@ -111,7 +115,7 @@ public class Gm6File
 			System.err.println(Messages.getString("Gm6File.NOICON")); //$NON-NLS-1$
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
-			}
+			}			
 		}
 
 	public static Calendar gmBaseTime()

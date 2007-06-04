@@ -1,10 +1,7 @@
 /*
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
- * IsmAvatar (C) 2007 IsmAvatar <cmagicj@nni.com>
- * 
- * This file is part of Lateral GM.
- * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
- * See LICENSE for details.
+ * Copyright (C) 2007 Quadduc <quadduc@gmail.com> IsmAvatar (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * This file is part of Lateral GM. Lateral GM is free software and comes with ABSOLUTELY NO
+ * WARRANTY. See LICENSE for details.
  */
 
 package org.lateralgm.main;
@@ -13,21 +10,50 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+
+import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.jedit.SyntaxStyle;
+import org.lateralgm.messages.Messages;
 
 public final class Util
 	{
 	private Util()
 		{
+		}
+
+	public static JFileChooser imageFc;
+
+	static
+		{
+		imageFc = new JFileChooser();
+		// fc.setAccessory(new ImagePreview(fc));
+		String exts[] = ImageIO.getReaderFileSuffixes();
+		for (int i = 0; i < exts.length; i++)
+			exts[i] = "." + exts[i]; //$NON-NLS-1$
+		CustomFileFilter filt = new CustomFileFilter(exts,Messages.getString("Util.ALL_SPI_IMAGES"));//$NON-NLS-1$
+		imageFc.addChoosableFileFilter(filt);
+		for (int i = 0; i < exts.length; i++)
+			{
+			imageFc.addChoosableFileFilter(new CustomFileFilter(exts[i],exts[i]
+					+ Messages.getString("Util.FILES"))); //$NON-NLS-1$
+			}
+		imageFc.setFileFilter(filt);
 		}
 
 	public static String urlEncode(String s)
@@ -110,12 +136,38 @@ public final class Util
 			{
 				public int filterRGB(int x, int y, int rgb)
 					{
-					if ((rgb | 0xFF000000) == fi.getRGB(0,fi.getHeight() - 1))
-						return 0x00FFFFFF & rgb;
+					if ((rgb | 0xFF000000) == fi.getRGB(0,fi.getHeight() - 1)) return 0x00FFFFFF & rgb;
 					return rgb;
 					}
 			};
 		ImageProducer ip = new FilteredImageSource(i.getSource(),filter);
 		return Toolkit.getDefaultToolkit().createImage(ip);
+		}
+
+	/**
+	 * Shows a JFileChooser with file filters for all currently registered instances of
+	 * ImageReaderSpi.
+	 * 
+	 * @return The selected image, or null if one is not chosen
+	 * @throws IOException In the case of an invalid file or IO error
+	 */
+	public static BufferedImage getValidImage() throws IOException
+		{
+		if (imageFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+			{
+			BufferedImage img = ImageIO.read(imageFc.getSelectedFile());
+			// TODO support animated formats
+			if (img != null)
+				{
+				ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
+				BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
+						BufferedImage.TYPE_3BYTE_BGR);
+				conv.filter(img,dest);
+				return dest;
+				}
+			else
+				throw new IOException("Invalid image file");
+			}
+		return null;
 		}
 	}

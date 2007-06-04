@@ -21,6 +21,7 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.ResId;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.subframes.BackgroundFrame;
 import org.lateralgm.subframes.FontFrame;
 import org.lateralgm.subframes.GmObjectFrame;
 import org.lateralgm.subframes.ResourceFrame;
@@ -109,6 +110,9 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 				case Resource.SOUND:
 					rf = new SoundFrame(LGM.currentFile.sounds.get(resourceId),this);
 					break;
+				case Resource.BACKGROUND:
+				rf = new BackgroundFrame(LGM.currentFile.backgrounds.get(resourceId),this);
+				break;
 				case Resource.SCRIPT:
 					rf = new ScriptFrame(LGM.currentFile.scripts.get(resourceId),this);
 					break;
