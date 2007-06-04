@@ -61,6 +61,47 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 	private static final long serialVersionUID = 1L;
 	JFileChooser fc = new JFileChooser();
 
+	public static byte stringToRes(String com)
+		{
+		if (com.equals("SPRITE")) //$NON-NLS-1$
+			{
+			return Resource.SPRITE;
+			}
+		if (com.equals("SOUND")) //$NON-NLS-1$
+			{
+			return Resource.SOUND;
+			}
+		if (com.equals("BACKGROUND")) //$NON-NLS-1$
+			{
+			return Resource.BACKGROUND;
+			}
+		if (com.equals("PATH")) //$NON-NLS-1$
+			{
+			return Resource.PATH;
+			}
+		if (com.equals("SCRIPT")) //$NON-NLS-1$
+			{
+			return Resource.SCRIPT;
+			}
+		if (com.equals("FONT")) //$NON-NLS-1$
+			{
+			return Resource.FONT;
+			}
+		if (com.equals("TIMELINE")) //$NON-NLS-1$
+			{
+			return Resource.TIMELINE;
+			}
+		if (com.equals("OBJECT")) //$NON-NLS-1$
+			{
+			return Resource.GMOBJECT;
+			}
+		if (com.equals("ROOM")) //$NON-NLS-1$
+			{
+			return Resource.ROOM;
+			}
+		return -1;
+		}
+
 	public void actionPerformed(ActionEvent e)
 		{
 		JTree tree = LGM.tree;
@@ -138,7 +179,6 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.endsWith(".SAVEAS")) //$NON-NLS-1$
 			{
-			JFileChooser fc = new JFileChooser();
 			fc.setFileFilter(new CustomFileFilter(".gm6", //$NON-NLS-1$
 					Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$
 			while (true)
@@ -220,78 +260,14 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				tree.updateUI();
 				return;
 				}
-			if (com.equals("SPRITE")) //$NON-NLS-1$
+			
+			byte r = stringToRes(com);
+			if (node.kind != r)
 				{
-				if (node.kind != Resource.SPRITE)
-					{
-					parent = getPrimaryParent(Resource.SPRITE);
-					pos = parent.getChildCount();
-					}
+				parent = getPrimaryParent(r);
+				pos = parent.getChildCount();
 				}
-			if (com.equals("SOUND")) //$NON-NLS-1$
-				{
-				if (node.kind != Resource.SOUND)
-					{
-					parent = getPrimaryParent(Resource.SOUND);
-					pos = parent.getChildCount();
-					}
-				}
-			if (com.equals("BACKGROUND")) //$NON-NLS-1$
-				{
-				if (node.kind != Resource.BACKGROUND)
-					{
-					parent = getPrimaryParent(Resource.BACKGROUND);
-					pos = parent.getChildCount();
-					}
-				}
-			if (com.equals("PATH")) //$NON-NLS-1$
-				{
-				if (node.kind != Resource.PATH)
-					{
-					parent = getPrimaryParent(Resource.PATH);
-					pos = parent.getChildCount();
-					}
-				}
-			if (com.equals("SCRIPT")) //$NON-NLS-1$
-				{
-				if (node.kind != Resource.SCRIPT)
-					{
-					parent = getPrimaryParent(Resource.SCRIPT);
-					pos = parent.getChildCount();
-					}
-				}
-			if (com.equals("FONT")) //$NON-NLS-1$
-				{
-				if (node.kind != Resource.FONT)
-					{
-					parent = getPrimaryParent(Resource.FONT);
-					pos = parent.getChildCount();
-					}
-				}
-			if (com.equals("TIMELINE")) //$NON-NLS-1$
-				{
-				if (node.kind != Resource.TIMELINE)
-					{
-					parent = getPrimaryParent(Resource.TIMELINE);
-					pos = parent.getChildCount();
-					}
-				}
-			if (com.equals("OBJECT")) //$NON-NLS-1$
-				{
-				if (node.kind != Resource.GMOBJECT)
-					{
-					parent = getPrimaryParent(Resource.GMOBJECT);
-					pos = parent.getChildCount();
-					}
-				}
-			if (com.equals("ROOM")) //$NON-NLS-1$
-				{
-				if (node.kind != Resource.ROOM)
-					{
-					parent = getPrimaryParent(Resource.ROOM);
-					pos = parent.getChildCount();
-					}
-				}
+
 			Resource res = LGM.currentFile.getList(parent.kind).add();
 			ResNode g = new ResNode(res.getName(),ResNode.STATUS_SECONDARY,parent.kind,res.getId());
 			parent.insert(g,pos);

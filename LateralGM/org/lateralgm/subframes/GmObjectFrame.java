@@ -43,6 +43,7 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
@@ -68,13 +69,21 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public JCheckBox solid;
 	public IntegerField depth;
 	public JCheckBox persistent;
-	public JComboBox parent;
-	public JComboBox mask;
+	public ResourceMenu parent;
+	public ResourceMenu mask;
 	public JButton information;
 
 	public JTree events;
 	public JList actions;
 	public GMLTextArea code;
+
+	/* // For future reference, when ResoruceMenu is more complete
+	s = LGM.currentFile.sprites.get(res.sprite);
+	if (s == null)
+		mask.setSelectedIndex(0);
+	else
+		mask.setSelectedItem(s);
+	*/
 
 	public GmObjectFrame(GmObject res, ResNode node)
 		{
@@ -111,16 +120,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		preview = new JLabel(ii);
 		preview.setPreferredSize(new Dimension(16,16));
 		origin.add(preview);
-		/*sp2 = new JComboBox(LGM.currentFile.sprites.resources.toArray());
-		sp2.insertItemAt("<no sprite>",0);
-		if (s == null)
-			sp2.setSelectedIndex(0);
-		else
-			sp2.setSelectedItem(s);
-		sp2.setPreferredSize(new Dimension(140,20));
-		sp2.addActionListener(this);
-		origin.add(sp2);*/
-		sprite = new ResourceMenu((byte) 0, 140);
+
+		sprite = new ResourceMenu(Resource.SPRITE, 144);
 		origin.add(sprite);
 		newsprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
 		newsprite.setPreferredSize(new Dimension(80,20));
@@ -156,27 +157,13 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		lab = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		parent = new JComboBox(LGM.currentFile.gmObjects.toArray());
-		parent.insertItemAt("<no parent>",0);
-		parent.setPreferredSize(new Dimension(110,20));
-		GmObject p = LGM.currentFile.gmObjects.get(res.parent);
-		if (p == null)
-			parent.setSelectedIndex(0);
-		else
-			parent.setSelectedItem(p);
+		parent = new ResourceMenu(Resource.GMOBJECT, 110);
 		side1.add(parent);
 
 		lab = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		mask = new JComboBox(LGM.currentFile.sprites.toArray());
-		mask.insertItemAt("<same as sprite>",0);
-		mask.setPreferredSize(new Dimension(110,20));
-		s = LGM.currentFile.sprites.get(res.sprite);
-		if (s == null)
-			mask.setSelectedIndex(0);
-		else
-			mask.setSelectedItem(s);
+		mask = new ResourceMenu(Resource.SPRITE,110);
 		side1.add(mask);
 
 		addGap(side1,160,4);

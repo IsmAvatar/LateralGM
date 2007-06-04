@@ -39,13 +39,12 @@ public class ResourceMenu extends JPanel implements MouseListener
 		label = new JLabel("Resource");
 		label.setBorder(BorderFactory.createEtchedBorder());
 		label.addMouseListener(this);
-		label.setPreferredSize(new Dimension(width - 50,20));
+		label.setPreferredSize(new Dimension(width - 20,20));
 		add(label);
 		button = new JButton("B");
 		button.addMouseListener(this);
-		button.setPreferredSize(new Dimension(20,20));
+		button.setPreferredSize(new Dimension(20,19));
 		add(button);
-		setPreferredSize(new Dimension(width,20));
 
 		pm = new JPopupMenu();
 		pm.add(new JMenuItem("Item"));
@@ -58,8 +57,10 @@ public class ResourceMenu extends JPanel implements MouseListener
 			}
 		}
 
-	public void mouseClicked(MouseEvent arg0)
+	public void mouseClicked(MouseEvent e)
 		{
+		pm.show(e.getComponent(),e.getX(),e.getY());
+		pm.setLocation(e.getXOnScreen(),e.getYOnScreen());
 		pm.setVisible(true);
 		}
 
