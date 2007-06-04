@@ -25,7 +25,7 @@ public class BitmapHeader
 
 	private final int _bpp;
 
-	//private final TypeCompression _compression;
+	private final TypeCompression _compression;
 
 	// Can be 0 when compression == 0 (b/c size can be calculated then ?!)
 	private final long _imageSize;
@@ -53,9 +53,7 @@ public class BitmapHeader
 		_planes = pDec.readUInt2();
 		_bpp = pDec.readUInt2();
 
-		//_compression = TypeCompression.getType(pDec.readUInt4());
-		if (pDec.readUInt4() != 0)
-			throw new IllegalArgumentException("RLE compressed bitmaps are not supported");
+		_compression = TypeCompression.getType(pDec.readUInt4());
 
 		_imageSize = pDec.readUInt4();
 		_xPixelsPerM = pDec.readUInt4();
@@ -105,10 +103,10 @@ public class BitmapHeader
 	 * @return Compression type.
 	 * @see TypeCompression
 	 */
-	/*public TypeCompression getCompression()
+	public TypeCompression getCompression()
 	 {
 	 return _compression;
-	 }*/
+	 }
 
 	/**
 	 * Bitmap height. Note: It seems the mask gets reported as well, so divide

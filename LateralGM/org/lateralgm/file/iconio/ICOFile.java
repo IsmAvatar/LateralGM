@@ -274,25 +274,25 @@ public class ICOFile implements Comparable
 		switch (lBitsPerPixel)
 			{
 			// Palette style
-			/*case 1:
+			case 1:
 			 lBitmap = new BitmapIndexed1BPP(pDescriptor);
 			 break;
 			 case 4:
 			 lBitmap = new BitmapIndexed4BPP(pDescriptor);
-			 break;*/
+			 break;
 			case 8:
 				lBitmap = new BitmapIndexed8BPP(pDescriptor);
 				break;
 
 			// RGB style
-			/*case 16:
+			case 16:
 			 return null;
 			 case 24:
 			 lBitmap = new BitmapRGB24BPP(pDescriptor);
 			 break;
 			 case 32:
 			 lBitmap = new BitmapRGB32BPP(pDescriptor);
-			 break;*/
+			 break;
 
 			default:
 				throw new IllegalArgumentException("Unsupported bit count " + lBitsPerPixel);
