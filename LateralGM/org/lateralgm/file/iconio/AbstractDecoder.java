@@ -4,9 +4,9 @@ import java.io.IOException;
 
 /**
  * <p>
- * Byte stream decoder for 1, 2, and 4 byte values in big or little endian
- * format.
+ * Byte stream decoder for 1, 2, and 4 byte values in big or little endian format.
  * </p>
+ * 
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public abstract class AbstractDecoder
@@ -18,12 +18,12 @@ public abstract class AbstractDecoder
 	public static final int LITTLE_ENDIAN = 1;
 
 	/** Determines the byte order in multi byte values. */
-	private int _endianness = BIG_ENDIAN;
+	private int endianness = BIG_ENDIAN;
 
-	protected long _pos;
+	protected long pos;
 
 	/** Static buffer to read values w/o allocating an array every time. */
-	private final byte[] _readBuf = new byte[4];
+	private final byte[] readBuf = new byte[4];
 
 	/**
 	 * @return A one byte value (aka BYTE, unsigned char)
@@ -53,14 +53,13 @@ public abstract class AbstractDecoder
 		}
 
 	/**
-	 * @param pEndianess
-	 *            The byte order
+	 * @param pEndianess The byte order
 	 * @see #BIG_ENDIAN
 	 * @see #LITTLE_ENDIAN
 	 */
 	public void setEndianess(final int pEndianess)
 		{
-		_endianness = pEndianess;
+		endianness = pEndianess;
 		}
 
 	/**
@@ -68,24 +67,21 @@ public abstract class AbstractDecoder
 	 */
 	public long getPos()
 		{
-		return _pos;
+		return pos;
 		}
 
 	/**
-	 * @param pPos
-	 *            Position to advance to. Nothing will happen if the position
-	 *            has already been passed.
+	 * @param pPos Position to advance to. Nothing will happen if the position has already been
+	 *          passed.
 	 * @throws java.io.IOException
 	 */
 	public abstract void seek(long pPos) throws IOException;
 
 	/**
 	 * Implemented by a specific decoder.
-	 * @param pBytes
-	 *            Bytes to read
-	 * @param pBuffer
-	 *            The buffer to write the read bytes to. If null, a buffer is
-	 *            reserved.
+	 * 
+	 * @param pBytes Bytes to read
+	 * @param pBuffer The buffer to write the read bytes to. If null, a buffer is reserved.
 	 * @return Array with the bytes read.
 	 * @throws java.io.IOException
 	 */
@@ -93,20 +89,20 @@ public abstract class AbstractDecoder
 
 	protected long readValue(final int pBytes) throws IOException
 		{
-		readBytes(pBytes,_readBuf);
+		readBytes(pBytes,readBuf);
 		if (pBytes == 1)
 			{
 			// Shortcut: endianness plays no role here.
-			return _readBuf[0] & 0xFF;
+			return readBuf[0] & 0xFF;
 			}
 
 		long lValue = 0;
-		if (_endianness == BIG_ENDIAN)
+		if (endianness == BIG_ENDIAN)
 			{
 			for (int lByteNo = 0; lByteNo < pBytes; lByteNo++)
 				{
 				lValue <<= 8;
-				lValue += _readBuf[lByteNo] & 0xff;
+				lValue += readBuf[lByteNo] & 0xff;
 				}
 			}
 		else
@@ -114,7 +110,7 @@ public abstract class AbstractDecoder
 			for (int lByteNo = pBytes - 1; lByteNo >= 0; lByteNo--)
 				{
 				lValue <<= 8;
-				lValue += _readBuf[lByteNo] & 0xff;
+				lValue += readBuf[lByteNo] & 0xff;
 				}
 			}
 
@@ -123,6 +119,7 @@ public abstract class AbstractDecoder
 
 	/**
 	 * Call when done with decoder.
+	 * 
 	 * @throws IOException
 	 */
 	public abstract void close() throws IOException;

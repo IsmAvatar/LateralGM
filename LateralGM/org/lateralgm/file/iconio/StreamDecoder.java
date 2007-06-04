@@ -3,26 +3,27 @@ package org.lateralgm.file.iconio;
 import java.io.IOException;
 import java.io.InputStream;
 
-
 /**
  * <p>
  * File decoder based on InputStream (Chris' implementation).
  * </p>
+ * 
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public class StreamDecoder extends AbstractDecoder
 	{
-	private final InputStream _stream;
+	private final InputStream stream;
 
 	/**
-	 * Create a BIG_ENDIAN file decoder. See
-	 * {@link AbstractDecoder#setEndianess}to change the default behavior.
+	 * Create a BIG_ENDIAN file decoder. See {@link AbstractDecoder#setEndianess}to change the
+	 * default behavior.
+	 * 
 	 * @param pStream
 	 */
 	public StreamDecoder(final InputStream pStream)
 		{
 		super();
-		_stream = pStream;
+		stream = pStream;
 		}
 
 	public void seek(final long pBytes) throws IOException
@@ -30,12 +31,12 @@ public class StreamDecoder extends AbstractDecoder
 		final long lSkip = pBytes - getPos();
 		if (lSkip >= 0)
 			{
-			final long lBytesSkipped = _stream.skip(lSkip);
+			final long lBytesSkipped = stream.skip(lSkip);
 			if (lBytesSkipped != lSkip)
 				{
 				throw new IOException("Tried to skip " + lSkip + ", but skipped " + lBytesSkipped);
 				}
-			_pos += lSkip;
+			pos += lSkip;
 			}
 		else
 			{
@@ -59,13 +60,13 @@ public class StreamDecoder extends AbstractDecoder
 				}
 			}
 
-		final int lBytesRead = _stream.read(lBuffer,0,(int) pBytes);
+		final int lBytesRead = stream.read(lBuffer,0,(int) pBytes);
 		if (lBytesRead != pBytes)
 			{
 			throw new IOException("Tried to read " + pBytes + " bytes, but obtained " + lBytesRead);
 			}
 
-		_pos += pBytes;
+		pos += pBytes;
 
 		return lBuffer;
 		}
@@ -76,6 +77,6 @@ public class StreamDecoder extends AbstractDecoder
 	 */
 	public void close() throws IOException
 		{
-		_stream.close();
+		stream.close();
 		}
 	}

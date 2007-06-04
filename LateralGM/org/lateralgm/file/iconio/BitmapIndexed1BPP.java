@@ -2,19 +2,19 @@ package org.lateralgm.file.iconio;
 
 import java.io.IOException;
 
-
 /**
  * <p>
- * Bitmap with 2 color palette (black and white icon). Not tested, but seems to
- * work.
+ * Bitmap with 2 color palette (black and white icon). Not tested, but seems to work.
  * </p>
  * <p>
+ * 
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public class BitmapIndexed1BPP extends AbstractBitmapIndexed
 	{
 	/**
 	 * Create a 1BPP bitmap.
+	 * 
 	 * @param pDescriptor
 	 */
 	public BitmapIndexed1BPP(final BitmapDescriptor pDescriptor)
@@ -34,7 +34,7 @@ public class BitmapIndexed1BPP extends AbstractBitmapIndexed
 			int lPixelNo = (getHeight() - 1 - lRowNo) * getWidth();
 			for (int lColNo = 0; lColNo < getWidth(); lColNo++)
 				{
-				_pixels[lPixelNo++] = ((lBitmapBytes[lBitmapByteNo] & lTestBitMask) / lTestBitMask) & 0xFF;
+				pixels[lPixelNo++] = ((lBitmapBytes[lBitmapByteNo] & lTestBitMask) / lTestBitMask) & 0xFF;
 
 				if (lTestBitMask == 0x01)
 					{

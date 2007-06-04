@@ -69,7 +69,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 
 		JPanel side1 = new JPanel(new FlowLayout());
 		side1.setPreferredSize(new Dimension(180,280));
-		//		side1.setMaximumSize(new Dimension(180,Integer.MAX_VALUE));
+		side1.setMaximumSize(new Dimension(180,Integer.MAX_VALUE));
 
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.NAME")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(160,14));

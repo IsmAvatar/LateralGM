@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -261,10 +262,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 
 	public static JList addActionPane(JComponent container)
 		{
-		JPanel pane = new JPanel();
 		JPanel side3 = new JPanel(new BorderLayout());
-		side3.setMinimumSize(new Dimension(0,0));
-		side3.setPreferredSize(new Dimension(100,260));
+		side3.setPreferredSize(new Dimension(100,319));
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.ACTIONS")); //$NON-NLS-1$
 		side3.add(lab,"North");
 		JList list = new JList();
@@ -272,10 +271,9 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		side3.add(scroll,"Center");
 
 		JTabbedPane side4 = GmObjectFrame.makeLibraryTabs();
-		side4.setPreferredSize(new Dimension(165,260)); //319
-
-		pane.add(side3);
-		pane.add(side4);
+		side4.setPreferredSize(new Dimension(165,319)); //319
+		container.add(side3);
+		container.add(side4);
 		return list;
 		}
 
@@ -286,7 +284,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 
 		for (Library l : LibManager.libs)
 			{
-			if (l.advanced) continue;
 			JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT,0,0));
 			for (LibAction la : l.libActions)
 				{

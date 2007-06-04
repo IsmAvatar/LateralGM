@@ -200,8 +200,16 @@ public final class Gm6FileReader
 		int length = in.read4();
 		f.gameIconData = new byte[length];
 		in.read(f.gameIconData,0,length);
-		f.gameIcon = (BufferedImage) new ICOFile(new ByteArrayInputStream(f.gameIconData)).getDescriptor(
-				0).getImageRGB();
+		try
+			{
+			f.gameIcon = (BufferedImage) new ICOFile(new ByteArrayInputStream(f.gameIconData)).getDescriptor(
+					0).getImageRGB();
+			}
+		catch (Exception e)
+			{
+			// hopefully this won't happen
+			e.printStackTrace();
+			}
 
 		f.displayErrors = in.readBool();
 		f.writeToLog = in.readBool();

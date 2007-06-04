@@ -5,13 +5,13 @@ import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 import java.io.IOException;
 
-
 /**
  * <p>
- * Parent class for indexed bitmaps (1, 4, and 8 bits per pixel). The value of a
- * pixel refers to an entry in the color palette. The bitmap has a mask which is
- * a 1 BPP bitmap specifiying whether a pixel is transparent or opaque.
+ * Parent class for indexed bitmaps (1, 4, and 8 bits per pixel). The value of a pixel refers to an
+ * entry in the color palette. The bitmap has a mask which is a 1 BPP bitmap specifiying whether a
+ * pixel is transparent or opaque.
  * </p>
+ * 
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public abstract class AbstractBitmapIndexed extends AbstractBitmap
@@ -20,33 +20,33 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 	private static final int OPAQUE = 255;
 
 	/**
-	 * The color palette. Refered to by the pixel values. The size is expected
-	 * to be 2^BPP, but see getVerifiedColorCount() for a discussion of this.
+	 * The color palette. Refered to by the pixel values. The size is expected to be 2^BPP, but see
+	 * getVerifiedColorCount() for a discussion of this.
 	 */
-	private Color[] _colorPalette;
+	private Color[] colorPalette;
 
 	/** The pixel values. The value refers to an entry in the color palette. */
-	protected int[] _pixels;
+	protected int[] pixels;
 
-	private BitmapMask _transparencyMask;
+	private BitmapMask transparencyMask;
 
 	/**
 	 * Create a bitmap with a color table and a mask.
-	 * @param pDescriptor
-	 *            The descriptor.
+	 * 
+	 * @param pDescriptor The descriptor.
 	 */
 	public AbstractBitmapIndexed(final BitmapDescriptor pDescriptor)
 		{
 		super(pDescriptor);
 
-		_pixels = new int[getWidth() * getHeight()];
+		pixels = new int[getWidth() * getHeight()];
 		}
 
 	/**
-	 * Needed to be replaced for indexed images because they contain a color
-	 * palette and a mask which needs to be read as well.
-	 * @param pDec
-	 *            The decoder.
+	 * Needed to be replaced for indexed images because they contain a color palette and a mask which
+	 * needs to be read as well.
+	 * 
+	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
 	void read(final AbstractDecoder pDec) throws IOException
@@ -57,14 +57,13 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 		}
 
 	/**
-	 * @param pDec
-	 *            The decoder.
+	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
 	private void readColorPalette(final AbstractDecoder pDec) throws IOException
 		{
 		final int lColorCount = getVerifiedColorCount();
-		_colorPalette = new Color[lColorCount];
+		colorPalette = new Color[lColorCount];
 		for (int lColorNo = 0; lColorNo < lColorCount; lColorNo++)
 			{
 			setColor(lColorNo,readColor(pDec));
@@ -83,35 +82,34 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 		}
 
 	/**
-	 * This functions is needed b/c all classes read the bitmap, but not always
-	 * a color table and a mask.
-	 * @param pDec
-	 *            The decoder.
+	 * This functions is needed b/c all classes read the bitmap, but not always a color table and a
+	 * mask.
+	 * 
+	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
 	abstract void readBitmap(final AbstractDecoder pDec) throws IOException;
 
 	/**
-	 * @param pDec
-	 *            The decoder.
+	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
 	private void readMask(final AbstractDecoder pDec) throws IOException
 		{
-		_transparencyMask = new BitmapMask(_descriptor);
-		_transparencyMask.read(pDec);
+		transparencyMask = new BitmapMask(descriptor);
+		transparencyMask.read(pDec);
 		}
 
 	/**
-	 * Thanks to eml@ill.com for pointing out that official color count might
-	 * not be what it should: 2^BPP specifies the miminum size for the color
-	 * palette!
+	 * Thanks to eml@ill.com for pointing out that official color count might not be what it should:
+	 * 2^BPP specifies the miminum size for the color palette!
+	 * 
 	 * @return The verified color count.
 	 */
 	private int getVerifiedColorCount()
 		{
 		int lColorCount = getColorCount();
-		final int lColorCount2 = 1 << _descriptor.getBPP();
+		final int lColorCount2 = 1 << descriptor.getBPP();
 		if (lColorCount < lColorCount2)
 			{
 			lColorCount = lColorCount2;
@@ -121,10 +119,9 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 
 	/**
 	 * Return bytes per scan line rounded up to the next 4 byte boundary.
-	 * @param pWidth
-	 *            The image width.
-	 * @param pBPP
-	 *            Bytes per pixel.
+	 * 
+	 * @param pWidth The image width.
+	 * @param pBPP Bytes per pixel.
 	 * @return Bytes per scan line rounded up to the next 4 byte boundar.
 	 */
 	protected static int getBytesPerScanLine(final int pWidth, final int pBPP)
@@ -147,7 +144,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 		final IndexColorModel lModel = createColorModel();
 		final BufferedImage lImage = new BufferedImage(getWidth(),getHeight(),
 				BufferedImage.TYPE_BYTE_INDEXED,lModel);
-		lImage.getRaster().setSamples(0,0,getWidth(),getHeight(),0,_pixels);
+		lImage.getRaster().setSamples(0,0,getWidth(),getHeight(),0,pixels);
 		return lImage;
 		}
 
@@ -190,7 +187,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 			for (int lXPos = 0; lXPos < getWidth(); lXPos++)
 				{
 				int lRGB = getColor(lXPos,lYPos).getRGB();
-				if (_transparencyMask.isOpaque(lXPos,lYPos))
+				if (transparencyMask.isOpaque(lXPos,lYPos))
 					{
 					// Visible (sic), set alpha to opaque
 					lRGB |= 0xFF000000;
@@ -209,10 +206,9 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 
 	/**
 	 * Get the color for the specified point.
-	 * @param pXPos
-	 *            The x position.
-	 * @param pYPos
-	 *            The y position.
+	 * 
+	 * @param pXPos The x position.
+	 * @param pYPos The y position.
 	 * @return Color of the selected point.
 	 */
 	public Color getColor(final int pXPos, final int pYPos)
@@ -222,21 +218,20 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 
 	/**
 	 * Index into the color palette for the specified point.
-	 * @param pXPos
-	 *            The x position.
-	 * @param pYPos
-	 *            The y position.
+	 * 
+	 * @param pXPos The x position.
+	 * @param pYPos The y position.
 	 * @return Palette index for pixel x, y
 	 */
 	public int getPaletteIndex(final int pXPos, final int pYPos)
 		{
-		return _pixels[pYPos * getWidth() + pXPos];
+		return pixels[pYPos * getWidth() + pXPos];
 		}
 
 	/**
 	 * Get the color for the specified color palette index.
-	 * @param pIndex
-	 *            of the color requested.
+	 * 
+	 * @param pIndex of the color requested.
 	 * @return Requested color.
 	 */
 	public Color getColor(final int pIndex)
@@ -246,17 +241,15 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 			throw new IllegalArgumentException("Color index out of range: is " + pIndex + ", max. "
 					+ getVerifiedColorCount());
 			}
-		return _colorPalette[pIndex];
+		return colorPalette[pIndex];
 		}
 
 	/**
-	 * @param pIndex
-	 *            Color index.
-	 * @param pColor
-	 *            Color to set.
+	 * @param pIndex Color index.
+	 * @param pColor Color to set.
 	 */
 	private void setColor(final int pIndex, final Color pColor)
 		{
-		_colorPalette[pIndex] = pColor;
+		colorPalette[pIndex] = pColor;
 		}
 	}

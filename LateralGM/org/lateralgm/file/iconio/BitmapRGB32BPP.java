@@ -4,7 +4,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 /**
- * <p> ARGB bitmap with 8 bits per color (32 bits per sample). </p>
+ * <p>
+ * ARGB bitmap with 8 bits per color (32 bits per sample).
+ * </p>
  * 
  * @author &copy; Christian Treber, ct@ctreber.com
  */
@@ -35,7 +37,7 @@ public class BitmapRGB32BPP extends AbstractBitmapRGB
 			for (int lColNo = 0; lColNo < getWidth(); lColNo++)
 				{
 				// BGRA -> ARGB, 8 bits per component.
-				_samples[lOutputPos++] = lRow[lRowByte++] + (lRow[lRowByte++] << 8)
+				samples[lOutputPos++] = lRow[lRowByte++] + (lRow[lRowByte++] << 8)
 						+ (lRow[lRowByte++] << 16) + (lRow[lRowByte++] << 24);
 				}
 			}
@@ -48,7 +50,7 @@ public class BitmapRGB32BPP extends AbstractBitmapRGB
 		{
 		final BufferedImage lImage = new BufferedImage(getWidth(),getHeight(),
 				BufferedImage.TYPE_INT_ARGB);
-		lImage.setRGB(0,0,getWidth(),getHeight(),_samples,0,getWidth());
+		lImage.setRGB(0,0,getWidth(),getHeight(),samples,0,getWidth());
 
 		return lImage;
 		}
