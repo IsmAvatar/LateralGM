@@ -18,6 +18,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -139,56 +140,10 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			}
 		else
 			{
-			JPanel side3 = new JPanel(new BorderLayout());
-			side3.setMinimumSize(new Dimension(0,0));
-			side3.setPreferredSize(new Dimension(100,260));
-			lab = new JLabel(Messages.getString("TimelineFrame.ACTIONS")); //$NON-NLS-1$
-			side3.add(lab,"North");
-			actions = new JList();
-			scroll = new JScrollPane(actions);
-			side3.add(scroll,"Center");
-
-			JTabbedPane side4 = getLibraryTabs();
-			side4.setPreferredSize(new Dimension(165,260)); //319
-
-			add(side3);
-			add(side4);
+			actions = GmObjectFrame.addActionPane(this);
 			}
-		}
 
-	//possibly extract to some place like resources.library.LibManager
-	public JTabbedPane getLibraryTabs()
-		{
-		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
-		for (Library l : LibManager.libs)
-			{
-			//if (l.advanced) continue;
-			JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT,0,0));
-			for (LibAction la : l.libActions)
-				{
-				if (la.hidden || la.actionKind == Action.ACT_SEPARATOR) continue;
-				if (la.advanced && !la.advanced) continue;
-				JLabel b;
-				if (la.actionKind == Action.ACT_LABEL)
-					{
-					b = new JLabel();
-					b.setBorder(BorderFactory.createTitledBorder(la.name));
-					b.setPreferredSize(new Dimension(90,14));
-					p.add(b);
-					continue;
-					}
-				if (la.actionKind == Action.ACT_PLACEHOLDER)
-					b = new JLabel();
-				else
-					b = new JLabel(new ImageIcon(org.lateralgm.main.Util.getTransparentIcon(la.actImage)));
-				b.setHorizontalAlignment(JLabel.LEFT);
-				b.setVerticalAlignment(JLabel.TOP);
-				b.setPreferredSize(new Dimension(32,32));
-				p.add(b);
-				}
-			tp.add(l.tabCaption,p);
-			}
-		return tp;
+		moments.setSelectedIndex(0);
 		}
 
 	@Override

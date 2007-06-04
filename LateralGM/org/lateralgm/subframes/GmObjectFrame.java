@@ -23,6 +23,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -209,7 +210,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			scroll = new JScrollPane(actions);
 			side3.add(scroll,"Center");
 
-			JTabbedPane side4 = getLibraryTabs();
+			JTabbedPane side4 = makeLibraryTabs();
 			side4.setPreferredSize(new Dimension(165,260)); //319
 
 			add(side3);
@@ -258,8 +259,28 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		return tree;
 		}
 
+	public static JList addActionPane(JComponent container)
+		{
+		JPanel pane = new JPanel();
+		JPanel side3 = new JPanel(new BorderLayout());
+		side3.setMinimumSize(new Dimension(0,0));
+		side3.setPreferredSize(new Dimension(100,260));
+		JLabel lab = new JLabel(Messages.getString("TimelineFrame.ACTIONS")); //$NON-NLS-1$
+		side3.add(lab,"North");
+		JList list = new JList();
+		JScrollPane scroll = new JScrollPane(list);
+		side3.add(scroll,"Center");
+
+		JTabbedPane side4 = GmObjectFrame.makeLibraryTabs();
+		side4.setPreferredSize(new Dimension(165,260)); //319
+
+		pane.add(side3);
+		pane.add(side4);
+		return list;
+		}
+
 	//possibly extract to some place like resources.library.LibManager
-	public JTabbedPane getLibraryTabs()
+	public static JTabbedPane makeLibraryTabs()
 		{
 		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
 
