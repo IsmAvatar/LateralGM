@@ -8,8 +8,12 @@
 
 package org.lateralgm.resources.sub;
 
+import java.awt.event.KeyEvent;
+
 import org.lateralgm.main.LGM;
+import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResId;
+import org.lateralgm.messages.Messages;
 
 public class Event extends ActionContainer
 	{
@@ -108,9 +112,25 @@ public class Event extends ActionContainer
 
 	public String toString()
 		{
-		if (mainId != MainEvent.EV_COLLISION)
-		return "" + id;
-		else
-			return "collision with " + LGM.currentFile.gmObjects.get(other).getName();
+		switch (mainId)
+			{
+			case MainEvent.EV_ALARM:
+				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),id);
+			case MainEvent.EV_COLLISION:
+				GmObject obj = LGM.currentFile.gmObjects.get(other);
+				String name;
+				if (obj == null)
+					name = "<undefined>";
+				else
+					name = obj.getName();
+				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),name);
+			case MainEvent.EV_KEYBOARD:
+			case MainEvent.EV_KEYPRESS:
+			case MainEvent.EV_KEYRELEASE:
+				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),
+						KeyEvent.getKeyText(id));
+			default:
+				return Messages.getString("Event.EVENT" + mainId + "_" + id);
+			}
 		}
 	}

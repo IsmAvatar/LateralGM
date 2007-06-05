@@ -1,6 +1,10 @@
 /*
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au> This file is part of Lateral GM. Lateral GM is free
- * software and comes with ABSOLUTELY NO WARRANTY. See LICENSE for details.
+ * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free
+ * software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
  */
 
 package org.lateralgm.components;
@@ -43,11 +47,11 @@ public class BackgroundPreview extends AbstractImagePreview
 					Rectangle r = g.getClipBounds().intersection(
 							new Rectangle(hoffset,voffset,img.getWidth() - hoffset,img.getHeight() - voffset));
 
-					int newx = ((r.x - hoffset) / (width + hsep)) * (width + hsep) + hoffset; 
+					int newx = ((r.x - hoffset) / (width + hsep)) * (width + hsep) + hoffset;
 					r.width += r.x - newx;
 					r.x = newx;
 
-					int newy = ((r.y - voffset) / (height + vsep)) * (height + vsep) + voffset; 
+					int newy = ((r.y - voffset) / (height + vsep)) * (height + vsep) + voffset;
 					r.height += r.y - newy;
 					r.y = newy;
 
