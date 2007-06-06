@@ -40,7 +40,7 @@ import org.lateralgm.resources.Sprite;
 public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon frameIcon = LGM.getIconForKey("SpriteFrame.SPRITE"); //$NON-NLS-1$
+	private static ImageIcon frameIcon = Sprite.ICON[Sprite.SPRITE];
 	private static ImageIcon saveIcon = LGM.getIconForKey("SpriteFrame.SAVE"); //$NON-NLS-1$
 	private static ImageIcon loadIcon = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
 
@@ -440,8 +440,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public BufferedImage getSubimage()
 		{
-		if (res.noSubImages() > 0) return res.getSubImage(currSub);
-		return null;
+		return res.getSubImage(currSub);
 		}
 
 	public static Rectangle getCropBounds(BufferedImage img)

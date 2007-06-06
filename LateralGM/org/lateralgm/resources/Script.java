@@ -38,4 +38,9 @@ public class Script extends Resource
 			}
 		return scr;
 		}
+
+	public byte getKind()
+		{
+		return SCRIPT;
+		}
 	}

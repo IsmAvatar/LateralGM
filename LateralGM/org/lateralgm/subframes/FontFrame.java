@@ -32,7 +32,7 @@ import org.lateralgm.resources.Font;
 public class FontFrame extends ResourceFrame<Font>
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon frameIcon = LGM.getIconForKey("FontFrame.FONT"); //$NON-NLS-1$
+	private static ImageIcon frameIcon = Font.ICON[Font.FONT];
 	private static ImageIcon saveIcon = LGM.getIconForKey("FontFrame.SAVE"); //$NON-NLS-1$
 
 	public JComboBox fonts;

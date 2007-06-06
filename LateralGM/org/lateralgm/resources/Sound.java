@@ -113,4 +113,9 @@ public class Sound extends Resource
 			}
 		return snd;
 		}
+
+	public byte getKind()
+		{
+		return SOUND;
+		}
 	}

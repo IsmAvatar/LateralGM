@@ -123,7 +123,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		preview.setPreferredSize(new Dimension(16,16));
 		origin.add(preview);
 
-		sprite = new ResourceMenu(Resource.SPRITE, 144);
+		Resource sel = LGM.currentFile.sprites.get(res.sprite);
+		sprite = new ResourceMenu(sel,"<no sprite>",144);
 		origin.add(sprite);
 		newsprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
 		newsprite.setPreferredSize(new Dimension(80,20));
@@ -159,13 +160,15 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		lab = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		parent = new ResourceMenu(Resource.GMOBJECT, 110);
+		sel = LGM.currentFile.gmObjects.get(res.parent);
+		parent = new ResourceMenu(sel,"<no parent>",110);
 		side1.add(parent);
 
 		lab = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		mask = new ResourceMenu(Resource.SPRITE,110);
+		sel = LGM.currentFile.sprites.get(res.mask);
+		mask = new ResourceMenu(sel,"<same as sprite>",110);
 		side1.add(mask);
 
 		addGap(side1,160,4);

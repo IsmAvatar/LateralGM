@@ -73,4 +73,9 @@ public class Timeline extends Resource
 			}
 		return time;
 		}
+
+	public byte getKind()
+		{
+		return TIMELINE;
+		}
 	}

@@ -42,7 +42,7 @@ import org.lateralgm.resources.Sound;
 public class SoundFrame extends ResourceFrame<Sound>
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon frameIcon = LGM.getIconForKey("SoundFrame.SOUND"); //$NON-NLS-1$
+	private static ImageIcon frameIcon = Sound.ICON[Sound.SOUND];
 	private static ImageIcon loadIcon = LGM.getIconForKey("SoundFrame.LOAD"); //$NON-NLS-1$
 	private static ImageIcon playIcon = LGM.getIconForKey("SoundFrame.PLAY"); //$NON-NLS-1$
 	private static ImageIcon stopIcon = LGM.getIconForKey("SoundFrame.STOP"); //$NON-NLS-1$

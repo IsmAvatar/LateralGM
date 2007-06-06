@@ -33,11 +33,7 @@ import org.lateralgm.resources.Background;
 public class BackgroundFrame extends ResourceFrame<Background>
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon frameIcon;
-	static
-		{
-		frameIcon = LGM.getIconForKey("BackgroundFrame.BACKGROUND"); //$NON-NLS-1$
-		}
+	private static ImageIcon frameIcon = Background.ICON[Background.BACKGROUND];
 	private static ImageIcon loadIcon = LGM.getIconForKey("BackgroundFrame.LOAD"); //$NON-NLS-1$
 	private static ImageIcon saveIcon = LGM.getIconForKey("BackgroundFrame.SAVE"); //$NON-NLS-1$
 	public JButton load;

@@ -15,23 +15,19 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.lateralgm.main.LGM;
+import org.lateralgm.resources.Resource;
 
 public class GmTreeGraphics extends DefaultTreeCellRenderer
 	{
 	private ResNode last;
-	private Icon[] kindIcons;
 	private static final long serialVersionUID = 1L;
 
 	public GmTreeGraphics()
 		{
 		super();
-		setOpenIcon(LGM.findIcon("restree/group-open.png"));
-		setClosedIcon(LGM.findIcon("restree/group.png"));
+		setOpenIcon(LGM.getIconForKey("GmTreeGraphics.GROUP_OPEN")); //$NON-NLS-1$
+		setClosedIcon(LGM.getIconForKey("GmTreeGraphics.GROUP")); //$NON-NLS-1$
 		setLeafIcon(getClosedIcon());
-		kindIcons = new Icon[LGM.kinds.length];
-		for (int i = 0; i < kindIcons.length; i++)
-			kindIcons[i] = LGM.kinds[i] == "" ? null : LGM.findIcon("restree/"
-					+ LGM.kinds[i].toLowerCase() + ".png");
 		}
 
 	public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel, boolean exp,
@@ -44,14 +40,14 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 
 	public Icon getLeafIcon()
 		{
-		if (last.status == ResNode.STATUS_SECONDARY) return kindIcons[last.kind];
+		if (last.status == ResNode.STATUS_SECONDARY) return Resource.ICON[last.kind];
 		return getClosedIcon();
 		}
 
 	public Icon getNodeIcon(JTree tree, Object val, boolean sel, boolean exp, boolean leaf, int row)
 		{
 		ResNode node = (ResNode) val;
-		if (leaf) if (node.status == ResNode.STATUS_SECONDARY) return kindIcons[node.kind];
+		if (leaf) if (node.status == ResNode.STATUS_SECONDARY) return Resource.ICON[node.kind];
 		if (exp) return getOpenIcon();
 		return getClosedIcon();
 		}

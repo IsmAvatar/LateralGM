@@ -76,4 +76,9 @@ public class Background extends Resource
 			}
 		return back;
 		}
+
+	public byte getKind()
+		{
+		return BACKGROUND;
+		}
 	}

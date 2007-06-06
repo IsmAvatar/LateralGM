@@ -152,4 +152,9 @@ public class Sprite extends Resource
 			}
 		return spr;
 		}
+
+	public byte getKind()
+		{
+		return SPRITE;
+		}
 	}

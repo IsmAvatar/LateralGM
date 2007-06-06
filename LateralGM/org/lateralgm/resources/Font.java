@@ -48,4 +48,9 @@ public class Font extends Resource
 			}
 		return font;
 		}
+
+	public byte getKind()
+		{
+		return FONT;
+		}
 	}

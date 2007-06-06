@@ -275,4 +275,9 @@ public class Room extends Resource
 			}
 		return rm;
 		}
+
+	public byte getKind()
+		{
+		return ROOM;
+		}
 	}

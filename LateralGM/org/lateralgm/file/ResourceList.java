@@ -79,6 +79,7 @@ public class ResourceList<R extends Resource>
 		return null;
 		}
 
+	/** May return null */
 	public R get(ResId id)
 		{
 		int listIndex = index(id);
@@ -86,6 +87,7 @@ public class ResourceList<R extends Resource>
 		return null;
 		}
 
+	/** May return null */
 	public R get(String name)
 		{
 		int listIndex = index(name);

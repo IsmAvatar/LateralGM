@@ -88,4 +88,9 @@ public class Path extends Resource
 			}
 		return path;
 		}
+
+	public byte getKind()
+		{
+		return PATH;
+		}
 	}

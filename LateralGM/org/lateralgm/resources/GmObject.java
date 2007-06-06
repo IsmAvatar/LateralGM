@@ -84,4 +84,9 @@ public class GmObject extends Resource
 			}
 		return obj;
 		}
+
+	public byte getKind()
+		{
+		return GMOBJECT;
+		}
 	}

@@ -21,11 +21,13 @@
 
 package org.lateralgm.resources;
 
+import javax.swing.ImageIcon;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 import org.lateralgm.file.ResourceList;
+import org.lateralgm.main.LGM;
 
 //TODO Implement Resource.equals method
 public abstract class Resource implements Comparable<Resource>
@@ -42,6 +44,22 @@ public abstract class Resource implements Comparable<Resource>
 
 	public static final byte GAMEINFO = 10;
 	public static final byte GAMESETTINGS = 11;
+
+	public static final ImageIcon[] ICON = new ImageIcon[13];
+	static
+		{
+		ICON[SPRITE] = LGM.getIconForKey("Resource.SPRITE");
+		ICON[SOUND] = LGM.getIconForKey("Resource.SOUND");
+		ICON[BACKGROUND] = LGM.getIconForKey("Resource.BACKGROUND");
+		ICON[PATH] = LGM.getIconForKey("Resource.PATH");
+		ICON[SCRIPT] = LGM.getIconForKey("Resource.SCRIPT");
+		ICON[FONT] = LGM.getIconForKey("Resource.FONT");
+		ICON[TIMELINE] = LGM.getIconForKey("Resource.TIMELINE");
+		ICON[GMOBJECT] = LGM.getIconForKey("Resource.GMOBJECT");
+		ICON[ROOM] = LGM.getIconForKey("Resource.ROOM");
+		ICON[GAMEINFO] = LGM.getIconForKey("Resource.GAMEINFO");
+		ICON[GAMESETTINGS] = LGM.getIconForKey("Resource.GAMESETTINGS");
+		}
 
 	EventListenerList listenerList = new EventListenerList();
 	ChangeEvent changeEvent = null;
@@ -105,6 +123,8 @@ public abstract class Resource implements Comparable<Resource>
 
 	@SuppressWarnings("unchecked")
 	public abstract Resource copy(boolean update, ResourceList src);
+
+	public abstract byte getKind();
 
 	public String toString()
 		{
