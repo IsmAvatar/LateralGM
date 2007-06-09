@@ -204,6 +204,7 @@ public class LGM extends JPanel
 		// .setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
 		mdi.add(gameSet);
 		mdi.add(gameInfo);
+		if (eventSelect == null) eventSelect = new EventFrame();
 		mdi.add(eventSelect);
 		// gameInfo.setVisible(true);
 		}
@@ -223,7 +224,6 @@ public class LGM extends JPanel
 			}
 		gameInfo = new GameInformationFrame();
 		gameSet = new GameSettingFrame();
-		eventSelect = new EventFrame();
 		}
 
 	public static void main(String[] args)
