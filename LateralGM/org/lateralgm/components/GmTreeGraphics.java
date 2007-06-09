@@ -9,13 +9,18 @@
 package org.lateralgm.components;
 
 import java.awt.Component;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.Sprite;
 
 public class GmTreeGraphics extends DefaultTreeCellRenderer
 	{
@@ -38,9 +43,52 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		return this;
 		}
 
+	public static ImageIcon getBlankIcon()
+		{
+		return new ImageIcon(Util.getTransparentIcon(new BufferedImage(16,16,
+				BufferedImage.TYPE_3BYTE_BGR)));
+		}
+
+	public static Icon getSpriteIcon(Sprite s)
+		{
+		if (s == null) return getBlankIcon();
+		BufferedImage bi = s.getSubImage(0);
+		if (bi == null) return getBlankIcon();
+		Image i = bi;
+		if (s.transparent) i = Util.getTransparentIcon(bi);
+
+		if (true)
+			{
+			int w = bi.getWidth();
+			int h = bi.getHeight();
+
+			int m;
+			if (false)
+				m = Math.max(w,h); //GM's scaling - needs stretching
+			else
+				m = Math.min(w,h); //Needs clipping
+
+			i = i.getScaledInstance((w * 16) / m,(h * 16) / m,BufferedImage.SCALE_DEFAULT);
+			}
+		else
+			{
+			i = i.getScaledInstance(16,16,Image.SCALE_DEFAULT); //scale to 16x16 only
+			}
+
+		return new ImageIcon(i);
+		}
+
 	public Icon getLeafIcon()
 		{
-		if (last.status == ResNode.STATUS_SECONDARY) return Resource.ICON[last.kind];
+		if (last.status == ResNode.STATUS_SECONDARY)
+			{
+			if (last.kind == Resource.SPRITE)
+				{
+				Sprite s = LGM.currentFile.sprites.get(last.resourceId);
+				return getSpriteIcon(s);
+				}
+			return Resource.ICON[last.kind];
+			}
 		return getClosedIcon();
 		}
 

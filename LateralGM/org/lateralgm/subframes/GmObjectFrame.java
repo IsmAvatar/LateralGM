@@ -15,7 +15,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -38,11 +37,11 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.GMLTextArea;
+import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
@@ -79,14 +78,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public JList actions;
 	public GMLTextArea code;
 
-	/* // For future reference, when ResoruceMenu is more complete
-	s = LGM.currentFile.sprites.get(res.sprite);
-	if (s == null)
-		mask.setSelectedIndex(0);
-	else
-		mask.setSelectedItem(s);
-	*/
-
 	public GmObjectFrame(GmObject res, ResNode node)
 		{
 		super(res,node);
@@ -110,21 +101,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		origin.setBorder(BorderFactory.createTitledBorder(t));
 		origin.setPreferredSize(new Dimension(180,80));
 		Sprite s = LGM.currentFile.sprites.get(res.sprite);
-		ImageIcon ii = null;
-		if (s != null)
-			{
-			BufferedImage bi = s.getSubImage(0);
-			if (s.transparent)
-				ii = new ImageIcon(Util.getTransparentIcon(bi));
-			else
-				ii = new ImageIcon(bi);
-			}
-		preview = new JLabel(ii);
+		preview = new JLabel(GmTreeGraphics.getSpriteIcon(s));
 		preview.setPreferredSize(new Dimension(16,16));
 		origin.add(preview);
 
-		Resource sel = LGM.currentFile.sprites.get(res.sprite);
-		sprite = new ResourceMenu(sel,"<no sprite>",144);
+		sprite = new ResourceMenu(Resource.SPRITE,"<no sprite>",144);
+		sprite.setSelected(LGM.currentFile.sprites.get(res.sprite));
 		origin.add(sprite);
 		newsprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
 		newsprite.setPreferredSize(new Dimension(80,20));
@@ -160,15 +142,15 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		lab = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		sel = LGM.currentFile.gmObjects.get(res.parent);
-		parent = new ResourceMenu(sel,"<no parent>",110);
+		parent = new ResourceMenu(Resource.GMOBJECT,"<no parent>",110);
+		parent.setSelected(LGM.currentFile.gmObjects.get(res.parent));
 		side1.add(parent);
 
 		lab = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		sel = LGM.currentFile.sprites.get(res.mask);
-		mask = new ResourceMenu(sel,"<same as sprite>",110);
+		mask = new ResourceMenu(Resource.SPRITE,"<same as sprite>",110);
+		mask.setSelected(LGM.currentFile.sprites.get(res.mask));
 		side1.add(mask);
 
 		addGap(side1,160,4);
