@@ -56,6 +56,7 @@ import org.lateralgm.file.Gm6File;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibManager;
+import org.lateralgm.subframes.EventFrame;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 
@@ -70,6 +71,7 @@ public class LGM extends JPanel
 	public static JDesktopPane mdi;
 	public static GameInformationFrame gameInfo;
 	public static GameSettingFrame gameSet;
+	public static EventFrame eventSelect;
 	public static String[] kinds = { "", //$NON-NLS-1$
 			"Object","Sprite","Sound","Room", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 			"","Background","Script","Path", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
@@ -202,6 +204,7 @@ public class LGM extends JPanel
 		// .setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
 		mdi.add(gameSet);
 		mdi.add(gameInfo);
+		mdi.add(eventSelect);
 		// gameInfo.setVisible(true);
 		}
 
@@ -220,7 +223,7 @@ public class LGM extends JPanel
 			}
 		gameInfo = new GameInformationFrame();
 		gameSet = new GameSettingFrame();
-
+		eventSelect = new EventFrame();
 		}
 
 	public static void main(String[] args)

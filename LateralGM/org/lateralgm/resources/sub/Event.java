@@ -10,6 +10,7 @@ package org.lateralgm.resources.sub;
 
 import java.awt.event.KeyEvent;
 
+import org.lateralgm.components.EventKeyInput;
 import org.lateralgm.main.LGM;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResId;
@@ -128,7 +129,13 @@ public class Event extends ActionContainer
 			case MainEvent.EV_KEYPRESS:
 			case MainEvent.EV_KEYRELEASE:
 				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),
-						KeyEvent.getKeyText(id));
+						EventKeyInput.getGmKeyName(id));
+			case MainEvent.EV_OTHER:
+				if (id >= Event.EV_USER0)
+					return String.format(Messages.getString("Event.Event" + mainId + "_X"),id
+							- Event.EV_USER0);
+				else
+					return Messages.getString("Event.EVENT" + mainId + "_" + id);
 			default:
 				return Messages.getString("Event.EVENT" + mainId + "_" + id);
 			}
