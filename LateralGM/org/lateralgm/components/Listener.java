@@ -360,7 +360,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		if (dragNode == dropNode) return false;
 		if (dragNode.isNodeDescendant(dropNode)) return false;
 		if (Prefs.groupKind && dropNode.kind != dragNode.kind) return false;
-		if (Prefs.protectLeaf && dropNode.status == ResNode.STATUS_SECONDARY) return false;
+		if (dropNode.status == ResNode.STATUS_SECONDARY) return false;
 		return true;
 		}
 
@@ -422,8 +422,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						return;
 						}
 					// kind must be a Resource kind
-					if (node.status == ResNode.STATUS_PRIMARY) return;
-					if (Prefs.protectLeaf && node.status != ResNode.STATUS_SECONDARY) return;
+					if (node.status != ResNode.STATUS_SECONDARY) return;
 					node.openFrame();
 					return;
 					}

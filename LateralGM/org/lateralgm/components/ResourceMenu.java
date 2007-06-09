@@ -46,8 +46,8 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 
 	public class ResourceMenuItem extends JMenuItem
 		{
-		public Resource resource;
 		private static final long serialVersionUID = 1L;
+		public Resource resource;
 
 		//Must be constructed with a Resource argument
 		@Deprecated
@@ -128,12 +128,9 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 				ImageIcon groupIco = LGM.getIconForKey("GmTreeGraphics.GROUP"); //$NON-NLS-1$
 				JMenuItem newParent;
 				if (child.getChildCount() == 0)
-					{
-					newParent = new JMenuItem((String) child.getUserObject(), groupIco);
-					parent.add(newParent);
-					continue;
-					}
-				newParent = new JMenu((String) child.getUserObject());
+					newParent = new JMenuItem((String) child.getUserObject());
+				else
+					newParent = new JMenu((String) child.getUserObject());
 				newParent.setIcon(groupIco);
 				parent.add(newParent);
 				populate(newParent,child,kind);
@@ -144,7 +141,6 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 			ResourceMenuItem newParent = new ResourceMenuItem(r);
 			newParent.addActionListener(this);
 			parent.add(newParent);
-			if (!Prefs.protectLeaf) populate(newParent,child,kind);
 			}
 		}
 
@@ -195,16 +191,12 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 
 	public void actionPerformed(ActionEvent e)
 		{
-		if (e.getSource() == noResource)
-			{
-			label.setText(noResource.getText());
-			selected = null;
-			fireActionPerformed();
-			return;
-			}
-		ResourceMenuItem source = (ResourceMenuItem) e.getSource();
+		JMenuItem source = (JMenuItem) e.getSource();
 		label.setText(source.getText());
-		selected = source.resource;
+		if (source instanceof ResourceMenuItem)
+			selected = ((ResourceMenuItem) source).resource;
+		else
+			selected = null;
 		fireActionPerformed();
 		}
 

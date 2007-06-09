@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -19,6 +20,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
+import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Sprite;
 
@@ -87,6 +89,13 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 				Sprite s = LGM.currentFile.sprites.get(last.resourceId);
 				return getSpriteIcon(s);
 				}
+			if (last.kind == Resource.GMOBJECT)
+				{
+				GmObject o = LGM.currentFile.gmObjects.get(last.resourceId);
+				if (o == null) return getBlankIcon();
+				Sprite s = LGM.currentFile.sprites.get(o.sprite);
+				return getSpriteIcon(s);
+				}
 			return Resource.ICON[last.kind];
 			}
 		return getClosedIcon();
@@ -95,7 +104,7 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 	public Icon getNodeIcon(JTree tree, Object val, boolean sel, boolean exp, boolean leaf, int row)
 		{
 		ResNode node = (ResNode) val;
-		if (leaf) if (node.status == ResNode.STATUS_SECONDARY) return Resource.ICON[node.kind];
+		if (leaf || node.status == ResNode.STATUS_SECONDARY) return getLeafIcon();
 		if (exp) return getOpenIcon();
 		return getClosedIcon();
 		}
