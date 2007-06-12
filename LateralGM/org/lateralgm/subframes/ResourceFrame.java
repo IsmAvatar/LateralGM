@@ -71,18 +71,18 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 
 	public abstract boolean resourceChanged();
 
-	void addGap(int w, int h)
+	public void addGap(int w, int h)
 		{
 		addGap(this,w,h);
 		}
 
-	void addGap(Container c, int w, int h)
+	public static void addGap(Container c, int w, int h)
 		{
 		JLabel l = new JLabel();
 		l.setPreferredSize(new Dimension(w,h));
 		c.add(l);
 		}
-	
+
 	public static Component addDim(Container container, Component comp, int width, int height)
 		{
 		lastContainer = container;

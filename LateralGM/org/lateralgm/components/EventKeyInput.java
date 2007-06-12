@@ -1,11 +1,16 @@
+/*
+ * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.components;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
-import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 public class EventKeyInput extends JTextField

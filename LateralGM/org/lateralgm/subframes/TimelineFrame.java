@@ -139,6 +139,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		moments.setSelectedIndex(0);
 		}
 
+	//TODO:
 	@Override
 	public boolean resourceChanged()
 		{
@@ -159,6 +160,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		resOriginal = (Timeline) res.copy(false,null);
 		}
 
+	//TODO:
 	public void actionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == add)

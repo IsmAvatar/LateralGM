@@ -12,6 +12,10 @@ import java.awt.image.BufferedImage;
 
 import org.lateralgm.resources.sub.Action;
 
+/**
+ * If this Action was loaded from file, libAction is non-null.<br>
+ * To determine if this is an unknown libAction, parent == null
+ */
 public class LibAction
 	{
 	public static final byte INTERFACE_NORMAL = 0;

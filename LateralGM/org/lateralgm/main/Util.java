@@ -1,6 +1,9 @@
 /*
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com> IsmAvatar (C) 2007 IsmAvatar <cmagicj@nni.com>
- * This file is part of Lateral GM. Lateral GM is free software and comes with ABSOLUTELY NO
+ * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * IsmAvatar (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO
  * WARRANTY. See LICENSE for details.
  */
 
@@ -130,6 +133,7 @@ public final class Util
 
 	public static Image getTransparentIcon(BufferedImage i)
 		{
+		if (i == null) return null;
 		final BufferedImage fi = i;
 		ImageFilter filter = new RGBImageFilter()
 			{

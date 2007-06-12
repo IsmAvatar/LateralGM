@@ -24,6 +24,7 @@
 package org.lateralgm.main;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
@@ -202,6 +203,7 @@ public class LGM extends JPanel
 		split.setDividerLocation(170);
 		add(split);
 		// .setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
+		mdi.setBackground(Color.BLACK);
 		mdi.add(gameSet);
 		mdi.add(gameInfo);
 		if (eventSelect == null) eventSelect = new EventFrame();

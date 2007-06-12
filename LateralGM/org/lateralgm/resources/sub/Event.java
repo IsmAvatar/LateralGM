@@ -8,13 +8,11 @@
 
 package org.lateralgm.resources.sub;
 
-import java.awt.event.KeyEvent;
-
 import org.lateralgm.components.EventKeyInput;
 import org.lateralgm.main.LGM;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResId;
-import org.lateralgm.messages.Messages;
 
 public class Event extends ActionContainer
 	{

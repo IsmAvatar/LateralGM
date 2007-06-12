@@ -72,11 +72,18 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 			}
 		}
 
+	/**
+	 * Creates a Resource Menu of given Resource kind.
+	 * @param kind - One of the kind constants defined in Resource (eg Resource.SPRITE)
+	 * @param def - The default value to display if no resource is selected
+	 * @param showDef - Whether to display the default value as a selectable menu option
+	 * @param width - The component width desired
+	 */
 	public ResourceMenu(byte kind, String def, boolean showDef, int width)
 		{
 		setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		LGM.currentFile.addChangeListener(rcl);
-		label = new JLabel();
+		label = new JLabel(def);
 		label.setBorder(BorderFactory.createEtchedBorder());
 		label.addMouseListener(this);
 		label.setPreferredSize(new Dimension(width - 20,20));
@@ -95,6 +102,13 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 		populate(kind);
 		}
 
+	/**
+	 * Convenience method for creating a Resource Menu that does display the default value
+	 * as a selectable menu option.
+	 * @param kind - One of the kind constants defined in Resource (eg Resource.SPRITE)
+	 * @param def - The default value to display if no resource is selected (selectable in menu)
+	 * @param width - The component width desired
+	 */
 	public ResourceMenu(byte kind, String def, int width)
 		{
 		this(kind,def,true,width);
@@ -144,6 +158,7 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 			}
 		}
 
+	//TODO:
 	private class ResourceChangeListener implements ChangeListener
 		{
 		public void stateChanged(ChangeEvent e)
@@ -189,6 +204,13 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 		label.setText((res == null) ? noResource.getText() : res.getName());
 		}
 
+	public void setEnabled(boolean enabled)
+		{
+		label.setEnabled(enabled);
+		button.setEnabled(enabled);
+		super.setEnabled(enabled);
+		}
+
 	public void actionPerformed(ActionEvent e)
 		{
 		JMenuItem source = (JMenuItem) e.getSource();
@@ -202,6 +224,7 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 
 	public void mouseClicked(MouseEvent e)
 		{
+		if (!isEnabled()) return;
 		if (pm.getComponentCount() == 0) return;
 		pm.show(e.getComponent(),e.getX(),e.getY());
 		pm.setVisible(true);

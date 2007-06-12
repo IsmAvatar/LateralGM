@@ -30,6 +30,10 @@ public class Action
 	public static final byte EXEC_FUNCTION = 1;
 	public static final byte EXEC_CODE = 2;
 
+	/**
+	 * If this Action was loaded from file, libAction is non-null.<br>
+	 * To determine if this is an unknown libAction, parent == null
+	 */
 	public LibAction libAction;
 
 	// The actual Action properties
@@ -38,9 +42,4 @@ public class Action
 	public ResId appliesTo = GmObject.OBJECT_SELF;
 
 	public Argument[] arguments;
-
-	public String toString()
-		{
-		return libAction.listText;
-		}
 	}

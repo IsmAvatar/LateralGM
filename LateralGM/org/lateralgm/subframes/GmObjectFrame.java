@@ -13,8 +13,11 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -30,10 +33,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
+import javax.swing.ListCellRenderer;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.GMLTextArea;
@@ -42,6 +48,7 @@ import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
@@ -77,6 +84,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public JTree events;
 	public JList actions;
 	public GMLTextArea code;
+
+	private DefaultMutableTreeNode lastValidEventSelection;
 
 	public GmObjectFrame(GmObject res, ResNode node)
 		{
@@ -187,8 +196,15 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		else
 			{
-			addActionPane(this);
+			actions = addActionPane(this);
 			}
+
+		// Select first event
+		TreeNode event = (TreeNode) events.getModel().getRoot();
+		while (event.getChildCount() > 0)
+			event = event.getChildAt(0);
+		if (event != events.getModel().getRoot())
+			events.setSelectionPath(new TreePath(((DefaultMutableTreeNode) event).getPath()));
 		}
 
 	public JTree makeEventTree(GmObject res)
@@ -239,11 +255,115 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.ACTIONS")); //$NON-NLS-1$
 		side3.add(lab,"North"); //$NON-NLS-1$
 		JList list = new JList();
+		final JList list2 = list;
+		list.addMouseListener(new MouseAdapter()
+			{
+				public void mouseClicked(MouseEvent e)
+					{
+					if (e.getClickCount() != 2) return;
+					Object o = list2.getSelectedValue();
+					if (o == null || !(o instanceof Action)) return;
+					Action a = (Action) o;
+					ActionFrame af = new ActionFrame(a);
+					LGM.mdi.add(af);
+					af.setVisible(true);
+					af.toFront();
+					}
+			});
+		list.setCellRenderer(new ListCellRenderer()
+			{
+				public String parse(String s, Action a)
+					{
+					String escape = "FrNw01234567"; //$NON-NLS-1$
+					String ret = ""; //$NON-NLS-1$
+					s = s.replaceAll("[^\\\\]#","\n"); //$NON-NLS-1$ //$NON-NLS-2$
+					s = s.replaceAll("\\#","#"); //$NON-NLS-1$ //$NON-NLS-2$
+					int k = 0;
+					int p = s.indexOf("@"); //$NON-NLS-1$
+					while (p != -1)
+						{
+						ret += s.substring(k,p);
+						char c = s.charAt(p + 1);
+						if (!escape.contains(String.valueOf(c)))
+							{
+							ret += "@"; //$NON-NLS-1$
+							k = p + 1;
+							p = s.indexOf("@",k); //$NON-NLS-1$
+							continue;
+							}
+						if (c == 'F')
+							{
+							if (s.charAt(p + 2) == 'B' || s.charAt(p + 2) == 'I')
+								p += 2;
+							else
+								ret += "@"; //$NON-NLS-1$
+							k = p + 1;
+							p = s.indexOf("@",k); //$NON-NLS-1$
+							continue;
+							}
+						if (c == 'r' && a.relative) ret += Messages.getString("Action.RELATIVE"); //$NON-NLS-1$
+						if (c == 'N' && a.not) ret += Messages.getString("Action.NOT"); //$NON-NLS-1$
+						if (c == 'w' && a.appliesTo != GmObject.OBJECT_SELF)
+							{
+							if (a.appliesTo == GmObject.OBJECT_OTHER)
+								ret += Messages.getString("Action.APPLIES_OTHER"); //$NON-NLS-1$
+							else
+								{
+								GmObject applies = LGM.currentFile.gmObjects.get(a.appliesTo);
+								ret += Messages.getString(String.format("Action.APPLIES",applies)); //$NON-NLS-1$
+								}
+							}
+						if (c >= '0' && c < '8')
+							{
+							int arg = c - '0';
+							if (arg >= a.arguments.length)
+								ret += "0"; //$NON-NLS-1$
+							else
+								ret += a.arguments[arg].val;
+							}
+						k = p + 2;
+						p = s.indexOf("@",k); //$NON-NLS-1$
+						}
+					return ret + s.substring(k);
+					}
+
+				public Component getListCellRendererComponent(JList list, Object cell, int index,
+						boolean isSelected, boolean hasFocus)
+					{
+					final Action cellAction = (Action) cell;
+					LibAction la = cellAction.libAction;
+					JLabel l = new JLabel();
+					if (isSelected)
+						{
+						l.setBackground(list.getSelectionBackground());
+						l.setForeground(list.getSelectionForeground());
+						}
+					else
+						{
+						l.setBackground(list.getBackground());
+						l.setForeground(list.getForeground());
+						}
+					l.setOpaque(true);
+					if (la.actImage == null)
+						{
+						l.setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
+						return l;
+						}
+					l.setText(parse(la.listText,(Action) cell));
+					if (la.listText.contains("@FB")) //$NON-NLS-1$
+						l.setFont(l.getFont().deriveFont(Font.BOLD));
+					if (la.listText.contains("@FI")) //$NON-NLS-1$
+						l.setFont(l.getFont().deriveFont(Font.ITALIC));
+					l.setIcon(new ImageIcon(Util.getTransparentIcon(la.actImage)));
+					l.setToolTipText(parse(la.hintText,(Action) cell));
+					return l;
+					}
+			});
 		JScrollPane scroll = new JScrollPane(list);
 		side3.add(scroll,"Center"); //$NON-NLS-1$
 
 		JTabbedPane side4 = GmObjectFrame.makeLibraryTabs();
-		side4.setPreferredSize(new Dimension(165,319)); //319
+		side4.setPreferredSize(new Dimension(165,319));
 		container.add(side3);
 		container.add(side4);
 		return list;
@@ -273,10 +393,11 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				if (la.actionKind == Action.ACT_PLACEHOLDER)
 					b = new JLabel();
 				else
-					b = new JLabel(new ImageIcon(org.lateralgm.main.Util.getTransparentIcon(la.actImage)));
+					b = new JLabel(new ImageIcon(Util.getTransparentIcon(la.actImage)));
 				b.setHorizontalAlignment(JLabel.LEFT);
 				b.setVerticalAlignment(JLabel.TOP);
 				b.setPreferredSize(new Dimension(32,32));
+				b.setToolTipText(la.description);
 				p.add(b);
 				}
 			tp.add(l.tabCaption,p);
@@ -284,6 +405,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		return tp;
 		}
 
+	//TODO:
 	@Override
 	public boolean resourceChanged()
 		{
@@ -304,6 +426,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		resOriginal = (GmObject) res.copy(false,null);
 		}
 
+	//TODO:
 	public void actionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == newsprite)
@@ -313,11 +436,24 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		super.actionPerformed(e);
 		}
 
-	//Moments selection changed
-	public void valueChanged(TreeSelectionEvent e)
+	public void valueChanged(TreeSelectionEvent tse)
 		{
-		//		Moment m = (Moment) events.getSelectedValue();
-		//		if (m == null) return;
-		//		actions.setListData(m.actions.toArray());
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
+		if (node == null || !node.isLeaf() || !(node.getUserObject() instanceof Event))
+			{
+			if (node != null && !node.isLeaf())
+				{
+				TreePath path = new TreePath(node.getPath());
+				if (events.isExpanded(path))
+					events.collapsePath(path);
+				else
+					events.expandPath(path);
+				}
+			if (lastValidEventSelection != null)
+				events.setSelectionPath(new TreePath(lastValidEventSelection.getPath()));
+			return;
+			}
+		lastValidEventSelection = node;
+		actions.setListData(((Event) node.getUserObject()).actions.toArray());
 		}
 	}
