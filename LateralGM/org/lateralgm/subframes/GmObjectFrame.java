@@ -14,6 +14,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -47,6 +48,7 @@ import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.components.ResourceMenu;
+import org.lateralgm.components.VTextIcon;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
@@ -91,8 +93,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		super(res,node);
 
-		setSize(560,385);
-		setMinimumSize(new Dimension(560,385));
+		setSize(560,400);
+		setMinimumSize(new Dimension(560,400));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
 		setFrameIcon(frameIcon);
 
@@ -363,7 +365,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		side3.add(scroll,"Center"); //$NON-NLS-1$
 
 		JTabbedPane side4 = GmObjectFrame.makeLibraryTabs();
-		side4.setPreferredSize(new Dimension(165,319));
+		side4.setPreferredSize(new Dimension(140,319));
 		container.add(side3);
 		container.add(side4);
 		return list;
@@ -373,7 +375,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public static JTabbedPane makeLibraryTabs()
 		{
 		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
-
+		tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		JPanel lp = null;
 		for (Library l : LibManager.libs)
 			{
 			JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT,0,0));
@@ -384,10 +387,9 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				JLabel b;
 				if (la.actionKind == Action.ACT_LABEL)
 					{
-					b = new JLabel();
-					b.setBorder(BorderFactory.createTitledBorder(la.name));
-					b.setPreferredSize(new Dimension(90,14));
-					p.add(b);
+					lp = new JPanel(new GridLayout(0,3,0,0));
+					lp.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(),la.name));
+					p.add(lp);
 					continue;
 					}
 				if (la.actionKind == Action.ACT_PLACEHOLDER)
@@ -396,11 +398,17 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					b = new JLabel(new ImageIcon(Util.getTransparentIcon(la.actImage)));
 				b.setHorizontalAlignment(JLabel.LEFT);
 				b.setVerticalAlignment(JLabel.TOP);
-				b.setPreferredSize(new Dimension(32,32));
+				b.setPreferredSize(new Dimension(30,30));
+				if (lp == null)
+					{
+					lp = new JPanel(new GridLayout(0,3,0,0));
+					p.add(lp);
+					}
 				b.setToolTipText(la.description);
-				p.add(b);
+				lp.add(b);
 				}
-			tp.add(l.tabCaption,p);
+			tp.addTab(l.tabCaption,p);
+			tp.setTabComponentAt(tp.getTabCount() - 1,new JLabel(new VTextIcon(tp,l.tabCaption)));
 			}
 		return tp;
 		}

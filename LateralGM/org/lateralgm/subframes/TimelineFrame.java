@@ -55,8 +55,8 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		{
 		super(res,node);
 
-		setSize(560,385);
-		setMinimumSize(new Dimension(560,385));
+		setSize(560,400);
+		setMinimumSize(new Dimension(560,400));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
 		setFrameIcon(frameIcon);
 
