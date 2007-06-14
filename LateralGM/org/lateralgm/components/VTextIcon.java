@@ -204,17 +204,17 @@ public class VTextIcon implements Icon,PropertyChangeListener
 		else if (fRotation == ROTATE_LEFT)
 			{
 			g2.translate(x + fWidth,y + fHeight);
-			((Graphics2D) g2).rotate(-NINETY_DEGREES);
+			g2.rotate(-NINETY_DEGREES);
 			g2.drawString(fLabel,K_BUFFER_SPACE,-fDescent);
-			((Graphics2D) g2).rotate(NINETY_DEGREES);
+			g2.rotate(NINETY_DEGREES);
 			g2.translate(-(x + fWidth),-(y + fHeight));
 			}
 		else if (fRotation == ROTATE_RIGHT)
 			{
 			g2.translate(x,y);
-			((Graphics2D) g2).rotate(NINETY_DEGREES);
+			g2.rotate(NINETY_DEGREES);
 			g2.drawString(fLabel,K_BUFFER_SPACE,-fDescent);
-			((Graphics2D) g2).rotate(-NINETY_DEGREES);
+			g2.rotate(-NINETY_DEGREES);
 			g2.translate(-x,-y);
 			}
 

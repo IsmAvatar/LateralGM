@@ -10,6 +10,7 @@
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -35,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
+import javax.swing.border.Border;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -371,6 +373,15 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		return list;
 		}
 
+	private static JPanel makeLabelPane(String name)
+		{
+		JPanel lp = new JPanel(new GridLayout(0,3,0,0));
+		Border mb = BorderFactory.createMatteBorder(1,0,0,0,new Color(184,207,229));
+		Border tb = BorderFactory.createTitledBorder(mb,name);
+		lp.setBorder(tb);
+		return lp;
+		}
+
 	//possibly extract to some place like resources.library.LibManager
 	public static JTabbedPane makeLibraryTabs()
 		{
@@ -387,8 +398,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				JLabel b;
 				if (la.actionKind == Action.ACT_LABEL)
 					{
-					lp = new JPanel(new GridLayout(0,3,0,0));
-					lp.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(),la.name));
+					lp = makeLabelPane(la.name);
 					p.add(lp);
 					continue;
 					}
@@ -401,7 +411,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				b.setPreferredSize(new Dimension(30,30));
 				if (lp == null)
 					{
-					lp = new JPanel(new GridLayout(0,3,0,0));
+					lp = makeLabelPane(null);
 					p.add(lp);
 					}
 				b.setToolTipText(la.description);

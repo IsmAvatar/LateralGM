@@ -13,6 +13,7 @@ import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
@@ -35,6 +36,7 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		setOpenIcon(LGM.getIconForKey("GmTreeGraphics.GROUP_OPEN")); //$NON-NLS-1$
 		setClosedIcon(LGM.getIconForKey("GmTreeGraphics.GROUP")); //$NON-NLS-1$
 		setLeafIcon(getClosedIcon());
+		setBorder(BorderFactory.createEmptyBorder(1, 0, 0, 0));
 		}
 
 	public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel, boolean exp,
@@ -69,8 +71,15 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 				m = Math.max(w,h); //GM's scaling - needs stretching
 			else
 				m = Math.min(w,h); //Needs clipping
-
-			i = i.getScaledInstance((w * 16) / m,(h * 16) / m,BufferedImage.SCALE_DEFAULT);
+			if (m > 16) i = i.getScaledInstance(w * 16 / m,h * 16 / m,BufferedImage.SCALE_SMOOTH);
+			// Crop and/or center the image
+			Image i2 = new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB);
+			int x = 0;
+			int y = 0;
+			if (w < 16) x = 8 - w / 2;
+			if (h < 16) y = 8 - h / 2;
+			i2.getGraphics().drawImage(i,x,y,null);
+			i = i2;
 			}
 		else
 			{
