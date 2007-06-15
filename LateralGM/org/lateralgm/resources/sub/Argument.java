@@ -75,7 +75,7 @@ public class Argument
 		if (kind == ARG_MENU)
 			{
 			if (la == null) return new JTextField(val);
-			String[] s = la.menu.split("|"); //$NON-NLS-1$
+			String[] s = la.menu.split("\\|"); //$NON-NLS-1$
 			JComboBox b = new JComboBox(s);
 			b.setSelectedIndex(Integer.parseInt(val));
 			return b;

@@ -363,7 +363,7 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	public void setFont(Font font)
 		{
 		super.setFont(font);
-		fm = Toolkit.getDefaultToolkit().getFontMetrics(font);
+		fm = super.getFontMetrics(font);
 		textArea.recalculateVisibleLines();
 		}
 
@@ -416,8 +416,7 @@ public class TextAreaPainter extends JComponent implements TabExpander
 			}
 		catch (Exception e)
 			{
-			System.err.println("Error repainting line" + " range {" + firstInvalid + "," + lastInvalid
-					+ "}:");
+			System.err.println("Error repainting line range {" + firstInvalid + "," + lastInvalid + "}:");
 			e.printStackTrace();
 			}
 		}

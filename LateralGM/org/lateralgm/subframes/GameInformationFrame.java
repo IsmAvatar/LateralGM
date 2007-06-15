@@ -92,188 +92,187 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 	private static boolean documentChanged = false;
 
+	private JMenuBar makeMenuBar()
+		{
+		JMenuBar menuBar = new JMenuBar();
+
+		// Create FILE menu
+		JMenu menu = new JMenu(Messages.getString("GameInformationFrame.MENU_FILE")); //$NON-NLS-1$
+		menuBar.add(menu);
+		menu.addActionListener(this);
+
+		JMenuItem item = addItem("GameInformationFrame.LOAD"); //$NON-NLS-1$
+		menu.add(item);
+		item = addItem("GameInformationFrame.SAVE"); //$NON-NLS-1$
+		menu.add(item);
+		menu.addSeparator();
+		item = addItem("GameInformationFrame.OPTIONS"); //$NON-NLS-1$
+		item.setEnabled(false);
+		menu.add(item);
+		menu.addSeparator();
+		item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
+		item.setEnabled(false);
+		menu.add(item);
+		menu.addSeparator();
+		item = addItem("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
+		menu.add(item);
+
+
+		// Create EDIT menu
+		menu = new JMenu(Messages.getString("GameInformationFrame.MENU_EDIT")); //$NON-NLS-1$
+		menuBar.add(menu);
+
+		item = new JMenuItem(undoManager.getUndoAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+		menu.add(item);
+		item = new JMenuItem(undoManager.getRedoAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
+		menu.add(item);
+		menu.addSeparator();
+		item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
+		menu.add(item);
+		item.setEnabled(false);
+		item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
+		menu.add(item);
+		item.setEnabled(false);
+		item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
+		menu.add(item);
+		item.setEnabled(false);
+		menu.addSeparator();
+		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
+		menu.add(item);
+		item.setEnabled(false);
+		menu.addSeparator();
+		item = addItem("GameInformationFrame.GOTO"); //$NON-NLS-1$
+		menu.add(item);
+		item.setEnabled(false);
+
+		
+
+		// Create FORMAT menu
+		menu = new JMenu(Messages.getString("GameInformationFrame.MENU_FORMAT")); //$NON-NLS-1$
+		menuBar.add(menu);
+
+		// Create a menu item
+		item = addItem("GameInformationFrame.FONT"); //$NON-NLS-1$
+		// item.addActionListener(actionListener);
+		menu.add(item);
+		
+		return menuBar;
+		}
+
+	private JToolBar makeToolBar()
+		{
+		JToolBar tool = new JToolBar();
+		tool.setFloatable(false);
+
+		// Setup the buttons
+		JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.SAVE")); //$NON-NLS-1$
+		but.setRequestFocusEnabled(false);
+		but.setActionCommand("GameInformationFrame.SAVE"); //$NON-NLS-1$
+		but.addActionListener(this);
+		tool.add(but);
+
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		String[] fontNames = ge.getAvailableFontFamilyNames();
+		tool.addSeparator();
+		cbFonts = new JComboBox(fontNames);
+		cbFonts.setRequestFocusEnabled(false);
+		cbFonts.setMaximumSize(cbFonts.getPreferredSize());
+		cbFonts.setEditable(true);
+		ActionListener lst = new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+					{
+					if (fFamilyChange)
+						{
+						fFamilyChange = false;
+						return;
+						}
+					editor.grabFocus();
+					setSelectionAttribute(StyleConstants.Family,cbFonts.getSelectedItem().toString());
+					}
+			};
+
+		cbFonts.addActionListener(lst);
+		tool.add(cbFonts);
+		tool.addSeparator();
+		sSizes = new JSpinner(new SpinnerNumberModel(12,1,100,1));
+		sSizes.setRequestFocusEnabled(false);
+		sSizes.setMaximumSize(sSizes.getPreferredSize());
+		sSizes.addChangeListener(new ChangeListener()
+			{
+				public void stateChanged(ChangeEvent arg0)
+					{
+					if (fSizeChange)
+						{
+						fSizeChange = false;
+						return;
+						}
+					editor.grabFocus();
+					setSelectionAttribute(StyleConstants.Size,sSizes.getValue());
+					}
+			});
+		tool.add(sSizes);
+		tool.addSeparator();
+
+		tbBold = new JToggleButton("B");
+		tbBold.setRequestFocusEnabled(false);
+		// m_tbBold.setFont(new java.awt.Font("Courier New",java.awt.Font.BOLD,10));
+		lst = new ActionListener()
+			{
+				public void actionPerformed(ActionEvent arg0)
+					{
+					setSelectionAttribute(StyleConstants.Bold,tbBold.isSelected());
+					}
+			};
+		tbBold.addActionListener(lst);
+		tool.add(tbBold);
+		tbItalic = new JToggleButton("I");
+		tbItalic.setRequestFocusEnabled(false);
+		// m_tbItalic.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.ITALIC));
+		lst = new ActionListener()
+			{
+				public void actionPerformed(ActionEvent arg0)
+					{
+					setSelectionAttribute(StyleConstants.Italic,tbItalic.isSelected());
+					}
+			};
+		tbItalic.addActionListener(lst);
+		tool.add(tbItalic);
+		tbUnderline = new JToggleButton("U");
+		tbUnderline.setRequestFocusEnabled(false);
+		// m_tbUnderline = new JToggleButton("<html><u>U</u></html>");
+		// m_tbUnderline.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.PLAIN));
+		// m_tbUnderline.setMaximumSize(m_tbBold.getSize());
+		lst = new ActionListener()
+			{
+				public void actionPerformed(ActionEvent arg0)
+					{
+					setSelectionAttribute(StyleConstants.Underline,tbUnderline.isSelected());
+					}
+			};
+		tbUnderline.addActionListener(lst);
+		tool.add(tbUnderline);
+
+		tool.addSeparator();
+		but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
+		but.setRequestFocusEnabled(false);
+		but.setActionCommand("GameInformationFrame.COLOR"); //$NON-NLS-1$
+		but.addActionListener(this);
+		tool.add(but);
+		return tool;
+		}
+
 	public GameInformationFrame()
 		{
 		super(Messages.getString("GameInformationFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setSize(600,400);
 		setFrameIcon(LGM.getIconForKey("GameInformationFrame.INFO")); //$NON-NLS-1$
-		// Setup the Menu
-		// Create the menu bar
-		JMenuBar menuBar = new JMenuBar();
 
-			// Create File menu
-			{
-			JMenu fMenu = new JMenu(Messages.getString("GameInformationFrame.MENU_FILE")); //$NON-NLS-1$
-			menuBar.add(fMenu);
-			fMenu.addActionListener(this);
-
-			// Create a file menu items
-			JMenuItem item = addItem("GameInformationFrame.LOAD"); //$NON-NLS-1$
-			fMenu.add(item);
-			item = addItem("GameInformationFrame.SAVE"); //$NON-NLS-1$
-			fMenu.add(item);
-			fMenu.addSeparator();
-			item = addItem("GameInformationFrame.OPTIONS"); //$NON-NLS-1$
-			item.setEnabled(false);
-			fMenu.add(item);
-			fMenu.addSeparator();
-			item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
-			item.setEnabled(false);
-			fMenu.add(item);
-			fMenu.addSeparator();
-			item = addItem("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
-			fMenu.add(item);
-			}
-
-			// Create Edit menu
-			{
-			JMenu eMenu = new JMenu(Messages.getString("GameInformationFrame.MENU_EDIT")); //$NON-NLS-1$
-			menuBar.add(eMenu);
-
-			// Create a menu item
-			JMenuItem item = new JMenuItem(undoManager.getUndoAction());
-			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
-			eMenu.add(item);
-			item = new JMenuItem(undoManager.getRedoAction());
-			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
-			eMenu.add(item);
-			eMenu.addSeparator();
-			item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
-			eMenu.add(item);
-			item.setEnabled(false);
-			item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
-			eMenu.add(item);
-			item.setEnabled(false);
-			item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
-			eMenu.add(item);
-			item.setEnabled(false);
-			eMenu.addSeparator();
-			item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
-			eMenu.add(item);
-			item.setEnabled(false);
-			eMenu.addSeparator();
-			item = addItem("GameInformationFrame.GOTO"); //$NON-NLS-1$
-			eMenu.add(item);
-			item.setEnabled(false);
-			}
-
-			// Create Format menu
-			{
-			JMenu fMenu = new JMenu(Messages.getString("GameInformationFrame.MENU_FORMAT")); //$NON-NLS-1$
-			menuBar.add(fMenu);
-
-			// Create a menu item
-			JMenuItem item = addItem("GameInformationFrame.FONT"); //$NON-NLS-1$
-			// item.addActionListener(actionListener);
-			fMenu.add(item);
-			}
-
-		// Install the menu bar in the frame
-		setJMenuBar(menuBar);
-
-			// Setup the toolbar
-			{
-			JToolBar tool = new JToolBar();
-			tool.setFloatable(false);
-			add("North",tool); //$NON-NLS-1$
-
-			// Setup the buttons
-			JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.SAVE")); //$NON-NLS-1$
-			but.setRequestFocusEnabled(false);
-			but.setActionCommand("GameInformationFrame.SAVE"); //$NON-NLS-1$
-			but.addActionListener(this);
-			tool.add(but);
-
-			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			String[] fontNames = ge.getAvailableFontFamilyNames();
-			tool.addSeparator();
-			cbFonts = new JComboBox(fontNames);
-			cbFonts.setRequestFocusEnabled(false);
-			cbFonts.setMaximumSize(cbFonts.getPreferredSize());
-			cbFonts.setEditable(true);
-			ActionListener lst = new ActionListener()
-				{
-					public void actionPerformed(ActionEvent e)
-						{
-						if (fFamilyChange)
-							{
-							fFamilyChange = false;
-							return;
-							}
-						editor.grabFocus();
-						setSelectionAttribute(StyleConstants.Family,cbFonts.getSelectedItem().toString());
-						}
-				};
-
-			cbFonts.addActionListener(lst);
-			tool.add(cbFonts);
-			tool.addSeparator();
-			sSizes = new JSpinner(new SpinnerNumberModel(12,1,100,1));
-			sSizes.setRequestFocusEnabled(false);
-			sSizes.setMaximumSize(sSizes.getPreferredSize());
-			sSizes.addChangeListener(new ChangeListener()
-				{
-					public void stateChanged(ChangeEvent arg0)
-						{
-						if (fSizeChange)
-							{
-							fSizeChange = false;
-							return;
-							}
-						editor.grabFocus();
-						setSelectionAttribute(StyleConstants.Size,sSizes.getValue());
-						}
-				});
-			tool.add(sSizes);
-			tool.addSeparator();
-
-			tbBold = new JToggleButton("B");
-			tbBold.setRequestFocusEnabled(false);
-			// m_tbBold.setFont(new java.awt.Font("Courier New",java.awt.Font.BOLD,10));
-			lst = new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0)
-						{
-						setSelectionAttribute(StyleConstants.Bold,tbBold.isSelected());
-						}
-				};
-			tbBold.addActionListener(lst);
-			tool.add(tbBold);
-			tbItalic = new JToggleButton("I");
-			tbItalic.setRequestFocusEnabled(false);
-			// m_tbItalic.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.ITALIC));
-			lst = new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0)
-						{
-						setSelectionAttribute(StyleConstants.Italic,tbItalic.isSelected());
-						}
-				};
-			tbItalic.addActionListener(lst);
-			tool.add(tbItalic);
-			tbUnderline = new JToggleButton("U");
-			tbUnderline.setRequestFocusEnabled(false);
-			// m_tbUnderline = new JToggleButton("<html><u>U</u></html>");
-			// m_tbUnderline.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.PLAIN));
-			// m_tbUnderline.setMaximumSize(m_tbBold.getSize());
-			lst = new ActionListener()
-				{
-					public void actionPerformed(ActionEvent arg0)
-						{
-						setSelectionAttribute(StyleConstants.Underline,tbUnderline.isSelected());
-						}
-				};
-			tbUnderline.addActionListener(lst);
-			tool.add(tbUnderline);
-
-			tool.addSeparator();
-			but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
-			but.setRequestFocusEnabled(false);
-			but.setActionCommand("GameInformationFrame.COLOR"); //$NON-NLS-1$
-			but.addActionListener(this);
-			tool.add(but);
-			}
+		setJMenuBar(makeMenuBar());
+		add("North",makeToolBar()); //$NON-NLS-1$
 
 		// Create an RTF editor window
 		JPanel topPanel = new JPanel();
