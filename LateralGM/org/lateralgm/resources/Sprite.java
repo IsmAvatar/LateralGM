@@ -119,7 +119,7 @@ public class Sprite extends Resource
 		}
 
 	@SuppressWarnings("unchecked")
-	public Sprite copy(boolean update, ResourceList src)
+	private Sprite copy(boolean update, ResourceList src)
 		{
 		Sprite spr = new Sprite();
 		spr.width = width;
@@ -151,6 +151,17 @@ public class Sprite extends Resource
 			spr.setName(getName());
 			}
 		return spr;
+		}
+	
+	public Sprite copy()
+		{
+		return copy(false,null);
+		}
+
+	@SuppressWarnings("unchecked")
+	public Sprite copy(ResourceList src)
+		{
+		return copy(true,src);
 		}
 
 	public byte getKind()

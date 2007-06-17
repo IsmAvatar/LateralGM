@@ -15,6 +15,7 @@ import java.util.TimerTask;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.PlainDocument;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.jedit.GMLTokenMarker;
@@ -26,6 +27,7 @@ import org.lateralgm.jedit.Token;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.Resource;
 
 public class GMLTextArea extends JEditTextArea
@@ -41,6 +43,7 @@ public class GMLTextArea extends JEditTextArea
 		{
 		super();
 		setDocument(new SyntaxDocument());
+		getDocument().getDocumentProperties().put(PlainDocument.tabSizeAttribute,Prefs.tabSize);
 		updateTokenMarker();
 		setTokenMarker(gmlTokenMarker);
 		painter.setFont(Prefs.codeFont);
@@ -48,13 +51,26 @@ public class GMLTextArea extends JEditTextArea
 		painter.setBracketHighlightColor(Color.gray);
 		putClientProperty(InputHandler.KEEP_INDENT_PROPERTY,Boolean.TRUE);
 		putClientProperty(InputHandler.SMART_HOME_END_PROPERTY,Boolean.TRUE);
-		setText(text.replace("\r\n","\n"));
+		text = text.replace("\r\n","\n");
+		text = Util.convertIndents(text);
+		setText(text);
 		setCaretPosition(0);
 		LGM.currentFile.addChangeListener(rcl);
 		addCaretListener(undoManager);
 		document.addUndoableEditListener(undoManager);
 		inputHandler.addKeyBinding("C+Z",undoManager.getUndoAction());
 		inputHandler.addKeyBinding("C+Y",undoManager.getRedoAction());
+		}
+
+	public String getTextCompat()
+		{
+		String s = getText();
+		s = s.replaceAll("\r?\n","\r\n");
+		String tab = "";
+		for (int i = 0; i < Prefs.tabSize; i++)
+			tab += " ";
+		s = s.replaceAll("^\t*\t",tab);
+		return s;
 		}
 
 	public void updateTokenMarker()

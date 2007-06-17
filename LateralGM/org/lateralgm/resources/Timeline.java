@@ -35,13 +35,12 @@ public class Timeline extends Resource
 	public Moment getMoment(int stepNo)
 		{
 		for (Moment m : moments)
-			if (m.stepNo == stepNo)
-				return m;
+			if (m.stepNo == stepNo) return m;
 		return null;
 		}
 
 	@SuppressWarnings("unchecked")
-	public Timeline copy(boolean update, ResourceList src)
+	private Timeline copy(boolean update, ResourceList src)
 		{
 		Timeline time = new Timeline();
 		for (Moment mom : moments)
@@ -72,6 +71,17 @@ public class Timeline extends Resource
 			time.setName(getName());
 			}
 		return time;
+		}
+
+	public Timeline copy()
+		{
+		return copy(false,null);
+		}
+
+	@SuppressWarnings("unchecked")
+	public Timeline copy(ResourceList src)
+		{
+		return copy(true,src);
 		}
 
 	public byte getKind()

@@ -25,8 +25,19 @@ public class Font extends Resource
 		setName(Prefs.prefixes[Resource.FONT]);
 		}
 
+	public Font copy()
+		{
+		return copy(false,null);
+		}
+	
 	@SuppressWarnings("unchecked")
-	public Font copy(boolean update, ResourceList src)
+	public Font copy(ResourceList src)
+		{
+		return copy(true,src);
+		}
+	
+	@SuppressWarnings("unchecked")
+	private Font copy(boolean update, ResourceList src)
 		{
 		Font font = new Font();
 		font.fontName = fontName;

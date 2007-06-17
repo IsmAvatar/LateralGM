@@ -159,13 +159,12 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public boolean resourceChanged()
 		{
-		if (!resOriginal.getName().equals(name.getText())
-				|| !resOriginal.fontName.equals(fonts.getSelectedItem().toString())) return true;
-		if (resOriginal.size != size.getIntValue() || resOriginal.bold != bold.isSelected()
-				|| resOriginal.italic != italic.isSelected()) return true;
-		if (resOriginal.charRangeMin != charMin.getIntValue()
-				|| resOriginal.charRangeMax != charMax.getIntValue()) return true;
-		return false;
+		return !resOriginal.getName().equals(name.getText())
+				|| !resOriginal.fontName.equals(fonts.getSelectedItem().toString())
+				|| resOriginal.size != size.getIntValue() || resOriginal.bold != bold.isSelected()
+				|| resOriginal.italic != italic.isSelected()
+				|| resOriginal.charRangeMin != charMin.getIntValue()
+				|| resOriginal.charRangeMax != charMax.getIntValue();
 		}
 
 	public void revertResource()
@@ -182,7 +181,7 @@ public class FontFrame extends ResourceFrame<Font>
 		res.italic = italic.isSelected();
 		res.charRangeMin = charMin.getIntValue();
 		res.charRangeMax = charMax.getIntValue();
-		resOriginal = (Font) res.copy(false,null);
+		resOriginal = res.copy();
 		}
 
 	public void actionPerformed(ActionEvent e)

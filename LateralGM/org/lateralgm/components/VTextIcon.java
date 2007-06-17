@@ -164,7 +164,7 @@ public class VTextIcon implements Icon,PropertyChangeListener
 		{
 		Graphics2D g2 = (Graphics2D) g;
 		Toolkit tk = Toolkit.getDefaultToolkit();
-		Map map = (Map) (tk.getDesktopProperty("awt.font.desktophints"));
+		Map<?,?> map = (Map) (tk.getDesktopProperty("awt.font.desktophints"));
 		if (map != null)
 			{
 			g2.addRenderingHints(map);

@@ -174,7 +174,7 @@ public class Room extends Resource
 		}
 
 	@SuppressWarnings("unchecked")
-	public Room copy(boolean update, ResourceList src)
+	private Room copy(boolean update, ResourceList src)
 		{
 		Room rm = new Room();
 		rm = new Room();
@@ -279,5 +279,16 @@ public class Room extends Resource
 	public byte getKind()
 		{
 		return ROOM;
+		}
+
+	@SuppressWarnings("unchecked")
+	public Room copy(ResourceList src)
+		{
+		return copy(true,src);
+		}
+
+	public Room copy()
+		{
+		return copy(false,null);
 		}
 	}

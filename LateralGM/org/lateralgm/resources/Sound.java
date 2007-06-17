@@ -84,7 +84,7 @@ public class Sound extends Resource
 		}
 
 	@SuppressWarnings("unchecked")
-	public Sound copy(boolean update, ResourceList src)
+	private Sound copy(boolean update, ResourceList src)
 		{
 		Sound snd = new Sound();
 		snd.kind = kind;
@@ -112,6 +112,17 @@ public class Sound extends Resource
 			snd.setName(getName());
 			}
 		return snd;
+		}
+	
+	public Sound copy()
+		{
+		return copy(false,null);
+		}
+
+	@SuppressWarnings("unchecked")
+	public Sound copy(ResourceList src)
+		{
+		return copy(true,src);
 		}
 
 	public byte getKind()

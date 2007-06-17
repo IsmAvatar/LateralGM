@@ -31,14 +31,16 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
+import javax.swing.AbstractButton;
 import javax.swing.DropMode;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.UIManager;
@@ -66,17 +68,14 @@ public class LGM extends JPanel
 	private static final long serialVersionUID = 1L;
 	public static JFrame frame = new JFrame("Lateral GM 6.1: <new game>"); //$NON-NLS-1$
 	public static Listener listener = new Listener();
+	public static JToolBar tool;
 	public static JTree tree;
 	public static ResNode root;
 	public static Gm6File currentFile = new Gm6File();
-	public static JDesktopPane mdi;
+	public static MDIPane mdi;
 	public static GameInformationFrame gameInfo;
 	public static GameSettingFrame gameSet;
 	public static EventFrame eventSelect;
-	public static String[] kinds = { "", //$NON-NLS-1$
-			"Object","Sprite","Sound","Room", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-			"","Background","Script","Path", //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-			"Font","Info","GM","Timeline" }; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 
 	public LGM()
 		{
@@ -119,7 +118,18 @@ public class LGM extends JPanel
 
 	public JButton makeButton(String key)
 		{
-		JButton but = new JButton(LGM.getIconForKey(key));
+		JButton but = new JButton();
+		makeButton(but,key);
+		return but;
+		}
+
+	public AbstractButton makeButton(AbstractButton but, String key)
+		{
+		Icon ico = LGM.getIconForKey(key);
+		if (ico != null)
+			but.setIcon(ico);
+		else
+			but.setIcon(GmTreeGraphics.getBlankIcon());
 		but.setActionCommand(key);
 		but.setToolTipText(Messages.getString(key));
 		but.addActionListener(listener);
@@ -128,7 +138,7 @@ public class LGM extends JPanel
 
 	public void createToolBar()
 		{
-		JToolBar tool = new JToolBar();
+		tool = new JToolBar();
 		tool.setFloatable(false);
 		add("North",tool); //$NON-NLS-1$
 		tool.add(makeButton("LGM.NEW")); //$NON-NLS-1$
@@ -199,6 +209,9 @@ public class LGM extends JPanel
 		scroll.setPreferredSize(new Dimension(200,100));
 		mdi = new MDIPane();
 		JScrollPane scroll2 = new JScrollPane(mdi);
+		mdi.setScrollPane(scroll2);
+		scroll2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
 		add(split);
@@ -206,7 +219,11 @@ public class LGM extends JPanel
 		mdi.setBackground(Color.BLACK);
 		mdi.add(gameSet);
 		mdi.add(gameInfo);
-		if (eventSelect == null) eventSelect = new EventFrame();
+		//TODO: Get an icon for event selector
+		JToggleButton toggle = (JToggleButton) makeButton(new JToggleButton(),"LGM.TOGGLE_EVENT");
+		tool.addSeparator();
+		tool.add(toggle);
+		eventSelect = new EventFrame(toggle);
 		mdi.add(eventSelect);
 		// gameInfo.setVisible(true);
 		}
@@ -232,10 +249,10 @@ public class LGM extends JPanel
 		{
 		LibManager.autoLoad();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setJMenuBar(new GmMenuBar());
 		LGM f = new LGM();
-		f.createTree(true);
 		f.createToolBar();
+		f.createTree(true);
+		frame.setJMenuBar(new GmMenuBar());
 		f.setOpaque(true);
 		frame.setContentPane(f);
 		new FramePrefsHandler(frame);

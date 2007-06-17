@@ -151,7 +151,6 @@ public class EventKeyInput extends JTextField
 		setFocusTraversalKeysEnabled(false);
 		}
 
-	//TODO digits and letters
 	public void processKeyEvent(KeyEvent e)
 		{
 		if (e.getID() == KeyEvent.KEY_PRESSED)

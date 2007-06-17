@@ -14,7 +14,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -68,7 +67,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		TreeSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon frameIcon = LGM.getIconForKey("GmObjectFrame.GMOBJECT"); //$NON-NLS-1$$
 	private static ImageIcon saveIcon = LGM.getIconForKey("GmObjectFrame.SAVE"); //$NON-NLS-1$
 	private static ImageIcon infoIcon = LGM.getIconForKey("GmObjectFrame.INFO"); //$NON-NLS-1$
 
@@ -98,7 +96,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		setSize(560,400);
 		setMinimumSize(new Dimension(560,400));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-		setFrameIcon(frameIcon);
+		setFrameIcon(Resource.ICON[Resource.GMOBJECT]);
 
 		JPanel side1 = new JPanel(new FlowLayout());
 		side1.setPreferredSize(new Dimension(180,280));
@@ -224,8 +222,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				}
 			if (ale.size() > 1)
 				{
-				DefaultMutableTreeNode node = new DefaultMutableTreeNode(
-						Messages.getString("MainEvent.EVENT" + m)); //$NON-NLS-1$
+				DefaultMutableTreeNode node = new DefaultMutableTreeNode(Messages
+						.getString("MainEvent.EVENT" + m)); //$NON-NLS-1$
 				rootEvent.add(node);
 				for (Event e : ale)
 					node.add(new DefaultMutableTreeNode(e));
@@ -280,8 +278,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					{
 					String escape = "FrNw01234567"; //$NON-NLS-1$
 					String ret = ""; //$NON-NLS-1$
-					s = s.replaceAll("[^\\\\]#","\n"); //$NON-NLS-1$ //$NON-NLS-2$
-					s = s.replaceAll("\\#","#"); //$NON-NLS-1$ //$NON-NLS-2$
+					s = s.replaceAll("\n","<br>");
+					
 					int k = 0;
 					int p = s.indexOf("@"); //$NON-NLS-1$
 					while (p != -1)
@@ -328,7 +326,13 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						k = p + 2;
 						p = s.indexOf("@",k); //$NON-NLS-1$
 						}
-					return ret + s.substring(k);
+
+					s = ret + s.substring(k);
+					s = s.replaceAll("\n","<br>");
+					s = s.replaceAll("\\\\#","\u0000"); //$NON-NLS-1$ //$NON-NLS-2$
+					s = s.replaceAll("#","<br>"); //$NON-NLS-1$ //$NON-NLS-2$
+					s = s.replaceAll("\u0000","#"); //$NON-NLS-1$ //$NON-NLS-2$
+					return s;
 					}
 
 				public Component getListCellRendererComponent(JList list, Object cell, int index,
@@ -355,11 +359,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						}
 					l.setText(parse(la.listText,(Action) cell));
 					if (la.listText.contains("@FB")) //$NON-NLS-1$
-						l.setFont(l.getFont().deriveFont(Font.BOLD));
+						l.setText("<b>" + l.getText());
 					if (la.listText.contains("@FI")) //$NON-NLS-1$
-						l.setFont(l.getFont().deriveFont(Font.ITALIC));
+						l.setText("<i>" + l.getText());
+					l.setText("<html>" + l.getText());
 					l.setIcon(new ImageIcon(Util.getTransparentIcon(la.actImage)));
-					l.setToolTipText(parse(la.hintText,(Action) cell));
+					l.setToolTipText("<html>" + parse(la.hintText,(Action) cell));
 					return l;
 					}
 			});
@@ -386,7 +391,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public static JTabbedPane makeLibraryTabs()
 		{
 		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
-		tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		
+		//tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		JPanel lp = null;
 		for (Library l : LibManager.libs)
 			{
@@ -441,7 +447,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		res.setName(name.getText());
 
-		resOriginal = (GmObject) res.copy(false,null);
+		resOriginal = res.copy();
 		}
 
 	//TODO:

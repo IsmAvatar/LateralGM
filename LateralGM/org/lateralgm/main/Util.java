@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
- * IsmAvatar (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO
@@ -172,5 +173,43 @@ public final class Util
 				throw new IOException("Invalid image file");
 			}
 		return null;
+		}
+
+	/**
+	 * Converts as many leading spaces as possible in each line of the given string to "\t".
+	 * Every group of spaces of length <code>Prefs.tabWidth</code> will be converted.
+	 * Any existing tabs will be preserved.
+	 * @param s The String to convert.
+	 * @return The converted String.
+	 */
+
+	public static String convertIndents(String s)
+		{
+		String lines[] = s.split("\n");
+		StringBuffer buf = new StringBuffer();
+		for (String str : lines)
+			{
+			char[] chr = str.toCharArray();
+			int i;
+			int realtabs = 0;
+			for (i = 0; i < chr.length; i++)
+				if (chr[i] == ' ')
+					continue;
+				else if (chr[i] == '\t')
+					{
+					realtabs++;
+					continue;
+					}
+				else
+					break;
+
+			int count = (i - realtabs) / Prefs.tabSize + realtabs;
+			for (int j = 0; j < count; j++)
+				buf.append('\t');
+			buf.append(str.substring((count - realtabs) * Prefs.tabSize + realtabs));
+			buf.append('\n');
+			}
+		if (!s.endsWith("\n")) buf.deleteCharAt(buf.length() - 1);
+		return buf.toString();
 		}
 	}

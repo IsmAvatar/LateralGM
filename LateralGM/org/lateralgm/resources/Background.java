@@ -46,8 +46,19 @@ public class Background extends Resource
 		return null;
 		}
 
+	public Background copy()
+		{
+		return copy(false,null);
+		}
+	
 	@SuppressWarnings("unchecked")
-	public Background copy(boolean update, ResourceList src)
+	public Background copy(ResourceList src)
+		{
+		return copy(true,src);
+		}
+	
+	@SuppressWarnings("unchecked")
+	private Background copy(boolean update, ResourceList src)
 		{
 		Background back = new Background();
 		back.width = width;

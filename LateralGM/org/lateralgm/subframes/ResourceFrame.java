@@ -34,17 +34,32 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 		DocumentListener,ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	/*
+	/**
 	 * The Resource's name - setup automatically to update the title of the frame and
 	 * the ResNode's text
 	 */
 	public JTextField name;
-	public JButton save; // automatically set up to save and close the frame
-	public R res; // the resource this frame is editing
-	public R resOriginal; // backup of res as it was before changes were made
+	/**
+	 * Automatically set up to save and close the frame
+	 */
+	public JButton save; 
+	/** The resource this frame is editing
+	 * (feel free to change it as you wish)
+	 */
+	public R res;
+	/**
+	 * Backup of res as it was before changes were made
+	 */
+	public R resOriginal;
+	
+	/**
+	 * The ResNode this frame is linked to
+	 */
+	public ResNode node;
+	
 	public String titlePrefix = ""; //$NON-NLS-1$
 	public String titleSuffix = ""; //$NON-NLS-1$
-	public ResNode node; // node this frame is linked to
+	
 	private static Container lastContainer;
 
 	@SuppressWarnings("unchecked")
@@ -53,7 +68,7 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 		super("",true,true,true,true); //$NON-NLS-1$
 		this.res = res;
 		this.node = node;
-		resOriginal = (R) res.copy(false,null);
+		resOriginal = (R) res.copy();
 		setTitle(res.getName());
 		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 		name = new JTextField();
@@ -148,9 +163,9 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 			{
 			if (resourceChanged())
 				{
-				int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(
-						Messages.getString("ResourceFrame.KEEPCHANGES"),res.getName()),Messages //$NON-NLS-1$
-				.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
+				int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
+						.getString("ResourceFrame.KEEPCHANGES"),res.getName()),Messages //$NON-NLS-1$
+						.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
 						JOptionPane.YES_NO_CANCEL_OPTION);
 				if (ret == JOptionPane.YES_OPTION)
 					{

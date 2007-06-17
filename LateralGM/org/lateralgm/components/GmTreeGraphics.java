@@ -21,6 +21,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
+import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Sprite;
@@ -36,7 +37,7 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		setOpenIcon(LGM.getIconForKey("GmTreeGraphics.GROUP_OPEN")); //$NON-NLS-1$
 		setClosedIcon(LGM.getIconForKey("GmTreeGraphics.GROUP")); //$NON-NLS-1$
 		setLeafIcon(getClosedIcon());
-		setBorder(BorderFactory.createEmptyBorder(1, 0, 0, 0));
+		setBorder(BorderFactory.createEmptyBorder(1,0,0,0));
 		}
 
 	public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel, boolean exp,
@@ -53,18 +54,12 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 				BufferedImage.TYPE_3BYTE_BGR)));
 		}
 
-	public static Icon getSpriteIcon(Sprite s)
+	public static Icon getScaledIcon(Image i)
 		{
-		if (s == null) return getBlankIcon();
-		BufferedImage bi = s.getSubImage(0);
-		if (bi == null) return getBlankIcon();
-		Image i = bi;
-		if (s.transparent) i = Util.getTransparentIcon(bi);
-
 		if (true)
 			{
-			int w = bi.getWidth();
-			int h = bi.getHeight();
+			int w = i.getWidth(null);
+			int h = i.getHeight(null);
 
 			int m;
 			if (false)
@@ -89,6 +84,25 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		return new ImageIcon(i);
 		}
 
+	public static Icon getSpriteIcon(Sprite s)
+		{
+		if (s == null) return getBlankIcon();
+		BufferedImage bi = s.getSubImage(0);
+		if (bi == null) return getBlankIcon();
+		Image i = bi;
+		if (s.transparent) i = Util.getTransparentIcon(bi);
+		return getScaledIcon(i);
+		}
+
+	public static Icon getBackgroundIcon(Background b)
+		{
+		if (b == null) return getBlankIcon();
+		if (b.backgroundImage == null) return getBlankIcon();
+		Image i = b.backgroundImage;
+		if (b.transparent) i = Util.getTransparentIcon(b.backgroundImage);
+		return getScaledIcon(i);
+		}
+
 	public Icon getLeafIcon()
 		{
 		if (last.status == ResNode.STATUS_SECONDARY)
@@ -97,6 +111,11 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 				{
 				Sprite s = LGM.currentFile.sprites.get(last.resourceId);
 				return getSpriteIcon(s);
+				}
+			if (last.kind == Resource.BACKGROUND)
+				{
+				Background b = LGM.currentFile.backgrounds.get(last.resourceId);
+				return getBackgroundIcon(b);
 				}
 			if (last.kind == Resource.GMOBJECT)
 				{

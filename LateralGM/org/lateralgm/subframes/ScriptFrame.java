@@ -61,15 +61,15 @@ public class ScriptFrame extends ResourceFrame<Script>
 
 	public void updateResource()
 		{
-		res.scriptStr = code.getText().replaceAll("\r?\n","\r\n");
+		res.scriptStr = code.getTextCompat();
 		res.setName(name.getText());
-		resOriginal = (Script) res.copy(false,null);
+		resOriginal = res.copy();
 		}
 
 	public boolean resourceChanged()
 		{
-		return (!code.getText().equals(res.scriptStr.replace("\r\n","\n")))
-				|| (!res.getName().equals(resOriginal.getName()));
+		return !code.getTextCompat().equals(resOriginal.scriptStr)
+				|| !resOriginal.getName().equals(name.getText());
 		}
 
 	private class ScriptFrameListener implements InternalFrameListener

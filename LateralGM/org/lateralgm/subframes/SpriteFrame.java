@@ -1,8 +1,9 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
- * This file is part of Lateral GM. Lateral GM is free software and comes with ABSOLUTELY NO
- * WARRANTY. See LICENSE for details.
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
  */
 
 package org.lateralgm.subframes;
@@ -255,7 +256,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 		side2.add(bbox);
 
-		// TODO draw the origin and BBox
 		preview = new SubimagePreview(this);
 		preview.setVerticalAlignment(SwingConstants.TOP);
 		JScrollPane scroll = new JScrollPane(preview);
@@ -305,7 +305,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		res.boundingBoxRight = bboxRight.getIntValue();
 		res.boundingBoxTop = bboxTop.getIntValue();
 		res.boundingBoxBottom = bboxBottom.getIntValue();
-		resOriginal = (Sprite) res.copy(false,null);
+		resOriginal = res.copy();
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -326,6 +326,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 					preview.setIcon(new ImageIcon(res.getSubImage(0)));
 					updateInfo();
 					updateBoundingBox();
+					LGM.tree.repaint();
 					}
 				}
 			catch (Throwable t) // Includes out of memory errors
@@ -364,10 +365,17 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			originY.setIntValue(res.height / 2);
 			return;
 			}
-		if (e.getSource() == auto || e.getSource() == full || e.getSource() == manual
-				|| e.getSource() == transparent)
+		if (e.getSource() == auto || e.getSource() == full || e.getSource() == manual)
 			{
 			updateBoundingBox();
+			return;
+			}
+		if (e.getSource() == transparent)
+			{
+			updateBoundingBox();
+			res.transparent = transparent.isSelected();
+			LGM.tree.repaint();
+			return;
 			}
 		if (e.getSource() == originX || e.getSource() == originY || e.getSource() == bboxLeft
 				|| e.getSource() == bboxRight || e.getSource() == bboxTop || e.getSource() == bboxBottom)

@@ -239,7 +239,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		res.preload = preload.isSelected();
 		res.data = data;
 		modified = false;
-		resOriginal = (Sound) res.copy(false,null);
+		resOriginal = res.copy();
 		}
 
 	public void actionPerformed(ActionEvent e)

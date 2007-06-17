@@ -157,7 +157,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		{
 		res.setName(name.getText());
 
-		resOriginal = (Timeline) res.copy(false,null);
+		resOriginal = res.copy();
 		}
 
 	//TODO:

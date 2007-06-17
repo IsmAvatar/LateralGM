@@ -16,11 +16,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
-import javax.swing.KeyStroke;
 
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.PrefsStore;
@@ -145,47 +143,13 @@ public class GmMenuBar extends JMenuBar
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.EXPAND"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.COLLAPSE"); //$NON-NLS-1$
+		
+		add(new MDIMenu(LGM.mdi));
 
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_HELP")); //$NON-NLS-1$
 		add(menu);
 
 		menu.addItem("GmMenuBar.MANUAL",KeyEvent.VK_F1,0); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.ABOUT"); //$NON-NLS-1$
-		}
-
-	public class GmMenu extends JMenu
-		{
-		private static final long serialVersionUID = 1L;
-
-		public GmMenu(String s)
-			{
-			super();
-			setTextAndAlt(this,s);
-			}
-
-		public JMenuItem addItem()
-			{
-			return addItem(null);
-			}
-
-		public JMenuItem addItem(String key)
-			{
-			return addItem(key,-1,-1);
-			}
-
-		public JMenuItem addItem(String key, int shortcut, int control)
-			{
-			JMenuItem item = new JMenuItem();
-			if (key != null)
-				{
-				setTextAndAlt(item,Messages.getString(key));
-				item.setIcon(LGM.getIconForKey(key));
-				item.setActionCommand(key);
-				}
-			if (shortcut >= 0) item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
-			item.addActionListener(LGM.listener);
-			add(item);
-			return item;
-			}
 		}
 	}

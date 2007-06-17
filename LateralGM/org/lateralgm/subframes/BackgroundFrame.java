@@ -1,6 +1,9 @@
 /*
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au> This file is part of Lateral GM. Lateral GM is free
- * software and comes with ABSOLUTELY NO WARRANTY. See LICENSE for details.
+ * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * 
+ * This file is part of Lateral GM. Lateral GM is free
+ * software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
  */
 
 package org.lateralgm.subframes;
@@ -92,6 +95,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 
 		transparent = new JCheckBox(Messages.getString("BackgroundFrame.TRANSPARENT")); //$NON-NLS-1$
 		transparent.setSelected(res.transparent);
+		transparent.addActionListener(this);
 		addDim(transparent,130,16);
 		smooth = new JCheckBox(Messages.getString("BackgroundFrame.SMOOTH")); //$NON-NLS-1$
 		smooth.setSelected(res.smoothEdges);
@@ -183,12 +187,16 @@ public class BackgroundFrame extends ResourceFrame<Background>
 	@Override
 	public boolean resourceChanged()
 		{
-		return !res.getName().equals(name.getText()) || res.transparent != transparent.isSelected()
-				|| res.smoothEdges != smooth.isSelected() || res.preload != preload.isSelected()
-				|| res.useAsTileSet != tileset.isSelected() || res.tileWidth != tWidth.getIntValue()
-				|| res.tileHeight != tWidth.getIntValue() || res.horizOffset != hOffset.getIntValue()
-				|| res.vertOffset != vOffset.getIntValue() || res.horizSep != hSep.getIntValue()
-				|| res.vertSep != vSep.getIntValue();
+		return !resOriginal.getName().equals(name.getText())
+				|| resOriginal.transparent != transparent.isSelected()
+				|| resOriginal.smoothEdges != smooth.isSelected()
+				|| resOriginal.preload != preload.isSelected()
+				|| resOriginal.useAsTileSet != tileset.isSelected()
+				|| resOriginal.tileWidth != tWidth.getIntValue()
+				|| resOriginal.tileHeight != tWidth.getIntValue()
+				|| resOriginal.horizOffset != hOffset.getIntValue()
+				|| resOriginal.vertOffset != vOffset.getIntValue()
+				|| resOriginal.horizSep != hSep.getIntValue() || resOriginal.vertSep != vSep.getIntValue();
 		}
 
 	@Override
@@ -211,7 +219,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		res.vertOffset = vOffset.getIntValue();
 		res.horizSep = hSep.getIntValue();
 		res.vertSep = vSep.getIntValue();
-		resOriginal = (Background) res.copy(false,null);
+		resOriginal = res.copy();
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -238,6 +246,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 					height.setText(Messages.getString("BackgroundFrame.HEIGHT") + res.height); //$NON-NLS-1$
 					imageChanged = true;
 					preview.setIcon(new ImageIcon(img));
+					LGM.tree.repaint();
 					}
 				}
 			catch (Throwable t) // Includes out of memory errors
@@ -246,6 +255,12 @@ public class BackgroundFrame extends ResourceFrame<Background>
 				String msg = Messages.getString("BackgroundFrame.ERROR_LOADING"); //$NON-NLS-1$
 				JOptionPane.showMessageDialog(LGM.frame,msg + Util.imageFc.getSelectedFile().getPath());
 				}
+			return;
+			}
+		if (e.getSource() == transparent)
+			{
+			res.transparent = transparent.isSelected();
+			LGM.tree.repaint();
 			return;
 			}
 

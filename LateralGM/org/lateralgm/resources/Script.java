@@ -21,7 +21,7 @@ public class Script extends Resource
 		}
 
 	@SuppressWarnings("unchecked")
-	public Script copy(boolean update, ResourceList src)
+	private Script copy(boolean update, ResourceList src)
 		{
 		Script scr = new Script();
 		scr.scriptStr = scriptStr;
@@ -42,5 +42,16 @@ public class Script extends Resource
 	public byte getKind()
 		{
 		return SCRIPT;
+		}
+
+	@SuppressWarnings("unchecked")
+	public Script copy(ResourceList src)
+		{
+		return copy(true,src);
+		}
+
+	public Script copy()
+		{
+		return copy(false,null);
 		}
 	}

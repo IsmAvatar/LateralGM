@@ -38,8 +38,19 @@ public class GmObject extends Resource
 			}
 		}
 
+	public GmObject copy()
+		{
+		return copy(false,null);
+		}
+	
 	@SuppressWarnings("unchecked")
-	public GmObject copy(boolean update, ResourceList src)
+	public GmObject copy(ResourceList src)
+		{
+		return copy(true,src);
+		}
+	
+	@SuppressWarnings("unchecked")
+	private GmObject copy(boolean update, ResourceList src)
 		{
 		GmObject obj = new GmObject();
 		obj.sprite = sprite;

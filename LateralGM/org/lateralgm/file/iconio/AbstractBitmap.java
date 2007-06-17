@@ -56,7 +56,6 @@ public abstract class AbstractBitmap
 		{
 		if (descriptor.getWidth() == descriptor.getHeight() / 2)
 			{
-			// FIXME Now, this is pretty experimental.
 			return descriptor.getWidth();
 			}
 

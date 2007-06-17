@@ -57,8 +57,19 @@ public class Path extends Resource
 		points.clear();
 		}
 
+	public Path copy()
+		{
+		return copy(false,null);
+		}
+	
 	@SuppressWarnings("unchecked")
-	public Path copy(boolean update, ResourceList src)
+	public Path copy(ResourceList src)
+		{
+		return copy(true,src);
+		}
+	
+	@SuppressWarnings("unchecked")
+	private Path copy(boolean update, ResourceList src)
 		{
 		Path path = new Path();
 		path.smooth = smooth;

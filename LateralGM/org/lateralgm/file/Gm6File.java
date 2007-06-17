@@ -56,7 +56,6 @@ import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
 
-//TODO Re-implement the icon loading code using com.ctreber.aclib.ico
 public class Gm6File
 	{
 	private Map<Byte,ResourceList<?>> resMap = new HashMap<Byte,ResourceList<?>>();

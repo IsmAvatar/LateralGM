@@ -165,7 +165,13 @@ public class ResourceList<R extends Resource>
 		{
 		R res = get(id);
 		R res2 = null;
-		if (res != null) res2 = (R) res.copy(update,this);
+		if (res != null)
+			{
+			if (update)
+				res2 = (R) res.copy(this);
+			else
+				res2 = (R) res.copy();
+			}
 		return res2;
 		}
 
