@@ -142,37 +142,9 @@ public class GmStreamEncoder
 
 	public void writeIdStr(ResId id, byte type, Gm6File src) throws IOException
 		{
-		Resource res = null;
-		switch (type)
-			{
-			case Argument.ARG_SPRITE:
-				res = src.sprites.get(id);
-				break;
-			case Argument.ARG_SOUND:
-				res = src.sounds.get(id);
-				break;
-			case Argument.ARG_BACKGROUND:
-				res = src.backgrounds.get(id);
-				break;
-			case Argument.ARG_PATH:
-				res = src.paths.get(id);
-				break;
-			case Argument.ARG_SCRIPT:
-				res = src.scripts.get(id);
-				break;
-			case Argument.ARG_FONT:
-				res = src.fonts.get(id);
-				break;
-			case Argument.ARG_TIMELINE:
-				res = src.timelines.get(id);
-				break;
-			case Argument.ARG_GMOBJECT:
-				res = src.gmObjects.get(id);
-				break;
-			case Argument.ARG_ROOM:
-				res = src.rooms.get(id);
-				break;
-			}
+		// We can guarantee that "type" corresponds to one of the preset Resource types
+		byte kind = Argument.getResourceKind(type);
+		Resource res = src.getList(kind).get(id);
 		if (id != null && res != null)
 			{
 			writeStr(Integer.toString(id.getValue()));

@@ -93,8 +93,8 @@ public class EventFrame extends JInternalFrame implements MouseListener,ActionLi
 
 		JLabel lab = new JLabel(Messages.getString("EventFrame.COLLISION_OBJECT"));
 		addDim(side2,lab,140,16); //$NON-NLS-1$
-		collisionSelect = new ResourceMenu(Resource.GMOBJECT,Messages
-				.getString("EventFrame.CHOOSE_OBJECT"),true,140); //$NON-NLS-1$
+		collisionSelect = new ResourceMenu(Resource.GMOBJECT,
+				Messages.getString("EventFrame.CHOOSE_OBJECT"),true,140); //$NON-NLS-1$
 		side2.add(collisionSelect);
 
 		addDim(side2,new JLabel(Messages.getString("EventFrame.FRAME_LINK")),140,16); //$NON-NLS-1$
@@ -156,7 +156,8 @@ public class EventFrame extends JInternalFrame implements MouseListener,ActionLi
 		mouse.add(MainEvent.EV_MOUSE,Event.EV_MOUSE_WHEEL_UP);
 		mouse.add(MainEvent.EV_MOUSE,Event.EV_MOUSE_WHEEL_DOWN);
 
-		EventNode global = new EventNode(Messages.getString("EventFrame.GLOBAL_MOUSE"),-1); //$NON-NLS-1$
+		String globMouseStr = Messages.getString("EventFrame.GLOBAL_MOUSE");
+		EventNode global = new EventNode(globMouseStr,-1); //$NON-NLS-1$
 		mouse.add(global);
 		for (int i = Event.EV_GLOBAL_LEFT_BUTTON; i <= Event.EV_GLOBAL_MIDDLE_RELEASE; i++)
 			global.add(MainEvent.EV_MOUSE,i);

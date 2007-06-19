@@ -62,6 +62,23 @@ public class Argument
 		{
 		}
 
+	public static byte getResourceKind(byte argumentKind)
+		{
+		switch (argumentKind)
+			{
+			case ARG_SPRITE: return Resource.SPRITE;
+			case ARG_SOUND: return Resource.SOUND;
+			case ARG_BACKGROUND: return Resource.BACKGROUND;
+			case ARG_PATH: return Resource.PATH;
+			case ARG_SCRIPT: return Resource.SCRIPT;
+			case ARG_GMOBJECT: return Resource.GMOBJECT;
+			case ARG_ROOM: return Resource.ROOM;
+			case ARG_FONT: return Resource.FONT;
+			case ARG_TIMELINE: return Resource.TIMELINE;
+			default : return 0;
+			}
+		}
+
 	//TODO: Add support for ResourceMenu
 	private JComponent makeEditor(LibArgument la)
 		{
