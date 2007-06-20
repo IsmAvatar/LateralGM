@@ -12,6 +12,7 @@ package org.lateralgm.components;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +40,7 @@ public class GmMenuBar extends JMenuBar
 			Matcher m = Pattern.compile("\t+([^\\s])$").matcher(input);
 			if (m.find())
 				{
-				int alt = (int) m.group(1).toUpperCase().charAt(0);
+				int alt = (int) m.group(1).toUpperCase(Locale.ENGLISH).charAt(0);
 				item.setMnemonic(alt);
 				item.setText(input.substring(0,m.start()));
 				}

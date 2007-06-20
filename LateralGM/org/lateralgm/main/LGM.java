@@ -238,7 +238,6 @@ public class LGM extends JPanel
 			}
 		catch (Exception e)
 			{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			}
 		gameInfo = new GameInformationFrame();

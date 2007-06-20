@@ -75,6 +75,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public SubimagePreview preview;
 
+	
 	public SpriteFrame(Sprite res, ResNode node)
 		{
 		super(res,node);
@@ -85,6 +86,26 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		setFrameIcon(frameIcon);
 
 		JPanel side1 = new JPanel(new FlowLayout());
+		makeSide1(side1);
+
+		JPanel side2 = new JPanel(new FlowLayout());
+		makeSide2(side2);
+
+		preview = new SubimagePreview(this);
+		preview.setVerticalAlignment(SwingConstants.TOP);
+		JScrollPane scroll = new JScrollPane(preview);
+
+		updateBoundingBox();
+		updateImage();
+		updateInfo();
+
+		add(side1);
+		add(side2);
+		add(scroll);
+		}
+	
+	private void makeSide1(JPanel side1)
+		{
 		side1.setMinimumSize(new Dimension(180,280));
 		side1.setMaximumSize(new Dimension(180,Integer.MAX_VALUE));
 		side1.setPreferredSize(new Dimension(180,280));
@@ -149,8 +170,10 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
 		save.setIcon(saveIcon);
 		side1.add(save);
-
-		JPanel side2 = new JPanel(new FlowLayout());
+		}
+	
+	private void makeSide2(JPanel side2)
+		{
 		side2.setMinimumSize(new Dimension(200,280));
 		side2.setPreferredSize(new Dimension(200,280));
 		side2.setMaximumSize(new Dimension(200,Integer.MAX_VALUE));
@@ -174,7 +197,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		String t = Messages.getString("SpriteFrame.ORIGIN"); //$NON-NLS-1$
 		origin.setBorder(BorderFactory.createTitledBorder(t));
 		origin.setPreferredSize(new Dimension(200,80));
-		lab = new JLabel(Messages.getString("SpriteFrame.X")); //$NON-NLS-1$
+		JLabel lab = new JLabel(Messages.getString("SpriteFrame.X")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(20,16));
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		origin.add(lab);
@@ -255,18 +278,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		bbox.add(bboxBottom);
 
 		side2.add(bbox);
-
-		preview = new SubimagePreview(this);
-		preview.setVerticalAlignment(SwingConstants.TOP);
-		JScrollPane scroll = new JScrollPane(preview);
-
-		updateBoundingBox();
-		updateImage();
-		updateInfo();
-
-		add(side1);
-		add(side2);
-		add(scroll);
 		}
 
 	@Override

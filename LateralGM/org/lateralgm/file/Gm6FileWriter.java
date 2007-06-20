@@ -22,6 +22,8 @@
 
 package org.lateralgm.file;
 
+//TODO: Make similar structure changes as were made to Gm6FileReader
+
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;

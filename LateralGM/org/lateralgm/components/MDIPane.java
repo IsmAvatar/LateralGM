@@ -56,7 +56,6 @@ public class MDIPane extends JDesktopPane
 					}
 				catch (PropertyVetoException e)
 					{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 					}
 				}
@@ -98,7 +97,6 @@ public class MDIPane extends JDesktopPane
 					}
 				catch (PropertyVetoException e)
 					{
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 					}
 			else
@@ -119,7 +117,6 @@ public class MDIPane extends JDesktopPane
 					}
 				catch (PropertyVetoException e)
 					{
-					// TODO Auto-generated catch block
 				e.printStackTrace();
 				}
 		else
@@ -139,7 +136,6 @@ public class MDIPane extends JDesktopPane
 				}
 			catch (PropertyVetoException e)
 				{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				}
 			}

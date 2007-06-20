@@ -8,13 +8,27 @@
 
 package org.lateralgm.components;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.sub.Event;
+import org.lateralgm.resources.sub.MainEvent;
 
-public class EventNode extends DefaultMutableTreeNode
+public class EventNode extends DefaultMutableTreeNode implements Transferable
 	{
 	private static final long serialVersionUID = 1L;
+	public static final DataFlavor EVENTNODE_FLAVOR = new DataFlavor(
+			DataFlavor.javaJVMLocalObjectMimeType,"GiantMushroom");
+	private DataFlavor[] flavors = { EVENTNODE_FLAVOR };
+	public int mainId;
+	public int eventId;
+	public ResId other;
 
 	public EventNode(String text, int mainId)
 		{
@@ -24,6 +38,8 @@ public class EventNode extends DefaultMutableTreeNode
 	public EventNode(String text, int mainId, int eventId)
 		{
 		setUserObject(text);
+		this.mainId = mainId;
+		this.eventId = eventId;
 		}
 
 	public void add(int mainId, int eventId)
@@ -34,5 +50,36 @@ public class EventNode extends DefaultMutableTreeNode
 	public void add(int mainId)
 		{
 		add(new EventNode(Messages.getString("MainEvent.EVENT" + mainId),mainId));
+		}
+
+	public boolean isValid()
+		{
+		switch (mainId)
+			{
+			case MainEvent.EV_KEYBOARD:
+			case MainEvent.EV_KEYPRESS:
+			case MainEvent.EV_KEYRELEASE:
+				return Event.KEYS.contains(eventId);
+			case MainEvent.EV_COLLISION:
+				return other != null;
+			default:
+				return true;
+			}
+		}
+
+	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,IOException
+		{
+		if (flavor != EVENTNODE_FLAVOR) throw new UnsupportedFlavorException(flavor);
+		return this;
+		}
+
+	public DataFlavor[] getTransferDataFlavors()
+		{
+		return flavors;
+		}
+
+	public boolean isDataFlavorSupported(DataFlavor flavor)
+		{
+		return flavor.equals(EVENTNODE_FLAVOR);
 		}
 	}

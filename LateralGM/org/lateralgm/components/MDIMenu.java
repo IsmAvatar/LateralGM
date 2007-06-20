@@ -115,7 +115,6 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener,
 						}
 					catch (PropertyVetoException e1)
 						{
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 						}
 				else
@@ -184,10 +183,15 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener,
 					}
 		}
 
-	//unused
-
-	public void componentRemoved(ContainerEvent e)
+	public void componentShown(ComponentEvent e)
 		{
+		componentAdded(new ContainerEvent(pane,ContainerEvent.COMPONENT_ADDED,e.getComponent()));
+		}
+
+	public void componentHidden(ComponentEvent e)
+		{
+		internalFrameClosed(new InternalFrameEvent((JInternalFrame) e.getSource(),
+				InternalFrameEvent.INTERNAL_FRAME_CLOSED));
 		}
 
 	public void internalFrameActivated(InternalFrameEvent e)
@@ -198,6 +202,11 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener,
 					{
 					((FrameItem) getItem(i)).setSelected(true);
 					}
+		}
+
+	//unused
+	public void componentRemoved(ContainerEvent e)
+		{
 		}
 
 	public void internalFrameClosing(InternalFrameEvent e)
@@ -220,26 +229,12 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener,
 		{
 		}
 
-	public void componentHidden(ComponentEvent e)
-		{
-		internalFrameClosed(new InternalFrameEvent((JInternalFrame) e.getSource(),
-				InternalFrameEvent.INTERNAL_FRAME_CLOSED));
-		}
-
 	public void componentMoved(ComponentEvent e)
 		{
-		// TODO Auto-generated method stub
-
 		}
 
 	public void componentResized(ComponentEvent e)
 		{
-		// TODO Auto-generated method stub
-
 		}
 
-	public void componentShown(ComponentEvent e)
-		{
-		componentAdded(new ContainerEvent(pane,ContainerEvent.COMPONENT_ADDED,e.getComponent()));
-		}
 	}

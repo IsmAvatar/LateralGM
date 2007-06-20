@@ -10,6 +10,7 @@
 package org.lateralgm.main;
 
 import java.awt.Font;
+import java.awt.event.KeyEvent;
 
 public class Prefs
 	{
@@ -22,4 +23,5 @@ public class Prefs
 			"font_","","","time_" };
 	public static String defaultLibraryPath = "org/lateralgm/resources/library/lib";
 	public static String userLibraryPath = null;
+	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 	}

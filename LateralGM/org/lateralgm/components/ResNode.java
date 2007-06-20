@@ -13,7 +13,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.beans.PropertyVetoException;
-import java.util.Arrays;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -88,7 +87,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 
 	public boolean isDataFlavorSupported(DataFlavor flavor)
 		{
-		return Arrays.asList(flavors).contains(flavor);
+		return flavor == NODE_FLAVOR;
 		}
 
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException

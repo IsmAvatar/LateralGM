@@ -22,6 +22,7 @@
 
 package org.lateralgm.components;
 
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -64,7 +65,21 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 
 	public static byte stringToRes(String com)
 		{
-		if (com.equals("SPRITE")) //$NON-NLS-1$
+		if (com.equals("OBJECT")) //$NON-NLS-1$
+			{
+			return Resource.GMOBJECT;
+			}
+		try
+			{
+			return Resource.class.getDeclaredField(com).getByte(null);
+			}
+		catch (Exception e)
+			{
+			e.printStackTrace();
+			}
+		return -1;
+		
+		/*if (com.equals("SPRITE")) //$NON-NLS-1$
 			{
 			return Resource.SPRITE;
 			}
@@ -100,7 +115,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			{
 			return Resource.ROOM;
 			}
-		return -1;
+		return -1;*/
 		}
 
 	private void openFile(JTree tree, String[] args)
@@ -133,7 +148,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			f.createToolBar();
 			f.createTree(newroot,false);
 			LGM.frame.setJMenuBar(new GmMenuBar());
-			tree.setSelectionPath(new TreePath(LGM.root).pathByAddingChild(LGM.root.getChildAt(0)));
+			tree.setSelectionRow(0);
 			f.setOpaque(true);
 			LGM.frame.setContentPane(f);
 			f.updateUI();
@@ -276,7 +291,6 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					}
 				catch (PropertyVetoException e1)
 					{
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 					}
 				}
@@ -388,6 +402,9 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 	public boolean canImport(TransferHandler.TransferSupport support)
 		{
 		if (!support.isDataFlavorSupported(ResNode.NODE_FLAVOR)) return false;
+		// the above method uses equals(), which does not work as expected
+		for (DataFlavor f : support.getDataFlavors())
+			if (f != ResNode.NODE_FLAVOR) return false;
 		TreePath drop = ((JTree.DropLocation) support.getDropLocation()).getPath();
 		if (drop == null) return false;
 		ResNode dropNode = (ResNode) drop.getLastPathComponent();

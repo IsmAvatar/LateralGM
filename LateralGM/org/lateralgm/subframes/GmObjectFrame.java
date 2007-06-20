@@ -15,14 +15,18 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -35,6 +39,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
+import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -44,6 +49,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.lateralgm.components.EventNode;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
@@ -84,6 +90,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public JButton information;
 
 	public JTree events;
+	public EventGroupNode rootEvent;
 	public JList actions;
 	public GMLTextArea code;
 
@@ -182,9 +189,9 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
 		lab = new JLabel(Messages.getString("GmObjectFrame.EVENTS")); //$NON-NLS-1$
 		side2.add(lab,"North"); //$NON-NLS-1$
-		events = makeEventTree(res);
+		makeEventTree(res);
 		JScrollPane scroll = new JScrollPane(events);
-		scroll.setPreferredSize(new Dimension(90,260));
+		scroll.setPreferredSize(new Dimension(140,260));
 		side2.add(scroll,"Center"); //$NON-NLS-1$
 
 		add(side1);
@@ -209,28 +216,206 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			events.setSelectionPath(new TreePath(((DefaultMutableTreeNode) event).getPath()));
 		}
 
-	public JTree makeEventTree(GmObject res)
+	private class EventNodeTransferHandler extends TransferHandler
 		{
-		DefaultMutableTreeNode rootEvent = new DefaultMutableTreeNode();
+		private static final long serialVersionUID = 1L;
+
+		protected Transferable createTransferable(JComponent c)
+			{
+			return null;
+			}
+
+		public int getSourceActions(JComponent c)
+			{
+			return NONE;
+			}
+
+		public boolean canImport(TransferHandler.TransferSupport support)
+			{
+			if (!support.isDataFlavorSupported(EventNode.EVENTNODE_FLAVOR)) return false;
+			EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
+			if (t == null || !t.isValid()) return false;
+			for (DataFlavor f : support.getDataFlavors())
+				if (f == EventNode.EVENTNODE_FLAVOR) return true;
+			return false;
+			}
+
+		public boolean importData(TransferHandler.TransferSupport support)
+			{
+			if (!canImport(support)) return false;
+			// This is a bad way to do it, but support.getTransferable() doesn't work...
+			try
+				{
+				if (!LGM.eventSelect.replace.isSelected())
+					{
+					EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
+					if (t.isValid()) addEvent(new Event(t.mainId,t.eventId,t.other));
+					}
+				else
+					{
+					//TODO
+					}
+				}
+			catch (Throwable e)
+				{
+				// This is just to stop the dnd system from silencing exceptions
+				e.printStackTrace();
+				}
+			return true;
+			}
+		}
+
+	private class EventInstanceNode extends DefaultMutableTreeNode implements
+			Comparable<EventInstanceNode>
+		{
+		private static final long serialVersionUID = 1L;
+
+		public EventInstanceNode(Event e)
+			{
+			super(e);
+			}
+
+		public Event getUserObject()
+			{
+			return (Event) super.getUserObject();
+			}
+
+		public int compareTo(EventInstanceNode n)
+			{
+			return getUserObject().compareTo(n.getUserObject());
+			}
+		}
+
+	private class EventGroupNode extends DefaultMutableTreeNode
+		{
+		private static final long serialVersionUID = 1L;
+		public int mainId;
+
+		public EventGroupNode(int mainId)
+			{
+			super(Messages.getString("MainEvent.EVENT" + mainId));
+			this.mainId = mainId;
+			}
+
+		public boolean contains(Event e)
+			{
+			for (int i = 0; i < getChildCount(); i++)
+				{
+				if (((EventInstanceNode) getChildAt(i)).getUserObject().equals(e)) return true;
+				}
+			return false;
+			}
+
+		@SuppressWarnings("unchecked")
+		public void sortChildren()
+			{
+			// This doesn't seem to have any unwanted effects (directly sorting the protected field)
+			Collections.sort((java.util.Vector<EventInstanceNode>) children);
+			}
+
+		public TreePath childPath(Event e)
+			{
+			for (int i = 0; i < getChildCount(); i++)
+				if (getChildAt(i) instanceof EventInstanceNode
+						&& ((EventInstanceNode) getChildAt(i)).getUserObject().equals(e))
+					return new TreePath(((EventInstanceNode) getChildAt(i)).getPath());
+			return null;
+			}
+
+		public void select(Event e)
+			{
+			TreePath p = childPath(e);
+			events.setSelectionPath(p);
+			events.updateUI();
+			events.scrollPathToVisible(p);
+			events.updateUI();
+			}
+		}
+
+	public void addEvent(Event e)
+		{
+		for (int i = 0; i < rootEvent.getChildCount(); i++)
+			{
+			DefaultMutableTreeNode n = (DefaultMutableTreeNode) rootEvent.getChildAt(i);
+			if (n instanceof EventGroupNode)
+				{
+				EventGroupNode group = (EventGroupNode) n;
+				if (group.mainId == e.mainId)
+					{
+					if (!group.contains(e))
+						{
+						group.add(new EventInstanceNode(e));
+						group.sortChildren();
+						}
+					group.select(e);
+					return;
+					}
+				}
+			else
+				{
+				EventInstanceNode ein = (EventInstanceNode) n;
+				if (ein.getUserObject().mainId == e.mainId)
+					{
+					if (!ein.getUserObject().equals(e))
+						{
+						EventGroupNode group = new EventGroupNode(e.mainId); //$NON-NLS-1$
+						int ind = rootEvent.getIndex(ein);
+						rootEvent.remove(ind);
+						rootEvent.insert(group,ind);
+						group.add(ein);
+						group.add(new EventInstanceNode(e));
+						group.sortChildren();
+						group.select(e);
+						}
+					else
+						{
+						rootEvent.select(e);
+						}
+					return;
+					}
+				}
+			}
+		for (int i = 0; i < rootEvent.getChildCount(); i++)
+			{
+			int mid;
+			if (rootEvent.getChildAt(i) instanceof EventInstanceNode)
+				mid = ((EventInstanceNode) rootEvent.getChildAt(i)).getUserObject().mainId;
+			else
+				mid = ((EventGroupNode) rootEvent.getChildAt(i)).mainId;
+			if (mid > e.mainId)
+				{
+				EventInstanceNode ein = new EventInstanceNode(e);
+				rootEvent.insert(ein,i);
+				rootEvent.select(e);
+				return;
+				}
+			}
+		EventInstanceNode ein = new EventInstanceNode(e);
+		rootEvent.add(ein);
+		rootEvent.select(e);
+		}
+
+	public void makeEventTree(GmObject res)
+		{
+		rootEvent = new EventGroupNode(-1);
 		for (int m = 0; m < 11; m++)
 			{
 			MainEvent me = res.mainEvents[m];
 			ArrayList<Event> ale = me.events;
 			if (ale.size() == 1)
 				{
-				rootEvent.add(new DefaultMutableTreeNode(ale.get(0)));
+				rootEvent.add(new EventInstanceNode(ale.get(0)));
 				}
 			if (ale.size() > 1)
 				{
-				DefaultMutableTreeNode node = new DefaultMutableTreeNode(Messages
-						.getString("MainEvent.EVENT" + m)); //$NON-NLS-1$
+				EventGroupNode node = new EventGroupNode(m); //$NON-NLS-1$
 				rootEvent.add(node);
 				for (Event e : ale)
-					node.add(new DefaultMutableTreeNode(e));
+					node.add(new EventInstanceNode(e));
 				}
 			}
-		JTree tree = new JTree(rootEvent);
-		tree.setScrollsOnExpand(true);
+		events = new JTree(rootEvent);
+		events.setScrollsOnExpand(true);
 		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer()
 			{
 				private static final long serialVersionUID = 1L;
@@ -242,18 +427,20 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					return this;
 					}
 			};
-		tree.setCellRenderer(renderer);
-		tree.setRootVisible(false);
-		tree.setShowsRootHandles(true);
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.addTreeSelectionListener(this);
-		return tree;
+		events.setCellRenderer(renderer);
+		events.setRootVisible(false);
+		events.setShowsRootHandles(true);
+		events.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		events.addTreeSelectionListener(this);
+		events.setDragEnabled(true);
+		events.setDropMode(DropMode.ON);
+		events.setTransferHandler(new EventNodeTransferHandler());
 		}
 
 	public static JList addActionPane(JComponent container)
 		{
 		JPanel side3 = new JPanel(new BorderLayout());
-		side3.setPreferredSize(new Dimension(100,319));
+		side3.setPreferredSize(new Dimension(50,319));
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.ACTIONS")); //$NON-NLS-1$
 		side3.add(lab,"North"); //$NON-NLS-1$
 		JList list = new JList();
@@ -278,8 +465,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					{
 					String escape = "FrNw01234567"; //$NON-NLS-1$
 					String ret = ""; //$NON-NLS-1$
-					s = s.replaceAll("\n","<br>");
-					
+					//s = s.replaceAll("\n","<br>");
+
 					int k = 0;
 					int p = s.indexOf("@"); //$NON-NLS-1$
 					while (p != -1)
@@ -391,8 +578,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public static JTabbedPane makeLibraryTabs()
 		{
 		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
-		
-		//tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+
+		tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		JPanel lp = null;
 		for (Library l : LibManager.libs)
 			{
