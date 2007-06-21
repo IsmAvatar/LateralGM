@@ -80,6 +80,7 @@ public class EventFrame extends JInternalFrame implements MouseListener,ActionLi
 		this.toggle = toggle;
 		setSize(300,310);
 		setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
+		setFrameIcon(LGM.getIconForKey("LGM.TOGGLE_EVENT"));
 		setMinimumSize(new Dimension(300,260));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
 		JPanel side1 = new JPanel(new BorderLayout());
@@ -97,9 +98,9 @@ public class EventFrame extends JInternalFrame implements MouseListener,ActionLi
 
 		replace = new JCheckBox("Replace Mode");
 		addDim(side2,replace,120,16);
-		
+
 		addGap(side2,100,10);
-		
+
 		addDim(new JLabel(Messages.getString("EventFrame.KEY_SELECTOR")),140,16); //$NON-NLS-1$
 		keySelect = new EventKeyInput(this);
 		addDim(keySelect,140,20);
@@ -107,10 +108,11 @@ public class EventFrame extends JInternalFrame implements MouseListener,ActionLi
 
 		JLabel lab = new JLabel(Messages.getString("EventFrame.COLLISION_OBJECT"));
 		addDim(side2,lab,140,16); //$NON-NLS-1$
-		collisionSelect = new ResourceMenu(Resource.GMOBJECT,
-				Messages.getString("EventFrame.CHOOSE_OBJECT"),true,140); //$NON-NLS-1$
+		collisionSelect = new ResourceMenu(Resource.GMOBJECT,Messages
+				.getString("EventFrame.CHOOSE_OBJECT"),true,140); //$NON-NLS-1$
 		side2.add(collisionSelect);
 		collisionSelect.setEnabled(false);
+		collisionSelect.addActionListener(this);
 
 		addDim(side2,new JLabel(Messages.getString("EventFrame.FRAME_LINK")),140,16); //$NON-NLS-1$
 		frameName = new JTextField();
@@ -119,7 +121,7 @@ public class EventFrame extends JInternalFrame implements MouseListener,ActionLi
 		frameChoose = new JButton(Resource.ICON[Resource.GMOBJECT]);
 		frameChoose.addMouseListener(this);
 		addDim(frameChoose,20,20);
-		
+
 		addGap(side2,50,15);
 
 		onTop = new JCheckBox(Messages.getString("EventFrame.ALWAYS_ON_TOP")); //$NON-NLS-1$
@@ -347,6 +349,12 @@ public class EventFrame extends JInternalFrame implements MouseListener,ActionLi
 		if (e.getSource() == onTop)
 			{
 			setLayer(onTop.isSelected() ? JLayeredPane.MODAL_LAYER : JLayeredPane.DEFAULT_LAYER);
+			return;
+			}
+		if (e.getSource() == collisionSelect)
+			{
+			if (selectedNode.mainId == MainEvent.EV_COLLISION && collisionSelect.getSelected() != null)
+				selectedNode.other = collisionSelect.getSelected().getId();
 			}
 
 		}

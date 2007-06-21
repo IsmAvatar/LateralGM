@@ -185,6 +185,7 @@ public final class Util
 
 	public static String convertIndents(String s)
 		{
+		//TODO: correct the line splitting behaviour (try for example "\n\n\n" as an input)
 		String lines[] = s.split("\n");
 		StringBuffer buf = new StringBuffer();
 		for (String str : lines)

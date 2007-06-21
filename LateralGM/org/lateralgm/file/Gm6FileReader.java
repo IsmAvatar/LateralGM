@@ -162,11 +162,13 @@ public final class Gm6FileReader
 				}
 			catch (IOException ex)
 				{
-				String key = Messages.getString("Gm6FileReader.ERROR_CLOSEFAILED");
-				throw new Gm6FormatException(key); //$NON-NLS-1$
+				String key = Messages.getString("Gm6FileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				throw new Gm6FormatException(key);
 				}
 			}
-		return f;
+		Gm6File file = f;
+		f = null;
+		return file;
 		}
 
 	private static void readSettings() throws IOException,Gm6FormatException,DataFormatException

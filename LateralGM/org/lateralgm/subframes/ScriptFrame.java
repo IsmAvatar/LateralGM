@@ -15,7 +15,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JToolBar;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
 
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.ResNode;
@@ -51,7 +50,6 @@ public class ScriptFrame extends ResourceFrame<Script>
 		// the code text area
 		code = new GMLTextArea(res.scriptStr);
 		getContentPane().add(code);
-		addInternalFrameListener(new ScriptFrameListener());
 		}
 
 	public void revertResource()
@@ -72,36 +70,19 @@ public class ScriptFrame extends ResourceFrame<Script>
 				|| !resOriginal.getName().equals(name.getText());
 		}
 
-	private class ScriptFrameListener implements InternalFrameListener
+	public void fireInternalFrameEvent(int id)
 		{
-		public void internalFrameActivated(InternalFrameEvent e)
+		switch (id)
 			{
-			code.grabFocus();
+			case InternalFrameEvent.INTERNAL_FRAME_CLOSED:
+				LGM.currentFile.removeChangeListener(code.rcl);
+				break;
+			case InternalFrameEvent.INTERNAL_FRAME_ACTIVATED:
+				code.grabFocus();
+				break;
+			default:
+				break;
 			}
-
-		public void internalFrameClosed(InternalFrameEvent e)
-			{
-			LGM.currentFile.removeChangeListener(code.rcl);
-			}
-
-		public void internalFrameClosing(InternalFrameEvent e)
-			{
-			}
-
-		public void internalFrameDeactivated(InternalFrameEvent e)
-			{
-			}
-
-		public void internalFrameDeiconified(InternalFrameEvent e)
-			{
-			}
-
-		public void internalFrameIconified(InternalFrameEvent e)
-			{
-			}
-
-		public void internalFrameOpened(InternalFrameEvent e)
-			{
-			}
+		super.fireInternalFrameEvent(id);
 		}
 	}
