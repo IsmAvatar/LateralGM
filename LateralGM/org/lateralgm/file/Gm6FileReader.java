@@ -149,7 +149,6 @@ public final class Gm6FileReader
 			}
 		finally
 			{
-			f = null;
 			timeids = null;
 			objids = null;
 			rmids = null;
