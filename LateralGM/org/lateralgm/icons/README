@@ -1,0 +1,36 @@
+This directory contains the following icons (.png extension omitted):
+
+ Resource icons for LGM:
+   restree/
+     background font object path room script sound sprite timeline
+ Copyright 2006 DeathFinderxx <deathfinderxx@yahoo.com>
+
+ Nuvola icon theme for KDE 3.x:
+   actions/
+     accept cancel colorize copy cut event find new next open paste previous
+     redo save save-as sound-play sound-stop undo
+   restree/
+     gm group group-open info
+ Copyright 2003-2004 David Vignoni
+
+ Stock icons for OpenOffice.org:
+   actions/
+     text-bold text-italic text-underlined
+ Copyright 2003 Novell, Inc.
+
+
+The icons in this directory are part of Lateral GM.
+
+Lateral GM is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+Lateral GM is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License (COPYING) for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lateral GM; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA

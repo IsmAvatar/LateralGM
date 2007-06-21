@@ -219,7 +219,6 @@ public class LGM extends JPanel
 		mdi.setBackground(Color.BLACK);
 		mdi.add(gameSet);
 		mdi.add(gameInfo);
-		//TODO: Get an icon for event selector
 		JToggleButton toggle = (JToggleButton) makeButton(new JToggleButton(),"LGM.TOGGLE_EVENT");
 		tool.addSeparator();
 		tool.add(toggle);

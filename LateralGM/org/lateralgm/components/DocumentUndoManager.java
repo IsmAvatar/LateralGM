@@ -22,6 +22,7 @@ import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 
+import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 
 @SuppressWarnings("serial")
@@ -33,7 +34,8 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 
 	public DocumentUndoManager()
 		{
-		undoAction = new AbstractAction(Messages.getString("DocumentUndoManager.UNDO"))
+		undoAction = new AbstractAction(Messages.getString("DocumentUndoManager.UNDO"),
+				LGM.getIconForKey("DocumentUndoManager.UNDO"))
 			{
 				private static final long serialVersionUID = 1L;
 
@@ -50,7 +52,8 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 					updateActions();
 					}
 			};
-		redoAction = new AbstractAction(Messages.getString("DocumentUndoManager.REDO"))
+		redoAction = new AbstractAction(Messages.getString("DocumentUndoManager.REDO"),
+				LGM.getIconForKey("DocumentUndoManager.REDO"))
 			{
 				private static final long serialVersionUID = 1L;
 

@@ -138,7 +138,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		showLab.setHorizontalAlignment(JLabel.CENTER);
 		side1.add(showLab);
 		// TODO Possibly get an icon for the arrows
-		subLeft = new JButton("<"); //$NON-NLS-1$
+		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
 		subLeft.setPreferredSize(new Dimension(45,20));
 		subLeft.addActionListener(this);
 		side1.add(subLeft);
@@ -148,7 +148,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		show.setPreferredSize(new Dimension(30,20));
 		show.setHorizontalAlignment(JLabel.CENTER);
 		side1.add(show);
-		subRight = new JButton(">"); //$NON-NLS-1$
+		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
 		subRight.setPreferredSize(new Dimension(45,20));
 		subRight.addActionListener(this);
 		side1.add(subRight);

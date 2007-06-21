@@ -103,7 +103,7 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 		JMenuItem item = addItem("GameInformationFrame.LOAD"); //$NON-NLS-1$
 		menu.add(item);
-		item = addItem("GameInformationFrame.SAVE"); //$NON-NLS-1$
+		item = addItem("GameInformationFrame.FILESAVE"); //$NON-NLS-1$
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.OPTIONS"); //$NON-NLS-1$
@@ -167,9 +167,9 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		tool.setFloatable(false);
 
 		// Setup the buttons
-		JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.SAVE")); //$NON-NLS-1$
+		JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.CLOSESAVE")); //$NON-NLS-1$
 		but.setRequestFocusEnabled(false);
-		but.setActionCommand("GameInformationFrame.SAVE"); //$NON-NLS-1$
+		but.setActionCommand("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
 		but.addActionListener(this);
 		tool.add(but);
 
@@ -216,9 +216,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 		tool.add(sSizes);
 		tool.addSeparator();
 
-		tbBold = new JToggleButton("B");
+		tbBold = new JToggleButton(LGM.getIconForKey("GameInformationFrame.BOLD"));
 		tbBold.setRequestFocusEnabled(false);
-		// m_tbBold.setFont(new java.awt.Font("Courier New",java.awt.Font.BOLD,10));
 		lst = new ActionListener()
 			{
 				public void actionPerformed(ActionEvent arg0)
@@ -228,9 +227,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			};
 		tbBold.addActionListener(lst);
 		tool.add(tbBold);
-		tbItalic = new JToggleButton("I");
+		tbItalic = new JToggleButton(LGM.getIconForKey("GameInformationFrame.ITALIC"));
 		tbItalic.setRequestFocusEnabled(false);
-		// m_tbItalic.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.ITALIC));
 		lst = new ActionListener()
 			{
 				public void actionPerformed(ActionEvent arg0)
@@ -240,11 +238,8 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			};
 		tbItalic.addActionListener(lst);
 		tool.add(tbItalic);
-		tbUnderline = new JToggleButton("U");
+		tbUnderline = new JToggleButton(LGM.getIconForKey("GameInformationFrame.UNDERLINED"));
 		tbUnderline.setRequestFocusEnabled(false);
-		// m_tbUnderline = new JToggleButton("<html><u>U</u></html>");
-		// m_tbUnderline.setFont(m_tbBold.getFont().deriveFont(java.awt.Font.PLAIN));
-		// m_tbUnderline.setMaximumSize(m_tbBold.getSize());
 		lst = new ActionListener()
 			{
 				public void actionPerformed(ActionEvent arg0)
@@ -483,7 +478,12 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 			{
 			loadFromFile();
 			}
-		if (com.equals("GameInformationFrame.SAVE")) //$NON-NLS-1$
+		if (com.equals("GameInformationFrame.CLOSESAVE")) //$NON-NLS-1$
+			{
+			updateResource();
+			setVisible(false);
+			}
+		if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
 			{
 			saveToFile();
 			}

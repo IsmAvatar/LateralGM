@@ -146,14 +146,14 @@ public class ActionFrame extends JInternalFrame implements ActionListener
 			}
 
 		s = Messages.getString("ActionFrame.SAVE"); //$NON-NLS-1$
-		save = new JButton(s);
+		save = new JButton(s,LGM.getIconForKey("ActionFrame.SAVE"));
 		save.addActionListener(this);
-		save.setBounds(5,250,80,20);
+		save.setBounds(5,250,112,20);
 		add(save);
 		s = Messages.getString("ActionFrame.DISCARD"); //$NON-NLS-1$
-		discard = new JButton(s);
+		discard = new JButton(s,LGM.getIconForKey("ActionFrame.DISCARD"));
 		discard.addActionListener(this);
-		discard.setBounds(164,250,80,20);
+		discard.setBounds(132,250,112,20);
 		add(discard);
 
 		repaint();
