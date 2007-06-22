@@ -30,6 +30,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 
 import org.lateralgm.components.CustomFileFilter;
+import org.lateralgm.components.ImagePreview;
 import org.lateralgm.jedit.SyntaxStyle;
 import org.lateralgm.messages.Messages;
 
@@ -44,7 +45,7 @@ public final class Util
 	static
 		{
 		imageFc = new JFileChooser();
-		// fc.setAccessory(new ImagePreview(fc));
+		imageFc.setAccessory(new ImagePreview(imageFc));
 		String exts[] = ImageIO.getReaderFileSuffixes();
 		for (int i = 0; i < exts.length; i++)
 			exts[i] = "." + exts[i]; //$NON-NLS-1$
