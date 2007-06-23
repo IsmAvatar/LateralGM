@@ -22,13 +22,12 @@
 
 package org.lateralgm.file;
 
-//TODO: Make similar structure changes as were made to Gm6FileReader
-
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.lateralgm.components.ResNode;
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Constant;
 import org.lateralgm.resources.Font;
@@ -87,7 +86,7 @@ public final class Gm6FileWriter
 
 			// GAME SETTINGS
 			out.writei(600);
-			out.writei(f.gameInfo.backgroundColor.getRGB());
+			out.writei(Util.getGmColor(f.gameInfo.backgroundColor));
 			out.writeBool(f.gameInfo.mimicGameWindow);
 			out.writeStr(f.gameInfo.formCaption);
 			out.writei(f.gameInfo.left);

@@ -22,7 +22,6 @@
 
 package org.lateralgm.file;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -32,6 +31,7 @@ import javax.imageio.ImageIO;
 
 import org.lateralgm.components.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Constant;
@@ -66,21 +66,37 @@ public final class Gm6FileReader
 		{
 		}
 
-	private static Gm6File f;
-	private static GmStreamDecoder in;
+	//Workaround for Parameter limit
+	static class Gm6FileContext
+		{
+		Gm6File f;
+		GmStreamDecoder in;
+		IdStack timeids;
+		IdStack objids;
+		IdStack rmids;
 
-	private static IdStack timeids;
-	private static IdStack objids;
-	private static IdStack rmids;
+		Gm6FileContext(Gm6File f, GmStreamDecoder in, IdStack timeids, IdStack objids, IdStack rmids)
+			{
+			this.f = f;
+			this.in = in;
+			this.timeids = timeids;
+			this.objids = objids;
+			this.rmids = rmids;
+			}
+		}
 
 	public static Gm6File readGm6File(String fileName, ResNode root) throws Gm6FormatException
 		{
-		f = new Gm6File();
-		in = null;
+		Gm6File f = new Gm6File();
+		GmStreamDecoder in = null;
+		IdStack timeids = new IdStack(); // timeline ids
+		IdStack objids = new IdStack(); // object ids
+		IdStack rmids = new IdStack(); // room id
 		try
 			{
 			long startTime = System.currentTimeMillis();
 			in = new GmStreamDecoder(fileName);
+			Gm6FileContext c = new Gm6FileContext(f,in,timeids,objids,rmids);
 			timeids = new IdStack(); // timeline ids
 			objids = new IdStack(); // object ids
 			rmids = new IdStack(); // room ids
@@ -94,16 +110,16 @@ public final class Gm6FileReader
 				String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
 				throw new Gm6FormatException(String.format(msg,ver));
 				}
-			readSettings();
-			readSounds();
-			readSprites();
-			readBackgrounds();
-			readPaths();
-			readScripts();
-			readFonts();
-			readTimelines();
-			readGmObjects();
-			readRooms();
+			readSettings(c);
+			readSounds(c);
+			readSprites(c);
+			readBackgrounds(c);
+			readPaths(c);
+			readScripts(c);
+			readFonts(c);
+			readTimelines(c);
+			readGmObjects(c);
+			readRooms(c);
 
 			f.lastInstanceId = in.read4();
 			f.lastTileId = in.read4();
@@ -113,7 +129,7 @@ public final class Gm6FileReader
 						.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREINFO"),ver)); //$NON-NLS-1$
 			int bc = in.read4();
 			GameInformation gameInfo = f.gameInfo;
-			if (bc >= 0) gameInfo.backgroundColor = new Color(bc);
+			if (bc >= 0) gameInfo.backgroundColor = Util.convertGmColor(bc);
 			gameInfo.mimicGameWindow = in.readBool();
 			gameInfo.formCaption = in.readStr();
 			gameInfo.left = in.read4();
@@ -171,8 +187,12 @@ public final class Gm6FileReader
 		return file;
 		}
 
-	private static void readSettings() throws IOException,Gm6FormatException,DataFormatException
+	private static void readSettings(Gm6FileContext c) throws IOException,Gm6FormatException,
+			DataFormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		f.gameId = in.read4();
 		in.skip(16); // unknown bytes following game id
 		int ver = in.read4();
@@ -254,8 +274,12 @@ public final class Gm6FileReader
 		f.removeAtGameEnd = in.readBool();
 		}
 
-	private static void readSounds() throws IOException,Gm6FormatException,DataFormatException
+	private static void readSounds(Gm6FileContext c) throws IOException,Gm6FormatException,
+			DataFormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		int ver = in.read4();
 		if (ver != 400)
 			throw new Gm6FormatException(String.format(Messages
@@ -287,8 +311,12 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readSprites() throws IOException,Gm6FormatException,DataFormatException
+	private static void readSprites(Gm6FileContext c) throws IOException,Gm6FormatException,
+			DataFormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		int ver = in.read4();
 		if (ver != 400)
 			throw new Gm6FormatException(String.format(Messages
@@ -330,8 +358,12 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readBackgrounds() throws IOException,Gm6FormatException,DataFormatException
+	private static void readBackgrounds(Gm6FileContext c) throws IOException,Gm6FormatException,
+			DataFormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		int ver = in.read4();
 		if (ver != 400)
 			throw new Gm6FormatException(String.format(Messages
@@ -372,8 +404,11 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readPaths() throws IOException,Gm6FormatException
+	private static void readPaths(Gm6FileContext c) throws IOException,Gm6FormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		int ver = in.read4();
 		if (ver != 420)
 			throw new Gm6FormatException(String.format(Messages
@@ -393,7 +428,7 @@ public final class Gm6FileReader
 				path.smooth = in.readBool();
 				path.closed = in.readBool();
 				path.precision = in.read4();
-				path.backgroundRoom = rmids.get(in.read4());
+				path.backgroundRoom = c.rmids.get(in.read4());
 				path.snapX = in.read4();
 				path.snapY = in.read4();
 				int nopoints = in.read4();
@@ -410,8 +445,11 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readScripts() throws IOException,Gm6FormatException
+	private static void readScripts(Gm6FileContext c) throws IOException,Gm6FormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		int ver = in.read4();
 		if (ver != 400)
 			throw new Gm6FormatException(String.format(Messages
@@ -435,8 +473,11 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readFonts() throws IOException,Gm6FormatException
+	private static void readFonts(Gm6FileContext c) throws IOException,Gm6FormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		int ver = in.read4();
 		if (ver != 540)
 			throw new Gm6FormatException(String.format(Messages
@@ -465,8 +506,11 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readTimelines() throws IOException,Gm6FormatException
+	private static void readTimelines(Gm6FileContext c) throws IOException,Gm6FormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		int ver = in.read4();
 		if (ver != 500)
 			throw new Gm6FormatException(String.format(Messages
@@ -478,7 +522,7 @@ public final class Gm6FileReader
 			if (in.readBool())
 				{
 				Timeline time = f.timelines.add();
-				time.setId(timeids.get(i));
+				time.setId(c.timeids.get(i));
 				time.setName(in.readStr());
 				ver = in.read4();
 				if (ver != 500)
@@ -489,7 +533,7 @@ public final class Gm6FileReader
 					{
 					Moment mom = time.addMoment();
 					mom.stepNo = in.read4();
-					readActions(mom,"Gm6FileReader.ERROR_UNSUPPORTED_INTIMELINEACTION",i,mom.stepNo);
+					readActions(c,mom,"Gm6FileReader.ERROR_UNSUPPORTED_INTIMELINEACTION",i,mom.stepNo);
 					}
 				}
 			else
@@ -497,8 +541,11 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readGmObjects() throws IOException,Gm6FormatException
+	private static void readGmObjects(Gm6FileContext c) throws IOException,Gm6FormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		int ver = in.read4();
 		if (ver != 400)
 			throw new Gm6FormatException(String.format(Messages
@@ -510,7 +557,7 @@ public final class Gm6FileReader
 			if (in.readBool())
 				{
 				GmObject obj = f.gmObjects.add();
-				obj.setId(objids.get(i));
+				obj.setId(c.objids.get(i));
 				obj.setName(in.readStr());
 				ver = in.read4();
 				if (ver != 430)
@@ -522,7 +569,7 @@ public final class Gm6FileReader
 				obj.visible = in.readBool();
 				obj.depth = in.read4();
 				obj.persistent = in.readBool();
-				obj.parent = objids.get(in.read4());
+				obj.parent = c.objids.get(in.read4());
 				temp = f.sprites.getUnsafe(in.read4());
 				if (temp != null) obj.mask = temp.getId();
 				in.skip(4);
@@ -537,12 +584,12 @@ public final class Gm6FileReader
 							Event ev = obj.mainEvents[j].addEvent();
 							if (j == MainEvent.EV_COLLISION)
 								{
-								ev.other = objids.get(first);
+								ev.other = c.objids.get(first);
 								}
 							else
 								ev.id = first;
 							ev.mainId = j;
-							readActions(ev,"Gm6FileReader.ERROR_UNSUPPORTED_INOBJECTACTION",i,j * 1000 + ev.id);
+							readActions(c,ev,"Gm6FileReader.ERROR_UNSUPPORTED_INOBJECTACTION",i,j * 1000 + ev.id);
 							}
 						else
 							done = true;
@@ -554,8 +601,11 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readRooms() throws IOException,Gm6FormatException
+	private static void readRooms(Gm6FileContext c) throws IOException,Gm6FormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		int ver = in.read4();
 		if (ver != 420)
 			throw new Gm6FormatException(String.format(Messages
@@ -567,7 +617,7 @@ public final class Gm6FileReader
 			if (in.readBool())
 				{
 				Room rm = f.rooms.add(new Room(f));
-				rm.setId(rmids.get(i));
+				rm.setId(c.rmids.get(i));
 				rm.setName(in.readStr());
 				ver = in.read4();
 				if (ver != 541)
@@ -669,9 +719,12 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readActions(ActionContainer container, String key, int format1, int format2)
-			throws IOException,Gm6FormatException
+	private static void readActions(Gm6FileContext c, ActionContainer container, String key,
+			int format1, int format2) throws IOException,Gm6FormatException
 		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
 		Resource tag = new Script();
 		int ver = in.read4();
 		if (ver != 400)
@@ -726,7 +779,7 @@ public final class Gm6FileReader
 					act.appliesTo = GmObject.OBJECT_OTHER;
 					break;
 				default:
-					act.appliesTo = objids.get(appliesTo);
+					act.appliesTo = c.objids.get(appliesTo);
 				}
 			act.relative = in.readBool();
 			int actualnoargs = in.read4();
@@ -758,16 +811,16 @@ public final class Gm6FileReader
 							res = f.scripts.getUnsafe(Integer.parseInt(strval));
 							break;
 						case Argument.ARG_GMOBJECT:
-							act.arguments[l].res = objids.get(Integer.parseInt(strval));
+							act.arguments[l].res = c.objids.get(Integer.parseInt(strval));
 							break;
 						case Argument.ARG_ROOM:
-							act.arguments[l].res = rmids.get(Integer.parseInt(strval));
+							act.arguments[l].res = c.rmids.get(Integer.parseInt(strval));
 							break;
 						case Argument.ARG_FONT:
 							res = f.fonts.getUnsafe(Integer.parseInt(strval));
 							break;
 						case Argument.ARG_TIMELINE:
-							act.arguments[l].res = timeids.get(Integer.parseInt(strval));
+							act.arguments[l].res = c.timeids.get(Integer.parseInt(strval));
 							break;
 						default:
 							act.arguments[l].val = strval;
@@ -786,5 +839,4 @@ public final class Gm6FileReader
 			act.not = in.readBool();
 			}
 		}
-
 	}

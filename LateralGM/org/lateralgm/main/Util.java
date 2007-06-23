@@ -214,4 +214,14 @@ public final class Util
 		if (!s.endsWith("\n")) buf.deleteCharAt(buf.length() - 1);
 		return buf.toString();
 		}
+
+	public static Color convertGmColor(int col)
+		{
+		return new Color(col & 0xFF,(col & 0xFF00) >> 8,(col & 0xFF0000) >> 16);
+		}
+
+	public static int getGmColor(Color col)
+		{
+		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16;
+		}
 	}
