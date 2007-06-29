@@ -42,13 +42,12 @@ import org.lateralgm.resources.Sound;
 public class SoundFrame extends ResourceFrame<Sound>
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon frameIcon = Sound.ICON[Sound.SOUND];
-	private static ImageIcon loadIcon = LGM.getIconForKey("SoundFrame.LOAD"); //$NON-NLS-1$
-	private static ImageIcon playIcon = LGM.getIconForKey("SoundFrame.PLAY"); //$NON-NLS-1$
-	private static ImageIcon stopIcon = LGM.getIconForKey("SoundFrame.STOP"); //$NON-NLS-1$
-	private static ImageIcon storeIcon = LGM.getIconForKey("SoundFrame.STORE"); //$NON-NLS-1$
-	private static ImageIcon editIcon = LGM.getIconForKey("SoundFrame.EDIT"); //$NON-NLS-1$
-	private static ImageIcon saveIcon = LGM.getIconForKey("SoundFrame.SAVE"); //$NON-NLS-1$
+	private static final ImageIcon FRAME_ICON = Sound.ICON[Sound.SOUND];
+	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SoundFrame.LOAD"); //$NON-NLS-1$
+	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SoundFrame.PLAY"); //$NON-NLS-1$
+	private static final ImageIcon STOP_ICON = LGM.getIconForKey("SoundFrame.STOP"); //$NON-NLS-1$
+	private static final ImageIcon STORE_ICON = LGM.getIconForKey("SoundFrame.STORE"); //$NON-NLS-1$
+	private static final ImageIcon EDIT_ICON = LGM.getIconForKey("SoundFrame.EDIT"); //$NON-NLS-1$
 
 	public JButton load;
 	public JButton play;
@@ -83,7 +82,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		setSize(250,550);
 		setResizable(false);
 		setMaximizable(false);
-		setFrameIcon(frameIcon);
+		setFrameIcon(FRAME_ICON);
 
 		setContentPane(new JPanel());
 		setLayout(new FlowLayout());
@@ -95,22 +94,22 @@ public class SoundFrame extends ResourceFrame<Sound>
 		name.setPreferredSize(new Dimension(180,20));
 		add(name);
 
-		load = new JButton(Messages.getString("SoundFrame.LOAD"),loadIcon); //$NON-NLS-1$
+		load = new JButton(Messages.getString("SoundFrame.LOAD"),LOAD_ICON); //$NON-NLS-1$
 		load.setPreferredSize(new Dimension(130,26));
 		load.addActionListener(this);
 		add(load);
 
-		play = new JButton(playIcon);
+		play = new JButton(PLAY_ICON);
 		play.setPreferredSize(new Dimension(26,26));
 		play.addActionListener(this);
 		add(play);
-		stop = new JButton(stopIcon);
+		stop = new JButton(STOP_ICON);
 		stop.setPreferredSize(new Dimension(26,26));
 		stop.addActionListener(this);
 		add(stop);
 
 		addGap(40,1);
-		store = new JButton(Messages.getString("SoundFrame.STORE"),storeIcon);
+		store = new JButton(Messages.getString("SoundFrame.STORE"),STORE_ICON);
 		store.setPreferredSize(new Dimension(130,26));
 		store.addActionListener(this);
 		add(store);
@@ -192,13 +191,12 @@ public class SoundFrame extends ResourceFrame<Sound>
 		add(preload);
 
 		addGap(50,1);
-		edit = new JButton(Messages.getString("SoundFrame.EDIT"),editIcon);
+		edit = new JButton(Messages.getString("SoundFrame.EDIT"),EDIT_ICON);
 		edit.addActionListener(this);
 		add(edit);
 		addGap(50,1);
 
 		save.setPreferredSize(new Dimension(100,27));
-		save.setIcon(saveIcon);
 		save.setText(Messages.getString("SoundFrame.SAVE")); //$NON-NLS-1$
 		save.setAlignmentX(0.5f);
 		add(save);

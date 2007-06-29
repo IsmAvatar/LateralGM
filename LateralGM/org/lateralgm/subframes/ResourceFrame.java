@@ -38,11 +38,11 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 	 * The Resource's name - setup automatically to update the title of the frame and
 	 * the ResNode's text
 	 */
-	public JTextField name;
+	public final JTextField name = new JTextField();
 	/**
 	 * Automatically set up to save and close the frame
 	 */
-	public JButton save; 
+	public final JButton save = new JButton(); 
 	/** The resource this frame is editing
 	 * (feel free to change it as you wish)
 	 */
@@ -55,7 +55,7 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 	/**
 	 * The ResNode this frame is linked to
 	 */
-	public ResNode node;
+	public final ResNode node;
 	
 	public String titlePrefix = ""; //$NON-NLS-1$
 	public String titleSuffix = ""; //$NON-NLS-1$
@@ -71,12 +71,12 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 		resOriginal = (R) res.copy();
 		setTitle(res.getName());
 		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
-		name = new JTextField();
 		name.setDocument(new NameDocument());
 		name.setText(res.getName());
 		name.getDocument().addDocumentListener(this);
 		name.setCaretPosition(0);
-		save = new JButton();
+		save.setToolTipText(Messages.getString("ResourceFrame.SAVE"));
+		save.setIcon(LGM.getIconForKey("ResourceFrame.SAVE"));
 		save.addActionListener(this);
 		}
 

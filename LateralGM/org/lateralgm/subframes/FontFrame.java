@@ -32,8 +32,7 @@ import org.lateralgm.resources.Font;
 public class FontFrame extends ResourceFrame<Font>
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon frameIcon = Font.ICON[Font.FONT];
-	private static ImageIcon saveIcon = LGM.getIconForKey("FontFrame.SAVE"); //$NON-NLS-1$
+	private static final ImageIcon FRAME_ICON = Font.ICON[Font.FONT];
 
 	public JComboBox fonts;
 	public IntegerField size;
@@ -50,7 +49,7 @@ public class FontFrame extends ResourceFrame<Font>
 		setSize(250,390);
 		setResizable(false);
 		setMaximizable(false);
-		setFrameIcon(frameIcon);
+		setFrameIcon(FRAME_ICON);
 
 		setContentPane(new JPanel());
 		setLayout(new FlowLayout());
@@ -151,7 +150,6 @@ public class FontFrame extends ResourceFrame<Font>
 		add(prev);
 
 		save.setPreferredSize(new Dimension(100,27));
-		save.setIcon(saveIcon);
 		save.setText(Messages.getString("FontFrame.SAVE")); //$NON-NLS-1$
 		save.setAlignmentX(0.5f);
 		add(save);

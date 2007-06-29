@@ -41,9 +41,8 @@ import org.lateralgm.resources.Sprite;
 public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon frameIcon = Sprite.ICON[Sprite.SPRITE];
-	private static ImageIcon saveIcon = LGM.getIconForKey("SpriteFrame.SAVE"); //$NON-NLS-1$
-	private static ImageIcon loadIcon = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
+	private static final ImageIcon FRAME_ICON = Sprite.ICON[Sprite.SPRITE];
+	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
 
 	public JButton load;
 	public JLabel width;
@@ -83,7 +82,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		setSize(560,320);
 		setMinimumSize(new Dimension(560,320));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-		setFrameIcon(frameIcon);
+		setFrameIcon(FRAME_ICON);
 
 		JPanel side1 = new JPanel(new FlowLayout());
 		makeSide1(side1);
@@ -117,7 +116,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		name.setPreferredSize(new Dimension(120,20));
 		side1.add(name);
 		load = new JButton(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$
-		load.setIcon(loadIcon);
+		load.setIcon(LOAD_ICON);
 		load.setPreferredSize(new Dimension(130,24));
 		load.addActionListener(this);
 		side1.add(load);
@@ -168,7 +167,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 		save.setPreferredSize(new Dimension(130,24));
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
-		save.setIcon(saveIcon);
 		side1.add(save);
 		}
 	

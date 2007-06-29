@@ -73,8 +73,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		TreeSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon saveIcon = LGM.getIconForKey("GmObjectFrame.SAVE"); //$NON-NLS-1$
-	private static ImageIcon infoIcon = LGM.getIconForKey("GmObjectFrame.INFO"); //$NON-NLS-1$
+	private static final ImageIcon INFO_ICON = LGM.getIconForKey("GmObjectFrame.INFO"); //$NON-NLS-1$
 
 	public JLabel preview;
 	public ResourceMenu sprite;
@@ -173,7 +172,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 
 		addGap(side1,160,4);
 
-		information = new JButton(Messages.getString("GmObjectFrame.INFO"),infoIcon); //$NON-NLS-1$
+		information = new JButton(Messages.getString("GmObjectFrame.INFO"),INFO_ICON); //$NON-NLS-1$
 		information.setPreferredSize(new Dimension(160,20));
 		information.addActionListener(this);
 		side1.add(information);
@@ -182,7 +181,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 
 		save.setPreferredSize(new Dimension(130,24));
 		save.setText(Messages.getString("GmObjectFrame.SAVE")); //$NON-NLS-1$
-		save.setIcon(saveIcon);
 		side1.add(save);
 
 		JPanel side2 = new JPanel(new BorderLayout());

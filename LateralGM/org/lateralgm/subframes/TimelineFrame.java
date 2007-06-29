@@ -36,8 +36,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon frameIcon = Timeline.ICON[Timeline.TIMELINE];
-	private static ImageIcon saveIcon = LGM.getIconForKey("TimelineFrame.SAVE"); //$NON-NLS-1$
+	private static ImageIcon FRAME_ICON = Timeline.ICON[Timeline.TIMELINE];
 
 	public JButton add;
 	public JButton change;
@@ -58,7 +57,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		setSize(560,400);
 		setMinimumSize(new Dimension(560,400));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-		setFrameIcon(frameIcon);
+		setFrameIcon(FRAME_ICON);
 
 		JPanel side1 = new JPanel(new FlowLayout());
 		side1.setPreferredSize(new Dimension(180,280));
@@ -108,7 +107,6 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 
 		save.setPreferredSize(new Dimension(130,24));
 		save.setText(Messages.getString("TimelineFrame.SAVE")); //$NON-NLS-1$
-		save.setIcon(saveIcon);
 		side1.add(save);
 
 		JPanel side2 = new JPanel(new BorderLayout());

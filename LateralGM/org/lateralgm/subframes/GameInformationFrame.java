@@ -87,10 +87,10 @@ public class GameInformationFrame extends JInternalFrame implements ActionListen
 
 	// These prevent the Formatting Bar things from firing when the caret moves
 	// because that would cause the selection to conform the text to the caret format
-	private static boolean fFamilyChange = false;
-	private static boolean fSizeChange = false;
+	private boolean fFamilyChange = false;
+	private boolean fSizeChange = false;
 
-	private static boolean documentChanged = false;
+	private boolean documentChanged = false;
 
 	private JMenuBar makeMenuBar()
 		{

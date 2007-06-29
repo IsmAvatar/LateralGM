@@ -61,6 +61,11 @@ public class GMLTextArea extends JEditTextArea
 		inputHandler.addKeyBinding("C+Z",undoManager.getUndoAction());
 		inputHandler.addKeyBinding("C+Y",undoManager.getRedoAction());
 		}
+	
+	public DocumentUndoManager getUndoManager()
+		{
+		return undoManager;
+		}
 
 	public String getTextCompat()
 		{
