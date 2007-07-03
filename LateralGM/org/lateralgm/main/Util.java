@@ -11,6 +11,9 @@
 package org.lateralgm.main;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -21,13 +24,13 @@ import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.components.ImagePreview;
@@ -156,22 +159,32 @@ public final class Util
 	 * @return The selected image, or null if one is not chosen
 	 * @throws IOException In the case of an invalid file or IO error
 	 */
-	public static BufferedImage getValidImage() throws IOException
+	public static BufferedImage getValidImage()
 		{
 		if (imageFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 			{
-			BufferedImage img = ImageIO.read(imageFc.getSelectedFile());
-			// TODO support animated formats
-			if (img != null)
+			try
 				{
-				ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
-				BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
-						BufferedImage.TYPE_3BYTE_BGR);
-				conv.filter(img,dest);
-				return dest;
+				BufferedImage img = ImageIO.read(imageFc.getSelectedFile());
+				// TODO support animated formats
+				if (img != null)
+					{
+					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
+					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
+							BufferedImage.TYPE_3BYTE_BGR);
+					conv.filter(img,dest);
+					return dest;
+					}
+				else
+					throw new Exception();
 				}
-			else
-				throw new IOException("Invalid image file");
+			catch (Throwable t)
+				{
+				String msg = String.format(Messages.getString("Util.ERROR_LOADING"),imageFc //$NON-NLS-1$
+						.getSelectedFile());
+				String title = Messages.getString("Util.ERROR_TITLE");
+				JOptionPane.showMessageDialog(LGM.frame,msg,title,JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		return null;
 		}
@@ -223,5 +236,11 @@ public final class Util
 	public static int getGmColor(Color col)
 		{
 		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16;
+		}
+
+	public static Component addDim(Container container, Component comp, int width, int height)
+		{
+		comp.setPreferredSize(new Dimension(width,height));
+		return container.add(comp);
 		}
 	}

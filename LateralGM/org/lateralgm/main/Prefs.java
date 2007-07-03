@@ -21,7 +21,9 @@ public class Prefs
 	public static int tabSize = 4;
 	public static String[] prefixes = { "","obj_","spr_","snd_","rm_","","bk_","scr_","path_",
 			"font_","","","time_" };
-	public static String defaultLibraryPath = "org/lateralgm/resources/library/lib";
+	public static String defaultLibraryPath = "org/lateralgm/resources/library/lib/";
+	public static String[] defaultLibNames = { "01_move","02_main1","03_main2","04_control",
+			"05_score","06_extra","07_draw" };
 	public static String userLibraryPath = null;
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 	}

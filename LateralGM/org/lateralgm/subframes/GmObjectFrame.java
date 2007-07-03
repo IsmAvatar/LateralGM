@@ -15,6 +15,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -233,6 +234,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			if (!support.isDataFlavorSupported(EventNode.EVENTNODE_FLAVOR)) return false;
 			EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
 			if (t == null || !t.isValid()) return false;
+			if (rootEvent.contains(new Event(t.mainId,t.eventId,t.other))) return false;
 			for (DataFlavor f : support.getDataFlavors())
 				if (f == EventNode.EVENTNODE_FLAVOR) return true;
 			return false;
@@ -244,14 +246,26 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			// This is a bad way to do it, but support.getTransferable() doesn't work...
 			try
 				{
-				if (!LGM.eventSelect.replace.isSelected())
+				EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
+				Point p = support.getDropLocation().getDropPoint();
+				TreePath path = events.getPathForLocation(p.x,p.y);
+				if (!LGM.eventSelect.replace.isSelected() || path == null)
 					{
-					EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
-					if (t.isValid()) addEvent(new Event(t.mainId,t.eventId,t.other));
+					if (!t.isValid()) return false;
+					addEvent(new Event(t.mainId,t.eventId,t.other));
+					return true;
 					}
 				else
 					{
-					//TODO
+					DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+					if (!(dropNode instanceof EventInstanceNode) || !t.isValid()) return false;
+					EventInstanceNode drop = (EventInstanceNode) dropNode;
+					Event ev = drop.getUserObject();
+					removeEvent(ev);
+					ev.mainId = t.mainId;
+					ev.id = t.eventId;
+					ev.other = t.other;
+					addEvent(ev);
 					}
 				}
 			catch (Throwable e)
@@ -299,7 +313,25 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			{
 			for (int i = 0; i < getChildCount(); i++)
 				{
-				if (((EventInstanceNode) getChildAt(i)).getUserObject().equals(e)) return true;
+				if (getChildAt(i) instanceof EventInstanceNode)
+					{
+					if (((EventInstanceNode) getChildAt(i)).getUserObject().equals(e))
+						return true;
+					}
+					else if (((EventGroupNode) getChildAt(i)).contains(e)) return true;
+				}
+			return false;
+			}
+
+		public boolean checkAndRemove(Event e)
+			{
+			for (int i = 0; i < getChildCount(); i++)
+				{
+				if (((EventInstanceNode) getChildAt(i)).getUserObject().equals(e))
+					{
+					remove(i);
+					return true;
+					}
 				}
 			return false;
 			}
@@ -356,7 +388,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					{
 					if (!ein.getUserObject().equals(e))
 						{
-						EventGroupNode group = new EventGroupNode(e.mainId); //$NON-NLS-1$
+						EventGroupNode group = new EventGroupNode(e.mainId);
 						int ind = rootEvent.getIndex(ein);
 						rootEvent.remove(ind);
 						rootEvent.insert(group,ind);
@@ -391,6 +423,34 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		EventInstanceNode ein = new EventInstanceNode(e);
 		rootEvent.add(ein);
 		rootEvent.select(e);
+		}
+
+	public void removeEvent(Event e)
+		{
+		for (int i = 0; i < rootEvent.getChildCount(); i++)
+			{
+			if (rootEvent.getChildAt(i) instanceof EventInstanceNode)
+				{
+				if (((EventInstanceNode) rootEvent.getChildAt(i)).getUserObject().equals(e))
+					{
+					rootEvent.remove(i);
+					return;
+					}
+				}
+			if (rootEvent.getChildAt(i) instanceof EventGroupNode)
+				{
+				EventGroupNode group = (EventGroupNode) rootEvent.getChildAt(i);
+				if (group.checkAndRemove(e))
+					{
+					if (group.getChildCount() == 1)
+						{
+						rootEvent.remove(i);
+						rootEvent.insert((EventInstanceNode) group.getChildAt(0),i);
+						}
+					return;
+					}
+				}
+			}
 		}
 
 	public void makeEventTree(GmObject res)

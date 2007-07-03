@@ -8,7 +8,7 @@
 
 package org.lateralgm.subframes;
 
-import static org.lateralgm.subframes.ResourceFrame.addDim;
+import static org.lateralgm.main.Util.addDim;
 import static org.lateralgm.subframes.ResourceFrame.addGap;
 
 import java.awt.BorderLayout;
@@ -21,6 +21,7 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyVetoException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -101,9 +102,9 @@ public class EventFrame extends JInternalFrame implements MouseListener,ActionLi
 
 		addGap(side2,100,10);
 
-		addDim(new JLabel(Messages.getString("EventFrame.KEY_SELECTOR")),140,16); //$NON-NLS-1$
+		addDim(side2,new JLabel(Messages.getString("EventFrame.KEY_SELECTOR")),140,16); //$NON-NLS-1$
 		keySelect = new EventKeyInput(this);
-		addDim(keySelect,140,20);
+		addDim(side2,keySelect,140,20);
 		keySelect.setEnabled(false);
 
 		JLabel lab = new JLabel(Messages.getString("EventFrame.COLLISION_OBJECT"));
@@ -117,10 +118,10 @@ public class EventFrame extends JInternalFrame implements MouseListener,ActionLi
 		addDim(side2,new JLabel(Messages.getString("EventFrame.FRAME_LINK")),140,16); //$NON-NLS-1$
 		frameName = new JTextField();
 		frameName.setEditable(false);
-		addDim(frameName,110,20);
+		addDim(side2,frameName,110,20);
 		frameChoose = new JButton(Resource.ICON[Resource.GMOBJECT]);
 		frameChoose.addMouseListener(this);
-		addDim(frameChoose,20,20);
+		addDim(side2,frameChoose,20,20);
 
 		addGap(side2,50,15);
 
@@ -343,6 +344,14 @@ public class EventFrame extends JInternalFrame implements MouseListener,ActionLi
 			GmObjectFrameItem item = (GmObjectFrameItem) e.getSource();
 			linkedFrame = item.frame;
 			linkedFrame.toFront();
+			try
+				{
+				linkedFrame.setSelected(true);
+				}
+			catch (PropertyVetoException e1)
+				{
+				e1.printStackTrace();
+				}
 			frameName.setText(item.getText());
 			return;
 			}

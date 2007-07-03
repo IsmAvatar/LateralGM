@@ -13,9 +13,11 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
@@ -30,9 +32,19 @@ public class GmStreamDecoder
 	{
 	private BufferedInputStream in;
 
+	public GmStreamDecoder(InputStream in)
+		{
+		this.in = new BufferedInputStream(in);
+		}
+
 	public GmStreamDecoder(String path) throws FileNotFoundException
 		{
 		in = new BufferedInputStream(new FileInputStream(path));
+		}
+	
+	public GmStreamDecoder(File f) throws FileNotFoundException
+		{
+		in = new BufferedInputStream(new FileInputStream(f));
 		}
 
 	public int read(byte b[]) throws IOException
@@ -99,8 +111,8 @@ public class GmStreamDecoder
 		{
 		int val = read4();
 		if (val != 0 && val != 1)
-			throw new IOException(
-					String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
+			throw new IOException(String
+					.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
 		if (val == 0) return false;
 		return true;
 		}

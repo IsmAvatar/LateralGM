@@ -36,7 +36,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static ImageIcon FRAME_ICON = Timeline.ICON[Timeline.TIMELINE];
+	private static final ImageIcon FRAME_ICON = Timeline.ICON[Timeline.TIMELINE];
 
 	public JButton add;
 	public JButton change;

@@ -21,7 +21,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -74,7 +73,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public SubimagePreview preview;
 
-	
 	public SpriteFrame(Sprite res, ResNode node)
 		{
 		super(res,node);
@@ -102,7 +100,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		add(side2);
 		add(scroll);
 		}
-	
+
 	private void makeSide1(JPanel side1)
 		{
 		side1.setMinimumSize(new Dimension(180,280));
@@ -169,7 +167,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
 		side1.add(save);
 		}
-	
+
 	private void makeSide2(JPanel side2)
 		{
 		side2.setMinimumSize(new Dimension(200,280));
@@ -211,7 +209,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		originY.setPreferredSize(new Dimension(40,20));
 		originY.addActionListener(this);
 		origin.add(originY);
-		centre = new JButton(Messages.getString("SpriteFrame.CENTRE")); //$NON-NLS-1$
+		centre = new JButton(Messages.getString("SpriteFrame.CENTER")); //$NON-NLS-1$
 		centre.setPreferredSize(new Dimension(80,20));
 		centre.addActionListener(this);
 		origin.add(centre);
@@ -321,28 +319,19 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		{
 		if (e.getSource() == load)
 			{
-			try
+			BufferedImage img = Util.getValidImage();
+			if (img != null)
 				{
-				BufferedImage img = Util.getValidImage();
-				if (img != null)
-					{
-					res.clearSubImages();
-					res.addSubImage(img);
-					res.width = img.getWidth();
-					res.height = img.getHeight();
-					imageChanged = true;
-					currSub = 0;
-					preview.setIcon(new ImageIcon(res.getSubImage(0)));
-					updateInfo();
-					updateBoundingBox();
-					LGM.tree.repaint();
-					}
-				}
-			catch (Throwable t) // Includes out of memory errors
-				{
-				//t.printStackTrace();
-				String msg = Messages.getString("SpriteFrame.ERROR_LOADING"); //$NON-NLS-1$
-				JOptionPane.showMessageDialog(LGM.frame,msg + Util.imageFc.getSelectedFile().getPath());
+				res.clearSubImages();
+				res.addSubImage(img);
+				res.width = img.getWidth();
+				res.height = img.getHeight();
+				imageChanged = true;
+				currSub = 0;
+				preview.setIcon(new ImageIcon(res.getSubImage(0)));
+				updateInfo();
+				updateBoundingBox();
+				LGM.tree.repaint();
 				}
 			return;
 			}

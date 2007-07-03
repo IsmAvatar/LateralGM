@@ -8,6 +8,8 @@
 
 package org.lateralgm.subframes;
 
+import static org.lateralgm.main.Util.addDim;
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -19,7 +21,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -72,45 +73,45 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		side1.setPreferredSize(new Dimension(180,280));
 
 		// side1.setBackground(Color.RED);
-		addDim(side1,new JLabel(Messages.getString("BackgroundFrame.NAME")),40,14); //$NON-NLS-1$
-		addDim(name,120,20);
+		Util.addDim(side1,new JLabel(Messages.getString("BackgroundFrame.NAME")),40,14); //$NON-NLS-1$
+		addDim(side1,name,120,20);
 
 		load = new JButton(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$
 		load.setIcon(LOAD_ICON);
 		load.addActionListener(this);
-		addDim(load,130,24);
+		addDim(side1,load,130,24);
 		width = new JLabel(Messages.getString("BackgroundFrame.WIDTH") + res.width); //$NON-NLS-1$
-		addDim(width,80,16);
+		addDim(side1,width,80,16);
 		height = new JLabel(Messages.getString("BackgroundFrame.HEIGHT") + res.height); //$NON-NLS-1$
-		addDim(height,80,16);
+		addDim(side1,height,80,16);
 
 		addGap(side1,160,10);
 
 		edit = new JButton(Messages.getString("BackgroundFrame.EDIT")); //$NON-NLS-1$
 		edit.addActionListener(this);
-		addDim(edit,130,24);
+		addDim(side1,edit,130,24);
 
 		addGap(side1,160,15);
 
 		transparent = new JCheckBox(Messages.getString("BackgroundFrame.TRANSPARENT")); //$NON-NLS-1$
 		transparent.setSelected(res.transparent);
 		transparent.addActionListener(this);
-		addDim(transparent,130,16);
+		addDim(side1,transparent,130,16);
 		smooth = new JCheckBox(Messages.getString("BackgroundFrame.SMOOTH")); //$NON-NLS-1$
 		smooth.setSelected(res.smoothEdges);
-		addDim(smooth,130,16);
+		addDim(side1,smooth,130,16);
 		preload = new JCheckBox(Messages.getString("BackgroundFrame.PRELOAD")); //$NON-NLS-1$
 		preload.setSelected(res.preload);
-		addDim(preload,130,16);
+		addDim(side1,preload,130,16);
 		tileset = new JCheckBox(Messages.getString("BackgroundFrame.USE_AS_TILESET")); //$NON-NLS-1$
 		tileset.setSelected(res.useAsTileSet);
 		tileset.addActionListener(this);
-		addDim(tileset,130,16);
+		addDim(side1,tileset,130,16);
 
 		addGap(side1,160,15);
 
 		save.setText(Messages.getString("BackgroundFrame.SAVE")); //$NON-NLS-1$
-		addDim(save,130,24);
+		addDim(side1,save,130,24);
 
 		side2 = new JPanel(new FlowLayout());
 		side2.setPreferredSize(new Dimension(180,260));
@@ -127,14 +128,14 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		addDim(group,lab,100,16);
 		tWidth = new IntegerField(0,Integer.MAX_VALUE,res.tileWidth);
 		tWidth.addActionListener(this);
-		addDim(tWidth,50,20);
+		addDim(group,tWidth,50,20);
 
 		lab = new JLabel(Messages.getString("BackgroundFrame.TILE_HEIGHT")); //$NON-NLS-1$
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		addDim(group,lab,100,16);
 		tHeight = new IntegerField(0,Integer.MAX_VALUE,res.tileHeight);
 		tHeight.addActionListener(this);
-		addDim(tHeight,50,20);
+		addDim(group,tHeight,50,20);
 
 		addGap(group,150,15);
 
@@ -143,14 +144,14 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		addDim(group,lab,100,16);
 		hOffset = new IntegerField(0,Integer.MAX_VALUE,res.horizOffset);
 		hOffset.addActionListener(this);
-		addDim(hOffset,50,20);
+		addDim(group,hOffset,50,20);
 
 		lab = new JLabel(Messages.getString("BackgroundFrame.V_OFFSET")); //$NON-NLS-1$
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		addDim(group,lab,100,16);
 		vOffset = new IntegerField(0,Integer.MAX_VALUE,res.vertOffset);
 		vOffset.addActionListener(this);
-		addDim(vOffset,50,20);
+		addDim(group,vOffset,50,20);
 
 		addGap(group,150,15);
 
@@ -159,14 +160,14 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		addDim(group,lab,100,16);
 		hSep = new IntegerField(0,Integer.MAX_VALUE,res.horizSep);
 		hSep.addActionListener(this);
-		addDim(hSep,50,20);
+		addDim(group,hSep,50,20);
 
 		lab = new JLabel(Messages.getString("BackgroundFrame.V_SEP")); //$NON-NLS-1$
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
 		addDim(group,lab,100,16);
 		vSep = new IntegerField(0,Integer.MAX_VALUE,res.vertSep);
 		vSep.addActionListener(this);
-		addDim(vSep,50,20);
+		addDim(group,vSep,50,20);
 
 		side2.add(group);
 		side2.setVisible(tileset.isSelected());
@@ -232,26 +233,17 @@ public class BackgroundFrame extends ResourceFrame<Background>
 			}
 		if (e.getSource() == load)
 			{
-			try
+			BufferedImage img = Util.getValidImage();
+			if (img != null)
 				{
-				BufferedImage img = Util.getValidImage();
-				if (img != null)
-					{
-					res.backgroundImage = img;
-					res.width = img.getWidth();
-					res.height = img.getHeight();
-					width.setText(Messages.getString("BackgroundFrame.WIDTH") + res.width); //$NON-NLS-1$
-					height.setText(Messages.getString("BackgroundFrame.HEIGHT") + res.height); //$NON-NLS-1$
-					imageChanged = true;
-					preview.setIcon(new ImageIcon(img));
-					LGM.tree.repaint();
-					}
-				}
-			catch (Throwable t) // Includes out of memory errors
-				{
-				// t.printStackTrace();
-				String msg = Messages.getString("BackgroundFrame.ERROR_LOADING"); //$NON-NLS-1$
-				JOptionPane.showMessageDialog(LGM.frame,msg + Util.imageFc.getSelectedFile().getPath());
+				res.backgroundImage = img;
+				res.width = img.getWidth();
+				res.height = img.getHeight();
+				width.setText(Messages.getString("BackgroundFrame.WIDTH") + res.width); //$NON-NLS-1$
+				height.setText(Messages.getString("BackgroundFrame.HEIGHT") + res.height); //$NON-NLS-1$
+				imageChanged = true;
+				preview.setIcon(new ImageIcon(img));
+				LGM.tree.repaint();
 				}
 			return;
 			}

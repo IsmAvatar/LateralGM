@@ -273,6 +273,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 						ResNode node = (ResNode) nodes.nextElement();
 						if (node.frame != null) node.frame.updateResource(); // update open frames
 						}
+					LGM.gameSet.commitChanges();
 					Gm6FileWriter.writeGm6File(LGM.currentFile,filename,LGM.root);
 					return;
 					}

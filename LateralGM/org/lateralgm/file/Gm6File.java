@@ -22,12 +22,14 @@
 
 package org.lateralgm.file;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -41,6 +43,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 import org.lateralgm.file.iconio.ICOFile;
+import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Constant;
@@ -95,9 +98,17 @@ public class Gm6File
 		gameIconData = new byte[0];
 		try
 			{
-			BufferedInputStream in = new BufferedInputStream(new FileInputStream(new File(
-					Gm6File.class.getResource("default.ico").toURI()))); //$NON-NLS-1$
+			String loc = "org/lateralgm/file/default.ico";
+			InputStream filein;
+			File file = new File(loc);
+			if (!file.exists())
+				filein = LGM.class.getClassLoader().getResourceAsStream(loc);
+			else
+				filein = new FileInputStream(file);
+			
+			BufferedInputStream in = new BufferedInputStream(filein);
 			ByteArrayOutputStream dat = new ByteArrayOutputStream();
+			
 			int val = in.read();
 			while (val != -1)
 				{
@@ -114,7 +125,7 @@ public class Gm6File
 			System.err.println(Messages.getString("Gm6File.NOICON")); //$NON-NLS-1$
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
-			}			
+			}
 		}
 
 	public static Calendar gmBaseTime()
@@ -171,7 +182,7 @@ public class Gm6File
 	public int scaling = -1;
 	public boolean allowWindowResize = false;
 	public boolean alwaysOnTop = false;
-	public int colorOutsideRoom = 0;
+	public Color colorOutsideRoom = Color.BLACK;
 	public boolean setResolution = false;
 	public byte colorDepth = COLOR_NOCHANGE;
 	public byte resolution = RES_NOCHANGE;

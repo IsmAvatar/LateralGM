@@ -8,7 +8,6 @@
 
 package org.lateralgm.subframes;
 
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -59,8 +58,6 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 	
 	public String titlePrefix = ""; //$NON-NLS-1$
 	public String titleSuffix = ""; //$NON-NLS-1$
-	
-	private static Container lastContainer;
 
 	@SuppressWarnings("unchecked")
 	public ResourceFrame(R res, ResNode node)
@@ -96,18 +93,6 @@ public abstract class ResourceFrame<R extends Resource> extends JInternalFrame i
 		JLabel l = new JLabel();
 		l.setPreferredSize(new Dimension(w,h));
 		c.add(l);
-		}
-
-	public static Component addDim(Container container, Component comp, int width, int height)
-		{
-		lastContainer = container;
-		comp.setPreferredSize(new Dimension(width,height));
-		return container.add(comp);
-		}
-
-	public static Component addDim(Component comp, int width, int height)
-		{
-		return addDim(lastContainer,comp,width,height);
 		}
 
 	public void changedUpdate(DocumentEvent e)

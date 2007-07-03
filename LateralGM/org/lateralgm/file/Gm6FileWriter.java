@@ -64,11 +64,11 @@ public final class Gm6FileWriter
 		try
 			{
 			out = new GmStreamEncoder(fileName);
-			out.writei(1234321);
-			out.writei(600);
-			out.writei(f.gameId);
+			out.write4(1234321);
+			out.write4(600);
+			out.write4(f.gameId);
 			out.fill(4);
-			out.writei(600);
+			out.write4(600);
 
 			writeSettings(f,out,savetime);
 			writeSounds(f,out);
@@ -81,29 +81,29 @@ public final class Gm6FileWriter
 			writeGmObjects(f,out);
 			writeRooms(f,out);
 
-			out.writei(f.lastInstanceId);
-			out.writei(f.lastTileId);
+			out.write4(f.lastInstanceId);
+			out.write4(f.lastTileId);
 
 			// GAME SETTINGS
-			out.writei(600);
-			out.writei(Util.getGmColor(f.gameInfo.backgroundColor));
+			out.write4(600);
+			out.write4(Util.getGmColor(f.gameInfo.backgroundColor));
 			out.writeBool(f.gameInfo.mimicGameWindow);
 			out.writeStr(f.gameInfo.formCaption);
-			out.writei(f.gameInfo.left);
-			out.writei(f.gameInfo.top);
-			out.writei(f.gameInfo.width);
-			out.writei(f.gameInfo.height);
+			out.write4(f.gameInfo.left);
+			out.write4(f.gameInfo.top);
+			out.write4(f.gameInfo.width);
+			out.write4(f.gameInfo.height);
 			out.writeBool(f.gameInfo.showBorder);
 			out.writeBool(f.gameInfo.allowResize);
 			out.writeBool(f.gameInfo.stayOnTop);
 			out.writeBool(f.gameInfo.pauseGame);
 			out.writeStr(f.gameInfo.gameInfoStr);
-			out.writei(500);
+			out.write4(500);
 
-			out.writei(0); // "how many longints will follow it"
+			out.write4(0); // "how many longints will follow it"
 
-			out.writei(540);
-			out.writei(0); // room indexes in tree order
+			out.write4(540);
+			out.write4(0); // room indexes in tree order
 
 			out.writeTree(root);
 			out.close();
@@ -125,53 +125,53 @@ public final class Gm6FileWriter
 		out.writeBool(f.interpolate);
 		out.writeBool(f.dontDrawBorder);
 		out.writeBool(f.displayCursor);
-		out.writei(f.scaling);
+		out.write4(f.scaling);
 		out.writeBool(f.allowWindowResize);
 		out.writeBool(f.alwaysOnTop);
-		out.writei(f.colorOutsideRoom);
+		out.write4(Util.getGmColor(f.colorOutsideRoom));
 		out.writeBool(f.setResolution);
-		out.writei(f.colorDepth);
-		out.writei(f.resolution);
-		out.writei(f.frequency);
+		out.write4(f.colorDepth);
+		out.write4(f.resolution);
+		out.write4(f.frequency);
 		out.writeBool(f.dontShowButtons);
 		out.writeBool(f.useSynchronization);
 		out.writeBool(f.letF4SwitchFullscreen);
 		out.writeBool(f.letF1ShowGameInfo);
 		out.writeBool(f.letEscEndGame);
 		out.writeBool(f.letF5SaveF6Load);
-		out.writei(f.gamePriority);
+		out.write4(f.gamePriority);
 		out.writeBool(f.freezeOnLoseFocus);
-		out.writei(f.loadBarMode);
+		out.write4(f.loadBarMode);
 		if (f.loadBarMode == Gm6File.LOADBAR_CUSTOM)
 			{
 			if (f.backLoadBar != null)
 				{
-				out.writei(10);
+				out.write4(10);
 				out.writeImage(f.backLoadBar);
 				}
 			else
-				out.writei(-1);
+				out.write4(-1);
 			if (f.frontLoadBar != null)
 				{
-				out.writei(10);
+				out.write4(10);
 				out.writeImage(f.frontLoadBar);
 				}
 			else
-				out.writei(-1);
+				out.write4(-1);
 			}
 		out.writeBool(f.showCustomLoadImage);
 		if (f.showCustomLoadImage)
 			{
 			if (f.loadingImage != null)
 				{
-				out.writei(10);
+				out.write4(10);
 				out.writeImage(f.loadingImage);
 				}
 			else
-				out.writei(-1);
+				out.write4(-1);
 			}
 		out.writeBool(f.imagePartiallyTransparent);
-		out.writei(f.loadImageAlpha);
+		out.write4(f.loadImageAlpha);
 		out.writeBool(f.scaleProgressBar);
 		out.write(f.gameIconData);
 		out.writeBool(f.displayErrors);
@@ -179,29 +179,29 @@ public final class Gm6FileWriter
 		out.writeBool(f.abortOnError);
 		out.writeBool(f.treatUninitializedAs0);
 		out.writeStr(f.author);
-		out.writei(f.version);
+		out.write4(f.version);
 		f.lastChanged = Gm6File.longTimeToGmTime(savetime);
 		out.writeD(f.lastChanged);
 
 		out.writeStr(f.information);
-		out.writei(f.constants.size());
+		out.write4(f.constants.size());
 		for (Constant con : f.constants)
 			{
 			out.writeStr(con.name);
 			out.writeStr(con.value);
 			}
-		out.writei(f.includes.size());
+		out.write4(f.includes.size());
 		for (Include inc : f.includes)
 			out.writeStr(inc.filePath);
-		out.writei(f.includeFolder);
+		out.write4(f.includeFolder);
 		out.writeBool(f.overwriteExisting);
 		out.writeBool(f.removeAtGameEnd);
 		}
 
 	public static void writeSounds(Gm6File f, GmStreamEncoder out) throws IOException
 		{
-		out.writei(400);
-		out.writei(f.sounds.lastId + 1);
+		out.write4(400);
+		out.write4(f.sounds.lastId + 1);
 		for (int i = 0; i <= f.sounds.lastId; i++)
 			{
 			Sound snd = f.sounds.getUnsafe(i);
@@ -209,8 +209,8 @@ public final class Gm6FileWriter
 			if (snd != null)
 				{
 				out.writeStr(snd.getName());
-				out.writei(600);
-				out.writei(snd.kind);
+				out.write4(600);
+				out.write4(snd.kind);
 				out.writeStr(snd.fileType);
 				out.writeStr(snd.fileName);
 				if (snd.data != null)
@@ -220,7 +220,7 @@ public final class Gm6FileWriter
 					}
 				else
 					out.writeBool(false);
-				out.writei(snd.getEffects());
+				out.write4(snd.getEffects());
 				out.writeD(snd.volume);
 				out.writeD(snd.pan);
 				out.writeBool(snd.preload);
@@ -230,8 +230,8 @@ public final class Gm6FileWriter
 
 	public static void writeSprites(Gm6File f, GmStreamEncoder out) throws IOException
 		{
-		out.writei(400);
-		out.writei(f.sprites.lastId + 1);
+		out.write4(400);
+		out.write4(f.sprites.lastId + 1);
 		for (int i = 0; i <= f.sprites.lastId; i++)
 			{
 			Sprite spr = f.sprites.getUnsafe(i);
@@ -239,25 +239,25 @@ public final class Gm6FileWriter
 			if (spr != null)
 				{
 				out.writeStr(spr.getName());
-				out.writei(542);
-				out.writei(spr.width);
-				out.writei(spr.height);
-				out.writei(spr.boundingBoxLeft);
-				out.writei(spr.boundingBoxRight);
-				out.writei(spr.boundingBoxBottom);
-				out.writei(spr.boundingBoxTop);
+				out.write4(542);
+				out.write4(spr.width);
+				out.write4(spr.height);
+				out.write4(spr.boundingBoxLeft);
+				out.write4(spr.boundingBoxRight);
+				out.write4(spr.boundingBoxBottom);
+				out.write4(spr.boundingBoxTop);
 				out.writeBool(spr.transparent);
 				out.writeBool(spr.smoothEdges);
 				out.writeBool(spr.preload);
-				out.writei(spr.boundingBoxMode);
+				out.write4(spr.boundingBoxMode);
 				out.writeBool(spr.preciseCC);
-				out.writei(spr.originX);
-				out.writei(spr.originY);
-				out.writei(spr.noSubImages());
+				out.write4(spr.originX);
+				out.write4(spr.originY);
+				out.write4(spr.noSubImages());
 				for (int j = 0; j < spr.noSubImages(); j++)
 					{
 					BufferedImage sub = spr.getSubImage(j);
-					out.writei(10);
+					out.write4(10);
 					out.writeImage(sub);
 					}
 				}
@@ -266,8 +266,8 @@ public final class Gm6FileWriter
 
 	public static void writeBackgrounds(Gm6File f, GmStreamEncoder out) throws IOException
 		{
-		out.writei(400);
-		out.writei(f.backgrounds.lastId + 1);
+		out.write4(400);
+		out.write4(f.backgrounds.lastId + 1);
 		for (int i = 0; i <= f.backgrounds.lastId; i++)
 			{
 			Background back = f.backgrounds.getUnsafe(i);
@@ -275,23 +275,23 @@ public final class Gm6FileWriter
 			if (back != null)
 				{
 				out.writeStr(back.getName());
-				out.writei(543);
-				out.writei(back.width);
-				out.writei(back.height);
+				out.write4(543);
+				out.write4(back.width);
+				out.write4(back.height);
 				out.writeBool(back.transparent);
 				out.writeBool(back.smoothEdges);
 				out.writeBool(back.preload);
 				out.writeBool(back.useAsTileSet);
-				out.writei(back.tileWidth);
-				out.writei(back.tileHeight);
-				out.writei(back.horizOffset);
-				out.writei(back.vertOffset);
-				out.writei(back.horizSep);
-				out.writei(back.vertSep);
+				out.write4(back.tileWidth);
+				out.write4(back.tileHeight);
+				out.write4(back.horizOffset);
+				out.write4(back.vertOffset);
+				out.write4(back.horizSep);
+				out.write4(back.vertSep);
 				if (back.backgroundImage != null)
 					{
 					out.writeBool(true);
-					out.writei(10);
+					out.write4(10);
 					out.writeImage(back.backgroundImage);
 					}
 				else
@@ -302,8 +302,8 @@ public final class Gm6FileWriter
 
 	public static void writePaths(Gm6File f, GmStreamEncoder out) throws IOException
 		{
-		out.writei(420);
-		out.writei(f.paths.lastId + 1);
+		out.write4(420);
+		out.write4(f.paths.lastId + 1);
 		for (int i = 0; i <= f.paths.lastId; i++)
 			{
 			Path path = f.paths.getUnsafe(i);
@@ -311,14 +311,14 @@ public final class Gm6FileWriter
 			if (path != null)
 				{
 				out.writeStr(path.getName());
-				out.writei(530);
+				out.write4(530);
 				out.writeBool(path.smooth);
 				out.writeBool(path.closed);
-				out.writei(path.precision);
+				out.write4(path.precision);
 				out.writeId(path.backgroundRoom,Resource.ROOM,f);
-				out.writei(path.snapX);
-				out.writei(path.snapY);
-				out.writei(path.noPoints());
+				out.write4(path.snapX);
+				out.write4(path.snapY);
+				out.write4(path.noPoints());
 				for (int j = 0; j < path.noPoints(); j++)
 					{
 					out.writeD(path.getPoint(j).x);
@@ -331,8 +331,8 @@ public final class Gm6FileWriter
 
 	public static void writeScripts(Gm6File f, GmStreamEncoder out) throws IOException
 		{
-		out.writei(400);
-		out.writei(f.scripts.lastId + 1);
+		out.write4(400);
+		out.write4(f.scripts.lastId + 1);
 		for (int i = 0; i <= f.scripts.lastId; i++)
 			{
 			Script scr = f.scripts.getUnsafe(i);
@@ -340,7 +340,7 @@ public final class Gm6FileWriter
 			if (scr != null)
 				{
 				out.writeStr(scr.getName());
-				out.writei(400);
+				out.write4(400);
 				out.writeStr(scr.scriptStr);
 				}
 			}
@@ -348,8 +348,8 @@ public final class Gm6FileWriter
 
 	public static void writeFonts(Gm6File f, GmStreamEncoder out) throws IOException
 		{
-		out.writei(540);
-		out.writei(f.fonts.lastId + 1);
+		out.write4(540);
+		out.write4(f.fonts.lastId + 1);
 		for (int i = 0; i <= f.fonts.lastId; i++)
 			{
 			Font font = f.fonts.getUnsafe(i);
@@ -357,21 +357,21 @@ public final class Gm6FileWriter
 			if (font != null)
 				{
 				out.writeStr(font.getName());
-				out.writei(540);
+				out.write4(540);
 				out.writeStr(font.fontName);
-				out.writei(font.size);
+				out.write4(font.size);
 				out.writeBool(font.bold);
 				out.writeBool(font.italic);
-				out.writei(font.charRangeMin);
-				out.writei(font.charRangeMax);
+				out.write4(font.charRangeMin);
+				out.write4(font.charRangeMax);
 				}
 			}
 		}
 
 	public static void writeTimelines(Gm6File f, GmStreamEncoder out) throws IOException
 		{
-		out.writei(500);
-		out.writei(f.timelines.lastId + 1);
+		out.write4(500);
+		out.write4(f.timelines.lastId + 1);
 		for (int i = 0; i <= f.timelines.lastId; i++)
 			{
 			Timeline time = f.timelines.getUnsafe(i);
@@ -379,11 +379,11 @@ public final class Gm6FileWriter
 			if (time != null)
 				{
 				out.writeStr(time.getName());
-				out.writei(500);
-				out.writei(time.moments.size());
+				out.write4(500);
+				out.write4(time.moments.size());
 				for (Moment mom : time.moments)
 					{
-					out.writei(mom.stepNo);
+					out.write4(mom.stepNo);
 					writeActions(f,out,mom);
 					}
 				}
@@ -392,8 +392,8 @@ public final class Gm6FileWriter
 
 	public static void writeGmObjects(Gm6File f, GmStreamEncoder out) throws IOException
 		{
-		out.writei(400);
-		out.writei(f.gmObjects.lastId + 1);
+		out.write4(400);
+		out.write4(f.gmObjects.lastId + 1);
 		for (int i = 0; i <= f.gmObjects.lastId; i++)
 			{
 			GmObject obj = f.gmObjects.getUnsafe(i);
@@ -401,15 +401,15 @@ public final class Gm6FileWriter
 			if (obj != null)
 				{
 				out.writeStr(obj.getName());
-				out.writei(430);
+				out.write4(430);
 				out.writeId(obj.sprite,Resource.SPRITE,f);
 				out.writeBool(obj.solid);
 				out.writeBool(obj.visible);
-				out.writei(obj.depth);
+				out.write4(obj.depth);
 				out.writeBool(obj.persistent);
 				out.writeId(obj.parent,Resource.GMOBJECT,-100,f);
 				out.writeId(obj.mask,Resource.SPRITE,f);
-				out.writei(10);
+				out.write4(10);
 				for (int j = 0; j < 11; j++)
 					{
 					for (int k = 0; k < obj.mainEvents[j].noEvents(); k++)
@@ -418,10 +418,10 @@ public final class Gm6FileWriter
 						if (j == MainEvent.EV_COLLISION)
 							out.writeId(ev.other,Resource.GMOBJECT,f);
 						else
-							out.writei(ev.id);
+							out.write4(ev.id);
 						writeActions(f,out,ev);
 						}
-					out.writei(-1);
+					out.write4(-1);
 					}
 				}
 			}
@@ -429,8 +429,8 @@ public final class Gm6FileWriter
 
 	public static void writeRooms(Gm6File f, GmStreamEncoder out) throws IOException
 		{
-		out.writei(420);
-		out.writei(f.rooms.lastId + 1);
+		out.write4(420);
+		out.write4(f.rooms.lastId + 1);
 		for (int i = 0; i <= f.rooms.lastId; i++)
 			{
 			Room rm = f.rooms.getUnsafe(i);
@@ -438,82 +438,82 @@ public final class Gm6FileWriter
 			if (rm != null)
 				{
 				out.writeStr(rm.getName());
-				out.writei(541);
+				out.write4(541);
 				out.writeStr(rm.caption);
-				out.writei(rm.width);
-				out.writei(rm.height);
-				out.writei(rm.snapY);
-				out.writei(rm.snapX);
+				out.write4(rm.width);
+				out.write4(rm.height);
+				out.write4(rm.snapY);
+				out.write4(rm.snapX);
 				out.writeBool(rm.isometricGrid);
-				out.writei(rm.speed);
+				out.write4(rm.speed);
 				out.writeBool(rm.persistent);
-				out.writei(rm.backgroundColor);
+				out.write4(rm.backgroundColor);
 				out.writeBool(rm.drawBackgroundColor);
 				out.writeStr(rm.creationCode);
-				out.writei(8);
+				out.write4(8);
 				for (int j = 0; j < 8; j++)
 					{
 					BackgroundDef back = rm.backgroundDefs[j];
 					out.writeBool(back.visible);
 					out.writeBool(back.foreground);
 					out.writeId(back.backgroundId,Resource.BACKGROUND,f);
-					out.writei(back.x);
-					out.writei(back.y);
+					out.write4(back.x);
+					out.write4(back.y);
 					out.writeBool(back.tileHoriz);
 					out.writeBool(back.tileVert);
-					out.writei(back.horizSpeed);
-					out.writei(back.vertSpeed);
+					out.write4(back.horizSpeed);
+					out.write4(back.vertSpeed);
 					out.writeBool(back.stretch);
 					}
 				out.writeBool(rm.enableViews);
-				out.writei(8);
+				out.write4(8);
 				for (int j = 0; j < 8; j++)
 					{
 					View view = rm.views[j];
 					out.writeBool(view.enabled);
-					out.writei(view.viewX);
-					out.writei(view.viewY);
-					out.writei(view.viewW);
-					out.writei(view.viewH);
-					out.writei(view.portX);
-					out.writei(view.portY);
-					out.writei(view.portW);
-					out.writei(view.portH);
-					out.writei(view.hbor);
-					out.writei(view.vbor);
-					out.writei(view.hspeed);
-					out.writei(view.vspeed);
+					out.write4(view.viewX);
+					out.write4(view.viewY);
+					out.write4(view.viewW);
+					out.write4(view.viewH);
+					out.write4(view.portX);
+					out.write4(view.portY);
+					out.write4(view.portW);
+					out.write4(view.portH);
+					out.write4(view.hbor);
+					out.write4(view.vbor);
+					out.write4(view.hspeed);
+					out.write4(view.vspeed);
 					out.writeId(view.objectFollowing,Resource.GMOBJECT,f);
 					}
-				out.writei(rm.noInstances());
+				out.write4(rm.noInstances());
 				for (int j = 0; j < rm.noInstances(); j++)
 					{
 					Instance in = rm.getInstanceList(j);
-					out.writei(in.x);
-					out.writei(in.y);
+					out.write4(in.x);
+					out.write4(in.y);
 					out.writeId(in.gmObjectId,Resource.GMOBJECT,f);
-					out.writei(in.instanceId);
+					out.write4(in.instanceId);
 					out.writeStr(in.creationCode);
 					out.writeBool(in.locked);
 					}
-				out.writei(rm.noTiles());
+				out.write4(rm.noTiles());
 				for (int j = 0; j < rm.noTiles(); j++)
 					{
 					Tile tile = rm.getTileList(j);
-					out.writei(tile.x);
-					out.writei(tile.y);
+					out.write4(tile.x);
+					out.write4(tile.y);
 					out.writeId(tile.backgroundId,Resource.BACKGROUND,f);
-					out.writei(tile.tileX);
-					out.writei(tile.tileY);
-					out.writei(tile.width);
-					out.writei(tile.height);
-					out.writei(tile.depth);
-					out.writei(tile.tileId);
+					out.write4(tile.tileX);
+					out.write4(tile.tileY);
+					out.write4(tile.width);
+					out.write4(tile.height);
+					out.write4(tile.depth);
+					out.write4(tile.tileId);
 					out.writeBool(tile.locked);
 					}
 				out.writeBool(rm.rememberWindowSize);
-				out.writei(rm.editorWidth);
-				out.writei(rm.editorHeight);
+				out.write4(rm.editorWidth);
+				out.write4(rm.editorHeight);
 				out.writeBool(rm.showGrid);
 				out.writeBool(rm.showObjects);
 				out.writeBool(rm.showTiles);
@@ -522,9 +522,9 @@ public final class Gm6FileWriter
 				out.writeBool(rm.showViews);
 				out.writeBool(rm.deleteUnderlyingObjects);
 				out.writeBool(rm.deleteUnderlyingTiles);
-				out.writei(rm.currentTab);
-				out.writei(rm.scrollBarX);
-				out.writei(rm.scrollBarY);
+				out.write4(rm.currentTab);
+				out.write4(rm.scrollBarX);
+				out.write4(rm.scrollBarY);
 				}
 			}
 		}
@@ -532,31 +532,31 @@ public final class Gm6FileWriter
 	public static void writeActions(Gm6File f, GmStreamEncoder out, ActionContainer container)
 			throws IOException
 		{
-		out.writei(400);
-		out.writei(container.actions.size());
+		out.write4(400);
+		out.write4(container.actions.size());
 		for (Action act : container.actions)
 			{
-			out.writei(440);
-			out.writei(act.libAction.parent != null ? act.libAction.parent.id : act.libAction.parentId);
-			out.writei(act.libAction.id);
-			out.writei(act.libAction.actionKind);
+			out.write4(440);
+			out.write4(act.libAction.parent != null ? act.libAction.parent.id : act.libAction.parentId);
+			out.write4(act.libAction.id);
+			out.write4(act.libAction.actionKind);
 			out.writeBool(act.libAction.allowRelative);
 			out.writeBool(act.libAction.question);
 			out.writeBool(act.libAction.canApplyTo);
-			out.writei(act.libAction.execType);
+			out.write4(act.libAction.execType);
 			if (act.libAction.execType == Action.EXEC_FUNCTION)
 				out.writeStr(act.libAction.execInfo);
 			else
-				out.writei(0);
+				out.write4(0);
 			if (act.libAction.execType == Action.EXEC_CODE)
 				out.writeStr(act.libAction.execInfo);
 			else
-				out.writei(0);
-			out.writei(act.arguments.length);
+				out.write4(0);
+			out.write4(act.arguments.length);
 
-			out.writei(act.arguments.length);
+			out.write4(act.arguments.length);
 			for (Argument arg : act.arguments)
-				out.writei(arg.kind);
+				out.write4(arg.kind);
 
 			if (act.appliesTo != null)
 				{
@@ -564,13 +564,13 @@ public final class Gm6FileWriter
 					out.writeId(act.appliesTo,Resource.GMOBJECT,-100,f);
 				else
 					// self/other are exceptions to the system
-					out.writei(act.appliesTo.getValue());
+					out.write4(act.appliesTo.getValue());
 				}
 			else
-				out.writei(-100);
+				out.write4(-100);
 			out.writeBool(act.relative);
 
-			out.writei(act.arguments.length);
+			out.write4(act.arguments.length);
 			for (Argument arg : act.arguments)
 				switch (arg.kind)
 

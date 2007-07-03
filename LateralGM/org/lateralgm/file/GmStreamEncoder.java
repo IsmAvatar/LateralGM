@@ -13,6 +13,7 @@ import java.awt.Image;
 import java.awt.image.RenderedImage;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,6 +30,11 @@ import org.lateralgm.resources.sub.Argument;
 public class GmStreamEncoder
 	{
 	private BufferedOutputStream out;
+
+	public GmStreamEncoder(File f) throws FileNotFoundException
+		{
+		out = new BufferedOutputStream(new FileOutputStream(f));
+		}
 
 	public GmStreamEncoder(String filePath) throws FileNotFoundException
 		{
@@ -47,11 +53,18 @@ public class GmStreamEncoder
 
 	public void write(byte[] b, int off, int len) throws IOException
 		{
-		writei(len);
+		write4(len);
 		out.write(b,off,len);
 		}
 
-	public void writei(int val) throws IOException
+	public void write2(int val) throws IOException
+		{
+		short i = (short) val;
+		write(i & 255);
+		write((i >> 8) & 255);
+		}
+
+	public void write4(int val) throws IOException
 		{
 		out.write(val & 255);
 		out.write((val >> 8) & 255);
@@ -61,16 +74,19 @@ public class GmStreamEncoder
 
 	public void writeStr(String str) throws IOException
 		{
-		writei(str.length());
+		write4(str.length());
 		out.write(str.getBytes("ascii"));
+		}
+
+	public void writeStr1(String str) throws IOException
+		{
+		write(Math.min(str.length(),255));
+		out.write(str.getBytes("ascii"),0,Math.min(str.length(),255));
 		}
 
 	public void writeBool(boolean val) throws IOException
 		{
-		if (val)
-			writei(1);
-		else
-			writei(0);
+		write4(val ? 1 : 0);
 		}
 
 	public void writeD(double val) throws IOException
@@ -98,7 +114,7 @@ public class GmStreamEncoder
 			int len = compresser.deflate(buffer);
 			baos.write(buffer,0,len);
 			}
-		writei(baos.size());
+		write4(baos.size());
 		out.write(baos.toByteArray());
 		}
 
@@ -118,7 +134,7 @@ public class GmStreamEncoder
 		{
 		for (int i = 0; i < count; i++)
 			{
-			writei(0);
+			write4(0);
 			}
 		}
 
@@ -132,11 +148,11 @@ public class GmStreamEncoder
 		Resource res = src.getList(type).get(id);
 		if (id != null && res != null)
 			{
-			writei(id.getValue());
+			write4(id.getValue());
 			}
 		else
 			{
-			writei(noneval);
+			write4(noneval);
 			}
 		}
 
@@ -162,14 +178,14 @@ public class GmStreamEncoder
 		while (e.hasMoreElements())
 			{
 			ResNode node = (ResNode) e.nextElement();
-			writei(node.status);
-			writei(node.kind);
+			write4(node.status);
+			write4(node.kind);
 			if (node.resourceId != null)
-				writei(node.resourceId.getValue());
+				write4(node.resourceId.getValue());
 			else
-				writei(0);
+				write4(0);
 			writeStr((String) node.getUserObject());
-			writei(node.getChildCount());
+			write4(node.getChildCount());
 			}
 		}
 	}

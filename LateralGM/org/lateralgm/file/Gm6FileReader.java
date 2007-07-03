@@ -208,7 +208,7 @@ public final class Gm6FileReader
 		f.scaling = in.read4();
 		f.allowWindowResize = in.readBool();
 		f.alwaysOnTop = in.readBool();
-		f.colorOutsideRoom = in.read4();
+		f.colorOutsideRoom = Util.convertGmColor(in.read4());
 		f.setResolution = in.readBool();
 		f.colorDepth = (byte) in.read4();
 		f.resolution = (byte) in.read4();

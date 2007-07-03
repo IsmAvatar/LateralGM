@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import javax.imageio.ImageIO;
 
 import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.file.GmStreamDecoder;
+import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.sub.Action;
@@ -52,15 +54,32 @@ public final class LibManager
 
 	public static void autoLoad()
 		{
+		List<File> files = new ArrayList<File>();
+		List<URL> deflibs = new ArrayList<URL>();
+
 		String[] exts = { ".lib",".lgl" }; //$NON-NLS-1$ //$NON-NLS-2$
-		File[] ff = new File(Prefs.defaultLibraryPath).listFiles(new CustomFileFilter(exts,null));
-		List<File> files = Arrays.asList(ff);
+		CustomFileFilter filter = new CustomFileFilter(exts,null);
+
+		File defdir = new File(Prefs.defaultLibraryPath);
+		if (defdir.exists())
+			{
+			files.addAll(Arrays.asList(defdir.listFiles(filter)));
+			}
+		else
+			{
+			for (String f : Prefs.defaultLibNames)
+				{				
+				URL url = LGM.class.getClassLoader().getResource(Prefs.defaultLibraryPath + f + ".lgl");
+				if (url != null) deflibs.add(url);
+				}
+			}
+
 		if (Prefs.userLibraryPath != null && Prefs.userLibraryPath != "") //$NON-NLS-1$
 			{
-			files.addAll(Arrays.asList(new File(Prefs.userLibraryPath).listFiles(new CustomFileFilter(
-					exts,null))));
+			File userdir = new File(Prefs.userLibraryPath);
+			if (userdir.exists()) files.addAll(Arrays.asList(userdir.listFiles(filter)));
 			}
-		if (files == null) return;
+
 		Collections.sort(files); // listFiles does not guarantee a particular order
 		for (File f : files)
 			{
@@ -75,6 +94,20 @@ public final class LibManager
 				System.out.println(ex.getMessage());
 				}
 			}
+
+		for (URL url : deflibs)
+			{
+			System.out.printf(Messages.getString("LibManager.LOADING"),url.getFile()); //$NON-NLS-1$
+			System.out.println();
+			try
+				{
+				loadFile(new GmStreamDecoder(url.openStream()),url.getFile());
+				}
+			catch (Exception ex)
+				{
+				System.out.println(ex.getMessage());
+				}
+			}
 		}
 
 	/**
@@ -85,25 +118,38 @@ public final class LibManager
 	 */
 	public static Library loadFile(String filename) throws LibFormatException
 		{
-		Library lib = null;
-		GmStreamDecoder in = null;
 		try
 			{
-			in = new GmStreamDecoder(filename);
+			return loadFile(new GmStreamDecoder(filename),filename);
+			}
+		catch (FileNotFoundException e)
+			{
+			throw new LibFormatException(String.format(
+					Messages.getString("LibManager.ERROR_NOTFOUND"),filename)); //$NON-NLS-1$
+			}
+		}
+
+	/**
+	 * Loads a library file of given fileName of either LIB or LGL format
+	 * @param in
+	 * @param filename for error reporting
+	 * @return the library
+	 * @throws LibFormatException
+	 */
+	public static Library loadFile(GmStreamDecoder in, String filename) throws LibFormatException
+		{
+		Library lib = null;
+		try
+			{
 			int header = in.read3();
 			if (header == (('L' << 16) | ('G' << 8) | 'L'))
 				lib = loadLgl(in);
 			else if (header == 500 || header == 520)
 				lib = loadLib(in);
 			else
-				throw new LibFormatException(String.format(
-						Messages.getString("LibManager.ERROR_INVALIDFILE"),filename)); //$NON-NLS-1$
+				throw new LibFormatException(String.format(Messages
+						.getString("LibManager.ERROR_INVALIDFILE"),filename)); //$NON-NLS-1$
 			libs.add(lib);
-			}
-		catch (FileNotFoundException ex)
-			{
-			throw new LibFormatException(String.format(
-					Messages.getString("LibManager.ERROR_NOTFOUND"),filename)); //$NON-NLS-1$
 			}
 		catch (IOException ex)
 			{
@@ -118,11 +164,7 @@ public final class LibManager
 			{
 			try
 				{
-				if (in != null)
-					{
-					in.close();
-					in = null;
-					}
+				if (in != null) in.close();
 				}
 			catch (IOException ex)
 				{
@@ -163,8 +205,8 @@ public final class LibManager
 			int ver = in.read4();
 			if (ver != 500 && ver != 520)
 				{
-				throw new LibFormatException(String.format(
-						Messages.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
+				throw new LibFormatException(String.format(Messages
+						.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
 						j,"%s",ver)); //$NON-NLS-1$
 				}
 
@@ -250,8 +292,8 @@ public final class LibManager
 		for (int j = 0; j < acts; j++)
 			{
 			if (in.read2() != 160)
-				throw new LibFormatException(String.format(
-						Messages.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
+				throw new LibFormatException(String.format(Messages
+						.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
 						j,"%s",160)); //$NON-NLS-1$
 			LibAction act = lib.addLibAction();
 			act.parent = lib;
@@ -268,8 +310,8 @@ public final class LibManager
 				data = null;
 				}
 			if (data == null)
-				throw new LibFormatException(String.format(
-						Messages.getString("LibManager.ERROR_INVALIDICON"), //$NON-NLS-1$
+				throw new LibFormatException(String.format(Messages
+						.getString("LibManager.ERROR_INVALIDICON"), //$NON-NLS-1$
 						j,"%s",160)); //$NON-NLS-1$
 			act.actImage = ImageIO.read(new ByteArrayInputStream(data));
 

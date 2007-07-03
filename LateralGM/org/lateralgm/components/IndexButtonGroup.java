@@ -9,6 +9,7 @@
 package org.lateralgm.components;
 
 import java.awt.Container;
+import java.awt.event.ActionListener;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -32,23 +33,46 @@ public class IndexButtonGroup
 	private But bm[];
 	private int bs;
 	private ButtonGroup g = null;
+	private boolean bitwise;
+	private ActionListener a;
+
+	public IndexButtonGroup(int s, boolean exclusive, boolean bitwise, ActionListener a)
+		{
+		if (exclusive || !bitwise) g = new ButtonGroup();
+		bm = new But[s];
+		bs = 0;
+		this.bitwise = bitwise;
+		this.a = a;
+		}
+	
+	public IndexButtonGroup(int s, boolean exclusive, boolean bitwise)
+		{
+		this(s,exclusive,bitwise,null);
+		}
 
 	public IndexButtonGroup(int s, boolean exclusive)
 		{
-		if (exclusive) g = new ButtonGroup();
-		bm = new But[s];
-		bs = 0;
+		this(s,exclusive,true,null);
 		}
 
 	public IndexButtonGroup(int s)
 		{
-		this(s,true);
+		this(s,true,true,null);
 		}
-	
+
 	public void add(AbstractButton b, int value)
 		{
 		if (g != null) g.add(b);
 		bm[bs++] = new But(b,value);
+		if (a != null) b.addActionListener(a);
+		}
+
+	public void add(AbstractButton b)
+		{
+		if (bitwise)
+			add(b,1 << bs);
+		else
+			add(b,bs);
 		}
 
 	public int getValue()
@@ -64,9 +88,18 @@ public class IndexButtonGroup
 	public void setValue(int value)
 		{
 		for (But b : bm)
-			{
-			if (((b.i & value) != 0) || (b.i == value)) b.b.setSelected(true);
-			}
+			if (bitwise)
+				{
+				if ((b.i & value) != 0) b.b.setSelected(true);
+				}
+			else
+				{
+				if (b.i == value)
+					{
+					b.b.setSelected(true);
+					return;
+					}
+				}
 		}
 
 	public void populate(Container c)
