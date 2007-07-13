@@ -49,6 +49,7 @@ import javax.swing.tree.TreePath;
 import org.lateralgm.components.EventKeyInput;
 import org.lateralgm.components.EventNode;
 import org.lateralgm.components.GmTreeGraphics;
+import org.lateralgm.components.MDIFrame;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
@@ -56,7 +57,7 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
-public class EventFrame extends JInternalFrame implements MouseListener,ActionListener,
+public class EventFrame extends MDIFrame implements MouseListener,ActionListener,
 		ContainerListener,InternalFrameListener,DocumentListener,TreeSelectionListener
 	{
 	private static final long serialVersionUID = 1L;

@@ -26,10 +26,17 @@ public class MDIPane extends JDesktopPane
 	private static final int OFFSET_WIDTH = 24;
 	private static final int OFFSET_HEIGHT = 24;
 	private static final int OFFSET_MAX = 9;
+	private MDIMenu menu;
+
+	public MDIMenu getMenu()
+		{
+		return menu;
+		}
 
 	public MDIPane()
 		{
 		setDesktopManager(new MDIManager(this));
+		menu = new MDIMenu(this);
 		}
 
 	public void setScrollPane(JScrollPane scroll)
@@ -117,12 +124,12 @@ public class MDIPane extends JDesktopPane
 					}
 				catch (PropertyVetoException e)
 					{
-				e.printStackTrace();
+					e.printStackTrace();
+					}
+			else
+				{
+				f.setVisible(false);
 				}
-		else
-			{
-			f.setVisible(false);
-			}
 			}
 		}
 
@@ -148,17 +155,14 @@ public class MDIPane extends JDesktopPane
 		resizeDesktop();
 		}
 
-	public JInternalFrame add(JInternalFrame f)
+	public MDIFrame add(MDIFrame f)
 		{
-		JInternalFrame fix = null;
-		if (getSelectedFrame() != null && getSelectedFrame().isMaximum()) fix = getSelectedFrame();
 		super.add(f);
 		incrementOffset();
 		Rectangle r = f.getBounds();
 		r.x = offset * OFFSET_WIDTH;
 		r.y = offset * OFFSET_HEIGHT;
 		f.setBounds(r);
-		if (fix != null) fix.toFront();
 		return f;
 		}
 
@@ -168,9 +172,10 @@ public class MDIPane extends JDesktopPane
 		resizeDesktop();
 		}
 
-	private void resizeDesktop()
+	public void resizeDesktop()
 		{
-		((MDIManager) getDesktopManager()).resizeDesktop();
+		MDIManager mg = (MDIManager) getDesktopManager();
+		if (mg != null) mg.resizeDesktop();
 		}
 
 	private void incrementOffset()
@@ -179,5 +184,19 @@ public class MDIPane extends JDesktopPane
 			offset = 0;
 		else
 			offset++;
+		}
+
+	public boolean isMaximum()
+		{
+		for (JInternalFrame f : getAllFrames())
+			if (f.isMaximum()) return true;
+		return false;
+		}
+
+	public void bringMaximumToTop()
+		{
+		if (!isMaximum()) return;
+		for (JInternalFrame f : getAllFrames())
+			if (f.isMaximum() && f instanceof MDIFrame) ((MDIFrame) f).toTop();
 		}
 	}

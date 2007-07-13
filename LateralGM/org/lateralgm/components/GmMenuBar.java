@@ -145,7 +145,7 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("GmMenuBar.EXPAND"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.COLLAPSE"); //$NON-NLS-1$
 		
-		add(new MDIMenu(LGM.mdi));
+		add(LGM.mdi.getMenu());
 
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_HELP")); //$NON-NLS-1$
 		add(menu);

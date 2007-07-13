@@ -40,7 +40,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
-import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -68,12 +67,13 @@ import javax.swing.text.rtf.RTFEditorKit;
 
 import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.components.DocumentUndoManager;
+import org.lateralgm.components.MDIFrame;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
-public class GameInformationFrame extends JInternalFrame implements ActionListener
+public class GameInformationFrame extends MDIFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static JEditorPane editor;

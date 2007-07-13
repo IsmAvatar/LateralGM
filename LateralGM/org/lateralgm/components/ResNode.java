@@ -53,12 +53,12 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 
 	public ResNode(String name, int status, int kind, ResId res)
 		{
-		this(name, (byte) status, (byte) kind, res);
+		this(name,(byte) status,(byte) kind,res);
 		}
 
 	public ResNode(String name, int status, int kind)
 		{
-		this(name, status, kind, null);
+		this(name,status,kind,null);
 		}
 
 	public ResNode addChild(String name, byte stat, byte type)
@@ -110,8 +110,8 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 					rf = new SoundFrame(LGM.currentFile.sounds.get(resourceId),this);
 					break;
 				case Resource.BACKGROUND:
-				rf = new BackgroundFrame(LGM.currentFile.backgrounds.get(resourceId),this);
-				break;
+					rf = new BackgroundFrame(LGM.currentFile.backgrounds.get(resourceId),this);
+					break;
 				case Resource.SCRIPT:
 					rf = new ScriptFrame(LGM.currentFile.scripts.get(resourceId),this);
 					break;
@@ -132,21 +132,10 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 				{
 				frame = rf;
 				LGM.mdi.add(rf);
-				rf.setVisible(true);
 				}
 			}
-		else
-			{
-			frame.toFront();
-			try
-				{
-				frame.setIcon(false);
-				}
-			catch (PropertyVetoException e)
-				{
-				e.printStackTrace();
-				}
-			}
+			frame.setVisible(true);
+			frame.toTop();
 		}
 
 	public void updateFrame()

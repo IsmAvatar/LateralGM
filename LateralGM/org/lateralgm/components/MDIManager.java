@@ -71,15 +71,26 @@ public class MDIManager extends DefaultDesktopManager implements ComponentListen
 				{
 				if (f.isVisible())
 					{
-					JComponent comp;
-					if (!f.isIcon())
-						comp = f;
+					if (!f.isMaximum())
+						{
+						JComponent comp;
+						if (!f.isIcon())
+							comp = f;
+						else
+							comp = f.getDesktopIcon();
+						xmin = Math.min(comp.getX(),xmin);
+						ymin = Math.min(comp.getY(),ymin);
+						xmax = Math.max(comp.getX() + comp.getWidth(),xmax);
+						ymax = Math.max(comp.getY() + comp.getHeight(),ymax);
+						}
 					else
-						comp = f.getDesktopIcon();
-					xmin = Math.min(comp.getX(),xmin);
-					ymin = Math.min(comp.getY(),ymin);
-					xmax = Math.max(comp.getX() + comp.getWidth(),xmax);
-					ymax = Math.max(comp.getY() + comp.getHeight(),ymax);
+						{
+						pane.setPreferredSize(viewrect.getSize());
+						pane.getParent().invalidate();
+						pane.getParent().validate();
+						resizing = false;
+						return;
+						}
 					}
 				}
 			int xcorrect = 0, ycorrect = 0;
@@ -95,6 +106,10 @@ public class MDIManager extends DefaultDesktopManager implements ComponentListen
 
 			Point newviewpos = new Point(viewrect.x + xcorrect,viewrect.y + ycorrect);
 
+			Dimension newPaneSize = new Dimension(
+					Math.max(xmax + xcorrect,newviewpos.x + viewrect.width),Math.max(ymax + ycorrect,
+							newviewpos.y + viewrect.height));
+
 			for (JInternalFrame f : pane.getAllFrames())
 				{
 				if (!f.isIcon())
@@ -102,19 +117,17 @@ public class MDIManager extends DefaultDesktopManager implements ComponentListen
 					Point p = f.getLocation();
 					f.setLocation(new Point(p.x + xcorrect,p.y + ycorrect));
 					}
-				else
-					{
-					Point p = f.getDesktopIcon().getLocation();
-					f.getDesktopIcon().setLocation(new Point(p.x + xcorrect,p.y + ycorrect));
-					}
+				Point p = f.getDesktopIcon().getLocation();
+				f.getDesktopIcon().setLocation(new Point(p.x + xcorrect,p.y + ycorrect));
+				f.repaint();
 				}
 
 			scroll.getViewport().setViewPosition(newviewpos);
-			pane.setPreferredSize(new Dimension(Math.max(xmax + xcorrect,newviewpos.x + viewrect.width),
-					Math.max(ymax + ycorrect,newviewpos.y + viewrect.height)));
+			pane.setPreferredSize(newPaneSize);
 
 			pane.getParent().invalidate();
 			pane.getParent().validate();
+			pane.repaint();
 			resizing = false;
 			}
 		}
@@ -122,8 +135,10 @@ public class MDIManager extends DefaultDesktopManager implements ComponentListen
 	public void componentResized(ComponentEvent e)
 		{
 		resizeDesktop();
+		for (JInternalFrame f : pane.getAllFrames())
+			if (f.isMaximum()) f.setSize(pane.getPreferredSize());
 		}
-	
+
 	public void componentHidden(ComponentEvent e)
 		{
 		}

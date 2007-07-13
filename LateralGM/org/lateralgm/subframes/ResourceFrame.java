@@ -22,6 +22,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.InternalFrameEvent;
 
+import org.lateralgm.components.MDIFrame;
 import org.lateralgm.components.NameDocument;
 import org.lateralgm.components.ResNode;
 import org.lateralgm.main.LGM;
@@ -29,7 +30,7 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
 // Provides common functionality and structure to Resource editing frames
-public abstract class ResourceFrame<R extends Resource> extends JInternalFrame implements
+public abstract class ResourceFrame<R extends Resource> extends MDIFrame implements
 		DocumentListener,ActionListener
 	{
 	private static final long serialVersionUID = 1L;

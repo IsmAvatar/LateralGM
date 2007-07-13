@@ -37,7 +37,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -55,6 +54,7 @@ import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.components.IndexButtonGroup;
 import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.MDIFrame;
 import org.lateralgm.file.Gm6File;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.file.GmStreamEncoder;
@@ -65,7 +65,7 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Constant;
 
-public class GameSettingFrame extends JInternalFrame implements ActionListener
+public class GameSettingFrame extends MDIFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 

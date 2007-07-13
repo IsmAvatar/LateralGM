@@ -16,7 +16,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -25,6 +24,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.lateralgm.components.IndexButtonGroup;
+import org.lateralgm.components.MDIFrame;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -36,7 +36,7 @@ import org.lateralgm.resources.library.LibArgument;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 
-public class ActionFrame extends JInternalFrame implements ActionListener
+public class ActionFrame extends MDIFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 
