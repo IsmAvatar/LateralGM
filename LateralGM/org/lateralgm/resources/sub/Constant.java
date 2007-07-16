@@ -6,7 +6,7 @@
  * See LICENSE for details.
  */
 
-package org.lateralgm.resources;
+package org.lateralgm.resources.sub;
 
 public class Constant implements Comparable<Constant>
 	{
@@ -27,11 +27,6 @@ public class Constant implements Comparable<Constant>
 			return ((Constant) c).name.equals(name);
 		else
 			return false;
-		}
-	
-	public int hashCode()
-		{
-		return super.hashCode();
 		}
 
 	public int compareTo(Constant c)

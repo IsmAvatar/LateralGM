@@ -63,7 +63,7 @@ import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.Constant;
+import org.lateralgm.resources.sub.Constant;
 
 public class GameSettingFrame extends MDIFrame implements ActionListener
 	{

@@ -20,6 +20,7 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 
 import org.lateralgm.components.ResourceMenu;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.ResId;
 import org.lateralgm.resources.Resource;
@@ -143,8 +144,7 @@ public class Argument
 			}
 		if (editor instanceof JButton)
 			{
-			Color c = ((JButton) editor).getBackground();
-			val = Integer.toString(new Color(c.getBlue(),c.getGreen(),c.getRed()).getRGB());
+			val = Integer.toString(Util.getGmColor(((JButton) editor).getBackground()));
 			}
 		if (editor instanceof ResourceMenu)
 			{

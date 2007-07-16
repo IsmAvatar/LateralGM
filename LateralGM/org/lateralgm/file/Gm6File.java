@@ -46,7 +46,6 @@ import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
-import org.lateralgm.resources.Constant;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GmObject;
@@ -58,6 +57,7 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.sub.Constant;
 
 public class Gm6File
 	{

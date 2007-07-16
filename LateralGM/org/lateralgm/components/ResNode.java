@@ -24,6 +24,7 @@ import org.lateralgm.subframes.BackgroundFrame;
 import org.lateralgm.subframes.FontFrame;
 import org.lateralgm.subframes.GmObjectFrame;
 import org.lateralgm.subframes.ResourceFrame;
+import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.subframes.ScriptFrame;
 import org.lateralgm.subframes.SoundFrame;
 import org.lateralgm.subframes.SpriteFrame;
@@ -123,6 +124,9 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 					break;
 				case Resource.GMOBJECT:
 					rf = new GmObjectFrame(LGM.currentFile.gmObjects.get(resourceId),this);
+					break;
+				case Resource.ROOM:
+					rf = new RoomFrame(LGM.currentFile.rooms.get(resourceId),this);
 					break;
 				default:
 					rf = null;

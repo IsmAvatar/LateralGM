@@ -8,6 +8,7 @@
 
 package org.lateralgm.components;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -193,6 +194,12 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 			}
 		}
 
+	public void showPopup(Component c, int x, int y)
+		{
+		if (pm.getComponentCount() == 0) return;
+		pm.show(c,x,y);
+		}
+
 	public Resource getSelected()
 		{
 		return selected;
@@ -227,7 +234,6 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 		if (!isEnabled()) return;
 		if (pm.getComponentCount() == 0) return;
 		pm.show(e.getComponent(),e.getX(),e.getY());
-		pm.setVisible(true);
 		}
 
 	//Unused
