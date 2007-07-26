@@ -58,6 +58,9 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/** Number of contained images. */
 	private int imageCount;
+	
+	/**The <code>AbstractDecoder</code> provided or derived from the constructor*/ 
+	private AbstractDecoder decoder;
 
 	private final List<BitmapDescriptor> descriptors = new ArrayList<BitmapDescriptor>();
 
@@ -65,34 +68,37 @@ public class ICOFile implements Comparable<ICOFile>
 	 * Create ICOFile object from an ICO file. Use {@link #getDescriptors()}to access the icon(s).
 	 * Yes, ICO files might contain more than one icon).
 	 * 
-	 * @param pFileName Name of the file to read.
+	 * @param pFileName Name of the file to read (derived decoder automatically closed).
 	 * @throws IOException
 	 */
 	public ICOFile(final String pFileName) throws IOException
 		{
 		this(pFileName,new StreamDecoder(new FileInputStream(pFileName)));
+		getDecoder().close();
 		}
 
 	/**
 	 * Create ICO file from an input stream.
 	 * 
-	 * @param pInput
+	 * @param pInput (automatically closed)
 	 * @throws IOException
 	 */
 	public ICOFile(final InputStream pInput) throws IOException
 		{
 		this("[from stream]",new StreamDecoder(pInput));
+		getDecoder().close();
 		}
 
 	/**
 	 * Create ICO file from an URL.
 	 * 
-	 * @param pURL
+	 * @param pURL (derived decoder automatically closed)
 	 * @throws IOException
 	 */
 	public ICOFile(final URL pURL) throws IOException
 		{
 		this(pURL.toString(),new StreamDecoder(pURL.openStream()));
+		getDecoder().close();
 		}
 
 	/**
@@ -111,13 +117,14 @@ public class ICOFile implements Comparable<ICOFile>
 	 * 
 	 * @param pFileName Just serves as information for toString() output; input is obtained through
 	 *          pFileDecoder.
-	 * @param pFileDecoder Decoder to read from.
+	 * @param pFileDecoder Decoder to read from (will remain unclosed).
 	 * @throws IOException If anything goes wrong with reading from the decoder.
 	 */
 	// @PMD:REVIEWED:CallSuperInConstructor: by Chris on 06.03.06 10:32
 	public ICOFile(final String pFileName, final AbstractDecoder pFileDecoder) throws IOException
 		{
 		fileName = pFileName;
+		decoder = pFileDecoder;
 		read(pFileDecoder);
 		}
 
@@ -156,8 +163,6 @@ public class ICOFile implements Comparable<ICOFile>
 		readHeader(pDec);
 		final BitmapDescriptor[] lDescriptors = readDescriptors(pDec);
 		fillDescriptors(pDec,lDescriptors);
-
-		pDec.close();
 		}
 
 	/**
@@ -368,5 +373,11 @@ public class ICOFile implements Comparable<ICOFile>
 	public int getReserved()
 		{
 		return reserved;
+		}
+	
+	/**@return The <code>AbstractDecoder</code> provided or derived from the constructor*/
+	public AbstractDecoder getDecoder()
+		{
+		return decoder;
 		}
 	}

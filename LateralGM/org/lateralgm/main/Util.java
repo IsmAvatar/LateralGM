@@ -27,15 +27,23 @@ import java.awt.image.RGBImageFilter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Iterator;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.spi.IIORegistry;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import org.lateralgm.components.CustomFileFilter;
 import org.lateralgm.components.ImagePreview;
+import org.lateralgm.components.WBMPImageReaderSpiFix;
+import org.lateralgm.file.iconio.ICOImageReaderSPI;
 import org.lateralgm.jedit.SyntaxStyle;
 import org.lateralgm.messages.Messages;
+
+import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class Util
 	{
@@ -43,24 +51,14 @@ public final class Util
 		{
 		}
 
-	public static JFileChooser imageFc;
+	public static JFileChooser imageFc = null;
 
-	static
+	public static void tweakIIORegistry()
 		{
-		imageFc = new JFileChooser();
-		imageFc.setAccessory(new ImagePreview(imageFc));
-		String exts[] = ImageIO.getReaderFileSuffixes();
-		for (int i = 0; i < exts.length; i++)
-			exts[i] = "." + exts[i]; //$NON-NLS-1$
-		String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
-		CustomFileFilter filt = new CustomFileFilter(exts,allSpiImages);
-		imageFc.addChoosableFileFilter(filt);
-		for (int i = 0; i < exts.length; i++)
-			{
-			imageFc.addChoosableFileFilter(new CustomFileFilter(exts[i],exts[i]
-					+ Messages.getString("Util.FILES"))); //$NON-NLS-1$
-			}
-		imageFc.setFileFilter(filt);
+		IIORegistry reg = IIORegistry.getDefaultInstance();
+		reg.registerServiceProvider(new ICOImageReaderSPI());
+		reg.deregisterServiceProvider(reg.getServiceProviderByClass(WBMPImageReaderSpi.class));
+		reg.registerServiceProvider(new WBMPImageReaderSpiFix());
 		}
 
 	public static String urlEncode(String s)
@@ -157,26 +155,60 @@ public final class Util
 	 * ImageReaderSpi.
 	 * 
 	 * @return The selected image, or null if one is not chosen
-	 * @throws IOException In the case of an invalid file or IO error
 	 */
+
 	public static BufferedImage getValidImage()
 		{
+		BufferedImage[] img = getValidImages();
+		if (img == null || img.length == 0) return null;
+		return img[0];
+		}
+
+	public static BufferedImage[] getValidImages()
+		{
+		if (imageFc == null)
+			{
+			imageFc = new JFileChooser();
+			imageFc.setAccessory(new ImagePreview(imageFc));
+			String exts[] = ImageIO.getReaderFileSuffixes();
+			for (int i = 0; i < exts.length; i++)
+				exts[i] = "." + exts[i]; //$NON-NLS-1$
+			String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
+			CustomFileFilter filt = new CustomFileFilter(exts,allSpiImages);
+			imageFc.addChoosableFileFilter(filt);
+			for (int i = 0; i < exts.length; i++)
+				{
+				imageFc.addChoosableFileFilter(new CustomFileFilter(exts[i],exts[i]
+						+ Messages.getString("Util.FILES"))); //$NON-NLS-1$
+				}
+			imageFc.setFileFilter(filt);
+			}
 		if (imageFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 			{
 			try
 				{
-				BufferedImage img = ImageIO.read(imageFc.getSelectedFile());
-				// TODO support animated formats
-				if (img != null)
+				ImageInputStream in = ImageIO.createImageInputStream(imageFc.getSelectedFile());
+				Iterator<ImageReader> it = ImageIO.getImageReaders(in);
+				ImageReader reader = it.next();
+				reader.setInput(in);
+				int count = reader.getNumImages(true);
+				BufferedImage[] img = new BufferedImage[count];
+				ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
+				for (int i = 0; i < count; i++)
 					{
-					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
-					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
-							BufferedImage.TYPE_3BYTE_BGR);
-					conv.filter(img,dest);
-					return dest;
+					img[i] = reader.read(i);
+					// TODO support animated formats
+					if (img[i] != null)
+						{
+						BufferedImage dest = new BufferedImage(img[i].getWidth(),img[i].getHeight(),
+								BufferedImage.TYPE_3BYTE_BGR);
+						conv.filter(img[i],dest);
+						img[i] = dest;
+						}
+					else
+						throw new Exception();
 					}
-				else
-					throw new Exception();
+				return img;
 				}
 			catch (Throwable t)
 				{
@@ -184,6 +216,7 @@ public final class Util
 						.getSelectedFile());
 				String title = Messages.getString("Util.ERROR_TITLE");
 				JOptionPane.showMessageDialog(LGM.frame,msg,title,JOptionPane.ERROR_MESSAGE);
+				t.printStackTrace();
 				}
 			}
 		return null;

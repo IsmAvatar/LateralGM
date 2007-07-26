@@ -31,6 +31,8 @@ import org.lateralgm.resources.Resource;
 public class GmStreamDecoder
 	{
 	private BufferedInputStream in;
+	private int[] table = null;
+	private int pos = 0;
 
 	public GmStreamDecoder(InputStream in)
 		{
@@ -41,7 +43,7 @@ public class GmStreamDecoder
 		{
 		in = new BufferedInputStream(new FileInputStream(path));
 		}
-	
+
 	public GmStreamDecoder(File f) throws FileNotFoundException
 		{
 		in = new BufferedInputStream(new FileInputStream(f));
@@ -54,45 +56,58 @@ public class GmStreamDecoder
 
 	public int read(byte b[], int off, int len) throws IOException
 		{
-		return in.read(b,off,len);
+		int ret = in.read(b,off,len);
+		if (ret != len) throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
+		if (table != null)
+			{
+			for (int i = 0; i < ret; i++)
+				{
+				int t = b[off + i] & 0xFF;
+				int x = (table[t] - pos - i) & 0xFF;
+				b[off + i] = (byte) x;
+				}
+			}
+		pos += ret;
+		return ret;
 		}
 
 	public int read() throws IOException
 		{
 		int t = in.read();
-		if (t == -1)
-			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
+		if (t == -1) throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
+		if (table != null) t = (table[t] - pos) & 0xFF;
+		pos++;
 		return t;
 		}
 
 	public int read2() throws IOException
 		{
-		int a = in.read();
-		int b = in.read();
+		int a = read();
+		int b = read();
 		return (a | (b << 8));
 		}
 
 	public int read3() throws IOException
 		{
-		int a = in.read();
-		int b = in.read();
-		int c = in.read();
+		int a = read();
+		int b = read();
+		int c = read();
 		return (a | (b << 8) | (c << 16));
 		}
 
 	public int read4() throws IOException
 		{
-		int a = in.read();
-		int b = in.read();
-		int c = in.read();
-		int d = in.read();
+		int a = read();
+		int b = read();
+		int c = read();
+		int d = read();
 		return (a | (b << 8) | (c << 16) | (d << 24));
 		}
 
 	public String readStr() throws IOException
 		{
 		byte data[] = new byte[read4()];
-		long check = in.read(data);
+		long check = read(data);
 		if (check < data.length)
 			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
 		return new String(data);
@@ -100,8 +115,8 @@ public class GmStreamDecoder
 
 	public String readStr1() throws IOException
 		{
-		byte data[] = new byte[in.read()];
-		long check = in.read(data);
+		byte data[] = new byte[read()];
+		long check = read(data);
 		if (check < data.length)
 			throw new IOException(Messages.getString("GmStreamDecoder.UNEXPECTED_EOF")); //$NON-NLS-1$
 		return new String(data);
@@ -113,20 +128,19 @@ public class GmStreamDecoder
 		if (val != 0 && val != 1)
 			throw new IOException(String
 					.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
-		if (val == 0) return false;
-		return true;
+		return val == 0 ? false : true;
 		}
 
 	public double readD() throws IOException
 		{
-		int a = in.read();
-		int b = in.read();
-		int c = in.read();
-		int d = in.read();
-		int e = in.read();
-		int f = in.read();
-		int g = in.read();
-		int h = in.read();
+		int a = read();
+		int b = read();
+		int c = read();
+		int d = read();
+		int e = read();
+		int f = read();
+		int g = read();
+		int h = read();
 		long result = (long) a | (long) b << 8 | (long) c << 16 | (long) d << 24 | (long) e << 32
 				| (long) f << 40 | (long) g << 48 | (long) h << 56;
 		return Double.longBitsToDouble(result);
@@ -136,8 +150,8 @@ public class GmStreamDecoder
 		{
 		Inflater decompresser = new Inflater();
 		byte[] compressedData = new byte[length];
-		in.read(compressedData,0,length);
-		decompresser.setInput(compressedData,0,compressedData.length);
+		read(compressedData,0,length);
+		decompresser.setInput(compressedData);
 		byte[] result = new byte[100];
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		while (!decompresser.finished())
@@ -167,16 +181,16 @@ public class GmStreamDecoder
 			{
 			total += in.skip(length - total);
 			}
+		pos += (int) length;
 		return total;
 		}
 
-	public void readTree(ResNode root, Gm6File src) throws IOException
+	public void readTree(ResNode root, Gm6File src, int rootnodes) throws IOException
 		{
 		Stack<ResNode> path = new Stack<ResNode>();
 		Stack<Integer> left = new Stack<Integer>();
 		path.push(root);
-		int cur = 11;
-		while (cur-- > 0)
+		while (rootnodes-- > 0)
 			{
 			byte status = (byte) read4();
 			byte type = (byte) read4();
@@ -184,7 +198,7 @@ public class GmStreamDecoder
 			String name = readStr();
 			ResNode node = path.peek().addChild(name,status,type);
 			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO
-					&& type != Resource.GAMESETTINGS)
+					&& type != Resource.GAMESETTINGS && type != Resource.EXTENSIONS)
 				{
 				node.resourceId = src.getList(node.kind).getUnsafe(ind).getId();
 
@@ -195,13 +209,13 @@ public class GmStreamDecoder
 			int contents = read4();
 			if (contents > 0)
 				{
-				left.push(new Integer(cur));
-				cur = contents;
+				left.push(new Integer(rootnodes));
+				rootnodes = contents;
 				path.push(node);
 				}
-			while (cur == 0 && !left.isEmpty())
+			while (rootnodes == 0 && !left.isEmpty())
 				{
-				cur = left.pop().intValue();
+				rootnodes = left.pop().intValue();
 				path.pop();
 				}
 			}
@@ -218,5 +232,37 @@ public class GmStreamDecoder
 	public static boolean mask(int bits, int bit)
 		{
 		return (bits & bit) == bit;
+		}
+
+	public void setSeed(int s)
+		{
+		if (s >= 0)
+			table = makeSwapTable(s)[1];
+		else
+			table = null;
+		}
+
+	private static int[][] makeSwapTable(int x)
+		{
+		int si = 6 + (x % 250);
+		int di = x / 250;
+		int[] tblA = new int[256], tblB = new int[256];
+		for (int i = 0; i < 256; i++)
+			{
+			tblA[i] = i;
+			tblB[i] = i;
+			}
+		for (int cx = 1; cx < 10001; cx++)
+			{
+			int ax = 1 + ((cx * si + di) % 254);
+			int temp = tblA[ax];
+			tblA[ax] = tblA[ax + 1];
+			tblA[ax + 1] = temp;
+			}
+		for (int cx = 1; cx < 256; cx++)
+			{
+			tblB[tblA[cx]] = cx;
+			}
+		return new int[][] { tblA,tblB };
 		}
 	}

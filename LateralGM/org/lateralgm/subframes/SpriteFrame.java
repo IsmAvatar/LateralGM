@@ -220,19 +220,16 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		bbox.setBorder(BorderFactory.createTitledBorder(t));
 		bbox.setPreferredSize(new Dimension(200,120));
 
-		bboxGroup = new IndexButtonGroup(3);
+		bboxGroup = new IndexButtonGroup(3,true,false,this);
 		auto = new JRadioButton(Messages.getString("SpriteFrame.AUTO")); //$NON-NLS-1$
 		auto.setPreferredSize(new Dimension(85,16));
-		auto.addActionListener(this);
-		bboxGroup.add(auto,Sprite.BBOX_AUTO);
+		bboxGroup.add(auto);
 		full = new JRadioButton(Messages.getString("SpriteFrame.FULL")); //$NON-NLS-1$
 		full.setPreferredSize(new Dimension(85,16));
-		full.addActionListener(this);
-		bboxGroup.add(full,Sprite.BBOX_FULL);
+		bboxGroup.add(full);
 		manual = new JRadioButton(Messages.getString("SpriteFrame.MANUAL")); //$NON-NLS-1$
 		manual.setPreferredSize(new Dimension(85,16));
-		manual.addActionListener(this);
-		bboxGroup.add(manual,Sprite.BBOX_MANUAL);
+		bboxGroup.add(manual);
 		bboxGroup.setValue(res.boundingBoxMode);
 		bboxGroup.populate(bbox);
 		addGap(bbox,85,16);
@@ -319,21 +316,23 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		{
 		if (e.getSource() == load)
 			{
-			BufferedImage img = Util.getValidImage();
-			if (img != null)
+			BufferedImage[] img = Util.getValidImages();
+			if (img != null && img.length > 0)
 				{
 				res.clearSubImages();
-				res.addSubImage(img);
-				res.width = img.getWidth();
-				res.height = img.getHeight();
 				imageChanged = true;
 				currSub = 0;
+				res.width = img[0].getWidth();
+				res.height = img[0].getHeight();
+				for (BufferedImage i : img)
+					res.addSubImage(i);
 				preview.setIcon(new ImageIcon(res.getSubImage(0)));
 				updateInfo();
 				updateBoundingBox();
+				updateImage();
 				LGM.tree.repaint();
+				return;
 				}
-			return;
 			}
 		if (e.getSource() == subRight)
 			{

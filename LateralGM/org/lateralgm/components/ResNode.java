@@ -12,7 +12,6 @@ package org.lateralgm.components;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.beans.PropertyVetoException;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -138,8 +137,11 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 				LGM.mdi.add(rf);
 				}
 			}
+		if (frame != null)
+			{
 			frame.setVisible(true);
 			frame.toTop();
+			}
 		}
 
 	public void updateFrame()

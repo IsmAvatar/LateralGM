@@ -105,10 +105,18 @@ public final class Gm6FileReader
 				throw new Gm6FormatException(String.format(Messages
 						.getString("Gm6FileReader.ERROR_INVALID"),fileName,identifier)); //$NON-NLS-1$
 			int ver = in.read4();
-			if (ver != 600)
+			if (ver != 600 && ver != 701)
 				{
 				String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
 				throw new Gm6FormatException(String.format(msg,ver));
+				}
+			if (ver == 701)
+				{
+				int s1 = in.read4();
+				int s2 = in.read4();
+				in.skip(s1 * 4);
+				in.setSeed(in.read4());
+				in.skip(s2 * 4);
 				}
 			readSettings(c);
 			readSounds(c);
@@ -124,23 +132,44 @@ public final class Gm6FileReader
 			f.lastInstanceId = in.read4();
 			f.lastTileId = in.read4();
 			ver = in.read4();
-			if (ver != 600)
+			if (ver != 600 && ver != 620)
 				throw new Gm6FormatException(String.format(Messages
 						.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREINFO"),ver)); //$NON-NLS-1$
-			int bc = in.read4();
-			GameInformation gameInfo = f.gameInfo;
-			if (bc >= 0) gameInfo.backgroundColor = Util.convertGmColor(bc);
-			gameInfo.mimicGameWindow = in.readBool();
-			gameInfo.formCaption = in.readStr();
-			gameInfo.left = in.read4();
-			gameInfo.top = in.read4();
-			gameInfo.width = in.read4();
-			gameInfo.height = in.read4();
-			gameInfo.showBorder = in.readBool();
-			gameInfo.allowResize = in.readBool();
-			gameInfo.stayOnTop = in.readBool();
-			gameInfo.pauseGame = in.readBool();
-			gameInfo.gameInfoStr = in.readStr();
+			if (ver == 620)
+				{
+				int noIncludes = in.read4();
+				for (int i = 0; i < noIncludes; i++)
+					{
+					ver = in.read4();
+					if (ver != 620)
+						throw new Gm6FormatException(String.format(Messages
+								.getString("Gm6FileReader.ERROR_UNSUPPORTED_INGM7INCLUDES"),ver)); //$NON-NLS-1$
+					Include inc = new Include();
+					in.skip(in.read4()); //Filename
+					inc.filePath = in.readStr();
+					in.skip(4); //orig file chosen
+					in.skip(4); //orig file size
+					if (in.readBool()) in.skip(in.read4()); //Store in editable
+					in.skip(4); //export
+					in.skip(in.read4()); //folder to export to
+					in.skip(12); //overwrite if exists, free mem, remove at game end
+					f.includes.add(inc);
+					}
+				ver = in.read4();
+				if (ver != 700)
+					throw new Gm6FormatException(String.format(Messages
+							.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREEXTENSIONS"),ver)); //$NON-NLS-1$
+				int noPackages = in.read4();
+				for (int i = 0; i < noPackages; i++)
+					{
+					in.skip(in.read4()); //Package name
+					}
+				ver = in.read4();
+				if (ver != 600)
+					throw new Gm6FormatException(String.format(Messages
+							.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREINFO"),ver)); //$NON-NLS-1$
+				}
+			readGameInformation(c);
 			ver = in.read4();
 			if (ver != 500)
 				throw new Gm6FormatException(String.format(Messages
@@ -149,11 +178,11 @@ public final class Gm6FileReader
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 			ver = in.read4();
-			if (ver != 540)
+			if (ver != 540 && ver != 700)
 				throw new Gm6FormatException(String.format(Messages
 						.getString("Gm6FileReader.ERROR_UNSUPPORTED_AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4); // room indexes in tree order;
-			in.readTree(root,f);
+			in.readTree(root,f,ver == 540 ? 11 : 12);
 			System.out.printf(Messages.getString("Gm6FileReader.LOADTIME"), //$NON-NLS-1$
 					System.currentTimeMillis() - startTime);
 			System.out.println();
@@ -196,7 +225,7 @@ public final class Gm6FileReader
 		f.gameId = in.read4();
 		in.skip(16); // unknown bytes following game id
 		int ver = in.read4();
-		if (ver != 600)
+		if (ver != 600 && ver != 702)
 			{
 			String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
 			throw new Gm6FormatException(String.format(msg,ver));
@@ -219,6 +248,12 @@ public final class Gm6FileReader
 		f.letF1ShowGameInfo = in.readBool();
 		f.letEscEndGame = in.readBool();
 		f.letF5SaveF6Load = in.readBool();
+		if (ver == 702)
+			{
+			in.skip(8);
+			//TODO: F9 screenshot
+			//Treat close as esc
+			}
 		f.gamePriority = (byte) in.read4();
 		f.freezeOnLoseFocus = in.readBool();
 		f.loadBarMode = (byte) in.read4();
@@ -252,7 +287,10 @@ public final class Gm6FileReader
 		f.abortOnError = in.readBool();
 		f.treatUninitializedAs0 = in.readBool();
 		f.author = in.readStr();
-		f.version = in.read4();
+		if (ver == 600)
+			f.version = in.read4();
+		else
+			f.version = Integer.parseInt(in.readStr());
 		f.lastChanged = in.readD();
 		f.information = in.readStr();
 		int no = in.read4();
@@ -263,15 +301,29 @@ public final class Gm6FileReader
 			con.name = in.readStr();
 			con.value = in.readStr();
 			}
-		no = in.read4();
-		for (int i = 0; i < no; i++)
+		if (ver == 600)
 			{
-			Include inc = new Include();
-			inc.filePath = in.readStr();
+			no = in.read4();
+			for (int i = 0; i < no; i++)
+				{
+				Include inc = new Include();
+				inc.filePath = in.readStr();
+				}
+			f.includeFolder = in.read4();
+			f.overwriteExisting = in.readBool();
+			f.removeAtGameEnd = in.readBool();
 			}
-		f.includeFolder = in.read4();
-		f.overwriteExisting = in.readBool();
-		f.removeAtGameEnd = in.readBool();
+		else
+			{
+			in.skip(4); //Major
+			in.skip(4); //Minor
+			in.skip(4); //Release
+			in.skip(4); //Build
+			in.skip(in.read4()); //Company
+			in.skip(in.read4()); //Product
+			in.skip(in.read4()); //Copyright
+			in.skip(in.read4()); //Description
+			}
 		}
 
 	private static void readSounds(Gm6FileContext c) throws IOException,Gm6FormatException,
@@ -717,6 +769,25 @@ public final class Gm6FileReader
 			else
 				f.rooms.lastId++;
 			}
+		}
+
+	private static void readGameInformation(Gm6FileContext c) throws IOException,Gm6FormatException
+		{
+		GmStreamDecoder in = c.in;
+		GameInformation gameInfo = c.f.gameInfo;
+		int bc = in.read4();
+		if (bc >= 0) gameInfo.backgroundColor = Util.convertGmColor(bc);
+		gameInfo.mimicGameWindow = in.readBool();
+		gameInfo.formCaption = in.readStr();
+		gameInfo.left = in.read4();
+		gameInfo.top = in.read4();
+		gameInfo.width = in.read4();
+		gameInfo.height = in.read4();
+		gameInfo.showBorder = in.readBool();
+		gameInfo.allowResize = in.readBool();
+		gameInfo.stayOnTop = in.readBool();
+		gameInfo.pauseGame = in.readBool();
+		gameInfo.gameInfoStr = in.readStr();
 		}
 
 	private static void readActions(Gm6FileContext c, ActionContainer container, String key,

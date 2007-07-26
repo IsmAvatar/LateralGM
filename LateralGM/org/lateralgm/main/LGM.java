@@ -229,6 +229,7 @@ public class LGM extends JPanel
 
 	static
 		{
+		Util.tweakIIORegistry();
 		try
 			{
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());

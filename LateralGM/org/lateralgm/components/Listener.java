@@ -78,44 +78,6 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			e.printStackTrace();
 			}
 		return -1;
-		
-		/*if (com.equals("SPRITE")) //$NON-NLS-1$
-			{
-			return Resource.SPRITE;
-			}
-		if (com.equals("SOUND")) //$NON-NLS-1$
-			{
-			return Resource.SOUND;
-			}
-		if (com.equals("BACKGROUND")) //$NON-NLS-1$
-			{
-			return Resource.BACKGROUND;
-			}
-		if (com.equals("PATH")) //$NON-NLS-1$
-			{
-			return Resource.PATH;
-			}
-		if (com.equals("SCRIPT")) //$NON-NLS-1$
-			{
-			return Resource.SCRIPT;
-			}
-		if (com.equals("FONT")) //$NON-NLS-1$
-			{
-			return Resource.FONT;
-			}
-		if (com.equals("TIMELINE")) //$NON-NLS-1$
-			{
-			return Resource.TIMELINE;
-			}
-		if (com.equals("OBJECT")) //$NON-NLS-1$
-			{
-			return Resource.GMOBJECT;
-			}
-		if (com.equals("ROOM")) //$NON-NLS-1$
-			{
-			return Resource.ROOM;
-			}
-		return -1;*/
 		}
 
 	private void openFile(JTree tree, String[] args)
@@ -478,6 +440,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					if (node.kind == Resource.GAMESETTINGS)
 						{
 						LGM.gameSet.setVisible(true);
+						return;
+						}
+					if (node.kind == Resource.EXTENSIONS)
+						{
 						return;
 						}
 					// kind must be a Resource kind

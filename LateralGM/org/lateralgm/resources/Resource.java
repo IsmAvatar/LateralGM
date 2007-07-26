@@ -26,6 +26,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
+import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.LGM;
 
@@ -44,8 +45,9 @@ public abstract class Resource implements Comparable<Resource>
 
 	public static final byte GAMEINFO = 10;
 	public static final byte GAMESETTINGS = 11;
+	public static final byte EXTENSIONS = 13;
 
-	public static final ImageIcon[] ICON = new ImageIcon[13];
+	public static final ImageIcon[] ICON = new ImageIcon[14];
 	static
 		{
 		ICON[SPRITE] = LGM.getIconForKey("Resource.SPRITE");
@@ -59,6 +61,7 @@ public abstract class Resource implements Comparable<Resource>
 		ICON[ROOM] = LGM.getIconForKey("Resource.ROOM");
 		ICON[GAMEINFO] = LGM.getIconForKey("Resource.GAMEINFO");
 		ICON[GAMESETTINGS] = LGM.getIconForKey("Resource.GAMESETTINGS");
+		ICON[EXTENSIONS] = GmTreeGraphics.getBlankIcon();
 		}
 
 	EventListenerList listenerList = new EventListenerList();
