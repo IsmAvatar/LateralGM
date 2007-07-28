@@ -31,12 +31,12 @@ public class ImageInputStreamDecoder extends AbstractDecoder
 		{
 		stream.seek(pPos);
 		}
-	
+
 	public void mark()
 		{
 		stream.mark();
 		}
-	
+
 	public void reset() throws IOException
 		{
 		stream.reset();
@@ -62,7 +62,7 @@ public class ImageInputStreamDecoder extends AbstractDecoder
 			{
 			throw new IOException("Tried to read " + pBytes + " bytes, but obtained " + lBytesRead);
 			}
-		
+
 		pos += pBytes;
 
 		return lBuffer;

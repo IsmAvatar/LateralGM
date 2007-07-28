@@ -44,7 +44,7 @@ public class IndexButtonGroup
 		this.bitwise = bitwise;
 		this.a = a;
 		}
-	
+
 	public IndexButtonGroup(int s, boolean exclusive, boolean bitwise)
 		{
 		this(s,exclusive,bitwise,null);

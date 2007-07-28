@@ -65,8 +65,8 @@ public class ImagePreview extends JLabel implements PropertyChangeListener
 							}
 						else if (img.getWidth() > WIDTH || img.getHeight() > HEIGHT)
 							{
-							prev = new ImageIcon(img.getScaledInstance(img.getWidth() > WIDTH ? WIDTH : -1,img
-									.getHeight() > HEIGHT ? HEIGHT : -1,Image.SCALE_FAST));
+							prev = new ImageIcon(img.getScaledInstance(img.getWidth() > WIDTH ? WIDTH : -1,
+									img.getHeight() > HEIGHT ? HEIGHT : -1,Image.SCALE_FAST));
 							}
 						else
 							prev = new ImageIcon(img);

@@ -58,8 +58,8 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/** Number of contained images. */
 	private int imageCount;
-	
-	/**The <code>AbstractDecoder</code> provided or derived from the constructor*/ 
+
+	/**The <code>AbstractDecoder</code> provided or derived from the constructor*/
 	private AbstractDecoder decoder;
 
 	private final List<BitmapDescriptor> descriptors = new ArrayList<BitmapDescriptor>();
@@ -374,7 +374,7 @@ public class ICOFile implements Comparable<ICOFile>
 		{
 		return reserved;
 		}
-	
+
 	/**@return The <code>AbstractDecoder</code> provided or derived from the constructor*/
 	public AbstractDecoder getDecoder()
 		{

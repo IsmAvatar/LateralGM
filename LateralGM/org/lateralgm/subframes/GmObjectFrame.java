@@ -315,10 +315,9 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				{
 				if (getChildAt(i) instanceof EventInstanceNode)
 					{
-					if (((EventInstanceNode) getChildAt(i)).getUserObject().equals(e))
-						return true;
+					if (((EventInstanceNode) getChildAt(i)).getUserObject().equals(e)) return true;
 					}
-					else if (((EventGroupNode) getChildAt(i)).contains(e)) return true;
+				else if (((EventGroupNode) getChildAt(i)).contains(e)) return true;
 				}
 			return false;
 			}

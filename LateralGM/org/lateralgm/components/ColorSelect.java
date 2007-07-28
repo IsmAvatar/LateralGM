@@ -26,7 +26,7 @@ public class ColorSelect extends JPanel
 	public ColorSelect(Color col, Component parent)
 		{
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		setBackground(col);		
+		setBackground(col);
 		selectedColor = col;
 		this.parent = parent;
 		enableEvents(MouseEvent.MOUSE_FIRST);

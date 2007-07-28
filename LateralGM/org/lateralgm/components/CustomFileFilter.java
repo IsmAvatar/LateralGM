@@ -52,8 +52,7 @@ public class CustomFileFilter extends FileFilter implements FilenameFilter
 		if (ext.size() == 0) return true;
 		if (f.isDirectory()) return true;
 		String s = getExtension(f.getPath());
-		if (s == null)
-			return false;
+		if (s == null) return false;
 		return ext.contains(s);
 		}
 
@@ -67,8 +66,7 @@ public class CustomFileFilter extends FileFilter implements FilenameFilter
 		if (ext.size() == 0) return true;
 		//if (f.isDirectory()) return true;
 		String s = getExtension(name);
-		if (s == null)
-			return false;
+		if (s == null) return false;
 		return ext.contains(s);
 		}
 	}

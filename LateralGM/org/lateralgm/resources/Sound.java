@@ -113,7 +113,7 @@ public class Sound extends Resource
 			}
 		return snd;
 		}
-	
+
 	public Sound copy()
 		{
 		return copy(false,null);

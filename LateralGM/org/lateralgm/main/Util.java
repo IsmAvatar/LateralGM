@@ -212,8 +212,8 @@ public final class Util
 				}
 			catch (Throwable t)
 				{
-				String msg = String.format(Messages.getString("Util.ERROR_LOADING"),imageFc //$NON-NLS-1$
-						.getSelectedFile());
+				String msg = String.format(Messages.getString("Util.ERROR_LOADING"),
+						imageFc.getSelectedFile());
 				String title = Messages.getString("Util.ERROR_TITLE");
 				JOptionPane.showMessageDialog(LGM.frame,msg,title,JOptionPane.ERROR_MESSAGE);
 				t.printStackTrace();

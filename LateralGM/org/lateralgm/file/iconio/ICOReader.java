@@ -56,8 +56,8 @@ public class ICOReader extends ImageReader
 			{
 			// BitmapDescriptor lEntry = getICOEntry(i);
 			// FIXME Get that right, and understand what the spec says.
-			final ImageTypeSpecifier lSpecifier = ImageTypeSpecifier.createInterleaved(ColorSpace
-					.getInstance(ColorSpace.CS_sRGB),ONE,DataBuffer.TYPE_BYTE,false,false);
+			final ImageTypeSpecifier lSpecifier = ImageTypeSpecifier.createInterleaved(
+					ColorSpace.getInstance(ColorSpace.CS_sRGB),ONE,DataBuffer.TYPE_BYTE,false,false);
 			lTypes.add(lSpecifier);
 
 			}

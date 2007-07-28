@@ -126,7 +126,7 @@ public abstract class Resource implements Comparable<Resource>
 
 	@SuppressWarnings("unchecked")
 	public abstract Resource copy(ResourceList src);
-	
+
 	public abstract Resource copy();
 
 	public abstract byte getKind();

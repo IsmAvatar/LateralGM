@@ -57,8 +57,8 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
-public class EventFrame extends MDIFrame implements MouseListener,ActionListener,
-		ContainerListener,InternalFrameListener,DocumentListener,TreeSelectionListener
+public class EventFrame extends MDIFrame implements MouseListener,ActionListener,ContainerListener,
+		InternalFrameListener,DocumentListener,TreeSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -110,8 +110,8 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 
 		JLabel lab = new JLabel(Messages.getString("EventFrame.COLLISION_OBJECT"));
 		addDim(side2,lab,140,16); //$NON-NLS-1$
-		collisionSelect = new ResourceMenu(Resource.GMOBJECT,Messages
-				.getString("EventFrame.CHOOSE_OBJECT"),true,140); //$NON-NLS-1$
+		collisionSelect = new ResourceMenu(Resource.GMOBJECT,
+				Messages.getString("EventFrame.CHOOSE_OBJECT"),true,140); //$NON-NLS-1$
 		side2.add(collisionSelect);
 		collisionSelect.setEnabled(false);
 		collisionSelect.addActionListener(this);

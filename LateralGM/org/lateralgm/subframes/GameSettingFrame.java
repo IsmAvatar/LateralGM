@@ -294,8 +294,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		JPanel loadImage = new JPanel(new FlowLayout());
 		loadImage.setPreferredSize(new Dimension(480,120));
-		loadImage.setBorder(BorderFactory.createTitledBorder(Messages
-				.getString("GameSettingFrame.TITLE_LOADING_IMAGE"))); //$NON-NLS-1$
+		loadImage.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.TITLE_LOADING_IMAGE"))); //$NON-NLS-1$
 
 		useCustomLoad = new JCheckBox(
 				Messages.getString("GameSettingFrame.CUSTOM_LOAD_IMAGE"),LGM.currentFile.showCustomLoadImage); //$NON-NLS-1$
@@ -320,8 +319,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		addGap(loadImage,270,16);
 		panel.add(loadImage);
 
-		JPanel progBar = makeTitledPanel(Messages
-				.getString("GameSettingFrame.TITLE_LOADING_PROGRESS_BAR"),480,150); //$NON-NLS-1$
+		JPanel progBar = makeTitledPanel(
+				Messages.getString("GameSettingFrame.TITLE_LOADING_PROGRESS_BAR"),480,150); //$NON-NLS-1$
 		progBarMode = new IndexButtonGroup(3,true,false,this);
 		JRadioButton but = new JRadioButton(Messages.getString("GameSettingFrame.NO_PROGRESS_BAR")); //$NON-NLS-1$
 		progBarMode.add(but);
@@ -665,8 +664,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 				}
 			catch (Throwable ex)
 				{
-				JOptionPane.showMessageDialog(LGM.frame,Messages
-						.getString("GameSettingFrame.ERROR_LOADING_IMAGE")); //$NON-NLS-1$
+				JOptionPane.showMessageDialog(LGM.frame,
+						Messages.getString("GameSettingFrame.ERROR_LOADING_IMAGE")); //$NON-NLS-1$
 				}
 			}
 		else if (e.getSource() instanceof JRadioButton)
@@ -687,9 +686,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		else if (e.getSource() == changeIcon)
 			{
 			JFileChooser fc = new JFileChooser();
-			fc
-					.setFileFilter(new CustomFileFilter(
-							".ico",Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
+			fc.setFileFilter(new CustomFileFilter(".ico",Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
 			if (fc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 				{
 				File f = fc.getSelectedFile();
@@ -701,21 +698,19 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 						ICOFile i = new ICOFile(in);
 						if (i.getImageCount() != 1)
 							{
-							JOptionPane
-									.showMessageDialog(
-											LGM.frame,
-											Messages.getString("GameSettingFrame.INVALID_ICON"),Messages.getString("GameSettingFrame.TITLE_ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
-											JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(
+									LGM.frame,
+									Messages.getString("GameSettingFrame.INVALID_ICON"),Messages.getString("GameSettingFrame.TITLE_ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
+									JOptionPane.ERROR_MESSAGE);
 							return;
 							}
 						BitmapHeader d = i.getDescriptor(0).getHeader();
 						if (d.getWidth() != 32 || d.getHeight() != 64)
 							{
-							JOptionPane
-									.showMessageDialog(
-											LGM.frame,
-											Messages.getString("GameSettingFrame.INVALID_ICON"),Messages.getString("GameSettingFrame.TITLE_ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
-											JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(
+									LGM.frame,
+									Messages.getString("GameSettingFrame.INVALID_ICON"),Messages.getString("GameSettingFrame.TITLE_ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
+									JOptionPane.ERROR_MESSAGE);
 							return;
 							}
 
@@ -861,11 +856,10 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 				}
 			catch (Exception ex)
 				{
-				JOptionPane
-						.showMessageDialog(
-								LGM.frame,
-								Messages.getString("GameSettingFrame.ERROR_IMPORTING_CONSTANTS"),Messages.getString("GameSettingFrame.TITLE_ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
-								JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(
+						LGM.frame,
+						Messages.getString("GameSettingFrame.ERROR_IMPORTING_CONSTANTS"),Messages.getString("GameSettingFrame.TITLE_ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
+						JOptionPane.ERROR_MESSAGE);
 				}
 			finally
 				{
@@ -894,11 +888,10 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			int result = 0;
 			if (f.exists())
 				{
-				result = JOptionPane
-						.showConfirmDialog(
-								LGM.frame,
-								Messages.getString("GameSettingFrame.REPLACE_FILE"),Messages.getString("GameSettingFrame.TITLE_REPLACE_FILE"), //$NON-NLS-1$ //$NON-NLS-2$
-								JOptionPane.YES_NO_CANCEL_OPTION);
+				result = JOptionPane.showConfirmDialog(
+						LGM.frame,
+						Messages.getString("GameSettingFrame.REPLACE_FILE"),Messages.getString("GameSettingFrame.TITLE_REPLACE_FILE"), //$NON-NLS-1$ //$NON-NLS-2$
+						JOptionPane.YES_NO_CANCEL_OPTION);
 				}
 			if (result == 2) return;
 			if (result == 1) continue;

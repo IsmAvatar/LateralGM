@@ -117,8 +117,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		catch (Gm6FormatException ex)
 			{
-			JOptionPane.showMessageDialog(LGM.frame,String.format(Messages
-					.getString("Listener.ERROR_MESSAGE"), //$NON-NLS-1$
+			JOptionPane.showMessageDialog(LGM.frame,String.format(
+					Messages.getString("Listener.ERROR_MESSAGE"), //$NON-NLS-1$
 					ex.stackAsString(),ex.getMessage()),
 					Messages.getString("Listener.ERROR_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 			}
@@ -223,8 +223,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
 				int result = 0;
 				if (new File(filename).exists())
-					result = JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
-							.getString("Listener.CONFIRM_REPLACE"),filename), //$NON-NLS-1$
+					result = JOptionPane.showConfirmDialog(LGM.frame,String.format(
+							Messages.getString("Listener.CONFIRM_REPLACE"),filename), //$NON-NLS-1$
 							Messages.getString("Listener.CONFIRM_REPLACE_TITLE"), //$NON-NLS-1$
 							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
 				if (result == 0)
@@ -301,8 +301,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			if (me == null) return;
 			if (Prefs.protectRoot && me.status == ResNode.STATUS_PRIMARY) return;
 			String msg = Messages.getString("Listener.CONFIRM_DELETERESOURCE"); //$NON-NLS-1$
-			if (JOptionPane.showConfirmDialog(null,msg,Messages
-					.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"), //$NON-NLS-1$
+			if (JOptionPane.showConfirmDialog(null,msg,
+					Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"), //$NON-NLS-1$
 					JOptionPane.YES_NO_OPTION) == 0)
 				{
 				ResNode next = (ResNode) me.getNextSibling();
@@ -319,8 +319,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		if (com.endsWith(".DEFRAGIDS")) //$NON-NLS-1$
 			{
 			String msg = Messages.getString("Listener.CONFIRM_DEFRAGIDS"); //$NON-NLS-1$
-			if (JOptionPane.showConfirmDialog(LGM.frame,msg,Messages
-					.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"), //$NON-NLS-1$
+			if (JOptionPane.showConfirmDialog(LGM.frame,msg,
+					Messages.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"), //$NON-NLS-1$
 					JOptionPane.YES_NO_OPTION) == 0) LGM.currentFile.defragIds();
 			}
 		if (com.endsWith(".EXPAND")) //$NON-NLS-1$
@@ -337,8 +337,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.endsWith(".ABOUT")) //$NON-NLS-1$
 			{
-			JOptionPane.showMessageDialog(null,Messages.getString("Listener.ABOUT_MESSAGE"),Messages
-					.getString("Listener.ABOUT_TITLE"),JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null,Messages.getString("Listener.ABOUT_MESSAGE"),
+					Messages.getString("Listener.ABOUT_TITLE"),JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 

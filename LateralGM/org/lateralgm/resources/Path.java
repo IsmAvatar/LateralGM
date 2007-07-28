@@ -61,13 +61,13 @@ public class Path extends Resource
 		{
 		return copy(false,null);
 		}
-	
+
 	@SuppressWarnings("unchecked")
 	public Path copy(ResourceList src)
 		{
 		return copy(true,src);
 		}
-	
+
 	@SuppressWarnings("unchecked")
 	private Path copy(boolean update, ResourceList src)
 		{

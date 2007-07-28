@@ -50,13 +50,13 @@ public class Background extends Resource
 		{
 		return copy(false,null);
 		}
-	
+
 	@SuppressWarnings("unchecked")
 	public Background copy(ResourceList src)
 		{
 		return copy(true,src);
 		}
-	
+
 	@SuppressWarnings("unchecked")
 	private Background copy(boolean update, ResourceList src)
 		{

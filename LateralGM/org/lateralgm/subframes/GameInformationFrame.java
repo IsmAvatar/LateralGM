@@ -117,7 +117,6 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		item = addItem("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
 		menu.add(item);
 
-
 		// Create EDIT menu
 		menu = new JMenu(Messages.getString("GameInformationFrame.MENU_EDIT")); //$NON-NLS-1$
 		menuBar.add(menu);
@@ -147,8 +146,6 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		menu.add(item);
 		item.setEnabled(false);
 
-		
-
 		// Create FORMAT menu
 		menu = new JMenu(Messages.getString("GameInformationFrame.MENU_FORMAT")); //$NON-NLS-1$
 		menuBar.add(menu);
@@ -157,7 +154,7 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		item = addItem("GameInformationFrame.FONT"); //$NON-NLS-1$
 		// item.addActionListener(actionListener);
 		menu.add(item);
-		
+
 		return menuBar;
 		}
 

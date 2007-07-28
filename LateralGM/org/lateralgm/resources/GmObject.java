@@ -42,13 +42,13 @@ public class GmObject extends Resource
 		{
 		return copy(false,null);
 		}
-	
+
 	@SuppressWarnings("unchecked")
 	public GmObject copy(ResourceList src)
 		{
 		return copy(true,src);
 		}
-	
+
 	@SuppressWarnings("unchecked")
 	private GmObject copy(boolean update, ResourceList src)
 		{

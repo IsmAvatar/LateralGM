@@ -126,8 +126,8 @@ public class GmStreamDecoder
 		{
 		int val = read4();
 		if (val != 0 && val != 1)
-			throw new IOException(String
-					.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
+			throw new IOException(
+					String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
 		return val == 0 ? false : true;
 		}
 
@@ -242,27 +242,22 @@ public class GmStreamDecoder
 			table = null;
 		}
 
-	private static int[][] makeSwapTable(int x)
+	private static int[][] makeSwapTable(int seed)
 		{
-		int si = 6 + (x % 250);
-		int di = x / 250;
-		int[] tblA = new int[256], tblB = new int[256];
+		int[][] table = new int[2][256];
+		int a = 6 + (seed % 250);
+		int b = seed / 250;
 		for (int i = 0; i < 256; i++)
+			table[0][i] = i;
+		for (int i = 1; i < 10001; i++)
 			{
-			tblA[i] = i;
-			tblB[i] = i;
+			int j = 1 + ((i * a + b) % 254);
+			int t = table[0][j];
+			table[0][j] = table[0][j + 1];
+			table[0][j + 1] = t;
 			}
-		for (int cx = 1; cx < 10001; cx++)
-			{
-			int ax = 1 + ((cx * si + di) % 254);
-			int temp = tblA[ax];
-			tblA[ax] = tblA[ax + 1];
-			tblA[ax + 1] = temp;
-			}
-		for (int cx = 1; cx < 256; cx++)
-			{
-			tblB[tblA[cx]] = cx;
-			}
-		return new int[][] { tblA,tblB };
+		for (int i = 1; i < 256; i++)
+			table[1][table[0][i]] = i;
+		return table;
 		}
 	}

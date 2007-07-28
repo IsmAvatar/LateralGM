@@ -42,7 +42,7 @@ public abstract class ResourceFrame<R extends Resource> extends MDIFrame impleme
 	/**
 	 * Automatically set up to save and close the frame
 	 */
-	public final JButton save = new JButton(); 
+	public final JButton save = new JButton();
 	/** The resource this frame is editing
 	 * (feel free to change it as you wish)
 	 */
@@ -51,12 +51,12 @@ public abstract class ResourceFrame<R extends Resource> extends MDIFrame impleme
 	 * Backup of res as it was before changes were made
 	 */
 	public R resOriginal;
-	
+
 	/**
 	 * The ResNode this frame is linked to
 	 */
 	public final ResNode node;
-	
+
 	public String titlePrefix = ""; //$NON-NLS-1$
 	public String titleSuffix = ""; //$NON-NLS-1$
 
@@ -149,9 +149,9 @@ public abstract class ResourceFrame<R extends Resource> extends MDIFrame impleme
 			{
 			if (resourceChanged())
 				{
-				int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(Messages
-						.getString("ResourceFrame.KEEPCHANGES"),res.getName()),Messages //$NON-NLS-1$
-						.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
+				int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(
+						Messages.getString("ResourceFrame.KEEPCHANGES"),res.getName()),
+						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
 						JOptionPane.YES_NO_CANCEL_OPTION);
 				if (ret == JOptionPane.YES_OPTION)
 					{

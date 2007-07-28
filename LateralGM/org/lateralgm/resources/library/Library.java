@@ -27,8 +27,7 @@ public class Library
 	public LibAction getLibAction(int id)
 		{
 		for (LibAction act : libActions)
-			if (act.id == id)
-				return act;
+			if (act.id == id) return act;
 		return null;
 		}
 	}

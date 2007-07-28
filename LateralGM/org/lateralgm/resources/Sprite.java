@@ -152,7 +152,7 @@ public class Sprite extends Resource
 			}
 		return spr;
 		}
-	
+
 	public Sprite copy()
 		{
 		return copy(false,null);

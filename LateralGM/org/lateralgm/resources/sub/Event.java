@@ -110,7 +110,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 	public int id = 0;
 	public ResId other = null; // For collision Events
 	public int mainId = 0;
-	
+
 	public static final List<Integer> KEYS;
 
 	public Event()
@@ -189,7 +189,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 		{
 		return super.hashCode();
 		}
-	
+
 	public static String getGmKeyName(int keyCode)
 		{
 		switch (keyCode)
@@ -227,7 +227,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 	static
 		{
 		List<Integer> keys = new ArrayList<Integer>();
-		
+
 		keys.add(37); //vk_left
 		keys.add(39); //vk_right
 		keys.add(38); //vk_up

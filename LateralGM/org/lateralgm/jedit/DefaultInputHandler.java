@@ -155,8 +155,8 @@ public class DefaultInputHandler extends InputHandler
 		{
 		int keyCode = evt.getKeyCode();
 		int modifiers = evt.getModifiers();
-		if (keyCode == KeyEvent.VK_CONTROL || keyCode == KeyEvent.VK_SHIFT || keyCode == KeyEvent.VK_ALT
-				|| keyCode == KeyEvent.VK_META) return;
+		if (keyCode == KeyEvent.VK_CONTROL || keyCode == KeyEvent.VK_SHIFT
+				|| keyCode == KeyEvent.VK_ALT || keyCode == KeyEvent.VK_META) return;
 
 		if ((modifiers & ~KeyEvent.SHIFT_MASK) != 0 || evt.isActionKey()
 				|| keyCode == KeyEvent.VK_BACK_SPACE || keyCode == KeyEvent.VK_DELETE

@@ -21,8 +21,6 @@ public class EventKeyInput extends JTextField
 	{
 	private static final long serialVersionUID = 1L;
 
-
-
 	public int selectedKey;
 	public EventFrame parent;
 
@@ -33,7 +31,6 @@ public class EventKeyInput extends JTextField
 		setDragEnabled(false);
 		}
 
-	
 	public void processKeyEvent(KeyEvent e)
 		{
 		if (e.getID() == KeyEvent.KEY_PRESSED)

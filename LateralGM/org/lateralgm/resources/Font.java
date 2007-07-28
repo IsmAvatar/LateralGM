@@ -29,13 +29,13 @@ public class Font extends Resource
 		{
 		return copy(false,null);
 		}
-	
+
 	@SuppressWarnings("unchecked")
 	public Font copy(ResourceList src)
 		{
 		return copy(true,src);
 		}
-	
+
 	@SuppressWarnings("unchecked")
 	private Font copy(boolean update, ResourceList src)
 		{

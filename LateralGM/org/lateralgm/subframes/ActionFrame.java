@@ -93,7 +93,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			appliesObject.setVisible(false);
 		// Added after the radio buttons, but created before for the third button's listener 
 
-		applies = new IndexButtonGroup(3);
+		applies = new IndexButtonGroup(3, true, false);
 		JRadioButton button = new JRadioButton(Messages.getString("ActionFrame.SELF")); //$NON-NLS-1$
 		button.setBounds(5,20,70,20);
 		applies.add(button,-1);

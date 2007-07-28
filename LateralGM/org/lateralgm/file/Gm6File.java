@@ -105,10 +105,10 @@ public class Gm6File
 				filein = LGM.class.getClassLoader().getResourceAsStream(loc);
 			else
 				filein = new FileInputStream(file);
-			
+
 			BufferedInputStream in = new BufferedInputStream(filein);
 			ByteArrayOutputStream dat = new ByteArrayOutputStream();
-			
+
 			int val = in.read();
 			while (val != -1)
 				{

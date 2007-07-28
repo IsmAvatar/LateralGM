@@ -68,7 +68,7 @@ public final class LibManager
 		else
 			{
 			for (String f : Prefs.defaultLibNames)
-				{				
+				{
 				URL url = LGM.class.getClassLoader().getResource(Prefs.defaultLibraryPath + f + ".lgl");
 				if (url != null) deflibs.add(url);
 				}
@@ -147,8 +147,8 @@ public final class LibManager
 			else if (header == 500 || header == 520)
 				lib = loadLib(in);
 			else
-				throw new LibFormatException(String.format(Messages
-						.getString("LibManager.ERROR_INVALIDFILE"),filename)); //$NON-NLS-1$
+				throw new LibFormatException(String.format(
+						Messages.getString("LibManager.ERROR_INVALIDFILE"),filename)); //$NON-NLS-1$
 			libs.add(lib);
 			}
 		catch (IOException ex)
@@ -205,8 +205,8 @@ public final class LibManager
 			int ver = in.read4();
 			if (ver != 500 && ver != 520)
 				{
-				throw new LibFormatException(String.format(Messages
-						.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
+				throw new LibFormatException(String.format(
+						Messages.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
 						j,"%s",ver)); //$NON-NLS-1$
 				}
 
@@ -292,8 +292,8 @@ public final class LibManager
 		for (int j = 0; j < acts; j++)
 			{
 			if (in.read2() != 160)
-				throw new LibFormatException(String.format(Messages
-						.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
+				throw new LibFormatException(String.format(
+						Messages.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
 						j,"%s",160)); //$NON-NLS-1$
 			LibAction act = lib.addLibAction();
 			act.parent = lib;
@@ -310,8 +310,8 @@ public final class LibManager
 				data = null;
 				}
 			if (data == null)
-				throw new LibFormatException(String.format(Messages
-						.getString("LibManager.ERROR_INVALIDICON"), //$NON-NLS-1$
+				throw new LibFormatException(String.format(
+						Messages.getString("LibManager.ERROR_INVALIDICON"), //$NON-NLS-1$
 						j,"%s",160)); //$NON-NLS-1$
 			act.actImage = ImageIO.read(new ByteArrayInputStream(data));
 

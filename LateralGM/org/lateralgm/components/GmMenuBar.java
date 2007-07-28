@@ -26,7 +26,6 @@ import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 
-
 public class GmMenuBar extends JMenuBar
 	{
 	private static final long serialVersionUID = 1L;
@@ -34,23 +33,23 @@ public class GmMenuBar extends JMenuBar
 	private int recentFilesPos;
 	public static GmMenu menu;
 	public static GmMenu fileMenu;
-	
+
 	public static final void setTextAndAlt(JMenuItem item, String input)
 		{
-			Matcher m = Pattern.compile("\t+([^\\s])$").matcher(input);
-			if (m.find())
-				{
-				int alt = (int) m.group(1).toUpperCase(Locale.ENGLISH).charAt(0);
-				item.setMnemonic(alt);
-				item.setText(input.substring(0,m.start()));
-				}
-			else
-				{
-				item.setMnemonic(-1);
-				item.setText(input);
-				}
+		Matcher m = Pattern.compile("\t+([^\\s])$").matcher(input);
+		if (m.find())
+			{
+			int alt = (int) m.group(1).toUpperCase(Locale.ENGLISH).charAt(0);
+			item.setMnemonic(alt);
+			item.setText(input.substring(0,m.start()));
+			}
+		else
+			{
+			item.setMnemonic(-1);
+			item.setText(input);
+			}
 		}
-	
+
 	public void updateRecentFiles()
 		{
 		String[] recentList = PrefsStore.getRecentFiles().toArray(new String[0]);
@@ -63,8 +62,8 @@ public class GmMenuBar extends JMenuBar
 			{
 			File file = new File(recentList[i]).getAbsoluteFile();
 			String number = Integer.toString(i + 1);
-			JMenuItem item = new JMenuItem(String.format("%s %s  [%s]",number,
-					file.getName(),file.getParent()),number.codePointAt(0));
+			JMenuItem item = new JMenuItem(String.format("%s %s  [%s]",number,file.getName(),
+					file.getParent()),number.codePointAt(0));
 			recentFiles[i] = item;
 			item.setActionCommand("GmMenuBar.OPEN " + Util.urlEncode(file.toString()));
 			item.addActionListener(LGM.listener);
@@ -92,7 +91,7 @@ public class GmMenuBar extends JMenuBar
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.EXIT",KeyEvent.VK_F4,ActionEvent.ALT_MASK); //$NON-NLS-1$
 		updateRecentFiles();
-		
+
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_EDIT")); //$NON-NLS-1$
 		add(menu);
 
@@ -139,12 +138,12 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("GmMenuBar.SYNTAXCHECK"); //$NON-NLS-1$
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.FIND", //$NON-NLS-1$
-				KeyEvent.VK_F,ActionEvent.ALT_MASK + ActionEvent.CTRL_MASK); 
+				KeyEvent.VK_F,ActionEvent.ALT_MASK + ActionEvent.CTRL_MASK);
 		menu.addItem("GmMenuBar.ANNOTATE"); //$NON-NLS-1$
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.EXPAND"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.COLLAPSE"); //$NON-NLS-1$
-		
+
 		add(LGM.mdi.getMenu());
 
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_HELP")); //$NON-NLS-1$

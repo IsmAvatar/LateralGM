@@ -30,8 +30,8 @@ public class GmMenu extends JMenu
 		{
 		return addItem(key,-1,-1,LGM.listener);
 		}
-	
-	public JMenuItem addItem(String key,ActionListener listener)
+
+	public JMenuItem addItem(String key, ActionListener listener)
 		{
 		return addItem(key,-1,-1,listener);
 		}
