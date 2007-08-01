@@ -1,0 +1,97 @@
+#!/bin/bash
+
+OSIZE=24
+IPR=16
+ICONLIST="iconlist"
+VECTORFILE="lgl-icons.svg"
+RASTERFILE="lgl-icons.png"
+LIBIN="lgl-in"
+LIBOUT="lgl-out"
+
+function make_tileset()
+{
+	[ $i -eq 0 -o -z "$libname" ] && return 1
+	montage -geometry ${SIZE}x${SIZE} "./$PREFIX/icons/$libname"-* -background none "./$PREFIX/sets/$libname".png
+	echo "$libname"
+}
+
+function render_icons()
+{
+	PREFIX="$1"
+	SIZE="$2"
+	EXPORTWIDTH=$(( SIZE * IPR ))
+	if [ -z "$PREFIX" -o "${PREFIX:0:1} " = "/ " ]; then
+		return 1
+	fi
+	mkdirhier "./$PREFIX/icons"
+	mkdirhier "./$PREFIX/sets"
+	rm "./$PREFIX/icons/"*.png
+	rm "./$PREFIX/sets/"*.png
+	inkscape -w $EXPORTWIDTH -e "./$PREFIX/$RASTERFILE" "$VECTORFILE"
+	(
+	libname=''
+	i=0
+	while read outfn layers; do
+		[ -z "$outfn" -o "${outfn:0:1} " = "# " ] && continue
+		if [ "${outfn:0:1} " = "! " ]; then
+			make_tileset
+			libname="${outfn:1}"
+			i=0
+			continue
+		fi
+		cmd=""
+		for l in $layers; do
+			lx=$(( SIZE * 0x${l:1:1} ))
+			ly=$(( SIZE * 0x${l:0:1} ))
+			convertcmd="convert -crop ${SIZE}x${SIZE}+$lx+$ly ./$PREFIX/$RASTERFILE png:-"
+			if [ -z "$cmd" ]; then 
+				cmd="$convertcmd"
+			else
+				cmd="$cmd | composite -quality 0 png:<($convertcmd) png:- png:-"
+			fi
+		done
+		cmd="$cmd | cat > ./$PREFIX/icons/$libname-$(( i / 10 % 10 ))$(( i % 10 ))-$outfn.png"
+		i=$(( i + 1 ))
+		bash<<<"$cmd"
+	done
+	make_tileset
+	) <"./$ICONLIST"
+
+	gimp -i -d -f -b - 1>/dev/null 2>&1 <<-EOF
+	(define (optimize pattern) 	
+	    (let* ((filelist (cadr (file-glob pattern 1))))
+	        (while (not (null? filelist))
+	            (let* (
+	                    (filename (car filelist))
+	                    (image (car (file-png-load RUN-NONINTERACTIVE filename filename)))
+	                    (drawable (car (gimp-image-get-active-layer image)))
+	                )
+	                (file-png-save2 RUN-NONINTERACTIVE image drawable filename filename 0 9 0 0 0 0 0 0 0)
+	                (gimp-image-delete image)
+	            )
+	            (set! filelist (cdr filelist))
+	        )
+	    )
+	)
+	(optimize "./$PREFIX/sets/*.png")
+	(gimp-quit 0)
+	EOF
+
+	optipng -o4 -q "./$PREFIX/sets/"*.png
+}
+
+function insert_icons()
+{
+	ICONSDIR="$1"
+	LIBSDIR="$2"
+	OUTDIR="$3"
+	for ifn in "$ICONSDIR/"*.png; do
+		bn=`basename "$ifn" .png`
+		cat "$LIBSDIR/$bn.lgl.in" "$ifn" > "$OUTDIR/$bn.lgl"
+	done
+}
+
+render_icons lgl-icons-24 24
+
+mkdirhier "$LIBOUT"
+insert_icons "./lgl-icons-24/sets" "$LIBIN" "$LIBOUT"

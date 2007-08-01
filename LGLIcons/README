@@ -1,0 +1,14 @@
+Action icons for Lateral GM
+---------------------------
+
+Software requirements for editing and building:
+ * Inkscape	http://www.inkscape.org/
+ * Bash		ftp://ftp.gnu.org/pub/bash/
+ * The GIMP	http://www.gimp.org/
+ * OptiPNG
+
+To use the icons in Lateral GM:
+ * Build the libraries by executing ./build
+ * Copy the newly built libraries from the directory lgl-out to the directory
+   org/lateralgm/resources/library/lib in the LGM project, overwriting the old
+   libraries.
