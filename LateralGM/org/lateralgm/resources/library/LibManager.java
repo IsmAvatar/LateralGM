@@ -11,6 +11,7 @@ package org.lateralgm.resources.library;
 
 import static org.lateralgm.file.GmStreamDecoder.mask;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
 
@@ -299,22 +299,6 @@ public final class LibManager
 			act.parent = lib;
 			act.id = in.read2();
 			act.name = in.readStr1();
-
-			byte[] data = null;
-			try
-				{
-				data = in.decompress(in.read4());
-				}
-			catch (DataFormatException e)
-				{
-				data = null;
-				}
-			if (data == null)
-				throw new LibFormatException(String.format(
-						Messages.getString("LibManager.ERROR_INVALIDICON"), //$NON-NLS-1$
-						j,"%s",160)); //$NON-NLS-1$
-			act.actImage = ImageIO.read(new ByteArrayInputStream(data));
-
 			act.description = in.readStr1();
 			act.listText = in.readStr1();
 			act.hintText = in.readStr1();
@@ -339,6 +323,17 @@ public final class LibManager
 				arg.defaultVal = in.readStr1();
 				arg.menu = in.readStr1();
 				act.libArguments[k] = arg;
+				}
+			}
+		BufferedImage icons = ImageIO.read(in.getInputStream());
+		int i = 0;
+		int cc = icons.getWidth() / 24;
+		for (LibAction a : lib.libActions)
+			{
+			if (a.actionKind < 8)
+				{
+				a.actImage = icons.getSubimage(24 * (i % cc),24 * (i / cc),24,24);
+				i++;
 				}
 			}
 		return lib;

@@ -234,6 +234,11 @@ public class GmStreamDecoder
 		return (bits & bit) == bit;
 		}
 
+	public BufferedInputStream getInputStream()
+		{
+		return in;
+		}
+
 	public void setSeed(int s)
 		{
 		if (s >= 0)
