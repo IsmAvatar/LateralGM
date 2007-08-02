@@ -29,7 +29,7 @@ import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
 
-import org.lateralgm.components.ResNode;
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;

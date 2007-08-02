@@ -24,7 +24,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.lateralgm.components.CustomFileFilter;
+import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;

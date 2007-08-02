@@ -32,9 +32,9 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 
-import org.lateralgm.components.CustomFileFilter;
-import org.lateralgm.components.IndexButtonGroup;
-import org.lateralgm.components.ResNode;
+import org.lateralgm.components.impl.CustomFileFilter;
+import org.lateralgm.components.impl.IndexButtonGroup;
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sound;

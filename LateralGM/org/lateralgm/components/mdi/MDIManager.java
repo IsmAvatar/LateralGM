@@ -7,7 +7,7 @@
  * See LICENSE for details.
  */
 
-package org.lateralgm.components;
+package org.lateralgm.components.mdi;
 
 import java.awt.Dimension;
 import java.awt.Point;

@@ -48,13 +48,12 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.lateralgm.components.FramePrefsHandler;
 import org.lateralgm.components.GmMenuBar;
-import org.lateralgm.components.GmTreeEditor;
-import org.lateralgm.components.GmTreeGraphics;
-import org.lateralgm.components.Listener;
-import org.lateralgm.components.MDIPane;
-import org.lateralgm.components.ResNode;
+import org.lateralgm.components.impl.FramePrefsHandler;
+import org.lateralgm.components.impl.GmTreeEditor;
+import org.lateralgm.components.impl.GmTreeGraphics;
+import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.Gm6File;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
@@ -233,7 +232,7 @@ public class LGM extends JPanel
 		try
 			{
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			// TODO At some point, add LAF as an option
 			}
 		catch (Exception e)

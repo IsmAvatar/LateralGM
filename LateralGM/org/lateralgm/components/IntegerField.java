@@ -14,6 +14,8 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.lateralgm.components.impl.IntegerDocument;
+
 public class IntegerField extends JTextField implements DocumentListener
 	{
 	private static final long serialVersionUID = 1L;

@@ -36,10 +36,10 @@ import javax.imageio.stream.ImageInputStream;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import org.lateralgm.components.CustomFileFilter;
-import org.lateralgm.components.ImagePreview;
-import org.lateralgm.components.WBMPImageReaderSpiFix;
+import org.lateralgm.components.impl.CustomFileFilter;
+import org.lateralgm.components.visual.FileChooserImagePreview;
 import org.lateralgm.file.iconio.ICOImageReaderSPI;
+import org.lateralgm.file.iconio.WBMPImageReaderSpiFix;
 import org.lateralgm.jedit.SyntaxStyle;
 import org.lateralgm.messages.Messages;
 
@@ -169,7 +169,7 @@ public final class Util
 		if (imageFc == null)
 			{
 			imageFc = new JFileChooser();
-			imageFc.setAccessory(new ImagePreview(imageFc));
+			imageFc.setAccessory(new FileChooserImagePreview(imageFc));
 			String exts[] = ImageIO.getReaderFileSuffixes();
 			for (int i = 0; i < exts.length; i++)
 				exts[i] = "." + exts[i]; //$NON-NLS-1$

@@ -7,7 +7,7 @@
  * See LICENSE for details.
  */
 
-package org.lateralgm.components;
+package org.lateralgm.components.impl;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;

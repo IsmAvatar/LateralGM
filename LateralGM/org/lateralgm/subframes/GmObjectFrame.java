@@ -50,13 +50,13 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.lateralgm.components.EventNode;
 import org.lateralgm.components.GMLTextArea;
-import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
-import org.lateralgm.components.ResNode;
 import org.lateralgm.components.ResourceMenu;
-import org.lateralgm.components.VTextIcon;
+import org.lateralgm.components.impl.EventNode;
+import org.lateralgm.components.impl.GmTreeGraphics;
+import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.visual.VTextIcon;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;

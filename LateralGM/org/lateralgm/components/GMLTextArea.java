@@ -17,6 +17,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.PlainDocument;
 
+import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.jedit.GMLTokenMarker;
 import org.lateralgm.jedit.InputHandler;

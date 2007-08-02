@@ -1,4 +1,4 @@
-package org.lateralgm.components;
+package org.lateralgm.components.mdi;
 
 import java.awt.Container;
 import java.awt.event.ActionEvent;

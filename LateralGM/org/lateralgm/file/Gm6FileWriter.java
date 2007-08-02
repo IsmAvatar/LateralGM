@@ -26,7 +26,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.lateralgm.components.ResNode;
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font;

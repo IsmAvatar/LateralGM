@@ -23,7 +23,7 @@ import javax.swing.JToolBar;
 import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GMLTextArea;
-import org.lateralgm.components.ResNode;
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.jedit.InputHandler;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;

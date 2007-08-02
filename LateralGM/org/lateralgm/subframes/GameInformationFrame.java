@@ -65,10 +65,10 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
-import org.lateralgm.components.CustomFileFilter;
-import org.lateralgm.components.DocumentUndoManager;
-import org.lateralgm.components.MDIFrame;
-import org.lateralgm.components.ResNode;
+import org.lateralgm.components.impl.CustomFileFilter;
+import org.lateralgm.components.impl.DocumentUndoManager;
+import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;

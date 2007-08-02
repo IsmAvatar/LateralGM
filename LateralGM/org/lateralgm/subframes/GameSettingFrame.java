@@ -51,10 +51,10 @@ import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 
 import org.lateralgm.components.ColorSelect;
-import org.lateralgm.components.CustomFileFilter;
-import org.lateralgm.components.IndexButtonGroup;
 import org.lateralgm.components.IntegerField;
-import org.lateralgm.components.MDIFrame;
+import org.lateralgm.components.impl.CustomFileFilter;
+import org.lateralgm.components.impl.IndexButtonGroup;
+import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.file.Gm6File;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.file.GmStreamEncoder;

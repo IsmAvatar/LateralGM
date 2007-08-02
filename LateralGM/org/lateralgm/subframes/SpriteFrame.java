@@ -28,10 +28,10 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
-import org.lateralgm.components.IndexButtonGroup;
 import org.lateralgm.components.IntegerField;
-import org.lateralgm.components.ResNode;
-import org.lateralgm.components.SubimagePreview;
+import org.lateralgm.components.impl.IndexButtonGroup;
+import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.visual.SubimagePreview;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;

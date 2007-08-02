@@ -6,7 +6,7 @@
  * See LICENSE for details.
  */
 
-package org.lateralgm.components;
+package org.lateralgm.components.impl;
 
 import java.io.File;
 import java.io.FilenameFilter;

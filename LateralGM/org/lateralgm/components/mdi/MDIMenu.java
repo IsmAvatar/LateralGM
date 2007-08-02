@@ -6,7 +6,7 @@
  * See LICENSE for details.
  */
 
-package org.lateralgm.components;
+package org.lateralgm.components.mdi;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,6 +15,7 @@ import java.beans.PropertyVetoException;
 import javax.swing.ButtonGroup;
 import javax.swing.JRadioButtonMenuItem;
 
+import org.lateralgm.components.GmMenu;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.subframes.ResourceFrame;
 

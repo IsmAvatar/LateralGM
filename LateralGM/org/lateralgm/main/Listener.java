@@ -20,7 +20,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.lateralgm.components;
+package org.lateralgm.main;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -44,14 +44,13 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.tree.TreePath;
 
+import org.lateralgm.components.GmMenuBar;
+import org.lateralgm.components.impl.CustomFileFilter;
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.Gm6File;
 import org.lateralgm.file.Gm6FileReader;
 import org.lateralgm.file.Gm6FileWriter;
 import org.lateralgm.file.Gm6FormatException;
-import org.lateralgm.main.LGM;
-import org.lateralgm.main.Prefs;
-import org.lateralgm.main.PrefsStore;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.subframes.GameInformationFrame;

@@ -1,11 +1,10 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
- * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
  */
-package org.lateralgm.components;
+package org.lateralgm.file.iconio;
 
 import java.io.IOException;
 
@@ -32,6 +31,7 @@ public class WBMPImageReaderSpiFix extends WBMPImageReaderSpi
 			stream.reset();
 			return false;
 			}
+		stream.reset();
 		return true;
 		}
 
@@ -39,7 +39,7 @@ public class WBMPImageReaderSpiFix extends WBMPImageReaderSpi
 		{
 		int val = s.readByte();
 		int ret = val & 0x7f;
-		while ((val & 0x80) == 0x80)
+		while ((val & 0x80) == 0x80 && ret <= 0x7fffff)
 			{
 			ret <<= 7;
 			val = s.readByte();

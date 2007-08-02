@@ -23,9 +23,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.lateralgm.components.IndexButtonGroup;
-import org.lateralgm.components.MDIFrame;
 import org.lateralgm.components.ResourceMenu;
+import org.lateralgm.components.impl.IndexButtonGroup;
+import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;

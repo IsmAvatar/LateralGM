@@ -21,9 +21,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 
-import org.lateralgm.components.BackgroundPreview;
 import org.lateralgm.components.IntegerField;
-import org.lateralgm.components.ResNode;
+import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.visual.BackgroundPreview;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Room;

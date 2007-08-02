@@ -22,7 +22,7 @@ import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
 
-import org.lateralgm.components.ResNode;
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.resources.ResId;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.sub.Argument;

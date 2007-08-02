@@ -7,12 +7,13 @@
  * See LICENSE for details.
  */
 
-package org.lateralgm.components;
+package org.lateralgm.components.mdi;
 
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
 
+import javax.swing.DesktopManager;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
@@ -41,7 +42,8 @@ public class MDIPane extends JDesktopPane
 
 	public void setScrollPane(JScrollPane scroll)
 		{
-		((MDIManager) getDesktopManager()).setScrollPane(scroll);
+		MDIManager man = getMDIManager();
+		if (man != null) man.setScrollPane(scroll);
 		}
 
 	public void cascadeFrames()
@@ -174,7 +176,7 @@ public class MDIPane extends JDesktopPane
 
 	public void resizeDesktop()
 		{
-		MDIManager mg = (MDIManager) getDesktopManager();
+		MDIManager mg = getMDIManager();
 		if (mg != null) mg.resizeDesktop();
 		}
 
@@ -198,5 +200,12 @@ public class MDIPane extends JDesktopPane
 		if (!isMaximum()) return;
 		for (JInternalFrame f : getAllFrames())
 			if (f.isMaximum() && f instanceof MDIFrame) ((MDIFrame) f).toTop();
+		}
+
+	private MDIManager getMDIManager()
+		{
+		DesktopManager man = getDesktopManager();
+		if (man == null || !(man instanceof MDIManager)) return null;
+		return (MDIManager) man;
 		}
 	}
