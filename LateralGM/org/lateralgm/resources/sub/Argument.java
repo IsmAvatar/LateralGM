@@ -20,6 +20,7 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 
 import org.lateralgm.components.ResourceMenu;
+import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.ResId;
@@ -90,41 +91,33 @@ public class Argument
 			}
 		}
 
-	//TODO: Add support for ResourceMenu
 	private JComponent makeEditor(LibArgument la)
 		{
-		if (kind == ARG_BOOLEAN)
+		switch (kind)
 			{
-			String[] s = { "false","true" };
-			JComboBox b = new JComboBox(s);
-			b.setSelectedIndex(Integer.parseInt(val));
-			return b;
+			case ARG_BOOLEAN:
+				final String[] sab = { "false","true" };
+				return new JComboBox(sab);
+			case ARG_MENU:
+				if (la == null) return new JTextField(val);
+				final String[] sam = la.menu.split("\\|"); //$NON-NLS-1$
+				return new JComboBox(sam);
+			case ARG_COLOR:
+				final String sc = Messages.getString("Argument.COLOR");
+				return new JButton(sc);
+			case ARG_SPRITE:
+			case ARG_SOUND:
+			case ARG_BACKGROUND:
+			case ARG_PATH:
+			case ARG_SCRIPT:
+			case ARG_GMOBJECT:
+			case ARG_ROOM:
+			case ARG_FONT:
+			case ARG_TIMELINE:
+				return new ResourceMenu(getResourceKind(kind),"<none>",128);
+			default:
+				return new JTextField(val);
 			}
-		if (kind == ARG_MENU)
-			{
-			if (la == null) return new JTextField(val);
-			String[] s = la.menu.split("\\|"); //$NON-NLS-1$
-			JComboBox b = new JComboBox(s);
-			b.setSelectedIndex(Integer.parseInt(val));
-			return b;
-			}
-		if (kind == ARG_COLOR)
-			{
-			final String s = Messages.getString("Argument.COLOR");
-			final JButton b = new JButton(s);
-			Color revCol = Color.decode(val);
-			b.setBackground(new Color(revCol.getGreen(),revCol.getBlue(),revCol.getRed()));
-			b.addActionListener(new ActionListener()
-				{
-					public void actionPerformed(ActionEvent ae)
-						{
-						Color ret = JColorChooser.showDialog(null,s,b.getBackground());
-						if (ret != null) b.setBackground(ret);
-						}
-				});
-			return b;
-			}
-		return new JTextField(val);
 		}
 
 	/**
@@ -135,8 +128,58 @@ public class Argument
 	 */
 	public JComponent getEditor(LibArgument la)
 		{
-		if (editor == null) editor = makeEditor(la);
+		if (editor == null)
+			{
+			editor = makeEditor(la);
+			discard();
+			}
 		return editor;
+		}
+
+	public String toString(LibArgument la)
+		{
+		byte rk = getResourceKind(kind);
+		switch (kind)
+			{
+			case ARG_BOOLEAN:
+				return Boolean.toString(val != "0");
+			case ARG_MENU:
+				String[] sam = la.menu.split("\\|");
+				try
+					{
+					return sam[Integer.parseInt(val)];
+					}
+				catch (NumberFormatException nfe)
+					{
+					}
+				catch (IndexOutOfBoundsException be)
+					{
+					}
+				return val;
+			case ARG_COLOR:
+				try
+					{
+					return String.format("%06X",Integer.parseInt(val));
+					}
+				catch (NumberFormatException e)
+					{
+					}
+				return val;
+			default:
+				if (rk <= 0)
+					return val;
+				else
+					{
+					try
+						{
+						return LGM.currentFile.getList(rk).get(res).getName();
+						}
+					catch (NullPointerException e)
+						{
+						}
+					return "<none>";
+					}
+			}
 		}
 
 	/** Commits any changes in the JComponent editor to update this Argument. */
@@ -160,10 +203,41 @@ public class Argument
 			{
 			Resource sel = ((ResourceMenu) editor).getSelected();
 			if (sel == null)
-				val = "-1";
+				res = null;
 			else
-				val = sel.getId().toString();
+				res = sel.getId();
 			return;
+			}
+		}
+
+	public void discard()
+		{
+		if (editor instanceof JTextField)
+			{
+			((JTextField) editor).setText(val);
+			}
+		else if (editor instanceof JComboBox)
+			{
+			((JComboBox) editor).setSelectedIndex(Integer.parseInt(val));
+			}
+		else if (editor instanceof JButton)
+			{
+			Color c = Util.convertGmColor(Integer.parseInt(val));
+			((JButton) editor).setBackground(c);
+			}
+		else if (editor instanceof ResourceMenu)
+			{
+			try
+				{
+				Resource s = LGM.currentFile.getList(getResourceKind(kind)).get(res);
+				((ResourceMenu) editor).setSelected(s);
+				}
+			catch (NumberFormatException nfe)
+				{
+				}
+			catch (NullPointerException npe)
+				{
+				}
 			}
 		}
 	}

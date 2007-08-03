@@ -9,6 +9,7 @@
 package org.lateralgm.subframes;
 
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -60,7 +61,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		if (la.parent == null) setTitle(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
 		setSize(260,470);
 		setLayout(null); // Components are placed at absolute coordinates
-		//	setFrameIcon(LGM.findIcon("restree/gm.png"));
+		setFrameIcon(new ImageIcon(la.actImage.getScaledInstance(16,16,Image.SCALE_SMOOTH)));
 
 		act = a;
 		JLabel lab;
@@ -93,7 +94,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			appliesObject.setVisible(false);
 		// Added after the radio buttons, but created before for the third button's listener 
 
-		applies = new IndexButtonGroup(3, true, false);
+		applies = new IndexButtonGroup(3,true,false);
 		JRadioButton button = new JRadioButton(Messages.getString("ActionFrame.SELF")); //$NON-NLS-1$
 		button.setBounds(5,20,70,20);
 		applies.add(button,-1);
@@ -163,19 +164,26 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		{
 		if (e.getSource() == discard)
 			{
+			for (Argument a : act.arguments)
+				{
+				a.discard();
+				}
 			dispose();
-			return;
 			}
-		if (applies.getValue() >= 0)
+		else if (e.getSource() == save)
 			{
-			Resource sel = appliesObject.getSelected();
-			if (sel != null) act.appliesTo = sel.getId();
-			}
-		else
-			act.appliesTo = new ResId(applies.getValue());
-		for (int n = 0; n < act.arguments.length; n++)
-			{
-			act.arguments[n].commit();
+			if (applies.getValue() >= 0)
+				{
+				Resource sel = appliesObject.getSelected();
+				if (sel != null) act.appliesTo = sel.getId();
+				}
+			else
+				act.appliesTo = new ResId(applies.getValue());
+			for (Argument a : act.arguments)
+				{
+				a.commit();
+				}
+			dispose();
 			}
 		}
 	}

@@ -67,6 +67,7 @@ import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.library.Library;
 import org.lateralgm.resources.sub.Action;
+import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
@@ -556,7 +557,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 							else
 								{
 								GmObject applies = LGM.currentFile.gmObjects.get(a.appliesTo);
-								ret += Messages.getString(String.format("Action.APPLIES",applies)); //$NON-NLS-1$
+								ret += String.format(Messages.getString("Action.APPLIES"),applies.getName()); //$NON-NLS-1$
 								}
 							}
 						if (c >= '0' && c < '8')
@@ -565,17 +566,25 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 							if (arg >= a.arguments.length)
 								ret += "0"; //$NON-NLS-1$
 							else
-								ret += a.arguments[arg].val;
+								{
+								Argument aa = a.arguments[arg];
+								ret += aa.toString(a.libAction.libArguments[arg]);
+								}
 							}
 						k = p + 2;
 						p = s.indexOf("@",k); //$NON-NLS-1$
 						}
 
 					s = ret + s.substring(k);
+					s = s.replaceAll("&", "&amp;");
+					s = s.replaceAll("<","&lt;");
+					s = s.replaceAll(">","&gt;");
 					s = s.replaceAll("\n","<br>");
-					s = s.replaceAll("\\\\#","\u0000"); //$NON-NLS-1$ //$NON-NLS-2$
-					s = s.replaceAll("#","<br>"); //$NON-NLS-1$ //$NON-NLS-2$
-					s = s.replaceAll("\u0000","#"); //$NON-NLS-1$ //$NON-NLS-2$
+					s = s.replaceAll("\\\\#","\n");
+					s = s.replaceAll("#","<br>");
+					s = s.replaceAll("\n","&#35;");
+					s = s.replaceAll(" ","&nbsp;");
+					
 					return s;
 					}
 
