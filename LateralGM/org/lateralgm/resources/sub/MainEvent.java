@@ -37,51 +37,10 @@ public class MainEvent
 
 	public ArrayList<Event> events = new ArrayList<Event>();
 
-	public int noEvents()
-		{
-		return events.size();
-		}
-
 	public Event addEvent()
 		{
 		Event ev = new Event();
 		events.add(ev);
 		return ev;
-		}
-
-	public Event getEvent(int id)
-		{
-		int listIndex = eventIndex(id);
-		if (listIndex != -1) return events.get(listIndex);
-		return null;
-		}
-
-	public Event getEventList(int listIndex)
-		{
-		if (listIndex >= 0 && listIndex < noEvents()) return events.get(listIndex);
-		return null;
-		}
-
-	public void removeEvent(int id)
-		{
-		int listIndex = eventIndex(id);
-		if (listIndex != -1) events.remove(listIndex);
-		}
-
-	public int eventIndex(int id)
-		{
-		for (int i = 0; i < noEvents(); i++)
-			{
-			if (getEventList(i).id == id)
-				{
-				return i;
-				}
-			}
-		return -1;
-		}
-
-	public void clearEvents()
-		{
-		events.clear();
 		}
 	}

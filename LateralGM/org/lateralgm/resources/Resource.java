@@ -124,7 +124,6 @@ public abstract class Resource implements Comparable<Resource>
 		fireStateChanged();
 		}
 
-	@SuppressWarnings("unchecked")
 	public abstract Resource copy(ResourceList src);
 
 	public abstract Resource copy();

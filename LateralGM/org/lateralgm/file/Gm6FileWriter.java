@@ -48,6 +48,7 @@ import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
+import org.lateralgm.resources.sub.Point;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
@@ -318,12 +319,12 @@ public final class Gm6FileWriter
 				out.writeId(path.backgroundRoom,Resource.ROOM,f);
 				out.write4(path.snapX);
 				out.write4(path.snapY);
-				out.write4(path.noPoints());
-				for (int j = 0; j < path.noPoints(); j++)
+				out.write4(path.points.size());
+				for (Point p : path.points)
 					{
-					out.writeD(path.getPoint(j).x);
-					out.writeD(path.getPoint(j).y);
-					out.writeD(path.getPoint(j).speed);
+					out.writeD(p.x);
+					out.writeD(p.y);
+					out.writeD(p.speed);
 					}
 				}
 			}
@@ -412,9 +413,8 @@ public final class Gm6FileWriter
 				out.write4(10);
 				for (int j = 0; j < 11; j++)
 					{
-					for (int k = 0; k < obj.mainEvents[j].noEvents(); k++)
+					for (Event ev : obj.mainEvents[j].events)
 						{
-						Event ev = obj.mainEvents[j].getEventList(k);
 						if (j == MainEvent.EV_COLLISION)
 							out.writeId(ev.other,Resource.GMOBJECT,f);
 						else

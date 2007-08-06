@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -10,11 +11,8 @@
 package org.lateralgm.resources.sub;
 
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;

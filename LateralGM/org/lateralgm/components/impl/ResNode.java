@@ -22,6 +22,7 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.subframes.BackgroundFrame;
 import org.lateralgm.subframes.FontFrame;
 import org.lateralgm.subframes.GmObjectFrame;
+import org.lateralgm.subframes.PathFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.subframes.ScriptFrame;
@@ -111,6 +112,9 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 					break;
 				case Resource.BACKGROUND:
 					rf = new BackgroundFrame(LGM.currentFile.backgrounds.get(resourceId),this);
+					break;
+				case Resource.PATH:
+					rf = new PathFrame(LGM.currentFile.paths.get(resourceId),this);
 					break;
 				case Resource.SCRIPT:
 					rf = new ScriptFrame(LGM.currentFile.scripts.get(resourceId),this);

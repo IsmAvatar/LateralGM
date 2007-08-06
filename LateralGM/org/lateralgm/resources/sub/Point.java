@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
@@ -13,4 +14,22 @@ public class Point
 	public int x = 0;
 	public int y = 0;
 	public int speed = 100;
+
+	public Point()
+		{
+		}
+
+	public Point(int x, int y, int speed)
+		{
+		this.x = x;
+		this.y = y;
+		this.speed = speed;
+		}
+
+	public String toString()
+		{
+		String r = "(" + x + "," + y + ")";
+		while (r.length() < 11) r += " ";
+		return r + " sp: " + speed;
+		}
 	}

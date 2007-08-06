@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -22,16 +23,11 @@ public class Path extends Resource
 	public ResId backgroundRoom = null;
 	public int snapX = 16;
 	public int snapY = 16;
-	private ArrayList<Point> points = new ArrayList<Point>();
+	public ArrayList<Point> points = new ArrayList<Point>();
 
 	public Path()
 		{
 		setName(Prefs.prefixes[Resource.PATH]);
-		}
-
-	public int noPoints()
-		{
-		return points.size();
 		}
 
 	public Point addPoint()
@@ -39,22 +35,6 @@ public class Path extends Resource
 		Point point = new Point();
 		points.add(point);
 		return point;
-		}
-
-	public Point getPoint(int listIndex)
-		{
-		if (listIndex >= 0 && listIndex < noPoints()) return points.get(listIndex);
-		return null;
-		}
-
-	public void removePoint(int listIndex)
-		{
-		if (listIndex >= 0 && listIndex < noPoints()) points.remove(listIndex);
-		}
-
-	public void clearPoints()
-		{
-		points.clear();
 		}
 
 	public Path copy()
@@ -78,10 +58,9 @@ public class Path extends Resource
 		path.backgroundRoom = backgroundRoom;
 		path.snapX = snapX;
 		path.snapY = snapY;
-		for (int i = 0; i < noPoints(); i++)
+		for (Point point : points)
 			{
 			Point point2 = path.addPoint();
-			Point point = getPoint(i);
 			point2.x = point.x;
 			point2.y = point.y;
 			point2.speed = point.speed;
