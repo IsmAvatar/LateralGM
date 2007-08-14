@@ -574,7 +574,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 							}
 						if (c == 'r' && a.relative) ret += Messages.getString("Action.RELATIVE"); //$NON-NLS-1$
 						if (c == 'N' && a.not) ret += Messages.getString("Action.NOT"); //$NON-NLS-1$
-						if (c == 'w' && a.appliesTo.equals(GmObject.OBJECT_SELF))
+						if (c == 'w' && !a.appliesTo.equals(GmObject.OBJECT_SELF))
 							{
 							if (a.appliesTo.equals(GmObject.OBJECT_OTHER))
 								ret += Messages.getString("Action.APPLIES_OTHER"); //$NON-NLS-1$
