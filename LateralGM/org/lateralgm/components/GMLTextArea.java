@@ -9,9 +9,15 @@
 package org.lateralgm.components;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JButton;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -29,6 +35,7 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.Util;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
 public class GMLTextArea extends JEditTextArea
@@ -61,6 +68,39 @@ public class GMLTextArea extends JEditTextArea
 		document.addUndoableEditListener(undoManager);
 		inputHandler.addKeyBinding("C+Z",undoManager.getUndoAction());
 		inputHandler.addKeyBinding("C+Y",undoManager.getRedoAction());
+		}
+
+	private static JButton makeToolbarButton(Action a)
+		{
+		JButton b = new JButton(a);
+		b.setToolTipText(b.getText());
+		b.setText(null);
+		b.setRequestFocusEnabled(false);
+		return b;
+		}
+
+	@SuppressWarnings("serial")
+	private JButton makeInputHandlerToolbarButton(final ActionListener l, String key)
+		{
+		final GMLTextArea source = this;
+		Action a = new AbstractAction(Messages.getString(key),LGM.getIconForKey(key))
+			{
+				public void actionPerformed(ActionEvent e)
+					{
+					getInputHandler().executeAction(l,source,null);
+					}
+			};
+		return makeToolbarButton(a);
+		}
+
+	public void addEditorButtons(JToolBar tb)
+		{
+		tb.add(makeToolbarButton(getUndoManager().getUndoAction()));
+		tb.add(makeToolbarButton(getUndoManager().getRedoAction()));
+		tb.addSeparator();
+		tb.add(makeInputHandlerToolbarButton(InputHandler.CUT,"ScriptFrame.CUT"));
+		tb.add(makeInputHandlerToolbarButton(InputHandler.COPY,"ScriptFrame.COPY"));
+		tb.add(makeInputHandlerToolbarButton(InputHandler.PASTE,"ScriptFrame.PASTE"));
 		}
 
 	public DocumentUndoManager getUndoManager()

@@ -16,6 +16,7 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.DocumentEvent.EventType;
 import javax.swing.text.AbstractDocument;
+import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.CompoundEdit;
@@ -31,6 +32,7 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 	protected final AbstractAction undoAction;
 	protected final AbstractAction redoAction;
 	protected int caretUpdates = 0;
+	protected MarkerEdit modifiedMarker;
 
 	public DocumentUndoManager()
 		{
@@ -69,7 +71,25 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 					updateActions();
 					}
 			};
+		resetModifiedMarker();
 		updateActions();
+		}
+
+	public void resetModifiedMarker()
+		{
+		if (modifiedMarker != null) modifiedMarker.die();
+		modifiedMarker = new MarkerEdit();
+		super.addEdit(modifiedMarker);
+		}
+
+	public boolean isModified()
+		{
+		/* In order to know whether we're at the marker, we temporarily make it significant, so
+		 * that editToBeUndone() doesn't ignore it. */
+		modifiedMarker.significant = true;
+		boolean result = editToBeUndone() != modifiedMarker;
+		modifiedMarker.significant = false;
+		return result;
 		}
 
 	@Override
@@ -169,5 +189,16 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 		{
 		caretUpdates = 0;
 		addEdit(e.getEdit());
+		}
+
+	private class MarkerEdit extends AbstractUndoableEdit
+		{
+		protected boolean significant = false;
+
+		@Override
+		public boolean isSignificant()
+			{
+			return significant;
+			}
 		}
 	}

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -22,9 +23,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyVetoException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Hashtable;
 
+import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DropMode;
@@ -40,8 +45,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
 import javax.swing.TransferHandler;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -56,6 +63,7 @@ import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.GmTreeGraphics;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.VTextIcon;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -495,6 +503,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		events.setTransferHandler(new EventNodeTransferHandler());
 		}
 
+	@SuppressWarnings("serial")
 	public static JList addActionPane(JComponent container)
 		{
 		JPanel side3 = new JPanel(new BorderLayout());
@@ -505,16 +514,31 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		final JList list2 = list;
 		list.addMouseListener(new MouseAdapter()
 			{
+				private Hashtable<Action,MDIFrame> actionFrames = new Hashtable<Action,MDIFrame>();
+
 				public void mouseClicked(MouseEvent e)
 					{
 					if (e.getClickCount() != 2) return;
 					Object o = list2.getSelectedValue();
 					if (o == null || !(o instanceof Action)) return;
 					Action a = (Action) o;
-					ActionFrame af = new ActionFrame(a);
-					LGM.mdi.add(af);
+					MDIFrame af = actionFrames.get(a);
+					if (af == null || af.isClosed())
+						{
+						af = new ActionFrame(a);
+						LGM.mdi.add(af);
+						actionFrames.put(a,af);
+						}
 					af.setVisible(true);
 					af.toFront();
+					try
+						{
+						af.setIcon(false);
+						af.setSelected(true);
+						}
+					catch (PropertyVetoException pve)
+						{
+						}
 					}
 			});
 		list.setCellRenderer(new ListCellRenderer()
@@ -550,14 +574,15 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 							}
 						if (c == 'r' && a.relative) ret += Messages.getString("Action.RELATIVE"); //$NON-NLS-1$
 						if (c == 'N' && a.not) ret += Messages.getString("Action.NOT"); //$NON-NLS-1$
-						if (c == 'w' && a.appliesTo != GmObject.OBJECT_SELF)
+						if (c == 'w' && a.appliesTo.equals(GmObject.OBJECT_SELF))
 							{
-							if (a.appliesTo == GmObject.OBJECT_OTHER)
+							if (a.appliesTo.equals(GmObject.OBJECT_OTHER))
 								ret += Messages.getString("Action.APPLIES_OTHER"); //$NON-NLS-1$
 							else
 								{
 								GmObject applies = LGM.currentFile.gmObjects.get(a.appliesTo);
-								ret += String.format(Messages.getString("Action.APPLIES"),applies.getName()); //$NON-NLS-1$
+								ret += String.format(Messages.getString("Action.APPLIES"), //$NON-NLS-1$
+										applies == null ? a.appliesTo.toString() : applies.getName());
 								}
 							}
 						if (c >= '0' && c < '8')
@@ -576,7 +601,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						}
 
 					s = ret + s.substring(k);
-					s = s.replaceAll("&", "&amp;");
+					s = s.replaceAll("&","&amp;");
 					s = s.replaceAll("<","&lt;");
 					s = s.replaceAll(">","&gt;");
 					s = s.replaceAll("\n","<br>");
@@ -584,7 +609,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					s = s.replaceAll("#","<br>");
 					s = s.replaceAll("\n","&#35;");
 					s = s.replaceAll(" ","&nbsp;");
-					
+
 					return s;
 					}
 
@@ -594,6 +619,15 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					final Action cellAction = (Action) cell;
 					LibAction la = cellAction.libAction;
 					JLabel l = new JLabel();
+					ListModel lm = list.getModel();
+					try
+						{
+						if (lm instanceof ActionListModel)
+							l.setBorder(new EmptyBorder(1,2 + 8 * ((ActionListModel) lm).indents.get(index),1,2));
+						}
+					catch (IndexOutOfBoundsException e)
+						{
+						}
 					if (isSelected)
 						{
 						l.setBackground(list.getSelectionBackground());
@@ -731,6 +765,103 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			return;
 			}
 		lastValidEventSelection = node;
-		actions.setListData(((Event) node.getUserObject()).actions.toArray());
+		ActionListModel alm = new ActionListModel();
+		alm.addAll(0,((Event) node.getUserObject()).actions);
+		actions.setModel(alm);
+		}
+
+	@SuppressWarnings("serial")
+	public class ActionListModel extends AbstractListModel
+		{
+		private ArrayList<Action> list;
+		private ArrayList<Integer> indents;
+
+		public ActionListModel()
+			{
+			list = new ArrayList<Action>();
+			indents = new ArrayList<Integer>();
+			}
+
+		public void add(int index, Action a)
+			{
+			list.add(index,a);
+			updateIndentation();
+			fireIntervalAdded(this,index,index);
+			}
+
+		public void addAll(int index, Collection<? extends Action> c)
+			{
+			int s = c.size();
+			if (s <= 0) return;
+			list.addAll(index,c);
+			updateIndentation();
+			fireIntervalAdded(this,index,index + s - 1);
+			}
+
+		public void remove(int index)
+			{
+			list.remove(index);
+			updateIndentation();
+			fireIntervalRemoved(this,index,index);
+			}
+
+		public Object getElementAt(int index)
+			{
+			return list.get(index);
+			}
+
+		public int getSize()
+			{
+			return list.size();
+			}
+
+		private void updateIndentation()
+			{
+			int lms = list.size();
+			indents.clear();
+			indents.ensureCapacity(lms);
+			ArrayList<Integer> levelIndents = new ArrayList<Integer>();
+			levelIndents.add(0);
+			int level = 0;
+			boolean indentNext = false;
+			for (int i = 0; i < lms; i++)
+				{
+				Action a = list.get(i);
+				int indent;
+				if (indentNext)
+					{
+					indent = indents.get(i - 1) + 1;
+					indentNext = false;
+					}
+				else
+					indent = levelIndents.get(level);
+				indents.add(indent);
+				switch (a.libAction.actionKind)
+					{
+					case Action.ACT_BEGIN:
+						level += 1;
+						if (levelIndents.size() > level)
+							{
+							levelIndents.set(level,indent);
+							}
+						else
+							{
+							levelIndents.add(indent);
+							}
+						break;
+					case Action.ACT_END:
+						level -= 1;
+						if (level < 0) level = 0;
+						break;
+					case Action.ACT_ELSE:
+					case Action.ACT_REPEAT:
+						indentNext = true;
+						break;
+					default:
+						if (a.libAction.question) indentNext = true;
+					}
+				}
+
+			}
 		}
 	}

@@ -10,7 +10,8 @@ package org.lateralgm.components;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -84,17 +85,23 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 	 */
 	public ResourceMenu(byte kind, String def, boolean showDef, int width)
 		{
-		setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+		setLayout(new GridBagLayout());
+		GridBagConstraints gbc;
 		LGM.currentFile.addChangeListener(rcl);
+		gbc = new GridBagConstraints();
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1.0;
 		label = new JLabel(def);
 		label.setBorder(BorderFactory.createEtchedBorder());
 		label.addMouseListener(this);
 		label.setPreferredSize(new Dimension(width - 20,20));
-		add(label);
+		add(label,gbc);
+		gbc = new GridBagConstraints();
 		button = new JButton(Resource.ICON[kind]);
 		button.addMouseListener(this);
 		button.setPreferredSize(new Dimension(20,19));
-		add(button);
+		button.setMaximumSize(button.getPreferredSize());
+		add(button,gbc);
 
 		pm = new JPopupMenu();
 		if (showDef)

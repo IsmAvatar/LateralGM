@@ -22,6 +22,11 @@ public class ResId
 		return Integer.toString(value);
 		}
 
+	public boolean equals(Object o)
+		{
+		return o instanceof ResId ? ((ResId) o).getValue() == value : false;
+		}
+
 	public int getValue()
 		{
 		return value;

@@ -11,8 +11,11 @@
 package org.lateralgm.resources.sub;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -89,6 +92,41 @@ public class Argument
 			}
 		}
 
+	private String getNoSelectionString(byte resourceKind)
+		{
+		String key;
+		switch (resourceKind)
+			{
+			case Resource.SPRITE:
+				key = "Argument.SPRITE";
+				break;
+			case Resource.SOUND:
+				key = "Argument.SOUND";
+				break;
+			case Resource.BACKGROUND:
+				key = "Argument.BACKGROUND";
+				break;
+			case Resource.PATH:
+				key = "Argument.PATH";
+				break;
+			case Resource.SCRIPT:
+				key = "Argument.SCRIPT";
+				break;
+			case Resource.GMOBJECT:
+				key = "Argument.OBJECT";
+				break;
+			case Resource.ROOM:
+				key = "Argument.ROOM";
+				break;
+			case Resource.TIMELINE:
+				key = "Argument.TIMELINE";
+				break;
+			default:
+				key = "";
+			}
+		return String.format(Messages.getString("Argument.NO_SELECTION"),Messages.getString(key));
+		}
+
 	private JComponent makeEditor(LibArgument la)
 		{
 		switch (kind)
@@ -102,7 +140,16 @@ public class Argument
 				return new JComboBox(sam);
 			case ARG_COLOR:
 				final String sc = Messages.getString("Argument.COLOR");
-				return new JButton(sc);
+				final JButton bc = new JButton(sc);
+				bc.addActionListener(new ActionListener()
+					{
+						public void actionPerformed(ActionEvent ae)
+							{
+							Color ret = JColorChooser.showDialog(null,sc,bc.getBackground());
+							if (ret != null) bc.setBackground(ret);
+							}
+					});
+				return bc;
 			case ARG_SPRITE:
 			case ARG_SOUND:
 			case ARG_BACKGROUND:
@@ -112,7 +159,8 @@ public class Argument
 			case ARG_ROOM:
 			case ARG_FONT:
 			case ARG_TIMELINE:
-				return new ResourceMenu(getResourceKind(kind),"<none>",128);
+				byte rk = getResourceKind(kind);
+				return new ResourceMenu(rk,getNoSelectionString(rk),120);
 			default:
 				return new JTextField(val);
 			}

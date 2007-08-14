@@ -11,20 +11,13 @@
 
 package org.lateralgm.subframes;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JToolBar;
 import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.jedit.InputHandler;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Script;
@@ -50,40 +43,13 @@ public class ScriptFrame extends ResourceFrame<Script>
 		// Setup the buttons
 		tool.add(save);
 		tool.addSeparator();
-		tool.add(makeToolbarButton(code.getUndoManager().getUndoAction()));
-		tool.add(makeToolbarButton(code.getUndoManager().getRedoAction()));
-		tool.addSeparator();
-		tool.add(makeInputHandlerToolbarButton(InputHandler.CUT,"ScriptFrame.CUT"));
-		tool.add(makeInputHandlerToolbarButton(InputHandler.COPY,"ScriptFrame.COPY"));
-		tool.add(makeInputHandlerToolbarButton(InputHandler.PASTE,"ScriptFrame.PASTE"));
+		code.addEditorButtons(tool);
 		tool.addSeparator();
 		tool.add(new JLabel(Messages.getString("ScriptFrame.NAME"))); //$NON-NLS-1$
 		name.setColumns(13);
 		name.setMaximumSize(name.getPreferredSize());
 		tool.add(name);
 		getContentPane().add(code);
-		}
-
-	public static JButton makeToolbarButton(Action a)
-		{
-		JButton b = new JButton(a);
-		b.setToolTipText(b.getText());
-		b.setText(null);
-		b.setRequestFocusEnabled(false);
-		return b;
-		}
-
-	@SuppressWarnings("serial")
-	private JButton makeInputHandlerToolbarButton(final ActionListener l, String key)
-		{
-		Action a = new AbstractAction(Messages.getString(key),LGM.getIconForKey(key))
-			{
-				public void actionPerformed(ActionEvent e)
-					{
-					code.getInputHandler().executeAction(l,code,null);
-					}
-			};
-		return makeToolbarButton(a);
 		}
 
 	public void revertResource()
@@ -100,8 +66,9 @@ public class ScriptFrame extends ResourceFrame<Script>
 
 	public boolean resourceChanged()
 		{
-		return !code.getTextCompat().equals(resOriginal.scriptStr)
-				|| !resOriginal.getName().equals(name.getText());
+		return code.getUndoManager().isModified();
+		//return !code.getTextCompat().equals(resOriginal.scriptStr)
+		//		|| !resOriginal.getName().equals(name.getText());
 		}
 
 	public void fireInternalFrameEvent(int id)
