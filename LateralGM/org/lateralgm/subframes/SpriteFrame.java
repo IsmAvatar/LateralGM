@@ -36,7 +36,6 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
-import org.unitils.reflectionassert.ReflectionComparatorChainFactory;
 
 public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	{
