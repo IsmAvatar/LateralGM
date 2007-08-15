@@ -15,6 +15,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.TreePath;
 
+import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.resources.Resource;
 
 public class GmTreeEditor extends DefaultTreeCellEditor

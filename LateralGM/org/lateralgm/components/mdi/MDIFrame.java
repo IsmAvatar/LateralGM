@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * 
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.components.mdi;
 
 import java.awt.Container;
@@ -142,5 +150,6 @@ public class MDIFrame extends JInternalFrame
 			{
 			item.setSelected(true);
 			}
+		super.fireInternalFrameEvent(id);
 		}
 	}

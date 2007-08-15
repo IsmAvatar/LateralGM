@@ -61,7 +61,7 @@ import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EventNode;
-import org.lateralgm.components.impl.GmTreeGraphics;
+import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.VTextIcon;

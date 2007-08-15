@@ -126,8 +126,8 @@ public class GmStreamDecoder
 		{
 		int val = read4();
 		if (val != 0 && val != 1)
-			throw new IOException(
-					String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
+			throw new IOException(String
+					.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
 		return val == 0 ? false : true;
 		}
 
@@ -152,7 +152,7 @@ public class GmStreamDecoder
 		byte[] compressedData = new byte[length];
 		read(compressedData,0,length);
 		decompresser.setInput(compressedData);
-		byte[] result = new byte[100];
+		byte[] result = new byte[1000];
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		while (!decompresser.finished())
 			{

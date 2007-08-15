@@ -7,7 +7,7 @@
  * See LICENSE for details.
  */
 
-package org.lateralgm.components.impl;
+package org.lateralgm.components;
 
 import java.awt.Component;
 import java.awt.Image;
@@ -19,10 +19,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
-import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Sprite;
 
@@ -86,8 +86,8 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 
 	public static Icon getSpriteIcon(Sprite s)
 		{
-		if (s == null) return getBlankIcon();
-		BufferedImage bi = s.getSubImage(0);
+		if (s == null || s.subImages.size() == 0) return getBlankIcon();
+		BufferedImage bi = s.subImages.get(0);
 		if (bi == null) return getBlankIcon();
 		Image i = bi;
 		if (s.transparent) i = Util.getTransparentIcon(bi);
@@ -107,24 +107,15 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		{
 		if (last.status == ResNode.STATUS_SECONDARY)
 			{
-			if (last.kind == Resource.SPRITE)
+			switch (last.kind)
 				{
-				Sprite s = LGM.currentFile.sprites.get(last.resourceId);
-				return getSpriteIcon(s);
+				case Resource.SPRITE:
+				case Resource.BACKGROUND:
+				case Resource.GMOBJECT:
+					return last.getIcon();
+				default:
+					if (last.kind < Resource.ICON.length) return Resource.ICON[last.kind];
 				}
-			if (last.kind == Resource.BACKGROUND)
-				{
-				Background b = LGM.currentFile.backgrounds.get(last.resourceId);
-				return getBackgroundIcon(b);
-				}
-			if (last.kind == Resource.GMOBJECT)
-				{
-				GmObject o = LGM.currentFile.gmObjects.get(last.resourceId);
-				if (o == null) return getBlankIcon();
-				Sprite s = LGM.currentFile.sprites.get(o.sprite);
-				return getSpriteIcon(s);
-				}
-			return Resource.ICON[last.kind];
 			}
 		return getClosedIcon();
 		}

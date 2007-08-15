@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -25,14 +26,10 @@ public class WBMPImageReaderSpiFix extends WBMPImageReaderSpi
 		ImageInputStream stream = (ImageInputStream) source;
 
 		stream.mark();
-		if (stream.read() != 0 || stream.read() != 0 || readMultiInt(stream) <= 0
-				|| readMultiInt(stream) <= 0)
-			{
-			stream.reset();
-			return false;
-			}
+		boolean ret = stream.read() != 0 || stream.read() != 0 || readMultiInt(stream) <= 0
+				|| readMultiInt(stream) <= 0;
 		stream.reset();
-		return true;
+		return !ret;
 		}
 
 	private int readMultiInt(ImageInputStream s) throws IOException

@@ -36,6 +36,7 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
+import org.unitils.reflectionassert.ReflectionComparatorChainFactory;
 
 public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	{
@@ -134,7 +135,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		showLab.setPreferredSize(new Dimension(200,16));
 		showLab.setHorizontalAlignment(JLabel.CENTER);
 		side1.add(showLab);
-		// TODO Possibly get an icon for the arrows
 		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
 		subLeft.setPreferredSize(new Dimension(45,20));
 		subLeft.addActionListener(this);
@@ -319,24 +319,24 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			BufferedImage[] img = Util.getValidImages();
 			if (img != null && img.length > 0)
 				{
-				res.clearSubImages();
+				res.subImages.clear();
 				imageChanged = true;
 				currSub = 0;
 				res.width = img[0].getWidth();
 				res.height = img[0].getHeight();
 				for (BufferedImage i : img)
 					res.addSubImage(i);
-				preview.setIcon(new ImageIcon(res.getSubImage(0)));
+				preview.setIcon(new ImageIcon(res.subImages.get(0)));
 				updateInfo();
 				updateBoundingBox();
 				updateImage();
-				LGM.tree.repaint();
+				node.updateIcon();
 				return;
 				}
 			}
 		if (e.getSource() == subRight)
 			{
-			if (currSub < res.noSubImages() - 1)
+			if (currSub < res.subImages.size() - 1)
 				{
 				currSub += 1;
 				updateImage();
@@ -371,7 +371,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			{
 			updateBoundingBox();
 			res.transparent = transparent.isSelected();
-			LGM.tree.repaint();
+			node.updateIcon();
 			return;
 			}
 		if (e.getSource() == originX || e.getSource() == originY || e.getSource() == bboxLeft
@@ -388,7 +388,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		width.setText(Messages.getString("SpriteFrame.WIDTH") + res.width); //$NON-NLS-1$
 		height.setText(Messages.getString("SpriteFrame.HEIGHT") + res.height); //$NON-NLS-1$
 		subCount.setText(Messages.getString("SpriteFrame.NO_OF_SUBIMAGES") //$NON-NLS-1$
-				+ res.noSubImages());
+				+ res.subImages.size());
 		}
 
 	// TODO cache auto bbox
@@ -431,7 +431,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			{
 			preview.setIcon(new ImageIcon(img));
 			subLeft.setEnabled(currSub > 0);
-			subRight.setEnabled(currSub < res.noSubImages() - 1);
+			subRight.setEnabled(currSub < res.subImages.size() - 1);
 			show.setText(Integer.toString(currSub));
 			}
 		else
@@ -445,7 +445,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public BufferedImage getSubimage()
 		{
-		return res.getSubImage(currSub);
+		return res.subImages.size() > 0 ? res.subImages.get(currSub) : null;
 		}
 
 	public static Rectangle getCropBounds(BufferedImage img)
@@ -495,9 +495,9 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public Rectangle getOverallBounds()
 		{
-		Rectangle rects[] = new Rectangle[res.noSubImages()];
+		Rectangle rects[] = new Rectangle[res.subImages.size()];
 		for (int i = 0; i < rects.length; i++)
-			rects[i] = getCropBounds(res.getSubImage(i));
+			rects[i] = getCropBounds(res.subImages.get(i));
 		for (int i = 1; i < rects.length; i++)
 			rects[0] = rects[0].union(rects[i]);
 		return rects.length > 0 ? rects[0] : new Rectangle(0,0,res.width - 1,res.height - 1);

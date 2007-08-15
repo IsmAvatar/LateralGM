@@ -8,6 +8,8 @@
 
 package org.lateralgm.resources;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -16,7 +18,6 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import org.lateralgm.file.ResourceList;
-import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 
@@ -39,30 +40,19 @@ public class Sprite extends Resource
 	public int boundingBoxRight = 31;
 	public int boundingBoxTop = 0;
 	public int boundingBoxBottom = 31;
-	private ArrayList<BufferedImage> subImages = new ArrayList<BufferedImage>();
+	public ArrayList<BufferedImage> subImages = new ArrayList<BufferedImage>();
 
 	public Sprite()
 		{
 		setName(Prefs.prefixes[Resource.SPRITE]);
 		}
 
-	public int noSubImages()
-		{
-		return subImages.size();
-		}
-
 	public BufferedImage addSubImage()
 		{
-		BufferedImage sub = null;
-		try
-			{
-			sub = ImageIO.read(LGM.class.getResource("icons/default_sprite.png"));
-			subImages.add(sub);
-			}
-		catch (IOException ex)
-			{
-			ex.printStackTrace();
-			}
+		BufferedImage sub = new BufferedImage(32,32,BufferedImage.TYPE_3BYTE_BGR);
+		Graphics g = sub.getGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0,0,32,32);
 		return sub;
 		}
 
@@ -77,8 +67,8 @@ public class Sprite extends Resource
 			}
 		catch (IOException ex)
 			{
-			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),noSubImages(),
-					getId().getValue());
+			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),subImages.size(),getId()
+					.getValue());
 			System.err.println();
 			}
 		return result;
@@ -89,26 +79,10 @@ public class Sprite extends Resource
 		subImages.add(image);
 		}
 
-	public BufferedImage getSubImage(int listIndex)
-		{
-		if (listIndex >= 0 && listIndex < noSubImages()) return subImages.get(listIndex);
-		return null;
-		}
-
-	public void removeSubImage(int listIndex)
-		{
-		if (listIndex >= 0 && listIndex < noSubImages()) subImages.remove(listIndex);
-		}
-
-	public void clearSubImages()
-		{
-		subImages.clear();
-		}
-
 	public BufferedImage copySubImage(int listIndex)// returns a copy of
 	// subimage with given index (new subimage is not added to the sprite)
 		{
-		BufferedImage bf = getSubImage(listIndex);
+		BufferedImage bf = subImages.get(listIndex);
 		if (bf != null)
 			{
 			BufferedImage bf2 = new BufferedImage(bf.getWidth(),bf.getHeight(),bf.getType());
@@ -135,7 +109,7 @@ public class Sprite extends Resource
 		spr.boundingBoxRight = boundingBoxRight;
 		spr.boundingBoxTop = boundingBoxTop;
 		spr.boundingBoxBottom = boundingBoxBottom;
-		for (int j = 0; j < noSubImages(); j++)
+		for (int j = 0; j < subImages.size(); j++)
 			{
 			spr.addSubImage(copySubImage(j));
 			}

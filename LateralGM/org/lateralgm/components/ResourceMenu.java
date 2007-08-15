@@ -29,13 +29,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.lateralgm.components.impl.GmTreeGraphics;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.Sprite;
 
 public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 	{
@@ -47,31 +45,27 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 	private JPopupMenu pm;
 	private JMenuItem noResource;
 	private ActionEvent actionEvent;
+	private byte kind;
 
-	public class ResourceMenuItem extends JMenuItem
+	public class ResourceMenuItem extends JMenuItem implements ChangeListener
 		{
 		private static final long serialVersionUID = 1L;
-		public Resource resource;
+		public ResNode node;
 
-		//Must be constructed with a Resource argument
-		@Deprecated
-		private ResourceMenuItem()
+		public ResourceMenuItem(ResNode node, int kind)
 			{
-			throw new UnsupportedOperationException();
+			super(node.getUserObject().toString());
+			this.node = node;
+			setIcon(node.getIcon());
+			node.addChangeListener(this);
 			}
 
-		public ResourceMenuItem(Resource res)
+		public void stateChanged(ChangeEvent e)
 			{
-			super(res.getName());
-			resource = res;
-			if (res.getKind() == Resource.SPRITE)
+			if (e == null)
 				{
-				setIcon(GmTreeGraphics.getSpriteIcon((Sprite) res));
-				}
-			if (res.getKind() == Resource.GMOBJECT)
-				{
-				Sprite s = LGM.currentFile.sprites.get(((GmObject) res).sprite);
-				setIcon(GmTreeGraphics.getSpriteIcon(s));
+				setIcon(node.getIcon());
+				setText(node.getUserObject().toString());
 				}
 			}
 		}
@@ -85,9 +79,10 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 	 */
 	public ResourceMenu(byte kind, String def, boolean showDef, int width)
 		{
+		this.kind = kind;
 		setLayout(new GridBagLayout());
 		GridBagConstraints gbc;
-		LGM.currentFile.addChangeListener(rcl);
+		LGM.root.addChangeListener(rcl);
 		gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weightx = 1.0;
@@ -161,8 +156,7 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 				continue;
 				}
 			if (child.kind != kind) continue;
-			Resource r = LGM.currentFile.getList(kind).get(child.resourceId);
-			ResourceMenuItem newParent = new ResourceMenuItem(r);
+			ResourceMenuItem newParent = new ResourceMenuItem(child,kind);
 			newParent.addActionListener(this);
 			parent.add(newParent);
 			}
@@ -173,6 +167,15 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 		{
 		public void stateChanged(ChangeEvent e)
 			{
+			if (e != null)
+				{
+				pm.removeAll();
+				if (noResource != null) pm.add(noResource);
+				populate(kind);
+				}
+			if (selected == null || !Listener.getPrimaryParent(kind).contains(selected.getId()))
+				setSelected(null);
+			setSelected(selected);
 			}
 		}
 
@@ -205,6 +208,7 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 
 	public void showPopup(Component c, int x, int y)
 		{
+
 		if (pm.getComponentCount() == 0) return;
 		pm.show(c,x,y);
 		}
@@ -217,7 +221,7 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 	public void setSelected(Resource res)
 		{
 		selected = res;
-		label.setText((res == null) ? noResource.getText() : res.getName());
+		label.setText((res == null) ? (noResource != null ? noResource.getText() : "") : res.getName()); //$NON-NLS-1$
 		}
 
 	public void setEnabled(boolean enabled)
@@ -230,11 +234,10 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 	public void actionPerformed(ActionEvent e)
 		{
 		JMenuItem source = (JMenuItem) e.getSource();
-		label.setText(source.getText());
 		if (source instanceof ResourceMenuItem)
-			selected = ((ResourceMenuItem) source).resource;
+			setSelected(LGM.currentFile.getList(kind).get(((ResourceMenuItem) source).node.resourceId));
 		else
-			selected = null;
+			setSelected(null);
 		fireActionPerformed();
 		}
 
@@ -242,7 +245,7 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 		{
 		if (!isEnabled()) return;
 		if (pm.getComponentCount() == 0) return;
-		pm.show(e.getComponent(),e.getX(),e.getY());
+		showPopup(e.getComponent(),e.getX(),e.getY());
 		}
 
 	//Unused

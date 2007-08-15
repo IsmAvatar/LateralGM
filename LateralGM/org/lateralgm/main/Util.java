@@ -197,7 +197,6 @@ public final class Util
 				for (int i = 0; i < count; i++)
 					{
 					img[i] = reader.read(i);
-					// TODO support animated formats
 					if (img[i] != null)
 						{
 						BufferedImage dest = new BufferedImage(img[i].getWidth(),img[i].getHeight(),

@@ -102,7 +102,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			{
 			ResNode newroot = new ResNode("Root",0,0,null); //$NON-NLS-1$
 			PrefsStore.addRecentFile(filename);
-			LGM.frame.setTitle("Lateral GM 6.1: " + file.getName());
+			LGM.frame.setTitle(String.format(Messages.getString("LGM.TITLE"),file.getName()));
 			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 			LGM.currentFile = Gm6FileReader.readGm6File(filename,newroot);
 			LGM f = new LGM();
@@ -135,6 +135,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		f.createToolBar();
 		f.createTree(true);
 		LGM.frame.setJMenuBar(new GmMenuBar());
+		LGM.frame.setTitle(String.format(
+				Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ $NON-NLS-2$)
 		f.setOpaque(true);
 		LGM.frame.setContentPane(f);
 		LGM.currentFile = new Gm6File();
@@ -341,7 +343,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		}
 
-	private ResNode getPrimaryParent(int kind)
+	public static ResNode getPrimaryParent(int kind)
 		{
 		for (int i = 0; i < LGM.root.getChildCount(); i++)
 			if (((ResNode) LGM.root.getChildAt(i)).kind == kind) return (ResNode) LGM.root.getChildAt(i);

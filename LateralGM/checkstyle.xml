@@ -94,7 +94,9 @@ Checkstyle checker designed for LateralGM and the latest Girard format
         <module name="MagicNumber">
             <property name="severity" value="ignore"/>
         </module>
-        <module name="MissingSwitchDefault"/>
+        <module name="MissingSwitchDefault">
+            <property name="severity" value="ignore"/>
+        </module>
         <module name="RedundantThrows"/>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>

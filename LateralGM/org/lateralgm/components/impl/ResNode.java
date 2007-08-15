@@ -13,8 +13,14 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 
+import javax.swing.Icon;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
 
+import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.ResId;
@@ -43,6 +49,33 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	public byte kind;
 	public ResId resourceId;
 	public ResourceFrame<?> frame = null;
+	private EventListenerList listenerList;
+	private ChangeEvent changeEvent;
+	private Icon icon;
+
+	public Icon getIcon()
+		{
+		if (icon == null) updateIcon();
+		return icon;
+		}
+
+	public void updateIcon()
+		{
+		switch (kind)
+			{
+			case Resource.SPRITE:
+				icon = GmTreeGraphics.getSpriteIcon(LGM.currentFile.sprites.get(resourceId));
+				break;
+			case Resource.BACKGROUND:
+				icon = GmTreeGraphics.getBackgroundIcon(LGM.currentFile.backgrounds.get(resourceId));
+				break;
+			case Resource.GMOBJECT:
+				icon = GmTreeGraphics.getSpriteIcon(LGM.currentFile.sprites.get((LGM.currentFile.gmObjects.get(resourceId).sprite)));
+				break;
+			}
+		fireStateChanged(null);
+		LGM.tree.repaint();
+		}
 
 	public ResNode(String name, byte status, byte kind, ResId res)
 		{
@@ -160,5 +193,91 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 				frame.name.setText(txt);
 				}
 			}
+		}
+
+	public void insert(MutableTreeNode newChild, int childIndex)
+		{
+		super.insert(newChild,childIndex);
+		fireStateChanged();
+		}
+
+	public void remove(int childIndex)
+		{
+		super.remove(childIndex);
+		fireStateChanged();
+		}
+
+	public void setUserObject(Object obj)
+		{
+		super.setUserObject(obj);
+		fireStateChanged(null);
+		}
+
+	private EventListenerList getListenerList()
+		{
+		if (listenerList == null) listenerList = new EventListenerList();
+		return listenerList;
+		}
+
+	/**
+	 * Adds the specified ChangeListener.
+	 * Note that if a null ChangeEvent is provided to <code>l</code>,
+	 * this denotes a change in the userObject or icon.
+	 * Otherwise, there has been a change in the structure of the tree. 
+	 * @param l The ChangeListener to add
+	 */
+	public void addChangeListener(ChangeListener l)
+		{
+		getListenerList().add(ChangeListener.class,l);
+		}
+
+	public void removeChangeListener(ChangeListener l)
+		{
+		getListenerList().remove(ChangeListener.class,l);
+		}
+
+	protected void fireStateChanged()
+		{
+		// Lazily create the event:
+		if (changeEvent == null) changeEvent = new ChangeEvent(this);
+		fireStateChanged(changeEvent);
+		}
+
+	protected void fireStateChanged(ChangeEvent e)
+		{
+		if (listenerList != null)
+			{
+			Object[] list = listenerList.getListenerList();
+			for (int i = list.length - 2; i >= 0; i -= 2)
+				if (list[i] == ChangeListener.class) ((ChangeListener) list[i + 1]).stateChanged(e);
+			}
+		// Propogate structure changes up the tree
+		if (e != null && parent != null && parent instanceof ResNode)
+			((ResNode) parent).fireStateChanged(changeEvent);
+		}
+
+	/**
+	 * Recursively checks (from this node down) for a node with a resourceId field
+	 * referring to the same instance as res.
+	 * @param res The resource to look for
+	 * @return Whether the resource was found
+	 */
+	public boolean contains(ResId res)
+		{
+		if (resourceId == res) return true; //Just in case
+		if (children != null) for (Object obj : children)
+			if (obj instanceof ResNode)
+				{
+				ResNode node = (ResNode) obj;
+				if (node.isLeaf())
+					{
+					if (node.resourceId == res) return true;
+					}
+				else
+					{
+					if (node.contains(res)) return true;
+					}
+				}
+		return false;
 		}
 	}

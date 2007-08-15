@@ -127,7 +127,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		interpolatecolors = new JCheckBox(t,LGM.currentFile.interpolate);
 		JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
 		t = Messages.getString("GameSettingFrame.SETCOLOR"); //$NON-NLS-1$
-		colorbutton = new ColorSelect(LGM.currentFile.colorOutsideRoom,LGM.frame);
+		colorbutton = new ColorSelect(LGM.currentFile.colorOutsideRoom);
 		colorbutton.setMaximumSize(new Dimension(100,20));
 		colorbutton.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
 		colorbutton.setAlignmentX(0f);

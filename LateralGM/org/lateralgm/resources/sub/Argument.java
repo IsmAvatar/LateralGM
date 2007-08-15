@@ -10,16 +10,11 @@
 
 package org.lateralgm.resources.sub;
 
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
+import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -139,17 +134,7 @@ public class Argument
 				final String[] sam = la.menu.split("\\|"); //$NON-NLS-1$
 				return new JComboBox(sam);
 			case ARG_COLOR:
-				final String sc = Messages.getString("Argument.COLOR");
-				final JButton bc = new JButton(sc);
-				bc.addActionListener(new ActionListener()
-					{
-						public void actionPerformed(ActionEvent ae)
-							{
-							Color ret = JColorChooser.showDialog(null,sc,bc.getBackground());
-							if (ret != null) bc.setBackground(ret);
-							}
-					});
-				return bc;
+				return new ColorSelect(Util.convertGmColor(Integer.parseInt(val)));
 			case ARG_SPRITE:
 			case ARG_SOUND:
 			case ARG_BACKGROUND:
@@ -241,9 +226,9 @@ public class Argument
 			val = Integer.toString(((JComboBox) editor).getSelectedIndex());
 			return;
 			}
-		if (editor instanceof JButton)
+		if (editor instanceof ColorSelect)
 			{
-			val = Integer.toString(Util.getGmColor(((JButton) editor).getBackground()));
+			val = Integer.toString(Util.getGmColor(((ColorSelect) editor).getSelectedColor()));
 			}
 		if (editor instanceof ResourceMenu)
 			{
@@ -266,10 +251,9 @@ public class Argument
 			{
 			((JComboBox) editor).setSelectedIndex(Integer.parseInt(val));
 			}
-		else if (editor instanceof JButton)
+		else if (editor instanceof ColorSelect)
 			{
-			Color c = Util.convertGmColor(Integer.parseInt(val));
-			((JButton) editor).setBackground(c);
+			((ColorSelect) editor).setSelectedColor(Util.convertGmColor(Integer.parseInt(val)));
 			}
 		else if (editor instanceof ResourceMenu)
 			{

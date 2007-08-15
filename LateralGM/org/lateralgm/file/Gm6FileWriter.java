@@ -254,10 +254,10 @@ public final class Gm6FileWriter
 				out.writeBool(spr.preciseCC);
 				out.write4(spr.originX);
 				out.write4(spr.originY);
-				out.write4(spr.noSubImages());
-				for (int j = 0; j < spr.noSubImages(); j++)
+				out.write4(spr.subImages.size());
+				for (int j = 0; j < spr.subImages.size(); j++)
 					{
-					BufferedImage sub = spr.getSubImage(j);
+					BufferedImage sub = spr.subImages.get(j);
 					out.write4(10);
 					out.writeImage(sub);
 					}

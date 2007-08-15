@@ -119,7 +119,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		filename.setPreferredSize(new Dimension(200,14));
 		add(filename);
 
-		kind = new IndexButtonGroup(4);
+		kind = new IndexButtonGroup(4,true,false);
 		AbstractButton b = new JRadioButton(Messages.getString("SoundFrame.NORMAL"));
 		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.NORMAL);

@@ -243,14 +243,14 @@ public class BackgroundFrame extends ResourceFrame<Background>
 				height.setText(Messages.getString("BackgroundFrame.HEIGHT") + res.height); //$NON-NLS-1$
 				imageChanged = true;
 				preview.setIcon(new ImageIcon(img));
-				LGM.tree.repaint();
+				node.updateIcon();
 				}
 			return;
 			}
 		if (e.getSource() == transparent)
 			{
 			res.transparent = transparent.isSelected();
-			LGM.tree.repaint();
+			node.updateIcon();
 			return;
 			}
 

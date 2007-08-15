@@ -47,9 +47,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.EventKeyInput;
+import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EventNode;
-import org.lateralgm.components.impl.GmTreeGraphics;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;

@@ -49,9 +49,9 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.GmMenuBar;
+import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.impl.FramePrefsHandler;
 import org.lateralgm.components.impl.GmTreeEditor;
-import org.lateralgm.components.impl.GmTreeGraphics;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.Gm6File;
@@ -65,7 +65,8 @@ import org.lateralgm.subframes.GameSettingFrame;
 public class LGM extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
-	public static JFrame frame = new JFrame("Lateral GM 6.1: <new game>"); //$NON-NLS-1$
+	public static JFrame frame = new JFrame(String.format(
+			Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ $NON-NLS-2$
 	public static Listener listener = new Listener();
 	public static JToolBar tool;
 	public static JTree tree;
