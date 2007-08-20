@@ -66,6 +66,7 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 				{
 				setIcon(node.getIcon());
 				setText(node.getUserObject().toString());
+				ResourceMenu.this.setSelected(selected);
 				}
 			}
 		}
