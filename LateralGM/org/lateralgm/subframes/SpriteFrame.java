@@ -40,7 +40,6 @@ import org.lateralgm.resources.Sprite;
 public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon FRAME_ICON = Sprite.ICON[Sprite.SPRITE];
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
 
 	public JButton load;
@@ -80,7 +79,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		setSize(560,320);
 		setMinimumSize(new Dimension(560,320));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-		setFrameIcon(FRAME_ICON);
 
 		JPanel side1 = new JPanel(new FlowLayout());
 		makeSide1(side1);

@@ -45,7 +45,6 @@ import org.lateralgm.resources.sub.View;
 public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon FRAME_ICON = Room.ICON[Room.ROOM];
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
 
 	public JLabel statX, statY, statObj, statId;
@@ -355,7 +354,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			setSize(sizeWidth,sizeHeight);
 		else
 			setSize(res.editorWidth,res.editorHeight);
-		setFrameIcon(FRAME_ICON);
 
 		JPanel pane = new JPanel();
 		//		pane.setLayout(new FlowLayout());

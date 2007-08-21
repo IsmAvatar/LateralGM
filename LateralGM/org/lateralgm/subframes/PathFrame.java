@@ -16,7 +16,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -43,7 +42,6 @@ import org.lateralgm.resources.sub.Point;
 public class PathFrame extends ResourceFrame<Path> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon FRAME_ICON = Path.ICON[Path.PATH];
 
 	//these two booleans exist to address a bug where lsl triggers dl, and vice versa
 	public static boolean updateList = true, updateBoxes = true;
@@ -60,7 +58,6 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener
 		setSize(560,400);
 		setMinimumSize(new Dimension(560,400));
 		setLayout(new BorderLayout());
-		setFrameIcon(FRAME_ICON);
 
 		add(makeToolBar(),BorderLayout.NORTH);
 		add(makeSide(res),BorderLayout.WEST);

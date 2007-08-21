@@ -15,7 +15,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -36,7 +35,6 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon FRAME_ICON = Timeline.ICON[Timeline.TIMELINE];
 
 	public JButton add;
 	public JButton change;
@@ -57,7 +55,6 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		setSize(560,400);
 		setMinimumSize(new Dimension(560,400));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-		setFrameIcon(FRAME_ICON);
 
 		JPanel side1 = new JPanel(new FlowLayout());
 		side1.setPreferredSize(new Dimension(180,280));

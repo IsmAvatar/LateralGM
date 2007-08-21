@@ -51,7 +51,6 @@ public abstract class ResourceFrame<R extends Resource> extends MDIFrame impleme
 	 * Backup of res as it was before changes were made
 	 */
 	public R resOriginal;
-
 	/**
 	 * The ResNode this frame is linked to
 	 */
@@ -73,6 +72,7 @@ public abstract class ResourceFrame<R extends Resource> extends MDIFrame impleme
 		this.node = node;
 		resOriginal = (R) res.copy();
 		setTitle(res.getName());
+		setFrameIcon(Resource.ICON[res.getKind()]);
 		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 		name.setDocument(new NameDocument());
 		name.setText(res.getName());

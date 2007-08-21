@@ -42,7 +42,6 @@ import org.lateralgm.resources.Sound;
 public class SoundFrame extends ResourceFrame<Sound>
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon FRAME_ICON = Sound.ICON[Sound.SOUND];
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SoundFrame.LOAD"); //$NON-NLS-1$
 	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SoundFrame.PLAY"); //$NON-NLS-1$
 	private static final ImageIcon STOP_ICON = LGM.getIconForKey("SoundFrame.STOP"); //$NON-NLS-1$
@@ -82,7 +81,6 @@ public class SoundFrame extends ResourceFrame<Sound>
 		setSize(250,550);
 		setResizable(false);
 		setMaximizable(false);
-		setFrameIcon(FRAME_ICON);
 
 		setContentPane(new JPanel());
 		setLayout(new FlowLayout());

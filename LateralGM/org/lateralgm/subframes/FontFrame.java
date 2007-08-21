@@ -15,7 +15,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -32,7 +31,6 @@ import org.lateralgm.resources.Font;
 public class FontFrame extends ResourceFrame<Font>
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon FRAME_ICON = Font.ICON[Font.FONT];
 
 	public JComboBox fonts;
 	public IntegerField size;
@@ -49,7 +47,6 @@ public class FontFrame extends ResourceFrame<Font>
 		setSize(250,390);
 		setResizable(false);
 		setMaximizable(false);
-		setFrameIcon(FRAME_ICON);
 
 		setContentPane(new JPanel());
 		setLayout(new FlowLayout());

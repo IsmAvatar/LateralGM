@@ -37,7 +37,6 @@ import org.lateralgm.resources.Background;
 public class BackgroundFrame extends ResourceFrame<Background>
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon FRAME_ICON = Background.ICON[Background.BACKGROUND];
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("BackgroundFrame.LOAD");
 	public JButton load;
 	public JLabel width;
@@ -65,7 +64,6 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		setSize(560,320);
 		setMinimumSize(new Dimension(450,320));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-		setFrameIcon(FRAME_ICON);
 
 		JPanel side1 = new JPanel(new FlowLayout());
 		side1.setMinimumSize(new Dimension(180,280));

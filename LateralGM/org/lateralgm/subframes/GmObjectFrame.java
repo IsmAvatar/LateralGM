@@ -112,7 +112,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		setSize(560,400);
 		setMinimumSize(new Dimension(560,400));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-		setFrameIcon(Resource.ICON[Resource.GMOBJECT]);
 
 		JPanel side1 = new JPanel(new FlowLayout());
 		side1.setPreferredSize(new Dimension(180,280));

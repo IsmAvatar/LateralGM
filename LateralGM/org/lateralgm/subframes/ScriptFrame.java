@@ -11,7 +11,6 @@
 
 package org.lateralgm.subframes;
 
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JToolBar;
 import javax.swing.event.InternalFrameEvent;
@@ -25,14 +24,12 @@ import org.lateralgm.resources.Script;
 public class ScriptFrame extends ResourceFrame<Script>
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon FRAME_ICON = Script.ICON[Script.SCRIPT];
 	public GMLTextArea code;
 
 	public ScriptFrame(Script res, ResNode node)
 		{
 		super(res,node);
 		setSize(600,400);
-		setFrameIcon(FRAME_ICON);
 		// the code text area
 		code = new GMLTextArea(res.scriptStr);
 		// Setup the toolbar
