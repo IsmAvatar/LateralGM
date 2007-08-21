@@ -60,6 +60,11 @@ public abstract class ResourceFrame<R extends Resource> extends MDIFrame impleme
 	public String titlePrefix = ""; //$NON-NLS-1$
 	public String titleSuffix = ""; //$NON-NLS-1$
 
+	/**
+	 * Note for inheriting classes. Be sure to call this parent instantiation for proper setup.
+	 * The res and node parameters are only needed in the instantiation to assign globals;
+	 * That is, once you call this, they will immediately gain global scope and may be treated thusly.
+	 */
 	@SuppressWarnings("unchecked")
 	public ResourceFrame(R res, ResNode node)
 		{
