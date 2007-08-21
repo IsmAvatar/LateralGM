@@ -26,9 +26,9 @@ import javax.swing.undo.UndoableEdit;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 
-@SuppressWarnings("serial")
 public class DocumentUndoManager extends UndoManager implements CaretListener
 	{
+	private static final long serialVersionUID = 1L;
 	protected final AbstractAction undoAction;
 	protected final AbstractAction redoAction;
 	protected int caretUpdates = 0;
@@ -122,6 +122,8 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 
 	private class GroupEdit extends CompoundEdit
 		{
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		public boolean canUndo()
 			{
@@ -193,6 +195,7 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 
 	private class MarkerEdit extends AbstractUndoableEdit
 		{
+		private static final long serialVersionUID = 1L;
 		protected boolean significant = false;
 
 		@Override

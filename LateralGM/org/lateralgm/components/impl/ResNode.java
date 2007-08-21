@@ -70,7 +70,8 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 				icon = GmTreeGraphics.getBackgroundIcon(LGM.currentFile.backgrounds.get(resourceId));
 				break;
 			case Resource.GMOBJECT:
-				icon = GmTreeGraphics.getSpriteIcon(LGM.currentFile.sprites.get((LGM.currentFile.gmObjects.get(resourceId).sprite)));
+				ResId rid = LGM.currentFile.gmObjects.get(resourceId).sprite;
+				icon = GmTreeGraphics.getSpriteIcon(LGM.currentFile.sprites.get(rid));
 				break;
 			}
 		fireStateChanged(null);

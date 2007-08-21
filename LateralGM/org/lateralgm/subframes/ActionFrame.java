@@ -162,118 +162,121 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			getContentPane().add(code);
 			}
 		else
-			{
-			setLayout(new BoxLayout(getContentPane(),BoxLayout.Y_AXIS));
-			JLabel lab;
-			JPanel pane;
-			pane = new JPanel();
-			pane.setBorder(new EmptyBorder(6,6,0,6));
-			pane.setLayout(new BorderLayout());
-			add(pane);
-			if (la.actImage != null)
-				{
-				lab = new JLabel(new ImageIcon(la.actImage));
-				lab.setBorder(new EmptyBorder(16,16,16,20));
-				pane.add(lab,BorderLayout.LINE_START);
-				}
-
-			appliesPanel.setLayout(new GridLayout(0,1));
-			s = Messages.getString("ActionFrame.APPLIES"); //$NON-NLS-1$
-			appliesPanel.setBorder(BorderFactory.createTitledBorder(s));
-			pane.add(appliesPanel);
-			if (!la.canApplyTo) appliesPanel.setVisible(false);
-
-			if (a.arguments.length > 0)
-				{
-				pane = new JPanel();
-				pane.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(6,8,0,8),
-						BorderFactory.createTitledBorder("")));
-				GroupLayout kvLayout = new GroupLayout(pane);
-				GroupLayout.SequentialGroup hGroup, vGroup;
-				GroupLayout.ParallelGroup keyGroup, valueGroup;
-				hGroup = kvLayout.createSequentialGroup();
-				vGroup = kvLayout.createSequentialGroup();
-				keyGroup = kvLayout.createParallelGroup();
-				valueGroup = kvLayout.createParallelGroup();
-
-				hGroup.addGap(4);
-				hGroup.addGroup(keyGroup);
-				hGroup.addGap(6);
-				hGroup.addGroup(valueGroup);
-				hGroup.addGap(4);
-
-				kvLayout.setHorizontalGroup(hGroup);
-				kvLayout.setVerticalGroup(vGroup);
-
-				pane.setLayout(kvLayout);
-				add(pane);
-
-				argEdit = new JComponent[a.arguments.length];
-				vGroup.addGap(4);
-				for (int n = 0; n < a.arguments.length; n++)
-					{
-					Argument arg = a.arguments[n];
-					if (la.parent == null)
-						lab = new JLabel(String.format(Messages.getString("ActionFrame.UNKNOWN"),n)); //$NON-NLS-1$
-					else
-						{
-						LibArgument larg = la.libArguments[n];
-						lab = new JLabel(larg.caption);
-						}
-					if (n == 0 && act.libAction.interfaceKind == LibAction.INTERFACE_ARROWS)
-						{
-						argEdit[n] = new ArrowsEditor(arg.val);
-						}
-					else
-						{
-						if (la.libArguments == null || la.libArguments.length <= n)
-							argEdit[n] = arg.getEditor(null);
-						else
-							argEdit[n] = arg.getEditor(la.libArguments[n]);
-						argEdit[n].setMaximumSize(new Dimension(240,20));
-						argEdit[n].setPreferredSize(new Dimension(200,20));
-						argEdit[n].setMinimumSize(new Dimension(160,20));
-						}
-					keyGroup.addComponent(lab);
-					valueGroup.addComponent(argEdit[n]);
-					if (n > 0) vGroup.addGap(6);
-					GroupLayout.ParallelGroup argGroup = kvLayout.createParallelGroup(Alignment.BASELINE);
-					argGroup.addComponent(lab).addComponent(argEdit[n]);
-					vGroup.addGroup(argGroup);
-					}
-				vGroup.addGap(4);
-				}
-			pane = new JPanel();
-			pane.setLayout(new FlowLayout(FlowLayout.TRAILING));
-			add(pane);
-			if (act.libAction.allowRelative)
-				{
-				relativeBox = new JCheckBox(Messages.getString("ActionFrame.RELATIVE"));
-				relativeBox.setSelected(act.relative);
-				pane.add(relativeBox);
-				}
-			if (act.libAction.question)
-				{
-				notBox = new JCheckBox(Messages.getString("ActionFrame.NOT"));
-				notBox.setSelected(act.not);
-				pane.add(notBox);
-				}
-
-			pane = new JPanel();
-			pane.setLayout(new GridLayout(1,2,8,0));
-			pane.setBorder(new EmptyBorder(0,8,8,8));
-			add(pane);
-			s = Messages.getString("ActionFrame.SAVE"); //$NON-NLS-1$
-			save = new JButton(s,LGM.getIconForKey("ActionFrame.SAVE"));
-			save.addActionListener(this);
-			pane.add(save);
-			s = Messages.getString("ActionFrame.DISCARD"); //$NON-NLS-1$
-			discard = new JButton(s,LGM.getIconForKey("ActionFrame.DISCARD"));
-			discard.addActionListener(this);
-			pane.add(discard);
-			}
+			makeArgumentPane(a,la);
 		pack();
 		repaint();
+		}
+
+	private void makeArgumentPane(Action a, LibAction la)
+		{
+		setLayout(new BoxLayout(getContentPane(),BoxLayout.Y_AXIS));
+		JLabel lab;
+		JPanel pane;
+		pane = new JPanel();
+		pane.setBorder(new EmptyBorder(6,6,0,6));
+		pane.setLayout(new BorderLayout());
+		add(pane);
+		if (la.actImage != null)
+			{
+			lab = new JLabel(new ImageIcon(la.actImage));
+			lab.setBorder(new EmptyBorder(16,16,16,20));
+			pane.add(lab,BorderLayout.LINE_START);
+			}
+
+		appliesPanel.setLayout(new GridLayout(0,1));
+		String s = Messages.getString("ActionFrame.APPLIES"); //$NON-NLS-1$
+		appliesPanel.setBorder(BorderFactory.createTitledBorder(s));
+		pane.add(appliesPanel);
+		if (!la.canApplyTo) appliesPanel.setVisible(false);
+
+		if (a.arguments.length > 0)
+			{
+			pane = new JPanel();
+			pane.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(6,8,0,8),
+					BorderFactory.createTitledBorder("")));
+			GroupLayout kvLayout = new GroupLayout(pane);
+			GroupLayout.SequentialGroup hGroup, vGroup;
+			GroupLayout.ParallelGroup keyGroup, valueGroup;
+			hGroup = kvLayout.createSequentialGroup();
+			vGroup = kvLayout.createSequentialGroup();
+			keyGroup = kvLayout.createParallelGroup();
+			valueGroup = kvLayout.createParallelGroup();
+
+			hGroup.addGap(4);
+			hGroup.addGroup(keyGroup);
+			hGroup.addGap(6);
+			hGroup.addGroup(valueGroup);
+			hGroup.addGap(4);
+
+			kvLayout.setHorizontalGroup(hGroup);
+			kvLayout.setVerticalGroup(vGroup);
+
+			pane.setLayout(kvLayout);
+			add(pane);
+
+			argEdit = new JComponent[a.arguments.length];
+			vGroup.addGap(4);
+			for (int n = 0; n < a.arguments.length; n++)
+				{
+				Argument arg = a.arguments[n];
+				if (la.parent == null)
+					lab = new JLabel(String.format(Messages.getString("ActionFrame.UNKNOWN"),n)); //$NON-NLS-1$
+				else
+					{
+					LibArgument larg = la.libArguments[n];
+					lab = new JLabel(larg.caption);
+					}
+				if (n == 0 && act.libAction.interfaceKind == LibAction.INTERFACE_ARROWS)
+					{
+					argEdit[n] = new ArrowsEditor(arg.val);
+					}
+				else
+					{
+					if (la.libArguments == null || la.libArguments.length <= n)
+						argEdit[n] = arg.getEditor(null);
+					else
+						argEdit[n] = arg.getEditor(la.libArguments[n]);
+					argEdit[n].setMaximumSize(new Dimension(240,20));
+					argEdit[n].setPreferredSize(new Dimension(200,20));
+					argEdit[n].setMinimumSize(new Dimension(160,20));
+					}
+				keyGroup.addComponent(lab);
+				valueGroup.addComponent(argEdit[n]);
+				if (n > 0) vGroup.addGap(6);
+				GroupLayout.ParallelGroup argGroup = kvLayout.createParallelGroup(Alignment.BASELINE);
+				argGroup.addComponent(lab).addComponent(argEdit[n]);
+				vGroup.addGroup(argGroup);
+				}
+			vGroup.addGap(4);
+			}
+		pane = new JPanel();
+		pane.setLayout(new FlowLayout(FlowLayout.TRAILING));
+		add(pane);
+		if (act.libAction.allowRelative)
+			{
+			relativeBox = new JCheckBox(Messages.getString("ActionFrame.RELATIVE"));
+			relativeBox.setSelected(act.relative);
+			pane.add(relativeBox);
+			}
+		if (act.libAction.question)
+			{
+			notBox = new JCheckBox(Messages.getString("ActionFrame.NOT"));
+			notBox.setSelected(act.not);
+			pane.add(notBox);
+			}
+
+		pane = new JPanel();
+		pane.setLayout(new GridLayout(1,2,8,0));
+		pane.setBorder(new EmptyBorder(0,8,8,8));
+		add(pane);
+		s = Messages.getString("ActionFrame.SAVE"); //$NON-NLS-1$
+		save = new JButton(s,LGM.getIconForKey("ActionFrame.SAVE"));
+		save.addActionListener(this);
+		pane.add(save);
+		s = Messages.getString("ActionFrame.DISCARD"); //$NON-NLS-1$
+		discard = new JButton(s,LGM.getIconForKey("ActionFrame.DISCARD"));
+		discard.addActionListener(this);
+		pane.add(discard);
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -321,9 +324,9 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			}
 		}
 
-	@SuppressWarnings("serial")
 	public class ArrowsEditor extends JPanel
 		{
+		private static final long serialVersionUID = 1L;
 		private JToggleButton[] arrows;
 		private final Dimension btnSize = new Dimension(32,32);
 		private final Dimension panelSize = new Dimension(96,96);

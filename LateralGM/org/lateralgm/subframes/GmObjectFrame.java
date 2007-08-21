@@ -369,6 +369,327 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		}
 
+	private class ActionListModel extends AbstractListModel
+		{
+		private static final long serialVersionUID = 1L;
+		private ArrayList<Action> list;
+		private ArrayList<Integer> indents;
+
+		public ActionListModel()
+			{
+			list = new ArrayList<Action>();
+			indents = new ArrayList<Integer>();
+			}
+
+		public void add(int index, Action a)
+			{
+			list.add(index,a);
+			updateIndentation();
+			fireIntervalAdded(this,index,index);
+			}
+
+		public void addAll(int index, Collection<? extends Action> c)
+			{
+			int s = c.size();
+			if (s <= 0) return;
+			list.addAll(index,c);
+			updateIndentation();
+			fireIntervalAdded(this,index,index + s - 1);
+			}
+
+		public void remove(int index)
+			{
+			list.remove(index);
+			updateIndentation();
+			fireIntervalRemoved(this,index,index);
+			}
+
+		public Object getElementAt(int index)
+			{
+			return list.get(index);
+			}
+
+		public int getSize()
+			{
+			return list.size();
+			}
+
+		private void updateIndentation()
+			{
+			int lms = list.size();
+			indents.clear();
+			indents.ensureCapacity(lms);
+			ArrayList<Integer> levelIndents = new ArrayList<Integer>();
+			levelIndents.add(0);
+			int level = 0;
+			boolean indentNext = false;
+			for (int i = 0; i < lms; i++)
+				{
+				Action a = list.get(i);
+				int indent;
+				if (indentNext)
+					{
+					indent = indents.get(i - 1) + 1;
+					indentNext = false;
+					}
+				else
+					indent = levelIndents.get(level);
+				indents.add(indent);
+				switch (a.libAction.actionKind)
+					{
+					case Action.ACT_BEGIN:
+						level += 1;
+						if (levelIndents.size() > level)
+							{
+							levelIndents.set(level,indent);
+							}
+						else
+							{
+							levelIndents.add(indent);
+							}
+						break;
+					case Action.ACT_END:
+						level -= 1;
+						if (level < 0) level = 0;
+						break;
+					case Action.ACT_ELSE:
+					case Action.ACT_REPEAT:
+						indentNext = true;
+						break;
+					default:
+						if (a.libAction.question) indentNext = true;
+					}
+				}
+			}
+		}
+
+	private static class ActionRenderer implements ListCellRenderer
+		{
+		public String parse(String s, Action a)
+			{
+			String escape = "FrNw01234567"; //$NON-NLS-1$
+			String ret = ""; //$NON-NLS-1$
+			//s = s.replaceAll("\n","<br>");
+
+			int k = 0;
+			int p = s.indexOf("@"); //$NON-NLS-1$
+			while (p != -1)
+				{
+				ret += s.substring(k,p);
+				char c = s.charAt(p + 1);
+				if (!escape.contains(String.valueOf(c)))
+					{
+					ret += "@"; //$NON-NLS-1$
+					k = p + 1;
+					p = s.indexOf("@",k); //$NON-NLS-1$
+					continue;
+					}
+				if (c == 'F')
+					{
+					if (s.charAt(p + 2) == 'B' || s.charAt(p + 2) == 'I')
+						p += 2;
+					else
+						ret += "@"; //$NON-NLS-1$
+					k = p + 1;
+					p = s.indexOf("@",k); //$NON-NLS-1$
+					continue;
+					}
+				if (c == 'r' && a.relative) ret += Messages.getString("Action.RELATIVE"); //$NON-NLS-1$
+				if (c == 'N' && a.not) ret += Messages.getString("Action.NOT"); //$NON-NLS-1$
+				if (c == 'w' && !a.appliesTo.equals(GmObject.OBJECT_SELF))
+					{
+					if (a.appliesTo.equals(GmObject.OBJECT_OTHER))
+						ret += Messages.getString("Action.APPLIES_OTHER"); //$NON-NLS-1$
+					else
+						{
+						GmObject applies = LGM.currentFile.gmObjects.get(a.appliesTo);
+						ret += String.format(Messages.getString("Action.APPLIES"), //$NON-NLS-1$
+								applies == null ? a.appliesTo.toString() : applies.getName());
+						}
+					}
+				if (c >= '0' && c < '8')
+					{
+					int arg = c - '0';
+					if (arg >= a.arguments.length)
+						ret += "0"; //$NON-NLS-1$
+					else
+						{
+						Argument aa = a.arguments[arg];
+						ret += aa.toString(a.libAction.libArguments[arg]);
+						}
+					}
+				k = p + 2;
+				p = s.indexOf("@",k); //$NON-NLS-1$
+				}
+
+			s = ret + s.substring(k);
+			s = s.replaceAll("&","&amp;");
+			s = s.replaceAll("<","&lt;");
+			s = s.replaceAll(">","&gt;");
+			s = s.replaceAll("\n","<br>");
+			s = s.replaceAll("\\\\#","\n");
+			s = s.replaceAll("#","<br>");
+			s = s.replaceAll("\n","&#35;");
+			s = s.replaceAll(" ","&nbsp;");
+
+			return s;
+			}
+
+		public Component getListCellRendererComponent(JList list, Object cell, int index,
+				boolean isSelected, boolean hasFocus)
+			{
+			final Action cellAction = (Action) cell;
+			LibAction la = cellAction.libAction;
+			JLabel l = new JLabel();
+			ListModel lm = list.getModel();
+			try
+				{
+				if (lm instanceof ActionListModel)
+					l.setBorder(new EmptyBorder(1,2 + 8 * ((ActionListModel) lm).indents.get(index),1,2));
+				}
+			catch (IndexOutOfBoundsException e)
+				{
+				}
+			if (isSelected)
+				{
+				l.setBackground(list.getSelectionBackground());
+				l.setForeground(list.getSelectionForeground());
+				}
+			else
+				{
+				l.setBackground(list.getBackground());
+				l.setForeground(list.getForeground());
+				}
+			l.setOpaque(true);
+			if (la.actImage == null)
+				{
+				l.setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
+				return l;
+				}
+			l.setText(parse(la.listText,(Action) cell));
+			if (la.listText.contains("@FB")) //$NON-NLS-1$
+				l.setText("<b>" + l.getText());
+			if (la.listText.contains("@FI")) //$NON-NLS-1$
+				l.setText("<i>" + l.getText());
+			l.setText("<html>" + l.getText());
+			l.setIcon(new ImageIcon(Util.getTransparentIcon(la.actImage)));
+			l.setToolTipText("<html>" + parse(la.hintText,(Action) cell));
+			return l;
+			}
+		}
+
+	public String parse(String s, Action a)
+		{
+		String escape = "FrNw01234567"; //$NON-NLS-1$
+		String ret = ""; //$NON-NLS-1$
+		//s = s.replaceAll("\n","<br>");
+
+		int k = 0;
+		int p = s.indexOf("@"); //$NON-NLS-1$
+		while (p != -1)
+			{
+			ret += s.substring(k,p);
+			char c = s.charAt(p + 1);
+			if (!escape.contains(String.valueOf(c)))
+				{
+				ret += "@"; //$NON-NLS-1$
+				k = p + 1;
+				p = s.indexOf("@",k); //$NON-NLS-1$
+				continue;
+				}
+			if (c == 'F')
+				{
+				if (s.charAt(p + 2) == 'B' || s.charAt(p + 2) == 'I')
+					p += 2;
+				else
+					ret += "@"; //$NON-NLS-1$
+				k = p + 1;
+				p = s.indexOf("@",k); //$NON-NLS-1$
+				continue;
+				}
+			if (c == 'r' && a.relative) ret += Messages.getString("Action.RELATIVE"); //$NON-NLS-1$
+			if (c == 'N' && a.not) ret += Messages.getString("Action.NOT"); //$NON-NLS-1$
+			if (c == 'w' && !a.appliesTo.equals(GmObject.OBJECT_SELF))
+				{
+				if (a.appliesTo.equals(GmObject.OBJECT_OTHER))
+					ret += Messages.getString("Action.APPLIES_OTHER"); //$NON-NLS-1$
+				else
+					{
+					GmObject applies = LGM.currentFile.gmObjects.get(a.appliesTo);
+					ret += String.format(Messages.getString("Action.APPLIES"), //$NON-NLS-1$
+							applies == null ? a.appliesTo.toString() : applies.getName());
+					}
+				}
+			if (c >= '0' && c < '8')
+				{
+				int arg = c - '0';
+				if (arg >= a.arguments.length)
+					ret += "0"; //$NON-NLS-1$
+				else
+					{
+					Argument aa = a.arguments[arg];
+					ret += aa.toString(a.libAction.libArguments[arg]);
+					}
+				}
+			k = p + 2;
+			p = s.indexOf("@",k); //$NON-NLS-1$
+			}
+
+		s = ret + s.substring(k);
+		s = s.replaceAll("&","&amp;");
+		s = s.replaceAll("<","&lt;");
+		s = s.replaceAll(">","&gt;");
+		s = s.replaceAll("\n","<br>");
+		s = s.replaceAll("\\\\#","\n");
+		s = s.replaceAll("#","<br>");
+		s = s.replaceAll("\n","&#35;");
+		s = s.replaceAll(" ","&nbsp;");
+
+		return s;
+		}
+
+	public Component getListCellRendererComponent(JList list, Object cell, int index,
+			boolean isSelected, boolean hasFocus)
+		{
+		final Action cellAction = (Action) cell;
+		LibAction la = cellAction.libAction;
+		JLabel l = new JLabel();
+		ListModel lm = list.getModel();
+		try
+			{
+			if (lm instanceof ActionListModel)
+				l.setBorder(new EmptyBorder(1,2 + 8 * ((ActionListModel) lm).indents.get(index),1,2));
+			}
+		catch (IndexOutOfBoundsException e)
+			{
+			}
+		if (isSelected)
+			{
+			l.setBackground(list.getSelectionBackground());
+			l.setForeground(list.getSelectionForeground());
+			}
+		else
+			{
+			l.setBackground(list.getBackground());
+			l.setForeground(list.getForeground());
+			}
+		l.setOpaque(true);
+		if (la.actImage == null)
+			{
+			l.setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
+			return l;
+			}
+		l.setText(parse(la.listText,(Action) cell));
+		if (la.listText.contains("@FB")) //$NON-NLS-1$
+			l.setText("<b>" + l.getText());
+		if (la.listText.contains("@FI")) //$NON-NLS-1$
+			l.setText("<i>" + l.getText());
+		l.setText("<html>" + l.getText());
+		l.setIcon(new ImageIcon(Util.getTransparentIcon(la.actImage)));
+		l.setToolTipText("<html>" + parse(la.hintText,(Action) cell));
+		return l;
+		}
+
 	public void addEvent(Event e)
 		{
 		for (int i = 0; i < rootEvent.getChildCount(); i++)
@@ -502,7 +823,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		events.setTransferHandler(new EventNodeTransferHandler());
 		}
 
-	@SuppressWarnings("serial")
 	public static JList addActionPane(JComponent container)
 		{
 		JPanel side3 = new JPanel(new BorderLayout());
@@ -540,120 +860,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						}
 					}
 			});
-		list.setCellRenderer(new ListCellRenderer()
-			{
-				public String parse(String s, Action a)
-					{
-					String escape = "FrNw01234567"; //$NON-NLS-1$
-					String ret = ""; //$NON-NLS-1$
-					//s = s.replaceAll("\n","<br>");
-
-					int k = 0;
-					int p = s.indexOf("@"); //$NON-NLS-1$
-					while (p != -1)
-						{
-						ret += s.substring(k,p);
-						char c = s.charAt(p + 1);
-						if (!escape.contains(String.valueOf(c)))
-							{
-							ret += "@"; //$NON-NLS-1$
-							k = p + 1;
-							p = s.indexOf("@",k); //$NON-NLS-1$
-							continue;
-							}
-						if (c == 'F')
-							{
-							if (s.charAt(p + 2) == 'B' || s.charAt(p + 2) == 'I')
-								p += 2;
-							else
-								ret += "@"; //$NON-NLS-1$
-							k = p + 1;
-							p = s.indexOf("@",k); //$NON-NLS-1$
-							continue;
-							}
-						if (c == 'r' && a.relative) ret += Messages.getString("Action.RELATIVE"); //$NON-NLS-1$
-						if (c == 'N' && a.not) ret += Messages.getString("Action.NOT"); //$NON-NLS-1$
-						if (c == 'w' && !a.appliesTo.equals(GmObject.OBJECT_SELF))
-							{
-							if (a.appliesTo.equals(GmObject.OBJECT_OTHER))
-								ret += Messages.getString("Action.APPLIES_OTHER"); //$NON-NLS-1$
-							else
-								{
-								GmObject applies = LGM.currentFile.gmObjects.get(a.appliesTo);
-								ret += String.format(Messages.getString("Action.APPLIES"), //$NON-NLS-1$
-										applies == null ? a.appliesTo.toString() : applies.getName());
-								}
-							}
-						if (c >= '0' && c < '8')
-							{
-							int arg = c - '0';
-							if (arg >= a.arguments.length)
-								ret += "0"; //$NON-NLS-1$
-							else
-								{
-								Argument aa = a.arguments[arg];
-								ret += aa.toString(a.libAction.libArguments[arg]);
-								}
-							}
-						k = p + 2;
-						p = s.indexOf("@",k); //$NON-NLS-1$
-						}
-
-					s = ret + s.substring(k);
-					s = s.replaceAll("&","&amp;");
-					s = s.replaceAll("<","&lt;");
-					s = s.replaceAll(">","&gt;");
-					s = s.replaceAll("\n","<br>");
-					s = s.replaceAll("\\\\#","\n");
-					s = s.replaceAll("#","<br>");
-					s = s.replaceAll("\n","&#35;");
-					s = s.replaceAll(" ","&nbsp;");
-
-					return s;
-					}
-
-				public Component getListCellRendererComponent(JList list, Object cell, int index,
-						boolean isSelected, boolean hasFocus)
-					{
-					final Action cellAction = (Action) cell;
-					LibAction la = cellAction.libAction;
-					JLabel l = new JLabel();
-					ListModel lm = list.getModel();
-					try
-						{
-						if (lm instanceof ActionListModel)
-							l.setBorder(new EmptyBorder(1,2 + 8 * ((ActionListModel) lm).indents.get(index),1,2));
-						}
-					catch (IndexOutOfBoundsException e)
-						{
-						}
-					if (isSelected)
-						{
-						l.setBackground(list.getSelectionBackground());
-						l.setForeground(list.getSelectionForeground());
-						}
-					else
-						{
-						l.setBackground(list.getBackground());
-						l.setForeground(list.getForeground());
-						}
-					l.setOpaque(true);
-					if (la.actImage == null)
-						{
-						l.setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
-						return l;
-						}
-					l.setText(parse(la.listText,(Action) cell));
-					if (la.listText.contains("@FB")) //$NON-NLS-1$
-						l.setText("<b>" + l.getText());
-					if (la.listText.contains("@FI")) //$NON-NLS-1$
-						l.setText("<i>" + l.getText());
-					l.setText("<html>" + l.getText());
-					l.setIcon(new ImageIcon(Util.getTransparentIcon(la.actImage)));
-					l.setToolTipText("<html>" + parse(la.hintText,(Action) cell));
-					return l;
-					}
-			});
+		list.setCellRenderer(new ActionRenderer());
 		JScrollPane scroll = new JScrollPane(list);
 		side3.add(scroll,"Center"); //$NON-NLS-1$
 
@@ -767,100 +974,5 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		ActionListModel alm = new ActionListModel();
 		alm.addAll(0,((Event) node.getUserObject()).actions);
 		actions.setModel(alm);
-		}
-
-	@SuppressWarnings("serial")
-	public class ActionListModel extends AbstractListModel
-		{
-		private ArrayList<Action> list;
-		private ArrayList<Integer> indents;
-
-		public ActionListModel()
-			{
-			list = new ArrayList<Action>();
-			indents = new ArrayList<Integer>();
-			}
-
-		public void add(int index, Action a)
-			{
-			list.add(index,a);
-			updateIndentation();
-			fireIntervalAdded(this,index,index);
-			}
-
-		public void addAll(int index, Collection<? extends Action> c)
-			{
-			int s = c.size();
-			if (s <= 0) return;
-			list.addAll(index,c);
-			updateIndentation();
-			fireIntervalAdded(this,index,index + s - 1);
-			}
-
-		public void remove(int index)
-			{
-			list.remove(index);
-			updateIndentation();
-			fireIntervalRemoved(this,index,index);
-			}
-
-		public Object getElementAt(int index)
-			{
-			return list.get(index);
-			}
-
-		public int getSize()
-			{
-			return list.size();
-			}
-
-		private void updateIndentation()
-			{
-			int lms = list.size();
-			indents.clear();
-			indents.ensureCapacity(lms);
-			ArrayList<Integer> levelIndents = new ArrayList<Integer>();
-			levelIndents.add(0);
-			int level = 0;
-			boolean indentNext = false;
-			for (int i = 0; i < lms; i++)
-				{
-				Action a = list.get(i);
-				int indent;
-				if (indentNext)
-					{
-					indent = indents.get(i - 1) + 1;
-					indentNext = false;
-					}
-				else
-					indent = levelIndents.get(level);
-				indents.add(indent);
-				switch (a.libAction.actionKind)
-					{
-					case Action.ACT_BEGIN:
-						level += 1;
-						if (levelIndents.size() > level)
-							{
-							levelIndents.set(level,indent);
-							}
-						else
-							{
-							levelIndents.add(indent);
-							}
-						break;
-					case Action.ACT_END:
-						level -= 1;
-						if (level < 0) level = 0;
-						break;
-					case Action.ACT_ELSE:
-					case Action.ACT_REPEAT:
-						indentNext = true;
-						break;
-					default:
-						if (a.libAction.question) indentNext = true;
-					}
-				}
-
-			}
 		}
 	}

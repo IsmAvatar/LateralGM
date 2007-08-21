@@ -79,12 +79,13 @@ public class GMLTextArea extends JEditTextArea
 		return b;
 		}
 
-	@SuppressWarnings("serial")
 	private JButton makeInputHandlerToolbarButton(final ActionListener l, String key)
 		{
 		final GMLTextArea source = this;
 		Action a = new AbstractAction(Messages.getString(key),LGM.getIconForKey(key))
 			{
+				private static final long serialVersionUID = 1L;
+
 				public void actionPerformed(ActionEvent e)
 					{
 					getInputHandler().executeAction(l,source,null);
