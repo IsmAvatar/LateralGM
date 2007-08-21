@@ -1,20 +1,25 @@
 Credits:
-IsmAvatar <cmagicj@nni.com> as project leader, lead programmer, and file format expert
+IsmAvatar <cmagicj@nni.com> as project leader, file format expert,
+ project politics, philosopher, and most publicity (both research and release).
 TGMG <thegamemakerguru@gmail.com> for various programming,
  and finding ways to break things that I thought couldn't be broken
  and G-Java, which we hope will be incorporated as the primary compiler
  and finding CVS/SVN which helped teamwork and version control
 Clam <ebordin@aapt.net.au> from the LGM forum for most of the Save and Load code
- which I then proceeded to break and refix; and starting the MDI desktop
-Quadduc <quadduc@gmail.com> from the LGM forum for technical things like format fix and license
- as well as amazing bug fixes, some MDI code/fixes, and string externalization
+ which I then proceeded to break and refix, and most of the MDI desktop,
+ and the ResourceFrame and generics, which are still largely suppressed messes.
+Quadduc <quadduc@gmail.com> from the LGM forum for technical things
+ like format fix, license, legality, bug fixes, and the great GM7 breakthrough;
+ almost all of our UI icons, much work on the Frames, and string externalization.
 
 Special Thanks:
-DeathFinderxx <deathfinderxx@yahoo.com> for providing the default graphical icons
+DeathFinderxx <deathfinderxx@yahoo.com> for providing the primary resource icons
+Josh @ Dreamland <joshv@zoominternet.net> for the interesting history of GameMaker's format.
+Lief902 
 Professor Mark Overmars <gamemaker@wanadoo.nl> for providing GM6 and its file format
  which inspired this, and then up and deciding to be a jerk about it by the time GM7 came out.
 Everyone else from the GMC forums, G-Java forums, LGM forum, etc. who helped out,
  gave tips, acknowledged LGM's presence, or have works that aided in its creation,
  including but certainly not limited to (and pardon the many forgotten names):
 Porfirio, CAMD, pythonpoole, andrewmc, RhysAndrews, Yourself, GearGOD,
-roach, Bendodge, h0bbel, monkey dude, evilish, Natso, Appleman1234
+roach, Bendodge, Leif902, h0bbel, monkey dude, evilish, Natso, Appleman1234

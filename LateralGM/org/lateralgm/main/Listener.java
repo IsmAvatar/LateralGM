@@ -4,20 +4,8 @@
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
- * 
- * Lateral GM is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- * 
- * Lateral GM is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License (COPYING) for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with Lateral GM; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
  */
 
 package org.lateralgm.main;
