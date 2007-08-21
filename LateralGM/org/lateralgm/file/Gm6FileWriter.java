@@ -485,10 +485,9 @@ public final class Gm6FileWriter
 					out.write4(view.vspeed);
 					out.writeId(view.objectFollowing,Resource.GMOBJECT,f);
 					}
-				out.write4(rm.noInstances());
-				for (int j = 0; j < rm.noInstances(); j++)
+				out.write4(rm.instances.size());
+				for (Instance in : rm.instances)
 					{
-					Instance in = rm.getInstanceList(j);
 					out.write4(in.x);
 					out.write4(in.y);
 					out.writeId(in.gmObjectId,Resource.GMOBJECT,f);
@@ -496,10 +495,9 @@ public final class Gm6FileWriter
 					out.writeStr(in.creationCode);
 					out.writeBool(in.locked);
 					}
-				out.write4(rm.noTiles());
-				for (int j = 0; j < rm.noTiles(); j++)
+				out.write4(rm.tiles.size());
+				for (Tile tile : rm.tiles)
 					{
-					Tile tile = rm.getTileList(j);
 					out.write4(tile.x);
 					out.write4(tile.y);
 					out.writeId(tile.backgroundId,Resource.BACKGROUND,f);

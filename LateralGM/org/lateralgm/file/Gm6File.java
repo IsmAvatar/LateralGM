@@ -58,6 +58,8 @@ import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.sub.Constant;
+import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Tile;
 
 public class Gm6File
 	{
@@ -246,10 +248,10 @@ public class Gm6File
 		lastTileId = 100000;
 		for (int i = 0; i < rooms.count(); i++)
 			{
-			for (int j = 0; j < rooms.getList(i).noInstances(); j++)
-				rooms.getList(i).getInstanceList(j).instanceId = ++lastInstanceId;
-			for (int j = 0; j < rooms.getList(i).noTiles(); j++)
-				rooms.getList(i).getTileList(j).tileId = ++lastTileId;
+			for (Instance j : rooms.getList(i).instances)
+				j.instanceId = ++lastInstanceId;
+			for (Tile j : rooms.getList(i).tiles)
+				j.tileId = ++lastTileId;
 			}
 		}
 

@@ -55,7 +55,8 @@ public class Room extends Resource
 	public BackgroundDef[] backgroundDefs = new BackgroundDef[8];
 	public View[] views = new View[8];
 	public boolean enableViews = false;
-	private ArrayList<Instance> instances = new ArrayList<Instance>();
+	public ArrayList<Instance> instances = new ArrayList<Instance>();
+	public ArrayList<Tile> tiles = new ArrayList<Tile>();
 	private Gm6File parent;
 
 	public Room()
@@ -79,18 +80,6 @@ public class Room extends Resource
 			}
 		}
 
-	public int noInstances()
-		{
-		return instances.size();
-		}
-
-	private ArrayList<Tile> tiles = new ArrayList<Tile>();
-
-	public int noTiles()
-		{
-		return tiles.size();
-		}
-
 	public Instance addInstance()
 		{
 		Instance inst = new Instance();
@@ -99,78 +88,12 @@ public class Room extends Resource
 		return inst;
 		}
 
-	public Instance getInstance(int instanceId)
-		{
-		int index = instanceIndex(instanceId);
-		if (index != -1) return instances.get(index);
-		return null;
-		}
-
-	public int instanceIndex(int instanceId)
-		{
-		for (int i = 0; i < noInstances(); i++)
-			{
-			if (getInstanceList(i).instanceId == instanceId) return i;
-			}
-		return -1;
-		}
-
-	public Instance getInstanceList(int listIndex)
-		{
-		if (listIndex >= 0 && listIndex < noInstances()) return instances.get(listIndex);
-		return null;
-		}
-
-	public void removeInstance(int instanceId)
-		{
-		int index = instanceIndex(instanceId);
-		if (index != -1) instances.remove(index);
-		}
-
-	public void clearInstances()
-		{
-		instances.clear();
-		}
-
 	public Tile addTile()
 		{
 		Tile tile = new Tile();
 		tile.tileId = ++parent.lastTileId;
 		tiles.add(tile);
 		return tile;
-		}
-
-	public Tile getTile(int tileId)
-		{
-		int index = tileIndex(tileId);
-		if (index != -1) return tiles.get(index);
-		return null;
-		}
-
-	public int tileIndex(int tileId)
-		{
-		for (int i = 0; i < noTiles(); i++)
-			{
-			if (getTileList(i).tileId == tileId) return i;
-			}
-		return -1;
-		}
-
-	public Tile getTileList(int listIndex)
-		{
-		if (listIndex >= 0 && listIndex < noTiles()) return tiles.get(listIndex);
-		return null;
-		}
-
-	public void removeTile(int tileId)
-		{
-		int index = tileIndex(tileId);
-		if (index != -1) tiles.remove(index);
-		}
-
-	public void clearTiles()
-		{
-		tiles.clear();
 		}
 
 	@SuppressWarnings("unchecked")
@@ -204,9 +127,8 @@ public class Room extends Resource
 		rm.scrollBarX = scrollBarX;
 		rm.scrollBarY = scrollBarY;
 		rm.enableViews = enableViews;
-		for (int i = 0; i < this.noInstances(); i++)
+		for (Instance inst : instances)
 			{
-			Instance inst = getInstanceList(i);
 			Instance inst2 = rm.addInstance();
 			inst2.creationCode = inst.creationCode;
 			inst2.locked = inst.locked;
@@ -214,9 +136,8 @@ public class Room extends Resource
 			inst2.x = inst.x;
 			inst2.y = inst.y;
 			}
-		for (int i = 0; i < this.noTiles(); i++)
+		for (Tile tile : tiles)
 			{
-			Tile tile = getTileList(i);
 			Tile tile2 = rm.addTile();
 			tile2.backgroundId = tile.backgroundId;
 			tile2.depth = tile.depth;
