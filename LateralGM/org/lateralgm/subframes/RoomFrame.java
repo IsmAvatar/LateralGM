@@ -8,7 +8,6 @@
 
 package org.lateralgm.subframes;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -42,18 +41,19 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.sub.View;
 
+//TODO: Handle res.rememberWindowSize - may also apply to other options
 public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
 
+	public JTabbedPane tabs;
 	public JLabel statX, statY, statObj, statId;
 	//Settings
 	public JTextField sCaption;
-	public IntegerField sWidth, sHeight, sSpeed;
-	public JCheckBox sPersistent;
+	public IntegerField sWidth, sHeight, sSpeed, sSnapX, sSnapY;
+	public JCheckBox sPersistent, sGridVis, sGridIso;
 	public JButton sCreationCode, sShow;
-	public IntegerField sSnapX, sSnapY;
 	public JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
 	//Views
 	public JCheckBox vEnabled, vVisible;
@@ -77,9 +77,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JPanel makeSettingsPane()
 		{
 		JPanel panel = new JPanel(new FlowLayout());
-		//		panel.setLayout(new BoxLayout(panel,BoxLayout.PAGE_AXIS));
-		//		panel.setMinimumSize(new Dimension(170,270));
-		//		panel.setPreferredSize(new Dimension(170,270));
 
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.NAME")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(40,14));
@@ -123,51 +120,50 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		str = Messages.getString("RoomFrame.CREATION_CODE"); //$NON-NLS-1$
 		sCreationCode = new JButton(str,CODE_ICON);
-		//		creationCode.setPreferredSize(new Dimension());
 		sCreationCode.addActionListener(this);
 		panel.add(sCreationCode);
 
 		JPanel p2 = new JPanel(new FlowLayout());
-		//		p2.setBorder(BorderFactory.createCompoundBorder());
-		p2.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		p2.setPreferredSize(new Dimension(170,90));
-
+		String st = Messages.getString("RoomFrame.GRID"); //$NON-NLS-1$
+		p2.setBorder(BorderFactory.createTitledBorder(st));
+		p2.setPreferredSize(new Dimension(170,112));
+		st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
+		sGridVis = new JCheckBox(st,res.showGrid);
+		p2.add(sGridVis);
+		st = Messages.getString("RoomFrame.GRID_ISOMETRIC"); //$NON-NLS-1$
+		sGridIso = new JCheckBox(st,res.isometricGrid);
+		p2.add(sGridIso);
+		addGap(p2,10,1);
 		lab = new JLabel(Messages.getString("RoomFrame.SNAP_X")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(44,14));
 		p2.add(lab);
-		sSnapX = new IntegerField(1,999,res.snapX);
-		sSnapX.setPreferredSize(new Dimension(80,20));
-		p2.add(sSnapX);
-		addGap(p2,25,1);
-
+		sSnapY = new IntegerField(1,999,res.snapY);
+		sSnapY.setPreferredSize(new Dimension(60,20));
+		p2.add(sSnapY);
+		addGap(p2,10,1);
 		lab = new JLabel(Messages.getString("RoomFrame.SNAP_Y")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(44,14));
 		p2.add(lab);
-		sSnapY = new IntegerField(1,999,res.snapY);
-		sSnapY.setPreferredSize(new Dimension(80,20));
-		p2.add(sSnapY);
-		addGap(p2,25,1);
+		sSnapX = new IntegerField(1,999,res.snapX);
+		sSnapX.setPreferredSize(new Dimension(60,20));
+		p2.add(sSnapX);
+		panel.add(p2);
 
 		final JPopupMenu showMenu = new JPopupMenu();
-		String st = Messages.getString("RoomFrame.SHOW_OBJECTS"); //$NON-NLS-1$
+		st = Messages.getString("RoomFrame.SHOW_OBJECTS"); //$NON-NLS-1$
 		sSObj = new JCheckBoxMenuItem(st);
-		sSObj.addActionListener(this);
 		showMenu.add(sSObj);
 		st = Messages.getString("RoomFrame.SHOW_TILES"); //$NON-NLS-1$
 		sSTile = new JCheckBoxMenuItem(st);
-		sSTile.addActionListener(this);
 		showMenu.add(sSTile);
 		st = Messages.getString("RoomFrame.SHOW_BACKGROUNDS"); //$NON-NLS-1$
 		sSBack = new JCheckBoxMenuItem(st);
-		sSBack.addActionListener(this);
 		showMenu.add(sSBack);
 		st = Messages.getString("RoomFrame.SHOW_FOREGROUNDS"); //$NON-NLS-1$
 		sSFore = new JCheckBoxMenuItem(st);
-		sSFore.addActionListener(this);
 		showMenu.add(sSFore);
 		st = Messages.getString("RoomFrame.SHOW_VIEWS"); //$NON-NLS-1$
 		sSView = new JCheckBoxMenuItem(st);
-		sSView.addActionListener(this);
 		showMenu.add(sSView);
 
 		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
@@ -178,9 +174,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					showMenu.show(sShow,0,sShow.getHeight());
 					}
 			});
-		p2.add(sShow);
-
-		panel.add(p2);
+		panel.add(sShow);
 
 		return panel;
 		}
@@ -206,7 +200,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JPanel makeViewsPane()
 		{
 		JPanel panel = new JPanel(new FlowLayout());
-		//		panel.setLayout(new BoxLayout(panel,BoxLayout.PAGE_AXIS));
 
 		String st = Messages.getString("RoomFrame.ENABLE_VIEWS"); //$NON-NLS-1$
 		vEnabled = new JCheckBox(st,res.enableViews);
@@ -356,14 +349,13 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			setSize(res.editorWidth,res.editorHeight);
 
 		JPanel pane = new JPanel();
-		//		pane.setLayout(new FlowLayout());
-		//		pane.setLayout(new BoxLayout(pane,BoxLayout.PAGE_AXIS));
 		pane.setLayout(new BoxLayout(pane,BoxLayout.Y_AXIS));
 		pane.setMinimumSize(new Dimension(200,350));
 		pane.setMaximumSize(new Dimension(200,Integer.MAX_VALUE));
 		pane.setPreferredSize(new Dimension(200,350));
 
-		JTabbedPane tabs = new JTabbedPane();
+		//conveniently, these tabs happen to have the same indexes as GM's tabs
+		tabs = new JTabbedPane();
 		tabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.addTab(Messages.getString("RoomFrame.TAB_OBJECTS"),makeObjectsPane()); //$NON-NLS-1$
 		tabs.addTab(Messages.getString("RoomFrame.TAB_SETTINGS"),makeSettingsPane()); //$NON-NLS-1$
@@ -372,7 +364,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tabs.addTab(bks,makeBackgroundsPane());
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex(res.currentTab);
-		//		tabs.setPreferredSize(new Dimension());
 		pane.add(tabs);
 
 		FlowLayout fl = new FlowLayout();
@@ -382,7 +373,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		cont.setMaximumSize(new Dimension(130,22));
 		cont.setMinimumSize(new Dimension(130,22));
 		save.setText(Messages.getString("RoomFrame.SAVE")); //$NON-NLS-1$
-		//		addDim(pane,save,130,24);
 		cont.add(save);
 		pane.add(cont);
 		add(pane);
@@ -441,6 +431,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	@Override
 	public boolean resourceChanged()
 		{
+		if (!resOriginal.getName().equals(name.getText())) return true;
 		return true;
 		/*return !resOriginal.getName().equals(name.getText())
 		 || resOriginal.transparent != transparent.isSelected()
@@ -465,24 +456,34 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public void updateResource()
 		{
 		res.setName(name.getText());
-		/*res.transparent = transparent.isSelected();
-		 res.smoothEdges = smooth.isSelected();
-		 res.preload = preload.isSelected();
-		 res.useAsTileSet = tileset.isSelected();
-		 res.tileWidth = tWidth.getIntValue();
-		 res.tileHeight = tWidth.getIntValue();
-		 res.horizOffset = hOffset.getIntValue();
-		 res.vertOffset = vOffset.getIntValue();
-		 res.horizSep = hSep.getIntValue();
-		 res.vertSep = vSep.getIntValue();*/
+
+		res.currentTab = tabs.getSelectedIndex();
+		//settings
+		res.caption = sCaption.getText();
+		res.width = sWidth.getIntValue();
+		res.height = sHeight.getIntValue();
+		res.speed = sSpeed.getIntValue();
+		res.persistent = sPersistent.isSelected();
+		res.showGrid = sGridVis.isSelected();
+		res.isometricGrid = sGridIso.isSelected();
+		res.snapX = sSnapX.getIntValue();
+		res.snapY = sSnapY.getIntValue();
+		res.showObjects = sSObj.isSelected();
+		res.showTiles = sSTile.isSelected();
+		res.showBackgrounds = sSBack.isSelected();
+		res.showForegrounds = sSFore.isSelected();
+		res.showViews = sSView.isSelected();
+		//views
+		res.enableViews = vEnabled.isSelected();
+		valueChanged(new ListSelectionEvent(vList,0,0,false));
+
 		resOriginal = res.copy();
 		}
 
-	//TODO:
+	//TODO: (Views and Settings sans CreationCode are done here)
 	public void actionPerformed(ActionEvent e)
 		{
-		//Settings: creationCode, obj, tile, back, fore, view
-		if (e.getSource().equals(vVisible))
+		if (e.getSource() == vVisible)
 			{
 			JLabel lab = ((JLabel) vList.getSelectedValue());
 			res.views[lastValidView].enabled = vVisible.isSelected();
@@ -494,9 +495,30 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		super.actionPerformed(e);
 		}
 
+	//currently only designed for vList
 	public void valueChanged(ListSelectionEvent e)
 		{
 		if (e.getValueIsAdjusting()) return;
+
+		View v = res.views[lastValidView];
+		v.enabled = vVisible.isSelected();
+		v.viewX = vRX.getIntValue();
+		v.viewY = vRY.getIntValue();
+		v.viewW = vRW.getIntValue();
+		v.viewH = vRH.getIntValue();
+		v.portX = vPX.getIntValue();
+		v.portY = vPY.getIntValue();
+		v.portW = vPW.getIntValue();
+		v.portH = vPH.getIntValue();
+		if (vObj.getSelected() == null)
+			v.objectFollowing = null;
+		else
+			v.objectFollowing = vObj.getSelected().getId();
+		v.hbor = vOHBor.getIntValue();
+		v.vbor = vOVBor.getIntValue();
+		v.hspeed = vOHSp.getIntValue();
+		v.vspeed = vOVSp.getIntValue();
+
 		if (vList.getSelectedIndex() == -1)
 			{
 			vList.setSelectedIndex(lastValidView);
@@ -504,7 +526,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 		lastValidView = vList.getSelectedIndex();
 
-		View v = res.views[lastValidView];
+		v = res.views[lastValidView];
 		vVisible.setSelected(v.enabled);
 		vRX.setIntValue(v.viewX);
 		vRY.setIntValue(v.viewY);
