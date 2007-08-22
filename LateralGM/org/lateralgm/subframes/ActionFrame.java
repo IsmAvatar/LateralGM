@@ -279,6 +279,17 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		pane.add(discard);
 		}
 
+	public ResId getApplies()
+		{
+		if (applies.getValue() >= 0)
+			{
+			Resource sel = appliesObject.getSelected();
+			if (sel != null) return sel.getId();
+			return act.appliesTo;
+			}
+		return new ResId(applies.getValue());
+		}
+
 	public void actionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == discard)
@@ -291,13 +302,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			}
 		else if (e.getSource() == save)
 			{
-			if (applies.getValue() >= 0)
-				{
-				Resource sel = appliesObject.getSelected();
-				if (sel != null) act.appliesTo = sel.getId();
-				}
-			else
-				act.appliesTo = new ResId(applies.getValue());
+			act.appliesTo = getApplies();
 			if (relativeBox != null) act.relative = relativeBox.isSelected();
 			if (notBox != null) act.not = notBox.isSelected();
 			switch (act.libAction.interfaceKind)
@@ -361,7 +366,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			{
 			case InternalFrameEvent.INTERNAL_FRAME_CLOSING:
 				if (act.libAction.interfaceKind == LibAction.INTERFACE_CODE)
-					if (code.getUndoManager().isModified())
+					if (code.getUndoManager().isModified() || !act.appliesTo.equals(getApplies()))
 						{
 						int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(
 								Messages.getString("ActionFrame.KEEPCHANGES"),getTitle()),
