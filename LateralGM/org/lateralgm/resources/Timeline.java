@@ -32,13 +32,6 @@ public class Timeline extends Resource
 		return m;
 		}
 
-	public Moment getMoment(int stepNo)
-		{
-		for (Moment m : moments)
-			if (m.stepNo == stepNo) return m;
-		return null;
-		}
-
 	@SuppressWarnings("unchecked")
 	private Timeline copy(boolean update, ResourceList src)
 		{

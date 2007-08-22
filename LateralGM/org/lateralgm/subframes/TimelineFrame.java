@@ -138,6 +138,16 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	@Override
 	public boolean resourceChanged()
 		{
+		if (!resOriginal.getName().equals(name.getText())) return true;
+		if (resOriginal.moments.size() != moments.getComponentCount()) return true;
+		//for each moment {
+		// check moment time against resOriginal's moment time
+		// check action count against resOriginal's action count
+		// check each action against each resOriginal action
+		//}
+		////this loop structure is just a reminder for what all needs to be checked
+		////the loop itself does not need to reflect this - keep return-efficiency in mind
+
 		return true;
 		}
 
