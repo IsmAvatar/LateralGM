@@ -435,7 +435,7 @@ public final class Gm6FileWriter
 				out.writeBool(rm.isometricGrid);
 				out.write4(rm.speed);
 				out.writeBool(rm.persistent);
-				out.write4(rm.backgroundColor);
+				out.write4(Util.getGmColor(rm.backgroundColor));
 				out.writeBool(rm.drawBackgroundColor);
 				out.writeStr(rm.creationCode);
 				out.write4(8);
@@ -458,7 +458,7 @@ public final class Gm6FileWriter
 				for (int j = 0; j < 8; j++)
 					{
 					View view = rm.views[j];
-					out.writeBool(view.enabled);
+					out.writeBool(view.visible);
 					out.write4(view.viewX);
 					out.write4(view.viewY);
 					out.write4(view.viewW);

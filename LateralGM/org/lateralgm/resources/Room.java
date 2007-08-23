@@ -8,6 +8,7 @@
 
 package org.lateralgm.resources;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
 import org.lateralgm.file.Gm6File;
@@ -34,7 +35,7 @@ public class Room extends Resource
 	public boolean isometricGrid = false;
 	public int speed = 30;
 	public boolean persistent = false;
-	public int backgroundColor = 0x000000;
+	public Color backgroundColor = Color.BLACK;
 	public boolean drawBackgroundColor = true;
 	public String creationCode = "";
 	public boolean rememberWindowSize = true;
@@ -153,7 +154,7 @@ public class Room extends Resource
 			{
 			View view = views[i];
 			View view2 = rm.views[i];
-			view2.enabled = view.enabled;
+			view2.visible = view.visible;
 			view2.viewX = view.viewX;
 			view2.viewY = view.viewY;
 			view2.viewW = view.viewW;

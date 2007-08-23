@@ -671,7 +671,7 @@ public final class Gm6FileReader
 				rm.isometricGrid = in.readBool();
 				rm.speed = in.read4();
 				rm.persistent = in.readBool();
-				rm.backgroundColor = in.read4();
+				rm.backgroundColor = Util.convertGmColor(in.read4());
 				rm.drawBackgroundColor = in.readBool();
 				rm.creationCode = in.readStr();
 				int nobackgrounds = in.read4();
@@ -695,7 +695,7 @@ public final class Gm6FileReader
 				for (int j = 0; j < noviews; j++)
 					{
 					View vw = rm.views[j];
-					vw.enabled = in.readBool();
+					vw.visible = in.readBool();
 					vw.viewX = in.read4();
 					vw.viewY = in.read4();
 					vw.viewW = in.read4();

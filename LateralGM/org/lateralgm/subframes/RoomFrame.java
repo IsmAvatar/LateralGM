@@ -5,7 +5,6 @@
  * software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
  */
-
 package org.lateralgm.subframes;
 
 import java.awt.Component;
@@ -30,15 +29,18 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Room;
+import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.View;
 
 //TODO: Handle res.rememberWindowSize - may also apply to other options
@@ -55,6 +57,14 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JCheckBox sPersistent, sGridVis, sGridIso;
 	public JButton sCreationCode, sShow;
 	public JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
+	//Backgrounds
+	public JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
+	public ColorSelect bColor;
+	public JList bList;
+	/**Guaranteed valid version of bList.getLastSelectedIndex()*/
+	public int lastValidBack = 0;
+	public ResourceMenu bSource;
+	public IntegerField bX, bY, bH, bV;
 	//Views
 	public JCheckBox vEnabled, vVisible;
 	public JList vList;
@@ -68,8 +78,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	//TODO:
 	public JPanel makeObjectsPane()
 		{
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel,BoxLayout.PAGE_AXIS));
+		JPanel panel = new JPanel(new FlowLayout());
 
 		return panel;
 		}
@@ -182,17 +191,88 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	//TODO:
 	public JPanel makeTilesPane()
 		{
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel,BoxLayout.PAGE_AXIS));
+		JPanel panel = new JPanel(new FlowLayout());
 
 		return panel;
 		}
 
-	//TODO:
 	public JPanel makeBackgroundsPane()
 		{
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel,BoxLayout.PAGE_AXIS));
+		JPanel panel = new JPanel(new FlowLayout());
+
+		String st = Messages.getString("RoomFrame.DRAW_COLOR"); //$NON-NLS-1$
+		bDrawColor = new JCheckBox(st,res.drawBackgroundColor);
+		panel.add(bDrawColor);
+		panel.add(new JLabel(Messages.getString("RoomFrame.COLOR"))); //$NON-NLS-1$
+		bColor = new ColorSelect(res.backgroundColor);
+		//	bColor.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
+		//	bColor.setAlignmentX(0f);
+		bColor.setPreferredSize(new Dimension(100,20));
+		panel.add(bColor);
+
+		JLabel[] backLabs = new JLabel[8];
+		for (int i = 0; i < 8; i++)
+			{
+			backLabs[i] = new JLabel(Messages.getString("RoomFrame.BACK") + i);
+			backLabs[i].setFont(backLabs[i].getFont().deriveFont(
+					res.backgroundDefs[i].visible ? Font.BOLD : Font.PLAIN));
+			backLabs[i].setOpaque(true);
+			}
+		bList = new JList(backLabs);
+		bList.setCellRenderer(new ListComponentRenderer());
+		bList.addListSelectionListener(this);
+		bList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		bList.setPreferredSize(new Dimension(150,128));
+		panel.add(new JScrollPane(bList));
+
+		st = Messages.getString("RoomFrame.BACK_VISIBLE"); //$NON-NLS-1$
+		bVisible = new JCheckBox(st,res.backgroundDefs[0].visible);
+		bVisible.addActionListener(this);
+		panel.add(bVisible);
+		st = Messages.getString("RoomFrame.BACK_FOREGROUND"); //$NON-NLS-1$
+		bForeground = new JCheckBox(st,res.backgroundDefs[0].foreground);
+		panel.add(bForeground);
+
+		bSource = new ResourceMenu(Room.BACKGROUND,"<no background>",true,150);
+		bSource.setSelected(LGM.currentFile.backgrounds.get(res.backgroundDefs[0].backgroundId));
+		panel.add(bSource);
+
+		st = Messages.getString("RoomFrame.BACK_TILE_HOR"); //$NON-NLS-1$
+		bTileH = new JCheckBox(st,res.backgroundDefs[0].tileHoriz);
+		bTileH.setPreferredSize(new Dimension(100,20));
+		panel.add(bTileH);
+		panel.add(new JLabel(Messages.getString("RoomFrame.BACK_X"))); //$NON-NLS-1$
+		bX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.backgroundDefs[0].x);
+		bX.setPreferredSize(new Dimension(40,20));
+		panel.add(bX);
+		st = Messages.getString("RoomFrame.BACK_TILE_VERT"); //$NON-NLS-1$
+		bTileV = new JCheckBox(st,res.backgroundDefs[0].tileVert);
+		bTileV.setPreferredSize(new Dimension(100,20));
+		panel.add(bTileV);
+		panel.add(new JLabel(Messages.getString("RoomFrame.BACK_Y"))); //$NON-NLS-1$
+		bY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.backgroundDefs[0].x);
+		bY.setPreferredSize(new Dimension(40,20));
+		panel.add(bY);
+		st = Messages.getString("RoomFrame.BACK_STRETCH"); //$NON-NLS-1$
+		bStretch = new JCheckBox(st,res.backgroundDefs[0].stretch);
+		bStretch.setPreferredSize(new Dimension(156,20));
+		panel.add(bStretch);
+		JLabel lab = new JLabel(Messages.getString("RoomFrame.BACK_HSPEED")); //$NON-NLS-1$
+		lab.setPreferredSize(new Dimension(112,20));
+		lab.setHorizontalAlignment(JLabel.RIGHT);
+		panel.add(lab);
+		bH = new IntegerField(-999,999,res.backgroundDefs[0].horizSpeed);
+		bH.setPreferredSize(new Dimension(40,20));
+		panel.add(bH);
+		lab = new JLabel(Messages.getString("RoomFrame.BACK_VSPEED")); //$NON-NLS-1$
+		lab.setPreferredSize(new Dimension(112,20));
+		lab.setHorizontalAlignment(JLabel.RIGHT);
+		panel.add(lab);
+		bV = new IntegerField(-999,999,res.backgroundDefs[0].vertSpeed);
+		bV.setPreferredSize(new Dimension(40,20));
+		panel.add(bV);
+
+		bList.setSelectedIndex(lastValidBack);
 
 		return panel;
 		}
@@ -210,40 +290,19 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			viewLabs[i] = new JLabel(Messages.getString("RoomFrame.VIEW") + i);
 			viewLabs[i].setFont(viewLabs[i].getFont().deriveFont(
-					res.views[i].enabled ? Font.BOLD : Font.PLAIN));
+					res.views[i].visible ? Font.BOLD : Font.PLAIN));
 			viewLabs[i].setOpaque(true);
 			}
-
 		vList = new JList(viewLabs);
+		vList.setCellRenderer(new ListComponentRenderer());
 		vList.setVisibleRowCount(4);
 		vList.addListSelectionListener(this);
+		bList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		vList.setPreferredSize(new Dimension(160,200));
-		class ViewLabelRenderer implements ListCellRenderer
-			{
-			private static final long serialVersionUID = 1L;
-
-			public Component getListCellRendererComponent(JList list, Object val, int ind,
-					boolean selected, boolean focus)
-				{
-				JLabel lab = (JLabel) val;
-				if (selected)
-					{
-					lab.setBackground(list.getSelectionBackground());
-					lab.setForeground(list.getSelectionForeground());
-					}
-				else
-					{
-					lab.setBackground(list.getBackground());
-					lab.setForeground(list.getForeground());
-					}
-				return lab;
-				}
-			}
-		vList.setCellRenderer(new ViewLabelRenderer());
 		panel.add(new JScrollPane(vList));
 
 		st = Messages.getString("RoomFrame.VIEW_ENABLED"); //$NON-NLS-1$
-		vVisible = new JCheckBox(st,res.views[0].enabled);
+		vVisible = new JCheckBox(st,res.views[0].visible);
 		vVisible.addActionListener(this);
 		panel.add(vVisible);
 
@@ -251,24 +310,20 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		st = Messages.getString("RoomFrame.VIEW_IN_ROOM"); //$NON_NLS_1$
 		p.setBorder(BorderFactory.createTitledBorder(st));
 		p.setPreferredSize(new Dimension(130,80));
-		JLabel lab = new JLabel(Messages.getString("RoomFrame.VIEW_X")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_X"))); //$NON_NLS_1$
 		vRX = new IntegerField(0,999999,res.views[0].viewX);
 		vRX.setPreferredSize(new Dimension(32,20));
 		p.add(vRX);
-		lab = new JLabel(Messages.getString("RoomFrame.VIEW_W")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_W"))); //$NON_NLS_1$
 		vRW = new IntegerField(1,999999,res.views[0].viewW);
 		vRW.setPreferredSize(new Dimension(32,20));
 		p.add(vRW);
-		lab = new JLabel(Messages.getString("RoomFrame.VIEW_Y")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_Y"))); //$NON_NLS_1$
 		vRY = new IntegerField(0,999999,res.views[0].viewY);
 		vRY.setPreferredSize(new Dimension(32,20));
 		p.add(vRY);
 		addGap(p,2,0);
-		lab = new JLabel(Messages.getString("RoomFrame.VIEW_H")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_H"))); //$NON_NLS_1$
 		vRH = new IntegerField(1,999999,res.views[0].viewH);
 		vRH.setPreferredSize(new Dimension(32,20));
 		p.add(vRH);
@@ -278,24 +333,20 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		st = Messages.getString("RoomFrame.PORT"); //$NON_NLS_1$
 		p.setBorder(BorderFactory.createTitledBorder(st));
 		p.setPreferredSize(new Dimension(130,80));
-		lab = new JLabel(Messages.getString("RoomFrame.PORT_X")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_X"))); //$NON_NLS_1$
 		vPX = new IntegerField(0,999999,res.views[0].portX);
 		vPX.setPreferredSize(new Dimension(32,20));
 		p.add(vPX);
-		lab = new JLabel(Messages.getString("RoomFrame.PORT_W")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_W"))); //$NON_NLS_1$
 		vPW = new IntegerField(1,999999,res.views[0].portW);
 		vPW.setPreferredSize(new Dimension(32,20));
 		p.add(vPW);
-		lab = new JLabel(Messages.getString("RoomFrame.PORT_Y")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_Y"))); //$NON_NLS_1$
 		vPY = new IntegerField(0,999999,res.views[0].portY);
 		vPY.setPreferredSize(new Dimension(32,20));
 		p.add(vPY);
 		addGap(p,2,0);
-		lab = new JLabel(Messages.getString("RoomFrame.PORT_H")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_H"))); //$NON_NLS_1$
 		vPH = new IntegerField(1,999999,res.views[0].portH);
 		vPH.setPreferredSize(new Dimension(32,20));
 		p.add(vPH);
@@ -308,23 +359,19 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		vObj = new ResourceMenu(Room.GMOBJECT,"<no object>",true,110);
 		vObj.setSelected(LGM.currentFile.gmObjects.get(res.views[0].objectFollowing));
 		p.add(vObj);
-		lab = new JLabel(Messages.getString("RoomFrame.HBOR")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.HBOR"))); //$NON_NLS_1$
 		vOHBor = new IntegerField(0,32000,res.views[0].hbor);
 		vOHBor.setPreferredSize(new Dimension(32,20));
 		p.add(vOHBor);
-		lab = new JLabel(Messages.getString("RoomFrame.HSP")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.HSP"))); //$NON_NLS_1$
 		vOHSp = new IntegerField(-1,32000,res.views[0].hspeed);
 		vOHSp.setPreferredSize(new Dimension(32,20));
 		p.add(vOHSp);
-		lab = new JLabel(Messages.getString("RoomFrame.VBOR")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.VBOR"))); //$NON_NLS_1$
 		vOVBor = new IntegerField(0,32000,res.views[0].vbor);
 		vOVBor.setPreferredSize(new Dimension(32,20));
 		p.add(vOVBor);
-		lab = new JLabel(Messages.getString("RoomFrame.VSP")); //$NON_NLS_1$
-		p.add(lab);
+		p.add(new JLabel(Messages.getString("RoomFrame.VSP"))); //$NON_NLS_1$
 		vOVSp = new IntegerField(-1,32000,res.views[0].vspeed);
 		vOVSp.setPreferredSize(new Dimension(32,20));
 		p.add(vOVSp);
@@ -427,6 +474,30 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		add(pane);
 		}
 
+	/**
+	 * This class is public in case it is useful for other classes.<br>
+	 * It is intended for RoomFrame lists. All list items must be Components
+	 */
+	public class ListComponentRenderer implements ListCellRenderer
+		{
+		public Component getListCellRendererComponent(JList list, Object val, int ind,
+				boolean selected, boolean focus)
+			{
+			Component lab = (Component) val;
+			if (selected)
+				{
+				lab.setBackground(list.getSelectionBackground());
+				lab.setForeground(list.getSelectionForeground());
+				}
+			else
+				{
+				lab.setBackground(list.getBackground());
+				lab.setForeground(list.getForeground());
+				}
+			return lab;
+			}
+		}
+
 	//TODO:
 	@Override
 	public boolean resourceChanged()
@@ -451,7 +522,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		LGM.currentFile.rooms.replace(res.getId(),resOriginal);
 		}
 
-	//TODO:
+	//TODO: (Some of this is done)
 	@Override
 	public void updateResource()
 		{
@@ -473,20 +544,32 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		res.showBackgrounds = sSBack.isSelected();
 		res.showForegrounds = sSFore.isSelected();
 		res.showViews = sSView.isSelected();
+		//backgrounds
+		res.drawBackgroundColor = bDrawColor.isSelected();
+		res.backgroundColor = bColor.getSelectedColor();
+		fireBackUpdate();
 		//views
 		res.enableViews = vEnabled.isSelected();
-		valueChanged(new ListSelectionEvent(vList,0,0,false));
+		fireViewUpdate();
 
 		resOriginal = res.copy();
 		}
 
-	//TODO: (Views and Settings sans CreationCode are done here)
+	//TODO: (Backgrounds, Views and Settings sans CreationCode are done here)
 	public void actionPerformed(ActionEvent e)
 		{
+		if (e.getSource() == bVisible)
+			{
+			JLabel lab = ((JLabel) bList.getSelectedValue());
+			res.backgroundDefs[lastValidBack].visible = bVisible.isSelected();
+			lab.setFont(lab.getFont().deriveFont(bVisible.isSelected() ? Font.BOLD : Font.PLAIN));
+			bList.updateUI();
+			return;
+			}
 		if (e.getSource() == vVisible)
 			{
 			JLabel lab = ((JLabel) vList.getSelectedValue());
-			res.views[lastValidView].enabled = vVisible.isSelected();
+			res.views[lastValidView].visible = vVisible.isSelected();
 			lab.setFont(lab.getFont().deriveFont(vVisible.isSelected() ? Font.BOLD : Font.PLAIN));
 			vList.updateUI();
 			return;
@@ -495,13 +578,47 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		super.actionPerformed(e);
 		}
 
-	//currently only designed for vList
-	public void valueChanged(ListSelectionEvent e)
+	public void fireBackUpdate()
 		{
-		if (e.getValueIsAdjusting()) return;
+		BackgroundDef b = res.backgroundDefs[lastValidBack];
+		b.visible = bVisible.isSelected();
+		b.foreground = bForeground.isSelected();
+		if (bSource.getSelected() == null)
+			b.backgroundId = null;
+		else
+			b.backgroundId = bSource.getSelected().getId();
+		b.x = bX.getIntValue();
+		b.y = bY.getIntValue();
+		b.tileHoriz = bTileH.isSelected();
+		b.tileVert = bTileV.isSelected();
+		b.stretch = bStretch.isSelected();
+		b.horizSpeed = bH.getIntValue();
+		b.vertSpeed = bV.getIntValue();
 
+		if (bList.getSelectedIndex() == -1)
+			{
+			bList.setSelectedIndex(lastValidBack);
+			return;
+			}
+		lastValidBack = bList.getSelectedIndex();
+
+		b = res.backgroundDefs[lastValidBack];
+		bVisible.setSelected(b.visible);
+		bForeground.setSelected(b.foreground);
+		bSource.setSelected(LGM.currentFile.backgrounds.get(b.backgroundId));
+		bX.setIntValue(b.x);
+		bY.setIntValue(b.y);
+		bTileH.setSelected(b.tileHoriz);
+		bTileV.setSelected(b.tileVert);
+		bStretch.setSelected(b.stretch);
+		bH.setIntValue(b.horizSpeed);
+		bV.setIntValue(b.vertSpeed);
+		}
+
+	public void fireViewUpdate()
+		{
 		View v = res.views[lastValidView];
-		v.enabled = vVisible.isSelected();
+		v.visible = vVisible.isSelected();
 		v.viewX = vRX.getIntValue();
 		v.viewY = vRY.getIntValue();
 		v.viewW = vRW.getIntValue();
@@ -527,7 +644,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		lastValidView = vList.getSelectedIndex();
 
 		v = res.views[lastValidView];
-		vVisible.setSelected(v.enabled);
+		vVisible.setSelected(v.visible);
 		vRX.setIntValue(v.viewX);
 		vRY.setIntValue(v.viewY);
 		vRW.setIntValue(v.viewW);
@@ -541,5 +658,13 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		vOVBor.setIntValue(v.vbor);
 		vOHSp.setIntValue(v.hspeed);
 		vOVSp.setIntValue(v.vspeed);
+		}
+
+	public void valueChanged(ListSelectionEvent e)
+		{
+		if (e.getValueIsAdjusting()) return;
+
+		if (e.getSource() == bList) fireBackUpdate();
+		if (e.getSource() == vList) fireViewUpdate();
 		}
 	}

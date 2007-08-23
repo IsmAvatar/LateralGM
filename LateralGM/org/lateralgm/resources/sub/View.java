@@ -12,7 +12,7 @@ import org.lateralgm.resources.ResId;
 
 public class View
 	{
-	public boolean enabled = false;
+	public boolean visible = false;
 	public int viewX = 0;
 	public int viewY = 0;
 	public int viewW = 640;
