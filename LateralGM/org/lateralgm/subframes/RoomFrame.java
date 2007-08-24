@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -34,13 +35,16 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.components.ColorSelect;
+import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.sub.BackgroundDef;
+import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.View;
 
 //TODO: Handle res.rememberWindowSize - may also apply to other options
@@ -51,12 +55,22 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 	public JTabbedPane tabs;
 	public JLabel statX, statY, statObj, statId;
+	//Objects
+	public JCheckBox oUnderlying, oLocked;
+	public JList oList;
+	public JButton oAdd, oDel;
+	public ResourceMenu oSource;
+	public IntegerField oX, oY;
+	public JButton oCreationCode;
 	//Settings
 	public JTextField sCaption;
 	public IntegerField sWidth, sHeight, sSpeed, sSnapX, sSnapY;
 	public JCheckBox sPersistent, sGridVis, sGridIso;
 	public JButton sCreationCode, sShow;
 	public JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
+	//Tiles
+	public JCheckBox tUnderlying, tLocked;
+	public JList tList;
 	//Backgrounds
 	public JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
 	public ColorSelect bColor;
@@ -75,10 +89,75 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public ResourceMenu vObj;
 	public IntegerField vOHBor, vOVBor, vOHSp, vOVSp;
 
-	//TODO:
 	public JPanel makeObjectsPane()
 		{
 		JPanel panel = new JPanel(new FlowLayout());
+
+		panel.add(new JLabel(Messages.getString("RoomFrame.OBJ_WIP"))); //$NON-NLS-1$
+		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
+		oUnderlying.setSelected(res.deleteUnderlyingObjects);
+		panel.add(oUnderlying);
+		JLabel lab = new JLabel(Messages.getString("RoomFrame.OBJ_INSTANCES")); //$NON-NLS-1$
+		lab.setPreferredSize(new Dimension(150,20));
+		panel.add(lab);
+		oList = new JList(res.instances.toArray());
+		oList.setDragEnabled(true);
+		oList.setDropMode(DropMode.INSERT);
+		oList.setTransferHandler(null); //TODO (drag and drop)
+		oList.addListSelectionListener(this);
+		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		//oList.setVisibleRowCount(8);
+		oList.setPreferredSize(new Dimension(160,128));
+		oList.setCellRenderer(new ListCellRenderer()
+			{
+				public Component getListCellRendererComponent(JList list, Object val, int ind,
+						boolean selected, boolean focus)
+					{
+					Instance i = (Instance) val;
+					GmObject go = LGM.currentFile.gmObjects.get(i.gmObjectId);
+					JLabel lab = new JLabel(go.getName() + " " + i.instanceId,
+							GmTreeGraphics.getSpriteIcon(LGM.currentFile.sprites.get(go.sprite)),JLabel.LEFT);
+					if (selected)
+						{
+						lab.setBackground(list.getSelectionBackground());
+						lab.setForeground(list.getSelectionForeground());
+						}
+					else
+						{
+						lab.setBackground(list.getBackground());
+						lab.setForeground(list.getForeground());
+						}
+					lab.setOpaque(true);
+					return lab;
+					}
+			});
+		panel.add(new JScrollPane(oList));
+		oAdd = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
+		oAdd.addActionListener(this);
+		panel.add(oAdd);
+		oDel = new JButton(Messages.getString("RoomFrame.OBJ_DELETE")); //$NON-NLS-1$
+		oDel.addActionListener(this);
+		panel.add(oDel);
+		oSource = new ResourceMenu(Room.GMOBJECT,"<no object>",true,110);
+		oSource.setPreferredSize(new Dimension(120,20));
+		panel.add(oSource);
+		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
+		oLocked.setPreferredSize(new Dimension(180,20));
+		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
+		panel.add(oLocked);
+		panel.add(new JLabel(Messages.getString("RoomFrame.OBJ_X"))); //$NON-NLS-1$
+		oX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		oX.setPreferredSize(new Dimension(60,20));
+		panel.add(oX);
+		panel.add(new JLabel(Messages.getString("RoomFrame.OBJ_Y"))); //$NON-NLS-1$
+		oY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		oY.setPreferredSize(new Dimension(60,20));
+		panel.add(oY);
+		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
+		oCreationCode.setIcon(CODE_ICON);
+		panel.add(oCreationCode);
+
+		oList.setSelectedIndex(0);
 
 		return panel;
 		}
@@ -188,10 +267,12 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		return panel;
 		}
 
-	//TODO:
+	//TODO: (GUI)
 	public JPanel makeTilesPane()
 		{
 		JPanel panel = new JPanel(new FlowLayout());
+
+		tUnderlying = new JCheckBox();
 
 		return panel;
 		}
@@ -522,13 +603,15 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		LGM.currentFile.rooms.replace(res.getId(),resOriginal);
 		}
 
-	//TODO: (Some of this is done)
 	@Override
 	public void updateResource()
 		{
 		res.setName(name.getText());
 
 		res.currentTab = tabs.getSelectedIndex();
+		//objects
+		res.deleteUnderlyingObjects = oUnderlying.isSelected();
+		fireObjUpdate();
 		//settings
 		res.caption = sCaption.getText();
 		res.width = sWidth.getIntValue();
@@ -544,6 +627,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		res.showBackgrounds = sSBack.isSelected();
 		res.showForegrounds = sSFore.isSelected();
 		res.showViews = sSView.isSelected();
+		//tiles
+		res.deleteUnderlyingTiles = tUnderlying.isSelected();
 		//backgrounds
 		res.drawBackgroundColor = bDrawColor.isSelected();
 		res.backgroundColor = bColor.getSelectedColor();
@@ -555,7 +640,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		resOriginal = res.copy();
 		}
 
-	//TODO: (Backgrounds, Views and Settings sans CreationCode are done here)
+	//TODO: (CreationCode, among other things. Backgrounds and Views are done)
 	public void actionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == bVisible)
@@ -576,6 +661,18 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 
 		super.actionPerformed(e);
+		}
+
+	//TODO:
+	public void fireObjUpdate()
+		{
+
+		}
+
+	//TODO:
+	public void fireTileUpdate()
+		{
+
 		}
 
 	public void fireBackUpdate()
@@ -664,6 +761,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		if (e.getValueIsAdjusting()) return;
 
+		if (e.getSource() == oList) fireObjUpdate();
+		if (e.getSource() == tList) fireTileUpdate();
 		if (e.getSource() == bList) fireBackUpdate();
 		if (e.getSource() == vList) fireViewUpdate();
 		}
