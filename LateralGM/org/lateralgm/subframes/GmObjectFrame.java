@@ -768,7 +768,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		return lp;
 		}
 
-	//possibly extract to some place like resources.library.LibManager
+	//XXX: possibly extract to some place like resources.library.LibManager
 	public static JTabbedPane makeLibraryTabs()
 		{
 		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
@@ -814,6 +814,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	@Override
 	public boolean resourceChanged()
 		{
+		if (!resOriginal.getName().equals(name.getText())) return true;
 		return true;
 		}
 
@@ -823,10 +824,27 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		LGM.currentFile.gmObjects.replace(res.getId(),resOriginal);
 		}
 
+	//TODO: Update events and actions
 	@Override
 	public void updateResource()
 		{
 		res.setName(name.getText());
+		if (sprite.getSelected() == null)
+			res.sprite = null;
+		else
+			res.sprite = sprite.getSelected().getId();
+		res.visible = visible.isSelected();
+		res.solid = solid.isSelected();
+		res.depth = depth.getIntValue();
+		res.persistent = persistent.isSelected();
+		if (parent.getSelected() == null)
+			res.parent = null;
+		else
+			res.parent = parent.getSelected().getId();
+		if (mask.getSelected() == null)
+			res.mask = null;
+		else
+			res.mask = mask.getSelected().getId();
 
 		resOriginal = res.copy();
 		}
