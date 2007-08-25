@@ -126,8 +126,8 @@ public class GmStreamDecoder
 		{
 		int val = read4();
 		if (val != 0 && val != 1)
-			throw new IOException(String
-					.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
+			throw new IOException(
+					String.format(Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"),val)); //$NON-NLS-1$
 		return val == 0 ? false : true;
 		}
 

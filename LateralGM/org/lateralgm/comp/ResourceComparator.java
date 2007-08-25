@@ -8,6 +8,7 @@
 package org.lateralgm.comp;
 
 import org.lateralgm.resources.Resource;
+
 /**
  * A convenience class that comes pre-setup to ignore certain fields of Resource.
  */

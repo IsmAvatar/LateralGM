@@ -67,8 +67,8 @@ public class Sprite extends Resource
 			}
 		catch (IOException ex)
 			{
-			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),subImages.size(),getId()
-					.getValue());
+			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),subImages.size(),
+					getId().getValue());
 			System.err.println();
 			}
 		return result;

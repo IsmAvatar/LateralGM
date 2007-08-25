@@ -212,7 +212,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		res.horizSep = hSep.getIntValue();
 		res.vertSep = vSep.getIntValue();
 		}
-	
+
 	@Override
 	public void updateResource()
 		{

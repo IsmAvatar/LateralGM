@@ -174,7 +174,7 @@ public class FontFrame extends ResourceFrame<Font>
 		res.charRangeMin = charMin.getIntValue();
 		res.charRangeMax = charMax.getIntValue();
 		}
-	
+
 	public void updateResource()
 		{
 		commitChanges();

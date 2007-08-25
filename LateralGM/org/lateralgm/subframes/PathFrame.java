@@ -227,7 +227,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener
 		res.smooth = smooth.isSelected();
 		res.closed = closed.isSelected();
 		}
-	
+
 	public void updateResource()
 		{
 		commitChanges();

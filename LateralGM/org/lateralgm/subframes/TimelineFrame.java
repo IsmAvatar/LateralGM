@@ -157,7 +157,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		{
 		res.setName(name.getText());
 		}
-	
+
 	@Override
 	public void updateResource()
 		{

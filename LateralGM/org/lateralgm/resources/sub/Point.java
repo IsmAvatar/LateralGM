@@ -29,7 +29,8 @@ public class Point
 	public String toString()
 		{
 		String r = "(" + x + "," + y + ")";
-		while (r.length() < 11) r += " ";
+		while (r.length() < 11)
+			r += " ";
 		return r + " sp: " + speed;
 		}
 	}

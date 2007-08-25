@@ -34,7 +34,8 @@ public class ColorSelect extends JPanel
 		{
 		if (e.getID() == MouseEvent.MOUSE_CLICKED)
 			{
-			Color newcol = JColorChooser.showDialog(getParent(),Messages.getString("ColorSelect.CHOOSE_TITLE"),selectedColor); //$NON-NLS-1$
+			Color newcol = JColorChooser.showDialog(getParent(),
+					Messages.getString("ColorSelect.CHOOSE_TITLE"),selectedColor); //$NON-NLS-1$
 			if (newcol != null)
 				{
 				selectedColor = newcol;

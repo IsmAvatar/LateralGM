@@ -98,8 +98,8 @@ public class ObjectComparator extends ReflectionComparator
 				{
 
 				// recursively check the value of the fields
-				Difference difference =
-					rootComparator.getDifference(f.get(left),f.get(right),fieldStack,traversedInstancePairs);
+				Difference difference = rootComparator.getDifference(f.get(left),f.get(right),fieldStack,
+						traversedInstancePairs);
 				if (difference != null)
 					{
 					return difference;
@@ -119,11 +119,10 @@ public class ObjectComparator extends ReflectionComparator
 		Class<?> superclazz = clazz.getSuperclass();
 		while (superclazz != null && !superclazz.getName().startsWith("java.lang"))
 			{
-			Difference difference =
-					compareFields(left,right,superclazz,fieldStack,traversedInstancePairs);
-			if (difference != null)
+			Difference dif = compareFields(left,right,superclazz,fieldStack,traversedInstancePairs);
+			if (dif != null)
 				{
-				return difference;
+				return dif;
 				}
 			superclazz = superclazz.getSuperclass();
 			}

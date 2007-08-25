@@ -24,8 +24,7 @@ public class ResId
 
 	public boolean equals(Object o)
 		{
-		if (value >= 0)
-			return this == o;
+		if (value >= 0) return this == o;
 		return o instanceof ResId ? ((ResId) o).getValue() == value : false;
 		}
 

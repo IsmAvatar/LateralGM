@@ -104,5 +104,4 @@ public class SimpleCasesComparator extends ReflectionComparator
 			}
 		return (double) ((Character) object).charValue();
 		}
-
 	}

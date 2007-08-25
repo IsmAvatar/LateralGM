@@ -847,7 +847,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		else
 			res.mask = mask.getSelected().getId();
 		}
-	
+
 	//TODO: Update events and actions
 	@Override
 	public void updateResource()
