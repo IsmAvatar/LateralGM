@@ -26,6 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.BackgroundPreview;
@@ -184,16 +185,11 @@ public class BackgroundFrame extends ResourceFrame<Background>
 	@Override
 	public boolean resourceChanged()
 		{
-		return !resOriginal.getName().equals(name.getText())
-				|| resOriginal.transparent != transparent.isSelected()
-				|| resOriginal.smoothEdges != smooth.isSelected()
-				|| resOriginal.preload != preload.isSelected()
-				|| resOriginal.useAsTileSet != tileset.isSelected()
-				|| resOriginal.tileWidth != tWidth.getIntValue()
-				|| resOriginal.tileHeight != tWidth.getIntValue()
-				|| resOriginal.horizOffset != hOffset.getIntValue()
-				|| resOriginal.vertOffset != vOffset.getIntValue()
-				|| resOriginal.horizSep != hSep.getIntValue() || resOriginal.vertSep != vSep.getIntValue();
+		commitChanges();
+		if (imageChanged) return true;
+		ResourceComparator c = new ResourceComparator();
+		c.addExclusions(Background.class,"backgroundImage");
+		return c.areEqual(res,resOriginal);
 		}
 
 	@Override
@@ -202,8 +198,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		LGM.currentFile.backgrounds.replace(res.getId(),resOriginal);
 		}
 
-	@Override
-	public void updateResource()
+	private void commitChanges()
 		{
 		res.setName(name.getText());
 		res.transparent = transparent.isSelected();
@@ -216,6 +211,13 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		res.vertOffset = vOffset.getIntValue();
 		res.horizSep = hSep.getIntValue();
 		res.vertSep = vSep.getIntValue();
+		}
+	
+	@Override
+	public void updateResource()
+		{
+		commitChanges();
+		imageChanged = false;
 		resOriginal = res.copy();
 		}
 

@@ -125,17 +125,13 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		t = Messages.getString("GameSettingFrame.INTERPOLATE"); //$NON-NLS-1$
 		interpolatecolors = new JCheckBox(t,LGM.currentFile.interpolate);
+
 		JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
 		/*
-		 * FIXME: When Clam updated colorbutton to ColorSelect, the label was left out
-		 * thus we have an unused label GameSettingFrame.SETCOLOR
-		 * Furthermore, setBorder has no effect - perhaps it's for label purposes
-		 * Finally, should this be on the same line as its JLabel?
-		 */ 
-		t = Messages.getString("GameSettingFrame.SETCOLOR"); //$NON-NLS-1$
+		 * FIXME: should this be on the same line as its JLabel?
+		 */
 		colorbutton = new ColorSelect(LGM.currentFile.colorOutsideRoom);
 		colorbutton.setMaximumSize(new Dimension(100,20));
-		colorbutton.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
 		colorbutton.setAlignmentX(0f);
 
 		t = Messages.getString("GameSettingFrame.RESIZE"); //$NON-NLS-1$

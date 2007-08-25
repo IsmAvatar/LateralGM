@@ -24,11 +24,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Moment;
 
 public class TimelineFrame extends ResourceFrame<Timeline> implements ActionListener,
@@ -138,17 +140,10 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	@Override
 	public boolean resourceChanged()
 		{
-		if (!resOriginal.getName().equals(name.getText())) return true;
-		if (resOriginal.moments.size() != moments.getComponentCount()) return true;
-		//for each moment {
-		// check moment time against resOriginal's moment time
-		// check action count against resOriginal's action count
-		// check each action against each resOriginal action
-		//}
-		////this loop structure is just a reminder for what all needs to be checked
-		////the loop itself does not need to reflect this - keep return-efficiency in mind
-
-		return true;
+		commitChanges();
+		ResourceComparator c = new ResourceComparator();
+		c.addExclusions(Argument.class,"editor");
+		return c.areEqual(res,resOriginal);
 		}
 
 	@Override
@@ -157,11 +152,16 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		LGM.currentFile.timelines.replace(res.getId(),resOriginal);
 		}
 
+	//TODO:
+	private void commitChanges()
+		{
+		res.setName(name.getText());
+		}
+	
 	@Override
 	public void updateResource()
 		{
-		res.setName(name.getText());
-
+		commitChanges();
 		resOriginal = res.copy();
 		}
 

@@ -32,6 +32,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 
+import org.lateralgm.compare.ReflectionComparator;
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
@@ -204,15 +206,11 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 	public boolean resourceChanged()
 		{
-		if (!resOriginal.getName().equals(name.getText())
-				|| modified
-				|| !res.fileName.equals(filename.getText().substring(
-						Messages.getString("SoundFrame.FILE").length())) || res.kind != kind.getValue()
-				|| res.getEffects() != effects.getValue()
-				|| res.volume != (double) volume.getValue() / 100.0
-				|| res.pan != (double) pan.getValue() / 100.0 || res.preload != preload.isSelected())
-			return true;
-		return false;
+		commitChanges();
+		if (modified) return true;
+		ReflectionComparator c = new ResourceComparator();
+		c.addExclusions(Sound.class,"data");
+		return c.areEqual(res,resOriginal);
 		}
 
 	public void revertResource()
@@ -220,7 +218,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		LGM.currentFile.sounds.replace(res.getId(),resOriginal);
 		}
 
-	public void updateResource()
+	private void commitChanges()
 		{
 		res.setName(name.getText());
 
@@ -234,6 +232,11 @@ public class SoundFrame extends ResourceFrame<Sound>
 		res.pan = (double) pan.getValue() / 100.0;
 		res.preload = preload.isSelected();
 		res.data = data;
+		}
+
+	public void updateResource()
+		{
+		commitChanges();
 		modified = false;
 		resOriginal = res.copy();
 		}
@@ -242,12 +245,11 @@ public class SoundFrame extends ResourceFrame<Sound>
 		{
 		if (e.getSource() == load)
 			{
-			boolean repeat = true;
-			while (repeat)
+			while (true)
 				{
 				if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 				if (fc.getSelectedFile().exists())
-					repeat = false;
+					break;
 				else
 					JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
 							+ Messages.getString("SoundFrame.FILE_MISSING"),

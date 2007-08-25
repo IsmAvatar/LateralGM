@@ -57,11 +57,12 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.GMLTextArea;
+import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EventNode;
-import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.VTextIcon;
@@ -814,8 +815,10 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	@Override
 	public boolean resourceChanged()
 		{
-		if (!resOriginal.getName().equals(name.getText())) return true;
-		return true;
+		commitChanges();
+		ResourceComparator c = new ResourceComparator();
+		c.addExclusions(Argument.class,"editor");
+		return c.areEqual(res,resOriginal);
 		}
 
 	@Override
@@ -824,9 +827,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		LGM.currentFile.gmObjects.replace(res.getId(),resOriginal);
 		}
 
-	//TODO: Update events and actions
-	@Override
-	public void updateResource()
+	private void commitChanges()
 		{
 		res.setName(name.getText());
 		if (sprite.getSelected() == null)
@@ -845,7 +846,13 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			res.mask = null;
 		else
 			res.mask = mask.getSelected().getId();
-
+		}
+	
+	//TODO: Update events and actions
+	@Override
+	public void updateResource()
+		{
+		commitChanges();
 		resOriginal = res.copy();
 		}
 

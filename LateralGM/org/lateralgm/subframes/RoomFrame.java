@@ -34,6 +34,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.lateralgm.compare.ReflectionComparator;
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
@@ -239,19 +241,19 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		final JPopupMenu showMenu = new JPopupMenu();
 		st = Messages.getString("RoomFrame.SHOW_OBJECTS"); //$NON-NLS-1$
-		sSObj = new JCheckBoxMenuItem(st);
+		sSObj = new JCheckBoxMenuItem(st,res.showObjects);
 		showMenu.add(sSObj);
 		st = Messages.getString("RoomFrame.SHOW_TILES"); //$NON-NLS-1$
-		sSTile = new JCheckBoxMenuItem(st);
+		sSTile = new JCheckBoxMenuItem(st,res.showTiles);
 		showMenu.add(sSTile);
 		st = Messages.getString("RoomFrame.SHOW_BACKGROUNDS"); //$NON-NLS-1$
-		sSBack = new JCheckBoxMenuItem(st);
+		sSBack = new JCheckBoxMenuItem(st,res.showBackgrounds);
 		showMenu.add(sSBack);
 		st = Messages.getString("RoomFrame.SHOW_FOREGROUNDS"); //$NON-NLS-1$
-		sSFore = new JCheckBoxMenuItem(st);
+		sSFore = new JCheckBoxMenuItem(st,res.showForegrounds);
 		showMenu.add(sSFore);
 		st = Messages.getString("RoomFrame.SHOW_VIEWS"); //$NON-NLS-1$
-		sSView = new JCheckBoxMenuItem(st);
+		sSView = new JCheckBoxMenuItem(st,res.showViews);
 		showMenu.add(sSView);
 
 		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
@@ -272,7 +274,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		JPanel panel = new JPanel(new FlowLayout());
 
-		tUnderlying = new JCheckBox();
+		// String is a Temporary fix
+		tUnderlying = new JCheckBox("",res.deleteUnderlyingTiles);
 
 		return panel;
 		}
@@ -583,28 +586,20 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	@Override
 	public boolean resourceChanged()
 		{
-		if (!resOriginal.getName().equals(name.getText())) return true;
-		return true;
-		/*return !resOriginal.getName().equals(name.getText())
-		 || resOriginal.transparent != transparent.isSelected()
-		 || resOriginal.smoothEdges != smooth.isSelected()
-		 || resOriginal.preload != preload.isSelected()
-		 || resOriginal.useAsTileSet != tileset.isSelected()
-		 || resOriginal.tileWidth != tWidth.getIntValue()
-		 || resOriginal.tileHeight != tWidth.getIntValue()
-		 || resOriginal.horizOffset != hOffset.getIntValue()
-		 || resOriginal.vertOffset != vOffset.getIntValue()
-		 || resOriginal.horizSep != hSep.getIntValue() || resOriginal.vertSep != vSep.getIntValue();*/
+		commitChanges();
+		ReflectionComparator c = new ResourceComparator();
+		c.addExclusions(Room.class,"parent","currentTab");
+		return c.areEqual(res,resOriginal);
 		}
 
 	@Override
 	public void revertResource()
 		{
+		resOriginal.currentTab = tabs.getSelectedIndex();
 		LGM.currentFile.rooms.replace(res.getId(),resOriginal);
 		}
 
-	@Override
-	public void updateResource()
+	private void commitChanges()
 		{
 		res.setName(name.getText());
 
@@ -636,7 +631,12 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		//views
 		res.enableViews = vEnabled.isSelected();
 		fireViewUpdate();
+		}
 
+	@Override
+	public void updateResource()
+		{
+		commitChanges();
 		resOriginal = res.copy();
 		}
 

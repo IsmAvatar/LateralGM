@@ -22,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
@@ -154,12 +155,8 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public boolean resourceChanged()
 		{
-		return !resOriginal.getName().equals(name.getText())
-				|| !resOriginal.fontName.equals(fonts.getSelectedItem().toString())
-				|| resOriginal.size != size.getIntValue() || resOriginal.bold != bold.isSelected()
-				|| resOriginal.italic != italic.isSelected()
-				|| resOriginal.charRangeMin != charMin.getIntValue()
-				|| resOriginal.charRangeMax != charMax.getIntValue();
+		commitChanges();
+		return new ResourceComparator().areEqual(res,resOriginal);
 		}
 
 	public void revertResource()
@@ -167,7 +164,7 @@ public class FontFrame extends ResourceFrame<Font>
 		LGM.currentFile.fonts.replace(res.getId(),resOriginal);
 		}
 
-	public void updateResource()
+	private void commitChanges()
 		{
 		res.setName(name.getText());
 		res.fontName = fonts.getSelectedItem().toString();
@@ -176,6 +173,11 @@ public class FontFrame extends ResourceFrame<Font>
 		res.italic = italic.isSelected();
 		res.charRangeMin = charMin.getIntValue();
 		res.charRangeMax = charMax.getIntValue();
+		}
+	
+	public void updateResource()
+		{
+		commitChanges();
 		resOriginal = res.copy();
 		}
 

@@ -30,6 +30,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
@@ -208,9 +209,8 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener
 	@Override
 	public boolean resourceChanged()
 		{
-		return !resOriginal.getName().equals(name.getText()) || !resOriginal.points.equals(points)
-				|| resOriginal.precision != tpr.getIntValue() || resOriginal.smooth != smooth.isSelected()
-				|| resOriginal.closed != closed.isSelected();
+		commitChanges();
+		return new ResourceComparator().areEqual(res,resOriginal);
 		}
 
 	public void revertResource()
@@ -218,7 +218,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener
 		LGM.currentFile.paths.replace(res.getId(),resOriginal);
 		}
 
-	public void updateResource()
+	private void commitChanges()
 		{
 		res.setName(name.getText());
 
@@ -226,7 +226,11 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener
 		res.precision = tpr.getIntValue();
 		res.smooth = smooth.isSelected();
 		res.closed = closed.isSelected();
-
+		}
+	
+	public void updateResource()
+		{
+		commitChanges();
 		resOriginal = res.copy();
 		}
 

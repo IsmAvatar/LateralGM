@@ -100,8 +100,7 @@ public class Room extends Resource
 	@SuppressWarnings("unchecked")
 	private Room copy(boolean update, ResourceList src)
 		{
-		Room rm = new Room();
-		rm = new Room();
+		Room rm = new Room(parent);
 		rm.caption = caption;
 		rm.width = width;
 		rm.height = height;

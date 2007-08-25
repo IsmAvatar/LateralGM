@@ -43,4 +43,11 @@ public class LibAction
 	public byte execType = Action.EXEC_FUNCTION;
 	public String execInfo = "";
 	public LibArgument[] libArguments;
+
+	public boolean equals(Object o)
+		{
+		if (!(o instanceof LibAction)) return false;
+		LibAction la = (LibAction) o;
+		return la.id == id && parent != null ? la.parent == parent : la.parentId == parentId;
+		}
 	}

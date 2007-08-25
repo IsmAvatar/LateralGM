@@ -28,6 +28,8 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
+import org.lateralgm.compare.ReflectionComparator;
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
@@ -273,26 +275,14 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	@Override
 	public boolean resourceChanged()
 		{
-		return !resOriginal.getName().equals(name.getText()) || imageChanged
-				|| resOriginal.transparent != transparent.isSelected()
-				|| resOriginal.preciseCC != preciseCC.isSelected()
-				|| resOriginal.smoothEdges != smooth.isSelected()
-				|| resOriginal.preload != preload.isSelected()
-				|| resOriginal.originX != originX.getIntValue()
-				|| resOriginal.originY != originY.getIntValue()
-				|| resOriginal.boundingBoxMode != (byte) bboxGroup.getValue()
-				|| resOriginal.boundingBoxLeft != bboxLeft.getIntValue()
-				|| resOriginal.boundingBoxRight != bboxRight.getIntValue()
-				|| resOriginal.boundingBoxTop != bboxTop.getIntValue()
-				|| resOriginal.boundingBoxBottom != bboxBottom.getIntValue();
+		commitChanges();
+		if (imageChanged) return true;
+		ReflectionComparator c = new ResourceComparator();
+		c.addExclusions(Sprite.class,"subImages");
+		return c.areEqual(res,resOriginal);
 		}
 
-	public void revertResource()
-		{
-		LGM.currentFile.sprites.replace(res.getId(),resOriginal);
-		}
-
-	public void updateResource()
+	private void commitChanges()
 		{
 		res.setName(name.getText());
 		res.transparent = transparent.isSelected();
@@ -306,6 +296,17 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		res.boundingBoxRight = bboxRight.getIntValue();
 		res.boundingBoxTop = bboxTop.getIntValue();
 		res.boundingBoxBottom = bboxBottom.getIntValue();
+		}
+
+	public void revertResource()
+		{
+		LGM.currentFile.sprites.replace(res.getId(),resOriginal);
+		}
+
+	public void updateResource()
+		{
+		commitChanges();
+		imageChanged = false;
 		resOriginal = res.copy();
 		}
 
