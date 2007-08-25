@@ -5,7 +5,7 @@
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
  */
-package org.lateralgm.compare;
+package org.lateralgm.comp;
 
 import org.lateralgm.resources.Resource;
 /**

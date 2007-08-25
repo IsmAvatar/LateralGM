@@ -28,8 +28,8 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
-import org.lateralgm.compare.ReflectionComparator;
-import org.lateralgm.compare.ResourceComparator;
+import org.lateralgm.comp.ReflectionComparator;
+import org.lateralgm.comp.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;

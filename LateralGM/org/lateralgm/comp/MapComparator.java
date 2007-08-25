@@ -20,7 +20,7 @@
  * See LICENSE for details.
  */
 
-package org.lateralgm.compare;
+package org.lateralgm.comp;
 
 import java.util.Stack;
 import java.util.Set;

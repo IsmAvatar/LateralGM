@@ -34,8 +34,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.lateralgm.compare.ReflectionComparator;
-import org.lateralgm.compare.ResourceComparator;
+import org.lateralgm.comp.ReflectionComparator;
+import org.lateralgm.comp.ResourceComparator;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;

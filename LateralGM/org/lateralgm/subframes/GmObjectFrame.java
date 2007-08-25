@@ -57,7 +57,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.lateralgm.compare.ResourceComparator;
+import org.lateralgm.comp.ResourceComparator;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;

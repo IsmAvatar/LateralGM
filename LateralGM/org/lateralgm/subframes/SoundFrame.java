@@ -32,8 +32,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 
-import org.lateralgm.compare.ReflectionComparator;
-import org.lateralgm.compare.ResourceComparator;
+import org.lateralgm.comp.ReflectionComparator;
+import org.lateralgm.comp.ResourceComparator;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
