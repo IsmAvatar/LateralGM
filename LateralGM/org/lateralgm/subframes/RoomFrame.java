@@ -16,7 +16,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -43,10 +42,12 @@ import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
 //TODO: Handle res.rememberWindowSize - may also apply to other options
@@ -60,6 +61,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	public JList oList;
+	private Instance lastObj = null; //non-guaranteed copy of oList.getLastSelectedValue()
 	public JButton oAdd, oDel;
 	public ResourceMenu oSource;
 	public IntegerField oX, oY;
@@ -73,6 +75,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	//Tiles
 	public JCheckBox tUnderlying, tLocked;
 	public JList tList;
+	private Tile lastTile = null; //non-guaranteed copy of tList.getLastSelectedValue()
+	public JButton tAdd, tDel;
+	public ResourceMenu tSource;
+	public IntegerField tsX, tsY, tX, tY, tLayer;
 	//Backgrounds
 	public JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
 	public ColorSelect bColor;
@@ -95,7 +101,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		JPanel panel = new JPanel(new FlowLayout());
 
-		panel.add(new JLabel(Messages.getString("RoomFrame.OBJ_WIP"))); //$NON-NLS-1$
+		panel.add(new JLabel(Messages.getString("RoomFrame.WIP"))); //$NON-NLS-1$
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		oUnderlying.setSelected(res.deleteUnderlyingObjects);
 		panel.add(oUnderlying);
@@ -103,14 +109,13 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		lab.setPreferredSize(new Dimension(150,20));
 		panel.add(lab);
 		oList = new JList(res.instances.toArray());
-		oList.setDragEnabled(true);
-		oList.setDropMode(DropMode.INSERT);
-		oList.setTransferHandler(null); //TODO (drag and drop)
+		//		oList.setDragEnabled(true);
+		//		oList.setDropMode(DropMode.INSERT);
+		//		oList.setTransferHandler(null);
 		oList.addListSelectionListener(this);
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//oList.setVisibleRowCount(8);
-		oList.setPreferredSize(new Dimension(160,128));
-		oList.setCellRenderer(new ListCellRenderer()
+//		oList.setVisibleRowCount(8);
+		oList.setCellRenderer(new ListComponentRenderer()
 			{
 				public Component getListCellRendererComponent(JList list, Object val, int ind,
 						boolean selected, boolean focus)
@@ -119,21 +124,14 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					GmObject go = LGM.currentFile.gmObjects.get(i.gmObjectId);
 					JLabel lab = new JLabel(go.getName() + " " + i.instanceId,
 							GmTreeGraphics.getSpriteIcon(LGM.currentFile.sprites.get(go.sprite)),JLabel.LEFT);
-					if (selected)
-						{
-						lab.setBackground(list.getSelectionBackground());
-						lab.setForeground(list.getSelectionForeground());
-						}
-					else
-						{
-						lab.setBackground(list.getBackground());
-						lab.setForeground(list.getForeground());
-						}
+					super.getListCellRendererComponent(list,lab,ind,selected,focus);
 					lab.setOpaque(true);
 					return lab;
 					}
 			});
-		panel.add(new JScrollPane(oList));
+		JScrollPane sp = new JScrollPane(oList);
+		sp.setPreferredSize(new Dimension(180,128));
+		panel.add(sp);
 		oAdd = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
 		oAdd.addActionListener(this);
 		panel.add(oAdd);
@@ -269,13 +267,86 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		return panel;
 		}
 
-	//TODO: (GUI)
 	public JPanel makeTilesPane()
 		{
 		JPanel panel = new JPanel(new FlowLayout());
 
-		// String is a Temporary fix
-		tUnderlying = new JCheckBox("",res.deleteUnderlyingTiles);
+		panel.add(new JLabel(Messages.getString("RoomFrame.WIP"))); //$NON-NLS-1$
+		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
+		tUnderlying.setSelected(res.deleteUnderlyingTiles);
+		panel.add(tUnderlying);
+		JLabel lab = new JLabel(Messages.getString("RoomFrame.TILE_LIST")); //$NON-NLS-1$
+		lab.setPreferredSize(new Dimension(150,20));
+		panel.add(lab);
+		tList = new JList(res.tiles.toArray());
+		//		tList.setDragEnabled(true);
+		//		tList.setDropMode(DropMode.INSERT);
+		//		tList.setTransferHandler(null);
+		tList.addListSelectionListener(this);
+		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+//		tList.setVisibleRowCount(4);
+//		tList.setPreferredSize(new Dimension(180,128));
+		tList.setCellRenderer(new ListComponentRenderer()
+			{
+				public Component getListCellRendererComponent(JList list, Object val, int ind,
+						boolean selected, boolean focus)
+					{
+					Tile i = (Tile) val;
+					Background bg = LGM.currentFile.backgrounds.get(i.backgroundId);
+					JLabel lab = new JLabel(bg.getName() + " " + i.tileId,JLabel.LEFT);
+					super.getListCellRendererComponent(list,lab,ind,selected,focus);
+					lab.setOpaque(true);
+					return lab;
+					}
+			});
+		JScrollPane sp = new JScrollPane(tList);
+		sp.setPreferredSize(new Dimension(180,70));
+		panel.add(sp);
+		tAdd = new JButton(Messages.getString("RoomFrame.TILE_ADD")); //$NON-NLS-1$
+		tAdd.addActionListener(this);
+		panel.add(tAdd);
+		tDel = new JButton(Messages.getString("RoomFrame.TILE_DELETE")); //$NON-NLS-1$
+		tDel.addActionListener(this);
+		panel.add(tDel);
+		tLocked = new JCheckBox(Messages.getString("RoomFrame.TILE_LOCKED")); //$NON-NLS-1$
+		tLocked.setPreferredSize(new Dimension(180,20));
+		tLocked.setHorizontalAlignment(JCheckBox.CENTER);
+		panel.add(tLocked);
+
+		JPanel p = new JPanel();
+		p.setPreferredSize(new Dimension(160,80));
+		String s = Messages.getString("RoomFrame.TILESET"); //$NON-NLS-1$
+		p.setBorder(BorderFactory.createTitledBorder(s));
+		tSource = new ResourceMenu(Room.BACKGROUND,"<no background>",true,110);
+		tSource.setPreferredSize(new Dimension(140,20));
+		p.add(tSource);
+		p.add(new JLabel(Messages.getString("RoomFrame.TILESET_X"))); //$NON-NLS-1$
+		tsX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tsX.setPreferredSize(new Dimension(50,20));
+		p.add(tsX);
+		p.add(new JLabel(Messages.getString("RoomFrame.TILESET_Y"))); //$NON-NLS-1$
+		tsY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tsY.setPreferredSize(new Dimension(50,20));
+		p.add(tsY);
+		panel.add(p);
+
+		p = new JPanel();
+		p.setPreferredSize(new Dimension(160,80));
+		s = Messages.getString("RoomFrame.TILE"); //$NON-NLS-1$
+		p.setBorder(BorderFactory.createTitledBorder(s));
+		p.add(new JLabel(Messages.getString("RoomFrame.TILE_X"))); //$NON-NLS-1$
+		tX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tX.setPreferredSize(new Dimension(50,20));
+		p.add(tX);
+		p.add(new JLabel(Messages.getString("RoomFrame.TILE_Y"))); //$NON-NLS-1$
+		tY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tY.setPreferredSize(new Dimension(50,20));
+		p.add(tY);
+		p.add(new JLabel(Messages.getString("RoomFrame.TILE_LAYER"))); //$NON-NLS-1$
+		tLayer = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,1000000);
+		tLayer.setPreferredSize(new Dimension(60,20));
+		p.add(tLayer);
+		panel.add(p);
 
 		return panel;
 		}
@@ -559,8 +630,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		}
 
 	/**
-	 * This class is public in case it is useful for other classes.<br>
-	 * It is intended for RoomFrame lists. All list items must be Components
+	 * I've left this public in case it's useful to anybody, BUT NOTICE
+	 * This class may change in the future to be an all out JList data model and renderer,
+	 * since as of currently it's hard to get a Collection or Vector back out of a JList.
+	 * Sun is planning on making JList part of the Collections framework in the future,
+	 * but for now, we need a workaround, and this looks like the best option. 
 	 */
 	public class ListComponentRenderer implements ListCellRenderer
 		{
@@ -582,7 +656,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 		}
 
-	//TODO:
 	@Override
 	public boolean resourceChanged()
 		{
@@ -624,6 +697,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		res.showViews = sSView.isSelected();
 		//tiles
 		res.deleteUnderlyingTiles = tUnderlying.isSelected();
+		fireTileUpdate();
+		//res.tiles = ??? TODO: get the ArrayList back from tList somehow
+		//see comments for ListComponentRenderer
+
 		//backgrounds
 		res.drawBackgroundColor = bDrawColor.isSelected();
 		res.backgroundColor = bColor.getSelectedColor();
@@ -663,16 +740,44 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		super.actionPerformed(e);
 		}
 
-	//TODO:
 	public void fireObjUpdate()
 		{
+		if (lastObj != null)
+			{
+			lastObj.locked = oLocked.isSelected();
+			//lastObj.gmObjectId = oSource.getSelected(); //FIXME: (waiting for Clam's ResId solution)
+			lastObj.x = oX.getIntValue();
+			lastObj.y = oY.getIntValue();
+			}
+		lastObj = (Instance) oList.getSelectedValue();
+		if (lastObj == null) return;
 
+		oLocked.setSelected(lastObj.locked);
+		oX.setIntValue(lastObj.x);
+		oY.setIntValue(lastObj.y);
 		}
 
-	//TODO:
 	public void fireTileUpdate()
 		{
+		if (lastTile != null)
+			{
+			lastTile.locked = tLocked.isSelected();
+			//		lastTile.backgroundId = bSource.getSelected(); //FIXME: (waiting for ResId solution)
+			lastTile.tileX = tsX.getIntValue();
+			lastTile.tileY = tsY.getIntValue();
+			lastTile.x = tX.getIntValue();
+			lastTile.y = tY.getIntValue();
+			lastTile.depth = tLayer.getIntValue();
+			}
+		lastTile = (Tile) tList.getSelectedValue();
+		if (lastTile == null) return;
 
+		tLocked.setSelected(lastTile.locked);
+		tsX.setIntValue(lastTile.tileX);
+		tsY.setIntValue(lastTile.tileY);
+		tX.setIntValue(lastTile.x);
+		tY.setIntValue(lastTile.y);
+		tLayer.setIntValue(lastTile.depth);
 		}
 
 	public void fireBackUpdate()

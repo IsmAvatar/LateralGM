@@ -811,7 +811,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		return tp;
 		}
 
-	//TODO:
 	@Override
 	public boolean resourceChanged()
 		{
@@ -827,6 +826,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		LGM.currentFile.gmObjects.replace(res.getId(),resOriginal);
 		}
 
+	//TODO: Update events and actions
 	private void commitChanges()
 		{
 		res.setName(name.getText());
@@ -848,7 +848,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			res.mask = mask.getSelected().getId();
 		}
 
-	//TODO: Update events and actions
 	@Override
 	public void updateResource()
 		{
