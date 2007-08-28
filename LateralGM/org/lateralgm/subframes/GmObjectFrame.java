@@ -87,7 +87,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	private static final ImageIcon INFO_ICON = LGM.getIconForKey("GmObjectFrame.INFO"); //$NON-NLS-1$
 
 	public JLabel preview;
-	public ResourceMenu sprite;
+	public ResourceMenu<Sprite> sprite;
 	public JComboBox sp2;
 	public JButton newsprite;
 	public JButton edit;
@@ -95,8 +95,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public JCheckBox solid;
 	public IntegerField depth;
 	public JCheckBox persistent;
-	public ResourceMenu parent;
-	public ResourceMenu mask;
+	public ResourceMenu<GmObject> parent;
+	public ResourceMenu<Sprite> mask;
 	public JButton information;
 
 	public JTree events;
@@ -127,13 +127,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		String t = Messages.getString("GmObjectFrame.SPRITE"); //$NON-NLS-1$
 		origin.setBorder(BorderFactory.createTitledBorder(t));
 		origin.setPreferredSize(new Dimension(180,80));
-		Sprite s = LGM.currentFile.sprites.get(res.sprite);
-		preview = new JLabel(GmTreeGraphics.getSpriteIcon(s));
+		preview = new JLabel(GmTreeGraphics.getSpriteIcon(res.sprite == null ? null : res.sprite));
 		preview.setPreferredSize(new Dimension(16,16));
 		origin.add(preview);
 
-		sprite = new ResourceMenu(Resource.SPRITE,"<no sprite>",144);
-		sprite.setSelected(LGM.currentFile.sprites.get(res.sprite));
+		sprite = new ResourceMenu<Sprite>(Resource.SPRITE,"<no sprite>",144);
+		sprite.setRefSelected(res.sprite);
 		origin.add(sprite);
 		newsprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
 		newsprite.setPreferredSize(new Dimension(80,20));
@@ -169,15 +168,15 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		lab = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		parent = new ResourceMenu(Resource.GMOBJECT,"<no parent>",110);
-		parent.setSelected(LGM.currentFile.gmObjects.get(res.parent));
+		parent = new ResourceMenu<GmObject>(Resource.GMOBJECT,"<no parent>",110);
+		parent.setSelected(res.parent == null ? null : res.parent.getRes());
 		side1.add(parent);
 
 		lab = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		mask = new ResourceMenu(Resource.SPRITE,"<same as sprite>",110);
-		mask.setSelected(LGM.currentFile.sprites.get(res.mask));
+		mask = new ResourceMenu<Sprite>(Resource.SPRITE,"<same as sprite>",110);
+		if (res.mask != null) mask.setSelected(res.mask.getRes());
 		side1.add(mask);
 
 		addGap(side1,160,4);
@@ -503,7 +502,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						ret += Messages.getString("Action.APPLIES_OTHER"); //$NON-NLS-1$
 					else
 						{
-						GmObject applies = LGM.currentFile.gmObjects.get(a.appliesTo);
+						GmObject applies = a.appliesTo.getRes();
 						ret += String.format(Messages.getString("Action.APPLIES"), //$NON-NLS-1$
 								applies == null ? a.appliesTo.toString() : applies.getName());
 						}
@@ -823,7 +822,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	@Override
 	public void revertResource()
 		{
-		LGM.currentFile.gmObjects.replace(res.getId(),resOriginal);
+		LGM.currentFile.gmObjects.replace(res,resOriginal);
 		}
 
 	//TODO: Update events and actions
@@ -833,7 +832,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		if (sprite.getSelected() == null)
 			res.sprite = null;
 		else
-			res.sprite = sprite.getSelected().getId();
+			res.sprite = sprite.getSelected().getRef();
 		res.visible = visible.isSelected();
 		res.solid = solid.isSelected();
 		res.depth = depth.getIntValue();
@@ -841,11 +840,11 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		if (parent.getSelected() == null)
 			res.parent = null;
 		else
-			res.parent = parent.getSelected().getId();
+			res.parent = parent.getSelected().getRef();
 		if (mask.getSelected() == null)
 			res.mask = null;
 		else
-			res.mask = mask.getSelected().getId();
+			res.mask = mask.getSelected().getRef();
 		}
 
 	@Override

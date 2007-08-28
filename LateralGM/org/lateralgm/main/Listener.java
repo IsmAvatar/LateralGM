@@ -173,8 +173,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			pos = parent.getChildCount();
 			}
 
-		Resource res = LGM.currentFile.getList(parent.kind).add();
-		ResNode g = new ResNode(res.getName(),ResNode.STATUS_SECONDARY,parent.kind,res.getId());
+		Resource<?> res = LGM.currentFile.getList(parent.kind).add();
+		ResNode g = new ResNode(res.getName(),ResNode.STATUS_SECONDARY,parent.kind,res);
 		parent.insert(g,pos);
 		tree.expandPath(new TreePath(parent.getPath()));
 		tree.setSelectionPath(new TreePath(g.getPath()));
@@ -300,7 +300,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				tree.setSelectionPath(new TreePath(next.getPath()));
 				if (me.frame != null) me.frame.dispose();
 				me.removeFromParent();
-				LGM.currentFile.getList(me.kind).remove(me.resourceId);
+				LGM.currentFile.getList(me.kind).remove(me.res);
 				tree.updateUI();
 				}
 			return;

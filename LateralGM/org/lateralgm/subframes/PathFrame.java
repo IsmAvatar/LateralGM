@@ -215,7 +215,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener
 
 	public void revertResource()
 		{
-		LGM.currentFile.paths.replace(res.getId(),resOriginal);
+		LGM.currentFile.paths.replace(res,resOriginal);
 		}
 
 	private void commitChanges()

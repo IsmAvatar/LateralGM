@@ -16,7 +16,8 @@ import java.io.IOException;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
@@ -28,7 +29,7 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 	private DataFlavor[] flavors = { EVENTNODE_FLAVOR };
 	public int mainId;
 	public int eventId;
-	public ResId other;
+	public Ref<GmObject> other;
 
 	public EventNode(String text, int mainId)
 		{

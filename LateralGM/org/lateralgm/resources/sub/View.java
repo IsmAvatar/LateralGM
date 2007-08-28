@@ -8,7 +8,8 @@
 
 package org.lateralgm.resources.sub;
 
-import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Ref;
 
 public class View
 	{
@@ -25,5 +26,5 @@ public class View
 	public int vbor = 32;
 	public int hspeed = -1;
 	public int vspeed = -1;
-	public ResId objectFollowing = null;
+	public Ref<GmObject> objectFollowing = null;
 	}

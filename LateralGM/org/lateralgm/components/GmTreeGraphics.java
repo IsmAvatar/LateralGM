@@ -23,6 +23,7 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Sprite;
 
@@ -84,13 +85,14 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		return new ImageIcon(i);
 		}
 
-	public static Icon getSpriteIcon(Sprite s)
+	public static Icon getSpriteIcon(Ref<Sprite> s)
 		{
-		if (s == null || s.subImages.size() == 0) return getBlankIcon();
-		BufferedImage bi = s.subImages.get(0);
+		if (s == null || s.getRes() == null || s.getRes().subImages.size() == 0) return getBlankIcon();
+		Sprite spr = s.getRes();
+		BufferedImage bi = spr.subImages.get(0);
 		if (bi == null) return getBlankIcon();
 		Image i = bi;
-		if (s.transparent) i = Util.getTransparentIcon(bi);
+		if (spr.transparent) i = Util.getTransparentIcon(bi);
 		return getScaledIcon(i);
 		}
 

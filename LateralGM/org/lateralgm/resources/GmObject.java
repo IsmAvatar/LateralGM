@@ -15,18 +15,27 @@ import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
-public class GmObject extends Resource
+public class GmObject extends Resource<GmObject>
 	{
-	public static final ResId OBJECT_SELF = new ResId(-1);
-	public static final ResId OBJECT_OTHER = new ResId(-2);
+	public static final Ref<GmObject> OBJECT_SELF = new Ref<GmObject>(null);
+	public static final Ref<GmObject> OBJECT_OTHER = new Ref<GmObject>(null);
 
-	public ResId sprite = null;
+	public static int refAsInt(Ref<GmObject> ref)
+		{
+		if (ref == OBJECT_SELF) return -1;
+		if (ref == OBJECT_OTHER) return -2;
+		if (ref == null) return -100;
+		if (ref.getRes() == null) return -100;
+		return ref.getRes().getId();
+		}
+
+	public Ref<Sprite> sprite = null;
 	public boolean solid = false;
 	public boolean visible = true;
 	public int depth = 0;
 	public boolean persistent = false;
-	public ResId parent = null;
-	public ResId mask = null;
+	public Ref<GmObject> parent = null;
+	public Ref<Sprite> mask = null;
 	public MainEvent[] mainEvents = new MainEvent[11];
 
 	public GmObject()
@@ -43,14 +52,12 @@ public class GmObject extends Resource
 		return copy(false,null);
 		}
 
-	@SuppressWarnings("unchecked")
-	public GmObject copy(ResourceList src)
+	public GmObject copy(ResourceList<GmObject> src)
 		{
 		return copy(true,src);
 		}
 
-	@SuppressWarnings("unchecked")
-	private GmObject copy(boolean update, ResourceList src)
+	private GmObject copy(boolean update, ResourceList<GmObject> src)
 		{
 		GmObject obj = new GmObject();
 		obj.sprite = sprite;
@@ -67,7 +74,9 @@ public class GmObject extends Resource
 			for (Event ev : mev.events)
 				{
 				Event ev2 = mev2.addEvent();
+				ev2.mainId = ev.mainId;
 				ev2.id = ev.id;
+				ev2.other = ev.other;
 				for (Action act : ev.actions)
 					{
 					Action act2 = ev2.addAction();
@@ -83,8 +92,7 @@ public class GmObject extends Resource
 			}
 		if (update)
 			{
-			obj.setId(new ResId(++src.lastId));
-			obj.setName(Prefs.prefixes[Resource.GMOBJECT] + src.lastId);
+			obj.setName(Prefs.prefixes[Resource.GMOBJECT] + (src.lastId + 1));
 			src.add(obj);
 			}
 		else

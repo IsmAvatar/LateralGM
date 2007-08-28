@@ -8,13 +8,14 @@
 
 package org.lateralgm.resources.sub;
 
-import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Ref;
 
 public class Instance
 	{
 	public int x = 0;
 	public int y = 0;
-	public ResId gmObjectId = null;
+	public Ref<GmObject> gmObjectId = null;
 	public int instanceId = 0;
 	public String creationCode = "";
 	public boolean locked = false;

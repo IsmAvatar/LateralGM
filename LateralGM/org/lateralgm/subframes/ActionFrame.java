@@ -46,7 +46,8 @@ import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
@@ -58,7 +59,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 	private static final long serialVersionUID = 1L;
 
 	private IndexButtonGroup applies;
-	private ResourceMenu appliesObject;
+	private ResourceMenu<GmObject> appliesObject;
 	private JPanel appliesPanel;
 	private Action act;
 	private JComponent argEdit[];
@@ -83,14 +84,14 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			setFrameIcon(new ImageIcon(la.actImage.getScaledInstance(16,16,Image.SCALE_SMOOTH)));
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		String s;
-		if (a.appliesTo.getValue() == -1)
+		if (a.appliesTo == GmObject.OBJECT_SELF)
 			s = Messages.getString("ActionFrame.SELF"); //$NON-NLS-1$
 		else
 			s = Messages.getString("ActionFrame.OTHER"); //$NON-NLS-1$
-		appliesObject = new ResourceMenu(Resource.GMOBJECT,s,false,100);
+		appliesObject = new ResourceMenu<GmObject>(Resource.GMOBJECT,s,false,100);
 		appliesObject.setOpaque(false);
-		if (a.appliesTo.getValue() >= 0)
-			appliesObject.setSelected(LGM.currentFile.gmObjects.get(a.appliesTo));
+		if (a.appliesTo.getRes() != null)
+			appliesObject.setSelected(a.appliesTo.getRes());
 		else
 			appliesObject.setEnabled(false);
 		act = a;
@@ -132,7 +133,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		gbc.insets = new Insets(0,4,0,6);
 		p.add(appliesObject,gbc);
 		appliesPanel.add(p);
-		applies.setValue(Math.min(a.appliesTo.getValue(),0));
+		applies.setValue(Math.min(GmObject.refAsInt(a.appliesTo),0));
 
 		if (la.interfaceKind == LibAction.INTERFACE_CODE)
 			{
@@ -279,15 +280,17 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		pane.add(discard);
 		}
 
-	public ResId getApplies()
+	public Ref<GmObject> getApplies()
 		{
 		if (applies.getValue() >= 0)
 			{
-			Resource sel = appliesObject.getSelected();
-			if (sel != null) return sel.getId();
+			GmObject sel = appliesObject.getSelected();
+			if (sel != null) return sel.getRef();
 			return act.appliesTo;
 			}
-		return new ResId(applies.getValue());
+		if (applies.getValue() == -1) return GmObject.OBJECT_SELF;
+		if (applies.getValue() == -2) return GmObject.OBJECT_OTHER;
+		return null;
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -300,6 +303,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				}
 			dispose();
 			}
+		//TODO: Update The List on save
 		else if (e.getSource() == save)
 			{
 			act.appliesTo = getApplies();

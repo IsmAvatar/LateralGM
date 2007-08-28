@@ -12,7 +12,7 @@ package org.lateralgm.resources;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 
-public class Sound extends Resource
+public class Sound extends Resource<Sound>
 	{
 	public static final byte NORMAL = 0;
 	public static final byte BACKGROUND = 1;
@@ -83,8 +83,7 @@ public class Sound extends Resource
 		return makeEffects(chorus,echo,flanger,gargle,reverb);
 		}
 
-	@SuppressWarnings("unchecked")
-	private Sound copy(boolean update, ResourceList src)
+	private Sound copy(boolean update, ResourceList<Sound> src)
 		{
 		Sound snd = new Sound();
 		snd.kind = kind;
@@ -102,8 +101,7 @@ public class Sound extends Resource
 		System.arraycopy(data,0,snd.data,0,data.length);
 		if (update)
 			{
-			snd.setId(new ResId(++src.lastId));
-			snd.setName(Prefs.prefixes[Resource.SOUND] + src.lastId);
+			snd.setName(Prefs.prefixes[Resource.SOUND] + (src.lastId + 1));
 			src.add(snd);
 			}
 		else
@@ -119,8 +117,7 @@ public class Sound extends Resource
 		return copy(false,null);
 		}
 
-	@SuppressWarnings("unchecked")
-	public Sound copy(ResourceList src)
+	public Sound copy(ResourceList<Sound> src)
 		{
 		return copy(true,src);
 		}

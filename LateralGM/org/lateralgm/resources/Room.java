@@ -20,7 +20,7 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
-public class Room extends Resource
+public class Room extends Resource<Room>
 	{
 	public static final byte TAB_OBJECTS = 0;
 	public static final byte TAB_SETTINGS = 1;
@@ -73,12 +73,8 @@ public class Room extends Resource
 
 	public Room(Gm6File parent) // Rooms are special - they need to know what file they belong to
 		{
+		this();
 		this.parent = parent;
-		for (int j = 0; j < 8; j++)
-			{
-			views[j] = new View();
-			backgroundDefs[j] = new BackgroundDef();
-			}
 		}
 
 	public Instance addInstance()
@@ -97,8 +93,7 @@ public class Room extends Resource
 		return tile;
 		}
 
-	@SuppressWarnings("unchecked")
-	private Room copy(boolean update, ResourceList src)
+	private Room copy(boolean update, ResourceList<Room> src)
 		{
 		Room rm = new Room(parent);
 		rm.caption = caption;
@@ -185,8 +180,7 @@ public class Room extends Resource
 			}
 		if (update)
 			{
-			rm.setId(new ResId(++src.lastId));
-			rm.setName(Prefs.prefixes[Resource.ROOM] + src.lastId);
+			rm.setName(Prefs.prefixes[Resource.ROOM] + (src.lastId + 1));
 			src.add(rm);
 			}
 		else
@@ -202,8 +196,7 @@ public class Room extends Resource
 		return ROOM;
 		}
 
-	@SuppressWarnings("unchecked")
-	public Room copy(ResourceList src)
+	public Room copy(ResourceList<Room> src)
 		{
 		return copy(true,src);
 		}

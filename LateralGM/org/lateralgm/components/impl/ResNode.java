@@ -23,8 +23,17 @@ import javax.swing.tree.MutableTreeNode;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Font;
+import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Path;
+import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Sound;
+import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.subframes.BackgroundFrame;
 import org.lateralgm.subframes.FontFrame;
 import org.lateralgm.subframes.GmObjectFrame;
@@ -47,7 +56,13 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	public static final byte STATUS_SECONDARY = 3;
 	public byte status;
 	public byte kind;
-	public ResId resourceId;
+	/**
+	 * The <code>Resource</code> this node represents.
+	 * Note that we can directly reference here,
+	 * because the deletion of the Resource corresponds to
+	 * the deletion of this node.
+	 */
+	public Resource<?> res;
 	public ResourceFrame<?> frame = null;
 	private EventListenerList listenerList;
 	private ChangeEvent changeEvent;
@@ -64,29 +79,29 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		switch (kind)
 			{
 			case Resource.SPRITE:
-				icon = GmTreeGraphics.getSpriteIcon(LGM.currentFile.sprites.get(resourceId));
+				icon = GmTreeGraphics.getSpriteIcon(((Sprite) res).getRef());
 				break;
 			case Resource.BACKGROUND:
-				icon = GmTreeGraphics.getBackgroundIcon(LGM.currentFile.backgrounds.get(resourceId));
+				icon = GmTreeGraphics.getBackgroundIcon((Background) res);
 				break;
 			case Resource.GMOBJECT:
-				ResId rid = LGM.currentFile.gmObjects.get(resourceId).sprite;
-				icon = GmTreeGraphics.getSpriteIcon(LGM.currentFile.sprites.get(rid));
+			Ref<Sprite> r = ((GmObject) res).sprite;	
+			icon = GmTreeGraphics.getSpriteIcon(r);
 				break;
 			}
 		fireStateChanged(null);
 		LGM.tree.repaint();
 		}
 
-	public ResNode(String name, byte status, byte kind, ResId res)
+	public ResNode(String name, byte status, byte kind, Resource<?> res)
 		{
 		super(name);
 		this.status = status;
 		this.kind = kind;
-		resourceId = res;
+		this.res = res;
 		}
 
-	public ResNode(String name, int status, int kind, ResId res)
+	public ResNode(String name, int status, int kind, Resource<?> res)
 		{
 		this(name,(byte) status,(byte) kind,res);
 		}
@@ -139,31 +154,31 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 			switch (kind)
 				{
 				case Resource.SPRITE:
-					rf = new SpriteFrame(LGM.currentFile.sprites.get(resourceId),this);
+					rf = new SpriteFrame((Sprite) res,this);
 					break;
 				case Resource.SOUND:
-					rf = new SoundFrame(LGM.currentFile.sounds.get(resourceId),this);
+					rf = new SoundFrame((Sound) res,this);
 					break;
 				case Resource.BACKGROUND:
-					rf = new BackgroundFrame(LGM.currentFile.backgrounds.get(resourceId),this);
+					rf = new BackgroundFrame((Background) res,this);
 					break;
 				case Resource.PATH:
-					rf = new PathFrame(LGM.currentFile.paths.get(resourceId),this);
+					rf = new PathFrame((Path) res,this);
 					break;
 				case Resource.SCRIPT:
-					rf = new ScriptFrame(LGM.currentFile.scripts.get(resourceId),this);
+					rf = new ScriptFrame((Script) res,this);
 					break;
 				case Resource.FONT:
-					rf = new FontFrame(LGM.currentFile.fonts.get(resourceId),this);
+					rf = new FontFrame((Font) res,this);
 					break;
 				case Resource.TIMELINE:
-					rf = new TimelineFrame(LGM.currentFile.timelines.get(resourceId),this);
+					rf = new TimelineFrame((Timeline) res,this);
 					break;
 				case Resource.GMOBJECT:
-					rf = new GmObjectFrame(LGM.currentFile.gmObjects.get(resourceId),this);
+					rf = new GmObjectFrame((GmObject) res,this);
 					break;
 				case Resource.ROOM:
-					rf = new RoomFrame(LGM.currentFile.rooms.get(resourceId),this);
+					rf = new RoomFrame((Room) res,this);
 					break;
 				default:
 					rf = null;
@@ -187,7 +202,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		if (status == STATUS_SECONDARY)
 			{
 			String txt = (String) getUserObject();
-			LGM.currentFile.getList(kind).get(resourceId).setName(txt);
+			res.setName(txt);
 			if (frame != null)
 				{
 				frame.setTitle(txt);
@@ -258,21 +273,21 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		}
 
 	/**
-	 * Recursively checks (from this node down) for a node with a resourceId field
+	 * Recursively checks (from this node down) for a node with a res field
 	 * referring to the same instance as res.
 	 * @param res The resource to look for
 	 * @return Whether the resource was found
 	 */
-	public boolean contains(ResId res)
+	public boolean contains(Resource<?> res)
 		{
-		if (resourceId == res) return true; //Just in case
+		if (this.res == res) return true; //Just in case
 		if (children != null) for (Object obj : children)
 			if (obj instanceof ResNode)
 				{
 				ResNode node = (ResNode) obj;
 				if (node.isLeaf())
 					{
-					if (node.resourceId == res) return true;
+					if (node.res == res) return true;
 					}
 				else
 					{

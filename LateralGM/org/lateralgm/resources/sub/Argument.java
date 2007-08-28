@@ -16,10 +16,9 @@ import javax.swing.JTextField;
 
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.ResourceMenu;
-import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibArgument;
 
@@ -45,11 +44,11 @@ public class Argument
 
 	public byte kind = ARG_EXPRESSION;
 	public String val = "";
-	public ResId res = null; // for references to Resources
+	public Ref<?> res = null; // for references to Resources
 
 	private JComponent editor;
 
-	public Argument(byte kind, String val, ResId res)
+	public Argument(byte kind, String val, Ref<?> res)
 		{
 		this.kind = kind;
 		this.val = val;
@@ -122,6 +121,7 @@ public class Argument
 		return String.format(Messages.getString("Argument.NO_SELECTION"),Messages.getString(key));
 		}
 
+	@SuppressWarnings("unchecked")
 	private JComponent makeEditor(LibArgument la)
 		{
 		switch (kind)
@@ -203,7 +203,7 @@ public class Argument
 					{
 					try
 						{
-						return LGM.currentFile.getList(rk).get(res).getName();
+						return res.getRes().getName();
 						}
 					catch (NullPointerException e)
 						{
@@ -232,15 +232,16 @@ public class Argument
 			}
 		if (editor instanceof ResourceMenu)
 			{
-			Resource sel = ((ResourceMenu) editor).getSelected();
+			Resource<?> sel = ((ResourceMenu<?>) editor).getSelected();
 			if (sel == null)
 				res = null;
 			else
-				res = sel.getId();
+				res = sel.getRef();
 			return;
 			}
 		}
 
+	@SuppressWarnings("unchecked")
 	public void discard()
 		{
 		if (editor instanceof JTextField)
@@ -259,8 +260,7 @@ public class Argument
 			{
 			try
 				{
-				Resource s = LGM.currentFile.getList(getResourceKind(kind)).get(res);
-				((ResourceMenu) editor).setSelected(s);
+				((ResourceMenu) editor).setSelected(res.getRes());
 				}
 			catch (NumberFormatException nfe)
 				{

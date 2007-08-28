@@ -11,7 +11,7 @@ package org.lateralgm.resources;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 
-public class Font extends Resource
+public class Font extends Resource<Font>
 	{
 	public String fontName = "Arial";
 	public int size = 12;
@@ -30,14 +30,12 @@ public class Font extends Resource
 		return copy(false,null);
 		}
 
-	@SuppressWarnings("unchecked")
-	public Font copy(ResourceList src)
+	public Font copy(ResourceList<Font> src)
 		{
 		return copy(true,src);
 		}
 
-	@SuppressWarnings("unchecked")
-	private Font copy(boolean update, ResourceList src)
+	private Font copy(boolean update, ResourceList<Font> src)
 		{
 		Font font = new Font();
 		font.fontName = fontName;
@@ -48,8 +46,7 @@ public class Font extends Resource
 		font.charRangeMax = charRangeMax;
 		if (update)
 			{
-			font.setId(new ResId(++src.lastId));
-			font.setName(Prefs.prefixes[Resource.FONT] + src.lastId);
+			font.setName(Prefs.prefixes[Resource.FONT] + (src.lastId + 1));
 			src.add(font);
 			}
 		else

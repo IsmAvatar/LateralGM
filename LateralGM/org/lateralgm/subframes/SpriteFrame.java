@@ -300,7 +300,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public void revertResource()
 		{
-		LGM.currentFile.sprites.replace(res.getId(),resOriginal);
+		LGM.currentFile.sprites.replace(res,resOriginal);
 		}
 
 	public void updateResource()

@@ -128,9 +128,9 @@ public class GMLTextArea extends JEditTextArea
 		for (int j : kmResources)
 			{
 			ResourceList<?> rl = LGM.currentFile.getList(j);
-			for (int i = 0; i < rl.count(); i++)
+			for (Resource<?> r : rl)
 				{
-				String n = rl.getList(i).getName();
+				String n = r.getName();
 				if (n.length() > 0) km.add(n,Token.KEYWORD3);
 				}
 			}

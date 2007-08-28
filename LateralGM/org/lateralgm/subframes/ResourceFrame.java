@@ -40,8 +40,10 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
-// Provides common functionality and structure to Resource editing frames
-public abstract class ResourceFrame<R extends Resource> extends MDIFrame implements
+/**
+ *  Provides common functionality and structure to Resource editing frames
+ */
+public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame implements
 		DocumentListener,ActionListener
 	{
 	private static final long serialVersionUID = 1L;
@@ -75,13 +77,12 @@ public abstract class ResourceFrame<R extends Resource> extends MDIFrame impleme
 	 * The res and node parameters are only needed in the instantiation to assign globals;
 	 * That is, once you call this, they will immediately gain global scope and may be treated thusly.
 	 */
-	@SuppressWarnings("unchecked")
 	public ResourceFrame(R res, ResNode node)
 		{
 		super("",true,true,true,true); //$NON-NLS-1$
 		this.res = res;
 		this.node = node;
-		resOriginal = (R) res.copy();
+		resOriginal = res.copy();
 		setTitle(res.getName());
 		setFrameIcon(Resource.ICON[res.getKind()]);
 		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
@@ -96,6 +97,10 @@ public abstract class ResourceFrame<R extends Resource> extends MDIFrame impleme
 
 	public abstract void updateResource();
 
+	/**
+	 * Simply calls:
+	 * <pre>LGM.currentFile.&ltappropriate list&gt.replace(res,resOriginal);</pre>
+	 */
 	public abstract void revertResource();
 
 	public abstract boolean resourceChanged();
@@ -173,20 +178,22 @@ public abstract class ResourceFrame<R extends Resource> extends MDIFrame impleme
 					{
 					updateResource();
 					node.setUserObject(res.getName());
+					node.updateIcon();
 					dispose();
-					LGM.tree.updateUI();
 					}
 				else if (ret == JOptionPane.NO_OPTION)
 					{
 					revertResource();
+					node.res = resOriginal;
 					node.setUserObject(resOriginal.getName());
+					node.updateIcon();
 					dispose();
-					LGM.tree.updateUI();
 					}
 				}
 			else
 				{
 				updateResource();
+				node.updateIcon();
 				dispose();
 				}
 			}

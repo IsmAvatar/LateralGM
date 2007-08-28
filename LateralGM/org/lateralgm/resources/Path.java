@@ -15,12 +15,12 @@ import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.Point;
 
-public class Path extends Resource
+public class Path extends Resource<Path>
 	{
 	public boolean smooth = false;
 	public boolean closed = true;
 	public int precision = 4;
-	public ResId backgroundRoom = null;
+	public Ref<Room> backgroundRoom = null;
 	public int snapX = 16;
 	public int snapY = 16;
 	public ArrayList<Point> points = new ArrayList<Point>();
@@ -42,14 +42,12 @@ public class Path extends Resource
 		return copy(false,null);
 		}
 
-	@SuppressWarnings("unchecked")
-	public Path copy(ResourceList src)
+	public Path copy(ResourceList<Path> src)
 		{
 		return copy(true,src);
 		}
 
-	@SuppressWarnings("unchecked")
-	private Path copy(boolean update, ResourceList src)
+	private Path copy(boolean update, ResourceList<Path> src)
 		{
 		Path path = new Path();
 		path.smooth = smooth;
@@ -67,8 +65,7 @@ public class Path extends Resource
 			}
 		if (update)
 			{
-			path.setId(new ResId(++src.lastId));
-			path.setName(Prefs.prefixes[Resource.PATH] + src.lastId);
+			path.setName(Prefs.prefixes[Resource.PATH] + (src.lastId + 1));
 			src.add(path);
 			}
 		else

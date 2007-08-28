@@ -63,7 +63,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JList oList;
 	private Instance lastObj = null; //non-guaranteed copy of oList.getLastSelectedValue()
 	public JButton oAdd, oDel;
-	public ResourceMenu oSource;
+	public ResourceMenu<GmObject> oSource;
 	public IntegerField oX, oY;
 	public JButton oCreationCode;
 	//Settings
@@ -77,7 +77,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JList tList;
 	private Tile lastTile = null; //non-guaranteed copy of tList.getLastSelectedValue()
 	public JButton tAdd, tDel;
-	public ResourceMenu tSource;
+	public ResourceMenu<Background> tSource;
 	public IntegerField tsX, tsY, tX, tY, tLayer;
 	//Backgrounds
 	public JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
@@ -85,7 +85,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JList bList;
 	/**Guaranteed valid version of bList.getLastSelectedIndex()*/
 	public int lastValidBack = 0;
-	public ResourceMenu bSource;
+	public ResourceMenu<Background> bSource;
 	public IntegerField bX, bY, bH, bV;
 	//Views
 	public JCheckBox vEnabled, vVisible;
@@ -94,7 +94,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public int lastValidView = 0;
 	public IntegerField vRX, vRY, vRW, vRH;
 	public IntegerField vPX, vPY, vPW, vPH;
-	public ResourceMenu vObj;
+	public ResourceMenu<GmObject> vObj;
 	public IntegerField vOHBor, vOVBor, vOHSp, vOVSp;
 
 	public JPanel makeObjectsPane()
@@ -121,9 +121,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 						boolean selected, boolean focus)
 					{
 					Instance i = (Instance) val;
-					GmObject go = LGM.currentFile.gmObjects.get(i.gmObjectId);
+					GmObject go = i.gmObjectId.getRes();
 					JLabel lab = new JLabel(go.getName() + " " + i.instanceId,
-							GmTreeGraphics.getSpriteIcon(LGM.currentFile.sprites.get(go.sprite)),JLabel.LEFT);
+							GmTreeGraphics.getSpriteIcon(go.sprite),JLabel.LEFT);
 					super.getListCellRendererComponent(list,lab,ind,selected,focus);
 					lab.setOpaque(true);
 					return lab;
@@ -138,7 +138,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		oDel = new JButton(Messages.getString("RoomFrame.OBJ_DELETE")); //$NON-NLS-1$
 		oDel.addActionListener(this);
 		panel.add(oDel);
-		oSource = new ResourceMenu(Room.GMOBJECT,"<no object>",true,110);
+		oSource = new ResourceMenu<GmObject>(Room.GMOBJECT,"<no object>",true,110);
 		oSource.setPreferredSize(new Dimension(120,20));
 		panel.add(oSource);
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
@@ -292,7 +292,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 						boolean selected, boolean focus)
 					{
 					Tile i = (Tile) val;
-					Background bg = LGM.currentFile.backgrounds.get(i.backgroundId);
+					Background bg = i.backgroundId.getRes();
 					JLabel lab = new JLabel(bg.getName() + " " + i.tileId,JLabel.LEFT);
 					super.getListCellRendererComponent(list,lab,ind,selected,focus);
 					lab.setOpaque(true);
@@ -317,7 +317,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		p.setPreferredSize(new Dimension(160,80));
 		String s = Messages.getString("RoomFrame.TILESET"); //$NON-NLS-1$
 		p.setBorder(BorderFactory.createTitledBorder(s));
-		tSource = new ResourceMenu(Room.BACKGROUND,"<no background>",true,110);
+		tSource = new ResourceMenu<Background>(Room.BACKGROUND,"<no background>",true,110);
 		tSource.setPreferredSize(new Dimension(140,20));
 		p.add(tSource);
 		p.add(new JLabel(Messages.getString("RoomFrame.TILESET_X"))); //$NON-NLS-1$
@@ -388,8 +388,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		bForeground = new JCheckBox(st,res.backgroundDefs[0].foreground);
 		panel.add(bForeground);
 
-		bSource = new ResourceMenu(Room.BACKGROUND,"<no background>",true,150);
-		bSource.setSelected(LGM.currentFile.backgrounds.get(res.backgroundDefs[0].backgroundId));
+		bSource = new ResourceMenu<Background>(Room.BACKGROUND,"<no background>",true,150);
+		bSource.setRefSelected(res.backgroundDefs[0].backgroundId);
 		panel.add(bSource);
 
 		st = Messages.getString("RoomFrame.BACK_TILE_HOR"); //$NON-NLS-1$
@@ -511,8 +511,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		st = Messages.getString("RoomFrame.FOLLOW"); //$NON_NLS_1$
 		p.setBorder(BorderFactory.createTitledBorder(st));
 		p.setPreferredSize(new Dimension(150,104));
-		vObj = new ResourceMenu(Room.GMOBJECT,"<no object>",true,110);
-		vObj.setSelected(LGM.currentFile.gmObjects.get(res.views[0].objectFollowing));
+		vObj = new ResourceMenu<GmObject>(Room.GMOBJECT,"<no object>",true,110);
+		vObj.setRefSelected(res.views[0].objectFollowing);
 		p.add(vObj);
 		p.add(new JLabel(Messages.getString("RoomFrame.HBOR"))); //$NON_NLS_1$
 		vOHBor = new IntegerField(0,32000,res.views[0].hbor);
@@ -669,7 +669,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public void revertResource()
 		{
 		resOriginal.currentTab = tabs.getSelectedIndex();
-		LGM.currentFile.rooms.replace(res.getId(),resOriginal);
+		LGM.currentFile.rooms.replace(res,resOriginal);
 		}
 
 	private void commitChanges()
@@ -745,7 +745,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastObj != null)
 			{
 			lastObj.locked = oLocked.isSelected();
-			//lastObj.gmObjectId = oSource.getSelected(); //FIXME: (waiting for Clam's ResId solution)
+			//FIXME: oSource is not updating its selection
+			//lastObj.gmObjectId = oSource.getSelectedRef();
 			lastObj.x = oX.getIntValue();
 			lastObj.y = oY.getIntValue();
 			}
@@ -762,7 +763,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastTile != null)
 			{
 			lastTile.locked = tLocked.isSelected();
-			//		lastTile.backgroundId = bSource.getSelected(); //FIXME: (waiting for ResId solution)
+			lastTile.backgroundId = bSource.getSelectedRef();
 			lastTile.tileX = tsX.getIntValue();
 			lastTile.tileY = tsY.getIntValue();
 			lastTile.x = tX.getIntValue();
@@ -788,7 +789,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (bSource.getSelected() == null)
 			b.backgroundId = null;
 		else
-			b.backgroundId = bSource.getSelected().getId();
+			b.backgroundId = bSource.getSelected().getRef();
 		b.x = bX.getIntValue();
 		b.y = bY.getIntValue();
 		b.tileHoriz = bTileH.isSelected();
@@ -807,7 +808,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		b = res.backgroundDefs[lastValidBack];
 		bVisible.setSelected(b.visible);
 		bForeground.setSelected(b.foreground);
-		bSource.setSelected(LGM.currentFile.backgrounds.get(b.backgroundId));
+		bSource.setRefSelected(b.backgroundId);
 		bX.setIntValue(b.x);
 		bY.setIntValue(b.y);
 		bTileH.setSelected(b.tileHoriz);
@@ -832,7 +833,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (vObj.getSelected() == null)
 			v.objectFollowing = null;
 		else
-			v.objectFollowing = vObj.getSelected().getId();
+			v.objectFollowing = vObj.getSelected().getRef();
 		v.hbor = vOHBor.getIntValue();
 		v.vbor = vOVBor.getIntValue();
 		v.hspeed = vOHSp.getIntValue();
@@ -855,7 +856,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		vPY.setIntValue(v.portY);
 		vPW.setIntValue(v.portW);
 		vPH.setIntValue(v.portH);
-		vObj.setSelected(LGM.currentFile.gmObjects.get(v.objectFollowing));
+		vObj.setRefSelected(v.objectFollowing);
 		vOHBor.setIntValue(v.hbor);
 		vOVBor.setIntValue(v.vbor);
 		vOHSp.setIntValue(v.hspeed);

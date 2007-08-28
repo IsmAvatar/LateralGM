@@ -51,7 +51,7 @@ public class ScriptFrame extends ResourceFrame<Script>
 
 	public void revertResource()
 		{
-		LGM.currentFile.scripts.replace(res.getId(),resOriginal);
+		LGM.currentFile.scripts.replace(res,resOriginal);
 		}
 
 	public void updateResource()

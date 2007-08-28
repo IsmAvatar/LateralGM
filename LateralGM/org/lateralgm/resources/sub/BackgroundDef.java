@@ -8,13 +8,14 @@
 
 package org.lateralgm.resources.sub;
 
-import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Ref;
 
 public class BackgroundDef
 	{
 	public boolean visible = false;
 	public boolean foreground = false;
-	public ResId backgroundId = null;
+	public Ref<Background> backgroundId = null;
 	public int x = 0;
 	public int y = 0;
 	public boolean tileHoriz = true;

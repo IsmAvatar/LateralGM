@@ -33,15 +33,18 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 
-public class ResourceMenu extends JPanel implements MouseListener,ActionListener
+public class ResourceMenu<R extends Resource<R>> extends JPanel implements MouseListener,
+		ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private final ResourceChangeListener rcl = new ResourceChangeListener();
 	private JLabel label;
 	private JButton button;
-	private Resource selected;
+	//Direct reference possible, because the menu updates itself
+	private R selected;
 	private JPopupMenu pm;
 	private JMenuItem noResource;
 	private ActionEvent actionEvent;
@@ -66,7 +69,7 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 				{
 				setIcon(node.getIcon());
 				setText(node.getUserObject().toString());
-				ResourceMenu.this.setSelected(selected);
+				ResourceMenu.this.setSelected(selected); //update text
 				}
 			}
 		}
@@ -163,7 +166,6 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 			}
 		}
 
-	//TODO:
 	private class ResourceChangeListener implements ChangeListener
 		{
 		public void stateChanged(ChangeEvent e)
@@ -174,7 +176,7 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 				if (noResource != null) pm.add(noResource);
 				populate(kind);
 				}
-			if (selected == null || !Listener.getPrimaryParent(kind).contains(selected.getId()))
+			if (selected == null || !Listener.getPrimaryParent(kind).contains(selected))
 				setSelected(null);
 			setSelected(selected);
 			}
@@ -214,15 +216,28 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 		pm.show(c,x,y);
 		}
 
-	public Resource getSelected()
+	public R getSelected()
 		{
 		return selected;
 		}
+	
+	public Ref<R> getSelectedRef()
+	{
+	return selected == null ? null : selected.getRef();
+	}
 
-	public void setSelected(Resource res)
+	public void setSelected(R res)
 		{
 		selected = res;
 		label.setText((res == null) ? (noResource != null ? noResource.getText() : "") : res.getName()); //$NON-NLS-1$
+		}
+
+	public void setRefSelected(Ref<R> ref)
+		{
+		if (ref == null)
+			setSelected(null);
+		else
+			setSelected(ref.getRes());
 		}
 
 	public void setEnabled(boolean enabled)
@@ -232,11 +247,12 @@ public class ResourceMenu extends JPanel implements MouseListener,ActionListener
 		super.setEnabled(enabled);
 		}
 
+	@SuppressWarnings("unchecked")
 	public void actionPerformed(ActionEvent e)
 		{
 		JMenuItem source = (JMenuItem) e.getSource();
-		if (source instanceof ResourceMenuItem)
-			setSelected(LGM.currentFile.getList(kind).get(((ResourceMenuItem) source).node.resourceId));
+		if (source instanceof ResourceMenu.ResourceMenuItem)
+			setSelected((R) ((ResourceMenuItem) source).node.res);
 		else
 			setSelected(null);
 		fireActionPerformed();

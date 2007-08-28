@@ -161,7 +161,7 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public void revertResource()
 		{
-		LGM.currentFile.fonts.replace(res.getId(),resOriginal);
+		LGM.currentFile.fonts.replace(res,resOriginal);
 		}
 
 	private void commitChanges()

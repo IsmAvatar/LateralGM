@@ -11,7 +11,7 @@ package org.lateralgm.resources;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 
-public class Script extends Resource
+public class Script extends Resource<Script>
 	{
 	public String scriptStr = "";
 
@@ -20,15 +20,13 @@ public class Script extends Resource
 		setName(Prefs.prefixes[Resource.SCRIPT]);
 		}
 
-	@SuppressWarnings("unchecked")
-	private Script copy(boolean update, ResourceList src)
+	private Script copy(boolean update, ResourceList<Script> src)
 		{
 		Script scr = new Script();
 		scr.scriptStr = scriptStr;
 		if (update)
 			{
-			scr.setId(new ResId(++src.lastId));
-			scr.setName(Prefs.prefixes[Resource.SCRIPT] + src.lastId);
+			scr.setName(Prefs.prefixes[Resource.SCRIPT] + (src.lastId + 1));
 			src.add(scr);
 			}
 		else
@@ -44,8 +42,7 @@ public class Script extends Resource
 		return SCRIPT;
 		}
 
-	@SuppressWarnings("unchecked")
-	public Script copy(ResourceList src)
+	public Script copy(ResourceList<Script> src)
 		{
 		return copy(true,src);
 		}

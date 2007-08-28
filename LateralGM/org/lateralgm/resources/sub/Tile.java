@@ -8,13 +8,14 @@
 
 package org.lateralgm.resources.sub;
 
-import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Ref;
 
 public class Tile
 	{
 	public int x = 0;
 	public int y = 0;
-	public ResId backgroundId = null;
+	public Ref<Background> backgroundId = null;
 	public int tileX = 0;
 	public int tileY = 0;
 	public int width = 16;

@@ -9,7 +9,7 @@
 package org.lateralgm.resources.sub;
 
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.library.LibAction;
 
 public class Action
@@ -39,7 +39,7 @@ public class Action
 	// The actual Action properties
 	public boolean relative = false;
 	public boolean not = false;
-	public ResId appliesTo = GmObject.OBJECT_SELF;
+	public Ref<GmObject> appliesTo = GmObject.OBJECT_SELF;
 
 	public Argument[] arguments;
 	}

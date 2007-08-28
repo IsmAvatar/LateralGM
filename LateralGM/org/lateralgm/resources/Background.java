@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 
-public class Background extends Resource
+public class Background extends Resource<Background>
 	{
 	public int width = 0;
 	public int height = 0;
@@ -51,14 +51,12 @@ public class Background extends Resource
 		return copy(false,null);
 		}
 
-	@SuppressWarnings("unchecked")
-	public Background copy(ResourceList src)
+	public Background copy(ResourceList<Background> src)
 		{
 		return copy(true,src);
 		}
 
-	@SuppressWarnings("unchecked")
-	private Background copy(boolean update, ResourceList src)
+	private Background copy(boolean update, ResourceList<Background> src)
 		{
 		Background back = new Background();
 		back.width = width;
@@ -76,8 +74,7 @@ public class Background extends Resource
 		back.backgroundImage = copyBackgroundImage();
 		if (update)
 			{
-			back.setId(new ResId(++src.lastId));
-			back.setName(Prefs.prefixes[Resource.BACKGROUND] + src.lastId);
+			back.setName(Prefs.prefixes[Resource.BACKGROUND] + (src.lastId + 1));
 			src.add(back);
 			}
 		else

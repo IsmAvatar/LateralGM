@@ -200,11 +200,11 @@ public class GmStreamDecoder
 			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO
 					&& type != Resource.GAMESETTINGS && type != Resource.EXTENSIONS)
 				{
-				node.resourceId = src.getList(node.kind).getUnsafe(ind).getId();
+				node.res = src.getList(node.kind).getUnsafe(ind);
 
 				// GM actually ignores the name given
-				node.setUserObject(src.getList(node.kind).getUnsafe(ind).getName());
 				// in the tree data
+				node.setUserObject(src.getList(node.kind).getUnsafe(ind).getName());
 				}
 			int contents = read4();
 			if (contents > 0)

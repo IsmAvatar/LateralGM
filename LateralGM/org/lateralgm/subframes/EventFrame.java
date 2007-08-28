@@ -53,6 +53,7 @@ import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
@@ -64,7 +65,7 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 
 	public JCheckBox replace;
 	public EventKeyInput keySelect;
-	public ResourceMenu collisionSelect;
+	public ResourceMenu<GmObject> collisionSelect;
 	public JTextField frameName;
 	public JButton frameChoose;
 	public GmObjectFrame linkedFrame;
@@ -110,7 +111,7 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 
 		JLabel lab = new JLabel(Messages.getString("EventFrame.COLLISION_OBJECT"));
 		addDim(side2,lab,140,16); //$NON-NLS-1$
-		collisionSelect = new ResourceMenu(Resource.GMOBJECT,
+		collisionSelect = new ResourceMenu<GmObject>(Resource.GMOBJECT,
 				Messages.getString("EventFrame.CHOOSE_OBJECT"),true,140); //$NON-NLS-1$
 		side2.add(collisionSelect);
 		collisionSelect.setEnabled(false);
@@ -228,7 +229,7 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 		GmObjectFrameItem(GmObjectFrame frame)
 			{
 			this.frame = frame;
-			setIcon(GmTreeGraphics.getSpriteIcon(LGM.currentFile.sprites.get(frame.res.sprite)));
+			setIcon(GmTreeGraphics.getSpriteIcon(frame.res.sprite));
 			setText(frame.name.getText());
 			frame.name.getDocument().addDocumentListener(this);
 			}
@@ -364,7 +365,7 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 		if (e.getSource() == collisionSelect)
 			{
 			if (selectedNode.mainId == MainEvent.EV_COLLISION && collisionSelect.getSelected() != null)
-				selectedNode.other = collisionSelect.getSelected().getId();
+				selectedNode.other = collisionSelect.getSelected().getRef();
 			}
 
 		}

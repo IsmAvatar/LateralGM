@@ -11,195 +11,129 @@ package org.lateralgm.file;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.lateralgm.resources.ResId;
-import org.lateralgm.resources.Resource;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
-public class ResourceList<R extends Resource>
+import org.lateralgm.resources.Ref;
+import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.Room;
+
+public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 	{
-	private ArrayList<R> resources = new ArrayList<R>();
+	private static final long serialVersionUID = 1L;
 
 	private Class<R> type; // used as a workaround for add()
+	private Gm6File parent; // used for rooms
 
 	private final ResourceChangeListener rcl = new ResourceChangeListener();
 
 	EventListenerList listenerList = new EventListenerList();
 	ChangeEvent changeEvent = null;
 
-	ResourceList(Class<R> type)
+	ResourceList(Class<R> type, Gm6File parent)
 		{
 		this.type = type;
 		}
 
 	public int lastId = -1;
 
-	public int count()
+	public boolean add(R res)
 		{
-		return resources.size();
-		}
-
-	public R add(R res)
-		{
-		resources.add(res);
-		res.setId(new ResId(++lastId));
+		super.add(res);
 		res.addChangeListener(rcl);
 		fireStateChanged();
-		return res;
+		res.setId(++lastId);
+		return true;
 		}
 
-	// Be careful when using this with rooms (they default to LGM.currentFile as their owner)
 	public R add()
 		{
 		R res = null;
 		try
 			{
-			res = type.newInstance();
-			res.setName(res.getName() + (lastId + 1));
-			add(res);
+			if (type == Room.class)
+				res = type.getConstructor(Gm6File.class).newInstance(parent);
+			else
+				res = type.newInstance();
 			}
 		catch (Exception e)
 			{
 			e.printStackTrace();
+			}
+		if (res != null)
+			{
+			new Ref<R>(res); // Ref constructor takes care of everything
+			res.setName(res.getName() + (lastId + 1));
+			add(res);
 			}
 		return res;
 		}
 
 	public R getUnsafe(int id)
 		{
-		for (int i = 0; i < resources.size(); i++)
-			{
-			if (resources.get(i).getId().getValue() == id)
-				{
-				return resources.get(i);
-				}
-			}
-		return null;
-		}
-
-	/** May return null */
-	public R get(ResId id)
-		{
-		int listIndex = index(id);
-		if (listIndex != -1) return resources.get(listIndex);
+		for (R res : this)
+			if (res.getId() == id) return res;
 		return null;
 		}
 
 	/** May return null */
 	public R get(String name)
 		{
-		int listIndex = index(name);
-		if (listIndex != -1) return resources.get(listIndex);
+		for (R res : this)
+			if (res.getName().equals(name)) return res;
 		return null;
 		}
 
-	public R getList(int listIndex)
+	public R remove(int index)
 		{
-		if (listIndex >= 0 && listIndex < resources.size()) return resources.get(listIndex);
-		return null;
-		}
-
-	public void remove(ResId id)
-		{
-		int listIndex = index(id);
-		if (listIndex != -1) remove(listIndex);
-		}
-
-	public void remove(String name)
-		{
-		int listIndex = index(name);
-		if (listIndex != -1) remove(listIndex);
-		}
-
-	public void remove(int index)
-		{
-		resources.get(index).removeChangeListener(rcl);
-		resources.remove(index);
+		R res = get(index);
+		super.remove(index);
+		res.removeChangeListener(rcl);
+		res.getRef().delete();
 		fireStateChanged();
-		}
-
-	public int index(ResId id)
-		{
-		for (int i = 0; i < resources.size(); i++)
-			{
-			if (resources.get(i).getId() == id)
-				{
-				return i;
-				}
-			}
-		return -1;
-		}
-
-	public int index(String name)
-		{
-		for (int i = 0; i < resources.size(); i++)
-			{
-			if (resources.get(i).getName().equals(name))
-				{
-				return i;
-				}
-			}
-		return -1;
+		return res;
 		}
 
 	public void clear()
 		{
-		if (resources.size() == 0) return;
-		for (R r : resources)
+		if (size() == 0) return;
+		for (R r : this)
 			{
 			r.removeChangeListener(rcl);
 			}
-		resources.clear();
+		super.clear();
 		fireStateChanged();
 		}
 
 	public void sort()
 		{
-		Collections.sort(resources);
+		Collections.sort(this);
 		}
 
-	@SuppressWarnings("unchecked")
-	public R duplicate(ResId id, boolean update)
+	public void replace(R old, R replacement)
 		{
-		R res = get(id);
-		R res2 = null;
-		if (res != null)
-			{
-			if (update)
-				res2 = (R) res.copy(this);
-			else
-				res2 = (R) res.copy();
-			}
-		return res2;
-		}
-
-	public void replace(ResId srcId, R replacement)
-		{
-		int ind = index(srcId);
-		replace(ind,replacement);
+		old.removeChangeListener(rcl);
+		old.getRef().delete();
+		old.getRef().setRes(replacement);
+		int ind = -1;
+		for (int i = 0; i < size(); i++)
+			if (get(i) == old)
+				{
+				ind = i;
+				break;
+				}
+		set(ind,replacement);
+		replacement.addChangeListener(rcl);
 		fireStateChanged();
-		}
-
-	public void replace(int srcIndex, R replacement)
-		{
-		if (srcIndex >= 0 && srcIndex < resources.size() && replacement != null)
-			{
-			resources.set(srcIndex,replacement);
-			replacement.addChangeListener(rcl);
-			fireStateChanged();
-			}
 		}
 
 	public void defragIds()
 		{
 		sort();
-		for (int i = 0; i < resources.size(); i++)
-			{
-			resources.get(i).getId().setValue(i);
-			}
-		lastId = resources.size() - 1;
+		for (int i = 0; i < size(); i++)
+			get(i).setId(i);
+		lastId = size() - 1;
 		}
 
 	public void addChangeListener(ChangeListener l)
@@ -210,13 +144,6 @@ public class ResourceList<R extends Resource>
 	public void removeChangeListener(ChangeListener l)
 		{
 		listenerList.remove(ChangeListener.class,l);
-		}
-
-	@SuppressWarnings("unchecked")
-	public R[] toArray()
-		{
-		Resource[] result = new Resource[resources.size()];
-		return (R[]) resources.toArray(result);
 		}
 
 	protected void fireStateChanged(ChangeEvent e)
@@ -247,5 +174,19 @@ public class ResourceList<R extends Resource>
 			{
 			fireStateChanged(e);
 			}
+		}
+
+	/**
+	 * Replaces the Resource at the given position with the given Resource.
+	 * The old Ref is transferred to the new Resource.
+	 * @param index The list index to replace at
+	 * @param res The new Resource
+	 */
+	public R set(int index, R res)
+		{
+		R old = super.set(index,res);
+		old.getRef().delete();
+		old.getRef().setRes(res);
+		return old;
 		}
 	}

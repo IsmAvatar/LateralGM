@@ -27,6 +27,7 @@ import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
+import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
@@ -59,11 +60,12 @@ public final class Gm6FileReader
 		{
 		Gm6File f;
 		GmStreamDecoder in;
-		IdStack timeids;
-		IdStack objids;
-		IdStack rmids;
+		RefList<Timeline> timeids;
+		RefList<GmObject> objids;
+		RefList<Room> rmids;
 
-		Gm6FileContext(Gm6File f, GmStreamDecoder in, IdStack timeids, IdStack objids, IdStack rmids)
+		Gm6FileContext(Gm6File f, GmStreamDecoder in, RefList<Timeline> timeids,
+				RefList<GmObject> objids, RefList<Room> rmids)
 			{
 			this.f = f;
 			this.in = in;
@@ -77,17 +79,14 @@ public final class Gm6FileReader
 		{
 		Gm6File f = new Gm6File();
 		GmStreamDecoder in = null;
-		IdStack timeids = new IdStack(); // timeline ids
-		IdStack objids = new IdStack(); // object ids
-		IdStack rmids = new IdStack(); // room id
+		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class,f); // timeline ids
+		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class,f); // object ids
+		RefList<Room> rmids = new RefList<Room>(Room.class,f); // room id
 		try
 			{
 			long startTime = System.currentTimeMillis();
 			in = new GmStreamDecoder(fileName);
 			Gm6FileContext c = new Gm6FileContext(f,in,timeids,objids,rmids);
-			timeids = new IdStack(); // timeline ids
-			objids = new IdStack(); // object ids
-			rmids = new IdStack(); // room ids
 			int identifier = in.read4();
 			if (identifier != 1234321)
 				throw new Gm6FormatException(String.format(
@@ -561,8 +560,9 @@ public final class Gm6FileReader
 			{
 			if (in.readBool())
 				{
-				Timeline time = f.timelines.add();
-				time.setId(c.timeids.get(i));
+				Ref<Timeline> r = c.timeids.get(i);
+				Timeline time = r.getRes();
+				f.timelines.add(time);
 				time.setName(in.readStr());
 				ver = in.read4();
 				if (ver != 500)
@@ -596,22 +596,23 @@ public final class Gm6FileReader
 			{
 			if (in.readBool())
 				{
-				GmObject obj = f.gmObjects.add();
-				obj.setId(c.objids.get(i));
+				Ref<GmObject> r = c.objids.get(i);
+				GmObject obj = r.getRes();
+				f.gmObjects.add(obj);
 				obj.setName(in.readStr());
 				ver = in.read4();
 				if (ver != 430)
 					throw new Gm6FormatException(String.format(
 							Messages.getString("Gm6File.ERROR_UNSUPPORTED_INOBJECT"),i,ver)); //$NON-NLS-1$
 				Sprite temp = f.sprites.getUnsafe(in.read4());
-				if (temp != null) obj.sprite = temp.getId();
+				if (temp != null) obj.sprite = temp.getRef();
 				obj.solid = in.readBool();
 				obj.visible = in.readBool();
 				obj.depth = in.read4();
 				obj.persistent = in.readBool();
 				obj.parent = c.objids.get(in.read4());
 				temp = f.sprites.getUnsafe(in.read4());
-				if (temp != null) obj.mask = temp.getId();
+				if (temp != null) obj.mask = temp.getRef();
 				in.skip(4);
 				for (int j = 0; j < 11; j++)
 					{
@@ -656,8 +657,9 @@ public final class Gm6FileReader
 			{
 			if (in.readBool())
 				{
-				Room rm = f.rooms.add(new Room(f));
-				rm.setId(c.rmids.get(i));
+				Ref<Room> r = c.rmids.get(i);
+				Room rm = r.getRes();
+				f.rooms.add(rm);
 				rm.setName(in.readStr());
 				ver = in.read4();
 				if (ver != 541)
@@ -681,7 +683,7 @@ public final class Gm6FileReader
 					bk.visible = in.readBool();
 					bk.foreground = in.readBool();
 					Background temp = f.backgrounds.getUnsafe(in.read4());
-					if (temp != null) bk.backgroundId = temp.getId();
+					if (temp != null) bk.backgroundId = temp.getRef();
 					bk.x = in.read4();
 					bk.y = in.read4();
 					bk.tileHoriz = in.readBool();
@@ -709,7 +711,7 @@ public final class Gm6FileReader
 					vw.hspeed = in.read4();
 					vw.vspeed = in.read4();
 					GmObject temp = f.gmObjects.getUnsafe(in.read4());
-					if (temp != null) vw.objectFollowing = temp.getId();
+					if (temp != null) vw.objectFollowing = temp.getRef();
 					}
 				int noinstances = in.read4();
 				for (int j = 0; j < noinstances; j++)
@@ -718,7 +720,7 @@ public final class Gm6FileReader
 					inst.x = in.read4();
 					inst.y = in.read4();
 					GmObject temp = f.gmObjects.getUnsafe(in.read4());
-					if (temp != null) inst.gmObjectId = temp.getId();
+					if (temp != null) inst.gmObjectId = temp.getRef();
 					inst.instanceId = in.read4();
 					inst.creationCode = in.readStr();
 					inst.locked = in.readBool();
@@ -730,7 +732,7 @@ public final class Gm6FileReader
 					ti.x = in.read4();
 					ti.y = in.read4();
 					Background temp = f.backgrounds.getUnsafe(in.read4());
-					if (temp != null) ti.backgroundId = temp.getId();
+					if (temp != null) ti.backgroundId = temp.getRef();
 					ti.tileX = in.read4();
 					ti.tileY = in.read4();
 					ti.width = in.read4();
@@ -784,7 +786,7 @@ public final class Gm6FileReader
 		Gm6File f = c.f;
 		GmStreamDecoder in = c.in;
 
-		Resource tag = new Script();
+		Resource<?> tag = new Script();
 		int ver = in.read4();
 		if (ver != 400)
 			{
@@ -851,7 +853,7 @@ public final class Gm6FileReader
 					act.arguments[l].kind = (byte) argkinds[l];
 
 					String strval = in.readStr();
-					Resource res = tag;
+					Resource<?> res = tag;
 					switch (argkinds[l])
 						{
 						case Argument.ARG_SPRITE:
@@ -887,7 +889,7 @@ public final class Gm6FileReader
 						}
 					if (res != null && res != tag)
 						{
-						act.arguments[l].res = res.getId();
+						act.arguments[l].res = res.getRef();
 						}
 					}
 				else

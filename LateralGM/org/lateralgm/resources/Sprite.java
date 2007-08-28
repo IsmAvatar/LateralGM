@@ -21,7 +21,7 @@ import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 
-public class Sprite extends Resource
+public class Sprite extends Resource<Sprite>
 	{
 	public static final byte BBOX_AUTO = 0;
 	public static final byte BBOX_FULL = 1;
@@ -67,8 +67,7 @@ public class Sprite extends Resource
 			}
 		catch (IOException ex)
 			{
-			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),subImages.size(),
-					getId().getValue());
+			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),subImages.size(),getId());
 			System.err.println();
 			}
 		return result;
@@ -92,8 +91,7 @@ public class Sprite extends Resource
 		return null;
 		}
 
-	@SuppressWarnings("unchecked")
-	private Sprite copy(boolean update, ResourceList src)
+	private Sprite copy(boolean update, ResourceList<Sprite> src)
 		{
 		Sprite spr = new Sprite();
 		spr.width = width;
@@ -115,8 +113,7 @@ public class Sprite extends Resource
 			}
 		if (update)
 			{
-			spr.setId(new ResId(++src.lastId));
-			spr.setName(Prefs.prefixes[Resource.SPRITE] + src.lastId);
+			spr.setName(Prefs.prefixes[Resource.SPRITE] + (src.lastId + 1));
 			src.add(spr);
 			}
 		else
@@ -132,8 +129,7 @@ public class Sprite extends Resource
 		return copy(false,null);
 		}
 
-	@SuppressWarnings("unchecked")
-	public Sprite copy(ResourceList src)
+	public Sprite copy(ResourceList<Sprite> src)
 		{
 		return copy(true,src);
 		}

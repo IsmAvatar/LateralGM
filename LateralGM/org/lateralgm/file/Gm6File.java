@@ -63,15 +63,15 @@ import org.lateralgm.resources.sub.Tile;
 public class Gm6File
 	{
 	private Map<Byte,ResourceList<?>> resMap = new HashMap<Byte,ResourceList<?>>();
-	public ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class);
-	public ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class);
-	public ResourceList<Background> backgrounds = new ResourceList<Background>(Background.class);
-	public ResourceList<Path> paths = new ResourceList<Path>(Path.class);
-	public ResourceList<Script> scripts = new ResourceList<Script>(Script.class);
-	public ResourceList<Font> fonts = new ResourceList<Font>(Font.class);
-	public ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class);
-	public ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class);
-	public ResourceList<Room> rooms = new ResourceList<Room>(Room.class);
+	public ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class,this);
+	public ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class,this);
+	public ResourceList<Background> backgrounds = new ResourceList<Background>(Background.class,this);
+	public ResourceList<Path> paths = new ResourceList<Path>(Path.class,this);
+	public ResourceList<Script> scripts = new ResourceList<Script>(Script.class,this);
+	public ResourceList<Font> fonts = new ResourceList<Font>(Font.class,this);
+	public ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class,this);
+	public ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class,this);
+	public ResourceList<Room> rooms = new ResourceList<Room>(Room.class,this);
 	public ArrayList<Constant> constants = new ArrayList<Constant>();
 	public ArrayList<Include> includes = new ArrayList<Include>();
 
@@ -245,11 +245,11 @@ public class Gm6File
 			iter.next().defragIds();
 		lastInstanceId = 100000;
 		lastTileId = 100000;
-		for (int i = 0; i < rooms.count(); i++)
+		for (Room r : rooms)
 			{
-			for (Instance j : rooms.getList(i).instances)
+			for (Instance j : r.instances)
 				j.instanceId = ++lastInstanceId;
-			for (Tile j : rooms.getList(i).tiles)
+			for (Tile j : r.tiles)
 				j.tileId = ++lastTileId;
 			}
 		}

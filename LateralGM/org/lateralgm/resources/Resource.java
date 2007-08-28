@@ -29,8 +29,7 @@ import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.LGM;
 
-//TODO Implement Resource.equals method
-public abstract class Resource implements Comparable<Resource>
+public abstract class Resource<R extends Resource<R>> implements Comparable<Resource<R>>
 	{
 	public static final byte SPRITE = 2;
 	public static final byte SOUND = 3;
@@ -66,12 +65,30 @@ public abstract class Resource implements Comparable<Resource>
 	EventListenerList listenerList = new EventListenerList();
 	ChangeEvent changeEvent = null;
 
-	private ResId id = new ResId(0);
-	private String name = "";
-
-	public int compareTo(Resource res)
+	@SuppressWarnings("unchecked")
+	public Resource()
 		{
-		return res.id.getValue() == id.getValue() ? 0 : (res.id.getValue() < id.getValue() ? -1 : 1);
+		ref = new Ref<R>((R) this);
+		}
+
+	private Ref<R> ref;
+	private String name = "";
+	private int id;
+
+	public void setId(int id)
+		{
+		this.id = id;
+		fireStateChanged();
+		}
+
+	public int getId()
+		{
+		return id;
+		}
+
+	public int compareTo(Resource<R> res)
+		{
+		return res.id == id ? 0 : (res.id < id ? -1 : 1);
 		}
 
 	public void addChangeListener(ChangeListener l)
@@ -101,15 +118,14 @@ public abstract class Resource implements Comparable<Resource>
 			}
 		}
 
-	public ResId getId()
+	public Ref<R> getRef()
 		{
-		return id;
+		return ref;
 		}
 
-	public void setId(ResId id)
+	public void setRef(Ref<R> ref)
 		{
-		this.id = id;
-		fireStateChanged();
+		this.ref = ref;
 		}
 
 	public String getName()
@@ -123,10 +139,9 @@ public abstract class Resource implements Comparable<Resource>
 		fireStateChanged();
 		}
 
-	@SuppressWarnings("unchecked")
-	public abstract Resource copy(ResourceList src);
+	public abstract R copy(ResourceList<R> src);
 
-	public abstract Resource copy();
+	public abstract R copy();
 
 	public abstract byte getKind();
 

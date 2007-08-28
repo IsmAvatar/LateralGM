@@ -23,9 +23,7 @@ import java.util.zip.Deflater;
 import javax.imageio.ImageIO;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.resources.ResId;
-import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.sub.Argument;
+import org.lateralgm.resources.Ref;
 
 public class GmStreamEncoder
 	{
@@ -138,37 +136,25 @@ public class GmStreamEncoder
 			}
 		}
 
-	public void writeId(ResId id, byte type, Gm6File src) throws IOException
+	public void writeId(Ref<?> id) throws IOException
 		{
-		writeId(id,type,-1,src);
+		writeId(id,-1);
 		}
 
-	public void writeId(ResId id, byte type, int noneval, Gm6File src) throws IOException
+	public void writeId(Ref<?> id,int noneval) throws IOException
 		{
-		Resource res = src.getList(type).get(id);
-		if (id != null && res != null)
-			{
-			write4(id.getValue());
-			}
+		if (id != null && id.getRes() != null)
+			write4(id.getRes().getId());
 		else
-			{
 			write4(noneval);
-			}
 		}
 
-	public void writeIdStr(ResId id, byte type, Gm6File src) throws IOException
+	public void writeIdStr(Ref<?> id, Gm6File src) throws IOException
 		{
-		// We can guarantee that "type" corresponds to one of the preset Resource types
-		byte kind = Argument.getResourceKind(type);
-		Resource res = src.getList(kind).get(id);
-		if (id != null && res != null)
-			{
-			writeStr(Integer.toString(id.getValue()));
-			}
+		if (id != null && id.getRes() != null)
+			writeStr(Integer.toString(id.getRes().getId()));
 		else
-			{
 			writeStr("-1");
-			}
 		}
 
 	public void writeTree(ResNode root) throws IOException
@@ -180,8 +166,8 @@ public class GmStreamEncoder
 			ResNode node = (ResNode) e.nextElement();
 			write4(node.status);
 			write4(node.kind);
-			if (node.resourceId != null)
-				write4(node.resourceId.getValue());
+			if (node.res != null)
+				write4(node.res.getId());
 			else
 				write4(0);
 			writeStr((String) node.getUserObject());

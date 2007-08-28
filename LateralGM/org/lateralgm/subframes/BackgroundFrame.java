@@ -195,7 +195,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 	@Override
 	public void revertResource()
 		{
-		LGM.currentFile.backgrounds.replace(res.getId(),resOriginal);
+		LGM.currentFile.backgrounds.replace(res,resOriginal);
 		}
 
 	private void commitChanges()

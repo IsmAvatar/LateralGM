@@ -16,7 +16,7 @@ import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Moment;
 
-public class Timeline extends Resource
+public class Timeline extends Resource<Timeline>
 	{
 	public ArrayList<Moment> moments = new ArrayList<Moment>();
 
@@ -32,8 +32,7 @@ public class Timeline extends Resource
 		return m;
 		}
 
-	@SuppressWarnings("unchecked")
-	private Timeline copy(boolean update, ResourceList src)
+	private Timeline copy(boolean update, ResourceList<Timeline> src)
 		{
 		Timeline time = new Timeline();
 		for (Moment mom : moments)
@@ -43,6 +42,7 @@ public class Timeline extends Resource
 			for (Action act : mom.actions)
 				{
 				Action act2 = mom2.addAction();
+				act2.libAction = act.libAction;
 				act2.relative = act.relative;
 				act2.not = act.not;
 				act2.appliesTo = act.appliesTo;
@@ -54,8 +54,7 @@ public class Timeline extends Resource
 			}
 		if (update)
 			{
-			time.setId(new ResId(++src.lastId));
-			time.setName(Prefs.prefixes[Resource.TIMELINE] + src.lastId);
+			time.setName(Prefs.prefixes[Resource.TIMELINE] + (src.lastId + 1));
 			src.add(time);
 			}
 		else
@@ -71,8 +70,7 @@ public class Timeline extends Resource
 		return copy(false,null);
 		}
 
-	@SuppressWarnings("unchecked")
-	public Timeline copy(ResourceList src)
+	public Timeline copy(ResourceList<Timeline> src)
 		{
 		return copy(true,src);
 		}

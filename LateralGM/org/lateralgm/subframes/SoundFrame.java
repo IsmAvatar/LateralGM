@@ -215,7 +215,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 	public void revertResource()
 		{
-		LGM.currentFile.sounds.replace(res.getId(),resOriginal);
+		LGM.currentFile.sounds.replace(res,resOriginal);
 		}
 
 	private void commitChanges()

@@ -136,7 +136,6 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		moments.setSelectedIndex(0);
 		}
 
-	//TODO:
 	@Override
 	public boolean resourceChanged()
 		{
@@ -149,7 +148,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	@Override
 	public void revertResource()
 		{
-		LGM.currentFile.timelines.replace(res.getId(),resOriginal);
+		LGM.currentFile.timelines.replace(res,resOriginal);
 		}
 
 	//TODO:

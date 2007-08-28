@@ -13,10 +13,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.ResId;
+import org.lateralgm.resources.Ref;
 
 public class Event extends ActionContainer implements Comparable<Event>
 	{
@@ -108,7 +107,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 	 */
 
 	public int id = 0;
-	public ResId other = null; // For collision Events
+	public Ref<GmObject> other = null; // For collision Events
 	public int mainId = 0;
 
 	public static final List<Integer> KEYS;
@@ -123,13 +122,13 @@ public class Event extends ActionContainer implements Comparable<Event>
 		this.id = id;
 		}
 
-	public Event(int mainId, ResId other)
+	public Event(int mainId, Ref<GmObject> other)
 		{
 		this.mainId = mainId;
 		this.other = other;
 		}
 
-	public Event(int mainId, int id, ResId other)
+	public Event(int mainId, int id, Ref<GmObject> other)
 		{
 		this.mainId = mainId;
 		this.id = id;
@@ -143,13 +142,13 @@ public class Event extends ActionContainer implements Comparable<Event>
 			case MainEvent.EV_ALARM:
 				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),id);
 			case MainEvent.EV_COLLISION:
-				GmObject obj = LGM.currentFile.gmObjects.get(other);
+				GmObject obj = other.getRes();
 				String name;
 				if (obj == null)
 					name = "<undefined>";
 				else
 					name = obj.getName();
-				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),name);
+				return String.format(Messages.getString("Event.EVENT4_X"),name);
 			case MainEvent.EV_KEYBOARD:
 			case MainEvent.EV_KEYPRESS:
 			case MainEvent.EV_KEYRELEASE:
@@ -172,7 +171,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 		else
 			return e.id > id ? -1 : e.id == id ? 0 : 1;
 		}
-
+	//TODO: Remove this (stops reflection comparison working properly)
 	public boolean equals(Object o)
 		{
 		if (!(o instanceof Event)) return false;

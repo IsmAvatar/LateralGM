@@ -21,7 +21,6 @@ import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
@@ -304,7 +303,7 @@ public final class Gm6FileWriter
 				out.writeBool(path.smooth);
 				out.writeBool(path.closed);
 				out.write4(path.precision);
-				out.writeId(path.backgroundRoom,Resource.ROOM,f);
+				out.writeId(path.backgroundRoom);
 				out.write4(path.snapX);
 				out.write4(path.snapY);
 				out.write4(path.points.size());
@@ -391,20 +390,20 @@ public final class Gm6FileWriter
 				{
 				out.writeStr(obj.getName());
 				out.write4(430);
-				out.writeId(obj.sprite,Resource.SPRITE,f);
+				out.writeId(obj.sprite);
 				out.writeBool(obj.solid);
 				out.writeBool(obj.visible);
 				out.write4(obj.depth);
 				out.writeBool(obj.persistent);
-				out.writeId(obj.parent,Resource.GMOBJECT,-100,f);
-				out.writeId(obj.mask,Resource.SPRITE,f);
+				out.writeId(obj.parent,-100);
+				out.writeId(obj.mask);
 				out.write4(10);
 				for (int j = 0; j < 11; j++)
 					{
 					for (Event ev : obj.mainEvents[j].events)
 						{
 						if (j == MainEvent.EV_COLLISION)
-							out.writeId(ev.other,Resource.GMOBJECT,f);
+							out.writeId(ev.other);
 						else
 							out.write4(ev.id);
 						writeActions(f,out,ev);
@@ -444,7 +443,7 @@ public final class Gm6FileWriter
 					BackgroundDef back = rm.backgroundDefs[j];
 					out.writeBool(back.visible);
 					out.writeBool(back.foreground);
-					out.writeId(back.backgroundId,Resource.BACKGROUND,f);
+					out.writeId(back.backgroundId);
 					out.write4(back.x);
 					out.write4(back.y);
 					out.writeBool(back.tileHoriz);
@@ -471,14 +470,14 @@ public final class Gm6FileWriter
 					out.write4(view.vbor);
 					out.write4(view.hspeed);
 					out.write4(view.vspeed);
-					out.writeId(view.objectFollowing,Resource.GMOBJECT,f);
+					out.writeId(view.objectFollowing);
 					}
 				out.write4(rm.instances.size());
 				for (Instance in : rm.instances)
 					{
 					out.write4(in.x);
 					out.write4(in.y);
-					out.writeId(in.gmObjectId,Resource.GMOBJECT,f);
+					out.writeId(in.gmObjectId);
 					out.write4(in.instanceId);
 					out.writeStr(in.creationCode);
 					out.writeBool(in.locked);
@@ -488,7 +487,7 @@ public final class Gm6FileWriter
 					{
 					out.write4(tile.x);
 					out.write4(tile.y);
-					out.writeId(tile.backgroundId,Resource.BACKGROUND,f);
+					out.writeId(tile.backgroundId);
 					out.write4(tile.tileX);
 					out.write4(tile.tileY);
 					out.write4(tile.width);
@@ -546,11 +545,12 @@ public final class Gm6FileWriter
 
 			if (act.appliesTo != null)
 				{
-				if (act.appliesTo.getValue() >= 0)
-					out.writeId(act.appliesTo,Resource.GMOBJECT,-100,f);
+				if (act.appliesTo == GmObject.OBJECT_OTHER)
+					out.write4(-2);
+				else if (act.appliesTo == GmObject.OBJECT_SELF)
+					out.write4(-1);
 				else
-					// self/other are exceptions to the system
-					out.write4(act.appliesTo.getValue());
+					out.writeId(act.appliesTo,-100);
 				}
 			else
 				out.write4(-100);
@@ -570,7 +570,7 @@ public final class Gm6FileWriter
 					case Argument.ARG_ROOM:
 					case Argument.ARG_FONT:
 					case Argument.ARG_TIMELINE:
-						out.writeIdStr(arg.res,arg.kind,f);
+						out.writeIdStr(arg.res,f);
 						break;
 					default:
 						out.writeStr(arg.val);

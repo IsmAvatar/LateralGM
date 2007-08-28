@@ -18,6 +18,6 @@ public class ResourceComparator extends LenientNumberComparator
 		{
 		super(new SimpleCasesComparator(new CollectionComparator(new MapComparator(
 				new ObjectComparator(null)))));
-		addExclusions(Resource.class,"changeEvent","listenerList");
+		addExclusions(Resource.class,"changeEvent","listenerList","ref");
 		}
 	}
