@@ -20,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -47,7 +48,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	public JButton clear;
 
 	public JList moments;
-	public JList actions;
+	public GmObjectFrame.ActionList actions;
 	public GMLTextArea code;
 
 	public TimelineFrame(Timeline res, ResNode node)
@@ -136,6 +137,19 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		moments.setSelectedIndex(0);
 		}
 
+	public void saveMoments()
+		{
+		actions.save();
+		res.moments.clear();
+		ListModel lm = moments.getModel();
+		for (int i = 0; i < lm.getSize(); i++)
+			{
+			Object o = lm.getElementAt(i);
+			Moment m = (Moment) o;
+			res.moments.add(m);
+			}
+		}
+	
 	@Override
 	public boolean resourceChanged()
 		{
@@ -154,6 +168,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	//TODO:
 	private void commitChanges()
 		{
+		saveMoments();
 		res.setName(name.getText());
 		}
 
@@ -179,7 +194,6 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		{
 		if (e.getValueIsAdjusting()) return;
 		Moment m = (Moment) moments.getSelectedValue();
-		if (m == null) return;
-		actions.setListData(m.actions.toArray());
+		actions.setActionContainer(m);
 		}
 	}

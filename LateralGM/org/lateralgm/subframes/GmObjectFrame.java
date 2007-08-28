@@ -19,15 +19,22 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
@@ -76,6 +83,7 @@ import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.library.Library;
 import org.lateralgm.resources.sub.Action;
+import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
@@ -101,7 +109,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 
 	public JTree events;
 	public EventGroupNode rootEvent;
-	public JList actions;
+	public ActionList actions;
 	public GMLTextArea code;
 
 	private DefaultMutableTreeNode lastValidEventSelection;
@@ -369,7 +377,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		}
 
-	private class ActionListModel extends AbstractListModel
+	private static class ActionListModel extends AbstractListModel
 		{
 		private static final long serialVersionUID = 1L;
 		private ArrayList<Action> list;
@@ -460,6 +468,237 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						if (a.libAction.question) indentNext = true;
 					}
 				}
+			}
+		}
+
+	public static final DataFlavor ACTION_FLAVOR = new DataFlavor(Action.class,"Action");
+	public static final DataFlavor ACTION_ARRAY_FLAVOR = new DataFlavor(List.class,"Action array");
+	public static final DataFlavor LIB_ACTION_FLAVOR = new DataFlavor(LibAction.class,
+			"Library action");
+
+	public static class LibActionTransferable implements Transferable
+		{
+		private static final DataFlavor[] FLAVORS = { LIB_ACTION_FLAVOR };
+		private final LibAction libAction;
+
+		public LibActionTransferable(LibAction la)
+			{
+			libAction = la;
+			}
+
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,IOException
+			{
+			if (flavor == LIB_ACTION_FLAVOR)
+				{
+				return libAction;
+				}
+			throw new UnsupportedFlavorException(flavor);
+			}
+
+		public DataFlavor[] getTransferDataFlavors()
+			{
+			return FLAVORS;
+			}
+
+		public boolean isDataFlavorSupported(DataFlavor flavor)
+			{
+			return flavor == LIB_ACTION_FLAVOR;
+			}
+		}
+
+	public static class LibActionTransferHandler extends TransferHandler
+		{
+		private static final long serialVersionUID = 1L;
+
+		public boolean canImport(TransferHandler.TransferSupport info)
+			{
+			return false;
+			}
+
+		public boolean importData(TransferHandler.TransferSupport info)
+			{
+			return false;
+			}
+
+		public int getSourceActions(JComponent c)
+			{
+			return COPY;
+			}
+
+		protected Transferable createTransferable(JComponent c)
+			{
+			LibActionButton lab = (LibActionButton) c;
+			LibAction la = lab.getLibAction();
+			return new LibActionTransferable(la);
+			}
+		}
+
+	public static class ActionTransferable implements Transferable
+		{
+		private final Action[] actions;
+		private final DataFlavor[] flavors;
+
+		public ActionTransferable(Action[] a)
+			{
+			actions = a;
+			ArrayList<DataFlavor> fl = new ArrayList<DataFlavor>(2);
+			fl.add(ACTION_ARRAY_FLAVOR);
+			if (a.length == 1) fl.add(ACTION_FLAVOR);
+			flavors = fl.toArray(new DataFlavor[2]);
+			}
+
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,IOException
+			{
+			if (flavor == ACTION_FLAVOR && actions.length == 1)
+				{
+				return actions[0];
+				}
+			if (flavor == ACTION_ARRAY_FLAVOR)
+				{
+				List<Action> l = Arrays.asList(actions);
+				return l;
+				}
+			throw new UnsupportedFlavorException(flavor);
+			}
+
+		public DataFlavor[] getTransferDataFlavors()
+			{
+			return flavors;
+			}
+
+		public boolean isDataFlavorSupported(DataFlavor flavor)
+			{
+			for (DataFlavor f : flavors)
+				{
+				if (f == flavor) return true;
+				}
+			return false;
+			}
+		}
+
+	public static class ActionTransferHandler extends TransferHandler
+		{
+		private static final long serialVersionUID = 1L;
+		private int[] indices = null;
+		private int addIndex = -1; //Location where items were added
+		private int addCount = 0; //Number of items added.
+
+		@Override
+		protected void exportDone(JComponent source, Transferable data, int action)
+			{
+			if (action == MOVE && indices != null)
+				{
+				JList ls = (JList) source;
+				ActionListModel model = (ActionListModel) ls.getModel();
+				if (addCount > 0)
+					{
+					for (int i = 0; i < indices.length; i++)
+						{
+						if (indices[i] > addIndex)
+							{
+							indices[i] += addCount;
+							}
+						}
+					}
+				for (int i = indices.length - 1; i >= 0; i--)
+					{
+					model.remove(indices[i]);
+					}
+				}
+			indices = null;
+			addCount = 0;
+			addIndex = -1;
+			}
+
+		public boolean canImport(TransferHandler.TransferSupport info)
+			{
+			ActionList list = (ActionList) info.getComponent();
+			JList.DropLocation dl = (JList.DropLocation) info.getDropLocation();
+			if (list.actionContainer == null || dl.getIndex() == -1 || !info.isDrop()) return false;
+			return true;
+			}
+
+		public boolean importData(TransferHandler.TransferSupport info)
+			{
+			if (!canImport(info)) return false;
+			ActionList list = (ActionList) info.getComponent();
+			ActionListModel alm = (ActionListModel) list.getModel();
+			JList.DropLocation dl = (JList.DropLocation) info.getDropLocation();
+			Transferable t = info.getTransferable();
+			int index = dl.getIndex();
+			if (indices != null && index >= indices[0] && index <= indices[indices.length - 1])
+				{
+				indices = null;
+				return false;
+				}
+			if (info.isDataFlavorSupported(ACTION_FLAVOR))
+				{
+				Action a;
+				try
+					{
+					a = (Action) t.getTransferData(ACTION_FLAVOR);
+					}
+				catch (Exception e)
+					{
+					return false;
+					}
+				addIndex = index;
+				addCount = 1;
+				alm.add(index,a);
+				return true;
+				}
+			if (info.isDataFlavorSupported(ACTION_ARRAY_FLAVOR))
+				{
+				Action[] a;
+				try
+					{
+					a = ((List<?>) t.getTransferData(ACTION_ARRAY_FLAVOR)).toArray(new Action[0]);
+					}
+				catch (Exception e)
+					{
+					e.printStackTrace();
+					return false;
+					}
+				addIndex = index;
+				addCount = a.length;
+				alm.addAll(index,Arrays.asList(a));
+				return true;
+				}
+			if (info.isDataFlavorSupported(LIB_ACTION_FLAVOR))
+				{
+				LibAction la;
+				Action a;
+				try
+					{
+					la = (LibAction) t.getTransferData(LIB_ACTION_FLAVOR);
+					a = new Action(la);
+					ActionList.openActionFrame(a);
+					}
+				catch (Exception e)
+					{
+					return false;
+					}
+				addIndex = index;
+				addCount = 1;
+				alm.add(index,a);
+				return true;
+				}
+			return false;
+			}
+
+		public int getSourceActions(JComponent c)
+			{
+			return MOVE;
+			}
+
+		protected Transferable createTransferable(JComponent c)
+			{
+			JList list = (JList) c;
+			indices = list.getSelectedIndices();
+			Object[] o = list.getSelectedValues();
+			Action[] a = new Action[o.length];
+			a = Arrays.asList(o).toArray(a);
+			return new ActionTransferable(a);
 			}
 		}
 
@@ -711,44 +950,121 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		events.setTransferHandler(new EventNodeTransferHandler());
 		}
 
-	public static JList addActionPane(JComponent container)
+	public void saveEvents()
+		{
+		actions.save();
+		Enumeration<?> dfe = rootEvent.depthFirstEnumeration();
+		for (MainEvent me : res.mainEvents)
+			me.events.clear();
+		while (dfe.hasMoreElements())
+			{
+			Object o = dfe.nextElement();
+			if (o instanceof EventInstanceNode)
+				{
+				EventInstanceNode ein = (EventInstanceNode) o;
+				Event e = (Event) ein.getUserObject();
+				res.mainEvents[e.mainId].events.add(e);
+				}
+			}
+		}
+
+	public static class ActionList extends JList
+		{
+		private static final long serialVersionUID = 1L;
+		private static final Hashtable<Action,MDIFrame> FRAMES = new Hashtable<Action,MDIFrame>();
+		private static final ActionListMouseListener ALML = new ActionListMouseListener();
+		private static final ActionListKeyListener ALKL = new ActionListKeyListener();
+		private ActionContainer actionContainer;
+		private ActionListModel model;
+
+		public ActionList()
+			{
+			setActionContainer(null);
+			setTransferHandler(new ActionTransferHandler());
+			setDragEnabled(true);
+			setDropMode(DropMode.ON_OR_INSERT);
+			addMouseListener(ALML);
+			addKeyListener(ALKL);
+			setCellRenderer(new ActionRenderer());
+			}
+
+		public void setActionContainer(ActionContainer ac)
+			{
+			save();
+			actionContainer = ac;
+			model = new ActionListModel();
+			setModel(model);
+			if (ac == null) return;
+			model.addAll(0,ac.actions);
+			}
+
+		public void save()
+			{
+			if (actionContainer == null) return;
+			actionContainer.actions = model.list;
+			}
+
+		public static MDIFrame openActionFrame(Action a)
+			{
+			MDIFrame af = FRAMES.get(a);
+			if (af == null || af.isClosed())
+				{
+				af = new ActionFrame(a);
+				LGM.mdi.add(af);
+				FRAMES.put(a,af);
+				}
+			af.setVisible(true);
+			af.toFront();
+			try
+				{
+				af.setIcon(false);
+				af.setSelected(true);
+				}
+			catch (PropertyVetoException pve)
+				{
+				}
+			return af;
+			}
+
+		private static class ActionListMouseListener extends MouseAdapter
+			{
+			public void mouseClicked(MouseEvent e)
+				{
+				if (e.getClickCount() != 2) return;
+				JList l = (JList) e.getSource();
+				Object o = l.getSelectedValue();
+				if (o == null || !(o instanceof Action)) return;
+				openActionFrame((Action) o);
+				}
+			}
+
+		private static class ActionListKeyListener extends KeyAdapter
+			{
+			@Override
+			public void keyPressed(KeyEvent e)
+				{
+				JList l = (JList) e.getSource();
+				switch (e.getKeyCode())
+					{
+					case KeyEvent.VK_DELETE:
+						int[] indices = l.getSelectedIndices();
+						ActionListModel alm = (ActionListModel) l.getModel();
+						for (int i = indices.length - 1; i >= 0; i--)
+							alm.remove(indices[i]);
+						e.consume();
+						break;
+					}
+				}
+			}
+		}
+
+	public static ActionList addActionPane(JComponent container)
 		{
 		JPanel side3 = new JPanel(new BorderLayout());
 		side3.setPreferredSize(new Dimension(50,319));
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.ACTIONS")); //$NON-NLS-1$
 		side3.add(lab,"North"); //$NON-NLS-1$
-		JList list = new JList();
-		final JList list2 = list;
-		list.addMouseListener(new MouseAdapter()
-			{
-				private Hashtable<Action,MDIFrame> actionFrames = new Hashtable<Action,MDIFrame>();
-
-				public void mouseClicked(MouseEvent e)
-					{
-					if (e.getClickCount() != 2) return;
-					Object o = list2.getSelectedValue();
-					if (o == null || !(o instanceof Action)) return;
-					Action a = (Action) o;
-					MDIFrame af = actionFrames.get(a);
-					if (af == null || af.isClosed())
-						{
-						af = new ActionFrame(a);
-						LGM.mdi.add(af);
-						actionFrames.put(a,af);
-						}
-					af.setVisible(true);
-					af.toFront();
-					try
-						{
-						af.setIcon(false);
-						af.setSelected(true);
-						}
-					catch (PropertyVetoException pve)
-						{
-						}
-					}
-			});
-		list.setCellRenderer(new ActionRenderer());
+		ActionList list = new ActionList();
 		JScrollPane scroll = new JScrollPane(list);
 		side3.add(scroll,"Center"); //$NON-NLS-1$
 
@@ -766,6 +1082,38 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		Border tb = BorderFactory.createTitledBorder(mb,name);
 		lp.setBorder(tb);
 		return lp;
+		}
+
+	public static class LibActionButton extends JLabel
+		{
+		private static final long serialVersionUID = 1L;
+		private static DragMouseAdapter mouseListener = new DragMouseAdapter();
+		private static LibActionTransferHandler transferHandler = new LibActionTransferHandler();
+		private LibAction libAction;
+
+		public LibActionButton(LibAction la)
+			{
+			super(new ImageIcon(la.actImage));
+			setToolTipText(la.description);
+			libAction = la;
+			setTransferHandler(transferHandler);
+			addMouseListener(mouseListener);
+			}
+
+		private static class DragMouseAdapter extends MouseAdapter
+			{
+			public void mousePressed(MouseEvent e)
+				{
+				JComponent c = (JComponent) e.getSource();
+				TransferHandler handler = c.getTransferHandler();
+				handler.exportAsDrag(c,e,TransferHandler.COPY);
+				}
+			}
+
+		public LibAction getLibAction()
+			{
+			return libAction;
+			}
 		}
 
 	//XXX: possibly extract to some place like resources.library.LibManager
@@ -792,7 +1140,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				if (la.actionKind == Action.ACT_PLACEHOLDER)
 					b = new JLabel();
 				else
-					b = new JLabel(new ImageIcon(Util.getTransparentIcon(la.actImage)));
+					b = new LibActionButton(la);
 				b.setHorizontalAlignment(JLabel.LEFT);
 				b.setVerticalAlignment(JLabel.TOP);
 				b.setPreferredSize(new Dimension(30,30));
@@ -801,7 +1149,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					lp = makeLabelPane(null);
 					p.add(lp);
 					}
-				b.setToolTipText(la.description);
 				lp.add(b);
 				}
 			tp.addTab(l.tabCaption,p);
@@ -825,9 +1172,9 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		LGM.currentFile.gmObjects.replace(res,resOriginal);
 		}
 
-	//TODO: Update events and actions
 	private void commitChanges()
 		{
+		saveEvents();
 		res.setName(name.getText());
 		if (sprite.getSelected() == null)
 			res.sprite = null;
@@ -882,8 +1229,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			return;
 			}
 		lastValidEventSelection = node;
-		ActionListModel alm = new ActionListModel();
-		alm.addAll(0,((Event) node.getUserObject()).actions);
-		actions.setModel(alm);
+		actions.setActionContainer((Event) node.getUserObject());
 		}
 	}

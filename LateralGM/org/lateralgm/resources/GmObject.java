@@ -79,7 +79,7 @@ public class GmObject extends Resource<GmObject>
 				ev2.other = ev.other;
 				for (Action act : ev.actions)
 					{
-					Action act2 = ev2.addAction();
+					Action act2 = ev2.addAction(act.libAction);
 					act2.relative = act.relative;
 					act2.not = act.not;
 					act2.appliesTo = act.appliesTo;

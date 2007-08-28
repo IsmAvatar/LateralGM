@@ -11,6 +11,7 @@ package org.lateralgm.resources.sub;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.library.LibAction;
+import org.lateralgm.resources.library.LibArgument;
 
 public class Action
 	{
@@ -42,4 +43,16 @@ public class Action
 	public Ref<GmObject> appliesTo = GmObject.OBJECT_SELF;
 
 	public Argument[] arguments;
+	
+	public Action(LibAction la)
+		{
+		libAction = la;
+		if (la == null) return;
+		arguments = new Argument[la.libArguments.length];
+		for (int i = 0; i < la.libArguments.length; i++)
+			{
+			LibArgument arg = la.libArguments[i];
+			arguments[i] = new Argument(arg.kind,arg.defaultVal,null);
+			}
+		}
 	}

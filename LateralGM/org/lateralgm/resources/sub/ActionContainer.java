@@ -18,36 +18,13 @@ public abstract class ActionContainer
 
 	public Action addAction()
 		{
-		Action act = new Action();
-		actions.add(act);
-		return act;
+		return addAction(null);
 		}
 
 	// adds an action set to the properties of given LibAction
 	public Action addAction(LibAction libAction)
 		{
-		Action act = new Action();
-		for (int i = 0; i < libAction.libArguments.length; i++)
-			{
-			act.arguments[i].kind = libAction.libArguments[i].kind;
-			switch (act.arguments[i].kind)
-				{
-				case Argument.ARG_SPRITE:
-				case Argument.ARG_SOUND:
-				case Argument.ARG_BACKGROUND:
-				case Argument.ARG_PATH:
-				case Argument.ARG_SCRIPT:
-				case Argument.ARG_GMOBJECT:
-				case Argument.ARG_ROOM:
-				case Argument.ARG_FONT:
-				case Argument.ARG_TIMELINE:
-					act.arguments[i].res = null;
-					break;
-				default:
-					act.arguments[i].val = libAction.libArguments[i].defaultVal;
-					break;
-				}
-			}
+		Action act = new Action(libAction);
 		actions.add(act);
 		return act;
 		}
