@@ -75,7 +75,7 @@ public class Ref<R extends Resource<R>>
 		{
 		res = null;
 		}
-	
+
 	public boolean equals(Object o)
 		{
 		return o == this;

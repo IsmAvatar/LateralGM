@@ -212,13 +212,13 @@ public final class Gm6FileReader
 		f.gameId = in.read4();
 		in.skip(16); // unknown bytes following game id
 		int ver = in.read4();
-		if (ver != 600 && ver != 702)
+		if (ver != 542 && ver != 600 && ver != 702)
 			{
 			String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
 			throw new Gm6FormatException(String.format(msg,ver));
 			}
 		f.startFullscreen = in.readBool();
-		f.interpolate = in.readBool();
+		if (ver > 542) f.interpolate = in.readBool();
 		f.dontDrawBorder = in.readBool();
 		f.displayCursor = in.readBool();
 		f.scaling = in.read4();
@@ -243,7 +243,8 @@ public final class Gm6FileReader
 			}
 		f.gamePriority = (byte) in.read4();
 		f.freezeOnLoseFocus = in.readBool();
-		f.loadBarMode = (byte) in.read4();
+		if (ver > 542) f.loadBarMode = (byte) in.read4();
+		else f.loadBarMode = Gm6File.LOADBAR_NONE;
 		if (f.loadBarMode == Gm6File.LOADBAR_CUSTOM)
 			{
 			if (in.read4() != -1) f.backLoadBar = in.readImage();
