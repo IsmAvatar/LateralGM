@@ -243,8 +243,7 @@ public final class Gm6FileReader
 			}
 		f.gamePriority = (byte) in.read4();
 		f.freezeOnLoseFocus = in.readBool();
-		if (ver > 542) f.loadBarMode = (byte) in.read4();
-		else f.loadBarMode = Gm6File.LOADBAR_NONE;
+		f.loadBarMode = (byte) in.read4();
 		if (f.loadBarMode == Gm6File.LOADBAR_CUSTOM)
 			{
 			if (in.read4() != -1) f.backLoadBar = in.readImage();
@@ -275,10 +274,10 @@ public final class Gm6FileReader
 		f.abortOnError = in.readBool();
 		f.treatUninitializedAs0 = in.readBool();
 		f.author = in.readStr();
-		if (ver == 600)
-			f.version = in.read4();
-		else
+		if (ver > 600)
 			f.version = Integer.parseInt(in.readStr());
+		else
+			f.version = in.read4();
 		f.lastChanged = in.readD();
 		f.information = in.readStr();
 		int no = in.read4();
@@ -289,7 +288,18 @@ public final class Gm6FileReader
 			con.name = in.readStr();
 			con.value = in.readStr();
 			}
-		if (ver == 600)
+		if (ver > 600)
+			{
+			in.skip(4); //Major
+			in.skip(4); //Minor
+			in.skip(4); //Release
+			in.skip(4); //Build
+			in.skip(in.read4()); //Company
+			in.skip(in.read4()); //Product
+			in.skip(in.read4()); //Copyright
+			in.skip(in.read4()); //Description
+			}
+		else
 			{
 			no = in.read4();
 			for (int i = 0; i < no; i++)
@@ -300,17 +310,6 @@ public final class Gm6FileReader
 			f.includeFolder = in.read4();
 			f.overwriteExisting = in.readBool();
 			f.removeAtGameEnd = in.readBool();
-			}
-		else
-			{
-			in.skip(4); //Major
-			in.skip(4); //Minor
-			in.skip(4); //Release
-			in.skip(4); //Build
-			in.skip(in.read4()); //Company
-			in.skip(in.read4()); //Product
-			in.skip(in.read4()); //Copyright
-			in.skip(in.read4()); //Description
 			}
 		}
 
