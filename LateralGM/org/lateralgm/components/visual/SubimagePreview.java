@@ -8,8 +8,10 @@
 
 package org.lateralgm.components.visual;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
@@ -44,9 +46,18 @@ public class SubimagePreview extends AbstractImagePreview
 			int bboxTop = frame.bboxTop.getIntValue();
 			int bboxBottom = frame.bboxBottom.getIntValue();
 
-			drawInvertedHorizontalLine(g,img,originX - ORIGIN_SIZE,originY,2 * ORIGIN_SIZE);
-			drawInvertedVerticalLine(g,img,originX,originY - ORIGIN_SIZE,2 * ORIGIN_SIZE);
-			drawInvertedRectangle(g,img,bboxLeft,bboxTop,bboxRight,bboxBottom);
+			g.setXORMode(Color.WHITE);
+			g.setColor(Color.BLACK);
+			Rectangle r = g.getClipBounds().intersection(
+					new Rectangle(originX - ORIGIN_SIZE,originY,2 * ORIGIN_SIZE,1));
+			if (!r.isEmpty()) g.drawLine(r.x,r.y,r.x + r.width,r.y + r.height);
+			r = g.getClipBounds().intersection(
+					new Rectangle(originX,originY - ORIGIN_SIZE,1,2 * ORIGIN_SIZE));
+			if (!r.isEmpty()) g.drawLine(r.x,r.y,r.x + r.width,r.y + r.height);
+			r = g.getClipBounds().intersection(
+					new Rectangle(bboxLeft,bboxTop,bboxRight - bboxLeft,bboxBottom - bboxTop));
+			if (!r.isEmpty()) g.drawRect(r.x,r.y,r.x + r.width,r.y + r.height);
+			g.setPaintMode();
 			}
 		else
 			setPreferredSize(new Dimension(0,0));

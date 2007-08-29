@@ -9,7 +9,9 @@
 
 package org.lateralgm.components.visual;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
@@ -55,9 +57,16 @@ public class BackgroundPreview extends AbstractImagePreview
 					r.height += r.y - newy;
 					r.y = newy;
 
+					//Thanks to javaman1922 for figuring this trick out
+					Image dbImage = createImage(img.getWidth(),img.getHeight());
+					Graphics g2 = dbImage.getGraphics();
+					g2.setColor(Color.BLACK);
 					for (int i = r.x; i < r.x + r.width; i += width + hsep)
 						for (int j = r.y; j < r.y + r.height; j += height + vsep)
-							drawInvertedRectangle(g,img,i,j,i + width - 1,j + height - 1);
+							g2.drawRect(i,j,width - 1,height - 1);
+					g.setXORMode(Color.WHITE);
+					g.drawImage(dbImage,0,0,null);
+					g.setPaintMode();
 					}
 				}
 			}
