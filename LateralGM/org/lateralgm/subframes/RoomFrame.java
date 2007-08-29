@@ -13,13 +13,16 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
+import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -40,6 +43,7 @@ import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
@@ -56,6 +60,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
 
+	public RoomEditor editor;
 	public JTabbedPane tabs;
 	public JLabel statX, statY, statObj, statId;
 	//Objects
@@ -114,7 +119,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		//		oList.setTransferHandler(null);
 		oList.addListSelectionListener(this);
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		oList.setVisibleRowCount(8);
+		//		oList.setVisibleRowCount(8);
 		oList.setCellRenderer(new ListComponentRenderer()
 			{
 				public Component getListCellRendererComponent(JList list, Object val, int ind,
@@ -130,7 +135,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					}
 			});
 		JScrollPane sp = new JScrollPane(oList);
-		sp.setPreferredSize(new Dimension(180,128));
+		sp.setPreferredSize(new Dimension(190,128));
 		panel.add(sp);
 		oAdd = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
 		oAdd.addActionListener(this);
@@ -184,6 +189,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.add(lab);
 		sWidth = new IntegerField(1,999999,res.width);
 		sWidth.setPreferredSize(new Dimension(120,20));
+		sWidth.addActionListener(this);
 		panel.add(sWidth);
 
 		lab = new JLabel(Messages.getString("RoomFrame.HEIGHT")); //$NON-NLS-1$
@@ -191,6 +197,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.add(lab);
 		sHeight = new IntegerField(1,999999,res.height);
 		sHeight.setPreferredSize(new Dimension(120,20));
+		sHeight.addActionListener(this);
 		panel.add(sHeight);
 
 		lab = new JLabel(Messages.getString("RoomFrame.SPEED")); //$NON-NLS-1$
@@ -216,42 +223,51 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		p2.setBorder(BorderFactory.createTitledBorder(st));
 		p2.setPreferredSize(new Dimension(170,112));
 		st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
-		sGridVis = new JCheckBox(st,res.showGrid);
+		sGridVis = new JCheckBox(st,res.rememberWindowSize ? res.showGrid : true);
+		sGridVis.addActionListener(this);
 		p2.add(sGridVis);
 		st = Messages.getString("RoomFrame.GRID_ISOMETRIC"); //$NON-NLS-1$
 		sGridIso = new JCheckBox(st,res.isometricGrid);
+		sGridIso.addActionListener(this);
 		p2.add(sGridIso);
 		addGap(p2,10,1);
 		lab = new JLabel(Messages.getString("RoomFrame.SNAP_X")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(44,14));
 		p2.add(lab);
-		sSnapY = new IntegerField(1,999,res.snapY);
-		sSnapY.setPreferredSize(new Dimension(60,20));
-		p2.add(sSnapY);
+		sSnapX = new IntegerField(1,999,res.snapX);
+		sSnapX.setPreferredSize(new Dimension(60,20));
+		sSnapX.addActionListener(this);
+		p2.add(sSnapX);
 		addGap(p2,10,1);
 		lab = new JLabel(Messages.getString("RoomFrame.SNAP_Y")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(44,14));
 		p2.add(lab);
-		sSnapX = new IntegerField(1,999,res.snapX);
-		sSnapX.setPreferredSize(new Dimension(60,20));
-		p2.add(sSnapX);
+		sSnapY = new IntegerField(1,999,res.snapY);
+		sSnapY.setPreferredSize(new Dimension(60,20));
+		sSnapY.addActionListener(this);
+		p2.add(sSnapY);
 		panel.add(p2);
 
 		final JPopupMenu showMenu = new JPopupMenu();
 		st = Messages.getString("RoomFrame.SHOW_OBJECTS"); //$NON-NLS-1$
-		sSObj = new JCheckBoxMenuItem(st,res.showObjects);
+		sSObj = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showObjects : true);
+		sSObj.addActionListener(this);
 		showMenu.add(sSObj);
 		st = Messages.getString("RoomFrame.SHOW_TILES"); //$NON-NLS-1$
-		sSTile = new JCheckBoxMenuItem(st,res.showTiles);
+		sSTile = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showTiles : true);
+		sSTile.addActionListener(this);
 		showMenu.add(sSTile);
 		st = Messages.getString("RoomFrame.SHOW_BACKGROUNDS"); //$NON-NLS-1$
-		sSBack = new JCheckBoxMenuItem(st,res.showBackgrounds);
+		sSBack = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showBackgrounds : true);
+		sSBack.addActionListener(this);
 		showMenu.add(sSBack);
 		st = Messages.getString("RoomFrame.SHOW_FOREGROUNDS"); //$NON-NLS-1$
-		sSFore = new JCheckBoxMenuItem(st,res.showForegrounds);
+		sSFore = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showForegrounds : true);
+		sSFore.addActionListener(this);
 		showMenu.add(sSFore);
 		st = Messages.getString("RoomFrame.SHOW_VIEWS"); //$NON-NLS-1$
 		sSView = new JCheckBoxMenuItem(st,res.showViews);
+		sSView.addActionListener(this);
 		showMenu.add(sSView);
 
 		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
@@ -284,8 +300,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		//		tList.setTransferHandler(null);
 		tList.addListSelectionListener(this);
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-//		tList.setVisibleRowCount(4);
-//		tList.setPreferredSize(new Dimension(180,128));
+		//		tList.setVisibleRowCount(4);
+		//		tList.setPreferredSize(new Dimension(180,128));
 		tList.setCellRenderer(new ListComponentRenderer()
 			{
 				public Component getListCellRendererComponent(JList list, Object val, int ind,
@@ -293,14 +309,16 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					{
 					Tile i = (Tile) val;
 					Background bg = i.backgroundId.getRes();
-					JLabel lab = new JLabel(bg.getName() + " " + i.tileId,JLabel.LEFT);
+					ImageIcon ii = new ImageIcon(bg.backgroundImage.getSubimage(i.tileX,i.tileY,i.width,
+							i.height));
+					JLabel lab = new JLabel(bg.getName() + " " + i.tileId,ii,JLabel.LEFT);
 					super.getListCellRendererComponent(list,lab,ind,selected,focus);
 					lab.setOpaque(true);
 					return lab;
 					}
 			});
 		JScrollPane sp = new JScrollPane(tList);
-		sp.setPreferredSize(new Dimension(180,70));
+		sp.setPreferredSize(new Dimension(190,70));
 		panel.add(sp);
 		tAdd = new JButton(Messages.getString("RoomFrame.TILE_ADD")); //$NON-NLS-1$
 		tAdd.addActionListener(this);
@@ -357,12 +375,12 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		String st = Messages.getString("RoomFrame.DRAW_COLOR"); //$NON-NLS-1$
 		bDrawColor = new JCheckBox(st,res.drawBackgroundColor);
+		bDrawColor.addActionListener(this);
 		panel.add(bDrawColor);
 		panel.add(new JLabel(Messages.getString("RoomFrame.COLOR"))); //$NON-NLS-1$
 		bColor = new ColorSelect(res.backgroundColor);
-		//	bColor.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
-		//	bColor.setAlignmentX(0f);
 		bColor.setPreferredSize(new Dimension(100,20));
+		bColor.addActionListener(this);
 		panel.add(bColor);
 
 		JLabel[] backLabs = new JLabel[8];
@@ -584,7 +602,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		pane.setPreferredSize(new Dimension(240,280));
 
 		//TODO: 1.6 - 1.7 Add room editor area
-		pane.add(new JScrollPane());
+		editor = new RoomEditor(this);
+		for (Instance i : res.instances)
+			editor.add(i);
+		pane.add(new JScrollPane(editor));
 
 		//TODO: 1.6 - 1.7 Work on status bar
 		JPanel stat = new JPanel();
@@ -656,6 +677,55 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 		}
 
+	/**
+	 * This is the class that will replace ListComponentRenderer.
+	 * The name is obviously a work in progress, as is the class itself.
+	 * The biggest concern is how to keep getListCellRendererComponent efficient -
+	 *  that is, keep it from making a new JLabel each time it gets the same cell,
+	 *  but I'd also like to prevent memoization (if statements can be costly).
+	 *  To do this, we would want to create the JLabel around construction-time, and
+	 *  somehow pair it with its respective data. I've considered a DataLabelPair class
+	 */
+	public class Stuff extends AbstractListModel implements ListCellRenderer
+		{
+		private static final long serialVersionUID = 1L;
+		public List<?> data;
+
+		public Stuff(List<?> data)
+			{
+			this.data = data;
+			}
+
+		public Component getListCellRendererComponent(JList list, Object value, int index,
+				boolean isSelected, boolean cellHasFocus)
+			{
+			//			data.get(index).;
+			JComponent lab = (JComponent) value;
+			if (isSelected)
+				{
+				lab.setBackground(list.getSelectionBackground());
+				lab.setForeground(list.getSelectionForeground());
+				}
+			else
+				{
+				lab.setBackground(list.getBackground());
+				lab.setForeground(list.getForeground());
+				}
+			lab.setOpaque(true);
+			return lab;
+			}
+
+		public Object getElementAt(int index)
+			{
+			return data.get(index);
+			}
+
+		public int getSize()
+			{
+			return data.size();
+			}
+		}
+
 	@Override
 	public boolean resourceChanged()
 		{
@@ -717,9 +787,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		resOriginal = res.copy();
 		}
 
-	//TODO: (CreationCode, among other things. Backgrounds and Views are done)
+	//TODO: (Room and Instance CreationCode)
 	public void actionPerformed(ActionEvent e)
 		{
+		editor.repaint();
 		if (e.getSource() == bVisible)
 			{
 			JLabel lab = ((JLabel) bList.getSelectedValue());
