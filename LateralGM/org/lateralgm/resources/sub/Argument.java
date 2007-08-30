@@ -232,11 +232,7 @@ public class Argument
 			}
 		if (editor instanceof ResourceMenu)
 			{
-			Resource<?> sel = ((ResourceMenu<?>) editor).getSelected();
-			if (sel == null)
-				res = null;
-			else
-				res = sel.getRef();
+			res = ((ResourceMenu<?>) editor).getSelectedRef();
 			return;
 			}
 		}

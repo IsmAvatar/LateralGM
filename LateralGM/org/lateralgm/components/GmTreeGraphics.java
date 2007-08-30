@@ -9,6 +9,8 @@
 
 package org.lateralgm.components;
 
+import static org.lateralgm.resources.Ref.deRef;
+
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -87,7 +89,7 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 
 	public static Icon getSpriteIcon(Ref<Sprite> s)
 		{
-		if (s == null || s.getRes() == null || s.getRes().subImages.size() == 0) return getBlankIcon();
+		if (deRef(s) == null || s.getRes().subImages.size() == 0) return getBlankIcon();
 		Sprite spr = s.getRes();
 		BufferedImage bi = spr.subImages.get(0);
 		if (bi == null) return getBlankIcon();

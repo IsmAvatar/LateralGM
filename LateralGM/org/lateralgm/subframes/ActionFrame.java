@@ -90,10 +90,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			s = Messages.getString("ActionFrame.OTHER"); //$NON-NLS-1$
 		appliesObject = new ResourceMenu<GmObject>(Resource.GMOBJECT,s,false,100);
 		appliesObject.setOpaque(false);
-		if (a.appliesTo.getRes() != null)
-			appliesObject.setSelected(a.appliesTo.getRes());
-		else
-			appliesObject.setEnabled(false);
+		appliesObject.setRefSelected(a.appliesTo);
 		act = a;
 
 		appliesPanel = new JPanel();

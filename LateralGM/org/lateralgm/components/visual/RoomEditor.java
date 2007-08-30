@@ -9,6 +9,8 @@
 
 package org.lateralgm.components.visual;
 
+import static org.lateralgm.resources.Ref.deRef;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
@@ -60,7 +62,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			for (int i = 0; i < 8; i++)
 				{
 				BackgroundDef bd = frame.res.backgroundDefs[i];
-				if (!bd.visible || bd.foreground) continue;
+				if (!bd.visible || bd.foreground || deRef(bd.backgroundId) == null) continue;
 				BufferedImage bi = bd.backgroundId.getRes().backgroundImage;
 				if (bd.stretch)
 					g.drawImage(bi,bd.x,bd.y,width,height,this);
@@ -82,21 +84,17 @@ public class RoomEditor extends JPanel implements ImageObserver
 			int h = frame.sSnapY.getIntValue();
 			if (w > 3)
 				{
+				g.setXORMode(Color.WHITE);
+				g.setColor(Color.BLACK);
 				for (int x = 0; x < width; x += w)
-					{
-					g.setXORMode(Color.WHITE);
-					g.setColor(Color.BLACK);
 					g.drawLine(x,0,x,height);
-					}
 				}
 			if (h > 3)
 				{
+				g.setXORMode(Color.WHITE);
+				g.setColor(Color.BLACK);
 				for (int y = 0; y < height; y += h)
-					{
-					g.setXORMode(Color.WHITE);
-					g.setColor(Color.BLACK);
 					g.drawLine(0,y,width,y);
-					}
 				}
 			}
 		}

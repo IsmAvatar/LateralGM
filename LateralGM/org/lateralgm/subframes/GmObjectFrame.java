@@ -177,7 +177,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
 		parent = new ResourceMenu<GmObject>(Resource.GMOBJECT,"<no parent>",110);
-		parent.setSelected(res.parent == null ? null : res.parent.getRes());
+		parent.setRefSelected(res.parent);
 		side1.add(parent);
 
 		lab = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
@@ -1176,22 +1176,13 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		saveEvents();
 		res.setName(name.getText());
-		if (sprite.getSelected() == null)
-			res.sprite = null;
-		else
-			res.sprite = sprite.getSelected().getRef();
+		res.sprite = sprite.getSelectedRef();
 		res.visible = visible.isSelected();
 		res.solid = solid.isSelected();
 		res.depth = depth.getIntValue();
 		res.persistent = persistent.isSelected();
-		if (parent.getSelected() == null)
-			res.parent = null;
-		else
-			res.parent = parent.getSelected().getRef();
-		if (mask.getSelected() == null)
-			res.mask = null;
-		else
-			res.mask = mask.getSelected().getRef();
+		res.parent = parent.getSelectedRef();
+		res.mask = mask.getSelectedRef();
 		}
 
 	@Override

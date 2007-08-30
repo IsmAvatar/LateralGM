@@ -8,6 +8,8 @@
 
 package org.lateralgm.resources;
 
+import static org.lateralgm.resources.Ref.deRef;
+
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.Action;
@@ -24,8 +26,7 @@ public class GmObject extends Resource<GmObject>
 		{
 		if (ref == OBJECT_SELF) return -1;
 		if (ref == OBJECT_OTHER) return -2;
-		if (ref == null) return -100;
-		if (ref.getRes() == null) return -100;
+		if (deRef(ref) == null) return -100;
 		return ref.getRes().getId();
 		}
 

@@ -171,6 +171,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 		else
 			return e.id > id ? -1 : e.id == id ? 0 : 1;
 		}
+
 	//TODO: Remove this (stops reflection comparison working properly)
 	public boolean equals(Object o)
 		{
@@ -181,12 +182,6 @@ public class Event extends ActionContainer implements Comparable<Event>
 			return e.id == id;
 		else
 			return e.other == other;
-		}
-
-	//This is just to keep CheckStyle happy
-	public int hashCode()
-		{
-		return super.hashCode();
 		}
 
 	public static String getGmKeyName(int keyCode)

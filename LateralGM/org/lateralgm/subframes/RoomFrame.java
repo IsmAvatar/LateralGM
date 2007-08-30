@@ -857,10 +857,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		BackgroundDef b = res.backgroundDefs[lastValidBack];
 		b.visible = bVisible.isSelected();
 		b.foreground = bForeground.isSelected();
-		if (bSource.getSelected() == null)
-			b.backgroundId = null;
-		else
-			b.backgroundId = bSource.getSelected().getRef();
+		b.backgroundId = bSource.getSelectedRef();
 		b.x = bX.getIntValue();
 		b.y = bY.getIntValue();
 		b.tileHoriz = bTileH.isSelected();
@@ -901,10 +898,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		v.portY = vPY.getIntValue();
 		v.portW = vPW.getIntValue();
 		v.portH = vPH.getIntValue();
-		if (vObj.getSelected() == null)
-			v.objectFollowing = null;
-		else
-			v.objectFollowing = vObj.getSelected().getRef();
+		v.objectFollowing = vObj.getSelectedRef();
 		v.hbor = vOHBor.getIntValue();
 		v.vbor = vOVBor.getIntValue();
 		v.hspeed = vOHSp.getIntValue();

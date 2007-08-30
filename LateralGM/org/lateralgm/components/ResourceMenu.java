@@ -8,6 +8,8 @@
 
 package org.lateralgm.components;
 
+import static org.lateralgm.resources.Ref.deRef;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -220,11 +222,11 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Mouse
 		{
 		return selected;
 		}
-	
+
 	public Ref<R> getSelectedRef()
-	{
-	return selected == null ? null : selected.getRef();
-	}
+		{
+		return selected == null ? null : selected.getRef();
+		}
 
 	public void setSelected(R res)
 		{
@@ -234,10 +236,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Mouse
 
 	public void setRefSelected(Ref<R> ref)
 		{
-		if (ref == null)
-			setSelected(null);
-		else
-			setSelected(ref.getRes());
+		setSelected(deRef(ref));
 		}
 
 	public void setEnabled(boolean enabled)

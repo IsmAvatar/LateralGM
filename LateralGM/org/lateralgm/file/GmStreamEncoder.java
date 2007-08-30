@@ -9,6 +9,8 @@
 
 package org.lateralgm.file;
 
+import static org.lateralgm.resources.Ref.deRef;
+
 import java.awt.Image;
 import java.awt.image.RenderedImage;
 import java.io.BufferedOutputStream;
@@ -141,9 +143,9 @@ public class GmStreamEncoder
 		writeId(id,-1);
 		}
 
-	public void writeId(Ref<?> id,int noneval) throws IOException
+	public void writeId(Ref<?> id, int noneval) throws IOException
 		{
-		if (id != null && id.getRes() != null)
+		if (deRef(id) != null)
 			write4(id.getRes().getId());
 		else
 			write4(noneval);
@@ -151,7 +153,7 @@ public class GmStreamEncoder
 
 	public void writeIdStr(Ref<?> id, Gm6File src) throws IOException
 		{
-		if (id != null && id.getRes() != null)
+		if (deRef(id) != null)
 			writeStr(Integer.toString(id.getRes().getId()));
 		else
 			writeStr("-1");

@@ -80,4 +80,15 @@ public class Ref<R extends Resource<R>>
 		{
 		return o == this;
 		}
+
+	/**
+	 * Convenience method to call <code>getRes()</code> on the given <code>Ref</code>
+	 * first checking if it is <code>null</code>.  
+	 * @param ref
+	 * @return <code>null</code> if ref == null and ref.getRes() otherwise
+	 */
+	public static <R extends Resource<R>>R deRef(Ref<R> ref)
+		{
+		return ref == null ? null : ref.getRes();
+		}
 	}

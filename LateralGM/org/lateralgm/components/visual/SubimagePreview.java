@@ -50,13 +50,14 @@ public class SubimagePreview extends AbstractImagePreview
 			g.setColor(Color.BLACK);
 			Rectangle r = g.getClipBounds().intersection(
 					new Rectangle(originX - ORIGIN_SIZE,originY,2 * ORIGIN_SIZE,1));
-			if (!r.isEmpty()) g.drawLine(r.x,r.y,r.x + r.width,r.y + r.height);
+			if (!r.isEmpty()) g.drawLine(r.x,r.y,r.x + r.width,r.y);
 			r = g.getClipBounds().intersection(
 					new Rectangle(originX,originY - ORIGIN_SIZE,1,2 * ORIGIN_SIZE));
-			if (!r.isEmpty()) g.drawLine(r.x,r.y,r.x + r.width,r.y + r.height);
+			if (!r.isEmpty()) g.drawLine(r.x,r.y,r.x,r.y + r.height);
 			r = g.getClipBounds().intersection(
 					new Rectangle(bboxLeft,bboxTop,bboxRight - bboxLeft,bboxBottom - bboxTop));
-			if (!r.isEmpty()) g.drawRect(r.x,r.y,r.x + r.width,r.y + r.height);
+			//The graphics should handle the clipping sufficiently here
+			if (!r.isEmpty()) g.drawRect(bboxLeft,bboxTop,bboxRight - bboxLeft,bboxBottom - bboxTop);
 			g.setPaintMode();
 			}
 		else

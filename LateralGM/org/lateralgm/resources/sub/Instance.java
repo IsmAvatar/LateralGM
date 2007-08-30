@@ -14,6 +14,7 @@ import javax.swing.JComponent;
 
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Ref;
+import static org.lateralgm.resources.Ref.deRef;
 
 public class Instance extends JComponent
 	{
@@ -33,15 +34,13 @@ public class Instance extends JComponent
 
 	public void paintComponent(Graphics g)
 		{
-		//wtf... notice how I have to incrementally check against null...
-		if (gmObjectId == null || gmObjectId.getRes() == null)
+		if (deRef(gmObjectId) == null)
 			{
 			getParent().remove(this);
 			paintless();
 			return;
 			}
-		if (gmObjectId.getRes().sprite == null
-				|| gmObjectId.getRes().sprite.getRes() == null
+		if (deRef(gmObjectId.getRes().sprite) == null
 				|| gmObjectId.getRes().sprite.getRes().subImages.size() == 0)
 			{
 			paintless();
