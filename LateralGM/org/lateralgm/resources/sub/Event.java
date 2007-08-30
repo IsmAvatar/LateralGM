@@ -172,11 +172,8 @@ public class Event extends ActionContainer implements Comparable<Event>
 			return e.id > id ? -1 : e.id == id ? 0 : 1;
 		}
 
-	//TODO: Remove this (stops reflection comparison working properly)
-	public boolean equals(Object o)
+	public boolean matchesType(Event e)
 		{
-		if (!(o instanceof Event)) return false;
-		Event e = (Event) o;
 		if (e.mainId != mainId) return false;
 		if (mainId != MainEvent.EV_COLLISION)
 			return e.id == id;

@@ -25,7 +25,7 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 	{
 	private static final long serialVersionUID = 1L;
 	public static final DataFlavor EVENTNODE_FLAVOR = new DataFlavor(
-			DataFlavor.javaJVMLocalObjectMimeType,"GiantMushroom");
+			DataFlavor.javaJVMLocalObjectMimeType,"Event Node");
 	private DataFlavor[] flavors = { EVENTNODE_FLAVOR };
 	public int mainId;
 	public int eventId;

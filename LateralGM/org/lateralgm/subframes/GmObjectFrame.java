@@ -331,7 +331,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				{
 				if (getChildAt(i) instanceof EventInstanceNode)
 					{
-					if (((EventInstanceNode) getChildAt(i)).getUserObject().equals(e)) return true;
+					if (((EventInstanceNode) getChildAt(i)).getUserObject().matchesType(e))
+						return true;
 					}
 				else if (((EventGroupNode) getChildAt(i)).contains(e)) return true;
 				}
@@ -342,7 +343,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			{
 			for (int i = 0; i < getChildCount(); i++)
 				{
-				if (((EventInstanceNode) getChildAt(i)).getUserObject().equals(e))
+				if (((EventInstanceNode) getChildAt(i)).getUserObject().matchesType(e))
 					{
 					remove(i);
 					return true;
@@ -362,7 +363,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			{
 			for (int i = 0; i < getChildCount(); i++)
 				if (getChildAt(i) instanceof EventInstanceNode
-						&& ((EventInstanceNode) getChildAt(i)).getUserObject().equals(e))
+						&& ((EventInstanceNode) getChildAt(i)).getUserObject().matchesType(e))
 					return new TreePath(((EventInstanceNode) getChildAt(i)).getPath());
 			return null;
 			}
@@ -841,7 +842,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				EventInstanceNode ein = (EventInstanceNode) n;
 				if (ein.getUserObject().mainId == e.mainId)
 					{
-					if (!ein.getUserObject().equals(e))
+					if (!ein.getUserObject().matchesType(e))
 						{
 						EventGroupNode group = new EventGroupNode(e.mainId);
 						int ind = rootEvent.getIndex(ein);
