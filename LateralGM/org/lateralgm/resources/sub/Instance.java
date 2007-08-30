@@ -8,15 +8,10 @@
 
 package org.lateralgm.resources.sub;
 
-import java.awt.Graphics;
-
-import javax.swing.JComponent;
-
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Ref;
-import static org.lateralgm.resources.Ref.deRef;
 
-public class Instance extends JComponent
+public class Instance
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -26,26 +21,5 @@ public class Instance extends JComponent
 	public int instanceId = 0;
 	public String creationCode = "";
 	public boolean locked = false;
-
-	public void paintless()
-		{
-
-		}
-
-	public void paintComponent(Graphics g)
-		{
-		if (deRef(gmObjectId) == null)
-			{
-			getParent().remove(this);
-			paintless();
-			return;
-			}
-		if (deRef(gmObjectId.getRes().sprite) == null
-				|| gmObjectId.getRes().sprite.getRes().subImages.size() == 0)
-			{
-			paintless();
-			return;
-			}
-		g.drawImage(gmObjectId.getRes().sprite.getRes().subImages.get(0),x,y,null);
-		}
+	
 	}

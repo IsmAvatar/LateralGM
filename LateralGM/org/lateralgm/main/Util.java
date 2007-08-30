@@ -14,9 +14,15 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
@@ -33,6 +39,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.stream.ImageInputStream;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -134,7 +141,22 @@ public final class Util
 		return new SyntaxStyle(c,i,b);
 		}
 
-	public static Image getTransparentIcon(BufferedImage i)
+	public static BufferedImage toBufferedImage(Image image)
+		{
+		if (image instanceof BufferedImage) return (BufferedImage) image;
+
+		// This code ensures that all the pixels in the image are loaded
+		image = new ImageIcon(image).getImage();
+
+		BufferedImage bimage = new BufferedImage(image.getWidth(null),image.getHeight(null),
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics g = bimage.createGraphics();
+		g.drawImage(image,0,0,null);
+		g.dispose();
+		return bimage;
+		}
+
+	public static BufferedImage getTransparentIcon(BufferedImage i)
 		{
 		if (i == null) return null;
 		final BufferedImage fi = i;
@@ -147,7 +169,7 @@ public final class Util
 					}
 			};
 		ImageProducer ip = new FilteredImageSource(i.getSource(),filter);
-		return Toolkit.getDefaultToolkit().createImage(ip);
+		return toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
 		}
 
 	/**

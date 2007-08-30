@@ -602,9 +602,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		pane.setPreferredSize(new Dimension(240,280));
 
 		//TODO: 1.6 - 1.7 Add room editor area
-		editor = new RoomEditor(this);
-		for (Instance i : res.instances)
-			editor.add(i);
+		editor = new RoomEditor(res, this);
 		pane.add(new JScrollPane(editor));
 
 		//TODO: 1.6 - 1.7 Work on status bar
