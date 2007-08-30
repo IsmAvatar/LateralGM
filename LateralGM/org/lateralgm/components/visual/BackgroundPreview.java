@@ -60,11 +60,13 @@ public class BackgroundPreview extends AbstractImagePreview
 					//Thanks to javaman1922 for figuring this trick out
 					Image dbImage = createImage(img.getWidth(),img.getHeight());
 					Graphics g2 = dbImage.getGraphics();
-					g2.setColor(Color.BLACK);
+					g2.setColor(Color.BLACK); //necessary to prevent resolution loss
+					g2.fillRect(r.x,r.y,r.x + r.width,r.y + r.height);
+					g2.setColor(Color.WHITE);
 					for (int i = r.x; i < r.x + r.width; i += width + hsep)
 						for (int j = r.y; j < r.y + r.height; j += height + vsep)
 							g2.drawRect(i,j,width - 1,height - 1);
-					g.setXORMode(Color.WHITE);
+					g.setXORMode(Color.BLACK);
 					g.drawImage(dbImage,0,0,null);
 					g.setPaintMode();
 					}

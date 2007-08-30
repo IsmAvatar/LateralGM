@@ -11,7 +11,7 @@ package org.lateralgm.components.visual;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Rectangle;
+import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
@@ -46,18 +46,25 @@ public class SubimagePreview extends AbstractImagePreview
 			int bboxTop = frame.bboxTop.getIntValue();
 			int bboxBottom = frame.bboxBottom.getIntValue();
 
-			g.setXORMode(Color.WHITE);
-			g.setColor(Color.BLACK);
-			Rectangle r = g.getClipBounds().intersection(
-					new Rectangle(originX - ORIGIN_SIZE,originY,2 * ORIGIN_SIZE,1));
-			if (!r.isEmpty()) g.drawLine(r.x,r.y,r.x + r.width,r.y);
-			r = g.getClipBounds().intersection(
-					new Rectangle(originX,originY - ORIGIN_SIZE,1,2 * ORIGIN_SIZE));
-			if (!r.isEmpty()) g.drawLine(r.x,r.y,r.x,r.y + r.height);
-			r = g.getClipBounds().intersection(
-					new Rectangle(bboxLeft,bboxTop,bboxRight - bboxLeft,bboxBottom - bboxTop));
-			//The graphics should handle the clipping sufficiently here
-			if (!r.isEmpty()) g.drawRect(bboxLeft,bboxTop,bboxRight - bboxLeft,bboxBottom - bboxTop);
+			//Thanks to javaman1922 for figuring this trick out.
+			//In order to keep drawing in-bounds, we draw on an Image first,
+			Image dbImage = createImage(img.getWidth(),img.getHeight());
+			Graphics g2 = dbImage.getGraphics();
+			g2.setPaintMode();
+			g2.setColor(Color.BLACK); //Must fill background first, or image loses quality
+			g2.fillRect(0,0,img.getWidth(),img.getHeight());
+			g2.setXORMode(Color.BLACK); //XOR mode so that bbox and origin can counter
+			g2.setColor(Color.WHITE);
+
+			g2.drawRect(Math.min(bboxLeft,bboxRight),Math.min(bboxTop,bboxBottom),Math.max(bboxLeft,
+					bboxRight),Math.max(bboxTop,bboxBottom));
+			g2.drawLine(originX - ORIGIN_SIZE,originY,originX + ORIGIN_SIZE,originY);
+			g2.drawLine(originX,originY - ORIGIN_SIZE,originX,originY + ORIGIN_SIZE);
+
+			//Now draw our in-bounds image back on the original Graphics
+			g.setXORMode(Color.BLACK);
+			g.setColor(Color.WHITE);
+			g.drawImage(dbImage,0,0,null);
 			g.setPaintMode();
 			}
 		else
