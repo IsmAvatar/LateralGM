@@ -11,8 +11,8 @@ package org.lateralgm.components.visual;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.image.BufferedImage;
 
 import org.lateralgm.subframes.BackgroundFrame;
@@ -46,6 +46,12 @@ public class BackgroundPreview extends AbstractImagePreview
 					int hsep = frame.hSep.getIntValue();
 					int vsep = frame.vSep.getIntValue();
 
+					Shape oldClip = g.getClip(); //backup the old clip
+					Rectangle oldc = g.getClipBounds();
+					//Set the clip properly
+					g.setClip(new Rectangle(oldc.x,oldc.y,Math.min(oldc.x + oldc.width,img.getWidth())
+							- oldc.x,Math.min(oldc.y + oldc.height,img.getHeight()) - oldc.y));
+
 					Rectangle r = g.getClipBounds().intersection(
 							new Rectangle(hoffset,voffset,img.getWidth() - hoffset,img.getHeight() - voffset));
 
@@ -57,18 +63,13 @@ public class BackgroundPreview extends AbstractImagePreview
 					r.height += r.y - newy;
 					r.y = newy;
 
-					//Thanks to javaman1922 for figuring this trick out
-					Image dbImage = createImage(img.getWidth(),img.getHeight());
-					Graphics g2 = dbImage.getGraphics();
-					g2.setColor(Color.BLACK); //necessary to prevent resolution loss
-					g2.fillRect(r.x,r.y,r.x + r.width,r.y + r.height);
-					g2.setColor(Color.WHITE);
+					g.setXORMode(Color.BLACK);
+					g.setColor(Color.WHITE);
 					for (int i = r.x; i < r.x + r.width; i += width + hsep)
 						for (int j = r.y; j < r.y + r.height; j += height + vsep)
-							g2.drawRect(i,j,width - 1,height - 1);
-					g.setXORMode(Color.BLACK);
-					g.drawImage(dbImage,0,0,null);
-					g.setPaintMode();
+							g.drawRect(i,j,width - 1,height - 1);
+					g.setPaintMode(); //just in case
+					g.setClip(oldClip); //restore the clip
 					}
 				}
 			}

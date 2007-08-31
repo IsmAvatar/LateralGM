@@ -11,7 +11,8 @@ package org.lateralgm.components.visual;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
@@ -46,26 +47,26 @@ public class SubimagePreview extends AbstractImagePreview
 			int bboxTop = frame.bboxTop.getIntValue();
 			int bboxBottom = frame.bboxBottom.getIntValue();
 
-			//Thanks to javaman1922 for figuring this trick out.
-			//In order to keep drawing in-bounds, we draw on an Image first,
-			Image dbImage = createImage(img.getWidth(),img.getHeight());
-			Graphics g2 = dbImage.getGraphics();
-			g2.setPaintMode();
-			g2.setColor(Color.BLACK); //Must fill background first, or image loses quality
-			g2.fillRect(0,0,img.getWidth(),img.getHeight());
-			g2.setXORMode(Color.BLACK); //XOR mode so that bbox and origin can counter
-			g2.setColor(Color.WHITE);
+			int left = Math.min(bboxLeft,bboxRight);
+			int right = Math.max(bboxLeft,bboxRight);
+			int top = Math.min(bboxTop,bboxBottom);
+			int bottom = Math.max(bboxTop,bboxBottom);
 
-			g2.drawRect(Math.min(bboxLeft,bboxRight),Math.min(bboxTop,bboxBottom),Math.max(bboxLeft,
-					bboxRight),Math.max(bboxTop,bboxBottom));
-			g2.drawLine(originX - ORIGIN_SIZE,originY,originX + ORIGIN_SIZE,originY);
-			g2.drawLine(originX,originY - ORIGIN_SIZE,originX,originY + ORIGIN_SIZE);
+			Shape oldClip = g.getClip(); //backup the old clip
+			Rectangle oldc = g.getClipBounds();
+			//Set the clip properly
+			g.setClip(new Rectangle(oldc.x,oldc.y,Math.min(oldc.x + oldc.width,img.getWidth()) - oldc.x,
+					Math.min(oldc.y + oldc.height,img.getHeight()) - oldc.y));
 
-			//Now draw our in-bounds image back on the original Graphics
-			g.setXORMode(Color.BLACK);
+			g.setXORMode(Color.BLACK); //XOR mode so that bbox and origin can counter
 			g.setColor(Color.WHITE);
-			g.drawImage(dbImage,0,0,null);
-			g.setPaintMode();
+			
+			g.drawRect(left,top,right - left,bottom - top);
+			g.drawLine(originX - ORIGIN_SIZE,originY,originX + ORIGIN_SIZE,originY);
+			g.drawLine(originX,originY - ORIGIN_SIZE,originX,originY + ORIGIN_SIZE);
+			
+			g.setPaintMode(); //just in case
+			g.setClip(oldClip); //restore the clip
 			}
 		else
 			setPreferredSize(new Dimension(0,0));
