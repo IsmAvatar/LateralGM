@@ -21,7 +21,6 @@
 
 package org.lateralgm.file;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -30,7 +29,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -47,8 +45,8 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
+import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
@@ -56,7 +54,6 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
-import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 
@@ -72,8 +69,6 @@ public class Gm6File
 	public ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class,this);
 	public ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class,this);
 	public ResourceList<Room> rooms = new ResourceList<Room>(Room.class,this);
-	public ArrayList<Constant> constants = new ArrayList<Constant>();
-	public ArrayList<Include> includes = new ArrayList<Include>();
 
 	private final ResourceChangeListener rcl = new ResourceChangeListener();
 
@@ -95,8 +90,8 @@ public class Gm6File
 			{
 			rl.addChangeListener(rcl);
 			}
-		gameId = new Random().nextInt(100000001);
-		gameIconData = new byte[0];
+		gameSettings.gameId = new Random().nextInt(100000001);
+		gameSettings.gameIconData = new byte[0];
 		try
 			{
 			String loc = "org/lateralgm/file/default.ico";
@@ -116,13 +111,13 @@ public class Gm6File
 				dat.write(val);
 				val = in.read();
 				}
-			gameIconData = dat.toByteArray();
-			gameIcon = (BufferedImage) new ICOFile(new ByteArrayInputStream(gameIconData)).getDescriptor(
-					0).getImageRGB();
+			gameSettings.gameIconData = dat.toByteArray();
+			gameSettings.gameIcon = (BufferedImage) new ICOFile(new ByteArrayInputStream(
+					gameSettings.gameIconData)).getDescriptor(0).getImageRGB();
 			}
 		catch (Exception ex)
 			{
-			gameIconData = new byte[0];
+			gameSettings.gameIconData = new byte[0];
 			System.err.println(Messages.getString("Gm6File.NOICON")); //$NON-NLS-1$
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
@@ -148,92 +143,14 @@ public class Gm6File
 		return DateFormat.getDateTimeInstance().format(base.getTime());
 		}
 
-	// Constants For Resource Properties
-	public static final byte COLOR_NOCHANGE = 0;
-	public static final byte COLOR_16 = 1;
-	public static final byte COLOR_32 = 2;
-	public static final byte RES_NOCHANGE = 0;
-	public static final byte RES_320X240 = 1;
-	public static final byte RES_640X480 = 2;
-	public static final byte RES_800X600 = 3;
-	public static final byte RES_1024X768 = 4;
-	public static final byte RES_1280X1024 = 5;
-	public static final byte RES_1600X1200 = 6;
-	public static final byte FREQ_NOCHANGE = 0;
-	public static final byte FREQ_60 = 1;
-	public static final byte FREQ_70 = 2;
-	public static final byte FREQ_85 = 3;
-	public static final byte FREQ_100 = 4;
-	public static final byte FREQ_120 = 5;
-	public static final byte PRIORITY_NORMAL = 0;
-	public static final byte PRIORITY_HIGH = 1;
-	public static final byte PRIORITY_HIGHEST = 2;
-	public static final byte LOADBAR_NONE = 0;
-	public static final byte LOADBAR_DEFAULT = 1;
-	public static final byte LOADBAR_CUSTOM = 2;
-	public static final byte INCLUDE_MAIN = 0;
-	public static final byte INCLUDE_TEMP = 1;
-
-	// File Properties
-	public int gameId; // randomized in constructor
-	public boolean startFullscreen = false;
-	public boolean interpolate = false;
-	public boolean dontDrawBorder = false;
-	public boolean displayCursor = true;
-	public int scaling = -1;
-	public boolean allowWindowResize = false;
-	public boolean alwaysOnTop = false;
-	public Color colorOutsideRoom = Color.BLACK;
-	public boolean setResolution = false;
-	public byte colorDepth = COLOR_NOCHANGE;
-	public byte resolution = RES_NOCHANGE;
-	public byte frequency = FREQ_NOCHANGE;
-	public boolean dontShowButtons = false;
-	public boolean useSynchronization = false;
-	public boolean letF4SwitchFullscreen = true;
-	public boolean letF1ShowGameInfo = true;
-	public boolean letEscEndGame = true;
-	public boolean letF5SaveF6Load = true;
-	public byte gamePriority = PRIORITY_NORMAL;
-	public boolean freezeOnLoseFocus = false;
-	public byte loadBarMode = LOADBAR_DEFAULT;
-	public BufferedImage frontLoadBar = null;
-	public BufferedImage backLoadBar = null;
-	public boolean showCustomLoadImage = false;
-	public BufferedImage loadingImage = null;
-	public boolean imagePartiallyTransparent = false;
-	public int loadImageAlpha = 255;
-	public boolean scaleProgressBar = true;
-	public boolean displayErrors = true;
-	public boolean writeToLog = false;
-	public boolean abortOnError = false;
-	public boolean treatUninitializedAs0 = false;
-	public String author = ""; //$NON-NLS-1$
-	public int version = 100;
-	public double lastChanged = longTimeToGmTime(System.currentTimeMillis());
-	public String information = ""; //$NON-NLS-1$
-	public int includeFolder = INCLUDE_MAIN;
-	public boolean overwriteExisting = false;
-	public boolean removeAtGameEnd = false;
+	public GameSettings gameSettings = new GameSettings();
 	public int lastInstanceId = 100000;
 	public int lastTileId = 10000000;
-
-	// actual data is stored to be written on resave (no reason to re-encode)
-	public byte[] gameIconData;
-	public BufferedImage gameIcon; // icon as image for display purposes
 
 	// Returns the ResourceList corresponding to given Resource constant
 	public ResourceList<?> getList(int res)
 		{
 		return resMap.get((byte) res);
-		}
-
-	public void clearAll()
-		{
-		for (ResourceList<?> l : resMap.values())
-			l.clear();
-		constants.clear();
-		includes.clear();
 		}
 
 	public GameInformation gameInfo = new GameInformation();

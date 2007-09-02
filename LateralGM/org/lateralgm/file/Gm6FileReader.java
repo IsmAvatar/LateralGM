@@ -24,6 +24,7 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
+import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
@@ -140,7 +141,7 @@ public final class Gm6FileReader
 					in.skip(4); //export
 					in.skip(in.read4()); //folder to export to
 					in.skip(12); //overwrite if exists, free mem, remove at game end
-					f.includes.add(inc);
+					f.gameSettings.includes.add(inc);
 					}
 				ver = in.read4();
 				if (ver != 700)
@@ -208,8 +209,9 @@ public final class Gm6FileReader
 		{
 		Gm6File f = c.f;
 		GmStreamDecoder in = c.in;
+		GameSettings g = f.gameSettings;
 
-		f.gameId = in.read4();
+		g.gameId = in.read4();
 		in.skip(16); // unknown bytes following game id
 		int ver = in.read4();
 		if (ver != 542 && ver != 600 && ver != 702)
@@ -217,51 +219,51 @@ public final class Gm6FileReader
 			String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
 			throw new Gm6FormatException(String.format(msg,ver));
 			}
-		f.startFullscreen = in.readBool();
-		if (ver > 542) f.interpolate = in.readBool();
-		f.dontDrawBorder = in.readBool();
-		f.displayCursor = in.readBool();
-		f.scaling = in.read4();
-		f.allowWindowResize = in.readBool();
-		f.alwaysOnTop = in.readBool();
-		f.colorOutsideRoom = Util.convertGmColor(in.read4());
-		f.setResolution = in.readBool();
-		f.colorDepth = (byte) in.read4();
-		f.resolution = (byte) in.read4();
-		f.frequency = (byte) in.read4();
-		f.dontShowButtons = in.readBool();
-		f.useSynchronization = in.readBool();
-		f.letF4SwitchFullscreen = in.readBool();
-		f.letF1ShowGameInfo = in.readBool();
-		f.letEscEndGame = in.readBool();
-		f.letF5SaveF6Load = in.readBool();
+		g.startFullscreen = in.readBool();
+		if (ver > 542) g.interpolate = in.readBool();
+		g.dontDrawBorder = in.readBool();
+		g.displayCursor = in.readBool();
+		g.scaling = in.read4();
+		g.allowWindowResize = in.readBool();
+		g.alwaysOnTop = in.readBool();
+		g.colorOutsideRoom = Util.convertGmColor(in.read4());
+		g.setResolution = in.readBool();
+		g.colorDepth = (byte) in.read4();
+		g.resolution = (byte) in.read4();
+		g.frequency = (byte) in.read4();
+		g.dontShowButtons = in.readBool();
+		g.useSynchronization = in.readBool();
+		g.letF4SwitchFullscreen = in.readBool();
+		g.letF1ShowGameInfo = in.readBool();
+		g.letEscEndGame = in.readBool();
+		g.letF5SaveF6Load = in.readBool();
 		if (ver == 702)
 			{
 			in.skip(8);
 			//TODO: F9 screenshot
 			//Treat close as esc
 			}
-		f.gamePriority = (byte) in.read4();
-		f.freezeOnLoseFocus = in.readBool();
-		f.loadBarMode = (byte) in.read4();
-		if (f.loadBarMode == Gm6File.LOADBAR_CUSTOM)
+		g.gamePriority = (byte) in.read4();
+		g.freezeOnLoseFocus = in.readBool();
+		g.loadBarMode = (byte) in.read4();
+		if (g.loadBarMode == GameSettings.LOADBAR_CUSTOM)
 			{
-			if (in.read4() != -1) f.backLoadBar = in.readImage();
-			if (in.read4() != -1) f.frontLoadBar = in.readImage();
+			if (in.read4() != -1) g.backLoadBar = in.readImage();
+			if (in.read4() != -1) g.frontLoadBar = in.readImage();
 			}
-		f.showCustomLoadImage = in.readBool();
-		if (f.showCustomLoadImage) if (in.read4() != -1) f.loadingImage = in.readImage();
-		f.imagePartiallyTransparent = in.readBool();
-		f.loadImageAlpha = in.read4();
-		f.scaleProgressBar = in.readBool();
+		g.showCustomLoadImage = in.readBool();
+		if (g.showCustomLoadImage) if (in.read4() != -1) g.loadingImage = in.readImage();
+		g.imagePartiallyTransparent = in.readBool();
+		g.loadImageAlpha = in.read4();
+		g.scaleProgressBar = in.readBool();
 
 		int length = in.read4();
-		f.gameIconData = new byte[length];
-		in.read(f.gameIconData,0,length);
+		g.gameIconData = new byte[length];
+		in.read(g.gameIconData,0,length);
 		try
 			{
-			ByteArrayInputStream bais = new ByteArrayInputStream(f.gameIconData);
-			f.gameIcon = (BufferedImage) new ICOFile(bais).getDescriptor(0).getImageRGB();
+			ByteArrayInputStream bais = new ByteArrayInputStream(g.gameIconData);
+			g.gameIcon = (BufferedImage) new ICOFile(bais).getDescriptor(0).getImageRGB();
 			}
 		catch (Exception e)
 			{
@@ -269,22 +271,22 @@ public final class Gm6FileReader
 			e.printStackTrace();
 			}
 
-		f.displayErrors = in.readBool();
-		f.writeToLog = in.readBool();
-		f.abortOnError = in.readBool();
-		f.treatUninitializedAs0 = in.readBool();
-		f.author = in.readStr();
+		g.displayErrors = in.readBool();
+		g.writeToLog = in.readBool();
+		g.abortOnError = in.readBool();
+		g.treatUninitializedAs0 = in.readBool();
+		g.author = in.readStr();
 		if (ver > 600)
-			f.version = Integer.parseInt(in.readStr());
+			g.version = Integer.parseInt(in.readStr());
 		else
-			f.version = in.read4();
-		f.lastChanged = in.readD();
-		f.information = in.readStr();
+			g.version = in.read4();
+		g.lastChanged = in.readD();
+		g.information = in.readStr();
 		int no = in.read4();
 		for (int i = 0; i < no; i++)
 			{
 			Constant con = new Constant();
-			f.constants.add(con);
+			g.constants.add(con);
 			con.name = in.readStr();
 			con.value = in.readStr();
 			}
@@ -305,11 +307,12 @@ public final class Gm6FileReader
 			for (int i = 0; i < no; i++)
 				{
 				Include inc = new Include();
+				g.includes.add(inc);
 				inc.filePath = in.readStr();
 				}
-			f.includeFolder = in.read4();
-			f.overwriteExisting = in.readBool();
-			f.removeAtGameEnd = in.readBool();
+			g.includeFolder = in.read4();
+			g.overwriteExisting = in.readBool();
+			g.removeAtGameEnd = in.readBool();
 			}
 		}
 

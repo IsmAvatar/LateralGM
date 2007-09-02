@@ -32,12 +32,14 @@ import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -63,6 +65,8 @@ import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.GameSettings;
+import org.lateralgm.resources.Include;
 import org.lateralgm.resources.sub.Constant;
 
 public class GameSettingFrame extends MDIFrame implements ActionListener
@@ -78,18 +82,19 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public ColorSelect colorbutton;
 	public JCheckBox resizeWindow;
 	public JCheckBox stayOnTop;
-	public JCheckBox drawBorderedWindow;
-	public JCheckBox drawButtonsCaption;
+	public JCheckBox noWindowBorder;
+	public JCheckBox noWindowButtons;
 	public JCheckBox displayMouse;
 	public JCheckBox freezeGame;
 
 	private JPanel makeGraphicsPane()
 		{
+		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
 		panel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
 		String t = Messages.getString("GameSettingFrame.FULLSCREEN"); //$NON-NLS-1$
-		startFullscreen = new JCheckBox(t,LGM.currentFile.startFullscreen);
+		startFullscreen = new JCheckBox(t,g.startFullscreen);
 
 		JPanel scalegroup = makeTitledPanel(Messages.getString("GameSettingFrame.SCALING_TITLE"),250, //$NON-NLS-1$
 				120);
@@ -118,34 +123,34 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		scaling.add(option,0);
 		scalegroup.add(option);
 
-		int s = LGM.currentFile.scaling;
+		int s = g.scaling;
 		scaling.setValue(s > 1 ? 1 : s);
 		if (s > 1) scale.setIntValue(s);
 		scale.setEnabled(s > 0);
 
 		t = Messages.getString("GameSettingFrame.INTERPOLATE"); //$NON-NLS-1$
-		interpolatecolors = new JCheckBox(t,LGM.currentFile.interpolate);
+		interpolatecolors = new JCheckBox(t,g.interpolate);
 
 		JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
 		/*
 		 * FIXME: should this be on the same line as its JLabel?
 		 */
-		colorbutton = new ColorSelect(LGM.currentFile.colorOutsideRoom);
+		colorbutton = new ColorSelect(g.colorOutsideRoom);
 		colorbutton.setMaximumSize(new Dimension(100,20));
 		colorbutton.setAlignmentX(0f);
 
 		t = Messages.getString("GameSettingFrame.RESIZE"); //$NON-NLS-1$
-		resizeWindow = new JCheckBox(t,LGM.currentFile.allowWindowResize);
+		resizeWindow = new JCheckBox(t,g.allowWindowResize);
 		t = Messages.getString("GameSettingFrame.STAYONTOP"); //$NON-NLS-1$
-		stayOnTop = new JCheckBox(t,LGM.currentFile.alwaysOnTop);
+		stayOnTop = new JCheckBox(t,g.alwaysOnTop);
 		t = Messages.getString("GameSettingFrame.NOBORDER"); //$NON-NLS-1$
-		drawBorderedWindow = new JCheckBox(t,LGM.currentFile.dontDrawBorder);
+		noWindowBorder = new JCheckBox(t,g.dontDrawBorder);
 		t = Messages.getString("GameSettingFrame.NOBUTTONS"); //$NON-NLS-1$
-		drawButtonsCaption = new JCheckBox(t,LGM.currentFile.dontShowButtons);
+		noWindowButtons = new JCheckBox(t,g.dontShowButtons);
 		t = Messages.getString("GameSettingFrame.DISPLAYCURSOR"); //$NON-NLS-1$
-		displayMouse = new JCheckBox(t,LGM.currentFile.displayCursor);
+		displayMouse = new JCheckBox(t,g.displayCursor);
 		t = Messages.getString("GameSettingFrame.FREEZE"); //$NON-NLS-1$
-		freezeGame = new JCheckBox(t,LGM.currentFile.freezeOnLoseFocus);
+		freezeGame = new JCheckBox(t,g.freezeOnLoseFocus);
 		panel.add(startFullscreen);
 		panel.add(scalegroup);
 		panel.add(interpolatecolors);
@@ -153,8 +158,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		panel.add(colorbutton);
 		panel.add(resizeWindow);
 		panel.add(stayOnTop);
-		panel.add(drawBorderedWindow);
-		panel.add(drawButtonsCaption);
+		panel.add(noWindowBorder);
+		panel.add(noWindowButtons);
 		panel.add(displayMouse);
 		panel.add(freezeGame);
 		return panel;
@@ -169,14 +174,15 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	private JPanel makeResolutionPane()
 		{
+		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel(new FlowLayout());
 		panel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
 		synchronised = new JCheckBox(Messages.getString("GameSettingFrame.USE_SYNC"), //$NON-NLS-1$
-				LGM.currentFile.useSynchronization);
+				g.useSynchronization);
 		addDim(panel,synchronised,516,16);
 		addGap(panel,450,20);
 		setResolution = new JCheckBox(
-				Messages.getString("GameSettingFrame.SET_RESOLUTION"),LGM.currentFile.setResolution); //$NON-NLS-1$
+				Messages.getString("GameSettingFrame.SET_RESOLUTION"),g.setResolution); //$NON-NLS-1$
 		setResolution.addActionListener(this);
 		addDim(panel,setResolution,516,16);
 		addGap(panel,450,10);
@@ -185,37 +191,37 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		resolutionPane.setPreferredSize(new Dimension(480,700));
 
 		JPanel depth = makeRadioPanel(Messages.getString("GameSettingFrame.TITLE_COLOR_DEPTH"),150,200); //$NON-NLS-1$
-		IndexButtonGroup group = new IndexButtonGroup(3,true,false);
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.16_BIT"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.32_BIT"))); //$NON-NLS-1$
-		group.setValue(LGM.currentFile.colorDepth);
-		group.populate(depth);
+		colourDepth = new IndexButtonGroup(3,true,false);
+		colourDepth.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
+		colourDepth.add(new JRadioButton(Messages.getString("GameSettingFrame.16_BIT"))); //$NON-NLS-1$
+		colourDepth.add(new JRadioButton(Messages.getString("GameSettingFrame.32_BIT"))); //$NON-NLS-1$
+		colourDepth.setValue(g.colorDepth);
+		colourDepth.populate(depth);
 		resolutionPane.add(depth);
 
 		JPanel res = makeRadioPanel(Messages.getString("GameSettingFrame.TITLE_RESOLUTION"),150,200); //$NON-NLS-1$
-		group = new IndexButtonGroup(7,true,false);
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.320X240"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.640X480"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.800X600"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.1024X768"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.1280X1024"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.1600X1200"))); //$NON-NLS-1$
-		group.setValue(LGM.currentFile.resolution);
-		group.populate(res);
+		resolution = new IndexButtonGroup(7,true,false);
+		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
+		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.320X240"))); //$NON-NLS-1$
+		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.640X480"))); //$NON-NLS-1$
+		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.800X600"))); //$NON-NLS-1$
+		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.1024X768"))); //$NON-NLS-1$
+		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.1280X1024"))); //$NON-NLS-1$
+		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.1600X1200"))); //$NON-NLS-1$
+		resolution.setValue(g.resolution);
+		resolution.populate(res);
 		resolutionPane.add(res);
 
 		JPanel freq = makeRadioPanel(Messages.getString("GameSettingFrame.TITLE_FREQUENCY"),150,200); //$NON-NLS-1$
-		group = new IndexButtonGroup(6,true,false);
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.60HZ"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.70HZ"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.85HZ"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.100HZ"))); //$NON-NLS-1$
-		group.add(new JRadioButton(Messages.getString("GameSettingFrame.120HZ"))); //$NON-NLS-1$
-		group.setValue(LGM.currentFile.frequency);
-		group.populate(freq);
+		frequency = new IndexButtonGroup(6,true,false);
+		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
+		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.60HZ"))); //$NON-NLS-1$
+		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.70HZ"))); //$NON-NLS-1$
+		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.85HZ"))); //$NON-NLS-1$
+		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.100HZ"))); //$NON-NLS-1$
+		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.120HZ"))); //$NON-NLS-1$
+		frequency.setValue(g.frequency);
+		frequency.populate(freq);
 		resolutionPane.add(freq);
 
 		panel.add(resolutionPane);
@@ -232,6 +238,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	private JPanel makeOtherPane()
 		{
+		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel(new FlowLayout());
 		String t = Messages.getString("GameSettingFrame.TITLE_KEYS"); //$NON-NLS-1$
 		addGap(panel,450,10);
@@ -239,13 +246,13 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		panel.add(dKeys);
 
 		t = Messages.getString("GameSettingFrame.KEY_ENDGAME"); //$NON-NLS-1$
-		esc = new JCheckBox(t,LGM.currentFile.letEscEndGame);
+		esc = new JCheckBox(t,g.letEscEndGame);
 		t = Messages.getString("GameSettingFrame.KEY_INFO"); //$NON-NLS-1$
-		f1 = new JCheckBox(t,LGM.currentFile.letF1ShowGameInfo);
+		f1 = new JCheckBox(t,g.letF1ShowGameInfo);
 		t = Messages.getString("GameSettingFrame.KEY_SWITCHFULLSCREEN"); //$NON-NLS-1$
-		f4 = new JCheckBox(t,LGM.currentFile.letF4SwitchFullscreen);
+		f4 = new JCheckBox(t,g.letF4SwitchFullscreen);
 		t = Messages.getString("GameSettingFrame.SAVELOAD"); //$NON-NLS-1$
-		f5 = new JCheckBox(t,LGM.currentFile.letF5SaveF6Load);
+		f5 = new JCheckBox(t,g.letF5SaveF6Load);
 		dKeys.add(esc);
 		dKeys.add(f1);
 		dKeys.add(f4);
@@ -267,95 +274,97 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		option = new JRadioButton(t);
 		gamePriority.add(option);
 		gamePriority.populate(gpp);
-		gamePriority.setValue(LGM.currentFile.gamePriority);
+		gamePriority.setValue(g.gamePriority);
 
 		return panel;
 		}
 
-	public JCheckBox useCustomLoad;
-	public BufferedImage customLoad;
+	public JCheckBox showCustomLoadImage;
+	public BufferedImage customLoadingImage;
 	public JButton changeCustomLoad;
-	public JCheckBox transparent;
-	public IntegerField loadAlpha;
-	public IndexButtonGroup progBarMode;
+	public JCheckBox imagePartiallyTransparent;
+	public IntegerField loadImageAlpha;
+	public IndexButtonGroup loadBarMode;
 	public JButton backLoad;
 	public JButton frontLoad;
 	public BufferedImage backLoadImage;
 	public BufferedImage frontLoadImage;
-	public JCheckBox scaleProgBar;
+	public JCheckBox scaleProgressBar;
 	public JLabel iconPreview;
-	public BufferedImage icon;
-	public byte[] iconData;
+	public BufferedImage gameIcon;
+	public byte[] gameIconData;
 	public JButton changeIcon;
 	public IntegerField gameId;
 	public JButton randomise;
 
 	private JPanel makeLoadingPane()
 		{
+		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel(new FlowLayout());
 
 		JPanel loadImage = new JPanel(new FlowLayout());
 		loadImage.setPreferredSize(new Dimension(480,120));
 		loadImage.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.TITLE_LOADING_IMAGE"))); //$NON-NLS-1$
 
-		useCustomLoad = new JCheckBox(
-				Messages.getString("GameSettingFrame.CUSTOM_LOAD_IMAGE"),LGM.currentFile.showCustomLoadImage); //$NON-NLS-1$
-		useCustomLoad.addActionListener(this);
-		addDim(loadImage,useCustomLoad,200,16);
-		customLoad = LGM.currentFile.loadingImage;
+		showCustomLoadImage = new JCheckBox(
+				Messages.getString("GameSettingFrame.CUSTOM_LOAD_IMAGE"),g.showCustomLoadImage); //$NON-NLS-1$
+		showCustomLoadImage.addActionListener(this);
+		addDim(loadImage,showCustomLoadImage,200,16);
+		customLoadingImage = g.loadingImage;
 
 		changeCustomLoad = new JButton(Messages.getString("GameSettingFrame.CHANGE_IMAGE")); //$NON-NLS-1$
-		changeCustomLoad.setEnabled(useCustomLoad.isSelected());
+		changeCustomLoad.setEnabled(showCustomLoadImage.isSelected());
 		changeCustomLoad.addActionListener(this);
 		addDim(loadImage,changeCustomLoad,120,24);
 
 		addGap(loadImage,130,16);
 
-		transparent = new JCheckBox(Messages.getString("GameSettingFrame.MAKE_TRANSPARENT"), //$NON-NLS-1$
-				LGM.currentFile.imagePartiallyTransparent);
-		addDim(loadImage,transparent,460,16);
+		imagePartiallyTransparent = new JCheckBox(
+				Messages.getString("GameSettingFrame.MAKE_TRANSPARENT"), //$NON-NLS-1$
+				g.imagePartiallyTransparent);
+		addDim(loadImage,imagePartiallyTransparent,460,16);
 		JLabel lab = new JLabel(Messages.getString("GameSettingFrame.ALPHA_TRANSPARENCY")); //$NON-NLS-1$
 		addDim(loadImage,lab,120,16);
-		loadAlpha = new IntegerField(0,255,LGM.currentFile.loadImageAlpha);
-		addDim(loadImage,loadAlpha,50,20);
+		loadImageAlpha = new IntegerField(0,255,g.loadImageAlpha);
+		addDim(loadImage,loadImageAlpha,50,20);
 		addGap(loadImage,270,16);
 		panel.add(loadImage);
 
 		JPanel progBar = makeTitledPanel(
 				Messages.getString("GameSettingFrame.TITLE_LOADING_PROGRESS_BAR"),480,150); //$NON-NLS-1$
-		progBarMode = new IndexButtonGroup(3,true,false,this);
+		loadBarMode = new IndexButtonGroup(3,true,false,this);
 		JRadioButton but = new JRadioButton(Messages.getString("GameSettingFrame.NO_PROGRESS_BAR")); //$NON-NLS-1$
-		progBarMode.add(but);
+		loadBarMode.add(but);
 		addDim(progBar,but,460,16);
 		but = new JRadioButton(Messages.getString("GameSettingFrame.DEF_PROGRESS_BAR")); //$NON-NLS-1$
-		progBarMode.add(but);
+		loadBarMode.add(but);
 		addDim(progBar,but,460,16);
 		but = new JRadioButton(Messages.getString("GameSettingFrame.CUSTOM_PROGRESS_BAR")); //$NON-NLS-1$
-		progBarMode.add(but);
+		loadBarMode.add(but);
 		addDim(progBar,but,460,16);
-		progBarMode.setValue(LGM.currentFile.loadBarMode);
+		loadBarMode.setValue(g.loadBarMode);
 
 		backLoad = new JButton(Messages.getString("GameSettingFrame.BACK_IMAGE")); //$NON-NLS-1$
 		backLoad.addActionListener(this);
-		backLoadImage = LGM.currentFile.backLoadBar;
+		backLoadImage = g.backLoadBar;
 		addDim(progBar,backLoad,120,24);
 		frontLoad = new JButton(Messages.getString("GameSettingFrame.FRONT_IMAGE")); //$NON-NLS-1$
 		frontLoad.addActionListener(this);
-		frontLoadImage = LGM.currentFile.frontLoadBar;
+		frontLoadImage = g.frontLoadBar;
 		addDim(progBar,frontLoad,120,24);
 		addGap(progBar,180,20);
-		backLoad.setEnabled(progBarMode.getValue() == Gm6File.LOADBAR_CUSTOM);
+		backLoad.setEnabled(loadBarMode.getValue() == GameSettings.LOADBAR_CUSTOM);
 		frontLoad.setEnabled(backLoad.isEnabled());
 
-		scaleProgBar = new JCheckBox(
-				Messages.getString("GameSettingFrame.SCALE_IMAGE"),LGM.currentFile.scaleProgressBar); //$NON-NLS-1$
-		addDim(progBar,scaleProgBar,460,16);
+		scaleProgressBar = new JCheckBox(
+				Messages.getString("GameSettingFrame.SCALE_IMAGE"),g.scaleProgressBar); //$NON-NLS-1$
+		addDim(progBar,scaleProgressBar,460,16);
 		panel.add(progBar);
 
-		icon = LGM.currentFile.gameIcon;
-		iconData = LGM.currentFile.gameIconData;
+		gameIcon = g.gameIcon;
+		gameIconData = g.gameIconData;
 		iconPreview = new JLabel(Messages.getString("GameSettingFrame.GAME_ICON")); //$NON-NLS-1$
-		if (LGM.currentFile.gameIcon != null) iconPreview.setIcon(new ImageIcon(icon));
+		if (g.gameIcon != null) iconPreview.setIcon(new ImageIcon(gameIcon));
 		iconPreview.setHorizontalTextPosition(SwingConstants.LEFT);
 		addDim(panel,iconPreview,140,40);
 		changeIcon = new JButton(Messages.getString("GameSettingFrame.CHANGE_ICON")); //$NON-NLS-1$
@@ -367,7 +376,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		lab = new JLabel(Messages.getString("GameSettingFrame.GAME_ID")); //$NON-NLS-1$
 		addDim(panel,lab,50,16);
 
-		gameId = new IntegerField(0,100000000,LGM.currentFile.gameId);
+		gameId = new IntegerField(0,100000000,g.gameId);
 		addDim(panel,gameId,70,20);
 		addGap(panel,5,16);
 		randomise = new JButton(Messages.getString("GameSettingFrame.RANDOMIZE")); //$NON-NLS-1$
@@ -402,7 +411,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		addDim(panel,exportBut,80,24);
 		addGap(panel,450,5);
 
-		cModel = new ConstantsTableModel(LGM.currentFile);
+		cModel = new ConstantsTableModel(LGM.currentFile.gameSettings.constants);
 		constants = new JTable(cModel);
 		JScrollPane scroll = new JScrollPane(constants);
 		addDim(panel,scroll,450,260);
@@ -441,10 +450,10 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		private static final long serialVersionUID = 1L;
 		ArrayList<Constant> constants;
 
-		ConstantsTableModel(Gm6File file)
+		ConstantsTableModel(ArrayList<Constant> list)
 			{
 			constants = new ArrayList<Constant>();
-			for (Constant c : file.constants)
+			for (Constant c : list)
 				constants.add(c.copy());
 			}
 
@@ -490,60 +499,129 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			}
 		}
 
-	//TODO:
+	JList includes;
+	IncludesListModel iModel;
+	JButton iAdd;
+	JButton iDelete;
+	JButton iClear;
+	IndexButtonGroup exportFolder;
+	JCheckBox overwriteExisting;
+	JCheckBox removeAtGameEnd;
+
 	private JPanel makeIncludePane()
 		{
-		JPanel panel = new JPanel(false);
+		GameSettings g = LGM.currentFile.gameSettings;
+		JPanel panel = new JPanel(new FlowLayout());
+		JLabel lab = new JLabel("Files to include in the Executable");
+		addDim(panel,lab,450,16);
 
+		iModel = new IncludesListModel(g.includes);
+		includes = new JList(iModel);
+		addDim(panel,includes,450,200);
+		iAdd = new JButton("Add");
+		iAdd.addActionListener(this);
+		addDim(panel,iAdd,80,24);
+		addGap(panel,80,24);
+		iDelete = new JButton("Delete");
+		iDelete.addActionListener(this);
+		addDim(panel,iDelete,80,24);
+		addGap(panel,80,24);
+		iClear = new JButton("Clear");
+		iClear.addActionListener(this);
+		addDim(panel,iClear,80,24);
+
+		JPanel folderPanel = makeRadioPanel("Folder to export to",200,80);
+		exportFolder = new IndexButtonGroup(2,true,false);
+		exportFolder.add(new JRadioButton("Same Folder as Executable"));
+		exportFolder.add(new JRadioButton("Temporary Directory"));
+		exportFolder.setValue(g.includeFolder);
+		exportFolder.populate(folderPanel);
+		panel.add(folderPanel);
+
+		JPanel checkPanel = new JPanel(new FlowLayout());
+		addDim(panel,checkPanel,200,50);
+		overwriteExisting = new JCheckBox("Overwrite existing files");
+		addDim(checkPanel,overwriteExisting,200,16);
+		removeAtGameEnd = new JCheckBox("Remove files at end of game");
+		addDim(checkPanel,removeAtGameEnd,200,16);
 		return panel;
 		}
+
+	private class IncludesListModel extends DefaultListModel
+		{
+		private static final long serialVersionUID = 1L;
+
+		IncludesListModel(ArrayList<Include> list)
+			{
+			for (Include i : list)
+				addElement(i.copy());
+			}
+
+		public ArrayList<Include> toArrayList()
+			{
+			ArrayList<Include> list = new ArrayList<Include>();
+			for (Object o : toArray())
+				list.add((Include) o);
+			return list;
+			}
+		}
+
+	JCheckBox displayErrors;
+	JCheckBox writeToLog;
+	JCheckBox abortOnError;
+	JCheckBox treatUninitialisedAs0;
 
 	private JPanel makeErrorPane()
 		{
+		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel(false);
 		panel.setLayout(new BoxLayout(panel,BoxLayout.PAGE_AXIS));
 		String t = Messages.getString("GameSettingFrame.ERRORS_DISPLAY"); //$NON-NLS-1$
-		JCheckBox dem = new JCheckBox(t,LGM.currentFile.displayErrors);
+		displayErrors = new JCheckBox(t,g.displayErrors);
 		t = Messages.getString("GameSettingFrame.ERRORS_LOG"); //$NON-NLS-1$
-		JCheckBox wge = new JCheckBox(t,LGM.currentFile.writeToLog);
+		writeToLog = new JCheckBox(t,g.writeToLog);
 		t = Messages.getString("GameSettingFrame.ERRORS_ABORT"); //$NON-NLS-1$
-		JCheckBox abort = new JCheckBox(t,LGM.currentFile.abortOnError);
+		abortOnError = new JCheckBox(t,g.abortOnError);
 		t = Messages.getString("GameSettingFrame.UNINITZERO"); //$NON-NLS-1$
-		JCheckBox tuv0 = new JCheckBox(t,LGM.currentFile.treatUninitializedAs0);
-		panel.add(dem);
-		panel.add(wge);
-		panel.add(abort);
-		panel.add(tuv0);
+		treatUninitialisedAs0 = new JCheckBox(t,g.treatUninitializedAs0);
+		panel.add(displayErrors);
+		panel.add(writeToLog);
+		panel.add(abortOnError);
+		panel.add(treatUninitialisedAs0);
 		return panel;
 		}
 
+	JTextField author;
+	IntegerField version;
+
 	private JPanel makeInfoPane()
 		{
+		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel(false);
 		panel.setLayout(new FlowLayout());
 		JLabel label = new JLabel(Messages.getString("GameSettingFrame.AUTHOR")); //$NON-NLS-1$
 		label.setPreferredSize(new Dimension(80,25));
 		panel.add(label);
-		JTextField box = new JTextField(LGM.currentFile.author);
-		box.setPreferredSize(new Dimension(390,25));
-		panel.add(box);
+		author = new JTextField(g.author);
+		author.setPreferredSize(new Dimension(390,25));
+		panel.add(author);
 		label = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
 		label.setPreferredSize(new Dimension(80,25));
 		panel.add(label);
-		box = new JTextField("" + LGM.currentFile.version); //$NON-NLS-1$
-		box.setPreferredSize(new Dimension(390,25));
-		panel.add(box);
+		version = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,g.version); //$NON-NLS-1$
+		version.setPreferredSize(new Dimension(390,25));
+		panel.add(version);
 		label = new JLabel(Messages.getString("GameSettingFrame.LASTCHANGED")); //$NON-NLS-1$
 		label.setPreferredSize(new Dimension(80,25));
 		panel.add(label);
-		box = new JTextField(Gm6File.gmTimeToString(LGM.currentFile.lastChanged));
-		box.setPreferredSize(new Dimension(390,25));
-		box.setEditable(false);
-		panel.add(box);
+		JTextField lastChanged = new JTextField(Gm6File.gmTimeToString(g.lastChanged));
+		lastChanged.setPreferredSize(new Dimension(390,25));
+		lastChanged.setEditable(false);
+		panel.add(lastChanged);
 		label = new JLabel(Messages.getString("GameSettingFrame.INFORMATION")); //$NON-NLS-1$
 		label.setPreferredSize(new Dimension(70,25));
 		panel.add(label);
-		JTextArea boxa = new JTextArea(LGM.currentFile.information);
+		JTextArea boxa = new JTextArea(g.information);
 		boxa.setPreferredSize(new Dimension(500,200));
 		boxa.setLineWrap(true);
 		panel.add(boxa);
@@ -564,6 +642,22 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		setResizable(false);
 		getContentPane().add(tabbedPane);
 
+		rebuildTabs();
+
+		String t = Messages.getString("GameSettingFrame.BUTTON_SAVE"); //$NON-NLS-1$
+		saveButton = new JButton(t);
+		saveButton.addActionListener(this);
+		//getContentPane().add(saveButton);
+		add(saveButton);
+		t = Messages.getString("GameSettingFrame.BUTTON_DISCARD"); //$NON-NLS-1$
+		discardButton = new JButton(t);
+		discardButton.addActionListener(this);
+		add(discardButton);
+		}
+
+	private void rebuildTabs()
+		{
+		tabbedPane.removeAll();
 		JComponent pane = makeGraphicsPane();
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_GRAPHICS"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_GRAPHICS")); //$NON-NLS-1$
@@ -603,16 +697,6 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_INFO"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_INFO")); //$NON-NLS-1$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
-
-		String t = Messages.getString("GameSettingFrame.BUTTON_SAVE"); //$NON-NLS-1$
-		saveButton = new JButton(t);
-		saveButton.addActionListener(this);
-		//getContentPane().add(saveButton);
-		add(saveButton);
-		t = Messages.getString("GameSettingFrame.BUTTON_DISCARD"); //$NON-NLS-1$
-		discardButton = new JButton(t);
-		discardButton.addActionListener(this);
-		add(discardButton);
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -626,6 +710,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		if (e.getSource() == discardButton)
 			{
+			rebuildTabs();
 			setVisible(false);
 			return;
 			}
@@ -633,36 +718,34 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		switch (tabbedPane.getSelectedIndex())
 			{
 			case 0:
-				if (e.getSource() instanceof JRadioButton)
-					{
-					scale.setEnabled(scaling.getValue() > 0);
-					return;
-					}
+				if (e.getSource() instanceof JRadioButton) scale.setEnabled(scaling.getValue() > 0);
+				break;
 			case 1:
 				resolutionPane.setVisible(setResolution.isSelected());
-				return;
+				break;
 			case 3:
 				loadActionPerformed(e);
-				return;
+				break;
 			case 4:
 				constantsActionPerformed(e);
-				return;
-			default:
-				return;
+				break;
+			case 5:
+				includesActionPerformed(e);
+				break;
 			}
 		}
 
 	private void loadActionPerformed(ActionEvent e)
 		{
-		if (e.getSource() == useCustomLoad)
+		if (e.getSource() == showCustomLoadImage)
 			{
-			changeCustomLoad.setEnabled(useCustomLoad.isSelected());
+			changeCustomLoad.setEnabled(showCustomLoadImage.isSelected());
 			}
 		else if (e.getSource() == changeCustomLoad)
 			{
 			try
 				{
-				customLoad = Util.getValidImage();
+				customLoadingImage = Util.getValidImage();
 				}
 			catch (Throwable ex)
 				{
@@ -672,7 +755,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			}
 		else if (e.getSource() instanceof JRadioButton)
 			{
-			backLoad.setEnabled(progBarMode.getValue() == Gm6File.LOADBAR_CUSTOM);
+			backLoad.setEnabled(loadBarMode.getValue() == GameSettings.LOADBAR_CUSTOM);
 			frontLoad.setEnabled(backLoad.isEnabled());
 			}
 		else if (e.getSource() == backLoad)
@@ -716,8 +799,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 							return;
 							}
 
-						icon = i.getDescriptor(0).getBitmap().createImageRGB();
-						iconPreview.setIcon(new ImageIcon(icon));
+						gameIcon = i.getDescriptor(0).getBitmap().createImageRGB();
+						iconPreview.setIcon(new ImageIcon(gameIcon));
 
 						//ICOFile closes the stream when it's done
 						in = new BufferedInputStream(new FileInputStream(f));
@@ -729,7 +812,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 							dat.write(val);
 							val = in.read();
 							}
-						iconData = dat.toByteArray();
+						gameIconData = dat.toByteArray();
 						}
 					catch (FileNotFoundException e1)
 						{
@@ -827,6 +910,31 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			Collections.sort(cModel.constants);
 			cModel.fireTableDataChanged();
 			if (cModel.constants.size() > 0) constants.getSelectionModel().setSelectionInterval(0,0);
+			return;
+			}
+		}
+
+	private void includesActionPerformed(ActionEvent e)
+		{
+		if (e.getSource() == iAdd)
+			{
+			JFileChooser choose = new JFileChooser();
+			if (choose.showOpenDialog(getParent()) == JFileChooser.APPROVE_OPTION)
+				{
+				File f = choose.getSelectedFile();
+				if (f != null) iModel.addElement(new Include(f.getAbsolutePath()));
+				}
+			return;
+			}
+		if (e.getSource() == iDelete)
+			{
+			int ind = includes.getSelectedIndex();
+			if (ind != -1) iModel.removeElementAt(ind);
+			return;
+			}
+		if (e.getSource() == iClear)
+			{
+			iModel.clear();
 			return;
 			}
 		}
@@ -935,9 +1043,66 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			}
 		}
 
-	//TODO:
 	public void commitChanges()
 		{
+		GameSettings g = LGM.currentFile.gameSettings;
+		//Graphics
+		g.startFullscreen = startFullscreen.isSelected();
+		g.scaling = scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue();
+		g.interpolate = interpolatecolors.isSelected();
+		g.colorOutsideRoom = colorbutton.getSelectedColor();
+		g.allowWindowResize = resizeWindow.isSelected();
+		g.alwaysOnTop = stayOnTop.isSelected();
+		g.dontDrawBorder = noWindowBorder.isSelected();
+		g.dontShowButtons = noWindowButtons.isSelected();
+		g.displayCursor = displayMouse.isSelected();
+		g.freezeOnLoseFocus = freezeGame.isSelected();
+
+		//Resolution
+		g.useSynchronization = synchronised.isSelected();
+		g.setResolution = setResolution.isSelected();
+		g.colorDepth = (byte) colourDepth.getValue();
+		g.resolution = (byte) resolution.getValue();
+		g.frequency = (byte) frequency.getValue();
+
+		//Other
+		g.letEscEndGame = esc.isSelected();
+		g.letF1ShowGameInfo = f1.isSelected();
+		g.letF4SwitchFullscreen = f4.isSelected();
+		g.letF5SaveF6Load = f5.isSelected();
+		g.gamePriority = (byte) gamePriority.getValue();
+
+		//Loading
+		g.showCustomLoadImage = showCustomLoadImage.isSelected();
+		g.loadingImage = customLoadingImage;
+		g.imagePartiallyTransparent = imagePartiallyTransparent.isSelected();
+		g.loadImageAlpha = loadImageAlpha.getIntValue();
+		g.loadBarMode = (byte) loadBarMode.getValue();
+		g.backLoadBar = backLoadImage;
+		g.frontLoadBar = frontLoadImage;
+		g.scaleProgressBar = scaleProgressBar.isSelected();
+		g.gameIcon = gameIcon;
+		g.gameIconData = gameIconData;
+		g.gameId = gameId.getIntValue();
+
+		//Constants
+		g.constants = cModel.constants;
+
+		//Includes
+		g.includes = iModel.toArrayList();
+		g.includeFolder = exportFolder.getValue();
+		g.overwriteExisting = overwriteExisting.isSelected();
+		g.removeAtGameEnd = removeAtGameEnd.isSelected();
+
+		//Errors
+		g.displayErrors = displayErrors.isSelected();
+		g.writeToLog = writeToLog.isSelected();
+		g.abortOnError = abortOnError.isSelected();
+		g.treatUninitializedAs0 = treatUninitialisedAs0.isSelected();
+
+		//Info
+		g.author = author.getText();
+		g.version = version.getIntValue();
 		}
 
 	private JPanel makeRadioPanel(String paneTitle, int width, int height)

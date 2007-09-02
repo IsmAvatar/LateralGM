@@ -11,4 +11,23 @@ package org.lateralgm.resources;
 public class Include
 	{
 	public String filePath = "";
+
+	public Include()
+		{
+		}
+
+	public Include(String filePath)
+		{
+		this.filePath = filePath;
+		}
+
+	public Include copy()
+		{
+		return new Include(filePath);
+		}
+
+	public String toString()
+		{
+		return filePath;
+		}
 	}

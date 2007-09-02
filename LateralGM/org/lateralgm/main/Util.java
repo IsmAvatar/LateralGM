@@ -15,14 +15,9 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
@@ -33,6 +28,7 @@ import java.awt.image.RGBImageFilter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -253,9 +249,22 @@ public final class Util
 
 	public static String convertIndents(String s)
 		{
-		//TODO: correct the line splitting behaviour (try for example "\n\n\n" as an input)
-		String lines[] = s.split("\n");
+		ArrayList<String> lines = new ArrayList<String>();
 		StringBuffer buf = new StringBuffer();
+		char[] chars = s.toCharArray();
+		for (char c : chars)
+			{
+			if (c == '\n')
+				{
+				lines.add(buf.toString());
+				buf = new StringBuffer();
+				continue;
+				}
+			buf.append(c);
+			}
+		if (chars[chars.length - 1] != '\n') lines.add(buf.toString());
+		
+		buf = new StringBuffer();
 		for (String str : lines)
 			{
 			char[] chr = str.toCharArray();

@@ -18,6 +18,7 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font;
+import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
@@ -54,9 +55,7 @@ public final class Gm6FileWriter
 			out = new GmStreamEncoder(fileName);
 			out.write4(1234321);
 			out.write4(600);
-			out.write4(f.gameId);
-			out.fill(4);
-			out.write4(600);
+			
 
 			writeSettings(f,out,savetime);
 			writeSounds(f,out);
@@ -109,81 +108,86 @@ public final class Gm6FileWriter
 	public static void writeSettings(Gm6File f, GmStreamEncoder out, long savetime)
 			throws IOException
 		{
-		out.writeBool(f.startFullscreen);
-		out.writeBool(f.interpolate);
-		out.writeBool(f.dontDrawBorder);
-		out.writeBool(f.displayCursor);
-		out.write4(f.scaling);
-		out.writeBool(f.allowWindowResize);
-		out.writeBool(f.alwaysOnTop);
-		out.write4(Util.getGmColor(f.colorOutsideRoom));
-		out.writeBool(f.setResolution);
-		out.write4(f.colorDepth);
-		out.write4(f.resolution);
-		out.write4(f.frequency);
-		out.writeBool(f.dontShowButtons);
-		out.writeBool(f.useSynchronization);
-		out.writeBool(f.letF4SwitchFullscreen);
-		out.writeBool(f.letF1ShowGameInfo);
-		out.writeBool(f.letEscEndGame);
-		out.writeBool(f.letF5SaveF6Load);
-		out.write4(f.gamePriority);
-		out.writeBool(f.freezeOnLoseFocus);
-		out.write4(f.loadBarMode);
-		if (f.loadBarMode == Gm6File.LOADBAR_CUSTOM)
+		GameSettings g = f.gameSettings;
+		out.write4(f.gameSettings.gameId);
+		out.fill(4);
+		out.write4(600);
+		
+		out.writeBool(g.startFullscreen);
+		out.writeBool(g.interpolate);
+		out.writeBool(g.dontDrawBorder);
+		out.writeBool(g.displayCursor);
+		out.write4(g.scaling);
+		out.writeBool(g.allowWindowResize);
+		out.writeBool(g.alwaysOnTop);
+		out.write4(Util.getGmColor(g.colorOutsideRoom));
+		out.writeBool(g.setResolution);
+		out.write4(g.colorDepth);
+		out.write4(g.resolution);
+		out.write4(g.frequency);
+		out.writeBool(g.dontShowButtons);
+		out.writeBool(g.useSynchronization);
+		out.writeBool(g.letF4SwitchFullscreen);
+		out.writeBool(g.letF1ShowGameInfo);
+		out.writeBool(g.letEscEndGame);
+		out.writeBool(g.letF5SaveF6Load);
+		out.write4(g.gamePriority);
+		out.writeBool(g.freezeOnLoseFocus);
+		out.write4(g.loadBarMode);
+		if (g.loadBarMode == GameSettings.LOADBAR_CUSTOM)
 			{
-			if (f.backLoadBar != null)
+			if (g.backLoadBar != null)
 				{
 				out.write4(10);
-				out.writeImage(f.backLoadBar);
+				out.writeImage(g.backLoadBar);
 				}
 			else
 				out.write4(-1);
-			if (f.frontLoadBar != null)
+			if (g.frontLoadBar != null)
 				{
 				out.write4(10);
-				out.writeImage(f.frontLoadBar);
+				out.writeImage(g.frontLoadBar);
 				}
 			else
 				out.write4(-1);
 			}
-		out.writeBool(f.showCustomLoadImage);
-		if (f.showCustomLoadImage)
+		out.writeBool(g.showCustomLoadImage);
+		if (g.showCustomLoadImage)
 			{
-			if (f.loadingImage != null)
+			if (g.loadingImage != null)
 				{
 				out.write4(10);
-				out.writeImage(f.loadingImage);
+				out.writeImage(g.loadingImage);
 				}
 			else
 				out.write4(-1);
 			}
-		out.writeBool(f.imagePartiallyTransparent);
-		out.write4(f.loadImageAlpha);
-		out.writeBool(f.scaleProgressBar);
-		out.write(f.gameIconData);
-		out.writeBool(f.displayErrors);
-		out.writeBool(f.writeToLog);
-		out.writeBool(f.abortOnError);
-		out.writeBool(f.treatUninitializedAs0);
-		out.writeStr(f.author);
-		out.write4(f.version);
-		f.lastChanged = Gm6File.longTimeToGmTime(savetime);
-		out.writeD(f.lastChanged);
+		out.writeBool(g.imagePartiallyTransparent);
+		out.write4(g.loadImageAlpha);
+		out.writeBool(g.scaleProgressBar);
+		out.write(g.gameIconData);
+		out.writeBool(g.displayErrors);
+		out.writeBool(g.writeToLog);
+		out.writeBool(g.abortOnError);
+		out.writeBool(g.treatUninitializedAs0);
+		out.writeStr(g.author);
+		out.write4(g.version);
+		g.lastChanged = Gm6File.longTimeToGmTime(savetime);
+		out.writeD(g.lastChanged);
 
-		out.writeStr(f.information);
-		out.write4(f.constants.size());
-		for (Constant con : f.constants)
+		out.writeStr(g.information);
+		out.write4(g.constants.size());
+		for (Constant con : g.constants)
 			{
 			out.writeStr(con.name);
 			out.writeStr(con.value);
 			}
-		out.write4(f.includes.size());
-		for (Include inc : f.includes)
+		out.write4(g.includes.size());
+		for (Include inc : g.includes)
 			out.writeStr(inc.filePath);
-		out.write4(f.includeFolder);
-		out.writeBool(f.overwriteExisting);
-		out.writeBool(f.removeAtGameEnd);
+		out.write4(g.includeFolder);
+		out.writeBool(g.overwriteExisting);
+		out.writeBool(g.removeAtGameEnd);
 		}
 
 	public static void writeSounds(Gm6File f, GmStreamEncoder out) throws IOException
