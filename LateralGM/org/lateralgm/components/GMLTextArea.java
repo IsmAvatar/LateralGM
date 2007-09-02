@@ -116,7 +116,11 @@ public class GMLTextArea extends JEditTextArea
 		String tab = "";
 		for (int i = 0; i < Prefs.tabSize; i++)
 			tab += " ";
-		s = s.replaceAll("^\t*\t",tab);
+		/*
+		 * If anyone knows how to replace only the tabs at the
+		 * start of the line using regexes, please fix this.
+		 */
+		s = s.replaceAll("\t",tab);
 		return s;
 		}
 

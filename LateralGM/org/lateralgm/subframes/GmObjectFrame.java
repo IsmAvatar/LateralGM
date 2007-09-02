@@ -963,7 +963,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			if (o instanceof EventInstanceNode)
 				{
 				EventInstanceNode ein = (EventInstanceNode) o;
-				Event e = (Event) ein.getUserObject();
+				Event e = ein.getUserObject();
 				res.mainEvents[e.mainId].events.add(e);
 				}
 			}
