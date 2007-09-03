@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 
 public class Sprite extends Resource<Sprite>
@@ -41,6 +42,8 @@ public class Sprite extends Resource<Sprite>
 	public int boundingBoxTop = 0;
 	public int boundingBoxBottom = 31;
 	public ArrayList<BufferedImage> subImages = new ArrayList<BufferedImage>();
+
+	private BufferedImage imageCache = null;
 
 	public Sprite()
 		{
@@ -91,6 +94,21 @@ public class Sprite extends Resource<Sprite>
 		return null;
 		}
 
+	public BufferedImage getDisplayImage()
+		{
+		if (imageCache != null)
+			{
+			return imageCache;
+			}
+		if (subImages.size() < 1)
+			{
+			return null;
+			}
+		imageCache = subImages.get(0);
+		if (transparent) imageCache = Util.getTransparentIcon(imageCache);
+		return imageCache;
+		}
+
 	private Sprite copy(boolean update, ResourceList<Sprite> src)
 		{
 		Sprite spr = new Sprite();
@@ -138,4 +156,12 @@ public class Sprite extends Resource<Sprite>
 		{
 		return SPRITE;
 		}
+
+	@Override
+	protected void fireStateChanged()
+		{
+		imageCache = null;
+		super.fireStateChanged();
+		}
+
 	}

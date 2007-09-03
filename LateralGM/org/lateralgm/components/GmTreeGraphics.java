@@ -91,11 +91,9 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		{
 		if (deRef(s) == null || s.getRes().subImages.size() == 0) return getBlankIcon();
 		Sprite spr = s.getRes();
-		BufferedImage bi = spr.subImages.get(0);
+		BufferedImage bi = spr.getDisplayImage();
 		if (bi == null) return getBlankIcon();
-		Image i = bi;
-		if (spr.transparent) i = Util.getTransparentIcon(bi);
-		return getScaledIcon(i);
+		return getScaledIcon(bi);
 		}
 
 	public static Icon getBackgroundIcon(Background b)

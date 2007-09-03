@@ -22,7 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.lateralgm.main.Util;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Sprite;
@@ -108,6 +107,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 					g2.drawLine(0,y,width,y);
 				}
 			}
+		g2.dispose();
 		}
 
 	public static class InstanceComponent extends JComponent
@@ -120,6 +120,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 		private Sprite sprite;
 		private BufferedImage image;
 		private final ResourceChangeListener rcl;
+		private int x, y, width, height;
+		private boolean doListen;
 
 		public InstanceComponent(Instance i)
 			{
@@ -127,33 +129,64 @@ public class RoomEditor extends JPanel implements ImageObserver
 			object = deRef(i.gmObjectId);
 			rcl = new ResourceChangeListener();
 			if (object == null)
-				{
-				sprite = null;
 				image = EMPTY_IMAGE;
+			}
+
+		private void setListen(boolean l)
+			{
+			if (l == doListen) return;
+			if (l)
+				{
+				if (sprite != null) sprite.addChangeListener(rcl);
+				if (object != null) object.addChangeListener(rcl);
 				}
 			else
 				{
-				object.addChangeListener(rcl);
-				updateImage();
+				if (sprite != null) sprite.removeChangeListener(rcl);
+				if (object != null) object.removeChangeListener(rcl);
+				}
+			doListen = l;
+			}
+
+		private void updateSprite()
+			{
+			Sprite s = deRef(object.sprite);
+			if (s != sprite)
+				{
+				if (sprite != null) sprite.removeChangeListener(rcl);
+				if (doListen && s != null) s.addChangeListener(rcl);
+				image = null;
+				sprite = s;
+				}
+			}
+
+		private void updateBounds()
+			{
+			x = instance.x - (sprite == null ? 0 : sprite.originX);
+			y = instance.y - (sprite == null ? 0 : sprite.originY);
+			if (sprite == null)
+				{
+				width = EMPTY_IMAGE.getWidth();
+				height = EMPTY_IMAGE.getHeight();
+				}
+			else
+				{
+				width = sprite.width;
+				height = sprite.height;
 				}
 			}
 
 		private void updateImage()
 			{
-			if (sprite != null)
-				sprite.removeChangeListener(rcl);
-			sprite = deRef(object.sprite);
-			if (sprite == null || sprite.subImages.size() < 1)
+			image = sprite == null ? null : sprite.getDisplayImage();
+			if (image == null)
 				{
 				image = EMPTY_IMAGE;
 				setOpaque(false);
 				}
-			else if (!sprite.subImages.get(0).equals(image))
+			else
 				{
-				sprite.addChangeListener(rcl);
-				image = sprite.subImages.get(0);
 				setOpaque(!sprite.transparent);
-				if (sprite.transparent) image = Util.getTransparentIcon(image);
 				}
 			}
 
@@ -164,38 +197,56 @@ public class RoomEditor extends JPanel implements ImageObserver
 				getParent().remove(this);
 				return;
 				}
+			if (image == null) updateImage();
 			g.drawImage(image,0,0,null);
 			}
 
 		@Override
 		public int getHeight()
 			{
-			return image.getHeight();
+			return height;
 			}
 
 		@Override
 		public int getWidth()
 			{
-			return image.getWidth();
+			return width;
 			}
 
 		@Override
 		public int getX()
 			{
-			return instance.x;
+			return x;
 			}
 
 		@Override
 		public int getY()
 			{
-			return instance.y;
+			return y;
+			}
+
+		@Override
+		public void addNotify()
+			{
+			super.addNotify();
+			updateSprite();
+			updateBounds();
+			setListen(true);
+			}
+
+		@Override
+		public void removeNotify()
+			{
+			super.removeNotify();
+			setListen(false);
 			}
 
 		private class ResourceChangeListener implements ChangeListener
 			{
 			public void stateChanged(ChangeEvent e)
 				{
-				updateImage();
+				updateSprite();
+				updateBounds();
 				repaint();
 				}
 			}
