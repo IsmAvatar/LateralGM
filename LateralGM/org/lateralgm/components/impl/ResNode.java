@@ -54,7 +54,9 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	public static final byte STATUS_PRIMARY = 1;
 	public static final byte STATUS_GROUP = 2;
 	public static final byte STATUS_SECONDARY = 3;
+	/** One of PRIMARY, GROUP, or SECONDARY*/
 	public byte status;
+	/** What kind of Resource this is */
 	public byte kind;
 	/**
 	 * The <code>Resource</code> this node represents.

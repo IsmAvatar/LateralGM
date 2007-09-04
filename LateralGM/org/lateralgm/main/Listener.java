@@ -137,7 +137,43 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		f.updateUI();
 		}
 
-	private void addResource(JTree tree, String[] args, String com)
+	public void saveFile()
+		{
+		//TODO: Save (make a .gb1 file for backup, in case this corrupts the file)
+		}
+
+	public void saveNewFile()
+		{
+		fc.setFileFilter(new CustomFileFilter(".gm6", //$NON-NLS-1$
+				Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$
+		while (true)
+			{
+			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
+			String filename = fc.getSelectedFile().getPath();
+			if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
+			int result = 0;
+			if (new File(filename).exists())
+				result = JOptionPane.showConfirmDialog(LGM.frame,String.format(
+						Messages.getString("Listener.CONFIRM_REPLACE"),filename), //$NON-NLS-1$
+						Messages.getString("Listener.CONFIRM_REPLACE_TITLE"), //$NON-NLS-1$
+						JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
+			if (result == 0)
+				{
+				Enumeration<?> nodes = LGM.root.preorderEnumeration();
+				while (nodes.hasMoreElements())
+					{
+					ResNode node = (ResNode) nodes.nextElement();
+					if (node.frame != null) node.frame.updateResource(); // update open frames
+					}
+				LGM.gameSet.commitChanges();
+				Gm6FileWriter.writeGm6File(LGM.currentFile,filename,LGM.root);
+				return;
+				}
+			if (result == 2) return;
+			}
+		}
+
+	private void addResource(JTree tree, String com)
 		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
@@ -182,6 +218,46 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		g.openFrame();
 		}
 
+	private void insertResource(JTree tree, String com)
+		{
+		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
+		if (node == null) return;
+		ResNode parent = (ResNode) node.getParent();
+		int pos = parent.getIndex(node);
+		if (com.equals("GROUP")) //$NON-NLS-1$
+			{
+			String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
+			String name = JOptionPane.showInputDialog(msg,"group");
+			if (name == "" || name == null) return; //$NON-NLS-1$
+			ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
+			parent.insert(g,pos);
+			tree.expandPath(new TreePath(parent.getPath()));
+			tree.setSelectionPath(new TreePath(g.getPath()));
+			tree.updateUI();
+			}
+		}
+
+	private void deleteResource(JTree tree)
+		{
+		ResNode me = (ResNode) tree.getLastSelectedPathComponent();
+		if (me == null) return;
+		if (Prefs.protectRoot && me.status == ResNode.STATUS_PRIMARY) return;
+		String msg = Messages.getString("Listener.CONFIRM_DELETERESOURCE"); //$NON-NLS-1$
+		if (JOptionPane.showConfirmDialog(null,msg,
+				Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"), //$NON-NLS-1$
+				JOptionPane.YES_NO_OPTION) == 0)
+			{
+			ResNode next = (ResNode) me.getNextSibling();
+			if (next == null) next = (ResNode) me.getParent();
+			if (next.isRoot()) next = (ResNode) next.getFirstChild();
+			tree.setSelectionPath(new TreePath(next.getPath()));
+			if (me.frame != null) me.frame.dispose();
+			me.removeFromParent();
+			LGM.currentFile.getList(me.kind).remove(me.res);
+			tree.updateUI();
+			}
+		}
+
 	public void actionPerformed(ActionEvent e)
 		{
 		JTree tree = LGM.tree;
@@ -199,37 +275,13 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.endsWith(".SAVE")) //$NON-NLS-1$
 			{
-			return; // make a .gb1 file for backup, in case this corrupts the file.
+			saveFile();
+			return;
 			}
 		if (com.endsWith(".SAVEAS")) //$NON-NLS-1$
 			{
-			fc.setFileFilter(new CustomFileFilter(".gm6", //$NON-NLS-1$
-					Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$
-			while (true)
-				{
-				if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
-				String filename = fc.getSelectedFile().getPath();
-				if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
-				int result = 0;
-				if (new File(filename).exists())
-					result = JOptionPane.showConfirmDialog(LGM.frame,String.format(
-							Messages.getString("Listener.CONFIRM_REPLACE"),filename), //$NON-NLS-1$
-							Messages.getString("Listener.CONFIRM_REPLACE_TITLE"), //$NON-NLS-1$
-							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
-				if (result == 0)
-					{
-					Enumeration<?> nodes = LGM.root.preorderEnumeration();
-					while (nodes.hasMoreElements())
-						{
-						ResNode node = (ResNode) nodes.nextElement();
-						if (node.frame != null) node.frame.updateResource(); // update open frames
-						}
-					LGM.gameSet.commitChanges();
-					Gm6FileWriter.writeGm6File(LGM.currentFile,filename,LGM.root);
-					return;
-					}
-				if (result == 2) return;
-				}
+			saveNewFile();
+			return;
 			}
 		if (com.endsWith(".TOGGLE_EVENT")) //$NON-NLS-1$
 			{
@@ -255,27 +307,12 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.contains(".INSERT_")) //$NON-NLS-1$
 			{
-			ResNode node = (ResNode) tree.getLastSelectedPathComponent();
-			if (node == null) return;
-			ResNode parent = (ResNode) node.getParent();
-			int pos = parent.getIndex(node);
-			com = com.substring(com.lastIndexOf('_') + 1);
-			if (com.equals("GROUP")) //$NON-NLS-1$
-				{
-				String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
-				String name = JOptionPane.showInputDialog(msg,"group");
-				if (name == "" || name == null) return; //$NON-NLS-1$
-				ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
-				parent.insert(g,pos);
-				tree.expandPath(new TreePath(parent.getPath()));
-				tree.setSelectionPath(new TreePath(g.getPath()));
-				tree.updateUI();
-				return;
-				}
+			insertResource(tree,com.substring(com.lastIndexOf('_') + 1));
+			return;
 			}
 		if (com.contains(".ADD_")) //$NON-NLS-1$
 			{
-			addResource(tree,args,com.substring(com.lastIndexOf('_') + 1));
+			addResource(tree,com.substring(com.lastIndexOf('_') + 1));
 			return;
 			}
 		if (com.endsWith(".RENAME")) //$NON-NLS-1$
@@ -286,23 +323,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		if (com.endsWith(".DELETE")) //$NON-NLS-1$
 			{
-			ResNode me = (ResNode) tree.getLastSelectedPathComponent();
-			if (me == null) return;
-			if (Prefs.protectRoot && me.status == ResNode.STATUS_PRIMARY) return;
-			String msg = Messages.getString("Listener.CONFIRM_DELETERESOURCE"); //$NON-NLS-1$
-			if (JOptionPane.showConfirmDialog(null,msg,
-					Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"), //$NON-NLS-1$
-					JOptionPane.YES_NO_OPTION) == 0)
-				{
-				ResNode next = (ResNode) me.getNextSibling();
-				if (next == null) next = (ResNode) me.getParent();
-				if (next.isRoot()) next = (ResNode) next.getFirstChild();
-				tree.setSelectionPath(new TreePath(next.getPath()));
-				if (me.frame != null) me.frame.dispose();
-				me.removeFromParent();
-				LGM.currentFile.getList(me.kind).remove(me.res);
-				tree.updateUI();
-				}
+			deleteResource(tree);
 			return;
 			}
 		if (com.endsWith(".DEFRAGIDS")) //$NON-NLS-1$
@@ -387,21 +408,111 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		return true;
 		}
 
-	//TODO:
+	private JMenuItem makeMenuItem(String command, ActionListener al)
+		{
+		JMenuItem menuItem = new JMenuItem(Messages.getString(command));
+		menuItem.setActionCommand(command);
+		menuItem.addActionListener(al);
+		return menuItem;
+		}
+
 	private void showNodeMenu(MouseEvent e)
 		{
-		// ResNode node = (ResNode) selPath.getLastPathComponent();
+		ResNode node = (ResNode) LGM.tree.getPathForLocation(e.getX(),e.getY()).getLastPathComponent();
 		JPopupMenu popup = new JPopupMenu();
-		JMenuItem menuItem = new JMenuItem("A popup menu item");
-		menuItem.addActionListener(this);
-		popup.add(menuItem);
-		menuItem = new JMenuItem("Another popup menu item");
-		menuItem.addActionListener(this);
-		popup.add(menuItem);
+		ActionListener al = new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+					{
+					JTree tree = LGM.tree;
+					String com = e.getActionCommand().substring(e.getActionCommand().lastIndexOf('_') + 1);
+					ResNode node = (ResNode) tree.getLastSelectedPathComponent();
+					if (node == null) return;
+					if (com.equals("EDIT")) //$NON-NLS-1$
+						{
+						if (node.kind == Resource.GAMEINFO)
+							{
+							LGM.gameInfo.setVisible(true);
+							return;
+							}
+						if (node.kind == Resource.GAMESETTINGS)
+							{
+							LGM.gameSet.setVisible(true);
+							return;
+							}
+						if (node.kind == Resource.EXTENSIONS)
+							{
+							return;
+							}
+						// kind must be a Resource kind
+						if (node.status != ResNode.STATUS_SECONDARY) return;
+						node.openFrame();
+						return;
+						}
+					if (com.equals("DELETE")) //$NON-NLS-1$
+						{
+						deleteResource(tree);
+						return;
+						}
+					if (com.equals("RENAME")) //$NON-NLS-1$
+						{
+						if (tree.getCellEditor().isCellEditable(null))
+							tree.startEditingAtPath(tree.getLeadSelectionPath());
+						return;
+						}
+					if (com.equals("GROUP")) //$NON-NLS-1$
+						{
+						if (node.status == ResNode.STATUS_SECONDARY)
+							insertResource(tree,"GROUP"); //$NON-NLS-1$
+						else
+							addResource(tree,"GROUP"); //$NON-NLS-1$
+						return;
+						}
+					//TODO: Tree Menu: Insert Resource, Add Resource, Copy Resource
+					if (com.equals("INSERT")) //$NON-NLS-1$
+						{
+						//insertResource(tree,"");
+						return;
+						}
+					if (com.equals("ADD")) //$NON-NLS-1$
+						{
+						//addResource(tree,"");
+						return;
+						}
+					if (com.equals("COPY")) //$NON-NLS-1$
+						{
+						return;
+						}
+					}
+			};
+		if (node.kind == Resource.GAMESETTINGS || node.kind == Resource.GAMEINFO
+				|| node.kind == Resource.EXTENSIONS)
+			{
+			popup.add(makeMenuItem("Listener.TREE_EDIT",al));
+			popup.show(e.getComponent(),e.getX(),e.getY());
+			return;
+			}
+		if (node.status == ResNode.STATUS_SECONDARY)
+			{
+			popup.add(makeMenuItem("Listener.TREE_EDIT",al));
+			popup.addSeparator();
+			popup.add(makeMenuItem("Listener.TREE_INSERT",al));
+			popup.add(makeMenuItem("Listener.TREE_COPY",al));
+			}
+		else
+			popup.add(makeMenuItem("Listener.TREE_ADD",al));
+		popup.addSeparator();
+		popup.add(makeMenuItem("Listener.TREE_GROUP",al));
+		if (node.status != ResNode.STATUS_SECONDARY) popup.add(makeMenuItem("Listener.TREE_SORT",al));
+		if (node.status != ResNode.STATUS_PRIMARY)
+			{
+			popup.addSeparator();
+			popup.add(makeMenuItem("Listener.TREE_DELETE",al));
+			popup.add(makeMenuItem("Listener.TREE_RENAME",al));
+			}
 		popup.show(e.getComponent(),e.getX(),e.getY());
 		}
 
-	//TODO: Handle Single LeftClick (e.g. Ctrl+LeftClick = RightClick for Mac) 
 	public void mousePressed(MouseEvent e)
 		{
 		int selRow = LGM.tree.getRowForLocation(e.getX(),e.getY());
@@ -417,6 +528,13 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				{
 				if (e.getClickCount() == 1)
 					{
+					//FIXME: Isn't Java supposed to handle this for us?
+					//In case it doesn't, here's the code for Mac's Ctrl+LeftClick = RightClick
+//					if (e.isControlDown())
+//						{
+//						LGM.tree.setSelectionPath(selPath);
+//						showNodeMenu(e);
+//						}
 					return;
 					}
 				else if (e.getClickCount() == 2)

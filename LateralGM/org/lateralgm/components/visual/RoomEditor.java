@@ -22,7 +22,10 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.lateralgm.main.Util;
+import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.sub.BackgroundDef;
@@ -82,9 +85,16 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		if (frame.sSTile.isSelected())
 			{
+			Ref<Background> bg = null;
+			BufferedImage bi = null;
 			for (Tile t : frame.res.tiles)
 				{
-				BufferedImage bi = t.backgroundId.getRes().backgroundImage;
+				if (bg != t.backgroundId)
+					{
+					bg = t.backgroundId;
+					bi = t.backgroundId.getRes().backgroundImage;
+					if (t.backgroundId.getRes().transparent) bi = Util.getTransparentIcon(bi);
+					}
 				g2.drawImage(bi.getSubimage(t.tileX,t.tileY,t.width,t.height),t.x,t.y,this);
 				}
 			}

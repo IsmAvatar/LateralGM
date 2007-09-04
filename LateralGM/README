@@ -5,17 +5,16 @@ TGMG <thegamemakerguru@gmail.com> for various programming,
  and finding ways to break things that I thought couldn't be broken
  and G-Java, which we hope will be incorporated as the primary compiler
  and finding CVS/SVN which helped teamwork and version control
-Clam <ebordin@aapt.net.au> from the LGM forum for most of the Save and Load code
+Clam <ebordin@aapt.net.au> for most of the Save and Load code
  which I then proceeded to break and refix, and most of the MDI desktop,
- and the ResourceFrame and generics, which are still largely suppressed messes.
-Quadduc <quadduc@gmail.com> from the LGM forum for technical things
+ and the ResourceFrame and generics, and most of our visual components.
+Quadduc <quadduc@gmail.com> for technical things
  like format fix, license, legality, bug fixes, and the great GM7 breakthrough;
- almost all of our UI icons, much work on the Frames, and string externalization.
+ almost all of our lib icons, much work on the Frames, and string externalization.
 
 Special Thanks:
 DeathFinderxx <deathfinderxx@yahoo.com> for providing the primary resource icons
 Josh @ Dreamland <joshv@zoominternet.net> for the interesting history of GameMaker's format.
-Lief902 
 Professor Mark Overmars <gamemaker@wanadoo.nl> for providing GM6 and its file format
  which inspired this, and then up and deciding to be a jerk about it by the time GM7 came out.
 Everyone else from the GMC forums, G-Java forums, LGM forum, etc. who helped out,
