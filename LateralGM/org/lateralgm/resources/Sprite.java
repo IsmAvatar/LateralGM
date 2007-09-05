@@ -13,6 +13,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -43,7 +44,7 @@ public class Sprite extends Resource<Sprite>
 	public int boundingBoxBottom = 31;
 	public ArrayList<BufferedImage> subImages = new ArrayList<BufferedImage>();
 
-	private BufferedImage imageCache = null;
+	private SoftReference<BufferedImage> imageCache = null;
 
 	public Sprite()
 		{
@@ -96,17 +97,23 @@ public class Sprite extends Resource<Sprite>
 
 	public BufferedImage getDisplayImage()
 		{
+		BufferedImage bi;
 		if (imageCache != null)
 			{
-			return imageCache;
+			bi = imageCache.get();
+			if (bi != null)
+				{
+				return bi;
+				}
 			}
 		if (subImages.size() < 1)
 			{
 			return null;
 			}
-		imageCache = subImages.get(0);
-		if (transparent) imageCache = Util.getTransparentIcon(imageCache);
-		return imageCache;
+		bi = subImages.get(0);
+		if (transparent) bi = Util.getTransparentIcon(bi);
+		imageCache = new SoftReference<BufferedImage>(bi);
+		return bi;
 		}
 
 	private Sprite copy(boolean update, ResourceList<Sprite> src)
@@ -160,7 +167,7 @@ public class Sprite extends Resource<Sprite>
 	@Override
 	protected void fireStateChanged()
 		{
-		imageCache = null;
+		if (imageCache != null) imageCache.clear();
 		super.fireStateChanged();
 		}
 

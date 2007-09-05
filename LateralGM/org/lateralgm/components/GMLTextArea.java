@@ -44,7 +44,7 @@ public class GMLTextArea extends JEditTextArea
 	private final GMLTokenMarker gmlTokenMarker = new GMLTokenMarker();
 	public final ResourceChangeListener rcl = new ResourceChangeListener();
 	private final DocumentUndoManager undoManager = new DocumentUndoManager();
-	private Timer timer;
+	private static Timer timer;
 	private Integer lastUpdateTaskID = 0;
 
 	public GMLTextArea(String text)
@@ -145,8 +145,7 @@ public class GMLTextArea extends JEditTextArea
 		{
 		public void stateChanged(ChangeEvent e)
 			{
-			if (timer != null) timer.cancel();
-			timer = new Timer();
+			if (timer == null) timer = new Timer();
 			timer.schedule(new UpdateTask(),500);
 			}
 		}

@@ -9,19 +9,13 @@
 package org.lateralgm.components.mdi;
 
 import java.awt.Container;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 
-import javax.swing.Icon;
 import javax.swing.JInternalFrame;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.event.InternalFrameEvent;
 
 public class MDIFrame extends JInternalFrame
 	{
 	private static final long serialVersionUID = 1L;
-	private JRadioButtonMenuItem item;
 
 	public MDIFrame()
 		{
@@ -52,16 +46,6 @@ public class MDIFrame extends JInternalFrame
 			boolean iconifiable)
 		{
 		super(title,resizable,closable,maximizable,iconifiable);
-		item = new JRadioButtonMenuItem();
-		item.setText(getTitle());
-		item.setIcon(getFrameIcon());
-		item.addActionListener(new ActionListener()
-			{
-				public void actionPerformed(ActionEvent e)
-					{
-					MDIFrame.this.toTop();
-					}
-			});
 		}
 
 	private MDIPane getMDIPane()
@@ -98,18 +82,6 @@ public class MDIFrame extends JInternalFrame
 			}
 		}
 
-	public void firePropertyChange(String propertyName, Object oldValue, Object newValue)
-		{
-		if (item != null)
-			{
-			if (propertyName.equals(JInternalFrame.TITLE_PROPERTY))
-				item.setText(getTitle());
-			else if (propertyName.equals(JInternalFrame.FRAME_ICON_PROPERTY))
-				item.setIcon((Icon) newValue);
-			}
-		super.firePropertyChange(propertyName,oldValue,newValue);
-		}
-
 	public void setMaximum(boolean b) throws PropertyVetoException
 		{
 		super.setMaximum(b);
@@ -125,8 +97,6 @@ public class MDIFrame extends JInternalFrame
 			{
 			if (visible)
 				{
-				pane.getMenu().addRadio(item);
-				item.setSelected(true);
 				if (pane.isMaximum() && isMaximizable())
 					try
 						{
@@ -139,17 +109,6 @@ public class MDIFrame extends JInternalFrame
 				else
 					pane.bringMaximumToTop();
 				}
-			else
-				pane.getMenu().removeRadio(item);
 			}
-		}
-
-	protected void fireInternalFrameEvent(int id)
-		{
-		if (id == InternalFrameEvent.INTERNAL_FRAME_ACTIVATED)
-			{
-			item.setSelected(true);
-			}
-		super.fireInternalFrameEvent(id);
 		}
 	}

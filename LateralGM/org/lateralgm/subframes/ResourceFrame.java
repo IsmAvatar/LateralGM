@@ -162,6 +162,8 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 		{
 		super.dispose();
 		node.frame = null; // allows a new frame to open
+		name.getDocument().removeDocumentListener(this);
+		save.removeActionListener(this);
 		}
 
 	protected void fireInternalFrameEvent(int id)
