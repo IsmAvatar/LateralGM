@@ -174,7 +174,6 @@ public final class Util
 	 * 
 	 * @return The selected image, or null if one is not chosen
 	 */
-
 	public static BufferedImage getValidImage()
 		{
 		BufferedImage[] img = getValidImages();
@@ -246,9 +245,9 @@ public final class Util
 	 * @param s The String to convert.
 	 * @return The converted String.
 	 */
-
 	public static String convertIndents(String s)
 		{
+		if (s.length() == 0) return s;
 		ArrayList<String> lines = new ArrayList<String>();
 		StringBuffer buf = new StringBuffer();
 		char[] chars = s.toCharArray();
@@ -263,7 +262,7 @@ public final class Util
 			buf.append(c);
 			}
 		if (chars[chars.length - 1] != '\n') lines.add(buf.toString());
-		
+
 		buf = new StringBuffer();
 		for (String str : lines)
 			{

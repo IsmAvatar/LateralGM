@@ -218,6 +218,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		g.openFrame();
 		}
 
+	//TODO: insertResource (works for group, but not other resources)
 	private void insertResource(JTree tree, String com)
 		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
