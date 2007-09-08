@@ -512,37 +512,37 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		{
 		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel(new FlowLayout());
-		JLabel lab = new JLabel("Files to include in the Executable");
+		JLabel lab = new JLabel(Messages.getString("GameSettingFrame.FILES_TO_INCLUDE")); //$NON-NLS-1$
 		addDim(panel,lab,450,16);
 
 		iModel = new IncludesListModel(g.includes);
 		includes = new JList(iModel);
 		addDim(panel,includes,450,200);
-		iAdd = new JButton("Add");
+		iAdd = new JButton(Messages.getString("GameSettingFrame.ADD_INCLUDE")); //$NON-NLS-1$
 		iAdd.addActionListener(this);
 		addDim(panel,iAdd,80,24);
 		addGap(panel,80,24);
-		iDelete = new JButton("Delete");
+		iDelete = new JButton(Messages.getString("GameSettingFrame.DELETE_INCLUDE")); //$NON-NLS-1$
 		iDelete.addActionListener(this);
 		addDim(panel,iDelete,80,24);
 		addGap(panel,80,24);
-		iClear = new JButton("Clear");
+		iClear = new JButton(Messages.getString("GameSettingFrame.CLEAR_INCLUDES")); //$NON-NLS-1$
 		iClear.addActionListener(this);
 		addDim(panel,iClear,80,24);
 
-		JPanel folderPanel = makeRadioPanel("Folder to export to",200,80);
+		JPanel folderPanel = makeRadioPanel(Messages.getString("GameSettingFrame.EXPORT_TO"),200,80); //$NON-NLS-1$
 		exportFolder = new IndexButtonGroup(2,true,false);
-		exportFolder.add(new JRadioButton("Same Folder as Executable"));
-		exportFolder.add(new JRadioButton("Temporary Directory"));
+		exportFolder.add(new JRadioButton(Messages.getString("GameSettingFrame.SAME_FOLDER"))); //$NON-NLS-1$
+		exportFolder.add(new JRadioButton(Messages.getString("GameSettingFrame.TEMP_DIRECTORY"))); //$NON-NLS-1$
 		exportFolder.setValue(g.includeFolder);
 		exportFolder.populate(folderPanel);
 		panel.add(folderPanel);
 
 		JPanel checkPanel = new JPanel(new FlowLayout());
 		addDim(panel,checkPanel,200,50);
-		overwriteExisting = new JCheckBox("Overwrite existing files");
+		overwriteExisting = new JCheckBox(Messages.getString("GameSettingFrame.OVERWRITE_EXISTING")); //$NON-NLS-1$
 		addDim(checkPanel,overwriteExisting,200,16);
-		removeAtGameEnd = new JCheckBox("Remove files at end of game");
+		removeAtGameEnd = new JCheckBox(Messages.getString("GameSettingFrame.REMOVE_FILES_AT_END")); //$NON-NLS-1$
 		addDim(checkPanel,removeAtGameEnd,200,16);
 		return panel;
 		}

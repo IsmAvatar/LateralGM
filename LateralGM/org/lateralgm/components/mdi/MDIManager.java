@@ -12,26 +12,27 @@ package org.lateralgm.components.mdi;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 
 import javax.swing.DefaultDesktopManager;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 
-public class MDIManager extends DefaultDesktopManager implements ComponentListener
-	{
+public class MDIManager extends DefaultDesktopManager
+{
 	private static final long serialVersionUID = 1L;
 	private MDIPane pane;
 	private JScrollPane scroll;
+	private CListener cListener = new CListener();
 	/**prevents recursion*/
 	public boolean resizing = false;
 
 	public void setScrollPane(JScrollPane scroll)
 		{
 		this.scroll = scroll;
-		scroll.addComponentListener(this);
+		scroll.addComponentListener(cListener);
 		resizeDesktop();
 		}
 
@@ -132,22 +133,13 @@ public class MDIManager extends DefaultDesktopManager implements ComponentListen
 			}
 		}
 
-	public void componentResized(ComponentEvent e)
+	private class CListener extends ComponentAdapter
 		{
-		resizeDesktop();
-		for (JInternalFrame f : pane.getAllFrames())
-			if (f.isMaximum()) f.setSize(pane.getPreferredSize());
-		}
-
-	public void componentHidden(ComponentEvent e)
-		{
-		}
-
-	public void componentMoved(ComponentEvent e)
-		{
-		}
-
-	public void componentShown(ComponentEvent e)
-		{
+		public void componentResized(ComponentEvent e)
+			{
+			resizeDesktop();
+			for (JInternalFrame f : pane.getAllFrames())
+				if (f.isMaximum()) f.setSize(pane.getPreferredSize());
+			}
 		}
 	}
