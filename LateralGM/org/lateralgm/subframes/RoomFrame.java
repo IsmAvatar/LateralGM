@@ -55,6 +55,7 @@ import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
 //TODO: Handle res.rememberWindowSize - may also apply to other options
+//TODO: 1.6 Feature: Zoom for RoomEditor (add buttons here first)
 public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
@@ -601,7 +602,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		pane.setLayout(new BoxLayout(pane,BoxLayout.Y_AXIS));
 		pane.setPreferredSize(new Dimension(240,280));
 
-		//TODO: 1.6 - 1.7 Add room editor area
 		editor = new RoomEditor(res, this);
 		pane.add(new JScrollPane(editor));
 

@@ -12,8 +12,7 @@
 package org.lateralgm.subframes;
 
 /*
- * TODO:
- * Make the RTFEditor grab focus when the user enters a font size
+ * TODO: Make the RTFEditor grab focus when the user enters a font size
  * Stolen from Font Family listener. Not sure what m_monitor was... 
  * 	String m_fontName = m_cbFonts.getSelectedItem().toString();
  * 	MutableAttributeSet attr = new SimpleAttributeSet();

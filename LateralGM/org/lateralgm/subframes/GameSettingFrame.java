@@ -133,7 +133,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
 		/*
-		 * FIXME: should this be on the same line as its JLabel?
+		 * XXX: should this be on the same line as its JLabel?
 		 */
 		colorbutton = new ColorSelect(g.colorOutsideRoom);
 		colorbutton.setMaximumSize(new Dimension(100,20));

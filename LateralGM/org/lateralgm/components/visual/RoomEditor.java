@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free
@@ -48,7 +49,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			add(new RoomEditor.InstanceComponent(i));
 		}
 
-	//TODO
+	//TODO: Handle mouse for adding/deleting instances/tiles
 	protected void processMouseEvent(MouseEvent e)
 		{
 		super.processMouseEvent(e);
@@ -61,7 +62,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		}
 
-	//TODO: This is unfinished
+	//TODO: Painting is unfinished
 	@Override
 	public void paintComponent(Graphics g)
 		{
@@ -83,6 +84,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 					g2.drawImage(bi,bd.x,bd.y,this);
 				}
 			}
+		//TODO: Extract to internal TileComponent class
 		if (frame.sSTile.isSelected())
 			{
 			Ref<Background> bg = null;
@@ -120,6 +122,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 		g2.dispose();
 		}
 
+	//TODO: Make invisible when Show Objects is unselected
 	public static class InstanceComponent extends JComponent
 		{
 		private static final long serialVersionUID = 1L;
