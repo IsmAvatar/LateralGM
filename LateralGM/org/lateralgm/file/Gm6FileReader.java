@@ -36,6 +36,7 @@ import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.library.LibAction;
+import org.lateralgm.resources.library.LibArgument;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
@@ -803,8 +804,9 @@ public final class Gm6FileReader
 			int libid = in.read4();
 			int actid = in.read4();
 			act.libAction = LibManager.getLibAction(libid,actid);
+			boolean unknownLib = act.libAction == null;
 			//The libAction will have a null parent, among other things
-			if (act.libAction == null)
+			if (unknownLib)
 				{
 				act.libAction = new LibAction();
 				act.libAction.id = actid;
@@ -830,9 +832,18 @@ public final class Gm6FileReader
 				in.skip(in.read4());
 				}
 			act.arguments = new Argument[in.read4()];
-			int[] argkinds = new int[in.read4()];
+			byte[] argkinds = new byte[in.read4()];
 			for (int x = 0; x < argkinds.length; x++)
-				argkinds[x] = in.read4();
+				argkinds[x] = (byte) in.read4();
+			if (unknownLib)
+				{
+				act.libAction.libArguments = new LibArgument[argkinds.length];
+				for (int x = 0; x < argkinds.length; x++)
+					{
+					act.libAction.libArguments[x] = new LibArgument();
+					act.libAction.libArguments[x].kind = argkinds[x];
+					}
+				}
 			int appliesTo = in.read4();
 			switch (appliesTo)
 				{
@@ -853,7 +864,7 @@ public final class Gm6FileReader
 				if (l < act.arguments.length)
 					{
 					act.arguments[l] = new Argument();
-					act.arguments[l].kind = (byte) argkinds[l];
+					act.arguments[l].kind = argkinds[l];
 
 					String strval = in.readStr();
 					Resource<?> res = tag;

@@ -259,10 +259,10 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		public boolean importData(TransferHandler.TransferSupport support)
 			{
 			if (!canImport(support)) return false;
-			// This is a bad way to do it, but support.getTransferable() doesn't work...
 			try
 				{
-				EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
+				EventNode t = (EventNode) support.getTransferable().getTransferData(
+						EventNode.EVENTNODE_FLAVOR);
 				Point p = support.getDropLocation().getDropPoint();
 				TreePath path = events.getPathForLocation(p.x,p.y);
 				if (!LGM.eventSelect.replace.isSelected() || path == null)
@@ -331,8 +331,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				{
 				if (getChildAt(i) instanceof EventInstanceNode)
 					{
-					if (((EventInstanceNode) getChildAt(i)).getUserObject().matchesType(e))
-						return true;
+					if (((EventInstanceNode) getChildAt(i)).getUserObject().matchesType(e)) return true;
 					}
 				else if (((EventGroupNode) getChildAt(i)).contains(e)) return true;
 				}
@@ -613,6 +612,14 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 
 		public boolean canImport(TransferHandler.TransferSupport info)
 			{
+			DataFlavor[] f = info.getDataFlavors();
+			boolean supported = false;
+			for (DataFlavor flav : f)
+				{
+				if (flav == ACTION_FLAVOR || flav == ACTION_ARRAY_FLAVOR || flav == LIB_ACTION_FLAVOR)
+					supported = true;
+				}
+			if (!supported) return false;
 			ActionList list = (ActionList) info.getComponent();
 			JList.DropLocation dl = (JList.DropLocation) info.getDropLocation();
 			if (list.actionContainer == null || dl.getIndex() == -1 || !info.isDrop()) return false;
@@ -887,7 +894,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			{
 			if (rootEvent.getChildAt(i) instanceof EventInstanceNode)
 				{
-				if (((EventInstanceNode) rootEvent.getChildAt(i)).getUserObject().equals(e))
+				if (((EventInstanceNode) rootEvent.getChildAt(i)).getUserObject().matchesType(e))
 					{
 					rootEvent.remove(i);
 					return;
