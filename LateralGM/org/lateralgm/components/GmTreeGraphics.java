@@ -23,6 +23,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Ref;
@@ -107,19 +108,36 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 
 	public Icon getLeafIcon()
 		{
-		if (last.status == ResNode.STATUS_SECONDARY)
-			{
-			switch (last.kind)
-				{
-				case Resource.SPRITE:
-				case Resource.BACKGROUND:
-				case Resource.GMOBJECT:
-					return last.getIcon();
-				default:
-					if (last.kind < Resource.ICON.length) return Resource.ICON[last.kind];
-				}
-			}
+		if (last.status == ResNode.STATUS_SECONDARY) return last.getIcon();
 		return getClosedIcon();
+		}
+
+	public Icon getClosedIcon()
+		{
+		Icon ico = getIconisedGroup();
+		if (ico != null) return ico;
+		return super.getClosedIcon();
+		}
+
+	public Icon getOpenIcon()
+		{
+		Icon ico = getIconisedGroup();
+		if (ico != null) return ico;
+		return super.getOpenIcon();
+		}
+
+	private Icon getIconisedGroup()
+		{
+		if (Prefs.iconizeGroup
+				&& last != null
+				&& last.status != ResNode.STATUS_PRIMARY
+				&& (last.kind == Resource.SPRITE
+						|| last.kind == Resource.BACKGROUND
+						|| last.kind == Resource.GMOBJECT))
+			{
+			return last.getIcon();
+			}
+		return null;
 		}
 
 	public Icon getNodeIcon(JTree tree, Object val, boolean sel, boolean exp, boolean leaf, int row)

@@ -72,8 +72,26 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 
 	public Icon getIcon()
 		{
-		if (icon == null) updateIcon();
-		return icon;
+		if (status == STATUS_SECONDARY)
+			switch (kind)
+				{
+				case Resource.SPRITE:
+				case Resource.BACKGROUND:
+				case Resource.GMOBJECT:
+					if (icon == null) updateIcon();
+					return icon;
+				default:
+					return Resource.ICON[kind];
+				}
+		else
+			{
+			if (Prefs.iconizeGroup && getChildCount() > 0)
+				{
+				ResNode n = (ResNode) getChildAt(0);
+				if (n.status == STATUS_SECONDARY) return n.getIcon();
+				}
+			return null;
+			}
 		}
 
 	public void updateIcon()
@@ -87,8 +105,8 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 				icon = GmTreeGraphics.getBackgroundIcon((Background) res);
 				break;
 			case Resource.GMOBJECT:
-			Ref<Sprite> r = ((GmObject) res).sprite;	
-			icon = GmTreeGraphics.getSpriteIcon(r);
+				Ref<Sprite> r = ((GmObject) res).sprite;
+				icon = GmTreeGraphics.getSpriteIcon(r);
 				break;
 			}
 		fireStateChanged(null);
