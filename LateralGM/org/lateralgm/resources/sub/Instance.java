@@ -21,5 +21,4 @@ public class Instance
 	public int instanceId = 0;
 	public String creationCode = "";
 	public boolean locked = false;
-	
 	}

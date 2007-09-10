@@ -14,28 +14,18 @@ public class BitmapHeader
 	{
 	// Always 40
 	private final long headerSize;
-
 	private final long width;
-
 	// Weird, but this includes the height of the mask (so often header.height =
 	// entry.height * 2
 	private final long height;
-
 	private final int planes;
-
 	private final int bpp;
-
 	private final TypeCompression compression;
-
 	// Can be 0 when compression == 0 (b/c size can be calculated then ?!)
 	private final long imageSize;
-
 	private final long xPixelsPerM;
-
 	private final long yPixelsPerM;
-
 	private final long colorsUsed;
-
 	private final long colorsImportant;
 
 	/**

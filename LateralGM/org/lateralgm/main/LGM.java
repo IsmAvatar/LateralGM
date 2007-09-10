@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
+import java.util.Scanner;
 
 import javax.swing.AbstractButton;
 import javax.swing.DropMode;
@@ -64,6 +65,16 @@ import org.lateralgm.subframes.GameSettingFrame;
 public class LGM extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
+	public static int javaVersion;
+	static
+		{
+		String jv = System.getProperty("java.version");
+		Scanner s = new Scanner(jv).useDelimiter("[\\._]");
+		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
+		System.out.format("Java Version: %d (%s)\n",javaVersion,jv);
+		if (javaVersion < 10600)
+			System.out.println("Some program functionality will be limited due to your outdated version");
+		}
 	public static JFrame frame = new JFrame(String.format(
 			Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ $NON-NLS-2$
 	public static Listener listener = new Listener();
@@ -163,7 +174,7 @@ public class LGM extends JPanel
 		tree.addMouseListener(listener);
 		tree.setTransferHandler(listener);
 		tree.setDragEnabled(true);
-		tree.setDropMode(DropMode.ON_OR_INSERT);
+		if (javaVersion >= 10600) tree.setDropMode(DropMode.ON_OR_INSERT);
 		tree.setCellRenderer(renderer);
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);

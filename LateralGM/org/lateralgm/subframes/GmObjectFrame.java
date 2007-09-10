@@ -929,7 +929,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				}
 			if (ale.size() > 1)
 				{
-				EventGroupNode node = new EventGroupNode(m); //$NON-NLS-1$
+				EventGroupNode node = new EventGroupNode(m);
 				rootEvent.add(node);
 				for (Event e : ale)
 					node.add(new EventInstanceNode(e));
@@ -954,7 +954,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		events.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		events.addTreeSelectionListener(this);
 		events.setDragEnabled(true);
-		events.setDropMode(DropMode.ON);
+		if (LGM.javaVersion >= 10600) events.setDropMode(DropMode.ON);
 		events.setTransferHandler(new EventNodeTransferHandler());
 		}
 
@@ -990,7 +990,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			setActionContainer(null);
 			setTransferHandler(new ActionTransferHandler());
 			setDragEnabled(true);
-			setDropMode(DropMode.ON_OR_INSERT);
+			if (LGM.javaVersion >= 10600) setDropMode(DropMode.ON_OR_INSERT);
 			addMouseListener(ALML);
 			addKeyListener(ALKL);
 			setCellRenderer(new ActionRenderer());
@@ -1160,7 +1160,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				lp.add(b);
 				}
 			tp.addTab(l.tabCaption,p);
-			tp.setTabComponentAt(tp.getTabCount() - 1,new JLabel(new VTextIcon(tp,l.tabCaption)));
+			if (LGM.javaVersion >= 10600)
+				tp.setTabComponentAt(tp.getTabCount() - 1,new JLabel(new VTextIcon(tp,l.tabCaption)));
 			}
 		return tp;
 		}

@@ -193,9 +193,9 @@ public final class Util
 			String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
 			CustomFileFilter filt = new CustomFileFilter(exts,allSpiImages);
 			imageFc.addChoosableFileFilter(filt);
-			for (int i = 0; i < exts.length; i++)
+			for (String element : exts)
 				{
-				imageFc.addChoosableFileFilter(new CustomFileFilter(exts[i],exts[i]
+				imageFc.addChoosableFileFilter(new CustomFileFilter(element,element
 						+ Messages.getString("Util.FILES"))); //$NON-NLS-1$
 				}
 			imageFc.setFileFilter(filt);

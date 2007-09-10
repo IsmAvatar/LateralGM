@@ -60,11 +60,11 @@ public class SubimagePreview extends AbstractImagePreview
 
 			g.setXORMode(Color.BLACK); //XOR mode so that bbox and origin can counter
 			g.setColor(Color.WHITE);
-			
+
 			g.drawRect(left,top,right - left,bottom - top);
 			g.drawLine(originX - ORIGIN_SIZE,originY,originX + ORIGIN_SIZE,originY);
 			g.drawLine(originX,originY - ORIGIN_SIZE,originX,originY + ORIGIN_SIZE);
-			
+
 			g.setPaintMode(); //just in case
 			g.setClip(oldClip); //restore the clip
 			}

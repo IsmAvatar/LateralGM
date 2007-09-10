@@ -110,7 +110,7 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 		keySelect.setEnabled(false);
 
 		JLabel lab = new JLabel(Messages.getString("EventFrame.COLLISION_OBJECT"));
-		addDim(side2,lab,140,16); //$NON-NLS-1$
+		addDim(side2,lab,140,16);
 		collisionSelect = new ResourceMenu<GmObject>(Resource.GMOBJECT,
 				Messages.getString("EventFrame.CHOOSE_OBJECT"),true,140); //$NON-NLS-1$
 		side2.add(collisionSelect);
@@ -178,7 +178,7 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 		mouse.add(MainEvent.EV_MOUSE,Event.EV_MOUSE_WHEEL_DOWN);
 
 		String globMouseStr = Messages.getString("EventFrame.GLOBAL_MOUSE");
-		EventNode global = new EventNode(globMouseStr,-1); //$NON-NLS-1$
+		EventNode global = new EventNode(globMouseStr,-1);
 		mouse.add(global);
 		for (int i = Event.EV_GLOBAL_LEFT_BUTTON; i <= Event.EV_GLOBAL_MIDDLE_RELEASE; i++)
 			global.add(MainEvent.EV_MOUSE,i);
@@ -457,4 +457,4 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 	public void changedUpdate(DocumentEvent e)
 		{
 		}
-	};
+	}

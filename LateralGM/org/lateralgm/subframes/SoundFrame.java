@@ -228,8 +228,8 @@ public class SoundFrame extends ResourceFrame<Sound>
 		if (res.fileType == null) res.fileType = "";
 		res.kind = kind.getValue();
 		res.setEffects(effects.getValue());
-		res.volume = (double) volume.getValue() / 100.0;
-		res.pan = (double) pan.getValue() / 100.0;
+		res.volume = volume.getValue() / 100.0;
+		res.pan = pan.getValue() / 100.0;
 		res.preload = preload.isSelected();
 		res.data = data;
 		}

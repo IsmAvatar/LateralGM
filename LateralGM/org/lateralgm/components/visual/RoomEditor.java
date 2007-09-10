@@ -141,8 +141,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			instance = i;
 			object = deRef(i.gmObjectId);
 			rcl = new ResourceChangeListener();
-			if (object == null)
-				image = EMPTY_IMAGE;
+			if (object == null) image = EMPTY_IMAGE;
 			}
 
 		private void setListen(boolean l)

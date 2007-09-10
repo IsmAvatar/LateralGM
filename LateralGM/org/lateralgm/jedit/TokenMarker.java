@@ -188,40 +188,30 @@ public abstract class TokenMarker
 		}
 
 	// protected members
-
 	/**
 	 * The first token in the list. This should be used as the return
 	 * value from <code>markTokens()</code>.
 	 */
 	protected Token firstToken;
-
 	/**
 	 * The last token in the list. New tokens are added here.
 	 * This should be set to null before a new line is to be tokenized.
 	 */
 	protected Token lastToken;
-
 	/**
 	 * An array for storing information about lines. It is enlarged and
 	 * shrunk automatically by the <code>insertLines()</code> and
 	 * <code>deleteLines()</code> methods.
 	 */
 	protected LineInfo[] lineInfo;
-
 	/**
 	 * The number of lines in the model being tokenized. This can be
 	 * less than the length of the <code>lineInfo</code> array.
 	 */
 	protected int length;
-
-	/**
-	 * The last tokenized line.
-	 */
+	/** The last tokenized line. */
 	protected int lastLine;
-
-	/**
-	 * True if the next line should be painted.
-	 */
+	/** True if the next line should be painted. */
 	protected boolean nextLineRequested;
 
 	/**
@@ -293,9 +283,7 @@ public abstract class TokenMarker
 			}
 		}
 
-	/**
-	 * Inner class for storing information about tokenized lines.
-	 */
+	/** Inner class for storing information about tokenized lines. */
 	public class LineInfo
 		{
 		/**

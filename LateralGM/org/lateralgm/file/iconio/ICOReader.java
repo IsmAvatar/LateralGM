@@ -25,9 +25,7 @@ import javax.imageio.stream.ImageInputStream;
 public class ICOReader extends ImageReader
 	{
 	private static final int[] ONE = new int[1];
-
 	protected ICOFile icoFile;
-
 	protected ImageInputStream stream;
 
 	/**

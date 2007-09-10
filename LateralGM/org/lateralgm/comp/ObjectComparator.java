@@ -156,5 +156,4 @@ public class ObjectComparator extends ReflectionComparator
 		{
 		exclusions.put(clazz,fieldNames);
 		}
-
 	}

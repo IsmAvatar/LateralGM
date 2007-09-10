@@ -32,7 +32,6 @@ import java.util.Stack;
  */
 public class SimpleCasesComparator extends ReflectionComparator
 	{
-
 	public SimpleCasesComparator(ReflectionComparator chainedComparator)
 		{
 		super(chainedComparator);

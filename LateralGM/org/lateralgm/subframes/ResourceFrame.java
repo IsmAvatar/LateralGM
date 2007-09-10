@@ -40,9 +40,7 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
-/**
- *  Provides common functionality and structure to Resource editing frames
- */
+/** Provides common functionality and structure to Resource editing frames */
 public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame implements
 		DocumentListener,ActionListener
 	{
@@ -52,21 +50,13 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 	 * the ResNode's text
 	 */
 	public final JTextField name = new JTextField();
-	/**
-	 * Automatically set up to save and close the frame
-	 */
+	/** Automatically set up to save and close the frame */
 	public final JButton save = new JButton();
-	/** The resource this frame is editing
-	 * (feel free to change it as you wish)
-	 */
+	/** The resource this frame is editing (feel free to change it as you wish) */
 	public R res;
-	/**
-	 * Backup of res as it was before changes were made
-	 */
+	/** Backup of res as it was before changes were made */
 	public R resOriginal;
-	/**
-	 * The ResNode this frame is linked to
-	 */
+	/** The ResNode this frame is linked to */
 	public final ResNode node;
 
 	public String titlePrefix = ""; //$NON-NLS-1$

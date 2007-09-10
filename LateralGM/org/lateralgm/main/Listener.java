@@ -181,7 +181,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		int pos;
 		if (node.getAllowsChildren())
 			{
-			parent = (ResNode) node;
+			parent = node;
 			pos = parent.getChildCount();
 			}
 		else
@@ -529,13 +529,12 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				{
 				if (e.getClickCount() == 1)
 					{
-					//FIXME: Isn't Java supposed to handle this for us?
-					//In case it doesn't, here's the code for Mac's Ctrl+LeftClick = RightClick
-//					if (e.isControlDown())
-//						{
-//						LGM.tree.setSelectionPath(selPath);
-//						showNodeMenu(e);
-//						}
+					//Isn't Java supposed to handle this for us? For some reason it doesn't.
+					if (e.isControlDown())
+						{
+						LGM.tree.setSelectionPath(selPath);
+						showNodeMenu(e);
+						}
 					return;
 					}
 				else if (e.getClickCount() == 2)

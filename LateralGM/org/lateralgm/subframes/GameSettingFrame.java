@@ -608,7 +608,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		label = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
 		label.setPreferredSize(new Dimension(80,25));
 		panel.add(label);
-		version = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,g.version); //$NON-NLS-1$
+		version = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,g.version); 
 		version.setPreferredSize(new Dimension(390,25));
 		panel.add(version);
 		label = new JLabel(Messages.getString("GameSettingFrame.LASTCHANGED")); //$NON-NLS-1$

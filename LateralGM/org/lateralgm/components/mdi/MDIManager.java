@@ -21,7 +21,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 
 public class MDIManager extends DefaultDesktopManager
-{
+	{
 	private static final long serialVersionUID = 1L;
 	private MDIPane pane;
 	private JScrollPane scroll;

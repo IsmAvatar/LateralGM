@@ -149,7 +149,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			res.moments.add(m);
 			}
 		}
-	
+
 	@Override
 	public boolean resourceChanged()
 		{

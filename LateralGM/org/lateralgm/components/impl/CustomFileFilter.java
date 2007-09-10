@@ -40,9 +40,9 @@ public class CustomFileFilter extends FileFilter implements FilenameFilter
 
 	public CustomFileFilter(String[] ext, String desc)
 		{
-		for (int m = 0; m < ext.length; m++)
+		for (String element : ext)
 			{
-			this.ext.add(ext[m]);
+			this.ext.add(element);
 			}
 		this.desc = desc;
 		}

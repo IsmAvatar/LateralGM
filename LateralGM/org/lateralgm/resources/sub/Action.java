@@ -43,7 +43,7 @@ public class Action
 	public Ref<GmObject> appliesTo = GmObject.OBJECT_SELF;
 
 	public Argument[] arguments;
-	
+
 	public Action(LibAction la)
 		{
 		libAction = la;

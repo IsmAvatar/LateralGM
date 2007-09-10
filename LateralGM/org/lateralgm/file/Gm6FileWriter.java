@@ -55,7 +55,6 @@ public final class Gm6FileWriter
 			out = new GmStreamEncoder(fileName);
 			out.write4(1234321);
 			out.write4(600);
-			
 
 			writeSettings(f,out,savetime);
 			writeSounds(f,out);
@@ -112,7 +111,7 @@ public final class Gm6FileWriter
 		out.write4(f.gameSettings.gameId);
 		out.fill(4);
 		out.write4(600);
-		
+
 		out.writeBool(g.startFullscreen);
 		out.writeBool(g.interpolate);
 		out.writeBool(g.dontDrawBorder);

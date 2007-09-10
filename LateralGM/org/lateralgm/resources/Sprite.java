@@ -170,5 +170,4 @@ public class Sprite extends Resource<Sprite>
 		if (imageCache != null) imageCache.clear();
 		super.fireStateChanged();
 		}
-
 	}

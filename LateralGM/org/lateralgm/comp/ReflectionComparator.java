@@ -40,7 +40,6 @@ import java.util.Stack;
  */
 public abstract class ReflectionComparator
 	{
-
 	/**
 	 * Root of the comparator chain. Comparisons must start with calling the getDifference method of
 	 * this object

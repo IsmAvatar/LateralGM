@@ -47,21 +47,15 @@ import java.util.List;
  */
 public class ICOFile implements Comparable<ICOFile>
 	{
-
 	/** Source file name. */
 	private String fileName;
-
 	/** Unspecified purpose. */
 	private int reserved;
-
 	private int type;
-
 	/** Number of contained images. */
 	private int imageCount;
-
 	/**The <code>AbstractDecoder</code> provided or derived from the constructor*/
 	private AbstractDecoder decoder;
-
 	private final List<BitmapDescriptor> descriptors = new ArrayList<BitmapDescriptor>();
 
 	/**

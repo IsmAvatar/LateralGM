@@ -20,7 +20,6 @@ import org.lateralgm.resources.Resource;
 
 public class GmTreeEditor extends DefaultTreeCellEditor
 	{
-
 	public GmTreeEditor(JTree tree, GmTreeGraphics renderer)
 		{
 		super(tree,renderer);
