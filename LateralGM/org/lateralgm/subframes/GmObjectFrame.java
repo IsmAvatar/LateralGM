@@ -1181,7 +1181,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		LGM.currentFile.gmObjects.replace(res,resOriginal);
 		}
 
-	private void commitChanges()
+	public void commitChanges()
 		{
 		saveEvents();
 		res.setName(name.getText());
@@ -1192,13 +1192,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		res.persistent = persistent.isSelected();
 		res.parent = parent.getSelectedRef();
 		res.mask = mask.getSelectedRef();
-		}
-
-	@Override
-	public void updateResource()
-		{
-		commitChanges();
-		resOriginal = res.copy();
 		}
 
 	//TODO:

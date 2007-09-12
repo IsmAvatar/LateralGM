@@ -218,7 +218,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener
 		LGM.currentFile.paths.replace(res,resOriginal);
 		}
 
-	private void commitChanges()
+	public void commitChanges()
 		{
 		res.setName(name.getText());
 
@@ -226,12 +226,6 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener
 		res.precision = tpr.getIntValue();
 		res.smooth = smooth.isSelected();
 		res.closed = closed.isSelected();
-		}
-
-	public void updateResource()
-		{
-		commitChanges();
-		resOriginal = res.copy();
 		}
 
 	public void actionPerformed(ActionEvent e)

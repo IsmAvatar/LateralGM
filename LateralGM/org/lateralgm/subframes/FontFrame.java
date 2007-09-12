@@ -164,7 +164,7 @@ public class FontFrame extends ResourceFrame<Font>
 		LGM.currentFile.fonts.replace(res,resOriginal);
 		}
 
-	private void commitChanges()
+	public void commitChanges()
 		{
 		res.setName(name.getText());
 		res.fontName = fonts.getSelectedItem().toString();
@@ -173,12 +173,6 @@ public class FontFrame extends ResourceFrame<Font>
 		res.italic = italic.isSelected();
 		res.charRangeMin = charMin.getIntValue();
 		res.charRangeMax = charMax.getIntValue();
-		}
-
-	public void updateResource()
-		{
-		commitChanges();
-		resOriginal = res.copy();
 		}
 
 	public void actionPerformed(ActionEvent e)

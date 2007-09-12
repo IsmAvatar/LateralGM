@@ -166,17 +166,10 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		}
 
 	//TODO:
-	private void commitChanges()
+	public void commitChanges()
 		{
 		saveMoments();
 		res.setName(name.getText());
-		}
-
-	@Override
-	public void updateResource()
-		{
-		commitChanges();
-		resOriginal = res.copy();
 		}
 
 	//TODO:

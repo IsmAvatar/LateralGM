@@ -740,7 +740,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		LGM.currentFile.rooms.replace(res,resOriginal);
 		}
 
-	private void commitChanges()
+	public void commitChanges()
 		{
 		res.setName(name.getText());
 
@@ -776,13 +776,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		//views
 		res.enableViews = vEnabled.isSelected();
 		fireViewUpdate();
-		}
-
-	@Override
-	public void updateResource()
-		{
-		commitChanges();
-		resOriginal = res.copy();
 		}
 
 	//TODO: (Room and Instance CreationCode)

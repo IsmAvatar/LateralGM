@@ -146,7 +146,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	public boolean getAllowsChildren()
 		{
 		if (status == STATUS_SECONDARY) return false;
-		if (Prefs.protectRoot && this == LGM.root) return false;
+		if (isRoot()) return false;
 		return true;
 		}
 

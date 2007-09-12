@@ -70,6 +70,14 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 		return res;
 		}
 
+	public R duplicate(R res)
+		{
+		int ind = indexOf(res);
+		if (ind == -1) return null;
+		R res2 = res.copy(this);
+		return res2;
+		}
+
 	public R getUnsafe(int id)
 		{
 		for (R res : this)
@@ -113,19 +121,9 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 
 	public void replace(R old, R replacement)
 		{
-		old.removeChangeListener(rcl);
-		old.getRef().delete();
-		old.getRef().setRes(replacement);
-		int ind = -1;
-		for (int i = 0; i < size(); i++)
-			if (get(i) == old)
-				{
-				ind = i;
-				break;
-				}
+		int ind = indexOf(old);
+		if (ind == -1) return;
 		set(ind,replacement);
-		replacement.addChangeListener(rcl);
-		fireStateChanged();
 		}
 
 	public void defragIds()
@@ -185,8 +183,23 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 	public R set(int index, R res)
 		{
 		R old = super.set(index,res);
+		old.removeChangeListener(rcl);
 		old.getRef().delete();
 		old.getRef().setRes(res);
+		res.addChangeListener(rcl);
+		fireStateChanged();
 		return old;
+		}
+
+	public int indexOf(R res)
+		{
+		int ind = -1;
+		for (int i = 0; i < size(); i++)
+			if (get(i) == res)
+				{
+				ind = i;
+				break;
+				}
+		return ind;
 		}
 	}

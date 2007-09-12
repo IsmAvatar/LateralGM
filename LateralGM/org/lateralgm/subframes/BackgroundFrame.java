@@ -198,7 +198,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		LGM.currentFile.backgrounds.replace(res,resOriginal);
 		}
 
-	private void commitChanges()
+	public void commitChanges()
 		{
 		res.setName(name.getText());
 		res.transparent = transparent.isSelected();
@@ -216,9 +216,8 @@ public class BackgroundFrame extends ResourceFrame<Background>
 	@Override
 	public void updateResource()
 		{
-		commitChanges();
+		super.updateResource();
 		imageChanged = false;
-		resOriginal = res.copy();
 		}
 
 	public void actionPerformed(ActionEvent e)

@@ -39,6 +39,7 @@ import org.lateralgm.file.Gm6File;
 import org.lateralgm.file.Gm6FileReader;
 import org.lateralgm.file.Gm6FileWriter;
 import org.lateralgm.file.Gm6FormatException;
+import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.subframes.GameInformationFrame;
@@ -55,6 +56,10 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		if (com.equals("OBJECT")) //$NON-NLS-1$
 			{
 			return Resource.GMOBJECT;
+			}
+		if (com.equals("GROUP")) //$NON-NLS-1$
+			{
+			return -1;
 			}
 		try
 			{
@@ -175,6 +180,16 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 
 	private void addResource(JTree tree, String com)
 		{
+		addResource(tree,stringToRes(com),null);
+		}
+
+	private void addResource(JTree tree, byte r)
+		{
+		addResource(tree,r,null);
+		}
+
+	private void addResource(JTree tree, byte r, Resource<?> res)
+		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
 		ResNode parent;
@@ -189,7 +204,36 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			parent = (ResNode) node.getParent();
 			pos = parent.getIndex(node) + 1;
 			}
-		if (com.equals("GROUP")) //$NON-NLS-1$
+		putNode(tree,node,parent,r,pos,res);
+		}
+
+	private void insertResource(JTree tree, String com)
+		{
+		insertResource(tree,stringToRes(com),null);
+		}
+
+	private void insertResource(JTree tree, byte r)
+		{
+		insertResource(tree,r,null);
+		}
+
+	private void insertResource(JTree tree, byte r, Resource<?> res)
+		{
+		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
+		if (node == null) return;
+		ResNode parent = (ResNode) node.getParent();
+		if (parent.isRoot())
+			{
+			addResource(tree,r,res);
+			return;
+			}
+		int pos = parent.getIndex(node);
+		putNode(tree,node,parent,r,pos,res);
+		}
+
+	private void putNode(JTree tree, ResNode node, ResNode parent, byte r, int pos, Resource<?> res)
+		{
+		if (r == -1) //$NON-NLS-1$
 			{
 			String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
 			String name = JOptionPane.showInputDialog(msg,"Group");
@@ -202,15 +246,14 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			return;
 			}
 
-		byte r = stringToRes(com);
 		if (node.kind != r)
 			{
 			parent = getPrimaryParent(r);
 			pos = parent.getChildCount();
 			}
 
-		Resource<?> res = LGM.currentFile.getList(parent.kind).add();
-		ResNode g = new ResNode(res.getName(),ResNode.STATUS_SECONDARY,parent.kind,res);
+		Resource<?> resource = res == null ? LGM.currentFile.getList(parent.kind).add() : res;
+		ResNode g = new ResNode(resource.getName(),ResNode.STATUS_SECONDARY,parent.kind,resource);
 		parent.insert(g,pos);
 		tree.expandPath(new TreePath(parent.getPath()));
 		tree.setSelectionPath(new TreePath(g.getPath()));
@@ -218,31 +261,11 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		g.openFrame();
 		}
 
-	//TODO: insertResource (works for group, but not other resources)
-	private void insertResource(JTree tree, String com)
-		{
-		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
-		if (node == null) return;
-		ResNode parent = (ResNode) node.getParent();
-		int pos = parent.getIndex(node);
-		if (com.equals("GROUP")) //$NON-NLS-1$
-			{
-			String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
-			String name = JOptionPane.showInputDialog(msg,"group");
-			if (name == "" || name == null) return; //$NON-NLS-1$
-			ResNode g = new ResNode(name,parent.kind,ResNode.STATUS_GROUP);
-			parent.insert(g,pos);
-			tree.expandPath(new TreePath(parent.getPath()));
-			tree.setSelectionPath(new TreePath(g.getPath()));
-			tree.updateUI();
-			}
-		}
-
 	private void deleteResource(JTree tree)
 		{
 		ResNode me = (ResNode) tree.getLastSelectedPathComponent();
 		if (me == null) return;
-		if (Prefs.protectRoot && me.status == ResNode.STATUS_PRIMARY) return;
+		if (me.status == ResNode.STATUS_PRIMARY) return;
 		String msg = Messages.getString("Listener.CONFIRM_DELETERESOURCE"); //$NON-NLS-1$
 		if (JOptionPane.showConfirmDialog(null,msg,
 				Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"), //$NON-NLS-1$
@@ -364,7 +387,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		{
 		ResNode n = (ResNode) ((JTree) c).getLastSelectedPathComponent();
 
-		if (Prefs.protectRoot) if (n.status == 1 || n.kind == 10 || n.kind == 11) return null;
+		if (n.status == ResNode.STATUS_PRIMARY || n.kind == Resource.GAMEINFO
+				|| n.kind == Resource.GAMESETTINGS || n.kind == Resource.EXTENSIONS) return null;
 		return n;
 		}
 
@@ -469,19 +493,32 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 							addResource(tree,"GROUP"); //$NON-NLS-1$
 						return;
 						}
-					//TODO: Tree Menu: Insert Resource, Add Resource, Copy Resource
 					if (com.equals("INSERT")) //$NON-NLS-1$
 						{
-						//insertResource(tree,"");
+						insertResource(tree,node.kind);
 						return;
 						}
 					if (com.equals("ADD")) //$NON-NLS-1$
 						{
-						//addResource(tree,"");
+						addResource(tree,node.kind);
 						return;
 						}
 					if (com.equals("COPY")) //$NON-NLS-1$
 						{
+						ResourceList<?> rl = LGM.currentFile.getList(node.kind);
+						Resource<?> resource = null;
+						try
+							{
+							if (node.frame != null) node.frame.commitChanges();
+							// dodgy workaround to avoid warnings
+							resource = (Resource<?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(
+									rl,node.res);
+							}
+						catch (Exception e1)
+							{
+							e1.printStackTrace();
+							}
+						addResource(tree,node.kind,resource);
 						return;
 						}
 					}
@@ -588,7 +625,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		{
 		ResNode node = (ResNode) LGM.tree.getLastSelectedPathComponent();
 		if (node.status == ResNode.STATUS_SECONDARY && node.kind != Resource.GAMEINFO
-				&& node.kind != Resource.GAMESETTINGS)
+				&& node.kind != Resource.GAMESETTINGS && node.kind != Resource.EXTENSIONS)
 			{
 			String txt = ((String) node.getUserObject()).replaceAll("\\W","").replaceAll("^([0-9]+)","");
 			node.setUserObject(txt);

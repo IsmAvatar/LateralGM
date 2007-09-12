@@ -282,7 +282,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		return c.areEqual(res,resOriginal);
 		}
 
-	private void commitChanges()
+	public void commitChanges()
 		{
 		res.setName(name.getText());
 		res.transparent = transparent.isSelected();
@@ -305,9 +305,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public void updateResource()
 		{
-		commitChanges();
+		super.updateResource();
 		imageChanged = false;
-		resOriginal = res.copy();
 		}
 
 	public void actionPerformed(ActionEvent e)

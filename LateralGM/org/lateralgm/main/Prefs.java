@@ -14,7 +14,7 @@ import java.awt.event.KeyEvent;
 
 public class Prefs
 	{
-	public static boolean protectRoot = true;
+	public static boolean renamableRoots = false;
 	public static boolean groupKind = true;
 	public static boolean iconizeGroup = false;
 	public static Font codeFont = new Font("Monospaced",Font.PLAIN,12);

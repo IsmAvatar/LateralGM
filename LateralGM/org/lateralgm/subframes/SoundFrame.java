@@ -218,7 +218,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		LGM.currentFile.sounds.replace(res,resOriginal);
 		}
 
-	private void commitChanges()
+	public void commitChanges()
 		{
 		res.setName(name.getText());
 
@@ -236,9 +236,8 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 	public void updateResource()
 		{
-		commitChanges();
+		super.updateResource();
 		modified = false;
-		resOriginal = res.copy();
 		}
 
 	public void actionPerformed(ActionEvent e)
