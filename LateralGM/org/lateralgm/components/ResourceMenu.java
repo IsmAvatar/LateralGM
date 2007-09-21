@@ -116,6 +116,8 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Mouse
 
 		public void dispose()
 			{
+			if (node == null)
+				return;
 			synchronized (node)
 				{
 				node.removeChangeListener(this);
@@ -240,6 +242,8 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Mouse
 		{
 		for (int i = 0; i < group.getChildCount(); i++)
 			{
+			if (i == 0)
+				nodeListeners.add(new NodeListener(group,updatable));
 			ResNode child = (ResNode) group.getChildAt(i);
 			if (child.status != ResNode.STATUS_SECONDARY)
 				{
@@ -250,7 +254,6 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Mouse
 				else
 					newParent = new JMenu((String) child.getUserObject());
 				newParent.setIcon(groupIco);
-				nodeListeners.add(new NodeListener(LGM.root,updatable));
 				parent.add(newParent);
 				populate(newParent,child,kind);
 				continue;

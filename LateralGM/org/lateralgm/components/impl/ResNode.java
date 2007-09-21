@@ -231,6 +231,12 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 			}
 		}
 
+	public void add(MutableTreeNode arg0)
+		{
+		super.add(arg0);
+		fireStateChanged();
+		}
+	
 	public void insert(MutableTreeNode newChild, int childIndex)
 		{
 		super.insert(newChild,childIndex);
