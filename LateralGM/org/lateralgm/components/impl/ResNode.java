@@ -295,7 +295,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 			}
 		// Propogate structure changes up the tree
 		if (e != null && parent != null && parent instanceof ResNode)
-			((ResNode) parent).fireStateChanged(changeEvent);
+			((ResNode) parent).fireStateChanged(e);
 		}
 
 	/**

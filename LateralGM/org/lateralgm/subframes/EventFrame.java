@@ -17,59 +17,52 @@ import java.awt.FlowLayout;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.beans.PropertyVetoException;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.EventKeyInput;
-import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EventNode;
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIFrame;
+import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Listener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
-public class EventFrame extends MDIFrame implements MouseListener,ActionListener,ContainerListener,
-		InternalFrameListener,DocumentListener,TreeSelectionListener
+public class EventFrame extends MDIFrame implements ActionListener,TreeSelectionListener,
+		PropertyChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 
 	public JCheckBox replace;
 	public EventKeyInput keySelect;
 	public ResourceMenu<GmObject> collisionSelect;
-	public JTextField frameName;
-	public JButton frameChoose;
+	public ResourceMenu<GmObject> linkSelect;
 	public GmObjectFrame linkedFrame;
-	private JPopupMenu menu = new JPopupMenu();
+	private MListener mListener = new MListener();
 	public EventNode root;
 	public JTree events;
 	public JCheckBox onTop;
@@ -118,12 +111,9 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 		collisionSelect.addActionListener(this);
 
 		addDim(side2,new JLabel(Messages.getString("EventFrame.FRAME_LINK")),140,16); //$NON-NLS-1$
-		frameName = new JTextField();
-		frameName.setEditable(false);
-		addDim(side2,frameName,110,20);
-		frameChoose = new JButton(Resource.ICON[Resource.GMOBJECT]);
-		frameChoose.addMouseListener(this);
-		addDim(side2,frameChoose,20,20);
+		linkSelect = new ResourceMenu<GmObject>(Resource.GMOBJECT,"<no link>",true,140,true);
+		linkSelect.addActionListener(this);
+		side2.add(linkSelect);
 
 		addGap(side2,50,15);
 
@@ -132,19 +122,8 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 		onTop.addActionListener(this);
 		if (onTop.isSelected()) setLayer(JLayeredPane.MODAL_LAYER);
 
-		JInternalFrame frames[] = LGM.mdi.getAllFrames();
-		for (JInternalFrame frame : frames)
-			if (frame instanceof GmObjectFrame)
-				{
-				GmObjectFrame f = (GmObjectFrame) frame;
-				GmObjectFrameItem item = new GmObjectFrameItem(f);
-				f.addInternalFrameListener(this);
-				item.addActionListener(this);
-				menu.add(item);
-				}
-		LGM.mdi.addContainerListener(this);
-
 		add(side2Parent);
+		LGM.mdi.addPropertyChangeListener(MDIPane.SELECTED_FRAME_PROPERTY,this);
 		}
 
 	private void makeTree(JPanel side1)
@@ -215,38 +194,10 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 		events.setTransferHandler(new EventNodeTransferHandler());
 		events.addTreeSelectionListener(this);
 		events.setScrollsOnExpand(true);
-		events.addMouseListener(this);
+		events.addMouseListener(mListener);
 		JScrollPane scroll = new JScrollPane(events);
 		scroll.setMinimumSize(new Dimension(120,260));
 		side1.add(scroll,"Center"); //$NON-NLS-1$
-		}
-
-	private class GmObjectFrameItem extends JMenuItem implements DocumentListener
-		{
-		private static final long serialVersionUID = 1L;
-		GmObjectFrame frame;
-
-		GmObjectFrameItem(GmObjectFrame frame)
-			{
-			this.frame = frame;
-			setIcon(GmTreeGraphics.getSpriteIcon(frame.res.sprite));
-			setText(frame.name.getText());
-			frame.name.getDocument().addDocumentListener(this);
-			}
-
-		public void changedUpdate(DocumentEvent e)
-			{
-			}
-
-		public void insertUpdate(DocumentEvent e)
-			{
-			setText(frame.name.getText());
-			}
-
-		public void removeUpdate(DocumentEvent e)
-			{
-			setText(frame.name.getText());
-			}
 		}
 
 	private class EventNodeTransferHandler extends TransferHandler
@@ -271,90 +222,38 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 			}
 		}
 
-	public void mouseClicked(MouseEvent e)
+	private class MListener extends MouseAdapter
 		{
-		if (e.getSource() == frameChoose && menu.getComponentCount() > 0)
+		public void mouseClicked(MouseEvent e)
 			{
-			menu.show(e.getComponent(),e.getX(),e.getY());
-			return;
-			}
-		if (e.getSource() == events && e.getClickCount() == 2)
-			{
-			TreePath path = events.getPathForLocation(e.getX(),e.getY());
-			if (path == null) return;
-			EventNode n = (EventNode) path.getLastPathComponent();
-			if (n != null && n.isLeaf() && linkedFrame != null && n.isValid())
+			if (e.getSource() == events && e.getClickCount() == 2)
 				{
-				linkedFrame.addEvent(new Event(n.mainId,n.eventId,n.other));
+				TreePath path = events.getPathForLocation(e.getX(),e.getY());
+				if (path == null) return;
+				EventNode n = (EventNode) path.getLastPathComponent();
+				if (n != null && n.isLeaf() && linkedFrame != null && n.isValid())
+					{
+					linkedFrame.addEvent(new Event(n.mainId,n.eventId,n.other));
+					}
 				}
 			}
 		}
 
-	public void internalFrameActivated(InternalFrameEvent e)
-		{
-		if (e.getInternalFrame() instanceof GmObjectFrame && !e.getInternalFrame().isIcon())
-			{
-			if (linkedFrame != null) linkedFrame.name.getDocument().removeDocumentListener(this);
-			linkedFrame = (GmObjectFrame) e.getInternalFrame();
-			linkedFrame.name.getDocument().addDocumentListener(this);
-			frameName.setText(linkedFrame.name.getText());
-			}
-		}
-
-	public void internalFrameDeiconified(InternalFrameEvent e)
-		{
-		internalFrameActivated(e);
-		}
-
-	public void componentAdded(ContainerEvent e)
-		{
-		if (e.getChild() instanceof GmObjectFrame)
-			{
-			for (int i = 0; i < menu.getComponentCount(); i++)
-				if (((GmObjectFrameItem) menu.getComponent(i)).frame == e.getChild()) return;
-			GmObjectFrame frame = (GmObjectFrame) e.getChild();
-			GmObjectFrameItem item = new GmObjectFrameItem(frame);
-			item.addActionListener(this);
-			frame.addInternalFrameListener(this);
-			menu.add(item);
-			}
-		}
-
-	public void internalFrameClosed(InternalFrameEvent e)
-		{
-		if (e.getInternalFrame() instanceof GmObjectFrame)
-			{
-			for (int i = 0; i < menu.getComponentCount(); i++)
-				if (((GmObjectFrameItem) menu.getComponent(i)).frame == e.getInternalFrame())
-					{
-					if (linkedFrame == e.getInternalFrame())
-						{
-						linkedFrame.name.getDocument().removeDocumentListener(this);
-						linkedFrame = null;
-						frameName.setText(""); //$NON-NLS-1$
-						}
-					menu.remove(i);
-					break;
-					}
-			}
-		}
-
+	@SuppressWarnings("unchecked")
 	public void actionPerformed(ActionEvent e)
 		{
-		if (e.getSource() instanceof GmObjectFrameItem)
+		if (e.getSource() == linkSelect)
 			{
-			GmObjectFrameItem item = (GmObjectFrameItem) e.getSource();
-			linkedFrame = item.frame;
-			linkedFrame.toFront();
-			try
+			GmObject obj = ((ResourceMenu<GmObject>) e.getSource()).getSelected();
+			if (obj != null)
 				{
-				linkedFrame.setSelected(true);
+				ResNode node = findNode(Listener.getPrimaryParent(Resource.GMOBJECT),obj);
+				linkedFrame = (GmObjectFrame) node.frame;
+				linkedFrame.toTop();
+				if (isVisible()) this.toTop();
 				}
-			catch (PropertyVetoException e1)
-				{
-				e1.printStackTrace();
-				}
-			frameName.setText(item.getText());
+			else
+				linkedFrame = null;
 			return;
 			}
 		if (e.getSource() == onTop)
@@ -367,17 +266,6 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 			if (selectedNode.mainId == MainEvent.EV_COLLISION && collisionSelect.getSelected() != null)
 				selectedNode.other = collisionSelect.getSelected().getRef();
 			}
-
-		}
-
-	public void insertUpdate(DocumentEvent e)
-		{
-		frameName.setText(linkedFrame.name.getText());
-		}
-
-	public void removeUpdate(DocumentEvent e)
-		{
-		frameName.setText(linkedFrame.name.getText());
 		}
 
 	public void fireInternalFrameEvent(int id)
@@ -417,44 +305,37 @@ public class EventFrame extends MDIFrame implements MouseListener,ActionListener
 			}
 		}
 
-	//unused
-	public void mouseEntered(MouseEvent e)
+	private ResNode findNode(ResNode root, Resource<?> res)
 		{
+		for (int i = 0; i < root.getChildCount(); i++)
+			{
+			ResNode node = (ResNode) root.getChildAt(i);
+			if (!node.isLeaf())
+				{
+				ResNode found = findNode(node,res);
+				if (found != null) return found;
+				continue;
+				}
+			if (node.res == res) return node;
+			}
+		return null;
 		}
 
-	public void mouseExited(MouseEvent e)
+	public void propertyChange(PropertyChangeEvent evt)
 		{
-		}
-
-	public void mousePressed(MouseEvent e)
-		{
-		}
-
-	public void mouseReleased(MouseEvent e)
-		{
-		}
-
-	public void componentRemoved(ContainerEvent e)
-		{
-		}
-
-	public void internalFrameClosing(InternalFrameEvent e)
-		{
-		}
-
-	public void internalFrameDeactivated(InternalFrameEvent e)
-		{
-		}
-
-	public void internalFrameIconified(InternalFrameEvent e)
-		{
-		}
-
-	public void internalFrameOpened(InternalFrameEvent e)
-		{
-		}
-
-	public void changedUpdate(DocumentEvent e)
-		{
+		if (evt.getPropertyName().equals(MDIPane.SELECTED_FRAME_PROPERTY))
+			{
+			JInternalFrame newFrame = (JInternalFrame) evt.getNewValue();
+			JInternalFrame oldFrame = (JInternalFrame) evt.getOldValue();
+			if (newFrame instanceof GmObjectFrame)
+				{
+				linkedFrame = (GmObjectFrame) newFrame;
+				linkSelect.setSelected((GmObject) linkedFrame.node.res);
+				}
+			else
+				{
+				if (newFrame == null && !oldFrame.isVisible()) linkSelect.setSelected(null);
+				}
+			}
 		}
 	}

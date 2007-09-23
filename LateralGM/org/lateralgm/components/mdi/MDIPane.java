@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com> *
+ * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -28,6 +28,7 @@ public class MDIPane extends JDesktopPane
 	private static final int OFFSET_HEIGHT = 24;
 	private static final int OFFSET_MAX = 9;
 	private MDIMenu menu;
+	public static final String SELECTED_FRAME_PROPERTY = "selectedFrame";
 
 	public MDIMenu getMenu()
 		{
@@ -207,5 +208,12 @@ public class MDIPane extends JDesktopPane
 		DesktopManager man = getDesktopManager();
 		if (man == null || !(man instanceof MDIManager)) return null;
 		return (MDIManager) man;
+		}
+
+	public void setSelectedFrame(JInternalFrame frame)
+		{
+		JInternalFrame old = getSelectedFrame();
+		super.setSelectedFrame(frame);
+		this.firePropertyChange(SELECTED_FRAME_PROPERTY,old,frame);
 		}
 	}

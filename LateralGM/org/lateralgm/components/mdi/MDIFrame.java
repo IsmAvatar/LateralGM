@@ -65,15 +65,18 @@ public class MDIFrame extends JInternalFrame
 			MDIPane pane = getMDIPane();
 			if (pane != null)
 				{
-				if (pane.isMaximum() && isMaximizable())
+				if (pane.isMaximum())
 					{
-					toFront();
-					setMaximum(true);
+					if (isMaximizable())
+						{
+						toFront();
+						setMaximum(true);
+						}
+					else
+						pane.bringMaximumToTop();
 					}
 				else
-					{
-					pane.bringMaximumToTop();
-					}
+					toFront();
 				}
 			}
 		catch (PropertyVetoException e1)
