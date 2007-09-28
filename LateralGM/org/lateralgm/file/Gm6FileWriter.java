@@ -170,7 +170,14 @@ public final class Gm6FileWriter
 		out.writeBool(g.abortOnError);
 		out.writeBool(g.treatUninitializedAs0);
 		out.writeStr(g.author);
-		out.write4(g.version);
+		try 
+			{
+			Integer.parseInt(g.version);
+			}
+		catch (NumberFormatException e)
+			{
+			out.write4(100);
+			}
 		g.lastChanged = Gm6File.longTimeToGmTime(savetime);
 		out.writeD(g.lastChanged);
 

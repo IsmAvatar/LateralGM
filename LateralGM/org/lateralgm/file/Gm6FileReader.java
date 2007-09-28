@@ -278,9 +278,9 @@ public final class Gm6FileReader
 		g.treatUninitializedAs0 = in.readBool();
 		g.author = in.readStr();
 		if (ver > 600)
-			g.version = Integer.parseInt(in.readStr());
+			g.version = in.readStr();
 		else
-			g.version = in.read4();
+			g.version = Integer.toString(in.read4());
 		g.lastChanged = in.readD();
 		g.information = in.readStr();
 		int no = in.read4();

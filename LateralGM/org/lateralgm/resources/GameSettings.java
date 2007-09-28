@@ -77,7 +77,7 @@ public class GameSettings
 	public boolean abortOnError = false;
 	public boolean treatUninitializedAs0 = false;
 	public String author = ""; //$NON-NLS-1$
-	public int version = 100;
+	public String version = "100";
 	public double lastChanged = Gm6File.longTimeToGmTime(System.currentTimeMillis());
 	public String information = ""; //$NON-NLS-1$
 	public int includeFolder = GameSettings.INCLUDE_MAIN;
