@@ -10,6 +10,7 @@
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -26,12 +27,14 @@ import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.GroupLayout.Alignment;
@@ -40,11 +43,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameEvent;
 
+import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Ref;
@@ -62,7 +67,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 	private ResourceMenu<GmObject> appliesObject;
 	private JPanel appliesPanel;
 	private Action act;
-	private JComponent argEdit[];
+	private ArgumentComponent argComp[];
 	private JCheckBox relativeBox;
 	private JCheckBox notBox;
 	private JButton save;
@@ -188,6 +193,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		pane.add(appliesPanel);
 		if (!la.canApplyTo) appliesPanel.setVisible(false);
 
+		argComp = new ArgumentComponent[a.arguments.length];
 		if (a.arguments.length > 0)
 			{
 			pane = new JPanel();
@@ -213,11 +219,10 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			pane.setLayout(kvLayout);
 			add(pane);
 
-			argEdit = new JComponent[a.arguments.length];
 			vGroup.addGap(4);
 			for (int n = 0; n < a.arguments.length; n++)
 				{
-				Argument arg = a.arguments[n];
+				argComp[n] = new ArgumentComponent(a.arguments[n],a.libAction.libArguments[n]);
 				if (la.parent == null)
 					lab = new JLabel(String.format(Messages.getString("ActionFrame.UNKNOWN"),n)); //$NON-NLS-1$
 				else
@@ -227,23 +232,20 @@ public class ActionFrame extends MDIFrame implements ActionListener
 					}
 				if (n == 0 && act.libAction.interfaceKind == LibAction.INTERFACE_ARROWS)
 					{
-					argEdit[n] = new ArrowsEditor(arg.val);
+					argComp[n].setEditor(new ArrowsEditor(argComp[n].getArgument().val));
 					}
 				else
 					{
-					if (la.libArguments == null || la.libArguments.length <= n)
-						argEdit[n] = arg.getEditor(null);
-					else
-						argEdit[n] = arg.getEditor(la.libArguments[n]);
-					argEdit[n].setMaximumSize(new Dimension(240,20));
-					argEdit[n].setPreferredSize(new Dimension(200,20));
-					argEdit[n].setMinimumSize(new Dimension(160,20));
+					Component c = argComp[n].getEditor();
+					c.setMaximumSize(new Dimension(240,20));
+					c.setPreferredSize(new Dimension(200,20));
+					c.setMinimumSize(new Dimension(160,20));
 					}
 				keyGroup.addComponent(lab);
-				valueGroup.addComponent(argEdit[n]);
+				valueGroup.addComponent(argComp[n].getEditor());
 				if (n > 0) vGroup.addGap(6);
 				GroupLayout.ParallelGroup argGroup = kvLayout.createParallelGroup(Alignment.BASELINE);
-				argGroup.addComponent(lab).addComponent(argEdit[n]);
+				argGroup.addComponent(lab).addComponent(argComp[n].getEditor());
 				vGroup.addGroup(argGroup);
 				}
 			vGroup.addGap(4);
@@ -295,7 +297,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		{
 		if (e.getSource() == discard)
 			{
-			for (Argument a : act.arguments)
+			for (ArgumentComponent a : argComp)
 				{
 				a.discard();
 				}
@@ -312,17 +314,8 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				case LibAction.INTERFACE_CODE:
 					act.arguments[0].val = code.getTextCompat();
 					break;
-				case LibAction.INTERFACE_ARROWS:
-					for (int i = 0; i < act.arguments.length; i++)
-						{
-						if (i == 0)
-							act.arguments[i].val = ((ArrowsEditor) argEdit[i]).getStringValue();
-						else
-							act.arguments[i].commit();
-						}
-					break;
 				default:
-					for (Argument a : act.arguments)
+					for (ArgumentComponent a : argComp)
 						{
 						a.commit();
 						}
@@ -382,5 +375,166 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			default:
 			}
 		super.fireInternalFrameEvent(id);
+		}
+
+	private class ArgumentComponent
+		{
+		private Argument arg;
+		private Component editor;
+
+		public ArgumentComponent(Argument arg, LibArgument libArg)
+			{
+			this.arg = arg;
+			editor = makeEditor(libArg);
+			discard();
+			}
+
+		public Argument getArgument()
+			{
+			return arg;
+			}
+
+		private String getNoSelectionString(byte resourceKind)
+			{
+			String key;
+			switch (resourceKind)
+				{
+				case Resource.SPRITE:
+					key = "ArgumentComponent.SPRITE";
+					break;
+				case Resource.SOUND:
+					key = "ArgumentComponent.SOUND";
+					break;
+				case Resource.BACKGROUND:
+					key = "ArgumentComponent.BACKGROUND";
+					break;
+				case Resource.PATH:
+					key = "ArgumentComponent.PATH";
+					break;
+				case Resource.SCRIPT:
+					key = "ArgumentComponent.SCRIPT";
+					break;
+				case Resource.FONT:
+					key = "ArgumentComponent.FONT";
+					break;
+				case Resource.GMOBJECT:
+					key = "ArgumentComponent.OBJECT";
+					break;
+				case Resource.ROOM:
+					key = "ArgumentComponent.ROOM";
+					break;
+				case Resource.TIMELINE:
+					key = "ArgumentComponent.TIMELINE";
+					break;
+				default:
+					key = "";
+				}
+			return String.format(Messages.getString("ArgumentComponent.NO_SELECTION"),
+					Messages.getString(key));
+			}
+
+		@SuppressWarnings("unchecked")
+		private JComponent makeEditor(LibArgument la)
+			{
+			switch (arg.kind)
+				{
+				case Argument.ARG_BOOLEAN:
+					final String[] sab = { "false","true" };
+					return new JComboBox(sab);
+				case Argument.ARG_MENU:
+					if (la == null) return new JTextField(arg.val);
+					final String[] sam = la.menu.split("\\|"); //$NON-NLS-1$
+					return new JComboBox(sam);
+				case Argument.ARG_COLOR:
+					return new ColorSelect(Util.convertGmColor(Integer.parseInt(arg.val)));
+				case Argument.ARG_SPRITE:
+				case Argument.ARG_SOUND:
+				case Argument.ARG_BACKGROUND:
+				case Argument.ARG_PATH:
+				case Argument.ARG_SCRIPT:
+				case Argument.ARG_GMOBJECT:
+				case Argument.ARG_ROOM:
+				case Argument.ARG_FONT:
+				case Argument.ARG_TIMELINE:
+					byte rk = Argument.getResourceKind(arg.kind);
+					return new ResourceMenu(rk,getNoSelectionString(rk),120);
+				default:
+					return new JTextField(arg.val);
+				}
+			}
+
+		/**
+		 * Gets a Component editor for this Argument. Defaults to raw JTextField.
+		 * @param la - The corresponding LibArgument, used for Menus.
+		 * May be null, but then a menu will default to JTextField.
+		 * @return One of ColorSelect, JComboBox, ResourceMenu, or JTextField
+		 */
+		public Component getEditor()
+			{
+			return editor;
+			}
+
+		public void setEditor(Component editor)
+			{
+			this.editor = editor;
+			}
+
+		/** Commits any changes in the Component editor to update this Argument. */
+		public void commit()
+			{
+			if (editor instanceof JTextField)
+				{
+				arg.val = ((JTextField) editor).getText();
+				return;
+				}
+			if (editor instanceof JComboBox)
+				{
+				arg.val = Integer.toString(((JComboBox) editor).getSelectedIndex());
+				return;
+				}
+			if (editor instanceof ColorSelect)
+				{
+				arg.val = Integer.toString(Util.getGmColor(((ColorSelect) editor).getSelectedColor()));
+				}
+			if (editor instanceof ArrowsEditor)
+				{
+				arg.val = ((ArrowsEditor) editor).getStringValue();
+				}
+			if (editor instanceof ResourceMenu)
+				{
+				arg.res = ((ResourceMenu<?>) editor).getSelectedRef();
+				return;
+				}
+			}
+
+		@SuppressWarnings("unchecked")
+		public void discard()
+			{
+			if (editor instanceof JTextField)
+				{
+				((JTextField) editor).setText(arg.val);
+				}
+			else if (editor instanceof JComboBox)
+				{
+				((JComboBox) editor).setSelectedIndex(Integer.parseInt(arg.val));
+				}
+			else if (editor instanceof ColorSelect)
+				{
+				((ColorSelect) editor).setSelectedColor(Util.convertGmColor(Integer.parseInt(arg.val)));
+				}
+			else if (editor instanceof ResourceMenu)
+				{
+				try
+					{
+					((ResourceMenu) editor).setSelected(arg.res.getRes());
+					}
+				catch (NumberFormatException nfe)
+					{
+					}
+				catch (NullPointerException npe)
+					{
+					}
+				}
+			}
 		}
 	}
