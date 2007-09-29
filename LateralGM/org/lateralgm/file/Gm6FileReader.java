@@ -183,9 +183,6 @@ public final class Gm6FileReader
 			}
 		finally
 			{
-			timeids = null;
-			objids = null;
-			rmids = null;
 			try
 				{
 				if (in != null)
@@ -200,9 +197,7 @@ public final class Gm6FileReader
 				throw new Gm6FormatException(key);
 				}
 			}
-		Gm6File file = f;
-		f = null;
-		return file;
+		return f;
 		}
 
 	private static void readSettings(Gm6FileContext c) throws IOException,Gm6FormatException,

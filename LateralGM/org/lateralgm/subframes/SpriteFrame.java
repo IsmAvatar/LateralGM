@@ -278,7 +278,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		commitChanges();
 		if (imageChanged) return true;
 		ReflectionComparator c = new ResourceComparator();
-		c.addExclusions(Sprite.class,"subImages");
+		c.addExclusions(Sprite.class,"subImages","imageCache");
 		return c.areEqual(res,resOriginal);
 		}
 
