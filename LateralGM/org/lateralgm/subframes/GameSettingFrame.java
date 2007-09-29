@@ -517,7 +517,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		iModel = new IncludesListModel(g.includes);
 		includes = new JList(iModel);
-		addDim(panel,includes,450,200);
+		addDim(panel,new JScrollPane(includes),450,200);
 		iAdd = new JButton(Messages.getString("GameSettingFrame.ADD_INCLUDE")); //$NON-NLS-1$
 		iAdd.addActionListener(this);
 		addDim(panel,iAdd,80,24);
@@ -919,10 +919,12 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		if (e.getSource() == iAdd)
 			{
 			JFileChooser choose = new JFileChooser();
+			choose.setMultiSelectionEnabled(true);
 			if (choose.showOpenDialog(getParent()) == JFileChooser.APPROVE_OPTION)
 				{
-				File f = choose.getSelectedFile();
-				if (f != null) iModel.addElement(new Include(f.getAbsolutePath()));
+				File[] f = choose.getSelectedFiles();
+				for (File file : f)
+					iModel.addElement(new Include(file.getAbsolutePath()));
 				}
 			return;
 			}

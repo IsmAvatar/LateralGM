@@ -172,9 +172,12 @@ public class LGM extends JPanel
 		editor.addCellEditorListener(listener);
 		tree.setEditable(true);
 		tree.addMouseListener(listener);
-		tree.setTransferHandler(listener);
-		tree.setDragEnabled(true);
-		if (javaVersion >= 10600) tree.setDropMode(DropMode.ON_OR_INSERT);
+		if (javaVersion >= 10600)
+			{
+			tree.setTransferHandler(listener);
+			tree.setDragEnabled(true);
+			tree.setDropMode(DropMode.ON_OR_INSERT);
+			}
 		tree.setCellRenderer(renderer);
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);

@@ -293,7 +293,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		}
 
-	private class EventInstanceNode extends DefaultMutableTreeNode implements
+	private static class EventInstanceNode extends DefaultMutableTreeNode implements
 			Comparable<EventInstanceNode>
 		{
 		private static final long serialVersionUID = 1L;
@@ -387,6 +387,11 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			{
 			list = new ArrayList<Action>();
 			indents = new ArrayList<Integer>();
+			}
+
+		public void add(Action a)
+			{
+			add(getSize(),a);
 			}
 
 		public void add(int index, Action a)
@@ -953,9 +958,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		events.setShowsRootHandles(true);
 		events.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		events.addTreeSelectionListener(this);
-		events.setDragEnabled(true);
-		if (LGM.javaVersion >= 10600) events.setDropMode(DropMode.ON);
-		events.setTransferHandler(new EventNodeTransferHandler());
+		if (LGM.javaVersion >= 10600)
+			{
+			events.setDragEnabled(true);
+			events.setDropMode(DropMode.ON);
+			events.setTransferHandler(new EventNodeTransferHandler());
+			}
 		}
 
 	public void saveEvents()
@@ -970,8 +978,11 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			if (o instanceof EventInstanceNode)
 				{
 				EventInstanceNode ein = (EventInstanceNode) o;
-				Event e = ein.getUserObject();
-				res.mainEvents[e.mainId].events.add(e);
+				if (ein.getUserObject().actions.size() > 0)
+					{
+					Event e = ein.getUserObject();
+					res.mainEvents[e.mainId].events.add(e);
+					}
 				}
 			}
 		}
@@ -988,9 +999,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		public ActionList()
 			{
 			setActionContainer(null);
-			setTransferHandler(new ActionTransferHandler());
-			setDragEnabled(true);
-			if (LGM.javaVersion >= 10600) setDropMode(DropMode.ON_OR_INSERT);
+			if (LGM.javaVersion >= 10600)
+				{
+				setTransferHandler(new ActionTransferHandler());
+				setDragEnabled(true);
+				setDropMode(DropMode.ON_OR_INSERT);
+				}
 			addMouseListener(ALML);
 			addKeyListener(ALKL);
 			setCellRenderer(new ActionRenderer());
@@ -1012,8 +1026,18 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			actionContainer.actions = model.list;
 			}
 
+		/**
+		 * Opens an ActionFrame representing a given action.
+		 * Actions like "else" etc. will not have a frame opened.
+		 * @param a The action to open a frame for
+		 * @return The frame opened or <code>null</code> if no
+		 * frame was opened.
+		 */
 		public static MDIFrame openActionFrame(Action a)
 			{
+			int k = a.libAction.actionKind;
+			if (k != Action.ACT_NORMAL && k != Action.ACT_REPEAT && k != Action.ACT_VARIABLE
+					&& k != Action.ACT_CODE) return null;
 			MDIFrame af = FRAMES.get(a);
 			if (af == null || af.isClosed())
 				{
@@ -1076,7 +1100,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		JScrollPane scroll = new JScrollPane(list);
 		side3.add(scroll,"Center"); //$NON-NLS-1$
 
-		JTabbedPane side4 = GmObjectFrame.makeLibraryTabs();
+		JTabbedPane side4 = GmObjectFrame.makeLibraryTabs(list);
 		side4.setPreferredSize(new Dimension(140,319));
 		container.add(side3);
 		container.add(side4);
@@ -1095,27 +1119,34 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public static class LibActionButton extends JLabel
 		{
 		private static final long serialVersionUID = 1L;
-		private static DragMouseAdapter mouseListener = new DragMouseAdapter();
 		private static LibActionTransferHandler transferHandler = new LibActionTransferHandler();
 		private LibAction libAction;
+		private ActionList list;
 
-		public LibActionButton(LibAction la)
+		public LibActionButton(LibAction la, ActionList list)
 			{
 			super(new ImageIcon(la.actImage));
+			this.list = list;
 			setToolTipText(la.description);
 			libAction = la;
 			setTransferHandler(transferHandler);
-			addMouseListener(mouseListener);
 			}
 
-		private static class DragMouseAdapter extends MouseAdapter
+		public void processMouseEvent(MouseEvent e)
 			{
-			public void mousePressed(MouseEvent e)
+			if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1)
 				{
 				JComponent c = (JComponent) e.getSource();
 				TransferHandler handler = c.getTransferHandler();
 				handler.exportAsDrag(c,e,TransferHandler.COPY);
 				}
+			else if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON3)
+				{
+				Action act = new Action(libAction);
+				((ActionListModel) list.getModel()).add(act);
+				ActionList.openActionFrame(act);
+				}
+			super.processMouseEvent(e);
 			}
 
 		public LibAction getLibAction()
@@ -1125,7 +1156,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		}
 
 	//XXX: possibly extract to some place like resources.library.LibManager
-	public static JTabbedPane makeLibraryTabs()
+	public static JTabbedPane makeLibraryTabs(ActionList actions)
 		{
 		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
 
@@ -1148,7 +1179,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				if (la.actionKind == Action.ACT_PLACEHOLDER)
 					b = new JLabel();
 				else
-					b = new LibActionButton(la);
+					b = new LibActionButton(la,actions);
 				b.setHorizontalAlignment(JLabel.LEFT);
 				b.setVerticalAlignment(JLabel.TOP);
 				b.setPreferredSize(new Dimension(30,30));
