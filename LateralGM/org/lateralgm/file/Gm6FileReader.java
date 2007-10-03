@@ -77,6 +77,19 @@ public final class Gm6FileReader
 			}
 		}
 
+	private static Gm6FormatException versionError(String error, String res, int ver)
+		{
+		return versionError(error,res,0,ver);
+		}
+
+	private static Gm6FormatException versionError(String error, String res, int i, int ver)
+		{
+		return new Gm6FormatException(String.format(
+				Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+				String.format(Messages.getString("Gm6FileReader." + error), //$NON-NLS-1$
+						Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$
+		}
+
 	public static Gm6File readGm6File(String fileName, ResNode root) throws Gm6FormatException
 		{
 		Gm6File f = new Gm6File();
@@ -97,7 +110,7 @@ public final class Gm6FileReader
 			if (ver != 600 && ver != 701)
 				{
 				String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
-				throw new Gm6FormatException(String.format(msg,ver));
+				throw new Gm6FormatException(String.format(msg,"",ver)); //$NON-NLS-1$
 				}
 			if (ver == 701)
 				{
@@ -121,9 +134,7 @@ public final class Gm6FileReader
 			f.lastInstanceId = in.read4();
 			f.lastTileId = in.read4();
 			ver = in.read4();
-			if (ver != 600 && ver != 620)
-				throw new Gm6FormatException(String.format(
-						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREINFO"),ver)); //$NON-NLS-1$
+			if (ver != 600 && ver != 620) throw versionError("BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
 			if (ver == 620)
 				{
 				int noIncludes = in.read4();
@@ -132,7 +143,8 @@ public final class Gm6FileReader
 					ver = in.read4();
 					if (ver != 620)
 						throw new Gm6FormatException(String.format(
-								Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_INGM7INCLUDES"),ver)); //$NON-NLS-1$
+								Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+								Messages.getString("Gm6FileReader.INGM7INCLUDES"),ver)); //$NON-NLS-1$
 					Include inc = new Include();
 					in.skip(in.read4()); //Filename
 					inc.filePath = in.readStr();
@@ -145,31 +157,29 @@ public final class Gm6FileReader
 					f.gameSettings.includes.add(inc);
 					}
 				ver = in.read4();
-				if (ver != 700)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREEXTENSIONS"),ver)); //$NON-NLS-1$
+				if (ver != 700) throw versionError("BEFORE","EXTENSIONS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 				int noPackages = in.read4();
 				for (int i = 0; i < noPackages; i++)
 					{
 					in.skip(in.read4()); //Package name
 					}
 				ver = in.read4();
-				if (ver != 600)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREINFO"),ver)); //$NON-NLS-1$
+				if (ver != 600) throw versionError("BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			readGameInformation(c);
 			ver = in.read4();
 			if (ver != 500)
 				throw new Gm6FormatException(String.format(
-						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_AFTERINFO"),ver)); //$NON-NLS-1$
+						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+						Messages.getString("Gm6FileReader.AFTERINFO"),ver)); //$NON-NLS-1$
 			int no = in.read4();
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 			ver = in.read4();
 			if (ver != 540 && ver != 700)
 				throw new Gm6FormatException(String.format(
-						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_AFTERINFO2"),ver)); //$NON-NLS-1$
+						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+						Messages.getString("Gm6FileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4); // room indexes in tree order;
 			in.readTree(root,f,ver == 540 ? 11 : 12);
 			System.out.printf(Messages.getString("Gm6FileReader.LOADTIME"), //$NON-NLS-1$
@@ -213,7 +223,7 @@ public final class Gm6FileReader
 		if (ver != 542 && ver != 600 && ver != 702)
 			{
 			String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
-			throw new Gm6FormatException(String.format(msg,ver));
+			throw new Gm6FormatException(String.format(msg,"",ver)); //$NON-NLS-1$
 			}
 		g.startFullscreen = in.readBool();
 		if (ver > 542) g.interpolate = in.readBool();
@@ -319,9 +329,7 @@ public final class Gm6FileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400)
-			throw new Gm6FormatException(String.format(
-					Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFORESOUNDS"),ver)); //$NON-NLS-1$
+		if (ver != 400) throw versionError("BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noSounds = in.read4();
 		for (int i = 0; i < noSounds; i++)
@@ -331,9 +339,7 @@ public final class Gm6FileReader
 				Sound snd = f.sounds.add();
 				snd.setName(in.readStr());
 				ver = in.read4();
-				if (ver != 600)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_INSOUND"),i,ver)); //$NON-NLS-1$
+				if (ver != 600) throw versionError("IN","SOUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				snd.kind = (byte) in.read4();
 				snd.fileType = in.readStr();
 				snd.fileName = in.readStr();
@@ -356,9 +362,7 @@ public final class Gm6FileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400)
-			throw new Gm6FormatException(String.format(
-					Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFORESPRITES"),ver)); //$NON-NLS-1$
+		if (ver != 400) throw versionError("BEFORE","SPRITES",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noSprites = in.read4();
 		for (int i = 0; i < noSprites; i++)
@@ -368,9 +372,7 @@ public final class Gm6FileReader
 				Sprite spr = f.sprites.add();
 				spr.setName(in.readStr());
 				ver = in.read4();
-				if (ver != 542)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_INSPRITE"),i,ver)); //$NON-NLS-1$
+				if (ver != 542) throw versionError("IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				spr.width = in.read4();
 				spr.height = in.read4();
 				spr.boundingBoxLeft = in.read4();
@@ -403,9 +405,7 @@ public final class Gm6FileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400)
-			throw new Gm6FormatException(String.format(
-					Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREBACKGROUNDS"),ver)); //$NON-NLS-1$
+		if (ver != 400) throw versionError("BEFORE","BACKGROUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noBackgrounds = in.read4();
 		for (int i = 0; i < noBackgrounds; i++)
@@ -415,9 +415,7 @@ public final class Gm6FileReader
 				Background back = f.backgrounds.add();
 				back.setName(in.readStr());
 				ver = in.read4();
-				if (ver != 543)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_INBACKGROUND"),i,ver)); //$NON-NLS-1$
+				if (ver != 543) throw versionError("IN","BACKGROUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				back.width = in.read4();
 				back.height = in.read4();
 				back.transparent = in.readBool();
@@ -448,9 +446,7 @@ public final class Gm6FileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 420)
-			throw new Gm6FormatException(String.format(
-					Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREPATHS"),ver)); //$NON-NLS-1$
+		if (ver != 420) throw versionError("BEFORE","PATHS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noPaths = in.read4();
 		for (int i = 0; i < noPaths; i++)
@@ -460,9 +456,7 @@ public final class Gm6FileReader
 				Path path = f.paths.add();
 				path.setName(in.readStr());
 				ver = in.read4();
-				if (ver != 530)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_INPATH"),i,ver)); //$NON-NLS-1$
+				if (ver != 530) throw versionError("IN","PATHS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				path.smooth = in.readBool();
 				path.closed = in.readBool();
 				path.precision = in.read4();
@@ -489,9 +483,7 @@ public final class Gm6FileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400)
-			throw new Gm6FormatException(String.format(
-					Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFORESCRIPTS"),ver)); //$NON-NLS-1$
+		if (ver != 400) throw versionError("BEFORE","SCRIPTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noScripts = in.read4();
 		for (int i = 0; i < noScripts; i++)
@@ -501,9 +493,7 @@ public final class Gm6FileReader
 				Script scr = f.scripts.add();
 				scr.setName(in.readStr());
 				ver = in.read4();
-				if (ver != 400)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_INSCRIPT"),i,ver)); //$NON-NLS-1$
+				if (ver != 400) throw versionError("IN","SCRIPTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				scr.scriptStr = in.readStr();
 				}
 			else
@@ -517,9 +507,7 @@ public final class Gm6FileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 540)
-			throw new Gm6FormatException(String.format(
-					Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREFONTS"),ver)); //$NON-NLS-1$
+		if (ver != 540) throw versionError("BEFORE","FONTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noFonts = in.read4();
 		for (int i = 0; i < noFonts; i++)
@@ -529,9 +517,7 @@ public final class Gm6FileReader
 				Font font = f.fonts.add();
 				font.setName(in.readStr());
 				ver = in.read4();
-				if (ver != 540)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_INFONT"),i,ver)); //$NON-NLS-1$
+				if (ver != 540) throw versionError("IN","FONTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				font.fontName = in.readStr();
 				font.size = in.read4();
 				font.bold = in.readBool();
@@ -550,9 +536,7 @@ public final class Gm6FileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 500)
-			throw new Gm6FormatException(String.format(
-					Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFORETIMELINES"),ver)); //$NON-NLS-1$
+		if (ver != 500) throw versionError("BEFORE","TIMELINES",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noTimelines = in.read4();
 		for (int i = 0; i < noTimelines; i++)
@@ -564,15 +548,13 @@ public final class Gm6FileReader
 				f.timelines.add(time);
 				time.setName(in.readStr());
 				ver = in.read4();
-				if (ver != 500)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_INTIMELINE"),i,ver)); //$NON-NLS-1$
+				if (ver != 500) throw versionError("IN","TIMELINES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				int nomoms = in.read4();
 				for (int j = 0; j < nomoms; j++)
 					{
 					Moment mom = time.addMoment();
 					mom.stepNo = in.read4();
-					readActions(c,mom,"Gm6FileReader.ERROR_UNSUPPORTED_INTIMELINEACTION",i,mom.stepNo);
+					readActions(c,mom,"INTIMELINEACTION",i,mom.stepNo); //$NON-NLS-1$
 					}
 				}
 			else
@@ -586,9 +568,7 @@ public final class Gm6FileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400)
-			throw new Gm6FormatException(String.format(
-					Messages.getString("Gm6File.ERROR_UNSUPPORTED_BEFOREOBJECTS"),ver)); //$NON-NLS-1$
+		if (ver != 400) throw versionError("BEFORE","OBJECTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noGmObjects = in.read4();
 		for (int i = 0; i < noGmObjects; i++)
@@ -600,9 +580,7 @@ public final class Gm6FileReader
 				f.gmObjects.add(obj);
 				obj.setName(in.readStr());
 				ver = in.read4();
-				if (ver != 430)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6File.ERROR_UNSUPPORTED_INOBJECT"),i,ver)); //$NON-NLS-1$
+				if (ver != 430) throw versionError("IN","OBJECTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				Sprite temp = f.sprites.getUnsafe(in.read4());
 				if (temp != null) obj.sprite = temp.getRef();
 				obj.solid = in.readBool();
@@ -629,7 +607,7 @@ public final class Gm6FileReader
 							else
 								ev.id = first;
 							ev.mainId = j;
-							readActions(c,ev,"Gm6FileReader.ERROR_UNSUPPORTED_INOBJECTACTION",i,j * 1000 + ev.id);
+							readActions(c,ev,"INOBJECTACTION",i,j * 1000 + ev.id); //$NON-NLS-1$
 							}
 						else
 							done = true;
@@ -647,9 +625,7 @@ public final class Gm6FileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 420)
-			throw new Gm6FormatException(String.format(
-					Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_BEFOREROOMS"),ver)); //$NON-NLS-1$
+		if (ver != 420) throw versionError("BEFORE","ROOMS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 		// ROOMS
 		int noRooms = in.read4();
 		for (int i = 0; i < noRooms; i++)
@@ -661,9 +637,7 @@ public final class Gm6FileReader
 				f.rooms.add(rm);
 				rm.setName(in.readStr());
 				ver = in.read4();
-				if (ver != 541)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED_INROOM"),i,ver)); //$NON-NLS-1$
+				if (ver != 541) throw versionError("IN","ROOMS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				rm.caption = in.readStr();
 				rm.width = in.read4();
 				rm.height = in.read4();
@@ -789,7 +763,12 @@ public final class Gm6FileReader
 		int ver = in.read4();
 		if (ver != 400)
 			{
-			throw new Gm6FormatException(String.format(Messages.getString(key),format1,format2,ver));
+			throw new Gm6FormatException(String.format(
+					Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+					Messages.getString("Gm6FileReader." + key),format1,format2,ver)); //$NON-NLS-1$
+			//		String msg = Messages.getString("Gm6FileReader." + key)
+			//		+ Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED");
+			//			throw new Gm6FormatException(String.format(msg,format1,format2,ver));
 			}
 		int noacts = in.read4();
 		for (int k = 0; k < noacts; k++)
