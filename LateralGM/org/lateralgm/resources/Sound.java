@@ -14,12 +14,18 @@ import org.lateralgm.main.Prefs;
 
 public class Sound extends Resource<Sound>
 	{
-	public static final byte NORMAL = 0;
-	public static final byte BACKGROUND = 1;
-	public static final byte THREE = 2;
-	public static final byte MULTIMEDIA = 3;
+	public static final byte SOUND_NORMAL = 0;
+	public static final byte SOUND_BACKGROUND = 1;
+	public static final byte SOUND_3D = 2;
+	public static final byte SOUND_MULTIMEDIA = 3;
 
-	public int kind = NORMAL;
+	public static final byte FX_CHORUS = 1;
+	public static final byte FX_ECHO = 2;
+	public static final byte FX_FLANGER = 4;
+	public static final byte FX_GARGLE = 8;
+	public static final byte FX_REVERB = 16;
+
+	public int kind = SOUND_NORMAL;
 	public String fileType = "";
 	public String fileName = "";
 	public boolean chorus = false;
@@ -37,29 +43,9 @@ public class Sound extends Resource<Sound>
 		setName(Prefs.prefixes[Resource.SOUND]);
 		}
 
-	public static boolean getChorus(int effects)
+	public static boolean hasEffect(int effects, int type)
 		{
-		return ((effects & 1) != 0);
-		}
-
-	public static boolean getEcho(int effects)
-		{
-		return ((effects & 2) != 0);
-		}
-
-	public static boolean getFlanger(int effects)
-		{
-		return ((effects & 4) != 0);
-		}
-
-	public static boolean getGargle(int effects)
-		{
-		return ((effects & 8) != 0);
-		}
-
-	public static boolean getReverb(int effects)
-		{
-		return ((effects & 16) != 0);
+		return (effects & type) != 0;
 		}
 
 	public static int makeEffects(boolean chorus, boolean echo, boolean flanger, boolean gargle,
@@ -71,11 +57,11 @@ public class Sound extends Resource<Sound>
 
 	public void setEffects(int val)
 		{
-		chorus = getChorus(val);
-		echo = getEcho(val);
-		flanger = getFlanger(val);
-		gargle = getGargle(val);
-		reverb = getReverb(val);
+		chorus = hasEffect(val,FX_CHORUS);
+		echo = hasEffect(val,FX_ECHO);
+		flanger = hasEffect(val,FX_FLANGER);
+		gargle = hasEffect(val,FX_GARGLE);
+		reverb = hasEffect(val,FX_REVERB);
 		}
 
 	public int getEffects()

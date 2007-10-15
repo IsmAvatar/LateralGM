@@ -107,7 +107,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public ResourceMenu<Sprite> mask;
 	public JButton information;
 
-	public JTree events;
+	public EventTree events;
 	public EventGroupNode rootEvent;
 	public ActionList actions;
 	public GMLTextArea code;
@@ -229,6 +229,33 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			event = event.getChildAt(0);
 		if (event != events.getModel().getRoot())
 			events.setSelectionPath(new TreePath(((DefaultMutableTreeNode) event).getPath()));
+		}
+
+	public static class EventTree extends JTree
+		{
+		private static final long serialVersionUID = 1L;
+
+		public EventTree(TreeNode n)
+			{
+			super(n);
+			setToolTipText("");
+			}
+
+		public String getToolTipText(MouseEvent e)
+			{
+			Point p = e.getPoint();
+			TreePath path = getPathForLocation(p.x,p.y);
+			if (path == null) return null;
+			Object c = path.getLastPathComponent();
+			if (c instanceof EventInstanceNode)
+				{
+				EventInstanceNode node = (EventInstanceNode) c;
+				Event ev = node.getUserObject();
+				return String.format(Messages.getString("MainEvent.EVENT_HINT" + ev.mainId),ev.toString());
+				}
+			else
+				return String.format(Messages.getString("MainEvent.EVENTS"),c.toString());
+			}
 		}
 
 	private class EventNodeTransferHandler extends TransferHandler
@@ -940,7 +967,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					node.add(new EventInstanceNode(e));
 				}
 			}
-		events = new JTree(rootEvent);
+		events = new EventTree(rootEvent);
 		events.setScrollsOnExpand(true);
 		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer()
 			{
@@ -1018,6 +1045,11 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			setModel(model);
 			if (ac == null) return;
 			model.addAll(0,ac.actions);
+			}
+
+		public ActionContainer getActionContainer()
+			{
+			return actionContainer;
 			}
 
 		public void save()
@@ -1140,7 +1172,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				TransferHandler handler = c.getTransferHandler();
 				handler.exportAsDrag(c,e,TransferHandler.COPY);
 				}
-			else if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON3)
+			else if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON3
+					&& list.getActionContainer() != null)
 				{
 				Action act = new Action(libAction);
 				((ActionListModel) list.getModel()).add(act);

@@ -121,16 +121,16 @@ public class SoundFrame extends ResourceFrame<Sound>
 		kind = new IndexButtonGroup(4,true,false);
 		AbstractButton b = new JRadioButton(Messages.getString("SoundFrame.NORMAL"));
 		b.setPreferredSize(new Dimension(170,14));
-		kind.add(b,Sound.NORMAL);
+		kind.add(b,Sound.SOUND_NORMAL);
 		b = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND"));
 		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.BACKGROUND);
 		b = new JRadioButton(Messages.getString("SoundFrame.THREE"));
 		b.setPreferredSize(new Dimension(170,14));
-		kind.add(b,Sound.THREE);
+		kind.add(b,Sound.SOUND_3D);
 		b = new JRadioButton(Messages.getString("SoundFrame.MULT"));
 		b.setPreferredSize(new Dimension(170,14));
-		kind.add(b,Sound.MULTIMEDIA);
+		kind.add(b,Sound.SOUND_MULTIMEDIA);
 		kind.setValue(res.kind);
 		JPanel p = new JPanel();
 		String t = Messages.getString("SoundFrame.KIND"); //$NON-NLS-1$

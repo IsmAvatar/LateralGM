@@ -399,7 +399,6 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public JButton down;
 	public JButton sort;
 
-	//TODO: Prevent duplicate constants
 	private JPanel makeConstantsPane()
 		{
 		JPanel panel = new JPanel(new FlowLayout());
@@ -415,7 +414,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		constants = new JTable(cModel);
 		JScrollPane scroll = new JScrollPane(constants);
 		addDim(panel,scroll,450,260);
-		constants.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		constants.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
 		add = new JButton(Messages.getString("GameSettingFrame.ADD")); //$NON-NLS-1$
 		add.addActionListener(this);
@@ -496,6 +495,13 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 				return Messages.getString("GameSettingFrame.NAME"); //$NON-NLS-1$
 			else
 				return Messages.getString("GameSettingFrame.VALUE"); //$NON-NLS-1$
+			}
+
+		public void removeEmptyConstants()
+			{
+			for (int i = constants.size() - 1; i >= 0; i--)
+				if (constants.get(i).name.equals("")) constants.remove(i);
+			fireTableDataChanged();
 			}
 		}
 
@@ -608,7 +614,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		label = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
 		label.setPreferredSize(new Dimension(80,25));
 		panel.add(label);
-		version = new JTextField(g.version); 
+		version = new JTextField(g.version);
 		version.setPreferredSize(new Dimension(390,25));
 		panel.add(version);
 		label = new JLabel(Messages.getString("GameSettingFrame.LASTCHANGED")); //$NON-NLS-1$
@@ -647,7 +653,6 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		String t = Messages.getString("GameSettingFrame.BUTTON_SAVE"); //$NON-NLS-1$
 		saveButton = new JButton(t);
 		saveButton.addActionListener(this);
-		//getContentPane().add(saveButton);
 		add(saveButton);
 		t = Messages.getString("GameSettingFrame.BUTTON_DISCARD"); //$NON-NLS-1$
 		discardButton = new JButton(t);
@@ -930,8 +935,9 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			}
 		if (e.getSource() == iDelete)
 			{
-			int ind = includes.getSelectedIndex();
-			if (ind != -1) iModel.removeElementAt(ind);
+			int[] ind = includes.getSelectedIndices();
+			for (int i = ind.length - 1; i >= 0; i--)
+				iModel.removeElementAt(ind[i]);
 			return;
 			}
 		if (e.getSource() == iClear)
@@ -947,6 +953,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		fc.setFileFilter(new CustomFileFilter(".lgc",Messages.getString("GameSettingFrame.LGC_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
 		if (fc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 			{
+			cModel.removeEmptyConstants();
 			GmStreamDecoder in = null;
 			try
 				{
@@ -1008,6 +1015,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			if (result == 2) return;
 			if (result == 1) continue;
 
+			cModel.removeEmptyConstants();
 			GmStreamEncoder out = null;
 			try
 				{
@@ -1088,6 +1096,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		g.gameId = gameId.getIntValue();
 
 		//Constants
+		cModel.removeEmptyConstants();
 		g.constants = cModel.constants;
 
 		//Includes

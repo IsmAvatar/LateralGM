@@ -172,7 +172,7 @@ public final class Gm6FileWriter
 		out.writeStr(g.author);
 		try 
 			{
-			Integer.parseInt(g.version);
+			out.write4(Integer.parseInt(g.version));
 			}
 		catch (NumberFormatException e)
 			{
