@@ -28,8 +28,7 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
-import org.lateralgm.comp.ReflectionComparator;
-import org.lateralgm.comp.ResourceComparator;
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
@@ -277,7 +276,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		{
 		commitChanges();
 		if (imageChanged) return true;
-		ReflectionComparator c = new ResourceComparator();
+		ResourceComparator c = new ResourceComparator();
 		c.addExclusions(Sprite.class,"subImages","imageCache");
 		return c.areEqual(res,resOriginal);
 		}

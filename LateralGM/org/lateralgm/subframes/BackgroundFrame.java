@@ -26,7 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 
-import org.lateralgm.comp.ResourceComparator;
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.BackgroundPreview;

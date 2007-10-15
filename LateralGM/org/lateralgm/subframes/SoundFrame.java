@@ -32,8 +32,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 
-import org.lateralgm.comp.ReflectionComparator;
-import org.lateralgm.comp.ResourceComparator;
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
@@ -208,7 +207,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		{
 		commitChanges();
 		if (modified) return true;
-		ReflectionComparator c = new ResourceComparator();
+		ResourceComparator c = new ResourceComparator();
 		c.addExclusions(Sound.class,"data");
 		return c.areEqual(res,resOriginal);
 		}

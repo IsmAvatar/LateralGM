@@ -36,8 +36,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.lateralgm.comp.ReflectionComparator;
-import org.lateralgm.comp.ResourceComparator;
+import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
@@ -728,7 +727,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public boolean resourceChanged()
 		{
 		commitChanges();
-		ReflectionComparator c = new ResourceComparator();
+		ResourceComparator c = new ResourceComparator();
 		c.addExclusions(Room.class,"parent","currentTab");
 		return c.areEqual(res,resOriginal);
 		}
