@@ -53,7 +53,7 @@ public class ScriptFrame extends ResourceFrame<Script>
 		{
 		LGM.currentFile.scripts.replace(res,resOriginal);
 		}
-	
+
 	public void commitChanges()
 		{
 		res.scriptStr = code.getTextCompat();

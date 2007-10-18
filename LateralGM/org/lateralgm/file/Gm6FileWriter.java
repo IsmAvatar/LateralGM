@@ -170,7 +170,7 @@ public final class Gm6FileWriter
 		out.writeBool(g.abortOnError);
 		out.writeBool(g.treatUninitializedAs0);
 		out.writeStr(g.author);
-		try 
+		try
 			{
 			out.write4(Integer.parseInt(g.version));
 			}

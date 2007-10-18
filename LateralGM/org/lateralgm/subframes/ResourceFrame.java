@@ -100,7 +100,7 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 	public abstract boolean resourceChanged();
 
 	public abstract void commitChanges();
-	
+
 	public void addGap(int w, int h)
 		{
 		addGap(this,w,h);

@@ -10,6 +10,9 @@
 package org.lateralgm.components;
 
 import static org.lateralgm.resources.Ref.deRef;
+import static org.lateralgm.resources.Resource.BACKGROUND;
+import static org.lateralgm.resources.Resource.GMOBJECT;
+import static org.lateralgm.resources.Resource.SPRITE;
 
 import java.awt.Component;
 import java.awt.Image;
@@ -27,7 +30,6 @@ import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Ref;
-import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Sprite;
 
 public class GmTreeGraphics extends DefaultTreeCellRenderer
@@ -128,15 +130,11 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 
 	private Icon getIconisedGroup()
 		{
-		if (Prefs.iconizeGroup
-				&& last != null
-				&& last.status != ResNode.STATUS_PRIMARY
-				&& (last.kind == Resource.SPRITE
-						|| last.kind == Resource.BACKGROUND
-						|| last.kind == Resource.GMOBJECT))
-			{
-			return last.getIcon();
-			}
+		if (Prefs.iconizeGroup && last != null && last.status != ResNode.STATUS_PRIMARY)
+			if ((last.kind == SPRITE || last.kind == BACKGROUND || last.kind == GMOBJECT))
+				{
+				return last.getIcon();
+				}
 		return null;
 		}
 

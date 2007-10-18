@@ -39,16 +39,10 @@ public class SimpleCasesComparator extends ReflectionComparator
 
 	public boolean canHandle(Object left, Object right)
 		{
-		return left == right
-				|| left == null
-				|| right == null
-				|| left.getClass().getName().startsWith("java.lang")
-				|| (left instanceof Enum)
-				&& (right instanceof Enum)
-				|| (left instanceof Date)
-				&& (right instanceof Date)
-				|| ((left instanceof Character || left instanceof Number)
-						&& (right instanceof Character || right instanceof Number));
+		return left == right || left == null || right == null
+				|| left.getClass().getName().startsWith("java.lang") || (left instanceof Enum)
+				&& (right instanceof Enum) || (left instanceof Date) && (right instanceof Date)
+				|| isNumeric(left) && isNumeric(right);
 		}
 
 	protected Difference doGetDifference(Object left, Object right, Stack<String> fieldStack,
@@ -102,5 +96,10 @@ public class SimpleCasesComparator extends ReflectionComparator
 			return ((Number) object).doubleValue();
 			}
 		return (double) ((Character) object).charValue();
+		}
+
+	private static boolean isNumeric(Object o)
+		{
+		return o instanceof Character || o instanceof Number;
 		}
 	}
