@@ -49,7 +49,22 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		CellEditorListener
 	{
 	private static final long serialVersionUID = 1L;
-	JFileChooser fc = new JFileChooser();
+	private JFileChooser fc = new JFileChooser();
+
+	public Listener()
+		{
+		String exts[] = { ".gmk",".gm6",".gmd" }; //$NON-NLS-1$
+		String msg = Messages.getString("Listener.FORMAT_GM"); //$NON-NLS-1$
+		CustomFileFilter cff = new CustomFileFilter(exts,msg);
+		fc.addChoosableFileFilter(cff);
+		fc.addChoosableFileFilter(new CustomFileFilter(exts[0],
+				Messages.getString("Listener.FORMAT_GMK"))); //$NON-NLS-1$
+		fc.addChoosableFileFilter(new CustomFileFilter(exts[1],
+				Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$
+		fc.addChoosableFileFilter(new CustomFileFilter(exts[2],
+				Messages.getString("Listener.FORMAT_GMD"))); //$NON-NLS-1$
+		fc.setFileFilter(cff);
+		}
 
 	public static byte stringToRes(String com)
 		{
@@ -83,8 +98,6 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		else
 			{
-			fc.setFileFilter(new CustomFileFilter(".gm6", //$NON-NLS-1$
-					Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$
 			fc.showOpenDialog(LGM.frame);
 			file = fc.getSelectedFile();
 			if (file == null) return;
@@ -93,7 +106,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		if (!file.exists()) return;
 		try
 			{
-			ResNode newroot = new ResNode("Root",0,0,null); //$NON-NLS-1$
+			ResNode newroot = new ResNode("Root",(byte) 0,(byte) 0,null); //$NON-NLS-1$
 			PrefsStore.addRecentFile(filename);
 			LGM.frame.setTitle(String.format(Messages.getString("LGM.TITLE"),file.getName()));
 			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
@@ -149,9 +162,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 
 	public void saveNewFile()
 		{
-		fc.setFileFilter(new CustomFileFilter(".gm6", //$NON-NLS-1$
-				Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$
-		while (true)
+		while (true) //repeatedly display dialog until a valid response is given
 			{
 			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			String filename = fc.getSelectedFile().getPath();
@@ -233,7 +244,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 
 	private void putNode(JTree tree, ResNode node, ResNode parent, byte r, int pos, Resource<?> res)
 		{
-		if (r == -1) //$NON-NLS-1$
+		if (r == -1)
 			{
 			String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
 			String name = JOptionPane.showInputDialog(msg,"Group");

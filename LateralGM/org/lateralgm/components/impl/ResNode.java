@@ -121,26 +121,16 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		this.res = res;
 		}
 
-	public ResNode(String name, int status, int kind, Resource<?> res)
-		{
-		this(name,(byte) status,(byte) kind,res);
-		}
-
-	public ResNode(String name, int status, int kind)
+	public ResNode(String name, byte status, byte kind)
 		{
 		this(name,status,kind,null);
 		}
 
 	public ResNode addChild(String name, byte stat, byte type)
 		{
-		ResNode b = new ResNode(name,stat,type);
+		ResNode b = new ResNode(name,stat,type,null);
 		add(b);
 		return b;
-		}
-
-	public ResNode addChild(String name, int stat, int type)
-		{
-		return addChild(name,(byte) stat,(byte) type);
 		}
 
 	public boolean getAllowsChildren()

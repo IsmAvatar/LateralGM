@@ -13,6 +13,7 @@ package org.lateralgm.file;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Stack;
 import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
@@ -58,7 +59,7 @@ public final class Gm6FileReader
 		}
 
 	//Workaround for Parameter limit
-	static class Gm6FileContext
+	private static class Gm6FileContext
 		{
 		Gm6File f;
 		GmStreamDecoder in;
@@ -107,11 +108,12 @@ public final class Gm6FileReader
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6FileReader.ERROR_INVALID"),fileName,identifier)); //$NON-NLS-1$
 			int ver = in.read4();
-			if (ver != 600 && ver != 701)
+			if (ver != 530 && ver != 600 && ver != 701)
 				{
 				String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
 				throw new Gm6FormatException(String.format(msg,"",ver)); //$NON-NLS-1$
 				}
+			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
 				{
 				int s1 = in.read4();
@@ -134,8 +136,10 @@ public final class Gm6FileReader
 			f.lastInstanceId = in.read4();
 			f.lastTileId = in.read4();
 			ver = in.read4();
-			if (ver != 600 && ver != 620) throw versionError("BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
-			if (ver == 620)
+			if (ver != 430 && ver != 600 && ver != 620) throw versionError("BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 620)
+				readGameInformation(c,ver);
+			else
 				{
 				int noIncludes = in.read4();
 				for (int i = 0; i < noIncludes; i++)
@@ -165,23 +169,25 @@ public final class Gm6FileReader
 					}
 				ver = in.read4();
 				if (ver != 600) throw versionError("BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
+				readGameInformation(c,620);
 				}
-			readGameInformation(c);
 			ver = in.read4();
 			if (ver != 500)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
 						Messages.getString("Gm6FileReader.AFTERINFO"),ver)); //$NON-NLS-1$
+			//TODO: Library Creation Code
 			int no = in.read4();
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 			ver = in.read4();
-			if (ver != 540 && ver != 700)
+			if (ver != 500 && ver != 540 && ver != 700)
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
 						Messages.getString("Gm6FileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
-			in.skip(in.read4() * 4); // room indexes in tree order;
-			in.readTree(root,f,ver == 540 ? 11 : 12);
+			//TODO: Room Execution Order
+			in.skip(in.read4() * 4);
+			readTree(c,root,ver);
 			System.out.printf(Messages.getString("Gm6FileReader.LOADTIME"), //$NON-NLS-1$
 					System.currentTimeMillis() - startTime);
 			System.out.println();
@@ -220,7 +226,7 @@ public final class Gm6FileReader
 		g.gameId = in.read4();
 		in.skip(16); // unknown bytes following game id
 		int ver = in.read4();
-		if (ver != 542 && ver != 600 && ver != 702)
+		if (ver != 530 && ver != 542 && ver != 600 && ver != 702)
 			{
 			String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
 			throw new Gm6FormatException(String.format(msg,"",ver)); //$NON-NLS-1$
@@ -230,25 +236,43 @@ public final class Gm6FileReader
 		g.dontDrawBorder = in.readBool();
 		g.displayCursor = in.readBool();
 		g.scaling = in.read4();
-		g.allowWindowResize = in.readBool();
-		g.alwaysOnTop = in.readBool();
-		g.colorOutsideRoom = Util.convertGmColor(in.read4());
+		if (ver == 530)
+			in.skip(8); //"fullscreen scale" & "only scale w/ hardware support" 
+		else
+			{
+			g.allowWindowResize = in.readBool();
+			g.alwaysOnTop = in.readBool();
+			g.colorOutsideRoom = Util.convertGmColor(in.read4());
+			}
 		g.setResolution = in.readBool();
-		g.colorDepth = (byte) in.read4();
-		g.resolution = (byte) in.read4();
-		g.frequency = (byte) in.read4();
+		if (ver == 530)
+			{
+			in.skip(8); //Color Depth, Exclusive Graphics
+			byte b = (byte) in.read4();
+			if (b == 6)
+				g.resolution = 0;
+			else if (b == 5)
+				g.resolution = 1;
+			else
+				g.resolution = (byte) (b - 2);
+			b = (byte) in.read4();
+			g.frequency = (b == 4) ? 0 : (byte) (b + 1);
+			in.skip(8); //vertical blank, caption in fullscreen
+			}
+		else
+			{
+			g.colorDepth = (byte) in.read4();
+			g.resolution = (byte) in.read4();
+			g.frequency = (byte) in.read4();
+			}
 		g.dontShowButtons = in.readBool();
-		g.useSynchronization = in.readBool();
+		if (ver > 530) g.useSynchronization = in.readBool();
 		g.letF4SwitchFullscreen = in.readBool();
 		g.letF1ShowGameInfo = in.readBool();
 		g.letEscEndGame = in.readBool();
 		g.letF5SaveF6Load = in.readBool();
-		if (ver == 702)
-			{
-			in.skip(8);
-			//TODO: F9 screenshot
-			//Treat close as esc
-			}
+		if (ver == 530) in.skip(8); //unknown bytes, both 0
+		if (ver == 702) in.skip(8); //F9 screenshot, Treat close as esc
 		g.gamePriority = (byte) in.read4();
 		g.freezeOnLoseFocus = in.readBool();
 		g.loadBarMode = (byte) in.read4();
@@ -307,7 +331,7 @@ public final class Gm6FileReader
 			in.skip(in.read4()); //Copyright
 			in.skip(in.read4()); //Description
 			}
-		else
+		else if (ver > 530)
 			{
 			no = in.read4();
 			for (int i = 0; i < no; i++)
@@ -334,14 +358,28 @@ public final class Gm6FileReader
 		int noSounds = in.read4();
 		for (int i = 0; i < noSounds; i++)
 			{
-			if (in.readBool())
+			if (!in.readBool())
 				{
-				Sound snd = f.sounds.add();
-				snd.setName(in.readStr());
-				ver = in.read4();
-				if (ver != 600) throw versionError("IN","SOUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-				snd.kind = (byte) in.read4();
-				snd.fileType = in.readStr();
+				f.sounds.lastId++;
+				continue;
+				}
+			Sound snd = f.sounds.add();
+			snd.setName(in.readStr());
+			ver = in.read4();
+			if (ver != 440 && ver != 600) throw versionError("IN","SOUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver == 440)
+				in.skip(4); //kind (wav, mp3, etc)
+			else
+				snd.kind = (byte) in.read4(); //normal, background, etc
+			snd.fileType = in.readStr();
+			if (ver == 440)
+				{
+				snd.data = in.decompress(in.read4());
+				in.skip(8);
+				snd.preload = !in.readBool();
+				}
+			else
+				{
 				snd.fileName = in.readStr();
 				if (in.readBool()) snd.data = in.decompress(in.read4());
 				int effects = in.read4();
@@ -350,8 +388,6 @@ public final class Gm6FileReader
 				snd.pan = in.readD();
 				snd.preload = in.readBool();
 				}
-			else
-				f.sounds.lastId++;
 			}
 		}
 
@@ -367,34 +403,42 @@ public final class Gm6FileReader
 		int noSprites = in.read4();
 		for (int i = 0; i < noSprites; i++)
 			{
-			if (in.readBool())
+			if (!in.readBool())
 				{
-				Sprite spr = f.sprites.add();
-				spr.setName(in.readStr());
-				ver = in.read4();
-				if (ver != 542) throw versionError("IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-				spr.width = in.read4();
-				spr.height = in.read4();
-				spr.boundingBoxLeft = in.read4();
-				spr.boundingBoxRight = in.read4();
-				spr.boundingBoxBottom = in.read4();
-				spr.boundingBoxTop = in.read4();
-				spr.transparent = in.readBool();
+				f.sprites.lastId++;
+				continue;
+				}
+			Sprite spr = f.sprites.add();
+			spr.setName(in.readStr());
+			ver = in.read4();
+			if (ver != 400 && ver != 542) throw versionError("IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			spr.width = in.read4();
+			spr.height = in.read4();
+			spr.boundingBoxLeft = in.read4();
+			spr.boundingBoxRight = in.read4();
+			spr.boundingBoxBottom = in.read4();
+			spr.boundingBoxTop = in.read4();
+			spr.transparent = in.readBool();
+			if (ver > 400)
+				{
 				spr.smoothEdges = in.readBool();
 				spr.preload = in.readBool();
-				spr.boundingBoxMode = (byte) in.read4();
-				spr.preciseCC = in.readBool();
-				spr.originX = in.read4();
-				spr.originY = in.read4();
-				int nosub = in.read4();
-				for (int j = 0; j < nosub; j++)
-					{
-					in.skip(4);
-					spr.addSubImage(ImageIO.read(new ByteArrayInputStream(in.decompress(in.read4()))));
-					}
 				}
-			else
-				f.sprites.lastId++;
+			spr.boundingBoxMode = (byte) in.read4();
+			spr.preciseCC = in.readBool();
+			if (ver == 400)
+				{
+				in.skip(4); //use video memory
+				spr.preload = !in.readBool();
+				}
+			spr.originX = in.read4();
+			spr.originY = in.read4();
+			int nosub = in.read4();
+			for (int j = 0; j < nosub; j++)
+				{
+				if (in.read4() == -1) continue;
+				spr.addSubImage(ImageIO.read(new ByteArrayInputStream(in.decompress(in.read4()))));
+				}
 			}
 		}
 
@@ -410,15 +454,20 @@ public final class Gm6FileReader
 		int noBackgrounds = in.read4();
 		for (int i = 0; i < noBackgrounds; i++)
 			{
-			if (in.readBool())
+			if (!in.readBool())
 				{
-				Background back = f.backgrounds.add();
-				back.setName(in.readStr());
-				ver = in.read4();
-				if (ver != 543) throw versionError("IN","BACKGROUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-				back.width = in.read4();
-				back.height = in.read4();
-				back.transparent = in.readBool();
+				f.backgrounds.lastId++;
+				continue;
+				}
+			Background back = f.backgrounds.add();
+			back.setName(in.readStr());
+			ver = in.read4();
+			if (ver != 400 && ver != 543) throw versionError("IN","BACKGROUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			back.width = in.read4();
+			back.height = in.read4();
+			back.transparent = in.readBool();
+			if (ver > 400)
+				{
 				back.smoothEdges = in.readBool();
 				back.preload = in.readBool();
 				back.useAsTileSet = in.readBool();
@@ -428,15 +477,18 @@ public final class Gm6FileReader
 				back.vertOffset = in.read4();
 				back.horizSep = in.read4();
 				back.vertSep = in.read4();
-				if (in.readBool())
-					{
-					in.skip(4); // 0A
-					ByteArrayInputStream is = new ByteArrayInputStream(in.decompress(in.read4()));
-					back.backgroundImage = ImageIO.read(is);
-					}
 				}
 			else
-				f.backgrounds.lastId++;
+				{
+				in.skip(4); //use video memory
+				back.preload = !in.readBool();
+				}
+			if (in.readBool())
+				{
+				if (in.read4() == -1) continue;
+				ByteArrayInputStream is = new ByteArrayInputStream(in.decompress(in.read4()));
+				back.backgroundImage = ImageIO.read(is);
+				}
 			}
 		}
 
@@ -451,29 +503,29 @@ public final class Gm6FileReader
 		int noPaths = in.read4();
 		for (int i = 0; i < noPaths; i++)
 			{
-			if (in.readBool())
+			if (!in.readBool())
 				{
-				Path path = f.paths.add();
-				path.setName(in.readStr());
-				ver = in.read4();
-				if (ver != 530) throw versionError("IN","PATHS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-				path.smooth = in.readBool();
-				path.closed = in.readBool();
-				path.precision = in.read4();
-				path.backgroundRoom = c.rmids.get(in.read4());
-				path.snapX = in.read4();
-				path.snapY = in.read4();
-				int nopoints = in.read4();
-				for (int j = 0; j < nopoints; j++)
-					{
-					Point point = path.addPoint();
-					point.x = (int) in.readD();
-					point.y = (int) in.readD();
-					point.speed = (int) in.readD();
-					}
-				}
-			else
 				f.paths.lastId++;
+				continue;
+				}
+			Path path = f.paths.add();
+			path.setName(in.readStr());
+			ver = in.read4();
+			if (ver != 530) throw versionError("IN","PATHS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			path.smooth = in.readBool();
+			path.closed = in.readBool();
+			path.precision = in.read4();
+			path.backgroundRoom = c.rmids.get(in.read4());
+			path.snapX = in.read4();
+			path.snapY = in.read4();
+			int nopoints = in.read4();
+			for (int j = 0; j < nopoints; j++)
+				{
+				Point point = path.addPoint();
+				point.x = (int) in.readD();
+				point.y = (int) in.readD();
+				point.speed = (int) in.readD();
+				}
 			}
 		}
 
@@ -488,16 +540,16 @@ public final class Gm6FileReader
 		int noScripts = in.read4();
 		for (int i = 0; i < noScripts; i++)
 			{
-			if (in.readBool())
+			if (!in.readBool())
 				{
-				Script scr = f.scripts.add();
-				scr.setName(in.readStr());
-				ver = in.read4();
-				if (ver != 400) throw versionError("IN","SCRIPTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-				scr.scriptStr = in.readStr();
-				}
-			else
 				f.scripts.lastId++;
+				continue;
+				}
+			Script scr = f.scripts.add();
+			scr.setName(in.readStr());
+			ver = in.read4();
+			if (ver != 400) throw versionError("IN","SCRIPTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			scr.scriptStr = in.readStr();
 			}
 		}
 
@@ -505,28 +557,49 @@ public final class Gm6FileReader
 		{
 		Gm6File f = c.f;
 		GmStreamDecoder in = c.in;
+		GameSettings g = f.gameSettings;
 
 		int ver = in.read4();
-		if (ver != 540) throw versionError("BEFORE","FONTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 440 && ver != 540) throw versionError("BEFORE","FONTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+
+		if (ver == 440) //data files
+			{
+			int noDataFiles = in.read4();
+			for (int i = 0; i < noDataFiles; i++)
+				{
+				if (!in.readBool()) continue;
+				in.skip(in.read4());
+				if (in.read4() != 440)
+					throw new Gm6FormatException(String.format(
+							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+							Messages.getString("Gm6FileReader.INDATAFILES"),ver)); //$NON-NLS-1$
+				Include inc = new Include();
+				g.includes.add(inc);
+				inc.filePath = in.readStr();
+				if (in.readBool()) in.skip(in.read4());
+				in.skip(16);
+				}
+			return;
+			}
 
 		int noFonts = in.read4();
 		for (int i = 0; i < noFonts; i++)
 			{
-			if (in.readBool())
+			if (!in.readBool())
 				{
-				Font font = f.fonts.add();
-				font.setName(in.readStr());
-				ver = in.read4();
-				if (ver != 540) throw versionError("IN","FONTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-				font.fontName = in.readStr();
-				font.size = in.read4();
-				font.bold = in.readBool();
-				font.italic = in.readBool();
-				font.charRangeMin = in.read4();
-				font.charRangeMax = in.read4();
-				}
-			else
 				f.fonts.lastId++;
+				continue;
+				}
+			Font font = f.fonts.add();
+			font.setName(in.readStr());
+			ver = in.read4();
+			if (ver != 540) throw versionError("IN","FONTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			font.fontName = in.readStr();
+			font.size = in.read4();
+			font.bold = in.readBool();
+			font.italic = in.readBool();
+			font.charRangeMin = in.read4();
+			font.charRangeMax = in.read4();
 			}
 		}
 
@@ -541,24 +614,24 @@ public final class Gm6FileReader
 		int noTimelines = in.read4();
 		for (int i = 0; i < noTimelines; i++)
 			{
-			if (in.readBool())
+			if (!in.readBool())
 				{
-				Ref<Timeline> r = c.timeids.get(i);
-				Timeline time = r.getRes();
-				f.timelines.add(time);
-				time.setName(in.readStr());
-				ver = in.read4();
-				if (ver != 500) throw versionError("IN","TIMELINES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-				int nomoms = in.read4();
-				for (int j = 0; j < nomoms; j++)
-					{
-					Moment mom = time.addMoment();
-					mom.stepNo = in.read4();
-					readActions(c,mom,"INTIMELINEACTION",i,mom.stepNo); //$NON-NLS-1$
-					}
-				}
-			else
 				f.timelines.lastId++;
+				continue;
+				}
+			Ref<Timeline> r = c.timeids.get(i);
+			Timeline time = r.getRes();
+			f.timelines.add(time);
+			time.setName(in.readStr());
+			ver = in.read4();
+			if (ver != 500) throw versionError("IN","TIMELINES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			int nomoms = in.read4();
+			for (int j = 0; j < nomoms; j++)
+				{
+				Moment mom = time.addMoment();
+				mom.stepNo = in.read4();
+				readActions(c,mom,"INTIMELINEACTION",i,mom.stepNo); //$NON-NLS-1$
+				}
 			}
 		}
 
@@ -573,49 +646,49 @@ public final class Gm6FileReader
 		int noGmObjects = in.read4();
 		for (int i = 0; i < noGmObjects; i++)
 			{
-			if (in.readBool())
+			if (!in.readBool())
 				{
-				Ref<GmObject> r = c.objids.get(i);
-				GmObject obj = r.getRes();
-				f.gmObjects.add(obj);
-				obj.setName(in.readStr());
-				ver = in.read4();
-				if (ver != 430) throw versionError("IN","OBJECTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-				Sprite temp = f.sprites.getUnsafe(in.read4());
-				if (temp != null) obj.sprite = temp.getRef();
-				obj.solid = in.readBool();
-				obj.visible = in.readBool();
-				obj.depth = in.read4();
-				obj.persistent = in.readBool();
-				obj.parent = c.objids.get(in.read4());
-				temp = f.sprites.getUnsafe(in.read4());
-				if (temp != null) obj.mask = temp.getRef();
-				in.skip(4);
-				for (int j = 0; j < 11; j++)
+				f.gmObjects.lastId++;
+				continue;
+				}
+			Ref<GmObject> r = c.objids.get(i);
+			GmObject obj = r.getRes();
+			f.gmObjects.add(obj);
+			obj.setName(in.readStr());
+			ver = in.read4();
+			if (ver != 430) throw versionError("IN","OBJECTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			Sprite temp = f.sprites.getUnsafe(in.read4());
+			if (temp != null) obj.sprite = temp.getRef();
+			obj.solid = in.readBool();
+			obj.visible = in.readBool();
+			obj.depth = in.read4();
+			obj.persistent = in.readBool();
+			obj.parent = c.objids.get(in.read4());
+			temp = f.sprites.getUnsafe(in.read4());
+			if (temp != null) obj.mask = temp.getRef();
+			in.skip(4);
+			for (int j = 0; j < 11; j++)
+				{
+				boolean done = false;
+				while (!done)
 					{
-					boolean done = false;
-					while (!done)
+					int first = in.read4();
+					if (first != -1)
 						{
-						int first = in.read4();
-						if (first != -1)
+						Event ev = obj.mainEvents[j].addEvent();
+						if (j == MainEvent.EV_COLLISION)
 							{
-							Event ev = obj.mainEvents[j].addEvent();
-							if (j == MainEvent.EV_COLLISION)
-								{
-								ev.other = c.objids.get(first);
-								}
-							else
-								ev.id = first;
-							ev.mainId = j;
-							readActions(c,ev,"INOBJECTACTION",i,j * 1000 + ev.id); //$NON-NLS-1$
+							ev.other = c.objids.get(first);
 							}
 						else
-							done = true;
+							ev.id = first;
+						ev.mainId = j;
+						readActions(c,ev,"INOBJECTACTION",i,j * 1000 + ev.id); //$NON-NLS-1$
 						}
+					else
+						done = true;
 					}
 				}
-			else
-				f.gmObjects.lastId++;
 			}
 		}
 
@@ -626,131 +699,182 @@ public final class Gm6FileReader
 
 		int ver = in.read4();
 		if (ver != 420) throw versionError("BEFORE","ROOMS",ver); //$NON-NLS-1$ //$NON-NLS-2$
-		// ROOMS
+
 		int noRooms = in.read4();
 		for (int i = 0; i < noRooms; i++)
 			{
-			if (in.readBool())
+			if (!in.readBool())
 				{
-				Ref<Room> r = c.rmids.get(i);
-				Room rm = r.getRes();
-				f.rooms.add(rm);
-				rm.setName(in.readStr());
-				ver = in.read4();
-				if (ver != 541) throw versionError("IN","ROOMS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-				rm.caption = in.readStr();
-				rm.width = in.read4();
-				rm.height = in.read4();
-				rm.snapY = in.read4();
-				rm.snapX = in.read4();
-				rm.isometricGrid = in.readBool();
-				rm.speed = in.read4();
-				rm.persistent = in.readBool();
-				rm.backgroundColor = Util.convertGmColor(in.read4());
-				rm.drawBackgroundColor = in.readBool();
-				rm.creationCode = in.readStr();
-				int nobackgrounds = in.read4();
-				for (int j = 0; j < nobackgrounds; j++)
+				f.rooms.lastId++;
+				continue;
+				}
+			Ref<Room> r = c.rmids.get(i);
+			Room rm = r.getRes();
+			f.rooms.add(rm);
+			rm.setName(in.readStr());
+			ver = in.read4();
+			if (ver != 520 && ver != 541) throw versionError("IN","ROOMS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			rm.caption = in.readStr();
+			rm.width = in.read4();
+			rm.height = in.read4();
+			rm.snapY = in.read4();
+			rm.snapX = in.read4();
+			rm.isometricGrid = in.readBool();
+			rm.speed = in.read4();
+			rm.persistent = in.readBool();
+			rm.backgroundColor = Util.convertGmColor(in.read4());
+			rm.drawBackgroundColor = in.readBool();
+			rm.creationCode = in.readStr();
+			int nobackgrounds = in.read4();
+			for (int j = 0; j < nobackgrounds; j++)
+				{
+				BackgroundDef bk = rm.backgroundDefs[j];
+				bk.visible = in.readBool();
+				bk.foreground = in.readBool();
+				Background temp = f.backgrounds.getUnsafe(in.read4());
+				if (temp != null) bk.backgroundId = temp.getRef();
+				bk.x = in.read4();
+				bk.y = in.read4();
+				bk.tileHoriz = in.readBool();
+				bk.tileVert = in.readBool();
+				bk.horizSpeed = in.read4();
+				bk.vertSpeed = in.read4();
+				bk.stretch = in.readBool();
+				}
+			rm.enableViews = in.readBool();
+			int noviews = in.read4();
+			for (int j = 0; j < noviews; j++)
+				{
+				View vw = rm.views[j];
+				vw.visible = in.readBool();
+				vw.viewX = in.read4();
+				vw.viewY = in.read4();
+				vw.viewW = in.read4();
+				vw.viewH = in.read4();
+				vw.portX = in.read4();
+				vw.portY = in.read4();
+				if (ver > 520)
 					{
-					BackgroundDef bk = rm.backgroundDefs[j];
-					bk.visible = in.readBool();
-					bk.foreground = in.readBool();
-					Background temp = f.backgrounds.getUnsafe(in.read4());
-					if (temp != null) bk.backgroundId = temp.getRef();
-					bk.x = in.read4();
-					bk.y = in.read4();
-					bk.tileHoriz = in.readBool();
-					bk.tileVert = in.readBool();
-					bk.horizSpeed = in.read4();
-					bk.vertSpeed = in.read4();
-					bk.stretch = in.readBool();
-					}
-				rm.enableViews = in.readBool();
-				int noviews = in.read4();
-				for (int j = 0; j < noviews; j++)
-					{
-					View vw = rm.views[j];
-					vw.visible = in.readBool();
-					vw.viewX = in.read4();
-					vw.viewY = in.read4();
-					vw.viewW = in.read4();
-					vw.viewH = in.read4();
-					vw.portX = in.read4();
-					vw.portY = in.read4();
 					vw.portW = in.read4();
 					vw.portH = in.read4();
-					vw.hbor = in.read4();
-					vw.vbor = in.read4();
-					vw.hspeed = in.read4();
-					vw.vspeed = in.read4();
-					GmObject temp = f.gmObjects.getUnsafe(in.read4());
-					if (temp != null) vw.objectFollowing = temp.getRef();
 					}
-				int noinstances = in.read4();
-				for (int j = 0; j < noinstances; j++)
-					{
-					Instance inst = rm.addInstance();
-					inst.x = in.read4();
-					inst.y = in.read4();
-					GmObject temp = f.gmObjects.getUnsafe(in.read4());
-					if (temp != null) inst.gmObjectId = temp.getRef();
-					inst.instanceId = in.read4();
-					inst.creationCode = in.readStr();
-					inst.locked = in.readBool();
-					}
-				int notiles = in.read4();
-				for (int j = 0; j < notiles; j++)
-					{
-					Tile ti = rm.addTile();
-					ti.x = in.read4();
-					ti.y = in.read4();
-					Background temp = f.backgrounds.getUnsafe(in.read4());
-					if (temp != null) ti.backgroundId = temp.getRef();
-					ti.tileX = in.read4();
-					ti.tileY = in.read4();
-					ti.width = in.read4();
-					ti.height = in.read4();
-					ti.depth = in.read4();
-					ti.tileId = in.read4();
-					ti.locked = in.readBool();
-					}
-				rm.rememberWindowSize = in.readBool();
-				rm.editorWidth = in.read4();
-				rm.editorHeight = in.read4();
-				rm.showGrid = in.readBool();
-				rm.showObjects = in.readBool();
-				rm.showTiles = in.readBool();
-				rm.showBackgrounds = in.readBool();
-				rm.showForegrounds = in.readBool();
-				rm.showViews = in.readBool();
-				rm.deleteUnderlyingObjects = in.readBool();
-				rm.deleteUnderlyingTiles = in.readBool();
-				rm.currentTab = in.read4();
-				rm.scrollBarX = in.read4();
-				rm.scrollBarY = in.read4();
+				vw.hbor = in.read4();
+				vw.vbor = in.read4();
+				vw.hspeed = in.read4();
+				vw.vspeed = in.read4();
+				GmObject temp = f.gmObjects.getUnsafe(in.read4());
+				if (temp != null) vw.objectFollowing = temp.getRef();
 				}
-			else
-				f.rooms.lastId++;
+			int noinstances = in.read4();
+			for (int j = 0; j < noinstances; j++)
+				{
+				Instance inst = rm.addInstance();
+				inst.x = in.read4();
+				inst.y = in.read4();
+				GmObject temp = f.gmObjects.getUnsafe(in.read4());
+				if (temp != null) inst.gmObjectId = temp.getRef();
+				inst.instanceId = in.read4();
+				inst.creationCode = in.readStr();
+				inst.locked = in.readBool();
+				}
+			int notiles = in.read4();
+			for (int j = 0; j < notiles; j++)
+				{
+				Tile ti = rm.addTile();
+				ti.x = in.read4();
+				ti.y = in.read4();
+				Background temp = f.backgrounds.getUnsafe(in.read4());
+				if (temp != null) ti.backgroundId = temp.getRef();
+				ti.tileX = in.read4();
+				ti.tileY = in.read4();
+				ti.width = in.read4();
+				ti.height = in.read4();
+				ti.depth = in.read4();
+				ti.tileId = in.read4();
+				ti.locked = in.readBool();
+				}
+			rm.rememberWindowSize = in.readBool();
+			rm.editorWidth = in.read4();
+			rm.editorHeight = in.read4();
+			rm.showGrid = in.readBool();
+			rm.showObjects = in.readBool();
+			rm.showTiles = in.readBool();
+			rm.showBackgrounds = in.readBool();
+			rm.showForegrounds = in.readBool();
+			rm.showViews = in.readBool();
+			rm.deleteUnderlyingObjects = in.readBool();
+			rm.deleteUnderlyingTiles = in.readBool();
+			if (ver == 520) in.skip(6 * 4); //tile info
+			rm.currentTab = in.read4();
+			rm.scrollBarX = in.read4();
+			rm.scrollBarY = in.read4();
 			}
 		}
 
-	private static void readGameInformation(Gm6FileContext c) throws IOException,Gm6FormatException
+	private static void readGameInformation(Gm6FileContext c, int ver) throws IOException,
+			Gm6FormatException
 		{
 		GmStreamDecoder in = c.in;
 		GameInformation gameInfo = c.f.gameInfo;
 		int bc = in.read4();
 		if (bc >= 0) gameInfo.backgroundColor = Util.convertGmColor(bc);
 		gameInfo.mimicGameWindow = in.readBool();
-		gameInfo.formCaption = in.readStr();
-		gameInfo.left = in.read4();
-		gameInfo.top = in.read4();
-		gameInfo.width = in.read4();
-		gameInfo.height = in.read4();
-		gameInfo.showBorder = in.readBool();
-		gameInfo.allowResize = in.readBool();
-		gameInfo.stayOnTop = in.readBool();
-		gameInfo.pauseGame = in.readBool();
+		if (ver > 430)
+			{
+			gameInfo.formCaption = in.readStr();
+			gameInfo.left = in.read4();
+			gameInfo.top = in.read4();
+			gameInfo.width = in.read4();
+			gameInfo.height = in.read4();
+			gameInfo.showBorder = in.readBool();
+			gameInfo.allowResize = in.readBool();
+			gameInfo.stayOnTop = in.readBool();
+			gameInfo.pauseGame = in.readBool();
+			}
 		gameInfo.gameInfoStr = in.readStr();
+		}
+
+	private static void readTree(Gm6FileContext c, ResNode root, int ver) throws IOException
+		{
+		Gm6File f = c.f;
+		GmStreamDecoder in = c.in;
+
+		Stack<ResNode> path = new Stack<ResNode>();
+		Stack<Integer> left = new Stack<Integer>();
+		path.push(root);
+		int rootnodes = (ver > 540) ? 12 : 11;
+		while (rootnodes-- > 0)
+			{
+			byte status = (byte) in.read4();
+			byte type = (byte) in.read4();
+			int ind = in.read4();
+			String name = in.readStr();
+			ResNode node = new ResNode(name,status,type);
+			if (ver == 500 && status == ResNode.STATUS_PRIMARY && type == Resource.FONT)
+				path.peek().addChild(Messages.getString("LGM.FONTS"),status,type);
+			else
+				path.peek().add(node);
+			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO
+					&& type != Resource.GAMESETTINGS && type != Resource.EXTENSIONS
+					&& (ver != 500 || type != Resource.FONT))
+				{
+				node.res = f.getList(node.kind).getUnsafe(ind);
+				// GM actually ignores the name given in the tree data
+				node.setUserObject(f.getList(node.kind).getUnsafe(ind).getName());
+				}
+			int contents = in.read4();
+			if (contents > 0)
+				{
+				left.push(new Integer(rootnodes));
+				rootnodes = contents;
+				path.push(node);
+				}
+			while (rootnodes == 0 && !left.isEmpty())
+				{
+				rootnodes = left.pop().intValue();
+				path.pop();
+				}
+			}
 		}
 
 	private static void readActions(Gm6FileContext c, ActionContainer container, String key,
@@ -835,54 +959,52 @@ public final class Gm6FileReader
 
 			for (int l = 0; l < actualnoargs; l++)
 				{
-				if (l < act.arguments.length)
-					{
-					act.arguments[l] = new Argument();
-					act.arguments[l].kind = argkinds[l];
-
-					String strval = in.readStr();
-					Resource<?> res = tag;
-					switch (argkinds[l])
-						{
-						case Argument.ARG_SPRITE:
-							res = f.sprites.getUnsafe(Integer.parseInt(strval));
-							break;
-						case Argument.ARG_SOUND:
-							res = f.sounds.getUnsafe(Integer.parseInt(strval));
-							break;
-						case Argument.ARG_BACKGROUND:
-							res = f.backgrounds.getUnsafe(Integer.parseInt(strval));
-							break;
-						case Argument.ARG_PATH:
-							res = f.paths.getUnsafe(Integer.parseInt(strval));
-							break;
-						case Argument.ARG_SCRIPT:
-							res = f.scripts.getUnsafe(Integer.parseInt(strval));
-							break;
-						case Argument.ARG_GMOBJECT:
-							act.arguments[l].res = c.objids.get(Integer.parseInt(strval));
-							break;
-						case Argument.ARG_ROOM:
-							act.arguments[l].res = c.rmids.get(Integer.parseInt(strval));
-							break;
-						case Argument.ARG_FONT:
-							res = f.fonts.getUnsafe(Integer.parseInt(strval));
-							break;
-						case Argument.ARG_TIMELINE:
-							act.arguments[l].res = c.timeids.get(Integer.parseInt(strval));
-							break;
-						default:
-							act.arguments[l].val = strval;
-							break;
-						}
-					if (res != null && res != tag)
-						{
-						act.arguments[l].res = res.getRef();
-						}
-					}
-				else
+				if (l >= act.arguments.length)
 					{
 					in.skip(in.read4());
+					continue;
+					}
+				act.arguments[l] = new Argument();
+				act.arguments[l].kind = argkinds[l];
+
+				String strval = in.readStr();
+				Resource<?> res = tag;
+				switch (argkinds[l])
+					{
+					case Argument.ARG_SPRITE:
+						res = f.sprites.getUnsafe(Integer.parseInt(strval));
+						break;
+					case Argument.ARG_SOUND:
+						res = f.sounds.getUnsafe(Integer.parseInt(strval));
+						break;
+					case Argument.ARG_BACKGROUND:
+						res = f.backgrounds.getUnsafe(Integer.parseInt(strval));
+						break;
+					case Argument.ARG_PATH:
+						res = f.paths.getUnsafe(Integer.parseInt(strval));
+						break;
+					case Argument.ARG_SCRIPT:
+						res = f.scripts.getUnsafe(Integer.parseInt(strval));
+						break;
+					case Argument.ARG_GMOBJECT:
+						act.arguments[l].res = c.objids.get(Integer.parseInt(strval));
+						break;
+					case Argument.ARG_ROOM:
+						act.arguments[l].res = c.rmids.get(Integer.parseInt(strval));
+						break;
+					case Argument.ARG_FONT:
+						res = f.fonts.getUnsafe(Integer.parseInt(strval));
+						break;
+					case Argument.ARG_TIMELINE:
+						act.arguments[l].res = c.timeids.get(Integer.parseInt(strval));
+						break;
+					default:
+						act.arguments[l].val = strval;
+						break;
+					}
+				if (res != null && res != tag)
+					{
+					act.arguments[l].res = res.getRef();
 					}
 				}
 			act.not = in.readBool();

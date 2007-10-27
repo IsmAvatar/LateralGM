@@ -49,11 +49,8 @@ public class CustomFileFilter extends FileFilter implements FilenameFilter
 
 	public boolean accept(File f)
 		{
-		if (ext.size() == 0) return true;
 		if (f.isDirectory()) return true;
-		String s = getExtension(f.getPath());
-		if (s == null) return false;
-		return ext.contains(s);
+		return accept(f,f.getPath());
 		}
 
 	public String getDescription()

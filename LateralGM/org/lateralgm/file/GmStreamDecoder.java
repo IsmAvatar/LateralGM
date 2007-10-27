@@ -18,15 +18,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Stack;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
 
-import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.Resource;
 
 public class GmStreamDecoder
 	{
@@ -199,42 +196,6 @@ public class GmStreamDecoder
 			}
 		pos += (int) length;
 		return total;
-		}
-
-	public void readTree(ResNode root, Gm6File src, int rootnodes) throws IOException
-		{
-		Stack<ResNode> path = new Stack<ResNode>();
-		Stack<Integer> left = new Stack<Integer>();
-		path.push(root);
-		while (rootnodes-- > 0)
-			{
-			byte status = (byte) read4();
-			byte type = (byte) read4();
-			int ind = read4();
-			String name = readStr();
-			ResNode node = path.peek().addChild(name,status,type);
-			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO
-					&& type != Resource.GAMESETTINGS && type != Resource.EXTENSIONS)
-				{
-				node.res = src.getList(node.kind).getUnsafe(ind);
-
-				// GM actually ignores the name given
-				// in the tree data
-				node.setUserObject(src.getList(node.kind).getUnsafe(ind).getName());
-				}
-			int contents = read4();
-			if (contents > 0)
-				{
-				left.push(new Integer(rootnodes));
-				rootnodes = contents;
-				path.push(node);
-				}
-			while (rootnodes == 0 && !left.isEmpty())
-				{
-				rootnodes = left.pop().intValue();
-				path.pop();
-				}
-			}
 		}
 
 	/**
