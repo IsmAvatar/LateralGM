@@ -1,10 +1,19 @@
 /*
- * JEditTextArea.java - jEdit's text component
- * Copyright (C) 1999 Slava Pestov
+ * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  *
- * You may use and modify this package for any purpose. Redistribution is
- * permitted, in both source and binary form, provided that this notice
- * remains intact in all source distributions of this package.
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ * 
+ * This file incorporates work covered by the following copyright and
+ * permission notice: 
+ * 
+ *     JEditTextArea.java - jEdit's text component
+ *     Copyright (C) 1999 Slava Pestov
+ *     
+ *     You may use and modify this package for any purpose. Redistribution is
+ *     permitted, in both source and binary form, provided that this notice
+ *     remains intact in all source distributions of this package.
  */
 package org.lateralgm.jedit;
 
@@ -115,6 +124,28 @@ public class JEditTextArea extends JComponent
 
 		// Initialize some misc. stuff
 		painter = new TextAreaPainter(this,defaults);
+		// Debugging code
+		//		painter.addCustomHighlight(new TextAreaPainter.Highlight()
+		//			{
+		//				public String getToolTipText(MouseEvent evt)
+		//					{
+		//					return null;
+		//					}
+		//
+		//				public void init(JEditTextArea textArea, Highlight next)
+		//					{
+		//					}
+		//
+		//				public void paintHighlight(Graphics gfx, int line, int y)
+		//					{
+		//					if (line != widestLine) return;
+		//					gfx.setColor(new Color(192,255,192));
+		//					FontMetrics fm = painter.getFontMetrics();
+		//					y += TextAreaPainter.LINE_SPACING + fm.getMaxDescent();
+		//					int height = painter.getLineHeight();
+		//					gfx.fillRect(0,y + 2,getWidth(),height - 4);
+		//					}
+		//			});
 		documentHandler = new DocumentHandler();
 		listenerList = new EventListenerList();
 		caretEvent = new MutableCaretEvent();
@@ -284,8 +315,14 @@ public class JEditTextArea extends JComponent
 		int width = painter.getWidth();
 		if (horizontal != null && width != 0)
 			{
-			horizontal.setValues(-horizontalOffset,width,0,width * 5);
-			horizontal.setUnitIncrement(painter.getFontMetrics().charWidth('w'));
+			int w = painter.getFontMetrics().charWidth('w');
+			int mw = widestLineWidth + w;
+			int oho = horizontalOffset;
+			if (width - horizontalOffset > mw) horizontalOffset = width - mw;
+			if (horizontalOffset > 0) horizontalOffset = 0;
+			if (oho != horizontalOffset) painter.repaint();
+			horizontal.setValues(-horizontalOffset,width,0,mw);
+			horizontal.setUnitIncrement(w);
 			horizontal.setBlockIncrement(width / 2);
 			}
 		}
@@ -326,7 +363,7 @@ public class JEditTextArea extends JComponent
 		{
 		if (painter == null) return;
 		int height = painter.getHeight();
-		int lineHeight = painter.getFontMetrics().getHeight();
+		int lineHeight = painter.getLineHeight();
 		visibleLines = height / lineHeight;
 		updateScrollBars();
 		}
@@ -454,7 +491,8 @@ public class JEditTextArea extends JComponent
 	public int lineToY(int line)
 		{
 		FontMetrics fm = painter.getFontMetrics();
-		return (line - firstLine) * fm.getHeight() - (fm.getLeading() + fm.getMaxDescent());
+		return (line - firstLine) * painter.getLineHeight()
+				- (TextAreaPainter.LINE_SPACING + fm.getMaxDescent());
 		}
 
 	/**
@@ -463,8 +501,7 @@ public class JEditTextArea extends JComponent
 	 */
 	public int yToLine(int y)
 		{
-		FontMetrics fm = painter.getFontMetrics();
-		int height = fm.getHeight();
+		int height = painter.getLineHeight();
 		return Math.max(0,Math.min(getLineCount() - 1,y / height + firstLine));
 		}
 
@@ -1063,7 +1100,7 @@ public class JEditTextArea extends JComponent
 
 		if (newStart < 0 || newEnd > getDocumentLength())
 			{
-			throw new IllegalArgumentException("Bounds out of" + " range: " + newStart + "," + newEnd);
+			throw new IllegalArgumentException("Bounds out of range: " + newStart + "," + newEnd);
 			}
 
 		// If the new position is the same as the old, we don't
@@ -1168,7 +1205,7 @@ public class JEditTextArea extends JComponent
 		{
 		if (!editable)
 			{
-			throw new InternalError("Text component" + " read only");
+			throw new InternalError("Text component read only");
 			}
 
 		document.beginStructEdit();
@@ -1231,7 +1268,7 @@ public class JEditTextArea extends JComponent
 		catch (BadLocationException bl)
 			{
 			bl.printStackTrace();
-			throw new InternalError("Cannot replace" + " selection");
+			throw new InternalError("Cannot replace selection");
 			}
 		// No matter what happends... stops us from leaving document
 		// in a bad state
@@ -1509,6 +1546,12 @@ public class JEditTextArea extends JComponent
 			}
 		}
 
+	public int getLineWidth(int line)
+		{
+		Element e = document.getDefaultRootElement().getElement(line);
+		return offsetToX(line,e.getEndOffset() - e.getStartOffset() - 1) - horizontalOffset;
+		}
+
 	// protected members
 	protected static final String CENTER = "center";
 	protected static final String RIGHT = "right";
@@ -1621,8 +1664,8 @@ public class JEditTextArea extends JComponent
 		else
 			{
 			painter.invalidateLineRange(line,firstLine + visibleLines);
-			updateScrollBars();
 			}
+		updateScrollBars();
 		}
 
 	class ScrollLayout implements LayoutManager
@@ -1782,10 +1825,54 @@ public class JEditTextArea extends JComponent
 			}
 		}
 
+	protected int widestLine = 0;
+	protected int widestLineWidth = 0;
+
 	class DocumentHandler implements DocumentListener
 		{
 		public void insertUpdate(DocumentEvent evt)
 			{
+			Element re = document.getDefaultRootElement();
+			DocumentEvent.ElementChange ch = evt.getChange(re);
+			if (ch != null)
+				{
+				int i = ch.getIndex();
+				Element[] ca = ch.getChildrenAdded();
+				Element[] cr = ch.getChildrenRemoved();
+				if (widestLine > i + cr.length)
+					{
+					widestLine += ca.length - cr.length;
+					findWidestLine(i,i + ca.length);
+					}
+				else if (widestLine >= i)
+					{
+					widestLine = -1;
+					int pwlw = widestLineWidth;
+					widestLineWidth = -1;
+					findWidestLine(i,i + ca.length);
+					if (widestLineWidth < pwlw)
+						{
+						findWidestLine(0,i);
+						findWidestLine(i + ca.length,re.getElementCount());
+						}
+					}
+				else
+					findWidestLine(i,i + ca.length);
+				}
+			else
+				{
+				int pos = evt.getOffset();
+				int line = re.getElementIndex(pos);
+				int lineWidth = getLineWidth(line);
+				if (widestLine == line)
+					widestLineWidth = lineWidth;
+				else if (lineWidth > widestLineWidth)
+					{
+					widestLine = line;
+					widestLineWidth = lineWidth;
+					}
+				}
+
 			documentChanged(evt);
 
 			int offset = evt.getOffset();
@@ -1809,6 +1896,32 @@ public class JEditTextArea extends JComponent
 
 		public void removeUpdate(DocumentEvent evt)
 			{
+			Element re = document.getDefaultRootElement();
+			DocumentEvent.ElementChange ch = evt.getChange(re);
+			if (ch != null)
+				{
+				int i = ch.getIndex();
+				Element[] cr = ch.getChildrenRemoved();
+				if (widestLine > i + cr.length)
+					widestLine -= cr.length;
+				else if (widestLine >= i)
+					{
+					widestLine = -1;
+					widestLineWidth = -1;
+					findWidestLine();
+					}
+				}
+			else
+				{
+				int pos = evt.getOffset();
+				int line = re.getElementIndex(pos);
+				if (widestLine == line)
+					{
+					widestLineWidth = getLineWidth(line);
+					findWidestLine();
+					}
+				}
+
 			documentChanged(evt);
 
 			int offset = evt.getOffset();
@@ -1842,6 +1955,25 @@ public class JEditTextArea extends JComponent
 
 		public void changedUpdate(DocumentEvent evt)
 			{
+			}
+
+		protected void findWidestLine()
+			{
+			Element re = document.getDefaultRootElement();
+			findWidestLine(0,re.getElementCount());
+			}
+
+		protected void findWidestLine(int from, int to)
+			{
+			for (int i = from; i < to; i++)
+				{
+				int w = getLineWidth(i);
+				if (w >= widestLineWidth)
+					{
+					widestLine = i;
+					widestLineWidth = w;
+					}
+				}
 			}
 		}
 

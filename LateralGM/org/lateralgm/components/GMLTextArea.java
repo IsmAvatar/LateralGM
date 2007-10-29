@@ -25,6 +25,7 @@ import javax.swing.text.PlainDocument;
 
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.file.ResourceList;
+import org.lateralgm.jedit.DefaultInputHandler;
 import org.lateralgm.jedit.GMLTokenMarker;
 import org.lateralgm.jedit.InputHandler;
 import org.lateralgm.jedit.JEditTextArea;
@@ -34,7 +35,6 @@ import org.lateralgm.jedit.Token;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
@@ -57,10 +57,13 @@ public class GMLTextArea extends JEditTextArea
 		painter.setFont(Prefs.codeFont);
 		painter.setStyles(PrefsStore.getSyntaxStyles());
 		painter.setBracketHighlightColor(Color.gray);
+		inputHandler = new DefaultInputHandler();
+		inputHandler.addDefaultKeyBindings();
 		putClientProperty(InputHandler.KEEP_INDENT_PROPERTY,Boolean.TRUE);
+		putClientProperty(InputHandler.TAB_TO_INDENT_PROPERTY,Boolean.TRUE);
+		putClientProperty(InputHandler.CONVERT_TABS_PROPERTY,Boolean.TRUE);
 		putClientProperty(InputHandler.SMART_HOME_END_PROPERTY,Boolean.TRUE);
 		text = text.replace("\r\n","\n");
-		text = Util.convertIndents(text);
 		setText(text);
 		setCaretPosition(0);
 		LGM.currentFile.addChangeListener(rcl);
@@ -113,14 +116,6 @@ public class GMLTextArea extends JEditTextArea
 		{
 		String s = getText();
 		s = s.replaceAll("\r?\n","\r\n");
-		String tab = "";
-		for (int i = 0; i < Prefs.tabSize; i++)
-			tab += " ";
-		/*
-		 * If anyone knows how to replace only the tabs at the
-		 * start of the line using regexes, please fix this.
-		 */
-		s = s.replaceAll("\t",tab);
 		return s;
 		}
 

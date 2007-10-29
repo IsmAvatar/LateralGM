@@ -1,10 +1,19 @@
 /*
- * InputHandler.java - Manages key bindings and executes actions
- * Copyright (C) 1999 Slava Pestov
+ * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  *
- * You may use and modify this package for any purpose. Redistribution is
- * permitted, in both source and binary form, provided that this notice
- * remains intact in all source distributions of this package.
+ * This file is part of Lateral GM.
+ * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ * 
+ * This file incorporates work covered by the following copyright and
+ * permission notice: 
+ * 
+ *     InputHandler.java - Manages key bindings and executes actions
+ *     Copyright (C) 1999 Slava Pestov
+ *     
+ *     You may use and modify this package for any purpose. Redistribution is
+ *     permitted, in both source and binary form, provided that this notice
+ *     remains intact in all source distributions of this package.
  */
 package org.lateralgm.jedit;
 
@@ -19,6 +28,7 @@ import java.util.Hashtable;
 
 import javax.swing.JPopupMenu;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 
 /**
  * An input handler converts the user's key strokes into concrete actions.
@@ -41,6 +51,8 @@ public abstract class InputHandler extends KeyAdapter
 	 */
 	public static final String SMART_HOME_END_PROPERTY = "InputHandler.homeEnd";
 	public static final String KEEP_INDENT_PROPERTY = "InputHandler.keepIndent";
+	public static final String TAB_TO_INDENT_PROPERTY = "InputHandler.tabToIndent";
+	public static final String CONVERT_TABS_PROPERTY = "InputHandler.convertTabs";
 
 	public static final ActionListener BACKSPACE = new backspace();
 	public static final ActionListener BACKSPACE_WORD = new backspace_word();
@@ -346,7 +358,6 @@ public abstract class InputHandler extends KeyAdapter
 
 		// this shouldn't happen
 		System.err.println("BUG: getTextArea() returning null");
-		System.err.println("Report this to Slava Pestov <sp@gjt.org>");
 		return null;
 		}
 
@@ -728,7 +739,50 @@ public abstract class InputHandler extends KeyAdapter
 				return;
 				}
 
-			textArea.overwriteSetSelectedText("\t");
+			if (Boolean.TRUE.equals(textArea.getClientProperty(TAB_TO_INDENT_PROPERTY)))
+				{
+				int caretLine = textArea.getCaretLine();
+				int caretLineStartOffset = textArea.getLineStartOffset(caretLine);
+				int caretPos = textArea.getCaretPosition() - caretLineStartOffset;
+				if (textArea.getSelectionEnd() != textArea.getSelectionStart())
+					insertTab(textArea);
+				else if (caretLine > 0)
+					{
+					String i1 = textArea.getLineText(caretLine - 1).split("\\S",2)[0];
+					String i2 = textArea.getLineText(caretLine).split("\\S",2)[0];
+					int i1w = textArea.offsetToX(caretLine - 1,i1.length());
+					int i2w = textArea.offsetToX(caretLine,i2.length());
+					int cx = textArea.offsetToX(caretLine,caretPos);
+					if (caretPos <= i2.length() && cx < i1w)
+						{
+						String s = i1w > i2w ? i1 : i2;
+						textArea.setSelectionStart(caretLineStartOffset);
+						textArea.setSelectionEnd(caretLineStartOffset + i2.length());
+						textArea.setSelectedText(s);
+						}
+					else
+						insertTab(textArea);
+					}
+				else
+					insertTab(textArea);
+				}
+			else
+				insertTab(textArea);
+			}
+
+		private void insertTab(JEditTextArea textArea)
+			{
+			if (Boolean.TRUE.equals(textArea.getClientProperty(CONVERT_TABS_PROPERTY)))
+				{
+				int tabSize = ((Integer) textArea.getDocument().getProperty(PlainDocument.tabSizeAttribute)).intValue();
+				String tab = "";
+				for (int i = 0; i < tabSize; i++)
+					tab += " ";
+				int p = textArea.getCaretPosition() - textArea.getLineStartOffset(textArea.getCaretLine());
+				textArea.setSelectedText(tab.substring(p % tab.length()));
+				}
+			else
+				textArea.setSelectedText("\t");
 			}
 		}
 
