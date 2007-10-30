@@ -12,8 +12,6 @@ import java.util.ArrayList;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.resources.sub.Action;
-import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Moment;
 
 public class Timeline extends Resource<Timeline>
@@ -37,20 +35,8 @@ public class Timeline extends Resource<Timeline>
 		Timeline time = new Timeline();
 		for (Moment mom : moments)
 			{
-			Moment mom2 = time.addMoment();
-			mom2.stepNo = mom.stepNo;
-			for (Action act : mom.actions)
-				{
-				Action act2 = mom2.addAction();
-				act2.libAction = act.libAction;
-				act2.relative = act.relative;
-				act2.not = act.not;
-				act2.appliesTo = act.appliesTo;
-				act2.arguments = new Argument[act.arguments.length];
-				for (int k = 0; k < act.arguments.length; k++)
-					act2.arguments[k] = new Argument(act.arguments[k].kind,act.arguments[k].val,
-							act.arguments[k].res);
-				}
+			Moment mom2 = mom.copy();
+			time.moments.add(mom2);
 			}
 		if (update)
 			{
@@ -73,6 +59,73 @@ public class Timeline extends Resource<Timeline>
 	public Timeline copy(ResourceList<Timeline> src)
 		{
 		return copy(true,src);
+		}
+
+	/**
+	 * Performs a binary search through the list of moments for Moment with given Step Number
+	 * @param k - Step Number to search for.
+	 * @return Array index of Moment with given Step Number, or (-(position) - 1) if none found,
+	 * where <i>position</i> is the index where a moment with given Step Number would be inserted.
+	 */
+	public int findMomentPosition(int k)
+		{
+		int low = 0;
+		int high = moments.size() - 1;
+		while (low <= high)
+			{
+			int mid = (low + high) >>> 1;
+			if (moments.get(mid).stepNo < k)
+				low = mid + 1;
+			else if (moments.get(mid).stepNo > k)
+				high = mid - 1;
+			else
+				return mid; // key found
+			}
+		return -(low + 1); // key not found
+		}
+
+	/**
+	 * Shifts the Step Numbers of all moments in range (start,end) by given amount.
+	 * In the event that start > end or amt == 0, no shift is performed.
+	 * @param start - The smallest step number to shift
+	 * @param end - The largest step number to shift
+	 * @param amt - The amount to shift by
+	 */
+	public void shiftMoments(int start, int end, int amt)
+		{
+		if (start > end || amt == 0) return;
+		int left = findMomentPosition(start);
+		if (left >= moments.size()) return;
+		if (left < 0) left = -left;
+		else while (left >= 0 && moments.get(left).stepNo == start) left--; //handle duplicates
+		for (int i = left; i < moments.size(); i++)
+			{
+			if (moments.get(i).stepNo > end) return;
+			//TODO: Shift by amt AND maintain sorted order
+			}
+		}
+
+	/**
+	 * Merges all moments within the given range (start,end) into the first found moment
+	 * by appending all actions in the order that they are found.
+	 * @param start - The smallest step number to merge
+	 * @param end - The largest step number to merge
+	 * @return Array index of first moment, to which the other moments merged into,
+	 * or -1 if no merge was performed.
+	 */
+	public int mergeMoments(int start, int end)
+		{
+		if (start > end) return -1;
+		int left = findMomentPosition(start);
+		if (left >= moments.size()) return -1;
+		if (left < 0) left = -left;
+		else while (left > 0 && moments.get(left).stepNo == start) left--; //handle duplicates
+		for (int i = left + 1; i < moments.size(); i++)
+			{
+			if (moments.get(i).stepNo > end) return left;
+			moments.get(left).actions.addAll(moments.remove(i).actions);
+			}
+		return left;
 		}
 
 	public byte getKind()

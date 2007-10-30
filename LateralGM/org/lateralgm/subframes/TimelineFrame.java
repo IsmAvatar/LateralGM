@@ -18,20 +18,20 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.GMLTextArea;
+import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
-import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Moment;
 
 public class TimelineFrame extends ResourceFrame<Timeline> implements ActionListener,
@@ -39,13 +39,8 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	{
 	private static final long serialVersionUID = 1L;
 
-	public JButton add;
-	public JButton change;
-	public JButton delete;
-	public JButton duplicate;
-	public JButton shift;
-	public JButton merge;
-	public JButton clear;
+	public JButton add, change, delete, duplicate;
+	public JButton shift, merge, clear;
 
 	public JList moments;
 	public GmObjectFrame.ActionList actions;
@@ -112,13 +107,13 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		JPanel side2 = new JPanel(new BorderLayout());
 		side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
 		lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
-		side2.add(lab,"North");
+		side2.add(lab,"North"); //$NON-NLS-1$
 		moments = new JList(res.moments.toArray());
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
 		JScrollPane scroll = new JScrollPane(moments);
 		scroll.setPreferredSize(new Dimension(90,260));
-		side2.add(scroll,"Center");
+		side2.add(scroll,"Center"); //$NON-NLS-1$
 
 		add(side1);
 		add(side2);
@@ -137,25 +132,11 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		moments.setSelectedIndex(0);
 		}
 
-	public void saveMoments()
-		{
-		actions.save();
-		res.moments.clear();
-		ListModel lm = moments.getModel();
-		for (int i = 0; i < lm.getSize(); i++)
-			{
-			Object o = lm.getElementAt(i);
-			Moment m = (Moment) o;
-			res.moments.add(m);
-			}
-		}
-
 	@Override
 	public boolean resourceChanged()
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Argument.class,"editor");
 		return c.areEqual(res,resOriginal);
 		}
 
@@ -165,18 +146,152 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		LGM.currentFile.timelines.replace(res,resOriginal);
 		}
 
-	//TODO:
 	public void commitChanges()
 		{
-		saveMoments();
+		actions.save();
 		res.setName(name.getText());
 		}
 
-	//TODO:
 	public void actionPerformed(ActionEvent e)
 		{
-		if (e.getSource() == add)
+		if (!(e.getSource() instanceof JButton))
 			{
+			super.actionPerformed(e);
+			return;
+			}
+		JButton but = (JButton) e.getSource();
+		if (but == add || but == change || but == duplicate)
+			{
+			Moment m = (Moment) moments.getSelectedValue();
+			if (m == null && but != add) return;
+			int sn = (m == null) ? -1 : m.stepNo;
+			String msg = Messages.getString("TimelineFrame.MOM_NUM"); //$NON-NLS-1$
+			String ttl;
+			if (but == add)
+				ttl = "TimelineFrame.MOM_ADD"; //$NON-NLS-1$
+			else if (but == change)
+				ttl = "TimelineFrame.MOM_CHANGE"; //$NON-NLS-1$
+			else
+				ttl = "TimelineFrame.MOM_DUPLICATE"; //$NON-NLS-1$
+			ttl = Messages.getString(ttl);
+			JPanel pane = new JPanel();
+			pane.add(new JLabel(msg));
+			IntegerField field = new IntegerField(0,Integer.MAX_VALUE,sn + (but == add ? 1 : 0));
+			field.setPreferredSize(new Dimension(80,20));
+			pane.add(field);
+			int ret = JOptionPane.showConfirmDialog(this,pane,ttl,JOptionPane.OK_CANCEL_OPTION);
+			if (ret == JOptionPane.CANCEL_OPTION) return;
+			if (field.getIntValue() == sn) return;
+			int p = res.findMomentPosition(field.getIntValue());
+			if (but == add)
+				{
+				if (p >= 0)
+					{
+					moments.setSelectedIndex(p);
+					return;
+					}
+				p = -p - 1;
+				res.addMoment().stepNo = p;
+				}
+			else if (but == change)
+				{
+				if (p >= 0)
+					{
+					JOptionPane.showMessageDialog(this,Messages.getString("TimelineFrame.MOM_EXIST")); //$NON_NLS-1$
+					return;
+					}
+				m.stepNo = field.getIntValue();
+				res.moments.remove(moments.getSelectedIndex()); //should never be -1
+				res.moments.add(p - 1,m);
+				}
+			else
+				{
+				if (p >= 0)
+					{
+					JOptionPane.showMessageDialog(this,Messages.getString("TimelineFrame.MOM_EXIST")); //$NON_NLS-1$
+					return;
+					}
+				Moment m2 = m.copy();
+				m2.stepNo = field.getIntValue();
+				res.moments.add(m2);
+				}
+			moments.setListData(res.moments.toArray());
+			moments.setSelectedIndex(p);
+			return;
+			}
+		if (but == delete)
+			{
+			int p = moments.getSelectedIndex();
+			if (p == -1) return;
+			if (res.moments.get(p).actions.size() != 0)
+				{
+				String msg = Messages.getString("TimelineFrame.MOM_DELETE");
+				String ttl = Messages.getString("TimelineFrame.MOM_CONFIRM");
+				int r = JOptionPane.showConfirmDialog(this,msg,ttl,JOptionPane.YES_NO_OPTION);
+				if (r == JOptionPane.NO_OPTION) return;
+				}
+			res.moments.remove(p);
+			moments.setListData(res.moments.toArray());
+			moments.setSelectedIndex(Math.min(res.moments.size() - 1,p));
+			return;
+			}
+		if (but == clear)
+			{
+			if (res.moments.size() == 0) return;
+			String msg = Messages.getString("TimelineFrame.MOM_CLEAR");
+			String ttl = Messages.getString("TimelineFrame.MOM_CONFIRM");
+			int r = JOptionPane.showConfirmDialog(this,msg,ttl,JOptionPane.YES_NO_OPTION);
+			if (r == JOptionPane.NO_OPTION) return;
+			res.moments.clear();
+			moments.setListData(res.moments.toArray());
+			}
+		if (but == shift)
+			{
+			if (res.moments.size() == 0) return;
+			Moment m = (Moment) moments.getSelectedValue();
+			int sn = (m == null) ? 0 : m.stepNo;
+			String ttl = Messages.getString("TimelineFrame.MOM_SHIFT"); //$NON-NLS-1$
+			JPanel pane = new JPanel();
+			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_START"))); //$NON-NLS-1$
+			IntegerField iStart = new IntegerField(0,Integer.MAX_VALUE,sn);
+			iStart.setPreferredSize(new Dimension(80,20));
+			pane.add(iStart);
+			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_END"))); //$NON-NLS-1$
+			IntegerField iEnd = new IntegerField(0,Integer.MAX_VALUE,sn);
+			iEnd.setPreferredSize(new Dimension(80,20));
+			pane.add(iEnd);
+			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_AMOUNT"))); //$NON-NLS-1$
+			IntegerField iAmt = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,1);
+			iAmt.setPreferredSize(new Dimension(80,20));
+			pane.add(iAmt);
+			int ret = JOptionPane.showConfirmDialog(this,pane,ttl,JOptionPane.OK_CANCEL_OPTION);
+			if (ret == JOptionPane.CANCEL_OPTION) return;
+			int p = iAmt.getIntValue();
+			res.shiftMoments(iStart.getIntValue(),iEnd.getIntValue(),p);
+			moments.setListData(res.moments.toArray());
+			return;
+			}
+		if (but == merge)
+			{
+			if (res.moments.size() == 0) return;
+			Moment m = (Moment) moments.getSelectedValue();
+			int sn = (m == null) ? 0 : m.stepNo;
+			String ttl = Messages.getString("TimelineFrame.MOM_MERGE"); //$NON-NLS-1$
+			JPanel pane = new JPanel();
+			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_START"))); //$NON-NLS-1$
+			IntegerField iStart = new IntegerField(0,Integer.MAX_VALUE,sn);
+			iStart.setPreferredSize(new Dimension(80,20));
+			pane.add(iStart);
+			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_END"))); //$NON-NLS-1$
+			IntegerField iEnd = new IntegerField(0,Integer.MAX_VALUE,sn);
+			iEnd.setPreferredSize(new Dimension(80,20));
+			pane.add(iEnd);
+			int ret = JOptionPane.showConfirmDialog(this,pane,ttl,JOptionPane.OK_CANCEL_OPTION);
+			if (ret == JOptionPane.CANCEL_OPTION) return;
+			int p = res.mergeMoments(iStart.getIntValue(),iEnd.getIntValue());
+			moments.setListData(res.moments.toArray());
+			moments.setSelectedIndex(p);
+			//FIXME: Merging: When the selection is updated, the actions get removed for some reason
 			return;
 			}
 		super.actionPerformed(e);

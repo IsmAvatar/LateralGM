@@ -176,8 +176,7 @@ public final class Gm6FileReader
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
 						Messages.getString("Gm6FileReader.AFTERINFO"),ver)); //$NON-NLS-1$
-			//TODO: Library Creation Code
-			int no = in.read4();
+			int no = in.read4(); //Library Creation Code
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 			ver = in.read4();
@@ -185,8 +184,7 @@ public final class Gm6FileReader
 				throw new Gm6FormatException(String.format(
 						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
 						Messages.getString("Gm6FileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
-			//TODO: Room Execution Order
-			in.skip(in.read4() * 4);
+			in.skip(in.read4() * 4); //Room Execution Order
 			readTree(c,root,ver);
 			System.out.printf(Messages.getString("Gm6FileReader.LOADTIME"), //$NON-NLS-1$
 					System.currentTimeMillis() - startTime);

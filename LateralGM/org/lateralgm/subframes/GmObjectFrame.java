@@ -1235,7 +1235,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Argument.class,"editor");
 		return c.areEqual(res,resOriginal);
 		}
 
