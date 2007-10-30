@@ -135,7 +135,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		private static ReferenceQueue<Updatable> refQueue;
 		private static Cleaner cleaner;
 		private WeakReference<Updatable> updatable;
-		private ResNode node;
+		private WeakReference<ResNode> node;
 		private boolean onlyNull;
 
 		public NodeListener(ResNode n, Updatable u, boolean onlyNull)
@@ -143,9 +143,9 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 			this.onlyNull = onlyNull;
 			if (refQueue == null) refQueue = new ReferenceQueue<Updatable>();
 			if (cleaner == null) cleaner = new Cleaner(refQueue);
-			node = n;
+			node = new WeakReference<ResNode>(n);
 			updatable = new WeakReference<Updatable>(u,refQueue);
-			node.addChangeListener(this);
+			n.addChangeListener(this);
 			cleaner.add(this);
 			}
 
@@ -160,11 +160,13 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		public void dispose()
 			{
 			if (node == null) return;
-			synchronized (node)
+			ResNode n = node.get();
+			if (n == null) return;
+			synchronized (n)
 				{
-				node.removeChangeListener(this);
-				node = null;
+				n.removeChangeListener(this);
 				}
+			node = null;
 			}
 
 		private static class Cleaner

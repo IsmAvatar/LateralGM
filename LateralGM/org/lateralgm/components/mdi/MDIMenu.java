@@ -34,7 +34,7 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 	{
 	private static final long serialVersionUID = 1L;
 	private MDIPane pane;
-	public static ButtonGroup group = new ButtonGroup();
+	private final ButtonGroup group = new ButtonGroup();
 	private final WeakHashMap<MDIFrame,FrameButton> frameButtons;
 
 	public MDIMenu(MDIPane pane)
