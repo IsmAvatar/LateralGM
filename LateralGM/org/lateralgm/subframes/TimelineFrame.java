@@ -11,8 +11,10 @@ package org.lateralgm.subframes;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -176,33 +178,37 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			ttl = Messages.getString(ttl);
 			JPanel pane = new JPanel();
 			pane.add(new JLabel(msg));
-			IntegerField field = new IntegerField(0,Integer.MAX_VALUE,sn + (but == add ? 1 : 0));
+			IntegerField field = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,sn
+					+ (but == add ? 1 : 0));
 			field.setPreferredSize(new Dimension(80,20));
 			pane.add(field);
 			int ret = JOptionPane.showConfirmDialog(this,pane,ttl,JOptionPane.OK_CANCEL_OPTION);
 			if (ret == JOptionPane.CANCEL_OPTION) return;
-			if (field.getIntValue() == sn) return;
-			int p = res.findMomentPosition(field.getIntValue());
+			ret = field.getIntValue();
+			if (ret == sn) return;
+			int p = -Collections.binarySearch(res.moments,ret) - 1;
 			if (but == add)
 				{
-				if (p >= 0)
+				if (p < 0)
 					{
 					moments.setSelectedIndex(p);
 					return;
 					}
-				p = -p - 1;
-				res.addMoment().stepNo = p;
+				Moment m2 = new Moment();
+				m2.stepNo = ret;
+				res.moments.add(p,m2);
 				}
 			else if (but == change)
 				{
-				if (p >= 0)
+				if (p < 0)
 					{
 					JOptionPane.showMessageDialog(this,Messages.getString("TimelineFrame.MOM_EXIST")); //$NON_NLS-1$
 					return;
 					}
-				m.stepNo = field.getIntValue();
+				if (ret > sn) p--;
+				m.stepNo = ret;
 				res.moments.remove(moments.getSelectedIndex()); //should never be -1
-				res.moments.add(p - 1,m);
+				res.moments.add(p,m);
 				}
 			else
 				{
@@ -212,8 +218,8 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 					return;
 					}
 				Moment m2 = m.copy();
-				m2.stepNo = field.getIntValue();
-				res.moments.add(m2);
+				m2.stepNo = ret;
+				res.moments.add(p,m2);
 				}
 			moments.setListData(res.moments.toArray());
 			moments.setSelectedIndex(p);
@@ -251,13 +257,13 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			Moment m = (Moment) moments.getSelectedValue();
 			int sn = (m == null) ? 0 : m.stepNo;
 			String ttl = Messages.getString("TimelineFrame.MOM_SHIFT"); //$NON-NLS-1$
-			JPanel pane = new JPanel();
+			JPanel pane = new JPanel(new GridLayout(0,2));
 			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_START"))); //$NON-NLS-1$
-			IntegerField iStart = new IntegerField(0,Integer.MAX_VALUE,sn);
+			IntegerField iStart = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,sn);
 			iStart.setPreferredSize(new Dimension(80,20));
 			pane.add(iStart);
 			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_END"))); //$NON-NLS-1$
-			IntegerField iEnd = new IntegerField(0,Integer.MAX_VALUE,sn);
+			IntegerField iEnd = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,sn);
 			iEnd.setPreferredSize(new Dimension(80,20));
 			pane.add(iEnd);
 			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_AMOUNT"))); //$NON-NLS-1$
@@ -266,9 +272,11 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			pane.add(iAmt);
 			int ret = JOptionPane.showConfirmDialog(this,pane,ttl,JOptionPane.OK_CANCEL_OPTION);
 			if (ret == JOptionPane.CANCEL_OPTION) return;
-			int p = iAmt.getIntValue();
-			res.shiftMoments(iStart.getIntValue(),iEnd.getIntValue(),p);
+			int p = res.shiftMoments(iStart.getIntValue(),iEnd.getIntValue(),iAmt.getIntValue());
 			moments.setListData(res.moments.toArray());
+			//this is actually the *old* position of first shifted moment, the same as GM does it.
+			//if we wanted to, we could find the new position, but it's a lot of work for nothing
+			moments.setSelectedIndex(p);
 			return;
 			}
 		if (but == merge)
@@ -277,7 +285,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			Moment m = (Moment) moments.getSelectedValue();
 			int sn = (m == null) ? 0 : m.stepNo;
 			String ttl = Messages.getString("TimelineFrame.MOM_MERGE"); //$NON-NLS-1$
-			JPanel pane = new JPanel();
+			JPanel pane = new JPanel(new GridLayout(0,2));
 			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_START"))); //$NON-NLS-1$
 			IntegerField iStart = new IntegerField(0,Integer.MAX_VALUE,sn);
 			iStart.setPreferredSize(new Dimension(80,20));
@@ -288,10 +296,10 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			pane.add(iEnd);
 			int ret = JOptionPane.showConfirmDialog(this,pane,ttl,JOptionPane.OK_CANCEL_OPTION);
 			if (ret == JOptionPane.CANCEL_OPTION) return;
+			actions.save(); //prevents "fresh" actions from being overwritten
 			int p = res.mergeMoments(iStart.getIntValue(),iEnd.getIntValue());
 			moments.setListData(res.moments.toArray());
 			moments.setSelectedIndex(p);
-			//FIXME: Merging: When the selection is updated, the actions get removed for some reason
 			return;
 			}
 		super.actionPerformed(e);

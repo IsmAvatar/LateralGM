@@ -8,7 +8,7 @@
 
 package org.lateralgm.resources.sub;
 
-public class Moment extends ActionContainer
+public class Moment extends ActionContainer implements Comparable<Object>
 	{
 	public int stepNo = 0;
 
@@ -29,6 +29,13 @@ public class Moment extends ActionContainer
 						act.arguments[k].res);
 			}
 		return mom2;
+		}
+
+	public int compareTo(Object o)
+		{
+		if (o instanceof Moment) return stepNo - ((Moment) o).stepNo;
+		if (o instanceof Integer) return stepNo - (Integer) o;
+		throw new ClassCastException();
 		}
 
 	public String toString()
