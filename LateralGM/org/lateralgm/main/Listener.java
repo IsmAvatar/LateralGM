@@ -35,10 +35,10 @@ import javax.swing.tree.TreePath;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.Gm6File;
-import org.lateralgm.file.Gm6FileReader;
-import org.lateralgm.file.Gm6FileWriter;
-import org.lateralgm.file.Gm6FormatException;
+import org.lateralgm.file.GmFile;
+import org.lateralgm.file.GmFileReader;
+import org.lateralgm.file.GmFileWriter;
+import org.lateralgm.file.GmFormatException;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
@@ -110,7 +110,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			PrefsStore.addRecentFile(filename);
 			LGM.frame.setTitle(String.format(Messages.getString("LGM.TITLE"),file.getName()));
 			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-			LGM.currentFile = Gm6FileReader.readGm6File(filename,newroot);
+			LGM.currentFile = GmFileReader.readGmFile(filename,newroot);
 			LGM f = new LGM();
 			f.createToolBar();
 			f.createTree(newroot,false);
@@ -120,7 +120,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			LGM.frame.setContentPane(f);
 			f.updateUI();
 			}
-		catch (Gm6FormatException ex)
+		catch (GmFormatException ex)
 			{
 			JOptionPane.showMessageDialog(LGM.frame,String.format(
 					Messages.getString("Listener.ERROR_MESSAGE"), //$NON-NLS-1$
@@ -145,7 +145,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 				Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ $NON-NLS-2$)
 		f.setOpaque(true);
 		LGM.frame.setContentPane(f);
-		LGM.currentFile = new Gm6File();
+		LGM.currentFile = new GmFile();
 		LGM.gameSet.dispose();
 		LGM.gameSet = new GameSettingFrame();
 		LGM.mdi.add(LGM.gameSet);
@@ -182,7 +182,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 					if (node.frame != null) node.frame.updateResource(); // update open frames
 					}
 				LGM.gameSet.commitChanges();
-				Gm6FileWriter.writeGm6File(LGM.currentFile,filename,LGM.root);
+				GmFileWriter.writeGmFile(LGM.currentFile,filename,LGM.root);
 				return;
 				}
 			if (result == 2) return;

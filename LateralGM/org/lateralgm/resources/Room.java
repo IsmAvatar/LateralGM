@@ -11,7 +11,7 @@ package org.lateralgm.resources;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import org.lateralgm.file.Gm6File;
+import org.lateralgm.file.GmFile;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
@@ -58,7 +58,7 @@ public class Room extends Resource<Room>
 	public boolean enableViews = false;
 	public ArrayList<Instance> instances = new ArrayList<Instance>();
 	public ArrayList<Tile> tiles = new ArrayList<Tile>();
-	private Gm6File parent;
+	private GmFile parent;
 
 	public Room()
 		{
@@ -71,7 +71,7 @@ public class Room extends Resource<Room>
 			}
 		}
 
-	public Room(Gm6File parent) // Rooms are special - they need to know what file they belong to
+	public Room(GmFile parent) // Rooms are special - they need to know what file they belong to
 		{
 		this();
 		this.parent = parent;

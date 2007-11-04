@@ -24,14 +24,14 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 	private static final long serialVersionUID = 1L;
 
 	private Class<R> type; // used as a workaround for add()
-	private Gm6File parent; // used for rooms
+	private GmFile parent; // used for rooms
 
 	private final ResourceChangeListener rcl = new ResourceChangeListener();
 
 	EventListenerList listenerList = new EventListenerList();
 	ChangeEvent changeEvent = null;
 
-	ResourceList(Class<R> type, Gm6File parent)
+	ResourceList(Class<R> type, GmFile parent)
 		{
 		this.type = type;
 		}
@@ -53,7 +53,7 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 		try
 			{
 			if (type == Room.class)
-				res = type.getConstructor(Gm6File.class).newInstance(parent);
+				res = type.getConstructor(GmFile.class).newInstance(parent);
 			else
 				res = type.newInstance();
 			}

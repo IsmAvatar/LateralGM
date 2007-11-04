@@ -19,12 +19,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
 
-import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.resources.Ref;
 
 public class GmStreamEncoder
@@ -151,29 +149,11 @@ public class GmStreamEncoder
 			write4(noneval);
 		}
 
-	public void writeIdStr(Ref<?> id, Gm6File src) throws IOException
+	public void writeIdStr(Ref<?> id, GmFile src) throws IOException
 		{
 		if (deRef(id) != null)
 			writeStr(Integer.toString(id.getRes().getId()));
 		else
 			writeStr("-1");
-		}
-
-	public void writeTree(ResNode root) throws IOException
-		{
-		Enumeration<?> e = root.preorderEnumeration();
-		e.nextElement();
-		while (e.hasMoreElements())
-			{
-			ResNode node = (ResNode) e.nextElement();
-			write4(node.status);
-			write4(node.kind);
-			if (node.res != null)
-				write4(node.res.getId());
-			else
-				write4(0);
-			writeStr((String) node.getUserObject());
-			write4(node.getChildCount());
-			}
 		}
 	}

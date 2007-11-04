@@ -18,9 +18,9 @@ public class RefList<R extends Resource<R>>
 	{
 	private ArrayList<Ref<R>> ids = new ArrayList<Ref<R>>();
 	private Class<R> clazz;
-	private Gm6File parent;
+	private GmFile parent;
 
-	public RefList(Class<R> clazz, Gm6File parent)
+	public RefList(Class<R> clazz, GmFile parent)
 		{
 		this.clazz = clazz;
 		this.parent = parent;
@@ -35,7 +35,7 @@ public class RefList<R extends Resource<R>>
 		try
 			{
 			if (clazz == Room.class)
-				newid = new Ref<R>(clazz.getConstructor(Gm6File.class).newInstance(parent));
+				newid = new Ref<R>(clazz.getConstructor(GmFile.class).newInstance(parent));
 			else
 				newid = new Ref<R>(clazz.newInstance());
 			}

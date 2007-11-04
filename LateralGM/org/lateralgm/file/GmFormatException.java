@@ -8,11 +8,11 @@
 
 package org.lateralgm.file;
 
-public class Gm6FormatException extends Exception
+public class GmFormatException extends Exception
 	{
 	private static final long serialVersionUID = 1L;
 
-	public Gm6FormatException(String message)
+	public GmFormatException(String message)
 		{
 		super(message);
 		}

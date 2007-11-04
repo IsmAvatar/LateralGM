@@ -52,22 +52,22 @@ import org.lateralgm.resources.sub.Point;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
-public final class Gm6FileReader
+public final class GmFileReader
 	{
-	private Gm6FileReader()
+	private GmFileReader()
 		{
 		}
 
 	//Workaround for Parameter limit
 	private static class Gm6FileContext
 		{
-		Gm6File f;
+		GmFile f;
 		GmStreamDecoder in;
 		RefList<Timeline> timeids;
 		RefList<GmObject> objids;
 		RefList<Room> rmids;
 
-		Gm6FileContext(Gm6File f, GmStreamDecoder in, RefList<Timeline> timeids,
+		Gm6FileContext(GmFile f, GmStreamDecoder in, RefList<Timeline> timeids,
 				RefList<GmObject> objids, RefList<Room> rmids)
 			{
 			this.f = f;
@@ -78,22 +78,22 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static Gm6FormatException versionError(String error, String res, int ver)
+	private static GmFormatException versionError(String error, String res, int ver)
 		{
 		return versionError(error,res,0,ver);
 		}
 
-	private static Gm6FormatException versionError(String error, String res, int i, int ver)
+	private static GmFormatException versionError(String error, String res, int i, int ver)
 		{
-		return new Gm6FormatException(String.format(
-				Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
-				String.format(Messages.getString("Gm6FileReader." + error), //$NON-NLS-1$
+		return new GmFormatException(String.format(
+				Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+				String.format(Messages.getString("GmFileReader." + error), //$NON-NLS-1$
 						Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$
 		}
 
-	public static Gm6File readGm6File(String fileName, ResNode root) throws Gm6FormatException
+	public static GmFile readGmFile(String fileName, ResNode root) throws GmFormatException
 		{
-		Gm6File f = new Gm6File();
+		GmFile f = new GmFile();
 		GmStreamDecoder in = null;
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class,f); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class,f); // object ids
@@ -105,13 +105,13 @@ public final class Gm6FileReader
 			Gm6FileContext c = new Gm6FileContext(f,in,timeids,objids,rmids);
 			int identifier = in.read4();
 			if (identifier != 1234321)
-				throw new Gm6FormatException(String.format(
-						Messages.getString("Gm6FileReader.ERROR_INVALID"),fileName,identifier)); //$NON-NLS-1$
+				throw new GmFormatException(String.format(
+						Messages.getString("GmFileReader.ERROR_INVALID"),fileName,identifier)); //$NON-NLS-1$
 			int ver = in.read4();
 			if (ver != 530 && ver != 600 && ver != 701)
 				{
-				String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
-				throw new Gm6FormatException(String.format(msg,"",ver)); //$NON-NLS-1$
+				String msg = Messages.getString("GmFileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
+				throw new GmFormatException(String.format(msg,"",ver)); //$NON-NLS-1$
 				}
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
@@ -146,9 +146,9 @@ public final class Gm6FileReader
 					{
 					ver = in.read4();
 					if (ver != 620)
-						throw new Gm6FormatException(String.format(
-								Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
-								Messages.getString("Gm6FileReader.INGM7INCLUDES"),ver)); //$NON-NLS-1$
+						throw new GmFormatException(String.format(
+								Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+								Messages.getString("GmFileReader.INGM7INCLUDES"),ver)); //$NON-NLS-1$
 					Include inc = new Include();
 					in.skip(in.read4()); //Filename
 					inc.filePath = in.readStr();
@@ -173,27 +173,27 @@ public final class Gm6FileReader
 				}
 			ver = in.read4();
 			if (ver != 500)
-				throw new Gm6FormatException(String.format(
-						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
-						Messages.getString("Gm6FileReader.AFTERINFO"),ver)); //$NON-NLS-1$
+				throw new GmFormatException(String.format(
+						Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+						Messages.getString("GmFileReader.AFTERINFO"),ver)); //$NON-NLS-1$
 			int no = in.read4(); //Library Creation Code
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 			ver = in.read4();
 			if (ver != 500 && ver != 540 && ver != 700)
-				throw new Gm6FormatException(String.format(
-						Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
-						Messages.getString("Gm6FileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
+				throw new GmFormatException(String.format(
+						Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+						Messages.getString("GmFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4); //Room Execution Order
 			readTree(c,root,ver);
-			System.out.printf(Messages.getString("Gm6FileReader.LOADTIME"), //$NON-NLS-1$
+			System.out.printf(Messages.getString("GmFileReader.LOADTIME"), //$NON-NLS-1$
 					System.currentTimeMillis() - startTime);
 			System.out.println();
 			}
 		catch (Exception ex)
 			{
 			ex.printStackTrace();
-			// throw new Gm6FormatException(ex.getMessage());
+			// throw new GmFormatException(ex.getMessage());
 			}
 		finally
 			{
@@ -207,17 +207,17 @@ public final class Gm6FileReader
 				}
 			catch (IOException ex)
 				{
-				String key = Messages.getString("Gm6FileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
-				throw new Gm6FormatException(key);
+				String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				throw new GmFormatException(key);
 				}
 			}
 		return f;
 		}
 
-	private static void readSettings(Gm6FileContext c) throws IOException,Gm6FormatException,
+	private static void readSettings(Gm6FileContext c) throws IOException,GmFormatException,
 			DataFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 		GameSettings g = f.gameSettings;
 
@@ -226,8 +226,8 @@ public final class Gm6FileReader
 		int ver = in.read4();
 		if (ver != 530 && ver != 542 && ver != 600 && ver != 702)
 			{
-			String msg = Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
-			throw new Gm6FormatException(String.format(msg,"",ver)); //$NON-NLS-1$
+			String msg = Messages.getString("GmFileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
+			throw new GmFormatException(String.format(msg,"",ver)); //$NON-NLS-1$
 			}
 		g.startFullscreen = in.readBool();
 		if (ver > 542) g.interpolate = in.readBool();
@@ -344,10 +344,10 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readSounds(Gm6FileContext c) throws IOException,Gm6FormatException,
+	private static void readSounds(Gm6FileContext c) throws IOException,GmFormatException,
 			DataFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
@@ -389,10 +389,10 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readSprites(Gm6FileContext c) throws IOException,Gm6FormatException,
+	private static void readSprites(Gm6FileContext c) throws IOException,GmFormatException,
 			DataFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
@@ -440,10 +440,10 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readBackgrounds(Gm6FileContext c) throws IOException,Gm6FormatException,
+	private static void readBackgrounds(Gm6FileContext c) throws IOException,GmFormatException,
 			DataFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
@@ -490,9 +490,9 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readPaths(Gm6FileContext c) throws IOException,Gm6FormatException
+	private static void readPaths(Gm6FileContext c) throws IOException,GmFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
@@ -527,9 +527,9 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readScripts(Gm6FileContext c) throws IOException,Gm6FormatException
+	private static void readScripts(Gm6FileContext c) throws IOException,GmFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
@@ -551,9 +551,9 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readFonts(Gm6FileContext c) throws IOException,Gm6FormatException
+	private static void readFonts(Gm6FileContext c) throws IOException,GmFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 		GameSettings g = f.gameSettings;
 
@@ -568,9 +568,9 @@ public final class Gm6FileReader
 				if (!in.readBool()) continue;
 				in.skip(in.read4());
 				if (in.read4() != 440)
-					throw new Gm6FormatException(String.format(
-							Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
-							Messages.getString("Gm6FileReader.INDATAFILES"),ver)); //$NON-NLS-1$
+					throw new GmFormatException(String.format(
+							Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+							Messages.getString("GmFileReader.INDATAFILES"),ver)); //$NON-NLS-1$
 				Include inc = new Include();
 				g.includes.add(inc);
 				inc.filePath = in.readStr();
@@ -601,9 +601,9 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readTimelines(Gm6FileContext c) throws IOException,Gm6FormatException
+	private static void readTimelines(Gm6FileContext c) throws IOException,GmFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
@@ -633,9 +633,9 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readGmObjects(Gm6FileContext c) throws IOException,Gm6FormatException
+	private static void readGmObjects(Gm6FileContext c) throws IOException,GmFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
@@ -690,9 +690,9 @@ public final class Gm6FileReader
 			}
 		}
 
-	private static void readRooms(Gm6FileContext c) throws IOException,Gm6FormatException
+	private static void readRooms(Gm6FileContext c) throws IOException,GmFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
@@ -810,7 +810,7 @@ public final class Gm6FileReader
 		}
 
 	private static void readGameInformation(Gm6FileContext c, int ver) throws IOException,
-			Gm6FormatException
+			GmFormatException
 		{
 		GmStreamDecoder in = c.in;
 		GameInformation gameInfo = c.f.gameInfo;
@@ -834,7 +834,7 @@ public final class Gm6FileReader
 
 	private static void readTree(Gm6FileContext c, ResNode root, int ver) throws IOException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		Stack<ResNode> path = new Stack<ResNode>();
@@ -876,21 +876,21 @@ public final class Gm6FileReader
 		}
 
 	private static void readActions(Gm6FileContext c, ActionContainer container, String key,
-			int format1, int format2) throws IOException,Gm6FormatException
+			int format1, int format2) throws IOException,GmFormatException
 		{
-		Gm6File f = c.f;
+		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		Resource<?> tag = new Script();
 		int ver = in.read4();
 		if (ver != 400)
 			{
-			throw new Gm6FormatException(String.format(
-					Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
-					Messages.getString("Gm6FileReader." + key),format1,format2,ver)); //$NON-NLS-1$
-			//		String msg = Messages.getString("Gm6FileReader." + key)
-			//		+ Messages.getString("Gm6FileReader.ERROR_UNSUPPORTED");
-			//			throw new Gm6FormatException(String.format(msg,format1,format2,ver));
+			throw new GmFormatException(String.format(
+					Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+					Messages.getString("GmFileReader." + key),format1,format2,ver)); //$NON-NLS-1$
+			//		String msg = Messages.getString("GmFileReader." + key)
+			//		+ Messages.getString("GmFileReader.ERROR_UNSUPPORTED");
+			//			throw new GmFormatException(String.format(msg,format1,format2,ver));
 			}
 		int noacts = in.read4();
 		for (int k = 0; k < noacts; k++)

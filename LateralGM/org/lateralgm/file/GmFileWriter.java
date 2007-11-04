@@ -13,6 +13,7 @@ package org.lateralgm.file;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Enumeration;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.Util;
@@ -40,13 +41,13 @@ import org.lateralgm.resources.sub.Point;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
-public final class Gm6FileWriter
+public final class GmFileWriter
 	{
-	private Gm6FileWriter()
+	private GmFileWriter()
 		{
 		}
 
-	public static void writeGm6File(Gm6File f, String fileName, ResNode root)
+	public static void writeGmFile(GmFile f, String fileName, ResNode root)
 		{
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = null;
@@ -91,7 +92,7 @@ public final class Gm6FileWriter
 			out.write4(540);
 			out.write4(0); // room indexes in tree order
 
-			out.writeTree(root);
+			writeTree(out,root);
 			out.close();
 			}
 		catch (FileNotFoundException ex)
@@ -104,7 +105,7 @@ public final class Gm6FileWriter
 			}
 		}
 
-	public static void writeSettings(Gm6File f, GmStreamEncoder out, long savetime)
+	public static void writeSettings(GmFile f, GmStreamEncoder out, long savetime)
 			throws IOException
 		{
 		GameSettings g = f.gameSettings;
@@ -178,7 +179,7 @@ public final class Gm6FileWriter
 			{
 			out.write4(100);
 			}
-		g.lastChanged = Gm6File.longTimeToGmTime(savetime);
+		g.lastChanged = GmFile.longTimeToGmTime(savetime);
 		out.writeD(g.lastChanged);
 
 		out.writeStr(g.information);
@@ -196,7 +197,7 @@ public final class Gm6FileWriter
 		out.writeBool(g.removeAtGameEnd);
 		}
 
-	public static void writeSounds(Gm6File f, GmStreamEncoder out) throws IOException
+	public static void writeSounds(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		out.write4(400);
 		out.write4(f.sounds.lastId + 1);
@@ -226,7 +227,7 @@ public final class Gm6FileWriter
 			}
 		}
 
-	public static void writeSprites(Gm6File f, GmStreamEncoder out) throws IOException
+	public static void writeSprites(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		out.write4(400);
 		out.write4(f.sprites.lastId + 1);
@@ -262,7 +263,7 @@ public final class Gm6FileWriter
 			}
 		}
 
-	public static void writeBackgrounds(Gm6File f, GmStreamEncoder out) throws IOException
+	public static void writeBackgrounds(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		out.write4(400);
 		out.write4(f.backgrounds.lastId + 1);
@@ -298,7 +299,7 @@ public final class Gm6FileWriter
 			}
 		}
 
-	public static void writePaths(Gm6File f, GmStreamEncoder out) throws IOException
+	public static void writePaths(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		out.write4(420);
 		out.write4(f.paths.lastId + 1);
@@ -327,7 +328,7 @@ public final class Gm6FileWriter
 			}
 		}
 
-	public static void writeScripts(Gm6File f, GmStreamEncoder out) throws IOException
+	public static void writeScripts(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		out.write4(400);
 		out.write4(f.scripts.lastId + 1);
@@ -344,7 +345,7 @@ public final class Gm6FileWriter
 			}
 		}
 
-	public static void writeFonts(Gm6File f, GmStreamEncoder out) throws IOException
+	public static void writeFonts(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		out.write4(540);
 		out.write4(f.fonts.lastId + 1);
@@ -366,7 +367,7 @@ public final class Gm6FileWriter
 			}
 		}
 
-	public static void writeTimelines(Gm6File f, GmStreamEncoder out) throws IOException
+	public static void writeTimelines(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		out.write4(500);
 		out.write4(f.timelines.lastId + 1);
@@ -388,7 +389,7 @@ public final class Gm6FileWriter
 			}
 		}
 
-	public static void writeGmObjects(Gm6File f, GmStreamEncoder out) throws IOException
+	public static void writeGmObjects(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		out.write4(400);
 		out.write4(f.gmObjects.lastId + 1);
@@ -424,7 +425,7 @@ public final class Gm6FileWriter
 			}
 		}
 
-	public static void writeRooms(Gm6File f, GmStreamEncoder out) throws IOException
+	public static void writeRooms(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		out.write4(420);
 		out.write4(f.rooms.lastId + 1);
@@ -524,7 +525,25 @@ public final class Gm6FileWriter
 			}
 		}
 
-	public static void writeActions(Gm6File f, GmStreamEncoder out, ActionContainer container)
+	public static void writeTree(GmStreamEncoder out, ResNode root) throws IOException
+		{
+		Enumeration<?> e = root.preorderEnumeration();
+		e.nextElement();
+		while (e.hasMoreElements())
+			{
+			ResNode node = (ResNode) e.nextElement();
+			out.write4(node.status);
+			out.write4(node.kind);
+			if (node.res != null)
+				out.write4(node.res.getId());
+			else
+				out.write4(0);
+			out.writeStr((String) node.getUserObject());
+			out.write4(node.getChildCount());
+			}
+		}
+
+	public static void writeActions(GmFile f, GmStreamEncoder out, ActionContainer container)
 			throws IOException
 		{
 		out.write4(400);

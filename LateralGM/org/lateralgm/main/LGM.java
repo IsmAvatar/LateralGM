@@ -54,7 +54,7 @@ import org.lateralgm.components.impl.FramePrefsHandler;
 import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
-import org.lateralgm.file.Gm6File;
+import org.lateralgm.file.GmFile;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibManager;
@@ -81,7 +81,7 @@ public class LGM extends JPanel
 	public static JToolBar tool;
 	public static JTree tree;
 	public static ResNode root;
-	public static Gm6File currentFile = new Gm6File();
+	public static GmFile currentFile = new GmFile();
 	public static MDIPane mdi;
 	public static GameInformationFrame gameInfo;
 	public static GameSettingFrame gameSet;

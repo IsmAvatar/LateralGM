@@ -57,7 +57,7 @@ import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 
-public class Gm6File
+public class GmFile
 	{
 	private Map<Byte,ResourceList<?>> resMap = new HashMap<Byte,ResourceList<?>>();
 	public ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class,this);
@@ -75,7 +75,7 @@ public class Gm6File
 	private EventListenerList listenerList = new EventListenerList();
 	private ChangeEvent changeEvent = null;
 
-	public Gm6File()
+	public GmFile()
 		{
 		resMap.put(Resource.SPRITE,sprites);
 		resMap.put(Resource.SOUND,sounds);
@@ -118,7 +118,7 @@ public class Gm6File
 		catch (Exception ex)
 			{
 			gameSettings.gameIconData = new byte[0];
-			System.err.println(Messages.getString("Gm6File.NOICON")); //$NON-NLS-1$
+			System.err.println(Messages.getString("GmFile.NOICON")); //$NON-NLS-1$
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
 			}

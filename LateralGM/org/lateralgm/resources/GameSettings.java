@@ -11,7 +11,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import org.lateralgm.file.Gm6File;
+import org.lateralgm.file.GmFile;
 import org.lateralgm.resources.sub.Constant;
 
 public class GameSettings
@@ -43,7 +43,7 @@ public class GameSettings
 	public static final byte INCLUDE_TEMP = 1;
 
 	//Properties
-	public int gameId; // randomized in Gm6File constructor
+	public int gameId; // randomized in GmFile constructor
 	public boolean startFullscreen = false;
 	public boolean interpolate = false;
 	public boolean dontDrawBorder = false;
@@ -78,7 +78,7 @@ public class GameSettings
 	public boolean treatUninitializedAs0 = false;
 	public String author = ""; //$NON-NLS-1$
 	public String version = "100";
-	public double lastChanged = Gm6File.longTimeToGmTime(System.currentTimeMillis());
+	public double lastChanged = GmFile.longTimeToGmTime(System.currentTimeMillis());
 	public String information = ""; //$NON-NLS-1$
 	public int includeFolder = GameSettings.INCLUDE_MAIN;
 	public boolean overwriteExisting = false;
