@@ -171,7 +171,7 @@ public class LGM extends JPanel
 		GmTreeEditor editor = new GmTreeEditor(tree,renderer);
 		editor.addCellEditorListener(listener);
 		tree.setEditable(true);
-		tree.addMouseListener(listener);
+		tree.addMouseListener(listener.mListener);
 		if (javaVersion >= 10600)
 			{
 			tree.setTransferHandler(listener);
@@ -228,7 +228,6 @@ public class LGM extends JPanel
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
 		add(split);
-		// .setDefaultCloseOperation(GameInformationFrame.HIDE_ON_CLOSE);
 		mdi.setBackground(Color.BLACK);
 		mdi.add(gameSet);
 		mdi.add(gameInfo);
@@ -237,7 +236,6 @@ public class LGM extends JPanel
 		tool.add(toggle);
 		eventSelect = new EventFrame(toggle);
 		mdi.add(eventSelect);
-		// gameInfo.setVisible(true);
 		}
 
 	static

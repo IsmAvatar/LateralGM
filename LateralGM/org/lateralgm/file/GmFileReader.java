@@ -16,8 +16,6 @@ import java.io.IOException;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
-import javax.imageio.ImageIO;
-
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.Util;
@@ -365,14 +363,16 @@ public final class GmFileReader
 			snd.setName(in.readStr());
 			ver = in.read4();
 			if (ver != 440 && ver != 600) throw versionError("IN","SOUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			int kind53 = -1;
 			if (ver == 440)
-				in.skip(4); //kind (wav, mp3, etc)
+				kind53 = in.read4(); //kind (wav, mp3, etc)
 			else
 				snd.kind = (byte) in.read4(); //normal, background, etc
 			snd.fileType = in.readStr();
 			if (ver == 440)
 				{
-				snd.data = in.decompress(in.read4());
+				//-1 = no sound
+				if (kind53 != -1) snd.data = in.decompress(in.read4());
 				in.skip(8);
 				snd.preload = !in.readBool();
 				}
@@ -435,7 +435,7 @@ public final class GmFileReader
 			for (int j = 0; j < nosub; j++)
 				{
 				if (in.read4() == -1) continue;
-				spr.addSubImage(ImageIO.read(new ByteArrayInputStream(in.decompress(in.read4()))));
+				spr.addSubImage(in.readImage(spr.width,spr.height));
 				}
 			}
 		}
@@ -484,8 +484,7 @@ public final class GmFileReader
 			if (in.readBool())
 				{
 				if (in.read4() == -1) continue;
-				ByteArrayInputStream is = new ByteArrayInputStream(in.decompress(in.read4()));
-				back.backgroundImage = ImageIO.read(is);
+				back.backgroundImage = in.readImage(back.width,back.height);
 				}
 			}
 		}
@@ -673,7 +672,8 @@ public final class GmFileReader
 					int first = in.read4();
 					if (first != -1)
 						{
-						Event ev = obj.mainEvents[j].addEvent();
+						Event ev = new Event();
+						obj.mainEvents[j].events.add(0,ev);
 						if (j == MainEvent.EV_COLLISION)
 							{
 							ev.other = c.objids.get(first);
@@ -856,7 +856,7 @@ public final class GmFileReader
 					&& type != Resource.GAMESETTINGS && type != Resource.EXTENSIONS
 					&& (ver != 500 || type != Resource.FONT))
 				{
-				node.res = f.getList(node.kind).getUnsafe(ind);
+				node.setRes(f.getList(node.kind).getUnsafe(ind));
 				// GM actually ignores the name given in the tree data
 				node.setUserObject(f.getList(node.kind).getUnsafe(ind).getName());
 				}

@@ -12,8 +12,6 @@ import static org.lateralgm.resources.Ref.deRef;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.resources.sub.Action;
-import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
@@ -74,21 +72,7 @@ public class GmObject extends Resource<GmObject>
 			MainEvent mev2 = obj.mainEvents[i];
 			for (Event ev : mev.events)
 				{
-				Event ev2 = mev2.addEvent();
-				ev2.mainId = ev.mainId;
-				ev2.id = ev.id;
-				ev2.other = ev.other;
-				for (Action act : ev.actions)
-					{
-					Action act2 = ev2.addAction(act.libAction);
-					act2.relative = act.relative;
-					act2.not = act.not;
-					act2.appliesTo = act.appliesTo;
-					act2.arguments = new Argument[act.arguments.length];
-					for (int l = 0; l < act.arguments.length; l++)
-						act2.arguments[l] = new Argument(act.arguments[l].kind,act.arguments[l].val,
-								act.arguments[l].res);
-					}
+				mev2.events.add(ev.copy());
 				}
 			}
 		if (update)

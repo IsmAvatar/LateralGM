@@ -182,7 +182,7 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 				else if (ret == JOptionPane.NO_OPTION)
 					{
 					revertResource();
-					node.res = resOriginal;
+					node.setRes(resOriginal);
 					node.setUserObject(resOriginal.getName());
 					node.updateIcon();
 					dispose();

@@ -10,6 +10,8 @@
 
 package org.lateralgm.subframes;
 
+import static org.lateralgm.resources.Ref.deRef;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -47,6 +49,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -74,9 +77,11 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.VTextIcon;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Listener;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.library.LibAction;
@@ -94,11 +99,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon INFO_ICON = LGM.getIconForKey("GmObjectFrame.INFO"); //$NON-NLS-1$
 
+	//TODO: update this when sprite changes, not just when ResourceMenu selection changes
 	public JLabel preview;
 	public ResourceMenu<Sprite> sprite;
 	public JComboBox sp2;
-	public JButton newsprite;
-	public JButton edit;
+	public JButton newSprite;
+	public JButton editSprite;
 	public JCheckBox visible;
 	public JCheckBox solid;
 	public IntegerField depth;
@@ -108,6 +114,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public JButton information;
 
 	public EventTree events;
+	public JButton deleteEvent;
 	public EventGroupNode rootEvent;
 	public ActionList actions;
 	public GMLTextArea code;
@@ -139,17 +146,18 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		preview.setPreferredSize(new Dimension(16,16));
 		origin.add(preview);
 
-		sprite = new ResourceMenu<Sprite>(Resource.SPRITE,"<no sprite>",144);
+		sprite = new ResourceMenu<Sprite>(Resource.SPRITE,Messages.getString("GmObjectFrame.NO_SPRITE"),144); //$NON-NLS-1$
 		sprite.setRefSelected(res.sprite);
+		sprite.addActionListener(this);
 		origin.add(sprite);
-		newsprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
-		newsprite.setPreferredSize(new Dimension(80,20));
-		newsprite.addActionListener(this);
-		origin.add(newsprite);
-		edit = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1$
-		edit.setPreferredSize(new Dimension(80,20));
-		edit.addActionListener(this);
-		origin.add(edit);
+		newSprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
+		newSprite.setPreferredSize(new Dimension(80,20));
+		newSprite.addActionListener(this);
+		origin.add(newSprite);
+		editSprite = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1$
+		editSprite.setPreferredSize(new Dimension(80,20));
+		editSprite.addActionListener(this);
+		origin.add(editSprite);
 		side1.add(origin);
 
 		visible = new JCheckBox(Messages.getString("GmObjectFrame.VISIBLE"),res.visible); //$NON-NLS-1$
@@ -176,14 +184,15 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		lab = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		parent = new ResourceMenu<GmObject>(Resource.GMOBJECT,"<no parent>",110);
+		parent = new ResourceMenu<GmObject>(Resource.GMOBJECT,Messages.getString("GmObjectFrame.NO_PARENT"),110); //$NON-NLS-1$
 		parent.setRefSelected(res.parent);
+		parent.addActionListener(this);
 		side1.add(parent);
 
 		lab = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		mask = new ResourceMenu<Sprite>(Resource.SPRITE,"<same as sprite>",110);
+		mask = new ResourceMenu<Sprite>(Resource.SPRITE,Messages.getString("GmObjectFrame.SAME_AS_SPRITE"),110); //$NON-NLS-1$
 		if (res.mask != null) mask.setSelected(res.mask.getRes());
 		side1.add(mask);
 
@@ -208,13 +217,16 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		JScrollPane scroll = new JScrollPane(events);
 		scroll.setPreferredSize(new Dimension(140,260));
 		side2.add(scroll,"Center"); //$NON-NLS-1$
+		deleteEvent = new JButton(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
+		deleteEvent.addActionListener(this);
+		side2.add(deleteEvent,"South"); //$NON-NLS-1$
 
 		add(side1);
 		add(side2);
 
 		if (false)
 			{
-			code = new GMLTextArea("");
+			code = new GMLTextArea(""); //$NON-NLS-1$
 			JScrollPane codePane = new JScrollPane(code);
 			add(codePane);
 			}
@@ -238,7 +250,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		public EventTree(TreeNode n)
 			{
 			super(n);
-			setToolTipText("");
+			setToolTipText(""); //$NON-NLS-1$
 			}
 
 		public String getToolTipText(MouseEvent e)
@@ -251,10 +263,10 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				{
 				EventInstanceNode node = (EventInstanceNode) c;
 				Event ev = node.getUserObject();
-				return String.format(Messages.getString("MainEvent.EVENT_HINT" + ev.mainId),ev.toString());
+				return String.format(Messages.getString("MainEvent.EVENT_HINT" + ev.mainId),ev.toString()); //$NON-NLS-1$
 				}
 			else
-				return String.format(Messages.getString("MainEvent.EVENTS"),c.toString());
+				return String.format(Messages.getString("MainEvent.EVENTS"),c.toString()); //$NON-NLS-1$
 			}
 		}
 
@@ -292,23 +304,37 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						EventNode.EVENTNODE_FLAVOR);
 				Point p = support.getDropLocation().getDropPoint();
 				TreePath path = events.getPathForLocation(p.x,p.y);
-				if (!LGM.eventSelect.replace.isSelected() || path == null)
+				int func = path == null ? EventFrame.FUNCTION_ADD : LGM.eventSelect.function.getValue();
+
+				switch (func)
 					{
-					if (!t.isValid()) return false;
-					addEvent(new Event(t.mainId,t.eventId,t.other));
-					return true;
-					}
-				else
-					{
-					DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-					if (!(dropNode instanceof EventInstanceNode) || !t.isValid()) return false;
-					EventInstanceNode drop = (EventInstanceNode) dropNode;
-					Event ev = drop.getUserObject();
-					removeEvent(ev);
-					ev.mainId = t.mainId;
-					ev.id = t.eventId;
-					ev.other = t.other;
-					addEvent(ev);
+					case EventFrame.FUNCTION_ADD:
+						if (!t.isValid()) return false;
+						addEvent(new Event(t.mainId,t.eventId,t.other));
+						return true;
+					case EventFrame.FUNCTION_REPLACE:
+						DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+						if (!(dropNode instanceof EventInstanceNode) || !t.isValid()) return false;
+						EventInstanceNode drop = (EventInstanceNode) dropNode;
+						Event ev = drop.getUserObject();
+						removeEvent(ev);
+						ev.mainId = t.mainId;
+						ev.id = t.eventId;
+						ev.other = t.other;
+						addEvent(ev);
+						return true;
+					case EventFrame.FUNCTION_DUPLICATE:
+						dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+						if (!(dropNode instanceof EventInstanceNode) || !t.isValid()) return false;
+						drop = (EventInstanceNode) dropNode;
+						ev = drop.getUserObject();
+						actions.save();
+						Event ev2 = ev.copy();
+						ev2.mainId = t.mainId;
+						ev2.id = t.eventId;
+						ev2.other = t.other;
+						addEvent(ev2);
+						return true;
 					}
 				}
 			catch (Throwable e)
@@ -316,7 +342,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				// This is just to stop the dnd system from silencing exceptions
 				e.printStackTrace();
 				}
-			return true;
+			return false;
 			}
 		}
 
@@ -348,7 +374,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 
 		public EventGroupNode(int mainId)
 			{
-			super(Messages.getString("MainEvent.EVENT" + mainId));
+			super(Messages.getString("MainEvent.EVENT" + mainId)); //$NON-NLS-1$
 			this.mainId = mainId;
 			}
 
@@ -372,6 +398,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				if (((EventInstanceNode) getChildAt(i)).getUserObject().matchesType(e))
 					{
 					remove(i);
+					events.setSelectionRow(0);
+					events.updateUI();
 					return true;
 					}
 				}
@@ -503,10 +531,10 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		}
 
-	public static final DataFlavor ACTION_FLAVOR = new DataFlavor(Action.class,"Action");
-	public static final DataFlavor ACTION_ARRAY_FLAVOR = new DataFlavor(List.class,"Action array");
+	public static final DataFlavor ACTION_FLAVOR = new DataFlavor(Action.class,"Action"); //$NON-NLS-1$
+	public static final DataFlavor ACTION_ARRAY_FLAVOR = new DataFlavor(List.class,"Action array"); //$NON-NLS-1$
 	public static final DataFlavor LIB_ACTION_FLAVOR = new DataFlavor(LibAction.class,
-			"Library action");
+			"Library action"); //$NON-NLS-1$
 
 	public static class LibActionTransferable implements Transferable
 		{
@@ -802,14 +830,14 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				}
 
 			s = ret + s.substring(k);
-			s = s.replaceAll("&","&amp;");
-			s = s.replaceAll("<","&lt;");
-			s = s.replaceAll(">","&gt;");
-			s = s.replaceAll("\n","<br>");
-			s = s.replaceAll("\\\\#","\n");
-			s = s.replaceAll("#","<br>");
-			s = s.replaceAll("\n","&#35;");
-			s = s.replaceAll(" ","&nbsp;");
+			s = s.replaceAll("&","&amp;"); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replaceAll("<","&lt;"); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replaceAll(">","&gt;"); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replaceAll("\n","<br>"); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replaceAll("\\\\#","\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replaceAll("#","<br>"); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replaceAll("\n","&#35;"); //$NON-NLS-1$ //$NON-NLS-2$
+			s = s.replaceAll(" ","&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			return s;
 			}
@@ -847,12 +875,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				}
 			l.setText(parse(la.listText,(Action) cell));
 			if (la.listText.contains("@FB")) //$NON-NLS-1$
-				l.setText("<b>" + l.getText());
+				l.setText("<b>" + l.getText()); //$NON-NLS-1$
 			if (la.listText.contains("@FI")) //$NON-NLS-1$
-				l.setText("<i>" + l.getText());
-			l.setText("<html>" + l.getText());
+				l.setText("<i>" + l.getText()); //$NON-NLS-1$
+			l.setText("<html>" + l.getText()); //$NON-NLS-1$
 			l.setIcon(new ImageIcon(Util.getTransparentIcon(la.actImage)));
-			l.setToolTipText("<html>" + parse(la.hintText,(Action) cell));
+			l.setToolTipText("<html>" + parse(la.hintText,(Action) cell)); //$NON-NLS-1$
 			return l;
 			}
 		}
@@ -929,6 +957,9 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				if (((EventInstanceNode) rootEvent.getChildAt(i)).getUserObject().matchesType(e))
 					{
 					rootEvent.remove(i);
+					if (rootEvent.getChildCount() == 0) actions.setActionContainer(null);
+					events.setSelectionRow(0);
+					events.updateUI();
 					return;
 					}
 				}
@@ -941,6 +972,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						{
 						rootEvent.remove(i);
 						rootEvent.insert((EventInstanceNode) group.getChildAt(0),i);
+						events.setSelectionRow(0);
+						events.updateUI();
 						}
 					return;
 					}
@@ -1257,14 +1290,67 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		res.mask = mask.getSelectedRef();
 		}
 
-	//TODO:
 	public void actionPerformed(ActionEvent e)
 		{
-		if (e.getSource() == newsprite)
+		if (e.getSource() == newSprite)
 			{
+			ResNode n = Listener.getPrimaryParent(Resource.SPRITE);
+			Sprite spr = LGM.currentFile.sprites.add();
+			Listener.putNode(LGM.tree,n,n,Resource.SPRITE,n.getChildCount(),spr);
+			sprite.setSelected(spr);
+			return;
+			}
+		if (e.getSource() == editSprite)
+			{
+			Sprite spr = sprite.getSelected();
+			if (spr == null) return;
+			spr.getRef().getNode().openFrame();
+			return;
+			}
+		if (e.getSource() == sprite)
+			{
+			preview.setIcon(GmTreeGraphics.getSpriteIcon(sprite.getSelectedRef()));
+			return;
+			}
+		if (e.getSource() == parent)
+			{
+			Ref<GmObject> p = parent.getSelectedRef();
+			res.parent = p;
+			if (deRef(p) != null)
+				if (isCyclic(res))
+					{
+					JOptionPane.showMessageDialog(this,
+							Messages.getString("GmObjectFrame.LOOPING_PARENTS"),Messages.getString("GmObjectFrame.ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
+							JOptionPane.ERROR_MESSAGE);
+					parent.setSelected(null);
+					res.parent = null;
+					}
+			return;
+			}
+		if (e.getSource() == deleteEvent)
+			{
+			Object comp = events.getLastSelectedPathComponent();
+			if (!(comp instanceof EventInstanceNode)) return;
+			EventInstanceNode ein = (EventInstanceNode) comp;
+			removeEvent(ein.getUserObject());
 			return;
 			}
 		super.actionPerformed(e);
+		}
+
+	private boolean isCyclic(GmObject inheritor)
+		{
+		ArrayList<GmObject> traversed = new ArrayList<GmObject>();
+		traversed.add(inheritor);
+		while (true)
+			{
+			if (deRef(inheritor.parent) == null) break;
+			GmObject p = deRef(inheritor.parent);
+			if (traversed.contains(p)) return true;
+			inheritor = p;
+			traversed.add(inheritor);
+			}
+		return false;
 		}
 
 	public void valueChanged(TreeSelectionEvent tse)

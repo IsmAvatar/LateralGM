@@ -1116,14 +1116,16 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		g.version = version.getText();
 		}
 
-	private JPanel makeRadioPanel(String paneTitle, int width, int height)
+	//XXX: Consider moving to Util
+	public static JPanel makeRadioPanel(String paneTitle, int width, int height)
 		{
 		JPanel panel = makeTitledPanel(paneTitle,width,height);
 		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
 		return panel;
 		}
-
-	private JPanel makeTitledPanel(String paneTitle, int width, int height)
+	
+	//XXX: Consider moving to Util
+	public static JPanel makeTitledPanel(String paneTitle, int width, int height)
 		{
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder(paneTitle));

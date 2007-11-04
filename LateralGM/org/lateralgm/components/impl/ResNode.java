@@ -64,7 +64,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	 * because the deletion of the Resource corresponds to
 	 * the deletion of this node.
 	 */
-	public Resource<?> res;
+	private Resource<?> res;
 	public ResourceFrame<?> frame = null;
 	private EventListenerList listenerList;
 	private ChangeEvent changeEvent;
@@ -118,7 +118,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		super(name);
 		this.status = status;
 		this.kind = kind;
-		this.res = res;
+		this.setRes(res);
 		}
 
 	public ResNode(String name, byte status, byte kind)
@@ -311,5 +311,17 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 					}
 				}
 		return false;
+		}
+
+	public void setRes(Resource<?> res)
+		{
+		if (this.res != null) this.res.getRef().setNode(null);
+		this.res = res;
+		if (res != null) res.getRef().setNode(this);
+		}
+
+	public Resource<?> getRes()
+		{
+		return res;
 		}
 	}

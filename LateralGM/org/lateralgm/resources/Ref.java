@@ -8,6 +8,8 @@
 
 package org.lateralgm.resources;
 
+import org.lateralgm.components.impl.ResNode;
+
 /**
  * This class represents a reference to a <code>Resource</code>.
  * It is, in effect, a modified and rethought version of
@@ -38,6 +40,7 @@ package org.lateralgm.resources;
 public class Ref<R extends Resource<R>>
 	{
 	private R res;
+	private ResNode node;
 
 	/**
 	 * Constructs a <code>Ref</code>. Should only be called by <code>Resource</code>.
@@ -68,12 +71,23 @@ public class Ref<R extends Resource<R>>
 		if (res != null) res.setRef(this);
 		}
 
+	public ResNode getNode()
+		{
+		return node;
+		}
+
+	public void setNode(ResNode node)
+		{
+		this.node = node;
+		}
+
 	/**
 	 * Frees the subject of the reference. Should not usually need to be called explicitly.
 	 */
 	public void delete()
 		{
 		res = null;
+		node = null;
 		}
 
 	public boolean equals(Object o)

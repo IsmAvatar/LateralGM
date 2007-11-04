@@ -161,12 +161,18 @@ public class GmStreamDecoder
 
 	public byte[] decompress(int length) throws IOException,DataFormatException
 		{
+		//BAOS default buffer size is 32
+		return decompress(length,32);
+		}
+
+	public byte[] decompress(int length, int initialCapacity) throws IOException,DataFormatException
+		{
 		Inflater decompresser = new Inflater();
 		byte[] compressedData = new byte[length];
 		read(compressedData,0,length);
 		decompresser.setInput(compressedData);
 		byte[] result = new byte[1000];
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(initialCapacity);
 		while (!decompresser.finished())
 			{
 			int len = decompresser.inflate(result);
@@ -176,10 +182,16 @@ public class GmStreamDecoder
 		return baos.toByteArray();
 		}
 
-	public BufferedImage readImage() throws IOException,DataFormatException
+	public BufferedImage readImage(int width, int height) throws IOException,DataFormatException
 		{
 		int length = read4();
-		return ImageIO.read(new ByteArrayInputStream(decompress(length)));
+		int estimate = height * width * 4 + 100; //100 for generous header
+		return ImageIO.read(new ByteArrayInputStream(decompress(length,estimate)));
+		}
+
+	public BufferedImage readImage() throws IOException,DataFormatException
+		{
+		return readImage(0,0);
 		}
 
 	public void close() throws IOException

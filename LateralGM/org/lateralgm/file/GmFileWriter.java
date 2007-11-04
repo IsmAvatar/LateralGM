@@ -534,8 +534,8 @@ public final class GmFileWriter
 			ResNode node = (ResNode) e.nextElement();
 			out.write4(node.status);
 			out.write4(node.kind);
-			if (node.res != null)
-				out.write4(node.res.getId());
+			if (node.getRes() != null)
+				out.write4(node.getRes().getId());
 			else
 				out.write4(0);
 			out.writeStr((String) node.getUserObject());

@@ -15,8 +15,8 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.util.Enumeration;
@@ -45,11 +45,11 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 
-public class Listener extends TransferHandler implements ActionListener,MouseListener,
-		CellEditorListener
+public class Listener extends TransferHandler implements ActionListener,CellEditorListener
 	{
 	private static final long serialVersionUID = 1L;
 	private JFileChooser fc = new JFileChooser();
+	public MListener mListener = new MListener();
 
 	public Listener()
 		{
@@ -189,17 +189,17 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			}
 		}
 
-	private void addResource(JTree tree, String com)
+	private static void addResource(JTree tree, String com)
 		{
 		addResource(tree,stringToRes(com),null);
 		}
 
-	private void addResource(JTree tree, byte r)
+	private static void addResource(JTree tree, byte r)
 		{
 		addResource(tree,r,null);
 		}
 
-	private void addResource(JTree tree, byte r, Resource<?> res)
+	private static void addResource(JTree tree, byte r, Resource<?> res)
 		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
@@ -218,17 +218,17 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		putNode(tree,node,parent,r,pos,res);
 		}
 
-	private void insertResource(JTree tree, String com)
+	private static void insertResource(JTree tree, String com)
 		{
 		insertResource(tree,stringToRes(com),null);
 		}
 
-	private void insertResource(JTree tree, byte r)
+	private static void insertResource(JTree tree, byte r)
 		{
 		insertResource(tree,r,null);
 		}
 
-	private void insertResource(JTree tree, byte r, Resource<?> res)
+	private static void insertResource(JTree tree, byte r, Resource<?> res)
 		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
@@ -242,7 +242,8 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		putNode(tree,node,parent,r,pos,res);
 		}
 
-	private void putNode(JTree tree, ResNode node, ResNode parent, byte r, int pos, Resource<?> res)
+	public static void putNode(JTree tree, ResNode node, ResNode parent, byte r, int pos,
+			Resource<?> res)
 		{
 		if (r == -1)
 			{
@@ -272,7 +273,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		g.openFrame();
 		}
 
-	private void deleteResource(JTree tree)
+	private static void deleteResource(JTree tree)
 		{
 		ResNode me = (ResNode) tree.getLastSelectedPathComponent();
 		if (me == null) return;
@@ -288,7 +289,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 			tree.setSelectionPath(new TreePath(next.getPath()));
 			if (me.frame != null) me.frame.dispose();
 			me.removeFromParent();
-			LGM.currentFile.getList(me.kind).remove(me.res);
+			LGM.currentFile.getList(me.kind).remove(me.getRes());
 			tree.updateUI();
 			}
 		}
@@ -523,7 +524,7 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 							if (node.frame != null) node.frame.commitChanges();
 							// dodgy workaround to avoid warnings
 							resource = (Resource<?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(
-									rl,node.res);
+									rl,node.getRes());
 							}
 						catch (Exception e1)
 							{
@@ -562,70 +563,56 @@ public class Listener extends TransferHandler implements ActionListener,MouseLis
 		popup.show(e.getComponent(),e.getX(),e.getY());
 		}
 
-	public void mousePressed(MouseEvent e)
+	private class MListener extends MouseAdapter
 		{
-		int selRow = LGM.tree.getRowForLocation(e.getX(),e.getY());
-		TreePath selPath = LGM.tree.getPathForLocation(e.getX(),e.getY());
-		if (selRow != -1)
+		public void mousePressed(MouseEvent e)
 			{
-			if (e.getModifiers() == InputEvent.BUTTON3_MASK)
+			int selRow = LGM.tree.getRowForLocation(e.getX(),e.getY());
+			TreePath selPath = LGM.tree.getPathForLocation(e.getX(),e.getY());
+			if (selRow != -1)
 				{
-				LGM.tree.setSelectionPath(selPath);
-				showNodeMenu(e);
-				}
-			else
-				{
-				if (e.getClickCount() == 1)
+				if (e.getModifiers() == InputEvent.BUTTON3_MASK)
 					{
-					//Isn't Java supposed to handle this for us? For some reason it doesn't.
-					if (e.isControlDown())
-						{
-						LGM.tree.setSelectionPath(selPath);
-						showNodeMenu(e);
-						}
-					return;
+					LGM.tree.setSelectionPath(selPath);
+					showNodeMenu(e);
 					}
-				else if (e.getClickCount() == 2)
+				else
 					{
-					ResNode node = (ResNode) selPath.getLastPathComponent();
-					if (node.kind == Resource.GAMEINFO)
+					if (e.getClickCount() == 1)
 						{
-						LGM.gameInfo.setVisible(true);
+						//Isn't Java supposed to handle this for us? For some reason it doesn't.
+						if (e.isControlDown())
+							{
+							LGM.tree.setSelectionPath(selPath);
+							showNodeMenu(e);
+							}
 						return;
 						}
-					if (node.kind == Resource.GAMESETTINGS)
+					else if (e.getClickCount() == 2)
 						{
-						LGM.gameSet.setVisible(true);
+						ResNode node = (ResNode) selPath.getLastPathComponent();
+						if (node.kind == Resource.GAMEINFO)
+							{
+							LGM.gameInfo.setVisible(true);
+							return;
+							}
+						if (node.kind == Resource.GAMESETTINGS)
+							{
+							LGM.gameSet.setVisible(true);
+							return;
+							}
+						if (node.kind == Resource.EXTENSIONS)
+							{
+							return;
+							}
+						// kind must be a Resource kind
+						if (node.status != ResNode.STATUS_SECONDARY) return;
+						node.openFrame();
 						return;
 						}
-					if (node.kind == Resource.EXTENSIONS)
-						{
-						return;
-						}
-					// kind must be a Resource kind
-					if (node.status != ResNode.STATUS_SECONDARY) return;
-					node.openFrame();
-					return;
 					}
 				}
 			}
-		}
-
-	// Unused
-	public void mouseReleased(MouseEvent e)
-		{
-		}
-
-	public void mouseClicked(MouseEvent e)
-		{
-		}
-
-	public void mouseEntered(MouseEvent e)
-		{
-		}
-
-	public void mouseExited(MouseEvent e)
-		{
 		}
 
 	public void editingCanceled(ChangeEvent e)

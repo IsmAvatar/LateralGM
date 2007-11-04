@@ -121,7 +121,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 			{
 			setIcon(node.getIcon());
 			setText(node.getUserObject().toString());
-			if (selected == node.res) ResourceMenu.this.setSelected(selected); //update text
+			if (selected == node.getRes()) ResourceMenu.this.setSelected(selected); //update text
 			}
 
 		public boolean isVisible()
@@ -368,7 +368,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	public void setSelected(R res)
 		{
 		selected = res;
-		label.setText((res == null) ? (noResource != null ? noResource.getText() : "") : res.getName()); //$NON-NLS-1$
+		label.setText(res == null ? (noResource != null ? noResource.getText() : "") : res.getName()); //$NON-NLS-1$
 		}
 
 	public void setRefSelected(Ref<R> ref)
@@ -388,7 +388,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		{
 		JMenuItem source = (JMenuItem) e.getSource();
 		if (source instanceof ResourceMenu.ResourceMenuItem)
-			setSelected((R) ((ResourceMenuItem) source).node.res);
+			setSelected((R) ((ResourceMenuItem) source).node.getRes());
 		else
 			setSelected(null);
 		fireActionPerformed();
