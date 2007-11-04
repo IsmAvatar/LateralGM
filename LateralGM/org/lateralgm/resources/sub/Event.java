@@ -222,16 +222,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 		ev.id = id;
 		ev.other = other;
 		for (Action act : actions)
-			{
-			Action act2 = ev.addAction(act.libAction);
-			act2.relative = act.relative;
-			act2.not = act.not;
-			act2.appliesTo = act.appliesTo;
-			act2.arguments = new Argument[act.arguments.length];
-			for (int l = 0; l < act.arguments.length; l++)
-				act2.arguments[l] = new Argument(act.arguments[l].kind,act.arguments[l].val,
-						act.arguments[l].res);
-			}
+			ev.actions.add(act.copy());
 		return ev;
 		}
 
@@ -328,5 +319,4 @@ public class Event extends ActionContainer implements Comparable<Event>
 		keys.add(45); //vk_insert
 		KEYS = Collections.unmodifiableList((keys));
 		}
-
 	}

@@ -55,4 +55,16 @@ public class Action
 			arguments[i] = new Argument(arg.kind,arg.defaultVal,null);
 			}
 		}
+
+	public Action copy()
+		{
+		Action act = new Action(libAction);
+		act.relative = relative;
+		act.not = not;
+		act.appliesTo = appliesTo;
+		act.arguments = new Argument[arguments.length];
+		for (int l = 0; l < arguments.length; l++)
+			act.arguments[l] = new Argument(arguments[l].kind,arguments[l].val,arguments[l].res);
+		return act;
+		}
 	}

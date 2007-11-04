@@ -17,17 +17,7 @@ public class Moment extends ActionContainer implements Comparable<Object>
 		Moment mom2 = new Moment();
 		mom2.stepNo = stepNo;
 		for (Action act : actions)
-			{
-			Action act2 = mom2.addAction();
-			act2.libAction = act.libAction;
-			act2.relative = act.relative;
-			act2.not = act.not;
-			act2.appliesTo = act.appliesTo;
-			act2.arguments = new Argument[act.arguments.length];
-			for (int k = 0; k < act.arguments.length; k++)
-				act2.arguments[k] = new Argument(act.arguments[k].kind,act.arguments[k].val,
-						act.arguments[k].res);
-			}
+			mom2.actions.add(act.copy());
 		return mom2;
 		}
 

@@ -146,7 +146,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		preview.setPreferredSize(new Dimension(16,16));
 		origin.add(preview);
 
-		sprite = new ResourceMenu<Sprite>(Resource.SPRITE,Messages.getString("GmObjectFrame.NO_SPRITE"),144); //$NON-NLS-1$
+		t = Messages.getString("GmObjectFrame.NO_SPRITE"); //$NON-NLS-1$
+		sprite = new ResourceMenu<Sprite>(Resource.SPRITE,t,144);
 		sprite.setRefSelected(res.sprite);
 		sprite.addActionListener(this);
 		origin.add(sprite);
@@ -184,7 +185,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		lab = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		parent = new ResourceMenu<GmObject>(Resource.GMOBJECT,Messages.getString("GmObjectFrame.NO_PARENT"),110); //$NON-NLS-1$
+		t = Messages.getString("GmObjectFrame.NO_PARENT"); //$NON-NLS-1$
+		parent = new ResourceMenu<GmObject>(Resource.GMOBJECT,t,110);
 		parent.setRefSelected(res.parent);
 		parent.addActionListener(this);
 		side1.add(parent);
@@ -192,7 +194,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		lab = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(50,14));
 		side1.add(lab);
-		mask = new ResourceMenu<Sprite>(Resource.SPRITE,Messages.getString("GmObjectFrame.SAME_AS_SPRITE"),110); //$NON-NLS-1$
+		t = Messages.getString("GmObjectFrame.SAME_AS_SPRITE"); //$NON-NLS-1$
+		mask = new ResourceMenu<Sprite>(Resource.SPRITE,t,110);
 		if (res.mask != null) mask.setSelected(res.mask.getRes());
 		side1.add(mask);
 
@@ -250,6 +253,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		public EventTree(TreeNode n)
 			{
 			super(n);
+			//otherwise, getToolTipText won't be called
 			setToolTipText(""); //$NON-NLS-1$
 			}
 
@@ -1316,15 +1320,14 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			{
 			Ref<GmObject> p = parent.getSelectedRef();
 			res.parent = p;
-			if (deRef(p) != null)
-				if (isCyclic(res))
-					{
-					JOptionPane.showMessageDialog(this,
-							Messages.getString("GmObjectFrame.LOOPING_PARENTS"),Messages.getString("GmObjectFrame.ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
-							JOptionPane.ERROR_MESSAGE);
-					parent.setSelected(null);
-					res.parent = null;
-					}
+			if (deRef(p) != null) if (isCyclic(res))
+				{
+				String msg = Messages.getString("GmObjectFrame.LOOPING_PARENTS"); //$NON-NLS-1$
+				String ttl = Messages.getString("GmObjectFrame.ERROR"); //$NON-NLS-1$
+				JOptionPane.showMessageDialog(this,msg,ttl,JOptionPane.ERROR_MESSAGE);
+				parent.setSelected(null);
+				res.parent = null;
+				}
 			return;
 			}
 		if (e.getSource() == deleteEvent)
@@ -1342,9 +1345,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		ArrayList<GmObject> traversed = new ArrayList<GmObject>();
 		traversed.add(inheritor);
-		while (true)
+		while (deRef(inheritor.parent) != null)
 			{
-			if (deRef(inheritor.parent) == null) break;
 			GmObject p = deRef(inheritor.parent);
 			if (traversed.contains(p)) return true;
 			inheritor = p;

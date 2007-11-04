@@ -1123,7 +1123,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
 		return panel;
 		}
-	
+
 	//XXX: Consider moving to Util
 	public static JPanel makeTitledPanel(String paneTitle, int width, int height)
 		{
