@@ -1163,7 +1163,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		JPanel side3 = new JPanel(new BorderLayout());
 		side3.setPreferredSize(new Dimension(50,319));
-		JLabel lab = new JLabel(Messages.getString("TimelineFrame.ACTIONS")); //$NON-NLS-1$
+		JLabel lab = new JLabel(Messages.getString("GmObjectFrame.ACTIONS")); //$NON-NLS-1$
 		side3.add(lab,"North"); //$NON-NLS-1$
 		ActionList list = new ActionList();
 		JScrollPane scroll = new JScrollPane(list);

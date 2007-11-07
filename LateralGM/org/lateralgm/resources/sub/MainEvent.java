@@ -31,7 +31,7 @@ public class MainEvent
 		{
 		for (int m = 0; m < 11; m += 1)
 			{
-			Messages.getString("MainEvent.EVENT_STRING" + m);
+			Messages.getString("MainEvent.EVENT_STRING" + m); //$NON-NLS-1$
 			}
 		}
 

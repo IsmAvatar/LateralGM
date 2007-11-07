@@ -68,15 +68,15 @@ public class LGM extends JPanel
 	public static int javaVersion;
 	static
 		{
-		String jv = System.getProperty("java.version");
-		Scanner s = new Scanner(jv).useDelimiter("[\\._]");
+		String jv = System.getProperty("java.version"); //$NON-NLS-1$
+		Scanner s = new Scanner(jv).useDelimiter("[\\._]"); //$NON-NLS-1$
 		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
 		System.out.format("Java Version: %d (%s)\n",javaVersion,jv);
 		if (javaVersion < 10600)
 			System.out.println("Some program functionality will be limited due to your outdated version");
 		}
 	public static JFrame frame = new JFrame(String.format(
-			Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ $NON-NLS-2$
+			Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$
 	public static Listener listener = new Listener();
 	public static JToolBar tool;
 	public static JTree tree;
@@ -231,7 +231,7 @@ public class LGM extends JPanel
 		mdi.setBackground(Color.BLACK);
 		mdi.add(gameSet);
 		mdi.add(gameInfo);
-		JToggleButton toggle = (JToggleButton) makeButton(new JToggleButton(),"LGM.TOGGLE_EVENT");
+		JToggleButton toggle = (JToggleButton) makeButton(new JToggleButton(),"LGM.TOGGLE_EVENT"); //$NON-NLS-1$
 		tool.addSeparator();
 		tool.add(toggle);
 		eventSelect = new EventFrame(toggle);

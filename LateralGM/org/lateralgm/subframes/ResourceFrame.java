@@ -80,8 +80,8 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 		name.setText(res.getName());
 		name.getDocument().addDocumentListener(this);
 		name.setCaretPosition(0);
-		save.setToolTipText(Messages.getString("ResourceFrame.SAVE"));
-		save.setIcon(LGM.getIconForKey("ResourceFrame.SAVE"));
+		save.setToolTipText(Messages.getString("ResourceFrame.SAVE")); //$NON-NLS-1$
+		save.setIcon(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
 		save.addActionListener(this);
 		}
 
@@ -169,7 +169,7 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 			if (resourceChanged())
 				{
 				int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(
-						Messages.getString("ResourceFrame.KEEPCHANGES"),res.getName()),
+						Messages.getString("ResourceFrame.KEEPCHANGES"),res.getName()), //$NON-NLS-1$
 						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
 						JOptionPane.YES_NO_CANCEL_OPTION);
 				if (ret == JOptionPane.YES_OPTION)

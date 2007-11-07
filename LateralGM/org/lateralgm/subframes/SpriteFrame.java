@@ -277,7 +277,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		commitChanges();
 		if (imageChanged) return true;
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Sprite.class,"subImages","imageCache");
+		c.addExclusions(Sprite.class,"subImages","imageCache"); //$NON-NLS-1$ //$NON-NLS-2$
 		return c.areEqual(res,resOriginal);
 		}
 
@@ -435,7 +435,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			preview.setIcon(null);
 			subLeft.setEnabled(false);
 			subRight.setEnabled(false);
-			show.setText("");
+			show.setText(""); //$NON-NLS-1$
 			}
 		}
 

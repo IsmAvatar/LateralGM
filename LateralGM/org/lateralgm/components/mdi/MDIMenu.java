@@ -43,13 +43,13 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 		this.pane = pane;
 		frameButtons = new WeakHashMap<MDIFrame,FrameButton>();
 		pane.addContainerListener(this);
-		addItem("MDIMenu.CASCADE",this);
-		addItem("MDIMenu.ARRANGE_ICONS",this);
-		addItem("MDIMenu.CLOSE_ALL",this);
-		addItem("MDIMenu.MINIMIZE_ALL",this);
+		addItem("MDIMenu.CASCADE",this); //$NON-NLS-1$
+		addItem("MDIMenu.ARRANGE_ICONS",this); //$NON-NLS-1$
+		addItem("MDIMenu.CLOSE_ALL",this); //$NON-NLS-1$
+		addItem("MDIMenu.MINIMIZE_ALL",this); //$NON-NLS-1$
 		addSeparator();
-		addItem("MDIMenu.CLOSE",this);
-		addItem("MDIMenu.CLOSE_OTHERS",this);
+		addItem("MDIMenu.CLOSE",this); //$NON-NLS-1$
+		addItem("MDIMenu.CLOSE_OTHERS",this); //$NON-NLS-1$
 		addSeparator();
 		}
 
@@ -134,7 +134,7 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 			{
 			mdif = f;
 			frameButtons.put(f,this);
-			MDIMenu.this.addRadio(this);
+			addRadio(this);
 			f.addInternalFrameListener(ifl);
 			f.addPropertyChangeListener(pcl);
 			f.addComponentListener(cl);
@@ -152,7 +152,7 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 		public void dispose()
 			{
 			frameButtons.remove(mdif);
-			MDIMenu.this.removeRadio(this);
+			removeRadio(this);
 			mdif.removeInternalFrameListener(ifl);
 			mdif.removePropertyChangeListener(pcl);
 			mdif.removeComponentListener(cl);

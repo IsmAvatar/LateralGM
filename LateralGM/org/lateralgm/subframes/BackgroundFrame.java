@@ -38,7 +38,7 @@ import org.lateralgm.resources.Background;
 public class BackgroundFrame extends ResourceFrame<Background>
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("BackgroundFrame.LOAD");
+	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("BackgroundFrame.LOAD"); //$NON-NLS-1$
 	public JButton load;
 	public JLabel width;
 	public JLabel height;
@@ -188,7 +188,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		commitChanges();
 		if (imageChanged) return true;
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Background.class,"backgroundImage");
+		c.addExclusions(Background.class,"backgroundImage"); //$NON-NLS-1$
 		return c.areEqual(res,resOriginal);
 		}
 

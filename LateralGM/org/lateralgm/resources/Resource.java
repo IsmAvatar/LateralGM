@@ -48,17 +48,17 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 	public static final ImageIcon[] ICON = new ImageIcon[14];
 	static
 		{
-		ICON[SPRITE] = LGM.getIconForKey("Resource.SPRITE");
-		ICON[SOUND] = LGM.getIconForKey("Resource.SOUND");
-		ICON[BACKGROUND] = LGM.getIconForKey("Resource.BACKGROUND");
-		ICON[PATH] = LGM.getIconForKey("Resource.PATH");
-		ICON[SCRIPT] = LGM.getIconForKey("Resource.SCRIPT");
-		ICON[FONT] = LGM.getIconForKey("Resource.FONT");
-		ICON[TIMELINE] = LGM.getIconForKey("Resource.TIMELINE");
-		ICON[GMOBJECT] = LGM.getIconForKey("Resource.GMOBJECT");
-		ICON[ROOM] = LGM.getIconForKey("Resource.ROOM");
-		ICON[GAMEINFO] = LGM.getIconForKey("Resource.GAMEINFO");
-		ICON[GAMESETTINGS] = LGM.getIconForKey("Resource.GAMESETTINGS");
+		ICON[SPRITE] = LGM.getIconForKey("Resource.SPRITE"); //$NON-NLS-1$
+		ICON[SOUND] = LGM.getIconForKey("Resource.SOUND"); //$NON-NLS-1$
+		ICON[BACKGROUND] = LGM.getIconForKey("Resource.BACKGROUND"); //$NON-NLS-1$
+		ICON[PATH] = LGM.getIconForKey("Resource.PATH"); //$NON-NLS-1$
+		ICON[SCRIPT] = LGM.getIconForKey("Resource.SCRIPT"); //$NON-NLS-1$
+		ICON[FONT] = LGM.getIconForKey("Resource.FONT"); //$NON-NLS-1$
+		ICON[TIMELINE] = LGM.getIconForKey("Resource.TIMELINE"); //$NON-NLS-1$
+		ICON[GMOBJECT] = LGM.getIconForKey("Resource.GMOBJECT"); //$NON-NLS-1$
+		ICON[ROOM] = LGM.getIconForKey("Resource.ROOM"); //$NON-NLS-1$
+		ICON[GAMEINFO] = LGM.getIconForKey("Resource.GAMEINFO"); //$NON-NLS-1$
+		ICON[GAMESETTINGS] = LGM.getIconForKey("Resource.GAMESETTINGS"); //$NON-NLS-1$
 		ICON[EXTENSIONS] = GmTreeGraphics.getBlankIcon();
 		}
 

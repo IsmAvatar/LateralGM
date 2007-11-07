@@ -212,7 +212,7 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		tool.add(sSizes);
 		tool.addSeparator();
 
-		tbBold = new JToggleButton(LGM.getIconForKey("GameInformationFrame.BOLD"));
+		tbBold = new JToggleButton(LGM.getIconForKey("GameInformationFrame.BOLD")); //$NON-NLS-1$
 		tbBold.setRequestFocusEnabled(false);
 		lst = new ActionListener()
 			{
@@ -223,7 +223,7 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 			};
 		tbBold.addActionListener(lst);
 		tool.add(tbBold);
-		tbItalic = new JToggleButton(LGM.getIconForKey("GameInformationFrame.ITALIC"));
+		tbItalic = new JToggleButton(LGM.getIconForKey("GameInformationFrame.ITALIC")); //$NON-NLS-1$
 		tbItalic.setRequestFocusEnabled(false);
 		lst = new ActionListener()
 			{
@@ -234,7 +234,7 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 			};
 		tbItalic.addActionListener(lst);
 		tool.add(tbItalic);
-		tbUnderline = new JToggleButton(LGM.getIconForKey("GameInformationFrame.UNDERLINED"));
+		tbUnderline = new JToggleButton(LGM.getIconForKey("GameInformationFrame.UNDERLINED")); //$NON-NLS-1$
 		tbUnderline.setRequestFocusEnabled(false);
 		lst = new ActionListener()
 			{

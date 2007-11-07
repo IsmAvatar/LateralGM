@@ -108,27 +108,27 @@ public class SoundFrame extends ResourceFrame<Sound>
 		add(stop);
 
 		addGap(40,1);
-		store = new JButton(Messages.getString("SoundFrame.STORE"),STORE_ICON);
+		store = new JButton(Messages.getString("SoundFrame.STORE"),STORE_ICON); //$NON-NLS-1$
 		store.setPreferredSize(new Dimension(130,26));
 		store.addActionListener(this);
 		add(store);
 		addGap(40,1);
 
-		filename = new JLabel(Messages.getString("SoundFrame.FILE") + res.fileName);
+		filename = new JLabel(Messages.getString("SoundFrame.FILE") + res.fileName); //$NON-NLS-1$
 		filename.setPreferredSize(new Dimension(200,14));
 		add(filename);
 
 		kind = new IndexButtonGroup(4,true,false);
-		AbstractButton b = new JRadioButton(Messages.getString("SoundFrame.NORMAL"));
+		AbstractButton b = new JRadioButton(Messages.getString("SoundFrame.NORMAL")); //$NON-NLS-1$
 		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.SOUND_NORMAL);
-		b = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND"));
+		b = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
 		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.BACKGROUND);
-		b = new JRadioButton(Messages.getString("SoundFrame.THREE"));
+		b = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
 		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.SOUND_3D);
-		b = new JRadioButton(Messages.getString("SoundFrame.MULT"));
+		b = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
 		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.SOUND_MULTIMEDIA);
 		kind.setValue(res.kind);
@@ -141,19 +141,19 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 		// these are in bit order as appears in a GM6 file, not the same as GM shows them
 		effects = new IndexButtonGroup(5,false);
-		b = new JCheckBox(Messages.getString("SoundFrame.CHORUS"));
+		b = new JCheckBox(Messages.getString("SoundFrame.CHORUS")); //$NON-NLS-1$
 		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,1);
-		b = new JCheckBox(Messages.getString("SoundFrame.ECHO"));
+		b = new JCheckBox(Messages.getString("SoundFrame.ECHO")); //$NON-NLS-1$
 		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,2);
-		b = new JCheckBox(Messages.getString("SoundFrame.FLANGER"));
+		b = new JCheckBox(Messages.getString("SoundFrame.FLANGER")); //$NON-NLS-1$
 		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,4);
-		b = new JCheckBox(Messages.getString("SoundFrame.GARGLE"));
+		b = new JCheckBox(Messages.getString("SoundFrame.GARGLE")); //$NON-NLS-1$
 		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,8);
-		b = new JCheckBox(Messages.getString("SoundFrame.REVERB"));
+		b = new JCheckBox(Messages.getString("SoundFrame.REVERB")); //$NON-NLS-1$
 		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,16);
 		effects.setValue(res.getEffects());
@@ -184,13 +184,13 @@ public class SoundFrame extends ResourceFrame<Sound>
 		pan.setValue((int) (res.pan * 100));
 		add(pan);
 
-		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD"),res.preload);
+		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD"),res.preload); //$NON-NLS-1$
 		preload.setPreferredSize(new Dimension(200,20));
 		preload.setSelected(res.preload);
 		add(preload);
 
 		addGap(50,1);
-		edit = new JButton(Messages.getString("SoundFrame.EDIT"),EDIT_ICON);
+		edit = new JButton(Messages.getString("SoundFrame.EDIT"),EDIT_ICON); //$NON-NLS-1$
 		edit.addActionListener(this);
 		add(edit);
 		addGap(50,1);
@@ -208,7 +208,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		commitChanges();
 		if (modified) return true;
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Sound.class,"data");
+		c.addExclusions(Sound.class,"data"); //$NON-NLS-1$
 		return c.areEqual(res,resOriginal);
 		}
 
@@ -221,7 +221,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		{
 		res.setName(name.getText());
 
-		String n = filename.getText().substring(Messages.getString("SoundFrame.FILE").length());
+		String n = filename.getText().substring(Messages.getString("SoundFrame.FILE").length()); //$NON-NLS-1$
 		res.fileName = n;
 		res.fileType = CustomFileFilter.getExtension(n);
 		if (res.fileType == null) res.fileType = "";
@@ -250,8 +250,8 @@ public class SoundFrame extends ResourceFrame<Sound>
 					break;
 				else
 					JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
-							+ Messages.getString("SoundFrame.FILE_MISSING"),
-							Messages.getString("SoundFrame.FILE_OPEN"),JOptionPane.WARNING_MESSAGE);
+							+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
+							Messages.getString("SoundFrame.FILE_OPEN"),JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$
 				}
 			try
 				{

@@ -386,7 +386,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		JLabel[] backLabs = new JLabel[8];
 		for (int i = 0; i < 8; i++)
 			{
-			backLabs[i] = new JLabel(Messages.getString("RoomFrame.BACK") + i);
+			backLabs[i] = new JLabel(Messages.getString("RoomFrame.BACK") + i); //$NON-NLS-1$
 			backLabs[i].setFont(backLabs[i].getFont().deriveFont(
 					res.backgroundDefs[i].visible ? Font.BOLD : Font.PLAIN));
 			backLabs[i].setOpaque(true);
@@ -461,7 +461,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		JLabel[] viewLabs = new JLabel[8];
 		for (int i = 0; i < 8; i++)
 			{
-			viewLabs[i] = new JLabel(Messages.getString("RoomFrame.VIEW") + i);
+			viewLabs[i] = new JLabel(Messages.getString("RoomFrame.VIEW") + i); //$NON-NLS-1$
 			viewLabs[i].setFont(viewLabs[i].getFont().deriveFont(
 					res.views[i].visible ? Font.BOLD : Font.PLAIN));
 			viewLabs[i].setOpaque(true);
@@ -480,71 +480,71 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.add(vVisible);
 
 		JPanel p = new JPanel(new FlowLayout());
-		st = Messages.getString("RoomFrame.VIEW_IN_ROOM"); //$NON_NLS_1$
+		st = Messages.getString("RoomFrame.VIEW_IN_ROOM"); //$NON_NLS_1$ //$NON-NLS-1$
 		p.setBorder(BorderFactory.createTitledBorder(st));
 		p.setPreferredSize(new Dimension(130,80));
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_X"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_X"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vRX = new IntegerField(0,999999,res.views[0].viewX);
 		vRX.setPreferredSize(new Dimension(32,20));
 		p.add(vRX);
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_W"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_W"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vRW = new IntegerField(1,999999,res.views[0].viewW);
 		vRW.setPreferredSize(new Dimension(32,20));
 		p.add(vRW);
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_Y"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_Y"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vRY = new IntegerField(0,999999,res.views[0].viewY);
 		vRY.setPreferredSize(new Dimension(32,20));
 		p.add(vRY);
 		addGap(p,2,0);
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_H"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_H"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vRH = new IntegerField(1,999999,res.views[0].viewH);
 		vRH.setPreferredSize(new Dimension(32,20));
 		p.add(vRH);
 		panel.add(p);
 
 		p = new JPanel(new FlowLayout());
-		st = Messages.getString("RoomFrame.PORT"); //$NON_NLS_1$
+		st = Messages.getString("RoomFrame.PORT"); //$NON_NLS_1$ //$NON-NLS-1$
 		p.setBorder(BorderFactory.createTitledBorder(st));
 		p.setPreferredSize(new Dimension(130,80));
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_X"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_X"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vPX = new IntegerField(0,999999,res.views[0].portX);
 		vPX.setPreferredSize(new Dimension(32,20));
 		p.add(vPX);
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_W"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_W"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vPW = new IntegerField(1,999999,res.views[0].portW);
 		vPW.setPreferredSize(new Dimension(32,20));
 		p.add(vPW);
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_Y"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_Y"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vPY = new IntegerField(0,999999,res.views[0].portY);
 		vPY.setPreferredSize(new Dimension(32,20));
 		p.add(vPY);
 		addGap(p,2,0);
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_H"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_H"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vPH = new IntegerField(1,999999,res.views[0].portH);
 		vPH.setPreferredSize(new Dimension(32,20));
 		p.add(vPH);
 		panel.add(p);
 
 		p = new JPanel(new FlowLayout());
-		st = Messages.getString("RoomFrame.FOLLOW"); //$NON_NLS_1$
+		st = Messages.getString("RoomFrame.FOLLOW"); //$NON_NLS_1$ //$NON-NLS-1$
 		p.setBorder(BorderFactory.createTitledBorder(st));
 		p.setPreferredSize(new Dimension(150,104));
 		vObj = new ResourceMenu<GmObject>(Room.GMOBJECT,"<no object>",true,110);
 		vObj.setRefSelected(res.views[0].objectFollowing);
 		p.add(vObj);
-		p.add(new JLabel(Messages.getString("RoomFrame.HBOR"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.HBOR"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vOHBor = new IntegerField(0,32000,res.views[0].hbor);
 		vOHBor.setPreferredSize(new Dimension(32,20));
 		p.add(vOHBor);
-		p.add(new JLabel(Messages.getString("RoomFrame.HSP"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.HSP"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vOHSp = new IntegerField(-1,32000,res.views[0].hspeed);
 		vOHSp.setPreferredSize(new Dimension(32,20));
 		p.add(vOHSp);
-		p.add(new JLabel(Messages.getString("RoomFrame.VBOR"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VBOR"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vOVBor = new IntegerField(0,32000,res.views[0].vbor);
 		vOVBor.setPreferredSize(new Dimension(32,20));
 		p.add(vOVBor);
-		p.add(new JLabel(Messages.getString("RoomFrame.VSP"))); //$NON_NLS_1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VSP"))); //$NON_NLS_1$ //$NON-NLS-1$
 		vOVSp = new IntegerField(-1,32000,res.views[0].vspeed);
 		vOVSp.setPreferredSize(new Dimension(32,20));
 		p.add(vOVSp);
@@ -728,7 +728,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Room.class,"parent","currentTab");
+		c.addExclusions(Room.class,"parent","currentTab"); //$NON-NLS-1$ //$NON-NLS-2$
 		return c.areEqual(res,resOriginal);
 		}
 

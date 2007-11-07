@@ -228,9 +228,9 @@ public final class Util
 				}
 			catch (Throwable t)
 				{
-				String msg = String.format(Messages.getString("Util.ERROR_LOADING"),
+				String msg = String.format(Messages.getString("Util.ERROR_LOADING"), //$NON-NLS-1$
 						imageFc.getSelectedFile());
-				String title = Messages.getString("Util.ERROR_TITLE");
+				String title = Messages.getString("Util.ERROR_TITLE"); //$NON-NLS-1$
 				JOptionPane.showMessageDialog(LGM.frame,msg,title,JOptionPane.ERROR_MESSAGE);
 				t.printStackTrace();
 				}
@@ -286,7 +286,7 @@ public final class Util
 			buf.append(str.substring((count - realtabs) * Prefs.tabSize + realtabs));
 			buf.append('\n');
 			}
-		if (!s.endsWith("\n")) buf.deleteCharAt(buf.length() - 1);
+		if (!s.endsWith("\n")) buf.deleteCharAt(buf.length() - 1); //$NON-NLS-1$
 		return buf.toString();
 		}
 

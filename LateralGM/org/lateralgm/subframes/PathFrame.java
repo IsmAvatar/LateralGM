@@ -38,7 +38,7 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.sub.Point;
 
-//BUG: When you have 2 points, and change the value of one, and click on the other,
+//FIXME: When you have 2 points, and change the value of one, and click on the other,
 //it sets the values of the other as well. This may exist in makeSide.lsl and/or dl
 public class PathFrame extends ResourceFrame<Path> implements ActionListener
 	{

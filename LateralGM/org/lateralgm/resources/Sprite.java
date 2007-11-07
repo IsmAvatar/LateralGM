@@ -71,7 +71,7 @@ public class Sprite extends Resource<Sprite>
 			}
 		catch (IOException ex)
 			{
-			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),subImages.size(),getId());
+			System.err.printf(Messages.getString("Sprite.ERROR_SUBIMAGE"),subImages.size(),getId()); //$NON-NLS-1$
 			System.err.println();
 			}
 		return result;

@@ -500,7 +500,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		public void removeEmptyConstants()
 			{
 			for (int i = constants.size() - 1; i >= 0; i--)
-				if (constants.get(i).name.equals("")) constants.remove(i);
+				if (constants.get(i).name.equals("")) constants.remove(i); //$NON-NLS-1$
 			fireTableDataChanged();
 			}
 		}

@@ -140,7 +140,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 		switch (mainId)
 			{
 			case MainEvent.EV_ALARM:
-				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),id);
+				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),id); //$NON-NLS-1$
 			case MainEvent.EV_COLLISION:
 				GmObject obj = other.getRes();
 				String name;
@@ -148,19 +148,19 @@ public class Event extends ActionContainer implements Comparable<Event>
 					name = "<undefined>";
 				else
 					name = obj.getName();
-				return String.format(Messages.getString("Event.EVENT4_X"),name);
+				return String.format(Messages.getString("Event.EVENT4_X"),name); //$NON-NLS-1$
 			case MainEvent.EV_KEYBOARD:
 			case MainEvent.EV_KEYPRESS:
 			case MainEvent.EV_KEYRELEASE:
-				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),getGmKeyName(id));
+				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),getGmKeyName(id)); //$NON-NLS-1$
 			case MainEvent.EV_OTHER:
 				if (id >= Event.EV_USER0)
-					return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),id
-							- Event.EV_USER0);
+					return String.format(Messages.getString("Event.EVENT" + mainId + "_X"), //$NON-NLS-1$
+							id - Event.EV_USER0);
 				else
-					return Messages.getString("Event.EVENT" + mainId + "_" + id);
+					return Messages.getString("Event.EVENT" + mainId + "_" + id); //$NON-NLS-1$
 			default:
-				return Messages.getString("Event.EVENT" + mainId + "_" + id);
+				return Messages.getString("Event.EVENT" + mainId + "_" + id); //$NON-NLS-1$
 			}
 		}
 

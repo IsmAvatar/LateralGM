@@ -53,7 +53,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	public Listener()
 		{
-		String exts[] = { ".gmk",".gm6",".gmd" }; //$NON-NLS-1$
+		String exts[] = { ".gmk",".gm6",".gmd" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		String msg = Messages.getString("Listener.FORMAT_GM"); //$NON-NLS-1$
 		CustomFileFilter cff = new CustomFileFilter(exts,msg);
 		fc.addChoosableFileFilter(cff);
@@ -108,7 +108,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			{
 			ResNode newroot = new ResNode("Root",(byte) 0,(byte) 0,null); //$NON-NLS-1$
 			PrefsStore.addRecentFile(filename);
-			LGM.frame.setTitle(String.format(Messages.getString("LGM.TITLE"),file.getName()));
+			LGM.frame.setTitle(String.format(Messages.getString("LGM.TITLE"),file.getName())); //$NON-NLS-1$
 			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 			LGM.currentFile = GmFileReader.readGmFile(filename,newroot);
 			LGM f = new LGM();
@@ -142,7 +142,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		f.createTree(true);
 		LGM.frame.setJMenuBar(new GmMenuBar());
 		LGM.frame.setTitle(String.format(
-				Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ $NON-NLS-2$)
+				Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$ $NON-NLS-2$)
 		f.setOpaque(true);
 		LGM.frame.setContentPane(f);
 		LGM.currentFile = new GmFile();
@@ -297,7 +297,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public void actionPerformed(ActionEvent e)
 		{
 		JTree tree = LGM.tree;
-		String[] args = e.getActionCommand().split(" ");
+		String[] args = e.getActionCommand().split(" "); //$NON-NLS-1$
 		String com = args[0];
 		if (com.endsWith(".NEW")) //$NON-NLS-1$
 			{
@@ -383,8 +383,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (com.endsWith(".ABOUT")) //$NON-NLS-1$
 			{
-			JOptionPane.showMessageDialog(null,Messages.getString("Listener.ABOUT_MESSAGE"),
-					Messages.getString("Listener.ABOUT_TITLE"),JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null,Messages.getString("Listener.ABOUT_MESSAGE"), //$NON-NLS-1$
+					Messages.getString("Listener.ABOUT_TITLE"),JOptionPane.INFORMATION_MESSAGE); //$NON-NLS-1$
 			}
 		}
 
@@ -538,27 +538,27 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		if (node.kind == Resource.GAMESETTINGS || node.kind == Resource.GAMEINFO
 				|| node.kind == Resource.EXTENSIONS)
 			{
-			popup.add(makeMenuItem("Listener.TREE_EDIT",al));
+			popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
 			popup.show(e.getComponent(),e.getX(),e.getY());
 			return;
 			}
 		if (node.status == ResNode.STATUS_SECONDARY)
 			{
-			popup.add(makeMenuItem("Listener.TREE_EDIT",al));
+			popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
 			popup.addSeparator();
-			popup.add(makeMenuItem("Listener.TREE_INSERT",al));
-			popup.add(makeMenuItem("Listener.TREE_COPY",al));
+			popup.add(makeMenuItem("Listener.TREE_INSERT",al)); //$NON-NLS-1$
+			popup.add(makeMenuItem("Listener.TREE_COPY",al)); //$NON-NLS-1$
 			}
 		else
-			popup.add(makeMenuItem("Listener.TREE_ADD",al));
+			popup.add(makeMenuItem("Listener.TREE_ADD",al)); //$NON-NLS-1$
 		popup.addSeparator();
-		popup.add(makeMenuItem("Listener.TREE_GROUP",al));
-		if (node.status != ResNode.STATUS_SECONDARY) popup.add(makeMenuItem("Listener.TREE_SORT",al));
+		popup.add(makeMenuItem("Listener.TREE_GROUP",al)); //$NON-NLS-1$
+		if (node.status != ResNode.STATUS_SECONDARY) popup.add(makeMenuItem("Listener.TREE_SORT",al)); //$NON-NLS-1$
 		if (node.status != ResNode.STATUS_PRIMARY)
 			{
 			popup.addSeparator();
-			popup.add(makeMenuItem("Listener.TREE_DELETE",al));
-			popup.add(makeMenuItem("Listener.TREE_RENAME",al));
+			popup.add(makeMenuItem("Listener.TREE_DELETE",al)); //$NON-NLS-1$
+			popup.add(makeMenuItem("Listener.TREE_RENAME",al)); //$NON-NLS-1$
 			}
 		popup.show(e.getComponent(),e.getX(),e.getY());
 		}
@@ -625,7 +625,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		if (node.status == ResNode.STATUS_SECONDARY && node.kind != Resource.GAMEINFO
 				&& node.kind != Resource.GAMESETTINGS && node.kind != Resource.EXTENSIONS)
 			{
-			String txt = ((String) node.getUserObject()).replaceAll("\\W","").replaceAll("^([0-9]+)","");
+			String txt = ((String) node.getUserObject()).replaceAll("\\W","").replaceAll("^([0-9]+)",""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			node.setUserObject(txt);
 			node.updateFrame();
 			}

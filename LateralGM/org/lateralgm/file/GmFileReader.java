@@ -849,7 +849,7 @@ public final class GmFileReader
 			String name = in.readStr();
 			ResNode node = new ResNode(name,status,type);
 			if (ver == 500 && status == ResNode.STATUS_PRIMARY && type == Resource.FONT)
-				path.peek().addChild(Messages.getString("LGM.FONTS"),status,type);
+				path.peek().addChild(Messages.getString("LGM.FONTS"),status,type); //$NON-NLS-1$
 			else
 				path.peek().add(node);
 			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO

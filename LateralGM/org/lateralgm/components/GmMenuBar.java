@@ -36,7 +36,7 @@ public class GmMenuBar extends JMenuBar
 
 	public static final void setTextAndAlt(JMenuItem item, String input)
 		{
-		Matcher m = Pattern.compile("\t+([^\\s])$").matcher(input);
+		Matcher m = Pattern.compile("\t+([^\\s])$").matcher(input); //$NON-NLS-1$
 		if (m.find())
 			{
 			int alt = (int) m.group(1).toUpperCase(Locale.ENGLISH).charAt(0);
@@ -65,7 +65,7 @@ public class GmMenuBar extends JMenuBar
 			JMenuItem item = new JMenuItem(String.format("%s %s  [%s]",number,file.getName(),
 					file.getParent()),number.codePointAt(0));
 			recentFiles[i] = item;
-			item.setActionCommand("GmMenuBar.OPEN " + Util.urlEncode(file.toString()));
+			item.setActionCommand("GmMenuBar.OPEN " + Util.urlEncode(file.toString())); //$NON-NLS-1$
 			item.addActionListener(LGM.listener);
 			fileMenu.insert(item,recentFilesPos + i);
 			}
@@ -83,7 +83,7 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("GmMenuBar.SAVEAS"); //$NON-NLS-1$
 		menu.add(new JSeparator());
 		JCheckBoxMenuItem check = new JCheckBoxMenuItem(); //$NON-NLS-1$
-		setTextAndAlt(check,Messages.getString("GmMenuBar.ADVANCED"));
+		setTextAndAlt(check,Messages.getString("GmMenuBar.ADVANCED")); //$NON-NLS-1$
 		menu.add(check);
 		menu.addItem("GmMenuBar.PREFERENCES"); //$NON-NLS-1$
 		menu.add(new JSeparator());
@@ -133,7 +133,7 @@ public class GmMenuBar extends JMenuBar
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_RESOURCES")); //$NON-NLS-1$
 		add(menu);
 
-		menu.addItem("GmMenuBar.DEFRAGIDS");
+		menu.addItem("GmMenuBar.DEFRAGIDS"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.VERIFYNAMES"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SYNTAXCHECK"); //$NON-NLS-1$
 		menu.add(new JSeparator());

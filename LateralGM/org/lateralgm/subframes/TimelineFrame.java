@@ -122,7 +122,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 
 		if (false)
 			{
-			code = new GMLTextArea("");
+			code = new GMLTextArea(""); //$NON-NLS-1$
 			JScrollPane codePane = new JScrollPane(code);
 			add(codePane);
 			}
@@ -202,7 +202,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 				{
 				if (p < 0)
 					{
-					JOptionPane.showMessageDialog(this,Messages.getString("TimelineFrame.MOM_EXIST")); //$NON_NLS-1$
+					JOptionPane.showMessageDialog(this,Messages.getString("TimelineFrame.MOM_EXIST")); //$NON_NLS-1$ //$NON-NLS-1$
 					return;
 					}
 				if (ret > sn) p--;
@@ -214,7 +214,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 				{
 				if (p >= 0)
 					{
-					JOptionPane.showMessageDialog(this,Messages.getString("TimelineFrame.MOM_EXIST")); //$NON_NLS-1$
+					JOptionPane.showMessageDialog(this,Messages.getString("TimelineFrame.MOM_EXIST")); //$NON_NLS-1$ //$NON-NLS-1$
 					return;
 					}
 				Moment m2 = m.copy();
@@ -231,8 +231,8 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			if (p == -1) return;
 			if (res.moments.get(p).actions.size() != 0)
 				{
-				String msg = Messages.getString("TimelineFrame.MOM_DELETE");
-				String ttl = Messages.getString("TimelineFrame.MOM_CONFIRM");
+				String msg = Messages.getString("TimelineFrame.MOM_DELETE"); //$NON-NLS-1$
+				String ttl = Messages.getString("TimelineFrame.MOM_CONFIRM"); //$NON-NLS-1$
 				int r = JOptionPane.showConfirmDialog(this,msg,ttl,JOptionPane.YES_NO_OPTION);
 				if (r == JOptionPane.NO_OPTION) return;
 				}
@@ -244,8 +244,8 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		if (but == clear)
 			{
 			if (res.moments.size() == 0) return;
-			String msg = Messages.getString("TimelineFrame.MOM_CLEAR");
-			String ttl = Messages.getString("TimelineFrame.MOM_CONFIRM");
+			String msg = Messages.getString("TimelineFrame.MOM_CLEAR"); //$NON-NLS-1$
+			String ttl = Messages.getString("TimelineFrame.MOM_CONFIRM"); //$NON-NLS-1$
 			int r = JOptionPane.showConfirmDialog(this,msg,ttl,JOptionPane.YES_NO_OPTION);
 			if (r == JOptionPane.NO_OPTION) return;
 			res.moments.clear();

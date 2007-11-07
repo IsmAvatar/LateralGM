@@ -13,7 +13,7 @@ import org.lateralgm.main.Prefs;
 
 public class Font extends Resource<Font>
 	{
-	public String fontName = "Arial";
+	public String fontName = "Arial"; //$NON-NLS-1$
 	public int size = 12;
 	public boolean bold = false;
 	public boolean italic = false;

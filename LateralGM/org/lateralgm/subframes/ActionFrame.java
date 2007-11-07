@@ -153,7 +153,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			tool.setAlignmentX(0);
 			add("North",tool); //$NON-NLS-1$
 			// Setup the buttons
-			save = new JButton(LGM.getIconForKey("ActionFrame.SAVE"));
+			save = new JButton(LGM.getIconForKey("ActionFrame.SAVE")); //$NON-NLS-1$
 			save.addActionListener(this);
 			add(save);
 			tool.add(save);
@@ -255,13 +255,13 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		add(pane);
 		if (act.libAction.allowRelative)
 			{
-			relativeBox = new JCheckBox(Messages.getString("ActionFrame.RELATIVE"));
+			relativeBox = new JCheckBox(Messages.getString("ActionFrame.RELATIVE")); //$NON-NLS-1$
 			relativeBox.setSelected(act.relative);
 			pane.add(relativeBox);
 			}
 		if (act.libAction.question)
 			{
-			notBox = new JCheckBox(Messages.getString("ActionFrame.NOT"));
+			notBox = new JCheckBox(Messages.getString("ActionFrame.NOT")); //$NON-NLS-1$
 			notBox.setSelected(act.not);
 			pane.add(notBox);
 			}
@@ -271,11 +271,11 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		pane.setBorder(new EmptyBorder(0,8,8,8));
 		add(pane);
 		s = Messages.getString("ActionFrame.SAVE"); //$NON-NLS-1$
-		save = new JButton(s,LGM.getIconForKey("ActionFrame.SAVE"));
+		save = new JButton(s,LGM.getIconForKey("ActionFrame.SAVE")); //$NON-NLS-1$
 		save.addActionListener(this);
 		pane.add(save);
 		s = Messages.getString("ActionFrame.DISCARD"); //$NON-NLS-1$
-		discard = new JButton(s,LGM.getIconForKey("ActionFrame.DISCARD"));
+		discard = new JButton(s,LGM.getIconForKey("ActionFrame.DISCARD")); //$NON-NLS-1$
 		discard.addActionListener(this);
 		pane.add(discard);
 		}
@@ -364,8 +364,8 @@ public class ActionFrame extends MDIFrame implements ActionListener
 					if (code.getUndoManager().isModified() || !act.appliesTo.equals(getApplies()))
 						{
 						int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(
-								Messages.getString("ActionFrame.KEEPCHANGES"),getTitle()),
-								Messages.getString("ActionFrame.KEEPCHANGES_TITLE"),
+								Messages.getString("ActionFrame.KEEPCHANGES"),getTitle()), //$NON-NLS-1$
+								Messages.getString("ActionFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
 								JOptionPane.YES_NO_CANCEL_OPTION);
 						if (ret == JOptionPane.CANCEL_OPTION) break;
 						if (ret == JOptionPane.YES_OPTION) save.doClick();
@@ -400,36 +400,36 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			switch (resourceKind)
 				{
 				case Resource.SPRITE:
-					key = "ArgumentComponent.SPRITE";
+					key = "ArgumentComponent.SPRITE"; //$NON-NLS-1$
 					break;
 				case Resource.SOUND:
-					key = "ArgumentComponent.SOUND";
+					key = "ArgumentComponent.SOUND"; //$NON-NLS-1$
 					break;
 				case Resource.BACKGROUND:
-					key = "ArgumentComponent.BACKGROUND";
+					key = "ArgumentComponent.BACKGROUND"; //$NON-NLS-1$
 					break;
 				case Resource.PATH:
-					key = "ArgumentComponent.PATH";
+					key = "ArgumentComponent.PATH"; //$NON-NLS-1$
 					break;
 				case Resource.SCRIPT:
-					key = "ArgumentComponent.SCRIPT";
+					key = "ArgumentComponent.SCRIPT"; //$NON-NLS-1$
 					break;
 				case Resource.FONT:
-					key = "ArgumentComponent.FONT";
+					key = "ArgumentComponent.FONT"; //$NON-NLS-1$
 					break;
 				case Resource.GMOBJECT:
-					key = "ArgumentComponent.OBJECT";
+					key = "ArgumentComponent.OBJECT"; //$NON-NLS-1$
 					break;
 				case Resource.ROOM:
-					key = "ArgumentComponent.ROOM";
+					key = "ArgumentComponent.ROOM"; //$NON-NLS-1$
 					break;
 				case Resource.TIMELINE:
-					key = "ArgumentComponent.TIMELINE";
+					key = "ArgumentComponent.TIMELINE"; //$NON-NLS-1$
 					break;
 				default:
 					key = "";
 				}
-			return String.format(Messages.getString("ArgumentComponent.NO_SELECTION"),
+			return String.format(Messages.getString("ArgumentComponent.NO_SELECTION"), //$NON-NLS-1$
 					Messages.getString(key));
 			}
 

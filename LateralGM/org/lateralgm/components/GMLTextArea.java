@@ -63,14 +63,14 @@ public class GMLTextArea extends JEditTextArea
 		putClientProperty(InputHandler.TAB_TO_INDENT_PROPERTY,Boolean.TRUE);
 		putClientProperty(InputHandler.CONVERT_TABS_PROPERTY,Boolean.TRUE);
 		putClientProperty(InputHandler.SMART_HOME_END_PROPERTY,Boolean.TRUE);
-		text = text.replace("\r\n","\n");
+		text = text.replace("\r\n","\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		setText(text);
 		setCaretPosition(0);
 		LGM.currentFile.addChangeListener(rcl);
 		addCaretListener(undoManager);
 		document.addUndoableEditListener(undoManager);
-		inputHandler.addKeyBinding("C+Z",undoManager.getUndoAction());
-		inputHandler.addKeyBinding("C+Y",undoManager.getRedoAction());
+		inputHandler.addKeyBinding("C+Z",undoManager.getUndoAction()); //$NON-NLS-1$
+		inputHandler.addKeyBinding("C+Y",undoManager.getRedoAction()); //$NON-NLS-1$
 		}
 
 	private static JButton makeToolbarButton(Action a)
@@ -102,9 +102,9 @@ public class GMLTextArea extends JEditTextArea
 		tb.add(makeToolbarButton(getUndoManager().getUndoAction()));
 		tb.add(makeToolbarButton(getUndoManager().getRedoAction()));
 		tb.addSeparator();
-		tb.add(makeInputHandlerToolbarButton(InputHandler.CUT,"ScriptFrame.CUT"));
-		tb.add(makeInputHandlerToolbarButton(InputHandler.COPY,"ScriptFrame.COPY"));
-		tb.add(makeInputHandlerToolbarButton(InputHandler.PASTE,"ScriptFrame.PASTE"));
+		tb.add(makeInputHandlerToolbarButton(InputHandler.CUT,"GMLTextArea.CUT")); //$NON-NLS-1$
+		tb.add(makeInputHandlerToolbarButton(InputHandler.COPY,"GMLTextArea.COPY")); //$NON-NLS-1$
+		tb.add(makeInputHandlerToolbarButton(InputHandler.PASTE,"GMLTextArea.PASTE")); //$NON-NLS-1$
 		}
 
 	public DocumentUndoManager getUndoManager()
@@ -115,7 +115,7 @@ public class GMLTextArea extends JEditTextArea
 	public String getTextCompat()
 		{
 		String s = getText();
-		s = s.replaceAll("\r?\n","\r\n");
+		s = s.replaceAll("\r?\n","\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		return s;
 		}
 
