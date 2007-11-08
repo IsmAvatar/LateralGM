@@ -77,7 +77,9 @@ public class IntegerField extends JTextField implements DocumentListener
 		{
 		if (e.getID() == FocusEvent.FOCUS_LOST)
 			{
-			setText(Integer.toString(getIntValue()));
+			int a = lastGoodVal;
+			int b = getIntValue();
+			if (a != b) setText(Integer.toString(b));
 			}
 		super.processFocusEvent(e);
 		}
