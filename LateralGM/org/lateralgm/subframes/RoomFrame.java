@@ -13,16 +13,13 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
-import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -60,6 +57,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
 
+	//prevents List selection updates from firing ResourceMenu changes
+	public static boolean manualUpdate = true;
 	public RoomEditor editor;
 	public JTabbedPane tabs;
 	public JLabel statX, statY, statObj, statId;
@@ -145,6 +144,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.add(oDel);
 		oSource = new ResourceMenu<GmObject>(Room.GMOBJECT,"<no object>",true,110);
 		oSource.setPreferredSize(new Dimension(120,20));
+		oSource.addActionListener(this);
 		panel.add(oSource);
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
 		oLocked.setPreferredSize(new Dimension(180,20));
@@ -647,13 +647,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		add(pane);
 		}
 
-	/**
-	 * I've left this public in case it's useful to anybody, BUT NOTICE
-	 * This class may change in the future to be an all out JList data model and renderer,
-	 * since as of currently it's hard to get a Collection or Vector back out of a JList.
-	 * Sun is planning on making JList part of the Collections framework in the future,
-	 * but for now, we need a workaround, and this looks like the best option. 
-	 */
 	public class ListComponentRenderer implements ListCellRenderer
 		{
 		public Component getListCellRendererComponent(JList list, Object val, int ind,
@@ -671,55 +664,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				lab.setForeground(list.getForeground());
 				}
 			return lab;
-			}
-		}
-
-	/**
-	 * This is the class that will replace ListComponentRenderer.
-	 * The name is obviously a work in progress, as is the class itself.
-	 * The biggest concern is how to keep getListCellRendererComponent efficient -
-	 *  that is, keep it from making a new JLabel each time it gets the same cell,
-	 *  but I'd also like to prevent memoization (if statements can be costly).
-	 *  To do this, we would want to create the JLabel around construction-time, and
-	 *  somehow pair it with its respective data. I've considered a DataLabelPair class
-	 */
-	public class Stuff extends AbstractListModel implements ListCellRenderer
-		{
-		private static final long serialVersionUID = 1L;
-		public List<?> data;
-
-		public Stuff(List<?> data)
-			{
-			this.data = data;
-			}
-
-		public Component getListCellRendererComponent(JList list, Object value, int index,
-				boolean isSelected, boolean cellHasFocus)
-			{
-			//			data.get(index).;
-			JComponent lab = (JComponent) value;
-			if (isSelected)
-				{
-				lab.setBackground(list.getSelectionBackground());
-				lab.setForeground(list.getSelectionForeground());
-				}
-			else
-				{
-				lab.setBackground(list.getBackground());
-				lab.setForeground(list.getForeground());
-				}
-			lab.setOpaque(true);
-			return lab;
-			}
-
-		public Object getElementAt(int index)
-			{
-			return data.get(index);
-			}
-
-		public int getSize()
-			{
-			return data.size();
 			}
 		}
 
@@ -765,9 +709,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		//tiles
 		res.deleteUnderlyingTiles = tUnderlying.isSelected();
 		fireTileUpdate();
-		//res.tiles = ??? TODO: get the ArrayList back from tList somehow
-		//see comments for ListComponentRenderer
-
 		//backgrounds
 		res.drawBackgroundColor = bDrawColor.isSelected();
 		res.backgroundColor = bColor.getSelectedColor();
@@ -797,9 +738,23 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			vList.updateUI();
 			return;
 			}
+		if (e.getSource() == oSource)
+			{
+			if (!manualUpdate) return;
+			Instance i = (Instance) oList.getSelectedValue();
+			if (oSource.getSelected() == null)
+				{
+				oSource.setRefSelected(i.gmObjectId);
+				return;
+				}
+			i.gmObjectId = oSource.getSelectedRef();
+			oList.updateUI();
+			}
 		if (e.getSource() == oAdd)
 			{
-			res.addInstance();
+			if (oSource.getSelected() == null) return;
+			Instance i = res.addInstance();
+			i.gmObjectId = oSource.getSelectedRef();
 			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(res.instances.size() - 1);
 			}
@@ -811,9 +766,24 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(Math.min(res.instances.size() - 1,i));
 			}
+		if (e.getSource() == tSource)
+			{
+			if (!manualUpdate) return;
+			Tile t = (Tile) oList.getSelectedValue();
+			if (t == null) return;
+			if (tSource.getSelected() == null)
+				{
+				tSource.setRefSelected(t.backgroundId);
+				return;
+				}
+			t.backgroundId = tSource.getSelectedRef();
+			tList.updateUI();
+			}
 		if (e.getSource() == tAdd)
 			{
-			res.addTile();
+			if (tSource.getSelected() == null) return;
+			Tile t = res.addTile();
+			t.backgroundId = tSource.getSelectedRef();
 			tList.setListData(res.tiles.toArray());
 			tList.setSelectedIndex(res.tiles.size() - 1);
 			}
@@ -833,15 +803,17 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastObj != null)
 			{
 			lastObj.locked = oLocked.isSelected();
-			//FIXME: oSource is not updating its selection
-			//lastObj.gmObjectId = oSource.getSelectedRef();
+			if (oSource.getSelected() != null)
+				lastObj.gmObjectId = oSource.getSelectedRef();
 			lastObj.x = oX.getIntValue();
 			lastObj.y = oY.getIntValue();
 			}
 		lastObj = (Instance) oList.getSelectedValue();
 		if (lastObj == null) return;
-
 		oLocked.setSelected(lastObj.locked);
+		manualUpdate = false;
+		oSource.setRefSelected(lastObj.gmObjectId);
+		manualUpdate = true;
 		oX.setIntValue(lastObj.x);
 		oY.setIntValue(lastObj.y);
 		}
@@ -851,7 +823,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastTile != null)
 			{
 			lastTile.locked = tLocked.isSelected();
-			lastTile.backgroundId = bSource.getSelectedRef();
+			if (tSource.getSelected() != null)
+				lastTile.backgroundId = bSource.getSelectedRef();
 			lastTile.tileX = tsX.getIntValue();
 			lastTile.tileY = tsY.getIntValue();
 			lastTile.x = tX.getIntValue();
@@ -860,8 +833,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 		lastTile = (Tile) tList.getSelectedValue();
 		if (lastTile == null) return;
-
 		tLocked.setSelected(lastTile.locked);
+		manualUpdate = false;
+		tSource.setRefSelected(lastTile.backgroundId);
+		manualUpdate = true;
 		tsX.setIntValue(lastTile.tileX);
 		tsY.setIntValue(lastTile.tileY);
 		tX.setIntValue(lastTile.x);

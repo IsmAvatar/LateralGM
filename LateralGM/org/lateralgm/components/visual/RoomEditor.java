@@ -62,7 +62,6 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		}
 
-	//TODO: Painting is unfinished
 	@Override
 	public void paintComponent(Graphics g)
 		{
