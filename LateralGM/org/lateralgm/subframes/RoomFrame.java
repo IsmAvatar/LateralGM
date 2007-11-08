@@ -777,7 +777,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		fireViewUpdate();
 		}
 
-	//TODO: (Room and Instance CreationCode)
+	//TODO: Room and Instance CreationCode
 	public void actionPerformed(ActionEvent e)
 		{
 		editor.repaint();
@@ -797,7 +797,34 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			vList.updateUI();
 			return;
 			}
-
+		if (e.getSource() == oAdd)
+			{
+			res.addInstance();
+			oList.setListData(res.instances.toArray());
+			oList.setSelectedIndex(res.instances.size() - 1);
+			}
+		if (e.getSource() == oDel)
+			{
+			int i = oList.getSelectedIndex();
+			if (i == -1) return;
+			res.instances.remove(i);
+			oList.setListData(res.instances.toArray());
+			oList.setSelectedIndex(Math.min(res.instances.size() - 1,i));
+			}
+		if (e.getSource() == tAdd)
+			{
+			res.addTile();
+			tList.setListData(res.tiles.toArray());
+			tList.setSelectedIndex(res.tiles.size() - 1);
+			}
+		if (e.getSource() == oDel)
+			{
+			int i = tList.getSelectedIndex();
+			if (i == -1) return;
+			res.tiles.remove(i);
+			tList.setListData(res.tiles.toArray());
+			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,i));
+			}
 		super.actionPerformed(e);
 		}
 
