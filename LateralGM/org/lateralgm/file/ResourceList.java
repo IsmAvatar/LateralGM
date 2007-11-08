@@ -34,6 +34,7 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 	ResourceList(Class<R> type, GmFile parent)
 		{
 		this.type = type;
+		this.parent = parent;
 		}
 
 	public int lastId = -1;
