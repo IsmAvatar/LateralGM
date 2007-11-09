@@ -29,7 +29,7 @@ public class DefaultInputHandler extends InputHandler
 	 */
 	public DefaultInputHandler()
 		{
-		bindings = currentBindings = new Hashtable();
+		bindings = currentBindings = new Hashtable<KeyStroke,Object>();
 		}
 
 	/**
@@ -94,7 +94,7 @@ public class DefaultInputHandler extends InputHandler
 	 */
 	public void addKeyBinding(String keyBinding, ActionListener action)
 		{
-		Hashtable current = bindings;
+		Hashtable<KeyStroke,Object> current = bindings;
 
 		StringTokenizer st = new StringTokenizer(keyBinding);
 		while (st.hasMoreTokens())
@@ -106,12 +106,12 @@ public class DefaultInputHandler extends InputHandler
 				{
 				Object o = current.get(keyStroke);
 				if (o instanceof Hashtable)
-					current = (Hashtable) o;
+					current = (Hashtable<KeyStroke,Object>) o;
 				else
 					{
 					o = new Hashtable();
 					current.put(keyStroke,o);
-					current = (Hashtable) o;
+					current = (Hashtable<KeyStroke,Object>) o;
 					}
 				}
 			else
@@ -200,7 +200,7 @@ public class DefaultInputHandler extends InputHandler
 				}
 			else if (o instanceof Hashtable)
 				{
-				currentBindings = (Hashtable) o;
+				currentBindings = (Hashtable<KeyStroke,Object>) o;
 				evt.consume();
 				return;
 				}
@@ -223,7 +223,7 @@ public class DefaultInputHandler extends InputHandler
 
 				if (o instanceof Hashtable)
 					{
-					currentBindings = (Hashtable) o;
+					currentBindings = (Hashtable<KeyStroke,Object>) o;
 					return;
 					}
 				else if (o instanceof ActionListener)
@@ -325,8 +325,8 @@ public class DefaultInputHandler extends InputHandler
 		}
 
 	// private members
-	private Hashtable bindings;
-	private Hashtable currentBindings;
+	private Hashtable<KeyStroke,Object> bindings;
+	private Hashtable<KeyStroke,Object> currentBindings;
 
 	private DefaultInputHandler(DefaultInputHandler copy)
 		{

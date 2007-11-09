@@ -10,6 +10,7 @@
 
 package org.lateralgm.main;
 
+import java.awt.BorderLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -25,6 +26,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
@@ -111,9 +113,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			LGM.frame.setTitle(String.format(Messages.getString("LGM.TITLE"),file.getName())); //$NON-NLS-1$
 			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 			LGM.currentFile = GmFileReader.readGmFile(filename,newroot);
-			LGM f = new LGM();
-			f.createToolBar();
-			f.createTree(newroot,false);
+			JPanel f = new JPanel(new BorderLayout());
+			LGM.createToolBar(f);
+			LGM.createTree(f,newroot,false);
 			LGM.frame.setJMenuBar(new GmMenuBar());
 			tree.setSelectionRow(0);
 			f.setOpaque(true);
@@ -137,9 +139,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	public void newFile()
 		{
-		LGM f = new LGM();
-		f.createToolBar();
-		f.createTree(true);
+		JPanel f = new JPanel(new BorderLayout());
+		LGM.createToolBar(f);
+		LGM.createTree(f,true);
 		LGM.frame.setJMenuBar(new GmMenuBar());
 		LGM.frame.setTitle(String.format(
 				Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$ $NON-NLS-2$)

@@ -62,7 +62,7 @@ import org.lateralgm.subframes.EventFrame;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 
-public class LGM extends JPanel
+public final class LGM
 	{
 	private static final long serialVersionUID = 1L;
 	public static int javaVersion;
@@ -87,9 +87,8 @@ public class LGM extends JPanel
 	public static GameSettingFrame gameSet;
 	public static EventFrame eventSelect;
 
-	public LGM()
+	private LGM()
 		{
-		super(new BorderLayout());
 		}
 
 	public static ImageIcon findIcon(String filename)
@@ -126,14 +125,14 @@ public class LGM extends JPanel
 		return null;
 		}
 
-	public JButton makeButton(String key)
+	public static JButton makeButton(String key)
 		{
 		JButton but = new JButton();
 		makeButton(but,key);
 		return but;
 		}
 
-	public AbstractButton makeButton(AbstractButton but, String key)
+	public static AbstractButton makeButton(AbstractButton but, String key)
 		{
 		Icon ico = LGM.getIconForKey(key);
 		if (ico != null)
@@ -146,11 +145,11 @@ public class LGM extends JPanel
 		return but;
 		}
 
-	public void createToolBar()
+	public static void createToolBar(JPanel f)
 		{
 		tool = new JToolBar();
 		tool.setFloatable(false);
-		add("North",tool); //$NON-NLS-1$
+		f.add("North",tool); //$NON-NLS-1$
 		tool.add(makeButton("LGM.NEW")); //$NON-NLS-1$
 		tool.add(makeButton("LGM.OPEN")); //$NON-NLS-1$
 		tool.add(makeButton("LGM.SAVE")); //$NON-NLS-1$
@@ -158,12 +157,12 @@ public class LGM extends JPanel
 		tool.add(makeButton("LGM.SAVEAS")); //$NON-NLS-1$
 		}
 
-	public void createTree(boolean populate)
+	public static void createTree(JPanel f, boolean populate)
 		{
-		createTree(new ResNode("Root",(byte) 0,(byte) 0,null),populate); //$NON-NLS-1$
+		createTree(f,new ResNode("Root",(byte) 0,(byte) 0,null),populate); //$NON-NLS-1$
 		}
 
-	public void createTree(ResNode newroot, boolean populate)
+	public static void createTree(JPanel f, ResNode newroot, boolean populate)
 		{
 		root = newroot;
 		tree = new JTree(new DefaultTreeModel(root));
@@ -227,7 +226,7 @@ public class LGM extends JPanel
 		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
-		add(split);
+		f.add(split);
 		mdi.setBackground(Color.BLACK);
 		mdi.add(gameSet);
 		mdi.add(gameInfo);
@@ -259,9 +258,9 @@ public class LGM extends JPanel
 		{
 		LibManager.autoLoad();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		LGM f = new LGM();
-		f.createToolBar();
-		f.createTree(true);
+		JPanel f = new JPanel(new BorderLayout());
+		createToolBar(f);
+		createTree(f,true);
 		frame.setJMenuBar(new GmMenuBar());
 		f.setOpaque(true);
 		frame.setContentPane(f);

@@ -962,8 +962,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					{
 					rootEvent.remove(i);
 					if (rootEvent.getChildCount() == 0) actions.setActionContainer(null);
-					events.setSelectionRow(0);
 					events.updateUI();
+					events.setSelectionRow(0);
 					return;
 					}
 				}
@@ -976,8 +976,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						{
 						rootEvent.remove(i);
 						rootEvent.insert((EventInstanceNode) group.getChildAt(0),i);
-						events.setSelectionRow(0);
 						events.updateUI();
+						events.setSelectionRow(0);
 						}
 					return;
 					}
