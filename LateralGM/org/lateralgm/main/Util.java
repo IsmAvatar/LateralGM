@@ -35,9 +35,12 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.stream.ImageInputStream;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.visual.FileChooserImagePreview;
@@ -304,5 +307,23 @@ public final class Util
 		{
 		comp.setPreferredSize(new Dimension(width,height));
 		return container.add(comp);
+		}
+
+	public static JPanel makeRadioPanel(String paneTitle, int width, int height)
+		{
+		JPanel panel = makeTitledPanel(paneTitle,width,height);
+		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
+		return panel;
+		}
+
+	public static JPanel makeTitledPanel(String paneTitle, int width, int height)
+		{
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder(paneTitle));
+		Dimension newSize = new Dimension(width,height);
+		panel.setPreferredSize(newSize);
+		panel.setMaximumSize(newSize);
+		panel.setMinimumSize(newSize);
+		return panel;
 		}
 	}

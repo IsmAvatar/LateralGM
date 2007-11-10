@@ -138,15 +138,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		name.setPreferredSize(new Dimension(110,20));
 		side1.add(name);
 
-		JPanel origin = new JPanel(new FlowLayout());
-		String t = Messages.getString("GmObjectFrame.SPRITE"); //$NON-NLS-1$
-		origin.setBorder(BorderFactory.createTitledBorder(t));
-		origin.setPreferredSize(new Dimension(180,80));
+		JPanel origin = Util.makeTitledPanel(Messages.getString("GmObjectFrame.SPRITE"),180,80); //$NON-NLS-1$
 		preview = new JLabel(GmTreeGraphics.getSpriteIcon(res.sprite == null ? null : res.sprite));
 		preview.setPreferredSize(new Dimension(16,16));
 		origin.add(preview);
 
-		t = Messages.getString("GmObjectFrame.NO_SPRITE"); //$NON-NLS-1$
+		String t = Messages.getString("GmObjectFrame.NO_SPRITE"); //$NON-NLS-1$
 		sprite = new ResourceMenu<Sprite>(Resource.SPRITE,t,144);
 		sprite.setRefSelected(res.sprite);
 		sprite.addActionListener(this);

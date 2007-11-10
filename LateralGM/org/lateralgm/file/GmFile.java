@@ -70,6 +70,8 @@ public class GmFile
 	public ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class,this);
 	public ResourceList<Room> rooms = new ResourceList<Room>(Room.class,this);
 
+	public String filename = null;
+
 	private final ResourceChangeListener rcl = new ResourceChangeListener();
 
 	private EventListenerList listenerList = new EventListenerList();

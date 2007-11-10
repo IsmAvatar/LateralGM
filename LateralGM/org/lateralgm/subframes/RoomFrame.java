@@ -14,7 +14,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -41,6 +40,7 @@ import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
@@ -50,8 +50,7 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
-//TODO: Handle res.rememberWindowSize - may also apply to other options
-//TODO: 1.6 Feature: Zoom for RoomEditor (add buttons here first)
+//TODO: Feature: Zoom for RoomEditor (add buttons here first)
 public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
@@ -107,7 +106,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		panel.add(new JLabel(Messages.getString("RoomFrame.WIP"))); //$NON-NLS-1$
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
-		oUnderlying.setSelected(res.deleteUnderlyingObjects);
+		oUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingObjects : true);
 		panel.add(oUnderlying);
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.OBJ_INSTANCES")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(150,20));
@@ -218,11 +217,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		sCreationCode.addActionListener(this);
 		panel.add(sCreationCode);
 
-		JPanel p2 = new JPanel(new FlowLayout());
-		String st = Messages.getString("RoomFrame.GRID"); //$NON-NLS-1$
-		p2.setBorder(BorderFactory.createTitledBorder(st));
-		p2.setPreferredSize(new Dimension(170,112));
-		st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
+		JPanel p2 = Util.makeTitledPanel(Messages.getString("RoomFrame.GRID"),170,112); //$NON-NLS-1$
+		String st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
 		sGridVis = new JCheckBox(st,res.rememberWindowSize ? res.showGrid : true);
 		sGridVis.addActionListener(this);
 		p2.add(sGridVis);
@@ -289,7 +285,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		panel.add(new JLabel(Messages.getString("RoomFrame.WIP"))); //$NON-NLS-1$
 		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
-		tUnderlying.setSelected(res.deleteUnderlyingTiles);
+		tUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingTiles : true);
 		panel.add(tUnderlying);
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.TILE_LIST")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(150,20));
@@ -331,10 +327,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tLocked.setHorizontalAlignment(JCheckBox.CENTER);
 		panel.add(tLocked);
 
-		JPanel p = new JPanel();
-		p.setPreferredSize(new Dimension(160,80));
-		String s = Messages.getString("RoomFrame.TILESET"); //$NON-NLS-1$
-		p.setBorder(BorderFactory.createTitledBorder(s));
+		JPanel p = Util.makeTitledPanel(Messages.getString("RoomFrame.TILESET"),160,80); //$NON-NLS-1$
 		tSource = new ResourceMenu<Background>(Room.BACKGROUND,"<no background>",true,110);
 		tSource.setPreferredSize(new Dimension(140,20));
 		p.add(tSource);
@@ -348,10 +341,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		p.add(tsY);
 		panel.add(p);
 
-		p = new JPanel();
-		p.setPreferredSize(new Dimension(160,80));
-		s = Messages.getString("RoomFrame.TILE"); //$NON-NLS-1$
-		p.setBorder(BorderFactory.createTitledBorder(s));
+		p = Util.makeTitledPanel(Messages.getString("RoomFrame.TILE"),160,80); //$NON-NLS-1$
 		p.add(new JLabel(Messages.getString("RoomFrame.TILE_X"))); //$NON-NLS-1$
 		tX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		tX.setPreferredSize(new Dimension(50,20));
@@ -479,72 +469,63 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		vVisible.addActionListener(this);
 		panel.add(vVisible);
 
-		JPanel p = new JPanel(new FlowLayout());
-		st = Messages.getString("RoomFrame.VIEW_IN_ROOM"); //$NON_NLS_1$ //$NON-NLS-1$
-		p.setBorder(BorderFactory.createTitledBorder(st));
-		p.setPreferredSize(new Dimension(130,80));
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_X"))); //$NON_NLS_1$ //$NON-NLS-1$
+		JPanel p = Util.makeTitledPanel(Messages.getString("RoomFrame.VIEW_IN_ROOM"),130,80); //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_X"))); //$NON-NLS-1$
 		vRX = new IntegerField(0,999999,res.views[0].viewX);
 		vRX.setPreferredSize(new Dimension(32,20));
 		p.add(vRX);
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_W"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_W"))); //$NON-NLS-1$
 		vRW = new IntegerField(1,999999,res.views[0].viewW);
 		vRW.setPreferredSize(new Dimension(32,20));
 		p.add(vRW);
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_Y"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_Y"))); //$NON-NLS-1$
 		vRY = new IntegerField(0,999999,res.views[0].viewY);
 		vRY.setPreferredSize(new Dimension(32,20));
 		p.add(vRY);
 		addGap(p,2,0);
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_H"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_H"))); //$NON-NLS-1$
 		vRH = new IntegerField(1,999999,res.views[0].viewH);
 		vRH.setPreferredSize(new Dimension(32,20));
 		p.add(vRH);
 		panel.add(p);
 
-		p = new JPanel(new FlowLayout());
-		st = Messages.getString("RoomFrame.PORT"); //$NON_NLS_1$ //$NON-NLS-1$
-		p.setBorder(BorderFactory.createTitledBorder(st));
-		p.setPreferredSize(new Dimension(130,80));
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_X"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p = Util.makeTitledPanel(Messages.getString("RoomFrame.PORT"),130,80); //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_X"))); //$NON-NLS-1$
 		vPX = new IntegerField(0,999999,res.views[0].portX);
 		vPX.setPreferredSize(new Dimension(32,20));
 		p.add(vPX);
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_W"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_W"))); //$NON-NLS-1$
 		vPW = new IntegerField(1,999999,res.views[0].portW);
 		vPW.setPreferredSize(new Dimension(32,20));
 		p.add(vPW);
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_Y"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_Y"))); //$NON-NLS-1$
 		vPY = new IntegerField(0,999999,res.views[0].portY);
 		vPY.setPreferredSize(new Dimension(32,20));
 		p.add(vPY);
 		addGap(p,2,0);
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_H"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.PORT_H"))); //$NON-NLS-1$
 		vPH = new IntegerField(1,999999,res.views[0].portH);
 		vPH.setPreferredSize(new Dimension(32,20));
 		p.add(vPH);
 		panel.add(p);
 
-		p = new JPanel(new FlowLayout());
-		st = Messages.getString("RoomFrame.FOLLOW"); //$NON_NLS_1$ //$NON-NLS-1$
-		p.setBorder(BorderFactory.createTitledBorder(st));
-		p.setPreferredSize(new Dimension(150,104));
+		p = Util.makeTitledPanel(Messages.getString("RoomFrame.FOLLOW"),150,104); //$NON-NLS-1$
 		vObj = new ResourceMenu<GmObject>(Room.GMOBJECT,"<no object>",true,110);
 		vObj.setRefSelected(res.views[0].objectFollowing);
 		p.add(vObj);
-		p.add(new JLabel(Messages.getString("RoomFrame.HBOR"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.HBOR"))); //$NON-NLS-1$
 		vOHBor = new IntegerField(0,32000,res.views[0].hbor);
 		vOHBor.setPreferredSize(new Dimension(32,20));
 		p.add(vOHBor);
-		p.add(new JLabel(Messages.getString("RoomFrame.HSP"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.HSP"))); //$NON-NLS-1$
 		vOHSp = new IntegerField(-1,32000,res.views[0].hspeed);
 		vOHSp.setPreferredSize(new Dimension(32,20));
 		p.add(vOHSp);
-		p.add(new JLabel(Messages.getString("RoomFrame.VBOR"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VBOR"))); //$NON-NLS-1$
 		vOVBor = new IntegerField(0,32000,res.views[0].vbor);
 		vOVBor.setPreferredSize(new Dimension(32,20));
 		p.add(vOVBor);
-		p.add(new JLabel(Messages.getString("RoomFrame.VSP"))); //$NON_NLS_1$ //$NON-NLS-1$
+		p.add(new JLabel(Messages.getString("RoomFrame.VSP"))); //$NON-NLS-1$
 		vOVSp = new IntegerField(-1,32000,res.views[0].vspeed);
 		vOVSp.setPreferredSize(new Dimension(32,20));
 		p.add(vOVSp);
@@ -803,8 +784,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastObj != null)
 			{
 			lastObj.locked = oLocked.isSelected();
-			if (oSource.getSelected() != null)
-				lastObj.gmObjectId = oSource.getSelectedRef();
+			if (oSource.getSelected() != null) lastObj.gmObjectId = oSource.getSelectedRef();
 			lastObj.x = oX.getIntValue();
 			lastObj.y = oY.getIntValue();
 			}
@@ -823,8 +803,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastTile != null)
 			{
 			lastTile.locked = tLocked.isSelected();
-			if (tSource.getSelected() != null)
-				lastTile.backgroundId = bSource.getSelectedRef();
+			if (tSource.getSelected() != null) lastTile.backgroundId = bSource.getSelectedRef();
 			lastTile.tileX = tsX.getIntValue();
 			lastTile.tileY = tsY.getIntValue();
 			lastTile.x = tX.getIntValue();

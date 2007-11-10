@@ -96,7 +96,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		String t = Messages.getString("GameSettingFrame.FULLSCREEN"); //$NON-NLS-1$
 		startFullscreen = new JCheckBox(t,g.startFullscreen);
 
-		JPanel scalegroup = makeTitledPanel(Messages.getString("GameSettingFrame.SCALING_TITLE"),250, //$NON-NLS-1$
+		JPanel scalegroup = Util.makeTitledPanel(
+				Messages.getString("GameSettingFrame.SCALING_TITLE"),250, //$NON-NLS-1$
 				120);
 		scalegroup.setAlignmentX(0f);
 		scaling = new IndexButtonGroup(3,true,false,this);
@@ -190,7 +191,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		resolutionPane = new JPanel();
 		resolutionPane.setPreferredSize(new Dimension(480,700));
 
-		JPanel depth = makeRadioPanel(Messages.getString("GameSettingFrame.TITLE_COLOR_DEPTH"),150,200); //$NON-NLS-1$
+		JPanel depth = Util.makeRadioPanel(
+				Messages.getString("GameSettingFrame.TITLE_COLOR_DEPTH"),150,200); //$NON-NLS-1$
 		colourDepth = new IndexButtonGroup(3,true,false);
 		colourDepth.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
 		colourDepth.add(new JRadioButton(Messages.getString("GameSettingFrame.16_BIT"))); //$NON-NLS-1$
@@ -199,7 +201,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		colourDepth.populate(depth);
 		resolutionPane.add(depth);
 
-		JPanel res = makeRadioPanel(Messages.getString("GameSettingFrame.TITLE_RESOLUTION"),150,200); //$NON-NLS-1$
+		JPanel res = Util.makeRadioPanel(
+				Messages.getString("GameSettingFrame.TITLE_RESOLUTION"),150,200); //$NON-NLS-1$
 		resolution = new IndexButtonGroup(7,true,false);
 		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
 		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.320X240"))); //$NON-NLS-1$
@@ -212,7 +215,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		resolution.populate(res);
 		resolutionPane.add(res);
 
-		JPanel freq = makeRadioPanel(Messages.getString("GameSettingFrame.TITLE_FREQUENCY"),150,200); //$NON-NLS-1$
+		JPanel freq = Util.makeRadioPanel(
+				Messages.getString("GameSettingFrame.TITLE_FREQUENCY"),150,200); //$NON-NLS-1$
 		frequency = new IndexButtonGroup(6,true,false);
 		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
 		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.60HZ"))); //$NON-NLS-1$
@@ -242,7 +246,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		JPanel panel = new JPanel(new FlowLayout());
 		String t = Messages.getString("GameSettingFrame.TITLE_KEYS"); //$NON-NLS-1$
 		addGap(panel,450,10);
-		JPanel dKeys = makeRadioPanel(t,480,150);
+		JPanel dKeys = Util.makeRadioPanel(t,480,150);
 		panel.add(dKeys);
 
 		t = Messages.getString("GameSettingFrame.KEY_ENDGAME"); //$NON-NLS-1$
@@ -259,7 +263,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		dKeys.add(f5);
 
 		t = Messages.getString("GameSettingFrame.TITLE_PRIORITY"); //$NON-NLS-1$
-		JPanel gpp = makeRadioPanel(t,480,120);
+		JPanel gpp = Util.makeRadioPanel(t,480,120);
 		panel.add(gpp);
 
 		gamePriority = new IndexButtonGroup(3,true,false);
@@ -330,7 +334,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		addGap(loadImage,270,16);
 		panel.add(loadImage);
 
-		JPanel progBar = makeTitledPanel(
+		JPanel progBar = Util.makeTitledPanel(
 				Messages.getString("GameSettingFrame.TITLE_LOADING_PROGRESS_BAR"),480,150); //$NON-NLS-1$
 		loadBarMode = new IndexButtonGroup(3,true,false,this);
 		JRadioButton but = new JRadioButton(Messages.getString("GameSettingFrame.NO_PROGRESS_BAR")); //$NON-NLS-1$
@@ -536,7 +540,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		iClear.addActionListener(this);
 		addDim(panel,iClear,80,24);
 
-		JPanel folderPanel = makeRadioPanel(Messages.getString("GameSettingFrame.EXPORT_TO"),200,80); //$NON-NLS-1$
+		JPanel folderPanel = Util.makeRadioPanel(
+				Messages.getString("GameSettingFrame.EXPORT_TO"),200,80); //$NON-NLS-1$
 		exportFolder = new IndexButtonGroup(2,true,false);
 		exportFolder.add(new JRadioButton(Messages.getString("GameSettingFrame.SAME_FOLDER"))); //$NON-NLS-1$
 		exportFolder.add(new JRadioButton(Messages.getString("GameSettingFrame.TEMP_DIRECTORY"))); //$NON-NLS-1$
@@ -1114,25 +1119,5 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		//Info
 		g.author = author.getText();
 		g.version = version.getText();
-		}
-
-	//XXX: Consider moving to Util
-	public static JPanel makeRadioPanel(String paneTitle, int width, int height)
-		{
-		JPanel panel = makeTitledPanel(paneTitle,width,height);
-		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
-		return panel;
-		}
-
-	//XXX: Consider moving to Util
-	public static JPanel makeTitledPanel(String paneTitle, int width, int height)
-		{
-		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder(paneTitle));
-		Dimension newSize = new Dimension(width,height);
-		panel.setPreferredSize(newSize);
-		panel.setMaximumSize(newSize);
-		panel.setMinimumSize(newSize);
-		return panel;
 		}
 	}

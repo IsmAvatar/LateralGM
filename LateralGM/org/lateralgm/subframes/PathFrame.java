@@ -179,6 +179,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		{
 		if (!manualUpdate) return;
 		Point p = (Point) list.getSelectedValue();
+		if (p == null) return;
 		p.x = tx.getIntValue();
 		p.y = ty.getIntValue();
 		p.speed = tsp.getIntValue();

@@ -92,6 +92,7 @@ public final class GmFileReader
 	public static GmFile readGmFile(String fileName, ResNode root) throws GmFormatException
 		{
 		GmFile f = new GmFile();
+		f.filename = fileName;
 		GmStreamDecoder in = null;
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class,f); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class,f); // object ids

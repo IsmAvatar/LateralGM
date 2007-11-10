@@ -47,6 +47,7 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
@@ -61,7 +62,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 	public static final int FUNCTION_ADD = 0;
 	public static final int FUNCTION_REPLACE = 1;
 	public static final int FUNCTION_DUPLICATE = 2;
-	
+
 	public IndexButtonGroup function;
 	public EventKeyInput keySelect;
 	public JPanel keySelectPanel;
@@ -102,7 +103,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 
 		side2.add(new JLabel(Messages.getString("EventFrame.DOUBLE_CLICK"))); //$NON-NLS-1$
 		addGap(side2,100,3);
-		
+
 		function = new IndexButtonGroup(3,true,false);
 		JRadioButton rad = new JRadioButton(Messages.getString("EventFrame.ADD")); //$NON-NLS-1$
 		function.add(rad);
@@ -110,7 +111,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		function.add(rad);
 		rad = new JRadioButton(Messages.getString("EventFrame.DUPLICATE")); //$NON-NLS-1$
 		function.add(rad);
-		JPanel panel = GameSettingFrame.makeRadioPanel(Messages.getString("EventFrame.FUNCTION"),120,100); //$NON-NLS-1$
+		JPanel panel = Util.makeRadioPanel(Messages.getString("EventFrame.FUNCTION"),120,100); //$NON-NLS-1$
 		function.populate(panel);
 		function.setValue(FUNCTION_ADD);
 		side2.add(panel);
@@ -138,7 +139,8 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		addGap(side2,140,5);
 
 		addDim(side2,new JLabel(Messages.getString("EventFrame.FRAME_LINK")),140,16); //$NON-NLS-1$
-		linkSelect = new ResourceMenu<GmObject>(Resource.GMOBJECT,Messages.getString("EventFrame.NO_LINK"),true,140,true); //$NON-NLS-1$
+		linkSelect = new ResourceMenu<GmObject>(Resource.GMOBJECT,
+				Messages.getString("EventFrame.NO_LINK"),true,140,true); //$NON-NLS-1$
 		linkSelect.addActionListener(this);
 		side2.add(linkSelect);
 
@@ -277,7 +279,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				ResNode node = obj.getRef().getNode();
 				linkedFrame = (GmObjectFrame) node.frame;
 				linkedFrame.toTop();
-				if (isVisible()) this.toTop();
+				if (isVisible()) toTop();
 				}
 			else
 				linkedFrame = null;

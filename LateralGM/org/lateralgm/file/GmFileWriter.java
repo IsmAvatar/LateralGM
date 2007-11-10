@@ -47,13 +47,13 @@ public final class GmFileWriter
 		{
 		}
 
-	public static void writeGmFile(GmFile f, String fileName, ResNode root)
+	public static void writeGmFile(GmFile f, ResNode root)
 		{
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = null;
 		try
 			{
-			out = new GmStreamEncoder(fileName);
+			out = new GmStreamEncoder(f.filename);
 			out.write4(1234321);
 			out.write4(600);
 

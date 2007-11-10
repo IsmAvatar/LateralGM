@@ -26,6 +26,7 @@ import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Font;
 
@@ -92,10 +93,7 @@ public class FontFrame extends ResourceFrame<Font>
 		italic.setSelected(res.italic);
 		add(italic);
 
-		JPanel crange = new JPanel();
-		String t = Messages.getString("FontFrame.CHARRANGE"); //$NON-NLS-1$
-		crange.setBorder(BorderFactory.createTitledBorder(t));
-		crange.setPreferredSize(new Dimension(220,110));
+		JPanel crange = Util.makeTitledPanel(Messages.getString("FontFrame.CHARRANGE"),220,110); //$NON-NLS-1$
 
 		charMin = new IntegerField(0,255,res.charRangeMin);
 		charMin.setPreferredSize(new Dimension(70,20));

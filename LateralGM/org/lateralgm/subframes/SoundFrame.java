@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -37,6 +36,7 @@ import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sound;
 
@@ -132,10 +132,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		b.setPreferredSize(new Dimension(170,14));
 		kind.add(b,Sound.SOUND_MULTIMEDIA);
 		kind.setValue(res.kind);
-		JPanel p = new JPanel();
-		String t = Messages.getString("SoundFrame.KIND"); //$NON-NLS-1$
-		p.setBorder(BorderFactory.createTitledBorder(t));
-		p.setPreferredSize(new Dimension(220,110));
+		JPanel p = Util.makeTitledPanel(Messages.getString("SoundFrame.KIND"),220,110); //$NON-NLS-1$
 		kind.populate(p);
 		add(p);
 
@@ -157,10 +154,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		b.setPreferredSize(new Dimension(80,14));
 		effects.add(b,16);
 		effects.setValue(res.getEffects());
-		p = new JPanel();
-		t = Messages.getString("SoundFrame.EFFECTS"); //$NON-NLS-1$
-		p.setBorder(BorderFactory.createTitledBorder(t));
-		p.setPreferredSize(new Dimension(220,90));
+		p = Util.makeTitledPanel(Messages.getString("SoundFrame.EFFECTS"),220,90); //$NON-NLS-1$
 		effects.populate(p);
 		add(p);
 

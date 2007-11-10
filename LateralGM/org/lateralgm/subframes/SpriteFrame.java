@@ -187,10 +187,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		preload.setSelected(res.preload);
 		side2.add(preload);
 
-		JPanel origin = new JPanel(new FlowLayout());
-		String t = Messages.getString("SpriteFrame.ORIGIN"); //$NON-NLS-1$
-		origin.setBorder(BorderFactory.createTitledBorder(t));
-		origin.setPreferredSize(new Dimension(200,80));
+		JPanel origin = Util.makeTitledPanel(Messages.getString("SpriteFrame.ORIGIN"),200,80); //$NON-NLS-1$
 		JLabel lab = new JLabel(Messages.getString("SpriteFrame.X")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(20,16));
 		lab.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -213,11 +210,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		origin.add(centre);
 		side2.add(origin);
 
-		JPanel bbox = new JPanel(new FlowLayout());
-		t = Messages.getString("SpriteFrame.BBOX"); //$NON-NLS-1$
-		bbox.setBorder(BorderFactory.createTitledBorder(t));
-		bbox.setPreferredSize(new Dimension(200,120));
-
+		JPanel bbox = Util.makeTitledPanel(Messages.getString("SpriteFrame.BBOX"),200,120); //$NON-NLS-1$
 		bboxGroup = new IndexButtonGroup(3,true,false,this);
 		auto = new JRadioButton(Messages.getString("SpriteFrame.AUTO")); //$NON-NLS-1$
 		auto.setPreferredSize(new Dimension(85,16));
