@@ -165,9 +165,7 @@ public abstract class InputHandler extends KeyAdapter
 		return null;
 		}
 
-	/**
-	 * Returns an enumeration of all available actions.
-	 */
+	/** Returns an enumeration of all available actions. */
 	public static Enumeration<String> getActions()
 		{
 		return actions.keys();
@@ -195,9 +193,7 @@ public abstract class InputHandler extends KeyAdapter
 	 */
 	public abstract void removeKeyBinding(String keyBinding);
 
-	/**
-	 * Removes all key bindings from this input handler.
-	 */
+	/** Removes all key bindings from this input handler. */
 	public abstract void removeAllKeyBindings();
 
 	/**
@@ -230,9 +226,7 @@ public abstract class InputHandler extends KeyAdapter
 		this.repeat = repeat;
 		}
 
-	/**
-	 * Returns the number of times the next action will be repeated.
-	 */
+	/** Returns the number of times the next action will be repeated. */
 	public int getRepeatCount()
 		{
 		return (repeat ? Math.max(1,repeatCount) : 1);
@@ -265,13 +259,6 @@ public abstract class InputHandler extends KeyAdapter
 		{
 		this.recorder = recorder;
 		}
-
-	/**
-	 * Returns a copy of this input handler that shares the same
-	 * key bindings. Setting key bindings in the copy will also
-	 * set them in the original.
-	 */
-	public abstract InputHandler copy();
 
 	/**
 	 * Executes the specified action, repeating and recording it as
@@ -1132,5 +1119,4 @@ public abstract class InputHandler extends KeyAdapter
 			textArea.paste();
 			}
 		}
-
 	}

@@ -1,6 +1,7 @@
 /*
  * DefaultInputHandler.java - Default implementation of an input handler
  * Copyright (C) 1999 Slava Pestov
+ * Modified by IsmAvatar <cmagicj@nni.com>
  *
  * You may use and modify this package for any purpose. Redistribution is
  * permitted, in both source and binary form, provided that this notice
@@ -8,33 +9,29 @@
  */
 package org.lateralgm.jedit;
 
-import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Hashtable;
-import java.util.StringTokenizer;
 
 import javax.swing.KeyStroke;
 
 /**
- * The default input handler. It maps sequences of keystrokes into actions
- * and inserts key typed events into the text area.
+ * The default input handler. It maps sequences of keystrokes into actions and
+ * inserts key typed events into the text area.
  * @author Slava Pestov
  */
 public class DefaultInputHandler extends InputHandler
 	{
-	/**
-	 * Creates a new input handler with no key bindings defined.
-	 */
+	private Hashtable<KeyStroke,ActionListener> bindings;
+
+	/** Creates a new input handler with no key bindings defined. */
 	public DefaultInputHandler()
 		{
-		bindings = currentBindings = new Hashtable<KeyStroke,Object>();
+		bindings = new Hashtable<KeyStroke,ActionListener>();
 		}
 
-	/**
-	 * Sets up the default key bindings.
-	 */
+	/** Sets up the default key bindings. */
 	public void addDefaultKeyBindings()
 		{
 		addKeyBinding("BACK_SPACE",BACKSPACE);
@@ -84,73 +81,38 @@ public class DefaultInputHandler extends InputHandler
 		}
 
 	/**
-	 * Adds a key binding to this input handler. The key binding is
-	 * a list of white space separated key strokes of the form
-	 * <i>[modifiers+]key</i> where modifier is C for Control, A for Alt,
-	 * or S for Shift, and key is either a character (a-z) or a field
-	 * name in the KeyEvent class prefixed with VK_ (e.g., BACK_SPACE)
+	 * Adds a key binding to this input handler. The key binding is of the
+	 * form <i>[modifiers+]key</i> where modifier is C for Control, A for Alt,
+	 * S for Shift, and M for Meta, and key is either a character (a-z) or
+	 * a field name in the KeyEvent class prefixed with VK_ (e.g., BACK_SPACE)
 	 * @param keyBinding The key binding
 	 * @param action The action
 	 */
 	public void addKeyBinding(String keyBinding, ActionListener action)
 		{
-		Hashtable<KeyStroke,Object> current = bindings;
-
-		StringTokenizer st = new StringTokenizer(keyBinding);
-		while (st.hasMoreTokens())
-			{
-			KeyStroke keyStroke = parseKeyStroke(st.nextToken());
-			if (keyStroke == null) return;
-
-			if (st.hasMoreTokens())
-				{
-				Object o = current.get(keyStroke);
-				if (o instanceof Hashtable)
-					current = (Hashtable<KeyStroke,Object>) o;
-				else
-					{
-					o = new Hashtable();
-					current.put(keyStroke,o);
-					current = (Hashtable<KeyStroke,Object>) o;
-					}
-				}
-			else
-				current.put(keyStroke,action);
-			}
+		KeyStroke keyStroke = parseKeyStroke(keyBinding);
+		if (keyStroke == null) return;
+		bindings.put(keyStroke,action);
 		}
 
 	/**
-	 * Removes a key binding from this input handler. This is not yet
-	 * implemented.
+	 * Removes a key binding from this input handler.
 	 * @param keyBinding The key binding
 	 */
 	public void removeKeyBinding(String keyBinding)
 		{
-		throw new InternalError("Not yet implemented");
+		KeyStroke keyStroke = parseKeyStroke(keyBinding);
+		if (keyStroke == null) return;
+		bindings.remove(keyStroke);
 		}
 
-	/**
-	 * Removes all key bindings from this input handler.
-	 */
+	/** Removes all key bindings from this input handler. */
 	public void removeAllKeyBindings()
 		{
 		bindings.clear();
 		}
 
-	/**
-	 * Returns a copy of this input handler that shares the same
-	 * key bindings. Setting key bindings in the copy will also
-	 * set them in the original.
-	 */
-	public InputHandler copy()
-		{
-		return new DefaultInputHandler(this);
-		}
-
-	/**
-	 * Handle a key pressed event. This will look up the binding for
-	 * the key stroke and execute it.
-	 */
+	/** Handle a key pressed event. This looks up the binding for the key stroke and executes it. */
 	public void keyPressed(KeyEvent evt)
 		{
 		int keyCode = evt.getKeyCode();
@@ -170,46 +132,18 @@ public class DefaultInputHandler extends InputHandler
 				}
 
 			KeyStroke keyStroke = KeyStroke.getKeyStroke(keyCode,modifiers);
-			Object o = currentBindings.get(keyStroke);
+			ActionListener o = bindings.get(keyStroke);
 			if (o == null)
-				{
-				// Don't beep if the user presses some
-				// key we don't know about unless a
-				// prefix is active. Otherwise it will
-				// beep when caps lock is pressed, etc.
-				if (currentBindings != bindings)
-					{
-					Toolkit.getDefaultToolkit().beep();
-					// F10 should be passed on, but C+e F10
-					// shouldn't
-					repeatCount = 0;
-					repeat = false;
-					evt.consume();
-					}
-				currentBindings = bindings;
 				return;
-				}
-			else if (o instanceof ActionListener)
+			else
 				{
-				currentBindings = bindings;
-
-				executeAction(((ActionListener) o),evt.getSource(),null);
-
+				executeAction(o,evt.getSource(),null);
 				evt.consume();
-				return;
-				}
-			else if (o instanceof Hashtable)
-				{
-				currentBindings = (Hashtable<KeyStroke,Object>) o;
-				evt.consume();
-				return;
 				}
 			}
 		}
 
-	/**
-	 * Handle a key typed event. This inserts the key into the text area.
-	 */
+	/** Handle a key typed event. This inserts the key into the text area. */
 	public void keyTyped(KeyEvent evt)
 		{
 		int modifiers = evt.getModifiers();
@@ -219,21 +153,12 @@ public class DefaultInputHandler extends InputHandler
 			if (c >= 0x20 && c != 0x7f)
 				{
 				KeyStroke keyStroke = KeyStroke.getKeyStroke(Character.toUpperCase(c));
-				Object o = currentBindings.get(keyStroke);
-
-				if (o instanceof Hashtable)
+				ActionListener o = bindings.get(keyStroke);
+				if (o != null)
 					{
-					currentBindings = (Hashtable<KeyStroke,Object>) o;
+					executeAction(o,evt.getSource(),String.valueOf(c));
 					return;
 					}
-				else if (o instanceof ActionListener)
-					{
-					currentBindings = bindings;
-					executeAction((ActionListener) o,evt.getSource(),String.valueOf(c));
-					return;
-					}
-
-				currentBindings = bindings;
 
 				if (grabAction != null)
 					{
@@ -322,14 +247,5 @@ public class DefaultInputHandler extends InputHandler
 
 			return KeyStroke.getKeyStroke(ch,modifiers);
 			}
-		}
-
-	// private members
-	private Hashtable<KeyStroke,Object> bindings;
-	private Hashtable<KeyStroke,Object> currentBindings;
-
-	private DefaultInputHandler(DefaultInputHandler copy)
-		{
-		bindings = currentBindings = copy.bindings;
 		}
 	}
