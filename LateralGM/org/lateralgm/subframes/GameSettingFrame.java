@@ -54,6 +54,7 @@ import javax.swing.table.AbstractTableModel;
 
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.mdi.MDIFrame;
@@ -300,6 +301,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public JButton changeIcon;
 	public IntegerField gameId;
 	public JButton randomise;
+	private CustomFileChooser iconFc;
 
 	private JPanel makeLoadingPane()
 		{
@@ -376,7 +378,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		addDim(panel,changeIcon,120,24);
 
 		addGap(panel,200,16);
-
+		JFileChooser fc = new JFileChooser();
+		fc.setFileFilter(new CustomFileFilter(".ico",Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
 		lab = new JLabel(Messages.getString("GameSettingFrame.GAME_ID")); //$NON-NLS-1$
 		addDim(panel,lab,50,16);
 
@@ -387,6 +390,10 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		randomise.addActionListener(this);
 		addDim(panel,randomise,120,24);
 		addGap(panel,195,16);
+
+		iconFc = new CustomFileChooser("/org/lateralgm","LAST_ICON_DIR");
+		iconFc.setFileFilter(new CustomFileFilter(
+				".ico",Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
 
 		return panel;
 		}
@@ -402,6 +409,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public JButton up;
 	public JButton down;
 	public JButton sort;
+	private CustomFileChooser constantsFc;
 
 	private JPanel makeConstantsPane()
 		{
@@ -444,6 +452,10 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		down.addActionListener(this);
 		addDim(panel,down,100,24);
 		addGap(panel,100,24);
+
+		constantsFc = new CustomFileChooser("/org/lateralgm","LAST_LGC_DIR");
+		constantsFc.setFileFilter(new CustomFileFilter(
+				".lgc",Messages.getString("GameSettingFrame.LGC_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
 
 		return panel;
 		}
@@ -509,14 +521,15 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			}
 		}
 
-	JList includes;
-	IncludesListModel iModel;
-	JButton iAdd;
-	JButton iDelete;
-	JButton iClear;
-	IndexButtonGroup exportFolder;
-	JCheckBox overwriteExisting;
-	JCheckBox removeAtGameEnd;
+	public JList includes;
+	public IncludesListModel iModel;
+	public JButton iAdd;
+	public JButton iDelete;
+	public JButton iClear;
+	public IndexButtonGroup exportFolder;
+	public JCheckBox overwriteExisting;
+	public JCheckBox removeAtGameEnd;
+	private CustomFileChooser includesFc;
 
 	private JPanel makeIncludePane()
 		{
@@ -555,6 +568,10 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		addDim(checkPanel,overwriteExisting,200,16);
 		removeAtGameEnd = new JCheckBox(Messages.getString("GameSettingFrame.REMOVE_FILES_AT_END")); //$NON-NLS-1$
 		addDim(checkPanel,removeAtGameEnd,200,16);
+
+		includesFc = new CustomFileChooser("/org/lateralgm","LAST_INCLUDES_DIR");
+		includesFc.setMultiSelectionEnabled(true);
+
 		return panel;
 		}
 
@@ -780,11 +797,9 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			}
 		else if (e.getSource() == changeIcon)
 			{
-			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new CustomFileFilter(".ico",Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
-			if (fc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+			if (iconFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 				{
-				File f = fc.getSelectedFile();
+				File f = iconFc.getSelectedFile();
 				if (f.exists())
 					try
 						{
@@ -928,11 +943,9 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		{
 		if (e.getSource() == iAdd)
 			{
-			JFileChooser choose = new JFileChooser();
-			choose.setMultiSelectionEnabled(true);
-			if (choose.showOpenDialog(getParent()) == JFileChooser.APPROVE_OPTION)
+			if (includesFc.showOpenDialog(getParent()) == JFileChooser.APPROVE_OPTION)
 				{
-				File[] f = choose.getSelectedFiles();
+				File[] f = includesFc.getSelectedFiles();
 				for (File file : f)
 					iModel.addElement(new Include(file.getAbsolutePath()));
 				}
@@ -954,15 +967,13 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	private void importConstants()
 		{
-		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".lgc",Messages.getString("GameSettingFrame.LGC_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
-		if (fc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+		if (constantsFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 			{
 			cModel.removeEmptyConstants();
 			GmStreamDecoder in = null;
 			try
 				{
-				File f = fc.getSelectedFile();
+				File f = constantsFc.getSelectedFile();
 				if (f == null || !f.exists()) throw new Exception();
 
 				in = new GmStreamDecoder(f);
@@ -1001,12 +1012,9 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	private void exportConstants()
 		{
-		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".lgc",Messages.getString("GameSettingFrame.LGC_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
-
-		while (fc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+		while (constantsFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 			{
-			File f = fc.getSelectedFile();
+			File f = constantsFc.getSelectedFile();
 			if (f == null) return;
 			if (!f.getPath().endsWith(".lgc")) f = new File(f.getPath() + ".lgc"); //$NON-NLS-1$ //$NON-NLS-2$
 			int result = 0;

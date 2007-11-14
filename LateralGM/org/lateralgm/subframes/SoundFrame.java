@@ -32,6 +32,7 @@ import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 
 import org.lateralgm.compare.ResourceComparator;
+import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
@@ -62,7 +63,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 	public JButton edit;
 	public byte[] data;
 	public boolean modified = false;
-	private JFileChooser fc = new JFileChooser();
+	private CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_SOUND_DIR");
 
 	public SoundFrame(Sound res, ResNode node)
 		{

@@ -22,6 +22,7 @@ public class IntegerField extends JTextField implements DocumentListener
 	private int min;
 	private int max;
 	private int lastGoodVal;
+	private int lastUnBoundedVal;
 	private boolean setting = false; // prevents recursive calls of setText
 
 	public IntegerField(int min, int max)
@@ -56,15 +57,22 @@ public class IntegerField extends JTextField implements DocumentListener
 
 	public int getIntValue()
 		{
+		validateInt();
+		return lastGoodVal;
+		}
+
+	private boolean validateInt()
+		{
 		try
 			{
-			int val = Integer.parseInt(getText());
-			lastGoodVal = Math.max(min,Math.min(val,max));
+			lastUnBoundedVal = Integer.parseInt(getText());
+			lastGoodVal = Math.max(min,Math.min(lastUnBoundedVal,max));
 			}
 		catch (NumberFormatException ex)
 			{
+			return false;
 			}
-		return lastGoodVal;
+		return true;
 		}
 
 	public void setIntValue(int val)
@@ -78,8 +86,10 @@ public class IntegerField extends JTextField implements DocumentListener
 		if (e.getID() == FocusEvent.FOCUS_LOST)
 			{
 			int a = lastGoodVal;
-			int b = getIntValue();
-			if (a != b) setText(Integer.toString(b));
+			boolean valid = validateInt();
+			int b = lastUnBoundedVal;
+			int c = lastGoodVal;
+			if (a != b || !valid) setText(Integer.toString(c));
 			}
 		super.processFocusEvent(e);
 		}

@@ -64,6 +64,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
+import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
@@ -83,6 +84,7 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 	private JToggleButton tbItalic;
 	private JToggleButton tbUnderline;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
+	private CustomFileChooser fc;
 
 	// These prevent the Formatting Bar things from firing when the caret moves
 	// because that would cause the selection to conform the text to the caret format
@@ -321,6 +323,10 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		scroller.getViewport().add(editor);
 		topPanel.add(scroller,BorderLayout.CENTER);
 		revertResource();
+
+		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR");
+		fc.setFileFilter(new CustomFileFilter(".rtf", //$NON-NLS-1$
+				Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$
 		}
 
 	public void setEditorBackground(Color c)
@@ -375,22 +381,15 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 
 	public void loadFromFile()
 		{
-		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".rtf", //$NON-NLS-1$
-				Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$
 		fc.setDialogTitle(Messages.getString("GameInformationFrame.LOAD_TITLE")); //$NON-NLS-1$
-		if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
-		boolean repeat = true;
-		while (repeat)
+		while (true)
 			{
 			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
-			if (fc.getSelectedFile().exists())
-				repeat = false;
-			else
-				JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
-						+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
-						Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-1$
-						JOptionPane.WARNING_MESSAGE);
+			if (fc.getSelectedFile().exists()) break;
+			JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
+					+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
+					Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-1$
+					JOptionPane.WARNING_MESSAGE);
 			}
 		try
 			{
@@ -406,9 +405,6 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 
 	public void saveToFile()
 		{
-		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".rtf", //$NON-NLS-1$
-				Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$
 		fc.setDialogTitle(Messages.getString("GameInformationFrame.SAVE_TITLE")); //$NON-NLS-1$
 		if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 		String name = fc.getSelectedFile().getPath();

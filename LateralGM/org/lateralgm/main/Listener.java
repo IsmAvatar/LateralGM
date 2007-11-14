@@ -38,8 +38,9 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.tree.TreePath;
 
+import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.GmMenuBar;
-import org.lateralgm.components.impl.CustomFileFilter;
+import org.lateralgm.components.CustomFileChooser.FilterSet;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.GmFileReader;
@@ -54,27 +55,21 @@ import org.lateralgm.subframes.GameSettingFrame;
 public class Listener extends TransferHandler implements ActionListener,CellEditorListener
 	{
 	private static final long serialVersionUID = 1L;
-	public MListener mListener = new MListener();
-	private JFileChooser fc, tc;
+	MListener mListener = new MListener();
+	private CustomFileChooser fc;
+	private FilterSet openFs = new FilterSet();
+	private FilterSet saveFs = new FilterSet();
 
 	public Listener()
 		{
 		String exts[] = { ".gmk",".gm6",".gmd" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		String msg = Messages.getString("Listener.FORMAT_GM"); //$NON-NLS-1$
-		CustomFileFilter cff = new CustomFileFilter(exts,msg);
-		fc = new JFileChooser();
-		fc.addChoosableFileFilter(cff);
-		fc.addChoosableFileFilter(new CustomFileFilter(exts[0],
-				Messages.getString("Listener.FORMAT_GMK"))); //$NON-NLS-1$
-		fc.addChoosableFileFilter(new CustomFileFilter(exts[1],
-				Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$
-		fc.addChoosableFileFilter(new CustomFileFilter(exts[2],
-				Messages.getString("Listener.FORMAT_GMD"))); //$NON-NLS-1$
-		fc.setFileFilter(cff);
-		//FIXME: this is a temporary solution until clam adds his FileChooser class
-		tc = new JFileChooser();
-		tc.setFileFilter(new CustomFileFilter(exts[1],
-				Messages.getString("Listener.FORMAT_GM6"))); //$NON-NLS-1$
+		fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
+		openFs.addFilter("Listener.FORMAT_GM",exts); //$NON-NLS-1$
+		openFs.addFilter("Listener.FORMAT_GMK",exts[0]); //$NON-NLS-1$
+		openFs.addFilter("Listener.FORMAT_GM6",exts[1]); //$NON-NLS-1$
+		openFs.addFilter("Listener.FORMAT_GMD",exts[2]); //$NON-NLS-1$
+
+		saveFs.addFilter("Listener.FORMAT_GM6",exts[1]); //$NON-NLS-1$
 		}
 
 	public static byte stringToRes(String com)
@@ -109,6 +104,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		else
 			{
+			fc.setFilterSet(openFs);
 			fc.showOpenDialog(LGM.frame);
 			file = fc.getSelectedFile();
 			if (file == null) return;
@@ -214,10 +210,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	public void saveNewFile()
 		{
+		fc.setFilterSet(saveFs);
 		while (true) //repeatedly display dialog until a valid response is given
 			{
-			if (tc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
-			String filename = tc.getSelectedFile().getPath();
+			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
+			String filename = fc.getSelectedFile().getPath();
 			if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
 			int result = JOptionPane.YES_OPTION;
 			if (new File(filename).exists())
@@ -578,7 +575,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 							{
 							if (node.frame != null) node.frame.commitChanges();
 							// dodgy workaround to avoid warnings
-							resource = (Resource<?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(
+							resource = (Resource<?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(//$NON-NLS-1$
 									rl,node.getRes());
 							}
 						catch (Exception e1)

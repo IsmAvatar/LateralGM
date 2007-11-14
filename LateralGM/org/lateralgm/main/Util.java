@@ -42,6 +42,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.visual.FileChooserImagePreview;
 import org.lateralgm.file.iconio.ICOImageReaderSPI;
@@ -57,7 +58,7 @@ public final class Util
 		{
 		}
 
-	public static JFileChooser imageFc = null;
+	public static CustomFileChooser imageFc = null;
 
 	public static void tweakIIORegistry()
 		{
@@ -188,7 +189,7 @@ public final class Util
 		{
 		if (imageFc == null)
 			{
-			imageFc = new JFileChooser();
+			imageFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
 			imageFc.setAccessory(new FileChooserImagePreview(imageFc));
 			String exts[] = ImageIO.getReaderFileSuffixes();
 			for (int i = 0; i < exts.length; i++)
