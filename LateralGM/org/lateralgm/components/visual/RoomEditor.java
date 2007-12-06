@@ -13,6 +13,7 @@ package org.lateralgm.components.visual;
 import static org.lateralgm.resources.Ref.deRef;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -44,9 +45,18 @@ public class RoomEditor extends JPanel implements ImageObserver
 		{
 		setOpaque(false);
 		this.frame = frame;
+		refresh();
 		enableEvents(MouseEvent.MOUSE_PRESSED);
 		for (Instance i : r.instances)
 			add(new RoomEditor.InstanceComponent(i));
+		}
+
+	public void refresh()
+		{
+		Dimension s = new Dimension(frame.sWidth.getIntValue(),frame.sHeight.getIntValue());
+		setPreferredSize(s);
+		revalidate();
+		repaint();
 		}
 
 	//TODO: Handle mouse for adding/deleting instances/tiles
@@ -68,16 +78,42 @@ public class RoomEditor extends JPanel implements ImageObserver
 		Graphics g2 = g.create();
 		int width = frame.sWidth.getIntValue();
 		int height = frame.sHeight.getIntValue();
+		g2.clipRect(0,0,width,height);
 		g2.setColor(frame.bDrawColor.isSelected() ? frame.bColor.getSelectedColor() : Color.BLACK);
 		g2.fillRect(0,0,width,height);
-		if (frame.bVisible.isSelected() && frame.sSBack.isSelected())
+		if (frame.sSBack.isSelected())
 			{
 			for (int i = 0; i < 8; i++)
 				{
 				BackgroundDef bd = frame.res.backgroundDefs[i];
 				if (!bd.visible || bd.foreground || deRef(bd.backgroundId) == null) continue;
 				BufferedImage bi = bd.backgroundId.getRes().backgroundImage;
-				if (bd.stretch)
+				if (bd.tileHoriz || bd.tileVert)
+					{
+					int x = bd.x;
+					int y = bd.y;
+					int ncol = 1;
+					int nrow = 1;
+					int w = bd.stretch ? width : bi.getWidth();
+					int h = bd.stretch ? height : bi.getHeight();
+					if (bd.tileHoriz)
+						{
+						x = 1 + ((bd.x + w - 1) % w) - w;
+						ncol = 1 + (width - x - 1) / w;
+						}
+					if (bd.tileVert)
+						{
+						y = 1 + ((bd.y + h - 1) % h) - h;
+						nrow = 1 + (height - y - 1) / h;
+						}
+					for (int row = 0; row < nrow; row++)
+						for (int col = 0; col < ncol; col++)
+							if (bd.stretch)
+								g2.drawImage(bi,x + w * col,y + h * row,w,h,this);
+							else
+								g2.drawImage(bi,x + w * col,y + h * row,this);
+					}
+				else if (bd.stretch)
 					g2.drawImage(bi,bd.x,bd.y,width,height,this);
 				else
 					g2.drawImage(bi,bd.x,bd.y,this);
@@ -108,14 +144,14 @@ public class RoomEditor extends JPanel implements ImageObserver
 				g2.setXORMode(Color.BLACK);
 				g2.setColor(Color.WHITE);
 				for (int x = 0; x < width; x += w)
-					g2.drawLine(x,0,x,height);
+					g2.drawLine(x,0,x,height - 1);
 				}
 			if (h > 3)
 				{
 				g2.setXORMode(Color.BLACK);
 				g2.setColor(Color.WHITE);
 				for (int y = 0; y < height; y += h)
-					g2.drawLine(0,y,width,y);
+					g2.drawLine(0,y,width - 1,y);
 				}
 			}
 		g2.dispose();

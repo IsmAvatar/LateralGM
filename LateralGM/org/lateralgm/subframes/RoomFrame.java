@@ -403,22 +403,27 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		st = Messages.getString("RoomFrame.BACK_TILE_HOR"); //$NON-NLS-1$
 		bTileH = new JCheckBox(st,res.backgroundDefs[0].tileHoriz);
 		bTileH.setPreferredSize(new Dimension(100,20));
+		bTileH.addActionListener(this);
 		panel.add(bTileH);
 		panel.add(new JLabel(Messages.getString("RoomFrame.BACK_X"))); //$NON-NLS-1$
 		bX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.backgroundDefs[0].x);
 		bX.setPreferredSize(new Dimension(40,20));
+		bX.addActionListener(this);
 		panel.add(bX);
 		st = Messages.getString("RoomFrame.BACK_TILE_VERT"); //$NON-NLS-1$
 		bTileV = new JCheckBox(st,res.backgroundDefs[0].tileVert);
 		bTileV.setPreferredSize(new Dimension(100,20));
+		bTileV.addActionListener(this);
 		panel.add(bTileV);
 		panel.add(new JLabel(Messages.getString("RoomFrame.BACK_Y"))); //$NON-NLS-1$
 		bY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.backgroundDefs[0].x);
 		bY.setPreferredSize(new Dimension(40,20));
+		bY.addActionListener(this);
 		panel.add(bY);
 		st = Messages.getString("RoomFrame.BACK_STRETCH"); //$NON-NLS-1$
 		bStretch = new JCheckBox(st,res.backgroundDefs[0].stretch);
 		bStretch.setPreferredSize(new Dimension(156,20));
+		bStretch.addActionListener(this);
 		panel.add(bStretch);
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.BACK_HSPEED")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(112,20));
@@ -702,8 +707,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	//TODO: Room and Instance CreationCode
 	public void actionPerformed(ActionEvent e)
 		{
-		editor.repaint();
-		if (e.getSource() == bVisible)
+		if(editor != null)
+			editor.refresh();
+		Object s = e.getSource();
+		if (s == bVisible)
 			{
 			JLabel lab = ((JLabel) bList.getSelectedValue());
 			res.backgroundDefs[lastValidBack].visible = bVisible.isSelected();
@@ -711,7 +718,32 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			bList.updateUI();
 			return;
 			}
-		if (e.getSource() == vVisible)
+		if(s == bStretch)
+			{
+			res.backgroundDefs[lastValidBack].stretch = bStretch.isSelected();
+			return;
+			}
+		if(s == bTileH)
+			{
+			res.backgroundDefs[lastValidBack].tileHoriz = bTileH.isSelected();
+			return;
+			}
+		if(s == bTileV)
+			{
+			res.backgroundDefs[lastValidBack].tileVert = bTileV.isSelected();
+			return;
+			}
+		if(s == bX)
+			{
+			res.backgroundDefs[lastValidBack].x = bX.getIntValue();
+			return;
+			}
+		if(s == bY)
+			{
+			res.backgroundDefs[lastValidBack].y = bY.getIntValue();
+			return;
+			}
+		if (s == vVisible)
 			{
 			JLabel lab = ((JLabel) vList.getSelectedValue());
 			res.views[lastValidView].visible = vVisible.isSelected();
@@ -719,7 +751,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			vList.updateUI();
 			return;
 			}
-		if (e.getSource() == oSource)
+		if (s == oSource)
 			{
 			if (!manualUpdate) return;
 			Instance i = (Instance) oList.getSelectedValue();
@@ -731,7 +763,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			i.gmObjectId = oSource.getSelectedRef();
 			oList.updateUI();
 			}
-		if (e.getSource() == oAdd)
+		if (s == oAdd)
 			{
 			if (oSource.getSelected() == null) return;
 			Instance i = res.addInstance();
@@ -739,7 +771,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(res.instances.size() - 1);
 			}
-		if (e.getSource() == oDel)
+		if (s == oDel)
 			{
 			int i = oList.getSelectedIndex();
 			if (i == -1) return;
@@ -747,7 +779,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(Math.min(res.instances.size() - 1,i));
 			}
-		if (e.getSource() == tSource)
+		if (s == tSource)
 			{
 			if (!manualUpdate) return;
 			Tile t = (Tile) oList.getSelectedValue();
@@ -760,7 +792,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			t.backgroundId = tSource.getSelectedRef();
 			tList.updateUI();
 			}
-		if (e.getSource() == tAdd)
+		if (s == tAdd)
 			{
 			if (tSource.getSelected() == null) return;
 			Tile t = res.addTile();
@@ -768,7 +800,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			tList.setListData(res.tiles.toArray());
 			tList.setSelectedIndex(res.tiles.size() - 1);
 			}
-		if (e.getSource() == oDel)
+		if (s == tDel)
 			{
 			int i = tList.getSelectedIndex();
 			if (i == -1) return;
