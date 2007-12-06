@@ -27,13 +27,14 @@ import org.lateralgm.messages.Messages;
 
 public class GmStreamDecoder
 	{
-	private BufferedInputStream in;
+	private InputStream in;
 	private int[] table = null;
 	private int pos = 0;
 
 	public GmStreamDecoder(InputStream in)
 		{
-		this.in = new BufferedInputStream(in);
+		if (in instanceof BufferedInputStream) this.in = in;
+		else this.in = new BufferedInputStream(in);
 		}
 
 	public GmStreamDecoder(String path) throws FileNotFoundException
@@ -223,7 +224,7 @@ public class GmStreamDecoder
 		return (bits & bit) == bit;
 		}
 
-	public BufferedInputStream getInputStream()
+	public InputStream getInputStream()
 		{
 		return in;
 		}

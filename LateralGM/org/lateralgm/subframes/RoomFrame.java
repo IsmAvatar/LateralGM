@@ -707,8 +707,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	//TODO: Room and Instance CreationCode
 	public void actionPerformed(ActionEvent e)
 		{
-		if(editor != null)
-			editor.refresh();
+		if (editor != null) editor.refresh();
 		Object s = e.getSource();
 		if (s == bVisible)
 			{
@@ -718,27 +717,27 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			bList.updateUI();
 			return;
 			}
-		if(s == bStretch)
+		if (s == bStretch)
 			{
 			res.backgroundDefs[lastValidBack].stretch = bStretch.isSelected();
 			return;
 			}
-		if(s == bTileH)
+		if (s == bTileH)
 			{
 			res.backgroundDefs[lastValidBack].tileHoriz = bTileH.isSelected();
 			return;
 			}
-		if(s == bTileV)
+		if (s == bTileV)
 			{
 			res.backgroundDefs[lastValidBack].tileVert = bTileV.isSelected();
 			return;
 			}
-		if(s == bX)
+		if (s == bX)
 			{
 			res.backgroundDefs[lastValidBack].x = bX.getIntValue();
 			return;
 			}
-		if(s == bY)
+		if (s == bY)
 			{
 			res.backgroundDefs[lastValidBack].y = bY.getIntValue();
 			return;
