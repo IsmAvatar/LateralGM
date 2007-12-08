@@ -34,9 +34,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EmptyStackException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Stack;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
@@ -488,46 +490,53 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			int lms = list.size();
 			indents.clear();
 			indents.ensureCapacity(lms);
-			ArrayList<Integer> levelIndents = new ArrayList<Integer>();
-			levelIndents.add(0);
-			int level = 0;
-			boolean indentNext = false;
+			Stack<Integer> levelIndents = new Stack<Integer>();
+			Stack<Stack<Integer>> questions = new Stack<Stack<Integer>>();
+			levelIndents.push(0);
+			questions.push(new Stack<Integer>());
+			int nextIndent = 0;
 			for (int i = 0; i < lms; i++)
 				{
 				Action a = list.get(i);
-				int indent;
-				if (indentNext)
-					{
-					indent = indents.get(i - 1) + 1;
-					indentNext = false;
-					}
-				else
-					indent = levelIndents.get(level);
-				indents.add(indent);
+				int indent = nextIndent;
 				switch (a.libAction.actionKind)
 					{
 					case Action.ACT_BEGIN:
-						level += 1;
-						if (levelIndents.size() > level)
-							{
-							levelIndents.set(level,indent);
-							}
-						else
-							{
-							levelIndents.add(indent);
-							}
+						levelIndents.push(indent);
+						questions.push(new Stack<Integer>());
 						break;
 					case Action.ACT_END:
-						level -= 1;
-						if (level < 0) level = 0;
+						indent = levelIndents.peek();
+						if (levelIndents.size() > 1)
+							{
+							levelIndents.pop();
+							questions.pop();
+							}
+						nextIndent = levelIndents.peek();
 						break;
 					case Action.ACT_ELSE:
+						try
+							{
+							int j = questions.peek().pop();
+							if (j >= 0) indent = indents.get(j);
+							}
+						catch (EmptyStackException e)
+							{
+							}
+						nextIndent = indent + 1;
+						break;
 					case Action.ACT_REPEAT:
-						indentNext = true;
+						nextIndent++;
 						break;
 					default:
-						if (a.libAction.question) indentNext = true;
+						if (a.libAction.question)
+							{
+							questions.peek().push(i);
+							nextIndent++;
+							}
+						else if (a.libAction.execType != Action.EXEC_NONE) nextIndent = levelIndents.peek();
 					}
+				indents.add(indent);
 				}
 			}
 		}
