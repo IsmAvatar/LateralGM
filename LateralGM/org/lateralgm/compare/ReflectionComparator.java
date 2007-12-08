@@ -424,6 +424,6 @@ public abstract class ReflectionComparator
 			System.out.println(diff.getMessage());
 			System.out.println(diff.getFieldStackAsString());
 			}
-		return diff != null;
+		return diff == null;
 		}
 	}

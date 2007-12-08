@@ -271,7 +271,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		if (imageChanged) return true;
 		ResourceComparator c = new ResourceComparator();
 		c.addExclusions(Sprite.class,"subImages","imageCache"); //$NON-NLS-1$ //$NON-NLS-2$
-		return c.areEqual(res,resOriginal);
+		return !c.areEqual(res,resOriginal);
 		}
 
 	public void commitChanges()

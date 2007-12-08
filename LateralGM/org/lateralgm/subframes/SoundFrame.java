@@ -204,7 +204,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		if (modified) return true;
 		ResourceComparator c = new ResourceComparator();
 		c.addExclusions(Sound.class,"data"); //$NON-NLS-1$
-		return c.areEqual(res,resOriginal);
+		return !c.areEqual(res,resOriginal);
 		}
 
 	public void revertResource()

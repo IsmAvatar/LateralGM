@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM. Lateral GM is free
  * software and comes with ABSOLUTELY NO WARRANTY.
@@ -13,31 +14,40 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ColorSelect;
+import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -74,6 +84,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public IntegerField sWidth, sHeight, sSpeed, sSnapX, sSnapY;
 	public JCheckBox sPersistent, sGridVis, sGridIso;
 	public JButton sCreationCode, sShow;
+
+	public HashMap<Object,CodeFrame> codeFrames = new HashMap<Object,CodeFrame>();
+
 	public JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
 	//Tiles
 	public JCheckBox tUnderlying, tLocked;
@@ -125,7 +138,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					{
 					Instance i = (Instance) val;
 					GmObject go = i.gmObjectId.getRes();
-					JLabel lab = new JLabel(go.getName() + " " + i.instanceId,
+					JLabel lab = new JLabel(go.getName() + " " + i.instanceId, //$NON-NLS-1$
 							GmTreeGraphics.getSpriteIcon(go.sprite),JLabel.LEFT);
 					super.getListCellRendererComponent(list,lab,ind,selected,focus);
 					lab.setOpaque(true);
@@ -141,7 +154,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		oDel = new JButton(Messages.getString("RoomFrame.OBJ_DELETE")); //$NON-NLS-1$
 		oDel.addActionListener(this);
 		panel.add(oDel);
-		oSource = new ResourceMenu<GmObject>(Room.GMOBJECT,"<no object>",true,110);
+		oSource = new ResourceMenu<GmObject>(Room.GMOBJECT,
+				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 		oSource.setPreferredSize(new Dimension(120,20));
 		oSource.addActionListener(this);
 		panel.add(oSource);
@@ -159,6 +173,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.add(oY);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
+		oCreationCode.addActionListener(this);
 		panel.add(oCreationCode);
 
 		oList.setSelectedIndex(0);
@@ -307,7 +322,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					Background bg = i.backgroundId.getRes();
 					ImageIcon ii = new ImageIcon(bg.backgroundImage.getSubimage(i.tileX,i.tileY,i.width,
 							i.height));
-					JLabel lab = new JLabel(bg.getName() + " " + i.tileId,ii,JLabel.LEFT);
+					JLabel lab = new JLabel(bg.getName() + " " + i.tileId,ii,JLabel.LEFT); //$NON-NLS-1$
 					super.getListCellRendererComponent(list,lab,ind,selected,focus);
 					lab.setOpaque(true);
 					return lab;
@@ -328,7 +343,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.add(tLocked);
 
 		JPanel p = Util.makeTitledPanel(Messages.getString("RoomFrame.TILESET"),160,80); //$NON-NLS-1$
-		tSource = new ResourceMenu<Background>(Room.BACKGROUND,"<no background>",true,110);
+		tSource = new ResourceMenu<Background>(Room.BACKGROUND,
+				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110); //$NON-NLS-1$
 		tSource.setPreferredSize(new Dimension(140,20));
 		p.add(tSource);
 		p.add(new JLabel(Messages.getString("RoomFrame.TILESET_X"))); //$NON-NLS-1$
@@ -396,7 +412,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		bForeground = new JCheckBox(st,res.backgroundDefs[0].foreground);
 		panel.add(bForeground);
 
-		bSource = new ResourceMenu<Background>(Room.BACKGROUND,"<no background>",true,150);
+		bSource = new ResourceMenu<Background>(Room.BACKGROUND,
+				Messages.getString("RoomFrame.NO_BACKGROUND"),true,150); //$NON-NLS-1$
 		bSource.setRefSelected(res.backgroundDefs[0].backgroundId);
 		panel.add(bSource);
 
@@ -515,7 +532,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.add(p);
 
 		p = Util.makeTitledPanel(Messages.getString("RoomFrame.FOLLOW"),150,104); //$NON-NLS-1$
-		vObj = new ResourceMenu<GmObject>(Room.GMOBJECT,"<no object>",true,110);
+		vObj = new ResourceMenu<GmObject>(Room.GMOBJECT,
+				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 		vObj.setRefSelected(res.views[0].objectFollowing);
 		p.add(vObj);
 		p.add(new JLabel(Messages.getString("RoomFrame.HBOR"))); //$NON-NLS-1$
@@ -593,7 +611,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		//TODO: 1.6 - 1.7 Work on status bar
 		JPanel stat = new JPanel();
 		stat.setMaximumSize(new Dimension(200,11));
-		statX = new JLabel("x:");
+		statX = new JLabel(Messages.getString("RoomFrame.X")); //$NON-NLS-1$
 		statX.setPreferredSize(new Dimension(25,14));
 		stat.add(statX);
 		//		JToolBar.Separator sep = new JToolBar.Separator();
@@ -617,15 +635,15 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		//		stat.add(sep);
 
 		//		stat.addSeparator(new Dimension(10,10));
-		statY = new JLabel("y:");
+		statY = new JLabel(Messages.getString("RoomFrame.Y")); //$NON-NLS-1$
 		statY.setPreferredSize(new Dimension(25,13));
 		stat.add(statY);
 		//		stat.add(new JToolBar.Separator());
-		statObj = new JLabel("object:");
+		statObj = new JLabel(Messages.getString("RoomFrame.OBJECT")); //$NON-NLS-1$
 		statObj.setPreferredSize(new Dimension(50,13));
 		stat.add(statObj);
 		//		stat.add(new JToolBar.Separator());
-		statId = new JLabel("id:");
+		statId = new JLabel(Messages.getString("RoomFrame.ID")); //$NON-NLS-1$
 		statId.setPreferredSize(new Dimension(50,13));
 		stat.add(statId);
 
@@ -659,7 +677,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
 		c.addExclusions(Room.class,"parent","currentTab"); //$NON-NLS-1$ //$NON-NLS-2$
-		return c.areEqual(res,resOriginal);
+		if (!c.areEqual(res,resOriginal)) return true;
+		for (CodeFrame cf : codeFrames.values())
+			if (cf.isChanged()) return true;
+		return false;
 		}
 
 	@Override
@@ -672,6 +693,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public void commitChanges()
 		{
 		res.setName(name.getText());
+
+		for (CodeFrame cf : codeFrames.values())
+			cf.commit();
 
 		res.currentTab = tabs.getSelectedIndex();
 		//objects
@@ -704,7 +728,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		fireViewUpdate();
 		}
 
-	//TODO: Room and Instance CreationCode
 	public void actionPerformed(ActionEvent e)
 		{
 		if (editor != null) editor.refresh();
@@ -761,6 +784,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				}
 			i.gmObjectId = oSource.getSelectedRef();
 			oList.updateUI();
+			return;
 			}
 		if (s == oAdd)
 			{
@@ -769,14 +793,17 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			i.gmObjectId = oSource.getSelectedRef();
 			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(res.instances.size() - 1);
+			return;
 			}
 		if (s == oDel)
 			{
 			int i = oList.getSelectedIndex();
 			if (i == -1) return;
-			res.instances.remove(i);
+			CodeFrame frame = codeFrames.get(res.instances.remove(i));
+			if (frame != null) frame.dispose();
 			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(Math.min(res.instances.size() - 1,i));
+			return;
 			}
 		if (s == tSource)
 			{
@@ -790,6 +817,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				}
 			t.backgroundId = tSource.getSelectedRef();
 			tList.updateUI();
+			return;
 			}
 		if (s == tAdd)
 			{
@@ -798,6 +826,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			t.backgroundId = tSource.getSelectedRef();
 			tList.setListData(res.tiles.toArray());
 			tList.setSelectedIndex(res.tiles.size() - 1);
+			return;
 			}
 		if (s == tDel)
 			{
@@ -806,6 +835,20 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			res.tiles.remove(i);
 			tList.setListData(res.tiles.toArray());
 			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,i));
+			return;
+			}
+		if (e.getSource() == sCreationCode)
+			{
+			openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
+			return;
+			}
+		if (e.getSource() == oCreationCode)
+			{
+			if (lastObj != null)
+				openCodeFrame(
+						lastObj,
+						Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),String.format(Messages.getString("RoomFrame.INSTANCE"),lastObj.instanceId)); //$NON-NLS-1$ //$NON-NLS-2$
+			return;
 			}
 		super.actionPerformed(e);
 		}
@@ -938,5 +981,145 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (e.getSource() == tList) fireTileUpdate();
 		if (e.getSource() == bList) fireBackUpdate();
 		if (e.getSource() == vList) fireViewUpdate();
+		}
+
+	public void openCodeFrame(Object obj, String format, Object arg)
+		{
+		CodeFrame frame = codeFrames.get(obj);
+		if (frame == null)
+			{
+			frame = new CodeFrame(obj,format,arg);
+			LGM.mdi.add(frame);
+			frame.toTop();
+			codeFrames.put(obj,frame);
+			}
+		else
+			frame.toTop();
+		}
+
+	public class CodeFrame extends MDIFrame implements ActionListener
+		{
+		private static final long serialVersionUID = 1L;
+
+		private String getCode()
+			{
+			if (code instanceof Room) return ((Room) code).creationCode;
+			if (code instanceof Instance) return ((Instance) code).creationCode;
+			throw new RuntimeException(Messages.getString("RoomFrame.CODE_ERROR")); //$NON-NLS-1$
+			}
+
+		public void commit()
+			{
+			if (code instanceof Room)
+				((Room) code).creationCode = gta.getTextCompat();
+			else if (code instanceof Instance)
+				((Instance) code).creationCode = gta.getTextCompat();
+			else
+				throw new RuntimeException(Messages.getString("RoomFrame.CODE_ERROR")); //$NON-NLS-1$
+			}
+
+		public void setTitleFormatArg(Object arg)
+			{
+			this.arg = arg;
+			setTitle(String.format(format,arg));
+			}
+
+		public boolean isChanged()
+			{
+			return gta.getUndoManager().isModified();
+			}
+
+		Object code;
+		GMLTextArea gta;
+		String format;
+		Object arg;
+
+		public CodeFrame(Object code, String format, Object arg)
+			{
+			super(String.format(format,arg),true,true,true,true);
+			this.code = code;
+			this.format = format;
+			this.arg = arg;
+			setSize(600,400);
+			setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
+			// the code text area
+			gta = new GMLTextArea(getCode());
+			// Setup the toolbar
+			JToolBar tool = new JToolBar();
+			tool.setFloatable(false);
+			tool.setAlignmentX(0);
+			add("North",tool); //$NON-NLS-1$
+			// Setup the buttons
+			JButton save = new JButton(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
+			save.addActionListener(this);
+			tool.add(save);
+			tool.addSeparator();
+			gta.addEditorButtons(tool);
+			getContentPane().add(gta);
+			SwingUtilities.invokeLater(new Runnable()
+				{
+					public void run()
+						{
+						gta.requestFocusInWindow();
+						}
+				});
+			}
+
+		public void dispose()
+			{
+			super.dispose();
+			codeFrames.remove(code);
+			}
+
+		public void fireInternalFrameEvent(int id)
+			{
+			if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSING)
+				{
+				if (isChanged())
+					{
+					int res = JOptionPane.showConfirmDialog(
+							getParent(),
+							String.format(
+									Messages.getString("RoomFrame.CODE_CHANGED"),arg,Messages.getString("RoomFrame.TITLE_CHANGES"), //$NON-NLS-1$ //$NON-NLS-2$
+									JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE));
+					if (res == JOptionPane.YES_OPTION)
+						commit();
+					else if (res == JOptionPane.CANCEL_OPTION)
+						{
+						super.fireInternalFrameEvent(id);
+						return;
+						}
+					}
+				dispose();
+				}
+			super.fireInternalFrameEvent(id);
+			}
+
+		public void actionPerformed(ActionEvent e)
+			{
+			commit();
+			dispose();
+			}
+		}
+
+	public void removeUpdate(DocumentEvent e)
+		{
+		CodeFrame f = codeFrames.get(res);
+		if (f != null) f.setTitleFormatArg(name.getText());
+		super.removeUpdate(e);
+		}
+
+	public void insertUpdate(DocumentEvent e)
+		{
+		CodeFrame f = codeFrames.get(res);
+		if (f != null) f.setTitleFormatArg(name.getText());
+		super.removeUpdate(e);
+		}
+
+	public void dispose()
+		{
+		for (CodeFrame cf : codeFrames.values())
+			cf.dispose();
+		super.dispose();
 		}
 	}

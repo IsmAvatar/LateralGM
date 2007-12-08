@@ -189,7 +189,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		if (imageChanged) return true;
 		ResourceComparator c = new ResourceComparator();
 		c.addExclusions(Background.class,"backgroundImage"); //$NON-NLS-1$
-		return c.areEqual(res,resOriginal);
+		return !c.areEqual(res,resOriginal);
 		}
 
 	@Override

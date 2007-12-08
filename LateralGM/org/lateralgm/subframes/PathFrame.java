@@ -158,7 +158,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 	public boolean resourceChanged()
 		{
 		commitChanges();
-		return new ResourceComparator().areEqual(res,resOriginal);
+		return !(new ResourceComparator().areEqual(res,resOriginal));
 		}
 
 	public void revertResource()

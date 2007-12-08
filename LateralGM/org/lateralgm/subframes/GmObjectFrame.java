@@ -1278,7 +1278,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
-		return c.areEqual(res,resOriginal);
+		return !c.areEqual(res,resOriginal);
 		}
 
 	@Override

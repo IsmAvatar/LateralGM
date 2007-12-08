@@ -13,6 +13,7 @@ package org.lateralgm.subframes;
 
 import javax.swing.JLabel;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GMLTextArea;
@@ -47,6 +48,15 @@ public class ScriptFrame extends ResourceFrame<Script>
 		name.setMaximumSize(name.getPreferredSize());
 		tool.add(name);
 		getContentPane().add(code);
+		// TODO: Prevent tree stealing focus straight away
+		// when double clicking to open (the 2nd release is what does it)
+		SwingUtilities.invokeLater(new Runnable()
+			{
+				public void run()
+					{
+					code.requestFocusInWindow();
+					}
+			});
 		}
 
 	public void revertResource()
@@ -62,7 +72,7 @@ public class ScriptFrame extends ResourceFrame<Script>
 
 	public boolean resourceChanged()
 		{
-		return code.getUndoManager().isModified();
+		return code.getUndoManager().isModified() || !resOriginal.getName().equals(name.getText());
 		//return !code.getTextCompat().equals(resOriginal.scriptStr)
 		//		|| !resOriginal.getName().equals(name.getText());
 		}

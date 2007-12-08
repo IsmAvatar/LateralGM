@@ -139,7 +139,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
-		return c.areEqual(res,resOriginal);
+		return !c.areEqual(res,resOriginal);
 		}
 
 	@Override
