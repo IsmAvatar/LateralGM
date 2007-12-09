@@ -528,6 +528,9 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					case Action.ACT_REPEAT:
 						nextIndent++;
 						break;
+					case Action.ACT_EXIT:
+						nextIndent = levelIndents.peek();
+						break;
 					default:
 						if (a.libAction.question)
 							{
