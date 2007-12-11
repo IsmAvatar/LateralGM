@@ -777,6 +777,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			if (!manualUpdate) return;
 			Instance i = (Instance) oList.getSelectedValue();
+			if (i == null) return;
 			if (oSource.getSelected() == null)
 				{
 				oSource.setRefSelected(i.gmObjectId);
@@ -1113,7 +1114,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		CodeFrame f = codeFrames.get(res);
 		if (f != null) f.setTitleFormatArg(name.getText());
-		super.removeUpdate(e);
+		super.insertUpdate(e);
 		}
 
 	public void dispose()

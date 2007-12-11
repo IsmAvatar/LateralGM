@@ -48,6 +48,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 	public IntegerField tx, ty, tsp, tpr;
 	public JButton add, insert, delete;
 	public JCheckBox smooth, closed;
+	private Point lastPoint = null; //non-guaranteed copy of list.getLastSelectedValue()
 
 	public PathFrame(Path res, ResNode node)
 		{
@@ -169,41 +170,10 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 	public void commitChanges()
 		{
 		res.setName(name.getText());
+		notifyPoint();
 		res.precision = tpr.getIntValue();
 		res.smooth = smooth.isSelected();
 		res.closed = closed.isSelected();
-		}
-
-	//IntegerField was changed
-	private void notifyList(DocumentEvent arg0)
-		{
-		if (!manualUpdate) return;
-		Point p = (Point) list.getSelectedValue();
-		if (p == null) return;
-		p.x = tx.getIntValue();
-		p.y = ty.getIntValue();
-		p.speed = tsp.getIntValue();
-		manualUpdate = false;
-		list.updateUI();
-		manualUpdate = true;
-		}
-
-	public void changedUpdate(DocumentEvent arg0)
-		{
-		notifyList(arg0);
-		super.changedUpdate(arg0);
-		}
-
-	public void insertUpdate(DocumentEvent arg0)
-		{
-		notifyList(arg0);
-		super.insertUpdate(arg0);
-		}
-
-	public void removeUpdate(DocumentEvent arg0)
-		{
-		notifyList(arg0);
-		super.removeUpdate(arg0);
 		}
 
 	//Button was clicked
@@ -239,16 +209,54 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		super.actionPerformed(e);
 		}
 
+	/** Notifies the JList that it needs to update with the latest IntegerField values */
+	private void notifyList()
+		{
+		if (!manualUpdate || lastPoint == null) return;
+		lastPoint.x = tx.getIntValue();
+		lastPoint.y = ty.getIntValue();
+		lastPoint.speed = tsp.getIntValue();
+		manualUpdate = false;
+		list.updateUI();
+		manualUpdate = true;
+		}
+
+	/** Notifies the Point that it needs to synchronize its IntegerFields and JList entry */
+	private void notifyPoint()
+		{
+		notifyList();
+		lastPoint = (Point) list.getSelectedValue();
+		if (lastPoint == null) return;
+		manualUpdate = false;
+		tx.setIntValue(lastPoint.x);
+		ty.setIntValue(lastPoint.y);
+		tsp.setIntValue(lastPoint.speed);
+		manualUpdate = true;
+		}
+
 	//List selection changed
 	public void valueChanged(ListSelectionEvent e)
 		{
 		if (!manualUpdate || e.getValueIsAdjusting()) return;
-		Point p = (Point) list.getSelectedValue();
-		if (p == null) return;
-		manualUpdate = false;
-		tx.setIntValue(p.x);
-		ty.setIntValue(p.y);
-		tsp.setIntValue(p.speed);
-		manualUpdate = true;
+		notifyPoint();
+		}
+
+	//IntegerField was changed
+	public void changedUpdate(DocumentEvent arg0)
+		{
+		notifyList();
+		super.changedUpdate(arg0);
+		}
+
+	public void insertUpdate(DocumentEvent arg0)
+		{
+		notifyList();
+		super.insertUpdate(arg0);
+		}
+
+	public void removeUpdate(DocumentEvent arg0)
+		{
+		notifyList();
+		super.removeUpdate(arg0);
 		}
 	}
