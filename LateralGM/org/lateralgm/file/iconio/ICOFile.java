@@ -124,7 +124,7 @@ public class ICOFile implements Comparable<ICOFile>
 
 	public int compareTo(final ICOFile pOther)
 		{
-		return ((ICOFile) pOther).getFileName().compareTo(this.getFileName());
+		return pOther.getFileName().compareTo(getFileName());
 		}
 
 	public String toString()
@@ -188,9 +188,8 @@ public class ICOFile implements Comparable<ICOFile>
 	private void fillDescriptors(final AbstractDecoder pDec, final BitmapDescriptor[] pDescriptors)
 			throws IOException
 		{
-		for (int lDescriptorNo = 0; lDescriptorNo < pDescriptors.length; lDescriptorNo++)
+		for (final BitmapDescriptor lDescriptor : pDescriptors)
 			{
-			final BitmapDescriptor lDescriptor = pDescriptors[lDescriptorNo];
 			fillDescriptor(pDec,lDescriptor);
 			descriptors.add(lDescriptor);
 			}

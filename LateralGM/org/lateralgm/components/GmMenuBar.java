@@ -39,7 +39,7 @@ public class GmMenuBar extends JMenuBar
 		Matcher m = Pattern.compile("\t+([^\\s])$").matcher(input); //$NON-NLS-1$
 		if (m.find())
 			{
-			int alt = (int) m.group(1).toUpperCase(Locale.ENGLISH).charAt(0);
+			int alt = m.group(1).toUpperCase(Locale.ENGLISH).charAt(0);
 			item.setMnemonic(alt);
 			item.setText(input.substring(0,m.start()));
 			}
@@ -82,7 +82,7 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("GmMenuBar.SAVE",KeyEvent.VK_S,ActionEvent.CTRL_MASK); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SAVEAS"); //$NON-NLS-1$
 		menu.add(new JSeparator());
-		JCheckBoxMenuItem check = new JCheckBoxMenuItem(); //$NON-NLS-1$
+		JCheckBoxMenuItem check = new JCheckBoxMenuItem(); 
 		setTextAndAlt(check,Messages.getString("GmMenuBar.ADVANCED")); //$NON-NLS-1$
 		menu.add(check);
 		menu.addItem("GmMenuBar.PREFERENCES"); //$NON-NLS-1$
