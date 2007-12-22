@@ -10,6 +10,8 @@
 
 package org.lateralgm.file;
 
+import static org.lateralgm.main.Util.deRef;
+
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,6 +25,7 @@ import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
+import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
@@ -105,8 +108,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeSettings(GmFile f, GmStreamEncoder out, long savetime)
-			throws IOException
+	public static void writeSettings(GmFile f, GmStreamEncoder out, long savetime) throws IOException
 		{
 		GameSettings g = f.gameSettings;
 		out.write4(f.gameSettings.gameId);
@@ -534,8 +536,9 @@ public final class GmFileWriter
 			ResNode node = (ResNode) e.nextElement();
 			out.write4(node.status);
 			out.write4(node.kind);
-			if (node.getRes() != null)
-				out.write4(node.getRes().getId());
+			Resource<? extends Resource<?>> res = deRef(node.getRes());
+			if (res != null)
+				out.write4(res.getId());
 			else
 				out.write4(0);
 			out.writeStr((String) node.getUserObject());

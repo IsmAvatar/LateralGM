@@ -23,6 +23,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.ref.WeakReference;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
@@ -182,7 +183,7 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 				else if (ret == JOptionPane.NO_OPTION)
 					{
 					revertResource();
-					node.setRes(resOriginal);
+					node.setRes(new WeakReference<R>(resOriginal));
 					node.setUserObject(resOriginal.getName());
 					node.updateIcon();
 					dispose();

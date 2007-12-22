@@ -8,14 +8,15 @@
 
 package org.lateralgm.resources.sub;
 
+import java.lang.ref.WeakReference;
+
 import org.lateralgm.resources.Background;
-import org.lateralgm.resources.Ref;
 
 public class Tile
 	{
 	public int x = 0;
 	public int y = 0;
-	public Ref<Background> backgroundId = null;
+	public WeakReference<Background> backgroundId = null;
 	public int tileX = 0;
 	public int tileY = 0;
 	public int width = 16;

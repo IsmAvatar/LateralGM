@@ -8,7 +8,9 @@
 
 package org.lateralgm.resources;
 
-import static org.lateralgm.resources.Ref.deRef;
+import static org.lateralgm.main.Util.deRef;
+
+import java.lang.ref.WeakReference;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
@@ -17,24 +19,24 @@ import org.lateralgm.resources.sub.MainEvent;
 
 public class GmObject extends Resource<GmObject>
 	{
-	public static final Ref<GmObject> OBJECT_SELF = new Ref<GmObject>(null);
-	public static final Ref<GmObject> OBJECT_OTHER = new Ref<GmObject>(null);
+	public static final WeakReference<GmObject> OBJECT_SELF = new WeakReference<GmObject>(null);
+	public static final WeakReference<GmObject> OBJECT_OTHER = new WeakReference<GmObject>(null);
 
-	public static int refAsInt(Ref<GmObject> ref)
+	public static int refAsInt(WeakReference<GmObject> ref)
 		{
 		if (ref == OBJECT_SELF) return -1;
 		if (ref == OBJECT_OTHER) return -2;
 		if (deRef(ref) == null) return -100;
-		return ref.getRes().getId();
+		return ref.get().getId();
 		}
 
-	public Ref<Sprite> sprite = null;
+	public WeakReference<Sprite> sprite = null;
 	public boolean solid = false;
 	public boolean visible = true;
 	public int depth = 0;
 	public boolean persistent = false;
-	public Ref<GmObject> parent = null;
-	public Ref<Sprite> mask = null;
+	public WeakReference<GmObject> parent = null;
+	public WeakReference<Sprite> mask = null;
 	public MainEvent[] mainEvents = new MainEvent[11];
 
 	public GmObject()

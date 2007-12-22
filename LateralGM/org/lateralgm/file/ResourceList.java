@@ -15,7 +15,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
-import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 
@@ -64,7 +63,6 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 			}
 		if (res != null)
 			{
-			new Ref<R>(res); // Ref constructor takes care of everything
 			res.setName(res.getName() + (lastId + 1));
 			add(res);
 			}
@@ -99,7 +97,6 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 		R res = get(index);
 		super.remove(index);
 		res.removeChangeListener(rcl);
-		res.getRef().delete();
 		fireStateChanged();
 		return res;
 		}
@@ -185,8 +182,6 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 		{
 		R old = super.set(index,res);
 		old.removeChangeListener(rcl);
-		old.getRef().delete();
-		old.getRef().setRes(res);
 		res.addChangeListener(rcl);
 		fireStateChanged();
 		return old;

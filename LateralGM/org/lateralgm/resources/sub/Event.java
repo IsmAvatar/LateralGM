@@ -8,14 +8,16 @@
 
 package org.lateralgm.resources.sub;
 
+import static org.lateralgm.main.Util.deRef;
+
 import java.awt.event.KeyEvent;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Ref;
 
 public class Event extends ActionContainer implements Comparable<Event>
 	{
@@ -107,7 +109,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 	 */
 
 	public int id = 0;
-	public Ref<GmObject> other = null; // For collision Events
+	public WeakReference<GmObject> other = null; // For collision Events
 	public int mainId = 0;
 
 	public static final List<Integer> KEYS;
@@ -122,13 +124,13 @@ public class Event extends ActionContainer implements Comparable<Event>
 		this.id = id;
 		}
 
-	public Event(int mainId, Ref<GmObject> other)
+	public Event(int mainId, WeakReference<GmObject> other)
 		{
 		this.mainId = mainId;
 		this.other = other;
 		}
 
-	public Event(int mainId, int id, Ref<GmObject> other)
+	public Event(int mainId, int id, WeakReference<GmObject> other)
 		{
 		this.mainId = mainId;
 		this.id = id;
@@ -142,7 +144,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 			case MainEvent.EV_ALARM:
 				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),id); //$NON-NLS-1$
 			case MainEvent.EV_COLLISION:
-				GmObject obj = other.getRes();
+				GmObject obj = deRef(other);
 				String name;
 				if (obj == null)
 					name = "<undefined>";

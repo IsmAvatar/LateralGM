@@ -10,7 +10,7 @@
 
 package org.lateralgm.subframes;
 
-import static org.lateralgm.resources.Ref.deRef;
+import static org.lateralgm.main.Util.deRef;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,6 +30,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -83,7 +84,6 @@ import org.lateralgm.main.Listener;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.library.LibAction;
@@ -147,7 +147,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 
 		String t = Messages.getString("GmObjectFrame.NO_SPRITE"); //$NON-NLS-1$
 		sprite = new ResourceMenu<Sprite>(Resource.SPRITE,t,144);
-		sprite.setRefSelected(res.sprite);
+		sprite.setSelected(res.sprite);
 		sprite.addActionListener(this);
 		origin.add(sprite);
 		newSprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
@@ -186,7 +186,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		side1.add(lab);
 		t = Messages.getString("GmObjectFrame.NO_PARENT"); //$NON-NLS-1$
 		parent = new ResourceMenu<GmObject>(Resource.GMOBJECT,t,110);
-		parent.setRefSelected(res.parent);
+		parent.setSelected(res.parent);
 		parent.addActionListener(this);
 		side1.add(parent);
 
@@ -195,7 +195,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		side1.add(lab);
 		t = Messages.getString("GmObjectFrame.SAME_AS_SPRITE"); //$NON-NLS-1$
 		mask = new ResourceMenu<Sprite>(Resource.SPRITE,t,110);
-		if (res.mask != null) mask.setSelected(res.mask.getRes());
+		mask.setSelected(res.mask);
 		side1.add(mask);
 
 		addGap(side1,160,4);
@@ -822,7 +822,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						ret += Messages.getString("Action.APPLIES_OTHER"); //$NON-NLS-1$
 					else
 						{
-						GmObject applies = a.appliesTo.getRes();
+						GmObject applies = deRef(a.appliesTo);
 						ret += String.format(Messages.getString("Action.APPLIES"), //$NON-NLS-1$
 								applies == null ? a.appliesTo.toString() : applies.getName());
 						}
@@ -1294,13 +1294,13 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		saveEvents();
 		res.setName(name.getText());
-		res.sprite = sprite.getSelectedRef();
+		res.sprite = sprite.getSelected();
 		res.visible = visible.isSelected();
 		res.solid = solid.isSelected();
 		res.depth = depth.getIntValue();
 		res.persistent = persistent.isSelected();
-		res.parent = parent.getSelectedRef();
-		res.mask = mask.getSelectedRef();
+		res.parent = parent.getSelected();
+		res.mask = mask.getSelected();
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -1310,24 +1310,24 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			ResNode n = Listener.getPrimaryParent(Resource.SPRITE);
 			Sprite spr = LGM.currentFile.sprites.add();
 			Listener.putNode(LGM.tree,n,n,Resource.SPRITE,n.getChildCount(),spr);
-			sprite.setSelected(spr);
+			sprite.setSelected(new WeakReference<Sprite>(spr));
 			return;
 			}
 		if (e.getSource() == editSprite)
 			{
-			Sprite spr = sprite.getSelected();
+			Sprite spr = deRef(sprite.getSelected());
 			if (spr == null) return;
-			spr.getRef().getNode().openFrame();
+			spr.getNode().openFrame();
 			return;
 			}
 		if (e.getSource() == sprite)
 			{
-			preview.setIcon(GmTreeGraphics.getSpriteIcon(sprite.getSelectedRef()));
+			preview.setIcon(GmTreeGraphics.getSpriteIcon(sprite.getSelected()));
 			return;
 			}
 		if (e.getSource() == parent)
 			{
-			Ref<GmObject> p = parent.getSelectedRef();
+			WeakReference<GmObject> p = parent.getSelected();
 			res.parent = p;
 			if (deRef(p) != null) if (isCyclic(res))
 				{

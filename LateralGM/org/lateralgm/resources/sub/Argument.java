@@ -10,7 +10,8 @@
 
 package org.lateralgm.resources.sub;
 
-import org.lateralgm.resources.Ref;
+import java.lang.ref.WeakReference;
+
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibArgument;
 
@@ -36,9 +37,9 @@ public class Argument
 
 	public byte kind = ARG_EXPRESSION;
 	public String val = "";
-	public Ref<?> res = null; // for references to Resources
+	public WeakReference<? extends Resource<?>> res = null; // for references to Resources
 
-	public Argument(byte kind, String val, Ref<?> res)
+	public Argument(byte kind, String val, WeakReference<? extends Resource<?>> res)
 		{
 		this.kind = kind;
 		this.val = val;
@@ -112,7 +113,7 @@ public class Argument
 					{
 					try
 						{
-						return res.getRes().getName();
+						return res.get().getName();
 						}
 					catch (NullPointerException e)
 						{

@@ -9,6 +9,7 @@
 
 package org.lateralgm.resources;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.lateralgm.file.ResourceList;
@@ -20,7 +21,7 @@ public class Path extends Resource<Path>
 	public boolean smooth = false;
 	public boolean closed = true;
 	public int precision = 4;
-	public Ref<Room> backgroundRoom = null;
+	public WeakReference<Room> backgroundRoom = null;
 	public int snapX = 16;
 	public int snapY = 16;
 	public ArrayList<Point> points = new ArrayList<Point>();

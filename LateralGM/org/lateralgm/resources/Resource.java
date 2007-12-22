@@ -26,6 +26,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 
 import org.lateralgm.components.GmTreeGraphics;
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.LGM;
 
@@ -65,13 +66,7 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 	EventListenerList listenerList = new EventListenerList();
 	ChangeEvent changeEvent = null;
 
-	@SuppressWarnings("unchecked")
-	public Resource()
-		{
-		ref = new Ref<R>((R) this);
-		}
-
-	private Ref<R> ref;
+	private ResNode node;
 	private String name = "";
 	private int id;
 
@@ -118,16 +113,6 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 			}
 		}
 
-	public Ref<R> getRef()
-		{
-		return ref;
-		}
-
-	public void setRef(Ref<R> ref)
-		{
-		this.ref = ref;
-		}
-
 	public String getName()
 		{
 		return name;
@@ -137,6 +122,16 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 		{
 		this.name = name;
 		fireStateChanged();
+		}
+
+	public ResNode getNode()
+		{
+		return node;
+		}
+
+	public void setNode(ResNode node)
+		{
+		this.node = node;
 		}
 
 	public abstract R copy(ResourceList<R> src);

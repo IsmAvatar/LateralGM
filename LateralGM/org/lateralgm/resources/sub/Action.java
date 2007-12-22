@@ -8,8 +8,9 @@
 
 package org.lateralgm.resources.sub;
 
+import java.lang.ref.WeakReference;
+
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
 
@@ -40,7 +41,7 @@ public class Action
 	// The actual Action properties
 	public boolean relative = false;
 	public boolean not = false;
-	public Ref<GmObject> appliesTo = GmObject.OBJECT_SELF;
+	public WeakReference<GmObject> appliesTo = GmObject.OBJECT_SELF;
 
 	public Argument[] arguments;
 

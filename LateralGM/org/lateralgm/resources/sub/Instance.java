@@ -8,8 +8,9 @@
 
 package org.lateralgm.resources.sub;
 
+import java.lang.ref.WeakReference;
+
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Ref;
 
 public class Instance
 	{
@@ -17,7 +18,7 @@ public class Instance
 
 	public int x = 0;
 	public int y = 0;
-	public Ref<GmObject> gmObjectId = null;
+	public WeakReference<GmObject> gmObjectId = null;
 	public int instanceId = 0;
 	public String creationCode = "";
 	public boolean locked = false;

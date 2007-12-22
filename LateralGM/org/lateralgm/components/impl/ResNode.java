@@ -9,9 +9,12 @@
 
 package org.lateralgm.components.impl;
 
+import static org.lateralgm.main.Util.refsAreEqual;
+
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.lang.ref.WeakReference;
 
 import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
@@ -27,7 +30,6 @@ import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
@@ -60,11 +62,8 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	public byte kind;
 	/**
 	 * The <code>Resource</code> this node represents.
-	 * Note that we can directly reference here,
-	 * because the deletion of the Resource corresponds to
-	 * the deletion of this node.
 	 */
-	private Resource<?> res;
+	private WeakReference<? extends Resource<?>> res;
 	public ResourceFrame<?> frame = null;
 	private EventListenerList listenerList;
 	private ChangeEvent changeEvent;
@@ -99,13 +98,13 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		switch (kind)
 			{
 			case Resource.SPRITE:
-				icon = GmTreeGraphics.getSpriteIcon(((Sprite) res).getRef());
+				icon = GmTreeGraphics.getSpriteIcon((WeakReference<Sprite>) res);
 				break;
 			case Resource.BACKGROUND:
-				icon = GmTreeGraphics.getBackgroundIcon((Background) res);
+				icon = GmTreeGraphics.getBackgroundIcon((WeakReference<Background>) res);
 				break;
 			case Resource.GMOBJECT:
-				Ref<Sprite> r = ((GmObject) res).sprite;
+				WeakReference<Sprite> r = ((WeakReference<GmObject>) res).get().sprite;
 				icon = GmTreeGraphics.getSpriteIcon(r);
 				break;
 			}
@@ -113,12 +112,12 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		LGM.tree.repaint();
 		}
 
-	public ResNode(String name, byte status, byte kind, Resource<?> res)
+	public ResNode(String name, byte status, byte kind, WeakReference<? extends Resource<?>> res)
 		{
 		super(name);
 		this.status = status;
 		this.kind = kind;
-		this.setRes(res);
+		setRes(res);
 		}
 
 	public ResNode(String name, byte status, byte kind)
@@ -164,31 +163,31 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 			switch (kind)
 				{
 				case Resource.SPRITE:
-					rf = new SpriteFrame((Sprite) res,this);
+					rf = new SpriteFrame((Sprite) res.get(),this);
 					break;
 				case Resource.SOUND:
-					rf = new SoundFrame((Sound) res,this);
+					rf = new SoundFrame((Sound) res.get(),this);
 					break;
 				case Resource.BACKGROUND:
-					rf = new BackgroundFrame((Background) res,this);
+					rf = new BackgroundFrame((Background) res.get(),this);
 					break;
 				case Resource.PATH:
-					rf = new PathFrame((Path) res,this);
+					rf = new PathFrame((Path) res.get(),this);
 					break;
 				case Resource.SCRIPT:
-					rf = new ScriptFrame((Script) res,this);
+					rf = new ScriptFrame((Script) res.get(),this);
 					break;
 				case Resource.FONT:
-					rf = new FontFrame((Font) res,this);
+					rf = new FontFrame((Font) res.get(),this);
 					break;
 				case Resource.TIMELINE:
-					rf = new TimelineFrame((Timeline) res,this);
+					rf = new TimelineFrame((Timeline) res.get(),this);
 					break;
 				case Resource.GMOBJECT:
-					rf = new GmObjectFrame((GmObject) res,this);
+					rf = new GmObjectFrame((GmObject) res.get(),this);
 					break;
 				case Resource.ROOM:
-					rf = new RoomFrame((Room) res,this);
+					rf = new RoomFrame((Room) res.get(),this);
 					break;
 				default:
 					rf = null;
@@ -212,7 +211,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		if (status == STATUS_SECONDARY)
 			{
 			String txt = (String) getUserObject();
-			res.setName(txt);
+			res.get().setName(txt);
 			if (frame != null)
 				{
 				frame.setTitle(txt);
@@ -294,16 +293,16 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	 * @param res The resource to look for
 	 * @return Whether the resource was found
 	 */
-	public boolean contains(Resource<?> res)
+	public boolean contains(WeakReference<? extends Resource<?>> res)
 		{
-		if (this.res == res) return true; //Just in case
+		if (refsAreEqual(this.res,res)) return true; //Just in case
 		if (children != null) for (Object obj : children)
 			if (obj instanceof ResNode)
 				{
 				ResNode node = (ResNode) obj;
 				if (node.isLeaf())
 					{
-					if (node.res == res) return true;
+					if (refsAreEqual(node.res,res)) return true;
 					}
 				else
 					{
@@ -313,14 +312,14 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		return false;
 		}
 
-	public void setRes(Resource<?> res)
+	public void setRes(WeakReference<? extends Resource<?>> res)
 		{
-		if (this.res != null) this.res.getRef().setNode(null);
+		if (this.res != null) this.res.get().setNode(null);
 		this.res = res;
-		if (res != null) res.getRef().setNode(this);
+		if (res != null) res.get().setNode(this);
 		}
 
-	public Resource<?> getRes()
+	public WeakReference<? extends Resource<?>> getRes()
 		{
 		return res;
 		}

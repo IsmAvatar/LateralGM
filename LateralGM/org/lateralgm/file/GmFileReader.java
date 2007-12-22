@@ -13,6 +13,7 @@ package org.lateralgm.file;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
@@ -27,7 +28,6 @@ import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
@@ -617,8 +617,8 @@ public final class GmFileReader
 				f.timelines.lastId++;
 				continue;
 				}
-			Ref<Timeline> r = c.timeids.get(i);
-			Timeline time = r.getRes();
+			WeakReference<Timeline> r = c.timeids.get(i);
+			Timeline time = r.get();
 			f.timelines.add(time);
 			time.setName(in.readStr());
 			ver = in.read4();
@@ -649,21 +649,21 @@ public final class GmFileReader
 				f.gmObjects.lastId++;
 				continue;
 				}
-			Ref<GmObject> r = c.objids.get(i);
-			GmObject obj = r.getRes();
+			WeakReference<GmObject> r = c.objids.get(i);
+			GmObject obj = r.get();
 			f.gmObjects.add(obj);
 			obj.setName(in.readStr());
 			ver = in.read4();
 			if (ver != 430) throw versionError("IN","OBJECTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.sprites.getUnsafe(in.read4());
-			if (temp != null) obj.sprite = temp.getRef();
+			if (temp != null) obj.sprite = new WeakReference<Sprite>(temp);
 			obj.solid = in.readBool();
 			obj.visible = in.readBool();
 			obj.depth = in.read4();
 			obj.persistent = in.readBool();
 			obj.parent = c.objids.get(in.read4());
 			temp = f.sprites.getUnsafe(in.read4());
-			if (temp != null) obj.mask = temp.getRef();
+			if (temp != null) obj.mask = new WeakReference<Sprite>(temp);
 			in.skip(4);
 			for (int j = 0; j < 11; j++)
 				{
@@ -707,8 +707,8 @@ public final class GmFileReader
 				f.rooms.lastId++;
 				continue;
 				}
-			Ref<Room> r = c.rmids.get(i);
-			Room rm = r.getRes();
+			WeakReference<Room> r = c.rmids.get(i);
+			Room rm = r.get();
 			f.rooms.add(rm);
 			rm.setName(in.readStr());
 			ver = in.read4();
@@ -731,7 +731,7 @@ public final class GmFileReader
 				bk.visible = in.readBool();
 				bk.foreground = in.readBool();
 				Background temp = f.backgrounds.getUnsafe(in.read4());
-				if (temp != null) bk.backgroundId = temp.getRef();
+				if (temp != null) bk.backgroundId = new WeakReference<Background>(temp);
 				bk.x = in.read4();
 				bk.y = in.read4();
 				bk.tileHoriz = in.readBool();
@@ -762,7 +762,7 @@ public final class GmFileReader
 				vw.hspeed = in.read4();
 				vw.vspeed = in.read4();
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
-				if (temp != null) vw.objectFollowing = temp.getRef();
+				if (temp != null) vw.objectFollowing = new WeakReference<GmObject>(temp);
 				}
 			int noinstances = in.read4();
 			for (int j = 0; j < noinstances; j++)
@@ -771,7 +771,7 @@ public final class GmFileReader
 				inst.x = in.read4();
 				inst.y = in.read4();
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
-				if (temp != null) inst.gmObjectId = temp.getRef();
+				if (temp != null) inst.gmObjectId = new WeakReference<GmObject>(temp);
 				inst.instanceId = in.read4();
 				inst.creationCode = in.readStr();
 				inst.locked = in.readBool();
@@ -783,7 +783,7 @@ public final class GmFileReader
 				ti.x = in.read4();
 				ti.y = in.read4();
 				Background temp = f.backgrounds.getUnsafe(in.read4());
-				if (temp != null) ti.backgroundId = temp.getRef();
+				if (temp != null) ti.backgroundId = new WeakReference<Background>(temp);
 				ti.tileX = in.read4();
 				ti.tileY = in.read4();
 				ti.width = in.read4();
@@ -857,7 +857,7 @@ public final class GmFileReader
 					&& type != Resource.GAMESETTINGS && type != Resource.EXTENSIONS
 					&& (ver != 500 || type != Resource.FONT))
 				{
-				node.setRes(f.getList(node.kind).getUnsafe(ind));
+				node.setRes(new WeakReference(f.getList(node.kind).getUnsafe(ind)));
 				// GM actually ignores the name given in the tree data
 				node.setUserObject(f.getList(node.kind).getUnsafe(ind).getName());
 				}
@@ -1003,7 +1003,7 @@ public final class GmFileReader
 					}
 				if (res != null && res != tag)
 					{
-					act.arguments[l].res = res.getRef();
+					act.arguments[l].res = new WeakReference(res);
 					}
 				}
 			act.not = in.readBool();

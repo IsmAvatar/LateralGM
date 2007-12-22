@@ -20,6 +20,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.ref.WeakReference;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -52,7 +53,6 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
@@ -96,7 +96,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		appliesObject = new ResourceMenu<GmObject>(Resource.GMOBJECT,s,false,100);
 		appliesObject.setEnabled(GmObject.refAsInt(a.appliesTo) >= 0);
 		appliesObject.setOpaque(false);
-		appliesObject.setRefSelected(a.appliesTo);
+		appliesObject.setSelected(a.appliesTo);
 		act = a;
 
 		appliesPanel = new JPanel();
@@ -280,12 +280,12 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		pane.add(discard);
 		}
 
-	public Ref<GmObject> getApplies()
+	public WeakReference<GmObject> getApplies()
 		{
 		if (applies.getValue() >= 0)
 			{
-			GmObject sel = appliesObject.getSelected();
-			if (sel != null) return sel.getRef();
+			WeakReference<GmObject> sel = appliesObject.getSelected();
+			if (sel != null) return sel;
 			return act.appliesTo;
 			}
 		if (applies.getValue() == -1) return GmObject.OBJECT_SELF;
@@ -502,7 +502,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				}
 			if (editor instanceof ResourceMenu)
 				{
-				arg.res = ((ResourceMenu<?>) editor).getSelectedRef();
+				arg.res = ((ResourceMenu<?>) editor).getSelected();
 				return;
 				}
 			}
@@ -526,12 +526,9 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				{
 				try
 					{
-					((ResourceMenu) editor).setSelected(arg.res.getRes());
+					((ResourceMenu) editor).setSelected(arg.res);
 					}
 				catch (NumberFormatException nfe)
-					{
-					}
-				catch (NullPointerException npe)
 					{
 					}
 				}

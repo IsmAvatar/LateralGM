@@ -26,6 +26,7 @@ import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -326,5 +327,17 @@ public final class Util
 		panel.setMaximumSize(newSize);
 		panel.setMinimumSize(newSize);
 		return panel;
+		}
+
+	public static <R>R deRef(WeakReference<R> ref)
+		{
+		return ref == null ? null : ref.get();
+		}
+
+	public static boolean refsAreEqual(WeakReference<?> r1, WeakReference<?> r2)
+		{
+		if (r1 == null && r2 == null) return true;
+		if (r1 == null || r2 == null) return false;
+		return r1.get() == r2.get();
 		}
 	}

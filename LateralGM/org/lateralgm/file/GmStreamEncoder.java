@@ -9,7 +9,7 @@
 
 package org.lateralgm.file;
 
-import static org.lateralgm.resources.Ref.deRef;
+import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Image;
 import java.awt.image.RenderedImage;
@@ -20,11 +20,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
 
-import org.lateralgm.resources.Ref;
+import org.lateralgm.resources.Resource;
 
 public class GmStreamEncoder
 	{
@@ -32,8 +33,10 @@ public class GmStreamEncoder
 
 	public GmStreamEncoder(OutputStream o)
 		{
-		if (o instanceof BufferedOutputStream) out = o;
-		else o = new BufferedOutputStream(o);
+		if (o instanceof BufferedOutputStream)
+			out = o;
+		else
+			o = new BufferedOutputStream(o);
 		}
 
 	public GmStreamEncoder(File f) throws FileNotFoundException
@@ -143,23 +146,23 @@ public class GmStreamEncoder
 			}
 		}
 
-	public void writeId(Ref<?> id) throws IOException
+	public void writeId(WeakReference<? extends Resource<?>> id) throws IOException
 		{
 		writeId(id,-1);
 		}
 
-	public void writeId(Ref<?> id, int noneval) throws IOException
+	public void writeId(WeakReference<? extends Resource<?>> id, int noneval) throws IOException
 		{
 		if (deRef(id) != null)
-			write4(id.getRes().getId());
+			write4(id.get().getId());
 		else
 			write4(noneval);
 		}
 
-	public void writeIdStr(Ref<?> id, GmFile src) throws IOException
+	public void writeIdStr(WeakReference<? extends Resource<?>> id, GmFile src) throws IOException
 		{
 		if (deRef(id) != null)
-			writeStr(Integer.toString(id.getRes().getId()));
+			writeStr(Integer.toString(id.get().getId()));
 		else
 			writeStr("-1");
 		}

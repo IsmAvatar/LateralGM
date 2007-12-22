@@ -12,12 +12,12 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
@@ -29,7 +29,7 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 	private DataFlavor[] flavors = { EVENTNODE_FLAVOR };
 	public int mainId;
 	public int eventId;
-	public Ref<GmObject> other;
+	public WeakReference<GmObject> other;
 
 	public EventNode(String text, int mainId)
 		{

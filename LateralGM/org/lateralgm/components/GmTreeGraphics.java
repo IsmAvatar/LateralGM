@@ -9,7 +9,7 @@
 
 package org.lateralgm.components;
 
-import static org.lateralgm.resources.Ref.deRef;
+import static org.lateralgm.main.Util.deRef;
 import static org.lateralgm.resources.Resource.BACKGROUND;
 import static org.lateralgm.resources.Resource.GMOBJECT;
 import static org.lateralgm.resources.Resource.SPRITE;
@@ -17,6 +17,7 @@ import static org.lateralgm.resources.Resource.SPRITE;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.lang.ref.WeakReference;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -29,7 +30,6 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
-import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Sprite;
 
 public class GmTreeGraphics extends DefaultTreeCellRenderer
@@ -90,21 +90,22 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		return new ImageIcon(i);
 		}
 
-	public static Icon getSpriteIcon(Ref<Sprite> s)
+	public static Icon getSpriteIcon(WeakReference<Sprite> s)
 		{
-		if (deRef(s) == null || s.getRes().subImages.size() == 0) return getBlankIcon();
-		Sprite spr = s.getRes();
+		if (s == null || s.get() == null || s.get().subImages.size() == 0) return getBlankIcon();
+		Sprite spr = s.get();
 		BufferedImage bi = spr.getDisplayImage();
 		if (bi == null) return getBlankIcon();
 		return getScaledIcon(bi);
 		}
 
-	public static Icon getBackgroundIcon(Background b)
+	public static Icon getBackgroundIcon(WeakReference<Background> b)
 		{
-		if (b == null) return getBlankIcon();
-		if (b.backgroundImage == null) return getBlankIcon();
-		Image i = b.backgroundImage;
-		if (b.transparent) i = Util.getTransparentIcon(b.backgroundImage);
+		Background back = deRef(b);
+		if (back == null) return getBlankIcon();
+		if (back.backgroundImage == null) return getBlankIcon();
+		Image i = back.backgroundImage;
+		if (back.transparent) i = Util.getTransparentIcon(back.backgroundImage);
 		return getScaledIcon(i);
 		}
 

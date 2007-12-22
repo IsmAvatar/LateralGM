@@ -10,7 +10,7 @@
 
 package org.lateralgm.components;
 
-import static org.lateralgm.resources.Ref.deRef;
+import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -44,7 +44,6 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Resource;
 
 public class ResourceMenu<R extends Resource<R>> extends JPanel implements ActionListener
@@ -52,8 +51,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	private static final long serialVersionUID = 1L;
 	private JLabel label;
 	private JButton button;
-	//Direct reference possible, because the menu updates itself
-	private R selected;
+	private WeakReference<R> selected;
 	private JPopupMenu pm;
 	private JMenuItem noResource;
 	private boolean onlyOpen;
@@ -355,25 +353,16 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		pm.show(c,x,y);
 		}
 
-	public R getSelected()
+	public WeakReference<R> getSelected()
 		{
 		return selected;
 		}
 
-	public Ref<R> getSelectedRef()
-		{
-		return selected == null ? null : selected.getRef();
-		}
-
-	public void setSelected(R res)
+	public void setSelected(WeakReference<R> res)
 		{
 		selected = res;
-		label.setText(res == null ? (noResource != null ? noResource.getText() : "") : res.getName()); //$NON-NLS-1$
-		}
-
-	public void setRefSelected(Ref<R> ref)
-		{
-		setSelected(deRef(ref));
+		Resource<R> r = deRef(res);
+		label.setText(r == null ? (noResource != null ? noResource.getText() : "") : r.getName()); //$NON-NLS-1$
 		}
 
 	public void setEnabled(boolean enabled)
@@ -388,7 +377,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		{
 		JMenuItem source = (JMenuItem) e.getSource();
 		if (source instanceof ResourceMenu.ResourceMenuItem)
-			setSelected((R) ((ResourceMenuItem) source).node.getRes());
+			setSelected((WeakReference<R>) ((ResourceMenuItem) source).node.getRes());
 		else
 			setSelected(null);
 		fireActionPerformed();

@@ -10,6 +10,8 @@
 
 package org.lateralgm.main;
 
+import static org.lateralgm.main.Util.deRef;
+
 import java.awt.BorderLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -23,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 
@@ -317,7 +320,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 
 		Resource<?> resource = res == null ? LGM.currentFile.getList(parent.kind).add() : res;
-		ResNode g = new ResNode(resource.getName(),ResNode.STATUS_SECONDARY,parent.kind,resource);
+		ResNode g = new ResNode(resource.getName(),ResNode.STATUS_SECONDARY,parent.kind,
+				new WeakReference(resource));
 		parent.insert(g,pos);
 		tree.expandPath(new TreePath(parent.getPath()));
 		tree.setSelectionPath(new TreePath(g.getPath()));
@@ -339,9 +343,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (next == null) next = (ResNode) me.getParent();
 			if (next.isRoot()) next = (ResNode) next.getFirstChild();
 			tree.setSelectionPath(new TreePath(next.getPath()));
-			if (me.frame != null) me.frame.dispose();
+			Enumeration<ResNode> nodes = me.depthFirstEnumeration();
+			while (nodes.hasMoreElements())
+				{
+				ResNode node = nodes.nextElement();
+				if (node.frame != null) node.frame.dispose();
+				if (node.status == ResNode.STATUS_SECONDARY)
+					LGM.currentFile.getList(node.kind).remove(deRef(node.getRes()));
+				}
 			me.removeFromParent();
-			LGM.currentFile.getList(me.kind).remove(me.getRes());
 			tree.updateUI();
 			}
 		}

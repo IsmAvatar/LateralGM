@@ -9,6 +9,7 @@
 package org.lateralgm.subframes;
 
 import static org.lateralgm.main.Util.addDim;
+import static org.lateralgm.main.Util.deRef;
 import static org.lateralgm.subframes.ResourceFrame.addGap;
 
 import java.awt.BorderLayout;
@@ -21,6 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.ref.WeakReference;
 
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -273,10 +275,10 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		{
 		if (e.getSource() == linkSelect)
 			{
-			GmObject obj = ((ResourceMenu<GmObject>) e.getSource()).getSelected();
+			GmObject obj = deRef(((ResourceMenu<GmObject>) e.getSource()).getSelected());
 			if (obj != null)
 				{
-				ResNode node = obj.getRef().getNode();
+				ResNode node = obj.getNode();
 				linkedFrame = (GmObjectFrame) node.frame;
 				linkedFrame.toTop();
 				if (isVisible()) toTop();
@@ -293,7 +295,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		if (e.getSource() == collisionSelect)
 			{
 			if (selectedNode.mainId == MainEvent.EV_COLLISION && collisionSelect.getSelected() != null)
-				selectedNode.other = collisionSelect.getSelected().getRef();
+				selectedNode.other = collisionSelect.getSelected();
 			}
 		}
 
@@ -346,7 +348,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 			if (newFrame instanceof GmObjectFrame)
 				{
 				linkedFrame = (GmObjectFrame) newFrame;
-				linkSelect.setSelected((GmObject) linkedFrame.node.getRes());
+				linkSelect.setSelected((WeakReference<GmObject>) linkedFrame.node.getRes());
 				}
 			else
 				{

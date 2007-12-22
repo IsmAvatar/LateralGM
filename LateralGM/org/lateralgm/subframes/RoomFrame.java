@@ -8,6 +8,8 @@
  */
 package org.lateralgm.subframes;
 
+import static org.lateralgm.main.Util.deRef;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -137,7 +139,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 						boolean selected, boolean focus)
 					{
 					Instance i = (Instance) val;
-					GmObject go = i.gmObjectId.getRes();
+					GmObject go = deRef(i.gmObjectId);
 					JLabel lab = new JLabel(go.getName() + " " + i.instanceId, //$NON-NLS-1$
 							GmTreeGraphics.getSpriteIcon(go.sprite),JLabel.LEFT);
 					super.getListCellRendererComponent(list,lab,ind,selected,focus);
@@ -319,7 +321,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 						boolean selected, boolean focus)
 					{
 					Tile i = (Tile) val;
-					Background bg = i.backgroundId.getRes();
+					Background bg = deRef(i.backgroundId);
 					ImageIcon ii = new ImageIcon(bg.backgroundImage.getSubimage(i.tileX,i.tileY,i.width,
 							i.height));
 					JLabel lab = new JLabel(bg.getName() + " " + i.tileId,ii,JLabel.LEFT); //$NON-NLS-1$
@@ -414,7 +416,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		bSource = new ResourceMenu<Background>(Room.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,150); //$NON-NLS-1$
-		bSource.setRefSelected(res.backgroundDefs[0].backgroundId);
+		bSource.setSelected(res.backgroundDefs[0].backgroundId);
 		panel.add(bSource);
 
 		st = Messages.getString("RoomFrame.BACK_TILE_HOR"); //$NON-NLS-1$
@@ -534,7 +536,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		p = Util.makeTitledPanel(Messages.getString("RoomFrame.FOLLOW"),150,104); //$NON-NLS-1$
 		vObj = new ResourceMenu<GmObject>(Room.GMOBJECT,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
-		vObj.setRefSelected(res.views[0].objectFollowing);
+		vObj.setSelected(res.views[0].objectFollowing);
 		p.add(vObj);
 		p.add(new JLabel(Messages.getString("RoomFrame.HBOR"))); //$NON-NLS-1$
 		vOHBor = new IntegerField(0,32000,res.views[0].hbor);
@@ -780,10 +782,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (i == null) return;
 			if (oSource.getSelected() == null)
 				{
-				oSource.setRefSelected(i.gmObjectId);
+				oSource.setSelected(i.gmObjectId);
 				return;
 				}
-			i.gmObjectId = oSource.getSelectedRef();
+			i.gmObjectId = oSource.getSelected();
 			oList.updateUI();
 			return;
 			}
@@ -791,7 +793,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			if (oSource.getSelected() == null) return;
 			Instance i = res.addInstance();
-			i.gmObjectId = oSource.getSelectedRef();
+			i.gmObjectId = oSource.getSelected();
 			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(res.instances.size() - 1);
 			return;
@@ -813,10 +815,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (t == null) return;
 			if (tSource.getSelected() == null)
 				{
-				tSource.setRefSelected(t.backgroundId);
+				tSource.setSelected(t.backgroundId);
 				return;
 				}
-			t.backgroundId = tSource.getSelectedRef();
+			t.backgroundId = tSource.getSelected();
 			tList.updateUI();
 			return;
 			}
@@ -824,7 +826,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			if (tSource.getSelected() == null) return;
 			Tile t = res.addTile();
-			t.backgroundId = tSource.getSelectedRef();
+			t.backgroundId = tSource.getSelected();
 			tList.setListData(res.tiles.toArray());
 			tList.setSelectedIndex(res.tiles.size() - 1);
 			return;
@@ -859,7 +861,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastObj != null)
 			{
 			lastObj.locked = oLocked.isSelected();
-			if (oSource.getSelected() != null) lastObj.gmObjectId = oSource.getSelectedRef();
+			if (oSource.getSelected() != null) lastObj.gmObjectId = oSource.getSelected();
 			lastObj.x = oX.getIntValue();
 			lastObj.y = oY.getIntValue();
 			}
@@ -867,7 +869,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastObj == null) return;
 		oLocked.setSelected(lastObj.locked);
 		manualUpdate = false;
-		oSource.setRefSelected(lastObj.gmObjectId);
+		oSource.setSelected(lastObj.gmObjectId);
 		manualUpdate = true;
 		oX.setIntValue(lastObj.x);
 		oY.setIntValue(lastObj.y);
@@ -878,7 +880,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastTile != null)
 			{
 			lastTile.locked = tLocked.isSelected();
-			if (tSource.getSelected() != null) lastTile.backgroundId = bSource.getSelectedRef();
+			if (tSource.getSelected() != null) lastTile.backgroundId = bSource.getSelected();
 			lastTile.tileX = tsX.getIntValue();
 			lastTile.tileY = tsY.getIntValue();
 			lastTile.x = tX.getIntValue();
@@ -889,7 +891,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastTile == null) return;
 		tLocked.setSelected(lastTile.locked);
 		manualUpdate = false;
-		tSource.setRefSelected(lastTile.backgroundId);
+		tSource.setSelected(lastTile.backgroundId);
 		manualUpdate = true;
 		tsX.setIntValue(lastTile.tileX);
 		tsY.setIntValue(lastTile.tileY);
@@ -903,7 +905,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		BackgroundDef b = res.backgroundDefs[lastValidBack];
 		b.visible = bVisible.isSelected();
 		b.foreground = bForeground.isSelected();
-		b.backgroundId = bSource.getSelectedRef();
+		b.backgroundId = bSource.getSelected();
 		b.x = bX.getIntValue();
 		b.y = bY.getIntValue();
 		b.tileHoriz = bTileH.isSelected();
@@ -922,7 +924,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		b = res.backgroundDefs[lastValidBack];
 		bVisible.setSelected(b.visible);
 		bForeground.setSelected(b.foreground);
-		bSource.setRefSelected(b.backgroundId);
+		bSource.setSelected(b.backgroundId);
 		bX.setIntValue(b.x);
 		bY.setIntValue(b.y);
 		bTileH.setSelected(b.tileHoriz);
@@ -944,7 +946,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		v.portY = vPY.getIntValue();
 		v.portW = vPW.getIntValue();
 		v.portH = vPH.getIntValue();
-		v.objectFollowing = vObj.getSelectedRef();
+		v.objectFollowing = vObj.getSelected();
 		v.hbor = vOHBor.getIntValue();
 		v.vbor = vOVBor.getIntValue();
 		v.hspeed = vOHSp.getIntValue();
@@ -967,7 +969,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		vPY.setIntValue(v.portY);
 		vPW.setIntValue(v.portW);
 		vPH.setIntValue(v.portH);
-		vObj.setRefSelected(v.objectFollowing);
+		vObj.setSelected(v.objectFollowing);
 		vOHBor.setIntValue(v.hbor);
 		vOVBor.setIntValue(v.vbor);
 		vOHSp.setIntValue(v.hspeed);

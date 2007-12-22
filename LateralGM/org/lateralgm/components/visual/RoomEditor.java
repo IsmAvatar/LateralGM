@@ -10,7 +10,7 @@
 
 package org.lateralgm.components.visual;
 
-import static org.lateralgm.resources.Ref.deRef;
+import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -18,6 +18,7 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.lang.ref.WeakReference;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -27,7 +28,6 @@ import javax.swing.event.ChangeListener;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Ref;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.sub.BackgroundDef;
@@ -87,7 +87,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 				{
 				BackgroundDef bd = frame.res.backgroundDefs[i];
 				if (!bd.visible || bd.foreground || deRef(bd.backgroundId) == null) continue;
-				BufferedImage bi = bd.backgroundId.getRes().backgroundImage;
+				BufferedImage bi = bd.backgroundId.get().backgroundImage;
 				if (bd.tileHoriz || bd.tileVert)
 					{
 					int x = bd.x;
@@ -122,15 +122,15 @@ public class RoomEditor extends JPanel implements ImageObserver
 		//TODO: Extract to internal TileComponent class
 		if (frame.sSTile.isSelected())
 			{
-			Ref<Background> bg = null;
+			WeakReference<Background> bg = null;
 			BufferedImage bi = null;
 			for (Tile t : frame.res.tiles)
 				{
 				if (bg != t.backgroundId)
 					{
 					bg = t.backgroundId;
-					bi = t.backgroundId.getRes().backgroundImage;
-					if (t.backgroundId.getRes().transparent) bi = Util.getTransparentIcon(bi);
+					bi = bg.get().backgroundImage;
+					if (t.backgroundId.get().transparent) bi = Util.getTransparentIcon(bi);
 					}
 				g2.drawImage(bi.getSubimage(t.tileX,t.tileY,t.width,t.height),t.x,t.y,this);
 				}
