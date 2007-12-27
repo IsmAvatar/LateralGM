@@ -321,7 +321,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 		Resource<?> resource = res == null ? LGM.currentFile.getList(parent.kind).add() : res;
 		ResNode g = new ResNode(resource.getName(),ResNode.STATUS_SECONDARY,parent.kind,
-				new WeakReference(resource));
+				new WeakReference<Resource<?>>(resource));
 		parent.insert(g,pos);
 		tree.expandPath(new TreePath(parent.getPath()));
 		tree.setSelectionPath(new TreePath(g.getPath()));

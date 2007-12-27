@@ -857,7 +857,7 @@ public final class GmFileReader
 					&& type != Resource.GAMESETTINGS && type != Resource.EXTENSIONS
 					&& (ver != 500 || type != Resource.FONT))
 				{
-				node.setRes(new WeakReference(f.getList(node.kind).getUnsafe(ind)));
+				node.setRes(new WeakReference<Resource<?>>(f.getList(node.kind).getUnsafe(ind)));
 				// GM actually ignores the name given in the tree data
 				node.setUserObject(f.getList(node.kind).getUnsafe(ind).getName());
 				}
@@ -1003,7 +1003,7 @@ public final class GmFileReader
 					}
 				if (res != null && res != tag)
 					{
-					act.arguments[l].res = new WeakReference(res);
+					act.arguments[l].res = new WeakReference<Resource<?>>(res);
 					}
 				}
 			act.not = in.readBool();

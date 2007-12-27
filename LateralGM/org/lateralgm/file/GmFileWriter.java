@@ -167,6 +167,7 @@ public final class GmFileWriter
 		out.writeBool(g.imagePartiallyTransparent);
 		out.write4(g.loadImageAlpha);
 		out.writeBool(g.scaleProgressBar);
+		out.write4(g.gameIconData.length);
 		out.write(g.gameIconData);
 		out.writeBool(g.displayErrors);
 		out.writeBool(g.writeToLog);

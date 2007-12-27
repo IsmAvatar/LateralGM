@@ -56,12 +56,11 @@ public class GmStreamEncoder
 
 	public void write(byte[] b) throws IOException
 		{
-		write(b,0,b.length);
+		out.write(b);
 		}
 
 	public void write(byte[] b, int off, int len) throws IOException
 		{
-		write4(len);
 		out.write(b,off,len);
 		}
 
