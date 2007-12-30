@@ -1,6 +1,7 @@
 /*
  * TextAreaPainter.java - Paints the text area
  * Copyright (C) 1999 Slava Pestov
+ * Modified by IsmAvatar <cmagicj@nni.com>
  *
  * You may use and modify this package for any purpose. Redistribution is
  * permitted, in both source and binary form, provided that this notice
@@ -366,6 +367,9 @@ public class TextAreaPainter extends JComponent implements TabExpander
 		super.setFont(font);
 		fm = super.getFontMetrics(font);
 		textArea.recalculateVisibleLines();
+		if (textArea.getDocument() != null)
+			tabSize = fm.charWidth(' ')
+					* ((Integer) textArea.getDocument().getProperty(PlainDocument.tabSizeAttribute)).intValue();
 		}
 
 	public int getLineHeight()
@@ -387,8 +391,8 @@ public class TextAreaPainter extends JComponent implements TabExpander
 			{
 			g2.addRenderingHints(map);
 			}
-		tabSize = fm.charWidth(' ')
-				* ((Integer) textArea.getDocument().getProperty(PlainDocument.tabSizeAttribute)).intValue();
+		//		tabSize = fm.charWidth(' ')
+		//				* ((Integer) textArea.getDocument().getProperty(PlainDocument.tabSizeAttribute)).intValue();
 
 		Rectangle clipRect = g2.getClipBounds();
 

@@ -343,10 +343,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (next == null) next = (ResNode) me.getParent();
 			if (next.isRoot()) next = (ResNode) next.getFirstChild();
 			tree.setSelectionPath(new TreePath(next.getPath()));
-			Enumeration<ResNode> nodes = me.depthFirstEnumeration();
+			Enumeration<?> nodes = me.depthFirstEnumeration();
 			while (nodes.hasMoreElements())
 				{
-				ResNode node = nodes.nextElement();
+				ResNode node = (ResNode) nodes.nextElement();
 				if (node.frame != null) node.frame.dispose();
 				if (node.status == ResNode.STATUS_SECONDARY)
 					LGM.currentFile.getList(node.kind).remove(deRef(node.getRes()));

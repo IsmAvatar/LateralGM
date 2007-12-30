@@ -74,7 +74,7 @@ public final class GmFileWriter
 			out.write4(f.lastInstanceId);
 			out.write4(f.lastTileId);
 
-			// GAME SETTINGS
+			// GAME INFO SETTINGS
 			out.write4(600);
 			out.write4(Util.getGmColor(f.gameInfo.backgroundColor));
 			out.writeBool(f.gameInfo.mimicGameWindow);

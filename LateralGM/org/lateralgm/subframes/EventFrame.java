@@ -339,6 +339,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 			}
 		}
 
+	@SuppressWarnings("unchecked")
 	public void propertyChange(PropertyChangeEvent evt)
 		{
 		if (evt.getPropertyName().equals(MDIPane.SELECTED_FRAME_PROPERTY))

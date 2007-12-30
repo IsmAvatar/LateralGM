@@ -93,6 +93,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 			}
 		}
 
+	@SuppressWarnings("unchecked")
 	public void updateIcon()
 		{
 		switch (kind)

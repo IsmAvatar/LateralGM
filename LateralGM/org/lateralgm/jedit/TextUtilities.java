@@ -1,6 +1,7 @@
 /*
  * TextUtilities.java - Utility functions used by the text area classes
  * Copyright (C) 1999 Slava Pestov
+ * Modified by IsmAvatar <cmagicj@nni.com>
  *
  * You may use and modify this package for any purpose. Redistribution is
  * permitted, in both source and binary form, provided that this notice
@@ -15,7 +16,7 @@ import javax.swing.text.Document;
  * Class with several utility functions used by the text area component.
  * @author Slava Pestov
  */
-public class TextUtilities
+public final class TextUtilities
 	{
 	/**
 	 * Returns the offset of the bracket matching the one at the
