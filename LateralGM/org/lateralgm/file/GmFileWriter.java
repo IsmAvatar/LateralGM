@@ -489,11 +489,11 @@ public final class GmFileWriter
 				out.write4(rm.instances.size());
 				for (Instance in : rm.instances)
 					{
-					out.write4(in.x);
-					out.write4(in.y);
+					out.write4(in.getX());
+					out.write4(in.getY());
 					out.writeId(in.gmObjectId);
 					out.write4(in.instanceId);
-					out.writeStr(in.creationCode);
+					out.writeStr(in.getCreationCode());
 					out.writeBool(in.locked);
 					}
 				out.write4(rm.tiles.size());

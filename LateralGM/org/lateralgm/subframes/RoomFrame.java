@@ -37,6 +37,8 @@ import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -63,7 +65,7 @@ import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
 //TODO: Feature: Zoom for RoomEditor (add buttons here first)
-public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListener
+public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListener,ChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
@@ -590,6 +592,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tabs.addTab(bks,makeBackgroundsPane());
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex(res.currentTab);
+		tabs.addChangeListener(this);
 		pane.add(tabs);
 
 		FlowLayout fl = new FlowLayout();
@@ -785,6 +788,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				oSource.setSelected(i.gmObjectId);
 				return;
 				}
+			editor.setEditInstancesParams(oSource.getSelected(),oDel.isSelected());
 			i.gmObjectId = oSource.getSelected();
 			oList.updateUI();
 			return;
@@ -862,8 +866,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			lastObj.locked = oLocked.isSelected();
 			if (oSource.getSelected() != null) lastObj.gmObjectId = oSource.getSelected();
-			lastObj.x = oX.getIntValue();
-			lastObj.y = oY.getIntValue();
+			lastObj.setX(oX.getIntValue());
+			lastObj.setY(oY.getIntValue());
 			}
 		lastObj = (Instance) oList.getSelectedValue();
 		if (lastObj == null) return;
@@ -871,8 +875,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		manualUpdate = false;
 		oSource.setSelected(lastObj.gmObjectId);
 		manualUpdate = true;
-		oX.setIntValue(lastObj.x);
-		oY.setIntValue(lastObj.y);
+		oX.setIntValue(lastObj.getX());
+		oY.setIntValue(lastObj.getY());
 		}
 
 	public void fireTileUpdate()
@@ -1007,7 +1011,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		private String getCode()
 			{
 			if (code instanceof Room) return ((Room) code).creationCode;
-			if (code instanceof Instance) return ((Instance) code).creationCode;
+			if (code instanceof Instance) return ((Instance) code).getCreationCode();
 			throw new RuntimeException(Messages.getString("RoomFrame.CODE_ERROR")); //$NON-NLS-1$
 			}
 
@@ -1016,7 +1020,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (code instanceof Room)
 				((Room) code).creationCode = gta.getTextCompat();
 			else if (code instanceof Instance)
-				((Instance) code).creationCode = gta.getTextCompat();
+				((Instance) code).setCreationCode(gta.getTextCompat());
 			else
 				throw new RuntimeException(Messages.getString("RoomFrame.CODE_ERROR")); //$NON-NLS-1$
 			}
@@ -1124,5 +1128,23 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		for (CodeFrame cf : codeFrames.values())
 			cf.dispose();
 		super.dispose();
+		}
+
+	public void stateChanged(ChangeEvent e)
+		{
+		if (e.getSource() == tabs)
+			{
+			switch (tabs.getSelectedIndex())
+				{
+				case 0:
+					editor.setEditMode(RoomEditor.EDIT_INSTANCES);
+					break;
+				case 2:
+					editor.setEditMode(RoomEditor.EDIT_TILES);
+					break;
+				default:
+					editor.setEditMode(RoomEditor.EDIT_NONE);
+				}
+			}
 		}
 	}

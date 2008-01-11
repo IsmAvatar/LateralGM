@@ -13,12 +13,16 @@ package org.lateralgm.components.visual;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.lang.ref.WeakReference;
+import java.util.Hashtable;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -38,17 +42,32 @@ import org.lateralgm.subframes.RoomFrame;
 public class RoomEditor extends JPanel implements ImageObserver
 	{
 	private static final long serialVersionUID = 1L;
+	public static final int EDIT_NONE = 0;
+	public static final int EDIT_INSTANCES = 1;
+	public static final int EDIT_TILES = 2;
 
+	private Room room;
 	private RoomFrame frame;
+	private int editMode = EDIT_NONE;
+	private WeakReference<GmObject> editInstancesObject;
+	private boolean editInstancesDeleteUnderlying;
+	private Instance cursorInstance;
+	private Hashtable<Instance,InstanceComponent> instances;
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
 		setOpaque(false);
+		room = r;
 		this.frame = frame;
 		refresh();
-		enableEvents(MouseEvent.MOUSE_PRESSED);
-		for (Instance i : r.instances)
-			add(new RoomEditor.InstanceComponent(i));
+		enableEvents(MouseEvent.MOUSE_EVENT_MASK | MouseEvent.MOUSE_MOTION_EVENT_MASK);
+		instances = new Hashtable<Instance,InstanceComponent>(room.instances.size());
+		for (Instance i : room.instances)
+			{
+			InstanceComponent ic = new RoomEditor.InstanceComponent(i);
+			add(ic);
+			instances.put(i,ic);
+			}
 		}
 
 	public void refresh()
@@ -59,11 +78,109 @@ public class RoomEditor extends JPanel implements ImageObserver
 		repaint();
 		}
 
+	public int getEditMode()
+		{
+		return editMode;
+		}
+
+	public void setEditMode(int editMode)
+		{
+		this.editMode = editMode;
+		}
+
+	public void setEditInstancesParams(WeakReference<GmObject> object, boolean deleteUnderlying)
+		{
+		editInstancesObject = object;
+		editInstancesDeleteUnderlying = deleteUnderlying;
+		}
+
+	//	public void updateInstance(Instance i)
+	//		{
+	//		InstanceComponent ic = instances.get(i);
+	//		if(ic != null)
+	//			ic.
+	//		}
+
 	//TODO: Handle mouse for adding/deleting instances/tiles
 	protected void processMouseEvent(MouseEvent e)
 		{
 		super.processMouseEvent(e);
-		if (e.getX() >= getPreferredSize().width && e.getY() >= getPreferredSize().height) return;
+		mouseEdit(e);
+		}
+
+	protected void processMouseMotionEvent(MouseEvent e)
+		{
+		super.processMouseMotionEvent(e);
+		mouseEdit(e);
+		}
+
+	protected void mouseEdit(MouseEvent e)
+		{
+		int x = e.getX();
+		int y = e.getY();
+		Point p = e.getPoint();
+		InstanceComponent mc = null;
+		for (Component c : getComponents())
+			{
+			if (c instanceof InstanceComponent)
+				{
+				InstanceComponent ic = (InstanceComponent) c;
+				if (new Rectangle(ic.x,ic.y,ic.width,ic.height).contains(p)) mc = ic;
+				}
+			}
+		int button = e.getButton();
+		int type = e.getID();
+		int modifiers = e.getModifiersEx();
+		if (editMode == EDIT_INSTANCES)
+			{
+
+			if ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0)
+				{
+				if (type == MouseEvent.MOUSE_PRESSED)
+					{
+					if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
+						{
+						if (mc != null) cursorInstance = mc.instance;
+						}
+					else if (editInstancesObject != null && cursorInstance == null)
+						{
+						cursorInstance = room.addInstance();
+						cursorInstance.gmObjectId = editInstancesObject;
+						add(new InstanceComponent(cursorInstance));
+						}
+					}
+				if (cursorInstance != null)
+					{
+					if ((modifiers & MouseEvent.ALT_DOWN_MASK) != 0)
+						{
+						cursorInstance.setX(x);
+						cursorInstance.setY(y);
+						}
+					else
+						{
+						cursorInstance.setX((x + room.snapX / 2) / room.snapX * room.snapX);
+						cursorInstance.setY((y + room.snapY / 2) / room.snapY * room.snapY);
+						}
+					}
+				repaint();
+				}
+			else
+				{
+				cursorInstance = null;
+				}
+			if ((modifiers & MouseEvent.BUTTON2_DOWN_MASK) != 0)
+				{
+				if (mc != null)
+					{
+					if ((modifiers & (MouseEvent.ALT_DOWN_MASK | MouseEvent.CTRL_DOWN_MASK)) == 0)
+						{
+						remove(mc);
+						room.instances.remove(mc.instance);
+						}
+					}
+				repaint();
+				}
+			}
 		if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1)
 			{
 			return;
@@ -186,11 +303,13 @@ public class RoomEditor extends JPanel implements ImageObserver
 				{
 				if (sprite != null) sprite.addChangeListener(rcl);
 				if (object != null) object.addChangeListener(rcl);
+				instance.addChangeListener(rcl);
 				}
 			else
 				{
 				if (sprite != null) sprite.removeChangeListener(rcl);
 				if (object != null) object.removeChangeListener(rcl);
+				instance.removeChangeListener(rcl);
 				}
 			doListen = l;
 			}
@@ -209,8 +328,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		private void updateBounds()
 			{
-			x = instance.x - (sprite == null ? 0 : sprite.originX);
-			y = instance.y - (sprite == null ? 0 : sprite.originY);
+			x = instance.getX() - (sprite == null ? 0 : sprite.originX);
+			y = instance.getY() - (sprite == null ? 0 : sprite.originY);
 			if (sprite == null)
 				{
 				width = EMPTY_IMAGE.getWidth();
@@ -221,6 +340,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 				width = sprite.width;
 				height = sprite.height;
 				}
+			invalidate();
 			}
 
 		private void updateImage()

@@ -768,12 +768,12 @@ public final class GmFileReader
 			for (int j = 0; j < noinstances; j++)
 				{
 				Instance inst = rm.addInstance();
-				inst.x = in.read4();
-				inst.y = in.read4();
+				inst.setX(in.read4());
+				inst.setY(in.read4());
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
 				if (temp != null) inst.gmObjectId = new WeakReference<GmObject>(temp);
 				inst.instanceId = in.read4();
-				inst.creationCode = in.readStr();
+				inst.setCreationCode(in.readStr());
 				inst.locked = in.readBool();
 				}
 			int notiles = in.read4();

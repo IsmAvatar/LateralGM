@@ -125,11 +125,11 @@ public class Room extends Resource<Room>
 		for (Instance inst : instances)
 			{
 			Instance inst2 = rm.addInstance();
-			inst2.creationCode = inst.creationCode;
+			inst2.setCreationCode(inst.getCreationCode());
 			inst2.locked = inst.locked;
 			inst2.gmObjectId = inst.gmObjectId;
-			inst2.x = inst.x;
-			inst2.y = inst.y;
+			inst2.setX(inst.getX());
+			inst2.setY(inst.getY());
 			}
 		for (Tile tile : tiles)
 			{
