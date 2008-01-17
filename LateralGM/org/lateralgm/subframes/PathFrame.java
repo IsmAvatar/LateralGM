@@ -54,8 +54,8 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		{
 		super(res,node);
 
-		setSize(560,400);
-		setMinimumSize(new Dimension(560,400));
+		setSize(188,400);
+		setMinimumSize(new Dimension(188,400));
 		setLayout(new BorderLayout());
 
 		add(makeToolBar(),BorderLayout.NORTH);

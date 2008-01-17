@@ -30,11 +30,6 @@ public class GmMenu extends JMenu
 		setTextAndAlt(this,s);
 		}
 
-	public JMenuItem addItem()
-		{
-		return addItem(null);
-		}
-
 	public JMenuItem addItem(String key)
 		{
 		return addItem(key,-1,-1,LGM.listener);

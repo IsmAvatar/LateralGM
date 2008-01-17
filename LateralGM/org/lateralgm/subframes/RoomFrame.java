@@ -30,7 +30,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -74,7 +73,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public static boolean manualUpdate = true;
 	public RoomEditor editor;
 	public JTabbedPane tabs;
-	public JLabel statX, statY, statObj, statId;
+	public JLabel statX, statY, statSrc, statId;
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	public JList oList;
@@ -124,6 +123,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.add(new JLabel(Messages.getString("RoomFrame.WIP"))); //$NON-NLS-1$
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		oUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingObjects : true);
+		oUnderlying.addActionListener(this);
 		panel.add(oUnderlying);
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.OBJ_INSTANCES")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(150,20));
@@ -563,11 +563,44 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		return panel;
 		}
 
+	private JPanel makeStatsPane()
+		{
+		JPanel stat = new JPanel();
+		stat.setLayout(new BoxLayout(stat,BoxLayout.X_AXIS));
+		stat.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
+
+		statX = new JLabel(Messages.getString("RoomFrame.X")); //$NON-NLS-1$
+		statX.setMaximumSize(new Dimension(50,14));
+		stat.add(statX);
+
+		JLabel sep = new JLabel("|"); //$NON-NLS-1$
+		stat.add(sep);
+
+		statY = new JLabel(Messages.getString("RoomFrame.Y")); //$NON-NLS-1$
+		statY.setMaximumSize(new Dimension(50,13));
+		stat.add(statY);
+		
+		sep = new JLabel("|"); //$NON-NLS-1$
+		stat.add(sep);
+
+		statSrc = new JLabel(); 
+		statSrc.setMaximumSize(new Dimension(100,13));
+		stat.add(statSrc);
+
+		sep = new JLabel("|"); //$NON-NLS-1$
+		stat.add(sep);
+
+		statId = new JLabel();
+		stat.add(statId); //resizes at will, so no Max size
+
+		return stat;
+		}
+
 	public RoomFrame(Room res, ResNode node)
 		{
 		super(res,node);
 
-		final int sizeWidth = 450;
+		final int sizeWidth = 550;
 		final int sizeHeight = 550;
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
 		setMinimumSize(new Dimension(sizeWidth,sizeHeight));
@@ -612,47 +645,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		editor = new RoomEditor(res,this);
 		pane.add(new JScrollPane(editor));
+		pane.add(makeStatsPane());
 
-		//TODO: 1.6 - 1.7 Work on status bar
-		JPanel stat = new JPanel();
-		stat.setMaximumSize(new Dimension(200,11));
-		statX = new JLabel(Messages.getString("RoomFrame.X")); //$NON-NLS-1$
-		statX.setPreferredSize(new Dimension(25,14));
-		stat.add(statX);
-		//		JToolBar.Separator sep = new JToolBar.Separator();
-		//		sep.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		//		sep.setPreferredSize(new Dimension());
-		JLabel l = new JLabel();
-		l.setMinimumSize(new Dimension(5,5));
-		l.setMaximumSize(new Dimension(5,5));
-		stat.add(l);
-
-		JSeparator sep = new JSeparator(JSeparator.VERTICAL);
-		sep.setMinimumSize(new Dimension(2,13));
-		sep.setMaximumSize(new Dimension(2,13));
-		//		stat.add(sep);
-
-		l = new JLabel();
-		l.setMinimumSize(new Dimension(5,5));
-		l.setMaximumSize(new Dimension(5,5));
-		stat.add(l);
-		//		addDim(stat,sep,10,10);
-		//		stat.add(sep);
-
-		//		stat.addSeparator(new Dimension(10,10));
-		statY = new JLabel(Messages.getString("RoomFrame.Y")); //$NON-NLS-1$
-		statY.setPreferredSize(new Dimension(25,13));
-		stat.add(statY);
-		//		stat.add(new JToolBar.Separator());
-		statObj = new JLabel(Messages.getString("RoomFrame.OBJECT")); //$NON-NLS-1$
-		statObj.setPreferredSize(new Dimension(50,13));
-		stat.add(statObj);
-		//		stat.add(new JToolBar.Separator());
-		statId = new JLabel(Messages.getString("RoomFrame.ID")); //$NON-NLS-1$
-		statId.setPreferredSize(new Dimension(50,13));
-		stat.add(statId);
-
-		pane.add(stat);
 		add(pane);
 		}
 
@@ -778,6 +772,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			vList.updateUI();
 			return;
 			}
+		if (s == oUnderlying)
+			{
+			editor.setEditInstancesParams(oSource.getSelected(),oUnderlying.isSelected());
+			return;
+			}
 		if (s == oSource)
 			{
 			if (!manualUpdate) return;
@@ -788,7 +787,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				oSource.setSelected(i.gmObjectId);
 				return;
 				}
-			editor.setEditInstancesParams(oSource.getSelected(),oDel.isSelected());
+			editor.setEditInstancesParams(oSource.getSelected(),oUnderlying.isSelected());
 			i.gmObjectId = oSource.getSelected();
 			oList.updateUI();
 			return;

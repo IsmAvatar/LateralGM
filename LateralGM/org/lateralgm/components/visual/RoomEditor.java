@@ -18,6 +18,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -25,11 +27,14 @@ import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.lateralgm.main.Util;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Room;
@@ -49,6 +54,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 	private Room room;
 	private RoomFrame frame;
 	private int editMode = EDIT_NONE;
+	/** XXX: Just use frame.oSource.getSelected() and frame.oUnderlying.isSelected() */
 	private WeakReference<GmObject> editInstancesObject;
 	private boolean editInstancesDeleteUnderlying;
 	private Instance cursorInstance;
@@ -101,7 +107,6 @@ public class RoomEditor extends JPanel implements ImageObserver
 	//			ic.
 	//		}
 
-	//TODO: Handle mouse for adding/deleting instances/tiles
 	protected void processMouseEvent(MouseEvent e)
 		{
 		super.processMouseEvent(e);
@@ -114,25 +119,53 @@ public class RoomEditor extends JPanel implements ImageObserver
 		mouseEdit(e);
 		}
 
-	protected void mouseEdit(MouseEvent e)
+	private InstanceComponent findInstance(Point p, boolean notMe)
 		{
-		int x = e.getX();
-		int y = e.getY();
-		Point p = e.getPoint();
-		InstanceComponent mc = null;
 		for (Component c : getComponents())
 			{
 			if (c instanceof InstanceComponent)
 				{
 				InstanceComponent ic = (InstanceComponent) c;
-				if (new Rectangle(ic.x,ic.y,ic.width,ic.height).contains(p)) mc = ic;
+				if (new Rectangle(ic.x,ic.y,ic.width,ic.height).contains(p))
+					if (!notMe || ic.instance != cursorInstance) return ic;
 				}
 			}
-		int button = e.getButton();
-		int type = e.getID();
+		return null;
+		}
+
+	protected void mouseEdit(MouseEvent e)
+		{
 		int modifiers = e.getModifiersEx();
+		int type = e.getID();
+		int x = e.getX();
+		int y = e.getY();
+		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
+			{
+			x = x / room.snapX * room.snapX;
+			y = y / room.snapY * room.snapY;
+			}
+		frame.statX.setText(Messages.getString("RoomFrame.X") + x); //$NON-NLS-1$
+		frame.statY.setText(Messages.getString("RoomFrame.Y") + y); //$NON-NLS-1$
+		frame.statSrc.setText(""); //$NON-NLS-1$
+		frame.statId.setText(""); //$NON-NLS-1$
+
+		if (editMode == EDIT_NONE)
+			{
+			InstanceComponent mc = findInstance(e.getPoint(),false);
+			if (mc != null)
+				{
+				frame.statSrc.setText(Messages.getString("RoomFrame.OBJECT") + mc.instance.gmObjectId.get().getName()); //$NON-NLS-1$
+				frame.statId.setText(Messages.getString("RoomFrame.ID") + mc.instance.instanceId); //$NON-NLS-1$
+				}
+			}
 		if (editMode == EDIT_INSTANCES)
 			{
+			InstanceComponent mc = findInstance(e.getPoint(),false);
+			if (mc != null)
+				{
+				frame.statSrc.setText(Messages.getString("RoomFrame.OBJECT") + mc.instance.gmObjectId.get().getName()); //$NON-NLS-1$
+				frame.statId.setText(Messages.getString("RoomFrame.ID") + mc.instance.instanceId); //$NON-NLS-1$
+				}
 
 			if ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0)
 				{
@@ -151,41 +184,49 @@ public class RoomEditor extends JPanel implements ImageObserver
 					}
 				if (cursorInstance != null)
 					{
-					if ((modifiers & MouseEvent.ALT_DOWN_MASK) != 0)
-						{
-						cursorInstance.setX(x);
-						cursorInstance.setY(y);
-						}
-					else
-						{
-						cursorInstance.setX((x + room.snapX / 2) / room.snapX * room.snapX);
-						cursorInstance.setY((y + room.snapY / 2) / room.snapY * room.snapY);
-						}
+					cursorInstance.setX(x);
+					cursorInstance.setY(y);
 					}
 				repaint();
 				}
-			else
+			else if (cursorInstance != null)
 				{
+				if (editInstancesDeleteUnderlying)
+					{
+					InstanceComponent ic;
+					while ((ic = findInstance(new Point(x,y),true)) != null)
+						{
+						remove(ic);
+						room.instances.remove(ic.instance);
+						}
+					}
 				cursorInstance = null;
 				}
-			if ((modifiers & MouseEvent.BUTTON2_DOWN_MASK) != 0)
+			if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
 				{
-				if (mc != null)
+				if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 					{
-					if ((modifiers & (MouseEvent.ALT_DOWN_MASK | MouseEvent.CTRL_DOWN_MASK)) == 0)
+					final Instance i = mc.instance;
+					JPopupMenu jp = new JPopupMenu(i.gmObjectId.get().getName());
+					JMenuItem mi = new JMenuItem(Messages.getString("RoomEditor.InstanceCreationCode")); //$NON-NLS-1$
+					mi.addActionListener(new ActionListener()
 						{
-						remove(mc);
-						room.instances.remove(mc.instance);
-						}
+							public void actionPerformed(ActionEvent e)
+								{
+								frame.openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"), //$NON-NLS-1$
+										String.format(Messages.getString("RoomFrame.INSTANCE"),i.instanceId)); //$NON-NLS-1$
+								}
+						});
+					jp.add(mi);
+					jp.show(this,e.getX(),e.getY());
 					}
-				repaint();
+				else
+					{
+					remove(mc);
+					room.instances.remove(mc.instance);
+					}
 				}
-			}
-		if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1)
-			{
-			return;
-			//check delete underlying
-			//add object/tile
+			repaint();
 			}
 		}
 
@@ -252,6 +293,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 				g2.drawImage(bi.getSubimage(t.tileX,t.tileY,t.width,t.height),t.x,t.y,this);
 				}
 			}
+		//FIXME: Grid should display over InstanceComponents
 		if (frame.sGridVis.isSelected())
 			{
 			int w = frame.sSnapX.getIntValue();
