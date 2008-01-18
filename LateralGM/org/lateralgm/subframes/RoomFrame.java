@@ -36,8 +36,6 @@ import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -64,7 +62,7 @@ import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
 //TODO: Feature: Zoom for RoomEditor (add buttons here first)
-public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListener,ChangeListener
+public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
@@ -73,7 +71,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public static boolean manualUpdate = true;
 	public RoomEditor editor;
 	public JTabbedPane tabs;
-	public JLabel statX, statY, statSrc, statId;
+	public JLabel statX, statY, statId, statSrc;
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	public JList oList;
@@ -116,22 +114,18 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public ResourceMenu<GmObject> vObj;
 	public IntegerField vOHBor, vOVBor, vOHSp, vOVSp;
 
+	//FIXME: Overhaul objects tab for Editor. Move this stuff to somewhere else, e.g. popup window
 	public JPanel makeObjectsPane()
 		{
 		JPanel panel = new JPanel(new FlowLayout());
 
-		panel.add(new JLabel(Messages.getString("RoomFrame.WIP"))); //$NON-NLS-1$
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		oUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingObjects : true);
-		oUnderlying.addActionListener(this);
 		panel.add(oUnderlying);
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.OBJ_INSTANCES")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(150,20));
 		panel.add(lab);
 		oList = new JList(res.instances.toArray());
-		//		oList.setDragEnabled(true);
-		//		oList.setDropMode(DropMode.INSERT);
-		//		oList.setTransferHandler(null);
 		oList.addListSelectionListener(this);
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		//		oList.setVisibleRowCount(8);
@@ -572,26 +566,21 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		statX = new JLabel(Messages.getString("RoomFrame.X")); //$NON-NLS-1$
 		statX.setMaximumSize(new Dimension(50,14));
 		stat.add(statX);
-
-		JLabel sep = new JLabel("|"); //$NON-NLS-1$
-		stat.add(sep);
+		stat.add(new JLabel("|")); //$NON-NLS-1$
+		//visible divider    ^   since JSeparator isn't visible
 
 		statY = new JLabel(Messages.getString("RoomFrame.Y")); //$NON-NLS-1$
 		statY.setMaximumSize(new Dimension(50,13));
 		stat.add(statY);
-		
-		sep = new JLabel("|"); //$NON-NLS-1$
-		stat.add(sep);
-
-		statSrc = new JLabel(); 
-		statSrc.setMaximumSize(new Dimension(100,13));
-		stat.add(statSrc);
-
-		sep = new JLabel("|"); //$NON-NLS-1$
-		stat.add(sep);
+		stat.add(new JLabel("|")); //$NON-NLS-1$
 
 		statId = new JLabel();
-		stat.add(statId); //resizes at will, so no Max size
+		statId.setMaximumSize(new Dimension(70,13));
+		stat.add(statId);
+		stat.add(new JLabel("|")); //$NON-NLS-1$
+
+		statSrc = new JLabel();
+		stat.add(statSrc); //resizes at will, so no Max size
 
 		return stat;
 		}
@@ -625,7 +614,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tabs.addTab(bks,makeBackgroundsPane());
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex(res.currentTab);
-		tabs.addChangeListener(this);
 		pane.add(tabs);
 
 		FlowLayout fl = new FlowLayout();
@@ -772,11 +760,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			vList.updateUI();
 			return;
 			}
-		if (s == oUnderlying)
-			{
-			editor.setEditInstancesParams(oSource.getSelected(),oUnderlying.isSelected());
-			return;
-			}
 		if (s == oSource)
 			{
 			if (!manualUpdate) return;
@@ -787,7 +770,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				oSource.setSelected(i.gmObjectId);
 				return;
 				}
-			editor.setEditInstancesParams(oSource.getSelected(),oUnderlying.isSelected());
 			i.gmObjectId = oSource.getSelected();
 			oList.updateUI();
 			return;
@@ -1127,23 +1109,5 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		for (CodeFrame cf : codeFrames.values())
 			cf.dispose();
 		super.dispose();
-		}
-
-	public void stateChanged(ChangeEvent e)
-		{
-		if (e.getSource() == tabs)
-			{
-			switch (tabs.getSelectedIndex())
-				{
-				case 0:
-					editor.setEditMode(RoomEditor.EDIT_INSTANCES);
-					break;
-				case 2:
-					editor.setEditMode(RoomEditor.EDIT_TILES);
-					break;
-				default:
-					editor.setEditMode(RoomEditor.EDIT_NONE);
-				}
-			}
 		}
 	}

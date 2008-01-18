@@ -26,6 +26,7 @@ import java.awt.image.ImageObserver;
 import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -47,17 +48,10 @@ import org.lateralgm.subframes.RoomFrame;
 public class RoomEditor extends JPanel implements ImageObserver
 	{
 	private static final long serialVersionUID = 1L;
-	public static final int EDIT_NONE = 0;
-	public static final int EDIT_INSTANCES = 1;
-	public static final int EDIT_TILES = 2;
 
 	private Room room;
 	private RoomFrame frame;
-	private int editMode = EDIT_NONE;
-	/** XXX: Just use frame.oSource.getSelected() and frame.oUnderlying.isSelected() */
-	private WeakReference<GmObject> editInstancesObject;
-	private boolean editInstancesDeleteUnderlying;
-	private Instance cursorInstance;
+	private InstanceComponent cursorIC;
 	private Hashtable<Instance,InstanceComponent> instances;
 
 	public RoomEditor(Room r, RoomFrame frame)
@@ -84,29 +78,6 @@ public class RoomEditor extends JPanel implements ImageObserver
 		repaint();
 		}
 
-	public int getEditMode()
-		{
-		return editMode;
-		}
-
-	public void setEditMode(int editMode)
-		{
-		this.editMode = editMode;
-		}
-
-	public void setEditInstancesParams(WeakReference<GmObject> object, boolean deleteUnderlying)
-		{
-		editInstancesObject = object;
-		editInstancesDeleteUnderlying = deleteUnderlying;
-		}
-
-	//	public void updateInstance(Instance i)
-	//		{
-	//		InstanceComponent ic = instances.get(i);
-	//		if(ic != null)
-	//			ic.
-	//		}
-
 	protected void processMouseEvent(MouseEvent e)
 		{
 		super.processMouseEvent(e);
@@ -119,18 +90,108 @@ public class RoomEditor extends JPanel implements ImageObserver
 		mouseEdit(e);
 		}
 
-	private InstanceComponent findInstance(Point p, boolean notMe)
+	public InstanceComponent findInstanceComponent(Point p)
 		{
 		for (Component c : getComponents())
 			{
 			if (c instanceof InstanceComponent)
 				{
 				InstanceComponent ic = (InstanceComponent) c;
-				if (new Rectangle(ic.x,ic.y,ic.width,ic.height).contains(p))
-					if (!notMe || ic.instance != cursorInstance) return ic;
+				if (new Rectangle(ic.x,ic.y,ic.width,ic.height).contains(p)) return ic;
 				}
 			}
 		return null;
+		}
+
+	public void releaseCursorInstance(Point p)
+		{
+		if (frame.oUnderlying.isSelected())
+			{
+			for (Component c : getComponents())
+				{
+				if (c instanceof InstanceComponent)
+					{
+					InstanceComponent ic = (InstanceComponent) c;
+					if (new Rectangle(ic.x,ic.y,ic.width,ic.height).contains(p) && ic != cursorIC
+							&& !ic.instance.locked)
+						{
+						remove(ic);
+						room.instances.remove(ic.instance);
+						}
+					}
+				}
+			}
+		cursorIC = null;
+		}
+
+	private void processLeftButton(int modifiers, boolean pressed, InstanceComponent mc, Point p)
+		{
+		boolean shift = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
+		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
+			{
+			if (pressed && mc != null && !mc.instance.locked) cursorIC = mc;
+			}
+		else
+			{
+			if (shift && cursorIC != null
+					&& !new Rectangle(cursorIC.x,cursorIC.y,cursorIC.width,cursorIC.height).contains(p))
+				{
+				releaseCursorInstance(p);
+				pressed = true; //ensures that a new instance is created below
+				}
+			if (frame.oSource.getSelected() != null && cursorIC == null && pressed)
+				{
+				Instance i = room.addInstance();
+				i.gmObjectId = frame.oSource.getSelected();
+				i.setX(p.x);
+				i.setY(p.y);
+				cursorIC = new InstanceComponent(i);
+				add(cursorIC);
+				shift = true; //prevents unnecessary coordinate update below
+				}
+			}
+		if (cursorIC != null && !shift)
+			{
+			cursorIC.instance.setX(p.x);
+			cursorIC.instance.setY(p.y);
+			}
+		}
+
+	private void processRightButton(int modifiers, boolean pressed, InstanceComponent mc, Point p)
+		{
+		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
+			{
+			if (!pressed) return;
+
+			final Instance i = mc.instance;
+			JPopupMenu jp = new JPopupMenu();
+			JCheckBoxMenuItem cb = new JCheckBoxMenuItem(Messages.getString("RoomEditor.LOCKED"),i.locked); //$NON-NLS-1$
+			cb.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+						{
+						i.locked = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+						}
+				});
+			jp.add(cb);
+			JMenuItem mi = new JMenuItem(Messages.getString("RoomEditor.CREATION_CODE")); //$NON-NLS-1$
+			mi.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+						{
+						frame.openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"), //$NON-NLS-1$
+								String.format(Messages.getString("RoomFrame.INSTANCE"),i.instanceId)); //$NON-NLS-1$
+						}
+				});
+			jp.add(mi);
+
+			jp.show(this,p.x,p.y);
+			}
+		else if (!mc.instance.locked)
+			{
+			remove(mc);
+			room.instances.remove(mc.instance);
+			}
 		}
 
 	protected void mouseEdit(MouseEvent e)
@@ -146,86 +207,27 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		frame.statX.setText(Messages.getString("RoomFrame.X") + x); //$NON-NLS-1$
 		frame.statY.setText(Messages.getString("RoomFrame.Y") + y); //$NON-NLS-1$
-		frame.statSrc.setText(""); //$NON-NLS-1$
 		frame.statId.setText(""); //$NON-NLS-1$
+		frame.statSrc.setText(""); //$NON-NLS-1$
 
-		if (editMode == EDIT_NONE)
+		if (frame.tabs.getSelectedIndex() != Room.TAB_TILES)
 			{
-			InstanceComponent mc = findInstance(e.getPoint(),false);
+			InstanceComponent mc = findInstanceComponent(e.getPoint());
 			if (mc != null)
 				{
-				frame.statSrc.setText(Messages.getString("RoomFrame.OBJECT") + mc.instance.gmObjectId.get().getName()); //$NON-NLS-1$
-				frame.statId.setText(Messages.getString("RoomFrame.ID") + mc.instance.instanceId); //$NON-NLS-1$
+				String idt = Messages.getString("RoomFrame.ID") + mc.instance.instanceId; //$NON-NLS-1$
+				if (mc.instance.locked) idt += " X"; //$NON-NLS-1$
+				frame.statId.setText(idt);
+				idt = Messages.getString("RoomFrame.OBJECT") + mc.instance.gmObjectId.get().getName(); //$NON-NLS-1$
+				frame.statSrc.setText(idt);
 				}
-			}
-		if (editMode == EDIT_INSTANCES)
-			{
-			InstanceComponent mc = findInstance(e.getPoint(),false);
-			if (mc != null)
-				{
-				frame.statSrc.setText(Messages.getString("RoomFrame.OBJECT") + mc.instance.gmObjectId.get().getName()); //$NON-NLS-1$
-				frame.statId.setText(Messages.getString("RoomFrame.ID") + mc.instance.instanceId); //$NON-NLS-1$
-				}
+			if (frame.tabs.getSelectedIndex() != Room.TAB_OBJECTS) return;
 
 			if ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0)
-				{
-				if (type == MouseEvent.MOUSE_PRESSED)
-					{
-					if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
-						{
-						if (mc != null) cursorInstance = mc.instance;
-						}
-					else if (editInstancesObject != null && cursorInstance == null)
-						{
-						cursorInstance = room.addInstance();
-						cursorInstance.gmObjectId = editInstancesObject;
-						add(new InstanceComponent(cursorInstance));
-						}
-					}
-				if (cursorInstance != null)
-					{
-					cursorInstance.setX(x);
-					cursorInstance.setY(y);
-					}
-				repaint();
-				}
-			else if (cursorInstance != null)
-				{
-				if (editInstancesDeleteUnderlying)
-					{
-					InstanceComponent ic;
-					while ((ic = findInstance(new Point(x,y),true)) != null)
-						{
-						remove(ic);
-						room.instances.remove(ic.instance);
-						}
-					}
-				cursorInstance = null;
-				}
+				processLeftButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,new Point(x,y));
+			else if (cursorIC != null) releaseCursorInstance(new Point(x,y));
 			if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
-				{
-				if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
-					{
-					final Instance i = mc.instance;
-					JPopupMenu jp = new JPopupMenu(i.gmObjectId.get().getName());
-					JMenuItem mi = new JMenuItem(Messages.getString("RoomEditor.InstanceCreationCode")); //$NON-NLS-1$
-					mi.addActionListener(new ActionListener()
-						{
-							public void actionPerformed(ActionEvent e)
-								{
-								frame.openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"), //$NON-NLS-1$
-										String.format(Messages.getString("RoomFrame.INSTANCE"),i.instanceId)); //$NON-NLS-1$
-								}
-						});
-					jp.add(mi);
-					jp.show(this,e.getX(),e.getY());
-					}
-				else
-					{
-					remove(mc);
-					room.instances.remove(mc.instance);
-					}
-				}
+				processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,e.getPoint()); //use mouse point
 			repaint();
 			}
 		}
