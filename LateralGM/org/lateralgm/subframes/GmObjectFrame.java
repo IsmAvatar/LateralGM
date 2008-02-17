@@ -970,7 +970,11 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				if (((EventInstanceNode) rootEvent.getChildAt(i)).getUserObject().matchesType(e))
 					{
 					rootEvent.remove(i);
-					if (rootEvent.getChildCount() == 0) actions.setActionContainer(null);
+					if (rootEvent.getChildCount() == 0)
+						{
+						lastValidEventSelection = null;
+						actions.setActionContainer(null);
+						}
 					events.updateUI();
 					events.setSelectionRow(0);
 					return;
