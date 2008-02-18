@@ -780,15 +780,15 @@ public final class GmFileReader
 			for (int j = 0; j < notiles; j++)
 				{
 				Tile ti = rm.addTile();
-				ti.x = in.read4();
-				ti.y = in.read4();
+				ti.setX(in.read4());
+				ti.setY(in.read4());
 				Background temp = f.backgrounds.getUnsafe(in.read4());
-				if (temp != null) ti.backgroundId = new WeakReference<Background>(temp);
-				ti.tileX = in.read4();
-				ti.tileY = in.read4();
-				ti.width = in.read4();
-				ti.height = in.read4();
-				ti.depth = in.read4();
+				if (temp != null) ti.setBackgroundId(new WeakReference<Background>(temp));
+				ti.setTileX(in.read4());
+				ti.setTileY(in.read4());
+				ti.setWidth(in.read4());
+				ti.setHeight(in.read4());
+				ti.setDepth(in.read4());
 				ti.tileId = in.read4();
 				ti.locked = in.readBool();
 				}

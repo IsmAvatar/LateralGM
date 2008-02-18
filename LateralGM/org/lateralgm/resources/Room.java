@@ -128,21 +128,23 @@ public class Room extends Resource<Room>
 			inst2.setCreationCode(inst.getCreationCode());
 			inst2.locked = inst.locked;
 			inst2.gmObjectId = inst.gmObjectId;
+			inst2.instanceId = inst.instanceId;
 			inst2.setX(inst.getX());
 			inst2.setY(inst.getY());
 			}
 		for (Tile tile : tiles)
 			{
 			Tile tile2 = rm.addTile();
-			tile2.backgroundId = tile.backgroundId;
-			tile2.depth = tile.depth;
-			tile2.height = tile.height;
+			tile2.setBackgroundId(tile.getBackgroundId());
+			tile2.setDepth(tile.getDepth());
+			tile2.setHeight(tile.getHeight());
+			tile2.setTileX(tile.getTileX());
+			tile2.setTileY(tile.getTileY());
+			tile2.setWidth(tile.getWidth());
+			tile2.setX(tile.getX());
+			tile2.setY(tile.getY());
+			tile2.tileId = tile.tileId;
 			tile2.locked = tile.locked;
-			tile2.tileX = tile.tileX;
-			tile2.tileY = tile.tileY;
-			tile2.width = tile.width;
-			tile2.x = tile.x;
-			tile2.y = tile.y;
 			}
 		for (int i = 0; i < 8; i++)
 			{

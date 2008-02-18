@@ -499,14 +499,14 @@ public final class GmFileWriter
 				out.write4(rm.tiles.size());
 				for (Tile tile : rm.tiles)
 					{
-					out.write4(tile.x);
-					out.write4(tile.y);
-					out.writeId(tile.backgroundId);
-					out.write4(tile.tileX);
-					out.write4(tile.tileY);
-					out.write4(tile.width);
-					out.write4(tile.height);
-					out.write4(tile.depth);
+					out.write4(tile.getX());
+					out.write4(tile.getY());
+					out.writeId(tile.getBackgroundId());
+					out.write4(tile.getTileX());
+					out.write4(tile.getTileY());
+					out.write4(tile.getWidth());
+					out.write4(tile.getHeight());
+					out.write4(tile.getDepth());
 					out.write4(tile.tileId);
 					out.writeBool(tile.locked);
 					}

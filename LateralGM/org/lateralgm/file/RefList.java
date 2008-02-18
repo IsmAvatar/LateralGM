@@ -30,7 +30,12 @@ public class RefList<R extends Resource<R>>
 		{
 		if (id < 0) return null;
 		for (WeakReference<R> r : ids)
-			if (r.get().getId() == id) return r;
+			{
+			R s = r.get();
+			if (s == null)
+				continue;
+			if (s.getId() == id) return r;
+			}
 		WeakReference<R> newid = null;
 		try
 			{

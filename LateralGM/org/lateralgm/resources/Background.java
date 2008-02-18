@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -9,9 +10,11 @@
 package org.lateralgm.resources;
 
 import java.awt.image.BufferedImage;
+import java.lang.ref.SoftReference;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 
 public class Background extends Resource<Background>
 	{
@@ -28,10 +31,29 @@ public class Background extends Resource<Background>
 	public int horizSep = 0;
 	public int vertSep = 0;
 	public BufferedImage backgroundImage = null;
+	private SoftReference<BufferedImage> imageCache = null;
 
 	public Background()
 		{
 		setName(Prefs.prefixes[Resource.BACKGROUND]);
+		}
+
+	public BufferedImage getDisplayImage()
+		{
+		if (backgroundImage == null) return null;
+		BufferedImage bi;
+		if (imageCache != null)
+			{
+			bi = imageCache.get();
+			if (bi != null)
+				{
+				return bi;
+				}
+			}
+		bi = backgroundImage;
+		if (transparent) bi = Util.getTransparentIcon(bi);
+		imageCache = new SoftReference<BufferedImage>(bi);
+		return bi;
 		}
 
 	public BufferedImage copyBackgroundImage()
@@ -88,5 +110,12 @@ public class Background extends Resource<Background>
 	public byte getKind()
 		{
 		return BACKGROUND;
+		}
+
+	@Override
+	protected void fireStateChanged()
+		{
+		if (imageCache != null) imageCache.clear();
+		super.fireStateChanged();
 		}
 	}

@@ -16,6 +16,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.RasterFormatException;
 import java.util.HashMap;
 
 import javax.swing.BoxLayout;
@@ -317,9 +318,17 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 						boolean selected, boolean focus)
 					{
 					Tile i = (Tile) val;
-					Background bg = deRef(i.backgroundId);
-					ImageIcon ii = new ImageIcon(bg.backgroundImage.getSubimage(i.tileX,i.tileY,i.width,
-							i.height));
+					Background bg = deRef(i.getBackgroundId());
+					ImageIcon ii;
+					try
+						{
+						ii = new ImageIcon(bg.backgroundImage.getSubimage(i.getTileX(),i.getTileY(),
+								i.getWidth(),i.getHeight()));
+						}
+					catch (RasterFormatException e)
+						{
+						ii = null;
+						}
 					JLabel lab = new JLabel(bg.getName() + " " + i.tileId,ii,JLabel.LEFT); //$NON-NLS-1$
 					super.getListCellRendererComponent(list,lab,ind,selected,focus);
 					lab.setOpaque(true);
@@ -431,7 +440,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		bTileV.addActionListener(this);
 		panel.add(bTileV);
 		panel.add(new JLabel(Messages.getString("RoomFrame.BACK_Y"))); //$NON-NLS-1$
-		bY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.backgroundDefs[0].x);
+		bY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.backgroundDefs[0].y);
 		bY.setPreferredSize(new Dimension(40,20));
 		bY.addActionListener(this);
 		panel.add(bY);
@@ -663,7 +672,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Room.class,"parent","currentTab"); //$NON-NLS-1$ //$NON-NLS-2$
+		c.addExclusions(Room.class,"parent","currentTab",
+				"deleteUnderlyingObjects","showGrid","showObjects","showTiles","showBackgrounds",
+				"showForegrounds","deleteUnderlyingTiles");
+		c.addExclusions(Instance.class,"changeEvent");
+		c.addExclusions(Tile.class,"changeEvent");
 		if (!c.areEqual(res,resOriginal)) return true;
 		for (CodeFrame cf : codeFrames.values())
 			if (cf.isChanged()) return true;
@@ -800,10 +813,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (t == null) return;
 			if (tSource.getSelected() == null)
 				{
-				tSource.setSelected(t.backgroundId);
+				tSource.setSelected(t.getBackgroundId());
 				return;
 				}
-			t.backgroundId = tSource.getSelected();
+			t.setBackgroundId(tSource.getSelected());
 			tList.updateUI();
 			return;
 			}
@@ -811,7 +824,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			if (tSource.getSelected() == null) return;
 			Tile t = res.addTile();
-			t.backgroundId = tSource.getSelected();
+			t.setBackgroundId(tSource.getSelected());
 			tList.setListData(res.tiles.toArray());
 			tList.setSelectedIndex(res.tiles.size() - 1);
 			return;
@@ -865,24 +878,24 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastTile != null)
 			{
 			lastTile.locked = tLocked.isSelected();
-			if (tSource.getSelected() != null) lastTile.backgroundId = bSource.getSelected();
-			lastTile.tileX = tsX.getIntValue();
-			lastTile.tileY = tsY.getIntValue();
-			lastTile.x = tX.getIntValue();
-			lastTile.y = tY.getIntValue();
-			lastTile.depth = tLayer.getIntValue();
+			if (tSource.getSelected() != null) lastTile.setBackgroundId(tSource.getSelected());
+			lastTile.setTileX(tsX.getIntValue());
+			lastTile.setTileY(tsY.getIntValue());
+			lastTile.setX(tX.getIntValue());
+			lastTile.setY(tY.getIntValue());
+			lastTile.setDepth(tLayer.getIntValue());
 			}
 		lastTile = (Tile) tList.getSelectedValue();
 		if (lastTile == null) return;
 		tLocked.setSelected(lastTile.locked);
 		manualUpdate = false;
-		tSource.setSelected(lastTile.backgroundId);
+		tSource.setSelected(lastTile.getBackgroundId());
 		manualUpdate = true;
-		tsX.setIntValue(lastTile.tileX);
-		tsY.setIntValue(lastTile.tileY);
-		tX.setIntValue(lastTile.x);
-		tY.setIntValue(lastTile.y);
-		tLayer.setIntValue(lastTile.depth);
+		tsX.setIntValue(lastTile.getTileX());
+		tsY.setIntValue(lastTile.getTileY());
+		tX.setIntValue(lastTile.getX());
+		tY.setIntValue(lastTile.getY());
+		tLayer.setIntValue(lastTile.getDepth());
 		}
 
 	public void fireBackUpdate()
