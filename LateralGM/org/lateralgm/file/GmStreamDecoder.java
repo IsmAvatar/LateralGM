@@ -162,8 +162,7 @@ public class GmStreamDecoder
 
 	public byte[] decompress(int length) throws IOException,DataFormatException
 		{
-		//BAOS default buffer size is 32
-		return decompress(length,32);
+		return decompress(length,length);
 		}
 
 	public byte[] decompress(int length, int initialCapacity) throws IOException,DataFormatException
@@ -172,7 +171,7 @@ public class GmStreamDecoder
 		byte[] compressedData = new byte[length];
 		read(compressedData,0,length);
 		decompresser.setInput(compressedData);
-		byte[] result = new byte[1000];
+		byte[] result = new byte[161072];
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(initialCapacity);
 		while (!decompresser.finished())
 			{
