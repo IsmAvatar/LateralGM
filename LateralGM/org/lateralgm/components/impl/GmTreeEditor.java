@@ -51,7 +51,7 @@ public class GmTreeEditor extends DefaultTreeCellEditor
 		if (renderer != null)
 			{
 			GmTreeGraphics g = (GmTreeGraphics) renderer;
-			editingIcon = g.getNodeIcon(tree,value,isSelected,expanded,leaf,row);
+			editingIcon = g.getNodeIcon(value,expanded,leaf);
 			offset = renderer.getIconTextGap();
 			if (editingIcon != null) offset += editingIcon.getIconWidth();
 			}

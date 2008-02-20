@@ -171,7 +171,7 @@ public class GmStreamDecoder
 		byte[] compressedData = new byte[length];
 		read(compressedData,0,length);
 		decompresser.setInput(compressedData);
-		byte[] result = new byte[161072];
+		byte[] result = new byte[131072];
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(initialCapacity);
 		while (!decompresser.finished())
 			{

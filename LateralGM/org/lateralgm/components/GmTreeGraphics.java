@@ -139,7 +139,7 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		return null;
 		}
 
-	public Icon getNodeIcon(JTree tree, Object val, boolean sel, boolean exp, boolean leaf, int row)
+	public Icon getNodeIcon(Object val, boolean exp, boolean leaf)
 		{
 		ResNode node = (ResNode) val;
 		if (leaf || node.status == ResNode.STATUS_SECONDARY) return getLeafIcon();

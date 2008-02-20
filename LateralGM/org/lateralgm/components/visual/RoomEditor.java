@@ -50,6 +50,8 @@ import org.lateralgm.subframes.RoomFrame;
 public class RoomEditor extends JPanel implements ImageObserver
 	{
 	private static final long serialVersionUID = 1L;
+	private static final BufferedImage EMPTY_IMAGE = new BufferedImage(16,16,
+			BufferedImage.TYPE_INT_ARGB);
 
 	private Room room;
 	private RoomFrame frame;
@@ -352,9 +354,9 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 	public interface DepthSortable
 		{
-		public int getDepth();
+		int getDepth();
 
-		public int getId();
+		int getId();
 		}
 
 	public class DepthComparator implements java.util.Comparator<DepthSortable>
@@ -379,7 +381,6 @@ public class RoomEditor extends JPanel implements ImageObserver
 	public class InstanceComponent extends JComponent implements DepthSortable
 		{
 		private static final long serialVersionUID = 1L;
-		private final BufferedImage EMPTY_IMAGE = new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB);
 		private final Instance instance;
 		private final GmObject object;
 		private Sprite sprite;
@@ -547,7 +548,6 @@ public class RoomEditor extends JPanel implements ImageObserver
 	public class TileComponent extends JComponent implements DepthSortable
 		{
 		private static final long serialVersionUID = 1L;
-		private final BufferedImage EMPTY_IMAGE = new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB);
 		private final Tile tile;
 		private Background background;
 		private BufferedImage image;
