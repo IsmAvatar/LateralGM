@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -9,14 +10,14 @@
 package org.lateralgm.file;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import java.util.Hashtable;
 
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 
 public class RefList<R extends Resource<R>>
 	{
-	private ArrayList<WeakReference<R>> ids = new ArrayList<WeakReference<R>>();
+	private Hashtable<Integer,ResRef<R>> rrt = new Hashtable<Integer,ResRef<R>>();
 	private Class<R> clazz;
 	private GmFile parent;
 
@@ -29,30 +30,39 @@ public class RefList<R extends Resource<R>>
 	public WeakReference<R> get(int id)
 		{
 		if (id < 0) return null;
-		for (WeakReference<R> r : ids)
-			{
-			R s = r.get();
-			if (s == null)
-				continue;
-			if (s.getId() == id) return r;
-			}
-		WeakReference<R> newid = null;
+		ResRef<R> rr = rrt.get(id);
+		if (rr != null) return rr.reference;
+		R r = null;
 		try
 			{
 			if (clazz == Room.class)
-				newid = new WeakReference<R>(clazz.getConstructor(GmFile.class).newInstance(parent));
+				r = clazz.getConstructor(GmFile.class).newInstance(parent);
 			else
-				newid = new WeakReference<R>(clazz.newInstance());
+				r = clazz.newInstance();
 			}
 		catch (Exception e)
 			{
 			e.printStackTrace();
 			}
-		if (newid != null)
+		if (r != null)
 			{
-			ids.add(newid);
-			newid.get().setId(id);
+			rr = new ResRef<R>(r);
+			rrt.put(id,rr);
+			r.setId(id);
+			return rr.reference;
 			}
-		return newid;
+		return null;
+		}
+
+	private static class ResRef<R extends Resource<R>>
+		{
+		R resource;
+		WeakReference<R> reference;
+
+		public ResRef(R res)
+			{
+			resource = res;
+			reference = new WeakReference<R>(res);
+			}
 		}
 	}
