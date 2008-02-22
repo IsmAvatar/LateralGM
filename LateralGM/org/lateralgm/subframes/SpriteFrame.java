@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -8,15 +9,18 @@
 
 package org.lateralgm.subframes;
 
+import static java.lang.Integer.MAX_VALUE;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -26,6 +30,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.BevelBorder;
 
 import org.lateralgm.compare.ResourceComparator;
@@ -76,15 +81,12 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	public SpriteFrame(Sprite res, ResNode node)
 		{
 		super(res,node);
-
-		setSize(560,320);
-		setMinimumSize(new Dimension(560,320));
-		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-
-		JPanel side1 = new JPanel(new FlowLayout());
+		GroupLayout layout = new GroupLayout(getContentPane());
+		setLayout(layout);
+		JPanel side1 = new JPanel();
 		makeSide1(side1);
 
-		JPanel side2 = new JPanel(new FlowLayout());
+		JPanel side2 = new JPanel();
 		makeSide2(side2);
 
 		preview = new SubimagePreview(this);
@@ -95,173 +97,228 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		updateImage();
 		updateInfo();
 
-		add(side1);
-		add(side2);
-		add(scroll);
+		// The empty comments here prevent the formatter from messing up line wrapping and indentation.
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+		/**/.addComponent(side2,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+		/**/.addComponent(scroll,64,240,DEFAULT_SIZE));
+		layout.setVerticalGroup(layout.createParallelGroup()
+		/**/.addComponent(side1)
+		/**/.addComponent(side2)
+		/**/.addComponent(scroll,64,240,DEFAULT_SIZE));
+
+		pack();
 		}
 
 	private void makeSide1(JPanel side1)
 		{
-		side1.setMinimumSize(new Dimension(180,280));
-		side1.setMaximumSize(new Dimension(180,Integer.MAX_VALUE));
-		side1.setPreferredSize(new Dimension(180,280));
+		GroupLayout layout = new GroupLayout(side1);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
 
-		// side1.setBackground(Color.RED);
+		side1.setLayout(layout);
+
 		JLabel lab = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(40,14));
-		side1.add(lab);
-		name.setPreferredSize(new Dimension(120,20));
-		side1.add(name);
 		load = new JButton(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$
 		load.setIcon(LOAD_ICON);
-		load.setPreferredSize(new Dimension(130,24));
 		load.addActionListener(this);
-		side1.add(load);
 
 		width = new JLabel();
-		width.setPreferredSize(new Dimension(80,16));
-		side1.add(width);
 		height = new JLabel();
-		height.setPreferredSize(new Dimension(80,16));
-		side1.add(height);
-		subCount = new JLabel();
-		subCount.setPreferredSize(new Dimension(160,16));
-		side1.add(subCount);
 
-		addGap(side1,160,10);
+		subCount = new JLabel();
+
 		showLab = new JLabel(Messages.getString("SpriteFrame.SHOW")); //$NON-NLS-1$
-		showLab.setPreferredSize(new Dimension(200,16));
 		showLab.setHorizontalAlignment(JLabel.CENTER);
-		side1.add(showLab);
 		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
-		subLeft.setPreferredSize(new Dimension(45,20));
 		subLeft.addActionListener(this);
-		side1.add(subLeft);
 		currSub = 0;
 		show = new JLabel();
 		show.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		show.setPreferredSize(new Dimension(30,20));
 		show.setHorizontalAlignment(JLabel.CENTER);
-		side1.add(show);
 		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
-		subRight.setPreferredSize(new Dimension(45,20));
 		subRight.addActionListener(this);
-		side1.add(subRight);
-
-		addGap(side1,160,10);
 
 		edit = new JButton(Messages.getString("SpriteFrame.EDIT_SPRITE")); //$NON-NLS-1$
-		edit.setPreferredSize(new Dimension(130,24));
-		side1.add(edit);
 		transparent = new JCheckBox(Messages.getString("SpriteFrame.TRANSPARENT")); //$NON-NLS-1$
-		transparent.setPreferredSize(new Dimension(160,16));
 		transparent.setSelected(res.transparent);
 		transparent.addActionListener(this);
-		side1.add(transparent);
-
-		addGap(side1,100,20);
-
-		save.setPreferredSize(new Dimension(130,24));
 		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
-		side1.add(save);
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(lab)
+		/*		*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addComponent(load,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(width)
+		/*		*/.addComponent(height))
+		/**/.addComponent(subCount)
+		/**/.addComponent(showLab)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(subLeft)
+		/*		*/.addComponent(show,DEFAULT_SIZE,DEFAULT_SIZE,64)
+		/*		*/.addComponent(subRight))
+		/**/.addComponent(edit,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(transparent)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lab)
+		/*		*/.addComponent(name))
+		/**/.addComponent(load)
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(width)
+		/*		*/.addComponent(height))
+		/**/.addComponent(subCount)
+		/**/.addComponent(showLab)
+		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
+		/*		*/.addComponent(subLeft)
+		/*		*/.addComponent(show,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+		/*		*/.addComponent(subRight))
+		/**/.addComponent(edit)
+		/**/.addComponent(transparent)
+		/**/.addGap(8,8,MAX_VALUE)
+		/**/.addComponent(save));
 		}
 
 	private void makeSide2(JPanel side2)
 		{
-		side2.setMinimumSize(new Dimension(200,280));
-		side2.setPreferredSize(new Dimension(200,280));
-		side2.setMaximumSize(new Dimension(200,Integer.MAX_VALUE));
-		// side2.setPreferredSize(new Dimension(200,280));
-		// side2.setBackground(Color.GREEN);
+		GroupLayout layout = new GroupLayout(side2);
+		layout.setAutoCreateContainerGaps(true);
+
+		side2.setLayout(layout);
 
 		preciseCC = new JCheckBox(Messages.getString("SpriteFrame.PRECISE_CC")); //$NON-NLS-1$
-		preciseCC.setPreferredSize(new Dimension(180,16));
 		preciseCC.setSelected(res.preciseCC);
-		side2.add(preciseCC);
 		smooth = new JCheckBox(Messages.getString("SpriteFrame.SMOOTH")); //$NON-NLS-1$
-		smooth.setPreferredSize(new Dimension(180,16));
 		smooth.setSelected(res.smoothEdges);
-		side2.add(smooth);
 		preload = new JCheckBox(Messages.getString("SpriteFrame.PRELOAD")); //$NON-NLS-1$
-		preload.setPreferredSize(new Dimension(180,16));
 		preload.setSelected(res.preload);
-		side2.add(preload);
 
-		JPanel origin = Util.makeTitledPanel(Messages.getString("SpriteFrame.ORIGIN"),200,80); //$NON-NLS-1$
-		JLabel lab = new JLabel(Messages.getString("SpriteFrame.X")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(20,16));
-		lab.setHorizontalAlignment(SwingConstants.RIGHT);
-		origin.add(lab);
+		JPanel origin = new JPanel();
+		GroupLayout oLayout = new GroupLayout(origin);
+		oLayout.setAutoCreateGaps(true);
+		oLayout.setAutoCreateContainerGaps(true);
+		origin.setLayout(oLayout);
+		origin.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.ORIGIN"))); //$NON-NLS-1$
+		JLabel oxLab = new JLabel(Messages.getString("SpriteFrame.X")); //$NON-NLS-1$
+		oxLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		originX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.originX);
-		originX.setPreferredSize(new Dimension(40,20));
 		originX.addActionListener(this);
-		origin.add(originX);
-		lab = new JLabel(Messages.getString("SpriteFrame.Y")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(20,16));
-		lab.setHorizontalAlignment(SwingConstants.RIGHT);
-		origin.add(lab);
+		JLabel oyLab = new JLabel(Messages.getString("SpriteFrame.Y")); //$NON-NLS-1$;
+		oyLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		originY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.originY);
-		originY.setPreferredSize(new Dimension(40,20));
 		originY.addActionListener(this);
-		origin.add(originY);
 		centre = new JButton(Messages.getString("SpriteFrame.CENTER")); //$NON-NLS-1$
-		centre.setPreferredSize(new Dimension(80,20));
 		centre.addActionListener(this);
-		origin.add(centre);
-		side2.add(origin);
+		oLayout.setHorizontalGroup(oLayout.createParallelGroup(Alignment.CENTER)
+		/**/.addGroup(oLayout.createSequentialGroup()
+		/*		*/.addComponent(oxLab)
+		/*		*/.addGap(4)
+		/*		*/.addComponent(originX)
+		/*		*/.addGap(12)
+		/*		*/.addComponent(oyLab)
+		/*		*/.addGap(4)
+		/*		*/.addComponent(originY))
+		/**/.addComponent(centre));
+		oLayout.setVerticalGroup(oLayout.createSequentialGroup()
+		/**/.addGroup(oLayout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(oxLab)
+		/*		*/.addComponent(originX)
+		/*		*/.addComponent(oyLab)
+		/*		*/.addComponent(originY))
+		/**/.addGap(8)
+		/**/.addComponent(centre));
 
-		JPanel bbox = Util.makeTitledPanel(Messages.getString("SpriteFrame.BBOX"),200,120); //$NON-NLS-1$
+		JPanel bbox = new JPanel();
+		GroupLayout bLayout = new GroupLayout(bbox);
+		bbox.setLayout(bLayout);
+		bbox.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.BBOX"))); //$NON-NLS-1$
 		bboxGroup = new IndexButtonGroup(3,true,false,this);
 		auto = new JRadioButton(Messages.getString("SpriteFrame.AUTO")); //$NON-NLS-1$
-		auto.setPreferredSize(new Dimension(85,16));
 		bboxGroup.add(auto);
 		full = new JRadioButton(Messages.getString("SpriteFrame.FULL")); //$NON-NLS-1$
-		full.setPreferredSize(new Dimension(85,16));
 		bboxGroup.add(full);
 		manual = new JRadioButton(Messages.getString("SpriteFrame.MANUAL")); //$NON-NLS-1$
-		manual.setPreferredSize(new Dimension(85,16));
 		bboxGroup.add(manual);
 		bboxGroup.setValue(res.boundingBoxMode);
-		bboxGroup.populate(bbox);
-		addGap(bbox,85,16);
 
-		lab = new JLabel(Messages.getString("SpriteFrame.LEFT")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(25,16));
-		lab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bbox.add(lab);
+		JLabel lLab = new JLabel(Messages.getString("SpriteFrame.LEFT")); //$NON-NLS-1$
+		lLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bboxLeft = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxLeft);
-		bboxLeft.setPreferredSize(new Dimension(40,20));
 		bboxLeft.addActionListener(this);
-		bbox.add(bboxLeft);
 
-		lab = new JLabel(Messages.getString("SpriteFrame.RIGHT")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(45,16));
-		lab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bbox.add(lab);
+		JLabel rLab = new JLabel(Messages.getString("SpriteFrame.RIGHT")); //$NON-NLS-1$
+		rLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bboxRight = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxRight);
-		bboxRight.setPreferredSize(new Dimension(40,20));
 		bboxRight.addActionListener(this);
-		bbox.add(bboxRight);
 
-		lab = new JLabel(Messages.getString("SpriteFrame.TOP")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(25,16));
-		lab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bbox.add(lab);
+		JLabel tLab = new JLabel(Messages.getString("SpriteFrame.TOP")); //$NON-NLS-1$
+		tLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bboxTop = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxTop);
-		bboxTop.setPreferredSize(new Dimension(40,20));
 		bboxTop.addActionListener(this);
-		bbox.add(bboxTop);
 
-		lab = new JLabel(Messages.getString("SpriteFrame.BOTTOM")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(45,16));
-		lab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bbox.add(lab);
+		JLabel bLab = new JLabel(Messages.getString("SpriteFrame.BOTTOM")); //$NON-NLS-1$
+		bLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bboxBottom = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxBottom);
-		bboxBottom.setPreferredSize(new Dimension(40,20));
 		bboxBottom.addActionListener(this);
-		bbox.add(bboxBottom);
 
-		side2.add(bbox);
+		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
+		/**/.addGroup(bLayout.createSequentialGroup()
+		/*		*/.addComponent(auto)
+		/**/.addComponent(full))
+		/**/.addComponent(manual)
+		/*		*/.addGroup(bLayout.createSequentialGroup()
+		/*		*/.addContainerGap(4,4)
+		/*		*/.addGroup(bLayout.createParallelGroup()
+		/*				*/.addComponent(lLab)
+		/*				*/.addComponent(tLab))
+		/*		*/.addGap(2)
+		/*		*/.addGroup(bLayout.createParallelGroup()
+		/*				*/.addComponent(bboxLeft)
+		/*				*/.addComponent(bboxTop))
+		/*		*/.addGap(8)
+		/*		*/.addGroup(bLayout.createParallelGroup()
+		/*				*/.addComponent(rLab)
+		/*				*/.addComponent(bLab))
+		/*				*/.addGap(2)
+		/*				*/.addGroup(bLayout.createParallelGroup()
+		/*						*/.addComponent(bboxRight)
+		/*						*/.addComponent(bboxBottom))
+		/*				*/.addContainerGap(4,4)));
+		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
+		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(auto)
+		/*		*/.addComponent(full))
+		/**/.addComponent(manual)
+		/**/.addGap(4)
+		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lLab)
+		/*		*/.addComponent(bboxLeft)
+		/*		*/.addComponent(rLab)
+		/*		*/.addComponent(bboxRight))
+		/**/.addGap(4)
+		/**/.addGroup(bLayout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(tLab)
+		/*		*/.addComponent(bboxTop)
+		/*		*/.addComponent(bLab)
+		/*		*/.addComponent(bboxBottom))
+		/**/.addContainerGap(2,2));
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(preciseCC)
+		/**/.addComponent(smooth)
+		/**/.addComponent(preload)
+		/**/.addComponent(origin)
+		/**/.addComponent(bbox));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(preciseCC)
+		/**/.addComponent(smooth)
+		/**/.addComponent(preload)
+		/**/.addComponent(origin)
+		/**/.addComponent(bbox));
 		}
 
 	@Override
@@ -490,5 +547,16 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		for (int i = 1; i < rects.length; i++)
 			rects[0] = rects[0].union(rects[i]);
 		return rects.length > 0 ? rects[0] : new Rectangle(0,0,res.width - 1,res.height - 1);
+		}
+
+	@Override
+	public Dimension getMinimumSize()
+		{
+		Dimension p = getContentPane().getSize();
+		Dimension l = getContentPane().getMinimumSize();
+		Dimension s = getSize();
+		l.width += s.width - p.width;
+		l.height += s.height - p.height;
+		return l;
 		}
 	}
