@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -8,26 +9,33 @@
 
 package org.lateralgm.subframes;
 
+import static java.lang.Integer.MAX_VALUE;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collections;
 
-import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.compare.ResourceComparator;
+import org.lateralgm.components.ActionList;
+import org.lateralgm.components.ActionListEditor;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
@@ -45,70 +53,21 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	public JButton shift, merge, clear;
 
 	public JList moments;
-	public GmObjectFrame.ActionList actions;
+	public ActionList actions;
 	public GMLTextArea code;
 
 	public TimelineFrame(Timeline res, ResNode node)
 		{
 		super(res,node);
+		GroupLayout layout = new GroupLayout(getContentPane());
+		setLayout(layout);
 
-		setSize(560,400);
-		setMinimumSize(new Dimension(560,400));
-		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-
-		JPanel side1 = new JPanel(new FlowLayout());
-		side1.setPreferredSize(new Dimension(180,280));
-		side1.setMaximumSize(new Dimension(180,Integer.MAX_VALUE));
-
-		JLabel lab = new JLabel(Messages.getString("TimelineFrame.NAME")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(160,14));
-		side1.add(lab);
-		name.setPreferredSize(new Dimension(160,20));
-		side1.add(name);
-
-		addGap(side1,180,20);
-
-		add = new JButton(Messages.getString("TimelineFrame.ADD")); //$NON-NLS-1$
-		add.setPreferredSize(new Dimension(80,20));
-		add.addActionListener(this);
-		side1.add(add);
-		change = new JButton(Messages.getString("TimelineFrame.CHANGE")); //$NON-NLS-1$
-		change.setPreferredSize(new Dimension(80,20));
-		change.addActionListener(this);
-		side1.add(change);
-		delete = new JButton(Messages.getString("TimelineFrame.DELETE")); //$NON-NLS-1$
-		delete.setPreferredSize(new Dimension(80,20));
-		delete.addActionListener(this);
-		side1.add(delete);
-		duplicate = new JButton(Messages.getString("TimelineFrame.DUPLICATE")); //$NON-NLS-1$
-		duplicate.setPreferredSize(new Dimension(90,20));
-		duplicate.addActionListener(this);
-		side1.add(duplicate);
-
-		addGap(side1,180,20);
-
-		shift = new JButton(Messages.getString("TimelineFrame.SHIFT")); //$NON-NLS-1$
-		shift.setPreferredSize(new Dimension(80,20));
-		shift.addActionListener(this);
-		side1.add(shift);
-		merge = new JButton(Messages.getString("TimelineFrame.MERGE")); //$NON-NLS-1$
-		merge.setPreferredSize(new Dimension(80,20));
-		merge.addActionListener(this);
-		side1.add(merge);
-		clear = new JButton(Messages.getString("TimelineFrame.CLEAR")); //$NON-NLS-1$
-		clear.setPreferredSize(new Dimension(80,20));
-		clear.addActionListener(this);
-		side1.add(clear);
-
-		addGap(side1,180,50);
-
-		save.setPreferredSize(new Dimension(130,24));
-		save.setText(Messages.getString("TimelineFrame.SAVE")); //$NON-NLS-1$
-		side1.add(save);
+		JPanel side1 = new JPanel();
+		makeSide1(side1);
 
 		JPanel side2 = new JPanel(new BorderLayout());
 		side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
-		lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
+		JLabel lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
 		side2.add(lab,"North"); //$NON-NLS-1$
 		moments = new JList(res.moments.toArray());
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -117,21 +76,94 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		scroll.setPreferredSize(new Dimension(90,260));
 		side2.add(scroll,"Center"); //$NON-NLS-1$
 
-		add(side1);
-		add(side2);
-
+		JComponent editor;
 		if (false)
 			{
 			code = new GMLTextArea(""); //$NON-NLS-1$
-			JScrollPane codePane = new JScrollPane(code);
-			add(codePane);
+			editor = new JScrollPane(code);
 			}
 		else
 			{
-			actions = GmObjectFrame.addActionPane(this);
+			actions = new ActionList();
+			editor = new ActionListEditor(actions);
 			}
 
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+		/**/.addComponent(side2)
+		/**/.addComponent(editor));
+		layout.setVerticalGroup(layout.createParallelGroup()
+		/**/.addComponent(side1)
+		/**/.addComponent(side2)
+		/**/.addComponent(editor));
+
+		pack();
+
 		moments.setSelectedIndex(0);
+		}
+
+	private void makeSide1(JPanel side1)
+		{
+		GroupLayout layout = new GroupLayout(side1);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+
+		side1.setLayout(layout);
+
+		JLabel lab = new JLabel(Messages.getString("TimelineFrame.NAME")); //$NON-NLS-1$
+
+		add = new JButton(Messages.getString("TimelineFrame.ADD")); //$NON-NLS-1$
+		add.addActionListener(this);
+		change = new JButton(Messages.getString("TimelineFrame.CHANGE")); //$NON-NLS-1$
+		change.addActionListener(this);
+		delete = new JButton(Messages.getString("TimelineFrame.DELETE")); //$NON-NLS-1$
+		delete.addActionListener(this);
+		duplicate = new JButton(Messages.getString("TimelineFrame.DUPLICATE")); //$NON-NLS-1$
+		duplicate.addActionListener(this);
+
+		shift = new JButton(Messages.getString("TimelineFrame.SHIFT")); //$NON-NLS-1$
+		shift.addActionListener(this);
+		merge = new JButton(Messages.getString("TimelineFrame.MERGE")); //$NON-NLS-1$
+		merge.addActionListener(this);
+		clear = new JButton(Messages.getString("TimelineFrame.CLEAR")); //$NON-NLS-1$
+		clear.addActionListener(this);
+
+		save.setText(Messages.getString("TimelineFrame.SAVE")); //$NON-NLS-1$
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(lab)
+		/*		*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(add,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*				*/.addComponent(delete,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(change,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*				*/.addComponent(duplicate,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(shift,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(merge,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/**/.addComponent(clear,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lab)
+		/*		*/.addComponent(name))
+		/**/.addGap(32)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(add)
+		/*		*/.addComponent(change))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(delete)
+		/*		*/.addComponent(duplicate))
+		/**/.addGap(32)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(shift)
+		/*		*/.addComponent(merge))
+		/**/.addComponent(clear)
+		/**/.addGap(32,32,MAX_VALUE)
+		/**/.addComponent(save));
 		}
 
 	@Override
@@ -311,5 +343,16 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		if (e.getValueIsAdjusting()) return;
 		Moment m = (Moment) moments.getSelectedValue();
 		actions.setActionContainer(m);
+		}
+
+	@Override
+	public Dimension getMinimumSize()
+		{
+		Dimension p = getContentPane().getSize();
+		Dimension l = getContentPane().getMinimumSize();
+		Dimension s = getSize();
+		l.width += s.width - p.width;
+		l.height += s.height - p.height;
+		return l;
 		}
 	}
