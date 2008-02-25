@@ -20,7 +20,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
@@ -36,17 +39,16 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public JComboBox fonts;
 	public IntegerField size;
-	public JCheckBox italic;
-	public JCheckBox bold;
-	public IntegerField charMin;
-	public IntegerField charMax;
+	public JCheckBox italic, bold;
+	public IntegerField charMin, charMax;
 	public JLabel preview;
+	public JTextField previewText;
 
 	public FontFrame(Font res, ResNode node)
 		{
 		super(res,node);
 
-		setSize(250,390);
+		setSize(250,410);
 		setResizable(false);
 		setMaximizable(false);
 
@@ -136,10 +138,35 @@ public class FontFrame extends ResourceFrame<Font>
 
 		add(crange);
 
+		label = new JLabel(Messages.getString("FontFrame.PREVIEW")); //$NON-NLS-1$
+		label.setPreferredSize(new Dimension(60,14));
+		label.setHorizontalAlignment(SwingConstants.RIGHT);
+		add(label);
+
+		previewText = new JTextField(Messages.getString("FontFrame.PREVIEW_DEFAULT"));
+		previewText.setPreferredSize(new Dimension(160,20));
+		previewText.getDocument().addDocumentListener(new DocumentListener()
+			{
+				public void changedUpdate(DocumentEvent e)
+					{
+					}
+
+				public void insertUpdate(DocumentEvent e)
+					{
+					preview.setText(previewText.getText());
+					}
+
+				public void removeUpdate(DocumentEvent e)
+					{
+					preview.setText(previewText.getText());
+					}
+			});
+		add(previewText);
+
 		JPanel prev = new JPanel(new BorderLayout());
 		prev.setBorder(BorderFactory.createEtchedBorder());
 		prev.setPreferredSize(new Dimension(220,100));
-		preview = new JLabel(Messages.getString("FontFrame.FONT_PREVIEW")); //$NON-NLS-1$
+		preview = new JLabel(previewText.getText());
 		preview.setFont(new java.awt.Font(res.fontName,makeStyle(res.bold,res.italic),res.size));
 		preview.setHorizontalAlignment(SwingConstants.CENTER);
 		prev.add(preview,"Center"); //$NON-NLS-1$

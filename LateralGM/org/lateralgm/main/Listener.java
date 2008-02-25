@@ -381,20 +381,17 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			saveNewFile();
 			return;
 			}
-		if (com.endsWith(".TOGGLE_EVENT")) //$NON-NLS-1$
+		if (com.endsWith(".EVENT_BUTTON")) //$NON-NLS-1$
 			{
-			LGM.eventSelect.setVisible(LGM.eventSelect.toggle.isSelected());
-			if (LGM.eventSelect.toggle.isSelected())
+			LGM.eventSelect.setVisible(true);
+			try
 				{
-				try
-					{
-					LGM.eventSelect.setIcon(false);
-					LGM.eventSelect.setSelected(true);
-					}
-				catch (PropertyVetoException e1)
-					{
-					e1.printStackTrace();
-					}
+				LGM.eventSelect.setIcon(false);
+				LGM.eventSelect.setSelected(true);
+				}
+			catch (PropertyVetoException e1)
+				{
+				e1.printStackTrace();
 				}
 			return;
 			}

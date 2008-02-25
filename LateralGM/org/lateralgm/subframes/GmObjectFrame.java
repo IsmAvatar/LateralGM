@@ -91,7 +91,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public JButton information;
 
 	public EventTree events;
-	public JButton deleteEvent;
+	public JButton eventDelete;
 	public EventGroupNode rootEvent;
 	public ActionList actions;
 	public GMLTextArea code;
@@ -108,6 +108,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		JPanel side1 = new JPanel();
 		makeSide1(side1);
 
+
 		JPanel side2 = new JPanel(new BorderLayout());
 		JLabel lab = new JLabel(Messages.getString("GmObjectFrame.EVENTS")); //$NON-NLS-1$
 		side2.add(lab,"North"); //$NON-NLS-1$
@@ -115,9 +116,16 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		JScrollPane scroll = new JScrollPane(events);
 		scroll.setPreferredSize(new Dimension(140,260));
 		side2.add(scroll,"Center"); //$NON-NLS-1$
-		deleteEvent = new JButton(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
-		deleteEvent.addActionListener(this);
-		side2.add(deleteEvent,"South"); //$NON-NLS-1$
+
+		JPanel side2bottom = new JPanel(new BorderLayout());
+		//I probably shouldn't refer to LGM.makeButton, but it suits my purpose well here
+		side2bottom.add(LGM.makeButton("LGM.EVENT_BUTTON"),"West"); //$NON-NLS-1$ //$NON-NLS-2$
+		eventDelete = new JButton(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
+		eventDelete.addActionListener(this);
+		side2bottom.add(eventDelete,"Center"); //$NON-NLS-1$
+		side2.add(side2bottom,"South"); //$NON-NLS-1$
+
+//		side2.add(deleteEvent,"South"); //$NON-NLS-1$
 
 		JComponent editor;
 		if (false)
@@ -676,7 +684,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				}
 			return;
 			}
-		if (e.getSource() == deleteEvent)
+		if (e.getSource() == eventDelete)
 			{
 			Object comp = events.getLastSelectedPathComponent();
 			if (!(comp instanceof EventInstanceNode)) return;

@@ -40,7 +40,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.UIManager;
@@ -155,6 +154,8 @@ public final class LGM
 		tool.add(makeButton("LGM.SAVE")); //$NON-NLS-1$
 		tool.add(new JToolBar.Separator());
 		tool.add(makeButton("LGM.SAVEAS")); //$NON-NLS-1$
+		tool.addSeparator();
+		tool.add(makeButton("LGM.EVENT_BUTTON")); //$NON-NLS-1$
 		}
 
 	public static void createTree(JPanel f, boolean populate)
@@ -230,10 +231,7 @@ public final class LGM
 		mdi.setBackground(Color.BLACK);
 		mdi.add(gameSet);
 		mdi.add(gameInfo);
-		JToggleButton toggle = (JToggleButton) makeButton(new JToggleButton(),"LGM.TOGGLE_EVENT"); //$NON-NLS-1$
-		tool.addSeparator();
-		tool.add(toggle);
-		eventSelect = new EventFrame(toggle);
+		eventSelect = new EventFrame();
 		mdi.add(eventSelect);
 		}
 
@@ -250,6 +248,7 @@ public final class LGM
 			{
 			e.printStackTrace();
 			}
+		UIManager.put("swing.boldMetal", Boolean.FALSE);
 		gameInfo = new GameInformationFrame();
 		gameSet = new GameSettingFrame();
 		}

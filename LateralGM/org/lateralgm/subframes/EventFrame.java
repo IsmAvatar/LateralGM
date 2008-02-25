@@ -33,7 +33,6 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.InternalFrameEvent;
@@ -77,18 +76,16 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 	public EventNode root;
 	public JTree events;
 	public JCheckBox onTop;
-	public JToggleButton toggle;
 	public EventNode selectedNode;
 
-	public EventFrame(JToggleButton toggle)
+	public EventFrame()
 		{
 		super(Messages.getString("EventFrame.TITLE"),true,true,false,true); //$NON-NLS-1$
 
-		this.toggle = toggle;
-		setSize(300,320);
+		setSize(300,335);
 		setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
 		setFrameIcon(LGM.getIconForKey("LGM.TOGGLE_EVENT")); //$NON-NLS-1$
-		setMinimumSize(new Dimension(300,320));
+		setMinimumSize(new Dimension(300,335));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
 		JPanel side1 = new JPanel(new BorderLayout());
 
@@ -99,12 +96,12 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		JPanel side2Parent = new JPanel();
 		JPanel side2 = new JPanel(new FlowLayout());
 		side2Parent.add(side2);
-		side2.setPreferredSize(new Dimension(150,300));
-		side2.setMaximumSize(new Dimension(150,300));
-		side2.setMinimumSize(new Dimension(150,300));
+		side2.setPreferredSize(new Dimension(150,315));
+		side2.setMaximumSize(new Dimension(150,315));
+		side2.setMinimumSize(new Dimension(150,315));
 
 		side2.add(new JLabel(Messages.getString("EventFrame.DOUBLE_CLICK"))); //$NON-NLS-1$
-		addGap(side2,100,3);
+		addGap(side2,100,1);
 
 		function = new IndexButtonGroup(3,true,false);
 		JRadioButton rad = new JRadioButton(Messages.getString("EventFrame.ADD")); //$NON-NLS-1$
@@ -257,15 +254,19 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		{
 		public void mouseClicked(MouseEvent e)
 			{
-			if (e.getSource() == events && e.getClickCount() == 2)
+			if (e.getSource() != events) return;
+			if (e.getButton() == MouseEvent.BUTTON1 || e.getButton() == MouseEvent.BUTTON3)
 				{
 				TreePath path = events.getPathForLocation(e.getX(),e.getY());
 				if (path == null) return;
+				events.setSelectionPath(path);
+				if (events.isExpanded(path))
+					events.collapsePath(path);
+				else
+					events.expandPath(path);
 				EventNode n = (EventNode) path.getLastPathComponent();
-				if (n != null && n.isLeaf() && linkedFrame != null && n.isValid())
-					{
+				if (e.getClickCount() == 2 && n != null && n.isLeaf() && linkedFrame != null && n.isValid())
 					linkedFrame.addEvent(new Event(n.mainId,n.eventId,n.other));
-					}
 				}
 			}
 		}
@@ -301,16 +302,14 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 
 	public void fireInternalFrameEvent(int id)
 		{
-		if (id == InternalFrameEvent.INTERNAL_FRAME_ICONIFIED)
-			LGM.mdi.setLayer(getDesktopIcon(),0);
-		else if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSING) toggle.setSelected(false);
+		if (id == InternalFrameEvent.INTERNAL_FRAME_ICONIFIED) LGM.mdi.setLayer(getDesktopIcon(),0);
 		super.fireInternalFrameEvent(id);
 		}
 
 	public void setVisible(boolean b)
 		{
 		super.setVisible(b);
-		if (!b && toggle != null) fireInternalFrameEvent(InternalFrameEvent.INTERNAL_FRAME_CLOSING);
+		if (!b) fireInternalFrameEvent(InternalFrameEvent.INTERNAL_FRAME_CLOSING);
 		}
 
 	public void valueChanged(TreeSelectionEvent e)
