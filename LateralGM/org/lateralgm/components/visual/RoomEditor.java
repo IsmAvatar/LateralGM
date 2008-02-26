@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
@@ -429,7 +429,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		private void updateBounds()
 			{
-			List<DepthSortable> ds = RoomEditor.this.depthSortables;
+			List<DepthSortable> ds = depthSortables;
 			int i = ds.indexOf(this);
 			int d = getDepth();
 			if (i < 0 || (i > 0 && ds.get(i - 1).getDepth() < d)
@@ -516,7 +516,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 		public void removeNotify()
 			{
 			super.removeNotify();
-			RoomEditor.this.depthSortables.remove(this);
+			depthSortables.remove(this);
 			setListen(false);
 			}
 
@@ -596,7 +596,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		private void updateBounds()
 			{
-			List<DepthSortable> ds = RoomEditor.this.depthSortables;
+			List<DepthSortable> ds = depthSortables;
 			int i = ds.indexOf(this);
 			int d = getDepth();
 			if (i < 0 || (i > 0 && ds.get(i - 1).getDepth() < d)
@@ -671,7 +671,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 		public void removeNotify()
 			{
 			super.removeNotify();
-			RoomEditor.this.depthSortables.remove(this);
+			depthSortables.remove(this);
 			setListen(false);
 			}
 

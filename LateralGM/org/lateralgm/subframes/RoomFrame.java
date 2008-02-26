@@ -1,11 +1,13 @@
 /*
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM. Lateral GM is free
  * software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
  */
+
 package org.lateralgm.subframes;
 
 import static org.lateralgm.main.Util.deRef;
