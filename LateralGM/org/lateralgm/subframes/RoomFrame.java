@@ -299,7 +299,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		JPanel panel = new JPanel(new FlowLayout());
 
-		panel.add(new JLabel(Messages.getString("RoomFrame.WIP"))); //$NON-NLS-1$
 		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
 		tUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingTiles : true);
 		panel.add(tUnderlying);
@@ -338,7 +337,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					}
 			});
 		JScrollPane sp = new JScrollPane(tList);
-		sp.setPreferredSize(new Dimension(190,70));
+		sp.setPreferredSize(new Dimension(190,100));
 		panel.add(sp);
 		tAdd = new JButton(Messages.getString("RoomFrame.TILE_ADD")); //$NON-NLS-1$
 		tAdd.addActionListener(this);
@@ -574,19 +573,19 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		stat.setLayout(new BoxLayout(stat,BoxLayout.X_AXIS));
 		stat.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
 
-		statX = new JLabel(Messages.getString("RoomFrame.X")); //$NON-NLS-1$
+		statX = new JLabel(Messages.getString("RoomFrame.STAT_X")); //$NON-NLS-1$
 		statX.setMaximumSize(new Dimension(50,14));
 		stat.add(statX);
 		stat.add(new JLabel("|")); //$NON-NLS-1$
 		//visible divider    ^   since JSeparator isn't visible
 
-		statY = new JLabel(Messages.getString("RoomFrame.Y")); //$NON-NLS-1$
+		statY = new JLabel(Messages.getString("RoomFrame.STAT_Y")); //$NON-NLS-1$
 		statY.setMaximumSize(new Dimension(50,13));
 		stat.add(statY);
 		stat.add(new JLabel("|")); //$NON-NLS-1$
 
 		statId = new JLabel();
-		statId.setMaximumSize(new Dimension(70,13));
+		statId.setMaximumSize(new Dimension(75,13));
 		stat.add(statId);
 		stat.add(new JLabel("|")); //$NON-NLS-1$
 
@@ -601,7 +600,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		super(res,node);
 
 		final int sizeWidth = 550;
-		final int sizeHeight = 550;
+		final int sizeHeight = 520;
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
 		setMinimumSize(new Dimension(sizeWidth,sizeHeight));
 		if (!res.rememberWindowSize || res.editorWidth < sizeWidth || res.editorHeight < sizeHeight)
