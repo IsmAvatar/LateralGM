@@ -24,8 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -37,8 +35,7 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.sub.Point;
 
-public class PathFrame extends ResourceFrame<Path> implements ActionListener,ListSelectionListener,
-		DocumentListener
+public class PathFrame extends ResourceFrame<Path> implements ActionListener,ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -101,7 +98,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		side1.add(lab);
 		tx = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		tx.setPreferredSize(new Dimension(60,16));
-		tx.getDocument().addDocumentListener(this);
+		tx.addActionListener(this);
 		side1.add(tx);
 		add = new JButton(Messages.getString("PathFrame.ADD")); //$NON-NLS-1$
 		add.setPreferredSize(new Dimension(70,16));
@@ -113,7 +110,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		side1.add(lab);
 		ty = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		ty.setPreferredSize(new Dimension(60,16));
-		ty.getDocument().addDocumentListener(this);
+		ty.addActionListener(this);
 		side1.add(ty);
 		insert = new JButton(Messages.getString("PathFrame.INSERT")); //$NON-NLS-1$
 		insert.setPreferredSize(new Dimension(70,16));
@@ -125,7 +122,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		side1.add(lab);
 		tsp = new IntegerField(0,1000000,100);
 		tsp.setPreferredSize(new Dimension(60,16));
-		tsp.getDocument().addDocumentListener(this);
+		tsp.addActionListener(this);
 		side1.add(tsp);
 		delete = new JButton(Messages.getString("PathFrame.DELETE")); //$NON-NLS-1$
 		delete.setPreferredSize(new Dimension(70,16));
@@ -179,14 +176,15 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 	//Button was clicked
 	public void actionPerformed(ActionEvent e)
 		{
-		if (e.getSource() == add)
+		Object s = e.getSource();
+		if (s == add)
 			{
 			res.points.add(new Point(tx.getIntValue(),ty.getIntValue(),tsp.getIntValue()));
 			list.setListData(res.points.toArray());
 			list.updateUI();
 			list.setSelectedIndex(res.points.size() - 1);
 			}
-		if (e.getSource() == insert)
+		if (s == insert)
 			{
 			int i = list.getSelectedIndex();
 			if (i == -1) return;
@@ -195,7 +193,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 			list.updateUI();
 			list.setSelectedIndex(i);
 			}
-		if (e.getSource() == delete)
+		if (s == delete)
 			{
 			int i = list.getSelectedIndex();
 			Object o = list.getSelectedValue();
@@ -206,6 +204,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 			if (i >= res.points.size()) i = res.points.size() - 1;
 			list.setSelectedIndex(i);
 			}
+		if (s == tx || s == ty || s == tsp) notifyList();
 		super.actionPerformed(e);
 		}
 
@@ -239,24 +238,5 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		{
 		if (!manualUpdate || e.getValueIsAdjusting()) return;
 		notifyPoint();
-		}
-
-	//IntegerField was changed
-	public void changedUpdate(DocumentEvent arg0)
-		{
-		notifyList();
-		super.changedUpdate(arg0);
-		}
-
-	public void insertUpdate(DocumentEvent arg0)
-		{
-		notifyList();
-		super.insertUpdate(arg0);
-		}
-
-	public void removeUpdate(DocumentEvent arg0)
-		{
-		notifyList();
-		super.removeUpdate(arg0);
 		}
 	}

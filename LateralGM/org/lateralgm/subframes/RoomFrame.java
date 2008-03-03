@@ -117,7 +117,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public ResourceMenu<GmObject> vObj;
 	public IntegerField vOHBor, vOVBor, vOHSp, vOVSp;
 
-	//FIXME: Overhaul objects tab for Editor. Move this stuff to somewhere else, e.g. popup window
 	public JPanel makeObjectsPane()
 		{
 		JPanel panel = new JPanel(new FlowLayout());
@@ -167,10 +166,12 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.add(new JLabel(Messages.getString("RoomFrame.OBJ_X"))); //$NON-NLS-1$
 		oX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		oX.setPreferredSize(new Dimension(60,20));
+		oX.addActionListener(this);
 		panel.add(oX);
 		panel.add(new JLabel(Messages.getString("RoomFrame.OBJ_Y"))); //$NON-NLS-1$
 		oY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		oY.setPreferredSize(new Dimension(60,20));
+		oY.addActionListener(this);
 		panel.add(oY);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
@@ -369,14 +370,17 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		p.add(new JLabel(Messages.getString("RoomFrame.TILE_X"))); //$NON-NLS-1$
 		tX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		tX.setPreferredSize(new Dimension(50,20));
+		tX.addActionListener(this);
 		p.add(tX);
 		p.add(new JLabel(Messages.getString("RoomFrame.TILE_Y"))); //$NON-NLS-1$
 		tY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		tY.setPreferredSize(new Dimension(50,20));
+		tY.addActionListener(this);
 		p.add(tY);
 		p.add(new JLabel(Messages.getString("RoomFrame.TILE_LAYER"))); //$NON-NLS-1$
 		tLayer = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,1000000);
 		tLayer.setPreferredSize(new Dimension(60,20));
+		tLayer.addActionListener(this);
 		p.add(tLayer);
 		panel.add(p);
 
@@ -807,6 +811,16 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			oList.setSelectedIndex(Math.min(res.instances.size() - 1,i));
 			return;
 			}
+		if (s == oX || s == oY)
+			{
+			Instance i = (Instance) oList.getSelectedValue();
+			if (i == null) return;
+			if (s == oX)
+				i.setX(oX.getIntValue());
+			if (s == oY)
+				i.setY(oY.getIntValue());
+			return;
+			}
 		if (s == tSource)
 			{
 			if (!manualUpdate) return;
@@ -837,6 +851,18 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			res.tiles.remove(i);
 			tList.setListData(res.tiles.toArray());
 			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,i));
+			return;
+			}
+		if (s == tX || s == tY || s == tLayer)
+			{
+			Tile t = (Tile) tList.getSelectedValue();
+			if (t == null) return;
+			if (s == tX)
+				t.setX(tX.getIntValue());
+			else if (s == tY)
+				t.setY(tY.getIntValue());
+			else if (s == tLayer)
+				t.setDepth(tLayer.getIntValue());
 			return;
 			}
 		if (e.getSource() == sCreationCode)

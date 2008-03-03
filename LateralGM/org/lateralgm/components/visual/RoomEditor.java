@@ -7,7 +7,6 @@
  * software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
  */
-
 package org.lateralgm.components.visual;
 
 import static org.lateralgm.main.Util.deRef;
@@ -26,11 +25,11 @@ import java.awt.image.ImageObserver;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -46,6 +45,7 @@ import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.subframes.RoomFrame;
+import org.lateralgm.subframes.RoomFrame.CodeFrame;
 
 public class RoomEditor extends JPanel implements ImageObserver
 	{
@@ -55,9 +55,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 	private Room room;
 	private RoomFrame frame;
-	private DepthSortable cursor;
-	private Hashtable<Instance,InstanceComponent> instances;
-	private List<DepthSortable> depthSortables;
+	private RoomComponent cursor;
+	private List<RoomComponent> depthSortables;
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
@@ -66,17 +65,15 @@ public class RoomEditor extends JPanel implements ImageObserver
 		this.frame = frame;
 		refresh();
 		enableEvents(MouseEvent.MOUSE_EVENT_MASK | MouseEvent.MOUSE_MOTION_EVENT_MASK);
-		instances = new Hashtable<Instance,InstanceComponent>(room.instances.size());
-		depthSortables = new ArrayList<DepthSortable>();
+		depthSortables = new ArrayList<RoomComponent>();
 		for (Instance i : room.instances)
 			{
-			InstanceComponent ic = new RoomEditor.InstanceComponent(i);
+			InstanceComponent ic = new InstanceComponent(i);
 			add(ic);
-			instances.put(i,ic);
 			}
 		for (Tile t : room.tiles)
 			{
-			TileComponent tc = new RoomEditor.TileComponent(t);
+			TileComponent tc = new TileComponent(t);
 			add(tc);
 			}
 		}
@@ -101,13 +98,13 @@ public class RoomEditor extends JPanel implements ImageObserver
 		mouseEdit(e);
 		}
 
-	public DepthSortable findSpecificDepthSortable(Point p, boolean instance)
+	public RoomComponent findSpecificDepthSortable(Point p, boolean instance)
 		{
 		for (Component c : getComponents())
 			{
-			if (c instanceof DepthSortable)
+			if (c instanceof RoomComponent)
 				{
-				DepthSortable ds = (DepthSortable) c;
+				RoomComponent ds = (RoomComponent) c;
 				if (new Rectangle(ds.x,ds.y,ds.width,ds.height).contains(p))
 					{
 					if (ds instanceof InstanceComponent && instance) return ds;
@@ -125,9 +122,9 @@ public class RoomEditor extends JPanel implements ImageObserver
 			{
 			for (Component c : getComponents())
 				{
-				if (c instanceof DepthSortable)
+				if (c instanceof RoomComponent)
 					{
-					DepthSortable ds = (DepthSortable) c;
+					RoomComponent ds = (RoomComponent) c;
 					if (ds != cursor && !ds.isLocked() && ds.getClass() == cursor.getClass()
 							&& new Rectangle(ds.x,ds.y,ds.width,ds.height).contains(p))
 						{
@@ -142,12 +139,28 @@ public class RoomEditor extends JPanel implements ImageObserver
 		cursor = null;
 		}
 
-	private void processLeftButton(int modifiers, boolean pressed, DepthSortable mc, Point p)
+	/** Do not call with null */
+	public void setCursor(RoomComponent ds)
+		{
+		cursor = ds;
+		if (ds instanceof InstanceComponent)
+			{
+			frame.oList.setSelectedValue(((InstanceComponent) ds).instance,true);
+			frame.fireObjUpdate();
+			}
+		else if (ds instanceof TileComponent)
+			{
+			frame.tList.setSelectedValue(((TileComponent) ds).tile,true);
+			frame.fireTileUpdate();
+			}
+		}
+
+	private void processLeftButton(int modifiers, boolean pressed, RoomComponent mc, Point p)
 		{
 		boolean shift = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
-			if (pressed && mc != null && !mc.isLocked()) cursor = mc;
+			if (pressed && mc != null && !mc.isLocked()) setCursor(mc);
 			}
 		else
 			{
@@ -167,7 +180,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 					t.setBackgroundId(bkg);
 					t.setX(p.x);
 					t.setY(p.y);
-					cursor = new TileComponent(t);
+					frame.tList.setListData(room.tiles.toArray());
+					setCursor(new TileComponent(t));
 					add(cursor);
 					shift = true; //prevents unnecessary coordinate update below
 					}
@@ -179,7 +193,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 					i.gmObjectId = obj;
 					i.setX(p.x);
 					i.setY(p.y);
-					cursor = new InstanceComponent(i);
+					frame.oList.setListData(room.instances.toArray());
+					setCursor(new InstanceComponent(i));
 					add(cursor);
 					shift = true; //prevents unnecessary coordinate update below
 					}
@@ -192,17 +207,21 @@ public class RoomEditor extends JPanel implements ImageObserver
 				InstanceComponent ic = (InstanceComponent) cursor;
 				ic.instance.setX(p.x);
 				ic.instance.setY(p.y);
+				frame.oX.setIntValue(p.x);
+				frame.oY.setIntValue(p.y);
 				}
 			else if (cursor instanceof TileComponent)
 				{
 				TileComponent ic = (TileComponent) cursor;
 				ic.tile.setX(p.x);
 				ic.tile.setY(p.y);
+				frame.tX.setIntValue(p.x);
+				frame.tY.setIntValue(p.y);
 				}
 			}
 		}
 
-	private void processRightButton(int modifiers, boolean pressed, final DepthSortable mc, Point p)
+	private void processRightButton(int modifiers, boolean pressed, final RoomComponent mc, Point p)
 		{
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
@@ -216,6 +235,12 @@ public class RoomEditor extends JPanel implements ImageObserver
 					public void actionPerformed(ActionEvent e)
 						{
 						mc.setLocked(((JCheckBoxMenuItem) e.getSource()).isSelected());
+						if (mc instanceof InstanceComponent
+								&& frame.oList.getSelectedValue() == ((InstanceComponent) mc).instance)
+							frame.oLocked.setSelected(mc.isLocked());
+						else if (mc instanceof TileComponent
+								&& frame.tList.getSelectedValue() == ((TileComponent) mc).tile)
+							frame.tLocked.setSelected(mc.isLocked());
 						}
 				});
 			jp.add(cb);
@@ -239,9 +264,34 @@ public class RoomEditor extends JPanel implements ImageObserver
 		else if (!mc.isLocked())
 			{
 			remove(mc);
+
+			ArrayList<?> alist = null;
+			int i = -1;
+			JList jlist = null;
+
 			if (mc instanceof InstanceComponent)
-				room.instances.remove(((InstanceComponent) mc).instance);
-			else if (mc instanceof TileComponent) room.instances.remove(((TileComponent) mc).tile);
+				{
+				i = room.instances.indexOf(((InstanceComponent) mc).instance);
+				if (i == -1) return;
+				alist = room.instances;
+				jlist = frame.oList;
+
+				CodeFrame fr = frame.codeFrames.get(i);
+				if (fr != null) fr.dispose();
+				}
+			else if (mc instanceof TileComponent)
+				{
+				i = room.tiles.indexOf(((TileComponent) mc).tile);
+				if (i == -1) return;
+				alist = room.tiles;
+				jlist = frame.tList;
+				}
+
+			if (i == -1) return;
+			int i2 = jlist.getSelectedIndex();
+			alist.remove(i);
+			jlist.setListData(alist.toArray());
+			jlist.setSelectedIndex(Math.min(alist.size() - 1,i2));
 			}
 		}
 
@@ -261,7 +311,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 		frame.statId.setText(""); //$NON-NLS-1$
 		frame.statSrc.setText(""); //$NON-NLS-1$
 
-		DepthSortable mc = null;
+		RoomComponent mc = null;
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 			{
 			mc = findSpecificDepthSortable(e.getPoint(),false);
@@ -363,7 +413,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		if (frame.sSObj.isSelected() || frame.sSTile.isSelected())
 			{
-			for (DepthSortable e : depthSortables)
+			for (RoomComponent e : depthSortables)
 				{
 				if (e instanceof InstanceComponent && !frame.sSObj.isSelected()) continue;
 				if (e instanceof TileComponent && !frame.sSTile.isSelected()) continue;
@@ -407,7 +457,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 		g2.dispose();
 		}
 
-	public abstract class DepthSortable extends JComponent implements Comparable<DepthSortable>
+	public abstract class RoomComponent extends JComponent implements Comparable<RoomComponent>
 		{
 		protected final ResourceChangeListener rcl = new ResourceChangeListener();
 		protected BufferedImage image;
@@ -455,7 +505,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			setListen(false);
 			}
 
-		public int compareTo(DepthSortable s2)
+		public int compareTo(RoomComponent s2)
 			{
 			int c = Integer.valueOf(s2.getDepth()).compareTo(getDepth());
 			if (c == 0)
@@ -496,7 +546,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		}
 
-	public class InstanceComponent extends DepthSortable
+	public class InstanceComponent extends RoomComponent
 		{
 		private static final long serialVersionUID = 1L;
 		private final Instance instance;
@@ -542,7 +592,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		protected void updateBounds()
 			{
-			List<DepthSortable> ds = depthSortables;
+			List<RoomComponent> ds = depthSortables;
 			int i = ds.indexOf(this);
 			int d = getDepth();
 			if (i < 0 || (i > 0 && ds.get(i - 1).getDepth() < d)
@@ -618,7 +668,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		}
 
-	public class TileComponent extends DepthSortable
+	public class TileComponent extends RoomComponent
 		{
 		private static final long serialVersionUID = 1L;
 		private final Tile tile;
@@ -664,7 +714,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		protected void updateBounds()
 			{
-			List<DepthSortable> ds = depthSortables;
+			List<RoomComponent> ds = depthSortables;
 			int i = ds.indexOf(this);
 			int d = getDepth();
 			if (i < 0 || (i > 0 && ds.get(i - 1).getDepth() < d)
