@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.
@@ -81,7 +81,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 
 	public EventFrame()
 		{
-		super(Messages.getString("EventFrame.TITLE"),true,true,false,true); //$NON-NLS-1$
+		super(Messages.getString("EventFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
 
 		setSize(300,335);
 		setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
@@ -256,7 +256,9 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		public void mouseClicked(MouseEvent e)
 			{
 			if (e.getSource() != events) return;
-			if (e.getButton() == MouseEvent.BUTTON1 || e.getButton() == MouseEvent.BUTTON3)
+			int button = e.getButton();
+			int clicks = e.getClickCount();
+			if (button == MouseEvent.BUTTON1 || button == MouseEvent.BUTTON3)
 				{
 				TreePath path = events.getPathForLocation(e.getX(),e.getY());
 				if (path == null) return;
@@ -266,7 +268,9 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				else
 					events.expandPath(path);
 				EventNode n = (EventNode) path.getLastPathComponent();
-				if (e.getClickCount() == 2 && n != null && n.isLeaf() && linkedFrame != null && n.isValid())
+				boolean added = (button == MouseEvent.BUTTON1 && clicks == 2)
+						|| (button == MouseEvent.BUTTON3 && clicks == 1);
+				if (added && n != null && n.isLeaf() && linkedFrame != null && n.isValid())
 					linkedFrame.addEvent(new Event(n.mainId,n.eventId,n.other));
 				}
 			}
@@ -305,12 +309,6 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		{
 		if (id == InternalFrameEvent.INTERNAL_FRAME_ICONIFIED) LGM.mdi.setLayer(getDesktopIcon(),0);
 		super.fireInternalFrameEvent(id);
-		}
-
-	public void setVisible(boolean b)
-		{
-		super.setVisible(b);
-		if (!b) fireInternalFrameEvent(InternalFrameEvent.INTERNAL_FRAME_CLOSING);
 		}
 
 	public void valueChanged(TreeSelectionEvent e)

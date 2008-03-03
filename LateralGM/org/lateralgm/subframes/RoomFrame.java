@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM. Lateral GM is free
@@ -677,11 +677,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Room.class,"parent","currentTab",
-				"deleteUnderlyingObjects","showGrid","showObjects","showTiles","showBackgrounds",
-				"showForegrounds","deleteUnderlyingTiles");
+		c.addExclusions(Room.class,"parent","currentTab","deleteUnderlyingObjects","showGrid",
+				"showObjects","showTiles","showBackgrounds","showForegrounds","deleteUnderlyingTiles");
 		c.addExclusions(Instance.class,"changeEvent");
 		c.addExclusions(Tile.class,"changeEvent");
+		c.addExclusions(Instance.class,"changeEvent"); //$NON-NLS-1$
 		if (!c.areEqual(res,resOriginal)) return true;
 		for (CodeFrame cf : codeFrames.values())
 			if (cf.isChanged()) return true;
@@ -815,10 +815,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			Instance i = (Instance) oList.getSelectedValue();
 			if (i == null) return;
-			if (s == oX)
-				i.setX(oX.getIntValue());
-			if (s == oY)
-				i.setY(oY.getIntValue());
+			if (s == oX) i.setX(oX.getIntValue());
+			if (s == oY) i.setY(oY.getIntValue());
 			return;
 			}
 		if (s == tSource)
@@ -861,8 +859,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				t.setX(tX.getIntValue());
 			else if (s == tY)
 				t.setY(tY.getIntValue());
-			else if (s == tLayer)
-				t.setDepth(tLayer.getIntValue());
+			else if (s == tLayer) t.setDepth(tLayer.getIntValue());
 			return;
 			}
 		if (e.getSource() == sCreationCode)

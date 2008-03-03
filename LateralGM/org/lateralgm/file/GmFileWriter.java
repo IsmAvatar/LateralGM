@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006-2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2006, 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
@@ -603,7 +603,11 @@ public final class GmFileWriter
 					case Argument.ARG_ROOM:
 					case Argument.ARG_FONT:
 					case Argument.ARG_TIMELINE:
-						out.writeIdStr(arg.res,f);
+						Resource<?> r = deRef(arg.res);
+						if (r != null)
+							out.writeStr(Integer.toString(r.getId()));
+						else
+							out.writeStr("-1");
 						break;
 					default:
 						out.writeStr(arg.val);

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -20,7 +20,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -384,15 +383,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		if (com.endsWith(".EVENT_BUTTON")) //$NON-NLS-1$
 			{
 			LGM.eventSelect.setVisible(true);
-			try
-				{
-				LGM.eventSelect.setIcon(false);
-				LGM.eventSelect.setSelected(true);
-				}
-			catch (PropertyVetoException e1)
-				{
-				e1.printStackTrace();
-				}
+			LGM.eventSelect.toTop();
 			return;
 			}
 		if (com.endsWith(".EXIT")) //$NON-NLS-1$

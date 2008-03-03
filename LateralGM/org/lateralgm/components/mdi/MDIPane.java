@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.
@@ -200,7 +200,7 @@ public class MDIPane extends JDesktopPane
 		{
 		if (!isMaximum()) return;
 		for (JInternalFrame f : getAllFrames())
-			if (f.isMaximum() && f instanceof MDIFrame) ((MDIFrame) f).toTop();
+			if (f.isMaximum() && f instanceof MDIFrame && f.isVisible()) ((MDIFrame) f).toTop();
 		}
 
 	private MDIManager getMDIManager()

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
@@ -108,7 +108,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		JPanel side1 = new JPanel();
 		makeSide1(side1);
 
-
 		JPanel side2 = new JPanel(new BorderLayout());
 		JLabel lab = new JLabel(Messages.getString("GmObjectFrame.EVENTS")); //$NON-NLS-1$
 		side2.add(lab,"North"); //$NON-NLS-1$
@@ -125,7 +124,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		side2bottom.add(eventDelete,"Center"); //$NON-NLS-1$
 		side2.add(side2bottom,"South"); //$NON-NLS-1$
 
-//		side2.add(deleteEvent,"South"); //$NON-NLS-1$
+		//		side2.add(deleteEvent,"South"); //$NON-NLS-1$
 
 		JComponent editor;
 		if (false)
@@ -339,8 +338,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 						DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
 						if (!(dropNode instanceof EventInstanceNode) || !t.isValid()) return false;
 						EventInstanceNode drop = (EventInstanceNode) dropNode;
+						removeEvent(drop);
 						Event ev = drop.getUserObject();
-						removeEvent(ev);
 						ev.mainId = t.mainId;
 						ev.id = t.eventId;
 						ev.other = t.other;
@@ -410,21 +409,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					if (((EventInstanceNode) getChildAt(i)).getUserObject().matchesType(e)) return true;
 					}
 				else if (((EventGroupNode) getChildAt(i)).contains(e)) return true;
-				}
-			return false;
-			}
-
-		public boolean checkAndRemove(Event e)
-			{
-			for (int i = 0; i < getChildCount(); i++)
-				{
-				if (((EventInstanceNode) getChildAt(i)).getUserObject().matchesType(e))
-					{
-					remove(i);
-					events.setSelectionRow(0);
-					events.updateUI();
-					return true;
-					}
 				}
 			return false;
 			}
@@ -518,41 +502,33 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		rootEvent.select(e);
 		}
 
-	public void removeEvent(Event e)
+	public void removeEvent(EventInstanceNode n)
 		{
-		for (int i = 0; i < rootEvent.getChildCount(); i++)
+		if (n.getParent() == rootEvent)
+			n.removeFromParent();
+		else
 			{
-			if (rootEvent.getChildAt(i) instanceof EventInstanceNode)
+			if (n.getParent().getChildCount() < 3) //thunder
 				{
-				if (((EventInstanceNode) rootEvent.getChildAt(i)).getUserObject().matchesType(e))
-					{
-					rootEvent.remove(i);
-					if (rootEvent.getChildCount() == 0)
-						{
-						lastValidEventSelection = null;
-						actions.setActionContainer(null);
-						}
-					events.updateUI();
-					events.setSelectionRow(0);
-					return;
-					}
+				EventGroupNode p = (EventGroupNode) n.getParent();
+				n.removeFromParent();
+				rootEvent.insert((DefaultMutableTreeNode) p.getChildAt(0),rootEvent.getIndex(p));
+				p.removeFromParent();
 				}
-			if (rootEvent.getChildAt(i) instanceof EventGroupNode)
-				{
-				EventGroupNode group = (EventGroupNode) rootEvent.getChildAt(i);
-				if (group.checkAndRemove(e))
-					{
-					if (group.getChildCount() == 1)
-						{
-						rootEvent.remove(i);
-						rootEvent.insert((EventInstanceNode) group.getChildAt(0),i);
-						events.updateUI();
-						events.setSelectionRow(0);
-						}
-					return;
-					}
-				}
+			else
+				n.removeFromParent();
 			}
+		if (rootEvent.getChildCount() == 0)
+			actions.setActionContainer(null);
+		else
+			{
+			DefaultMutableTreeNode first = (DefaultMutableTreeNode) rootEvent.getChildAt(0);
+			TreePath path = new TreePath((first instanceof EventInstanceNode ? first
+					: (DefaultMutableTreeNode) first.getChildAt(0)).getPath());
+			events.setSelectionPath(path);
+			events.scrollPathToVisible(path);
+			}
+		events.updateUI();
 		}
 
 	public void makeEventTree(GmObject res)
@@ -688,8 +664,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			{
 			Object comp = events.getLastSelectedPathComponent();
 			if (!(comp instanceof EventInstanceNode)) return;
-			EventInstanceNode ein = (EventInstanceNode) comp;
-			removeEvent(ein.getUserObject());
+			removeEvent((EventInstanceNode) comp);
 			return;
 			}
 		super.actionPerformed(e);

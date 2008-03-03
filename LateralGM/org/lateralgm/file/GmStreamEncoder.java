@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006-2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.
@@ -156,13 +156,5 @@ public class GmStreamEncoder
 			write4(id.get().getId());
 		else
 			write4(noneval);
-		}
-
-	public void writeIdStr(WeakReference<? extends Resource<?>> id, GmFile src) throws IOException
-		{
-		if (deRef(id) != null)
-			writeStr(Integer.toString(id.get().getId()));
-		else
-			writeStr("-1");
 		}
 	}
