@@ -310,10 +310,11 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		JPanel loadImage = new JPanel(new FlowLayout());
 		loadImage.setPreferredSize(new Dimension(480,120));
-		loadImage.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.TITLE_LOADING_IMAGE"))); //$NON-NLS-1$
+		String title = Messages.getString("GameSettingFrame.TITLE_LOADING_IMAGE"); //$NON-NLS-1$
+		loadImage.setBorder(BorderFactory.createTitledBorder(title));
 
-		showCustomLoadImage = new JCheckBox(
-				Messages.getString("GameSettingFrame.CUSTOM_LOAD_IMAGE"),g.showCustomLoadImage); //$NON-NLS-1$
+		showCustomLoadImage = new JCheckBox(Messages.getString("GameSettingFrame.CUSTOM_LOAD_IMAGE"), //$NON-NLS-1$
+				g.showCustomLoadImage);
 		showCustomLoadImage.addActionListener(this);
 		addDim(loadImage,showCustomLoadImage,200,16);
 		customLoadingImage = g.loadingImage;
@@ -326,8 +327,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		addGap(loadImage,130,16);
 
 		imagePartiallyTransparent = new JCheckBox(
-				Messages.getString("GameSettingFrame.MAKE_TRANSPARENT"), //$NON-NLS-1$
-				g.imagePartiallyTransparent);
+				Messages.getString("GameSettingFrame.MAKE_TRANSPARENT"),g.imagePartiallyTransparent); //$NON-NLS-1$
 		addDim(loadImage,imagePartiallyTransparent,460,16);
 		JLabel lab = new JLabel(Messages.getString("GameSettingFrame.ALPHA_TRANSPARENCY")); //$NON-NLS-1$
 		addDim(loadImage,lab,120,16);
@@ -362,8 +362,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		backLoad.setEnabled(loadBarMode.getValue() == GameSettings.LOADBAR_CUSTOM);
 		frontLoad.setEnabled(backLoad.isEnabled());
 
-		scaleProgressBar = new JCheckBox(
-				Messages.getString("GameSettingFrame.SCALE_IMAGE"),g.scaleProgressBar); //$NON-NLS-1$
+		scaleProgressBar = new JCheckBox(Messages.getString("GameSettingFrame.SCALE_IMAGE"), //$NON-NLS-1$
+				g.scaleProgressBar);
 		addDim(progBar,scaleProgressBar,460,16);
 		panel.add(progBar);
 
@@ -392,8 +392,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		addGap(panel,195,16);
 
 		iconFc = new CustomFileChooser("/org/lateralgm","LAST_ICON_DIR");
-		iconFc.setFileFilter(new CustomFileFilter(
-				".ico",Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
+		iconFc.setFileFilter(new CustomFileFilter(".ico", //$NON-NLS-1$
+				Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$
 
 		return panel;
 		}
@@ -454,8 +454,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		addGap(panel,100,24);
 
 		constantsFc = new CustomFileChooser("/org/lateralgm","LAST_LGC_DIR");
-		constantsFc.setFileFilter(new CustomFileFilter(
-				".lgc",Messages.getString("GameSettingFrame.LGC_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
+		constantsFc.setFileFilter(new CustomFileFilter(".lgc", //$NON-NLS-1$
+				Messages.getString("GameSettingFrame.LGC_FILES"))); //$NON-NLS-1$
 
 		return panel;
 		}
@@ -553,8 +553,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		iClear.addActionListener(this);
 		addDim(panel,iClear,80,24);
 
-		JPanel folderPanel = Util.makeRadioPanel(
-				Messages.getString("GameSettingFrame.EXPORT_TO"),200,80); //$NON-NLS-1$
+		JPanel folderPanel = Util.makeRadioPanel(Messages.getString("GameSettingFrame.EXPORT_TO"),200, //$NON-NLS-1$
+				80);
 		exportFolder = new IndexButtonGroup(2,true,false);
 		exportFolder.add(new JRadioButton(Messages.getString("GameSettingFrame.SAME_FOLDER"))); //$NON-NLS-1$
 		exportFolder.add(new JRadioButton(Messages.getString("GameSettingFrame.TEMP_DIRECTORY"))); //$NON-NLS-1$
@@ -808,19 +808,17 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 						ICOFile i = new ICOFile(in);
 						if (i.getImageCount() != 1)
 							{
-							JOptionPane.showMessageDialog(
-									LGM.frame,
-									Messages.getString("GameSettingFrame.INVALID_ICON"),Messages.getString("GameSettingFrame.TITLE_ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
-									JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(LGM.frame,
+									Messages.getString("GameSettingFrame.INVALID_ICON"), //$NON-NLS-1$
+									Messages.getString("GameSettingFrame.TITLE_ERROR"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 							return;
 							}
 						BitmapHeader d = i.getDescriptor(0).getHeader();
 						if (d.getWidth() != 32 || d.getHeight() != 64)
 							{
-							JOptionPane.showMessageDialog(
-									LGM.frame,
-									Messages.getString("GameSettingFrame.INVALID_ICON"),Messages.getString("GameSettingFrame.TITLE_ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
-									JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(LGM.frame,
+									Messages.getString("GameSettingFrame.INVALID_ICON"), //$NON-NLS-1$
+									Messages.getString("GameSettingFrame.TITLE_ERROR"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 							return;
 							}
 
@@ -991,10 +989,9 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 				}
 			catch (Exception ex)
 				{
-				JOptionPane.showMessageDialog(
-						LGM.frame,
-						Messages.getString("GameSettingFrame.ERROR_IMPORTING_CONSTANTS"),Messages.getString("GameSettingFrame.TITLE_ERROR"), //$NON-NLS-1$ //$NON-NLS-2$
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(LGM.frame,
+						Messages.getString("GameSettingFrame.ERROR_IMPORTING_CONSTANTS"), //$NON-NLS-1$
+						Messages.getString("GameSettingFrame.TITLE_ERROR"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 				}
 			finally
 				{
@@ -1020,9 +1017,9 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			int result = 0;
 			if (f.exists())
 				{
-				result = JOptionPane.showConfirmDialog(
-						LGM.frame,
-						Messages.getString("GameSettingFrame.REPLACE_FILE"),Messages.getString("GameSettingFrame.TITLE_REPLACE_FILE"), //$NON-NLS-1$ //$NON-NLS-2$
+				result = JOptionPane.showConfirmDialog(LGM.frame,
+						Messages.getString("GameSettingFrame.REPLACE_FILE"), //$NON-NLS-1$
+						Messages.getString("GameSettingFrame.TITLE_REPLACE_FILE"), //$NON-NLS-1$
 						JOptionPane.YES_NO_CANCEL_OPTION);
 				}
 			if (result == 2) return;

@@ -870,9 +870,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (e.getSource() == oCreationCode)
 			{
 			if (lastObj != null)
-				openCodeFrame(
-						lastObj,
-						Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),String.format(Messages.getString("RoomFrame.INSTANCE"),lastObj.instanceId)); //$NON-NLS-1$ //$NON-NLS-2$
+				openCodeFrame(lastObj,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),String.format(//$NON-NLS-1$
+						Messages.getString("RoomFrame.INSTANCE"),lastObj.instanceId)); //$NON-NLS-1$
 			return;
 			}
 		super.actionPerformed(e);
@@ -1102,11 +1101,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				{
 				if (isChanged())
 					{
-					int res = JOptionPane.showConfirmDialog(
-							getParent(),
-							String.format(
-									Messages.getString("RoomFrame.CODE_CHANGED"),arg,Messages.getString("RoomFrame.TITLE_CHANGES"), //$NON-NLS-1$ //$NON-NLS-2$
-									JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE));
+					int res = JOptionPane.showConfirmDialog(getParent(),String.format(
+							Messages.getString("RoomFrame.CODE_CHANGED"),arg, //$NON-NLS-1$
+							Messages.getString("RoomFrame.TITLE_CHANGES"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
+							JOptionPane.QUESTION_MESSAGE));
 					if (res == JOptionPane.YES_OPTION)
 						commit();
 					else if (res == JOptionPane.CANCEL_OPTION)
