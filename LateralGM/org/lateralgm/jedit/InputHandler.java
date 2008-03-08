@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008 Clam <ebordin@aapt.net.au>
  *
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -49,7 +50,7 @@ public abstract class InputHandler extends KeyAdapter
 	 * viewscreen, three presses = start/end of document). By default,
 	 * this property is not set.
 	 */
-	public static final String SMART_HOME_END_PROPERTY = "InputHandler.homeEnd";
+
 	public static final String KEEP_INDENT_PROPERTY = "InputHandler.keepIndent";
 	public static final String TAB_TO_INDENT_PROPERTY = "InputHandler.tabToIndent";
 	public static final String CONVERT_TABS_PROPERTY = "InputHandler.convertTabs";
@@ -572,39 +573,11 @@ public abstract class InputHandler extends KeyAdapter
 		public void actionPerformed(ActionEvent evt)
 			{
 			JEditTextArea textArea = getTextArea(evt);
-
-			int caret = textArea.getCaretPosition();
-
 			int lastOfLine = textArea.getLineEndOffset(textArea.getCaretLine()) - 1;
-			int lastVisibleLine = textArea.getFirstLine() + textArea.getVisibleLines();
-			if (lastVisibleLine >= textArea.getLineCount())
-				{
-				lastVisibleLine = Math.min(textArea.getLineCount() - 1,lastVisibleLine);
-				}
-			else
-				lastVisibleLine -= (textArea.getElectricScroll() + 1);
-
-			int lastVisible = textArea.getLineEndOffset(lastVisibleLine) - 1;
-			int lastDocument = textArea.getDocumentLength();
-
-			if (caret == lastDocument)
-				{
-				textArea.getToolkit().beep();
-				return;
-				}
-			else if (!Boolean.TRUE.equals(textArea.getClientProperty(SMART_HOME_END_PROPERTY)))
-				caret = lastOfLine;
-			else if (caret == lastVisible)
-				caret = lastDocument;
-			else if (caret == lastOfLine)
-				caret = lastVisible;
-			else
-				caret = lastOfLine;
-
 			if (select)
-				textArea.select(textArea.getMarkPosition(),caret);
+				textArea.select(textArea.getMarkPosition(),lastOfLine);
 			else
-				textArea.setCaretPosition(caret);
+				textArea.setCaretPosition(lastOfLine);
 			}
 		}
 
@@ -639,29 +612,18 @@ public abstract class InputHandler extends KeyAdapter
 		public void actionPerformed(ActionEvent evt)
 			{
 			JEditTextArea textArea = getTextArea(evt);
-
 			int caret = textArea.getCaretPosition();
-
-			int firstLine = textArea.getFirstLine();
-
 			int firstOfLine = textArea.getLineStartOffset(textArea.getCaretLine());
-			int firstVisibleLine = (firstLine == 0 ? 0 : firstLine + textArea.getElectricScroll());
-			int firstVisible = textArea.getLineStartOffset(firstVisibleLine);
+			char[] line = textArea.getLineText(textArea.getCaretLine()).toCharArray();
+			int i;
+			for (i = 0; i < line.length; i++)
+				if (!Character.isWhitespace(line[i])) break;
+			i += firstOfLine;
 
-			if (caret == 0)
-				{
-				textArea.getToolkit().beep();
-				return;
-				}
-			else if (!Boolean.TRUE.equals(textArea.getClientProperty(SMART_HOME_END_PROPERTY)))
-				caret = firstOfLine;
-			else if (caret == firstVisible)
-				caret = 0;
-			else if (caret == firstOfLine)
-				caret = firstVisible;
+			if (caret != i)
+				caret = i;
 			else
 				caret = firstOfLine;
-
 			if (select)
 				textArea.select(textArea.getMarkPosition(),caret);
 			else

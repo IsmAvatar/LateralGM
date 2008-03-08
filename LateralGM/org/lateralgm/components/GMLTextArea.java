@@ -75,7 +75,6 @@ public class GMLTextArea extends JEditTextArea
 		putClientProperty(InputHandler.KEEP_INDENT_PROPERTY,Boolean.TRUE);
 		putClientProperty(InputHandler.TAB_TO_INDENT_PROPERTY,Boolean.TRUE);
 		putClientProperty(InputHandler.CONVERT_TABS_PROPERTY,Boolean.TRUE);
-		putClientProperty(InputHandler.SMART_HOME_END_PROPERTY,Boolean.TRUE);
 		text = text.replace("\r\n","\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		setText(text);
 		setCaretPosition(0);
