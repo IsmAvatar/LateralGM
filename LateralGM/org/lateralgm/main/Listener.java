@@ -40,6 +40,7 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.tree.TreePath;
 
+import org.lateralgm.components.AboutBox;
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.CustomFileChooser.FilterSet;
@@ -433,8 +434,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (com.endsWith(".ABOUT")) //$NON-NLS-1$
 			{
-			JOptionPane.showMessageDialog(null,Messages.getString("Listener.ABOUT_MESSAGE"), //$NON-NLS-1$
-					Messages.getString("Listener.ABOUT_TITLE"),JOptionPane.INFORMATION_MESSAGE); //$NON-NLS-1$
+			new AboutBox(LGM.frame).setVisible(true);
 			}
 		}
 
