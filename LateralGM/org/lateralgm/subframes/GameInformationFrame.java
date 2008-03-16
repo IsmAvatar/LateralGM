@@ -493,10 +493,9 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 			{
 			if (resourceChanged())
 				{
-				int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(
-						Messages.getString("ResourceFrame.KEEPCHANGES"),(String) getUserObject()), //$NON-NLS-1$
-						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
-						JOptionPane.YES_NO_CANCEL_OPTION);
+				int ret = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
+						"ResourceFrame.KEEPCHANGES",(String) getUserObject()), //$NON-NLS-1$
+						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
 				if (ret == JOptionPane.YES_OPTION)
 					{
 					updateResource();

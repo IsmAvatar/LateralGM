@@ -83,8 +83,7 @@ public final class LibManager
 		Collections.sort(files); // listFiles does not guarantee a particular order
 		for (File f : files)
 			{
-			System.out.printf(Messages.getString("LibManager.LOADING"),f.getPath()); //$NON-NLS-1$
-			System.out.println();
+			System.out.println(Messages.format("LibManager.LOADING",f.getPath())); //$NON-NLS-1$
 			try
 				{
 				loadFile(f.getPath());
@@ -97,8 +96,7 @@ public final class LibManager
 
 		for (URL url : deflibs)
 			{
-			System.out.printf(Messages.getString("LibManager.LOADING"),url.getFile()); //$NON-NLS-1$
-			System.out.println();
+			System.out.println(Messages.format("LibManager.LOADING",url.getFile())); //$NON-NLS-1$
 			try
 				{
 				loadFile(new GmStreamDecoder(url.openStream()),url.getFile());
@@ -124,8 +122,7 @@ public final class LibManager
 			}
 		catch (FileNotFoundException e)
 			{
-			throw new LibFormatException(String.format(
-					Messages.getString("LibManager.ERROR_NOTFOUND"),filename)); //$NON-NLS-1$
+			throw new LibFormatException(Messages.format("LibManager.ERROR_NOTFOUND",filename)); //$NON-NLS-1$
 			}
 		}
 
@@ -147,14 +144,13 @@ public final class LibManager
 			else if (header == 500 || header == 520)
 				lib = loadLib(in);
 			else
-				throw new LibFormatException(String.format(
-						Messages.getString("LibManager.ERROR_INVALIDFILE"),filename)); //$NON-NLS-1$
+				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDFILE",filename)); //$NON-NLS-1$
 			libs.add(lib);
 			}
 		catch (IOException ex)
 			{
-			throw new LibFormatException(String.format(
-					Messages.getString("LibManager.ERROR_READING"),filename,ex.getMessage())); //$NON-NLS-1$
+			throw new LibFormatException(Messages.format("LibManager.ERROR_READING",filename, //$NON-NLS-1$
+					ex.getMessage()));
 			}
 		catch (LibFormatException ex)
 			{
@@ -185,10 +181,7 @@ public final class LibManager
 	public static Library loadLib(GmStreamDecoder in) throws LibFormatException,IOException
 		{
 		if (in.read() != 0)
-			{
-			String invalidFile = Messages.getString("LibManager.ERROR_INVALIDFILE"); //$NON-NLS-1$
-			throw new LibFormatException(invalidFile);
-			}
+			throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDFILE","%s")); //$NON-NLS-1$
 		Library lib = new Library();
 		lib.tabCaption = in.readStr();
 		lib.id = in.read4();
@@ -205,9 +198,7 @@ public final class LibManager
 			int ver = in.read4();
 			if (ver != 500 && ver != 520)
 				{
-				throw new LibFormatException(String.format(
-						Messages.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
-						j,"%s",ver)); //$NON-NLS-1$
+				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDACTION",j,"%s",ver));
 				}
 
 			LibAction act = lib.addLibAction();
@@ -292,9 +283,7 @@ public final class LibManager
 		for (int j = 0; j < acts; j++)
 			{
 			if (in.read2() != 160)
-				throw new LibFormatException(String.format(
-						Messages.getString("LibManager.ERROR_INVALIDACTION"), //$NON-NLS-1$
-						j,"%s",160)); //$NON-NLS-1$
+				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDACTION",j,"%s",160)); //$NON-NLS-1$ //$NON-NLS-2$
 			LibAction act = lib.addLibAction();
 			act.parent = lib;
 			act.id = in.read2();

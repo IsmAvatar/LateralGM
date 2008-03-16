@@ -33,8 +33,10 @@ public class GmStreamDecoder
 
 	public GmStreamDecoder(InputStream in)
 		{
-		if (in instanceof BufferedInputStream) this.in = in;
-		else this.in = new BufferedInputStream(in);
+		if (in instanceof BufferedInputStream)
+			this.in = in;
+		else
+			this.in = new BufferedInputStream(in);
 		}
 
 	public GmStreamDecoder(String path) throws FileNotFoundException
@@ -57,8 +59,8 @@ public class GmStreamDecoder
 		int ret = in.read(b,off,len);
 		if (ret != len)
 			{
-			String error = Messages.getString("GmStreamDecoder.UNEXPECTED_EOF"); //$NON-NLS-1$
-			throw new IOException(String.format(error,pos));
+			String error = Messages.format("GmStreamDecoder.UNEXPECTED_EOF",pos); //$NON-NLS-1$
+			throw new IOException(error);
 			}
 		if (table != null)
 			{
@@ -78,8 +80,8 @@ public class GmStreamDecoder
 		int t = in.read();
 		if (t == -1)
 			{
-			String error = Messages.getString("GmStreamDecoder.UNEXPECTED_EOF"); //$NON-NLS-1$
-			throw new IOException(String.format(error,pos));
+			String error = Messages.format("GmStreamDecoder.UNEXPECTED_EOF",pos); //$NON-NLS-1$
+			throw new IOException(error);
 			}
 		if (table != null) t = (table[t] - pos) & 0xFF;
 		pos++;
@@ -116,8 +118,8 @@ public class GmStreamDecoder
 		long check = read(data);
 		if (check < data.length)
 			{
-			String error = Messages.getString("GmStreamDecoder.UNEXPECTED_EOF"); //$NON-NLS-1$
-			throw new IOException(String.format(error,pos));
+			String error = Messages.format("GmStreamDecoder.UNEXPECTED_EOF",pos); //$NON-NLS-1$
+			throw new IOException(error);
 			}
 		return new String(data);
 		}
@@ -128,8 +130,8 @@ public class GmStreamDecoder
 		long check = read(data);
 		if (check < data.length)
 			{
-			String error = Messages.getString("GmStreamDecoder.UNEXPECTED_EOF"); //$NON-NLS-1$
-			throw new IOException(String.format(error,pos));
+			String error = Messages.format("GmStreamDecoder.UNEXPECTED_EOF",pos); //$NON-NLS-1$
+			throw new IOException(error);
 			}
 		return new String(data);
 		}
@@ -139,8 +141,8 @@ public class GmStreamDecoder
 		int val = read4();
 		if (val != 0 && val != 1)
 			{
-			String error = Messages.getString("GmStreamDecoder.INVALID_BOOLEAN"); //$NON-NLS-1$
-			throw new IOException(String.format(error,val,pos));
+			String error = Messages.format("GmStreamDecoder.INVALID_BOOLEAN",val,pos); //$NON-NLS-1$
+			throw new IOException(error);
 			}
 		return val == 0 ? false : true;
 		}

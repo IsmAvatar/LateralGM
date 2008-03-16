@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
  * 
@@ -19,6 +19,7 @@
 
 package org.lateralgm.messages;
 
+import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -37,6 +38,19 @@ public final class Messages
 		try
 			{
 			return RESOURCE_BUNDLE.getString(key);
+			}
+		catch (MissingResourceException e)
+			{
+			return '!' + key + '!';
+			}
+		}
+
+	public static String format(String key, Object...arguments)
+		{
+		try
+			{
+			String p = RESOURCE_BUNDLE.getString(key);
+			return MessageFormat.format(p,arguments);
 			}
 		catch (MissingResourceException e)
 			{

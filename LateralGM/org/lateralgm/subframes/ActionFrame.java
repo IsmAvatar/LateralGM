@@ -224,7 +224,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				{
 				argComp[n] = new ArgumentComponent(a.arguments[n],a.libAction.libArguments[n]);
 				if (la.parent == null)
-					lab = new JLabel(String.format(Messages.getString("ActionFrame.UNKNOWN"),n)); //$NON-NLS-1$
+					lab = new JLabel(Messages.format("ActionFrame.UNKNOWN",n)); //$NON-NLS-1$
 				else
 					{
 					LibArgument larg = la.libArguments[n];
@@ -363,8 +363,8 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				if (act.libAction.interfaceKind == LibAction.INTERFACE_CODE)
 					if (code.getUndoManager().isModified() || !act.appliesTo.equals(getApplies()))
 						{
-						int ret = JOptionPane.showConfirmDialog(LGM.frame,String.format(
-								Messages.getString("ActionFrame.KEEPCHANGES"),getTitle()), //$NON-NLS-1$
+						int ret = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
+								"ActionFrame.KEEPCHANGES",getTitle()), //$NON-NLS-1$
 								Messages.getString("ActionFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
 								JOptionPane.YES_NO_CANCEL_OPTION);
 						if (ret == JOptionPane.CANCEL_OPTION) break;
@@ -429,8 +429,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				default:
 					key = "";
 				}
-			return String.format(Messages.getString("ArgumentComponent.NO_SELECTION"), //$NON-NLS-1$
-					Messages.getString(key));
+			return Messages.format("ArgumentComponent.NO_SELECTION",Messages.getString(key)); //$NON-NLS-1$
 			}
 
 		@SuppressWarnings("unchecked")

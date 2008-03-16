@@ -285,10 +285,10 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				{
 				EventInstanceNode node = (EventInstanceNode) c;
 				Event ev = node.getUserObject();
-				return String.format(Messages.getString("MainEvent.EVENT_HINT" + ev.mainId),ev.toString()); //$NON-NLS-1$
+				return Messages.format("MainEvent.EVENT_HINT" + ev.mainId,ev.toString()); //$NON-NLS-1$
 				}
 			else
-				return String.format(Messages.getString("MainEvent.EVENTS"),c.toString()); //$NON-NLS-1$
+				return Messages.format("MainEvent.EVENTS",c.toString()); //$NON-NLS-1$
 			}
 		}
 

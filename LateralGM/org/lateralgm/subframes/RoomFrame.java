@@ -869,9 +869,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 		if (e.getSource() == oCreationCode)
 			{
-			if (lastObj != null)
-				openCodeFrame(lastObj,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),String.format(//$NON-NLS-1$
-						Messages.getString("RoomFrame.INSTANCE"),lastObj.instanceId)); //$NON-NLS-1$
+			if (lastObj != null) openCodeFrame(lastObj,"RoomFrame.TITLE_FORMAT_CREATION",Messages.format(//$NON-NLS-1$
+					"RoomFrame.INSTANCE",lastObj.instanceId)); //$NON-NLS-1$
 			return;
 			}
 		super.actionPerformed(e);
@@ -1045,7 +1044,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		public void setTitleFormatArg(Object arg)
 			{
 			this.arg = arg;
-			setTitle(String.format(format,arg));
+			setTitle(Messages.format(format,arg));
 			}
 
 		public boolean isChanged()
@@ -1060,7 +1059,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		public CodeFrame(Object code, String format, Object arg)
 			{
-			super(String.format(format,arg),true,true,true,true);
+			super(Messages.format(format,arg),true,true,true,true);
 			this.code = code;
 			this.format = format;
 			this.arg = arg;
@@ -1101,10 +1100,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				{
 				if (isChanged())
 					{
-					int res = JOptionPane.showConfirmDialog(getParent(),String.format(
-							Messages.getString("RoomFrame.CODE_CHANGED"),arg, //$NON-NLS-1$
-							Messages.getString("RoomFrame.TITLE_CHANGES"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
-							JOptionPane.QUESTION_MESSAGE));
+					int res = JOptionPane.showConfirmDialog(getParent(),Messages.format(
+							"RoomFrame.CODE_CHANGED",arg,Messages.getString("RoomFrame.TITLE_CHANGES"), //$NON-NLS-1$ //$NON-NLS-2$
+							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE));
 					if (res == JOptionPane.YES_OPTION)
 						commit();
 					else if (res == JOptionPane.CANCEL_OPTION)

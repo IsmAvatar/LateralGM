@@ -141,8 +141,6 @@ public class Event extends ActionContainer implements Comparable<Event>
 		{
 		switch (mainId)
 			{
-			case MainEvent.EV_ALARM:
-				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),id); //$NON-NLS-1$
 			case MainEvent.EV_COLLISION:
 				GmObject obj = deRef(other);
 				String name;
@@ -150,19 +148,9 @@ public class Event extends ActionContainer implements Comparable<Event>
 					name = "<undefined>";
 				else
 					name = obj.getName();
-				return String.format(Messages.getString("Event.EVENT4_X"),name); //$NON-NLS-1$
-			case MainEvent.EV_KEYBOARD:
-			case MainEvent.EV_KEYPRESS:
-			case MainEvent.EV_KEYRELEASE:
-				return String.format(Messages.getString("Event.EVENT" + mainId + "_X"),getGmKeyName(id)); //$NON-NLS-1$
-			case MainEvent.EV_OTHER:
-				if (id >= Event.EV_USER0)
-					return String.format(Messages.getString("Event.EVENT" + mainId + "_X"), //$NON-NLS-1$
-							id - Event.EV_USER0);
-				else
-					return Messages.getString("Event.EVENT" + mainId + "_" + id); //$NON-NLS-1$
+				return Messages.format("Event.EVENT4_X",name); //$NON-NLS-1$
 			default:
-				return Messages.getString("Event.EVENT" + mainId + "_" + id); //$NON-NLS-1$
+				return eventName(mainId,id); //$NON-NLS-1$
 			}
 		}
 
@@ -214,6 +202,49 @@ public class Event extends ActionContainer implements Comparable<Event>
 				return 45;
 			default:
 				return keyCode;
+			}
+		}
+
+	public static String eventName(int mainId, int eventId)
+		{
+		switch (mainId)
+			{
+			case MainEvent.EV_ALARM:
+				return Messages.format("Event.EVENT" + mainId + "_X",eventId); //$NON-NLS-1$
+			case MainEvent.EV_MOUSE:
+				if ((eventId <= 9) || (eventId >= 50 && eventId <= 58))
+					{
+					int i = eventId % 10;
+					int b;
+					if (i > 3)
+						b = --i % 3;
+					else if (i == 3)
+						{
+						b = -1;
+						i = 0;
+						}
+					else
+						b = i % 3;
+					return Messages.format("Event.EVENT6_BUTTON",b,i / 3,eventId >= 50 ? 1 : 0);
+					}
+				else if ((eventId >= 16 && eventId <= 28) || (eventId >= 31 && eventId <= 43))
+					{
+					int j = eventId < 31 ? 1 : 2;
+					int i = eventId - (j == 1 ? 16 : 31);
+					return Messages.format("Event.EVENT6_JOYSTICK",j,i < 4 ? i : 4,i - 4);
+					}
+				return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
+			case MainEvent.EV_KEYBOARD:
+			case MainEvent.EV_KEYPRESS:
+			case MainEvent.EV_KEYRELEASE:
+				return Messages.format("Event.EVENT" + mainId + "_X",getGmKeyName(eventId)); //$NON-NLS-1$
+			case MainEvent.EV_OTHER:
+				if (eventId >= EV_USER0)
+					return Messages.format("Event.EVENT" + mainId + "_X",eventId - EV_USER0); //$NON-NLS-1$
+				else
+					return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
+			default:
+				return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
 			}
 		}
 

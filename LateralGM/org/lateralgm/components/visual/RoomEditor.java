@@ -254,7 +254,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 						public void actionPerformed(ActionEvent e)
 							{
 							frame.openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"), //$NON-NLS-1$
-									String.format(Messages.getString("RoomFrame.INSTANCE"),i.instanceId)); //$NON-NLS-1$
+									Messages.format("RoomFrame.INSTANCE",i.instanceId)); //$NON-NLS-1$
 							}
 					});
 				jp.add(mi);

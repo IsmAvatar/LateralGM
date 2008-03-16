@@ -83,10 +83,8 @@ public final class GmFileReader
 
 	private static GmFormatException versionError(String error, String res, int i, int ver)
 		{
-		return new GmFormatException(String.format(
-				Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
-				String.format(Messages.getString("GmFileReader." + error), //$NON-NLS-1$
-						Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$
+		return new GmFormatException(Messages.format("GmFileReader.ERROR_UNSUPPORTED",Messages.format(//$NON-NLS-1$
+				"GmFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 
 	public static GmFile readGmFile(String fileName, ResNode root) throws GmFormatException
@@ -104,13 +102,13 @@ public final class GmFileReader
 			Gm6FileContext c = new Gm6FileContext(f,in,timeids,objids,rmids);
 			int identifier = in.read4();
 			if (identifier != 1234321)
-				throw new GmFormatException(String.format(
-						Messages.getString("GmFileReader.ERROR_INVALID"),fileName,identifier)); //$NON-NLS-1$
+				throw new GmFormatException(Messages.format("GmFileReader.ERROR_INVALID",fileName, //$NON-NLS-1$
+						identifier));
 			int ver = in.read4();
 			if (ver != 530 && ver != 600 && ver != 701)
 				{
-				String msg = Messages.getString("GmFileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
-				throw new GmFormatException(String.format(msg,"",ver)); //$NON-NLS-1$
+				String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new GmFormatException(msg);
 				}
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
@@ -145,8 +143,7 @@ public final class GmFileReader
 					{
 					ver = in.read4();
 					if (ver != 620)
-						throw new GmFormatException(String.format(
-								Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+						throw new GmFormatException(Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 								Messages.getString("GmFileReader.INGM7INCLUDES"),ver)); //$NON-NLS-1$
 					Include inc = new Include();
 					in.skip(in.read4()); //Filename
@@ -171,23 +168,19 @@ public final class GmFileReader
 				readGameInformation(c,620);
 				}
 			ver = in.read4();
-			if (ver != 500)
-				throw new GmFormatException(String.format(
-						Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
-						Messages.getString("GmFileReader.AFTERINFO"),ver)); //$NON-NLS-1$
+			if (ver != 500) throw new GmFormatException(Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+					Messages.getString("GmFileReader.AFTERINFO"),ver)); //$NON-NLS-1$
 			int no = in.read4(); //Library Creation Code
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 			ver = in.read4();
 			if (ver != 500 && ver != 540 && ver != 700)
-				throw new GmFormatException(String.format(
-						Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+				throw new GmFormatException(Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("GmFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4); //Room Execution Order
 			readTree(c,root,ver);
-			System.out.printf(Messages.getString("GmFileReader.LOADTIME"), //$NON-NLS-1$
-					System.currentTimeMillis() - startTime);
-			System.out.println();
+			System.out.println(Messages.format("GmFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
+					- startTime));
 			}
 		catch (Exception ex)
 			{
@@ -225,8 +218,8 @@ public final class GmFileReader
 		int ver = in.read4();
 		if (ver != 530 && ver != 542 && ver != 600 && ver != 702)
 			{
-			String msg = Messages.getString("GmFileReader.ERROR_UNSUPPORTED"); //$NON-NLS-1$
-			throw new GmFormatException(String.format(msg,"",ver)); //$NON-NLS-1$
+			String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$
+			throw new GmFormatException(msg);
 			}
 		g.startFullscreen = in.readBool();
 		if (ver > 542) g.interpolate = in.readBool();
@@ -568,8 +561,7 @@ public final class GmFileReader
 				if (!in.readBool()) continue;
 				in.skip(in.read4());
 				if (in.read4() != 440)
-					throw new GmFormatException(String.format(
-							Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+					throw new GmFormatException(Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 							Messages.getString("GmFileReader.INDATAFILES"),ver)); //$NON-NLS-1$
 				Include inc = new Include();
 				g.includes.add(inc);
@@ -886,8 +878,7 @@ public final class GmFileReader
 		int ver = in.read4();
 		if (ver != 400)
 			{
-			throw new GmFormatException(String.format(
-					Messages.getString("GmFileReader.ERROR_UNSUPPORTED"), //$NON-NLS-1$
+			throw new GmFormatException(Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 					Messages.getString("GmFileReader." + key),format1,format2,ver)); //$NON-NLS-1$
 			//		String msg = Messages.getString("GmFileReader." + key)
 			//		+ Messages.getString("GmFileReader.ERROR_UNSUPPORTED");

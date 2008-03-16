@@ -118,7 +118,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			{
 			ResNode newroot = new ResNode("Root",(byte) 0,(byte) 0,null); //$NON-NLS-1$
 			PrefsStore.addRecentFile(filename);
-			LGM.frame.setTitle(String.format(Messages.getString("LGM.TITLE"),file.getName())); //$NON-NLS-1$
+			LGM.frame.setTitle(Messages.format("LGM.TITLE",file.getName())); //$NON-NLS-1$
 			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 			LGM.currentFile = GmFileReader.readGmFile(filename,newroot);
 			JPanel f = new JPanel(new BorderLayout());
@@ -132,10 +132,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		catch (GmFormatException ex)
 			{
-			JOptionPane.showMessageDialog(LGM.frame,String.format(
-					Messages.getString("Listener.ERROR_MESSAGE"), //$NON-NLS-1$
-					ex.stackAsString(),ex.getMessage()),
-					Messages.getString("Listener.ERROR_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
+			JOptionPane.showMessageDialog(LGM.frame,Messages.format("Listener.ERROR_MESSAGE", //$NON-NLS-1$
+					ex.stackAsString(),ex.getMessage()),Messages.getString("Listener.ERROR_TITLE"), //$NON-NLS-1$
+					JOptionPane.ERROR_MESSAGE);
 			}
 		LGM.gameInfo.dispose();
 		LGM.gameInfo = new GameInformationFrame();
@@ -151,8 +150,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		LGM.createToolBar(f);
 		LGM.createTree(f,true);
 		LGM.frame.setJMenuBar(new GmMenuBar());
-		LGM.frame.setTitle(String.format(
-				Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$
+		LGM.frame.setTitle(Messages.format("LGM.TITLE",Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$
 		f.setOpaque(true);
 		LGM.frame.setContentPane(f);
 		LGM.currentFile = new GmFile();
@@ -221,10 +219,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
 			int result = JOptionPane.YES_OPTION;
 			if (new File(filename).exists())
-				result = JOptionPane.showConfirmDialog(LGM.frame,String.format(
-						Messages.getString("Listener.CONFIRM_REPLACE"),filename), //$NON-NLS-1$
-						Messages.getString("Listener.CONFIRM_REPLACE_TITLE"), //$NON-NLS-1$
-						JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
+				result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
+						"Listener.CONFIRM_REPLACE",filename), //$NON-NLS-1$
+						Messages.getString("Listener.CONFIRM_REPLACE_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
+						JOptionPane.WARNING_MESSAGE);
 			if (result == JOptionPane.YES_OPTION)
 				{
 				Enumeration<?> nodes = LGM.root.preorderEnumeration();
@@ -235,8 +233,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					}
 				LGM.gameSet.commitChanges();
 				LGM.currentFile.filename = filename;
-				LGM.frame.setTitle(String.format(
-						Messages.getString("LGM.TITLE"),new File(filename).getName())); //$NON-NLS-1$
+				LGM.frame.setTitle(Messages.format("LGM.TITLE",new File(filename).getName())); //$NON-NLS-1$
 				GmFileWriter.writeGmFile(LGM.currentFile,LGM.root);
 				return;
 				}

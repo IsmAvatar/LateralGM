@@ -199,8 +199,8 @@ public final class Util
 			imageFc.addChoosableFileFilter(filt);
 			for (String element : exts)
 				{
-				imageFc.addChoosableFileFilter(new CustomFileFilter(element,element
-						+ Messages.getString("Util.FILES"))); //$NON-NLS-1$
+				imageFc.addChoosableFileFilter(new CustomFileFilter(element,Messages.format("Util.FILES", //$NON-NLS-1$
+						element)));
 				}
 			imageFc.setFileFilter(filt);
 			}
@@ -232,8 +232,7 @@ public final class Util
 				}
 			catch (Throwable t)
 				{
-				String msg = String.format(Messages.getString("Util.ERROR_LOADING"), //$NON-NLS-1$
-						imageFc.getSelectedFile());
+				String msg = Messages.format("Util.ERROR_LOADING",imageFc.getSelectedFile()); //$NON-NLS-1$
 				String title = Messages.getString("Util.ERROR_TITLE"); //$NON-NLS-1$
 				JOptionPane.showMessageDialog(LGM.frame,msg,title,JOptionPane.ERROR_MESSAGE);
 				t.printStackTrace();

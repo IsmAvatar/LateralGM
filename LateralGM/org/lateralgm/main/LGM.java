@@ -74,8 +74,8 @@ public final class LGM
 		if (javaVersion < 10600)
 			System.out.println("Some program functionality will be limited due to your outdated version");
 		}
-	public static JFrame frame = new JFrame(String.format(
-			Messages.getString("LGM.TITLE"),Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$
+	public static JFrame frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
+			Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
 	public static Listener listener = new Listener();
 	public static JToolBar tool;
 	public static JTree tree;

@@ -549,8 +549,8 @@ public class ActionList extends JList
 					else
 						{
 						GmObject applies = deRef(a.appliesTo);
-						ret += String.format(Messages.getString("Action.APPLIES"), //$NON-NLS-1$
-								applies == null ? a.appliesTo.toString() : applies.getName());
+						ret += Messages.format("Action.APPLIES",applies == null ? a.appliesTo.toString() //$NON-NLS-1$
+								: applies.getName());
 						}
 					}
 				if (c >= '0' && c < '8')

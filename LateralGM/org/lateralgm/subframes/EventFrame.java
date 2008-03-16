@@ -166,8 +166,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		EventNode alarm = new EventNode(Messages.getString("MainEvent.EVENT2"),-1); //$NON-NLS-1$
 		root.add(alarm);
 		for (int i = 0; i <= 11; i++)
-			alarm.add(new EventNode(String.format(Messages.getString("Event.EVENT2_X"),i), //$NON-NLS-1$
-					MainEvent.EV_ALARM,i));
+			alarm.add(new EventNode(Messages.format("Event.EVENT2_X",i),MainEvent.EV_ALARM,i)); //$NON-NLS-1$
 
 		EventNode step = new EventNode(Messages.getString("MainEvent.EVENT3"),-1); //$NON-NLS-1$
 		root.add(step);
@@ -209,8 +208,8 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		EventNode user = new EventNode(Messages.getString("EventFrame.USER_DEFINED"),-1); //$NON-NLS-1$
 		other.add(user);
 		for (int i = 0; i <= 14; i++)
-			user.add(new EventNode(String.format(Messages.getString("Event.EVENT7_X"),i), //$NON-NLS-1$
-					MainEvent.EV_OTHER,Event.EV_USER0 + i));
+			user.add(new EventNode(Messages.format("Event.EVENT7_X",i),MainEvent.EV_OTHER,Event.EV_USER0 //$NON-NLS-1$
+					+ i));
 
 		root.add(MainEvent.EV_DRAW);
 		root.add(MainEvent.EV_KEYPRESS);
