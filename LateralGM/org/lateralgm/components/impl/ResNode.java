@@ -71,26 +71,22 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 
 	public Icon getIcon()
 		{
-		if (status == STATUS_SECONDARY)
-			switch (kind)
-				{
-				case Resource.SPRITE:
-				case Resource.BACKGROUND:
-				case Resource.GMOBJECT:
-					if (icon == null) updateIcon();
-					return icon;
-				default:
-					return Resource.ICON[kind];
-				}
-		else
+		if (status == STATUS_SECONDARY) switch (kind)
 			{
-			if (Prefs.iconizeGroup && getChildCount() > 0)
-				{
-				ResNode n = (ResNode) getChildAt(0);
-				if (n.status == STATUS_SECONDARY) return n.getIcon();
-				}
-			return null;
+			case Resource.SPRITE:
+			case Resource.BACKGROUND:
+			case Resource.GMOBJECT:
+				if (icon == null) updateIcon();
+				return icon;
+			default:
+				return Resource.ICON[kind];
 			}
+		if (Prefs.iconizeGroup && getChildCount() > 0)
+			{
+			ResNode n = (ResNode) getChildAt(0);
+			if (n.status == STATUS_SECONDARY) return n.getIcon();
+			}
+		return null;
 		}
 
 	@SuppressWarnings("unchecked")
@@ -189,9 +185,6 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 					break;
 				case Resource.ROOM:
 					rf = new RoomFrame((Room) res.get(),this);
-					break;
-				default:
-					rf = null;
 					break;
 				}
 			if (rf != null)

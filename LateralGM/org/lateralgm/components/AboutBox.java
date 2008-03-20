@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -29,7 +30,7 @@ import javax.swing.text.html.StyleSheet;
 
 import org.lateralgm.messages.Messages;
 
-public class AboutBox extends JDialog
+public class AboutBox extends JDialog implements PropertyChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -56,18 +57,18 @@ public class AboutBox extends JDialog
 		lockWidth(ep,Math.max(ep.getMinimumSize().width,400));
 		JOptionPane op = new JOptionPane(ep,JOptionPane.PLAIN_MESSAGE,JOptionPane.DEFAULT_OPTION,null,
 				Option.values());
-		op.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY,new OptionHandler());
+		op.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY,this);
 		add(op);
 		pack();
 		setLocationRelativeTo(owner);
 		}
 
-	private static void addSSRules(StyleSheet s)
+	protected static void addSSRules(StyleSheet s)
 		{
 		s.addRule("body { font-size: 12pt; font-family: Dialog; }");
 		}
 
-	private static void lockWidth(JTextComponent c, int width)
+	protected static void lockWidth(JTextComponent c, int width)
 		{
 		Dimension max = new Dimension(width,Integer.MAX_VALUE);
 		c.setSize(max);
@@ -77,13 +78,35 @@ public class AboutBox extends JDialog
 		c.setPreferredSize(min);
 		}
 
-	private static void setLinkHandler(JEditorPane ep)
+	protected static void setLinkHandler(JEditorPane ep)
 		{
 		try
 			{
 			if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
 				{
-				ep.addHyperlinkListener(new LinkHandler());
+				ep.addHyperlinkListener(new HyperlinkListener()
+					{
+						public void hyperlinkUpdate(HyperlinkEvent e)
+							{
+							if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
+									&& Desktop.isDesktopSupported())
+								{
+								Desktop desktop = Desktop.getDesktop();
+								try
+									{
+									desktop.browse(e.getURL().toURI());
+									}
+								catch (URISyntaxException use)
+									{
+									use.printStackTrace();
+									}
+								catch (IOException ioe)
+									{
+									ioe.printStackTrace();
+									}
+								}
+							}
+					});
 				return;
 				}
 			}
@@ -99,26 +122,23 @@ public class AboutBox extends JDialog
 		licenseDialog.setVisible(true);
 		}
 
-	private class OptionHandler implements PropertyChangeListener
+	public void propertyChange(PropertyChangeEvent e)
 		{
-		public void propertyChange(PropertyChangeEvent e)
+		if (isVisible())
 			{
-			if (isVisible())
+			Object v = e.getNewValue();
+			if (!(v instanceof Option)) return;
+			switch ((Option) v)
 				{
-				Object v = e.getNewValue();
-				if (!(v instanceof Option)) return;
-				switch ((Option) v)
-					{
-					case CLOSE:
-						dispose();
-						break;
-					case LICENSE:
-						showLicense();
-						break;
-					}
-				Object s = e.getSource();
-				if (s instanceof JOptionPane) ((JOptionPane) s).setValue(JOptionPane.UNINITIALIZED_VALUE);
+				case CLOSE:
+					dispose();
+					break;
+				case LICENSE:
+					showLicense();
+					break;
 				}
+			Object s = e.getSource();
+			if (s instanceof JOptionPane) ((JOptionPane) s).setValue(JOptionPane.UNINITIALIZED_VALUE);
 			}
 		}
 
@@ -138,42 +158,17 @@ public class AboutBox extends JDialog
 			setLinkHandler(ep);
 			lockWidth(ep,400);
 			JOptionPane op = new JOptionPane(ep,JOptionPane.PLAIN_MESSAGE);
-			op.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY,new OptionHandler());
+			op.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY,new PropertyChangeListener()
+				{
+					public void propertyChange(PropertyChangeEvent evt)
+						{
+						if (evt.getNewValue().equals(JOptionPane.OK_OPTION)) setVisible(false);
+						((JOptionPane) evt.getSource()).setValue(JOptionPane.UNINITIALIZED_VALUE);
+						}
+				});
 			add(op);
 			pack();
 			setLocationRelativeTo(owner);
-			}
-
-		private class OptionHandler implements PropertyChangeListener
-			{
-			public void propertyChange(PropertyChangeEvent evt)
-				{
-				if (evt.getNewValue().equals(JOptionPane.OK_OPTION)) setVisible(false);
-				((JOptionPane) evt.getSource()).setValue(JOptionPane.UNINITIALIZED_VALUE);
-				}
-			}
-		}
-
-	private static class LinkHandler implements HyperlinkListener
-		{
-		public void hyperlinkUpdate(HyperlinkEvent e)
-			{
-			if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED && Desktop.isDesktopSupported())
-				{
-				Desktop desktop = Desktop.getDesktop();
-				try
-					{
-					desktop.browse(e.getURL().toURI());
-					}
-				catch (URISyntaxException use)
-					{
-					use.printStackTrace();
-					}
-				catch (IOException ioe)
-					{
-					ioe.printStackTrace();
-					}
-				}
 			}
 		}
 	}

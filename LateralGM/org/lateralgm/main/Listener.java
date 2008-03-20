@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * 
@@ -241,17 +241,17 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		}
 
-	private static void addResource(JTree tree, String com)
+	protected static void addResource(JTree tree, String com)
 		{
 		addResource(tree,stringToRes(com),null);
 		}
 
-	private static void addResource(JTree tree, byte r)
+	protected static void addResource(JTree tree, byte r)
 		{
 		addResource(tree,r,null);
 		}
 
-	private static void addResource(JTree tree, byte r, Resource<?> res)
+	protected static void addResource(JTree tree, byte r, Resource<?> res)
 		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
@@ -270,12 +270,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		putNode(tree,node,parent,r,pos,res);
 		}
 
-	private static void insertResource(JTree tree, String com)
+	protected static void insertResource(JTree tree, String com)
 		{
 		insertResource(tree,stringToRes(com),null);
 		}
 
-	private static void insertResource(JTree tree, byte r)
+	protected static void insertResource(JTree tree, byte r)
 		{
 		insertResource(tree,r,null);
 		}
@@ -326,7 +326,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		g.openFrame();
 		}
 
-	private static void deleteResource(JTree tree)
+	protected static void deleteResource(JTree tree)
 		{
 		ResNode me = (ResNode) tree.getLastSelectedPathComponent();
 		if (me == null) return;
@@ -500,7 +500,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		return menuItem;
 		}
 
-	private void showNodeMenu(MouseEvent e)
+	protected void showNodeMenu(MouseEvent e)
 		{
 		ResNode node = (ResNode) LGM.tree.getPathForLocation(e.getX(),e.getY()).getLastPathComponent();
 		JPopupMenu popup = new JPopupMenu();
@@ -612,6 +612,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	private class MListener extends MouseAdapter
 		{
+		public MListener()
+			{
+			super();
+			}
+
 		public void mousePressed(MouseEvent e)
 			{
 			int selRow = LGM.tree.getRowForLocation(e.getX(),e.getY());

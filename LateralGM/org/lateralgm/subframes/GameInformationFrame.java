@@ -76,22 +76,22 @@ import org.lateralgm.resources.Resource;
 public class GameInformationFrame extends MDIFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static JEditorPane editor;
+	protected static JEditorPane editor;
 	private static RTFEditorKit rtf = new RTFEditorKit();
-	private JComboBox cbFonts;
-	private JSpinner sSizes;
-	private JToggleButton tbBold;
-	private JToggleButton tbItalic;
-	private JToggleButton tbUnderline;
+	protected JComboBox cbFonts;
+	protected JSpinner sSizes;
+	protected JToggleButton tbBold;
+	protected JToggleButton tbItalic;
+	protected JToggleButton tbUnderline;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	private CustomFileChooser fc;
 
 	// These prevent the Formatting Bar things from firing when the caret moves
 	// because that would cause the selection to conform the text to the caret format
-	private boolean fFamilyChange = false;
-	private boolean fSizeChange = false;
+	protected boolean fFamilyChange = false;
+	protected boolean fSizeChange = false;
 
-	private boolean documentChanged = false;
+	protected boolean documentChanged = false;
 
 	private JMenuBar makeMenuBar()
 		{

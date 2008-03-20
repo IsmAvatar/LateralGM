@@ -82,7 +82,7 @@ public class ScriptFrame extends ResourceFrame<Script>
 		switch (id)
 			{
 			case InternalFrameEvent.INTERNAL_FRAME_CLOSED:
-				LGM.currentFile.removeChangeListener(code.rcl);
+				LGM.currentFile.removeChangeListener(code);
 				break;
 			case InternalFrameEvent.INTERNAL_FRAME_ACTIVATED:
 				code.grabFocus();

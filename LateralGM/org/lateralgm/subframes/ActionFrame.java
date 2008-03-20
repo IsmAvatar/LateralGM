@@ -64,7 +64,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 	private static final long serialVersionUID = 1L;
 
 	private IndexButtonGroup applies;
-	private ResourceMenu<GmObject> appliesObject;
+	protected ResourceMenu<GmObject> appliesObject;
 	private JPanel appliesPanel;
 	private Action act;
 	private ArgumentComponent argComp[];

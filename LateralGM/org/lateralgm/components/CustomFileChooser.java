@@ -65,7 +65,7 @@ public class CustomFileChooser extends JFileChooser
 
 	public static class FilterSet
 		{
-		private ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
+		protected ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
 
 		public void addFilter(String descKey, String ext)
 			{

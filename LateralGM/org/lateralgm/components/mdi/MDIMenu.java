@@ -35,7 +35,7 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 	private static final long serialVersionUID = 1L;
 	private MDIPane pane;
 	private final ButtonGroup group = new ButtonGroup();
-	private final WeakHashMap<MDIFrame,FrameButton> frameButtons;
+	protected final WeakHashMap<MDIFrame,FrameButton> frameButtons;
 
 	public MDIMenu(MDIPane pane)
 		{
@@ -97,13 +97,13 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 			}
 		}
 
-	private void addRadio(FrameButton item)
+	protected void addRadio(FrameButton item)
 		{
 		group.add(item);
 		add(item);
 		}
 
-	private void removeRadio(FrameButton item)
+	protected void removeRadio(FrameButton item)
 		{
 		group.remove(item);
 		remove(item);
@@ -122,13 +122,12 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 		if (b != null) b.dispose();
 		}
 
-	private class FrameButton extends JRadioButtonMenuItem
+	private class FrameButton extends JRadioButtonMenuItem implements PropertyChangeListener
 		{
 		private static final long serialVersionUID = 1L;
 		private IFListener ifl = new IFListener();
-		private PCListener pcl = new PCListener();
 		private CListener cl = new CListener();
-		private MDIFrame mdif;
+		protected MDIFrame mdif;
 
 		public FrameButton(MDIFrame f)
 			{
@@ -136,7 +135,7 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 			frameButtons.put(f,this);
 			addRadio(this);
 			f.addInternalFrameListener(ifl);
-			f.addPropertyChangeListener(pcl);
+			f.addPropertyChangeListener(this);
 			f.addComponentListener(cl);
 			update();
 			setVisible(mdif.isVisible());
@@ -154,7 +153,7 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 			frameButtons.remove(mdif);
 			removeRadio(this);
 			mdif.removeInternalFrameListener(ifl);
-			mdif.removePropertyChangeListener(pcl);
+			mdif.removePropertyChangeListener(this);
 			mdif.removeComponentListener(cl);
 			}
 
@@ -164,24 +163,31 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 			setIcon(mdif.getFrameIcon());
 			}
 
+		public void propertyChange(PropertyChangeEvent evt)
+			{
+			update();
+			}
+
 		private class IFListener extends InternalFrameAdapter
 			{
+			public IFListener()
+				{
+				super();
+				}
+
 			public void internalFrameActivated(InternalFrameEvent e)
 				{
 				setSelected(true);
 				}
 			}
 
-		private class PCListener implements PropertyChangeListener
-			{
-			public void propertyChange(PropertyChangeEvent evt)
-				{
-				update();
-				}
-			}
-
 		private class CListener extends ComponentAdapter
 			{
+			public CListener()
+				{
+				super();
+				}
+
 			public void componentHidden(ComponentEvent e)
 				{
 				setVisible(false);

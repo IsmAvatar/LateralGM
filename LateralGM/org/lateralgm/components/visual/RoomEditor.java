@@ -50,13 +50,13 @@ import org.lateralgm.subframes.RoomFrame.CodeFrame;
 public class RoomEditor extends JPanel implements ImageObserver
 	{
 	private static final long serialVersionUID = 1L;
-	private static final BufferedImage EMPTY_IMAGE = new BufferedImage(16,16,
+	protected static final BufferedImage EMPTY_IMAGE = new BufferedImage(16,16,
 			BufferedImage.TYPE_INT_ARGB);
 
 	private Room room;
-	private RoomFrame frame;
+	protected RoomFrame frame;
 	private RoomComponent cursor;
-	private List<RoomComponent> depthSortables;
+	protected List<RoomComponent> depthSortables;
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
@@ -417,13 +417,10 @@ public class RoomEditor extends JPanel implements ImageObserver
 				{
 				if (e instanceof InstanceComponent && !frame.sSObj.isSelected()) continue;
 				if (e instanceof TileComponent && !frame.sSTile.isSelected()) continue;
-				if (e instanceof JComponent)
-					{
-					JComponent c = e;
-					Graphics cg = g.create(c.getX(),c.getY(),c.getWidth(),c.getHeight());
-					c.paint(cg);
-					cg.dispose();
-					}
+				JComponent c = e;
+				Graphics cg = g.create(c.getX(),c.getY(),c.getWidth(),c.getHeight());
+				c.paint(cg);
+				cg.dispose();
 				}
 			}
 		if (frame.sSFore.isSelected())
@@ -549,7 +546,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 	public class InstanceComponent extends RoomComponent
 		{
 		private static final long serialVersionUID = 1L;
-		private final Instance instance;
+		protected final Instance instance;
 		private final GmObject object;
 		private Sprite sprite;
 
@@ -656,10 +653,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 		public int getDepth()
 			{
 			GmObject o = instance.gmObjectId.get();
-			if (o == null)
-				return 0;
-			else
-				return o.depth;
+			return o == null ? 0 : o.depth;
 			}
 
 		public int getId()
@@ -671,7 +665,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 	public class TileComponent extends RoomComponent
 		{
 		private static final long serialVersionUID = 1L;
-		private final Tile tile;
+		protected final Tile tile;
 		private Background background;
 
 		WeakReference<Background> bg = null;

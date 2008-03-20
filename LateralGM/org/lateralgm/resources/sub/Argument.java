@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
@@ -107,19 +107,15 @@ public class Argument
 					}
 				return val;
 			default:
-				if (rk <= 0)
-					return val;
-				else
+				if (rk <= 0) return val;
+				try
 					{
-					try
-						{
-						return res.get().getName();
-						}
-					catch (NullPointerException e)
-						{
-						}
-					return "<none>";
+					return res.get().getName();
 					}
+				catch (NullPointerException e)
+					{
+					}
+				return "<none>";
 			}
 		}
 	}

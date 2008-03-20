@@ -232,6 +232,11 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		{
 		private static final long serialVersionUID = 1L;
 
+		public EventNodeTransferHandler()
+			{
+			super();
+			}
+
 		protected Transferable createTransferable(JComponent c)
 			{
 			EventNode n = (EventNode) ((JTree) c).getLastSelectedPathComponent();
@@ -252,6 +257,11 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 
 	private class MListener extends MouseAdapter
 		{
+		public MListener()
+			{
+			super();
+			}
+
 		public void mouseClicked(MouseEvent e)
 			{
 			if (e.getSource() != events) return;

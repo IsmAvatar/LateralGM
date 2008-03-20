@@ -23,10 +23,7 @@ public class Constant implements Comparable<Constant>
 
 	public boolean equals(Object c)
 		{
-		if (c instanceof Constant)
-			return ((Constant) c).name.equals(name);
-		else
-			return false;
+		return (c instanceof Constant) ? ((Constant) c).name.equals(name) : false;
 		}
 
 	public int compareTo(Constant c)

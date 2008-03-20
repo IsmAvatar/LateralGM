@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -156,19 +157,15 @@ public class Event extends ActionContainer implements Comparable<Event>
 
 	public int compareTo(Event e)
 		{
-		if (e.mainId != mainId)
-			return e.mainId > mainId ? -1 : 1;
-		else
-			return e.id > id ? -1 : e.id == id ? 0 : 1;
+		if (e.mainId != mainId) return e.mainId > mainId ? -1 : 1;
+		return e.id > id ? -1 : e.id == id ? 0 : 1;
 		}
 
 	public boolean matchesType(Event e)
 		{
 		if (e.mainId != mainId) return false;
-		if (mainId != MainEvent.EV_COLLISION)
-			return e.id == id;
-		else
-			return e.other == other;
+		if (mainId != MainEvent.EV_COLLISION) return e.id == id;
+		return e.other == other;
 		}
 
 	public static String getGmKeyName(int keyCode)
@@ -241,8 +238,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 			case MainEvent.EV_OTHER:
 				if (eventId >= EV_USER0)
 					return Messages.format("Event.EVENT" + mainId + "_X",eventId - EV_USER0); //$NON-NLS-1$
-				else
-					return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
+				return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
 			default:
 				return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
 			}

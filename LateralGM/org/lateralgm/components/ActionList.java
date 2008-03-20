@@ -60,7 +60,7 @@ public class ActionList extends JList
 	private static final Hashtable<Action,MDIFrame> FRAMES = new Hashtable<Action,MDIFrame>();
 	private static final ActionListMouseListener ALML = new ActionListMouseListener();
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
-	private ActionContainer actionContainer;
+	protected ActionContainer actionContainer;
 	private ActionListModel model;
 
 	public ActionList()
@@ -132,6 +132,11 @@ public class ActionList extends JList
 
 	private static class ActionListMouseListener extends MouseAdapter
 		{
+		public ActionListMouseListener()
+			{
+			super();
+			}
+
 		public void mouseClicked(MouseEvent e)
 			{
 			if (e.getClickCount() != 2) return;
@@ -144,6 +149,11 @@ public class ActionList extends JList
 
 	private static class ActionListKeyListener extends KeyAdapter
 		{
+		public ActionListKeyListener()
+			{
+			super();
+			}
+
 		@Override
 		public void keyPressed(KeyEvent e)
 			{
@@ -164,8 +174,8 @@ public class ActionList extends JList
 	public static class ActionListModel extends AbstractListModel
 		{
 		private static final long serialVersionUID = 1L;
-		private ArrayList<Action> list;
-		private ArrayList<Integer> indents;
+		protected ArrayList<Action> list;
+		protected ArrayList<Integer> indents;
 
 		public ActionListModel()
 			{
@@ -511,6 +521,11 @@ public class ActionList extends JList
 
 	private static class ActionRenderer implements ListCellRenderer
 		{
+		public ActionRenderer()
+			{
+			super();
+			}
+
 		public String parse(String s, Action a)
 			{
 			String escape = "FrNw01234567"; //$NON-NLS-1$

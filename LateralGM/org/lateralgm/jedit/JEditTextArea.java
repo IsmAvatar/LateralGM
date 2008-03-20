@@ -15,6 +15,7 @@
  *     permitted, in both source and binary form, provided that this notice
  *     remains intact in all source distributions of this package.
  */
+
 package org.lateralgm.jedit;
 
 import java.awt.AWTEvent;
@@ -545,48 +546,42 @@ public class JEditTextArea extends JComponent
 			}
 		/* If syntax coloring is enabled, we have to do this because
 		 * tokens can vary in width */
+		Token tokens;
+		if (painter.currentLineIndex == line && painter.currentLineTokens != null)
+			tokens = painter.currentLineTokens;
 		else
 			{
-			Token tokens;
-			if (painter.currentLineIndex == line && painter.currentLineTokens != null)
-				tokens = painter.currentLineTokens;
+			painter.currentLineIndex = line;
+			tokens = painter.currentLineTokens = tokenMarker.markTokens(lineSegment,line);
+			}
+
+		Font defaultFont = painter.getFont();
+		SyntaxStyle[] styles = painter.getStyles();
+
+		for (;;)
+			{
+			byte id = tokens.id;
+			if (id == Token.END)
+				{
+				return x;
+				}
+
+			if (id == Token.NULL)
+				fm = painter.getFontMetrics();
 			else
+				fm = styles[id].getFontMetrics(defaultFont);
+
+			int length = tokens.length;
+
+			if (offset + segmentOffset < lineSegment.offset + length)
 				{
-				painter.currentLineIndex = line;
-				tokens = painter.currentLineTokens = tokenMarker.markTokens(lineSegment,line);
+				lineSegment.count = offset - (lineSegment.offset - segmentOffset);
+				return x + Utilities.getTabbedTextWidth(lineSegment,fm,x,painter,0);
 				}
-
-			Font defaultFont = painter.getFont();
-			SyntaxStyle[] styles = painter.getStyles();
-
-			for (;;)
-				{
-				byte id = tokens.id;
-				if (id == Token.END)
-					{
-					return x;
-					}
-
-				if (id == Token.NULL)
-					fm = painter.getFontMetrics();
-				else
-					fm = styles[id].getFontMetrics(defaultFont);
-
-				int length = tokens.length;
-
-				if (offset + segmentOffset < lineSegment.offset + length)
-					{
-					lineSegment.count = offset - (lineSegment.offset - segmentOffset);
-					return x + Utilities.getTabbedTextWidth(lineSegment,fm,x,painter,0);
-					}
-				else
-					{
-					lineSegment.count = length;
-					x += Utilities.getTabbedTextWidth(lineSegment,fm,x,painter,0);
-					lineSegment.offset += length;
-					}
-				tokens = tokens.next;
-				}
+			lineSegment.count = length;
+			x += Utilities.getTabbedTextWidth(lineSegment,fm,x,painter,0);
+			lineSegment.offset += length;
+			tokens = tokens.next;
 			}
 		}
 
@@ -635,57 +630,54 @@ public class JEditTextArea extends JComponent
 
 			return segmentCount;
 			}
+		Token tokens;
+		if (painter.currentLineIndex == line && painter.currentLineTokens != null)
+			tokens = painter.currentLineTokens;
 		else
 			{
-			Token tokens;
-			if (painter.currentLineIndex == line && painter.currentLineTokens != null)
-				tokens = painter.currentLineTokens;
+			painter.currentLineIndex = line;
+			tokens = painter.currentLineTokens = tokenMarker.markTokens(lineSegment,line);
+			}
+
+		int offset = 0;
+		Font defaultFont = painter.getFont();
+		SyntaxStyle[] styles = painter.getStyles();
+
+		for (;;)
+			{
+			byte id = tokens.id;
+			if (id == Token.END) return offset;
+
+			if (id == Token.NULL)
+				fm = painter.getFontMetrics();
 			else
+				fm = styles[id].getFontMetrics(defaultFont);
+
+			int length = tokens.length;
+
+			for (int i = 0; i < length; i++)
 				{
-				painter.currentLineIndex = line;
-				tokens = painter.currentLineTokens = tokenMarker.markTokens(lineSegment,line);
-				}
-
-			int offset = 0;
-			Font defaultFont = painter.getFont();
-			SyntaxStyle[] styles = painter.getStyles();
-
-			for (;;)
-				{
-				byte id = tokens.id;
-				if (id == Token.END) return offset;
-
-				if (id == Token.NULL)
-					fm = painter.getFontMetrics();
+				char c = segmentArray[segmentOffset + offset + i];
+				int charWidth;
+				if (c == '\t')
+					charWidth = (int) painter.nextTabStop(width,offset + i) - width;
 				else
-					fm = styles[id].getFontMetrics(defaultFont);
+					charWidth = fm.charWidth(c);
 
-				int length = tokens.length;
-
-				for (int i = 0; i < length; i++)
+				if (painter.isBlockCaretEnabled())
 					{
-					char c = segmentArray[segmentOffset + offset + i];
-					int charWidth;
-					if (c == '\t')
-						charWidth = (int) painter.nextTabStop(width,offset + i) - width;
-					else
-						charWidth = fm.charWidth(c);
-
-					if (painter.isBlockCaretEnabled())
-						{
-						if (x - charWidth <= width) return offset + i;
-						}
-					else
-						{
-						if (x - charWidth / 2 <= width) return offset + i;
-						}
-
-					width += charWidth;
+					if (x - charWidth <= width) return offset + i;
+					}
+				else
+					{
+					if (x - charWidth / 2 <= width) return offset + i;
 					}
 
-				offset += length;
-				tokens = tokens.next;
+				width += charWidth;
 				}
+
+			offset += length;
+			tokens = tokens.next;
 			}
 		}
 
@@ -780,10 +772,8 @@ public class JEditTextArea extends JComponent
 	public int getLineStartOffset(int line)
 		{
 		Element lineElement = document.getDefaultRootElement().getElement(line);
-		if (lineElement == null)
-			return -1;
-		else
-			return lineElement.getStartOffset();
+		if (lineElement == null) return -1;
+		return lineElement.getStartOffset();
 		}
 
 	/**
@@ -795,10 +785,8 @@ public class JEditTextArea extends JComponent
 	public int getLineEndOffset(int line)
 		{
 		Element lineElement = document.getDefaultRootElement().getElement(line);
-		if (lineElement == null)
-			return -1;
-		else
-			return lineElement.getEndOffset();
+		if (lineElement == null) return -1;
+		return lineElement.getEndOffset();
 		}
 
 	/**
@@ -808,10 +796,8 @@ public class JEditTextArea extends JComponent
 	public int getLineLength(int line)
 		{
 		Element lineElement = document.getDefaultRootElement().getElement(line);
-		if (lineElement == null)
-			return -1;
-		else
-			return lineElement.getEndOffset() - lineElement.getStartOffset() - 1;
+		if (lineElement == null) return -1;
+		return lineElement.getEndOffset() - lineElement.getStartOffset() - 1;
 		}
 
 	/**
@@ -1191,10 +1177,7 @@ public class JEditTextArea extends JComponent
 
 			return buf.toString();
 			}
-		else
-			{
-			return getText(selectionStart,selectionEnd - selectionStart);
-			}
+		return getText(selectionStart,selectionEnd - selectionStart);
 		}
 
 	/**
@@ -1560,7 +1543,7 @@ public class JEditTextArea extends JComponent
 	protected static JEditTextArea focusedComponent;
 	protected static Timer caretTimer;
 
-	protected TextAreaPainter painter;
+	public TextAreaPainter painter;
 
 	protected JPopupMenu popup;
 
@@ -2032,16 +2015,7 @@ public class JEditTextArea extends JComponent
 					doSingleClick(evt,line,offset,dot);
 					break;
 				case 2:
-					// It uses the bracket matching stuff, so
-					// it can throw a BLE
-					try
-						{
-						doDoubleClick(evt,line,offset,dot);
-						}
-					catch (BadLocationException bl)
-						{
-						bl.printStackTrace();
-						}
+					doDoubleClick(evt,line,offset,dot);
 					break;
 				case 3:
 					doTripleClick(evt,line,offset,dot);
@@ -2061,7 +2035,6 @@ public class JEditTextArea extends JComponent
 			}
 
 		private void doDoubleClick(MouseEvent evt, int line, int offset, int dot)
-				throws BadLocationException
 			{
 			// Ignore empty lines
 			if (getLineLength(line) == 0) return;
@@ -2188,8 +2161,7 @@ public class JEditTextArea extends JComponent
 
 				return true;
 				}
-			else
-				return false;
+			return false;
 			}
 		}
 

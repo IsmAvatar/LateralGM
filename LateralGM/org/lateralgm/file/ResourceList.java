@@ -18,14 +18,12 @@ import javax.swing.event.EventListenerList;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 
-public class ResourceList<R extends Resource<R>> extends ArrayList<R>
+public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements ChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 
 	private Class<R> type; // used as a workaround for add()
 	private GmFile parent; // used for rooms
-
-	private final ResourceChangeListener rcl = new ResourceChangeListener();
 
 	EventListenerList listenerList = new EventListenerList();
 	ChangeEvent changeEvent = null;
@@ -41,7 +39,7 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 	public boolean add(R res)
 		{
 		super.add(res);
-		res.addChangeListener(rcl);
+		res.addChangeListener(this);
 		fireStateChanged();
 		res.setId(++lastId);
 		return true;
@@ -96,7 +94,7 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 		{
 		R res = get(index);
 		super.remove(index);
-		res.removeChangeListener(rcl);
+		res.removeChangeListener(this);
 		fireStateChanged();
 		return res;
 		}
@@ -106,7 +104,7 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 		if (size() == 0) return;
 		for (R r : this)
 			{
-			r.removeChangeListener(rcl);
+			r.removeChangeListener(this);
 			}
 		super.clear();
 		fireStateChanged();
@@ -164,12 +162,9 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 		fireStateChanged(changeEvent);
 		}
 
-	private class ResourceChangeListener implements ChangeListener
+	public void stateChanged(ChangeEvent e)
 		{
-		public void stateChanged(ChangeEvent e)
-			{
-			fireStateChanged(e);
-			}
+		fireStateChanged(e);
 		}
 
 	/**
@@ -181,8 +176,8 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R>
 	public R set(int index, R res)
 		{
 		R old = super.set(index,res);
-		old.removeChangeListener(rcl);
-		res.addChangeListener(rcl);
+		old.removeChangeListener(this);
+		res.addChangeListener(this);
 		fireStateChanged();
 		return old;
 		}

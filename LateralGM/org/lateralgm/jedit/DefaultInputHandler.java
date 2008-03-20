@@ -133,13 +133,9 @@ public class DefaultInputHandler extends InputHandler
 
 			KeyStroke keyStroke = KeyStroke.getKeyStroke(keyCode,modifiers);
 			ActionListener o = bindings.get(keyStroke);
-			if (o == null)
-				return;
-			else
-				{
-				executeAction(o,evt.getSource(),null);
-				evt.consume();
-				}
+			if (o == null) return;
+			executeAction(o,evt.getSource(),null);
+			evt.consume();
 			}
 		}
 
@@ -221,10 +217,8 @@ public class DefaultInputHandler extends InputHandler
 		if (key.length() == 1)
 			{
 			char ch = Character.toUpperCase(key.charAt(0));
-			if (modifiers == 0)
-				return KeyStroke.getKeyStroke(ch);
-			else
-				return KeyStroke.getKeyStroke(ch,modifiers);
+			if (modifiers == 0) return KeyStroke.getKeyStroke(ch);
+			return KeyStroke.getKeyStroke(ch,modifiers);
 			}
 		else if (key.length() == 0)
 			{

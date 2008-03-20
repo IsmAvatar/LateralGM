@@ -124,6 +124,11 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 		{
 		private static final long serialVersionUID = 1L;
 
+		public GroupEdit()
+			{
+			super();
+			}
+
 		@Override
 		public boolean canUndo()
 			{
@@ -197,6 +202,11 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 		{
 		private static final long serialVersionUID = 1L;
 		protected boolean significant = false;
+
+		public MarkerEdit()
+			{
+			super();
+			}
 
 		@Override
 		public boolean isSignificant()

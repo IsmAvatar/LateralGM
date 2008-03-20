@@ -129,18 +129,12 @@ public abstract class ReflectionComparator
 			registerTraversedInstancePair(left,right,traversedInstancePairs);
 			return doGetDifference(left,right,fieldStack,traversedInstancePairs);
 			}
-		else
+		if (chainedComparator == null)
 			{
-			if (chainedComparator == null)
-				{
-				throw new RuntimeException("No ReflectionComparator found for objects " + left + " and"
-						+ right + " at " + fieldStack.toString());
-				}
-			else
-				{
-				return chainedComparator.getDifference(left,right,fieldStack,traversedInstancePairs);
-				}
+			throw new RuntimeException("No ReflectionComparator found for objects " + left + " and"
+					+ right + " at " + fieldStack.toString());
 			}
+		return chainedComparator.getDifference(left,right,fieldStack,traversedInstancePairs);
 		}
 
 	/**
@@ -211,10 +205,7 @@ public abstract class ReflectionComparator
 			{
 			return false;
 			}
-		else
-			{
-			return traversedInstancePairs.contains(new TraversedInstancePair(left,right));
-			}
+		return traversedInstancePairs.contains(new TraversedInstancePair(left,right));
 		}
 
 	/**

@@ -241,12 +241,10 @@ public class SoundFrame extends ResourceFrame<Sound>
 			while (true)
 				{
 				if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
-				if (fc.getSelectedFile().exists())
-					break;
-				else
-					JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
-							+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
-							Messages.getString("SoundFrame.FILE_OPEN"),JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$
+				if (fc.getSelectedFile().exists()) break;
+				JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
+						+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
+						Messages.getString("SoundFrame.FILE_OPEN"),JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$
 				}
 			try
 				{

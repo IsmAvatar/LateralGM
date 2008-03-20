@@ -29,16 +29,16 @@ import javax.swing.text.BadLocationException;
 public class CompletionMenu extends JWindow
 	{
 	private static final long serialVersionUID = 1L;
-	private JEditTextArea area;
+	protected JEditTextArea area;
 	private JScrollPane scroll;
 	private final Completion[] completions;
 	private Completion[] options;
 	private String word;
 	private JList completionList;
 	private KeyHandler keyHandler;
-	private int wordOffset;
-	private int wordPos;
-	private int wordLength;
+	protected int wordOffset;
+	protected int wordPos;
+	protected int wordLength;
 
 	public CompletionMenu(Frame f, JEditTextArea a, int offset, int pos, int length, Completion[] c)
 		{
@@ -52,12 +52,33 @@ public class CompletionMenu extends JWindow
 		completionList = new JList();
 		completionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		completionList.addKeyListener(keyHandler);
-		completionList.addMouseListener(new MouseHandler());
+		completionList.addMouseListener(new MouseAdapter()
+			{
+				public void mouseClicked(MouseEvent e)
+					{
+					if (apply())
+						e.consume();
+					else
+						dispose();
+					}
+			});
 		scroll = new JScrollPane(completionList);
 		scroll.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		add(scroll);
 		getContentPane().setFocusTraversalKeysEnabled(false);
-		addWindowFocusListener(new WindowFocusHandler());
+		addWindowFocusListener(new WindowFocusListener()
+			{
+
+				public void windowGainedFocus(WindowEvent e)
+					{
+					area.setCaretVisible(true);
+					}
+
+				public void windowLostFocus(WindowEvent e)
+					{
+					dispose();
+					}
+			});
 		reset();
 		}
 
@@ -228,32 +249,13 @@ public class CompletionMenu extends JWindow
 			}
 		}
 
-	private class WindowFocusHandler implements WindowFocusListener
-		{
-		public void windowGainedFocus(WindowEvent e)
-			{
-			area.setCaretVisible(true);
-			}
-
-		public void windowLostFocus(WindowEvent e)
-			{
-			dispose();
-			}
-		}
-
-	private class MouseHandler extends MouseAdapter
-		{
-		public void mouseClicked(MouseEvent e)
-			{
-			if (apply())
-				e.consume();
-			else
-				dispose();
-			}
-		}
-
 	private class KeyHandler extends KeyAdapter
 		{
+		public KeyHandler()
+			{
+			super();
+			}
+
 		public void keyPressed(KeyEvent e)
 			{
 			switch (e.getKeyCode())

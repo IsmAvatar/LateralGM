@@ -43,7 +43,7 @@ import org.lateralgm.main.PrefsStore;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
-public class GMLTextArea extends JEditTextArea
+public class GMLTextArea extends JEditTextArea implements ChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -53,12 +53,11 @@ public class GMLTextArea extends JEditTextArea
 			GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
 
 	private final GMLTokenMarker gmlTokenMarker = new GMLTokenMarker();
-	public final ResourceChangeListener rcl = new ResourceChangeListener();
 	private final DocumentUndoManager undoManager = new DocumentUndoManager();
-	private static Timer timer;
-	private Integer lastUpdateTaskID = 0;
+	protected static Timer timer;
+	protected Integer lastUpdateTaskID = 0;
 	private String[][] resourceKeywords = new String[KM_RESOURCES.length][];
-	private Completion[] completions;
+	protected Completion[] completions;
 
 	public GMLTextArea(String text)
 		{
@@ -78,7 +77,7 @@ public class GMLTextArea extends JEditTextArea
 		text = text.replace("\r\n","\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		setText(text);
 		setCaretPosition(0);
-		LGM.currentFile.addChangeListener(rcl);
+		LGM.currentFile.addChangeListener(this);
 		addCaretListener(undoManager);
 		document.addUndoableEditListener(undoManager);
 		inputHandler.addKeyBinding("C+Z",undoManager.getUndoAction()); //$NON-NLS-1$
@@ -162,7 +161,7 @@ public class GMLTextArea extends JEditTextArea
 		gmlTokenMarker.setCustomKeywords(km);
 		}
 
-	private void updateCompletions()
+	protected void updateCompletions()
 		{
 		int l = 0;
 		for (String[] a : resourceKeywords)
@@ -314,6 +313,11 @@ public class GMLTextArea extends JEditTextArea
 
 	private class CompletionAction implements ActionListener
 		{
+		public CompletionAction()
+			{
+			super();
+			}
+
 		private String find(String input, String regex)
 			{
 			Pattern p = Pattern.compile(regex);
@@ -335,13 +339,10 @@ public class GMLTextArea extends JEditTextArea
 			}
 		}
 
-	private class ResourceChangeListener implements ChangeListener
+	public void stateChanged(ChangeEvent e)
 		{
-		public void stateChanged(ChangeEvent e)
-			{
-			if (timer == null) timer = new Timer();
-			timer.schedule(new UpdateTask(),500);
-			}
+		if (timer == null) timer = new Timer();
+		timer.schedule(new UpdateTask(),500);
 		}
 
 	private class UpdateTask extends TimerTask

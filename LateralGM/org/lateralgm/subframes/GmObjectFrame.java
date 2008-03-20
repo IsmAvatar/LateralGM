@@ -287,14 +287,18 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				Event ev = node.getUserObject();
 				return Messages.format("MainEvent.EVENT_HINT" + ev.mainId,ev.toString()); //$NON-NLS-1$
 				}
-			else
-				return Messages.format("MainEvent.EVENTS",c.toString()); //$NON-NLS-1$
+			return Messages.format("MainEvent.EVENTS",c.toString()); //$NON-NLS-1$
 			}
 		}
 
 	private class EventNodeTransferHandler extends TransferHandler
 		{
 		private static final long serialVersionUID = 1L;
+
+		public EventNodeTransferHandler()
+			{
+			super();
+			}
 
 		protected Transferable createTransferable(JComponent c)
 			{

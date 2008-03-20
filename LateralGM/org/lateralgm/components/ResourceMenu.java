@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
@@ -51,15 +51,15 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	private static final long serialVersionUID = 1L;
 	private JLabel label;
 	private JButton button;
-	private WeakReference<R> selected;
-	private JPopupMenu pm;
-	private JMenuItem noResource;
-	private boolean onlyOpen;
+	protected WeakReference<R> selected;
+	protected JPopupMenu pm;
+	protected JMenuItem noResource;
+	protected boolean onlyOpen;
 	private ActionEvent actionEvent;
-	private byte kind;
+	protected byte kind;
 	private MListener mListener = new MListener();
 	private final RMUpdatable updatable = new RMUpdatable();
-	private static final ImageIcon GROUP_ICO = LGM.getIconForKey("GmTreeGraphics.GROUP"); //$NON-NLS-1$;
+	protected static final ImageIcon GROUP_ICO = LGM.getIconForKey("GmTreeGraphics.GROUP"); //$NON-NLS-1$;
 
 	public static interface Updatable
 		{
@@ -132,7 +132,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		{
 		private static ReferenceQueue<Updatable> refQueue;
 		private static Cleaner cleaner;
-		private WeakReference<Updatable> updatable;
+		protected WeakReference<Updatable> updatable;
 		private WeakReference<ResNode> node;
 		private boolean onlyNull;
 
@@ -169,8 +169,8 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 
 		private static class Cleaner
 			{
-			private ReferenceQueue<Updatable> rq;
-			private Hashtable<WeakReference<Updatable>,NodeListener> listeners;
+			protected ReferenceQueue<Updatable> rq;
+			protected Hashtable<WeakReference<Updatable>,NodeListener> listeners;
 			private Timer timer;
 			private CleanerTask task;
 
@@ -196,6 +196,11 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 
 			private class CleanerTask extends TimerTask
 				{
+				public CleanerTask()
+					{
+					super();
+					}
+
 				public void run()
 					{
 					Reference<? extends Updatable> r;
@@ -277,7 +282,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		this(kind,def,true,width,false);
 		}
 
-	private void populate(byte kind)
+	protected void populate(byte kind)
 		{
 		if (Prefs.groupKind)
 			{
@@ -385,6 +390,11 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 
 	private class MListener extends MouseAdapter
 		{
+		public MListener()
+			{
+			super();
+			}
+
 		public void mouseClicked(MouseEvent e)
 			{
 			if (!isEnabled()) return;
@@ -395,6 +405,11 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 
 	private class RMUpdatable implements Updatable
 		{
+		public RMUpdatable()
+			{
+			super();
+			}
+
 		public void update()
 			{
 			pm.removeAll();

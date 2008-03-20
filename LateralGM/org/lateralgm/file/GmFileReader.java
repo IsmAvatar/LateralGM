@@ -802,8 +802,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readGameInformation(Gm6FileContext c, int ver) throws IOException,
-			GmFormatException
+	private static void readGameInformation(Gm6FileContext c, int ver) throws IOException
 		{
 		GmStreamDecoder in = c.in;
 		GameInformation gameInfo = c.f.gameInfo;

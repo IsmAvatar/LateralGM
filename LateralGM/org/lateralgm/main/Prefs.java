@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
@@ -12,8 +12,12 @@ package org.lateralgm.main;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 
-public class Prefs
+public final class Prefs
 	{
+	private Prefs()
+		{
+		}
+
 	public static boolean renamableRoots = false;
 	public static boolean groupKind = true;
 	public static boolean iconizeGroup = false;

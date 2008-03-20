@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
@@ -485,10 +485,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		public Object getValueAt(int rowIndex, int columnIndex)
 			{
 			Constant c = constants.get(rowIndex);
-			if (columnIndex == 0)
-				return c.name;
-			else
-				return c.value;
+			return (columnIndex == 0) ? c.name : c.value;
 			}
 
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex)
@@ -507,10 +504,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		public String getColumnName(int column)
 			{
-			if (column == 0)
-				return Messages.getString("GameSettingFrame.NAME"); //$NON-NLS-1$
-			else
-				return Messages.getString("GameSettingFrame.VALUE"); //$NON-NLS-1$
+			String ind = (column == 0) ? "NAME" : "VALUE"; //$NON-NLS-1$ //$NON-NLS-2$
+			return Messages.getString("GameSettingFrame." + ind); //$NON-NLS-1$
 			}
 
 		public void removeEmptyConstants()

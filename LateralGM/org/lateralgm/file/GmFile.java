@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2006, 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2006, 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM.
@@ -57,7 +57,7 @@ import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 
-public class GmFile
+public class GmFile implements ChangeListener
 	{
 	private Map<Byte,ResourceList<?>> resMap = new HashMap<Byte,ResourceList<?>>();
 	public ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class,this);
@@ -72,10 +72,7 @@ public class GmFile
 
 	public String filename = null;
 
-	private final ResourceChangeListener rcl = new ResourceChangeListener();
-
 	private EventListenerList listenerList = new EventListenerList();
-	private ChangeEvent changeEvent = null;
 
 	public GmFile()
 		{
@@ -90,7 +87,7 @@ public class GmFile
 		resMap.put(Resource.ROOM,rooms);
 		for (ResourceList<?> rl : resMap.values())
 			{
-			rl.addChangeListener(rcl);
+			rl.addChangeListener(this);
 			}
 		gameSettings.gameId = new Random().nextInt(100000001);
 		gameSettings.gameIconData = new byte[0];
@@ -183,7 +180,7 @@ public class GmFile
 		listenerList.remove(ChangeListener.class,l);
 		}
 
-	protected void fireStateChanged(ChangeEvent e)
+	public void stateChanged(ChangeEvent e)
 		{
 		// Guaranteed to return a non-null array
 		Object[] listeners = listenerList.getListenerList();
@@ -195,21 +192,6 @@ public class GmFile
 				{
 				((ChangeListener) listeners[i + 1]).stateChanged(e);
 				}
-			}
-		}
-
-	protected void fireStateChanged()
-		{
-		// Lazily create the event:
-		if (changeEvent == null) changeEvent = new ChangeEvent(this);
-		fireStateChanged(changeEvent);
-		}
-
-	private class ResourceChangeListener implements ChangeListener
-		{
-		public void stateChanged(ChangeEvent e)
-			{
-			fireStateChanged(e);
 			}
 		}
 	}
