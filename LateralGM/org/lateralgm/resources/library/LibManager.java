@@ -80,23 +80,36 @@ public final class LibManager
 			if (userdir.exists()) files.addAll(Arrays.asList(userdir.listFiles(filter)));
 			}
 
+		ArrayList<String> exceptions = new ArrayList<String>();
+		if (files.size() > 0)
+			System.out.println(Messages.format("LibManager.LOADINGN",Prefs.defaultLibraryPath)); //$NON-NLS-1$
+		String buffer = ""; //$NON-NLS-1$
 		Collections.sort(files); // listFiles does not guarantee a particular order
 		for (File f : files)
 			{
-			System.out.println(Messages.format("LibManager.LOADING",f.getPath())); //$NON-NLS-1$
 			try
 				{
 				loadFile(f.getPath());
+				//print out filename
+				if ((buffer + f.getName()).length() > 60)
+					{
+					System.out.println(buffer);
+					buffer = ""; //$NON-NLS-1$
+					}
+				buffer += f.getName() + " "; //$NON-NLS-1$
 				}
 			catch (LibFormatException ex)
 				{
-				System.out.println(ex.getMessage());
+				exceptions.add(f.getName() + ": " + ex.getMessage()); //$NON-NLS-1$
 				}
 			}
+		System.out.println(buffer);
+		for (String s : exceptions)
+			System.out.println(s);
 
 		for (URL url : deflibs)
 			{
-			System.out.println(Messages.format("LibManager.LOADING",url.getFile())); //$NON-NLS-1$
+			System.out.println(Messages.format("LibManager.LOADING1",url.getFile())); //$NON-NLS-1$
 			try
 				{
 				loadFile(new GmStreamDecoder(url.openStream()),url.getFile());

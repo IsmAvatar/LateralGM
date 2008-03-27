@@ -82,11 +82,11 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("GmMenuBar.SAVE",KeyEvent.VK_S,ActionEvent.CTRL_MASK); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SAVEAS"); //$NON-NLS-1$
 		menu.add(new JSeparator());
-		JCheckBoxMenuItem check = new JCheckBoxMenuItem(); 
-		setTextAndAlt(check,Messages.getString("GmMenuBar.ADVANCED")); //$NON-NLS-1$
-		menu.add(check);
-		menu.addItem("GmMenuBar.PREFERENCES"); //$NON-NLS-1$
-		menu.add(new JSeparator());
+		// JCheckBoxMenuItem check = new JCheckBoxMenuItem();
+		// setTextAndAlt(check,Messages.getString("GmMenuBar.ADVANCED")); //$NON-NLS-1$
+		// menu.add(check);
+		// menu.addItem("GmMenuBar.PREFERENCES"); //$NON-NLS-1$
+		// menu.add(new JSeparator());
 		recentFilesPos = menu.getMenuComponentCount();
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.EXIT",KeyEvent.VK_F4,ActionEvent.ALT_MASK); //$NON-NLS-1$
