@@ -22,9 +22,9 @@
 
 package org.lateralgm.compare;
 
-import java.util.Stack;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * @author Filip Neven

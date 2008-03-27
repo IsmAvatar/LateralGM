@@ -53,8 +53,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 
 import org.lateralgm.components.ColorSelect;
-import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.CustomFileChooser;
+import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.mdi.MDIFrame;
