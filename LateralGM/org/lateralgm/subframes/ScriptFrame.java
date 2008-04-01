@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2006 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * 
@@ -11,43 +11,69 @@
 
 package org.lateralgm.subframes;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Script;
 
-public class ScriptFrame extends ResourceFrame<Script>
+public class ScriptFrame extends ResourceFrame<Script> implements ActionListener,ChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 	public GMLTextArea code;
+	public JButton edit;
+	public File extFile;
 
 	public ScriptFrame(Script res, ResNode node)
 		{
 		super(res,node);
 		setSize(600,400);
-		// the code text area
-		code = new GMLTextArea(res.scriptStr);
+
 		// Setup the toolbar
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 		add("North",tool); //$NON-NLS-1$
-		// Setup the buttons
+
 		tool.add(save);
 		tool.addSeparator();
-		code.addEditorButtons(tool);
+
+		code = new GMLTextArea(res.scriptStr);
+		getContentPane().add(code);
+
+		if (!Prefs.useExternalScriptEditor)
+			code.addEditorButtons(tool);
+		else
+			{
+			code.setEditable(false);
+			edit = new JButton(Messages.getString("ScriptFrame.EDIT")); //$NON-NLS-1$
+			edit.addActionListener(this);
+			tool.add(edit);
+			}
+
 		tool.addSeparator();
-		tool.add(new JLabel(Messages.getString("ScriptFrame.NAME"))); //$NON-NLS-1$
 		name.setColumns(13);
 		name.setMaximumSize(name.getPreferredSize());
+		tool.add(new JLabel(Messages.getString("ScriptFrame.NAME"))); //$NON-NLS-1$
 		tool.add(name);
-		getContentPane().add(code);
+
 		// TODO: Prevent tree stealing focus straight away
 		// when double clicking to open (the 2nd release is what does it)
 		SwingUtilities.invokeLater(new Runnable()
@@ -72,7 +98,9 @@ public class ScriptFrame extends ResourceFrame<Script>
 
 	public boolean resourceChanged()
 		{
-		return code.getUndoManager().isModified() || !resOriginal.getName().equals(name.getText());
+		return (Prefs.useExternalScriptEditor ? !res.scriptStr.equals(resOriginal.scriptStr)
+				: code.getUndoManager().isModified())
+				|| !resOriginal.getName().equals(name.getText());
 		//return !code.getTextCompat().equals(resOriginal.scriptStr)
 		//		|| !resOriginal.getName().equals(name.getText());
 		}
@@ -91,5 +119,85 @@ public class ScriptFrame extends ResourceFrame<Script>
 				break;
 			}
 		super.fireInternalFrameEvent(id);
+		}
+
+	public void actionPerformed(ActionEvent e)
+		{
+		if (e.getSource() == edit)
+			{
+			if (Prefs.useExternalScriptEditor)
+				{
+				try
+					{
+					if (extFile == null)
+						{
+						extFile = new File(LGM.tempDir + File.separator + "scr" + res.hashCode() + ".gml"); //$NON-NLS-1$ //$NON-NLS-2$
+						FileWriter out = new FileWriter(extFile);
+						out.write(res.scriptStr);
+						out.close();
+						FileChangeMonitor fcm = new FileChangeMonitor(extFile);
+						fcm.addChangeListener(this);
+						fcm.start();
+						}
+					Runtime.getRuntime().exec(
+							String.format(Prefs.externalScriptEditorCommand,extFile.getAbsolutePath()));
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					}
+				}
+			return;
+			}
+		super.actionPerformed(e);
+		}
+
+	public void stateChanged(ChangeEvent e)
+		{
+		if (e.getSource() instanceof FileChangeMonitor)
+			{
+			int flag = ((FileChangeMonitor) e.getSource()).getFlag();
+			if (flag == FileChangeMonitor.FLAG_CHANGED)
+				{
+				try
+					{
+					StringBuffer sb = new StringBuffer(1024);
+					BufferedReader reader = new BufferedReader(new FileReader(extFile));
+					char[] chars = new char[1024];
+					int len = 0;
+					while ((len = reader.read(chars)) > -1)
+						sb.append(String.valueOf(chars,0,len));
+					reader.close();
+					res.scriptStr = sb.toString();
+					SwingUtilities.invokeLater(new Runnable()
+						{
+							public void run()
+								{
+								code.setText(res.scriptStr);
+								}
+						});
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					}
+				}
+			else if (flag == FileChangeMonitor.FLAG_DELETED)
+				{
+				extFile = null;
+				}
+			}
+		}
+
+	public void dispose()
+		{
+		try
+			{
+			extFile.delete();
+			}
+		catch (Exception e)
+			{
+			}
+		super.dispose();
 		}
 	}

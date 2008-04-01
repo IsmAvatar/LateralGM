@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
  * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -30,4 +30,9 @@ public final class Prefs
 			"05_score","06_extra","07_draw" };
 	public static String userLibraryPath = null;
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
+
+	public static boolean useExternalBackgroundEditor = true;
+	public static String externalBackgroundEditorCommand = "gimp %s";
+	public static boolean useExternalScriptEditor = false;
+	public static String externalScriptEditorCommand = "gedit %s";
 	}

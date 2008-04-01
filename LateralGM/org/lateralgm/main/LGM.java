@@ -25,6 +25,7 @@ package org.lateralgm.main;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -85,6 +86,7 @@ public final class LGM
 	public static GameInformationFrame gameInfo;
 	public static GameSettingFrame gameSet;
 	public static EventFrame eventSelect;
+	public static File tempDir;
 
 	private LGM()
 		{
@@ -251,6 +253,14 @@ public final class LGM
 		UIManager.put("swing.boldMetal",Boolean.FALSE);
 		gameInfo = new GameInformationFrame();
 		gameSet = new GameSettingFrame();
+
+		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm");
+		if (!tempDir.exists())
+			tempDir.mkdir();
+		else
+			for (File f : tempDir.listFiles())
+				if (f.isFile()) f.delete();
+
 		}
 
 	public static void main(String[] args)

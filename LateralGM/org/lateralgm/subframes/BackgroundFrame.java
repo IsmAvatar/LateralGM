@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of Lateral GM. Lateral GM is free
@@ -15,9 +15,15 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -28,18 +34,23 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.BackgroundPreview;
+import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 
-public class BackgroundFrame extends ResourceFrame<Background>
+public class BackgroundFrame extends ResourceFrame<Background> implements ChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("BackgroundFrame.LOAD"); //$NON-NLS-1$
@@ -61,6 +72,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 	public IntegerField vSep;
 	public BackgroundPreview preview;
 	public boolean imageChanged = false;
+	public File extFile;
 
 	public BackgroundFrame(Background res, ResNode node)
 		{
@@ -310,13 +322,34 @@ public class BackgroundFrame extends ResourceFrame<Background>
 			if (img != null)
 				{
 				res.backgroundImage = img;
-				res.width = img.getWidth();
-				res.height = img.getHeight();
-				width.setText(Messages.getString("BackgroundFrame.WIDTH") + res.width); //$NON-NLS-1$
-				height.setText(Messages.getString("BackgroundFrame.HEIGHT") + res.height); //$NON-NLS-1$
-				imageChanged = true;
-				preview.setIcon(new ImageIcon(img));
-				node.updateIcon();
+				cleanup();
+				updateImage();
+				}
+			return;
+			}
+		if (e.getSource() == edit)
+			{
+			if (Prefs.useExternalBackgroundEditor && res.backgroundImage != null)
+				{
+				try
+					{
+					if (extFile == null)
+						{
+						extFile = new File(LGM.tempDir + File.separator + "back" + res.hashCode() + ".bmp");
+						FileOutputStream out = new FileOutputStream(extFile);
+						ImageIO.write(res.backgroundImage,"bmp",out);
+						out.close();
+						FileChangeMonitor fcm = new FileChangeMonitor(extFile);
+						fcm.addChangeListener(this);
+						fcm.start();
+						}
+					Runtime.getRuntime().exec(
+							String.format(Prefs.externalBackgroundEditorCommand,extFile.getAbsolutePath()));
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					}
 				}
 			return;
 			}
@@ -326,7 +359,6 @@ public class BackgroundFrame extends ResourceFrame<Background>
 			node.updateIcon();
 			return;
 			}
-
 		super.actionPerformed(e);
 		}
 
@@ -339,5 +371,71 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		l.width += s.width - p.width;
 		l.height += s.height - p.height;
 		return l;
+		}
+
+	public void stateChanged(ChangeEvent e)
+		{
+		if (e.getSource() instanceof FileChangeMonitor)
+			{
+			int flag = ((FileChangeMonitor) e.getSource()).getFlag();
+			if (flag == FileChangeMonitor.FLAG_CHANGED)
+				{
+				try
+					{
+					BufferedImage img = ImageIO.read(new FileInputStream(extFile));
+					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
+					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
+							BufferedImage.TYPE_3BYTE_BGR);
+					conv.filter(img,dest);
+					res.backgroundImage = dest;
+					//not entirely sure if this is necessary, but
+					//stateChanged does get called from another thread
+					SwingUtilities.invokeLater(new Runnable()
+						{
+							public void run()
+								{
+								updateImage();
+								}
+						});
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					}
+				}
+			else if (flag == FileChangeMonitor.FLAG_DELETED)
+				{
+				extFile = null;
+				}
+			}
+		}
+
+	protected void updateImage()
+		{
+		res.width = res.backgroundImage.getWidth();
+		res.height = res.backgroundImage.getHeight();
+		width.setText(Messages.getString("BackgroundFrame.WIDTH") + res.width); //$NON-NLS-1$
+		height.setText(Messages.getString("BackgroundFrame.HEIGHT") + res.height); //$NON-NLS-1$
+		imageChanged = true;
+		preview.setIcon(new ImageIcon(res.backgroundImage));
+		node.updateIcon();
+		}
+
+	public void dispose()
+		{
+		cleanup();
+		super.dispose();
+		}
+
+	protected void cleanup()
+		{
+		try
+			{
+			extFile.delete();
+			}
+		catch (Exception e)
+			{
+			}
+		extFile = null;
 		}
 	}
