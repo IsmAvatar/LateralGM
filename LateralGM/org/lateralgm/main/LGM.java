@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006, 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of Lateral GM.
@@ -25,13 +25,19 @@ package org.lateralgm.main;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.SplashScreen;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Scanner;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
 import javax.swing.DropMode;
 import javax.swing.Icon;
@@ -39,6 +45,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
@@ -74,6 +81,7 @@ public final class LGM
 		System.out.format("Java Version: %d (%s)\n",javaVersion,jv);
 		if (javaVersion < 10600)
 			System.out.println("Some program functionality will be limited due to your outdated version");
+		SplashProgress.start();
 		}
 	public static JFrame frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 			Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
@@ -251,8 +259,6 @@ public final class LGM
 			e.printStackTrace();
 			}
 		UIManager.put("swing.boldMetal",Boolean.FALSE);
-		gameInfo = new GameInformationFrame();
-		gameSet = new GameSettingFrame();
 
 		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm");
 		if (!tempDir.exists())
@@ -265,15 +271,152 @@ public final class LGM
 
 	public static void main(String[] args)
 		{
+		SplashProgress.progress(30,Messages.getString("LGM.SPLASH_LIBS"));
 		LibManager.autoLoad();
+		SplashProgress.progress(37,Messages.getString("LGM.SPLASH_UI"));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		gameInfo = new GameInformationFrame();
+		SplashProgress.progress(58);
+		gameSet = new GameSettingFrame();
+		SplashProgress.progress(70);
 		JPanel f = new JPanel(new BorderLayout());
 		createToolBar(f);
 		createTree(f,true);
+		SplashProgress.progress(85);
 		frame.setJMenuBar(new GmMenuBar());
+		SplashProgress.progress(90);
 		f.setOpaque(true);
 		frame.setContentPane(f);
 		new FramePrefsHandler(frame);
+		SplashProgress.progress(96);
+		try
+			{
+			frame.setIconImage(ImageIO.read(LGM.class.getClassLoader().getResource(
+					"org/lateralgm/main/lgm-logo.png")));
+			}
+		catch (Exception e)
+			{
+			e.printStackTrace();
+			}
+		SplashProgress.complete();
 		frame.setVisible(true);
+		}
+
+	static final class SplashProgress
+		{
+		static final SplashScreen SPLASH;
+		static final Graphics2D SPLASH_GRAPHICS;
+		static final JProgressBar BAR;
+		static final Graphics BAR_GRAPHICS;
+
+		private static String text = null;
+
+		static final Boolean TIMER = System.getProperty("lgm.progresstimer") != null;
+		private static long startTime, completeTime;
+		private static ArrayList<Integer> progressValues;
+		private static ArrayList<Long> progressTimes;
+
+		static
+			{
+			SplashScreen ss = null;
+			Graphics2D sg = null;
+			JProgressBar b = null;
+			Graphics bg = null;
+			try
+				{
+				ss = SplashScreen.getSplashScreen();
+				sg = ss.createGraphics();
+				Dimension sss = ss.getSize();
+				Rectangle bb = new Rectangle(0,sss.height - 24,sss.width,24);
+				b = new JProgressBar();
+				b.setBounds(bb);
+				bg = sg.create(bb.x,bb.y,bb.width,bb.height);
+				}
+			catch (Throwable t)
+				{
+				ss = null;
+				sg = null;
+				b = null;
+				bg = null;
+				}
+			finally
+				{
+				SPLASH = ss;
+				SPLASH_GRAPHICS = sg;
+				BAR = b;
+				BAR_GRAPHICS = bg;
+				}
+			if (TIMER)
+				{
+				progressValues = new ArrayList<Integer>();
+				progressTimes = new ArrayList<Long>();
+				}
+			}
+
+		private SplashProgress()
+			{
+			}
+
+		static void start()
+			{
+			if (TIMER) startTime = System.currentTimeMillis();
+			progress(0,"");
+			}
+
+		static void complete()
+			{
+			if (TIMER)
+				{
+				completeTime = System.currentTimeMillis();
+				long tt = completeTime - startTime;
+				System.out.print("Progress/%       ");
+				for (Integer v : progressValues)
+					{
+					System.out.print("\t" + v);
+					}
+				System.out.println();
+				System.out.print("Time/ms          ");
+				for (Long t : progressTimes)
+					{
+					System.out.print("\t" + t);
+					}
+				System.out.println();
+				System.out.print("Actual progress/%");
+				for (Long t : progressTimes)
+					{
+					System.out.print("\t" + Math.round(100.0 * t / tt));
+					}
+				System.out.println();
+				}
+			progress(100,"");
+			}
+
+		static void progress(int p)
+			{
+			progress(p,text);
+			}
+
+		static void progress(int p, String t)
+			{
+			if (TIMER)
+				{
+				progressValues.add(p);
+				progressTimes.add(System.currentTimeMillis() - startTime);
+				}
+			text = t;
+			if (SPLASH != null)
+				{
+				BAR.setValue(p);
+				BAR.setStringPainted(t != null);
+				BAR.setString(t);
+				update();
+				}
+			}
+
+		private static void update()
+			{
+			BAR.paint(BAR_GRAPHICS);
+			SPLASH.update();
+			}
 		}
 	}
