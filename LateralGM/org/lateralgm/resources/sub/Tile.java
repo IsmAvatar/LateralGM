@@ -2,8 +2,8 @@
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
- * This file is part of Lateral GM.
- * Lateral GM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * This file is part of LateralGM.
+ * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
  */
 
