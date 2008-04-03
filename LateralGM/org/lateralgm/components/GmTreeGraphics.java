@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of LateralGM.
@@ -28,14 +28,15 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Sprite;
 
 public class GmTreeGraphics extends DefaultTreeCellRenderer
 	{
-	private ResNode last;
 	private static final long serialVersionUID = 1L;
+
+	private static ImageIcon blankIcon;
+	private ResNode last;
 
 	public GmTreeGraphics()
 		{
@@ -56,8 +57,9 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 
 	public static ImageIcon getBlankIcon()
 		{
-		return new ImageIcon(Util.getTransparentIcon(new BufferedImage(16,16,
-				BufferedImage.TYPE_3BYTE_BGR)));
+		if (blankIcon == null)
+			blankIcon = new ImageIcon(new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB));
+		return blankIcon;
 		}
 
 	public static Icon getScaledIcon(Image i)
@@ -92,8 +94,8 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 
 	public static Icon getSpriteIcon(WeakReference<Sprite> s)
 		{
-		if (s == null || s.get() == null || s.get().subImages.size() == 0) return getBlankIcon();
-		Sprite spr = s.get();
+		Sprite spr = deRef(s);
+		if (spr == null || spr.subImages.size() == 0) return getBlankIcon();
 		BufferedImage bi = spr.getDisplayImage();
 		if (bi == null) return getBlankIcon();
 		return getScaledIcon(bi);
@@ -103,10 +105,9 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		{
 		Background back = deRef(b);
 		if (back == null) return getBlankIcon();
-		if (back.backgroundImage == null) return getBlankIcon();
-		Image i = back.backgroundImage;
-		if (back.transparent) i = Util.getTransparentIcon(back.backgroundImage);
-		return getScaledIcon(i);
+		BufferedImage bi = back.getDisplayImage();
+		if (bi == null) return getBlankIcon();
+		return getScaledIcon(bi);
 		}
 
 	public Icon getLeafIcon()
@@ -141,8 +142,8 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 
 	public Icon getNodeIcon(Object val, boolean exp, boolean leaf)
 		{
-		ResNode node = (ResNode) val;
-		if (leaf || node.status == ResNode.STATUS_SECONDARY) return getLeafIcon();
+		last = (ResNode) val;
+		if (leaf || last.status == ResNode.STATUS_SECONDARY) return getLeafIcon();
 		if (exp) return getOpenIcon();
 		return getClosedIcon();
 		}

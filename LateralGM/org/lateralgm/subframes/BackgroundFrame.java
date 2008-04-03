@@ -274,7 +274,7 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 		commitChanges();
 		if (imageChanged) return true;
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Background.class,"backgroundImage"); //$NON-NLS-1$
+		c.addExclusions(Background.class,"backgroundImage","imageCache"); //$NON-NLS-1$
 		return !c.areEqual(res,resOriginal);
 		}
 

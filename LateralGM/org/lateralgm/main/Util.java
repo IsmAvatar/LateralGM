@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
@@ -159,12 +159,12 @@ public final class Util
 	public static BufferedImage getTransparentIcon(BufferedImage i)
 		{
 		if (i == null) return null;
-		final BufferedImage fi = i;
+		final int t = i.getRGB(0,i.getHeight() - 1) & 0x00FFFFFF;
 		ImageFilter filter = new RGBImageFilter()
 			{
 				public int filterRGB(int x, int y, int rgb)
 					{
-					if ((rgb | 0xFF000000) == fi.getRGB(0,fi.getHeight() - 1)) return 0x00FFFFFF & rgb;
+					if ((rgb & 0x00FFFFFF) == t) return t;
 					return rgb;
 					}
 			};
