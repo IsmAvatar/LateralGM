@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -9,8 +9,9 @@
 
 package org.lateralgm.subframes;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import static java.lang.Integer.MAX_VALUE;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+
 import java.awt.event.ActionEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -20,6 +21,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -29,7 +33,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
-import javax.swing.SwingConstants;
+import javax.swing.GroupLayout.Alignment;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.CustomFileChooser;
@@ -37,7 +41,6 @@ import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sound;
 
@@ -68,6 +71,10 @@ public class SoundFrame extends ResourceFrame<Sound>
 	public SoundFrame(Sound res, ResNode node)
 		{
 		super(res,node);
+		GroupLayout layout = new GroupLayout(getContentPane());
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		setLayout(layout);
 
 		String s[] = { ".wav",".mid",".mp3" };
 		String[] d = { Messages.getString("SoundFrame.FORMAT_SOUND"), //$NON-NLS-1$
@@ -80,122 +87,149 @@ public class SoundFrame extends ResourceFrame<Sound>
 		fc.addChoosableFileFilter(new CustomFileFilter(s[1],d[2]));
 		fc.addChoosableFileFilter(new CustomFileFilter(s[2],d[3]));
 
-		setSize(250,550);
 		setResizable(false);
 		setMaximizable(false);
 
-		setContentPane(new JPanel());
-		setLayout(new FlowLayout());
-
-		JLabel label = new JLabel(Messages.getString("SoundFrame.NAME")); //$NON-NLS-1$
-		label.setPreferredSize(new Dimension(40,14));
-		label.setHorizontalAlignment(SwingConstants.RIGHT);
-		add(label);
-		name.setPreferredSize(new Dimension(180,20));
-		add(name);
+		JLabel lName = new JLabel(Messages.getString("SoundFrame.NAME")); //$NON-NLS-1$
 
 		load = new JButton(Messages.getString("SoundFrame.LOAD"),LOAD_ICON); //$NON-NLS-1$
-		load.setPreferredSize(new Dimension(130,26));
 		load.addActionListener(this);
-		add(load);
+		store = new JButton(Messages.getString("SoundFrame.STORE"),STORE_ICON); //$NON-NLS-1$
+		store.addActionListener(this);
 
 		play = new JButton(PLAY_ICON);
-		play.setPreferredSize(new Dimension(26,26));
 		play.addActionListener(this);
-		add(play);
 		stop = new JButton(STOP_ICON);
-		stop.setPreferredSize(new Dimension(26,26));
 		stop.addActionListener(this);
-		add(stop);
-
-		addGap(40,1);
-		store = new JButton(Messages.getString("SoundFrame.STORE"),STORE_ICON); //$NON-NLS-1$
-		store.setPreferredSize(new Dimension(130,26));
-		store.addActionListener(this);
-		add(store);
-		addGap(40,1);
 
 		filename = new JLabel(Messages.getString("SoundFrame.FILE") + res.fileName); //$NON-NLS-1$
-		filename.setPreferredSize(new Dimension(200,14));
-		add(filename);
 
-		kind = new IndexButtonGroup(4,true,false);
-		AbstractButton b = new JRadioButton(Messages.getString("SoundFrame.NORMAL")); //$NON-NLS-1$
-		b.setPreferredSize(new Dimension(170,14));
-		kind.add(b,Sound.SOUND_NORMAL);
-		b = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
-		b.setPreferredSize(new Dimension(170,14));
-		kind.add(b,Sound.BACKGROUND);
-		b = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
-		b.setPreferredSize(new Dimension(170,14));
-		kind.add(b,Sound.SOUND_3D);
-		b = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
-		b.setPreferredSize(new Dimension(170,14));
-		kind.add(b,Sound.SOUND_MULTIMEDIA);
-		kind.setValue(res.kind);
-		JPanel p = Util.makeTitledPanel(Messages.getString("SoundFrame.KIND"),220,110); //$NON-NLS-1$
-		kind.populate(p);
-		add(p);
+		JPanel pKind = makeKindPane();
 
-		// these are in bit order as appears in a GM6 file, not the same as GM shows them
-		effects = new IndexButtonGroup(5,false);
-		b = new JCheckBox(Messages.getString("SoundFrame.CHORUS")); //$NON-NLS-1$
-		b.setPreferredSize(new Dimension(80,14));
-		effects.add(b,1);
-		b = new JCheckBox(Messages.getString("SoundFrame.ECHO")); //$NON-NLS-1$
-		b.setPreferredSize(new Dimension(80,14));
-		effects.add(b,2);
-		b = new JCheckBox(Messages.getString("SoundFrame.FLANGER")); //$NON-NLS-1$
-		b.setPreferredSize(new Dimension(80,14));
-		effects.add(b,4);
-		b = new JCheckBox(Messages.getString("SoundFrame.GARGLE")); //$NON-NLS-1$
-		b.setPreferredSize(new Dimension(80,14));
-		effects.add(b,8);
-		b = new JCheckBox(Messages.getString("SoundFrame.REVERB")); //$NON-NLS-1$
-		b.setPreferredSize(new Dimension(80,14));
-		effects.add(b,16);
-		effects.setValue(res.getEffects());
-		p = Util.makeTitledPanel(Messages.getString("SoundFrame.EFFECTS"),220,90); //$NON-NLS-1$
-		effects.populate(p);
-		add(p);
+		JPanel pEffects = makeEffectsPane();
 
-		label = new JLabel(Messages.getString("SoundFrame.VOLUME")); //$NON-NLS-1$
-		label.setPreferredSize(new Dimension(60,14));
-		label.setHorizontalAlignment(SwingConstants.RIGHT);
-		add(label);
+		JLabel lVolume = new JLabel(Messages.getString("SoundFrame.VOLUME")); //$NON-NLS-1$
 		volume = new JSlider(0,100,100);
 		volume.setMajorTickSpacing(10);
 		volume.setPaintTicks(true);
 		volume.setValue((int) (res.volume * 100));
-		add(volume);
 
-		label = new JLabel(Messages.getString("SoundFrame.PAN")); //$NON-NLS-1$
-		label.setPreferredSize(new Dimension(40,14));
-		label.setHorizontalAlignment(SwingConstants.RIGHT);
-		add(label);
+		JLabel lPan = new JLabel(Messages.getString("SoundFrame.PAN")); //$NON-NLS-1$
 		pan = new JSlider(-100,100,0);
 		pan.setMajorTickSpacing(20);
 		pan.setPaintTicks(true);
 		pan.setValue((int) (res.pan * 100));
-		add(pan);
 
 		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD"),res.preload); //$NON-NLS-1$
-		preload.setPreferredSize(new Dimension(200,20));
 		preload.setSelected(res.preload);
-		add(preload);
 
-		addGap(50,1);
 		edit = new JButton(Messages.getString("SoundFrame.EDIT"),EDIT_ICON); //$NON-NLS-1$
 		edit.addActionListener(this);
-		add(edit);
-		addGap(50,1);
 
-		save.setPreferredSize(new Dimension(100,27));
 		save.setText(Messages.getString("SoundFrame.SAVE")); //$NON-NLS-1$
-		save.setAlignmentX(0.5f);
-		add(save);
 
 		data = res.data;
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(lName)
+		/*		*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(load,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*				*/.addComponent(store,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(play)
+		/*				*/.addComponent(stop)))
+		/**/.addComponent(filename)
+		/**/.addComponent(pKind,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(pEffects,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(lVolume)
+		/**/.addComponent(volume)
+		/**/.addComponent(lPan)
+		/**/.addComponent(pan)
+		/**/.addComponent(preload)
+		/**/.addComponent(edit,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lName)
+		/*		*/.addComponent(name))
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(load)
+		/*		*/.addComponent(play))
+		/**/.addGap(2)
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(store)
+		/*		*/.addComponent(stop))
+		/**/.addComponent(filename)
+		/**/.addComponent(pKind)
+		/**/.addComponent(pEffects)
+		/**/.addComponent(lVolume).addGap(0)
+		/**/.addComponent(volume)
+		/**/.addComponent(lPan).addGap(0)
+		/**/.addComponent(pan)
+		/**/.addComponent(preload)
+		/**/.addComponent(edit)
+		/**/.addComponent(save));
+		pack();
+		}
+
+	private JPanel makeKindPane()
+		{
+		kind = new IndexButtonGroup(4,true,false);
+		AbstractButton kNormal = new JRadioButton(Messages.getString("SoundFrame.NORMAL")); //$NON-NLS-1$
+		kind.add(kNormal,Sound.SOUND_NORMAL);
+		AbstractButton kBackground = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
+		kind.add(kBackground,Sound.BACKGROUND);
+		AbstractButton k3d = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
+		kind.add(k3d,Sound.SOUND_3D);
+		AbstractButton kMult = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
+		kind.add(kMult,Sound.SOUND_MULTIMEDIA);
+		kind.setValue(res.kind);
+		JPanel pKind = new JPanel();
+		pKind.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.KIND")));
+		pKind.setLayout(new BoxLayout(pKind,BoxLayout.PAGE_AXIS));
+		kind.populate(pKind);
+		return pKind;
+		}
+
+	private JPanel makeEffectsPane()
+		{
+		// these are in bit order as appears in a GM6 file, not the same as GM shows them
+		effects = new IndexButtonGroup(5,false);
+		AbstractButton eChorus = new JCheckBox(Messages.getString("SoundFrame.CHORUS")); //$NON-NLS-1$
+		effects.add(eChorus,1);
+		AbstractButton eEcho = new JCheckBox(Messages.getString("SoundFrame.ECHO")); //$NON-NLS-1$
+		effects.add(eEcho,2);
+		AbstractButton eFlanger = new JCheckBox(Messages.getString("SoundFrame.FLANGER")); //$NON-NLS-1$
+		effects.add(eFlanger,4);
+		AbstractButton eGargle = new JCheckBox(Messages.getString("SoundFrame.GARGLE")); //$NON-NLS-1$
+		effects.add(eGargle,8);
+		AbstractButton eReverb = new JCheckBox(Messages.getString("SoundFrame.REVERB")); //$NON-NLS-1$
+		effects.add(eReverb,16);
+		effects.setValue(res.getEffects());
+		JPanel pEffects = new JPanel();
+		GroupLayout eLayout = new GroupLayout(pEffects);
+		pEffects.setLayout(eLayout);
+		pEffects.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.EFFECTS")));
+		eLayout.setHorizontalGroup(eLayout.createSequentialGroup()
+		/**/.addGroup(eLayout.createParallelGroup()
+		/*		*/.addComponent(eChorus)
+		/*		*/.addComponent(eFlanger)
+		/*		*/.addComponent(eReverb))
+		/**/.addGroup(eLayout.createParallelGroup()
+		/*		*/.addComponent(eEcho)
+		/*		*/.addComponent(eGargle)));
+		eLayout.setVerticalGroup(eLayout.createSequentialGroup()
+		/**/.addGroup(eLayout.createParallelGroup()
+		/*		*/.addComponent(eChorus)
+		/*		*/.addComponent(eEcho))
+		/**/.addGroup(eLayout.createParallelGroup()
+		/*		*/.addComponent(eFlanger)
+		/*		*/.addComponent(eGargle))
+		/**/.addComponent(eReverb));
+		return pEffects;
 		}
 
 	public boolean resourceChanged()

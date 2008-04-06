@@ -204,6 +204,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		solid = new JCheckBox(Messages.getString("GmObjectFrame.SOLID"),res.solid); //$NON-NLS-1$
 		JLabel dLabel = new JLabel(Messages.getString("GmObjectFrame.DEPTH")); //$NON-NLS-1$
 		depth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.depth);
+		depth.setColumns(8);
 		persistent = new JCheckBox(Messages.getString("GmObjectFrame.PERSISTENT")); //$NON-NLS-1$
 		persistent.setSelected(res.persistent);
 		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of LateralGM.
@@ -10,12 +10,10 @@
 
 package org.lateralgm.components;
 
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -28,6 +26,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -37,6 +36,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -243,22 +243,20 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		{
 		this.kind = kind;
 		this.onlyOpen = onlyOpen;
-		setLayout(new GridBagLayout());
-		GridBagConstraints gbc;
-		gbc = new GridBagConstraints();
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
+		GroupLayout layout = new GroupLayout(this);
+		setLayout(layout);
 		label = new JLabel(def);
 		label.setBorder(BorderFactory.createEtchedBorder());
 		label.addMouseListener(mListener);
-		label.setPreferredSize(new Dimension(width - 20,20));
-		add(label,gbc);
-		gbc = new GridBagConstraints();
 		button = new JButton(Resource.ICON[kind]);
 		button.addMouseListener(mListener);
-		button.setPreferredSize(new Dimension(20,19));
 		button.setMaximumSize(button.getPreferredSize());
-		add(button,gbc);
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+		/**/.addComponent(label,PREFERRED_SIZE,width - 20,Integer.MAX_VALUE)
+		/**/.addComponent(button,PREFERRED_SIZE,20,PREFERRED_SIZE));
+		layout.setVerticalGroup(layout.createParallelGroup(Alignment.LEADING,false)
+		/**/.addComponent(label,PREFERRED_SIZE,20,PREFERRED_SIZE)
+		/**/.addComponent(button,PREFERRED_SIZE,19,PREFERRED_SIZE));
 
 		pm = new JPopupMenu();
 		if (showDef)

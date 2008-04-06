@@ -10,18 +10,24 @@
 
 package org.lateralgm.subframes;
 
+import static java.lang.Integer.MAX_VALUE;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.RasterFormatException;
 import java.util.HashMap;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -39,6 +45,8 @@ import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -54,7 +62,6 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
@@ -119,18 +126,19 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 	public JPanel makeObjectsPane()
 		{
-		JPanel panel = new JPanel(new FlowLayout());
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
 
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		oUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingObjects : true);
-		panel.add(oUnderlying);
-		JLabel lab = new JLabel(Messages.getString("RoomFrame.OBJ_INSTANCES")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(150,20));
-		panel.add(lab);
+		JLabel lInstances = new JLabel(Messages.getString("RoomFrame.OBJ_INSTANCES")); //$NON-NLS-1$
 		oList = new JList(res.instances.toArray());
 		oList.addListSelectionListener(this);
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//		oList.setVisibleRowCount(8);
+		oList.setVisibleRowCount(8);
 		oList.setCellRenderer(new ListComponentRenderer()
 			{
 				public Component getListCellRendererComponent(JList list, Object val, int ind,
@@ -146,120 +154,137 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					}
 			});
 		JScrollPane sp = new JScrollPane(oList);
-		sp.setPreferredSize(new Dimension(190,128));
-		panel.add(sp);
 		oAdd = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
 		oAdd.addActionListener(this);
-		panel.add(oAdd);
 		oDel = new JButton(Messages.getString("RoomFrame.OBJ_DELETE")); //$NON-NLS-1$
 		oDel.addActionListener(this);
-		panel.add(oDel);
 		oSource = new ResourceMenu<GmObject>(Room.GMOBJECT,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
-		oSource.setPreferredSize(new Dimension(120,20));
 		oSource.addActionListener(this);
-		panel.add(oSource);
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
-		oLocked.setPreferredSize(new Dimension(180,20));
 		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
-		panel.add(oLocked);
-		panel.add(new JLabel(Messages.getString("RoomFrame.OBJ_X"))); //$NON-NLS-1$
+		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
 		oX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
-		oX.setPreferredSize(new Dimension(60,20));
+		oX.setColumns(4);
 		oX.addActionListener(this);
-		panel.add(oX);
-		panel.add(new JLabel(Messages.getString("RoomFrame.OBJ_Y"))); //$NON-NLS-1$
+		JLabel lObjY = new JLabel(Messages.getString("RoomFrame.OBJ_Y")); //$NON-NLS-1$
 		oY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
-		oY.setPreferredSize(new Dimension(60,20));
+		oY.setColumns(4);
 		oY.addActionListener(this);
-		panel.add(oY);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
-		panel.add(oCreationCode);
 
 		oList.setSelectedIndex(0);
 
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(oUnderlying)
+		/**/.addComponent(lInstances)
+		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(oAdd,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(oDel,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/**/.addComponent(oSource)
+		/**/.addComponent(oLocked)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(lObjX)
+		/*		*/.addComponent(oX)
+		/*		*/.addComponent(lObjY)
+		/*		*/.addComponent(oY))
+		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(oUnderlying)
+		/**/.addComponent(lInstances)
+		/**/.addComponent(sp)
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(oAdd)
+		/*		*/.addComponent(oDel))
+		/**/.addComponent(oSource)
+		/**/.addComponent(oLocked)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lObjX)
+		/*		*/.addComponent(oX)
+		/*		*/.addComponent(lObjY)
+		/*		*/.addComponent(oY))
+		/**/.addComponent(oCreationCode));
 		return panel;
 		}
 
 	public JPanel makeSettingsPane()
 		{
-		JPanel panel = new JPanel(new FlowLayout());
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
 
-		JLabel lab = new JLabel(Messages.getString("RoomFrame.NAME")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(40,14));
-		panel.add(lab);
-		name.setPreferredSize(new Dimension(120,20));
-		panel.add(name);
+		JLabel lName = new JLabel(Messages.getString("RoomFrame.NAME")); //$NON-NLS-1$
 
-		lab = new JLabel(Messages.getString("RoomFrame.CAPTION")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(120,14));
-		panel.add(lab);
+		JLabel lCaption = new JLabel(Messages.getString("RoomFrame.CAPTION")); //$NON-NLS-1$
 		sCaption = new JTextField(res.caption);
-		sCaption.setPreferredSize(new Dimension(165,20));
-		panel.add(sCaption);
 
-		lab = new JLabel(Messages.getString("RoomFrame.WIDTH")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(40,14));
-		panel.add(lab);
+		JLabel lWidth = new JLabel(Messages.getString("RoomFrame.WIDTH")); //$NON-NLS-1$
 		sWidth = new IntegerField(1,999999,res.width);
-		sWidth.setPreferredSize(new Dimension(120,20));
+		sWidth.setColumns(7);
 		sWidth.addActionListener(this);
-		panel.add(sWidth);
 
-		lab = new JLabel(Messages.getString("RoomFrame.HEIGHT")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(40,14));
-		panel.add(lab);
+		JLabel lHeight = new JLabel(Messages.getString("RoomFrame.HEIGHT")); //$NON-NLS-1$
 		sHeight = new IntegerField(1,999999,res.height);
-		sHeight.setPreferredSize(new Dimension(120,20));
+		sHeight.setColumns(7);
 		sHeight.addActionListener(this);
-		panel.add(sHeight);
 
-		lab = new JLabel(Messages.getString("RoomFrame.SPEED")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(40,32));
-		panel.add(lab);
+		JLabel lSpeed = new JLabel(Messages.getString("RoomFrame.SPEED")); //$NON-NLS-1$
 		sSpeed = new IntegerField(1,9999,res.speed);
-		sSpeed.setPreferredSize(new Dimension(80,20));
-		panel.add(sSpeed);
-		addGap(panel,34,1);
+		sSpeed.setColumns(5);
 
 		String str = Messages.getString("RoomFrame.PERSISTENT"); //$NON-NLS-1$
 		sPersistent = new JCheckBox(str,res.persistent);
-		sPersistent.setPreferredSize(new Dimension(150,20));
-		panel.add(sPersistent);
 
 		str = Messages.getString("RoomFrame.CREATION_CODE"); //$NON-NLS-1$
 		sCreationCode = new JButton(str,CODE_ICON);
 		sCreationCode.addActionListener(this);
-		panel.add(sCreationCode);
 
-		JPanel p2 = Util.makeTitledPanel(Messages.getString("RoomFrame.GRID"),170,112); //$NON-NLS-1$
+		JPanel p2 = new JPanel();
+		p2.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.GRID"))); //$NON-NLS-1$
+		GroupLayout p2l = new GroupLayout(p2);
+		p2l.setAutoCreateGaps(true);
+		p2.setLayout(p2l);
 		String st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
 		sGridVis = new JCheckBox(st,res.rememberWindowSize ? res.showGrid : true);
 		sGridVis.addActionListener(this);
-		p2.add(sGridVis);
 		st = Messages.getString("RoomFrame.GRID_ISOMETRIC"); //$NON-NLS-1$
 		sGridIso = new JCheckBox(st,res.isometricGrid);
 		sGridIso.addActionListener(this);
-		p2.add(sGridIso);
-		addGap(p2,10,1);
-		lab = new JLabel(Messages.getString("RoomFrame.SNAP_X")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(44,14));
-		p2.add(lab);
+		JLabel lSnapX = new JLabel(Messages.getString("RoomFrame.SNAP_X")); //$NON-NLS-1$
 		sSnapX = new IntegerField(1,999,res.snapX);
-		sSnapX.setPreferredSize(new Dimension(60,20));
+		sSnapX.setColumns(4);
 		sSnapX.addActionListener(this);
-		p2.add(sSnapX);
-		addGap(p2,10,1);
-		lab = new JLabel(Messages.getString("RoomFrame.SNAP_Y")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(44,14));
-		p2.add(lab);
+		JLabel lSnapY = new JLabel(Messages.getString("RoomFrame.SNAP_Y")); //$NON-NLS-1$
 		sSnapY = new IntegerField(1,999,res.snapY);
-		sSnapY.setPreferredSize(new Dimension(60,20));
+		sSnapY.setColumns(4);
 		sSnapY.addActionListener(this);
-		p2.add(sSnapY);
-		panel.add(p2);
+
+		p2l.setHorizontalGroup(p2l.createParallelGroup()
+		/**/.addGroup(p2l.createSequentialGroup()
+		/*		*/.addComponent(sGridVis)
+		/*		*/.addComponent(sGridIso))
+		/**/.addGroup(p2l.createSequentialGroup().addContainerGap()
+		/*		*/.addGroup(p2l.createParallelGroup()
+		/*				*/.addComponent(lSnapX)
+		/*				*/.addComponent(lSnapY))
+		/*		*/.addGroup(p2l.createParallelGroup()
+		/*				*/.addComponent(sSnapX)
+		/*				*/.addComponent(sSnapY)).addContainerGap()));
+		p2l.setVerticalGroup(p2l.createSequentialGroup()
+		/**/.addGroup(p2l.createParallelGroup()
+		/*		*/.addComponent(sGridVis)
+		/*		*/.addComponent(sGridIso))
+		/**/.addGroup(p2l.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lSnapX)
+		/*		*/.addComponent(sSnapX))
+		/**/.addGroup(p2l.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lSnapY)
+		/*		*/.addComponent(sSnapY)).addContainerGap());
 
 		final JPopupMenu showMenu = new JPopupMenu();
 		st = Messages.getString("RoomFrame.SHOW_OBJECTS"); //$NON-NLS-1$
@@ -291,29 +316,62 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					showMenu.show(sShow,0,sShow.getHeight());
 					}
 			});
-		panel.add(sShow);
 
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(lName)
+		/*		*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addComponent(lCaption)
+		/**/.addComponent(sCaption,DEFAULT_SIZE,120,MAX_VALUE)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
+		/*				*/.addComponent(lWidth)
+		/*				*/.addComponent(lHeight)
+		/*				*/.addComponent(lSpeed))
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(sWidth)
+		/*				*/.addComponent(sHeight)
+		/*				*/.addComponent(sSpeed)))
+		/**/.addComponent(sPersistent)
+		/**/.addComponent(sCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(p2)
+		/**/.addComponent(sShow,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lName)
+		/*		*/.addComponent(name))
+		/**/.addComponent(lCaption)
+		/**/.addComponent(sCaption,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lWidth)
+		/*		*/.addComponent(sWidth))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lHeight)
+		/*		*/.addComponent(sHeight))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lSpeed)
+		/*		*/.addComponent(sSpeed))
+		/**/.addComponent(sPersistent)
+		/**/.addComponent(sCreationCode)
+		/**/.addComponent(p2)
+		/**/.addComponent(sShow));
 		return panel;
 		}
 
 	public JPanel makeTilesPane()
 		{
-		JPanel panel = new JPanel(new FlowLayout());
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
 
 		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
 		tUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingTiles : true);
-		panel.add(tUnderlying);
-		JLabel lab = new JLabel(Messages.getString("RoomFrame.TILE_LIST")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(150,20));
-		panel.add(lab);
+		JLabel lList = new JLabel(Messages.getString("RoomFrame.TILE_LIST")); //$NON-NLS-1$
 		tList = new JList(res.tiles.toArray());
-		//		tList.setDragEnabled(true);
-		//		tList.setDropMode(DropMode.INSERT);
-		//		tList.setTransferHandler(null);
 		tList.addListSelectionListener(this);
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		//		tList.setVisibleRowCount(4);
-		//		tList.setPreferredSize(new Dimension(180,128));
 		tList.setCellRenderer(new ListComponentRenderer()
 			{
 				public Component getListCellRendererComponent(JList list, Object val, int ind,
@@ -338,68 +396,115 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					}
 			});
 		JScrollPane sp = new JScrollPane(tList);
-		sp.setPreferredSize(new Dimension(190,100));
-		panel.add(sp);
 		tAdd = new JButton(Messages.getString("RoomFrame.TILE_ADD")); //$NON-NLS-1$
 		tAdd.addActionListener(this);
-		panel.add(tAdd);
 		tDel = new JButton(Messages.getString("RoomFrame.TILE_DELETE")); //$NON-NLS-1$
 		tDel.addActionListener(this);
-		panel.add(tDel);
 		tLocked = new JCheckBox(Messages.getString("RoomFrame.TILE_LOCKED")); //$NON-NLS-1$
-		tLocked.setPreferredSize(new Dimension(180,20));
-		tLocked.setHorizontalAlignment(JCheckBox.CENTER);
-		panel.add(tLocked);
 
-		JPanel p = Util.makeTitledPanel(Messages.getString("RoomFrame.TILESET"),160,80); //$NON-NLS-1$
+		JPanel pSet = new JPanel();
+		pSet.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.TILESET"))); //$NON-NLS-1$
+		GroupLayout psl = new GroupLayout(pSet);
+		psl.setAutoCreateGaps(true);
+		psl.setAutoCreateContainerGaps(true);
+		pSet.setLayout(psl);
 		tSource = new ResourceMenu<Background>(Room.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110); //$NON-NLS-1$
-		tSource.setPreferredSize(new Dimension(140,20));
-		p.add(tSource);
-		p.add(new JLabel(Messages.getString("RoomFrame.TILESET_X"))); //$NON-NLS-1$
+		JLabel ltsx = new JLabel(Messages.getString("RoomFrame.TILESET_X")); //$NON-NLS-1$
 		tsX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
-		tsX.setPreferredSize(new Dimension(50,20));
-		p.add(tsX);
-		p.add(new JLabel(Messages.getString("RoomFrame.TILESET_Y"))); //$NON-NLS-1$
+		tsX.setColumns(4);
+		JLabel ltsy = new JLabel(Messages.getString("RoomFrame.TILESET_Y")); //$NON-NLS-1$
 		tsY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
-		tsY.setPreferredSize(new Dimension(50,20));
-		p.add(tsY);
-		panel.add(p);
+		tsY.setColumns(4);
+		psl.setHorizontalGroup(psl.createParallelGroup()
+		/**/.addComponent(tSource)
+		/**/.addGroup(psl.createSequentialGroup()
+		/*		*/.addComponent(ltsx)
+		/*		*/.addComponent(tsX)
+		/*		*/.addComponent(ltsy)
+		/*		*/.addComponent(tsY)));
+		psl.setVerticalGroup(psl.createSequentialGroup()
+		/**/.addComponent(tSource)
+		/**/.addGroup(psl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(ltsx)
+		/*		*/.addComponent(tsX)
+		/*		*/.addComponent(ltsy)
+		/*		*/.addComponent(tsY)));
 
-		p = Util.makeTitledPanel(Messages.getString("RoomFrame.TILE"),160,80); //$NON-NLS-1$
-		p.add(new JLabel(Messages.getString("RoomFrame.TILE_X"))); //$NON-NLS-1$
+		JPanel pTile = new JPanel();
+		pTile.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.TILE"))); //$NON-NLS-1$
+		GroupLayout ptl = new GroupLayout(pTile);
+		ptl.setAutoCreateGaps(true);
+		ptl.setAutoCreateContainerGaps(true);
+		pTile.setLayout(ptl);
+		JLabel ltx = new JLabel(Messages.getString("RoomFrame.TILE_X")); //$NON-NLS-1$
 		tX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
-		tX.setPreferredSize(new Dimension(50,20));
+		tX.setColumns(4);
 		tX.addActionListener(this);
-		p.add(tX);
-		p.add(new JLabel(Messages.getString("RoomFrame.TILE_Y"))); //$NON-NLS-1$
+		JLabel lty = new JLabel(Messages.getString("RoomFrame.TILE_Y")); //$NON-NLS-1$
 		tY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
-		tY.setPreferredSize(new Dimension(50,20));
+		tY.setColumns(4);
 		tY.addActionListener(this);
-		p.add(tY);
-		p.add(new JLabel(Messages.getString("RoomFrame.TILE_LAYER"))); //$NON-NLS-1$
+		JLabel ltl = new JLabel(Messages.getString("RoomFrame.TILE_LAYER")); //$NON-NLS-1$
 		tLayer = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,1000000);
-		tLayer.setPreferredSize(new Dimension(60,20));
+		tLayer.setColumns(8);
 		tLayer.addActionListener(this);
-		p.add(tLayer);
-		panel.add(p);
+		ptl.setHorizontalGroup(ptl.createParallelGroup()
+		/**/.addGroup(ptl.createSequentialGroup()
+		/*		*/.addComponent(ltx)
+		/*		*/.addComponent(tX)
+		/*		*/.addComponent(lty)
+		/*		*/.addComponent(tY))
+		/**/.addGroup(ptl.createSequentialGroup()
+		/*		*/.addComponent(ltl)
+		/*		*/.addComponent(tLayer)));
+		ptl.setVerticalGroup(ptl.createSequentialGroup()
+		/**/.addGroup(ptl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(ltx)
+		/*		*/.addComponent(tX)
+		/*		*/.addComponent(lty)
+		/*		*/.addComponent(tY))
+		/**/.addGroup(ptl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(ltl)
+		/*		*/.addComponent(tLayer)));
 
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(tUnderlying)
+		/**/.addComponent(lList)
+		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(tAdd,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(tDel,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/**/.addComponent(tLocked)
+		/**/.addComponent(pSet)
+		/**/.addComponent(pTile));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(tUnderlying)
+		/**/.addComponent(lList)
+		/**/.addComponent(sp,DEFAULT_SIZE,60,MAX_VALUE)
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(tAdd)
+		/*		*/.addComponent(tDel))
+		/**/.addComponent(tLocked)
+		/**/.addComponent(pSet)
+		/**/.addComponent(pTile));
 		return panel;
 		}
 
 	public JPanel makeBackgroundsPane()
 		{
-		JPanel panel = new JPanel(new FlowLayout());
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
 
 		String st = Messages.getString("RoomFrame.DRAW_COLOR"); //$NON-NLS-1$
 		bDrawColor = new JCheckBox(st,res.drawBackgroundColor);
 		bDrawColor.addActionListener(this);
-		panel.add(bDrawColor);
-		panel.add(new JLabel(Messages.getString("RoomFrame.COLOR"))); //$NON-NLS-1$
+		JLabel lColor = new JLabel(Messages.getString("RoomFrame.COLOR")); //$NON-NLS-1$
 		bColor = new ColorSelect(res.backgroundColor);
-		bColor.setPreferredSize(new Dimension(100,20));
 		bColor.addActionListener(this);
-		panel.add(bColor);
 
 		JLabel[] backLabs = new JLabel[8];
 		for (int i = 0; i < 8; i++)
@@ -413,74 +518,109 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		bList.setCellRenderer(new ListComponentRenderer());
 		bList.addListSelectionListener(this);
 		bList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		bList.setPreferredSize(new Dimension(150,128));
-		panel.add(new JScrollPane(bList));
+		bList.setVisibleRowCount(4);
+		JScrollPane sp = new JScrollPane(bList);
 
 		st = Messages.getString("RoomFrame.BACK_VISIBLE"); //$NON-NLS-1$
 		bVisible = new JCheckBox(st,res.backgroundDefs[0].visible);
 		bVisible.addActionListener(this);
-		panel.add(bVisible);
 		st = Messages.getString("RoomFrame.BACK_FOREGROUND"); //$NON-NLS-1$
 		bForeground = new JCheckBox(st,res.backgroundDefs[0].foreground);
-		panel.add(bForeground);
 
 		bSource = new ResourceMenu<Background>(Room.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,150); //$NON-NLS-1$
 		bSource.setSelected(res.backgroundDefs[0].backgroundId);
-		panel.add(bSource);
 
 		st = Messages.getString("RoomFrame.BACK_TILE_HOR"); //$NON-NLS-1$
 		bTileH = new JCheckBox(st,res.backgroundDefs[0].tileHoriz);
-		bTileH.setPreferredSize(new Dimension(100,20));
 		bTileH.addActionListener(this);
-		panel.add(bTileH);
-		panel.add(new JLabel(Messages.getString("RoomFrame.BACK_X"))); //$NON-NLS-1$
+		JLabel lbx = new JLabel(Messages.getString("RoomFrame.BACK_X")); //$NON-NLS-1$
 		bX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.backgroundDefs[0].x);
-		bX.setPreferredSize(new Dimension(40,20));
+		bX.setColumns(4);
 		bX.addActionListener(this);
-		panel.add(bX);
 		st = Messages.getString("RoomFrame.BACK_TILE_VERT"); //$NON-NLS-1$
 		bTileV = new JCheckBox(st,res.backgroundDefs[0].tileVert);
-		bTileV.setPreferredSize(new Dimension(100,20));
 		bTileV.addActionListener(this);
-		panel.add(bTileV);
-		panel.add(new JLabel(Messages.getString("RoomFrame.BACK_Y"))); //$NON-NLS-1$
+		JLabel lby = new JLabel(Messages.getString("RoomFrame.BACK_Y")); //$NON-NLS-1$
 		bY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.backgroundDefs[0].y);
-		bY.setPreferredSize(new Dimension(40,20));
+		bY.setColumns(4);
 		bY.addActionListener(this);
-		panel.add(bY);
 		st = Messages.getString("RoomFrame.BACK_STRETCH"); //$NON-NLS-1$
 		bStretch = new JCheckBox(st,res.backgroundDefs[0].stretch);
-		bStretch.setPreferredSize(new Dimension(156,20));
 		bStretch.addActionListener(this);
-		panel.add(bStretch);
-		JLabel lab = new JLabel(Messages.getString("RoomFrame.BACK_HSPEED")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(112,20));
-		lab.setHorizontalAlignment(JLabel.RIGHT);
-		panel.add(lab);
+		JLabel lbh = new JLabel(Messages.getString("RoomFrame.BACK_HSPEED")); //$NON-NLS-1$
 		bH = new IntegerField(-999,999,res.backgroundDefs[0].horizSpeed);
-		bH.setPreferredSize(new Dimension(40,20));
-		panel.add(bH);
-		lab = new JLabel(Messages.getString("RoomFrame.BACK_VSPEED")); //$NON-NLS-1$
-		lab.setPreferredSize(new Dimension(112,20));
-		lab.setHorizontalAlignment(JLabel.RIGHT);
-		panel.add(lab);
+		bH.setColumns(4);
+		JLabel lbv = new JLabel(Messages.getString("RoomFrame.BACK_VSPEED")); //$NON-NLS-1$
 		bV = new IntegerField(-999,999,res.backgroundDefs[0].vertSpeed);
-		bV.setPreferredSize(new Dimension(40,20));
-		panel.add(bV);
+		bH.setColumns(4);
 
 		bList.setSelectedIndex(lastValidBack);
 
+		Insets spi = sp.getInsets();
+		int spmh = bList.getMaximumSize().height + spi.bottom + spi.top;
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(bDrawColor)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(lColor)
+		/*		*/.addComponent(bColor))
+		/**/.addComponent(sp)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(bVisible)
+		/*		*/.addComponent(bForeground))
+		/**/.addComponent(bSource)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(lbx)
+		/*		*/.addComponent(bX)
+		/*		*/.addComponent(lby)
+		/*		*/.addComponent(bY))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
+		/*				*/.addComponent(lbh)
+		/*				*/.addComponent(lbv))
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(bH)
+		/*				*/.addComponent(bV)))
+		/**/.addComponent(bTileH)
+		/**/.addComponent(bTileV)
+		/**/.addComponent(bStretch));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(bDrawColor)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
+		/*		*/.addComponent(lColor)
+		/*		*/.addComponent(bColor))
+		/**/.addComponent(sp,DEFAULT_SIZE,DEFAULT_SIZE,spmh)
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(bVisible)
+		/*		*/.addComponent(bForeground))
+		/**/.addComponent(bSource)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lbx)
+		/*		*/.addComponent(bX)
+		/*		*/.addComponent(lby)
+		/*		*/.addComponent(bY))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lbh)
+		/*		*/.addComponent(bH))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lbv)
+		/*		*/.addComponent(bV))
+		/**/.addComponent(bTileH)
+		/**/.addComponent(bTileV)
+		/**/.addComponent(bStretch));
 		return panel;
 		}
 
 	public JPanel makeViewsPane()
 		{
-		JPanel panel = new JPanel(new FlowLayout());
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
 
 		String st = Messages.getString("RoomFrame.ENABLE_VIEWS"); //$NON-NLS-1$
 		vEnabled = new JCheckBox(st,res.enableViews);
-		panel.add(vEnabled);
 
 		JLabel[] viewLabs = new JLabel[8];
 		for (int i = 0; i < 8; i++)
@@ -494,81 +634,168 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		vList.setCellRenderer(new ListComponentRenderer());
 		vList.setVisibleRowCount(4);
 		vList.addListSelectionListener(this);
-		bList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		vList.setPreferredSize(new Dimension(160,200));
-		panel.add(new JScrollPane(vList));
+		vList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		JScrollPane sp = new JScrollPane(vList);
 
 		st = Messages.getString("RoomFrame.VIEW_ENABLED"); //$NON-NLS-1$
 		vVisible = new JCheckBox(st,res.views[0].visible);
 		vVisible.addActionListener(this);
-		panel.add(vVisible);
 
-		JPanel p = Util.makeTitledPanel(Messages.getString("RoomFrame.VIEW_IN_ROOM"),130,80); //$NON-NLS-1$
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_X"))); //$NON-NLS-1$
+		JPanel pr = new JPanel();
+		pr.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.VIEW_IN_ROOM"))); //$NON-NLS-1$
+		GroupLayout lr = new GroupLayout(pr);
+		pr.setLayout(lr);
+		JLabel lRX = new JLabel(Messages.getString("RoomFrame.VIEW_X")); //$NON-NLS-1$
 		vRX = new IntegerField(0,999999,res.views[0].viewX);
-		vRX.setPreferredSize(new Dimension(32,20));
-		p.add(vRX);
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_W"))); //$NON-NLS-1$
+		vRX.setColumns(4);
+		JLabel lRW = new JLabel(Messages.getString("RoomFrame.VIEW_W")); //$NON-NLS-1$
 		vRW = new IntegerField(1,999999,res.views[0].viewW);
-		vRW.setPreferredSize(new Dimension(32,20));
-		p.add(vRW);
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_Y"))); //$NON-NLS-1$
+		vRW.setColumns(4);
+		JLabel lRY = new JLabel(Messages.getString("RoomFrame.VIEW_Y")); //$NON-NLS-1$
 		vRY = new IntegerField(0,999999,res.views[0].viewY);
-		vRY.setPreferredSize(new Dimension(32,20));
-		p.add(vRY);
-		addGap(p,2,0);
-		p.add(new JLabel(Messages.getString("RoomFrame.VIEW_H"))); //$NON-NLS-1$
+		vRY.setColumns(4);
+		JLabel lRH = new JLabel(Messages.getString("RoomFrame.VIEW_H")); //$NON-NLS-1$
 		vRH = new IntegerField(1,999999,res.views[0].viewH);
-		vRH.setPreferredSize(new Dimension(32,20));
-		p.add(vRH);
-		panel.add(p);
+		vRH.setColumns(4);
+		lr.setHorizontalGroup(lr.createSequentialGroup().addContainerGap()
+		/**/.addGroup(lr.createParallelGroup()
+		/*		*/.addComponent(lRX)
+		/*		*/.addComponent(lRY)).addGap(4)
+		/**/.addGroup(lr.createParallelGroup()
+		/*		*/.addComponent(vRX)
+		/*		*/.addComponent(vRY)).addGap(8)
+		/**/.addGroup(lr.createParallelGroup()
+		/*		*/.addComponent(lRW)
+		/*		*/.addComponent(lRH)).addGap(4)
+		/**/.addGroup(lr.createParallelGroup()
+		/*		*/.addComponent(vRW)
+		/*		*/.addComponent(vRH)).addContainerGap());
+		lr.setVerticalGroup(lr.createSequentialGroup().addGap(4)
+		/**/.addGroup(lr.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lRX)
+		/*		*/.addComponent(vRX)
+		/*		*/.addComponent(lRW)
+		/*		*/.addComponent(vRW)).addGap(4)
+		/**/.addGroup(lr.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lRY)
+		/*		*/.addComponent(vRY)
+		/*		*/.addComponent(lRH)
+		/*		*/.addComponent(vRH)).addGap(8));
 
-		p = Util.makeTitledPanel(Messages.getString("RoomFrame.PORT"),130,80); //$NON-NLS-1$
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_X"))); //$NON-NLS-1$
+		JPanel pp = new JPanel();
+		pp.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.PORT"))); //$NON-NLS-1$
+		GroupLayout lp = new GroupLayout(pp);
+		pp.setLayout(lp);
+		JLabel lPX = new JLabel(Messages.getString("RoomFrame.PORT_X")); //$NON-NLS-1$
 		vPX = new IntegerField(0,999999,res.views[0].portX);
-		vPX.setPreferredSize(new Dimension(32,20));
-		p.add(vPX);
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_W"))); //$NON-NLS-1$
+		vPX.setColumns(4);
+		JLabel lPW = new JLabel(Messages.getString("RoomFrame.PORT_W")); //$NON-NLS-1$
 		vPW = new IntegerField(1,999999,res.views[0].portW);
-		vPW.setPreferredSize(new Dimension(32,20));
-		p.add(vPW);
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_Y"))); //$NON-NLS-1$
+		vPW.setColumns(4);
+		JLabel lPY = new JLabel(Messages.getString("RoomFrame.PORT_Y")); //$NON-NLS-1$
 		vPY = new IntegerField(0,999999,res.views[0].portY);
-		vPY.setPreferredSize(new Dimension(32,20));
-		p.add(vPY);
-		addGap(p,2,0);
-		p.add(new JLabel(Messages.getString("RoomFrame.PORT_H"))); //$NON-NLS-1$
+		vPY.setColumns(4);
+		JLabel lPH = new JLabel(Messages.getString("RoomFrame.PORT_H")); //$NON-NLS-1$
 		vPH = new IntegerField(1,999999,res.views[0].portH);
-		vPH.setPreferredSize(new Dimension(32,20));
-		p.add(vPH);
-		panel.add(p);
+		vPH.setColumns(4);
+		lp.setHorizontalGroup(lp.createSequentialGroup().addContainerGap()
+		/**/.addGroup(lp.createParallelGroup()
+		/*		*/.addComponent(lPX)
+		/*		*/.addComponent(lPY)).addGap(4)
+		/**/.addGroup(lp.createParallelGroup()
+		/*		*/.addComponent(vPX)
+		/*		*/.addComponent(vPY)).addGap(8)
+		/**/.addGroup(lp.createParallelGroup()
+		/*		*/.addComponent(lPW)
+		/*		*/.addComponent(lPH)).addGap(4)
+		/**/.addGroup(lp.createParallelGroup()
+		/*		*/.addComponent(vPW)
+		/*		*/.addComponent(vPH)).addContainerGap());
+		lp.setVerticalGroup(lp.createSequentialGroup().addGap(4)
+		/**/.addGroup(lp.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lPX)
+		/*		*/.addComponent(vPX)
+		/*		*/.addComponent(lPW)
+		/*		*/.addComponent(vPW)).addGap(4)
+		/**/.addGroup(lp.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lPY)
+		/*		*/.addComponent(vPY)
+		/*		*/.addComponent(lPH)
+		/*		*/.addComponent(vPH)).addGap(8));
 
-		p = Util.makeTitledPanel(Messages.getString("RoomFrame.FOLLOW"),150,104); //$NON-NLS-1$
-		vObj = new ResourceMenu<GmObject>(Room.GMOBJECT,
-				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
-		vObj.setSelected(res.views[0].objectFollowing);
-		p.add(vObj);
-		p.add(new JLabel(Messages.getString("RoomFrame.HBOR"))); //$NON-NLS-1$
-		vOHBor = new IntegerField(0,32000,res.views[0].hbor);
-		vOHBor.setPreferredSize(new Dimension(32,20));
-		p.add(vOHBor);
-		p.add(new JLabel(Messages.getString("RoomFrame.HSP"))); //$NON-NLS-1$
-		vOHSp = new IntegerField(-1,32000,res.views[0].hspeed);
-		vOHSp.setPreferredSize(new Dimension(32,20));
-		p.add(vOHSp);
-		p.add(new JLabel(Messages.getString("RoomFrame.VBOR"))); //$NON-NLS-1$
-		vOVBor = new IntegerField(0,32000,res.views[0].vbor);
-		vOVBor.setPreferredSize(new Dimension(32,20));
-		p.add(vOVBor);
-		p.add(new JLabel(Messages.getString("RoomFrame.VSP"))); //$NON-NLS-1$
-		vOVSp = new IntegerField(-1,32000,res.views[0].vspeed);
-		vOVSp.setPreferredSize(new Dimension(32,20));
-		p.add(vOVSp);
-		panel.add(p);
+		JPanel pf = makeViewsFollowPane();
 
 		vList.setSelectedIndex(lastValidView);
 
+		Insets spi = sp.getInsets();
+		int spmh = vList.getMaximumSize().height + spi.bottom + spi.top;
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(vEnabled)
+		/**/.addComponent(sp)
+		/**/.addComponent(vVisible)
+		/**/.addComponent(pr)
+		/**/.addComponent(pp)
+		/**/.addComponent(pf));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(vEnabled)
+		/**/.addComponent(sp,DEFAULT_SIZE,DEFAULT_SIZE,spmh)
+		/**/.addComponent(vVisible)
+		/**/.addComponent(pr)
+		/**/.addComponent(pp)
+		/**/.addComponent(pf));
 		return panel;
+		}
+
+	private JPanel makeViewsFollowPane()
+		{
+		JPanel pf = new JPanel();
+		pf.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.FOLLOW"))); //$NON-NLS-1$
+		GroupLayout lf = new GroupLayout(pf);
+		pf.setLayout(lf);
+		vObj = new ResourceMenu<GmObject>(Room.GMOBJECT,
+				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
+		vObj.setSelected(res.views[0].objectFollowing);
+		JLabel lH = new JLabel(Messages.getString("RoomFrame.VIEW_HORIZONTAL"));
+		JLabel lV = new JLabel(Messages.getString("RoomFrame.VIEW_VERTICAL"));
+		JLabel lBorder = new JLabel(Messages.getString("RoomFrame.VIEW_BORDER"));
+		JLabel lSpeed = new JLabel(Messages.getString("RoomFrame.VIEW_SPEED"));
+		vOHBor = new IntegerField(0,32000,res.views[0].hbor);
+		vOHBor.setColumns(4);
+		vOHSp = new IntegerField(-1,32000,res.views[0].hspeed);
+		vOHSp.setColumns(4);
+		vOVBor = new IntegerField(0,32000,res.views[0].vbor);
+		vOVBor.setColumns(4);
+		vOVSp = new IntegerField(-1,32000,res.views[0].vspeed);
+		vOVSp.setColumns(4);
+		lf.setHorizontalGroup(lf.createSequentialGroup().addContainerGap()
+		/**/.addGroup(lf.createParallelGroup()
+		/*		*/.addComponent(vObj)
+		/*		*/.addGroup(lf.createSequentialGroup()
+		/*				*/.addGroup(lf.createParallelGroup(Alignment.TRAILING)
+		/*						*/.addComponent(lH)
+		/*						*/.addComponent(lV)).addGap(4)
+		/*				*/.addGroup(lf.createParallelGroup()
+		/*						*/.addComponent(lBorder)
+		/*						*/.addComponent(vOHBor)
+		/*						*/.addComponent(vOVBor)).addGap(4)
+		/*				*/.addGroup(lf.createParallelGroup()
+		/*						*/.addComponent(lSpeed)
+		/*						*/.addComponent(vOHSp)
+		/*						*/.addComponent(vOVSp)))).addContainerGap());
+		lf.setVerticalGroup(lf.createSequentialGroup().addGap(4)
+		/**/.addComponent(vObj).addGap(4)
+		/*		*/.addGroup(lf.createParallelGroup(Alignment.BASELINE)
+		/*				*/.addComponent(lBorder)
+		/*				*/.addComponent(lSpeed)).addGap(4)
+		/*		*/.addGroup(lf.createParallelGroup(Alignment.BASELINE)
+		/*				*/.addComponent(lH)
+		/*				*/.addComponent(vOHBor)
+		/*				*/.addComponent(vOHSp)).addGap(4)
+		/*		*/.addGroup(lf.createParallelGroup(Alignment.BASELINE)
+		/*				*/.addComponent(lV)
+		/*				*/.addComponent(vOVBor)
+		/*				*/.addComponent(vOVSp)).addGap(8));
+		return pf;
 		}
 
 	private JPanel makeStatsPane()
@@ -602,21 +829,21 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public RoomFrame(Room res, ResNode node)
 		{
 		super(res,node);
-
-		final int sizeWidth = 550;
-		final int sizeHeight = 520;
-		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
-		setMinimumSize(new Dimension(sizeWidth,sizeHeight));
-		if (!res.rememberWindowSize || res.editorWidth < sizeWidth || res.editorHeight < sizeHeight)
-			setSize(sizeWidth,sizeHeight);
-		else
-			setSize(res.editorWidth,res.editorHeight);
-
-		JPanel pane = new JPanel();
-		pane.setLayout(new BoxLayout(pane,BoxLayout.Y_AXIS));
-		pane.setMinimumSize(new Dimension(200,350));
-		pane.setMaximumSize(new Dimension(200,Integer.MAX_VALUE));
-		pane.setPreferredSize(new Dimension(200,350));
+		GroupLayout layout = new GroupLayout(getContentPane())
+			{
+				@Override
+				public void layoutContainer(Container parent)
+					{
+					Dimension m = RoomFrame.this.getMinimumSize();
+					Dimension s = RoomFrame.this.getSize();
+					Dimension r = new Dimension(Math.max(m.width,s.width),Math.max(m.height,s.height));
+					if (!r.equals(s))
+						RoomFrame.this.setSize(r);
+					else
+						super.layoutContainer(parent);
+					}
+			};
+		setLayout(layout);
 
 		//conveniently, these tabs happen to have the same indexes as GM's tabs
 		tabs = new JTabbedPane();
@@ -628,28 +855,29 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tabs.addTab(bks,makeBackgroundsPane());
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex(res.currentTab);
-		pane.add(tabs);
 
-		FlowLayout fl = new FlowLayout();
-		fl.setHgap(0);
-		fl.setVgap(0);
-		JPanel cont = new JPanel(fl);
-		cont.setMaximumSize(new Dimension(130,22));
-		cont.setMinimumSize(new Dimension(130,22));
 		save.setText(Messages.getString("RoomFrame.SAVE")); //$NON-NLS-1$
-		cont.add(save);
-		pane.add(cont);
-		add(pane);
-
-		pane = new JPanel();
-		pane.setLayout(new BoxLayout(pane,BoxLayout.Y_AXIS));
-		pane.setPreferredSize(new Dimension(240,280));
 
 		editor = new RoomEditor(res,this);
-		pane.add(new JScrollPane(editor));
-		pane.add(makeStatsPane());
+		JScrollPane sp = new JScrollPane(editor);
+		JPanel stats = makeStatsPane();
 
-		add(pane);
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.LEADING,false)
+		/*		*/.addComponent(tabs)
+		/*		*/.addGroup(layout.createSequentialGroup().addContainerGap()
+		/*				*/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE).addContainerGap()))
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(sp,240,640,DEFAULT_SIZE)
+		/*		*/.addComponent(stats,0,DEFAULT_SIZE,DEFAULT_SIZE)));
+		layout.setVerticalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(tabs).addPreferredGap(ComponentPlacement.UNRELATED)
+		/*		*/.addComponent(save).addContainerGap())
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(sp,DEFAULT_SIZE,480,DEFAULT_SIZE)
+		/*		*/.addComponent(stats)));
+		pack();
 		}
 
 	public class ListComponentRenderer implements ListCellRenderer
@@ -864,7 +1092,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 		if (e.getSource() == sCreationCode)
 			{
-			openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
+			openCodeFrame(res,"RoomFrame.TITLE_FORMAT_CREATION",res.getName()); //$NON-NLS-1$
 			return;
 			}
 		if (e.getSource() == oCreationCode)
@@ -893,6 +1121,17 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		manualUpdate = true;
 		oX.setIntValue(lastObj.getX());
 		oY.setIntValue(lastObj.getY());
+		}
+
+	@Override
+	public Dimension getMinimumSize()
+		{
+		Dimension p = getContentPane().getSize();
+		Dimension l = getContentPane().getMinimumSize();
+		Dimension s = getSize();
+		l.width += s.width - p.width;
+		l.height += s.height - p.height;
+		return l;
 		}
 
 	public void fireTileUpdate()

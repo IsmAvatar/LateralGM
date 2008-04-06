@@ -208,10 +208,12 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		JLabel oxLab = new JLabel(Messages.getString("SpriteFrame.X")); //$NON-NLS-1$
 		oxLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		originX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.originX);
+		originX.setColumns(4);
 		originX.addActionListener(this);
 		JLabel oyLab = new JLabel(Messages.getString("SpriteFrame.Y")); //$NON-NLS-1$;
 		oyLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		originY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.originY);
+		originY.setColumns(4);
 		originY.addActionListener(this);
 		centre = new JButton(Messages.getString("SpriteFrame.CENTER")); //$NON-NLS-1$
 		centre.addActionListener(this);
@@ -250,21 +252,25 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		JLabel lLab = new JLabel(Messages.getString("SpriteFrame.LEFT")); //$NON-NLS-1$
 		lLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bboxLeft = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxLeft);
+		bboxLeft.setColumns(3);
 		bboxLeft.addActionListener(this);
 
 		JLabel rLab = new JLabel(Messages.getString("SpriteFrame.RIGHT")); //$NON-NLS-1$
 		rLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bboxRight = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxRight);
+		bboxRight.setColumns(3);
 		bboxRight.addActionListener(this);
 
 		JLabel tLab = new JLabel(Messages.getString("SpriteFrame.TOP")); //$NON-NLS-1$
 		tLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bboxTop = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxTop);
+		bboxTop.setColumns(3);
 		bboxTop.addActionListener(this);
 
 		JLabel bLab = new JLabel(Messages.getString("SpriteFrame.BOTTOM")); //$NON-NLS-1$
 		bLab.setHorizontalAlignment(SwingConstants.RIGHT);
 		bboxBottom = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxBottom);
+		bboxBottom.setColumns(3);
 		bboxBottom.addActionListener(this);
 
 		bLayout.setHorizontalGroup(bLayout.createParallelGroup()

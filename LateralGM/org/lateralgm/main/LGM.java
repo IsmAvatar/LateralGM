@@ -75,6 +75,17 @@ public final class LGM
 	public static int javaVersion;
 	static
 		{
+		try
+			{
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			// TODO At some point, add LAF as an option
+			}
+		catch (Exception e)
+			{
+			e.printStackTrace();
+			}
+		UIManager.put("swing.boldMetal",Boolean.FALSE);
 		String jv = System.getProperty("java.version"); //$NON-NLS-1$
 		Scanner s = new Scanner(jv).useDelimiter("[\\._]"); //$NON-NLS-1$
 		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
@@ -248,25 +259,12 @@ public final class LGM
 	static
 		{
 		Util.tweakIIORegistry();
-		try
-			{
-			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			// TODO At some point, add LAF as an option
-			}
-		catch (Exception e)
-			{
-			e.printStackTrace();
-			}
-		UIManager.put("swing.boldMetal",Boolean.FALSE);
-
 		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm");
 		if (!tempDir.exists())
 			tempDir.mkdir();
 		else
 			for (File f : tempDir.listFiles())
 				if (f.isFile()) f.delete();
-
 		}
 
 	public static void main(String[] args)

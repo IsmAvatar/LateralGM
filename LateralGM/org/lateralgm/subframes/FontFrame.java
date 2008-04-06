@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -9,13 +10,15 @@
 
 package org.lateralgm.subframes;
 
+import static java.lang.Integer.MAX_VALUE;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -23,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -30,7 +34,6 @@ import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Font;
 
@@ -49,103 +52,40 @@ public class FontFrame extends ResourceFrame<Font>
 		{
 		super(res,node);
 
-		setSize(250,410);
 		setResizable(false);
 		setMaximizable(false);
 
-		setContentPane(new JPanel());
-		setLayout(new FlowLayout());
+		GroupLayout layout = new GroupLayout(getContentPane());
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		setLayout(layout);
 
-		JLabel label = new JLabel(Messages.getString("FontFrame.NAME")); //$NON-NLS-1$
-		label.setPreferredSize(new Dimension(40,14));
-		label.setHorizontalAlignment(SwingConstants.RIGHT);
-		add(label);
-		name.setPreferredSize(new Dimension(180,20));
-		add(name);
+		JLabel lName = new JLabel(Messages.getString("FontFrame.NAME")); //$NON-NLS-1$
 
-		label = new JLabel(Messages.getString("FontFrame.FONT")); //$NON-NLS-1$
-		label.setPreferredSize(new Dimension(40,14));
-		label.setHorizontalAlignment(SwingConstants.RIGHT);
-		add(label);
+		JLabel lFont = new JLabel(Messages.getString("FontFrame.FONT")); //$NON-NLS-1$
 		fonts = new JComboBox(
 				GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
 		fonts.setEditable(true);
 		fonts.setSelectedItem(res.fontName);
-		fonts.setPreferredSize(new Dimension(180,20));
 		fonts.addActionListener(this);
-		add(fonts);
 
-		label = new JLabel(Messages.getString("FontFrame.SIZE")); //$NON-NLS-1$
-		label.setPreferredSize(new Dimension(40,14));
-		label.setHorizontalAlignment(SwingConstants.RIGHT);
-		add(label);
-
+		JLabel lSize = new JLabel(Messages.getString("FontFrame.SIZE")); //$NON-NLS-1$
 		size = new IntegerField(1,99,res.size);
-		size.setPreferredSize(new Dimension(180,20));
+		size.setColumns(3);
 		size.addActionListener(this);
-		add(size);
 
 		bold = new JCheckBox(Messages.getString("FontFrame.BOLD")); //$NON-NLS-1$
-		bold.setPreferredSize(new Dimension(110,16));
 		bold.addActionListener(this);
 		bold.setSelected(res.bold);
-		add(bold);
 		italic = new JCheckBox(Messages.getString("FontFrame.ITALIC")); //$NON-NLS-1$
-		italic.setPreferredSize(new Dimension(110,16));
 		italic.addActionListener(this);
 		italic.setSelected(res.italic);
-		add(italic);
 
-		JPanel crange = Util.makeTitledPanel(Messages.getString("FontFrame.CHARRANGE"),220,110); //$NON-NLS-1$
+		JPanel crPane = makeCRPane();
 
-		charMin = new IntegerField(0,255,res.charRangeMin);
-		charMin.setPreferredSize(new Dimension(70,20));
-		charMin.addActionListener(this);
-		crange.add(charMin);
-
-		label = new JLabel(Messages.getString("FontFrame.TO")); //$NON-NLS-1$
-		label.setPreferredSize(new Dimension(40,16));
-		label.setHorizontalAlignment(SwingConstants.CENTER);
-		crange.add(label);
-
-		charMax = new IntegerField(0,255,res.charRangeMax);
-		charMax.setPreferredSize(new Dimension(70,20));
-		charMax.addActionListener(this);
-		crange.add(charMax);
-
-		JButton but = new JButton(Messages.getString("FontFrame.NORMAL")); //$NON-NLS-1$
-		but.setPreferredSize(new Dimension(90,20));
-		but.setActionCommand("Normal"); //$NON-NLS-1$
-		but.addActionListener(this);
-		crange.add(but);
-
-		but = new JButton(Messages.getString("FontFrame.ALL")); //$NON-NLS-1$
-		but.setPreferredSize(new Dimension(90,20));
-		but.setActionCommand("All"); //$NON-NLS-1$
-		but.addActionListener(this);
-		crange.add(but);
-
-		but = new JButton(Messages.getString("FontFrame.DIGITS")); //$NON-NLS-1$
-		but.setPreferredSize(new Dimension(90,20));
-		but.setActionCommand("Digits"); //$NON-NLS-1$
-		but.addActionListener(this);
-		crange.add(but);
-
-		but = new JButton(Messages.getString("FontFrame.LETTERS")); //$NON-NLS-1$
-		but.setPreferredSize(new Dimension(90,20));
-		but.setActionCommand("Letters"); //$NON-NLS-1$
-		but.addActionListener(this);
-		crange.add(but);
-
-		add(crange);
-
-		label = new JLabel(Messages.getString("FontFrame.PREVIEW")); //$NON-NLS-1$
-		label.setPreferredSize(new Dimension(60,14));
-		label.setHorizontalAlignment(SwingConstants.RIGHT);
-		add(label);
-
+		JLabel lPreview = new JLabel(Messages.getString("FontFrame.PREVIEW")); //$NON-NLS-1$
 		previewText = new JTextField(Messages.getString("FontFrame.PREVIEW_DEFAULT"));
-		previewText.setPreferredSize(new Dimension(160,20));
+		previewText.setColumns(10);
 		previewText.getDocument().addDocumentListener(new DocumentListener()
 			{
 				public void changedUpdate(DocumentEvent e)
@@ -162,21 +102,114 @@ public class FontFrame extends ResourceFrame<Font>
 					preview.setText(previewText.getText());
 					}
 			});
-		add(previewText);
-
 		JPanel prev = new JPanel(new BorderLayout());
 		prev.setBorder(BorderFactory.createEtchedBorder());
-		prev.setPreferredSize(new Dimension(220,100));
 		preview = new JLabel(previewText.getText());
 		preview.setFont(new java.awt.Font(res.fontName,makeStyle(res.bold,res.italic),res.size));
 		preview.setHorizontalAlignment(SwingConstants.CENTER);
 		prev.add(preview,"Center"); //$NON-NLS-1$
-		add(prev);
 
-		save.setPreferredSize(new Dimension(100,27));
 		save.setText(Messages.getString("FontFrame.SAVE")); //$NON-NLS-1$
-		save.setAlignmentX(0.5f);
-		add(save);
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
+		/*				*/.addComponent(lName)
+		/*				*/.addComponent(lFont)
+		/*				*/.addComponent(lSize))
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE)
+		/*				*/.addComponent(fonts,120,160,MAX_VALUE)
+		/*				*/.addComponent(size)))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(bold)
+		/*		*/.addComponent(italic))
+		/**/.addComponent(crPane)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(lPreview)
+		/*		*/.addComponent(previewText))
+		/**/.addComponent(prev,120,220,MAX_VALUE)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lName)
+		/*		*/.addComponent(name))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lFont)
+		/*		*/.addComponent(fonts))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lSize)
+		/*		*/.addComponent(size))
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(bold)
+		/*		*/.addComponent(italic))
+		/**/.addComponent(crPane)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lPreview)
+		/*		*/.addComponent(previewText))
+		/**/.addComponent(prev,DEFAULT_SIZE,120,MAX_VALUE)
+		/**/.addComponent(save));
+		pack();
+		}
+
+	private JPanel makeCRPane()
+		{
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder(Messages.getString("FontFrame.CHARRANGE")));
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
+
+		charMin = new IntegerField(0,255,res.charRangeMin);
+		charMin.setColumns(4);
+		charMin.addActionListener(this);
+		JLabel lTo = new JLabel(Messages.getString("FontFrame.TO")); //$NON-NLS-1$
+		charMax = new IntegerField(0,255,res.charRangeMax);
+		charMax.setColumns(4);
+		charMax.addActionListener(this);
+
+		JButton crNormal = new JButton(Messages.getString("FontFrame.NORMAL")); //$NON-NLS-1$
+		crNormal.setActionCommand("Normal"); //$NON-NLS-1$
+		crNormal.addActionListener(this);
+
+		JButton crAll = new JButton(Messages.getString("FontFrame.ALL")); //$NON-NLS-1$
+		crAll.setActionCommand("All"); //$NON-NLS-1$
+		crAll.addActionListener(this);
+
+		JButton crDigits = new JButton(Messages.getString("FontFrame.DIGITS")); //$NON-NLS-1$
+		crDigits.setActionCommand("Digits"); //$NON-NLS-1$
+		crDigits.addActionListener(this);
+
+		JButton crLetters = new JButton(Messages.getString("FontFrame.LETTERS")); //$NON-NLS-1$
+		crLetters.setActionCommand("Letters"); //$NON-NLS-1$
+		crLetters.addActionListener(this);
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(charMin)
+		/*		*/.addComponent(lTo)
+		/*		*/.addComponent(charMax))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(crNormal,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*				*/.addComponent(crDigits,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(crAll,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*				*/.addComponent(crLetters,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(charMin)
+		/*		*/.addComponent(lTo)
+		/*		*/.addComponent(charMax))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(crNormal)
+		/*				*/.addComponent(crAll))
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(crDigits)
+		/*				*/.addComponent(crLetters))));
+		return panel;
 		}
 
 	public boolean resourceChanged()
