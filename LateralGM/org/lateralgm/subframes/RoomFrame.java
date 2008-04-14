@@ -877,7 +877,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(sp,DEFAULT_SIZE,480,DEFAULT_SIZE)
 		/*		*/.addComponent(stats)));
-		pack();
+		if (res.rememberWindowSize)
+			setSize(res.editorWidth,res.editorHeight);
+		else
+			pack();
 		}
 
 	public class ListComponentRenderer implements ListCellRenderer

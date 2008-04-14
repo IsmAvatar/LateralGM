@@ -17,6 +17,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
@@ -102,7 +103,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		stop = new JButton(STOP_ICON);
 		stop.addActionListener(this);
 
-		filename = new JLabel(Messages.getString("SoundFrame.FILE") + res.fileName); //$NON-NLS-1$
+		filename = new JLabel(Messages.format("SoundFrame.FILE",res.fileName)); //$NON-NLS-1$
 
 		JPanel pKind = makeKindPane();
 
@@ -141,7 +142,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		/*		*/.addGroup(layout.createParallelGroup()
 		/*				*/.addComponent(play)
 		/*				*/.addComponent(stop)))
-		/**/.addComponent(filename)
+		/**/.addComponent(filename,120,120,MAX_VALUE)
 		/**/.addComponent(pKind,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(pEffects,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(lVolume)
@@ -181,7 +182,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		AbstractButton kNormal = new JRadioButton(Messages.getString("SoundFrame.NORMAL")); //$NON-NLS-1$
 		kind.add(kNormal,Sound.SOUND_NORMAL);
 		AbstractButton kBackground = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
-		kind.add(kBackground,Sound.BACKGROUND);
+		kind.add(kBackground,Sound.SOUND_BACKGROUND);
 		AbstractButton k3d = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
 		kind.add(k3d,Sound.SOUND_3D);
 		AbstractButton kMult = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
@@ -250,10 +251,6 @@ public class SoundFrame extends ResourceFrame<Sound>
 		{
 		res.setName(name.getText());
 
-		String n = filename.getText().substring(Messages.getString("SoundFrame.FILE").length()); //$NON-NLS-1$
-		res.fileName = n;
-		res.fileType = CustomFileFilter.getExtension(n);
-		if (res.fileType == null) res.fileType = "";
 		res.kind = kind.getValue();
 		res.setEffects(effects.getValue());
 		res.volume = volume.getValue() / 100.0;
@@ -272,17 +269,19 @@ public class SoundFrame extends ResourceFrame<Sound>
 		{
 		if (e.getSource() == load)
 			{
+			File f;
 			while (true)
 				{
 				if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
-				if (fc.getSelectedFile().exists()) break;
-				JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
+				f = fc.getSelectedFile();
+				if (f.exists()) break;
+				JOptionPane.showMessageDialog(null,f.getName()
 						+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
 						Messages.getString("SoundFrame.FILE_OPEN"),JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$
 				}
 			try
 				{
-				BufferedInputStream in = new BufferedInputStream(new FileInputStream(fc.getSelectedFile()));
+				BufferedInputStream in = new BufferedInputStream(new FileInputStream(f));
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 				int val = in.read();
 				while (val != -1)
@@ -291,6 +290,11 @@ public class SoundFrame extends ResourceFrame<Sound>
 					val = in.read();
 					}
 				data = out.toByteArray();
+				res.fileName = f.getName();
+				res.fileType = CustomFileFilter.getExtension(res.fileName);
+				if (res.fileType == null)
+					res.fileType = "";
+				filename.setText(Messages.format("SoundFrame.FILE",res.fileName));
 				out.close();
 				in.close();
 				}

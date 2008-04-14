@@ -746,6 +746,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	JTextField author;
 	JTextField version;
+	JTextArea information;
 
 	private JPanel makeInfoPane()
 		{
@@ -764,9 +765,9 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		JTextField lastChanged = new JTextField(GmFile.gmTimeToString(g.lastChanged));
 		lastChanged.setEditable(false);
 		JLabel lInfo = new JLabel(Messages.getString("GameSettingFrame.INFORMATION")); //$NON-NLS-1$
-		JTextArea boxa = new JTextArea(g.information);
-		boxa.setLineWrap(true);
-		JScrollPane infoScroll = new JScrollPane(boxa);
+		information = new JTextArea(g.information);
+		information.setLineWrap(true);
+		JScrollPane infoScroll = new JScrollPane(information);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
@@ -1277,5 +1278,6 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		//Info
 		g.author = author.getText();
 		g.version = version.getText();
+		g.information = information.getText();
 		}
 	}

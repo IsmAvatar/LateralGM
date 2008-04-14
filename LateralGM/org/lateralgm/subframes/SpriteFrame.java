@@ -528,7 +528,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 					}
 
 		int y2 = 0;
-		y2loop: for (int j = height - 1; j > 0; j--)
+		y2loop: for (int j = height - 1; j >= 0; j--)
 			for (int i = x1; i < width; i++)
 				if (img.getRGB(i,j) != transparent)
 					{
@@ -537,8 +537,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 					}
 
 		int x2 = 0;
-		x2loop: for (int i = width - 1; i > 0; i--)
-			for (int j = y1; j < y2; j++)
+		x2loop: for (int i = width - 1; i >= 0; i--)
+			for (int j = y1; j <= y2; j++)
 				if (img.getRGB(i,j) != transparent)
 					{
 					x2 = i;
