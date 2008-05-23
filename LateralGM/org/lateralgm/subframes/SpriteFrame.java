@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -13,11 +14,13 @@ import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -28,6 +31,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
@@ -47,6 +53,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
+	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SoundFrame.PLAY"); //$NON-NLS-1$
+	private static final ImageIcon STOP_ICON = LGM.getIconForKey("SoundFrame.STOP"); //$NON-NLS-1$
 
 	public JButton load;
 	public JLabel width;
@@ -56,6 +64,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	public JButton subRight;
 	public JLabel showLab;
 	public JLabel show;
+	public IntegerField show2;
+	public JButton play;
 	public int currSub;
 	public JButton edit;
 	public JCheckBox transparent;
@@ -76,121 +86,69 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	public IntegerField bboxBottom;
 	public boolean imageChanged = false;
 
+	public JSplitPane splitPane;
 	public SubimagePreview preview;
+	public File extFile;
+
+	private boolean updateSub = true;
+	private boolean animating = false;
 
 	public SpriteFrame(Sprite res, ResNode node)
 		{
 		super(res,node);
-		GroupLayout layout = new GroupLayout(getContentPane());
-		setLayout(layout);
-		JPanel side1 = new JPanel();
-		makeSide1(side1);
+		setLayout(new BorderLayout());
 
-		JPanel side2 = new JPanel();
-		makeSide2(side2);
+		JTabbedPane tabs = new JTabbedPane();
+		tabs.addTab("Properties",makePropertiesPane());
+		tabs.addTab("Subimages",makeSubimagesPane());
 
-		preview = new SubimagePreview(this);
-		preview.setVerticalAlignment(SwingConstants.TOP);
-		JScrollPane scroll = new JScrollPane(preview);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,tabs,makePreviewPane());
+
+		add(makeToolBar(),BorderLayout.NORTH);
+		add(splitPane,BorderLayout.CENTER);
 
 		updateBoundingBox();
 		updateImage();
 		updateInfo();
 
-		// The empty comments here prevent the formatter from messing up line wrapping and indentation.
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addComponent(side2,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addComponent(scroll,64,240,DEFAULT_SIZE));
-		layout.setVerticalGroup(layout.createParallelGroup()
-		/**/.addComponent(side1)
-		/**/.addComponent(side2)
-		/**/.addComponent(scroll,64,240,DEFAULT_SIZE));
-
 		pack();
 		}
 
-	private void makeSide1(JPanel side1)
+	private JToolBar makeToolBar()
 		{
-		GroupLayout layout = new GroupLayout(side1);
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
+		JToolBar tool = new JToolBar();
+		tool.setFloatable(false);
+		tool.setAlignmentX(0);
 
-		side1.setLayout(layout);
+		tool.add(save);
 
-		JLabel lab = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
-		load = new JButton(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$
-		load.setIcon(LOAD_ICON);
+		load = new JButton(Messages.getString("SpriteFrame.LOAD"),LOAD_ICON); //$NON-NLS-1$
 		load.addActionListener(this);
+		tool.add(load);
 
-		width = new JLabel();
-		height = new JLabel();
+		tool.addSeparator();
 
-		subCount = new JLabel();
+		name.setColumns(13);
+		name.setMaximumSize(name.getPreferredSize());
+		tool.add(new JLabel(Messages.getString("ScriptFrame.NAME"))); //$NON-NLS-1$
+		tool.add(name);
 
-		showLab = new JLabel(Messages.getString("SpriteFrame.SHOW")); //$NON-NLS-1$
-		showLab.setHorizontalAlignment(JLabel.CENTER);
-		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
-		subLeft.addActionListener(this);
-		currSub = 0;
-		show = new JLabel();
-		show.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		show.setHorizontalAlignment(JLabel.CENTER);
-		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
-		subRight.addActionListener(this);
-
-		edit = new JButton(Messages.getString("SpriteFrame.EDIT_SPRITE")); //$NON-NLS-1$
 		transparent = new JCheckBox(Messages.getString("SpriteFrame.TRANSPARENT")); //$NON-NLS-1$
 		transparent.setSelected(res.transparent);
 		transparent.addActionListener(this);
-		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
+		transparent.setOpaque(false); //prevent white background
+		tool.add(transparent);
 
-		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(lab)
-		/*		*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
-		/**/.addComponent(load,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(width)
-		/*		*/.addComponent(height))
-		/**/.addComponent(subCount)
-		/**/.addComponent(showLab)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(subLeft)
-		/*		*/.addGap(4)
-		/*		*/.addComponent(show,32,DEFAULT_SIZE,MAX_VALUE)
-		/*		*/.addGap(4)
-		/*		*/.addComponent(subRight))
-		/**/.addComponent(edit,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addComponent(transparent)
-		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
-
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lab)
-		/*		*/.addComponent(name))
-		/**/.addComponent(load)
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(width)
-		/*		*/.addComponent(height))
-		/**/.addComponent(subCount)
-		/**/.addComponent(showLab)
-		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
-		/*		*/.addComponent(subLeft)
-		/*		*/.addComponent(show,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/*		*/.addComponent(subRight))
-		/**/.addComponent(edit)
-		/**/.addComponent(transparent)
-		/**/.addGap(8,8,MAX_VALUE)
-		/**/.addComponent(save));
+		return tool;
 		}
 
-	private void makeSide2(JPanel side2)
+	private JPanel makePropertiesPane()
 		{
-		GroupLayout layout = new GroupLayout(side2);
+		JPanel pane = new JPanel();
+		GroupLayout layout = new GroupLayout(pane);
 		layout.setAutoCreateContainerGaps(true);
 
-		side2.setLayout(layout);
+		pane.setLayout(layout);
 
 		preciseCC = new JCheckBox(Messages.getString("SpriteFrame.PRECISE_CC")); //$NON-NLS-1$
 		preciseCC.setSelected(res.preciseCC);
@@ -276,7 +234,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
 		/**/.addGroup(bLayout.createSequentialGroup()
 		/*		*/.addComponent(auto)
-		/**/.addComponent(full))
+		/*		*/.addComponent(full))
 		/**/.addComponent(manual)
 		/*		*/.addGroup(bLayout.createSequentialGroup()
 		/*		*/.addContainerGap(4,4)
@@ -327,6 +285,182 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		/**/.addComponent(preload)
 		/**/.addComponent(origin)
 		/**/.addComponent(bbox));
+
+		return pane;
+		}
+
+	//TODO: subimages pane
+	private JPanel makeSubimagesPane()
+		{
+		JPanel pane = new JPanel();
+
+		return pane;
+		}
+
+	private JPanel makePreviewPane()
+		{
+		JPanel pane = new JPanel(new BorderLayout());
+
+		preview = new SubimagePreview(this);
+		preview.setVerticalAlignment(SwingConstants.TOP);
+		JScrollPane scroll = new JScrollPane(preview);
+		//scroll.setSize(64,240);
+
+		JPanel controls = new JPanel();
+		GroupLayout layout = new GroupLayout(controls);
+		layout.setAutoCreateGaps(false);
+		layout.setAutoCreateContainerGaps(false);
+		controls.setLayout(layout);
+
+		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
+		subLeft.addActionListener(this);
+
+		show = new JLabel();
+		//		show.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		//		show.setHorizontalAlignment(JLabel.CENTER);
+
+		show2 = new IntegerField(0,res.subImages.size());
+		show2.setHorizontalAlignment(IntegerField.CENTER);
+		show2.addActionListener(this);
+
+		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
+		subRight.addActionListener(this);
+
+		width = new JLabel();
+		height = new JLabel();
+		subCount = new JLabel();
+
+		JLabel lab = new JLabel("Subimage");
+		JLabel lab2 = new JLabel("<html><center>Animation<br>Speed</center></html>");
+
+		IntegerField speed = new IntegerField(1,Integer.MAX_VALUE,30);
+		play = new JButton(PLAY_ICON);
+
+		layout.setHorizontalGroup(layout.createSequentialGroup()
+		/**/.addGap(5)
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(lab,Alignment.CENTER)
+		/*	*/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(subLeft,20,20,20)
+		/*		*/.addComponent(show2)
+		/*		*/.addComponent(subRight,20,20,20)))
+		/**/.addGap(20,20,Integer.MAX_VALUE)
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(lab2,Alignment.CENTER)
+		/*	*/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(speed)
+		/*		*/.addComponent(play,20,20,20)))
+		/**/.addGap(5));
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(lab,Alignment.CENTER)
+		/*	*/.addComponent(lab2,Alignment.CENTER))
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(subLeft,20,20,20)
+		/*	*/.addComponent(show2,21,21,21)
+		/*	*/.addComponent(subRight,20,20,20)
+		/*	*/.addComponent(speed,21,21,21)
+		/*	*/.addComponent(play,20,20,20))
+		/**/.addGap(5));
+
+		//		layout.setVerticalGroup(layout.createParallelGroup()
+		//		/**/.addGroup(layout.createSequentialGroup()
+		//		/*	*/.addComponent(lab)
+		//		/*	*/.addGroup(layout.createParallelGroup()
+		//		/*		*/.addComponent(subLeft,20,20,20)
+		//		/*		*/.addComponent(show,20,20,20)
+		//		/*		*/.addComponent(subRight,20,20,20)))
+		//		/**/.addGap(20,20,Integer.MAX_VALUE)
+		//		/**/.addGroup(layout.createSequentialGroup()
+		//		/*	*/.addComponent(lab2)
+		//		/*	*/.addGroup(layout.createParallelGroup()
+		//		/*		*/.addComponent(speed)
+		//		/*		*/.addComponent(play,20,20,20))));
+
+		pane.add(scroll,BorderLayout.CENTER);
+		pane.add(controls,BorderLayout.SOUTH);
+
+		return pane;
+		}
+
+	private JPanel makeSide2()
+		{
+		JPanel side2 = new JPanel();
+		GroupLayout layout = new GroupLayout(side2);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+
+		side2.setLayout(layout);
+
+		JLabel lab = new JLabel(Messages.getString("SpriteFrame.NAME")); //$NON-NLS-1$
+		load = new JButton(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$
+		load.setIcon(LOAD_ICON);
+		load.addActionListener(this);
+
+		width = new JLabel();
+		height = new JLabel();
+
+		subCount = new JLabel();
+
+		showLab = new JLabel(Messages.getString("SpriteFrame.SHOW")); //$NON-NLS-1$
+		showLab.setHorizontalAlignment(JLabel.CENTER);
+		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
+		subLeft.addActionListener(this);
+		currSub = 0;
+		show = new JLabel();
+		show.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+		show.setHorizontalAlignment(JLabel.CENTER);
+		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
+		subRight.addActionListener(this);
+
+		edit = new JButton(Messages.getString("SpriteFrame.EDIT_SPRITE")); //$NON-NLS-1$
+		transparent = new JCheckBox(Messages.getString("SpriteFrame.TRANSPARENT")); //$NON-NLS-1$
+		transparent.setSelected(res.transparent);
+		transparent.addActionListener(this);
+		save.setText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
+
+		// The empty comments here prevent the formatter from messing up line wrapping and indentation.
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(lab)
+		/*		*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addComponent(load,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(width)
+		/*		*/.addComponent(height))
+		/**/.addComponent(subCount)
+		/**/.addComponent(showLab)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(subLeft)
+		/*		*/.addGap(4)
+		/*		*/.addComponent(show,32,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addGap(4)
+		/*		*/.addComponent(subRight))
+		/**/.addComponent(edit,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(transparent)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lab)
+		/*		*/.addComponent(name))
+		/**/.addComponent(load)
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(width)
+		/*		*/.addComponent(height))
+		/**/.addComponent(subCount)
+		/**/.addComponent(showLab)
+		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
+		/*		*/.addComponent(subLeft)
+		/*		*/.addComponent(show,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+		/*		*/.addComponent(subRight))
+		/**/.addComponent(edit)
+		/**/.addComponent(transparent)
+		/**/.addGap(8,8,MAX_VALUE)
+		/**/.addComponent(save));
+
+		return side2;
 		}
 
 	@Override
@@ -381,12 +515,30 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 				for (BufferedImage i : img)
 					res.addSubImage(i);
 				preview.setIcon(new ImageIcon(res.subImages.get(0)));
+				show2.setRange(0,res.subImages.size());
 				updateInfo();
 				updateBoundingBox();
 				updateImage();
 				node.updateIcon();
 				return;
 				}
+			}
+		if (e.getSource() == subLeft)
+			{
+			if (currSub > 0)
+				{
+				currSub -= 1;
+				updateImage();
+				}
+			return;
+			}
+		if (e.getSource() == show2)
+			{
+			currSub = show2.getIntValue();
+			updateSub = false;
+			updateImage();
+			updateSub = true;
+			return;
 			}
 		if (e.getSource() == subRight)
 			{
@@ -397,11 +549,18 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 				}
 			return;
 			}
-		if (e.getSource() == subLeft)
+		if (e.getSource() == play)
 			{
-			if (currSub > 0)
+			if (animating)
 				{
-				currSub -= 1;
+				animating = false;
+				play.setIcon(PLAY_ICON);
+				updateImage();
+				}
+			else
+				{
+				animating = true;
+				play.setIcon(STOP_ICON);
 				updateImage();
 				}
 			return;
@@ -486,6 +645,11 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			preview.setIcon(new ImageIcon(img));
 			subLeft.setEnabled(currSub > 0);
 			subRight.setEnabled(currSub < res.subImages.size() - 1);
+			if (updateSub)
+				{
+				show2.setEnabled(!animating);
+				show2.setIntValue(currSub);
+				}
 			show.setText(Integer.toString(currSub));
 			}
 		else
@@ -493,7 +657,12 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			preview.setIcon(null);
 			subLeft.setEnabled(false);
 			subRight.setEnabled(false);
-			show.setText(""); //$NON-NLS-1$
+			if (updateSub)
+				{
+				show2.setIntValue(0);
+				show2.setEnabled(false);
+				}
+			show.setText("");
 			}
 		}
 

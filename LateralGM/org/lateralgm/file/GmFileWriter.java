@@ -386,7 +386,7 @@ public final class GmFileWriter
 				for (Moment mom : time.moments)
 					{
 					out.write4(mom.stepNo);
-					writeActions(f,out,mom);
+					writeActions(out,mom);
 					}
 				}
 			}
@@ -420,7 +420,7 @@ public final class GmFileWriter
 							out.writeId(ev.other);
 						else
 							out.write4(ev.id);
-						writeActions(f,out,ev);
+						writeActions(out,ev);
 						}
 					out.write4(-1);
 					}
@@ -451,10 +451,9 @@ public final class GmFileWriter
 				out.write4(Util.getGmColor(rm.backgroundColor));
 				out.writeBool(rm.drawBackgroundColor);
 				out.writeStr(rm.creationCode);
-				out.write4(8);
-				for (int j = 0; j < 8; j++)
+				out.write4(rm.backgroundDefs.length);
+				for (BackgroundDef back : rm.backgroundDefs)
 					{
-					BackgroundDef back = rm.backgroundDefs[j];
 					out.writeBool(back.visible);
 					out.writeBool(back.foreground);
 					out.writeId(back.backgroundId);
@@ -467,10 +466,9 @@ public final class GmFileWriter
 					out.writeBool(back.stretch);
 					}
 				out.writeBool(rm.enableViews);
-				out.write4(8);
-				for (int j = 0; j < 8; j++)
+				out.write4(rm.views.length);
+				for (View view : rm.views)
 					{
-					View view = rm.views[j];
 					out.writeBool(view.visible);
 					out.write4(view.viewX);
 					out.write4(view.viewY);
@@ -547,7 +545,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeActions(GmFile f, GmStreamEncoder out, ActionContainer container)
+	public static void writeActions(GmStreamEncoder out, ActionContainer container)
 			throws IOException
 		{
 		out.write4(400);

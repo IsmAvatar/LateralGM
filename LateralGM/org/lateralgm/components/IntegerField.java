@@ -81,6 +81,13 @@ public class IntegerField extends JTextField implements DocumentListener
 		setText(Integer.toString(lastGoodVal));
 		}
 
+	public void setRange(int min, int max)
+		{
+		this.min = min;
+		this.max = max;
+		validateInt();
+		}
+
 	protected void processFocusEvent(FocusEvent e)
 		{
 		if (e.getID() == FocusEvent.FOCUS_LOST)

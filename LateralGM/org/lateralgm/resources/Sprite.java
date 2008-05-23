@@ -81,17 +81,16 @@ public class Sprite extends Resource<Sprite>
 		subImages.add(image);
 		}
 
-	public BufferedImage copySubImage(int listIndex)// returns a copy of
-	// subimage with given index (new subimage is not added to the sprite)
+	/**
+	 * returns a copy of subimage with given index (new subimage is not added to the sprite)
+	 */
+	public BufferedImage copySubImage(int listIndex)
 		{
 		BufferedImage bf = subImages.get(listIndex);
-		if (bf != null)
-			{
-			BufferedImage bf2 = new BufferedImage(bf.getWidth(),bf.getHeight(),bf.getType());
-			bf2.setData(bf.getData());
-			return bf2;
-			}
-		return null;
+		if (bf == null) return null;
+		BufferedImage bf2 = new BufferedImage(bf.getWidth(),bf.getHeight(),bf.getType());
+		bf2.setData(bf.getData());
+		return bf2;
 		}
 
 	public BufferedImage getDisplayImage()
@@ -100,15 +99,9 @@ public class Sprite extends Resource<Sprite>
 		if (imageCache != null)
 			{
 			bi = imageCache.get();
-			if (bi != null)
-				{
-				return bi;
-				}
+			if (bi != null) return bi;
 			}
-		if (subImages.size() < 1)
-			{
-			return null;
-			}
+		if (subImages.size() < 1) return null;
 		bi = subImages.get(0);
 		if (transparent) bi = Util.getTransparentIcon(bi);
 		imageCache = new SoftReference<BufferedImage>(bi);
@@ -132,9 +125,7 @@ public class Sprite extends Resource<Sprite>
 		spr.boundingBoxTop = boundingBoxTop;
 		spr.boundingBoxBottom = boundingBoxBottom;
 		for (int j = 0; j < subImages.size(); j++)
-			{
 			spr.addSubImage(copySubImage(j));
-			}
 		if (update)
 			{
 			spr.setName(Prefs.prefixes[Resource.SPRITE] + (src.lastId + 1));

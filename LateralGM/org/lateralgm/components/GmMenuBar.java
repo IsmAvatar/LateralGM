@@ -10,8 +10,11 @@
 package org.lateralgm.components;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,6 +27,8 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.plugin.EGMC;
+import org.lateralgm.plugin.Plugin;
 
 public class GmMenuBar extends JMenuBar
 	{
@@ -70,6 +75,51 @@ public class GmMenuBar extends JMenuBar
 			}
 		}
 
+	public GmMenu makePluginMenu()
+		{
+		GmMenu sub = new GmMenu("Plugins");
+		File dir = new File("./plugins");
+		if (!dir.exists()) return sub;
+		File[] ps = dir.listFiles();
+		if (ps.length == 0) return sub;
+		for (File f : ps)
+			{
+			if (!f.exists()) continue;
+			JMenuItem mi = new JMenuItem(f.getName());
+			try
+				{
+				//				Manifest mf = new JarFile(f).getManifest();
+				URLClassLoader ucl = new URLClassLoader(new URL[] { f.toURI().toURL() });
+				Class<?> c = ucl.loadClass("Main");
+				boolean b = c.isAssignableFrom(Plugin.class);
+				System.out.println(b);
+				if (!b) continue;
+				final Plugin p = (Plugin) ucl.loadClass("Main").newInstance();
+				mi.addActionListener(new ActionListener()
+					{
+						public void actionPerformed(ActionEvent e)
+							{
+							p.execute();
+							}
+					});
+				}
+			catch (Exception e)
+				{
+				System.out.println("Unable to load plugin: " + f.toString() + ": " + e.getCause() + ": "
+						+ e.getMessage());
+				continue;
+				}
+			//			if (!(o instanceof Plugin))
+			//				{
+			//				System.out.println(o.toString());
+			//				continue;
+			//				}
+			//			final Plugin p = (Plugin) o;
+			sub.add(mi);
+			}
+		return sub;
+		}
+
 	public GmMenuBar()
 		{
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
@@ -81,6 +131,15 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("GmMenuBar.SAVE",KeyEvent.VK_S,ActionEvent.CTRL_MASK); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SAVEAS"); //$NON-NLS-1$
 		menu.add(new JSeparator());
+		JMenuItem mi = new JMenuItem("Compile with Enigma");
+		mi.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+					{
+					new EGMC().execute();
+					}
+			});
+		menu.add(mi);
 		// JCheckBoxMenuItem check = new JCheckBoxMenuItem();
 		// setTextAndAlt(check,Messages.getString("GmMenuBar.ADVANCED")); //$NON-NLS-1$
 		// menu.add(check);
