@@ -74,25 +74,27 @@ public class SubimagePreview extends AbstractImagePreview
 			setPreferredSize(new Dimension(0,0));
 		}
 
+	public void setBoundedOrigin(int x, int y)
+		{
+		Dimension d = getPreferredSize();
+		x = Math.max(0,Math.min(d.width - 1,x));
+		y = Math.max(0,Math.min(d.height - 1,y));
+		frame.originX.setIntValue(x);
+		frame.originY.setIntValue(y);
+		}
+
 	protected void processMouseEvent(MouseEvent e)
 		{
-		if ((e.getID() == MouseEvent.MOUSE_PRESSED && e.getX() < getPreferredSize().width
-				&& e.getY() < getPreferredSize().height || e.getID() == MouseEvent.MOUSE_DRAGGED)
-				&& (e.getModifiers() | MouseEvent.BUTTON1_MASK) != 0)
-			{
-			Dimension d = getPreferredSize();
-			int x = Math.max(0,Math.min(d.width - 1,e.getX()));
-			int y = Math.max(0,Math.min(d.height - 1,e.getY()));
-			frame.originX.setIntValue(x);
-			frame.originY.setIntValue(y);
-			}
-
+		if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1
+				&& e.getX() < getPreferredSize().width && e.getY() < getPreferredSize().height)
+			setBoundedOrigin(e.getX(),e.getY());
 		super.processMouseEvent(e);
 		}
 
 	protected void processMouseMotionEvent(MouseEvent e)
 		{
-		processMouseEvent(e);
+		if (e.getID() == MouseEvent.MOUSE_DRAGGED && (e.getModifiers() | MouseEvent.BUTTON1_MASK) != 0)
+			setBoundedOrigin(e.getX(),e.getY());
 		super.processMouseMotionEvent(e);
 		}
 
