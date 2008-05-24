@@ -260,11 +260,7 @@ public final class LGM
 		{
 		Util.tweakIIORegistry();
 		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm");
-		if (!tempDir.exists())
-			tempDir.mkdir();
-		else
-			for (File f : tempDir.listFiles())
-				if (f.isFile()) f.delete();
+		if (!tempDir.exists()) tempDir.mkdir();
 		}
 
 	public static void main(String[] args)

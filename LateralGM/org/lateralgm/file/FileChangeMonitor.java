@@ -49,7 +49,6 @@ public class FileChangeMonitor extends Thread
 				if (!file.exists())
 					{
 					flag = FLAG_DELETED;
-					System.out.println("deleted");
 					fireStateChanged();
 					break;
 					}
@@ -57,7 +56,6 @@ public class FileChangeMonitor extends Thread
 					{
 					flag = FLAG_CHANGED;
 					lm = file.lastModified();
-					System.out.println("changed");
 					fireStateChanged();
 					}
 				}

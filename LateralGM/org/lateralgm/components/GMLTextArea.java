@@ -328,14 +328,17 @@ public class GMLTextArea extends JEditTextArea implements ChangeListener
 
 		public void actionPerformed(ActionEvent e)
 			{
-			int s = getSelectionStart();
-			int sl = getSelectionStartLine();
-			int ls = s - getLineStartOffset(sl);
-			String lt = getLineText(sl);
-			int l1 = find(lt.substring(0,ls),"\\w+$").length();
-			int l2 = find(lt.substring(ls),"^\\w+").length();
-			if (completions == null) updateCompletions();
-			new CompletionMenu(LGM.frame,GMLTextArea.this,s - l1,l1,l1 + l2,completions);
+			if (isEditable())
+				{
+				int s = getSelectionStart();
+				int sl = getSelectionStartLine();
+				int ls = s - getLineStartOffset(sl);
+				String lt = getLineText(sl);
+				int l1 = find(lt.substring(0,ls),"\\w+$").length();
+				int l2 = find(lt.substring(ls),"^\\w+").length();
+				if (completions == null) updateCompletions();
+				new CompletionMenu(LGM.frame,GMLTextArea.this,s - l1,l1,l1 + l2,completions);
+				}
 			}
 		}
 

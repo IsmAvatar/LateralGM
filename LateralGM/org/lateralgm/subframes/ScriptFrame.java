@@ -131,7 +131,8 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 					{
 					if (extFile == null)
 						{
-						extFile = new File(LGM.tempDir + File.separator + "scr" + res.hashCode() + ".gml"); //$NON-NLS-1$ //$NON-NLS-2$
+						extFile = File.createTempFile(res.getName(),".gml",LGM.tempDir);
+						extFile.deleteOnExit();
 						FileWriter out = new FileWriter(extFile);
 						out.write(res.scriptStr);
 						out.close();

@@ -335,7 +335,8 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 					{
 					if (extFile == null)
 						{
-						extFile = new File(LGM.tempDir + File.separator + "back" + res.hashCode() + ".bmp");
+						extFile = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
+						extFile.deleteOnExit();
 						FileOutputStream out = new FileOutputStream(extFile);
 						ImageIO.write(res.backgroundImage,"bmp",out);
 						out.close();
