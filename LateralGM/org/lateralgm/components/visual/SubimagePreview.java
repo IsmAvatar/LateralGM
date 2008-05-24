@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -31,6 +32,7 @@ public class SubimagePreview extends AbstractImagePreview
 		super();
 		this.frame = frame;
 		enableEvents(MouseEvent.MOUSE_PRESSED);
+		enableEvents(MouseEvent.MOUSE_DRAGGED);
 		}
 
 	public void paintComponent(Graphics g)
@@ -74,13 +76,24 @@ public class SubimagePreview extends AbstractImagePreview
 
 	protected void processMouseEvent(MouseEvent e)
 		{
-		if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1
-				&& e.getX() < getPreferredSize().width && e.getY() < getPreferredSize().height)
+		if ((e.getID() == MouseEvent.MOUSE_PRESSED && e.getX() < getPreferredSize().width
+				&& e.getY() < getPreferredSize().height || e.getID() == MouseEvent.MOUSE_DRAGGED)
+				&& (e.getModifiers() | MouseEvent.BUTTON1_MASK) != 0)
 			{
-			frame.originX.setIntValue(e.getX());
-			frame.originY.setIntValue(e.getY());
+			Dimension d = getPreferredSize();
+			int x = Math.max(0,Math.min(d.width - 1,e.getX()));
+			int y = Math.max(0,Math.min(d.height - 1,e.getY()));
+			frame.originX.setIntValue(x);
+			frame.originY.setIntValue(y);
 			}
+
 		super.processMouseEvent(e);
+		}
+
+	protected void processMouseMotionEvent(MouseEvent e)
+		{
+		processMouseEvent(e);
+		super.processMouseMotionEvent(e);
 		}
 
 	protected BufferedImage getImage()
