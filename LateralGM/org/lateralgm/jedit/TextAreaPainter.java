@@ -92,7 +92,7 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	 * will be used to paint tokens with id = <i>n</i>.
 	 * @see org.gjt.sp.jedit.syntax.Token
 	 */
-	public final SyntaxStyle[] getStyles()
+	public final SyntaxStyle[] getStyles2()
 		{
 		return styles;
 		}

@@ -170,14 +170,6 @@ public abstract class TokenMarker
 		}
 
 	/**
-	 * Returns the number of lines in this token marker.
-	 */
-	public int getLineCount()
-		{
-		return length;
-		}
-
-	/**
 	 * Returns true if the next line should be repainted. This
 	 * will return true after a line has been tokenized that starts
 	 * a multiline token that continues onto the next line.
@@ -286,35 +278,12 @@ public abstract class TokenMarker
 	/** Inner class for storing information about tokenized lines. */
 	public class LineInfo
 		{
-		/**
-		 * Creates a new LineInfo object with token = Token.NULL
-		 * and obj = null.
-		 */
+		/** Creates a new LineInfo object with token = Token.NULL. */
 		public LineInfo()
 			{
 			}
 
-		/**
-		 * Creates a new LineInfo object with the specified
-		 * parameters.
-		 */
-		public LineInfo(byte token, Object obj)
-			{
-			this.token = token;
-			this.obj = obj;
-			}
-
-		/**
-		 * The id of the last token of the line.
-		 */
+		/** The id of the last token of the line. */
 		public byte token;
-
-		/**
-		 * This is for use by the token marker implementations
-		 * themselves. It can be used to store anything that
-		 * is an object and that needs to exist on a per-line
-		 * basis.
-		 */
-		public Object obj;
 		}
 	}

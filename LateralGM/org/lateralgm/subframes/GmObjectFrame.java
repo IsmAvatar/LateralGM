@@ -35,7 +35,6 @@ import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -79,7 +78,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	//TODO: update this when sprite changes, not just when ResourceMenu selection changes
 	public JLabel preview;
 	public ResourceMenu<Sprite> sprite;
-	public JComboBox sp2;
 	public JButton newSprite;
 	public JButton editSprite;
 	public JCheckBox visible;

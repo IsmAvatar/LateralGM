@@ -10,9 +10,7 @@ package org.lateralgm.jedit;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Toolkit;
 
 /**
  * A simple text style class. It can specify the color, italic flag,
@@ -35,38 +33,6 @@ public class SyntaxStyle
 		}
 
 	/**
-	 * Returns the color specified in this style.
-	 */
-	public Color getColor()
-		{
-		return color;
-		}
-
-	/**
-	 * Returns true if no font styles are enabled.
-	 */
-	public boolean isPlain()
-		{
-		return !(bold || italic);
-		}
-
-	/**
-	 * Returns true if italics is enabled for this style.
-	 */
-	public boolean isItalic()
-		{
-		return italic;
-		}
-
-	/**
-	 * Returns true if boldface is enabled for this style.
-	 */
-	public boolean isBold()
-		{
-		return bold;
-		}
-
-	/**
 	 * Returns the specified font, but with the style's bold and
 	 * italic flags applied.
 	 */
@@ -78,20 +44,6 @@ public class SyntaxStyle
 		lastStyledFont = new Font(font.getFamily(),(bold ? Font.BOLD : 0) | (italic ? Font.ITALIC : 0),
 				font.getSize());
 		return lastStyledFont;
-		}
-
-	/**
-	 * Returns the font metrics for the styled font.
-	 */
-	public FontMetrics getFontMetrics(Font font)
-		{
-		if (font == null) throw new NullPointerException("font param must not be null");
-		if (font.equals(lastFont) && fontMetrics != null) return fontMetrics;
-		lastFont = font;
-		lastStyledFont = new Font(font.getFamily(),(bold ? Font.BOLD : 0) | (italic ? Font.ITALIC : 0),
-				font.getSize());
-		fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(lastStyledFont);
-		return fontMetrics;
 		}
 
 	/**
@@ -122,5 +74,4 @@ public class SyntaxStyle
 	private boolean bold;
 	private Font lastFont;
 	private Font lastStyledFont;
-	private FontMetrics fontMetrics;
 	}

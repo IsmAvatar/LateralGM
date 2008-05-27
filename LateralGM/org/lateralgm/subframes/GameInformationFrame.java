@@ -27,7 +27,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -357,17 +356,10 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		sd.setCharacterAttributes(a,b - a,sas,false);
 		}
 
-	public static void addRTF(String str)
-		{
-		try
-			{
-			rtf.read(new ByteArrayInputStream(str.getBytes()),editor.getDocument(),0);
-			}
-		catch (Exception e)
-			{
-			e.printStackTrace();
-			}
-		}
+	//	public static void addRTF(String str)
+	//		{
+	//		rtf.read(new ByteArrayInputStream(str.getBytes()),editor.getDocument(),0);
+	//		}
 
 	public JMenuItem addItem(String key)
 		{

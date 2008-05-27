@@ -22,7 +22,6 @@ import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
@@ -181,7 +180,6 @@ public class JEditTextArea extends JComponent
 		setDocument(defaults.document);
 		editable = defaults.editable;
 		caretVisible = defaults.caretVisible;
-		caretBlinks = defaults.caretBlinks;
 		electricScroll = defaults.electricScroll;
 
 		popup = defaults.popup;
@@ -197,14 +195,6 @@ public class JEditTextArea extends JComponent
 	public final boolean isManagingFocus()
 		{
 		return true;
-		}
-
-	/**
-	 * Returns the object responsible for painting this text area.
-	 */
-	public final TextAreaPainter getPainter()
-		{
-		return painter;
 		}
 
 	/**
@@ -225,31 +215,11 @@ public class JEditTextArea extends JComponent
 		}
 
 	/**
-	 * Returns true if the caret is blinking, false otherwise.
-	 */
-	public final boolean isCaretBlinkEnabled()
-		{
-		return caretBlinks;
-		}
-
-	/**
-	 * Toggles caret blinking.
-	 * @param caretBlinks True if the caret should blink, false otherwise
-	 */
-	public void setCaretBlinkEnabled(boolean caretBlinks)
-		{
-		this.caretBlinks = caretBlinks;
-		if (!caretBlinks) blink = false;
-
-		painter.invalidateSelectedLines();
-		}
-
-	/**
 	 * Returns true if the caret is visible, false otherwise.
 	 */
 	public final boolean isCaretVisible()
 		{
-		return (!caretBlinks || blink) && caretVisible;
+		return blink && caretVisible;
 		}
 
 	/**
@@ -270,18 +240,13 @@ public class JEditTextArea extends JComponent
 	 */
 	public final void blinkCaret()
 		{
-		if (caretBlinks)
-			{
-			blink = !blink;
-			painter.invalidateSelectedLines();
-			}
-		else
-			blink = true;
+		blink = !blink;
+		painter.invalidateSelectedLines();
 		}
 
 	/**
-	 * Returns the number of lines from the top and button of the
-	 * text area that are always visible.
+	 * Returns the number of lines from the top and bottom
+	 * of the text area that are always visible.
 	 */
 	public final int getElectricScroll()
 		{
@@ -289,8 +254,8 @@ public class JEditTextArea extends JComponent
 		}
 
 	/**
-	 * Sets the number of lines from the top and bottom of the text
-	 * area that are always visible
+	 * Sets the number of lines from the top and bottom
+	 * of the text area that are always visible.
 	 * @param electricScroll The number of lines always visible from
 	 * the top or bottom
 	 */
@@ -555,8 +520,8 @@ public class JEditTextArea extends JComponent
 			tokens = painter.currentLineTokens = tokenMarker.markTokens(lineSegment,line);
 			}
 
-		Font defaultFont = painter.getFont();
-		SyntaxStyle[] styles = painter.getStyles();
+		//		Font defaultFont = painter.getFont();
+		//		SyntaxStyle[] styles = painter.getStyles();
 
 		for (;;)
 			{
@@ -566,10 +531,10 @@ public class JEditTextArea extends JComponent
 				return x;
 				}
 
-			if (id == Token.NULL)
-				fm = painter.getFontMetrics();
-			else
-				fm = styles[id].getFontMetrics(defaultFont);
+			//			if (id == Token.NULL)
+			fm = painter.getFontMetrics();
+			//			else
+			//				fm = styles[id].getFontMetrics(defaultFont);
 
 			int length = tokens.length;
 
@@ -640,18 +605,18 @@ public class JEditTextArea extends JComponent
 			}
 
 		int offset = 0;
-		Font defaultFont = painter.getFont();
-		SyntaxStyle[] styles = painter.getStyles();
+		//		Font defaultFont = painter.getFont();
+		//		SyntaxStyle[] styles = painter.getStyles();
 
 		for (;;)
 			{
 			byte id = tokens.id;
 			if (id == Token.END) return offset;
 
-			if (id == Token.NULL)
-				fm = painter.getFontMetrics();
-			else
-				fm = styles[id].getFontMetrics(defaultFont);
+			//			if (id == Token.NULL)
+			fm = painter.getFontMetrics();
+			//			else
+			//				fm = styles[id].getFontMetrics(defaultFont);
 
 			int length = tokens.length;
 
@@ -1550,7 +1515,6 @@ public class JEditTextArea extends JComponent
 	protected EventListenerList listenerList;
 	protected MutableCaretEvent caretEvent;
 
-	protected boolean caretBlinks;
 	protected boolean caretVisible;
 	protected boolean blink;
 
@@ -2012,18 +1976,18 @@ public class JEditTextArea extends JComponent
 			switch (evt.getClickCount())
 				{
 				case 1:
-					doSingleClick(evt,line,offset,dot);
+					doSingleClick(evt,dot);
 					break;
 				case 2:
-					doDoubleClick(evt,line,offset,dot);
+					doDoubleClick(line,offset,dot);
 					break;
 				case 3:
-					doTripleClick(evt,line,offset,dot);
+					doTripleClick(line);
 					break;
 				}
 			}
 
-		private void doSingleClick(MouseEvent evt, int line, int offset, int dot)
+		private void doSingleClick(MouseEvent evt, int dot)
 			{
 			if ((evt.getModifiers() & InputEvent.SHIFT_MASK) != 0)
 				{
@@ -2034,7 +1998,7 @@ public class JEditTextArea extends JComponent
 				setCaretPosition(dot);
 			}
 
-		private void doDoubleClick(MouseEvent evt, int line, int offset, int dot)
+		private void doDoubleClick(int line, int offset, int dot)
 			{
 			// Ignore empty lines
 			if (getLineLength(line) == 0) return;
@@ -2108,7 +2072,7 @@ public class JEditTextArea extends JComponent
 			 */
 			}
 
-		private void doTripleClick(MouseEvent evt, int line, int offset, int dot)
+		private void doTripleClick(int line)
 			{
 			select(getLineStartOffset(line),getLineEndOffset(line) - 1);
 			}

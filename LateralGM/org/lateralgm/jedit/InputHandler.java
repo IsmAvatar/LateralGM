@@ -63,6 +63,7 @@ public abstract class InputHandler extends KeyAdapter
 	public static final ActionListener DOCUMENT_END = new document_end(false);
 	public static final ActionListener SELECT_END = new end(true);
 	public static final ActionListener SELECT_DOC_END = new document_end(true);
+	public static final ActionListener SELECT_ALL = new select_all();
 	public static final ActionListener INSERT_BREAK = new insert_break();
 	public static final ActionListener INSERT_TAB = new insert_tab();
 	public static final ActionListener HOME = new home(false);
@@ -105,6 +106,7 @@ public abstract class InputHandler extends KeyAdapter
 		actions.put("backspace-word",BACKSPACE_WORD);
 		actions.put("delete",DELETE);
 		actions.put("delete-word",DELETE_WORD);
+		actions.put("select-all",SELECT_ALL);
 		actions.put("end",END);
 		actions.put("select-end",SELECT_END);
 		actions.put("document-end",DOCUMENT_END);
@@ -558,6 +560,14 @@ public abstract class InputHandler extends KeyAdapter
 				{
 				bl.printStackTrace();
 				}
+			}
+		}
+
+	public static class select_all implements ActionListener
+		{
+		public void actionPerformed(ActionEvent evt)
+			{
+			getTextArea(evt).selectAll();
 			}
 		}
 

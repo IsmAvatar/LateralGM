@@ -102,11 +102,6 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 
 	public abstract void commitChanges();
 
-	public void addGap(int w, int h)
-		{
-		addGap(this,w,h);
-		}
-
 	public static void addGap(Container c, int w, int h)
 		{
 		JLabel l = new JLabel();

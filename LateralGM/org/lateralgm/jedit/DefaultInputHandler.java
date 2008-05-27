@@ -53,6 +53,7 @@ public class DefaultInputHandler extends InputHandler
 		addKeyBinding("C+END",DOCUMENT_END);
 		addKeyBinding("CS+HOME",SELECT_DOC_HOME);
 		addKeyBinding("CS+END",SELECT_DOC_END);
+		addKeyBinding("C+A",SELECT_ALL);
 
 		addKeyBinding("PAGE_UP",PREV_PAGE);
 		addKeyBinding("PAGE_DOWN",NEXT_PAGE);
