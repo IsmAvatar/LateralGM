@@ -15,6 +15,8 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -24,11 +26,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
@@ -322,8 +327,11 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	//TODO: subimages pane
 	private JPanel makeSubimagesPane()
 		{
-		JPanel pane = new JPanel();
-
+		JPanel pane = new JPanel(new BorderLayout());
+		JToolBar tool = new JToolBar();
+		pane.add(tool,BorderLayout.NORTH);
+		JList list = new JList();
+		pane.add(new JScrollPane(list),BorderLayout.CENTER);
 		return pane;
 		}
 
@@ -358,7 +366,20 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		lab2.setHorizontalAlignment(JLabel.CENTER);
 
 		speed = new IntegerField(1,Integer.MAX_VALUE,30);
+		speed.setToolTipText(Messages.getString("SpriteFrame.CALC_TIP")); //$NON-NLS-1$
 		speed.addActionListener(this);
+		speed.addMouseListener(new MouseAdapter()
+			{
+				public void mouseClicked(MouseEvent e)
+					{
+					//works for all mouse buttons
+					if ((e.getModifiers() | MouseEvent.CTRL_DOWN_MASK) != 0)
+						{
+						showSpeedDialog();
+						return;
+						}
+					}
+			});
 		play = new JButton(PLAY_ICON);
 		play.addActionListener(this);
 
@@ -394,6 +415,56 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		pane.add(controls,BorderLayout.SOUTH);
 
 		return pane;
+		}
+
+	private void showSpeedDialog()
+		{
+		JPanel p = new JPanel();
+		GroupLayout layout = new GroupLayout(p);
+		layout.setAutoCreateGaps(false);
+		layout.setAutoCreateContainerGaps(false);
+		p.setLayout(layout);
+
+		JLabel caption = new JLabel(Messages.getString("SpriteFrame.CALC_CAPTION")); //$NON-NLS-1$
+		JLabel lrs = new JLabel(Messages.getString("SpriteFrame.CALC_ROOM_SPEED")); //$NON-NLS-1$
+		JLabel lis = new JLabel(Messages.getString("SpriteFrame.CALC_IMAGE_SPEED")); //$NON-NLS-1$
+		IntegerField rs = new IntegerField(1,Integer.MAX_VALUE,speed.getIntValue());
+		JTextField is = new JTextField("1.0"); //$NON-NLS-1$
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(caption,Alignment.CENTER)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(lrs)
+		/*		*/.addComponent(lis))
+		/*	*/.addGap(5)
+		/*	*/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(rs)
+		/*		*/.addComponent(is))));
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(caption)
+		/*	*/.addGap(5)
+		/*	*/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(lrs)
+		/*		*/.addComponent(rs))
+		/*	*/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(lis)
+		/*		*/.addComponent(is)));
+
+		JOptionPane.showMessageDialog(this,p);
+
+		int i = rs.getIntValue();
+		double d = 1.0;
+		try
+			{
+			d = Double.parseDouble(is.getText());
+			}
+		catch (NumberFormatException nfe)
+			{
+			}
+		speed.setIntValue((int) (i * d));
+		//triggers listener
 		}
 
 	@Override
