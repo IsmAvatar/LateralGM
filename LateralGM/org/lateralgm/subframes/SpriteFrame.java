@@ -13,13 +13,19 @@ package org.lateralgm.subframes;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -37,20 +43,26 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.SubimagePreview;
+import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
 
-public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
+public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener,MouseListener,
+		ChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -324,13 +336,19 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		return pane;
 		}
 
-	//TODO: subimages pane
+	//TODO: subimages toolbar, drag and drop
 	private JPanel makeSubimagesPane()
 		{
 		JPanel pane = new JPanel(new BorderLayout());
+		//prevent resizing on large subimages with size(1,1)
+		pane.setPreferredSize(new Dimension(1,1)); 
 		JToolBar tool = new JToolBar();
 		pane.add(tool,BorderLayout.NORTH);
-		JList list = new JList();
+		ImageIcon ii[] = new ImageIcon[res.subImages.size()];
+		for (int i = 0; i < res.subImages.size(); i++)
+			ii[i] = new ImageIcon(res.subImages.get(i));
+		JList list = new JList(ii);
+		list.addMouseListener(this);
 		pane.add(new JScrollPane(list),BorderLayout.CENTER);
 		return pane;
 		}
@@ -751,5 +769,113 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		l.width += s.width - p.width;
 		l.height += s.height - p.height;
 		return l;
+		}
+
+	public void editSubimage(int i)
+		{
+		if (i == -1 || i >= res.subImages.size()) return;
+		BufferedImage img = res.subImages.get(i);
+		if (img == null) return;
+
+		if (Prefs.useExternalSpriteEditor)
+			{
+			try
+				{
+				if (extFile == null)
+					{
+					extFile = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
+					extFile.deleteOnExit();
+					FileOutputStream out = new FileOutputStream(extFile);
+					ImageIO.write(img,"bmp",out);
+					out.close();
+					FileChangeMonitor fcm = new FileChangeMonitor(extFile);
+					fcm.addChangeListener(this);
+					fcm.start();
+					}
+				Runtime.getRuntime().exec(
+						String.format(Prefs.externalSpriteEditorCommand,extFile.getAbsolutePath()));
+				}
+			catch (Exception ex)
+				{
+				ex.printStackTrace();
+				}
+			}
+		return;
+
+		}
+
+	public void mousePressed(MouseEvent e)
+		{
+		if (e.getClickCount() == 2)
+			{
+			JList list = (JList) e.getSource();
+			editSubimage(list.getSelectedIndex());
+			}
+		}
+
+	public void stateChanged(ChangeEvent e)
+		{
+		if (e.getSource() instanceof FileChangeMonitor)
+			{
+			int flag = ((FileChangeMonitor) e.getSource()).getFlag();
+			if (flag == FileChangeMonitor.FLAG_CHANGED)
+				{
+				try
+					{
+					BufferedImage img = ImageIO.read(new FileInputStream(extFile));
+					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
+					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
+							BufferedImage.TYPE_3BYTE_BGR);
+					conv.filter(img,dest);
+					//TODO: Update the subimage
+					//not entirely sure if this is necessary, but
+					//stateChanged does get called from another thread
+					SwingUtilities.invokeLater(new Runnable()
+						{
+							public void run()
+								{
+								updateImage();
+								}
+						});
+					}
+				catch (Exception ex)
+					{
+					ex.printStackTrace();
+					}
+				}
+			else if (flag == FileChangeMonitor.FLAG_DELETED)
+				{
+				extFile = null;
+				}
+			}
+		}
+
+	protected void cleanup()
+		{
+		try
+			{
+			extFile.delete();
+			}
+		catch (Exception e)
+			{
+			}
+		extFile = null;
+		}
+
+	//unused
+	public void mouseClicked(MouseEvent e)
+		{
+		}
+
+	public void mouseEntered(MouseEvent e)
+		{
+		}
+
+	public void mouseExited(MouseEvent e)
+		{
+		}
+
+	public void mouseReleased(MouseEvent e)
+		{
 		}
 	}

@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -56,6 +57,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 	protected RoomFrame frame;
 	private RoomComponent cursor;
 	protected List<RoomComponent> depthSortables;
+	public int zoom = 2;
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
@@ -79,8 +81,9 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 	public void refresh()
 		{
-		Dimension s = new Dimension(frame.sWidth.getIntValue(),frame.sHeight.getIntValue());
-		setPreferredSize(s);
+		int w = frame.sWidth.getIntValue() / zoom;
+		int h = frame.sHeight.getIntValue() / zoom;
+		setPreferredSize(new Dimension(w,h));
 		revalidate();
 		repaint();
 		}
@@ -298,8 +301,9 @@ public class RoomEditor extends JPanel implements ImageObserver
 		{
 		int modifiers = e.getModifiersEx();
 		int type = e.getID();
-		int x = e.getX();
-		int y = e.getY();
+		int x = e.getX() * zoom;
+		int y = e.getY() * zoom;
+		Point p = new Point(x,y); //scaled and unsnapped
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
 			x = x / room.snapX * room.snapX;
@@ -313,7 +317,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 		RoomComponent mc = null;
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 			{
-			mc = findSpecificDepthSortable(e.getPoint(),false);
+			mc = findSpecificDepthSortable(p,false);
 			if (mc != null)
 				{
 				Tile tile = ((TileComponent) mc).tile;
@@ -326,7 +330,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		else
 			{
-			mc = findSpecificDepthSortable(e.getPoint(),true);
+			mc = findSpecificDepthSortable(p,true);
 			if (mc != null)
 				{
 				Instance instance = ((InstanceComponent) mc).instance;
@@ -343,14 +347,15 @@ public class RoomEditor extends JPanel implements ImageObserver
 			processLeftButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,new Point(x,y));
 		else if (cursor != null) releaseCursor(new Point(x,y));
 		if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
-			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,e.getPoint()); //use mouse point
+			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,p); //use mouse point
 		repaint();
 		}
 
 	@Override
 	public void paintComponent(Graphics g)
 		{
-		Graphics g2 = g.create();
+		Graphics2D g2 = (Graphics2D) g.create();
+		g2.scale(1.0 / zoom,1.0 / zoom);
 		int width = frame.sWidth.getIntValue();
 		int height = frame.sHeight.getIntValue();
 		g2.clipRect(0,0,width,height);
@@ -363,14 +368,14 @@ public class RoomEditor extends JPanel implements ImageObserver
 		{
 		BufferedImage bi = bd.backgroundId.get().backgroundImage;
 		if (bi == null) return;
+		int w = bd.stretch ? width : bi.getWidth();
+		int h = bd.stretch ? height : bi.getHeight();
 		if (bd.tileHoriz || bd.tileVert)
 			{
 			int x = bd.x;
 			int y = bd.y;
 			int ncol = 1;
 			int nrow = 1;
-			int w = bd.stretch ? width : bi.getWidth();
-			int h = bd.stretch ? height : bi.getHeight();
 			if (bd.tileHoriz)
 				{
 				x = 1 + ((bd.x + w - 1) % w) - w;
@@ -383,21 +388,17 @@ public class RoomEditor extends JPanel implements ImageObserver
 				}
 			for (int row = 0; row < nrow; row++)
 				for (int col = 0; col < ncol; col++)
-					if (bd.stretch)
-						g.drawImage(bi,x + w * col,y + h * row,w,h,this);
-					else
-						g.drawImage(bi,x + w * col,y + h * row,this);
+					g.drawImage(bi,(x + w * col),(y + h * row),w,h,this);
 			}
-		else if (bd.stretch)
-			g.drawImage(bi,bd.x,bd.y,width,height,this);
-		else
-			g.drawImage(bi,bd.x,bd.y,this);
+		g.drawImage(bi,bd.x,bd.y,w,h,this);
 		}
 
 	@Override
 	public void paintChildren(Graphics g)
 		{
-		Graphics g2 = g.create();
+		Graphics2D g2 = (Graphics2D) g.create();
+		g2.scale(1.0 / zoom,1.0 / zoom);
+		((Graphics2D) g).scale(1.0 / zoom,1.0 / zoom);
 		int width = frame.sWidth.getIntValue();
 		int height = frame.sHeight.getIntValue();
 		g2.clipRect(0,0,width,height);
@@ -431,23 +432,24 @@ public class RoomEditor extends JPanel implements ImageObserver
 				paintBackground(g2,bd,width,height);
 				}
 			}
+		g2.scale(zoom,zoom);
 		if (frame.sGridVis.isSelected())
 			{
-			int w = frame.sSnapX.getIntValue();
-			int h = frame.sSnapY.getIntValue();
+			int w = frame.sSnapX.getIntValue() / zoom;
+			int h = frame.sSnapY.getIntValue() / zoom;
 			if (w > 3)
 				{
 				g2.setXORMode(Color.BLACK);
 				g2.setColor(Color.WHITE);
-				for (int x = 0; x < width; x += w)
-					g2.drawLine(x,0,x,height - 1);
+				for (int x = 0; x < width / zoom; x += w)
+					g2.drawLine(x,0,x,height / zoom - 1);
 				}
 			if (h > 3)
 				{
 				g2.setXORMode(Color.BLACK);
 				g2.setColor(Color.WHITE);
-				for (int y = 0; y < height; y += h)
-					g2.drawLine(0,y,width - 1,y);
+				for (int y = 0; y < height / zoom; y += h)
+					g2.drawLine(0,y,width / zoom - 1,y);
 				}
 			}
 		g2.dispose();

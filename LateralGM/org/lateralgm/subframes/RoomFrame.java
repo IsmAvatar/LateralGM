@@ -71,7 +71,6 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
-//TODO: Feature: Zoom for RoomEditor (add buttons here first)
 public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
@@ -94,7 +93,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JTextField sCaption;
 	public IntegerField sWidth, sHeight, sSpeed, sSnapX, sSnapY;
 	public JCheckBox sPersistent, sGridVis, sGridIso;
-	public JButton sCreationCode, sShow;
+	public JButton sCreationCode, sShow, sZoomIn, sZoomOut;
 
 	public HashMap<Object,CodeFrame> codeFrames = new HashMap<Object,CodeFrame>();
 
@@ -210,6 +209,79 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		return panel;
 		}
 
+	private JPanel makeGridPane()
+		{
+		JPanel p = new JPanel();
+		p.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.GRID"))); //$NON-NLS-1$
+		GroupLayout layout = new GroupLayout(p);
+		layout.setAutoCreateGaps(true);
+		p.setLayout(layout);
+
+		String st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
+		sGridVis = new JCheckBox(st,res.rememberWindowSize ? res.showGrid : true);
+		sGridVis.addActionListener(this);
+		st = Messages.getString("RoomFrame.GRID_ISOMETRIC"); //$NON-NLS-1$
+		sGridIso = new JCheckBox(st,res.isometricGrid);
+		sGridIso.addActionListener(this);
+		JLabel lSnapX = new JLabel(Messages.getString("RoomFrame.SNAP_X")); //$NON-NLS-1$
+		sSnapX = new IntegerField(1,999,res.snapX);
+		sSnapX.setColumns(4);
+		sSnapX.addActionListener(this);
+		JLabel lSnapY = new JLabel(Messages.getString("RoomFrame.SNAP_Y")); //$NON-NLS-1$
+		sSnapY = new IntegerField(1,999,res.snapY);
+		sSnapY.setColumns(4);
+		sSnapY.addActionListener(this);
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(sGridVis)
+		/*		*/.addComponent(sGridIso))
+		/**/.addGroup(layout.createSequentialGroup().addContainerGap()
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(lSnapX)
+		/*				*/.addComponent(lSnapY))
+		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(sSnapX)
+		/*				*/.addComponent(sSnapY)).addContainerGap()));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(sGridVis)
+		/*		*/.addComponent(sGridIso))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lSnapX)
+		/*		*/.addComponent(sSnapX))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lSnapY)
+		/*		*/.addComponent(sSnapY)).addContainerGap());
+		return p;
+		}
+
+	private JPopupMenu makeShowMenu()
+		{
+		JPopupMenu showMenu = new JPopupMenu();
+		String st = Messages.getString("RoomFrame.SHOW_OBJECTS"); //$NON-NLS-1$
+		sSObj = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showObjects : true);
+		sSObj.addActionListener(this);
+		showMenu.add(sSObj);
+		st = Messages.getString("RoomFrame.SHOW_TILES"); //$NON-NLS-1$
+		sSTile = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showTiles : true);
+		sSTile.addActionListener(this);
+		showMenu.add(sSTile);
+		st = Messages.getString("RoomFrame.SHOW_BACKGROUNDS"); //$NON-NLS-1$
+		sSBack = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showBackgrounds : true);
+		sSBack.addActionListener(this);
+		showMenu.add(sSBack);
+		st = Messages.getString("RoomFrame.SHOW_FOREGROUNDS"); //$NON-NLS-1$
+		sSFore = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showForegrounds : true);
+		sSFore.addActionListener(this);
+		showMenu.add(sSFore);
+		st = Messages.getString("RoomFrame.SHOW_VIEWS"); //$NON-NLS-1$
+		sSView = new JCheckBoxMenuItem(st,res.showViews);
+		sSView.addActionListener(this);
+		showMenu.add(sSView);
+		return showMenu;
+		}
+
 	public JPanel makeSettingsPane()
 		{
 		JPanel panel = new JPanel();
@@ -244,70 +316,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		sCreationCode = new JButton(str,CODE_ICON);
 		sCreationCode.addActionListener(this);
 
-		JPanel p2 = new JPanel();
-		p2.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.GRID"))); //$NON-NLS-1$
-		GroupLayout p2l = new GroupLayout(p2);
-		p2l.setAutoCreateGaps(true);
-		p2.setLayout(p2l);
-		String st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
-		sGridVis = new JCheckBox(st,res.rememberWindowSize ? res.showGrid : true);
-		sGridVis.addActionListener(this);
-		st = Messages.getString("RoomFrame.GRID_ISOMETRIC"); //$NON-NLS-1$
-		sGridIso = new JCheckBox(st,res.isometricGrid);
-		sGridIso.addActionListener(this);
-		JLabel lSnapX = new JLabel(Messages.getString("RoomFrame.SNAP_X")); //$NON-NLS-1$
-		sSnapX = new IntegerField(1,999,res.snapX);
-		sSnapX.setColumns(4);
-		sSnapX.addActionListener(this);
-		JLabel lSnapY = new JLabel(Messages.getString("RoomFrame.SNAP_Y")); //$NON-NLS-1$
-		sSnapY = new IntegerField(1,999,res.snapY);
-		sSnapY.setColumns(4);
-		sSnapY.addActionListener(this);
+		JPanel p2 = makeGridPane();
 
-		p2l.setHorizontalGroup(p2l.createParallelGroup()
-		/**/.addGroup(p2l.createSequentialGroup()
-		/*		*/.addComponent(sGridVis)
-		/*		*/.addComponent(sGridIso))
-		/**/.addGroup(p2l.createSequentialGroup().addContainerGap()
-		/*		*/.addGroup(p2l.createParallelGroup()
-		/*				*/.addComponent(lSnapX)
-		/*				*/.addComponent(lSnapY))
-		/*		*/.addGroup(p2l.createParallelGroup()
-		/*				*/.addComponent(sSnapX)
-		/*				*/.addComponent(sSnapY)).addContainerGap()));
-		p2l.setVerticalGroup(p2l.createSequentialGroup()
-		/**/.addGroup(p2l.createParallelGroup()
-		/*		*/.addComponent(sGridVis)
-		/*		*/.addComponent(sGridIso))
-		/**/.addGroup(p2l.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lSnapX)
-		/*		*/.addComponent(sSnapX))
-		/**/.addGroup(p2l.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lSnapY)
-		/*		*/.addComponent(sSnapY)).addContainerGap());
-
-		final JPopupMenu showMenu = new JPopupMenu();
-		st = Messages.getString("RoomFrame.SHOW_OBJECTS"); //$NON-NLS-1$
-		sSObj = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showObjects : true);
-		sSObj.addActionListener(this);
-		showMenu.add(sSObj);
-		st = Messages.getString("RoomFrame.SHOW_TILES"); //$NON-NLS-1$
-		sSTile = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showTiles : true);
-		sSTile.addActionListener(this);
-		showMenu.add(sSTile);
-		st = Messages.getString("RoomFrame.SHOW_BACKGROUNDS"); //$NON-NLS-1$
-		sSBack = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showBackgrounds : true);
-		sSBack.addActionListener(this);
-		showMenu.add(sSBack);
-		st = Messages.getString("RoomFrame.SHOW_FOREGROUNDS"); //$NON-NLS-1$
-		sSFore = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showForegrounds : true);
-		sSFore.addActionListener(this);
-		showMenu.add(sSFore);
-		st = Messages.getString("RoomFrame.SHOW_VIEWS"); //$NON-NLS-1$
-		sSView = new JCheckBoxMenuItem(st,res.showViews);
-		sSView.addActionListener(this);
-		showMenu.add(sSView);
-
+		final JPopupMenu showMenu = makeShowMenu();
 		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
 		sShow.addActionListener(new ActionListener()
 			{
@@ -316,6 +327,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					showMenu.show(sShow,0,sShow.getHeight());
 					}
 			});
+
+		sZoomIn = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_IN")); //$NON-NLS-1$
+		sZoomIn.addActionListener(this);
+		sZoomOut = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_OUT")); //$NON-NLS-1$
+		sZoomOut.addActionListener(this);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
@@ -335,7 +351,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/**/.addComponent(sPersistent)
 		/**/.addComponent(sCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(p2)
-		/**/.addComponent(sShow,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		/**/.addComponent(sShow,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(sZoomIn)
+		/*		*/.addComponent(sZoomOut)));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lName)
@@ -354,7 +373,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/**/.addComponent(sPersistent)
 		/**/.addComponent(sCreationCode)
 		/**/.addComponent(p2)
-		/**/.addComponent(sShow));
+		/**/.addComponent(sShow)
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(sZoomIn)
+		/*		*/.addComponent(sZoomOut)));
 		return panel;
 		}
 
@@ -860,6 +882,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		editor = new RoomEditor(res,this);
 		JScrollPane sp = new JScrollPane(editor);
+		sp.getVerticalScrollBar().setUnitIncrement(16);
+		sp.getVerticalScrollBar().setBlockIncrement(64);
+		sp.getHorizontalScrollBar().setUnitIncrement(16);
+		sp.getHorizontalScrollBar().setBlockIncrement(64);
 		JPanel stats = makeStatsPane();
 
 		layout.setHorizontalGroup(layout.createSequentialGroup()
@@ -964,43 +990,50 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		fireViewUpdate();
 		}
 
-	public void actionPerformed(ActionEvent e)
+	private boolean performBackgrounds(Object s)
 		{
-		if (editor != null) editor.refresh();
-		Object s = e.getSource();
 		if (s == bVisible)
 			{
 			JLabel lab = ((JLabel) bList.getSelectedValue());
 			res.backgroundDefs[lastValidBack].visible = bVisible.isSelected();
 			lab.setFont(lab.getFont().deriveFont(bVisible.isSelected() ? Font.BOLD : Font.PLAIN));
 			bList.updateUI();
-			return;
+			return true;
 			}
 		if (s == bStretch)
 			{
 			res.backgroundDefs[lastValidBack].stretch = bStretch.isSelected();
-			return;
+			return true;
 			}
 		if (s == bTileH)
 			{
 			res.backgroundDefs[lastValidBack].tileHoriz = bTileH.isSelected();
-			return;
+			return true;
 			}
 		if (s == bTileV)
 			{
 			res.backgroundDefs[lastValidBack].tileVert = bTileV.isSelected();
-			return;
+			return true;
 			}
 		if (s == bX)
 			{
 			res.backgroundDefs[lastValidBack].x = bX.getIntValue();
-			return;
+			return true;
 			}
 		if (s == bY)
 			{
 			res.backgroundDefs[lastValidBack].y = bY.getIntValue();
-			return;
+			return true;
 			}
+		return false;
+		}
+
+	public void actionPerformed(ActionEvent e)
+		{
+		if (editor != null) editor.refresh();
+		Object s = e.getSource();
+
+		if (performBackgrounds(s)) return;
 		if (s == vVisible)
 			{
 			JLabel lab = ((JLabel) vList.getSelectedValue());
@@ -1049,6 +1082,26 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (s == oX) i.setX(oX.getIntValue());
 			if (s == oY) i.setY(oY.getIntValue());
 			return;
+			}
+		if (s == sZoomIn)
+			{
+			if (editor.zoom > 1)
+				{
+				editor.zoom /= 2;
+				editor.refresh();
+				sZoomOut.setEnabled(true);
+				sZoomIn.setEnabled(editor.zoom > 1);
+				}
+			}
+		if (s == sZoomOut)
+			{
+			if (editor.zoom < 32)
+				{
+				editor.zoom *= 2;
+				editor.refresh();
+				sZoomOut.setEnabled(editor.zoom < 32);
+				sZoomIn.setEnabled(true);
+				}
 			}
 		if (s == tSource)
 			{

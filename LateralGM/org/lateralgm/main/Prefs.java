@@ -33,6 +33,8 @@ public final class Prefs
 
 	public static boolean useExternalBackgroundEditor = true;
 	public static String externalBackgroundEditorCommand = "gimp %s";
+	public static boolean useExternalSpriteEditor = true;
+	public static String externalSpriteEditorCommand = "gimp %s";
 	public static boolean useExternalScriptEditor = false;
 	public static String externalScriptEditorCommand = "gedit %s";
 	}
