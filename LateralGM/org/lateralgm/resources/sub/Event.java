@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -213,16 +214,17 @@ public class Event extends ActionContainer implements Comparable<Event>
 					{
 					int i = eventId % 10;
 					int b;
-					if (i > 3)
+					boolean g = eventId >= 50;
+					if (g || i < 3)
+						b = i % 3;
+					else if (i > 3)
 						b = --i % 3;
-					else if (i == 3)
+					else
 						{
 						b = -1;
 						i = 0;
 						}
-					else
-						b = i % 3;
-					return Messages.format("Event.EVENT6_BUTTON",b,i / 3,eventId >= 50 ? 1 : 0);
+					return Messages.format("Event.EVENT6_BUTTON",b,i / 3,g ? 1 : 0);
 					}
 				else if ((eventId >= 16 && eventId <= 28) || (eventId >= 31 && eventId <= 43))
 					{
