@@ -48,6 +48,7 @@ import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.IndexButtonGroup;
+import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -147,6 +148,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			setIconifiable(true);
 			// the code text area
 			code = new GMLTextArea(a.arguments[0].val);
+			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
 			// Setup the toolbar
 			JToolBar tool = new JToolBar();
 			tool.setFloatable(false);

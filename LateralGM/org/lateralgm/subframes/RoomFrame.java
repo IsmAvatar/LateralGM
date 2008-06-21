@@ -44,7 +44,6 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
@@ -59,6 +58,7 @@ import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.main.LGM;
@@ -1374,13 +1374,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			tool.addSeparator();
 			gta.addEditorButtons(tool);
 			getContentPane().add(gta);
-			SwingUtilities.invokeLater(new Runnable()
-				{
-					public void run()
-						{
-						gta.requestFocusInWindow();
-						}
-				});
+			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(gta));
 			}
 
 		public void dispose()

@@ -28,6 +28,7 @@ import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
@@ -74,15 +75,7 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 		tool.add(new JLabel(Messages.getString("ScriptFrame.NAME"))); //$NON-NLS-1$
 		tool.add(name);
 
-		// TODO: Prevent tree stealing focus straight away
-		// when double clicking to open (the 2nd release is what does it)
-		SwingUtilities.invokeLater(new Runnable()
-			{
-				public void run()
-					{
-					code.requestFocusInWindow();
-					}
-			});
+		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
 		}
 
 	public void revertResource()
@@ -107,17 +100,7 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 
 	public void fireInternalFrameEvent(int id)
 		{
-		switch (id)
-			{
-			case InternalFrameEvent.INTERNAL_FRAME_CLOSED:
-				LGM.currentFile.removeChangeListener(code);
-				break;
-			case InternalFrameEvent.INTERNAL_FRAME_ACTIVATED:
-				code.grabFocus();
-				break;
-			default:
-				break;
-			}
+		if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSED) LGM.currentFile.removeChangeListener(code);
 		super.fireInternalFrameEvent(id);
 		}
 

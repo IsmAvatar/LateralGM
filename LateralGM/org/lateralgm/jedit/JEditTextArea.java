@@ -174,6 +174,7 @@ public class JEditTextArea extends JComponent
 						vertical.setValue(vertical.getValue() + e.getUnitsToScroll());
 					}
 			});
+		setFocusTraversalKeysEnabled(false);
 
 		// Load the defaults
 		setInputHandler(defaults.inputHandler);
@@ -186,15 +187,6 @@ public class JEditTextArea extends JComponent
 
 		// We don't seem to get the initial focus event?
 		focusedComponent = this;
-		}
-
-	/**
-	 * Returns if this component can be traversed by pressing
-	 * the Tab key. This returns false.
-	 */
-	public final boolean isManagingFocus()
-		{
-		return true;
 		}
 
 	/**

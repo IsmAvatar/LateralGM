@@ -500,9 +500,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		return menuItem;
 		}
 
-	protected void showNodeMenu(MouseEvent e)
+	protected void showNodeMenu(MouseEvent e, final ResNode node)
 		{
-		ResNode node = (ResNode) LGM.tree.getPathForLocation(e.getX(),e.getY()).getLastPathComponent();
 		JPopupMenu popup = new JPopupMenu();
 		ActionListener al = new ActionListener()
 			{
@@ -510,18 +509,17 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					{
 					JTree tree = LGM.tree;
 					String com = e.getActionCommand().substring(e.getActionCommand().lastIndexOf('_') + 1);
-					ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 					if (node == null) return;
 					if (com.equals("EDIT")) //$NON-NLS-1$
 						{
 						if (node.kind == Resource.GAMEINFO)
 							{
-							LGM.gameInfo.setVisible(true);
+							LGM.gameInfo.toTop();
 							return;
 							}
 						if (node.kind == Resource.GAMESETTINGS)
 							{
-							LGM.gameSet.setVisible(true);
+							LGM.gameSet.toTop();
 							return;
 							}
 						if (node.kind == Resource.EXTENSIONS)
@@ -571,7 +569,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 							if (node.frame != null) node.frame.commitChanges();
 							// dodgy workaround to avoid warnings
 							resource = (Resource<?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(//$NON-NLS-1$
-									rl,node.getRes());
+									rl,node.getRes().get());
 							}
 						catch (Exception e1)
 							{
@@ -621,23 +619,24 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			{
 			int selRow = LGM.tree.getRowForLocation(e.getX(),e.getY());
 			TreePath selPath = LGM.tree.getPathForLocation(e.getX(),e.getY());
-			if (selRow != -1)
+			if (selRow != -1 && e.getModifiers() == InputEvent.BUTTON3_MASK)
+				LGM.tree.setSelectionPath(selPath);
+			}
+
+		public void mouseReleased(MouseEvent e)
+			{
+			int selRow = LGM.tree.getSelectionRows()[0];
+			TreePath selPath = LGM.tree.getSelectionPath();
+			if (e.getX() < LGM.tree.getWidth() && e.getY() < LGM.tree.getHeight() && selRow != -1)
 				{
 				if (e.getModifiers() == InputEvent.BUTTON3_MASK)
-					{
-					LGM.tree.setSelectionPath(selPath);
-					showNodeMenu(e);
-					}
+					showNodeMenu(e,(ResNode) selPath.getLastPathComponent());
 				else
 					{
 					if (e.getClickCount() == 1)
 						{
 						//Isn't Java supposed to handle this for us? For some reason it doesn't.
-						if (e.isControlDown())
-							{
-							LGM.tree.setSelectionPath(selPath);
-							showNodeMenu(e);
-							}
+						if (e.isControlDown()) showNodeMenu(e,(ResNode) selPath.getLastPathComponent());
 						return;
 						}
 					else if (e.getClickCount() == 2)
@@ -645,12 +644,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 						ResNode node = (ResNode) selPath.getLastPathComponent();
 						if (node.kind == Resource.GAMEINFO)
 							{
-							LGM.gameInfo.setVisible(true);
+							LGM.gameInfo.toTop();
 							return;
 							}
 						if (node.kind == Resource.GAMESETTINGS)
 							{
-							LGM.gameSet.setVisible(true);
+							LGM.gameSet.toTop();
 							return;
 							}
 						if (node.kind == Resource.EXTENSIONS)
