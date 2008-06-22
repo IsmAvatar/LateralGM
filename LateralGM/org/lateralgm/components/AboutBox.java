@@ -43,7 +43,7 @@ public class AboutBox extends JDialog implements PropertyChangeListener
 			{
 			return Messages.getString("AboutBox.OPTION_" + name());
 			}
-		};
+		}
 
 	public AboutBox(Frame owner)
 		{

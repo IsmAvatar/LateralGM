@@ -21,7 +21,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -295,7 +294,7 @@ public class ActionList extends JList
 			libAction = la;
 			}
 
-		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,IOException
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 			{
 			if (flavor == LIB_ACTION_FLAVOR)
 				{
@@ -356,7 +355,7 @@ public class ActionList extends JList
 			flavors = fl.toArray(new DataFlavor[2]);
 			}
 
-		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,IOException
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 			{
 			if (flavor == ACTION_FLAVOR && actions.length == 1)
 				{

@@ -262,7 +262,7 @@ public final class GmFileReader
 		g.letEscEndGame = in.readBool();
 		g.letF5SaveF6Load = in.readBool();
 		if (ver == 530) in.skip(8); //unknown bytes, both 0
-		if (ver == 702) in.skip(8); //F9 screenshot, Treat close as esc
+		if (ver == 702) in.skip(8); //Treat close as esc, F9 screenshot
 		g.gamePriority = (byte) in.read4();
 		g.freezeOnLoseFocus = in.readBool();
 		g.loadBarMode = (byte) in.read4();

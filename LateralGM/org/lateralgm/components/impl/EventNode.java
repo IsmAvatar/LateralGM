@@ -11,7 +11,6 @@ package org.lateralgm.components.impl;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -45,7 +44,7 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 
 	public void add(int mainId, int eventId)
 		{
-		add(new EventNode(Event.eventName(mainId,eventId),mainId,eventId)); //$NON-NLS-1$
+		add(new EventNode(Event.eventName(mainId,eventId),mainId,eventId)); 
 		}
 
 	public void add(int mainId)
@@ -68,7 +67,7 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 			}
 		}
 
-	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,IOException
+	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 		{
 		if (flavor != EVENTNODE_FLAVOR) throw new UnsupportedFlavorException(flavor);
 		return this;

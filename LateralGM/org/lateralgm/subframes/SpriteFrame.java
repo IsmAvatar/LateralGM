@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -336,11 +336,11 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		return pane;
 		}
 
-	//TODO: subimages toolbar, drag and drop
+	//TODO: subimages toolbar
 	private JPanel makeSubimagesPane()
 		{
 		JPanel pane = new JPanel(new BorderLayout());
-		//prevent resizing on large subimages with size(1,1)
+		//prevents resizing on large subimages with size(1,1)
 		pane.setPreferredSize(new Dimension(1,1)); 
 		JToolBar tool = new JToolBar();
 		pane.add(tool,BorderLayout.NORTH);
