@@ -33,9 +33,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
@@ -256,6 +259,30 @@ public final class LGM
 		mdi.add(eventSelect);
 		}
 
+	public static void loadPlugins()
+		{
+		File dir = new File("./plugins"); //$NON-NLS-1$
+		if (!dir.exists()) return;
+		File[] ps = dir.listFiles();
+		for (File f : ps)
+			{
+			if (!f.exists()) continue;
+			try
+				{
+				Manifest mf = new JarFile(f).getManifest();
+				String clastr = mf.getMainAttributes().getValue("LGM-Plugin"); //$NON-NLS-1$
+				URLClassLoader ucl = new URLClassLoader(new URL[] { f.toURI().toURL() });
+				ucl.loadClass(clastr).newInstance();
+				}
+			catch (Exception e)
+				{
+				System.out.println("Unable to load plugin: " + f.toString() + ": " + e.getCause() + ": "
+						+ e.getMessage());
+				continue;
+				}
+			}
+		}
+
 	static
 		{
 		Util.tweakIIORegistry();
@@ -265,24 +292,25 @@ public final class LGM
 
 	public static void main(String[] args)
 		{
-		SplashProgress.progress(30,Messages.getString("LGM.SPLASH_LIBS"));
+		SplashProgress.progress(10,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
-		SplashProgress.progress(37,Messages.getString("LGM.SPLASH_UI"));
+		SplashProgress.progress(20,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gameInfo = new GameInformationFrame();
-		SplashProgress.progress(58);
+		SplashProgress.progress(30,"Preparing Settings");
 		gameSet = new GameSettingFrame();
-		SplashProgress.progress(70);
+		SplashProgress.progress(40,"Creating Toolbar");
 		JPanel f = new JPanel(new BorderLayout());
 		createToolBar(f);
+		SplashProgress.progress(50,"Populating Tree");
 		createTree(f,true);
-		SplashProgress.progress(85);
+		SplashProgress.progress(60,"Initiating Menu");
 		frame.setJMenuBar(new GmMenuBar());
-		SplashProgress.progress(90);
+		SplashProgress.progress(70,"Launching into Hyperspace");
 		f.setOpaque(true);
 		frame.setContentPane(f);
 		new FramePrefsHandler(frame);
-		SplashProgress.progress(96);
+		SplashProgress.progress(80,"Reticulating Splines");
 		try
 			{
 			frame.setIconImage(ImageIO.read(LGM.class.getClassLoader().getResource(
@@ -292,6 +320,8 @@ public final class LGM
 			{
 			e.printStackTrace();
 			}
+		SplashProgress.progress(90,"Loading Plugins");
+		loadPlugins();
 		SplashProgress.complete();
 		frame.setVisible(true);
 		}
@@ -354,7 +384,7 @@ public final class LGM
 		static void start()
 			{
 			if (TIMER) startTime = System.currentTimeMillis();
-			progress(0,"");
+			progress(0,"Calibrating Sensors");
 			}
 
 		static void complete()

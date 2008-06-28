@@ -30,8 +30,7 @@ public class GmMenuBar extends JMenuBar
 	private static final long serialVersionUID = 1L;
 	private JMenuItem[] recentFiles = new JMenuItem[0];
 	private int recentFilesPos;
-	public static GmMenu menu;
-	public static GmMenu fileMenu;
+	private GmMenu fileMenu;
 
 	public static final void setTextAndAlt(JMenuItem item, String input)
 		{
@@ -72,7 +71,7 @@ public class GmMenuBar extends JMenuBar
 
 	public GmMenuBar()
 		{
-		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
+		GmMenu menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
 		fileMenu = menu;
 		add(menu);
 
