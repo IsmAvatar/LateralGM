@@ -36,7 +36,7 @@ public class GmStreamEncoder
 		if (o instanceof BufferedOutputStream)
 			out = o;
 		else
-			o = new BufferedOutputStream(o);
+			out = new BufferedOutputStream(o);
 		}
 
 	public GmStreamEncoder(File f) throws FileNotFoundException

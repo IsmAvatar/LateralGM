@@ -60,6 +60,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
+import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.FramePrefsHandler;
 import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
@@ -88,13 +89,13 @@ public final class LGM
 			{
 			e.printStackTrace();
 			}
-		UIManager.put("swing.boldMetal",Boolean.FALSE);
+		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
 		String jv = System.getProperty("java.version"); //$NON-NLS-1$
 		Scanner s = new Scanner(jv).useDelimiter("[\\._]"); //$NON-NLS-1$
 		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
-		System.out.format("Java Version: %d (%s)\n",javaVersion,jv);
+		System.out.format("Java Version: %d (%s)\n",javaVersion,jv); //$NON-NLS-1$
 		if (javaVersion < 10600)
-			System.out.println("Some program functionality will be limited due to your outdated version");
+			System.out.println("Some program functionality will be limited due to your outdated version"); //$NON-NLS-1$
 		SplashProgress.start();
 		}
 	public static JFrame frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
@@ -140,7 +141,7 @@ public final class LGM
 			}
 		catch (IOException e)
 			{
-			System.err.println("Unable to read icons.properties");
+			System.err.println("Unable to read icons.properties"); //$NON-NLS-1$
 			}
 		String filename = iconProps.getProperty(key,""); //$NON-NLS-1$
 		if (filename != "") //$NON-NLS-1$
@@ -263,7 +264,7 @@ public final class LGM
 		{
 		File dir = new File("./plugins"); //$NON-NLS-1$
 		if (!dir.exists()) return;
-		File[] ps = dir.listFiles();
+		File[] ps = dir.listFiles(new CustomFileFilter(".jar",null)); //$NON-NLS-1$
 		for (File f : ps)
 			{
 			if (!f.exists()) continue;
@@ -276,7 +277,7 @@ public final class LGM
 				}
 			catch (Exception e)
 				{
-				System.out.println("Unable to load plugin: " + f.toString() + ": " + e.getCause() + ": "
+				System.out.println("Unable to load plugin: " + f.toString() + ": " + e.getCause() + ": " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						+ e.getMessage());
 				continue;
 				}
@@ -286,7 +287,7 @@ public final class LGM
 	static
 		{
 		Util.tweakIIORegistry();
-		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm");
+		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!tempDir.exists()) tempDir.mkdir();
 		}
 
@@ -297,30 +298,30 @@ public final class LGM
 		SplashProgress.progress(20,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gameInfo = new GameInformationFrame();
-		SplashProgress.progress(30,"Preparing Settings");
+		SplashProgress.progress(30,Messages.getString("LGM.SPLASH_SETTINGS")); //$NON-NLS-1$
 		gameSet = new GameSettingFrame();
-		SplashProgress.progress(40,"Creating Toolbar");
+		SplashProgress.progress(40,Messages.getString("LGM.SPLASH_TOOLBAR")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
 		createToolBar(f);
-		SplashProgress.progress(50,"Populating Tree");
+		SplashProgress.progress(50,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
 		createTree(f,true);
-		SplashProgress.progress(60,"Initiating Menu");
+		SplashProgress.progress(60,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame.setJMenuBar(new GmMenuBar());
-		SplashProgress.progress(70,"Launching into Hyperspace");
+		SplashProgress.progress(70,Messages.getString("LGM.SPLASH_FRAME")); //$NON-NLS-1$
 		f.setOpaque(true);
 		frame.setContentPane(f);
 		new FramePrefsHandler(frame);
-		SplashProgress.progress(80,"Reticulating Splines");
+		SplashProgress.progress(80,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
 		try
 			{
 			frame.setIconImage(ImageIO.read(LGM.class.getClassLoader().getResource(
-					"org/lateralgm/main/lgm-logo.png")));
+					"org/lateralgm/main/lgm-logo.png"))); //$NON-NLS-1$
 			}
 		catch (Exception e)
 			{
 			e.printStackTrace();
 			}
-		SplashProgress.progress(90,"Loading Plugins");
+		SplashProgress.progress(90,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
 		loadPlugins();
 		SplashProgress.complete();
 		frame.setVisible(true);
@@ -335,7 +336,7 @@ public final class LGM
 
 		private static String text = null;
 
-		static final Boolean TIMER = System.getProperty("lgm.progresstimer") != null;
+		static final Boolean TIMER = System.getProperty("lgm.progresstimer") != null; //$NON-NLS-1$
 		private static long startTime, completeTime;
 		private static ArrayList<Integer> progressValues;
 		private static ArrayList<Long> progressTimes;
@@ -384,7 +385,7 @@ public final class LGM
 		static void start()
 			{
 			if (TIMER) startTime = System.currentTimeMillis();
-			progress(0,"Calibrating Sensors");
+			progress(0,Messages.getString("LGM.SPLASH_START")); //$NON-NLS-1$
 			}
 
 		static void complete()
@@ -393,26 +394,26 @@ public final class LGM
 				{
 				completeTime = System.currentTimeMillis();
 				long tt = completeTime - startTime;
-				System.out.print("Progress/%       ");
+				System.out.print("Progress/%       "); //$NON-NLS-1$
 				for (Integer v : progressValues)
 					{
-					System.out.print("\t" + v);
+					System.out.print("\t" + v); //$NON-NLS-1$
 					}
 				System.out.println();
-				System.out.print("Time/ms          ");
+				System.out.print("Time/ms          "); //$NON-NLS-1$
 				for (Long t : progressTimes)
 					{
-					System.out.print("\t" + t);
+					System.out.print("\t" + t); //$NON-NLS-1$
 					}
 				System.out.println();
-				System.out.print("Actual progress/%");
+				System.out.print("Actual progress/%"); //$NON-NLS-1$
 				for (Long t : progressTimes)
 					{
-					System.out.print("\t" + Math.round(100.0 * t / tt));
+					System.out.print("\t" + Math.round(100.0 * t / tt)); //$NON-NLS-1$
 					}
 				System.out.println();
 				}
-			progress(100,"");
+			progress(100,""); //$NON-NLS-1$
 			}
 
 		static void progress(int p)

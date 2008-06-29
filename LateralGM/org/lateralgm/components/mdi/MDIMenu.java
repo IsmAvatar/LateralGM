@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -22,6 +22,8 @@ import java.beans.PropertyVetoException;
 import java.util.WeakHashMap;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JInternalFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -36,6 +38,12 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 	private MDIPane pane;
 	private final ButtonGroup group = new ButtonGroup();
 	protected final WeakHashMap<MDIFrame,FrameButton> frameButtons;
+	protected JMenuItem cascade;
+	protected JMenuItem arrangeIcons;
+	protected JMenuItem closeAll;
+	protected JMenuItem minimizeAll;
+	protected JMenuItem close;
+	protected JMenuItem closeOthers;
 
 	public MDIMenu(MDIPane pane)
 		{
@@ -43,13 +51,13 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 		this.pane = pane;
 		frameButtons = new WeakHashMap<MDIFrame,FrameButton>();
 		pane.addContainerListener(this);
-		addItem("MDIMenu.CASCADE",this); //$NON-NLS-1$
-		addItem("MDIMenu.ARRANGE_ICONS",this); //$NON-NLS-1$
-		addItem("MDIMenu.CLOSE_ALL",this); //$NON-NLS-1$
-		addItem("MDIMenu.MINIMIZE_ALL",this); //$NON-NLS-1$
+		cascade = addItem("MDIMenu.CASCADE",this); //$NON-NLS-1$
+		arrangeIcons = addItem("MDIMenu.ARRANGE_ICONS",this); //$NON-NLS-1$
+		closeAll = addItem("MDIMenu.CLOSE_ALL",this); //$NON-NLS-1$
+		minimizeAll = addItem("MDIMenu.MINIMIZE_ALL",this); //$NON-NLS-1$
 		addSeparator();
-		addItem("MDIMenu.CLOSE",this); //$NON-NLS-1$
-		addItem("MDIMenu.CLOSE_OTHERS",this); //$NON-NLS-1$
+		close = addItem("MDIMenu.CLOSE",this); //$NON-NLS-1$
+		closeOthers = addItem("MDIMenu.CLOSE_OTHERS",this); //$NON-NLS-1$
 		addSeparator();
 		}
 
@@ -120,6 +128,34 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 		Component c = e.getChild();
 		FrameButton b = frameButtons.get(c);
 		if (b != null) b.dispose();
+		}
+
+	protected void fireMenuSelected()
+		{
+		boolean hasFrames = false;
+		boolean hasIcons = false;
+		for (int i = 0; i < pane.getComponentCount(); i++)
+			{
+			Component comp = pane.getComponent(i);
+			if (comp instanceof JInternalFrame && ((JInternalFrame) comp).isVisible())
+				{
+				hasFrames = true;
+				if (hasIcons) break;
+				}
+			else if (comp instanceof JInternalFrame.JDesktopIcon)
+				{
+				hasIcons = true;
+				if (hasFrames) break;
+				}
+			}
+		cascade.setEnabled(hasFrames);
+		arrangeIcons.setEnabled(hasIcons);
+		closeAll.setEnabled(hasFrames);
+		minimizeAll.setEnabled(hasFrames);
+		boolean hasSelected = pane.getSelectedFrame() != null;
+		close.setEnabled(hasSelected);
+		closeOthers.setEnabled(hasSelected);
+		super.fireMenuSelected();
 		}
 
 	private class FrameButton extends JRadioButtonMenuItem implements PropertyChangeListener

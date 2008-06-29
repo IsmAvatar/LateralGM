@@ -43,14 +43,6 @@ import javax.swing.text.PlainDocument;
  */
 public abstract class InputHandler extends KeyAdapter
 	{
-	/**
-	 * If this client property is set to Boolean.TRUE on the text area,
-	 * the home/end keys will support 'smart' BRIEF-like behaviour
-	 * (one press = start/end of line, two presses = start/end of
-	 * viewscreen, three presses = start/end of document). By default,
-	 * this property is not set.
-	 */
-
 	public static final String KEEP_INDENT_PROPERTY = "InputHandler.keepIndent";
 	public static final String TAB_TO_INDENT_PROPERTY = "InputHandler.tabToIndent";
 	public static final String CONVERT_TABS_PROPERTY = "InputHandler.convertTabs";

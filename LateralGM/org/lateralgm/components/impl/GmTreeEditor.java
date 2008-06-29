@@ -32,7 +32,7 @@ public class GmTreeEditor extends DefaultTreeCellEditor
 			{
 			TreePath path = tree.getPathForLocation(((MouseEvent) event).getX(),
 					((MouseEvent) event).getY());
-			if (path != null && path.getPathCount() <= 2) return false;
+			if (path != null && path.getPathCount() <= 2 && !Prefs.renamableRoots) return false;
 			}
 		else if (event == null)
 			{
