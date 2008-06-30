@@ -16,11 +16,16 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import javax.imageio.ImageIO;
 
@@ -55,7 +60,7 @@ public final class LibManager
 	public static void autoLoad()
 		{
 		List<File> files = new ArrayList<File>();
-		List<URL> deflibs = new ArrayList<URL>();
+		TreeMap<String,InputStream> deflibs = new TreeMap<String,InputStream>(); //sorted by key
 
 		String[] exts = { ".lib",".lgl" }; //$NON-NLS-1$ //$NON-NLS-2$
 		CustomFileFilter filter = new CustomFileFilter(exts,null);
@@ -67,10 +72,23 @@ public final class LibManager
 			}
 		else
 			{
-			for (String f : Prefs.defaultLibNames)
+			try
 				{
-				URL url = LGM.class.getClassLoader().getResource(Prefs.defaultLibraryPath + f + ".lgl");
-				if (url != null) deflibs.add(url);
+				ZipFile zip = new ZipFile(new File(
+						LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI()));
+				Enumeration<? extends ZipEntry> entries = zip.entries();
+				while (entries.hasMoreElements())
+					{
+					ZipEntry ent = entries.nextElement();
+					if (ent.getName().endsWith(".lgl") || ent.getName().endsWith(".lib"))
+						deflibs.put(ent.getName().substring(ent.getName().lastIndexOf('/') + 1),
+								zip.getInputStream(ent));
+					}
+				}
+			catch (Exception e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 				}
 			}
 
@@ -83,7 +101,7 @@ public final class LibManager
 		ArrayList<String> exceptions = new ArrayList<String>();
 		if (files.size() > 0)
 			System.out.println(Messages.format("LibManager.LOADING",Prefs.defaultLibraryPath)); //$NON-NLS-1$
-		String buffer = ""; //$NON-NLS-1$
+		StringBuilder buffer = new StringBuilder(); //$NON-NLS-1$
 		Collections.sort(files); // listFiles does not guarantee a particular order
 		for (File f : files)
 			{
@@ -94,9 +112,9 @@ public final class LibManager
 				if ((buffer + f.getName()).length() > 60)
 					{
 					System.out.println(buffer);
-					buffer = ""; //$NON-NLS-1$
+					buffer.delete(0,buffer.length() - 1); //$NON-NLS-1$
 					}
-				buffer += f.getName() + " "; //$NON-NLS-1$
+				buffer.append(f.getName()).append(' '); //$NON-NLS-1$
 				}
 			catch (LibFormatException ex)
 				{
@@ -106,13 +124,12 @@ public final class LibManager
 		System.out.println(buffer);
 		for (String s : exceptions)
 			System.out.println(s);
-
-		for (URL url : deflibs)
+		for (Map.Entry<String,InputStream> ent : deflibs.entrySet())
 			{
-			System.out.println(Messages.format("LibManager.LOADING1",url.getFile())); //$NON-NLS-1$
+			System.out.println(Messages.format("LibManager.LOADING1",ent.getKey())); //$NON-NLS-1$
 			try
 				{
-				loadFile(new GmStreamDecoder(url.openStream()),url.getFile());
+				loadFile(new GmStreamDecoder(ent.getValue()),ent.getKey());
 				}
 			catch (Exception ex)
 				{
