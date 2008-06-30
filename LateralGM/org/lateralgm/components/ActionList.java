@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -106,9 +106,9 @@ public class ActionList extends JList
 	 */
 	public static MDIFrame openActionFrame(Action a)
 		{
-		int k = a.libAction.actionKind;
-		if (k != Action.ACT_NORMAL && k != Action.ACT_REPEAT && k != Action.ACT_VARIABLE
-				&& k != Action.ACT_CODE) return null;
+		LibAction la = a.libAction;
+		if ((la.libArguments == null || la.libArguments.length == 0) && !la.canApplyTo
+				&& !la.allowRelative) return null;
 		MDIFrame af = FRAMES.get(a);
 		if (af == null || af.isClosed())
 			{
