@@ -118,6 +118,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 			LGM.currentFile = GmFileReader.readGmFile(filename,newroot);
 			LGM.tree.setModel(new DefaultTreeModel(newroot));
+			LGM.root = newroot;
 			LGM.tree.setSelectionRow(0);
 			}
 		catch (GmFormatException ex)
@@ -160,7 +161,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 		String fn = LGM.currentFile.filename;
 		int p = fn.lastIndexOf("."); //$NON-NLS-1$
-		if (p != -1) fn = fn.substring(0,p + 1);
+		if (p != -1) fn = fn.substring(0,p);
 		fn += ".gb1"; //$NON-NLS-1$
 
 		//Copy file
