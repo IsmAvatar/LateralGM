@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.jar.JarFile;
@@ -169,7 +170,7 @@ public final class LGM
 		return but;
 		}
 
-	public static void createToolBar(JPanel f)
+	private static void createToolBar(JPanel f)
 		{
 		tool = new JToolBar();
 		tool.setFloatable(false);
@@ -183,12 +184,39 @@ public final class LGM
 		tool.add(makeButton("LGM.EVENT_BUTTON")); //$NON-NLS-1$
 		}
 
-	public static void createTree(JPanel f, boolean populate)
+	public static void populateTree()
+		{
+		root.addChild(Messages.getString("LGM.SPRITES"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.SPRITE);
+		root.addChild(Messages.getString("LGM.SOUNDS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.SOUND);
+		root.addChild(Messages.getString("LGM.BACKGROUNDS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.BACKGROUND);
+		root.addChild(Messages.getString("LGM.PATHS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.PATH);
+		root.addChild(Messages.getString("LGM.SCRIPTS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.SCRIPT);
+		root.addChild(Messages.getString("LGM.FONTS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.FONT);
+		root.addChild(Messages.getString("LGM.TIMELINES"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.TIMELINE);
+		root.addChild(Messages.getString("LGM.OBJECTS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.GMOBJECT);
+		root.addChild(Messages.getString("LGM.ROOMS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.ROOM);
+		root.addChild(Messages.getString("LGM.GAMEINFO"), //$NON-NLS-1$
+				ResNode.STATUS_SECONDARY,Resource.GAMEINFO);
+		root.addChild(Messages.getString("LGM.GAMESETTINGS"), //$NON-NLS-1$
+				ResNode.STATUS_SECONDARY,Resource.GAMESETTINGS);
+		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
+		}
+
+	private static void createTree(JPanel f, boolean populate)
 		{
 		createTree(f,new ResNode("Root",(byte) 0,(byte) 0,null),populate); //$NON-NLS-1$
 		}
 
-	public static void createTree(JPanel f, ResNode newroot, boolean populate)
+	private static void createTree(JPanel f, ResNode newroot, boolean populate)
 		{
 		root = newroot;
 		tree = new JTree(new DefaultTreeModel(root));
@@ -209,40 +237,11 @@ public final class LGM
 		tree.setCellEditor(editor);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		if (populate)
-			{
-			root.addChild(Messages.getString("LGM.SPRITES"), //$NON-NLS-1$
-					ResNode.STATUS_PRIMARY,Resource.SPRITE);
-			root.addChild(Messages.getString("LGM.SOUNDS"), //$NON-NLS-1$
-					ResNode.STATUS_PRIMARY,Resource.SOUND);
-			root.addChild(Messages.getString("LGM.BACKGROUNDS"), //$NON-NLS-1$
-					ResNode.STATUS_PRIMARY,Resource.BACKGROUND);
-			root.addChild(Messages.getString("LGM.PATHS"), //$NON-NLS-1$
-					ResNode.STATUS_PRIMARY,Resource.PATH);
-			root.addChild(Messages.getString("LGM.SCRIPTS"), //$NON-NLS-1$
-					ResNode.STATUS_PRIMARY,Resource.SCRIPT);
-			root.addChild(Messages.getString("LGM.FONTS"), //$NON-NLS-1$
-					ResNode.STATUS_PRIMARY,Resource.FONT);
-			root.addChild(Messages.getString("LGM.TIMELINES"), //$NON-NLS-1$
-					ResNode.STATUS_PRIMARY,Resource.TIMELINE);
-			root.addChild(Messages.getString("LGM.OBJECTS"), //$NON-NLS-1$
-					ResNode.STATUS_PRIMARY,Resource.GMOBJECT);
-			root.addChild(Messages.getString("LGM.ROOMS"), //$NON-NLS-1$
-					ResNode.STATUS_PRIMARY,Resource.ROOM);
-			root.addChild(Messages.getString("LGM.GAMEINFO"), //$NON-NLS-1$
-					ResNode.STATUS_SECONDARY,Resource.GAMEINFO);
-			root.addChild(Messages.getString("LGM.GAMESETTINGS"), //$NON-NLS-1$
-					ResNode.STATUS_SECONDARY,Resource.GAMESETTINGS);
-			tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
-			}
+			populateTree();
 		else
-			{
 			tree.setSelectionRow(0);
-			}
 
-		/*
-		 * Setup the rest of the main window
-		 */
-
+		// Setup the rest of the main window
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(200,100));
 		mdi = new MDIPane();
@@ -277,11 +276,22 @@ public final class LGM
 				}
 			catch (Exception e)
 				{
-				System.out.println("Unable to load plugin: " + f.toString() + ": " + e.getCause() + ": " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						+ e.getMessage());
+				String err = "Unable to load plugin: %s: %s: %s"; //$NON-NLS-1$
+				System.out.format(err,f.toString(),e.getCause(),e.getMessage());
 				continue;
 				}
 			}
+		}
+
+	public static void commitAll()
+		{
+		Enumeration<?> nodes = LGM.root.preorderEnumeration();
+		while (nodes.hasMoreElements())
+			{
+			ResNode node = (ResNode) nodes.nextElement();
+			if (node.frame != null) node.frame.updateResource(); // update open frames
+			}
+		LGM.gameSet.commitChanges();
 		}
 
 	static

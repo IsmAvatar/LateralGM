@@ -69,36 +69,33 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SpriteFrame.PLAY"); //$NON-NLS-1$
 	private static final ImageIcon STOP_ICON = LGM.getIconForKey("SpriteFrame.STOP"); //$NON-NLS-1$
 
+	//toolbar
 	public JButton load;
-	public JLabel width;
-	public JLabel height;
-	public JLabel subCount;
-	public JButton subLeft;
-	public JButton subRight;
-	public JLabel showLab;
-	public IntegerField show, speed;
-	public JButton play;
-	public int currSub;
 	public JCheckBox transparent;
 
-	public JCheckBox preciseCC;
-	public JCheckBox smooth;
-	public JCheckBox preload;
-	public IntegerField originX;
-	public IntegerField originY;
+	//origin
+	public IntegerField originX, originY;
 	public JButton centre;
-	public IndexButtonGroup bboxGroup;
-	public JRadioButton auto;
-	public JRadioButton full;
-	public JRadioButton manual;
-	public IntegerField bboxLeft;
-	public IntegerField bboxRight;
-	public IntegerField bboxTop;
-	public IntegerField bboxBottom;
-	public boolean imageChanged = false;
 
-	public JSplitPane splitPane;
+	//bbox
+	public IndexButtonGroup bboxGroup;
+	public IntegerField bboxLeft,bboxRight;
+	public IntegerField bboxTop,bboxBottom;
+	public JRadioButton auto,full,manual;
+
+	//properties
+	public JCheckBox preciseCC,smooth,preload;
+	public JLabel subCount,width,height;
+
+	//preview
 	public SubimagePreview preview;
+	public IntegerField show, speed;
+	public JButton subLeft,subRight,play;
+	public JLabel showLab;
+	public int currSub;
+
+	public boolean imageChanged = false;
+	public JSplitPane splitPane;
 	public File extFile;
 
 	/** Used for animation, or null when not animating */
@@ -117,6 +114,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		tabs.addTab(Messages.getString("SpriteFrame.SUBIMAGES"),makeSubimagesPane()); //$NON-NLS-1$
 
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,tabs,makePreviewPane());
+		splitPane.setOneTouchExpandable(true);
 
 		add(makeToolBar(),BorderLayout.NORTH);
 		add(splitPane,BorderLayout.CENTER);
@@ -342,8 +340,21 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		JPanel pane = new JPanel(new BorderLayout());
 		//prevents resizing on large subimages with size(1,1)
 		pane.setPreferredSize(new Dimension(1,1)); 
+
 		JToolBar tool = new JToolBar();
-		pane.add(tool,BorderLayout.NORTH);
+		tool.setFloatable(false);
+//		pane.add(tool,BorderLayout.NORTH);
+
+		ImageIcon icon = LGM.getIconForKey("SpriteFrame.ADD");
+		JButton but = new JButton(icon);
+		but.addActionListener(this);
+		tool.add(but);
+
+		icon = LGM.getIconForKey("SpriteFrame.REMOVE");
+		but = new JButton(icon);
+		but.addActionListener(this);
+		tool.add(but);
+
 		ImageIcon ii[] = new ImageIcon[res.subImages.size()];
 		for (int i = 0; i < res.subImages.size(); i++)
 			ii[i] = new ImageIcon(res.subImages.get(i));

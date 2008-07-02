@@ -12,7 +12,6 @@ package org.lateralgm.main;
 
 import static org.lateralgm.main.Util.deRef;
 
-import java.awt.BorderLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -32,12 +31,12 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
@@ -96,15 +95,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		return -1;
 		}
 
-	private void openFile(JTree tree, String[] args)
+	/** Note that passing in null will cause an open dialog to display */
+	public void openFile(String filename)
 		{
 		File file;
-		String filename;
-		if (args.length > 1)
-			{
-			filename = Util.urlDecode(args[1]);
+		if (filename != null)
 			file = new File(filename);
-			}
 		else
 			{
 			fc.setFilterSet(openFs);
@@ -121,14 +117,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			LGM.frame.setTitle(Messages.format("LGM.TITLE",file.getName())); //$NON-NLS-1$
 			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 			LGM.currentFile = GmFileReader.readGmFile(filename,newroot);
-			JPanel f = new JPanel(new BorderLayout());
-			LGM.createToolBar(f);
-			LGM.createTree(f,newroot,false);
-			LGM.frame.setJMenuBar(new GmMenuBar());
-			tree.setSelectionRow(0);
-			f.setOpaque(true);
-			LGM.frame.setContentPane(f);
-			f.updateUI();
+			LGM.tree.setModel(new DefaultTreeModel(newroot));
+			LGM.tree.setSelectionRow(0);
 			}
 		catch (GmFormatException ex)
 			{
@@ -146,13 +136,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	public void newFile()
 		{
-		JPanel f = new JPanel(new BorderLayout());
-		LGM.createToolBar(f);
-		LGM.createTree(f,true);
-		LGM.frame.setJMenuBar(new GmMenuBar());
 		LGM.frame.setTitle(Messages.format("LGM.TITLE",Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$
-		f.setOpaque(true);
-		LGM.frame.setContentPane(f);
+		LGM.root = new ResNode("Root",(byte) 0,(byte) 0,null);
+		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
+		LGM.populateTree();
 		LGM.currentFile = new GmFile();
 		LGM.gameSet.dispose();
 		LGM.gameSet = new GameSettingFrame();
@@ -160,7 +147,6 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		LGM.gameInfo.dispose();
 		LGM.gameInfo = new GameInformationFrame();
 		LGM.mdi.add(LGM.gameInfo);
-		f.updateUI();
 		}
 
 	public void saveFile()
@@ -170,13 +156,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			saveNewFile();
 			return;
 			}
-		Enumeration<?> nodes = LGM.root.preorderEnumeration();
-		while (nodes.hasMoreElements())
-			{
-			ResNode node = (ResNode) nodes.nextElement();
-			if (node.frame != null) node.frame.updateResource(); // update open frames
-			}
-		LGM.gameSet.commitChanges();
+		LGM.commitAll();
 
 		String fn = LGM.currentFile.filename;
 		int p = fn.lastIndexOf("."); //$NON-NLS-1$
@@ -365,7 +345,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (com.endsWith(".OPEN")) //$NON-NLS-1$
 			{
-			openFile(tree,args);
+			openFile(args.length > 1 ? Util.urlDecode(args[1]) : null);
 			return;
 			}
 		if (com.endsWith(".SAVE")) //$NON-NLS-1$

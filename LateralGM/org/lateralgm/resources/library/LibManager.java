@@ -80,14 +80,13 @@ public final class LibManager
 				while (entries.hasMoreElements())
 					{
 					ZipEntry ent = entries.nextElement();
-					if (ent.getName().endsWith(".lgl") || ent.getName().endsWith(".lib"))
+					if (ent.getName().endsWith(".lgl") || ent.getName().endsWith(".lib")) //$NON-NLS-1$ //$NON-NLS-2$
 						deflibs.put(ent.getName().substring(ent.getName().lastIndexOf('/') + 1),
 								zip.getInputStream(ent));
 					}
 				}
 			catch (Exception e)
 				{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				}
 			}
@@ -100,8 +99,8 @@ public final class LibManager
 
 		ArrayList<String> exceptions = new ArrayList<String>();
 		if (files.size() > 0)
-			System.out.println(Messages.format("LibManager.LOADING",Prefs.defaultLibraryPath)); //$NON-NLS-1$
-		StringBuilder buffer = new StringBuilder(); //$NON-NLS-1$
+			System.out.println(Messages.format("LibManager.LOADINGN",Prefs.defaultLibraryPath)); //$NON-NLS-1$
+		StringBuilder buffer = new StringBuilder();
 		Collections.sort(files); // listFiles does not guarantee a particular order
 		for (File f : files)
 			{
@@ -112,9 +111,9 @@ public final class LibManager
 				if ((buffer + f.getName()).length() > 60)
 					{
 					System.out.println(buffer);
-					buffer.delete(0,buffer.length() - 1); //$NON-NLS-1$
+					buffer.delete(0,buffer.length() - 1);
 					}
-				buffer.append(f.getName()).append(' '); //$NON-NLS-1$
+				buffer.append(f.getName()).append(' ');
 				}
 			catch (LibFormatException ex)
 				{
@@ -211,7 +210,7 @@ public final class LibManager
 	public static Library loadLib(GmStreamDecoder in) throws LibFormatException,IOException
 		{
 		if (in.read() != 0)
-			throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDFILE","%s")); //$NON-NLS-1$
+			throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDFILE","%s")); //$NON-NLS-1$ //$NON-NLS-2$
 		Library lib = new Library();
 		lib.tabCaption = in.readStr();
 		lib.id = in.read4();
@@ -228,7 +227,7 @@ public final class LibManager
 			int ver = in.read4();
 			if (ver != 500 && ver != 520)
 				{
-				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDACTION",j,"%s",ver));
+				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDACTION",j,"%s",ver)); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 
 			LibAction act = lib.addLibAction();
