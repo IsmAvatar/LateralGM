@@ -100,7 +100,8 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 
 	public void fireInternalFrameEvent(int id)
 		{
-		if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSED) LGM.currentFile.removeChangeListener(code);
+		if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSED)
+			LGM.currentFile.updateSource.removeListener(code);
 		super.fireInternalFrameEvent(id);
 		}
 

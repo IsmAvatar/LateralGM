@@ -113,9 +113,9 @@ public class Background extends Resource<Background>
 		}
 
 	@Override
-	protected void fireStateChanged()
+	protected void fireUpdate()
 		{
 		if (imageCache != null) imageCache.clear();
-		super.fireStateChanged();
+		super.fireUpdate();
 		}
 	}

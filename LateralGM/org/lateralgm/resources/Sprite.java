@@ -155,9 +155,9 @@ public class Sprite extends Resource<Sprite>
 		}
 
 	@Override
-	protected void fireStateChanged()
+	protected void fireUpdate()
 		{
 		if (imageCache != null) imageCache.clear();
-		super.fireStateChanged();
+		super.fireUpdate();
 		}
 	}

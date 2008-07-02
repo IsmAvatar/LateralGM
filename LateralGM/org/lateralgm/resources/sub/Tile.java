@@ -11,16 +11,12 @@ package org.lateralgm.resources.sub;
 
 import java.lang.ref.WeakReference;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
-
+import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Background;
 
 public class Tile
 	{
-	EventListenerList listenerList = new EventListenerList();
-	ChangeEvent changeEvent = null;
 	private int x = 0;
 	private int y = 0;
 	private WeakReference<Background> backgroundId = null;
@@ -32,31 +28,12 @@ public class Tile
 	public int tileId = 0;
 	public boolean locked = false;
 
-	public void addChangeListener(ChangeListener l)
-		{
-		listenerList.add(ChangeListener.class,l);
-		}
+	private final UpdateTrigger updateTrigger = new UpdateTrigger();
+	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
-	public void removeChangeListener(ChangeListener l)
+	protected void fireUpdate()
 		{
-		listenerList.remove(ChangeListener.class,l);
-		}
-
-	protected void fireStateChanged()
-		{
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2)
-			{
-			if (listeners[i] == ChangeListener.class)
-				{
-				// Lazily create the event:
-				if (changeEvent == null) changeEvent = new ChangeEvent(this);
-				((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
-				}
-			}
+		updateTrigger.fire();
 		}
 
 	public int getX()
@@ -67,7 +44,7 @@ public class Tile
 	public void setX(int x)
 		{
 		this.x = x;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public int getY()
@@ -78,7 +55,7 @@ public class Tile
 	public void setY(int y)
 		{
 		this.y = y;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public WeakReference<Background> getBackgroundId()
@@ -89,7 +66,7 @@ public class Tile
 	public void setBackgroundId(WeakReference<Background> backgroundId)
 		{
 		this.backgroundId = backgroundId;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public int getTileX()
@@ -100,7 +77,7 @@ public class Tile
 	public void setTileX(int tileX)
 		{
 		this.tileX = tileX;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public int getTileY()
@@ -111,7 +88,7 @@ public class Tile
 	public void setTileY(int tileY)
 		{
 		this.tileY = tileY;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public int getWidth()
@@ -122,7 +99,7 @@ public class Tile
 	public void setWidth(int width)
 		{
 		this.width = width;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public int getHeight()
@@ -133,7 +110,7 @@ public class Tile
 	public void setHeight(int height)
 		{
 		this.height = height;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public int getDepth()
@@ -144,6 +121,6 @@ public class Tile
 	public void setDepth(int depth)
 		{
 		this.depth = depth;
-		fireStateChanged();
+		fireUpdate();
 		}
 	}

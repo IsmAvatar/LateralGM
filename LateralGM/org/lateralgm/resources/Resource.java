@@ -21,14 +21,13 @@
 package org.lateralgm.resources;
 
 import javax.swing.ImageIcon;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
 
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateTrigger;
 
 public abstract class Resource<R extends Resource<R>> implements Comparable<Resource<R>>
 	{
@@ -63,8 +62,8 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 		ICON[EXTENSIONS] = GmTreeGraphics.getBlankIcon();
 		}
 
-	EventListenerList listenerList = new EventListenerList();
-	ChangeEvent changeEvent = null;
+	private final UpdateTrigger updateTrigger = new UpdateTrigger();
+	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
 	private ResNode node;
 	private String name = "";
@@ -73,7 +72,7 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 	public void setId(int id)
 		{
 		this.id = id;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public int getId()
@@ -86,31 +85,9 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 		return res.id == id ? 0 : (res.id < id ? -1 : 1);
 		}
 
-	public void addChangeListener(ChangeListener l)
+	protected void fireUpdate()
 		{
-		listenerList.add(ChangeListener.class,l);
-		}
-
-	public void removeChangeListener(ChangeListener l)
-		{
-		listenerList.remove(ChangeListener.class,l);
-		}
-
-	protected void fireStateChanged()
-		{
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2)
-			{
-			if (listeners[i] == ChangeListener.class)
-				{
-				// Lazily create the event:
-				if (changeEvent == null) changeEvent = new ChangeEvent(this);
-				((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
-				}
-			}
+		updateTrigger.fire();
 		}
 
 	public String getName()
@@ -121,7 +98,7 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 	public void setName(String name)
 		{
 		this.name = name;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public ResNode getNode()

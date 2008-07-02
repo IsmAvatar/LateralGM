@@ -21,8 +21,6 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.PlainDocument;
 
 import org.lateralgm.components.impl.DocumentUndoManager;
@@ -40,10 +38,12 @@ import org.lateralgm.jedit.CompletionMenu.Completion;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
-public class GMLTextArea extends JEditTextArea implements ChangeListener
+public class GMLTextArea extends JEditTextArea implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -77,7 +77,7 @@ public class GMLTextArea extends JEditTextArea implements ChangeListener
 		text = text.replace("\r\n","\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		setText(text);
 		setCaretPosition(0);
-		LGM.currentFile.addChangeListener(this);
+		LGM.currentFile.updateSource.addListener(this);
 		addCaretListener(undoManager);
 		document.addUndoableEditListener(undoManager);
 		inputHandler.addKeyBinding("C+Z",undoManager.getUndoAction()); //$NON-NLS-1$
@@ -342,7 +342,7 @@ public class GMLTextArea extends JEditTextArea implements ChangeListener
 			}
 		}
 
-	public void stateChanged(ChangeEvent e)
+	public void updated(UpdateEvent e)
 		{
 		if (timer == null) timer = new Timer();
 		timer.schedule(new UpdateTask(),500);

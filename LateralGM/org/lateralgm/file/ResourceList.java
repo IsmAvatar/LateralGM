@@ -11,22 +11,22 @@ package org.lateralgm.file;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
-
+import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 
-public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements ChangeListener
+public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
 	private Class<R> type; // used as a workaround for add()
 	private GmFile parent; // used for rooms
 
-	EventListenerList listenerList = new EventListenerList();
-	ChangeEvent changeEvent = null;
+	private final UpdateTrigger updateTrigger = new UpdateTrigger();
+	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
 	ResourceList(Class<R> type, GmFile parent)
 		{
@@ -39,8 +39,8 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 	public boolean add(R res)
 		{
 		super.add(res);
-		res.addChangeListener(this);
-		fireStateChanged();
+		res.updateSource.addListener(this);
+		updateTrigger.fire();
 		res.setId(++lastId);
 		return true;
 		}
@@ -94,8 +94,8 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 		{
 		R res = get(index);
 		super.remove(index);
-		res.removeChangeListener(this);
-		fireStateChanged();
+		res.updateSource.removeListener(this);
+		updateTrigger.fire();
 		return res;
 		}
 
@@ -104,10 +104,10 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 		if (size() == 0) return;
 		for (R r : this)
 			{
-			r.removeChangeListener(this);
+			r.updateSource.removeListener(this);
 			}
 		super.clear();
-		fireStateChanged();
+		updateTrigger.fire();
 		}
 
 	public void sort()
@@ -130,41 +130,9 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 		lastId = size() - 1;
 		}
 
-	public void addChangeListener(ChangeListener l)
+	public void updated(UpdateEvent e)
 		{
-		listenerList.add(ChangeListener.class,l);
-		}
-
-	public void removeChangeListener(ChangeListener l)
-		{
-		listenerList.remove(ChangeListener.class,l);
-		}
-
-	protected void fireStateChanged(ChangeEvent e)
-		{
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2)
-			{
-			if (listeners[i] == ChangeListener.class)
-				{
-				((ChangeListener) listeners[i + 1]).stateChanged(e);
-				}
-			}
-		}
-
-	protected void fireStateChanged()
-		{
-		// Lazily create the event:
-		if (changeEvent == null) changeEvent = new ChangeEvent(this);
-		fireStateChanged(changeEvent);
-		}
-
-	public void stateChanged(ChangeEvent e)
-		{
-		fireStateChanged(e);
+		updateTrigger.fire(e);
 		}
 
 	/**
@@ -176,9 +144,9 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 	public R set(int index, R res)
 		{
 		R old = super.set(index,res);
-		old.removeChangeListener(this);
-		res.addChangeListener(this);
-		fireStateChanged();
+		old.updateSource.removeListener(this);
+		res.updateSource.addListener(this);
+		updateTrigger.fire();
 		return old;
 		}
 

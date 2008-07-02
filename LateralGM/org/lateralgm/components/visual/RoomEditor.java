@@ -33,9 +33,9 @@ import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
@@ -457,7 +457,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 	public abstract class RoomComponent extends JComponent implements Comparable<RoomComponent>
 		{
-		protected final ResourceChangeListener rcl = new ResourceChangeListener();
+		protected final ResourceUpdateListener rul = new ResourceUpdateListener();
 		protected BufferedImage image;
 		protected int x, y, width, height;
 		protected boolean doListen;
@@ -533,9 +533,9 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		public abstract int getId();
 
-		protected class ResourceChangeListener implements ChangeListener
+		protected class ResourceUpdateListener implements UpdateListener
 			{
-			public void stateChanged(ChangeEvent e)
+			public void updated(UpdateEvent e)
 				{
 				updateSource();
 				updateBounds();
@@ -563,15 +563,15 @@ public class RoomEditor extends JPanel implements ImageObserver
 			if (l == doListen) return;
 			if (l)
 				{
-				if (sprite != null) sprite.addChangeListener(rcl);
-				if (object != null) object.addChangeListener(rcl);
-				instance.addChangeListener(rcl);
+				if (sprite != null) sprite.updateSource.addListener(rul);
+				if (object != null) object.updateSource.addListener(rul);
+				instance.updateSource.addListener(rul);
 				}
 			else
 				{
-				if (sprite != null) sprite.removeChangeListener(rcl);
-				if (object != null) object.removeChangeListener(rcl);
-				instance.removeChangeListener(rcl);
+				if (sprite != null) sprite.updateSource.removeListener(rul);
+				if (object != null) object.updateSource.removeListener(rul);
+				instance.updateSource.removeListener(rul);
 				}
 			doListen = l;
 			}
@@ -581,11 +581,11 @@ public class RoomEditor extends JPanel implements ImageObserver
 			Sprite s = deRef(object.sprite);
 			if (s != sprite)
 				{
-				if (sprite != null) sprite.removeChangeListener(rcl);
-				if (doListen && s != null) s.addChangeListener(rcl);
-				image = null;
+				if (sprite != null) sprite.updateSource.removeListener(rul);
+				if (doListen && s != null) s.updateSource.addListener(rul);
 				sprite = s;
 				}
+			image = null;
 			}
 
 		protected void updateBounds()
@@ -684,13 +684,13 @@ public class RoomEditor extends JPanel implements ImageObserver
 			if (l == doListen) return;
 			if (l)
 				{
-				if (background != null) background.addChangeListener(rcl);
-				tile.addChangeListener(rcl);
+				if (background != null) background.updateSource.addListener(rul);
+				tile.updateSource.addListener(rul);
 				}
 			else
 				{
-				if (background != null) background.removeChangeListener(rcl);
-				tile.removeChangeListener(rcl);
+				if (background != null) background.updateSource.removeListener(rul);
+				tile.updateSource.removeListener(rul);
 				}
 			doListen = l;
 			}
@@ -700,8 +700,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 			Background b = deRef(tile.getBackgroundId());
 			if (b != background)
 				{
-				if (background != null) background.removeChangeListener(rcl);
-				if (doListen && b != null) b.addChangeListener(rcl);
+				if (background != null) background.updateSource.removeListener(rul);
+				if (doListen && b != null) b.updateSource.addListener(rul);
 				image = null;
 				background = b;
 				}

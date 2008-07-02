@@ -35,12 +35,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
-
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font;
@@ -57,7 +57,7 @@ import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 
-public class GmFile implements ChangeListener
+public class GmFile implements UpdateListener
 	{
 	private Map<Byte,ResourceList<?>> resMap = new HashMap<Byte,ResourceList<?>>();
 	public ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class,this);
@@ -72,7 +72,8 @@ public class GmFile implements ChangeListener
 
 	public String filename = null;
 
-	private EventListenerList listenerList = new EventListenerList();
+	private final UpdateTrigger updateTrigger = new UpdateTrigger();
+	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
 	public GmFile()
 		{
@@ -87,7 +88,7 @@ public class GmFile implements ChangeListener
 		resMap.put(Resource.ROOM,rooms);
 		for (ResourceList<?> rl : resMap.values())
 			{
-			rl.addChangeListener(this);
+			rl.updateSource.addListener(this);
 			}
 		gameSettings.gameId = new Random().nextInt(100000001);
 		gameSettings.gameIconData = new byte[0];
@@ -170,28 +171,8 @@ public class GmFile implements ChangeListener
 			}
 		}
 
-	public void addChangeListener(ChangeListener l)
+	public void updated(UpdateEvent e)
 		{
-		listenerList.add(ChangeListener.class,l);
-		}
-
-	public void removeChangeListener(ChangeListener l)
-		{
-		listenerList.remove(ChangeListener.class,l);
-		}
-
-	public void stateChanged(ChangeEvent e)
-		{
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2)
-			{
-			if (listeners[i] == ChangeListener.class)
-				{
-				((ChangeListener) listeners[i + 1]).stateChanged(e);
-				}
-			}
+		updateTrigger.fire(e);
 		}
 	}

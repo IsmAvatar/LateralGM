@@ -11,18 +11,13 @@ package org.lateralgm.resources.sub;
 
 import java.lang.ref.WeakReference;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
-
+import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.GmObject;
 
 public class Instance
 	{
 	private static final long serialVersionUID = 1L;
-
-	EventListenerList listenerList = new EventListenerList();
-	ChangeEvent changeEvent = null;
 
 	private int x = 0;
 	private int y = 0;
@@ -31,31 +26,12 @@ public class Instance
 	private String creationCode = "";
 	public boolean locked = false;
 
-	public void addChangeListener(ChangeListener l)
-		{
-		listenerList.add(ChangeListener.class,l);
-		}
+	private final UpdateTrigger updateTrigger = new UpdateTrigger();
+	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
-	public void removeChangeListener(ChangeListener l)
+	protected void fireUpdate()
 		{
-		listenerList.remove(ChangeListener.class,l);
-		}
-
-	protected void fireStateChanged()
-		{
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2)
-			{
-			if (listeners[i] == ChangeListener.class)
-				{
-				// Lazily create the event:
-				if (changeEvent == null) changeEvent = new ChangeEvent(this);
-				((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
-				}
-			}
+		updateTrigger.fire();
 		}
 
 	public int getX()
@@ -66,7 +42,7 @@ public class Instance
 	public void setX(int x)
 		{
 		this.x = x;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public int getY()
@@ -77,7 +53,7 @@ public class Instance
 	public void setY(int y)
 		{
 		this.y = y;
-		fireStateChanged();
+		fireUpdate();
 		}
 
 	public String getCreationCode()
@@ -88,6 +64,6 @@ public class Instance
 	public void setCreationCode(String creationCode)
 		{
 		this.creationCode = creationCode;
-		fireStateChanged();
+		fireUpdate();
 		}
 	}
