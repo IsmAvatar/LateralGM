@@ -22,8 +22,12 @@ import javax.swing.text.Utilities;
  *
  * @author Slava Pestov
  */
-public class SyntaxUtilities
+public final class SyntaxUtilities
 	{
+	private SyntaxUtilities()
+		{
+		}
+
 	/**
 	 * Checks if a subregion of a <code>Segment</code> is equal to a string.
 	 * @param ignoreCase True if case should be ignored, false otherwise
@@ -142,10 +146,5 @@ public class SyntaxUtilities
 			}
 
 		return x;
-		}
-
-	// private members
-	private SyntaxUtilities()
-		{
 		}
 	}

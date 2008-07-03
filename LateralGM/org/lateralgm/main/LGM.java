@@ -261,8 +261,12 @@ public final class LGM
 
 	public static void loadPlugins()
 		{
-		File dir = new File("./plugins"); //$NON-NLS-1$
-		if (!dir.exists()) return;
+		File dir = new File("plugins"); //$NON-NLS-1$
+		if (!dir.exists())
+			{
+			dir = new File("Plugins"); //$NON-NLS-1$
+			if (!dir.exists()) return;
+			}
 		File[] ps = dir.listFiles(new CustomFileFilter(".jar",null)); //$NON-NLS-1$
 		for (File f : ps)
 			{

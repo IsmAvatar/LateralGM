@@ -61,8 +61,6 @@ import javax.swing.text.Element;
 import javax.swing.text.Segment;
 import javax.swing.text.Utilities;
 import javax.swing.undo.AbstractUndoableEdit;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 
 /**
@@ -150,14 +148,17 @@ public class JEditTextArea extends JComponent
 		listenerList = new EventListenerList();
 		caretEvent = new MutableCaretEvent();
 		lineSegment = new Segment();
-		bracketLine = bracketPosition = -1;
+		bracketPosition = -1;
+		bracketLine = -1;
 		blink = true;
 
 		// Initialize the GUI
 		setLayout(new ScrollLayout());
 		add(CENTER,painter);
-		add(RIGHT,vertical = new JScrollBar(JScrollBar.VERTICAL));
-		add(BOTTOM,horizontal = new JScrollBar(JScrollBar.HORIZONTAL));
+		vertical = new JScrollBar(JScrollBar.VERTICAL);
+		horizontal = new JScrollBar(JScrollBar.HORIZONTAL);
+		add(RIGHT,vertical);
+		add(BOTTOM,horizontal);
 
 		// Add some event listeners
 		vertical.addAdjustmentListener(new AdjustHandler());
@@ -509,7 +510,8 @@ public class JEditTextArea extends JComponent
 		else
 			{
 			painter.currentLineIndex = line;
-			tokens = painter.currentLineTokens = tokenMarker.markTokens(lineSegment,line);
+			painter.currentLineTokens = tokenMarker.markTokens(lineSegment,line);
+			tokens = painter.currentLineTokens;
 			}
 
 		//		Font defaultFont = painter.getFont();
@@ -593,7 +595,8 @@ public class JEditTextArea extends JComponent
 		else
 			{
 			painter.currentLineIndex = line;
-			tokens = painter.currentLineTokens = tokenMarker.markTokens(lineSegment,line);
+			painter.currentLineTokens = tokenMarker.markTokens(lineSegment,line);
+			tokens = painter.currentLineTokens;
 			}
 
 		int offset = 0;
@@ -829,7 +832,8 @@ public class JEditTextArea extends JComponent
 		catch (BadLocationException bl)
 			{
 			bl.printStackTrace();
-			segment.offset = segment.count = 0;
+			segment.count = 0;
+			segment.offset = 0;
 			}
 		}
 
@@ -1557,7 +1561,8 @@ public class JEditTextArea extends JComponent
 		{
 		if (newCaretPosition == 0)
 			{
-			bracketPosition = bracketLine = -1;
+			bracketLine = -1;
+			bracketPosition = -1;
 			return;
 			}
 
@@ -1576,7 +1581,8 @@ public class JEditTextArea extends JComponent
 			bl.printStackTrace();
 			}
 
-		bracketLine = bracketPosition = -1;
+		bracketPosition = -1;
+		bracketLine = -1;
 		}
 
 	protected void documentChanged(DocumentEvent evt)
@@ -2092,14 +2098,14 @@ public class JEditTextArea extends JComponent
 			return "caret move";
 			}
 
-		public void undo() throws CannotUndoException
+		public void undo()
 			{
 			super.undo();
 
 			select(start,end);
 			}
 
-		public void redo() throws CannotRedoException
+		public void redo()
 			{
 			super.redo();
 

@@ -357,8 +357,10 @@ public class TextAreaPainter extends JComponent implements TabExpander
 		fm = super.getFontMetrics(font);
 		textArea.recalculateVisibleLines();
 		if (textArea.getDocument() != null)
-			tabSize = fm.charWidth(' ')
-					* ((Integer) textArea.getDocument().getProperty(PlainDocument.tabSizeAttribute)).intValue();
+			{
+			String key = PlainDocument.tabSizeAttribute;
+			tabSize = fm.charWidth(' ') * ((Integer) textArea.getDocument().getProperty(key)).intValue();
+			}
 		}
 
 	public int getLineHeight()
@@ -427,7 +429,8 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	 */
 	public final void invalidateLine(int line)
 		{
-		repaint(0,textArea.lineToY(line) + fm.getMaxDescent() + LINE_SPACING,getWidth(),getLineHeight());
+		int y = textArea.lineToY(line) + fm.getMaxDescent() + LINE_SPACING;
+		repaint(0,y,getWidth(),getLineHeight());
 		}
 
 	/**

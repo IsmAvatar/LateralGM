@@ -47,47 +47,47 @@ public abstract class InputHandler extends KeyAdapter
 	public static final String TAB_TO_INDENT_PROPERTY = "InputHandler.tabToIndent";
 	public static final String CONVERT_TABS_PROPERTY = "InputHandler.convertTabs";
 
-	public static final ActionListener BACKSPACE = new backspace();
-	public static final ActionListener BACKSPACE_WORD = new backspace_word();
-	public static final ActionListener DELETE = new delete();
-	public static final ActionListener DELETE_WORD = new delete_word();
-	public static final ActionListener END = new end(false);
-	public static final ActionListener DOCUMENT_END = new document_end(false);
-	public static final ActionListener SELECT_END = new end(true);
-	public static final ActionListener SELECT_DOC_END = new document_end(true);
-	public static final ActionListener SELECT_ALL = new select_all();
-	public static final ActionListener INSERT_BREAK = new insert_break();
-	public static final ActionListener INSERT_TAB = new insert_tab();
-	public static final ActionListener HOME = new home(false);
-	public static final ActionListener DOCUMENT_HOME = new document_home(false);
-	public static final ActionListener SELECT_HOME = new home(true);
-	public static final ActionListener SELECT_DOC_HOME = new document_home(true);
-	public static final ActionListener NEXT_CHAR = new next_char(false);
-	public static final ActionListener NEXT_LINE = new next_line(false);
-	public static final ActionListener NEXT_PAGE = new next_page(false);
-	public static final ActionListener NEXT_WORD = new next_word(false);
-	public static final ActionListener SELECT_NEXT_CHAR = new next_char(true);
-	public static final ActionListener SELECT_NEXT_LINE = new next_line(true);
-	public static final ActionListener SELECT_NEXT_PAGE = new next_page(true);
-	public static final ActionListener SELECT_NEXT_WORD = new next_word(true);
-	public static final ActionListener OVERWRITE = new overwrite();
-	public static final ActionListener PREV_CHAR = new prev_char(false);
-	public static final ActionListener PREV_LINE = new prev_line(false);
-	public static final ActionListener PREV_PAGE = new prev_page(false);
-	public static final ActionListener PREV_WORD = new prev_word(false);
-	public static final ActionListener SELECT_PREV_CHAR = new prev_char(true);
-	public static final ActionListener SELECT_PREV_LINE = new prev_line(true);
-	public static final ActionListener SELECT_PREV_PAGE = new prev_page(true);
-	public static final ActionListener SELECT_PREV_WORD = new prev_word(true);
-	public static final ActionListener REPEAT = new repeat();
-	public static final ActionListener TOGGLE_RECT = new toggle_rect();
+	public static final ActionListener BACKSPACE = new Backspace();
+	public static final ActionListener BACKSPACE_WORD = new BackspaceWord();
+	public static final ActionListener DELETE = new Delete();
+	public static final ActionListener DELETE_WORD = new DeleteWord();
+	public static final ActionListener END = new End(false);
+	public static final ActionListener DOCUMENT_END = new DocumentEnd(false);
+	public static final ActionListener SELECT_END = new End(true);
+	public static final ActionListener SELECT_DOC_END = new DocumentEnd(true);
+	public static final ActionListener SELECT_ALL = new SelectAll();
+	public static final ActionListener INSERT_BREAK = new InsertBreak();
+	public static final ActionListener INSERT_TAB = new InsertTab();
+	public static final ActionListener HOME = new Home(false);
+	public static final ActionListener DOCUMENT_HOME = new DocumentHome(false);
+	public static final ActionListener SELECT_HOME = new Home(true);
+	public static final ActionListener SELECT_DOC_HOME = new DocumentHome(true);
+	public static final ActionListener NEXT_CHAR = new NextChar(false);
+	public static final ActionListener NEXT_LINE = new NextLine(false);
+	public static final ActionListener NEXT_PAGE = new NextPage(false);
+	public static final ActionListener NEXT_WORD = new NextWord(false);
+	public static final ActionListener SELECT_NEXT_CHAR = new NextChar(true);
+	public static final ActionListener SELECT_NEXT_LINE = new NextLine(true);
+	public static final ActionListener SELECT_NEXT_PAGE = new NextPage(true);
+	public static final ActionListener SELECT_NEXT_WORD = new NextWord(true);
+	public static final ActionListener OVERWRITE = new Overwrite();
+	public static final ActionListener PREV_CHAR = new PrevChar(false);
+	public static final ActionListener PREV_LINE = new PrevLine(false);
+	public static final ActionListener PREV_PAGE = new PrevPage(false);
+	public static final ActionListener PREV_WORD = new PrevWord(false);
+	public static final ActionListener SELECT_PREV_CHAR = new PrevChar(true);
+	public static final ActionListener SELECT_PREV_LINE = new PrevLine(true);
+	public static final ActionListener SELECT_PREV_PAGE = new PrevPage(true);
+	public static final ActionListener SELECT_PREV_WORD = new PrevWord(true);
+	public static final ActionListener REPEAT = new Repeat();
+	public static final ActionListener TOGGLE_RECT = new ToggleRect();
 
-	public static final ActionListener CUT = new cut();
-	public static final ActionListener COPY = new copy();
-	public static final ActionListener PASTE = new paste();
+	public static final ActionListener CUT = new Cut();
+	public static final ActionListener COPY = new Copy();
+	public static final ActionListener PASTE = new Paste();
 
 	// Default action
-	public static final ActionListener INSERT_CHAR = new insert_char();
+	public static final ActionListener INSERT_CHAR = new InsertChar();
 
 	private static Hashtable<String,ActionListener> actions;
 
@@ -397,7 +397,7 @@ public abstract class InputHandler extends KeyAdapter
 		void actionPerformed(ActionListener listener, String actionCommand);
 		}
 
-	public static class backspace implements ActionListener
+	public static class Backspace implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -433,7 +433,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class backspace_word implements ActionListener
+	public static class BackspaceWord implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -476,7 +476,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class delete implements ActionListener
+	public static class Delete implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -512,7 +512,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class delete_word implements ActionListener
+	public static class DeleteWord implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -555,7 +555,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class select_all implements ActionListener
+	public static class SelectAll implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -563,11 +563,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class end implements ActionListener
+	public static class End implements ActionListener
 		{
 		private boolean select;
 
-		public end(boolean select)
+		public End(boolean select)
 			{
 			this.select = select;
 			}
@@ -583,11 +583,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class document_end implements ActionListener
+	public static class DocumentEnd implements ActionListener
 		{
 		private boolean select;
 
-		public document_end(boolean select)
+		public DocumentEnd(boolean select)
 			{
 			this.select = select;
 			}
@@ -602,11 +602,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class home implements ActionListener
+	public static class Home implements ActionListener
 		{
 		private boolean select;
 
-		public home(boolean select)
+		public Home(boolean select)
 			{
 			this.select = select;
 			}
@@ -633,11 +633,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class document_home implements ActionListener
+	public static class DocumentHome implements ActionListener
 		{
 		private boolean select;
 
-		public document_home(boolean select)
+		public DocumentHome(boolean select)
 			{
 			this.select = select;
 			}
@@ -652,7 +652,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class insert_break implements ActionListener
+	public static class InsertBreak implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -678,7 +678,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class insert_tab implements ActionListener
+	public static class InsertTab implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -725,7 +725,8 @@ public abstract class InputHandler extends KeyAdapter
 			{
 			if (Boolean.TRUE.equals(textArea.getClientProperty(CONVERT_TABS_PROPERTY)))
 				{
-				int tabSize = ((Integer) textArea.getDocument().getProperty(PlainDocument.tabSizeAttribute)).intValue();
+				String key = PlainDocument.tabSizeAttribute;
+				int tabSize = ((Integer) textArea.getDocument().getProperty(key)).intValue();
 				String tab = "";
 				for (int i = 0; i < tabSize; i++)
 					tab += " ";
@@ -737,11 +738,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class next_char implements ActionListener
+	public static class NextChar implements ActionListener
 		{
 		private boolean select;
 
-		public next_char(boolean select)
+		public NextChar(boolean select)
 			{
 			this.select = select;
 			}
@@ -763,11 +764,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class next_line implements ActionListener
+	public static class NextLine implements ActionListener
 		{
 		private boolean select;
 
-		public next_line(boolean select)
+		public NextLine(boolean select)
 			{
 			this.select = select;
 			}
@@ -799,11 +800,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class next_page implements ActionListener
+	public static class NextPage implements ActionListener
 		{
 		private boolean select;
 
-		public next_page(boolean select)
+		public NextPage(boolean select)
 			{
 			this.select = select;
 			}
@@ -831,11 +832,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class next_word implements ActionListener
+	public static class NextWord implements ActionListener
 		{
 		private boolean select;
 
-		public next_word(boolean select)
+		public NextWord(boolean select)
 			{
 			this.select = select;
 			}
@@ -872,7 +873,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class overwrite implements ActionListener
+	public static class Overwrite implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -881,11 +882,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class prev_char implements ActionListener
+	public static class PrevChar implements ActionListener
 		{
 		private boolean select;
 
-		public prev_char(boolean select)
+		public PrevChar(boolean select)
 			{
 			this.select = select;
 			}
@@ -907,11 +908,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class prev_line implements ActionListener
+	public static class PrevLine implements ActionListener
 		{
 		private boolean select;
 
-		public prev_line(boolean select)
+		public PrevLine(boolean select)
 			{
 			this.select = select;
 			}
@@ -943,11 +944,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class prev_page implements ActionListener
+	public static class PrevPage implements ActionListener
 		{
 		private boolean select;
 
-		public prev_page(boolean select)
+		public PrevPage(boolean select)
 			{
 			this.select = select;
 			}
@@ -971,11 +972,11 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class prev_word implements ActionListener
+	public static class PrevWord implements ActionListener
 		{
 		private boolean select;
 
-		public prev_word(boolean select)
+		public PrevWord(boolean select)
 			{
 			this.select = select;
 			}
@@ -1012,7 +1013,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class repeat implements ActionListener,InputHandler.NonRecordable
+	public static class Repeat implements ActionListener,InputHandler.NonRecordable
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -1026,7 +1027,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class toggle_rect implements ActionListener
+	public static class ToggleRect implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -1035,7 +1036,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class insert_char implements ActionListener,InputHandler.NonRepeatable
+	public static class InsertChar implements ActionListener,InputHandler.NonRepeatable
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -1057,7 +1058,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class cut implements ActionListener
+	public static class Cut implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -1066,7 +1067,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class copy implements ActionListener
+	public static class Copy implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
@@ -1075,7 +1076,7 @@ public abstract class InputHandler extends KeyAdapter
 			}
 		}
 
-	public static class paste implements ActionListener
+	public static class Paste implements ActionListener
 		{
 		public void actionPerformed(ActionEvent evt)
 			{

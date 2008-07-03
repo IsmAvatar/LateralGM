@@ -18,6 +18,10 @@ import javax.swing.text.Document;
  */
 public final class TextUtilities
 	{
+	private TextUtilities()
+		{
+		}
+
 	/**
 	 * Returns the offset of the bracket matching the one at the
 	 * specified offset of the document, or -1 if the bracket is

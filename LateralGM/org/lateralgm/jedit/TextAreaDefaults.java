@@ -20,7 +20,7 @@ import javax.swing.JPopupMenu;
  */
 public class TextAreaDefaults
 	{
-	private static TextAreaDefaults DEFAULTS;
+	private static TextAreaDefaults defaults;
 
 	public InputHandler inputHandler;
 	public SyntaxDocument document;
@@ -52,33 +52,33 @@ public class TextAreaDefaults
 	 */
 	public static TextAreaDefaults getDefaults()
 		{
-		if (DEFAULTS == null)
+		if (defaults == null)
 			{
-			DEFAULTS = new TextAreaDefaults();
+			defaults = new TextAreaDefaults();
 
-			DEFAULTS.inputHandler = new DefaultInputHandler();
-			DEFAULTS.inputHandler.addDefaultKeyBindings();
-			DEFAULTS.document = new SyntaxDocument();
-			DEFAULTS.editable = true;
+			defaults.inputHandler = new DefaultInputHandler();
+			defaults.inputHandler.addDefaultKeyBindings();
+			defaults.document = new SyntaxDocument();
+			defaults.editable = true;
 
-			DEFAULTS.caretVisible = true;
-			DEFAULTS.caretBlinks = true;
-			DEFAULTS.electricScroll = 3;
+			defaults.caretVisible = true;
+			defaults.caretBlinks = true;
+			defaults.electricScroll = 3;
 
-			DEFAULTS.cols = 80;
-			DEFAULTS.rows = 25;
-			DEFAULTS.styles = SyntaxUtilities.getDefaultSyntaxStyles();
-			DEFAULTS.caretColor = Color.red;
-			DEFAULTS.selectionColor = new Color(0xccccff);
-			DEFAULTS.lineHighlightColor = new Color(0xe0e0e0);
-			DEFAULTS.lineHighlight = true;
-			DEFAULTS.bracketHighlightColor = Color.black;
-			DEFAULTS.bracketHighlight = true;
-			DEFAULTS.eolMarkerColor = new Color(0x009999);
-			DEFAULTS.eolMarkers = true;
-			DEFAULTS.paintInvalid = true;
+			defaults.cols = 80;
+			defaults.rows = 25;
+			defaults.styles = SyntaxUtilities.getDefaultSyntaxStyles();
+			defaults.caretColor = Color.red;
+			defaults.selectionColor = new Color(0xccccff);
+			defaults.lineHighlightColor = new Color(0xe0e0e0);
+			defaults.lineHighlight = true;
+			defaults.bracketHighlightColor = Color.black;
+			defaults.bracketHighlight = true;
+			defaults.eolMarkerColor = new Color(0x009999);
+			defaults.eolMarkers = true;
+			defaults.paintInvalid = true;
 			}
 
-		return DEFAULTS;
+		return defaults;
 		}
 	}
