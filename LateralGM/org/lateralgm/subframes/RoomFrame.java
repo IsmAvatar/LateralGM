@@ -936,9 +936,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		ResourceComparator c = new ResourceComparator();
 		c.addExclusions(Room.class,"parent","currentTab","deleteUnderlyingObjects","showGrid",
 				"showObjects","showTiles","showBackgrounds","showForegrounds","deleteUnderlyingTiles");
-		c.addExclusions(Instance.class,"changeEvent");
-		c.addExclusions(Tile.class,"changeEvent");
-		c.addExclusions(Instance.class,"changeEvent"); //$NON-NLS-1$
+		c.addExclusions(Instance.class,"updateTrigger","updateSource");
+		c.addExclusions(Tile.class,"updateTrigger","updateSource");
 		if (!c.areEqual(res,resOriginal)) return true;
 		for (CodeFrame cf : codeFrames.values())
 			if (cf.isChanged()) return true;

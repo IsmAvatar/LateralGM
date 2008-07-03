@@ -42,6 +42,8 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.sub.Action;
+import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Moment;
 
 public class TimelineFrame extends ResourceFrame<Timeline> implements ActionListener,
@@ -171,6 +173,8 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
+		c.addExclusions(Action.class,"updateTrigger","updateSource");
+		c.addExclusions(Argument.class,"updateTrigger","updateSource");
 		return !c.areEqual(res,resOriginal);
 		}
 

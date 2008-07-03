@@ -66,6 +66,8 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.sub.Action;
+import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
@@ -605,6 +607,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
+		c.addExclusions(Action.class,"updateTrigger","updateSource");
+		c.addExclusions(Argument.class,"updateTrigger","updateSource");
 		return !c.areEqual(res,resOriginal);
 		}
 
