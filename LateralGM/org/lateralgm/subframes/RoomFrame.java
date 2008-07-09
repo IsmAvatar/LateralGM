@@ -380,7 +380,21 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		return panel;
 		}
 
-	public JPanel makeTilesPane()
+	public JTabbedPane makeTilesPane()
+		{
+		JTabbedPane tab = new JTabbedPane();
+		tab.addTab("Add",makeTilesAddPane());
+		tab.addTab("Edit",makeTilesEditPane());
+		return tabs;
+		}
+
+	public JPanel makeTilesAddPane()
+		{
+		JPanel p = new JPanel();
+		return p;
+		}
+
+	public JPanel makeTilesEditPane()
 		{
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
