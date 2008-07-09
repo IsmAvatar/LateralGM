@@ -123,7 +123,22 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public ResourceMenu<GmObject> vObj;
 	public IntegerField vOHBor, vOVBor, vOHSp, vOVSp;
 
-	public JPanel makeObjectsPane()
+	public JTabbedPane makeObjectsPane()
+		{
+		JTabbedPane tab = new JTabbedPane();
+		tab.addTab("Add",makeObjectsAddPane());
+		tab.addTab("Edit",makeObjectsEditPane());
+		return tabs;
+		}
+
+	//TODO: Object Add Tab
+	public JPanel makeObjectsAddPane()
+		{
+		JPanel p = new JPanel();
+		return p;
+		}
+
+	public JPanel makeObjectsEditPane()
 		{
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
@@ -388,6 +403,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		return tabs;
 		}
 
+	//TODO: Tile Add Tab
 	public JPanel makeTilesAddPane()
 		{
 		JPanel p = new JPanel();
