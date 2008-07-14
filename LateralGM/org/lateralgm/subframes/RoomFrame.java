@@ -128,7 +128,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab("Add",makeObjectsAddPane());
 		tab.addTab("Edit",makeObjectsEditPane());
-		return tabs;
+		return tab;
 		}
 
 	//TODO: Object Add Tab
@@ -400,7 +400,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab("Add",makeTilesAddPane());
 		tab.addTab("Edit",makeTilesEditPane());
-		return tabs;
+		return tab;
 		}
 
 	//TODO: Tile Add Tab

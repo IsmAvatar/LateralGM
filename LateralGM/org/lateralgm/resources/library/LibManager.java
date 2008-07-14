@@ -72,10 +72,10 @@ public final class LibManager
 			}
 		else
 			{
+			//FIXME: if LGM.workDir.isDirectory() returns true, do not treat as a zip!
 			try
 				{
-				ZipFile zip = new ZipFile(new File(
-						LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI()));
+				ZipFile zip = new ZipFile(LGM.workDir);
 				Enumeration<? extends ZipEntry> entries = zip.entries();
 				while (entries.hasMoreElements())
 					{

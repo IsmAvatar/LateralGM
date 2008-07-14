@@ -32,6 +32,7 @@ import java.awt.SplashScreen;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -110,7 +111,7 @@ public final class LGM
 	public static GameInformationFrame gameInfo;
 	public static GameSettingFrame gameSet;
 	public static EventFrame eventSelect;
-	public static File tempDir;
+	public static File tempDir,workDir;
 
 	private LGM()
 		{
@@ -261,13 +262,10 @@ public final class LGM
 
 	public static void loadPlugins()
 		{
-		File dir = new File("plugins"); //$NON-NLS-1$
-		if (!dir.exists())
-			{
-			dir = new File("Plugins"); //$NON-NLS-1$
-			if (!dir.exists()) return;
-			}
+		File dir = new File(workDir.getParent(),"plugins"); //$NON-NLS-1$
+		if (!dir.exists()) dir = new File(workDir.getParent(),"Plugins"); //$NON-NLS-1$
 		File[] ps = dir.listFiles(new CustomFileFilter(".jar",null)); //$NON-NLS-1$
+		if (ps == null) return;
 		for (File f : ps)
 			{
 			if (!f.exists()) continue;
@@ -303,10 +301,20 @@ public final class LGM
 		Util.tweakIIORegistry();
 		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!tempDir.exists()) tempDir.mkdir();
+
+		try
+			{
+			workDir = new File(LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			}
+		catch (URISyntaxException e1)
+			{
+			e1.printStackTrace();
+			}
 		}
 
 	public static void main(String[] args)
 		{
+		System.out.println(workDir.isDirectory());
 		SplashProgress.progress(10,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
 		SplashProgress.progress(20,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
