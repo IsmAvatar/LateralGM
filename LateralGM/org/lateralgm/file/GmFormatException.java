@@ -11,10 +11,12 @@ package org.lateralgm.file;
 public class GmFormatException extends Exception
 	{
 	private static final long serialVersionUID = 1L;
+	public GmFile file;
 
-	public GmFormatException(String message)
+	public GmFormatException(GmFile file, String message)
 		{
 		super(message);
+		this.file = file;
 		}
 
 	public String stackAsString()

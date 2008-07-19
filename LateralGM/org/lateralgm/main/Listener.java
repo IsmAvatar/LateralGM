@@ -37,10 +37,12 @@ import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
 import org.lateralgm.components.CustomFileChooser;
+import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.CustomFileChooser.FilterSet;
 import org.lateralgm.components.impl.ResNode;
@@ -110,23 +112,38 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			filename = file.getPath();
 			}
 		if (!file.exists()) return;
+		ResNode newroot = new ResNode("Root",(byte) 0,(byte) 0,null); //$NON-NLS-1$
 		try
 			{
-			ResNode newroot = new ResNode("Root",(byte) 0,(byte) 0,null); //$NON-NLS-1$
 			PrefsStore.addRecentFile(filename);
 			LGM.frame.setTitle(Messages.format("LGM.TITLE",file.getName())); //$NON-NLS-1$
 			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-			LGM.currentFile = GmFileReader.readGmFile(filename,newroot);
-			LGM.tree.setModel(new DefaultTreeModel(newroot));
 			LGM.root = newroot;
-			LGM.tree.setSelectionRow(0);
+			LGM.currentFile = GmFileReader.readGmFile(filename,newroot);
 			}
 		catch (GmFormatException ex)
 			{
-			JOptionPane.showMessageDialog(LGM.frame,Messages.format("Listener.ERROR_MESSAGE", //$NON-NLS-1$
-					ex.stackAsString(),ex.getMessage()),Messages.getString("Listener.ERROR_TITLE"), //$NON-NLS-1$
-					JOptionPane.ERROR_MESSAGE);
+			new ErrorDialog(LGM.frame,Messages.getString("Listener.ERROR_TITLE"), //$NON-NLS-1$
+					Messages.getString("Listener.ERROR_MESSAGE"),Messages.format("Listener.DEBUG_INFO", //$NON-NLS-1$ //$NON-NLS-2$
+							ex.getClass().getName(),ex.getMessage(),ex.stackAsString())).setVisible(true);
+			LGM.currentFile = ex.file;
+			LGM.populateTree();
+			//Rebuild the tree based on what we have
+			for (int i = 0; i < LGM.root.getChildCount(); i++)
+				{
+				TreeNode n = LGM.root.getChildAt(i);
+				if (!(n instanceof ResNode)) continue;
+				ResNode rn = (ResNode) n;
+				if (rn.status != ResNode.STATUS_PRIMARY) continue;
+				ResourceList<?> rl = LGM.currentFile.getList(rn.kind);
+				for (Resource<?> r : rl)
+					rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getKind(),
+					/**/new WeakReference(r)));
+				}
 			}
+		LGM.tree.setModel(new DefaultTreeModel(newroot));
+		LGM.tree.setSelectionRow(0);
+
 		LGM.gameInfo.dispose();
 		LGM.gameInfo = new GameInformationFrame();
 		LGM.mdi.add(LGM.gameInfo);
@@ -138,7 +155,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public void newFile()
 		{
 		LGM.frame.setTitle(Messages.format("LGM.TITLE",Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$
-		LGM.root = new ResNode("Root",(byte) 0,(byte) 0,null);
+		LGM.root = new ResNode("Root",(byte) 0,(byte) 0,null); //$NON-NLS-1$
 		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
 		LGM.populateTree();
 		LGM.currentFile = new GmFile();
@@ -281,7 +298,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		if (r == -1)
 			{
 			String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
-			String name = JOptionPane.showInputDialog(msg,"Group");
+			String name = JOptionPane.showInputDialog(msg,Messages.getString("Listener.DEFAULT_GROUPNAME")); //$NON-NLS-1$
 			if (name == "" || name == null) return; //$NON-NLS-1$
 			ResNode g = new ResNode(name,ResNode.STATUS_GROUP,parent.kind);
 			parent.insert(g,pos);
