@@ -138,7 +138,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				ResourceList<?> rl = LGM.currentFile.getList(rn.kind);
 				for (Resource<?> r : rl)
 					rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getKind(),
-					/**/new WeakReference(r)));
+							new WeakReference<Resource<?>>(r)));
 				}
 			}
 		LGM.tree.setModel(new DefaultTreeModel(newroot));
@@ -298,7 +298,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		if (r == -1)
 			{
 			String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
-			String name = JOptionPane.showInputDialog(msg,Messages.getString("Listener.DEFAULT_GROUPNAME")); //$NON-NLS-1$
+			String name = JOptionPane.showInputDialog(msg,
+					Messages.getString("Listener.DEFAULT_GROUPNAME")); //$NON-NLS-1$
 			if (name == "" || name == null) return; //$NON-NLS-1$
 			ResNode g = new ResNode(name,ResNode.STATUS_GROUP,parent.kind);
 			parent.insert(g,pos);

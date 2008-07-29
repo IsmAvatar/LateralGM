@@ -43,26 +43,21 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.SubimagePreview;
-import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
 
-public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener,MouseListener,
-		ChangeListener
+public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener,MouseListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -79,24 +74,26 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	//bbox
 	public IndexButtonGroup bboxGroup;
-	public IntegerField bboxLeft,bboxRight;
-	public IntegerField bboxTop,bboxBottom;
-	public JRadioButton auto,full,manual;
+	public IntegerField bboxLeft, bboxRight;
+	public IntegerField bboxTop, bboxBottom;
+	public JRadioButton auto, full, manual;
 
 	//properties
-	public JCheckBox preciseCC,smooth,preload;
-	public JLabel subCount,width,height;
+	public JCheckBox preciseCC, smooth, preload;
+	public JLabel subCount, width, height;
+
+	//subimages
+	public JList subList;
 
 	//preview
 	public SubimagePreview preview;
 	public IntegerField show, speed;
-	public JButton subLeft,subRight,play;
+	public JButton subLeft, subRight, play;
 	public JLabel showLab;
 	public int currSub;
 
 	public boolean imageChanged = false;
 	public JSplitPane splitPane;
-	public File extFile;
 
 	/** Used for animation, or null when not animating */
 	public Timer timer;
@@ -339,11 +336,11 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		{
 		JPanel pane = new JPanel(new BorderLayout());
 		//prevents resizing on large subimages with size(1,1)
-		pane.setPreferredSize(new Dimension(1,1)); 
+		pane.setPreferredSize(new Dimension(1,1));
 
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
-//		pane.add(tool,BorderLayout.NORTH);
+		//		pane.add(tool,BorderLayout.NORTH);
 
 		ImageIcon icon = LGM.getIconForKey("SpriteFrame.ADD");
 		JButton but = new JButton(icon);
@@ -358,9 +355,9 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		ImageIcon ii[] = new ImageIcon[res.subImages.size()];
 		for (int i = 0; i < res.subImages.size(); i++)
 			ii[i] = new ImageIcon(res.subImages.get(i));
-		JList list = new JList(ii);
-		list.addMouseListener(this);
-		pane.add(new JScrollPane(list),BorderLayout.CENTER);
+		subList = new JList(ii);
+		subList.addMouseListener(this);
+		pane.add(new JScrollPane(subList),BorderLayout.CENTER);
 		return pane;
 		}
 
@@ -792,27 +789,34 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			{
 			try
 				{
-				if (extFile == null)
-					{
-					extFile = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
-					extFile.deleteOnExit();
-					FileOutputStream out = new FileOutputStream(extFile);
-					ImageIO.write(img,"bmp",out);
-					out.close();
-					FileChangeMonitor fcm = new FileChangeMonitor(extFile);
-					fcm.addChangeListener(this);
-					fcm.start();
-					}
+				File extFile = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
+				extFile.deleteOnExit();
+				FileOutputStream out = new FileOutputStream(extFile);
+				ImageIO.write(img,"bmp",out);
+				out.close();
+
 				Runtime.getRuntime().exec(
-						String.format(Prefs.externalSpriteEditorCommand,extFile.getAbsolutePath()));
+						String.format(Prefs.externalSpriteEditorCommand,extFile.getAbsolutePath())).waitFor();
+
+				img = ImageIO.read(new FileInputStream(extFile));
+				extFile.delete();
+				extFile = null;
+				ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
+				BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
+						BufferedImage.TYPE_3BYTE_BGR);
+				conv.filter(img,dest);
+				res.subImages.set(i,dest);
+				updateImage();
+				ImageIcon ii[] = new ImageIcon[res.subImages.size()];
+				for (int j = 0; j < res.subImages.size(); j++)
+					ii[j] = new ImageIcon(res.subImages.get(j));
+				subList.setListData(ii);
 				}
 			catch (Exception ex)
 				{
 				ex.printStackTrace();
 				}
 			}
-		return;
-
 		}
 
 	public void mousePressed(MouseEvent e)
@@ -822,55 +826,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			JList list = (JList) e.getSource();
 			editSubimage(list.getSelectedIndex());
 			}
-		}
-
-	public void stateChanged(ChangeEvent e)
-		{
-		if (e.getSource() instanceof FileChangeMonitor)
-			{
-			int flag = ((FileChangeMonitor) e.getSource()).getFlag();
-			if (flag == FileChangeMonitor.FLAG_CHANGED)
-				{
-				try
-					{
-					BufferedImage img = ImageIO.read(new FileInputStream(extFile));
-					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
-					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
-							BufferedImage.TYPE_3BYTE_BGR);
-					conv.filter(img,dest);
-					//TODO: Update the subimage
-					//not entirely sure if this is necessary, but
-					//stateChanged does get called from another thread
-					SwingUtilities.invokeLater(new Runnable()
-						{
-							public void run()
-								{
-								updateImage();
-								}
-						});
-					}
-				catch (Exception ex)
-					{
-					ex.printStackTrace();
-					}
-				}
-			else if (flag == FileChangeMonitor.FLAG_DELETED)
-				{
-				extFile = null;
-				}
-			}
-		}
-
-	protected void cleanup()
-		{
-		try
-			{
-			extFile.delete();
-			}
-		catch (Exception e)
-			{
-			}
-		extFile = null;
 		}
 
 	//unused
