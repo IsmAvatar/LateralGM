@@ -457,6 +457,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 	public abstract class RoomComponent extends JComponent implements Comparable<RoomComponent>
 		{
+		private static final long serialVersionUID = 1L;
 		protected final ResourceUpdateListener rul = new ResourceUpdateListener();
 		protected BufferedImage image;
 		protected int x, y, width, height;

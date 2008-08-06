@@ -9,6 +9,7 @@
 package org.lateralgm.components;
 
 import java.awt.Color;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Timer;
@@ -18,9 +19,14 @@ import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.text.PlainDocument;
 
 import org.lateralgm.components.impl.DocumentUndoManager;
@@ -113,10 +119,67 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 		{
 		tb.add(makeToolbarButton(getUndoManager().getUndoAction()));
 		tb.add(makeToolbarButton(getUndoManager().getRedoAction()));
+		tb.add(makeToolbarButton(getGotoLineAction()));
 		tb.addSeparator();
 		tb.add(makeInputHandlerToolbarButton(InputHandler.CUT,"GMLTextArea.CUT")); //$NON-NLS-1$
 		tb.add(makeInputHandlerToolbarButton(InputHandler.COPY,"GMLTextArea.COPY")); //$NON-NLS-1$
 		tb.add(makeInputHandlerToolbarButton(InputHandler.PASTE,"GMLTextArea.PASTE")); //$NON-NLS-1$
+		}
+
+	private Action getGotoLineAction()
+		{
+		return new AbstractAction(Messages.getString("GMLTextArea.GOTO_LINE"), //$NON-NLS-1$
+				LGM.getIconForKey("GMLTextArea.GOTO_LINE")) //$NON-NLS-1$
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent arg0)
+					{
+					final JDialog d = new JDialog((Frame) null,true);
+					JPanel p = new JPanel();
+					GroupLayout layout = new GroupLayout(p);
+					layout.setAutoCreateGaps(true);
+					layout.setAutoCreateContainerGaps(true);
+					p.setLayout(layout);
+
+					JLabel l = new JLabel("Line: ");
+					IntegerField f = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,getCaretLine());
+					f.setSelectionStart(0);
+					f.setSelectionEnd(f.getText().length());
+					JButton b = new JButton("Goto");
+					b.addActionListener(new ActionListener()
+						{
+							public void actionPerformed(ActionEvent e)
+								{
+								d.setVisible(false);
+								}
+						});
+
+					layout.setHorizontalGroup(layout.createParallelGroup()
+					/**/.addGroup(layout.createSequentialGroup()
+					/*	*/.addComponent(l)
+					/*	*/.addComponent(f))
+					/**/.addComponent(b,Alignment.CENTER));
+					layout.setVerticalGroup(layout.createSequentialGroup()
+					/**/.addGroup(layout.createParallelGroup()
+					/*	*/.addComponent(l)
+					/*	*/.addComponent(f))
+					/**/.addComponent(b));
+
+					//					JOptionPane.showMessageDialog(null,p);
+					d.setContentPane(p);
+					d.pack();
+					d.setResizable(false);
+					d.setLocationRelativeTo(null);
+					d.setVisible(true); //blocks until user clicks OK
+					int line = f.getIntValue();
+					int lines = getLineCount();
+					if (line < 0) line = lines + line;
+					if (line < 0) line = 0;
+					if (line >= lines) line = lines - 1;
+					setCaretPosition(getLineStartOffset(line));
+					}
+			};
 		}
 
 	public DocumentUndoManager getUndoManager()

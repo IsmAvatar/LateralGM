@@ -45,6 +45,7 @@ import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.subframes.ScriptFrame;
 import org.lateralgm.subframes.SoundFrame;
 import org.lateralgm.subframes.SpriteFrame;
+import org.lateralgm.subframes.SubframeInformer;
 import org.lateralgm.subframes.TimelineFrame;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable
@@ -154,6 +155,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 
 	public void openFrame()
 		{
+		if (SubframeInformer.fireSubframeRequest(res.get(),this)) return;
 		if (frame == null)
 			{
 			ResourceFrame<?> rf = null;
@@ -195,6 +197,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 			}
 		if (frame != null)
 			{
+			SubframeInformer.fireSubframeAppear(frame);
 			frame.setVisible(true);
 			frame.toTop();
 			}

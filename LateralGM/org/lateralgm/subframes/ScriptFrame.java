@@ -38,6 +38,7 @@ import org.lateralgm.resources.Script;
 public class ScriptFrame extends ResourceFrame<Script> implements ActionListener,ChangeListener
 	{
 	private static final long serialVersionUID = 1L;
+	public JToolBar tool;
 	public GMLTextArea code;
 	public JButton edit;
 	public File extFile;
@@ -48,7 +49,7 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 		setSize(600,400);
 
 		// Setup the toolbar
-		JToolBar tool = new JToolBar();
+		tool = new JToolBar();
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 		add("North",tool); //$NON-NLS-1$
