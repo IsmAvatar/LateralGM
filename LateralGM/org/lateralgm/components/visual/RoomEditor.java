@@ -189,7 +189,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 					}
 				else if (frame.tabs.getSelectedIndex() == Room.TAB_OBJECTS)
 					{
-					WeakReference<GmObject> obj = frame.oSource.getSelected();
+					WeakReference<GmObject> obj = frame.oNew.getSelected();
 					if (obj == null) return; //I'd rather just break out of this IF, but this works
 					Instance i = room.addInstance();
 					i.gmObjectId = obj;

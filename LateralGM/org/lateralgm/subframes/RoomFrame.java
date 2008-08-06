@@ -62,6 +62,7 @@ import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
@@ -82,11 +83,12 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JTabbedPane tabs;
 	public JLabel statX, statY, statId, statSrc;
 	//Objects
+	public JLabel oPreview;
 	public JCheckBox oUnderlying, oLocked;
 	public JList oList;
 	private Instance lastObj = null; //non-guaranteed copy of oList.getLastSelectedValue()
 	public JButton oAdd, oDel;
-	public ResourceMenu<GmObject> oSource;
+	public ResourceMenu<GmObject> oNew, oSource;
 	public IntegerField oX, oY;
 	public JButton oCreationCode;
 	//Settings
@@ -123,22 +125,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public ResourceMenu<GmObject> vObj;
 	public IntegerField vOHBor, vOVBor, vOHSp, vOVSp;
 
-	public JTabbedPane makeObjectsPane()
-		{
-		JTabbedPane tab = new JTabbedPane();
-		tab.addTab("Add",makeObjectsAddPane());
-		tab.addTab("Edit",makeObjectsEditPane());
-		return tab;
-		}
-
-	//TODO: Object Add Tab
-	public JPanel makeObjectsAddPane()
-		{
-		JPanel p = new JPanel();
-		return p;
-		}
-
-	public JPanel makeObjectsEditPane()
+	public JPanel makeObjectsPane()
 		{
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
@@ -146,6 +133,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
+		oPreview = new JLabel(GmTreeGraphics.getBlankIcon());
+		oNew = new ResourceMenu<GmObject>(Room.GMOBJECT,
+				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
+		oNew.addActionListener(this);
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		oUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingObjects : true);
 		JLabel lInstances = new JLabel(Messages.getString("RoomFrame.OBJ_INSTANCES")); //$NON-NLS-1$
@@ -192,6 +183,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		oList.setSelectedIndex(0);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(oPreview)
+		/*		*/.addComponent(oNew))
 		/**/.addComponent(oUnderlying)
 		/**/.addComponent(lInstances)
 		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
@@ -207,6 +201,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(oY))
 		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(oPreview)
+		/*		*/.addComponent(oNew))
 		/**/.addComponent(oUnderlying)
 		/**/.addComponent(lInstances)
 		/**/.addComponent(sp)
@@ -400,6 +397,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab("Add",makeTilesAddPane());
 		tab.addTab("Edit",makeTilesEditPane());
+		tab.setSelectedIndex(1);
 		return tab;
 		}
 
@@ -1071,6 +1069,12 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			vList.updateUI();
 			return;
 			}
+		if (s == oNew)
+			{
+			GmObject o = Util.deRef(oNew.getSelected());
+			if (o != null) oPreview.setIcon(GmTreeGraphics.getSpriteIcon(o.sprite));
+			return;
+			}
 		if (s == oSource)
 			{
 			if (!manualUpdate) return;
@@ -1087,9 +1091,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 		if (s == oAdd)
 			{
-			if (oSource.getSelected() == null) return;
+			if (oNew.getSelected() == null) return;
 			Instance i = res.addInstance();
-			i.gmObjectId = oSource.getSelected();
+			i.gmObjectId = oNew.getSelected();
 			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(res.instances.size() - 1);
 			return;
@@ -1135,7 +1139,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (s == tSource)
 			{
 			if (!manualUpdate) return;
-			Tile t = (Tile) oList.getSelectedValue();
+			Tile t = (Tile) tList.getSelectedValue();
 			if (t == null) return;
 			if (tSource.getSelected() == null)
 				{
