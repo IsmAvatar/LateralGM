@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,6 +12,8 @@ package org.lateralgm.resources.sub;
 
 import java.lang.ref.WeakReference;
 
+import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibArgument;
 
@@ -35,9 +37,12 @@ public class Argument
 	public static final byte ARG_FONT = 12;
 	public static final byte ARG_TIMELINE = 14;
 
-	public byte kind = ARG_EXPRESSION;
-	public String val = "";
-	public WeakReference<? extends Resource<?>> res = null; // for references to Resources
+	public final byte kind;
+	private String val;
+	private WeakReference<? extends Resource<?>> res; // for references to Resources
+
+	private final UpdateTrigger updateTrigger = new UpdateTrigger();
+	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
 	public Argument(byte kind, String val, WeakReference<? extends Resource<?>> res)
 		{
@@ -46,8 +51,9 @@ public class Argument
 		this.res = res;
 		}
 
-	public Argument()
+	public Argument(byte kind)
 		{
+		this(kind,"",null);
 		}
 
 	public static byte getResourceKind(byte argumentKind)
@@ -117,5 +123,32 @@ public class Argument
 					}
 				return "<none>";
 			}
+		}
+
+	protected void fireStateChanged()
+		{
+		updateTrigger.fire();
+		}
+
+	public String getVal()
+		{
+		return val;
+		}
+
+	public void setVal(String val)
+		{
+		this.val = val;
+		fireStateChanged();
+		}
+
+	public WeakReference<? extends Resource<?>> getRes()
+		{
+		return res;
+		}
+
+	public void setRes(WeakReference<? extends Resource<?>> res)
+		{
+		this.res = res;
+		fireStateChanged();
 		}
 	}

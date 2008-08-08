@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -9,12 +10,18 @@
 package org.lateralgm.resources.sub;
 
 import java.lang.ref.WeakReference;
+import java.util.AbstractList;
+import java.util.List;
 
+import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
 
-public class Action
+public class Action implements UpdateListener
 	{
 	public static final byte ACT_NORMAL = 0;
 	public static final byte ACT_BEGIN = 1;
@@ -36,36 +43,141 @@ public class Action
 	 * If this Action was loaded from file, libAction is non-null.<br>
 	 * To determine if this is an unknown libAction, parent == null
 	 */
-	public LibAction libAction;
+	private LibAction libAction;
 
 	// The actual Action properties
-	public boolean relative = false;
-	public boolean not = false;
-	public WeakReference<GmObject> appliesTo = GmObject.OBJECT_SELF;
+	private boolean relative = false;
+	private boolean not = false;
+	private WeakReference<GmObject> appliesTo = GmObject.OBJECT_SELF;
 
-	public Argument[] arguments;
+	private ArgumentList arguments;
 
-	public Action(LibAction la)
+	private final UpdateTrigger updateTrigger = new UpdateTrigger();
+	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
+
+	public Action(LibAction la, Argument[] args)
 		{
 		libAction = la;
 		if (la == null) return;
-		arguments = new Argument[la.libArguments.length];
-		for (int i = 0; i < la.libArguments.length; i++)
+		if (args == null)
 			{
-			LibArgument arg = la.libArguments[i];
-			arguments[i] = new Argument(arg.kind,arg.defaultVal,null);
+			args = new Argument[la.libArguments.length];
+			for (int i = 0; i < args.length; i++)
+				{
+				LibArgument arg = la.libArguments[i];
+				args[i] = new Argument(arg.kind,arg.defaultVal,null);
+				}
 			}
+		arguments = new ArgumentList(args);
+		}
+
+	public Action(LibAction la)
+		{
+		this(la,null);
 		}
 
 	public Action copy()
 		{
-		Action act = new Action(libAction);
+		Argument[] args = arguments.toArray(new Argument[arguments.size()]);
+		for (int l = 0; l < args.length; l++)
+			if (args[l] != null) args[l] = new Argument(args[l].kind,args[l].getVal(),args[l].getRes());
+		Action act = new Action(libAction,args);
 		act.relative = relative;
 		act.not = not;
 		act.appliesTo = appliesTo;
-		act.arguments = new Argument[arguments.length];
-		for (int l = 0; l < arguments.length; l++)
-			act.arguments[l] = new Argument(arguments[l].kind,arguments[l].val,arguments[l].res);
 		return act;
+		}
+
+	protected void fireUpdate()
+		{
+		updateTrigger.fire();
+		}
+
+	public LibAction getLibAction()
+		{
+		return libAction;
+		}
+
+	public boolean isRelative()
+		{
+		return relative;
+		}
+
+	public void setRelative(boolean relative)
+		{
+		this.relative = relative;
+		fireUpdate();
+		}
+
+	public boolean isNot()
+		{
+		return not;
+		}
+
+	public void setNot(boolean not)
+		{
+		this.not = not;
+		fireUpdate();
+		}
+
+	public WeakReference<GmObject> getAppliesTo()
+		{
+		return appliesTo;
+		}
+
+	public void setAppliesTo(WeakReference<GmObject> appliesTo)
+		{
+		this.appliesTo = appliesTo;
+		fireUpdate();
+		}
+
+	public List<Argument> getArguments()
+		{
+		return arguments;
+		}
+
+	public void setArguments(Argument[] arguments)
+		{
+		this.arguments = new ArgumentList(arguments);
+		fireUpdate();
+		}
+
+	public class ArgumentList extends AbstractList<Argument>
+		{
+		private final Argument[] args;
+
+		public ArgumentList(Argument[] args)
+			{
+			this.args = args;
+			for (Argument a : args)
+				{
+				if (a != null) a.updateSource.addListener(Action.this);
+				}
+			}
+
+		public Argument get(int index)
+			{
+			return args[index];
+			}
+
+		public Argument set(int index, Argument element)
+			{
+			Argument oa = args[index];
+			oa.updateSource.addListener(Action.this);
+			args[index] = element;
+			element.updateSource.addListener(Action.this);
+			Action.this.fireUpdate();
+			return oa;
+			}
+
+		public int size()
+			{
+			return args.length;
+			}
+		}
+
+	public void updated(UpdateEvent e)
+		{
+		fireUpdate();
 		}
 	}

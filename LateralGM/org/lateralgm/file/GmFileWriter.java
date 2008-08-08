@@ -15,7 +15,9 @@ import static org.lateralgm.main.Util.deRef;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.Util;
@@ -31,6 +33,7 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
@@ -552,43 +555,46 @@ public final class GmFileWriter
 		out.write4(container.actions.size());
 		for (Action act : container.actions)
 			{
+			LibAction la = act.getLibAction();
 			out.write4(440);
-			out.write4(act.libAction.parent != null ? act.libAction.parent.id : act.libAction.parentId);
-			out.write4(act.libAction.id);
-			out.write4(act.libAction.actionKind);
-			out.writeBool(act.libAction.allowRelative);
-			out.writeBool(act.libAction.question);
-			out.writeBool(act.libAction.canApplyTo);
-			out.write4(act.libAction.execType);
-			if (act.libAction.execType == Action.EXEC_FUNCTION)
-				out.writeStr(act.libAction.execInfo);
+			out.write4(la.parent != null ? la.parent.id : la.parentId);
+			out.write4(la.id);
+			out.write4(la.actionKind);
+			out.writeBool(la.allowRelative);
+			out.writeBool(la.question);
+			out.writeBool(la.canApplyTo);
+			out.write4(la.execType);
+			if (la.execType == Action.EXEC_FUNCTION)
+				out.writeStr(la.execInfo);
 			else
 				out.write4(0);
-			if (act.libAction.execType == Action.EXEC_CODE)
-				out.writeStr(act.libAction.execInfo);
+			if (la.execType == Action.EXEC_CODE)
+				out.writeStr(la.execInfo);
 			else
 				out.write4(0);
-			out.write4(act.arguments.length);
+			List<Argument> args = act.getArguments();
+			out.write4(args.size());
 
-			out.write4(act.arguments.length);
-			for (Argument arg : act.arguments)
+			out.write4(args.size());
+			for (Argument arg : args)
 				out.write4(arg.kind);
 
-			if (act.appliesTo != null)
+			WeakReference<GmObject> at = act.getAppliesTo();
+			if (at != null)
 				{
-				if (act.appliesTo == GmObject.OBJECT_OTHER)
+				if (at == GmObject.OBJECT_OTHER)
 					out.write4(-2);
-				else if (act.appliesTo == GmObject.OBJECT_SELF)
+				else if (at == GmObject.OBJECT_SELF)
 					out.write4(-1);
 				else
-					out.writeId(act.appliesTo,-100);
+					out.writeId(at,-100);
 				}
 			else
 				out.write4(-100);
-			out.writeBool(act.relative);
+			out.writeBool(act.isRelative());
 
-			out.write4(act.arguments.length);
-			for (Argument arg : act.arguments)
+			out.write4(args.size());
+			for (Argument arg : args)
 				switch (arg.kind)
 
 					{
@@ -601,17 +607,17 @@ public final class GmFileWriter
 					case Argument.ARG_ROOM:
 					case Argument.ARG_FONT:
 					case Argument.ARG_TIMELINE:
-						Resource<?> r = deRef(arg.res);
+						Resource<?> r = deRef(arg.getRes());
 						if (r != null)
 							out.writeStr(Integer.toString(r.getId()));
 						else
 							out.writeStr("-1");
 						break;
 					default:
-						out.writeStr(arg.val);
+						out.writeStr(arg.getVal());
 						break;
 					}
-			out.writeBool(act.not);
+			out.writeBool(act.isNot());
 			}
 		}
 	}

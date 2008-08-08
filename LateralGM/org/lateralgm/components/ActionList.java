@@ -21,6 +21,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,8 +30,10 @@ import java.util.EmptyStackException;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Stack;
+import java.util.WeakHashMap;
 
 import javax.swing.AbstractListModel;
+import javax.swing.BorderFactory;
 import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -43,7 +47,8 @@ import javax.swing.border.EmptyBorder;
 import org.lateralgm.components.ActionListEditor.LibActionButton;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Util;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.library.LibAction;
@@ -61,10 +66,12 @@ public class ActionList extends JList
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
 	protected ActionContainer actionContainer;
 	private ActionListModel model;
+	private final ActionRenderer renderer = new ActionRenderer();
 
 	public ActionList()
 		{
 		setActionContainer(null);
+		setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
 		if (LGM.javaVersion >= 10600)
 			{
 			setTransferHandler(new ActionTransferHandler());
@@ -73,7 +80,7 @@ public class ActionList extends JList
 			}
 		addMouseListener(ALML);
 		addKeyListener(ALKL);
-		setCellRenderer(new ActionRenderer());
+		setCellRenderer(renderer);
 		}
 
 	public void setActionContainer(ActionContainer ac)
@@ -81,6 +88,7 @@ public class ActionList extends JList
 		save();
 		actionContainer = ac;
 		model = new ActionListModel();
+		model.renderer = renderer;
 		setModel(model);
 		if (ac == null) return;
 		model.addAll(0,ac.actions);
@@ -106,9 +114,9 @@ public class ActionList extends JList
 	 */
 	public static MDIFrame openActionFrame(Action a)
 		{
-		LibAction la = a.libAction;
+		LibAction la = a.getLibAction();
 		if ((la.libArguments == null || la.libArguments.length == 0) && !la.canApplyTo
-				&& !la.allowRelative) return null;
+				&& !la.allowRelative && !la.question) return null;
 		MDIFrame af = FRAMES.get(a);
 		if (af == null || af.isClosed())
 			{
@@ -170,11 +178,12 @@ public class ActionList extends JList
 			}
 		}
 
-	public static class ActionListModel extends AbstractListModel
+	public static class ActionListModel extends AbstractListModel implements UpdateListener
 		{
 		private static final long serialVersionUID = 1L;
 		protected ArrayList<Action> list;
 		protected ArrayList<Integer> indents;
+		private ActionRenderer renderer;
 
 		public ActionListModel()
 			{
@@ -189,6 +198,7 @@ public class ActionList extends JList
 
 		public void add(int index, Action a)
 			{
+			a.updateSource.addListener(this);
 			list.add(index,a);
 			updateIndentation();
 			fireIntervalAdded(this,index,index);
@@ -198,6 +208,10 @@ public class ActionList extends JList
 			{
 			int s = c.size();
 			if (s <= 0) return;
+			for (Action a : c)
+				{
+				a.updateSource.addListener(this);
+				}
 			list.addAll(index,c);
 			updateIndentation();
 			fireIntervalAdded(this,index,index + s - 1);
@@ -205,7 +219,7 @@ public class ActionList extends JList
 
 		public void remove(int index)
 			{
-			list.remove(index);
+			list.remove(index).updateSource.removeListener(this);
 			updateIndentation();
 			fireIntervalRemoved(this,index,index);
 			}
@@ -233,8 +247,9 @@ public class ActionList extends JList
 			for (int i = 0; i < lms; i++)
 				{
 				Action a = list.get(i);
+				LibAction la = a.getLibAction();
 				int indent = nextIndent;
-				switch (a.libAction.actionKind)
+				switch (la.actionKind)
 					{
 					case Action.ACT_BEGIN:
 						levelIndents.push(indent);
@@ -267,15 +282,20 @@ public class ActionList extends JList
 						nextIndent = levelIndents.peek();
 						break;
 					default:
-						if (a.libAction.question)
+						if (la.question)
 							{
 							questions.peek().push(i);
 							nextIndent++;
 							}
-						else if (a.libAction.execType != Action.EXEC_NONE) nextIndent = levelIndents.peek();
+						else if (la.execType != Action.EXEC_NONE) nextIndent = levelIndents.peek();
 					}
 				indents.add(indent);
 				}
+			}
+
+		public void updated(UpdateEvent e)
+			{
+			if (renderer != null) renderer.clearCache();
 			}
 		}
 
@@ -461,6 +481,7 @@ public class ActionList extends JList
 				addIndex = index;
 				addCount = 1;
 				alm.add(index,a);
+				list.setSelectedIndex(index);
 				return true;
 				}
 			if (info.isDataFlavorSupported(ACTION_ARRAY_FLAVOR))
@@ -478,6 +499,7 @@ public class ActionList extends JList
 				addIndex = index;
 				addCount = a.length;
 				alm.addAll(index,Arrays.asList(a));
+				list.setSelectionInterval(index,index + a.length - 1);
 				return true;
 				}
 			if (info.isDataFlavorSupported(LIB_ACTION_FLAVOR))
@@ -497,6 +519,7 @@ public class ActionList extends JList
 				addIndex = index;
 				addCount = 1;
 				alm.add(index,a);
+				list.setSelectedIndex(index);
 				return true;
 				}
 			return false;
@@ -520,12 +543,20 @@ public class ActionList extends JList
 
 	private static class ActionRenderer implements ListCellRenderer
 		{
+		private final WeakHashMap<Action,SoftReference<ActionRendererComponent>> lcrMap;
+
 		public ActionRenderer()
 			{
 			super();
+			lcrMap = new WeakHashMap<Action,SoftReference<ActionRendererComponent>>();
 			}
 
-		public String parse(String s, Action a)
+		public void clearCache()
+			{
+			lcrMap.clear();
+			}
+
+		public static String parse(String s, Action a)
 			{
 			String escape = "FrNw01234567"; //$NON-NLS-1$
 			String ret = ""; //$NON-NLS-1$
@@ -554,28 +585,30 @@ public class ActionList extends JList
 					p = s.indexOf("@",k); //$NON-NLS-1$
 					continue;
 					}
-				if (c == 'r' && a.relative) ret += Messages.getString("Action.RELATIVE"); //$NON-NLS-1$
-				if (c == 'N' && a.not) ret += Messages.getString("Action.NOT"); //$NON-NLS-1$
-				if (c == 'w' && !a.appliesTo.equals(GmObject.OBJECT_SELF))
+				if (c == 'r' && a.isRelative()) ret += Messages.getString("Action.RELATIVE"); //$NON-NLS-1$
+				if (c == 'N' && a.isNot()) ret += Messages.getString("Action.NOT"); //$NON-NLS-1$
+				WeakReference<GmObject> at = a.getAppliesTo();
+				if (c == 'w' && !at.equals(GmObject.OBJECT_SELF))
 					{
-					if (a.appliesTo.equals(GmObject.OBJECT_OTHER))
+					if (at.equals(GmObject.OBJECT_OTHER))
 						ret += Messages.getString("Action.APPLIES_OTHER"); //$NON-NLS-1$
 					else
 						{
-						GmObject applies = deRef(a.appliesTo);
-						ret += Messages.format("Action.APPLIES",applies == null ? a.appliesTo.toString() //$NON-NLS-1$
+						GmObject applies = deRef(at);
+						ret += Messages.format("Action.APPLIES",applies == null ? at.toString() //$NON-NLS-1$
 								: applies.getName());
 						}
 					}
 				if (c >= '0' && c < '8')
 					{
 					int arg = c - '0';
-					if (arg >= a.arguments.length)
+					List<Argument> args = a.getArguments();
+					if (arg >= args.size())
 						ret += "0"; //$NON-NLS-1$
 					else
 						{
-						Argument aa = a.arguments[arg];
-						ret += aa.toString(a.libAction.libArguments[arg]);
+						Argument aa = args.get(arg);
+						ret += aa.toString(a.getLibAction().libArguments[arg]);
 						}
 					}
 				k = p + 2;
@@ -595,46 +628,83 @@ public class ActionList extends JList
 			return s;
 			}
 
+		private static class ActionRendererComponent extends JLabel
+			{
+			private static final long serialVersionUID = 1L;
+			private int indent;
+			private boolean selected;
+			private final JList list;
+
+			public ActionRendererComponent(Action a, JList list)
+				{
+				this.list = list;
+				setOpaque(true);
+				LibAction la = a.getLibAction();
+				if (la.actImage == null)
+					{
+					setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
+					}
+				else
+					{
+					setText(parse(la.listText,a));
+					if (la.listText.contains("@FB")) //$NON-NLS-1$
+						setText("<b>" + getText()); //$NON-NLS-1$
+					if (la.listText.contains("@FI")) //$NON-NLS-1$
+						setText("<i>" + getText()); //$NON-NLS-1$
+					setText("<html>" + getText()); //$NON-NLS-1$
+					setIcon(new ImageIcon(la.actImage));
+					setToolTipText("<html>" + parse(la.hintText,a)); //$NON-NLS-1$
+					}
+				}
+
+			public void setIndent(int indent)
+				{
+				if (this.indent == indent) return;
+				this.indent = indent;
+				setBorder(new EmptyBorder(1,2 + 8 * indent,1,2));
+				}
+
+			public void setSelected(boolean selected)
+				{
+				if (this.selected == selected) return;
+				this.selected = selected;
+				if (selected)
+					{
+					setBackground(list.getSelectionBackground());
+					setForeground(list.getSelectionForeground());
+					}
+				else
+					{
+					setBackground(list.getBackground());
+					setForeground(list.getForeground());
+					}
+				}
+			}
+
 		public Component getListCellRendererComponent(JList list, Object cell, int index,
 				boolean isSelected, boolean hasFocus)
 			{
 			final Action cellAction = (Action) cell;
-			LibAction la = cellAction.libAction;
-			JLabel l = new JLabel();
+
+			SoftReference<ActionRendererComponent> arcref = lcrMap.get(cellAction);
+			ActionRendererComponent arc = null;
+			if (arcref != null) arc = arcref.get();
+			if (arc == null)
+				{
+				arc = new ActionRendererComponent(cellAction,list);
+				lcrMap.put(cellAction,new SoftReference<ActionRendererComponent>(arc));
+				}
 			ListModel lm = list.getModel();
 			try
 				{
 				if (lm instanceof ActionListModel)
-					l.setBorder(new EmptyBorder(1,2 + 8 * ((ActionListModel) lm).indents.get(index),1,2));
+					arc.setIndent(((ActionListModel) lm).indents.get(index));
 				}
 			catch (IndexOutOfBoundsException e)
 				{
 				}
-			if (isSelected)
-				{
-				l.setBackground(list.getSelectionBackground());
-				l.setForeground(list.getSelectionForeground());
-				}
-			else
-				{
-				l.setBackground(list.getBackground());
-				l.setForeground(list.getForeground());
-				}
-			l.setOpaque(true);
-			if (la.actImage == null)
-				{
-				l.setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
-				return l;
-				}
-			l.setText(parse(la.listText,(Action) cell));
-			if (la.listText.contains("@FB")) //$NON-NLS-1$
-				l.setText("<b>" + l.getText()); //$NON-NLS-1$
-			if (la.listText.contains("@FI")) //$NON-NLS-1$
-				l.setText("<i>" + l.getText()); //$NON-NLS-1$
-			l.setText("<html>" + l.getText()); //$NON-NLS-1$
-			l.setIcon(new ImageIcon(Util.getTransparentIcon(la.actImage)));
-			l.setToolTipText("<html>" + parse(la.hintText,(Action) cell)); //$NON-NLS-1$
-			return l;
+			arc.setSelected(isSelected);
+			return arc;
 			}
 		}
 	}

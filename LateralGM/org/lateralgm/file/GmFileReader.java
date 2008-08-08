@@ -899,29 +899,28 @@ public final class GmFileReader
 		int noacts = in.read4();
 		for (int k = 0; k < noacts; k++)
 			{
-			Action act = container.addAction();
 			in.skip(4);
 			int libid = in.read4();
 			int actid = in.read4();
-			act.libAction = LibManager.getLibAction(libid,actid);
-			boolean unknownLib = act.libAction == null;
+			LibAction la = LibManager.getLibAction(libid,actid);
+			boolean unknownLib = la == null;
 			//The libAction will have a null parent, among other things
 			if (unknownLib)
 				{
-				act.libAction = new LibAction();
-				act.libAction.id = actid;
-				act.libAction.parentId = libid;
-				act.libAction.actionKind = (byte) in.read4();
-				act.libAction.allowRelative = in.readBool();
-				act.libAction.question = in.readBool();
-				act.libAction.canApplyTo = in.readBool();
-				act.libAction.execType = (byte) in.read4();
-				if (act.libAction.execType == Action.EXEC_FUNCTION)
-					act.libAction.execInfo = in.readStr();
+				la = new LibAction();
+				la.id = actid;
+				la.parentId = libid;
+				la.actionKind = (byte) in.read4();
+				la.allowRelative = in.readBool();
+				la.question = in.readBool();
+				la.canApplyTo = in.readBool();
+				la.execType = (byte) in.read4();
+				if (la.execType == Action.EXEC_FUNCTION)
+					la.execInfo = in.readStr();
 				else
 					in.skip(in.read4());
-				if (act.libAction.execType == Action.EXEC_CODE)
-					act.libAction.execInfo = in.readStr();
+				if (la.execType == Action.EXEC_CODE)
+					la.execInfo = in.readStr();
 				else
 					in.skip(in.read4());
 				}
@@ -931,43 +930,43 @@ public final class GmFileReader
 				in.skip(in.read4());
 				in.skip(in.read4());
 				}
-			act.arguments = new Argument[in.read4()];
+			Action act = container.addAction(la);
+			Argument[] args = new Argument[in.read4()];
 			byte[] argkinds = new byte[in.read4()];
 			for (int x = 0; x < argkinds.length; x++)
 				argkinds[x] = (byte) in.read4();
 			if (unknownLib)
 				{
-				act.libAction.libArguments = new LibArgument[argkinds.length];
+				la.libArguments = new LibArgument[argkinds.length];
 				for (int x = 0; x < argkinds.length; x++)
 					{
-					act.libAction.libArguments[x] = new LibArgument();
-					act.libAction.libArguments[x].kind = argkinds[x];
+					la.libArguments[x] = new LibArgument();
+					la.libArguments[x].kind = argkinds[x];
 					}
 				}
 			int appliesTo = in.read4();
 			switch (appliesTo)
 				{
 				case -1:
-					act.appliesTo = GmObject.OBJECT_SELF;
+					act.setAppliesTo(GmObject.OBJECT_SELF);
 					break;
 				case -2:
-					act.appliesTo = GmObject.OBJECT_OTHER;
+					act.setAppliesTo(GmObject.OBJECT_OTHER);
 					break;
 				default:
-					act.appliesTo = c.objids.get(appliesTo);
+					act.setAppliesTo(c.objids.get(appliesTo));
 				}
-			act.relative = in.readBool();
+			act.setRelative(in.readBool());
 			int actualnoargs = in.read4();
 
 			for (int l = 0; l < actualnoargs; l++)
 				{
-				if (l >= act.arguments.length)
+				if (l >= args.length)
 					{
 					in.skip(in.read4());
 					continue;
 					}
-				act.arguments[l] = new Argument();
-				act.arguments[l].kind = argkinds[l];
+				args[l] = new Argument(argkinds[l]);
 
 				String strval = in.readStr();
 				Resource<?> res = tag;
@@ -989,27 +988,28 @@ public final class GmFileReader
 						res = f.scripts.getUnsafe(Integer.parseInt(strval));
 						break;
 					case Argument.ARG_GMOBJECT:
-						act.arguments[l].res = c.objids.get(Integer.parseInt(strval));
+						args[l].setRes(c.objids.get(Integer.parseInt(strval)));
 						break;
 					case Argument.ARG_ROOM:
-						act.arguments[l].res = c.rmids.get(Integer.parseInt(strval));
+						args[l].setRes(c.rmids.get(Integer.parseInt(strval)));
 						break;
 					case Argument.ARG_FONT:
 						res = f.fonts.getUnsafe(Integer.parseInt(strval));
 						break;
 					case Argument.ARG_TIMELINE:
-						act.arguments[l].res = c.timeids.get(Integer.parseInt(strval));
+						args[l].setRes(c.timeids.get(Integer.parseInt(strval)));
 						break;
 					default:
-						act.arguments[l].val = strval;
+						args[l].setVal(strval);
 						break;
 					}
 				if (res != null && res != tag)
 					{
-					act.arguments[l].res = new WeakReference<Resource<?>>(res);
+					args[l].setRes(new WeakReference<Resource<?>>(res));
 					}
+				act.setArguments(args);
 				}
-			act.not = in.readBool();
+			act.setNot(in.readBool());
 			}
 		}
 	}

@@ -10,6 +10,7 @@
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -21,6 +22,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -77,7 +79,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 
 	public ActionFrame(Action a)
 		{
-		this(a,a.libAction);
+		this(a,a.getLibAction());
 		}
 
 	//Must be delegated through ActionFrame(Action)
@@ -90,14 +92,15 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			setFrameIcon(new ImageIcon(la.actImage.getScaledInstance(16,16,Image.SCALE_SMOOTH)));
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		String s;
-		if (a.appliesTo == GmObject.OBJECT_SELF)
+		WeakReference<GmObject> at = a.getAppliesTo();
+		if (at == GmObject.OBJECT_SELF)
 			s = Messages.getString("ActionFrame.SELF"); //$NON-NLS-1$
 		else
 			s = Messages.getString("ActionFrame.OTHER"); //$NON-NLS-1$
 		appliesObject = new ResourceMenu<GmObject>(Resource.GMOBJECT,s,false,100);
-		appliesObject.setEnabled(GmObject.refAsInt(a.appliesTo) >= 0);
+		appliesObject.setEnabled(GmObject.refAsInt(at) >= 0);
 		appliesObject.setOpaque(false);
-		appliesObject.setSelected(a.appliesTo);
+		appliesObject.setSelected(at);
 		act = a;
 
 		appliesPanel = new JPanel();
@@ -137,7 +140,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		gbc.insets = new Insets(0,4,0,6);
 		p.add(appliesObject,gbc);
 		appliesPanel.add(p);
-		applies.setValue(Math.min(GmObject.refAsInt(a.appliesTo),0));
+		applies.setValue(Math.min(GmObject.refAsInt(at),0));
 
 		if (la.interfaceKind == LibAction.INTERFACE_CODE)
 			{
@@ -147,7 +150,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			setResizable(true);
 			setIconifiable(true);
 			// the code text area
-			code = new GMLTextArea(a.arguments[0].val);
+			code = new GMLTextArea(a.getArguments().get(0).getVal());
 			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
 			// Setup the toolbar
 			JToolBar tool = new JToolBar();
@@ -195,8 +198,9 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		pane.add(appliesPanel);
 		if (!la.canApplyTo) appliesPanel.setVisible(false);
 
-		argComp = new ArgumentComponent[a.arguments.length];
-		if (a.arguments.length > 0)
+		List<Argument> args = a.getArguments();
+		argComp = new ArgumentComponent[args.size()];
+		if (args.size() > 0)
 			{
 			pane = new JPanel();
 			pane.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(6,8,0,8),
@@ -222,9 +226,9 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			add(pane);
 
 			vGroup.addGap(4);
-			for (int n = 0; n < a.arguments.length; n++)
+			for (int n = 0; n < args.size(); n++)
 				{
-				argComp[n] = new ArgumentComponent(a.arguments[n],a.libAction.libArguments[n]);
+				argComp[n] = new ArgumentComponent(args.get(n),a.getLibAction().libArguments[n]);
 				if (la.parent == null)
 					lab = new JLabel(Messages.format("ActionFrame.UNKNOWN",n)); //$NON-NLS-1$
 				else
@@ -232,9 +236,9 @@ public class ActionFrame extends MDIFrame implements ActionListener
 					LibArgument larg = la.libArguments[n];
 					lab = new JLabel(larg.caption);
 					}
-				if (n == 0 && act.libAction.interfaceKind == LibAction.INTERFACE_ARROWS)
+				if (n == 0 && act.getLibAction().interfaceKind == LibAction.INTERFACE_ARROWS)
 					{
-					argComp[n].setEditor(new ArrowsEditor(argComp[n].getArgument().val));
+					argComp[n].setEditor(new ArrowsEditor(argComp[n].getArgument().getVal()));
 					}
 				else
 					{
@@ -255,16 +259,16 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		pane = new JPanel();
 		pane.setLayout(new FlowLayout(FlowLayout.TRAILING));
 		add(pane);
-		if (act.libAction.allowRelative)
+		if (la.allowRelative)
 			{
 			relativeBox = new JCheckBox(Messages.getString("ActionFrame.RELATIVE")); //$NON-NLS-1$
-			relativeBox.setSelected(act.relative);
+			relativeBox.setSelected(act.isRelative());
 			pane.add(relativeBox);
 			}
-		if (act.libAction.question)
+		if (la.question)
 			{
 			notBox = new JCheckBox(Messages.getString("ActionFrame.NOT")); //$NON-NLS-1$
-			notBox.setSelected(act.not);
+			notBox.setSelected(act.isNot());
 			pane.add(notBox);
 			}
 
@@ -288,7 +292,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			{
 			WeakReference<GmObject> sel = appliesObject.getSelected();
 			if (sel != null) return sel;
-			return act.appliesTo;
+			return act.getAppliesTo();
 			}
 		if (applies.getValue() == -1) return GmObject.OBJECT_SELF;
 		if (applies.getValue() == -2) return GmObject.OBJECT_OTHER;
@@ -305,16 +309,15 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				}
 			dispose();
 			}
-		//TODO: Update The List on save
 		else if (e.getSource() == save)
 			{
-			act.appliesTo = getApplies();
-			if (relativeBox != null) act.relative = relativeBox.isSelected();
-			if (notBox != null) act.not = notBox.isSelected();
-			switch (act.libAction.interfaceKind)
+			act.setAppliesTo(getApplies());
+			if (relativeBox != null) act.setRelative(relativeBox.isSelected());
+			if (notBox != null) act.setNot(notBox.isSelected());
+			switch (act.getLibAction().interfaceKind)
 				{
 				case LibAction.INTERFACE_CODE:
-					act.arguments[0].val = code.getTextCompat();
+					act.getArguments().get(0).setVal(code.getTextCompat());
 					break;
 				default:
 					for (ArgumentComponent a : argComp)
@@ -362,8 +365,8 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		switch (id)
 			{
 			case InternalFrameEvent.INTERNAL_FRAME_CLOSING:
-				if (act.libAction.interfaceKind == LibAction.INTERFACE_CODE)
-					if (code.getUndoManager().isModified() || !act.appliesTo.equals(getApplies()))
+				if (act.getLibAction().interfaceKind == LibAction.INTERFACE_CODE)
+					if (code.getUndoManager().isModified() || !act.getAppliesTo().equals(getApplies()))
 						{
 						int ret = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
 								"ActionFrame.KEEPCHANGES",getTitle()), //$NON-NLS-1$
@@ -443,11 +446,11 @@ public class ActionFrame extends MDIFrame implements ActionListener
 					final String[] sab = { "false","true" };
 					return new JComboBox(sab);
 				case Argument.ARG_MENU:
-					if (la == null) return new JTextField(arg.val);
+					if (la == null) return new JTextField(arg.getVal());
 					final String[] sam = la.menu.split("\\|"); //$NON-NLS-1$
 					return new JComboBox(sam);
 				case Argument.ARG_COLOR:
-					return new ColorSelect(Util.convertGmColor(Integer.parseInt(arg.val)));
+					return new ColorSelect(Util.convertGmColor(Integer.parseInt(arg.getVal())));
 				case Argument.ARG_SPRITE:
 				case Argument.ARG_SOUND:
 				case Argument.ARG_BACKGROUND:
@@ -460,7 +463,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 					byte rk = Argument.getResourceKind(arg.kind);
 					return new ResourceMenu(rk,getNoSelectionString(rk),120);
 				default:
-					return new JTextField(arg.val);
+					return new JTextField(arg.getVal());
 				}
 			}
 
@@ -485,25 +488,25 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			{
 			if (editor instanceof JTextField)
 				{
-				arg.val = ((JTextField) editor).getText();
+				arg.setVal(((JTextField) editor).getText());
 				return;
 				}
 			if (editor instanceof JComboBox)
 				{
-				arg.val = Integer.toString(((JComboBox) editor).getSelectedIndex());
+				arg.setVal(Integer.toString(((JComboBox) editor).getSelectedIndex()));
 				return;
 				}
 			if (editor instanceof ColorSelect)
 				{
-				arg.val = Integer.toString(Util.getGmColor(((ColorSelect) editor).getSelectedColor()));
+				arg.setVal(Integer.toString(Util.getGmColor(((ColorSelect) editor).getSelectedColor())));
 				}
 			if (editor instanceof ArrowsEditor)
 				{
-				arg.val = ((ArrowsEditor) editor).getStringValue();
+				arg.setVal(((ArrowsEditor) editor).getStringValue());
 				}
 			if (editor instanceof ResourceMenu)
 				{
-				arg.res = ((ResourceMenu<?>) editor).getSelected();
+				arg.setRes(((ResourceMenu<?>) editor).getSelected());
 				return;
 				}
 			}
@@ -513,21 +516,22 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			{
 			if (editor instanceof JTextField)
 				{
-				((JTextField) editor).setText(arg.val);
+				((JTextField) editor).setText(arg.getVal());
 				}
 			else if (editor instanceof JComboBox)
 				{
-				((JComboBox) editor).setSelectedIndex(Integer.parseInt(arg.val));
+				((JComboBox) editor).setSelectedIndex(Integer.parseInt(arg.getVal()));
 				}
 			else if (editor instanceof ColorSelect)
 				{
-				((ColorSelect) editor).setSelectedColor(Util.convertGmColor(Integer.parseInt(arg.val)));
+				Color c = Util.convertGmColor(Integer.parseInt(arg.getVal()));
+				((ColorSelect) editor).setSelectedColor(c);
 				}
 			else if (editor instanceof ResourceMenu)
 				{
 				try
 					{
-					((ResourceMenu) editor).setSelected(arg.res);
+					((ResourceMenu) editor).setSelected(arg.getRes());
 					}
 				catch (NumberFormatException nfe)
 					{
