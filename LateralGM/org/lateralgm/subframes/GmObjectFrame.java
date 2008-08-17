@@ -70,6 +70,7 @@ import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
+import org.lateralgm.subframes.EventFrame.EventNodeRenderer;
 
 public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionListener,
 		TreeSelectionListener
@@ -274,6 +275,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			super(n);
 			//otherwise, getToolTipText won't be called
 			setToolTipText(""); //$NON-NLS-1$
+			setCellRenderer(new EventNodeRenderer());
 			}
 
 		public String getToolTipText(MouseEvent e)

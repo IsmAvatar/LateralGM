@@ -139,7 +139,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		oNew.addActionListener(this);
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		oUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingObjects : true);
-		JLabel lInstances = new JLabel(Messages.getString("RoomFrame.OBJ_INSTANCES")); //$NON-NLS-1$
+
 		oList = new JList(res.instances.toArray());
 		oList.addListSelectionListener(this);
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -163,6 +163,15 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		oAdd.addActionListener(this);
 		oDel = new JButton(Messages.getString("RoomFrame.OBJ_DELETE")); //$NON-NLS-1$
 		oDel.addActionListener(this);
+
+		JPanel edit = new JPanel();
+		String title = Messages.getString("RoomFrame.OBJ_INSTANCES"); //$NON-NLS-1$
+		edit.setBorder(BorderFactory.createTitledBorder(title));
+		GroupLayout layout2 = new GroupLayout(edit);
+		layout2.setAutoCreateGaps(true);
+		layout2.setAutoCreateContainerGaps(true);
+		edit.setLayout(layout2);
+
 		oSource = new ResourceMenu<GmObject>(Room.GMOBJECT,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 		oSource.addActionListener(this);
@@ -180,44 +189,49 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
 
+		//Causes fireObjUpdate, requires oList, oSource, oLocked, oX, and oY
 		oList.setSelectedIndex(0);
+
+		layout2.setHorizontalGroup(layout2.createParallelGroup()
+		/**/.addComponent(oSource)
+		/**/.addComponent(oLocked)
+		/**/.addGroup(layout2.createSequentialGroup()
+		/*		*/.addComponent(lObjX)
+		/*		*/.addComponent(oX)
+		/*		*/.addComponent(lObjY)
+		/*		*/.addComponent(oY))
+		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		layout2.setVerticalGroup(layout2.createSequentialGroup()
+		/**/.addComponent(oSource)
+		/**/.addComponent(oLocked)
+		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lObjX)
+		/*		*/.addComponent(oX)
+		/*		*/.addComponent(lObjY)
+		/*		*/.addComponent(oY))
+		/**/.addComponent(oCreationCode));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(oPreview)
 		/*		*/.addComponent(oNew))
 		/**/.addComponent(oUnderlying)
-		/**/.addComponent(lInstances)
 		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(oAdd,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*		*/.addComponent(oDel,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
-		/**/.addComponent(oSource)
-		/**/.addComponent(oLocked)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(lObjX)
-		/*		*/.addComponent(oX)
-		/*		*/.addComponent(lObjY)
-		/*		*/.addComponent(oY))
-		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		/**/.addComponent(edit));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(oPreview)
 		/*		*/.addComponent(oNew))
 		/**/.addComponent(oUnderlying)
-		/**/.addComponent(lInstances)
 		/**/.addComponent(sp)
 		/**/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(oAdd)
 		/*		*/.addComponent(oDel))
-		/**/.addComponent(oSource)
-		/**/.addComponent(oLocked)
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lObjX)
-		/*		*/.addComponent(oX)
-		/*		*/.addComponent(lObjY)
-		/*		*/.addComponent(oY))
-		/**/.addComponent(oCreationCode));
+		/**/.addComponent(edit));
+
 		return panel;
 		}
 

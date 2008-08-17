@@ -300,7 +300,12 @@ public final class LGM
 		{
 		Util.tweakIIORegistry();
 		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (!tempDir.exists()) tempDir.mkdir();
+		if (!tempDir.exists())
+			{
+			tempDir.mkdir();
+			tempDir.setReadable(true,false);
+			tempDir.setWritable(true,false);
+			}
 
 		try
 			{

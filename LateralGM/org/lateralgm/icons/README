@@ -5,17 +5,26 @@ This directory contains the following icons (.png extension omitted):
      background font object path room script sound sprite timeline
  Copyright 2006 DeathFinderxx <deathfinderxx@yahoo.com>
 
+ Event icons for LGM:
+   events/
+     collision create destroy draw keyboard
+     keypress keyrelease mouse other step
+ Copyright 2008 bingo675 <bingo675@gmail.com>
+
  Nuvola icon theme for KDE 3.x:
    actions/
-     accept cancel colorize copy cut event find new next open paste previous
-     redo save save-as sound-play sound-stop undo
+     accept cancel colorize copy cut find
+     new next open paste previous redo save
+     save-as sound-play sound-stop undo
+   events/
+     alarm
    restree/
      gm group group-open info
  Copyright 2003-2004 David Vignoni
 
  Stock icons for OpenOffice.org:
    actions/
-     text-bold text-italic text-underlined zoom-in zoom-out
+     line-goto text-bold text-italic text-underlined zoom-in zoom-out
  Copyright 2003 Novell, Inc.
 
 

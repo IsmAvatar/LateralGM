@@ -13,6 +13,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.lang.ref.WeakReference;
 
+import javax.swing.Icon;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.lateralgm.messages.Messages;
@@ -29,27 +30,29 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 	public int mainId;
 	public int eventId;
 	public WeakReference<GmObject> other;
+	public Icon icon = null;
 
-	public EventNode(String text, int mainId)
+	public EventNode(String text, Icon icon)
 		{
-		this(text,mainId,0);
+		this(text,-1,0,icon);
 		}
 
-	public EventNode(String text, int mainId, int eventId)
+	public EventNode(String text, int mainId, int eventId, Icon icon)
 		{
 		setUserObject(text);
 		this.mainId = mainId;
 		this.eventId = eventId;
+		this.icon = icon;
 		}
 
-	public void add(int mainId, int eventId)
+	public void add(int mainId, int eventId, Icon icon)
 		{
-		add(new EventNode(Event.eventName(mainId,eventId),mainId,eventId)); 
+		add(new EventNode(Event.eventName(mainId,eventId),mainId,eventId,icon));
 		}
 
-	public void add(int mainId)
+	public void add(int mainId, Icon icon)
 		{
-		add(new EventNode(Messages.getString("MainEvent.EVENT" + mainId),mainId)); //$NON-NLS-1$
+		add(new EventNode(Messages.getString("MainEvent.EVENT" + mainId),mainId,0,icon)); //$NON-NLS-1$
 		}
 
 	public boolean isValid()

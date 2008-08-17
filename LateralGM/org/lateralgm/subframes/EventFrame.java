@@ -14,6 +14,7 @@ import static org.lateralgm.main.Util.deRef;
 import static org.lateralgm.subframes.ResourceFrame.addGap;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.datatransfer.Transferable;
@@ -26,6 +27,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
 
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
@@ -39,6 +41,7 @@ import javax.swing.TransferHandler;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.EventKeyInput;
@@ -83,10 +86,10 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		{
 		super(Messages.getString("EventFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
 
-		setSize(300,335);
+		setSize(400,335);
 		setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
 		setFrameIcon(LGM.getIconForKey("LGM.TOGGLE_EVENT")); //$NON-NLS-1$
-		setMinimumSize(new Dimension(300,335));
+		setMinimumSize(new Dimension(400,335));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
 		JPanel side1 = new JPanel(new BorderLayout());
 
@@ -157,65 +160,70 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 
 	private void makeTree(JPanel side1)
 		{
-		root = new EventNode("Root",-1); //$NON-NLS-1$
+		root = new EventNode("Root",null); //$NON-NLS-1$
 
-		root.add(MainEvent.EV_CREATE);
+		root.add(MainEvent.EV_CREATE,LGM.getIconForKey("EventNode.CREATE"));
 
-		root.add(MainEvent.EV_DESTROY);
+		root.add(MainEvent.EV_DESTROY,LGM.getIconForKey("EventNode.DESTROY"));
 
-		EventNode alarm = new EventNode(Messages.getString("MainEvent.EVENT2"),-1); //$NON-NLS-1$
+		Icon ialarm = LGM.getIconForKey("EventNode.ALARM");
+		EventNode alarm = new EventNode(Messages.getString("MainEvent.EVENT2"),ialarm); //$NON-NLS-1$
 		root.add(alarm);
 		for (int i = 0; i <= 11; i++)
-			alarm.add(new EventNode(Messages.format("Event.EVENT2_X",i),MainEvent.EV_ALARM,i)); //$NON-NLS-1$
+			alarm.add(new EventNode(Messages.format("Event.EVENT2_X",i),MainEvent.EV_ALARM,i,ialarm)); //$NON-NLS-1$
 
-		EventNode step = new EventNode(Messages.getString("MainEvent.EVENT3"),-1); //$NON-NLS-1$
+		Icon istep = LGM.getIconForKey("EventNode.STEP");
+		EventNode step = new EventNode(Messages.getString("MainEvent.EVENT3"),istep); //$NON-NLS-1$
 		root.add(step);
 		for (int i = Event.EV_STEP_NORMAL; i <= Event.EV_STEP_END; i++)
-			step.add(MainEvent.EV_STEP,i);
+			step.add(MainEvent.EV_STEP,i,istep);
 
-		root.add(MainEvent.EV_COLLISION);
+		root.add(MainEvent.EV_COLLISION,LGM.getIconForKey("EventNode.COLLISION"));
 
-		root.add(MainEvent.EV_KEYBOARD);
+		root.add(MainEvent.EV_KEYBOARD,LGM.getIconForKey("EventNode.KEYBOARD"));
 
-		EventNode mouse = new EventNode(Messages.getString("MainEvent.EVENT6"),-1); //$NON-NLS-1$
+		Icon imouse = LGM.getIconForKey("EventNode.MOUSE");
+		EventNode mouse = new EventNode(Messages.getString("MainEvent.EVENT6"),imouse); //$NON-NLS-1$
 		root.add(mouse);
 		for (int i = Event.EV_LEFT_BUTTON; i <= Event.EV_MOUSE_LEAVE; i++)
-			mouse.add(MainEvent.EV_MOUSE,i);
-		mouse.add(MainEvent.EV_MOUSE,Event.EV_MOUSE_WHEEL_UP);
-		mouse.add(MainEvent.EV_MOUSE,Event.EV_MOUSE_WHEEL_DOWN);
+			mouse.add(MainEvent.EV_MOUSE,i,imouse);
+		mouse.add(MainEvent.EV_MOUSE,Event.EV_MOUSE_WHEEL_UP,imouse);
+		mouse.add(MainEvent.EV_MOUSE,Event.EV_MOUSE_WHEEL_DOWN,imouse);
 
 		String globMouseStr = Messages.getString("EventFrame.GLOBAL_MOUSE"); //$NON-NLS-1$
-		EventNode global = new EventNode(globMouseStr,-1);
+		EventNode global = new EventNode(globMouseStr,imouse);
 		mouse.add(global);
 		for (int i = Event.EV_GLOBAL_LEFT_BUTTON; i <= Event.EV_GLOBAL_MIDDLE_RELEASE; i++)
-			global.add(MainEvent.EV_MOUSE,i);
+			global.add(MainEvent.EV_MOUSE,i,imouse);
 
-		EventNode joy = new EventNode(Messages.getString("EventFrame.JOYSTICK_1"),-1); //$NON-NLS-1$
+		EventNode joy = new EventNode(Messages.getString("EventFrame.JOYSTICK_1"),imouse); //$NON-NLS-1$
 		mouse.add(joy);
 		for (int i = Event.EV_JOYSTICK1_LEFT; i <= Event.EV_JOYSTICK1_BUTTON8; i++)
-			if (i != 20) joy.add(MainEvent.EV_MOUSE,i);
+			if (i != 20) joy.add(MainEvent.EV_MOUSE,i,imouse);
 
-		joy = new EventNode(Messages.getString("EventFrame.JOYSTICK_2"),-1); //$NON-NLS-1$
+		joy = new EventNode(Messages.getString("EventFrame.JOYSTICK_2"),imouse); //$NON-NLS-1$
 		mouse.add(joy);
 		for (int i = Event.EV_JOYSTICK2_LEFT; i <= Event.EV_JOYSTICK2_BUTTON8; i++)
-			if (i != 35) joy.add(MainEvent.EV_MOUSE,i);
+			if (i != 35) joy.add(MainEvent.EV_MOUSE,i,imouse);
 
-		EventNode other = new EventNode(Messages.getString("MainEvent.EVENT7"),-1); //$NON-NLS-1$
+		Icon iother = LGM.getIconForKey("EventNode.OTHER");
+		EventNode other = new EventNode(Messages.getString("MainEvent.EVENT7"),iother); //$NON-NLS-1$
 		root.add(other);
 		for (int i = 0; i <= 8; i++)
-			other.add(MainEvent.EV_OTHER,i);
+			other.add(MainEvent.EV_OTHER,i,iother);
 
-		EventNode user = new EventNode(Messages.getString("EventFrame.USER_DEFINED"),-1); //$NON-NLS-1$
+		EventNode user = new EventNode(Messages.getString("EventFrame.USER_DEFINED"),iother); //$NON-NLS-1$
 		other.add(user);
 		for (int i = 0; i <= 14; i++)
 			user.add(new EventNode(Messages.format("Event.EVENT7_X",i),MainEvent.EV_OTHER,Event.EV_USER0 //$NON-NLS-1$
-					+ i));
+					+ i,iother));
 
-		root.add(MainEvent.EV_DRAW);
-		root.add(MainEvent.EV_KEYPRESS);
-		root.add(MainEvent.EV_KEYRELEASE);
+		root.add(MainEvent.EV_DRAW,LGM.getIconForKey("EventNode.DRAW"));
+		root.add(MainEvent.EV_KEYPRESS,LGM.getIconForKey("EventNode.KEYPRESS"));
+		root.add(MainEvent.EV_KEYRELEASE,LGM.getIconForKey("EventNode.KEYRELEASE"));
 
 		events = new JTree(root);
+		events.setCellRenderer(new EventNodeRenderer());
 		events.setRootVisible(false);
 		events.setShowsRootHandles(true);
 		events.setDragEnabled(true);
@@ -226,6 +234,23 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		JScrollPane scroll = new JScrollPane(events);
 		scroll.setMinimumSize(new Dimension(120,260));
 		side1.add(scroll,"Center"); //$NON-NLS-1$
+		}
+
+	public static class EventNodeRenderer extends DefaultTreeCellRenderer
+		{
+		private static final long serialVersionUID = 1L;
+
+		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel,
+				boolean expanded, boolean leaf, int row, boolean hasFocus)
+			{
+			super.getTreeCellRendererComponent(tree,value,sel,expanded,leaf,row,hasFocus);
+			if (value instanceof EventNode)
+				{
+				Icon i = ((EventNode) value).icon;
+				if (i != null) setIcon(i);
+				}
+			return this;
+			}
 		}
 
 	private class EventNodeTransferHandler extends TransferHandler

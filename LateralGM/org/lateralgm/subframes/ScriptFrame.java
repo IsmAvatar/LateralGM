@@ -11,6 +11,7 @@
 
 package org.lateralgm.subframes;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -47,18 +48,19 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 		{
 		super(res,node);
 		setSize(600,400);
+		setLayout(new BorderLayout());
 
 		// Setup the toolbar
 		tool = new JToolBar();
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
-		add("North",tool); //$NON-NLS-1$
+		add(tool,BorderLayout.NORTH);
 
 		tool.add(save);
 		tool.addSeparator();
 
 		code = new GMLTextArea(res.scriptStr);
-		getContentPane().add(code);
+		add(code,BorderLayout.CENTER);
 
 		if (!Prefs.useExternalScriptEditor)
 			code.addEditorButtons(tool);
