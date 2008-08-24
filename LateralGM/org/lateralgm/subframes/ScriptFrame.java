@@ -154,7 +154,7 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 					char[] chars = new char[1024];
 					int len = 0;
 					while ((len = reader.read(chars)) > -1)
-						sb.append(String.valueOf(chars,0,len));
+						sb.append(chars,0,len);
 					reader.close();
 					res.scriptStr = sb.toString();
 					SwingUtilities.invokeLater(new Runnable()

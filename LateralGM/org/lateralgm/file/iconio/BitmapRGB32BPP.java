@@ -37,8 +37,8 @@ public class BitmapRGB32BPP extends AbstractBitmapRGB
 			for (int lColNo = 0; lColNo < getWidth(); lColNo++)
 				{
 				// BGRA -> ARGB, 8 bits per component.
-				samples[lOutputPos++] = lRow[lRowByte++] + (lRow[lRowByte++] << 8)
-						+ (lRow[lRowByte++] << 16) + (lRow[lRowByte++] << 24);
+				samples[lOutputPos++] = (lRow[lRowByte++] & 0xFF) | ((lRow[lRowByte++] & 0xFF) << 8)
+						+ ((lRow[lRowByte++] & 0xFF) << 16) | ((lRow[lRowByte++] & 0xFF) << 24);
 				}
 			}
 		}
