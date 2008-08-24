@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -90,4 +90,12 @@ public class GameSettings
 	//actual data is stored to be written on resave (no reason to re-encode)
 	public byte[] gameIconData;
 	public BufferedImage gameIcon; // icon as image for display purposes
+
+	public static ArrayList<Constant> copyConstants(ArrayList<Constant> source)
+		{
+		ArrayList<Constant> dest = new ArrayList<Constant>();
+		for (Constant c : source)
+			dest.add(c.copy());
+		return dest;
+		}
 	}

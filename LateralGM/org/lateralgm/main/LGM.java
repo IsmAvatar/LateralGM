@@ -108,10 +108,36 @@ public final class LGM
 	public static ResNode root;
 	public static GmFile currentFile = new GmFile();
 	public static MDIPane mdi;
-	public static GameInformationFrame gameInfo;
-	public static GameSettingFrame gameSet;
+	public static Thread gameInformationFrameBuilder;
+	private static GameInformationFrame gameInfo;
+	public static Thread gameSettingFrameBuilder;
+	private static GameSettingFrame gameSet;
 	public static EventFrame eventSelect;
-	public static File tempDir,workDir;
+	public static File tempDir, workDir;
+
+	public static GameInformationFrame getGameInfo()
+		{
+		try
+			{
+			gameInformationFrameBuilder.join();
+			}
+		catch (InterruptedException e)
+			{
+			}
+		return gameInfo;
+		}
+
+	public static GameSettingFrame getGameSettings()
+		{
+		try
+			{
+			gameSettingFrameBuilder.join();
+			}
+		catch (InterruptedException e)
+			{
+			}
+		return gameSet;
+		}
 
 	private LGM()
 		{
@@ -254,8 +280,6 @@ public final class LGM
 		split.setDividerLocation(170);
 		f.add(split);
 		mdi.setBackground(Color.BLACK);
-		mdi.add(gameSet);
-		mdi.add(gameInfo);
 		eventSelect = new EventFrame();
 		mdi.add(eventSelect);
 		}
@@ -293,7 +317,8 @@ public final class LGM
 			ResNode node = (ResNode) nodes.nextElement();
 			if (node.frame != null) node.frame.updateResource(); // update open frames
 			}
-		LGM.gameSet.commitChanges();
+		LGM.getGameSettings().commitChanges();
+		LGM.getGameInfo().updateResource();
 		}
 
 	static
@@ -324,9 +349,25 @@ public final class LGM
 		LibManager.autoLoad();
 		SplashProgress.progress(20,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gameInfo = new GameInformationFrame();
 		SplashProgress.progress(30,Messages.getString("LGM.SPLASH_SETTINGS")); //$NON-NLS-1$
-		gameSet = new GameSettingFrame();
+		gameInformationFrameBuilder = new Thread()
+			{
+				public void run()
+					{
+					gameInfo = new GameInformationFrame(currentFile.gameInfo);
+					mdi.add(gameInfo);
+					}
+			};
+		gameSettingFrameBuilder = new Thread()
+			{
+				public void run()
+					{
+					gameSet = new GameSettingFrame();
+					mdi.add(gameSet);
+					}
+			};
+		gameInformationFrameBuilder.start();
+		gameSettingFrameBuilder.start();
 		SplashProgress.progress(40,Messages.getString("LGM.SPLASH_TOOLBAR")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
 		createToolBar(f);

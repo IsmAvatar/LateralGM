@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -105,7 +105,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		JPanel scalegroup = new JPanel();
 		GroupLayout sLayout = new GroupLayout(scalegroup);
 		scalegroup.setLayout(sLayout);
-		t = Messages.getString("GameSettingFrame.SCALING_TITLE");
+		t = Messages.getString("GameSettingFrame.SCALING_TITLE"); //$NON-NLS-1$
 		scalegroup.setBorder(BorderFactory.createTitledBorder(t));
 		scaling = new IndexButtonGroup(3,true,false,this);
 		JRadioButton osFixed = new JRadioButton(Messages.getString("GameSettingFrame.SCALING_FIXED")); //$NON-NLS-1$
@@ -213,7 +213,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		resolutionPane.setLayout(rpLayout);
 
 		JPanel depth = new JPanel();
-		String t = Messages.getString("GameSettingFrame.TITLE_COLOR_DEPTH");
+		String t = Messages.getString("GameSettingFrame.TITLE_COLOR_DEPTH"); //$NON-NLS-1$
 		depth.setBorder(BorderFactory.createTitledBorder(t));
 		depth.setLayout(new BoxLayout(depth,BoxLayout.PAGE_AXIS));
 		colourDepth = new IndexButtonGroup(3,true,false);
@@ -224,7 +224,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		colourDepth.populate(depth);
 
 		JPanel res = new JPanel();
-		t = Messages.getString("GameSettingFrame.TITLE_RESOLUTION");
+		t = Messages.getString("GameSettingFrame.TITLE_RESOLUTION"); //$NON-NLS-1$
 		res.setBorder(BorderFactory.createTitledBorder(t));
 		res.setLayout(new BoxLayout(res,BoxLayout.PAGE_AXIS));
 		resolution = new IndexButtonGroup(7,true,false);
@@ -398,7 +398,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		/**/.addContainerGap());
 
 		JPanel progBar = new JPanel();
-		t = Messages.getString("GameSettingFrame.TITLE_LOADING_PROGRESS_BAR");
+		t = Messages.getString("GameSettingFrame.TITLE_LOADING_PROGRESS_BAR"); //$NON-NLS-1$
 		progBar.setBorder(BorderFactory.createTitledBorder(t));
 		GroupLayout pbLayout = new GroupLayout(progBar);
 		progBar.setLayout(pbLayout);
@@ -450,7 +450,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		randomise = new JButton(Messages.getString("GameSettingFrame.RANDOMIZE")); //$NON-NLS-1$
 		randomise.addActionListener(this);
 
-		iconFc = new CustomFileChooser("/org/lateralgm","LAST_ICON_DIR");
+		iconFc = new CustomFileChooser("/org/lateralgm","LAST_ICON_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		iconFc.setFileFilter(new CustomFileFilter(".ico", //$NON-NLS-1$
 				Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$
 
@@ -507,8 +507,10 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		cModel = new ConstantsTableModel(LGM.currentFile.gameSettings.constants);
 		constants = new JTable(cModel);
+		constants.getTableHeader().setReorderingAllowed(false);
 		JScrollPane scroll = new JScrollPane(constants);
 		constants.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		constants.setTransferHandler(null);
 
 		add = new JButton(Messages.getString("GameSettingFrame.ADD")); //$NON-NLS-1$
 		add.addActionListener(this);
@@ -525,7 +527,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		sort = new JButton(Messages.getString("GameSettingFrame.SORT")); //$NON-NLS-1$
 		sort.addActionListener(this);
 
-		constantsFc = new CustomFileChooser("/org/lateralgm","LAST_LGC_DIR");
+		constantsFc = new CustomFileChooser("/org/lateralgm","LAST_LGC_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		constantsFc.setFileFilter(new CustomFileFilter(".lgc", //$NON-NLS-1$
 				Messages.getString("GameSettingFrame.LGC_FILES"))); //$NON-NLS-1$
 
@@ -570,9 +572,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		ConstantsTableModel(ArrayList<Constant> list)
 			{
-			constants = new ArrayList<Constant>();
-			for (Constant c : list)
-				constants.add(c.copy());
+			constants = GameSettings.copyConstants(list);
 			}
 
 		public int getColumnCount()
@@ -651,7 +651,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		iClear.addActionListener(this);
 
 		JPanel folderPanel = new JPanel();
-		String t = Messages.getString("GameSettingFrame.EXPORT_TO");
+		String t = Messages.getString("GameSettingFrame.EXPORT_TO"); //$NON-NLS-1$
 		folderPanel.setBorder(BorderFactory.createTitledBorder(t));
 		folderPanel.setLayout(new BoxLayout(folderPanel,BoxLayout.PAGE_AXIS));
 		exportFolder = new IndexButtonGroup(2,true,false);
@@ -663,7 +663,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		overwriteExisting = new JCheckBox(Messages.getString("GameSettingFrame.OVERWRITE_EXISTING")); //$NON-NLS-1$
 		removeAtGameEnd = new JCheckBox(Messages.getString("GameSettingFrame.REMOVE_FILES_AT_END")); //$NON-NLS-1$
 
-		includesFc = new CustomFileChooser("/org/lateralgm","LAST_INCLUDES_DIR");
+		includesFc = new CustomFileChooser("/org/lateralgm","LAST_INCLUDES_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		includesFc.setMultiSelectionEnabled(true);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -746,6 +746,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	JTextField author;
 	JTextField version;
+	JTextField lastChanged;
 	JTextArea information;
 
 	private JPanel makeInfoPane()
@@ -762,7 +763,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		JLabel lVersion = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
 		version = new JTextField(g.version);
 		JLabel lChanged = new JLabel(Messages.getString("GameSettingFrame.LASTCHANGED")); //$NON-NLS-1$
-		JTextField lastChanged = new JTextField(GmFile.gmTimeToString(g.lastChanged));
+		lastChanged = new JTextField(GmFile.gmTimeToString(g.lastChanged));
 		lastChanged.setEditable(false);
 		JLabel lInfo = new JLabel(Messages.getString("GameSettingFrame.INFORMATION")); //$NON-NLS-1$
 		information = new JTextArea(g.information);
@@ -809,7 +810,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		setLayout(layout);
 		setResizable(false);
 
-		rebuildTabs();
+		buildTabs();
 
 		String t = Messages.getString("GameSettingFrame.BUTTON_SAVE"); //$NON-NLS-1$
 		saveButton = new JButton(t);
@@ -835,10 +836,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		pack();
 		}
 
-	private void rebuildTabs()
+	private void buildTabs()
 		{
-		tabbedPane.removeAll();
-
 		JComponent pane = makeGraphicsPane();
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_GRAPHICS"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_GRAPHICS")); //$NON-NLS-1$
@@ -891,7 +890,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		if (e.getSource() == discardButton)
 			{
-			rebuildTabs();
+			setComponents(LGM.currentFile.gameSettings);
 			setVisible(false);
 			return;
 			}
@@ -1261,7 +1260,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		//Constants
 		cModel.removeEmptyConstants();
-		g.constants = cModel.constants;
+		g.constants = GameSettings.copyConstants(cModel.constants);
 
 		//Includes
 		g.includes = iModel.toArrayList();
@@ -1279,5 +1278,80 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		g.author = author.getText();
 		g.version = version.getText();
 		g.information = information.getText();
+		}
+
+	public void setComponents(GameSettings g)
+		{
+		//Graphics
+		startFullscreen.setSelected(g.startFullscreen);
+		int s = g.scaling;
+		scaling.setValue(s > 1 ? 1 : s);
+		if (s > 1) scale.setIntValue(s);
+		scale.setEnabled(s > 0);
+		interpolatecolors.setSelected(g.interpolate);
+		colorbutton.setSelectedColor(g.colorOutsideRoom);
+		resizeWindow.setSelected(g.allowWindowResize);
+		stayOnTop.setSelected(g.alwaysOnTop);
+		noWindowBorder.setSelected(g.dontDrawBorder);
+		noWindowButtons.setSelected(g.dontShowButtons);
+		displayMouse.setSelected(g.displayCursor);
+		freezeGame.setSelected(g.freezeOnLoseFocus);
+
+		//Resolution
+		synchronised.setSelected(g.useSynchronization);
+		setResolution.setSelected(g.setResolution);
+		resolutionPane.setVisible(g.setResolution);
+		colourDepth.setValue(g.colorDepth);
+		resolution.setValue(g.resolution);
+		frequency.setValue(g.frequency);
+
+		//Other
+		esc.setSelected(g.letEscEndGame);
+		f1.setSelected(g.letF1ShowGameInfo);
+		f4.setSelected(g.letF4SwitchFullscreen);
+		f5.setSelected(g.letF5SaveF6Load);
+		gamePriority.setValue(g.gamePriority);
+
+		//Loading
+		showCustomLoadImage.setSelected(g.showCustomLoadImage);
+		changeCustomLoad.setEnabled(g.showCustomLoadImage);
+		customLoadingImage = g.loadingImage;
+		imagePartiallyTransparent.setSelected(g.imagePartiallyTransparent);
+		loadImageAlpha.setIntValue(g.loadImageAlpha);
+		loadBarMode.setValue(g.loadBarMode);
+		backLoad.setEnabled(g.loadBarMode == GameSettings.LOADBAR_CUSTOM);
+		frontLoad.setEnabled(g.loadBarMode == GameSettings.LOADBAR_CUSTOM);
+		backLoadImage = g.backLoadBar;
+		frontLoadImage = g.frontLoadBar;
+		scaleProgressBar.setSelected(g.scaleProgressBar);
+		gameIcon = g.gameIcon;
+		iconPreview.setIcon(gameIcon != null ? new ImageIcon(gameIcon) : null);
+		gameIconData = g.gameIconData;
+		gameId.setIntValue(g.gameId);
+
+		//Constants
+		cModel = new ConstantsTableModel(g.constants);
+		constants.setModel(cModel);
+		constants.updateUI();
+
+		//Includes
+		iModel = new IncludesListModel(g.includes);
+		includes.setModel(iModel);
+		includes.updateUI();
+		exportFolder.setValue(g.includeFolder);
+		overwriteExisting.setSelected(g.overwriteExisting);
+		removeAtGameEnd.setSelected(g.removeAtGameEnd);
+
+		//Errors
+		displayErrors.setSelected(g.displayErrors);
+		writeToLog.setSelected(g.writeToLog);
+		abortOnError.setSelected(g.abortOnError);
+		treatUninitialisedAs0.setSelected(g.treatUninitializedAs0);
+
+		//Info
+		author.setText(g.author);
+		version.setText(g.version);
+		lastChanged.setText(GmFile.gmTimeToString(g.lastChanged));
+		information.setText(g.information);
 		}
 	}

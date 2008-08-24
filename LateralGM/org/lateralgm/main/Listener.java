@@ -53,8 +53,6 @@ import org.lateralgm.file.GmFormatException;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
-import org.lateralgm.subframes.GameInformationFrame;
-import org.lateralgm.subframes.GameSettingFrame;
 
 public class Listener extends TransferHandler implements ActionListener,CellEditorListener
 	{
@@ -144,12 +142,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		LGM.tree.setModel(new DefaultTreeModel(newroot));
 		LGM.tree.setSelectionRow(0);
 
-		LGM.gameInfo.dispose();
-		LGM.gameInfo = new GameInformationFrame();
-		LGM.mdi.add(LGM.gameInfo);
-		LGM.gameSet.dispose();
-		LGM.gameSet = new GameSettingFrame();
-		LGM.mdi.add(LGM.gameSet);
+		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
+		LGM.getGameSettings().setVisible(false);
+		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);
+		LGM.getGameInfo().setVisible(false);
 		}
 
 	public void newFile()
@@ -159,12 +155,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
 		LGM.populateTree();
 		LGM.currentFile = new GmFile();
-		LGM.gameSet.dispose();
-		LGM.gameSet = new GameSettingFrame();
-		LGM.mdi.add(LGM.gameSet);
-		LGM.gameInfo.dispose();
-		LGM.gameInfo = new GameInformationFrame();
-		LGM.mdi.add(LGM.gameInfo);
+		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
+		LGM.getGameSettings().setVisible(false);
+		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);
+		LGM.getGameInfo().setVisible(false);
 		}
 
 	public void saveFile()
@@ -223,13 +217,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 						JOptionPane.WARNING_MESSAGE);
 			if (result == JOptionPane.YES_OPTION)
 				{
-				Enumeration<?> nodes = LGM.root.preorderEnumeration();
-				while (nodes.hasMoreElements())
-					{
-					ResNode node = (ResNode) nodes.nextElement();
-					if (node.frame != null) node.frame.updateResource(); // update open frames
-					}
-				LGM.gameSet.commitChanges();
+				LGM.commitAll();
 				LGM.currentFile.filename = filename;
 				LGM.frame.setTitle(Messages.format("LGM.TITLE",new File(filename).getName())); //$NON-NLS-1$
 				GmFileWriter.writeGmFile(LGM.currentFile,LGM.root);
@@ -513,12 +501,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 						{
 						if (node.kind == Resource.GAMEINFO)
 							{
-							LGM.gameInfo.toTop();
+							LGM.getGameInfo().toTop();
 							return;
 							}
 						if (node.kind == Resource.GAMESETTINGS)
 							{
-							LGM.gameSet.toTop();
+							LGM.getGameSettings().toTop();
 							return;
 							}
 						if (node.kind == Resource.EXTENSIONS)
@@ -643,12 +631,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 						ResNode node = (ResNode) selPath.getLastPathComponent();
 						if (node.kind == Resource.GAMEINFO)
 							{
-							LGM.gameInfo.toTop();
+							LGM.getGameInfo().toTop();
 							return;
 							}
 						if (node.kind == Resource.GAMESETTINGS)
 							{
-							LGM.gameSet.toTop();
+							LGM.getGameSettings().toTop();
 							return;
 							}
 						if (node.kind == Resource.EXTENSIONS)

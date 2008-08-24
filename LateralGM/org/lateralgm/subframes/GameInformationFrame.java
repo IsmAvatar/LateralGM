@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -19,10 +19,15 @@ package org.lateralgm.subframes;
  * 	StyleConstants.setFontFamily(attr,m_fontName);
  * 	// setAttributeSet(attr);
  * 	// m_monitor.grabFocus();
+ * 
+ * TODO: Add font colour functionality
  */
 
-import java.awt.BorderLayout;
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,11 +38,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -45,10 +54,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
@@ -63,20 +75,32 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
+import org.lateralgm.compare.CollectionComparator;
+import org.lateralgm.compare.MapComparator;
+import org.lateralgm.compare.ObjectComparator;
+import org.lateralgm.compare.ReflectionComparator;
+import org.lateralgm.compare.SimpleCasesComparator;
 import org.lateralgm.components.CustomFileChooser;
+import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.Resource;
 
 public class GameInformationFrame extends MDIFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	protected static JEditorPane editor;
-	private static RTFEditorKit rtf = new RTFEditorKit();
+	protected GameInformation gameInfo;
+	protected JTabbedPane tabs;
+	protected JEditorPane editor;
+	private RTFEditorKit rtf = new RTFEditorKit();
+	protected JMenuBar menubar;
+	protected JToolBar toolbar;
 	protected JComboBox cbFonts;
 	protected JSpinner sSizes;
 	protected JToggleButton tbBold;
@@ -96,28 +120,22 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		{
 		JMenuBar menuBar = new JMenuBar();
 
-		// Create FILE menu
+		//File
 		JMenu menu = new JMenu(Messages.getString("GameInformationFrame.MENU_FILE")); //$NON-NLS-1$
 		menuBar.add(menu);
 		menu.addActionListener(this);
 
 		JMenuItem item = addItem("GameInformationFrame.LOAD"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 		item = addItem("GameInformationFrame.FILESAVE"); //$NON-NLS-1$
-		menu.add(item);
-		menu.addSeparator();
-		item = addItem("GameInformationFrame.OPTIONS"); //$NON-NLS-1$
-		item.setEnabled(false);
-		menu.add(item);
-		menu.addSeparator();
-		item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
-		item.setEnabled(false);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
 		menu.add(item);
 
-		// Create EDIT menu
+		//Edit
 		menu = new JMenu(Messages.getString("GameInformationFrame.MENU_EDIT")); //$NON-NLS-1$
 		menuBar.add(menu);
 
@@ -129,34 +147,23 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
-		item.setEnabled(false);
 		item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
-		item.setEnabled(false);
 		item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
-		item.setEnabled(false);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
-		menu.add(item);
-		item.setEnabled(false);
-		menu.addSeparator();
-		item = addItem("GameInformationFrame.GOTO"); //$NON-NLS-1$
-		menu.add(item);
-		item.setEnabled(false);
-
-		// Create FORMAT menu
-		menu = new JMenu(Messages.getString("GameInformationFrame.MENU_FORMAT")); //$NON-NLS-1$
-		menuBar.add(menu);
-
-		// Create a menu item
-		item = addItem("GameInformationFrame.FONT"); //$NON-NLS-1$
-		// item.addActionListener(actionListener);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 
 		return menuBar;
 		}
+
+	protected JButton save;
 
 	private JToolBar makeToolBar()
 		{
@@ -164,11 +171,11 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		tool.setFloatable(false);
 
 		// Setup the buttons
-		JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.CLOSESAVE")); //$NON-NLS-1$
-		but.setRequestFocusEnabled(false);
-		but.setActionCommand("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
-		but.addActionListener(this);
-		tool.add(but);
+		save = new JButton(LGM.getIconForKey("GameInformationFrame.CLOSESAVE")); //$NON-NLS-1$
+		save.setRequestFocusEnabled(false);
+		save.setActionCommand("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
+		save.addActionListener(this);
+		tool.add(save);
 
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		String[] fontNames = ge.getAvailableFontFamilyNames();
@@ -248,7 +255,7 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		tool.add(tbUnderline);
 
 		tool.addSeparator();
-		but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
+		JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
 		but.setRequestFocusEnabled(false);
 		but.setActionCommand("GameInformationFrame.COLOR"); //$NON-NLS-1$
 		but.addActionListener(this);
@@ -256,44 +263,203 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		return tool;
 		}
 
-	public GameInformationFrame()
+	public JTextField sTitle;
+	public IntegerField sX;
+	public IntegerField sY;
+	public IntegerField sWidth;
+	public IntegerField sHeight;
+	public JCheckBox sShowBorder;
+	public JCheckBox sAllowResize;
+	public JCheckBox sAlwaysOnTop;
+	public JCheckBox sPauseGame;
+	public JCheckBox sEmbed;
+
+	private JPanel makeSettings()
+		{
+		GameInformation info = LGM.currentFile.gameInfo;
+		JPanel p = new JPanel();
+		GroupLayout gl = new GroupLayout(p);
+		p.setLayout(gl);
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
+
+		JLabel lTitle = new JLabel(Messages.getString("GameInformationFrame.WINDOW_TITLE")); //$NON-NLS-1$
+		sTitle = new JTextField(info.formCaption);
+
+		JPanel position = new JPanel();
+		position.setBorder(BorderFactory.createTitledBorder(
+		/**/Messages.getString("GameInformationFrame.POSITION"))); //$NON-NLS-1$
+		GroupLayout pl = new GroupLayout(position);
+		position.setLayout(pl);
+		pl.setAutoCreateGaps(true);
+		pl.setAutoCreateContainerGaps(true);
+
+		JLabel lX = new JLabel(Messages.getString("GameInformationFrame.X")); //$NON-NLS-1$
+		sX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,info.left);
+		JLabel lY = new JLabel(Messages.getString("GameInformationFrame.Y")); //$NON-NLS-1$
+		sY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,info.top);
+		JLabel lWidth = new JLabel(Messages.getString("GameInformationFrame.WIDTH")); //$NON-NLS-1$
+		sWidth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,info.width);
+		JLabel lHeight = new JLabel(Messages.getString("GameInformationFrame.HEIGHT")); //$NON-NLS-1$
+		sHeight = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,info.height);
+
+		sShowBorder = new JCheckBox(
+				Messages.getString("GameInformationFrame.SHOW_BORDER"),info.showBorder); //$NON-NLS-1$
+		sAllowResize = new JCheckBox(
+				Messages.getString("GameInformationFrame.RESIZABLE"),info.allowResize); //$NON-NLS-1$
+		sAlwaysOnTop = new JCheckBox(
+				Messages.getString("GameInformationFrame.ALWAYS_ON_TOP"),info.stayOnTop); //$NON-NLS-1$
+		sPauseGame = new JCheckBox(Messages.getString("GameInformationFrame.PAUSE"),info.pauseGame); //$NON-NLS-1$
+		sEmbed = new JCheckBox(Messages.getString("GameInformationFrame.EMBED"),info.mimicGameWindow); //$NON-NLS-1$
+
+		pl.setHorizontalGroup(pl.createSequentialGroup()
+
+		/**/.addGroup(pl.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(lX)
+		/*		*/.addComponent(lWidth))
+		/**/.addGroup(pl.createParallelGroup()
+		/*		*/.addComponent(sX)
+		/*		*/.addComponent(sWidth))
+		/**/.addGroup(pl.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(lY)
+		/*		*/.addComponent(lHeight))
+		/**/.addGroup(pl.createParallelGroup()
+		/*		*/.addComponent(sY)
+		/*		*/.addComponent(sHeight)));
+
+		pl.setVerticalGroup(pl.createSequentialGroup()
+		/*		*/.addGroup(pl.createParallelGroup()
+		/*				*/.addComponent(lX)
+		/*				*/.addComponent(sX,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+		/*				*/.addComponent(lY)
+		/*				*/.addComponent(sY,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
+		/*		*/.addGroup(pl.createParallelGroup()
+		/*				*/.addComponent(lWidth)
+		/*				*/.addComponent(sWidth,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+		/*				*/.addComponent(lHeight)
+		/*				*/.addComponent(sHeight,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
+
+		gl.setHorizontalGroup(gl.createParallelGroup()
+		/**/.addGroup(gl.createSequentialGroup()
+		/*		*/.addComponent(lTitle)
+		/*		*/.addComponent(sTitle))
+		/**/.addComponent(position)
+		/**/.addComponent(sShowBorder)
+		/**/.addComponent(sAllowResize)
+		/**/.addComponent(sAlwaysOnTop)
+		/**/.addComponent(sPauseGame)
+		/**/.addComponent(sEmbed));
+
+		gl.setVerticalGroup(gl.createSequentialGroup()
+		/**/.addGroup(gl.createParallelGroup()
+		/*		*/.addComponent(lTitle)
+		/*		*/.addComponent(sTitle,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
+		/**/.addComponent(position)
+		/**/.addComponent(sShowBorder)
+		/**/.addComponent(sAllowResize)
+		/**/.addComponent(sAlwaysOnTop)
+		/**/.addComponent(sPauseGame)
+		/**/.addComponent(sEmbed));
+		return p;
+		}
+
+	public void setComponents(GameInformation info)
+		{
+		setEditorBackground(info.backgroundColor);
+		rtf.deinstall(editor);
+		rtf = new RTFEditorKit();
+		editor.setEditorKit(rtf);
+		addDocumentListeners();
+		editor.setText(info.gameInfoStr);
+		undoManager.die();
+		undoManager.updateActions();
+		documentChanged = false;
+
+		sTitle.setText(info.formCaption);
+		sX.setIntValue(info.left);
+		sY.setIntValue(info.top);
+		sWidth.setIntValue(info.width);
+		sHeight.setIntValue(info.height);
+
+		sShowBorder.setSelected(info.showBorder);
+		sAllowResize.setSelected(info.allowResize);
+		sAlwaysOnTop.setSelected(info.stayOnTop);
+		sPauseGame.setSelected(info.pauseGame);
+		sEmbed.setSelected(info.mimicGameWindow);
+		}
+
+	public void commitChanges()
+		{
+		gameInfo.backgroundColor = editor.getBackground();
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try
+			{
+			rtf.write(baos,editor.getDocument(),0,0);
+			gameInfo.gameInfoStr = baos.toString("UTF-8"); //$NON-NLS-1$
+			}
+		catch (IOException e)
+			{
+			}
+		catch (BadLocationException e)
+			{
+			}
+
+		gameInfo.formCaption = sTitle.getText();
+		gameInfo.left = sX.getIntValue();
+		gameInfo.top = sY.getIntValue();
+		gameInfo.width = sWidth.getIntValue();
+		gameInfo.height = sHeight.getIntValue();
+
+		gameInfo.showBorder = sShowBorder.isSelected();
+		gameInfo.allowResize = sAllowResize.isSelected();
+		gameInfo.stayOnTop = sAlwaysOnTop.isSelected();
+		gameInfo.pauseGame = sPauseGame.isSelected();
+		gameInfo.mimicGameWindow = sEmbed.isSelected();
+		}
+
+	public GameInformationFrame(GameInformation info)
 		{
 		super(Messages.getString("GameInformationFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
+		gameInfo = info.copy();
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setSize(600,400);
 		setFrameIcon(LGM.getIconForKey("GameInformationFrame.INFO")); //$NON-NLS-1$
 
-		setJMenuBar(makeMenuBar());
-		add("North",makeToolBar()); //$NON-NLS-1$
+		menubar = makeMenuBar();
+		setJMenuBar(menubar);
+		toolbar = makeToolBar();
+		add("North",toolbar); //$NON-NLS-1$
 
-		// Create an RTF editor window
-		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new BorderLayout());
-		getContentPane().add(topPanel,BorderLayout.CENTER);
-
-		editor = new JEditorPane();
-		// editor.setEditable(false);
-		editor.setEditorKit(rtf);
-
-		editor.getDocument().addDocumentListener(new DocumentListener()
+		tabs = new JTabbedPane();
+		add(tabs);
+		tabs.addChangeListener(new ChangeListener()
 			{
-				public void removeUpdate(DocumentEvent e)
+				public void stateChanged(ChangeEvent e)
 					{
-					documentChanged = true;
-					}
-
-				public void changedUpdate(DocumentEvent e)
-					{
-					documentChanged = true;
-					}
-
-				public void insertUpdate(DocumentEvent e)
-					{
-					documentChanged = true;
+					boolean enabled = tabs.getSelectedIndex() == 0;
+					if (enabled) editor.requestFocusInWindow();
+					JMenuBar mb = getJMenuBar();
+					for (int i = 0; i < mb.getComponentCount(); i++)
+						{
+						JMenu m = (JMenu) mb.getComponent(i);
+						if (!m.getText().equals(Messages.getString("GameInformationFrame.MENU_FILE"))) //$NON-NLS-1$
+							m.setEnabled(enabled);
+						}
+					for (int i = 0; i < toolbar.getComponentCount(); i++)
+						{
+						Component c = toolbar.getComponent(i);
+						if (c != save) c.setEnabled(enabled);
+						}
 					}
 			});
+
+		editor = new JEditorPane();
+		editor.setEditorKit(rtf);
+		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(editor));
+
+		addDocumentListeners();
 		editor.addCaretListener(undoManager);
-		editor.getDocument().addUndoableEditListener(undoManager);
+
 		editor.addCaretListener(new CaretListener()
 			{
 				public void caretUpdate(CaretEvent ce)
@@ -317,15 +483,37 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 					}
 			});
 
-		// This text could be big so add a scroll pane
-		JScrollPane scroller = new JScrollPane();
-		scroller.getViewport().add(editor);
-		topPanel.add(scroller,BorderLayout.CENTER);
+		tabs.addTab(Messages.getString("GameInformationFrame.TAB_INFO"),
+		/**/null,new JScrollPane(editor),Messages.getString("GameInformationFrame.HINT_INFO")); //$NON-NLS-1$ //$NON-NLS-2$
+		tabs.addTab(Messages.getString("GameInformationFrame.TAB_SETTINGS"),
+		/**/null,makeSettings(),Messages.getString("GameInformationFrame.HINT_SETTINGS")); //$NON-NLS-1$ //$NON-NLS-2$
 		revertResource();
 
-		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR");
+		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		fc.setFileFilter(new CustomFileFilter(".rtf", //$NON-NLS-1$
 				Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$
+		}
+
+	private void addDocumentListeners()
+		{
+		editor.getDocument().addDocumentListener(new DocumentListener()
+			{
+				public void removeUpdate(DocumentEvent e)
+					{
+					documentChanged = true;
+					}
+
+				public void changedUpdate(DocumentEvent e)
+					{
+					documentChanged = true;
+					}
+
+				public void insertUpdate(DocumentEvent e)
+					{
+					documentChanged = true;
+					}
+			});
+		editor.getDocument().addUndoableEditListener(undoManager);
 		}
 
 	public void setEditorBackground(Color c)
@@ -386,6 +574,7 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		try
 			{
 			FileInputStream i = new FileInputStream(fc.getSelectedFile());
+			editor.setText(""); //$NON-NLS-1$
 			rtf.read(i,editor.getDocument(),0);
 			i.close();
 			}
@@ -425,34 +614,24 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 
 	public void updateResource()
 		{
-		LGM.currentFile.gameInfo.backgroundColor = editor.getBackground();
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try
-			{
-			rtf.write(baos,editor.getDocument(),0,0);
-			LGM.currentFile.gameInfo.gameInfoStr = baos.toString("UTF-8");
-			}
-		catch (IOException e)
-			{
-			}
-		catch (BadLocationException e)
-			{
-			}
+		commitChanges();
+		LGM.currentFile.gameInfo = gameInfo.copy();
 		documentChanged = false;
 		}
 
 	public void revertResource()
 		{
-		setEditorBackground(LGM.currentFile.gameInfo.backgroundColor);
-		editor.setText(LGM.currentFile.gameInfo.gameInfoStr);
-		undoManager.die();
-		undoManager.updateActions();
-		documentChanged = false;
+		setComponents(LGM.currentFile.gameInfo);
 		}
 
 	public boolean resourceChanged()
 		{
-		return documentChanged;
+		commitChanges();
+		if (documentChanged) return true;
+		ReflectionComparator rc = new SimpleCasesComparator(new CollectionComparator(new MapComparator(
+				new ObjectComparator(null))));
+		rc.addExclusions(GameInformation.class,"gameInfoStr"); //$NON-NLS-1$
+		return !rc.areEqual(gameInfo,LGM.currentFile.gameInfo);
 		}
 
 	public void actionPerformed(ActionEvent arg0)
@@ -460,22 +639,47 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		String com = arg0.getActionCommand();
 		if (com.equals("GameInformationFrame.LOAD")) //$NON-NLS-1$
 			{
+			tabs.setSelectedIndex(0);
 			loadFromFile();
 			}
 		if (com.equals("GameInformationFrame.CLOSESAVE")) //$NON-NLS-1$
 			{
 			updateResource();
 			setVisible(false);
+			return;
 			}
 		if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
 			{
+			tabs.setSelectedIndex(0);
 			saveToFile();
+			return;
 			}
 		if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
 			{
 			String colorStr = Messages.getString("GameInformationFrame.COLOR"); //$NON-NLS-1$
 			Color c = JColorChooser.showDialog(this,colorStr,editor.getBackground());
 			if (c != null) setEditorBackground(c);
+			return;
+			}
+		if (com.equals("GameInformationFrame.CUT")) //$NON-NLS-1$
+			{
+			editor.cut();
+			return;
+			}
+		if (com.equals("GameInformationFrame.COPY")) //$NON-NLS-1$
+			{
+			editor.copy();
+			return;
+			}
+		if (com.equals("GameInformationFrame.PASTE")) //$NON-NLS-1$
+			{
+			editor.paste();
+			return;
+			}
+		if (com.equals("GameInformationFrame.SELECTALL")) //$NON-NLS-1$
+			{
+			editor.selectAll();
+			return;
 			}
 		}
 

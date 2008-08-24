@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of LateralGM.
@@ -31,4 +31,22 @@ public class GameInformation
 	public String gameInfoStr = "{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033{\\fonttbl"
 			+ "{\\f0\\fnil Arial;}}{\\colortbl ;\\red0\\green0\\blue0;}\\viewkind4\\uc1\\pard"
 			+ "\\cf1\\f0\\fs24}";
+
+	public GameInformation copy()
+		{
+		GameInformation gi = new GameInformation();
+		gi.backgroundColor = backgroundColor;
+		gi.mimicGameWindow = mimicGameWindow;
+		gi.formCaption = formCaption;
+		gi.left = left;
+		gi.top = top;
+		gi.width = width;
+		gi.height = height;
+		gi.showBorder = showBorder;
+		gi.allowResize = allowResize;
+		gi.stayOnTop = stayOnTop;
+		gi.pauseGame = pauseGame;
+		gi.gameInfoStr = gameInfoStr;
+		return gi;
+		}
 	}
