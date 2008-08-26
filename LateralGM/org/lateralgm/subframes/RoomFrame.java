@@ -22,6 +22,7 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.util.HashMap;
 
@@ -42,6 +43,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.JToolTip;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.GroupLayout.Alignment;
@@ -60,6 +62,8 @@ import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.MDIFrame;
+import org.lateralgm.components.visual.ImageInformer;
+import org.lateralgm.components.visual.ImageToolTip;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -67,6 +71,7 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
@@ -133,7 +138,28 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		oPreview = new JLabel(GmTreeGraphics.getBlankIcon());
+		oPreview = new JLabel(GmTreeGraphics.getBlankIcon())
+			{
+				private static final long serialVersionUID = 1L;
+
+				public JToolTip createToolTip()
+					{
+					return new ImageToolTip(new ImageInformer()
+						{
+							public BufferedImage getImage()
+								{
+								GmObject o = deRef(oNew.getSelected());
+								if (o == null) return null;
+								Sprite s = deRef(o.sprite);
+								if (s == null) return null;
+								return s.getDisplayImage();
+								}
+						});
+					}
+			};
+		//Must be set or else toolTip won't show
+		oPreview.setToolTipText(""); //$NON-NLS-1$
+
 		oNew = new ResourceMenu<GmObject>(Room.GMOBJECT,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 		oNew.addActionListener(this);
