@@ -4,5 +4,5 @@ import java.awt.image.BufferedImage;
 
 public interface ImageInformer
 	{
-	public BufferedImage getImage();
+	BufferedImage getImage();
 	}
