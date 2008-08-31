@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
@@ -47,6 +47,7 @@ import javax.swing.border.EmptyBorder;
 import org.lateralgm.components.ActionListEditor.LibActionButton;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
@@ -59,7 +60,6 @@ import org.lateralgm.subframes.ActionFrame;
 
 public class ActionList extends JList
 	{
-
 	private static final long serialVersionUID = 1L;
 	private static final Hashtable<Action,MDIFrame> FRAMES = new Hashtable<Action,MDIFrame>();
 	private static final ActionListMouseListener ALML = new ActionListMouseListener();
@@ -653,7 +653,7 @@ public class ActionList extends JList
 						setText("<i>" + getText()); //$NON-NLS-1$
 					setText("<html>" + getText()); //$NON-NLS-1$
 					setIcon(new ImageIcon(la.actImage));
-					setToolTipText("<html>" + parse(la.hintText,a)); //$NON-NLS-1$
+					if (Prefs.showActionToolTip) setToolTipText("<html>" + parse(la.hintText,a)); //$NON-NLS-1$
 					}
 				}
 
