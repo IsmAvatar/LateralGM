@@ -345,11 +345,15 @@ public final class LGM
 	public static void main(String[] args)
 		{
 		System.out.println(workDir.isDirectory());
-		SplashProgress.progress(10,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
+		SplashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
-		SplashProgress.progress(20,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
+		SplashProgress.progress(30,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		SplashProgress.progress(30,Messages.getString("LGM.SPLASH_SETTINGS")); //$NON-NLS-1$
+		SplashProgress.progress(40,Messages.getString("LGM.SPLASH_TOOLBAR")); //$NON-NLS-1$
+		JPanel f = new JPanel(new BorderLayout());
+		createToolBar(f);
+		SplashProgress.progress(50,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
+		createTree(f,true);
 		gameInformationFrameBuilder = new Thread()
 			{
 				public void run()
@@ -366,13 +370,8 @@ public final class LGM
 					mdi.add(gameSet);
 					}
 			};
-		gameInformationFrameBuilder.start();
-		gameSettingFrameBuilder.start();
-		SplashProgress.progress(40,Messages.getString("LGM.SPLASH_TOOLBAR")); //$NON-NLS-1$
-		JPanel f = new JPanel(new BorderLayout());
-		createToolBar(f);
-		SplashProgress.progress(50,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
-		createTree(f,true);
+		gameInformationFrameBuilder.start(); //must occur after MDI created in createTree
+		gameSettingFrameBuilder.start(); //must occur after MDI created in createTree
 		SplashProgress.progress(60,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame.setJMenuBar(new GmMenuBar());
 		SplashProgress.progress(70,Messages.getString("LGM.SPLASH_FRAME")); //$NON-NLS-1$
