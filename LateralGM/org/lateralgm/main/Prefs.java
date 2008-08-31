@@ -11,28 +11,99 @@ package org.lateralgm.main;
 
 import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 public final class Prefs
 	{
+	private static final String BUNDLE_NAME = "org.lateralgm.main.preferences"; //$NON-NLS-1$
+
+	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+
+	static
+		{
+		loadPrefs();
+		}
+
 	private Prefs()
 		{
 		}
 
-	public static boolean renamableRoots = false;
-	public static boolean groupKind = true;
-	public static boolean iconizeGroup = false;
-	public static Font codeFont = new Font("Monospaced",Font.PLAIN,12);
-	public static int tabSize = 4;
-	public static String[] prefixes = { "","obj_","spr_","snd_","rm_","","bk_","scr_","path_",
-			"font_","","","time_" };
-	public static String defaultLibraryPath = "org/lateralgm/resources/library/lib/";
-	public static String userLibraryPath = "./lib";
+	public static String getString(String key, String def)
+		{
+		try
+			{
+			return RESOURCE_BUNDLE.getString(key);
+			}
+		catch (MissingResourceException e)
+			{
+			if (def == null) return '!' + key + '!';
+			return def;
+			}
+		}
+
+	public static int getInt(String key, int def)
+		{
+		try
+			{
+			return Integer.parseInt(getString(key,null));
+			}
+		catch (NumberFormatException e)
+			{
+			return def;
+			}
+		}
+
+	public static boolean getBoolean(String key, boolean def)
+		{
+		String ret = getString(key,null).trim().toLowerCase();
+		if (ret.startsWith("true")) return true;
+		if (ret.startsWith("false")) return false;
+		return def;
+		}
+
+	public static void loadPrefs()
+		{
+		renamableRoots = getBoolean("renamableRoots",false);
+		groupKind = getBoolean("groupKind",true);
+		iconizeGroup = getBoolean("iconizeGroup",false);
+		String fontName = getString("codeFontName","Monospaced");
+		codeFont = new Font(fontName,Font.PLAIN,getInt("codeFontSize",12));
+		tabSize = getInt("tabSize",4);
+		prefixes = getString("prefixes",",obj_,spr_,snd_,rm_,,bk_,scr_,path_,font_,,,time_").split(",");
+		defaultLibraryPath = getString("defaultLibraryPath","org/lateralgm/resources/library/lib/");
+		userLibraryPath = getString("userLibraryPath","./lib");
+		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
+		showActionToolTip = getBoolean("showActionToolTip",true);
+
+		String str = getString("externalBackgroundEditorCommand","gimp %s");
+		useExternalBackgroundEditor = !str.toLowerCase().equals("null");
+		externalBackgroundEditorCommand = str;
+		str = getString("externalSpriteEditorCommand","gimp %s");
+		useExternalSpriteEditor = !str.toLowerCase().equals("null");
+		externalSpriteEditorCommand = str;
+		str = getString("externalScriptEditorCommand","null");
+		useExternalScriptEditor = !str.toLowerCase().equals("null");
+		externalScriptEditorCommand = str;
+		}
+
+	public static boolean renamableRoots;
+	public static boolean groupKind;
+	public static boolean iconizeGroup;
+	public static String[] prefixes;
+
+	public static Font codeFont;
+	public static int tabSize;
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 
-	public static boolean useExternalBackgroundEditor = true;
-	public static String externalBackgroundEditorCommand = "gimp %s";
-	public static boolean useExternalSpriteEditor = true;
-	public static String externalSpriteEditorCommand = "gimp %s";
-	public static boolean useExternalScriptEditor = false;
-	public static String externalScriptEditorCommand = "gedit %s";
+	public static String defaultLibraryPath;
+	public static String userLibraryPath;
+	public static boolean showActionToolTip;
+
+	public static boolean useExternalBackgroundEditor;
+	public static String externalBackgroundEditorCommand;
+	public static boolean useExternalSpriteEditor;
+	public static String externalSpriteEditorCommand;
+	public static boolean useExternalScriptEditor;
+	public static String externalScriptEditorCommand;
 	}
