@@ -16,7 +16,6 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -46,7 +45,6 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -275,7 +273,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			super(n);
 			//otherwise, getToolTipText won't be called
 			setToolTipText(""); //$NON-NLS-1$
-			setCellRenderer(new EventNodeRenderer());
 			}
 
 		public String getToolTipText(MouseEvent e)
@@ -375,7 +372,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		}
 
-	private static class EventInstanceNode extends DefaultMutableTreeNode implements
+	public static class EventInstanceNode extends DefaultMutableTreeNode implements
 			Comparable<EventInstanceNode>
 		{
 		private static final long serialVersionUID = 1L;
@@ -396,7 +393,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		}
 
-	private class EventGroupNode extends DefaultMutableTreeNode
+	public class EventGroupNode extends DefaultMutableTreeNode
 		{
 		private static final long serialVersionUID = 1L;
 		public int mainId;
@@ -559,18 +556,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		events = new EventTree(rootEvent);
 		events.setScrollsOnExpand(true);
-		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer()
-			{
-				private static final long serialVersionUID = 1L;
-
-				public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel,
-						boolean exp, boolean leaf, int row, boolean focus)
-					{
-					super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
-					return this;
-					}
-			};
-		events.setCellRenderer(renderer);
+		events.setCellRenderer(new EventNodeRenderer());
 		events.setRootVisible(false);
 		events.setShowsRootHandles(true);
 		events.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);

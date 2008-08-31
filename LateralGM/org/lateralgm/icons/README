@@ -7,7 +7,7 @@ This directory contains the following icons (.png extension omitted):
 
  Event icons for LGM:
    events/
-     collision create destroy draw keyboard
+     alarm collision create destroy draw keyboard
      keypress keyrelease mouse other step
  Copyright 2008 bingo675 <bingo675@gmail.com>
 
@@ -17,7 +17,7 @@ This directory contains the following icons (.png extension omitted):
      new next open paste previous redo save
      save-as sound-play sound-stop undo
    events/
-     alarm
+     event
    restree/
      gm group group-open info
  Copyright 2003-2004 David Vignoni
