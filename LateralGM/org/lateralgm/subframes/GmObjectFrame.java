@@ -554,6 +554,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 					node.add(new EventInstanceNode(e));
 				}
 			}
+		if (rootEvent.getChildCount() == 0)
+			{
+			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_CREATE,0,null)));
+			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_STEP,Event.EV_STEP_NORMAL,null)));
+			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_DRAW,0,null)));
+			}
 		events = new EventTree(rootEvent);
 		events.setScrollsOnExpand(true);
 		events.setCellRenderer(new EventNodeRenderer());
