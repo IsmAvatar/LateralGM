@@ -7,8 +7,9 @@ This directory contains the following icons (.png extension omitted):
 
  Event icons for LGM:
    events/
-     alarm collision create destroy draw keyboard
-     keypress keyrelease mouse other step
+     alarm alarmfolder collision collisionfolder create destroy draw
+     event keyboard keyboardfolder keypress keypressfolder keyrelease
+     keyreleasefolder mouse mousefolder other otherfolder step stepfolder
  Copyright 2008 bingo675 <bingo675@gmail.com>
 
  Nuvola icon theme for KDE 3.x:
@@ -16,8 +17,6 @@ This directory contains the following icons (.png extension omitted):
      accept cancel colorize copy cut find
      new next open paste previous redo save
      save-as sound-play sound-stop undo
-   events/
-     event
    restree/
      gm group group-open info
  Copyright 2003-2004 David Vignoni
