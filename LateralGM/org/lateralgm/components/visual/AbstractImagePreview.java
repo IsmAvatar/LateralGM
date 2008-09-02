@@ -12,6 +12,7 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public abstract class AbstractImagePreview extends JLabel
@@ -39,5 +40,17 @@ public abstract class AbstractImagePreview extends JLabel
 			setPreferredSize(new Dimension(ico.getIconWidth(),ico.getIconHeight()));
 		else
 			setPreferredSize(new Dimension(0,0));
+		}
+	
+	public void setImage(BufferedImage bi)
+		{
+		if (bi == null)
+			{
+			super.setIcon(null);
+			setPreferredSize(new Dimension(0,0));
+			return;
+			}
+		super.setIcon(new ImageIcon(bi));
+		setPreferredSize(new Dimension(bi.getWidth(),bi.getHeight()));
 		}
 	}

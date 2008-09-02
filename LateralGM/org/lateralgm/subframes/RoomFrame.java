@@ -15,15 +15,21 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static org.lateralgm.main.Util.deRef;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -62,7 +68,7 @@ import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.MDIFrame;
-import org.lateralgm.components.visual.ImageInformer;
+import org.lateralgm.components.visual.AbstractImagePreview;
 import org.lateralgm.components.visual.ImageToolTip;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.main.LGM;
@@ -107,11 +113,13 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
 	//Tiles
 	public JCheckBox tUnderlying, tLocked;
+	public TileSelector tSelect;
+	public JScrollPane tScroll;
 	public JList tList;
 	private Tile lastTile = null; //non-guaranteed copy of tList.getLastSelectedValue()
 	public JButton tAdd, tDel;
-	public ResourceMenu<Background> tSource;
-	public IntegerField tsX, tsY, tX, tY, tLayer;
+	public ResourceMenu<Background> tNew, tSource;
+	public IntegerField tsX, tsY, tX, tY, tLayer, tDepth;
 	//Backgrounds
 	public JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
 	public ColorSelect bColor;
@@ -144,8 +152,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 				public JToolTip createToolTip()
 					{
-					return new ImageToolTip(new ImageInformer()
+					return new ImageToolTip(new AbstractImagePreview()
 						{
+							private static final long serialVersionUID = 1L;
+
 							public BufferedImage getImage()
 								{
 								GmObject o = deRef(oNew.getSelected());
@@ -437,15 +447,130 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab("Add",makeTilesAddPane());
 		tab.addTab("Edit",makeTilesEditPane());
-		tab.setSelectedIndex(1);
+		tab.addTab("Batch",makeTilesBatchPane());
+		tab.setSelectedIndex(0);
 		return tab;
 		}
 
-	//TODO: Tile Add Tab
 	public JPanel makeTilesAddPane()
 		{
-		JPanel p = new JPanel();
-		return p;
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
+
+		tNew = new ResourceMenu<Background>(Room.BACKGROUND,
+				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110);
+		tNew.addActionListener(this);
+		tSelect = new TileSelector();
+		tScroll = new JScrollPane(tSelect);
+		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
+		tUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingTiles : true);
+		JLabel lab = new JLabel(Messages.getString("RoomFrame.TILE_LAYER"));
+		tDepth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,tDepth.getHeight()));
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(tScroll)
+		/**/.addComponent(tNew)
+		/**/.addComponent(tUnderlying)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(lab)
+		/*	*/.addComponent(tDepth)));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(tScroll)
+		/**/.addComponent(tNew)
+		/**/.addComponent(tUnderlying)
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(lab)
+		/*	*/.addComponent(tDepth)));
+
+		return panel;
+		}
+
+	//XXX: Extract to own class?
+	//TODO: Allow user to select tile
+	public class TileSelector extends JLabel
+		{
+		private static final long serialVersionUID = 1L;
+		public int tx, ty;
+		private WeakReference<Background> bkg;
+
+		public TileSelector()
+			{
+			super();
+			setVerticalAlignment(TOP);
+			enableEvents(MouseEvent.MOUSE_PRESSED);
+			enableEvents(MouseEvent.MOUSE_DRAGGED);
+			}
+
+		public void setBackground(WeakReference<Background> bkg)
+			{
+			this.bkg = bkg;
+			Background b = deRef(bkg);
+			if (b == null)
+				{
+				setIcon(null);
+				setPreferredSize(new Dimension(0,0));
+				return;
+				}
+			setPreferredSize(new Dimension(b.width,b.height));
+			BufferedImage bi = b.getDisplayImage();
+			setIcon(bi == null ? null : new ImageIcon(bi));
+			}
+
+		public void paintComponent(Graphics g)
+			{
+			super.paintComponent(g);
+			Background b = deRef(bkg);
+			if (b == null) return;
+			//BufferedImage img = bkg.getDisplayImage();
+			//if (img == null) return;
+
+			Shape oldClip = g.getClip(); //backup the old clip
+			Rectangle oldc = g.getClipBounds();
+			//Set the clip properly
+			g.setClip(new Rectangle(oldc.x,oldc.y,Math.min(oldc.x + oldc.width,b.width) - oldc.x,
+					Math.min(oldc.y + oldc.height,b.height) - oldc.y));
+
+			g.setXORMode(Color.BLACK);
+			g.setColor(Color.WHITE);
+			g.drawRect(tx,ty,b.tileWidth,b.tileHeight);
+			g.setPaintMode(); //just in case
+			g.setClip(oldClip); //restore the clip
+			}
+
+		protected void processMouseEvent(MouseEvent e)
+			{
+			if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1
+					&& e.getX() < getPreferredSize().width && e.getY() < getPreferredSize().height)
+				selectTile(e.getX(),e.getY());
+			super.processMouseEvent(e);
+			}
+
+		protected void processMouseMotionEvent(MouseEvent e)
+			{
+			if (e.getID() == MouseEvent.MOUSE_DRAGGED
+					&& (e.getModifiers() | MouseEvent.BUTTON1_MASK) != 0) selectTile(e.getX(),e.getY());
+			super.processMouseMotionEvent(e);
+			}
+
+		public void selectTile(int x, int y)
+			{
+			Background bkg = deRef(tNew.getSelected());
+			if (bkg == null)
+				{
+				tx = x;
+				ty = y;
+				}
+			else
+				{
+				tx = (int) Math.floor(x / bkg.tileWidth) * bkg.tileWidth;
+				ty = (int) Math.floor(y / bkg.tileHeight) * bkg.tileHeight;
+				}
+			repaint();
+			}
 		}
 
 	public JPanel makeTilesEditPane()
@@ -456,8 +581,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
-		tUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingTiles : true);
 		JLabel lList = new JLabel(Messages.getString("RoomFrame.TILE_LIST")); //$NON-NLS-1$
 		tList = new JList(res.tiles.toArray());
 		tList.addListSelectionListener(this);
@@ -559,7 +682,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(tLayer)));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(tUnderlying)
+		//		/**/.addComponent(tUnderlying)
 		/**/.addComponent(lList)
 		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
@@ -569,7 +692,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/**/.addComponent(pSet)
 		/**/.addComponent(pTile));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(tUnderlying)
+		//		/**/.addComponent(tUnderlying)
 		/**/.addComponent(lList)
 		/**/.addComponent(sp,DEFAULT_SIZE,60,MAX_VALUE)
 		/**/.addGroup(layout.createParallelGroup()
@@ -578,6 +701,21 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/**/.addComponent(tLocked)
 		/**/.addComponent(pSet)
 		/**/.addComponent(pTile));
+		return panel;
+		}
+
+	//TODO 1.7?: Batch tile operations
+	public JPanel makeTilesBatchPane()
+		{
+		JPanel panel = new JPanel();
+		//		GroupLayout layout = new GroupLayout(panel);
+		//		layout.setAutoCreateGaps(true);
+		//		layout.setAutoCreateContainerGaps(true);
+		//		panel.setLayout(layout);
+		panel.add(new JLabel("<html>This tab will offer ways to<br />"
+				+ "perform batch operations on several<br />"
+				+ "tiles at once, or regions of tiles.</html>"));
+
 		return panel;
 		}
 
@@ -946,6 +1084,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex(res.currentTab);
 
+		//XXX: DEBUG
+		tabs.setSelectedIndex(2);
+
 		save.setText(Messages.getString("RoomFrame.SAVE")); //$NON-NLS-1$
 
 		editor = new RoomEditor(res,this);
@@ -1188,6 +1329,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				}
 			t.setBackgroundId(tSource.getSelected());
 			tList.updateUI();
+			return;
+			}
+		if (s == tNew)
+			{
+			tSelect.setBackground(tNew.getSelected());
 			return;
 			}
 		if (s == tAdd)

@@ -12,15 +12,17 @@ public class ImageToolTip extends JToolTip
 	{
 	private static final long serialVersionUID = 1L;
 
-	public ImageToolTip(ImageInformer ii)
+	public ImageToolTip(AbstractImagePreview ii)
 		{
 		setUI(new ImageToolTipUI(ii,getUI()));
 		}
 
 	public ImageToolTip(final BufferedImage img)
 		{
-		this(new ImageInformer()
+		this(new AbstractImagePreview()
 			{
+				private static final long serialVersionUID = 1L;
+
 				public BufferedImage getImage()
 					{
 					return img;
@@ -30,25 +32,25 @@ public class ImageToolTip extends JToolTip
 
 	public class ImageToolTipUI extends ToolTipUI
 		{
-		private ImageInformer ii;
+		private AbstractImagePreview aip;
 		private ToolTipUI ttui;
 
-		public ImageToolTipUI(ImageInformer ii, ToolTipUI ttui)
+		public ImageToolTipUI(AbstractImagePreview aip, ToolTipUI ttui)
 			{
-			this.ii = ii;
+			this.aip = aip;
 			this.ttui = ttui;
 			}
 
 		public void paint(Graphics g, JComponent c)
 			{
 			ttui.paint(g,c);
-			BufferedImage img = ii.getImage();
+			BufferedImage img = aip.getImage();
 			if (img != null) g.drawImage(img,0,0,null);
 			}
 
 		public Dimension getPreferredSize(JComponent c)
 			{
-			BufferedImage img = ii.getImage();
+			BufferedImage img = aip.getImage();
 			if (img == null) return new Dimension(16,16);
 			return new Dimension(Math.max(img.getWidth(),16),Math.max(img.getHeight(),16));
 			}
