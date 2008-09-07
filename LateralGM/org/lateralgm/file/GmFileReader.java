@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2006, 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2006, 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -12,7 +12,6 @@ package org.lateralgm.file;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Stack;
@@ -185,20 +184,10 @@ public final class GmFileReader
 			System.out.println(Messages.format("GmFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
 					- startTime));
 			}
-		catch (FileNotFoundException e)
+		catch (Exception e)
 			{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			}
-		catch (IOException e)
-			{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			}
-		catch (DataFormatException e)
-			{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if ((e instanceof GmFormatException)) throw (GmFormatException) e;
+			throw new GmFormatException(f,e);
 			}
 		finally
 			{

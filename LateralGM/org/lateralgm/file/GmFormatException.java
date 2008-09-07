@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,6 +13,7 @@ public class GmFormatException extends Exception
 	{
 	private static final long serialVersionUID = 1L;
 	public GmFile file;
+	public Exception e;
 
 	public GmFormatException(GmFile file, String message)
 		{
@@ -19,9 +21,16 @@ public class GmFormatException extends Exception
 		this.file = file;
 		}
 
+	public GmFormatException(GmFile file, Exception e)
+		{
+		super(e.getMessage());
+		this.e = e;
+		this.file = file;
+		}
+
 	public String stackAsString()
 		{
-		StackTraceElement[] els = getStackTrace();
+		StackTraceElement[] els = (e == null ? getStackTrace() : e.getStackTrace());
 		String res = ""; //$NON-NLS-1$
 		for (int i = 0; i < els.length; i++)
 			{
