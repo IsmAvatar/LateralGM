@@ -57,7 +57,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 	protected RoomFrame frame;
 	private RoomComponent cursor;
 	protected List<RoomComponent> depthSortables;
-	public int zoom = 2;
+	public int zoom = 1;
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
@@ -306,8 +306,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 		Point p = new Point(x,y); //scaled and unsnapped
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
-			x = x / room.snapX * room.snapX;
-			y = y / room.snapY * room.snapY;
+			x = x / frame.snapX.getIntValue() * frame.snapX.getIntValue();
+			y = y / frame.snapY.getIntValue() * frame.snapY.getIntValue();
 			}
 		frame.statX.setText(Messages.getString("RoomFrame.STAT_X") + x); //$NON-NLS-1$
 		frame.statY.setText(Messages.getString("RoomFrame.STAT_Y") + y); //$NON-NLS-1$
@@ -433,10 +433,10 @@ public class RoomEditor extends JPanel implements ImageObserver
 				}
 			}
 		g2.scale(zoom,zoom);
-		if (frame.sGridVis.isSelected())
+		if (frame.gridVis.isSelected())
 			{
-			int w = frame.sSnapX.getIntValue() / zoom;
-			int h = frame.sSnapY.getIntValue() / zoom;
+			int w = frame.snapX.getIntValue() / zoom;
+			int h = frame.snapY.getIntValue() / zoom;
 			if (w > 3)
 				{
 				g2.setXORMode(Color.BLACK);

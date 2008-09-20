@@ -48,12 +48,12 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -93,6 +93,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public RoomEditor editor;
 	public JTabbedPane tabs;
 	public JLabel statX, statY, statId, statSrc;
+	//ToolBar
+	public JButton zoomIn, zoomOut;
+	public JToggleButton gridVis, gridIso;
+	public IntegerField snapX, snapY;
 	//Objects
 	public JLabel oPreview;
 	public JCheckBox oUnderlying, oLocked;
@@ -104,9 +108,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JButton oCreationCode;
 	//Settings
 	public JTextField sCaption;
-	public IntegerField sWidth, sHeight, sSpeed, sSnapX, sSnapY;
-	public JCheckBox sPersistent, sGridVis, sGridIso;
-	public JButton sCreationCode, sShow, sZoomIn, sZoomOut;
+	public IntegerField sWidth, sHeight, sSpeed;
+	public JCheckBox sPersistent;
+	public JButton sCreationCode, sShow;
 
 	public HashMap<Object,CodeFrame> codeFrames = new HashMap<Object,CodeFrame>();
 
@@ -137,6 +141,50 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public IntegerField vPX, vPY, vPW, vPH;
 	public ResourceMenu<GmObject> vObj;
 	public IntegerField vOHBor, vOVBor, vOHSp, vOVSp;
+
+	private JToolBar makeToolBar()
+		{
+		JToolBar tool = new JToolBar();
+		tool.setFloatable(false);
+		tool.add(save);
+		tool.addSeparator();
+
+		zoomIn = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_IN")); //$NON-NLS-1$
+		zoomIn.setEnabled(false); //because zoom is 100%
+		zoomIn.addActionListener(this);
+		tool.add(zoomIn);
+		zoomOut = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_OUT")); //$NON-NLS-1$
+		zoomOut.addActionListener(this);
+		tool.add(zoomOut);
+		tool.addSeparator();
+
+		tool.add(new JLabel(Messages.getString("RoomFrame.SNAP_X"))); //$NON-NLS-1$
+		snapX = new IntegerField(1,999,res.snapX);
+		snapX.setColumns(4);
+		snapX.setMaximumSize(snapX.getPreferredSize());
+		snapX.addActionListener(this); //causes editor to update on change
+		tool.add(snapX);
+
+		tool.add(new JLabel(Messages.getString("RoomFrame.SNAP_Y"))); //$NON-NLS-1$
+		snapY = new IntegerField(1,999,res.snapY);
+		snapY.setColumns(4);
+		snapY.setMaximumSize(snapY.getPreferredSize());
+		snapY.addActionListener(this);
+		tool.add(snapY);
+		tool.addSeparator();
+
+		String st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
+		gridVis = new JToggleButton(st,res.rememberWindowSize ? res.showGrid : true);
+		gridVis.addActionListener(this); //causes editor to update on fire
+		tool.add(gridVis);
+		st = Messages.getString("RoomFrame.GRID_ISOMETRIC"); //$NON-NLS-1$
+		gridIso = new JToggleButton(st,res.isometricGrid);
+		gridIso.addActionListener(this);
+		tool.add(gridIso);
+		tool.addSeparator();
+
+		return tool;
+		}
 
 	public JPanel makeObjectsPane()
 		{
@@ -271,53 +319,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		return panel;
 		}
 
-	private JPanel makeGridPane()
-		{
-		JPanel p = new JPanel();
-		p.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.GRID"))); //$NON-NLS-1$
-		GroupLayout layout = new GroupLayout(p);
-		layout.setAutoCreateGaps(true);
-		p.setLayout(layout);
-
-		String st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
-		sGridVis = new JCheckBox(st,res.rememberWindowSize ? res.showGrid : true);
-		sGridVis.addActionListener(this);
-		st = Messages.getString("RoomFrame.GRID_ISOMETRIC"); //$NON-NLS-1$
-		sGridIso = new JCheckBox(st,res.isometricGrid);
-		sGridIso.addActionListener(this);
-		JLabel lSnapX = new JLabel(Messages.getString("RoomFrame.SNAP_X")); //$NON-NLS-1$
-		sSnapX = new IntegerField(1,999,res.snapX);
-		sSnapX.setColumns(4);
-		sSnapX.addActionListener(this);
-		JLabel lSnapY = new JLabel(Messages.getString("RoomFrame.SNAP_Y")); //$NON-NLS-1$
-		sSnapY = new IntegerField(1,999,res.snapY);
-		sSnapY.setColumns(4);
-		sSnapY.addActionListener(this);
-
-		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(sGridVis)
-		/*		*/.addComponent(sGridIso))
-		/**/.addGroup(layout.createSequentialGroup().addContainerGap()
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(lSnapX)
-		/*				*/.addComponent(lSnapY))
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(sSnapX)
-		/*				*/.addComponent(sSnapY)).addContainerGap()));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(sGridVis)
-		/*		*/.addComponent(sGridIso))
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lSnapX)
-		/*		*/.addComponent(sSnapX))
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lSnapY)
-		/*		*/.addComponent(sSnapY)).addContainerGap());
-		return p;
-		}
-
 	private JPopupMenu makeShowMenu()
 		{
 		JPopupMenu showMenu = new JPopupMenu();
@@ -378,8 +379,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		sCreationCode = new JButton(str,CODE_ICON);
 		sCreationCode.addActionListener(this);
 
-		JPanel p2 = makeGridPane();
-
 		final JPopupMenu showMenu = makeShowMenu();
 		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
 		sShow.addActionListener(new ActionListener()
@@ -389,11 +388,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					showMenu.show(sShow,0,sShow.getHeight());
 					}
 			});
-
-		sZoomIn = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_IN")); //$NON-NLS-1$
-		sZoomIn.addActionListener(this);
-		sZoomOut = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_OUT")); //$NON-NLS-1$
-		sZoomOut.addActionListener(this);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
@@ -412,11 +406,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*				*/.addComponent(sSpeed)))
 		/**/.addComponent(sPersistent)
 		/**/.addComponent(sCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addComponent(p2)
-		/**/.addComponent(sShow,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(sZoomIn)
-		/*		*/.addComponent(sZoomOut)));
+		/**/.addComponent(sShow,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lName)
@@ -434,11 +424,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(sSpeed))
 		/**/.addComponent(sPersistent)
 		/**/.addComponent(sCreationCode)
-		/**/.addComponent(p2)
-		/**/.addComponent(sShow)
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(sZoomIn)
-		/*		*/.addComponent(sZoomOut)));
+		/**/.addComponent(sShow));
 		return panel;
 		}
 
@@ -558,16 +544,16 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		public void selectTile(int x, int y)
 			{
-			Background bkg = deRef(tNew.getSelected());
-			if (bkg == null)
+			Background hardBkg = deRef(tNew.getSelected());
+			if (hardBkg == null)
 				{
 				tx = x;
 				ty = y;
 				}
 			else
 				{
-				tx = (int) Math.floor(x / bkg.tileWidth) * bkg.tileWidth;
-				ty = (int) Math.floor(y / bkg.tileHeight) * bkg.tileHeight;
+				tx = (int) Math.floor(x / hardBkg.tileWidth) * hardBkg.tileWidth;
+				ty = (int) Math.floor(y / hardBkg.tileHeight) * hardBkg.tileHeight;
 				}
 			repaint();
 			}
@@ -682,7 +668,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(tLayer)));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		//		/**/.addComponent(tUnderlying)
 		/**/.addComponent(lList)
 		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
@@ -692,7 +677,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/**/.addComponent(pSet)
 		/**/.addComponent(pTile));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		//		/**/.addComponent(tUnderlying)
 		/**/.addComponent(lList)
 		/**/.addComponent(sp,DEFAULT_SIZE,60,MAX_VALUE)
 		/**/.addGroup(layout.createParallelGroup()
@@ -1073,6 +1057,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			};
 		setLayout(layout);
 
+		JToolBar tools = makeToolBar();
+
 		//conveniently, these tabs happen to have the same indexes as GM's tabs
 		tabs = new JTabbedPane();
 		tabs.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
@@ -1084,11 +1070,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex(res.currentTab);
 
-		//XXX: DEBUG
-		tabs.setSelectedIndex(2);
-
-		save.setText(Messages.getString("RoomFrame.SAVE")); //$NON-NLS-1$
-
 		editor = new RoomEditor(res,this);
 		JScrollPane sp = new JScrollPane(editor);
 		sp.getVerticalScrollBar().setUnitIncrement(16);
@@ -1097,21 +1078,20 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		sp.getHorizontalScrollBar().setBlockIncrement(64);
 		JPanel stats = makeStatsPane();
 
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup(Alignment.LEADING,false)
-		/*		*/.addComponent(tabs)
-		/*		*/.addGroup(layout.createSequentialGroup().addContainerGap()
-		/*				*/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE).addContainerGap()))
-		/**/.addGroup(layout.createParallelGroup()
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(tools)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(tabs)
+		/*	*/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(sp,240,640,DEFAULT_SIZE)
-		/*		*/.addComponent(stats,0,DEFAULT_SIZE,DEFAULT_SIZE)));
-		layout.setVerticalGroup(layout.createParallelGroup()
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(tabs).addPreferredGap(ComponentPlacement.UNRELATED)
-		/*		*/.addComponent(save).addContainerGap())
-		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(stats,0,DEFAULT_SIZE,DEFAULT_SIZE))));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(tools)
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(tabs)
+		/*	*/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(sp,DEFAULT_SIZE,480,DEFAULT_SIZE)
-		/*		*/.addComponent(stats)));
+		/*		*/.addComponent(stats))));
 		if (res.rememberWindowSize)
 			setSize(res.editorWidth,res.editorHeight);
 		else
@@ -1177,10 +1157,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		res.height = sHeight.getIntValue();
 		res.speed = sSpeed.getIntValue();
 		res.persistent = sPersistent.isSelected();
-		res.showGrid = sGridVis.isSelected();
-		res.isometricGrid = sGridIso.isSelected();
-		res.snapX = sSnapX.getIntValue();
-		res.snapY = sSnapY.getIntValue();
+		res.showGrid = gridVis.isSelected();
+		res.isometricGrid = gridIso.isSelected();
+		res.snapX = snapX.getIntValue();
+		res.snapY = snapY.getIntValue();
 		res.showObjects = sSObj.isSelected();
 		res.showTiles = sSTile.isSelected();
 		res.showBackgrounds = sSBack.isSelected();
@@ -1297,24 +1277,24 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (s == oY) i.setY(oY.getIntValue());
 			return;
 			}
-		if (s == sZoomIn)
+		if (s == zoomIn)
 			{
 			if (editor.zoom > 1)
 				{
 				editor.zoom /= 2;
 				editor.refresh();
-				sZoomOut.setEnabled(true);
-				sZoomIn.setEnabled(editor.zoom > 1);
+				zoomOut.setEnabled(true);
+				zoomIn.setEnabled(editor.zoom > 1);
 				}
 			}
-		if (s == sZoomOut)
+		if (s == zoomOut)
 			{
 			if (editor.zoom < 32)
 				{
 				editor.zoom *= 2;
 				editor.refresh();
-				sZoomOut.setEnabled(editor.zoom < 32);
-				sZoomIn.setEnabled(true);
+				zoomOut.setEnabled(editor.zoom < 32);
+				zoomIn.setEnabled(true);
 				}
 			}
 		if (s == tSource)
