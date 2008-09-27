@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007, 2008 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2006, 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2006, 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -43,7 +43,7 @@ import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
-import org.lateralgm.resources.sub.Point;
+import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
@@ -324,7 +324,7 @@ public final class GmFileWriter
 				out.write4(path.snapX);
 				out.write4(path.snapY);
 				out.write4(path.points.size());
-				for (Point p : path.points)
+				for (PathPoint p : path.points)
 					{
 					out.writeD(p.x);
 					out.writeD(p.y);
@@ -490,8 +490,8 @@ public final class GmFileWriter
 				out.write4(rm.instances.size());
 				for (Instance in : rm.instances)
 					{
-					out.write4(in.getX());
-					out.write4(in.getY());
+					out.write4(in.getPosition().x);
+					out.write4(in.getPosition().y);
 					out.writeId(in.gmObjectId);
 					out.write4(in.instanceId);
 					out.writeStr(in.getCreationCode());
@@ -500,13 +500,13 @@ public final class GmFileWriter
 				out.write4(rm.tiles.size());
 				for (Tile tile : rm.tiles)
 					{
-					out.write4(tile.getX());
-					out.write4(tile.getY());
+					out.write4(tile.getRoomPosition().x);
+					out.write4(tile.getRoomPosition().y);
 					out.writeId(tile.getBackgroundId());
-					out.write4(tile.getTileX());
-					out.write4(tile.getTileY());
-					out.write4(tile.getWidth());
-					out.write4(tile.getHeight());
+					out.write4(tile.getBackgroundPosition().x);
+					out.write4(tile.getBackgroundPosition().y);
+					out.write4(tile.getSize().width);
+					out.write4(tile.getSize().height);
 					out.write4(tile.getDepth());
 					out.write4(tile.tileId);
 					out.writeBool(tile.locked);

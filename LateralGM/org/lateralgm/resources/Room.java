@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -56,6 +57,7 @@ public class Room extends Resource<Room>
 	public BackgroundDef[] backgroundDefs = new BackgroundDef[8];
 	public View[] views = new View[8];
 	public boolean enableViews = false;
+  //XXX: Make private and apply getters and setters?
 	public ArrayList<Instance> instances = new ArrayList<Instance>();
 	public ArrayList<Tile> tiles = new ArrayList<Tile>();
 	private GmFile parent;
@@ -83,14 +85,6 @@ public class Room extends Resource<Room>
 		inst.instanceId = ++parent.lastInstanceId;
 		instances.add(inst);
 		return inst;
-		}
-
-	public Tile addTile()
-		{
-		Tile tile = new Tile();
-		tile.tileId = ++parent.lastTileId;
-		tiles.add(tile);
-		return tile;
 		}
 
 	private Room copy(boolean update, ResourceList<Room> src)
@@ -129,22 +123,20 @@ public class Room extends Resource<Room>
 			inst2.locked = inst.locked;
 			inst2.gmObjectId = inst.gmObjectId;
 			inst2.instanceId = inst.instanceId;
-			inst2.setX(inst.getX());
-			inst2.setY(inst.getY());
+			inst2.setPosition(inst.getPosition());
 			}
 		for (Tile tile : tiles)
 			{
-			Tile tile2 = rm.addTile();
+			Tile tile2 = new Tile();
 			tile2.setBackgroundId(tile.getBackgroundId());
+			tile2.setBackgroundPosition(tile.getBackgroundPosition());
 			tile2.setDepth(tile.getDepth());
-			tile2.setHeight(tile.getHeight());
-			tile2.setTileX(tile.getTileX());
-			tile2.setTileY(tile.getTileY());
-			tile2.setWidth(tile.getWidth());
-			tile2.setX(tile.getX());
-			tile2.setY(tile.getY());
+			tile2.setRoomPosition(tile.getRoomPosition());
+			tile2.setSize(tile.getSize());
 			tile2.tileId = tile.tileId;
 			tile2.locked = tile.locked;
+			rm.tiles.add(tile2);
+			tile2.setAutoUpdate(true);
 			}
 		for (int i = 0; i < 8; i++)
 			{

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -9,53 +10,61 @@
 
 package org.lateralgm.resources.sub;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.lang.ref.WeakReference;
 
+import org.lateralgm.file.GmFile;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Background;
 
 public class Tile
 	{
-	private int x = 0;
-	private int y = 0;
-	private WeakReference<Background> backgroundId = null;
-	private int tileX = 0;
-	private int tileY = 0;
-	private int width = 16;
-	private int height = 16;
-	private int depth = 0;
 	public int tileId = 0;
+	private WeakReference<Background> backgroundId = null;
+	private Point bkgPos;
+	private Point roomPos;
+	private Dimension size;
+	private int depth;
 	public boolean locked = false;
+	private boolean autoUpdate = true;
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
+	public Tile()
+		{
+		autoUpdate = false;
+		}
+
+	public Tile(GmFile f, WeakReference<Background> backgroundId, Point bkgPos, Point roomPos,
+			Dimension size, int depth)
+		{
+		this(++f.lastTileId,backgroundId,bkgPos,roomPos,size,depth);
+		}
+	
+	public Tile(int tileId, WeakReference<Background> backgroundId, Point bkgPos, Point roomPos,
+			Dimension size, int depth)
+		{
+		this.tileId = tileId;
+		this.backgroundId = backgroundId;
+		this.bkgPos = bkgPos;
+		this.roomPos = roomPos;
+		this.size = size;
+		this.depth = depth;
+		fireUpdate();
+		}
+
+	public void setAutoUpdate(boolean auto)
+		{
+		autoUpdate = auto;
+		if (auto) fireUpdate();
+		}
+
 	protected void fireUpdate()
 		{
-		updateTrigger.fire();
-		}
-
-	public int getX()
-		{
-		return x;
-		}
-
-	public void setX(int x)
-		{
-		this.x = x;
-		fireUpdate();
-		}
-
-	public int getY()
-		{
-		return y;
-		}
-
-	public void setY(int y)
-		{
-		this.y = y;
-		fireUpdate();
+		if (autoUpdate) updateTrigger.fire();
 		}
 
 	public WeakReference<Background> getBackgroundId()
@@ -69,47 +78,36 @@ public class Tile
 		fireUpdate();
 		}
 
-	public int getTileX()
+	public Point getBackgroundPosition()
 		{
-		return tileX;
+		return bkgPos;
 		}
 
-	public void setTileX(int tileX)
+	public void setBackgroundPosition(Point bkgPos)
 		{
-		this.tileX = tileX;
+		this.bkgPos = bkgPos;
 		fireUpdate();
 		}
 
-	public int getTileY()
+	public Point getRoomPosition()
 		{
-		return tileY;
+		return roomPos;
 		}
 
-	public void setTileY(int tileY)
+	public void setRoomPosition(Point roomPos)
 		{
-		this.tileY = tileY;
+		this.roomPos = roomPos;
 		fireUpdate();
 		}
 
-	public int getWidth()
+	public Dimension getSize()
 		{
-		return width;
+		return size;
 		}
 
-	public void setWidth(int width)
+	public void setSize(Dimension size)
 		{
-		this.width = width;
-		fireUpdate();
-		}
-
-	public int getHeight()
-		{
-		return height;
-		}
-
-	public void setHeight(int height)
-		{
-		this.height = height;
+		this.size = size;
 		fireUpdate();
 		}
 

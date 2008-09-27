@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.resources.sub.Point;
+import org.lateralgm.resources.sub.PathPoint;
 
 public class Path extends Resource<Path>
 	{
@@ -24,16 +24,16 @@ public class Path extends Resource<Path>
 	public WeakReference<Room> backgroundRoom = null;
 	public int snapX = 16;
 	public int snapY = 16;
-	public ArrayList<Point> points = new ArrayList<Point>();
+	public ArrayList<PathPoint> points = new ArrayList<PathPoint>();
 
 	public Path()
 		{
 		setName(Prefs.prefixes[Resource.PATH]);
 		}
 
-	public Point addPoint()
+	public PathPoint addPoint()
 		{
-		Point point = new Point();
+		PathPoint point = new PathPoint();
 		points.add(point);
 		return point;
 		}
@@ -57,9 +57,9 @@ public class Path extends Resource<Path>
 		path.backgroundRoom = backgroundRoom;
 		path.snapX = snapX;
 		path.snapY = snapY;
-		for (Point point : points)
+		for (PathPoint point : points)
 			{
-			Point point2 = path.addPoint();
+			PathPoint point2 = path.addPoint();
 			point2.x = point.x;
 			point2.y = point.y;
 			point2.speed = point.speed;

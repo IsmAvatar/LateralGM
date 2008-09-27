@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -9,6 +10,7 @@
 
 package org.lateralgm.resources.sub;
 
+import java.awt.Point;
 import java.lang.ref.WeakReference;
 
 import org.lateralgm.main.UpdateSource;
@@ -19,8 +21,8 @@ public class Instance
 	{
 	private static final long serialVersionUID = 1L;
 
-	private int x = 0;
-	private int y = 0;
+	private Point pos;
+	//XXX: Getter and Setter?
 	public WeakReference<GmObject> gmObjectId = null;
 	public int instanceId = 0;
 	private String creationCode = "";
@@ -34,25 +36,14 @@ public class Instance
 		updateTrigger.fire();
 		}
 
-	public int getX()
+	public Point getPosition()
 		{
-		return x;
+		return pos;
 		}
 
-	public void setX(int x)
+	public void setPosition(Point pos)
 		{
-		this.x = x;
-		fireUpdate();
-		}
-
-	public int getY()
-		{
-		return y;
-		}
-
-	public void setY(int y)
-		{
-		this.y = y;
+		this.pos = pos;
 		fireUpdate();
 		}
 

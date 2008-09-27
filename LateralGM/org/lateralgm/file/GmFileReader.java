@@ -10,6 +10,8 @@
 
 package org.lateralgm.file;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -46,7 +48,7 @@ import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
-import org.lateralgm.resources.sub.Point;
+import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 
@@ -514,10 +516,10 @@ public final class GmFileReader
 			int nopoints = in.read4();
 			for (int j = 0; j < nopoints; j++)
 				{
-				Point point = path.addPoint();
-				point.x = (int) in.readD();
-				point.y = (int) in.readD();
-				point.speed = (int) in.readD();
+				PathPoint pathPoint = path.addPoint();
+				pathPoint.x = (int) in.readD();
+				pathPoint.y = (int) in.readD();
+				pathPoint.speed = (int) in.readD();
 				}
 			}
 		}
@@ -762,8 +764,7 @@ public final class GmFileReader
 			for (int j = 0; j < noinstances; j++)
 				{
 				Instance inst = rm.addInstance();
-				inst.setX(in.read4());
-				inst.setY(in.read4());
+				inst.setPosition(new Point(in.read4(),in.read4()));
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
 				if (temp != null) inst.gmObjectId = new WeakReference<GmObject>(temp);
 				inst.instanceId = in.read4();
@@ -773,18 +774,18 @@ public final class GmFileReader
 			int notiles = in.read4();
 			for (int j = 0; j < notiles; j++)
 				{
-				Tile ti = rm.addTile();
-				ti.setX(in.read4());
-				ti.setY(in.read4());
+				Tile t = new Tile();
+				t.setRoomPosition(new Point(in.read4(),in.read4()));
 				Background temp = f.backgrounds.getUnsafe(in.read4());
-				if (temp != null) ti.setBackgroundId(new WeakReference<Background>(temp));
-				ti.setTileX(in.read4());
-				ti.setTileY(in.read4());
-				ti.setWidth(in.read4());
-				ti.setHeight(in.read4());
-				ti.setDepth(in.read4());
-				ti.tileId = in.read4();
-				ti.locked = in.readBool();
+				WeakReference<Background> bkg = null;
+				if (temp != null) bkg = new WeakReference<Background>(temp);
+				t.setBackgroundId(bkg);
+				t.setBackgroundPosition(new Point(in.read4(),in.read4()));
+				t.setSize(new Dimension(in.read4(),in.read4()));
+				t.setDepth(in.read4());
+				t.tileId = in.read4();
+				t.locked = in.readBool();
+				rm.tiles.add(t);
 				}
 			rm.rememberWindowSize = in.readBool();
 			rm.editorWidth = in.read4();

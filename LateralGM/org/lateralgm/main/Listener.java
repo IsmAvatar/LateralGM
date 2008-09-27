@@ -104,7 +104,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		else
 			{
 			fc.setFilterSet(openFs);
-			fc.showOpenDialog(LGM.frame);
+			if (fc.showOpenDialog(LGM.frame) != CustomFileChooser.APPROVE_OPTION) return;
 			file = fc.getSelectedFile();
 			if (file == null) return;
 			filename = file.getPath();

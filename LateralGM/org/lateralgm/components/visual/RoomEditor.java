@@ -34,6 +34,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
+import org.lateralgm.main.LGM;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
@@ -107,7 +108,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			if (c instanceof RoomComponent)
 				{
 				RoomComponent ds = (RoomComponent) c;
-				if (new Rectangle(ds.x,ds.y,ds.width,ds.height).contains(p))
+				if (ds.region.contains(p))
 					{
 					if (ds instanceof InstanceComponent && instance) return ds;
 					if (ds instanceof TileComponent && !instance) return ds;
@@ -128,7 +129,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 					{
 					RoomComponent ds = (RoomComponent) c;
 					if (ds != cursor && !ds.isLocked() && ds.getClass() == cursor.getClass()
-							&& new Rectangle(ds.x,ds.y,ds.width,ds.height).contains(p))
+							&& ds.region.contains(p))
 						{
 						remove(ds);
 						if (ds instanceof InstanceComponent)
@@ -166,22 +167,22 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		else
 			{
-			if (shift && cursor != null)
-				if (!new Rectangle(cursor.x,cursor.y,cursor.width,cursor.height).contains(p))
-					{
-					releaseCursor(p);
-					pressed = true; //ensures that a new instance is created below
-					}
+			if (shift && cursor != null) if (!cursor.region.contains(p))
+				{
+				releaseCursor(p);
+				pressed = true; //ensures that a new instance is created below
+				}
 			if (pressed && cursor == null)
 				{
 				if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 					{
-					WeakReference<Background> bkg = frame.tSource.getSelected();
+					WeakReference<Background> bkg = frame.taSource.getSelected();
 					if (bkg == null) return; //I'd rather just break out of this IF, but this works
-					Tile t = room.addTile();
-					t.setBackgroundId(bkg);
-					t.setX(p.x);
-					t.setY(p.y);
+					Background b = bkg.get();
+					Point bkgPos = new Point(frame.tSelect.tx,frame.tSelect.ty);
+					Dimension size = new Dimension(b.tileWidth,b.tileHeight);
+					Tile t = new Tile(LGM.currentFile,bkg,bkgPos,p,size,frame.taDepth.getIntValue());
+					room.tiles.add(t);
 					frame.tList.setListData(room.tiles.toArray());
 					setCursor(new TileComponent(t));
 					add(cursor);
@@ -193,8 +194,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 					if (obj == null) return; //I'd rather just break out of this IF, but this works
 					Instance i = room.addInstance();
 					i.gmObjectId = obj;
-					i.setX(p.x);
-					i.setY(p.y);
+					i.setPosition(p);
 					frame.oList.setListData(room.instances.toArray());
 					setCursor(new InstanceComponent(i));
 					add(cursor);
@@ -207,16 +207,14 @@ public class RoomEditor extends JPanel implements ImageObserver
 			if (cursor instanceof InstanceComponent)
 				{
 				InstanceComponent ic = (InstanceComponent) cursor;
-				ic.instance.setX(p.x);
-				ic.instance.setY(p.y);
+				ic.instance.setPosition(p);
 				frame.oX.setIntValue(p.x);
 				frame.oY.setIntValue(p.y);
 				}
 			else if (cursor instanceof TileComponent)
 				{
 				TileComponent ic = (TileComponent) cursor;
-				ic.tile.setX(p.x);
-				ic.tile.setY(p.y);
+				ic.tile.setRoomPosition(p);
 				frame.tX.setIntValue(p.x);
 				frame.tY.setIntValue(p.y);
 				}
@@ -460,31 +458,31 @@ public class RoomEditor extends JPanel implements ImageObserver
 		private static final long serialVersionUID = 1L;
 		protected final ResourceUpdateListener rul = new ResourceUpdateListener();
 		protected BufferedImage image;
-		protected int x, y, width, height;
+		protected Rectangle region;
 		protected boolean doListen;
 
 		@Override
 		public int getHeight()
 			{
-			return height;
+			return region.height;
 			}
 
 		@Override
 		public int getWidth()
 			{
-			return width;
+			return region.width;
 			}
 
 		@Override
 		public int getX()
 			{
-			return x;
+			return region.x;
 			}
 
 		@Override
 		public int getY()
 			{
-			return y;
+			return region.y;
 			}
 
 		@Override
@@ -601,8 +599,9 @@ public class RoomEditor extends JPanel implements ImageObserver
 				i = Collections.binarySearch(ds,this);
 				if (i < 0) ds.add(-i - 1,this);
 				}
-			x = instance.getX() - (sprite == null ? 0 : sprite.originX);
-			y = instance.getY() - (sprite == null ? 0 : sprite.originY);
+			Point p = instance.getPosition();
+			int x = p.x, y = p.y;
+			int width, height;
 			if (sprite == null)
 				{
 				width = EMPTY_IMAGE.getWidth();
@@ -610,9 +609,12 @@ public class RoomEditor extends JPanel implements ImageObserver
 				}
 			else
 				{
+				x -= sprite.originX;
+				y -= sprite.originY;
 				width = sprite.width;
 				height = sprite.height;
 				}
+			region = new Rectangle(x,y,width,height);
 			invalidate();
 			}
 
@@ -720,10 +722,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 				i = Collections.binarySearch(ds,this);
 				if (i < 0) ds.add(-i - 1,this);
 				}
-			x = tile.getX();
-			y = tile.getY();
-			width = tile.getWidth();
-			height = tile.getHeight();
+			region = new Rectangle(tile.getRoomPosition(),tile.getSize());
 			invalidate();
 			}
 
@@ -737,7 +736,9 @@ public class RoomEditor extends JPanel implements ImageObserver
 				}
 			else
 				{
-				image = image.getSubimage(tile.getTileX(),tile.getTileY(),tile.getWidth(),tile.getHeight());
+				Point p = tile.getBackgroundPosition();
+				Dimension d = tile.getSize();
+				image = image.getSubimage(p.x,p.y,d.width,d.height);
 				setOpaque(!background.transparent);
 				}
 			}

@@ -33,7 +33,7 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
-import org.lateralgm.resources.sub.Point;
+import org.lateralgm.resources.sub.PathPoint;
 
 public class PathFrame extends ResourceFrame<Path> implements ActionListener,ListSelectionListener
 	{
@@ -45,7 +45,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 	public IntegerField tx, ty, tsp, tpr;
 	public JButton add, insert, delete;
 	public JCheckBox smooth, closed;
-	private Point lastPoint = null; //non-guaranteed copy of list.getLastSelectedValue()
+	private PathPoint lastPoint = null; //non-guaranteed copy of list.getLastSelectedValue()
 
 	public PathFrame(Path res, ResNode node)
 		{
@@ -179,7 +179,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		Object s = e.getSource();
 		if (s == add)
 			{
-			res.points.add(new Point(tx.getIntValue(),ty.getIntValue(),tsp.getIntValue()));
+			res.points.add(new PathPoint(tx.getIntValue(),ty.getIntValue(),tsp.getIntValue()));
 			list.setListData(res.points.toArray());
 			list.updateUI();
 			list.setSelectedIndex(res.points.size() - 1);
@@ -188,7 +188,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 			{
 			int i = list.getSelectedIndex();
 			if (i == -1) return;
-			res.points.add(i,new Point(tx.getIntValue(),ty.getIntValue(),tsp.getIntValue()));
+			res.points.add(i,new PathPoint(tx.getIntValue(),ty.getIntValue(),tsp.getIntValue()));
 			list.setListData(res.points.toArray());
 			list.updateUI();
 			list.setSelectedIndex(i);
@@ -220,11 +220,11 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		manualUpdate = true;
 		}
 
-	/** Notifies the Point that it needs to synchronize its IntegerFields and JList entry */
+	/** Notifies the PathPoint that it needs to synchronize its IntegerFields and JList entry */
 	private void notifyPoint()
 		{
 		notifyList();
-		lastPoint = (Point) list.getSelectedValue();
+		lastPoint = (PathPoint) list.getSelectedValue();
 		if (lastPoint == null) return;
 		manualUpdate = false;
 		tx.setIntValue(lastPoint.x);

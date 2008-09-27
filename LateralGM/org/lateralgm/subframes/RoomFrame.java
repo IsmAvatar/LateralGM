@@ -22,6 +22,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
@@ -121,9 +122,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JScrollPane tScroll;
 	public JList tList;
 	private Tile lastTile = null; //non-guaranteed copy of tList.getLastSelectedValue()
-	public JButton tAdd, tDel;
-	public ResourceMenu<Background> tNew, tSource;
-	public IntegerField tsX, tsY, tX, tY, tLayer, tDepth;
+	public JButton tDel;
+	public ResourceMenu<Background> taSource, teSource;
+	public IntegerField tsX, tsY, tX, tY, taDepth, teDepth;
 	//Backgrounds
 	public JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
 	public ColorSelect bColor;
@@ -446,37 +447,37 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		tNew = new ResourceMenu<Background>(Room.BACKGROUND,
+		taSource = new ResourceMenu<Background>(Room.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110);
-		tNew.addActionListener(this);
+		taSource.addActionListener(this);
 		tSelect = new TileSelector();
 		tScroll = new JScrollPane(tSelect);
 		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
 		tUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingTiles : true);
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.TILE_LAYER"));
-		tDepth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
-		tDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,tDepth.getHeight()));
+		taDepth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		taDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,taDepth.getHeight()));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(tScroll)
-		/**/.addComponent(tNew)
+		/**/.addComponent(taSource)
 		/**/.addComponent(tUnderlying)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(lab)
-		/*	*/.addComponent(tDepth)));
+		/*	*/.addComponent(taDepth)));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(tScroll)
-		/**/.addComponent(tNew)
+		/**/.addComponent(taSource)
 		/**/.addComponent(tUnderlying)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(lab)
-		/*	*/.addComponent(tDepth)));
+		/*	*/.addComponent(taDepth)));
 
 		return panel;
 		}
 
 	//XXX: Extract to own class?
-	//TODO: Allow user to select tile
+	//FIXME: Do not resize
 	public class TileSelector extends JLabel
 		{
 		private static final long serialVersionUID = 1L;
@@ -544,7 +545,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		public void selectTile(int x, int y)
 			{
-			Background hardBkg = deRef(tNew.getSelected());
+			Background hardBkg = deRef(taSource.getSelected());
 			if (hardBkg == null)
 				{
 				tx = x;
@@ -567,7 +568,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		JLabel lList = new JLabel(Messages.getString("RoomFrame.TILE_LIST")); //$NON-NLS-1$
 		tList = new JList(res.tiles.toArray());
 		tList.addListSelectionListener(this);
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -581,8 +581,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					ImageIcon ii;
 					try
 						{
-						ii = new ImageIcon(bg.backgroundImage.getSubimage(i.getTileX(),i.getTileY(),
-								i.getWidth(),i.getHeight()));
+						Point p = i.getBackgroundPosition();
+						Dimension d = i.getSize();
+						ii = new ImageIcon(bg.backgroundImage.getSubimage(p.x,p.y,d.width,d.height));
 						}
 					catch (RasterFormatException e)
 						{
@@ -595,8 +596,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 					}
 			});
 		JScrollPane sp = new JScrollPane(tList);
-		tAdd = new JButton(Messages.getString("RoomFrame.TILE_ADD")); //$NON-NLS-1$
-		tAdd.addActionListener(this);
 		tDel = new JButton(Messages.getString("RoomFrame.TILE_DELETE")); //$NON-NLS-1$
 		tDel.addActionListener(this);
 		tLocked = new JCheckBox(Messages.getString("RoomFrame.TILE_LOCKED")); //$NON-NLS-1$
@@ -607,7 +606,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		psl.setAutoCreateGaps(true);
 		psl.setAutoCreateContainerGaps(true);
 		pSet.setLayout(psl);
-		tSource = new ResourceMenu<Background>(Room.BACKGROUND,
+		teSource = new ResourceMenu<Background>(Room.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110); //$NON-NLS-1$
 		JLabel ltsx = new JLabel(Messages.getString("RoomFrame.TILESET_X")); //$NON-NLS-1$
 		tsX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
@@ -616,14 +615,14 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tsY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		tsY.setColumns(4);
 		psl.setHorizontalGroup(psl.createParallelGroup()
-		/**/.addComponent(tSource)
+		/**/.addComponent(teSource)
 		/**/.addGroup(psl.createSequentialGroup()
 		/*		*/.addComponent(ltsx)
 		/*		*/.addComponent(tsX)
 		/*		*/.addComponent(ltsy)
 		/*		*/.addComponent(tsY)));
 		psl.setVerticalGroup(psl.createSequentialGroup()
-		/**/.addComponent(tSource)
+		/**/.addComponent(teSource)
 		/**/.addGroup(psl.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(ltsx)
 		/*		*/.addComponent(tsX)
@@ -645,9 +644,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tY.setColumns(4);
 		tY.addActionListener(this);
 		JLabel ltl = new JLabel(Messages.getString("RoomFrame.TILE_LAYER")); //$NON-NLS-1$
-		tLayer = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,1000000);
-		tLayer.setColumns(8);
-		tLayer.addActionListener(this);
+		teDepth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,1000000);
+		teDepth.setColumns(8);
+		teDepth.addActionListener(this);
 		ptl.setHorizontalGroup(ptl.createParallelGroup()
 		/**/.addGroup(ptl.createSequentialGroup()
 		/*		*/.addComponent(ltx)
@@ -656,7 +655,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(tY))
 		/**/.addGroup(ptl.createSequentialGroup()
 		/*		*/.addComponent(ltl)
-		/*		*/.addComponent(tLayer)));
+		/*		*/.addComponent(teDepth)));
 		ptl.setVerticalGroup(ptl.createSequentialGroup()
 		/**/.addGroup(ptl.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(ltx)
@@ -665,23 +664,17 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(tY))
 		/**/.addGroup(ptl.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(ltl)
-		/*		*/.addComponent(tLayer)));
+		/*		*/.addComponent(teDepth)));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(lList)
 		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(tAdd,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*		*/.addComponent(tDel,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/**/.addComponent(tDel,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(tLocked)
 		/**/.addComponent(pSet)
 		/**/.addComponent(pTile));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(lList)
 		/**/.addComponent(sp,DEFAULT_SIZE,60,MAX_VALUE)
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(tAdd)
-		/*		*/.addComponent(tDel))
+		/**/.addComponent(tDel)
 		/**/.addComponent(tLocked)
 		/**/.addComponent(pSet)
 		/**/.addComponent(pTile));
@@ -1273,8 +1266,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			Instance i = (Instance) oList.getSelectedValue();
 			if (i == null) return;
-			if (s == oX) i.setX(oX.getIntValue());
-			if (s == oY) i.setY(oY.getIntValue());
+			i.setPosition(new Point(oX.getIntValue(),oY.getIntValue()));
 			return;
 			}
 		if (s == zoomIn)
@@ -1286,6 +1278,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				zoomOut.setEnabled(true);
 				zoomIn.setEnabled(editor.zoom > 1);
 				}
+			return;
 			}
 		if (s == zoomOut)
 			{
@@ -1296,33 +1289,25 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				zoomOut.setEnabled(editor.zoom < 32);
 				zoomIn.setEnabled(true);
 				}
+			return;
 			}
-		if (s == tSource)
+		if (s == teSource)
 			{
 			if (!manualUpdate) return;
 			Tile t = (Tile) tList.getSelectedValue();
 			if (t == null) return;
-			if (tSource.getSelected() == null)
+			if (teSource.getSelected() == null)
 				{
-				tSource.setSelected(t.getBackgroundId());
+				teSource.setSelected(t.getBackgroundId());
 				return;
 				}
-			t.setBackgroundId(tSource.getSelected());
+			t.setBackgroundId(teSource.getSelected());
 			tList.updateUI();
 			return;
 			}
-		if (s == tNew)
+		if (s == taSource)
 			{
-			tSelect.setBackground(tNew.getSelected());
-			return;
-			}
-		if (s == tAdd)
-			{
-			if (tSource.getSelected() == null) return;
-			Tile t = res.addTile();
-			t.setBackgroundId(tSource.getSelected());
-			tList.setListData(res.tiles.toArray());
-			tList.setSelectedIndex(res.tiles.size() - 1);
+			tSelect.setBackground(taSource.getSelected());
 			return;
 			}
 		if (s == tDel)
@@ -1334,15 +1319,14 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,i));
 			return;
 			}
-		if (s == tX || s == tY || s == tLayer)
+		if (s == tX || s == tY || s == teDepth)
 			{
 			Tile t = (Tile) tList.getSelectedValue();
 			if (t == null) return;
-			if (s == tX)
-				t.setX(tX.getIntValue());
-			else if (s == tY)
-				t.setY(tY.getIntValue());
-			else if (s == tLayer) t.setDepth(tLayer.getIntValue());
+			if (s == teDepth)
+				t.setDepth(teDepth.getIntValue());
+			else
+				t.setRoomPosition(new Point(tX.getIntValue(),tY.getIntValue()));
 			return;
 			}
 		if (e.getSource() == sCreationCode)
@@ -1365,8 +1349,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			lastObj.locked = oLocked.isSelected();
 			if (oSource.getSelected() != null) lastObj.gmObjectId = oSource.getSelected();
-			lastObj.setX(oX.getIntValue());
-			lastObj.setY(oY.getIntValue());
+			lastObj.setPosition(new Point(oX.getIntValue(),oY.getIntValue()));
 			}
 		lastObj = (Instance) oList.getSelectedValue();
 		if (lastObj == null) return;
@@ -1374,8 +1357,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		manualUpdate = false;
 		oSource.setSelected(lastObj.gmObjectId);
 		manualUpdate = true;
-		oX.setIntValue(lastObj.getX());
-		oY.setIntValue(lastObj.getY());
+		oX.setIntValue(lastObj.getPosition().x);
+		oY.setIntValue(lastObj.getPosition().y);
 		}
 
 	@Override
@@ -1393,25 +1376,25 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		if (lastTile != null)
 			{
+			lastTile.setAutoUpdate(false);
 			lastTile.locked = tLocked.isSelected();
-			if (tSource.getSelected() != null) lastTile.setBackgroundId(tSource.getSelected());
-			lastTile.setTileX(tsX.getIntValue());
-			lastTile.setTileY(tsY.getIntValue());
-			lastTile.setX(tX.getIntValue());
-			lastTile.setY(tY.getIntValue());
-			lastTile.setDepth(tLayer.getIntValue());
+			if (teSource.getSelected() != null) lastTile.setBackgroundId(teSource.getSelected());
+			lastTile.setBackgroundPosition(new Point(tsX.getIntValue(),tsY.getIntValue()));
+			lastTile.setRoomPosition(new Point(tX.getIntValue(),tY.getIntValue()));
+			lastTile.setDepth(teDepth.getIntValue());
+			lastTile.setAutoUpdate(true);
 			}
 		lastTile = (Tile) tList.getSelectedValue();
 		if (lastTile == null) return;
 		tLocked.setSelected(lastTile.locked);
 		manualUpdate = false;
-		tSource.setSelected(lastTile.getBackgroundId());
+		teSource.setSelected(lastTile.getBackgroundId());
 		manualUpdate = true;
-		tsX.setIntValue(lastTile.getTileX());
-		tsY.setIntValue(lastTile.getTileY());
-		tX.setIntValue(lastTile.getX());
-		tY.setIntValue(lastTile.getY());
-		tLayer.setIntValue(lastTile.getDepth());
+		tsX.setIntValue(lastTile.getBackgroundPosition().x);
+		tsY.setIntValue(lastTile.getBackgroundPosition().y);
+		tX.setIntValue(lastTile.getRoomPosition().x);
+		tY.setIntValue(lastTile.getRoomPosition().y);
+		teDepth.setIntValue(lastTile.getDepth());
 		}
 
 	public void fireBackUpdate()

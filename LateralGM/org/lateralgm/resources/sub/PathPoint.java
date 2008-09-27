@@ -9,17 +9,17 @@
 
 package org.lateralgm.resources.sub;
 
-public class Point
+public class PathPoint
 	{
 	public int x = 0;
 	public int y = 0;
 	public int speed = 100;
 
-	public Point()
+	public PathPoint()
 		{
 		}
 
-	public Point(int x, int y, int speed)
+	public PathPoint(int x, int y, int speed)
 		{
 		this.x = x;
 		this.y = y;
