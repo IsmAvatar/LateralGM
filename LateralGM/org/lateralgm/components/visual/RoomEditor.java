@@ -179,10 +179,14 @@ public class RoomEditor extends JPanel implements ImageObserver
 					WeakReference<Background> bkg = frame.taSource.getSelected();
 					if (bkg == null) return; //I'd rather just break out of this IF, but this works
 					Background b = bkg.get();
-					Point bkgPos = new Point(frame.tSelect.tx,frame.tSelect.ty);
-					Dimension size = new Dimension(b.tileWidth,b.tileHeight);
-					Tile t = new Tile(LGM.currentFile,bkg,bkgPos,p,size,frame.taDepth.getIntValue());
+					Tile t = new Tile(LGM.currentFile);
+					t.setBackgroundId(bkg);
+					t.setBackgroundPosition(new Point(frame.tSelect.tx,frame.tSelect.ty));
+					t.setRoomPosition(p);
+					t.setSize(new Dimension(b.tileWidth,b.tileHeight));
+					t.setDepth(frame.taDepth.getIntValue());
 					room.tiles.add(t);
+					t.setAutoUpdate(true);
 					frame.tList.setListData(room.tiles.toArray());
 					setCursor(new TileComponent(t));
 					add(cursor);

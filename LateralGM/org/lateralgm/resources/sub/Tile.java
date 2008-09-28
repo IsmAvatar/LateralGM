@@ -28,34 +28,34 @@ public class Tile
 	private Dimension size;
 	private int depth;
 	public boolean locked = false;
-	private boolean autoUpdate = true;
+	private boolean autoUpdate = false;
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
+	/**
+	 * Do not call this constructor unless you intend
+	 * to handle your own tile ID. See Tile(GmFile f).
+	 */
 	public Tile()
 		{
-		autoUpdate = false;
 		}
 
-	public Tile(GmFile f, WeakReference<Background> backgroundId, Point bkgPos, Point roomPos,
-			Dimension size, int depth)
+	/**
+	 * Constructs a tile for this GmFile, and determines ID via the last tile id.
+	 * Notice that a tile initializes with no settings and with auto-update off.
+	 * It is your responsibility to use the setters and call setAutoUpdate(true) when done.
+	 */
+	public Tile(GmFile f)
 		{
-		this(++f.lastTileId,backgroundId,bkgPos,roomPos,size,depth);
-		}
-	
-	public Tile(int tileId, WeakReference<Background> backgroundId, Point bkgPos, Point roomPos,
-			Dimension size, int depth)
-		{
-		this.tileId = tileId;
-		this.backgroundId = backgroundId;
-		this.bkgPos = bkgPos;
-		this.roomPos = roomPos;
-		this.size = size;
-		this.depth = depth;
-		fireUpdate();
+		tileId = ++f.lastTileId;
 		}
 
+	/**
+	 * Sets whether changing settings to this tile will inform its listeners.
+	 * This is especially useful for applying multiple settings before updating.
+	 * Setting this to true will cause this tile to update immediately.
+	 */
 	public void setAutoUpdate(boolean auto)
 		{
 		autoUpdate = auto;

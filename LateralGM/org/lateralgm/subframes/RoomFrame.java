@@ -1266,7 +1266,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			Instance i = (Instance) oList.getSelectedValue();
 			if (i == null) return;
-			i.setPosition(new Point(oX.getIntValue(),oY.getIntValue()));
+			//do not wrap into 1 function call, or it will break code in fireObjUpdate
+			if (s == oX) i.setPosition(new Point(oX.getIntValue(),i.getPosition().y));
+			if (s == oY) i.setPosition(new Point(i.getPosition().x,oY.getIntValue()));
 			return;
 			}
 		if (s == zoomIn)
@@ -1326,7 +1328,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (s == teDepth)
 				t.setDepth(teDepth.getIntValue());
 			else
-				t.setRoomPosition(new Point(tX.getIntValue(),tY.getIntValue()));
+				{ //do not wrap into 1 function call, or it will break code in fireTileUpdate
+				if (s == tX) t.setRoomPosition(new Point(tX.getIntValue(),t.getRoomPosition().y));
+				if (s == tY) t.setRoomPosition(new Point(t.getRoomPosition().y,tY.getIntValue()));
+				}
 			return;
 			}
 		if (e.getSource() == sCreationCode)
