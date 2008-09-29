@@ -16,6 +16,7 @@ import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.subframes.EventFrame;
+import org.lateralgm.subframes.GmObjectFrame;
 
 public class EventKeyInput extends JTextField
 	{
@@ -52,9 +53,10 @@ public class EventKeyInput extends JTextField
 				}
 			else if (key == Prefs.eventKeyInputAddKey)
 				{
-				if (parent.linkedFrame != null && Event.KEYS.contains(selectedKey))
+				GmObjectFrame f = parent.linkedFrame == null ? null : parent.linkedFrame.get();
+				if (f != null && Event.KEYS.contains(selectedKey))
 					{
-					parent.linkedFrame.addEvent(new Event(parent.selectedNode.mainId,selectedKey));
+					f.addEvent(new Event(parent.selectedNode.mainId,selectedKey));
 					}
 				}
 			}

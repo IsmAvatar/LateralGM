@@ -77,7 +77,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 	public JPanel collisionSelectPanel;
 	public JPanel emptyPanel;
 	public ResourceMenu<GmObject> linkSelect;
-	public GmObjectFrame linkedFrame;
+	public WeakReference<GmObjectFrame> linkedFrame;
 	private MListener mListener = new MListener();
 	public EventNode root;
 	public JTree events;
@@ -145,7 +145,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 
 		addDim(side2,new JLabel(Messages.getString("EventFrame.FRAME_LINK")),140,16); //$NON-NLS-1$
 		linkSelect = new ResourceMenu<GmObject>(Resource.GMOBJECT,
-				Messages.getString("EventFrame.NO_LINK"),true,140,true); //$NON-NLS-1$
+				Messages.getString("EventFrame.NO_LINK"),true,140,true,true); //$NON-NLS-1$
 		linkSelect.addActionListener(this);
 		side2.add(linkSelect);
 
@@ -304,8 +304,9 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				EventNode n = (EventNode) path.getLastPathComponent();
 				boolean added = (button == MouseEvent.BUTTON1 && clicks == 2)
 						|| (button == MouseEvent.BUTTON3 && clicks == 1);
-				if (added && n != null && n.isLeaf() && linkedFrame != null && n.isValid())
-					linkedFrame.addEvent(new Event(n.mainId,n.eventId,n.other));
+				GmObjectFrame f = linkedFrame == null ? null : linkedFrame.get();
+				if (added && n != null && n.isLeaf() && f != null && n.isValid())
+					f.addEvent(new Event(n.mainId,n.eventId,n.other));
 				}
 			}
 		}
@@ -319,8 +320,9 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 			if (obj != null)
 				{
 				ResNode node = obj.getNode();
-				linkedFrame = (GmObjectFrame) node.frame;
-				linkedFrame.toTop();
+				GmObjectFrame f = (GmObjectFrame) node.frame;
+				linkedFrame = new WeakReference<GmObjectFrame>(f);
+				f.toTop();
 				if (isVisible()) toTop();
 				}
 			else
@@ -380,8 +382,9 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 			JInternalFrame oldFrame = (JInternalFrame) evt.getOldValue();
 			if (newFrame instanceof GmObjectFrame)
 				{
-				linkedFrame = (GmObjectFrame) newFrame;
-				linkSelect.setSelected((WeakReference<GmObject>) linkedFrame.node.getRes());
+				GmObjectFrame f = (GmObjectFrame) newFrame;
+				linkedFrame = new WeakReference<GmObjectFrame>(f);
+				linkSelect.setSelected((WeakReference<GmObject>) f.node.getRes());
 				}
 			else
 				{

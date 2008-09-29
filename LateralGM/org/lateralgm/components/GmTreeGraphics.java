@@ -28,8 +28,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.resources.Background;
-import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.Resource;
 
 public class GmTreeGraphics extends DefaultTreeCellRenderer
 	{
@@ -92,22 +91,11 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		return new ImageIcon(i);
 		}
 
-	public static Icon getSpriteIcon(WeakReference<Sprite> s)
+	public static Icon getResourceIcon(WeakReference<? extends Resource<?>> r)
 		{
-		Sprite spr = deRef(s);
-		if (spr == null || spr.subImages.size() == 0) return getBlankIcon();
-		BufferedImage bi = spr.getDisplayImage();
-		if (bi == null) return getBlankIcon();
-		return getScaledIcon(bi);
-		}
-
-	public static Icon getBackgroundIcon(WeakReference<Background> b)
-		{
-		Background back = deRef(b);
-		if (back == null) return getBlankIcon();
-		BufferedImage bi = back.getDisplayImage();
-		if (bi == null) return getBlankIcon();
-		return getScaledIcon(bi);
+		Resource<?> res = deRef(r);
+		BufferedImage bi = res.getDisplayImage();
+		return bi == null ? getBlankIcon() : getScaledIcon(bi);
 		}
 
 	public Icon getLeafIcon()

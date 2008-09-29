@@ -10,10 +10,12 @@ package org.lateralgm.resources;
 
 import static org.lateralgm.main.Util.deRef;
 
+import java.awt.image.BufferedImage;
 import java.lang.ref.WeakReference;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
@@ -88,6 +90,13 @@ public class GmObject extends Resource<GmObject>
 			obj.setName(getName());
 			}
 		return obj;
+		}
+
+	@Override
+	public BufferedImage getDisplayImage()
+		{
+		Sprite s = Util.deRef(sprite);
+		return s == null ? null : s.getDisplayImage();
 		}
 
 	public byte getKind()

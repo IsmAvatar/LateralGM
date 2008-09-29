@@ -93,19 +93,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	@SuppressWarnings("unchecked")
 	public void updateIcon()
 		{
-		switch (kind)
-			{
-			case Resource.SPRITE:
-				icon = GmTreeGraphics.getSpriteIcon((WeakReference<Sprite>) res);
-				break;
-			case Resource.BACKGROUND:
-				icon = GmTreeGraphics.getBackgroundIcon((WeakReference<Background>) res);
-				break;
-			case Resource.GMOBJECT:
-				WeakReference<Sprite> r = ((WeakReference<GmObject>) res).get().sprite;
-				icon = GmTreeGraphics.getSpriteIcon(r);
-				break;
-			}
+		icon = GmTreeGraphics.getResourceIcon(res);
 		fireStateChanged(null);
 		LGM.tree.repaint();
 		}

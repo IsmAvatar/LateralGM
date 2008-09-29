@@ -20,6 +20,8 @@
 
 package org.lateralgm.resources;
 
+import java.awt.image.BufferedImage;
+
 import javax.swing.ImageIcon;
 
 import org.lateralgm.components.GmTreeGraphics;
@@ -109,6 +111,11 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 	public void setNode(ResNode node)
 		{
 		this.node = node;
+		}
+
+	public BufferedImage getDisplayImage()
+		{
+		return null;
 		}
 
 	public abstract R copy(ResourceList<R> src);

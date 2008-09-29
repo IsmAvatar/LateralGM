@@ -51,7 +51,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.JToolTip;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.GroupLayout.Alignment;
@@ -69,16 +68,12 @@ import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.MDIFrame;
-import org.lateralgm.components.visual.AbstractImagePreview;
-import org.lateralgm.components.visual.ImageToolTip;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
@@ -92,6 +87,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	//prevents List selection updates from firing ResourceMenu changes
 	public static boolean manualUpdate = true;
 	public RoomEditor editor;
+	public JScrollPane editorPane;
 	public JTabbedPane tabs;
 	public JLabel statX, statY, statId, statSrc;
 	//ToolBar
@@ -99,7 +95,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JToggleButton gridVis, gridIso;
 	public IntegerField snapX, snapY;
 	//Objects
-	public JLabel oPreview;
 	public JCheckBox oUnderlying, oLocked;
 	public JList oList;
 	private Instance lastObj = null; //non-guaranteed copy of oList.getLastSelectedValue()
@@ -112,6 +107,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public IntegerField sWidth, sHeight, sSpeed;
 	public JCheckBox sPersistent;
 	public JButton sCreationCode, sShow;
+	public JPopupMenu sShowMenu;
 
 	public HashMap<Object,CodeFrame> codeFrames = new HashMap<Object,CodeFrame>();
 
@@ -187,6 +183,46 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		return tool;
 		}
 
+	private static class ObjectListComponentRenderer extends ListComponentRenderer
+		{
+		public Component getListCellRendererComponent(JList list, Object val, int ind,
+				boolean selected, boolean focus)
+			{
+			Instance i = (Instance) val;
+			GmObject go = deRef(i.gmObjectId);
+			JLabel lab = new JLabel(go.getName() + " " + i.instanceId, //$NON-NLS-1$
+					GmTreeGraphics.getResourceIcon(i.gmObjectId),JLabel.LEFT);
+			super.getListCellRendererComponent(list,lab,ind,selected,focus);
+			lab.setOpaque(true);
+			return lab;
+			}
+		}
+
+	private static class TileListComponentRenderer extends ListComponentRenderer
+		{
+		public Component getListCellRendererComponent(JList list, Object val, int ind,
+				boolean selected, boolean focus)
+			{
+			Tile i = (Tile) val;
+			Background bg = deRef(i.getBackgroundId());
+			ImageIcon ii;
+			try
+				{
+				Point p = i.getBackgroundPosition();
+				Dimension d = i.getSize();
+				ii = new ImageIcon(bg.backgroundImage.getSubimage(p.x,p.y,d.width,d.height));
+				}
+			catch (RasterFormatException e)
+				{
+				ii = null;
+				}
+			JLabel lab = new JLabel(bg.getName() + " " + i.tileId,ii,JLabel.LEFT); //$NON-NLS-1$
+			super.getListCellRendererComponent(list,lab,ind,selected,focus);
+			lab.setOpaque(true);
+			return lab;
+			}
+		}
+
 	public JPanel makeObjectsPane()
 		{
 		JPanel panel = new JPanel();
@@ -194,30 +230,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
-
-		oPreview = new JLabel(GmTreeGraphics.getBlankIcon())
-			{
-				private static final long serialVersionUID = 1L;
-
-				public JToolTip createToolTip()
-					{
-					return new ImageToolTip(new AbstractImagePreview()
-						{
-							private static final long serialVersionUID = 1L;
-
-							public BufferedImage getImage()
-								{
-								GmObject o = deRef(oNew.getSelected());
-								if (o == null) return null;
-								Sprite s = deRef(o.sprite);
-								if (s == null) return null;
-								return s.getDisplayImage();
-								}
-						});
-					}
-			};
-		//Must be set or else toolTip won't show
-		oPreview.setToolTipText(""); //$NON-NLS-1$
 
 		oNew = new ResourceMenu<GmObject>(Room.GMOBJECT,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
@@ -229,20 +241,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		oList.addListSelectionListener(this);
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		oList.setVisibleRowCount(8);
-		oList.setCellRenderer(new ListComponentRenderer()
-			{
-				public Component getListCellRendererComponent(JList list, Object val, int ind,
-						boolean selected, boolean focus)
-					{
-					Instance i = (Instance) val;
-					GmObject go = deRef(i.gmObjectId);
-					JLabel lab = new JLabel(go.getName() + " " + i.instanceId, //$NON-NLS-1$
-							GmTreeGraphics.getSpriteIcon(go.sprite),JLabel.LEFT);
-					super.getListCellRendererComponent(list,lab,ind,selected,focus);
-					lab.setOpaque(true);
-					return lab;
-					}
-			});
+		oList.setCellRenderer(new ObjectListComponentRenderer());
 		JScrollPane sp = new JScrollPane(oList);
 		oAdd = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
 		oAdd.addActionListener(this);
@@ -297,9 +296,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/**/.addComponent(oCreationCode));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(oPreview)
-		/*		*/.addComponent(oNew))
+		/**/.addComponent(oNew)
 		/**/.addComponent(oUnderlying)
 		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
@@ -307,9 +304,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(oDel,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addComponent(edit));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(oPreview)
-		/*		*/.addComponent(oNew))
+		/**/.addComponent(oNew)
 		/**/.addComponent(oUnderlying)
 		/**/.addComponent(sp)
 		/**/.addGroup(layout.createParallelGroup()
@@ -380,15 +375,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		sCreationCode = new JButton(str,CODE_ICON);
 		sCreationCode.addActionListener(this);
 
-		final JPopupMenu showMenu = makeShowMenu();
+		sShowMenu = makeShowMenu();
 		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
-		sShow.addActionListener(new ActionListener()
-			{
-				public void actionPerformed(ActionEvent e)
-					{
-					showMenu.show(sShow,0,sShow.getHeight());
-					}
-			});
+		sShow.addActionListener(this);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
@@ -478,7 +467,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 	//XXX: Extract to own class?
 	//FIXME: Do not resize
-	public class TileSelector extends JLabel
+	public static class TileSelector extends JLabel
 		{
 		private static final long serialVersionUID = 1L;
 		public int tx, ty;
@@ -545,7 +534,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		public void selectTile(int x, int y)
 			{
-			Background hardBkg = deRef(taSource.getSelected());
+			Background hardBkg = deRef(bkg);
 			if (hardBkg == null)
 				{
 				tx = x;
@@ -571,30 +560,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tList = new JList(res.tiles.toArray());
 		tList.addListSelectionListener(this);
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tList.setCellRenderer(new ListComponentRenderer()
-			{
-				public Component getListCellRendererComponent(JList list, Object val, int ind,
-						boolean selected, boolean focus)
-					{
-					Tile i = (Tile) val;
-					Background bg = deRef(i.getBackgroundId());
-					ImageIcon ii;
-					try
-						{
-						Point p = i.getBackgroundPosition();
-						Dimension d = i.getSize();
-						ii = new ImageIcon(bg.backgroundImage.getSubimage(p.x,p.y,d.width,d.height));
-						}
-					catch (RasterFormatException e)
-						{
-						ii = null;
-						}
-					JLabel lab = new JLabel(bg.getName() + " " + i.tileId,ii,JLabel.LEFT); //$NON-NLS-1$
-					super.getListCellRendererComponent(list,lab,ind,selected,focus);
-					lab.setOpaque(true);
-					return lab;
-					}
-			});
+		tList.setCellRenderer(new TileListComponentRenderer());
 		JScrollPane sp = new JScrollPane(tList);
 		tDel = new JButton(Messages.getString("RoomFrame.TILE_DELETE")); //$NON-NLS-1$
 		tDel.addActionListener(this);
@@ -1064,11 +1030,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tabs.setSelectedIndex(res.currentTab);
 
 		editor = new RoomEditor(res,this);
-		JScrollPane sp = new JScrollPane(editor);
-		sp.getVerticalScrollBar().setUnitIncrement(16);
-		sp.getVerticalScrollBar().setBlockIncrement(64);
-		sp.getHorizontalScrollBar().setUnitIncrement(16);
-		sp.getHorizontalScrollBar().setBlockIncrement(64);
+		editorPane = new JScrollPane(editor);
+		editorPane.getVerticalScrollBar().setUnitIncrement(16);
+		editorPane.getVerticalScrollBar().setBlockIncrement(64);
+		editorPane.getHorizontalScrollBar().setUnitIncrement(16);
+		editorPane.getHorizontalScrollBar().setBlockIncrement(64);
 		JPanel stats = makeStatsPane();
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -1076,14 +1042,14 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(tabs)
 		/*	*/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(sp,240,640,DEFAULT_SIZE)
+		/*		*/.addComponent(editorPane,240,640,DEFAULT_SIZE)
 		/*		*/.addComponent(stats,0,DEFAULT_SIZE,DEFAULT_SIZE))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(tools)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(tabs)
 		/*	*/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(sp,DEFAULT_SIZE,480,DEFAULT_SIZE)
+		/*		*/.addComponent(editorPane,DEFAULT_SIZE,480,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
 		if (res.rememberWindowSize)
 			setSize(res.editorWidth,res.editorHeight);
@@ -1091,7 +1057,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			pack();
 		}
 
-	public class ListComponentRenderer implements ListCellRenderer
+	public static class ListComponentRenderer implements ListCellRenderer
 		{
 		public Component getListCellRendererComponent(JList list, Object val, int ind,
 				boolean selected, boolean focus)
@@ -1223,10 +1189,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			vList.updateUI();
 			return;
 			}
-		if (s == oNew)
+		if (s == sShow)
 			{
-			GmObject o = Util.deRef(oNew.getSelected());
-			if (o != null) oPreview.setIcon(GmTreeGraphics.getSpriteIcon(o.sprite));
+			sShowMenu.show(sShow,0,sShow.getHeight());
 			return;
 			}
 		if (s == oSource)
@@ -1493,16 +1458,15 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		CodeFrame frame = codeFrames.get(obj);
 		if (frame == null)
 			{
-			frame = new CodeFrame(obj,format,arg);
+			frame = new CodeFrame(obj,format,arg,codeFrames);
 			LGM.mdi.add(frame);
 			frame.toTop();
-			codeFrames.put(obj,frame);
 			}
 		else
 			frame.toTop();
 		}
 
-	public class CodeFrame extends MDIFrame implements ActionListener
+	public static class CodeFrame extends MDIFrame implements ActionListener
 		{
 		private static final long serialVersionUID = 1L;
 
@@ -1534,17 +1498,21 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			return gta.getUndoManager().isModified();
 			}
 
-		Object code;
-		GMLTextArea gta;
-		String format;
+		final Object code;
+		final GMLTextArea gta;
+		final String format;
 		Object arg;
+		final JButton save;
+		final HashMap<Object,CodeFrame> codeFrames;
 
-		public CodeFrame(Object code, String format, Object arg)
+		public CodeFrame(Object code, String format, Object arg, HashMap<Object,CodeFrame> cf)
 			{
 			super(Messages.format(format,arg),true,true,true,true);
 			this.code = code;
 			this.format = format;
 			this.arg = arg;
+			codeFrames = cf;
+			cf.put(code,this);
 			setSize(600,400);
 			setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 			// the code text area
@@ -1555,7 +1523,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			tool.setAlignmentX(0);
 			add("North",tool); //$NON-NLS-1$
 			// Setup the buttons
-			JButton save = new JButton(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
+			save = new JButton(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
 			save.addActionListener(this);
 			tool.add(save);
 			tool.addSeparator();
@@ -1567,6 +1535,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		public void dispose()
 			{
 			super.dispose();
+			save.removeActionListener(this);
 			codeFrames.remove(code);
 			}
 
@@ -1615,8 +1584,53 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 	public void dispose()
 		{
+		super.dispose();
 		for (CodeFrame cf : codeFrames.values())
 			cf.dispose();
-		super.dispose();
+		// XXX: These components could still be referenced by InputContext or similar.
+		// Removing their references to this frame is therefore necessary in order to ensure
+		// garbage collection.
+		zoomIn.removeActionListener(this);
+		zoomOut.removeActionListener(this);
+		snapX.removeActionListener(this);
+		snapY.removeActionListener(this);
+		gridVis.removeActionListener(this);
+		gridIso.removeActionListener(this);
+		oNew.removeActionListener(this);
+		oList.removeListSelectionListener(this);
+		oAdd.removeActionListener(this);
+		oDel.removeActionListener(this);
+		oSource.removeActionListener(this);
+		oX.removeActionListener(this);
+		oY.removeActionListener(this);
+		oCreationCode.removeActionListener(this);
+		sSObj.removeActionListener(this);
+		sSTile.removeActionListener(this);
+		sSBack.removeActionListener(this);
+		sSFore.removeActionListener(this);
+		sSView.removeActionListener(this);
+		sWidth.removeActionListener(this);
+		sHeight.removeActionListener(this);
+		sCreationCode.removeActionListener(this);
+		sShow.removeActionListener(this);
+		teDepth.removeActionListener(this);
+		taSource.removeActionListener(this);
+		tList.removeListSelectionListener(this);
+		tDel.removeActionListener(this);
+		tX.removeActionListener(this);
+		tY.removeActionListener(this);
+		bDrawColor.removeActionListener(this);
+		bColor.removeActionListener(this);
+		bList.removeListSelectionListener(this);
+		bVisible.removeActionListener(this);
+		bTileH.removeActionListener(this);
+		bX.removeActionListener(this);
+		bTileV.removeActionListener(this);
+		bY.removeActionListener(this);
+		bStretch.removeActionListener(this);
+		vList.removeListSelectionListener(this);
+		vVisible.removeActionListener(this);
+		editorPane.setViewport(null);
+		setLayout(null);
 		}
 	}

@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -36,14 +37,20 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JToolTip;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.ParallelGroup;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.visual.AbstractImagePreview;
+import org.lateralgm.components.visual.ImageToolTip;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.Resource;
 
 public class ResourceMenu<R extends Resource<R>> extends JPanel implements ActionListener
@@ -60,6 +67,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	private MListener mListener = new MListener();
 	private final RMUpdatable updatable = new RMUpdatable();
 	protected static final ImageIcon GROUP_ICO = LGM.getIconForKey("GmTreeGraphics.GROUP"); //$NON-NLS-1$;
+	private final Preview rPreview;
 
 	public static interface Updatable
 		{
@@ -219,6 +227,39 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 			}
 		}
 
+	public static class Preview extends JLabel
+		{
+		private static final long serialVersionUID = 1L;
+
+		private BufferedImage displayImage;
+
+		public Preview()
+			{
+			//Must be set or else toolTip won't show
+			setToolTipText(""); //$NON-NLS-1$
+			}
+
+		public void setResource(WeakReference<? extends Resource<?>> r)
+			{
+			Resource<?> res = Util.deRef(r);
+			displayImage = res == null ? null : res.getDisplayImage();
+			setIcon(displayImage == null ? null : GmTreeGraphics.getScaledIcon(displayImage));
+			}
+
+		public JToolTip createToolTip()
+			{
+			return new ImageToolTip(new AbstractImagePreview()
+				{
+					private static final long serialVersionUID = 1L;
+
+					public BufferedImage getImage()
+						{
+						return displayImage;
+						}
+				});
+			}
+		}
+
 	/**
 	 * Creates a Resource Menu of given Resource kind.
 	 * @param kind - One of the kind constants defined in Resource (eg Resource.SPRITE)
@@ -228,7 +269,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	 */
 	public ResourceMenu(byte kind, String def, boolean showDef, int width)
 		{
-		this(kind,def,showDef,width,false);
+		this(kind,def,showDef,width,false,canPreview(kind));
 		}
 
 	/**
@@ -238,8 +279,10 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	 * @param showDef - Whether to display the default value as a selectable menu option
 	 * @param width - The component width desired
 	 * @param onlyOpen  - Whether to only show open frames on the menu
+	 * @param preview - Whether to display a preview icon
 	 */
-	public ResourceMenu(byte kind, String def, boolean showDef, int width, boolean onlyOpen)
+	public ResourceMenu(byte kind, String def, boolean showDef, int width, boolean onlyOpen,
+			boolean preview)
 		{
 		this.kind = kind;
 		this.onlyOpen = onlyOpen;
@@ -251,10 +294,19 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		button = new JButton(Resource.ICON[kind]);
 		button.addMouseListener(mListener);
 		button.setMaximumSize(button.getPreferredSize());
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-		/**/.addComponent(label,PREFERRED_SIZE,width - 20,Integer.MAX_VALUE)
+		int freeWidth = width - (preview ? 40 : 20);
+		rPreview = preview ? new Preview() : null;
+		SequentialGroup hg = layout.createSequentialGroup();
+		ParallelGroup vg = layout.createParallelGroup(Alignment.LEADING,false);
+		if (preview)
+			{
+			hg.addComponent(rPreview,PREFERRED_SIZE,20,PREFERRED_SIZE);
+			vg.addComponent(rPreview,PREFERRED_SIZE,20,PREFERRED_SIZE);
+			}
+		layout.setHorizontalGroup(hg
+		/**/.addComponent(label,PREFERRED_SIZE,freeWidth,Integer.MAX_VALUE)
 		/**/.addComponent(button,PREFERRED_SIZE,20,PREFERRED_SIZE));
-		layout.setVerticalGroup(layout.createParallelGroup(Alignment.LEADING,false)
+		layout.setVerticalGroup(vg
 		/**/.addComponent(label,PREFERRED_SIZE,20,PREFERRED_SIZE)
 		/**/.addComponent(button,PREFERRED_SIZE,19,PREFERRED_SIZE));
 
@@ -277,7 +329,20 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	 */
 	public ResourceMenu(byte kind, String def, int width)
 		{
-		this(kind,def,true,width,false);
+		this(kind,def,true,width,false,canPreview(kind));
+		}
+
+	public static boolean canPreview(byte kind)
+		{
+		switch (kind)
+			{
+			case Resource.SPRITE:
+			case Resource.BACKGROUND:
+			case Resource.GMOBJECT:
+				return true;
+			default:
+				return false;
+			}
 		}
 
 	protected void populate(byte kind)
@@ -366,6 +431,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		selected = res;
 		Resource<R> r = deRef(res);
 		label.setText(r == null ? (noResource != null ? noResource.getText() : "") : r.getName()); //$NON-NLS-1$
+		if (rPreview != null) rPreview.setResource(res);
 		}
 
 	public void setEnabled(boolean enabled)

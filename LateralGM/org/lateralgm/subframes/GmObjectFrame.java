@@ -53,7 +53,6 @@ import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
 import org.lateralgm.components.GMLTextArea;
-import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EventNode;
@@ -76,8 +75,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon INFO_ICON = LGM.getIconForKey("GmObjectFrame.INFO"); //$NON-NLS-1$
 
-	//TODO: update this when sprite changes, not just when ResourceMenu selection changes
-	public JLabel preview;
 	public ResourceMenu<Sprite> sprite;
 	public JButton newSprite;
 	public JButton editSprite;
@@ -169,7 +166,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		GroupLayout oLayout = new GroupLayout(origin);
 		origin.setLayout(oLayout);
 		origin.setBorder(BorderFactory.createTitledBorder(Messages.getString("GmObjectFrame.SPRITE"))); //$NON-NLS-1$
-		preview = new JLabel(GmTreeGraphics.getSpriteIcon(res.sprite == null ? null : res.sprite));
 		String t = Messages.getString("GmObjectFrame.NO_SPRITE"); //$NON-NLS-1$
 		sprite = new ResourceMenu<Sprite>(Resource.SPRITE,t,144);
 		sprite.setSelected(res.sprite);
@@ -181,19 +177,14 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		oLayout.setHorizontalGroup(oLayout.createSequentialGroup()
 		/**/.addContainerGap(4,4)
 		/**/.addGroup(oLayout.createParallelGroup()
-		/*		*/.addGroup(oLayout.createSequentialGroup()
-		/*				*/.addComponent(preview)
-		/*				*/.addGap(2)
-		/*				*/.addComponent(sprite))
+		/*		*/.addComponent(sprite)
 		/*		*/.addGroup(oLayout.createSequentialGroup()
 		/*				*/.addComponent(newSprite,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*				*/.addGap(4)
 		/*				*/.addComponent(editSprite,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)))
 		/**/.addContainerGap(4,4));
 		oLayout.setVerticalGroup(oLayout.createSequentialGroup()
-		/**/.addGroup(oLayout.createParallelGroup(Alignment.CENTER)
-		/*		*/.addComponent(preview,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*		*/.addComponent(sprite,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/**/.addComponent(sprite,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/**/.addGroup(oLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(newSprite)
 		/*		*/.addComponent(editSprite))
@@ -644,7 +635,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		if (e.getSource() == sprite)
 			{
-			preview.setIcon(GmTreeGraphics.getSpriteIcon(sprite.getSelected()));
+			// TODO
 			return;
 			}
 		if (e.getSource() == parent)
@@ -683,6 +674,22 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			traversed.add(inheritor);
 			}
 		return false;
+		}
+
+	@Override
+	public void dispose()
+		{
+		super.dispose();
+		events.removeTreeSelectionListener(this);
+		events.setModel(null);
+		events.setTransferHandler(null);
+		information.removeActionListener(this);
+		newSprite.removeActionListener(this);
+		editSprite.removeActionListener(this);
+		eventDelete.removeActionListener(this);
+		sprite.removeActionListener(this);
+		mask.removeActionListener(this);
+		parent.removeActionListener(this);
 		}
 
 	public void valueChanged(TreeSelectionEvent tse)
