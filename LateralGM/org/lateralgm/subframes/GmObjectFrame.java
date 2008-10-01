@@ -23,7 +23,6 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -62,6 +61,7 @@ import org.lateralgm.main.Listener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
@@ -600,6 +600,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	@Override
 	public void revertResource()
 		{
+		resOriginal.updateReference();
 		LGM.currentFile.gmObjects.replace(res,resOriginal);
 		}
 
@@ -623,7 +624,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			ResNode n = Listener.getPrimaryParent(Resource.SPRITE);
 			Sprite spr = LGM.currentFile.sprites.add();
 			Listener.putNode(LGM.tree,n,n,Resource.SPRITE,n.getChildCount(),spr);
-			sprite.setSelected(new WeakReference<Sprite>(spr));
+			sprite.setSelected(spr.reference);
 			return;
 			}
 		if (e.getSource() == editSprite)
@@ -640,7 +641,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		if (e.getSource() == parent)
 			{
-			WeakReference<GmObject> p = parent.getSelected();
+			ResourceReference<GmObject> p = parent.getSelected();
 			res.parent = p;
 			if (deRef(p) != null) if (isCyclic(res))
 				{

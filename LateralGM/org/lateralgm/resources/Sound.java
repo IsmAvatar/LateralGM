@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -40,6 +41,12 @@ public class Sound extends Resource<Sound>
 
 	public Sound()
 		{
+		this(null,true);
+		}
+
+	public Sound(ResourceReference<Sound> r, boolean update)
+		{
+		super(r,update);
 		setName(Prefs.prefixes[Resource.SOUND]);
 		}
 
@@ -69,43 +76,34 @@ public class Sound extends Resource<Sound>
 		return makeEffects(chorus,echo,flanger,gargle,reverb);
 		}
 
-	private Sound copy(boolean update, ResourceList<Sound> src)
+	@Override
+	protected Sound copy(ResourceList<Sound> src, ResourceReference<Sound> ref, boolean update)
 		{
-		Sound snd = new Sound();
-		snd.kind = kind;
-		snd.fileType = fileType;
-		snd.fileName = fileName;
-		snd.chorus = chorus;
-		snd.echo = echo;
-		snd.flanger = flanger;
-		snd.gargle = gargle;
-		snd.reverb = reverb;
-		snd.volume = volume;
-		snd.pan = pan;
-		snd.preload = preload;
-		snd.data = new byte[data.length];
-		System.arraycopy(data,0,snd.data,0,data.length);
-		if (update)
+		Sound s = new Sound(ref,update);
+		s.kind = kind;
+		s.fileType = fileType;
+		s.fileName = fileName;
+		s.chorus = chorus;
+		s.echo = echo;
+		s.flanger = flanger;
+		s.gargle = gargle;
+		s.reverb = reverb;
+		s.volume = volume;
+		s.pan = pan;
+		s.preload = preload;
+		s.data = new byte[data.length];
+		System.arraycopy(data,0,s.data,0,data.length);
+		if (src != null)
 			{
-			snd.setName(Prefs.prefixes[Resource.SOUND] + (src.lastId + 1));
-			src.add(snd);
+			s.setName(Prefs.prefixes[Resource.SOUND] + (src.lastId + 1));
+			src.add(s);
 			}
 		else
 			{
-			snd.setId(getId());
-			snd.setName(getName());
+			s.setId(getId());
+			s.setName(getName());
 			}
-		return snd;
-		}
-
-	public Sound copy()
-		{
-		return copy(false,null);
-		}
-
-	public Sound copy(ResourceList<Sound> src)
-		{
-		return copy(true,src);
+		return s;
 		}
 
 	public byte getKind()

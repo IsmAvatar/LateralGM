@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -57,26 +58,31 @@ public class Room extends Resource<Room>
 	public BackgroundDef[] backgroundDefs = new BackgroundDef[8];
 	public View[] views = new View[8];
 	public boolean enableViews = false;
-  //XXX: Make private and apply getters and setters?
+	//XXX: Make private and apply getters and setters?
 	public ArrayList<Instance> instances = new ArrayList<Instance>();
 	public ArrayList<Tile> tiles = new ArrayList<Tile>();
 	private GmFile parent;
 
 	public Room()
 		{
+		this(LGM.currentFile);
+		}
+
+	public Room(GmFile parent) // Rooms are special - they need to know what file they belong to
+		{
+		this(parent,null,true);
+		}
+
+	public Room(GmFile parent, ResourceReference<Room> r, boolean update)
+		{
+		super(r,update);
 		setName(Prefs.prefixes[Resource.ROOM]);
-		parent = LGM.currentFile;
+		this.parent = parent;
 		for (int j = 0; j < 8; j++)
 			{
 			views[j] = new View();
 			backgroundDefs[j] = new BackgroundDef();
 			}
-		}
-
-	public Room(GmFile parent) // Rooms are special - they need to know what file they belong to
-		{
-		this();
-		this.parent = parent;
 		}
 
 	public Instance addInstance()
@@ -87,38 +93,39 @@ public class Room extends Resource<Room>
 		return inst;
 		}
 
-	private Room copy(boolean update, ResourceList<Room> src)
+	@Override
+	protected Room copy(ResourceList<Room> src, ResourceReference<Room> ref, boolean update)
 		{
-		Room rm = new Room(parent);
-		rm.caption = caption;
-		rm.width = width;
-		rm.height = height;
-		rm.snapX = snapX;
-		rm.snapY = snapY;
-		rm.isometricGrid = isometricGrid;
-		rm.speed = speed;
-		rm.persistent = persistent;
-		rm.backgroundColor = backgroundColor;
-		rm.drawBackgroundColor = drawBackgroundColor;
-		rm.creationCode = creationCode;
-		rm.rememberWindowSize = rememberWindowSize;
-		rm.editorWidth = editorWidth;
-		rm.editorHeight = editorHeight;
-		rm.showGrid = showGrid;
-		rm.showObjects = showObjects;
-		rm.showTiles = showTiles;
-		rm.showBackgrounds = showBackgrounds;
-		rm.showForegrounds = showForegrounds;
-		rm.showViews = showViews;
-		rm.deleteUnderlyingObjects = deleteUnderlyingObjects;
-		rm.deleteUnderlyingTiles = deleteUnderlyingTiles;
-		rm.currentTab = currentTab;
-		rm.scrollBarX = scrollBarX;
-		rm.scrollBarY = scrollBarY;
-		rm.enableViews = enableViews;
+		Room r = new Room(parent,ref,update);
+		r.caption = caption;
+		r.width = width;
+		r.height = height;
+		r.snapX = snapX;
+		r.snapY = snapY;
+		r.isometricGrid = isometricGrid;
+		r.speed = speed;
+		r.persistent = persistent;
+		r.backgroundColor = backgroundColor;
+		r.drawBackgroundColor = drawBackgroundColor;
+		r.creationCode = creationCode;
+		r.rememberWindowSize = rememberWindowSize;
+		r.editorWidth = editorWidth;
+		r.editorHeight = editorHeight;
+		r.showGrid = showGrid;
+		r.showObjects = showObjects;
+		r.showTiles = showTiles;
+		r.showBackgrounds = showBackgrounds;
+		r.showForegrounds = showForegrounds;
+		r.showViews = showViews;
+		r.deleteUnderlyingObjects = deleteUnderlyingObjects;
+		r.deleteUnderlyingTiles = deleteUnderlyingTiles;
+		r.currentTab = currentTab;
+		r.scrollBarX = scrollBarX;
+		r.scrollBarY = scrollBarY;
+		r.enableViews = enableViews;
 		for (Instance inst : instances)
 			{
-			Instance inst2 = rm.addInstance();
+			Instance inst2 = r.addInstance();
 			inst2.setCreationCode(inst.getCreationCode());
 			inst2.locked = inst.locked;
 			inst2.gmObjectId = inst.gmObjectId;
@@ -135,13 +142,13 @@ public class Room extends Resource<Room>
 			tile2.setSize(tile.getSize());
 			tile2.tileId = tile.tileId;
 			tile2.locked = tile.locked;
-			rm.tiles.add(tile2);
+			r.tiles.add(tile2);
 			tile2.setAutoUpdate(true);
 			}
 		for (int i = 0; i < 8; i++)
 			{
 			View view = views[i];
-			View view2 = rm.views[i];
+			View view2 = r.views[i];
 			view2.visible = view.visible;
 			view2.viewX = view.viewX;
 			view2.viewY = view.viewY;
@@ -160,7 +167,7 @@ public class Room extends Resource<Room>
 		for (int i = 0; i < 8; i++)
 			{
 			BackgroundDef back = backgroundDefs[i];
-			BackgroundDef back2 = rm.backgroundDefs[i];
+			BackgroundDef back2 = r.backgroundDefs[i];
 			back2.visible = back.visible;
 			back2.foreground = back.foreground;
 			back2.backgroundId = back.backgroundId;
@@ -172,17 +179,17 @@ public class Room extends Resource<Room>
 			back2.vertSpeed = back.vertSpeed;
 			back2.stretch = back.stretch;
 			}
-		if (update)
+		if (src != null)
 			{
-			rm.setName(Prefs.prefixes[Resource.ROOM] + (src.lastId + 1));
-			src.add(rm);
+			r.setName(Prefs.prefixes[Resource.ROOM] + (src.lastId + 1));
+			src.add(r);
 			}
 		else
 			{
-			rm.setId(getId());
-			rm.setName(getName());
+			r.setId(getId());
+			r.setName(getName());
 			}
-		return rm;
+		return r;
 		}
 
 	public byte getKind()
@@ -190,13 +197,4 @@ public class Room extends Resource<Room>
 		return ROOM;
 		}
 
-	public Room copy(ResourceList<Room> src)
-		{
-		return copy(true,src);
-		}
-
-	public Room copy()
-		{
-		return copy(false,null);
-		}
 	}

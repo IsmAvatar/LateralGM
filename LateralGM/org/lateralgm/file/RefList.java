@@ -9,10 +9,10 @@
 
 package org.lateralgm.file;
 
-import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 
 public class RefList<R extends Resource<R>>
@@ -27,7 +27,7 @@ public class RefList<R extends Resource<R>>
 		this.parent = parent;
 		}
 
-	public WeakReference<R> get(int id)
+	public ResourceReference<R> get(int id)
 		{
 		if (id < 0) return null;
 		ResRef<R> rr = rrt.get(id);
@@ -57,12 +57,12 @@ public class RefList<R extends Resource<R>>
 	private static class ResRef<R extends Resource<R>>
 		{
 		R resource;
-		WeakReference<R> reference;
+		ResourceReference<R> reference;
 
 		public ResRef(R res)
 			{
 			resource = res;
-			reference = new WeakReference<R>(res);
+			reference = res.reference;
 			}
 		}
 	}

@@ -244,6 +244,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 	public void revertResource()
 		{
+		resOriginal.updateReference();
 		LGM.currentFile.sounds.replace(res,resOriginal);
 		}
 
@@ -292,8 +293,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 				data = out.toByteArray();
 				res.fileName = f.getName();
 				res.fileType = CustomFileFilter.getExtension(res.fileName);
-				if (res.fileType == null)
-					res.fileType = "";
+				if (res.fileType == null) res.fileType = "";
 				filename.setText(Messages.format("SoundFrame.FILE",res.fileName));
 				out.close();
 				in.close();

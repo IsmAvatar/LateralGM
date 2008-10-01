@@ -56,6 +56,7 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
@@ -384,7 +385,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				{
 				GmObjectFrame f = (GmObjectFrame) newFrame;
 				linkedFrame = new WeakReference<GmObjectFrame>(f);
-				linkSelect.setSelected((WeakReference<GmObject>) f.node.getRes());
+				linkSelect.setSelected((ResourceReference<GmObject>) f.node.getRes());
 				}
 			else
 				{

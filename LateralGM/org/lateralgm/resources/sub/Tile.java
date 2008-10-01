@@ -12,17 +12,17 @@ package org.lateralgm.resources.sub;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.lang.ref.WeakReference;
 
 import org.lateralgm.file.GmFile;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.ResourceReference;
 
 public class Tile
 	{
 	public int tileId = 0;
-	private WeakReference<Background> backgroundId = null;
+	private ResourceReference<Background> backgroundId = null;
 	private Point bkgPos;
 	private Point roomPos;
 	private Dimension size;
@@ -67,12 +67,12 @@ public class Tile
 		if (autoUpdate) updateTrigger.fire();
 		}
 
-	public WeakReference<Background> getBackgroundId()
+	public ResourceReference<Background> getBackgroundId()
 		{
 		return backgroundId;
 		}
 
-	public void setBackgroundId(WeakReference<Background> backgroundId)
+	public void setBackgroundId(ResourceReference<Background> backgroundId)
 		{
 		this.backgroundId = backgroundId;
 		fireUpdate();

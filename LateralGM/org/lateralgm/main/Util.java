@@ -26,7 +26,6 @@ import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Iterator;
@@ -49,6 +48,8 @@ import org.lateralgm.file.iconio.ICOImageReaderSPI;
 import org.lateralgm.file.iconio.WBMPImageReaderSpiFix;
 import org.lateralgm.jedit.SyntaxStyle;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 
 import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
@@ -275,15 +276,8 @@ public final class Util
 		return panel;
 		}
 
-	public static <R>R deRef(WeakReference<R> ref)
+	public static <R extends Resource<R>>R deRef(ResourceReference<R> ref)
 		{
 		return ref == null ? null : ref.get();
-		}
-
-	public static boolean refsAreEqual(WeakReference<?> r1, WeakReference<?> r2)
-		{
-		if (r1 == null && r2 == null) return true;
-		if (r1 == null || r2 == null) return false;
-		return r1.get() == r2.get();
 		}
 	}

@@ -181,6 +181,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	@Override
 	public void revertResource()
 		{
+		resOriginal.updateReference();
 		LGM.currentFile.timelines.replace(res,resOriginal);
 		}
 

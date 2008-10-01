@@ -9,12 +9,9 @@
 
 package org.lateralgm.components.impl;
 
-import static org.lateralgm.main.Util.refsAreEqual;
-
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.lang.ref.WeakReference;
 
 import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
@@ -31,6 +28,7 @@ import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
@@ -64,7 +62,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	/**
 	 * The <code>Resource</code> this node represents.
 	 */
-	private WeakReference<? extends Resource<?>> res;
+	private final ResourceReference<? extends Resource<?>> res;
 	public ResourceFrame<?> frame = null;
 	private EventListenerList listenerList;
 	private ChangeEvent changeEvent;
@@ -98,12 +96,13 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		LGM.tree.repaint();
 		}
 
-	public ResNode(String name, byte status, byte kind, WeakReference<? extends Resource<?>> res)
+	public ResNode(String name, byte status, byte kind, ResourceReference<? extends Resource<?>> res)
 		{
 		super(name);
 		this.status = status;
 		this.kind = kind;
-		setRes(res);
+		this.res = res;
+		if (res != null) res.get().setNode(this);
 		}
 
 	public ResNode(String name, byte status, byte kind)
@@ -278,16 +277,16 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 	 * @param res The resource to look for
 	 * @return Whether the resource was found
 	 */
-	public boolean contains(WeakReference<? extends Resource<?>> res)
+	public boolean contains(ResourceReference<? extends Resource<?>> res)
 		{
-		if (refsAreEqual(this.res,res)) return true; //Just in case
+		if (this.res == res) return true; //Just in case
 		if (children != null) for (Object obj : children)
 			if (obj instanceof ResNode)
 				{
 				ResNode node = (ResNode) obj;
 				if (node.isLeaf())
 					{
-					if (refsAreEqual(node.res,res)) return true;
+					if (node.res == res) return true;
 					}
 				else
 					{
@@ -297,14 +296,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable
 		return false;
 		}
 
-	public void setRes(WeakReference<? extends Resource<?>> res)
-		{
-		if (this.res != null) this.res.get().setNode(null);
-		this.res = res;
-		if (res != null) res.get().setNode(this);
-		}
-
-	public WeakReference<? extends Resource<?>> getRes()
+	public ResourceReference<? extends Resource<?>> getRes()
 		{
 		return res;
 		}

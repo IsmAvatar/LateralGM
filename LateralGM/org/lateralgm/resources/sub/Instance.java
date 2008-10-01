@@ -11,11 +11,11 @@
 package org.lateralgm.resources.sub;
 
 import java.awt.Point;
-import java.lang.ref.WeakReference;
 
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.ResourceReference;
 
 public class Instance
 	{
@@ -23,7 +23,7 @@ public class Instance
 
 	private Point pos;
 	//XXX: Getter and Setter?
-	public WeakReference<GmObject> gmObjectId = null;
+	public ResourceReference<GmObject> gmObjectId = null;
 	public int instanceId = 0;
 	private String creationCode = "";
 	public boolean locked = false;

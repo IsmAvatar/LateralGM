@@ -35,6 +35,12 @@ public class Background extends Resource<Background>
 
 	public Background()
 		{
+		this(null,true);
+		}
+
+	public Background(ResourceReference<Background> r, boolean update)
+		{
+		super(r,update);
 		setName(Prefs.prefixes[Resource.BACKGROUND]);
 		}
 
@@ -68,43 +74,34 @@ public class Background extends Resource<Background>
 		return null;
 		}
 
-	public Background copy()
+	protected Background copy(ResourceList<Background> src, ResourceReference<Background> ref,
+			boolean update)
 		{
-		return copy(false,null);
-		}
-
-	public Background copy(ResourceList<Background> src)
-		{
-		return copy(true,src);
-		}
-
-	private Background copy(boolean update, ResourceList<Background> src)
-		{
-		Background back = new Background();
-		back.width = width;
-		back.height = height;
-		back.transparent = transparent;
-		back.smoothEdges = smoothEdges;
-		back.preload = preload;
-		back.useAsTileSet = useAsTileSet;
-		back.tileWidth = tileWidth;
-		back.tileHeight = tileHeight;
-		back.horizOffset = horizOffset;
-		back.vertOffset = vertOffset;
-		back.horizSep = horizSep;
-		back.vertSep = vertSep;
-		back.backgroundImage = copyBackgroundImage();
-		if (update)
+		Background b = new Background(ref,update);
+		b.width = width;
+		b.height = height;
+		b.transparent = transparent;
+		b.smoothEdges = smoothEdges;
+		b.preload = preload;
+		b.useAsTileSet = useAsTileSet;
+		b.tileWidth = tileWidth;
+		b.tileHeight = tileHeight;
+		b.horizOffset = horizOffset;
+		b.vertOffset = vertOffset;
+		b.horizSep = horizSep;
+		b.vertSep = vertSep;
+		b.backgroundImage = copyBackgroundImage();
+		if (src != null)
 			{
-			back.setName(Prefs.prefixes[Resource.BACKGROUND] + (src.lastId + 1));
-			src.add(back);
+			b.setName(Prefs.prefixes[Resource.BACKGROUND] + (src.lastId + 1));
+			src.add(b);
 			}
 		else
 			{
-			back.setId(getId());
-			back.setName(getName());
+			b.setId(getId());
+			b.setName(getName());
 			}
-		return back;
+		return b;
 		}
 
 	public byte getKind()

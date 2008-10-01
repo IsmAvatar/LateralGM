@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -73,6 +72,7 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
@@ -190,7 +190,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			Instance i = (Instance) val;
 			GmObject go = deRef(i.gmObjectId);
-			JLabel lab = new JLabel(go.getName() + " " + i.instanceId, //$NON-NLS-1$
+			String name = go == null ? Messages.getString("RoomFrame.NO_OBJECT") : go.getName();
+			JLabel lab = new JLabel(name + " " + i.instanceId, //$NON-NLS-1$
 					GmTreeGraphics.getResourceIcon(i.gmObjectId),JLabel.LEFT);
 			super.getListCellRendererComponent(list,lab,ind,selected,focus);
 			lab.setOpaque(true);
@@ -206,17 +207,21 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			Tile i = (Tile) val;
 			Background bg = deRef(i.getBackgroundId());
 			ImageIcon ii;
-			try
-				{
-				Point p = i.getBackgroundPosition();
-				Dimension d = i.getSize();
-				ii = new ImageIcon(bg.backgroundImage.getSubimage(p.x,p.y,d.width,d.height));
-				}
-			catch (RasterFormatException e)
-				{
+			if (bg != null && bg.backgroundImage != null)
+				try
+					{
+					Point p = i.getBackgroundPosition();
+					Dimension d = i.getSize();
+					ii = new ImageIcon(bg.backgroundImage.getSubimage(p.x,p.y,d.width,d.height));
+					}
+				catch (RasterFormatException e)
+					{
+					ii = null;
+					}
+			else
 				ii = null;
-				}
-			JLabel lab = new JLabel(bg.getName() + " " + i.tileId,ii,JLabel.LEFT); //$NON-NLS-1$
+			String name = bg == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : bg.getName();
+			JLabel lab = new JLabel(name + " " + i.tileId,ii,JLabel.LEFT); //$NON-NLS-1$
 			super.getListCellRendererComponent(list,lab,ind,selected,focus);
 			lab.setOpaque(true);
 			return lab;
@@ -471,7 +476,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		private static final long serialVersionUID = 1L;
 		public int tx, ty;
-		private WeakReference<Background> bkg;
+		private ResourceReference<Background> bkg;
 
 		public TileSelector()
 			{
@@ -481,7 +486,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			enableEvents(MouseEvent.MOUSE_DRAGGED);
 			}
 
-		public void setBackground(WeakReference<Background> bkg)
+		public void setBackground(ResourceReference<Background> bkg)
 			{
 			this.bkg = bkg;
 			Background b = deRef(bkg);
@@ -1095,6 +1100,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	@Override
 	public void revertResource()
 		{
+		resOriginal.updateReference();
 		resOriginal.currentTab = tabs.getSelectedIndex();
 		LGM.currentFile.rooms.replace(res,resOriginal);
 		}

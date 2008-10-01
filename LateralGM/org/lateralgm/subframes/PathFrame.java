@@ -161,6 +161,7 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 
 	public void revertResource()
 		{
+		resOriginal.updateReference();
 		LGM.currentFile.paths.replace(res,resOriginal);
 		}
 

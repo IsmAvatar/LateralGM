@@ -83,6 +83,7 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 
 	public void revertResource()
 		{
+		resOriginal.updateReference();
 		LGM.currentFile.scripts.replace(res,resOriginal);
 		}
 

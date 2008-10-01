@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -11,7 +12,6 @@ package org.lateralgm.resources;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.image.BufferedImage;
-import java.lang.ref.WeakReference;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
@@ -21,10 +21,12 @@ import org.lateralgm.resources.sub.MainEvent;
 
 public class GmObject extends Resource<GmObject>
 	{
-	public static final WeakReference<GmObject> OBJECT_SELF = new WeakReference<GmObject>(null);
-	public static final WeakReference<GmObject> OBJECT_OTHER = new WeakReference<GmObject>(null);
+	public static final ResourceReference<GmObject> OBJECT_SELF = new ResourceReference<GmObject>(
+			null);
+	public static final ResourceReference<GmObject> OBJECT_OTHER = new ResourceReference<GmObject>(
+			null);
 
-	public static int refAsInt(WeakReference<GmObject> ref)
+	public static int refAsInt(ResourceReference<GmObject> ref)
 		{
 		if (ref == OBJECT_SELF) return -1;
 		if (ref == OBJECT_OTHER) return -2;
@@ -32,17 +34,23 @@ public class GmObject extends Resource<GmObject>
 		return ref.get().getId();
 		}
 
-	public WeakReference<Sprite> sprite = null;
+	public ResourceReference<Sprite> sprite = null;
 	public boolean solid = false;
 	public boolean visible = true;
 	public int depth = 0;
 	public boolean persistent = false;
-	public WeakReference<GmObject> parent = null;
-	public WeakReference<Sprite> mask = null;
+	public ResourceReference<GmObject> parent = null;
+	public ResourceReference<Sprite> mask = null;
 	public MainEvent[] mainEvents = new MainEvent[11];
 
 	public GmObject()
 		{
+		this(null,true);
+		}
+
+	public GmObject(ResourceReference<GmObject> r, boolean update)
+		{
+		super(r,update);
 		setName(Prefs.prefixes[Resource.GMOBJECT]);
 		for (int j = 0; j < 11; j++)
 			{
@@ -50,46 +58,38 @@ public class GmObject extends Resource<GmObject>
 			}
 		}
 
-	public GmObject copy()
+	@Override
+	protected GmObject copy(ResourceList<GmObject> src, ResourceReference<GmObject> ref,
+			boolean update)
 		{
-		return copy(false,null);
-		}
-
-	public GmObject copy(ResourceList<GmObject> src)
-		{
-		return copy(true,src);
-		}
-
-	private GmObject copy(boolean update, ResourceList<GmObject> src)
-		{
-		GmObject obj = new GmObject();
-		obj.sprite = sprite;
-		obj.solid = solid;
-		obj.visible = visible;
-		obj.depth = depth;
-		obj.persistent = persistent;
-		obj.parent = parent;
-		obj.mask = mask;
+		GmObject o = new GmObject(ref,update);
+		o.sprite = sprite;
+		o.solid = solid;
+		o.visible = visible;
+		o.depth = depth;
+		o.persistent = persistent;
+		o.parent = parent;
+		o.mask = mask;
 		for (int i = 0; i < 11; i++)
 			{
 			MainEvent mev = mainEvents[i];
-			MainEvent mev2 = obj.mainEvents[i];
+			MainEvent mev2 = o.mainEvents[i];
 			for (Event ev : mev.events)
 				{
 				mev2.events.add(ev.copy());
 				}
 			}
-		if (update)
+		if (src != null)
 			{
-			obj.setName(Prefs.prefixes[Resource.GMOBJECT] + (src.lastId + 1));
-			src.add(obj);
+			o.setName(Prefs.prefixes[Resource.GMOBJECT] + (src.lastId + 1));
+			src.add(o);
 			}
 		else
 			{
-			obj.setId(getId());
-			obj.setName(getName());
+			o.setId(getId());
+			o.setName(getName());
 			}
-		return obj;
+		return o;
 		}
 
 	@Override

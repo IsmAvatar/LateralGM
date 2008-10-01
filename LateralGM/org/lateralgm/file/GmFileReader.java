@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2006, 2007, 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -15,7 +15,6 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
@@ -31,6 +30,7 @@ import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
@@ -613,7 +613,7 @@ public final class GmFileReader
 				f.timelines.lastId++;
 				continue;
 				}
-			WeakReference<Timeline> r = c.timeids.get(i);
+			ResourceReference<Timeline> r = c.timeids.get(i);
 			Timeline time = r.get();
 			f.timelines.add(time);
 			time.setName(in.readStr());
@@ -645,21 +645,21 @@ public final class GmFileReader
 				f.gmObjects.lastId++;
 				continue;
 				}
-			WeakReference<GmObject> r = c.objids.get(i);
+			ResourceReference<GmObject> r = c.objids.get(i);
 			GmObject obj = r.get();
 			f.gmObjects.add(obj);
 			obj.setName(in.readStr());
 			ver = in.read4();
 			if (ver != 430) throw versionError(f,"IN","OBJECTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.sprites.getUnsafe(in.read4());
-			if (temp != null) obj.sprite = new WeakReference<Sprite>(temp);
+			if (temp != null) obj.sprite = temp.reference;
 			obj.solid = in.readBool();
 			obj.visible = in.readBool();
 			obj.depth = in.read4();
 			obj.persistent = in.readBool();
 			obj.parent = c.objids.get(in.read4());
 			temp = f.sprites.getUnsafe(in.read4());
-			if (temp != null) obj.mask = new WeakReference<Sprite>(temp);
+			if (temp != null) obj.mask = temp.reference;
 			in.skip(4);
 			for (int j = 0; j < 11; j++)
 				{
@@ -703,7 +703,7 @@ public final class GmFileReader
 				f.rooms.lastId++;
 				continue;
 				}
-			WeakReference<Room> r = c.rmids.get(i);
+			ResourceReference<Room> r = c.rmids.get(i);
 			Room rm = r.get();
 			f.rooms.add(rm);
 			rm.setName(in.readStr());
@@ -727,7 +727,7 @@ public final class GmFileReader
 				bk.visible = in.readBool();
 				bk.foreground = in.readBool();
 				Background temp = f.backgrounds.getUnsafe(in.read4());
-				if (temp != null) bk.backgroundId = new WeakReference<Background>(temp);
+				if (temp != null) bk.backgroundId = temp.reference;
 				bk.x = in.read4();
 				bk.y = in.read4();
 				bk.tileHoriz = in.readBool();
@@ -758,7 +758,7 @@ public final class GmFileReader
 				vw.hspeed = in.read4();
 				vw.vspeed = in.read4();
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
-				if (temp != null) vw.objectFollowing = new WeakReference<GmObject>(temp);
+				if (temp != null) vw.objectFollowing = temp.reference;
 				}
 			int noinstances = in.read4();
 			for (int j = 0; j < noinstances; j++)
@@ -766,7 +766,7 @@ public final class GmFileReader
 				Instance inst = rm.addInstance();
 				inst.setPosition(new Point(in.read4(),in.read4()));
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
-				if (temp != null) inst.gmObjectId = new WeakReference<GmObject>(temp);
+				if (temp != null) inst.gmObjectId = temp.reference;
 				inst.instanceId = in.read4();
 				inst.setCreationCode(in.readStr());
 				inst.locked = in.readBool();
@@ -777,8 +777,8 @@ public final class GmFileReader
 				Tile t = new Tile();
 				t.setRoomPosition(new Point(in.read4(),in.read4()));
 				Background temp = f.backgrounds.getUnsafe(in.read4());
-				WeakReference<Background> bkg = null;
-				if (temp != null) bkg = new WeakReference<Background>(temp);
+				ResourceReference<Background> bkg = null;
+				if (temp != null) bkg = temp.reference;
 				t.setBackgroundId(bkg);
 				t.setBackgroundPosition(new Point(in.read4(),in.read4()));
 				t.setSize(new Dimension(in.read4(),in.read4()));
@@ -842,19 +842,17 @@ public final class GmFileReader
 			byte type = (byte) in.read4();
 			int ind = in.read4();
 			String name = in.readStr();
-			ResNode node = new ResNode(name,status,type);
+			boolean hasRef = status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO
+					&& type != Resource.GAMESETTINGS && type != Resource.EXTENSIONS
+					&& (ver != 500 || type != Resource.FONT);
+			ResourceList<?> rl = hasRef ? f.getList(type) : null;
+			ResNode node = new ResNode(name,status,type,hasRef ? rl.getUnsafe(ind).reference : null);
 			if (ver == 500 && status == ResNode.STATUS_PRIMARY && type == Resource.FONT)
 				path.peek().addChild(Messages.getString("LGM.FONTS"),status,type); //$NON-NLS-1$
 			else
 				path.peek().add(node);
-			if (status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO
-					&& type != Resource.GAMESETTINGS && type != Resource.EXTENSIONS
-					&& (ver != 500 || type != Resource.FONT))
-				{
-				node.setRes(new WeakReference<Resource<?>>(f.getList(node.kind).getUnsafe(ind)));
-				// GM actually ignores the name given in the tree data
-				node.setUserObject(f.getList(node.kind).getUnsafe(ind).getName());
-				}
+			// GM actually ignores the name given in the tree data
+			if (hasRef) node.setUserObject(rl.getUnsafe(ind).getName());
 			int contents = in.read4();
 			if (contents > 0)
 				{
@@ -995,7 +993,7 @@ public final class GmFileReader
 					}
 				if (res != null && res != tag)
 					{
-					args[l].setRes(new WeakReference<Resource<?>>(res));
+					args[l].setRes(res.reference);
 					}
 				act.setArguments(args);
 				}

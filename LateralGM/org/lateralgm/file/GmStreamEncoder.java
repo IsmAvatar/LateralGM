@@ -20,12 +20,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.ref.WeakReference;
 import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
 
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 
 public class GmStreamEncoder
 	{
@@ -145,12 +145,13 @@ public class GmStreamEncoder
 			}
 		}
 
-	public void writeId(WeakReference<? extends Resource<?>> id) throws IOException
+	public <R extends Resource<R>>void writeId(ResourceReference<R> id) throws IOException
 		{
 		writeId(id,-1);
 		}
 
-	public void writeId(WeakReference<? extends Resource<?>> id, int noneval) throws IOException
+	public <R extends Resource<R>>void writeId(ResourceReference<R> id, int noneval)
+			throws IOException
 		{
 		if (deRef(id) != null)
 			write4(id.get().getId());

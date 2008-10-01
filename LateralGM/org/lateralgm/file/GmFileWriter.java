@@ -15,7 +15,6 @@ import static org.lateralgm.main.Util.deRef;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -28,6 +27,7 @@ import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
@@ -538,7 +538,7 @@ public final class GmFileWriter
 			ResNode node = (ResNode) e.nextElement();
 			out.write4(node.status);
 			out.write4(node.kind);
-			Resource<? extends Resource<?>> res = deRef(node.getRes());
+			Resource<?> res = deRef((ResourceReference<?>) node.getRes());
 			if (res != null)
 				out.write4(res.getId());
 			else
@@ -579,7 +579,7 @@ public final class GmFileWriter
 			for (Argument arg : args)
 				out.write4(arg.kind);
 
-			WeakReference<GmObject> at = act.getAppliesTo();
+			ResourceReference<GmObject> at = act.getAppliesTo();
 			if (at != null)
 				{
 				if (at == GmObject.OBJECT_OTHER)
@@ -607,7 +607,7 @@ public final class GmFileWriter
 					case Argument.ARG_ROOM:
 					case Argument.ARG_FONT:
 					case Argument.ARG_TIMELINE:
-						Resource<?> r = deRef(arg.getRes());
+						Resource<?> r = deRef((ResourceReference<?>) arg.getRes());
 						if (r != null)
 							out.writeStr(Integer.toString(r.getId()));
 						else

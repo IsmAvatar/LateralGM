@@ -39,7 +39,7 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 	public boolean add(R res)
 		{
 		super.add(res);
-		res.updateSource.addListener(this);
+		res.reference.updateSource.addListener(this);
 		updateTrigger.fire();
 		res.setId(++lastId);
 		return true;
@@ -94,7 +94,7 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 		{
 		R res = get(index);
 		super.remove(index);
-		res.updateSource.removeListener(this);
+		res.reference.updateSource.removeListener(this);
 		updateTrigger.fire();
 		return res;
 		}
@@ -104,7 +104,7 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 		if (size() == 0) return;
 		for (R r : this)
 			{
-			r.updateSource.removeListener(this);
+			r.reference.updateSource.removeListener(this);
 			}
 		super.clear();
 		updateTrigger.fire();
@@ -144,8 +144,8 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 	public R set(int index, R res)
 		{
 		R old = super.set(index,res);
-		old.updateSource.removeListener(this);
-		res.updateSource.addListener(this);
+		old.reference.updateSource.removeListener(this);
+		res.reference.updateSource.addListener(this);
 		updateTrigger.fire();
 		return old;
 		}

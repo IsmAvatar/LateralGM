@@ -21,7 +21,6 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -57,6 +56,7 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
 import org.lateralgm.resources.sub.Action;
@@ -92,7 +92,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			setFrameIcon(new ImageIcon(la.actImage.getScaledInstance(16,16,Image.SCALE_SMOOTH)));
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		String s;
-		WeakReference<GmObject> at = a.getAppliesTo();
+		ResourceReference<GmObject> at = a.getAppliesTo();
 		if (at == GmObject.OBJECT_SELF)
 			s = Messages.getString("ActionFrame.SELF"); //$NON-NLS-1$
 		else
@@ -286,11 +286,11 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		pane.add(discard);
 		}
 
-	public WeakReference<GmObject> getApplies()
+	public ResourceReference<GmObject> getApplies()
 		{
 		if (applies.getValue() >= 0)
 			{
-			WeakReference<GmObject> sel = appliesObject.getSelected();
+			ResourceReference<GmObject> sel = appliesObject.getSelected();
 			if (sel != null) return sel;
 			return act.getAppliesTo();
 			}

@@ -8,9 +8,8 @@
 
 package org.lateralgm.resources.sub;
 
-import java.lang.ref.WeakReference;
-
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.ResourceReference;
 
 public class View
 	{
@@ -27,5 +26,5 @@ public class View
 	public int vbor = 32;
 	public int hspeed = -1;
 	public int vspeed = -1;
-	public WeakReference<GmObject> objectFollowing = null;
+	public ResourceReference<GmObject> objectFollowing = null;
 	}

@@ -13,13 +13,13 @@ package org.lateralgm.resources.sub;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.event.KeyEvent;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.ResourceReference;
 
 public class Event extends ActionContainer implements Comparable<Event>
 	{
@@ -111,7 +111,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 	 */
 
 	public int id = 0;
-	public WeakReference<GmObject> other = null; // For collision Events
+	public ResourceReference<GmObject> other = null; // For collision Events
 	public int mainId = 0;
 
 	public static final List<Integer> KEYS;
@@ -126,13 +126,13 @@ public class Event extends ActionContainer implements Comparable<Event>
 		this.id = id;
 		}
 
-	public Event(int mainId, WeakReference<GmObject> other)
+	public Event(int mainId, ResourceReference<GmObject> other)
 		{
 		this.mainId = mainId;
 		this.other = other;
 		}
 
-	public Event(int mainId, int id, WeakReference<GmObject> other)
+	public Event(int mainId, int id, ResourceReference<GmObject> other)
 		{
 		this.mainId = mainId;
 		this.id = id;

@@ -220,6 +220,7 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public void revertResource()
 		{
+		resOriginal.updateReference();
 		LGM.currentFile.fonts.replace(res,resOriginal);
 		}
 

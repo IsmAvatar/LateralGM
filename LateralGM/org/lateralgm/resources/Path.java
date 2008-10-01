@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -9,7 +10,6 @@
 
 package org.lateralgm.resources;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.lateralgm.file.ResourceList;
@@ -21,13 +21,19 @@ public class Path extends Resource<Path>
 	public boolean smooth = false;
 	public boolean closed = true;
 	public int precision = 4;
-	public WeakReference<Room> backgroundRoom = null;
+	public ResourceReference<Room> backgroundRoom = null;
 	public int snapX = 16;
 	public int snapY = 16;
 	public ArrayList<PathPoint> points = new ArrayList<PathPoint>();
 
 	public Path()
 		{
+		this(null,true);
+		}
+
+	public Path(ResourceReference<Path> r, boolean update)
+		{
+		super(r,update);
 		setName(Prefs.prefixes[Resource.PATH]);
 		}
 
@@ -38,43 +44,34 @@ public class Path extends Resource<Path>
 		return point;
 		}
 
-	public Path copy()
+	@Override
+	protected Path copy(ResourceList<Path> src, ResourceReference<Path> ref, boolean update)
 		{
-		return copy(false,null);
-		}
-
-	public Path copy(ResourceList<Path> src)
-		{
-		return copy(true,src);
-		}
-
-	private Path copy(boolean update, ResourceList<Path> src)
-		{
-		Path path = new Path();
-		path.smooth = smooth;
-		path.closed = closed;
-		path.precision = precision;
-		path.backgroundRoom = backgroundRoom;
-		path.snapX = snapX;
-		path.snapY = snapY;
+		Path p = new Path(ref,update);
+		p.smooth = smooth;
+		p.closed = closed;
+		p.precision = precision;
+		p.backgroundRoom = backgroundRoom;
+		p.snapX = snapX;
+		p.snapY = snapY;
 		for (PathPoint point : points)
 			{
-			PathPoint point2 = path.addPoint();
+			PathPoint point2 = p.addPoint();
 			point2.x = point.x;
 			point2.y = point.y;
 			point2.speed = point.speed;
 			}
-		if (update)
+		if (src != null)
 			{
-			path.setName(Prefs.prefixes[Resource.PATH] + (src.lastId + 1));
-			src.add(path);
+			p.setName(Prefs.prefixes[Resource.PATH] + (src.lastId + 1));
+			src.add(p);
 			}
 		else
 			{
-			path.setId(getId());
-			path.setName(getName());
+			p.setId(getId());
+			p.setName(getName());
 			}
-		return path;
+		return p;
 		}
 
 	public byte getKind()

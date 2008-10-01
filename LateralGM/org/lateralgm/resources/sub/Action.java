@@ -9,7 +9,6 @@
 
 package org.lateralgm.resources.sub;
 
-import java.lang.ref.WeakReference;
 import java.util.AbstractList;
 import java.util.List;
 
@@ -18,6 +17,7 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
 
@@ -48,7 +48,7 @@ public class Action implements UpdateListener
 	// The actual Action properties
 	private boolean relative = false;
 	private boolean not = false;
-	private WeakReference<GmObject> appliesTo = GmObject.OBJECT_SELF;
+	private ResourceReference<GmObject> appliesTo = GmObject.OBJECT_SELF;
 
 	private ArgumentList arguments;
 
@@ -120,12 +120,12 @@ public class Action implements UpdateListener
 		fireUpdate();
 		}
 
-	public WeakReference<GmObject> getAppliesTo()
+	public ResourceReference<GmObject> getAppliesTo()
 		{
 		return appliesTo;
 		}
 
-	public void setAppliesTo(WeakReference<GmObject> appliesTo)
+	public void setAppliesTo(ResourceReference<GmObject> appliesTo)
 		{
 		this.appliesTo = appliesTo;
 		fireUpdate();

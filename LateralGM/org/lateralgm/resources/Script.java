@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,38 +18,35 @@ public class Script extends Resource<Script>
 
 	public Script()
 		{
+		this(null,true);
+		}
+
+	public Script(ResourceReference<Script> r, boolean update)
+		{
+		super(r,update);
 		setName(Prefs.prefixes[Resource.SCRIPT]);
 		}
 
-	private Script copy(boolean update, ResourceList<Script> src)
+	@Override
+	protected Script copy(ResourceList<Script> src, ResourceReference<Script> ref, boolean update)
 		{
-		Script scr = new Script();
-		scr.scriptStr = scriptStr;
-		if (update)
+		Script s = new Script(ref,update);
+		s.scriptStr = scriptStr;
+		if (src != null)
 			{
-			scr.setName(Prefs.prefixes[Resource.SCRIPT] + (src.lastId + 1));
-			src.add(scr);
+			s.setName(Prefs.prefixes[Resource.SCRIPT] + (src.lastId + 1));
+			src.add(s);
 			}
 		else
 			{
-			scr.setId(getId());
-			scr.setName(getName());
+			s.setId(getId());
+			s.setName(getName());
 			}
-		return scr;
+		return s;
 		}
 
 	public byte getKind()
 		{
 		return SCRIPT;
-		}
-
-	public Script copy(ResourceList<Script> src)
-		{
-		return copy(true,src);
-		}
-
-	public Script copy()
-		{
-		return copy(false,null);
 		}
 	}

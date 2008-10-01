@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -22,39 +23,35 @@ public class Font extends Resource<Font>
 
 	public Font()
 		{
+		this(null,true);
+		}
+
+	public Font(ResourceReference<Font> r, boolean update)
+		{
+		super(r,update);
 		setName(Prefs.prefixes[Resource.FONT]);
 		}
 
-	public Font copy()
+	protected Font copy(ResourceList<Font> src, ResourceReference<Font> ref, boolean update)
 		{
-		return copy(false,null);
-		}
-
-	public Font copy(ResourceList<Font> src)
-		{
-		return copy(true,src);
-		}
-
-	private Font copy(boolean update, ResourceList<Font> src)
-		{
-		Font font = new Font();
-		font.fontName = fontName;
-		font.size = size;
-		font.bold = bold;
-		font.italic = italic;
-		font.charRangeMin = charRangeMin;
-		font.charRangeMax = charRangeMax;
-		if (update)
+		Font f = new Font(ref,update);
+		f.fontName = fontName;
+		f.size = size;
+		f.bold = bold;
+		f.italic = italic;
+		f.charRangeMin = charRangeMin;
+		f.charRangeMax = charRangeMax;
+		if (src != null)
 			{
-			font.setName(Prefs.prefixes[Resource.FONT] + (src.lastId + 1));
-			src.add(font);
+			f.setName(Prefs.prefixes[Resource.FONT] + (src.lastId + 1));
+			src.add(f);
 			}
 		else
 			{
-			font.setId(getId());
-			font.setName(getName());
+			f.setId(getId());
+			f.setName(getName());
 			}
-		return font;
+		return f;
 		}
 
 	public byte getKind()

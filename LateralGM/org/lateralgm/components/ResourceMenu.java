@@ -52,13 +52,14 @@ import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 
 public class ResourceMenu<R extends Resource<R>> extends JPanel implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private JLabel label;
 	private JButton button;
-	protected WeakReference<R> selected;
+	protected ResourceReference<R> selected;
 	protected JPopupMenu pm;
 	protected JMenuItem noResource;
 	protected boolean onlyOpen;
@@ -239,9 +240,9 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 			setToolTipText(""); //$NON-NLS-1$
 			}
 
-		public void setResource(WeakReference<? extends Resource<?>> r)
+		public <R extends Resource<R>>void setResource(ResourceReference<R> r)
 			{
-			Resource<?> res = Util.deRef(r);
+			Resource<R> res = Util.deRef(r);
 			displayImage = res == null ? null : res.getDisplayImage();
 			setIcon(displayImage == null ? null : GmTreeGraphics.getScaledIcon(displayImage));
 			}
@@ -421,12 +422,12 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		pm.show(c,x,y);
 		}
 
-	public WeakReference<R> getSelected()
+	public ResourceReference<R> getSelected()
 		{
 		return selected;
 		}
 
-	public void setSelected(WeakReference<R> res)
+	public void setSelected(ResourceReference<R> res)
 		{
 		selected = res;
 		Resource<R> r = deRef(res);
@@ -446,7 +447,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		{
 		JMenuItem source = (JMenuItem) e.getSource();
 		if (source instanceof ResourceMenu.ResourceMenuItem)
-			setSelected((WeakReference<R>) ((ResourceMenuItem) source).node.getRes());
+			setSelected((ResourceReference<R>) ((ResourceMenuItem) source).node.getRes());
 		else
 			setSelected(null);
 		fireActionPerformed();

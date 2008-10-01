@@ -22,7 +22,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +39,7 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.sub.BackgroundDef;
@@ -176,7 +176,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 				{
 				if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 					{
-					WeakReference<Background> bkg = frame.taSource.getSelected();
+					ResourceReference<Background> bkg = frame.taSource.getSelected();
 					if (bkg == null) return; //I'd rather just break out of this IF, but this works
 					Background b = bkg.get();
 					Tile t = new Tile(LGM.currentFile);
@@ -194,7 +194,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 					}
 				else if (frame.tabs.getSelectedIndex() == Room.TAB_OBJECTS)
 					{
-					WeakReference<GmObject> obj = frame.oNew.getSelected();
+					ResourceReference<GmObject> obj = frame.oNew.getSelected();
 					if (obj == null) return; //I'd rather just break out of this IF, but this works
 					Instance i = room.addInstance();
 					i.gmObjectId = obj;
@@ -326,7 +326,9 @@ public class RoomEditor extends JPanel implements ImageObserver
 				String idt = Messages.getString("RoomFrame.STAT_ID") + tile.tileId; //$NON-NLS-1$
 				if (mc.isLocked()) idt += " X"; //$NON-NLS-1$
 				frame.statId.setText(idt);
-				idt = Messages.getString("RoomFrame.STAT_TILESET") + tile.getBackgroundId().get().getName(); //$NON-NLS-1$
+				Background b = deRef(tile.getBackgroundId());
+				String name = b == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : b.getName();
+				idt = Messages.getString("RoomFrame.STAT_TILESET") + name; //$NON-NLS-1$
 				frame.statSrc.setText(idt);
 				}
 			}
@@ -339,7 +341,9 @@ public class RoomEditor extends JPanel implements ImageObserver
 				String idt = Messages.getString("RoomFrame.STAT_ID") + instance.instanceId; //$NON-NLS-1$
 				if (mc.isLocked()) idt += " X"; //$NON-NLS-1$
 				frame.statId.setText(idt);
-				idt = Messages.getString("RoomFrame.STAT_OBJECT") + instance.gmObjectId.get().getName(); //$NON-NLS-1$
+				GmObject o = deRef(instance.gmObjectId);
+				String name = o == null ? Messages.getString("RoomFrame.NO_OBJECT") : o.getName();
+				idt = Messages.getString("RoomFrame.STAT_OBJECT") + name; //$NON-NLS-1$
 				frame.statSrc.setText(idt);
 				}
 			if (frame.tabs.getSelectedIndex() != Room.TAB_OBJECTS) return;
@@ -551,13 +555,13 @@ public class RoomEditor extends JPanel implements ImageObserver
 		{
 		private static final long serialVersionUID = 1L;
 		protected final Instance instance;
-		private final GmObject object;
-		private Sprite sprite;
+		private final ResourceReference<GmObject> object;
+		private ResourceReference<Sprite> sprite;
 
 		public InstanceComponent(Instance i)
 			{
 			instance = i;
-			object = deRef(i.gmObjectId);
+			object = i.gmObjectId;
 			if (object == null) image = EMPTY_IMAGE;
 			}
 
@@ -581,7 +585,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		protected void updateSource()
 			{
-			Sprite s = deRef(object.sprite);
+			GmObject o = deRef(object);
+			ResourceReference<Sprite> s = o == null ? null : o.sprite;
 			if (s != sprite)
 				{
 				if (sprite != null) sprite.updateSource.removeListener(rul);
@@ -606,17 +611,18 @@ public class RoomEditor extends JPanel implements ImageObserver
 			Point p = instance.getPosition();
 			int x = p.x, y = p.y;
 			int width, height;
-			if (sprite == null)
+			Sprite s = deRef(sprite);
+			if (s == null)
 				{
 				width = EMPTY_IMAGE.getWidth();
 				height = EMPTY_IMAGE.getHeight();
 				}
 			else
 				{
-				x -= sprite.originX;
-				y -= sprite.originY;
-				width = sprite.width;
-				height = sprite.height;
+				x -= s.originX;
+				y -= s.originY;
+				width = s.width;
+				height = s.height;
 				}
 			region = new Rectangle(x,y,width,height);
 			invalidate();
@@ -624,7 +630,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		private void updateImage()
 			{
-			image = sprite == null ? null : sprite.getDisplayImage();
+			Sprite s = deRef(sprite);
+			image = s == null ? null : s.getDisplayImage();
 			if (image == null)
 				{
 				image = EMPTY_IMAGE;
@@ -632,7 +639,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 				}
 			else
 				{
-				setOpaque(!sprite.transparent);
+				setOpaque(!s.transparent);
 				}
 			}
 
@@ -660,7 +667,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		public int getDepth()
 			{
-			GmObject o = instance.gmObjectId.get();
+			GmObject o = deRef(object);
 			return o == null ? 0 : o.depth;
 			}
 
@@ -674,15 +681,14 @@ public class RoomEditor extends JPanel implements ImageObserver
 		{
 		private static final long serialVersionUID = 1L;
 		protected final Tile tile;
-		private Background background;
+		private ResourceReference<Background> background;
 
-		WeakReference<Background> bg = null;
 		BufferedImage bi = null;
 
 		public TileComponent(Tile t)
 			{
 			tile = t;
-			background = deRef(t.getBackgroundId());
+			background = t.getBackgroundId();
 			if (background == null) image = EMPTY_IMAGE;
 			}
 
@@ -704,7 +710,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		protected void updateSource()
 			{
-			Background b = deRef(tile.getBackgroundId());
+			ResourceReference<Background> b = tile.getBackgroundId();
 			if (b != background)
 				{
 				if (background != null) background.updateSource.removeListener(rul);
@@ -732,7 +738,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 		private void updateImage()
 			{
-			image = background == null ? null : background.getDisplayImage();
+			Background b = deRef(background);
+			image = b == null ? null : b.getDisplayImage();
 			if (image == null)
 				{
 				image = EMPTY_IMAGE;
@@ -743,7 +750,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 				Point p = tile.getBackgroundPosition();
 				Dimension d = tile.getSize();
 				image = image.getSubimage(p.x,p.y,d.width,d.height);
-				setOpaque(!background.transparent);
+				setOpaque(!b.transparent);
 				}
 			}
 

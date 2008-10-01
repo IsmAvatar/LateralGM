@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -21,6 +22,12 @@ public class Timeline extends Resource<Timeline>
 
 	public Timeline()
 		{
+		this(null,true);
+		}
+
+	public Timeline(ResourceReference<Timeline> r, boolean update)
+		{
+		super(r,update);
 		setName(Prefs.prefixes[Resource.TIMELINE]);
 		}
 
@@ -31,35 +38,27 @@ public class Timeline extends Resource<Timeline>
 		return m;
 		}
 
-	private Timeline copy(boolean update, ResourceList<Timeline> src)
+	@Override
+	protected Timeline copy(ResourceList<Timeline> src, ResourceReference<Timeline> ref,
+			boolean update)
 		{
-		Timeline time = new Timeline();
+		Timeline t = new Timeline(ref,update);
 		for (Moment mom : moments)
 			{
 			Moment mom2 = mom.copy();
-			time.moments.add(mom2);
+			t.moments.add(mom2);
 			}
-		if (update)
+		if (src != null)
 			{
-			time.setName(Prefs.prefixes[Resource.TIMELINE] + (src.lastId + 1));
-			src.add(time);
+			t.setName(Prefs.prefixes[Resource.TIMELINE] + (src.lastId + 1));
+			src.add(t);
 			}
 		else
 			{
-			time.setId(getId());
-			time.setName(getName());
+			t.setId(getId());
+			t.setName(getName());
 			}
-		return time;
-		}
-
-	public Timeline copy()
-		{
-		return copy(false,null);
-		}
-
-	public Timeline copy(ResourceList<Timeline> src)
-		{
-		return copy(true,src);
+		return t;
 		}
 
 	/**

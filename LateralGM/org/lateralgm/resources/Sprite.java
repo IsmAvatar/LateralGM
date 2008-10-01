@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -48,6 +49,12 @@ public class Sprite extends Resource<Sprite>
 
 	public Sprite()
 		{
+		this(null,true);
+		}
+
+	public Sprite(ResourceReference<Sprite> r, boolean update)
+		{
+		super(r,update);
 		setName(Prefs.prefixes[Resource.SPRITE]);
 		}
 
@@ -108,45 +115,36 @@ public class Sprite extends Resource<Sprite>
 		return bi;
 		}
 
-	private Sprite copy(boolean update, ResourceList<Sprite> src)
+	@Override
+	protected Sprite copy(ResourceList<Sprite> src, ResourceReference<Sprite> ref, boolean update)
 		{
-		Sprite spr = new Sprite();
-		spr.width = width;
-		spr.height = height;
-		spr.transparent = transparent;
-		spr.preciseCC = preciseCC;
-		spr.smoothEdges = smoothEdges;
-		spr.preload = preload;
-		spr.originX = originX;
-		spr.originY = originY;
-		spr.boundingBoxMode = boundingBoxMode;
-		spr.boundingBoxLeft = boundingBoxLeft;
-		spr.boundingBoxRight = boundingBoxRight;
-		spr.boundingBoxTop = boundingBoxTop;
-		spr.boundingBoxBottom = boundingBoxBottom;
+		Sprite s = new Sprite(ref,update);
+		s.width = width;
+		s.height = height;
+		s.transparent = transparent;
+		s.preciseCC = preciseCC;
+		s.smoothEdges = smoothEdges;
+		s.preload = preload;
+		s.originX = originX;
+		s.originY = originY;
+		s.boundingBoxMode = boundingBoxMode;
+		s.boundingBoxLeft = boundingBoxLeft;
+		s.boundingBoxRight = boundingBoxRight;
+		s.boundingBoxTop = boundingBoxTop;
+		s.boundingBoxBottom = boundingBoxBottom;
 		for (int j = 0; j < subImages.size(); j++)
-			spr.addSubImage(copySubImage(j));
-		if (update)
+			s.addSubImage(copySubImage(j));
+		if (src != null)
 			{
-			spr.setName(Prefs.prefixes[Resource.SPRITE] + (src.lastId + 1));
-			src.add(spr);
+			s.setName(Prefs.prefixes[Resource.SPRITE] + (src.lastId + 1));
+			src.add(s);
 			}
 		else
 			{
-			spr.setId(getId());
-			spr.setName(getName());
+			s.setId(getId());
+			s.setName(getName());
 			}
-		return spr;
-		}
-
-	public Sprite copy()
-		{
-		return copy(false,null);
-		}
-
-	public Sprite copy(ResourceList<Sprite> src)
-		{
-		return copy(true,src);
+		return s;
 		}
 
 	public byte getKind()

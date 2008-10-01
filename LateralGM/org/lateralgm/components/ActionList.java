@@ -22,7 +22,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,6 +51,7 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
@@ -587,7 +587,7 @@ public class ActionList extends JList
 					}
 				if (c == 'r' && a.isRelative()) ret += Messages.getString("Action.RELATIVE"); //$NON-NLS-1$
 				if (c == 'N' && a.isNot()) ret += Messages.getString("Action.NOT"); //$NON-NLS-1$
-				WeakReference<GmObject> at = a.getAppliesTo();
+				ResourceReference<GmObject> at = a.getAppliesTo();
 				if (c == 'w' && !at.equals(GmObject.OBJECT_SELF))
 					{
 					if (at.equals(GmObject.OBJECT_OTHER))

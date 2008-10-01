@@ -10,11 +10,10 @@
 
 package org.lateralgm.resources.sub;
 
-import java.lang.ref.WeakReference;
-
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.library.LibArgument;
 
 public class Argument
@@ -39,12 +38,12 @@ public class Argument
 
 	public final byte kind;
 	private String val;
-	private WeakReference<? extends Resource<?>> res; // for references to Resources
+	private ResourceReference<? extends Resource<?>> res; // for references to Resources
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
-	public Argument(byte kind, String val, WeakReference<? extends Resource<?>> res)
+	public Argument(byte kind, String val, ResourceReference<? extends Resource<?>> res)
 		{
 		this.kind = kind;
 		this.val = val;
@@ -141,12 +140,12 @@ public class Argument
 		fireStateChanged();
 		}
 
-	public WeakReference<? extends Resource<?>> getRes()
+	public ResourceReference<? extends Resource<?>> getRes()
 		{
 		return res;
 		}
 
-	public void setRes(WeakReference<? extends Resource<?>> res)
+	public void setRes(ResourceReference<? extends Resource<?>> res)
 		{
 		this.res = res;
 		fireStateChanged();

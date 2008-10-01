@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 
@@ -53,6 +52,7 @@ import org.lateralgm.file.GmFormatException;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 
 public class Listener extends TransferHandler implements ActionListener,CellEditorListener
 	{
@@ -135,8 +135,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				if (rn.status != ResNode.STATUS_PRIMARY) continue;
 				ResourceList<?> rl = LGM.currentFile.getList(rn.kind);
 				for (Resource<?> r : rl)
-					rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getKind(),
-							new WeakReference<Resource<?>>(r)));
+					rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getKind(),r.reference));
 				}
 			}
 		LGM.tree.setModel(new DefaultTreeModel(newroot));
@@ -305,7 +304,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 		Resource<?> resource = res == null ? LGM.currentFile.getList(parent.kind).add() : res;
 		ResNode g = new ResNode(resource.getName(),ResNode.STATUS_SECONDARY,parent.kind,
-				new WeakReference<Resource<?>>(resource));
+				resource.reference);
 		parent.insert(g,pos);
 		tree.expandPath(new TreePath(parent.getPath()));
 		tree.setSelectionPath(new TreePath(g.getPath()));
@@ -333,7 +332,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				ResNode node = (ResNode) nodes.nextElement();
 				if (node.frame != null) node.frame.dispose();
 				if (node.status == ResNode.STATUS_SECONDARY)
-					LGM.currentFile.getList(node.kind).remove(deRef(node.getRes()));
+					{
+					Resource<?> res = deRef((ResourceReference<?>) node.getRes());
+					if (res != null) res.dispose();
+					LGM.currentFile.getList(node.kind).remove(res);
+					}
 				}
 			me.removeFromParent();
 			tree.updateUI();

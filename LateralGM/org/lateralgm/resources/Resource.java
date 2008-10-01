@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * 
@@ -28,8 +29,6 @@ import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.UpdateSource;
-import org.lateralgm.main.UpdateSource.UpdateTrigger;
 
 public abstract class Resource<R extends Resource<R>> implements Comparable<Resource<R>>
 	{
@@ -64,12 +63,27 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 		ICON[EXTENSIONS] = GmTreeGraphics.getBlankIcon();
 		}
 
-	private final UpdateTrigger updateTrigger = new UpdateTrigger();
-	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
-
 	private ResNode node;
 	private String name = "";
 	private int id;
+	public final ResourceReference<R> reference;
+
+	public Resource()
+		{
+		this(null,true);
+		}
+
+	@SuppressWarnings("unchecked")
+	public Resource(ResourceReference<R> r, boolean update)
+		{
+		if (r == null)
+			reference = new ResourceReference<R>((R) this);
+		else
+			{
+			reference = r;
+			if (update) updateReference();
+			}
+		}
 
 	public void setId(int id)
 		{
@@ -89,7 +103,7 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 
 	protected void fireUpdate()
 		{
-		updateTrigger.fire();
+		reference.updateTrigger.fire();
 		}
 
 	public String getName()
@@ -118,9 +132,28 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 		return null;
 		}
 
-	public abstract R copy(ResourceList<R> src);
+	@SuppressWarnings("unchecked")
+	public final void updateReference()
+		{
+		reference.set((R) this);
+		}
 
-	public abstract R copy();
+	public final R copy(ResourceList<R> src)
+		{
+		return copy(src,null,true);
+		}
+
+	public final R clone()
+		{
+		return copy(null,reference,false);
+		}
+
+	public void dispose()
+		{
+		reference.set(null);
+		}
+
+	protected abstract R copy(ResourceList<R> src, ResourceReference<R> ref, boolean update);
 
 	public abstract byte getKind();
 
