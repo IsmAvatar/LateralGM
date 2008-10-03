@@ -2,6 +2,7 @@
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -20,10 +21,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.Enumeration;
 
 import javax.swing.JComponent;
@@ -160,52 +158,94 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		LGM.getGameInfo().setVisible(false);
 		}
 
-	public void saveFile()
+	public static class BackupException extends Exception
+		{
+		private static final long serialVersionUID = 1L;
+
+		public BackupException(String message)
+			{
+			super(message);
+			}
+
+		public BackupException(Throwable cause)
+			{
+			super(cause);
+			}
+		}
+
+	private static void pushBackups(String fn) throws BackupException
+		{
+		int nb = PrefsStore.getNumberOfBackups();
+		if (nb <= 0 || !new File(fn).exists()) return;
+		String bn;
+		if (fn.endsWith(".gm6"))
+			bn = fn.substring(0,fn.length() - 4);
+		else
+			bn = fn;
+		block:
+			{
+			String ff = "%s.gb%d";
+			int i;
+			for (i = 1; i <= nb; i++)
+				{
+				String f = String.format(ff,bn,i);
+				if (!new File(f).exists()) break;
+				}
+			if (i > nb)
+				{
+				i = nb;
+				if (!new File(String.format(ff,bn,i)).delete()) break block;
+				}
+			for (i--; i >= 0; i--)
+				{
+				File f = new File(i > 0 ? String.format(ff,bn,i) : fn);
+				if (!f.renameTo(new File(String.format(ff,bn,i + 1)))) break block;
+				}
+			return;
+			}
+		throw new BackupException(fn);
+		}
+
+	public boolean saveFile()
 		{
 		if (LGM.currentFile.filename == null)
 			{
-			saveNewFile();
-			return;
+			return saveNewFile();
 			}
 		LGM.commitAll();
-
-		String fn = LGM.currentFile.filename;
-		int p = fn.lastIndexOf("."); //$NON-NLS-1$
-		if (p != -1) fn = fn.substring(0,p);
-		fn += ".gb1"; //$NON-NLS-1$
-
-		//Copy file
-		FileChannel inChannel = null, outChannel = null;
 		try
 			{
-			inChannel = new FileInputStream(LGM.currentFile.filename).getChannel();
-			outChannel = new FileOutputStream(new File(fn)).getChannel();
-			inChannel.transferTo(0,inChannel.size(),outChannel);
+			pushBackups(LGM.currentFile.filename);
+			}
+		catch (BackupException e)
+			{
+			int result = JOptionPane.showOptionDialog(LGM.frame,Messages.format("Listener.ERROR_BACKUP",
+					LGM.currentFile.filename),Messages.getString("Listener.ERROR_BACKUP_TITLE"),
+					JOptionPane.YES_NO_OPTION,JOptionPane.ERROR_MESSAGE,null,null,null);
+			if (result != JOptionPane.YES_OPTION) return false;
+			}
+		try
+			{
+			GmFileWriter.writeGmFile(LGM.currentFile,LGM.root);
+			return true;
 			}
 		catch (IOException e)
 			{
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(LGM.frame,Messages.format("Listener.ERROR_SAVE",
+					LGM.currentFile.filename,e.getClass().getName(),e.getMessage()),
+					Messages.getString("Listener.ERROR_SAVE_TITLE"),JOptionPane.ERROR_MESSAGE);
+			return false;
 			}
-		try
-			{
-			if (outChannel != null) outChannel.close();
-			if (inChannel != null) inChannel.close();
-			}
-		catch (IOException e)
-			{
-			e.printStackTrace();
-			}
-
-		GmFileWriter.writeGmFile(LGM.currentFile,LGM.root);
-		return;
 		}
 
-	public void saveNewFile()
+	public boolean saveNewFile()
 		{
 		fc.setFilterSet(saveFs);
+		fc.setSelectedFile(new File(LGM.currentFile.filename));
 		while (true) //repeatedly display dialog until a valid response is given
 			{
-			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
+			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return false;
 			String filename = fc.getSelectedFile().getPath();
 			if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
 			int result = JOptionPane.YES_OPTION;
@@ -216,13 +256,14 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 						JOptionPane.WARNING_MESSAGE);
 			if (result == JOptionPane.YES_OPTION)
 				{
-				LGM.commitAll();
 				LGM.currentFile.filename = filename;
 				LGM.frame.setTitle(Messages.format("LGM.TITLE",new File(filename).getName())); //$NON-NLS-1$
-				GmFileWriter.writeGmFile(LGM.currentFile,LGM.root);
-				return;
+				if (!saveFile()) return false;
+				PrefsStore.addRecentFile(filename);
+				((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+				return true;
 				}
-			if (result == JOptionPane.CANCEL_OPTION) return;
+			if (result == JOptionPane.CANCEL_OPTION) return false;
 			}
 		}
 

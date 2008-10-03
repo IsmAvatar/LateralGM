@@ -13,7 +13,6 @@ package org.lateralgm.file;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
@@ -53,62 +52,51 @@ public final class GmFileWriter
 		{
 		}
 
-	public static void writeGmFile(GmFile f, ResNode root)
+	public static void writeGmFile(GmFile f, ResNode root) throws IOException
 		{
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = null;
-		try
-			{
-			out = new GmStreamEncoder(f.filename);
-			out.write4(1234321);
-			out.write4(600);
+		out = new GmStreamEncoder(f.filename);
+		out.write4(1234321);
+		out.write4(600);
 
-			writeSettings(f,out,savetime);
-			writeSounds(f,out);
-			writeSprites(f,out);
-			writeBackgrounds(f,out);
-			writePaths(f,out);
-			writeScripts(f,out);
-			writeFonts(f,out);
-			writeTimelines(f,out);
-			writeGmObjects(f,out);
-			writeRooms(f,out);
+		writeSettings(f,out,savetime);
+		writeSounds(f,out);
+		writeSprites(f,out);
+		writeBackgrounds(f,out);
+		writePaths(f,out);
+		writeScripts(f,out);
+		writeFonts(f,out);
+		writeTimelines(f,out);
+		writeGmObjects(f,out);
+		writeRooms(f,out);
 
-			out.write4(f.lastInstanceId);
-			out.write4(f.lastTileId);
+		out.write4(f.lastInstanceId);
+		out.write4(f.lastTileId);
 
-			// GAME INFO SETTINGS
-			out.write4(600);
-			out.write4(Util.getGmColor(f.gameInfo.backgroundColor));
-			out.writeBool(f.gameInfo.mimicGameWindow);
-			out.writeStr(f.gameInfo.formCaption);
-			out.write4(f.gameInfo.left);
-			out.write4(f.gameInfo.top);
-			out.write4(f.gameInfo.width);
-			out.write4(f.gameInfo.height);
-			out.writeBool(f.gameInfo.showBorder);
-			out.writeBool(f.gameInfo.allowResize);
-			out.writeBool(f.gameInfo.stayOnTop);
-			out.writeBool(f.gameInfo.pauseGame);
-			out.writeStr(f.gameInfo.gameInfoStr);
-			out.write4(500);
+		// GAME INFO SETTINGS
+		out.write4(600);
+		out.write4(Util.getGmColor(f.gameInfo.backgroundColor));
+		out.writeBool(f.gameInfo.mimicGameWindow);
+		out.writeStr(f.gameInfo.formCaption);
+		out.write4(f.gameInfo.left);
+		out.write4(f.gameInfo.top);
+		out.write4(f.gameInfo.width);
+		out.write4(f.gameInfo.height);
+		out.writeBool(f.gameInfo.showBorder);
+		out.writeBool(f.gameInfo.allowResize);
+		out.writeBool(f.gameInfo.stayOnTop);
+		out.writeBool(f.gameInfo.pauseGame);
+		out.writeStr(f.gameInfo.gameInfoStr);
+		out.write4(500);
 
-			out.write4(0); // "how many longints will follow it"
+		out.write4(0); // "how many longints will follow it"
 
-			out.write4(540);
-			out.write4(0); // room indexes in tree order
+		out.write4(540);
+		out.write4(0); // room indexes in tree order
 
-			writeTree(out,root);
-			out.close();
-			}
-		catch (FileNotFoundException ex)
-			{
-			ex.printStackTrace();
-			}
-		catch (IOException ex)
-			{
-			ex.printStackTrace();
-			}
+		writeTree(out,root);
+		out.close();
 		}
 
 	public static void writeSettings(GmFile f, GmStreamEncoder out, long savetime) throws IOException

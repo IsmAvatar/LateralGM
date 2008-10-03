@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -88,5 +88,10 @@ public final class PrefsStore
 			styles[i] = Util.stringToSyntaxStyle(PREFS.get(key,null),styles[i]);
 			}
 		return styles;
+		}
+
+	public static int getNumberOfBackups()
+		{
+		return PREFS.getInt("FILE_BACKUP_COUNT",1);
 		}
 	}
