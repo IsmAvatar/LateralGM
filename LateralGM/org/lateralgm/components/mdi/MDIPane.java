@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,12 +13,15 @@ package org.lateralgm.components.mdi;
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.beans.PropertyVetoException;
+import java.lang.ref.WeakReference;
+import java.util.WeakHashMap;
 
 import javax.swing.DesktopManager;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 
+import org.lateralgm.main.WeakArrayList;
 import org.lateralgm.subframes.ResourceFrame;
 
 public class MDIPane extends JDesktopPane
@@ -27,8 +31,9 @@ public class MDIPane extends JDesktopPane
 	private static final int OFFSET_WIDTH = 24;
 	private static final int OFFSET_HEIGHT = 24;
 	private static final int OFFSET_MAX = 9;
-	private MDIMenu menu;
+	private final MDIMenu menu;
 	public static final String SELECTED_FRAME_PROPERTY = "selectedFrame";
+	private final WeakHashMap<Component,WeakArrayList<Component>> zMap;
 
 	public MDIMenu getMenu()
 		{
@@ -39,6 +44,7 @@ public class MDIPane extends JDesktopPane
 		{
 		setDesktopManager(new MDIManager(this));
 		menu = new MDIMenu(this);
+		zMap = new WeakHashMap<Component,WeakArrayList<Component>>();
 		}
 
 	public void setScrollPane(JScrollPane scroll)
@@ -215,5 +221,39 @@ public class MDIPane extends JDesktopPane
 		JInternalFrame old = getSelectedFrame();
 		super.setSelectedFrame(frame);
 		this.firePropertyChange(SELECTED_FRAME_PROPERTY,old,frame);
+		}
+
+	private void updateZChildren(Component p)
+		{
+		int fi = getIndexOf(p);
+		int fl = getLayer(p);
+		int fp = getPosition(p);
+		WeakArrayList<Component> l = zMap.get(p);
+		if (l == null) return;
+		for (WeakReference<Component> cr : l)
+			{
+			Component c = cr.get();
+			int ci = c == null ? -1 : getIndexOf(c);
+			if (ci < 0 || ci <= fi) continue;
+			setLayer(c,fl,fp);
+			}
+		}
+
+	public void addZChild(Component p, Component c)
+		{
+		WeakArrayList<Component> l = zMap.get(p);
+		if (l == null)
+			{
+			l = new WeakArrayList<Component>();
+			zMap.put(p,l);
+			}
+		l.add(new WeakReference<Component>(c));
+		updateZChildren(p);
+		}
+
+	public void setLayer(Component c, int layer, int position)
+		{
+		super.setLayer(c,layer,position);
+		updateZChildren(c);
 		}
 	}

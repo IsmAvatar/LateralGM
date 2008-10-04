@@ -153,7 +153,7 @@ public class ActionListEditor extends JPanel
 				Action act = new Action(libAction);
 				((ActionListModel) list.getModel()).add(act);
 				list.setSelectedValue(act,true);
-				ActionList.openActionFrame(act);
+				ActionList.openActionFrame(list.parent.get(),act);
 				}
 			super.processMouseEvent(e);
 			}

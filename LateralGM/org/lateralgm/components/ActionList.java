@@ -22,11 +22,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EmptyStackException;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Stack;
 import java.util.WeakHashMap;
@@ -61,24 +61,32 @@ import org.lateralgm.subframes.ActionFrame;
 public class ActionList extends JList
 	{
 	private static final long serialVersionUID = 1L;
-	private static final Hashtable<Action,MDIFrame> FRAMES = new Hashtable<Action,MDIFrame>();
-	private static final ActionListMouseListener ALML = new ActionListMouseListener();
+	private static final WeakHashMap<Action,WeakReference<MDIFrame>> FRAMES;
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
 	protected ActionContainer actionContainer;
 	private ActionListModel model;
 	private final ActionRenderer renderer = new ActionRenderer();
+	public final WeakReference<MDIFrame> parent;
+	private final ActionListMouseListener alml;
 
-	public ActionList()
+	static
 		{
+		FRAMES = new WeakHashMap<Action,WeakReference<MDIFrame>>();
+		}
+
+	public ActionList(MDIFrame parent)
+		{
+		this.parent = new WeakReference<MDIFrame>(parent);
 		setActionContainer(null);
 		setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
 		if (LGM.javaVersion >= 10600)
 			{
-			setTransferHandler(new ActionTransferHandler());
+			setTransferHandler(new ActionTransferHandler(this.parent));
 			setDragEnabled(true);
 			setDropMode(DropMode.ON_OR_INSERT);
 			}
-		addMouseListener(ALML);
+		alml = new ActionListMouseListener(this.parent);
+		addMouseListener(alml);
 		addKeyListener(ALKL);
 		setCellRenderer(renderer);
 		}
@@ -112,17 +120,19 @@ public class ActionList extends JList
 	 * @return The frame opened or <code>null</code> if no
 	 * frame was opened.
 	 */
-	public static MDIFrame openActionFrame(Action a)
+	public static MDIFrame openActionFrame(MDIFrame parent, Action a)
 		{
 		LibAction la = a.getLibAction();
 		if ((la.libArguments == null || la.libArguments.length == 0) && !la.canApplyTo
 				&& !la.allowRelative && !la.question) return null;
-		MDIFrame af = FRAMES.get(a);
+		WeakReference<MDIFrame> fr = FRAMES.get(a);
+		MDIFrame af = fr == null ? null : fr.get();
 		if (af == null || af.isClosed())
 			{
 			af = new ActionFrame(a);
 			LGM.mdi.add(af);
-			FRAMES.put(a,af);
+			if (parent != null) LGM.mdi.addZChild(parent,af);
+			FRAMES.put(a,new WeakReference<MDIFrame>(af));
 			}
 		af.setVisible(true);
 		af.toFront();
@@ -139,9 +149,12 @@ public class ActionList extends JList
 
 	private static class ActionListMouseListener extends MouseAdapter
 		{
-		public ActionListMouseListener()
+		public final WeakReference<MDIFrame> parent;
+
+		public ActionListMouseListener(WeakReference<MDIFrame> parent)
 			{
 			super();
+			this.parent = parent;
 			}
 
 		public void mouseClicked(MouseEvent e)
@@ -150,7 +163,7 @@ public class ActionList extends JList
 			JList l = (JList) e.getSource();
 			Object o = l.getSelectedValue();
 			if (o == null || !(o instanceof Action)) return;
-			openActionFrame((Action) o);
+			openActionFrame(parent.get(),(Action) o);
 			}
 		}
 
@@ -410,6 +423,13 @@ public class ActionList extends JList
 		private int[] indices = null;
 		private int addIndex = -1; //Location where items were added
 		private int addCount = 0; //Number of items added.
+		private final WeakReference<MDIFrame> parent;
+
+		public ActionTransferHandler(WeakReference<MDIFrame> parent)
+			{
+			super();
+			this.parent = parent;
+			}
 
 		@Override
 		protected void exportDone(JComponent source, Transferable data, int action)
@@ -510,7 +530,7 @@ public class ActionList extends JList
 					{
 					la = (LibAction) t.getTransferData(LIB_ACTION_FLAVOR);
 					a = new Action(la);
-					ActionList.openActionFrame(a);
+					ActionList.openActionFrame(parent.get(),a);
 					}
 				catch (Exception e)
 					{

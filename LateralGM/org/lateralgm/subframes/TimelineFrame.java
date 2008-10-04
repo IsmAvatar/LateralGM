@@ -86,7 +86,7 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 			}
 		else
 			{
-			actions = new ActionList();
+			actions = new ActionList(this);
 			editor = new ActionListEditor(actions);
 			}
 

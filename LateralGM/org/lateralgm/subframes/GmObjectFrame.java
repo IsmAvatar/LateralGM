@@ -130,7 +130,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		else
 			{
-			actions = new ActionList();
+			actions = new ActionList(this);
 			editor = new ActionListEditor(actions);
 			}
 

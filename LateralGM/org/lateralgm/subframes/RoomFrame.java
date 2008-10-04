@@ -1466,6 +1466,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			frame = new CodeFrame(obj,format,arg,codeFrames);
 			LGM.mdi.add(frame);
+			LGM.mdi.addZChild(this,frame);
 			frame.toTop();
 			}
 		else
