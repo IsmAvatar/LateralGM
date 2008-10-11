@@ -115,24 +115,12 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 
 	public void insertUpdate(DocumentEvent e)
 		{
-		if (e.getDocument() == name.getDocument())
-			{
-			res.setName(name.getText());
-			setTitle(name.getText());
-			node.setUserObject(name.getText());
-			LGM.tree.updateUI();
-			}
+		if (e.getDocument() == name.getDocument()) res.setName(name.getText());
 		}
 
 	public void removeUpdate(DocumentEvent e)
 		{
-		if (e.getDocument() == name.getDocument())
-			{
-			res.setName(name.getText());
-			setTitle(name.getText());
-			node.setUserObject(name.getText());
-			LGM.tree.updateUI();
-			}
+		if (e.getDocument() == name.getDocument()) res.setName(name.getText());
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -170,22 +158,17 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 				if (ret == JOptionPane.YES_OPTION)
 					{
 					updateResource();
-					node.setUserObject(res.getName());
-					node.updateIcon();
 					dispose();
 					}
 				else if (ret == JOptionPane.NO_OPTION)
 					{
 					revertResource();
-					node.setUserObject(resOriginal.getName());
-					node.updateIcon();
 					dispose();
 					}
 				}
 			else
 				{
 				updateResource();
-				node.updateIcon();
 				dispose();
 				}
 			}

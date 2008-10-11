@@ -189,10 +189,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				boolean selected, boolean focus)
 			{
 			Instance i = (Instance) val;
-			GmObject go = deRef(i.gmObjectId);
+			GmObject go = deRef(i.getObject());
 			String name = go == null ? Messages.getString("RoomFrame.NO_OBJECT") : go.getName();
 			JLabel lab = new JLabel(name + " " + i.instanceId, //$NON-NLS-1$
-					GmTreeGraphics.getResourceIcon(i.gmObjectId),JLabel.LEFT);
+					GmTreeGraphics.getResourceIcon(i.getObject()),JLabel.LEFT);
 			super.getListCellRendererComponent(list,lab,ind,selected,focus);
 			lab.setOpaque(true);
 			return lab;
@@ -205,14 +205,15 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				boolean selected, boolean focus)
 			{
 			Tile i = (Tile) val;
-			Background bg = deRef(i.getBackgroundId());
+			Background bg = deRef(i.getBackground());
 			ImageIcon ii;
-			if (bg != null && bg.backgroundImage != null)
+			BufferedImage bi = bg == null ? null : bg.getBackgroundImage();
+			if (bi != null)
 				try
 					{
 					Point p = i.getBackgroundPosition();
 					Dimension d = i.getSize();
-					ii = new ImageIcon(bg.backgroundImage.getSubimage(p.x,p.y,d.width,d.height));
+					ii = new ImageIcon(bi.getSubimage(p.x,p.y,d.width,d.height));
 					}
 				catch (RasterFormatException e)
 					{
@@ -1207,10 +1208,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (i == null) return;
 			if (oSource.getSelected() == null)
 				{
-				oSource.setSelected(i.gmObjectId);
+				oSource.setSelected(i.getObject());
 				return;
 				}
-			i.gmObjectId = oSource.getSelected();
+			i.setObject(oSource.getSelected());
 			oList.updateUI();
 			return;
 			}
@@ -1218,7 +1219,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			if (oNew.getSelected() == null) return;
 			Instance i = res.addInstance();
-			i.gmObjectId = oNew.getSelected();
+			i.setObject(oNew.getSelected());
 			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(res.instances.size() - 1);
 			return;
@@ -1271,10 +1272,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (t == null) return;
 			if (teSource.getSelected() == null)
 				{
-				teSource.setSelected(t.getBackgroundId());
+				teSource.setSelected(t.getBackground());
 				return;
 				}
-			t.setBackgroundId(teSource.getSelected());
+			t.setBackground(teSource.getSelected());
 			tList.updateUI();
 			return;
 			}
@@ -1324,14 +1325,14 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastObj != null)
 			{
 			lastObj.locked = oLocked.isSelected();
-			if (oSource.getSelected() != null) lastObj.gmObjectId = oSource.getSelected();
+			if (oSource.getSelected() != null) lastObj.setObject(oSource.getSelected());
 			lastObj.setPosition(new Point(oX.getIntValue(),oY.getIntValue()));
 			}
 		lastObj = (Instance) oList.getSelectedValue();
 		if (lastObj == null) return;
 		oLocked.setSelected(lastObj.locked);
 		manualUpdate = false;
-		oSource.setSelected(lastObj.gmObjectId);
+		oSource.setSelected(lastObj.getObject());
 		manualUpdate = true;
 		oX.setIntValue(lastObj.getPosition().x);
 		oY.setIntValue(lastObj.getPosition().y);
@@ -1354,7 +1355,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			{
 			lastTile.setAutoUpdate(false);
 			lastTile.locked = tLocked.isSelected();
-			if (teSource.getSelected() != null) lastTile.setBackgroundId(teSource.getSelected());
+			if (teSource.getSelected() != null) lastTile.setBackground(teSource.getSelected());
 			lastTile.setBackgroundPosition(new Point(tsX.getIntValue(),tsY.getIntValue()));
 			lastTile.setRoomPosition(new Point(tX.getIntValue(),tY.getIntValue()));
 			lastTile.setDepth(teDepth.getIntValue());
@@ -1364,7 +1365,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		if (lastTile == null) return;
 		tLocked.setSelected(lastTile.locked);
 		manualUpdate = false;
-		teSource.setSelected(lastTile.getBackgroundId());
+		teSource.setSelected(lastTile.getBackground());
 		manualUpdate = true;
 		tsX.setIntValue(lastTile.getBackgroundPosition().x);
 		tsY.setIntValue(lastTile.getBackgroundPosition().y);

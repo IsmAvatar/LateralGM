@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import javax.imageio.ImageIO;
 
@@ -30,8 +31,6 @@ public class Sprite extends Resource<Sprite>
 	public static final byte BBOX_FULL = 1;
 	public static final byte BBOX_MANUAL = 2;
 
-	public int width = 32;
-	public int height = 32;
 	public boolean transparent = true;
 	public boolean preciseCC = true;
 	public boolean smoothEdges = false;
@@ -43,7 +42,7 @@ public class Sprite extends Resource<Sprite>
 	public int boundingBoxRight = 31;
 	public int boundingBoxTop = 0;
 	public int boundingBoxBottom = 31;
-	public ArrayList<BufferedImage> subImages = new ArrayList<BufferedImage>();
+	public final ImageList subImages = new ImageList();
 
 	private SoftReference<BufferedImage> imageCache = null;
 
@@ -119,8 +118,6 @@ public class Sprite extends Resource<Sprite>
 	protected Sprite copy(ResourceList<Sprite> src, ResourceReference<Sprite> ref, boolean update)
 		{
 		Sprite s = new Sprite(ref,update);
-		s.width = width;
-		s.height = height;
 		s.transparent = transparent;
 		s.preciseCC = preciseCC;
 		s.smoothEdges = smoothEdges;
@@ -157,5 +154,111 @@ public class Sprite extends Resource<Sprite>
 		{
 		if (imageCache != null) imageCache.clear();
 		super.fireUpdate();
+		}
+
+	public final class ImageList extends ArrayList<BufferedImage>
+		{
+		private static final long serialVersionUID = 1L;
+
+		private ImageList()
+			{
+			}
+
+		public int getWidth()
+			{
+			if (size() > 0) return get(0).getWidth();
+			return 0;
+			}
+
+		public int getHeight()
+			{
+			if (size() > 0) return get(0).getHeight();
+			return 0;
+			}
+
+		@Override
+		public boolean add(BufferedImage e)
+			{
+			super.add(e);
+			fireUpdate();
+			return true;
+			}
+
+		@Override
+		public void add(int index, BufferedImage element)
+			{
+			super.add(index,element);
+			fireUpdate();
+			}
+
+		@Override
+		public boolean addAll(Collection<? extends BufferedImage> c)
+			{
+			boolean u = super.addAll(c);
+			if (u) fireUpdate();
+			return u;
+			}
+
+		@Override
+		public boolean addAll(int index, Collection<? extends BufferedImage> c)
+			{
+			boolean u = super.addAll(index,c);
+			if (u) fireUpdate();
+			return u;
+			}
+
+		@Override
+		public void clear()
+			{
+			super.clear();
+			fireUpdate();
+			}
+
+		@Override
+		public BufferedImage remove(int index)
+			{
+			BufferedImage i = super.remove(index);
+			fireUpdate();
+			return i;
+			}
+
+		@Override
+		public boolean remove(Object o)
+			{
+			boolean u = super.remove(o);
+			if (u) fireUpdate();
+			return u;
+			}
+
+		@Override
+		public boolean removeAll(Collection<?> c)
+			{
+			boolean u = super.removeAll(c);
+			if (u) fireUpdate();
+			return u;
+			}
+
+		@Override
+		protected void removeRange(int fromIndex, int toIndex)
+			{
+			super.removeRange(fromIndex,toIndex);
+			fireUpdate();
+			}
+
+		@Override
+		public boolean retainAll(Collection<?> c)
+			{
+			boolean u = super.retainAll(c);
+			if (u) fireUpdate();
+			return u;
+			}
+
+		@Override
+		public BufferedImage set(int index, BufferedImage element)
+			{
+			BufferedImage i = super.set(index,element);
+			fireUpdate();
+			return i;
+			}
 		}
 	}

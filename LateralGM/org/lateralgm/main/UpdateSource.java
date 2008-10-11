@@ -160,6 +160,12 @@ public class UpdateSource
 			{
 			source.fireUpdate(e);
 			}
+
+		public UpdateEvent getEvent()
+			{
+			if (event == null) event = new UpdateEvent(source);
+			return event;
+			}
 		}
 
 	public interface UpdateListener

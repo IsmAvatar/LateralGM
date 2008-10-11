@@ -30,7 +30,7 @@ public class Background extends Resource<Background>
 	public int vertOffset = 0;
 	public int horizSep = 0;
 	public int vertSep = 0;
-	public BufferedImage backgroundImage = null;
+	private BufferedImage backgroundImage = null;
 	private SoftReference<BufferedImage> imageCache = null;
 
 	public Background()
@@ -114,5 +114,15 @@ public class Background extends Resource<Background>
 		{
 		if (imageCache != null) imageCache.clear();
 		super.fireUpdate();
+		}
+
+	public BufferedImage getBackgroundImage()
+		{
+		return backgroundImage;
+		}
+
+	public void setBackgroundImage(BufferedImage backgroundImage)
+		{
+		this.backgroundImage = backgroundImage;
 		}
 	}

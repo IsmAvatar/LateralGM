@@ -708,8 +708,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				&& node.kind != Resource.GAMESETTINGS && node.kind != Resource.EXTENSIONS)
 			{
 			String txt = ((String) node.getUserObject()).replaceAll("\\W","").replaceAll("^([0-9]+)",""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			node.setUserObject(txt);
-			node.updateFrame();
+			Resource<?> r = deRef((ResourceReference<?>) node.getRes());
+			if (r != null) r.setName(txt);
 			}
 		}
 	}

@@ -19,12 +19,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-import java.util.Hashtable;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -41,8 +35,6 @@ import javax.swing.JToolTip;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.AbstractImagePreview;
@@ -51,10 +43,13 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 
-public class ResourceMenu<R extends Resource<R>> extends JPanel implements ActionListener
+public class ResourceMenu<R extends Resource<R>> extends JPanel implements ActionListener,
+		UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 	private JLabel label;
@@ -66,16 +61,11 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	private ActionEvent actionEvent;
 	protected byte kind;
 	private MListener mListener = new MListener();
-	private final RMUpdatable updatable = new RMUpdatable();
 	protected static final ImageIcon GROUP_ICO = LGM.getIconForKey("GmTreeGraphics.GROUP"); //$NON-NLS-1$;
 	private final Preview rPreview;
+	private final MenuBuilder builder = new MenuBuilder();
 
-	public static interface Updatable
-		{
-		void update();
-		}
-
-	public class ResourceJMenu extends JMenu implements Updatable
+	public class ResourceJMenu extends JMenu
 		{
 		private static final long serialVersionUID = 1L;
 		public ResNode node;
@@ -84,7 +74,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 			{
 			super(node.getUserObject().toString());
 			this.node = node;
-			new NodeListener(node,this,true);
+			node.updateSource.addListener(ResourceMenu.this);
 			}
 
 		public void update()
@@ -106,7 +96,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 			}
 		}
 
-	public class ResourceMenuItem extends JMenuItem implements Updatable
+	public class ResourceMenuItem extends JMenuItem
 		{
 		private static final long serialVersionUID = 1L;
 		public ResNode node;
@@ -115,7 +105,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 			{
 			super(node.getUserObject().toString());
 			this.node = node;
-			new NodeListener(node,this,true);
+			node.updateSource.addListener(ResourceMenu.this);
 			setIcon(node.getIcon());
 			}
 
@@ -134,97 +124,6 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		public boolean isVisible()
 			{
 			return !onlyOpen || node.frame != null;
-			}
-		}
-
-	private static class NodeListener implements ChangeListener
-		{
-		private static ReferenceQueue<Updatable> refQueue;
-		private static Cleaner cleaner;
-		protected WeakReference<Updatable> updatable;
-		private WeakReference<ResNode> node;
-		private boolean onlyNull;
-
-		public NodeListener(ResNode n, Updatable u, boolean onlyNull)
-			{
-			this.onlyNull = onlyNull;
-			if (refQueue == null) refQueue = new ReferenceQueue<Updatable>();
-			if (cleaner == null) cleaner = new Cleaner(refQueue);
-			node = new WeakReference<ResNode>(n);
-			updatable = new WeakReference<Updatable>(u,refQueue);
-			n.addChangeListener(this);
-			cleaner.add(this);
-			}
-
-		public void stateChanged(ChangeEvent e)
-			{
-			Updatable u = updatable.get();
-			if (u == null)
-				dispose();
-			else if (onlyNull == (e == null)) u.update();
-			}
-
-		public void dispose()
-			{
-			if (node == null) return;
-			ResNode n = node.get();
-			if (n == null) return;
-			synchronized (n)
-				{
-				n.removeChangeListener(this);
-				}
-			node = null;
-			}
-
-		private static class Cleaner
-			{
-			protected ReferenceQueue<Updatable> rq;
-			protected Hashtable<WeakReference<Updatable>,NodeListener> listeners;
-			private Timer timer;
-			private CleanerTask task;
-
-			public Cleaner(ReferenceQueue<Updatable> q)
-				{
-				rq = q;
-				}
-
-			public void add(NodeListener l)
-				{
-				if (listeners == null)
-					{
-					listeners = new Hashtable<WeakReference<Updatable>,NodeListener>();
-					task = new CleanerTask();
-					if (timer == null)
-						timer = new Timer();
-					else
-						timer.purge();
-					timer.schedule(task,60000,60000);
-					}
-				listeners.put(l.updatable,l);
-				}
-
-			private class CleanerTask extends TimerTask
-				{
-				public CleanerTask()
-					{
-					super();
-					}
-
-				public void run()
-					{
-					Reference<? extends Updatable> r;
-					while ((r = rq.poll()) != null)
-						{
-						NodeListener l = listeners.remove(r);
-						if (l != null) l.dispose();
-						}
-					if (listeners.size() == 0)
-						{
-						cancel();
-						listeners = null;
-						}
-					}
-				}
 			}
 		}
 
@@ -318,7 +217,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 			noResource.addActionListener(this);
 			}
 		populate(kind);
-		new NodeListener(LGM.root,updatable,false);
+		LGM.root.updateSource.addListener(ResourceMenu.this);
 		}
 
 	/**
@@ -468,14 +367,14 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 			}
 		}
 
-	private class RMUpdatable implements Updatable
+	public void updated(UpdateEvent e)
 		{
-		public RMUpdatable()
-			{
-			super();
-			}
+		Util.invokeOnceLater(builder);
+		}
 
-		public void update()
+	private class MenuBuilder implements Runnable
+		{
+		public void run()
 			{
 			pm.removeAll();
 			if (noResource != null) pm.add(noResource);

@@ -99,8 +99,9 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 		makeSide2(side2);
 
 		preview = new BackgroundPreview(this);
-		if (res.backgroundImage != null)
-			preview.setIcon(new ImageIcon(res.backgroundImage));
+		BufferedImage bi = res.getBackgroundImage();
+		if (bi != null)
+			preview.setIcon(new ImageIcon(bi));
 		else
 			preview.setPreferredSize(new Dimension(0,0));
 		preview.setVerticalAlignment(SwingConstants.TOP);
@@ -322,7 +323,7 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 			BufferedImage img = Util.getValidImage();
 			if (img != null)
 				{
-				res.backgroundImage = img;
+				res.setBackgroundImage(img);
 				cleanup();
 				updateImage();
 				}
@@ -330,7 +331,8 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 			}
 		if (e.getSource() == edit)
 			{
-			if (Prefs.useExternalBackgroundEditor && res.backgroundImage != null)
+			BufferedImage bi = res.getBackgroundImage();
+			if (Prefs.useExternalBackgroundEditor && bi != null)
 				{
 				try
 					{
@@ -339,7 +341,7 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 						extFile = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
 						extFile.deleteOnExit();
 						FileOutputStream out = new FileOutputStream(extFile);
-						ImageIO.write(res.backgroundImage,"bmp",out);
+						ImageIO.write(bi,"bmp",out);
 						out.close();
 						FileChangeMonitor fcm = new FileChangeMonitor(extFile);
 						fcm.addChangeListener(this);
@@ -358,7 +360,6 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 		if (e.getSource() == transparent)
 			{
 			res.transparent = transparent.isSelected();
-			node.updateIcon();
 			return;
 			}
 		super.actionPerformed(e);
@@ -389,7 +390,7 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
 							BufferedImage.TYPE_3BYTE_BGR);
 					conv.filter(img,dest);
-					res.backgroundImage = dest;
+					res.setBackgroundImage(dest);
 					//not entirely sure if this is necessary, but
 					//stateChanged does get called from another thread
 					SwingUtilities.invokeLater(new Runnable()
@@ -414,13 +415,13 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 
 	protected void updateImage()
 		{
-		res.width = res.backgroundImage.getWidth();
-		res.height = res.backgroundImage.getHeight();
+		BufferedImage bi = res.getBackgroundImage();
+		res.width = bi.getWidth();
+		res.height = bi.getHeight();
 		width.setText(Messages.getString("BackgroundFrame.WIDTH") + res.width); //$NON-NLS-1$
 		height.setText(Messages.getString("BackgroundFrame.HEIGHT") + res.height); //$NON-NLS-1$
 		imageChanged = true;
-		preview.setIcon(new ImageIcon(res.backgroundImage));
-		node.updateIcon();
+		preview.setIcon(new ImageIcon(bi));
 		}
 
 	public void dispose()

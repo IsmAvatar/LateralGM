@@ -128,14 +128,14 @@ public class Room extends Resource<Room>
 			Instance inst2 = r.addInstance();
 			inst2.setCreationCode(inst.getCreationCode());
 			inst2.locked = inst.locked;
-			inst2.gmObjectId = inst.gmObjectId;
+			inst2.setObject(inst.getObject());
 			inst2.instanceId = inst.instanceId;
 			inst2.setPosition(inst.getPosition());
 			}
 		for (Tile tile : tiles)
 			{
 			Tile tile2 = new Tile();
-			tile2.setBackgroundId(tile.getBackgroundId());
+			tile2.setBackground(tile.getBackground());
 			tile2.setBackgroundPosition(tile.getBackgroundPosition());
 			tile2.setDepth(tile.getDepth());
 			tile2.setRoomPosition(tile.getRoomPosition());

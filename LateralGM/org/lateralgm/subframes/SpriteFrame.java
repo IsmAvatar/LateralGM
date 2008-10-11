@@ -352,10 +352,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		but.addActionListener(this);
 		tool.add(but);
 
-		ImageIcon ii[] = new ImageIcon[res.subImages.size()];
-		for (int i = 0; i < res.subImages.size(); i++)
-			ii[i] = new ImageIcon(res.subImages.get(i));
-		subList = new JList(ii);
+		subList = new JList();
 		subList.addMouseListener(this);
 		pane.add(new JScrollPane(subList),BorderLayout.CENTER);
 		return pane;
@@ -541,8 +538,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 				res.subImages.clear();
 				imageChanged = true;
 				currSub = 0;
-				res.width = img[0].getWidth();
-				res.height = img[0].getHeight();
 				for (BufferedImage i : img)
 					res.addSubImage(i);
 				preview.setIcon(new ImageIcon(res.subImages.get(0)));
@@ -550,7 +545,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 				updateInfo();
 				updateBoundingBox();
 				updateImage();
-				node.updateIcon();
 				return;
 				}
 			}
@@ -612,8 +606,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			}
 		if (e.getSource() == centre)
 			{
-			originX.setIntValue(res.width / 2);
-			originY.setIntValue(res.height / 2);
+			originX.setIntValue(res.subImages.getWidth() / 2);
+			originY.setIntValue(res.subImages.getHeight() / 2);
 			return;
 			}
 		if (e.getSource() == auto || e.getSource() == full || e.getSource() == manual)
@@ -625,7 +619,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			{
 			updateBoundingBox();
 			res.transparent = transparent.isSelected();
-			node.updateIcon();
 			return;
 			}
 		if (e.getSource() == originX || e.getSource() == originY || e.getSource() == bboxLeft
@@ -641,8 +634,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public void updateInfo()
 		{
-		width.setText(Messages.getString("SpriteFrame.WIDTH") + res.width); //$NON-NLS-1$
-		height.setText(Messages.getString("SpriteFrame.HEIGHT") + res.height); //$NON-NLS-1$
+		width.setText(Messages.getString("SpriteFrame.WIDTH") + res.subImages.getWidth()); //$NON-NLS-1$
+		height.setText(Messages.getString("SpriteFrame.HEIGHT") + res.subImages.getHeight()); //$NON-NLS-1$
 		subCount.setText(Messages.getString("SpriteFrame.NO_OF_SUBIMAGES") //$NON-NLS-1$
 				+ res.subImages.size());
 		}
@@ -655,7 +648,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			{
 			case Sprite.BBOX_AUTO:
 				Rectangle r = transparent.isSelected() ? getOverallBounds() : new Rectangle(0,0,
-						res.width - 1,res.height - 1);
+						res.subImages.getWidth() - 1,res.subImages.getHeight() - 1);
 				res.boundingBoxLeft = r.x;
 				res.boundingBoxRight = r.x + r.width;
 				res.boundingBoxTop = r.y;
@@ -663,9 +656,9 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 				break;
 			case Sprite.BBOX_FULL:
 				res.boundingBoxLeft = 0;
-				res.boundingBoxRight = res.width - 1;
+				res.boundingBoxRight = res.subImages.getWidth() - 1;
 				res.boundingBoxTop = 0;
-				res.boundingBoxBottom = res.height - 1;
+				res.boundingBoxBottom = res.subImages.getHeight() - 1;
 				break;
 			default:
 				break;
@@ -682,6 +675,10 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public void updateImage()
 		{
+		ImageIcon ii[] = new ImageIcon[res.subImages.size()];
+		for (int i = 0; i < res.subImages.size(); i++)
+			ii[i] = new ImageIcon(res.subImages.get(i));
+		subList.setListData(ii);
 		BufferedImage img = getSubimage();
 		if (img != null)
 			{
@@ -766,7 +763,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			rects[i] = getCropBounds(res.subImages.get(i));
 		for (int i = 1; i < rects.length; i++)
 			rects[0] = rects[0].union(rects[i]);
-		return rects.length > 0 ? rects[0] : new Rectangle(0,0,res.width - 1,res.height - 1);
+		return rects.length > 0 ? rects[0] : new Rectangle(0,0,res.subImages.getWidth() - 1,
+				res.subImages.getHeight() - 1);
 		}
 
 	@Override

@@ -13,17 +13,18 @@ package org.lateralgm.resources.sub;
 import java.awt.Point;
 
 import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 
-public class Instance
+public class Instance implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
 	private Point pos;
-	//XXX: Getter and Setter?
-	public ResourceReference<GmObject> gmObjectId = null;
+	private ResourceReference<GmObject> object = null;
 	public int instanceId = 0;
 	private String creationCode = "";
 	public boolean locked = false;
@@ -56,5 +57,23 @@ public class Instance
 		{
 		this.creationCode = creationCode;
 		fireUpdate();
+		}
+
+	public ResourceReference<GmObject> getObject()
+		{
+		return object;
+		}
+
+	public void setObject(ResourceReference<GmObject> object)
+		{
+		if (this.object != null) this.object.updateSource.removeListener(this);
+		this.object = object;
+		if (object != null) object.updateSource.addListener(this);
+		fireUpdate();
+		}
+
+	public void updated(UpdateEvent e)
+		{
+		updateTrigger.fire(e);
 		}
 	}

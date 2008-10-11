@@ -16,10 +16,12 @@ import java.awt.image.BufferedImage;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
-public class GmObject extends Resource<GmObject>
+public class GmObject extends Resource<GmObject> implements UpdateListener
 	{
 	public static final ResourceReference<GmObject> OBJECT_SELF = new ResourceReference<GmObject>(
 			null);
@@ -34,13 +36,13 @@ public class GmObject extends Resource<GmObject>
 		return ref.get().getId();
 		}
 
-	public ResourceReference<Sprite> sprite = null;
+	private ResourceReference<Sprite> sprite = null;
 	public boolean solid = false;
 	public boolean visible = true;
 	public int depth = 0;
 	public boolean persistent = false;
-	public ResourceReference<GmObject> parent = null;
-	public ResourceReference<Sprite> mask = null;
+	private ResourceReference<GmObject> parent = null;
+	private ResourceReference<Sprite> mask = null;
 	public MainEvent[] mainEvents = new MainEvent[11];
 
 	public GmObject()
@@ -89,6 +91,7 @@ public class GmObject extends Resource<GmObject>
 			o.setId(getId());
 			o.setName(getName());
 			}
+		sprite.updateSource.addListener(o);
 		return o;
 		}
 
@@ -102,5 +105,45 @@ public class GmObject extends Resource<GmObject>
 	public byte getKind()
 		{
 		return GMOBJECT;
+		}
+
+	public ResourceReference<Sprite> getSprite()
+		{
+		return sprite;
+		}
+
+	public void setSprite(ResourceReference<Sprite> sprite)
+		{
+		if (this.sprite != null) this.sprite.updateSource.removeListener(this);
+		this.sprite = sprite;
+		if (sprite != null) sprite.updateSource.addListener(this);
+		fireUpdate();
+		}
+
+	public ResourceReference<GmObject> getParent()
+		{
+		return parent;
+		}
+
+	public void setParent(ResourceReference<GmObject> parent)
+		{
+		this.parent = parent;
+		fireUpdate();
+		}
+
+	public ResourceReference<Sprite> getMask()
+		{
+		return mask;
+		}
+
+	public void setMask(ResourceReference<Sprite> mask)
+		{
+		this.mask = mask;
+		fireUpdate();
+		}
+
+	public void updated(UpdateEvent e)
+		{
+		reference.updateTrigger.fire(e);
 		}
 	}

@@ -233,8 +233,8 @@ public final class GmFileWriter
 				{
 				out.writeStr(spr.getName());
 				out.write4(542);
-				out.write4(spr.width);
-				out.write4(spr.height);
+				out.write4(spr.subImages.getWidth());
+				out.write4(spr.subImages.getHeight());
 				out.write4(spr.boundingBoxLeft);
 				out.write4(spr.boundingBoxRight);
 				out.write4(spr.boundingBoxBottom);
@@ -281,11 +281,12 @@ public final class GmFileWriter
 				out.write4(back.vertOffset);
 				out.write4(back.horizSep);
 				out.write4(back.vertSep);
-				if (back.backgroundImage != null)
+				BufferedImage bi = back.getBackgroundImage();
+				if (bi != null)
 					{
 					out.writeBool(true);
 					out.write4(10);
-					out.writeImage(back.backgroundImage);
+					out.writeImage(bi);
 					}
 				else
 					out.writeBool(false);
@@ -395,13 +396,13 @@ public final class GmFileWriter
 				{
 				out.writeStr(obj.getName());
 				out.write4(430);
-				out.writeId(obj.sprite);
+				out.writeId(obj.getSprite());
 				out.writeBool(obj.solid);
 				out.writeBool(obj.visible);
 				out.write4(obj.depth);
 				out.writeBool(obj.persistent);
-				out.writeId(obj.parent,-100);
-				out.writeId(obj.mask);
+				out.writeId(obj.getParent(),-100);
+				out.writeId(obj.getMask());
 				out.write4(10);
 				for (int j = 0; j < 11; j++)
 					{
@@ -480,7 +481,7 @@ public final class GmFileWriter
 					{
 					out.write4(in.getPosition().x);
 					out.write4(in.getPosition().y);
-					out.writeId(in.gmObjectId);
+					out.writeId(in.getObject());
 					out.write4(in.instanceId);
 					out.writeStr(in.getCreationCode());
 					out.writeBool(in.locked);
@@ -490,7 +491,7 @@ public final class GmFileWriter
 					{
 					out.write4(tile.getRoomPosition().x);
 					out.write4(tile.getRoomPosition().y);
-					out.writeId(tile.getBackgroundId());
+					out.writeId(tile.getBackground());
 					out.write4(tile.getBackgroundPosition().x);
 					out.write4(tile.getBackgroundPosition().y);
 					out.write4(tile.getSize().width);

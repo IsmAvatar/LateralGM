@@ -76,7 +76,7 @@ public class BackgroundPreview extends AbstractImagePreview
 
 	protected BufferedImage getImage()
 		{
-		if (frame != null) return frame.res.backgroundImage;
+		if (frame != null) return frame.res.getBackgroundImage();
 		return null;
 		}
 	}

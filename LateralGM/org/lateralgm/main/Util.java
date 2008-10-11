@@ -28,6 +28,7 @@ import java.awt.image.RGBImageFilter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -40,6 +41,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
@@ -55,6 +57,8 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class Util
 	{
+	private static final InvokeOnceRunnable IOR = new InvokeOnceRunnable();
+
 	private Util()
 		{
 		}
@@ -279,5 +283,41 @@ public final class Util
 	public static <R extends Resource<R>>R deRef(ResourceReference<R> ref)
 		{
 		return ref == null ? null : ref.get();
+		}
+
+	public static void invokeOnceLater(Runnable r)
+		{
+		IOR.add(r);
+		}
+
+	private static class InvokeOnceRunnable implements Runnable
+		{
+		private final ArrayList<Runnable> queue = new ArrayList<Runnable>();
+		private boolean inDispatcher = false;
+
+		public synchronized void add(Runnable r)
+			{
+			if (queue.contains(r)) return;
+			queue.add(r);
+			if (!inDispatcher)
+				{
+				SwingUtilities.invokeLater(this);
+				inDispatcher = true;
+				}
+			}
+
+		public void run()
+			{
+			Runnable[] q;
+			synchronized (this)
+				{
+				inDispatcher = false;
+				q = new Runnable[queue.size()];
+				q = queue.toArray(q);
+				queue.clear();
+				}
+			for (Runnable r : q)
+				r.run();
+			}
 		}
 	}

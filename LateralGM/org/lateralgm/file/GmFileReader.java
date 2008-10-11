@@ -408,8 +408,8 @@ public final class GmFileReader
 			spr.setName(in.readStr());
 			ver = in.read4();
 			if (ver != 400 && ver != 542) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-			spr.width = in.read4();
-			spr.height = in.read4();
+			int w = in.read4();
+			int h = in.read4();
 			spr.boundingBoxLeft = in.read4();
 			spr.boundingBoxRight = in.read4();
 			spr.boundingBoxBottom = in.read4();
@@ -433,7 +433,7 @@ public final class GmFileReader
 			for (int j = 0; j < nosub; j++)
 				{
 				if (in.read4() == -1) continue;
-				spr.addSubImage(in.readImage(spr.width,spr.height));
+				spr.addSubImage(in.readImage(w,h));
 				}
 			}
 		}
@@ -482,7 +482,7 @@ public final class GmFileReader
 			if (in.readBool())
 				{
 				if (in.read4() == -1) continue;
-				back.backgroundImage = in.readImage(back.width,back.height);
+				back.setBackgroundImage(in.readImage(back.width,back.height));
 				}
 			}
 		}
@@ -652,14 +652,14 @@ public final class GmFileReader
 			ver = in.read4();
 			if (ver != 430) throw versionError(f,"IN","OBJECTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.sprites.getUnsafe(in.read4());
-			if (temp != null) obj.sprite = temp.reference;
+			if (temp != null) obj.setSprite(temp.reference);
 			obj.solid = in.readBool();
 			obj.visible = in.readBool();
 			obj.depth = in.read4();
 			obj.persistent = in.readBool();
-			obj.parent = c.objids.get(in.read4());
+			obj.setParent(c.objids.get(in.read4()));
 			temp = f.sprites.getUnsafe(in.read4());
-			if (temp != null) obj.mask = temp.reference;
+			if (temp != null) obj.setMask(temp.reference);
 			in.skip(4);
 			for (int j = 0; j < 11; j++)
 				{
@@ -766,7 +766,7 @@ public final class GmFileReader
 				Instance inst = rm.addInstance();
 				inst.setPosition(new Point(in.read4(),in.read4()));
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
-				if (temp != null) inst.gmObjectId = temp.reference;
+				if (temp != null) inst.setObject(temp.reference);
 				inst.instanceId = in.read4();
 				inst.setCreationCode(in.readStr());
 				inst.locked = in.readBool();
@@ -779,7 +779,7 @@ public final class GmFileReader
 				Background temp = f.backgrounds.getUnsafe(in.read4());
 				ResourceReference<Background> bkg = null;
 				if (temp != null) bkg = temp.reference;
-				t.setBackgroundId(bkg);
+				t.setBackground(bkg);
 				t.setBackgroundPosition(new Point(in.read4(),in.read4()));
 				t.setSize(new Dimension(in.read4(),in.read4()));
 				t.setDepth(in.read4());
@@ -851,8 +851,6 @@ public final class GmFileReader
 				path.peek().addChild(Messages.getString("LGM.FONTS"),status,type); //$NON-NLS-1$
 			else
 				path.peek().add(node);
-			// GM actually ignores the name given in the tree data
-			if (hasRef) node.setUserObject(rl.getUnsafe(ind).getName());
 			int contents = in.read4();
 			if (contents > 0)
 				{

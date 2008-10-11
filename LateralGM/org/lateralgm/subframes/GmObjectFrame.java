@@ -168,7 +168,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		origin.setBorder(BorderFactory.createTitledBorder(Messages.getString("GmObjectFrame.SPRITE"))); //$NON-NLS-1$
 		String t = Messages.getString("GmObjectFrame.NO_SPRITE"); //$NON-NLS-1$
 		sprite = new ResourceMenu<Sprite>(Resource.SPRITE,t,144);
-		sprite.setSelected(res.sprite);
+		sprite.setSelected(res.getSprite());
 		sprite.addActionListener(this);
 		newSprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
 		newSprite.addActionListener(this);
@@ -200,12 +200,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.NO_PARENT"); //$NON-NLS-1$
 		parent = new ResourceMenu<GmObject>(Resource.GMOBJECT,t,110);
-		parent.setSelected(res.parent);
+		parent.setSelected(res.getParent());
 		parent.addActionListener(this);
 		JLabel mLabel = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.SAME_AS_SPRITE"); //$NON-NLS-1$
 		mask = new ResourceMenu<Sprite>(Resource.SPRITE,t,110);
-		mask.setSelected(res.mask);
+		mask.setSelected(res.getMask());
 		information = new JButton(Messages.getString("GmObjectFrame.INFO"),INFO_ICON); //$NON-NLS-1$
 		information.addActionListener(this);
 		save.setText(Messages.getString("GmObjectFrame.SAVE")); //$NON-NLS-1$
@@ -608,13 +608,13 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		saveEvents();
 		res.setName(name.getText());
-		res.sprite = sprite.getSelected();
+		res.setSprite(sprite.getSelected());
 		res.visible = visible.isSelected();
 		res.solid = solid.isSelected();
 		res.depth = depth.getIntValue();
 		res.persistent = persistent.isSelected();
-		res.parent = parent.getSelected();
-		res.mask = mask.getSelected();
+		res.setParent(parent.getSelected());
+		res.setMask(mask.getSelected());
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -642,14 +642,14 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		if (e.getSource() == parent)
 			{
 			ResourceReference<GmObject> p = parent.getSelected();
-			res.parent = p;
+			res.setParent(p);
 			if (deRef(p) != null) if (isCyclic(res))
 				{
 				String msg = Messages.getString("GmObjectFrame.LOOPING_PARENTS"); //$NON-NLS-1$
 				String ttl = Messages.getString("GmObjectFrame.ERROR"); //$NON-NLS-1$
 				JOptionPane.showMessageDialog(this,msg,ttl,JOptionPane.ERROR_MESSAGE);
 				parent.setSelected(null);
-				res.parent = null;
+				res.setParent(null);
 				}
 			return;
 			}
@@ -667,9 +667,9 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		ArrayList<GmObject> traversed = new ArrayList<GmObject>();
 		traversed.add(inheritor);
-		while (deRef(inheritor.parent) != null)
+		GmObject p;
+		while ((p = deRef(inheritor.getParent())) != null)
 			{
-			GmObject p = deRef(inheritor.parent);
 			if (traversed.contains(p)) return true;
 			inheritor = p;
 			traversed.add(inheritor);

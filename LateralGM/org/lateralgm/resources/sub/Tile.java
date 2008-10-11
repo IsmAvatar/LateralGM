@@ -15,14 +15,16 @@ import java.awt.Point;
 
 import org.lateralgm.file.GmFile;
 import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.ResourceReference;
 
-public class Tile
+public class Tile implements UpdateListener
 	{
 	public int tileId = 0;
-	private ResourceReference<Background> backgroundId = null;
+	private ResourceReference<Background> background = null;
 	private Point bkgPos;
 	private Point roomPos;
 	private Dimension size;
@@ -67,14 +69,16 @@ public class Tile
 		if (autoUpdate) updateTrigger.fire();
 		}
 
-	public ResourceReference<Background> getBackgroundId()
+	public ResourceReference<Background> getBackground()
 		{
-		return backgroundId;
+		return background;
 		}
 
-	public void setBackgroundId(ResourceReference<Background> backgroundId)
+	public void setBackground(ResourceReference<Background> background)
 		{
-		this.backgroundId = backgroundId;
+		if (this.background != null) this.background.updateSource.removeListener(this);
+		this.background = background;
+		if (background != null) background.updateSource.addListener(this);
 		fireUpdate();
 		}
 
@@ -120,5 +124,10 @@ public class Tile
 		{
 		this.depth = depth;
 		fireUpdate();
+		}
+
+	public void updated(UpdateEvent e)
+		{
+		updateTrigger.fire(e);
 		}
 	}
