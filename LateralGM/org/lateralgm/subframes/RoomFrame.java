@@ -1302,7 +1302,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			else
 				{ //do not wrap into 1 function call, or it will break code in fireTileUpdate
 				if (s == tX) t.setRoomPosition(new Point(tX.getIntValue(),t.getRoomPosition().y));
-				if (s == tY) t.setRoomPosition(new Point(t.getRoomPosition().y,tY.getIntValue()));
+				if (s == tY) t.setRoomPosition(new Point(t.getRoomPosition().x,tY.getIntValue()));
 				}
 			return;
 			}

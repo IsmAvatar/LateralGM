@@ -103,9 +103,10 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		this.status = status;
 		this.kind = kind;
 		this.res = res;
-		if (res != null)
+		Resource<?> r = deRef();
+		if (r != null)
 			{
-			res.get().setNode(this);
+			r.setNode(this);
 			res.updateSource.addListener(this);
 			}
 		}
@@ -218,6 +219,11 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		fireUpdate(trigger.getEvent());
 		}
 
+	private Resource<?> deRef()
+		{
+		return Util.deRef((ResourceReference<?>) res);
+		}
+
 	private void fireUpdate(UpdateEvent e)
 		{
 		trigger.fire(e);
@@ -259,8 +265,14 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		if (status == STATUS_SECONDARY)
 			{
 			icon = null;
-			setUserObject(res.get().getName());
-			Util.invokeOnceLater(nameUpdater);
+			Resource<?> r = deRef();
+			if (r != null)
+				{
+				setUserObject(r.getName());
+				Util.invokeOnceLater(nameUpdater);
+				}
+			else
+				removeFromParent();
 			}
 		fireUpdate(e);
 		}
@@ -271,9 +283,13 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			{
 			if (frame != null)
 				{
-				String n = res.get().getName();
-				frame.setTitle(n);
-				if (!frame.name.getText().equals(n)) frame.name.setText(n);
+				Resource<?> r = deRef();
+				if (r != null)
+					{
+					String n = r.getName();
+					frame.setTitle(n);
+					if (!frame.name.getText().equals(n)) frame.name.setText(n);
+					}
 				}
 			//FIXME: Update the tree by having it listen to its root node instead of here
 			LGM.tree.updateUI();

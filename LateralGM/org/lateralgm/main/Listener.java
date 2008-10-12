@@ -242,11 +242,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public boolean saveNewFile()
 		{
 		fc.setFilterSet(saveFs);
-		fc.setSelectedFile(new File(LGM.currentFile.filename));
+		String filename = LGM.currentFile.filename;
+		fc.setSelectedFile(filename == null ? null : new File(filename));
 		while (true) //repeatedly display dialog until a valid response is given
 			{
 			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return false;
-			String filename = fc.getSelectedFile().getPath();
+			filename = fc.getSelectedFile().getPath();
 			if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
 			int result = JOptionPane.YES_OPTION;
 			if (new File(filename).exists())
@@ -376,7 +377,6 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					{
 					Resource<?> res = deRef((ResourceReference<?>) node.getRes());
 					if (res != null) res.dispose();
-					LGM.currentFile.getList(node.kind).remove(res);
 					}
 				}
 			me.removeFromParent();

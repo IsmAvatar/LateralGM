@@ -91,7 +91,7 @@ public class GmObject extends Resource<GmObject> implements UpdateListener
 			o.setId(getId());
 			o.setName(getName());
 			}
-		sprite.updateSource.addListener(o);
+		if (sprite != null) sprite.updateSource.addListener(o);
 		return o;
 		}
 
