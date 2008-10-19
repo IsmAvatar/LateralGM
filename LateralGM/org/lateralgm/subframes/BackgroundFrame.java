@@ -283,7 +283,6 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 	public void revertResource()
 		{
 		resOriginal.updateReference();
-		LGM.currentFile.backgrounds.replace(res,resOriginal);
 		}
 
 	public void commitChanges()

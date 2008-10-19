@@ -33,7 +33,6 @@ import javax.swing.event.DocumentListener;
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Font;
 
@@ -221,7 +220,6 @@ public class FontFrame extends ResourceFrame<Font>
 	public void revertResource()
 		{
 		resOriginal.updateReference();
-		LGM.currentFile.fonts.replace(res,resOriginal);
 		}
 
 	public void commitChanges()

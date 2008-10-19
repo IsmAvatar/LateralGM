@@ -245,7 +245,6 @@ public class SoundFrame extends ResourceFrame<Sound>
 	public void revertResource()
 		{
 		resOriginal.updateReference();
-		LGM.currentFile.sounds.replace(res,resOriginal);
 		}
 
 	public void commitChanges()

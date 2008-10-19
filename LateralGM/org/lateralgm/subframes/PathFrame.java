@@ -30,7 +30,6 @@ import javax.swing.event.ListSelectionListener;
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.sub.PathPoint;
@@ -162,7 +161,6 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 	public void revertResource()
 		{
 		resOriginal.updateReference();
-		LGM.currentFile.paths.replace(res,resOriginal);
 		}
 
 	public void commitChanges()

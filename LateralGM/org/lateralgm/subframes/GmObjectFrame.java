@@ -601,7 +601,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public void revertResource()
 		{
 		resOriginal.updateReference();
-		LGM.currentFile.gmObjects.replace(res,resOriginal);
 		}
 
 	public void commitChanges()

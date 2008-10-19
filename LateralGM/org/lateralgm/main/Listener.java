@@ -23,6 +23,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashSet;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -369,6 +370,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (next.isRoot()) next = (ResNode) next.getFirstChild();
 			tree.setSelectionPath(new TreePath(next.getPath()));
 			Enumeration<?> nodes = me.depthFirstEnumeration();
+			// Calling dispose() on a resource modifies the tree and invalidates
+			// the enumeration, so we need to wait until after traversal.
+			HashSet<Resource<?>> rs = new HashSet<Resource<?>>();
 			while (nodes.hasMoreElements())
 				{
 				ResNode node = (ResNode) nodes.nextElement();
@@ -376,9 +380,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				if (node.status == ResNode.STATUS_SECONDARY)
 					{
 					Resource<?> res = deRef((ResourceReference<?>) node.getRes());
-					if (res != null) res.dispose();
+					if (res != null) rs.add(res);
 					}
 				}
+			for (Resource<?> r : rs)
+				r.dispose();
 			me.removeFromParent();
 			tree.updateUI();
 			}

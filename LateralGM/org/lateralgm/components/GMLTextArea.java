@@ -201,10 +201,9 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 			ResourceList<?> rl = LGM.currentFile.getList(KM_RESOURCES[j]);
 			int l = rl.size();
 			String[] a = new String[l];
-			for (int i = 0; i < l; i++)
-				{
-				a[i] = rl.get(i).getName();
-				}
+			int i = 0;
+			for (Resource<?> r : rl)
+				a[i++] = r.getName();
 			resourceKeywords[j] = a;
 			}
 		completions = null;

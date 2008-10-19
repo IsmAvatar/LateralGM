@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -8,41 +9,79 @@
 
 package org.lateralgm.file;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.lang.ref.WeakReference;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.TreeSet;
 
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 
-public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements UpdateListener
+public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
-	private Class<R> type; // used as a workaround for add()
-	private GmFile parent; // used for rooms
+	private static final IdComparator COMPARATOR = new IdComparator();
+
+	private final Class<R> type; // used as a workaround for add()
+	private final GmFile parent; // used for rooms
+	private final HashMap<ResourceReference<R>,WeakReference<R>> refMap;
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
 	ResourceList(Class<R> type, GmFile parent)
 		{
+		super(COMPARATOR);
 		this.type = type;
 		this.parent = parent;
+		refMap = new HashMap<ResourceReference<R>,WeakReference<R>>();
 		}
 
 	public int lastId = -1;
 
+	private boolean doAdd(R res)
+		{
+		WeakReference<R> wr = refMap.get(res.reference);
+		R r0 = wr == null ? null : wr.get();
+		if (r0 != null)
+			{
+			if (r0 == res)
+				return false;
+			else
+				super.remove(r0);
+			}
+		refMap.put(res.reference,new WeakReference<R>(res));
+		return super.add(res);
+		}
+
 	public boolean add(R res)
 		{
-		super.add(res);
-		res.reference.updateSource.addListener(this);
-		updateTrigger.fire();
 		res.setId(++lastId);
-		return true;
+		if (doAdd(res))
+			{
+			updateTrigger.fire();
+			return true;
+			}
+		return false;
+		}
+
+	public boolean addAll(Collection<? extends R> c)
+		{
+		boolean r = false;
+		for (R res : c)
+			{
+			res.setId(++lastId);
+			r |= doAdd(res);
+			}
+		if (r) updateTrigger.fire();
+		return r;
 		}
 
 	public R add()
@@ -67,18 +106,15 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 		return res;
 		}
 
-	public R duplicate(R res)
-		{
-		int ind = indexOf(res);
-		if (ind == -1) return null;
-		R res2 = res.copy(this);
-		return res2;
-		}
-
 	public R getUnsafe(int id)
 		{
 		for (R res : this)
-			if (res.getId() == id) return res;
+			{
+			int ri = res.getId();
+			if (ri == id)
+				return res;
+			else if (ri > id) break;
+			}
 		return null;
 		}
 
@@ -90,75 +126,133 @@ public class ResourceList<R extends Resource<R>> extends ArrayList<R> implements
 		return null;
 		}
 
-	public R remove(int index)
+	private boolean doRemove(Resource<?> res)
 		{
-		R res = get(index);
-		super.remove(index);
-		res.reference.updateSource.removeListener(this);
-		updateTrigger.fire();
-		return res;
+		if (super.remove(res))
+			{
+			res.reference.updateSource.removeListener(this);
+			refMap.remove(res.reference);
+			return true;
+			}
+		return false;
+		}
+
+	public boolean remove(Object o)
+		{
+		if (doRemove((Resource<?>) o))
+			{
+			updateTrigger.fire();
+			return true;
+			}
+		return false;
+		}
+
+	public boolean removeAll(Collection<?> c)
+		{
+		boolean r = false;
+		for (Object o : c)
+			r |= doRemove((Resource<?>) o);
+		if (r) updateTrigger.fire();
+		return r;
+		}
+
+	public boolean retainAll(Collection<?> c)
+		{
+		boolean r = false;
+		for (R res : this)
+			if (!c.contains(res)) r |= doRemove(res);
+		if (r) updateTrigger.fire();
+		return r;
 		}
 
 	public void clear()
 		{
 		if (size() == 0) return;
 		for (R r : this)
-			{
 			r.reference.updateSource.removeListener(this);
-			}
+		refMap.clear();
 		super.clear();
 		updateTrigger.fire();
 		}
 
-	public void sort()
-		{
-		Collections.sort(this);
-		}
-
-	public void replace(R old, R replacement)
-		{
-		int ind = indexOf(old);
-		if (ind == -1) return;
-		set(ind,replacement);
-		}
+//	public void replace(R old, R replacement)
+//		{
+//		remove(old);
+//		add(replacement);
+//		}
 
 	public void defragIds()
 		{
-		sort();
-		for (int i = 0; i < size(); i++)
-			get(i).setId(i);
-		lastId = size() - 1;
+		int i = 0;
+		for (R res : this)
+			res.setId(i++);
+		lastId = i - 1;
 		}
 
 	public void updated(UpdateEvent e)
 		{
+		assert size() == refMap.size();
 		updateTrigger.fire(e);
-		}
-
-	/**
-	 * Replaces the Resource at the given position with the given Resource.
-	 * The old Ref is transferred to the new Resource.
-	 * @param index The list index to replace at
-	 * @param res The new Resource
-	 */
-	public R set(int index, R res)
-		{
-		R old = super.set(index,res);
-		old.reference.updateSource.removeListener(this);
-		res.reference.updateSource.addListener(this);
-		updateTrigger.fire();
-		return old;
-		}
-
-	public int indexOf(R res)
-		{
-		int ind = -1;
-		for (int i = 0; i < size(); i++)
-			if (get(i) == res)
+		Object o = e.source.owner;
+		if (o instanceof ResourceReference)
+			{
+			ResourceReference<?> ref = (ResourceReference<?>) o;
+			WeakReference<R> wr = refMap.get(ref);
+			R r0 = wr == null ? null : wr.get();
+			if (r0 != null)
 				{
-				ind = i;
-				break;
+				Resource<?> r = ref.get();
+				if (r0 != r)
+					{
+					remove(r0);
+					if (r != null) add(type.cast(r));
+					}
+				else
+					{
+					// Ensure that the set stays sorted.
+					boolean changed = false;
+					try
+						{
+						Comparator<? super R> c = comparator();
+						test:
+							{
+							R h = higher(r0);
+							if (h != null && c.compare(r0,h) >= 0)
+								{
+								changed = true;
+								break test;
+								}
+							R l = lower(r0);
+							if (l != null && c.compare(r0,l) <= 0)
+								{
+								changed = true;
+								break test;
+								}
+							}
+						}
+					catch (NoSuchMethodError nsme)
+						{
+						changed = true;
+						}
+					if (changed)
+						{
+						remove(r0);
+						add(r0);
+						}
+					}
 				}
-		return ind;
+			}
+		}
+
+	private static class IdComparator implements Comparator<Resource<?>>
+		{
+		public int compare(Resource<?> o1, Resource<?> o2)
+			{
+			if (o1.reference == o2.reference) return 0;
+			int i1 = o1.getId();
+			int i2 = o2.getId();
+			if (i1 == i2) return Integer.signum(o1.hashCode() - o2.hashCode());
+			return i1 < i2 ? -1 : 1;
+			}
 		}
 	}

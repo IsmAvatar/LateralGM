@@ -39,7 +39,6 @@ import org.lateralgm.components.ActionListEditor;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.sub.Action;
@@ -182,7 +181,6 @@ public class TimelineFrame extends ResourceFrame<Timeline> implements ActionList
 	public void revertResource()
 		{
 		resOriginal.updateReference();
-		LGM.currentFile.timelines.replace(res,resOriginal);
 		}
 
 	public void commitChanges()

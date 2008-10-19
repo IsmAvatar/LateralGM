@@ -1103,7 +1103,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		resOriginal.updateReference();
 		resOriginal.currentTab = tabs.getSelectedIndex();
-		LGM.currentFile.rooms.replace(res,resOriginal);
 		}
 
 	public void commitChanges()
