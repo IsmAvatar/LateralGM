@@ -175,12 +175,6 @@ public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements U
 		updateTrigger.fire();
 		}
 
-//	public void replace(R old, R replacement)
-//		{
-//		remove(old);
-//		add(replacement);
-//		}
-
 	public void defragIds()
 		{
 		int i = 0;
