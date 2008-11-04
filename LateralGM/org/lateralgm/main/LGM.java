@@ -328,8 +328,11 @@ public final class LGM
 		if (!tempDir.exists())
 			{
 			tempDir.mkdir();
-			tempDir.setReadable(true,false);
-			tempDir.setWritable(true,false);
+			if (javaVersion >= 10600)
+				{
+				tempDir.setReadable(true,false);
+				tempDir.setWritable(true,false);
+				}
 			}
 
 		try

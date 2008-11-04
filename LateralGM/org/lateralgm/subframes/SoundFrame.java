@@ -83,10 +83,12 @@ public class SoundFrame extends ResourceFrame<Sound>
 				Messages.getString("SoundFrame.FORMAT_MID"), //$NON-NLS-1$
 				Messages.getString("SoundFrame.FORMAT_MP3") }; //$NON-NLS-1$
 
-		fc.setFileFilter(new CustomFileFilter(s,d[0]));
+		CustomFileFilter soundsFilter = new CustomFileFilter(s,d[0]);
+		fc.addChoosableFileFilter(soundsFilter);
 		fc.addChoosableFileFilter(new CustomFileFilter(s[0],d[1]));
 		fc.addChoosableFileFilter(new CustomFileFilter(s[1],d[2]));
 		fc.addChoosableFileFilter(new CustomFileFilter(s[2],d[3]));
+		fc.setFileFilter(soundsFilter);
 
 		setResizable(false);
 		setMaximizable(false);

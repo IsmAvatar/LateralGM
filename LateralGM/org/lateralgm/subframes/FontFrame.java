@@ -15,6 +15,7 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 
 import javax.swing.BorderFactory;
@@ -286,8 +287,10 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public void updatePreview()
 		{
+		int screenRes = Toolkit.getDefaultToolkit().getScreenResolution();
+		int fontSize = (int) Math.round(size.getIntValue() * screenRes / 72.0); //java assumes 72 DPI
 		preview.setFont(new java.awt.Font(fonts.getSelectedItem().toString(),makeStyle(
-				bold.isSelected(),italic.isSelected()),size.getIntValue()));
+				bold.isSelected(),italic.isSelected()),fontSize));
 		}
 
 	private static int makeStyle(boolean bold, boolean italic)

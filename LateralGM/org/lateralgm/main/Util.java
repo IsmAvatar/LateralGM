@@ -196,7 +196,8 @@ public final class Util
 			{
 			imageFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
 			imageFc.setAccessory(new FileChooserImagePreview(imageFc));
-			String exts[] = ImageIO.getReaderFileSuffixes();
+			String[] exts = { "jpg","bmp","tif","jpeg","wbmp","png","ico","TIF","TIFF","gif","tiff" };
+			if (LGM.javaVersion >= 10600) exts = ImageIO.getReaderFileSuffixes();
 			for (int i = 0; i < exts.length; i++)
 				exts[i] = "." + exts[i]; //$NON-NLS-1$
 			String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$

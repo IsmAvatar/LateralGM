@@ -381,6 +381,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					{
 					Resource<?> res = deRef((ResourceReference<?>) node.getRes());
 					if (res != null) rs.add(res);
+					LGM.currentFile.getList(node.kind).remove(res);
 					}
 				}
 			for (Resource<?> r : rs)
