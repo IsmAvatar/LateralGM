@@ -24,6 +24,7 @@ import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -331,7 +332,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		return pane;
 		}
 
-	//TODO: subimages toolbar
 	private JPanel makeSubimagesPane()
 		{
 		JPanel pane = new JPanel(new BorderLayout());
@@ -340,22 +340,27 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
-		//		pane.add(tool,BorderLayout.NORTH);
+		pane.add(tool,BorderLayout.NORTH);
 
-		ImageIcon icon = LGM.getIconForKey("SpriteFrame.ADD");
-		JButton but = new JButton(icon);
-		but.addActionListener(this);
-		tool.add(but);
-
-		icon = LGM.getIconForKey("SpriteFrame.REMOVE");
-		but = new JButton(icon);
-		but.addActionListener(this);
-		tool.add(but);
+		makeToolButton(tool,"SpriteFrame.ADD");
+		makeToolButton(tool,"SpriteFrame.REMOVE");
+		tool.addSeparator();
+		makeToolButton(tool,"SpriteFrame.PREVIOUS");
+		makeToolButton(tool,"SpriteFrame.NEXT");
 
 		subList = new JList();
 		subList.addMouseListener(this);
 		pane.add(new JScrollPane(subList),BorderLayout.CENTER);
 		return pane;
+		}
+
+	private void makeToolButton(JToolBar tool, String icon)
+		{
+		ImageIcon ii = LGM.getIconForKey(icon);
+		JButton but = new JButton(ii);
+		but.setActionCommand(icon);
+		but.addActionListener(this);
+		tool.add(but);
 		}
 
 	private JPanel makePreviewPane()
@@ -626,9 +631,52 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			preview.repaint(((JViewport) preview.getParent()).getViewRect());
 			return;
 			}
+		String cmd = e.getActionCommand();
+		if (cmd != null && cmd.startsWith("SpriteFrame.")) handleToolbarEvent(cmd.substring(12));
 		System.out.println(e);
 
 		super.actionPerformed(e);
+		}
+
+	private void handleToolbarEvent(String cmd)
+		{
+		int pos = subList.getSelectedIndex();
+		if (cmd.equals("ADD"))
+			{
+			BufferedImage bi = res.addSubImage();
+			pos = (pos >= 0 ? pos : res.subImages.size()) + 1;
+			res.subImages.add(pos,editSubimage(bi));
+			updateImage();
+			subList.setSelectedIndex(pos);
+			return;
+			}
+		if (pos == -1) return;
+		if (cmd.equals("REMOVE"))
+			{
+			res.subImages.remove(pos);
+			updateImage();
+			subList.setSelectedIndex(Math.min(res.subImages.size() - 1,pos));
+			return;
+			}
+		if (cmd.equals("PREVIOUS"))
+			{
+			if (pos == 0) return;
+			BufferedImage bi = res.subImages.remove(pos);
+			res.subImages.add(pos - 1,bi);
+			updateImage();
+			subList.setSelectedIndex(pos - 1);
+			return;
+			}
+		if (cmd.equals("NEXT"))
+			{
+			System.out.println("lo");
+			if (pos == res.subImages.size() - 1) return;
+			BufferedImage bi = res.subImages.remove(pos);
+			res.subImages.add(pos + 1,bi);
+			updateImage();
+			subList.setSelectedIndex(pos + 1);
+			return;
+			}
 		}
 
 	public void updateInfo()
@@ -777,44 +825,42 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		return l;
 		}
 
-	public void editSubimage(int i)
+	public BufferedImage editSubimage(BufferedImage img)
 		{
-		if (i == -1 || i >= res.subImages.size()) return;
-		BufferedImage img = res.subImages.get(i);
-		if (img == null) return;
-
-		if (Prefs.useExternalSpriteEditor)
+		if (img == null) return null;
+		if (!Prefs.useExternalSpriteEditor)
 			{
-			try
-				{
-				File extFile = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
-				extFile.deleteOnExit();
-				FileOutputStream out = new FileOutputStream(extFile);
-				ImageIO.write(img,"bmp",out);
-				out.close();
-
-				Runtime.getRuntime().exec(
-						String.format(Prefs.externalSpriteEditorCommand,extFile.getAbsolutePath())).waitFor();
-
-				img = ImageIO.read(new FileInputStream(extFile));
-				extFile.delete();
-				extFile = null;
-				ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
-				BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
-						BufferedImage.TYPE_3BYTE_BGR);
-				conv.filter(img,dest);
-				res.subImages.set(i,dest);
-				updateImage();
-				ImageIcon ii[] = new ImageIcon[res.subImages.size()];
-				for (int j = 0; j < res.subImages.size(); j++)
-					ii[j] = new ImageIcon(res.subImages.get(j));
-				subList.setListData(ii);
-				}
-			catch (Exception ex)
-				{
-				ex.printStackTrace();
-				}
+			throw new UnsupportedOperationException("no internal sprite editor");
 			}
+
+		try
+			{
+			File extFile = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
+			extFile.deleteOnExit();
+			FileOutputStream out = new FileOutputStream(extFile);
+			ImageIO.write(img,"bmp",out);
+			out.close();
+
+			Runtime.getRuntime().exec(
+					String.format(Prefs.externalSpriteEditorCommand,extFile.getAbsolutePath())).waitFor();
+
+			img = ImageIO.read(new FileInputStream(extFile));
+			extFile.delete();
+			extFile = null;
+			ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
+			BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
+					BufferedImage.TYPE_3BYTE_BGR);
+			return conv.filter(img,dest);
+			}
+		catch (IOException e)
+			{
+			e.printStackTrace();
+			}
+		catch (InterruptedException e)
+			{
+			e.printStackTrace();
+			}
+		return null;
 		}
 
 	public void mousePressed(MouseEvent e)
@@ -822,7 +868,12 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		if (e.getClickCount() == 2)
 			{
 			JList list = (JList) e.getSource();
-			editSubimage(list.getSelectedIndex());
+			int i = list.getSelectedIndex();
+			if (i == -1 || i >= res.subImages.size()) return;
+			BufferedImage img = editSubimage(res.subImages.get(i));
+			if (img == null) return;
+			res.subImages.set(i,img);
+			updateImage();
 			}
 		}
 
