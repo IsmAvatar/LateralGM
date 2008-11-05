@@ -644,7 +644,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		if (cmd.equals("ADD"))
 			{
 			BufferedImage bi = res.addSubImage();
-			pos = (pos >= 0 ? pos : res.subImages.size()) + 1;
+			pos = pos >= 0 ? pos + 1 : res.subImages.size();
 			res.subImages.add(pos,editSubimage(bi));
 			updateImage();
 			subList.setSelectedIndex(pos);

@@ -635,7 +635,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		if (e.getSource() == sprite)
 			{
-			// TODO
+			//TODO: Handle sprite?
 			return;
 			}
 		if (e.getSource() == parent)
@@ -650,6 +650,11 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				parent.setSelected(null);
 				res.setParent(null);
 				}
+			return;
+			}
+		if (e.getSource() == information)
+			{
+			//TODO: Object Information
 			return;
 			}
 		if (e.getSource() == eventDelete)

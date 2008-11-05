@@ -54,8 +54,7 @@ public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements U
 			{
 			if (r0 == res)
 				return false;
-			else
-				super.remove(r0);
+			super.remove(r0);
 			}
 		refMap.put(res.reference,new WeakReference<R>(res));
 		return super.add(res);
