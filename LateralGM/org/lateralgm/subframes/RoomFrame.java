@@ -809,7 +809,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 		vList = new JList(viewLabs);
 		vList.setCellRenderer(new ListComponentRenderer());
-		vList.setVisibleRowCount(4);
+		//vList.setVisibleRowCount(4);
 		vList.addListSelectionListener(this);
 		vList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane sp = new JScrollPane(vList);
@@ -818,10 +818,12 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		vVisible = new JCheckBox(st,res.views[0].visible);
 		vVisible.addActionListener(this);
 
+		JTabbedPane tp = new JTabbedPane();
+		tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		JPanel pr = new JPanel();
-		pr.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.VIEW_IN_ROOM"))); //$NON-NLS-1$
 		GroupLayout lr = new GroupLayout(pr);
 		pr.setLayout(lr);
+
 		JLabel lRX = new JLabel(Messages.getString("RoomFrame.VIEW_X")); //$NON-NLS-1$
 		vRX = new IntegerField(0,999999,res.views[0].viewX);
 		vRX.setColumns(4);
@@ -860,9 +862,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(vRH)).addGap(8));
 
 		JPanel pp = new JPanel();
-		pp.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.PORT"))); //$NON-NLS-1$
 		GroupLayout lp = new GroupLayout(pp);
 		pp.setLayout(lp);
+
 		JLabel lPX = new JLabel(Messages.getString("RoomFrame.PORT_X")); //$NON-NLS-1$
 		vPX = new IntegerField(0,999999,res.views[0].portX);
 		vPX.setColumns(4);
@@ -900,6 +902,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(lPH)
 		/*		*/.addComponent(vPH)).addGap(8));
 
+		tp.addTab(Messages.getString("RoomFrame.VIEW_IN_ROOM"),pr); //$NON-NLS-1$
+		tp.addTab(Messages.getString("RoomFrame.PORT"),pp); //$NON-NLS-1$
 		JPanel pf = makeViewsFollowPane();
 
 		vList.setSelectedIndex(lastValidView);
@@ -910,15 +914,13 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/**/.addComponent(vEnabled)
 		/**/.addComponent(sp)
 		/**/.addComponent(vVisible)
-		/**/.addComponent(pr)
-		/**/.addComponent(pp)
+		/**/.addComponent(tp)
 		/**/.addComponent(pf));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(vEnabled)
 		/**/.addComponent(sp,DEFAULT_SIZE,DEFAULT_SIZE,spmh)
 		/**/.addComponent(vVisible)
-		/**/.addComponent(pr)
-		/**/.addComponent(pp)
+		/**/.addComponent(tp)
 		/**/.addComponent(pf));
 		return panel;
 		}
