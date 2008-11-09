@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2008 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -403,7 +404,7 @@ public abstract class InputHandler extends KeyAdapter
 			{
 			JEditTextArea textArea = getTextArea(evt);
 
-			if (!textArea.isEditable())
+			if (!textArea.editable)
 				{
 				textArea.getToolkit().beep();
 				return;
@@ -482,7 +483,7 @@ public abstract class InputHandler extends KeyAdapter
 			{
 			JEditTextArea textArea = getTextArea(evt);
 
-			if (!textArea.isEditable())
+			if (!textArea.editable)
 				{
 				textArea.getToolkit().beep();
 				return;
@@ -559,7 +560,8 @@ public abstract class InputHandler extends KeyAdapter
 		{
 		public void actionPerformed(ActionEvent evt)
 			{
-			getTextArea(evt).selectAll();
+			JEditTextArea eta = getTextArea(evt);
+			eta.select(0,eta.getDocumentLength());
 			}
 		}
 
@@ -658,7 +660,7 @@ public abstract class InputHandler extends KeyAdapter
 			{
 			JEditTextArea textArea = getTextArea(evt);
 
-			if (!textArea.isEditable())
+			if (!textArea.editable)
 				{
 				textArea.getToolkit().beep();
 				return;
@@ -684,7 +686,7 @@ public abstract class InputHandler extends KeyAdapter
 			{
 			JEditTextArea textArea = getTextArea(evt);
 
-			if (!textArea.isEditable())
+			if (!textArea.editable)
 				{
 				textArea.getToolkit().beep();
 				return;
@@ -785,18 +787,17 @@ public abstract class InputHandler extends KeyAdapter
 				return;
 				}
 
-			int magic = textArea.getMagicCaretPosition();
-			if (magic == -1)
+			if (textArea.magicCaret == -1)
 				{
-				magic = textArea.offsetToX(line,caret - textArea.getLineStartOffset(line));
+				textArea.magicCaret = textArea.offsetToX(line,caret - textArea.getLineStartOffset(line));
 				}
 
-			caret = textArea.getLineStartOffset(line + 1) + textArea.xToOffset(line + 1,magic);
+			caret = textArea.getLineStartOffset(line + 1)
+					+ textArea.xToOffset(line + 1,textArea.magicCaret);
 			if (select)
 				textArea.select(textArea.getMarkPosition(),caret);
 			else
 				textArea.setCaretPosition(caret);
-			textArea.setMagicCaretPosition(magic);
 			}
 		}
 
@@ -929,18 +930,17 @@ public abstract class InputHandler extends KeyAdapter
 				return;
 				}
 
-			int magic = textArea.getMagicCaretPosition();
-			if (magic == -1)
+			if (textArea.magicCaret == -1)
 				{
-				magic = textArea.offsetToX(line,caret - textArea.getLineStartOffset(line));
+				textArea.magicCaret = textArea.offsetToX(line,caret - textArea.getLineStartOffset(line));
 				}
 
-			caret = textArea.getLineStartOffset(line - 1) + textArea.xToOffset(line - 1,magic);
+			caret = textArea.getLineStartOffset(line - 1)
+					+ textArea.xToOffset(line - 1,textArea.magicCaret);
 			if (select)
 				textArea.select(textArea.getMarkPosition(),caret);
 			else
 				textArea.setCaretPosition(caret);
-			textArea.setMagicCaretPosition(magic);
 			}
 		}
 
@@ -1018,11 +1018,11 @@ public abstract class InputHandler extends KeyAdapter
 		public void actionPerformed(ActionEvent evt)
 			{
 			JEditTextArea textArea = getTextArea(evt);
-			textArea.getInputHandler().setRepeatEnabled(true);
+			textArea.inputHandler.setRepeatEnabled(true);
 			String actionCommand = evt.getActionCommand();
 			if (actionCommand != null)
 				{
-				textArea.getInputHandler().setRepeatCount(Integer.parseInt(actionCommand));
+				textArea.inputHandler.setRepeatCount(Integer.parseInt(actionCommand));
 				}
 			}
 		}
@@ -1042,9 +1042,9 @@ public abstract class InputHandler extends KeyAdapter
 			{
 			JEditTextArea textArea = getTextArea(evt);
 			String str = evt.getActionCommand();
-			int repeatCount = textArea.getInputHandler().getRepeatCount();
+			int repeatCount = textArea.inputHandler.getRepeatCount();
 
-			if (textArea.isEditable())
+			if (textArea.editable)
 				{
 				StringBuffer buf = new StringBuffer();
 				for (int i = 0; i < repeatCount; i++)

@@ -66,7 +66,7 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 			code.addEditorButtons(tool);
 		else
 			{
-			code.setEditable(false);
+			code.editable = false;
 			edit = new JButton(Messages.getString("ScriptFrame.EDIT")); //$NON-NLS-1$
 			edit.addActionListener(this);
 			tool.add(edit);

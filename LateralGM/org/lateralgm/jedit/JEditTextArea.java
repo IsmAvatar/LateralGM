@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -103,20 +104,17 @@ public class JEditTextArea extends JComponent
 	 */
 	public static final String LEFT_OF_SCROLLBAR = "los";
 
-	/**
-	 * Creates a new JEditTextArea with the default settings.
-	 */
+	/** The number of lines always visible from the top or bottom */
+	public int electricScroll;
+	public boolean editable;
+	public InputHandler inputHandler;
+	/** Used to preserve the caret's column position when moving up and down lines. */
+	public int magicCaret;
+
 	public JEditTextArea()
 		{
-		this(TextAreaDefaults.getDefaults());
-		}
+		TextAreaDefaults defaults = TextAreaDefaults.getDefaults();
 
-	/**
-	 * Creates a new JEditTextArea with the specified settings.
-	 * @param defaults The default settings
-	 */
-	public JEditTextArea(TextAreaDefaults defaults)
-		{
 		// Enable the necessary events
 		enableEvents(AWTEvent.KEY_EVENT_MASK);
 
@@ -178,7 +176,7 @@ public class JEditTextArea extends JComponent
 		setFocusTraversalKeysEnabled(false);
 
 		// Load the defaults
-		setInputHandler(defaults.inputHandler);
+		inputHandler = defaults.inputHandler;
 		setDocument(defaults.document);
 		editable = defaults.editable;
 		caretVisible = defaults.caretVisible;
@@ -190,36 +188,11 @@ public class JEditTextArea extends JComponent
 		focusedComponent = this;
 		}
 
-	/**
-	 * Returns the input handler.
-	 */
-	public final InputHandler getInputHandler()
-		{
-		return inputHandler;
-		}
-
-	/**
-	 * Sets the input handler.
-	 * @param inputHandler The new input handler
-	 */
-	public void setInputHandler(InputHandler inputHandler)
-		{
-		this.inputHandler = inputHandler;
-		}
-
-	/**
-	 * Returns true if the caret is visible, false otherwise.
-	 */
 	public final boolean isCaretVisible()
 		{
 		return blink && caretVisible;
 		}
 
-	/**
-	 * Sets if the caret should be visible.
-	 * @param caretVisible True if the caret should be visible, false
-	 * otherwise
-	 */
 	public void setCaretVisible(boolean caretVisible)
 		{
 		this.caretVisible = caretVisible;
@@ -228,33 +201,11 @@ public class JEditTextArea extends JComponent
 		painter.invalidateSelectedLines();
 		}
 
-	/**
-	 * Blinks the caret.
-	 */
+	/** Blinks the caret. */
 	public final void blinkCaret()
 		{
 		blink = !blink;
 		painter.invalidateSelectedLines();
-		}
-
-	/**
-	 * Returns the number of lines from the top and bottom
-	 * of the text area that are always visible.
-	 */
-	public final int getElectricScroll()
-		{
-		return electricScroll;
-		}
-
-	/**
-	 * Sets the number of lines from the top and bottom
-	 * of the text area that are always visible.
-	 * @param electricScroll The number of lines always visible from
-	 * the top or bottom
-	 */
-	public final void setElectricScroll(int electricScroll)
-		{
-		this.electricScroll = electricScroll;
 		}
 
 	/**
@@ -286,9 +237,7 @@ public class JEditTextArea extends JComponent
 			}
 		}
 
-	/**
-	 * Returns the line displayed at the text area's origin.
-	 */
+	/** Returns the line displayed at the text area's origin */
 	public final int getFirstLine()
 		{
 		return firstLine;
@@ -306,9 +255,7 @@ public class JEditTextArea extends JComponent
 		painter.repaint();
 		}
 
-	/**
-	 * Returns the number of lines visible in this text area.
-	 */
+	/** Returns the number of lines visible in this text area */
 	public final int getVisibleLines()
 		{
 		return visibleLines;
@@ -327,9 +274,7 @@ public class JEditTextArea extends JComponent
 		updateScrollBars();
 		}
 
-	/**
-	 * Returns the horizontal offset of drawn lines.
-	 */
+	/** Returns the horizontal offset of drawn lines. */
 	public final int getHorizontalOffset()
 		{
 		return horizontalOffset;
@@ -653,9 +598,7 @@ public class JEditTextArea extends JComponent
 		return start + xToOffset(line,x);
 		}
 
-	/**
-	 * Returns the document this text area is editing.
-	 */
+	/** Returns the document this text area is editing. */
 	public final SyntaxDocument getDocument()
 		{
 		return document;
@@ -706,9 +649,7 @@ public class JEditTextArea extends JComponent
 		return document.getLength();
 		}
 
-	/**
-	 * Returns the number of lines in the document.
-	 */
+	/** Returns the number of lines in the document */
 	public final int getLineCount()
 		{
 		return document.getDefaultRootElement().getElementCount();
@@ -749,10 +690,6 @@ public class JEditTextArea extends JComponent
 		return lineElement.getEndOffset();
 		}
 
-	/**
-	 * Returns the length of the specified line.
-	 * @param line The line
-	 */
 	public int getLineLength(int line)
 		{
 		Element lineElement = document.getDefaultRootElement().getElement(line);
@@ -760,9 +697,6 @@ public class JEditTextArea extends JComponent
 		return lineElement.getEndOffset() - lineElement.getStartOffset() - 1;
 		}
 
-	/**
-	 * Returns the entire text of this text area.
-	 */
 	public String getText()
 		{
 		try
@@ -776,9 +710,6 @@ public class JEditTextArea extends JComponent
 			}
 		}
 
-	/**
-	 * Sets the entire text of this text area.
-	 */
 	public void setText(String text)
 		{
 		try
@@ -967,17 +898,13 @@ public class JEditTextArea extends JComponent
 		return (biasLeft ? selectionStart : selectionEnd);
 		}
 
-	/**
-	 * Returns the caret line.
-	 */
 	public final int getCaretLine()
 		{
 		return (biasLeft ? selectionStartLine : selectionEndLine);
 		}
 
 	/**
-	 * Returns the mark position. This will be the opposite selection
-	 * bound to the caret position.
+	 * Gets the selection bound opposite of the caret
 	 * @see #getCaretPosition()
 	 */
 	public final int getMarkPosition()
@@ -985,9 +912,7 @@ public class JEditTextArea extends JComponent
 		return (biasLeft ? selectionEnd : selectionStart);
 		}
 
-	/**
-	 * Returns the mark line.
-	 */
+	/** Gets the line of the selection bound opposite of the caret */
 	public final int getMarkLine()
 		{
 		return (biasLeft ? selectionEndLine : selectionStartLine);
@@ -1002,22 +927,6 @@ public class JEditTextArea extends JComponent
 	public final void setCaretPosition(int caret)
 		{
 		select(caret,caret);
-		}
-
-	/**
-	 * Selects all text in the document.
-	 */
-	public final void selectAll()
-		{
-		select(0,getDocumentLength());
-		}
-
-	/**
-	 * Moves the mark to the caret position.
-	 */
-	public final void selectNone()
-		{
-		select(getCaretPosition(),getCaretPosition());
 		}
 
 	/**
@@ -1225,60 +1134,6 @@ public class JEditTextArea extends JComponent
 		}
 
 	/**
-	 * Returns true if this text area is editable, false otherwise.
-	 */
-	public final boolean isEditable()
-		{
-		return editable;
-		}
-
-	/**
-	 * Sets if this component is editable.
-	 * @param editable True if this text area should be editable,
-	 * false otherwise
-	 */
-	public final void setEditable(boolean editable)
-		{
-		this.editable = editable;
-		}
-
-	/**
-	 * Returns the right click popup menu.
-	 */
-	public final JPopupMenu getRightClickPopup()
-		{
-		return popup;
-		}
-
-	/**
-	 * Sets the right click popup menu.
-	 * @param popup The popup
-	 */
-	public final void setRightClickPopup(JPopupMenu popup)
-		{
-		this.popup = popup;
-		}
-
-	/**
-	 * Returns the `magic' caret position. This can be used to preserve
-	 * the column position when moving up and down lines.
-	 */
-	public final int getMagicCaretPosition()
-		{
-		return magicCaret;
-		}
-
-	/**
-	 * Sets the `magic' caret position. This can be used to preserve
-	 * the column position when moving up and down lines.
-	 * @param magicCaret The magic caret position
-	 */
-	public final void setMagicCaretPosition(int magicCaret)
-		{
-		this.magicCaret = magicCaret;
-		}
-
-	/**
 	 * Similar to <code>setSelectedText()</code>, but overstrikes the
 	 * appropriate number of characters if overwrite mode is enabled.
 	 * @param str The string
@@ -1321,38 +1176,22 @@ public class JEditTextArea extends JComponent
 			}
 		}
 
-	/**
-	 * Returns true if overwrite mode is enabled, false otherwise.
-	 */
 	public final boolean isOverwriteEnabled()
 		{
 		return overwrite;
 		}
 
-	/**
-	 * Sets if overwrite mode should be enabled.
-	 * @param overwrite True if overwrite mode should be enabled,
-	 * false otherwise.
-	 */
 	public final void setOverwriteEnabled(boolean overwrite)
 		{
 		this.overwrite = overwrite;
 		painter.invalidateSelectedLines();
 		}
 
-	/**
-	 * Returns true if the selection is rectangular, false otherwise.
-	 */
 	public final boolean isSelectionRectangular()
 		{
 		return rectSelect;
 		}
 
-	/**
-	 * Sets if the selection should be rectangular.
-	 * @param overwrite True if the selection should be rectangular,
-	 * false otherwise.
-	 */
 	public final void setSelectionRectangular(boolean rectSelect)
 		{
 		this.rectSelect = rectSelect;
@@ -1377,28 +1216,16 @@ public class JEditTextArea extends JComponent
 		return bracketLine;
 		}
 
-	/**
-	 * Adds a caret change listener to this text area.
-	 * @param listener The listener
-	 */
 	public final void addCaretListener(CaretListener listener)
 		{
 		listenerList.add(CaretListener.class,listener);
 		}
 
-	/**
-	 * Removes a caret change listener from this text area.
-	 * @param listener The listener
-	 */
 	public final void removeCaretListener(CaretListener listener)
 		{
 		listenerList.remove(CaretListener.class,listener);
 		}
 
-	/**
-	 * Deletes the selected text from the text area and places it
-	 * into the clipboard.
-	 */
 	public void cut()
 		{
 		if (editable)
@@ -1408,9 +1235,6 @@ public class JEditTextArea extends JComponent
 			}
 		}
 
-	/**
-	 * Places the selected text into the clipboard.
-	 */
 	public void copy()
 		{
 		if (selectionStart != selectionEnd)
@@ -1428,9 +1252,6 @@ public class JEditTextArea extends JComponent
 			}
 		}
 
-	/**
-	 * Inserts the clipboard contents into the text.
-	 */
 	public void paste()
 		{
 		if (editable)
@@ -1504,29 +1325,22 @@ public class JEditTextArea extends JComponent
 	protected static JEditTextArea focusedComponent;
 	protected static Timer caretTimer;
 
-	public TextAreaPainter painter;
-
+	protected TextAreaPainter painter;
 	protected JPopupMenu popup;
-
 	protected EventListenerList listenerList;
 	protected MutableCaretEvent caretEvent;
 
 	protected boolean caretVisible;
 	protected boolean blink;
 
-	protected boolean editable;
-
 	protected int firstLine;
 	protected int visibleLines;
-	protected int electricScroll;
-
 	protected int horizontalOffset;
 
 	protected JScrollBar vertical;
 	protected JScrollBar horizontal;
 	protected boolean scrollBarsInitialized;
 
-	protected InputHandler inputHandler;
 	protected SyntaxDocument document;
 	protected DocumentHandler documentHandler;
 
@@ -1541,7 +1355,6 @@ public class JEditTextArea extends JComponent
 	protected int bracketPosition;
 	protected int bracketLine;
 
-	protected int magicCaret;
 	protected boolean overwrite;
 	protected boolean rectSelect;
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -109,7 +110,7 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 
 				public void actionPerformed(ActionEvent e)
 					{
-					getInputHandler().executeAction(l,source,null);
+					inputHandler.executeAction(l,source,null);
 					}
 			};
 		return makeToolbarButton(a);
@@ -390,7 +391,7 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 
 		public void actionPerformed(ActionEvent e)
 			{
-			if (isEditable())
+			if (editable)
 				{
 				int s = getSelectionStart();
 				int sl = getSelectionStartLine();
