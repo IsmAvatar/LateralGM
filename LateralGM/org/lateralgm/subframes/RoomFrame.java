@@ -93,7 +93,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	//ToolBar
 	public JButton zoomIn, zoomOut;
 	public JToggleButton gridVis, gridIso;
-	public IntegerField snapX, snapY;
+	//	public IntegerField snapX, snapY;
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	public JList oList;
@@ -104,7 +104,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JButton oCreationCode;
 	//Settings
 	public JTextField sCaption;
-	public IntegerField sWidth, sHeight, sSpeed;
+	public IntegerField sWidth, sHeight, sSpeed, sGX, sGY, sGW, sGH;
 	public JCheckBox sPersistent;
 	public JButton sCreationCode, sShow;
 	public JPopupMenu sShowMenu;
@@ -153,21 +153,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		zoomOut = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_OUT")); //$NON-NLS-1$
 		zoomOut.addActionListener(this);
 		tool.add(zoomOut);
-		tool.addSeparator();
-
-		tool.add(new JLabel(Messages.getString("RoomFrame.SNAP_X"))); //$NON-NLS-1$
-		snapX = new IntegerField(1,999,res.snapX);
-		snapX.setColumns(4);
-		snapX.setMaximumSize(snapX.getPreferredSize());
-		snapX.addActionListener(this); //causes editor to update on change
-		tool.add(snapX);
-
-		tool.add(new JLabel(Messages.getString("RoomFrame.SNAP_Y"))); //$NON-NLS-1$
-		snapY = new IntegerField(1,999,res.snapY);
-		snapY.setColumns(4);
-		snapY.setMaximumSize(snapY.getPreferredSize());
-		snapY.addActionListener(this);
-		tool.add(snapY);
 		tool.addSeparator();
 
 		String st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
@@ -385,6 +370,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
 		sShow.addActionListener(this);
 
+		JPanel pg = makeGridPane();
+
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(lName)
@@ -402,7 +389,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*				*/.addComponent(sSpeed)))
 		/**/.addComponent(sPersistent)
 		/**/.addComponent(sCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addComponent(sShow,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		/**/.addComponent(sShow,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(pg));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lName)
@@ -420,8 +408,60 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(sSpeed))
 		/**/.addComponent(sPersistent)
 		/**/.addComponent(sCreationCode)
-		/**/.addComponent(sShow));
+		/**/.addComponent(sShow)
+		/**/.addComponent(pg));
 		return panel;
+		}
+
+	public JPanel makeGridPane()
+		{
+		JPanel pg = new JPanel();
+		GroupLayout lr = new GroupLayout(pg);
+		pg.setLayout(lr);
+		pg.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.GRID"))); //$NON-NLS-1$
+
+		JLabel lGX = new JLabel(Messages.getString("RoomFrame.GRID_X")); //$NON-NLS-1$
+		sGX = new IntegerField(0,999,0);
+		sGX.setColumns(4);
+		sGX.addActionListener(this);
+		JLabel lGY = new JLabel(Messages.getString("RoomFrame.GRID_Y")); //$NON-NLS-1$
+		sGY = new IntegerField(0,999,0);
+		sGY.setColumns(4);
+		sGY.addActionListener(this);
+		JLabel lGW = new JLabel(Messages.getString("RoomFrame.GRID_W")); //$NON-NLS-1$
+		sGW = new IntegerField(1,999,res.snapX);
+		sGW.setColumns(4);
+		sGW.addActionListener(this);
+		JLabel lGH = new JLabel(Messages.getString("RoomFrame.GRID_H")); //$NON-NLS-1$
+		sGH = new IntegerField(1,999,res.snapY);
+		sGH.setColumns(4);
+		sGH.addActionListener(this);
+		lr.setHorizontalGroup(lr.createSequentialGroup().addContainerGap()
+		/**/.addGroup(lr.createParallelGroup()
+		/*		*/.addComponent(lGX)
+		/*		*/.addComponent(lGY)).addGap(4)
+		/**/.addGroup(lr.createParallelGroup()
+		/*		*/.addComponent(sGX)
+		/*		*/.addComponent(sGY)).addGap(8)
+		/**/.addGroup(lr.createParallelGroup()
+		/*		*/.addComponent(lGW)
+		/*		*/.addComponent(lGH)).addGap(4)
+		/**/.addGroup(lr.createParallelGroup()
+		/*		*/.addComponent(sGW)
+		/*		*/.addComponent(sGH)).addContainerGap());
+		lr.setVerticalGroup(lr.createSequentialGroup().addGap(4)
+		/**/.addGroup(lr.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lGX)
+		/*		*/.addComponent(sGX)
+		/*		*/.addComponent(lGW)
+		/*		*/.addComponent(sGW)).addGap(4)
+		/**/.addGroup(lr.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lGY)
+		/*		*/.addComponent(sGY)
+		/*		*/.addComponent(lGH)
+		/*		*/.addComponent(sGH)).addGap(8));
+
+		return pg;
 		}
 
 	public JTabbedPane makeTilesPane()
@@ -818,8 +858,30 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		vVisible = new JCheckBox(st,res.views[0].visible);
 		vVisible.addActionListener(this);
 
-		JTabbedPane tp = new JTabbedPane();
-		tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		JTabbedPane tp = makeViewsDimensionsPane();
+		JPanel pf = makeViewsFollowPane();
+
+		vList.setSelectedIndex(lastValidView);
+
+		Insets spi = sp.getInsets();
+		int spmh = vList.getMaximumSize().height + spi.bottom + spi.top;
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(vEnabled)
+		/**/.addComponent(sp)
+		/**/.addComponent(vVisible)
+		/**/.addComponent(tp)
+		/**/.addComponent(pf));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(vEnabled)
+		/**/.addComponent(sp,DEFAULT_SIZE,DEFAULT_SIZE,spmh)
+		/**/.addComponent(vVisible)
+		/**/.addComponent(tp,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/**/.addComponent(pf));
+		return panel;
+		}
+
+	private JTabbedPane makeViewsDimensionsPane()
+		{
 		JPanel pr = new JPanel();
 		GroupLayout lr = new GroupLayout(pr);
 		pr.setLayout(lr);
@@ -902,27 +964,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(lPH)
 		/*		*/.addComponent(vPH)).addGap(8));
 
+		JTabbedPane tp = new JTabbedPane();
+		tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		tp.addTab(Messages.getString("RoomFrame.VIEW_IN_ROOM"),pr); //$NON-NLS-1$
 		tp.addTab(Messages.getString("RoomFrame.PORT"),pp); //$NON-NLS-1$
-		JPanel pf = makeViewsFollowPane();
-
-		vList.setSelectedIndex(lastValidView);
-
-		Insets spi = sp.getInsets();
-		int spmh = vList.getMaximumSize().height + spi.bottom + spi.top;
-		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(vEnabled)
-		/**/.addComponent(sp)
-		/**/.addComponent(vVisible)
-		/**/.addComponent(tp)
-		/**/.addComponent(pf));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(vEnabled)
-		/**/.addComponent(sp,DEFAULT_SIZE,DEFAULT_SIZE,spmh)
-		/**/.addComponent(vVisible)
-		/**/.addComponent(tp)
-		/**/.addComponent(pf));
-		return panel;
+		return tp;
 		}
 
 	private JPanel makeViewsFollowPane()
@@ -1126,8 +1172,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		res.persistent = sPersistent.isSelected();
 		res.showGrid = gridVis.isSelected();
 		res.isometricGrid = gridIso.isSelected();
-		res.snapX = snapX.getIntValue();
-		res.snapY = snapY.getIntValue();
+		res.snapX = sGW.getIntValue();
+		res.snapY = sGH.getIntValue();
 		res.showObjects = sSObj.isSelected();
 		res.showTiles = sSTile.isSelected();
 		res.showBackgrounds = sSBack.isSelected();
@@ -1601,8 +1647,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		// garbage collection.
 		zoomIn.removeActionListener(this);
 		zoomOut.removeActionListener(this);
-		snapX.removeActionListener(this);
-		snapY.removeActionListener(this);
+		sGX.removeActionListener(this);
+		sGY.removeActionListener(this);
+		sGW.removeActionListener(this);
+		sGH.removeActionListener(this);
 		gridVis.removeActionListener(this);
 		gridIso.removeActionListener(this);
 		oNew.removeActionListener(this);

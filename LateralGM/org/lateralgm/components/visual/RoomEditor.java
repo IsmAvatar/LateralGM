@@ -309,8 +309,8 @@ public class RoomEditor extends JPanel implements ImageObserver
 		Point p = new Point(x,y); //scaled and unsnapped
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
-			x = x / frame.snapX.getIntValue() * frame.snapX.getIntValue();
-			y = y / frame.snapY.getIntValue() * frame.snapY.getIntValue();
+			x = (x - frame.sGX.getIntValue()) / frame.sGW.getIntValue() * frame.sGW.getIntValue();
+			y = (y - frame.sGY.getIntValue()) / frame.sGH.getIntValue() * frame.sGH.getIntValue();
 			}
 		frame.statX.setText(Messages.getString("RoomFrame.STAT_X") + x); //$NON-NLS-1$
 		frame.statY.setText(Messages.getString("RoomFrame.STAT_Y") + y); //$NON-NLS-1$
@@ -442,20 +442,22 @@ public class RoomEditor extends JPanel implements ImageObserver
 		g2.scale(zoom,zoom);
 		if (frame.gridVis.isSelected())
 			{
-			int w = frame.snapX.getIntValue() / zoom;
-			int h = frame.snapY.getIntValue() / zoom;
-			if (w > 3)
+			int gx = frame.sGX.getIntValue() / zoom;
+			int gy = frame.sGY.getIntValue() / zoom;
+			int gw = frame.sGW.getIntValue() / zoom;
+			int gh = frame.sGH.getIntValue() / zoom;
+			if (gw > 3)
 				{
 				g2.setXORMode(Color.BLACK);
 				g2.setColor(Color.WHITE);
-				for (int x = 0; x < width / zoom; x += w)
+				for (int x = gx; x < width / zoom; x += gw)
 					g2.drawLine(x,0,x,height / zoom - 1);
 				}
-			if (h > 3)
+			if (gh > 3)
 				{
 				g2.setXORMode(Color.BLACK);
 				g2.setColor(Color.WHITE);
-				for (int y = 0; y < height / zoom; y += h)
+				for (int y = gy; y < height / zoom; y += gh)
 					g2.drawLine(0,y,width / zoom - 1,y);
 				}
 			}
