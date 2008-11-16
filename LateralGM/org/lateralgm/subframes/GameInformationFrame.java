@@ -12,7 +12,6 @@
 package org.lateralgm.subframes;
 
 /*
- * TODO: Make the RTFEditor grab focus when the user enters a font size
  * Stolen from Font Family listener. Not sure what m_monitor was... 
  * 	String m_fontName = m_cbFonts.getSelectedItem().toString();
  * 	MutableAttributeSet attr = new SimpleAttributeSet();
@@ -213,8 +212,8 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 						fSizeChange = false;
 						return;
 						}
-					editor.grabFocus();
 					setSelectionAttribute(StyleConstants.Size,sSizes.getValue());
+					editor.grabFocus();
 					}
 			});
 		tool.add(sSizes);
@@ -484,9 +483,9 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 			});
 
 		tabs.addTab(Messages.getString("GameInformationFrame.TAB_INFO"),
-		/**/null,new JScrollPane(editor),Messages.getString("GameInformationFrame.HINT_INFO")); //$NON-NLS-1$ //$NON-NLS-2$
+		/**/null,new JScrollPane(editor),Messages.getString("GameInformationFrame.HINT_INFO")); //$NON-NLS-1$ 
 		tabs.addTab(Messages.getString("GameInformationFrame.TAB_SETTINGS"),
-		/**/null,makeSettings(),Messages.getString("GameInformationFrame.HINT_SETTINGS")); //$NON-NLS-1$ //$NON-NLS-2$
+		/**/null,makeSettings(),Messages.getString("GameInformationFrame.HINT_SETTINGS")); //$NON-NLS-1$ 
 		revertResource();
 
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$

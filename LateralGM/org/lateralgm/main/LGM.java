@@ -93,7 +93,7 @@ public final class LGM
 			}
 		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
 		String jv = System.getProperty("java.version"); //$NON-NLS-1$
-		Scanner s = new Scanner(jv).useDelimiter("[\\._]"); //$NON-NLS-1$
+		Scanner s = new Scanner(jv).useDelimiter("[\\._-]"); //$NON-NLS-1$
 		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
 		System.out.format("Java Version: %d (%s)\n",javaVersion,jv); //$NON-NLS-1$
 		if (javaVersion < 10600)
