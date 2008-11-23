@@ -499,6 +499,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 		public void addNotify()
 			{
 			super.addNotify();
+			depthSortables.add(this);
 			updateSource();
 			updateBounds();
 			}
@@ -574,11 +575,11 @@ public class RoomEditor extends JPanel implements ImageObserver
 			{
 			List<RoomComponent> ds = depthSortables;
 			int i = ds.indexOf(this);
+			if (i < 0) return;
 			int d = getDepth();
-			if (i < 0 || (i > 0 && ds.get(i - 1).getDepth() < d)
+			if ((i > 0 && ds.get(i - 1).getDepth() < d)
 					|| (i < ds.size() - 1 && ds.get(i + 1).getDepth() > d))
 				{
-				if (i >= 0) ds.remove(i);
 				i = Collections.binarySearch(ds,this);
 				if (i < 0) ds.add(-i - 1,this);
 				}
@@ -668,11 +669,12 @@ public class RoomEditor extends JPanel implements ImageObserver
 			{
 			List<RoomComponent> ds = depthSortables;
 			int i = ds.indexOf(this);
+			if (i < 0) return;
 			int d = getDepth();
-			if (i < 0 || (i > 0 && ds.get(i - 1).getDepth() < d)
+			if ((i > 0 && ds.get(i - 1).getDepth() < d)
 					|| (i < ds.size() - 1 && ds.get(i + 1).getDepth() > d))
 				{
-				if (i >= 0) ds.remove(i);
+				ds.remove(i);
 				i = Collections.binarySearch(ds,this);
 				if (i < 0) ds.add(-i - 1,this);
 				}
