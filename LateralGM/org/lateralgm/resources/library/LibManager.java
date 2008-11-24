@@ -1,6 +1,6 @@
 /*
+ * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -14,14 +14,12 @@ import static org.lateralgm.file.GmStreamDecoder.mask;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
@@ -29,7 +27,6 @@ import java.util.zip.ZipFile;
 
 import javax.imageio.ImageIO;
 
-import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
@@ -38,7 +35,7 @@ import org.lateralgm.resources.sub.Action;
 
 public final class LibManager
 	{
-	private LibManager() //should not be instantiated
+	private LibManager()
 		{
 		}
 
@@ -57,84 +54,116 @@ public final class LibManager
 		return null;
 		}
 
+	/**
+	 * This is the usual LibManager "entry point".
+	 * Loads in all libs/lgls in locations specified by preferences.
+	 */
 	public static void autoLoad()
 		{
-		List<File> files = new ArrayList<File>();
-		TreeMap<String,InputStream> deflibs = new TreeMap<String,InputStream>(); //sorted by key
-
-		String[] exts = { ".lib",".lgl" }; //$NON-NLS-1$ //$NON-NLS-2$
-		CustomFileFilter filter = new CustomFileFilter(exts,null);
-
 		File defdir = new File(Prefs.defaultLibraryPath);
-		if (defdir.exists())
+		if (!defdir.exists()) defdir = LGM.workDir;
+		autoLoad(defdir);
+
+		if (Prefs.userLibraryPath != null && Prefs.userLibraryPath.length() != 0)
+			autoLoad(new File(Prefs.userLibraryPath));
+		}
+
+	/** Loads in all libs/lgls in a given location (directory or zip file) */
+	public static void autoLoad(File loc)
+		{
+		Map<String,InputStream> map = getLibs(loc);
+		if (map != null) loadLibMap(map,loc);
+		}
+
+	/**
+	 * Retrieves all libs/lgls in a given location (directory or zip file).
+	 * The files are stored in order and already opened for convenience.
+	 */
+	public static TreeMap<String,InputStream> getLibs(File loc)
+		{
+		if (loc.exists())
 			{
-			files.addAll(Arrays.asList(defdir.listFiles(filter)));
-			}
-		else
-			{
-			//FIXME: if LGM.workDir.isDirectory() returns true, do not treat as a zip!
 			try
 				{
-				ZipFile zip = new ZipFile(LGM.workDir);
-				Enumeration<? extends ZipEntry> entries = zip.entries();
-				while (entries.hasMoreElements())
-					{
-					ZipEntry ent = entries.nextElement();
-					if (ent.getName().endsWith(".lgl") || ent.getName().endsWith(".lib")) //$NON-NLS-1$ //$NON-NLS-2$
-						deflibs.put(ent.getName().substring(ent.getName().lastIndexOf('/') + 1),
-								zip.getInputStream(ent));
-					}
+				if (loc.isDirectory()) return getDirLibs(loc);
+				if (!passFilter(loc.getName())) return getZipLibs(new ZipFile(loc));
+
+				//loc is a lib/lgl already...
+				TreeMap<String,InputStream> map = new TreeMap<String,InputStream>();
+				map.put(loc.getName(),new FileInputStream(loc));
+				return map;
 				}
-			catch (Exception e)
+			catch (IOException e)
 				{
 				e.printStackTrace();
 				}
 			}
+		return null;
+		}
 
-		if (Prefs.userLibraryPath != null && Prefs.userLibraryPath != "") //$NON-NLS-1$
+	public static TreeMap<String,InputStream> getZipLibs(ZipFile zip) throws IOException
+		{
+		TreeMap<String,InputStream> map = new TreeMap<String,InputStream>();
+		Enumeration<? extends ZipEntry> entries = zip.entries();
+		while (entries.hasMoreElements())
 			{
-			File userdir = new File(Prefs.userLibraryPath);
-			if (userdir.exists()) files.addAll(Arrays.asList(userdir.listFiles(filter)));
+			ZipEntry ent = entries.nextElement();
+			String en = ent.getName();
+			if (passFilter(en)) map.put(en.substring(en.lastIndexOf('/') + 1),zip.getInputStream(ent));
 			}
+		return map;
+		}
 
-		ArrayList<String> exceptions = new ArrayList<String>();
-		if (files.size() > 0)
-			System.out.println(Messages.format("LibManager.LOADINGN",Prefs.defaultLibraryPath)); //$NON-NLS-1$
-		StringBuilder buffer = new StringBuilder();
-		Collections.sort(files); // listFiles does not guarantee a particular order
-		for (File f : files)
+	public static TreeMap<String,InputStream> getDirLibs(File dir) throws IOException
+		{
+		TreeMap<String,InputStream> map = new TreeMap<String,InputStream>();
+		File[] fl = dir.listFiles();
+		for (File f : fl)
 			{
+			String en = f.getName();
+			if (passFilter(en)) map.put(en,new FileInputStream(f));
+			}
+		return map;
+		}
+
+	public static final String[] EXTS = { ".lib",".lgl" }; //$NON-NLS-1$ //$NON-NLS-2$
+
+	private static boolean passFilter(String fn)
+		{
+		for (String ext : EXTS)
+			if (fn.endsWith(ext)) return true;
+		return false;
+		}
+
+	public static void loadLibMap(Map<String,InputStream> libs, File path)
+		{
+		ArrayList<String> exceptions = new ArrayList<String>();
+		if (libs.size() > 0) System.out.println(Messages.format("LibManager.LOADINGN",path.getPath()));
+		StringBuilder buffer = new StringBuilder();
+
+		for (Map.Entry<String,InputStream> ent : libs.entrySet())
+			{
+			String fn = ent.getKey();
 			try
 				{
-				loadFile(f.getPath());
+				loadFile(new GmStreamDecoder(ent.getValue()),fn);
+
 				//print out filename
-				if ((buffer + f.getName()).length() > 60)
+				if (buffer.length() + fn.length() > 60)
 					{
 					System.out.println(buffer);
 					buffer.delete(0,buffer.length() - 1);
 					}
-				buffer.append(f.getName()).append(' ');
+				buffer.append(fn).append(' ');
 				}
 			catch (LibFormatException ex)
 				{
-				exceptions.add(f.getName() + ": " + ex.getMessage()); //$NON-NLS-1$
+				exceptions.add(fn + ": " + ex.getMessage());
 				}
 			}
 		System.out.println(buffer);
 		for (String s : exceptions)
 			System.out.println(s);
-		for (Map.Entry<String,InputStream> ent : deflibs.entrySet())
-			{
-			System.out.println(Messages.format("LibManager.LOADING1",ent.getKey())); //$NON-NLS-1$
-			try
-				{
-				loadFile(new GmStreamDecoder(ent.getValue()),ent.getKey());
-				}
-			catch (Exception ex)
-				{
-				System.out.println(ex.getMessage());
-				}
-			}
 		}
 
 	/**
@@ -151,7 +180,7 @@ public final class LibManager
 			}
 		catch (FileNotFoundException e)
 			{
-			throw new LibFormatException(Messages.format("LibManager.ERROR_NOTFOUND",filename)); //$NON-NLS-1$
+			throw new LibFormatException(Messages.format("LibManager.ERROR_NOTFOUND",filename));
 			}
 		}
 
@@ -173,7 +202,7 @@ public final class LibManager
 			else if (header == 500 || header == 520)
 				lib = loadLib(in);
 			else
-				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDFILE",filename)); //$NON-NLS-1$
+				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDFILE",filename));
 			libs.add(lib);
 			}
 		catch (IOException ex)
@@ -210,7 +239,7 @@ public final class LibManager
 	public static Library loadLib(GmStreamDecoder in) throws LibFormatException,IOException
 		{
 		if (in.read() != 0)
-			throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDFILE","%s")); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDFILE","%s"));
 		Library lib = new Library();
 		lib.tabCaption = in.readStr();
 		lib.id = in.read4();
@@ -227,7 +256,7 @@ public final class LibManager
 			int ver = in.read4();
 			if (ver != 500 && ver != 520)
 				{
-				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDACTION",j,"%s",ver)); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDACTION",j,"%s",ver));
 				}
 
 			LibAction act = lib.addLibAction();
@@ -312,7 +341,7 @@ public final class LibManager
 		for (int j = 0; j < acts; j++)
 			{
 			if (in.read2() != 160)
-				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDACTION",j,"%s",160)); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new LibFormatException(Messages.format("LibManager.ERROR_INVALIDACTION",j,"%s",160));
 			LibAction act = lib.addLibAction();
 			act.parent = lib;
 			act.id = in.read2();

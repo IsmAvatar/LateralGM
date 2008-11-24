@@ -81,6 +81,9 @@ public final class LGM
 	public static int javaVersion;
 	static
 		{
+		//java6u10 regression causes graphical xor to be very slow
+		System.setProperty("sun.java2d.d3d","false");
+
 		try
 			{
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
@@ -92,12 +95,15 @@ public final class LGM
 			e.printStackTrace();
 			}
 		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
+
+		//Get Java Version
 		String jv = System.getProperty("java.version"); //$NON-NLS-1$
 		Scanner s = new Scanner(jv).useDelimiter("[\\._-]"); //$NON-NLS-1$
 		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
 		System.out.format("Java Version: %d (%s)\n",javaVersion,jv); //$NON-NLS-1$
 		if (javaVersion < 10600)
 			System.out.println("Some program functionality will be limited due to your outdated version"); //$NON-NLS-1$
+
 		SplashProgress.start();
 		}
 	public static JFrame frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
