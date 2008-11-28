@@ -52,17 +52,22 @@ public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements U
 		R r0 = wr == null ? null : wr.get();
 		if (r0 != null)
 			{
-			if (r0 == res)
-				return false;
+			if (r0 == res) return false;
 			super.remove(r0);
 			}
 		refMap.put(res.reference,new WeakReference<R>(res));
 		return super.add(res);
 		}
 
+	/**
+	 * Notice: due to the nature of this list being sorted,
+	 * changing the id of a resource after adding it may cause
+	 * this list to become unsorted and result in unexpected behavior.
+	 */
 	public boolean add(R res)
 		{
-		res.setId(++lastId);
+		//don't override id if it's already set
+		if (res.getId() == -1) res.setId(++lastId);
 		if (doAdd(res))
 			{
 			updateTrigger.fire();
@@ -83,6 +88,11 @@ public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements U
 		return r;
 		}
 
+	/**
+	 * Notice: due to the nature of this list being sorted,
+	 * changing the id of a resource after adding it may cause
+	 * this list to become unsorted and result in unexpected behavior.
+	 */
 	public R add()
 		{
 		R res = null;

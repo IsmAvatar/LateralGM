@@ -65,7 +65,7 @@ public abstract class Resource<R extends Resource<R>> implements Comparable<Reso
 
 	private ResNode node;
 	private String name = "";
-	private int id;
+	private int id = -1; //indicates id not set
 	public final ResourceReference<R> reference;
 
 	public Resource()
