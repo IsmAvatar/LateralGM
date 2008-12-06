@@ -588,8 +588,10 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				}
 			else
 				{
-				tx = (int) Math.floor(x / hardBkg.tileWidth) * hardBkg.tileWidth;
-				ty = (int) Math.floor(y / hardBkg.tileHeight) * hardBkg.tileHeight;
+				int w = hardBkg.tileWidth + hardBkg.horizSep;
+				int h = hardBkg.tileHeight + hardBkg.vertSep;
+				tx = (int) Math.floor((x - hardBkg.horizOffset) / w) * w + hardBkg.horizOffset;
+				ty = (int) Math.floor((y - hardBkg.vertOffset) / h) * h + hardBkg.vertOffset;
 				}
 			repaint();
 			}
