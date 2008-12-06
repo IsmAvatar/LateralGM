@@ -747,6 +747,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		bSource = new ResourceMenu<Background>(Room.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,150); //$NON-NLS-1$
 		bSource.setSelected(res.backgroundDefs[0].backgroundId);
+		bSource.addActionListener(this);
 
 		st = Messages.getString("RoomFrame.BACK_TILE_HOR"); //$NON-NLS-1$
 		bTileH = new JCheckBox(st,res.backgroundDefs[0].tileHoriz);
@@ -1199,6 +1200,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			res.backgroundDefs[lastValidBack].visible = bVisible.isSelected();
 			lab.setFont(lab.getFont().deriveFont(bVisible.isSelected() ? Font.BOLD : Font.PLAIN));
 			bList.updateUI();
+			return true;
+			}
+		if (s == bSource)
+			{
+			res.backgroundDefs[lastValidBack].backgroundId = bSource.getSelected();
 			return true;
 			}
 		if (s == bStretch)
