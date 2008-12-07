@@ -74,7 +74,8 @@ public final class Prefs
 		defaultLibraryPath = getString("defaultLibraryPath","org/lateralgm/resources/library/lib/");
 		userLibraryPath = getString("userLibraryPath","./lib");
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
-		showActionToolTip = getBoolean("showActionToolTip",true);
+		actionToolTipColumns = getInt("actionToolTipColumns",30);
+		actionToolTipLines = getInt("actionToolTipLines",10);
 
 		String str = getString("externalBackgroundEditorCommand","gimp %s");
 		useExternalBackgroundEditor = !str.toLowerCase().equals("null");
@@ -98,7 +99,8 @@ public final class Prefs
 
 	public static String defaultLibraryPath;
 	public static String userLibraryPath;
-	public static boolean showActionToolTip;
+	public static int actionToolTipColumns;
+	public static int actionToolTipLines;
 
 	public static boolean useExternalBackgroundEditor;
 	public static String externalBackgroundEditorCommand;
@@ -106,4 +108,5 @@ public final class Prefs
 	public static String externalSpriteEditorCommand;
 	public static boolean useExternalScriptEditor;
 	public static String externalScriptEditorCommand;
+
 	}

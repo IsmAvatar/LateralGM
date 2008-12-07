@@ -579,20 +579,19 @@ public class ActionList extends JList
 		public static String parse(String s, Action a)
 			{
 			String escape = "FrNw01234567"; //$NON-NLS-1$
-			String ret = ""; //$NON-NLS-1$
-			//s = s.replaceAll("\n","<br>");
+			StringBuilder ret = new StringBuilder();
 
 			int k = 0;
-			int p = s.indexOf("@"); //$NON-NLS-1$
+			int p = s.indexOf('@');
 			while (p != -1)
 				{
-				ret += s.substring(k,p);
+				ret.append(s.substring(k,p));
 				char c = s.charAt(p + 1);
 				if (!escape.contains(String.valueOf(c)))
 					{
-					ret += "@"; //$NON-NLS-1$
+					ret.append('@');
 					k = p + 1;
-					p = s.indexOf("@",k); //$NON-NLS-1$
+					p = s.indexOf('@',k);
 					continue;
 					}
 				if (c == 'F')
@@ -600,23 +599,23 @@ public class ActionList extends JList
 					if (s.charAt(p + 2) == 'B' || s.charAt(p + 2) == 'I')
 						p += 2;
 					else
-						ret += "@"; //$NON-NLS-1$
+						ret.append('@');
 					k = p + 1;
-					p = s.indexOf("@",k); //$NON-NLS-1$
+					p = s.indexOf('@',k);
 					continue;
 					}
-				if (c == 'r' && a.isRelative()) ret += Messages.getString("Action.RELATIVE"); //$NON-NLS-1$
-				if (c == 'N' && a.isNot()) ret += Messages.getString("Action.NOT"); //$NON-NLS-1$
+				if (c == 'r' && a.isRelative()) ret.append(Messages.getString("Action.RELATIVE")); //$NON-NLS-1$
+				if (c == 'N' && a.isNot()) ret.append(Messages.getString("Action.NOT")); //$NON-NLS-1$
 				ResourceReference<GmObject> at = a.getAppliesTo();
 				if (c == 'w' && !at.equals(GmObject.OBJECT_SELF))
 					{
 					if (at.equals(GmObject.OBJECT_OTHER))
-						ret += Messages.getString("Action.APPLIES_OTHER"); //$NON-NLS-1$
+						ret.append(Messages.getString("Action.APPLIES_OTHER")); //$NON-NLS-1$
 					else
 						{
 						GmObject applies = deRef(at);
-						ret += Messages.format("Action.APPLIES",applies == null ? at.toString() //$NON-NLS-1$
-								: applies.getName());
+						ret.append(Messages.format("Action.APPLIES",applies == null ? at.toString() //$NON-NLS-1$
+								: applies.getName()));
 						}
 					}
 				if (c >= '0' && c < '8')
@@ -624,18 +623,22 @@ public class ActionList extends JList
 					int arg = c - '0';
 					List<Argument> args = a.getArguments();
 					if (arg >= args.size())
-						ret += "0"; //$NON-NLS-1$
+						ret.append('0');
 					else
 						{
 						Argument aa = args.get(arg);
-						ret += aa.toString(a.getLibAction().libArguments[arg]);
+						ret.append(aa.toString(a.getLibAction().libArguments[arg]));
 						}
 					}
 				k = p + 2;
-				p = s.indexOf("@",k); //$NON-NLS-1$
+				p = s.indexOf('@',k);
 				}
 
-			s = ret + s.substring(k);
+			return ret + s.substring(k);
+			}
+
+		public static String escape(String s)
+			{
 			s = s.replaceAll("&","&amp;"); //$NON-NLS-1$ //$NON-NLS-2$
 			s = s.replaceAll("<","&lt;"); //$NON-NLS-1$ //$NON-NLS-2$
 			s = s.replaceAll(">","&gt;"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -643,9 +646,7 @@ public class ActionList extends JList
 			s = s.replaceAll("\\\\#","\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			s = s.replaceAll("#","<br>"); //$NON-NLS-1$ //$NON-NLS-2$
 			s = s.replaceAll("\n","&#35;"); //$NON-NLS-1$ //$NON-NLS-2$
-			s = s.replaceAll(" ","&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
-
-			return s;
+			return s.replaceAll(" ","&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
 		private static class ActionRendererComponent extends JLabel
@@ -666,16 +667,50 @@ public class ActionList extends JList
 					}
 				else
 					{
-					setText(parse(la.listText,a));
-					if (la.listText.contains("@FB")) //$NON-NLS-1$
-						setText("<b>" + getText()); //$NON-NLS-1$
+					StringBuilder sb = new StringBuilder("<html>");
 					if (la.listText.contains("@FI")) //$NON-NLS-1$
-						setText("<i>" + getText()); //$NON-NLS-1$
-					setText("<html>" + getText()); //$NON-NLS-1$
+						sb.append("<i>");
+					if (la.listText.contains("@FB")) //$NON-NLS-1$
+						sb.append("<b>");
+					sb.append(escape(parse(la.listText,a)));
+					setText(sb.toString());
 					setIcon(new ImageIcon(la.actImage));
-					if (Prefs.showActionToolTip) setToolTipText("<html>" + parse(la.hintText,a)); //$NON-NLS-1$
+
+					if (Prefs.actionToolTipLines > 0 && Prefs.actionToolTipColumns > 0)
+						{
+						sb = new StringBuilder();
+						String snip = parse(la.hintText.replaceAll("(?<!\\\\)#","\n"),a);
+						int last, next = -1;
+						for (int i = 0; i < Prefs.actionToolTipLines; i++)
+							{
+							last = next + 1;
+							next = snip.indexOf('\n',last);
+							if (next == -1)
+								{
+								sb.append(snip.substring(last));
+								break;
+								}
+							if (next > last + Prefs.actionToolTipColumns)
+								{
+								sb.append(snip.substring(last,last + Prefs.actionToolTipColumns));
+								sb.append("...");
+								}
+							else
+								sb.append(snip.substring(last,next));
+							sb.append("\n");
+							}
+						if (next != -1) sb.append(Messages.getString("Action.HINT_MORE"));
+						setToolTipText("<html><font face=\"Courier\">" + escape(sb.toString()));
+						}
 					}
 				}
+
+			//			public JToolTip createToolTip()
+			//				{
+			//				JToolTip tip = new JToolTip();
+			//				tip.setComponent(this);
+			//				return tip;
+			//				}
 
 			public void setIndent(int indent)
 				{
