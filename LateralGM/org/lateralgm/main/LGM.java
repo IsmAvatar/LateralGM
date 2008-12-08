@@ -47,6 +47,7 @@ import javax.swing.AbstractButton;
 import javax.swing.DropMode;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -55,6 +56,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -82,7 +84,7 @@ public final class LGM
 	static
 		{
 		//java6u10 regression causes graphical xor to be very slow
-		System.setProperty("sun.java2d.d3d","false");
+		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		try
 			{
@@ -269,6 +271,16 @@ public final class LGM
 		tree.setShowsRootHandles(true);
 		tree.setCellEditor(editor);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+		//remove the cut, copy, and paste bindings
+		InputMap im = tree.getInputMap();
+		for (KeyStroke s : im.allKeys())
+			{
+			Object o = im.get(s);
+			if (o.equals("cut") || o.equals("copy") || o.equals("paste")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				im.put(s,"none"); //null doesn't remove them //$NON-NLS-1$
+			}
+
 		if (populate)
 			populateTree();
 		else
