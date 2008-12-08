@@ -712,6 +712,15 @@ public class ActionList extends JList
 			//				return tip;
 			//				}
 
+			/**
+			 * Overridden to address java bug 6700748 by returning false.
+			 * In WinXP, the cursor flickers between two states on drag & drop.
+			 */
+			public boolean isVisible()
+				{
+				return false;
+				}
+
 			public void setIndent(int indent)
 				{
 				if (this.indent == indent) return;
