@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
-import java.beans.PropertyVetoException;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -1110,21 +1109,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(editorPane,DEFAULT_SIZE,480,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
 		if (res.rememberWindowSize)
-			{
-			Dimension d = LGM.mdi.getSize();
-			if (d.width < res.editorWidth && d.height < res.editorHeight)
-				try
-					{
-					setMaximum(true);
-					}
-				catch (PropertyVetoException e)
-					{
-					setSize(res.editorWidth,res.editorHeight);
-					e.printStackTrace();
-					}
-			else
-				setSize(res.editorWidth,res.editorHeight);
-			}
+			setSize(res.editorWidth,res.editorHeight);
 		else
 			pack();
 		}
