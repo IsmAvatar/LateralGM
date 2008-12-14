@@ -97,6 +97,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	/** Note that passing in null will cause an open dialog to display */
 	public void openFile(String filename)
 		{
+		LGM.mdi.closeAll();
 		File file;
 		if (filename != null)
 			file = new File(filename);
@@ -138,7 +139,6 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			}
 		LGM.tree.setModel(new DefaultTreeModel(newroot));
-		LGM.tree.setSelectionRow(0);
 
 		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
 		LGM.getGameSettings().setVisible(false);
@@ -148,11 +148,13 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	public void newFile()
 		{
+		LGM.mdi.closeAll();
 		LGM.frame.setTitle(Messages.format("LGM.TITLE",Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$
 		LGM.root = new ResNode("Root",(byte) 0,(byte) 0,null); //$NON-NLS-1$
-		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
-		LGM.populateTree();
 		LGM.currentFile = new GmFile();
+		LGM.populateTree();
+		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
+
 		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
 		LGM.getGameSettings().setVisible(false);
 		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);

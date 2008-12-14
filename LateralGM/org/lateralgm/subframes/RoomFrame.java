@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
+import java.beans.PropertyVetoException;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -163,6 +164,12 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		gridIso = new JToggleButton(st,res.isometricGrid);
 		gridIso.addActionListener(this);
 		tool.add(gridIso);
+
+		sShowMenu = makeShowMenu();
+		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
+		sShow.addActionListener(this);
+		tool.add(sShow);
+
 		tool.addSeparator();
 
 		return tool;
@@ -366,10 +373,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		sCreationCode = new JButton(str,CODE_ICON);
 		sCreationCode.addActionListener(this);
 
-		sShowMenu = makeShowMenu();
-		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
-		sShow.addActionListener(this);
-
 		JPanel pg = makeGridPane();
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -389,7 +392,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*				*/.addComponent(sSpeed)))
 		/**/.addComponent(sPersistent)
 		/**/.addComponent(sCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addComponent(sShow,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(pg));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
@@ -408,7 +410,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(sSpeed))
 		/**/.addComponent(sPersistent)
 		/**/.addComponent(sCreationCode)
-		/**/.addComponent(sShow)
 		/**/.addComponent(pg));
 		return panel;
 		}
@@ -1109,7 +1110,21 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(editorPane,DEFAULT_SIZE,480,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
 		if (res.rememberWindowSize)
-			setSize(res.editorWidth,res.editorHeight);
+			{
+			Dimension d = LGM.mdi.getSize();
+			if (d.width < res.editorWidth && d.height < res.editorHeight)
+				try
+					{
+					setMaximum(true);
+					}
+				catch (PropertyVetoException e)
+					{
+					setSize(res.editorWidth,res.editorHeight);
+					e.printStackTrace();
+					}
+			else
+				setSize(res.editorWidth,res.editorHeight);
+			}
 		else
 			pack();
 		}
