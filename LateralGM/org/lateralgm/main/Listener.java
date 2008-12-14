@@ -139,6 +139,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			}
 		LGM.tree.setModel(new DefaultTreeModel(newroot));
+		LGM.tree.setSelectionRow(0);
 
 		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
 		LGM.getGameSettings().setVisible(false);

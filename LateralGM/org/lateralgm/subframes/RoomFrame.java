@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
+import java.beans.PropertyVetoException;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -1109,9 +1110,34 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*		*/.addComponent(editorPane,DEFAULT_SIZE,480,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
 		if (res.rememberWindowSize)
-			setSize(res.editorWidth,res.editorHeight);
+			{
+			Dimension d = LGM.mdi.getSize();
+			if (d.width < res.editorWidth && d.height < res.editorHeight)
+				maximize = true;
+			else
+				setSize(res.editorWidth,res.editorHeight);
+			}
 		else
 			pack();
+		}
+
+	private boolean maximize;
+
+	//maximizes over-sized RoomFrames, since setMaximum can't
+	//be called until after it's been added to the MDI
+	public void setVisible(boolean b)
+		{
+		super.setVisible(b);
+		if (!maximize) return;
+		try
+			{
+			setMaximum(true);
+			}
+		catch (PropertyVetoException e)
+			{
+			setSize(res.editorWidth,res.editorHeight);
+			e.printStackTrace();
+			}
 		}
 
 	public static class ListComponentRenderer implements ListCellRenderer
