@@ -142,8 +142,13 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		public <R extends Resource<R>>void setResource(ResourceReference<R> r)
 			{
 			Resource<R> res = Util.deRef(r);
-			displayImage = res == null ? null : res.getDisplayImage();
-			setIcon(displayImage == null ? null : GmTreeGraphics.getScaledIcon(displayImage));
+			if (res == null)
+				{
+				setIcon(null);
+				return;
+				}
+			ResNode rn = res.getNode();
+			setIcon(rn == null ? null : rn.getIcon());
 			}
 
 		public JToolTip createToolTip()
