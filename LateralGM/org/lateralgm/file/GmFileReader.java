@@ -608,12 +608,8 @@ public final class GmFileReader
 		int noTimelines = in.read4();
 		for (int i = 0; i < noTimelines; i++)
 			{
-			if (!in.readBool())
-				{
-				f.timelines.lastId++;
-				continue;
-				}
-			ResourceReference<Timeline> r = c.timeids.get(i);
+			if (!in.readBool()) continue;
+			ResourceReference<Timeline> r = c.timeids.get(i); //includes ID
 			Timeline time = r.get();
 			f.timelines.add(time);
 			time.setName(in.readStr());
@@ -627,6 +623,7 @@ public final class GmFileReader
 				readActions(c,mom,"INTIMELINEACTION",i,mom.stepNo); //$NON-NLS-1$
 				}
 			}
+		f.timelines.lastId = noTimelines;
 		}
 
 	private static void readGmObjects(Gm6FileContext c) throws IOException,GmFormatException
@@ -640,12 +637,8 @@ public final class GmFileReader
 		int noGmObjects = in.read4();
 		for (int i = 0; i < noGmObjects; i++)
 			{
-			if (!in.readBool())
-				{
-				f.gmObjects.lastId++;
-				continue;
-				}
-			ResourceReference<GmObject> r = c.objids.get(i);
+			if (!in.readBool()) continue;
+			ResourceReference<GmObject> r = c.objids.get(i); //includes ID
 			GmObject obj = r.get();
 			f.gmObjects.add(obj);
 			obj.setName(in.readStr());
@@ -685,6 +678,7 @@ public final class GmFileReader
 					}
 				}
 			}
+		f.gmObjects.lastId = noGmObjects;
 		}
 
 	private static void readRooms(Gm6FileContext c) throws IOException,GmFormatException
@@ -698,12 +692,8 @@ public final class GmFileReader
 		int noRooms = in.read4();
 		for (int i = 0; i < noRooms; i++)
 			{
-			if (!in.readBool())
-				{
-				f.rooms.lastId++;
-				continue;
-				}
-			ResourceReference<Room> r = c.rmids.get(i);
+			if (!in.readBool()) continue;
+			ResourceReference<Room> r = c.rmids.get(i); //includes ID
 			Room rm = r.get();
 			f.rooms.add(rm);
 			rm.setName(in.readStr());
@@ -803,6 +793,7 @@ public final class GmFileReader
 			rm.scrollBarX = in.read4();
 			rm.scrollBarY = in.read4();
 			}
+		f.rooms.lastId = noRooms;
 		}
 
 	private static void readGameInformation(Gm6FileContext c, int ver) throws IOException
