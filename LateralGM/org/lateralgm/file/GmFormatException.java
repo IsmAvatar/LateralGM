@@ -23,7 +23,7 @@ public class GmFormatException extends Exception
 
 	public GmFormatException(GmFile file, Exception e)
 		{
-		super(e.getMessage());
+		super(e.getClass().getName() + ": " + e.getMessage());
 		this.e = e;
 		this.file = file;
 		}

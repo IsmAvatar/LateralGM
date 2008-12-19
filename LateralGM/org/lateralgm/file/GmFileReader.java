@@ -907,7 +907,6 @@ public final class GmFileReader
 				in.skip(in.read4());
 				in.skip(in.read4());
 				}
-			Action act = container.addAction(la);
 			Argument[] args = new Argument[in.read4()];
 			byte[] argkinds = new byte[in.read4()];
 			for (int x = 0; x < argkinds.length; x++)
@@ -921,6 +920,7 @@ public final class GmFileReader
 					la.libArguments[x].kind = argkinds[x];
 					}
 				}
+			Action act = container.addAction(la);
 			int appliesTo = in.read4();
 			switch (appliesTo)
 				{
