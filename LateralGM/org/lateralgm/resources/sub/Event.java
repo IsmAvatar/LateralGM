@@ -152,7 +152,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 					name = obj.getName();
 				return Messages.format("Event.EVENT4_X",name); //$NON-NLS-1$
 			default:
-				return eventName(mainId,id); //$NON-NLS-1$
+				return eventName(mainId,id); 
 			}
 		}
 
@@ -173,6 +173,10 @@ public class Event extends ActionContainer implements Comparable<Event>
 		{
 		switch (keyCode)
 			{
+			case 0:
+				return Messages.getString("Event.NO_KEY");
+			case 1:
+				return Messages.getString("Event.ANY_KEY");
 			case 13:
 				keyCode = KeyEvent.VK_ENTER;
 				break;
