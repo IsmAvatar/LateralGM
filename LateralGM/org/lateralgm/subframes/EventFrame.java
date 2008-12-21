@@ -209,7 +209,8 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		for (int i = 0; i <= 8; i++)
 			other.add(MainEvent.EV_OTHER,i);
 
-		EventNode user = new EventNode(Messages.getString("EventFrame.USER_DEFINED")); //$NON-NLS-1$
+		EventNode user = new EventNode(
+				Messages.getString("EventFrame.USER_DEFINED"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(user);
 		for (int i = 0; i <= 14; i++)
 			{
@@ -288,7 +289,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 			super();
 			}
 
-		public void mouseClicked(MouseEvent e)
+		public void mouseReleased(MouseEvent e)
 			{
 			if (e.getSource() != events) return;
 			int button = e.getButton();
@@ -303,6 +304,10 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				else
 					events.expandPath(path);
 				EventNode n = (EventNode) path.getLastPathComponent();
+
+				if (n.mainId == MainEvent.EV_KEYBOARD || n.mainId == MainEvent.EV_KEYPRESS
+						|| n.mainId == MainEvent.EV_KEYRELEASE) keySelect.text.requestFocusInWindow();
+
 				boolean added = (button == MouseEvent.BUTTON1 && clicks == 2)
 						|| (button == MouseEvent.BUTTON3 && clicks == 1);
 				GmObjectFrame f = linkedFrame == null ? null : linkedFrame.get();
@@ -346,6 +351,13 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		{
 		if (id == InternalFrameEvent.INTERNAL_FRAME_ICONIFIED) LGM.mdi.setLayer(getDesktopIcon(),0);
 		super.fireInternalFrameEvent(id);
+		}
+
+	public void setVisible(boolean b)
+		{
+		super.setVisible(b);
+		if (!b && events != null) for (int m = events.getRowCount() - 1; m >= 0; m--)
+			events.collapseRow(m);
 		}
 
 	public void valueChanged(TreeSelectionEvent e)

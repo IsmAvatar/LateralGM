@@ -105,7 +105,7 @@ public class EventKeySelector extends JPanel implements ActionListener
 		{
 		private static final long serialVersionUID = 1L;
 		public EventFrame parent;
-		private int selectedKey;
+		private int selectedKey = -1;
 
 		public EventKeyInput(EventFrame parent)
 			{

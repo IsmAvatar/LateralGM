@@ -59,7 +59,7 @@ public final class GmFileReader
 		}
 
 	//Workaround for Parameter limit
-	private static class Gm6FileContext
+	private static class GmFileContext
 		{
 		GmFile f;
 		GmStreamDecoder in;
@@ -67,7 +67,7 @@ public final class GmFileReader
 		RefList<GmObject> objids;
 		RefList<Room> rmids;
 
-		Gm6FileContext(GmFile f, GmStreamDecoder in, RefList<Timeline> timeids,
+		GmFileContext(GmFile f, GmStreamDecoder in, RefList<Timeline> timeids,
 				RefList<GmObject> objids, RefList<Room> rmids)
 			{
 			this.f = f;
@@ -102,7 +102,7 @@ public final class GmFileReader
 			{
 			long startTime = System.currentTimeMillis();
 			in = new GmStreamDecoder(fileName);
-			Gm6FileContext c = new Gm6FileContext(f,in,timeids,objids,rmids);
+			GmFileContext c = new GmFileContext(f,in,timeids,objids,rmids);
 			int identifier = in.read4();
 			if (identifier != 1234321)
 				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_INVALID",fileName, //$NON-NLS-1$
@@ -210,7 +210,7 @@ public final class GmFileReader
 		return f;
 		}
 
-	private static void readSettings(Gm6FileContext c) throws IOException,GmFormatException,
+	private static void readSettings(GmFileContext c) throws IOException,GmFormatException,
 			DataFormatException
 		{
 		GmFile f = c.f;
@@ -340,7 +340,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readSounds(Gm6FileContext c) throws IOException,GmFormatException,
+	private static void readSounds(GmFileContext c) throws IOException,GmFormatException,
 			DataFormatException
 		{
 		GmFile f = c.f;
@@ -387,7 +387,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readSprites(Gm6FileContext c) throws IOException,GmFormatException,
+	private static void readSprites(GmFileContext c) throws IOException,GmFormatException,
 			DataFormatException
 		{
 		GmFile f = c.f;
@@ -438,7 +438,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readBackgrounds(Gm6FileContext c) throws IOException,GmFormatException,
+	private static void readBackgrounds(GmFileContext c) throws IOException,GmFormatException,
 			DataFormatException
 		{
 		GmFile f = c.f;
@@ -487,7 +487,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readPaths(Gm6FileContext c) throws IOException,GmFormatException
+	private static void readPaths(GmFileContext c) throws IOException,GmFormatException
 		{
 		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
@@ -524,7 +524,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readScripts(Gm6FileContext c) throws IOException,GmFormatException
+	private static void readScripts(GmFileContext c) throws IOException,GmFormatException
 		{
 		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
@@ -548,7 +548,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readFonts(Gm6FileContext c) throws IOException,GmFormatException
+	private static void readFonts(GmFileContext c) throws IOException,GmFormatException
 		{
 		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
@@ -597,7 +597,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readTimelines(Gm6FileContext c) throws IOException,GmFormatException
+	private static void readTimelines(GmFileContext c) throws IOException,GmFormatException
 		{
 		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
@@ -626,7 +626,7 @@ public final class GmFileReader
 		f.timelines.lastId = noTimelines;
 		}
 
-	private static void readGmObjects(Gm6FileContext c) throws IOException,GmFormatException
+	private static void readGmObjects(GmFileContext c) throws IOException,GmFormatException
 		{
 		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
@@ -681,7 +681,7 @@ public final class GmFileReader
 		f.gmObjects.lastId = noGmObjects;
 		}
 
-	private static void readRooms(Gm6FileContext c) throws IOException,GmFormatException
+	private static void readRooms(GmFileContext c) throws IOException,GmFormatException
 		{
 		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
@@ -796,7 +796,7 @@ public final class GmFileReader
 		f.rooms.lastId = noRooms;
 		}
 
-	private static void readGameInformation(Gm6FileContext c, int ver) throws IOException
+	private static void readGameInformation(GmFileContext c, int ver) throws IOException
 		{
 		GmStreamDecoder in = c.in;
 		GameInformation gameInfo = c.f.gameInfo;
@@ -818,7 +818,7 @@ public final class GmFileReader
 		gameInfo.gameInfoStr = in.readStr();
 		}
 
-	private static void readTree(Gm6FileContext c, ResNode root, int ver) throws IOException
+	private static void readTree(GmFileContext c, ResNode root, int ver) throws IOException
 		{
 		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
@@ -857,7 +857,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readActions(Gm6FileContext c, ActionContainer container, String key,
+	private static void readActions(GmFileContext c, ActionContainer container, String key,
 			int format1, int format2) throws IOException,GmFormatException
 		{
 		GmFile f = c.f;
