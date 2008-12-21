@@ -352,6 +352,9 @@ public class Event extends ActionContainer implements Comparable<Event>
 		keys.add(34); //vk_pagedown	
 		keys.add(46); //vk_delete
 		keys.add(45); //vk_insert
+
+		keys.add(0); //vk_nokey
+		keys.add(1); //vk_anykey
 		KEYS = Collections.unmodifiableList((keys));
 		}
 	}

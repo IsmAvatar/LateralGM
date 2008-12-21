@@ -44,7 +44,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-import org.lateralgm.components.EventKeyInput;
+import org.lateralgm.components.EventKeySelector;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.IndexButtonGroup;
@@ -72,7 +72,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 	public static final int FUNCTION_DUPLICATE = 2;
 
 	public IndexButtonGroup function;
-	public EventKeyInput keySelect;
+	public EventKeySelector keySelect;
 	public JPanel keySelectPanel;
 	public ResourceMenu<GmObject> collisionSelect;
 	public JPanel collisionSelectPanel;
@@ -124,7 +124,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 
 		keySelectPanel = new JPanel();
 		addDim(keySelectPanel,new JLabel(Messages.getString("EventFrame.KEY_SELECTOR")),140,16); //$NON-NLS-1$
-		keySelect = new EventKeyInput(this);
+		keySelect = new EventKeySelector(this,140);
 		addDim(keySelectPanel,keySelect,140,20);
 		addDim(side2,keySelectPanel,140,46);
 		keySelectPanel.setVisible(false);
@@ -364,7 +364,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				keySelectPanel.setVisible(true);
 				collisionSelectPanel.setVisible(false);
 				emptyPanel.setVisible(false);
-				selectedNode.eventId = keySelect.selectedKey;
+				selectedNode.eventId = keySelect.getSelectedKey();
 				break;
 			default:
 				keySelectPanel.setVisible(false);
