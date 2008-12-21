@@ -303,15 +303,16 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 					events.collapsePath(path);
 				else
 					events.expandPath(path);
-				EventNode n = (EventNode) path.getLastPathComponent();
 
+				EventNode n = (EventNode) path.getLastPathComponent();
+				if (n == null) return;
 				if (n.mainId == MainEvent.EV_KEYBOARD || n.mainId == MainEvent.EV_KEYPRESS
 						|| n.mainId == MainEvent.EV_KEYRELEASE) keySelect.text.requestFocusInWindow();
 
 				boolean added = (button == MouseEvent.BUTTON1 && clicks == 2)
 						|| (button == MouseEvent.BUTTON3 && clicks == 1);
 				GmObjectFrame f = linkedFrame == null ? null : linkedFrame.get();
-				if (added && n != null && n.isLeaf() && f != null && n.isValid())
+				if (added && n.isLeaf() && f != null && n.isValid())
 					f.addEvent(new Event(n.mainId,n.eventId,n.other));
 				}
 			}
