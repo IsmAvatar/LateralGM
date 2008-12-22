@@ -9,7 +9,7 @@
 
 package org.lateralgm.components;
 
-import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Locale;
@@ -75,9 +75,9 @@ public class GmMenuBar extends JMenuBar
 		fileMenu = menu;
 		add(menu);
 
-		menu.addItem("GmMenuBar.NEW",KeyEvent.VK_N,ActionEvent.CTRL_MASK); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.OPEN",KeyEvent.VK_O,ActionEvent.CTRL_MASK); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.SAVE",KeyEvent.VK_S,ActionEvent.CTRL_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.NEW",KeyEvent.VK_N,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.OPEN",KeyEvent.VK_O,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.SAVE",KeyEvent.VK_S,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SAVEAS"); //$NON-NLS-1$
 		menu.add(new JSeparator());
 		// JCheckBoxMenuItem check = new JCheckBoxMenuItem();
@@ -87,7 +87,7 @@ public class GmMenuBar extends JMenuBar
 		// menu.add(new JSeparator());
 		recentFilesPos = menu.getMenuComponentCount();
 		menu.add(new JSeparator());
-		menu.addItem("GmMenuBar.EXIT",KeyEvent.VK_F4,ActionEvent.ALT_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.EXIT",KeyEvent.VK_F4,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$
 		updateRecentFiles();
 
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_EDIT")); //$NON-NLS-1$
@@ -123,10 +123,10 @@ public class GmMenuBar extends JMenuBar
 
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.RENAME",KeyEvent.VK_F2,0); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.DELETE",KeyEvent.VK_DELETE,ActionEvent.SHIFT_MASK); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.COPY",KeyEvent.VK_INSERT,ActionEvent.ALT_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.DELETE",KeyEvent.VK_DELETE,InputEvent.SHIFT_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.COPY",KeyEvent.VK_INSERT,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$
 		menu.add(new JSeparator());
-		menu.addItem("GmMenuBar.PROPERTIES",KeyEvent.VK_ENTER,ActionEvent.ALT_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.PROPERTIES",KeyEvent.VK_ENTER,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$
 
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_RESOURCES")); //$NON-NLS-1$
 		add(menu);
@@ -136,7 +136,7 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("GmMenuBar.SYNTAXCHECK"); //$NON-NLS-1$
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.FIND", //$NON-NLS-1$
-				KeyEvent.VK_F,ActionEvent.ALT_MASK + ActionEvent.CTRL_MASK);
+				KeyEvent.VK_F,InputEvent.ALT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK);
 		menu.addItem("GmMenuBar.ANNOTATE"); //$NON-NLS-1$
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.EXPAND"); //$NON-NLS-1$

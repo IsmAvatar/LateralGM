@@ -687,7 +687,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 				+ res.subImages.size());
 		}
 
-	// TODO cache auto bbox
 	public void updateBoundingBox()
 		{
 		int mode = bboxGroup.getValue();
@@ -764,42 +763,26 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		int width = img.getWidth();
 		int height = img.getHeight();
 
-		int y1 = -1;
-		y1loop: for (int j = 0; j < height; j++)
+		int y1 = 0;
+		y1loop: for (; y1 < height; y1++)
 			for (int i = 0; i < width; i++)
-				if (img.getRGB(i,j) != transparent)
-					{
-					y1 = j;
-					break y1loop;
-					}
-		if (y1 == -1) return new Rectangle(0,0,0,0);
+				if (img.getRGB(i,y1) != transparent) break y1loop;
 
 		int x1 = 0;
-		x1loop: for (int i = 0; i < width; i++)
+		x1loop: for (; x1 < width; x1++)
 			for (int j = y1; j < height; j++)
-				if (img.getRGB(i,j) != transparent)
-					{
-					x1 = i;
-					break x1loop;
-					}
+				if (img.getRGB(x1,j) != transparent) break x1loop;
 
-		int y2 = 0;
-		y2loop: for (int j = height - 1; j >= 0; j--)
+		int y2 = height - 1;
+		y2loop: for (; y2 >= 0; y2--)
 			for (int i = x1; i < width; i++)
-				if (img.getRGB(i,j) != transparent)
-					{
-					y2 = j;
-					break y2loop;
-					}
+				if (img.getRGB(i,y2) != transparent) break y2loop;
 
-		int x2 = 0;
-		x2loop: for (int i = width - 1; i >= 0; i--)
+		int x2 = width - 1;
+		x2loop: for (; x2 >= 0; x2--)
 			for (int j = y1; j <= y2; j++)
-				if (img.getRGB(i,j) != transparent)
-					{
-					x2 = i;
-					break x2loop;
-					}
+				if (img.getRGB(x2,j) != transparent) break x2loop;
+
 		return new Rectangle(x1,y1,x2 - x1,y2 - y1);
 		}
 
@@ -840,11 +823,14 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			FileOutputStream out = new FileOutputStream(extFile);
 			ImageIO.write(img,"bmp",out);
 			out.close();
+			long time = extFile.lastModified();
 
 			Runtime.getRuntime().exec(
 					String.format(Prefs.externalSpriteEditorCommand,extFile.getAbsolutePath())).waitFor();
 
 			img = ImageIO.read(new FileInputStream(extFile));
+			imageChanged |= extFile.lastModified() > time;
+			System.out.println(imageChanged);
 			extFile.delete();
 			extFile = null;
 			ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
