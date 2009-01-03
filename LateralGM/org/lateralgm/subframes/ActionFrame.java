@@ -117,7 +117,6 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		gbc = new GridBagConstraints();
 		gbc.gridy = 0;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
 		appliesPanel.add(button,gbc);
 		button = new JRadioButton(Messages.getString("ActionFrame.OTHER")); //$NON-NLS-1$
 		button.setOpaque(false);
@@ -125,7 +124,6 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		gbc = new GridBagConstraints();
 		gbc.gridy = 0;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
 		appliesPanel.add(button,gbc);
 		button = new JRadioButton(Messages.getString("ActionFrame.OBJECT")); //$NON-NLS-1$
 		button.setHorizontalAlignment(JRadioButton.LEFT);
@@ -142,13 +140,12 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		gbc = new GridBagConstraints();
 		gbc.gridy = 1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
 		appliesPanel.add(button,gbc);
 		gbc = new GridBagConstraints();
 		gbc.gridy = 1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weightx = 1.0;
-		gbc.insets = new Insets(0,4,0,6);
+		gbc.insets = new Insets(0,2,0,6);
 		appliesPanel.add(appliesObject,gbc);
 		applies.setValue(Math.min(GmObject.refAsInt(at),0));
 
@@ -219,7 +216,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			GroupLayout.ParallelGroup keyGroup, valueGroup;
 			hGroup = kvLayout.createSequentialGroup();
 			vGroup = kvLayout.createSequentialGroup();
-			keyGroup = kvLayout.createParallelGroup();
+			keyGroup = kvLayout.createParallelGroup(Alignment.TRAILING);
 			valueGroup = kvLayout.createParallelGroup();
 
 			hGroup.addGap(4);
@@ -245,9 +242,11 @@ public class ActionFrame extends MDIFrame implements ActionListener
 					LibArgument larg = la.libArguments[n];
 					lab = new JLabel(larg.caption);
 					}
+				Alignment al;
 				if (n == 0 && act.getLibAction().interfaceKind == LibAction.INTERFACE_ARROWS)
 					{
 					argComp[n].setEditor(new ArrowsEditor(argComp[n].getArgument().getVal()));
+					al = Alignment.CENTER;
 					}
 				else
 					{
@@ -255,11 +254,12 @@ public class ActionFrame extends MDIFrame implements ActionListener
 					c.setMaximumSize(new Dimension(240,20));
 					c.setPreferredSize(new Dimension(200,20));
 					c.setMinimumSize(new Dimension(160,20));
+					al = Alignment.BASELINE;
 					}
 				keyGroup.addComponent(lab);
 				valueGroup.addComponent(argComp[n].getEditor());
 				if (n > 0) vGroup.addGap(6);
-				GroupLayout.ParallelGroup argGroup = kvLayout.createParallelGroup(Alignment.BASELINE);
+				GroupLayout.ParallelGroup argGroup = kvLayout.createParallelGroup(al);
 				argGroup.addComponent(lab).addComponent(argComp[n].getEditor());
 				vGroup.addGroup(argGroup);
 				}

@@ -237,6 +237,12 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		this(kind,def,true,width,false,canPreview(kind));
 		}
 
+	@Override
+	public int getBaseline(int width, int height)
+		{
+		return label.getBaseline(width,height);
+		}
+
 	public static boolean canPreview(byte kind)
 		{
 		switch (kind)
