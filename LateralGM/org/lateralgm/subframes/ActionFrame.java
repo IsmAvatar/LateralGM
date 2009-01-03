@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -21,8 +21,12 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
@@ -103,16 +107,26 @@ public class ActionFrame extends MDIFrame implements ActionListener
 
 		appliesPanel = new JPanel();
 		appliesPanel.setOpaque(false);
+		appliesPanel.setLayout(new GridBagLayout());
 
+		GridBagConstraints gbc;
 		applies = new IndexButtonGroup(3,true,false);
 		JRadioButton button = new JRadioButton(Messages.getString("ActionFrame.SELF")); //$NON-NLS-1$
 		button.setOpaque(false);
 		applies.add(button,-1);
-		appliesPanel.add(button);
+		gbc = new GridBagConstraints();
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1.0;
+		appliesPanel.add(button,gbc);
 		button = new JRadioButton(Messages.getString("ActionFrame.OTHER")); //$NON-NLS-1$
 		button.setOpaque(false);
 		applies.add(button,-2);
-		appliesPanel.add(button);
+		gbc = new GridBagConstraints();
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1.0;
+		appliesPanel.add(button,gbc);
 		button = new JRadioButton(Messages.getString("ActionFrame.OBJECT")); //$NON-NLS-1$
 		button.setHorizontalAlignment(JRadioButton.LEFT);
 		button.setOpaque(false);
@@ -125,19 +139,17 @@ public class ActionFrame extends MDIFrame implements ActionListener
 					}
 			});
 		applies.add(button,0);
-		JPanel p = new JPanel();
-		p.setBorder(BorderFactory.createEmptyBorder());
-		p.setLayout(new GridBagLayout());
-		p.setOpaque(false);
-		GridBagConstraints gbc;
 		gbc = new GridBagConstraints();
-		p.add(button,gbc);
+		gbc.gridy = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1.0;
+		appliesPanel.add(button,gbc);
 		gbc = new GridBagConstraints();
+		gbc.gridy = 1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.weightx = 1.0;
 		gbc.insets = new Insets(0,4,0,6);
-		p.add(appliesObject,gbc);
-		appliesPanel.add(p);
+		appliesPanel.add(appliesObject,gbc);
 		applies.setValue(Math.min(GmObject.refAsInt(at),0));
 
 		if (la.interfaceKind == LibAction.INTERFACE_CODE)
@@ -190,7 +202,6 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			pane.add(lab,BorderLayout.LINE_START);
 			}
 
-		appliesPanel.setLayout(new GridLayout(0,1));
 		String s = Messages.getString("ActionFrame.APPLIES"); //$NON-NLS-1$
 		appliesPanel.setBorder(BorderFactory.createTitledBorder(s));
 		pane.add(appliesPanel);
@@ -338,9 +349,23 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			{
 			setLayout(new GridLayout(3,3));
 			arrows = new JToggleButton[9];
+			String location = "org/lateralgm/resources/library/lib/arrows.png";
+			URL url = LGM.class.getClassLoader().getResource(location);
+			BufferedImage icons;
+			try
+				{
+				icons = ImageIO.read(url);
+				}
+			catch (IOException e)
+				{
+				icons = new BufferedImage(72,72,BufferedImage.TYPE_INT_ARGB);
+				}
+
 			for (int i = 0; i < 9; i++)
 				{
 				arrows[i] = new JToggleButton();
+				arrows[i].setIcon(new ImageIcon(icons.getSubimage(24 * (i % 3),24 * (i / 3),24,24)));
+				arrows[i].setMinimumSize(btnSize);
 				arrows[i].setPreferredSize(btnSize);
 				if (val.length() > i) arrows[i].setSelected(val.charAt(i) == '1');
 				add(arrows[i]);
