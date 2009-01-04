@@ -142,6 +142,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		public <R extends Resource<R>>void setResource(ResourceReference<R> r)
 			{
 			Resource<R> res = Util.deRef(r);
+			displayImage = res == null ? null : res.getDisplayImage();
 			if (res == null)
 				{
 				setIcon(null);
