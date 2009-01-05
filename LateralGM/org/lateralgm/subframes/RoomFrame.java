@@ -468,9 +468,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JTabbedPane makeTilesPane()
 		{
 		JTabbedPane tab = new JTabbedPane();
-		tab.addTab("Add",makeTilesAddPane());
-		tab.addTab("Edit",makeTilesEditPane());
-		tab.addTab("Batch",makeTilesBatchPane());
+		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
+		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane());
+		tab.addTab(Messages.getString("RoomFrame.TILE_BATCH"),makeTilesBatchPane());
 		tab.setSelectedIndex(0);
 		return tab;
 		}
