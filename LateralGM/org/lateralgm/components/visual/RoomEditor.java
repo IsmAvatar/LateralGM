@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -63,7 +63,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
-		setOpaque(false);
+		setOpaque(true);
 		room = r;
 		this.frame = frame;
 		refresh();
@@ -188,7 +188,6 @@ public class RoomEditor extends JPanel implements ImageObserver
 					t.setDepth(frame.taDepth.getIntValue());
 					room.tiles.add(t);
 					t.setAutoUpdate(true);
-					frame.tList.setListData(room.tiles.toArray());
 					setCursor(new TileComponent(t));
 					add(cursor);
 					shift = true; //prevents unnecessary coordinate update below
@@ -200,7 +199,6 @@ public class RoomEditor extends JPanel implements ImageObserver
 					Instance i = room.addInstance();
 					i.setObject(obj);
 					i.setPosition(p);
-					frame.oList.setListData(room.instances.toArray());
 					setCursor(new InstanceComponent(i));
 					add(cursor);
 					shift = true; //prevents unnecessary coordinate update below
@@ -295,7 +293,6 @@ public class RoomEditor extends JPanel implements ImageObserver
 			if (i == -1) return;
 			int i2 = jlist.getSelectedIndex();
 			alist.remove(i);
-			jlist.setListData(alist.toArray());
 			jlist.setSelectedIndex(Math.min(alist.size() - 1,i2));
 			}
 		}
@@ -355,7 +352,6 @@ public class RoomEditor extends JPanel implements ImageObserver
 		else if (cursor != null) releaseCursor(new Point(x,y));
 		if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
 			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,p); //use mouse point
-		repaint();
 		}
 
 	@Override
@@ -481,6 +477,18 @@ public class RoomEditor extends JPanel implements ImageObserver
 		public int getWidth()
 			{
 			return region.width;
+			}
+
+		@Override
+		public Dimension getPreferredSize()
+			{
+			return region.getSize();
+			}
+
+		@Override
+		public Dimension getSize()
+			{
+			return region.getSize();
 			}
 
 		@Override

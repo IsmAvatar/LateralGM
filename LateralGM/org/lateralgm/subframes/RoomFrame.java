@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -31,6 +31,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.beans.PropertyVetoException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -52,10 +53,13 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -70,11 +74,15 @@ import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Room.ActiveArrayList;
+import org.lateralgm.resources.Room.ActiveArrayList.ListUpdateEvent;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
@@ -175,6 +183,68 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		return tool;
 		}
 
+	public static class ArrayListModel<E> implements ListModel,UpdateListener
+	{
+	ActiveArrayList<E> list;
+	ArrayList<ListDataListener> listeners;
+	
+	public ArrayListModel(ActiveArrayList<E> l)
+		{
+		list = l;
+		l.updateSource.addListener(this);
+		listeners = new ArrayList<ListDataListener>();
+		}
+	
+	public void addListDataListener(ListDataListener l)
+		{
+		listeners.add(l);
+		}
+	
+	public Object getElementAt(int index)
+		{
+		return list.get(index);
+		}
+	
+	public int getSize()
+		{
+		return list.size();
+		}
+	
+	public void removeListDataListener(ListDataListener l)
+		{
+		listeners.remove(l);
+		}
+	
+	public void updated(UpdateEvent e)
+		{
+		ListDataEvent lde;
+		if (e instanceof ListUpdateEvent)
+			{
+			ListUpdateEvent lue = (ListUpdateEvent) e;
+			int t;
+			switch (lue.type)
+				{
+				case ADDED:
+					t = ListDataEvent.INTERVAL_ADDED;
+					break;
+				case REMOVED:
+					t = ListDataEvent.INTERVAL_REMOVED;
+					break;
+				case CHANGED:
+					t = ListDataEvent.CONTENTS_CHANGED;
+					break;
+				default:
+					throw new AssertionError();
+				}
+			lde = new ListDataEvent(e.source.owner,t,lue.fromIndex,lue.toIndex);
+			}
+		else
+			lde = new ListDataEvent(e.source.owner,ListDataEvent.CONTENTS_CHANGED,0,MAX_VALUE);
+		for (ListDataListener l : listeners)
+			l.contentsChanged(lde);
+		}
+	}
+
 	private static class ObjectListComponentRenderer extends ListComponentRenderer
 		{
 		public Component getListCellRendererComponent(JList list, Object val, int ind,
@@ -235,7 +305,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		oUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingObjects : true);
 
-		oList = new JList(res.instances.toArray());
+		oList = new JList(new ArrayListModel<Instance>(res.instances));
 		oList.addListSelectionListener(this);
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		oList.setVisibleRowCount(8);
@@ -606,7 +676,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		tList = new JList(res.tiles.toArray());
+		tList = new JList(new ArrayListModel<Tile>(res.tiles));
 		tList.addListSelectionListener(this);
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tList.setCellRenderer(new TileListComponentRenderer());
@@ -1301,7 +1371,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (oNew.getSelected() == null) return;
 			Instance i = res.addInstance();
 			i.setObject(oNew.getSelected());
-			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(res.instances.size() - 1);
 			return;
 			}
@@ -1311,7 +1380,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (i == -1) return;
 			CodeFrame frame = codeFrames.get(res.instances.remove(i));
 			if (frame != null) frame.dispose();
-			oList.setListData(res.instances.toArray());
 			oList.setSelectedIndex(Math.min(res.instances.size() - 1,i));
 			return;
 			}
@@ -1370,7 +1438,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			int i = tList.getSelectedIndex();
 			if (i == -1) return;
 			res.tiles.remove(i);
-			tList.setListData(res.tiles.toArray());
 			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,i));
 			return;
 			}
