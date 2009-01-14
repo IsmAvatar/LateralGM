@@ -569,6 +569,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			{
 			instance = i;
 			instance.updateSource.addListener(rul);
+			region = new Rectangle(i.getPosition());
 			}
 
 		protected void updateSource()
@@ -664,7 +665,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 		public TileComponent(Tile t)
 			{
 			tile = t;
-			tile.updateSource.addListener(rul);
+			new Rectangle(tile.getRoomPosition(),tile.getSize());
 			}
 
 		protected void updateSource()

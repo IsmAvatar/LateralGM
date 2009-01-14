@@ -183,66 +183,73 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		}
 
 	public static class ArrayListModel<E> implements ListModel,UpdateListener
-	{
-	ActiveArrayList<E> list;
-	ArrayList<ListDataListener> listeners;
-	
-	public ArrayListModel(ActiveArrayList<E> l)
 		{
-		list = l;
-		l.updateSource.addListener(this);
-		listeners = new ArrayList<ListDataListener>();
-		}
-	
-	public void addListDataListener(ListDataListener l)
-		{
-		listeners.add(l);
-		}
-	
-	public Object getElementAt(int index)
-		{
-		return list.get(index);
-		}
-	
-	public int getSize()
-		{
-		return list.size();
-		}
-	
-	public void removeListDataListener(ListDataListener l)
-		{
-		listeners.remove(l);
-		}
-	
-	public void updated(UpdateEvent e)
-		{
-		ListDataEvent lde;
-		if (e instanceof ListUpdateEvent)
+		ActiveArrayList<E> list;
+		ArrayList<ListDataListener> listeners;
+
+		public ArrayListModel(ActiveArrayList<E> l)
 			{
-			ListUpdateEvent lue = (ListUpdateEvent) e;
-			int t;
-			switch (lue.type)
-				{
-				case ADDED:
-					t = ListDataEvent.INTERVAL_ADDED;
-					break;
-				case REMOVED:
-					t = ListDataEvent.INTERVAL_REMOVED;
-					break;
-				case CHANGED:
-					t = ListDataEvent.CONTENTS_CHANGED;
-					break;
-				default:
-					throw new AssertionError();
-				}
-			lde = new ListDataEvent(e.source.owner,t,lue.fromIndex,lue.toIndex);
+			list = l;
+			l.updateSource.addListener(this);
+			listeners = new ArrayList<ListDataListener>();
 			}
-		else
-			lde = new ListDataEvent(e.source.owner,ListDataEvent.CONTENTS_CHANGED,0,MAX_VALUE);
-		for (ListDataListener l : listeners)
-			l.contentsChanged(lde);
+
+		public void addListDataListener(ListDataListener l)
+			{
+			listeners.add(l);
+			}
+
+		public Object getElementAt(int index)
+			{
+			try
+				{
+				return list.get(index);
+				}
+			catch (IndexOutOfBoundsException e)
+				{
+				return null;
+				}
+			}
+
+		public int getSize()
+			{
+			return list.size();
+			}
+
+		public void removeListDataListener(ListDataListener l)
+			{
+			listeners.remove(l);
+			}
+
+		public void updated(UpdateEvent e)
+			{
+			ListDataEvent lde;
+			if (e instanceof ListUpdateEvent)
+				{
+				ListUpdateEvent lue = (ListUpdateEvent) e;
+				int t;
+				switch (lue.type)
+					{
+					case ADDED:
+						t = ListDataEvent.INTERVAL_ADDED;
+						break;
+					case REMOVED:
+						t = ListDataEvent.INTERVAL_REMOVED;
+						break;
+					case CHANGED:
+						t = ListDataEvent.CONTENTS_CHANGED;
+						break;
+					default:
+						throw new AssertionError();
+					}
+				lde = new ListDataEvent(e.source.owner,t,lue.fromIndex,lue.toIndex);
+				}
+			else
+				lde = new ListDataEvent(e.source.owner,ListDataEvent.CONTENTS_CHANGED,0,MAX_VALUE);
+			for (ListDataListener l : listeners)
+				l.contentsChanged(lde);
+			}
 		}
-	}
 
 	private static class ObjectListComponentRenderer implements ListCellRenderer
 		{
