@@ -29,7 +29,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.RasterFormatException;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +36,7 @@ import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -66,7 +66,6 @@ import javax.swing.event.ListSelectionListener;
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.GMLTextArea;
-import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
@@ -245,49 +244,79 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		}
 	}
 
-	private static class ObjectListComponentRenderer extends ListComponentRenderer
+	private static class ObjectListComponentRenderer implements ListCellRenderer
 		{
+		private final JLabel lab = new JLabel();
+		private final ListComponentRenderer lcr = new ListComponentRenderer();
+
+		public ObjectListComponentRenderer()
+			{
+			lab.setOpaque(true);
+			}
+
 		public Component getListCellRendererComponent(JList list, Object val, int ind,
 				boolean selected, boolean focus)
 			{
 			Instance i = (Instance) val;
 			GmObject go = deRef(i.getObject());
 			String name = go == null ? Messages.getString("RoomFrame.NO_OBJECT") : go.getName();
-			JLabel lab = new JLabel(name + " " + i.instanceId, //$NON-NLS-1$
-					GmTreeGraphics.getResourceIcon(i.getObject()),JLabel.LEFT);
-			super.getListCellRendererComponent(list,lab,ind,selected,focus);
-			lab.setOpaque(true);
+			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
+			lab.setText(name + " " + i.instanceId);
+			ResNode rn = go.getNode();
+			lab.setIcon(rn == null ? null : rn.getIcon());
 			return lab;
 			}
 		}
 
-	private static class TileListComponentRenderer extends ListComponentRenderer
+	private static class TileListComponentRenderer implements ListCellRenderer
 		{
+		private final JLabel lab = new JLabel();
+		private final TileIcon ti = new TileIcon();
+		private final ListComponentRenderer lcr = new ListComponentRenderer();
+
+		public TileListComponentRenderer()
+			{
+			lab.setOpaque(true);
+			lab.setIcon(ti);
+			}
+
 		public Component getListCellRendererComponent(JList list, Object val, int ind,
 				boolean selected, boolean focus)
 			{
-			Tile i = (Tile) val;
-			Background bg = deRef(i.getBackground());
-			ImageIcon ii;
-			BufferedImage bi = bg == null ? null : bg.getBackgroundImage();
-			if (bi != null)
-				try
-					{
-					Point p = i.getBackgroundPosition();
-					Dimension d = i.getSize();
-					ii = new ImageIcon(bi.getSubimage(p.x,p.y,d.width,d.height));
-					}
-				catch (RasterFormatException e)
-					{
-					ii = null;
-					}
-			else
-				ii = null;
+			Tile t = (Tile) val;
+			Background bg = deRef(t.getBackground());
 			String name = bg == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : bg.getName();
-			JLabel lab = new JLabel(name + " " + i.tileId,ii,JLabel.LEFT); //$NON-NLS-1$
-			super.getListCellRendererComponent(list,lab,ind,selected,focus);
-			lab.setOpaque(true);
+			lab.setText(name + " " + t.tileId);
+			ti.tile = t;
+			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
 			return lab;
+			}
+
+		static class TileIcon implements Icon
+			{
+			Tile tile;
+
+			public int getIconHeight()
+				{
+				return tile.getSize().height;
+				}
+
+			public int getIconWidth()
+				{
+				return tile.getSize().width;
+				}
+
+			public void paintIcon(Component c, Graphics g, int x, int y)
+				{
+				Background bg = deRef(tile.getBackground());
+				BufferedImage bi = bg == null ? null : bg.getBackgroundImage();
+				if (bi != null)
+					{
+					Point p = tile.getBackgroundPosition();
+					Dimension d = tile.getSize();
+					g.drawImage(bi,0,0,d.width,d.height,p.x,p.y,p.x + d.width,p.y + d.height,c);
+					}
+				}
 			}
 		}
 
