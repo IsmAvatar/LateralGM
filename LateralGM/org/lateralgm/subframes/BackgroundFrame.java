@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -22,6 +22,7 @@ import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -34,23 +35,24 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.BackgroundPreview;
 import org.lateralgm.file.FileChangeMonitor;
+import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.ui.swing.util.SwingExecutor;
 
-public class BackgroundFrame extends ResourceFrame<Background> implements ChangeListener
+public class BackgroundFrame extends ResourceFrame<Background>
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("BackgroundFrame.LOAD"); //$NON-NLS-1$
@@ -72,7 +74,7 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 	public IntegerField vSep;
 	public BackgroundPreview preview;
 	public boolean imageChanged = false;
-	public File extFile;
+	private BackgroundEditor editor;
 
 	public BackgroundFrame(Background res, ResNode node)
 		{
@@ -330,24 +332,14 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 			}
 		if (e.getSource() == edit)
 			{
-			BufferedImage bi = res.getBackgroundImage();
-			if (Prefs.useExternalBackgroundEditor && bi != null)
+			if (Prefs.useExternalBackgroundEditor)
 				{
 				try
 					{
-					if (extFile == null)
-						{
-						extFile = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
-						extFile.deleteOnExit();
-						FileOutputStream out = new FileOutputStream(extFile);
-						ImageIO.write(bi,"bmp",out);
-						out.close();
-						FileChangeMonitor fcm = new FileChangeMonitor(extFile);
-						fcm.addChangeListener(this);
-						fcm.start();
-						}
-					Runtime.getRuntime().exec(
-							String.format(Prefs.externalBackgroundEditorCommand,extFile.getAbsolutePath()));
+					if (editor == null)
+						new BackgroundEditor();
+					else
+						editor.start();
 					}
 				catch (Exception ex)
 					{
@@ -375,39 +367,68 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 		return l;
 		}
 
-	public void stateChanged(ChangeEvent e)
+	private class BackgroundEditor implements UpdateListener
 		{
-		if (e.getSource() instanceof FileChangeMonitor)
+		public final FileChangeMonitor monitor;
+
+		public BackgroundEditor() throws IOException
 			{
-			int flag = ((FileChangeMonitor) e.getSource()).getFlag();
-			if (flag == FileChangeMonitor.FLAG_CHANGED)
+			BufferedImage bi = res.getBackgroundImage();
+			if (bi == null)
 				{
-				try
-					{
-					BufferedImage img = ImageIO.read(new FileInputStream(extFile));
+				bi = new BufferedImage(640,480,BufferedImage.TYPE_3BYTE_BGR);
+				res.setBackgroundImage(bi);
+				updateImage();
+				}
+			File f = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
+			f.deleteOnExit();
+			FileOutputStream out = new FileOutputStream(f);
+			ImageIO.write(bi,"bmp",out);
+			out.close();
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this);
+			editor = this;
+			start();
+			}
+
+		public void start() throws IOException
+			{
+			Runtime.getRuntime().exec(
+					String.format(Prefs.externalBackgroundEditorCommand,monitor.file.getAbsolutePath()));
+			}
+
+		public void stop()
+			{
+			monitor.stop();
+			monitor.file.delete();
+			editor = null;
+			}
+
+		public void updated(UpdateEvent e)
+			{
+			if (!(e instanceof FileUpdateEvent)) return;
+			switch (((FileUpdateEvent) e).flag)
+				{
+				case CHANGED:
+					BufferedImage img;
+					try
+						{
+						img = ImageIO.read(new FileInputStream(monitor.file));
+						}
+					catch (IOException ioe)
+						{
+						ioe.printStackTrace();
+						return;
+						}
 					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
 					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
 							BufferedImage.TYPE_3BYTE_BGR);
 					conv.filter(img,dest);
 					res.setBackgroundImage(dest);
-					//not entirely sure if this is necessary, but
-					//stateChanged does get called from another thread
-					SwingUtilities.invokeLater(new Runnable()
-						{
-							public void run()
-								{
-								updateImage();
-								}
-						});
-					}
-				catch (Exception ex)
-					{
-					ex.printStackTrace();
-					}
-				}
-			else if (flag == FileChangeMonitor.FLAG_DELETED)
-				{
-				extFile = null;
+					updateImage();
+					break;
+				case DELETED:
+					editor = null;
 				}
 			}
 		}
@@ -431,13 +452,6 @@ public class BackgroundFrame extends ResourceFrame<Background> implements Change
 
 	protected void cleanup()
 		{
-		try
-			{
-			extFile.delete();
-			}
-		catch (Exception e)
-			{
-			}
-		extFile = null;
+		if (editor != null) editor.stop();
 		}
 	}

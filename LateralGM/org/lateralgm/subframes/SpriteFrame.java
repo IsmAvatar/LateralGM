@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -52,11 +54,16 @@ import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.SubimagePreview;
+import org.lateralgm.file.FileChangeMonitor;
+import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
+import org.lateralgm.ui.swing.util.SwingExecutor;
 
 public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener,MouseListener
 	{
@@ -101,6 +108,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	/** Prevents <code>show</code> from resetting when it changes */
 	private boolean updateSub = true;
+
+	private Map<BufferedImage,ImageEditor> editors;
 
 	public SpriteFrame(Sprite res, ResNode node)
 		{
@@ -539,6 +548,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			BufferedImage[] img = Util.getValidImages();
 			if (img != null && img.length > 0)
 				{
+				cleanup();
 				res.subImages.clear();
 				imageChanged = true;
 				currSub = 0;
@@ -645,15 +655,18 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			{
 			BufferedImage bi = res.addSubImage();
 			pos = pos >= 0 ? pos + 1 : res.subImages.size();
-			res.subImages.add(pos,editSubimage(bi));
+			res.subImages.add(pos,bi);
 			updateImage();
 			subList.setSelectedIndex(pos);
+			editSubimage(bi);
 			return;
 			}
 		if (pos == -1) return;
 		if (cmd.equals("REMOVE"))
 			{
+			ImageEditor ie = editors.get(res.subImages.get(pos));
 			res.subImages.remove(pos);
+			if (ie != null) ie.stop();
 			updateImage();
 			subList.setSelectedIndex(Math.min(res.subImages.size() - 1,pos));
 			return;
@@ -808,58 +821,35 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		return l;
 		}
 
-	public BufferedImage editSubimage(BufferedImage img)
+	public void editSubimage(BufferedImage img)
 		{
-		if (img == null) return null;
+		if (img == null) return;
 		if (!Prefs.useExternalSpriteEditor)
 			{
 			throw new UnsupportedOperationException("no internal sprite editor");
 			}
-
 		try
 			{
-			File extFile = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
-			extFile.deleteOnExit();
-			FileOutputStream out = new FileOutputStream(extFile);
-			ImageIO.write(img,"bmp",out);
-			out.close();
-			long time = extFile.lastModified();
-
-			Runtime.getRuntime().exec(
-					String.format(Prefs.externalSpriteEditorCommand,extFile.getAbsolutePath())).waitFor();
-
-			img = ImageIO.read(new FileInputStream(extFile));
-			imageChanged |= extFile.lastModified() > time;
-			System.out.println(imageChanged);
-			extFile.delete();
-			extFile = null;
-			ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
-			BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
-					BufferedImage.TYPE_3BYTE_BGR);
-			return conv.filter(img,dest);
+			ImageEditor ie = editors == null ? null : editors.get(img);
+			if (ie == null)
+				new ImageEditor(img);
+			else
+				ie.start();
 			}
 		catch (IOException e)
 			{
 			e.printStackTrace();
 			}
-		catch (InterruptedException e)
-			{
-			e.printStackTrace();
-			}
-		return null;
 		}
 
 	public void mousePressed(MouseEvent e)
 		{
-		if (e.getClickCount() == 2)
+		Object s = e.getSource();
+		if (e.getClickCount() == 2 && s == subList)
 			{
-			JList list = (JList) e.getSource();
-			int i = list.getSelectedIndex();
+			int i = subList.getSelectedIndex();
 			if (i == -1 || i >= res.subImages.size()) return;
-			BufferedImage img = editSubimage(res.subImages.get(i));
-			if (img == null) return;
-			res.subImages.set(i,img);
-			updateImage();
+			editSubimage(res.subImages.get(i));
 			}
 		}
 
@@ -878,5 +868,86 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 	public void mouseReleased(MouseEvent e)
 		{
+		}
+
+	private class ImageEditor implements UpdateListener
+		{
+		private BufferedImage image;
+		public final FileChangeMonitor monitor;
+
+		public ImageEditor(BufferedImage i) throws IOException
+			{
+			image = i;
+			File f = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
+			f.deleteOnExit();
+			FileOutputStream out = new FileOutputStream(f);
+			ImageIO.write(i,"bmp",out);
+			out.close();
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this,true);
+			if (editors == null) editors = new HashMap<BufferedImage,ImageEditor>();
+			editors.put(i,this);
+			start();
+			}
+
+		public void start() throws IOException
+			{
+			Runtime.getRuntime().exec(
+					String.format(Prefs.externalSpriteEditorCommand,monitor.file.getAbsolutePath()));
+			}
+
+		public void stop()
+			{
+			monitor.stop();
+			monitor.file.delete();
+			if (editors != null) editors.remove(image);
+			}
+
+		public void updated(UpdateEvent e)
+			{
+			if (!(e instanceof FileUpdateEvent)) return;
+			switch (((FileUpdateEvent) e).flag)
+				{
+				case CHANGED:
+					BufferedImage img;
+					try
+						{
+						img = ImageIO.read(new FileInputStream(monitor.file));
+						}
+					catch (IOException ioe)
+						{
+						ioe.printStackTrace();
+						return;
+						}
+					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
+					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
+							BufferedImage.TYPE_3BYTE_BGR);
+					conv.filter(img,dest);
+					res.subImages.replace(image,dest);
+					editors.remove(image);
+					editors.put(dest,this);
+					image = dest;
+					updateImage();
+					updateBoundingBox();
+					imageChanged = true;
+					break;
+				case DELETED:
+					editors.remove(image);
+				}
+			}
+		}
+
+	@Override
+	public void dispose()
+		{
+		super.dispose();
+		cleanup();
+		}
+
+	protected void cleanup()
+		{
+		if (editors != null)
+			for (ImageEditor ie : editors.values().toArray(new ImageEditor[editors.size()]))
+				ie.stop();
 		}
 	}

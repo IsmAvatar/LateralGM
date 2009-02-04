@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2006 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
@@ -18,31 +18,34 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.file.FileChangeMonitor;
+import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Script;
+import org.lateralgm.ui.swing.util.SwingExecutor;
 
-public class ScriptFrame extends ResourceFrame<Script> implements ActionListener,ChangeListener
+public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	public JToolBar tool;
 	public GMLTextArea code;
 	public JButton edit;
-	public File extFile;
+
+	private ScriptEditor editor;
 
 	public ScriptFrame(Script res, ResNode node)
 		{
@@ -116,19 +119,10 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 				{
 				try
 					{
-					if (extFile == null)
-						{
-						extFile = File.createTempFile(res.getName(),".gml",LGM.tempDir);
-						extFile.deleteOnExit();
-						FileWriter out = new FileWriter(extFile);
-						out.write(res.scriptStr);
-						out.close();
-						FileChangeMonitor fcm = new FileChangeMonitor(extFile);
-						fcm.addChangeListener(this);
-						fcm.start();
-						}
-					Runtime.getRuntime().exec(
-							String.format(Prefs.externalScriptEditorCommand,extFile.getAbsolutePath()));
+					if (editor == null)
+						new ScriptEditor();
+					else
+						editor.start();
 					}
 				catch (Exception ex)
 					{
@@ -140,52 +134,69 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 		super.actionPerformed(e);
 		}
 
-	public void stateChanged(ChangeEvent e)
+	private class ScriptEditor implements UpdateListener
 		{
-		if (e.getSource() instanceof FileChangeMonitor)
+		public final FileChangeMonitor monitor;
+
+		public ScriptEditor() throws IOException
 			{
-			int flag = ((FileChangeMonitor) e.getSource()).getFlag();
-			if (flag == FileChangeMonitor.FLAG_CHANGED)
+			File f = File.createTempFile(res.getName(),".gml",LGM.tempDir);
+			f.deleteOnExit();
+			FileWriter out = new FileWriter(f);
+			out.write(res.scriptStr);
+			out.close();
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this,true);
+			editor = this;
+			start();
+			}
+
+		public void start() throws IOException
+			{
+			Runtime.getRuntime().exec(
+					String.format(Prefs.externalScriptEditorCommand,monitor.file.getAbsolutePath()));
+			}
+
+		public void stop()
+			{
+			monitor.stop();
+			monitor.file.delete();
+			editor = null;
+			}
+
+		public void updated(UpdateEvent e)
+			{
+			if (!(e instanceof FileUpdateEvent)) return;
+			switch (((FileUpdateEvent) e).flag)
 				{
-				try
-					{
+				case CHANGED:
 					StringBuffer sb = new StringBuffer(1024);
-					BufferedReader reader = new BufferedReader(new FileReader(extFile));
-					char[] chars = new char[1024];
-					int len = 0;
-					while ((len = reader.read(chars)) > -1)
-						sb.append(chars,0,len);
-					reader.close();
-					res.scriptStr = sb.toString();
-					SwingUtilities.invokeLater(new Runnable()
+					try
 						{
-							public void run()
-								{
-								code.setText(res.scriptStr);
-								}
-						});
-					}
-				catch (Exception ex)
-					{
-					ex.printStackTrace();
-					}
-				}
-			else if (flag == FileChangeMonitor.FLAG_DELETED)
-				{
-				extFile = null;
+						BufferedReader reader = new BufferedReader(new FileReader(monitor.file));
+						char[] chars = new char[1024];
+						int len = 0;
+						while ((len = reader.read(chars)) > -1)
+							sb.append(chars,0,len);
+						reader.close();
+						}
+					catch (IOException ioe)
+						{
+						ioe.printStackTrace();
+						return;
+						}
+					res.scriptStr = sb.toString();
+					code.setText(res.scriptStr);
+					break;
+				case DELETED:
+					editor = null;
 				}
 			}
 		}
 
 	public void dispose()
 		{
-		try
-			{
-			extFile.delete();
-			}
-		catch (Exception e)
-			{
-			}
+		if (editor != null) editor.stop();
 		super.dispose();
 		}
 	}

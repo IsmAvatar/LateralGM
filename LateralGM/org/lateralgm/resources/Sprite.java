@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -59,10 +59,17 @@ public class Sprite extends Resource<Sprite>
 
 	public BufferedImage addSubImage()
 		{
-		BufferedImage sub = new BufferedImage(32,32,BufferedImage.TYPE_3BYTE_BGR);
+		int w = subImages.getWidth();
+		int h = subImages.getHeight();
+		if (w == 0 || h == 0)
+			{
+			w = 32;
+			h = 32;
+			}
+		BufferedImage sub = new BufferedImage(w,h,BufferedImage.TYPE_3BYTE_BGR);
 		Graphics g = sub.getGraphics();
 		g.setColor(Color.WHITE);
-		g.fillRect(0,0,32,32);
+		g.fillRect(0,0,w,h);
 		return sub;
 		}
 
@@ -205,6 +212,14 @@ public class Sprite extends Resource<Sprite>
 			boolean u = super.addAll(index,c);
 			if (u) fireUpdate();
 			return u;
+			}
+
+		public boolean replace(BufferedImage obi, BufferedImage nbi)
+			{
+			int i = indexOf(obi);
+			if (i < 0) return false;
+			set(i,nbi);
+			return true;
 			}
 
 		@Override

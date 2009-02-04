@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -9,92 +10,109 @@
 package org.lateralgm.file;
 
 import java.io.File;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.EventListenerList;
+import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateTrigger;
 
-public class FileChangeMonitor extends Thread
+public class FileChangeMonitor implements Runnable
 	{
 	private static final int POLL_INTERVAL = 1000;
 
-	public static final int FLAG_NONE = -1;
-	public static final int FLAG_CHANGED = 0;
-	public static final int FLAG_DELETED = 1;
+	public enum Flag
+		{
+		CHANGED,DELETED
+		}
 
-	private File file;
-	EventListenerList listenerList = new EventListenerList();
-	ChangeEvent changeEvent = null;
-	private int flag = FLAG_NONE;
+	private static ScheduledExecutorService monitorService;
 
-	public FileChangeMonitor(File f)
+	public final File file;
+	public final Executor executor;
+
+	private final UpdateRunnable changedRunnable, deletedRunnable;
+	private final ScheduledFuture<?> future;
+
+	private final UpdateTrigger trigger = new UpdateTrigger();
+	public final UpdateSource updateSource = new UpdateSource(this,trigger);
+
+	public FileChangeMonitor(File f, Executor e)
 		{
 		if (!f.exists()) throw new IllegalArgumentException();
 		file = f;
+		executor = e;
+		changedRunnable = new UpdateRunnable(new FileUpdateEvent(updateSource,Flag.CHANGED));
+		deletedRunnable = new UpdateRunnable(new FileUpdateEvent(updateSource,Flag.DELETED));
+		if (monitorService == null) monitorService = Executors.newSingleThreadScheduledExecutor();
+		lastModified = file.lastModified();
+		length = file.length();
+		future = monitorService.scheduleWithFixedDelay(this,POLL_INTERVAL,POLL_INTERVAL,
+				TimeUnit.MILLISECONDS);
 		}
 
-	public FileChangeMonitor(String f)
+	public FileChangeMonitor(String f, Executor e)
 		{
-		this(new File(f));
+		this(new File(f),e);
 		}
+
+	public void stop()
+		{
+		future.cancel(false);
+		}
+
+	private long lastModified, length;
+	private boolean changed;
 
 	public void run()
 		{
-		long lm = file.lastModified();
-		try
+		if (!file.exists())
 			{
-			while (true)
-				{
-				Thread.sleep(POLL_INTERVAL);
-				if (!file.exists())
-					{
-					flag = FLAG_DELETED;
-					fireStateChanged();
-					break;
-					}
-				if (file.lastModified() != lm)
-					{
-					flag = FLAG_CHANGED;
-					lm = file.lastModified();
-					fireStateChanged();
-					}
-				}
+			executor.execute(deletedRunnable);
+			future.cancel(false);
+			return;
 			}
-		catch (InterruptedException e)
+		long m = file.lastModified();
+		long l = file.length();
+		if (m != lastModified || l != length)
 			{
-			e.printStackTrace();
+			changed = true;
+			lastModified = m;
+			length = l;
+			}
+		else if (changed)
+			{
+			executor.execute(changedRunnable);
+			changed = false;
 			}
 		}
 
-	public void addChangeListener(ChangeListener l)
+	public class FileUpdateEvent extends UpdateEvent
 		{
-		listenerList.add(ChangeListener.class,l);
-		}
+		public final Flag flag;
 
-	public void removeChangeListener(ChangeListener l)
-		{
-		listenerList.remove(ChangeListener.class,l);
-		}
-
-	public int getFlag()
-		{
-		return flag;
-		}
-
-	protected void fireStateChanged()
-		{
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2)
+		public FileUpdateEvent(UpdateSource s, Flag f)
 			{
-			if (listeners[i] == ChangeListener.class)
-				{
-				// Lazily create the event:
-				if (changeEvent == null) changeEvent = new ChangeEvent(this);
-				((ChangeListener) listeners[i + 1]).stateChanged(changeEvent);
-				}
+			super(s);
+			flag = f;
+			}
+		}
+
+	private class UpdateRunnable implements Runnable
+		{
+		public final FileUpdateEvent event;
+
+		public UpdateRunnable(FileUpdateEvent e)
+			{
+			event = e;
+			}
+
+		public void run()
+			{
+			trigger.fire(event);
 			}
 		}
 	}
