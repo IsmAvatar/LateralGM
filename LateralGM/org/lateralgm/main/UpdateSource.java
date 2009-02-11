@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -8,58 +8,39 @@
 
 package org.lateralgm.main;
 
-import java.util.HashSet;
+import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
+
+import org.lateralgm.util.SetTraverser;
 
 public class UpdateSource
 	{
 	public final Object owner;
-	private final WeakHashMap<UpdateListener,Boolean> weakListeners;
-	private WeakHashMap<UpdateListener,Boolean> wlAdd, wlRemove;
-	private final HashSet<UpdateListener> hardListeners;
-	private HashSet<UpdateListener> hlAdd, hlRemove;
-	private int wlIterating, hlIterating;
+	private WeakHashMap<UpdateListener,WeakReference<UpdateListener>> weakReferences;
+	private final HardListenerTraverser hardTraverser;
+	private final WeakListenerTraverser weakTraverser;
 
 	public UpdateSource(Object owner, UpdateTrigger t)
 		{
 		t.setSource(this);
 		this.owner = owner;
-		weakListeners = new WeakHashMap<UpdateListener,Boolean>();
-		hardListeners = new HashSet<UpdateListener>();
-		wlIterating = 0;
-		hlIterating = 0;
+		hardTraverser = new HardListenerTraverser();
+		weakTraverser = new WeakListenerTraverser();
 		}
 
 	public void addListener(UpdateListener l, boolean weak)
 		{
 		if (weak)
 			{
-			if (wlIterating > 0)
-				{
-				if (wlRemove != null) wlRemove.remove(l);
-				if (!weakListeners.containsKey(l))
-					{
-					if (wlAdd == null) wlAdd = new WeakHashMap<UpdateListener,Boolean>();
-					wlAdd.put(l,Boolean.TRUE);
-					}
-				}
-			else
-				weakListeners.put(l,Boolean.TRUE);
+			if (weakReferences == null)
+				weakReferences = new WeakHashMap<UpdateListener,WeakReference<UpdateListener>>();
+			else if (weakReferences.containsKey(l)) return;
+			WeakReference<UpdateListener> r = new WeakReference<UpdateListener>(l);
+			weakReferences.put(l,r);
+			weakTraverser.add(r);
 			}
 		else
-			{
-			if (hlIterating > 0)
-				{
-				if (hlRemove != null) hlRemove.remove(l);
-				if (!hardListeners.contains(l))
-					{
-					if (hlAdd == null) hlAdd = new HashSet<UpdateListener>();
-					hlAdd.add(l);
-					}
-				}
-			else
-				hardListeners.add(l);
-			}
+			hardTraverser.add(l);
 		}
 
 	public void addListener(UpdateListener l)
@@ -69,64 +50,18 @@ public class UpdateSource
 
 	public void removeListener(UpdateListener l)
 		{
-		if (wlIterating > 0)
+		if (weakReferences != null)
 			{
-			if (wlAdd != null) wlAdd.remove(l);
-			if (weakListeners.containsKey(l))
-				{
-				if (wlRemove == null) wlRemove = new WeakHashMap<UpdateListener,Boolean>();
-				wlRemove.put(l,Boolean.TRUE);
-				}
+			WeakReference<UpdateListener> r = weakReferences.remove(l);
+			if (r != null) weakTraverser.remove(r);
 			}
-		else
-			weakListeners.remove(l);
-		if (hlIterating > 0)
-			{
-			if (hlAdd != null) hlAdd.remove(l);
-			if (hardListeners.contains(l))
-				{
-				if (hlRemove == null) hlRemove = new HashSet<UpdateListener>();
-				hlRemove.add(l);
-				}
-			}
-		else
-			hardListeners.remove(l);
+		hardTraverser.remove(l);
 		}
 
 	private void fireUpdate(UpdateEvent e)
 		{
-		wlIterating++;
-		for (UpdateListener l : weakListeners.keySet())
-			l.updated(e);
-		if (--wlIterating == 0)
-			{
-			if (wlRemove != null)
-				{
-				weakListeners.keySet().removeAll(wlRemove.keySet());
-				wlRemove = null;
-				}
-			if (wlAdd != null)
-				{
-				weakListeners.putAll(wlAdd);
-				wlAdd = null;
-				}
-			}
-		hlIterating++;
-		for (UpdateListener l : hardListeners)
-			l.updated(e);
-		if (--hlIterating == 0)
-			{
-			if (hlRemove != null)
-				{
-				hardListeners.removeAll(hlRemove);
-				hlRemove = null;
-				}
-			if (hlAdd != null)
-				{
-				hardListeners.addAll(hlAdd);
-				hlAdd = null;
-				}
-			}
+		weakTraverser.traverse(e);
+		hardTraverser.traverse(e);
 		}
 
 	public static class UpdateEvent
@@ -172,4 +107,28 @@ public class UpdateSource
 		{
 		void updated(UpdateEvent e);
 		}
+
+	private class HardListenerTraverser extends SetTraverser<UpdateListener,UpdateEvent>
+		{
+		@Override
+		protected void visit(UpdateListener l, UpdateEvent e)
+			{
+			l.updated(e);
+			}
+		}
+
+	private class WeakListenerTraverser extends
+			SetTraverser<WeakReference<UpdateListener>,UpdateEvent>
+		{
+		@Override
+		protected void visit(WeakReference<UpdateListener> r, UpdateEvent e)
+			{
+			UpdateListener l = r.get();
+			if (l == null)
+				remove(r);
+			else
+				l.updated(e);
+			}
+		}
+
 	}
