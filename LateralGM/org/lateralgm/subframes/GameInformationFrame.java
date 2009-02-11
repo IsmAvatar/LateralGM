@@ -606,7 +606,7 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		for (int m = 0; m < LGM.root.getChildCount(); m++)
 			{
 			ResNode n = (ResNode) LGM.root.getChildAt(m);
-			if (n.kind == Resource.GAMEINFO) return n.getUserObject();
+			if (n.kind == Resource.Kind.GAMEINFO) return n.getUserObject();
 			}
 		return Messages.getString("LGM.GAMEINFO"); //$NON-NLS-1$
 		}

@@ -67,27 +67,33 @@ import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.RoomEditor;
+import org.lateralgm.components.visual.RoomEditor.PRoomEditor;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Room.ActiveArrayList;
+import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Room.ActiveArrayList.ListUpdateEvent;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 
-public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListener
+public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
@@ -112,7 +118,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public JButton oCreationCode;
 	//Settings
 	public JTextField sCaption;
-	public IntegerField sWidth, sHeight, sSpeed, sGX, sGY, sGW, sGH;
+	public NumberField sWidth, sHeight, sSpeed, sGX, sGY, sGW, sGH;
 	public JCheckBox sPersistent;
 	public JButton sCreationCode, sShow;
 	public JPopupMenu sShowMenu;
@@ -147,6 +153,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public ResourceMenu<GmObject> vObj;
 	public IntegerField vOHBor, vOVBor, vOHSp, vOVSp;
 
+	private final PropertyLinkFactory<PRoomEditor> prelf;
+
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
@@ -164,12 +172,12 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tool.addSeparator();
 
 		String st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
-		gridVis = new JToggleButton(st,res.rememberWindowSize ? res.showGrid : true);
-		gridVis.addActionListener(this); //causes editor to update on fire
+		gridVis = new JToggleButton(st);
+		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
 		tool.add(gridVis);
 		st = Messages.getString("RoomFrame.GRID_ISOMETRIC"); //$NON-NLS-1$
-		gridIso = new JToggleButton(st,res.isometricGrid);
-		gridIso.addActionListener(this);
+		gridIso = new JToggleButton(st);
+		plf.make(gridIso,PRoom.ISOMETRIC);
 		tool.add(gridIso);
 
 		sShowMenu = makeShowMenu();
@@ -335,11 +343,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		oNew = new ResourceMenu<GmObject>(Room.GMOBJECT,
+		oNew = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 		oNew.addActionListener(this);
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
-		oUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingObjects : true);
+		prelf.make(oUnderlying,PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 
 		oList = new JList(new ArrayListModel<Instance>(res.instances));
 		oList.addListSelectionListener(this);
@@ -360,7 +368,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		layout2.setAutoCreateContainerGaps(true);
 		edit.setLayout(layout2);
 
-		oSource = new ResourceMenu<GmObject>(Room.GMOBJECT,
+		oSource = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 		oSource.addActionListener(this);
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
@@ -423,24 +431,24 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		{
 		JPopupMenu showMenu = new JPopupMenu();
 		String st = Messages.getString("RoomFrame.SHOW_OBJECTS"); //$NON-NLS-1$
-		sSObj = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showObjects : true);
-		sSObj.addActionListener(this);
+		sSObj = new JCheckBoxMenuItem(st);
+		prelf.make(sSObj,PRoomEditor.SHOW_OBJECTS);
 		showMenu.add(sSObj);
 		st = Messages.getString("RoomFrame.SHOW_TILES"); //$NON-NLS-1$
-		sSTile = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showTiles : true);
-		sSTile.addActionListener(this);
+		sSTile = new JCheckBoxMenuItem(st);
+		prelf.make(sSTile,PRoomEditor.SHOW_TILES);
 		showMenu.add(sSTile);
 		st = Messages.getString("RoomFrame.SHOW_BACKGROUNDS"); //$NON-NLS-1$
-		sSBack = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showBackgrounds : true);
-		sSBack.addActionListener(this);
+		sSBack = new JCheckBoxMenuItem(st);
+		prelf.make(sSBack,PRoomEditor.SHOW_BACKGROUNDS);
 		showMenu.add(sSBack);
 		st = Messages.getString("RoomFrame.SHOW_FOREGROUNDS"); //$NON-NLS-1$
-		sSFore = new JCheckBoxMenuItem(st,res.rememberWindowSize ? res.showForegrounds : true);
-		sSFore.addActionListener(this);
+		sSFore = new JCheckBoxMenuItem(st);
+		prelf.make(sSFore,PRoomEditor.SHOW_FOREGROUNDS);
 		showMenu.add(sSFore);
 		st = Messages.getString("RoomFrame.SHOW_VIEWS"); //$NON-NLS-1$
-		sSView = new JCheckBoxMenuItem(st,res.showViews);
-		sSView.addActionListener(this);
+		sSView = new JCheckBoxMenuItem(st);
+		prelf.make(sSView,PRoomEditor.SHOW_VIEWS);
 		showMenu.add(sSView);
 		return showMenu;
 		}
@@ -456,24 +464,24 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		JLabel lName = new JLabel(Messages.getString("RoomFrame.NAME")); //$NON-NLS-1$
 
 		JLabel lCaption = new JLabel(Messages.getString("RoomFrame.CAPTION")); //$NON-NLS-1$
-		sCaption = new JTextField(res.caption);
+		sCaption = new JTextField();
+		plf.make(sCaption.getDocument(),PRoom.CAPTION);
 
 		JLabel lWidth = new JLabel(Messages.getString("RoomFrame.WIDTH")); //$NON-NLS-1$
-		sWidth = new IntegerField(1,999999,res.width);
-		sWidth.setColumns(7);
-		sWidth.addActionListener(this);
+		sWidth = new NumberField(1,999999);
+		plf.make(sWidth,PRoom.WIDTH);
 
 		JLabel lHeight = new JLabel(Messages.getString("RoomFrame.HEIGHT")); //$NON-NLS-1$
-		sHeight = new IntegerField(1,999999,res.height);
-		sHeight.setColumns(7);
-		sHeight.addActionListener(this);
+		sHeight = new NumberField(1,999999);
+		plf.make(sHeight,PRoom.HEIGHT);
 
 		JLabel lSpeed = new JLabel(Messages.getString("RoomFrame.SPEED")); //$NON-NLS-1$
-		sSpeed = new IntegerField(1,9999,res.speed);
-		sSpeed.setColumns(5);
+		sSpeed = new NumberField(1,9999);
+		plf.make(sSpeed,PRoom.SPEED);
 
 		String str = Messages.getString("RoomFrame.PERSISTENT"); //$NON-NLS-1$
-		sPersistent = new JCheckBox(str,res.persistent);
+		sPersistent = new JCheckBox(str);
+		plf.make(sPersistent,PRoom.PERSISTENT);
 
 		str = Messages.getString("RoomFrame.CREATION_CODE"); //$NON-NLS-1$
 		sCreationCode = new JButton(str,CODE_ICON);
@@ -528,21 +536,17 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		pg.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.GRID"))); //$NON-NLS-1$
 
 		JLabel lGX = new JLabel(Messages.getString("RoomFrame.GRID_X")); //$NON-NLS-1$
-		sGX = new IntegerField(0,999,0);
-		sGX.setColumns(4);
-		sGX.addActionListener(this);
+		sGX = new NumberField(0,999);
+		prelf.make(sGX,PRoomEditor.GRID_OFFSET_X);
 		JLabel lGY = new JLabel(Messages.getString("RoomFrame.GRID_Y")); //$NON-NLS-1$
-		sGY = new IntegerField(0,999,0);
-		sGY.setColumns(4);
-		sGY.addActionListener(this);
+		sGY = new NumberField(0,999);
+		prelf.make(sGY,PRoomEditor.GRID_OFFSET_Y);
 		JLabel lGW = new JLabel(Messages.getString("RoomFrame.GRID_W")); //$NON-NLS-1$
-		sGW = new IntegerField(1,999,res.snapX);
-		sGW.setColumns(4);
-		sGW.addActionListener(this);
+		sGW = new NumberField(1,999);
+		plf.make(sGW,PRoom.SNAP_X);
 		JLabel lGH = new JLabel(Messages.getString("RoomFrame.GRID_H")); //$NON-NLS-1$
-		sGH = new IntegerField(1,999,res.snapY);
-		sGH.setColumns(4);
-		sGH.addActionListener(this);
+		sGH = new NumberField(1,999);
+		plf.make(sGH,PRoom.SNAP_Y);
 		lr.setHorizontalGroup(lr.createSequentialGroup().addContainerGap()
 		/**/.addGroup(lr.createParallelGroup()
 		/*		*/.addComponent(lGX)
@@ -589,13 +593,13 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		taSource = new ResourceMenu<Background>(Room.BACKGROUND,
+		taSource = new ResourceMenu<Background>(Resource.Kind.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110);
 		taSource.addActionListener(this);
 		tSelect = new TileSelector();
 		tScroll = new JScrollPane(tSelect);
 		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
-		tUnderlying.setSelected(res.rememberWindowSize ? res.deleteUnderlyingTiles : true);
+		prelf.make(tUnderlying,PRoomEditor.DELETE_UNDERLYING_TILES);
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.TILE_LAYER"));
 		taDepth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		taDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,taDepth.getHeight()));
@@ -644,7 +648,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				setPreferredSize(new Dimension(0,0));
 				return;
 				}
-			setPreferredSize(new Dimension(b.width,b.height));
+			setPreferredSize(new Dimension(b.getWidth(),b.getHeight()));
 			BufferedImage bi = b.getDisplayImage();
 			setIcon(bi == null ? null : new ImageIcon(bi));
 			}
@@ -660,12 +664,13 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			Shape oldClip = g.getClip(); //backup the old clip
 			Rectangle oldc = g.getClipBounds();
 			//Set the clip properly
-			g.setClip(new Rectangle(oldc.x,oldc.y,Math.min(oldc.x + oldc.width,b.width) - oldc.x,
-					Math.min(oldc.y + oldc.height,b.height) - oldc.y));
+			g.setClip(new Rectangle(oldc.x,oldc.y,Math.min(oldc.x + oldc.width,b.getWidth()) - oldc.x,
+					Math.min(oldc.y + oldc.height,b.getHeight()) - oldc.y));
 
 			g.setXORMode(Color.BLACK);
 			g.setColor(Color.WHITE);
-			g.drawRect(tx,ty,b.tileWidth,b.tileHeight);
+			g.drawRect(tx,ty,(Integer) b.get(PBackground.TILE_WIDTH),
+					(Integer) b.get(PBackground.TILE_HEIGHT));
 			g.setPaintMode(); //just in case
 			g.setClip(oldClip); //restore the clip
 			}
@@ -695,10 +700,14 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 				}
 			else
 				{
-				int w = hardBkg.tileWidth + hardBkg.horizSep;
-				int h = hardBkg.tileHeight + hardBkg.vertSep;
-				tx = (int) Math.floor((x - hardBkg.horizOffset) / w) * w + hardBkg.horizOffset;
-				ty = (int) Math.floor((y - hardBkg.vertOffset) / h) * h + hardBkg.vertOffset;
+				int w = (Integer) hardBkg.get(PBackground.TILE_WIDTH)
+						+ (Integer) hardBkg.get(PBackground.H_SEP);
+				int h = (Integer) hardBkg.get(PBackground.TILE_HEIGHT)
+						+ (Integer) hardBkg.get(PBackground.V_SEP);
+				int ho = hardBkg.get(PBackground.H_OFFSET);
+				int vo = hardBkg.get(PBackground.V_OFFSET);
+				tx = (int) Math.floor((x - ho) / w) * w + ho;
+				ty = (int) Math.floor((y - vo) / h) * h + vo;
 				}
 			repaint();
 			}
@@ -727,7 +736,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		psl.setAutoCreateGaps(true);
 		psl.setAutoCreateContainerGaps(true);
 		pSet.setLayout(psl);
-		teSource = new ResourceMenu<Background>(Room.BACKGROUND,
+		teSource = new ResourceMenu<Background>(Resource.Kind.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110); //$NON-NLS-1$
 		JLabel ltsx = new JLabel(Messages.getString("RoomFrame.TILESET_X")); //$NON-NLS-1$
 		tsX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
@@ -826,11 +835,11 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.setLayout(layout);
 
 		String st = Messages.getString("RoomFrame.DRAW_COLOR"); //$NON-NLS-1$
-		bDrawColor = new JCheckBox(st,res.drawBackgroundColor);
-		bDrawColor.addActionListener(this);
+		bDrawColor = new JCheckBox(st);
+		plf.make(bDrawColor,PRoom.DRAW_BACKGROUND_COLOR);
 		JLabel lColor = new JLabel(Messages.getString("RoomFrame.COLOR")); //$NON-NLS-1$
-		bColor = new ColorSelect(res.backgroundColor);
-		bColor.addActionListener(this);
+		bColor = new ColorSelect(Color.BLACK);
+		plf.make(bColor,PRoom.BACKGROUND_COLOR);
 
 		JLabel[] backLabs = new JLabel[8];
 		for (int i = 0; i < 8; i++)
@@ -853,7 +862,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		st = Messages.getString("RoomFrame.BACK_FOREGROUND"); //$NON-NLS-1$
 		bForeground = new JCheckBox(st,res.backgroundDefs[0].foreground);
 
-		bSource = new ResourceMenu<Background>(Room.BACKGROUND,
+		bSource = new ResourceMenu<Background>(Resource.Kind.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,150); //$NON-NLS-1$
 		bSource.setSelected(res.backgroundDefs[0].backgroundId);
 		bSource.addActionListener(this);
@@ -947,7 +956,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		panel.setLayout(layout);
 
 		String st = Messages.getString("RoomFrame.ENABLE_VIEWS"); //$NON-NLS-1$
-		vEnabled = new JCheckBox(st,res.enableViews);
+		vEnabled = new JCheckBox(st);
+		plf.make(vEnabled,PRoom.ENABLE_VIEWS);
 
 		JLabel[] viewLabs = new JLabel[8];
 		for (int i = 0; i < 8; i++)
@@ -1087,7 +1097,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		pf.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.FOLLOW"))); //$NON-NLS-1$
 		GroupLayout lf = new GroupLayout(pf);
 		pf.setLayout(lf);
-		vObj = new ResourceMenu<GmObject>(Room.GMOBJECT,
+		vObj = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 		vObj.setSelected(res.views[0].objectFollowing);
 		JLabel lH = new JLabel(Messages.getString("RoomFrame.VIEW_HORIZONTAL"));
@@ -1164,6 +1174,9 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public RoomFrame(Room res, ResNode node)
 		{
 		super(res,node);
+		editor = new RoomEditor(res,this);
+		prelf = new PropertyLinkFactory<PRoomEditor>(editor.properties,null);
+
 		GroupLayout layout = new GroupLayout(getContentPane())
 			{
 				@Override
@@ -1191,9 +1204,8 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		String bks = Messages.getString("RoomFrame.TAB_BACKGROUNDS"); //$NON-NLS-1$
 		tabs.addTab(bks,makeBackgroundsPane());
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
-		tabs.setSelectedIndex(res.currentTab);
+		tabs.setSelectedIndex((Integer) res.get(PRoom.CURRENT_TAB));
 
-		editor = new RoomEditor(res,this);
 		editorPane = new JScrollPane(editor);
 		editorPane.getVerticalScrollBar().setUnitIncrement(16);
 		editorPane.getVerticalScrollBar().setBlockIncrement(64);
@@ -1215,13 +1227,15 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		/*	*/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(editorPane,DEFAULT_SIZE,480,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
-		if (res.rememberWindowSize)
+		if (res.get(PRoom.REMEMBER_WINDOW_SIZE))
 			{
+			int h = res.get(PRoom.EDITOR_HEIGHT);
+			int w = res.get(PRoom.EDITOR_WIDTH);
 			Dimension d = LGM.mdi.getSize();
-			if (d.width < res.editorWidth && d.height < res.editorHeight)
+			if (d.width < w && d.height < h)
 				maximize = true;
 			else
-				setSize(res.editorWidth,res.editorHeight);
+				setSize(w,h);
 			}
 		else
 			pack();
@@ -1241,7 +1255,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 		catch (PropertyVetoException e)
 			{
-			setSize(res.editorWidth,res.editorHeight);
+			setSize((Integer) res.get(PRoom.EDITOR_WIDTH),(Integer) res.get(PRoom.EDITOR_HEIGHT));
 			e.printStackTrace();
 			}
 		}
@@ -1285,7 +1299,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 	public void revertResource()
 		{
 		resOriginal.updateReference();
-		resOriginal.currentTab = tabs.getSelectedIndex();
 		}
 
 	public void commitChanges()
@@ -1295,34 +1308,16 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		for (CodeFrame cf : codeFrames.values())
 			cf.commit();
 
-		res.currentTab = tabs.getSelectedIndex();
-		//objects
-		res.deleteUnderlyingObjects = oUnderlying.isSelected();
+		if (res.get(PRoom.REMEMBER_WINDOW_SIZE))
+			{
+			res.put(PRoom.CURRENT_TAB,tabs.getSelectedIndex());
+			Dimension s = getSize();
+			res.put(PRoom.EDITOR_WIDTH,s.width);
+			res.put(PRoom.EDITOR_HEIGHT,s.height);
+			}
 		fireObjUpdate();
-		//settings
-		res.caption = sCaption.getText();
-		res.width = sWidth.getIntValue();
-		res.height = sHeight.getIntValue();
-		res.speed = sSpeed.getIntValue();
-		res.persistent = sPersistent.isSelected();
-		res.showGrid = gridVis.isSelected();
-		res.isometricGrid = gridIso.isSelected();
-		res.snapX = sGW.getIntValue();
-		res.snapY = sGH.getIntValue();
-		res.showObjects = sSObj.isSelected();
-		res.showTiles = sSTile.isSelected();
-		res.showBackgrounds = sSBack.isSelected();
-		res.showForegrounds = sSFore.isSelected();
-		res.showViews = sSView.isSelected();
-		//tiles
-		res.deleteUnderlyingTiles = tUnderlying.isSelected();
 		fireTileUpdate();
-		//backgrounds
-		res.drawBackgroundColor = bDrawColor.isSelected();
-		res.backgroundColor = bColor.getSelectedColor();
 		fireBackUpdate();
-		//views
-		res.enableViews = vEnabled.isSelected();
 		fireViewUpdate();
 		}
 
@@ -1407,6 +1402,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			if (oNew.getSelected() == null) return;
 			Instance i = res.addInstance();
 			i.setObject(oNew.getSelected());
+			i.setPosition(new Point());
 			oList.setSelectedIndex(res.instances.size() - 1);
 			return;
 			}
@@ -1430,22 +1426,24 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 			}
 		if (s == zoomIn)
 			{
-			if (editor.zoom > 1)
+			int z = editor.properties.get(PRoomEditor.ZOOM);
+			if (z > 1)
 				{
-				editor.zoom /= 2;
-				editor.refresh();
+				z /= 2;
+				editor.properties.put(PRoomEditor.ZOOM,z);
 				zoomOut.setEnabled(true);
-				zoomIn.setEnabled(editor.zoom > 1);
+				zoomIn.setEnabled(z > 1);
 				}
 			return;
 			}
 		if (s == zoomOut)
 			{
-			if (editor.zoom < 32)
+			int z = editor.properties.get(PRoomEditor.ZOOM);
+			if (z < 32)
 				{
-				editor.zoom *= 2;
-				editor.refresh();
-				zoomOut.setEnabled(editor.zoom < 32);
+				z *= 2;
+				editor.properties.put(PRoomEditor.ZOOM,z);
+				zoomOut.setEnabled(z < 32);
 				zoomIn.setEnabled(true);
 				}
 			return;
@@ -1664,7 +1662,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 
 		private String getCode()
 			{
-			if (code instanceof Room) return ((Room) code).creationCode;
+			if (code instanceof Room) return ((Room) code).get(PRoom.CREATION_CODE);
 			if (code instanceof Instance) return ((Instance) code).getCreationCode();
 			throw new RuntimeException(Messages.getString("RoomFrame.CODE_ERROR")); //$NON-NLS-1$
 			}
@@ -1672,7 +1670,7 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		public void commit()
 			{
 			if (code instanceof Room)
-				((Room) code).creationCode = gta.getTextCompat();
+				((Room) code).put(PRoom.CREATION_CODE,gta.getTextCompat());
 			else if (code instanceof Instance)
 				((Instance) code).setCreationCode(gta.getTextCompat());
 			else
@@ -1784,12 +1782,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		// garbage collection.
 		zoomIn.removeActionListener(this);
 		zoomOut.removeActionListener(this);
-		sGX.removeActionListener(this);
-		sGY.removeActionListener(this);
-		sGW.removeActionListener(this);
-		sGH.removeActionListener(this);
-		gridVis.removeActionListener(this);
-		gridIso.removeActionListener(this);
 		oNew.removeActionListener(this);
 		oList.removeListSelectionListener(this);
 		oAdd.removeActionListener(this);
@@ -1798,13 +1790,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		oX.removeActionListener(this);
 		oY.removeActionListener(this);
 		oCreationCode.removeActionListener(this);
-		sSObj.removeActionListener(this);
-		sSTile.removeActionListener(this);
-		sSBack.removeActionListener(this);
-		sSFore.removeActionListener(this);
-		sSView.removeActionListener(this);
-		sWidth.removeActionListener(this);
-		sHeight.removeActionListener(this);
 		sCreationCode.removeActionListener(this);
 		sShow.removeActionListener(this);
 		teDepth.removeActionListener(this);
@@ -1813,8 +1798,6 @@ public class RoomFrame extends ResourceFrame<Room> implements ListSelectionListe
 		tDel.removeActionListener(this);
 		tX.removeActionListener(this);
 		tY.removeActionListener(this);
-		bDrawColor.removeActionListener(this);
-		bColor.removeActionListener(this);
 		bList.removeListSelectionListener(this);
 		bVisible.removeActionListener(this);
 		bTileH.removeActionListener(this);

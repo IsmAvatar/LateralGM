@@ -38,12 +38,12 @@ public class Argument
 
 	public final byte kind;
 	private String val;
-	private ResourceReference<? extends Resource<?>> res; // for references to Resources
+	private ResourceReference<? extends Resource<?,?>> res; // for references to Resources
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
-	public Argument(byte kind, String val, ResourceReference<? extends Resource<?>> res)
+	public Argument(byte kind, String val, ResourceReference<? extends Resource<?,?>> res)
 		{
 		this.kind = kind;
 		this.val = val;
@@ -55,36 +55,36 @@ public class Argument
 		this(kind,"",null);
 		}
 
-	public static byte getResourceKind(byte argumentKind)
+	public static Resource.Kind getResourceKind(byte argumentKind)
 		{
 		switch (argumentKind)
 			{
 			case ARG_SPRITE:
-				return Resource.SPRITE;
+				return Resource.Kind.SPRITE;
 			case ARG_SOUND:
-				return Resource.SOUND;
+				return Resource.Kind.SOUND;
 			case ARG_BACKGROUND:
-				return Resource.BACKGROUND;
+				return Resource.Kind.BACKGROUND;
 			case ARG_PATH:
-				return Resource.PATH;
+				return Resource.Kind.PATH;
 			case ARG_SCRIPT:
-				return Resource.SCRIPT;
+				return Resource.Kind.SCRIPT;
 			case ARG_GMOBJECT:
-				return Resource.GMOBJECT;
+				return Resource.Kind.OBJECT;
 			case ARG_ROOM:
-				return Resource.ROOM;
+				return Resource.Kind.ROOM;
 			case ARG_FONT:
-				return Resource.FONT;
+				return Resource.Kind.FONT;
 			case ARG_TIMELINE:
-				return Resource.TIMELINE;
+				return Resource.Kind.TIMELINE;
 			default:
-				return 0;
+				return null;
 			}
 		}
 
 	public String toString(LibArgument la)
 		{
-		byte rk = Argument.getResourceKind(kind);
+		Resource.Kind rk = Argument.getResourceKind(kind);
 		switch (kind)
 			{
 			case Argument.ARG_BOOLEAN:
@@ -112,7 +112,7 @@ public class Argument
 					}
 				return val;
 			default:
-				if (rk <= 0) return val;
+				if (rk == null) return val;
 				try
 					{
 					return res.get().getName();
@@ -140,12 +140,12 @@ public class Argument
 		fireStateChanged();
 		}
 
-	public ResourceReference<? extends Resource<?>> getRes()
+	public ResourceReference<? extends Resource<?,?>> getRes()
 		{
 		return res;
 		}
 
-	public void setRes(ResourceReference<? extends Resource<?>> res)
+	public void setRes(ResourceReference<? extends Resource<?,?>> res)
 		{
 		this.res = res;
 		fireStateChanged();

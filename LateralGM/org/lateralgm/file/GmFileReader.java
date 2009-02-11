@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2006, 2007, 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -36,6 +36,14 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.Background.PBackground;
+import org.lateralgm.resources.Font.PFont;
+import org.lateralgm.resources.GmObject.PGmObject;
+import org.lateralgm.resources.Path.PPath;
+import org.lateralgm.resources.Room.PRoom;
+import org.lateralgm.resources.Script.PScript;
+import org.lateralgm.resources.Sound.PSound;
+import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
 import org.lateralgm.resources.library.LibManager;
@@ -51,6 +59,7 @@ import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.util.PropertyMap;
 
 public final class GmFileReader
 	{
@@ -365,24 +374,27 @@ public final class GmFileReader
 			if (ver == 440)
 				kind53 = in.read4(); //kind (wav, mp3, etc)
 			else
-				snd.kind = (byte) in.read4(); //normal, background, etc
-			snd.fileType = in.readStr();
+				snd.put(PSound.KIND,GmFile.SOUND_KIND[in.read4()]); //normal, background, etc
+			readStr(in,snd.properties,PSound.FILE_TYPE);
 			if (ver == 440)
 				{
 				//-1 = no sound
 				if (kind53 != -1) snd.data = in.decompress(in.read4());
 				in.skip(8);
-				snd.preload = !in.readBool();
+				snd.put(PSound.PRELOAD,!in.readBool());
 				}
 			else
 				{
-				snd.fileName = in.readStr();
+				snd.put(PSound.FILE_NAME,in.readStr());
 				if (in.readBool()) snd.data = in.decompress(in.read4());
 				int effects = in.read4();
-				snd.setEffects(effects);
-				snd.volume = in.readD();
-				snd.pan = in.readD();
-				snd.preload = in.readBool();
+				for (PSound k : GmFile.SOUND_FX_FLAGS)
+					{
+					snd.put(k,(effects & 1) != 0);
+					effects >>= 1;
+					}
+				readD(in,snd.properties,PSound.VOLUME,PSound.PAN);
+				snd.put(PSound.PRELOAD,in.readBool());
 				}
 			}
 		}
@@ -410,25 +422,20 @@ public final class GmFileReader
 			if (ver != 400 && ver != 542) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			int w = in.read4();
 			int h = in.read4();
-			spr.boundingBoxLeft = in.read4();
-			spr.boundingBoxRight = in.read4();
-			spr.boundingBoxBottom = in.read4();
-			spr.boundingBoxTop = in.read4();
-			spr.transparent = in.readBool();
+			read4(in,spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
+			spr.put(PSprite.TRANSPARENT,in.readBool());
 			if (ver > 400)
 				{
-				spr.smoothEdges = in.readBool();
-				spr.preload = in.readBool();
+				readBool(in,spr.properties,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
 				}
-			spr.boundingBoxMode = (byte) in.read4();
-			spr.preciseCC = in.readBool();
+			spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
+			spr.put(PSprite.PRECISE,in.readBool());
 			if (ver == 400)
 				{
 				in.skip(4); //use video memory
-				spr.preload = !in.readBool();
+				spr.put(PSprite.PRELOAD,!in.readBool());
 				}
-			spr.originX = in.read4();
-			spr.originY = in.read4();
+			read4(in,spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
 			int nosub = in.read4();
 			for (int j = 0; j < nosub; j++)
 				{
@@ -446,7 +453,6 @@ public final class GmFileReader
 
 		int ver = in.read4();
 		if (ver != 400) throw versionError(f,"BEFORE","BACKGROUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
-
 		int noBackgrounds = in.read4();
 		for (int i = 0; i < noBackgrounds; i++)
 			{
@@ -459,30 +465,25 @@ public final class GmFileReader
 			back.setName(in.readStr());
 			ver = in.read4();
 			if (ver != 400 && ver != 543) throw versionError(f,"IN","BACKGROUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-			back.width = in.read4();
-			back.height = in.read4();
-			back.transparent = in.readBool();
+			int w = in.read4();
+			int h = in.read4();
+			back.put(PBackground.TRANSPARENT,in.readBool());
 			if (ver > 400)
 				{
-				back.smoothEdges = in.readBool();
-				back.preload = in.readBool();
-				back.useAsTileSet = in.readBool();
-				back.tileWidth = in.read4();
-				back.tileHeight = in.read4();
-				back.horizOffset = in.read4();
-				back.vertOffset = in.read4();
-				back.horizSep = in.read4();
-				back.vertSep = in.read4();
+				readBool(in,back.properties,PBackground.SMOOTH_EDGES,PBackground.PRELOAD,
+						PBackground.USE_AS_TILESET);
+				read4(in,back.properties,PBackground.TILE_WIDTH,PBackground.TILE_HEIGHT,
+						PBackground.H_OFFSET,PBackground.V_OFFSET,PBackground.H_SEP,PBackground.V_SEP);
 				}
 			else
 				{
 				in.skip(4); //use video memory
-				back.preload = !in.readBool();
+				back.put(PBackground.PRELOAD,!in.readBool());
 				}
 			if (in.readBool())
 				{
 				if (in.read4() == -1) continue;
-				back.setBackgroundImage(in.readImage(back.width,back.height));
+				back.setBackgroundImage(in.readImage(w,h));
 				}
 			}
 		}
@@ -507,12 +508,10 @@ public final class GmFileReader
 			path.setName(in.readStr());
 			ver = in.read4();
 			if (ver != 530) throw versionError(f,"IN","PATHS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-			path.smooth = in.readBool();
-			path.closed = in.readBool();
-			path.precision = in.read4();
-			path.backgroundRoom = c.rmids.get(in.read4());
-			path.snapX = in.read4();
-			path.snapY = in.read4();
+			readBool(in,path.properties,PPath.SMOOTH,PPath.CLOSED);
+			path.put(PPath.PRECISION,in.read4());
+			path.put(PPath.BACKGROUND_ROOM,c.rmids.get(in.read4()));
+			read4(in,path.properties,PPath.SNAP_X,PPath.SNAP_Y);
 			int nopoints = in.read4();
 			for (int j = 0; j < nopoints; j++)
 				{
@@ -544,7 +543,7 @@ public final class GmFileReader
 			scr.setName(in.readStr());
 			ver = in.read4();
 			if (ver != 400) throw versionError(f,"IN","SCRIPTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-			scr.scriptStr = in.readStr();
+			scr.put(PScript.CODE,in.readStr());
 			}
 		}
 
@@ -588,12 +587,10 @@ public final class GmFileReader
 			font.setName(in.readStr());
 			ver = in.read4();
 			if (ver != 540) throw versionError(f,"IN","FONTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-			font.fontName = in.readStr();
-			font.size = in.read4();
-			font.bold = in.readBool();
-			font.italic = in.readBool();
-			font.charRangeMin = in.read4();
-			font.charRangeMax = in.read4();
+			font.put(PFont.FONT_NAME,in.readStr());
+			font.put(PFont.SIZE,in.read4());
+			readBool(in,font.properties,PFont.BOLD,PFont.ITALIC);
+			read4(in,font.properties,PFont.RANGE_MIN,PFont.RANGE_MAX);
 			}
 		}
 
@@ -645,17 +642,17 @@ public final class GmFileReader
 			ver = in.read4();
 			if (ver != 430) throw versionError(f,"IN","OBJECTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.sprites.getUnsafe(in.read4());
-			if (temp != null) obj.setSprite(temp.reference);
-			obj.solid = in.readBool();
-			obj.visible = in.readBool();
-			obj.depth = in.read4();
-			obj.persistent = in.readBool();
-			obj.setParent(c.objids.get(in.read4()));
+			if (temp != null) obj.put(PGmObject.SPRITE,temp.reference);
+			readBool(in,obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
+			obj.put(PGmObject.DEPTH,in.read4());
+			obj.put(PGmObject.PERSISTENT,in.readBool());
+			obj.put(PGmObject.PARENT,c.objids.get(in.read4()));
 			temp = f.sprites.getUnsafe(in.read4());
-			if (temp != null) obj.setMask(temp.reference);
+			if (temp != null) obj.put(PGmObject.MASK,temp.reference);
 			in.skip(4);
 			for (int j = 0; j < 11; j++)
 				{
+				MainEvent me = obj.mainEvents.get(j);
 				boolean done = false;
 				while (!done)
 					{
@@ -663,7 +660,7 @@ public final class GmFileReader
 					if (first != -1)
 						{
 						Event ev = new Event();
-						obj.mainEvents[j].events.add(0,ev);
+						me.events.add(0,ev);
 						if (j == MainEvent.EV_COLLISION)
 							{
 							ev.other = c.objids.get(first);
@@ -699,17 +696,14 @@ public final class GmFileReader
 			rm.setName(in.readStr());
 			ver = in.read4();
 			if (ver != 520 && ver != 541) throw versionError(f,"IN","ROOMS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-			rm.caption = in.readStr();
-			rm.width = in.read4();
-			rm.height = in.read4();
-			rm.snapY = in.read4();
-			rm.snapX = in.read4();
-			rm.isometricGrid = in.readBool();
-			rm.speed = in.read4();
-			rm.persistent = in.readBool();
-			rm.backgroundColor = Util.convertGmColor(in.read4());
-			rm.drawBackgroundColor = in.readBool();
-			rm.creationCode = in.readStr();
+			rm.put(PRoom.CAPTION,in.readStr());
+			read4(in,rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
+			rm.put(PRoom.ISOMETRIC,in.readBool());
+			rm.put(PRoom.SPEED,in.read4());
+			rm.put(PRoom.PERSISTENT,in.readBool());
+			rm.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(in.read4()));
+			rm.put(PRoom.DRAW_BACKGROUND_COLOR,in.readBool());
+			rm.put(PRoom.CREATION_CODE,in.readStr());
 			int nobackgrounds = in.read4();
 			for (int j = 0; j < nobackgrounds; j++)
 				{
@@ -726,7 +720,7 @@ public final class GmFileReader
 				bk.vertSpeed = in.read4();
 				bk.stretch = in.readBool();
 				}
-			rm.enableViews = in.readBool();
+			rm.put(PRoom.ENABLE_VIEWS,in.readBool());
 			int noviews = in.read4();
 			for (int j = 0; j < noviews; j++)
 				{
@@ -777,21 +771,13 @@ public final class GmFileReader
 				t.locked = in.readBool();
 				rm.tiles.add(t);
 				}
-			rm.rememberWindowSize = in.readBool();
-			rm.editorWidth = in.read4();
-			rm.editorHeight = in.read4();
-			rm.showGrid = in.readBool();
-			rm.showObjects = in.readBool();
-			rm.showTiles = in.readBool();
-			rm.showBackgrounds = in.readBool();
-			rm.showForegrounds = in.readBool();
-			rm.showViews = in.readBool();
-			rm.deleteUnderlyingObjects = in.readBool();
-			rm.deleteUnderlyingTiles = in.readBool();
+			rm.put(PRoom.REMEMBER_WINDOW_SIZE,in.readBool());
+			read4(in,rm.properties,PRoom.EDITOR_WIDTH,PRoom.EDITOR_HEIGHT);
+			readBool(in,rm.properties,PRoom.SHOW_GRID,PRoom.SHOW_OBJECTS,PRoom.SHOW_TILES,
+					PRoom.SHOW_BACKGROUNDS,PRoom.SHOW_FOREGROUNDS,PRoom.SHOW_VIEWS,
+					PRoom.DELETE_UNDERLYING_OBJECTS,PRoom.DELETE_UNDERLYING_TILES);
 			if (ver == 520) in.skip(6 * 4); //tile info
-			rm.currentTab = in.read4();
-			rm.scrollBarX = in.read4();
-			rm.scrollBarY = in.read4();
+			read4(in,rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
 			}
 		f.rooms.lastId = noRooms;
 		}
@@ -830,15 +816,29 @@ public final class GmFileReader
 		while (rootnodes-- > 0)
 			{
 			byte status = (byte) in.read4();
-			byte type = (byte) in.read4();
+			Resource.Kind type = GmFile.RESOURCE_KIND[(byte) in.read4()];
 			int ind = in.read4();
 			String name = in.readStr();
-			boolean hasRef = status == ResNode.STATUS_SECONDARY && type != Resource.GAMEINFO
-					&& type != Resource.GAMESETTINGS && type != Resource.EXTENSIONS
-					&& (ver != 500 || type != Resource.FONT);
+			boolean hasRef;
+			if (status == ResNode.STATUS_SECONDARY)
+				switch (type)
+					{
+					case GAMEINFO:
+					case GAMESETTINGS:
+					case EXTENSIONS:
+						hasRef = false;
+						break;
+					case FONT:
+						hasRef = ver != 500;
+						break;
+					default:
+						hasRef = true;
+					}
+			else
+				hasRef = false;
 			ResourceList<?> rl = hasRef ? f.getList(type) : null;
 			ResNode node = new ResNode(name,status,type,hasRef ? rl.getUnsafe(ind).reference : null);
-			if (ver == 500 && status == ResNode.STATUS_PRIMARY && type == Resource.FONT)
+			if (ver == 500 && status == ResNode.STATUS_PRIMARY && type == Resource.Kind.FONT)
 				path.peek().addChild(Messages.getString("LGM.FONTS"),status,type); //$NON-NLS-1$
 			else
 				path.peek().add(node);
@@ -863,7 +863,7 @@ public final class GmFileReader
 		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
-		Resource<?> tag = new Script();
+		Resource<?,?> tag = new Script();
 		int ver = in.read4();
 		if (ver != 400)
 			{
@@ -946,7 +946,7 @@ public final class GmFileReader
 				args[l] = new Argument(argkinds[l]);
 
 				String strval = in.readStr();
-				Resource<?> res = tag;
+				Resource<?,?> res = tag;
 				switch (argkinds[l])
 					{
 					case Argument.ARG_SPRITE:
@@ -988,5 +988,33 @@ public final class GmFileReader
 				}
 			act.setNot(in.readBool());
 			}
+		}
+
+	private static <P extends Enum<P>>void read4(GmStreamDecoder in, PropertyMap<P> map, P...keys)
+			throws IOException
+		{
+		for (P key : keys)
+			map.put(key,in.read4());
+		}
+
+	private static <P extends Enum<P>>void readStr(GmStreamDecoder in, PropertyMap<P> map, P...keys)
+			throws IOException
+		{
+		for (P key : keys)
+			map.put(key,in.readStr());
+		}
+
+	private static <P extends Enum<P>>void readBool(GmStreamDecoder in, PropertyMap<P> map, P...keys)
+			throws IOException
+		{
+		for (P key : keys)
+			map.put(key,in.readBool());
+		}
+
+	private static <P extends Enum<P>>void readD(GmStreamDecoder in, PropertyMap<P> map, P...keys)
+			throws IOException
+		{
+		for (P key : keys)
+			map.put(key,in.readD());
 		}
 	}

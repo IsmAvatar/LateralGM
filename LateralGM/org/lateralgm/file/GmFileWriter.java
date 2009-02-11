@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006, 2007, 2008 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2006, 2007, 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,6 +12,7 @@ package org.lateralgm.file;
 
 import static org.lateralgm.main.Util.deRef;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -32,6 +33,14 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.Background.PBackground;
+import org.lateralgm.resources.Font.PFont;
+import org.lateralgm.resources.GmObject.PGmObject;
+import org.lateralgm.resources.Path.PPath;
+import org.lateralgm.resources.Room.PRoom;
+import org.lateralgm.resources.Script.PScript;
+import org.lateralgm.resources.Sound.PSound;
+import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
@@ -45,6 +54,7 @@ import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.util.PropertyMap;
 
 public final class GmFileWriter
 	{
@@ -203,9 +213,8 @@ public final class GmFileWriter
 				{
 				out.writeStr(snd.getName());
 				out.write4(600);
-				out.write4(snd.kind);
-				out.writeStr(snd.fileType);
-				out.writeStr(snd.fileName);
+				out.write4(GmFile.SOUND_CODE.get(snd.get(PSound.KIND)));
+				writeStr(out,snd.properties,PSound.FILE_TYPE,PSound.FILE_NAME);
 				if (snd.data != null)
 					{
 					out.writeBool(true);
@@ -213,10 +222,16 @@ public final class GmFileWriter
 					}
 				else
 					out.writeBool(false);
-				out.write4(snd.getEffects());
-				out.writeD(snd.volume);
-				out.writeD(snd.pan);
-				out.writeBool(snd.preload);
+				int effects = 0;
+				int n = 1;
+				for (PSound k : GmFile.SOUND_FX_FLAGS)
+					{
+					if (snd.get(k)) effects |= n;
+					n <<= 1;
+					}
+				out.write4(effects);
+				writeD(out,snd.properties,PSound.VOLUME,PSound.PAN);
+				writeBool(out,snd.properties,PSound.PRELOAD);
 				}
 			}
 		}
@@ -235,17 +250,13 @@ public final class GmFileWriter
 				out.write4(542);
 				out.write4(spr.subImages.getWidth());
 				out.write4(spr.subImages.getHeight());
-				out.write4(spr.boundingBoxLeft);
-				out.write4(spr.boundingBoxRight);
-				out.write4(spr.boundingBoxBottom);
-				out.write4(spr.boundingBoxTop);
-				out.writeBool(spr.transparent);
-				out.writeBool(spr.smoothEdges);
-				out.writeBool(spr.preload);
-				out.write4(spr.boundingBoxMode);
-				out.writeBool(spr.preciseCC);
-				out.write4(spr.originX);
-				out.write4(spr.originY);
+				// The formatter doesn't wrap this line even though it's too long...
+				write4(out,spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,//
+						PSprite.BB_TOP);
+				writeBool(out,spr.properties,PSprite.TRANSPARENT,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
+				out.write4(GmFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)));
+				writeBool(out,spr.properties,PSprite.PRECISE);
+				write4(out,spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
 				out.write4(spr.subImages.size());
 				for (int j = 0; j < spr.subImages.size(); j++)
 					{
@@ -269,18 +280,12 @@ public final class GmFileWriter
 				{
 				out.writeStr(back.getName());
 				out.write4(543);
-				out.write4(back.width);
-				out.write4(back.height);
-				out.writeBool(back.transparent);
-				out.writeBool(back.smoothEdges);
-				out.writeBool(back.preload);
-				out.writeBool(back.useAsTileSet);
-				out.write4(back.tileWidth);
-				out.write4(back.tileHeight);
-				out.write4(back.horizOffset);
-				out.write4(back.vertOffset);
-				out.write4(back.horizSep);
-				out.write4(back.vertSep);
+				out.write4((Integer) back.getWidth());
+				out.write4((Integer) back.getHeight());
+				writeBool(out,back.properties,PBackground.TRANSPARENT,PBackground.SMOOTH_EDGES,
+						PBackground.PRELOAD,PBackground.USE_AS_TILESET);
+				write4(out,back.properties,PBackground.TILE_WIDTH,PBackground.TILE_HEIGHT,
+						PBackground.H_OFFSET,PBackground.V_OFFSET,PBackground.H_SEP,PBackground.V_SEP);
 				BufferedImage bi = back.getBackgroundImage();
 				if (bi != null)
 					{
@@ -306,12 +311,10 @@ public final class GmFileWriter
 				{
 				out.writeStr(path.getName());
 				out.write4(530);
-				out.writeBool(path.smooth);
-				out.writeBool(path.closed);
-				out.write4(path.precision);
-				out.writeId(path.backgroundRoom);
-				out.write4(path.snapX);
-				out.write4(path.snapY);
+				writeBool(out,path.properties,PPath.SMOOTH,PPath.CLOSED);
+				write4(out,path.properties,PPath.PRECISION);
+				out.writeId((ResourceReference<?>) path.get(PPath.BACKGROUND_ROOM));
+				write4(out,path.properties,PPath.SNAP_X,PPath.SNAP_Y);
 				out.write4(path.points.size());
 				for (PathPoint p : path.points)
 					{
@@ -335,7 +338,7 @@ public final class GmFileWriter
 				{
 				out.writeStr(scr.getName());
 				out.write4(400);
-				out.writeStr(scr.scriptStr);
+				writeStr(out,scr.properties,PScript.CODE);
 				}
 			}
 		}
@@ -352,12 +355,10 @@ public final class GmFileWriter
 				{
 				out.writeStr(font.getName());
 				out.write4(540);
-				out.writeStr(font.fontName);
-				out.write4(font.size);
-				out.writeBool(font.bold);
-				out.writeBool(font.italic);
-				out.write4(font.charRangeMin);
-				out.write4(font.charRangeMax);
+				writeStr(out,font.properties,PFont.FONT_NAME);
+				write4(out,font.properties,PFont.SIZE);
+				writeBool(out,font.properties,PFont.BOLD,PFont.ITALIC);
+				write4(out,font.properties,PFont.RANGE_MIN,PFont.RANGE_MAX);
 				}
 			}
 		}
@@ -396,17 +397,17 @@ public final class GmFileWriter
 				{
 				out.writeStr(obj.getName());
 				out.write4(430);
-				out.writeId(obj.getSprite());
-				out.writeBool(obj.solid);
-				out.writeBool(obj.visible);
-				out.write4(obj.depth);
-				out.writeBool(obj.persistent);
-				out.writeId(obj.getParent(),-100);
-				out.writeId(obj.getMask());
+				out.writeId((ResourceReference<?>) obj.get(PGmObject.SPRITE));
+				writeBool(out,obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
+				write4(out,obj.properties,PGmObject.DEPTH);
+				writeBool(out,obj.properties,PGmObject.PERSISTENT);
+				out.writeId((ResourceReference<?>) obj.get(PGmObject.PARENT),-100);
+				out.writeId((ResourceReference<?>) obj.get(PGmObject.MASK));
 				out.write4(10);
 				for (int j = 0; j < 11; j++)
 					{
-					for (Event ev : obj.mainEvents[j].events)
+					MainEvent me = obj.mainEvents.get(j);
+					for (Event ev : me.events)
 						{
 						if (j == MainEvent.EV_COLLISION)
 							out.writeId(ev.other);
@@ -432,17 +433,14 @@ public final class GmFileWriter
 				{
 				out.writeStr(rm.getName());
 				out.write4(541);
-				out.writeStr(rm.caption);
-				out.write4(rm.width);
-				out.write4(rm.height);
-				out.write4(rm.snapY);
-				out.write4(rm.snapX);
-				out.writeBool(rm.isometricGrid);
-				out.write4(rm.speed);
-				out.writeBool(rm.persistent);
-				out.write4(Util.getGmColor(rm.backgroundColor));
-				out.writeBool(rm.drawBackgroundColor);
-				out.writeStr(rm.creationCode);
+				writeStr(out,rm.properties,PRoom.CAPTION);
+				write4(out,rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
+				writeBool(out,rm.properties,PRoom.ISOMETRIC);
+				write4(out,rm.properties,PRoom.SPEED);
+				writeBool(out,rm.properties,PRoom.PERSISTENT);
+				out.write4(Util.getGmColor((Color) rm.get(PRoom.BACKGROUND_COLOR)));
+				writeBool(out,rm.properties,PRoom.DRAW_BACKGROUND_COLOR);
+				writeStr(out,rm.properties,PRoom.CREATION_CODE);
 				out.write4(rm.backgroundDefs.length);
 				for (BackgroundDef back : rm.backgroundDefs)
 					{
@@ -457,7 +455,7 @@ public final class GmFileWriter
 					out.write4(back.vertSpeed);
 					out.writeBool(back.stretch);
 					}
-				out.writeBool(rm.enableViews);
+				writeBool(out,rm.properties,PRoom.ENABLE_VIEWS);
 				out.write4(rm.views.length);
 				for (View view : rm.views)
 					{
@@ -500,20 +498,12 @@ public final class GmFileWriter
 					out.write4(tile.tileId);
 					out.writeBool(tile.locked);
 					}
-				out.writeBool(rm.rememberWindowSize);
-				out.write4(rm.editorWidth);
-				out.write4(rm.editorHeight);
-				out.writeBool(rm.showGrid);
-				out.writeBool(rm.showObjects);
-				out.writeBool(rm.showTiles);
-				out.writeBool(rm.showBackgrounds);
-				out.writeBool(rm.showForegrounds);
-				out.writeBool(rm.showViews);
-				out.writeBool(rm.deleteUnderlyingObjects);
-				out.writeBool(rm.deleteUnderlyingTiles);
-				out.write4(rm.currentTab);
-				out.write4(rm.scrollBarX);
-				out.write4(rm.scrollBarY);
+				writeBool(out,rm.properties,PRoom.REMEMBER_WINDOW_SIZE);
+				write4(out,rm.properties,PRoom.EDITOR_WIDTH,PRoom.EDITOR_HEIGHT);
+				writeBool(out,rm.properties,PRoom.SHOW_GRID,PRoom.SHOW_OBJECTS,PRoom.SHOW_TILES,
+						PRoom.SHOW_BACKGROUNDS,PRoom.SHOW_FOREGROUNDS,PRoom.SHOW_VIEWS,
+						PRoom.DELETE_UNDERLYING_OBJECTS,PRoom.DELETE_UNDERLYING_TILES);
+				write4(out,rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
 				}
 			}
 		}
@@ -526,8 +516,8 @@ public final class GmFileWriter
 			{
 			ResNode node = (ResNode) e.nextElement();
 			out.write4(node.status);
-			out.write4(node.kind);
-			Resource<?> res = deRef((ResourceReference<?>) node.getRes());
+			out.write4(GmFile.RESOURCE_CODE.get(node.kind));
+			Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
 			if (res != null)
 				out.write4(res.getId());
 			else
@@ -596,7 +586,7 @@ public final class GmFileWriter
 					case Argument.ARG_ROOM:
 					case Argument.ARG_FONT:
 					case Argument.ARG_TIMELINE:
-						Resource<?> r = deRef((ResourceReference<?>) arg.getRes());
+						Resource<?,?> r = deRef((ResourceReference<?>) arg.getRes());
 						if (r != null)
 							out.writeStr(Integer.toString(r.getId()));
 						else
@@ -608,5 +598,33 @@ public final class GmFileWriter
 					}
 			out.writeBool(act.isNot());
 			}
+		}
+
+	private static <P extends Enum<P>>void write4(GmStreamEncoder out, PropertyMap<P> map, P...keys)
+			throws IOException
+		{
+		for (P key : keys)
+			out.write4((Integer) map.get(key));
+		}
+
+	private static <P extends Enum<P>>void writeStr(GmStreamEncoder out, PropertyMap<P> map, P...keys)
+			throws IOException
+		{
+		for (P key : keys)
+			out.writeStr((String) map.get(key));
+		}
+
+	private static <P extends Enum<P>>void writeBool(GmStreamEncoder out, PropertyMap<P> map,
+			P...keys) throws IOException
+		{
+		for (P key : keys)
+			out.writeBool((Boolean) map.get(key));
+		}
+
+	private static <P extends Enum<P>>void writeD(GmStreamEncoder out, PropertyMap<P> map, P...keys)
+			throws IOException
+		{
+		for (P key : keys)
+			out.writeD((Double) map.get(key));
 		}
 	}

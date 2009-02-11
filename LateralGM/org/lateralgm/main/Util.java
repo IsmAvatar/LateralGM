@@ -281,7 +281,7 @@ public final class Util
 		return panel;
 		}
 
-	public static <R extends Resource<R>>R deRef(ResourceReference<R> ref)
+	public static <R extends Resource<R,?>>R deRef(ResourceReference<R> ref)
 		{
 		return ref == null ? null : ref.get();
 		}

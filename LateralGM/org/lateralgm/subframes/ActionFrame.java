@@ -99,7 +99,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			s = Messages.getString("ActionFrame.SELF"); //$NON-NLS-1$
 		else
 			s = Messages.getString("ActionFrame.OTHER"); //$NON-NLS-1$
-		appliesObject = new ResourceMenu<GmObject>(Resource.GMOBJECT,s,false,100);
+		appliesObject = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,s,false,100);
 		appliesObject.setEnabled(GmObject.refAsInt(at) >= 0);
 		appliesObject.setOpaque(false);
 		appliesObject.setSelected(at);
@@ -422,41 +422,13 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			return arg;
 			}
 
-		private String getNoSelectionString(byte resourceKind)
+		private String getNoSelectionString(Resource.Kind resourceKind)
 			{
 			String key;
-			switch (resourceKind)
-				{
-				case Resource.SPRITE:
-					key = "ArgumentComponent.SPRITE"; //$NON-NLS-1$
-					break;
-				case Resource.SOUND:
-					key = "ArgumentComponent.SOUND"; //$NON-NLS-1$
-					break;
-				case Resource.BACKGROUND:
-					key = "ArgumentComponent.BACKGROUND"; //$NON-NLS-1$
-					break;
-				case Resource.PATH:
-					key = "ArgumentComponent.PATH"; //$NON-NLS-1$
-					break;
-				case Resource.SCRIPT:
-					key = "ArgumentComponent.SCRIPT"; //$NON-NLS-1$
-					break;
-				case Resource.FONT:
-					key = "ArgumentComponent.FONT"; //$NON-NLS-1$
-					break;
-				case Resource.GMOBJECT:
-					key = "ArgumentComponent.OBJECT"; //$NON-NLS-1$
-					break;
-				case Resource.ROOM:
-					key = "ArgumentComponent.ROOM"; //$NON-NLS-1$
-					break;
-				case Resource.TIMELINE:
-					key = "ArgumentComponent.TIMELINE"; //$NON-NLS-1$
-					break;
-				default:
-					key = "";
-				}
+			if (resourceKind != null)
+				key = "ArgumentComponent." + resourceKind.name();
+			else
+				key = "";
 			return Messages.format("ArgumentComponent.NO_SELECTION",Messages.getString(key)); //$NON-NLS-1$
 			}
 
@@ -483,7 +455,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				case Argument.ARG_ROOM:
 				case Argument.ARG_FONT:
 				case Argument.ARG_TIMELINE:
-					byte rk = Argument.getResourceKind(arg.kind);
+					Resource.Kind rk = Argument.getResourceKind(arg.kind);
 					return new ResourceMenu(rk,getNoSelectionString(rk),120);
 				default:
 					return new JTextField(arg.getVal());

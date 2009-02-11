@@ -24,7 +24,7 @@ public final class SubframeInformer
 		listeners.remove(list);
 		}
 
-	public static boolean fireSubframeRequest(Resource<?> res, ResNode node)
+	public static boolean fireSubframeRequest(Resource<?,?> res, ResNode node)
 		{
 		for (SubframeListener sl : listeners)
 			if (sl.subframeRequested(res,node)) return true;
@@ -42,7 +42,7 @@ public final class SubframeInformer
 		/**
 		 * @return Whether this event is consumed, thus overriding the default resource editor
 		 */
-		boolean subframeRequested(Resource<?> res, ResNode node);
+		boolean subframeRequested(Resource<?,?> res, ResNode node);
 
 		void subframeAppeared(MDIFrame source);
 		}

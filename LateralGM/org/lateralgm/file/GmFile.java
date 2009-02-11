@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2006, 2007, 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * 
@@ -30,7 +30,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -54,21 +55,59 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.Sound.PSound;
+import org.lateralgm.resources.Sound.SoundKind;
+import org.lateralgm.resources.Sprite.BBMode;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 
 public class GmFile implements UpdateListener
 	{
-	private Map<Byte,ResourceList<?>> resMap = new HashMap<Byte,ResourceList<?>>();
-	public ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class,this);
-	public ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class,this);
-	public ResourceList<Background> backgrounds = new ResourceList<Background>(Background.class,this);
-	public ResourceList<Path> paths = new ResourceList<Path>(Path.class,this);
-	public ResourceList<Script> scripts = new ResourceList<Script>(Script.class,this);
-	public ResourceList<Font> fonts = new ResourceList<Font>(Font.class,this);
-	public ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class,this);
-	public ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class,this);
-	public ResourceList<Room> rooms = new ResourceList<Room>(Room.class,this);
+	protected static final Resource.Kind[] RESOURCE_KIND = { null,Resource.Kind.OBJECT,
+			Resource.Kind.SPRITE,Resource.Kind.SOUND,Resource.Kind.ROOM,null,Resource.Kind.BACKGROUND,
+			Resource.Kind.SCRIPT,Resource.Kind.PATH,Resource.Kind.FONT,Resource.Kind.GAMEINFO,
+			Resource.Kind.GAMESETTINGS,Resource.Kind.TIMELINE,Resource.Kind.EXTENSIONS };
+	protected static final Map<Resource.Kind,Integer> RESOURCE_CODE;
+	static
+		{
+		EnumMap<Resource.Kind,Integer> m = new EnumMap<Resource.Kind,Integer>(Resource.Kind.class);
+		for (int i = 0; i < RESOURCE_KIND.length; i++)
+			if (RESOURCE_KIND[i] != null) m.put(RESOURCE_KIND[i],i);
+		RESOURCE_CODE = Collections.unmodifiableMap(m);
+		}
+	protected static final PSound[] SOUND_FX_FLAGS = { PSound.CHORUS,PSound.ECHO,PSound.FLANGER,
+			PSound.GARGLE,PSound.REVERB };
+	protected static final SoundKind[] SOUND_KIND = { SoundKind.NORMAL,SoundKind.BACKGROUND,
+			SoundKind.SPATIAL,SoundKind.MULTIMEDIA };
+	protected static final Map<SoundKind,Integer> SOUND_CODE;
+	static
+		{
+		EnumMap<SoundKind,Integer> m = new EnumMap<SoundKind,Integer>(SoundKind.class);
+		for (int i = 0; i < SOUND_KIND.length; i++)
+			m.put(SOUND_KIND[i],i);
+		SOUND_CODE = Collections.unmodifiableMap(m);
+		}
+	protected static final BBMode[] SPRITE_BB_MODE = { BBMode.AUTO,BBMode.FULL,BBMode.MANUAL };
+	protected static final Map<BBMode,Integer> SPRITE_BB_CODE;
+	static
+		{
+		EnumMap<BBMode,Integer> m = new EnumMap<BBMode,Integer>(BBMode.class);
+		for (int i = 0; i < SPRITE_BB_MODE.length; i++)
+			m.put(SPRITE_BB_MODE[i],i);
+		SPRITE_BB_CODE = Collections.unmodifiableMap(m);
+		}
+
+	private final EnumMap<Resource.Kind,ResourceList<?>> resMap;
+	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class,this);
+	public final ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class,this);
+	public final ResourceList<Background> backgrounds = new ResourceList<Background>(
+			Background.class,this);
+	public final ResourceList<Path> paths = new ResourceList<Path>(Path.class,this);
+	public final ResourceList<Script> scripts = new ResourceList<Script>(Script.class,this);
+	public final ResourceList<Font> fonts = new ResourceList<Font>(Font.class,this);
+	public final ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class,this);
+	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class,this);
+	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class,this);
 
 	public String filename = null;
 
@@ -77,15 +116,16 @@ public class GmFile implements UpdateListener
 
 	public GmFile()
 		{
-		resMap.put(Resource.SPRITE,sprites);
-		resMap.put(Resource.SOUND,sounds);
-		resMap.put(Resource.BACKGROUND,backgrounds);
-		resMap.put(Resource.PATH,paths);
-		resMap.put(Resource.SCRIPT,scripts);
-		resMap.put(Resource.FONT,fonts);
-		resMap.put(Resource.TIMELINE,timelines);
-		resMap.put(Resource.GMOBJECT,gmObjects);
-		resMap.put(Resource.ROOM,rooms);
+		resMap = new EnumMap<Resource.Kind,ResourceList<?>>(Resource.Kind.class);
+		resMap.put(Resource.Kind.SPRITE,sprites);
+		resMap.put(Resource.Kind.SOUND,sounds);
+		resMap.put(Resource.Kind.BACKGROUND,backgrounds);
+		resMap.put(Resource.Kind.PATH,paths);
+		resMap.put(Resource.Kind.SCRIPT,scripts);
+		resMap.put(Resource.Kind.FONT,fonts);
+		resMap.put(Resource.Kind.TIMELINE,timelines);
+		resMap.put(Resource.Kind.OBJECT,gmObjects);
+		resMap.put(Resource.Kind.ROOM,rooms);
 		for (ResourceList<?> rl : resMap.values())
 			{
 			rl.updateSource.addListener(this);
@@ -148,9 +188,9 @@ public class GmFile implements UpdateListener
 	public int lastTileId = 10000000;
 
 	// Returns the ResourceList corresponding to given Resource constant
-	public ResourceList<?> getList(int res)
+	public ResourceList<?> getList(Resource.Kind res)
 		{
-		return resMap.get((byte) res);
+		return resMap.get(res);
 		}
 
 	public GameInformation gameInfo = new GameInformation();

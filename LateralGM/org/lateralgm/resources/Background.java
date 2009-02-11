@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -11,27 +11,26 @@ package org.lateralgm.resources;
 
 import java.awt.image.BufferedImage;
 import java.lang.ref.SoftReference;
+import java.util.EnumMap;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
+import org.lateralgm.util.PropertyMap;
 
-public class Background extends Resource<Background>
+public class Background extends Resource<Background,Background.PBackground>
 	{
-	public int width = 0;
-	public int height = 0;
-	public boolean transparent = false;
-	public boolean smoothEdges = false;
-	public boolean preload = false;
-	public boolean useAsTileSet = false;
-	public int tileWidth = 16;
-	public int tileHeight = 16;
-	public int horizOffset = 0;
-	public int vertOffset = 0;
-	public int horizSep = 0;
-	public int vertSep = 0;
 	private BufferedImage backgroundImage = null;
 	private SoftReference<BufferedImage> imageCache = null;
+
+	public enum PBackground
+		{
+		TRANSPARENT,SMOOTH_EDGES,PRELOAD,USE_AS_TILESET,TILE_WIDTH,TILE_HEIGHT,H_OFFSET,V_OFFSET,H_SEP,
+		V_SEP
+		}
+
+	private static final EnumMap<PBackground,Object> DEFS = PropertyMap.makeDefaultMap(
+			PBackground.class,false,false,false,false,16,16,0,0,0,0);
 
 	public Background()
 		{
@@ -41,7 +40,7 @@ public class Background extends Resource<Background>
 	public Background(ResourceReference<Background> r, boolean update)
 		{
 		super(r,update);
-		setName(Prefs.prefixes[Resource.BACKGROUND]);
+		setName(Prefs.prefixes.get(Kind.BACKGROUND));
 		}
 
 	public BufferedImage getDisplayImage()
@@ -57,7 +56,7 @@ public class Background extends Resource<Background>
 				}
 			}
 		bi = backgroundImage;
-		if (transparent) bi = Util.getTransparentIcon(bi);
+		if (get(PBackground.TRANSPARENT)) bi = Util.getTransparentIcon(bi);
 		imageCache = new SoftReference<BufferedImage>(bi);
 		return bi;
 		}
@@ -78,35 +77,14 @@ public class Background extends Resource<Background>
 			boolean update)
 		{
 		Background b = new Background(ref,update);
-		b.width = width;
-		b.height = height;
-		b.transparent = transparent;
-		b.smoothEdges = smoothEdges;
-		b.preload = preload;
-		b.useAsTileSet = useAsTileSet;
-		b.tileWidth = tileWidth;
-		b.tileHeight = tileHeight;
-		b.horizOffset = horizOffset;
-		b.vertOffset = vertOffset;
-		b.horizSep = horizSep;
-		b.vertSep = vertSep;
+		copy(src,b);
 		b.backgroundImage = copyBackgroundImage();
-		if (src != null)
-			{
-			b.setName(Prefs.prefixes[Resource.BACKGROUND] + (src.lastId + 1));
-			src.add(b);
-			}
-		else
-			{
-			b.setId(getId());
-			b.setName(getName());
-			}
 		return b;
 		}
 
-	public byte getKind()
+	public Kind getKind()
 		{
-		return BACKGROUND;
+		return Kind.BACKGROUND;
 		}
 
 	@Override
@@ -124,5 +102,22 @@ public class Background extends Resource<Background>
 	public void setBackgroundImage(BufferedImage backgroundImage)
 		{
 		this.backgroundImage = backgroundImage;
+		fireUpdate();
+		}
+
+	public int getWidth()
+		{
+		return backgroundImage == null ? 0 : backgroundImage.getWidth();
+		}
+
+	public int getHeight()
+		{
+		return backgroundImage == null ? 0 : backgroundImage.getHeight();
+		}
+
+	@Override
+	protected PropertyMap<PBackground> makePropertyMap()
+		{
+		return new PropertyMap<PBackground>(PBackground.class,this,DEFS);
 		}
 	}

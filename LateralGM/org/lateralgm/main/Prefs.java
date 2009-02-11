@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -11,8 +12,12 @@ package org.lateralgm.main;
 
 import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import org.lateralgm.resources.Resource;
 
 public final class Prefs
 	{
@@ -70,7 +75,22 @@ public final class Prefs
 		String fontName = getString("codeFontName","Monospaced");
 		codeFont = new Font(fontName,Font.PLAIN,getInt("codeFontSize",12));
 		tabSize = getInt("tabSize",4);
-		prefixes = getString("prefixes",",obj_,spr_,snd_,rm_,,bk_,scr_,path_,font_,,,time_").split(",");
+		String d = "OBJECT>obj_	SPRITE>spr_	SOUND>snd_	ROOM>rm_	BACKGROUND>bkg_	SCRIPT>scr_	"
+				+ "PATH>path_	FONT>font_	TIMELINE>time_";
+		String[] p = getString("prefixes",d).split("\\t+");
+		prefixes = new EnumMap<Resource.Kind,String>(Resource.Kind.class);
+		for (int i = 0; i < p.length; i++)
+			{
+			String[] kv = p[i].split(">",2);
+			try
+				{
+				prefixes.put(Resource.Kind.valueOf(kv[0]),kv[1]);
+				}
+			catch (IllegalArgumentException e)
+				{
+				e.printStackTrace();
+				}
+			}
 		defaultLibraryPath = getString("defaultLibraryPath","org/lateralgm/resources/library/lib/");
 		userLibraryPath = getString("userLibraryPath","./lib");
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
@@ -91,7 +111,7 @@ public final class Prefs
 	public static boolean renamableRoots;
 	public static boolean groupKind;
 	public static boolean iconizeGroup;
-	public static String[] prefixes;
+	public static Map<Resource.Kind,String> prefixes;
 
 	public static Font codeFont;
 	public static int tabSize;

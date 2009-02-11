@@ -23,6 +23,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.ExceptionListener;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
@@ -39,10 +40,11 @@ import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 
 /** Provides common functionality and structure to Resource editing frames */
-public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame implements
-		DocumentListener,ActionListener
+public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> extends MDIFrame
+		implements DocumentListener,ActionListener,ExceptionListener
 	{
 	private static final long serialVersionUID = 1L;
 	/**
@@ -62,6 +64,8 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 	public String titlePrefix = ""; //$NON-NLS-1$
 	public String titleSuffix = ""; //$NON-NLS-1$
 
+	protected final PropertyLinkFactory<P> plf;
+
 	/**
 	 * Note for inheriting classes. Be sure to call this parent instantiation for proper setup.
 	 * The res and node parameters are only needed in the instantiation to assign globals;
@@ -70,11 +74,12 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 	public ResourceFrame(R res, ResNode node)
 		{
 		super("",true,true,true,true); //$NON-NLS-1$
+		plf = new PropertyLinkFactory<P>(res.properties,this);
 		this.res = res;
 		this.node = node;
 		resOriginal = res.clone();
 		setTitle(res.getName());
-		setFrameIcon(Resource.ICON[res.getKind()]);
+		setFrameIcon(ResNode.ICON.get(res.getKind()));
 		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 		name.setDocument(new NameDocument());
 		name.setText(res.getName());
@@ -130,6 +135,11 @@ public abstract class ResourceFrame<R extends Resource<R>> extends MDIFrame impl
 			updateResource();
 			dispose();
 			}
+		}
+
+	public void exceptionThrown(Exception e)
+		{
+		e.printStackTrace();
 		}
 
 	public void setTitle(String title)

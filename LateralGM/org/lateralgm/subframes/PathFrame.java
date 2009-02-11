@@ -29,19 +29,23 @@ import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
+import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.sub.PathPoint;
 
-public class PathFrame extends ResourceFrame<Path> implements ActionListener,ListSelectionListener
+public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListener,
+		ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
 
 	//prevents alternating recursive calls between list selection changes and field changes
 	public static boolean manualUpdate = true;
 	public JList list;
-	public IntegerField tx, ty, tsp, tpr;
+	public IntegerField tx, ty, tsp;
+	public NumberField tpr;
 	public JButton add, insert, delete;
 	public JCheckBox smooth, closed;
 	private PathPoint lastPoint = null; //non-guaranteed copy of list.getLastSelectedValue()
@@ -128,15 +132,18 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		delete.addActionListener(this);
 		side1.add(delete);
 
-		smooth = new JCheckBox(Messages.getString("PathFrame.SMOOTH"),res.smooth); //$NON-NLS-1$
+		smooth = new JCheckBox(Messages.getString("PathFrame.SMOOTH")); //$NON-NLS-1$
+		plf.make(smooth,PPath.SMOOTH);
 		side1.add(smooth);
-		closed = new JCheckBox(Messages.getString("PathFrame.CLOSED"),res.closed); //$NON-NLS-1$
+		closed = new JCheckBox(Messages.getString("PathFrame.CLOSED")); //$NON-NLS-1$
+		plf.make(closed,PPath.CLOSED);
 		side1.add(closed);
 
 		lab = new JLabel(Messages.getString("PathFrame.PRECISION")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(60,14));
 		side1.add(lab);
-		tpr = new IntegerField(1,8,res.precision);
+		tpr = new NumberField(1,8);
+		plf.make(tpr,PPath.PRECISION);
 		tpr.setPreferredSize(new Dimension(40,16));
 		side1.add(tpr);
 
@@ -167,9 +174,6 @@ public class PathFrame extends ResourceFrame<Path> implements ActionListener,Lis
 		{
 		res.setName(name.getText());
 		notifyPoint();
-		res.precision = tpr.getIntValue();
-		res.smooth = smooth.isSelected();
-		res.closed = closed.isSelected();
 		}
 
 	//Button was clicked

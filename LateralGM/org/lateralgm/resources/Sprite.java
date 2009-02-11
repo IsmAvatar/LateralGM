@@ -11,12 +11,14 @@ package org.lateralgm.resources;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 
 import javax.imageio.ImageIO;
 
@@ -24,27 +26,31 @@ import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.util.PropertyMap;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class Sprite extends Resource<Sprite>
+public class Sprite extends Resource<Sprite,Sprite.PSprite>
 	{
-	public static final byte BBOX_AUTO = 0;
-	public static final byte BBOX_FULL = 1;
-	public static final byte BBOX_MANUAL = 2;
+	public enum BBMode
+		{
+		AUTO,FULL,MANUAL
+		}
 
-	public boolean transparent = true;
-	public boolean preciseCC = true;
-	public boolean smoothEdges = false;
-	public boolean preload = true;
-	public int originX = 0;
-	public int originY = 0;
-	public byte boundingBoxMode = BBOX_AUTO;
-	public int boundingBoxLeft = 0;
-	public int boundingBoxRight = 31;
-	public int boundingBoxTop = 0;
-	public int boundingBoxBottom = 31;
 	public final ImageList subImages = new ImageList();
 
+	public enum PSprite
+		{
+		TRANSPARENT,PRECISE,SMOOTH_EDGES,PRELOAD,ORIGIN_X,ORIGIN_Y,BB_MODE,BB_LEFT,BB_RIGHT,BB_TOP,
+		BB_BOTTOM
+		}
+
+	private static final EnumMap<PSprite,Object> DEFS = PropertyMap.makeDefaultMap(PSprite.class,
+			true,true,false,true,0,0,BBMode.AUTO,0,31,0,31);
+
 	private SoftReference<BufferedImage> imageCache = null;
+
+	private final SpritePropertyListener spl = new SpritePropertyListener();
 
 	public Sprite()
 		{
@@ -54,7 +60,9 @@ public class Sprite extends Resource<Sprite>
 	public Sprite(ResourceReference<Sprite> r, boolean update)
 		{
 		super(r,update);
-		setName(Prefs.prefixes[Resource.SPRITE]);
+		properties.getUpdateSource(PSprite.TRANSPARENT).addListener(spl);
+		properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
+		setName(Prefs.prefixes.get(Kind.SPRITE));
 		}
 
 	public BufferedImage addSubImage()
@@ -106,6 +114,80 @@ public class Sprite extends Resource<Sprite>
 		return bf2;
 		}
 
+	private void updateBoundingBox()
+		{
+		BBMode mode = get(PSprite.BB_MODE);
+		switch (mode)
+			{
+			case AUTO:
+				Rectangle r = get(PSprite.TRANSPARENT) ? getOverallBounds(subImages) : new Rectangle(0,0,
+						subImages.getWidth() - 1,subImages.getHeight() - 1);
+				put(PSprite.BB_LEFT,r.x);
+				put(PSprite.BB_RIGHT,r.x + r.width);
+				put(PSprite.BB_TOP,r.y);
+				put(PSprite.BB_BOTTOM,r.y + r.height);
+				break;
+			case FULL:
+				put(PSprite.BB_LEFT,0);
+				put(PSprite.BB_RIGHT,subImages.getWidth() - 1);
+				put(PSprite.BB_TOP,0);
+				put(PSprite.BB_BOTTOM,subImages.getHeight() - 1);
+				break;
+			default:
+				break;
+			}
+		}
+
+	public static Rectangle getOverallBounds(ImageList l)
+		{
+		Rectangle r = new Rectangle();
+		for (BufferedImage bi : l)
+			getCropBounds(bi,r);
+		if (r.width > 0 && r.height > 0)
+			{
+			r.width--;
+			r.height--;
+			}
+		return r;
+		}
+
+	public static void getCropBounds(BufferedImage img, Rectangle u)
+		{
+		int transparent = img.getRGB(0,img.getHeight() - 1);
+		int width = img.getWidth();
+		int height = img.getHeight();
+		boolean unz = u.width > 0 && u.height > 0;
+
+		int uy2 = unz ? u.y + u.height - 1 : -1;
+		int y2 = height - 1;
+		y2loop: for (; y2 > uy2; y2--)
+			for (int i = 0; i < width; i++)
+				if (img.getRGB(i,y2) != transparent) break y2loop;
+
+		int ux2 = unz ? u.x + u.width - 1 : -1;
+		int x2 = width - 1;
+		x2loop: for (; x2 > ux2; x2--)
+			for (int j = 0; j <= y2; j++)
+				if (img.getRGB(x2,j) != transparent) break x2loop;
+
+		int uy1 = unz ? u.y : y2;
+		int y1 = 0;
+		y1loop: for (; y1 < uy1; y1++)
+			for (int i = 0; i < x2; i++)
+				if (img.getRGB(i,y1) != transparent) break y1loop;
+
+		int ux1 = unz ? u.x : x2;
+		int x1 = 0;
+		x1loop: for (; x1 < ux1; x1++)
+			for (int j = y1; j < y2; j++)
+				if (img.getRGB(x1,j) != transparent) break x1loop;
+
+		u.x = x1;
+		u.y = y1;
+		u.width = 1 + x2 - x1;
+		u.height = 1 + y2 - y1;
+		}
+
 	public BufferedImage getDisplayImage()
 		{
 		BufferedImage bi;
@@ -116,7 +198,7 @@ public class Sprite extends Resource<Sprite>
 			}
 		if (subImages.size() < 1) return null;
 		bi = subImages.get(0);
-		if (transparent) bi = Util.getTransparentIcon(bi);
+		if (get(PSprite.TRANSPARENT)) bi = Util.getTransparentIcon(bi);
 		imageCache = new SoftReference<BufferedImage>(bi);
 		return bi;
 		}
@@ -125,41 +207,22 @@ public class Sprite extends Resource<Sprite>
 	protected Sprite copy(ResourceList<Sprite> src, ResourceReference<Sprite> ref, boolean update)
 		{
 		Sprite s = new Sprite(ref,update);
-		s.transparent = transparent;
-		s.preciseCC = preciseCC;
-		s.smoothEdges = smoothEdges;
-		s.preload = preload;
-		s.originX = originX;
-		s.originY = originY;
-		s.boundingBoxMode = boundingBoxMode;
-		s.boundingBoxLeft = boundingBoxLeft;
-		s.boundingBoxRight = boundingBoxRight;
-		s.boundingBoxTop = boundingBoxTop;
-		s.boundingBoxBottom = boundingBoxBottom;
+		copy(src,s);
 		for (int j = 0; j < subImages.size(); j++)
 			s.addSubImage(copySubImage(j));
-		if (src != null)
-			{
-			s.setName(Prefs.prefixes[Resource.SPRITE] + (src.lastId + 1));
-			src.add(s);
-			}
-		else
-			{
-			s.setId(getId());
-			s.setName(getName());
-			}
 		return s;
 		}
 
-	public byte getKind()
+	public Kind getKind()
 		{
-		return SPRITE;
+		return Kind.SPRITE;
 		}
 
 	@Override
 	protected void fireUpdate()
 		{
 		if (imageCache != null) imageCache.clear();
+		updateBoundingBox();
 		super.fireUpdate();
 		}
 
@@ -274,6 +337,27 @@ public class Sprite extends Resource<Sprite>
 			BufferedImage i = super.set(index,element);
 			fireUpdate();
 			return i;
+			}
+		}
+
+	@Override
+	protected PropertyMap<PSprite> makePropertyMap()
+		{
+		return new PropertyMap<PSprite>(PSprite.class,this,DEFS);
+		}
+
+	private class SpritePropertyListener extends PropertyUpdateListener<PSprite>
+		{
+		@Override
+		public void updated(PropertyUpdateEvent<PSprite> e)
+			{
+			switch (e.key)
+				{
+				case TRANSPARENT:
+					fireUpdate();
+				case BB_MODE:
+					updateBoundingBox();
+				}
 			}
 		}
 	}

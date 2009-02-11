@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -14,36 +15,45 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
 
-import org.lateralgm.subframes.BackgroundFrame;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Background.PBackground;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class BackgroundPreview extends AbstractImagePreview
+public class BackgroundPreview extends AbstractImagePreview implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
-	private BackgroundFrame frame;
+	private final Background background;
+	private final BackgroundPropertyListener bpl = new BackgroundPropertyListener();
 
-	public BackgroundPreview(BackgroundFrame frame)
+	public BackgroundPreview(Background b)
 		{
 		super();
-		this.frame = frame;
+		background = b;
+		b.properties.updateSource.addListener(bpl);
+		b.reference.updateSource.addListener(this);
+		setImage(getImage());
 		}
 
 	public void paintComponent(Graphics g)
 		{
 		super.paintComponent(g);
-		if (frame.tileset.isSelected())
+		if (background.get(PBackground.USE_AS_TILESET))
 			{
 			BufferedImage img = getImage();
 			if (img != null)
 				{
-				int width = frame.tWidth.getIntValue();
-				int height = frame.tHeight.getIntValue();
+				int width = background.get(PBackground.TILE_WIDTH);
+				int height = background.get(PBackground.TILE_HEIGHT);
 				if (width > 2 && height > 2)
 					{
-					int hoffset = frame.hOffset.getIntValue();
-					int voffset = frame.vOffset.getIntValue();
-					int hsep = frame.hSep.getIntValue();
-					int vsep = frame.vSep.getIntValue();
+					int hoffset = background.get(PBackground.H_OFFSET);
+					int voffset = background.get(PBackground.V_OFFSET);
+					int hsep = background.get(PBackground.H_SEP);
+					int vsep = background.get(PBackground.V_SEP);
 
 					Shape oldClip = g.getClip(); //backup the old clip
 					Rectangle oldc = g.getClipBounds();
@@ -76,7 +86,27 @@ public class BackgroundPreview extends AbstractImagePreview
 
 	protected BufferedImage getImage()
 		{
-		if (frame != null) return frame.res.getBackgroundImage();
-		return null;
+		return background == null ? null : background.getBackgroundImage();
+		}
+
+	public void updated(UpdateEvent e)
+		{
+		setImage(getImage());
+		}
+
+	private class BackgroundPropertyListener extends PropertyUpdateListener<PBackground>
+		{
+		public void updated(PropertyUpdateEvent<PBackground> e)
+			{
+			switch (e.key)
+				{
+				case PRELOAD:
+				case SMOOTH_EDGES:
+				case TRANSPARENT:
+					return;
+				default:
+					repaint();
+				}
+			}
 		}
 	}

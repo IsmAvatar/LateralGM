@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -20,10 +20,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Enumeration;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -39,13 +41,14 @@ import javax.swing.GroupLayout.Alignment;
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
-import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sound;
+import org.lateralgm.resources.Sound.PSound;
+import org.lateralgm.resources.Sound.SoundKind;
 
-public class SoundFrame extends ResourceFrame<Sound>
+public class SoundFrame extends ResourceFrame<Sound,PSound>
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SoundFrame.LOAD"); //$NON-NLS-1$
@@ -59,8 +62,6 @@ public class SoundFrame extends ResourceFrame<Sound>
 	public JButton stop;
 	public JButton store;
 	public JLabel filename;
-	public IndexButtonGroup kind;
-	public IndexButtonGroup effects;
 	public JSlider volume;
 	public JSlider pan;
 	public JCheckBox preload;
@@ -105,7 +106,7 @@ public class SoundFrame extends ResourceFrame<Sound>
 		stop = new JButton(STOP_ICON);
 		stop.addActionListener(this);
 
-		filename = new JLabel(Messages.format("SoundFrame.FILE",res.fileName)); //$NON-NLS-1$
+		filename = new JLabel(Messages.format("SoundFrame.FILE",res.get(PSound.FILE_NAME))); //$NON-NLS-1$
 
 		JPanel pKind = makeKindPane();
 
@@ -115,16 +116,16 @@ public class SoundFrame extends ResourceFrame<Sound>
 		volume = new JSlider(0,100,100);
 		volume.setMajorTickSpacing(10);
 		volume.setPaintTicks(true);
-		volume.setValue((int) (res.volume * 100));
+		plf.make(volume.getModel(),PSound.VOLUME,100.0);
 
 		JLabel lPan = new JLabel(Messages.getString("SoundFrame.PAN")); //$NON-NLS-1$
 		pan = new JSlider(-100,100,0);
 		pan.setMajorTickSpacing(20);
 		pan.setPaintTicks(true);
-		pan.setValue((int) (res.pan * 100));
+		plf.make(pan.getModel(),PSound.PAN,100.0);
 
-		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD"),res.preload); //$NON-NLS-1$
-		preload.setSelected(res.preload);
+		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD")); //$NON-NLS-1$
+		plf.make(preload,PSound.PRELOAD);
 
 		edit = new JButton(Messages.getString("SoundFrame.EDIT"),EDIT_ICON); //$NON-NLS-1$
 		edit.addActionListener(this);
@@ -180,38 +181,39 @@ public class SoundFrame extends ResourceFrame<Sound>
 
 	private JPanel makeKindPane()
 		{
-		kind = new IndexButtonGroup(4,true,false);
+		ButtonGroup g = new ButtonGroup();
+		// The buttons must be added in the order corresponding to Sound.SoundKind.
 		AbstractButton kNormal = new JRadioButton(Messages.getString("SoundFrame.NORMAL")); //$NON-NLS-1$
-		kind.add(kNormal,Sound.SOUND_NORMAL);
+		g.add(kNormal);
 		AbstractButton kBackground = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
-		kind.add(kBackground,Sound.SOUND_BACKGROUND);
+		g.add(kBackground);
 		AbstractButton k3d = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
-		kind.add(k3d,Sound.SOUND_3D);
+		g.add(k3d);
 		AbstractButton kMult = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
-		kind.add(kMult,Sound.SOUND_MULTIMEDIA);
-		kind.setValue(res.kind);
+		g.add(kMult);
+		plf.make(g,PSound.KIND,SoundKind.class);
 		JPanel pKind = new JPanel();
 		pKind.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.KIND")));
 		pKind.setLayout(new BoxLayout(pKind,BoxLayout.PAGE_AXIS));
-		kind.populate(pKind);
+		for (Enumeration<AbstractButton> e = g.getElements(); e.hasMoreElements();)
+			pKind.add(e.nextElement());
 		return pKind;
 		}
 
 	private JPanel makeEffectsPane()
 		{
 		// these are in bit order as appears in a GM6 file, not the same as GM shows them
-		effects = new IndexButtonGroup(5,false);
+		//effects = new IndexButtonGroup(5,false);
 		AbstractButton eChorus = new JCheckBox(Messages.getString("SoundFrame.CHORUS")); //$NON-NLS-1$
-		effects.add(eChorus,1);
+		plf.make(eChorus,PSound.CHORUS);
 		AbstractButton eEcho = new JCheckBox(Messages.getString("SoundFrame.ECHO")); //$NON-NLS-1$
-		effects.add(eEcho,2);
+		plf.make(eEcho,PSound.ECHO);
 		AbstractButton eFlanger = new JCheckBox(Messages.getString("SoundFrame.FLANGER")); //$NON-NLS-1$
-		effects.add(eFlanger,4);
+		plf.make(eFlanger,PSound.FLANGER);
 		AbstractButton eGargle = new JCheckBox(Messages.getString("SoundFrame.GARGLE")); //$NON-NLS-1$
-		effects.add(eGargle,8);
+		plf.make(eGargle,PSound.GARGLE);
 		AbstractButton eReverb = new JCheckBox(Messages.getString("SoundFrame.REVERB")); //$NON-NLS-1$
-		effects.add(eReverb,16);
-		effects.setValue(res.getEffects());
+		plf.make(eReverb,PSound.REVERB);
 		JPanel pEffects = new JPanel();
 		GroupLayout eLayout = new GroupLayout(pEffects);
 		pEffects.setLayout(eLayout);
@@ -252,12 +254,6 @@ public class SoundFrame extends ResourceFrame<Sound>
 	public void commitChanges()
 		{
 		res.setName(name.getText());
-
-		res.kind = kind.getValue();
-		res.setEffects(effects.getValue());
-		res.volume = volume.getValue() / 100.0;
-		res.pan = pan.getValue() / 100.0;
-		res.preload = preload.isSelected();
 		res.data = data;
 		}
 
@@ -292,10 +288,12 @@ public class SoundFrame extends ResourceFrame<Sound>
 					val = in.read();
 					}
 				data = out.toByteArray();
-				res.fileName = f.getName();
-				res.fileType = CustomFileFilter.getExtension(res.fileName);
-				if (res.fileType == null) res.fileType = "";
-				filename.setText(Messages.format("SoundFrame.FILE",res.fileName));
+				String fn = f.getName();
+				res.put(PSound.FILE_NAME,fn);
+				String ft = CustomFileFilter.getExtension(fn);
+				if (ft == null) ft = "";
+				res.put(PSound.FILE_TYPE,ft);
+				filename.setText(Messages.format("SoundFrame.FILE",fn));
 				out.close();
 				in.close();
 				}

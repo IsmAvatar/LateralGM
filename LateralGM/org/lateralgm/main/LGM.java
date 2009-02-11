@@ -222,33 +222,33 @@ public final class LGM
 	public static void populateTree()
 		{
 		root.addChild(Messages.getString("LGM.SPRITES"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.SPRITE);
+				ResNode.STATUS_PRIMARY,Resource.Kind.SPRITE);
 		root.addChild(Messages.getString("LGM.SOUNDS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.SOUND);
+				ResNode.STATUS_PRIMARY,Resource.Kind.SOUND);
 		root.addChild(Messages.getString("LGM.BACKGROUNDS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.BACKGROUND);
+				ResNode.STATUS_PRIMARY,Resource.Kind.BACKGROUND);
 		root.addChild(Messages.getString("LGM.PATHS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.PATH);
+				ResNode.STATUS_PRIMARY,Resource.Kind.PATH);
 		root.addChild(Messages.getString("LGM.SCRIPTS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.SCRIPT);
+				ResNode.STATUS_PRIMARY,Resource.Kind.SCRIPT);
 		root.addChild(Messages.getString("LGM.FONTS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.FONT);
+				ResNode.STATUS_PRIMARY,Resource.Kind.FONT);
 		root.addChild(Messages.getString("LGM.TIMELINES"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.TIMELINE);
+				ResNode.STATUS_PRIMARY,Resource.Kind.TIMELINE);
 		root.addChild(Messages.getString("LGM.OBJECTS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.GMOBJECT);
+				ResNode.STATUS_PRIMARY,Resource.Kind.OBJECT);
 		root.addChild(Messages.getString("LGM.ROOMS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.ROOM);
+				ResNode.STATUS_PRIMARY,Resource.Kind.ROOM);
 		root.addChild(Messages.getString("LGM.GAMEINFO"), //$NON-NLS-1$
-				ResNode.STATUS_SECONDARY,Resource.GAMEINFO);
+				ResNode.STATUS_SECONDARY,Resource.Kind.GAMEINFO);
 		root.addChild(Messages.getString("LGM.GAMESETTINGS"), //$NON-NLS-1$
-				ResNode.STATUS_SECONDARY,Resource.GAMESETTINGS);
+				ResNode.STATUS_SECONDARY,Resource.Kind.GAMESETTINGS);
 		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
 		}
 
 	private static void createTree(JPanel f, boolean populate)
 		{
-		createTree(f,new ResNode("Root",(byte) 0,(byte) 0,null),populate); //$NON-NLS-1$
+		createTree(f,new ResNode("Root",(byte) 0,null,null),populate); //$NON-NLS-1$
 		}
 
 	private static void createTree(JPanel f, ResNode newroot, boolean populate)

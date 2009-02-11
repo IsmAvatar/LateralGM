@@ -132,7 +132,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		collisionSelectPanel = new JPanel();
 		JLabel lab = new JLabel(Messages.getString("EventFrame.COLLISION_OBJECT")); //$NON-NLS-1$
 		addDim(collisionSelectPanel,lab,140,16);
-		collisionSelect = new ResourceMenu<GmObject>(Resource.GMOBJECT,
+		collisionSelect = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
 				Messages.getString("EventFrame.CHOOSE_OBJECT"),true,140); //$NON-NLS-1$
 		collisionSelectPanel.add(collisionSelect);
 		collisionSelect.addActionListener(this);
@@ -145,7 +145,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		addGap(side2,140,5);
 
 		addDim(side2,new JLabel(Messages.getString("EventFrame.FRAME_LINK")),140,16); //$NON-NLS-1$
-		linkSelect = new ResourceMenu<GmObject>(Resource.GMOBJECT,
+		linkSelect = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
 				Messages.getString("EventFrame.NO_LINK"),true,140,true,true); //$NON-NLS-1$
 		linkSelect.addActionListener(this);
 		side2.add(linkSelect);

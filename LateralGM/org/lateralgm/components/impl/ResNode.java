@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006, 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -13,8 +13,11 @@ package org.lateralgm.components.impl;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.util.EnumMap;
+import java.util.Map;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
@@ -37,6 +40,7 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.Resource.Kind;
 import org.lateralgm.subframes.BackgroundFrame;
 import org.lateralgm.subframes.FontFrame;
 import org.lateralgm.subframes.GmObjectFrame;
@@ -51,6 +55,15 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable,UpdateListener
 	{
+	public static final Map<Kind,ImageIcon> ICON;
+	static
+		{
+		Map<Kind,ImageIcon> m = new EnumMap<Kind,ImageIcon>(Kind.class);
+		for (Kind k : Kind.values())
+			m.put(k,LGM.getIconForKey("Resource." + k.name()));
+		ICON = java.util.Collections.unmodifiableMap(m);
+		}
+
 	private static final long serialVersionUID = 1L;
 	public static final DataFlavor NODE_FLAVOR = new DataFlavor(
 			DataFlavor.javaJVMLocalObjectMimeType,"Node");
@@ -61,12 +74,12 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 	/** One of PRIMARY, GROUP, or SECONDARY*/
 	public byte status;
 	/** What kind of Resource this is */
-	public byte kind;
+	public Resource.Kind kind;
 	/**
 	 * The <code>Resource</code> this node represents.
 	 */
-	private final ResourceReference<? extends Resource<?>> res;
-	public ResourceFrame<?> frame = null;
+	private final ResourceReference<? extends Resource<?,?>> res;
+	public ResourceFrame<?,?> frame = null;
 	private Icon icon;
 	private final NameUpdater nameUpdater = new NameUpdater();
 	private final UpdateTrigger trigger = new UpdateTrigger();
@@ -76,13 +89,13 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		{
 		if (status == STATUS_SECONDARY) switch (kind)
 			{
-			case Resource.SPRITE:
-			case Resource.BACKGROUND:
-			case Resource.GMOBJECT:
+			case SPRITE:
+			case BACKGROUND:
+			case OBJECT:
 				if (icon == null) updateIcon();
 				return icon;
 			default:
-				return Resource.ICON[kind];
+				return ICON.get(kind);
 			}
 		if (Prefs.iconizeGroup && getChildCount() > 0)
 			{
@@ -97,13 +110,14 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		icon = GmTreeGraphics.getResourceIcon(res);
 		}
 
-	public ResNode(String name, byte status, byte kind, ResourceReference<? extends Resource<?>> res)
+	public ResNode(String name, byte status, Resource.Kind kind,
+			ResourceReference<? extends Resource<?,?>> res)
 		{
 		super(name);
 		this.status = status;
 		this.kind = kind;
 		this.res = res;
-		Resource<?> r = deRef();
+		Resource<?,?> r = deRef();
 		if (r != null)
 			{
 			r.setNode(this);
@@ -111,14 +125,14 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			}
 		}
 
-	public ResNode(String name, byte status, byte kind)
+	public ResNode(String name, byte status, Kind kind)
 		{
 		this(name,status,kind,null);
 		}
 
-	public ResNode addChild(String name, byte stat, byte type)
+	public ResNode addChild(String name, byte stat, Kind k)
 		{
-		ResNode b = new ResNode(name,stat,type,null);
+		ResNode b = new ResNode(name,stat,k,null);
 		add(b);
 		return b;
 		}
@@ -151,34 +165,34 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		if (SubframeInformer.fireSubframeRequest(res.get(),this)) return;
 		if (frame == null)
 			{
-			ResourceFrame<?> rf = null;
+			ResourceFrame<?,?> rf = null;
 			switch (kind)
 				{
-				case Resource.SPRITE:
+				case SPRITE:
 					rf = new SpriteFrame((Sprite) res.get(),this);
 					break;
-				case Resource.SOUND:
+				case SOUND:
 					rf = new SoundFrame((Sound) res.get(),this);
 					break;
-				case Resource.BACKGROUND:
+				case BACKGROUND:
 					rf = new BackgroundFrame((Background) res.get(),this);
 					break;
-				case Resource.PATH:
+				case PATH:
 					rf = new PathFrame((Path) res.get(),this);
 					break;
-				case Resource.SCRIPT:
+				case SCRIPT:
 					rf = new ScriptFrame((Script) res.get(),this);
 					break;
-				case Resource.FONT:
+				case FONT:
 					rf = new FontFrame((Font) res.get(),this);
 					break;
-				case Resource.TIMELINE:
+				case TIMELINE:
 					rf = new TimelineFrame((Timeline) res.get(),this);
 					break;
-				case Resource.GMOBJECT:
+				case OBJECT:
 					rf = new GmObjectFrame((GmObject) res.get(),this);
 					break;
-				case Resource.ROOM:
+				case ROOM:
 					rf = new RoomFrame((Room) res.get(),this);
 					break;
 				}
@@ -219,7 +233,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		fireUpdate(trigger.getEvent());
 		}
 
-	private Resource<?> deRef()
+	private Resource<?,?> deRef()
 		{
 		return Util.deRef((ResourceReference<?>) res);
 		}
@@ -236,7 +250,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 	 * @param res The resource to look for
 	 * @return Whether the resource was found
 	 */
-	public boolean contains(ResourceReference<? extends Resource<?>> res)
+	public boolean contains(ResourceReference<? extends Resource<?,?>> res)
 		{
 		if (this.res == res) return true; //Just in case
 		if (children != null) for (Object obj : children)
@@ -255,7 +269,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		return false;
 		}
 
-	public ResourceReference<? extends Resource<?>> getRes()
+	public ResourceReference<? extends Resource<?,?>> getRes()
 		{
 		return res;
 		}
@@ -265,7 +279,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		if (status == STATUS_SECONDARY)
 			{
 			icon = null;
-			Resource<?> r = deRef();
+			Resource<?,?> r = deRef();
 			if (r != null)
 				{
 				setUserObject(r.getName());
@@ -283,7 +297,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			{
 			if (frame != null)
 				{
-				Resource<?> r = deRef();
+				Resource<?,?> r = deRef();
 				if (r != null)
 					{
 					String n = r.getName();

@@ -33,12 +33,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
 
 import org.lateralgm.compare.ResourceComparator;
-import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.BackgroundPreview;
 import org.lateralgm.file.FileChangeMonitor;
@@ -50,9 +49,13 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Background.PBackground;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 
-public class BackgroundFrame extends ResourceFrame<Background>
+public class BackgroundFrame extends ResourceFrame<Background,PBackground> implements
+		UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("BackgroundFrame.LOAD"); //$NON-NLS-1$
@@ -66,19 +69,24 @@ public class BackgroundFrame extends ResourceFrame<Background>
 	public JCheckBox tileset;
 
 	public JPanel side2;
-	public IntegerField tWidth;
-	public IntegerField tHeight;
-	public IntegerField hOffset;
-	public IntegerField vOffset;
-	public IntegerField hSep;
-	public IntegerField vSep;
+	public NumberField tWidth;
+	public NumberField tHeight;
+	public NumberField hOffset;
+	public NumberField vOffset;
+	public NumberField hSep;
+	public NumberField vSep;
 	public BackgroundPreview preview;
 	public boolean imageChanged = false;
 	private BackgroundEditor editor;
 
+	private final BackgroundPropertyListener bpl = new BackgroundPropertyListener();
+
 	public BackgroundFrame(Background res, ResNode node)
 		{
 		super(res,node);
+		res.properties.getUpdateSource(PBackground.USE_AS_TILESET).addListener(bpl);
+		res.reference.updateSource.addListener(this);
+
 		GroupLayout layout = new GroupLayout(getContentPane())
 			{
 				@Override
@@ -100,12 +108,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		side2 = new JPanel();
 		makeSide2(side2);
 
-		preview = new BackgroundPreview(this);
-		BufferedImage bi = res.getBackgroundImage();
-		if (bi != null)
-			preview.setIcon(new ImageIcon(bi));
-		else
-			preview.setPreferredSize(new Dimension(0,0));
+		preview = new BackgroundPreview(res);
 		preview.setVerticalAlignment(SwingConstants.TOP);
 		JScrollPane scroll = new JScrollPane(preview);
 
@@ -131,22 +134,20 @@ public class BackgroundFrame extends ResourceFrame<Background>
 		load = new JButton(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$
 		load.setIcon(LOAD_ICON);
 		load.addActionListener(this);
-		width = new JLabel(Messages.getString("BackgroundFrame.WIDTH") + res.width); //$NON-NLS-1$
-		height = new JLabel(Messages.getString("BackgroundFrame.HEIGHT") + res.height); //$NON-NLS-1$
+		width = new JLabel(Messages.getString("BackgroundFrame.WIDTH") + res.getWidth()); //$NON-NLS-1$
+		height = new JLabel(Messages.getString("BackgroundFrame.HEIGHT") + res.getHeight()); //$NON-NLS-1$
 
 		edit = new JButton(Messages.getString("BackgroundFrame.EDIT")); //$NON-NLS-1$
 		edit.addActionListener(this);
 
 		transparent = new JCheckBox(Messages.getString("BackgroundFrame.TRANSPARENT")); //$NON-NLS-1$
-		transparent.setSelected(res.transparent);
-		transparent.addActionListener(this);
+		plf.make(transparent,PBackground.TRANSPARENT);
 		smooth = new JCheckBox(Messages.getString("BackgroundFrame.SMOOTH")); //$NON-NLS-1$
-		smooth.setSelected(res.smoothEdges);
+		plf.make(smooth,PBackground.SMOOTH_EDGES);
 		preload = new JCheckBox(Messages.getString("BackgroundFrame.PRELOAD")); //$NON-NLS-1$
-		preload.setSelected(res.preload);
+		plf.make(preload,PBackground.PRELOAD);
 		tileset = new JCheckBox(Messages.getString("BackgroundFrame.USE_AS_TILESET")); //$NON-NLS-1$
-		tileset.setSelected(res.useAsTileSet);
-		tileset.addActionListener(this);
+		plf.make(tileset,PBackground.USE_AS_TILESET);
 
 		save.setText(Messages.getString("BackgroundFrame.SAVE")); //$NON-NLS-1$
 
@@ -190,38 +191,38 @@ public class BackgroundFrame extends ResourceFrame<Background>
 
 		JLabel twLabel = new JLabel(Messages.getString("BackgroundFrame.TILE_WIDTH")); //$NON-NLS-1$
 		twLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		tWidth = new IntegerField(0,Integer.MAX_VALUE,res.tileWidth);
-		tWidth.addActionListener(this);
+		tWidth = new NumberField(0,Integer.MAX_VALUE);
+		plf.make(tWidth,PBackground.TILE_WIDTH);
 		tWidth.setColumns(3);
 
 		JLabel thLabel = new JLabel(Messages.getString("BackgroundFrame.TILE_HEIGHT")); //$NON-NLS-1$
 		thLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		tHeight = new IntegerField(0,Integer.MAX_VALUE,res.tileHeight);
-		tHeight.addActionListener(this);
+		tHeight = new NumberField(0,Integer.MAX_VALUE);
+		plf.make(tHeight,PBackground.TILE_HEIGHT);
 		tHeight.setColumns(3);
 
 		JLabel hoLabel = new JLabel(Messages.getString("BackgroundFrame.H_OFFSET")); //$NON-NLS-1$
 		hoLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		hOffset = new IntegerField(0,Integer.MAX_VALUE,res.horizOffset);
-		hOffset.addActionListener(this);
+		hOffset = new NumberField(0,Integer.MAX_VALUE);
+		plf.make(hOffset,PBackground.H_OFFSET);
 		hOffset.setColumns(3);
 
 		JLabel voLabel = new JLabel(Messages.getString("BackgroundFrame.V_OFFSET")); //$NON-NLS-1$
 		voLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		vOffset = new IntegerField(0,Integer.MAX_VALUE,res.vertOffset);
-		vOffset.addActionListener(this);
+		vOffset = new NumberField(0,Integer.MAX_VALUE);
+		plf.make(vOffset,PBackground.V_OFFSET);
 		vOffset.setColumns(3);
 
 		JLabel hsLabel = new JLabel(Messages.getString("BackgroundFrame.H_SEP")); //$NON-NLS-1$
 		hsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		hSep = new IntegerField(0,Integer.MAX_VALUE,res.horizSep);
-		hSep.addActionListener(this);
+		hSep = new NumberField(0,Integer.MAX_VALUE);
+		plf.make(hSep,PBackground.H_SEP);
 		hSep.setColumns(3);
 
 		JLabel vsLabel = new JLabel(Messages.getString("BackgroundFrame.V_SEP")); //$NON-NLS-1$
 		vsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		vSep = new IntegerField(0,Integer.MAX_VALUE,res.vertSep);
-		vSep.addActionListener(this);
+		vSep = new NumberField(0,Integer.MAX_VALUE);
+		plf.make(vSep,PBackground.V_SEP);
 		vSep.setColumns(3);
 
 		s2Layout.setHorizontalGroup(s2Layout.createSequentialGroup()
@@ -290,16 +291,6 @@ public class BackgroundFrame extends ResourceFrame<Background>
 	public void commitChanges()
 		{
 		res.setName(name.getText());
-		res.transparent = transparent.isSelected();
-		res.smoothEdges = smooth.isSelected();
-		res.preload = preload.isSelected();
-		res.useAsTileSet = tileset.isSelected();
-		res.tileWidth = tWidth.getIntValue();
-		res.tileHeight = tWidth.getIntValue();
-		res.horizOffset = hOffset.getIntValue();
-		res.vertOffset = vOffset.getIntValue();
-		res.horizSep = hSep.getIntValue();
-		res.vertSep = vSep.getIntValue();
 		}
 
 	@Override
@@ -311,22 +302,14 @@ public class BackgroundFrame extends ResourceFrame<Background>
 
 	public void actionPerformed(ActionEvent e)
 		{
-		if (e.getSource() == tileset || e.getSource() == tWidth || e.getSource() == tHeight
-				|| e.getSource() == hOffset || e.getSource() == vOffset || e.getSource() == hSep
-				|| e.getSource() == vSep)
-			{
-			side2.setVisible(tileset.isSelected());
-			preview.repaint(((JViewport) preview.getParent()).getViewRect());
-			return;
-			}
 		if (e.getSource() == load)
 			{
 			BufferedImage img = Util.getValidImage();
 			if (img != null)
 				{
 				res.setBackgroundImage(img);
+				imageChanged = true;
 				cleanup();
-				updateImage();
 				}
 			return;
 			}
@@ -346,11 +329,6 @@ public class BackgroundFrame extends ResourceFrame<Background>
 					ex.printStackTrace();
 					}
 				}
-			return;
-			}
-		if (e.getSource() == transparent)
-			{
-			res.transparent = transparent.isSelected();
 			return;
 			}
 		super.actionPerformed(e);
@@ -378,7 +356,7 @@ public class BackgroundFrame extends ResourceFrame<Background>
 				{
 				bi = new BufferedImage(640,480,BufferedImage.TYPE_3BYTE_BGR);
 				res.setBackgroundImage(bi);
-				updateImage();
+				imageChanged = true;
 				}
 			File f = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
 			f.deleteOnExit();
@@ -421,27 +399,16 @@ public class BackgroundFrame extends ResourceFrame<Background>
 						return;
 						}
 					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
-					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
+					final BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
 							BufferedImage.TYPE_3BYTE_BGR);
 					conv.filter(img,dest);
 					res.setBackgroundImage(dest);
-					updateImage();
+					imageChanged = true;
 					break;
 				case DELETED:
 					editor = null;
 				}
 			}
-		}
-
-	protected void updateImage()
-		{
-		BufferedImage bi = res.getBackgroundImage();
-		res.width = bi.getWidth();
-		res.height = bi.getHeight();
-		width.setText(Messages.getString("BackgroundFrame.WIDTH") + res.width); //$NON-NLS-1$
-		height.setText(Messages.getString("BackgroundFrame.HEIGHT") + res.height); //$NON-NLS-1$
-		imageChanged = true;
-		preview.setIcon(new ImageIcon(bi));
 		}
 
 	public void dispose()
@@ -453,5 +420,20 @@ public class BackgroundFrame extends ResourceFrame<Background>
 	protected void cleanup()
 		{
 		if (editor != null) editor.stop();
+		}
+
+	public void updated(UpdateEvent e)
+		{
+		width.setText(Messages.getString("BackgroundFrame.WIDTH") + res.getWidth()); //$NON-NLS-1$
+		height.setText(Messages.getString("BackgroundFrame.HEIGHT") + res.getHeight()); //$NON-NLS-1$
+		}
+
+	private class BackgroundPropertyListener extends PropertyUpdateListener<PBackground>
+		{
+		public void updated(PropertyUpdateEvent<PBackground> e)
+			{
+			//USE_AS_TILESET
+			side2.setVisible((Boolean) res.get(PBackground.USE_AS_TILESET));
+			}
 		}
 	}

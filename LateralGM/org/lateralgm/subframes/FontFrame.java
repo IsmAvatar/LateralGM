@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -15,7 +15,6 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.GraphicsEnvironment;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 
 import javax.swing.BorderFactory;
@@ -32,25 +31,31 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.lateralgm.compare.ResourceComparator;
-import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Font;
+import org.lateralgm.resources.Font.PFont;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class FontFrame extends ResourceFrame<Font>
+public class FontFrame extends ResourceFrame<Font,PFont>
 	{
 	private static final long serialVersionUID = 1L;
 
 	public JComboBox fonts;
-	public IntegerField size;
+	public NumberField size;
 	public JCheckBox italic, bold;
-	public IntegerField charMin, charMax;
+	public NumberField charMin, charMax;
 	public JLabel preview;
 	public JTextField previewText;
+
+	private FontPropertyListener fpl = new FontPropertyListener();
 
 	public FontFrame(Font res, ResNode node)
 		{
 		super(res,node);
+		res.properties.updateSource.addListener(fpl);
 
 		setResizable(false);
 		setMaximizable(false);
@@ -66,20 +71,16 @@ public class FontFrame extends ResourceFrame<Font>
 		fonts = new JComboBox(
 				GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
 		fonts.setEditable(true);
-		fonts.setSelectedItem(res.fontName);
-		fonts.addActionListener(this);
+		plf.make(fonts,PFont.FONT_NAME);
 
 		JLabel lSize = new JLabel(Messages.getString("FontFrame.SIZE")); //$NON-NLS-1$
-		size = new IntegerField(1,99,res.size);
-		size.setColumns(3);
-		size.addActionListener(this);
+		size = new NumberField(1,99);
+		plf.make(size,PFont.SIZE);
 
 		bold = new JCheckBox(Messages.getString("FontFrame.BOLD")); //$NON-NLS-1$
-		bold.addActionListener(this);
-		bold.setSelected(res.bold);
+		plf.make(bold,PFont.BOLD);
 		italic = new JCheckBox(Messages.getString("FontFrame.ITALIC")); //$NON-NLS-1$
-		italic.addActionListener(this);
-		italic.setSelected(res.italic);
+		plf.make(italic,PFont.ITALIC);
 
 		JPanel crPane = makeCRPane();
 
@@ -105,9 +106,9 @@ public class FontFrame extends ResourceFrame<Font>
 		JPanel prev = new JPanel(new BorderLayout());
 		prev.setBorder(BorderFactory.createEtchedBorder());
 		preview = new JLabel(previewText.getText());
-		preview.setFont(new java.awt.Font(res.fontName,makeStyle(res.bold,res.italic),res.size));
 		preview.setHorizontalAlignment(SwingConstants.CENTER);
 		prev.add(preview,"Center"); //$NON-NLS-1$
+		updatePreview();
 
 		save.setText(Messages.getString("FontFrame.SAVE")); //$NON-NLS-1$
 
@@ -161,13 +162,13 @@ public class FontFrame extends ResourceFrame<Font>
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		charMin = new IntegerField(0,255,res.charRangeMin);
-		charMin.setColumns(4);
-		charMin.addActionListener(this);
+		charMin = new NumberField(0,255);
+		charMin.formatter.setCommitsOnValidEdit(false);
+		plf.make(charMin,PFont.RANGE_MIN);
 		JLabel lTo = new JLabel(Messages.getString("FontFrame.TO")); //$NON-NLS-1$
-		charMax = new IntegerField(0,255,res.charRangeMax);
-		charMax.setColumns(4);
-		charMax.addActionListener(this);
+		charMax = new NumberField(0,255);
+		charMax.formatter.setCommitsOnValidEdit(false);
+		plf.make(charMax,PFont.RANGE_MAX);
 
 		JButton crNormal = new JButton(Messages.getString("FontFrame.NORMAL")); //$NON-NLS-1$
 		crNormal.setActionCommand("Normal"); //$NON-NLS-1$
@@ -225,61 +226,31 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public void commitChanges()
 		{
+		charMin.commitOrRevert();
+		charMax.commitOrRevert();
 		res.setName(name.getText());
-		res.fontName = fonts.getSelectedItem().toString();
-		res.size = size.getIntValue();
-		res.bold = bold.isSelected();
-		res.italic = italic.isSelected();
-		res.charRangeMin = charMin.getIntValue();
-		res.charRangeMax = charMax.getIntValue();
 		}
 
 	public void actionPerformed(ActionEvent e)
 		{
-		if (e.getSource() == fonts || e.getSource() == bold || e.getSource() == italic
-				|| e.getSource() == size)
-			{
-			updatePreview();
-			return;
-			}
-		if (e.getSource() == charMin)
-			{
-			if (charMin.getIntValue() > charMax.getIntValue())
-				{
-				charMax.setIntValue(charMin.getIntValue());
-				return;
-				}
-			}
-		if (e.getSource() == charMax)
-			{
-			if (charMax.getIntValue() < charMin.getIntValue())
-				{
-				charMin.setIntValue(charMax.getIntValue());
-				return;
-				}
-			}
 		if (e.getActionCommand() == "Normal") //$NON-NLS-1$
 			{
-			charMin.setIntValue(32);
-			charMax.setIntValue(127);
+			res.setRange(32,127);
 			return;
 			}
 		if (e.getActionCommand() == "All") //$NON-NLS-1$
 			{
-			charMin.setIntValue(0);
-			charMax.setIntValue(255);
+			res.setRange(0,255);
 			return;
 			}
 		if (e.getActionCommand() == "Digits") //$NON-NLS-1$
 			{
-			charMin.setIntValue(48);
-			charMax.setIntValue(57);
+			res.setRange(48,57);
 			return;
 			}
 		if (e.getActionCommand() == "Letters") //$NON-NLS-1$
 			{
-			charMin.setIntValue(65);
-			charMax.setIntValue(122);
+			res.setRange(65,122);
 			return;
 			}
 		super.actionPerformed(e);
@@ -287,14 +258,34 @@ public class FontFrame extends ResourceFrame<Font>
 
 	public void updatePreview()
 		{
-		int screenRes = Toolkit.getDefaultToolkit().getScreenResolution();
-		int fontSize = (int) Math.round(size.getIntValue() * screenRes / 72.0); //java assumes 72 DPI
-		preview.setFont(new java.awt.Font(fonts.getSelectedItem().toString(),makeStyle(
-				bold.isSelected(),italic.isSelected()),fontSize));
+		int s = res.get(PFont.SIZE);
+		String fn = res.get(PFont.FONT_NAME);
+		boolean b = res.get(PFont.BOLD);
+		boolean i = res.get(PFont.ITALIC);
+		/* Java assumes 72 dpi, but we shouldn't depend on the native resolution either.
+		 * For consistent pixel size across different systems, we should pick a common default.
+		 * AFAIK, the default in Windows (and thus GM) is 96 dpi. */
+		int fontSize = (int) Math.round(s * 96.0 / 72.0);
+		preview.setFont(new java.awt.Font(fn,makeStyle(b,i),fontSize));
 		}
 
 	private static int makeStyle(boolean bold, boolean italic)
 		{
 		return (italic ? java.awt.Font.ITALIC : 0) | (bold ? java.awt.Font.BOLD : 0);
+		}
+
+	private class FontPropertyListener extends PropertyUpdateListener<PFont>
+		{
+		public void updated(PropertyUpdateEvent<PFont> e)
+			{
+			switch (e.key)
+				{
+				case RANGE_MIN:
+				case RANGE_MAX:
+					break;
+				default:
+					updatePreview();
+				}
+			}
 		}
 	}

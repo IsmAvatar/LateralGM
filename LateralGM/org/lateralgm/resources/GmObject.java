@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,6 +12,11 @@ package org.lateralgm.resources;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.List;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
@@ -20,8 +25,10 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
+import org.lateralgm.util.PropertyMap;
+import org.lateralgm.util.PropertyMap.PropertyValidationException;
 
-public class GmObject extends Resource<GmObject> implements UpdateListener
+public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements UpdateListener
 	{
 	public static final ResourceReference<GmObject> OBJECT_SELF = new ResourceReference<GmObject>(
 			null);
@@ -37,13 +44,15 @@ public class GmObject extends Resource<GmObject> implements UpdateListener
 		}
 
 	private ResourceReference<Sprite> sprite = null;
-	public boolean solid = false;
-	public boolean visible = true;
-	public int depth = 0;
-	public boolean persistent = false;
-	private ResourceReference<GmObject> parent = null;
-	private ResourceReference<Sprite> mask = null;
-	public MainEvent[] mainEvents = new MainEvent[11];
+	public final List<MainEvent> mainEvents;
+
+	public enum PGmObject
+		{
+		SPRITE,SOLID,VISIBLE,DEPTH,PERSISTENT,PARENT,MASK
+		}
+
+	private static final EnumMap<PGmObject,Object> DEFS = PropertyMap.makeDefaultMap(PGmObject.class,
+			null,false,true,0,false,null,null);
 
 	public GmObject()
 		{
@@ -53,11 +62,11 @@ public class GmObject extends Resource<GmObject> implements UpdateListener
 	public GmObject(ResourceReference<GmObject> r, boolean update)
 		{
 		super(r,update);
-		setName(Prefs.prefixes[Resource.GMOBJECT]);
+		MainEvent[] e = new MainEvent[11];
 		for (int j = 0; j < 11; j++)
-			{
-			mainEvents[j] = new MainEvent();
-			}
+			e[j] = new MainEvent();
+		mainEvents = Collections.unmodifiableList(Arrays.asList(e));
+		setName(Prefs.prefixes.get(Kind.OBJECT));
 		}
 
 	@Override
@@ -65,85 +74,81 @@ public class GmObject extends Resource<GmObject> implements UpdateListener
 			boolean update)
 		{
 		GmObject o = new GmObject(ref,update);
-		o.sprite = sprite;
-		o.solid = solid;
-		o.visible = visible;
-		o.depth = depth;
-		o.persistent = persistent;
-		o.parent = parent;
-		o.mask = mask;
+		copy(src,o);
 		for (int i = 0; i < 11; i++)
 			{
-			MainEvent mev = mainEvents[i];
-			MainEvent mev2 = o.mainEvents[i];
+			MainEvent mev = mainEvents.get(i);
+			MainEvent mev2 = o.mainEvents.get(i);
 			for (Event ev : mev.events)
 				{
 				mev2.events.add(ev.copy());
 				}
 			}
-		if (src != null)
-			{
-			o.setName(Prefs.prefixes[Resource.GMOBJECT] + (src.lastId + 1));
-			src.add(o);
-			}
-		else
-			{
-			o.setId(getId());
-			o.setName(getName());
-			}
-		if (sprite != null) sprite.updateSource.addListener(o);
 		return o;
 		}
 
 	@Override
 	public BufferedImage getDisplayImage()
 		{
-		Sprite s = Util.deRef(sprite);
+		ResourceReference<Sprite> r = get(PGmObject.SPRITE);
+		Sprite s = Util.deRef(r);
 		return s == null ? null : s.getDisplayImage();
 		}
 
-	public byte getKind()
+	public Kind getKind()
 		{
-		return GMOBJECT;
-		}
-
-	public ResourceReference<Sprite> getSprite()
-		{
-		return sprite;
-		}
-
-	public void setSprite(ResourceReference<Sprite> sprite)
-		{
-		if (this.sprite != null) this.sprite.updateSource.removeListener(this);
-		this.sprite = sprite;
-		if (sprite != null) sprite.updateSource.addListener(this);
-		fireUpdate();
-		}
-
-	public ResourceReference<GmObject> getParent()
-		{
-		return parent;
-		}
-
-	public void setParent(ResourceReference<GmObject> parent)
-		{
-		this.parent = parent;
-		fireUpdate();
-		}
-
-	public ResourceReference<Sprite> getMask()
-		{
-		return mask;
-		}
-
-	public void setMask(ResourceReference<Sprite> mask)
-		{
-		this.mask = mask;
-		fireUpdate();
+		return Kind.OBJECT;
 		}
 
 	public void updated(UpdateEvent e)
 		{
 		reference.updateTrigger.fire(e);
+		}
+
+	@Override
+	protected PropertyMap<PGmObject> makePropertyMap()
+		{
+		return new PropertyMap<PGmObject>(PGmObject.class,this,DEFS);
+		}
+
+	private boolean isValidParent(GmObject p)
+		{
+		if (p == this) return false;
+		HashSet<GmObject> traversed = new HashSet<GmObject>();
+		traversed.add(p);
+		while (true)
+			{
+			ResourceReference<GmObject> r = p.get(PGmObject.PARENT);
+			p = deRef(r);
+			if (p == null) return true;
+			if (p == this || !traversed.add(p)) return false;
+			}
+		}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Object validate(PGmObject k, Object v)
+		{
+		switch (k)
+			{
+			case SPRITE:
+				if (sprite != null) sprite.updateSource.removeListener(GmObject.this);
+				ResourceReference<?> r = (ResourceReference<?>) v;
+				if (!(r.get() instanceof Sprite)) throw new PropertyValidationException();
+				sprite = (ResourceReference<Sprite>) r;
+				if (sprite != null) sprite.updateSource.addListener(GmObject.this);
+				fireUpdate();
+				break;
+			case PARENT:
+				if (v == null) break;
+				GmObject p = (GmObject) ((ResourceReference<?>) v).get();
+				if (!isValidParent(p)) throw new ParentLoopException();
+			}
+		return v;
+		}
+
+	public static class ParentLoopException extends PropertyValidationException
+		{
+		private static final long serialVersionUID = 1L;
 		}
 	}

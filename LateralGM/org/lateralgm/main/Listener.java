@@ -2,7 +2,7 @@
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -73,25 +73,16 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		saveFs.addFilter("Listener.FORMAT_GM6",exts[1]); //$NON-NLS-1$
 		}
 
-	public static byte stringToRes(String com)
+	public static Resource.Kind stringToRes(String com)
 		{
-		if (com.equals("OBJECT")) //$NON-NLS-1$
-			{
-			return Resource.GMOBJECT;
-			}
-		if (com.equals("GROUP")) //$NON-NLS-1$
-			{
-			return -1;
-			}
 		try
 			{
-			return Resource.class.getDeclaredField(com).getByte(null);
+			return Resource.Kind.valueOf(com);
 			}
-		catch (Exception e)
+		catch (IllegalArgumentException e)
 			{
-			e.printStackTrace();
+			return null;
 			}
-		return -1;
 		}
 
 	/** Note that passing in null will cause an open dialog to display */
@@ -110,7 +101,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			filename = file.getPath();
 			}
 		if (!file.exists()) return;
-		ResNode newroot = new ResNode("Root",(byte) 0,(byte) 0,null); //$NON-NLS-1$
+		ResNode newroot = new ResNode("Root",(byte) 0,null,null); //$NON-NLS-1$
 		try
 			{
 			PrefsStore.addRecentFile(filename);
@@ -134,7 +125,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				ResNode rn = (ResNode) n;
 				if (rn.status != ResNode.STATUS_PRIMARY) continue;
 				ResourceList<?> rl = LGM.currentFile.getList(rn.kind);
-				for (Resource<?> r : rl)
+				for (Resource<?,?> r : rl)
 					rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getKind(),r.reference));
 				}
 			}
@@ -151,7 +142,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		{
 		LGM.mdi.closeAll();
 		LGM.frame.setTitle(Messages.format("LGM.TITLE",Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$
-		LGM.root = new ResNode("Root",(byte) 0,(byte) 0,null); //$NON-NLS-1$
+		LGM.root = new ResNode("Root",(byte) 0,null,null); //$NON-NLS-1$
 		LGM.currentFile = new GmFile();
 		LGM.populateTree();
 		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
@@ -277,12 +268,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		addResource(tree,stringToRes(com),null);
 		}
 
-	protected static void addResource(JTree tree, byte r)
+	protected static void addResource(JTree tree, Resource.Kind r)
 		{
 		addResource(tree,r,null);
 		}
 
-	protected static void addResource(JTree tree, byte r, Resource<?> res)
+	protected static void addResource(JTree tree, Resource.Kind r, Resource<?,?> res)
 		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
@@ -306,12 +297,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		insertResource(tree,stringToRes(com),null);
 		}
 
-	protected static void insertResource(JTree tree, byte r)
+	protected static void insertResource(JTree tree, Resource.Kind r)
 		{
 		insertResource(tree,r,null);
 		}
 
-	private static void insertResource(JTree tree, byte r, Resource<?> res)
+	private static void insertResource(JTree tree, Resource.Kind r, Resource<?,?> res)
 		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
@@ -325,10 +316,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		putNode(tree,node,parent,r,pos,res);
 		}
 
-	public static void putNode(JTree tree, ResNode node, ResNode parent, byte r, int pos,
-			Resource<?> res)
+	public static void putNode(JTree tree, ResNode node, ResNode parent, Resource.Kind r, int pos,
+			Resource<?,?> res)
 		{
-		if (r == -1)
+		if (r == null)
 			{
 			String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
 			String name = JOptionPane.showInputDialog(msg,
@@ -348,7 +339,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			pos = parent.getChildCount();
 			}
 
-		Resource<?> resource = res == null ? LGM.currentFile.getList(parent.kind).add() : res;
+		Resource<?,?> resource = res == null ? LGM.currentFile.getList(parent.kind).add() : res;
 		ResNode g = new ResNode(resource.getName(),ResNode.STATUS_SECONDARY,parent.kind,
 				resource.reference);
 		parent.insert(g,pos);
@@ -375,19 +366,19 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			Enumeration<?> nodes = me.depthFirstEnumeration();
 			// Calling dispose() on a resource modifies the tree and invalidates
 			// the enumeration, so we need to wait until after traversal.
-			HashSet<Resource<?>> rs = new HashSet<Resource<?>>();
+			HashSet<Resource<?,?>> rs = new HashSet<Resource<?,?>>();
 			while (nodes.hasMoreElements())
 				{
 				ResNode node = (ResNode) nodes.nextElement();
 				if (node.frame != null) node.frame.dispose();
 				if (node.status == ResNode.STATUS_SECONDARY)
 					{
-					Resource<?> res = deRef((ResourceReference<?>) node.getRes());
+					Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
 					if (res != null) rs.add(res);
 					LGM.currentFile.getList(node.kind).remove(res);
 					}
 				}
-			for (Resource<?> r : rs)
+			for (Resource<?,?> r : rs)
 				r.dispose();
 			me.removeFromParent();
 			tree.updateUI();
@@ -476,7 +467,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		}
 
-	public static ResNode getPrimaryParent(int kind)
+	public static ResNode getPrimaryParent(Resource.Kind kind)
 		{
 		for (int i = 0; i < LGM.root.getChildCount(); i++)
 			if (((ResNode) LGM.root.getChildAt(i)).kind == kind) return (ResNode) LGM.root.getChildAt(i);
@@ -487,8 +478,14 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		{
 		ResNode n = (ResNode) ((JTree) c).getLastSelectedPathComponent();
 
-		if (n.status == ResNode.STATUS_PRIMARY || n.kind == Resource.GAMEINFO
-				|| n.kind == Resource.GAMESETTINGS || n.kind == Resource.EXTENSIONS) return null;
+		if (n.status == ResNode.STATUS_PRIMARY) return null;
+		switch (n.kind)
+			{
+			case GAMEINFO:
+			case GAMESETTINGS:
+			case EXTENSIONS:
+				return null;
+			}
 		return n;
 		}
 
@@ -553,19 +550,16 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					if (node == null) return;
 					if (com.equals("EDIT")) //$NON-NLS-1$
 						{
-						if (node.kind == Resource.GAMEINFO)
+						switch (node.kind)
 							{
-							LGM.getGameInfo().toTop();
-							return;
-							}
-						if (node.kind == Resource.GAMESETTINGS)
-							{
-							LGM.getGameSettings().toTop();
-							return;
-							}
-						if (node.kind == Resource.EXTENSIONS)
-							{
-							return;
+							case GAMEINFO:
+								LGM.getGameInfo().toTop();
+								return;
+							case GAMESETTINGS:
+								LGM.getGameSettings().toTop();
+								return;
+							case EXTENSIONS:
+								return;
 							}
 						// kind must be a Resource kind
 						if (node.status != ResNode.STATUS_SECONDARY) return;
@@ -604,12 +598,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					if (com.equals("COPY")) //$NON-NLS-1$
 						{
 						ResourceList<?> rl = LGM.currentFile.getList(node.kind);
-						Resource<?> resource = null;
+						Resource<?,?> resource = null;
 						try
 							{
 							if (node.frame != null) node.frame.commitChanges();
 							// dodgy workaround to avoid warnings
-							resource = (Resource<?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(//$NON-NLS-1$
+							resource = (Resource<?,?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(//$NON-NLS-1$
 									rl,node.getRes().get());
 							}
 						catch (Exception e1)
@@ -621,12 +615,14 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 						}
 					}
 			};
-		if (node.kind == Resource.GAMESETTINGS || node.kind == Resource.GAMEINFO
-				|| node.kind == Resource.EXTENSIONS)
+		switch (node.kind)
 			{
-			popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
-			popup.show(e.getComponent(),e.getX(),e.getY());
-			return;
+			case GAMESETTINGS:
+			case GAMEINFO:
+			case EXTENSIONS:
+				popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
+				popup.show(e.getComponent(),e.getX(),e.getY());
+				return;
 			}
 		if (node.status == ResNode.STATUS_SECONDARY)
 			{
@@ -683,19 +679,16 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					else if (e.getClickCount() == 2)
 						{
 						ResNode node = (ResNode) selPath.getLastPathComponent();
-						if (node.kind == Resource.GAMEINFO)
+						switch (node.kind)
 							{
-							LGM.getGameInfo().toTop();
-							return;
-							}
-						if (node.kind == Resource.GAMESETTINGS)
-							{
-							LGM.getGameSettings().toTop();
-							return;
-							}
-						if (node.kind == Resource.EXTENSIONS)
-							{
-							return;
+							case GAMEINFO:
+								LGM.getGameInfo().toTop();
+								return;
+							case GAMESETTINGS:
+								LGM.getGameSettings().toTop();
+								return;
+							case EXTENSIONS:
+								return;
 							}
 						// kind must be a Resource kind
 						if (node.status != ResNode.STATUS_SECONDARY) return;
@@ -714,12 +707,17 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public void editingStopped(ChangeEvent e)
 		{
 		ResNode node = (ResNode) LGM.tree.getLastSelectedPathComponent();
-		if (node.status == ResNode.STATUS_SECONDARY && node.kind != Resource.GAMEINFO
-				&& node.kind != Resource.GAMESETTINGS && node.kind != Resource.EXTENSIONS)
-			{
-			String txt = ((String) node.getUserObject()).replaceAll("\\W","").replaceAll("^([0-9]+)",""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			Resource<?> r = deRef((ResourceReference<?>) node.getRes());
-			if (r != null) r.setName(txt);
-			}
+		if (node.status == ResNode.STATUS_SECONDARY)
+			switch (node.kind)
+				{
+				case GAMEINFO:
+				case GAMESETTINGS:
+				case EXTENSIONS:
+					break;
+				default:
+					String txt = ((String) node.getUserObject()).replaceAll("\\W","").replaceAll("^([0-9]+)",""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					Resource<?,?> r = deRef((ResourceReference<?>) node.getRes());
+					if (r != null) r.setName(txt);
+				}
 		}
 	}

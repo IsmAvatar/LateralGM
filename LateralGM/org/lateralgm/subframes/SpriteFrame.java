@@ -12,7 +12,6 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +29,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -44,13 +44,13 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.GroupLayout.Alignment;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.SubimagePreview;
@@ -63,9 +63,14 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.Sprite.BBMode;
+import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.ui.swing.util.SwingExecutor;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener,MouseListener
+public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements ActionListener,
+		MouseListener,UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -77,13 +82,13 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	public JCheckBox transparent;
 
 	//origin
-	public IntegerField originX, originY;
+	public NumberField originX, originY;
 	public JButton centre;
 
 	//bbox
 	public IndexButtonGroup bboxGroup;
-	public IntegerField bboxLeft, bboxRight;
-	public IntegerField bboxTop, bboxBottom;
+	public NumberField bboxLeft, bboxRight;
+	public NumberField bboxTop, bboxBottom;
 	public JRadioButton auto, full, manual;
 
 	//properties
@@ -109,11 +114,16 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	/** Prevents <code>show</code> from resetting when it changes */
 	private boolean updateSub = true;
 
+	private final SpritePropertyListener spl = new SpritePropertyListener();
+
 	private Map<BufferedImage,ImageEditor> editors;
 
 	public SpriteFrame(Sprite res, ResNode node)
 		{
 		super(res,node);
+		res.properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
+		res.reference.updateSource.addListener(this);
+
 		setLayout(new BorderLayout());
 
 		JTabbedPane tabs = new JTabbedPane();
@@ -126,8 +136,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		add(makeToolBar(),BorderLayout.NORTH);
 		add(splitPane,BorderLayout.CENTER);
 
-		updateBoundingBox();
-		updateImage();
+		updateImageList();
 		updateInfo();
 
 		pack();
@@ -153,8 +162,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		tool.add(name);
 
 		transparent = new JCheckBox(Messages.getString("SpriteFrame.TRANSPARENT")); //$NON-NLS-1$
-		transparent.setSelected(res.transparent);
-		transparent.addActionListener(this);
+		plf.make(transparent,PSprite.TRANSPARENT);
 		transparent.setOpaque(false); //prevent white background
 		tool.add(transparent);
 
@@ -172,14 +180,14 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 
 		JLabel oxLab = new JLabel(Messages.getString("SpriteFrame.X")); //$NON-NLS-1$
 		oxLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		originX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.originX);
+		originX = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
 		originX.setColumns(4);
-		originX.addActionListener(this);
+		plf.make(originX,PSprite.ORIGIN_X);
 		JLabel oyLab = new JLabel(Messages.getString("SpriteFrame.Y")); //$NON-NLS-1$;
 		oyLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		originY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.originY);
+		originY = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
 		originY.setColumns(4);
-		originY.addActionListener(this);
+		plf.make(originY,PSprite.ORIGIN_Y);
 		centre = new JButton(Messages.getString("SpriteFrame.CENTER")); //$NON-NLS-1$
 		centre.addActionListener(this);
 
@@ -216,38 +224,40 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		GroupLayout bLayout = new GroupLayout(pane);
 		pane.setLayout(bLayout);
 		pane.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.BBOX"))); //$NON-NLS-1$
-		bboxGroup = new IndexButtonGroup(3,true,false,this);
+		ButtonGroup g = new ButtonGroup();
 		auto = new JRadioButton(Messages.getString("SpriteFrame.AUTO")); //$NON-NLS-1$
-		bboxGroup.add(auto);
+		g.add(auto);
 		full = new JRadioButton(Messages.getString("SpriteFrame.FULL")); //$NON-NLS-1$
-		bboxGroup.add(full);
+		g.add(full);
 		manual = new JRadioButton(Messages.getString("SpriteFrame.MANUAL")); //$NON-NLS-1$
-		bboxGroup.add(manual);
-		bboxGroup.setValue(res.boundingBoxMode);
+		g.add(manual);
+		plf.make(g,PSprite.BB_MODE,BBMode.class);
 
 		JLabel lLab = new JLabel(Messages.getString("SpriteFrame.LEFT")); //$NON-NLS-1$
 		lLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bboxLeft = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxLeft);
+		bboxLeft = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
 		bboxLeft.setColumns(3);
-		bboxLeft.addActionListener(this);
+		plf.make(bboxLeft,PSprite.BB_LEFT);
 
 		JLabel rLab = new JLabel(Messages.getString("SpriteFrame.RIGHT")); //$NON-NLS-1$
 		rLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bboxRight = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxRight);
+		bboxRight = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
 		bboxRight.setColumns(3);
-		bboxRight.addActionListener(this);
+		plf.make(bboxRight,PSprite.BB_RIGHT);
 
 		JLabel tLab = new JLabel(Messages.getString("SpriteFrame.TOP")); //$NON-NLS-1$
 		tLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bboxTop = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxTop);
+		bboxTop = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
 		bboxTop.setColumns(3);
-		bboxTop.addActionListener(this);
+		plf.make(bboxTop,PSprite.BB_TOP);
 
 		JLabel bLab = new JLabel(Messages.getString("SpriteFrame.BOTTOM")); //$NON-NLS-1$
 		bLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bboxBottom = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.boundingBoxBottom);
+		bboxBottom = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
 		bboxBottom.setColumns(3);
-		bboxBottom.addActionListener(this);
+		plf.make(bboxBottom,PSprite.BB_BOTTOM);
+
+		updateBoundingBoxEditors();
 
 		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
 		/**/.addGroup(bLayout.createSequentialGroup()
@@ -303,11 +313,11 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		pane.setLayout(layout);
 
 		preciseCC = new JCheckBox(Messages.getString("SpriteFrame.PRECISE_CC")); //$NON-NLS-1$
-		preciseCC.setSelected(res.preciseCC);
+		plf.make(preciseCC,PSprite.PRECISE);
 		smooth = new JCheckBox(Messages.getString("SpriteFrame.SMOOTH")); //$NON-NLS-1$
-		smooth.setSelected(res.smoothEdges);
+		plf.make(smooth,PSprite.SMOOTH_EDGES);
 		preload = new JCheckBox(Messages.getString("SpriteFrame.PRELOAD")); //$NON-NLS-1$
-		preload.setSelected(res.preload);
+		plf.make(preload,PSprite.PRELOAD);
 		subCount = new JLabel();
 		width = new JLabel();
 		height = new JLabel();
@@ -376,7 +386,7 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		{
 		JPanel pane = new JPanel(new BorderLayout());
 
-		preview = new SubimagePreview(this);
+		preview = new SubimagePreview(res);
 		preview.setVerticalAlignment(SwingConstants.TOP);
 		JScrollPane scroll = new JScrollPane(preview);
 		//scroll.setSize(64,240);
@@ -390,7 +400,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
 		subLeft.addActionListener(this);
 
-		currSub = 0;
 		show = new IntegerField(0,res.subImages.size() - 1);
 		show.setHorizontalAlignment(IntegerField.CENTER);
 		show.addActionListener(this);
@@ -517,17 +526,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 	public void commitChanges()
 		{
 		res.setName(name.getText());
-		res.transparent = transparent.isSelected();
-		res.preciseCC = preciseCC.isSelected();
-		res.smoothEdges = smooth.isSelected();
-		res.preload = preload.isSelected();
-		res.originX = originX.getIntValue();
-		res.originY = originY.getIntValue();
-		res.boundingBoxMode = (byte) bboxGroup.getValue();
-		res.boundingBoxLeft = bboxLeft.getIntValue();
-		res.boundingBoxRight = bboxRight.getIntValue();
-		res.boundingBoxTop = bboxTop.getIntValue();
-		res.boundingBoxBottom = bboxBottom.getIntValue();
 		}
 
 	public void revertResource()
@@ -551,41 +549,30 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 				cleanup();
 				res.subImages.clear();
 				imageChanged = true;
-				currSub = 0;
 				for (BufferedImage i : img)
 					res.addSubImage(i);
 				preview.setIcon(new ImageIcon(res.subImages.get(0)));
 				show.setRange(0,res.subImages.size());
+				setSubIndex(0);
 				updateInfo();
-				updateBoundingBox();
-				updateImage();
 				return;
 				}
 			}
 		if (e.getSource() == subLeft)
 			{
-			if (currSub > 0)
-				{
-				currSub -= 1;
-				updateImage();
-				}
+			if (currSub > 0) setSubIndex(currSub - 1);
 			return;
 			}
 		if (e.getSource() == show)
 			{
-			currSub = show.getIntValue();
 			updateSub = false;
-			updateImage();
+			setSubIndex(show.getIntValue());
 			updateSub = true;
 			return;
 			}
 		if (e.getSource() == subRight)
 			{
-			if (currSub < res.subImages.size() - 1)
-				{
-				currSub += 1;
-				updateImage();
-				}
+			if (currSub < res.subImages.size() - 1) setSubIndex(currSub + 1);
 			return;
 			}
 		if (e.getSource() == play)
@@ -593,16 +580,16 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			if (timer != null)
 				{
 				play.setIcon(PLAY_ICON);
-				updateImage();
 				timer.stop();
 				timer = null; //used to indicate that this is not animating, and frees memory
+				updateImageControls();
 				}
 			else if (res.subImages.size() > 1)
 				{
 				play.setIcon(STOP_ICON);
-				updateImage();
 				timer = new Timer(1000 / speed.getIntValue(),this);
 				timer.start();
+				updateImageControls();
 				}
 			return;
 			}
@@ -613,32 +600,14 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			}
 		if (e.getSource() == timer)
 			{
-			currSub += 1;
-			if (currSub >= res.subImages.size()) currSub = 0;
-			updateImage();
+			int s = res.subImages.size();
+			if (s > 0) setSubIndex((currSub + 1) % s);
 			return;
 			}
 		if (e.getSource() == centre)
 			{
-			originX.setIntValue(res.subImages.getWidth() / 2);
-			originY.setIntValue(res.subImages.getHeight() / 2);
-			return;
-			}
-		if (e.getSource() == auto || e.getSource() == full || e.getSource() == manual)
-			{
-			updateBoundingBox();
-			return;
-			}
-		if (e.getSource() == transparent)
-			{
-			updateBoundingBox();
-			res.transparent = transparent.isSelected();
-			return;
-			}
-		if (e.getSource() == originX || e.getSource() == originY || e.getSource() == bboxLeft
-				|| e.getSource() == bboxRight || e.getSource() == bboxTop || e.getSource() == bboxBottom)
-			{
-			preview.repaint(((JViewport) preview.getParent()).getViewRect());
+			res.put(PSprite.ORIGIN_X,res.subImages.getWidth() / 2);
+			res.put(PSprite.ORIGIN_Y,res.subImages.getHeight() / 2);
 			return;
 			}
 		String cmd = e.getActionCommand();
@@ -655,8 +624,8 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			{
 			BufferedImage bi = res.addSubImage();
 			pos = pos >= 0 ? pos + 1 : res.subImages.size();
+			imageChanged = true;
 			res.subImages.add(pos,bi);
-			updateImage();
 			subList.setSelectedIndex(pos);
 			editSubimage(bi);
 			return;
@@ -664,19 +633,19 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		if (pos == -1) return;
 		if (cmd.equals("REMOVE"))
 			{
-			ImageEditor ie = editors.get(res.subImages.get(pos));
+			ImageEditor ie = editors == null ? null : editors.get(res.subImages.get(pos));
+			imageChanged = true;
 			res.subImages.remove(pos);
 			if (ie != null) ie.stop();
-			updateImage();
 			subList.setSelectedIndex(Math.min(res.subImages.size() - 1,pos));
 			return;
 			}
 		if (cmd.equals("PREVIOUS"))
 			{
 			if (pos == 0) return;
+			imageChanged = true;
 			BufferedImage bi = res.subImages.remove(pos);
 			res.subImages.add(pos - 1,bi);
-			updateImage();
 			subList.setSelectedIndex(pos - 1);
 			return;
 			}
@@ -684,9 +653,9 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			{
 			System.out.println("lo");
 			if (pos == res.subImages.size() - 1) return;
+			imageChanged = true;
 			BufferedImage bi = res.subImages.remove(pos);
 			res.subImages.add(pos + 1,bi);
-			updateImage();
 			subList.setSelectedIndex(pos + 1);
 			return;
 			}
@@ -700,50 +669,18 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 				+ res.subImages.size());
 		}
 
-	public void updateBoundingBox()
+	private void updateImageControls()
 		{
-		int mode = bboxGroup.getValue();
-		switch (mode)
+		int s = res.subImages.size();
+		if (s > 0)
 			{
-			case Sprite.BBOX_AUTO:
-				Rectangle r = transparent.isSelected() ? getOverallBounds() : new Rectangle(0,0,
-						res.subImages.getWidth() - 1,res.subImages.getHeight() - 1);
-				res.boundingBoxLeft = r.x;
-				res.boundingBoxRight = r.x + r.width;
-				res.boundingBoxTop = r.y;
-				res.boundingBoxBottom = r.y + r.height;
-				break;
-			case Sprite.BBOX_FULL:
-				res.boundingBoxLeft = 0;
-				res.boundingBoxRight = res.subImages.getWidth() - 1;
-				res.boundingBoxTop = 0;
-				res.boundingBoxBottom = res.subImages.getHeight() - 1;
-				break;
-			default:
-				break;
-			}
-		bboxLeft.setIntValue(res.boundingBoxLeft);
-		bboxRight.setIntValue(res.boundingBoxRight);
-		bboxTop.setIntValue(res.boundingBoxTop);
-		bboxBottom.setIntValue(res.boundingBoxBottom);
-		bboxLeft.setEnabled(mode == Sprite.BBOX_MANUAL);
-		bboxRight.setEnabled(mode == Sprite.BBOX_MANUAL);
-		bboxTop.setEnabled(mode == Sprite.BBOX_MANUAL);
-		bboxBottom.setEnabled(mode == Sprite.BBOX_MANUAL);
-		}
-
-	public void updateImage()
-		{
-		ImageIcon ii[] = new ImageIcon[res.subImages.size()];
-		for (int i = 0; i < res.subImages.size(); i++)
-			ii[i] = new ImageIcon(res.subImages.get(i));
-		subList.setListData(ii);
-		BufferedImage img = getSubimage();
-		if (img != null)
-			{
-			preview.setIcon(new ImageIcon(img));
-			subLeft.setEnabled(currSub > 0 && timer == null);
-			subRight.setEnabled(currSub < res.subImages.size() - 1 && timer == null);
+			if (currSub > s)
+				{
+				setSubIndex(s - 1);
+				return;
+				}
+			subLeft.setEnabled(timer == null && currSub > 0);
+			subRight.setEnabled(timer == null && currSub < s - 1);
 			play.setEnabled(res.subImages.size() > 1);
 			if (updateSub)
 				{
@@ -753,7 +690,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			}
 		else
 			{
-			preview.setIcon(null);
 			subLeft.setEnabled(false);
 			subRight.setEnabled(false);
 			play.setEnabled(false);
@@ -765,49 +701,29 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 			}
 		}
 
-	public BufferedImage getSubimage()
+	private void updateImageList()
 		{
-		return res.subImages.size() > 0 ? res.subImages.get(currSub) : null;
+		ImageIcon ii[] = new ImageIcon[res.subImages.size()];
+		for (int i = 0; i < res.subImages.size(); i++)
+			ii[i] = new ImageIcon(res.subImages.get(i));
+		subList.setListData(ii);
+		updateImageControls();
 		}
 
-	public static Rectangle getCropBounds(BufferedImage img)
+	private void setSubIndex(int i)
 		{
-		int transparent = img.getRGB(0,img.getHeight() - 1);
-		int width = img.getWidth();
-		int height = img.getHeight();
-
-		int y1 = 0;
-		y1loop: for (; y1 < height; y1++)
-			for (int i = 0; i < width; i++)
-				if (img.getRGB(i,y1) != transparent) break y1loop;
-
-		int x1 = 0;
-		x1loop: for (; x1 < width; x1++)
-			for (int j = y1; j < height; j++)
-				if (img.getRGB(x1,j) != transparent) break x1loop;
-
-		int y2 = height - 1;
-		y2loop: for (; y2 >= 0; y2--)
-			for (int i = x1; i < width; i++)
-				if (img.getRGB(i,y2) != transparent) break y2loop;
-
-		int x2 = width - 1;
-		x2loop: for (; x2 >= 0; x2--)
-			for (int j = y1; j <= y2; j++)
-				if (img.getRGB(x2,j) != transparent) break x2loop;
-
-		return new Rectangle(x1,y1,x2 - x1,y2 - y1);
+		currSub = i;
+		preview.setIndex(i);
+		updateImageControls();
 		}
 
-	public Rectangle getOverallBounds()
+	private void updateBoundingBoxEditors()
 		{
-		Rectangle rects[] = new Rectangle[res.subImages.size()];
-		for (int i = 0; i < rects.length; i++)
-			rects[i] = getCropBounds(res.subImages.get(i));
-		for (int i = 1; i < rects.length; i++)
-			rects[0] = rects[0].union(rects[i]);
-		return rects.length > 0 ? rects[0] : new Rectangle(0,0,res.subImages.getWidth() - 1,
-				res.subImages.getHeight() - 1);
+		boolean m = res.get(PSprite.BB_MODE) == BBMode.MANUAL;
+		bboxLeft.setEnabled(m);
+		bboxRight.setEnabled(m);
+		bboxTop.setEnabled(m);
+		bboxBottom.setEnabled(m);
 		}
 
 	@Override
@@ -870,6 +786,22 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 		{
 		}
 
+	public void updated(UpdateEvent e)
+		{
+		updateInfo();
+		updateImageList();
+		}
+
+	private class SpritePropertyListener extends PropertyUpdateListener<PSprite>
+		{
+		@Override
+		public void updated(PropertyUpdateEvent<PSprite> e)
+			{
+			// BB_MODE
+			updateBoundingBoxEditors();
+			}
+		}
+
 	private class ImageEditor implements UpdateListener
 		{
 		private BufferedImage image;
@@ -927,8 +859,6 @@ public class SpriteFrame extends ResourceFrame<Sprite> implements ActionListener
 					editors.remove(image);
 					editors.put(dest,this);
 					image = dest;
-					updateImage();
-					updateBoundingBox();
 					imageChanged = true;
 					break;
 				case DELETED:

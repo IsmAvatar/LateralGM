@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -15,10 +15,15 @@ import java.util.Collections;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.Moment;
+import org.lateralgm.util.PropertyMap;
 
-public class Timeline extends Resource<Timeline>
+public class Timeline extends Resource<Timeline,Timeline.PTimeline>
 	{
 	public ArrayList<Moment> moments = new ArrayList<Moment>();
+
+	public enum PTimeline
+		{
+		}
 
 	public Timeline()
 		{
@@ -28,7 +33,7 @@ public class Timeline extends Resource<Timeline>
 	public Timeline(ResourceReference<Timeline> r, boolean update)
 		{
 		super(r,update);
-		setName(Prefs.prefixes[Resource.TIMELINE]);
+		setName(Prefs.prefixes.get(Kind.TIMELINE));
 		}
 
 	public Moment addMoment()
@@ -43,20 +48,11 @@ public class Timeline extends Resource<Timeline>
 			boolean update)
 		{
 		Timeline t = new Timeline(ref,update);
+		copy(src,t);
 		for (Moment mom : moments)
 			{
 			Moment mom2 = mom.copy();
 			t.moments.add(mom2);
-			}
-		if (src != null)
-			{
-			t.setName(Prefs.prefixes[Resource.TIMELINE] + (src.lastId + 1));
-			src.add(t);
-			}
-		else
-			{
-			t.setId(getId());
-			t.setName(getName());
 			}
 		return t;
 		}
@@ -115,8 +111,14 @@ public class Timeline extends Resource<Timeline>
 		return left;
 		}
 
-	public byte getKind()
+	public Kind getKind()
 		{
-		return TIMELINE;
+		return Kind.TIMELINE;
+		}
+
+	@Override
+	protected PropertyMap<PTimeline> makePropertyMap()
+		{
+		return new PropertyMap<PTimeline>(PTimeline.class,this,null);
 		}
 	}

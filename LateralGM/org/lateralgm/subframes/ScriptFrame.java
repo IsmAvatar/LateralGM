@@ -36,9 +36,10 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 
-public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
+public class ScriptFrame extends ResourceFrame<Script,PScript> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	public JToolBar tool;
@@ -62,7 +63,7 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 		tool.add(save);
 		tool.addSeparator();
 
-		code = new GMLTextArea(res.scriptStr);
+		code = new GMLTextArea((String) res.get(PScript.CODE));
 		add(code,BorderLayout.CENTER);
 
 		if (!Prefs.useExternalScriptEditor)
@@ -91,14 +92,14 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 
 	public void commitChanges()
 		{
-		res.scriptStr = code.getTextCompat();
+		res.put(PScript.CODE,code.getTextCompat());
 		res.setName(name.getText());
 		}
 
 	public boolean resourceChanged()
 		{
-		return (Prefs.useExternalScriptEditor ? !res.scriptStr.equals(resOriginal.scriptStr)
-				: code.getUndoManager().isModified())
+		return (Prefs.useExternalScriptEditor ? !res.get(PScript.CODE).equals(
+				resOriginal.get(PScript.CODE)) : code.getUndoManager().isModified())
 				|| !resOriginal.getName().equals(name.getText());
 		//return !code.getTextCompat().equals(resOriginal.scriptStr)
 		//		|| !resOriginal.getName().equals(name.getText());
@@ -143,7 +144,7 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 			File f = File.createTempFile(res.getName(),".gml",LGM.tempDir);
 			f.deleteOnExit();
 			FileWriter out = new FileWriter(f);
-			out.write(res.scriptStr);
+			out.write((String) res.get(PScript.CODE));
 			out.close();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this,true);
@@ -185,8 +186,9 @@ public class ScriptFrame extends ResourceFrame<Script> implements ActionListener
 						ioe.printStackTrace();
 						return;
 						}
-					res.scriptStr = sb.toString();
-					code.setText(res.scriptStr);
+					String s = sb.toString();
+					res.put(PScript.CODE,s);
+					code.setText(s);
 					break;
 				case DELETED:
 					editor = null;

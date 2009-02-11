@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007, 2008 Clam <ebordin@aapt.net.au>
- * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -52,7 +52,7 @@ import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
 import org.lateralgm.components.GMLTextArea;
-import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.ResNode;
@@ -61,15 +61,16 @@ import org.lateralgm.main.Listener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.GmObject.PGmObject;
+import org.lateralgm.resources.GmObject.ParentLoopException;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.subframes.EventFrame.EventNodeRenderer;
 
-public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionListener,
+public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements ActionListener,
 		TreeSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
@@ -80,7 +81,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 	public JButton editSprite;
 	public JCheckBox visible;
 	public JCheckBox solid;
-	public IntegerField depth;
+	public NumberField depth;
 	public JCheckBox persistent;
 	public ResourceMenu<GmObject> parent;
 	public ResourceMenu<Sprite> mask;
@@ -167,9 +168,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		origin.setLayout(oLayout);
 		origin.setBorder(BorderFactory.createTitledBorder(Messages.getString("GmObjectFrame.SPRITE"))); //$NON-NLS-1$
 		String t = Messages.getString("GmObjectFrame.NO_SPRITE"); //$NON-NLS-1$
-		sprite = new ResourceMenu<Sprite>(Resource.SPRITE,t,144);
-		sprite.setSelected(res.getSprite());
-		sprite.addActionListener(this);
+		sprite = new ResourceMenu<Sprite>(Resource.Kind.SPRITE,t,144);
+		plf.make(sprite,PGmObject.SPRITE);
 		newSprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
 		newSprite.addActionListener(this);
 		editSprite = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1$
@@ -190,22 +190,23 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		/*		*/.addComponent(editSprite))
 		/**/.addContainerGap(4,4));
 
-		visible = new JCheckBox(Messages.getString("GmObjectFrame.VISIBLE"),res.visible); //$NON-NLS-1$
-		solid = new JCheckBox(Messages.getString("GmObjectFrame.SOLID"),res.solid); //$NON-NLS-1$
+		visible = new JCheckBox(Messages.getString("GmObjectFrame.VISIBLE")); //$NON-NLS-1$
+		plf.make(visible,PGmObject.VISIBLE);
+		solid = new JCheckBox(Messages.getString("GmObjectFrame.SOLID")); //$NON-NLS-1$
+		plf.make(solid,PGmObject.SOLID);
 		JLabel dLabel = new JLabel(Messages.getString("GmObjectFrame.DEPTH")); //$NON-NLS-1$
-		depth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.depth);
-		depth.setColumns(8);
+		depth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
+		plf.make(depth,PGmObject.DEPTH);
 		persistent = new JCheckBox(Messages.getString("GmObjectFrame.PERSISTENT")); //$NON-NLS-1$
-		persistent.setSelected(res.persistent);
+		plf.make(persistent,PGmObject.PERSISTENT);
 		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.NO_PARENT"); //$NON-NLS-1$
-		parent = new ResourceMenu<GmObject>(Resource.GMOBJECT,t,110);
-		parent.setSelected(res.getParent());
-		parent.addActionListener(this);
+		parent = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,t,110);
+		plf.make(parent,PGmObject.PARENT);
 		JLabel mLabel = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.SAME_AS_SPRITE"); //$NON-NLS-1$
-		mask = new ResourceMenu<Sprite>(Resource.SPRITE,t,110);
-		mask.setSelected(res.getMask());
+		mask = new ResourceMenu<Sprite>(Resource.Kind.SPRITE,t,110);
+		plf.make(mask,PGmObject.MASK);
 		information = new JButton(Messages.getString("GmObjectFrame.INFO"),INFO_ICON); //$NON-NLS-1$
 		information.addActionListener(this);
 		save.setText(Messages.getString("GmObjectFrame.SAVE")); //$NON-NLS-1$
@@ -531,7 +532,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		rootEvent = new EventGroupNode(-1);
 		for (int m = 0; m < 11; m++)
 			{
-			MainEvent me = res.mainEvents[m];
+			MainEvent me = res.mainEvents.get(m);
 			ArrayList<Event> ale = me.events;
 			if (ale.size() == 1)
 				{
@@ -581,7 +582,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 				if (ein.getUserObject().actions.size() > 0)
 					{
 					Event e = ein.getUserObject();
-					res.mainEvents[e.mainId].events.add(e);
+					res.mainEvents.get(e.mainId).events.add(e);
 					}
 				}
 			}
@@ -607,23 +608,16 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		{
 		saveEvents();
 		res.setName(name.getText());
-		res.setSprite(sprite.getSelected());
-		res.visible = visible.isSelected();
-		res.solid = solid.isSelected();
-		res.depth = depth.getIntValue();
-		res.persistent = persistent.isSelected();
-		res.setParent(parent.getSelected());
-		res.setMask(mask.getSelected());
 		}
 
 	public void actionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == newSprite)
 			{
-			ResNode n = Listener.getPrimaryParent(Resource.SPRITE);
+			ResNode n = Listener.getPrimaryParent(Resource.Kind.SPRITE);
 			Sprite spr = LGM.currentFile.sprites.add();
-			Listener.putNode(LGM.tree,n,n,Resource.SPRITE,n.getChildCount(),spr);
-			sprite.setSelected(spr.reference);
+			Listener.putNode(LGM.tree,n,n,Resource.Kind.SPRITE,n.getChildCount(),spr);
+			res.put(PGmObject.SPRITE,spr.reference);
 			return;
 			}
 		if (e.getSource() == editSprite)
@@ -631,25 +625,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			Sprite spr = deRef(sprite.getSelected());
 			if (spr == null) return;
 			spr.getNode().openFrame();
-			return;
-			}
-		if (e.getSource() == sprite)
-			{
-			//TODO: Handle sprite?
-			return;
-			}
-		if (e.getSource() == parent)
-			{
-			ResourceReference<GmObject> p = parent.getSelected();
-			res.setParent(p);
-			if (deRef(p) != null) if (isCyclic(res))
-				{
-				String msg = Messages.getString("GmObjectFrame.LOOPING_PARENTS"); //$NON-NLS-1$
-				String ttl = Messages.getString("GmObjectFrame.ERROR"); //$NON-NLS-1$
-				JOptionPane.showMessageDialog(this,msg,ttl,JOptionPane.ERROR_MESSAGE);
-				parent.setSelected(null);
-				res.setParent(null);
-				}
 			return;
 			}
 		if (e.getSource() == information)
@@ -667,20 +642,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		super.actionPerformed(e);
 		}
 
-	private boolean isCyclic(GmObject inheritor)
-		{
-		ArrayList<GmObject> traversed = new ArrayList<GmObject>();
-		traversed.add(inheritor);
-		GmObject p;
-		while ((p = deRef(inheritor.getParent())) != null)
-			{
-			if (traversed.contains(p)) return true;
-			inheritor = p;
-			traversed.add(inheritor);
-			}
-		return false;
-		}
-
 	@Override
 	public void dispose()
 		{
@@ -692,9 +653,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 		newSprite.removeActionListener(this);
 		editSprite.removeActionListener(this);
 		eventDelete.removeActionListener(this);
-		sprite.removeActionListener(this);
-		mask.removeActionListener(this);
-		parent.removeActionListener(this);
 		}
 
 	public void valueChanged(TreeSelectionEvent tse)
@@ -716,6 +674,19 @@ public class GmObjectFrame extends ResourceFrame<GmObject> implements ActionList
 			}
 		lastValidEventSelection = node;
 		actions.setActionContainer((Event) node.getUserObject());
+		}
+
+	@Override
+	public void exceptionThrown(Exception e)
+		{
+		if (e instanceof ParentLoopException)
+			{
+			String msg = Messages.getString("GmObjectFrame.LOOPING_PARENTS"); //$NON-NLS-1$
+			String ttl = Messages.getString("GmObjectFrame.ERROR"); //$NON-NLS-1$
+			JOptionPane.showMessageDialog(this,msg,ttl,JOptionPane.ERROR_MESSAGE);
+			return;
+			}
+		super.exceptionThrown(e);
 		}
 
 	@Override

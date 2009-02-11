@@ -49,13 +49,14 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.Resource.Kind;
 
 public class GMLTextArea extends JEditTextArea implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
-	private static final int[] KM_RESOURCES = { Resource.BACKGROUND,Resource.FONT,Resource.GMOBJECT,
-			Resource.PATH,Resource.ROOM,Resource.SCRIPT,Resource.SOUND,Resource.SPRITE,Resource.TIMELINE };
+	private static final Kind[] KM_RESOURCES = { Kind.BACKGROUND,Kind.FONT,Kind.OBJECT,Kind.PATH,
+			Kind.ROOM,Kind.SCRIPT,Kind.SOUND,Kind.SPRITE,Kind.TIMELINE };
 	private static final GMLKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,
 			GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
 
@@ -203,7 +204,7 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 			int l = rl.size();
 			String[] a = new String[l];
 			int i = 0;
-			for (Resource<?> r : rl)
+			for (Resource<?,?> r : rl)
 				a[i++] = r.getName();
 			resourceKeywords[j] = a;
 			}

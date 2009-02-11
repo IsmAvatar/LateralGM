@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * Copyright (C) 2008 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,20 +18,32 @@ import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import org.lateralgm.subframes.SpriteFrame;
+import javax.swing.ImageIcon;
 
-public class SubimagePreview extends AbstractImagePreview
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.Sprite.PSprite;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
+
+public class SubimagePreview extends AbstractImagePreview implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
-	private SpriteFrame frame;
+	private int subIndex = 0;
+
+	private final Sprite sprite;
+	private final SpritePropertyListener spl = new SpritePropertyListener();
 
 	private static final int ORIGIN_SIZE = 20;
 
-	public SubimagePreview(SpriteFrame frame)
+	public SubimagePreview(Sprite s)
 		{
 		super();
-		this.frame = frame;
+		sprite = s;
+		s.properties.updateSource.addListener(spl);
+		s.reference.updateSource.addListener(this);
 		enableEvents(MouseEvent.MOUSE_PRESSED);
 		enableEvents(MouseEvent.MOUSE_DRAGGED);
 		}
@@ -38,16 +51,16 @@ public class SubimagePreview extends AbstractImagePreview
 	public void paintComponent(Graphics g)
 		{
 		super.paintComponent(g);
-		BufferedImage img = frame.getSubimage();
+		BufferedImage img = getImage();
 		if (img != null)
 			{
 			setPreferredSize(new Dimension(img.getWidth(),img.getHeight()));
-			int originX = frame.originX.getIntValue();
-			int originY = frame.originY.getIntValue();
-			int bboxLeft = frame.bboxLeft.getIntValue();
-			int bboxRight = frame.bboxRight.getIntValue();
-			int bboxTop = frame.bboxTop.getIntValue();
-			int bboxBottom = frame.bboxBottom.getIntValue();
+			int originX = sprite.get(PSprite.ORIGIN_X);
+			int originY = sprite.get(PSprite.ORIGIN_Y);
+			int bboxLeft = sprite.get(PSprite.BB_LEFT);
+			int bboxRight = sprite.get(PSprite.BB_RIGHT);
+			int bboxTop = sprite.get(PSprite.BB_TOP);
+			int bboxBottom = sprite.get(PSprite.BB_BOTTOM);
 
 			int left = Math.min(bboxLeft,bboxRight);
 			int right = Math.max(bboxLeft,bboxRight);
@@ -74,13 +87,21 @@ public class SubimagePreview extends AbstractImagePreview
 			setPreferredSize(new Dimension(0,0));
 		}
 
-	public void setBoundedOrigin(int x, int y)
+	private void setBoundedOrigin(int x, int y)
 		{
 		Dimension d = getPreferredSize();
 		x = Math.max(0,Math.min(d.width - 1,x));
 		y = Math.max(0,Math.min(d.height - 1,y));
-		frame.originX.setIntValue(x);
-		frame.originY.setIntValue(y);
+		sprite.put(PSprite.ORIGIN_X,x);
+		sprite.put(PSprite.ORIGIN_Y,y);
+		}
+
+	public void setIndex(int i)
+		{
+		subIndex = i;
+		BufferedImage bi = getImage();
+		super.setIcon(bi == null ? null : new ImageIcon(bi));
+		repaint();
 		}
 
 	protected void processMouseEvent(MouseEvent e)
@@ -100,7 +121,30 @@ public class SubimagePreview extends AbstractImagePreview
 
 	protected BufferedImage getImage()
 		{
-		if (frame != null) return frame.getSubimage();
-		return null;
+		if (sprite == null) return null;
+		int s = sprite.subImages.size();
+		return s == 0 || subIndex < 0 ? null : sprite.subImages.get(subIndex % s);
+		}
+
+	public void updated(UpdateEvent e)
+		{
+		setImage(getImage());
+		}
+
+	private class SpritePropertyListener extends PropertyUpdateListener<PSprite>
+		{
+		public void updated(PropertyUpdateEvent<PSprite> e)
+			{
+			switch (e.key)
+				{
+				case PRELOAD:
+				case SMOOTH_EDGES:
+				case TRANSPARENT:
+				case PRECISE:
+					return;
+				default:
+					repaint();
+				}
+			}
 		}
 	}

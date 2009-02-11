@@ -15,7 +15,7 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 
-public class RefList<R extends Resource<R>>
+public class RefList<R extends Resource<R,?>>
 	{
 	private Hashtable<Integer,ResRef<R>> rrt = new Hashtable<Integer,ResRef<R>>();
 	private Class<R> clazz;
@@ -54,7 +54,7 @@ public class RefList<R extends Resource<R>>
 		return null;
 		}
 
-	private static class ResRef<R extends Resource<R>>
+	private static class ResRef<R extends Resource<R,?>>
 		{
 		R resource;
 		ResourceReference<R> reference;

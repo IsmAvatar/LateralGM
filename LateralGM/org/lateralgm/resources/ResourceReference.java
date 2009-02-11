@@ -13,7 +13,7 @@ import java.lang.ref.WeakReference;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 
-public final class ResourceReference<R extends Resource<R>>
+public final class ResourceReference<R extends Resource<R,?>>
 	{
 	final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);

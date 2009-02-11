@@ -23,7 +23,7 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 
-public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements UpdateListener
+public class ResourceList<R extends Resource<R,?>> extends TreeSet<R> implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -135,7 +135,7 @@ public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements U
 		return null;
 		}
 
-	private boolean doRemove(Resource<?> res)
+	private boolean doRemove(Resource<?,?> res)
 		{
 		if (super.remove(res))
 			{
@@ -148,7 +148,7 @@ public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements U
 
 	public boolean remove(Object o)
 		{
-		if (doRemove((Resource<?>) o))
+		if (doRemove((Resource<?,?>) o))
 			{
 			updateTrigger.fire();
 			return true;
@@ -160,7 +160,7 @@ public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements U
 		{
 		boolean r = false;
 		for (Object o : c)
-			r |= doRemove((Resource<?>) o);
+			r |= doRemove((Resource<?,?>) o);
 		if (r) updateTrigger.fire();
 		return r;
 		}
@@ -204,7 +204,7 @@ public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements U
 			R r0 = wr == null ? null : wr.get();
 			if (r0 != null)
 				{
-				Resource<?> r = ref.get();
+				Resource<?,?> r = ref.get();
 				if (r0 != r)
 					{
 					remove(r0);
@@ -247,9 +247,9 @@ public class ResourceList<R extends Resource<R>> extends TreeSet<R> implements U
 			}
 		}
 
-	private static class IdComparator implements Comparator<Resource<?>>
+	private static class IdComparator implements Comparator<Resource<?,?>>
 		{
-		public int compare(Resource<?> o1, Resource<?> o2)
+		public int compare(Resource<?,?> o1, Resource<?,?> o2)
 			{
 			if (o1.reference == o2.reference) return 0;
 			int i1 = o1.getId();

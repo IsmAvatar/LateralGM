@@ -41,11 +41,12 @@ import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.Timeline.PTimeline;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Moment;
 
-public class TimelineFrame extends ResourceFrame<Timeline> implements ActionListener,
+public class TimelineFrame extends ResourceFrame<Timeline,PTimeline> implements ActionListener,
 		ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;

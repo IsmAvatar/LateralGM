@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
- * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
  * 
  * This file is part of LateralGM.
@@ -47,9 +47,14 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.Resource.Kind;
+import org.lateralgm.util.PropertyEditor;
+import org.lateralgm.util.PropertyLink;
+import org.lateralgm.util.PropertyMap;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 
-public class ResourceMenu<R extends Resource<R>> extends JPanel implements ActionListener,
-		UpdateListener
+public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements ActionListener,
+		UpdateListener,PropertyEditor<ResourceReference<R>>
 	{
 	private static final long serialVersionUID = 1L;
 	private JLabel label;
@@ -59,7 +64,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	protected JMenuItem noResource;
 	protected boolean onlyOpen;
 	private ActionEvent actionEvent;
-	protected byte kind;
+	protected Kind kind;
 	private MListener mListener = new MListener();
 	protected static final ImageIcon GROUP_ICO = LGM.getIconForKey("GmTreeGraphics.GROUP"); //$NON-NLS-1$;
 	private final Preview rPreview;
@@ -139,9 +144,9 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 			setToolTipText(""); //$NON-NLS-1$
 			}
 
-		public <R extends Resource<R>>void setResource(ResourceReference<R> r)
+		public <R extends Resource<R,?>>void setResource(ResourceReference<R> r)
 			{
-			Resource<R> res = Util.deRef(r);
+			Resource<R,?> res = Util.deRef(r);
 			displayImage = res == null ? null : res.getDisplayImage();
 			if (res == null)
 				{
@@ -173,7 +178,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	 * @param showDef - Whether to display the default value as a selectable menu option
 	 * @param width - The component width desired
 	 */
-	public ResourceMenu(byte kind, String def, boolean showDef, int width)
+	public ResourceMenu(Kind kind, String def, boolean showDef, int width)
 		{
 		this(kind,def,showDef,width,false,canPreview(kind));
 		}
@@ -187,7 +192,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	 * @param onlyOpen  - Whether to only show open frames on the menu
 	 * @param preview - Whether to display a preview icon
 	 */
-	public ResourceMenu(byte kind, String def, boolean showDef, int width, boolean onlyOpen,
+	public ResourceMenu(Kind kind, String def, boolean showDef, int width, boolean onlyOpen,
 			boolean preview)
 		{
 		this.kind = kind;
@@ -197,7 +202,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		label = new JLabel(def);
 		label.setBorder(BorderFactory.createEtchedBorder());
 		label.addMouseListener(mListener);
-		button = new JButton(Resource.ICON[kind]);
+		button = new JButton(ResNode.ICON.get(kind));
 		button.addMouseListener(mListener);
 		button.setMaximumSize(button.getPreferredSize());
 		int freeWidth = width - (preview ? 40 : 20);
@@ -233,7 +238,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	 * @param def - The default value to display if no resource is selected (selectable in menu)
 	 * @param width - The component width desired
 	 */
-	public ResourceMenu(byte kind, String def, int width)
+	public ResourceMenu(Kind kind, String def, int width)
 		{
 		this(kind,def,true,width,false,canPreview(kind));
 		}
@@ -244,20 +249,20 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		return label.getBaseline(width,height);
 		}
 
-	public static boolean canPreview(byte kind)
+	public static boolean canPreview(Kind kind)
 		{
 		switch (kind)
 			{
-			case Resource.SPRITE:
-			case Resource.BACKGROUND:
-			case Resource.GMOBJECT:
+			case SPRITE:
+			case BACKGROUND:
+			case OBJECT:
 				return true;
 			default:
 				return false;
 			}
 		}
 
-	protected void populate(byte kind)
+	protected void populate(Kind kind)
 		{
 		if (Prefs.groupKind)
 			{
@@ -275,7 +280,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 		return;
 		}
 
-	private void populate(JComponent parent, ResNode group, int kind)
+	private void populate(JComponent parent, ResNode group, Kind kind)
 		{
 		for (int i = 0; i < group.getChildCount(); i++)
 			{
@@ -341,7 +346,7 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 	public void setSelected(ResourceReference<R> res)
 		{
 		selected = res;
-		Resource<R> r = deRef(res);
+		Resource<R,?> r = deRef(res);
 		label.setText(r == null ? (noResource != null ? noResource.getText() : "") : r.getName()); //$NON-NLS-1$
 		if (rPreview != null) rPreview.setResource(res);
 		}
@@ -395,5 +400,46 @@ public class ResourceMenu<R extends Resource<R>> extends JPanel implements Actio
 				setSelected(null);
 			setSelected(selected);
 			}
+		}
+
+	public <K extends Enum<K>>PropertyLink<K,ResourceReference<R>> getLink(PropertyMap<K> m, K k)
+		{
+		return new ResourceMenuLink<K>(m,k);
+		}
+
+	private class ResourceMenuLink<K extends Enum<K>> extends PropertyLink<K,ResourceReference<R>>
+			implements ActionListener
+		{
+		public ResourceMenuLink(PropertyMap<K> m, K k)
+			{
+			super(m,k);
+			reset();
+			addActionListener(this);
+			}
+
+		protected void setComponent(ResourceReference<R> r)
+			{
+			setSelected(r);
+			}
+
+		@Override
+		public void remove()
+			{
+			super.remove();
+			removeActionListener(this);
+			}
+
+		@Override
+		public void updated(PropertyUpdateEvent<K> e)
+			{
+			editComponentIfChanged(getSelected());
+			}
+
+		public void actionPerformed(ActionEvent e)
+			{
+			if (selected == null ? map.get(key) == null : selected.equals(map.get(key))) return;
+			editProperty(selected);
+			}
+
 		}
 	}

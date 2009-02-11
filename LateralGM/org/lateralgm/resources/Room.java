@@ -13,6 +13,7 @@ package org.lateralgm.resources;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.List;
 
 import org.lateralgm.file.GmFile;
@@ -27,46 +28,32 @@ import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.util.PropertyMap;
 
-public class Room extends Resource<Room>
+public class Room extends Resource<Room,Room.PRoom>
 	{
-	public static final byte TAB_OBJECTS = 0;
-	public static final byte TAB_SETTINGS = 1;
-	public static final byte TAB_TILES = 2;
-	public static final byte TAB_BACKGROUNDS = 3;
-	public static final byte TAB_VIEWS = 4;
-	public String caption = "";
-	public int width = 640;
-	public int height = 480;
-	public int snapX = 16;
-	public int snapY = 16;
-	public boolean isometricGrid = false;
-	public int speed = 30;
-	public boolean persistent = false;
-	public Color backgroundColor = Color.BLACK;
-	public boolean drawBackgroundColor = true;
-	public String creationCode = "";
-	public boolean rememberWindowSize = true;
-	// ** may not be relevant to swing, or may not produce the same effect in the LGM GUI
-	public int editorWidth = 200; // **
-	public int editorHeight = 200; // **
-	public boolean showGrid = true;
-	public boolean showObjects = true;
-	public boolean showTiles = true;
-	public boolean showBackgrounds = true;
-	public boolean showForegrounds = true;
-	public boolean showViews = false;
-	public boolean deleteUnderlyingObjects = true;
-	public boolean deleteUnderlyingTiles = true;
-	public int currentTab = TAB_OBJECTS;
-	public int scrollBarX = 0; // **
-	public int scrollBarY = 0; // **
+	public static final int TAB_OBJECTS = 0;
+	public static final int TAB_SETTINGS = 1;
+	public static final int TAB_TILES = 2;
+	public static final int TAB_BACKGROUNDS = 3;
+	public static final int TAB_VIEWS = 4;
 	public BackgroundDef[] backgroundDefs = new BackgroundDef[8];
 	public View[] views = new View[8];
-	public boolean enableViews = false;
 	public ActiveArrayList<Instance> instances = new ActiveArrayList<Instance>();
 	public ActiveArrayList<Tile> tiles = new ActiveArrayList<Tile>();
 	private GmFile parent;
+
+	public enum PRoom
+		{
+		CAPTION,WIDTH,HEIGHT,SNAP_X,SNAP_Y,ISOMETRIC,SPEED,PERSISTENT,BACKGROUND_COLOR,
+		DRAW_BACKGROUND_COLOR,CREATION_CODE,REMEMBER_WINDOW_SIZE,EDITOR_WIDTH,EDITOR_HEIGHT,SHOW_GRID,
+		SHOW_OBJECTS,SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,
+		DELETE_UNDERLYING_TILES,CURRENT_TAB,SCROLL_BAR_X,SCROLL_BAR_Y,ENABLE_VIEWS
+		}
+
+	private static final EnumMap<PRoom,Object> DEFS = PropertyMap.makeDefaultMap(PRoom.class,"",640,
+			480,16,16,false,30,false,Color.BLACK,true,"",true,200,200,true,true,true,true,true,false,
+			true,true,TAB_OBJECTS,0,0,false);
 
 	public Room()
 		{
@@ -81,7 +68,7 @@ public class Room extends Resource<Room>
 	public Room(GmFile parent, ResourceReference<Room> r, boolean update)
 		{
 		super(r,update);
-		setName(Prefs.prefixes[Resource.ROOM]);
+		setName(Prefs.prefixes.get(Kind.ROOM));
 		this.parent = parent;
 		for (int j = 0; j < 8; j++)
 			{
@@ -102,32 +89,7 @@ public class Room extends Resource<Room>
 	protected Room copy(ResourceList<Room> src, ResourceReference<Room> ref, boolean update)
 		{
 		Room r = new Room(parent,ref,update);
-		r.caption = caption;
-		r.width = width;
-		r.height = height;
-		r.snapX = snapX;
-		r.snapY = snapY;
-		r.isometricGrid = isometricGrid;
-		r.speed = speed;
-		r.persistent = persistent;
-		r.backgroundColor = backgroundColor;
-		r.drawBackgroundColor = drawBackgroundColor;
-		r.creationCode = creationCode;
-		r.rememberWindowSize = rememberWindowSize;
-		r.editorWidth = editorWidth;
-		r.editorHeight = editorHeight;
-		r.showGrid = showGrid;
-		r.showObjects = showObjects;
-		r.showTiles = showTiles;
-		r.showBackgrounds = showBackgrounds;
-		r.showForegrounds = showForegrounds;
-		r.showViews = showViews;
-		r.deleteUnderlyingObjects = deleteUnderlyingObjects;
-		r.deleteUnderlyingTiles = deleteUnderlyingTiles;
-		r.currentTab = currentTab;
-		r.scrollBarX = scrollBarX;
-		r.scrollBarY = scrollBarY;
-		r.enableViews = enableViews;
+		copy(src,r);
 		for (Instance inst : instances)
 			{
 			Instance inst2 = r.addInstance();
@@ -184,22 +146,12 @@ public class Room extends Resource<Room>
 			back2.vertSpeed = back.vertSpeed;
 			back2.stretch = back.stretch;
 			}
-		if (src != null)
-			{
-			r.setName(Prefs.prefixes[Resource.ROOM] + (src.lastId + 1));
-			src.add(r);
-			}
-		else
-			{
-			r.setId(getId());
-			r.setName(getName());
-			}
 		return r;
 		}
 
-	public byte getKind()
+	public Kind getKind()
 		{
-		return ROOM;
+		return Kind.ROOM;
 		}
 
 	public static class ActiveArrayList<E> extends ArrayList<E>
@@ -336,6 +288,12 @@ public class Room extends Resource<Room>
 				}
 
 			}
+		}
+
+	@Override
+	protected PropertyMap<PRoom> makePropertyMap()
+		{
+		return new PropertyMap<PRoom>(PRoom.class,this,DEFS);
 		}
 
 	}

@@ -145,12 +145,12 @@ public class GmStreamEncoder
 			}
 		}
 
-	public <R extends Resource<R>>void writeId(ResourceReference<R> id) throws IOException
+	public <R extends Resource<R,?>>void writeId(ResourceReference<R> id) throws IOException
 		{
 		writeId(id,-1);
 		}
 
-	public <R extends Resource<R>>void writeId(ResourceReference<R> id, int noneval)
+	public <R extends Resource<R,?>>void writeId(ResourceReference<R> id, int noneval)
 			throws IOException
 		{
 		if (deRef(id) != null)
