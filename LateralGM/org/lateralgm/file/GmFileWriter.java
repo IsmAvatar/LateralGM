@@ -280,8 +280,8 @@ public final class GmFileWriter
 				{
 				out.writeStr(back.getName());
 				out.write4(543);
-				out.write4((Integer) back.getWidth());
-				out.write4((Integer) back.getHeight());
+				out.write4(back.getWidth());
+				out.write4(back.getHeight());
 				writeBool(out,back.properties,PBackground.TRANSPARENT,PBackground.SMOOTH_EDGES,
 						PBackground.PRELOAD,PBackground.USE_AS_TILESET);
 				write4(out,back.properties,PBackground.TILE_WIDTH,PBackground.TILE_HEIGHT,
