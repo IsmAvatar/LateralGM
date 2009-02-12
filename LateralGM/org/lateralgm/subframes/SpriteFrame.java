@@ -681,9 +681,10 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 				}
 			subLeft.setEnabled(timer == null && currSub > 0);
 			subRight.setEnabled(timer == null && currSub < s - 1);
-			play.setEnabled(res.subImages.size() > 1);
+			play.setEnabled(s > 1);
 			if (updateSub)
 				{
+				show.setRange(0,s - 1);
 				show.setEnabled(timer == null);
 				show.setIntValue(currSub);
 				}
