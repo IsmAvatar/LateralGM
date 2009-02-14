@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * 
  * This file is part of LateralGM.
  * 

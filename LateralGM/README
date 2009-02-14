@@ -1,7 +1,7 @@
 Credits:
 IsmAvatar <cmagicj@nni.com> as project leader, lead programmer, file format expert,
  philosopher, project politics, and most publicity (both research and release).
-Clam <ebordin@aapt.net.au> for most of the Save and Load code
+Clam <clamisgood@gmail.com> for most of the Save and Load code
  which I then proceeded to break and refix, and most of the MDI desktop,
  and the ResourceFrame and generics, and most of our visual components.
 Quadduc <quadduc@gmail.com> for technical things

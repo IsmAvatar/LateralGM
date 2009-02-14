@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2008 Clam <clamisgood@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.

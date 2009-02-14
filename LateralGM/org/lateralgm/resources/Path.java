@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Clam <ebordin@aapt.net.au>
+ * Copyright (C) 2006 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
