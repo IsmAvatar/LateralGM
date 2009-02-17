@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
- * Copyright (C) 2006, 2007, 2008 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2006, 2007, 2008, 2009 IsmAvatar <cmagicj@nni.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -59,7 +59,6 @@ import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
-import org.lateralgm.util.PropertyMap;
 
 public final class GmFileReader
 	{
@@ -375,7 +374,7 @@ public final class GmFileReader
 				kind53 = in.read4(); //kind (wav, mp3, etc)
 			else
 				snd.put(PSound.KIND,GmFile.SOUND_KIND[in.read4()]); //normal, background, etc
-			readStr(in,snd.properties,PSound.FILE_TYPE);
+			in.readStr(snd.properties,PSound.FILE_TYPE);
 			if (ver == 440)
 				{
 				//-1 = no sound
@@ -393,7 +392,7 @@ public final class GmFileReader
 					snd.put(k,(effects & 1) != 0);
 					effects >>= 1;
 					}
-				readD(in,snd.properties,PSound.VOLUME,PSound.PAN);
+				in.readD(snd.properties,PSound.VOLUME,PSound.PAN);
 				snd.put(PSound.PRELOAD,in.readBool());
 				}
 			}
@@ -422,11 +421,11 @@ public final class GmFileReader
 			if (ver != 400 && ver != 542) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			int w = in.read4();
 			int h = in.read4();
-			read4(in,spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
+			in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
 			spr.put(PSprite.TRANSPARENT,in.readBool());
 			if (ver > 400)
 				{
-				readBool(in,spr.properties,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
+				in.readBool(spr.properties,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
 				}
 			spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
 			spr.put(PSprite.PRECISE,in.readBool());
@@ -435,7 +434,7 @@ public final class GmFileReader
 				in.skip(4); //use video memory
 				spr.put(PSprite.PRELOAD,!in.readBool());
 				}
-			read4(in,spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
+			in.read4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
 			int nosub = in.read4();
 			for (int j = 0; j < nosub; j++)
 				{
@@ -470,9 +469,9 @@ public final class GmFileReader
 			back.put(PBackground.TRANSPARENT,in.readBool());
 			if (ver > 400)
 				{
-				readBool(in,back.properties,PBackground.SMOOTH_EDGES,PBackground.PRELOAD,
+				in.readBool(back.properties,PBackground.SMOOTH_EDGES,PBackground.PRELOAD,
 						PBackground.USE_AS_TILESET);
-				read4(in,back.properties,PBackground.TILE_WIDTH,PBackground.TILE_HEIGHT,
+				in.read4(back.properties,PBackground.TILE_WIDTH,PBackground.TILE_HEIGHT,
 						PBackground.H_OFFSET,PBackground.V_OFFSET,PBackground.H_SEP,PBackground.V_SEP);
 				}
 			else
@@ -508,10 +507,10 @@ public final class GmFileReader
 			path.setName(in.readStr());
 			ver = in.read4();
 			if (ver != 530) throw versionError(f,"IN","PATHS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-			readBool(in,path.properties,PPath.SMOOTH,PPath.CLOSED);
+			in.readBool(path.properties,PPath.SMOOTH,PPath.CLOSED);
 			path.put(PPath.PRECISION,in.read4());
 			path.put(PPath.BACKGROUND_ROOM,c.rmids.get(in.read4()));
-			read4(in,path.properties,PPath.SNAP_X,PPath.SNAP_Y);
+			in.read4(path.properties,PPath.SNAP_X,PPath.SNAP_Y);
 			int nopoints = in.read4();
 			for (int j = 0; j < nopoints; j++)
 				{
@@ -589,8 +588,8 @@ public final class GmFileReader
 			if (ver != 540) throw versionError(f,"IN","FONTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			font.put(PFont.FONT_NAME,in.readStr());
 			font.put(PFont.SIZE,in.read4());
-			readBool(in,font.properties,PFont.BOLD,PFont.ITALIC);
-			read4(in,font.properties,PFont.RANGE_MIN,PFont.RANGE_MAX);
+			in.readBool(font.properties,PFont.BOLD,PFont.ITALIC);
+			in.read4(font.properties,PFont.RANGE_MIN,PFont.RANGE_MAX);
 			}
 		}
 
@@ -643,7 +642,7 @@ public final class GmFileReader
 			if (ver != 430) throw versionError(f,"IN","OBJECTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.sprites.getUnsafe(in.read4());
 			if (temp != null) obj.put(PGmObject.SPRITE,temp.reference);
-			readBool(in,obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
+			in.readBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
 			obj.put(PGmObject.DEPTH,in.read4());
 			obj.put(PGmObject.PERSISTENT,in.readBool());
 			obj.put(PGmObject.PARENT,c.objids.get(in.read4()));
@@ -697,7 +696,7 @@ public final class GmFileReader
 			ver = in.read4();
 			if (ver != 520 && ver != 541) throw versionError(f,"IN","ROOMS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			rm.put(PRoom.CAPTION,in.readStr());
-			read4(in,rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
+			in.read4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
 			rm.put(PRoom.ISOMETRIC,in.readBool());
 			rm.put(PRoom.SPEED,in.read4());
 			rm.put(PRoom.PERSISTENT,in.readBool());
@@ -772,12 +771,12 @@ public final class GmFileReader
 				rm.tiles.add(t);
 				}
 			rm.put(PRoom.REMEMBER_WINDOW_SIZE,in.readBool());
-			read4(in,rm.properties,PRoom.EDITOR_WIDTH,PRoom.EDITOR_HEIGHT);
-			readBool(in,rm.properties,PRoom.SHOW_GRID,PRoom.SHOW_OBJECTS,PRoom.SHOW_TILES,
+			in.read4(rm.properties,PRoom.EDITOR_WIDTH,PRoom.EDITOR_HEIGHT);
+			in.readBool(rm.properties,PRoom.SHOW_GRID,PRoom.SHOW_OBJECTS,PRoom.SHOW_TILES,
 					PRoom.SHOW_BACKGROUNDS,PRoom.SHOW_FOREGROUNDS,PRoom.SHOW_VIEWS,
 					PRoom.DELETE_UNDERLYING_OBJECTS,PRoom.DELETE_UNDERLYING_TILES);
 			if (ver == 520) in.skip(6 * 4); //tile info
-			read4(in,rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
+			in.read4(rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
 			}
 		f.rooms.lastId = noRooms;
 		}
@@ -988,33 +987,5 @@ public final class GmFileReader
 				}
 			act.setNot(in.readBool());
 			}
-		}
-
-	private static <P extends Enum<P>>void read4(GmStreamDecoder in, PropertyMap<P> map, P...keys)
-			throws IOException
-		{
-		for (P key : keys)
-			map.put(key,in.read4());
-		}
-
-	private static <P extends Enum<P>>void readStr(GmStreamDecoder in, PropertyMap<P> map, P...keys)
-			throws IOException
-		{
-		for (P key : keys)
-			map.put(key,in.readStr());
-		}
-
-	private static <P extends Enum<P>>void readBool(GmStreamDecoder in, PropertyMap<P> map, P...keys)
-			throws IOException
-		{
-		for (P key : keys)
-			map.put(key,in.readBool());
-		}
-
-	private static <P extends Enum<P>>void readD(GmStreamDecoder in, PropertyMap<P> map, P...keys)
-			throws IOException
-		{
-		for (P key : keys)
-			map.put(key,in.readD());
 		}
 	}

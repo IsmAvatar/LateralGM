@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
- * Copyright (C) 2007 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2007, 2009 IsmAvatar <cmagicj@nni.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -11,138 +12,54 @@ package org.lateralgm.file;
 
 import static org.lateralgm.main.Util.deRef;
 
-import java.awt.Image;
-import java.awt.image.RenderedImage;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.zip.Deflater;
-
-import javax.imageio.ImageIO;
 
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.util.PropertyMap;
 
-public class GmStreamEncoder
+public class GmStreamEncoder extends StreamEncoder
 	{
-	private OutputStream out;
-
 	public GmStreamEncoder(OutputStream o)
 		{
-		if (o instanceof BufferedOutputStream)
-			out = o;
-		else
-			out = new BufferedOutputStream(o);
+		super(o);
 		}
 
 	public GmStreamEncoder(File f) throws FileNotFoundException
 		{
-		out = new BufferedOutputStream(new FileOutputStream(f));
+		super(f);
 		}
 
 	public GmStreamEncoder(String filePath) throws FileNotFoundException
 		{
-		out = new BufferedOutputStream(new FileOutputStream(filePath));
+		super(filePath);
 		}
 
-	public void write(int b) throws IOException
+	public <P extends Enum<P>>void write4(PropertyMap<P> map, P...keys) throws IOException
 		{
-		out.write(b);
+		for (P key : keys)
+			write4((Integer) map.get(key));
 		}
 
-	public void write(byte[] b) throws IOException
+	public <P extends Enum<P>>void writeStr(PropertyMap<P> map, P...keys) throws IOException
 		{
-		out.write(b);
+		for (P key : keys)
+			writeStr((String) map.get(key));
 		}
 
-	public void write(byte[] b, int off, int len) throws IOException
+	public <P extends Enum<P>>void writeBool(PropertyMap<P> map, P...keys) throws IOException
 		{
-		out.write(b,off,len);
+		for (P key : keys)
+			writeBool((Boolean) map.get(key));
 		}
 
-	public void write2(int val) throws IOException
+	public <P extends Enum<P>>void writeD(PropertyMap<P> map, P...keys) throws IOException
 		{
-		short i = (short) val;
-		write(i & 255);
-		write((i >> 8) & 255);
-		}
-
-	public void write4(int val) throws IOException
-		{
-		out.write(val & 255);
-		out.write((val >> 8) & 255);
-		out.write((val >> 16) & 255);
-		out.write((val >> 24) & 255);
-		}
-
-	public void writeStr(String str) throws IOException
-		{
-		write4(str.length());
-		out.write(str.getBytes("ascii"));
-		}
-
-	public void writeStr1(String str) throws IOException
-		{
-		write(Math.min(str.length(),255));
-		out.write(str.getBytes("ascii"),0,Math.min(str.length(),255));
-		}
-
-	public void writeBool(boolean val) throws IOException
-		{
-		write4(val ? 1 : 0);
-		}
-
-	public void writeD(double val) throws IOException
-		{
-		long num = Double.doubleToLongBits(val);
-		out.write((int) ((num) & 255));
-		out.write((int) ((num >> 8) & 255));
-		out.write((int) ((num >> 16) & 255));
-		out.write((int) ((num >> 24) & 255));
-		out.write((int) ((num >> 32) & 255));
-		out.write((int) ((num >> 40) & 255));
-		out.write((int) ((num >> 48) & 255));
-		out.write((int) ((num >> 56) & 255));
-		}
-
-	public void compress(byte[] data) throws IOException
-		{
-		Deflater compresser = new Deflater();
-		compresser.setInput(data);
-		compresser.finish();
-		byte[] buffer = new byte[100];
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		while (!compresser.finished())
-			{
-			int len = compresser.deflate(buffer);
-			baos.write(buffer,0,len);
-			}
-		write4(baos.size());
-		out.write(baos.toByteArray());
-		}
-
-	public void writeImage(Image image) throws IOException
-		{
-		ByteArrayOutputStream data = new ByteArrayOutputStream();
-		ImageIO.write((RenderedImage) image,"bmp",data);
-		compress(data.toByteArray());
-		}
-
-	public void close() throws IOException
-		{
-		out.close();
-		}
-
-	public void fill(int count) throws IOException
-		{
-		for (int i = 0; i < count; i++)
-			{
-			write4(0);
-			}
+		for (P key : keys)
+			writeD((Double) map.get(key));
 		}
 
 	public <R extends Resource<R,?>>void writeId(ResourceReference<R> id) throws IOException
