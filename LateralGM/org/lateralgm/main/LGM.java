@@ -296,6 +296,7 @@ public final class LGM
 		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
 		split.setDividerLocation(170);
+		split.setOneTouchExpandable(true);
 		f.add(split);
 		mdi.setBackground(Color.BLACK);
 		eventSelect = new EventFrame();

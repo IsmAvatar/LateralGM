@@ -21,47 +21,28 @@
    inkscape:export-ydpi="90">
   <defs
      id="defs7450">
-    <marker
-       inkscape:stockid="Arrow1Lstart"
-       orient="auto"
-       refY="0.0"
-       refX="0.0"
-       id="Arrow1Lstart"
-       style="overflow:visible">
-      <path
-         id="path11067"
-         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
-         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
-         transform="scale(0.8) translate(12.5,0)" />
-    </marker>
-    <inkscape:perspective
-       sodipodi:type="inkscape:persp3d"
-       inkscape:vp_x="0 : 120 : 1"
-       inkscape:vp_y="0 : 1000 : 0"
-       inkscape:vp_z="480 : 120 : 1"
-       inkscape:persp3d-origin="240 : 80 : 1"
-       id="perspective75" />
-    <linearGradient
-       id="linearGradient21112">
-      <stop
-         style="stop-color:#ff0000;stop-opacity:1;"
-         offset="0"
-         id="stop21114" />
-      <stop
-         style="stop-color:#800000;stop-opacity:1;"
-         offset="1"
-         id="stop21116" />
-    </linearGradient>
     <filter
-       height="1.1794512"
+       id="filterLogo"
+       x="-0.10321789"
        y="-0.089725611"
        width="1.2064358"
-       x="-0.10321789"
-       id="filterLogo"
+       height="1.1794512"
        inkscape:collect="always">
       <feGaussianBlur
          id="feGaussianBlur4407"
          stdDeviation="6.1312501"
+         inkscape:collect="always" />
+    </filter>
+    <filter
+       id="filterShadow"
+       x="-0.038737993"
+       y="-0.13299849"
+       width="1.077476"
+       height="1.265997"
+       inkscape:collect="always">
+      <feGaussianBlur
+         id="feGaussianBlur3515"
+         stdDeviation="3.8594238"
          inkscape:collect="always" />
     </filter>
     <clipPath
@@ -78,6 +59,17 @@
          style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:8;stroke-linecap:butt;stroke-linejoin:bevel;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.50196078;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          sodipodi:type="arc" />
     </clipPath>
+    <linearGradient
+       id="linearGradient21112">
+      <stop
+         style="stop-color:#ff0000;stop-opacity:1;"
+         offset="0"
+         id="stop21114" />
+      <stop
+         style="stop-color:#800000;stop-opacity:1;"
+         offset="1"
+         id="stop21116" />
+    </linearGradient>
     <linearGradient
        id="linearGradient17174">
       <stop
@@ -260,18 +252,6 @@
        y1="3.0591321"
        x2="7"
        y2="6" />
-    <filter
-       inkscape:collect="always"
-       x="-0.038305144"
-       width="1.0766103"
-       y="-0.13836657"
-       height="1.2767331"
-       id="filterWhiteTextGlow">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="4.0"
-         id="feGaussianBlur14317" />
-    </filter>
   </defs>
   <metadata
      id="metadata7453">
@@ -445,33 +425,30 @@
       </g>
     </g>
     <g
-       id="gText">
+       id="gText"
+       transform="translate(0,-7.1244537)">
       <use
-         transform="translate(1.6e-6,-5.9644776e-8)"
-         style="fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:6;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline;filter:url(#filterWhiteTextGlow)"
-         id="useGlow"
+         id="useShadow"
          xlink:href="#useText"
-         y="0"
-         x="0"
-         width="480"
-         height="240" />
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:6;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filterShadow)" />
       <use
-         height="240"
-         width="480"
-         transform="translate(224.82842,146.60661)"
+         id="useTextOutline"
+         xlink:href="#useText"
+         style="fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:4;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;display:inline" />
+      <use
          id="useText"
          xlink:href="#textLabel"
-         y="0"
-         x="0"
+         transform="translate(224.82842,146.60661)"
          style="display:inline" />
     </g>
   </g>
   <g
-     style="display:none"
      id="layer3"
+     style="display:none"
      inkscape:groupmode="layer">
     <text
        id="textLabel"
+       text-rendering="geometricPrecision"
        style="font-size:10px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Liberation Serif;-inkscape-font-specification:Liberation Serif Bold"
        sodipodi:linespacing="125%">
       <tspan
@@ -482,8 +459,8 @@
       <tspan
          id="tspanVersion"
          style="font-size:24px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;font-family:Liberation Serif;-inkscape-font-specification:Liberation Serif Bold"
-         y="0"
-         x="0">version 1.6.0</tspan>
+         x="0"
+         y="0">v1.6.0 beta (r355)</tspan>
     </text>
   </g>
 </svg>
