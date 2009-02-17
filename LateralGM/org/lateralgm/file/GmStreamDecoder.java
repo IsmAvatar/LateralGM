@@ -106,7 +106,10 @@ public class GmStreamDecoder
 		{
 		byte[] b = new byte[4];
 		read(b);
-		return (b[0] | (b[1] << 8) | (b[2] << 16) | (b[3] << 24));
+		int r = b[0] & 0xFF;
+		for (byte i = 1; i < 4; i++)
+			r |= (b[i] & 0xFF) << (8 * i);
+		return r;
 		}
 
 	public String readStr() throws IOException
@@ -138,34 +141,31 @@ public class GmStreamDecoder
 		{
 		byte[] b = new byte[8];
 		read(b);
-		long result = b[0] | (long) b[1] << 8 | (long) b[2] << 16 | (long) b[3] << 24
-				| (long) b[4] << 32 | (long) b[5] << 40 | (long) b[6] << 48 | (long) b[7] << 56;
-		return Double.longBitsToDouble(result);
+		long r = b[0] & 0xFF;
+		for (byte i = 1; i < 8; i++)
+			r |= (b[i] & 0xFF) << (8 * i);
+		return Double.longBitsToDouble(r);
 		}
 
-	public <P extends Enum<P>>void read4(PropertyMap<P> map, P...keys)
-			throws IOException
+	public <P extends Enum<P>>void read4(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			map.put(key,read4());
 		}
 
-	public <P extends Enum<P>>void readStr(PropertyMap<P> map, P...keys)
-			throws IOException
+	public <P extends Enum<P>>void readStr(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			map.put(key,readStr());
 		}
 
-	public <P extends Enum<P>>void readBool(PropertyMap<P> map, P...keys)
-			throws IOException
+	public <P extends Enum<P>>void readBool(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			map.put(key,readBool());
 		}
 
-	public <P extends Enum<P>>void readD(PropertyMap<P> map, P...keys)
-			throws IOException
+	public <P extends Enum<P>>void readD(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			map.put(key,readD());
