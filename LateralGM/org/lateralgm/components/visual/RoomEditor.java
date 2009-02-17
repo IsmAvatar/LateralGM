@@ -420,7 +420,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 
 	private void paintBackground(Graphics g, BackgroundDef bd, int width, int height)
 		{
-		BufferedImage bi = bd.backgroundId.get().getBackgroundImage();
+		BufferedImage bi = bd.backgroundId.get().getDisplayImage();
 		if (bi == null) return;
 		int w = bd.stretch ? width : bi.getWidth();
 		int h = bd.stretch ? height : bi.getHeight();

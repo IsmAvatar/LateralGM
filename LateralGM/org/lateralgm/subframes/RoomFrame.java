@@ -861,6 +861,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		bVisible.addActionListener(this);
 		st = Messages.getString("RoomFrame.BACK_FOREGROUND"); //$NON-NLS-1$
 		bForeground = new JCheckBox(st,res.backgroundDefs[0].foreground);
+		bForeground.addActionListener(this);
 
 		bSource = new ResourceMenu<Background>(Resource.Kind.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,150); //$NON-NLS-1$
@@ -1329,6 +1330,11 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			res.backgroundDefs[lastValidBack].visible = bVisible.isSelected();
 			lab.setFont(lab.getFont().deriveFont(bVisible.isSelected() ? Font.BOLD : Font.PLAIN));
 			bList.updateUI();
+			return true;
+			}
+		if (s == bForeground)
+			{
+			res.backgroundDefs[lastValidBack].foreground = bForeground.isSelected();
 			return true;
 			}
 		if (s == bSource)
@@ -1800,6 +1806,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		tY.removeActionListener(this);
 		bList.removeListSelectionListener(this);
 		bVisible.removeActionListener(this);
+		bForeground.removeActionListener(this);
 		bTileH.removeActionListener(this);
 		bX.removeActionListener(this);
 		bTileV.removeActionListener(this);
