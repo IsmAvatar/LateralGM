@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008 IsmAvatar <cmagicj@nni.com>
+ * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * 

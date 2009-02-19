@@ -1,7 +1,7 @@
 /*
  * DefaultInputHandler.java - Default implementation of an input handler
  * Copyright (C) 1999 Slava Pestov
- * Modified by IsmAvatar <cmagicj@nni.com>
+ * Modified by IsmAvatar <IsmAvatar@gmail.com>
  *
  * You may use and modify this package for any purpose. Redistribution is
  * permitted, in both source and binary form, provided that this notice
