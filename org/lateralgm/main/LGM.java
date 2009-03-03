@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006, 2007, 2008, 2009 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
@@ -49,6 +49,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -62,6 +63,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.impl.CustomFileFilter;
@@ -70,6 +72,8 @@ import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.GmFile;
+import org.lateralgm.file.GmFileReader;
+import org.lateralgm.file.GmFormatException;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibManager;
@@ -205,11 +209,10 @@ public final class LGM
 		return but;
 		}
 
-	private static void createToolBar(JPanel f)
+	private static JToolBar createToolBar()
 		{
 		tool = new JToolBar();
 		tool.setFloatable(false);
-		f.add("North",tool); //$NON-NLS-1$
 		tool.add(makeButton("LGM.NEW")); //$NON-NLS-1$
 		tool.add(makeButton("LGM.OPEN")); //$NON-NLS-1$
 		tool.add(makeButton("LGM.SAVE")); //$NON-NLS-1$
@@ -217,41 +220,15 @@ public final class LGM
 		tool.add(makeButton("LGM.SAVEAS")); //$NON-NLS-1$
 		tool.addSeparator();
 		tool.add(makeButton("LGM.EVENT_BUTTON")); //$NON-NLS-1$
+		return tool;
 		}
 
-	public static void populateTree()
+	private static JComponent createTree()
 		{
-		root.addChild(Messages.getString("LGM.SPRITES"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.Kind.SPRITE);
-		root.addChild(Messages.getString("LGM.SOUNDS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.Kind.SOUND);
-		root.addChild(Messages.getString("LGM.BACKGROUNDS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.Kind.BACKGROUND);
-		root.addChild(Messages.getString("LGM.PATHS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.Kind.PATH);
-		root.addChild(Messages.getString("LGM.SCRIPTS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.Kind.SCRIPT);
-		root.addChild(Messages.getString("LGM.FONTS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.Kind.FONT);
-		root.addChild(Messages.getString("LGM.TIMELINES"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.Kind.TIMELINE);
-		root.addChild(Messages.getString("LGM.OBJECTS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.Kind.OBJECT);
-		root.addChild(Messages.getString("LGM.ROOMS"), //$NON-NLS-1$
-				ResNode.STATUS_PRIMARY,Resource.Kind.ROOM);
-		root.addChild(Messages.getString("LGM.GAMEINFO"), //$NON-NLS-1$
-				ResNode.STATUS_SECONDARY,Resource.Kind.GAMEINFO);
-		root.addChild(Messages.getString("LGM.GAMESETTINGS"), //$NON-NLS-1$
-				ResNode.STATUS_SECONDARY,Resource.Kind.GAMESETTINGS);
-		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
+		return createTree(new ResNode("Root",(byte) 0,null,null)); //$NON-NLS-1$
 		}
 
-	private static void createTree(JPanel f, boolean populate)
-		{
-		createTree(f,new ResNode("Root",(byte) 0,null,null),populate); //$NON-NLS-1$
-		}
-
-	private static void createTree(JPanel f, ResNode newroot, boolean populate)
+	private static JComponent createTree(ResNode newroot)
 		{
 		root = newroot;
 		tree = new JTree(new DefaultTreeModel(root));
@@ -281,26 +258,23 @@ public final class LGM
 				im.put(s,"none"); //null doesn't remove them //$NON-NLS-1$
 			}
 
-		if (populate)
-			populateTree();
-		else
-			tree.setSelectionRow(0);
-
 		// Setup the rest of the main window
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(200,100));
+		return scroll;
+		}
+
+	private static JComponent createMDI()
+		{
 		mdi = new MDIPane();
-		JScrollPane scroll2 = new JScrollPane(mdi);
-		mdi.setScrollPane(scroll2);
-		scroll2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,scroll,scroll2);
-		split.setDividerLocation(170);
-		split.setOneTouchExpandable(true);
-		f.add(split);
+		JScrollPane scroll = new JScrollPane(mdi);
+		mdi.setScrollPane(scroll);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		mdi.setBackground(Color.BLACK);
 		eventSelect = new EventFrame();
 		mdi.add(eventSelect);
+		return scroll;
 		}
 
 	public static void loadPlugins()
@@ -326,6 +300,74 @@ public final class LGM
 				continue;
 				}
 			}
+		}
+
+	public static void populateTree()
+		{
+		root.addChild(Messages.getString("LGM.SPRITES"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.Kind.SPRITE);
+		root.addChild(Messages.getString("LGM.SOUNDS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.Kind.SOUND);
+		root.addChild(Messages.getString("LGM.BACKGROUNDS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.Kind.BACKGROUND);
+		root.addChild(Messages.getString("LGM.PATHS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.Kind.PATH);
+		root.addChild(Messages.getString("LGM.SCRIPTS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.Kind.SCRIPT);
+		root.addChild(Messages.getString("LGM.FONTS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.Kind.FONT);
+		root.addChild(Messages.getString("LGM.TIMELINES"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.Kind.TIMELINE);
+		root.addChild(Messages.getString("LGM.OBJECTS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.Kind.OBJECT);
+		root.addChild(Messages.getString("LGM.ROOMS"), //$NON-NLS-1$
+				ResNode.STATUS_PRIMARY,Resource.Kind.ROOM);
+		root.addChild(Messages.getString("LGM.GAMEINFO"), //$NON-NLS-1$
+				ResNode.STATUS_SECONDARY,Resource.Kind.GAMEINFO);
+		root.addChild(Messages.getString("LGM.GAMESETTINGS"), //$NON-NLS-1$
+				ResNode.STATUS_SECONDARY,Resource.Kind.GAMESETTINGS);
+		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
+		}
+
+	public static boolean preLoadFile(String fn)
+		{
+		File file = new File(fn);
+		if (!file.exists()) return false;
+		System.out.println("Loading " + fn);
+		try
+			{
+			LGM.currentFile = GmFileReader.readGmFile(fn,LGM.root);
+			}
+		catch (GmFormatException e)
+			{
+			new ErrorDialog(LGM.frame,Messages.getString("Listener.ERROR_TITLE"), //$NON-NLS-1$
+					Messages.getString("Listener.ERROR_MESSAGE"),Messages.format("Listener.DEBUG_INFO", //$NON-NLS-1$ //$NON-NLS-2$
+							e.getClass().getName(),e.getMessage(),e.stackAsString())).setVisible(true);
+			return false;
+			}
+		PrefsStore.addRecentFile(fn);
+		LGM.frame.setTitle(Messages.format("LGM.TITLE",file.getName())); //$NON-NLS-1$
+		((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
+		LGM.tree.setSelectionRow(0);
+
+		return true;
+		}
+
+	public static void reload()
+		{
+		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
+		LGM.tree.setSelectionRow(0);
+
+		//This hack ensures EventSelector.linkSelect knows of the new root
+		LGM.mdi.remove(LGM.eventSelect);
+		LGM.eventSelect = new EventFrame();
+		LGM.mdi.add(LGM.eventSelect);
+
+		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
+		LGM.getGameSettings().setVisible(false);
+		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);
+		LGM.getGameInfo().setVisible(false);
 		}
 
 	public static void commitAll()
@@ -366,16 +408,16 @@ public final class LGM
 
 	public static void main(String[] args)
 		{
-		System.out.println(workDir.isDirectory());
 		SplashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
-		SplashProgress.progress(30,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		SplashProgress.progress(40,Messages.getString("LGM.SPLASH_TOOLBAR")); //$NON-NLS-1$
-		JPanel f = new JPanel(new BorderLayout());
-		createToolBar(f);
-		SplashProgress.progress(50,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
-		createTree(f,true);
+		SplashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
+		JComponent tool = createToolBar();
+		JComponent left = createTree();
+		JComponent right = createMDI();
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,left,right);
+		split.setDividerLocation(170);
+		split.setOneTouchExpandable(true);
+		SplashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
 		gameInformationFrameBuilder = new Thread()
 			{
 				public void run()
@@ -392,15 +434,19 @@ public final class LGM
 					mdi.add(gameSet);
 					}
 			};
-		gameInformationFrameBuilder.start(); //must occur after MDI created in createTree
-		gameSettingFrameBuilder.start(); //must occur after MDI created in createTree
-		SplashProgress.progress(60,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
+		gameInformationFrameBuilder.start(); //must occur after createMDI
+		gameSettingFrameBuilder.start(); //must occur after createMDI
+		SplashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame.setJMenuBar(new GmMenuBar());
-		SplashProgress.progress(70,Messages.getString("LGM.SPLASH_FRAME")); //$NON-NLS-1$
-		f.setOpaque(true);
+		SplashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
+		JPanel f = new JPanel(new BorderLayout());
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(f);
+		f.add(BorderLayout.NORTH,tool);
+		f.add(BorderLayout.CENTER,split);
+		f.setOpaque(true);
 		new FramePrefsHandler(frame);
-		SplashProgress.progress(80,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
+		SplashProgress.progress(70,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
 		try
 			{
 			frame.setIconImage(ImageIO.read(LGM.class.getClassLoader().getResource(
@@ -410,6 +456,8 @@ public final class LGM
 			{
 			e.printStackTrace();
 			}
+		SplashProgress.progress(80,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
+		if (args.length == 0 || !preLoadFile(args[0])) populateTree();
 		SplashProgress.progress(90,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
 		loadPlugins();
 		SplashProgress.complete();

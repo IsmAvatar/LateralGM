@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2009 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
@@ -34,7 +34,6 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -101,14 +100,14 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			filename = file.getPath();
 			}
 		if (!file.exists()) return;
-		ResNode newroot = new ResNode("Root",(byte) 0,null,null); //$NON-NLS-1$
+
+		PrefsStore.addRecentFile(filename);
+		LGM.frame.setTitle(Messages.format("LGM.TITLE",file.getName())); //$NON-NLS-1$
+		((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+		LGM.root = new ResNode("Root",(byte) 0,null,null); //$NON-NLS-1$;
 		try
 			{
-			PrefsStore.addRecentFile(filename);
-			LGM.frame.setTitle(Messages.format("LGM.TITLE",file.getName())); //$NON-NLS-1$
-			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-			LGM.root = newroot;
-			LGM.currentFile = GmFileReader.readGmFile(filename,newroot);
+			LGM.currentFile = GmFileReader.readGmFile(filename,LGM.root);
 			}
 		catch (GmFormatException ex)
 			{
@@ -129,13 +128,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getKind(),r.reference));
 				}
 			}
-		LGM.tree.setModel(new DefaultTreeModel(newroot));
-		LGM.tree.setSelectionRow(0);
-
-		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
-		LGM.getGameSettings().setVisible(false);
-		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);
-		LGM.getGameInfo().setVisible(false);
+		LGM.reload();
 		}
 
 	public void newFile()
@@ -145,12 +138,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		LGM.root = new ResNode("Root",(byte) 0,null,null); //$NON-NLS-1$
 		LGM.currentFile = new GmFile();
 		LGM.populateTree();
-		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
-
-		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
-		LGM.getGameSettings().setVisible(false);
-		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);
-		LGM.getGameInfo().setVisible(false);
+		LGM.reload();
 		}
 
 	public static class BackupException extends Exception
