@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2009 IsmAvatar <IsmAvatar@gmail.com>
  *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -8,11 +9,17 @@
 
 package org.lateralgm.jedit;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.lateralgm.main.LGM;
 
 public final class GMLKeywords
 	{
@@ -24,7 +31,16 @@ public final class GMLKeywords
 
 	static
 		{
-		InputStream is = GMLTokenMarker.class.getResourceAsStream("gmlkeywords.properties");
+		final String fn = "gmlkeywords.properties";
+		InputStream is;
+		try
+			{
+			is = new BufferedInputStream(new FileInputStream(new File(LGM.workDir,fn)));
+			}
+		catch (FileNotFoundException e1)
+			{
+			is = GMLTokenMarker.class.getResourceAsStream(fn);
+			}
 		Properties p = new Properties();
 		try
 			{

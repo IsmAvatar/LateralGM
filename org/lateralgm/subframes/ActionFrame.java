@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2009 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -367,7 +367,8 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				arrows[i].setIcon(new ImageIcon(icons.getSubimage(24 * (i % 3),24 * (i / 3),24,24)));
 				arrows[i].setMinimumSize(btnSize);
 				arrows[i].setPreferredSize(btnSize);
-				if (val.length() > i) arrows[i].setSelected(val.charAt(i) == '1');
+				int p = (2 - (i / 3)) * 3 + i % 3;
+				if (val.length() > p) arrows[i].setSelected(val.charAt(p) == '1');
 				add(arrows[i]);
 				}
 			setMaximumSize(panelSize);
@@ -378,7 +379,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			{
 			char[] res = new char[9];
 			for (int i = 0; i < 9; i++)
-				res[i] = arrows[i].isSelected() ? '1' : '0';
+				res[i] = arrows[(2 - (i / 3)) * 3 + i % 3].isSelected() ? '1' : '0';
 			return new String(res);
 			}
 		}

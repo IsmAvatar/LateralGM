@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
- * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2009 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -225,6 +225,7 @@ public class MDIPane extends JDesktopPane
 
 	private void updateZChildren(Component p)
 		{
+		if (zMap == null) return;
 		int fi = getIndexOf(p);
 		int fl = getLayer(p);
 		int fp = getPosition(p);
