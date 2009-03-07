@@ -33,9 +33,11 @@ public final class GMLKeywords
 		{
 		final String fn = "gmlkeywords.properties";
 		InputStream is;
+		File dir = LGM.workDir;
+		if (!dir.isDirectory()) dir = dir.getParentFile();
 		try
 			{
-			is = new BufferedInputStream(new FileInputStream(new File(LGM.workDir,fn)));
+			is = new BufferedInputStream(new FileInputStream(new File(dir,fn)));
 			}
 		catch (FileNotFoundException e1)
 			{
