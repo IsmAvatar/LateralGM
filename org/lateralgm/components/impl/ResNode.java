@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006, 2007, 2009 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
@@ -13,22 +13,29 @@ package org.lateralgm.components.impl;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.EnumMap;
 import java.util.Map;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
 import org.lateralgm.components.GmTreeGraphics;
+import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GmObject;
@@ -165,7 +172,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		if (SubframeInformer.fireSubframeRequest(res.get(),this)) return;
 		if (frame == null)
 			{
-			ResourceFrame<?,?> rf = null;
+			MDIFrame rf = null;
 			switch (kind)
 				{
 				case SPRITE:
@@ -195,19 +202,78 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 				case ROOM:
 					rf = new RoomFrame((Room) res.get(),this);
 					break;
+				case GAMEINFO:
+					rf = LGM.getGameInfo();
+					SubframeInformer.fireSubframeAppear(rf);
+					rf.toTop();
+					return;
+				case GAMESETTINGS:
+					rf = LGM.getGameSettings();
+					SubframeInformer.fireSubframeAppear(rf);
+					rf.toTop();
+					return;
+				case EXTENSIONS:
+					return;
 				}
 			if (rf != null)
 				{
-				frame = rf;
+				frame = (ResourceFrame<?,?>) rf;
 				LGM.mdi.add(rf);
 				}
 			}
 		if (frame != null)
 			{
 			SubframeInformer.fireSubframeAppear(frame);
-			frame.setVisible(true);
 			frame.toTop();
 			}
+		}
+
+	private JMenuItem makeMenuItem(String command, ActionListener al)
+		{
+		JMenuItem menuItem = new JMenuItem(Messages.getString(command));
+		menuItem.setActionCommand(command);
+		menuItem.addActionListener(al);
+		return menuItem;
+		}
+
+	/**
+	 * Called prior to the tree displaying its menu.
+	 * The return value indicates whether the default tree menu should be overridden.
+	 * By default, this method simply does nothing and returns false.
+	 * @return whether to override the default tree menu.
+	 */
+	public void showMenu(MouseEvent e)
+		{
+		JPopupMenu popup = new JPopupMenu();
+		ActionListener al = new Listener.NodeMenuListener(this);
+		switch (kind)
+			{
+			case GAMESETTINGS:
+			case GAMEINFO:
+			case EXTENSIONS:
+				popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
+				popup.show(e.getComponent(),e.getX(),e.getY());
+				return;
+			}
+		if (status == ResNode.STATUS_SECONDARY)
+			{
+			popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
+			popup.addSeparator();
+			popup.add(makeMenuItem("Listener.TREE_INSERT",al)); //$NON-NLS-1$
+			popup.add(makeMenuItem("Listener.TREE_COPY",al)); //$NON-NLS-1$
+			}
+		else
+			popup.add(makeMenuItem("Listener.TREE_ADD",al)); //$NON-NLS-1$
+		popup.addSeparator();
+		popup.add(makeMenuItem("Listener.TREE_GROUP",al)); //$NON-NLS-1$
+		if (status != ResNode.STATUS_SECONDARY) popup.add(makeMenuItem("Listener.TREE_SORT",al)); //$NON-NLS-1$
+		if (status != ResNode.STATUS_PRIMARY)
+			{
+			popup.addSeparator();
+			popup.add(makeMenuItem("Listener.TREE_DELETE",al)); //$NON-NLS-1$
+			popup.add(makeMenuItem("Listener.TREE_RENAME",al)); //$NON-NLS-1$
+			}
+		popup.show(e.getComponent(),e.getX(),e.getY());
 		}
 
 	public void add(MutableTreeNode arg0)

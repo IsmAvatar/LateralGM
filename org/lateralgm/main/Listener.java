@@ -27,9 +27,7 @@ import java.util.HashSet;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
@@ -337,7 +335,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		g.openFrame();
 		}
 
-	protected static void deleteResource(JTree tree)
+	protected static void deleteSelectedResource(JTree tree)
 		{
 		ResNode me = (ResNode) tree.getLastSelectedPathComponent();
 		if (me == null) return;
@@ -427,7 +425,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (com.endsWith(".DELETE")) //$NON-NLS-1$
 			{
-			deleteResource(tree);
+			deleteSelectedResource(tree);
 			return;
 			}
 		if (com.endsWith(".DEFRAGIDS")) //$NON-NLS-1$
@@ -518,119 +516,72 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		return true;
 		}
 
-	private JMenuItem makeMenuItem(String command, ActionListener al)
+	public static class NodeMenuListener implements ActionListener
 		{
-		JMenuItem menuItem = new JMenuItem(Messages.getString(command));
-		menuItem.setActionCommand(command);
-		menuItem.addActionListener(al);
-		return menuItem;
-		}
+		ResNode node;
 
-	protected void showNodeMenu(MouseEvent e, final ResNode node)
-		{
-		JPopupMenu popup = new JPopupMenu();
-		ActionListener al = new ActionListener()
+		public NodeMenuListener(ResNode node)
 			{
-				public void actionPerformed(ActionEvent e)
-					{
-					JTree tree = LGM.tree;
-					String com = e.getActionCommand().substring(e.getActionCommand().lastIndexOf('_') + 1);
-					if (node == null) return;
-					if (com.equals("EDIT")) //$NON-NLS-1$
-						{
-						switch (node.kind)
-							{
-							case GAMEINFO:
-								LGM.getGameInfo().toTop();
-								return;
-							case GAMESETTINGS:
-								LGM.getGameSettings().toTop();
-								return;
-							case EXTENSIONS:
-								return;
-							}
-						// kind must be a Resource kind
-						if (node.status != ResNode.STATUS_SECONDARY) return;
-						node.openFrame();
-						return;
-						}
-					if (com.equals("DELETE")) //$NON-NLS-1$
-						{
-						deleteResource(tree);
-						return;
-						}
-					if (com.equals("RENAME")) //$NON-NLS-1$
-						{
-						if (tree.getCellEditor().isCellEditable(null))
-							tree.startEditingAtPath(tree.getLeadSelectionPath());
-						return;
-						}
-					if (com.equals("GROUP")) //$NON-NLS-1$
-						{
-						if (node.status == ResNode.STATUS_SECONDARY)
-							insertResource(tree,"GROUP"); //$NON-NLS-1$
-						else
-							addResource(tree,"GROUP"); //$NON-NLS-1$
-						return;
-						}
-					if (com.equals("INSERT")) //$NON-NLS-1$
-						{
-						insertResource(tree,node.kind);
-						return;
-						}
-					if (com.equals("ADD")) //$NON-NLS-1$
-						{
-						addResource(tree,node.kind);
-						return;
-						}
-					if (com.equals("COPY")) //$NON-NLS-1$
-						{
-						ResourceList<?> rl = LGM.currentFile.getList(node.kind);
-						Resource<?,?> resource = null;
-						try
-							{
-							if (node.frame != null) node.frame.commitChanges();
-							// dodgy workaround to avoid warnings
-							resource = (Resource<?,?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(//$NON-NLS-1$
-									rl,node.getRes().get());
-							}
-						catch (Exception e1)
-							{
-							e1.printStackTrace();
-							}
-						addResource(tree,node.kind,resource);
-						return;
-						}
-					}
-			};
-		switch (node.kind)
+			this.node = node;
+			}
+
+		public void actionPerformed(ActionEvent e)
 			{
-			case GAMESETTINGS:
-			case GAMEINFO:
-			case EXTENSIONS:
-				popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
-				popup.show(e.getComponent(),e.getX(),e.getY());
+			JTree tree = LGM.tree;
+			String com = e.getActionCommand().substring(e.getActionCommand().lastIndexOf('_') + 1);
+			if (com.equals("EDIT")) //$NON-NLS-1$
+				{
+				if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
 				return;
+				}
+			if (com.equals("DELETE")) //$NON-NLS-1$
+				{
+				deleteSelectedResource(tree);
+				return;
+				}
+			if (com.equals("RENAME")) //$NON-NLS-1$
+				{
+				if (tree.getCellEditor().isCellEditable(null))
+					tree.startEditingAtPath(tree.getLeadSelectionPath());
+				return;
+				}
+			if (com.equals("GROUP")) //$NON-NLS-1$
+				{
+				if (node.status == ResNode.STATUS_SECONDARY)
+					insertResource(tree,"GROUP"); //$NON-NLS-1$
+				else
+					addResource(tree,"GROUP"); //$NON-NLS-1$
+				return;
+				}
+			if (com.equals("INSERT")) //$NON-NLS-1$
+				{
+				insertResource(tree,node.kind);
+				return;
+				}
+			if (com.equals("ADD")) //$NON-NLS-1$
+				{
+				addResource(tree,node.kind);
+				return;
+				}
+			if (com.equals("COPY")) //$NON-NLS-1$
+				{
+				ResourceList<?> rl = LGM.currentFile.getList(node.kind);
+				Resource<?,?> resource = null;
+				try
+					{
+					if (node.frame != null) node.frame.commitChanges();
+					// dodgy workaround to avoid warnings
+					resource = (Resource<?,?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(//$NON-NLS-1$
+							rl,node.getRes().get());
+					}
+				catch (Exception e1)
+					{
+					e1.printStackTrace();
+					}
+				Listener.addResource(tree,node.kind,resource);
+				return;
+				}
 			}
-		if (node.status == ResNode.STATUS_SECONDARY)
-			{
-			popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
-			popup.addSeparator();
-			popup.add(makeMenuItem("Listener.TREE_INSERT",al)); //$NON-NLS-1$
-			popup.add(makeMenuItem("Listener.TREE_COPY",al)); //$NON-NLS-1$
-			}
-		else
-			popup.add(makeMenuItem("Listener.TREE_ADD",al)); //$NON-NLS-1$
-		popup.addSeparator();
-		popup.add(makeMenuItem("Listener.TREE_GROUP",al)); //$NON-NLS-1$
-		if (node.status != ResNode.STATUS_SECONDARY) popup.add(makeMenuItem("Listener.TREE_SORT",al)); //$NON-NLS-1$
-		if (node.status != ResNode.STATUS_PRIMARY)
-			{
-			popup.addSeparator();
-			popup.add(makeMenuItem("Listener.TREE_DELETE",al)); //$NON-NLS-1$
-			popup.add(makeMenuItem("Listener.TREE_RENAME",al)); //$NON-NLS-1$
-			}
-		popup.show(e.getComponent(),e.getX(),e.getY());
 		}
 
 	private class MListener extends MouseAdapter
@@ -650,40 +601,34 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 		public void mouseReleased(MouseEvent e)
 			{
-			int selRow = LGM.tree.getSelectionRows()[0];
 			TreePath selPath = LGM.tree.getSelectionPath();
-			if (e.getX() < LGM.tree.getWidth() && e.getY() < LGM.tree.getHeight() && selRow != -1)
+			if (e.getX() >= LGM.tree.getWidth() && e.getY() >= LGM.tree.getHeight() || selPath == null)
+				return;
+			ResNode node = (ResNode) selPath.getLastPathComponent();
+			if (e.getModifiers() == InputEvent.BUTTON3_MASK
+			//Isn't Java supposed to handle ctrl+click for us? For some reason it doesn't.
+					|| (e.getClickCount() == 1 && e.isControlDown()))
 				{
-				if (e.getModifiers() == InputEvent.BUTTON3_MASK)
-					showNodeMenu(e,(ResNode) selPath.getLastPathComponent());
-				else
+				node.showMenu(e);
+				return;
+				}
+			if (e.getClickCount() == 2)
+				{
+				switch (node.kind)
 					{
-					if (e.getClickCount() == 1)
-						{
-						//Isn't Java supposed to handle this for us? For some reason it doesn't.
-						if (e.isControlDown()) showNodeMenu(e,(ResNode) selPath.getLastPathComponent());
+					case GAMEINFO:
+						LGM.getGameInfo().toTop();
 						return;
-						}
-					else if (e.getClickCount() == 2)
-						{
-						ResNode node = (ResNode) selPath.getLastPathComponent();
-						switch (node.kind)
-							{
-							case GAMEINFO:
-								LGM.getGameInfo().toTop();
-								return;
-							case GAMESETTINGS:
-								LGM.getGameSettings().toTop();
-								return;
-							case EXTENSIONS:
-								return;
-							}
-						// kind must be a Resource kind
-						if (node.status != ResNode.STATUS_SECONDARY) return;
-						node.openFrame();
+					case GAMESETTINGS:
+						LGM.getGameSettings().toTop();
 						return;
-						}
+					case EXTENSIONS:
+						return;
 					}
+				// kind must be a Resource kind
+				if (node.status != ResNode.STATUS_SECONDARY) return;
+				node.openFrame();
+				return;
 				}
 			}
 		}
