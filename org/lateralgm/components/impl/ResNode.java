@@ -236,12 +236,6 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		return menuItem;
 		}
 
-	/**
-	 * Called prior to the tree displaying its menu.
-	 * The return value indicates whether the default tree menu should be overridden.
-	 * By default, this method simply does nothing and returns false.
-	 * @return whether to override the default tree menu.
-	 */
 	public void showMenu(MouseEvent e)
 		{
 		JPopupMenu popup = new JPopupMenu();
