@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="LateralGM" default="build">
-	<property name="jar" value="${user.home}/Desktop/lgm16b0.jar" />
+	<property name="jar" value="${user.home}/Desktop/lgm16b2.jar" />
 
 	<property name="lgm" value="${basedir}/org/lateralgm" />
 	<property name="main" value="${lgm}/main" />
@@ -9,49 +9,48 @@
 	<property name="png" value="${main}/lgm-splash.png" />
 	<property name="about" value="${lgm}/messages/messages.properties" />
 
-	<taskdef name="rasterize" classname="org.apache.tools.ant.taskdefs.optional.RasterizerTask" />
-	<taskdef resource="org/tigris/subversion/svnant/svnantlib.xml" />
+	<!-- Eclipse users: pre-build and post-refresh
 
-	<target name="getvars">
-		<svn>
-			<status path="${basedir}" revisionProperty="svn.revision" />
-		</svn>
-		<tstamp>
-			<format property="time" pattern="yyyyMMdd'T'hhmm'Z'" timezone="GMT" />
-		</tstamp>
+		Ensure that Eclipse builds the
+		project before executing ant scripts,
+		and refreshes the project afterwards.
 
-		<echo message="${time}" />
-		<echo message="r${svn.revision}" />
+		Also notice that "clean" and "compile"
+		are NOT intended for eclipse usage,
+		and may confuse eclipse considerably.
+	-->
+
+	<tstampt>
+		<!-- Not used yet -->
+		<format property="time" pattern="yyyyMMdd'T'hhmm'Z'" timezone="GMT" />
+	</tstampt>
+
+	<target name="prepared-jar" depends="svn" description="Prepares a jar for distribution without updating the splash screen">
+		<antcall target="initialize" />
+		<antcall target="jar-all" />
+		<antcall target="revert" />
 	</target>
 
-	<target name="initialize" depends="getvars">
-		<copy file="${svg}" tofile="${svg}~" overwrite="true" />
-		<copy file="${png}" tofile="${png}~" overwrite="true" />
-		<copy file="${about}" tofile="${about}~" overwrite="true" />
-
-		<replace file="${about}" token="$$rev$$" value="${svn.revision}" />
-		<replace file="${svg}" token="$$rev$$" value="${svn.revision}" />
-		<antcall target="image" />
-	</target>
-
-	<target name="finalize">
-		<move file="${svg}~" tofile="${svg}" overwrite="true" />
-		<move file="${png}~" tofile="${png}" overwrite="true" />
-		<move file="${about}~" tofile="${about}" overwrite="true" />
-	</target>
-
-	<target name="build">
+	<target name="build" depends="batik,svn" description="Fully prepares a jar for distribution and updates the splash screen">
 		<antcall target="build-all" />
 	</target>
 
-	<target name="build-all">
-		<antcall target="initialize" />
-		<jar destfile="${jar}" update="true" manifest="META-INF/MANIFEST.MF" basedir="." />
-		<antcall target="finalize" />
+	<target name="jar" description="Constructs a raw jar">
+		<antcall target="jar-all" />
 	</target>
 
-	<target name="build-src">
+	<target name="jar-all" description="Constructs a raw jar">
+		<jar destfile="${jar}" update="true" manifest="META-INF/MANIFEST.MF" basedir="." />
+	</target>
+
+	<target name="build-all" depends="batik,svn" description="Fully prepares a jar for distribution and updates the splash screen">
 		<antcall target="initialize" />
+		<antcall target="build-image" />
+		<antcall target="jar-all" />
+		<antcall target="revert" />
+	</target>
+
+	<target name="jar-src" description="Constructs a raw jar of source-only files">
 		<jar destfile="${jar}" update="true" manifest="META-INF/MANIFEST.MF">
 			<exclude name="**/*.class" />
 			<exclude name="**/lgm-logo.png" />
@@ -59,11 +58,15 @@
 			<exclude name="**/arrows.png" />
 			<exclude name="**/default.ico" />
 		</jar>
-		<antcall target="finalize" />
 	</target>
 
-	<target name="build-bin">
+	<target name="build-src" depends="svn" description="Prepares a source-only jar">
 		<antcall target="initialize" />
+		<antcall target="jar-src" />
+		<antcall target="revert" />
+	</target>
+
+	<target name="jar-bin" description="Constructs a raw jar of binary-only files">
 		<jar destfile="${jar}" update="true" manifest="META-INF/MANIFEST.MF">
 			<exclude name="**/*.java" />
 			<exclude name="**/*.svg" />
@@ -74,24 +77,74 @@
 			<exclude name="**/checkstyle.xml" />
 			<exclude name=".settings/**" />
 		</jar>
-		<antcall target="finalize" />
 	</target>
 
-	<target name="image">
-		<rasterize result="image/png" height="240" width="480" src="${svg}" dest="${png}" />
+	<target name="build-bin" depends="batik,svn" description="Fully prepares a binary-only jar for distribution">
+		<antcall target="initialize" />
+		<antcall target="build-image" />
+		<antcall name="jar-bin" />
+		<antcall target="revert" />
 	</target>
 
-	<target name="clean">
-		<!-- Do not call this!!! -->
+	<target name="clean" unless="eclipse.running">
+		<!-- Do not call this in eclipse!!! -->
 		<delete verbose="true">
 			<fileset dir="${basedir}" includes="**/*.class" />
 		</delete>
 	</target>
 
-	<target name="compile">
-		<!-- Chances are you shouldn't need to call this... -->
+	<target name="compile" unless="eclipse.running">
+		<!-- You shouldn't need to call this in eclipse -->
 		<javac sourcepath="" classpath="" srcdir="${basedir}" includeantruntime="no">
 			<include name="**/*.java" />
 		</javac>
+	</target>
+
+	<!-- Usually you should leave this up to a higher-level target,
+		due to the backup, replace, and revert calls
+	-->
+	<target name="build-image" depends="batik">
+		<rasterize result="image/png" height="240" width="480" src="${svg}" dest="${png}" />
+	</target>
+
+	<!-- Dependancies for some targets.
+		Made into targets so they don't crash the
+		whole script if they can't be found -->
+	<target name="batik">
+		<taskdef name="rasterize" classname="org.apache.tools.ant.taskdefs.optional.RasterizerTask" />
+	</target>
+
+	<target name="svn">
+		<taskdef resource="org/tigris/subversion/svnant/svnantlib.xml" />
+	</target>
+
+	<!-- low-level "function" targets not intended for external use -->
+	<target name="getRevision" depends="svn">
+		<svn>
+			<status path="${basedir}" revisionProperty="svn.revision" />
+		</svn>
+		<echo message="r${svn.revision}" />
+	</target>
+
+	<target name="backup">
+		<copy file="${about}" tofile="${about}~" overwrite="true" />
+		<copy file="${svg}" tofile="${svg}~" overwrite="true" />
+		<copy file="${png}" tofile="${png}~" overwrite="true" />
+	</target>
+
+	<target name="replace" depends="getRevision">
+		<replace file="${svg}" token="$$rev$$" value="${svn.revision}" />
+		<replace file="${about}" token="$$rev$$" value="${svn.revision}" />
+	</target>
+
+	<target name="revert">
+		<move file="${svg}~" tofile="${svg}" overwrite="true" />
+		<move file="${png}~" tofile="${png}" overwrite="true" />
+		<move file="${about}~" tofile="${about}" overwrite="true" />
+	</target>
+
+	<target name="initialize" depends="svn">
+		<antcall target="backup" />
+		<antcall target="replace" />
 	</target>
 </project>
