@@ -20,10 +20,10 @@
 		and may confuse eclipse considerably.
 	-->
 
-	<tstampt>
+	<tstamp>
 		<!-- Not used yet -->
 		<format property="time" pattern="yyyyMMdd'T'hhmm'Z'" timezone="GMT" />
-	</tstampt>
+	</tstamp>
 
 	<target name="prepared-jar" depends="svn" description="Prepares a jar for distribution without updating the splash screen">
 		<antcall target="initialize" />
