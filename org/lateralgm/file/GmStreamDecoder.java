@@ -142,8 +142,8 @@ public class GmStreamDecoder
 		byte[] b = new byte[8];
 		read(b);
 		long r = b[0] & 0xFF;
-		for (byte i = 1; i < 8; i++)
-			r |= (b[i] & 0xFF) << (8 * i);
+		for (int i = 1; i < 8; i++)
+			r |= (b[i] & 0xFFL) << (8 * i);
 		return Double.longBitsToDouble(r);
 		}
 
