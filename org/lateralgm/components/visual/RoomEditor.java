@@ -491,10 +491,10 @@ public class RoomEditor extends JPanel implements ImageObserver
 		g2.scale(z,z);
 		if (properties.get(PRoomEditor.SHOW_GRID))
 			{
-			int gx = (Integer) properties.get(PRoomEditor.GRID_OFFSET_X) / z;
-			int gy = (Integer) properties.get(PRoomEditor.GRID_OFFSET_Y) / z;
 			int gw = (Integer) room.get(PRoom.SNAP_X) / z;
 			int gh = (Integer) room.get(PRoom.SNAP_Y) / z;
+			int gx = (Integer) properties.get(PRoomEditor.GRID_OFFSET_X) / z % gw;
+			int gy = (Integer) properties.get(PRoomEditor.GRID_OFFSET_Y) / z % gh;
 			if (gw > 3)
 				{
 				g2.setXORMode(Color.BLACK);
