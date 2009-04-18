@@ -154,6 +154,7 @@ public class Room extends Resource<Room,Room.PRoom>
 		return Kind.ROOM;
 		}
 
+	//TODO: Extract to own class, document, and override SubList.set
 	public static class ActiveArrayList<E> extends ArrayList<E>
 		{
 		private static final long serialVersionUID = 1L;
@@ -265,7 +266,6 @@ public class Room extends Resource<Room,Room.PRoom>
 		@Override
 		public List<E> subList(int fromIndex, int toIndex)
 			{
-			// FIXME Sub list's 'set' method needs overriding
 			return super.subList(fromIndex,toIndex);
 			}
 
@@ -295,5 +295,4 @@ public class Room extends Resource<Room,Room.PRoom>
 		{
 		return new PropertyMap<PRoom>(PRoom.class,this,DEFS);
 		}
-
 	}

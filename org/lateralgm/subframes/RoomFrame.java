@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2009 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
@@ -1410,15 +1410,29 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			i.setObject(oNew.getSelected());
 			i.setPosition(new Point());
 			oList.setSelectedIndex(res.instances.size() - 1);
+			editor.add(editor.new InstanceComponent(i));
 			return;
 			}
 		if (s == oDel)
 			{
-			int i = oList.getSelectedIndex();
-			if (i == -1) return;
-			CodeFrame frame = codeFrames.get(res.instances.remove(i));
+			int li = oList.getSelectedIndex();
+			if (li == -1) return;
+			Instance i = res.instances.remove(li);
+
+			/*
+			// FIXME: Remove the instance from the RoomEditor component list
+			for (Component c : editor.getComponents())
+				if (c instanceof InstanceComponent)
+					if (((InstanceComponent)c).instance == i)
+						{
+						editor.remove(c);
+						break;
+						}
+			*/
+
+			CodeFrame frame = codeFrames.get(i);
 			if (frame != null) frame.dispose();
-			oList.setSelectedIndex(Math.min(res.instances.size() - 1,i));
+			oList.setSelectedIndex(Math.min(res.instances.size() - 1,li));
 			return;
 			}
 		if (s == oX || s == oY)
@@ -1477,7 +1491,19 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			{
 			int i = tList.getSelectedIndex();
 			if (i == -1) return;
-			res.tiles.remove(i);
+			/*Tile t = */res.tiles.remove(i);
+
+			/*
+			// FIXME: Remove the tile from the RoomEditor component list
+			for (Component c : editor.getComponents())
+				if (c instanceof TileComponent)
+					if (((TileComponent)c).tile == t)
+						{
+						editor.remove(c);
+						break;
+						}
+			*/
+
 			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,i));
 			return;
 			}
