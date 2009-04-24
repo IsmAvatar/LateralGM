@@ -9,28 +9,74 @@
 
 package org.lateralgm.resources.sub;
 
-public class PathPoint
+import java.util.EnumMap;
+
+import org.lateralgm.util.PropertyMap;
+import org.lateralgm.util.PropertyMap.PropertyValidator;
+
+public class PathPoint implements PropertyValidator<PathPoint.PPathPoint>
 	{
-	public int x = 0;
-	public int y = 0;
-	public int speed = 100;
+	public enum PPathPoint
+		{
+		X,Y,SPEED
+		}
+
+	private static final EnumMap<PPathPoint,Object> DEFS = PropertyMap.makeDefaultMap(
+			PPathPoint.class,0,0,100);
+
+	public final PropertyMap<PPathPoint> properties;
 
 	public PathPoint()
 		{
+		properties = new PropertyMap<PPathPoint>(PPathPoint.class,this,DEFS);
 		}
 
 	public PathPoint(int x, int y, int speed)
 		{
-		this.x = x;
-		this.y = y;
-		this.speed = speed;
+		properties = new PropertyMap<PPathPoint>(PPathPoint.class,this,PropertyMap.makeDefaultMap(
+				PPathPoint.class,x,y,speed));
 		}
 
 	public String toString()
 		{
-		String r = "(" + x + "," + y + ")";
+		String r = "(" + getX() + "," + getY() + ")";
 		while (r.length() < 11)
 			r += " ";
-		return r + " sp: " + speed;
+		return r + " sp: " + getSpeed();
+		}
+
+	public int getX()
+		{
+		return properties.get(PPathPoint.X);
+		}
+
+	public void setX(int x)
+		{
+		properties.put(PPathPoint.X,x);
+		}
+
+	public int getY()
+		{
+		return properties.get(PPathPoint.Y);
+		}
+
+	public void setY(int y)
+		{
+		properties.put(PPathPoint.Y,y);
+		}
+
+	public int getSpeed()
+		{
+		return properties.get(PPathPoint.SPEED);
+		}
+
+	public void setSpeed(int speed)
+		{
+		properties.put(PPathPoint.SPEED,speed);
+		}
+
+	public Object validate(PPathPoint k, Object v)
+		{
+		return v;
 		}
 	}

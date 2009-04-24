@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -31,6 +32,7 @@ import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.visual.PathCanvas;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
@@ -54,7 +56,7 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		{
 		super(res,node);
 
-		setSize(188,400);
+		setSize(600,400);
 		setMinimumSize(new Dimension(188,400));
 		setLayout(new BorderLayout());
 
@@ -70,8 +72,19 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		{
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
+		tool.setAlignmentX(0);
 		tool.add(save);
 		tool.addSeparator();
+		tool.add(new JLabel("Snap X: "));
+		NumberField sx = new NumberField(0,999);
+		plf.make(sx,PPath.SNAP_X);
+		sx.setMaximumSize(sx.getPreferredSize());
+		tool.add(sx);
+		tool.add(new JLabel("Snap Y: "));
+		NumberField sy = new NumberField(0,999);
+		plf.make(sy,PPath.SNAP_Y);
+		sy.setMaximumSize(sy.getPreferredSize());
+		tool.add(sy);
 		return tool;
 		}
 
@@ -153,9 +166,9 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 	//TODO: 1.7
 	private JComponent makePreview()
 		{
-		JPanel pane = new JPanel();
 		//include a status bar
-		return pane;
+		PathCanvas pc = new PathCanvas(res);
+		return new JScrollPane(pc);
 		}
 
 	@Override
@@ -215,9 +228,9 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 	private void notifyList()
 		{
 		if (!manualUpdate || lastPoint == null) return;
-		lastPoint.x = tx.getIntValue();
-		lastPoint.y = ty.getIntValue();
-		lastPoint.speed = tsp.getIntValue();
+		lastPoint.setX(tx.getIntValue());
+		lastPoint.setY(ty.getIntValue());
+		lastPoint.setSpeed(tsp.getIntValue());
 		manualUpdate = false;
 		list.updateUI();
 		manualUpdate = true;
@@ -230,9 +243,9 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		lastPoint = (PathPoint) list.getSelectedValue();
 		if (lastPoint == null) return;
 		manualUpdate = false;
-		tx.setIntValue(lastPoint.x);
-		ty.setIntValue(lastPoint.y);
-		tsp.setIntValue(lastPoint.speed);
+		tx.setIntValue(lastPoint.getX());
+		ty.setIntValue(lastPoint.getY());
+		tsp.setIntValue(lastPoint.getSpeed());
 		manualUpdate = true;
 		}
 

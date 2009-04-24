@@ -84,14 +84,14 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Background.PBackground;
-import org.lateralgm.resources.Room.ActiveArrayList;
 import org.lateralgm.resources.Room.PRoom;
-import org.lateralgm.resources.Room.ActiveArrayList.ListUpdateEvent;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
+import org.lateralgm.util.ActiveArrayList;
+import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
 
 public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectionListener
 	{

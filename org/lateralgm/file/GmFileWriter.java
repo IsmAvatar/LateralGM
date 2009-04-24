@@ -317,9 +317,9 @@ public final class GmFileWriter
 				out.write4(path.points.size());
 				for (PathPoint p : path.points)
 					{
-					out.writeD(p.x);
-					out.writeD(p.y);
-					out.writeD(p.speed);
+					out.writeD(p.getX());
+					out.writeD(p.getY());
+					out.writeD(p.getSpeed());
 					}
 				}
 			}

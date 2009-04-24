@@ -514,10 +514,7 @@ public final class GmFileReader
 			int nopoints = in.read4();
 			for (int j = 0; j < nopoints; j++)
 				{
-				PathPoint pathPoint = path.addPoint();
-				pathPoint.x = (int) in.readD();
-				pathPoint.y = (int) in.readD();
-				pathPoint.speed = (int) in.readD();
+				path.points.add(new PathPoint((int) in.readD(),(int) in.readD(),(int) in.readD()));
 				}
 			}
 		}

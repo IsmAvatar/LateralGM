@@ -10,17 +10,17 @@
 
 package org.lateralgm.resources;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 
 public class Path extends Resource<Path,Path.PPath>
 	{
-	public ArrayList<PathPoint> points = new ArrayList<PathPoint>();
+	public final ActiveArrayList<PathPoint> points = new ActiveArrayList<PathPoint>();
 
 	public enum PPath
 		{
@@ -55,10 +55,8 @@ public class Path extends Resource<Path,Path.PPath>
 		copy(src,p);
 		for (PathPoint point : points)
 			{
-			PathPoint point2 = p.addPoint();
-			point2.x = point.x;
-			point2.y = point.y;
-			point2.speed = point.speed;
+			PathPoint point2 = new PathPoint(point.getX(),point.getY(),point.getSpeed());
+			p.points.add(point2);
 			}
 		return p;
 		}
