@@ -18,6 +18,7 @@ import java.awt.Stroke;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,6 +34,7 @@ import org.lateralgm.resources.sub.PathPoint.PPathPoint;
 import org.lateralgm.ui.swing.visuals.BinVisual;
 import org.lateralgm.ui.swing.visuals.GridVisual;
 import org.lateralgm.ui.swing.visuals.VisualBox;
+import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -228,7 +230,7 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 
 	private class SmoothPathSegment extends PathVisual
 		{
-		final PathPoint[] pp = new PathPoint[3];
+		final PathPoint[] pp = new PathPoint[4];
 		final Rectangle bounds = new Rectangle();
 		final PointPositionListener ppl = new PointPositionListener();
 		final InnerSegment innerSegment = new InnerSegment();
@@ -236,11 +238,12 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 
 		public SmoothPathSegment(PathPoint...p)
 			{
-			if (p.length != 3) throw new IllegalArgumentException();
-			System.arraycopy(p,0,pp,0,3);
+			if (p.length != 4) throw new IllegalArgumentException();
+			System.arraycopy(p,0,pp,0,4);
 			binVisual.setDepth(this,2);
 			for (PathPoint point : p)
 				{
+				if (point == null) continue;
 				point.properties.getUpdateSource(PPathPoint.X).addListener(ppl);
 				point.properties.getUpdateSource(PPathPoint.Y).addListener(ppl);
 				}
@@ -254,29 +257,57 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 			super.remove();
 			}
 
+		private void pBlend(int i, int n, int t, int[] x, int[] y)
+			{
+			float w0 = getBlending(n,t + 1 + 2 * n);
+			float w2 = getBlending(n,t + 1);
+			px[i] = x[1] + (int) Math.round(w0 * (x[0] - x[1]) + w2 * (x[2] - x[1]));
+			py[i] = y[1] + (int) Math.round(w0 * (y[0] - y[1]) + w2 * (y[2] - y[1]));
+			}
+
 		protected void calculateBounds()
 			{
-			int p = path.properties.get(PPath.PRECISION);
-			int[] x = new int[3];
-			int[] y = new int[3];
-			for (int i = 0; i < 3; i++)
+			bounds.setBounds(0,0,-1,-1);
+			int[] x = new int[4];
+			int[] y = new int[4];
+			for (int i = 0; i < 4; i++)
 				{
+				if (pp[i] == null) continue;
 				x[i] = pp[i].getX();
 				y[i] = pp[i].getY();
 				}
-			px = new int[p + 1];
-			py = new int[p + 1];
-			bounds.setBounds(0,0,-1,-1);
-			for (int t = 0; t <= p; t++)
+			int p = path.properties.get(PPath.PRECISION);
+			int n = (1 << p);
+			if (pp[0] == null)
 				{
-				float w0 = getBlending(p,t + 2 * p);
-				float w2 = getBlending(p,t);
-				px[t] = x[1] + (int) Math.round(w0 * (x[0] - x[1]) + w2 * (x[2] - x[1]));
-				py[t] = y[1] + (int) Math.round(w0 * (y[0] - y[1]) + w2 * (y[2] - y[1]));
-				bounds.add(px[t],py[t]);
+				px = new int[2];
+				py = new int[2];
+				px[0] = x[1];
+				py[0] = y[1];
+				bounds.add(x[1],y[1]);
+				pBlend(1,n,0,Arrays.copyOfRange(x,1,4),Arrays.copyOfRange(y,1,4));
+				bounds.add(px[1],py[1]);
+				}
+			else
+				{
+				px = new int[n];
+				py = new int[n];
+				for (int t = 0; t < n - 1; t++)
+					{
+					pBlend(t,n,t,x,y);
+					bounds.add(px[t],py[t]);
+					}
+				if (pp[3] == null)
+					{
+					px[n - 1] = x[2];
+					py[n - 1] = y[2];
+					}
+				else
+					pBlend(n - 1,n,0,Arrays.copyOfRange(x,1,4),Arrays.copyOfRange(y,1,4));
+				bounds.add(px[n - 1],py[n - 1]);
 				}
 			bounds.grow(HLW,HLW);
-			for (int t = 0; t <= p; t++)
+			for (int t = 0; t < px.length; t++)
 				{
 				px[t] -= bounds.x;
 				py[t] -= bounds.y;
@@ -381,13 +412,14 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 		new HashSet<PathPoint>(pvMap.keySet());
 		Set<PathPoint> pps = ((HashMap<PathPoint,PointVisual>) pvMap.clone()).keySet();
 		int s = pvList.size();
-		int s2 = path.points.size();
+		ActiveArrayList<PathPoint> pp = path.points;
+		int s2 = pp.size();
 		while (s > s2)
 			pvList.remove(--s);
 		pvList.ensureCapacity(s2);
 		for (int i = 0; i < s2; i++)
 			{
-			PathPoint p = path.points.get(i);
+			PathPoint p = pp.get(i);
 			PointVisual v = pvMap.get(p);
 			if (v == null)
 				{
@@ -409,19 +441,26 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 			}
 		if (path.get(PPath.SMOOTH))
 			{
+			boolean closed = path.properties.get(PPath.CLOSED);
 			if (s2 >= 3)
 				{
-				for (int i = 1; i < s2 - 1; i++)
+				PathPoint[] rpp = new PathPoint[4];
+				for (int i = 0; i < 4; i++)
+					rpp[i] = pp.get(i % s2);
+				int i2 = closed ? s2 + 1 : s2 - 2;
+				for (int i = 1; i < i2; i++)
 					{
-					PathPoint p = path.points.get(i);
-					spsMap.put(p,new SmoothPathSegment(path.points.get(i - 1),p,path.points.get(i + 1)));
+					PathPoint p = rpp[1];
+					spsMap.put(p,new SmoothPathSegment(rpp));
+					rpp = Arrays.copyOfRange(rpp,1,5);
+					rpp[3] = pp.get((i + 3) % s2);
 					}
-				if (path.properties.get(PPath.CLOSED))
+				if (!closed)
 					{
-					PathPoint p = path.points.get(s2 - 1);
-					spsMap.put(p,new SmoothPathSegment(path.points.get(s2 - 2),p,path.points.get(0)));
-					p = path.points.get(0);
-					spsMap.put(p,new SmoothPathSegment(path.points.get(s2 - 1),p,path.points.get(1)));
+					PathPoint p = pp.get(0);
+					spsMap.put(p,new SmoothPathSegment(null,p,pp.get(1),pp.get(2)));
+					p = pp.get(s2 - 2);
+					spsMap.put(p,new SmoothPathSegment(pp.get(s2 - 3),p,pp.get(s2 - 1),null));
 					}
 				}
 			}
