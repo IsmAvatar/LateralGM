@@ -20,7 +20,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.SwingUtilities;
@@ -42,6 +41,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 public class PathCanvas extends VisualPanel implements UpdateListener
 	{
 	private static final int POINT_SIZE = 8;
+	private static final int ARROW_SIZE = 10;
 	private static final int LINE_WIDTH = 5;
 	private static final long serialVersionUID = 1L;
 	private Path path;
@@ -52,6 +52,8 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 
 	private final ArrayList<PointVisual> pvList;
 	private final HashMap<PathPoint,PointVisual> pvMap;
+
+	private PathArrow arrow;
 
 	public PathCanvas(Path p)
 		{
@@ -365,6 +367,113 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 			}
 		}
 
+	private static final double ARROW_ANGLE = 2 * Math.PI / 3;
+
+	private class PathArrow extends PathVisual
+		{
+		final PointPositionListener ppl = new PointPositionListener();
+		final SmoothPathSegment segment;
+		final int[] px = new int[4];
+		final int[] py = new int[4];
+
+		public PathArrow(SmoothPathSegment s)
+			{
+			segment = s;
+			int i2 = s == null ? 2 : path.get(PPath.CLOSED) ? 4 : 3;
+			for (int i = 0; i < i2; i++)
+				{
+				if (i == 3) i = path.points.size() - 1;
+				PathPoint p = path.points.get(i);
+				p.properties.getUpdateSource(PPathPoint.X).addListener(ppl);
+				p.properties.getUpdateSource(PPathPoint.Y).addListener(ppl);
+				}
+			validate();
+			}
+
+		private void calculatePoints(int x, int y, double d)
+			{
+			px[0] = x + (int) Math.round(ARROW_SIZE * Math.cos(d));
+			py[0] = y - (int) Math.round(ARROW_SIZE * Math.sin(d));
+			px[1] = x + (int) Math.round(ARROW_SIZE * Math.cos(d + ARROW_ANGLE));
+			py[1] = y - (int) Math.round(ARROW_SIZE * Math.sin(d + ARROW_ANGLE));
+			px[2] = x;
+			py[2] = y;
+			px[3] = x + (int) Math.round(ARROW_SIZE * Math.cos(d - ARROW_ANGLE));
+			py[3] = y - (int) Math.round(ARROW_SIZE * Math.sin(d - ARROW_ANGLE));
+			}
+
+		private int sqrdist(int x, int y)
+			{
+			return x * x + y * y;
+			}
+
+		@Override
+		protected void validate()
+			{
+			if (segment == null)
+				{
+				PathPoint p = path.points.get(0);
+				PathPoint p2 = path.points.get(1);
+				int x = p.getX();
+				int y = p.getY();
+				calculatePoints(x,y,Math.atan2(y - p2.getY(),p2.getX() - x));
+				}
+			else
+				{
+				segment.validate();
+				if (path.get(PPath.CLOSED))
+					{
+					int i = segment.px.length - 1;
+					int x = segment.px[i];
+					int y = segment.py[i];
+					int i2 = i - 1;
+					while (sqrdist(segment.px[i2] - x,segment.py[i2] - y) < 4 && i2 >= 0)
+						i2--;
+					calculatePoints(x + segment.bounds.x,y + segment.bounds.y,Math.atan2(segment.py[i2] - y,x
+							- segment.px[i2]));
+					}
+				else
+					{
+					int x = segment.px[0];
+					int y = segment.py[0];
+					int i = 1;
+					while (sqrdist(segment.px[i] - x,segment.py[i] - y) < 4 && i < segment.px.length)
+						i++;
+					calculatePoints(x + segment.bounds.x,y + segment.bounds.y,Math.atan2(y - segment.py[i],
+							segment.px[i] - x));
+					}
+				}
+			Rectangle bounds = new Rectangle(-1,-1);
+			for (int i = 0; i < 4; i++)
+				bounds.add(px[i],py[i]);
+			for (int i = 0; i < 4; i++)
+				{
+				px[i] -= bounds.x;
+				py[i] -= bounds.y;
+				}
+			setBounds(bounds);
+			}
+
+		public void paint(Graphics g)
+			{
+			Graphics2D g2 = (Graphics2D) g;
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+			g2.setColor(new Color(0,224,0));
+			g2.fillPolygon(px,py,4);
+			g2.setColor(Color.BLACK);
+			g2.drawPolygon(px,py,4);
+			}
+
+		private class PointPositionListener extends PropertyUpdateListener<PPathPoint>
+			{
+			@Override
+			public void updated(PropertyUpdateEvent<PPathPoint> e)
+				{
+				invalidate();
+				}
+			}
+		}
+
 	private abstract class PathVisual extends VisualBox
 		{
 		private boolean invalid;
@@ -386,7 +495,7 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 						{
 						try
 							{
-							validate();
+							if (invalid) validate();
 							}
 						finally
 							{
@@ -409,7 +518,7 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 		for (LinearPathSegment lps : lpsMap.values())
 			lps.remove();
 		lpsMap.clear();
-		new HashSet<PathPoint>(pvMap.keySet());
+		if (arrow != null) arrow.remove();
 		Set<PathPoint> pps = ((HashMap<PathPoint,PointVisual>) pvMap.clone()).keySet();
 		int s = pvList.size();
 		ActiveArrayList<PathPoint> pp = path.points;
@@ -462,6 +571,7 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 					p = pp.get(s2 - 2);
 					spsMap.put(p,new SmoothPathSegment(pp.get(s2 - 3),p,pp.get(s2 - 1),null));
 					}
+				arrow = new PathArrow(spsMap.get(pp.get(0)));
 				}
 			}
 		else
@@ -478,6 +588,7 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 					PathPoint p = path.points.get(s2 - 1);
 					lpsMap.put(p,new LinearPathSegment(p,path.points.get(0)));
 					}
+				arrow = new PathArrow(null);
 				}
 			}
 		}
@@ -500,6 +611,7 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 				case PRECISION:
 					for (SmoothPathSegment s : spsMap.values())
 						s.validate();
+					arrow.validate();
 					break;
 				case CLOSED:
 				case SMOOTH:
