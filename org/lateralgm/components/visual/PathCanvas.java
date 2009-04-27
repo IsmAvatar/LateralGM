@@ -382,8 +382,7 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 			int i2 = s == null ? 2 : path.get(PPath.CLOSED) ? 4 : 3;
 			for (int i = 0; i < i2; i++)
 				{
-				if (i == 3) i = path.points.size() - 1;
-				PathPoint p = path.points.get(i);
+				PathPoint p = path.points.get(i == 3 ? path.points.size() - 1 : i);
 				p.properties.getUpdateSource(PPathPoint.X).addListener(ppl);
 				p.properties.getUpdateSource(PPathPoint.Y).addListener(ppl);
 				}
