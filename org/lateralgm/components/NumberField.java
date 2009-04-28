@@ -19,24 +19,35 @@ public class NumberField extends JFormattedTextField
 	private static final long serialVersionUID = 1L;
 	public final NumberFormatter formatter;
 
+	public NumberField(int value)
+		{
+		this(Integer.MIN_VALUE,Integer.MAX_VALUE,value);
+		}
+
 	public NumberField(int min, int max)
 		{
-		this(min,max,getFormatter(getIntegerFormat()));
+		this(min,max,0);
+		}
+
+	public NumberField(int min, int max, int value)
+		{
+		this(min,max,value,getFormatter(getIntegerFormat()));
 		setColumns(1 + Math.max(numDigits(min),numDigits(max)));
 		}
 
-	public NumberField(double min, double max)
+	public NumberField(double min, double max, double value)
 		{
-		this(min,max,getFormatter(getNumberFormat()));
+		this(min,max,value,getFormatter(getNumberFormat()));
 		}
 
-	public NumberField(Comparable<? extends Number> min, Comparable<? extends Number> max,
-			NumberFormatter f)
+	public <T extends Number & Comparable<T>> NumberField(T min, T max, T value, NumberFormatter f)
 		{
 		super(f);
 		formatter = f;
 		f.setMinimum(min);
 		f.setMaximum(max);
+		if (value != null)
+			setValue(value.compareTo(min) < 0 ? min : value.compareTo(max) > 0 ? max : value);
 		}
 
 	public void revertEdit()

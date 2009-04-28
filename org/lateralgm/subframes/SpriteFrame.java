@@ -180,12 +180,12 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		JLabel oxLab = new JLabel(Messages.getString("SpriteFrame.X")); //$NON-NLS-1$
 		oxLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		originX = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
+		originX = new NumberField(0);
 		originX.setColumns(4);
 		plf.make(originX,PSprite.ORIGIN_X);
 		JLabel oyLab = new JLabel(Messages.getString("SpriteFrame.Y")); //$NON-NLS-1$;
 		oyLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		originY = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
+		originY = new NumberField(0);
 		originY.setColumns(4);
 		plf.make(originY,PSprite.ORIGIN_Y);
 		centre = new JButton(Messages.getString("SpriteFrame.CENTER")); //$NON-NLS-1$
@@ -235,25 +235,25 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		JLabel lLab = new JLabel(Messages.getString("SpriteFrame.LEFT")); //$NON-NLS-1$
 		lLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bboxLeft = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
+		bboxLeft = new NumberField(0);
 		bboxLeft.setColumns(3);
 		plf.make(bboxLeft,PSprite.BB_LEFT);
 
 		JLabel rLab = new JLabel(Messages.getString("SpriteFrame.RIGHT")); //$NON-NLS-1$
 		rLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bboxRight = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
+		bboxRight = new NumberField(0);
 		bboxRight.setColumns(3);
 		plf.make(bboxRight,PSprite.BB_RIGHT);
 
 		JLabel tLab = new JLabel(Messages.getString("SpriteFrame.TOP")); //$NON-NLS-1$
 		tLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bboxTop = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
+		bboxTop = new NumberField(0);
 		bboxTop.setColumns(3);
 		plf.make(bboxTop,PSprite.BB_TOP);
 
 		JLabel bLab = new JLabel(Messages.getString("SpriteFrame.BOTTOM")); //$NON-NLS-1$
 		bLab.setHorizontalAlignment(SwingConstants.RIGHT);
-		bboxBottom = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
+		bboxBottom = new NumberField(0);
 		bboxBottom.setColumns(3);
 		plf.make(bboxBottom,PSprite.BB_BOTTOM);
 

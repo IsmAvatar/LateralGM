@@ -352,7 +352,7 @@ public class BinPlane
 				b.candidates.remove(this);
 			depth = d;
 			for (Bin b : cBins)
-				b.candidates.remove(this);
+				b.candidates.add(this);
 			}
 
 		public void setBounds(Rectangle b)
@@ -429,6 +429,65 @@ public class BinPlane
 			if (this == c) return 0;
 			return c.depth > depth ? 1 : c.depth < depth ? -1
 					: new Integer(c.hashCode()).compareTo(hashCode());
+			}
+		}
+
+	public static final class CandidateIterator implements Iterator<Candidate>
+		{
+
+		final Iterator<CandidateBin> cbi;
+		Iterator<Candidate> ci = null;
+
+		public CandidateIterator(Iterator<CandidateBin> i)
+			{
+			cbi = i;
+			}
+
+		public boolean hasNext()
+			{
+			while (ci == null || !ci.hasNext())
+				{
+				if (!cbi.hasNext()) return false;
+				ci = cbi.next().iterator;
+				}
+			return true;
+			}
+
+		public Candidate next()
+			{
+			if (!hasNext()) throw new NoSuchElementException();
+			return ci.next();
+			}
+
+		public void remove()
+			{
+			ci.remove();
+			}
+		}
+
+	public static final class CandidateDataIterator<T> implements Iterator<T>
+		{
+		final CandidateIterator ci;
+
+		public CandidateDataIterator(Iterator<CandidateBin> i)
+			{
+			ci = new CandidateIterator(i);
+			}
+
+		public boolean hasNext()
+			{
+			return ci.hasNext();
+			}
+
+		@SuppressWarnings("unchecked")
+		public T next()
+			{
+			return (T) ci.next().data;
+			}
+
+		public void remove()
+			{
+			ci.remove();
 			}
 		}
 

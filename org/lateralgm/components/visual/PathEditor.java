@@ -8,18 +8,23 @@
 
 package org.lateralgm.components.visual;
 
+import java.awt.AWTEvent;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.Transparency;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.swing.SwingUtilities;
@@ -32,37 +37,57 @@ import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.PathPoint.PPathPoint;
 import org.lateralgm.ui.swing.visuals.BinVisual;
 import org.lateralgm.ui.swing.visuals.GridVisual;
+import org.lateralgm.ui.swing.visuals.Visual;
 import org.lateralgm.ui.swing.visuals.VisualBox;
 import org.lateralgm.util.ActiveArrayList;
+import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
+import org.lateralgm.util.PropertyMap.PropertyValidator;
 
-public class PathCanvas extends VisualPanel implements UpdateListener
+public class PathEditor extends VisualPanel implements UpdateListener
 	{
+	private static final int BIN_LAYER = 0;
+	private static final int GRID_LAYER = 1;
 	private static final int POINT_SIZE = 8;
+	private static final int POINT_MOUSE_RANGE = 8;
 	private static final int ARROW_SIZE = 10;
 	private static final int LINE_WIDTH = 5;
 	private static final long serialVersionUID = 1L;
-	private Path path;
+	private final Path path;
 	private final BinVisual binVisual;
-	private GridVisual gridVisual;
+	private final GridVisual gridVisual;
 	private final PathPropertyListener ppl = new PathPropertyListener();
 	private final PointListListener pll = new PointListListener();
+
+	public final PropertyMap<PPathEditor> properties;
+
+	private final PathEditorPropertyValidator pepv = new PathEditorPropertyValidator();
+
+	public enum PPathEditor
+		{
+		SHOW_GRID,SELECTED_POINT
+		}
+
+	private static final EnumMap<PPathEditor,Object> DEFS = PropertyMap.makeDefaultMap(
+			PPathEditor.class,true,null);
 
 	private final ArrayList<PointVisual> pvList;
 	private final HashMap<PathPoint,PointVisual> pvMap;
 
 	private PathArrow arrow;
 
-	public PathCanvas(Path p)
+	public PathEditor(Path p)
 		{
+		enableEvents(AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
+		properties = new PropertyMap<PPathEditor>(PPathEditor.class,pepv,DEFS);
 		binVisual = new BinVisual(container,128,512,512);
-		put(0,binVisual);
+		put(BIN_LAYER,binVisual);
 		int sx = p.get(PPath.SNAP_X);
 		int sy = p.get(PPath.SNAP_Y);
 		gridVisual = new GridVisual(this,false,sx,sy);
-		put(1,gridVisual);
+		put(GRID_LAYER,gridVisual);
 		path = p;
 		path.reference.updateSource.addListener(this);
 		path.properties.updateSource.addListener(ppl);
@@ -81,6 +106,138 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 		repaint();
 		}
 
+	private boolean dragging = false;
+	private Point dragOffset;
+	private PathPoint ppPressed;
+
+	private void mouseEvent(MouseEvent e)
+		{
+		Point p = e.getPoint();
+		Rectangle b = getOverallBounds(null);
+		p.translate(b.x,b.y);
+		int s = POINT_MOUSE_RANGE - POINT_SIZE / 2 + 1;
+		Iterator<Visual> vi = binVisual.intersect(new Rectangle(p.x - s,p.y - s,2 * s,2 * s));
+		PathPoint ppOver = null;
+		int posd = POINT_MOUSE_RANGE * POINT_MOUSE_RANGE;
+		while (vi.hasNext())
+			{
+			Visual v = vi.next();
+			if (v instanceof PointVisual)
+				{
+				PathPoint pp = ((PointVisual) v).point;
+				int xd = pp.getX() - p.x;
+				int yd = pp.getY() - p.y;
+				int sd = xd * xd + yd * yd;
+				if (sd <= posd)
+					{
+					ppOver = pp;
+					posd = sd;
+					break;
+					}
+				}
+			}
+		switch (e.getID())
+			{
+			case MouseEvent.MOUSE_PRESSED:
+				ppPressed = ppOver;
+				switch (e.getButton())
+					{
+					case MouseEvent.BUTTON1:
+						if (ppOver == null)
+							{
+							PathPoint pp = properties.get(PPathEditor.SELECTED_POINT);
+							ppOver = new PathPoint(p.x,p.y,pp == null ? 100 : pp.getSpeed());
+							if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == 0)
+								movePathPoint(ppOver,p.x,p.y,true);
+							path.points.add(ppOver);
+							ppPressed = ppOver;
+							}
+						else if ((e.getModifiersEx() & MouseEvent.SHIFT_DOWN_MASK) != 0)
+							{
+							int i = path.points.indexOf(ppOver);
+							ppOver = new PathPoint(ppOver.getX(),ppOver.getY(),ppOver.getSpeed());
+							path.points.add(i,ppOver);
+							ppPressed = ppOver;
+							}
+						properties.put(PPathEditor.SELECTED_POINT,ppOver);
+						dragging = true;
+						dragOffset = p.getLocation();
+						dragOffset.translate(-ppOver.getX(),-ppOver.getY());
+						break;
+					}
+				break;
+			case MouseEvent.MOUSE_DRAGGED:
+				if (dragging)
+					{
+					lockBounds();
+					PathPoint pp = properties.get(PPathEditor.SELECTED_POINT);
+					if (pp == null)
+						{
+						ppPressed = null;
+						dragging = false;
+						unlockBounds();
+						break;
+						}
+					movePathPoint(pp,p.x - dragOffset.x,p.y - dragOffset.y,
+							(e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == 0);
+					}
+				else if (ppPressed != ppOver) ppPressed = null;
+				break;
+			case MouseEvent.MOUSE_RELEASED:
+				switch (e.getButton())
+					{
+					case MouseEvent.BUTTON1:
+						dragging = false;
+						unlockBounds();
+						break;
+					case MouseEvent.BUTTON3:
+						if (dragging)
+							{
+							dragging = false;
+							unlockBounds();
+							}
+						else if (ppPressed != null) path.points.remove(ppPressed);
+						break;
+					}
+				ppPressed = null;
+			}
+		}
+
+	private void movePathPoint(PathPoint pp, int x, int y, boolean snap)
+		{
+		if (snap)
+			{
+			int sx = path.get(PPath.SNAP_X);
+			int sy = path.get(PPath.SNAP_Y);
+			pp.setX(negDiv(x + sx / 2,sx) * sx);
+			pp.setY(negDiv(y + sy / 2,sy) * sy);
+			}
+		else
+			{
+			pp.setX(x);
+			pp.setY(y);
+			}
+		}
+
+	private static int negDiv(int a, int b)
+		{
+		return a >= 0 ? a / b : ~(~a / b);
+		}
+
+	@Override
+	protected void processMouseMotionEvent(MouseEvent e)
+		{
+		mouseEvent(e);
+		super.processMouseMotionEvent(e);
+		}
+
+	@Override
+	protected void processMouseEvent(MouseEvent e)
+		{
+		mouseEvent(e);
+		super.processMouseEvent(e);
+		}
+
 	static final int HPS = POINT_SIZE >> 1;
 	final BufferedImage[] pointImage = new BufferedImage[2];
 
@@ -89,7 +246,7 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 		final PathPoint point;
 		final Rectangle bounds = new Rectangle(POINT_SIZE,POINT_SIZE);
 		final PointPositionListener ppl = new PointPositionListener();
-		boolean selected;
+		private boolean selected;
 
 		public PointVisual(PathPoint p)
 			{
@@ -98,6 +255,12 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 			p.properties.getUpdateSource(PPathPoint.X).addListener(ppl);
 			p.properties.getUpdateSource(PPathPoint.Y).addListener(ppl);
 			validate();
+			}
+
+		public void setSelected(boolean s)
+			{
+			selected = s;
+			binVisual.setDepth(this,s ? -2 : -1);
 			}
 
 		protected void calculateBounds()
@@ -426,7 +589,7 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 					int x = segment.px[i];
 					int y = segment.py[i];
 					int i2 = i - 1;
-					while (sqrdist(segment.px[i2] - x,segment.py[i2] - y) < 4 && i2 >= 0)
+					while (i2 > 0 && sqrdist(segment.px[i2] - x,segment.py[i2] - y) < 4)
 						i2--;
 					calculatePoints(x + segment.bounds.x,y + segment.bounds.y,Math.atan2(segment.py[i2] - y,x
 							- segment.px[i2]));
@@ -436,7 +599,7 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 					int x = segment.px[0];
 					int y = segment.py[0];
 					int i = 1;
-					while (sqrdist(segment.px[i] - x,segment.py[i] - y) < 4 && i < segment.px.length)
+					while (i < segment.px.length - 1 && sqrdist(segment.px[i] - x,segment.py[i] - y) < 4)
 						i++;
 					calculatePoints(x + segment.bounds.x,y + segment.bounds.y,Math.atan2(y - segment.py[i],
 							segment.px[i] - x));
@@ -543,10 +706,10 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 			else
 				pvList.set(i,v);
 			}
+		if (pps.contains(properties.get(PPathEditor.SELECTED_POINT)))
+			properties.put(PPathEditor.SELECTED_POINT,null);
 		for (PathPoint pathPoint : pps)
-			{
 			pvMap.remove(pathPoint).remove();
-			}
 		if (path.get(PPath.SMOOTH))
 			{
 			boolean closed = path.properties.get(PPath.CLOSED);
@@ -647,6 +810,38 @@ public class PathCanvas extends VisualPanel implements UpdateListener
 				case CHANGED:
 					updatePointList();
 				}
+			}
+		}
+
+	private class PathEditorPropertyValidator implements PropertyValidator<PPathEditor>
+		{
+		public Object validate(PPathEditor k, Object v)
+			{
+			switch (k)
+				{
+				case SELECTED_POINT:
+					PointVisual pv = pvMap.get(properties.get(k));
+					if (pv != null)
+						{
+						if (v == pv.point) break;
+						pv.setSelected(false);
+						}
+					pv = pvMap.get(v);
+					if (pv == null)
+						{
+						if (pvList.size() < 1) return null;
+						pv = pvList.get(0);
+						}
+					pv.setSelected(true);
+					return pv.point;
+				case SHOW_GRID:
+					if (v instanceof Boolean)
+						put(GRID_LAYER,(Boolean) v ? gridVisual : null);
+					else
+						return properties.get(k);
+					break;
+				}
+			return v;
 			}
 		}
 	}

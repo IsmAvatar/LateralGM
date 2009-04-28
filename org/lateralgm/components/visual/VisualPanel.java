@@ -27,6 +27,8 @@ public class VisualPanel extends JPanel
 	private final TreeMap<Integer,Visual> visuals = new TreeMap<Integer,Visual>();
 	private final Rectangle overallBounds = new Rectangle();
 	public final VisualContainer container = new PanelVisualContainer();
+	private boolean boundsLocked = false;
+	private boolean boundsUpdated = false;
 
 	public VisualPanel()
 		{
@@ -77,9 +79,25 @@ public class VisualPanel extends JPanel
 
 	public void put(int layer, Visual v)
 		{
-		Visual pv = visuals.put(layer,v);
+		Visual pv = v == null ? visuals.remove(layer) : visuals.put(layer,v);
+		if (pv == v) return;
 		if (v instanceof BoundedVisual || pv instanceof BoundedVisual) container.updateBounds();
 		repaint();
+		}
+
+	protected void lockBounds()
+		{
+		boundsLocked = true;
+		}
+
+	protected void unlockBounds()
+		{
+		boundsLocked = false;
+		if (boundsUpdated)
+			{
+			container.updateBounds();
+			boundsUpdated = false;
+			}
 		}
 
 	private class PanelVisualContainer implements VisualContainer
@@ -94,6 +112,11 @@ public class VisualPanel extends JPanel
 
 		public void updateBounds()
 			{
+			if (boundsLocked)
+				{
+				boundsUpdated = true;
+				return;
+				}
 			Rectangle oob = overallBounds.getBounds();
 			overallBounds.setSize(-1,-1);
 			for (Visual v : visuals.values())

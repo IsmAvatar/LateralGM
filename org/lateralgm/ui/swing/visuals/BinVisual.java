@@ -21,7 +21,7 @@ import org.lateralgm.util.BinPlane.Edge;
 
 public class BinVisual extends AbstractVisual implements VisualContainer,BoundedVisual
 	{
-	private BinPlane binPlane;
+	private final BinPlane binPlane;
 	private Visual vLeft, vRight, vTop, vBottom;
 	private final Rectangle boxBounds = new Rectangle();
 	private Map<Visual,Candidate> candidates;
@@ -54,6 +54,7 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 		Candidate c = candidates.remove(v);
 		if (c == null) return false;
 		repaint(c.getBounds(null));
+		c.remove();
 		Rectangle obb = boxBounds.getBounds();
 		if (v == vLeft) vLeft = null;
 		if (v == vRight) vRight = null;
@@ -61,7 +62,6 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 		if (v == vBottom) vBottom = null;
 		fixBounds();
 		if (!obb.equals(boxBounds)) parent.updateBounds();
-		c.remove();
 		return true;
 		}
 
@@ -155,6 +155,11 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 			vBottom = (VisualBox) ec.data;
 			boxBounds.height = cb.y + cb.height - boxBounds.y;
 			}
+		}
+
+	public Iterator<Visual> intersect(Rectangle r)
+		{
+		return new BinPlane.CandidateDataIterator<Visual>(binPlane.intersect(r,true));
 		}
 
 	public void paint(Graphics g)

@@ -23,38 +23,46 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.compare.ResourceComparator;
-import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.components.visual.PathCanvas;
+import org.lateralgm.components.visual.PathEditor;
+import org.lateralgm.components.visual.PathEditor.PPathEditor;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.resources.sub.PathPoint.PPathPoint;
+import org.lateralgm.ui.swing.propertylink.FormattedLink;
+import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
+import org.lateralgm.ui.swing.util.ArrayListModel;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListener,
-		ListSelectionListener
+public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 
-	//prevents alternating recursive calls between list selection changes and field changes
-	public static boolean manualUpdate = true;
-	public JList list;
-	public IntegerField tx, ty, tsp;
-	public NumberField tpr;
-	public JButton add, insert, delete;
-	public JCheckBox smooth, closed;
-	private PathPoint lastPoint = null; //non-guaranteed copy of list.getLastSelectedValue()
+	private JList list;
+	private NumberField tx, ty, tsp;
+	private NumberField tpr;
+	private JButton add, insert, delete;
+	private JCheckBox smooth, closed;
+	private final PathEditor pathEditor;
+	private final PropertyLinkFactory<PPathEditor> peplf;
+	private final PathEditorPropertyListener pepl = new PathEditorPropertyListener();
 
 	public PathFrame(Path res, ResNode node)
 		{
 		super(res,node);
+
+		pathEditor = new PathEditor(res);
+		pathEditor.properties.updateSource.addListener(pepl);
+		peplf = new PropertyLinkFactory<PPathEditor>(pathEditor.properties,this);
 
 		setSize(600,400);
 		setMinimumSize(new Dimension(188,400));
@@ -85,6 +93,10 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		plf.make(sy,PPath.SNAP_Y);
 		sy.setMaximumSize(sy.getPreferredSize());
 		tool.add(sy);
+		JToggleButton grid = new JToggleButton("Grid");
+		grid.setMaximumSize(grid.getPreferredSize());
+		peplf.make(grid,PPathEditor.SHOW_GRID);
+		tool.add(grid);
 		return tool;
 		}
 
@@ -101,9 +113,9 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		name.setPreferredSize(new Dimension(120,20));
 		side1.add(name);
 
-		list = new JList(res.points.toArray());
+		list = new JList(new ArrayListModel<PathPoint>(res.points));
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		list.addListSelectionListener(this);
+		peplf.make(list,PPathEditor.SELECTED_POINT);
 		list.setFont(new Font("Monospaced",Font.PLAIN,10)); //$NON-NLS-1$
 		JScrollPane p = new JScrollPane(list);
 		p.setPreferredSize(new Dimension(160,180));
@@ -112,9 +124,8 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		lab = new JLabel(Messages.getString("PathFrame.X")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(20,14));
 		side1.add(lab);
-		tx = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
-		tx.setPreferredSize(new Dimension(60,16));
-		tx.addActionListener(this);
+		tx = new NumberField(0);
+		tx.setColumns(5);
 		side1.add(tx);
 		add = new JButton(Messages.getString("PathFrame.ADD")); //$NON-NLS-1$
 		add.setPreferredSize(new Dimension(70,16));
@@ -124,9 +135,8 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		lab = new JLabel(Messages.getString("PathFrame.Y")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(20,14));
 		side1.add(lab);
-		ty = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
-		ty.setPreferredSize(new Dimension(60,16));
-		ty.addActionListener(this);
+		ty = new NumberField(0);
+		ty.setColumns(5);
 		side1.add(ty);
 		insert = new JButton(Messages.getString("PathFrame.INSERT")); //$NON-NLS-1$
 		insert.setPreferredSize(new Dimension(70,16));
@@ -136,9 +146,8 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		lab = new JLabel(Messages.getString("PathFrame.SP")); //$NON-NLS-1$
 		lab.setPreferredSize(new Dimension(20,14));
 		side1.add(lab);
-		tsp = new IntegerField(0,1000000,100);
-		tsp.setPreferredSize(new Dimension(60,16));
-		tsp.addActionListener(this);
+		tsp = new NumberField(0,1000000,100);
+		tsp.setColumns(5);
 		side1.add(tsp);
 		delete = new JButton(Messages.getString("PathFrame.DELETE")); //$NON-NLS-1$
 		delete.setPreferredSize(new Dimension(70,16));
@@ -167,8 +176,7 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 	private JComponent makePreview()
 		{
 		//include a status bar
-		PathCanvas pc = new PathCanvas(res);
-		return new JScrollPane(pc);
+		return new JScrollPane(pathEditor);
 		}
 
 	@Override
@@ -186,7 +194,6 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 	public void commitChanges()
 		{
 		res.setName(name.getText());
-		notifyPoint();
 		}
 
 	//Button was clicked
@@ -195,18 +202,16 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		Object s = e.getSource();
 		if (s == add)
 			{
-			res.points.add(new PathPoint(tx.getIntValue(),ty.getIntValue(),tsp.getIntValue()));
-			list.setListData(res.points.toArray());
-			list.updateUI();
+			res.points.add(new PathPoint((Integer) tx.getValue(),(Integer) ty.getValue(),
+					(Integer) tsp.getValue()));
 			list.setSelectedIndex(res.points.size() - 1);
 			}
 		if (s == insert)
 			{
 			int i = list.getSelectedIndex();
 			if (i == -1) return;
-			res.points.add(i,new PathPoint(tx.getIntValue(),ty.getIntValue(),tsp.getIntValue()));
-			list.setListData(res.points.toArray());
-			list.updateUI();
+			res.points.add(i,new PathPoint((Integer) tx.getValue(),(Integer) ty.getValue(),
+					(Integer) tsp.getValue()));
 			list.setSelectedIndex(i);
 			}
 		if (s == delete)
@@ -215,44 +220,42 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 			Object o = list.getSelectedValue();
 			if (o == null) return;
 			res.points.remove(o);
-			list.setListData(res.points.toArray());
-			list.updateUI();
 			if (i >= res.points.size()) i = res.points.size() - 1;
 			list.setSelectedIndex(i);
 			}
-		if (s == tx || s == ty || s == tsp) notifyList();
 		super.actionPerformed(e);
 		}
 
-	/** Notifies the JList that it needs to update with the latest IntegerField values */
-	private void notifyList()
-		{
-		if (!manualUpdate || lastPoint == null) return;
-		lastPoint.setX(tx.getIntValue());
-		lastPoint.setY(ty.getIntValue());
-		lastPoint.setSpeed(tsp.getIntValue());
-		manualUpdate = false;
-		list.updateUI();
-		manualUpdate = true;
-		}
+	FormattedLink<PPathPoint> ltx, lty, ltsp;
 
-	/** Notifies the PathPoint that it needs to synchronize its IntegerFields and JList entry */
-	private void notifyPoint()
+	private class PathEditorPropertyListener extends PropertyUpdateListener<PPathEditor>
 		{
-		notifyList();
-		lastPoint = (PathPoint) list.getSelectedValue();
-		if (lastPoint == null) return;
-		manualUpdate = false;
-		tx.setIntValue(lastPoint.getX());
-		ty.setIntValue(lastPoint.getY());
-		tsp.setIntValue(lastPoint.getSpeed());
-		manualUpdate = true;
-		}
-
-	//List selection changed
-	public void valueChanged(ListSelectionEvent e)
-		{
-		if (!manualUpdate || e.getValueIsAdjusting()) return;
-		notifyPoint();
+		@Override
+		public void updated(PropertyUpdateEvent<PPathEditor> e)
+			{
+			switch (e.key)
+				{
+				case SELECTED_POINT:
+					if (ltx != null) ltx.remove();
+					if (lty != null) lty.remove();
+					if (ltsp != null) ltsp.remove();
+					PathPoint pp = e.map.get(e.key);
+					if (pp != null)
+						{
+						PropertyLinkFactory<PPathPoint> ppplf = new PropertyLinkFactory<PPathPoint>(
+								pp.properties,null);
+						ltx = ppplf.make(tx,PPathPoint.X);
+						lty = ppplf.make(ty,PPathPoint.Y);
+						ltsp = ppplf.make(tsp,PPathPoint.SPEED);
+						}
+					else
+						{
+						ltx = null;
+						lty = null;
+						ltsp = null;
+						}
+					break;
+				}
+			}
 		}
 	}

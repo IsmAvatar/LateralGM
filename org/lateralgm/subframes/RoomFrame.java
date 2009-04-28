@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -53,13 +52,10 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -75,8 +71,6 @@ import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.components.visual.RoomEditor.PRoomEditor;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.UpdateSource.UpdateEvent;
-import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
@@ -90,8 +84,7 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
-import org.lateralgm.util.ActiveArrayList;
-import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
+import org.lateralgm.ui.swing.util.ArrayListModel;
 
 public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectionListener
 	{
@@ -188,75 +181,6 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		tool.addSeparator();
 
 		return tool;
-		}
-
-	public static class ArrayListModel<E> implements ListModel,UpdateListener
-		{
-		ActiveArrayList<E> list;
-		ArrayList<ListDataListener> listeners;
-
-		public ArrayListModel(ActiveArrayList<E> l)
-			{
-			list = l;
-			l.updateSource.addListener(this);
-			listeners = new ArrayList<ListDataListener>();
-			}
-
-		public void addListDataListener(ListDataListener l)
-			{
-			listeners.add(l);
-			}
-
-		public Object getElementAt(int index)
-			{
-			try
-				{
-				return list.get(index);
-				}
-			catch (IndexOutOfBoundsException e)
-				{
-				return null;
-				}
-			}
-
-		public int getSize()
-			{
-			return list.size();
-			}
-
-		public void removeListDataListener(ListDataListener l)
-			{
-			listeners.remove(l);
-			}
-
-		public void updated(UpdateEvent e)
-			{
-			ListDataEvent lde;
-			if (e instanceof ListUpdateEvent)
-				{
-				ListUpdateEvent lue = (ListUpdateEvent) e;
-				int t;
-				switch (lue.type)
-					{
-					case ADDED:
-						t = ListDataEvent.INTERVAL_ADDED;
-						break;
-					case REMOVED:
-						t = ListDataEvent.INTERVAL_REMOVED;
-						break;
-					case CHANGED:
-						t = ListDataEvent.CONTENTS_CHANGED;
-						break;
-					default:
-						throw new AssertionError();
-					}
-				lde = new ListDataEvent(e.source.owner,t,lue.fromIndex,lue.toIndex);
-				}
-			else
-				lde = new ListDataEvent(e.source.owner,ListDataEvent.CONTENTS_CHANGED,0,MAX_VALUE);
-			for (ListDataListener l : listeners)
-				l.contentsChanged(lde);
-			}
 		}
 
 	private static class ObjectListComponentRenderer implements ListCellRenderer
