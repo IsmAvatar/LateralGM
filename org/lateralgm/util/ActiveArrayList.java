@@ -99,6 +99,9 @@ public class ActiveArrayList<E> extends ArrayList<E>
 	@Override
 	public boolean removeAll(Collection<?> c)
 		{
+		int s = c.size();
+		if (s == 0) return false;
+		if (s == 1) return remove(c.iterator().next());
 		if (super.removeAll(c))
 			{
 			trigger.fire(new ListUpdateEvent(updateSource,Type.CHANGED,0,Integer.MAX_VALUE));

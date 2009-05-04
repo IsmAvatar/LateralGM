@@ -89,4 +89,9 @@ public class PropertyLinkFactory<K extends Enum<K>>
 		{
 		return init(new ButtonGroupLink<K,V>(g,vt,map,k));
 		}
+
+	public ButtonIncrementLink<K,Integer> make(AbstractButton ab, K k, int i, int l)
+		{
+		return init(ButtonIncrementLink.make(ab,i,l,map,k));
+		}
 	}

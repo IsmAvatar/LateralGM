@@ -78,4 +78,10 @@ public abstract class PropertyLink<K extends Enum<K>, V> extends PropertyUpdateL
 		V v = map.get(key);
 		editComponent(v);
 		}
+
+	public static void removeAll(PropertyLink<?,?>...links)
+		{
+		for (PropertyLink<?,?> l : links)
+			if (l != null) l.remove();
+		}
 	}
