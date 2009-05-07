@@ -21,6 +21,8 @@ import org.lateralgm.util.BinPlane.Edge;
 
 public class BinVisual extends AbstractVisual implements VisualContainer,BoundedVisual
 	{
+	private static final Rectangle ZERO_RECTANGLE = new Rectangle();
+
 	private final BinPlane binPlane;
 	private Visual vLeft, vRight, vTop, vBottom;
 	private final Rectangle boxBounds = new Rectangle();
@@ -68,6 +70,7 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 	public void setDepth(Visual v, int d)
 		{
 		Candidate c = getCandidate(v);
+		if (c == null) return;
 		c.setDepth(d);
 		Rectangle ob = c.getBounds(null);
 		if (ob != null && !ob.isEmpty()) repaint(ob);
@@ -117,7 +120,7 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 			vBottom = v;
 			boxBounds.height = h;
 			}
-		else if (vBottom == v) vBottom = null;
+		else if (v == vBottom) vBottom = null;
 		fixBounds();
 		if (!obb.equals(boxBounds)) parent.updateBounds();
 		repaint(b);
@@ -128,31 +131,31 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 		if (vLeft == null)
 			{
 			Candidate ec = binPlane.getEdgeCandidate(Edge.LEFT);
-			int l = ec.getBounds(null).x;
-			vLeft = (VisualBox) ec.data;
+			int l = ec == null ? 0 : ec.getBounds(null).x;
+			if (ec != null) vLeft = (VisualBox) ec.data;
 			boxBounds.width += boxBounds.x - l;
 			boxBounds.x = l;
 			}
 		if (vRight == null)
 			{
 			Candidate ec = binPlane.getEdgeCandidate(Edge.RIGHT);
-			Rectangle cb = ec.getBounds(null);
-			vRight = (VisualBox) ec.data;
+			Rectangle cb = ec == null ? ZERO_RECTANGLE : ec.getBounds(null);
+			if (ec != null) vRight = (VisualBox) ec.data;
 			boxBounds.width = cb.x + cb.width - boxBounds.x;
 			}
 		if (vTop == null)
 			{
 			Candidate ec = binPlane.getEdgeCandidate(Edge.TOP);
-			int t = ec.getBounds(null).y;
-			vTop = (VisualBox) ec.data;
+			int t = ec == null ? 0 : ec.getBounds(null).y;
+			if (ec != null) vTop = (VisualBox) ec.data;
 			boxBounds.height += boxBounds.y - t;
 			boxBounds.y = t;
 			}
 		if (vBottom == null)
 			{
 			Candidate ec = binPlane.getEdgeCandidate(Edge.BOTTOM);
-			Rectangle cb = ec.getBounds(null);
-			vBottom = (VisualBox) ec.data;
+			Rectangle cb = ec == null ? ZERO_RECTANGLE : ec.getBounds(null);
+			if (ec != null) vBottom = (VisualBox) ec.data;
 			boxBounds.height = cb.y + cb.height - boxBounds.y;
 			}
 		}
