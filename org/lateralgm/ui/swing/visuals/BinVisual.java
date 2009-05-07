@@ -162,7 +162,12 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 
 	public Iterator<Visual> intersect(Rectangle r)
 		{
-		return new BinPlane.CandidateDataIterator<Visual>(binPlane.intersect(r,true));
+		return intersect(r,Visual.class);
+		}
+
+	public <V extends Visual>Iterator<V> intersect(Rectangle r, Class<V> v)
+		{
+		return new BinPlane.CandidateDataIterator<V>(binPlane.intersect(r,true),v);
 		}
 
 	public void paint(Graphics g)

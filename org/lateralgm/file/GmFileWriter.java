@@ -54,6 +54,8 @@ import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile.PTile;
 
 public final class GmFileWriter
 	{
@@ -440,7 +442,7 @@ public final class GmFileWriter
 				out.write4(Util.getGmColor((Color) rm.get(PRoom.BACKGROUND_COLOR)));
 				out.writeBool(rm.properties,PRoom.DRAW_BACKGROUND_COLOR);
 				out.writeStr(rm.properties,PRoom.CREATION_CODE);
-				out.write4(rm.backgroundDefs.length);
+				out.write4(rm.backgroundDefs.size());
 				for (BackgroundDef back : rm.backgroundDefs)
 					{
 					out.writeBool(back.visible);
@@ -455,7 +457,7 @@ public final class GmFileWriter
 					out.writeBool(back.stretch);
 					}
 				out.writeBool(rm.properties,PRoom.ENABLE_VIEWS);
-				out.write4(rm.views.length);
+				out.write4(rm.views.size());
 				for (View view : rm.views)
 					{
 					out.writeBool(view.visible);
@@ -478,24 +480,26 @@ public final class GmFileWriter
 					{
 					out.write4(in.getPosition().x);
 					out.write4(in.getPosition().y);
-					out.writeId(in.getObject());
-					out.write4(in.instanceId);
+					ResourceReference<GmObject> or = in.properties.get(PInstance.OBJECT);
+					out.writeId(or);
+					out.write4((Integer) in.properties.get(PInstance.ID));
 					out.writeStr(in.getCreationCode());
-					out.writeBool(in.locked);
+					out.writeBool(in.isLocked());
 					}
 				out.write4(rm.tiles.size());
 				for (Tile tile : rm.tiles)
 					{
 					out.write4(tile.getRoomPosition().x);
 					out.write4(tile.getRoomPosition().y);
-					out.writeId(tile.getBackground());
+					ResourceReference<Background> rb = tile.properties.get(PTile.BACKGROUND);
+					out.writeId(rb);
 					out.write4(tile.getBackgroundPosition().x);
 					out.write4(tile.getBackgroundPosition().y);
 					out.write4(tile.getSize().width);
 					out.write4(tile.getSize().height);
 					out.write4(tile.getDepth());
-					out.write4(tile.tileId);
-					out.writeBool(tile.locked);
+					out.write4((Integer) tile.properties.get(PTile.ID));
+					out.writeBool(tile.isLocked());
 					}
 				out.writeBool(rm.properties,PRoom.REMEMBER_WINDOW_SIZE);
 				out.write4(rm.properties,PRoom.EDITOR_WIDTH,PRoom.EDITOR_HEIGHT);

@@ -468,26 +468,43 @@ public class BinPlane
 	public static final class CandidateDataIterator<T> implements Iterator<T>
 		{
 		final CandidateIterator ci;
+		final Class<T> ct;
+		T next;
 
-		public CandidateDataIterator(Iterator<CandidateBin> i)
+		public CandidateDataIterator(Iterator<CandidateBin> i, Class<T> t)
 			{
 			ci = new CandidateIterator(i);
+			ct = t;
+			next = findNext();
 			}
 
 		public boolean hasNext()
 			{
-			return ci.hasNext();
+			return next != null;
 			}
 
-		@SuppressWarnings("unchecked")
 		public T next()
 			{
-			return (T) ci.next().data;
+			if (next == null) throw new NoSuchElementException();
+			T n = next;
+			next = findNext();
+			return n;
 			}
 
 		public void remove()
 			{
-			ci.remove();
+			// Simply doing ci.remove() here wouldn't work if hasNext has been called.
+			throw new UnsupportedOperationException();
+			}
+
+		private T findNext()
+			{
+			while (ci.hasNext())
+				{
+				Candidate c = ci.next();
+				if (ct.isInstance(c.data)) return ct.cast(c.data);
+				}
+			return null;
 			}
 		}
 

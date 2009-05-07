@@ -8,6 +8,7 @@
 
 package org.lateralgm.components.visual;
 
+import static org.lateralgm.main.Util.negDiv;
 import java.awt.AWTEvent;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -23,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -32,13 +34,17 @@ import javax.swing.SwingUtilities;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.resources.Path;
+import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.PathPoint.PPathPoint;
 import org.lateralgm.ui.swing.visuals.BinVisual;
 import org.lateralgm.ui.swing.visuals.GridVisual;
+import org.lateralgm.ui.swing.visuals.RoomVisual;
 import org.lateralgm.ui.swing.visuals.Visual;
 import org.lateralgm.ui.swing.visuals.VisualBox;
+import org.lateralgm.ui.swing.visuals.RoomVisual.Show;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
@@ -48,6 +54,7 @@ import org.lateralgm.util.PropertyMap.PropertyValidator;
 
 public class PathEditor extends VisualPanel implements UpdateListener
 	{
+	private static final int ROOM_LAYER = -1;
 	private static final int BIN_LAYER = 0;
 	private static final int GRID_LAYER = 1;
 	private static final int POINT_SIZE = 8;
@@ -56,6 +63,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 	private static final int LINE_WIDTH = 5;
 	private static final long serialVersionUID = 1L;
 	private final Path path;
+	private RoomVisual roomVisual;
 	private final BinVisual binVisual;
 	private final GridVisual gridVisual;
 	private final PathPropertyListener ppl = new PathPropertyListener();
@@ -86,7 +94,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 		put(BIN_LAYER,binVisual);
 		int sx = p.get(PPath.SNAP_X);
 		int sy = p.get(PPath.SNAP_Y);
-		gridVisual = new GridVisual(this,false,sx,sy);
+		gridVisual = new GridVisual(false,sx,sy);
 		put(GRID_LAYER,gridVisual);
 		path = p;
 		path.reference.updateSource.addListener(this);
@@ -96,8 +104,8 @@ public class PathEditor extends VisualPanel implements UpdateListener
 		pvList = new ArrayList<PointVisual>(s);
 		pvMap = new HashMap<PathPoint,PointVisual>(Math.max((int) (s / .75f) + 1,16));
 		updatePointList();
-		setOpaque(true);
-		setBackground(Color.DARK_GRAY);
+		ResourceReference<Room> r = path.get(PPath.BACKGROUND_ROOM);
+		setRoom(r == null ? null : r.get());
 		}
 
 	public void updated(UpdateEvent e)
@@ -112,9 +120,8 @@ public class PathEditor extends VisualPanel implements UpdateListener
 
 	private void mouseEvent(MouseEvent e)
 		{
-		Point p = e.getPoint();
-		Rectangle b = getOverallBounds(null);
-		p.translate(b.x,b.y);
+		Point p = e.getPoint().getLocation();
+		componentToVisual(p);
 		int s = POINT_MOUSE_RANGE - POINT_SIZE / 2 + 1;
 		Iterator<Visual> vi = binVisual.intersect(new Rectangle(p.x - s,p.y - s,2 * s,2 * s));
 		PathPoint ppOver = null;
@@ -219,11 +226,6 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			}
 		}
 
-	private static int negDiv(int a, int b)
-		{
-		return a >= 0 ? a / b : ~(~a / b);
-		}
-
 	@Override
 	protected void processMouseMotionEvent(MouseEvent e)
 		{
@@ -251,7 +253,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 		public PointVisual(PathPoint p)
 			{
 			point = p;
-			binVisual.setDepth(this,-1);
+			binVisual.setDepth(this,0);
 			p.properties.getUpdateSource(PPathPoint.X).addListener(ppl);
 			p.properties.getUpdateSource(PPathPoint.Y).addListener(ppl);
 			validate();
@@ -260,7 +262,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 		public void setSelected(boolean s)
 			{
 			selected = s;
-			binVisual.setDepth(this,s ? -2 : -1);
+			binVisual.setDepth(this,s ? -2 : 0);
 			}
 
 		protected void calculateBounds()
@@ -542,6 +544,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 		public PathArrow(SmoothPathSegment s)
 			{
 			segment = s;
+			binVisual.setDepth(this,-1);
 			int i2 = s == null ? 2 : path.get(PPath.CLOSED) ? 4 : 3;
 			for (int i = 0; i < i2; i++)
 				{
@@ -755,6 +758,16 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			}
 		}
 
+	private static final EnumSet<Show> ROOM_SHOW = EnumSet.of(Show.BACKGROUNDS,Show.INSTANCES,
+			Show.TILES,Show.FOREGROUNDS);
+
+	private void setRoom(Room r)
+		{
+		if (roomVisual == null ? r == null : roomVisual.room == r) return;
+		roomVisual = r == null ? null : new RoomVisual(container,r,ROOM_SHOW);
+		put(ROOM_LAYER,roomVisual);
+		}
+
 	private class PathPropertyListener extends PropertyUpdateListener<PPath>
 		{
 		@Override
@@ -779,6 +792,10 @@ public class PathEditor extends VisualPanel implements UpdateListener
 				case SMOOTH:
 					// TODO: Optimize
 					updatePointList();
+					break;
+				case BACKGROUND_ROOM:
+					ResourceReference<Room> r = path.get(PPath.BACKGROUND_ROOM);
+					setRoom(r == null ? null : r.get());
 				}
 			}
 		}

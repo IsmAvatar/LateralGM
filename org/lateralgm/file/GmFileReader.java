@@ -59,6 +59,8 @@ import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile.PTile;
 
 public final class GmFileReader
 	{
@@ -703,7 +705,7 @@ public final class GmFileReader
 			int nobackgrounds = in.read4();
 			for (int j = 0; j < nobackgrounds; j++)
 				{
-				BackgroundDef bk = rm.backgroundDefs[j];
+				BackgroundDef bk = rm.backgroundDefs.get(j);
 				bk.visible = in.readBool();
 				bk.foreground = in.readBool();
 				Background temp = f.backgrounds.getUnsafe(in.read4());
@@ -720,7 +722,7 @@ public final class GmFileReader
 			int noviews = in.read4();
 			for (int j = 0; j < noviews; j++)
 				{
-				View vw = rm.views[j];
+				View vw = rm.views.get(j);
 				vw.visible = in.readBool();
 				vw.viewX = in.read4();
 				vw.viewY = in.read4();
@@ -746,25 +748,25 @@ public final class GmFileReader
 				Instance inst = rm.addInstance();
 				inst.setPosition(new Point(in.read4(),in.read4()));
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
-				if (temp != null) inst.setObject(temp.reference);
-				inst.instanceId = in.read4();
+				if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
+				inst.properties.put(PInstance.ID,in.read4());
 				inst.setCreationCode(in.readStr());
-				inst.locked = in.readBool();
+				inst.setLocked(in.readBool());
 				}
 			int notiles = in.read4();
 			for (int j = 0; j < notiles; j++)
 				{
-				Tile t = new Tile();
+				Tile t = new Tile(rm);
 				t.setRoomPosition(new Point(in.read4(),in.read4()));
 				Background temp = f.backgrounds.getUnsafe(in.read4());
 				ResourceReference<Background> bkg = null;
 				if (temp != null) bkg = temp.reference;
-				t.setBackground(bkg);
+				t.properties.put(PTile.BACKGROUND,bkg);
 				t.setBackgroundPosition(new Point(in.read4(),in.read4()));
 				t.setSize(new Dimension(in.read4(),in.read4()));
 				t.setDepth(in.read4());
-				t.tileId = in.read4();
-				t.locked = in.readBool();
+				t.properties.put(PTile.ID,in.read4());
+				t.setLocked(in.readBool());
 				rm.tiles.add(t);
 				}
 			rm.put(PRoom.REMEMBER_WINDOW_SIZE,in.readBool());

@@ -11,16 +11,23 @@
 package org.lateralgm.resources;
 
 import java.awt.Color;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.List;
 
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 
@@ -31,11 +38,16 @@ public class Room extends Resource<Room,Room.PRoom>
 	public static final int TAB_TILES = 2;
 	public static final int TAB_BACKGROUNDS = 3;
 	public static final int TAB_VIEWS = 4;
-	public BackgroundDef[] backgroundDefs = new BackgroundDef[8];
-	public View[] views = new View[8];
-	public ActiveArrayList<Instance> instances = new ActiveArrayList<Instance>();
-	public ActiveArrayList<Tile> tiles = new ActiveArrayList<Tile>();
+	public final List<BackgroundDef> backgroundDefs;
+	public final List<View> views;
+	public final ActiveArrayList<Instance> instances = new ActiveArrayList<Instance>();
+	public final ActiveArrayList<Tile> tiles = new ActiveArrayList<Tile>();
 	private GmFile parent;
+
+	private final UpdateTrigger instanceUpdateTrigger = new UpdateTrigger();
+	public final UpdateSource instanceUpdateSource = new UpdateSource(this,instanceUpdateTrigger);
+	private final UpdateTrigger tileUpdateTrigger = new UpdateTrigger();
+	public final UpdateSource tileUpdateSource = new UpdateSource(this,tileUpdateTrigger);
 
 	public enum PRoom
 		{
@@ -64,17 +76,21 @@ public class Room extends Resource<Room,Room.PRoom>
 		super(r,update);
 		setName(Prefs.prefixes.get(Kind.ROOM));
 		this.parent = parent;
+		View[] v = new View[8];
+		BackgroundDef[] b = new BackgroundDef[8];
 		for (int j = 0; j < 8; j++)
 			{
-			views[j] = new View();
-			backgroundDefs[j] = new BackgroundDef();
+			v[j] = new View();
+			b[j] = new BackgroundDef();
 			}
+		views = Collections.unmodifiableList(Arrays.asList(v));
+		backgroundDefs = Collections.unmodifiableList(Arrays.asList(b));
 		}
 
 	public Instance addInstance()
 		{
-		Instance inst = new Instance();
-		inst.instanceId = ++parent.lastInstanceId;
+		Instance inst = new Instance(this);
+		inst.properties.put(PInstance.ID,++parent.lastInstanceId);
 		instances.add(inst);
 		return inst;
 		}
@@ -87,29 +103,18 @@ public class Room extends Resource<Room,Room.PRoom>
 		for (Instance inst : instances)
 			{
 			Instance inst2 = r.addInstance();
-			inst2.setCreationCode(inst.getCreationCode());
-			inst2.locked = inst.locked;
-			inst2.setObject(inst.getObject());
-			inst2.instanceId = inst.instanceId;
-			inst2.setPosition(inst.getPosition());
+			inst2.properties.putAll(inst.properties);
 			}
 		for (Tile tile : tiles)
 			{
-			Tile tile2 = new Tile();
-			tile2.setBackground(tile.getBackground());
-			tile2.setBackgroundPosition(tile.getBackgroundPosition());
-			tile2.setDepth(tile.getDepth());
-			tile2.setRoomPosition(tile.getRoomPosition());
-			tile2.setSize(tile.getSize());
-			tile2.tileId = tile.tileId;
-			tile2.locked = tile.locked;
+			Tile tile2 = new Tile(this);
+			tile2.properties.putAll(tile.properties);
 			r.tiles.add(tile2);
-			tile2.setAutoUpdate(true);
 			}
 		for (int i = 0; i < 8; i++)
 			{
-			View view = views[i];
-			View view2 = r.views[i];
+			View view = views.get(i);
+			View view2 = r.views.get(i);
 			view2.visible = view.visible;
 			view2.viewX = view.viewX;
 			view2.viewY = view.viewY;
@@ -127,8 +132,8 @@ public class Room extends Resource<Room,Room.PRoom>
 			}
 		for (int i = 0; i < 8; i++)
 			{
-			BackgroundDef back = backgroundDefs[i];
-			BackgroundDef back2 = r.backgroundDefs[i];
+			BackgroundDef back = backgroundDefs.get(i);
+			BackgroundDef back2 = r.backgroundDefs.get(i);
 			back2.visible = back.visible;
 			back2.foreground = back.foreground;
 			back2.backgroundId = back.backgroundId;
@@ -152,6 +157,23 @@ public class Room extends Resource<Room,Room.PRoom>
 	protected PropertyMap<PRoom> makePropertyMap()
 		{
 		return new PropertyMap<PRoom>(PRoom.class,this,DEFS);
+		}
+
+	public void instanceUpdated(UpdateEvent e)
+		{
+		instanceUpdateTrigger.fire(new UpdateEvent(instanceUpdateSource,e));
+		}
+
+	public void tileUpdated(UpdateEvent e)
+		{
+		tileUpdateTrigger.fire(new UpdateEvent(tileUpdateSource,e));
+		}
+
+	public interface Piece
+		{
+		boolean isLocked();
+
+		void setLocked(boolean l);
 		}
 
 	}

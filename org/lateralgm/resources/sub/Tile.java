@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
- * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,6 +12,7 @@ package org.lateralgm.resources.sub;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.EnumMap;
 
 import org.lateralgm.file.GmFile;
 import org.lateralgm.main.UpdateSource;
@@ -20,114 +21,158 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.Room;
+import org.lateralgm.util.PropertyMap;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
+import org.lateralgm.util.PropertyMap.PropertyValidationException;
+import org.lateralgm.util.PropertyMap.PropertyValidator;
 
-public class Tile implements UpdateListener
+public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PTile>
 	{
-	public int tileId = 0;
 	private ResourceReference<Background> background = null;
-	private Point bkgPos;
-	private Point roomPos;
-	private Dimension size;
-	private int depth;
-	public boolean locked = false;
-	private boolean autoUpdate = false;
+	public final PropertyMap<PTile> properties;
+	private final ResourceReference<Room> room;
+
+	private final TilePropertyListener tpl = new TilePropertyListener();
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
+	public enum PTile
+		{
+		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED
+		}
+
+	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,0,0,0,0,
+			0,0,0,null,0,false);
+
 	/**
 	 * Do not call this constructor unless you intend
-	 * to handle your own tile ID. See Tile(GmFile f).
+	 * to handle your own tile ID. See Tile(Room r, GmFile f).
 	 */
-	public Tile()
+	public Tile(Room r)
 		{
+		room = r.reference;
+		properties = new PropertyMap<PTile>(PTile.class,this,DEFS);
+		properties.getUpdateSource(PTile.BACKGROUND).addListener(tpl);
+		}
+
+	public Tile(Room r, int id)
+		{
+		this(r);
+		properties.put(PTile.ID,id);
 		}
 
 	/**
 	 * Constructs a tile for this GmFile, and determines ID via the last tile id.
-	 * Notice that a tile initializes with no settings and with auto-update off.
-	 * It is your responsibility to use the setters and call setAutoUpdate(true) when done.
+	 * Notice that a tile initializes with no settings.
 	 */
-	public Tile(GmFile f)
+	public Tile(Room r, GmFile f)
 		{
-		tileId = ++f.lastTileId;
+		this(r,++f.lastTileId);
 		}
 
-	/**
-	 * Sets whether changing settings to this tile will inform its listeners.
-	 * This is especially useful for applying multiple settings before updating.
-	 * Setting this to true will cause this tile to update immediately.
-	 */
-	public void setAutoUpdate(boolean auto)
+	protected void fireUpdate(UpdateEvent e)
 		{
-		autoUpdate = auto;
-		if (auto) fireUpdate();
-		}
-
-	protected void fireUpdate()
-		{
-		if (autoUpdate) updateTrigger.fire();
-		}
-
-	public ResourceReference<Background> getBackground()
-		{
-		return background;
-		}
-
-	public void setBackground(ResourceReference<Background> background)
-		{
-		if (this.background != null) this.background.updateSource.removeListener(this);
-		this.background = background;
-		if (background != null) background.updateSource.addListener(this);
-		fireUpdate();
+		if (e == null) e = updateTrigger.getEvent();
+		updateTrigger.fire(e);
+		Room r = room == null ? null : room.get();
+		if (r != null) r.tileUpdated(e);
 		}
 
 	public Point getBackgroundPosition()
 		{
-		return bkgPos;
+		int x = properties.get(PTile.BG_X);
+		int y = properties.get(PTile.BG_Y);
+		return new Point(x,y);
 		}
 
-	public void setBackgroundPosition(Point bkgPos)
+	public void setBackgroundPosition(Point p)
 		{
-		this.bkgPos = bkgPos;
-		fireUpdate();
+		properties.put(PTile.BG_X,p.x);
+		properties.put(PTile.BG_Y,p.y);
+		fireUpdate(null);
 		}
 
 	public Point getRoomPosition()
 		{
-		return roomPos;
+		int x = properties.get(PTile.ROOM_X);
+		int y = properties.get(PTile.ROOM_Y);
+		return new Point(x,y);
 		}
 
-	public void setRoomPosition(Point roomPos)
+	public void setRoomPosition(Point p)
 		{
-		this.roomPos = roomPos;
-		fireUpdate();
+		properties.put(PTile.ROOM_X,p.x);
+		properties.put(PTile.ROOM_Y,p.y);
 		}
 
 	public Dimension getSize()
 		{
-		return size;
+		int w = properties.get(PTile.WIDTH);
+		int h = properties.get(PTile.HEIGHT);
+		return new Dimension(w,h);
 		}
 
-	public void setSize(Dimension size)
+	public void setSize(Dimension s)
 		{
-		this.size = size;
-		fireUpdate();
+		properties.put(PTile.WIDTH,s.width);
+		properties.put(PTile.HEIGHT,s.height);
+		fireUpdate(null);
 		}
 
 	public int getDepth()
 		{
-		return depth;
+		return properties.get(PTile.DEPTH);
 		}
 
-	public void setDepth(int depth)
+	public void setDepth(int d)
 		{
-		this.depth = depth;
-		fireUpdate();
+		properties.put(PTile.DEPTH,d);
 		}
 
 	public void updated(UpdateEvent e)
 		{
-		updateTrigger.fire(e);
+		fireUpdate(e);
+		}
+
+	public boolean isLocked()
+		{
+		return properties.get(PTile.LOCKED);
+		}
+
+	public void setLocked(boolean l)
+		{
+		properties.put(PTile.LOCKED,l);
+		}
+
+	@SuppressWarnings("unchecked")
+	public Object validate(PTile k, Object v)
+		{
+		if (k == PTile.BACKGROUND)
+			{
+			ResourceReference<?> r = (ResourceReference<?>) v;
+			if (r != null)
+				{
+				Object o = r.get();
+				if (o == null)
+					r = null;
+				else if (!(o instanceof Background)) throw new PropertyValidationException();
+				}
+			if (background != null) background.updateSource.removeListener(this);
+			background = (ResourceReference<Background>) r;
+			if (background != null) background.updateSource.addListener(this);
+			}
+		return v;
+		}
+
+	private class TilePropertyListener extends PropertyUpdateListener<PTile>
+		{
+		@Override
+		public void updated(PropertyUpdateEvent<PTile> e)
+			{
+			if (e.key == PTile.BACKGROUND) fireUpdate(null);
+			}
 		}
 	}
