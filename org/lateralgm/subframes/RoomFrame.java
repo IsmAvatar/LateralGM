@@ -242,7 +242,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			ResourceReference<Background> rb = t.properties.get(PTile.BACKGROUND);
 			Background bg = deRef(rb);
 			String name = bg == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : bg.getName();
-			lab.setText(name + " " + (Integer) t.properties.get(PTile.ID));
+			lab.setText(name + " " + t.properties.get(PTile.ID));
 			ti.tile = t;
 			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
 			return lab;

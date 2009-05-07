@@ -542,7 +542,7 @@ public class BinPlane
 			}
 
 		@Override
-		protected void finalize() throws Throwable
+		protected void finalize()
 			{
 			bins.remove(index,reference);
 			}

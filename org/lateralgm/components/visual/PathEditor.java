@@ -428,8 +428,8 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			{
 			float w0 = getBlending(n,t + 1 + 2 * n);
 			float w2 = getBlending(n,t + 1);
-			px[i] = x[1] + (int) Math.round(w0 * (x[0] - x[1]) + w2 * (x[2] - x[1]));
-			py[i] = y[1] + (int) Math.round(w0 * (y[0] - y[1]) + w2 * (y[2] - y[1]));
+			px[i] = x[1] + Math.round(w0 * (x[0] - x[1]) + w2 * (x[2] - x[1]));
+			py[i] = y[1] + Math.round(w0 * (y[0] - y[1]) + w2 * (y[2] - y[1]));
 			}
 
 		protected void calculateBounds()

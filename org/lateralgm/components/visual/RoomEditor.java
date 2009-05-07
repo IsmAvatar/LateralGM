@@ -176,12 +176,12 @@ public class RoomEditor extends VisualPanel
 		cursor = ds;
 		if (ds instanceof Instance)
 			{
-			frame.oList.setSelectedValue((Instance) ds,true);
+			frame.oList.setSelectedValue(ds,true);
 			frame.fireObjUpdate();
 			}
 		else if (ds instanceof Tile)
 			{
-			frame.tList.setSelectedValue((Tile) ds,true);
+			frame.tList.setSelectedValue(ds,true);
 			frame.fireTileUpdate();
 			}
 		lockBounds();
@@ -352,7 +352,7 @@ public class RoomEditor extends VisualPanel
 			if (mc != null)
 				{
 				String idt = Messages.getString("RoomFrame.STAT_ID") //$NON-NLS-1$
-						+ (Integer) tile.properties.get(PTile.ID);
+						+ tile.properties.get(PTile.ID);
 				if (mc.isLocked()) idt += " X"; //$NON-NLS-1$
 				frame.statId.setText(idt);
 				ResourceReference<Background> rb = tile.properties.get(PTile.BACKGROUND);
@@ -369,7 +369,7 @@ public class RoomEditor extends VisualPanel
 			if (instance != null)
 				{
 				String idt = Messages.getString("RoomFrame.STAT_ID") //$NON-NLS-1$
-						+ (Integer) instance.properties.get(PInstance.ID);
+						+ instance.properties.get(PInstance.ID);
 				if (mc.isLocked()) idt += " X"; //$NON-NLS-1$
 				frame.statId.setText(idt);
 				ResourceReference<GmObject> or = instance.properties.get(PInstance.OBJECT);
