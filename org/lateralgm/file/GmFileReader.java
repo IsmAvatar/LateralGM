@@ -59,8 +59,10 @@ import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.resources.sub.View.PView;
 
 public final class GmFileReader
 	{
@@ -706,41 +708,26 @@ public final class GmFileReader
 			for (int j = 0; j < nobackgrounds; j++)
 				{
 				BackgroundDef bk = rm.backgroundDefs.get(j);
-				bk.visible = in.readBool();
-				bk.foreground = in.readBool();
+				in.readBool(bk.properties,PBackgroundDef.VISIBLE,PBackgroundDef.FOREGROUND);
 				Background temp = f.backgrounds.getUnsafe(in.read4());
-				if (temp != null) bk.backgroundId = temp.reference;
-				bk.x = in.read4();
-				bk.y = in.read4();
-				bk.tileHoriz = in.readBool();
-				bk.tileVert = in.readBool();
-				bk.horizSpeed = in.read4();
-				bk.vertSpeed = in.read4();
-				bk.stretch = in.readBool();
+				if (temp != null) bk.properties.put(PBackgroundDef.BACKGROUND,temp.reference);
+				in.read4(bk.properties,PBackgroundDef.X,PBackgroundDef.Y);
+				in.readBool(bk.properties,PBackgroundDef.TILE_HORIZ,PBackgroundDef.TILE_VERT);
+				in.read4(bk.properties,PBackgroundDef.H_SPEED,PBackgroundDef.V_SPEED);
+				bk.properties.put(PBackgroundDef.STRETCH,in.readBool());
 				}
 			rm.put(PRoom.ENABLE_VIEWS,in.readBool());
 			int noviews = in.read4();
 			for (int j = 0; j < noviews; j++)
 				{
 				View vw = rm.views.get(j);
-				vw.visible = in.readBool();
-				vw.viewX = in.read4();
-				vw.viewY = in.read4();
-				vw.viewW = in.read4();
-				vw.viewH = in.read4();
-				vw.portX = in.read4();
-				vw.portY = in.read4();
-				if (ver > 520)
-					{
-					vw.portW = in.read4();
-					vw.portH = in.read4();
-					}
-				vw.hbor = in.read4();
-				vw.vbor = in.read4();
-				vw.hspeed = in.read4();
-				vw.vspeed = in.read4();
+				vw.properties.put(PView.VISIBLE,in.readBool());
+				in.read4(vw.properties,PView.VIEW_X,PView.VIEW_Y,PView.VIEW_W,PView.VIEW_H,PView.PORT_X,
+						PView.PORT_Y);
+				if (ver > 520) in.read4(vw.properties,PView.PORT_W,PView.PORT_H);
+				in.read4(vw.properties,PView.BORDER_H,PView.BORDER_V,PView.SPEED_H,PView.SPEED_V);
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
-				if (temp != null) vw.objectFollowing = temp.reference;
+				if (temp != null) vw.properties.put(PView.OBJECT,temp.reference);
 				}
 			int noinstances = in.read4();
 			for (int j = 0; j < noinstances; j++)

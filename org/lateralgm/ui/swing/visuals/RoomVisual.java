@@ -38,6 +38,7 @@ import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.util.ActiveArrayList;
@@ -45,7 +46,7 @@ import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class RoomVisual extends AbstractVisual implements BoundedVisual
+public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateListener
 	{
 	protected static final BufferedImage EMPTY_IMAGE = new BufferedImage(16,16,
 			BufferedImage.TYPE_INT_ARGB);
@@ -59,6 +60,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual
 	protected final TileVisualListManager tvlm;
 
 	private final RoomPropertyListener rpl = new RoomPropertyListener();
+	private final BgDefPropertyListener bdpl = new BgDefPropertyListener();
 
 	private EnumSet<Show> show;
 	private int gridFactor = 1;
@@ -85,6 +87,11 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual
 		r.properties.updateSource.addListener(rpl);
 		ivlm = new InstanceVisualListManager();
 		tvlm = new TileVisualListManager();
+		for (BackgroundDef bd : room.backgroundDefs)
+			{
+			bd.properties.updateSource.addListener(bdpl);
+			bd.updateSource.addListener(this);
+			}
 		}
 
 	public void extendBounds(Rectangle b)
@@ -104,17 +111,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual
 			g2.setColor((Color) room.get(PRoom.BACKGROUND_COLOR));
 			g2.fillRect(0,0,width,height);
 			}
-		if (show.contains(Show.BACKGROUNDS))
-			for (BackgroundDef bd : room.backgroundDefs)
-				if (bd.visible && !bd.foreground && Util.deRef(bd.backgroundId) != null)
-					paintBackground(g2,bd,width,height);
+		if (show.contains(Show.BACKGROUNDS)) for (BackgroundDef bd : room.backgroundDefs)
+			if (shouldPaint(bd,false)) paintBackground(g2,bd,width,height);
 		// Paint pieces and tiles on the unclipped g, so that they are visible
 		// even if outside the room
 		if (show.contains(Show.INSTANCES) || show.contains(Show.TILES)) binVisual.paint(g);
-		if (show.contains(Show.FOREGROUNDS))
-			for (BackgroundDef bd : room.backgroundDefs)
-				if (bd.visible && bd.foreground && Util.deRef(bd.backgroundId) != null)
-					paintBackground(g2,bd,width,height);
+		if (show.contains(Show.FOREGROUNDS)) for (BackgroundDef bd : room.backgroundDefs)
+			if (shouldPaint(bd,true)) paintBackground(g2,bd,width,height);
 		if (show.contains(Show.GRID))
 			{
 			g2.translate(gridX
@@ -123,6 +126,12 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual
 			gridVisual.paint(g2);
 			}
 		g2.dispose();
+		}
+
+	private static boolean shouldPaint(BackgroundDef bd, Boolean fg)
+		{
+		if (!(Boolean) bd.properties.get(PBackgroundDef.VISIBLE)) return false;
+		return fg.equals(bd.properties.get(PBackgroundDef.FOREGROUND));
 		}
 
 	public void setVisible(Show s, boolean v)
@@ -220,24 +229,30 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual
 	private void paintBackground(Graphics g, BackgroundDef bd, int width, int height)
 		{
 		Rectangle c = g.getClipBounds();
-		BufferedImage bi = bd.backgroundId.get().getDisplayImage();
+		ResourceReference<Background> rb = bd.properties.get(PBackgroundDef.BACKGROUND);
+		Background b = Util.deRef(rb);
+		if (b == null) return;
+		BufferedImage bi = b.getDisplayImage();
 		if (bi == null) return;
-		int w = bd.stretch ? width : bi.getWidth();
-		int h = bd.stretch ? height : bi.getHeight();
-		if (bd.tileHoriz || bd.tileVert)
+		boolean stretch = bd.properties.get(PBackgroundDef.STRETCH);
+		int w = stretch ? width : bi.getWidth();
+		int h = stretch ? height : bi.getHeight();
+		boolean tileHoriz = bd.properties.get(PBackgroundDef.TILE_HORIZ);
+		boolean tileVert = bd.properties.get(PBackgroundDef.TILE_VERT);
+		int x = bd.properties.get(PBackgroundDef.X);
+		int y = bd.properties.get(PBackgroundDef.Y);
+		if (tileHoriz || tileVert)
 			{
-			int x = bd.x;
-			int y = bd.y;
 			int ncol = 1;
 			int nrow = 1;
-			if (bd.tileHoriz)
+			if (tileHoriz)
 				{
-				x = 1 + c.x + ((bd.x + w - 1 - c.x) % w) - w;
+				x = 1 + c.x + ((x + w - 1 - c.x) % w) - w;
 				ncol = 1 + (c.x + c.width - x - 1) / w;
 				}
-			if (bd.tileVert)
+			if (tileVert)
 				{
-				y = 1 + c.y + ((bd.y + h - 1 - c.y) % h) - h;
+				y = 1 + c.y + ((y + h - 1 - c.y) % h) - h;
 				nrow = 1 + (c.y + c.height - y - 1) / h;
 				}
 			for (int row = 0; row < nrow; row++)
@@ -245,7 +260,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual
 					g.drawImage(bi,(x + w * col),(y + h * row),w,h,null);
 			}
 		else
-			g.drawImage(bi,bd.x,bd.y,w,h,null);
+			g.drawImage(bi,x,y,w,h,null);
 		}
 
 	private abstract class PieceVisual<P extends Piece> extends VisualBox
@@ -547,6 +562,42 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual
 					parent.updateBounds();
 					break;
 				}
+			}
+		}
+
+	private class BgDefPropertyListener extends PropertyUpdateListener<PBackgroundDef>
+		{
+		@Override
+		public void updated(PropertyUpdateEvent<PBackgroundDef> e)
+			{
+			boolean bg = show.contains(Show.BACKGROUNDS);
+			boolean fg = show.contains(Show.FOREGROUNDS);
+			if (!bg && !fg) return;
+			switch (e.key)
+				{
+				case FOREGROUND:
+					if (!(Boolean) e.map.get(PBackgroundDef.VISIBLE)) return;
+				case VISIBLE:
+					repaint(null);
+				case H_SPEED:
+				case V_SPEED:
+					return;
+				}
+			if (e.map.get(PBackgroundDef.VISIBLE))
+				if ((bg && fg) || (e.map.get(PBackgroundDef.FOREGROUND) ? fg : bg)) repaint(null);
+			}
+		}
+
+	public void updated(UpdateEvent e)
+		{
+		if (e.source.owner instanceof BackgroundDef)
+			{
+			boolean bg = show.contains(Show.BACKGROUNDS);
+			boolean fg = show.contains(Show.FOREGROUNDS);
+			if (!bg && !fg) return;
+			BackgroundDef bd = (BackgroundDef) e.source.owner;
+			if (bd.properties.get(PBackgroundDef.VISIBLE))
+				if ((bg && fg) || (bd.properties.get(PBackgroundDef.FOREGROUND) ? fg : bg)) repaint(null);
 			}
 		}
 	}

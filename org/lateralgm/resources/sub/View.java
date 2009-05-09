@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
+ * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -8,23 +9,25 @@
 
 package org.lateralgm.resources.sub;
 
-import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.ResourceReference;
+import java.util.EnumMap;
+
+import org.lateralgm.util.PropertyMap;
 
 public class View
 	{
-	public boolean visible = false;
-	public int viewX = 0;
-	public int viewY = 0;
-	public int viewW = 640;
-	public int viewH = 480;
-	public int portX = 0;
-	public int portY = 0;
-	public int portW = 640;
-	public int portH = 480;
-	public int hbor = 32;
-	public int vbor = 32;
-	public int hspeed = -1;
-	public int vspeed = -1;
-	public ResourceReference<GmObject> objectFollowing = null;
+	public final PropertyMap<PView> properties;
+
+	public enum PView
+		{
+		VISIBLE,VIEW_X,VIEW_Y,VIEW_W,VIEW_H,PORT_X,PORT_Y,PORT_W,PORT_H,BORDER_H,BORDER_V,SPEED_H,
+		SPEED_V,OBJECT
+		}
+
+	private static final EnumMap<PView,Object> DEFS = PropertyMap.makeDefaultMap(PView.class,false,0,
+			0,640,480,0,0,640,480,32,32,-1,-1,null);
+
+	public View()
+		{
+		properties = new PropertyMap<PView>(PView.class,null,DEFS);
+		}
 	}

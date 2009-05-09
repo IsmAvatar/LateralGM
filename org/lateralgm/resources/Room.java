@@ -76,15 +76,14 @@ public class Room extends Resource<Room,Room.PRoom>
 		super(r,update);
 		setName(Prefs.prefixes.get(Kind.ROOM));
 		this.parent = parent;
-		View[] v = new View[8];
 		BackgroundDef[] b = new BackgroundDef[8];
-		for (int j = 0; j < 8; j++)
-			{
-			v[j] = new View();
+		for (int j = 0; j < b.length; j++)
 			b[j] = new BackgroundDef();
-			}
-		views = Collections.unmodifiableList(Arrays.asList(v));
 		backgroundDefs = Collections.unmodifiableList(Arrays.asList(b));
+		View[] v = new View[8];
+		for (int j = 0; j < v.length; j++)
+			v[j] = new View();
+		views = Collections.unmodifiableList(Arrays.asList(v));
 		}
 
 	public Instance addInstance()
@@ -111,39 +110,19 @@ public class Room extends Resource<Room,Room.PRoom>
 			tile2.properties.putAll(tile.properties);
 			r.tiles.add(tile2);
 			}
-		for (int i = 0; i < 8; i++)
+		int s = views.size();
+		for (int i = 0; i < s; i++)
 			{
 			View view = views.get(i);
 			View view2 = r.views.get(i);
-			view2.visible = view.visible;
-			view2.viewX = view.viewX;
-			view2.viewY = view.viewY;
-			view2.viewW = view.viewW;
-			view2.viewH = view.viewH;
-			view2.portX = view.portX;
-			view2.portY = view.portY;
-			view2.portW = view.portW;
-			view2.portH = view.portH;
-			view2.hbor = view.hbor;
-			view2.vbor = view.vbor;
-			view2.hspeed = view.hspeed;
-			view2.vspeed = view.vspeed;
-			view2.objectFollowing = view.objectFollowing;
+			view2.properties.putAll(view.properties);
 			}
-		for (int i = 0; i < 8; i++)
+		s = backgroundDefs.size();
+		for (int i = 0; i < s; i++)
 			{
 			BackgroundDef back = backgroundDefs.get(i);
 			BackgroundDef back2 = r.backgroundDefs.get(i);
-			back2.visible = back.visible;
-			back2.foreground = back.foreground;
-			back2.backgroundId = back.backgroundId;
-			back2.x = back.x;
-			back2.y = back.y;
-			back2.tileHoriz = back.tileHoriz;
-			back2.tileVert = back.tileVert;
-			back2.horizSpeed = back.horizSpeed;
-			back2.vertSpeed = back.vertSpeed;
-			back2.stretch = back.stretch;
+			back2.properties.putAll(back.properties);
 			}
 		return r;
 		}

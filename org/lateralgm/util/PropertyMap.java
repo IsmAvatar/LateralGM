@@ -78,7 +78,7 @@ public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
 		{
 		boolean ck = super.containsKey(key);
 		if (ck) if (super.get(key) == value) return value;
-		Object vv = validator.validate(key,value);
+		Object vv = validator == null ? value : validator.validate(key,value);
 		Object o = super.put(key,vv);
 		if (!ck || vv != value || o != value) fireUpdate(key);
 		return o;
