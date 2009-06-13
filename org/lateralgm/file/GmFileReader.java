@@ -131,9 +131,15 @@ public final class GmFileReader
 				int s1 = in.read4();
 				int s2 = in.read4();
 				in.skip(s1 * 4);
-				in.setSeed(in.read4());
+				//since only the first byte of the game id isn't encrypted, we have to do some acrobatics here
+				int seed = in.read4();
 				in.skip(s2 * 4);
+				int b1 = in.read();
+				in.setSeed(seed);
+				f.gameSettings.gameId = b1 | in.read3() << 8;
 				}
+			else
+				f.gameSettings.gameId = in.read4();
 			readSettings(c);
 			readSounds(c);
 			readSprites(c);
@@ -229,7 +235,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 		GameSettings g = f.gameSettings;
 
-		g.gameId = in.read4();
+//		g.gameId = in.read4(); //needs to be handled uniquely for gmk
 		in.skip(16); // unknown bytes following game id
 		int ver = in.read4();
 		if (ver != 530 && ver != 542 && ver != 600 && ver != 702)
