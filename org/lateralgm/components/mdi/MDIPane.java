@@ -106,7 +106,7 @@ public class MDIPane extends JDesktopPane
 		{
 		for (JInternalFrame f : getAllFrames())
 			{
-			if (f instanceof ResourceFrame)
+			if (f instanceof ResourceFrame<?,?>)
 				try
 					{
 					f.setClosed(true);
@@ -126,7 +126,7 @@ public class MDIPane extends JDesktopPane
 		{
 		if (getSelectedFrame() != null) for (JInternalFrame f : getAllFrames())
 			{
-			if (f != getSelectedFrame()) if (f instanceof ResourceFrame)
+			if (f != getSelectedFrame()) if (f instanceof ResourceFrame<?,?>)
 				try
 					{
 					f.setClosed(true);

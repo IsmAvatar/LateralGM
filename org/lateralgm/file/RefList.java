@@ -56,8 +56,14 @@ public class RefList<R extends Resource<R,?>>
 
 	private static class ResRef<R extends Resource<R,?>>
 		{
-		R resource;
 		ResourceReference<R> reference;
+		/**
+		 * Keep a hard reference so it doesn't get lost/destroyed.<br />
+		 * At this time, the hard reference has no other purpose, so remains unused.
+		 * @since r228
+		 */
+		@SuppressWarnings("unused")
+		R resource;
 
 		public ResRef(R res)
 			{

@@ -85,7 +85,7 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 			}
 		if (e.getActionCommand().endsWith("CLOSE") && pane.getSelectedFrame() != null)
 			{
-			if (pane.getSelectedFrame() instanceof ResourceFrame)
+			if (pane.getSelectedFrame() instanceof ResourceFrame<?,?>)
 				try
 					{
 					pane.getSelectedFrame().setClosed(true);

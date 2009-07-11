@@ -197,7 +197,7 @@ public class ResourceList<R extends Resource<R,?>> extends TreeSet<R> implements
 		assert size() == refMap.size();
 		updateTrigger.fire(e);
 		Object o = e.source.owner;
-		if (o instanceof ResourceReference)
+		if (o instanceof ResourceReference<?>)
 			{
 			ResourceReference<?> ref = (ResourceReference<?>) o;
 			WeakReference<R> wr = refMap.get(ref);
