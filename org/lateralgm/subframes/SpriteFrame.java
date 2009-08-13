@@ -419,7 +419,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 				public void mouseClicked(MouseEvent e)
 					{
 					//works for all mouse buttons
-					if ((e.getModifiers() | MouseEvent.CTRL_DOWN_MASK) != 0)
+					if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0)
 						{
 						showSpeedDialog();
 						return;
