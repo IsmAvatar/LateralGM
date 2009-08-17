@@ -500,7 +500,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				{
 				arg.setVal(((ArrowsEditor) editor).getStringValue());
 				}
-			if (editor instanceof ResourceMenu)
+			if (editor instanceof ResourceMenu<?>)
 				{
 				arg.setRes(((ResourceMenu<?>) editor).getSelected());
 				return;

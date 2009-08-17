@@ -67,10 +67,17 @@ public class UpdateSource
 	public static class UpdateEvent
 		{
 		public final UpdateSource source;
+		public final UpdateEvent cause;
 
 		public UpdateEvent(UpdateSource s)
 			{
+			this(s,null);
+			}
+
+		public UpdateEvent(UpdateSource s, UpdateEvent e)
+			{
 			source = s;
+			cause = e;
 			}
 		}
 

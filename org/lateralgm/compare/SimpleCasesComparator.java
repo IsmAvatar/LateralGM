@@ -40,8 +40,8 @@ public class SimpleCasesComparator extends ReflectionComparator
 	public boolean canHandle(Object left, Object right)
 		{
 		return left == right || left == null || right == null
-				|| left.getClass().getName().startsWith("java.lang") || (left instanceof Enum)
-				&& (right instanceof Enum) || (left instanceof Date) && (right instanceof Date)
+				|| left.getClass().getName().startsWith("java.lang") || (left instanceof Enum<?>)
+				&& (right instanceof Enum<?>) || (left instanceof Date) && (right instanceof Date)
 				|| isNumeric(left) && isNumeric(right);
 		}
 

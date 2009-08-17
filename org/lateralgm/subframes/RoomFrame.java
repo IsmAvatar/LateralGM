@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008, 2009 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.BorderFactory;
@@ -53,28 +52,27 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.GMLTextArea;
-import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
+import org.lateralgm.components.impl.EditorScrollPane;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.RoomEditor;
+import org.lateralgm.components.visual.RoomEditor.CommandHandler;
 import org.lateralgm.components.visual.RoomEditor.PRoomEditor;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
@@ -84,74 +82,96 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Background.PBackground;
-import org.lateralgm.resources.Room.ActiveArrayList;
 import org.lateralgm.resources.Room.PRoom;
-import org.lateralgm.resources.Room.ActiveArrayList.ListUpdateEvent;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
+import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.resources.sub.View.PView;
+import org.lateralgm.ui.swing.propertylink.ButtonModelLink;
+import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
+import org.lateralgm.ui.swing.util.ArrayListModel;
+import org.lateralgm.util.PropertyLink;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectionListener
+public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectionListener,
+		CommandHandler,UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
 
-	//prevents List selection updates from firing ResourceMenu changes
-	public static boolean manualUpdate = true;
-	public RoomEditor editor;
-	public JScrollPane editorPane;
-	public JTabbedPane tabs;
+	private final RoomEditor editor;
+	private final EditorScrollPane editorPane;
+	public final JTabbedPane tabs;
 	public JLabel statX, statY, statId, statSrc;
 	//ToolBar
-	public JButton zoomIn, zoomOut;
-	public JToggleButton gridVis, gridIso;
+	private JButton zoomIn, zoomOut;
+	private JToggleButton gridVis, gridIso;
 	//	public IntegerField snapX, snapY;
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
+	private ButtonModelLink<PInstance> loLocked;
 	public JList oList;
 	private Instance lastObj = null; //non-guaranteed copy of oList.getLastSelectedValue()
-	public JButton oAdd, oDel;
+	private JButton oAdd, oDel;
 	public ResourceMenu<GmObject> oNew, oSource;
-	public IntegerField oX, oY;
-	public JButton oCreationCode;
+	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
+	public NumberField oX, oY;
+	private FormattedLink<PInstance> loX, loY;
+	private JButton oCreationCode;
 	//Settings
-	public JTextField sCaption;
-	public NumberField sWidth, sHeight, sSpeed, sGX, sGY, sGW, sGH;
-	public JCheckBox sPersistent;
-	public JButton sCreationCode, sShow;
-	public JPopupMenu sShowMenu;
+	private JTextField sCaption;
+	private NumberField sWidth, sHeight, sSpeed, sGX, sGY, sGW, sGH;
+	private JCheckBox sPersistent;
+	private JButton sCreationCode, sShow;
+	private JPopupMenu sShowMenu;
 
 	public HashMap<Object,CodeFrame> codeFrames = new HashMap<Object,CodeFrame>();
 
-	public JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
+	private JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
 	//Tiles
 	public JCheckBox tUnderlying, tLocked;
+	private ButtonModelLink<PTile> ltLocked;
 	public TileSelector tSelect;
-	public JScrollPane tScroll;
+	private JScrollPane tScroll;
 	public JList tList;
 	private Tile lastTile = null; //non-guaranteed copy of tList.getLastSelectedValue()
-	public JButton tDel;
+	private JButton tDel;
 	public ResourceMenu<Background> taSource, teSource;
-	public IntegerField tsX, tsY, tX, tY, taDepth, teDepth;
+	private PropertyLink<PTile,ResourceReference<Background>> ltSource;
+	public NumberField tsX, tsY, tX, tY, taDepth, teDepth;
+	private FormattedLink<PTile> ltsX, ltsY, ltX, ltY, ltDepth;
 	//Backgrounds
-	public JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
-	public ColorSelect bColor;
-	public JList bList;
+	private JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
+	private ButtonModelLink<PBackgroundDef> lbVisible, lbForeground, lbTileH, lbTileV, lbStretch;
+	private ColorSelect bColor;
+	private JList bList;
 	/**Guaranteed valid version of bList.getLastSelectedIndex()*/
-	public int lastValidBack = 0;
-	public ResourceMenu<Background> bSource;
-	public IntegerField bX, bY, bH, bV;
+	private int lastValidBack = -1;
+	private ResourceMenu<Background> bSource;
+	private PropertyLink<PBackgroundDef,ResourceReference<Background>> lbSource;
+	private NumberField bX, bY, bH, bV;
+	private FormattedLink<PBackgroundDef> lbX, lbY, lbH, lbV;
+	private final BgDefPropertyListener bdpl = new BgDefPropertyListener();
 	//Views
-	public JCheckBox vEnabled, vVisible;
-	public JList vList;
+	private JCheckBox vEnabled, vVisible;
+	private ButtonModelLink<PView> lvVisible;
+	private JList vList;
 	/**Guaranteed valid version of vList.getLastSelectedIndex()*/
-	public int lastValidView = 0;
-	public IntegerField vRX, vRY, vRW, vRH;
-	public IntegerField vPX, vPY, vPW, vPH;
-	public ResourceMenu<GmObject> vObj;
-	public IntegerField vOHBor, vOVBor, vOHSp, vOVSp;
+	private int lastValidView = -1;
+	private NumberField vRX, vRY, vRW, vRH;
+	private NumberField vPX, vPY, vPW, vPH;
+	private FormattedLink<PView> lvRX, lvRY, lvRW, lvRH, lvPX, lvPY, lvPW, lvPH;
+	private ResourceMenu<GmObject> vObj;
+	private PropertyLink<PView,ResourceReference<GmObject>> lvObj;
+	private NumberField vOHBor, vOVBor, vOHSp, vOVSp;
+	private FormattedLink<PView> lvOHBor, lvOVBor, lvOHSp, lvOVSp;
+	private final ViewPropertyListener vpl = new ViewPropertyListener();
 
 	private final PropertyLinkFactory<PRoomEditor> prelf;
 
@@ -163,11 +183,10 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		tool.addSeparator();
 
 		zoomIn = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_IN")); //$NON-NLS-1$
-		zoomIn.setEnabled(false); //because zoom is 100%
-		zoomIn.addActionListener(this);
+		prelf.make(zoomIn,PRoomEditor.ZOOM,1,RoomEditor.ZOOM_MAX);
 		tool.add(zoomIn);
 		zoomOut = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_OUT")); //$NON-NLS-1$
-		zoomOut.addActionListener(this);
+		prelf.make(zoomOut,PRoomEditor.ZOOM,-1,RoomEditor.ZOOM_MIN);
 		tool.add(zoomOut);
 		tool.addSeparator();
 
@@ -190,75 +209,6 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		return tool;
 		}
 
-	public static class ArrayListModel<E> implements ListModel,UpdateListener
-		{
-		ActiveArrayList<E> list;
-		ArrayList<ListDataListener> listeners;
-
-		public ArrayListModel(ActiveArrayList<E> l)
-			{
-			list = l;
-			l.updateSource.addListener(this);
-			listeners = new ArrayList<ListDataListener>();
-			}
-
-		public void addListDataListener(ListDataListener l)
-			{
-			listeners.add(l);
-			}
-
-		public Object getElementAt(int index)
-			{
-			try
-				{
-				return list.get(index);
-				}
-			catch (IndexOutOfBoundsException e)
-				{
-				return null;
-				}
-			}
-
-		public int getSize()
-			{
-			return list.size();
-			}
-
-		public void removeListDataListener(ListDataListener l)
-			{
-			listeners.remove(l);
-			}
-
-		public void updated(UpdateEvent e)
-			{
-			ListDataEvent lde;
-			if (e instanceof ListUpdateEvent)
-				{
-				ListUpdateEvent lue = (ListUpdateEvent) e;
-				int t;
-				switch (lue.type)
-					{
-					case ADDED:
-						t = ListDataEvent.INTERVAL_ADDED;
-						break;
-					case REMOVED:
-						t = ListDataEvent.INTERVAL_REMOVED;
-						break;
-					case CHANGED:
-						t = ListDataEvent.CONTENTS_CHANGED;
-						break;
-					default:
-						throw new AssertionError();
-					}
-				lde = new ListDataEvent(e.source.owner,t,lue.fromIndex,lue.toIndex);
-				}
-			else
-				lde = new ListDataEvent(e.source.owner,ListDataEvent.CONTENTS_CHANGED,0,MAX_VALUE);
-			for (ListDataListener l : listeners)
-				l.contentsChanged(lde);
-			}
-		}
-
 	private static class ObjectListComponentRenderer implements ListCellRenderer
 		{
 		private final JLabel lab = new JLabel();
@@ -273,11 +223,12 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 				boolean selected, boolean focus)
 			{
 			Instance i = (Instance) val;
-			GmObject go = deRef(i.getObject());
-			String name = go == null ? Messages.getString("RoomFrame.NO_OBJECT") : go.getName();
+			ResourceReference<GmObject> ro = i.properties.get(PInstance.OBJECT);
+			GmObject o = deRef(ro);
+			String name = o == null ? Messages.getString("RoomFrame.NO_OBJECT") : o.getName();
 			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-			lab.setText(name + " " + i.instanceId);
-			ResNode rn = go.getNode();
+			lab.setText(name + " " + i.properties.get(PInstance.ID));
+			ResNode rn = o.getNode();
 			lab.setIcon(rn == null ? null : rn.getIcon());
 			return lab;
 			}
@@ -299,9 +250,10 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 				boolean selected, boolean focus)
 			{
 			Tile t = (Tile) val;
-			Background bg = deRef(t.getBackground());
+			ResourceReference<Background> rb = t.properties.get(PTile.BACKGROUND);
+			Background bg = deRef(rb);
 			String name = bg == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : bg.getName();
-			lab.setText(name + " " + t.tileId);
+			lab.setText(name + " " + t.properties.get(PTile.ID));
 			ti.tile = t;
 			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
 			return lab;
@@ -323,7 +275,8 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 
 			public void paintIcon(Component c, Graphics g, int x, int y)
 				{
-				Background bg = deRef(tile.getBackground());
+				ResourceReference<Background> rb = tile.properties.get(PTile.BACKGROUND);
+				Background bg = deRef(rb);
 				BufferedImage bi = bg == null ? null : bg.getBackgroundImage();
 				if (bi != null)
 					{
@@ -370,17 +323,14 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 
 		oSource = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
-		oSource.addActionListener(this);
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
 		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
 		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
-		oX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		oX = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		oX.setColumns(4);
-		oX.addActionListener(this);
 		JLabel lObjY = new JLabel(Messages.getString("RoomFrame.OBJ_Y")); //$NON-NLS-1$
-		oY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		oY = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		oY.setColumns(4);
-		oY.addActionListener(this);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
@@ -601,7 +551,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
 		prelf.make(tUnderlying,PRoomEditor.DELETE_UNDERLYING_TILES);
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.TILE_LAYER"));
-		taDepth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		taDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		taDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,taDepth.getHeight()));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -686,7 +636,8 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		protected void processMouseMotionEvent(MouseEvent e)
 			{
 			if (e.getID() == MouseEvent.MOUSE_DRAGGED
-					&& (e.getModifiers() | MouseEvent.BUTTON1_MASK) != 0) selectTile(e.getX(),e.getY());
+					&& (e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0)
+				selectTile(e.getX(),e.getY());
 			super.processMouseMotionEvent(e);
 			}
 
@@ -739,10 +690,10 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		teSource = new ResourceMenu<Background>(Resource.Kind.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110); //$NON-NLS-1$
 		JLabel ltsx = new JLabel(Messages.getString("RoomFrame.TILESET_X")); //$NON-NLS-1$
-		tsX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tsX = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		tsX.setColumns(4);
 		JLabel ltsy = new JLabel(Messages.getString("RoomFrame.TILESET_Y")); //$NON-NLS-1$
-		tsY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tsY = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		tsY.setColumns(4);
 		psl.setHorizontalGroup(psl.createParallelGroup()
 		/**/.addComponent(teSource)
@@ -766,17 +717,14 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		ptl.setAutoCreateContainerGaps(true);
 		pTile.setLayout(ptl);
 		JLabel ltx = new JLabel(Messages.getString("RoomFrame.TILE_X")); //$NON-NLS-1$
-		tX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tX = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		tX.setColumns(4);
-		tX.addActionListener(this);
 		JLabel lty = new JLabel(Messages.getString("RoomFrame.TILE_Y")); //$NON-NLS-1$
-		tY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tY = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 		tY.setColumns(4);
-		tY.addActionListener(this);
 		JLabel ltl = new JLabel(Messages.getString("RoomFrame.TILE_LAYER")); //$NON-NLS-1$
-		teDepth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,1000000);
+		teDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,1000000);
 		teDepth.setColumns(8);
-		teDepth.addActionListener(this);
 		ptl.setHorizontalGroup(ptl.createParallelGroup()
 		/**/.addGroup(ptl.createSequentialGroup()
 		/*		*/.addComponent(ltx)
@@ -834,19 +782,18 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		String st = Messages.getString("RoomFrame.DRAW_COLOR"); //$NON-NLS-1$
-		bDrawColor = new JCheckBox(st);
+		bDrawColor = new JCheckBox(Messages.getString("RoomFrame.DRAW_COLOR")); //$NON-NLS-1$
 		plf.make(bDrawColor,PRoom.DRAW_BACKGROUND_COLOR);
 		JLabel lColor = new JLabel(Messages.getString("RoomFrame.COLOR")); //$NON-NLS-1$
 		bColor = new ColorSelect(Color.BLACK);
 		plf.make(bColor,PRoom.BACKGROUND_COLOR);
 
-		JLabel[] backLabs = new JLabel[8];
-		for (int i = 0; i < 8; i++)
+		JLabel[] backLabs = new JLabel[res.backgroundDefs.size()];
+		for (int i = 0; i < backLabs.length; i++)
 			{
 			backLabs[i] = new JLabel(Messages.getString("RoomFrame.BACK") + i); //$NON-NLS-1$
-			backLabs[i].setFont(backLabs[i].getFont().deriveFont(
-					res.backgroundDefs[i].visible ? Font.BOLD : Font.PLAIN));
+			boolean v = res.backgroundDefs.get(i).properties.get(PBackgroundDef.VISIBLE);
+			backLabs[i].setFont(backLabs[i].getFont().deriveFont(v ? Font.BOLD : Font.PLAIN));
 			backLabs[i].setOpaque(true);
 			}
 		bList = new JList(backLabs);
@@ -856,43 +803,30 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		bList.setVisibleRowCount(4);
 		JScrollPane sp = new JScrollPane(bList);
 
-		st = Messages.getString("RoomFrame.BACK_VISIBLE"); //$NON-NLS-1$
-		bVisible = new JCheckBox(st,res.backgroundDefs[0].visible);
-		bVisible.addActionListener(this);
-		st = Messages.getString("RoomFrame.BACK_FOREGROUND"); //$NON-NLS-1$
-		bForeground = new JCheckBox(st,res.backgroundDefs[0].foreground);
-		bForeground.addActionListener(this);
+		for (BackgroundDef d : res.backgroundDefs)
+			d.properties.getUpdateSource(PBackgroundDef.VISIBLE).addListener(bdpl);
+
+		bVisible = new JCheckBox(Messages.getString("RoomFrame.BACK_VISIBLE")); //$NON-NLS-1$
+		bForeground = new JCheckBox(Messages.getString("RoomFrame.BACK_FOREGROUND")); //$NON-NLS-1$
 
 		bSource = new ResourceMenu<Background>(Resource.Kind.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,150); //$NON-NLS-1$
-		bSource.setSelected(res.backgroundDefs[0].backgroundId);
-		bSource.addActionListener(this);
 
-		st = Messages.getString("RoomFrame.BACK_TILE_HOR"); //$NON-NLS-1$
-		bTileH = new JCheckBox(st,res.backgroundDefs[0].tileHoriz);
-		bTileH.addActionListener(this);
+		bTileH = new JCheckBox(Messages.getString("RoomFrame.BACK_TILE_HOR")); //$NON-NLS-1$
 		JLabel lbx = new JLabel(Messages.getString("RoomFrame.BACK_X")); //$NON-NLS-1$
-		bX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.backgroundDefs[0].x);
+		bX = new NumberField(0);
 		bX.setColumns(4);
-		bX.addActionListener(this);
-		st = Messages.getString("RoomFrame.BACK_TILE_VERT"); //$NON-NLS-1$
-		bTileV = new JCheckBox(st,res.backgroundDefs[0].tileVert);
-		bTileV.addActionListener(this);
+		bTileV = new JCheckBox(Messages.getString("RoomFrame.BACK_TILE_VERT")); //$NON-NLS-1$
 		JLabel lby = new JLabel(Messages.getString("RoomFrame.BACK_Y")); //$NON-NLS-1$
-		bY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,res.backgroundDefs[0].y);
+		bY = new NumberField(0);
 		bY.setColumns(4);
-		bY.addActionListener(this);
-		st = Messages.getString("RoomFrame.BACK_STRETCH"); //$NON-NLS-1$
-		bStretch = new JCheckBox(st,res.backgroundDefs[0].stretch);
-		bStretch.addActionListener(this);
+		bStretch = new JCheckBox(Messages.getString("RoomFrame.BACK_STRETCH")); //$NON-NLS-1$
 		JLabel lbh = new JLabel(Messages.getString("RoomFrame.BACK_HSPEED")); //$NON-NLS-1$
-		bH = new IntegerField(-999,999,res.backgroundDefs[0].horizSpeed);
-		bH.setColumns(4);
+		bH = new NumberField(-999,999);
 		JLabel lbv = new JLabel(Messages.getString("RoomFrame.BACK_VSPEED")); //$NON-NLS-1$
-		bV = new IntegerField(-999,999,res.backgroundDefs[0].vertSpeed);
-		bH.setColumns(4);
+		bV = new NumberField(-999,999);
 
-		bList.setSelectedIndex(lastValidBack);
+		bList.setSelectedIndex(0);
 
 		Insets spi = sp.getInsets();
 		int spmh = bList.getMaximumSize().height + spi.bottom + spi.top;
@@ -956,16 +890,15 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		String st = Messages.getString("RoomFrame.ENABLE_VIEWS"); //$NON-NLS-1$
-		vEnabled = new JCheckBox(st);
+		vEnabled = new JCheckBox(Messages.getString("RoomFrame.ENABLE_VIEWS")); //$NON-NLS-1$
 		plf.make(vEnabled,PRoom.ENABLE_VIEWS);
 
-		JLabel[] viewLabs = new JLabel[8];
-		for (int i = 0; i < 8; i++)
+		JLabel[] viewLabs = new JLabel[res.views.size()];
+		for (int i = 0; i < viewLabs.length; i++)
 			{
 			viewLabs[i] = new JLabel(Messages.getString("RoomFrame.VIEW") + i); //$NON-NLS-1$
-			viewLabs[i].setFont(viewLabs[i].getFont().deriveFont(
-					res.views[i].visible ? Font.BOLD : Font.PLAIN));
+			boolean v = res.views.get(i).properties.get(PView.VISIBLE);
+			viewLabs[i].setFont(viewLabs[i].getFont().deriveFont(v ? Font.BOLD : Font.PLAIN));
 			viewLabs[i].setOpaque(true);
 			}
 		vList = new JList(viewLabs);
@@ -975,14 +908,15 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		vList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane sp = new JScrollPane(vList);
 
-		st = Messages.getString("RoomFrame.VIEW_ENABLED"); //$NON-NLS-1$
-		vVisible = new JCheckBox(st,res.views[0].visible);
-		vVisible.addActionListener(this);
+		for (View v : res.views)
+			v.properties.getUpdateSource(PView.VISIBLE).addListener(vpl);
+
+		vVisible = new JCheckBox(Messages.getString("RoomFrame.VIEW_ENABLED")); //$NON-NLS-1$
 
 		JTabbedPane tp = makeViewsDimensionsPane();
 		JPanel pf = makeViewsFollowPane();
 
-		vList.setSelectedIndex(lastValidView);
+		vList.setSelectedIndex(0);
 
 		Insets spi = sp.getInsets();
 		int spmh = vList.getMaximumSize().height + spi.bottom + spi.top;
@@ -1008,16 +942,16 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		pr.setLayout(lr);
 
 		JLabel lRX = new JLabel(Messages.getString("RoomFrame.VIEW_X")); //$NON-NLS-1$
-		vRX = new IntegerField(0,999999,res.views[0].viewX);
+		vRX = new NumberField(0,999999);
 		vRX.setColumns(4);
 		JLabel lRW = new JLabel(Messages.getString("RoomFrame.VIEW_W")); //$NON-NLS-1$
-		vRW = new IntegerField(1,999999,res.views[0].viewW);
+		vRW = new NumberField(1,999999);
 		vRW.setColumns(4);
 		JLabel lRY = new JLabel(Messages.getString("RoomFrame.VIEW_Y")); //$NON-NLS-1$
-		vRY = new IntegerField(0,999999,res.views[0].viewY);
+		vRY = new NumberField(0,999999);
 		vRY.setColumns(4);
 		JLabel lRH = new JLabel(Messages.getString("RoomFrame.VIEW_H")); //$NON-NLS-1$
-		vRH = new IntegerField(1,999999,res.views[0].viewH);
+		vRH = new NumberField(1,999999);
 		vRH.setColumns(4);
 		lr.setHorizontalGroup(lr.createSequentialGroup().addContainerGap()
 		/**/.addGroup(lr.createParallelGroup()
@@ -1049,16 +983,16 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		pp.setLayout(lp);
 
 		JLabel lPX = new JLabel(Messages.getString("RoomFrame.PORT_X")); //$NON-NLS-1$
-		vPX = new IntegerField(0,999999,res.views[0].portX);
+		vPX = new NumberField(0,999999);
 		vPX.setColumns(4);
 		JLabel lPW = new JLabel(Messages.getString("RoomFrame.PORT_W")); //$NON-NLS-1$
-		vPW = new IntegerField(1,999999,res.views[0].portW);
+		vPW = new NumberField(1,999999);
 		vPW.setColumns(4);
 		JLabel lPY = new JLabel(Messages.getString("RoomFrame.PORT_Y")); //$NON-NLS-1$
-		vPY = new IntegerField(0,999999,res.views[0].portY);
+		vPY = new NumberField(0,999999);
 		vPY.setColumns(4);
 		JLabel lPH = new JLabel(Messages.getString("RoomFrame.PORT_H")); //$NON-NLS-1$
-		vPH = new IntegerField(1,999999,res.views[0].portH);
+		vPH = new NumberField(1,999999);
 		vPH.setColumns(4);
 		lp.setHorizontalGroup(lp.createSequentialGroup().addContainerGap()
 		/**/.addGroup(lp.createParallelGroup()
@@ -1100,18 +1034,17 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		pf.setLayout(lf);
 		vObj = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
-		vObj.setSelected(res.views[0].objectFollowing);
 		JLabel lH = new JLabel(Messages.getString("RoomFrame.VIEW_HORIZONTAL"));
 		JLabel lV = new JLabel(Messages.getString("RoomFrame.VIEW_VERTICAL"));
 		JLabel lBorder = new JLabel(Messages.getString("RoomFrame.VIEW_BORDER"));
 		JLabel lSpeed = new JLabel(Messages.getString("RoomFrame.VIEW_SPEED"));
-		vOHBor = new IntegerField(0,32000,res.views[0].hbor);
+		vOHBor = new NumberField(0,32000);
 		vOHBor.setColumns(4);
-		vOHSp = new IntegerField(-1,32000,res.views[0].hspeed);
+		vOHSp = new NumberField(-1,32000);
 		vOHSp.setColumns(4);
-		vOVBor = new IntegerField(0,32000,res.views[0].vbor);
+		vOVBor = new NumberField(0,32000);
 		vOVBor.setColumns(4);
-		vOVSp = new IntegerField(-1,32000,res.views[0].vspeed);
+		vOVSp = new NumberField(-1,32000);
 		vOVSp.setColumns(4);
 		lf.setHorizontalGroup(lf.createSequentialGroup().addContainerGap()
 		/**/.addGroup(lf.createParallelGroup()
@@ -1207,11 +1140,11 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex((Integer) res.get(PRoom.CURRENT_TAB));
 
-		editorPane = new JScrollPane(editor);
-		editorPane.getVerticalScrollBar().setUnitIncrement(16);
-		editorPane.getVerticalScrollBar().setBlockIncrement(64);
-		editorPane.getHorizontalScrollBar().setUnitIncrement(16);
-		editorPane.getHorizontalScrollBar().setBlockIncrement(64);
+		res.instanceUpdateSource.addListener(this);
+		res.tileUpdateSource.addListener(this);
+
+		editorPane = new EditorScrollPane(editor);
+		prelf.make(editorPane,PRoomEditor.ZOOM);
 		JPanel stats = makeStatsPane();
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -1286,8 +1219,8 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Room.class,"parent","currentTab","deleteUnderlyingObjects","showGrid",
-				"showObjects","showTiles","showBackgrounds","showForegrounds","deleteUnderlyingTiles");
+		c.addExclusions(Room.class,"parent","instanceUpdateTrigger","instanceUpdateSource",
+				"tileUpdateTrigger","tileUpdateSource");
 		c.addExclusions(Instance.class,"updateTrigger","updateSource");
 		c.addExclusions(Tile.class,"updateTrigger","updateSource");
 		if (!c.areEqual(res,resOriginal)) return true;
@@ -1316,58 +1249,6 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			res.put(PRoom.EDITOR_WIDTH,s.width);
 			res.put(PRoom.EDITOR_HEIGHT,s.height);
 			}
-		fireObjUpdate();
-		fireTileUpdate();
-		fireBackUpdate();
-		fireViewUpdate();
-		}
-
-	private boolean performBackgrounds(Object s)
-		{
-		if (s == bVisible)
-			{
-			JLabel lab = ((JLabel) bList.getSelectedValue());
-			res.backgroundDefs[lastValidBack].visible = bVisible.isSelected();
-			lab.setFont(lab.getFont().deriveFont(bVisible.isSelected() ? Font.BOLD : Font.PLAIN));
-			bList.updateUI();
-			return true;
-			}
-		if (s == bForeground)
-			{
-			res.backgroundDefs[lastValidBack].foreground = bForeground.isSelected();
-			return true;
-			}
-		if (s == bSource)
-			{
-			res.backgroundDefs[lastValidBack].backgroundId = bSource.getSelected();
-			return true;
-			}
-		if (s == bStretch)
-			{
-			res.backgroundDefs[lastValidBack].stretch = bStretch.isSelected();
-			return true;
-			}
-		if (s == bTileH)
-			{
-			res.backgroundDefs[lastValidBack].tileHoriz = bTileH.isSelected();
-			return true;
-			}
-		if (s == bTileV)
-			{
-			res.backgroundDefs[lastValidBack].tileVert = bTileV.isSelected();
-			return true;
-			}
-		if (s == bX)
-			{
-			res.backgroundDefs[lastValidBack].x = bX.getIntValue();
-			return true;
-			}
-		if (s == bY)
-			{
-			res.backgroundDefs[lastValidBack].y = bY.getIntValue();
-			return true;
-			}
-		return false;
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -1375,111 +1256,27 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		if (editor != null) editor.refresh();
 		Object s = e.getSource();
 
-		if (performBackgrounds(s)) return;
-		if (s == vVisible)
-			{
-			JLabel lab = ((JLabel) vList.getSelectedValue());
-			res.views[lastValidView].visible = vVisible.isSelected();
-			lab.setFont(lab.getFont().deriveFont(vVisible.isSelected() ? Font.BOLD : Font.PLAIN));
-			vList.updateUI();
-			return;
-			}
 		if (s == sShow)
 			{
 			sShowMenu.show(sShow,0,sShow.getHeight());
-			return;
-			}
-		if (s == oSource)
-			{
-			if (!manualUpdate) return;
-			Instance i = (Instance) oList.getSelectedValue();
-			if (i == null) return;
-			if (oSource.getSelected() == null)
-				{
-				oSource.setSelected(i.getObject());
-				return;
-				}
-			i.setObject(oSource.getSelected());
-			oList.updateUI();
 			return;
 			}
 		if (s == oAdd)
 			{
 			if (oNew.getSelected() == null) return;
 			Instance i = res.addInstance();
-			i.setObject(oNew.getSelected());
+			i.properties.put(PInstance.OBJECT,oNew.getSelected());
 			i.setPosition(new Point());
 			oList.setSelectedIndex(res.instances.size() - 1);
-			editor.add(editor.new InstanceComponent(i));
 			return;
 			}
 		if (s == oDel)
 			{
-			int li = oList.getSelectedIndex();
-			if (li == -1) return;
-			Instance i = res.instances.remove(li);
-
-			/*
-			// FIXME: Remove the instance from the RoomEditor component list
-			for (Component c : editor.getComponents())
-				if (c instanceof InstanceComponent)
-					if (((InstanceComponent)c).instance == i)
-						{
-						editor.remove(c);
-						break;
-						}
-			*/
-
-			CodeFrame frame = codeFrames.get(i);
+			int i = oList.getSelectedIndex();
+			if (i == -1) return;
+			CodeFrame frame = codeFrames.get(res.instances.remove(i));
 			if (frame != null) frame.dispose();
-			oList.setSelectedIndex(Math.min(res.instances.size() - 1,li));
-			return;
-			}
-		if (s == oX || s == oY)
-			{
-			Instance i = (Instance) oList.getSelectedValue();
-			if (i == null) return;
-			//do not wrap into 1 function call, or it will break code in fireObjUpdate
-			if (s == oX) i.setPosition(new Point(oX.getIntValue(),i.getPosition().y));
-			if (s == oY) i.setPosition(new Point(i.getPosition().x,oY.getIntValue()));
-			return;
-			}
-		if (s == zoomIn)
-			{
-			int z = editor.properties.get(PRoomEditor.ZOOM);
-			if (z > 1)
-				{
-				z /= 2;
-				editor.properties.put(PRoomEditor.ZOOM,z);
-				zoomOut.setEnabled(true);
-				zoomIn.setEnabled(z > 1);
-				}
-			return;
-			}
-		if (s == zoomOut)
-			{
-			int z = editor.properties.get(PRoomEditor.ZOOM);
-			if (z < 32)
-				{
-				z *= 2;
-				editor.properties.put(PRoomEditor.ZOOM,z);
-				zoomOut.setEnabled(z < 32);
-				zoomIn.setEnabled(true);
-				}
-			return;
-			}
-		if (s == teSource)
-			{
-			if (!manualUpdate) return;
-			Tile t = (Tile) tList.getSelectedValue();
-			if (t == null) return;
-			if (teSource.getSelected() == null)
-				{
-				teSource.setSelected(t.getBackground());
-				return;
-				}
-			t.setBackground(teSource.getSelected());
-			tList.updateUI();
+			oList.setSelectedIndex(Math.min(res.instances.size() - 1,i));
 			return;
 			}
 		if (s == taSource)
@@ -1491,33 +1288,8 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			{
 			int i = tList.getSelectedIndex();
 			if (i == -1) return;
-			/*Tile t = */res.tiles.remove(i);
-
-			/*
-			// FIXME: Remove the tile from the RoomEditor component list
-			for (Component c : editor.getComponents())
-				if (c instanceof TileComponent)
-					if (((TileComponent)c).tile == t)
-						{
-						editor.remove(c);
-						break;
-						}
-			*/
-
+			res.tiles.remove(i);
 			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,i));
-			return;
-			}
-		if (s == tX || s == tY || s == teDepth)
-			{
-			Tile t = (Tile) tList.getSelectedValue();
-			if (t == null) return;
-			if (s == teDepth)
-				t.setDepth(teDepth.getIntValue());
-			else
-				{ //do not wrap into 1 function call, or it will break code in fireTileUpdate
-				if (s == tX) t.setRoomPosition(new Point(tX.getIntValue(),t.getRoomPosition().y));
-				if (s == tY) t.setRoomPosition(new Point(t.getRoomPosition().x,tY.getIntValue()));
-				}
 			return;
 			}
 		if (e.getSource() == sCreationCode)
@@ -1527,8 +1299,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			}
 		if (e.getSource() == oCreationCode)
 			{
-			if (lastObj != null) openCodeFrame(lastObj,"RoomFrame.TITLE_FORMAT_CREATION",Messages.format(//$NON-NLS-1$
-					"RoomFrame.INSTANCE",lastObj.instanceId)); //$NON-NLS-1$
+			if (lastObj != null) openCodeFrame(lastObj);
 			return;
 			}
 		super.actionPerformed(e);
@@ -1536,20 +1307,18 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 
 	public void fireObjUpdate()
 		{
-		if (lastObj != null)
+		Instance i = (Instance) oList.getSelectedValue();
+		if (lastObj == i) return;
+		lastObj = i;
+		PropertyLink.removeAll(loLocked,loSource,loX,loY);
+		if (i != null)
 			{
-			lastObj.locked = oLocked.isSelected();
-			if (oSource.getSelected() != null) lastObj.setObject(oSource.getSelected());
-			lastObj.setPosition(new Point(oX.getIntValue(),oY.getIntValue()));
+			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(i.properties,this);
+			loLocked = iplf.make(oLocked,PInstance.LOCKED);
+			loSource = iplf.make(oSource,PInstance.OBJECT);
+			loX = iplf.make(oX,PInstance.X);
+			loY = iplf.make(oY,PInstance.Y);
 			}
-		lastObj = (Instance) oList.getSelectedValue();
-		if (lastObj == null) return;
-		oLocked.setSelected(lastObj.locked);
-		manualUpdate = false;
-		oSource.setSelected(lastObj.getObject());
-		manualUpdate = true;
-		oX.setIntValue(lastObj.getPosition().x);
-		oY.setIntValue(lastObj.getPosition().y);
 		}
 
 	@Override
@@ -1565,103 +1334,78 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 
 	public void fireTileUpdate()
 		{
-		if (lastTile != null)
+		Tile t = (Tile) tList.getSelectedValue();
+		if (lastTile == t) return;
+		lastTile = t;
+		PropertyLink.removeAll(ltDepth,ltLocked,ltSource,ltsX,ltsY,ltX,ltY);
+		if (t != null)
 			{
-			lastTile.setAutoUpdate(false);
-			lastTile.locked = tLocked.isSelected();
-			if (teSource.getSelected() != null) lastTile.setBackground(teSource.getSelected());
-			lastTile.setBackgroundPosition(new Point(tsX.getIntValue(),tsY.getIntValue()));
-			lastTile.setRoomPosition(new Point(tX.getIntValue(),tY.getIntValue()));
-			lastTile.setDepth(teDepth.getIntValue());
-			lastTile.setAutoUpdate(true);
+			PropertyLinkFactory<PTile> tplf = new PropertyLinkFactory<PTile>(t.properties,this);
+			ltDepth = tplf.make(teDepth,PTile.DEPTH);
+			ltLocked = tplf.make(tLocked,PTile.LOCKED);
+			ltSource = tplf.make(teSource,PTile.BACKGROUND);
+			ltsX = tplf.make(tsX,PTile.BG_X);
+			ltsY = tplf.make(tsY,PTile.BG_Y);
+			ltX = tplf.make(tX,PTile.ROOM_X);
+			ltY = tplf.make(tY,PTile.ROOM_Y);
 			}
-		lastTile = (Tile) tList.getSelectedValue();
-		if (lastTile == null) return;
-		tLocked.setSelected(lastTile.locked);
-		manualUpdate = false;
-		teSource.setSelected(lastTile.getBackground());
-		manualUpdate = true;
-		tsX.setIntValue(lastTile.getBackgroundPosition().x);
-		tsY.setIntValue(lastTile.getBackgroundPosition().y);
-		tX.setIntValue(lastTile.getRoomPosition().x);
-		tY.setIntValue(lastTile.getRoomPosition().y);
-		teDepth.setIntValue(lastTile.getDepth());
 		}
 
 	public void fireBackUpdate()
 		{
-		BackgroundDef b = res.backgroundDefs[lastValidBack];
-		b.visible = bVisible.isSelected();
-		b.foreground = bForeground.isSelected();
-		b.backgroundId = bSource.getSelected();
-		b.x = bX.getIntValue();
-		b.y = bY.getIntValue();
-		b.tileHoriz = bTileH.isSelected();
-		b.tileVert = bTileV.isSelected();
-		b.stretch = bStretch.isSelected();
-		b.horizSpeed = bH.getIntValue();
-		b.vertSpeed = bV.getIntValue();
-
-		if (bList.getSelectedIndex() == -1)
+		int i = bList.getSelectedIndex();
+		if (lastValidBack == i) return;
+		if (i < 0)
 			{
-			bList.setSelectedIndex(lastValidBack);
+			bList.setSelectedIndex(lastValidBack < 0 ? 0 : lastValidBack);
 			return;
 			}
-		lastValidBack = bList.getSelectedIndex();
-
-		b = res.backgroundDefs[lastValidBack];
-		bVisible.setSelected(b.visible);
-		bForeground.setSelected(b.foreground);
-		bSource.setSelected(b.backgroundId);
-		bX.setIntValue(b.x);
-		bY.setIntValue(b.y);
-		bTileH.setSelected(b.tileHoriz);
-		bTileV.setSelected(b.tileVert);
-		bStretch.setSelected(b.stretch);
-		bH.setIntValue(b.horizSpeed);
-		bV.setIntValue(b.vertSpeed);
+		lastValidBack = i;
+		PropertyLink.removeAll(lbVisible,lbForeground,lbSource,lbX,lbY,lbTileH,lbTileV,lbStretch,lbH,
+				lbV);
+		BackgroundDef b = res.backgroundDefs.get(i);
+		PropertyLinkFactory<PBackgroundDef> bdplf = new PropertyLinkFactory<PBackgroundDef>(
+				b.properties,this);
+		lbVisible = bdplf.make(bVisible,PBackgroundDef.VISIBLE);
+		lbForeground = bdplf.make(bForeground,PBackgroundDef.FOREGROUND);
+		lbSource = bdplf.make(bSource,PBackgroundDef.BACKGROUND);
+		lbX = bdplf.make(bX,PBackgroundDef.X);
+		lbY = bdplf.make(bY,PBackgroundDef.Y);
+		lbTileH = bdplf.make(bTileH,PBackgroundDef.TILE_HORIZ);
+		lbTileV = bdplf.make(bTileV,PBackgroundDef.TILE_VERT);
+		lbStretch = bdplf.make(bStretch,PBackgroundDef.STRETCH);
+		lbH = bdplf.make(bH,PBackgroundDef.H_SPEED);
+		lbV = bdplf.make(bV,PBackgroundDef.V_SPEED);
 		}
 
 	public void fireViewUpdate()
 		{
-		View v = res.views[lastValidView];
-		v.visible = vVisible.isSelected();
-		v.viewX = vRX.getIntValue();
-		v.viewY = vRY.getIntValue();
-		v.viewW = vRW.getIntValue();
-		v.viewH = vRH.getIntValue();
-		v.portX = vPX.getIntValue();
-		v.portY = vPY.getIntValue();
-		v.portW = vPW.getIntValue();
-		v.portH = vPH.getIntValue();
-		v.objectFollowing = vObj.getSelected();
-		v.hbor = vOHBor.getIntValue();
-		v.vbor = vOVBor.getIntValue();
-		v.hspeed = vOHSp.getIntValue();
-		v.vspeed = vOVSp.getIntValue();
-
-		if (vList.getSelectedIndex() == -1)
+		int i = vList.getSelectedIndex();
+		if (lastValidView == i) return;
+		if (i < 0)
 			{
-			vList.setSelectedIndex(lastValidView);
+			bList.setSelectedIndex(lastValidView < 0 ? 0 : lastValidView);
 			return;
 			}
-		lastValidView = vList.getSelectedIndex();
-
-		v = res.views[lastValidView];
-		vVisible.setSelected(v.visible);
-		vRX.setIntValue(v.viewX);
-		vRY.setIntValue(v.viewY);
-		vRW.setIntValue(v.viewW);
-		vRH.setIntValue(v.viewH);
-		vPX.setIntValue(v.portX);
-		vPY.setIntValue(v.portY);
-		vPW.setIntValue(v.portW);
-		vPH.setIntValue(v.portH);
-		vObj.setSelected(v.objectFollowing);
-		vOHBor.setIntValue(v.hbor);
-		vOVBor.setIntValue(v.vbor);
-		vOHSp.setIntValue(v.hspeed);
-		vOVSp.setIntValue(v.vspeed);
+		lastValidView = i;
+		PropertyLink.removeAll(lvVisible,lvRX,lvRY,lvRW,lvRH,lvPX,lvPY,lvPW,lvPH,lvObj,lvOHBor,lvOVBor,
+				lvOHSp,lvOVSp);
+		View v = res.views.get(i);
+		PropertyLinkFactory<PView> vplf = new PropertyLinkFactory<PView>(v.properties,this);
+		lvVisible = vplf.make(vVisible,PView.VISIBLE);
+		lvRX = vplf.make(vRX,PView.VIEW_X);
+		lvRY = vplf.make(vRY,PView.VIEW_Y);
+		lvRW = vplf.make(vRW,PView.VIEW_W);
+		lvRH = vplf.make(vRH,PView.VIEW_H);
+		lvPX = vplf.make(vPX,PView.PORT_X);
+		lvPY = vplf.make(vPY,PView.PORT_Y);
+		lvPW = vplf.make(vPW,PView.PORT_W);
+		lvPH = vplf.make(vPH,PView.PORT_H);
+		lvObj = vplf.make(vObj,PView.OBJECT);
+		lvOHBor = vplf.make(vOHBor,PView.BORDER_H);
+		lvOVBor = vplf.make(vOVBor,PView.BORDER_V);
+		lvOHSp = vplf.make(vOHSp,PView.SPEED_H);
+		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
 		}
 
 	public void valueChanged(ListSelectionEvent e)
@@ -1672,6 +1416,12 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		if (e.getSource() == tList) fireTileUpdate();
 		if (e.getSource() == bList) fireBackUpdate();
 		if (e.getSource() == vList) fireViewUpdate();
+		}
+
+	public void openCodeFrame(Instance i)
+		{
+		openCodeFrame(i,"RoomFrame.TITLE_FORMAT_CREATION",Messages.format("RoomFrame.INSTANCE",
+				i.properties.get(PInstance.ID)));
 		}
 
 	public void openCodeFrame(Object obj, String format, Object arg)
@@ -1812,35 +1562,60 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		// XXX: These components could still be referenced by InputContext or similar.
 		// Removing their references to this frame is therefore necessary in order to ensure
 		// garbage collection.
-		zoomIn.removeActionListener(this);
-		zoomOut.removeActionListener(this);
 		oNew.removeActionListener(this);
 		oList.removeListSelectionListener(this);
 		oAdd.removeActionListener(this);
 		oDel.removeActionListener(this);
-		oSource.removeActionListener(this);
-		oX.removeActionListener(this);
-		oY.removeActionListener(this);
 		oCreationCode.removeActionListener(this);
 		sCreationCode.removeActionListener(this);
 		sShow.removeActionListener(this);
-		teDepth.removeActionListener(this);
 		taSource.removeActionListener(this);
 		tList.removeListSelectionListener(this);
 		tDel.removeActionListener(this);
-		tX.removeActionListener(this);
-		tY.removeActionListener(this);
 		bList.removeListSelectionListener(this);
-		bVisible.removeActionListener(this);
-		bForeground.removeActionListener(this);
-		bTileH.removeActionListener(this);
-		bX.removeActionListener(this);
-		bTileV.removeActionListener(this);
-		bY.removeActionListener(this);
-		bStretch.removeActionListener(this);
 		vList.removeListSelectionListener(this);
-		vVisible.removeActionListener(this);
 		editorPane.setViewport(null);
 		setLayout(null);
+		}
+
+	public void updated(UpdateEvent e)
+		{
+		if (e.source == res.instanceUpdateSource)
+			oList.setPrototypeCellValue(null);
+		else if (e.source == res.tileUpdateSource) tList.setPrototypeCellValue(null);
+		}
+
+	private void bdvListUpdate(boolean isBgDef, UpdateSource s, boolean v)
+		{
+		int ls = (isBgDef ? res.backgroundDefs : res.views).size();
+		for (int i = 0; i < ls; i++)
+			{
+			UpdateSource s2 = (isBgDef ? res.backgroundDefs.get(i).properties
+					: res.views.get(i).properties).updateSource;
+			if (s2 != s) continue;
+			JList l = isBgDef ? bList : vList;
+			JLabel ll = (JLabel) l.getModel().getElementAt(i);
+			ll.setFont(ll.getFont().deriveFont(v ? Font.BOLD : Font.PLAIN));
+			l.setPrototypeCellValue(null);
+			break;
+			}
+		}
+
+	private class BgDefPropertyListener extends PropertyUpdateListener<PBackgroundDef>
+		{
+		@Override
+		public void updated(PropertyUpdateEvent<PBackgroundDef> e)
+			{
+			if (e.key == PBackgroundDef.VISIBLE) bdvListUpdate(true,e.source,(Boolean) e.map.get(e.key));
+			}
+		}
+
+	private class ViewPropertyListener extends PropertyUpdateListener<PView>
+		{
+		@Override
+		public void updated(PropertyUpdateEvent<PView> e)
+			{
+			if (e.key == PView.VISIBLE) bdvListUpdate(false,e.source,(Boolean) e.map.get(e.key));
+			}
 		}
 	}

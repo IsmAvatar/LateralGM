@@ -286,6 +286,25 @@ public final class Util
 		return ref == null ? null : ref.get();
 		}
 
+	public static int gcd(int a, int b)
+		{
+		while (b != 0)
+			{
+			int c = a % b;
+			a = b;
+			b = c;
+			}
+		return a;
+		}
+
+	/**
+	 * Integer division with rounding towards negative infinity.
+	 */
+	public static int negDiv(int a, int b)
+		{
+		return a >= 0 ? a / b : ~(~a / b);
+		}
+
 	public static void invokeOnceLater(Runnable r)
 		{
 		IOR.add(r);

@@ -195,7 +195,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		solid = new JCheckBox(Messages.getString("GmObjectFrame.SOLID")); //$NON-NLS-1$
 		plf.make(solid,PGmObject.SOLID);
 		JLabel dLabel = new JLabel(Messages.getString("GmObjectFrame.DEPTH")); //$NON-NLS-1$
-		depth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE);
+		depth = new NumberField(0);
 		plf.make(depth,PGmObject.DEPTH);
 		persistent = new JCheckBox(Messages.getString("GmObjectFrame.PERSISTENT")); //$NON-NLS-1$
 		plf.make(persistent,PGmObject.PERSISTENT);

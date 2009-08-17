@@ -26,6 +26,8 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.util.PropertyMap;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.PropertyMap.PropertyValidationException;
 
 public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements UpdateListener
@@ -42,6 +44,8 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 		if (deRef(ref) == null) return -100;
 		return ref.get().getId();
 		}
+
+	private final ObjectPropertyListener opl = new ObjectPropertyListener();
 
 	private ResourceReference<Sprite> sprite = null;
 	public final List<MainEvent> mainEvents;
@@ -67,6 +71,7 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 			e[j] = new MainEvent();
 		mainEvents = Collections.unmodifiableList(Arrays.asList(e));
 		setName(Prefs.prefixes.get(Kind.OBJECT));
+		properties.getUpdateSource(PGmObject.SPRITE).addListener(opl);
 		}
 
 	@Override
@@ -132,12 +137,17 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 		switch (k)
 			{
 			case SPRITE:
-				if (sprite != null) sprite.updateSource.removeListener(GmObject.this);
 				ResourceReference<?> r = (ResourceReference<?>) v;
-				if (!(r.get() instanceof Sprite)) throw new PropertyValidationException();
+				if (r != null)
+					{
+					Object o = r.get();
+					if (o == null)
+						r = null;
+					else if (!(o instanceof Sprite)) throw new PropertyValidationException();
+					}
+				if (sprite != null) sprite.updateSource.removeListener(this);
 				sprite = (ResourceReference<Sprite>) r;
-				if (sprite != null) sprite.updateSource.addListener(GmObject.this);
-				fireUpdate();
+				if (sprite != null) sprite.updateSource.addListener(this);
 				break;
 			case PARENT:
 				if (v == null) break;
@@ -150,5 +160,14 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 	public static class ParentLoopException extends PropertyValidationException
 		{
 		private static final long serialVersionUID = 1L;
+		}
+
+	private class ObjectPropertyListener extends PropertyUpdateListener<PGmObject>
+		{
+		@Override
+		public void updated(PropertyUpdateEvent<PGmObject> e)
+			{
+			if (e.key == PGmObject.SPRITE) fireUpdate();
+			}
 		}
 	}

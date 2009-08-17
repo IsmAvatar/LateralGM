@@ -42,8 +42,8 @@ public class CollectionComparator extends ReflectionComparator
 	public boolean canHandle(Object left, Object right)
 		{
 		return (left != null && right != null)
-				&& (left.getClass().isArray() || left instanceof Collection)
-				&& (right.getClass().isArray() || right instanceof Collection);
+				&& (left.getClass().isArray() || left instanceof Collection<?>)
+				&& (right.getClass().isArray() || right instanceof Collection<?>);
 		}
 
 	protected Difference doGetDifference(Object left, Object right, Stack<String> fieldStack,

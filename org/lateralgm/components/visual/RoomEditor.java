@@ -9,75 +9,83 @@
 package org.lateralgm.components.visual;
 
 import static org.lateralgm.main.Util.deRef;
+import static org.lateralgm.main.Util.gcd;
+import static org.lateralgm.main.Util.negDiv;
 
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
-import java.util.List;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.UpdateSource.UpdateEvent;
-import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Background.PBackground;
-import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Room.PRoom;
-import org.lateralgm.resources.Sprite.PSprite;
-import org.lateralgm.resources.sub.BackgroundDef;
+import org.lateralgm.resources.Room.Piece;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.subframes.RoomFrame.CodeFrame;
+import org.lateralgm.ui.swing.visuals.RoomVisual;
+import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
 
-public class RoomEditor extends JPanel implements ImageObserver
+public class RoomEditor extends VisualPanel
 	{
 	private static final long serialVersionUID = 1L;
-	protected static final BufferedImage EMPTY_IMAGE = new BufferedImage(16,16,
-			BufferedImage.TYPE_INT_ARGB);
 
-	private Room room;
-	protected RoomFrame frame;
-	private RoomComponent cursor;
-	protected List<RoomComponent> depthSortables;
+	public static final int ZOOM_MIN = -1;
+	public static final int ZOOM_MAX = 2;
+
+	private final Room room;
+	protected final RoomFrame frame;
+	private Piece cursor;
 	public final PropertyMap<PRoomEditor> properties;
+	private final RoomVisual roomVisual;
 
 	private final RoomPropertyListener rpl = new RoomPropertyListener();
 	private final RoomEditorPropertyValidator repv = new RoomEditorPropertyValidator();
 
 	public enum PRoomEditor
 		{
-		SHOW_GRID,SHOW_OBJECTS,SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,SHOW_VIEWS,
-		DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM
+		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
+		SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM;
+		final RoomVisual.Show rvBinding;
+
+		private PRoomEditor()
+			{
+			String n = name();
+			if (n.startsWith("SHOW_"))
+				rvBinding = RoomVisual.Show.valueOf(n.substring(5));
+			else
+				rvBinding = null;
+			}
+
+		private PRoomEditor(RoomVisual.Show b)
+			{
+			rvBinding = b;
+			}
 		}
 
 	private static final EnumMap<PRoomEditor,Object> DEFS = PropertyMap.makeDefaultMap(
@@ -102,33 +110,27 @@ public class RoomEditor extends JPanel implements ImageObserver
 		else
 			properties = new PropertyMap<PRoomEditor>(PRoomEditor.class,repv,DEFS);
 
-		setOpaque(true);
 		room = r;
 		this.frame = frame;
 
+		zoomOrigin = ORIGIN_MOUSE;
+
 		r.properties.updateSource.addListener(rpl);
 
-		refresh();
 		enableEvents(MouseEvent.MOUSE_EVENT_MASK | MouseEvent.MOUSE_MOTION_EVENT_MASK);
-		depthSortables = new ArrayList<RoomComponent>();
-		for (Instance i : room.instances)
-			{
-			InstanceComponent ic = new InstanceComponent(i);
-			add(ic);
-			}
-		for (Tile t : room.tiles)
-			{
-			TileComponent tc = new TileComponent(t);
-			add(tc);
-			}
+		EnumSet<RoomVisual.Show> s = EnumSet.noneOf(RoomVisual.Show.class);
+		for (PRoomEditor p : PRoomEditor.values())
+			if (p.rvBinding != null && (Boolean) properties.get(p)) s.add(p.rvBinding);
+		lockBounds();
+		roomVisual = new RoomVisual(container,r,s);
+		unlockBounds();
+		put(0,roomVisual);
+		setZoom((Integer) properties.get(PRoomEditor.ZOOM));
+		refresh();
 		}
 
 	public void refresh()
 		{
-		int z = properties.get(PRoomEditor.ZOOM);
-		int w = (Integer) room.get(PRoom.WIDTH) / z;
-		int h = (Integer) room.get(PRoom.HEIGHT) / z;
-		setPreferredSize(new Dimension(w,h));
 		revalidate();
 		repaint();
 		}
@@ -145,65 +147,47 @@ public class RoomEditor extends JPanel implements ImageObserver
 		mouseEdit(e);
 		}
 
-	public RoomComponent findSpecificDepthSortable(Point p, boolean instance)
-		{
-		for (Component c : getComponents())
-			{
-			if (c instanceof RoomComponent)
-				{
-				RoomComponent ds = (RoomComponent) c;
-				if (ds.region.contains(p))
-					{
-					if (ds instanceof InstanceComponent && instance) return ds;
-					if (ds instanceof TileComponent && !instance) return ds;
-					}
-				}
-			}
-		return null;
-		}
-
 	public void releaseCursor(Point p)
 		{ //it must be guaranteed that cursor != null
 		boolean duo = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 		boolean dut = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
-		if ((duo && cursor instanceof InstanceComponent) || (dut && cursor instanceof TileComponent))
-			{
-			for (Component c : getComponents())
-				{
-				if (c instanceof RoomComponent)
-					{
-					RoomComponent ds = (RoomComponent) c;
-					if (ds != cursor && !ds.isLocked() && ds.getClass() == cursor.getClass()
-							&& ds.region.contains(p))
-						{
-						remove(ds);
-						if (ds instanceof InstanceComponent)
-							room.instances.remove(((InstanceComponent) ds).instance);
-						else if (ds instanceof TileComponent) room.tiles.remove(((TileComponent) ds).tile);
-						}
-					}
-				}
-			}
+		if (duo && cursor instanceof Instance)
+			deleteUnderlying(roomVisual.intersectInstances(new Rectangle(p.x,p.y,1,1)),room.instances);
+		else if (dut && cursor instanceof Tile)
+			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(p.x,p.y,1,1)),room.tiles);
+		unlockBounds();
 		cursor = null;
 		}
 
-	/** Do not call with null */
-	public void setCursor(RoomComponent ds)
+	private <T>void deleteUnderlying(Iterator<T> i, ActiveArrayList<T> l)
 		{
-		cursor = ds;
-		if (ds instanceof InstanceComponent)
+		HashSet<T> s = new HashSet<T>();
+		while (i.hasNext())
 			{
-			frame.oList.setSelectedValue(((InstanceComponent) ds).instance,true);
-			frame.fireObjUpdate();
+			T t = i.next();
+			if (t != cursor) s.add(t);
 			}
-		else if (ds instanceof TileComponent)
-			{
-			frame.tList.setSelectedValue(((TileComponent) ds).tile,true);
-			frame.fireTileUpdate();
-			}
+		l.removeAll(s);
 		}
 
-	private void processLeftButton(int modifiers, boolean pressed, RoomComponent mc, Point p)
+	/** Do not call with null */
+	public void setCursor(Piece ds)
+		{
+		cursor = ds;
+		if (ds instanceof Instance)
+			{
+			frame.oList.setSelectedValue(ds,true);
+			frame.fireObjUpdate();
+			}
+		else if (ds instanceof Tile)
+			{
+			frame.tList.setSelectedValue(ds,true);
+			frame.fireTileUpdate();
+			}
+		lockBounds();
+		}
+
+	private void processLeftButton(int modifiers, boolean pressed, Piece mc, Point p)
 		{
 		boolean shift = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
@@ -212,7 +196,7 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		else
 			{
-			if (shift && cursor != null) if (!cursor.region.contains(p))
+			if (shift && cursor != null) if (!roomVisual.intersects(new Rectangle(p.x,p.y,1,1),cursor))
 				{
 				releaseCursor(p);
 				pressed = true; //ensures that a new instance is created below
@@ -224,17 +208,15 @@ public class RoomEditor extends JPanel implements ImageObserver
 					ResourceReference<Background> bkg = frame.taSource.getSelected();
 					if (bkg == null) return; //I'd rather just break out of this IF, but this works
 					Background b = bkg.get();
-					Tile t = new Tile(LGM.currentFile);
-					t.setBackground(bkg);
+					Tile t = new Tile(room,LGM.currentFile);
+					t.properties.put(PTile.BACKGROUND,bkg);
 					t.setBackgroundPosition(new Point(frame.tSelect.tx,frame.tSelect.ty));
 					t.setRoomPosition(p);
 					t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
 							(Integer) b.get(PBackground.TILE_HEIGHT)));
-					t.setDepth(frame.taDepth.getIntValue());
+					t.setDepth((Integer) frame.taDepth.getValue());
 					room.tiles.add(t);
-					t.setAutoUpdate(true);
-					setCursor(new TileComponent(t));
-					add(cursor);
+					setCursor(t);
 					shift = true; //prevents unnecessary coordinate update below
 					}
 				else if (frame.tabs.getSelectedIndex() == Room.TAB_OBJECTS)
@@ -242,34 +224,29 @@ public class RoomEditor extends JPanel implements ImageObserver
 					ResourceReference<GmObject> obj = frame.oNew.getSelected();
 					if (obj == null) return; //I'd rather just break out of this IF, but this works
 					Instance i = room.addInstance();
-					i.setObject(obj);
+					i.properties.put(PInstance.OBJECT,obj);
 					i.setPosition(p);
-					setCursor(new InstanceComponent(i));
-					add(cursor);
+					setCursor(i);
 					shift = true; //prevents unnecessary coordinate update below
 					}
 				}
 			}
 		if (cursor != null && !shift)
 			{
-			if (cursor instanceof InstanceComponent)
+			if (cursor instanceof Instance)
 				{
-				InstanceComponent ic = (InstanceComponent) cursor;
-				ic.instance.setPosition(p);
-				frame.oX.setIntValue(p.x);
-				frame.oY.setIntValue(p.y);
+				Instance i = (Instance) cursor;
+				i.setPosition(p);
 				}
-			else if (cursor instanceof TileComponent)
+			else if (cursor instanceof Tile)
 				{
-				TileComponent ic = (TileComponent) cursor;
-				ic.tile.setRoomPosition(p);
-				frame.tX.setIntValue(p.x);
-				frame.tY.setIntValue(p.y);
+				Tile t = (Tile) cursor;
+				t.setRoomPosition(p);
 				}
 			}
 		}
 
-	private void processRightButton(int modifiers, boolean pressed, final RoomComponent mc, Point p)
+	private void processRightButton(int modifiers, boolean pressed, final Piece mc, Point p)
 		{
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
@@ -283,53 +260,45 @@ public class RoomEditor extends JPanel implements ImageObserver
 					public void actionPerformed(ActionEvent e)
 						{
 						mc.setLocked(((JCheckBoxMenuItem) e.getSource()).isSelected());
-						if (mc instanceof InstanceComponent
-								&& frame.oList.getSelectedValue() == ((InstanceComponent) mc).instance)
-							frame.oLocked.setSelected(mc.isLocked());
-						else if (mc instanceof TileComponent
-								&& frame.tList.getSelectedValue() == ((TileComponent) mc).tile)
-							frame.tLocked.setSelected(mc.isLocked());
 						}
 				});
 			jp.add(cb);
 
-			if (mc instanceof InstanceComponent)
+			if (mc instanceof Instance)
 				{
-				final Instance i = ((InstanceComponent) mc).instance;
+				final Instance i = (Instance) mc;
 				JMenuItem mi = new JMenuItem(Messages.getString("RoomEditor.CREATION_CODE")); //$NON-NLS-1$
 				mi.addActionListener(new ActionListener()
 					{
 						public void actionPerformed(ActionEvent e)
 							{
-							frame.openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"), //$NON-NLS-1$
-									Messages.format("RoomFrame.INSTANCE",i.instanceId)); //$NON-NLS-1$
+							frame.openCodeFrame(i);
 							}
 					});
 				jp.add(mi);
 				}
-			jp.show(this,p.x,p.y);
+			Point cp = p.getLocation();
+			visualToComponent(cp);
+			jp.show(this,cp.x,cp.y);
 			}
 		else if (!mc.isLocked())
 			{
-			remove(mc);
-
 			ArrayList<?> alist = null;
 			int i = -1;
 			JList jlist = null;
 
-			if (mc instanceof InstanceComponent)
+			if (mc instanceof Instance)
 				{
-				i = room.instances.indexOf(((InstanceComponent) mc).instance);
+				i = room.instances.indexOf(mc);
 				if (i == -1) return;
 				alist = room.instances;
 				jlist = frame.oList;
-
 				CodeFrame fr = frame.codeFrames.get(i);
 				if (fr != null) fr.dispose();
 				}
-			else if (mc instanceof TileComponent)
+			else if (mc instanceof Tile)
 				{
-				i = room.tiles.indexOf(((TileComponent) mc).tile);
+				i = room.tiles.indexOf(mc);
 				if (i == -1) return;
 				alist = room.tiles;
 				jlist = frame.tList;
@@ -346,33 +315,48 @@ public class RoomEditor extends JPanel implements ImageObserver
 		{
 		int modifiers = e.getModifiersEx();
 		int type = e.getID();
-		int z = properties.get(PRoomEditor.ZOOM);
-		int x = e.getX() * z;
-		int y = e.getY() * z;
-		Point p = new Point(x,y); //scaled and unsnapped
+		Point p = e.getPoint().getLocation();
+		componentToVisual(p);
+		int x = p.x;
+		int y = p.y;
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
-			x = (x - (Integer) frame.sGX.getValue()) / (Integer) frame.sGW.getValue()
-					* (Integer) frame.sGW.getValue();
-			y = (y - (Integer) frame.sGY.getValue()) / (Integer) frame.sGH.getValue()
-					* (Integer) frame.sGH.getValue();
+			int sx = room.get(PRoom.SNAP_X);
+			int sy = room.get(PRoom.SNAP_Y);
+			int ox = properties.get(PRoomEditor.GRID_OFFSET_X);
+			int oy = properties.get(PRoomEditor.GRID_OFFSET_Y);
+			if (room.get(PRoom.ISOMETRIC))
+				{
+				int gx = ox + negDiv(x - ox,sx) * sx;
+				int gy = oy + negDiv(y - oy,sy) * sy;
+				boolean d = (Math.abs(x - gx - sx / 2) * sy + Math.abs(y - gy - sy / 2) * sx) < sx * sy / 2;
+				x = gx + (d ? sx / 2 : x > gx + sx / 2 ? sx : 0);
+				y = gy + (d ? sy / 2 : y > gy + sy / 2 ? sy : 0);
+				}
+			else
+				{
+				x = ox + negDiv(x - ox,sx) * sx;
+				y = oy + negDiv(y - oy,sy) * sy;
+				}
 			}
 		frame.statX.setText(Messages.getString("RoomFrame.STAT_X") + x); //$NON-NLS-1$
 		frame.statY.setText(Messages.getString("RoomFrame.STAT_Y") + y); //$NON-NLS-1$
 		frame.statId.setText(""); //$NON-NLS-1$
 		frame.statSrc.setText(""); //$NON-NLS-1$
 
-		RoomComponent mc = null;
+		Piece mc = null;
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 			{
-			mc = findSpecificDepthSortable(p,false);
+			Tile tile = getTopPiece(p,Tile.class);
+			mc = tile;
 			if (mc != null)
 				{
-				Tile tile = ((TileComponent) mc).tile;
-				String idt = Messages.getString("RoomFrame.STAT_ID") + tile.tileId; //$NON-NLS-1$
+				String idt = Messages.getString("RoomFrame.STAT_ID") //$NON-NLS-1$
+						+ tile.properties.get(PTile.ID);
 				if (mc.isLocked()) idt += " X"; //$NON-NLS-1$
 				frame.statId.setText(idt);
-				Background b = deRef(tile.getBackground());
+				ResourceReference<Background> rb = tile.properties.get(PTile.BACKGROUND);
+				Background b = deRef(rb);
 				String name = b == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : b.getName();
 				idt = Messages.getString("RoomFrame.STAT_TILESET") + name; //$NON-NLS-1$
 				frame.statSrc.setText(idt);
@@ -380,14 +364,16 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		else
 			{
-			mc = findSpecificDepthSortable(p,true);
-			if (mc != null)
+			Instance instance = getTopPiece(p,Instance.class);
+			mc = instance;
+			if (instance != null)
 				{
-				Instance instance = ((InstanceComponent) mc).instance;
-				String idt = Messages.getString("RoomFrame.STAT_ID") + instance.instanceId; //$NON-NLS-1$
+				String idt = Messages.getString("RoomFrame.STAT_ID") //$NON-NLS-1$
+						+ instance.properties.get(PInstance.ID);
 				if (mc.isLocked()) idt += " X"; //$NON-NLS-1$
 				frame.statId.setText(idt);
-				GmObject o = deRef(instance.getObject());
+				ResourceReference<GmObject> or = instance.properties.get(PInstance.OBJECT);
+				GmObject o = deRef(or);
 				String name = o == null ? Messages.getString("RoomFrame.NO_OBJECT") : o.getName();
 				idt = Messages.getString("RoomFrame.STAT_OBJECT") + name; //$NON-NLS-1$
 				frame.statSrc.setText(idt);
@@ -402,405 +388,18 @@ public class RoomEditor extends JPanel implements ImageObserver
 			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,p); //use mouse point
 		}
 
-	@Override
-	public void paintComponent(Graphics g)
+	private <P extends Piece>P getTopPiece(Point p, Class<P> c)
 		{
-		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g.create();
-		int z = properties.get(PRoomEditor.ZOOM);
-		g2.scale(1.0 / z,1.0 / z);
-		int width = (Integer) room.get(PRoom.WIDTH);
-		int height = (Integer) room.get(PRoom.HEIGHT);
-		g2.clipRect(0,0,width,height);
-		g2.setColor(room.get(PRoom.DRAW_BACKGROUND_COLOR) ? (Color) room.get(PRoom.BACKGROUND_COLOR)
-				: Color.BLACK);
-		g2.fillRect(0,0,width,height);
-		g2.dispose();
+		Iterator<P> pi = roomVisual.intersect(new Rectangle(p.x,p.y,1,1),c);
+		P piece = null;
+		while (pi.hasNext())
+			piece = pi.next();
+		return piece;
 		}
 
-	private void paintBackground(Graphics g, BackgroundDef bd, int width, int height)
+	public static interface CommandHandler
 		{
-		BufferedImage bi = bd.backgroundId.get().getDisplayImage();
-		if (bi == null) return;
-		int w = bd.stretch ? width : bi.getWidth();
-		int h = bd.stretch ? height : bi.getHeight();
-		if (bd.tileHoriz || bd.tileVert)
-			{
-			int x = bd.x;
-			int y = bd.y;
-			int ncol = 1;
-			int nrow = 1;
-			if (bd.tileHoriz)
-				{
-				x = 1 + ((bd.x + w - 1) % w) - w;
-				ncol = 1 + (width - x - 1) / w;
-				}
-			if (bd.tileVert)
-				{
-				y = 1 + ((bd.y + h - 1) % h) - h;
-				nrow = 1 + (height - y - 1) / h;
-				}
-			for (int row = 0; row < nrow; row++)
-				for (int col = 0; col < ncol; col++)
-					g.drawImage(bi,(x + w * col),(y + h * row),w,h,this);
-			}
-		g.drawImage(bi,bd.x,bd.y,w,h,this);
-		}
-
-	@Override
-	public void paintChildren(Graphics g)
-		{
-		Graphics2D g2 = (Graphics2D) g.create();
-		int z = properties.get(PRoomEditor.ZOOM);
-		g2.scale(1.0 / z,1.0 / z);
-		int width = (Integer) room.get(PRoom.WIDTH);
-		int height = (Integer) room.get(PRoom.HEIGHT);
-		g2.clipRect(0,0,width,height);
-		if (properties.get(PRoomEditor.SHOW_BACKGROUNDS))
-			{
-			for (int i = 0; i < 8; i++)
-				{
-				BackgroundDef bd = room.backgroundDefs[i];
-				if (!bd.visible || bd.foreground || deRef(bd.backgroundId) == null) continue;
-				paintBackground(g2,bd,width,height);
-				}
-			}
-		boolean so = properties.get(PRoomEditor.SHOW_OBJECTS);
-		boolean st = properties.get(PRoomEditor.SHOW_TILES);
-		if (so || st)
-			{
-			for (RoomComponent e : depthSortables)
-				{
-				if (!so && e instanceof InstanceComponent) continue;
-				if (!st && e instanceof TileComponent) continue;
-				JComponent c = e;
-				Graphics cg = g2.create(c.getX(),c.getY(),c.getWidth(),c.getHeight());
-				c.paint(cg);
-				cg.dispose();
-				}
-			}
-		if (properties.get(PRoomEditor.SHOW_FOREGROUNDS))
-			{
-			for (int i = 0; i < 8; i++)
-				{
-				BackgroundDef bd = room.backgroundDefs[i];
-				if (!bd.visible || !bd.foreground || deRef(bd.backgroundId) == null) continue;
-				paintBackground(g2,bd,width,height);
-				}
-			}
-		g2.scale(z,z);
-		if (properties.get(PRoomEditor.SHOW_GRID))
-			{
-			int gw = (Integer) room.get(PRoom.SNAP_X) / z;
-			int gh = (Integer) room.get(PRoom.SNAP_Y) / z;
-			int gx = (Integer) properties.get(PRoomEditor.GRID_OFFSET_X) / z % gw;
-			int gy = (Integer) properties.get(PRoomEditor.GRID_OFFSET_Y) / z % gh;
-			if (gw > 3)
-				{
-				g2.setXORMode(Color.BLACK);
-				g2.setColor(Color.WHITE);
-				for (int x = gx; x < width / z; x += gw)
-					g2.drawLine(x,0,x,height / z - 1);
-				}
-			if (gh > 3)
-				{
-				g2.setXORMode(Color.BLACK);
-				g2.setColor(Color.WHITE);
-				for (int y = gy; y < height / z; y += gh)
-					g2.drawLine(0,y,width / z - 1,y);
-				}
-			}
-		g2.dispose();
-		}
-
-	public abstract class RoomComponent extends JComponent implements Comparable<RoomComponent>
-		{
-		private static final long serialVersionUID = 1L;
-		protected final ResourceUpdateListener rul = new ResourceUpdateListener();
-		protected BufferedImage image;
-		protected Rectangle region;
-
-		@Override
-		public int getHeight()
-			{
-			return region.height;
-			}
-
-		@Override
-		public int getWidth()
-			{
-			return region.width;
-			}
-
-		@Override
-		public Dimension getPreferredSize()
-			{
-			return region.getSize();
-			}
-
-		@Override
-		public Dimension getSize()
-			{
-			return region.getSize();
-			}
-
-		@Override
-		public int getX()
-			{
-			return region.x;
-			}
-
-		@Override
-		public int getY()
-			{
-			return region.y;
-			}
-
-		@Override
-		public void addNotify()
-			{
-			super.addNotify();
-			depthSortables.add(this);
-			updateSource();
-			updateBounds();
-			}
-
-		@Override
-		public void removeNotify()
-			{
-			super.removeNotify();
-			depthSortables.remove(this);
-			}
-
-		public int compareTo(RoomComponent s2)
-			{
-			int c = Integer.valueOf(s2.getDepth()).compareTo(getDepth());
-			if (c == 0)
-				{
-				Class<?> c1 = getClass();
-				Class<?> c2 = s2.getClass();
-				if (c1.equals(c2))
-					{
-					return Integer.valueOf(getId()).compareTo(s2.getId());
-					}
-				return Integer.valueOf(c1.hashCode()).compareTo(c2.hashCode());
-				}
-			return c;
-			}
-
-		public abstract boolean isLocked();
-
-		public abstract void setLocked(boolean lock);
-
-		protected abstract void updateSource();
-
-		protected abstract void updateBounds();
-
-		public abstract int getDepth();
-
-		public abstract int getId();
-
-		protected class ResourceUpdateListener implements UpdateListener
-			{
-			public void updated(UpdateEvent e)
-				{
-				updateSource();
-				updateBounds();
-				revalidate();
-				repaint();
-				}
-			}
-		}
-
-	public final class InstanceComponent extends RoomComponent
-		{
-		private static final long serialVersionUID = 1L;
-		protected final Instance instance;
-		private ResourceReference<GmObject> object;
-		private ResourceReference<Sprite> sprite;
-
-		public InstanceComponent(Instance i)
-			{
-			instance = i;
-			instance.updateSource.addListener(rul);
-			region = new Rectangle(i.getPosition());
-			}
-
-		protected void updateSource()
-			{
-			object = instance.getObject();
-			GmObject o = deRef(object);
-			if (o == null)
-				sprite = null;
-			else
-				sprite = o.get(PGmObject.SPRITE);
-			image = null;
-			}
-
-		protected void updateBounds()
-			{
-			List<RoomComponent> ds = depthSortables;
-			int i = ds.indexOf(this);
-			if (i < 0) return;
-			int d = getDepth();
-			if ((i > 0 && ds.get(i - 1).getDepth() < d)
-					|| (i < ds.size() - 1 && ds.get(i + 1).getDepth() > d))
-				{
-				i = Collections.binarySearch(ds,this);
-				if (i < 0) ds.add(-i - 1,this);
-				}
-			Point p = instance.getPosition();
-			int x = p.x, y = p.y;
-			int width, height;
-			Sprite s = deRef(sprite);
-			if (s == null)
-				{
-				width = EMPTY_IMAGE.getWidth();
-				height = EMPTY_IMAGE.getHeight();
-				}
-			else
-				{
-				x -= (Integer) s.get(PSprite.ORIGIN_X);
-				y -= (Integer) s.get(PSprite.ORIGIN_Y);
-				width = s.subImages.getWidth();
-				height = s.subImages.getHeight();
-				}
-			region = new Rectangle(x,y,width,height);
-			invalidate();
-			}
-
-		private void updateImage()
-			{
-			Sprite s = deRef(sprite);
-			image = s == null ? null : s.getDisplayImage();
-			if (image == null)
-				{
-				image = EMPTY_IMAGE;
-				setOpaque(false);
-				}
-			else
-				setOpaque(!(Boolean) s.get(PSprite.TRANSPARENT));
-			}
-
-		@Override
-		public void paintComponent(Graphics g)
-			{
-			if (image == null) updateImage();
-			g.drawImage(image,0,0,null);
-			}
-
-		public boolean isLocked()
-			{
-			return instance.locked;
-			}
-
-		public void setLocked(boolean lock)
-			{
-			instance.locked = lock;
-			}
-
-		public int getDepth()
-			{
-			GmObject o = deRef(object);
-			if (o == null) return 0;
-			return o.get(PGmObject.DEPTH);
-			}
-
-		public int getId()
-			{
-			return instance.instanceId;
-			}
-		}
-
-	public final class TileComponent extends RoomComponent
-		{
-		private static final long serialVersionUID = 1L;
-		protected final Tile tile;
-		private ResourceReference<Background> background;
-
-		BufferedImage bi = null;
-
-		public TileComponent(Tile t)
-			{
-			tile = t;
-			new Rectangle(tile.getRoomPosition(),tile.getSize());
-			}
-
-		protected void updateSource()
-			{
-			background = tile.getBackground();
-			image = null;
-			}
-
-		protected void updateBounds()
-			{
-			List<RoomComponent> ds = depthSortables;
-			int i = ds.indexOf(this);
-			if (i < 0) return;
-			int d = getDepth();
-			if ((i > 0 && ds.get(i - 1).getDepth() < d)
-					|| (i < ds.size() - 1 && ds.get(i + 1).getDepth() > d))
-				{
-				ds.remove(i);
-				i = Collections.binarySearch(ds,this);
-				if (i < 0) ds.add(-i - 1,this);
-				}
-			region = new Rectangle(tile.getRoomPosition(),tile.getSize());
-			invalidate();
-			}
-
-		private void updateImage()
-			{
-			Background b = deRef(background);
-			image = b == null ? null : b.getDisplayImage();
-			if (image == null)
-				{
-				image = EMPTY_IMAGE;
-				setOpaque(false);
-				}
-			else
-				{
-				Point p = tile.getBackgroundPosition();
-				Dimension d = tile.getSize();
-				try
-					{
-					image = image.getSubimage(p.x,p.y,d.width,d.height);
-					setOpaque(!(Boolean) b.get(PBackground.TRANSPARENT));
-					}
-				catch (RasterFormatException e)
-					{
-					image = EMPTY_IMAGE;
-					setOpaque(false);
-					}
-				}
-			}
-
-		@Override
-		public void paintComponent(Graphics g)
-			{
-			if (image == null) updateImage();
-			g.drawImage(image,0,0,null);
-			}
-
-		public boolean isLocked()
-			{
-			return tile.locked;
-			}
-
-		public void setLocked(boolean lock)
-			{
-			tile.locked = lock;
-			}
-
-		public int getDepth()
-			{
-			return tile.getDepth();
-			}
-
-		public int getId()
-			{
-			return tile.tileId;
-			}
+		void openCodeFrame(Instance i);
 		}
 
 	private class RoomPropertyListener extends PropertyUpdateListener<PRoom>
@@ -809,23 +408,9 @@ public class RoomEditor extends JPanel implements ImageObserver
 			{
 			switch (e.key)
 				{
-				case BACKGROUND_COLOR:
-					if (room.get(PRoom.DRAW_BACKGROUND_COLOR)) repaint();
-					break;
-				case DRAW_BACKGROUND_COLOR:
-					repaint();
-					break;
-				case ENABLE_VIEWS:
-					if (properties.get(PRoomEditor.SHOW_VIEWS)) repaint();
-					break;
-				case ISOMETRIC:
 				case SNAP_X:
 				case SNAP_Y:
-					if (properties.get(PRoomEditor.SHOW_GRID)) repaint();
-					break;
-				case WIDTH:
-				case HEIGHT:
-					refresh();
+					setZoom((Integer) properties.get(PRoomEditor.ZOOM));
 					break;
 				case DELETE_UNDERLYING_OBJECTS:
 				case DELETE_UNDERLYING_TILES:
@@ -850,6 +435,20 @@ public class RoomEditor extends JPanel implements ImageObserver
 			}
 		}
 
+	@Override
+	public void setZoom(int z)
+		{
+		super.setZoom(z);
+		if (z >= 1)
+			roomVisual.setGridFactor(1);
+		else
+			{
+			int sx = room.get(PRoom.SNAP_X);
+			int sy = room.get(PRoom.SNAP_Y);
+			roomVisual.setGridFactor((2 - z) / gcd(2 - z,gcd(sx < 2 ? 0 : sx,sy < 2 ? 0 : sy)));
+			}
+		}
+
 	private boolean validating;
 
 	private class RoomEditorPropertyValidator implements PropertyValidator<PRoomEditor>
@@ -859,28 +458,22 @@ public class RoomEditor extends JPanel implements ImageObserver
 			switch (k)
 				{
 				case GRID_OFFSET_X:
+					roomVisual.setGridXOffset((Integer) v);
+					break;
 				case GRID_OFFSET_Y:
-					if (properties.get(PRoomEditor.SHOW_GRID)) repaint();
+					roomVisual.setGridYOffset((Integer) v);
 					break;
 				case ZOOM:
-					/*
-					 *  This needs to be invoked later since ZOOM hasn't actually been set yet.
-					 */
-					SwingUtilities.invokeLater(new Runnable()
-						{
-							public void run()
-								{
-								refresh();
-								}
-						});
-					break;
+					int i = Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,(Integer) v));
+					setZoom(i);
+					return i;
 				case SHOW_BACKGROUNDS:
 				case SHOW_FOREGROUNDS:
 				case SHOW_GRID:
 				case SHOW_OBJECTS:
 				case SHOW_TILES:
 				case SHOW_VIEWS:
-					repaint();
+					roomVisual.setVisible(k.rvBinding,(Boolean) v);
 				case DELETE_UNDERLYING_OBJECTS:
 				case DELETE_UNDERLYING_TILES:
 					if (room.get(PRoom.REMEMBER_WINDOW_SIZE))

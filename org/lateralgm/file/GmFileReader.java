@@ -59,6 +59,10 @@ import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
+import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.resources.sub.View.PView;
 
 public final class GmFileReader
 	{
@@ -127,9 +131,15 @@ public final class GmFileReader
 				int s1 = in.read4();
 				int s2 = in.read4();
 				in.skip(s1 * 4);
-				in.setSeed(in.read4());
+				//since only the first byte of the game id isn't encrypted, we have to do some acrobatics here
+				int seed = in.read4();
 				in.skip(s2 * 4);
+				int b1 = in.read();
+				in.setSeed(seed);
+				f.gameSettings.gameId = b1 | in.read3() << 8;
 				}
+			else
+				f.gameSettings.gameId = in.read4();
 			readSettings(c);
 			readSounds(c);
 			readSprites(c);
@@ -225,7 +235,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 		GameSettings g = f.gameSettings;
 
-		g.gameId = in.read4();
+//		g.gameId = in.read4(); //needs to be handled uniquely for gmk
 		in.skip(16); // unknown bytes following game id
 		int ver = in.read4();
 		if (ver != 530 && ver != 542 && ver != 600 && ver != 702)
@@ -514,10 +524,7 @@ public final class GmFileReader
 			int nopoints = in.read4();
 			for (int j = 0; j < nopoints; j++)
 				{
-				PathPoint pathPoint = path.addPoint();
-				pathPoint.x = (int) in.readD();
-				pathPoint.y = (int) in.readD();
-				pathPoint.speed = (int) in.readD();
+				path.points.add(new PathPoint((int) in.readD(),(int) in.readD(),(int) in.readD()));
 				}
 			}
 		}
@@ -706,42 +713,27 @@ public final class GmFileReader
 			int nobackgrounds = in.read4();
 			for (int j = 0; j < nobackgrounds; j++)
 				{
-				BackgroundDef bk = rm.backgroundDefs[j];
-				bk.visible = in.readBool();
-				bk.foreground = in.readBool();
+				BackgroundDef bk = rm.backgroundDefs.get(j);
+				in.readBool(bk.properties,PBackgroundDef.VISIBLE,PBackgroundDef.FOREGROUND);
 				Background temp = f.backgrounds.getUnsafe(in.read4());
-				if (temp != null) bk.backgroundId = temp.reference;
-				bk.x = in.read4();
-				bk.y = in.read4();
-				bk.tileHoriz = in.readBool();
-				bk.tileVert = in.readBool();
-				bk.horizSpeed = in.read4();
-				bk.vertSpeed = in.read4();
-				bk.stretch = in.readBool();
+				if (temp != null) bk.properties.put(PBackgroundDef.BACKGROUND,temp.reference);
+				in.read4(bk.properties,PBackgroundDef.X,PBackgroundDef.Y);
+				in.readBool(bk.properties,PBackgroundDef.TILE_HORIZ,PBackgroundDef.TILE_VERT);
+				in.read4(bk.properties,PBackgroundDef.H_SPEED,PBackgroundDef.V_SPEED);
+				bk.properties.put(PBackgroundDef.STRETCH,in.readBool());
 				}
 			rm.put(PRoom.ENABLE_VIEWS,in.readBool());
 			int noviews = in.read4();
 			for (int j = 0; j < noviews; j++)
 				{
-				View vw = rm.views[j];
-				vw.visible = in.readBool();
-				vw.viewX = in.read4();
-				vw.viewY = in.read4();
-				vw.viewW = in.read4();
-				vw.viewH = in.read4();
-				vw.portX = in.read4();
-				vw.portY = in.read4();
-				if (ver > 520)
-					{
-					vw.portW = in.read4();
-					vw.portH = in.read4();
-					}
-				vw.hbor = in.read4();
-				vw.vbor = in.read4();
-				vw.hspeed = in.read4();
-				vw.vspeed = in.read4();
+				View vw = rm.views.get(j);
+				vw.properties.put(PView.VISIBLE,in.readBool());
+				in.read4(vw.properties,PView.VIEW_X,PView.VIEW_Y,PView.VIEW_W,PView.VIEW_H,PView.PORT_X,
+						PView.PORT_Y);
+				if (ver > 520) in.read4(vw.properties,PView.PORT_W,PView.PORT_H);
+				in.read4(vw.properties,PView.BORDER_H,PView.BORDER_V,PView.SPEED_H,PView.SPEED_V);
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
-				if (temp != null) vw.objectFollowing = temp.reference;
+				if (temp != null) vw.properties.put(PView.OBJECT,temp.reference);
 				}
 			int noinstances = in.read4();
 			for (int j = 0; j < noinstances; j++)
@@ -749,25 +741,25 @@ public final class GmFileReader
 				Instance inst = rm.addInstance();
 				inst.setPosition(new Point(in.read4(),in.read4()));
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
-				if (temp != null) inst.setObject(temp.reference);
-				inst.instanceId = in.read4();
+				if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
+				inst.properties.put(PInstance.ID,in.read4());
 				inst.setCreationCode(in.readStr());
-				inst.locked = in.readBool();
+				inst.setLocked(in.readBool());
 				}
 			int notiles = in.read4();
 			for (int j = 0; j < notiles; j++)
 				{
-				Tile t = new Tile();
+				Tile t = new Tile(rm);
 				t.setRoomPosition(new Point(in.read4(),in.read4()));
 				Background temp = f.backgrounds.getUnsafe(in.read4());
 				ResourceReference<Background> bkg = null;
 				if (temp != null) bkg = temp.reference;
-				t.setBackground(bkg);
+				t.properties.put(PTile.BACKGROUND,bkg);
 				t.setBackgroundPosition(new Point(in.read4(),in.read4()));
 				t.setSize(new Dimension(in.read4(),in.read4()));
 				t.setDepth(in.read4());
-				t.tileId = in.read4();
-				t.locked = in.readBool();
+				t.properties.put(PTile.ID,in.read4());
+				t.setLocked(in.readBool());
 				rm.tiles.add(t);
 				}
 			rm.put(PRoom.REMEMBER_WINDOW_SIZE,in.readBool());

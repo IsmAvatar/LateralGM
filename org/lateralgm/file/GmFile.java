@@ -60,6 +60,8 @@ import org.lateralgm.resources.Sound.SoundKind;
 import org.lateralgm.resources.Sprite.BBMode;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile.PTile;
 
 public class GmFile implements UpdateListener
 	{
@@ -205,9 +207,9 @@ public class GmFile implements UpdateListener
 		for (Room r : rooms)
 			{
 			for (Instance j : r.instances)
-				j.instanceId = ++lastInstanceId;
+				j.properties.put(PInstance.ID,++lastInstanceId);
 			for (Tile j : r.tiles)
-				j.tileId = ++lastTileId;
+				j.properties.put(PTile.ID,++lastTileId);
 			}
 		}
 

@@ -239,6 +239,11 @@ public class GmStreamDecoder
 		return in;
 		}
 
+	/**
+	 * GMK Notice: since the first useful byte after the seed isn't encrypted,
+	 * you may wish to delay setting the seed until that byte is retrieved,
+	 * as implemented such functionality into these lower-level routines would add overhead
+	 */
 	public void setSeed(int s)
 		{
 		if (s >= 0)

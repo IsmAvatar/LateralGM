@@ -54,6 +54,10 @@ import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
+import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.resources.sub.View.PView;
 
 public final class GmFileWriter
 	{
@@ -317,9 +321,9 @@ public final class GmFileWriter
 				out.write4(path.points.size());
 				for (PathPoint p : path.points)
 					{
-					out.writeD(p.x);
-					out.writeD(p.y);
-					out.writeD(p.speed);
+					out.writeD(p.getX());
+					out.writeD(p.getY());
+					out.writeD(p.getSpeed());
 					}
 				}
 			}
@@ -440,62 +444,51 @@ public final class GmFileWriter
 				out.write4(Util.getGmColor((Color) rm.get(PRoom.BACKGROUND_COLOR)));
 				out.writeBool(rm.properties,PRoom.DRAW_BACKGROUND_COLOR);
 				out.writeStr(rm.properties,PRoom.CREATION_CODE);
-				out.write4(rm.backgroundDefs.length);
+				out.write4(rm.backgroundDefs.size());
 				for (BackgroundDef back : rm.backgroundDefs)
 					{
-					out.writeBool(back.visible);
-					out.writeBool(back.foreground);
-					out.writeId(back.backgroundId);
-					out.write4(back.x);
-					out.write4(back.y);
-					out.writeBool(back.tileHoriz);
-					out.writeBool(back.tileVert);
-					out.write4(back.horizSpeed);
-					out.write4(back.vertSpeed);
-					out.writeBool(back.stretch);
+					out.writeBool(back.properties,PBackgroundDef.VISIBLE,PBackgroundDef.FOREGROUND);
+					out.writeId((ResourceReference<?>) back.properties.get(PBackgroundDef.BACKGROUND));
+					out.write4(back.properties,PBackgroundDef.X,PBackgroundDef.Y);
+					out.writeBool(back.properties,PBackgroundDef.TILE_HORIZ,PBackgroundDef.TILE_VERT);
+					out.write4(back.properties,PBackgroundDef.H_SPEED,PBackgroundDef.V_SPEED);
+					out.writeBool(back.properties,PBackgroundDef.STRETCH);
 					}
 				out.writeBool(rm.properties,PRoom.ENABLE_VIEWS);
-				out.write4(rm.views.length);
+				out.write4(rm.views.size());
 				for (View view : rm.views)
 					{
-					out.writeBool(view.visible);
-					out.write4(view.viewX);
-					out.write4(view.viewY);
-					out.write4(view.viewW);
-					out.write4(view.viewH);
-					out.write4(view.portX);
-					out.write4(view.portY);
-					out.write4(view.portW);
-					out.write4(view.portH);
-					out.write4(view.hbor);
-					out.write4(view.vbor);
-					out.write4(view.hspeed);
-					out.write4(view.vspeed);
-					out.writeId(view.objectFollowing);
+					out.writeBool(view.properties,PView.VISIBLE);
+					out.write4(view.properties,PView.VIEW_X,PView.VIEW_Y,PView.VIEW_W,PView.VIEW_H,
+							PView.PORT_X,PView.PORT_Y,PView.PORT_W,PView.PORT_H,PView.BORDER_H,PView.BORDER_V,
+							PView.SPEED_H,PView.SPEED_V);
+					out.writeId((ResourceReference<?>) view.properties.get(PView.OBJECT));
 					}
 				out.write4(rm.instances.size());
 				for (Instance in : rm.instances)
 					{
 					out.write4(in.getPosition().x);
 					out.write4(in.getPosition().y);
-					out.writeId(in.getObject());
-					out.write4(in.instanceId);
+					ResourceReference<GmObject> or = in.properties.get(PInstance.OBJECT);
+					out.writeId(or);
+					out.write4((Integer) in.properties.get(PInstance.ID));
 					out.writeStr(in.getCreationCode());
-					out.writeBool(in.locked);
+					out.writeBool(in.isLocked());
 					}
 				out.write4(rm.tiles.size());
 				for (Tile tile : rm.tiles)
 					{
 					out.write4(tile.getRoomPosition().x);
 					out.write4(tile.getRoomPosition().y);
-					out.writeId(tile.getBackground());
+					ResourceReference<Background> rb = tile.properties.get(PTile.BACKGROUND);
+					out.writeId(rb);
 					out.write4(tile.getBackgroundPosition().x);
 					out.write4(tile.getBackgroundPosition().y);
 					out.write4(tile.getSize().width);
 					out.write4(tile.getSize().height);
 					out.write4(tile.getDepth());
-					out.write4(tile.tileId);
-					out.writeBool(tile.locked);
+					out.write4((Integer) tile.properties.get(PTile.ID));
+					out.writeBool(tile.isLocked());
 					}
 				out.writeBool(rm.properties,PRoom.REMEMBER_WINDOW_SIZE);
 				out.write4(rm.properties,PRoom.EDITOR_WIDTH,PRoom.EDITOR_HEIGHT);
