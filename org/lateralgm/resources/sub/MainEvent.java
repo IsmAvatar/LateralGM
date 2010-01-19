@@ -25,15 +25,7 @@ public class MainEvent
 	public static final byte EV_DRAW = 8;
 	public static final byte EV_KEYPRESS = 9;
 	public static final byte EV_KEYRELEASE = 10;
-
-	public static final String[] EVENT_STRING = new String[11];
-	static
-		{
-		for (int m = 0; m < 11; m += 1)
-			{
-			Messages.getString("MainEvent.EVENT_STRING" + m); //$NON-NLS-1$
-			}
-		}
+	public static final byte EV_TRIGGER = 11;
 
 	public ArrayList<Event> events = new ArrayList<Event>();
 

@@ -10,6 +10,9 @@
 package org.lateralgm.file;
 
 import java.awt.Image;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
 import java.awt.image.RenderedImage;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -120,10 +123,16 @@ public class StreamEncoder
 		out.write(baos.toByteArray());
 		}
 
-	public void writeImage(Image image) throws IOException
+	public void writeZlibImage(BufferedImage image) throws IOException
 		{
+		//Drop any alpha channel and convert to 3-byte to ensure that the image is bmp-compatible
+		ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
+		final BufferedImage dest = new BufferedImage(image.getWidth(),image.getHeight(),
+				BufferedImage.TYPE_3BYTE_BGR);
+		conv.filter(image,dest);
+
 		ByteArrayOutputStream data = new ByteArrayOutputStream();
-		ImageIO.write((RenderedImage) image,"bmp",data);
+		ImageIO.write(dest,"bmp",data);
 		compress(data.toByteArray());
 		}
 

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
- * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -212,6 +212,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 		switch (mainId)
 			{
 			case MainEvent.EV_ALARM:
+			case MainEvent.EV_TRIGGER:
 				return Messages.format("Event.EVENT" + mainId + "_X",eventId); //$NON-NLS-1$
 			case MainEvent.EV_MOUSE:
 				if ((eventId <= 9) || (eventId >= 50 && eventId <= 58))

@@ -145,14 +145,14 @@ public final class GmFileWriter
 			if (g.backLoadBar != null)
 				{
 				out.write4(10);
-				out.writeImage(g.backLoadBar);
+				out.writeZlibImage(g.backLoadBar);
 				}
 			else
 				out.write4(-1);
 			if (g.frontLoadBar != null)
 				{
 				out.write4(10);
-				out.writeImage(g.frontLoadBar);
+				out.writeZlibImage(g.frontLoadBar);
 				}
 			else
 				out.write4(-1);
@@ -163,7 +163,7 @@ public final class GmFileWriter
 			if (g.loadingImage != null)
 				{
 				out.write4(10);
-				out.writeImage(g.loadingImage);
+				out.writeZlibImage(g.loadingImage);
 				}
 			else
 				out.write4(-1);
@@ -265,7 +265,7 @@ public final class GmFileWriter
 					{
 					BufferedImage sub = spr.subImages.get(j);
 					out.write4(10);
-					out.writeImage(sub);
+					out.writeZlibImage(sub);
 					}
 				}
 			}
@@ -294,7 +294,7 @@ public final class GmFileWriter
 					{
 					out.writeBool(true);
 					out.write4(10);
-					out.writeImage(bi);
+					out.writeZlibImage(bi);
 					}
 				else
 					out.writeBool(false);

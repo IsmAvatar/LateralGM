@@ -530,7 +530,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 	public void makeEventTree(GmObject res)
 		{
 		rootEvent = new EventGroupNode(-1);
-		for (int m = 0; m < 11; m++)
+		for (int m = 0; m < 12; m++)
 			{
 			MainEvent me = res.mainEvents.get(m);
 			ArrayList<Event> ale = me.events;

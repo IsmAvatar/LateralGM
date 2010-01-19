@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
- * Copyright (C) 2006, 2007, 2008, 2009 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006, 2007, 2008, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -15,8 +15,10 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
+import java.util.zip.InflaterInputStream;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
@@ -79,7 +81,7 @@ public final class GmFileReader
 		RefList<GmObject> objids;
 		RefList<Room> rmids;
 
-		GmFileContext(GmFile f, GmStreamDecoder in, RefList<Timeline> timeids,
+		public GmFileContext(GmFile f, GmStreamDecoder in, RefList<Timeline> timeids,
 				RefList<GmObject> objids, RefList<Room> rmids)
 			{
 			this.f = f;
@@ -87,6 +89,11 @@ public final class GmFileReader
 			this.timeids = timeids;
 			this.objids = objids;
 			this.rmids = rmids;
+			}
+		
+		public GmFileContext copy()
+			{
+			return new GmFileContext(f,in,timeids,objids,rmids);
 			}
 		}
 
@@ -120,7 +127,7 @@ public final class GmFileReader
 				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_INVALID",fileName, //$NON-NLS-1$
 						identifier));
 			int ver = in.read4();
-			if (ver != 530 && ver != 600 && ver != 701)
+			if (ver != 530 && ver != 600 && ver != 701 && ver != 800)
 				{
 				String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$ //$NON-NLS-2$
 				throw new GmFormatException(f,msg);
@@ -140,7 +147,16 @@ public final class GmFileReader
 				}
 			else
 				f.gameSettings.gameId = in.read4();
+			in.skip(16); // unknown bytes following game id
+
 			readSettings(c);
+
+			if (ver >= 800)
+				{
+				readTriggers(c);
+				readConstants(c);
+				}
+
 			readSounds(c);
 			readSprites(c);
 			readBackgrounds(c);
@@ -153,53 +169,31 @@ public final class GmFileReader
 
 			f.lastInstanceId = in.read4();
 			f.lastTileId = in.read4();
-			ver = in.read4();
-			if (ver != 430 && ver != 600 && ver != 620) throw versionError(f,"BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
-			if (ver != 620)
-				readGameInformation(c,ver);
-			else
+
+			if (ver >= 700)
 				{
-				int noIncludes = in.read4();
-				for (int i = 0; i < noIncludes; i++)
-					{
-					ver = in.read4();
-					if (ver != 620)
-						throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
-								Messages.getString("GmFileReader.INGM7INCLUDES"),ver)); //$NON-NLS-1$
-					Include inc = new Include();
-					in.skip(in.read4()); //Filename
-					inc.filePath = in.readStr();
-					in.skip(4); //orig file chosen
-					in.skip(4); //orig file size
-					if (in.readBool()) in.skip(in.read4()); //Store in editable
-					in.skip(4); //export
-					in.skip(in.read4()); //folder to export to
-					in.skip(12); //overwrite if exists, free mem, remove at game end
-					f.gameSettings.includes.add(inc);
-					}
-				ver = in.read4();
-				if (ver != 700) throw versionError(f,"BEFORE","EXTENSIONS",ver); //$NON-NLS-1$ //$NON-NLS-2$
-				int noPackages = in.read4();
-				for (int i = 0; i < noPackages; i++)
-					{
-					in.skip(in.read4()); //Package name
-					}
-				ver = in.read4();
-				if (ver != 600) throw versionError(f,"BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
-				readGameInformation(c,620);
+				readIncludedFiles(c);
+				readPackages(c);
 				}
+
+			readGameInformation(c);
+
+			//Library Creation Code
 			ver = in.read4();
 			if (ver != 500)
 				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("GmFileReader.AFTERINFO"),ver)); //$NON-NLS-1$
-			int no = in.read4(); //Library Creation Code
+			int no = in.read4();
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
+
+			//Room Execution Order
 			ver = in.read4();
 			if (ver != 500 && ver != 540 && ver != 700)
 				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("GmFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
-			in.skip(in.read4() * 4); //Room Execution Order
+			in.skip(in.read4() * 4);
+
 			readTree(c,root,ver);
 			System.out.println(Messages.format("GmFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
 					- startTime));
@@ -231,20 +225,18 @@ public final class GmFileReader
 	private static void readSettings(GmFileContext c) throws IOException,GmFormatException,
 			DataFormatException
 		{
-		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
-		GameSettings g = f.gameSettings;
+		GameSettings g = c.f.gameSettings;
 
-//		g.gameId = in.read4(); //needs to be handled uniquely for gmk
-		in.skip(16); // unknown bytes following game id
 		int ver = in.read4();
-		if (ver != 530 && ver != 542 && ver != 600 && ver != 702)
+		if (ver != 530 && ver != 542 && ver != 600 && ver != 702 && ver != 800)
 			{
 			String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$
-			throw new GmFormatException(f,msg);
+			throw new GmFormatException(c.f,msg);
 			}
+		if (ver == 800) in = in.spawnInflater();
 		g.startFullscreen = in.readBool();
-		if (ver > 542) g.interpolate = in.readBool();
+		if (ver >= 600) g.interpolate = in.readBool();
 		g.dontDrawBorder = in.readBool();
 		g.displayCursor = in.readBool();
 		g.scaling = in.read4();
@@ -279,22 +271,39 @@ public final class GmFileReader
 			}
 		g.dontShowButtons = in.readBool();
 		if (ver > 530) g.useSynchronization = in.readBool();
+		if (ver >= 800) in.skip(4); //disable screensavers
 		g.letF4SwitchFullscreen = in.readBool();
 		g.letF1ShowGameInfo = in.readBool();
 		g.letEscEndGame = in.readBool();
 		g.letF5SaveF6Load = in.readBool();
 		if (ver == 530) in.skip(8); //unknown bytes, both 0
-		if (ver == 702) in.skip(8); //Treat close as esc, F9 screenshot
+		if (ver > 600) in.skip(8); //Treat close as esc, F9 screenshot
 		g.gamePriority = (byte) in.read4();
 		g.freezeOnLoseFocus = in.readBool();
 		g.loadBarMode = (byte) in.read4();
 		if (g.loadBarMode == GameSettings.LOADBAR_CUSTOM)
 			{
-			if (in.read4() != -1) g.backLoadBar = in.readImage();
-			if (in.read4() != -1) g.frontLoadBar = in.readImage();
+			if (ver < 800)
+				{
+				if (in.read4() != -1) g.backLoadBar = in.readZlibImage();
+				if (in.read4() != -1) g.frontLoadBar = in.readZlibImage();
+				}
+			//ver > 800
+			else
+				{
+				if (in.readBool()) g.backLoadBar = in.readZlibImage();
+				if (in.readBool()) g.frontLoadBar = in.readZlibImage();
+				}
 			}
 		g.showCustomLoadImage = in.readBool();
-		if (g.showCustomLoadImage) if (in.read4() != -1) g.loadingImage = in.readImage();
+		if (g.showCustomLoadImage)
+			{
+			if (ver < 800)
+				{
+				if (in.read4() != -1) g.loadingImage = in.readZlibImage();
+				}
+			else if (in.readBool()) g.loadingImage = in.readZlibImage();
+			}
 		g.imagePartiallyTransparent = in.readBool();
 		g.loadImageAlpha = in.read4();
 		g.scaleProgressBar = in.readBool();
@@ -324,13 +333,16 @@ public final class GmFileReader
 			g.version = Integer.toString(in.read4());
 		g.lastChanged = in.readD();
 		g.information = in.readStr();
-		int no = in.read4();
-		for (int i = 0; i < no; i++)
+		if (ver < 800)
 			{
-			Constant con = new Constant();
-			g.constants.add(con);
-			con.name = in.readStr();
-			con.value = in.readStr();
+			int no = in.read4();
+			for (int i = 0; i < no; i++)
+				{
+				Constant con = new Constant();
+				g.constants.add(con);
+				con.name = in.readStr();
+				con.value = in.readStr();
+				}
 			}
 		if (ver > 600)
 			{
@@ -342,10 +354,11 @@ public final class GmFileReader
 			in.skip(in.read4()); //Product
 			in.skip(in.read4()); //Copyright
 			in.skip(in.read4()); //Description
+			if (ver >= 800) in.skip(8); //last changed
 			}
 		else if (ver > 530)
 			{
-			no = in.read4();
+			int no = in.read4();
 			for (int i = 0; i < no; i++)
 				{
 				Include inc = new Include();
@@ -356,6 +369,49 @@ public final class GmFileReader
 			g.overwriteExisting = in.readBool();
 			g.removeAtGameEnd = in.readBool();
 			}
+		in.finishInflater();
+		}
+
+	private static void readTriggers(GmFileContext c) throws IOException,GmFormatException
+		{
+		GmFile f = c.f;
+		GmStreamDecoder in = c.in;
+
+		int ver = in.read4();
+		if (ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+
+		int no = in.read4();
+		if (no > 0)
+			System.out.println("LateralGM does not support triggers at this time,"
+					+ " and may report that your game is corrupt.");
+		for (int i = 0; i < no; i++)
+			{
+			ver = in.read4();
+			if (ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+			in.skip(in.read4());
+			in.skip(in.read4() + 4);
+			in.skip(in.read4());
+			}
+		in.skip(8); //last changed
+		}
+
+	private static void readConstants(GmFileContext c) throws IOException,GmFormatException
+		{
+		GmFile f = c.f;
+		GmStreamDecoder in = c.in;
+
+		int ver = in.read4();
+		if (ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+
+		int no = in.read4();
+		for (int i = 0; i < no; i++)
+			{
+			Constant con = new Constant();
+			c.f.gameSettings.constants.add(con);
+			con.name = in.readStr();
+			con.value = in.readStr();
+			}
+		in.skip(8); //last changed
 		}
 
 	private static void readSounds(GmFileContext c) throws IOException,GmFormatException,
@@ -365,11 +421,12 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noSounds = in.read4();
 		for (int i = 0; i < noSounds; i++)
 			{
+			if (ver == 800) in = in.spawnInflater();
 			if (!in.readBool())
 				{
 				f.sounds.lastId++;
@@ -377,8 +434,9 @@ public final class GmFileReader
 				}
 			Sound snd = f.sounds.add();
 			snd.setName(in.readStr());
+			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 440 && ver != 600) throw versionError(f,"IN","SOUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 440 && ver != 600 && ver != 800) throw versionError(f,"IN","SOUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			int kind53 = -1;
 			if (ver == 440)
 				kind53 = in.read4(); //kind (wav, mp3, etc)
@@ -395,7 +453,17 @@ public final class GmFileReader
 			else
 				{
 				snd.put(PSound.FILE_NAME,in.readStr());
-				if (in.readBool()) snd.data = in.decompress(in.read4());
+				if (in.readBool())
+					{
+					if (ver == 600)
+						snd.data = in.decompress(in.read4());
+					else
+						{
+						int s = in.read4();
+						snd.data = new byte[s];
+						in.read(snd.data);
+						}
+					}
 				int effects = in.read4();
 				for (PSound k : GmFile.SOUND_FX_FLAGS)
 					{
@@ -406,6 +474,7 @@ public final class GmFileReader
 				snd.put(PSound.PRELOAD,in.readBool());
 				}
 			}
+		in.finishInflater();
 		}
 
 	private static void readSprites(GmFileContext c) throws IOException,GmFormatException,
@@ -415,11 +484,12 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400) throw versionError(f,"BEFORE","SPRITES",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SPRITES",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noSprites = in.read4();
 		for (int i = 0; i < noSprites; i++)
 			{
+			if (ver == 800) in = in.spawnInflater();
 			if (!in.readBool())
 				{
 				f.sprites.lastId++;
@@ -427,31 +497,55 @@ public final class GmFileReader
 				}
 			Sprite spr = f.sprites.add();
 			spr.setName(in.readStr());
+			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 400 && ver != 542) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-			int w = in.read4();
-			int h = in.read4();
-			in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
-			spr.put(PSprite.TRANSPARENT,in.readBool());
-			if (ver > 400)
+			if (ver != 400 && ver != 542 && ver != 800) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver < 800)
 				{
-				in.readBool(spr.properties,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
+				int w = in.read4();
+				int h = in.read4();
+				in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
+				spr.put(PSprite.TRANSPARENT,in.readBool());
+				if (ver > 400)
+					{
+					in.readBool(spr.properties,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
+					}
+				spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
+				spr.put(PSprite.PRECISE,in.readBool());
+				if (ver == 400)
+					{
+					in.skip(4); //use video memory
+					spr.put(PSprite.PRELOAD,!in.readBool());
+					}
+				in.read4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
+				int nosub = in.read4();
+				for (int j = 0; j < nosub; j++)
+					{
+					if (in.read4() == -1) continue;
+					spr.addSubImage(in.readZlibImage(w,h));
+					}
 				}
-			spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
-			spr.put(PSprite.PRECISE,in.readBool());
-			if (ver == 400)
+			//ver >= 800
+			else
 				{
-				in.skip(4); //use video memory
-				spr.put(PSprite.PRELOAD,!in.readBool());
-				}
-			in.read4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
-			int nosub = in.read4();
-			for (int j = 0; j < nosub; j++)
-				{
-				if (in.read4() == -1) continue;
-				spr.addSubImage(in.readImage(w,h));
+				in.read4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
+				int nosub = in.read4();
+				for (int j = 0; j < nosub; j++)
+					{
+					ver = in.read4();
+					if (ver != 800) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+					int w = in.read4();
+					int h = in.read4();
+					if (w != 0 && h != 0) spr.addSubImage(in.readBGRAImage(w,h));
+					}
+				int shape = in.read4();
+				spr.put(PSprite.PRECISE,shape != 1); //Shape (0*=Precise, 1=Rectangle,  2=Disk, 3=Diamond)
+				in.skip(8); //Alpha Tolerance and Separate Collision Masks
+				spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
+				in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
 				}
 			}
+		in.finishInflater();
 		}
 
 	private static void readBackgrounds(GmFileContext c) throws IOException,GmFormatException,
@@ -461,10 +555,11 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400) throw versionError(f,"BEFORE","BACKGROUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","BACKGROUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 		int noBackgrounds = in.read4();
 		for (int i = 0; i < noBackgrounds; i++)
 			{
+			if (ver == 800) in = in.spawnInflater();
 			if (!in.readBool())
 				{
 				f.backgrounds.lastId++;
@@ -472,29 +567,46 @@ public final class GmFileReader
 				}
 			Background back = f.backgrounds.add();
 			back.setName(in.readStr());
+			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 400 && ver != 543) throw versionError(f,"IN","BACKGROUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-			int w = in.read4();
-			int h = in.read4();
-			back.put(PBackground.TRANSPARENT,in.readBool());
-			if (ver > 400)
+			if (ver != 400 && ver != 543 && ver != 710) throw versionError(f,"IN","BACKGROUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver < 710)
 				{
-				in.readBool(back.properties,PBackground.SMOOTH_EDGES,PBackground.PRELOAD,
-						PBackground.USE_AS_TILESET);
-				in.read4(back.properties,PBackground.TILE_WIDTH,PBackground.TILE_HEIGHT,
-						PBackground.H_OFFSET,PBackground.V_OFFSET,PBackground.H_SEP,PBackground.V_SEP);
+				int w = in.read4();
+				int h = in.read4();
+				back.put(PBackground.TRANSPARENT,in.readBool());
+				if (ver > 400)
+					{
+					in.readBool(back.properties,PBackground.SMOOTH_EDGES,PBackground.PRELOAD,
+							PBackground.USE_AS_TILESET);
+					in.read4(back.properties,PBackground.TILE_WIDTH,PBackground.TILE_HEIGHT,
+							PBackground.H_OFFSET,PBackground.V_OFFSET,PBackground.H_SEP,PBackground.V_SEP);
+					}
+				else
+					{
+					in.skip(4); //use video memory
+					back.put(PBackground.PRELOAD,!in.readBool());
+					}
+				if (in.readBool())
+					{
+					if (in.read4() == -1) continue;
+					back.setBackgroundImage(in.readZlibImage(w,h));
+					}
 				}
+			//ver >= 710
 			else
 				{
-				in.skip(4); //use video memory
-				back.put(PBackground.PRELOAD,!in.readBool());
-				}
-			if (in.readBool())
-				{
-				if (in.read4() == -1) continue;
-				back.setBackgroundImage(in.readImage(w,h));
+				back.put(PBackground.USE_AS_TILESET,in.readBool());
+				in.read4(back.properties,PBackground.TILE_WIDTH,PBackground.TILE_HEIGHT,
+						PBackground.H_OFFSET,PBackground.V_OFFSET,PBackground.H_SEP,PBackground.V_SEP);
+				ver = in.read4();
+				if (ver != 800) throw versionError(f,"IN","BACKGROUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+				int w = in.read4();
+				int h = in.read4();
+				if (w != 0 && h != 0) back.setBackgroundImage(in.readBGRAImage(w,h));
 				}
 			}
+		in.finishInflater();
 		}
 
 	private static void readPaths(GmFileContext c) throws IOException,GmFormatException
@@ -503,11 +615,12 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 420) throw versionError(f,"BEFORE","PATHS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 420 && ver != 800) throw versionError(f,"BEFORE","PATHS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noPaths = in.read4();
 		for (int i = 0; i < noPaths; i++)
 			{
+			if (ver == 800) in = in.spawnInflater();
 			if (!in.readBool())
 				{
 				f.paths.lastId++;
@@ -515,6 +628,7 @@ public final class GmFileReader
 				}
 			Path path = f.paths.add();
 			path.setName(in.readStr());
+			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
 			if (ver != 530) throw versionError(f,"IN","PATHS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			in.readBool(path.properties,PPath.SMOOTH,PPath.CLOSED);
@@ -527,6 +641,7 @@ public final class GmFileReader
 				path.points.add(new PathPoint((int) in.readD(),(int) in.readD(),(int) in.readD()));
 				}
 			}
+		in.finishInflater();
 		}
 
 	private static void readScripts(GmFileContext c) throws IOException,GmFormatException
@@ -535,11 +650,12 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400) throw versionError(f,"BEFORE","SCRIPTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SCRIPTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noScripts = in.read4();
 		for (int i = 0; i < noScripts; i++)
 			{
+			if (ver == 800) in = in.spawnInflater();
 			if (!in.readBool())
 				{
 				f.scripts.lastId++;
@@ -547,10 +663,12 @@ public final class GmFileReader
 				}
 			Script scr = f.scripts.add();
 			scr.setName(in.readStr());
+			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 400) throw versionError(f,"IN","SCRIPTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 400 && ver != 800) throw versionError(f,"IN","SCRIPTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			scr.put(PScript.CODE,in.readStr());
 			}
+		in.finishInflater();
 		}
 
 	private static void readFonts(GmFileContext c) throws IOException,GmFormatException
@@ -560,7 +678,7 @@ public final class GmFileReader
 		GameSettings g = f.gameSettings;
 
 		int ver = in.read4();
-		if (ver != 440 && ver != 540) throw versionError(f,"BEFORE","FONTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 440 && ver != 540 && ver != 800) throw versionError(f,"BEFORE","FONTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (ver == 440) //data files
 			{
@@ -584,6 +702,7 @@ public final class GmFileReader
 		int noFonts = in.read4();
 		for (int i = 0; i < noFonts; i++)
 			{
+			if (ver == 800) in = in.spawnInflater();
 			if (!in.readBool())
 				{
 				f.fonts.lastId++;
@@ -591,13 +710,15 @@ public final class GmFileReader
 				}
 			Font font = f.fonts.add();
 			font.setName(in.readStr());
+			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 540) throw versionError(f,"IN","FONTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 540 && ver != 800) throw versionError(f,"IN","FONTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			font.put(PFont.FONT_NAME,in.readStr());
 			font.put(PFont.SIZE,in.read4());
 			in.readBool(font.properties,PFont.BOLD,PFont.ITALIC);
 			in.read4(font.properties,PFont.RANGE_MIN,PFont.RANGE_MAX);
 			}
+		in.finishInflater();
 		}
 
 	private static void readTimelines(GmFileContext c) throws IOException,GmFormatException
@@ -606,16 +727,18 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 500) throw versionError(f,"BEFORE","TIMELINES",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 500 && ver != 800) throw versionError(f,"BEFORE","TIMELINES",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noTimelines = in.read4();
 		for (int i = 0; i < noTimelines; i++)
 			{
+			if (ver == 800) in = in.spawnInflater();
 			if (!in.readBool()) continue;
 			ResourceReference<Timeline> r = c.timeids.get(i); //includes ID
 			Timeline time = r.get();
 			f.timelines.add(time);
 			time.setName(in.readStr());
+			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
 			if (ver != 500) throw versionError(f,"IN","TIMELINES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			int nomoms = in.read4();
@@ -623,10 +746,13 @@ public final class GmFileReader
 				{
 				Moment mom = time.addMoment();
 				mom.stepNo = in.read4();
-				readActions(c,mom,"INTIMELINEACTION",i,mom.stepNo); //$NON-NLS-1$
+				GmFileContext fc = c.copy();
+				fc.in = in;
+				readActions(fc,mom,"INTIMELINEACTION",i,mom.stepNo); //$NON-NLS-1$
 				}
 			}
 		f.timelines.lastId = noTimelines;
+		in.finishInflater();
 		}
 
 	private static void readGmObjects(GmFileContext c) throws IOException,GmFormatException
@@ -635,16 +761,18 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400) throw versionError(f,"BEFORE","OBJECTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","OBJECTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noGmObjects = in.read4();
 		for (int i = 0; i < noGmObjects; i++)
 			{
+			if (ver == 800) in = in.spawnInflater();
 			if (!in.readBool()) continue;
 			ResourceReference<GmObject> r = c.objids.get(i); //includes ID
 			GmObject obj = r.get();
 			f.gmObjects.add(obj);
 			obj.setName(in.readStr());
+			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
 			if (ver != 430) throw versionError(f,"IN","OBJECTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.sprites.getUnsafe(in.read4());
@@ -655,8 +783,8 @@ public final class GmFileReader
 			obj.put(PGmObject.PARENT,c.objids.get(in.read4()));
 			temp = f.sprites.getUnsafe(in.read4());
 			if (temp != null) obj.put(PGmObject.MASK,temp.reference);
-			in.skip(4);
-			for (int j = 0; j < 11; j++)
+			int noEvents = in.read4() + 1;
+			for (int j = 0; j < noEvents; j++)
 				{
 				MainEvent me = obj.mainEvents.get(j);
 				boolean done = false;
@@ -668,13 +796,13 @@ public final class GmFileReader
 						Event ev = new Event();
 						me.events.add(0,ev);
 						if (j == MainEvent.EV_COLLISION)
-							{
 							ev.other = c.objids.get(first);
-							}
 						else
 							ev.id = first;
 						ev.mainId = j;
-						readActions(c,ev,"INOBJECTACTION",i,j * 1000 + ev.id); //$NON-NLS-1$
+						GmFileContext fc = c.copy();
+						fc.in = in;
+						readActions(fc,ev,"INOBJECTACTION",i,j * 1000 + ev.id); //$NON-NLS-1$
 						}
 					else
 						done = true;
@@ -682,6 +810,7 @@ public final class GmFileReader
 				}
 			}
 		f.gmObjects.lastId = noGmObjects;
+		in.finishInflater();
 		}
 
 	private static void readRooms(GmFileContext c) throws IOException,GmFormatException
@@ -690,16 +819,18 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 420) throw versionError(f,"BEFORE","ROOMS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 420 && ver != 800) throw versionError(f,"BEFORE","ROOMS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noRooms = in.read4();
 		for (int i = 0; i < noRooms; i++)
 			{
+			if (ver == 800) in = in.spawnInflater();
 			if (!in.readBool()) continue;
 			ResourceReference<Room> r = c.rmids.get(i); //includes ID
 			Room rm = r.get();
 			f.rooms.add(rm);
 			rm.setName(in.readStr());
+			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
 			if (ver != 520 && ver != 541) throw versionError(f,"IN","ROOMS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			rm.put(PRoom.CAPTION,in.readStr());
@@ -771,15 +902,70 @@ public final class GmFileReader
 			in.read4(rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
 			}
 		f.rooms.lastId = noRooms;
+		in.finishInflater();
 		}
 
-	private static void readGameInformation(GmFileContext c, int ver) throws IOException
+	private static void readIncludedFiles(GmFileContext c) throws IOException,GmFormatException
+		{
+		GmFile f = c.f;
+		GmStreamDecoder in = c.in;
+
+		int ver = in.read4();
+		if (ver != 430 && ver != 600 && ver != 620 && ver != 800)
+			throw versionError(f,"BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
+
+		int noIncludes = in.read4();
+		for (int i = 0; i < noIncludes; i++)
+			{
+			if (ver == 800) in.skip(8); //last changed
+			ver = in.read4();
+			if (ver != 620 && ver != 800)
+				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+						Messages.getString("GmFileReader.INGM7INCLUDES"),ver)); //$NON-NLS-1$
+			Include inc = new Include();
+			in.skip(in.read4()); //Filename
+			inc.filePath = in.readStr();
+			in.skip(4); //orig file chosen
+			in.skip(4); //orig file size
+			if (in.readBool()) in.skip(in.read4()); //Store in editable
+			in.skip(4); //export
+			in.skip(in.read4()); //folder to export to
+			in.skip(12); //overwrite if exists, free mem, remove at game end
+			f.gameSettings.includes.add(inc);
+			}
+		}
+
+	private static void readPackages(GmFileContext c) throws IOException,GmFormatException
+		{
+		GmFile f = c.f;
+		GmStreamDecoder in = c.in;
+
+		int ver = in.read4();
+		if (ver != 700) throw versionError(f,"BEFORE","EXTENSIONS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+
+		int noPackages = in.read4();
+		for (int i = 0; i < noPackages; i++)
+			{
+			in.skip(in.read4()); //Package name
+			}
+		}
+
+	private static void readGameInformation(GmFileContext c) throws IOException,GmFormatException
 		{
 		GmStreamDecoder in = c.in;
 		GameInformation gameInfo = c.f.gameInfo;
+
+		int ver = in.read4();
+		if (ver != 430 && ver != 600 && ver != 620 && ver != 800)
+			throw versionError(c.f,"BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
+
+		if (ver == 800) in = in.spawnInflater();
 		int bc = in.read4();
 		if (bc >= 0) gameInfo.backgroundColor = Util.convertGmColor(bc);
-		gameInfo.mimicGameWindow = in.readBool();
+		if (ver < 800)
+			gameInfo.mimicGameWindow = in.readBool();
+		else
+			gameInfo.mimicGameWindow = !in.readBool(); //Show help in a separate window
 		if (ver > 430)
 			{
 			gameInfo.formCaption = in.readStr();
@@ -792,7 +978,9 @@ public final class GmFileReader
 			gameInfo.stayOnTop = in.readBool();
 			gameInfo.pauseGame = in.readBool();
 			}
+		if (ver == 800) in.skip(8); //last changed
 		gameInfo.gameInfoStr = in.readStr();
+		in.finishInflater();
 		}
 
 	private static void readTree(GmFileContext c, ResNode root, int ver) throws IOException
@@ -848,7 +1036,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readActions(GmFileContext c, ActionContainer container, String key,
+	private static void readActions(GmFileContext c, ActionContainer container, String errorKey,
 			int format1, int format2) throws IOException,GmFormatException
 		{
 		GmFile f = c.f;
@@ -859,10 +1047,7 @@ public final class GmFileReader
 		if (ver != 400)
 			{
 			throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
-					Messages.getString("GmFileReader." + key),format1,format2,ver)); //$NON-NLS-1$
-			//		String msg = Messages.getString("GmFileReader." + key)
-			//		+ Messages.getString("GmFileReader.ERROR_UNSUPPORTED");
-			//			throw new GmFormatException(String.format(msg,format1,format2,ver));
+					Messages.format("GmFileReader." + errorKey,format1,format2),ver)); //$NON-NLS-1$
 			}
 		int noacts = in.read4();
 		for (int k = 0; k < noacts; k++)

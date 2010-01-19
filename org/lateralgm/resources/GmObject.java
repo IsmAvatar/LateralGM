@@ -66,8 +66,8 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 	public GmObject(ResourceReference<GmObject> r, boolean update)
 		{
 		super(r,update);
-		MainEvent[] e = new MainEvent[11];
-		for (int j = 0; j < 11; j++)
+		MainEvent[] e = new MainEvent[12];
+		for (int j = 0; j < 12; j++)
 			e[j] = new MainEvent();
 		mainEvents = Collections.unmodifiableList(Arrays.asList(e));
 		setName(Prefs.prefixes.get(Kind.OBJECT));
@@ -80,7 +80,7 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 		{
 		GmObject o = new GmObject(ref,update);
 		copy(src,o);
-		for (int i = 0; i < 11; i++)
+		for (int i = 0; i < 12; i++)
 			{
 			MainEvent mev = mainEvents.get(i);
 			MainEvent mev2 = o.mainEvents.get(i);

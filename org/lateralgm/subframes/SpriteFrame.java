@@ -811,10 +811,10 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		public ImageEditor(BufferedImage i) throws IOException
 			{
 			image = i;
-			File f = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
+			File f = File.createTempFile(res.getName(),".png",LGM.tempDir);
 			f.deleteOnExit();
 			FileOutputStream out = new FileOutputStream(f);
-			ImageIO.write(i,"bmp",out);
+			ImageIO.write(i,"png",out);
 			out.close();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this,true);
@@ -852,14 +852,10 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 						ioe.printStackTrace();
 						return;
 						}
-					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
-					BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
-							BufferedImage.TYPE_3BYTE_BGR);
-					conv.filter(img,dest);
-					res.subImages.replace(image,dest);
+					res.subImages.replace(image,img);
 					editors.remove(image);
-					editors.put(dest,this);
-					image = dest;
+					editors.put(img,this);
+					image = img;
 					imageChanged = true;
 					break;
 				case DELETED:

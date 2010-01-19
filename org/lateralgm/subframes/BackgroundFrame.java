@@ -358,10 +358,10 @@ public class BackgroundFrame extends ResourceFrame<Background,PBackground> imple
 				res.setBackgroundImage(bi);
 				imageChanged = true;
 				}
-			File f = File.createTempFile(res.getName(),".bmp",LGM.tempDir);
+			File f = File.createTempFile(res.getName(),".png",LGM.tempDir);
 			f.deleteOnExit();
 			FileOutputStream out = new FileOutputStream(f);
-			ImageIO.write(bi,"bmp",out);
+			ImageIO.write(bi,"png",out);
 			out.close();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this);
@@ -398,11 +398,7 @@ public class BackgroundFrame extends ResourceFrame<Background,PBackground> imple
 						ioe.printStackTrace();
 						return;
 						}
-					ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
-					final BufferedImage dest = new BufferedImage(img.getWidth(),img.getHeight(),
-							BufferedImage.TYPE_3BYTE_BGR);
-					conv.filter(img,dest);
-					res.setBackgroundImage(dest);
+					res.setBackgroundImage(img);
 					imageChanged = true;
 					break;
 				case DELETED:

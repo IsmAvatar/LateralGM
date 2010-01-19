@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2009 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -10,6 +10,10 @@
 package org.lateralgm.file;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -193,16 +197,49 @@ public class GmStreamDecoder
 		return baos.toByteArray();
 		}
 
-	public BufferedImage readImage(int width, int height) throws IOException,DataFormatException
+	public GmStreamDecoder spawnInflater() throws IOException
+		{
+		return new GmStreamDecoder(new LimitedInflaterInputStream(in,read4()));
+		}
+
+	/**
+	 * Safely finishes this stream if it's an inflater, otherwise this call does nothing.
+	 * This places the file reader after the end of the compressed data in the underlying input stream.
+	 */
+	public void finishInflater() throws IOException
+		{
+		if (in instanceof LimitedInflaterInputStream) ((LimitedInflaterInputStream) in).finish();
+		}
+
+	public BufferedImage readZlibImage(int width, int height) throws IOException,DataFormatException
 		{
 		int length = read4();
 		int estimate = height * width * 4 + 100; //100 for generous header
 		return ImageIO.read(new ByteArrayInputStream(decompress(length,estimate)));
 		}
 
-	public BufferedImage readImage() throws IOException,DataFormatException
+	public BufferedImage readZlibImage() throws IOException,DataFormatException
 		{
-		return readImage(0,0);
+		return readZlibImage(0,0);
+		}
+
+	public BufferedImage readBGRAImage(int w, int h) throws IOException
+		{
+		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,w,h,w * 4,4,
+				new int[] { 2,1,0,3 },null); //2103 = RGBA ordering
+
+		byte[] data = ((DataBufferByte) raster.getDataBuffer()).getData();
+
+		int s = read4();
+		if (s != data.length)
+			throw new IOException(
+					Messages.format("GmStreamDecoder.IMAGE_SIZE_MISMATCH",s,data.length,pos)); //$NON-NLS-1$
+
+		read(data);
+
+		BufferedImage dst = new BufferedImage(w,h,BufferedImage.TYPE_4BYTE_ABGR);
+		dst.getRaster().setRect(raster);
+		return dst;
 		}
 
 	public void close() throws IOException
@@ -240,7 +277,7 @@ public class GmStreamDecoder
 		}
 
 	/**
-	 * GMK Notice: since the first useful byte after the seed isn't encrypted,
+	 * GM7 Notice: since the first useful byte after the seed isn't encrypted,
 	 * you may wish to delay setting the seed until that byte is retrieved,
 	 * as implemented such functionality into these lower-level routines would add overhead
 	 */
