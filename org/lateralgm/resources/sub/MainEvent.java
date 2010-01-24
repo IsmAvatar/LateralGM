@@ -10,8 +10,6 @@ package org.lateralgm.resources.sub;
 
 import java.util.ArrayList;
 
-import org.lateralgm.messages.Messages;
-
 public class MainEvent
 	{
 	public static final byte EV_CREATE = 0;

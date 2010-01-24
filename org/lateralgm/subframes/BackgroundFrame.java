@@ -15,10 +15,8 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -50,9 +48,9 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
+import org.lateralgm.ui.swing.util.SwingExecutor;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
-import org.lateralgm.ui.swing.util.SwingExecutor;
 
 public class BackgroundFrame extends ResourceFrame<Background,PBackground> implements
 		UpdateListener
