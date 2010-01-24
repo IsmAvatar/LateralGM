@@ -39,7 +39,8 @@ public class MapComparator extends ReflectionComparator
 
 	public boolean canHandle(Object left, Object right)
 		{
-		return (left != null && right != null) && (left instanceof Map<?,?> && right instanceof Map<?,?>);
+		return (left != null && right != null)
+				&& (left instanceof Map<?,?> && right instanceof Map<?,?>);
 		}
 
 	protected Difference doGetDifference(Object left, Object right, Stack<String> fieldStack,

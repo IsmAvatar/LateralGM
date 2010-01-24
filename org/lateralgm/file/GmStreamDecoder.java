@@ -285,9 +285,7 @@ public class GmStreamDecoder extends StreamDecoder
 	 */
 	protected String getPosString()
 		{
-		if (originalPos != -1)
-			return originalPos + "[" + pos + "]";
-		else
-			return Integer.toString(pos);
+		if (originalPos != -1) return originalPos + "[" + pos + "]";
+		return Integer.toString(pos);
 		}
 	}

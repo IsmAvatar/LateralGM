@@ -41,7 +41,7 @@ public abstract class AbstractImagePreview extends JLabel
 		else
 			setPreferredSize(new Dimension(0,0));
 		}
-	
+
 	public void setImage(BufferedImage bi)
 		{
 		if (bi == null)

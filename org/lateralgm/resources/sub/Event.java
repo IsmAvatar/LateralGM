@@ -152,7 +152,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 					name = obj.getName();
 				return Messages.format("Event.EVENT4_X",name); //$NON-NLS-1$
 			default:
-				return eventName(mainId,id); 
+				return eventName(mainId,id);
 			}
 		}
 
