@@ -21,10 +21,6 @@
 
 package org.lateralgm.file;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -111,6 +107,7 @@ public class GmFile implements UpdateListener
 	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class,this);
 	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class,this);
 
+	public int fileVersion = 600;
 	public String filename = null;
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
@@ -133,7 +130,6 @@ public class GmFile implements UpdateListener
 			rl.updateSource.addListener(this);
 			}
 		gameSettings.gameId = new Random().nextInt(100000001);
-		gameSettings.gameIconData = new byte[0];
 		try
 			{
 			String loc = "org/lateralgm/file/default.ico";
@@ -143,23 +139,10 @@ public class GmFile implements UpdateListener
 				filein = LGM.class.getClassLoader().getResourceAsStream(loc);
 			else
 				filein = new FileInputStream(file);
-
-			BufferedInputStream in = new BufferedInputStream(filein);
-			ByteArrayOutputStream dat = new ByteArrayOutputStream();
-
-			int val = in.read();
-			while (val != -1)
-				{
-				dat.write(val);
-				val = in.read();
-				}
-			gameSettings.gameIconData = dat.toByteArray();
-			gameSettings.gameIcon = (BufferedImage) new ICOFile(new ByteArrayInputStream(
-					gameSettings.gameIconData)).getDescriptor(0).getImageRGB();
+			gameSettings.gameIcon = new ICOFile(filein);
 			}
 		catch (Exception ex)
 			{
-			gameSettings.gameIconData = new byte[0];
 			System.err.println(Messages.getString("GmFile.NOICON")); //$NON-NLS-1$
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();

@@ -11,10 +11,8 @@ package org.lateralgm.file;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
-import java.util.zip.ZipException;
 
 /**
  * This class implements a stream filter for uncompressing data in the
@@ -105,5 +103,10 @@ public class LimitedInflaterInputStream extends InflaterInputStream
 		if (len == -1) throw new EOFException("Unexpected end of ZLIB input stream");
 		limit -= len;
 		inf.setInput(buf,0,len);
+		}
+
+	public long getLimit()
+		{
+		return limit;
 		}
 	}

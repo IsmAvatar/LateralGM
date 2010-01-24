@@ -1,6 +1,7 @@
 package org.lateralgm.file.iconio;
 
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.Locale;
 
 import javax.imageio.ImageReader;
@@ -30,20 +31,25 @@ public class ICOImageReaderSPI extends ImageReaderSpi
 		{
 		if (pSource instanceof ImageInputStream)
 			{
-			ImageInputStreamDecoder in = new ImageInputStreamDecoder((ImageInputStream) pSource);
-			in.setEndianess(AbstractDecoder.LITTLE_ENDIAN);
+			ImageInputStream in = (ImageInputStream) pSource;
+			ByteOrder order = in.getByteOrder();
+			in.setByteOrder(ByteOrder.LITTLE_ENDIAN);
 			try
 				{
 				in.mark();
-				int res = in.readUInt2();
-				int type = in.readUInt2();
+				int res = in.readShort();
+				int type = in.readShort();
 				in.reset();
-				if (res == 0 && type == 1) return true;
+				if (res == 0 && type == 1)
+					{
+					return true;
+					}
 				}
 			catch (IOException e)
 				{
 				e.printStackTrace();
 				}
+			in.setByteOrder(order);
 			}
 		return false;
 		}

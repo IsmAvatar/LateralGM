@@ -14,6 +14,7 @@ import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
@@ -67,6 +68,7 @@ public final class GmFileWriter
 
 	public static void writeGmFile(GmFile f, ResNode root) throws IOException
 		{
+		f.fileVersion = 600; //for now, we're always writing gm6 (only thing that checks this so far is the icon)
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = null;
 		out = new GmStreamEncoder(f.filename);
@@ -171,8 +173,15 @@ public final class GmFileWriter
 		out.writeBool(g.imagePartiallyTransparent);
 		out.write4(g.loadImageAlpha);
 		out.writeBool(g.scaleProgressBar);
-		out.write4(g.gameIconData.length);
-		out.write(g.gameIconData);
+
+		Util.fixIcon(g.gameIcon,f.fileVersion);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		StreamEncoder se = new StreamEncoder(baos);
+		g.gameIcon.write(se);
+		se.flush();
+		out.write4(baos.size());
+		baos.writeTo(out);
+
 		out.writeBool(g.displayErrors);
 		out.writeBool(g.writeToLog);
 		out.writeBool(g.abortOnError);

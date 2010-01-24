@@ -46,6 +46,8 @@ import javax.swing.SwingUtilities;
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.visual.FileChooserImagePreview;
+import org.lateralgm.file.iconio.BitmapDescriptor;
+import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.file.iconio.ICOImageReaderSPI;
 import org.lateralgm.file.iconio.WBMPImageReaderSpiFix;
 import org.lateralgm.jedit.SyntaxStyle;
@@ -338,6 +340,61 @@ public final class Util
 				}
 			for (Runnable r : q)
 				r.run();
+			}
+		}
+
+	/**
+	 * Makes an icon suitable for embedding into a GM runner
+	 * of the given version. Before the compilation process was improved,
+	 * the icon was written by overwriting a placeholder of fixed size.
+	 * Any icon greater than this size (32x32@32bpp) will usually overflow
+	 * onto the resource table of the exe, causing a crash. If required,
+	 * this function will do its best to choose the image with the best resolution
+	 * and colour depth possible, discarding all the other images.
+	 * 
+	 * @param ico the icon to (possibly) modify
+	 * @param ver the version to make the icon suitable for
+	 */
+	public static void fixIcon(ICOFile ico, int ver)
+		{
+		//Preference weighting:
+		//32x32 = 3, 16x16 = 1, anything else = -9
+		//32bpp = 3, 24bpp = 2, 8bpp = 1, >0 bpp = 0, anything else = -9
+		if (ver < 800)
+			{
+			byte[] weights = new byte[ico.getImageCount()];
+			int i = 0;
+			for (BitmapDescriptor bmd : ico.getDescriptors())
+				{
+				int width = bmd.getWidth();
+				if (width == 32)
+					weights[i] += 3;
+				else if (width == 16)
+					weights[i]++;
+				else
+					weights[i] -= 9;
+
+				int bpp = bmd.getBPP();
+				if (bpp == 32) weights[i] += 3;
+				if (bpp == 24) weights[i] += 2;
+				if (bpp == 8)
+					weights[i]++;
+				else if (bpp <= 0) weights[i] -= 9;
+
+				i++;
+				}
+
+			int maxind = 0;
+			int maxweight = 0;
+			for (i = 0; i < weights.length; i++)
+				if (weights[i] > maxweight)
+					{
+					maxweight = weights[i];
+					maxind = i;
+					}
+			BitmapDescriptor bmd = ico.getDescriptor(maxind);
+			ico.getDescriptors().clear();
+			ico.getDescriptors().add(bmd);
 			}
 		}
 	}

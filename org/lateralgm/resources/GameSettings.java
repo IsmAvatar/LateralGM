@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import org.lateralgm.file.GmFile;
+import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.resources.sub.Constant;
 
 public class GameSettings
@@ -87,9 +88,7 @@ public class GameSettings
 	public ArrayList<Constant> constants = new ArrayList<Constant>();
 	public ArrayList<Include> includes = new ArrayList<Include>();
 
-	//actual data is stored to be written on resave (no reason to re-encode)
-	public byte[] gameIconData;
-	public BufferedImage gameIcon; // icon as image for display purposes
+	public ICOFile gameIcon;
 
 	public static ArrayList<Constant> copyConstants(ArrayList<Constant> source)
 		{

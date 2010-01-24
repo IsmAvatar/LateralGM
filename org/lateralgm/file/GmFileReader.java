@@ -12,13 +12,9 @@ package org.lateralgm.file;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
-import java.util.zip.InflaterInputStream;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
@@ -90,7 +86,7 @@ public final class GmFileReader
 			this.objids = objids;
 			this.rmids = rmids;
 			}
-		
+
 		public GmFileContext copy()
 			{
 			return new GmFileContext(f,in,timeids,objids,rmids);
@@ -127,6 +123,7 @@ public final class GmFileReader
 				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_INVALID",fileName, //$NON-NLS-1$
 						identifier));
 			int ver = in.read4();
+			f.fileVersion = ver;
 			if (ver != 530 && ver != 600 && ver != 701 && ver != 800)
 				{
 				String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$ //$NON-NLS-2$
@@ -234,7 +231,7 @@ public final class GmFileReader
 			String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$
 			throw new GmFormatException(c.f,msg);
 			}
-		if (ver == 800) in = in.spawnInflater();
+		if (ver == 800) in.beginInflate();
 		g.startFullscreen = in.readBool();
 		if (ver >= 600) g.interpolate = in.readBool();
 		g.dontDrawBorder = in.readBool();
@@ -309,12 +306,11 @@ public final class GmFileReader
 		g.scaleProgressBar = in.readBool();
 
 		int length = in.read4();
-		g.gameIconData = new byte[length];
-		in.read(g.gameIconData,0,length);
+		byte[] data = new byte[length];
+		in.read(data,0,length);
 		try
 			{
-			ByteArrayInputStream bais = new ByteArrayInputStream(g.gameIconData);
-			g.gameIcon = (BufferedImage) new ICOFile(bais).getDescriptor(0).getImageRGB();
+			g.gameIcon = new ICOFile(data);
 			}
 		catch (Exception e)
 			{
@@ -369,7 +365,7 @@ public final class GmFileReader
 			g.overwriteExisting = in.readBool();
 			g.removeAtGameEnd = in.readBool();
 			}
-		in.finishInflater();
+		in.endInflate();
 		}
 
 	private static void readTriggers(GmFileContext c) throws IOException,GmFormatException
@@ -426,10 +422,11 @@ public final class GmFileReader
 		int noSounds = in.read4();
 		for (int i = 0; i < noSounds; i++)
 			{
-			if (ver == 800) in = in.spawnInflater();
+			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
 				f.sounds.lastId++;
+				in.endInflate();
 				continue;
 				}
 			Sound snd = f.sounds.add();
@@ -473,8 +470,8 @@ public final class GmFileReader
 				in.readD(snd.properties,PSound.VOLUME,PSound.PAN);
 				snd.put(PSound.PRELOAD,in.readBool());
 				}
+			in.endInflate();
 			}
-		in.finishInflater();
 		}
 
 	private static void readSprites(GmFileContext c) throws IOException,GmFormatException,
@@ -489,10 +486,11 @@ public final class GmFileReader
 		int noSprites = in.read4();
 		for (int i = 0; i < noSprites; i++)
 			{
-			if (ver == 800) in = in.spawnInflater();
+			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
 				f.sprites.lastId++;
+				in.endInflate();
 				continue;
 				}
 			Sprite spr = f.sprites.add();
@@ -544,8 +542,8 @@ public final class GmFileReader
 				spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
 				in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
 				}
+			in.endInflate();
 			}
-		in.finishInflater();
 		}
 
 	private static void readBackgrounds(GmFileContext c) throws IOException,GmFormatException,
@@ -559,10 +557,11 @@ public final class GmFileReader
 		int noBackgrounds = in.read4();
 		for (int i = 0; i < noBackgrounds; i++)
 			{
-			if (ver == 800) in = in.spawnInflater();
+			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
 				f.backgrounds.lastId++;
+				in.endInflate();
 				continue;
 				}
 			Background back = f.backgrounds.add();
@@ -605,8 +604,8 @@ public final class GmFileReader
 				int h = in.read4();
 				if (w != 0 && h != 0) back.setBackgroundImage(in.readBGRAImage(w,h));
 				}
+			in.endInflate();
 			}
-		in.finishInflater();
 		}
 
 	private static void readPaths(GmFileContext c) throws IOException,GmFormatException
@@ -620,17 +619,18 @@ public final class GmFileReader
 		int noPaths = in.read4();
 		for (int i = 0; i < noPaths; i++)
 			{
-			if (ver == 800) in = in.spawnInflater();
+			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
 				f.paths.lastId++;
+				in.endInflate();
 				continue;
 				}
 			Path path = f.paths.add();
 			path.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
-			ver = in.read4();
-			if (ver != 530) throw versionError(f,"IN","PATHS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			int ver2 = in.read4();
+			if (ver2 != 530) throw versionError(f,"IN","PATHS",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			in.readBool(path.properties,PPath.SMOOTH,PPath.CLOSED);
 			path.put(PPath.PRECISION,in.read4());
 			path.put(PPath.BACKGROUND_ROOM,c.rmids.get(in.read4()));
@@ -640,8 +640,8 @@ public final class GmFileReader
 				{
 				path.points.add(new PathPoint((int) in.readD(),(int) in.readD(),(int) in.readD()));
 				}
+			in.endInflate();
 			}
-		in.finishInflater();
 		}
 
 	private static void readScripts(GmFileContext c) throws IOException,GmFormatException
@@ -655,10 +655,11 @@ public final class GmFileReader
 		int noScripts = in.read4();
 		for (int i = 0; i < noScripts; i++)
 			{
-			if (ver == 800) in = in.spawnInflater();
+			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
 				f.scripts.lastId++;
+				in.endInflate();
 				continue;
 				}
 			Script scr = f.scripts.add();
@@ -666,9 +667,11 @@ public final class GmFileReader
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
 			if (ver != 400 && ver != 800) throw versionError(f,"IN","SCRIPTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-			scr.put(PScript.CODE,in.readStr());
+			String code = in.readStr();
+			scr.put(PScript.CODE,code);
+
+			in.endInflate();
 			}
-		in.finishInflater();
 		}
 
 	private static void readFonts(GmFileContext c) throws IOException,GmFormatException
@@ -678,7 +681,8 @@ public final class GmFileReader
 		GameSettings g = f.gameSettings;
 
 		int ver = in.read4();
-		if (ver != 440 && ver != 540 && ver != 800) throw versionError(f,"BEFORE","FONTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 440 && ver != 540 && ver != 800)
+			throw versionError(f,"BEFORE","FONTS",(int) in.getPos()); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (ver == 440) //data files
 			{
@@ -702,10 +706,11 @@ public final class GmFileReader
 		int noFonts = in.read4();
 		for (int i = 0; i < noFonts; i++)
 			{
-			if (ver == 800) in = in.spawnInflater();
+			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
 				f.fonts.lastId++;
+				in.endInflate();
 				continue;
 				}
 			Font font = f.fonts.add();
@@ -717,8 +722,8 @@ public final class GmFileReader
 			font.put(PFont.SIZE,in.read4());
 			in.readBool(font.properties,PFont.BOLD,PFont.ITALIC);
 			in.read4(font.properties,PFont.RANGE_MIN,PFont.RANGE_MAX);
+			in.endInflate();
 			}
-		in.finishInflater();
 		}
 
 	private static void readTimelines(GmFileContext c) throws IOException,GmFormatException
@@ -732,15 +737,19 @@ public final class GmFileReader
 		int noTimelines = in.read4();
 		for (int i = 0; i < noTimelines; i++)
 			{
-			if (ver == 800) in = in.spawnInflater();
-			if (!in.readBool()) continue;
+			if (ver == 800) in.beginInflate();
+			if (!in.readBool())
+				{
+				in.endInflate();
+				continue;
+				}
 			ResourceReference<Timeline> r = c.timeids.get(i); //includes ID
 			Timeline time = r.get();
 			f.timelines.add(time);
 			time.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
-			ver = in.read4();
-			if (ver != 500) throw versionError(f,"IN","TIMELINES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			int ver2 = in.read4();
+			if (ver2 != 500) throw versionError(f,"IN","TIMELINES",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			int nomoms = in.read4();
 			for (int j = 0; j < nomoms; j++)
 				{
@@ -750,9 +759,9 @@ public final class GmFileReader
 				fc.in = in;
 				readActions(fc,mom,"INTIMELINEACTION",i,mom.stepNo); //$NON-NLS-1$
 				}
+			in.endInflate();
 			}
 		f.timelines.lastId = noTimelines;
-		in.finishInflater();
 		}
 
 	private static void readGmObjects(GmFileContext c) throws IOException,GmFormatException
@@ -766,15 +775,19 @@ public final class GmFileReader
 		int noGmObjects = in.read4();
 		for (int i = 0; i < noGmObjects; i++)
 			{
-			if (ver == 800) in = in.spawnInflater();
-			if (!in.readBool()) continue;
+			if (ver == 800) in.beginInflate();
+			if (!in.readBool())
+				{
+				in.endInflate();
+				continue;
+				}
 			ResourceReference<GmObject> r = c.objids.get(i); //includes ID
 			GmObject obj = r.get();
 			f.gmObjects.add(obj);
 			obj.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
-			ver = in.read4();
-			if (ver != 430) throw versionError(f,"IN","OBJECTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			int ver2 = in.read4();
+			if (ver2 != 430) throw versionError(f,"IN","OBJECTS",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.sprites.getUnsafe(in.read4());
 			if (temp != null) obj.put(PGmObject.SPRITE,temp.reference);
 			in.readBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
@@ -808,9 +821,9 @@ public final class GmFileReader
 						done = true;
 					}
 				}
+			in.endInflate();
 			}
 		f.gmObjects.lastId = noGmObjects;
-		in.finishInflater();
 		}
 
 	private static void readRooms(GmFileContext c) throws IOException,GmFormatException
@@ -824,15 +837,19 @@ public final class GmFileReader
 		int noRooms = in.read4();
 		for (int i = 0; i < noRooms; i++)
 			{
-			if (ver == 800) in = in.spawnInflater();
-			if (!in.readBool()) continue;
+			if (ver == 800) in.beginInflate();
+			if (!in.readBool())
+				{
+				in.endInflate();
+				continue;
+				}
 			ResourceReference<Room> r = c.rmids.get(i); //includes ID
 			Room rm = r.get();
 			f.rooms.add(rm);
 			rm.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
-			ver = in.read4();
-			if (ver != 520 && ver != 541) throw versionError(f,"IN","ROOMS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			int ver2 = in.read4();
+			if (ver2 != 520 && ver2 != 541) throw versionError(f,"IN","ROOMS",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			rm.put(PRoom.CAPTION,in.readStr());
 			in.read4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
 			rm.put(PRoom.ISOMETRIC,in.readBool());
@@ -858,10 +875,11 @@ public final class GmFileReader
 			for (int j = 0; j < noviews; j++)
 				{
 				View vw = rm.views.get(j);
-				vw.properties.put(PView.VISIBLE,in.readBool());
+				in.readBool(vw.properties,PView.VISIBLE);
+				//vw.properties.put(PView.VISIBLE,in.readBool());
 				in.read4(vw.properties,PView.VIEW_X,PView.VIEW_Y,PView.VIEW_W,PView.VIEW_H,PView.PORT_X,
 						PView.PORT_Y);
-				if (ver > 520) in.read4(vw.properties,PView.PORT_W,PView.PORT_H);
+				if (ver2 > 520) in.read4(vw.properties,PView.PORT_W,PView.PORT_H);
 				in.read4(vw.properties,PView.BORDER_H,PView.BORDER_V,PView.SPEED_H,PView.SPEED_V);
 				GmObject temp = f.gmObjects.getUnsafe(in.read4());
 				if (temp != null) vw.properties.put(PView.OBJECT,temp.reference);
@@ -898,11 +916,11 @@ public final class GmFileReader
 			in.readBool(rm.properties,PRoom.SHOW_GRID,PRoom.SHOW_OBJECTS,PRoom.SHOW_TILES,
 					PRoom.SHOW_BACKGROUNDS,PRoom.SHOW_FOREGROUNDS,PRoom.SHOW_VIEWS,
 					PRoom.DELETE_UNDERLYING_OBJECTS,PRoom.DELETE_UNDERLYING_TILES);
-			if (ver == 520) in.skip(6 * 4); //tile info
+			if (ver2 == 520) in.skip(6 * 4); //tile info
 			in.read4(rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
+			in.endInflate();
 			}
 		f.rooms.lastId = noRooms;
-		in.finishInflater();
 		}
 
 	private static void readIncludedFiles(GmFileContext c) throws IOException,GmFormatException
@@ -959,7 +977,7 @@ public final class GmFileReader
 		if (ver != 430 && ver != 600 && ver != 620 && ver != 800)
 			throw versionError(c.f,"BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
-		if (ver == 800) in = in.spawnInflater();
+		if (ver == 800) in.beginInflate();
 		int bc = in.read4();
 		if (bc >= 0) gameInfo.backgroundColor = Util.convertGmColor(bc);
 		if (ver < 800)
@@ -980,7 +998,7 @@ public final class GmFileReader
 			}
 		if (ver == 800) in.skip(8); //last changed
 		gameInfo.gameInfoStr = in.readStr();
-		in.finishInflater();
+		in.endInflate();
 		}
 
 	private static void readTree(GmFileContext c, ResNode root, int ver) throws IOException

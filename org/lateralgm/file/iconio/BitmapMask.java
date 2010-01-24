@@ -2,6 +2,8 @@ package org.lateralgm.file.iconio;
 
 import java.io.IOException;
 
+import org.lateralgm.file.StreamDecoder;
+
 /**
  * <p>
  * Transparency mask, which is a 1 Bit per pixel information whether a pixel is transparent (1) or
@@ -12,7 +14,7 @@ import java.io.IOException;
  */
 public class BitmapMask
 	{
-	private final BitmapIndexed1BPP mask;
+	protected final BitmapIndexed1BPP mask;
 
 	/**
 	 * @param pDescriptor
@@ -27,7 +29,7 @@ public class BitmapMask
 	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
-	void read(final AbstractDecoder pDec) throws IOException
+	void read(final StreamDecoder pDec) throws IOException
 		{
 		mask.readBitmap(pDec);
 		}

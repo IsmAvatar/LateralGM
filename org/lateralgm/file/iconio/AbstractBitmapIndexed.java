@@ -5,6 +5,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.IndexColorModel;
 import java.io.IOException;
 
+import org.lateralgm.file.StreamDecoder;
+import org.lateralgm.file.StreamEncoder;
+
 /**
  * <p>
  * Parent class for indexed bitmaps (1, 4, and 8 bits per pixel). The value of a pixel refers to an
@@ -28,8 +31,6 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 	/** The pixel values. The value refers to an entry in the color palette. */
 	protected int[] pixels;
 
-	private BitmapMask transparencyMask;
-
 	/**
 	 * Create a bitmap with a color table and a mask.
 	 * 
@@ -46,39 +47,14 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 	 * Needed to be replaced for indexed images because they contain a color palette and a mask which
 	 * needs to be read as well.
 	 * 
-	 * @param pDec The decoder.
+	 * @param in The decoder.
 	 * @throws IOException
 	 */
-	void read(final AbstractDecoder pDec) throws IOException
+	void read(final StreamDecoder in) throws IOException
 		{
-		readColorPalette(pDec);
-		readBitmap(pDec);
-		readMask(pDec);
-		}
-
-	/**
-	 * @param pDec The decoder.
-	 * @throws IOException
-	 */
-	private void readColorPalette(final AbstractDecoder pDec) throws IOException
-		{
-		final int lColorCount = getVerifiedColorCount();
-		colorPalette = new Color[lColorCount];
-		for (int lColorNo = 0; lColorNo < lColorCount; lColorNo++)
-			{
-			setColor(lColorNo,readColor(pDec));
-			}
-		}
-
-	private Color readColor(final AbstractDecoder pDec) throws IOException
-		{
-		final int lBlue = pDec.readUInt1();
-		final int lGreen = pDec.readUInt1();
-		final int lRed = pDec.readUInt1();
-		// "Reserved"
-		pDec.readUInt1();
-
-		return new Color(lRed,lGreen,lBlue);
+		readColorPalette(in);
+		readBitmap(in);
+		readMask(in);
 		}
 
 	/**
@@ -88,16 +64,31 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
-	abstract void readBitmap(final AbstractDecoder pDec) throws IOException;
+	abstract void readBitmap(final StreamDecoder pDec) throws IOException;
 
 	/**
-	 * @param pDec The decoder.
+	 * @param in The decoder.
 	 * @throws IOException
 	 */
-	private void readMask(final AbstractDecoder pDec) throws IOException
+	private void readColorPalette(final StreamDecoder in) throws IOException
 		{
-		transparencyMask = new BitmapMask(descriptor);
-		transparencyMask.read(pDec);
+		final int lColorCount = getVerifiedColorCount();
+		colorPalette = new Color[lColorCount];
+		for (int lColorNo = 0; lColorNo < lColorCount; lColorNo++)
+			{
+			setColor(lColorNo,readColor(in));
+			}
+		}
+
+	private Color readColor(final StreamDecoder in) throws IOException
+		{
+		final int lBlue = in.read();
+		final int lGreen = in.read();
+		final int lRed = in.read();
+		// "Reserved"
+		in.read();
+
+		return new Color(lRed,lGreen,lBlue);
 		}
 
 	/**
@@ -115,25 +106,6 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 			lColorCount = lColorCount2;
 			}
 		return lColorCount;
-		}
-
-	/**
-	 * Return bytes per scan line rounded up to the next 4 byte boundary.
-	 * 
-	 * @param pWidth The image width.
-	 * @param pBPP Bytes per pixel.
-	 * @return Bytes per scan line rounded up to the next 4 byte boundar.
-	 */
-	protected static int getBytesPerScanLine(final int pWidth, final int pBPP)
-		{
-		final double lBytesPerPixels = (double) pBPP / 8;
-		int lBytesPerScanLine = (int) Math.ceil(pWidth * lBytesPerPixels);
-		if ((lBytesPerScanLine & 0x03) != 0)
-			{
-			// Not on 4 byte boundary.
-			lBytesPerScanLine = (lBytesPerScanLine & ~0x03) + 4;
-			}
-		return lBytesPerScanLine;
 		}
 
 	/**
@@ -252,4 +224,25 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 		{
 		colorPalette[pIndex] = pColor;
 		}
+
+	void write(StreamEncoder out) throws IOException
+		{
+		writeColorPalette(out);
+		writeBitmap(out);
+		writeMask(out);
+		}
+
+	private void writeColorPalette(StreamEncoder out) throws IOException
+		{
+		for (Color c : colorPalette)
+			{
+			//bgr res
+			out.write(c.getBlue());
+			out.write(c.getGreen());
+			out.write(c.getRed());
+			out.write(0);//reserved
+			}
+		}
+
+	abstract void writeBitmap(StreamEncoder out) throws IOException;
 	}

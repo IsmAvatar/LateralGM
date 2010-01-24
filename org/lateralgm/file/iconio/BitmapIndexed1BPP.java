@@ -2,6 +2,9 @@ package org.lateralgm.file.iconio;
 
 import java.io.IOException;
 
+import org.lateralgm.file.StreamDecoder;
+import org.lateralgm.file.StreamEncoder;
+
 /**
  * <p>
  * Bitmap with 2 color palette (black and white icon). Not tested, but seems to work.
@@ -22,13 +25,14 @@ public class BitmapIndexed1BPP extends AbstractBitmapIndexed
 		super(pDescriptor);
 		}
 
-	void readBitmap(final AbstractDecoder pDec) throws IOException
+	void readBitmap(final StreamDecoder pDec) throws IOException
 		{
 		// One byte contains 8 samples.
 		final int lBytesPerScanLine = getBytesPerScanLine(getWidth(),1);
 		for (int lRowNo = 0; lRowNo < getHeight(); lRowNo++)
 			{
-			final byte[] lBitmapBytes = pDec.readBytes(lBytesPerScanLine,null);
+			final byte[] lBitmapBytes = new byte[lBytesPerScanLine];
+			pDec.read(lBitmapBytes);
 			int lBitmapByteNo = 0;
 			int lTestBitMask = 0x80;
 			int lPixelNo = (getHeight() - 1 - lRowNo) * getWidth();
@@ -49,6 +53,31 @@ public class BitmapIndexed1BPP extends AbstractBitmapIndexed
 					lTestBitMask >>= 1;
 					}
 				}
+			}
+		}
+
+	private void writeBits(StreamEncoder out, int offset, int count) throws IOException
+		{
+		int b = 0;
+		for (int i = count - 1; i >= 0; i--)
+			{
+			b |= pixels[offset + i] << (7 - i);
+			}
+		out.write(b);
+		}
+
+	void writeBitmap(StreamEncoder out) throws IOException
+		{
+		int width = getWidth();
+		int padding = getPaddingPerScanLine(width,1);
+		for (int row = getHeight() - 1; row >= 0; row--)
+			{
+			int offset = row * width;
+			for (int x = 0; x < width; x += 8)
+				writeBits(out,offset + x,Math.min(width - x,8));
+			int i = padding;
+			while (i-- > 0)
+				out.write(0);
 			}
 		}
 	}

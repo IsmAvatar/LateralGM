@@ -2,6 +2,9 @@ package org.lateralgm.file.iconio;
 
 import java.io.IOException;
 
+import org.lateralgm.file.StreamDecoder;
+import org.lateralgm.file.StreamEncoder;
+
 /**
  * <p>
  * Icon header. Describes the dimensions and properties of the icon.
@@ -13,20 +16,20 @@ import java.io.IOException;
 public class BitmapHeader
 	{
 	// Always 40
-	private final long headerSize;
-	private final long width;
+	private long headerSize;
+	private long width;
 	// Weird, but this includes the height of the mask (so often header.height =
 	// entry.height * 2
-	private final long height;
-	private final int planes;
-	private final int bpp;
-	private final TypeCompression compression;
+	private long height;
+	private int planes;
+	private int bpp;
+	private TypeCompression compression;
 	// Can be 0 when compression == 0 (b/c size can be calculated then ?!)
-	private final long imageSize;
-	private final long xPixelsPerM;
-	private final long yPixelsPerM;
-	private final long colorsUsed;
-	private final long colorsImportant;
+	private long imageSize;
+	private long xPixelsPerM;
+	private long yPixelsPerM;
+	private long colorsUsed;
+	private long colorsImportant;
 
 	/**
 	 * Create a header from decoded information.
@@ -35,21 +38,32 @@ public class BitmapHeader
 	 * @throws IOException
 	 */
 	// @PMD:REVIEWED:CallSuperInConstructor: by Chris on 06.03.06 10:26
-	public BitmapHeader(final AbstractDecoder pDec) throws IOException
+	public BitmapHeader(final StreamDecoder pDec) throws IOException
 		{
-		headerSize = pDec.readUInt4();
-		width = pDec.readUInt4();
-		height = pDec.readUInt4();
-		planes = pDec.readUInt2();
-		bpp = pDec.readUInt2();
+		pDec.mark(4);
+		headerSize = pDec.read4();
+		//0x89+PNG is the start of a png header
+		if (headerSize == 0x474E5089)
+			{
+			headerSize = -1;
+			compression = TypeCompression.BI_PNG;
+			pDec.reset();
+			}
+		else
+			{
+			width = pDec.read4();
+			height = pDec.read4();
+			planes = pDec.read2();
+			bpp = pDec.read2();
 
-		compression = TypeCompression.getType(pDec.readUInt4());
+			compression = TypeCompression.getType(pDec.read4());
 
-		imageSize = pDec.readUInt4();
-		xPixelsPerM = pDec.readUInt4();
-		yPixelsPerM = pDec.readUInt4();
-		colorsUsed = pDec.readUInt4();
-		colorsImportant = pDec.readUInt4();
+			imageSize = pDec.read4();
+			xPixelsPerM = pDec.read4();
+			yPixelsPerM = pDec.read4();
+			colorsUsed = pDec.read4();
+			colorsImportant = pDec.read4();
+			}
 		}
 
 	public String toString()
@@ -180,5 +194,22 @@ public class BitmapHeader
 	public int getColorCount()
 		{
 		return 1 << bpp;
+		}
+
+	void write(StreamEncoder out) throws IOException
+		{
+		out.write4((int) headerSize);
+		out.write4((int) width);
+		out.write4((int) height);
+		out.write2(planes);
+		out.write2(bpp);
+
+		out.write4(TypeCompression.BI_RGB.getValue());
+
+		out.write4((int) imageSize);
+		out.write4((int) xPixelsPerM);
+		out.write4((int) yPixelsPerM);
+		out.write4((int) colorsUsed);
+		out.write4((int) colorsImportant);
 		}
 	}

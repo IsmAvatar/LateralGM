@@ -24,6 +24,7 @@ public final class TypeCompression
 	/** Uncompressed (16 & 32 BPP only). */
 	public static final TypeCompression BI_BITFIELDS = new TypeCompression("BI_BITFIELDS",3,
 			"Uncompressed (16 & 32 BPP only)");
+	public static final TypeCompression BI_PNG = new TypeCompression("BI_PNG",-1,"PNG Compression");
 	static
 		{
 		TYPES = new HashMap<Long,TypeCompression>();
@@ -31,6 +32,7 @@ public final class TypeCompression
 		register(BI_RLE8);
 		register(BI_RLE4);
 		register(BI_BITFIELDS);
+		register(BI_PNG);
 		}
 	private final int value;
 	private final String name;

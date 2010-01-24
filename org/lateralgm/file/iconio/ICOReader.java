@@ -101,7 +101,7 @@ public class ICOReader extends ImageReader
 			{
 			try
 				{
-				icoFile = new ICOFile("[ImageInputStream]",new ImageInputStreamDecoder(stream));
+				icoFile = new ICOFile(new ImageInputStreamAdapter(stream));
 				}
 			catch (IOException e)
 				{

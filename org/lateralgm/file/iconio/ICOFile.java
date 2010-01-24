@@ -1,14 +1,18 @@
 package org.lateralgm.file.iconio;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.lateralgm.file.StreamDecoder;
+import org.lateralgm.file.StreamEncoder;
 
 /**
  * <p>
@@ -55,7 +59,7 @@ public class ICOFile implements Comparable<ICOFile>
 	/** Number of contained images. */
 	private int imageCount;
 	/**The <code>AbstractDecoder</code> provided or derived from the constructor*/
-	private AbstractDecoder decoder;
+	private StreamDecoder decoder;
 	private final List<BitmapDescriptor> descriptors = new ArrayList<BitmapDescriptor>();
 
 	/**
@@ -67,7 +71,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 */
 	public ICOFile(final String pFileName) throws IOException
 		{
-		this(pFileName,new StreamDecoder(new FileInputStream(pFileName)));
+		this(pFileName,new StreamDecoder(pFileName));
 		getDecoder().close();
 		}
 
@@ -115,7 +119,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @throws IOException If anything goes wrong with reading from the decoder.
 	 */
 	// @PMD:REVIEWED:CallSuperInConstructor: by Chris on 06.03.06 10:32
-	public ICOFile(final String pFileName, final AbstractDecoder pFileDecoder) throws IOException
+	public ICOFile(final String pFileName, final StreamDecoder pFileDecoder) throws IOException
 		{
 		fileName = pFileName;
 		decoder = pFileDecoder;
@@ -131,7 +135,7 @@ public class ICOFile implements Comparable<ICOFile>
 		{
 		final StringBuffer lSB = new StringBuffer(100);
 
-		lSB.append(fileName + ", type: " + type + ", image count: " + imageCount);
+		lSB.append(fileName + ", type: " + type + ", image count: " + getImageCount());
 		// Iterator lIt = _entries.iterator();
 		// while (lIt.hasNext())
 		// {
@@ -150,10 +154,8 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @param pDec Decoder to read from.
 	 * @throws IOException
 	 */
-	private void read(final AbstractDecoder pDec) throws IOException
+	private void read(final StreamDecoder pDec) throws IOException
 		{
-		pDec.setEndianess(StreamDecoder.LITTLE_ENDIAN);
-
 		readHeader(pDec);
 		final BitmapDescriptor[] lDescriptors = readDescriptors(pDec);
 		fillDescriptors(pDec,lDescriptors);
@@ -163,11 +165,11 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
-	private void readHeader(final AbstractDecoder pDec) throws IOException
+	private void readHeader(final StreamDecoder pDec) throws IOException
 		{
-		reserved = pDec.readUInt2();
-		type = pDec.readUInt2();
-		imageCount = pDec.readUInt2();
+		reserved = pDec.read2();
+		type = pDec.read2();
+		imageCount = pDec.read2();
 
 		if (type != 1)
 			{
@@ -185,7 +187,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
-	private void fillDescriptors(final AbstractDecoder pDec, final BitmapDescriptor[] pDescriptors)
+	private void fillDescriptors(final StreamDecoder pDec, final BitmapDescriptor[] pDescriptors)
 			throws IOException
 		{
 		for (final BitmapDescriptor lDescriptor : pDescriptors)
@@ -200,7 +202,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @param pDescriptor
 	 * @throws IOException
 	 */
-	private void fillDescriptor(final AbstractDecoder pDec, final BitmapDescriptor pDescriptor)
+	private void fillDescriptor(final StreamDecoder pDec, final BitmapDescriptor pDescriptor)
 			throws IOException
 		{
 		if (pDec.getPos() != pDescriptor.getOffset())
@@ -218,7 +220,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @return
 	 * @throws IOException
 	 */
-	private BitmapDescriptor[] readDescriptors(final AbstractDecoder pDec) throws IOException
+	private BitmapDescriptor[] readDescriptors(final StreamDecoder pDec) throws IOException
 		{
 		final BitmapDescriptor[] lEntries = new BitmapDescriptor[imageCount];
 		for (int lImageNo = 0; lImageNo < imageCount; lImageNo++)
@@ -233,7 +235,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @return
 	 * @throws IOException
 	 */
-	private BitmapDescriptor readDescriptor(final AbstractDecoder pDec) throws IOException
+	private BitmapDescriptor readDescriptor(final StreamDecoder pDec) throws IOException
 		{
 		return new BitmapDescriptor(pDec);
 		}
@@ -254,38 +256,41 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @return Bitmap, type depends on BPP
 	 * @throws IOException
 	 */
-	private AbstractBitmap readBitmap(final AbstractDecoder pDec, final BitmapDescriptor pDescriptor)
+	private AbstractBitmap readBitmap(final StreamDecoder pDec, final BitmapDescriptor pDescriptor)
 			throws IOException
 		{
 		final int lBitsPerPixel = pDescriptor.getHeader().getBPP();
 
 		AbstractBitmap lBitmap = null;
-		switch (lBitsPerPixel)
-			{
-			// Palette style
-			case 1:
-				lBitmap = new BitmapIndexed1BPP(pDescriptor);
-				break;
-			case 4:
-				lBitmap = new BitmapIndexed4BPP(pDescriptor);
-				break;
-			case 8:
-				lBitmap = new BitmapIndexed8BPP(pDescriptor);
-				break;
+		if (pDescriptor.getHeader().getCompression() == TypeCompression.BI_PNG)
+			lBitmap = new BitmapPNG(pDescriptor);
+		else
+			switch (lBitsPerPixel)
+				{
+				// Palette style
+				case 1:
+					lBitmap = new BitmapIndexed1BPP(pDescriptor);
+					break;
+				case 4:
+					lBitmap = new BitmapIndexed4BPP(pDescriptor);
+					break;
+				case 8:
+					lBitmap = new BitmapIndexed8BPP(pDescriptor);
+					break;
 
-			// RGB style
-			case 16:
-				return null;
-			case 24:
-				lBitmap = new BitmapRGB24BPP(pDescriptor);
-				break;
-			case 32:
-				lBitmap = new BitmapRGB32BPP(pDescriptor);
-				break;
+				// RGB style
+				case 16:
+					return null;
+				case 24:
+					lBitmap = new BitmapRGB24BPP(pDescriptor);
+					break;
+				case 32:
+					lBitmap = new BitmapRGB32BPP(pDescriptor);
+					break;
 
-			default:
-				throw new IllegalArgumentException("Unsupported bit count " + lBitsPerPixel);
-			}
+				default:
+					throw new IllegalArgumentException("Unsupported bit count " + lBitsPerPixel);
+				}
 		lBitmap.read(pDec);
 
 		return lBitmap;
@@ -349,7 +354,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 */
 	public int getImageCount()
 		{
-		return imageCount;
+		return descriptors == null ? imageCount : descriptors.size();
 		}
 
 	/**
@@ -368,9 +373,73 @@ public class ICOFile implements Comparable<ICOFile>
 		return reserved;
 		}
 
-	/**@return The <code>AbstractDecoder</code> provided or derived from the constructor*/
-	public AbstractDecoder getDecoder()
+	/**@return The <code>StreamDecoder</code> provided or derived from the constructor*/
+	public StreamDecoder getDecoder()
 		{
 		return decoder;
+		}
+
+	private final static int HEADER_SIZE = 6;
+	private final static int DESCRIPTOR_SIZE = 16;
+
+	public void write(StreamEncoder out) throws IOException
+		{
+		writeHeader(out);
+		byte[][] imageData = writeBitmaps(out);
+		int offset = HEADER_SIZE + DESCRIPTOR_SIZE * descriptors.size();
+		for (int i = 0; i < descriptors.size(); i++)
+			{
+			BitmapDescriptor bmd = descriptors.get(i);
+			bmd.setOffset(offset);
+			bmd.setSize(imageData[i].length);
+			offset += imageData[i].length;
+			}
+		writeDescriptors(out);
+		for (byte[] dat : imageData)
+			out.write(dat);
+		}
+
+	private void writeHeader(StreamEncoder out) throws IOException
+		{
+		out.write2(reserved);
+		out.write2(type);
+		out.write2(getImageCount());
+		}
+
+	private void writeDescriptors(StreamEncoder out) throws IOException
+		{
+		for (BitmapDescriptor bmd : descriptors)
+			bmd.write(out);
+		}
+
+	private byte[][] writeBitmaps(StreamEncoder out) throws IOException
+		{
+		byte[][] res = new byte[descriptors.size()][];
+		int i = 0;
+		for (BitmapDescriptor bmd : descriptors)
+			{
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			StreamEncoder o = new StreamEncoder(baos);
+			if (bmd.getBitmap() instanceof BitmapPNG)
+				{
+				BitmapPNG png = (BitmapPNG) bmd.getBitmap();
+				png.write(o);
+				}
+			else
+				{
+				bmd.getHeader().write(o);
+				bmd.getBitmap().write(o);
+				}
+			o.flush();
+			res[i] = baos.toByteArray();
+			o.close();
+			i++;
+			}
+		return res;
+		}
+
+	public Image getDisplayImage()
+		{
+		return descriptors.get(descriptors.size() - 1).getImageRGB();
 		}
 	}

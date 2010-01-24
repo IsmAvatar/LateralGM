@@ -19,8 +19,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -63,7 +61,6 @@ import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.file.GmStreamEncoder;
-import org.lateralgm.file.iconio.BitmapHeader;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -342,8 +339,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public BufferedImage frontLoadImage;
 	public JCheckBox scaleProgressBar;
 	public JLabel iconPreview;
-	public BufferedImage gameIcon;
-	public byte[] gameIconData;
+	public ICOFile gameIcon;
 	public JButton changeIcon;
 	public IntegerField gameId;
 	public JButton randomise;
@@ -436,9 +432,9 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		/**/.addComponent(scaleProgressBar));
 
 		gameIcon = g.gameIcon;
-		gameIconData = g.gameIconData;
 		iconPreview = new JLabel(Messages.getString("GameSettingFrame.GAME_ICON")); //$NON-NLS-1$
-		if (g.gameIcon != null) iconPreview.setIcon(new ImageIcon(gameIcon));
+		if (g.gameIcon != null) iconPreview.setIcon(new ImageIcon(gameIcon.getDisplayImage()));
+
 		iconPreview.setHorizontalTextPosition(SwingConstants.LEFT);
 		changeIcon = new JButton(Messages.getString("GameSettingFrame.CHANGE_ICON")); //$NON-NLS-1$
 		changeIcon.addActionListener(this);
@@ -953,51 +949,19 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			if (iconFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 				{
 				File f = iconFc.getSelectedFile();
-				if (f.exists())
-					try
-						{
-						BufferedInputStream in = new BufferedInputStream(new FileInputStream(f));
-
-						ICOFile i = new ICOFile(in);
-						if (i.getImageCount() != 1)
-							{
-							JOptionPane.showMessageDialog(LGM.frame,
-									Messages.getString("GameSettingFrame.INVALID_ICON"), //$NON-NLS-1$
-									Messages.getString("GameSettingFrame.TITLE_ERROR"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-							return;
-							}
-						BitmapHeader d = i.getDescriptor(0).getHeader();
-						if (d.getWidth() != 32 || d.getHeight() != 64)
-							{
-							JOptionPane.showMessageDialog(LGM.frame,
-									Messages.getString("GameSettingFrame.INVALID_ICON"), //$NON-NLS-1$
-									Messages.getString("GameSettingFrame.TITLE_ERROR"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-							return;
-							}
-
-						gameIcon = i.getDescriptor(0).getBitmap().createImageRGB();
-						iconPreview.setIcon(new ImageIcon(gameIcon));
-
-						//ICOFile closes the stream when it's done
-						in = new BufferedInputStream(new FileInputStream(f));
-						ByteArrayOutputStream dat = new ByteArrayOutputStream();
-
-						int val = in.read();
-						while (val != -1)
-							{
-							dat.write(val);
-							val = in.read();
-							}
-						gameIconData = dat.toByteArray();
-						}
-					catch (FileNotFoundException e1)
-						{
-						e1.printStackTrace();
-						}
-					catch (IOException ex)
-						{
-						ex.printStackTrace();
-						}
+				if (f.exists()) try
+					{
+					gameIcon = new ICOFile(new FileInputStream(f));
+					iconPreview.setIcon(new ImageIcon(gameIcon.getDisplayImage()));
+					}
+				catch (FileNotFoundException e1)
+					{
+					e1.printStackTrace();
+					}
+				catch (IOException ex)
+					{
+					ex.printStackTrace();
+					}
 				}
 			}
 		else if (e.getSource() == randomise)
@@ -1255,7 +1219,6 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		g.frontLoadBar = frontLoadImage;
 		g.scaleProgressBar = scaleProgressBar.isSelected();
 		g.gameIcon = gameIcon;
-		g.gameIconData = gameIconData;
 		g.gameId = gameId.getIntValue();
 
 		//Constants
@@ -1325,8 +1288,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		frontLoadImage = g.frontLoadBar;
 		scaleProgressBar.setSelected(g.scaleProgressBar);
 		gameIcon = g.gameIcon;
-		iconPreview.setIcon(gameIcon != null ? new ImageIcon(gameIcon) : null);
-		gameIconData = g.gameIconData;
+		iconPreview.setIcon(gameIcon != null ? new ImageIcon(gameIcon.getDisplayImage()) : null);
 		gameId.setIntValue(g.gameId);
 
 		//Constants

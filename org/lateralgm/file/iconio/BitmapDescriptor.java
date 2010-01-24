@@ -3,6 +3,9 @@ package org.lateralgm.file.iconio;
 import java.awt.Image;
 import java.io.IOException;
 
+import org.lateralgm.file.StreamDecoder;
+import org.lateralgm.file.StreamEncoder;
+
 /**
  * <p>
  * ICO file entry descriptor. Describes an embedded bitmap, and points to the header/bitmap pair. I
@@ -14,21 +17,21 @@ import java.io.IOException;
  */
 public class BitmapDescriptor
 	{
-	private final int width;
+	private int width;
 
-	private final int height;
+	private int height;
 
-	private final int colorCount;
+	private int colorCount;
 
-	private final int reserved;
+	private int reserved;
 
-	private final int planes;
+	private int planes;
 
-	private final int bpp;
+	private int bpp;
 
-	private final long size;
+	private long size;
 
-	private final long offset;
+	private long offset;
 
 	/** For convenience, not part of an entry: The header the entry refers to. */
 	private BitmapHeader header;
@@ -49,17 +52,17 @@ public class BitmapDescriptor
 	 * @throws IOException
 	 */
 	// @PMD:REVIEWED:CallSuperInConstructor: by Chris on 06.03.06 10:32
-	public BitmapDescriptor(final AbstractDecoder pDec) throws IOException
+	public BitmapDescriptor(final StreamDecoder pDec) throws IOException
 		{
-		width = pDec.readUInt1();
-		height = pDec.readUInt1();
-		colorCount = pDec.readUInt1();
+		width = pDec.read();
+		height = pDec.read();
+		colorCount = pDec.read();
 
-		reserved = pDec.readUInt1();
-		planes = pDec.readUInt2();
-		bpp = pDec.readUInt2();
-		size = pDec.readUInt4();
-		offset = pDec.readUInt4();
+		reserved = pDec.read();
+		planes = pDec.read2();
+		bpp = pDec.read2();
+		size = pDec.read4();
+		offset = pDec.read4();
 		}
 
 	/**
@@ -165,6 +168,11 @@ public class BitmapDescriptor
 		return offset;
 		}
 
+	public void setOffset(long offset)
+		{
+		this.offset = offset;
+		}
+
 	/**
 	 * Number of planes ("1" for bitmaps, as far as I know).
 	 * 
@@ -193,6 +201,11 @@ public class BitmapDescriptor
 	public long getSize()
 		{
 		return size;
+		}
+
+	public void setSize(long size)
+		{
+		this.size = size;
 		}
 
 	/**
@@ -246,5 +259,18 @@ public class BitmapDescriptor
 	void setBitmap(final AbstractBitmap pBitmap)
 		{
 		bitmap = pBitmap;
+		}
+
+	void write(StreamEncoder out) throws IOException
+		{
+		out.write(width);
+		out.write(height);
+		out.write(colorCount);
+
+		out.write(reserved);
+		out.write2(planes);
+		out.write2(bpp);
+		out.write4((int) size);
+		out.write4((int) offset);
 		}
 	}
