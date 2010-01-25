@@ -379,8 +379,8 @@ public class ICOFile implements Comparable<ICOFile>
 		return decoder;
 		}
 
-	private final static int HEADER_SIZE = 6;
-	private final static int DESCRIPTOR_SIZE = 16;
+	private static final int HEADER_SIZE = 6;
+	private static final int DESCRIPTOR_SIZE = 16;
 
 	public void write(StreamEncoder out) throws IOException
 		{

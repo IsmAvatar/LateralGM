@@ -240,7 +240,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 			out.write(c.getBlue());
 			out.write(c.getGreen());
 			out.write(c.getRed());
-			out.write(0);//reserved
+			out.write(0); //reserved
 			}
 		}
 
