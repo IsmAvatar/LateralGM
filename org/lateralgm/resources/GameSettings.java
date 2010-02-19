@@ -59,10 +59,13 @@ public class GameSettings
 	public byte frequency = GameSettings.FREQ_NOCHANGE;
 	public boolean dontShowButtons = false;
 	public boolean useSynchronization = false;
+	public boolean disableScreensavers = true;
 	public boolean letF4SwitchFullscreen = true;
 	public boolean letF1ShowGameInfo = true;
 	public boolean letEscEndGame = true;
 	public boolean letF5SaveF6Load = true;
+	public boolean letF9Screenshot = true;
+	public boolean treatCloseAsEscape = true;
 	public byte gamePriority = GameSettings.PRIORITY_NORMAL;
 	public boolean freezeOnLoseFocus = false;
 	public byte loadBarMode = GameSettings.LOADBAR_DEFAULT;
@@ -84,6 +87,15 @@ public class GameSettings
 	public int includeFolder = GameSettings.INCLUDE_MAIN;
 	public boolean overwriteExisting = false;
 	public boolean removeAtGameEnd = false;
+
+	public int versionMajor = 1;
+	public int versionMinor = 0;
+	public int versionRelease = 0;
+	public int versionBuild = 0;
+	public String company = "";
+	public String product = "";
+	public String copyright = "";
+	public String description = "";
 
 	public ArrayList<Constant> constants = new ArrayList<Constant>();
 	public ArrayList<Include> includes = new ArrayList<Include>();

@@ -268,13 +268,17 @@ public final class GmFileReader
 			}
 		g.dontShowButtons = in.readBool();
 		if (ver > 530) g.useSynchronization = in.readBool();
-		if (ver >= 800) in.skip(4); //disable screensavers
+		if (ver >= 800) g.disableScreensavers = in.readBool();
 		g.letF4SwitchFullscreen = in.readBool();
 		g.letF1ShowGameInfo = in.readBool();
 		g.letEscEndGame = in.readBool();
 		g.letF5SaveF6Load = in.readBool();
 		if (ver == 530) in.skip(8); //unknown bytes, both 0
-		if (ver > 600) in.skip(8); //Treat close as esc, F9 screenshot
+		if (ver > 600)
+			{
+			g.letF9Screenshot = in.readBool();
+			g.treatCloseAsEscape = in.readBool();
+			}
 		g.gamePriority = (byte) in.read4();
 		g.freezeOnLoseFocus = in.readBool();
 		g.loadBarMode = (byte) in.read4();
@@ -342,14 +346,15 @@ public final class GmFileReader
 			}
 		if (ver > 600)
 			{
-			in.skip(4); //Major
-			in.skip(4); //Minor
-			in.skip(4); //Release
-			in.skip(4); //Build
-			in.skip(in.read4()); //Company
-			in.skip(in.read4()); //Product
-			in.skip(in.read4()); //Copyright
-			in.skip(in.read4()); //Description
+			g.versionMajor = in.read4();
+			g.versionMinor = in.read4();
+			g.versionRelease = in.read4();
+			g.versionBuild = in.read4();
+			g.company = in.readStr();
+			g.product = in.readStr();
+			g.copyright = in.readStr();
+			g.description = in.readStr();
+
 			if (ver >= 800) in.skip(8); //last changed
 			}
 		else if (ver > 530)
