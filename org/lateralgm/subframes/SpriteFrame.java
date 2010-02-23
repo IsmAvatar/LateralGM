@@ -90,6 +90,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 	public JRadioButton auto, full, manual;
 
 	//properties
+	public JRadioButton rect, prec, disk, diam;
 	public JCheckBox preciseCC, smooth, preload;
 	public JLabel subCount, width, height;
 
@@ -126,6 +127,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		JTabbedPane tabs = new JTabbedPane();
 		tabs.addTab(Messages.getString("SpriteFrame.PROPERTIES"),makePropertiesPane()); //$NON-NLS-1$
+		tabs.addTab(Messages.getString("SpriteFrame.MASK"),makeMaskPane()); //$NON-NLS-1$
 		tabs.addTab(Messages.getString("SpriteFrame.SUBIMAGES"),makeSubimagesPane()); //$NON-NLS-1$
 
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,tabs,makePreviewPane());
@@ -212,6 +214,39 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		/**/.addGap(8)
 		/**/.addComponent(centre)
 		/**/.addGap(8));
+
+		return pane;
+		}
+
+	private JPanel makeCollisionPane()
+		{
+		JPanel pane = new JPanel();
+		GroupLayout bLayout = new GroupLayout(pane);
+		pane.setLayout(bLayout);
+		pane.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.COLLISION"))); //$NON-NLS-1$
+
+		ButtonGroup g = new ButtonGroup();
+		prec = new JRadioButton(Messages.getString("SpriteFrame.PRECISE")); //$NON-NLS-1$
+		g.add(prec);
+		rect = new JRadioButton(Messages.getString("SpriteFrame.RECTANGLE")); //$NON-NLS-1$
+		g.add(rect);
+		disk = new JRadioButton(Messages.getString("SpriteFrame.DISK")); //$NON-NLS-1$
+		g.add(disk);
+		diam = new JRadioButton(Messages.getString("SpriteFrame.DIAMOND")); //$NON-NLS-1$
+		g.add(diam);
+		plf.make(g,PSprite.SHAPE,Sprite.MaskShape.class);
+
+		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
+		/**/.addComponent(prec)
+		/**/.addComponent(rect)
+		/**/.addComponent(disk)
+		/**/.addComponent(diam));
+
+		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
+		/**/.addComponent(prec)
+		/**/.addComponent(rect)
+		/**/.addComponent(disk)
+		/**/.addComponent(diam));
 
 		return pane;
 		}
@@ -310,40 +345,56 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		pane.setLayout(layout);
 
-		preciseCC = new JCheckBox(Messages.getString("SpriteFrame.PRECISE_CC")); //$NON-NLS-1$
-		plf.make(preciseCC,PSprite.PRECISE);
-		smooth = new JCheckBox(Messages.getString("SpriteFrame.SMOOTH")); //$NON-NLS-1$
-		plf.make(smooth,PSprite.SMOOTH_EDGES);
-		preload = new JCheckBox(Messages.getString("SpriteFrame.PRELOAD")); //$NON-NLS-1$
-		plf.make(preload,PSprite.PRELOAD);
 		subCount = new JLabel();
 		width = new JLabel();
 		height = new JLabel();
 
+		smooth = new JCheckBox(Messages.getString("SpriteFrame.SMOOTH")); //$NON-NLS-1$
+		plf.make(smooth,PSprite.SMOOTH_EDGES);
+		preload = new JCheckBox(Messages.getString("SpriteFrame.PRELOAD")); //$NON-NLS-1$
+		plf.make(preload,PSprite.PRELOAD);
+
 		JPanel origin = makeOriginPane();
-		JPanel bbox = makeBBoxPane();
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(preciseCC)
-		/**/.addComponent(smooth)
-		/**/.addComponent(preload)
 		/**/.addComponent(subCount,Alignment.CENTER)
 		/**/.addGroup(Alignment.CENTER,layout.createSequentialGroup()
 		/*	*/.addComponent(width)
 		/*	*/.addGap(12)
 		/*	*/.addComponent(height))
-		/**/.addComponent(origin)
-		/**/.addComponent(bbox));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(preciseCC)
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
+		/**/.addComponent(origin));
+		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(subCount)
 		/**/.addGap(4)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(width)
 		/*	*/.addComponent(height))
-		/**/.addComponent(origin)
+		/**/.addComponent(smooth)
+		/**/.addComponent(preload)
+		/**/.addComponent(origin));
+
+		return pane;
+		}
+
+	private JPanel makeMaskPane()
+		{
+		JPanel pane = new JPanel();
+		GroupLayout layout = new GroupLayout(pane);
+		layout.setAutoCreateContainerGaps(true);
+
+		pane.setLayout(layout);
+
+		JPanel coll = makeCollisionPane();
+		JPanel bbox = makeBBoxPane();
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(coll)
+		/**/.addComponent(bbox));
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(coll)
 		/**/.addComponent(bbox));
 
 		return pane;

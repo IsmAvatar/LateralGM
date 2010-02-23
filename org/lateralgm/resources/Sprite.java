@@ -37,16 +37,21 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 		AUTO,FULL,MANUAL
 		}
 
+	public enum MaskShape
+		{
+		PRECISE,RECTANGLE,DISK,DIAMOND
+		}
+
 	public final ImageList subImages = new ImageList();
 
 	public enum PSprite
 		{
-		TRANSPARENT,PRECISE,SMOOTH_EDGES,PRELOAD,ORIGIN_X,ORIGIN_Y,BB_MODE,BB_LEFT,BB_RIGHT,BB_TOP,
+		TRANSPARENT,SHAPE,ALPHA_TOLERANCE,SEPARATE_MASK,SMOOTH_EDGES,PRELOAD,ORIGIN_X,ORIGIN_Y,BB_MODE,BB_LEFT,BB_RIGHT,BB_TOP,
 		BB_BOTTOM
 		}
 
 	private static final EnumMap<PSprite,Object> DEFS = PropertyMap.makeDefaultMap(PSprite.class,
-			true,true,false,true,0,0,BBMode.AUTO,0,31,0,31);
+			true,MaskShape.PRECISE,0,false,false,true,0,0,BBMode.AUTO,0,31,0,31);
 
 	private SoftReference<BufferedImage> imageCache = null;
 

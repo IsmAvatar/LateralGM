@@ -267,7 +267,7 @@ public final class GmFileWriter
 						PSprite.BB_TOP);
 				out.writeBool(spr.properties,PSprite.TRANSPARENT,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
 				out.write4(GmFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)));
-				out.writeBool(spr.properties,PSprite.PRECISE);
+				out.writeBool(spr.get(PSprite.SHAPE) == Sprite.MaskShape.PRECISE);
 				out.write4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
 				out.write4(spr.subImages.size());
 				for (int j = 0; j < spr.subImages.size(); j++)

@@ -514,7 +514,7 @@ public final class GmFileReader
 					in.readBool(spr.properties,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
 					}
 				spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
-				spr.put(PSprite.PRECISE,in.readBool());
+				spr.put(PSprite.SHAPE,in.readBool() ? Sprite.MaskShape.PRECISE : Sprite.MaskShape.RECTANGLE);
 				if (ver == 400)
 					{
 					in.skip(4); //use video memory
@@ -541,9 +541,9 @@ public final class GmFileReader
 					int h = in.read4();
 					if (w != 0 && h != 0) spr.addSubImage(in.readBGRAImage(w,h));
 					}
-				int shape = in.read4();
-				spr.put(PSprite.PRECISE,shape != 1); //Shape (0*=Precise, 1=Rectangle,  2=Disk, 3=Diamond)
-				in.skip(8); //Alpha Tolerance and Separate Collision Masks
+				spr.put(PSprite.SHAPE,GmFile.SPRITE_MASK_SHAPE[in.read4()]);
+				spr.put(PSprite.ALPHA_TOLERANCE,in.read4());
+				spr.put(PSprite.SEPARATE_MASK,in.readBool());
 				spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
 				in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
 				}
