@@ -1,10 +1,12 @@
 /*
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
+ * Copyright (C) 2010 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
  */
+
 package org.lateralgm.resources;
 
 import java.awt.Color;
@@ -14,6 +16,7 @@ import java.util.ArrayList;
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.resources.sub.Constant;
+import org.lateralgm.resources.sub.Trigger;
 
 public class GameSettings
 	{
@@ -97,6 +100,7 @@ public class GameSettings
 	public String copyright = "";
 	public String description = "";
 
+	public ArrayList<Trigger> triggers = new ArrayList<Trigger>();
 	public ArrayList<Constant> constants = new ArrayList<Constant>();
 	public ArrayList<Include> includes = new ArrayList<Include>();
 

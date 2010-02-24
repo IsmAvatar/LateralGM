@@ -56,6 +56,7 @@ import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.Trigger;
 import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance.PInstance;
@@ -389,9 +390,12 @@ public final class GmFileReader
 			{
 			ver = in.read4();
 			if (ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
-			in.skip(in.read4());
-			in.skip(in.read4() + 4);
-			in.skip(in.read4());
+			Trigger trig = new Trigger();
+			f.gameSettings.triggers.add(trig);
+			trig.name = in.readStr();
+			trig.condition = in.readStr();
+			trig.checkStep = in.read4();
+			trig.constant = in.readStr();
 			}
 		in.skip(8); //last changed
 		}
@@ -408,7 +412,7 @@ public final class GmFileReader
 		for (int i = 0; i < no; i++)
 			{
 			Constant con = new Constant();
-			c.f.gameSettings.constants.add(con);
+			f.gameSettings.constants.add(con);
 			con.name = in.readStr();
 			con.value = in.readStr();
 			}
