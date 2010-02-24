@@ -711,8 +711,19 @@ public final class GmFileReader
 				Include inc = new Include();
 				g.includes.add(inc);
 				inc.filepath = in.readStr();
-				if (in.readBool()) in.skip(in.read4());
-				in.skip(16);
+				inc.filename = new File(inc.filepath).getName();
+				if (in.readBool()) //file data exists?
+					{
+					inc.size = in.read4();
+					inc.data = new byte[inc.size];
+					in.read(inc.data,0,inc.size);
+					}
+				inc.export = in.read4();
+				//FIXME: Deal with Font Includes
+				//if (inc.export == 3) inc.exportFolder = Font Folder?
+				inc.overwriteExisting = in.readBool();
+				inc.freeMemAfterExport = in.readBool();
+				inc.removeAtGameEnd = in.readBool();
 				}
 			return;
 			}
