@@ -207,7 +207,7 @@ public final class GmFileWriter
 			}
 		out.write4(g.includes.size());
 		for (Include inc : g.includes)
-			out.writeStr(inc.filePath);
+			out.writeStr(inc.filepath);
 		out.write4(g.includeFolder);
 		out.writeBool(g.overwriteExisting);
 		out.writeBool(g.removeAtGameEnd);

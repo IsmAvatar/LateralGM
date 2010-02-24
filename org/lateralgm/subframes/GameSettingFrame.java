@@ -1062,7 +1062,11 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 				{
 				File[] f = includesFc.getSelectedFiles();
 				for (File file : f)
-					iModel.addElement(new Include(file.getAbsolutePath()));
+					{
+					Include inc = new Include();
+					inc.filepath = file.getAbsolutePath();
+					iModel.addElement(inc);
+					}
 				}
 			return;
 			}

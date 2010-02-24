@@ -12,6 +12,7 @@ package org.lateralgm.file;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.io.File;
 import java.io.IOException;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
@@ -365,11 +366,18 @@ public final class GmFileReader
 				{
 				Include inc = new Include();
 				g.includes.add(inc);
-				inc.filePath = in.readStr();
+				inc.filepath = in.readStr();
+				inc.filename = new File(inc.filepath).getName();
 				}
-			g.includeFolder = in.read4();
+			g.includeFolder = in.read4(); //0 = main, 1 = temp
 			g.overwriteExisting = in.readBool();
 			g.removeAtGameEnd = in.readBool();
+			for (Include inc : g.includes)
+				{
+				inc.export = g.includeFolder == 1 ? 1 : 2; //1 = temp, 2 = main
+				inc.overwriteExisting = g.overwriteExisting;
+				inc.removeAtGameEnd = g.removeAtGameEnd;
+				}
 			}
 		in.endInflate();
 		}
@@ -383,9 +391,6 @@ public final class GmFileReader
 		if (ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int no = in.read4();
-		if (no > 0)
-			System.out.println("LateralGM does not support triggers at this time,"
-					+ " and may report that your game is corrupt.");
 		for (int i = 0; i < no; i++)
 			{
 			ver = in.read4();
@@ -705,7 +710,7 @@ public final class GmFileReader
 							Messages.getString("GmFileReader.INDATAFILES"),ver)); //$NON-NLS-1$
 				Include inc = new Include();
 				g.includes.add(inc);
-				inc.filePath = in.readStr();
+				inc.filepath = in.readStr();
 				if (in.readBool()) in.skip(in.read4());
 				in.skip(16);
 				}
@@ -950,15 +955,22 @@ public final class GmFileReader
 				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("GmFileReader.INGM7INCLUDES"),ver)); //$NON-NLS-1$
 			Include inc = new Include();
-			in.skip(in.read4()); //Filename
-			inc.filePath = in.readStr();
-			in.skip(4); //orig file chosen
-			in.skip(4); //orig file size
-			if (in.readBool()) in.skip(in.read4()); //Store in editable
-			in.skip(4); //export
-			in.skip(in.read4()); //folder to export to
-			in.skip(12); //overwrite if exists, free mem, remove at game end
 			f.gameSettings.includes.add(inc);
+			inc.filename = in.readStr();
+			inc.filepath = in.readStr();
+			inc.isOriginal = in.readBool();
+			inc.size = in.read4();
+			if (in.readBool()) //store in editable?
+				{
+				int s = in.read4();
+				inc.data = new byte[s];
+				in.read(inc.data,0,s);
+				}
+			inc.export = in.read4();
+			inc.exportFolder = in.readStr();
+			inc.overwriteExisting = in.readBool();
+			inc.freeMemAfterExport = in.readBool();
+			inc.removeAtGameEnd = in.readBool();
 			}
 		}
 
