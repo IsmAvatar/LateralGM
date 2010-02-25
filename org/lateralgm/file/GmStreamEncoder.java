@@ -69,8 +69,7 @@ public class GmStreamEncoder extends StreamEncoder
 
 	public void write(int b) throws IOException
 		{
-		if (table != null)
-			b = table[b + pos] & 0xFF;
+		if (table != null) b = table[b + pos] & 0xFF;
 		out.write(b);
 		pos++;
 		}

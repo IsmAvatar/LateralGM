@@ -118,6 +118,7 @@ public class GmFile implements UpdateListener
 	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class,this);
 	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class,this);
 
+	/** One of 530, 600, 701, or 800 */
 	public int fileVersion = 600;
 	public String filename = null;
 

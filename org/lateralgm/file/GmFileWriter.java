@@ -132,10 +132,12 @@ public final class GmFileWriter
 	public static void writeSettings(GmFile f, GmStreamEncoder out, long savetime) throws IOException
 		{
 		GameSettings g = f.gameSettings;
-		out.write4(600);
-
+		int ver = f.fileVersion = 600; //for now, we're always writing gm6
+		if (ver == 701) ver = 702;
+		out.write4(ver);
+		
 		out.writeBool(g.startFullscreen);
-		out.writeBool(g.interpolate);
+		if (ver >= 600) out.writeBool(g.interpolate);
 		out.writeBool(g.dontDrawBorder);
 		out.writeBool(g.displayCursor);
 		out.write4(g.scaling);
@@ -148,10 +150,16 @@ public final class GmFileWriter
 		out.write4(g.frequency);
 		out.writeBool(g.dontShowButtons);
 		out.writeBool(g.useSynchronization);
+		if (ver >= 800) out.writeBool(g.disableScreensavers);
 		out.writeBool(g.letF4SwitchFullscreen);
 		out.writeBool(g.letF1ShowGameInfo);
 		out.writeBool(g.letEscEndGame);
 		out.writeBool(g.letF5SaveF6Load);
+		if (ver >= 702)
+			{
+			out.writeBool(g.letF9Screenshot);
+			out.writeBool(g.treatCloseAsEscape);
+			}
 		out.write4(g.gamePriority);
 		out.writeBool(g.freezeOnLoseFocus);
 		out.write4(g.loadBarMode);
@@ -159,34 +167,35 @@ public final class GmFileWriter
 			{
 			if (g.backLoadBar != null)
 				{
-				out.write4(10);
+				out.write4(ver < 800 ? 10 : 1);
 				out.writeZlibImage(g.backLoadBar);
 				}
 			else
-				out.write4(-1);
+				out.write4(ver < 800 ? -1 : 0);
 			if (g.frontLoadBar != null)
 				{
-				out.write4(10);
+				out.write4(ver < 800 ? 10 : 1);
 				out.writeZlibImage(g.frontLoadBar);
 				}
 			else
-				out.write4(-1);
+				out.write4(ver < 800 ? -1 : 0);
 			}
 		out.writeBool(g.showCustomLoadImage);
 		if (g.showCustomLoadImage)
 			{
 			if (g.loadingImage != null)
 				{
-				out.write4(10);
+				out.write4(ver < 800 ? 10 : 1);
 				out.writeZlibImage(g.loadingImage);
 				}
 			else
-				out.write4(-1);
+				out.write4(ver < 800 ? -1 : 0);
 			}
 		out.writeBool(g.imagePartiallyTransparent);
 		out.write4(g.loadImageAlpha);
 		out.writeBool(g.scaleProgressBar);
 
+		//FIXME: GM8 icons
 		Util.fixIcon(g.gameIcon,f.fileVersion);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		StreamEncoder se = new StreamEncoder(baos);
@@ -200,30 +209,52 @@ public final class GmFileWriter
 		out.writeBool(g.abortOnError);
 		out.writeBool(g.treatUninitializedAs0);
 		out.writeStr(g.author);
-		try
+		if (ver <= 600)
 			{
-			out.write4(Integer.parseInt(g.version));
+			try
+				{
+				out.write4(Integer.parseInt(g.version));
+				}
+			catch (NumberFormatException e)
+				{
+				out.write4(100);
+				}
 			}
-		catch (NumberFormatException e)
-			{
-			out.write4(100);
-			}
+		else
+			out.writeStr(g.version);
 		g.lastChanged = GmFile.longTimeToGmTime(savetime);
 		out.writeD(g.lastChanged);
-
 		out.writeStr(g.information);
-		out.write4(g.constants.size());
-		for (Constant con : g.constants)
+		if (ver < 800)
 			{
-			out.writeStr(con.name);
-			out.writeStr(con.value);
+			out.write4(g.constants.size());
+			for (Constant con : g.constants)
+				{
+				out.writeStr(con.name);
+				out.writeStr(con.value);
+				}
+			if (ver == 542 || ver == 600)
+				{
+				out.write4(g.includes.size());
+				for (Include inc : g.includes)
+					out.writeStr(inc.filepath);
+				out.write4(g.includeFolder);
+				out.writeBool(g.overwriteExisting);
+				out.writeBool(g.removeAtGameEnd);
+				}
 			}
-		out.write4(g.includes.size());
-		for (Include inc : g.includes)
-			out.writeStr(inc.filepath);
-		out.write4(g.includeFolder);
-		out.writeBool(g.overwriteExisting);
-		out.writeBool(g.removeAtGameEnd);
+		if (ver >= 702)
+			{
+			out.write4(g.versionMajor);
+			out.write4(g.versionMinor);
+			out.write4(g.versionRelease);
+			out.write4(g.versionBuild);
+			out.writeStr(g.company);
+			out.writeStr(g.product);
+			out.writeStr(g.copyright);
+			out.writeStr(g.description);
+			if (ver >= 800) out.writeD(g.lastChanged);
+			}
 		}
 
 	public static void writeTriggers(GmFile f, GmStreamEncoder out) throws IOException
