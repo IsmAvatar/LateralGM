@@ -30,6 +30,8 @@ import org.lateralgm.util.PropertyMap;
 
 public class GmStreamEncoder extends StreamEncoder
 	{
+	private int[] table = null;
+
 	public GmStreamEncoder(OutputStream o)
 		{
 		super(o);
@@ -43,6 +45,51 @@ public class GmStreamEncoder extends StreamEncoder
 	public GmStreamEncoder(String filePath) throws FileNotFoundException
 		{
 		super(filePath);
+		}
+
+	public void write(byte b[]) throws IOException
+		{
+		write(b,0,b.length);
+		}
+
+	public void write(byte b[], int off, int len) throws IOException
+		{
+		if (table != null)
+			{
+			for (int i = 0; i < len; i++)
+				{
+				int t = b[off + i] & 0xFF;
+				int x = table[t + pos + i] & 0xFF;
+				b[off + i] = (byte) x;
+				}
+			}
+		out.write(b,off,len);
+		pos += len;
+		}
+
+	public void write(int b) throws IOException
+		{
+		if (table != null)
+			b = table[b + pos] & 0xFF;
+		out.write(b);
+		pos++;
+		}
+
+	public void writeStr(String str) throws IOException
+		{
+		write4(str.length());
+		out.write(str.getBytes("ascii")); //$NON-NLS-1$
+		}
+
+	public void writeStr1(String str) throws IOException
+		{
+		write(Math.min(str.length(),255));
+		out.write(str.getBytes("ascii"),0,Math.min(str.length(),255)); //$NON-NLS-1$
+		}
+
+	public void writeBool(boolean val) throws IOException
+		{
+		write4(val ? 1 : 0);
 		}
 
 	public <P extends Enum<P>>void write4(PropertyMap<P> map, P...keys) throws IOException
@@ -112,20 +159,33 @@ public class GmStreamEncoder extends StreamEncoder
 		compress(data.toByteArray());
 		}
 
-	public void writeStr(String str) throws IOException
+	/**
+	 * GM7 Notice: since the first useful byte after the seed isn't encrypted,
+	 * you may wish to delay setting the seed until that byte is retrieved,
+	 * as implementing such functionality into these lower-level routines would add overhead
+	 */
+	public void setSeed(int s)
 		{
-		write4(str.length());
-		out.write(str.getBytes("ascii")); //$NON-NLS-1$
+		if (s >= 0)
+			table = makeEncodeTable(s);
+		else
+			table = null;
 		}
 
-	public void writeStr1(String str) throws IOException
+	protected static int[] makeEncodeTable(int seed)
 		{
-		write(Math.min(str.length(),255));
-		out.write(str.getBytes("ascii"),0,Math.min(str.length(),255)); //$NON-NLS-1$
-		}
-
-	public void writeBool(boolean val) throws IOException
-		{
-		write4(val ? 1 : 0);
+		int[] table = new int[256];
+		int a = 6 + (seed % 250);
+		int b = seed / 250;
+		for (int i = 0; i < 256; i++)
+			table[i] = i;
+		for (int i = 1; i < 10001; i++)
+			{
+			int j = 1 + ((i * a + b) % 254);
+			int t = table[j];
+			table[j] = table[j + 1];
+			table[j + 1] = t;
+			}
+		return table;
 		}
 	}

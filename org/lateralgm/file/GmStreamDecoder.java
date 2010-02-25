@@ -253,27 +253,22 @@ public class GmStreamDecoder extends StreamDecoder
 	public void setSeed(int s)
 		{
 		if (s >= 0)
-			table = makeSwapTable(s)[1];
+			table = makeDecodeTable(s);
 		else
 			table = null;
 		}
 
-	private static int[][] makeSwapTable(int seed)
+	protected static int[] makeDecodeTable(int seed)
 		{
-		int[][] table = new int[2][256];
-		int a = 6 + (seed % 250);
-		int b = seed / 250;
-		for (int i = 0; i < 256; i++)
-			table[0][i] = i;
-		for (int i = 1; i < 10001; i++)
-			{
-			int j = 1 + ((i * a + b) % 254);
-			int t = table[0][j];
-			table[0][j] = table[0][j + 1];
-			table[0][j + 1] = t;
-			}
+		int[] encTable = GmStreamEncoder.makeEncodeTable(seed);
+		return makeDecodeTable(encTable);
+		}
+
+	protected static int[] makeDecodeTable(int[] encTable)
+		{
+		int[] table = new int[256];
 		for (int i = 1; i < 256; i++)
-			table[1][table[0][i]] = i;
+			table[encTable[i]] = i;
 		return table;
 		}
 

@@ -68,14 +68,34 @@ public final class GmFileWriter
 
 	public static void writeGmFile(GmFile f, ResNode root) throws IOException
 		{
-		f.fileVersion = 600; //for now, we're always writing gm6 (only thing that checks this so far is the icon)
+		int ver = f.fileVersion = 600; //for now, we're always writing gm6
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = null;
 		out = new GmStreamEncoder(f.filename);
 		out.write4(1234321);
-		out.write4(600);
+		out.write4(ver);
+		if (ver == 530) out.write4(0);
+		if (ver == 701)
+			{
+			out.write4(0); //bob
+			out.write4(0); //fred
+			out.write4(248); //seed
+			out.write(f.gameSettings.gameId & 0xFF);
+			out.setSeed(248);
+			out.write3(f.gameSettings.gameId >>> 8);
+			}
+		else
+			out.write4(f.gameSettings.gameId);
+		out.fill(4);
 
 		writeSettings(f,out,savetime);
+
+		if (ver >= 800)
+			{
+			writeTriggers(f,out);
+			writeConstants(f,out);
+			}
+
 		writeSounds(f,out);
 		writeSprites(f,out);
 		writeBackgrounds(f,out);
@@ -89,26 +109,21 @@ public final class GmFileWriter
 		out.write4(f.lastInstanceId);
 		out.write4(f.lastTileId);
 
-		// GAME INFO SETTINGS
-		out.write4(600);
-		out.write4(Util.getGmColor(f.gameInfo.backgroundColor));
-		out.writeBool(f.gameInfo.mimicGameWindow);
-		out.writeStr(f.gameInfo.formCaption);
-		out.write4(f.gameInfo.left);
-		out.write4(f.gameInfo.top);
-		out.write4(f.gameInfo.width);
-		out.write4(f.gameInfo.height);
-		out.writeBool(f.gameInfo.showBorder);
-		out.writeBool(f.gameInfo.allowResize);
-		out.writeBool(f.gameInfo.stayOnTop);
-		out.writeBool(f.gameInfo.pauseGame);
-		out.writeStr(f.gameInfo.gameInfoStr);
+		if (ver >= 700)
+			{
+			writeIncludedFiles(f,out);
+			writePackages(f,out);
+			}
+
+		writeGameInformation(f,out);
+
+		//Library Creation Code
 		out.write4(500);
+		out.write4(0);
 
-		out.write4(0); // "how many longints will follow it"
-
+		//Room Execution Order
 		out.write4(540);
-		out.write4(0); // room indexes in tree order
+		out.write4(0);
 
 		writeTree(out,root);
 		out.close();
@@ -117,8 +132,6 @@ public final class GmFileWriter
 	public static void writeSettings(GmFile f, GmStreamEncoder out, long savetime) throws IOException
 		{
 		GameSettings g = f.gameSettings;
-		out.write4(f.gameSettings.gameId);
-		out.fill(4);
 		out.write4(600);
 
 		out.writeBool(g.startFullscreen);
@@ -211,6 +224,16 @@ public final class GmFileWriter
 		out.write4(g.includeFolder);
 		out.writeBool(g.overwriteExisting);
 		out.writeBool(g.removeAtGameEnd);
+		}
+
+	public static void writeTriggers(GmFile f, GmStreamEncoder out) throws IOException
+		{
+
+		}
+
+	public static void writeConstants(GmFile f, GmStreamEncoder out) throws IOException
+		{
+
 		}
 
 	public static void writeSounds(GmFile f, GmStreamEncoder out) throws IOException
@@ -507,6 +530,33 @@ public final class GmFileWriter
 				out.write4(rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
 				}
 			}
+		}
+
+	public static void writeIncludedFiles(GmFile f, GmStreamEncoder out) throws IOException
+		{
+
+		}
+
+	public static void writePackages(GmFile f, GmStreamEncoder out) throws IOException
+		{
+
+		}
+
+	public static void writeGameInformation(GmFile f, GmStreamEncoder out) throws IOException
+		{
+		out.write4(600);
+		out.write4(Util.getGmColor(f.gameInfo.backgroundColor));
+		out.writeBool(f.gameInfo.mimicGameWindow);
+		out.writeStr(f.gameInfo.formCaption);
+		out.write4(f.gameInfo.left);
+		out.write4(f.gameInfo.top);
+		out.write4(f.gameInfo.width);
+		out.write4(f.gameInfo.height);
+		out.writeBool(f.gameInfo.showBorder);
+		out.writeBool(f.gameInfo.allowResize);
+		out.writeBool(f.gameInfo.stayOnTop);
+		out.writeBool(f.gameInfo.pauseGame);
+		out.writeStr(f.gameInfo.gameInfoStr);
 		}
 
 	public static void writeTree(GmStreamEncoder out, ResNode root) throws IOException
