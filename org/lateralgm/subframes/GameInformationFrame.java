@@ -482,9 +482,9 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 					}
 			});
 
-		tabs.addTab(Messages.getString("GameInformationFrame.TAB_INFO"),
+		tabs.addTab(Messages.getString("GameInformationFrame.TAB_INFO"), //$NON-NLS-1$
 		/**/null,new JScrollPane(editor),Messages.getString("GameInformationFrame.HINT_INFO")); //$NON-NLS-1$ 
-		tabs.addTab(Messages.getString("GameInformationFrame.TAB_SETTINGS"),
+		tabs.addTab(Messages.getString("GameInformationFrame.TAB_SETTINGS"), //$NON-NLS-1$
 		/**/null,makeSettings(),Messages.getString("GameInformationFrame.HINT_SETTINGS")); //$NON-NLS-1$ 
 		revertResource();
 

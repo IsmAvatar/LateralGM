@@ -591,7 +591,7 @@ public final class GmFileWriter
 						if (r != null)
 							out.writeStr(Integer.toString(r.getId()));
 						else
-							out.writeStr("-1");
+							out.writeStr("-1"); //$NON-NLS-1$
 						break;
 					default:
 						out.writeStr(arg.getVal());

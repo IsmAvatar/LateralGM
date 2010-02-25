@@ -230,7 +230,7 @@ public final class GmFileReader
 		int ver = in.read4();
 		if (ver != 530 && ver != 542 && ver != 600 && ver != 702 && ver != 800)
 			{
-			String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$
+			String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$ //$NON-NLS-2$
 			throw new GmFormatException(c.f,msg);
 			}
 		if (ver == 800) in.beginInflate();

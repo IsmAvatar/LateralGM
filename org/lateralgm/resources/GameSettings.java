@@ -95,10 +95,10 @@ public class GameSettings
 	public int versionMinor = 0;
 	public int versionRelease = 0;
 	public int versionBuild = 0;
-	public String company = "";
-	public String product = "";
-	public String copyright = "";
-	public String description = "";
+	public String company = ""; //$NON-NLS-1$
+	public String product = ""; //$NON-NLS-1$
+	public String copyright = ""; //$NON-NLS-1$
+	public String description = ""; //$NON-NLS-1$
 
 	public ArrayList<Trigger> triggers = new ArrayList<Trigger>();
 	public ArrayList<Constant> constants = new ArrayList<Constant>();

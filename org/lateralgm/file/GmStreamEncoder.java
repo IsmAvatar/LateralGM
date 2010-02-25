@@ -108,20 +108,20 @@ public class GmStreamEncoder extends StreamEncoder
 		conv.filter(image,dest);
 
 		ByteArrayOutputStream data = new ByteArrayOutputStream();
-		ImageIO.write(dest,"bmp",data);
+		ImageIO.write(dest,"bmp",data); //$NON-NLS-1$
 		compress(data.toByteArray());
 		}
 
 	public void writeStr(String str) throws IOException
 		{
 		write4(str.length());
-		out.write(str.getBytes("ascii"));
+		out.write(str.getBytes("ascii")); //$NON-NLS-1$
 		}
 
 	public void writeStr1(String str) throws IOException
 		{
 		write(Math.min(str.length(),255));
-		out.write(str.getBytes("ascii"),0,Math.min(str.length(),255));
+		out.write(str.getBytes("ascii"),0,Math.min(str.length(),255)); //$NON-NLS-1$
 		}
 
 	public void writeBool(boolean val) throws IOException

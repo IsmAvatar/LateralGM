@@ -410,11 +410,11 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		tool.setFloatable(false);
 		pane.add(tool,BorderLayout.NORTH);
 
-		makeToolButton(tool,"SpriteFrame.ADD");
-		makeToolButton(tool,"SpriteFrame.REMOVE");
+		makeToolButton(tool,"SpriteFrame.ADD"); //$NON-NLS-1$
+		makeToolButton(tool,"SpriteFrame.REMOVE"); //$NON-NLS-1$
 		tool.addSeparator();
-		makeToolButton(tool,"SpriteFrame.PREVIOUS");
-		makeToolButton(tool,"SpriteFrame.NEXT");
+		makeToolButton(tool,"SpriteFrame.PREVIOUS"); //$NON-NLS-1$
+		makeToolButton(tool,"SpriteFrame.NEXT"); //$NON-NLS-1$
 
 		subList = new JList();
 		subList.addMouseListener(this);
@@ -660,7 +660,8 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			return;
 			}
 		String cmd = e.getActionCommand();
-		if (cmd != null && cmd.startsWith("SpriteFrame.")) handleToolbarEvent(cmd.substring(12));
+		if (cmd != null && cmd.startsWith("SpriteFrame.")) //$NON-NLS-1$
+			handleToolbarEvent(cmd.substring(12));
 		System.out.println(e);
 
 		super.actionPerformed(e);
@@ -669,7 +670,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 	private void handleToolbarEvent(String cmd)
 		{
 		int pos = subList.getSelectedIndex();
-		if (cmd.equals("ADD"))
+		if (cmd.equals("ADD")) //$NON-NLS-1$
 			{
 			BufferedImage bi = res.addSubImage();
 			pos = pos >= 0 ? pos + 1 : res.subImages.size();
@@ -680,7 +681,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			return;
 			}
 		if (pos == -1) return;
-		if (cmd.equals("REMOVE"))
+		if (cmd.equals("REMOVE")) //$NON-NLS-1$
 			{
 			ImageEditor ie = editors == null ? null : editors.get(res.subImages.get(pos));
 			imageChanged = true;
@@ -689,7 +690,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			subList.setSelectedIndex(Math.min(res.subImages.size() - 1,pos));
 			return;
 			}
-		if (cmd.equals("PREVIOUS"))
+		if (cmd.equals("PREVIOUS")) //$NON-NLS-1$
 			{
 			if (pos == 0) return;
 			imageChanged = true;
@@ -698,9 +699,8 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			subList.setSelectedIndex(pos - 1);
 			return;
 			}
-		if (cmd.equals("NEXT"))
+		if (cmd.equals("NEXT")) //$NON-NLS-1$
 			{
-			System.out.println("lo");
 			if (pos == res.subImages.size() - 1) return;
 			imageChanged = true;
 			BufferedImage bi = res.subImages.remove(pos);
@@ -860,10 +860,10 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		public ImageEditor(BufferedImage i) throws IOException
 			{
 			image = i;
-			File f = File.createTempFile(res.getName(),".png",LGM.tempDir);
+			File f = File.createTempFile(res.getName(),".png",LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
 			FileOutputStream out = new FileOutputStream(f);
-			ImageIO.write(i,"png",out);
+			ImageIO.write(i,"png",out); //$NON-NLS-1$
 			out.close();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this,true);

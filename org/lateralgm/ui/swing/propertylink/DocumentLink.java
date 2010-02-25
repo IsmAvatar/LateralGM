@@ -80,7 +80,7 @@ public class DocumentLink<K extends Enum<K>> extends PropertyLink<K,String> impl
 	public void updated(PropertyUpdateEvent<K> e)
 		{
 		String t = (String) map.get(key);
-		if (t == null) t = "";
+		if (t == null) t = ""; //$NON-NLS-1$
 		int l = t.length();
 		try
 			{
