@@ -1,6 +1,6 @@
 /*
+ * Copyright (C) 2006, 2007, 2008, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
- * Copyright (C) 2006, 2007, 2008, 2009 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -23,6 +23,7 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font;
+import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
@@ -54,6 +55,7 @@ import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.Trigger;
 import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance.PInstance;
@@ -68,7 +70,8 @@ public final class GmFileWriter
 
 	public static void writeGmFile(GmFile f, ResNode root) throws IOException
 		{
-		int ver = f.fileVersion = 600; //for now, we're always writing gm6
+		f.fileVersion = 600; //for now, we're always writing gm6
+		int ver = f.fileVersion;
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = null;
 		out = new GmStreamEncoder(f.filename);
@@ -131,11 +134,11 @@ public final class GmFileWriter
 
 	public static void writeSettings(GmFile f, GmStreamEncoder out, long savetime) throws IOException
 		{
-		GameSettings g = f.gameSettings;
-		int ver = f.fileVersion = 600; //for now, we're always writing gm6
+		int ver = f.fileVersion;
 		if (ver == 701) ver = 702;
 		out.write4(ver);
-		
+		if (ver == 800) out.beginDeflate();
+		GameSettings g = f.gameSettings;
 		out.writeBool(g.startFullscreen);
 		if (ver >= 600) out.writeBool(g.interpolate);
 		out.writeBool(g.dontDrawBorder);
@@ -255,36 +258,71 @@ public final class GmFileWriter
 			out.writeStr(g.description);
 			if (ver >= 800) out.writeD(g.lastChanged);
 			}
+
+		out.endDeflate();
 		}
 
 	public static void writeTriggers(GmFile f, GmStreamEncoder out) throws IOException
 		{
+		int ver = f.fileVersion;
+		if (ver < 800) return;
 
+		out.write4(ver);
+		out.write4(f.gameSettings.triggers.size());
+		for (Trigger t : f.gameSettings.triggers)
+			{
+			out.write4(800);
+			out.writeStr(t.name);
+			out.writeStr(t.condition);
+			out.write4(t.checkStep);
+			out.writeStr(t.constant);
+			}
+		out.writeD(f.gameSettings.lastChanged);
 		}
 
 	public static void writeConstants(GmFile f, GmStreamEncoder out) throws IOException
 		{
+		int ver = f.fileVersion;
+		if (ver < 800) return;
 
+		out.write4(ver);
+		out.write4(f.gameSettings.constants.size());
+		for (Constant c : f.gameSettings.constants)
+			{
+			out.writeStr(c.name);
+			out.writeStr(c.value);
+			}
+		out.writeD(f.gameSettings.lastChanged);
 		}
 
 	public static void writeSounds(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		out.write4(400);
+		int ver = f.fileVersion;
+		ver = ver >= 800 ? 800 : ver >= 600 ? 600 : 440;
+		out.write4(ver == 800 ? 800 : 400);
 		out.write4(f.sounds.lastId + 1);
 		for (int i = 0; i <= f.sounds.lastId; i++)
 			{
+			if (ver == 800) out.beginDeflate();
 			Sound snd = f.sounds.getUnsafe(i);
 			out.writeBool(snd != null);
 			if (snd != null)
 				{
 				out.writeStr(snd.getName());
-				out.write4(600);
+				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				out.write4(ver);
 				out.write4(GmFile.SOUND_CODE.get(snd.get(PSound.KIND)));
 				out.writeStr(snd.properties,PSound.FILE_TYPE,PSound.FILE_NAME);
 				if (snd.data != null)
 					{
 					out.writeBool(true);
-					out.compress(snd.data);
+					if (ver == 800)
+						{
+						out.write4(snd.data.length);
+						out.write(snd.data);
+						}
+					else
+						out.compress(snd.data);
 					}
 				else
 					out.writeBool(false);
@@ -299,83 +337,128 @@ public final class GmFileWriter
 				out.writeD(snd.properties,PSound.VOLUME,PSound.PAN);
 				out.writeBool(snd.properties,PSound.PRELOAD);
 				}
+			out.endDeflate();
 			}
 		}
 
 	public static void writeSprites(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		out.write4(400);
+		int ver = f.fileVersion;
+		ver = ver > 800 ? 800 : ver > 542 ? 542 : 400;
+		out.write4(ver == 800 ? 800 : 400);
 		out.write4(f.sprites.lastId + 1);
 		for (int i = 0; i <= f.sprites.lastId; i++)
 			{
+			if (ver == 800) out.beginDeflate();
 			Sprite spr = f.sprites.getUnsafe(i);
 			out.writeBool(spr != null);
 			if (spr != null)
 				{
 				out.writeStr(spr.getName());
-				out.write4(542);
-				out.write4(spr.subImages.getWidth());
-				out.write4(spr.subImages.getHeight());
-				// The formatter doesn't wrap this line even though it's too long...
-				out.write4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,//
-						PSprite.BB_TOP);
-				out.writeBool(spr.properties,PSprite.TRANSPARENT,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
-				out.write4(GmFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)));
-				out.writeBool(spr.get(PSprite.SHAPE) == Sprite.MaskShape.PRECISE);
+				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				out.write4(ver);
+				if (ver < 800)
+					{
+					out.write4(spr.subImages.getWidth());
+					out.write4(spr.subImages.getHeight());
+					out.write4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,
+							PSprite.BB_TOP);
+					out.writeBool(spr.properties,PSprite.TRANSPARENT,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
+					out.write4(GmFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)));
+					out.writeBool(spr.get(PSprite.SHAPE) == Sprite.MaskShape.PRECISE);
+					}
 				out.write4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
 				out.write4(spr.subImages.size());
 				for (int j = 0; j < spr.subImages.size(); j++)
 					{
 					BufferedImage sub = spr.subImages.get(j);
-					out.write4(10);
-					out.writeZlibImage(sub);
+					if (ver == 800)
+						{
+						out.write4(800);
+						int w = sub.getWidth();
+						int h = sub.getHeight();
+						out.write4(w);
+						out.write4(h);
+						if (w != 0 && h != 0) out.writeBGRAImage(sub);
+						}
+					else
+						{
+						out.write4(10);
+						out.writeZlibImage(sub);
+						}
 					}
 				}
+			out.endDeflate();
 			}
 		}
 
 	public static void writeBackgrounds(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		out.write4(400);
+		int ver = f.fileVersion;
+		ver = ver >= 710 ? 710 : ver >= 543 ? 543 : 400;
+		out.write4(ver == 710 ? 800 : 400);
 		out.write4(f.backgrounds.lastId + 1);
 		for (int i = 0; i <= f.backgrounds.lastId; i++)
 			{
+			if (ver == 710) out.beginDeflate();
 			Background back = f.backgrounds.getUnsafe(i);
 			out.writeBool(back != null);
 			if (back != null)
 				{
 				out.writeStr(back.getName());
-				out.write4(543);
-				out.write4(back.getWidth());
-				out.write4(back.getHeight());
-				out.writeBool(back.properties,PBackground.TRANSPARENT,PBackground.SMOOTH_EDGES,
-						PBackground.PRELOAD,PBackground.USE_AS_TILESET);
+				if (ver == 710) out.writeD(f.gameSettings.lastChanged);
+				out.write4(ver);
+				if (ver < 710)
+					{
+					out.write4(back.getWidth());
+					out.write4(back.getHeight());
+					out.writeBool(back.properties,PBackground.TRANSPARENT,PBackground.SMOOTH_EDGES,
+							PBackground.PRELOAD,PBackground.USE_AS_TILESET);
+					}
+				else
+					out.writeBool(back.properties,PBackground.USE_AS_TILESET);
 				out.write4(back.properties,PBackground.TILE_WIDTH,PBackground.TILE_HEIGHT,
 						PBackground.H_OFFSET,PBackground.V_OFFSET,PBackground.H_SEP,PBackground.V_SEP);
 				BufferedImage bi = back.getBackgroundImage();
-				if (bi != null)
+				if (ver < 710)
 					{
-					out.writeBool(true);
-					out.write4(10);
-					out.writeZlibImage(bi);
+					if (bi != null)
+						{
+						out.writeBool(true);
+						out.write4(10);
+						out.writeZlibImage(bi);
+						}
+					else
+						out.writeBool(false);
 					}
 				else
-					out.writeBool(false);
+					{
+					out.write4(710);
+					int w = bi == null ? 0 : bi.getWidth();
+					int h = bi == null ? 0 : bi.getHeight();
+					out.write4(w);
+					out.write4(h);
+					if (w != 0 && h != 0) out.writeBGRAImage(bi);
+					}
 				}
+			out.endDeflate();
 			}
 		}
 
 	public static void writePaths(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		out.write4(420);
+		int ver = f.fileVersion;
+		out.write4(ver == 800 ? 800 : 420);
 		out.write4(f.paths.lastId + 1);
 		for (int i = 0; i <= f.paths.lastId; i++)
 			{
+			if (ver == 800) out.beginDeflate();
 			Path path = f.paths.getUnsafe(i);
 			out.writeBool(path != null);
 			if (path != null)
 				{
 				out.writeStr(path.getName());
+				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
 				out.write4(530);
 				out.writeBool(path.properties,PPath.SMOOTH,PPath.CLOSED);
 				out.write4(path.properties,PPath.PRECISION);
@@ -389,57 +472,71 @@ public final class GmFileWriter
 					out.writeD(p.getSpeed());
 					}
 				}
+			out.endDeflate();
 			}
 		}
 
 	public static void writeScripts(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		out.write4(400);
+		int ver = f.fileVersion;
+		ver = ver >= 800 ? 800 : 400;
+		out.write4(ver);
 		out.write4(f.scripts.lastId + 1);
 		for (int i = 0; i <= f.scripts.lastId; i++)
 			{
+			if (ver == 800) out.beginDeflate();
 			Script scr = f.scripts.getUnsafe(i);
 			out.writeBool(scr != null);
 			if (scr != null)
 				{
 				out.writeStr(scr.getName());
-				out.write4(400);
+				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				out.write4(ver);
 				out.writeStr(scr.properties,PScript.CODE);
 				}
+			out.endDeflate();
 			}
 		}
 
 	public static void writeFonts(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		out.write4(540);
+		int ver = f.fileVersion;
+		ver = ver >= 800 ? 800 : 540;
+		out.write4(ver);
 		out.write4(f.fonts.lastId + 1);
 		for (int i = 0; i <= f.fonts.lastId; i++)
 			{
+			if (ver == 800) out.beginDeflate();
 			Font font = f.fonts.getUnsafe(i);
 			out.writeBool(font != null);
 			if (font != null)
 				{
 				out.writeStr(font.getName());
-				out.write4(540);
+				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				out.write4(ver);
 				out.writeStr(font.properties,PFont.FONT_NAME);
 				out.write4(font.properties,PFont.SIZE);
 				out.writeBool(font.properties,PFont.BOLD,PFont.ITALIC);
 				out.write4(font.properties,PFont.RANGE_MIN,PFont.RANGE_MAX);
 				}
+			out.endDeflate();
 			}
 		}
 
 	public static void writeTimelines(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		out.write4(500);
+		int ver = f.fileVersion;
+		out.write4(ver == 800 ? 800 : 500);
 		out.write4(f.timelines.lastId + 1);
 		for (int i = 0; i <= f.timelines.lastId; i++)
 			{
+			if (ver == 800) out.beginDeflate();
 			Timeline time = f.timelines.getUnsafe(i);
 			out.writeBool(time != null);
 			if (time != null)
 				{
 				out.writeStr(time.getName());
+				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
 				out.write4(500);
 				out.write4(time.moments.size());
 				for (Moment mom : time.moments)
@@ -448,20 +545,24 @@ public final class GmFileWriter
 					writeActions(out,mom);
 					}
 				}
+			out.endDeflate();
 			}
 		}
 
 	public static void writeGmObjects(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		out.write4(400);
+		int ver = f.fileVersion;
+		out.write4(ver == 800 ? 800 : 400);
 		out.write4(f.gmObjects.lastId + 1);
 		for (int i = 0; i <= f.gmObjects.lastId; i++)
 			{
+			if (ver == 800) out.beginDeflate();
 			GmObject obj = f.gmObjects.getUnsafe(i);
 			out.writeBool(obj != null);
 			if (obj != null)
 				{
 				out.writeStr(obj.getName());
+				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
 				out.write4(430);
 				out.writeId((ResourceReference<?>) obj.get(PGmObject.SPRITE));
 				out.writeBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
@@ -484,20 +585,24 @@ public final class GmFileWriter
 					out.write4(-1);
 					}
 				}
+			out.endDeflate();
 			}
 		}
 
 	public static void writeRooms(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		out.write4(420);
+		int ver = f.fileVersion;
+		out.write4(ver == 800 ? 800 : 420);
 		out.write4(f.rooms.lastId + 1);
 		for (int i = 0; i <= f.rooms.lastId; i++)
 			{
+			if (ver == 800) out.beginDeflate();
 			Room rm = f.rooms.getUnsafe(i);
 			out.writeBool(rm != null);
 			if (rm != null)
 				{
 				out.writeStr(rm.getName());
+				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
 				out.write4(541);
 				out.writeStr(rm.properties,PRoom.CAPTION);
 				out.write4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
@@ -560,34 +665,75 @@ public final class GmFileWriter
 						PRoom.DELETE_UNDERLYING_OBJECTS,PRoom.DELETE_UNDERLYING_TILES);
 				out.write4(rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
 				}
+			out.endDeflate();
 			}
 		}
 
 	public static void writeIncludedFiles(GmFile f, GmStreamEncoder out) throws IOException
 		{
+		int ver = f.fileVersion;
+		ver = ver > 800 ? 800 : ver > 620 ? 620 : 0;
+		if (ver < 620) return;
 
+		out.write4(ver);
+		out.write4(f.gameSettings.includes.size());
+		for (Include i : f.gameSettings.includes)
+			{
+			if (ver >= 800) out.writeD(f.gameSettings.lastChanged);
+			out.write4(ver);
+			out.writeStr(i.filename);
+			out.writeStr(i.filepath);
+			out.writeBool(i.isOriginal);
+			out.write4(i.size);
+			if (i.data != null)
+				{
+				out.writeBool(true);
+				out.write4(i.data.length);
+				out.write(i.data);
+				}
+			else
+				out.writeBool(false);
+			out.write4(i.export);
+			out.writeStr(i.exportFolder);
+			out.writeBool(i.overwriteExisting);
+			out.writeBool(i.freeMemAfterExport);
+			out.writeBool(i.removeAtGameEnd);
+			}
 		}
 
 	public static void writePackages(GmFile f, GmStreamEncoder out) throws IOException
 		{
+		int ver = f.fileVersion;
+		if (ver < 700) return;
 
+		out.write4(700);
+		out.write4(0);
 		}
 
 	public static void writeGameInformation(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		out.write4(600);
-		out.write4(Util.getGmColor(f.gameInfo.backgroundColor));
-		out.writeBool(f.gameInfo.mimicGameWindow);
-		out.writeStr(f.gameInfo.formCaption);
-		out.write4(f.gameInfo.left);
-		out.write4(f.gameInfo.top);
-		out.write4(f.gameInfo.width);
-		out.write4(f.gameInfo.height);
-		out.writeBool(f.gameInfo.showBorder);
-		out.writeBool(f.gameInfo.allowResize);
-		out.writeBool(f.gameInfo.stayOnTop);
-		out.writeBool(f.gameInfo.pauseGame);
+		int ver = f.fileVersion;
+		ver = ver >= 800 ? 800 : ver >= 620 ? 620 : ver >= 600 ? 600 : 430;
+		out.write4(ver);
+		if (ver == 800) out.beginDeflate();
+		GameInformation g = f.gameInfo;
+		out.write4(Util.getGmColor(g.backgroundColor));
+		if (ver < 800)
+			out.writeBool(g.mimicGameWindow);
+		else
+			out.writeBool(!g.mimicGameWindow);
+		out.writeStr(g.formCaption);
+		out.write4(g.left);
+		out.write4(g.top);
+		out.write4(g.width);
+		out.write4(g.height);
+		out.writeBool(g.showBorder);
+		out.writeBool(g.allowResize);
+		out.writeBool(g.stayOnTop);
+		out.writeBool(g.pauseGame);
+		if (ver >= 800) out.writeD(f.gameSettings.lastChanged);
 		out.writeStr(f.gameInfo.gameInfoStr);
+		out.endDeflate();
 		}
 
 	public static void writeTree(GmStreamEncoder out, ResNode root) throws IOException

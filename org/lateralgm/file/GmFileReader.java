@@ -512,10 +512,11 @@ public final class GmFileReader
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
 			if (ver != 400 && ver != 542 && ver != 800) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			int w = 0, h = 0;
 			if (ver < 800)
 				{
-				int w = in.read4();
-				int h = in.read4();
+				w = in.read4();
+				h = in.read4();
 				in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
 				spr.put(PSprite.TRANSPARENT,in.readBool());
 				if (ver > 400)
@@ -530,27 +531,27 @@ public final class GmFileReader
 					in.skip(4); //use video memory
 					spr.put(PSprite.PRELOAD,!in.readBool());
 					}
-				in.read4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
-				int nosub = in.read4();
-				for (int j = 0; j < nosub; j++)
+				}
+			in.read4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
+			int nosub = in.read4();
+			for (int j = 0; j < nosub; j++)
+				{
+				if (ver >= 800)
+					{
+					ver = in.read4();
+					if (ver != 800) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+					w = in.read4();
+					h = in.read4();
+					if (w != 0 && h != 0) spr.addSubImage(in.readBGRAImage(w,h));
+					}
+				else
 					{
 					if (in.read4() == -1) continue;
 					spr.addSubImage(in.readZlibImage(w,h));
 					}
 				}
-			//ver >= 800
-			else
+			if (ver >= 800)
 				{
-				in.read4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
-				int nosub = in.read4();
-				for (int j = 0; j < nosub; j++)
-					{
-					ver = in.read4();
-					if (ver != 800) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
-					int w = in.read4();
-					int h = in.read4();
-					if (w != 0 && h != 0) spr.addSubImage(in.readBGRAImage(w,h));
-					}
 				spr.put(PSprite.SHAPE,GmFile.SPRITE_MASK_SHAPE[in.read4()]);
 				spr.put(PSprite.ALPHA_TOLERANCE,in.read4());
 				spr.put(PSprite.SEPARATE_MASK,in.readBool());
@@ -986,6 +987,7 @@ public final class GmFileReader
 			}
 		}
 
+	//FIXME: Support Packages
 	private static void readPackages(GmFileContext c) throws IOException,GmFormatException
 		{
 		GmFile f = c.f;

@@ -1,7 +1,7 @@
 /*
+ * Copyright (C) 2007, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2007, 2009 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -15,6 +15,10 @@ import static org.lateralgm.main.Util.deRef;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,6 +34,8 @@ import org.lateralgm.util.PropertyMap;
 
 public class GmStreamEncoder extends StreamEncoder
 	{
+	protected int originalPos = -1;
+	protected OutputStream originalStream;
 	private int[] table = null;
 
 	public GmStreamEncoder(OutputStream o)
@@ -145,6 +151,33 @@ public class GmStreamEncoder extends StreamEncoder
 		out.write(baos.toByteArray());
 		}
 
+	public void beginDeflate()
+		{
+		originalStream = out;
+		out = new GmStreamEncoder(new ByteArrayOutputStream());
+		originalPos = pos;
+		pos = 0;
+		}
+
+	/**
+	 * Safely finishes this stream if it's a deflater, otherwise this call does nothing.
+	 * This places the file reader after the end of the compressed data in the underlying stream.
+	 */
+	public void endDeflate() throws IOException
+		{
+		if (originalStream != null)
+			{
+			out.flush();
+			GmStreamEncoder gse = (GmStreamEncoder) out;
+			ByteArrayOutputStream baos = (ByteArrayOutputStream) gse.out;
+			pos = originalPos;
+			originalPos = -1;
+			out = originalStream;
+			originalStream = null;
+			compress(baos.toByteArray());
+			}
+		}
+
 	public void writeZlibImage(BufferedImage image) throws IOException
 		{
 		//Drop any alpha channel and convert to 3-byte to ensure that the image is bmp-compatible
@@ -156,6 +189,32 @@ public class GmStreamEncoder extends StreamEncoder
 		ByteArrayOutputStream data = new ByteArrayOutputStream();
 		ImageIO.write(dest,"bmp",data); //$NON-NLS-1$
 		compress(data.toByteArray());
+		}
+
+	//FIXME: Make BGRA work (the current code was just a wild guess)
+	public void writeBGRAImage(BufferedImage image) throws IOException
+		{
+		int w = image.getWidth();
+		int h = image.getHeight();
+		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,w,h,w * 4,4,
+				new int[] { 2,1,0,3 },null); //2103 = RGBA ordering
+		BufferedImage dst = new BufferedImage(w,h,BufferedImage.TYPE_4BYTE_ABGR);
+		raster.setRect(dst.getRaster());
+
+		byte[] buf = ((DataBufferByte) raster.getDataBuffer()).getData();
+		out.write(buf);
+		
+		
+		/*raster = image.getRaster();
+		w <<= 2;
+		byte[] buf = new byte[w * h * 4];
+		for (int y = 0; y < h; y++)
+			for (int x = 0; x < w; x += 4)
+				{
+				raster.get
+//				int pix = image.getRGB(pix,y)
+				buf[y * w + x * 4];
+				}*/
 		}
 
 	/**
