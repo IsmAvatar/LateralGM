@@ -37,7 +37,6 @@ Checkstyle checker designed for LateralGM and the latest Girard format
         <module name="IllegalImport"/>
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
-        <module name="FileLength"/>
         <module name="LineLength">
             <property name="ignorePattern" value="^([^\t]{0,100}|\t[^\t]{0,98}|\t\t[^\t]{0,96}|\t{3,}[^\t]{0,94})\s*(//|};$)"/>
             <property name="max" value="100"/>
@@ -130,4 +129,5 @@ Checkstyle checker designed for LateralGM and the latest Girard format
     </module>
     <module name="NewlineAtEndOfFile"/>
     <module name="Translation"/>
+    <module name="FileLength"/>
 </module>
