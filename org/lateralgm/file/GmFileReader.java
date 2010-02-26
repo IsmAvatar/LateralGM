@@ -359,27 +359,29 @@ public final class GmFileReader
 
 			if (ver >= 800) in.skip(8); //last changed
 			}
-		else if (ver > 530)
-			{
-			int no = in.read4();
-			for (int i = 0; i < no; i++)
-				{
-				Include inc = new Include();
-				g.includes.add(inc);
-				inc.filepath = in.readStr();
-				inc.filename = new File(inc.filepath).getName();
-				}
-			g.includeFolder = in.read4(); //0 = main, 1 = temp
-			g.overwriteExisting = in.readBool();
-			g.removeAtGameEnd = in.readBool();
-			for (Include inc : g.includes)
-				{
-				inc.export = g.includeFolder == 1 ? 1 : 2; //1 = temp, 2 = main
-				inc.overwriteExisting = g.overwriteExisting;
-				inc.removeAtGameEnd = g.removeAtGameEnd;
-				}
-			}
+		else if (ver > 530) readSettingsIncludes(g,in);
 		in.endInflate();
+		}
+
+	private static void readSettingsIncludes(GameSettings g, GmStreamDecoder in) throws IOException
+		{
+		int no = in.read4();
+		for (int i = 0; i < no; i++)
+			{
+			Include inc = new Include();
+			g.includes.add(inc);
+			inc.filepath = in.readStr();
+			inc.filename = new File(inc.filepath).getName();
+			}
+		g.includeFolder = in.read4(); //0 = main, 1 = temp
+		g.overwriteExisting = in.readBool();
+		g.removeAtGameEnd = in.readBool();
+		for (Include inc : g.includes)
+			{
+			inc.export = g.includeFolder == 1 ? 1 : 2; //1 = temp, 2 = main
+			inc.overwriteExisting = g.overwriteExisting;
+			inc.removeAtGameEnd = g.removeAtGameEnd;
+			}
 		}
 
 	private static void readTriggers(GmFileContext c) throws IOException,GmFormatException
