@@ -186,7 +186,7 @@ public class GmStreamDecoder extends StreamDecoder
 
 	/**
 	 * Safely finishes this stream if it's an inflater, otherwise this call does nothing.
-	 * This places the file reader after the end of the compressed data in the underlying input stream.
+	 * This places the file reader after the end of the compressed data in the underlying stream.
 	 */
 	public void endInflate() throws IOException
 		{

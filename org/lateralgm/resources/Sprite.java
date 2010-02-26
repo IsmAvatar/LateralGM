@@ -46,8 +46,8 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 
 	public enum PSprite
 		{
-		TRANSPARENT,SHAPE,ALPHA_TOLERANCE,SEPARATE_MASK,SMOOTH_EDGES,PRELOAD,ORIGIN_X,ORIGIN_Y,BB_MODE,BB_LEFT,BB_RIGHT,BB_TOP,
-		BB_BOTTOM
+		TRANSPARENT,SHAPE,ALPHA_TOLERANCE,SEPARATE_MASK,SMOOTH_EDGES,PRELOAD,ORIGIN_X,ORIGIN_Y,BB_MODE,
+		BB_LEFT,BB_RIGHT,BB_TOP,BB_BOTTOM
 		}
 
 	private static final EnumMap<PSprite,Object> DEFS = PropertyMap.makeDefaultMap(PSprite.class,

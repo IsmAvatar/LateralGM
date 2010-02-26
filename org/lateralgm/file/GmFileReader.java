@@ -291,7 +291,7 @@ public final class GmFileReader
 				if (in.read4() != -1) g.backLoadBar = in.readZlibImage();
 				if (in.read4() != -1) g.frontLoadBar = in.readZlibImage();
 				}
-			//ver > 800
+			//ver >= 800
 			else
 				{
 				if (in.readBool()) g.backLoadBar = in.readZlibImage();
@@ -523,7 +523,8 @@ public final class GmFileReader
 					in.readBool(spr.properties,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
 					}
 				spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
-				spr.put(PSprite.SHAPE,in.readBool() ? Sprite.MaskShape.PRECISE : Sprite.MaskShape.RECTANGLE);
+				boolean precise = in.readBool();
+				spr.put(PSprite.SHAPE,precise ? Sprite.MaskShape.PRECISE : Sprite.MaskShape.RECTANGLE);
 				if (ver == 400)
 					{
 					in.skip(4); //use video memory
