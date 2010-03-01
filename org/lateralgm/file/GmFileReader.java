@@ -341,7 +341,7 @@ public final class GmFileReader
 			for (int i = 0; i < no; i++)
 				{
 				Constant con = new Constant();
-				g.constants.add(con);
+				c.f.constants.add(con);
 				con.name = in.readStr();
 				con.value = in.readStr();
 				}
@@ -359,28 +359,28 @@ public final class GmFileReader
 
 			if (ver >= 800) in.skip(8); //last changed
 			}
-		else if (ver > 530) readSettingsIncludes(g,in);
+		else if (ver > 530) readSettingsIncludes(c.f,in);
 		in.endInflate();
 		}
 
-	private static void readSettingsIncludes(GameSettings g, GmStreamDecoder in) throws IOException
+	private static void readSettingsIncludes(GmFile f, GmStreamDecoder in) throws IOException
 		{
 		int no = in.read4();
 		for (int i = 0; i < no; i++)
 			{
 			Include inc = new Include();
-			g.includes.add(inc);
+			f.includes.add(inc);
 			inc.filepath = in.readStr();
 			inc.filename = new File(inc.filepath).getName();
 			}
-		g.includeFolder = in.read4(); //0 = main, 1 = temp
-		g.overwriteExisting = in.readBool();
-		g.removeAtGameEnd = in.readBool();
-		for (Include inc : g.includes)
+		f.gameSettings.includeFolder = in.read4(); //0 = main, 1 = temp
+		f.gameSettings.overwriteExisting = in.readBool();
+		f.gameSettings.removeAtGameEnd = in.readBool();
+		for (Include inc : f.includes)
 			{
-			inc.export = g.includeFolder == 1 ? 1 : 2; //1 = temp, 2 = main
-			inc.overwriteExisting = g.overwriteExisting;
-			inc.removeAtGameEnd = g.removeAtGameEnd;
+			inc.export = f.gameSettings.includeFolder == 1 ? 1 : 2; //1 = temp, 2 = main
+			inc.overwriteExisting = f.gameSettings.overwriteExisting;
+			inc.removeAtGameEnd = f.gameSettings.removeAtGameEnd;
 			}
 		}
 
@@ -398,7 +398,7 @@ public final class GmFileReader
 			ver = in.read4();
 			if (ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 			Trigger trig = new Trigger();
-			f.gameSettings.triggers.add(trig);
+			f.triggers.add(trig);
 			trig.name = in.readStr();
 			trig.condition = in.readStr();
 			trig.checkStep = in.read4();
@@ -419,7 +419,7 @@ public final class GmFileReader
 		for (int i = 0; i < no; i++)
 			{
 			Constant con = new Constant();
-			f.gameSettings.constants.add(con);
+			f.constants.add(con);
 			con.name = in.readStr();
 			con.value = in.readStr();
 			}
@@ -696,7 +696,6 @@ public final class GmFileReader
 		{
 		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
-		GameSettings g = f.gameSettings;
 
 		int ver = in.read4();
 		if (ver != 440 && ver != 540 && ver != 800)
@@ -713,7 +712,7 @@ public final class GmFileReader
 					throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 							Messages.getString("GmFileReader.INDATAFILES"),ver)); //$NON-NLS-1$
 				Include inc = new Include();
-				g.includes.add(inc);
+				f.includes.add(inc);
 				inc.filepath = in.readStr();
 				inc.filename = new File(inc.filepath).getName();
 				if (in.readBool()) //file data exists?
@@ -970,7 +969,7 @@ public final class GmFileReader
 				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("GmFileReader.INGM7INCLUDES"),ver)); //$NON-NLS-1$
 			Include inc = new Include();
-			f.gameSettings.includes.add(inc);
+			f.includes.add(inc);
 			inc.filename = in.readStr();
 			inc.filepath = in.readStr();
 			inc.isOriginal = in.readBool();
@@ -989,7 +988,6 @@ public final class GmFileReader
 			}
 		}
 
-	//FIXME: Support Packages
 	private static void readPackages(GmFileContext c) throws IOException,GmFormatException
 		{
 		GmFile f = c.f;
@@ -1000,9 +998,7 @@ public final class GmFileReader
 
 		int noPackages = in.read4();
 		for (int i = 0; i < noPackages; i++)
-			{
-			in.skip(in.read4()); //Package name
-			}
+			f.packages.add(in.readStr()); //Package name
 		}
 
 	private static void readGameInformation(GmFileContext c) throws IOException,GmFormatException

@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -44,6 +45,7 @@ import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
@@ -55,8 +57,10 @@ import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sound.SoundKind;
 import org.lateralgm.resources.Sprite.BBMode;
 import org.lateralgm.resources.Sprite.MaskShape;
+import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.Trigger;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile.PTile;
 
@@ -95,8 +99,8 @@ public class GmFile implements UpdateListener
 			m.put(SPRITE_BB_MODE[i],i);
 		SPRITE_BB_CODE = Collections.unmodifiableMap(m);
 		}
-	protected static final MaskShape[] SPRITE_MASK_SHAPE = { MaskShape.PRECISE,
-			MaskShape.RECTANGLE,MaskShape.DISK,MaskShape.DIAMOND };
+	protected static final MaskShape[] SPRITE_MASK_SHAPE = { MaskShape.PRECISE,MaskShape.RECTANGLE,
+			MaskShape.DISK,MaskShape.DIAMOND };
 	protected static final Map<MaskShape,Integer> SPRITE_MASK_CODE;
 	static
 		{
@@ -105,6 +109,10 @@ public class GmFile implements UpdateListener
 			m.put(SPRITE_MASK_SHAPE[i],i);
 		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
 		}
+
+	/** One of 530, 600, 701, or 800 */
+	public int fileVersion = 600;
+	public String filename = null;
 
 	private final EnumMap<Resource.Kind,ResourceList<?>> resMap;
 	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class,this);
@@ -118,9 +126,15 @@ public class GmFile implements UpdateListener
 	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class,this);
 	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class,this);
 
-	/** One of 530, 600, 701, or 800 */
-	public int fileVersion = 600;
-	public String filename = null;
+	public ArrayList<Trigger> triggers = new ArrayList<Trigger>();
+	public ArrayList<Constant> constants = new ArrayList<Constant>();
+	public ArrayList<Include> includes = new ArrayList<Include>();
+	public ArrayList<String> packages = new ArrayList<String>();
+
+	public GameInformation gameInfo = new GameInformation();
+	public GameSettings gameSettings = new GameSettings();
+	public int lastInstanceId = 100000;
+	public int lastTileId = 10000000;
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
@@ -180,17 +194,11 @@ public class GmFile implements UpdateListener
 		return DateFormat.getDateTimeInstance().format(base.getTime());
 		}
 
-	public GameSettings gameSettings = new GameSettings();
-	public int lastInstanceId = 100000;
-	public int lastTileId = 10000000;
-
 	// Returns the ResourceList corresponding to given Resource constant
 	public ResourceList<?> getList(Resource.Kind res)
 		{
 		return resMap.get(res);
 		}
-
-	public GameInformation gameInfo = new GameInformation();
 
 	public void defragIds()
 		{
@@ -206,6 +214,14 @@ public class GmFile implements UpdateListener
 			for (Tile j : r.tiles)
 				j.properties.put(PTile.ID,++lastTileId);
 			}
+		}
+
+	public static ArrayList<Constant> copyConstants(ArrayList<Constant> source)
+		{
+		ArrayList<Constant> dest = new ArrayList<Constant>();
+		for (Constant c : source)
+			dest.add(c.copy());
+		return dest;
 		}
 
 	public void updated(UpdateEvent e)

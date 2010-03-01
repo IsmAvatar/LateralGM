@@ -230,16 +230,16 @@ public final class GmFileWriter
 		out.writeStr(g.information);
 		if (ver < 800)
 			{
-			out.write4(g.constants.size());
-			for (Constant con : g.constants)
+			out.write4(f.constants.size());
+			for (Constant con : f.constants)
 				{
 				out.writeStr(con.name);
 				out.writeStr(con.value);
 				}
 			if (ver == 542 || ver == 600)
 				{
-				out.write4(g.includes.size());
-				for (Include inc : g.includes)
+				out.write4(f.includes.size());
+				for (Include inc : f.includes)
 					out.writeStr(inc.filepath);
 				out.write4(g.includeFolder);
 				out.writeBool(g.overwriteExisting);
@@ -268,8 +268,8 @@ public final class GmFileWriter
 		if (ver < 800) return;
 
 		out.write4(ver);
-		out.write4(f.gameSettings.triggers.size());
-		for (Trigger t : f.gameSettings.triggers)
+		out.write4(f.triggers.size());
+		for (Trigger t : f.triggers)
 			{
 			out.write4(800);
 			out.writeStr(t.name);
@@ -286,8 +286,8 @@ public final class GmFileWriter
 		if (ver < 800) return;
 
 		out.write4(ver);
-		out.write4(f.gameSettings.constants.size());
-		for (Constant c : f.gameSettings.constants)
+		out.write4(f.constants.size());
+		for (Constant c : f.constants)
 			{
 			out.writeStr(c.name);
 			out.writeStr(c.value);
@@ -676,8 +676,8 @@ public final class GmFileWriter
 		if (ver < 620) return;
 
 		out.write4(ver);
-		out.write4(f.gameSettings.includes.size());
-		for (Include i : f.gameSettings.includes)
+		out.write4(f.includes.size());
+		for (Include i : f.includes)
 			{
 			if (ver >= 800) out.writeD(f.gameSettings.lastChanged);
 			out.write4(ver);
@@ -707,7 +707,9 @@ public final class GmFileWriter
 		if (ver < 700) return;
 
 		out.write4(700);
-		out.write4(0);
+		out.write4(f.packages.size());
+		for (String s : f.packages)
+			out.writeStr(s);
 		}
 
 	public static void writeGameInformation(GmFile f, GmStreamEncoder out) throws IOException

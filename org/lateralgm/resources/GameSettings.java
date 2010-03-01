@@ -11,12 +11,9 @@ package org.lateralgm.resources;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.iconio.ICOFile;
-import org.lateralgm.resources.sub.Constant;
-import org.lateralgm.resources.sub.Trigger;
 
 public class GameSettings
 	{
@@ -87,6 +84,8 @@ public class GameSettings
 	public String version = "100";
 	public double lastChanged = GmFile.longTimeToGmTime(System.currentTimeMillis());
 	public String information = ""; //$NON-NLS-1$
+	
+	//FIXME: Includes information moved
 	public int includeFolder = GameSettings.INCLUDE_MAIN;
 	public boolean overwriteExisting = false;
 	public boolean removeAtGameEnd = false;
@@ -100,17 +99,5 @@ public class GameSettings
 	public String copyright = ""; //$NON-NLS-1$
 	public String description = ""; //$NON-NLS-1$
 
-	public ArrayList<Trigger> triggers = new ArrayList<Trigger>();
-	public ArrayList<Constant> constants = new ArrayList<Constant>();
-	public ArrayList<Include> includes = new ArrayList<Include>();
-
 	public ICOFile gameIcon;
-
-	public static ArrayList<Constant> copyConstants(ArrayList<Constant> source)
-		{
-		ArrayList<Constant> dest = new ArrayList<Constant>();
-		for (Constant c : source)
-			dest.add(c.copy());
-		return dest;
-		}
 	}
