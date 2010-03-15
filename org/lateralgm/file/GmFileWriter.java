@@ -201,9 +201,7 @@ public final class GmFileWriter
 		//FIXME: GM8 icons
 		Util.fixIcon(g.gameIcon,f.fileVersion);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		StreamEncoder se = new StreamEncoder(baos);
-		g.gameIcon.write(se);
-		se.flush();
+		g.gameIcon.write(baos);
 		out.write4(baos.size());
 		baos.writeTo(out);
 
