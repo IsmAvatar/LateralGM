@@ -61,6 +61,7 @@ public final class LibManager
 	public static void autoLoad()
 		{
 		File defdir = new File(Prefs.defaultLibraryPath);
+		if (!defdir.exists()) defdir = new File(LGM.workDir,Prefs.defaultLibraryPath);
 		if (!defdir.exists()) defdir = LGM.workDir;
 		autoLoad(defdir);
 

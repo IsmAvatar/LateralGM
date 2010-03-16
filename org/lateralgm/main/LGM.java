@@ -411,7 +411,7 @@ public final class LGM
 		SplashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
 		SplashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
-		JComponent tool = createToolBar();
+		JComponent toolbar = createToolBar();
 		JComponent left = createTree();
 		JComponent right = createMDI();
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,left,right);
@@ -442,7 +442,7 @@ public final class LGM
 		JPanel f = new JPanel(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(f);
-		f.add(BorderLayout.NORTH,tool);
+		f.add(BorderLayout.NORTH,toolbar);
 		f.add(BorderLayout.CENTER,split);
 		f.setOpaque(true);
 		new FramePrefsHandler(frame);

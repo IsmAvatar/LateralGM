@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <fileset-config file-format-version="1.2.0" simple-config="true">
-    <local-check-config name="LateralChecks" location="checkstyle.xml" type="project" description="Checkstyle checker designed for LateralGM and the latest Girard format">
-        <additional-data name="protect-config-file" value="false"/>
-    </local-check-config>
-    <fileset name="all" enabled="true" check-config-name="LateralChecks" local="true">
-        <file-match-pattern match-pattern="." include-pattern="true"/>
-    </fileset>
+  <local-check-config name="LateralChecks" location="checkstyle.xml" type="project" description="Checkstyle checker designed for LateralGM and the latest Girard format">
+    <additional-data name="protect-config-file" value="false"/>
+  </local-check-config>
+  <fileset name="all" enabled="true" check-config-name="LateralChecks" local="true">
+    <file-match-pattern match-pattern="." include-pattern="true"/>
+  </fileset>
 </fileset-config>

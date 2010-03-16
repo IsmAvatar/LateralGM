@@ -1223,6 +1223,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 				"tileUpdateTrigger","tileUpdateSource");
 		c.addExclusions(Instance.class,"updateTrigger","updateSource");
 		c.addExclusions(Tile.class,"updateTrigger","updateSource");
+		c.addExclusions(BackgroundDef.class,"updateTrigger","updateSource");
 		if (!c.areEqual(res,resOriginal)) return true;
 		for (CodeFrame cf : codeFrames.values())
 			if (cf.isChanged()) return true;
