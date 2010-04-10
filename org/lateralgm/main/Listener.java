@@ -613,17 +613,6 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			if (e.getClickCount() == 2)
 				{
-				switch (node.kind)
-					{
-					case GAMEINFO:
-						LGM.getGameInfo().toTop();
-						return;
-					case GAMESETTINGS:
-						LGM.getGameSettings().toTop();
-						return;
-					case EXTENSIONS:
-						return;
-					}
 				// kind must be a Resource kind
 				if (node.status != ResNode.STATUS_SECONDARY) return;
 				node.openFrame();

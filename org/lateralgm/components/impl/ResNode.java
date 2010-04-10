@@ -169,38 +169,39 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 
 	public void openFrame()
 		{
-		if (SubframeInformer.fireSubframeRequest(res.get(),this)) return;
+		Resource<?,?> r = deRef();
+		if (SubframeInformer.fireSubframeRequest(r,this)) return;
 		if (frame == null)
 			{
 			MDIFrame rf = null;
 			switch (kind)
 				{
 				case SPRITE:
-					rf = new SpriteFrame((Sprite) res.get(),this);
+					rf = new SpriteFrame((Sprite) r,this);
 					break;
 				case SOUND:
-					rf = new SoundFrame((Sound) res.get(),this);
+					rf = new SoundFrame((Sound) r,this);
 					break;
 				case BACKGROUND:
-					rf = new BackgroundFrame((Background) res.get(),this);
+					rf = new BackgroundFrame((Background) r,this);
 					break;
 				case PATH:
-					rf = new PathFrame((Path) res.get(),this);
+					rf = new PathFrame((Path) r,this);
 					break;
 				case SCRIPT:
-					rf = new ScriptFrame((Script) res.get(),this);
+					rf = new ScriptFrame((Script) r,this);
 					break;
 				case FONT:
-					rf = new FontFrame((Font) res.get(),this);
+					rf = new FontFrame((Font) r,this);
 					break;
 				case TIMELINE:
-					rf = new TimelineFrame((Timeline) res.get(),this);
+					rf = new TimelineFrame((Timeline) r,this);
 					break;
 				case OBJECT:
-					rf = new GmObjectFrame((GmObject) res.get(),this);
+					rf = new GmObjectFrame((GmObject) r,this);
 					break;
 				case ROOM:
-					rf = new RoomFrame((Room) res.get(),this);
+					rf = new RoomFrame((Room) r,this);
 					break;
 				case GAMEINFO:
 					rf = LGM.getGameInfo();

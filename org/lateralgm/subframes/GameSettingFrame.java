@@ -503,10 +503,13 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		cModel = new ConstantsTableModel(LGM.currentFile.gameSettings.constants);
 		constants = new JTable(cModel);
-		constants.getTableHeader().setReorderingAllowed(false);
 		JScrollPane scroll = new JScrollPane(constants);
 		constants.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		constants.getTableHeader().setReorderingAllowed(false);
 		constants.setTransferHandler(null);
+		//this fixes java bug 4709394, where the cell editor does not commit on focus lost,
+		//causing the value to remain in-limbo even after the "Save" button is clicked.
+		constants.putClientProperty("terminateEditOnFocusLost",Boolean.TRUE); //$NON-NLS-1$
 
 		add = new JButton(Messages.getString("GameSettingFrame.ADD")); //$NON-NLS-1$
 		add.addActionListener(this);
