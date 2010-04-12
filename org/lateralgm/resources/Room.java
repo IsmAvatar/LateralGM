@@ -66,7 +66,9 @@ public class Room extends Resource<Room,Room.PRoom>
 		this(LGM.currentFile);
 		}
 
-	public Room(GmFile parent) // Rooms are special - they need to know what file they belong to
+	// Rooms are special - they need to know what file they belong to,
+	// so they can update GmFile.lastInstanceId when a new instance is created
+	public Room(GmFile parent)
 		{
 		this(parent,null,true);
 		}
