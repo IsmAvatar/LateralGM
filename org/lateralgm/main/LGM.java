@@ -288,11 +288,11 @@ public final class LGM
 			if (!f.exists()) continue;
 			try
 				{
-				String plugin_entry = "LGM-Plugin"; //$NON-NLS-1$
+				String pluginEntry = "LGM-Plugin"; //$NON-NLS-1$
 				Manifest mf = new JarFile(f).getManifest();
-				String clastr = mf.getMainAttributes().getValue(plugin_entry);
+				String clastr = mf.getMainAttributes().getValue(pluginEntry);
 				if (clastr == null)
-					throw new Exception(Messages.format("LGM.PLUGIN_MISSING_ENTRY",plugin_entry));
+					throw new Exception(Messages.format("LGM.PLUGIN_MISSING_ENTRY",pluginEntry));
 				URLClassLoader ucl = new URLClassLoader(new URL[] { f.toURI().toURL() });
 				ucl.loadClass(clastr).newInstance();
 				}
