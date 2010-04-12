@@ -15,10 +15,7 @@ import static org.lateralgm.main.Util.deRef;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
+import java.awt.image.PixelGrabber;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,27 +66,25 @@ public class GmStreamEncoder extends StreamEncoder
 				b[off + i] = (byte) x;
 				}
 			}
-		out.write(b,off,len);
-		pos += len;
+		super.write(b,off,len);
 		}
 
 	public void write(int b) throws IOException
 		{
 		if (table != null) b = table[b + pos] & 0xFF;
-		out.write(b);
-		pos++;
+		super.write(b);
 		}
 
 	public void writeStr(String str) throws IOException
 		{
 		write4(str.length());
-		out.write(str.getBytes("ascii")); //$NON-NLS-1$
+		write(str.getBytes("ascii")); //$NON-NLS-1$
 		}
 
 	public void writeStr1(String str) throws IOException
 		{
 		write(Math.min(str.length(),255));
-		out.write(str.getBytes("ascii"),0,Math.min(str.length(),255)); //$NON-NLS-1$
+		write(str.getBytes("ascii"),0,Math.min(str.length(),255)); //$NON-NLS-1$
 		}
 
 	public void writeBool(boolean val) throws IOException
@@ -148,7 +143,7 @@ public class GmStreamEncoder extends StreamEncoder
 			baos.write(buffer,0,len);
 			}
 		write4(baos.size());
-		out.write(baos.toByteArray());
+		write(baos.toByteArray());
 		}
 
 	public void beginDeflate()
@@ -191,10 +186,34 @@ public class GmStreamEncoder extends StreamEncoder
 		compress(data.toByteArray());
 		}
 
-	//FIXME: Make BGRA work (the current code was just a wild guess)
 	public void writeBGRAImage(BufferedImage image) throws IOException
 		{
-		int w = image.getWidth();
+		int width = image.getWidth();
+		int height = image.getHeight();
+
+		//Because apparently there's no pretty way of fetching the
+		//pixels of a BufferedImage in the desired format (BGRA)...
+		int[] pixels = new int[width * height];
+		PixelGrabber pg = new PixelGrabber(image,0,0,width,height,pixels,0,width);
+		try
+			{
+			pg.grabPixels();
+
+			//ARGB => BGRA
+			for (int p = 0; p < pixels.length; p++)
+				{
+				write(pixels[p] & 0xFF);
+				write(pixels[p] >>> 8 & 0xFF);
+				write(pixels[p] >>> 16 & 0xFF);
+				write(pixels[p] >>> 24);
+				}
+			}
+		catch (InterruptedException e)
+			{
+			e.printStackTrace();
+			}
+
+		/*int w = image.getWidth();
 		int h = image.getHeight();
 		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,w,h,w * 4,4,
 				new int[] { 2,1,0,3 },null); //2103 = RGBA ordering
@@ -202,19 +221,7 @@ public class GmStreamEncoder extends StreamEncoder
 		raster.setRect(dst.getRaster());
 
 		byte[] buf = ((DataBufferByte) raster.getDataBuffer()).getData();
-		out.write(buf);
-		
-		
-		/*raster = image.getRaster();
-		w <<= 2;
-		byte[] buf = new byte[w * h * 4];
-		for (int y = 0; y < h; y++)
-			for (int x = 0; x < w; x += 4)
-				{
-				raster.get
-//				int pix = image.getRGB(pix,y)
-				buf[y * w + x * 4];
-				}*/
+		out.write(buf);*/
 		}
 
 	/**
