@@ -27,11 +27,11 @@ public class CodeFrame extends MDIFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 
-	public static interface CodeHolder
+	public interface CodeHolder
 		{
-		public String getCode();
+		String getCode();
 
-		public void setCode(String s);
+		void setCode(String s);
 		}
 
 	public void commit()
