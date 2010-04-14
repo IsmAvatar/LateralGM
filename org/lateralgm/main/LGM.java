@@ -371,6 +371,8 @@ public final class LGM
 		LGM.getGameSettings().setVisible(false);
 		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);
 		LGM.getGameInfo().setVisible(false);
+
+		LGM.fireReload();
 		}
 
 	public static void commitAll()
@@ -383,6 +385,39 @@ public final class LGM
 			}
 		LGM.getGameSettings().commitChanges();
 		LGM.getGameInfo().updateResource();
+
+		LGM.fireCommitAll();
+		}
+
+	public static interface InterfaceListener
+		{
+		void reload();
+
+		void commitAll();
+		}
+
+	protected static ArrayList<InterfaceListener> listeners = new ArrayList<InterfaceListener>();
+
+	public static void addInterfaceListener(InterfaceListener l)
+		{
+		listeners.add(l);
+		}
+
+	public static void removeInterfaceListener(InterfaceListener l)
+		{
+		listeners.remove(l);
+		}
+
+	protected static void fireReload()
+		{
+		for (InterfaceListener il : listeners)
+			il.reload();
+		}
+
+	protected static void fireCommitAll()
+		{
+		for (InterfaceListener il : listeners)
+			il.commitAll();
 		}
 
 	static
