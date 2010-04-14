@@ -357,8 +357,31 @@ public final class LGM
 		return true;
 		}
 
-	public static void reload()
+	/**
+	* Commits all front-end changes to the back-end.
+	* Usually do this in preparation for writing the back-end to some output stream,
+	* such as a file (e.g. saving) or a plugin (e.g. compiling).
+	* Notice that LGM actually traverses the tree committing *all* ResNodes with frames,
+	* rather than just the open MDI frames. Since GameSettings and GameInfo do not have
+	* ResourceFrames associated with them, we commit them separately.
+	* @see LGM#commitAll()
+	*/
+	public static void commitAll()
 		{
+		Enumeration<?> nodes = LGM.root.preorderEnumeration();
+		while (nodes.hasMoreElements())
+			{
+			ResNode node = (ResNode) nodes.nextElement();
+			if (node.frame != null) node.frame.updateResource(); // update open frames
+			}
+		LGM.getGameSettings().commitChanges();
+		LGM.getGameInfo().updateResource();
+		}
+
+	public static void reload(boolean newRoot)
+		{
+		LGM.mdi.closeAll();
+
 		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
 		LGM.tree.setSelectionRow(0);
 
@@ -372,52 +395,41 @@ public final class LGM
 		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);
 		LGM.getGameInfo().setVisible(false);
 
-		LGM.fireReload();
+		LGM.fireReloadPerformed(newRoot);
 		}
 
-	public static void commitAll()
+	public static interface ReloadListener
 		{
-		Enumeration<?> nodes = LGM.root.preorderEnumeration();
-		while (nodes.hasMoreElements())
-			{
-			ResNode node = (ResNode) nodes.nextElement();
-			if (node.frame != null) node.frame.updateResource(); // update open frames
-			}
-		LGM.getGameSettings().commitChanges();
-		LGM.getGameInfo().updateResource();
-
-		LGM.fireCommitAll();
+		/**
+		 * Called after LGM performs a reload, e.g. when a new file is created or loaded.
+		 * A reload causes the MDI to be flushed, the tree to refresh
+		 * (especially if a new root is provided), the EventFrame is recreated
+		 * (a hack to ensure that the events' link selectors know of the new root),
+		 * and Game Settings and Game Info are re-calibrated with their new settings
+		 * (but not recreated). Note that the Menu bar is left untouched and remains in tact.
+		 * @param newRoot indicates if a new root was provided to the tree
+		 * (e.g. the tree had to be re-populated)
+		 * @see LGM#reload(boolean newRoot)
+		 */
+		void reloadPerformed(boolean newRoot);
 		}
 
-	public static interface InterfaceListener
-		{
-		void reload();
+	protected static ArrayList<ReloadListener> reloadListeners = new ArrayList<ReloadListener>();
 
-		void commitAll();
+	public static void addReloadListener(ReloadListener l)
+		{
+		reloadListeners.add(l);
 		}
 
-	protected static ArrayList<InterfaceListener> listeners = new ArrayList<InterfaceListener>();
-
-	public static void addInterfaceListener(InterfaceListener l)
+	public static void removeReloadListener(ReloadListener l)
 		{
-		listeners.add(l);
+		reloadListeners.remove(l);
 		}
 
-	public static void removeInterfaceListener(InterfaceListener l)
+	protected static void fireReloadPerformed(boolean newRoot)
 		{
-		listeners.remove(l);
-		}
-
-	protected static void fireReload()
-		{
-		for (InterfaceListener il : listeners)
-			il.reload();
-		}
-
-	protected static void fireCommitAll()
-		{
-		for (InterfaceListener il : listeners)
-			il.commitAll();
+		for (ReloadListener rl : reloadListeners)
+			rl.reloadPerformed(newRoot);
 		}
 
 	static

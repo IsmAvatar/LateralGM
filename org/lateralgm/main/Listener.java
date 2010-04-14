@@ -85,7 +85,6 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	/** Note that passing in null will cause an open dialog to display */
 	public void openFile(String filename)
 		{
-		LGM.mdi.closeAll();
 		File file;
 		if (filename != null)
 			file = new File(filename);
@@ -126,17 +125,16 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getKind(),r.reference));
 				}
 			}
-		LGM.reload();
+		LGM.reload(true);
 		}
 
 	public void newFile()
 		{
-		LGM.mdi.closeAll();
 		LGM.frame.setTitle(Messages.format("LGM.TITLE",Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$
 		LGM.root = new ResNode("Root",(byte) 0,null,null); //$NON-NLS-1$
 		LGM.currentFile = new GmFile();
 		LGM.populateTree();
-		LGM.reload();
+		LGM.reload(true);
 		}
 
 	public static class BackupException extends Exception
