@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
- * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -28,10 +28,11 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 
-public class Room extends Resource<Room,Room.PRoom>
+public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
 	{
 	public static final int TAB_OBJECTS = 0;
 	public static final int TAB_SETTINGS = 1;
@@ -96,6 +97,16 @@ public class Room extends Resource<Room,Room.PRoom>
 		return inst;
 		}
 
+	public String getCode()
+		{
+		return properties.get(PRoom.CREATION_CODE);
+		}
+
+	public void setCode(String s)
+		{
+		properties.put(PRoom.CREATION_CODE,s);
+		}
+
 	@Override
 	protected Room copy(ResourceList<Room> src, ResourceReference<Room> ref, boolean update)
 		{
@@ -156,5 +167,4 @@ public class Room extends Resource<Room,Room.PRoom>
 
 		void setLocked(boolean l);
 		}
-
 	}

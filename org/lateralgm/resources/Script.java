@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2010 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -13,9 +14,10 @@ import java.util.EnumMap;
 
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.util.PropertyMap;
 
-public class Script extends Resource<Script,Script.PScript>
+public class Script extends Resource<Script,Script.PScript> implements CodeHolder
 	{
 	public enum PScript
 		{
@@ -52,5 +54,15 @@ public class Script extends Resource<Script,Script.PScript>
 	protected PropertyMap<PScript> makePropertyMap()
 		{
 		return new PropertyMap<PScript>(PScript.class,this,DEFS);
+		}
+
+	public String getCode()
+		{
+		return properties.get(PScript.CODE);
+		}
+
+	public void setCode(String s)
+		{
+		properties.put(PScript.CODE,s);
 		}
 	}
