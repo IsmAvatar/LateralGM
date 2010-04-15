@@ -10,6 +10,7 @@ package org.lateralgm.subframes;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.MessageFormat;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
@@ -39,10 +40,10 @@ public class CodeFrame extends MDIFrame implements ActionListener
 		code.setCode(gta.getTextCompat());
 		}
 
-	public void setTitleFormatArg(Object arg)
+	public void setTitleFormatArg(Object titleArg)
 		{
-		this.arg = arg;
-		setTitle(Messages.format(format,arg));
+		this.titleArg = titleArg;
+		setTitle(MessageFormat.format(titleFormat,titleArg));
 		}
 
 	public boolean isChanged()
@@ -52,16 +53,16 @@ public class CodeFrame extends MDIFrame implements ActionListener
 
 	public final CodeHolder code;
 	final GMLTextArea gta;
-	private final String format;
-	private Object arg;
+	private final String titleFormat;
+	private Object titleArg;
 	private final JButton save;
 
-	public CodeFrame(CodeHolder code, String format, Object arg)
+	public CodeFrame(CodeHolder code, String titleFormat, Object titleArg)
 		{
-		super(Messages.format(format,arg),true,true,true,true);
+		super(MessageFormat.format(titleFormat,titleArg),true,true,true,true);
 		this.code = code;
-		this.format = format;
-		this.arg = arg;
+		this.titleFormat = titleFormat;
+		this.titleArg = titleArg;
 		setSize(600,400);
 		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 		// the code text area
@@ -88,7 +89,7 @@ public class CodeFrame extends MDIFrame implements ActionListener
 			if (isChanged())
 				{
 				int res = JOptionPane.showConfirmDialog(getParent(),Messages.format(
-						"RoomFrame.CODE_CHANGED",arg,Messages.getString("RoomFrame.TITLE_CHANGES"), //$NON-NLS-1$ //$NON-NLS-2$
+						"RoomFrame.CODE_CHANGED",titleArg,Messages.getString("RoomFrame.TITLE_CHANGES"), //$NON-NLS-1$ //$NON-NLS-2$
 						JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE));
 				if (res == JOptionPane.YES_OPTION)
 					commit();

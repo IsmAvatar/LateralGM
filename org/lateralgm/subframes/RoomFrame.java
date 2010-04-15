@@ -1291,7 +1291,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			}
 		if (e.getSource() == sCreationCode)
 			{
-			openCodeFrame(res,"RoomFrame.TITLE_FORMAT_CREATION",res.getName()); //$NON-NLS-1$
+			openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
 			return;
 			}
 		if (e.getSource() == oCreationCode)
@@ -1417,16 +1417,16 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 
 	public void openCodeFrame(Instance i)
 		{
-		openCodeFrame(i,"RoomFrame.TITLE_FORMAT_CREATION",Messages.format("RoomFrame.INSTANCE",
-				i.properties.get(PInstance.ID)));
+		openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),Messages.format(
+				"RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
 		}
 
-	public void openCodeFrame(CodeHolder code, String format, Object arg)
+	public void openCodeFrame(CodeHolder code, String titleFormat, Object titleArg)
 		{
 		CodeFrame frame = codeFrames.get(code);
 		if (frame == null)
 			{
-			frame = new CodeFrame(code,format,arg);
+			frame = new CodeFrame(code,titleFormat,titleArg);
 			codeFrames.put(code,frame);
 			frame.addInternalFrameListener(new InternalFrameAdapter()
 				{
