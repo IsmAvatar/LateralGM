@@ -8,14 +8,22 @@
 
 package org.lateralgm.subframes;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.MessageFormat;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GMLTextArea;
@@ -24,7 +32,7 @@ import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 
-public class CodeFrame extends MDIFrame implements ActionListener
+public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -56,6 +64,8 @@ public class CodeFrame extends MDIFrame implements ActionListener
 	private final String titleFormat;
 	private Object titleArg;
 	private final JButton save;
+	public final JPanel status;
+	private final JLabel caretPos;
 
 	public CodeFrame(CodeHolder code, String titleFormat, Object titleArg)
 		{
@@ -65,20 +75,30 @@ public class CodeFrame extends MDIFrame implements ActionListener
 		this.titleArg = titleArg;
 		setSize(600,400);
 		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
-		// the code text area
-		gta = new GMLTextArea(code.getCode());
-		// Setup the toolbar
+
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
-		add("North",tool); //$NON-NLS-1$
-		// Setup the buttons
 		save = new JButton(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
 		save.addActionListener(this);
 		tool.add(save);
 		tool.addSeparator();
+
+		gta = new GMLTextArea(code.getCode());
 		gta.addEditorButtons(tool);
-		getContentPane().add(gta);
+
+		status = new JPanel(new FlowLayout());
+		status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
+		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
+		caretPos = new JLabel(gta.getCaretLine() + ":" + gta.getCaretPosition());
+		status.add(caretPos);
+		gta.addCaretListener(this);
+
+		add(tool,BorderLayout.NORTH);
+		add(gta,BorderLayout.CENTER);
+		System.out.println(status);
+		add(status,BorderLayout.SOUTH);
+
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(gta));
 		}
 
@@ -109,5 +129,10 @@ public class CodeFrame extends MDIFrame implements ActionListener
 		//save button clicked
 		commit();
 		dispose();
+		}
+
+	public void caretUpdate(CaretEvent e)
+		{
+		caretPos.setText(gta.getCaretLine() + ":" + gta.getCaretPosition());
 		}
 	}

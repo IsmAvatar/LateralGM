@@ -12,6 +12,8 @@
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -20,9 +22,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GMLTextArea;
@@ -39,12 +45,15 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 
-public class ScriptFrame extends ResourceFrame<Script,PScript> implements ActionListener
+public class ScriptFrame extends ResourceFrame<Script,PScript> implements ActionListener,
+		CaretListener
 	{
 	private static final long serialVersionUID = 1L;
 	public JToolBar tool;
 	public GMLTextArea code;
 	public JButton edit;
+	public JPanel status;
+	private JLabel caretPos;
 
 	private ScriptEditor editor;
 
@@ -81,6 +90,14 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 		name.setMaximumSize(name.getPreferredSize());
 		tool.add(new JLabel(Messages.getString("ScriptFrame.NAME"))); //$NON-NLS-1$
 		tool.add(name);
+
+		status = new JPanel(new FlowLayout());
+		status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
+		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
+		caretPos = new JLabel(code.getCaretLine() + ":" + code.getCaretPosition());
+		status.add(caretPos);
+		code.addCaretListener(this);
+		add(status,BorderLayout.SOUTH);
 
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
 		}
@@ -133,6 +150,11 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 			return;
 			}
 		super.actionPerformed(e);
+		}
+
+	public void caretUpdate(CaretEvent e)
+		{
+		caretPos.setText(code.getCaretLine() + ":" + code.getCaretPosition());
 		}
 
 	private class ScriptEditor implements UpdateListener
