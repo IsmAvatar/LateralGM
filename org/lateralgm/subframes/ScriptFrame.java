@@ -94,7 +94,7 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 		status = new JPanel(new FlowLayout());
 		status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
 		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
-		caretPos = new JLabel(code.getCaretLine() + ":" + code.getCaretPosition());
+		caretPos = new JLabel((code.getCaretLine() + 1) + ":" + (code.getCaretPosition() + 1));
 		status.add(caretPos);
 		code.addCaretListener(this);
 		add(status,BorderLayout.SOUTH);
@@ -154,7 +154,7 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 
 	public void caretUpdate(CaretEvent e)
 		{
-		caretPos.setText(code.getCaretLine() + ":" + code.getCaretPosition());
+		caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretPosition() + 1));
 		}
 
 	private class ScriptEditor implements UpdateListener

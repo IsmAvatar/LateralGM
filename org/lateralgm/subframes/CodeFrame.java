@@ -60,11 +60,13 @@ public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
 		}
 
 	public final CodeHolder code;
-	final GMLTextArea gta;
+	public final JToolBar tool;
+	public final GMLTextArea gta;
+	public final JPanel status;
+
 	private final String titleFormat;
 	private Object titleArg;
 	private final JButton save;
-	public final JPanel status;
 	private final JLabel caretPos;
 
 	public CodeFrame(CodeHolder code, String titleFormat, Object titleArg)
@@ -76,7 +78,7 @@ public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
 		setSize(600,400);
 		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 
-		JToolBar tool = new JToolBar();
+		tool = new JToolBar();
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
 		save = new JButton(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
@@ -90,7 +92,7 @@ public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
 		status = new JPanel(new FlowLayout());
 		status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
 		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
-		caretPos = new JLabel(gta.getCaretLine() + ":" + gta.getCaretPosition());
+		caretPos = new JLabel((gta.getCaretLine() + 1) + ":" + (gta.getCaretPosition() + 1));
 		status.add(caretPos);
 		gta.addCaretListener(this);
 
@@ -100,6 +102,8 @@ public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
 		add(status,BorderLayout.SOUTH);
 
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(gta));
+
+		SubframeInformer.fireSubframeAppear(this);
 		}
 
 	public void fireInternalFrameEvent(int id)
@@ -133,6 +137,6 @@ public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
 
 	public void caretUpdate(CaretEvent e)
 		{
-		caretPos.setText(gta.getCaretLine() + ":" + gta.getCaretPosition());
+		caretPos.setText((gta.getCaretLine()) + 1 + ":" + (gta.getCaretPosition() + 1));
 		}
 	}
