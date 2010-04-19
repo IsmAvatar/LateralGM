@@ -202,6 +202,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			makeArgumentPane(a,la);
 		pack();
 		repaint();
+		SubframeInformer.fireSubframeAppear(this);
 		}
 
 	private void makeArgumentPane(Action a, LibAction la)
