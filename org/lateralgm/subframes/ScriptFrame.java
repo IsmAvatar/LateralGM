@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
- * Copyright (C) 2006 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -45,15 +45,13 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 
-public class ScriptFrame extends ResourceFrame<Script,PScript> implements ActionListener,
-		CaretListener
+public class ScriptFrame extends ResourceFrame<Script,PScript> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	public JToolBar tool;
 	public GMLTextArea code;
 	public JButton edit;
 	public JPanel status;
-	private JLabel caretPos;
 
 	private ScriptEditor editor;
 
@@ -94,9 +92,16 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 		status = new JPanel(new FlowLayout());
 		status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
 		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
-		caretPos = new JLabel((code.getCaretLine() + 1) + ":" + (code.getCaretPosition() + 1));
+		final JLabel caretPos = new JLabel((code.getCaretLine() + 1) + ":"
+				+ (code.getCaretPosition() + 1));
 		status.add(caretPos);
-		code.addCaretListener(this);
+		code.addCaretListener(new CaretListener()
+			{
+				public void caretUpdate(CaretEvent e)
+					{
+					caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretPosition() + 1));
+					}
+			});
 		add(status,BorderLayout.SOUTH);
 
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
@@ -150,11 +155,6 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 			return;
 			}
 		super.actionPerformed(e);
-		}
-
-	public void caretUpdate(CaretEvent e)
-		{
-		caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretPosition() + 1));
 		}
 
 	private class ScriptEditor implements UpdateListener

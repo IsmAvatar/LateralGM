@@ -32,7 +32,7 @@ import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 
-public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
+public class CodeFrame extends MDIFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +45,7 @@ public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
 
 	public void commit()
 		{
-		code.setCode(gta.getTextCompat());
+		codeHolder.setCode(code.getTextCompat());
 		}
 
 	public void setTitleFormatArg(Object titleArg)
@@ -56,23 +56,22 @@ public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
 
 	public boolean isChanged()
 		{
-		return gta.getUndoManager().isModified();
+		return code.getUndoManager().isModified();
 		}
 
-	public final CodeHolder code;
+	public final CodeHolder codeHolder;
 	public final JToolBar tool;
-	public final GMLTextArea gta;
+	public final GMLTextArea code;
 	public final JPanel status;
 
 	private final String titleFormat;
 	private Object titleArg;
 	private final JButton save;
-	private final JLabel caretPos;
 
-	public CodeFrame(CodeHolder code, String titleFormat, Object titleArg)
+	public CodeFrame(CodeHolder codeHolder, String titleFormat, Object titleArg)
 		{
 		super(MessageFormat.format(titleFormat,titleArg),true,true,true,true);
-		this.code = code;
+		this.codeHolder = codeHolder;
 		this.titleFormat = titleFormat;
 		this.titleArg = titleArg;
 		setSize(600,400);
@@ -86,22 +85,28 @@ public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
 		tool.add(save);
 		tool.addSeparator();
 
-		gta = new GMLTextArea(code.getCode());
-		gta.addEditorButtons(tool);
+		code = new GMLTextArea(codeHolder.getCode());
+		code.addEditorButtons(tool);
 
 		status = new JPanel(new FlowLayout());
 		status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
 		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
-		caretPos = new JLabel((gta.getCaretLine() + 1) + ":" + (gta.getCaretPosition() + 1));
+		final JLabel caretPos = new JLabel((code.getCaretLine() + 1) + ":"
+				+ (code.getCaretPosition() + 1));
 		status.add(caretPos);
-		gta.addCaretListener(this);
+		code.addCaretListener(new CaretListener()
+			{
+				public void caretUpdate(CaretEvent e)
+					{
+					caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretPosition() + 1));
+					}
+			});
 
 		add(tool,BorderLayout.NORTH);
-		add(gta,BorderLayout.CENTER);
-		System.out.println(status);
+		add(code,BorderLayout.CENTER);
 		add(status,BorderLayout.SOUTH);
 
-		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(gta));
+		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
 
 		SubframeInformer.fireSubframeAppear(this);
 		}
@@ -133,10 +138,5 @@ public class CodeFrame extends MDIFrame implements ActionListener,CaretListener
 		//save button clicked
 		commit();
 		dispose();
-		}
-
-	public void caretUpdate(CaretEvent e)
-		{
-		caretPos.setText((gta.getCaretLine()) + 1 + ":" + (gta.getCaretPosition() + 1));
 		}
 	}

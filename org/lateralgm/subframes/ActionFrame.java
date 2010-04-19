@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2009 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -44,6 +44,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameEvent;
@@ -78,7 +80,9 @@ public class ActionFrame extends MDIFrame implements ActionListener
 	private JCheckBox notBox;
 	private JButton save;
 	private JButton discard;
-	private GMLTextArea code;
+	public JToolBar tool;
+	public GMLTextArea code;
+	public JPanel status;
 
 	public ActionFrame(Action a)
 		{
@@ -156,26 +160,43 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			setMaximizable(true);
 			setResizable(true);
 			setIconifiable(true);
-			// the code text area
-			code = new GMLTextArea(a.getArguments().get(0).getVal());
-			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
-			// Setup the toolbar
-			JToolBar tool = new JToolBar();
+
+			tool = new JToolBar();
 			tool.setFloatable(false);
 			tool.setAlignmentX(0);
-			add("North",tool); //$NON-NLS-1$
-			// Setup the buttons
 			save = new JButton(LGM.getIconForKey("ActionFrame.SAVE")); //$NON-NLS-1$
 			save.addActionListener(this);
-			add(save);
+			//			add(save);
 			tool.add(save);
 			tool.addSeparator();
+
+			code = new GMLTextArea(a.getArguments().get(0).getVal());
 			code.addEditorButtons(tool);
+
 			tool.addSeparator();
 			tool.add(new JLabel(Messages.getString("ActionFrame.APPLIES"))); //$NON-NLS-1$
 			tool.add(appliesPanel);
+
+			status = new JPanel(new FlowLayout());
+			status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
+			status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
+			final JLabel caretPos = new JLabel((code.getCaretLine() + 1) + ":"
+					+ (code.getCaretPosition() + 1));
+			status.add(caretPos);
+			code.addCaretListener(new CaretListener()
+				{
+					public void caretUpdate(CaretEvent e)
+						{
+						caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretPosition() + 1));
+						}
+				});
+
+			add(tool,BorderLayout.NORTH);
+			add(code,BorderLayout.CENTER);
+			add(status,BorderLayout.SOUTH);
+
+			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
 			appliesPanel.setLayout(new BoxLayout(appliesPanel,BoxLayout.LINE_AXIS));
-			getContentPane().add(code);
 			}
 		else
 			makeArgumentPane(a,la);
