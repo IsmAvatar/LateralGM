@@ -181,13 +181,13 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
 			status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
 			final JLabel caretPos = new JLabel((code.getCaretLine() + 1) + ":"
-					+ (code.getCaretPosition() + 1));
+					+ (code.getCaretColumn() + 1));
 			status.add(caretPos);
 			code.addCaretListener(new CaretListener()
 				{
 					public void caretUpdate(CaretEvent e)
 						{
-						caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretPosition() + 1));
+						caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretColumn() + 1));
 						}
 				});
 
