@@ -18,9 +18,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
@@ -222,20 +220,9 @@ public final class Util
 				reader.setInput(in);
 				int count = reader.getNumImages(true);
 				BufferedImage[] img = new BufferedImage[count];
-				ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
 				for (int i = 0; i < count; i++)
-					{
 					img[i] = reader.read(i);
-					if (img[i] != null)
-						{
-						BufferedImage dest = new BufferedImage(img[i].getWidth(),img[i].getHeight(),
-								BufferedImage.TYPE_3BYTE_BGR);
-						conv.filter(img[i],dest);
-						img[i] = dest;
-						}
-					else
-						throw new Exception();
-					}
+				//TODO: Gif overlay support (as GM already does)
 				return img;
 				}
 			catch (Throwable t)
