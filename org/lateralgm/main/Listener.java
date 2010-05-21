@@ -27,6 +27,7 @@ import java.util.HashSet;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -163,7 +164,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		int nb = PrefsStore.getNumberOfBackups();
 		if (nb <= 0 || !new File(fn).exists()) return;
 		String bn;
-		if (fn.endsWith(".gm6"))
+		if (fn.endsWith(".gm6") || fn.endsWith(".gmk"))
 			bn = fn.substring(0,fn.length() - 4);
 		else
 			bn = fn;
@@ -198,10 +199,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			return saveNewFile();
 			}
 		LGM.commitAll();
-		if ((LGM.currentFile.filename.endsWith(".gm6")) ^ (LGM.currentFile.fileVersion == 600))
+		String ext = getVersionExtension(LGM.currentFile.fileVersion);
+		if (!LGM.currentFile.filename.endsWith(ext))
 			{
 			int result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
-					"Listener.CONFIRM_EXTENSION",".gm6",LGM.currentFile.fileVersion),
+					"Listener.CONFIRM_EXTENSION",ext,LGM.currentFile.fileVersion), //$NON-NLS-1$
 					LGM.currentFile.filename,JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.CANCEL_OPTION) return false;
 			if (result == JOptionPane.NO_OPTION) return saveNewFile();
@@ -213,8 +215,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		catch (BackupException e)
 			{
-			int result = JOptionPane.showOptionDialog(LGM.frame,Messages.format("Listener.ERROR_BACKUP",
-					LGM.currentFile.filename),Messages.getString("Listener.ERROR_BACKUP_TITLE"),
+			int result = JOptionPane.showOptionDialog(LGM.frame,Messages.format("Listener.ERROR_BACKUP", //$NON-NLS-1$
+					LGM.currentFile.filename),Messages.getString("Listener.ERROR_BACKUP_TITLE"), //$NON-NLS-1$
 					JOptionPane.YES_NO_OPTION,JOptionPane.ERROR_MESSAGE,null,null,null);
 			if (result != JOptionPane.YES_OPTION) return false;
 			}
@@ -226,7 +228,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		catch (IOException e)
 			{
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(LGM.frame,Messages.format("Listener.ERROR_SAVE",
+			JOptionPane.showMessageDialog(LGM.frame,Messages.format("Listener.ERROR_SAVE", //$NON-NLS-1$
 					LGM.currentFile.filename,e.getClass().getName(),e.getMessage()),
 					Messages.getString("Listener.ERROR_SAVE_TITLE"),JOptionPane.ERROR_MESSAGE);
 			return false;
@@ -243,7 +245,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			{
 			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return false;
 			filename = fc.getSelectedFile().getPath();
-			if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
+			if (forceExt.isSelected())
+				{
+				String ext = getVersionExtension(LGM.currentFile.fileVersion);
+				if (!filename.endsWith(ext)) filename += ext;
+				}
 			int result = JOptionPane.YES_OPTION;
 			if (new File(filename).exists())
 				result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
@@ -263,52 +269,49 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		}
 
+	// vvv These should probably be moved to somewhere else vvv //
+	public static String getVersionExtension(int version)
+		{
+		switch (version)
+			{
+			case 530:
+				return ".gmd";
+			case 600:
+				return ".gm6";
+			case 701:
+			case 800:
+				return ".gmk";
+			default:
+				throw new IllegalArgumentException(Integer.toString(version));
+			}
+		}
+
+	JCheckBox forceExt = new JCheckBox("Force extension",true);
+
 	public JPanel makeVersionRadio()
 		{
-		final int versions[] = { 800,700,600 };
+		final int versions[] = { 800,701,600 };
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p,BoxLayout.PAGE_AXIS));
 		ButtonGroup bg = new ButtonGroup();
 		for (final int v : versions)
 			{
+			//XXX: Externalize the version string?
 			JRadioButton b = new JRadioButton(Integer.toString(v),LGM.currentFile.fileVersion == v);
 			bg.add(b);
 			p.add(b);
 			b.addActionListener(new ActionListener()
 				{
-					@Override
 					public void actionPerformed(ActionEvent e)
 						{
 						LGM.currentFile.fileVersion = v;
 						}
 				});
 			}
-/*		final JRadioButton b8 = new JRadioButton("800",version == 800);
-		final JRadioButton b7 = new JRadioButton("700",version == 700);
-		final JRadioButton b6 = new JRadioButton("600",version == 600);
-		bg.add(b8);
-		bg.add(b7);
-		bg.add(b6);
-		p.add(b8);
-		p.add(b7);
-		p.add(b6);
-		ActionListener al = new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent e)
-					{
-					if (e.getSource() == b8)
-						LGM.currentFile.fileVersion = 800;
-					else if (e.getSource() == b7)
-						LGM.currentFile.fileVersion = 700;
-					else if (e.getSource() == b6) LGM.currentFile.fileVersion = 600;
-					}
-			};
-		b8.addActionListener(al);
-		b7.addActionListener(al);
-		b6.addActionListener(al);*/
+		p.add(forceExt);
 		return p;
 		}
+	// ^^^ These should probably be moved to somewhere else ^^^ //
 
 	protected static void addResource(JTree tree, String com)
 		{
