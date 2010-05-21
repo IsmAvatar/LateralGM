@@ -25,9 +25,13 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashSet;
 
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
@@ -67,6 +71,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		openFs.addFilter("Listener.FORMAT_GM6",exts[1]); //$NON-NLS-1$
 		openFs.addFilter("Listener.FORMAT_GMD",exts[2]); //$NON-NLS-1$
 
+		saveFs.addFilter("Listener.FORMAT_GM",exts); //$NON-NLS-1$
+		saveFs.addFilter("Listener.FORMAT_GMK",exts[0]); //$NON-NLS-1$
 		saveFs.addFilter("Listener.FORMAT_GM6",exts[1]); //$NON-NLS-1$
 		}
 
@@ -192,6 +198,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			return saveNewFile();
 			}
 		LGM.commitAll();
+		if ((LGM.currentFile.filename.endsWith(".gm6")) ^ (LGM.currentFile.fileVersion == 600))
+			{
+			int result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
+					"Listener.CONFIRM_EXTENSION",".gm6",LGM.currentFile.fileVersion),
+					LGM.currentFile.filename,JOptionPane.YES_NO_CANCEL_OPTION);
+			if (result == JOptionPane.CANCEL_OPTION) return false;
+			if (result == JOptionPane.NO_OPTION) return saveNewFile();
+			//if result == yes then continue
+			}
 		try
 			{
 			pushBackups(LGM.currentFile.filename);
@@ -221,6 +236,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public boolean saveNewFile()
 		{
 		fc.setFilterSet(saveFs);
+		fc.setAccessory(makeVersionRadio());
 		String filename = LGM.currentFile.filename;
 		fc.setSelectedFile(filename == null ? null : new File(filename));
 		while (true) //repeatedly display dialog until a valid response is given
@@ -245,6 +261,53 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			if (result == JOptionPane.CANCEL_OPTION) return false;
 			}
+		}
+
+	public JPanel makeVersionRadio()
+		{
+		final int versions[] = { 800,700,600 };
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p,BoxLayout.PAGE_AXIS));
+		ButtonGroup bg = new ButtonGroup();
+		for (final int v : versions)
+			{
+			JRadioButton b = new JRadioButton(Integer.toString(v),LGM.currentFile.fileVersion == v);
+			bg.add(b);
+			p.add(b);
+			b.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent e)
+						{
+						LGM.currentFile.fileVersion = v;
+						}
+				});
+			}
+/*		final JRadioButton b8 = new JRadioButton("800",version == 800);
+		final JRadioButton b7 = new JRadioButton("700",version == 700);
+		final JRadioButton b6 = new JRadioButton("600",version == 600);
+		bg.add(b8);
+		bg.add(b7);
+		bg.add(b6);
+		p.add(b8);
+		p.add(b7);
+		p.add(b6);
+		ActionListener al = new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent e)
+					{
+					if (e.getSource() == b8)
+						LGM.currentFile.fileVersion = 800;
+					else if (e.getSource() == b7)
+						LGM.currentFile.fileVersion = 700;
+					else if (e.getSource() == b6) LGM.currentFile.fileVersion = 600;
+					}
+			};
+		b8.addActionListener(al);
+		b7.addActionListener(al);
+		b6.addActionListener(al);*/
+		return p;
 		}
 
 	protected static void addResource(JTree tree, String com)

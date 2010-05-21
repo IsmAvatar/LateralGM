@@ -70,7 +70,7 @@ public final class GmFileWriter
 
 	public static void writeGmFile(GmFile f, ResNode root) throws IOException
 		{
-		f.fileVersion = 600; //for now, we're always writing gm6
+//		f.fileVersion = 800; //for now, we're always writing gm6
 		int ver = f.fileVersion;
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = null;

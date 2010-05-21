@@ -162,7 +162,7 @@ public class GmStreamEncoder extends StreamEncoder
 		{
 		if (originalStream != null)
 			{
-			out.flush();
+			flush();
 			GmStreamEncoder gse = (GmStreamEncoder) out;
 			ByteArrayOutputStream baos = (ByteArrayOutputStream) gse.out;
 			pos = originalPos;
