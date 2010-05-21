@@ -15,7 +15,6 @@ import static org.lateralgm.main.Util.deRef;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
-import java.awt.image.PixelGrabber;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -149,7 +148,7 @@ public class GmStreamEncoder extends StreamEncoder
 	public void beginDeflate()
 		{
 		originalStream = out;
-		out = new GmStreamEncoder(new ByteArrayOutputStream());
+		out = new ByteArrayOutputStream();
 		originalPos = pos;
 		pos = 0;
 		}
@@ -163,8 +162,7 @@ public class GmStreamEncoder extends StreamEncoder
 		if (originalStream != null)
 			{
 			flush();
-			GmStreamEncoder gse = (GmStreamEncoder) out;
-			ByteArrayOutputStream baos = (ByteArrayOutputStream) gse.out;
+			ByteArrayOutputStream baos = (ByteArrayOutputStream) out;
 			pos = originalPos;
 			originalPos = -1;
 			out = originalStream;
@@ -191,28 +189,54 @@ public class GmStreamEncoder extends StreamEncoder
 		int width = image.getWidth();
 		int height = image.getHeight();
 
+		int pixels[] = image.getRGB(0,0,width,height,null,0,width);
+		write4(pixels.length * 4);
+		for (int p = 0; p < pixels.length; p++)
+			{
+			write(pixels[p] & 0xFF);
+			write(pixels[p] >>> 8 & 0xFF);
+			write(pixels[p] >>> 16 & 0xFF);
+			write(pixels[p] >>> 24);
+			}
+
 		//Because apparently there's no pretty way of fetching the
 		//pixels of a BufferedImage in the desired format (BGRA)...
-		int[] pixels = new int[width * height];
+		/*int[] pixels = new int[width * height];
 		PixelGrabber pg = new PixelGrabber(image,0,0,width,height,pixels,0,width);
 		try
 			{
 			pg.grabPixels();
-
-			//ARGB => BGRA
-			for (int p = 0; p < pixels.length; p++)
-				{
-				write(pixels[p] & 0xFF);
-				write(pixels[p] >>> 8 & 0xFF);
-				write(pixels[p] >>> 16 & 0xFF);
-				write(pixels[p] >>> 24);
-				}
 			}
 		catch (InterruptedException e)
 			{
-			e.printStackTrace();
+			write4(0);
+			throw new IOException("Image was not ready",e);
+			//			return;
 			}
 
+		write4(pixels.length * 4);
+		//ARGB => BGRA
+		for (int p = 0; p < pixels.length; p++)
+			{
+			write(pixels[p] & 0xFF);
+			write(pixels[p] >>> 8 & 0xFF);
+			write(pixels[p] >>> 16 & 0xFF);
+			write(pixels[p] >>> 24);
+			}*/
+
+		/*
+				ColorModel cm = image.getColorModel();
+				Raster r = image.getRaster();
+				r.getPixels(0,0,image.getWidth(),image.getHeight(),(int[]) null);
+				r.getSampleModel();
+				image.getSampleModel();
+				image.getRGB(startX,startY,w,h,rgbArray,offset,scansize)
+				
+		    return cm.getRGB(r.getDataElements(x, y, null));
+
+				image.getData();
+				image.getSource();
+			*/
 		/*int w = image.getWidth();
 		int h = image.getHeight();
 		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,w,h,w * 4,4,

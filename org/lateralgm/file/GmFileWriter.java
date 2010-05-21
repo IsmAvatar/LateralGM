@@ -70,7 +70,7 @@ public final class GmFileWriter
 
 	public static void writeGmFile(GmFile f, ResNode root) throws IOException
 		{
-//		f.fileVersion = 800; //for now, we're always writing gm6
+		//		f.fileVersion = 600; //for now, we're always writing gm6
 		int ver = f.fileVersion;
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = null;
@@ -342,7 +342,7 @@ public final class GmFileWriter
 	public static void writeSprites(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		int ver = f.fileVersion;
-		ver = ver > 800 ? 800 : ver > 542 ? 542 : 400;
+		ver = ver >= 800 ? 800 : ver > 542 ? 542 : 400;
 		out.write4(ver == 800 ? 800 : 400);
 		out.write4(f.sprites.lastId + 1);
 		for (int i = 0; i <= f.sprites.lastId; i++)
@@ -384,6 +384,15 @@ public final class GmFileWriter
 						out.write4(10);
 						out.writeZlibImage(sub);
 						}
+					}
+				if (ver >= 800)
+					{
+					out.write4(GmFile.SPRITE_MASK_CODE.get(spr.get(PSprite.SHAPE)));
+					out.write4(spr.properties,PSprite.ALPHA_TOLERANCE);
+					out.writeBool(spr.properties,PSprite.SEPARATE_MASK);
+					out.write4(GmFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)));
+					out.write4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,
+							PSprite.BB_TOP);
 					}
 				}
 			out.endDeflate();
@@ -431,7 +440,7 @@ public final class GmFileWriter
 					}
 				else
 					{
-					out.write4(710);
+					out.write4(800);
 					int w = bi == null ? 0 : bi.getWidth();
 					int h = bi == null ? 0 : bi.getHeight();
 					out.write4(w);
