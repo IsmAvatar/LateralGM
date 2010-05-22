@@ -184,59 +184,28 @@ public class GmStreamEncoder extends StreamEncoder
 		compress(data.toByteArray());
 		}
 
-	public void writeBGRAImage(BufferedImage image) throws IOException
+	public void writeBGRAImage(BufferedImage image, boolean useTransp) throws IOException
 		{
 		int width = image.getWidth();
 		int height = image.getHeight();
 
 		int pixels[] = image.getRGB(0,0,width,height,null,0,width);
 		write4(pixels.length * 4);
-		for (int p = 0; p < pixels.length; p++)
-			{
-			write(pixels[p] & 0xFF);
-			write(pixels[p] >>> 8 & 0xFF);
-			write(pixels[p] >>> 16 & 0xFF);
-			write(pixels[p] >>> 24);
-			}
-
+		int trans = image.getRGB(0,height - 1) & 0x00FFFFFF;
 		//Because apparently there's no pretty way of fetching the
 		//pixels of a BufferedImage in the desired format (BGRA)...
-		/*int[] pixels = new int[width * height];
-		PixelGrabber pg = new PixelGrabber(image,0,0,width,height,pixels,0,width);
-		try
-			{
-			pg.grabPixels();
-			}
-		catch (InterruptedException e)
-			{
-			write4(0);
-			throw new IOException("Image was not ready",e);
-			//			return;
-			}
-
-		write4(pixels.length * 4);
 		//ARGB => BGRA
 		for (int p = 0; p < pixels.length; p++)
 			{
 			write(pixels[p] & 0xFF);
 			write(pixels[p] >>> 8 & 0xFF);
 			write(pixels[p] >>> 16 & 0xFF);
-			write(pixels[p] >>> 24);
-			}*/
+			if (useTransp && ((pixels[p] & 0x00FFFFFF) == trans))
+				write(0);
+			else
+				write(pixels[p] >>> 24);
+			}
 
-		/*
-				ColorModel cm = image.getColorModel();
-				Raster r = image.getRaster();
-				r.getPixels(0,0,image.getWidth(),image.getHeight(),(int[]) null);
-				r.getSampleModel();
-				image.getSampleModel();
-				image.getRGB(startX,startY,w,h,rgbArray,offset,scansize)
-				
-		    return cm.getRGB(r.getDataElements(x, y, null));
-
-				image.getData();
-				image.getSource();
-			*/
 		/*int w = image.getWidth();
 		int h = image.getHeight();
 		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,w,h,w * 4,4,

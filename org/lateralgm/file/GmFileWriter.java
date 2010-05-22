@@ -70,7 +70,6 @@ public final class GmFileWriter
 
 	public static void writeGmFile(GmFile f, ResNode root) throws IOException
 		{
-		//		f.fileVersion = 600; //for now, we're always writing gm6
 		int ver = f.fileVersion;
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = null;
@@ -377,7 +376,7 @@ public final class GmFileWriter
 						int h = sub.getHeight();
 						out.write4(w);
 						out.write4(h);
-						if (w != 0 && h != 0) out.writeBGRAImage(sub);
+						if (w != 0 && h != 0) out.writeBGRAImage(sub,(Boolean) spr.get(PSprite.TRANSPARENT));
 						}
 					else
 						{
@@ -445,7 +444,7 @@ public final class GmFileWriter
 					int h = bi == null ? 0 : bi.getHeight();
 					out.write4(w);
 					out.write4(h);
-					if (w != 0 && h != 0) out.writeBGRAImage(bi);
+					if (w != 0 && h != 0) out.writeBGRAImage(bi,(Boolean) back.get(PBackground.TRANSPARENT));
 					}
 				}
 			out.endDeflate();

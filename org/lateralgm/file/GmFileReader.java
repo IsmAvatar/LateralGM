@@ -534,6 +534,8 @@ public final class GmFileReader
 					spr.put(PSprite.PRELOAD,!in.readBool());
 					}
 				}
+			else
+				spr.put(PSprite.TRANSPARENT,false);
 			in.read4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
 			int nosub = in.read4();
 			for (int j = 0; j < nosub; j++)
