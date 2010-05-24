@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
- * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -24,8 +24,6 @@ package org.lateralgm.resources;
 import java.awt.image.BufferedImage;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.ResourceList;
-import org.lateralgm.main.Prefs;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
 
@@ -45,19 +43,16 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 
 	public Resource()
 		{
-		this(null,true);
+		this(null);
 		}
 
 	@SuppressWarnings("unchecked")
-	public Resource(ResourceReference<R> r, boolean update)
+	public Resource(ResourceReference<R> r)
 		{
 		if (r == null)
 			reference = new ResourceReference<R>((R) this);
 		else
-			{
 			reference = r;
-			if (update) updateReference();
-			}
 		}
 
 	public void setId(int id)
@@ -113,15 +108,25 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 		reference.set((R) this);
 		}
 
-	public final R copy(ResourceList<R> src)
+	//Called when user wishes to duplicate a Resource
+	public final void copy(R dest)
 		{
-		return copy(src,null,true);
+		dest.properties.putAll(properties);
+		postCopy(dest);
 		}
 
+	//Used for comparison
 	public final R clone()
 		{
-		return copy(null,reference,false);
+		R dest = makeInstance(reference);
+		dest.properties.putAll(properties);
+		dest.setId(getId());
+		dest.setName(getName());
+		postCopy(dest);
+		return dest;
 		}
+
+	public abstract R makeInstance(ResourceReference<R> ref);
 
 	public void dispose()
 		{
@@ -140,22 +145,8 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 
 	protected abstract PropertyMap<P> makePropertyMap();
 
-	protected abstract R copy(ResourceList<R> src, ResourceReference<R> ref, boolean update);
-
-	protected void copy(ResourceList<R> src, R dest)
-		{
-		dest.properties.putAll(properties);
-		if (src != null)
-			{
-			dest.setName(Prefs.prefixes.get(getKind()) + (src.lastId + 1));
-			src.add(dest);
-			}
-		else
-			{
-			dest.setId(getId());
-			dest.setName(getName());
-			}
-		}
+	/** Copies over information not stored in the properties map. */
+	protected abstract void postCopy(R dest);
 
 	public abstract Kind getKind();
 

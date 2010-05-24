@@ -12,7 +12,6 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.util.PropertyMap;
@@ -28,21 +27,23 @@ public class Script extends Resource<Script,Script.PScript> implements CodeHolde
 
 	public Script()
 		{
-		this(null,true);
+		this(null);
 		}
 
-	public Script(ResourceReference<Script> r, boolean update)
+	public Script(ResourceReference<Script> r)
 		{
-		super(r,update);
+		super(r);
 		setName(Prefs.prefixes.get(Kind.SCRIPT));
 		}
 
-	@Override
-	protected Script copy(ResourceList<Script> src, ResourceReference<Script> ref, boolean update)
+	public Script makeInstance(ResourceReference<Script> r)
 		{
-		Script s = new Script(ref,update);
-		copy(src,s);
-		return s;
+		return new Script(r);
+		}
+
+	@Override
+	protected void postCopy(Script dest)
+		{
 		}
 
 	public Kind getKind()

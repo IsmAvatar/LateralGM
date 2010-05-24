@@ -16,8 +16,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 
-import org.lateralgm.file.GmFile;
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource;
@@ -43,7 +41,6 @@ public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
 	public final List<View> views;
 	public final ActiveArrayList<Instance> instances = new ActiveArrayList<Instance>();
 	public final ActiveArrayList<Tile> tiles = new ActiveArrayList<Tile>();
-	private GmFile parent;
 
 	private final UpdateTrigger instanceUpdateTrigger = new UpdateTrigger();
 	public final UpdateSource instanceUpdateSource = new UpdateSource(this,instanceUpdateTrigger);
@@ -64,21 +61,13 @@ public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
 
 	public Room()
 		{
-		this(LGM.currentFile);
+		this(null);
 		}
 
-	// Rooms are special - they need to know what file they belong to,
-	// so they can update GmFile.lastInstanceId when a new instance is created
-	public Room(GmFile parent)
+	public Room(ResourceReference<Room> r)
 		{
-		this(parent,null,true);
-		}
-
-	public Room(GmFile parent, ResourceReference<Room> r, boolean update)
-		{
-		super(r,update);
+		super(r);
 		setName(Prefs.prefixes.get(Kind.ROOM));
-		this.parent = parent;
 		BackgroundDef[] b = new BackgroundDef[8];
 		for (int j = 0; j < b.length; j++)
 			b[j] = new BackgroundDef();
@@ -89,10 +78,15 @@ public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
 		views = Collections.unmodifiableList(Arrays.asList(v));
 		}
 
+	public Room makeInstance(ResourceReference<Room> r)
+		{
+		return new Room(r);
+		}
+
 	public Instance addInstance()
 		{
 		Instance inst = new Instance(this);
-		inst.properties.put(PInstance.ID,++parent.lastInstanceId);
+		inst.properties.put(PInstance.ID,++LGM.currentFile.lastInstanceId);
 		instances.add(inst);
 		return inst;
 		}
@@ -108,36 +102,33 @@ public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
 		}
 
 	@Override
-	protected Room copy(ResourceList<Room> src, ResourceReference<Room> ref, boolean update)
+	protected void postCopy(Room dest)
 		{
-		Room r = new Room(parent,ref,update);
-		copy(src,r);
 		for (Instance inst : instances)
 			{
-			Instance inst2 = r.addInstance();
+			Instance inst2 = dest.addInstance();
 			inst2.properties.putAll(inst.properties);
 			}
 		for (Tile tile : tiles)
 			{
 			Tile tile2 = new Tile(this);
 			tile2.properties.putAll(tile.properties);
-			r.tiles.add(tile2);
+			dest.tiles.add(tile2);
 			}
 		int s = views.size();
 		for (int i = 0; i < s; i++)
 			{
 			View view = views.get(i);
-			View view2 = r.views.get(i);
+			View view2 = dest.views.get(i);
 			view2.properties.putAll(view.properties);
 			}
 		s = backgroundDefs.size();
 		for (int i = 0; i < s; i++)
 			{
 			BackgroundDef back = backgroundDefs.get(i);
-			BackgroundDef back2 = r.backgroundDefs.get(i);
+			BackgroundDef back2 = dest.backgroundDefs.get(i);
 			back2.properties.putAll(back.properties);
 			}
-		return r;
 		}
 
 	public Kind getKind()

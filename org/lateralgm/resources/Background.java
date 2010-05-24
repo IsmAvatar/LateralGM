@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage;
 import java.lang.ref.SoftReference;
 import java.util.EnumMap;
 
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.util.PropertyMap;
@@ -34,13 +33,18 @@ public class Background extends Resource<Background,Background.PBackground>
 
 	public Background()
 		{
-		this(null,true);
+		this(null);
 		}
 
-	public Background(ResourceReference<Background> r, boolean update)
+	public Background(ResourceReference<Background> r)
 		{
-		super(r,update);
+		super(r);
 		setName(Prefs.prefixes.get(Kind.BACKGROUND));
+		}
+
+	public Background makeInstance(ResourceReference<Background> r)
+		{
+		return new Background(r);
 		}
 
 	public BufferedImage getDisplayImage()
@@ -73,13 +77,9 @@ public class Background extends Resource<Background,Background.PBackground>
 		return null;
 		}
 
-	protected Background copy(ResourceList<Background> src, ResourceReference<Background> ref,
-			boolean update)
+	protected void postCopy(Background dest)
 		{
-		Background b = new Background(ref,update);
-		copy(src,b);
-		b.backgroundImage = copyBackgroundImage();
-		return b;
+		dest.backgroundImage = copyBackgroundImage();
 		}
 
 	public Kind getKind()

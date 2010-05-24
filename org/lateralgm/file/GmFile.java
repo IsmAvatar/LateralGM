@@ -115,16 +115,16 @@ public class GmFile implements UpdateListener
 	public String filename = null;
 
 	private final EnumMap<Resource.Kind,ResourceList<?>> resMap;
-	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class,this);
-	public final ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class,this);
-	public final ResourceList<Background> backgrounds = new ResourceList<Background>(
-			Background.class,this);
-	public final ResourceList<Path> paths = new ResourceList<Path>(Path.class,this);
-	public final ResourceList<Script> scripts = new ResourceList<Script>(Script.class,this);
-	public final ResourceList<Font> fonts = new ResourceList<Font>(Font.class,this);
-	public final ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class,this);
-	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class,this);
-	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class,this);
+	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class);
+	public final ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class);
+	public final ResourceList<Background> backgrounds = new ResourceList<Background>(//force newline
+			Background.class);
+	public final ResourceList<Path> paths = new ResourceList<Path>(Path.class);
+	public final ResourceList<Script> scripts = new ResourceList<Script>(Script.class);
+	public final ResourceList<Font> fonts = new ResourceList<Font>(Font.class);
+	public final ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class);
+	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class);
+	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class);
 
 	public ArrayList<Trigger> triggers = new ArrayList<Trigger>();
 	public ArrayList<Constant> constants = new ArrayList<Constant>();

@@ -12,7 +12,6 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.util.PropertyMap;
 
@@ -35,23 +34,25 @@ public class Sound extends Resource<Sound,Sound.PSound>
 
 	public Sound()
 		{
-		this(null,true);
+		this(null);
 		}
 
-	public Sound(ResourceReference<Sound> r, boolean update)
+	public Sound(ResourceReference<Sound> r)
 		{
-		super(r,update);
+		super(r);
 		setName(Prefs.prefixes.get(Kind.SOUND));
 		}
 
-	@Override
-	protected Sound copy(ResourceList<Sound> src, ResourceReference<Sound> ref, boolean update)
+	public Sound makeInstance(ResourceReference<Sound> r)
 		{
-		Sound s = new Sound(ref,update);
-		copy(src,s);
-		s.data = new byte[data.length];
-		System.arraycopy(data,0,s.data,0,data.length);
-		return s;
+		return new Sound(r);
+		}
+
+	@Override
+	protected void postCopy(Sound dest)
+		{
+		dest.data = new byte[data.length];
+		System.arraycopy(data,0,dest.data,0,data.length);
 		}
 
 	public Kind getKind()

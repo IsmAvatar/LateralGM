@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008, 2009 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
@@ -312,6 +312,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		p.add(forceExt);
 		return p;
 		}
+
 	// ^^^ These should probably be moved to somewhere else ^^^ //
 
 	protected static void addResource(JTree tree, String com)
@@ -635,7 +636,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				try
 					{
 					if (node.frame != null) node.frame.commitChanges();
-					// dodgy workaround to avoid warnings
+					//FIXME: dodgy workaround to avoid warnings
 					resource = (Resource<?,?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(//$NON-NLS-1$
 							rl,node.getRes().get());
 					}

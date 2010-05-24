@@ -22,7 +22,6 @@ import java.util.EnumMap;
 
 import javax.imageio.ImageIO;
 
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
@@ -59,15 +58,20 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 
 	public Sprite()
 		{
-		this(null,true);
+		this(null);
 		}
 
-	public Sprite(ResourceReference<Sprite> r, boolean update)
+	public Sprite(ResourceReference<Sprite> r)
 		{
-		super(r,update);
+		super(r);
 		properties.getUpdateSource(PSprite.TRANSPARENT).addListener(spl);
 		properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
 		setName(Prefs.prefixes.get(Kind.SPRITE));
+		}
+
+	public Sprite makeInstance(ResourceReference<Sprite> r)
+		{
+		return new Sprite(r);
 		}
 
 	public BufferedImage addSubImage()
@@ -209,13 +213,10 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 		}
 
 	@Override
-	protected Sprite copy(ResourceList<Sprite> src, ResourceReference<Sprite> ref, boolean update)
+	protected void postCopy(Sprite dest)
 		{
-		Sprite s = new Sprite(ref,update);
-		copy(src,s);
 		for (int j = 0; j < subImages.size(); j++)
-			s.addSubImage(copySubImage(j));
-		return s;
+			dest.addSubImage(copySubImage(j));
 		}
 
 	public Kind getKind()

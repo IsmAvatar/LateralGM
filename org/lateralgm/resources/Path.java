@@ -12,7 +12,6 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.util.ActiveArrayList;
@@ -32,13 +31,18 @@ public class Path extends Resource<Path,Path.PPath>
 
 	public Path()
 		{
-		this(null,true);
+		this(null);
 		}
 
-	public Path(ResourceReference<Path> r, boolean update)
+	public Path(ResourceReference<Path> r)
 		{
-		super(r,update);
+		super(r);
 		setName(Prefs.prefixes.get(Kind.PATH));
+		}
+
+	public Path makeInstance(ResourceReference<Path> r)
+		{
+		return new Path(r);
 		}
 
 	public PathPoint addPoint()
@@ -49,16 +53,13 @@ public class Path extends Resource<Path,Path.PPath>
 		}
 
 	@Override
-	protected Path copy(ResourceList<Path> src, ResourceReference<Path> ref, boolean update)
+	protected void postCopy(Path dest)
 		{
-		Path p = new Path(ref,update);
-		copy(src,p);
 		for (PathPoint point : points)
 			{
 			PathPoint point2 = new PathPoint(point.getX(),point.getY(),point.getSpeed());
-			p.points.add(point2);
+			dest.points.add(point2);
 			}
-		return p;
 		}
 
 	public Kind getKind()
