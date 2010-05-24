@@ -224,7 +224,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			String name = o == null ? Messages.getString("RoomFrame.NO_OBJECT") : o.getName();
 			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
 			lab.setText(name + " " + i.properties.get(PInstance.ID));
-			ResNode rn = o.getNode();
+			ResNode rn = o == null ? null : o.getNode();
 			lab.setIcon(rn == null ? null : rn.getIcon());
 			return lab;
 			}
