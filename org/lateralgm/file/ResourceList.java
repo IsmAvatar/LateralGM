@@ -115,6 +115,16 @@ public class ResourceList<R extends Resource<R,?>> extends TreeSet<R> implements
 		return res;
 		}
 
+	/**
+	 * Duplicates the given resource as per user request.
+	 * This is used by Listener.NodeMenuListener.actionPerformed on command "COPY"
+	 */
+	public R duplicate(R src)
+		{
+		if (!this.contains(src)) return null;
+		return src.copy(this);
+		}
+
 	public R getUnsafe(int id)
 		{
 		for (R res : this)
