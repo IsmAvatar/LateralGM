@@ -112,9 +112,9 @@ public final class GmFileReader
 		GmFile f = new GmFile();
 		f.filename = fileName;
 		GmStreamDecoder in = null;
-		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class,f); // timeline ids
-		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class,f); // object ids
-		RefList<Room> rmids = new RefList<Room>(Room.class,f); // room id
+		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
+		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
+		RefList<Room> rmids = new RefList<Room>(Room.class); // room id
 		try
 			{
 			long startTime = System.currentTimeMillis();
