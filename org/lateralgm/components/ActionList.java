@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
@@ -185,6 +185,7 @@ public class ActionList extends JList
 					ActionListModel alm = (ActionListModel) l.getModel();
 					for (int i = indices.length - 1; i >= 0; i--)
 						alm.remove(indices[i]);
+					if (indices.length != 0) l.setSelectedIndex(Math.min(alm.getSize() - 1,indices[0]));
 					e.consume();
 					break;
 				}
