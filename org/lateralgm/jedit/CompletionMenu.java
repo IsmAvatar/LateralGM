@@ -60,6 +60,7 @@ public class CompletionMenu extends JWindow
 						e.consume();
 					else
 						dispose();
+					area.requestFocus();
 					}
 			});
 		scroll = new JScrollPane(completionList);
