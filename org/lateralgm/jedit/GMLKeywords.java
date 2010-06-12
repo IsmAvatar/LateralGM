@@ -72,10 +72,6 @@ public final class GMLKeywords
 		CONSTANTS = new Constant[s.length];
 		for (int i = 0; i < s.length; i++)
 			CONSTANTS[i] = new Constant(s[i]);
-		s = p.getProperty("FUNCTIONS").split("\\s+");
-		//		FUNCTIONS = new Function[s.length];
-		//		for (int i = 0; i < s.length; i++)
-		//			FUNCTIONS[i] = new Function(s[i]);
 		p.clear();
 
 		//read functions
