@@ -104,18 +104,21 @@ public class GmStreamDecoder extends StreamDecoder
 		return t;
 		}
 
+	/** GM uses ISO-LATIN-1 (ISO-8859-1) for its file string charset. */
+	public static final String CHARSET = "ISO-8859-1"; //$NON-NLS-1$
+
 	public String readStr() throws IOException
 		{
 		byte data[] = new byte[read4()];
 		read(data);
-		return new String(data);
+		return new String(data,CHARSET);
 		}
 
 	public String readStr1() throws IOException
 		{
 		byte data[] = new byte[read()];
 		read(data);
-		return new String(data);
+		return new String(data,CHARSET);
 		}
 
 	public boolean readBool() throws IOException

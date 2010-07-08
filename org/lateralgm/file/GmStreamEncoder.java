@@ -53,7 +53,7 @@ public class GmStreamEncoder extends StreamEncoder
 		{
 		write(b,0,b.length);
 		}
-
+//é", "è" or "à
 	public void write(byte b[], int off, int len) throws IOException
 		{
 		if (table != null)
@@ -77,13 +77,13 @@ public class GmStreamEncoder extends StreamEncoder
 	public void writeStr(String str) throws IOException
 		{
 		write4(str.length());
-		write(str.getBytes("ascii")); //$NON-NLS-1$
+		write(str.getBytes(GmStreamDecoder.CHARSET));
 		}
 
 	public void writeStr1(String str) throws IOException
 		{
 		write(Math.min(str.length(),255));
-		write(str.getBytes("ascii"),0,Math.min(str.length(),255)); //$NON-NLS-1$
+		write(str.getBytes(GmStreamDecoder.CHARSET),0,Math.min(str.length(),255));
 		}
 
 	public void writeBool(boolean val) throws IOException

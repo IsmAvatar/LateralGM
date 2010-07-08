@@ -455,7 +455,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			return Messages.format("ArgumentComponent.NO_SELECTION",Messages.getString(key)); //$NON-NLS-1$
 			}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings("rawtypes")
 		private JComponent makeEditor(LibArgument la)
 			{
 			switch (arg.kind)
@@ -529,7 +529,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				}
 			}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked","rawtypes" })
 		public void discard()
 			{
 			if (editor instanceof JTextField)
