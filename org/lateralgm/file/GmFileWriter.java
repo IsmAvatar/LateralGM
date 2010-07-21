@@ -268,11 +268,14 @@ public final class GmFileWriter
 		out.write4(f.triggers.size());
 		for (Trigger t : f.triggers)
 			{
+			out.beginDeflate();
+			out.writeBool(true); //trigger exists
 			out.write4(800);
 			out.writeStr(t.name);
 			out.writeStr(t.condition);
 			out.write4(t.checkStep);
 			out.writeStr(t.constant);
+			out.endDeflate();
 			}
 		out.writeD(f.gameSettings.lastChanged);
 		}
@@ -685,7 +688,11 @@ public final class GmFileWriter
 		out.write4(f.includes.size());
 		for (Include i : f.includes)
 			{
-			if (ver >= 800) out.writeD(f.gameSettings.lastChanged);
+			if (ver >= 800)
+				{
+				out.beginDeflate();
+				out.writeD(f.gameSettings.lastChanged);
+				}
 			out.write4(ver);
 			out.writeStr(i.filename);
 			out.writeStr(i.filepath);
@@ -704,6 +711,7 @@ public final class GmFileWriter
 			out.writeBool(i.overwriteExisting);
 			out.writeBool(i.freeMemAfterExport);
 			out.writeBool(i.removeAtGameEnd);
+			out.endDeflate();
 			}
 		}
 

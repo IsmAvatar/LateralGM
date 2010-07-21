@@ -395,6 +395,12 @@ public final class GmFileReader
 		int no = in.read4();
 		for (int i = 0; i < no; i++)
 			{
+			in.beginInflate();
+			if (!in.readBool())
+				{
+				in.endInflate();
+				continue;
+				}
 			ver = in.read4();
 			if (ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
 			Trigger trig = new Trigger();
@@ -403,6 +409,7 @@ public final class GmFileReader
 			trig.condition = in.readStr();
 			trig.checkStep = in.read4();
 			trig.constant = in.readStr();
+			in.endInflate();
 			}
 		in.skip(8); //last changed
 		}
@@ -965,11 +972,15 @@ public final class GmFileReader
 		int noIncludes = in.read4();
 		for (int i = 0; i < noIncludes; i++)
 			{
-			if (ver == 800) in.skip(8); //last changed
+			if (ver == 800)
+				{
+				in.beginInflate();
+				in.skip(8); //last changed
+				}
 			ver = in.read4();
 			if (ver != 620 && ver != 800)
 				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
-						Messages.getString("GmFileReader.INGM7INCLUDES"),ver)); //$NON-NLS-1$
+						Messages.getString("GmFileReader.ININCLUDEDFILES"),ver)); //$NON-NLS-1$
 			Include inc = new Include();
 			f.includes.add(inc);
 			inc.filename = in.readStr();
@@ -987,6 +998,7 @@ public final class GmFileReader
 			inc.overwriteExisting = in.readBool();
 			inc.freeMemAfterExport = in.readBool();
 			inc.removeAtGameEnd = in.readBool();
+			in.endInflate();
 			}
 		}
 
