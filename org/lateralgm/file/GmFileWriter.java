@@ -124,7 +124,7 @@ public final class GmFileWriter
 		out.write4(0);
 
 		//Room Execution Order
-		out.write4(540);
+		out.write4(ver >= 700 ? 700 : 540);
 		out.write4(0);
 
 		writeTree(out,root);
