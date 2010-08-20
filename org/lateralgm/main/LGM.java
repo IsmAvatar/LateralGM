@@ -85,6 +85,7 @@ public final class LGM
 	{
 	private static final long serialVersionUID = 1L;
 	public static int javaVersion;
+	public static File tempDir, workDir;
 	static
 		{
 		//java6u10 regression causes graphical xor to be very slow
@@ -111,6 +112,28 @@ public final class LGM
 			System.out.println("Some program functionality will be limited due to your outdated version"); //$NON-NLS-1$
 
 		SplashProgress.start();
+
+		//Set up temp dir and work dir
+		Util.tweakIIORegistry();
+		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (!tempDir.exists())
+			{
+			tempDir.mkdir();
+			if (javaVersion >= 10600)
+				{
+				tempDir.setReadable(true,false);
+				tempDir.setWritable(true,false);
+				}
+			}
+
+		try
+			{
+			workDir = new File(LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			}
+		catch (URISyntaxException e1)
+			{
+			e1.printStackTrace();
+			}
 		}
 	public static JFrame frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 			Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
@@ -125,7 +148,6 @@ public final class LGM
 	public static Thread gameSettingFrameBuilder;
 	private static GameSettingFrame gameSet;
 	public static EventFrame eventSelect;
-	public static File tempDir, workDir;
 
 	public static GameInformationFrame getGameInfo()
 		{
@@ -432,30 +454,6 @@ public final class LGM
 			rl.reloadPerformed(newRoot);
 		}
 
-	static
-		{
-		Util.tweakIIORegistry();
-		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (!tempDir.exists())
-			{
-			tempDir.mkdir();
-			if (javaVersion >= 10600)
-				{
-				tempDir.setReadable(true,false);
-				tempDir.setWritable(true,false);
-				}
-			}
-
-		try
-			{
-			workDir = new File(LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-			}
-		catch (URISyntaxException e1)
-			{
-			e1.printStackTrace();
-			}
-		}
-
 	public static void main(String[] args)
 		{
 		SplashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
@@ -523,7 +521,7 @@ public final class LGM
 
 		private static String text = null;
 
-		static final Boolean TIMER = System.getProperty("lgm.progresstimer") != null; //$NON-NLS-1$
+		static final boolean TIMER = System.getProperty("lgm.progresstimer") != null; //$NON-NLS-1$
 		private static long startTime, completeTime;
 		private static ArrayList<Integer> progressValues;
 		private static ArrayList<Long> progressTimes;
@@ -600,7 +598,6 @@ public final class LGM
 					}
 				System.out.println();
 				}
-			progress(100,""); //$NON-NLS-1$
 			}
 
 		static void progress(int p)
