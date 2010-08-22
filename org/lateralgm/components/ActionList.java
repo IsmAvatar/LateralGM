@@ -135,6 +135,8 @@ public class ActionList extends JList
 			FRAMES.put(a,new WeakReference<MDIFrame>(af));
 			}
 		af.setVisible(true);
+		//FIXME: Find out why parent is sent to back. This is a workaround.
+		if (parent != null) parent.toFront();
 		af.toFront();
 		try
 			{
@@ -421,7 +423,7 @@ public class ActionList extends JList
 	public static class ActionTransferHandler extends TransferHandler
 		{
 		private static final long serialVersionUID = 1L;
-		private int[] indices = null;
+		private int[] indices = null; //Location of dragged items (to be deleted)
 		private int addIndex = -1; //Location where items were added
 		private int addCount = 0; //Number of items added.
 		private final WeakReference<MDIFrame> parent;
@@ -470,8 +472,9 @@ public class ActionList extends JList
 				}
 			if (!supported) return false;
 			ActionList list = (ActionList) info.getComponent();
-			JList.DropLocation dl = (JList.DropLocation) info.getDropLocation();
-			if (list.actionContainer == null || dl.getIndex() == -1 || !info.isDrop()) return false;
+			if (list.actionContainer == null) return false;
+			if (info.isDrop() && ((JList.DropLocation) info.getDropLocation()).getIndex() == -1)
+				return false;
 			return true;
 			}
 
@@ -480,14 +483,10 @@ public class ActionList extends JList
 			if (!canImport(info)) return false;
 			ActionList list = (ActionList) info.getComponent();
 			ActionListModel alm = (ActionListModel) list.getModel();
-			JList.DropLocation dl = (JList.DropLocation) info.getDropLocation();
 			Transferable t = info.getTransferable();
-			int index = dl.getIndex();
-			if (indices != null && index >= indices[0] && index <= indices[indices.length - 1])
-				{
-				indices = null;
-				return false;
-				}
+
+			int index = alm.list.size();
+			if (info.isDrop()) index = ((JList.DropLocation) info.getDropLocation()).getIndex();
 			if (info.isDataFlavorSupported(ACTION_FLAVOR))
 				{
 				Action a;
@@ -548,7 +547,7 @@ public class ActionList extends JList
 
 		public int getSourceActions(JComponent c)
 			{
-			return MOVE;
+			return COPY_OR_MOVE;
 			}
 
 		protected Transferable createTransferable(JComponent c)
