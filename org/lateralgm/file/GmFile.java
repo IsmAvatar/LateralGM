@@ -206,7 +206,7 @@ public class GmFile implements UpdateListener
 		while (iter.hasNext())
 			iter.next().defragIds();
 		lastInstanceId = 100000;
-		lastTileId = 100000;
+		lastTileId = 10000000;
 		for (Room r : rooms)
 			{
 			for (Instance j : r.instances)
