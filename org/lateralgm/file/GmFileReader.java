@@ -1099,6 +1099,8 @@ public final class GmFileReader
 				path.pop();
 				}
 			}
+		if (ver <= 540) root.addChild(Messages.getString("LGM.EXTENSIONS"), //$NON-NLS-1$
+				ResNode.STATUS_SECONDARY,Resource.Kind.EXTENSIONS);
 		}
 
 	private static void readActions(GmFileContext c, ActionContainer container, String errorKey,

@@ -351,6 +351,8 @@ public final class LGM
 				ResNode.STATUS_SECONDARY,Resource.Kind.GAMEINFO);
 		root.addChild(Messages.getString("LGM.GAMESETTINGS"), //$NON-NLS-1$
 				ResNode.STATUS_SECONDARY,Resource.Kind.GAMESETTINGS);
+		root.addChild(Messages.getString("LGM.EXTENSIONS"), //$NON-NLS-1$
+				ResNode.STATUS_SECONDARY,Resource.Kind.EXTENSIONS);
 		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
 		}
 
