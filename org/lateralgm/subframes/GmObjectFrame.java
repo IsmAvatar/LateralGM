@@ -107,21 +107,21 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 
 		JPanel side2 = new JPanel(new BorderLayout());
 		JLabel lab = new JLabel(Messages.getString("GmObjectFrame.EVENTS")); //$NON-NLS-1$
-		side2.add(lab,"North"); //$NON-NLS-1$
+		side2.add(lab,BorderLayout.NORTH);
 		makeEventTree(res);
 		JScrollPane scroll = new JScrollPane(events);
 		scroll.setPreferredSize(new Dimension(140,260));
-		side2.add(scroll,"Center"); //$NON-NLS-1$
+		side2.add(scroll,BorderLayout.CENTER);
 
 		JPanel side2bottom = new JPanel(new BorderLayout());
 		//I probably shouldn't refer to LGM.makeButton, but it suits my purpose well here
-		side2bottom.add(LGM.makeButton("LGM.EVENT_BUTTON"),"West"); //$NON-NLS-1$ //$NON-NLS-2$
+		side2bottom.add(LGM.makeButton("LGM.EVENT_BUTTON"),BorderLayout.WEST); //$NON-NLS-1$
 		eventDelete = new JButton(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
 		eventDelete.addActionListener(this);
-		side2bottom.add(eventDelete,"Center"); //$NON-NLS-1$
-		side2.add(side2bottom,"South"); //$NON-NLS-1$
+		side2bottom.add(eventDelete,BorderLayout.CENTER);
+		side2.add(side2bottom,BorderLayout.SOUTH);
 
-		//		side2.add(deleteEvent,"South"); //$NON-NLS-1$
+		//		side2.add(deleteEvent,BorderLayout.SOUTH);
 
 		JComponent editor;
 		if (false)
