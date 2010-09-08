@@ -119,6 +119,7 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 	private boolean isValidParent(GmObject p)
 		{
 		if (p == this) return false;
+		if (p == null) return true;
 		HashSet<GmObject> traversed = new HashSet<GmObject>();
 		traversed.add(p);
 		while (true)
