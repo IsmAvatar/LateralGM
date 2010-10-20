@@ -42,9 +42,9 @@ import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
 import org.lateralgm.components.CustomFileChooser;
+import org.lateralgm.components.CustomFileChooser.FilterSet;
 import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
-import org.lateralgm.components.CustomFileChooser.FilterSet;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.GmFileReader;
@@ -203,8 +203,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		String ext = getVersionExtension(LGM.currentFile.fileVersion);
 		if (!LGM.currentFile.filename.endsWith(ext))
 			{
-			int result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
-					"Listener.CONFIRM_EXTENSION",ext,LGM.currentFile.fileVersion), //$NON-NLS-1$
+			int result = JOptionPane.showConfirmDialog(LGM.frame,
+					Messages.format("Listener.CONFIRM_EXTENSION",ext,LGM.currentFile.fileVersion), //$NON-NLS-1$
 					LGM.currentFile.filename,JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.CANCEL_OPTION) return false;
 			if (result == JOptionPane.NO_OPTION) return saveNewFile();
@@ -253,8 +253,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			int result = JOptionPane.YES_OPTION;
 			if (new File(filename).exists())
-				result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
-						"Listener.CONFIRM_REPLACE",filename), //$NON-NLS-1$
+				result = JOptionPane.showConfirmDialog(LGM.frame,
+						Messages.format("Listener.CONFIRM_REPLACE",filename), //$NON-NLS-1$
 						Messages.getString("Listener.CONFIRM_REPLACE_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
 						JOptionPane.WARNING_MESSAGE);
 			if (result == JOptionPane.YES_OPTION)
@@ -470,7 +470,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (com.endsWith(".EXIT")) //$NON-NLS-1$
 			{
-			LGM.frame.dispose();
+			System.exit(0);
 			return;
 			}
 		if (com.contains(".INSERT_")) //$NON-NLS-1$
