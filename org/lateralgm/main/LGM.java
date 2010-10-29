@@ -321,7 +321,7 @@ public final class LGM
 			catch (Exception e)
 				{
 				String msgInd = "LGM.PLUGIN_LOAD_ERROR"; //$NON-NLS-1$
-				System.out.println(Messages.format(msgInd,f.getName(),e.getCause(),e.getMessage()));
+				System.out.println(Messages.format(msgInd,f.getName(),e.getClass().getName(),e.getMessage()));
 				continue;
 				}
 			}
