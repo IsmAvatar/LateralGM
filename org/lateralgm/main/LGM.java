@@ -85,6 +85,7 @@ public final class LGM
 	{
 	private static final long serialVersionUID = 1L;
 	public static int javaVersion;
+	public static File tempDir, workDir;
 	static
 		{
 		//java6u10 regression causes graphical xor to be very slow
@@ -111,6 +112,28 @@ public final class LGM
 			System.out.println("Some program functionality will be limited due to your outdated version"); //$NON-NLS-1$
 
 		SplashProgress.start();
+
+		//Set up temp dir and work dir
+		Util.tweakIIORegistry();
+		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (!tempDir.exists())
+			{
+			tempDir.mkdir();
+			if (javaVersion >= 10600)
+				{
+				tempDir.setReadable(true,false);
+				tempDir.setWritable(true,false);
+				}
+			}
+
+		try
+			{
+			workDir = new File(LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			}
+		catch (URISyntaxException e1)
+			{
+			e1.printStackTrace();
+			}
 		}
 	public static JFrame frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 			Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
@@ -125,7 +148,6 @@ public final class LGM
 	public static Thread gameSettingFrameBuilder;
 	private static GameSettingFrame gameSet;
 	public static EventFrame eventSelect;
-	public static File tempDir, workDir;
 
 	public static GameInformationFrame getGameInfo()
 		{
@@ -299,7 +321,7 @@ public final class LGM
 			catch (Exception e)
 				{
 				String msgInd = "LGM.PLUGIN_LOAD_ERROR"; //$NON-NLS-1$
-				System.out.println(Messages.format(msgInd,f.getName(),e.getCause(),e.getMessage()));
+				System.out.println(Messages.format(msgInd,f.getName(),e.getClass().getName(),e.getMessage()));
 				continue;
 				}
 			}
@@ -329,6 +351,8 @@ public final class LGM
 				ResNode.STATUS_SECONDARY,Resource.Kind.GAMEINFO);
 		root.addChild(Messages.getString("LGM.GAMESETTINGS"), //$NON-NLS-1$
 				ResNode.STATUS_SECONDARY,Resource.Kind.GAMESETTINGS);
+		root.addChild(Messages.getString("LGM.EXTENSIONS"), //$NON-NLS-1$
+				ResNode.STATUS_SECONDARY,Resource.Kind.EXTENSIONS);
 		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
 		}
 
@@ -357,22 +381,15 @@ public final class LGM
 		return true;
 		}
 
-	public static void reload()
-		{
-		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
-		LGM.tree.setSelectionRow(0);
-
-		//This hack ensures EventSelector.linkSelect knows of the new root
-		LGM.mdi.remove(LGM.eventSelect);
-		LGM.eventSelect = new EventFrame();
-		LGM.mdi.add(LGM.eventSelect);
-
-		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
-		LGM.getGameSettings().setVisible(false);
-		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);
-		LGM.getGameInfo().setVisible(false);
-		}
-
+	/**
+	* Commits all front-end changes to the back-end.
+	* Usually do this in preparation for writing the back-end to some output stream,
+	* such as a file (e.g. saving) or a plugin (e.g. compiling).
+	* Notice that LGM actually traverses the tree committing *all* ResNodes with frames,
+	* rather than just the open MDI frames. Since GameSettings and GameInfo do not have
+	* ResourceFrames associated with them, we commit them separately.
+	* @see LGM#commitAll()
+	*/
 	public static void commitAll()
 		{
 		Enumeration<?> nodes = LGM.root.preorderEnumeration();
@@ -385,28 +402,58 @@ public final class LGM
 		LGM.getGameInfo().updateResource();
 		}
 
-	static
+	public static void reload(boolean newRoot)
 		{
-		Util.tweakIIORegistry();
-		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (!tempDir.exists())
-			{
-			tempDir.mkdir();
-			if (javaVersion >= 10600)
-				{
-				tempDir.setReadable(true,false);
-				tempDir.setWritable(true,false);
-				}
-			}
+		LGM.mdi.closeAll();
 
-		try
-			{
-			workDir = new File(LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-			}
-		catch (URISyntaxException e1)
-			{
-			e1.printStackTrace();
-			}
+		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
+		LGM.tree.setSelectionRow(0);
+
+		//This hack ensures EventSelector.linkSelect knows of the new root
+		LGM.mdi.remove(LGM.eventSelect);
+		LGM.eventSelect = new EventFrame();
+		LGM.mdi.add(LGM.eventSelect);
+
+		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
+		LGM.getGameSettings().setVisible(false);
+		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);
+		LGM.getGameInfo().setVisible(false);
+
+		LGM.fireReloadPerformed(newRoot);
+		}
+
+	public static interface ReloadListener
+		{
+		/**
+		 * Called after LGM performs a reload, e.g. when a new file is created or loaded.
+		 * A reload causes the MDI to be flushed, the tree to refresh
+		 * (especially if a new root is provided), the EventFrame is recreated
+		 * (a hack to ensure that the events' link selectors know of the new root),
+		 * and Game Settings and Game Info are re-calibrated with their new settings
+		 * (but not recreated). Note that the Menu bar is left untouched and remains in tact.
+		 * @param newRoot indicates if a new root was provided to the tree
+		 * (e.g. the tree had to be re-populated)
+		 * @see LGM#reload(boolean newRoot)
+		 */
+		void reloadPerformed(boolean newRoot);
+		}
+
+	protected static ArrayList<ReloadListener> reloadListeners = new ArrayList<ReloadListener>();
+
+	public static void addReloadListener(ReloadListener l)
+		{
+		reloadListeners.add(l);
+		}
+
+	public static void removeReloadListener(ReloadListener l)
+		{
+		reloadListeners.remove(l);
+		}
+
+	protected static void fireReloadPerformed(boolean newRoot)
+		{
+		for (ReloadListener rl : reloadListeners)
+			rl.reloadPerformed(newRoot);
 		}
 
 	public static void main(String[] args)
@@ -476,7 +523,7 @@ public final class LGM
 
 		private static String text = null;
 
-		static final Boolean TIMER = System.getProperty("lgm.progresstimer") != null; //$NON-NLS-1$
+		static final boolean TIMER = System.getProperty("lgm.progresstimer") != null; //$NON-NLS-1$
 		private static long startTime, completeTime;
 		private static ArrayList<Integer> progressValues;
 		private static ArrayList<Long> progressTimes;
@@ -553,7 +600,6 @@ public final class LGM
 					}
 				System.out.println();
 				}
-			progress(100,""); //$NON-NLS-1$
 			}
 
 		static void progress(int p)

@@ -18,7 +18,6 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -60,12 +59,12 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 
 	public GmObject()
 		{
-		this(null,true);
+		this(null);
 		}
 
-	public GmObject(ResourceReference<GmObject> r, boolean update)
+	public GmObject(ResourceReference<GmObject> r)
 		{
-		super(r,update);
+		super(r);
 		MainEvent[] e = new MainEvent[12];
 		for (int j = 0; j < 12; j++)
 			e[j] = new MainEvent();
@@ -74,22 +73,23 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 		properties.getUpdateSource(PGmObject.SPRITE).addListener(opl);
 		}
 
-	@Override
-	protected GmObject copy(ResourceList<GmObject> src, ResourceReference<GmObject> ref,
-			boolean update)
+	public GmObject makeInstance(ResourceReference<GmObject> r)
 		{
-		GmObject o = new GmObject(ref,update);
-		copy(src,o);
+		return new GmObject(r);
+		}
+
+	@Override
+	protected void postCopy(GmObject dest)
+		{
 		for (int i = 0; i < 12; i++)
 			{
 			MainEvent mev = mainEvents.get(i);
-			MainEvent mev2 = o.mainEvents.get(i);
+			MainEvent mev2 = dest.mainEvents.get(i);
 			for (Event ev : mev.events)
 				{
 				mev2.events.add(ev.copy());
 				}
 			}
-		return o;
 		}
 
 	@Override
@@ -119,6 +119,7 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 	private boolean isValidParent(GmObject p)
 		{
 		if (p == this) return false;
+		if (p == null) return true;
 		HashSet<GmObject> traversed = new HashSet<GmObject>();
 		traversed.add(p);
 		while (true)

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
- * Copyright (C) 2006 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -12,6 +12,8 @@
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -20,9 +22,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GMLTextArea;
@@ -45,6 +51,7 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 	public JToolBar tool;
 	public GMLTextArea code;
 	public JButton edit;
+	public JPanel status;
 
 	private ScriptEditor editor;
 
@@ -81,6 +88,21 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 		name.setMaximumSize(name.getPreferredSize());
 		tool.add(new JLabel(Messages.getString("ScriptFrame.NAME"))); //$NON-NLS-1$
 		tool.add(name);
+
+		status = new JPanel(new FlowLayout());
+		status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
+		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
+		final JLabel caretPos = new JLabel((code.getCaretLine() + 1) + ":"
+				+ (code.getCaretColumn() + 1));
+		status.add(caretPos);
+		code.addCaretListener(new CaretListener()
+			{
+				public void caretUpdate(CaretEvent e)
+					{
+					caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretColumn() + 1));
+					}
+			});
+		add(status,BorderLayout.SOUTH);
 
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
 		}

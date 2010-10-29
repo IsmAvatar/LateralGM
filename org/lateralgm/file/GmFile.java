@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
- * Copyright (C) 2006, 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006, 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -44,6 +45,7 @@ import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
@@ -54,8 +56,11 @@ import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sound.SoundKind;
 import org.lateralgm.resources.Sprite.BBMode;
+import org.lateralgm.resources.Sprite.MaskShape;
+import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.Trigger;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile.PTile;
 
@@ -94,21 +99,42 @@ public class GmFile implements UpdateListener
 			m.put(SPRITE_BB_MODE[i],i);
 		SPRITE_BB_CODE = Collections.unmodifiableMap(m);
 		}
+	protected static final MaskShape[] SPRITE_MASK_SHAPE = { MaskShape.PRECISE,MaskShape.RECTANGLE,
+			MaskShape.DISK,MaskShape.DIAMOND };
+	protected static final Map<MaskShape,Integer> SPRITE_MASK_CODE;
+	static
+		{
+		EnumMap<MaskShape,Integer> m = new EnumMap<MaskShape,Integer>(MaskShape.class);
+		for (int i = 0; i < SPRITE_MASK_SHAPE.length; i++)
+			m.put(SPRITE_MASK_SHAPE[i],i);
+		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
+		}
 
-	private final EnumMap<Resource.Kind,ResourceList<?>> resMap;
-	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class,this);
-	public final ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class,this);
-	public final ResourceList<Background> backgrounds = new ResourceList<Background>(
-			Background.class,this);
-	public final ResourceList<Path> paths = new ResourceList<Path>(Path.class,this);
-	public final ResourceList<Script> scripts = new ResourceList<Script>(Script.class,this);
-	public final ResourceList<Font> fonts = new ResourceList<Font>(Font.class,this);
-	public final ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class,this);
-	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class,this);
-	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class,this);
-
+	/** One of 530, 600, 701, or 800 */
 	public int fileVersion = 600;
 	public String filename = null;
+
+	private final EnumMap<Resource.Kind,ResourceList<?>> resMap;
+	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class);
+	public final ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class);
+	public final ResourceList<Background> backgrounds = new ResourceList<Background>(//force newline
+			Background.class);
+	public final ResourceList<Path> paths = new ResourceList<Path>(Path.class);
+	public final ResourceList<Script> scripts = new ResourceList<Script>(Script.class);
+	public final ResourceList<Font> fonts = new ResourceList<Font>(Font.class);
+	public final ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class);
+	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class);
+	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class);
+
+	public ArrayList<Trigger> triggers = new ArrayList<Trigger>();
+	public ArrayList<Constant> constants = new ArrayList<Constant>();
+	public ArrayList<Include> includes = new ArrayList<Include>();
+	public ArrayList<String> packages = new ArrayList<String>();
+
+	public GameInformation gameInfo = new GameInformation();
+	public GameSettings gameSettings = new GameSettings();
+	public int lastInstanceId = 100000;
+	public int lastTileId = 10000000;
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
@@ -168,17 +194,11 @@ public class GmFile implements UpdateListener
 		return DateFormat.getDateTimeInstance().format(base.getTime());
 		}
 
-	public GameSettings gameSettings = new GameSettings();
-	public int lastInstanceId = 100000;
-	public int lastTileId = 10000000;
-
 	// Returns the ResourceList corresponding to given Resource constant
 	public ResourceList<?> getList(Resource.Kind res)
 		{
 		return resMap.get(res);
 		}
-
-	public GameInformation gameInfo = new GameInformation();
 
 	public void defragIds()
 		{
@@ -186,7 +206,7 @@ public class GmFile implements UpdateListener
 		while (iter.hasNext())
 			iter.next().defragIds();
 		lastInstanceId = 100000;
-		lastTileId = 100000;
+		lastTileId = 10000000;
 		for (Room r : rooms)
 			{
 			for (Instance j : r.instances)
@@ -194,6 +214,14 @@ public class GmFile implements UpdateListener
 			for (Tile j : r.tiles)
 				j.properties.put(PTile.ID,++lastTileId);
 			}
+		}
+
+	public static ArrayList<Constant> copyConstants(ArrayList<Constant> source)
+		{
+		ArrayList<Constant> dest = new ArrayList<Constant>();
+		for (Constant c : source)
+			dest.add(c.copy());
+		return dest;
 		}
 
 	public void updated(UpdateEvent e)

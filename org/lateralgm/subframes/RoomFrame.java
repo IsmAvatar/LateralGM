@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
@@ -26,7 +26,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
@@ -40,10 +39,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -55,19 +52,17 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.DocumentEvent;
+import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ColorSelect;
-import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EditorScrollPane;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
-import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.components.visual.RoomEditor.CommandHandler;
 import org.lateralgm.components.visual.RoomEditor.PRoomEditor;
@@ -91,6 +86,7 @@ import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View.PView;
+import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.ui.swing.propertylink.ButtonModelLink;
 import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
@@ -131,7 +127,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 	private JButton sCreationCode, sShow;
 	private JPopupMenu sShowMenu;
 
-	public HashMap<Object,CodeFrame> codeFrames = new HashMap<Object,CodeFrame>();
+	public HashMap<CodeHolder,CodeFrame> codeFrames = new HashMap<CodeHolder,CodeFrame>();
 
 	private JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
 	//Tiles
@@ -228,7 +224,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			String name = o == null ? Messages.getString("RoomFrame.NO_OBJECT") : o.getName();
 			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
 			lab.setText(name + " " + i.properties.get(PInstance.ID));
-			ResNode rn = o.getNode();
+			ResNode rn = o == null ? null : o.getNode();
 			lab.setIcon(rn == null ? null : rn.getIcon());
 			return lab;
 			}
@@ -1295,7 +1291,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			}
 		if (e.getSource() == sCreationCode)
 			{
-			openCodeFrame(res,"RoomFrame.TITLE_FORMAT_CREATION",res.getName()); //$NON-NLS-1$
+			openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
 			return;
 			}
 		if (e.getSource() == oCreationCode)
@@ -1421,124 +1417,32 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 
 	public void openCodeFrame(Instance i)
 		{
-		openCodeFrame(i,"RoomFrame.TITLE_FORMAT_CREATION",Messages.format("RoomFrame.INSTANCE",
-				i.properties.get(PInstance.ID)));
+		openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),Messages.format(
+				"RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
 		}
 
-	public void openCodeFrame(Object obj, String format, Object arg)
+	public void openCodeFrame(CodeHolder code, String titleFormat, Object titleArg)
 		{
-		CodeFrame frame = codeFrames.get(obj);
+		CodeFrame frame = codeFrames.get(code);
 		if (frame == null)
 			{
-			frame = new CodeFrame(obj,format,arg,codeFrames);
+			frame = new CodeFrame(code,titleFormat,titleArg);
+			codeFrames.put(code,frame);
+			frame.addInternalFrameListener(new InternalFrameAdapter()
+				{
+					public void internalFrameClosed(InternalFrameEvent e)
+						{
+						CodeFrame f = ((CodeFrame) e.getSource());
+						codeFrames.remove(f.code);
+						f.removeInternalFrameListener(this);
+						}
+				});
 			LGM.mdi.add(frame);
 			LGM.mdi.addZChild(this,frame);
 			frame.toTop();
 			}
 		else
 			frame.toTop();
-		}
-
-	public static class CodeFrame extends MDIFrame implements ActionListener
-		{
-		private static final long serialVersionUID = 1L;
-
-		private String getCode()
-			{
-			if (code instanceof Room) return ((Room) code).get(PRoom.CREATION_CODE);
-			if (code instanceof Instance) return ((Instance) code).getCreationCode();
-			throw new RuntimeException(Messages.getString("RoomFrame.CODE_ERROR")); //$NON-NLS-1$
-			}
-
-		public void commit()
-			{
-			if (code instanceof Room)
-				((Room) code).put(PRoom.CREATION_CODE,gta.getTextCompat());
-			else if (code instanceof Instance)
-				((Instance) code).setCreationCode(gta.getTextCompat());
-			else
-				throw new RuntimeException(Messages.getString("RoomFrame.CODE_ERROR")); //$NON-NLS-1$
-			}
-
-		public void setTitleFormatArg(Object arg)
-			{
-			this.arg = arg;
-			setTitle(Messages.format(format,arg));
-			}
-
-		public boolean isChanged()
-			{
-			return gta.getUndoManager().isModified();
-			}
-
-		final Object code;
-		final GMLTextArea gta;
-		final String format;
-		Object arg;
-		final JButton save;
-		final HashMap<Object,CodeFrame> codeFrames;
-
-		public CodeFrame(Object code, String format, Object arg, HashMap<Object,CodeFrame> cf)
-			{
-			super(Messages.format(format,arg),true,true,true,true);
-			this.code = code;
-			this.format = format;
-			this.arg = arg;
-			codeFrames = cf;
-			cf.put(code,this);
-			setSize(600,400);
-			setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
-			// the code text area
-			gta = new GMLTextArea(getCode());
-			// Setup the toolbar
-			JToolBar tool = new JToolBar();
-			tool.setFloatable(false);
-			tool.setAlignmentX(0);
-			add("North",tool); //$NON-NLS-1$
-			// Setup the buttons
-			save = new JButton(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
-			save.addActionListener(this);
-			tool.add(save);
-			tool.addSeparator();
-			gta.addEditorButtons(tool);
-			getContentPane().add(gta);
-			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(gta));
-			}
-
-		public void dispose()
-			{
-			super.dispose();
-			save.removeActionListener(this);
-			codeFrames.remove(code);
-			}
-
-		public void fireInternalFrameEvent(int id)
-			{
-			if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSING)
-				{
-				if (isChanged())
-					{
-					int res = JOptionPane.showConfirmDialog(getParent(),Messages.format(
-							"RoomFrame.CODE_CHANGED",arg,Messages.getString("RoomFrame.TITLE_CHANGES"), //$NON-NLS-1$ //$NON-NLS-2$
-							JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE));
-					if (res == JOptionPane.YES_OPTION)
-						commit();
-					else if (res == JOptionPane.CANCEL_OPTION)
-						{
-						super.fireInternalFrameEvent(id);
-						return;
-						}
-					}
-				dispose();
-				}
-			super.fireInternalFrameEvent(id);
-			}
-
-		public void actionPerformed(ActionEvent e)
-			{
-			commit();
-			dispose();
-			}
 		}
 
 	public void removeUpdate(DocumentEvent e)

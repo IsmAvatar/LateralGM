@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
- * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
@@ -501,7 +501,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		exportBut = new JButton(Messages.getString("GameSettingFrame.EXPORT")); //$NON-NLS-1$
 		exportBut.addActionListener(this);
 
-		cModel = new ConstantsTableModel(LGM.currentFile.gameSettings.constants);
+		cModel = new ConstantsTableModel(LGM.currentFile.constants);
 		constants = new JTable(cModel);
 		JScrollPane scroll = new JScrollPane(constants);
 		constants.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -571,7 +571,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		ConstantsTableModel(ArrayList<Constant> list)
 			{
-			constants = GameSettings.copyConstants(list);
+			constants = GmFile.copyConstants(list);
 			}
 
 		public int getColumnCount()
@@ -639,7 +639,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		JLabel lFiles = new JLabel(Messages.getString("GameSettingFrame.FILES_TO_INCLUDE")); //$NON-NLS-1$
 
-		iModel = new IncludesListModel(g.includes);
+		iModel = new IncludesListModel(LGM.currentFile.includes);
 		includes = new JList(iModel);
 		JScrollPane iScroll = new JScrollPane(includes);
 		iAdd = new JButton(Messages.getString("GameSettingFrame.ADD_INCLUDE")); //$NON-NLS-1$
@@ -1065,7 +1065,11 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 				{
 				File[] f = includesFc.getSelectedFiles();
 				for (File file : f)
-					iModel.addElement(new Include(file.getAbsolutePath()));
+					{
+					Include inc = new Include();
+					inc.filepath = file.getAbsolutePath();
+					iModel.addElement(inc);
+					}
 				}
 			return;
 			}
@@ -1226,10 +1230,10 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		//Constants
 		cModel.removeEmptyConstants();
-		g.constants = GameSettings.copyConstants(cModel.constants);
+		LGM.currentFile.constants = GmFile.copyConstants(cModel.constants);
 
 		//Includes
-		g.includes = iModel.toArrayList();
+		LGM.currentFile.includes = iModel.toArrayList();
 		g.includeFolder = exportFolder.getValue();
 		g.overwriteExisting = overwriteExisting.isSelected();
 		g.removeAtGameEnd = removeAtGameEnd.isSelected();
@@ -1295,12 +1299,12 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		gameId.setIntValue(g.gameId);
 
 		//Constants
-		cModel = new ConstantsTableModel(g.constants);
+		cModel = new ConstantsTableModel(LGM.currentFile.constants);
 		constants.setModel(cModel);
 		constants.updateUI();
 
 		//Includes
-		iModel = new IncludesListModel(g.includes);
+		iModel = new IncludesListModel(LGM.currentFile.includes);
 		includes.setModel(iModel);
 		includes.updateUI();
 		exportFolder.setValue(g.includeFolder);

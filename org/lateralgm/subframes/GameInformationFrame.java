@@ -25,6 +25,7 @@ package org.lateralgm.subframes;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GraphicsEnvironment;
@@ -427,10 +428,10 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		menubar = makeMenuBar();
 		setJMenuBar(menubar);
 		toolbar = makeToolBar();
-		add("North",toolbar); //$NON-NLS-1$
+		add(toolbar,BorderLayout.NORTH);
 
 		tabs = new JTabbedPane();
-		add(tabs);
+		add(tabs,BorderLayout.CENTER);
 		tabs.addChangeListener(new ChangeListener()
 			{
 				public void stateChanged(ChangeEvent e)
@@ -482,9 +483,9 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 					}
 			});
 
-		tabs.addTab(Messages.getString("GameInformationFrame.TAB_INFO"),
+		tabs.addTab(Messages.getString("GameInformationFrame.TAB_INFO"), //$NON-NLS-1$
 		/**/null,new JScrollPane(editor),Messages.getString("GameInformationFrame.HINT_INFO")); //$NON-NLS-1$ 
-		tabs.addTab(Messages.getString("GameInformationFrame.TAB_SETTINGS"),
+		tabs.addTab(Messages.getString("GameInformationFrame.TAB_SETTINGS"), //$NON-NLS-1$
 		/**/null,makeSettings(),Messages.getString("GameInformationFrame.HINT_SETTINGS")); //$NON-NLS-1$ 
 		revertResource();
 

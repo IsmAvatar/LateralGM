@@ -903,6 +903,11 @@ public class JEditTextArea extends JComponent
 		return (biasLeft ? selectionStartLine : selectionEndLine);
 		}
 
+	public final int getCaretColumn()
+		{
+		return getCaretPosition() - getLineStartOffset(getCaretLine());
+		}
+
 	/**
 	 * Gets the selection bound opposite of the caret
 	 * @see #getCaretPosition()

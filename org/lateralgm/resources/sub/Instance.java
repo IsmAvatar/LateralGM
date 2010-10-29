@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
- * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -20,13 +20,15 @@ import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
+import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.PropertyMap.PropertyValidationException;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
 
-public class Instance implements Room.Piece,UpdateListener,PropertyValidator<Instance.PInstance>
+public class Instance implements Room.Piece,UpdateListener,CodeHolder,
+		PropertyValidator<Instance.PInstance>
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -78,9 +80,19 @@ public class Instance implements Room.Piece,UpdateListener,PropertyValidator<Ins
 		return (String) properties.get(PInstance.CREATION_CODE);
 		}
 
+	public String getCode()
+		{
+		return getCreationCode();
+		}
+
 	public void setCreationCode(String creationCode)
 		{
 		properties.put(PInstance.CREATION_CODE,creationCode);
+		}
+
+	public void setCode(String s)
+		{
+		setCreationCode(s);
 		}
 
 	public void updated(UpdateEvent e)

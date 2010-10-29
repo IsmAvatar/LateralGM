@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -80,6 +81,12 @@ public class CompletionMenu extends JWindow
 					}
 			});
 		reset();
+		}
+
+	public void dispose()
+		{
+		super.dispose();
+		area.requestFocus();
 		}
 
 	public void setLocation()

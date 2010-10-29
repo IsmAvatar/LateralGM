@@ -1,11 +1,12 @@
 /*
- * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
  */
+
 package org.lateralgm.components.visual;
 
 import static org.lateralgm.main.Util.deRef;
@@ -43,7 +44,7 @@ import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.subframes.RoomFrame;
-import org.lateralgm.subframes.RoomFrame.CodeFrame;
+import org.lateralgm.subframes.CodeFrame;
 import org.lateralgm.ui.swing.visuals.RoomVisual;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;

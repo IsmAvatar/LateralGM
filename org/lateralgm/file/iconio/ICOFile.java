@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -72,7 +73,7 @@ public class ICOFile implements Comparable<ICOFile>
 	public ICOFile(final String pFileName) throws IOException
 		{
 		this(pFileName,new StreamDecoder(pFileName));
-		getDecoder().close();
+		decoder.close();
 		}
 
 	/**
@@ -84,7 +85,7 @@ public class ICOFile implements Comparable<ICOFile>
 	public ICOFile(final InputStream pInput) throws IOException
 		{
 		this("[from stream]",new StreamDecoder(pInput));
-		getDecoder().close();
+		decoder.close();
 		}
 
 	/**
@@ -96,7 +97,7 @@ public class ICOFile implements Comparable<ICOFile>
 	public ICOFile(final URL pURL) throws IOException
 		{
 		this(pURL.toString(),new StreamDecoder(pURL.openStream()));
-		getDecoder().close();
+		decoder.close();
 		}
 
 	/**
@@ -373,19 +374,25 @@ public class ICOFile implements Comparable<ICOFile>
 		return reserved;
 		}
 
-	/**@return The <code>StreamDecoder</code> provided or derived from the constructor*/
-	public StreamDecoder getDecoder()
-		{
-		return decoder;
-		}
-
 	private static final int HEADER_SIZE = 6;
 	private static final int DESCRIPTOR_SIZE = 16;
+
+	public void write(OutputStream out) throws IOException
+		{
+		if (out instanceof StreamEncoder)
+			write((StreamEncoder) out);
+		else
+			{
+			StreamEncoder se = new StreamEncoder(out);
+			write(se);
+			se.flush();
+			}
+		}
 
 	public void write(StreamEncoder out) throws IOException
 		{
 		writeHeader(out);
-		byte[][] imageData = writeBitmaps(out);
+		byte[][] imageData = getBitmaps();
 		int offset = HEADER_SIZE + DESCRIPTOR_SIZE * descriptors.size();
 		for (int i = 0; i < descriptors.size(); i++)
 			{
@@ -412,7 +419,7 @@ public class ICOFile implements Comparable<ICOFile>
 			bmd.write(out);
 		}
 
-	private byte[][] writeBitmaps(StreamEncoder out) throws IOException
+	private byte[][] getBitmaps() throws IOException
 		{
 		byte[][] res = new byte[descriptors.size()][];
 		int i = 0;

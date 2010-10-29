@@ -90,6 +90,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 	public JRadioButton auto, full, manual;
 
 	//properties
+	public JRadioButton rect, prec, disk, diam;
 	public JCheckBox preciseCC, smooth, preload;
 	public JLabel subCount, width, height;
 
@@ -126,6 +127,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		JTabbedPane tabs = new JTabbedPane();
 		tabs.addTab(Messages.getString("SpriteFrame.PROPERTIES"),makePropertiesPane()); //$NON-NLS-1$
+		tabs.addTab(Messages.getString("SpriteFrame.MASK"),makeMaskPane()); //$NON-NLS-1$
 		tabs.addTab(Messages.getString("SpriteFrame.SUBIMAGES"),makeSubimagesPane()); //$NON-NLS-1$
 
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,tabs,makePreviewPane());
@@ -212,6 +214,39 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		/**/.addGap(8)
 		/**/.addComponent(centre)
 		/**/.addGap(8));
+
+		return pane;
+		}
+
+	private JPanel makeCollisionPane()
+		{
+		JPanel pane = new JPanel();
+		GroupLayout bLayout = new GroupLayout(pane);
+		pane.setLayout(bLayout);
+		pane.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.COLLISION"))); //$NON-NLS-1$
+
+		ButtonGroup g = new ButtonGroup();
+		prec = new JRadioButton(Messages.getString("SpriteFrame.PRECISE")); //$NON-NLS-1$
+		g.add(prec);
+		rect = new JRadioButton(Messages.getString("SpriteFrame.RECTANGLE")); //$NON-NLS-1$
+		g.add(rect);
+		disk = new JRadioButton(Messages.getString("SpriteFrame.DISK")); //$NON-NLS-1$
+		g.add(disk);
+		diam = new JRadioButton(Messages.getString("SpriteFrame.DIAMOND")); //$NON-NLS-1$
+		g.add(diam);
+		plf.make(g,PSprite.SHAPE,Sprite.MaskShape.class);
+
+		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
+		/**/.addComponent(prec)
+		/**/.addComponent(rect)
+		/**/.addComponent(disk)
+		/**/.addComponent(diam));
+
+		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
+		/**/.addComponent(prec)
+		/**/.addComponent(rect)
+		/**/.addComponent(disk)
+		/**/.addComponent(diam));
 
 		return pane;
 		}
@@ -310,40 +345,56 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		pane.setLayout(layout);
 
-		preciseCC = new JCheckBox(Messages.getString("SpriteFrame.PRECISE_CC")); //$NON-NLS-1$
-		plf.make(preciseCC,PSprite.PRECISE);
-		smooth = new JCheckBox(Messages.getString("SpriteFrame.SMOOTH")); //$NON-NLS-1$
-		plf.make(smooth,PSprite.SMOOTH_EDGES);
-		preload = new JCheckBox(Messages.getString("SpriteFrame.PRELOAD")); //$NON-NLS-1$
-		plf.make(preload,PSprite.PRELOAD);
 		subCount = new JLabel();
 		width = new JLabel();
 		height = new JLabel();
 
+		smooth = new JCheckBox(Messages.getString("SpriteFrame.SMOOTH")); //$NON-NLS-1$
+		plf.make(smooth,PSprite.SMOOTH_EDGES);
+		preload = new JCheckBox(Messages.getString("SpriteFrame.PRELOAD")); //$NON-NLS-1$
+		plf.make(preload,PSprite.PRELOAD);
+
 		JPanel origin = makeOriginPane();
-		JPanel bbox = makeBBoxPane();
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(preciseCC)
-		/**/.addComponent(smooth)
-		/**/.addComponent(preload)
 		/**/.addComponent(subCount,Alignment.CENTER)
 		/**/.addGroup(Alignment.CENTER,layout.createSequentialGroup()
 		/*	*/.addComponent(width)
 		/*	*/.addGap(12)
 		/*	*/.addComponent(height))
-		/**/.addComponent(origin)
-		/**/.addComponent(bbox));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(preciseCC)
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
+		/**/.addComponent(origin));
+		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(subCount)
 		/**/.addGap(4)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(width)
 		/*	*/.addComponent(height))
-		/**/.addComponent(origin)
+		/**/.addComponent(smooth)
+		/**/.addComponent(preload)
+		/**/.addComponent(origin));
+
+		return pane;
+		}
+
+	private JPanel makeMaskPane()
+		{
+		JPanel pane = new JPanel();
+		GroupLayout layout = new GroupLayout(pane);
+		layout.setAutoCreateContainerGaps(true);
+
+		pane.setLayout(layout);
+
+		JPanel coll = makeCollisionPane();
+		JPanel bbox = makeBBoxPane();
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(coll)
+		/**/.addComponent(bbox));
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(coll)
 		/**/.addComponent(bbox));
 
 		return pane;
@@ -359,11 +410,11 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		tool.setFloatable(false);
 		pane.add(tool,BorderLayout.NORTH);
 
-		makeToolButton(tool,"SpriteFrame.ADD");
-		makeToolButton(tool,"SpriteFrame.REMOVE");
+		makeToolButton(tool,"SpriteFrame.ADD"); //$NON-NLS-1$
+		makeToolButton(tool,"SpriteFrame.REMOVE"); //$NON-NLS-1$
 		tool.addSeparator();
-		makeToolButton(tool,"SpriteFrame.PREVIOUS");
-		makeToolButton(tool,"SpriteFrame.NEXT");
+		makeToolButton(tool,"SpriteFrame.PREVIOUS"); //$NON-NLS-1$
+		makeToolButton(tool,"SpriteFrame.NEXT"); //$NON-NLS-1$
 
 		subList = new JList();
 		subList.addMouseListener(this);
@@ -609,7 +660,8 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			return;
 			}
 		String cmd = e.getActionCommand();
-		if (cmd != null && cmd.startsWith("SpriteFrame.")) handleToolbarEvent(cmd.substring(12));
+		if (cmd != null && cmd.startsWith("SpriteFrame.")) //$NON-NLS-1$
+			handleToolbarEvent(cmd.substring(12));
 		System.out.println(e);
 
 		super.actionPerformed(e);
@@ -618,7 +670,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 	private void handleToolbarEvent(String cmd)
 		{
 		int pos = subList.getSelectedIndex();
-		if (cmd.equals("ADD"))
+		if (cmd.equals("ADD")) //$NON-NLS-1$
 			{
 			BufferedImage bi = res.addSubImage();
 			pos = pos >= 0 ? pos + 1 : res.subImages.size();
@@ -629,7 +681,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			return;
 			}
 		if (pos == -1) return;
-		if (cmd.equals("REMOVE"))
+		if (cmd.equals("REMOVE")) //$NON-NLS-1$
 			{
 			ImageEditor ie = editors == null ? null : editors.get(res.subImages.get(pos));
 			imageChanged = true;
@@ -638,7 +690,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			subList.setSelectedIndex(Math.min(res.subImages.size() - 1,pos));
 			return;
 			}
-		if (cmd.equals("PREVIOUS"))
+		if (cmd.equals("PREVIOUS")) //$NON-NLS-1$
 			{
 			if (pos == 0) return;
 			imageChanged = true;
@@ -647,9 +699,8 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			subList.setSelectedIndex(pos - 1);
 			return;
 			}
-		if (cmd.equals("NEXT"))
+		if (cmd.equals("NEXT")) //$NON-NLS-1$
 			{
-			System.out.println("lo");
 			if (pos == res.subImages.size() - 1) return;
 			imageChanged = true;
 			BufferedImage bi = res.subImages.remove(pos);
@@ -809,10 +860,10 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		public ImageEditor(BufferedImage i) throws IOException
 			{
 			image = i;
-			File f = File.createTempFile(res.getName(),".png",LGM.tempDir);
+			File f = File.createTempFile(res.getName(),".png",LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
 			FileOutputStream out = new FileOutputStream(f);
-			ImageIO.write(i,"png",out);
+			ImageIO.write(i,"png",out); //$NON-NLS-1$
 			out.close();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this,true);

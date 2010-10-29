@@ -169,7 +169,7 @@ public class StreamDecoder extends InputStream
 			}
 		else
 			{
-			throw new IllegalArgumentException(Messages.format("StreamDecoder.SEEK_PASSED",pBytes,
+			throw new IllegalArgumentException(Messages.format("StreamDecoder.SEEK_PASSED",pBytes, //$NON-NLS-1$
 					getPosString(),toSkip));
 			}
 		}

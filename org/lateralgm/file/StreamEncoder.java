@@ -19,6 +19,7 @@ import java.io.OutputStream;
 public class StreamEncoder extends OutputStream
 	{
 	protected OutputStream out;
+	protected int pos = 0;
 
 	/**
 	 * This allows extending classes to override the
@@ -46,11 +47,6 @@ public class StreamEncoder extends OutputStream
 		out = new BufferedOutputStream(new FileOutputStream(filePath));
 		}
 
-	public void write(int b) throws IOException
-		{
-		out.write(b);
-		}
-
 	public void write(byte[] b) throws IOException
 		{
 		out.write(b);
@@ -59,34 +55,45 @@ public class StreamEncoder extends OutputStream
 	public void write(byte[] b, int off, int len) throws IOException
 		{
 		out.write(b,off,len);
+		pos += len;
+		}
+
+	public void write(int b) throws IOException
+		{
+		out.write(b);
+		pos++;
 		}
 
 	public void write2(int val) throws IOException
 		{
 		short i = (short) val;
 		write(i & 255);
-		write((i >> 8) & 255);
+		write((i >>> 8) & 255);
+		}
+
+	public void write3(int val) throws IOException
+		{
+		write(val & 255);
+		write((val >>> 8) & 255);
+		write((val >>> 16) & 255);
 		}
 
 	public void write4(int val) throws IOException
 		{
-		out.write(val & 255);
-		out.write((val >> 8) & 255);
-		out.write((val >> 16) & 255);
-		out.write((val >> 24) & 255);
+		write(val & 255);
+		write((val >>> 8) & 255);
+		write((val >>> 16) & 255);
+		write((val >>> 24) & 255);
 		}
 
 	public void writeD(double val) throws IOException
 		{
 		long num = Double.doubleToLongBits(val);
-		out.write((int) ((num) & 255));
-		out.write((int) ((num >> 8) & 255));
-		out.write((int) ((num >> 16) & 255));
-		out.write((int) ((num >> 24) & 255));
-		out.write((int) ((num >> 32) & 255));
-		out.write((int) ((num >> 40) & 255));
-		out.write((int) ((num >> 48) & 255));
-		out.write((int) ((num >> 56) & 255));
+		byte[] b = new byte[8];
+		b[0] = (byte) (num & 0xFF);
+		for (int i = 1; i < 8; i++)
+			b[i] = (byte) ((num >>> (8 * i)) & 0xFF);
+		write(b);
 		}
 
 	public void close() throws IOException

@@ -240,6 +240,15 @@ public class MDIPane extends JDesktopPane
 			}
 		}
 
+	/**
+	 * Adds given child component to the z list of components such
+	 * that it will stay above the given parent component.
+	 * This method is particularly useful for allowing a child to
+	 * appear on top of a parent component without it monopolizing
+	 * the z-space of the rest of the MDI (e.g. on top of everything)
+	 * @param p The parent component to appear underneath
+	 * @param c The child component to appear on top
+	 */
 	public void addZChild(Component p, Component c)
 		{
 		WeakArrayList<Component> l = zMap.get(p);

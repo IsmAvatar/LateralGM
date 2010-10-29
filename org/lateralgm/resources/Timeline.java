@@ -12,7 +12,6 @@ package org.lateralgm.resources;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.util.PropertyMap;
@@ -27,13 +26,18 @@ public class Timeline extends Resource<Timeline,Timeline.PTimeline>
 
 	public Timeline()
 		{
-		this(null,true);
+		this(null);
 		}
 
-	public Timeline(ResourceReference<Timeline> r, boolean update)
+	public Timeline(ResourceReference<Timeline> r)
 		{
-		super(r,update);
+		super(r);
 		setName(Prefs.prefixes.get(Kind.TIMELINE));
+		}
+
+	public Timeline makeInstance(ResourceReference<Timeline> r)
+		{
+		return new Timeline(r);
 		}
 
 	public Moment addMoment()
@@ -44,17 +48,13 @@ public class Timeline extends Resource<Timeline,Timeline.PTimeline>
 		}
 
 	@Override
-	protected Timeline copy(ResourceList<Timeline> src, ResourceReference<Timeline> ref,
-			boolean update)
+	protected void postCopy(Timeline dest)
 		{
-		Timeline t = new Timeline(ref,update);
-		copy(src,t);
 		for (Moment mom : moments)
 			{
 			Moment mom2 = mom.copy();
-			t.moments.add(mom2);
+			dest.moments.add(mom2);
 			}
-		return t;
 		}
 
 	/**

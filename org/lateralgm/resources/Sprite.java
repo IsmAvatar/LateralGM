@@ -22,7 +22,6 @@ import java.util.EnumMap;
 
 import javax.imageio.ImageIO;
 
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
@@ -37,16 +36,21 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 		AUTO,FULL,MANUAL
 		}
 
+	public enum MaskShape
+		{
+		PRECISE,RECTANGLE,DISK,DIAMOND
+		}
+
 	public final ImageList subImages = new ImageList();
 
 	public enum PSprite
 		{
-		TRANSPARENT,PRECISE,SMOOTH_EDGES,PRELOAD,ORIGIN_X,ORIGIN_Y,BB_MODE,BB_LEFT,BB_RIGHT,BB_TOP,
-		BB_BOTTOM
+		TRANSPARENT,SHAPE,ALPHA_TOLERANCE,SEPARATE_MASK,SMOOTH_EDGES,PRELOAD,ORIGIN_X,ORIGIN_Y,BB_MODE,
+		BB_LEFT,BB_RIGHT,BB_TOP,BB_BOTTOM
 		}
 
 	private static final EnumMap<PSprite,Object> DEFS = PropertyMap.makeDefaultMap(PSprite.class,
-			true,true,false,true,0,0,BBMode.AUTO,0,31,0,31);
+			true,MaskShape.PRECISE,0,false,false,true,0,0,BBMode.AUTO,0,31,0,31);
 
 	private SoftReference<BufferedImage> imageCache = null;
 
@@ -54,15 +58,20 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 
 	public Sprite()
 		{
-		this(null,true);
+		this(null);
 		}
 
-	public Sprite(ResourceReference<Sprite> r, boolean update)
+	public Sprite(ResourceReference<Sprite> r)
 		{
-		super(r,update);
+		super(r);
 		properties.getUpdateSource(PSprite.TRANSPARENT).addListener(spl);
 		properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
 		setName(Prefs.prefixes.get(Kind.SPRITE));
+		}
+
+	public Sprite makeInstance(ResourceReference<Sprite> r)
+		{
+		return new Sprite(r);
 		}
 
 	public BufferedImage addSubImage()
@@ -204,13 +213,10 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 		}
 
 	@Override
-	protected Sprite copy(ResourceList<Sprite> src, ResourceReference<Sprite> ref, boolean update)
+	protected void postCopy(Sprite dest)
 		{
-		Sprite s = new Sprite(ref,update);
-		copy(src,s);
 		for (int j = 0; j < subImages.size(); j++)
-			s.addSubImage(copySubImage(j));
-		return s;
+			dest.addSubImage(copySubImage(j));
 		}
 
 	public Kind getKind()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
@@ -107,21 +107,21 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 
 		JPanel side2 = new JPanel(new BorderLayout());
 		JLabel lab = new JLabel(Messages.getString("GmObjectFrame.EVENTS")); //$NON-NLS-1$
-		side2.add(lab,"North"); //$NON-NLS-1$
+		side2.add(lab,BorderLayout.NORTH);
 		makeEventTree(res);
 		JScrollPane scroll = new JScrollPane(events);
 		scroll.setPreferredSize(new Dimension(140,260));
-		side2.add(scroll,"Center"); //$NON-NLS-1$
+		side2.add(scroll,BorderLayout.CENTER);
 
 		JPanel side2bottom = new JPanel(new BorderLayout());
 		//I probably shouldn't refer to LGM.makeButton, but it suits my purpose well here
-		side2bottom.add(LGM.makeButton("LGM.EVENT_BUTTON"),"West"); //$NON-NLS-1$ //$NON-NLS-2$
+		side2bottom.add(LGM.makeButton("LGM.EVENT_BUTTON"),BorderLayout.WEST); //$NON-NLS-1$
 		eventDelete = new JButton(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
 		eventDelete.addActionListener(this);
-		side2bottom.add(eventDelete,"Center"); //$NON-NLS-1$
-		side2.add(side2bottom,"South"); //$NON-NLS-1$
+		side2bottom.add(eventDelete,BorderLayout.CENTER);
+		side2.add(side2bottom,BorderLayout.SOUTH);
 
-		//		side2.add(deleteEvent,"South"); //$NON-NLS-1$
+		//		side2.add(deleteEvent,BorderLayout.SOUTH);
 
 		JComponent editor;
 		if (false)
@@ -500,13 +500,19 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 
 	public void removeEvent(EventInstanceNode n)
 		{
-		if (n.getParent() == rootEvent)
+		DefaultMutableTreeNode p = (DefaultMutableTreeNode) n.getParent();
+
+		DefaultMutableTreeNode next = n.getNextSibling();
+		if (next == null) next = n.getPreviousSibling();
+		if (next == null && rootEvent.getChildCount() != 0)
+			next = (DefaultMutableTreeNode) rootEvent.getChildAt(0);
+
+		if (p == rootEvent)
 			n.removeFromParent();
 		else
 			{
-			if (n.getParent().getChildCount() < 3) //thunder
+			if (p.getChildCount() < 3) //thunder
 				{
-				EventGroupNode p = (EventGroupNode) n.getParent();
 				n.removeFromParent();
 				rootEvent.insert((DefaultMutableTreeNode) p.getChildAt(0),rootEvent.getIndex(p));
 				p.removeFromParent();
@@ -514,13 +520,13 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 			else
 				n.removeFromParent();
 			}
-		if (rootEvent.getChildCount() == 0)
+
+		if (next == null)
 			actions.setActionContainer(null);
 		else
 			{
-			DefaultMutableTreeNode first = (DefaultMutableTreeNode) rootEvent.getChildAt(0);
-			TreePath path = new TreePath((first instanceof EventInstanceNode ? first
-					: (DefaultMutableTreeNode) first.getChildAt(0)).getPath());
+			TreePath path = new TreePath((next instanceof EventInstanceNode ? next
+					: (DefaultMutableTreeNode) next.getChildAt(0)).getPath());
 			events.setSelectionPath(path);
 			events.scrollPathToVisible(path);
 			}

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2010 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -11,11 +12,11 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
-import org.lateralgm.file.ResourceList;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.util.PropertyMap;
 
-public class Script extends Resource<Script,Script.PScript>
+public class Script extends Resource<Script,Script.PScript> implements CodeHolder
 	{
 	public enum PScript
 		{
@@ -26,21 +27,23 @@ public class Script extends Resource<Script,Script.PScript>
 
 	public Script()
 		{
-		this(null,true);
+		this(null);
 		}
 
-	public Script(ResourceReference<Script> r, boolean update)
+	public Script(ResourceReference<Script> r)
 		{
-		super(r,update);
+		super(r);
 		setName(Prefs.prefixes.get(Kind.SCRIPT));
 		}
 
-	@Override
-	protected Script copy(ResourceList<Script> src, ResourceReference<Script> ref, boolean update)
+	public Script makeInstance(ResourceReference<Script> r)
 		{
-		Script s = new Script(ref,update);
-		copy(src,s);
-		return s;
+		return new Script(r);
+		}
+
+	@Override
+	protected void postCopy(Script dest)
+		{
 		}
 
 	public Kind getKind()
@@ -52,5 +55,15 @@ public class Script extends Resource<Script,Script.PScript>
 	protected PropertyMap<PScript> makePropertyMap()
 		{
 		return new PropertyMap<PScript>(PScript.class,this,DEFS);
+		}
+
+	public String getCode()
+		{
+		return properties.get(PScript.CODE);
+		}
+
+	public void setCode(String s)
+		{
+		properties.put(PScript.CODE,s);
 		}
 	}

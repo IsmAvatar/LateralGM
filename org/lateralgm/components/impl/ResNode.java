@@ -214,6 +214,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 					rf.toTop();
 					return;
 				case EXTENSIONS:
+					//TODO: Create Extensions front-end
 					return;
 				}
 			if (rf != null)

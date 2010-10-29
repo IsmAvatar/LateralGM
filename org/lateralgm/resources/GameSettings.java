@@ -1,19 +1,19 @@
 /*
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
+ * Copyright (C) 2010 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
  */
+
 package org.lateralgm.resources;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.iconio.ICOFile;
-import org.lateralgm.resources.sub.Constant;
 
 public class GameSettings
 	{
@@ -59,10 +59,13 @@ public class GameSettings
 	public byte frequency = GameSettings.FREQ_NOCHANGE;
 	public boolean dontShowButtons = false;
 	public boolean useSynchronization = false;
+	public boolean disableScreensavers = true;
 	public boolean letF4SwitchFullscreen = true;
 	public boolean letF1ShowGameInfo = true;
 	public boolean letEscEndGame = true;
 	public boolean letF5SaveF6Load = true;
+	public boolean letF9Screenshot = true;
+	public boolean treatCloseAsEscape = true;
 	public byte gamePriority = GameSettings.PRIORITY_NORMAL;
 	public boolean freezeOnLoseFocus = false;
 	public byte loadBarMode = GameSettings.LOADBAR_DEFAULT;
@@ -81,20 +84,20 @@ public class GameSettings
 	public String version = "100";
 	public double lastChanged = GmFile.longTimeToGmTime(System.currentTimeMillis());
 	public String information = ""; //$NON-NLS-1$
+	
+	//FIXME: Includes information moved
 	public int includeFolder = GameSettings.INCLUDE_MAIN;
 	public boolean overwriteExisting = false;
 	public boolean removeAtGameEnd = false;
 
-	public ArrayList<Constant> constants = new ArrayList<Constant>();
-	public ArrayList<Include> includes = new ArrayList<Include>();
+	public int versionMajor = 1;
+	public int versionMinor = 0;
+	public int versionRelease = 0;
+	public int versionBuild = 0;
+	public String company = ""; //$NON-NLS-1$
+	public String product = ""; //$NON-NLS-1$
+	public String copyright = ""; //$NON-NLS-1$
+	public String description = ""; //$NON-NLS-1$
 
 	public ICOFile gameIcon;
-
-	public static ArrayList<Constant> copyConstants(ArrayList<Constant> source)
-		{
-		ArrayList<Constant> dest = new ArrayList<Constant>();
-		for (Constant c : source)
-			dest.add(c.copy());
-		return dest;
-		}
 	}

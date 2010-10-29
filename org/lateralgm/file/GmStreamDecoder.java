@@ -104,18 +104,21 @@ public class GmStreamDecoder extends StreamDecoder
 		return t;
 		}
 
+	/** GM uses ISO-LATIN-1 (ISO-8859-1) for its file string charset. */
+	public static final String CHARSET = "ISO-8859-1"; //$NON-NLS-1$
+
 	public String readStr() throws IOException
 		{
 		byte data[] = new byte[read4()];
 		read(data);
-		return new String(data);
+		return new String(data,CHARSET);
 		}
 
 	public String readStr1() throws IOException
 		{
 		byte data[] = new byte[read()];
 		read(data);
-		return new String(data);
+		return new String(data,CHARSET);
 		}
 
 	public boolean readBool() throws IOException
@@ -186,7 +189,7 @@ public class GmStreamDecoder extends StreamDecoder
 
 	/**
 	 * Safely finishes this stream if it's an inflater, otherwise this call does nothing.
-	 * This places the file reader after the end of the compressed data in the underlying input stream.
+	 * This places the file reader after the end of the compressed data in the underlying stream.
 	 */
 	public void endInflate() throws IOException
 		{
@@ -253,27 +256,22 @@ public class GmStreamDecoder extends StreamDecoder
 	public void setSeed(int s)
 		{
 		if (s >= 0)
-			table = makeSwapTable(s)[1];
+			table = makeDecodeTable(s);
 		else
 			table = null;
 		}
 
-	private static int[][] makeSwapTable(int seed)
+	protected static int[] makeDecodeTable(int seed)
 		{
-		int[][] table = new int[2][256];
-		int a = 6 + (seed % 250);
-		int b = seed / 250;
-		for (int i = 0; i < 256; i++)
-			table[0][i] = i;
-		for (int i = 1; i < 10001; i++)
-			{
-			int j = 1 + ((i * a + b) % 254);
-			int t = table[0][j];
-			table[0][j] = table[0][j + 1];
-			table[0][j + 1] = t;
-			}
+		int[] encTable = GmStreamEncoder.makeEncodeTable(seed);
+		return makeDecodeTable(encTable);
+		}
+
+	protected static int[] makeDecodeTable(int[] encTable)
+		{
+		int[] table = new int[256];
 		for (int i = 1; i < 256; i++)
-			table[1][table[0][i]] = i;
+			table[encTable[i]] = i;
 		return table;
 		}
 

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2010 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -21,7 +22,6 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
-import org.lateralgm.resources.Room;
 
 public class ResourceList<R extends Resource<R,?>> extends TreeSet<R> implements UpdateListener
 	{
@@ -30,17 +30,15 @@ public class ResourceList<R extends Resource<R,?>> extends TreeSet<R> implements
 	private static final IdComparator COMPARATOR = new IdComparator();
 
 	private final Class<R> type; // used as a workaround for add()
-	private final GmFile parent; // used for rooms
 	private final HashMap<ResourceReference<R>,WeakReference<R>> refMap;
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
 
-	ResourceList(Class<R> type, GmFile parent)
+	ResourceList(Class<R> type)
 		{
 		super(COMPARATOR);
 		this.type = type;
-		this.parent = parent;
 		refMap = new HashMap<ResourceReference<R>,WeakReference<R>>();
 		}
 
@@ -98,10 +96,7 @@ public class ResourceList<R extends Resource<R,?>> extends TreeSet<R> implements
 		R res = null;
 		try
 			{
-			if (type == Room.class)
-				res = type.getConstructor(GmFile.class).newInstance(parent);
-			else
-				res = type.newInstance();
+			res = type.newInstance();
 			}
 		catch (Exception e)
 			{
@@ -113,6 +108,18 @@ public class ResourceList<R extends Resource<R,?>> extends TreeSet<R> implements
 			add(res);
 			}
 		return res;
+		}
+
+	/**
+	 * Duplicates the given resource as per user request. Adds the duplicate to this list.
+	 * This is used by Listener.NodeMenuListener.actionPerformed on command "COPY"
+	 */
+	public R duplicate(R src)
+		{
+		if (!this.contains(src)) return null;
+		R dest = add();
+		src.copy(dest);
+		return dest;
 		}
 
 	public R getUnsafe(int id)

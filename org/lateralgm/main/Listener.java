@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008, 2009 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
@@ -25,9 +25,14 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashSet;
 
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
@@ -37,9 +42,9 @@ import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
 import org.lateralgm.components.CustomFileChooser;
+import org.lateralgm.components.CustomFileChooser.FilterSet;
 import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
-import org.lateralgm.components.CustomFileChooser.FilterSet;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.GmFileReader;
@@ -67,6 +72,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		openFs.addFilter("Listener.FORMAT_GM6",exts[1]); //$NON-NLS-1$
 		openFs.addFilter("Listener.FORMAT_GMD",exts[2]); //$NON-NLS-1$
 
+		saveFs.addFilter("Listener.FORMAT_GM",exts); //$NON-NLS-1$
+		saveFs.addFilter("Listener.FORMAT_GMK",exts[0]); //$NON-NLS-1$
 		saveFs.addFilter("Listener.FORMAT_GM6",exts[1]); //$NON-NLS-1$
 		}
 
@@ -85,13 +92,13 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	/** Note that passing in null will cause an open dialog to display */
 	public void openFile(String filename)
 		{
-		LGM.mdi.closeAll();
 		File file;
 		if (filename != null)
 			file = new File(filename);
 		else
 			{
 			fc.setFilterSet(openFs);
+			fc.setAccessory(null);
 			if (fc.showOpenDialog(LGM.frame) != CustomFileChooser.APPROVE_OPTION) return;
 			file = fc.getSelectedFile();
 			if (file == null) return;
@@ -126,17 +133,16 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getKind(),r.reference));
 				}
 			}
-		LGM.reload();
+		LGM.reload(true);
 		}
 
 	public void newFile()
 		{
-		LGM.mdi.closeAll();
 		LGM.frame.setTitle(Messages.format("LGM.TITLE",Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$ //$NON-NLS-2$
 		LGM.root = new ResNode("Root",(byte) 0,null,null); //$NON-NLS-1$
 		LGM.currentFile = new GmFile();
 		LGM.populateTree();
-		LGM.reload();
+		LGM.reload(true);
 		}
 
 	public static class BackupException extends Exception
@@ -159,7 +165,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		int nb = PrefsStore.getNumberOfBackups();
 		if (nb <= 0 || !new File(fn).exists()) return;
 		String bn;
-		if (fn.endsWith(".gm6"))
+		if (fn.endsWith(".gm6") || fn.endsWith(".gmk"))
 			bn = fn.substring(0,fn.length() - 4);
 		else
 			bn = fn;
@@ -194,14 +200,24 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			return saveNewFile();
 			}
 		LGM.commitAll();
+		String ext = getVersionExtension(LGM.currentFile.fileVersion);
+		if (!LGM.currentFile.filename.endsWith(ext))
+			{
+			int result = JOptionPane.showConfirmDialog(LGM.frame,
+					Messages.format("Listener.CONFIRM_EXTENSION",ext,LGM.currentFile.fileVersion), //$NON-NLS-1$
+					LGM.currentFile.filename,JOptionPane.YES_NO_CANCEL_OPTION);
+			if (result == JOptionPane.CANCEL_OPTION) return false;
+			if (result == JOptionPane.NO_OPTION) return saveNewFile();
+			//if result == yes then continue
+			}
 		try
 			{
 			pushBackups(LGM.currentFile.filename);
 			}
 		catch (BackupException e)
 			{
-			int result = JOptionPane.showOptionDialog(LGM.frame,Messages.format("Listener.ERROR_BACKUP",
-					LGM.currentFile.filename),Messages.getString("Listener.ERROR_BACKUP_TITLE"),
+			int result = JOptionPane.showOptionDialog(LGM.frame,Messages.format("Listener.ERROR_BACKUP", //$NON-NLS-1$
+					LGM.currentFile.filename),Messages.getString("Listener.ERROR_BACKUP_TITLE"), //$NON-NLS-1$
 					JOptionPane.YES_NO_OPTION,JOptionPane.ERROR_MESSAGE,null,null,null);
 			if (result != JOptionPane.YES_OPTION) return false;
 			}
@@ -213,7 +229,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		catch (IOException e)
 			{
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(LGM.frame,Messages.format("Listener.ERROR_SAVE",
+			JOptionPane.showMessageDialog(LGM.frame,Messages.format("Listener.ERROR_SAVE", //$NON-NLS-1$
 					LGM.currentFile.filename,e.getClass().getName(),e.getMessage()),
 					Messages.getString("Listener.ERROR_SAVE_TITLE"),JOptionPane.ERROR_MESSAGE);
 			return false;
@@ -223,17 +239,22 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public boolean saveNewFile()
 		{
 		fc.setFilterSet(saveFs);
+		fc.setAccessory(makeVersionRadio());
 		String filename = LGM.currentFile.filename;
 		fc.setSelectedFile(filename == null ? null : new File(filename));
 		while (true) //repeatedly display dialog until a valid response is given
 			{
 			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return false;
 			filename = fc.getSelectedFile().getPath();
-			if (!filename.endsWith(".gm6")) filename += ".gm6"; //$NON-NLS-1$ //$NON-NLS-2$
+			if (forceExt.isSelected())
+				{
+				String ext = getVersionExtension(LGM.currentFile.fileVersion);
+				if (!filename.endsWith(ext)) filename += ext;
+				}
 			int result = JOptionPane.YES_OPTION;
 			if (new File(filename).exists())
-				result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
-						"Listener.CONFIRM_REPLACE",filename), //$NON-NLS-1$
+				result = JOptionPane.showConfirmDialog(LGM.frame,
+						Messages.format("Listener.CONFIRM_REPLACE",filename), //$NON-NLS-1$
 						Messages.getString("Listener.CONFIRM_REPLACE_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
 						JOptionPane.WARNING_MESSAGE);
 			if (result == JOptionPane.YES_OPTION)
@@ -248,6 +269,51 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (result == JOptionPane.CANCEL_OPTION) return false;
 			}
 		}
+
+	// vvv These should probably be moved to somewhere else vvv //
+	public static String getVersionExtension(int version)
+		{
+		switch (version)
+			{
+			case 530:
+				return ".gmd";
+			case 600:
+				return ".gm6";
+			case 701:
+			case 800:
+				return ".gmk";
+			default:
+				throw new IllegalArgumentException(Integer.toString(version));
+			}
+		}
+
+	JCheckBox forceExt = new JCheckBox("Force extension",true);
+
+	public JPanel makeVersionRadio()
+		{
+		final int versions[] = { 800,701,600 };
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p,BoxLayout.PAGE_AXIS));
+		ButtonGroup bg = new ButtonGroup();
+		for (final int v : versions)
+			{
+			//XXX: Externalize the version string?
+			JRadioButton b = new JRadioButton(Integer.toString(v),LGM.currentFile.fileVersion == v);
+			bg.add(b);
+			p.add(b);
+			b.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+						{
+						LGM.currentFile.fileVersion = v;
+						}
+				});
+			}
+		p.add(forceExt);
+		return p;
+		}
+
+	// ^^^ These should probably be moved to somewhere else ^^^ //
 
 	protected static void addResource(JTree tree, String com)
 		{
@@ -404,7 +470,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (com.endsWith(".EXIT")) //$NON-NLS-1$
 			{
-			LGM.frame.dispose();
+			System.exit(0);
 			return;
 			}
 		if (com.contains(".INSERT_")) //$NON-NLS-1$
@@ -570,7 +636,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				try
 					{
 					if (node.frame != null) node.frame.commitChanges();
-					// dodgy workaround to avoid warnings
+					//FIXME: dodgy workaround to avoid warnings
 					resource = (Resource<?,?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(//$NON-NLS-1$
 							rl,node.getRes().get());
 					}

@@ -70,13 +70,13 @@ public class TimelineFrame extends ResourceFrame<Timeline,PTimeline> implements 
 		JPanel side2 = new JPanel(new BorderLayout());
 		side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
-		side2.add(lab,"North"); //$NON-NLS-1$
+		side2.add(lab,BorderLayout.NORTH);
 		moments = new JList(res.moments.toArray());
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
 		JScrollPane scroll = new JScrollPane(moments);
 		scroll.setPreferredSize(new Dimension(90,260));
-		side2.add(scroll,"Center"); //$NON-NLS-1$
+		side2.add(scroll,BorderLayout.CENTER);
 
 		JComponent editor;
 		if (false)

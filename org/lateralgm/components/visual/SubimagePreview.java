@@ -140,7 +140,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 				case PRELOAD:
 				case SMOOTH_EDGES:
 				case TRANSPARENT:
-				case PRECISE:
+				case SHAPE:
 					return;
 				default:
 					repaint();

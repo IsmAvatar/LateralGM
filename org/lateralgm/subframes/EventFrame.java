@@ -313,7 +313,10 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 						|| (button == MouseEvent.BUTTON3 && clicks == 1);
 				GmObjectFrame f = linkedFrame == null ? null : linkedFrame.get();
 				if (added && n.isLeaf() && f != null && n.isValid())
+					{
 					f.addEvent(new Event(n.mainId,n.eventId,n.other));
+					f.toFront();
+					}
 				}
 			}
 		}

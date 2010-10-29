@@ -13,18 +13,15 @@ import java.util.Hashtable;
 
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
-import org.lateralgm.resources.Room;
 
 public class RefList<R extends Resource<R,?>>
 	{
 	private Hashtable<Integer,ResRef<R>> rrt = new Hashtable<Integer,ResRef<R>>();
 	private Class<R> clazz;
-	private GmFile parent;
 
-	public RefList(Class<R> clazz, GmFile parent)
+	public RefList(Class<R> clazz)
 		{
 		this.clazz = clazz;
-		this.parent = parent;
 		}
 
 	public ResourceReference<R> get(int id)
@@ -35,10 +32,7 @@ public class RefList<R extends Resource<R,?>>
 		R r = null;
 		try
 			{
-			if (clazz == Room.class)
-				r = clazz.getConstructor(GmFile.class).newInstance(parent);
-			else
-				r = clazz.newInstance();
+			r = clazz.newInstance();
 			}
 		catch (Exception e)
 			{
