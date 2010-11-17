@@ -27,11 +27,11 @@ import org.lateralgm.main.LGM;
 
 public final class GMLKeywords
 	{
-	public static final Construct[] CONSTRUCTS;
-	public static final Operator[] OPERATORS;
-	public static final Variable[] VARIABLES;
-	public static final Constant[] CONSTANTS;
-	public static final Function[] FUNCTIONS;
+	public static Construct[] CONSTRUCTS;
+	public static Operator[] OPERATORS;
+	public static Variable[] VARIABLES;
+	public static Constant[] CONSTANTS;
+	public static Function[] FUNCTIONS;
 
 	static
 		{
