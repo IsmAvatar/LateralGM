@@ -106,6 +106,9 @@ public final class Prefs
 		str = getString("externalScriptEditorCommand","null");
 		useExternalScriptEditor = !str.toLowerCase().equals("null");
 		externalScriptEditorCommand = str;
+		str = getString("externalSoundEditorCommand","null");
+		useExternalSoundEditor = !str.toLowerCase().equals("null");
+		externalSoundEditorCommand = str;
 		}
 
 	public static boolean renamableRoots;
@@ -128,5 +131,7 @@ public final class Prefs
 	public static String externalSpriteEditorCommand;
 	public static boolean useExternalScriptEditor;
 	public static String externalScriptEditorCommand;
+	public static boolean useExternalSoundEditor;
+	public static String externalSoundEditorCommand;
 
 	}
