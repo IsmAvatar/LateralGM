@@ -163,11 +163,11 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 		panel.setLayout(layout);
 
 		charMin = new NumberField(0,255);
-		charMin.formatter.setCommitsOnValidEdit(false);
+		charMin.setCommitsOnValidEdit(false);
 		plf.make(charMin,PFont.RANGE_MIN);
 		JLabel lTo = new JLabel(Messages.getString("FontFrame.TO")); //$NON-NLS-1$
 		charMax = new NumberField(0,255);
-		charMax.formatter.setCommitsOnValidEdit(false);
+		charMax.setCommitsOnValidEdit(false);
 		plf.make(charMax,PFont.RANGE_MAX);
 
 		JButton crNormal = new JButton(Messages.getString("FontFrame.NORMAL")); //$NON-NLS-1$

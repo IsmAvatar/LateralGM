@@ -55,11 +55,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 					int hsep = background.get(PBackground.H_SEP);
 					int vsep = background.get(PBackground.V_SEP);
 
-					Shape oldClip = g.getClip(); //backup the old clip
-					Rectangle oldc = g.getClipBounds();
-					//Set the clip properly
-					g.setClip(new Rectangle(oldc.x,oldc.y,Math.min(oldc.x + oldc.width,img.getWidth())
-							- oldc.x,Math.min(oldc.y + oldc.height,img.getHeight()) - oldc.y));
+					Shape oldClip = reclip(g);
 
 					Rectangle r = g.getClipBounds().intersection(
 							new Rectangle(hoffset,voffset,img.getWidth() - hoffset,img.getHeight() - voffset));

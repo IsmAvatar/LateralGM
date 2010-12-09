@@ -8,16 +8,18 @@
 
 package org.lateralgm.components;
 
+import java.awt.event.FocusEvent;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
 import javax.swing.JFormattedTextField;
+import javax.swing.text.Caret;
 import javax.swing.text.NumberFormatter;
 
 public class NumberField extends JFormattedTextField
 	{
 	private static final long serialVersionUID = 1L;
-	public final NumberFormatter formatter;
+	protected final NumberFormatter formatter;
 
 	public NumberField(int value)
 		{
@@ -52,7 +54,12 @@ public class NumberField extends JFormattedTextField
 
 	public void revertEdit()
 		{
-		setValue(getValue());
+		super.setValue(super.getValue());
+		}
+
+	public void setCommitsOnValidEdit(boolean val)
+		{
+		formatter.setCommitsOnValidEdit(val);
 		}
 
 	public void commitOrRevert()
@@ -65,6 +72,25 @@ public class NumberField extends JFormattedTextField
 			{
 			revertEdit();
 			}
+		}
+
+	//This is a workaround for a java bug causing the caret to jump to 0
+	//on focus gain since the value is recalculated. bug #4740914 (rejected)
+	protected void processFocusEvent(FocusEvent e)
+		{
+		if (e.getID() == FocusEvent.FOCUS_GAINED)
+			{
+			Caret c = getCaret();
+			int cd = getCaret().getDot();
+			int cm = getCaret().getMark();
+			super.processFocusEvent(e);
+			//Assumes this won't go out of bounds (e.g. text didn't change).
+			//This is normally a safe assumption, since it seems like the value can't change.
+			c.setDot(cm);
+			c.moveDot(cd);
+			}
+		else
+			super.processFocusEvent(e);
 		}
 
 	private static NumberFormatter getFormatter(NumberFormat f)

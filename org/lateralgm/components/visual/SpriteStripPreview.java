@@ -17,32 +17,20 @@ import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import javax.swing.ImageIcon;
+import org.lateralgm.components.impl.SpriteStripDialog;
 
-import org.lateralgm.main.UpdateSource.UpdateEvent;
-import org.lateralgm.main.UpdateSource.UpdateListener;
-import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.Sprite.PSprite;
-import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
-import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
-
-public class SubimagePreview extends AbstractImagePreview implements UpdateListener
+public class SpriteStripPreview extends AbstractImagePreview// implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
-	private int subIndex = 0;
+	private final SpriteStripDialog props;
 
-	private final Sprite sprite;
-	private final SpritePropertyListener spl = new SpritePropertyListener();
-
-	private static final int ORIGIN_SIZE = 20;
-
-	public SubimagePreview(Sprite s)
+	public SpriteStripPreview(SpriteStripDialog sd)
 		{
 		super();
-		sprite = s;
-		s.properties.updateSource.addListener(spl);
-		s.reference.updateSource.addListener(this);
+		props = sd;
+		setImage(getImage());
+		//		sd.addListener(spl);
 		enableEvents(MouseEvent.MOUSE_PRESSED);
 		enableEvents(MouseEvent.MOUSE_DRAGGED);
 		}
@@ -53,27 +41,12 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		BufferedImage img = getImage();
 		if (img != null)
 			{
-			setPreferredSize(new Dimension(img.getWidth(),img.getHeight()));
-			int originX = sprite.get(PSprite.ORIGIN_X);
-			int originY = sprite.get(PSprite.ORIGIN_Y);
-			int bboxLeft = sprite.get(PSprite.BB_LEFT);
-			int bboxRight = sprite.get(PSprite.BB_RIGHT);
-			int bboxTop = sprite.get(PSprite.BB_TOP);
-			int bboxBottom = sprite.get(PSprite.BB_BOTTOM);
-
-			int left = Math.min(bboxLeft,bboxRight);
-			int right = Math.max(bboxLeft,bboxRight);
-			int top = Math.min(bboxTop,bboxBottom);
-			int bottom = Math.max(bboxTop,bboxBottom);
-
 			Shape oldClip = reclip(g);
 
 			g.setXORMode(Color.BLACK); //XOR mode so that bbox and origin can counter
 			g.setColor(Color.WHITE);
 
-			g.drawRect(left,top,right - left,bottom - top);
-			g.drawLine(originX - ORIGIN_SIZE,originY,originX + ORIGIN_SIZE,originY);
-			g.drawLine(originX,originY - ORIGIN_SIZE,originX,originY + ORIGIN_SIZE);
+			//			for (int i = 0; i < props.fields[0].getValue(); i++)
 
 			g.setPaintMode(); //just in case
 			g.setClip(oldClip); //restore the clip
@@ -87,16 +60,8 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		Dimension d = getPreferredSize();
 		x = Math.max(0,Math.min(d.width - 1,x));
 		y = Math.max(0,Math.min(d.height - 1,y));
-		sprite.put(PSprite.ORIGIN_X,x);
-		sprite.put(PSprite.ORIGIN_Y,y);
-		}
-
-	public void setIndex(int i)
-		{
-		subIndex = i;
-		BufferedImage bi = getImage();
-		super.setIcon(bi == null ? null : new ImageIcon(bi));
-		repaint();
+		//		sprite.put(PSprite.ORIGIN_X,x);
+		//		sprite.put(PSprite.ORIGIN_Y,y);
 		}
 
 	protected void processMouseEvent(MouseEvent e)
@@ -116,12 +81,10 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 	protected BufferedImage getImage()
 		{
-		if (sprite == null) return null;
-		int s = sprite.subImages.size();
-		return s == 0 || subIndex < 0 ? null : sprite.subImages.get(subIndex % s);
+		return props == null ? null : props.img;
 		}
 
-	public void updated(UpdateEvent e)
+	/*public void updated(UpdateEvent e)
 		{
 		setImage(getImage());
 		}
@@ -141,5 +104,5 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 					repaint();
 				}
 			}
-		}
+		}*/
 	}

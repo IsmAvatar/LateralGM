@@ -12,7 +12,6 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -31,11 +30,9 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -54,6 +51,7 @@ import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.impl.SpriteStripDialog;
 import org.lateralgm.components.visual.SubimagePreview;
 import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
@@ -720,107 +718,6 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			}
 		}
 
-	class StripDialog extends JDialog
-		{
-		private static final long serialVersionUID = 1L;
-
-		BufferedImage img;
-
-		NumberField noImg, perRow, w, h, hcoff, vcoff, hpoff, vpoff, hsep, vsep;
-		JLabel lno, lpr, lcw, lch, lhc, lvc, lhp, lvp, lhs, lvs;
-
-		StripDialog(Frame owner, BufferedImage src)
-			{
-			super(owner,Messages.getString("StripDialog.TITLE"),true);
-
-			GroupLayout layout = new GroupLayout(getContentPane());
-			setLayout(layout);
-
-			img = src;
-
-			lno = new JLabel(Messages.getString("StripDialog.IMAGE_NUMBER"));
-			lpr = new JLabel(Messages.getString("StripDialog.IMAGES_PER_ROW"));
-			lcw = new JLabel(Messages.getString("StripDialog.CELL_WIDTH"));
-			lch = new JLabel(Messages.getString("StripDialog.CELL_HEIGHT"));
-			lhc = new JLabel(Messages.getString("StripDialog.HOR_CELL_OFFSET"));
-			lvc = new JLabel(Messages.getString("StripDialog.VERT_CELL_OFFSET"));
-			lhp = new JLabel(Messages.getString("StripDialog.HOR_PIXEL_OFFSET"));
-			lvp = new JLabel(Messages.getString("StripDialog.VERT_PIXEL_OFFSET"));
-			lhs = new JLabel(Messages.getString("StripDialog.HOR_SEP"));
-			lvs = new JLabel(Messages.getString("StripDialog.VERT_SEP"));
-
-			noImg = new NumberField(1,99999,1);
-			perRow = new NumberField(1,99999,1);
-			w = new NumberField(1,99999,32);
-			h = new NumberField(1,99999,32);
-			hcoff = new NumberField(0);
-			vcoff = new NumberField(0);
-			hpoff = new NumberField(0);
-			vpoff = new NumberField(0);
-			hsep = new NumberField(0);
-			vsep = new NumberField(0);
-
-			JPanel image = new JPanel(); //clickable preview
-
-			layout.setHorizontalGroup(layout.createParallelGroup()
-			/**/.addGroup(layout.createSequentialGroup()
-			/*	*/.addContainerGap()
-			/*	*/.addGroup(layout.createParallelGroup()
-			/*		*/.addComponent(lno)
-			/*		*/.addComponent(lpr)
-			/*		*/.addComponent(lcw)
-			/*		*/.addComponent(lch)
-			/*		*/.addComponent(lhc)
-			/*		*/.addComponent(lvc)
-			/*		*/.addComponent(lhp)
-			/*		*/.addComponent(lvp)
-			/*		*/.addComponent(lhs)
-			/*		*/.addComponent(lvs))
-			/*	*/.addPreferredGap(ComponentPlacement.RELATED)
-			/*	*/.addGroup(layout.createParallelGroup()
-			/*		*/.addComponent(noImg)
-			/*		*/.addComponent(perRow)
-			/*		*/.addComponent(w)
-			/*		*/.addComponent(h)
-			/*		*/.addComponent(hcoff)
-			/*		*/.addComponent(vcoff)
-			/*		*/.addComponent(hpoff)
-			/*		*/.addComponent(vpoff)
-			/*		*/.addComponent(hsep)
-			/*		*/.addComponent(vsep))
-			/*	*/.addComponent(image)));
-
-			layout.setVerticalGroup(layout.createParallelGroup()
-			/**/.addGroup(layout.createSequentialGroup()
-			/*	*/.addContainerGap()
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lno).addComponent(noImg))
-			/*	*/.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lpr).addComponent(perRow))
-			/*	*/.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lcw).addComponent(w))
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lch).addComponent(h))
-			/*	*/.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lhc).addComponent(hcoff))
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lvc).addComponent(vcoff))
-			/*	*/.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lhp).addComponent(hpoff))
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lvp).addComponent(vpoff))
-			/*	*/.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lhs).addComponent(hsep))
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lvs).addComponent(vsep))
-			/*	*/.addContainerGap())
-			/**/.addComponent(image));
-
-			pack();
-			setLocationRelativeTo(owner);
-			}
-
-		BufferedImage[] getStrip()
-			{
-			return null;
-			}
-		}
-
 	public void addFromStrip()
 		{
 		//ask for an image first
@@ -828,7 +725,8 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		if (bi == null) return;
 
 		//create the strip dialog
-		StripDialog d = new StripDialog(LGM.frame,bi);
+		SpriteStripDialog d = new SpriteStripDialog(LGM.frame,bi);
+		d.setLocationRelativeTo(LGM.frame);
 		d.setVisible(true);
 		BufferedImage[] img = d.getStrip();
 
