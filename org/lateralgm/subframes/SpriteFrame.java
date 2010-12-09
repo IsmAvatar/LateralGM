@@ -815,26 +815,16 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 	public void addFromStrip()
 		{
-		StripDialog d = new StripDialog(LGM.frame,Util.getValidImage());
+		//ask for an image first
+		BufferedImage bi = Util.getValidImage();
+		if (bi == null) return;
+
+		//create the strip dialog
+		StripDialog d = new StripDialog(LGM.frame,bi);
 		d.setVisible(true);
 		BufferedImage[] img = d.getStrip();
 
-		//Number of images
-
-		//Images per row
-
-		//image w
-		//image h
-
-		//h cell offset
-		//v cell offset
-
-		//h pixel offset (mouse)
-		//v pixel offset (mouse)
-
-		//hsep
-		//vsep
-
+		//add images from strip
 		if (img != null)
 			{
 			cleanup();
