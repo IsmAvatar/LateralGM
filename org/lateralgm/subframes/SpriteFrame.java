@@ -31,6 +31,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -143,6 +144,8 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		updateInfo();
 
 		pack();
+
+		addFromStrip();
 		}
 
 	private JToolBar makeToolBar()
@@ -761,6 +764,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 			layout.setHorizontalGroup(layout.createParallelGroup()
 			/**/.addGroup(layout.createSequentialGroup()
+			/*	*/.addContainerGap()
 			/*	*/.addGroup(layout.createParallelGroup()
 			/*		*/.addComponent(lno)
 			/*		*/.addComponent(lpr)
@@ -772,6 +776,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			/*		*/.addComponent(lvp)
 			/*		*/.addComponent(lhs)
 			/*		*/.addComponent(lvs))
+			/*	*/.addPreferredGap(ComponentPlacement.RELATED)
 			/*	*/.addGroup(layout.createParallelGroup()
 			/*		*/.addComponent(noImg)
 			/*		*/.addComponent(perRow)
@@ -787,6 +792,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 			layout.setVerticalGroup(layout.createParallelGroup()
 			/**/.addGroup(layout.createSequentialGroup()
+			/*	*/.addContainerGap()
 			/*	*/.addGroup(layout.createParallelGroup().addComponent(lno).addComponent(noImg))
 			/*	*/.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
 			/*	*/.addGroup(layout.createParallelGroup().addComponent(lpr).addComponent(perRow))
@@ -801,10 +807,12 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			/*	*/.addGroup(layout.createParallelGroup().addComponent(lvp).addComponent(vpoff))
 			/*	*/.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
 			/*	*/.addGroup(layout.createParallelGroup().addComponent(lhs).addComponent(hsep))
-			/*	*/.addGroup(layout.createParallelGroup().addComponent(lvs).addComponent(vsep)))
+			/*	*/.addGroup(layout.createParallelGroup().addComponent(lvs).addComponent(vsep))
+			/*	*/.addContainerGap())
 			/**/.addComponent(image));
 
 			pack();
+			setLocationRelativeTo(owner);
 			}
 
 		BufferedImage[] getStrip()
