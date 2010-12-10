@@ -26,6 +26,10 @@ public class SpriteStripDialog extends JDialog
 	public SpriteStripPreview preview;
 	public NumberField fields[];
 
+	public static final int IMAGE_NUMBER = 0, IMAGES_PER_ROW = 1, CELL_WIDTH = 2, CELL_HEIGHT = 3,
+			HOR_CELL_OFFSET = 4, VERT_CELL_OFFSET = 5, HOR_PIXEL_OFFSET = 6, VERT_PIXEL_OFFSET = 7,
+			HOR_SEP = 8, VERT_SEP = 9;
+
 	public SpriteStripDialog(Frame owner, BufferedImage src)
 		{
 		super(owner,Messages.getString("StripDialog.TITLE"),true);
@@ -47,16 +51,19 @@ public class SpriteStripDialog extends JDialog
 		ParallelGroup g2 = layout.createParallelGroup();
 		SequentialGroup g3 = layout.createSequentialGroup().addContainerGap();
 
-		fields[0] = new NumberField(1,99999,1);
-		fields[1] = new NumberField(1,99999,1);
-		fields[2] = new NumberField(1,99999,32);
-		fields[3] = new NumberField(1,99999,32);
+		preview = new SpriteStripPreview(this);
+
+		fields[IMAGE_NUMBER] = new NumberField(1,99999,1);
+		fields[IMAGES_PER_ROW] = new NumberField(1,99999,1);
+		fields[CELL_WIDTH] = new NumberField(1,99999,32);
+		fields[CELL_HEIGHT] = new NumberField(1,99999,32);
 
 		for (int i = 0; i < labels.length; i++)
 			{
 			l[i] = new JLabel(Messages.getString("StripDialog." + labels[i]));
 			g1.addComponent(l[i]);
 			if (i > 3) fields[i] = new NumberField(0);
+			fields[i].addPropertyChangeListener("value",preview);
 			g2.addComponent(fields[i]);
 
 			if ((i > 1 && i % 2 == 0) || i == 1)
@@ -65,8 +72,6 @@ public class SpriteStripDialog extends JDialog
 			/**/.addComponent(l[i])
 			/**/.addComponent(fields[i]));
 			}
-
-		preview = new SpriteStripPreview(this);
 
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 		/**/.addContainerGap()

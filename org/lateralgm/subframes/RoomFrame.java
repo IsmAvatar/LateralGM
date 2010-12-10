@@ -322,10 +322,10 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
 		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
 		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
-		oX = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		oX = new NumberField(0);
 		oX.setColumns(4);
 		JLabel lObjY = new JLabel(Messages.getString("RoomFrame.OBJ_Y")); //$NON-NLS-1$
-		oY = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		oY = new NumberField(0);
 		oY.setColumns(4);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
@@ -686,10 +686,10 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		teSource = new ResourceMenu<Background>(Resource.Kind.BACKGROUND,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110); //$NON-NLS-1$
 		JLabel ltsx = new JLabel(Messages.getString("RoomFrame.TILESET_X")); //$NON-NLS-1$
-		tsX = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tsX = new NumberField(0);
 		tsX.setColumns(4);
 		JLabel ltsy = new JLabel(Messages.getString("RoomFrame.TILESET_Y")); //$NON-NLS-1$
-		tsY = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tsY = new NumberField(0);
 		tsY.setColumns(4);
 		psl.setHorizontalGroup(psl.createParallelGroup()
 		/**/.addComponent(teSource)
@@ -713,13 +713,13 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		ptl.setAutoCreateContainerGaps(true);
 		pTile.setLayout(ptl);
 		JLabel ltx = new JLabel(Messages.getString("RoomFrame.TILE_X")); //$NON-NLS-1$
-		tX = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tX = new NumberField(0);
 		tX.setColumns(4);
 		JLabel lty = new JLabel(Messages.getString("RoomFrame.TILE_Y")); //$NON-NLS-1$
-		tY = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		tY = new NumberField(0);
 		tY.setColumns(4);
 		JLabel ltl = new JLabel(Messages.getString("RoomFrame.TILE_LAYER")); //$NON-NLS-1$
-		teDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,1000000);
+		teDepth = new NumberField(1000000);
 		teDepth.setColumns(8);
 		ptl.setHorizontalGroup(ptl.createParallelGroup()
 		/**/.addGroup(ptl.createSequentialGroup()
@@ -939,16 +939,12 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 
 		JLabel lRX = new JLabel(Messages.getString("RoomFrame.VIEW_X")); //$NON-NLS-1$
 		vRX = new NumberField(0,999999);
-		vRX.setColumns(4);
 		JLabel lRW = new JLabel(Messages.getString("RoomFrame.VIEW_W")); //$NON-NLS-1$
 		vRW = new NumberField(1,999999);
-		vRW.setColumns(4);
 		JLabel lRY = new JLabel(Messages.getString("RoomFrame.VIEW_Y")); //$NON-NLS-1$
 		vRY = new NumberField(0,999999);
-		vRY.setColumns(4);
 		JLabel lRH = new JLabel(Messages.getString("RoomFrame.VIEW_H")); //$NON-NLS-1$
 		vRH = new NumberField(1,999999);
-		vRH.setColumns(4);
 		lr.setHorizontalGroup(lr.createSequentialGroup().addContainerGap()
 		/**/.addGroup(lr.createParallelGroup()
 		/*		*/.addComponent(lRX)
@@ -980,16 +976,12 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 
 		JLabel lPX = new JLabel(Messages.getString("RoomFrame.PORT_X")); //$NON-NLS-1$
 		vPX = new NumberField(0,999999);
-		vPX.setColumns(4);
 		JLabel lPW = new JLabel(Messages.getString("RoomFrame.PORT_W")); //$NON-NLS-1$
 		vPW = new NumberField(1,999999);
-		vPW.setColumns(4);
 		JLabel lPY = new JLabel(Messages.getString("RoomFrame.PORT_Y")); //$NON-NLS-1$
 		vPY = new NumberField(0,999999);
-		vPY.setColumns(4);
 		JLabel lPH = new JLabel(Messages.getString("RoomFrame.PORT_H")); //$NON-NLS-1$
 		vPH = new NumberField(1,999999);
-		vPH.setColumns(4);
 		lp.setHorizontalGroup(lp.createSequentialGroup().addContainerGap()
 		/**/.addGroup(lp.createParallelGroup()
 		/*		*/.addComponent(lPX)
@@ -1035,13 +1027,9 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		JLabel lBorder = new JLabel(Messages.getString("RoomFrame.VIEW_BORDER"));
 		JLabel lSpeed = new JLabel(Messages.getString("RoomFrame.VIEW_SPEED"));
 		vOHBor = new NumberField(0,32000);
-		vOHBor.setColumns(4);
 		vOHSp = new NumberField(-1,32000);
-		vOHSp.setColumns(4);
 		vOVBor = new NumberField(0,32000);
-		vOVBor.setColumns(4);
 		vOVSp = new NumberField(-1,32000);
-		vOVSp.setColumns(4);
 		lf.setHorizontalGroup(lf.createSequentialGroup().addContainerGap()
 		/**/.addGroup(lf.createParallelGroup()
 		/*		*/.addComponent(vObj)
@@ -1417,8 +1405,8 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 
 	public void openCodeFrame(Instance i)
 		{
-		openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),Messages.format(
-				"RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
+		openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
+				Messages.format("RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
 		}
 
 	public void openCodeFrame(CodeHolder code, String titleFormat, Object titleArg)

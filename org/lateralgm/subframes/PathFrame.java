@@ -118,11 +118,9 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		tool.setFloatable(false);
 		JLabel lsx = new JLabel(Messages.getString("PathFrame.SNAP_X"));
 		NumberField sx = new NumberField(0,999);
-		sx.setColumns(3);
 		plf.make(sx,PPath.SNAP_X);
 		JLabel lsy = new JLabel(Messages.getString("PathFrame.SNAP_Y"));
 		NumberField sy = new NumberField(0,999);
-		sy.setColumns(3);
 		plf.make(sy,PPath.SNAP_Y);
 		// For some reason, JToolBar + GroupLayout makes the button too small to show all the text.
 		// Using a JCheckBox instead. This also mathces the other components better.
@@ -278,8 +276,8 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 			{
 			int i = list.getSelectedIndex();
 			if (i == -1) return;
-			res.points.add(i,new PathPoint((Integer) tx.getValue(),(Integer) ty.getValue(),
-					(Integer) tsp.getValue()));
+			res.points.add(i,
+					new PathPoint((Integer) tx.getValue(),(Integer) ty.getValue(),(Integer) tsp.getValue()));
 			list.setSelectedIndex(i);
 			}
 		if (s == delete)
