@@ -3,6 +3,8 @@ package org.lateralgm.components.impl;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -57,6 +59,16 @@ public class SpriteStripDialog extends JDialog
 		fields[IMAGES_PER_ROW] = new NumberField(1,99999,1);
 		fields[CELL_WIDTH] = new NumberField(1,99999,32);
 		fields[CELL_HEIGHT] = new NumberField(1,99999,32);
+
+		//link ImgNum together with ImgPerRow if they are equal, thus expanding horizontally.
+		fields[IMAGE_NUMBER].addPropertyChangeListener("value",new PropertyChangeListener()
+			{
+				public void propertyChange(PropertyChangeEvent evt)
+					{
+					if (fields[IMAGES_PER_ROW].getValue().equals(evt.getOldValue()))
+						fields[IMAGES_PER_ROW].setValue(evt.getNewValue());
+					}
+			});
 
 		for (int i = 0; i < labels.length; i++)
 			{

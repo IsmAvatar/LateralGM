@@ -142,7 +142,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		pack();
 
-		addFromStrip();
+		addFromStrip(false);
 		}
 
 	private JToolBar makeToolBar()
@@ -600,19 +600,8 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		if (e.getSource() == load)
 			{
 			BufferedImage[] img = Util.getValidImages();
-			if (img != null && img.length > 0)
-				{
-				cleanup();
-				res.subImages.clear();
-				imageChanged = true;
-				for (BufferedImage i : img)
-					res.addSubImage(i);
-				preview.setIcon(new ImageIcon(res.subImages.get(0)));
-				show.setRange(0,res.subImages.size());
-				setSubIndex(0);
-				updateInfo();
-				return;
-				}
+			if (img != null) addSubimages(img,true);
+			return;
 			}
 		if (e.getSource() == subLeft)
 			{
@@ -717,32 +706,36 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			}
 		}
 
-	public void addFromStrip()
+	public void addSubimages(BufferedImage img[], boolean clear)
+		{
+		if (img.length == 0) return;
+		if (clear)
+			{
+			cleanup();
+			res.subImages.clear();
+			}
+		clear = res.subImages.isEmpty();
+		imageChanged = true;
+		for (BufferedImage i : img)
+			res.subImages.add(i);
+		show.setRange(0,res.subImages.size());
+		if (clear) setSubIndex(0);
+		updateInfo();
+		}
+
+	public void addFromStrip(boolean clear)
 		{
 		//ask for an image first
 		BufferedImage bi = Util.getValidImage();
 		if (bi == null) return;
-
 		//create the strip dialog
 		SpriteStripDialog d = new SpriteStripDialog(LGM.frame,bi);
 		d.setLocationRelativeTo(LGM.frame);
-		d.setVisible(true);
+		d.setVisible(true); //modal at this point
+		//add images
 		BufferedImage[] img = d.getStrip();
-
-		//add images from strip
-		if (img != null)
-			{
-			cleanup();
-			res.subImages.clear();
-			imageChanged = true;
-			for (BufferedImage i : img)
-				res.addSubImage(i);
-			preview.setIcon(new ImageIcon(res.subImages.get(0)));
-			show.setRange(0,res.subImages.size());
-			setSubIndex(0);
-			updateInfo();
-			return;
-			}
+		if (img == null) return; //cancelled/closed
+		addSubimages(img,clear);
 		}
 
 	public void updateInfo()
@@ -955,6 +948,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		cleanup();
 		}
 
+	/** Stops file monitors, detaching any open editors. */
 	protected void cleanup()
 		{
 		if (editors != null)

@@ -553,12 +553,12 @@ public final class GmFileReader
 					if (ver != 800) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 					w = in.read4();
 					h = in.read4();
-					if (w != 0 && h != 0) spr.addSubImage(in.readBGRAImage(w,h));
+					if (w != 0 && h != 0) spr.subImages.add(in.readBGRAImage(w,h));
 					}
 				else
 					{
 					if (in.read4() == -1) continue;
-					spr.addSubImage(in.readZlibImage(w,h));
+					spr.subImages.add(in.readZlibImage(w,h));
 					}
 				}
 			if (ver >= 800)

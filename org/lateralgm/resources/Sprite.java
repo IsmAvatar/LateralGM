@@ -106,11 +106,6 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 		return result;
 		}
 
-	public void addSubImage(BufferedImage image)
-		{
-		subImages.add(image);
-		}
-
 	/**
 	 * returns a copy of subimage with given index (new subimage is not added to the sprite)
 	 */
@@ -216,7 +211,7 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 	protected void postCopy(Sprite dest)
 		{
 		for (int j = 0; j < subImages.size(); j++)
-			dest.addSubImage(copySubImage(j));
+			dest.subImages.add(copySubImage(j));
 		}
 
 	public Kind getKind()
