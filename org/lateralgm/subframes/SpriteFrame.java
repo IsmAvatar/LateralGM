@@ -47,7 +47,6 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import org.lateralgm.compare.ResourceComparator;
-import org.lateralgm.components.IntegerField;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
@@ -101,7 +100,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 	//preview
 	public SubimagePreview preview;
-	public IntegerField show, speed;
+	public NumberField show, speed;
 	public JButton subLeft, subRight, play;
 	public JLabel showLab;
 	public int currSub;
@@ -457,8 +456,8 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
 		subLeft.addActionListener(this);
 
-		show = new IntegerField(0,res.subImages.size() - 1);
-		show.setHorizontalAlignment(IntegerField.CENTER);
+		show = new NumberField(0,res.subImages.size() - 1);
+		show.setHorizontalAlignment(SwingConstants.CENTER);
 		show.addActionListener(this);
 
 		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
@@ -466,9 +465,9 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		JLabel lab = new JLabel(Messages.getString("SpriteFrame.ANIM_SUBIMG")); //$NON-NLS-1$
 		JLabel lab2 = new JLabel(Messages.getString("SpriteFrame.ANIM_SPEED")); //$NON-NLS-1$
-		lab2.setHorizontalAlignment(JLabel.CENTER);
+		lab2.setHorizontalAlignment(SwingConstants.CENTER);
 
-		speed = new IntegerField(1,Integer.MAX_VALUE,30);
+		speed = new NumberField(1,Integer.MAX_VALUE,30);
 		speed.setToolTipText(Messages.getString("SpriteFrame.CALC_TIP")); //$NON-NLS-1$
 		speed.addActionListener(this);
 		speed.addMouseListener(new MouseAdapter()
@@ -531,7 +530,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		JLabel caption = new JLabel(Messages.getString("SpriteFrame.CALC_CAPTION")); //$NON-NLS-1$
 		JLabel lrs = new JLabel(Messages.getString("SpriteFrame.CALC_ROOM_SPEED")); //$NON-NLS-1$
 		JLabel lis = new JLabel(Messages.getString("SpriteFrame.CALC_IMAGE_SPEED")); //$NON-NLS-1$
-		IntegerField rs = new IntegerField(1,Integer.MAX_VALUE,speed.getIntValue());
+		NumberField rs = new NumberField(1,Integer.MAX_VALUE,speed.getIntValue());
 		JTextField is = new JTextField("1.0"); //$NON-NLS-1$
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -566,7 +565,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		catch (NumberFormatException nfe)
 			{
 			}
-		speed.setIntValue((int) (i * d));
+		speed.setValue((int) (i * d));
 		//triggers listener
 		}
 
@@ -771,7 +770,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 				{
 				show.setRange(0,s - 1);
 				show.setEnabled(timer == null);
-				show.setIntValue(currSub);
+				show.setValue(currSub);
 				}
 			}
 		else
@@ -781,7 +780,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			play.setEnabled(false);
 			if (updateSub)
 				{
-				show.setIntValue(0);
+				show.setValue(0);
 				show.setEnabled(false);
 				}
 			}

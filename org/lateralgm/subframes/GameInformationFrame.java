@@ -40,6 +40,7 @@ import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -60,7 +61,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
@@ -81,7 +81,7 @@ import org.lateralgm.compare.ObjectComparator;
 import org.lateralgm.compare.ReflectionComparator;
 import org.lateralgm.compare.SimpleCasesComparator;
 import org.lateralgm.components.CustomFileChooser;
-import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
@@ -264,10 +264,10 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		}
 
 	public JTextField sTitle;
-	public IntegerField sX;
-	public IntegerField sY;
-	public IntegerField sWidth;
-	public IntegerField sHeight;
+	public NumberField sX;
+	public NumberField sY;
+	public NumberField sWidth;
+	public NumberField sHeight;
 	public JCheckBox sShowBorder;
 	public JCheckBox sAllowResize;
 	public JCheckBox sAlwaysOnTop;
@@ -295,13 +295,13 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		pl.setAutoCreateContainerGaps(true);
 
 		JLabel lX = new JLabel(Messages.getString("GameInformationFrame.X")); //$NON-NLS-1$
-		sX = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,info.left);
+		sX = new NumberField(info.left);
 		JLabel lY = new JLabel(Messages.getString("GameInformationFrame.Y")); //$NON-NLS-1$
-		sY = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,info.top);
+		sY = new NumberField(info.top);
 		JLabel lWidth = new JLabel(Messages.getString("GameInformationFrame.WIDTH")); //$NON-NLS-1$
-		sWidth = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,info.width);
+		sWidth = new NumberField(info.width);
 		JLabel lHeight = new JLabel(Messages.getString("GameInformationFrame.HEIGHT")); //$NON-NLS-1$
-		sHeight = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,info.height);
+		sHeight = new NumberField(info.height);
 
 		sShowBorder = new JCheckBox(
 				Messages.getString("GameInformationFrame.SHOW_BORDER"),info.showBorder); //$NON-NLS-1$
@@ -376,10 +376,10 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 		documentChanged = false;
 
 		sTitle.setText(info.formCaption);
-		sX.setIntValue(info.left);
-		sY.setIntValue(info.top);
-		sWidth.setIntValue(info.width);
-		sHeight.setIntValue(info.height);
+		sX.setValue(info.left);
+		sY.setValue(info.top);
+		sWidth.setValue(info.width);
+		sHeight.setValue(info.height);
 
 		sShowBorder.setSelected(info.showBorder);
 		sAllowResize.setSelected(info.allowResize);
@@ -484,9 +484,9 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 			});
 
 		tabs.addTab(Messages.getString("GameInformationFrame.TAB_INFO"), //$NON-NLS-1$
-		/**/null,new JScrollPane(editor),Messages.getString("GameInformationFrame.HINT_INFO")); //$NON-NLS-1$ 
+				/**/null,new JScrollPane(editor),Messages.getString("GameInformationFrame.HINT_INFO")); //$NON-NLS-1$ 
 		tabs.addTab(Messages.getString("GameInformationFrame.TAB_SETTINGS"), //$NON-NLS-1$
-		/**/null,makeSettings(),Messages.getString("GameInformationFrame.HINT_SETTINGS")); //$NON-NLS-1$ 
+				/**/null,makeSettings(),Messages.getString("GameInformationFrame.HINT_SETTINGS")); //$NON-NLS-1$ 
 		revertResource();
 
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -566,8 +566,8 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 			{
 			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			if (fc.getSelectedFile().exists()) break;
-			JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
-					+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
+			JOptionPane.showMessageDialog(null,
+					fc.getSelectedFile().getName() + Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
 					Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-1$
 					JOptionPane.WARNING_MESSAGE);
 			}
@@ -689,8 +689,8 @@ public class GameInformationFrame extends MDIFrame implements ActionListener
 			{
 			if (resourceChanged())
 				{
-				int ret = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
-						"ResourceFrame.KEEPCHANGES",(String) getUserObject()), //$NON-NLS-1$
+				int ret = JOptionPane.showConfirmDialog(LGM.frame,
+						Messages.format("ResourceFrame.KEEPCHANGES",(String) getUserObject()), //$NON-NLS-1$
 						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
 				if (ret == JOptionPane.YES_OPTION)
 					{

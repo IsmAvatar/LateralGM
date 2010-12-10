@@ -145,9 +145,8 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 					p.setLayout(layout);
 
 					JLabel l = new JLabel("Line: ");
-					IntegerField f = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,getCaretLine());
-					f.setSelectionStart(0);
-					f.setSelectionEnd(f.getText().length());
+					NumberField f = new NumberField(getCaretLine());
+					f.selectAll();
 					JButton b = new JButton("Goto");
 					b.addActionListener(new ActionListener()
 						{

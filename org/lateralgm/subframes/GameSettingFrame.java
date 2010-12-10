@@ -31,6 +31,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -46,15 +47,14 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.table.AbstractTableModel;
 
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.CustomFileChooser;
-import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.mdi.MDIFrame;
@@ -77,7 +77,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	public JCheckBox startFullscreen;
 	public IndexButtonGroup scaling;
-	public IntegerField scale;
+	public NumberField scale;
 	public JCheckBox interpolatecolors;
 	public ColorSelect colorbutton;
 	public JCheckBox resizeWindow;
@@ -107,8 +107,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		scaling = new IndexButtonGroup(3,true,false,this);
 		JRadioButton osFixed = new JRadioButton(Messages.getString("GameSettingFrame.SCALING_FIXED")); //$NON-NLS-1$
 		scaling.add(osFixed,1);
-		scale = new IntegerField(1,999,100);
-		scale.setColumns(4);
+		scale = new NumberField(1,999,100);
 		JRadioButton osRatio = new JRadioButton(Messages.getString("GameSettingFrame.SCALING_RATIO")); //$NON-NLS-1$
 		scaling.add(osRatio,-1);
 		JRadioButton osFull = new JRadioButton(Messages.getString("GameSettingFrame.SCALING_FULL")); //$NON-NLS-1$
@@ -129,7 +128,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		int s = g.scaling;
 		scaling.setValue(s > 1 ? 1 : s);
-		if (s > 1) scale.setIntValue(s);
+		if (s > 1) scale.setValue(s);
 		scale.setEnabled(s > 0);
 
 		t = Messages.getString("GameSettingFrame.INTERPOLATE"); //$NON-NLS-1$
@@ -331,7 +330,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public BufferedImage customLoadingImage;
 	public JButton changeCustomLoad;
 	public JCheckBox imagePartiallyTransparent;
-	public IntegerField loadImageAlpha;
+	public NumberField loadImageAlpha;
 	public IndexButtonGroup loadBarMode;
 	public JButton backLoad;
 	public JButton frontLoad;
@@ -341,7 +340,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public JLabel iconPreview;
 	public ICOFile gameIcon;
 	public JButton changeIcon;
-	public IntegerField gameId;
+	public NumberField gameId;
 	public JButton randomise;
 	private CustomFileChooser iconFc;
 
@@ -371,8 +370,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		imagePartiallyTransparent = new JCheckBox(
 				Messages.getString("GameSettingFrame.MAKE_TRANSPARENT"),g.imagePartiallyTransparent); //$NON-NLS-1$
 		JLabel lAlpha = new JLabel(Messages.getString("GameSettingFrame.ALPHA_TRANSPARENCY")); //$NON-NLS-1$
-		loadImageAlpha = new IntegerField(0,255,g.loadImageAlpha);
-		loadImageAlpha.setColumns(4);
+		loadImageAlpha = new NumberField(0,255,g.loadImageAlpha);
 		liLayout.setHorizontalGroup(liLayout.createParallelGroup()
 		/**/.addGroup(liLayout.createSequentialGroup()
 		/*		*/.addComponent(showCustomLoadImage).addPreferredGap(ComponentPlacement.RELATED)
@@ -441,8 +439,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new CustomFileFilter(".ico",Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
 		JLabel lId = new JLabel(Messages.getString("GameSettingFrame.GAME_ID")); //$NON-NLS-1$
-		gameId = new IntegerField(0,100000000,g.gameId);
-		gameId.setColumns(9);
+		gameId = new NumberField(0,100000000,g.gameId);
 		randomise = new JButton(Messages.getString("GameSettingFrame.RANDOMIZE")); //$NON-NLS-1$
 		randomise.addActionListener(this);
 
@@ -969,7 +966,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			}
 		else if (e.getSource() == randomise)
 			{
-			gameId.setIntValue(new Random().nextInt(100000001));
+			gameId.setValue(new Random().nextInt(100000001));
 			}
 		}
 
@@ -1256,7 +1253,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		startFullscreen.setSelected(g.startFullscreen);
 		int s = g.scaling;
 		scaling.setValue(s > 1 ? 1 : s);
-		if (s > 1) scale.setIntValue(s);
+		if (s > 1) scale.setValue(s);
 		scale.setEnabled(s > 0);
 		interpolatecolors.setSelected(g.interpolate);
 		colorbutton.setSelectedColor(g.colorOutsideRoom);
@@ -1287,7 +1284,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		changeCustomLoad.setEnabled(g.showCustomLoadImage);
 		customLoadingImage = g.loadingImage;
 		imagePartiallyTransparent.setSelected(g.imagePartiallyTransparent);
-		loadImageAlpha.setIntValue(g.loadImageAlpha);
+		loadImageAlpha.setValue(g.loadImageAlpha);
 		loadBarMode.setValue(g.loadBarMode);
 		backLoad.setEnabled(g.loadBarMode == GameSettings.LOADBAR_CUSTOM);
 		frontLoad.setEnabled(g.loadBarMode == GameSettings.LOADBAR_CUSTOM);
@@ -1296,7 +1293,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		scaleProgressBar.setSelected(g.scaleProgressBar);
 		gameIcon = g.gameIcon;
 		iconPreview.setIcon(gameIcon != null ? new ImageIcon(gameIcon.getDisplayImage()) : null);
-		gameId.setIntValue(g.gameId);
+		gameId.setValue(g.gameId);
 
 		//Constants
 		cModel = new ConstantsTableModel(LGM.currentFile.constants);

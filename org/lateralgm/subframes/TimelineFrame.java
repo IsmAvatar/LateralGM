@@ -21,6 +21,7 @@ import java.awt.event.ActionListener;
 import java.util.Collections;
 
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -29,7 +30,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -37,7 +37,7 @@ import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
 import org.lateralgm.components.GMLTextArea;
-import org.lateralgm.components.IntegerField;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
@@ -214,9 +214,8 @@ public class TimelineFrame extends ResourceFrame<Timeline,PTimeline> implements 
 			ttl = Messages.getString(ttl);
 			JPanel pane = new JPanel();
 			pane.add(new JLabel(msg));
-			IntegerField field = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,sn
-					+ (but == add ? 1 : 0));
-			field.setPreferredSize(new Dimension(80,20));
+			NumberField field = new NumberField(sn + (but == add ? 1 : 0));
+			//			field.setPreferredSize(new Dimension(80,20));
 			pane.add(field);
 			int ret = JOptionPane.showConfirmDialog(this,pane,ttl,JOptionPane.OK_CANCEL_OPTION);
 			if (ret == JOptionPane.CANCEL_OPTION) return;
@@ -295,15 +294,15 @@ public class TimelineFrame extends ResourceFrame<Timeline,PTimeline> implements 
 			String ttl = Messages.getString("TimelineFrame.MOM_SHIFT"); //$NON-NLS-1$
 			JPanel pane = new JPanel(new GridLayout(0,2));
 			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_START"))); //$NON-NLS-1$
-			IntegerField iStart = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,sn);
+			NumberField iStart = new NumberField(sn);
 			iStart.setPreferredSize(new Dimension(80,20));
 			pane.add(iStart);
 			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_END"))); //$NON-NLS-1$
-			IntegerField iEnd = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,sn);
+			NumberField iEnd = new NumberField(sn);
 			iEnd.setPreferredSize(new Dimension(80,20));
 			pane.add(iEnd);
 			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_AMOUNT"))); //$NON-NLS-1$
-			IntegerField iAmt = new IntegerField(Integer.MIN_VALUE,Integer.MAX_VALUE,1);
+			NumberField iAmt = new NumberField(1);
 			iAmt.setPreferredSize(new Dimension(80,20));
 			pane.add(iAmt);
 			int ret = JOptionPane.showConfirmDialog(this,pane,ttl,JOptionPane.OK_CANCEL_OPTION);
@@ -323,11 +322,11 @@ public class TimelineFrame extends ResourceFrame<Timeline,PTimeline> implements 
 			String ttl = Messages.getString("TimelineFrame.MOM_MERGE"); //$NON-NLS-1$
 			JPanel pane = new JPanel(new GridLayout(0,2));
 			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_START"))); //$NON-NLS-1$
-			IntegerField iStart = new IntegerField(0,Integer.MAX_VALUE,sn);
+			NumberField iStart = new NumberField(0,Integer.MAX_VALUE,sn);
 			iStart.setPreferredSize(new Dimension(80,20));
 			pane.add(iStart);
 			pane.add(new JLabel(Messages.getString("TimelineFrame.MOM_END"))); //$NON-NLS-1$
-			IntegerField iEnd = new IntegerField(0,Integer.MAX_VALUE,sn);
+			NumberField iEnd = new NumberField(0,Integer.MAX_VALUE,sn);
 			iEnd.setPreferredSize(new Dimension(80,20));
 			pane.add(iEnd);
 			int ret = JOptionPane.showConfirmDialog(this,pane,ttl,JOptionPane.OK_CANCEL_OPTION);

@@ -52,9 +52,21 @@ public class NumberField extends JFormattedTextField
 			setValue(value.compareTo(min) < 0 ? min : value.compareTo(max) > 0 ? max : value);
 		}
 
+	public <T extends Number & Comparable<T>>void setRange(T min, T max)
+		{
+		formatter.setMinimum(min);
+		formatter.setMaximum(max);
+		commitOrRevert();
+		}
+
+	public Integer getIntValue()
+		{
+		return (Integer) getValue();
+		}
+
 	public void revertEdit()
 		{
-		super.setValue(super.getValue());
+		setValue(getValue());
 		}
 
 	public void setCommitsOnValidEdit(boolean val)
