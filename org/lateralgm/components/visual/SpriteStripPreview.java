@@ -13,6 +13,7 @@ package org.lateralgm.components.visual;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -32,7 +33,6 @@ public class SpriteStripPreview extends AbstractImagePreview implements Property
 		super();
 		props = sd;
 		setImage(getImage());
-		//		sd.addListener(spl);
 		enableEvents(MouseEvent.MOUSE_PRESSED);
 		enableEvents(MouseEvent.MOUSE_DRAGGED);
 		}
@@ -48,28 +48,8 @@ public class SpriteStripPreview extends AbstractImagePreview implements Property
 			g.setXORMode(Color.BLACK); //XOR mode so that bbox and origin can counter
 			g.setColor(Color.WHITE);
 
-			/* IMAGE_NUMBER = 0, IMAGES_PER_ROW = 1, CELL_WIDTH = 2, CELL_HEIGHT = 3,
-			HOR_CELL_OFFSET = 4, VERT_CELL_OFFSET = 5, HOR_PIXEL_OFFSET = 6, VERT_PIXEL_OFFSET = 7,
-			HOR_SEP = 8, VERT_SEP = 9;*/
-
-			int cw = props.fields[SpriteStripDialog.CELL_WIDTH].getIntValue();
-			int ch = props.fields[SpriteStripDialog.CELL_HEIGHT].getIntValue();
-			int x = props.fields[SpriteStripDialog.HOR_CELL_OFFSET].getIntValue() * cw;
-			int y = props.fields[SpriteStripDialog.VERT_CELL_OFFSET].getIntValue() * ch;
-			x += props.fields[SpriteStripDialog.HOR_PIXEL_OFFSET].getIntValue();
-			y += props.fields[SpriteStripDialog.VERT_PIXEL_OFFSET].getIntValue();
-
-			int xx = x, yy = y;
-			for (int i = 0; i < props.fields[SpriteStripDialog.IMAGE_NUMBER].getIntValue(); i++)
-				{
-				if (i != 0 && i % props.fields[SpriteStripDialog.IMAGES_PER_ROW].getIntValue() == 0)
-					{
-					xx = x;
-					yy += ch + props.fields[SpriteStripDialog.VERT_SEP].getIntValue();
-					}
-				g.drawRect(xx,yy,cw - 1,ch - 1);
-				xx += cw + props.fields[SpriteStripDialog.HOR_SEP].getIntValue();
-				}
+			for (Rectangle r : props)
+				g.drawRect(r.x,r.y,r.width - 1,r.height - 1);
 
 			g.setPaintMode(); //just in case
 			g.setClip(oldClip); //restore the clip
@@ -83,10 +63,7 @@ public class SpriteStripPreview extends AbstractImagePreview implements Property
 		Dimension d = getPreferredSize();
 		x = Math.max(0,Math.min(d.width - 1,x));
 		y = Math.max(0,Math.min(d.height - 1,y));
-		props.fields[SpriteStripDialog.HOR_CELL_OFFSET].setValue(0);
-		props.fields[SpriteStripDialog.VERT_CELL_OFFSET].setValue(0);
-		props.fields[SpriteStripDialog.HOR_PIXEL_OFFSET].setValue(x);
-		props.fields[SpriteStripDialog.VERT_PIXEL_OFFSET].setValue(y);
+		props.setOrigin(x,y);
 		}
 
 	protected void processMouseEvent(MouseEvent e)

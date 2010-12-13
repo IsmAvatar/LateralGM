@@ -141,8 +141,6 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		updateInfo();
 
 		pack();
-
-		addFromStrip(false);
 		}
 
 	private JToolBar makeToolBar()
@@ -153,13 +151,15 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		tool.add(save);
 
-		load = new JButton(Messages.getString("SpriteFrame.LOAD"),LOAD_ICON); //$NON-NLS-1$
+		load = new JButton(LOAD_ICON);
+		load.setToolTipText(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$
 		load.addActionListener(this);
 		tool.add(load);
 
-		loadStrip = new JButton(Messages.getString("SpriteFrame.LOAD_STRIP"),LOAD_STRIP_ICON); //$NON-NLS-1$
+		loadStrip = new JButton(LOAD_STRIP_ICON);
+		loadStrip.setToolTipText(Messages.getString("SpriteFrame.LOAD_STRIP")); //$NON-NLS-1$
 		loadStrip.addActionListener(this);
-		//		tool.add(loadStrip);
+		tool.add(loadStrip);
 
 		tool.addSeparator();
 
@@ -601,6 +601,11 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			{
 			BufferedImage[] img = Util.getValidImages();
 			if (img != null) addSubimages(img,true);
+			return;
+			}
+		if (e.getSource() == loadStrip)
+			{
+			addFromStrip(true);
 			return;
 			}
 		if (e.getSource() == subLeft)

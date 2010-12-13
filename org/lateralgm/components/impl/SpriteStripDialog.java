@@ -2,14 +2,20 @@ package org.lateralgm.components.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,21 +26,23 @@ import org.lateralgm.components.NumberField;
 import org.lateralgm.components.visual.SpriteStripPreview;
 import org.lateralgm.messages.Messages;
 
-public class SpriteStripDialog extends JDialog
+public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 
 	public BufferedImage img;
 	public SpriteStripPreview preview;
-	public NumberField fields[];
+	/** Whether this dialog was confirmed yet (via press to OK button). */
+	public boolean confirmed = false;
 
-	public static final int IMAGE_NUMBER = 0, IMAGES_PER_ROW = 1, CELL_WIDTH = 2, CELL_HEIGHT = 3,
+	private NumberField fields[];
+	private static final int IMAGE_NUMBER = 0, IMAGES_PER_ROW = 1, CELL_WIDTH = 2, CELL_HEIGHT = 3,
 			HOR_CELL_OFFSET = 4, VERT_CELL_OFFSET = 5, HOR_PIXEL_OFFSET = 6, VERT_PIXEL_OFFSET = 7,
 			HOR_SEP = 8, VERT_SEP = 9;
 
 	public SpriteStripDialog(Frame owner, BufferedImage src)
 		{
-		super(owner,Messages.getString("StripDialog.TITLE"),true);
+		super(owner,Messages.getString("SpriteStripDialog.TITLE"),true);
 
 		img = src;
 
@@ -72,7 +80,7 @@ public class SpriteStripDialog extends JDialog
 
 		for (int i = 0; i < labels.length; i++)
 			{
-			l[i] = new JLabel(Messages.getString("StripDialog." + labels[i]));
+			l[i] = new JLabel(Messages.getString("SpriteStripDialog." + labels[i]));
 			g1.addComponent(l[i]);
 			if (i > 3) fields[i] = new NumberField(0);
 			fields[i].addPropertyChangeListener("value",preview);
@@ -85,12 +93,29 @@ public class SpriteStripDialog extends JDialog
 			/**/.addComponent(fields[i]));
 			}
 
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-		/**/.addContainerGap()
-		/**/.addGroup(g1)
-		/**/.addPreferredGap(ComponentPlacement.RELATED)
-		/**/.addGroup(g2)
-		/**/.addContainerGap());
+		String str = "SpriteStripDialog.IMPORT";
+		JButton ok = new JButton(Messages.getString(str));
+		ok.setActionCommand(str);
+		ok.addActionListener(this);
+		str = "SpriteStripDialog.CANCEL";
+		JButton cancel = new JButton(Messages.getString(str));
+		cancel.setActionCommand(str);
+		cancel.addActionListener(this);
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addContainerGap()
+		/*	*/.addGroup(g1)
+		/*	*/.addPreferredGap(ComponentPlacement.RELATED)
+		/*	*/.addGroup(g2)
+		/*	*/.addContainerGap())
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(ok).addComponent(cancel)));
+
+		g3.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED);
+		g3.addGroup(layout.createParallelGroup()
+		/**/.addComponent(ok)
+		/**/.addComponent(cancel)).addContainerGap();
 
 		layout.setVerticalGroup(g3);
 
@@ -100,8 +125,61 @@ public class SpriteStripDialog extends JDialog
 		pack();
 		}
 
+	/**
+	 * Sets the origin, or x/y position of top-left cell, which in turn updates the preview.
+	 * This is really only used by the preview, when the mouse is clicked.
+	 */
+	public void setOrigin(int x, int y)
+		{
+		fields[HOR_CELL_OFFSET].setValue(0);
+		fields[VERT_CELL_OFFSET].setValue(0);
+		fields[HOR_PIXEL_OFFSET].setValue(x);
+		fields[VERT_PIXEL_OFFSET].setValue(y);
+		}
+
 	public BufferedImage[] getStrip()
 		{
-		return null;
+		if (!confirmed) return null;
+
+		BufferedImage[] ret = new BufferedImage[fields[IMAGE_NUMBER].getIntValue()];
+
+		int i = 0;
+		for (Rectangle r : this)
+			ret[i++] = img.getSubimage(r.x,r.y,r.width,r.height);
+
+		return ret;
+		}
+
+	public Iterator<Rectangle> iterator()
+		{
+		ArrayList<Rectangle> list = new ArrayList<Rectangle>();
+		int cw = fields[CELL_WIDTH].getIntValue();
+		int ch = fields[CELL_HEIGHT].getIntValue();
+		int x = fields[HOR_CELL_OFFSET].getIntValue() * cw;
+		int y = fields[VERT_CELL_OFFSET].getIntValue() * ch;
+		x += fields[HOR_PIXEL_OFFSET].getIntValue();
+		y += fields[VERT_PIXEL_OFFSET].getIntValue();
+
+		int xx = x, yy = y;
+		for (int i = 0; i < fields[IMAGE_NUMBER].getIntValue(); i++)
+			{
+			if (i != 0 && i % fields[IMAGES_PER_ROW].getIntValue() == 0)
+				{
+				xx = x;
+				yy += ch + fields[VERT_SEP].getIntValue();
+				}
+
+			list.add(new Rectangle(xx,yy,cw,ch));
+
+			xx += cw + fields[HOR_SEP].getIntValue();
+			}
+
+		return list.listIterator();
+		}
+
+	public void actionPerformed(ActionEvent e)
+		{
+		if (e.getActionCommand().equals("SpriteStripDialog.IMPORT")) confirmed = true;
+		setVisible(false);
 		}
 	}
