@@ -17,12 +17,12 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
+import org.lateralgm.components.NumberField.ValueChangeEvent;
+import org.lateralgm.components.NumberField.ValueChangeListener;
 import org.lateralgm.components.impl.SpriteStripDialog;
 
-public class SpriteStripPreview extends AbstractImagePreview implements PropertyChangeListener
+public class SpriteStripPreview extends AbstractImagePreview implements ValueChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -86,7 +86,7 @@ public class SpriteStripPreview extends AbstractImagePreview implements Property
 		return props == null ? null : props.img;
 		}
 
-	public void propertyChange(PropertyChangeEvent evt)
+	public void valueChange(ValueChangeEvent evt)
 		{
 		updateUI();
 		}

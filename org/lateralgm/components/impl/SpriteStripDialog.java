@@ -6,23 +6,23 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.GroupLayout.ParallelGroup;
-import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.ParallelGroup;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import org.lateralgm.components.NumberField;
+import org.lateralgm.components.NumberField.ValueChangeEvent;
+import org.lateralgm.components.NumberField.ValueChangeListener;
 import org.lateralgm.components.visual.SpriteStripPreview;
 import org.lateralgm.messages.Messages;
 
@@ -69,9 +69,9 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 		fields[CELL_HEIGHT] = new NumberField(1,99999,32);
 
 		//link ImgNum together with ImgPerRow if they are equal, thus expanding horizontally.
-		fields[IMAGE_NUMBER].addPropertyChangeListener("value",new PropertyChangeListener()
+		fields[IMAGE_NUMBER].addValueChangeListener(new ValueChangeListener()
 			{
-				public void propertyChange(PropertyChangeEvent evt)
+				public void valueChange(ValueChangeEvent evt)
 					{
 					if (fields[IMAGES_PER_ROW].getValue().equals(evt.getOldValue()))
 						fields[IMAGES_PER_ROW].setValue(evt.getNewValue());
@@ -83,7 +83,7 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 			l[i] = new JLabel(Messages.getString("SpriteStripDialog." + labels[i]));
 			g1.addComponent(l[i]);
 			if (i > 3) fields[i] = new NumberField(0);
-			fields[i].addPropertyChangeListener("value",preview);
+			fields[i].addValueChangeListener(preview);
 			g2.addComponent(fields[i]);
 
 			if ((i > 1 && i % 2 == 0) || i == 1)

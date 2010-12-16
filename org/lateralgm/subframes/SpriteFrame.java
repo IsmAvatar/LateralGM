@@ -29,7 +29,6 @@ import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -45,9 +44,12 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.GroupLayout.Alignment;
 
 import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.NumberField;
+import org.lateralgm.components.NumberField.ValueChangeEvent;
+import org.lateralgm.components.NumberField.ValueChangeListener;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.SpriteStripDialog;
@@ -56,9 +58,9 @@ import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.BBMode;
@@ -68,7 +70,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements ActionListener,
-		MouseListener,UpdateListener
+		MouseListener,UpdateListener,ValueChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -458,7 +460,8 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		show = new NumberField(0,res.subImages.size() - 1);
 		show.setHorizontalAlignment(SwingConstants.CENTER);
-		show.addActionListener(this);
+		show.addValueChangeListener(this);
+		//		show.setValue(0);
 
 		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
 		subRight.addActionListener(this);
@@ -469,7 +472,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 		speed = new NumberField(1,Integer.MAX_VALUE,30);
 		speed.setToolTipText(Messages.getString("SpriteFrame.CALC_TIP")); //$NON-NLS-1$
-		speed.addActionListener(this);
+		speed.addValueChangeListener(this);
 		speed.addMouseListener(new MouseAdapter()
 			{
 				public void mouseClicked(MouseEvent e)
@@ -595,6 +598,22 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		imageChanged = false;
 		}
 
+	public void valueChange(ValueChangeEvent e)
+		{
+		if (e.getSource() == show)
+			{
+			updateSub = false;
+			setSubIndex(show.getIntValue());
+			updateSub = true;
+			return;
+			}
+		if (e.getSource() == speed)
+			{
+			if (timer != null) timer.setDelay(1000 / speed.getIntValue());
+			return;
+			}
+		}
+
 	public void actionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == load)
@@ -611,13 +630,6 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		if (e.getSource() == subLeft)
 			{
 			if (currSub > 0) setSubIndex(currSub - 1);
-			return;
-			}
-		if (e.getSource() == show)
-			{
-			updateSub = false;
-			setSubIndex(show.getIntValue());
-			updateSub = true;
 			return;
 			}
 		if (e.getSource() == subRight)
@@ -641,11 +653,6 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 				timer.start();
 				updateImageControls();
 				}
-			return;
-			}
-		if (e.getSource() == speed)
-			{
-			if (timer != null) timer.setDelay(1000 / speed.getIntValue());
 			return;
 			}
 		if (e.getSource() == timer)
