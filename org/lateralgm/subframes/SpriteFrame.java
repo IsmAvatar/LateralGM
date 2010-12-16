@@ -670,7 +670,6 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		String cmd = e.getActionCommand();
 		if (cmd != null && cmd.startsWith("SpriteFrame.")) //$NON-NLS-1$
 			handleToolbarEvent(cmd.substring(12));
-		System.out.println(e);
 
 		super.actionPerformed(e);
 		}

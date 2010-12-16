@@ -41,6 +41,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		{
 		super();
 		sprite = s;
+		setImage(getImage());
 		s.properties.updateSource.addListener(spl);
 		s.reference.updateSource.addListener(this);
 		enableEvents(MouseEvent.MOUSE_PRESSED);

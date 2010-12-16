@@ -25,13 +25,7 @@ public abstract class AbstractImagePreview extends JLabel
 	public AbstractImagePreview()
 		{
 		setOpaque(true);
-		if (getImage() != null)
-			{
-			BufferedImage img = getImage();
-			setPreferredSize(new Dimension(img.getWidth(),img.getHeight()));
-			}
-		else
-			setPreferredSize(new Dimension(0,0));
+		setImage(getImage());
 		}
 
 	protected abstract BufferedImage getImage();
@@ -58,13 +52,6 @@ public abstract class AbstractImagePreview extends JLabel
 
 	public void setImage(BufferedImage bi)
 		{
-		if (bi == null)
-			{
-			super.setIcon(null);
-			setPreferredSize(new Dimension(0,0));
-			return;
-			}
-		super.setIcon(new ImageIcon(bi));
-		setPreferredSize(new Dimension(bi.getWidth(),bi.getHeight()));
+		setIcon(bi == null ? null : new ImageIcon(bi));
 		}
 	}
