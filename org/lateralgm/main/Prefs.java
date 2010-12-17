@@ -16,6 +16,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 import org.lateralgm.resources.Resource;
 
@@ -24,6 +25,7 @@ public final class Prefs
 	private static final String BUNDLE_NAME = "org.lateralgm.main.preferences"; //$NON-NLS-1$
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+	private static final Preferences PREFS = Preferences.userRoot().node("/org/lateralgm");
 
 	static
 		{
@@ -36,15 +38,16 @@ public final class Prefs
 
 	public static String getString(String key, String def)
 		{
+		String r;
 		try
 			{
-			return RESOURCE_BUNDLE.getString(key);
+			r = RESOURCE_BUNDLE.getString(key);
 			}
 		catch (MissingResourceException e)
 			{
-			if (def == null) return '!' + key + '!';
-			return def;
+			r = def == null ? '!' + key + '!' : def;
 			}
+		return PREFS.get(key,r);
 		}
 
 	public static int getInt(String key, int def)
