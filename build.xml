@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="LateralGM" default="build">
-	<property name="jar" value="${user.home}/Desktop/lgm16b4.jar" />
+	<property name="jar" value="${basedir}/lgm16b4.jar" />
 
 	<property name="lgm" value="${basedir}/org/lateralgm" />
 	<property name="main" value="${lgm}/main" />
