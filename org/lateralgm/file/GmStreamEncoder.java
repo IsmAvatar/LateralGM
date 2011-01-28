@@ -53,7 +53,7 @@ public class GmStreamEncoder extends StreamEncoder
 		{
 		write(b,0,b.length);
 		}
-//é", "è" or "à
+
 	public void write(byte b[], int off, int len) throws IOException
 		{
 		if (table != null)
@@ -61,7 +61,7 @@ public class GmStreamEncoder extends StreamEncoder
 			for (int i = 0; i < len; i++)
 				{
 				int t = b[off + i] & 0xFF;
-				int x = table[t + pos + i] & 0xFF;
+				int x = table[(t + pos + i) & 0xFF];
 				b[off + i] = (byte) x;
 				}
 			}
@@ -70,7 +70,7 @@ public class GmStreamEncoder extends StreamEncoder
 
 	public void write(int b) throws IOException
 		{
-		if (table != null) b = table[b + pos] & 0xFF;
+		if (table != null) b = table[(b + pos) & 0xFF];
 		super.write(b);
 		}
 
