@@ -498,6 +498,9 @@ public class ActionList extends JList
 					{
 					return false;
 					}
+				//clone properly for drag-copy or clipboard paste
+				if (!info.isDrop() || info.getDropAction() == COPY) a = a.copy();
+				//now add
 				addIndex = index;
 				addCount = 1;
 				alm.add(index,a);
@@ -516,6 +519,10 @@ public class ActionList extends JList
 					e.printStackTrace();
 					return false;
 					}
+				//clone properly for drag-copy or clipboard paste
+				if (!info.isDrop() || info.getDropAction() == COPY) for (int i = 0; i < a.length; i++)
+					a[i] = a[i].copy();
+				//now add
 				addIndex = index;
 				addCount = a.length;
 				alm.addAll(index,Arrays.asList(a));
