@@ -53,6 +53,7 @@ public class ResourceList<R extends Resource<R,?>> extends TreeSet<R> implements
 			if (r0 == res) return false;
 			super.remove(r0);
 			}
+		res.reference.updateSource.addListener(this);
 		refMap.put(res.reference,new WeakReference<R>(res));
 		return super.add(res);
 		}
