@@ -271,11 +271,6 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 		return !c.areEqual(res,resOriginal);
 		}
 
-	public void revertResource()
-		{
-		resOriginal.updateReference();
-		}
-
 	public void commitChanges()
 		{
 		res.setName(name.getText());
@@ -298,8 +293,8 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 				if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 				f = fc.getSelectedFile();
 				if (f.exists()) break;
-				JOptionPane.showMessageDialog(null,
-						f.getName() + Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
+				JOptionPane.showMessageDialog(null,f.getName()
+						+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
 						Messages.getString("SoundFrame.FILE_OPEN"),JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$
 				}
 			try

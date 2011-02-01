@@ -178,12 +178,6 @@ public class TimelineFrame extends ResourceFrame<Timeline,PTimeline> implements 
 		return !c.areEqual(res,resOriginal);
 		}
 
-	@Override
-	public void revertResource()
-		{
-		resOriginal.updateReference();
-		}
-
 	public void commitChanges()
 		{
 		actions.save();

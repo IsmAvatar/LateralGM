@@ -1214,12 +1214,6 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		return false;
 		}
 
-	@Override
-	public void revertResource()
-		{
-		resOriginal.updateReference();
-		}
-
 	public void commitChanges()
 		{
 		res.setName(name.getText());
@@ -1405,8 +1399,8 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 
 	public void openCodeFrame(Instance i)
 		{
-		openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
-				Messages.format("RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
+		openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),Messages.format(
+				"RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
 		}
 
 	public void openCodeFrame(CodeHolder code, String titleFormat, Object titleArg)

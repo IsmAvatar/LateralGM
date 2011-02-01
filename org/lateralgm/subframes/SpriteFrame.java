@@ -587,11 +587,6 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		res.setName(name.getText());
 		}
 
-	public void revertResource()
-		{
-		resOriginal.updateReference();
-		}
-
 	public void updateResource()
 		{
 		super.updateResource();

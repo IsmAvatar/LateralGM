@@ -604,12 +604,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		return !c.areEqual(res,resOriginal);
 		}
 
-	@Override
-	public void revertResource()
-		{
-		resOriginal.updateReference();
-		}
-
 	public void commitChanges()
 		{
 		saveEvents();

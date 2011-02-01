@@ -107,11 +107,6 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
 		}
 
-	public void revertResource()
-		{
-		resOriginal.updateReference();
-		}
-
 	public void commitChanges()
 		{
 		res.put(PScript.CODE,code.getTextCompat());

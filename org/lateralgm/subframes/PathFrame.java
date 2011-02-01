@@ -241,11 +241,6 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		return !(new ResourceComparator().areEqual(res,resOriginal));
 		}
 
-	public void revertResource()
-		{
-		resOriginal.updateReference();
-		}
-
 	public void commitChanges()
 		{
 		res.setName(name.getText());
@@ -276,8 +271,8 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 			{
 			int i = list.getSelectedIndex();
 			if (i == -1) return;
-			res.points.add(i,
-					new PathPoint((Integer) tx.getValue(),(Integer) ty.getValue(),(Integer) tsp.getValue()));
+			res.points.add(i,new PathPoint((Integer) tx.getValue(),(Integer) ty.getValue(),
+					(Integer) tsp.getValue()));
 			list.setSelectedIndex(i);
 			}
 		if (s == delete)

@@ -280,12 +280,6 @@ public class BackgroundFrame extends ResourceFrame<Background,PBackground> imple
 		return !c.areEqual(res,resOriginal);
 		}
 
-	@Override
-	public void revertResource()
-		{
-		resOriginal.updateReference();
-		}
-
 	public void commitChanges()
 		{
 		res.setName(name.getText());

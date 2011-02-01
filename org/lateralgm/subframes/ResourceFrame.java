@@ -96,11 +96,10 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		resOriginal = res.clone();
 		}
 
-	/**
-	 * Simply calls:
-	 * <pre>LGM.currentFile.&ltappropriate list&gt.replace(res,resOriginal);</pre>
-	 */
-	public abstract void revertResource();
+	public void revertResource()
+		{
+		resOriginal.updateReference();
+		}
 
 	public abstract boolean resourceChanged();
 

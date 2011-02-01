@@ -219,11 +219,6 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 		return !(new ResourceComparator().areEqual(res,resOriginal));
 		}
 
-	public void revertResource()
-		{
-		resOriginal.updateReference();
-		}
-
 	public void commitChanges()
 		{
 		charMin.commitOrRevert();
