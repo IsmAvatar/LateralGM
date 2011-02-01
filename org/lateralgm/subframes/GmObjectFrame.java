@@ -504,8 +504,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 
 		DefaultMutableTreeNode next = n.getNextSibling();
 		if (next == null) next = n.getPreviousSibling();
-		if (next == null && rootEvent.getChildCount() != 0)
-			next = (DefaultMutableTreeNode) rootEvent.getChildAt(0);
 
 		if (p == rootEvent)
 			n.removeFromParent();
@@ -521,6 +519,8 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 				n.removeFromParent();
 			}
 
+		if (next == null && rootEvent.getChildCount() != 0)
+			next = (DefaultMutableTreeNode) rootEvent.getChildAt(0);
 		if (next == null)
 			actions.setActionContainer(null);
 		else
