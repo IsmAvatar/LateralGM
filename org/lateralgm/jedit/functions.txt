@@ -202,8 +202,8 @@ x1,y1,z1,x2,y2,z2,texid,hrepeat,vrepeat
 d3d_draw_wall
 x1,y1,z1,x2,y2,z2,texid,hrepeat,vrepeat
 
-d3d_end 
- 
+d3d_end
+
 
 d3d_light_define_direction
 ind,dx,dy,dz,col
@@ -385,7 +385,7 @@ none
 d3d_vertex_color
 x,y,z,col,alpha
 
-d3d_vertex_normal(x,y,z,nx,ny,nz) Add vertex 
+d3d_vertex_normal(x,y,z,nx,ny,nz) Add vertex
 x,y,z
 
 d3d_vertex_normal_color
@@ -613,11 +613,11 @@ back,x,y,xscale,yscale,rot,color,alpha
 draw_background_general
 back,left,top,width,height,x,y,xscale,yscale,rot,c1,c2,c3,c4,alpha
 
-draw_background_part 
-back,left,top,width,height,x,y 
+draw_background_part
+back,left,top,width,height,x,y
 
-draw_background_part_ext 
-back,left,top,width,height,x,y,xscale,yscale,color,alpha 
+draw_background_part_ext
+back,left,top,width,height,x,y,xscale,yscale,color,alpha
 
 draw_background_stretched_ext
 back,x,y,w,h,color,alpha
@@ -625,8 +625,8 @@ back,x,y,w,h,color,alpha
 draw_background_stretched
 back,x,y,w,h
 
-draw_background_tiled_ext 
-back,x,y,xscale,yscale,color,alpha 
+draw_background_tiled_ext
+back,x,y,xscale,yscale,color,alpha
 
 draw_background_tiled
 back,x,y
@@ -730,8 +730,8 @@ precision
 draw_set_color
 col
 
-draw_set_font 
-font 
+draw_set_font
+font
 
 draw_set_halign
 halign
@@ -1159,8 +1159,8 @@ id
 ds_stack_write
 id
 
-effect_clear 
- 
+effect_clear
+
 
 effect_create_above
 kind,x,y,size,color
@@ -1219,11 +1219,11 @@ dll,name,calltype,restype,argnumb,arg1type,arg2type, ...
 external_free
 dll
 
-filename_change_ext 
-fname,newext 
+filename_change_ext
+fname,newext
 
-filename_dir 
-fname 
+filename_dir
+fname
 
 filename_drive
 fname
@@ -1717,8 +1717,8 @@ x,y,sp
 move_wrap
 hor,vert,margin
 
-mplay_connect_status 
- 
+mplay_connect_status
+
 
 mplay_data_mode
 guar
@@ -1729,8 +1729,8 @@ ind
 mplay_data_write
 ind,val
 
-mplay_end 
- 
+mplay_end
+
 
 mplay_init_ipx
 none
@@ -1744,8 +1744,8 @@ portno,baudrate,stopbits,parity,flow
 mplay_init_tcpip
 addr
 
-mplay_ipaddress 
- 
+mplay_ipaddress
+
 
 mplay_message_clear
 player
@@ -2428,8 +2428,8 @@ x
 screen_redraw
 none
 
-screen_refresh 
- 
+screen_refresh
+
 
 screen_save_part
 fname,x,y,w,h
@@ -2440,8 +2440,8 @@ fname
 screen_wait_vsync
 none
 
-script_execute 
-scr,arg0,arg1,... 
+script_execute
+scr,arg0,arg1,...
 
 script_exists
 ind
@@ -2452,8 +2452,8 @@ ind
 script_get_text
 ind
 
-set_automatic_draw 
-value 
+set_automatic_draw
+value
 
 set_program_priority
 priority
