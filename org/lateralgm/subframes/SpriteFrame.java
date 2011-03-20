@@ -12,6 +12,10 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -28,10 +32,12 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DropMode;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -44,6 +50,7 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.TransferHandler;
 import javax.swing.GroupLayout.Alignment;
 
 import org.lateralgm.compare.ResourceComparator;
@@ -425,10 +432,86 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		makeToolButton(tool,"SpriteFrame.PREVIOUS"); //$NON-NLS-1$
 		makeToolButton(tool,"SpriteFrame.NEXT"); //$NON-NLS-1$
 
-		subList = new JList();
+		subList = new SubImageList();
 		subList.addMouseListener(this);
+		subList.setDragEnabled(true);
 		pane.add(new JScrollPane(subList),BorderLayout.CENTER);
 		return pane;
+		}
+
+	class SubImageList extends JList
+		{
+		private static final long serialVersionUID = 1L;
+
+		public SubImageList()
+			{
+			setDragEnabled(true);
+			setDropMode(DropMode.INSERT);
+			setTransferHandler(new SubImageTransfer());
+			}
+		}
+
+	class SubImageTransfer extends TransferHandler
+		{
+		private static final long serialVersionUID = 1L;
+
+		public int getSourceActions(JComponent c)
+			{
+			return COPY_OR_MOVE;
+			}
+
+		public Transferable createTransferable(JComponent c)
+			{
+			return null;
+			}
+
+		public void exportDone(JComponent c, Transferable t, int action)
+			{
+			if (action == MOVE)
+				{
+				}
+			}
+
+		public boolean canImport(TransferHandler.TransferSupport s)
+			{
+			System.out.println(s.getTransferable());
+			DataFlavor fl[] = s.getDataFlavors();
+			//			System.out.println(fl);
+			for (DataFlavor f : fl)
+				{
+				if (f.equals(DataFlavor.javaFileListFlavor)) System.out.println("Oh hi");
+				if (f.equals(DataFlavor.stringFlavor))
+					{
+					Transferable t = s.getTransferable();
+					if (t instanceof StringSelection)
+						{
+
+						}
+					try
+						{
+						System.out.println(s.getTransferable().getTransferData(f));
+						}
+					catch (UnsupportedFlavorException e)
+						{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						}
+					catch (IOException e)
+						{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						}
+					//					System.out.println(f);
+					}
+				//				System.out.println(" " + f.getRepresentationClass());
+				}
+			return false;
+			}
+
+		public boolean importData(TransferHandler.TransferSupport s)
+			{
+			return false;
+			}
 		}
 
 	private void makeToolButton(JToolBar tool, String icon)

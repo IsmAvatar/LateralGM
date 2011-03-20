@@ -90,17 +90,7 @@ public final class LGM
 		{
 		//java6u10 regression causes graphical xor to be very slow
 		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		try
-			{
-			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			// TODO At some point, add LAF as an option
-			}
-		catch (Exception e)
-			{
-			e.printStackTrace();
-			}
+		//annoyingly, Metal bolds almost all components by default. This unbolds them.
 		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
 
 		//Get Java Version
