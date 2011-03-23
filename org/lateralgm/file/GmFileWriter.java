@@ -583,8 +583,9 @@ public final class GmFileWriter
 				for (int j = 0; j < 11; j++)
 					{
 					MainEvent me = obj.mainEvents.get(j);
-					for (Event ev : me.events)
+					for (int k = me.events.size(); k > 0; k--)
 						{
+						Event ev = me.events.get(k - 1);
 						if (j == MainEvent.EV_COLLISION)
 							out.writeId(ev.other);
 						else
