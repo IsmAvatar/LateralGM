@@ -213,8 +213,11 @@ public class RoomEditor extends VisualPanel
 					t.properties.put(PTile.BACKGROUND,bkg);
 					t.setBackgroundPosition(new Point(frame.tSelect.tx,frame.tSelect.ty));
 					t.setRoomPosition(p);
-					t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
-							(Integer) b.get(PBackground.TILE_HEIGHT)));
+					if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
+						t.setSize(new Dimension(b.getWidth(),b.getHeight()));
+					else
+						t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
+								(Integer) b.get(PBackground.TILE_HEIGHT)));
 					t.setDepth((Integer) frame.taDepth.getValue());
 					room.tiles.add(t);
 					setCursor(t);
