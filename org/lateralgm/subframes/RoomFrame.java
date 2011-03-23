@@ -613,11 +613,14 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			g.setClip(new Rectangle(oldc.x,oldc.y,Math.min(oldc.x + oldc.width,b.getWidth()) - oldc.x,
 					Math.min(oldc.y + oldc.height,b.getHeight()) - oldc.y));
 
-			g.setXORMode(Color.BLACK);
-			g.setColor(Color.WHITE);
-			g.drawRect(tx,ty,(Integer) b.get(PBackground.TILE_WIDTH),
-					(Integer) b.get(PBackground.TILE_HEIGHT));
-			g.setPaintMode(); //just in case
+			if ((Boolean) b.get(PBackground.USE_AS_TILESET))
+				{
+				g.setXORMode(Color.BLACK);
+				g.setColor(Color.WHITE);
+				g.drawRect(tx,ty,(Integer) b.get(PBackground.TILE_WIDTH),
+						(Integer) b.get(PBackground.TILE_HEIGHT));
+				g.setPaintMode(); //just in case
+				}
 			g.setClip(oldClip); //restore the clip
 			}
 
@@ -644,6 +647,11 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 				{
 				tx = x;
 				ty = y;
+				}
+			else if (!(Boolean) hardBkg.get(PBackground.USE_AS_TILESET))
+				{
+				tx = 0;
+				ty = 0;
 				}
 			else
 				{
