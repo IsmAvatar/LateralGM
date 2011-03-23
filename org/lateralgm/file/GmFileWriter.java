@@ -729,7 +729,7 @@ public final class GmFileWriter
 	public static void writeGameInformation(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		int ver = f.fileVersion;
-		ver = ver >= 800 ? 800 : ver >= 620 ? 620 : ver >= 600 ? 600 : 430;
+		ver = ver >= 800 ? 800 : /*ver >= 620 ? 620 : */ver >= 600 ? 600 : 430;
 		out.write4(ver);
 		if (ver == 800) out.beginDeflate();
 		GameInformation g = f.gameInfo;
