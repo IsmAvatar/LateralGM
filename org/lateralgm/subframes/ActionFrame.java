@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2009, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -342,21 +342,48 @@ public class ActionFrame extends MDIFrame implements ActionListener
 			}
 		else if (e.getSource() == save)
 			{
-			act.setAppliesTo(getApplies());
-			if (relativeBox != null) act.setRelative(relativeBox.isSelected());
-			if (notBox != null) act.setNot(notBox.isSelected());
-			switch (act.getLibAction().interfaceKind)
-				{
-				case LibAction.INTERFACE_CODE:
-					act.getArguments().get(0).setVal(code.getTextCompat());
-					break;
-				default:
-					for (ArgumentComponent a : argComp)
-						{
-						a.commit();
-						}
-				}
+			commitChanges();
 			dispose();
+			}
+		}
+
+	public void fireInternalFrameEvent(int id)
+		{
+		switch (id)
+			{
+			case InternalFrameEvent.INTERNAL_FRAME_CLOSING:
+				if (act.getLibAction().interfaceKind == LibAction.INTERFACE_CODE)
+					if (code.getUndoManager().isModified() || !act.getAppliesTo().equals(getApplies()))
+						{
+						int ret = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
+								"ActionFrame.KEEPCHANGES",getTitle()), //$NON-NLS-1$
+								Messages.getString("ActionFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
+								JOptionPane.YES_NO_CANCEL_OPTION);
+						if (ret == JOptionPane.CANCEL_OPTION) break;
+						if (ret == JOptionPane.YES_OPTION) commitChanges();
+						}
+				dispose();
+				break;
+			default:
+			}
+		super.fireInternalFrameEvent(id);
+		}
+
+	public void commitChanges()
+		{
+		act.setAppliesTo(getApplies());
+		if (relativeBox != null) act.setRelative(relativeBox.isSelected());
+		if (notBox != null) act.setNot(notBox.isSelected());
+		switch (act.getLibAction().interfaceKind)
+			{
+			case LibAction.INTERFACE_CODE:
+				act.getArguments().get(0).setVal(code.getTextCompat());
+				break;
+			default:
+				for (ArgumentComponent a : argComp)
+					{
+					a.commit();
+					}
 			}
 		}
 
@@ -404,28 +431,6 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				res[i] = arrows[(2 - (i / 3)) * 3 + i % 3].isSelected() ? '1' : '0';
 			return new String(res);
 			}
-		}
-
-	public void fireInternalFrameEvent(int id)
-		{
-		switch (id)
-			{
-			case InternalFrameEvent.INTERNAL_FRAME_CLOSING:
-				if (act.getLibAction().interfaceKind == LibAction.INTERFACE_CODE)
-					if (code.getUndoManager().isModified() || !act.getAppliesTo().equals(getApplies()))
-						{
-						int ret = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
-								"ActionFrame.KEEPCHANGES",getTitle()), //$NON-NLS-1$
-								Messages.getString("ActionFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
-								JOptionPane.YES_NO_CANCEL_OPTION);
-						if (ret == JOptionPane.CANCEL_OPTION) break;
-						if (ret == JOptionPane.YES_OPTION) save.doClick();
-						}
-				dispose();
-				break;
-			default:
-			}
-		super.fireInternalFrameEvent(id);
 		}
 
 	private class ArgumentComponent
@@ -529,7 +534,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				}
 			}
 
-		@SuppressWarnings({ "unchecked","rawtypes" })
+		@SuppressWarnings( { "unchecked","rawtypes" })
 		public void discard()
 			{
 			if (editor instanceof JTextField)

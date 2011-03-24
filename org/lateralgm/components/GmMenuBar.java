@@ -124,7 +124,7 @@ public class GmMenuBar extends JMenuBar
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.RENAME",KeyEvent.VK_F2,0); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.DELETE",KeyEvent.VK_DELETE,InputEvent.SHIFT_DOWN_MASK); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.COPY",KeyEvent.VK_INSERT,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.DUPLICATE",KeyEvent.VK_INSERT,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.PROPERTIES",KeyEvent.VK_ENTER,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$
 

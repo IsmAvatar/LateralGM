@@ -61,7 +61,7 @@ import org.lateralgm.subframes.ActionFrame;
 public class ActionList extends JList
 	{
 	private static final long serialVersionUID = 1L;
-	private static final WeakHashMap<Action,WeakReference<MDIFrame>> FRAMES;
+	private static final WeakHashMap<Action,WeakReference<ActionFrame>> FRAMES;
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
 	protected ActionContainer actionContainer;
 	private ActionListModel model;
@@ -71,7 +71,7 @@ public class ActionList extends JList
 
 	static
 		{
-		FRAMES = new WeakHashMap<Action,WeakReference<MDIFrame>>();
+		FRAMES = new WeakHashMap<Action,WeakReference<ActionFrame>>();
 		}
 
 	public ActionList(MDIFrame parent)
@@ -110,6 +110,8 @@ public class ActionList extends JList
 	public void save()
 		{
 		if (actionContainer == null) return;
+		for (WeakReference<ActionFrame> a : FRAMES.values())
+			if (a != null && a.get() != null) a.get().commitChanges();
 		actionContainer.actions = model.list;
 		}
 
@@ -125,14 +127,14 @@ public class ActionList extends JList
 		LibAction la = a.getLibAction();
 		if ((la.libArguments == null || la.libArguments.length == 0) && !la.canApplyTo
 				&& !la.allowRelative && !la.question) return null;
-		WeakReference<MDIFrame> fr = FRAMES.get(a);
-		MDIFrame af = fr == null ? null : fr.get();
+		WeakReference<ActionFrame> fr = FRAMES.get(a);
+		ActionFrame af = fr == null ? null : fr.get();
 		if (af == null || af.isClosed())
 			{
 			af = new ActionFrame(a);
 			LGM.mdi.add(af);
 			if (parent != null) LGM.mdi.addZChild(parent,af);
-			FRAMES.put(a,new WeakReference<MDIFrame>(af));
+			FRAMES.put(a,new WeakReference<ActionFrame>(af));
 			}
 		af.setVisible(true);
 		//FIXME: Find out why parent is sent to back. This is a workaround.
