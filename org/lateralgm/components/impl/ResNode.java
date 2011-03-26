@@ -256,7 +256,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
 			popup.addSeparator();
 			popup.add(makeMenuItem("Listener.TREE_INSERT",al)); //$NON-NLS-1$
-			popup.add(makeMenuItem("Listener.TREE_COPY",al)); //$NON-NLS-1$
+			popup.add(makeMenuItem("Listener.TREE_DUPLICATE",al)); //$NON-NLS-1$
 			}
 		else
 			popup.add(makeMenuItem("Listener.TREE_ADD",al)); //$NON-NLS-1$
