@@ -100,18 +100,22 @@ public final class Prefs
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
 		actionToolTipLines = getInt("actionToolTipLines",10);
 
-		String str = getString("externalBackgroundEditorCommand","gimp %s");
-		useExternalBackgroundEditor = !str.toLowerCase().equals("null");
-		externalBackgroundEditorCommand = str;
-		str = getString("externalSpriteEditorCommand","gimp %s");
-		useExternalSpriteEditor = !str.toLowerCase().equals("null");
-		externalSpriteEditorCommand = str;
+		externalSpriteExtension = getString("externalSpriteExtension","png");
+		externalBackgroundExtension = getString("externalBackgroundExtension","png");
+		externalScriptExtension = getString("externalScriptExtension","gml");
+
+		String str = getString("externalBackgroundEditorCommand","null");
+		useExternalBackgroundEditor = !str.isEmpty() && !str.toLowerCase().equals("null");
+		externalBackgroundEditorCommand = str.toLowerCase().equals("system") ? null : str;
+		str = getString("externalSpriteEditorCommand","null");
+		useExternalSpriteEditor = !str.isEmpty() && !str.toLowerCase().equals("null");
+		externalSpriteEditorCommand = str.toLowerCase().equals("system") ? null : str;
 		str = getString("externalScriptEditorCommand","null");
-		useExternalScriptEditor = !str.toLowerCase().equals("null");
-		externalScriptEditorCommand = str;
+		useExternalScriptEditor = !str.isEmpty() && !str.toLowerCase().equals("null");
+		externalScriptEditorCommand = str.toLowerCase().equals("system") ? null : str;
 		str = getString("externalSoundEditorCommand","null");
-		useExternalSoundEditor = !str.toLowerCase().equals("null");
-		externalSoundEditorCommand = str;
+		useExternalSoundEditor = !str.isEmpty() && !str.toLowerCase().equals("null");
+		externalSoundEditorCommand = str.toLowerCase().equals("system") ? null : str;
 		}
 
 	public static boolean renamableRoots;
@@ -130,10 +134,13 @@ public final class Prefs
 
 	public static boolean useExternalBackgroundEditor;
 	public static String externalBackgroundEditorCommand;
+	public static String externalBackgroundExtension;
 	public static boolean useExternalSpriteEditor;
 	public static String externalSpriteEditorCommand;
+	public static String externalSpriteExtension;
 	public static boolean useExternalScriptEditor;
 	public static String externalScriptEditorCommand;
+	public static String externalScriptExtension;
 	public static boolean useExternalSoundEditor;
 	public static String externalSoundEditorCommand;
 

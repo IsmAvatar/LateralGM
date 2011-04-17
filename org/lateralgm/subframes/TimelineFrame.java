@@ -220,7 +220,7 @@ public class TimelineFrame extends ResourceFrame<Timeline,PTimeline> implements 
 				{
 				if (p < 0)
 					{
-					moments.setSelectedIndex(p);
+					moments.setSelectedIndex(-p);
 					return;
 					}
 				Moment m2 = new Moment();

@@ -88,7 +88,7 @@ public final class GmFileWriter
 			}
 		else
 			out.write4(f.gameSettings.gameId);
-		out.fill(4);
+		out.write(f.gameSettings.dplayGUID); //16 bytes
 
 		writeSettings(f,out,savetime);
 
@@ -134,7 +134,7 @@ public final class GmFileWriter
 	public static void writeSettings(GmFile f, GmStreamEncoder out, long savetime) throws IOException
 		{
 		int ver = f.fileVersion;
-		if (ver == 701) ver = 702;
+		ver = ver >= 800 ? 800 : ver >= 701 ? 702 : ver;
 		out.write4(ver);
 		if (ver == 800) out.beginDeflate();
 		GameSettings g = f.gameSettings;
@@ -261,10 +261,9 @@ public final class GmFileWriter
 
 	public static void writeTriggers(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		int ver = f.fileVersion;
-		if (ver < 800) return;
+		if (f.fileVersion < 800) return;
 
-		out.write4(ver);
+		out.write4(800);
 		out.write4(f.triggers.size());
 		for (Trigger t : f.triggers)
 			{
@@ -282,10 +281,9 @@ public final class GmFileWriter
 
 	public static void writeConstants(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		int ver = f.fileVersion;
-		if (ver < 800) return;
+		if (f.fileVersion < 800) return;
 
-		out.write4(ver);
+		out.write4(800);
 		out.write4(f.constants.size());
 		for (Constant c : f.constants)
 			{
@@ -457,6 +455,7 @@ public final class GmFileWriter
 	public static void writePaths(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		int ver = f.fileVersion;
+		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 420);
 		out.write4(f.paths.lastId + 1);
 		for (int i = 0; i <= f.paths.lastId; i++)
@@ -526,7 +525,9 @@ public final class GmFileWriter
 				out.writeStr(font.properties,PFont.FONT_NAME);
 				out.write4(font.properties,PFont.SIZE);
 				out.writeBool(font.properties,PFont.BOLD,PFont.ITALIC);
-				out.write4(font.properties,PFont.RANGE_MIN,PFont.RANGE_MAX);
+				out.write2((Integer) font.get(PFont.RANGE_MIN));
+				out.write2((Integer) font.get(PFont.CHARSET));
+				out.write4(font.properties,PFont.RANGE_MAX);
 				}
 			out.endDeflate();
 			}
@@ -535,6 +536,7 @@ public final class GmFileWriter
 	public static void writeTimelines(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		int ver = f.fileVersion;
+		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 500);
 		out.write4(f.timelines.lastId + 1);
 		for (int i = 0; i <= f.timelines.lastId; i++)
@@ -561,6 +563,7 @@ public final class GmFileWriter
 	public static void writeGmObjects(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		int ver = f.fileVersion;
+		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 400);
 		out.write4(f.gmObjects.lastId + 1);
 		for (int i = 0; i <= f.gmObjects.lastId; i++)
@@ -602,6 +605,7 @@ public final class GmFileWriter
 	public static void writeRooms(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		int ver = f.fileVersion;
+		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 420);
 		out.write4(f.rooms.lastId + 1);
 		for (int i = 0; i <= f.rooms.lastId; i++)
@@ -718,8 +722,7 @@ public final class GmFileWriter
 
 	public static void writePackages(GmFile f, GmStreamEncoder out) throws IOException
 		{
-		int ver = f.fileVersion;
-		if (ver < 700) return;
+		if (f.fileVersion < 700) return;
 
 		out.write4(700);
 		out.write4(f.packages.size());

@@ -105,7 +105,7 @@ public final class LGM
 
 		//Set up temp dir and work dir
 		Util.tweakIIORegistry();
-		tempDir = new File(System.getProperty("java.io.tmpdir") + File.separator + "lgm"); //$NON-NLS-1$ //$NON-NLS-2$
+		tempDir = new File(System.getProperty("java.io.tmpdir"),"lgm"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (!tempDir.exists())
 			{
 			tempDir.mkdir();

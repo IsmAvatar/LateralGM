@@ -13,6 +13,7 @@ import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -340,7 +341,7 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 				out.close();
 				in.close();
 				}
-			catch (Exception ex)
+			catch (IOException ex)
 				{
 				ex.printStackTrace();
 				}
@@ -348,10 +349,6 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 			}
 		if (e.getSource() == edit)
 			{
-			if (!Prefs.useExternalSoundEditor)
-				{
-				throw new UnsupportedOperationException("no internal sound editor");
-				}
 			try
 				{
 				if (editor == null)
@@ -359,7 +356,7 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 				else
 					editor.start();
 				}
-			catch (Exception ex)
+			catch (IOException ex)
 				{
 				ex.printStackTrace();
 				}
@@ -392,9 +389,10 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 		{
 		public final FileChangeMonitor monitor;
 
-		public SoundEditor() throws IOException
+		public SoundEditor() throws IOException,UnsupportedOperationException
 			{
-			File f = File.createTempFile(res.getName(),".img",LGM.tempDir);
+			File f = File.createTempFile(res.getName(),((File) res.get(PSound.FILE_NAME)).getName(),
+					LGM.tempDir);
 			f.deleteOnExit();
 			FileOutputStream out = new FileOutputStream(f);
 			out.write(data);
@@ -407,8 +405,18 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 
 		public void start() throws IOException
 			{
-			Runtime.getRuntime().exec(
-					String.format(Prefs.externalBackgroundEditorCommand,monitor.file.getAbsolutePath()));
+			if (!Prefs.useExternalSoundEditor || Prefs.externalSoundEditorCommand == null)
+				try
+					{
+					Desktop.getDesktop().edit(monitor.file);
+					}
+				catch (UnsupportedOperationException e)
+					{
+					throw new UnsupportedOperationException("no internal or system sound editor",e);
+					}
+			else
+				Runtime.getRuntime().exec(
+						String.format(Prefs.externalSoundEditorCommand,monitor.file.getAbsolutePath()));
 			}
 
 		public void stop()

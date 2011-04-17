@@ -110,7 +110,7 @@ public class GmFile implements UpdateListener
 		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
 		}
 
-	/** One of 530, 600, 701, or 800 */
+	/** One of 530, 600, 701, 800, 810 */
 	public int fileVersion = 600;
 	public String filename = null;
 
@@ -155,7 +155,9 @@ public class GmFile implements UpdateListener
 			{
 			rl.updateSource.addListener(this);
 			}
-		gameSettings.gameId = new Random().nextInt(100000001);
+		Random random = new Random();
+		gameSettings.gameId = random.nextInt(100000001);
+		random.nextBytes(gameSettings.dplayGUID);
 		try
 			{
 			String loc = "org/lateralgm/file/default.ico";

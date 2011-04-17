@@ -65,16 +65,18 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	public Listener()
 		{
-		String exts[] = { ".gmk",".gm6",".gmd" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		String exts[] = { ".gm81",".gmk",".gm6",".gmd" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		openFs.addFilter("Listener.FORMAT_GM",exts); //$NON-NLS-1$
-		openFs.addFilter("Listener.FORMAT_GMK",exts[0]); //$NON-NLS-1$
-		openFs.addFilter("Listener.FORMAT_GM6",exts[1]); //$NON-NLS-1$
-		openFs.addFilter("Listener.FORMAT_GMD",exts[2]); //$NON-NLS-1$
+		openFs.addFilter("Listener.FORMAT_GM81",exts[0]); //$NON-NLS-1$
+		openFs.addFilter("Listener.FORMAT_GMK",exts[1]); //$NON-NLS-1$
+		openFs.addFilter("Listener.FORMAT_GM6",exts[2]); //$NON-NLS-1$
+		openFs.addFilter("Listener.FORMAT_GMD",exts[3]); //$NON-NLS-1$
 
 		saveFs.addFilter("Listener.FORMAT_GM",exts); //$NON-NLS-1$
-		saveFs.addFilter("Listener.FORMAT_GMK",exts[0]); //$NON-NLS-1$
-		saveFs.addFilter("Listener.FORMAT_GM6",exts[1]); //$NON-NLS-1$
+		saveFs.addFilter("Listener.FORMAT_GM81",exts[0]); //$NON-NLS-1$
+		saveFs.addFilter("Listener.FORMAT_GMK",exts[1]); //$NON-NLS-1$
+		saveFs.addFilter("Listener.FORMAT_GM6",exts[2]); //$NON-NLS-1$
 		}
 
 	public static Resource.Kind stringToRes(String com)
@@ -167,6 +169,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		String bn;
 		if (fn.endsWith(".gm6") || fn.endsWith(".gmk"))
 			bn = fn.substring(0,fn.length() - 4);
+		else if (fn.endsWith(".gm81"))
+			bn = fn.substring(0,fn.length() - 5);
 		else
 			bn = fn;
 		block:
@@ -203,8 +207,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		String ext = getVersionExtension(LGM.currentFile.fileVersion);
 		if (!LGM.currentFile.filename.endsWith(ext))
 			{
-			int result = JOptionPane.showConfirmDialog(LGM.frame,
-					Messages.format("Listener.CONFIRM_EXTENSION",ext,LGM.currentFile.fileVersion), //$NON-NLS-1$
+			int result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
+					"Listener.CONFIRM_EXTENSION",ext,LGM.currentFile.fileVersion), //$NON-NLS-1$
 					LGM.currentFile.filename,JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.CANCEL_OPTION) return false;
 			if (result == JOptionPane.NO_OPTION) return saveNewFile();
@@ -253,8 +257,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			int result = JOptionPane.YES_OPTION;
 			if (new File(filename).exists())
-				result = JOptionPane.showConfirmDialog(LGM.frame,
-						Messages.format("Listener.CONFIRM_REPLACE",filename), //$NON-NLS-1$
+				result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
+						"Listener.CONFIRM_REPLACE",filename), //$NON-NLS-1$
 						Messages.getString("Listener.CONFIRM_REPLACE_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
 						JOptionPane.WARNING_MESSAGE);
 			if (result == JOptionPane.YES_OPTION)
@@ -282,6 +286,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			case 701:
 			case 800:
 				return ".gmk";
+			case 810:
+				return ".gm81";
 			default:
 				throw new IllegalArgumentException(Integer.toString(version));
 			}
@@ -291,7 +297,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	public JPanel makeVersionRadio()
 		{
-		final int versions[] = { 800,701,600 };
+		final int versions[] = { 810,800,701,600 };
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p,BoxLayout.PAGE_AXIS));
 		ButtonGroup bg = new ButtonGroup();

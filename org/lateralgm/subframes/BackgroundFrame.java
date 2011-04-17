@@ -14,6 +14,7 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
@@ -307,19 +308,16 @@ public class BackgroundFrame extends ResourceFrame<Background,PBackground> imple
 			}
 		if (e.getSource() == edit)
 			{
-			if (Prefs.useExternalBackgroundEditor)
+			try
 				{
-				try
-					{
-					if (editor == null)
-						new BackgroundEditor();
-					else
-						editor.start();
-					}
-				catch (Exception ex)
-					{
-					ex.printStackTrace();
-					}
+				if (editor == null)
+					new BackgroundEditor();
+				else
+					editor.start();
+				}
+			catch (IOException ex)
+				{
+				ex.printStackTrace();
 				}
 			return;
 			}
@@ -350,10 +348,11 @@ public class BackgroundFrame extends ResourceFrame<Background,PBackground> imple
 				res.setBackgroundImage(bi);
 				imageChanged = true;
 				}
-			File f = File.createTempFile(res.getName(),".png",LGM.tempDir);
+			File f = File.createTempFile(res.getName(),
+					"." + Prefs.externalBackgroundExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
 			FileOutputStream out = new FileOutputStream(f);
-			ImageIO.write(bi,"png",out);
+			ImageIO.write(bi,Prefs.externalBackgroundExtension,out);
 			out.close();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this);
@@ -363,8 +362,18 @@ public class BackgroundFrame extends ResourceFrame<Background,PBackground> imple
 
 		public void start() throws IOException
 			{
-			Runtime.getRuntime().exec(
-					String.format(Prefs.externalBackgroundEditorCommand,monitor.file.getAbsolutePath()));
+			if (!Prefs.useExternalBackgroundEditor || Prefs.externalBackgroundEditorCommand == null)
+				try
+					{
+					Desktop.getDesktop().edit(monitor.file);
+					}
+				catch (UnsupportedOperationException e)
+					{
+					throw new UnsupportedOperationException("no internal or system background editor",e);
+					}
+			else
+				Runtime.getRuntime().exec(
+						String.format(Prefs.externalBackgroundEditorCommand,monitor.file.getAbsolutePath()));
 			}
 
 		public void stop()

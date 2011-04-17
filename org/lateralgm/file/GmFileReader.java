@@ -126,7 +126,7 @@ public final class GmFileReader
 						identifier));
 			int ver = in.read4();
 			f.fileVersion = ver;
-			if (ver != 530 && ver != 600 && ver != 701 && ver != 800)
+			if (ver != 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810)
 				{
 				String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$ //$NON-NLS-2$
 				throw new GmFormatException(f,msg);
@@ -146,7 +146,7 @@ public final class GmFileReader
 				}
 			else
 				f.gameSettings.gameId = in.read4();
-			in.skip(16); // unknown bytes following game id
+			in.read(f.gameSettings.dplayGUID); //16 bytes
 
 			readSettings(c);
 
@@ -758,7 +758,9 @@ public final class GmFileReader
 			font.put(PFont.FONT_NAME,in.readStr());
 			font.put(PFont.SIZE,in.read4());
 			in.readBool(font.properties,PFont.BOLD,PFont.ITALIC);
-			in.read4(font.properties,PFont.RANGE_MIN,PFont.RANGE_MAX);
+			font.put(PFont.RANGE_MIN,in.read2());
+			font.put(PFont.CHARSET,in.read2());
+			font.put(PFont.RANGE_MAX,in.read4());
 			in.endInflate();
 			}
 		}

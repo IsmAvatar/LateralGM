@@ -11,6 +11,7 @@
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -907,10 +908,6 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 	public void editSubimage(BufferedImage img)
 		{
 		if (img == null) return;
-		if (!Prefs.useExternalSpriteEditor)
-			{
-			throw new UnsupportedOperationException("no internal sprite editor");
-			}
 		try
 			{
 			ImageEditor ie = editors == null ? null : editors.get(img);
@@ -919,9 +916,9 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			else
 				ie.start();
 			}
-		catch (IOException e)
+		catch (IOException ex)
 			{
-			e.printStackTrace();
+			ex.printStackTrace();
 			}
 		}
 
@@ -974,13 +971,13 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		private BufferedImage image;
 		public final FileChangeMonitor monitor;
 
-		public ImageEditor(BufferedImage i) throws IOException
+		public ImageEditor(BufferedImage i) throws IOException,UnsupportedOperationException
 			{
 			image = i;
-			File f = File.createTempFile(res.getName(),".png",LGM.tempDir); //$NON-NLS-1$
+			File f = File.createTempFile(res.getName(),"." + Prefs.externalSpriteExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
 			FileOutputStream out = new FileOutputStream(f);
-			ImageIO.write(i,"png",out); //$NON-NLS-1$
+			ImageIO.write(i,Prefs.externalSpriteExtension,out); //$NON-NLS-1$
 			out.close();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this,true);
@@ -989,10 +986,20 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 			start();
 			}
 
-		public void start() throws IOException
+		public void start() throws IOException,UnsupportedOperationException
 			{
-			Runtime.getRuntime().exec(
-					String.format(Prefs.externalSpriteEditorCommand,monitor.file.getAbsolutePath()));
+			if (!Prefs.useExternalSpriteEditor || Prefs.externalSpriteEditorCommand == null)
+				try
+					{
+					Desktop.getDesktop().edit(monitor.file);
+					}
+				catch (UnsupportedOperationException e)
+					{
+					throw new UnsupportedOperationException("no internal or system sprite editor",e);
+					}
+			else
+				Runtime.getRuntime().exec(
+						String.format(Prefs.externalSpriteEditorCommand,monitor.file.getAbsolutePath()));
 			}
 
 		public void stop()

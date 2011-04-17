@@ -45,6 +45,7 @@ public class GameSettings
 
 	//Properties
 	public int gameId; // randomized in GmFile constructor
+	public byte dplayGUID[] = new byte[16]; // 16 bytes, randomized with gameId
 	public boolean startFullscreen = false;
 	public boolean interpolate = false;
 	public boolean dontDrawBorder = false;
@@ -84,7 +85,7 @@ public class GameSettings
 	public String version = "100";
 	public double lastChanged = GmFile.longTimeToGmTime(System.currentTimeMillis());
 	public String information = ""; //$NON-NLS-1$
-	
+
 	//FIXME: Includes information moved
 	public int includeFolder = GameSettings.INCLUDE_MAIN;
 	public boolean overwriteExisting = false;

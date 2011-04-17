@@ -12,8 +12,10 @@
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -133,19 +135,16 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 		{
 		if (e.getSource() == edit)
 			{
-			if (Prefs.useExternalScriptEditor)
+			try
 				{
-				try
-					{
-					if (editor == null)
-						new ScriptEditor();
-					else
-						editor.start();
-					}
-				catch (Exception ex)
-					{
-					ex.printStackTrace();
-					}
+				if (editor == null)
+					new ScriptEditor();
+				else
+					editor.start();
+				}
+			catch (IOException ex)
+				{
+				ex.printStackTrace();
 				}
 			return;
 			}
@@ -158,7 +157,7 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 
 		public ScriptEditor() throws IOException
 			{
-			File f = File.createTempFile(res.getName(),".gml",LGM.tempDir);
+			File f = File.createTempFile(res.getName(),"." + Prefs.externalScriptExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
 			FileWriter out = new FileWriter(f);
 			out.write((String) res.get(PScript.CODE));
@@ -171,8 +170,22 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 
 		public void start() throws IOException
 			{
-			Runtime.getRuntime().exec(
-					String.format(Prefs.externalScriptEditorCommand,monitor.file.getAbsolutePath()));
+			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
+				try
+					{
+					System.out.println(Desktop.getDesktop());
+					Desktop d = Desktop.getDesktop();
+					//					Desktop.Action.EDIT;
+					//					Toolkit.getDefaultToolkit().createDesktopPeer(d);
+					Desktop.getDesktop().edit(monitor.file);
+					}
+				catch (UnsupportedOperationException e)
+					{
+					throw new UnsupportedOperationException("no internal or system script editor",e);
+					}
+			else
+				Runtime.getRuntime().exec(
+						String.format(Prefs.externalScriptEditorCommand,monitor.file.getAbsolutePath()));
 			}
 
 		public void stop()

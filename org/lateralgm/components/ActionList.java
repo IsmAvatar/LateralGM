@@ -669,11 +669,11 @@ public class ActionList extends JList
 				{
 				this.list = list;
 				setOpaque(true);
+				setBackground(selected ? list.getSelectionBackground() : list.getBackground());
+				setForeground(selected ? list.getSelectionForeground() : list.getForeground());
 				LibAction la = a.getLibAction();
 				if (la.actImage == null)
-					{
 					setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
-					}
 				else
 					{
 					StringBuilder sb = new StringBuilder("<html>");

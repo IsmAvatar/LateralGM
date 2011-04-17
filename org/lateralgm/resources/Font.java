@@ -18,11 +18,11 @@ public class Font extends Resource<Font,Font.PFont>
 	{
 	public enum PFont
 		{
-		FONT_NAME,SIZE,BOLD,ITALIC,RANGE_MIN,RANGE_MAX
+		FONT_NAME,SIZE,BOLD,ITALIC,CHARSET,RANGE_MIN,RANGE_MAX
 		}
 
 	private static final EnumMap<PFont,Object> DEFS = PropertyMap.makeDefaultMap(PFont.class,"Arial",
-			12,false,false,32,127);
+			12,false,false,0,32,127);
 
 	public Font()
 		{
