@@ -1423,7 +1423,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 					public void internalFrameClosed(InternalFrameEvent e)
 						{
 						CodeFrame f = ((CodeFrame) e.getSource());
-						codeFrames.remove(f.code);
+						codeFrames.remove(f.codeHolder);
 						f.removeInternalFrameListener(this);
 						}
 				});

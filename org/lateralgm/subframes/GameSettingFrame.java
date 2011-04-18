@@ -1223,7 +1223,13 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		g.frontLoadBar = frontLoadImage;
 		g.scaleProgressBar = scaleProgressBar.isSelected();
 		g.gameIcon = gameIcon;
-		g.gameId = gameId.getIntValue();
+
+		int newId = gameId.getIntValue();
+		if (g.gameId != newId)
+			{
+			g.gameId = gameId.getIntValue();
+			new Random().nextBytes(g.dplayGUID);
+			}
 
 		//Constants
 		cModel.removeEmptyConstants();

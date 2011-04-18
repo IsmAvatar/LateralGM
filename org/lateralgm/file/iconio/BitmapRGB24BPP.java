@@ -34,8 +34,8 @@ public class BitmapRGB24BPP extends AbstractBitmapRGB
 			for (int lColNo = 0; lColNo < getWidth(); lColNo++)
 				{
 				// BGR -> RGB, 8 bits per component.
-				samples[lOutputPos++] = lRow[lRowByte++] + (lRow[lRowByte++] << 8)
-						+ (lRow[lRowByte++] << 16);
+				samples[lOutputPos++] = (lRow[lRowByte++] & 0xff) + ((lRow[lRowByte++] & 0xff) << 8)
+						+ ((lRow[lRowByte++] & 0xff) << 16);
 				}
 			}
 		}

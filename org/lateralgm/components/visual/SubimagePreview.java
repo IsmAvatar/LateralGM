@@ -110,7 +110,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 	protected void processMouseMotionEvent(MouseEvent e)
 		{
-		if (e.getID() == MouseEvent.MOUSE_DRAGGED && (e.getModifiers() | MouseEvent.BUTTON1_MASK) != 0)
+		if (e.getID() == MouseEvent.MOUSE_DRAGGED && (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)
 			setBoundedOrigin(e.getX(),e.getY());
 		super.processMouseMotionEvent(e);
 		}

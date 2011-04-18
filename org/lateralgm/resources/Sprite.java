@@ -22,6 +22,7 @@ import java.util.EnumMap;
 
 import javax.imageio.ImageIO;
 
+import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
@@ -50,7 +51,7 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 		}
 
 	private static final EnumMap<PSprite,Object> DEFS = PropertyMap.makeDefaultMap(PSprite.class,
-			true,MaskShape.PRECISE,0,false,false,true,0,0,BBMode.AUTO,0,31,0,31);
+			false,MaskShape.PRECISE,0,false,false,true,0,0,BBMode.AUTO,0,31,0,31);
 
 	private SoftReference<BufferedImage> imageCache = null;
 
@@ -344,6 +345,7 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 	@Override
 	protected PropertyMap<PSprite> makePropertyMap()
 		{
+		DEFS.put(PSprite.TRANSPARENT,LGM.currentFile.fileVersion <= 600);
 		return new PropertyMap<PSprite>(PSprite.class,this,DEFS);
 		}
 
