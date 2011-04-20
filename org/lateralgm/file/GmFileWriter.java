@@ -134,8 +134,8 @@ public final class GmFileWriter
 	public static void writeSettings(GmFile f, GmStreamEncoder out, long savetime) throws IOException
 		{
 		int ver = f.fileVersion;
-		ver = ver >= 800 ? 800 : ver >= 701 ? 702 : ver;
-		out.write4(ver);
+		ver = ver >= 810 ? 810 : ver >= 800 ? 800 : ver >= 701 ? 702 : ver;
+		out.write4(ver >= 800 ? 800 : ver);
 		if (ver == 800) out.beginDeflate();
 		GameSettings g = f.gameSettings;
 		out.writeBool(g.startFullscreen);
@@ -207,7 +207,7 @@ public final class GmFileWriter
 		out.writeBool(g.displayErrors);
 		out.writeBool(g.writeToLog);
 		out.writeBool(g.abortOnError);
-		out.writeBool(g.treatUninitializedAs0);
+		out.write4((g.treatUninitializedAs0 ? 1 : 0) | (g.errorOnArgs && ver >= 810 ? 2 : 0));
 		out.writeStr(g.author);
 		if (ver <= 600)
 			{
@@ -509,24 +509,29 @@ public final class GmFileWriter
 	public static void writeFonts(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		int ver = f.fileVersion;
-		ver = ver >= 800 ? 800 : 540;
-		out.write4(ver);
+		out.write4(ver >= 800 ? 800 : 540);
 		out.write4(f.fonts.lastId + 1);
 		for (int i = 0; i <= f.fonts.lastId; i++)
 			{
-			if (ver == 800) out.beginDeflate();
+			if (ver >= 800) out.beginDeflate();
 			Font font = f.fonts.getUnsafe(i);
 			out.writeBool(font != null);
 			if (font != null)
 				{
 				out.writeStr(font.getName());
-				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
-				out.write4(ver);
+				if (ver >= 800) out.writeD(f.gameSettings.lastChanged);
+				out.write4(ver >= 800 ? 800 : 540);
 				out.writeStr(font.properties,PFont.FONT_NAME);
 				out.write4(font.properties,PFont.SIZE);
 				out.writeBool(font.properties,PFont.BOLD,PFont.ITALIC);
-				out.write2((Integer) font.get(PFont.RANGE_MIN));
-				out.write2((Integer) font.get(PFont.CHARSET));
+				if (ver >= 810)
+					{
+					out.write2((Integer) font.get(PFont.RANGE_MIN));
+					out.write((Integer) font.get(PFont.CHARSET));
+					out.write((Integer) font.get(PFont.ANTIALIAS));
+					}
+				else
+					out.write4(font.properties,PFont.RANGE_MIN);
 				out.write4(font.properties,PFont.RANGE_MAX);
 				}
 			out.endDeflate();

@@ -712,6 +712,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	JCheckBox writeToLog;
 	JCheckBox abortOnError;
 	JCheckBox treatUninitialisedAs0;
+	JCheckBox errorOnArgs;
 
 	private JPanel makeErrorPane()
 		{
@@ -730,13 +731,15 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		abortOnError = new JCheckBox(t,g.abortOnError);
 		t = Messages.getString("GameSettingFrame.UNINITZERO"); //$NON-NLS-1$
 		treatUninitialisedAs0 = new JCheckBox(t,g.treatUninitializedAs0);
+		t = Messages.getString("GameSettingFrame.ERRORS_ARGS"); //$NON-NLS-1$
+		errorOnArgs = new JCheckBox(t,g.errorOnArgs);
 
-		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(displayErrors).addComponent(writeToLog)
-		/**/.addComponent(abortOnError).addComponent(treatUninitialisedAs0));
+		layout.setHorizontalGroup(layout.createParallelGroup().
+		/**/addComponent(displayErrors).addComponent(writeToLog).addComponent(abortOnError).
+		/**/addComponent(treatUninitialisedAs0).addComponent(errorOnArgs));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(displayErrors).addComponent(writeToLog)
-		/**/.addComponent(abortOnError).addComponent(treatUninitialisedAs0));
+		/**/.addComponent(displayErrors).addComponent(writeToLog).addComponent(abortOnError).
+		/**/addComponent(treatUninitialisedAs0).addComponent(errorOnArgs));
 		return panel;
 		}
 
@@ -1246,6 +1249,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		g.writeToLog = writeToLog.isSelected();
 		g.abortOnError = abortOnError.isSelected();
 		g.treatUninitializedAs0 = treatUninitialisedAs0.isSelected();
+		g.errorOnArgs = errorOnArgs.isSelected();
 
 		//Info
 		g.author = author.getText();
@@ -1319,6 +1323,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		writeToLog.setSelected(g.writeToLog);
 		abortOnError.setSelected(g.abortOnError);
 		treatUninitialisedAs0.setSelected(g.treatUninitializedAs0);
+		errorOnArgs.setSelected(g.errorOnArgs);
 
 		//Info
 		author.setText(g.author);

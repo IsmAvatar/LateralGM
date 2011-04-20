@@ -81,6 +81,7 @@ public class GameSettings
 	public boolean writeToLog = false;
 	public boolean abortOnError = false;
 	public boolean treatUninitializedAs0 = false;
+	public boolean errorOnArgs = true;
 	public String author = ""; //$NON-NLS-1$
 	public String version = "100";
 	public double lastChanged = GmFile.longTimeToGmTime(System.currentTimeMillis());

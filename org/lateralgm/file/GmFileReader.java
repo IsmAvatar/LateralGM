@@ -19,6 +19,7 @@ import java.util.zip.DataFormatException;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
+import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
@@ -327,7 +328,9 @@ public final class GmFileReader
 		g.displayErrors = in.readBool();
 		g.writeToLog = in.readBool();
 		g.abortOnError = in.readBool();
-		g.treatUninitializedAs0 = in.readBool();
+		int errors = in.read4();
+		g.treatUninitializedAs0 = ((errors & 0x01) != 0);
+		g.errorOnArgs = ((errors & 0x02) != 0);
 		g.author = in.readStr();
 		if (ver > 600)
 			g.version = in.readStr();
@@ -759,7 +762,10 @@ public final class GmFileReader
 			font.put(PFont.SIZE,in.read4());
 			in.readBool(font.properties,PFont.BOLD,PFont.ITALIC);
 			font.put(PFont.RANGE_MIN,in.read2());
-			font.put(PFont.CHARSET,in.read2());
+			font.put(PFont.CHARSET,in.read());
+			int aa = in.read();
+			if (aa == 0 && LGM.currentFile.fileVersion < 810) aa = 3;
+			font.put(PFont.ANTIALIAS,aa);
 			font.put(PFont.RANGE_MAX,in.read4());
 			in.endInflate();
 			}
