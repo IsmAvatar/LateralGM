@@ -90,6 +90,10 @@ public final class LGM
 		{
 		//java6u10 regression causes graphical xor to be very slow
 		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
+		//Put the Mac menu bar where it belongs (ignored by other systems)
+		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
+		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
+		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
 		//annoyingly, Metal bolds almost all components by default. This unbolds them.
 		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
 

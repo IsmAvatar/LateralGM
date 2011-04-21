@@ -178,11 +178,6 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		tool.add(new JLabel(Messages.getString("SpriteFrame.NAME"))); //$NON-NLS-1$
 		tool.add(name);
 
-		transparent = new JCheckBox(Messages.getString("SpriteFrame.TRANSPARENT")); //$NON-NLS-1$
-		plf.make(transparent,PSprite.TRANSPARENT);
-		transparent.setOpaque(false); //prevent white background
-		tool.add(transparent);
-
 		return tool;
 		}
 
@@ -370,6 +365,9 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		plf.make(smooth,PSprite.SMOOTH_EDGES);
 		preload = new JCheckBox(Messages.getString("SpriteFrame.PRELOAD")); //$NON-NLS-1$
 		plf.make(preload,PSprite.PRELOAD);
+		transparent = new JCheckBox(Messages.getString("SpriteFrame.TRANSPARENT")); //$NON-NLS-1$
+		transparent.setToolTipText(Messages.getString("SpriteFrame.TRANSP_TIP")); //$NON-NLS-1$
+		plf.make(transparent,PSprite.TRANSPARENT);
 
 		JPanel origin = makeOriginPane();
 
@@ -381,6 +379,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		/*	*/.addComponent(height))
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
+		/**/.addComponent(transparent)
 		/**/.addComponent(origin));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(subCount)
@@ -390,6 +389,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		/*	*/.addComponent(height))
 		/**/.addComponent(smooth)
 		/**/.addComponent(preload)
+		/**/.addComponent(transparent)
 		/**/.addComponent(origin));
 
 		return pane;

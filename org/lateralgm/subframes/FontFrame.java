@@ -46,6 +46,7 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 	public JComboBox fonts;
 	public NumberField size;
 	public JCheckBox italic, bold;
+	public JComboBox aa;
 	public NumberField charMin, charMax;
 	public JLabel preview;
 	public JTextField previewText;
@@ -81,6 +82,15 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 		plf.make(bold,PFont.BOLD);
 		italic = new JCheckBox(Messages.getString("FontFrame.ITALIC")); //$NON-NLS-1$
 		plf.make(italic,PFont.ITALIC);
+
+		String aaprefix = "FontFrame.AA"; //$NON-NLS-1$
+		String aalevels[] = new String[3];
+		for (int i = 0; i < aalevels.length; i++)
+			aalevels[i] = Messages.getString(aaprefix + i);
+		aa = new JComboBox(aalevels);
+		plf.make(aa,PFont.ANTIALIAS);
+		JLabel aaLabel = new JLabel(Messages.getString("FontFrame.ANTIALIAS")); //$NON-NLS-1$
+		//		aa.addActionListener(this);
 
 		JPanel crPane = makeCRPane();
 
@@ -124,7 +134,8 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 		/*				*/.addComponent(size)))
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(bold)
-		/*		*/.addComponent(italic))
+		/*		*/.addComponent(italic)
+		/*		*/.addComponent(aa).addComponent(aaLabel))
 		/**/.addComponent(crPane)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(lPreview)
@@ -141,9 +152,10 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lSize)
 		/*		*/.addComponent(size))
-		/**/.addGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(bold)
-		/*		*/.addComponent(italic))
+		/*		*/.addComponent(italic)
+		/*		*/.addComponent(aa).addComponent(aaLabel))
 		/**/.addComponent(crPane)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lPreview)
@@ -264,7 +276,7 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 		preview.setFont(new java.awt.Font(fn,makeStyle(b,i),fontSize));
 		}
 
-	private static int makeStyle(boolean bold, boolean italic)
+	public static int makeStyle(boolean bold, boolean italic)
 		{
 		return (italic ? java.awt.Font.ITALIC : 0) | (bold ? java.awt.Font.BOLD : 0);
 		}
