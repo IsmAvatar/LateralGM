@@ -136,7 +136,7 @@ public final class GmFileWriter
 		int ver = f.fileVersion;
 		ver = ver >= 810 ? 810 : ver >= 800 ? 800 : ver >= 701 ? 702 : ver;
 		out.write4(ver >= 800 ? 800 : ver);
-		if (ver == 800) out.beginDeflate();
+		if (ver >= 800) out.beginDeflate();
 		GameSettings g = f.gameSettings;
 		out.writeBool(g.startFullscreen);
 		if (ver >= 600) out.writeBool(g.interpolate);
