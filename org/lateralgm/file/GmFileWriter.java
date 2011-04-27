@@ -342,7 +342,7 @@ public final class GmFileWriter
 	public static void writeSprites(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		int ver = f.fileVersion;
-		ver = ver >= 800 ? 800 : ver > 542 ? 542 : 400;
+		ver = ver >= 800 ? 800 : ver >= 542 ? 542 : 400;
 		out.write4(ver == 800 ? 800 : 400);
 		out.write4(f.sprites.lastId + 1);
 		for (int i = 0; i <= f.sprites.lastId; i++)
@@ -691,7 +691,7 @@ public final class GmFileWriter
 	public static void writeIncludedFiles(GmFile f, GmStreamEncoder out) throws IOException
 		{
 		int ver = f.fileVersion;
-		ver = ver > 800 ? 800 : ver > 620 ? 620 : 0;
+		ver = ver > 800 ? 800 : ver >= 620 ? 620 : 0;
 		if (ver < 620) return;
 
 		out.write4(ver);
