@@ -43,6 +43,7 @@ import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.resources.Sound.PSound;
+import org.lateralgm.resources.Sprite.BBMode;
 import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
@@ -529,13 +530,15 @@ public final class GmFileReader
 				{
 				w = in.read4();
 				h = in.read4();
+				//temporarily set bbmode to manual so bbox doesn't get recalculated until bbmode is ready
+				spr.put(PSprite.BB_MODE,BBMode.MANUAL);
 				in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
-				spr.put(PSprite.TRANSPARENT,in.readBool());
+				spr.put(PSprite.TRANSPARENT,in.readBool()); //XXX: tends to cause an update...
 				if (ver > 400)
 					{
 					in.readBool(spr.properties,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
 					}
-				spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
+				spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]); //now bbmode is ready
 				boolean precise = in.readBool();
 				spr.put(PSprite.SHAPE,precise ? Sprite.MaskShape.PRECISE : Sprite.MaskShape.RECTANGLE);
 				if (ver == 400)

@@ -358,8 +358,10 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 				{
 				case TRANSPARENT:
 					fireUpdate();
+					break;
 				case BB_MODE:
 					updateBoundingBox();
+					break;
 				}
 			}
 		}
