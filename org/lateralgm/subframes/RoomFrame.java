@@ -1142,10 +1142,10 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(tools)
 		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(tabs)
+		/*	*/.addComponent(tabs,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/*	*/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(editorPane,240,640,DEFAULT_SIZE)
-		/*		*/.addComponent(stats,0,DEFAULT_SIZE,DEFAULT_SIZE))));
+		/*		*/.addComponent(stats))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(tools)
 		/**/.addGroup(layout.createParallelGroup()
@@ -1153,6 +1153,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		/*	*/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(editorPane,DEFAULT_SIZE,480,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
+
 		if (res.get(PRoom.REMEMBER_WINDOW_SIZE))
 			{
 			int h = res.get(PRoom.EDITOR_HEIGHT);
