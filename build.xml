@@ -25,13 +25,13 @@
 		<format property="time" pattern="yyyyMMdd'T'hhmm'Z'" timezone="GMT" />
 	</tstamp>
 
-	<target name="prepared-jar" depends="svn" description="Prepares a jar for distribution without updating the splash screen">
+	<target name="prepared-jar" depends="compile" description="Prepares a jar for distribution without updating the splash screen">
 		<antcall target="initialize" />
 		<antcall target="jar-all" />
 		<antcall target="revert" />
 	</target>
 
-	<target name="build" depends="batik,svn" description="Fully prepares a jar for distribution and updates the splash screen">
+	<target name="build" description="Fully prepares a jar for distribution and updates the splash screen">
 		<antcall target="build-all" />
 	</target>
 
@@ -43,7 +43,7 @@
 		<jar destfile="${jar}" update="true" manifest="META-INF/MANIFEST.MF" basedir="." />
 	</target>
 
-	<target name="build-all" depends="batik,svn" description="Fully prepares a jar for distribution and updates the splash screen">
+	<target name="build-all" depends="batik,compile" description="Fully prepares a jar for distribution and updates the splash screen">
 		<antcall target="initialize" />
 		<antcall target="build-image" />
 		<antcall target="jar-all" />
@@ -60,13 +60,13 @@
 		</jar>
 	</target>
 
-	<target name="build-src" depends="svn" description="Prepares a source-only jar">
+	<target name="build-src" description="Prepares a source-only jar">
 		<antcall target="initialize" />
 		<antcall target="jar-src" />
 		<antcall target="revert" />
 	</target>
 
-	<target name="jar-bin" description="Constructs a raw jar of binary-only files">
+	<target name="jar-bin" depends="compile" description="Constructs a raw jar of binary-only files">
 		<jar destfile="${jar}" update="true" manifest="META-INF/MANIFEST.MF">
 			<exclude name="**/*.java" />
 			<exclude name="**/*.svg" />
@@ -79,7 +79,7 @@
 		</jar>
 	</target>
 
-	<target name="build-bin" depends="batik,svn" description="Fully prepares a binary-only jar for distribution">
+	<target name="build-bin" depends="batik,svn,compile" description="Fully prepares a binary-only jar for distribution">
 		<antcall target="initialize" />
 		<antcall target="build-image" />
 		<antcall name="jar-bin" />
@@ -101,8 +101,7 @@
 	</target>
 
 	<!-- Usually you should leave this up to a higher-level target,
-		due to the backup, replace, and revert calls
-	-->
+		due to the backup, replace, and revert calls -->
 	<target name="build-image" depends="batik">
 		<rasterize result="image/png" height="240" width="480" src="${svg}" dest="${png}" />
 	</target>
