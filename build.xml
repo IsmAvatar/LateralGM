@@ -95,7 +95,7 @@
 
 	<target name="compile" unless="eclipse.running">
 		<!-- You shouldn't need to call this in eclipse -->
-		<javac sourcepath="" classpath="" srcdir="${basedir}" includeantruntime="no">
+		<javac source="1.6" target="1.6" sourcepath="" classpath="" srcdir="${basedir}" includeantruntime="no">
 			<include name="**/*.java" />
 		</javac>
 	</target>
