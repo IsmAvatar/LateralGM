@@ -51,7 +51,7 @@
 	</target>
 
 	<target name="jar-src" description="Constructs a raw jar of source-only files">
-		<jar destfile="${jar}" update="true" manifest="META-INF/MANIFEST.MF">
+		<jar destfile="${jar}" update="true" manifest="META-INF/MANIFEST.MF" basedir=".">
 			<exclude name="**/*.class" />
 			<exclude name="**/lgm-logo.png" />
 			<exclude name="**/lgm-splash.png" />
