@@ -67,7 +67,7 @@
 	</target>
 
 	<target name="jar-bin" depends="compile" description="Constructs a raw jar of binary-only files">
-		<jar destfile="${jar}" update="true" manifest="META-INF/MANIFEST.MF">
+		<jar destfile="${jar}" update="true" manifest="META-INF/MANIFEST.MF" basedir=".">
 			<exclude name="**/*.java" />
 			<exclude name="**/*.svg" />
 			<exclude name="**/.checkstyle" />
