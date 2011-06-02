@@ -36,6 +36,7 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
+import org.lateralgm.ui.swing.propertylink.ComboBoxLink.IndexComboBoxConversion;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
@@ -72,7 +73,7 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 		fonts = new JComboBox(
 				GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
 		fonts.setEditable(true);
-		plf.make(fonts,PFont.FONT_NAME);
+		plf.make(fonts,PFont.FONT_NAME,null);
 
 		JLabel lSize = new JLabel(Messages.getString("FontFrame.SIZE")); //$NON-NLS-1$
 		size = new NumberField(1,99);
@@ -88,7 +89,7 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 		for (int i = 0; i < aalevels.length; i++)
 			aalevels[i] = Messages.getString(aaprefix + i);
 		aa = new JComboBox(aalevels);
-		plf.make(aa,PFont.ANTIALIAS);
+		plf.make(aa,PFont.ANTIALIAS,new IndexComboBoxConversion());
 		JLabel aaLabel = new JLabel(Messages.getString("FontFrame.ANTIALIAS")); //$NON-NLS-1$
 		//		aa.addActionListener(this);
 

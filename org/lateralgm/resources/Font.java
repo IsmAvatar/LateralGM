@@ -22,7 +22,7 @@ public class Font extends Resource<Font,Font.PFont>
 		}
 
 	private static final EnumMap<PFont,Object> DEFS = PropertyMap.makeDefaultMap(PFont.class,"Arial",
-			12,false,false,3,0,32,127);
+			12,false,false,2,0,32,127);
 
 	public Font()
 		{
