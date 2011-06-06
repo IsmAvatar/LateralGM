@@ -315,7 +315,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				if (added && n.isLeaf() && f != null && n.isValid())
 					{
 					f.addEvent(new Event(n.mainId,n.eventId,n.other));
-					f.toFront();
+					f.toTop();
 					}
 				}
 			}

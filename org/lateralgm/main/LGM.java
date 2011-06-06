@@ -200,8 +200,7 @@ public final class LGM
 			System.err.println("Unable to read icons.properties"); //$NON-NLS-1$
 			}
 		String filename = iconProps.getProperty(key,""); //$NON-NLS-1$
-		if (filename != "") //$NON-NLS-1$
-			return findIcon(filename);
+		if (!filename.isEmpty()) return findIcon(filename);
 		return null;
 		}
 

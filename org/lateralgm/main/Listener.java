@@ -635,7 +635,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				addResource(tree,node.kind);
 				return;
 				}
-			if (com.equals("COPY")) //$NON-NLS-1$
+			if (com.equals("DUPLICATE")) //$NON-NLS-1$
 				{
 				ResourceList<?> rl = LGM.currentFile.getList(node.kind);
 				Resource<?,?> resource = null;
