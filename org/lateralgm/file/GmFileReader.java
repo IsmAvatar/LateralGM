@@ -809,7 +809,7 @@ public final class GmFileReader
 				}
 			in.endInflate();
 			}
-		f.timelines.lastId = noTimelines;
+		f.timelines.lastId = noTimelines - 1;
 		}
 
 	private static void readGmObjects(GmFileContext c) throws IOException,GmFormatException
@@ -871,7 +871,7 @@ public final class GmFileReader
 				}
 			in.endInflate();
 			}
-		f.gmObjects.lastId = noGmObjects;
+		f.gmObjects.lastId = noGmObjects - 1;
 		}
 
 	private static void readRooms(GmFileContext c) throws IOException,GmFormatException
@@ -968,7 +968,7 @@ public final class GmFileReader
 			in.read4(rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
 			in.endInflate();
 			}
-		f.rooms.lastId = noRooms;
+		f.rooms.lastId = noRooms - 1;
 		}
 
 	private static void readIncludedFiles(GmFileContext c) throws IOException,GmFormatException
