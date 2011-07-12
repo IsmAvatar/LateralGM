@@ -195,6 +195,32 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		plf.make(gridIso,PRoom.ISOMETRIC);
 		tool.add(gridIso);
 
+		//FIXME: I slapped this in to appease people. It seems to work very well,
+		//but I'm not sure how it might affect/conflict with the Settings > Grid.
+		JLabel lGX = new JLabel(Messages.getString("RoomFrame.GRID_X")); //$NON-NLS-1$
+		sGX = new NumberField(0,999);
+		prelf.make(sGX,PRoomEditor.GRID_OFFSET_X);
+		JLabel lGY = new JLabel(Messages.getString("RoomFrame.GRID_Y")); //$NON-NLS-1$
+		sGY = new NumberField(0,999);
+		prelf.make(sGY,PRoomEditor.GRID_OFFSET_Y);
+		JLabel lGW = new JLabel(Messages.getString("RoomFrame.GRID_W")); //$NON-NLS-1$
+		sGW = new NumberField(1,999);
+		plf.make(sGW,PRoom.SNAP_X);
+		JLabel lGH = new JLabel(Messages.getString("RoomFrame.GRID_H")); //$NON-NLS-1$
+		sGH = new NumberField(1,999);
+		plf.make(sGH,PRoom.SNAP_Y);
+		
+		tool.add(lGX);
+		tool.add(sGX);
+		tool.add(lGY);
+		tool.add(sGY);
+		tool.add(lGW);
+		tool.add(sGW);
+		tool.add(lGH);
+		tool.add(sGH);
+				
+
+		tool.addSeparator();
 		sShowMenu = makeShowMenu();
 		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
 		sShow.addActionListener(this);

@@ -522,6 +522,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		if (com.endsWith(".ABOUT")) //$NON-NLS-1$
 			{
 			new AboutBox(LGM.frame).setVisible(true);
+			return;
 			}
 		}
 

@@ -56,7 +56,7 @@ public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
 		}
 
 	private static final EnumMap<PRoom,Object> DEFS = PropertyMap.makeDefaultMap(PRoom.class,"",640,
-			480,16,16,false,30,false,Color.BLACK,true,"",true,200,200,true,true,true,true,true,false,
+			480,16,16,false,30,false,Color.LIGHT_GRAY,true,"",true,200,200,true,true,true,true,true,false,
 			true,true,TAB_OBJECTS,0,0,false);
 
 	public Room()

@@ -231,8 +231,18 @@ public final class LGM
 		tool.add(makeButton("LGM.NEW")); //$NON-NLS-1$
 		tool.add(makeButton("LGM.OPEN")); //$NON-NLS-1$
 		tool.add(makeButton("LGM.SAVE")); //$NON-NLS-1$
-		tool.add(new JToolBar.Separator());
+		tool.addSeparator();
 		tool.add(makeButton("LGM.SAVEAS")); //$NON-NLS-1$
+		tool.addSeparator();
+		tool.add(makeButton("Toolbar.ADD_SPRITE")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.ADD_SOUND")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.ADD_BACKGROUND")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.ADD_PATH")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.ADD_SCRIPT")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.ADD_FONT")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.ADD_TIMELINE")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.ADD_OBJECT")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.ADD_ROOM")); //$NON-NLS-1$
 		tool.addSeparator();
 		tool.add(makeButton("LGM.EVENT_BUTTON")); //$NON-NLS-1$
 		return tool;

@@ -18,13 +18,20 @@ import java.awt.event.ActionEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -80,6 +87,7 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 	public boolean modified = false;
 	private CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_SOUND_DIR");
 	private SoundEditor editor;
+	private Clip clip;
 
 	public SoundFrame(Sound res, ResNode node)
 		{
@@ -98,7 +106,8 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 		layout.setAutoCreateContainerGaps(true);
 		content.setLayout(layout);
 
-		String s[] = { ".wav",".mid",".mp3" };
+		String s[] = { ".wav",".mid",".mp3",".ogg",".mod",".xm",".s3m",".it",".nfs",".gfs",".minigfs",
+				".flac" };
 		String[] d = { Messages.getString("SoundFrame.FORMAT_SOUND"), //$NON-NLS-1$
 				Messages.getString("SoundFrame.FORMAT_WAV"), //$NON-NLS-1$
 				Messages.getString("SoundFrame.FORMAT_MID"), //$NON-NLS-1$
@@ -300,13 +309,13 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 				}
 			try
 				{
-				loadSound(f);
+				data = fileToBytes(f);
 				String fn = f.getName();
 				res.put(PSound.FILE_NAME,fn);
 				String ft = CustomFileFilter.getExtension(fn);
 				if (ft == null) ft = "";
 				res.put(PSound.FILE_TYPE,ft);
-				filename.setText(Messages.format("SoundFrame.FILE",fn));
+				filename.setText(Messages.format("SoundFrame.FILE",fn)); //$NON-NLS-1$
 				}
 			catch (Exception ex)
 				{
@@ -318,10 +327,32 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 			}
 		if (e.getSource() == play)
 			{
+			try
+				{
+				InputStream source = new ByteArrayInputStream(data);
+				AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(source));
+				//Clip c = AudioSystem.getClip() generates a bogus format instead of using ais.getFormat.
+				clip = (Clip) AudioSystem.getLine(new DataLine.Info(Clip.class,ais.getFormat()));
+				clip.open(ais);
+				clip.start();
+				}
+			catch (UnsupportedAudioFileException e1)
+				{
+				e1.printStackTrace();
+				}
+			catch (IOException e1)
+				{
+				e1.printStackTrace();
+				}
+			catch (LineUnavailableException e1)
+				{
+				e1.printStackTrace();
+				}
 			return;
 			}
 		if (e.getSource() == stop)
 			{
+			if (clip != null) clip.stop();
 			return;
 			}
 		if (e.getSource() == store)
@@ -329,17 +360,10 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			try
 				{
-				ByteArrayInputStream in = new ByteArrayInputStream(data);
 				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(
 						fc.getSelectedFile()));
-				int val = in.read();
-				while (val != -1)
-					{
-					out.write(val);
-					val = in.read();
-					}
+				out.write(data);
 				out.close();
-				in.close();
 				}
 			catch (IOException ex)
 				{
@@ -370,19 +394,23 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 		super.actionPerformed(e);
 		}
 
-	public void loadSound(File f) throws IOException
+	public static byte[] fileToBytes(File f) throws IOException
 		{
-		BufferedInputStream in = new BufferedInputStream(new FileInputStream(f));
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		int val = in.read();
-		while (val != -1)
-			{
-			out.write(val);
-			val = in.read();
-			}
-		data = out.toByteArray();
-		out.close();
+		InputStream in = new FileInputStream(f);
+		byte data[] = new byte[(int) f.length()];
+
+		// Read in the bytes
+		int offset = 0;
+		int numRead = 0;
+		while (offset < data.length && (numRead = in.read(data,offset,data.length - offset)) >= 0)
+			offset += numRead;
+
+		// Ensure all the bytes have been read in
+		if (offset < data.length) throw new EOFException(f.getName());
+
+		// Close the input stream and return bytes
 		in.close();
+		return data;
 		}
 
 	private class SoundEditor implements UpdateListener
@@ -434,7 +462,7 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 				case CHANGED:
 					try
 						{
-						loadSound(monitor.file);
+						data = fileToBytes(monitor.file);
 						}
 					catch (IOException ioe)
 						{
