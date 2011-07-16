@@ -345,8 +345,9 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 							clip.start();
 							try
 								{
-								while (clip.isActive())
+								do
 									Thread.sleep(99);
+								while (clip.isActive());
 								}
 							catch (InterruptedException e)
 								{
