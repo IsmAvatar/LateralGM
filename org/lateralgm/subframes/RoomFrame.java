@@ -122,7 +122,6 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 	private JButton oCreationCode;
 	//Settings
 	private JTextField sCaption;
-	private NumberField sWidth, sHeight, sSpeed, sGX, sGY, sGW, sGH;
 	private JCheckBox sPersistent;
 	private JButton sCreationCode, sShow;
 	private JPopupMenu sShowMenu;
@@ -195,30 +194,34 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		plf.make(gridIso,PRoom.ISOMETRIC);
 		tool.add(gridIso);
 
-		//FIXME: I slapped this in to appease people. It seems to work very well,
-		//but I'm not sure how it might affect/conflict with the Settings > Grid.
-		JLabel lGX = new JLabel(Messages.getString("RoomFrame.GRID_X")); //$NON-NLS-1$
-		sGX = new NumberField(0,999);
-		prelf.make(sGX,PRoomEditor.GRID_OFFSET_X);
-		JLabel lGY = new JLabel(Messages.getString("RoomFrame.GRID_Y")); //$NON-NLS-1$
-		sGY = new NumberField(0,999);
-		prelf.make(sGY,PRoomEditor.GRID_OFFSET_Y);
-		JLabel lGW = new JLabel(Messages.getString("RoomFrame.GRID_W")); //$NON-NLS-1$
-		sGW = new NumberField(1,999);
-		plf.make(sGW,PRoom.SNAP_X);
-		JLabel lGH = new JLabel(Messages.getString("RoomFrame.GRID_H")); //$NON-NLS-1$
-		sGH = new NumberField(1,999);
-		plf.make(sGH,PRoom.SNAP_Y);
-		
-		tool.add(lGX);
-		tool.add(sGX);
-		tool.add(lGY);
-		tool.add(sGY);
-		tool.add(lGW);
-		tool.add(sGW);
-		tool.add(lGH);
-		tool.add(sGH);
-				
+		// Add the grid sizers
+		JLabel lab = new JLabel(Messages.getString("RoomFrame.GRID_X")); //$NON-NLS-1$
+		NumberField nf = new NumberField(0,999);
+		nf.setMaximumSize(nf.getPreferredSize());
+		prelf.make(nf,PRoomEditor.GRID_OFFSET_X);
+		tool.add(lab);
+		tool.add(nf);
+
+		lab = new JLabel(Messages.getString("RoomFrame.GRID_Y")); //$NON-NLS-1$
+		nf = new NumberField(0,999);
+		nf.setMaximumSize(nf.getPreferredSize());
+		prelf.make(nf,PRoomEditor.GRID_OFFSET_Y);
+		tool.add(lab);
+		tool.add(nf);
+
+		lab = new JLabel(Messages.getString("RoomFrame.GRID_W")); //$NON-NLS-1$
+		nf = new NumberField(1,999);
+		nf.setMaximumSize(nf.getPreferredSize());
+		plf.make(nf,PRoom.SNAP_X);
+		tool.add(lab);
+		tool.add(nf);
+
+		lab = new JLabel(Messages.getString("RoomFrame.GRID_H")); //$NON-NLS-1$
+		nf = new NumberField(1,999);
+		nf.setMaximumSize(nf.getPreferredSize());
+		plf.make(nf,PRoom.SNAP_Y);
+		tool.add(lab);
+		tool.add(nf);
 
 		tool.addSeparator();
 		sShowMenu = makeShowMenu();
@@ -440,15 +443,15 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		plf.make(sCaption.getDocument(),PRoom.CAPTION);
 
 		JLabel lWidth = new JLabel(Messages.getString("RoomFrame.WIDTH")); //$NON-NLS-1$
-		sWidth = new NumberField(1,999999);
+		NumberField sWidth = new NumberField(1,999999);
 		plf.make(sWidth,PRoom.WIDTH);
 
 		JLabel lHeight = new JLabel(Messages.getString("RoomFrame.HEIGHT")); //$NON-NLS-1$
-		sHeight = new NumberField(1,999999);
+		NumberField sHeight = new NumberField(1,999999);
 		plf.make(sHeight,PRoom.HEIGHT);
 
 		JLabel lSpeed = new JLabel(Messages.getString("RoomFrame.SPEED")); //$NON-NLS-1$
-		sSpeed = new NumberField(1,9999);
+		NumberField sSpeed = new NumberField(1,9999);
 		plf.make(sSpeed,PRoom.SPEED);
 
 		String str = Messages.getString("RoomFrame.PERSISTENT"); //$NON-NLS-1$
@@ -508,16 +511,16 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		pg.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.GRID"))); //$NON-NLS-1$
 
 		JLabel lGX = new JLabel(Messages.getString("RoomFrame.GRID_X")); //$NON-NLS-1$
-		sGX = new NumberField(0,999);
+		NumberField sGX = new NumberField(0,999);
 		prelf.make(sGX,PRoomEditor.GRID_OFFSET_X);
 		JLabel lGY = new JLabel(Messages.getString("RoomFrame.GRID_Y")); //$NON-NLS-1$
-		sGY = new NumberField(0,999);
+		NumberField sGY = new NumberField(0,999);
 		prelf.make(sGY,PRoomEditor.GRID_OFFSET_Y);
 		JLabel lGW = new JLabel(Messages.getString("RoomFrame.GRID_W")); //$NON-NLS-1$
-		sGW = new NumberField(1,999);
+		NumberField sGW = new NumberField(1,999);
 		plf.make(sGW,PRoom.SNAP_X);
 		JLabel lGH = new JLabel(Messages.getString("RoomFrame.GRID_H")); //$NON-NLS-1$
-		sGH = new NumberField(1,999);
+		NumberField sGH = new NumberField(1,999);
 		plf.make(sGH,PRoom.SNAP_Y);
 		lr.setHorizontalGroup(lr.createSequentialGroup().addContainerGap()
 		/**/.addGroup(lr.createParallelGroup()
@@ -570,6 +573,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		taSource.addActionListener(this);
 		tSelect = new TileSelector();
 		tScroll = new JScrollPane(tSelect);
+		tScroll.setPreferredSize(tScroll.getSize());
 		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
 		prelf.make(tUnderlying,PRoomEditor.DELETE_UNDERLYING_TILES);
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.TILE_LAYER"));
@@ -595,7 +599,6 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		}
 
 	//XXX: Extract to own class?
-	//FIXME: Do not resize
 	public static class TileSelector extends JLabel
 		{
 		private static final long serialVersionUID = 1L;
@@ -1185,7 +1188,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			int h = res.get(PRoom.EDITOR_HEIGHT);
 			int w = res.get(PRoom.EDITOR_WIDTH);
 			Dimension d = LGM.mdi.getSize();
-			if (d.width < w && d.height < h)
+			if (d.width <= w && d.height <= h)
 				maximize = true;
 			else
 				setSize(w,h);

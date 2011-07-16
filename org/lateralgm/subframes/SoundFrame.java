@@ -328,6 +328,7 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 			}
 		if (e.getSource() == play)
 			{
+			if (data == null || data.length == 0) return;
 			try
 				{
 				InputStream source = new ByteArrayInputStream(data);
