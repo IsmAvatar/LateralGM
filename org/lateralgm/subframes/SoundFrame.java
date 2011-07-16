@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Enumeration;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -331,10 +332,29 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 				{
 				InputStream source = new ByteArrayInputStream(data);
 				AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(source));
+				AudioFormat fmt = ais.getFormat();
+
 				//Clip c = AudioSystem.getClip() generates a bogus format instead of using ais.getFormat.
-				clip = (Clip) AudioSystem.getLine(new DataLine.Info(Clip.class,ais.getFormat()));
+				final Clip clip = (Clip) AudioSystem.getLine(new DataLine.Info(Clip.class,fmt));
 				clip.open(ais);
-				clip.start();
+
+				new Thread()
+					{
+						public void run()
+							{
+							clip.start();
+							try
+								{
+								while (clip.isActive())
+									Thread.sleep(99);
+								}
+							catch (InterruptedException e)
+								{
+								}
+							clip.stop();
+							clip.close();
+							}
+					}.start();
 				}
 			catch (UnsupportedAudioFileException e1)
 				{
