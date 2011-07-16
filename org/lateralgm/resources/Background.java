@@ -10,6 +10,8 @@
 package org.lateralgm.resources;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.lang.ref.SoftReference;
 import java.util.EnumMap;
 
@@ -67,14 +69,11 @@ public class Background extends Resource<Background,Background.PBackground>
 
 	public BufferedImage copyBackgroundImage()
 		{
-		if (backgroundImage != null)
-			{
-			BufferedImage bf = backgroundImage;
-			BufferedImage bf2 = new BufferedImage(bf.getWidth(),bf.getHeight(),bf.getType());
-			bf2.setData(bf.getData());
-			return bf2;
-			}
-		return null;
+		if (backgroundImage == null) return null;
+		ColorModel cm = backgroundImage.getColorModel();
+		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		WritableRaster raster = backgroundImage.copyData(null);
+		return new BufferedImage(cm,raster,isAlphaPremultiplied,null);
 		}
 
 	protected void postCopy(Background dest)

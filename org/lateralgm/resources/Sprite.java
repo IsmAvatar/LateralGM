@@ -13,6 +13,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -114,9 +116,10 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 		{
 		BufferedImage bf = subImages.get(listIndex);
 		if (bf == null) return null;
-		BufferedImage bf2 = new BufferedImage(bf.getWidth(),bf.getHeight(),bf.getType());
-		bf2.setData(bf.getData());
-		return bf2;
+		ColorModel cm = bf.getColorModel();
+		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		WritableRaster raster = bf.copyData(null);
+		return new BufferedImage(cm,raster,isAlphaPremultiplied,null);
 		}
 
 	private void updateBoundingBox()
