@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -13,8 +14,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -107,19 +106,6 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 			System.err.println(Messages.format("Sprite.ERROR_SUBIMAGE",subImages.size(),getId())); //$NON-NLS-1$
 			}
 		return result;
-		}
-
-	/**
-	 * returns a copy of subimage with given index (new subimage is not added to the sprite)
-	 */
-	public BufferedImage copySubImage(int listIndex)
-		{
-		BufferedImage bf = subImages.get(listIndex);
-		if (bf == null) return null;
-		ColorModel cm = bf.getColorModel();
-		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-		WritableRaster raster = bf.copyData(null);
-		return new BufferedImage(cm,raster,isAlphaPremultiplied,null);
 		}
 
 	private void updateBoundingBox()
@@ -215,7 +201,7 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 	protected void postCopy(Sprite dest)
 		{
 		for (int j = 0; j < subImages.size(); j++)
-			dest.subImages.add(copySubImage(j));
+			dest.subImages.add(Util.cloneImage(subImages.get(j)));
 		}
 
 	public Kind getKind()

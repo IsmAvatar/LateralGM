@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -23,6 +23,7 @@ import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
+import java.awt.image.WritableRaster;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -234,6 +235,17 @@ public final class Util
 				}
 			}
 		return null;
+		}
+
+	public static BufferedImage cloneImage(BufferedImage bi)
+		{
+		if (bi == null) return null;
+		//clone the raster
+		WritableRaster or = bi.getRaster();
+		WritableRaster nr = or.createCompatibleWritableRaster();
+		nr.setRect(or);
+		//construct with cloned raster, assume it has no special properties
+		return new BufferedImage(bi.getColorModel(),or,bi.isAlphaPremultiplied(),null);
 		}
 
 	public static Color convertGmColor(int col)

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -10,8 +11,6 @@
 package org.lateralgm.resources;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.lang.ref.SoftReference;
 import java.util.EnumMap;
 
@@ -67,18 +66,9 @@ public class Background extends Resource<Background,Background.PBackground>
 		return bi;
 		}
 
-	public BufferedImage copyBackgroundImage()
-		{
-		if (backgroundImage == null) return null;
-		ColorModel cm = backgroundImage.getColorModel();
-		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
-		WritableRaster raster = backgroundImage.copyData(null);
-		return new BufferedImage(cm,raster,isAlphaPremultiplied,null);
-		}
-
 	protected void postCopy(Background dest)
 		{
-		dest.backgroundImage = copyBackgroundImage();
+		dest.backgroundImage = Util.cloneImage(backgroundImage);
 		}
 
 	public Kind getKind()
