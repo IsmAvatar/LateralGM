@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -334,7 +334,14 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 				InputStream source = new ByteArrayInputStream(data);
 				AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(source));
 				AudioFormat fmt = ais.getFormat();
-
+				//Forcibly convert to PCM Signed because non-pulse can't play unsigned (Java bug)
+				if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED)
+					{
+					fmt = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,fmt.getSampleRate(),
+							fmt.getSampleSizeInBits() * 2,fmt.getChannels(),fmt.getFrameSize() * 2,
+							fmt.getFrameRate(),true);
+					ais = AudioSystem.getAudioInputStream(fmt,ais);
+					}
 				//Clip c = AudioSystem.getClip() generates a bogus format instead of using ais.getFormat.
 				final Clip clip = (Clip) AudioSystem.getLine(new DataLine.Info(Clip.class,fmt));
 				clip.open(ais);

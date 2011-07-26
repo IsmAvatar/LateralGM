@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
@@ -108,7 +108,6 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 	//ToolBar
 	private JButton zoomIn, zoomOut;
 	private JToggleButton gridVis, gridIso;
-	//	public IntegerField snapX, snapY;
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	private ButtonModelLink<PInstance> loLocked;
@@ -328,10 +327,11 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		prelf.make(oUnderlying,PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 
 		oList = new JList(new ArrayListModel<Instance>(res.instances));
-		oList.addListSelectionListener(this);
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		oList.setVisibleRowCount(8);
 		oList.setCellRenderer(new ObjectListComponentRenderer());
+		oList.setSelectedIndex(0);
+		oList.addListSelectionListener(this);
 		JScrollPane sp = new JScrollPane(oList);
 		oAdd = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
 		oAdd.addActionListener(this);
@@ -359,9 +359,6 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
-
-		//Causes fireObjUpdate, requires oList, oSource, oLocked, oX, and oY
-		oList.setSelectedIndex(0);
 
 		layout2.setHorizontalGroup(layout2.createParallelGroup()
 		/**/.addComponent(oSource)

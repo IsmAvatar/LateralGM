@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -35,7 +36,6 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		background = b;
 		b.properties.updateSource.addListener(bpl);
 		b.reference.updateSource.addListener(this);
-		setImage(getImage());
 		}
 
 	public void paintComponent(Graphics g)
@@ -87,7 +87,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 
 	public void updated(UpdateEvent e)
 		{
-		setImage(getImage());
+		updateUI();
 		}
 
 	private class BackgroundPropertyListener extends PropertyUpdateListener<PBackground>

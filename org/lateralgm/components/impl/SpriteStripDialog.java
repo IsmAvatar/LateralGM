@@ -1,6 +1,15 @@
+/*
+ * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
+ * 
+ * This file is part of LateralGM.
+ * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
+
 package org.lateralgm.components.impl;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -84,7 +93,7 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 			g1.addComponent(l[i]);
 			if (i > 3) fields[i] = new NumberField(0);
 			fields[i].addValueChangeListener(preview);
-			g2.addComponent(fields[i]);
+			g2.addComponent(fields[i],50,50,50);
 
 			if ((i > 1 && i % 2 == 0) || i == 1)
 				g3.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED);
@@ -120,7 +129,9 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 		layout.setVerticalGroup(g3);
 
 		add(p,BorderLayout.WEST);
-		add(new JScrollPane(preview),BorderLayout.CENTER);
+		JScrollPane scroll = new JScrollPane(preview);
+		scroll.setPreferredSize(new Dimension(300,300));
+		add(scroll,BorderLayout.CENTER);
 
 		pack();
 		}

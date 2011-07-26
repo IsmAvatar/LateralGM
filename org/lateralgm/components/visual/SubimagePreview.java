@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
- * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2008, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -17,8 +17,6 @@ import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import javax.swing.ImageIcon;
-
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.resources.Sprite;
@@ -31,6 +29,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	private static final long serialVersionUID = 1L;
 
 	private int subIndex = 0;
+	private boolean showBbox = true;
 
 	private final Sprite sprite;
 	private final SpritePropertyListener spl = new SpritePropertyListener();
@@ -41,7 +40,6 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		{
 		super();
 		sprite = s;
-		setImage(getImage());
 		s.properties.updateSource.addListener(spl);
 		s.reference.updateSource.addListener(this);
 		enableEvents(MouseEvent.MOUSE_PRESSED);
@@ -52,7 +50,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		{
 		super.paintComponent(g);
 		BufferedImage img = getImage();
-		if (img != null)
+		if (img != null && showBbox)
 			{
 			setPreferredSize(new Dimension(img.getWidth(),img.getHeight()));
 			int originX = sprite.get(PSprite.ORIGIN_X);
@@ -95,9 +93,12 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	public void setIndex(int i)
 		{
 		subIndex = i;
-		BufferedImage bi = getImage();
-		super.setIcon(bi == null ? null : new ImageIcon(bi));
-		repaint();
+		updateUI();
+		}
+
+	public void setShowBbox(boolean show)
+		{
+		showBbox = show;
 		}
 
 	protected void processMouseEvent(MouseEvent e)
@@ -124,7 +125,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 	public void updated(UpdateEvent e)
 		{
-		setImage(getImage());
+		updateUI();
 		}
 
 	private class SpritePropertyListener extends PropertyUpdateListener<PSprite>

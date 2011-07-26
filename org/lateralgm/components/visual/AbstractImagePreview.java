@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -15,7 +16,6 @@ import java.awt.Shape;
 import java.awt.image.BufferedImage;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public abstract class AbstractImagePreview extends JLabel
@@ -25,7 +25,6 @@ public abstract class AbstractImagePreview extends JLabel
 	public AbstractImagePreview()
 		{
 		setOpaque(true);
-		setImage(getImage());
 		}
 
 	protected abstract BufferedImage getImage();
@@ -41,17 +40,22 @@ public abstract class AbstractImagePreview extends JLabel
 		return oldClip;
 		}
 
+	public Dimension getPreferredSize()
+		{
+		BufferedImage bi = getImage();
+		if (bi == null) return super.getPreferredSize();
+		return new Dimension(bi.getWidth(),bi.getHeight());
+		}
+
+	@Deprecated
 	public void setIcon(Icon ico)
 		{
 		super.setIcon(ico);
-		if (ico != null)
-			setPreferredSize(new Dimension(ico.getIconWidth(),ico.getIconHeight()));
-		else
-			setPreferredSize(new Dimension(0,0));
 		}
 
-	public void setImage(BufferedImage bi)
+	public void paintComponent(Graphics g)
 		{
-		setIcon(bi == null ? null : new ImageIcon(bi));
+		super.paintComponent(g);
+		g.drawImage(getImage(),0,0,null);
 		}
 	}

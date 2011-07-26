@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2008, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
@@ -88,7 +88,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 	//toolbar
 	public JButton load, loadStrip;
-	public JCheckBox transparent;
+	public JCheckBox showBbox;
 
 	//origin
 	public NumberField originX, originY;
@@ -102,7 +102,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 	//properties
 	public JRadioButton rect, prec, disk, diam;
-	public JCheckBox preciseCC, smooth, preload;
+	public JCheckBox preciseCC, smooth, preload, transparent;
 	public JLabel subCount, width, height;
 
 	//subimages
@@ -177,6 +177,13 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		name.setMaximumSize(name.getPreferredSize());
 		tool.add(new JLabel(Messages.getString("SpriteFrame.NAME"))); //$NON-NLS-1$
 		tool.add(name);
+
+		tool.addSeparator();
+
+		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true);
+		showBbox.setOpaque(false); //so it doesn't hide the toolbar gradient...
+		showBbox.addActionListener(this);
+		tool.add(showBbox);
 
 		return tool;
 		}
@@ -529,9 +536,8 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		JPanel pane = new JPanel(new BorderLayout());
 
 		preview = new SubimagePreview(res);
-		preview.setVerticalAlignment(SwingConstants.TOP);
 		JScrollPane scroll = new JScrollPane(preview);
-		//scroll.setSize(64,240);
+		scroll.setPreferredSize(scroll.getSize());
 
 		JPanel controls = new JPanel();
 		GroupLayout layout = new GroupLayout(controls);
@@ -704,6 +710,12 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		if (e.getSource() == loadStrip)
 			{
 			addFromStrip(true);
+			return;
+			}
+		if (e.getSource() == showBbox)
+			{
+			preview.setShowBbox(showBbox.isSelected());
+			preview.updateUI();
 			return;
 			}
 		if (e.getSource() == subLeft)

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
- * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2008, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -32,7 +32,6 @@ public class SpriteStripPreview extends AbstractImagePreview implements ValueCha
 		{
 		super();
 		props = sd;
-		setImage(getImage());
 		enableEvents(MouseEvent.MOUSE_PRESSED);
 		enableEvents(MouseEvent.MOUSE_DRAGGED);
 		}

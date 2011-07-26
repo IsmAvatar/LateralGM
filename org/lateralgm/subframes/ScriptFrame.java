@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
- * Copyright (C) 2006, 2010 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -15,7 +15,6 @@ import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -174,7 +173,7 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 				try
 					{
 					System.out.println(Desktop.getDesktop());
-					Desktop d = Desktop.getDesktop();
+					//					Desktop d = Desktop.getDesktop();
 					//					Desktop.Action.EDIT;
 					//					Toolkit.getDefaultToolkit().createDesktopPeer(d);
 					Desktop.getDesktop().edit(monitor.file);

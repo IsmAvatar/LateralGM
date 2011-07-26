@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
- * Copyright (C) 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -57,7 +57,7 @@ public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
 
 	private static final EnumMap<PRoom,Object> DEFS = PropertyMap.makeDefaultMap(PRoom.class,"",640,
 			480,16,16,false,30,false,Color.LIGHT_GRAY,true,"",true,200,200,true,true,true,true,true,false,
-			true,true,TAB_OBJECTS,0,0,false);
+			false,false,TAB_OBJECTS,0,0,false);
 
 	public Room()
 		{
