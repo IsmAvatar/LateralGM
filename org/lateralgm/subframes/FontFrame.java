@@ -85,7 +85,7 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 		plf.make(italic,PFont.ITALIC);
 
 		String aaprefix = "FontFrame.AA"; //$NON-NLS-1$
-		String aalevels[] = new String[3];
+		String aalevels[] = new String[4];
 		for (int i = 0; i < aalevels.length; i++)
 			aalevels[i] = Messages.getString(aaprefix + i);
 		aa = new JComboBox(aalevels);
