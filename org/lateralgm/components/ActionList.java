@@ -53,6 +53,7 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.library.LibAction;
+import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
@@ -163,9 +164,17 @@ public class ActionList extends JList
 
 		public void mouseClicked(MouseEvent e)
 			{
-			if (e.getClickCount() != 2) return;
+			if (e.getClickCount() != 2 || !(e.getSource() instanceof JList)) return;
 			JList l = (JList) e.getSource();
 			Object o = l.getSelectedValue();
+
+			if (o == null && l.getModel().getSize() == 0)
+				{
+				o = new Action(LibManager.codeAction);
+				((ActionListModel) l.getModel()).add((Action) o);
+				l.setSelectedValue(o,true);
+				}
+
 			if (o == null || !(o instanceof Action)) return;
 			openActionFrame(parent.get(),(Action) o);
 			}

@@ -32,6 +32,7 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.sub.Action;
+import org.lateralgm.resources.sub.Argument;
 
 public final class LibManager
 	{
@@ -40,6 +41,7 @@ public final class LibManager
 		}
 
 	public static ArrayList<Library> libs = new ArrayList<Library>();
+	public static LibAction codeAction;
 
 	public static LibAction getLibAction(int libraryId, int libActionId)
 		{
@@ -63,10 +65,15 @@ public final class LibManager
 		File defdir = new File(Prefs.defaultLibraryPath);
 		if (!defdir.exists()) defdir = new File(LGM.workDir,Prefs.defaultLibraryPath);
 		if (!defdir.exists()) defdir = LGM.workDir;
+
+		codeAction = null;
+
 		autoLoad(defdir);
 
 		if (Prefs.userLibraryPath != null && Prefs.userLibraryPath.length() != 0)
 			autoLoad(new File(Prefs.userLibraryPath));
+
+		if (codeAction == null) codeAction = makeCodeAction();
 		}
 
 	/** Loads in all libs/lgls in a given location (directory or zip file) */
@@ -372,6 +379,9 @@ public final class LibManager
 				arg.menu = in.readStr1();
 				act.libArguments[k] = arg;
 				}
+
+			if (act.actionKind == Action.ACT_CODE && act.execType == Action.EXEC_CODE
+					&& act.interfaceKind == LibAction.INTERFACE_CODE) codeAction = act;
 			}
 		BufferedImage icons = ImageIO.read(in.getInputStream());
 		int i = 0;
@@ -385,5 +395,24 @@ public final class LibManager
 				}
 			}
 		return lib;
+		}
+
+	private static LibAction makeCodeAction()
+		{
+		LibAction act = new LibAction();
+		act.name = "Code";
+		act.description = "Execute a piece of code";
+		act.listText = "Execute a piece of code";
+		act.hintText = "Execute code:##@0";
+		act.canApplyTo = true;
+		act.execType = Action.EXEC_CODE;
+		act.actionKind = Action.ACT_CODE;
+		act.interfaceKind = LibAction.INTERFACE_CODE;
+		act.libArguments = new LibArgument[1];
+
+		act.libArguments[0] = new LibArgument();
+		act.libArguments[0].kind = Argument.ARG_STRING;
+
+		return act;
 		}
 	}
