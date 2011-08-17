@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
- * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -31,12 +31,17 @@ public class ColorSelect extends JPanel implements ItemSelectable,PropertyEditor
 	private static final long serialVersionUID = 1L;
 	private Color selectedColor;
 
-	public ColorSelect(Color col)
+	public ColorSelect()
 		{
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		enableEvents(MouseEvent.MOUSE_FIRST);
+		}
+
+	public ColorSelect(Color col)
+		{
+		this();
 		setBackground(col);
 		selectedColor = col;
-		enableEvents(MouseEvent.MOUSE_FIRST);
 		}
 
 	public void processMouseEvent(MouseEvent e)

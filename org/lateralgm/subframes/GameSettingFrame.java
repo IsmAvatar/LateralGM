@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
- * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * 
@@ -19,19 +19,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.beans.ExceptionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -47,17 +49,23 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.table.AbstractTableModel;
 
+import org.lateralgm.compare.CollectionComparator;
+import org.lateralgm.compare.MapComparator;
+import org.lateralgm.compare.ObjectComparator;
+import org.lateralgm.compare.ReflectionComparator;
+import org.lateralgm.compare.SimpleCasesComparator;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
-import org.lateralgm.components.mdi.MDIFrame;
+import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.file.GmStreamEncoder;
@@ -67,12 +75,23 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.Include;
+import org.lateralgm.resources.GameSettings.ColorDepth;
+import org.lateralgm.resources.GameSettings.Frequency;
+import org.lateralgm.resources.GameSettings.IncludeFolder;
+import org.lateralgm.resources.GameSettings.PGameSettings;
+import org.lateralgm.resources.GameSettings.Priority;
+import org.lateralgm.resources.GameSettings.ProgressBar;
+import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.sub.Constant;
+import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 
-public class GameSettingFrame extends MDIFrame implements ActionListener
+public class GameSettingFrame extends RevertableMDIFrame implements ActionListener,
+		ExceptionListener
 	{
 	private static final long serialVersionUID = 1L;
 
+	public GameSettings res, resOriginal;
+	protected final PropertyLinkFactory<PGameSettings> plf;
 	public JTabbedPane tabbedPane = new JTabbedPane();
 
 	public JCheckBox startFullscreen;
@@ -89,20 +108,19 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	private JPanel makeGraphicsPane()
 		{
-		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		String t = Messages.getString("GameSettingFrame.FULLSCREEN"); //$NON-NLS-1$
-		startFullscreen = new JCheckBox(t,g.startFullscreen);
+		startFullscreen = new JCheckBox(Messages.getString("GameSettingFrame.FULLSCREEN")); //$NON-NLS-1$
+		plf.make(startFullscreen,PGameSettings.START_FULLSCREEN);
 
 		JPanel scalegroup = new JPanel();
 		GroupLayout sLayout = new GroupLayout(scalegroup);
 		scalegroup.setLayout(sLayout);
-		t = Messages.getString("GameSettingFrame.SCALING_TITLE"); //$NON-NLS-1$
+		String t = Messages.getString("GameSettingFrame.SCALING_TITLE"); //$NON-NLS-1$
 		scalegroup.setBorder(BorderFactory.createTitledBorder(t));
 		scaling = new IndexButtonGroup(3,true,false,this);
 		JRadioButton osFixed = new JRadioButton(Messages.getString("GameSettingFrame.SCALING_FIXED")); //$NON-NLS-1$
@@ -112,6 +130,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		scaling.add(osRatio,-1);
 		JRadioButton osFull = new JRadioButton(Messages.getString("GameSettingFrame.SCALING_FULL")); //$NON-NLS-1$
 		scaling.add(osFull,0);
+		//due to the complexity of this setup resolving to 1 property, we handle this in commitChanges.
 
 		sLayout.setHorizontalGroup(sLayout.createParallelGroup()
 		/**/.addGroup(sLayout.createSequentialGroup()
@@ -126,29 +145,30 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		/**/.addComponent(osRatio)
 		/**/.addComponent(osFull));
 
-		int s = g.scaling;
+		int s = res.properties.get(PGameSettings.SCALING);
 		scaling.setValue(s > 1 ? 1 : s);
 		if (s > 1) scale.setValue(s);
 		scale.setEnabled(s > 0);
 
 		t = Messages.getString("GameSettingFrame.INTERPOLATE"); //$NON-NLS-1$
-		interpolatecolors = new JCheckBox(t,g.interpolate);
+		plf.make(interpolatecolors = new JCheckBox(t),PGameSettings.INTERPOLATE);
 
 		JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
-		colorbutton = new ColorSelect(g.colorOutsideRoom);
+		plf.make(colorbutton = new ColorSelect(),PGameSettings.COLOR_OUTSIDE_ROOM);
 
-		t = Messages.getString("GameSettingFrame.RESIZE"); //$NON-NLS-1$
-		resizeWindow = new JCheckBox(t,g.allowWindowResize);
-		t = Messages.getString("GameSettingFrame.STAYONTOP"); //$NON-NLS-1$
-		stayOnTop = new JCheckBox(t,g.alwaysOnTop);
-		t = Messages.getString("GameSettingFrame.NOBORDER"); //$NON-NLS-1$
-		noWindowBorder = new JCheckBox(t,g.dontDrawBorder);
-		t = Messages.getString("GameSettingFrame.NOBUTTONS"); //$NON-NLS-1$
-		noWindowButtons = new JCheckBox(t,g.dontShowButtons);
-		t = Messages.getString("GameSettingFrame.DISPLAYCURSOR"); //$NON-NLS-1$
-		displayMouse = new JCheckBox(t,g.displayCursor);
-		t = Messages.getString("GameSettingFrame.FREEZE"); //$NON-NLS-1$
-		freezeGame = new JCheckBox(t,g.freezeOnLoseFocus);
+		resizeWindow = new JCheckBox(Messages.getString("GameSettingFrame.RESIZE")); //$NON-NLS-1$
+		stayOnTop = new JCheckBox(Messages.getString("GameSettingFrame.STAYONTOP")); //$NON-NLS-1$
+		noWindowBorder = new JCheckBox(Messages.getString("GameSettingFrame.NOBORDER")); //$NON-NLS-1$
+		noWindowButtons = new JCheckBox(Messages.getString("GameSettingFrame.NOBUTTONS")); //$NON-NLS-1$
+		displayMouse = new JCheckBox(Messages.getString("GameSettingFrame.DISPLAYCURSOR")); //$NON-NLS-1$
+		freezeGame = new JCheckBox(Messages.getString("GameSettingFrame.FREEZE")); //$NON-NLS-1$
+
+		plf.make(resizeWindow,PGameSettings.ALLOW_WINDOW_RESIZE);
+		plf.make(stayOnTop,PGameSettings.ALWAYS_ON_TOP);
+		plf.make(noWindowBorder,PGameSettings.DONT_DRAW_BORDER);
+		plf.make(noWindowButtons,PGameSettings.DONT_SHOW_BUTTONS);
+		plf.make(displayMouse,PGameSettings.DISPLAY_CURSOR);
+		plf.make(freezeGame,PGameSettings.FREEZE_ON_LOSE_FOCUS);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(startFullscreen)
@@ -182,14 +202,31 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	public JCheckBox synchronised;
 	public JCheckBox setResolution;
-	public IndexButtonGroup colourDepth;
-	public IndexButtonGroup resolution;
-	public IndexButtonGroup frequency;
+	public ButtonGroup colorDepth;
+	public ButtonGroup resolution;
+	public ButtonGroup frequency;
 	public JPanel resolutionPane;
+
+	private <V extends Enum<V>>JPanel makeRadioPane(String title, ButtonGroup bg, PGameSettings prop,
+			Class<V> optsClass, String[] vals)
+		{
+		JPanel p = new JPanel();
+		p.setBorder(BorderFactory.createTitledBorder(title));
+		p.setLayout(new BoxLayout(p,BoxLayout.PAGE_AXIS));
+
+		for (String s : vals)
+			{
+			JRadioButton but = new JRadioButton(Messages.getString(s));
+			bg.add(but);
+			p.add(but);
+			}
+		plf.make(bg,prop,optsClass);
+
+		return p;
+		}
 
 	private JPanel makeResolutionPane()
 		{
-		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
@@ -197,10 +234,10 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		layout.setHonorsVisibility(false);
 		panel.setLayout(layout);
 
-		synchronised = new JCheckBox(Messages.getString("GameSettingFrame.USE_SYNC"), //$NON-NLS-1$
-				g.useSynchronization);
-		setResolution = new JCheckBox(
-				Messages.getString("GameSettingFrame.SET_RESOLUTION"),g.setResolution); //$NON-NLS-1$
+		synchronised = new JCheckBox(Messages.getString("GameSettingFrame.USE_SYNC")); //$NON-NLS-1$
+		plf.make(synchronised,PGameSettings.USE_SYNCHRONIZATION);
+		setResolution = new JCheckBox(Messages.getString("GameSettingFrame.SET_RESOLUTION")); //$NON-NLS-1$
+		plf.make(setResolution,PGameSettings.SET_RESOLUTION);
 		setResolution.addActionListener(this);
 
 		resolutionPane = new JPanel();
@@ -208,53 +245,31 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		rpLayout.setAutoCreateGaps(true);
 		resolutionPane.setLayout(rpLayout);
 
-		JPanel depth = new JPanel();
-		String t = Messages.getString("GameSettingFrame.TITLE_COLOR_DEPTH"); //$NON-NLS-1$
-		depth.setBorder(BorderFactory.createTitledBorder(t));
-		depth.setLayout(new BoxLayout(depth,BoxLayout.PAGE_AXIS));
-		colourDepth = new IndexButtonGroup(3,true,false);
-		colourDepth.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
-		colourDepth.add(new JRadioButton(Messages.getString("GameSettingFrame.16_BIT"))); //$NON-NLS-1$
-		colourDepth.add(new JRadioButton(Messages.getString("GameSettingFrame.32_BIT"))); //$NON-NLS-1$
-		colourDepth.setValue(g.colorDepth);
-		colourDepth.populate(depth);
+		String colDepths[] = { "GameSettingFrame.NO_CHANGE", //$NON-NLS-1$
+				"GameSettingFrame.16_BIT","GameSettingFrame.32_BIT" }; //$NON-NLS-1$ //$NON-NLS-2$
 
-		JPanel res = new JPanel();
-		t = Messages.getString("GameSettingFrame.TITLE_RESOLUTION"); //$NON-NLS-1$
-		res.setBorder(BorderFactory.createTitledBorder(t));
-		res.setLayout(new BoxLayout(res,BoxLayout.PAGE_AXIS));
-		resolution = new IndexButtonGroup(7,true,false);
-		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
-		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.320X240"))); //$NON-NLS-1$
-		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.640X480"))); //$NON-NLS-1$
-		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.800X600"))); //$NON-NLS-1$
-		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.1024X768"))); //$NON-NLS-1$
-		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.1280X1024"))); //$NON-NLS-1$
-		resolution.add(new JRadioButton(Messages.getString("GameSettingFrame.1600X1200"))); //$NON-NLS-1$
-		resolution.setValue(g.resolution);
-		resolution.populate(res);
+		String resolutions[] = { "GameSettingFrame.NO_CHANGE","GameSettingFrame.320X240", //$NON-NLS-1$ //$NON-NLS-2$
+				"GameSettingFrame.640X480","GameSettingFrame.800X600","GameSettingFrame.1024X768", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				"GameSettingFrame.1280X1024","GameSettingFrame.1600X1200" }; //$NON-NLS-1$ //$NON-NLS-2$
 
-		JPanel freq = new JPanel();
-		t = Messages.getString("GameSettingFrame.TITLE_FREQUENCY"); //$NON-NLS-1$
-		freq.setBorder(BorderFactory.createTitledBorder(t));
-		freq.setLayout(new BoxLayout(freq,BoxLayout.PAGE_AXIS));
-		frequency = new IndexButtonGroup(6,true,false);
-		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.NO_CHANGE"))); //$NON-NLS-1$
-		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.60HZ"))); //$NON-NLS-1$
-		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.70HZ"))); //$NON-NLS-1$
-		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.85HZ"))); //$NON-NLS-1$
-		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.100HZ"))); //$NON-NLS-1$
-		frequency.add(new JRadioButton(Messages.getString("GameSettingFrame.120HZ"))); //$NON-NLS-1$
-		frequency.setValue(g.frequency);
-		frequency.populate(freq);
+		String freqs[] = { "GameSettingFrame.NO_CHANGE","GameSettingFrame.60HZ", //$NON-NLS-1$ //$NON-NLS-2$
+				"GameSettingFrame.70HZ","GameSettingFrame.85HZ", //$NON-NLS-1$ //$NON-NLS-2$
+				"GameSettingFrame.100HZ","GameSettingFrame.120HZ", }; //$NON-NLS-1$ //$NON-NLS-2$
+
+		JPanel depth = makeRadioPane(Messages.getString("GameSettingFrame.TITLE_COLOR_DEPTH"), //$NON-NLS-1$
+				colorDepth = new ButtonGroup(),PGameSettings.COLOR_DEPTH,ColorDepth.class,colDepths);
+		JPanel resol = makeRadioPane(Messages.getString("GameSettingFrame.TITLE_RESOLUTION"), //$NON-NLS-1$
+				resolution = new ButtonGroup(),PGameSettings.RESOLUTION,Resolution.class,resolutions);
+		JPanel freq = makeRadioPane(Messages.getString("GameSettingFrame.TITLE_FREQUENCY"), //$NON-NLS-1$
+				frequency = new ButtonGroup(),PGameSettings.FREQUENCY,Frequency.class,freqs);
 
 		rpLayout.setHorizontalGroup(rpLayout.createSequentialGroup()
 		/**/.addComponent(depth,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addComponent(res,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(resol,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(freq,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		rpLayout.setVerticalGroup(rpLayout.createParallelGroup(Alignment.LEADING,false)
 		/**/.addComponent(depth,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addComponent(res,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(resol,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(freq,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		resolutionPane.setVisible(setResolution.isSelected());
 
@@ -265,15 +280,11 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		return panel;
 		}
 
-	public JCheckBox esc;
-	public JCheckBox f1;
-	public JCheckBox f4;
-	public JCheckBox f5;
-	public IndexButtonGroup gamePriority;
+	public JCheckBox esc, f1, f4, f5, f9;
+	public ButtonGroup gamePriority;
 
 	private JPanel makeOtherPane()
 		{
-		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
@@ -285,44 +296,33 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		dKeys.setBorder(BorderFactory.createTitledBorder(t));
 		dKeys.setLayout(new BoxLayout(dKeys,BoxLayout.PAGE_AXIS));
 
-		t = Messages.getString("GameSettingFrame.KEY_ENDGAME"); //$NON-NLS-1$
-		esc = new JCheckBox(t,g.letEscEndGame);
-		t = Messages.getString("GameSettingFrame.KEY_INFO"); //$NON-NLS-1$
-		f1 = new JCheckBox(t,g.letF1ShowGameInfo);
-		t = Messages.getString("GameSettingFrame.KEY_SWITCHFULLSCREEN"); //$NON-NLS-1$
-		f4 = new JCheckBox(t,g.letF4SwitchFullscreen);
-		t = Messages.getString("GameSettingFrame.SAVELOAD"); //$NON-NLS-1$
-		f5 = new JCheckBox(t,g.letF5SaveF6Load);
+		esc = new JCheckBox(Messages.getString("GameSettingFrame.KEY_ENDGAME")); //$NON-NLS-1$
+		f1 = new JCheckBox(Messages.getString("GameSettingFrame.KEY_INFO")); //$NON-NLS-1$
+		f4 = new JCheckBox(Messages.getString("GameSettingFrame.KEY_SWITCHFULLSCREEN")); //$NON-NLS-1$
+		f5 = new JCheckBox(Messages.getString("GameSettingFrame.SAVELOAD")); //$NON-NLS-1$
+		f9 = new JCheckBox(Messages.getString("GameSettingFrame.KEY_SCREENSHOT")); //$NON-NLS-1$
 		dKeys.add(esc);
 		dKeys.add(f1);
 		dKeys.add(f4);
 		dKeys.add(f5);
+		dKeys.add(f9);
+		plf.make(esc,PGameSettings.LET_ESC_END_GAME);
+		plf.make(f1,PGameSettings.LET_F1_SHOW_GAME_INFO);
+		plf.make(f4,PGameSettings.LET_F4_SWITCH_FULLSCREEN);
+		plf.make(f5,PGameSettings.LET_F5_SAVE_F6_LOAD);
+		plf.make(f9,PGameSettings.LET_F9_SCREENSHOT);
 
-		t = Messages.getString("GameSettingFrame.TITLE_PRIORITY"); //$NON-NLS-1$
-		JPanel gpp = new JPanel();
-		gpp.setBorder(BorderFactory.createTitledBorder(t));
-		gpp.setLayout(new BoxLayout(gpp,BoxLayout.PAGE_AXIS));
-
-		gamePriority = new IndexButtonGroup(3,true,false);
-		JRadioButton option;
-		t = Messages.getString("GameSettingFrame.PRIORITY_NORMAL"); //$NON-NLS-1$
-		option = new JRadioButton(t);
-		gamePriority.add(option);
-		t = Messages.getString("GameSettingFrame.PRIORITY_HIGH"); //$NON-NLS-1$
-		option = new JRadioButton(t);
-		gamePriority.add(option);
-		t = Messages.getString("GameSettingFrame.PRIORITY_HIHGEST"); //$NON-NLS-1$
-		option = new JRadioButton(t);
-		gamePriority.add(option);
-		gamePriority.populate(gpp);
-		gamePriority.setValue(g.gamePriority);
+		String priorities[] = { "GameSettingFrame.PRIORITY_NORMAL", //$NON-NLS-1$
+				"GameSettingFrame.PRIORITY_HIGH","GameSettingFrame.PRIORITY_HIHGEST" }; //$NON-NLS-1$ //$NON-NLS-2$
+		JPanel priority = makeRadioPane(Messages.getString("GameSettingFrame.TITLE_PRIORITY"), //$NON-NLS-1$
+				gamePriority = new ButtonGroup(),PGameSettings.GAME_PRIORITY,Priority.class,priorities);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(dKeys,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addComponent(gpp,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		/**/.addComponent(priority,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(dKeys)
-		/**/.addComponent(gpp));
+		/**/.addComponent(priority));
 		return panel;
 		}
 
@@ -331,7 +331,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public JButton changeCustomLoad;
 	public JCheckBox imagePartiallyTransparent;
 	public NumberField loadImageAlpha;
-	public IndexButtonGroup loadBarMode;
+	public ButtonGroup loadBarMode;
+	public JRadioButton pbCustom;
 	public JButton backLoad;
 	public JButton frontLoad;
 	public BufferedImage backLoadImage;
@@ -346,7 +347,6 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	private JPanel makeLoadingPane()
 		{
-		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
@@ -358,19 +358,22 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		loadImage.setBorder(BorderFactory.createTitledBorder(t));
 		GroupLayout liLayout = new GroupLayout(loadImage);
 		loadImage.setLayout(liLayout);
-		showCustomLoadImage = new JCheckBox(Messages.getString("GameSettingFrame.CUSTOM_LOAD_IMAGE"), //$NON-NLS-1$
-				g.showCustomLoadImage);
+		showCustomLoadImage = new JCheckBox(Messages.getString("GameSettingFrame.CUSTOM_LOAD_IMAGE")); //$NON-NLS-1$
+		plf.make(showCustomLoadImage,PGameSettings.SHOW_CUSTOM_LOAD_IMAGE);
 		showCustomLoadImage.addActionListener(this);
-		customLoadingImage = g.loadingImage;
+		customLoadingImage = res.properties.get(PGameSettings.LOADING_IMAGE);
 
 		changeCustomLoad = new JButton(Messages.getString("GameSettingFrame.CHANGE_IMAGE")); //$NON-NLS-1$
 		changeCustomLoad.setEnabled(showCustomLoadImage.isSelected());
 		changeCustomLoad.addActionListener(this);
 
 		imagePartiallyTransparent = new JCheckBox(
-				Messages.getString("GameSettingFrame.MAKE_TRANSPARENT"),g.imagePartiallyTransparent); //$NON-NLS-1$
+				Messages.getString("GameSettingFrame.MAKE_TRANSPARENT")); //$NON-NLS-1$
+		plf.make(imagePartiallyTransparent,PGameSettings.IMAGE_PARTIALLY_TRANSPARENTY);
 		JLabel lAlpha = new JLabel(Messages.getString("GameSettingFrame.ALPHA_TRANSPARENCY")); //$NON-NLS-1$
-		loadImageAlpha = new NumberField(0,255,g.loadImageAlpha);
+		loadImageAlpha = new NumberField(0,255);
+		plf.make(loadImageAlpha,PGameSettings.LOAD_IMAGE_ALPHA);
+
 		liLayout.setHorizontalGroup(liLayout.createParallelGroup()
 		/**/.addGroup(liLayout.createSequentialGroup()
 		/*		*/.addComponent(showCustomLoadImage).addPreferredGap(ComponentPlacement.RELATED)
@@ -391,30 +394,30 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		/*		*/.addComponent(loadImageAlpha))
 		/**/.addContainerGap());
 
+		JRadioButton pbNo, pbDef;
 		JPanel progBar = new JPanel();
+		GroupLayout pbLayout = new GroupLayout(progBar);
 		t = Messages.getString("GameSettingFrame.TITLE_LOADING_PROGRESS_BAR"); //$NON-NLS-1$
 		progBar.setBorder(BorderFactory.createTitledBorder(t));
-		GroupLayout pbLayout = new GroupLayout(progBar);
 		progBar.setLayout(pbLayout);
-		loadBarMode = new IndexButtonGroup(3,true,false,this);
-		JRadioButton pbNo = new JRadioButton(Messages.getString("GameSettingFrame.NO_PROGRESS_BAR")); //$NON-NLS-1$
-		loadBarMode.add(pbNo);
-		JRadioButton pbDef = new JRadioButton(Messages.getString("GameSettingFrame.DEF_PROGRESS_BAR")); //$NON-NLS-1$
-		loadBarMode.add(pbDef);
-		JRadioButton pbCustom = new JRadioButton(
-				Messages.getString("GameSettingFrame.CUSTOM_PROGRESS_BAR")); //$NON-NLS-1$
-		loadBarMode.add(pbCustom);
-		loadBarMode.setValue(g.loadBarMode);
+		loadBarMode = new ButtonGroup();
+		loadBarMode.add(pbNo = new JRadioButton(Messages.getString("GameSettingFrame.NO_PROGRESS_BAR"))); //$NON-NLS-1$
+		loadBarMode.add(pbDef = new JRadioButton(
+				Messages.getString("GameSettingFrame.DEF_PROGRESS_BAR"))); //$NON-NLS-1$
+		loadBarMode.add(pbCustom = new JRadioButton(
+				Messages.getString("GameSettingFrame.CUSTOM_PROGRESS_BAR"))); //$NON-NLS-1$
+		plf.make(loadBarMode,PGameSettings.LOAD_BAR_MODE,ProgressBar.class);
+
 		backLoad = new JButton(Messages.getString("GameSettingFrame.BACK_IMAGE")); //$NON-NLS-1$
 		backLoad.addActionListener(this);
-		backLoadImage = g.backLoadBar;
+		backLoadImage = res.properties.get(PGameSettings.BACK_LOAD_BAR);
 		frontLoad = new JButton(Messages.getString("GameSettingFrame.FRONT_IMAGE")); //$NON-NLS-1$
 		frontLoad.addActionListener(this);
-		frontLoadImage = g.frontLoadBar;
-		backLoad.setEnabled(loadBarMode.getValue() == GameSettings.LOADBAR_CUSTOM);
+		frontLoadImage = res.properties.get(PGameSettings.FRONT_LOAD_BAR);
+		backLoad.setEnabled(pbCustom.isSelected());
 		frontLoad.setEnabled(backLoad.isEnabled());
-		scaleProgressBar = new JCheckBox(Messages.getString("GameSettingFrame.SCALE_IMAGE"), //$NON-NLS-1$
-				g.scaleProgressBar);
+		scaleProgressBar = new JCheckBox(Messages.getString("GameSettingFrame.SCALE_IMAGE")); //$NON-NLS-1$
+		plf.make(scaleProgressBar,PGameSettings.SCALE_PROGRESS_BAR);
 
 		pbLayout.setHorizontalGroup(pbLayout.createParallelGroup()
 		/**/.addComponent(pbNo).addComponent(pbDef).addComponent(pbCustom)
@@ -429,9 +432,9 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		/*		*/.addComponent(frontLoad))
 		/**/.addComponent(scaleProgressBar));
 
-		gameIcon = g.gameIcon;
+		gameIcon = res.properties.get(PGameSettings.GAME_ICON);
 		iconPreview = new JLabel(Messages.getString("GameSettingFrame.GAME_ICON")); //$NON-NLS-1$
-		if (g.gameIcon != null) iconPreview.setIcon(new ImageIcon(gameIcon.getDisplayImage()));
+		if (gameIcon != null) iconPreview.setIcon(new ImageIcon(gameIcon.getDisplayImage()));
 
 		iconPreview.setHorizontalTextPosition(SwingConstants.LEFT);
 		changeIcon = new JButton(Messages.getString("GameSettingFrame.CHANGE_ICON")); //$NON-NLS-1$
@@ -439,7 +442,8 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new CustomFileFilter(".ico",Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
 		JLabel lId = new JLabel(Messages.getString("GameSettingFrame.GAME_ID")); //$NON-NLS-1$
-		gameId = new NumberField(0,100000000,g.gameId);
+		gameId = new NumberField(0,100000000);
+		plf.make(gameId,PGameSettings.GAME_ID);
 		randomise = new JButton(Messages.getString("GameSettingFrame.RANDOMIZE")); //$NON-NLS-1$
 		randomise.addActionListener(this);
 
@@ -485,7 +489,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public JButton sort;
 	private CustomFileChooser constantsFc;
 
-	private JPanel makeConstantsPane()
+	private JPanel makeConstantsPane(List<Constant> curConstList)
 		{
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
@@ -498,7 +502,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		exportBut = new JButton(Messages.getString("GameSettingFrame.EXPORT")); //$NON-NLS-1$
 		exportBut.addActionListener(this);
 
-		cModel = new ConstantsTableModel(LGM.currentFile.constants);
+		cModel = new ConstantsTableModel(curConstList);
 		constants = new JTable(cModel);
 		JScrollPane scroll = new JScrollPane(constants);
 		constants.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -564,9 +568,9 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	private class ConstantsTableModel extends AbstractTableModel
 		{
 		private static final long serialVersionUID = 1L;
-		ArrayList<Constant> constants;
+		List<Constant> constants;
 
-		ConstantsTableModel(ArrayList<Constant> list)
+		ConstantsTableModel(List<Constant> list)
 			{
 			constants = GmFile.copyConstants(list);
 			}
@@ -620,14 +624,13 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public JButton iAdd;
 	public JButton iDelete;
 	public JButton iClear;
-	public IndexButtonGroup exportFolder;
+	public ButtonGroup exportFolder;
 	public JCheckBox overwriteExisting;
 	public JCheckBox removeAtGameEnd;
 	private CustomFileChooser includesFc;
 
-	private JPanel makeIncludePane()
+	private JPanel makeIncludePane(List<Include> curIncludeList)
 		{
-		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
@@ -636,7 +639,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		JLabel lFiles = new JLabel(Messages.getString("GameSettingFrame.FILES_TO_INCLUDE")); //$NON-NLS-1$
 
-		iModel = new IncludesListModel(LGM.currentFile.includes);
+		iModel = new IncludesListModel(curIncludeList);
 		includes = new JList(iModel);
 		JScrollPane iScroll = new JScrollPane(includes);
 		iAdd = new JButton(Messages.getString("GameSettingFrame.ADD_INCLUDE")); //$NON-NLS-1$
@@ -646,18 +649,16 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		iClear = new JButton(Messages.getString("GameSettingFrame.CLEAR_INCLUDES")); //$NON-NLS-1$
 		iClear.addActionListener(this);
 
-		JPanel folderPanel = new JPanel();
-		String t = Messages.getString("GameSettingFrame.EXPORT_TO"); //$NON-NLS-1$
-		folderPanel.setBorder(BorderFactory.createTitledBorder(t));
-		folderPanel.setLayout(new BoxLayout(folderPanel,BoxLayout.PAGE_AXIS));
-		exportFolder = new IndexButtonGroup(2,true,false);
-		exportFolder.add(new JRadioButton(Messages.getString("GameSettingFrame.SAME_FOLDER"))); //$NON-NLS-1$
-		exportFolder.add(new JRadioButton(Messages.getString("GameSettingFrame.TEMP_DIRECTORY"))); //$NON-NLS-1$
-		exportFolder.setValue(g.includeFolder);
-		exportFolder.populate(folderPanel);
+		String incFolders[] = { "GameSettingFrame.SAME_FOLDER","GameSettingFrame.TEMP_DIRECTORY" }; //$NON-NLS-1$ //$NON-NLS-2$
+		JPanel folderPanel = makeRadioPane(
+				Messages.getString("GameSettingFrame.EXPORT_TO"), //$NON-NLS-1$
+				exportFolder = new ButtonGroup(),PGameSettings.INCLUDE_FOLDER,IncludeFolder.class,
+				incFolders);
 
 		overwriteExisting = new JCheckBox(Messages.getString("GameSettingFrame.OVERWRITE_EXISTING")); //$NON-NLS-1$
 		removeAtGameEnd = new JCheckBox(Messages.getString("GameSettingFrame.REMOVE_FILES_AT_END")); //$NON-NLS-1$
+		plf.make(overwriteExisting,PGameSettings.OVERWRITE_EXISTING);
+		plf.make(removeAtGameEnd,PGameSettings.REMOVE_AT_GAME_END);
 
 		includesFc = new CustomFileChooser("/org/lateralgm","LAST_INCLUDES_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		includesFc.setMultiSelectionEnabled(true);
@@ -693,15 +694,15 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		{
 		private static final long serialVersionUID = 1L;
 
-		IncludesListModel(ArrayList<Include> list)
+		IncludesListModel(List<Include> list)
 			{
 			for (Include i : list)
 				addElement(i.copy());
 			}
 
-		public ArrayList<Include> toArrayList()
+		public List<Include> toArrayList()
 			{
-			ArrayList<Include> list = new ArrayList<Include>();
+			List<Include> list = new ArrayList<Include>();
 			for (Object o : toArray())
 				list.add((Include) o);
 			return list;
@@ -716,23 +717,23 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	private JPanel makeErrorPane()
 		{
-		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		String t = Messages.getString("GameSettingFrame.ERRORS_DISPLAY"); //$NON-NLS-1$
-		displayErrors = new JCheckBox(t,g.displayErrors);
-		t = Messages.getString("GameSettingFrame.ERRORS_LOG"); //$NON-NLS-1$
-		writeToLog = new JCheckBox(t,g.writeToLog);
-		t = Messages.getString("GameSettingFrame.ERRORS_ABORT"); //$NON-NLS-1$
-		abortOnError = new JCheckBox(t,g.abortOnError);
-		t = Messages.getString("GameSettingFrame.UNINITZERO"); //$NON-NLS-1$
-		treatUninitialisedAs0 = new JCheckBox(t,g.treatUninitializedAs0);
-		t = Messages.getString("GameSettingFrame.ERRORS_ARGS"); //$NON-NLS-1$
-		errorOnArgs = new JCheckBox(t,g.errorOnArgs);
+		displayErrors = new JCheckBox(Messages.getString("GameSettingFrame.ERRORS_DISPLAY")); //$NON-NLS-1$
+		writeToLog = new JCheckBox(Messages.getString("GameSettingFrame.ERRORS_LOG")); //$NON-NLS-1$
+		abortOnError = new JCheckBox(Messages.getString("GameSettingFrame.ERRORS_ABORT")); //$NON-NLS-1$
+		treatUninitialisedAs0 = new JCheckBox(Messages.getString("GameSettingFrame.UNINITZERO")); //$NON-NLS-1$
+		errorOnArgs = new JCheckBox(Messages.getString("GameSettingFrame.ERRORS_ARGS")); //$NON-NLS-1$
+
+		plf.make(displayErrors,PGameSettings.DISPLAY_ERRORS);
+		plf.make(writeToLog,PGameSettings.WRITE_TO_LOG);
+		plf.make(abortOnError,PGameSettings.ABORT_ON_ERROR);
+		plf.make(treatUninitialisedAs0,PGameSettings.TREAT_UNINIT_AS_0);
+		plf.make(errorOnArgs,PGameSettings.ERROR_ON_ARGS);
 
 		layout.setHorizontalGroup(layout.createParallelGroup().
 		/**/addComponent(displayErrors).addComponent(writeToLog).addComponent(abortOnError).
@@ -750,7 +751,6 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	private JPanel makeInfoPane()
 		{
-		GameSettings g = LGM.currentFile.gameSettings;
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
@@ -758,16 +758,20 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		panel.setLayout(layout);
 
 		JLabel lAuthor = new JLabel(Messages.getString("GameSettingFrame.AUTHOR")); //$NON-NLS-1$
-		author = new JTextField(g.author);
+		author = new JTextField();
 		JLabel lVersion = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
-		version = new JTextField(g.version);
+		version = new JTextField();
 		JLabel lChanged = new JLabel(Messages.getString("GameSettingFrame.LASTCHANGED")); //$NON-NLS-1$
-		lastChanged = new JTextField(GmFile.gmTimeToString(g.lastChanged));
+		lastChanged = new JTextField(GmFile.gmTimeToString(res.getLastChanged()));
 		lastChanged.setEditable(false);
 		JLabel lInfo = new JLabel(Messages.getString("GameSettingFrame.INFORMATION")); //$NON-NLS-1$
-		information = new JTextArea(g.information);
+		information = new JTextArea();
 		information.setLineWrap(true);
 		JScrollPane infoScroll = new JScrollPane(information);
+
+		plf.make(author.getDocument(),PGameSettings.AUTHOR);
+		plf.make(version.getDocument(),PGameSettings.VERSION);
+		plf.make(information.getDocument(),PGameSettings.INFORMATION);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
@@ -799,17 +803,20 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 	public JButton saveButton;
 	public JButton discardButton;
 
-	public GameSettingFrame()
+	public GameSettingFrame(GameSettings res, List<Constant> constants, List<Include> includes)
 		{
-		super(Messages.getString("GameSettingFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
-		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		super(Messages.getString("GameSettingFrame.TITLE"),false,true,true,true); //$NON-NLS-1$
+		plf = new PropertyLinkFactory<PGameSettings>(res.properties,this);
+		this.res = res;
+		resOriginal = res.clone();
 		setFrameIcon(LGM.findIcon("restree/gm.png")); //$NON-NLS-1$
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
+
 		GroupLayout layout = new GroupLayout(getContentPane());
 		layout.setAutoCreateGaps(true);
 		setLayout(layout);
-		setResizable(false);
 
-		buildTabs();
+		buildTabs(constants,includes);
 
 		String t = Messages.getString("GameSettingFrame.BUTTON_SAVE"); //$NON-NLS-1$
 		saveButton = new JButton(t);
@@ -835,7 +842,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		pack();
 		}
 
-	private void buildTabs()
+	private void buildTabs(List<Constant> constants, List<Include> includes)
 		{
 		JComponent pane = makeGraphicsPane();
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_GRAPHICS"), //$NON-NLS-1$
@@ -857,12 +864,12 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 				null,pane,Messages.getString("GameSettingFrame.HINT_LOADING")); //$NON-NLS-1$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 
-		pane = makeConstantsPane();
+		pane = makeConstantsPane(LGM.currentFile.constants);
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_CONSTANTS"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_CONSTANTS")); //$NON-NLS-1$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 
-		pane = makeIncludePane();
+		pane = makeIncludePane(LGM.currentFile.includes);
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_INCLUDE"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_INCLUDE")); //$NON-NLS-1$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
@@ -882,15 +889,15 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		{
 		if (e.getSource() == saveButton)
 			{
-			commitChanges();
-			setVisible(false);
+			updateResource();
+			close();
 			return;
 			}
 
 		if (e.getSource() == discardButton)
 			{
-			setComponents(LGM.currentFile.gameSettings);
-			setVisible(false);
+			revertResource();
+			close();
 			return;
 			}
 
@@ -934,7 +941,7 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 			}
 		else if (e.getSource() instanceof JRadioButton)
 			{
-			backLoad.setEnabled(loadBarMode.getValue() == GameSettings.LOADBAR_CUSTOM);
+			backLoad.setEnabled(pbCustom.isSelected());
 			frontLoad.setEnabled(backLoad.isEnabled());
 			}
 		else if (e.getSource() == backLoad)
@@ -1189,50 +1196,12 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 	public void commitChanges()
 		{
-		GameSettings g = LGM.currentFile.gameSettings;
-		//Graphics
-		g.startFullscreen = startFullscreen.isSelected();
-		g.scaling = scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue();
-		g.interpolate = interpolatecolors.isSelected();
-		g.colorOutsideRoom = colorbutton.getSelectedColor();
-		g.allowWindowResize = resizeWindow.isSelected();
-		g.alwaysOnTop = stayOnTop.isSelected();
-		g.dontDrawBorder = noWindowBorder.isSelected();
-		g.dontShowButtons = noWindowButtons.isSelected();
-		g.displayCursor = displayMouse.isSelected();
-		g.freezeOnLoseFocus = freezeGame.isSelected();
-
-		//Resolution
-		g.useSynchronization = synchronised.isSelected();
-		g.setResolution = setResolution.isSelected();
-		g.colorDepth = (byte) colourDepth.getValue();
-		g.resolution = (byte) resolution.getValue();
-		g.frequency = (byte) frequency.getValue();
-
-		//Other
-		g.letEscEndGame = esc.isSelected();
-		g.letF1ShowGameInfo = f1.isSelected();
-		g.letF4SwitchFullscreen = f4.isSelected();
-		g.letF5SaveF6Load = f5.isSelected();
-		g.gamePriority = (byte) gamePriority.getValue();
-
-		//Loading
-		g.showCustomLoadImage = showCustomLoadImage.isSelected();
-		g.loadingImage = customLoadingImage;
-		g.imagePartiallyTransparent = imagePartiallyTransparent.isSelected();
-		g.loadImageAlpha = loadImageAlpha.getIntValue();
-		g.loadBarMode = (byte) loadBarMode.getValue();
-		g.backLoadBar = backLoadImage;
-		g.frontLoadBar = frontLoadImage;
-		g.scaleProgressBar = scaleProgressBar.isSelected();
-		g.gameIcon = gameIcon;
-
-		int newId = gameId.getIntValue();
-		if (g.gameId != newId)
-			{
-			g.gameId = gameId.getIntValue();
-			new Random().nextBytes(g.dplayGUID);
-			}
+		res.put(PGameSettings.SCALING,scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue());
+		res.put(PGameSettings.LOADING_IMAGE,customLoadingImage);
+		res.put(PGameSettings.BACK_LOAD_BAR,backLoadImage);
+		res.put(PGameSettings.FRONT_LOAD_BAR,frontLoadImage);
+		res.put(PGameSettings.GAME_ICON,gameIcon);
+		//we don't update the lastChanged time - that's only altered on file save/load
 
 		//Constants
 		cModel.removeEmptyConstants();
@@ -1240,70 +1209,21 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 
 		//Includes
 		LGM.currentFile.includes = iModel.toArrayList();
-		g.includeFolder = exportFolder.getValue();
-		g.overwriteExisting = overwriteExisting.isSelected();
-		g.removeAtGameEnd = removeAtGameEnd.isSelected();
-
-		//Errors
-		g.displayErrors = displayErrors.isSelected();
-		g.writeToLog = writeToLog.isSelected();
-		g.abortOnError = abortOnError.isSelected();
-		g.treatUninitializedAs0 = treatUninitialisedAs0.isSelected();
-		g.errorOnArgs = errorOnArgs.isSelected();
-
-		//Info
-		g.author = author.getText();
-		g.version = version.getText();
-		g.information = information.getText();
 		}
 
 	public void setComponents(GameSettings g)
 		{
-		//Graphics
-		startFullscreen.setSelected(g.startFullscreen);
-		int s = g.scaling;
+		int s = g.get(PGameSettings.SCALING);
 		scaling.setValue(s > 1 ? 1 : s);
 		if (s > 1) scale.setValue(s);
 		scale.setEnabled(s > 0);
-		interpolatecolors.setSelected(g.interpolate);
-		colorbutton.setSelectedColor(g.colorOutsideRoom);
-		resizeWindow.setSelected(g.allowWindowResize);
-		stayOnTop.setSelected(g.alwaysOnTop);
-		noWindowBorder.setSelected(g.dontDrawBorder);
-		noWindowButtons.setSelected(g.dontShowButtons);
-		displayMouse.setSelected(g.displayCursor);
-		freezeGame.setSelected(g.freezeOnLoseFocus);
 
-		//Resolution
-		synchronised.setSelected(g.useSynchronization);
-		setResolution.setSelected(g.setResolution);
-		resolutionPane.setVisible(g.setResolution);
-		colourDepth.setValue(g.colorDepth);
-		resolution.setValue(g.resolution);
-		frequency.setValue(g.frequency);
+		lastChanged.setText(GmFile.gmTimeToString(g.getLastChanged()));
 
-		//Other
-		esc.setSelected(g.letEscEndGame);
-		f1.setSelected(g.letF1ShowGameInfo);
-		f4.setSelected(g.letF4SwitchFullscreen);
-		f5.setSelected(g.letF5SaveF6Load);
-		gamePriority.setValue(g.gamePriority);
-
-		//Loading
-		showCustomLoadImage.setSelected(g.showCustomLoadImage);
-		changeCustomLoad.setEnabled(g.showCustomLoadImage);
-		customLoadingImage = g.loadingImage;
-		imagePartiallyTransparent.setSelected(g.imagePartiallyTransparent);
-		loadImageAlpha.setValue(g.loadImageAlpha);
-		loadBarMode.setValue(g.loadBarMode);
-		backLoad.setEnabled(g.loadBarMode == GameSettings.LOADBAR_CUSTOM);
-		frontLoad.setEnabled(g.loadBarMode == GameSettings.LOADBAR_CUSTOM);
-		backLoadImage = g.backLoadBar;
-		frontLoadImage = g.frontLoadBar;
-		scaleProgressBar.setSelected(g.scaleProgressBar);
-		gameIcon = g.gameIcon;
-		iconPreview.setIcon(gameIcon != null ? new ImageIcon(gameIcon.getDisplayImage()) : null);
-		gameId.setValue(g.gameId);
+		customLoadingImage = g.get(PGameSettings.LOADING_IMAGE);
+		backLoadImage = g.get(PGameSettings.BACK_LOAD_BAR);
+		frontLoadImage = g.get(PGameSettings.FRONT_LOAD_BAR);
+		gameIcon = g.get(PGameSettings.GAME_ICON);
 
 		//Constants
 		cModel = new ConstantsTableModel(LGM.currentFile.constants);
@@ -1314,21 +1234,39 @@ public class GameSettingFrame extends MDIFrame implements ActionListener
 		iModel = new IncludesListModel(LGM.currentFile.includes);
 		includes.setModel(iModel);
 		includes.updateUI();
-		exportFolder.setValue(g.includeFolder);
-		overwriteExisting.setSelected(g.overwriteExisting);
-		removeAtGameEnd.setSelected(g.removeAtGameEnd);
+		}
 
-		//Errors
-		displayErrors.setSelected(g.displayErrors);
-		writeToLog.setSelected(g.writeToLog);
-		abortOnError.setSelected(g.abortOnError);
-		treatUninitialisedAs0.setSelected(g.treatUninitializedAs0);
-		errorOnArgs.setSelected(g.errorOnArgs);
+	@Override
+	public String getConfirmationName()
+		{
+		return getTitle();
+		}
 
-		//Info
-		author.setText(g.author);
-		version.setText(g.version);
-		lastChanged.setText(GmFile.gmTimeToString(g.lastChanged));
-		information.setText(g.information);
+	@Override
+	public boolean resourceChanged()
+		{
+		commitChanges();
+		ReflectionComparator rc = new SimpleCasesComparator(new CollectionComparator(new MapComparator(
+				new ObjectComparator(null))));
+		return !rc.areEqual(res,resOriginal);
+		}
+
+	@Override
+	public void revertResource()
+		{
+		res.properties.putAll(resOriginal.properties);
+		setComponents(res);
+		}
+
+	@Override
+	public void updateResource()
+		{
+		commitChanges();
+		resOriginal = res.clone();
+		}
+
+	public void exceptionThrown(Exception e)
+		{
+		e.printStackTrace();
 		}
 	}

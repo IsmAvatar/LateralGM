@@ -1,6 +1,6 @@
 /*
+ * Copyright (C) 2006, 2007, 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
- * Copyright (C) 2006, 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -30,6 +30,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -53,6 +54,13 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.GameSettings.ColorDepth;
+import org.lateralgm.resources.GameSettings.Frequency;
+import org.lateralgm.resources.GameSettings.IncludeFolder;
+import org.lateralgm.resources.GameSettings.PGameSettings;
+import org.lateralgm.resources.GameSettings.Priority;
+import org.lateralgm.resources.GameSettings.ProgressBar;
+import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sound.SoundKind;
 import org.lateralgm.resources.Sprite.BBMode;
@@ -66,11 +74,60 @@ import org.lateralgm.resources.sub.Tile.PTile;
 
 public class GmFile implements UpdateListener
 	{
-	protected static final Resource.Kind[] RESOURCE_KIND = { null,Resource.Kind.OBJECT,
+	//Game Settings Enums
+	public static final ColorDepth[] GS_DEPTHS = { ColorDepth.NO_CHANGE,ColorDepth.BIT_16,
+			ColorDepth.BIT_32 };
+	public static final Map<ColorDepth,Integer> GS_DEPTH_CODE;
+	public static final Resolution[] GS_RESOLS = { Resolution.NO_CHANGE,Resolution.RES_320X240,
+			Resolution.RES_640X480,Resolution.RES_800X600,Resolution.RES_1024X768,
+			Resolution.RES_1280X1024,Resolution.RES_1600X1200 };
+	public static final Map<Resolution,Integer> GS_RESOL_CODE;
+	public static final Frequency[] GS_FREQS = {};
+	public static final Map<Frequency,Integer> GS_FREQ_CODE;
+	public static final Priority[] GS_PRIORITIES = {};
+	public static final Map<Priority,Integer> GS_PRIORITY_CODE;
+	public static final ProgressBar[] GS_PROGBARS = {};
+	public static final Map<ProgressBar,Integer> GS_PROGBAR_CODE;
+	public static final IncludeFolder[] GS_INCFOLDERS = {};
+	public static final Map<IncludeFolder,Integer> GS_INCFOLDER_CODE;
+	static
+		{
+		EnumMap<ColorDepth,Integer> m = new EnumMap<ColorDepth,Integer>(ColorDepth.class);
+		for (int i = 0; i < GS_DEPTHS.length; i++)
+			m.put(GS_DEPTHS[i],i);
+		GS_DEPTH_CODE = Collections.unmodifiableMap(m);
+
+		EnumMap<Resolution,Integer> m2 = new EnumMap<Resolution,Integer>(Resolution.class);
+		for (int i = 0; i < GS_RESOLS.length; i++)
+			m2.put(GS_RESOLS[i],i);
+		GS_RESOL_CODE = Collections.unmodifiableMap(m2);
+
+		EnumMap<Frequency,Integer> m3 = new EnumMap<Frequency,Integer>(Frequency.class);
+		for (int i = 0; i < GS_FREQS.length; i++)
+			m3.put(GS_FREQS[i],i);
+		GS_FREQ_CODE = Collections.unmodifiableMap(m3);
+
+		EnumMap<Priority,Integer> m4 = new EnumMap<Priority,Integer>(Priority.class);
+		for (int i = 0; i < GS_PRIORITIES.length; i++)
+			m4.put(GS_PRIORITIES[i],i);
+		GS_PRIORITY_CODE = Collections.unmodifiableMap(m4);
+
+		EnumMap<ProgressBar,Integer> m5 = new EnumMap<ProgressBar,Integer>(ProgressBar.class);
+		for (int i = 0; i < GS_PROGBARS.length; i++)
+			m5.put(GS_PROGBARS[i],i);
+		GS_PROGBAR_CODE = Collections.unmodifiableMap(m5);
+
+		EnumMap<IncludeFolder,Integer> m6 = new EnumMap<IncludeFolder,Integer>(IncludeFolder.class);
+		for (int i = 0; i < GS_INCFOLDERS.length; i++)
+			m6.put(GS_INCFOLDERS[i],i);
+		GS_INCFOLDER_CODE = Collections.unmodifiableMap(m6);
+		}
+
+	public static final Resource.Kind[] RESOURCE_KIND = { null,Resource.Kind.OBJECT,
 			Resource.Kind.SPRITE,Resource.Kind.SOUND,Resource.Kind.ROOM,null,Resource.Kind.BACKGROUND,
 			Resource.Kind.SCRIPT,Resource.Kind.PATH,Resource.Kind.FONT,Resource.Kind.GAMEINFO,
 			Resource.Kind.GAMESETTINGS,Resource.Kind.TIMELINE,Resource.Kind.EXTENSIONS };
-	protected static final Map<Resource.Kind,Integer> RESOURCE_CODE;
+	public static final Map<Resource.Kind,Integer> RESOURCE_CODE;
 	static
 		{
 		EnumMap<Resource.Kind,Integer> m = new EnumMap<Resource.Kind,Integer>(Resource.Kind.class);
@@ -78,11 +135,11 @@ public class GmFile implements UpdateListener
 			if (RESOURCE_KIND[i] != null) m.put(RESOURCE_KIND[i],i);
 		RESOURCE_CODE = Collections.unmodifiableMap(m);
 		}
-	protected static final PSound[] SOUND_FX_FLAGS = { PSound.CHORUS,PSound.ECHO,PSound.FLANGER,
+	public static final PSound[] SOUND_FX_FLAGS = { PSound.CHORUS,PSound.ECHO,PSound.FLANGER,
 			PSound.GARGLE,PSound.REVERB };
-	protected static final SoundKind[] SOUND_KIND = { SoundKind.NORMAL,SoundKind.BACKGROUND,
+	public static final SoundKind[] SOUND_KIND = { SoundKind.NORMAL,SoundKind.BACKGROUND,
 			SoundKind.SPATIAL,SoundKind.MULTIMEDIA };
-	protected static final Map<SoundKind,Integer> SOUND_CODE;
+	public static final Map<SoundKind,Integer> SOUND_CODE;
 	static
 		{
 		EnumMap<SoundKind,Integer> m = new EnumMap<SoundKind,Integer>(SoundKind.class);
@@ -90,8 +147,8 @@ public class GmFile implements UpdateListener
 			m.put(SOUND_KIND[i],i);
 		SOUND_CODE = Collections.unmodifiableMap(m);
 		}
-	protected static final BBMode[] SPRITE_BB_MODE = { BBMode.AUTO,BBMode.FULL,BBMode.MANUAL };
-	protected static final Map<BBMode,Integer> SPRITE_BB_CODE;
+	public static final BBMode[] SPRITE_BB_MODE = { BBMode.AUTO,BBMode.FULL,BBMode.MANUAL };
+	public static final Map<BBMode,Integer> SPRITE_BB_CODE;
 	static
 		{
 		EnumMap<BBMode,Integer> m = new EnumMap<BBMode,Integer>(BBMode.class);
@@ -99,9 +156,9 @@ public class GmFile implements UpdateListener
 			m.put(SPRITE_BB_MODE[i],i);
 		SPRITE_BB_CODE = Collections.unmodifiableMap(m);
 		}
-	protected static final MaskShape[] SPRITE_MASK_SHAPE = { MaskShape.PRECISE,MaskShape.RECTANGLE,
+	public static final MaskShape[] SPRITE_MASK_SHAPE = { MaskShape.PRECISE,MaskShape.RECTANGLE,
 			MaskShape.DISK,MaskShape.DIAMOND };
-	protected static final Map<MaskShape,Integer> SPRITE_MASK_CODE;
+	public static final Map<MaskShape,Integer> SPRITE_MASK_CODE;
 	static
 		{
 		EnumMap<MaskShape,Integer> m = new EnumMap<MaskShape,Integer>(MaskShape.class);
@@ -126,10 +183,10 @@ public class GmFile implements UpdateListener
 	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class);
 	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class);
 
-	public ArrayList<Trigger> triggers = new ArrayList<Trigger>();
-	public ArrayList<Constant> constants = new ArrayList<Constant>();
-	public ArrayList<Include> includes = new ArrayList<Include>();
-	public ArrayList<String> packages = new ArrayList<String>();
+	public List<Trigger> triggers = new ArrayList<Trigger>();
+	public List<Constant> constants = new ArrayList<Constant>();
+	public List<Include> includes = new ArrayList<Include>();
+	public List<String> packages = new ArrayList<String>();
 
 	public GameInformation gameInfo = new GameInformation();
 	public GameSettings gameSettings = new GameSettings();
@@ -156,8 +213,8 @@ public class GmFile implements UpdateListener
 			rl.updateSource.addListener(this);
 			}
 		Random random = new Random();
-		gameSettings.gameId = random.nextInt(100000001);
-		random.nextBytes(gameSettings.dplayGUID);
+		gameSettings.put(PGameSettings.GAME_ID,random.nextInt(100000001));
+		random.nextBytes((byte[]) gameSettings.get(PGameSettings.DPLAY_GUID));
 		try
 			{
 			String loc = "org/lateralgm/file/default.ico";
@@ -167,7 +224,7 @@ public class GmFile implements UpdateListener
 				filein = LGM.class.getClassLoader().getResourceAsStream(loc);
 			else
 				filein = new FileInputStream(file);
-			gameSettings.gameIcon = new ICOFile(filein);
+			gameSettings.put(PGameSettings.GAME_ICON,new ICOFile(filein));
 			}
 		catch (Exception ex)
 			{
@@ -218,9 +275,9 @@ public class GmFile implements UpdateListener
 			}
 		}
 
-	public static ArrayList<Constant> copyConstants(ArrayList<Constant> source)
+	public static List<Constant> copyConstants(List<Constant> source)
 		{
-		ArrayList<Constant> dest = new ArrayList<Constant>();
+		List<Constant> dest = new ArrayList<Constant>();
 		for (Constant c : source)
 			dest.add(c.copy());
 		return dest;

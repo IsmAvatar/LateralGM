@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007, 2008, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006-2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
@@ -483,7 +483,8 @@ public final class LGM
 			{
 				public void run()
 					{
-					gameSet = new GameSettingFrame();
+					gameSet = new GameSettingFrame(currentFile.gameSettings,currentFile.constants,
+							currentFile.includes);
 					mdi.add(gameSet);
 					}
 			};

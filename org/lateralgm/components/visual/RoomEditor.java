@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2007, 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -478,6 +478,7 @@ public class RoomEditor extends VisualPanel
 				case SHOW_TILES:
 				case SHOW_VIEWS:
 					roomVisual.setVisible(k.rvBinding,(Boolean) v);
+					break;
 				case DELETE_UNDERLYING_OBJECTS:
 				case DELETE_UNDERLYING_TILES:
 					if (room.get(PRoom.REMEMBER_WINDOW_SIZE))

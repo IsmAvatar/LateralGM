@@ -815,7 +815,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		bDrawColor = new JCheckBox(Messages.getString("RoomFrame.DRAW_COLOR")); //$NON-NLS-1$
 		plf.make(bDrawColor,PRoom.DRAW_BACKGROUND_COLOR);
 		JLabel lColor = new JLabel(Messages.getString("RoomFrame.COLOR")); //$NON-NLS-1$
-		bColor = new ColorSelect(Color.BLACK);
+		bColor = new ColorSelect();
 		plf.make(bColor,PRoom.BACKGROUND_COLOR);
 
 		JLabel[] backLabs = new JLabel[res.backgroundDefs.size()];
@@ -1173,7 +1173,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		/*		*/.addComponent(editorPane,240,640,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(tools)
+		/**/.addComponent(tools,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(tabs)
 		/*	*/.addGroup(layout.createSequentialGroup()
@@ -1238,14 +1238,14 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		{
 		commitChanges();
 		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Room.class,"parent","instanceUpdateTrigger","instanceUpdateSource",
-				"tileUpdateTrigger","tileUpdateSource");
+		c.addExclusions(Room.class,"instanceUpdateTrigger","instanceUpdateSource","tileUpdateTrigger",
+				"tileUpdateSource");
 		c.addExclusions(Instance.class,"updateTrigger","updateSource");
 		c.addExclusions(Tile.class,"updateTrigger","updateSource");
 		c.addExclusions(BackgroundDef.class,"updateTrigger","updateSource");
 		if (!c.areEqual(res,resOriginal)) return true;
 		for (CodeFrame cf : codeFrames.values())
-			if (cf.isChanged()) return true;
+			if (cf.resourceChanged()) return true;
 		return false;
 		}
 
@@ -1254,7 +1254,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		res.setName(name.getText());
 
 		for (CodeFrame cf : codeFrames.values())
-			cf.commit();
+			cf.commitChanges();
 
 		if (res.get(PRoom.REMEMBER_WINDOW_SIZE))
 			{

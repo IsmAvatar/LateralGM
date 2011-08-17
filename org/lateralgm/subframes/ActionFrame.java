@@ -36,7 +36,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -48,14 +47,13 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
-import org.lateralgm.components.mdi.MDIFrame;
+import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
@@ -67,7 +65,7 @@ import org.lateralgm.resources.library.LibArgument;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 
-public class ActionFrame extends MDIFrame implements ActionListener
+public class ActionFrame extends RevertableMDIFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -96,7 +94,6 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		if (la.parent == null) setTitle(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
 		if (la.actImage != null)
 			setFrameIcon(new ImageIcon(la.actImage.getScaledInstance(16,16,Image.SCALE_SMOOTH)));
-		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		String s;
 		ResourceReference<GmObject> at = a.getAppliesTo();
 		if (at == GmObject.OBJECT_SELF)
@@ -335,38 +332,14 @@ public class ActionFrame extends MDIFrame implements ActionListener
 		if (e.getSource() == discard)
 			{
 			for (ArgumentComponent a : argComp)
-				{
 				a.discard();
-				}
-			dispose();
+			close();
 			}
 		else if (e.getSource() == save)
 			{
-			commitChanges();
-			dispose();
+			updateResource();
+			close();
 			}
-		}
-
-	public void fireInternalFrameEvent(int id)
-		{
-		switch (id)
-			{
-			case InternalFrameEvent.INTERNAL_FRAME_CLOSING:
-				if (act.getLibAction().interfaceKind == LibAction.INTERFACE_CODE)
-					if (code.getUndoManager().isModified() || !act.getAppliesTo().equals(getApplies()))
-						{
-						int ret = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
-								"ActionFrame.KEEPCHANGES",getTitle()), //$NON-NLS-1$
-								Messages.getString("ActionFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
-								JOptionPane.YES_NO_CANCEL_OPTION);
-						if (ret == JOptionPane.CANCEL_OPTION) break;
-						if (ret == JOptionPane.YES_OPTION) commitChanges();
-						}
-				dispose();
-				break;
-			default:
-			}
-		super.fireInternalFrameEvent(id);
 		}
 
 	public void commitChanges()
@@ -381,9 +354,7 @@ public class ActionFrame extends MDIFrame implements ActionListener
 				break;
 			default:
 				for (ArgumentComponent a : argComp)
-					{
 					a.commit();
-					}
 			}
 		}
 
@@ -561,5 +532,30 @@ public class ActionFrame extends MDIFrame implements ActionListener
 					}
 				}
 			}
+		}
+
+	@Override
+	public String getConfirmationName()
+		{
+		return getTitle();
+		}
+
+	//updatable only, no revert
+	@Override
+	public boolean resourceChanged()
+		{
+		return act.getLibAction().interfaceKind == LibAction.INTERFACE_CODE
+				&& (code.getUndoManager().isModified() || !act.getAppliesTo().equals(getApplies()));
+		}
+
+	@Override
+	public void revertResource()
+		{
+		}
+
+	@Override
+	public void updateResource()
+		{
+		commitChanges();
 		}
 	}

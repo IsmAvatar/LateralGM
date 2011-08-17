@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -17,22 +17,18 @@ import java.text.MessageFormat;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
-import org.lateralgm.components.mdi.MDIFrame;
+import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
-import org.lateralgm.messages.Messages;
 
-public class CodeFrame extends MDIFrame implements ActionListener
+public class CodeFrame extends RevertableMDIFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -43,29 +39,12 @@ public class CodeFrame extends MDIFrame implements ActionListener
 		void setCode(String s);
 		}
 
-	public void commit()
-		{
-		codeHolder.setCode(code.getTextCompat());
-		}
-
-	public void setTitleFormatArg(Object titleArg)
-		{
-		this.titleArg = titleArg;
-		setTitle(MessageFormat.format(titleFormat,titleArg));
-		}
-
-	public boolean isChanged()
-		{
-		return code.getUndoManager().isModified();
-		}
-
 	public final CodeHolder codeHolder;
 	public final JToolBar tool;
 	public final GMLTextArea code;
 	public final JPanel status;
 
 	private final String titleFormat;
-	private Object titleArg;
 	private final JButton save;
 
 	public CodeFrame(CodeHolder codeHolder, String titleFormat, Object titleArg)
@@ -73,9 +52,7 @@ public class CodeFrame extends MDIFrame implements ActionListener
 		super(MessageFormat.format(titleFormat,titleArg),true,true,true,true);
 		this.codeHolder = codeHolder;
 		this.titleFormat = titleFormat;
-		this.titleArg = titleArg;
 		setSize(600,400);
-		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 
 		tool = new JToolBar();
 		tool.setFloatable(false);
@@ -111,32 +88,44 @@ public class CodeFrame extends MDIFrame implements ActionListener
 		SubframeInformer.fireSubframeAppear(this);
 		}
 
-	public void fireInternalFrameEvent(int id)
+	public void setTitleFormatArg(Object titleArg)
 		{
-		if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSING)
-			{
-			if (isChanged())
-				{
-				int res = JOptionPane.showConfirmDialog(getParent(),Messages.format(
-						"RoomFrame.CODE_CHANGED",titleArg,Messages.getString("RoomFrame.TITLE_CHANGES"), //$NON-NLS-1$ //$NON-NLS-2$
-						JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE));
-				if (res == JOptionPane.YES_OPTION)
-					commit();
-				else if (res == JOptionPane.CANCEL_OPTION)
-					{
-					super.fireInternalFrameEvent(id);
-					return;
-					}
-				}
-			dispose();
-			}
-		super.fireInternalFrameEvent(id);
+		setTitle(MessageFormat.format(titleFormat,titleArg));
+		}
+
+	public void commitChanges()
+		{
+		codeHolder.setCode(code.getTextCompat());
 		}
 
 	public void actionPerformed(ActionEvent e)
 		{
 		//save button clicked
-		commit();
-		dispose();
+		updateResource();
+		close();
+		}
+
+	@Override
+	public String getConfirmationName()
+		{
+		return getTitle();
+		}
+
+	//updatable only, no revert
+	@Override
+	public boolean resourceChanged()
+		{
+		return code.getUndoManager().isModified();
+		}
+
+	@Override
+	public void revertResource()
+		{
+		}
+
+	@Override
+	public void updateResource()
+		{
+		commitChanges();
 		}
 	}

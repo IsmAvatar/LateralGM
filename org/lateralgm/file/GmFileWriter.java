@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006, 2007, 2008, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006-2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * 
@@ -20,6 +20,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font;
@@ -37,6 +38,9 @@ import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Font.PFont;
+import org.lateralgm.resources.GameInformation.PGameInformation;
+import org.lateralgm.resources.GameSettings.PGameSettings;
+import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Room.PRoom;
@@ -61,6 +65,7 @@ import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View.PView;
+import org.lateralgm.util.PropertyMap;
 
 public final class GmFileWriter
 	{
@@ -77,18 +82,19 @@ public final class GmFileWriter
 		out.write4(1234321);
 		out.write4(ver);
 		if (ver == 530) out.write4(0);
+		int gameId = f.gameSettings.get(PGameSettings.GAME_ID);
 		if (ver == 701)
 			{
 			out.write4(0); //bob
 			out.write4(0); //fred
 			out.write4(248); //seed
-			out.write(f.gameSettings.gameId & 0xFF);
+			out.write(gameId & 0xFF);
 			out.setSeed(248);
-			out.write3(f.gameSettings.gameId >>> 8);
+			out.write3(gameId >>> 8);
 			}
 		else
-			out.write4(f.gameSettings.gameId);
-		out.write(f.gameSettings.dplayGUID); //16 bytes
+			out.write4(gameId);
+		out.write((byte[]) f.gameSettings.get(PGameSettings.DPLAY_GUID)); //16 bytes
 
 		writeSettings(f,out,savetime);
 
@@ -138,82 +144,75 @@ public final class GmFileWriter
 		out.write4(ver >= 800 ? 800 : ver);
 		if (ver >= 800) out.beginDeflate();
 		GameSettings g = f.gameSettings;
-		out.writeBool(g.startFullscreen);
-		if (ver >= 600) out.writeBool(g.interpolate);
-		out.writeBool(g.dontDrawBorder);
-		out.writeBool(g.displayCursor);
-		out.write4(g.scaling);
-		out.writeBool(g.allowWindowResize);
-		out.writeBool(g.alwaysOnTop);
-		out.write4(Util.getGmColor(g.colorOutsideRoom));
-		out.writeBool(g.setResolution);
-		out.write4(g.colorDepth);
-		out.write4(g.resolution);
-		out.write4(g.frequency);
-		out.writeBool(g.dontShowButtons);
-		out.writeBool(g.useSynchronization);
-		if (ver >= 800) out.writeBool(g.disableScreensavers);
-		out.writeBool(g.letF4SwitchFullscreen);
-		out.writeBool(g.letF1ShowGameInfo);
-		out.writeBool(g.letEscEndGame);
-		out.writeBool(g.letF5SaveF6Load);
+		PropertyMap<PGameSettings> p = g.properties;
+		out.writeBool(p,PGameSettings.START_FULLSCREEN);
+		if (ver >= 600) out.writeBool(p,PGameSettings.INTERPOLATE);
+		out.writeBool(p,PGameSettings.DONT_DRAW_BORDER,PGameSettings.DISPLAY_CURSOR);
+		out.write4(p,PGameSettings.SCALING);
+		out.writeBool(p,PGameSettings.ALLOW_WINDOW_RESIZE,PGameSettings.ALWAYS_ON_TOP);
+		out.write4(Util.getGmColor((Color) p.get(PGameSettings.COLOR_OUTSIDE_ROOM)));
+		out.writeBool(p,PGameSettings.SET_RESOLUTION);
+		out.write4(GmFile.GS_DEPTH_CODE.get(p.get(PGameSettings.COLOR_DEPTH)));
+		out.write4(GmFile.GS_RESOL_CODE.get(p.get(PGameSettings.RESOLUTION)));
+		out.write4(GmFile.GS_FREQ_CODE.get(p.get(PGameSettings.FREQUENCY)));
+		out.writeBool(p,PGameSettings.DONT_SHOW_BUTTONS,PGameSettings.USE_SYNCHRONIZATION);
+		if (ver >= 800) out.writeBool(p,PGameSettings.DISABLE_SCREENSAVERS);
+		out.writeBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
+				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
 		if (ver >= 702)
+			out.writeBool(p,PGameSettings.LET_F9_SCREENSHOT,PGameSettings.TREAT_CLOSE_AS_ESCAPE);
+		out.write4(GmFile.GS_PRIORITY_CODE.get(p.get(PGameSettings.GAME_PRIORITY)));
+		out.writeBool(p,PGameSettings.FREEZE_ON_LOSE_FOCUS);
+		out.write4(GmFile.GS_PROGBAR_CODE.get(p.get(PGameSettings.LOAD_BAR_MODE)));
+		if (p.get(PGameSettings.LOAD_BAR_MODE) == ProgressBar.CUSTOM)
 			{
-			out.writeBool(g.letF9Screenshot);
-			out.writeBool(g.treatCloseAsEscape);
-			}
-		out.write4(g.gamePriority);
-		out.writeBool(g.freezeOnLoseFocus);
-		out.write4(g.loadBarMode);
-		if (g.loadBarMode == GameSettings.LOADBAR_CUSTOM)
-			{
-			if (g.backLoadBar != null)
+			if (p.get(PGameSettings.BACK_LOAD_BAR) != null)
 				{
 				out.write4(ver < 800 ? 10 : 1);
-				out.writeZlibImage(g.backLoadBar);
+				out.writeZlibImage((BufferedImage) p.get(PGameSettings.BACK_LOAD_BAR));
 				}
 			else
 				out.write4(ver < 800 ? -1 : 0);
-			if (g.frontLoadBar != null)
+			if (p.get(PGameSettings.FRONT_LOAD_BAR) != null)
 				{
 				out.write4(ver < 800 ? 10 : 1);
-				out.writeZlibImage(g.frontLoadBar);
-				}
-			else
-				out.write4(ver < 800 ? -1 : 0);
-			}
-		out.writeBool(g.showCustomLoadImage);
-		if (g.showCustomLoadImage)
-			{
-			if (g.loadingImage != null)
-				{
-				out.write4(ver < 800 ? 10 : 1);
-				out.writeZlibImage(g.loadingImage);
+				out.writeZlibImage((BufferedImage) p.get(PGameSettings.FRONT_LOAD_BAR));
 				}
 			else
 				out.write4(ver < 800 ? -1 : 0);
 			}
-		out.writeBool(g.imagePartiallyTransparent);
-		out.write4(g.loadImageAlpha);
-		out.writeBool(g.scaleProgressBar);
+		out.writeBool(p,PGameSettings.SHOW_CUSTOM_LOAD_IMAGE);
+		if (p.get(PGameSettings.SHOW_CUSTOM_LOAD_IMAGE))
+			{
+			if (p.get(PGameSettings.LOADING_IMAGE) != null)
+				{
+				out.write4(ver < 800 ? 10 : 1);
+				out.writeZlibImage((BufferedImage) p.get(PGameSettings.LOADING_IMAGE));
+				}
+			else
+				out.write4(ver < 800 ? -1 : 0);
+			}
+		out.writeBool(p,PGameSettings.IMAGE_PARTIALLY_TRANSPARENTY);
+		out.write4(p,PGameSettings.LOAD_IMAGE_ALPHA);
+		out.writeBool(p,PGameSettings.SCALE_PROGRESS_BAR);
 
 		//FIXME: GM8 icons
-		Util.fixIcon(g.gameIcon,f.fileVersion);
+		Util.fixIcon((ICOFile) g.get(PGameSettings.GAME_ICON),f.fileVersion);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		g.gameIcon.write(baos);
+		((ICOFile) g.get(PGameSettings.GAME_ICON)).write(baos);
 		out.write4(baos.size());
 		baos.writeTo(out);
 
-		out.writeBool(g.displayErrors);
-		out.writeBool(g.writeToLog);
-		out.writeBool(g.abortOnError);
-		out.write4((g.treatUninitializedAs0 ? 1 : 0) | (g.errorOnArgs && ver >= 810 ? 2 : 0));
-		out.writeStr(g.author);
+		out.writeBool(p,PGameSettings.DISPLAY_ERRORS,PGameSettings.WRITE_TO_LOG,
+				PGameSettings.ABORT_ON_ERROR);
+		out.write4((p.get(PGameSettings.TREAT_UNINIT_AS_0) ? 1 : 0)
+				| ((Boolean) p.get(PGameSettings.ERROR_ON_ARGS) && ver >= 810 ? 2 : 0));
+		out.writeStr(p,PGameSettings.AUTHOR);
 		if (ver <= 600)
 			{
 			try
 				{
-				out.write4(Integer.parseInt(g.version));
+				out.write4(Integer.parseInt((String) p.get(PGameSettings.VERSION)));
 				}
 			catch (NumberFormatException e)
 				{
@@ -221,10 +220,10 @@ public final class GmFileWriter
 				}
 			}
 		else
-			out.writeStr(g.version);
-		g.lastChanged = GmFile.longTimeToGmTime(savetime);
-		out.writeD(g.lastChanged);
-		out.writeStr(g.information);
+			out.writeStr(p,PGameSettings.VERSION);
+		p.put(PGameSettings.LAST_CHANGED,GmFile.longTimeToGmTime(savetime));
+		out.writeD(p,PGameSettings.LAST_CHANGED);
+		out.writeStr(p,PGameSettings.INFORMATION);
 		if (ver < 800)
 			{
 			out.write4(f.constants.size());
@@ -238,22 +237,17 @@ public final class GmFileWriter
 				out.write4(f.includes.size());
 				for (Include inc : f.includes)
 					out.writeStr(inc.filepath);
-				out.write4(g.includeFolder);
-				out.writeBool(g.overwriteExisting);
-				out.writeBool(g.removeAtGameEnd);
+				out.write4(GmFile.GS_INCFOLDER_CODE.get(p.get(PGameSettings.INCLUDE_FOLDER)));
+				out.writeBool(p,PGameSettings.OVERWRITE_EXISTING,PGameSettings.REMOVE_AT_GAME_END);
 				}
 			}
 		if (ver >= 702)
 			{
-			out.write4(g.versionMajor);
-			out.write4(g.versionMinor);
-			out.write4(g.versionRelease);
-			out.write4(g.versionBuild);
-			out.writeStr(g.company);
-			out.writeStr(g.product);
-			out.writeStr(g.copyright);
-			out.writeStr(g.description);
-			if (ver >= 800) out.writeD(g.lastChanged);
+			out.write4(p,PGameSettings.VERSION_MAJOR,PGameSettings.VERSION_MINOR,
+					PGameSettings.VERSION_RELEASE,PGameSettings.VERSION_BUILD);
+			out.writeStr(p,PGameSettings.COMPANY,PGameSettings.PRODUCT,PGameSettings.COPYRIGHT,
+					PGameSettings.DESCRIPTION);
+			if (ver >= 800) out.writeD(g.getLastChanged());
 			}
 
 		out.endDeflate();
@@ -276,7 +270,7 @@ public final class GmFileWriter
 			out.writeStr(t.constant);
 			out.endDeflate();
 			}
-		out.writeD(f.gameSettings.lastChanged);
+		out.writeD(f.gameSettings.getLastChanged());
 		}
 
 	public static void writeConstants(GmFile f, GmStreamEncoder out) throws IOException
@@ -290,7 +284,7 @@ public final class GmFileWriter
 			out.writeStr(c.name);
 			out.writeStr(c.value);
 			}
-		out.writeD(f.gameSettings.lastChanged);
+		out.writeD(f.gameSettings.getLastChanged());
 		}
 
 	public static void writeSounds(GmFile f, GmStreamEncoder out) throws IOException
@@ -307,7 +301,7 @@ public final class GmFileWriter
 			if (snd != null)
 				{
 				out.writeStr(snd.getName());
-				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
 				out.write4(ver);
 				out.write4(GmFile.SOUND_CODE.get(snd.get(PSound.KIND)));
 				out.writeStr(snd.properties,PSound.FILE_TYPE,PSound.FILE_NAME);
@@ -353,7 +347,7 @@ public final class GmFileWriter
 			if (spr != null)
 				{
 				out.writeStr(spr.getName());
-				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
 				out.write4(ver);
 				if (ver < 800)
 					{
@@ -413,7 +407,7 @@ public final class GmFileWriter
 			if (back != null)
 				{
 				out.writeStr(back.getName());
-				if (ver == 710) out.writeD(f.gameSettings.lastChanged);
+				if (ver == 710) out.writeD(f.gameSettings.getLastChanged());
 				out.write4(ver);
 				if (ver < 710)
 					{
@@ -466,7 +460,7 @@ public final class GmFileWriter
 			if (path != null)
 				{
 				out.writeStr(path.getName());
-				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
 				out.write4(530);
 				out.writeBool(path.properties,PPath.SMOOTH,PPath.CLOSED);
 				out.write4(path.properties,PPath.PRECISION);
@@ -498,7 +492,7 @@ public final class GmFileWriter
 			if (scr != null)
 				{
 				out.writeStr(scr.getName());
-				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
 				out.write4(ver);
 				out.writeStr(scr.properties,PScript.CODE);
 				}
@@ -519,7 +513,7 @@ public final class GmFileWriter
 			if (font != null)
 				{
 				out.writeStr(font.getName());
-				if (ver >= 800) out.writeD(f.gameSettings.lastChanged);
+				if (ver >= 800) out.writeD(f.gameSettings.getLastChanged());
 				out.write4(ver >= 800 ? 800 : 540);
 				out.writeStr(font.properties,PFont.FONT_NAME);
 				out.write4(font.properties,PFont.SIZE);
@@ -552,7 +546,7 @@ public final class GmFileWriter
 			if (time != null)
 				{
 				out.writeStr(time.getName());
-				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
 				out.write4(500);
 				out.write4(time.moments.size());
 				for (Moment mom : time.moments)
@@ -579,7 +573,7 @@ public final class GmFileWriter
 			if (obj != null)
 				{
 				out.writeStr(obj.getName());
-				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
 				out.write4(430);
 				out.writeId((ResourceReference<?>) obj.get(PGmObject.SPRITE));
 				out.writeBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
@@ -621,7 +615,7 @@ public final class GmFileWriter
 			if (rm != null)
 				{
 				out.writeStr(rm.getName());
-				if (ver == 800) out.writeD(f.gameSettings.lastChanged);
+				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
 				out.write4(541);
 				out.writeStr(rm.properties,PRoom.CAPTION);
 				out.write4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
@@ -701,7 +695,7 @@ public final class GmFileWriter
 			if (ver >= 800)
 				{
 				out.beginDeflate();
-				out.writeD(f.gameSettings.lastChanged);
+				out.writeD(f.gameSettings.getLastChanged());
 				}
 			out.write4(ver);
 			out.writeStr(i.filename);
@@ -742,22 +736,19 @@ public final class GmFileWriter
 		out.write4(ver);
 		if (ver == 800) out.beginDeflate();
 		GameInformation g = f.gameInfo;
-		out.write4(Util.getGmColor(g.backgroundColor));
+		PropertyMap<PGameInformation> p = g.properties;
+		out.write4(Util.getGmColor((Color) p.get(PGameInformation.BACKGROUND_COLOR)));
 		if (ver < 800)
-			out.writeBool(g.mimicGameWindow);
+			out.writeBool(p,PGameInformation.MIMIC_GAME_WINDOW);
 		else
-			out.writeBool(!g.mimicGameWindow);
-		out.writeStr(g.formCaption);
-		out.write4(g.left);
-		out.write4(g.top);
-		out.write4(g.width);
-		out.write4(g.height);
-		out.writeBool(g.showBorder);
-		out.writeBool(g.allowResize);
-		out.writeBool(g.stayOnTop);
-		out.writeBool(g.pauseGame);
-		if (ver >= 800) out.writeD(f.gameSettings.lastChanged);
-		out.writeStr(f.gameInfo.gameInfoStr);
+			out.writeBool(!(Boolean) p.get(PGameInformation.MIMIC_GAME_WINDOW));
+		out.writeStr(p,PGameInformation.FORM_CAPTION);
+		out.write4(p,PGameInformation.LEFT,PGameInformation.TOP,PGameInformation.WIDTH,
+				PGameInformation.HEIGHT);
+		out.writeBool(p,PGameInformation.SHOW_BORDER,PGameInformation.ALLOW_RESIZE,
+				PGameInformation.STAY_ON_TOP,PGameInformation.PAUSE_GAME);
+		if (ver >= 800) out.writeD(f.gameSettings.getLastChanged());
+		out.writeStr(p,PGameInformation.TEXT);
 		out.endDeflate();
 		}
 

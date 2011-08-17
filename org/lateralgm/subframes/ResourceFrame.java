@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
+ * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * 
@@ -26,25 +27,22 @@ import java.awt.event.ActionListener;
 import java.beans.ExceptionListener;
 
 import javax.swing.JButton;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.impl.NameDocument;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.components.mdi.MDIFrame;
+import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 
 /** Provides common functionality and structure to Resource editing frames */
-public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> extends MDIFrame
-		implements DocumentListener,ActionListener,ExceptionListener
+public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> extends
+		RevertableMDIFrame implements DocumentListener,ActionListener,ExceptionListener
 	{
 	private static final long serialVersionUID = 1L;
 	/**
@@ -73,14 +71,12 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 	 */
 	public ResourceFrame(R res, ResNode node)
 		{
-		super("",true,true,true,true); //$NON-NLS-1$
+		super(res.getName(),true);
 		plf = new PropertyLinkFactory<P>(res.properties,this);
 		this.res = res;
 		this.node = node;
 		resOriginal = res.clone();
-		setTitle(res.getName());
 		setFrameIcon(ResNode.ICON.get(res.getKind()));
-		setDefaultCloseOperation(JInternalFrame.DO_NOTHING_ON_CLOSE);
 		name.setDocument(new NameDocument());
 		name.setText(res.getName());
 		name.getDocument().addDocumentListener(this);
@@ -88,6 +84,11 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		save.setToolTipText(Messages.getString("ResourceFrame.SAVE")); //$NON-NLS-1$
 		save.setIcon(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
 		save.addActionListener(this);
+		}
+
+	public String getConfirmationName()
+		{
+		return res.getName();
 		}
 
 	public void updateResource()
@@ -100,8 +101,6 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		{
 		resOriginal.updateReference();
 		}
-
-	public abstract boolean resourceChanged();
 
 	public abstract void commitChanges();
 
@@ -153,34 +152,5 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		name.getDocument().removeDocumentListener(this);
 		save.removeActionListener(this);
 		removeAll();
-		}
-
-	protected void fireInternalFrameEvent(int id)
-		{
-		if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSING)
-			{
-			if (resourceChanged())
-				{
-				int ret = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
-						"ResourceFrame.KEEPCHANGES",res.getName()), //$NON-NLS-1$
-						Messages.getString("ResourceFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
-				if (ret == JOptionPane.YES_OPTION)
-					{
-					updateResource();
-					dispose();
-					}
-				else if (ret == JOptionPane.NO_OPTION)
-					{
-					revertResource();
-					dispose();
-					}
-				}
-			else
-				{
-				updateResource();
-				dispose();
-				}
-			}
-		super.fireInternalFrameEvent(id);
 		}
 	}

@@ -1,6 +1,6 @@
 /*
+ * Copyright (C) 2006-2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
- * Copyright (C) 2006, 2007, 2008, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -38,6 +38,10 @@ import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Font.PFont;
+import org.lateralgm.resources.GameInformation.PGameInformation;
+import org.lateralgm.resources.GameSettings.IncludeFolder;
+import org.lateralgm.resources.GameSettings.PGameSettings;
+import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Room.PRoom;
@@ -65,6 +69,7 @@ import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View.PView;
+import org.lateralgm.util.PropertyMap;
 
 public final class GmFileReader
 	{
@@ -144,11 +149,11 @@ public final class GmFileReader
 				in.skip(s2 * 4);
 				int b1 = in.read();
 				in.setSeed(seed);
-				f.gameSettings.gameId = b1 | in.read3() << 8;
+				f.gameSettings.put(PGameSettings.GAME_ID,b1 | in.read3() << 8);
 				}
 			else
-				f.gameSettings.gameId = in.read4();
-			in.read(f.gameSettings.dplayGUID); //16 bytes
+				f.gameSettings.put(PGameSettings.GAME_ID,in.read4());
+			in.read((byte[]) f.gameSettings.get(PGameSettings.DPLAY_GUID)); //16 bytes
 
 			readSettings(c);
 
@@ -228,6 +233,7 @@ public final class GmFileReader
 		{
 		GmStreamDecoder in = c.in;
 		GameSettings g = c.f.gameSettings;
+		PropertyMap<PGameSettings> p = g.properties;
 
 		int ver = in.read4();
 		if (ver != 530 && ver != 542 && ver != 600 && ver != 702 && ver != 800)
@@ -236,89 +242,87 @@ public final class GmFileReader
 			throw new GmFormatException(c.f,msg);
 			}
 		if (ver == 800) in.beginInflate();
-		g.startFullscreen = in.readBool();
-		if (ver >= 600) g.interpolate = in.readBool();
-		g.dontDrawBorder = in.readBool();
-		g.displayCursor = in.readBool();
-		g.scaling = in.read4();
+		in.readBool(p,PGameSettings.START_FULLSCREEN);
+		if (ver >= 600) in.readBool(p,PGameSettings.INTERPOLATE);
+		in.readBool(p,PGameSettings.DONT_DRAW_BORDER,PGameSettings.DISPLAY_CURSOR);
+		in.read4(p,PGameSettings.SCALING);
 		if (ver == 530)
 			in.skip(8); //"fullscreen scale" & "only scale w/ hardware support" 
 		else
 			{
-			g.allowWindowResize = in.readBool();
-			g.alwaysOnTop = in.readBool();
-			g.colorOutsideRoom = Util.convertGmColor(in.read4());
+			in.readBool(p,PGameSettings.ALLOW_WINDOW_RESIZE,PGameSettings.ALWAYS_ON_TOP);
+			p.put(PGameSettings.COLOR_OUTSIDE_ROOM,Util.convertGmColor(in.read4()));
 			}
-		g.setResolution = in.readBool();
+		in.readBool(p,PGameSettings.SET_RESOLUTION);
+		int colorDepth = 0, resolution, frequency;
 		if (ver == 530)
 			{
 			in.skip(8); //Color Depth, Exclusive Graphics
 			byte b = (byte) in.read4();
 			if (b == 6)
-				g.resolution = 0;
+				resolution = 0;
 			else if (b == 5)
-				g.resolution = 1;
+				resolution = 1;
 			else
-				g.resolution = (byte) (b - 2);
+				resolution = (byte) (b - 2);
 			b = (byte) in.read4();
-			g.frequency = (b == 4) ? 0 : (byte) (b + 1);
+			frequency = (b == 4) ? 0 : (byte) (b + 1);
 			in.skip(8); //vertical blank, caption in fullscreen
 			}
 		else
 			{
-			g.colorDepth = (byte) in.read4();
-			g.resolution = (byte) in.read4();
-			g.frequency = (byte) in.read4();
+			colorDepth = (byte) in.read4();
+			resolution = (byte) in.read4();
+			frequency = (byte) in.read4();
 			}
-		g.dontShowButtons = in.readBool();
-		if (ver > 530) g.useSynchronization = in.readBool();
-		if (ver >= 800) g.disableScreensavers = in.readBool();
-		g.letF4SwitchFullscreen = in.readBool();
-		g.letF1ShowGameInfo = in.readBool();
-		g.letEscEndGame = in.readBool();
-		g.letF5SaveF6Load = in.readBool();
+		p.put(PGameSettings.COLOR_DEPTH,GmFile.GS_DEPTHS[colorDepth]);
+		p.put(PGameSettings.RESOLUTION,GmFile.GS_RESOLS[resolution]);
+		p.put(PGameSettings.FREQUENCY,GmFile.GS_FREQS[frequency]);
+
+		in.readBool(p,PGameSettings.DONT_SHOW_BUTTONS);
+		if (ver > 530) in.readBool(p,PGameSettings.USE_SYNCHRONIZATION);
+		if (ver >= 800) in.readBool(p,PGameSettings.DISABLE_SCREENSAVERS);
+		in.readBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
+				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
 		if (ver == 530) in.skip(8); //unknown bytes, both 0
 		if (ver > 600)
-			{
-			g.letF9Screenshot = in.readBool();
-			g.treatCloseAsEscape = in.readBool();
-			}
-		g.gamePriority = (byte) in.read4();
-		g.freezeOnLoseFocus = in.readBool();
-		g.loadBarMode = (byte) in.read4();
-		if (g.loadBarMode == GameSettings.LOADBAR_CUSTOM)
+			in.readBool(p,PGameSettings.LET_F9_SCREENSHOT,PGameSettings.TREAT_CLOSE_AS_ESCAPE);
+		p.put(PGameSettings.GAME_PRIORITY,GmFile.GS_PRIORITIES[in.read4()]);
+		in.readBool(p,PGameSettings.FREEZE_ON_LOSE_FOCUS);
+		p.put(PGameSettings.LOAD_BAR_MODE,GmFile.GS_PROGBARS[in.read4()]);
+		if (p.get(PGameSettings.LOAD_BAR_MODE) == ProgressBar.CUSTOM)
 			{
 			if (ver < 800)
 				{
-				if (in.read4() != -1) g.backLoadBar = in.readZlibImage();
-				if (in.read4() != -1) g.frontLoadBar = in.readZlibImage();
+				if (in.read4() != -1) p.put(PGameSettings.BACK_LOAD_BAR,in.readZlibImage());
+				if (in.read4() != -1) p.put(PGameSettings.FRONT_LOAD_BAR,in.readZlibImage());
 				}
 			//ver >= 800
 			else
 				{
-				if (in.readBool()) g.backLoadBar = in.readZlibImage();
-				if (in.readBool()) g.frontLoadBar = in.readZlibImage();
+				if (in.readBool()) p.put(PGameSettings.BACK_LOAD_BAR,in.readZlibImage());
+				if (in.readBool()) p.put(PGameSettings.FRONT_LOAD_BAR,in.readZlibImage());
 				}
 			}
-		g.showCustomLoadImage = in.readBool();
-		if (g.showCustomLoadImage)
+		in.readBool(p,PGameSettings.SHOW_CUSTOM_LOAD_IMAGE);
+		if (p.get(PGameSettings.SHOW_CUSTOM_LOAD_IMAGE))
 			{
 			if (ver < 800)
 				{
-				if (in.read4() != -1) g.loadingImage = in.readZlibImage();
+				if (in.read4() != -1) p.put(PGameSettings.LOADING_IMAGE,in.readZlibImage());
 				}
-			else if (in.readBool()) g.loadingImage = in.readZlibImage();
+			else if (in.readBool()) p.put(PGameSettings.LOADING_IMAGE,in.readZlibImage());
 			}
-		g.imagePartiallyTransparent = in.readBool();
-		g.loadImageAlpha = in.read4();
-		g.scaleProgressBar = in.readBool();
+		in.readBool(p,PGameSettings.IMAGE_PARTIALLY_TRANSPARENTY);
+		in.read4(p,PGameSettings.LOAD_IMAGE_ALPHA);
+		in.readBool(p,PGameSettings.SCALE_PROGRESS_BAR);
 
 		int length = in.read4();
 		byte[] data = new byte[length];
 		in.read(data,0,length);
 		try
 			{
-			g.gameIcon = new ICOFile(data);
+			g.put(PGameSettings.GAME_ICON,new ICOFile(data));
 			}
 		catch (Exception e)
 			{
@@ -326,19 +330,18 @@ public final class GmFileReader
 			e.printStackTrace();
 			}
 
-		g.displayErrors = in.readBool();
-		g.writeToLog = in.readBool();
-		g.abortOnError = in.readBool();
+		in.readBool(p,PGameSettings.DISPLAY_ERRORS,PGameSettings.WRITE_TO_LOG,
+				PGameSettings.ABORT_ON_ERROR);
 		int errors = in.read4();
-		g.treatUninitializedAs0 = ((errors & 0x01) != 0);
-		g.errorOnArgs = ((errors & 0x02) != 0);
-		g.author = in.readStr();
+		p.put(PGameSettings.TREAT_UNINIT_AS_0,((errors & 0x01) != 0));
+		p.put(PGameSettings.ERROR_ON_ARGS,((errors & 0x02) != 0));
+		in.readStr(p,PGameSettings.AUTHOR);
 		if (ver > 600)
-			g.version = in.readStr();
+			in.readStr(p,PGameSettings.VERSION);
 		else
-			g.version = Integer.toString(in.read4());
-		g.lastChanged = in.readD();
-		g.information = in.readStr();
+			p.put(PGameSettings.VERSION,Integer.toString(in.read4()));
+		in.readD(p,PGameSettings.LAST_CHANGED);
+		in.readStr(p,PGameSettings.INFORMATION);
 		if (ver < 800)
 			{
 			int no = in.read4();
@@ -352,14 +355,10 @@ public final class GmFileReader
 			}
 		if (ver > 600)
 			{
-			g.versionMajor = in.read4();
-			g.versionMinor = in.read4();
-			g.versionRelease = in.read4();
-			g.versionBuild = in.read4();
-			g.company = in.readStr();
-			g.product = in.readStr();
-			g.copyright = in.readStr();
-			g.description = in.readStr();
+			in.read4(p,PGameSettings.VERSION_MAJOR,PGameSettings.VERSION_MINOR,
+					PGameSettings.VERSION_RELEASE,PGameSettings.VERSION_BUILD);
+			in.readStr(p,PGameSettings.COMPANY,PGameSettings.PRODUCT,PGameSettings.COPYRIGHT,
+					PGameSettings.DESCRIPTION);
 
 			if (ver >= 800) in.skip(8); //last changed
 			}
@@ -377,14 +376,15 @@ public final class GmFileReader
 			inc.filepath = in.readStr();
 			inc.filename = new File(inc.filepath).getName();
 			}
-		f.gameSettings.includeFolder = in.read4(); //0 = main, 1 = temp
-		f.gameSettings.overwriteExisting = in.readBool();
-		f.gameSettings.removeAtGameEnd = in.readBool();
+		f.gameSettings.put(PGameSettings.INCLUDE_FOLDER,GmFile.GS_INCFOLDERS[in.read4()]);
+		//		f.gameSettings.includeFolder = in.read4(); //0 = main, 1 = temp
+		in.readBool(f.gameSettings.properties,PGameSettings.OVERWRITE_EXISTING,
+				PGameSettings.REMOVE_AT_GAME_END);
 		for (Include inc : f.includes)
 			{
-			inc.export = f.gameSettings.includeFolder == 1 ? 1 : 2; //1 = temp, 2 = main
-			inc.overwriteExisting = f.gameSettings.overwriteExisting;
-			inc.removeAtGameEnd = f.gameSettings.removeAtGameEnd;
+			inc.export = f.gameSettings.get(PGameSettings.INCLUDE_FOLDER) == IncludeFolder.TEMP ? 1 : 2; //1 = temp, 2 = main
+			inc.overwriteExisting = f.gameSettings.get(PGameSettings.OVERWRITE_EXISTING);
+			inc.removeAtGameEnd = f.gameSettings.get(PGameSettings.REMOVE_AT_GAME_END);
 			}
 		}
 
@@ -1030,6 +1030,7 @@ public final class GmFileReader
 		{
 		GmStreamDecoder in = c.in;
 		GameInformation gameInfo = c.f.gameInfo;
+		PropertyMap<PGameInformation> p = gameInfo.properties;
 
 		int ver = in.read4();
 		if (ver != 430 && ver != 600 && ver != 620 && ver != 800)
@@ -1037,25 +1038,21 @@ public final class GmFileReader
 
 		if (ver == 800) in.beginInflate();
 		int bc = in.read4();
-		if (bc >= 0) gameInfo.backgroundColor = Util.convertGmColor(bc);
+		if (bc >= 0) p.put(PGameInformation.BACKGROUND_COLOR,Util.convertGmColor(bc));
 		if (ver < 800)
-			gameInfo.mimicGameWindow = in.readBool();
+			in.readBool(p,PGameInformation.MIMIC_GAME_WINDOW);
 		else
-			gameInfo.mimicGameWindow = !in.readBool(); //Show help in a separate window
+			p.put(PGameInformation.MIMIC_GAME_WINDOW,!in.readBool()); //Show help in a separate window
 		if (ver > 430)
 			{
-			gameInfo.formCaption = in.readStr();
-			gameInfo.left = in.read4();
-			gameInfo.top = in.read4();
-			gameInfo.width = in.read4();
-			gameInfo.height = in.read4();
-			gameInfo.showBorder = in.readBool();
-			gameInfo.allowResize = in.readBool();
-			gameInfo.stayOnTop = in.readBool();
-			gameInfo.pauseGame = in.readBool();
+			in.readStr(p,PGameInformation.FORM_CAPTION);
+			in.read4(p,PGameInformation.LEFT,PGameInformation.TOP,PGameInformation.WIDTH,
+					PGameInformation.HEIGHT);
+			in.readBool(p,PGameInformation.SHOW_BORDER,PGameInformation.ALLOW_RESIZE,
+					PGameInformation.STAY_ON_TOP,PGameInformation.PAUSE_GAME);
 			}
 		if (ver == 800) in.skip(8); //last changed
-		gameInfo.gameInfoStr = in.readStr();
+		in.readStr(p,PGameInformation.TEXT);
 		in.endInflate();
 		}
 
