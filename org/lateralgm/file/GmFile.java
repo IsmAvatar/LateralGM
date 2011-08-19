@@ -82,13 +82,15 @@ public class GmFile implements UpdateListener
 			Resolution.RES_640X480,Resolution.RES_800X600,Resolution.RES_1024X768,
 			Resolution.RES_1280X1024,Resolution.RES_1600X1200 };
 	public static final Map<Resolution,Integer> GS_RESOL_CODE;
-	public static final Frequency[] GS_FREQS = {};
+	public static final Frequency[] GS_FREQS = { Frequency.NO_CHANGE,Frequency.FREQ_60,
+			Frequency.FREQ_70,Frequency.FREQ_85,Frequency.FREQ_100,Frequency.FREQ_120 };
 	public static final Map<Frequency,Integer> GS_FREQ_CODE;
-	public static final Priority[] GS_PRIORITIES = {};
+	public static final Priority[] GS_PRIORITIES = { Priority.NORMAL,Priority.HIGH,Priority.HIGHEST };
 	public static final Map<Priority,Integer> GS_PRIORITY_CODE;
-	public static final ProgressBar[] GS_PROGBARS = {};
+	public static final ProgressBar[] GS_PROGBARS = { ProgressBar.NONE,ProgressBar.DEFAULT,
+			ProgressBar.CUSTOM };
 	public static final Map<ProgressBar,Integer> GS_PROGBAR_CODE;
-	public static final IncludeFolder[] GS_INCFOLDERS = {};
+	public static final IncludeFolder[] GS_INCFOLDERS = { IncludeFolder.MAIN,IncludeFolder.TEMP };
 	public static final Map<IncludeFolder,Integer> GS_INCFOLDER_CODE;
 	static
 		{
