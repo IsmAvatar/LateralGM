@@ -37,7 +37,7 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 
 	public EventNode(int mainId)
 		{
-		this(Messages.getString("MainEvent.EVENT" + mainId),mainId,0);
+		this(Messages.getString("MainEvent.EVENT" + mainId),mainId,0); //$NON-NLS-1$
 		}
 
 	public EventNode(String text, int mainId, int eventId)

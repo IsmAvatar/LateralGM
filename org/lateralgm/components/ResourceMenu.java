@@ -36,6 +36,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
 
+import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.AbstractImagePreview;
 import org.lateralgm.components.visual.ImageToolTip;
@@ -45,9 +46,11 @@ import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Resource.Kind;
+import org.lateralgm.subframes.GmObjectFrame;
 import org.lateralgm.util.PropertyEditor;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap;
@@ -63,6 +66,10 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	protected JPopupMenu pm;
 	protected JMenuItem noResource;
 	protected boolean onlyOpen;
+	public int parMethod;
+	public int parEvent;
+	public GmObjectFrame parFrame;
+	public EventNode parNode;
 	private ActionEvent actionEvent;
 	protected Kind kind;
 	private MListener mListener = new MListener();
@@ -171,6 +178,29 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			}
 		}
 
+	public ResourceMenu(Kind kind, String def, Boolean showDef, int event, MouseEvent e,
+			GmObjectFrame f, EventNode n)
+		{
+		this.kind = kind;
+		parMethod = 1;
+		parEvent = event;
+		parFrame = f;
+		parNode = n;
+		rPreview = null;
+
+		JPopupMenu righmenu = new JPopupMenu();
+		if (showDef)
+			{
+			noResource = righmenu.add(new JMenuItem(def));
+			noResource.addActionListener(this);
+			}
+		populate(righmenu,kind);
+		LGM.root.updateSource.addListener(this);
+		if (!isEnabled()) return;
+		if (righmenu.getComponentCount() == 0) return;
+		righmenu.show(e.getComponent(),e.getX(),e.getY());
+		}
+
 	/**
 	 * Creates a Resource Menu of given Resource kind.
 	 * @param kind - One of the kind constants defined in Resource (eg Resource.SPRITE)
@@ -196,6 +226,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			boolean preview)
 		{
 		this.kind = kind;
+		parMethod = 0;
 		this.onlyOpen = onlyOpen;
 		GroupLayout layout = new GroupLayout(this);
 		setLayout(layout);
@@ -227,8 +258,8 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			noResource = pm.add(new JMenuItem(def));
 			noResource.addActionListener(this);
 			}
-		populate(kind);
-		LGM.root.updateSource.addListener(ResourceMenu.this);
+		populate(pm,kind);
+		LGM.root.updateSource.addListener(this);
 		}
 
 	/**
@@ -262,7 +293,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			}
 		}
 
-	protected void populate(Kind kind)
+	protected void populate(JPopupMenu menu, Kind kind)
 		{
 		if (Prefs.groupKind)
 			{
@@ -271,12 +302,12 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 				ResNode group = (ResNode) LGM.root.getChildAt(m);
 				if (group.kind == kind)
 					{
-					populate(pm,group,kind);
+					populate(menu,group,kind);
 					return;
 					} //found group
 				} //root loop
 			} //group kind
-		populate(pm,LGM.root,kind);
+		populate(menu,LGM.root,kind);
 		return;
 		}
 
@@ -362,11 +393,24 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	public void actionPerformed(ActionEvent e)
 		{
 		JMenuItem source = (JMenuItem) e.getSource();
-		if (source instanceof ResourceMenu.ResourceMenuItem)
-			setSelected((ResourceReference<R>) ((ResourceMenuItem) source).node.getRes());
-		else
-			setSelected(null);
-		fireActionPerformed();
+		switch (parMethod)
+			{
+			case 0:
+				if (source instanceof ResourceMenu.ResourceMenuItem)
+					setSelected((ResourceReference<R>) ((ResourceMenuItem) source).node.getRes());
+				else
+					setSelected(null);
+				fireActionPerformed();
+				break;
+			case 1:
+				if (parFrame != null)
+					{
+					parFrame.functionEvent(parEvent,parNode.eventId,
+							(ResourceReference<GmObject>) ((ResourceMenuItem) source).node.getRes(),null);
+					parFrame.toTop();
+					}
+				break;
+			}
 		}
 
 	private class MListener extends MouseAdapter
@@ -379,7 +423,6 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		public void mouseClicked(MouseEvent e)
 			{
 			if (!isEnabled()) return;
-			if (pm.getComponentCount() == 0) return;
 			showPopup(e.getComponent(),e.getX(),e.getY());
 			}
 		}
@@ -393,9 +436,13 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		{
 		public void run()
 			{
+			if (pm == null)
+				{
+				return;
+				}
 			pm.removeAll();
 			if (noResource != null) pm.add(noResource);
-			populate(kind);
+			populate(pm,kind);
 			if (selected == null || !Listener.getPrimaryParent(kind).contains(selected))
 				setSelected(null);
 			setSelected(selected);

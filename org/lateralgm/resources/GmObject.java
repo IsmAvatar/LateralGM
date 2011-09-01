@@ -48,6 +48,7 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 
 	private ResourceReference<Sprite> sprite = null;
 	public final List<MainEvent> mainEvents;
+	public Object windowHasOpened;
 
 	public enum PGmObject
 		{

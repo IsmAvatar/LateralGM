@@ -28,12 +28,13 @@ import java.lang.ref.WeakReference;
 
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.JCheckBox;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -46,6 +47,7 @@ import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.EventKeySelector;
 import org.lateralgm.components.ResourceMenu;
+import org.lateralgm.components.SubEventSelector;
 import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
@@ -74,25 +76,35 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 	public IndexButtonGroup function;
 	public EventKeySelector keySelect;
 	public JPanel keySelectPanel;
+	public SubEventSelector stepSelect;
+	public JPanel stepSelectPanel;
+	public SubEventSelector alarmSelect;
+	public JPanel alarmSelectPanel;
+	public SubEventSelector mouseSelect;
+	public JPanel mouseSelectPanel;
+	public SubEventSelector otherSelect;
+	public JPanel otherSelectPanel;
 	public ResourceMenu<GmObject> collisionSelect;
 	public JPanel collisionSelectPanel;
 	public JPanel emptyPanel;
 	public ResourceMenu<GmObject> linkSelect;
 	public WeakReference<GmObjectFrame> linkedFrame;
+	public JButton okButton;
 	private MListener mListener = new MListener();
 	public EventNode root;
 	public JTree events;
-	public JCheckBox onTop;
 	public EventNode selectedNode;
+	public JPopupMenu eventMenu;
 
 	public EventFrame()
 		{
 		super(Messages.getString("EventFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
+		final ImageIcon ACCEPT_ICON = LGM.getIconForKey("EventFrame.ACCEPT"); //$NON-NLS-1$
 
-		setSize(400,335);
+		setSize(345,305);
 		setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
 		setFrameIcon(LGM.getIconForKey("LGM.TOGGLE_EVENT")); //$NON-NLS-1$
-		setMinimumSize(new Dimension(400,335));
+		setMinimumSize(new Dimension(345,305));
 		setLayout(new BoxLayout(getContentPane(),BoxLayout.X_AXIS));
 		JPanel side1 = new JPanel(new BorderLayout());
 
@@ -103,12 +115,9 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		JPanel side2Parent = new JPanel();
 		JPanel side2 = new JPanel(new FlowLayout());
 		side2Parent.add(side2);
-		side2.setPreferredSize(new Dimension(150,315));
-		side2.setMaximumSize(new Dimension(150,315));
-		side2.setMinimumSize(new Dimension(150,315));
-
-		side2.add(new JLabel(Messages.getString("EventFrame.DOUBLE_CLICK"))); //$NON-NLS-1$
-		addGap(side2,100,1);
+		side2.setPreferredSize(new Dimension(150,285));
+		side2.setMaximumSize(new Dimension(150,285));
+		side2.setMinimumSize(new Dimension(150,285));
 
 		function = new IndexButtonGroup(3,true,false);
 		JRadioButton rad = new JRadioButton(Messages.getString("EventFrame.ADD")); //$NON-NLS-1$
@@ -122,6 +131,12 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		function.setValue(FUNCTION_ADD);
 		side2.add(panel);
 
+		addDim(side2,new JLabel(Messages.getString("EventFrame.OBJECT_WINDOW")),140,16); //$NON-NLS-1$
+		linkSelect = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
+				Messages.getString("EventFrame.NO_LINK"),false,140,true,true); //$NON-NLS-1$
+		linkSelect.addActionListener(this);
+		side2.add(linkSelect);
+
 		keySelectPanel = new JPanel();
 		addDim(keySelectPanel,new JLabel(Messages.getString("EventFrame.KEY_SELECTOR")),140,16); //$NON-NLS-1$
 		keySelect = new EventKeySelector(this,140);
@@ -129,9 +144,41 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		addDim(side2,keySelectPanel,140,46);
 		keySelectPanel.setVisible(false);
 
+		stepSelectPanel = new JPanel();
+		addDim(stepSelectPanel,new JLabel(Messages.getString("EventFrame.STEP_EVENT")),140,16); //$NON-NLS-1$
+		stepSelect = new SubEventSelector(this,MainEvent.EV_STEP,
+				Messages.getString("EventFrame.CHOOSE_STEP"),140); //$NON-NLS-1$
+		addDim(stepSelectPanel,stepSelect,140,20);
+		addDim(side2,stepSelectPanel,140,46);
+		stepSelectPanel.setVisible(false);
+
+		alarmSelectPanel = new JPanel();
+		addDim(alarmSelectPanel,new JLabel(Messages.getString("EventFrame.ALARM_EVENT")),140,16); //$NON-NLS-1$
+		alarmSelect = new SubEventSelector(this,MainEvent.EV_ALARM,
+				Messages.getString("EventFrame.CHOOSE_ALARM"),140); //$NON-NLS-1$
+		addDim(alarmSelectPanel,alarmSelect,140,20);
+		addDim(side2,alarmSelectPanel,140,46);
+		alarmSelectPanel.setVisible(false);
+
+		mouseSelectPanel = new JPanel();
+		addDim(mouseSelectPanel,new JLabel(Messages.getString("EventFrame.MOUSE_EVENT")),140,16); //$NON-NLS-1$
+		mouseSelect = new SubEventSelector(this,MainEvent.EV_MOUSE,
+				Messages.getString("EventFrame.CHOOSE_MOUSE"),140); //$NON-NLS-1$
+		addDim(mouseSelectPanel,mouseSelect,140,20);
+		addDim(side2,mouseSelectPanel,140,46);
+		mouseSelectPanel.setVisible(false);
+
+		otherSelectPanel = new JPanel();
+		addDim(otherSelectPanel,new JLabel(Messages.getString("EventFrame.OTHER_EVENT")),140,16); //$NON-NLS-1$
+		otherSelect = new SubEventSelector(this,MainEvent.EV_OTHER,
+				Messages.getString("EventFrame.CHOOSE_OTHER"),140); //$NON-NLS-1$
+		addDim(otherSelectPanel,otherSelect,140,20);
+		addDim(side2,otherSelectPanel,140,46);
+		otherSelectPanel.setVisible(false);
+
 		collisionSelectPanel = new JPanel();
-		JLabel lab = new JLabel(Messages.getString("EventFrame.COLLISION_OBJECT")); //$NON-NLS-1$
-		addDim(collisionSelectPanel,lab,140,16);
+		addDim(collisionSelectPanel,
+				new JLabel(Messages.getString("EventFrame.COLLISION_OBJECT")),140,16); //$NON-NLS-1$
 		collisionSelect = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
 				Messages.getString("EventFrame.CHOOSE_OBJECT"),true,140); //$NON-NLS-1$
 		collisionSelectPanel.add(collisionSelect);
@@ -142,20 +189,10 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		emptyPanel = new JPanel();
 		addDim(side2,emptyPanel,140,46);
 
-		addGap(side2,140,5);
-
-		addDim(side2,new JLabel(Messages.getString("EventFrame.FRAME_LINK")),140,16); //$NON-NLS-1$
-		linkSelect = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
-				Messages.getString("EventFrame.NO_LINK"),true,140,true,true); //$NON-NLS-1$
-		linkSelect.addActionListener(this);
-		side2.add(linkSelect);
-
-		addGap(side2,50,10);
-
-		onTop = new JCheckBox(Messages.getString("EventFrame.ALWAYS_ON_TOP")); //$NON-NLS-1$
-		addDim(side2,onTop,120,16);
-		onTop.addActionListener(this);
-		if (onTop.isSelected()) setLayer(JLayeredPane.MODAL_LAYER);
+		addGap(side2,140,12);
+		okButton = new JButton(Messages.getString("EventFrame.OK"),ACCEPT_ICON); //$NON-NLS-1$
+		okButton.addActionListener(this);
+		addDim(side2,okButton,100,26);
 
 		add(side2Parent);
 		LGM.mdi.addPropertyChangeListener(MDIPane.SELECTED_FRAME_PROPERTY,this);
@@ -222,6 +259,14 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		root.add(MainEvent.EV_KEYPRESS);
 		root.add(MainEvent.EV_KEYRELEASE);
 
+		//byte[] rowEvs = { MainEvent.EV_CREATE,MainEvent.EV_DESTROY,MainEvent.EV_ALARM,
+		//		MainEvent.EV_STEP,MainEvent.EV_COLLISION,MainEvent.EV_KEYBOARD,MainEvent.EV_MOUSE,
+		//		MainEvent.EV_OTHER,MainEvent.EV_DRAW,MainEvent.EV_KEYPRESS,MainEvent.EV_KEYRELEASE };
+
+		//Object[] rows = new Object[rowEvs.length];
+		//for (int i = 0; i < rowEvs.length; i++)
+		//	rows[i] = new EventNode(Messages.getString("MainEvent.EVENT" + rowEvs[i]),rowEvs[i],0);
+
 		events = new JTree(root);
 		events.setCellRenderer(new EventNodeRenderer());
 		events.setRootVisible(false);
@@ -233,7 +278,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		events.addMouseListener(mListener);
 		JScrollPane scroll = new JScrollPane(events);
 		scroll.setMinimumSize(new Dimension(120,260));
-		side1.add(scroll,"Center"); //$NON-NLS-1$
+		side1.add(scroll,BorderLayout.CENTER);
 		}
 
 	public static class EventNodeRenderer extends DefaultTreeCellRenderer
@@ -284,11 +329,6 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 
 	private class MListener extends MouseAdapter
 		{
-		public MListener()
-			{
-			super();
-			}
-
 		public void mouseReleased(MouseEvent e)
 			{
 			if (e.getSource() != events) return;
@@ -309,13 +349,43 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				if (n.mainId == MainEvent.EV_KEYBOARD || n.mainId == MainEvent.EV_KEYPRESS
 						|| n.mainId == MainEvent.EV_KEYRELEASE) keySelect.text.requestFocusInWindow();
 
-				boolean added = (button == MouseEvent.BUTTON1 && clicks == 2)
-						|| (button == MouseEvent.BUTTON3 && clicks == 1);
+				boolean left_added = (button == MouseEvent.BUTTON1 && clicks == 2);
+				boolean right_added = (button == MouseEvent.BUTTON3 && clicks == 1);
 				GmObjectFrame f = linkedFrame == null ? null : linkedFrame.get();
-				if (added && n.isLeaf() && f != null && n.isValid())
+				if (left_added && n.isLeaf() && f != null && n.isValid())
 					{
-					f.addEvent(new Event(n.mainId,n.eventId,n.other));
+					f.functionEvent(n.mainId,n.eventId,n.other,null);
 					f.toTop();
+					}
+				else if (right_added && n.isLeaf())
+					{
+					switch (n.mainId)
+						{
+						case MainEvent.EV_CREATE:
+						case MainEvent.EV_DESTROY:
+						case MainEvent.EV_DRAW:
+							if (f != null)
+								{
+								f.functionEvent(n.mainId,n.eventId,n.other,null);
+								f.toTop();
+								}
+							break;
+						case MainEvent.EV_STEP:
+						case MainEvent.EV_ALARM:
+						case MainEvent.EV_MOUSE:
+						case MainEvent.EV_OTHER:
+							new SubEventSelector(EventFrame.this,n.mainId,e,f,n);
+							break;
+						case MainEvent.EV_COLLISION:
+							new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
+									Messages.getString("EventFrame.CHOOSE_OBJECT"),false,n.mainId,e,f,n);
+							break;
+						case MainEvent.EV_KEYBOARD:
+						case MainEvent.EV_KEYPRESS:
+						case MainEvent.EV_KEYRELEASE:
+							new EventKeySelector(EventFrame.this,n.mainId,e,f,n);
+							break;
+						}
 					}
 				}
 			}
@@ -339,15 +409,19 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				linkedFrame = null;
 			return;
 			}
-		if (e.getSource() == onTop)
-			{
-			setLayer(onTop.isSelected() ? JLayeredPane.MODAL_LAYER : JLayeredPane.DEFAULT_LAYER);
-			return;
-			}
 		if (e.getSource() == collisionSelect)
 			{
 			if (selectedNode.mainId == MainEvent.EV_COLLISION && collisionSelect.getSelected() != null)
 				selectedNode.other = collisionSelect.getSelected();
+			}
+		if (e.getSource() == okButton)
+			{
+			GmObjectFrame f = linkedFrame == null ? null : linkedFrame.get();
+			if (f != null && selectedNode != null)
+				{
+				f.functionEvent(selectedNode.mainId,selectedNode.eventId,selectedNode.other,null);
+				f.toTop();
+				}
 			}
 		}
 
@@ -367,24 +441,36 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 	public void valueChanged(TreeSelectionEvent e)
 		{
 		selectedNode = (EventNode) e.getPath().getLastPathComponent();
+		keySelectPanel.setVisible(false);
+		stepSelectPanel.setVisible(false);
+		alarmSelectPanel.setVisible(false);
+		mouseSelectPanel.setVisible(false);
+		otherSelectPanel.setVisible(false);
+		collisionSelectPanel.setVisible(false);
+		emptyPanel.setVisible(false);
 		switch (selectedNode.mainId)
 			{
 			case MainEvent.EV_COLLISION:
-				keySelectPanel.setVisible(false);
 				collisionSelectPanel.setVisible(true);
-				emptyPanel.setVisible(false);
+				break;
+			case MainEvent.EV_STEP:
+				stepSelectPanel.setVisible(true);
+				break;
+			case MainEvent.EV_ALARM:
+				alarmSelectPanel.setVisible(true);
+				break;
+			case MainEvent.EV_MOUSE:
+				mouseSelectPanel.setVisible(true);
+				break;
+			case MainEvent.EV_OTHER:
+				otherSelectPanel.setVisible(true);
 				break;
 			case MainEvent.EV_KEYBOARD:
 			case MainEvent.EV_KEYPRESS:
 			case MainEvent.EV_KEYRELEASE:
 				keySelectPanel.setVisible(true);
-				collisionSelectPanel.setVisible(false);
-				emptyPanel.setVisible(false);
-				selectedNode.eventId = keySelect.getSelectedKey();
 				break;
 			default:
-				keySelectPanel.setVisible(false);
-				collisionSelectPanel.setVisible(false);
 				emptyPanel.setVisible(true);
 				break;
 			}

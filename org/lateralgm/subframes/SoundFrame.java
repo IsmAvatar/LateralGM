@@ -18,7 +18,6 @@ import java.awt.event.ActionEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -57,6 +56,7 @@ import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
@@ -425,21 +425,15 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 
 	public static byte[] fileToBytes(File f) throws IOException
 		{
-		InputStream in = new FileInputStream(f);
-		byte data[] = new byte[(int) f.length()];
-
-		// Read in the bytes
-		int offset = 0;
-		int numRead = 0;
-		while (offset < data.length && (numRead = in.read(data,offset,data.length - offset)) >= 0)
-			offset += numRead;
-
-		// Ensure all the bytes have been read in
-		if (offset < data.length) throw new EOFException(f.getName());
-
-		// Close the input stream and return bytes
-		in.close();
-		return data;
+		InputStream in = null;
+		try
+			{
+			return Util.readFully(in = new FileInputStream(f)).toByteArray();
+			}
+		finally
+			{
+			if (in != null) in.close();
+			}
 		}
 
 	private class SoundEditor implements UpdateListener

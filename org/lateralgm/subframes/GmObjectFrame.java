@@ -16,12 +16,15 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,13 +33,16 @@ import java.util.Enumeration;
 import javax.swing.BorderFactory;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
@@ -44,6 +50,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -61,6 +68,7 @@ import org.lateralgm.main.Listener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.GmObject.ParentLoopException;
@@ -68,7 +76,6 @@ import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
-import org.lateralgm.subframes.EventFrame.EventNodeRenderer;
 
 public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements ActionListener,
 		TreeSelectionListener
@@ -88,8 +95,16 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 	public JButton information;
 
 	public EventTree events;
+	public JButton eventAdd;
+	public JButton eventReplace;
+	public JButton eventDuplicate;
 	public JButton eventDelete;
+	public JMenuItem eventAddItem;
+	public JMenuItem eventReplaceItem;
+	public JMenuItem eventDuplicateItem;
+	public JMenuItem eventDeleteItem;
 	public EventGroupNode rootEvent;
+	private MListener mListener = new MListener();
 	public ActionList actions;
 	public GMLTextArea code;
 
@@ -114,18 +129,30 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		side2.add(scroll,BorderLayout.CENTER);
 
 		JPanel side2bottom = new JPanel(new BorderLayout());
-		//I probably shouldn't refer to LGM.makeButton, but it suits my purpose well here
-		side2bottom.add(LGM.makeButton("LGM.EVENT_BUTTON"),BorderLayout.WEST); //$NON-NLS-1$
+		eventAdd = new JButton(Messages.getString("GmObjectFrame.ADD_EVENT")); //$NON-NLS-1
+		eventAdd.addActionListener(this);
+		eventReplace = new JButton(Messages.getString("GmObjectFrame.REP")); //$NON-NLS-1
+		eventReplace.addActionListener(this);
+		eventReplace.setToolTipText(Messages.getString("GmObjectFrame.REPLACE_EVENT")); //$NON-NLS-1$
+		eventReplace.setMargin(new Insets(1,7,1,7));
+		eventDuplicate = new JButton(Messages.getString("GmObjectFrame.DUP")); //$NON-NLS-1
+		eventDuplicate.addActionListener(this);
+		eventDuplicate.setToolTipText(Messages.getString("GmObjectFrame.DUPLICATE_EVENT")); //$NON-NLS-1$
+		eventDuplicate.setMargin(new Insets(1,7,1,7));
 		eventDelete = new JButton(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
 		eventDelete.addActionListener(this);
+		eventDelete.setToolTipText(Messages.getString("GmObjectFrame.DELETE_EVENT")); //$NON-NLS-1$
+		eventDelete.setMargin(new Insets(2,0,2,0));
+		side2bottom.add(eventAdd,BorderLayout.NORTH);
+		side2bottom.add(eventReplace,BorderLayout.WEST);
+		side2bottom.add(eventDuplicate,BorderLayout.EAST);
 		side2bottom.add(eventDelete,BorderLayout.CENTER);
 		side2.add(side2bottom,BorderLayout.SOUTH);
-
-		//		side2.add(deleteEvent,BorderLayout.SOUTH);
 
 		JComponent editor;
 		if (false)
 			{
+			//TODO
 			code = new GMLTextArea(""); //$NON-NLS-1$
 			editor = new JScrollPane(code);
 			}
@@ -185,6 +212,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		/**/.addContainerGap(4,4));
 		oLayout.setVerticalGroup(oLayout.createSequentialGroup()
 		/**/.addComponent(sprite,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/**/.addGap(2)
 		/**/.addGroup(oLayout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(newSprite)
 		/*		*/.addComponent(editSprite))
@@ -216,10 +244,6 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		/*		*/.addComponent(nLabel)
 		/*		*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addComponent(origin)
-		/**/.addComponent(persistent)
-		/**/.addGroup(s1Layout.createSequentialGroup()
-		/*		*/.addComponent(visible)
-		/*		*/.addComponent(solid))
 		/**/.addGroup(s1Layout.createSequentialGroup()
 		/*		*/.addComponent(dLabel)
 		/*		*/.addComponent(depth))
@@ -227,30 +251,35 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		/*		*/.addComponent(pLabel)
 		/*		*/.addComponent(mLabel))
 		/**/.addGroup(s1Layout.createSequentialGroup()
-		/*		*/.addGap(16)
 		/*		*/.addGroup(s1Layout.createParallelGroup(Alignment.TRAILING)
 		/*				*/.addComponent(parent,DEFAULT_SIZE,120,MAX_VALUE)
 		/*				*/.addComponent(mask,DEFAULT_SIZE,120,MAX_VALUE)))
+		/**/.addGroup(s1Layout.createSequentialGroup()
+		/*		*/.addComponent(visible)
+		/*		*/.addComponent(solid))
+		/**/.addComponent(persistent)
 		/**/.addComponent(information,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+
 		s1Layout.setVerticalGroup(s1Layout.createSequentialGroup()
 		/**/.addGroup(s1Layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(nLabel)
 		/*		*/.addComponent(name))
 		/**/.addComponent(origin)
-		/**/.addComponent(persistent)
-		/**/.addGroup(s1Layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(visible)
-		/*		*/.addComponent(solid))
 		/**/.addGroup(s1Layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(dLabel)
 		/*		*/.addComponent(depth))
 		/**/.addComponent(pLabel)
-		/**/.addGap(2)
+		/**/.addGap(4)
 		/**/.addComponent(parent,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/**/.addComponent(mLabel)
-		/**/.addGap(2)
+		/**/.addGap(4)
 		/**/.addComponent(mask,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/**/.addGap(8)
+		/**/.addGroup(s1Layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(visible)
+		/*		*/.addComponent(solid))
+		/**/.addComponent(persistent)
 		/**/.addGap(8,8,MAX_VALUE)
 		/**/.addComponent(information)
 		/**/.addComponent(save));
@@ -320,40 +349,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 				{
 				EventNode t = (EventNode) support.getTransferable().getTransferData(
 						EventNode.EVENTNODE_FLAVOR);
+				if (!t.isValid()) return false;
+
 				Point p = support.getDropLocation().getDropPoint();
 				TreePath path = events.getPathForLocation(p.x,p.y);
-				int func = path == null ? EventFrame.FUNCTION_ADD : LGM.eventSelect.function.getValue();
-
-				switch (func)
-					{
-					case EventFrame.FUNCTION_ADD:
-						if (!t.isValid()) return false;
-						addEvent(new Event(t.mainId,t.eventId,t.other));
-						return true;
-					case EventFrame.FUNCTION_REPLACE:
-						DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-						if (!(dropNode instanceof EventInstanceNode) || !t.isValid()) return false;
-						EventInstanceNode drop = (EventInstanceNode) dropNode;
-						removeEvent(drop);
-						Event ev = drop.getUserObject();
-						ev.mainId = t.mainId;
-						ev.id = t.eventId;
-						ev.other = t.other;
-						addEvent(ev);
-						return true;
-					case EventFrame.FUNCTION_DUPLICATE:
-						dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-						if (!(dropNode instanceof EventInstanceNode) || !t.isValid()) return false;
-						drop = (EventInstanceNode) dropNode;
-						ev = drop.getUserObject();
-						actions.save();
-						Event ev2 = ev.copy();
-						ev2.mainId = t.mainId;
-						ev2.id = t.eventId;
-						ev2.other = t.other;
-						addEvent(ev2);
-						return true;
-					}
+				functionEvent(t.mainId,t.eventId,t.other,path);
+				return true;
 				}
 			catch (Throwable e)
 				{
@@ -533,6 +534,47 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		events.updateUI();
 		}
 
+	public void functionEvent(int mainId, int id, ResourceReference<GmObject> other, TreePath path)
+		{
+		if (path == null)
+			{
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
+			if (node == null) return;
+			path = new TreePath(node.getPath());
+			}
+		int func = path == null ? EventFrame.FUNCTION_ADD : LGM.eventSelect.function.getValue();
+
+		switch (func)
+			{
+			case EventFrame.FUNCTION_ADD:
+				addEvent(new Event(mainId,id,other));
+				break;
+			case EventFrame.FUNCTION_REPLACE:
+				DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+				if (!(dropNode instanceof EventInstanceNode)) return;
+				EventInstanceNode drop = (EventInstanceNode) dropNode;
+				removeEvent(drop);
+				Event ev = drop.getUserObject();
+				ev.mainId = mainId;
+				ev.id = id;
+				ev.other = other;
+				addEvent(ev);
+				break;
+			case EventFrame.FUNCTION_DUPLICATE:
+				dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+				if (!(dropNode instanceof EventInstanceNode)) return;
+				drop = (EventInstanceNode) dropNode;
+				ev = drop.getUserObject();
+				actions.save();
+				Event ev2 = ev.copy();
+				ev2.mainId = mainId;
+				ev2.id = id;
+				ev2.other = other;
+				addEvent(ev2);
+				break;
+			}
+		}
+
 	public void makeEventTree(GmObject res)
 		{
 		rootEvent = new EventGroupNode(-1);
@@ -552,17 +594,20 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 					node.add(new EventInstanceNode(e));
 				}
 			}
-		if (rootEvent.getChildCount() == 0)
+		if (res.windowHasOpened == null)
 			{
 			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_CREATE,0,null)));
 			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_STEP,Event.EV_STEP_NORMAL,null)));
 			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_DRAW,0,null)));
+			res.windowHasOpened = true;
 			}
 		events = new EventTree(rootEvent);
 		events.setScrollsOnExpand(true);
 		events.setCellRenderer(new EventNodeRenderer());
 		events.setRootVisible(false);
 		events.setShowsRootHandles(true);
+		events.setExpandsSelectedPaths(false);
+		events.addMouseListener(mListener);
 		events.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		events.addTreeSelectionListener(this);
 		if (LGM.javaVersion >= 10600)
@@ -632,7 +677,28 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 			//TODO: Object Information
 			return;
 			}
-		if (e.getSource() == eventDelete)
+		if (e.getSource() == eventAdd || e.getSource() == eventAddItem)
+			{
+			LGM.eventSelect.show();
+			LGM.eventSelect.toTop();
+			LGM.eventSelect.function.setValue(EventFrame.FUNCTION_ADD);
+			return;
+			}
+		if (e.getSource() == eventReplace || e.getSource() == eventReplaceItem)
+			{
+			LGM.eventSelect.show();
+			LGM.eventSelect.toTop();
+			LGM.eventSelect.function.setValue(EventFrame.FUNCTION_REPLACE);
+			return;
+			}
+		if (e.getSource() == eventDuplicate || e.getSource() == eventDuplicateItem)
+			{
+			LGM.eventSelect.show();
+			LGM.eventSelect.toTop();
+			LGM.eventSelect.function.setValue(EventFrame.FUNCTION_DUPLICATE);
+			return;
+			}
+		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
 			{
 			Object comp = events.getLastSelectedPathComponent();
 			if (!(comp instanceof EventInstanceNode)) return;
@@ -652,6 +718,9 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		information.removeActionListener(this);
 		newSprite.removeActionListener(this);
 		editSprite.removeActionListener(this);
+		eventAdd.removeActionListener(this);
+		eventReplace.removeActionListener(this);
+		eventDuplicate.removeActionListener(this);
 		eventDelete.removeActionListener(this);
 		}
 
@@ -698,5 +767,61 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		l.width += s.width - p.width;
 		l.height += s.height - p.height;
 		return l;
+		}
+
+	public static class EventNodeRenderer extends DefaultTreeCellRenderer
+		{
+		private static final long serialVersionUID = 1L;
+
+		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel,
+				boolean expanded, boolean leaf, int row, boolean hasFocus)
+			{
+			super.getTreeCellRendererComponent(tree,value,sel,expanded,leaf,row,hasFocus);
+			int mid = -1;
+			if (value instanceof EventNode) mid = ((EventNode) value).mainId;
+			if (value instanceof EventInstanceNode)
+				mid = ((EventInstanceNode) value).getUserObject().mainId;
+			if (value instanceof EventGroupNode) mid = ((EventGroupNode) value).mainId;
+			Icon i = LGM.getIconForKey("EventNode." + (leaf ? "EVENT" : "GROUP") + mid);
+			if (i != null && i.getIconWidth() != -1) setIcon(i);
+			return this;
+			}
+		}
+
+	private class MListener extends MouseAdapter
+		{
+		public void mouseReleased(MouseEvent e)
+			{
+			if (e.getSource() != events) return;
+			int button = e.getButton();
+			if (button == MouseEvent.BUTTON3)
+				{
+				TreePath path = events.getPathForLocation(e.getX(),e.getY());
+				if (path == null) return;
+
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+				if (node.isLeaf())
+					{
+					lastValidEventSelection = node;
+					actions.setActionContainer((Event) node.getUserObject());
+					events.setSelectionPath(path);
+
+					JPopupMenu menu = new JPopupMenu();
+					eventAddItem = new JMenuItem(Messages.getString("GmObjectFrame.ADD_EVENT")); //$NON-NLS-1
+					menu.add(eventAddItem);
+					eventAddItem.addActionListener(GmObjectFrame.this);
+					eventReplaceItem = new JMenuItem(Messages.getString("GmObjectFrame.REPLACE_EVENT")); //$NON-NLS-1
+					menu.add(eventReplaceItem);
+					eventReplaceItem.addActionListener(GmObjectFrame.this);
+					eventDuplicateItem = new JMenuItem(Messages.getString("GmObjectFrame.DUPLICATE_EVENT")); //$NON-NLS-1
+					menu.add(eventDuplicateItem);
+					eventDuplicateItem.addActionListener(GmObjectFrame.this);
+					eventDeleteItem = new JMenuItem(Messages.getString("GmObjectFrame.DELETE_EVENT")); //$NON-NLS-1
+					menu.add(eventDeleteItem);
+					eventDeleteItem.addActionListener(GmObjectFrame.this);
+					menu.show(e.getComponent(),e.getX(),e.getY());
+					}
+				}
+			}
 		}
 	}
