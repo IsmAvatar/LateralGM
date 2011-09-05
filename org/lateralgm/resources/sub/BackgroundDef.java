@@ -26,7 +26,7 @@ import org.lateralgm.util.PropertyMap.PropertyValidator;
 public class BackgroundDef implements UpdateListener,
 		PropertyValidator<BackgroundDef.PBackgroundDef>
 	{
-	private ResourceReference<Background> background = null;
+	private ResourceReference<?> background = null; //kept for listening purposes
 	public final PropertyMap<PBackgroundDef> properties;
 
 	private final BgDefPropertyListener bdpl = new BgDefPropertyListener();
@@ -61,7 +61,6 @@ public class BackgroundDef implements UpdateListener,
 		fireUpdate(new UpdateEvent(updateSource,e));
 		}
 
-	@SuppressWarnings("unchecked")
 	public Object validate(PBackgroundDef k, Object v)
 		{
 		if (k == PBackgroundDef.BACKGROUND)
@@ -75,7 +74,7 @@ public class BackgroundDef implements UpdateListener,
 				else if (!(o instanceof Background)) throw new PropertyValidationException();
 				}
 			if (background != null) background.updateSource.removeListener(this);
-			background = (ResourceReference<Background>) r;
+			background = r;
 			if (background != null) background.updateSource.addListener(this);
 			}
 		return v;
@@ -88,5 +87,12 @@ public class BackgroundDef implements UpdateListener,
 			{
 			if (e.key == PBackgroundDef.BACKGROUND) fireUpdate(null);
 			}
+		}
+
+	public boolean equals(Object o)
+		{
+		if (o == this) return true;
+		if (o == null || !(o instanceof BackgroundDef)) return false;
+		return properties.equals(((BackgroundDef) o).properties);
 		}
 	}

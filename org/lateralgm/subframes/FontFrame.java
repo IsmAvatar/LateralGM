@@ -30,7 +30,6 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.messages.Messages;
@@ -224,12 +223,6 @@ public class FontFrame extends ResourceFrame<Font,PFont>
 		/*				*/.addComponent(crDigits)
 		/*				*/.addComponent(crLetters))));
 		return panel;
-		}
-
-	public boolean resourceChanged()
-		{
-		commitChanges();
-		return !(new ResourceComparator().areEqual(res,resOriginal));
 		}
 
 	public void commitChanges()

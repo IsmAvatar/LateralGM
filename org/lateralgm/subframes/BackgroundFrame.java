@@ -35,7 +35,6 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
 
-import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.BackgroundPreview;
@@ -271,14 +270,9 @@ public class BackgroundFrame extends ResourceFrame<Background,PBackground> imple
 		side2.setVisible(tileset.isSelected());
 		}
 
-	@Override
-	public boolean resourceChanged()
+	protected boolean areResourceFieldsEqual()
 		{
-		commitChanges();
-		if (imageChanged) return true;
-		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Background.class,"backgroundImage","imageCache"); //$NON-NLS-1$
-		return !c.areEqual(res,resOriginal);
+		return !imageChanged;
 		}
 
 	public void commitChanges()

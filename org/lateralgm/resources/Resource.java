@@ -155,6 +155,16 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 		return v;
 		}
 
+	@Override
+	public boolean equals(Object obj)
+		{
+		if (this == obj) return true;
+		if (obj == null || !(obj instanceof Resource<?,?>)) return false;
+		Resource<?,?> other = (Resource<?,?>) obj;
+		if (id != other.id || !name.equals(other.name) || reference != other.reference) return false;
+		return properties.equals(other.properties);
+		}
+
 	public String toString()
 		{
 		return name;

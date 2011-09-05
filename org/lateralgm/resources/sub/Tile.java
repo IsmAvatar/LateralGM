@@ -30,7 +30,7 @@ import org.lateralgm.util.PropertyMap.PropertyValidator;
 
 public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PTile>
 	{
-	private ResourceReference<Background> background = null;
+	private ResourceReference<?> background = null; //kept for listening purposes
 	public final PropertyMap<PTile> properties;
 	private final ResourceReference<Room> room;
 
@@ -147,7 +147,6 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		properties.put(PTile.LOCKED,l);
 		}
 
-	@SuppressWarnings("unchecked")
 	public Object validate(PTile k, Object v)
 		{
 		if (k == PTile.BACKGROUND)
@@ -161,7 +160,7 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 				else if (!(o instanceof Background)) throw new PropertyValidationException();
 				}
 			if (background != null) background.updateSource.removeListener(this);
-			background = (ResourceReference<Background>) r;
+			background = r;
 			if (background != null) background.updateSource.addListener(this);
 			}
 		return v;
@@ -174,5 +173,13 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 			{
 			if (e.key == PTile.BACKGROUND) fireUpdate(null);
 			}
+		}
+
+	public boolean equals(Object o)
+		{
+		if (o == this) return true;
+		if (o == null || !(o instanceof Tile)) return false;
+		//room?
+		return properties.equals(((Tile) o).properties);
 		}
 	}

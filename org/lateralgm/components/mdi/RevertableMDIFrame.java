@@ -18,11 +18,6 @@ public abstract class RevertableMDIFrame extends MDIFrame
 	{
 	private static final long serialVersionUID = 1L;
 
-	public RevertableMDIFrame(String title)
-		{
-		super(title);
-		}
-
 	public RevertableMDIFrame(String title, boolean functional)
 		{
 		super(title,functional,functional,functional,functional);

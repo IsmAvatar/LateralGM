@@ -72,10 +72,11 @@ import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.GmObject.ParentLoopException;
-import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
+
+import com.sun.corba.se.spi.orbutil.fsm.Action;
 
 public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements ActionListener,
 		TreeSelectionListener
@@ -594,12 +595,11 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 					node.add(new EventInstanceNode(e));
 				}
 			}
-		if (res.windowHasOpened == null)
+		if (res.getNode().newRes)
 			{
 			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_CREATE,0,null)));
 			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_STEP,Event.EV_STEP_NORMAL,null)));
 			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_DRAW,0,null)));
-			res.windowHasOpened = true;
 			}
 		events = new EventTree(rootEvent);
 		events.setScrollsOnExpand(true);
@@ -639,14 +639,12 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 			}
 		}
 
-	@Override
-	public boolean resourceChanged()
+	protected boolean areResourceFieldsEqual()
 		{
-		commitChanges();
 		ResourceComparator c = new ResourceComparator();
 		c.addExclusions(Action.class,"updateTrigger","updateSource");
 		c.addExclusions(Argument.class,"updateTrigger","updateSource");
-		return !c.areEqual(res,resOriginal);
+		return c.areEqual(res.mainEvents,resOriginal.mainEvents);
 		}
 
 	public void commitChanges()

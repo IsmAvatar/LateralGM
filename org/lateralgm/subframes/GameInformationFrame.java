@@ -76,11 +76,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
-import org.lateralgm.compare.CollectionComparator;
-import org.lateralgm.compare.MapComparator;
-import org.lateralgm.compare.ObjectComparator;
-import org.lateralgm.compare.ReflectionComparator;
-import org.lateralgm.compare.SimpleCasesComparator;
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.CustomFileFilter;
@@ -660,9 +655,7 @@ public class GameInformationFrame extends RevertableMDIFrame implements ActionLi
 	public boolean resourceChanged()
 		{
 		commitChanges();
-		ReflectionComparator rc = new SimpleCasesComparator(new CollectionComparator(new MapComparator(
-				new ObjectComparator(null))));
-		return !rc.areEqual(res,resOriginal);
+		return !res.properties.equals(resOriginal.properties);
 		}
 
 	@Override

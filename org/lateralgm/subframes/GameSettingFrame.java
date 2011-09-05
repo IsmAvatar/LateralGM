@@ -55,11 +55,6 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.table.AbstractTableModel;
 
-import org.lateralgm.compare.CollectionComparator;
-import org.lateralgm.compare.MapComparator;
-import org.lateralgm.compare.ObjectComparator;
-import org.lateralgm.compare.ReflectionComparator;
-import org.lateralgm.compare.SimpleCasesComparator;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.NumberField;
@@ -92,6 +87,7 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 
 	public GameSettings res, resOriginal;
 	protected final PropertyLinkFactory<PGameSettings> plf;
+	boolean imagesChanged = false;
 	public JTabbedPane tabbedPane = new JTabbedPane();
 
 	public JCheckBox startFullscreen;
@@ -932,6 +928,7 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 			try
 				{
 				customLoadingImage = Util.getValidImage();
+				imagesChanged = true;
 				}
 			catch (Throwable ex)
 				{
@@ -947,12 +944,20 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 		else if (e.getSource() == backLoad)
 			{
 			BufferedImage img = Util.getValidImage();
-			if (img != null) backLoadImage = img;
+			if (img != null)
+				{
+				backLoadImage = img;
+				imagesChanged = true;
+				}
 			}
 		else if (e.getSource() == frontLoad)
 			{
 			BufferedImage img = Util.getValidImage();
-			if (img != null) frontLoadImage = img;
+			if (img != null)
+				{
+				frontLoadImage = img;
+				imagesChanged = true;
+				}
 			}
 		else if (e.getSource() == changeIcon)
 			{
@@ -963,6 +968,7 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 					{
 					gameIcon = new ICOFile(new FileInputStream(f));
 					iconPreview.setIcon(new ImageIcon(gameIcon.getDisplayImage()));
+					imagesChanged = true;
 					}
 				catch (FileNotFoundException e1)
 					{
@@ -1246,9 +1252,8 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 	public boolean resourceChanged()
 		{
 		commitChanges();
-		ReflectionComparator rc = new SimpleCasesComparator(new CollectionComparator(new MapComparator(
-				new ObjectComparator(null))));
-		return !rc.areEqual(res,resOriginal);
+		if (imagesChanged) return true;
+		return !res.properties.equals(resOriginal.properties);
 		}
 
 	@Override
@@ -1256,6 +1261,7 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 		{
 		res.properties.putAll(resOriginal.properties);
 		setComponents(res);
+		imagesChanged = false;
 		}
 
 	@Override
@@ -1263,6 +1269,7 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 		{
 		commitChanges();
 		resOriginal = res.clone();
+		imagesChanged = false;
 		}
 
 	public void exceptionThrown(Exception e)

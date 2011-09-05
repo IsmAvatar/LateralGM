@@ -57,7 +57,6 @@ import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
@@ -1170,7 +1169,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(tabs,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/*	*/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(editorPane,240,640,DEFAULT_SIZE)
+		/*		*/.addComponent(editorPane,200,640,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(tools,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
@@ -1233,20 +1232,10 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 			}
 		}
 
-	@Override
-	public boolean resourceChanged()
+	protected boolean areResourceFieldsEqual()
 		{
-		commitChanges();
-		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Room.class,"instanceUpdateTrigger","instanceUpdateSource","tileUpdateTrigger",
-				"tileUpdateSource");
-		c.addExclusions(Instance.class,"updateTrigger","updateSource");
-		c.addExclusions(Tile.class,"updateTrigger","updateSource");
-		c.addExclusions(BackgroundDef.class,"updateTrigger","updateSource");
-		if (!c.areEqual(res,resOriginal)) return true;
-		for (CodeFrame cf : codeFrames.values())
-			if (cf.resourceChanged()) return true;
-		return false;
+		return (res.backgroundDefs.equals(resOriginal.backgroundDefs)
+				&& res.views.equals(resOriginal.views) && res.instances.equals(resOriginal.instances) && res.tiles.equals(resOriginal.tiles));
 		}
 
 	public void commitChanges()

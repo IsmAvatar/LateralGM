@@ -30,4 +30,11 @@ public class View
 		{
 		properties = new PropertyMap<PView>(PView.class,null,DEFS);
 		}
+
+	public boolean equals(Object o)
+		{
+		if (o == this) return true;
+		if (o == null || !(o instanceof View)) return false;
+		return properties.equals(((View) o).properties);
+		}
 	}

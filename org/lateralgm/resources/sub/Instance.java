@@ -32,7 +32,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 	{
 	private static final long serialVersionUID = 1L;
 
-	private ResourceReference<GmObject> object = null;
+	private ResourceReference<?> object = null; //kept for listening purposes
 	public final PropertyMap<PInstance> properties;
 	private final ResourceReference<Room> room;
 
@@ -110,7 +110,6 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		properties.put(PInstance.LOCKED,l);
 		}
 
-	@SuppressWarnings("unchecked")
 	public Object validate(PInstance k, Object v)
 		{
 		if (k == PInstance.OBJECT)
@@ -124,7 +123,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 				else if (!(o instanceof GmObject)) throw new PropertyValidationException();
 				}
 			if (object != null) object.updateSource.removeListener(this);
-			object = (ResourceReference<GmObject>) r;
+			object = r;
 			if (object != null) object.updateSource.addListener(this);
 			}
 		return v;
@@ -137,5 +136,13 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 			{
 			if (e.key == PInstance.OBJECT) fireUpdate(null);
 			}
+		}
+
+	public boolean equals(Object o)
+		{
+		if (o == this) return true;
+		if (o == null || !(o instanceof Instance)) return false;
+		//room?
+		return properties.equals(((Instance) o).properties);
 		}
 	}

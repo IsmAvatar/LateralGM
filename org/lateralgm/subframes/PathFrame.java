@@ -32,7 +32,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EditorScrollPane;
@@ -234,11 +233,9 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		return new EditorScrollPane(pathEditor);
 		}
 
-	@Override
-	public boolean resourceChanged()
+	protected boolean areResourceFieldsEqual()
 		{
-		commitChanges();
-		return !(new ResourceComparator().areEqual(res,resOriginal));
+		return res.points.equals(resOriginal.points);
 		}
 
 	public void commitChanges()

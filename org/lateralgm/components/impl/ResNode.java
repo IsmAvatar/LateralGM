@@ -91,6 +91,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 	private final NameUpdater nameUpdater = new NameUpdater();
 	private final UpdateTrigger trigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,trigger);
+	public boolean newRes = false;
 
 	public Icon getIcon()
 		{
@@ -169,6 +170,12 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 
 	public void openFrame()
 		{
+		openFrame(false);
+		}
+
+	public void openFrame(boolean newRes)
+		{
+		this.newRes = newRes;
 		Resource<?,?> r = deRef();
 		if (SubframeInformer.fireSubframeRequest(r,this)) return;
 		if (frame == null)

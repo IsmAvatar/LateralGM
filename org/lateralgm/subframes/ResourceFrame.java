@@ -91,6 +91,19 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		return res.getName();
 		}
 
+	public boolean resourceChanged()
+		{
+		commitChanges();
+		if (!areResourceFieldsEqual()) return true;
+		return !res.equals(resOriginal);
+		}
+
+	/** Override to check additional fields other than the Resource<> defaults. */
+	protected boolean areResourceFieldsEqual()
+		{
+		return true;
+		}
+
 	public void updateResource()
 		{
 		commitChanges();

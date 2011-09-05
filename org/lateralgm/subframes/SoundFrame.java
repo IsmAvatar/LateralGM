@@ -48,7 +48,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
 
-import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.ResNode;
@@ -273,13 +272,9 @@ public class SoundFrame extends ResourceFrame<Sound,PSound>
 		return pEffects;
 		}
 
-	public boolean resourceChanged()
+	protected boolean areResourceFieldsEqual()
 		{
-		commitChanges();
-		if (modified) return true;
-		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Sound.class,"data"); //$NON-NLS-1$
-		return !c.areEqual(res,resOriginal);
+		return !modified;
 		}
 
 	public void commitChanges()

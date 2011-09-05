@@ -54,7 +54,6 @@ import javax.swing.Timer;
 import javax.swing.TransferHandler;
 import javax.swing.GroupLayout.Alignment;
 
-import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.NumberField.ValueChangeEvent;
 import org.lateralgm.components.NumberField.ValueChangeListener;
@@ -662,14 +661,9 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		//triggers listener
 		}
 
-	@Override
-	public boolean resourceChanged()
+	protected boolean areResourceFieldsEqual()
 		{
-		commitChanges();
-		if (imageChanged) return true;
-		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Sprite.class,"subImages","imageCache"); //$NON-NLS-1$ //$NON-NLS-2$
-		return !c.areEqual(res,resOriginal);
+		return !imageChanged;
 		}
 
 	public void commitChanges()

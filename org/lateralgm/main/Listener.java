@@ -404,7 +404,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		tree.expandPath(new TreePath(parent.getPath()));
 		tree.setSelectionPath(new TreePath(g.getPath()));
 		tree.updateUI();
-		g.openFrame();
+		g.openFrame(true);
 		}
 
 	protected static void deleteSelectedResource(JTree tree)

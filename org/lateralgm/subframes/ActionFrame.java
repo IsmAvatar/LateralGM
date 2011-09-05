@@ -90,7 +90,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 	//Must be delegated through ActionFrame(Action)
 	private ActionFrame(Action a, LibAction la)
 		{
-		super(la.description);
+		super(la.description,false);
 		if (la.parent == null) setTitle(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
 		if (la.actImage != null)
 			setFrameIcon(new ImageIcon(la.actImage.getScaledInstance(16,16,Image.SCALE_SMOOTH)));

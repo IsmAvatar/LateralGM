@@ -114,15 +114,6 @@ public class ScriptFrame extends ResourceFrame<Script,PScript> implements Action
 		res.setName(name.getText());
 		}
 
-	public boolean resourceChanged()
-		{
-		return (Prefs.useExternalScriptEditor ? !res.get(PScript.CODE).equals(
-				resOriginal.get(PScript.CODE)) : code.getUndoManager().isModified())
-				|| !resOriginal.getName().equals(name.getText());
-		//return !code.getTextCompat().equals(resOriginal.scriptStr)
-		//		|| !resOriginal.getName().equals(name.getText());
-		}
-
 	public void fireInternalFrameEvent(int id)
 		{
 		if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSED)

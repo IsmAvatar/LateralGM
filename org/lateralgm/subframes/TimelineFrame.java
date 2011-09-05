@@ -21,7 +21,6 @@ import java.awt.event.ActionListener;
 import java.util.Collections;
 
 import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -30,6 +29,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -42,8 +42,6 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.Timeline.PTimeline;
-import org.lateralgm.resources.sub.Action;
-import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Moment;
 
 public class TimelineFrame extends ResourceFrame<Timeline,PTimeline> implements ActionListener,
@@ -168,14 +166,9 @@ public class TimelineFrame extends ResourceFrame<Timeline,PTimeline> implements 
 		/**/.addComponent(save));
 		}
 
-	@Override
-	public boolean resourceChanged()
+	protected boolean areResourceFieldsEqual()
 		{
-		commitChanges();
-		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Action.class,"updateTrigger","updateSource");
-		c.addExclusions(Argument.class,"updateTrigger","updateSource");
-		return !c.areEqual(res,resOriginal);
+		return new ResourceComparator().areEqual(res.moments,resOriginal.moments);
 		}
 
 	public void commitChanges()

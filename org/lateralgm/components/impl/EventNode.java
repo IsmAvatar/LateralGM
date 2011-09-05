@@ -8,6 +8,8 @@
 
 package org.lateralgm.components.impl;
 
+import static org.lateralgm.main.Util.deRef;
+
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -16,6 +18,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
@@ -46,12 +49,25 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 		this.mainId = mainId;
 		this.eventId = eventId;
 		}
+	
+	public EventNode(int mainId, ResourceReference<GmObject> other)
+		{
+		Resource<GmObject,?> r = deRef(other);
+		setUserObject(r == null ? "" : r.getName());
+		this.mainId = mainId;
+		this.other = other;
+		}
 
 	public void add(int mainId, int eventId)
 		{
 		add(new EventNode(Event.eventName(mainId,eventId),mainId,eventId));
 		}
 
+	public void add(int mainId, ResourceReference<GmObject> other)
+		{
+		add(new EventNode(mainId,other));
+		}
+	
 	public void add(int mainId)
 		{
 		add(new EventNode(Messages.getString("MainEvent.EVENT" + mainId),mainId,0)); //$NON-NLS-1$
@@ -87,4 +103,10 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 		{
 		return flavor.equals(EVENTNODE_FLAVOR);
 		}
+
+	/*public void setIcon(Icon ico)
+		{
+		if (ico == null) return;
+		super.setIcon(ico);
+		}*/
 	}

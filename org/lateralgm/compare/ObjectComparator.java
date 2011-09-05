@@ -112,6 +112,11 @@ public class ObjectComparator extends ReflectionComparator
 				// throw a runtime exception in case the impossible happens.
 				throw new InternalError("Unexpected IllegalAccessException");
 				}
+			catch (ClassCastException e)
+				{
+				System.out.println(f);
+				throw e;
+				}
 			fieldStack.pop();
 			}
 

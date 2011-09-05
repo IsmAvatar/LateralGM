@@ -46,9 +46,8 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 
 	private final ObjectPropertyListener opl = new ObjectPropertyListener();
 
-	private ResourceReference<Sprite> sprite = null;
+	private ResourceReference<?> sprite = null; //kept for listening purposes
 	public final List<MainEvent> mainEvents;
-	public Object windowHasOpened;
 
 	public enum PGmObject
 		{
@@ -132,7 +131,6 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 			}
 		}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Object validate(PGmObject k, Object v)
 		{
@@ -148,7 +146,7 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 					else if (!(o instanceof Sprite)) throw new PropertyValidationException();
 					}
 				if (sprite != null) sprite.updateSource.removeListener(this);
-				sprite = (ResourceReference<Sprite>) r;
+				sprite = r;
 				if (sprite != null) sprite.updateSource.addListener(this);
 				break;
 			case PARENT:
