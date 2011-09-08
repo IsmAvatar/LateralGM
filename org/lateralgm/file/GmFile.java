@@ -170,7 +170,7 @@ public class GmFile implements UpdateListener
 		}
 
 	/** One of 530, 600, 701, 800, 810 */
-	public int fileVersion = 600;
+	public int fileVersion = 810;
 	public String filename = null;
 
 	private final EnumMap<Resource.Kind,ResourceList<?>> resMap;
