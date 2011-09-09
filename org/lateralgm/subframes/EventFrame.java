@@ -41,6 +41,7 @@ import javax.swing.TransferHandler;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
@@ -52,6 +53,8 @@ import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
@@ -62,7 +65,7 @@ import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
 import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
 public class EventFrame extends MDIFrame implements ActionListener,TreeSelectionListener,
-		PropertyChangeListener
+		PropertyChangeListener,UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -133,6 +136,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		add(side2Parent);
 		add(side1);
 		LGM.mdi.addPropertyChangeListener(MDIPane.SELECTED_FRAME_PROPERTY,this);
+		LGM.root.updateSource.addListener(this);
 		}
 
 	private void makeTree(JPanel side1)
@@ -389,7 +393,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		}
 
 	@SuppressWarnings("unchecked")
-	public void populate_object_nodes(EventNode parent, ResNode group)
+	protected void populate_object_nodes(EventNode parent, ResNode group)
 		{
 		for (int i = 0; i < group.getChildCount(); i++)
 			{
@@ -415,7 +419,13 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 			{
 			super.getTreeCellRendererComponent(tree,value,sel,expanded,leaf,row,hasFocus);
 			int mid = -1;
-			if (value instanceof EventNode) mid = ((EventNode) value).mainId;
+			if (value instanceof EventNode)
+				{
+				EventNode en = (EventNode) value;
+				mid = en.mainId;
+				if (mid == MainEvent.EV_COLLISION && ((DefaultMutableTreeNode) en.getParent()).isRoot())
+					leaf = false;
+				}
 			if (value instanceof EventInstanceNode)
 				mid = ((EventInstanceNode) value).getUserObject().mainId;
 			if (value instanceof EventGroupNode) mid = ((EventGroupNode) value).mainId;
@@ -520,7 +530,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 	public void valueChanged(TreeSelectionEvent e)
 		{
 		selectedNode = (EventNode) e.getPath().getLastPathComponent();
-		populate_collision_node();
+		//		populate_collision_node();
 		}
 
 	@SuppressWarnings("unchecked")
@@ -541,5 +551,11 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				if (newFrame == null && !oldFrame.isVisible()) linkSelect.setSelected(null);
 				}
 			}
+		}
+
+	public void updated(UpdateEvent e)
+		{
+		populate_collision_node();
+		events.updateUI();
 		}
 	}
