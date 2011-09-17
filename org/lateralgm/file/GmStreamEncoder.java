@@ -12,9 +12,10 @@ package org.lateralgm.file;
 
 import static org.lateralgm.main.Util.deRef;
 
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DirectColorModel;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -173,15 +174,20 @@ public class GmStreamEncoder extends StreamEncoder
 
 	public void writeZlibImage(BufferedImage image) throws IOException
 		{
-		//Drop any alpha channel and convert to 3-byte to ensure that the image is bmp-compatible
-		ColorConvertOp conv = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),null);
-		final BufferedImage dest = new BufferedImage(image.getWidth(),image.getHeight(),
-				BufferedImage.TYPE_3BYTE_BGR);
-		conv.filter(image,dest);
+		//original image pixels
+		int[] pixels = image.getRGB(0,0,image.getWidth(),image.getHeight(),null,0,image.getWidth());
+		//copy into 3-byte dest image with no alpha for bmp-compatible
+		DirectColorModel cm = new DirectColorModel(24,0x00FF0000,0x0000FF00,0x000000FF); //BGR
+		WritableRaster raster = cm.createCompatibleWritableRaster(image.getWidth(),image.getHeight());
+		int[] data = ((DataBufferInt) raster.getDataBuffer()).getData();
 
-		ByteArrayOutputStream data = new ByteArrayOutputStream();
-		ImageIO.write(dest,"bmp",data); //$NON-NLS-1$
-		compress(data.toByteArray());
+		//assume the two buffers are the same size...
+		for (int i = 0; i < pixels.length; i++)
+			data[i] = pixels[i] & 0x00FFFFFF; //forcibly drop alpha channel
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ImageIO.write(new BufferedImage(cm,raster,false,null),"bmp",out); //$NON-NLS-1$
+		compress(out.toByteArray());
 		}
 
 	public void writeBGRAImage(BufferedImage image, boolean useTransp) throws IOException
@@ -205,16 +211,6 @@ public class GmStreamEncoder extends StreamEncoder
 			else
 				write(pixels[p] >>> 24);
 			}
-
-		/*int w = image.getWidth();
-		int h = image.getHeight();
-		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,w,h,w * 4,4,
-				new int[] { 2,1,0,3 },null); //2103 = RGBA ordering
-		BufferedImage dst = new BufferedImage(w,h,BufferedImage.TYPE_4BYTE_ABGR);
-		raster.setRect(dst.getRaster());
-
-		byte[] buf = ((DataBufferByte) raster.getDataBuffer()).getData();
-		out.write(buf);*/
 		}
 
 	/**
