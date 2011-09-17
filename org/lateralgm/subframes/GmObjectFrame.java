@@ -540,8 +540,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		if (path == null)
 			{
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
-			if (node == null) return;
-			path = new TreePath(node.getPath());
+			path = node == null ? null : new TreePath(node.getPath());
 			}
 		int func = path == null ? EventFrame.FUNCTION_ADD : LGM.eventSelect.function.getValue();
 
