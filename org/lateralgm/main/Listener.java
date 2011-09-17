@@ -144,6 +144,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		LGM.root = new ResNode("Root",(byte) 0,null,null); //$NON-NLS-1$
 		LGM.currentFile = new GmFile();
 		LGM.populateTree();
+		fc.setSelectedFile(new File(new String()));
 		LGM.reload(true);
 		}
 
