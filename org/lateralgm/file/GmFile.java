@@ -78,6 +78,9 @@ public class GmFile implements UpdateListener
 	public static final ColorDepth[] GS_DEPTHS = { ColorDepth.NO_CHANGE,ColorDepth.BIT_16,
 			ColorDepth.BIT_32 };
 	public static final Map<ColorDepth,Integer> GS_DEPTH_CODE;
+	public static final Resolution[] GS5_RESOLS = { Resolution.RES_640X480,Resolution.RES_800X600,
+			Resolution.RES_1024X768,Resolution.RES_1280X1024,Resolution.NO_CHANGE,Resolution.RES_320X240,
+			Resolution.RES_1600X1200 };
 	public static final Resolution[] GS_RESOLS = { Resolution.NO_CHANGE,Resolution.RES_320X240,
 			Resolution.RES_640X480,Resolution.RES_800X600,Resolution.RES_1024X768,
 			Resolution.RES_1280X1024,Resolution.RES_1600X1200 };

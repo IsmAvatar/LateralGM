@@ -254,29 +254,22 @@ public final class GmFileReader
 			p.put(PGameSettings.COLOR_OUTSIDE_ROOM,Util.convertGmColor(in.read4()));
 			}
 		in.readBool(p,PGameSettings.SET_RESOLUTION);
-		int colorDepth = 0, resolution, frequency;
+		int colorDepth = 0, frequency;
 		if (ver == 530)
 			{
 			in.skip(8); //Color Depth, Exclusive Graphics
+			p.put(PGameSettings.RESOLUTION,GmFile.GS5_RESOLS[in.read4()]);
 			byte b = (byte) in.read4();
-			if (b == 6)
-				resolution = 0;
-			else if (b == 5)
-				resolution = 1;
-			else
-				resolution = (byte) (b - 2);
-			b = (byte) in.read4();
 			frequency = (b == 4) ? 0 : (byte) (b + 1);
 			in.skip(8); //vertical blank, caption in fullscreen
 			}
 		else
 			{
 			colorDepth = (byte) in.read4();
-			resolution = (byte) in.read4();
+			p.put(PGameSettings.RESOLUTION,GmFile.GS_RESOLS[in.read4()]);
 			frequency = (byte) in.read4();
 			}
 		p.put(PGameSettings.COLOR_DEPTH,GmFile.GS_DEPTHS[colorDepth]);
-		p.put(PGameSettings.RESOLUTION,GmFile.GS_RESOLS[resolution]);
 		p.put(PGameSettings.FREQUENCY,GmFile.GS_FREQS[frequency]);
 
 		in.readBool(p,PGameSettings.DONT_SHOW_BUTTONS);
