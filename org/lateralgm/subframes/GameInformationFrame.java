@@ -445,8 +445,8 @@ public class GameInformationFrame extends RevertableMDIFrame implements ActionLi
 		revertResource();
 
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
-		fc.setFileFilter(new CustomFileFilter(".rtf", //$NON-NLS-1$
-				Messages.getString("GameInformationFrame.TYPE_RTF"))); //$NON-NLS-1$
+		fc.setFileFilter(new CustomFileFilter(
+				Messages.getString("GameInformationFrame.TYPE_RTF"),".rtf")); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 	private void addDocumentListeners()

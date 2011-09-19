@@ -32,30 +32,17 @@ public class CustomFileFilter extends FileFilter implements FilenameFilter
 		return filename.substring(p).toLowerCase(Locale.ENGLISH);
 		}
 
-	public CustomFileFilter(String ext, String desc)
+	public CustomFileFilter(String desc, String...ext)
 		{
-		this.ext.add(ext);
 		this.desc = desc;
-		}
-
-	public CustomFileFilter(String[] ext, String desc)
-		{
 		for (String element : ext)
-			{
 			this.ext.add(element);
-			}
-		this.desc = desc;
 		}
 
 	public boolean accept(File f)
 		{
 		if (f.isDirectory()) return true;
 		return accept(f,f.getPath());
-		}
-
-	public String getDescription()
-		{
-		return desc;
 		}
 
 	public boolean accept(File dir, String name)
@@ -65,5 +52,15 @@ public class CustomFileFilter extends FileFilter implements FilenameFilter
 		String s = getExtension(name);
 		if (s == null) return false;
 		return ext.contains(s);
+		}
+
+	public String getDescription()
+		{
+		return desc;
+		}
+
+	public String[] getExtensions()
+		{
+		return ext.toArray(new String[0]);
 		}
 	}

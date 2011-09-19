@@ -63,7 +63,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.impl.CustomFileFilter;
@@ -72,8 +71,6 @@ import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.GmFile;
-import org.lateralgm.file.GmFileReader;
-import org.lateralgm.file.GmFormatException;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibManager;
@@ -250,12 +247,11 @@ public final class LGM
 
 	private static JComponent createTree()
 		{
-		return createTree(new ResNode("Root",(byte) 0,null,null)); //$NON-NLS-1$
+		return createTree(newRoot());
 		}
 
 	private static JComponent createTree(ResNode newroot)
 		{
-		root = newroot;
 		tree = new JTree(new DefaultTreeModel(root));
 		GmTreeGraphics renderer = new GmTreeGraphics();
 		GmTreeEditor editor = new GmTreeEditor(tree,renderer);
@@ -289,6 +285,11 @@ public final class LGM
 		return scroll;
 		}
 
+	public static ResNode newRoot()
+		{
+		return root = new ResNode("Root",(byte) 0,null,null); //$NON-NLS-1$
+		}
+
 	private static JComponent createMDI()
 		{
 		mdi = new MDIPane();
@@ -306,7 +307,7 @@ public final class LGM
 		{
 		File dir = new File(workDir.getParent(),"plugins"); //$NON-NLS-1$
 		if (!dir.exists()) dir = new File(workDir.getParent(),"Plugins"); //$NON-NLS-1$
-		File[] ps = dir.listFiles(new CustomFileFilter(".jar",null)); //$NON-NLS-1$
+		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$s
 		if (ps == null) return;
 		for (File f : ps)
 			{
@@ -357,31 +358,6 @@ public final class LGM
 		root.addChild(Messages.getString("LGM.EXTENSIONS"), //$NON-NLS-1$
 				ResNode.STATUS_SECONDARY,Resource.Kind.EXTENSIONS);
 		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
-		}
-
-	public static boolean preLoadFile(String fn)
-		{
-		File file = new File(fn);
-		if (!file.exists()) return false;
-		System.out.println("Loading " + fn);
-		try
-			{
-			LGM.currentFile = GmFileReader.readGmFile(fn,LGM.root);
-			}
-		catch (GmFormatException e)
-			{
-			new ErrorDialog(LGM.frame,Messages.getString("Listener.ERROR_TITLE"), //$NON-NLS-1$
-					Messages.getString("Listener.ERROR_MESSAGE"),Messages.format("Listener.DEBUG_INFO", //$NON-NLS-1$ //$NON-NLS-2$
-							e.getClass().getName(),e.getMessage(),e.stackAsString())).setVisible(true);
-			return false;
-			}
-		PrefsStore.addRecentFile(fn);
-		LGM.frame.setTitle(Messages.format("LGM.TITLE",file.getName())); //$NON-NLS-1$
-		((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
-		LGM.tree.setSelectionRow(0);
-
-		return true;
 		}
 
 	/**
@@ -511,9 +487,14 @@ public final class LGM
 			e.printStackTrace();
 			}
 		SplashProgress.progress(80,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
-		if (args.length == 0 || !preLoadFile(args[0])) populateTree();
+		populateTree();
 		SplashProgress.progress(90,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
 		loadPlugins();
+		if (args.length != 0)
+			{
+			SplashProgress.progress(95,Messages.getString("LGM.SPLASH_PRELOAD")); //$NON-NLS-1$
+			listener.fc.openFile(new File(args[0]));
+			}
 		SplashProgress.complete();
 		frame.setVisible(true);
 		}

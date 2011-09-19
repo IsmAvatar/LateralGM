@@ -436,7 +436,7 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 		changeIcon = new JButton(Messages.getString("GameSettingFrame.CHANGE_ICON")); //$NON-NLS-1$
 		changeIcon.addActionListener(this);
 		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new CustomFileFilter(".ico",Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$ //$NON-NLS-2$
+		fc.setFileFilter(new CustomFileFilter(Messages.getString("GameSettingFrame.ICO_FILES"),".ico")); //$NON-NLS-1$ //$NON-NLS-2$
 		JLabel lId = new JLabel(Messages.getString("GameSettingFrame.GAME_ID")); //$NON-NLS-1$
 		gameId = new NumberField(0,100000000);
 		plf.make(gameId,PGameSettings.GAME_ID);
@@ -444,8 +444,8 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 		randomise.addActionListener(this);
 
 		iconFc = new CustomFileChooser("/org/lateralgm","LAST_ICON_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
-		iconFc.setFileFilter(new CustomFileFilter(".ico", //$NON-NLS-1$
-				Messages.getString("GameSettingFrame.ICO_FILES"))); //$NON-NLS-1$
+		iconFc.setFileFilter(new CustomFileFilter(
+				Messages.getString("GameSettingFrame.ICO_FILES"),".ico")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(loadImage,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
@@ -524,8 +524,8 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 		sort.addActionListener(this);
 
 		constantsFc = new CustomFileChooser("/org/lateralgm","LAST_LGC_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
-		constantsFc.setFileFilter(new CustomFileFilter(".lgc", //$NON-NLS-1$
-				Messages.getString("GameSettingFrame.LGC_FILES"))); //$NON-NLS-1$
+		constantsFc.setFileFilter(new CustomFileFilter(
+				Messages.getString("GameSettingFrame.LGC_FILES"),".lgc")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()

@@ -114,10 +114,10 @@ public final class GmFileReader
 						"GmFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 
-	public static GmFile readGmFile(String fileName, ResNode root) throws GmFormatException
+	public static GmFile readGmFile(File file, ResNode root) throws GmFormatException
 		{
 		GmFile f = new GmFile();
-		f.filename = fileName;
+		f.filename = file.getPath();
 		GmStreamDecoder in = null;
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
@@ -125,11 +125,11 @@ public final class GmFileReader
 		try
 			{
 			long startTime = System.currentTimeMillis();
-			in = new GmStreamDecoder(fileName);
+			in = new GmStreamDecoder(file);
 			GmFileContext c = new GmFileContext(f,in,timeids,objids,rmids);
 			int identifier = in.read4();
 			if (identifier != 1234321)
-				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_INVALID",fileName, //$NON-NLS-1$
+				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_INVALID",file.getPath(), //$NON-NLS-1$
 						identifier));
 			int ver = in.read4();
 			f.fileVersion = ver;

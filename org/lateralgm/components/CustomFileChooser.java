@@ -58,23 +58,18 @@ public class CustomFileChooser extends JFileChooser
 		{
 		if (fs == null) throw new IllegalArgumentException("null FilterSet");
 		resetChoosableFileFilters();
-		for (FileFilter filt : fs.filters)
+		for (FileFilter filt : fs)
 			addChoosableFileFilter(filt);
-		if (fs.filters.size() > 0) setFileFilter(fs.filters.get(0));
+		if (fs.size() > 0) setFileFilter(fs.get(0));
 		}
 
-	public static class FilterSet
+	public static class FilterSet extends ArrayList<FileFilter>
 		{
-		protected ArrayList<FileFilter> filters = new ArrayList<FileFilter>();
+		private static final long serialVersionUID = 1L;
 
-		public void addFilter(String descKey, String ext)
+		public void addFilter(String descKey, String...exts)
 			{
-			filters.add(new CustomFileFilter(ext,Messages.getString(descKey)));
-			}
-
-		public void addFilter(String descKey, String[] exts)
-			{
-			filters.add(new CustomFileFilter(exts,Messages.getString(descKey)));
+			add(new CustomFileFilter(Messages.getString(descKey),exts));
 			}
 		}
 	}

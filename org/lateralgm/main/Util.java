@@ -220,12 +220,12 @@ public final class Util
 			for (int i = 0; i < exts.length; i++)
 				exts[i] = "." + exts[i]; //$NON-NLS-1$
 			String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
-			CustomFileFilter filt = new CustomFileFilter(exts,allSpiImages);
+			CustomFileFilter filt = new CustomFileFilter(allSpiImages,exts);
 			imageFc.addChoosableFileFilter(filt);
 			for (String element : exts)
 				{
-				imageFc.addChoosableFileFilter(new CustomFileFilter(element,Messages.format("Util.FILES", //$NON-NLS-1$
-						element)));
+				imageFc.addChoosableFileFilter(new CustomFileFilter(Messages.format("Util.FILES", //$NON-NLS-1$
+						element),element));
 				}
 			imageFc.setFileFilter(filt);
 			}
