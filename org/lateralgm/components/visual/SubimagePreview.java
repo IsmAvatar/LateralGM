@@ -29,7 +29,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	private static final long serialVersionUID = 1L;
 
 	private int subIndex = 0;
-	private boolean showBbox = true;
+	private boolean showBbox = true, showOrigin = true;
 
 	private final Sprite sprite;
 	private final SpritePropertyListener spl = new SpritePropertyListener();
@@ -50,7 +50,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		{
 		super.paintComponent(g);
 		BufferedImage img = getImage();
-		if (img != null && showBbox)
+		if (img != null && (showBbox || showOrigin))
 			{
 			setPreferredSize(new Dimension(img.getWidth(),img.getHeight()));
 			int originX = sprite.get(PSprite.ORIGIN_X);
@@ -70,9 +70,12 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 			g.setXORMode(Color.BLACK); //XOR mode so that bbox and origin can counter
 			g.setColor(Color.WHITE);
 
-			g.drawRect(left,top,right - left,bottom - top);
-			g.drawLine(originX - ORIGIN_SIZE,originY,originX + ORIGIN_SIZE,originY);
-			g.drawLine(originX,originY - ORIGIN_SIZE,originX,originY + ORIGIN_SIZE);
+			if (showOrigin) g.drawRect(left,top,right - left,bottom - top);
+			if (showBbox)
+				{
+				g.drawLine(originX - ORIGIN_SIZE,originY,originX + ORIGIN_SIZE,originY);
+				g.drawLine(originX,originY - ORIGIN_SIZE,originX,originY + ORIGIN_SIZE);
+				}
 
 			g.setPaintMode(); //just in case
 			g.setClip(oldClip); //restore the clip
@@ -99,6 +102,11 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	public void setShowBbox(boolean show)
 		{
 		showBbox = show;
+		}
+
+	public void setShowOrigin(boolean show)
+		{
+		showOrigin = show;
 		}
 
 	protected void processMouseEvent(MouseEvent e)

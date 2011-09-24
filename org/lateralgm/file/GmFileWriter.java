@@ -16,6 +16,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -73,12 +74,12 @@ public final class GmFileWriter
 		{
 		}
 
-	public static void writeGmFile(GmFile f, ResNode root) throws IOException
+	public static void writeGmFile(OutputStream os, GmFile f, ResNode root, int ver)
+			throws IOException
 		{
-		int ver = f.fileVersion;
+		f.fileVersion = ver;
 		long savetime = System.currentTimeMillis();
-		GmStreamEncoder out = null;
-		out = new GmStreamEncoder(f.filename);
+		GmStreamEncoder out = new GmStreamEncoder(os);
 		out.write4(1234321);
 		out.write4(ver);
 		if (ver == 530) out.write4(0);

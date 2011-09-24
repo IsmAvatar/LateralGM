@@ -20,7 +20,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.HashSet;
 
@@ -191,12 +192,19 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (com.endsWith(".OPEN")) //$NON-NLS-1$
 			{
-			fc.openFile(args.length > 1 ? new File(Util.urlDecode(args[1])) : null);
+			try
+				{
+				fc.open(args.length > 1 ? new URI(Util.urlDecode(args[1])) : null);
+				}
+			catch (URISyntaxException e1)
+				{
+				e1.printStackTrace();
+				}
 			return;
 			}
 		if (com.endsWith(".SAVE")) //$NON-NLS-1$
 			{
-			fc.saveFile();
+			fc.save(LGM.currentFile.uri);
 			return;
 			}
 		if (com.endsWith(".SAVEAS")) //$NON-NLS-1$

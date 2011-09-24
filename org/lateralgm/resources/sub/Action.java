@@ -180,4 +180,23 @@ public class Action implements UpdateListener
 		{
 		fireUpdate();
 		}
+
+	@Override
+	public boolean equals(Object obj)
+		{
+		if (this == obj) return true;
+		if (obj == null || !(obj instanceof Action)) return false;
+		Action other = (Action) obj;
+		if (arguments == null)
+			{
+			if (other.arguments != null) return false;
+			}
+		else if (!arguments.equals(other.arguments)) return false;
+		if (libAction == null)
+			{
+			if (other.libAction != null) return false;
+			}
+		else if (!libAction.equals(other.libAction)) return false;
+		return (not == other.not && relative == other.relative && appliesTo.equals(other.appliesTo));
+		}
 	}

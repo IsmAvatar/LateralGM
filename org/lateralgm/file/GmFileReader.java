@@ -14,6 +14,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
@@ -114,10 +116,11 @@ public final class GmFileReader
 						"GmFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 
-	public static GmFile readGmFile(File file, ResNode root) throws GmFormatException
+	public static GmFile readGmFile(InputStream stream, URI uri, ResNode root)
+			throws GmFormatException
 		{
 		GmFile f = new GmFile();
-		f.filename = file.getPath();
+		f.uri = uri;
 		GmStreamDecoder in = null;
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
@@ -125,17 +128,17 @@ public final class GmFileReader
 		try
 			{
 			long startTime = System.currentTimeMillis();
-			in = new GmStreamDecoder(file);
+			in = new GmStreamDecoder(stream);
 			GmFileContext c = new GmFileContext(f,in,timeids,objids,rmids);
 			int identifier = in.read4();
 			if (identifier != 1234321)
-				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_INVALID",file.getPath(), //$NON-NLS-1$
+				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_INVALID",uri, //$NON-NLS-1$
 						identifier));
 			int ver = in.read4();
 			f.fileVersion = ver;
 			if (ver != 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810)
 				{
-				String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$ //$NON-NLS-2$
+				String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				throw new GmFormatException(f,msg);
 				}
 			if (ver == 530) in.skip(4); //reserved 0

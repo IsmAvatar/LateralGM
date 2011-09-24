@@ -52,7 +52,7 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 		}
 
 	private static final EnumMap<PSprite,Object> DEFS = PropertyMap.makeDefaultMap(PSprite.class,
-			false,MaskShape.PRECISE,0,false,false,true,0,0,BBMode.AUTO,0,31,0,31);
+			false,MaskShape.RECTANGLE,0,false,false,true,0,0,BBMode.AUTO,0,31,0,31);
 
 	private SoftReference<BufferedImage> imageCache = null;
 

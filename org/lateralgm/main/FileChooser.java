@@ -8,10 +8,21 @@
 
 package org.lateralgm.main;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +34,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.TransferHandler;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileView;
 import javax.swing.tree.TreeNode;
@@ -43,48 +56,156 @@ import org.lateralgm.resources.Resource;
 
 public class FileChooser
 	{
-	List<FileReader> readers = new ArrayList<FileReader>();
-	CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
-	FilterSet openFs = new FilterSet();
-	FilterUnion openAllFilter = new FilterUnion();
-	FilterSet saveFs = new FilterSet();
+	public static List<FileReader> readers = new ArrayList<FileReader>();
+	static List<FileWriter> writers = new ArrayList<FileWriter>();
 	public static List<FileView> fileViews = new ArrayList<FileView>();
+	FileWriter selectedWriter;
+	CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
+	FilterSet openFs = new FilterSet(), saveFs = new FilterSet();
+	FilterUnion openAllFilter = new FilterUnion(), saveAllFilter = new FilterUnion();
+
+	public static interface GroupFilter
+		{
+		FileFilter getGroupFilter();
+
+		FileFilter[] getFilters();
+		}
 
 	public static interface FileReader
 		{
-		public FileFilter getGroupFilter();
+		boolean canRead(URI uri);
 
-		public FileFilter[] getFilters();
-
-		public boolean canRead(File f);
-
-		public GmFile readFile(File f, ResNode root) throws GmFormatException;
+		GmFile read(InputStream is, URI pathname, ResNode root) throws GmFormatException;
 		}
 
 	public static interface FileWriter
 		{
+		void write(OutputStream out, GmFile f, ResNode root) throws IOException;
+
+		String getSelectionName();
+
+		String getExtension();
 		}
 
-	public void addReader(FileReader fr)
+	public void addOpenFilters(GroupFilter gf)
 		{
-		readers.add(fr);
-		openFs.add(fr.getGroupFilter());
-		for (FileFilter ff : fr.getFilters())
-			openFs.add(ff);
-		openAllFilter.add(fr.getGroupFilter());
-		if (readers.size() == 2) openFs.add(0,openAllFilter);
+		addFilters(openFs,openAllFilter,gf);
+		}
+
+	public void addSaveFilters(GroupFilter gf)
+		{
+		addFilters(saveFs,saveAllFilter,gf);
+		}
+
+	public static void addFilters(FilterSet fs, FilterUnion all, GroupFilter gf)
+		{
+		fs.add(gf.getGroupFilter());
+		all.add(gf.getGroupFilter());
+		for (FileFilter ff : gf.getFilters())
+			fs.add(ff);
+		if (all.size() == 2) fs.add(0,all);
 		}
 
 	public FileChooser()
 		{
 		fc.setFileView(new FileViewUnion());
-		addReader(new GmReader());
 
-		String exts[] = { ".gm81",".gmk",".gm6" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		saveFs.addFilter("FileChooser.FORMAT_WRITERS_GM",exts); //$NON-NLS-1$
-		saveFs.addFilter("FileChooser.FORMAT_GM81",exts[0]); //$NON-NLS-1$
-		saveFs.addFilter("FileChooser.FORMAT_GMK",exts[1]); //$NON-NLS-1$
-		saveFs.addFilter("FileChooser.FORMAT_GM6",exts[2]); //$NON-NLS-1$
+		//Add GM default readers, writers, and filters
+		readers.add(new GmReader());
+
+		int[] gmvers = { 810,800,701,600 };
+		for (int gmver : gmvers)
+			writers.add(new GmWriter(gmver));
+
+		selectedWriter = writers.get(0); //TODO: need a better way to pick a default...
+
+		addSaveFilters(new GmWriterFilter());
+		}
+
+	public class DropHandler extends TransferHandler
+		{
+		private static final long serialVersionUID = 1L;
+
+		static final String MIME_URI_LIST = "uri-list";
+
+		public boolean canImport(TransferHandler.TransferSupport evt)
+			{
+			//Although I'd love to actually grab the list of files, Mac won't let me.
+			return getSupportedFlavor(evt.getDataFlavors()) != null;
+			}
+
+		DataFlavor getSupportedFlavor(DataFlavor...dfs)
+			{
+			for (DataFlavor df : dfs)
+				{
+				if (df.isFlavorJavaFileListType()) return df;
+				if (df.isRepresentationClassReader() && MIME_URI_LIST.equals(df.getSubType())) return df;
+				}
+			return null;
+			}
+
+		public boolean importData(TransferHandler.TransferSupport evt)
+			{
+			List<?> files = getDropList(evt);
+			if (files == null || files.isEmpty()) return false;
+			if (files.size() != 1) return false; //handle multiple files down the road
+			Object o = files.get(0);
+			if (o instanceof File)
+				{
+				open(((File) o).toURI());
+				return true;
+				}
+			if (o instanceof URI)
+				{
+				open((URI) o);
+				return true;
+				}
+			return false;
+			}
+
+		protected List<?> getDropList(TransferHandler.TransferSupport evt)
+			{
+			Transferable tr = evt.getTransferable();
+			DataFlavor df = getSupportedFlavor(evt.getDataFlavors());
+			if (df == null) return null;
+			try
+				{
+				if (df.isFlavorJavaFileListType())
+					return (List<?>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+				//Linux support (uri-list reader)
+				BufferedReader br = new BufferedReader(df.getReaderForText(tr));
+				List<URI> uriList = new ArrayList<URI>();
+				String line;
+				while ((line = br.readLine()) != null)
+					{
+					try
+						{
+						// kde seems to append a 0 char to the end of the reader
+						if (line.isEmpty() || line.length() == 1 && line.charAt(0) == (char) 0) continue;
+						uriList.add(new URI(line));
+						}
+					catch (URISyntaxException ex)
+						{
+						//Omit bad URI files from list.
+						}
+					catch (IllegalArgumentException ex)
+						{
+						//Omit unresolvable URLs from list.
+						}
+					}
+				br.close();
+				return uriList;
+				}
+			catch (UnsupportedFlavorException e)
+				{
+				//Looks like our flavor suddenly deserted us. Oh well.
+				}
+			catch (IOException e)
+				{
+				//The flavor or the reader is misbehaving. Oh well.
+				}
+			return null;
+			}
 		}
 
 	private class FileViewUnion extends FileView
@@ -140,7 +261,7 @@ public class FileChooser
 			}
 		}
 
-	private class FilterUnion extends FileFilter
+	public static class FilterUnion extends FileFilter
 		{
 		List<FileFilter> filters = new ArrayList<FileFilter>();
 
@@ -153,6 +274,11 @@ public class FileChooser
 			{
 			for (FileFilter ff : filters)
 				this.filters.add(ff);
+			}
+
+		public int size()
+			{
+			return filters.size();
 			}
 
 		@Override
@@ -170,12 +296,12 @@ public class FileChooser
 			}
 		}
 
-	protected class GmReader implements FileReader
+	protected class GmReader implements FileReader,GroupFilter
 		{
-		CustomFileFilter[] filters;
-		CustomFileFilter groupFilter;
+		protected CustomFileFilter[] filters;
+		protected CustomFileFilter groupFilter;
 
-		GmReader()
+		protected GmReader()
 			{
 			String[] exts = { ".gm81",".gmk",".gm6",".gmd" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			String[] descs = { "GM81","GMK","GM6","GMD" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -196,25 +322,104 @@ public class FileChooser
 			return filters;
 			}
 
-		public boolean canRead(File f)
+		public boolean canRead(URI f)
 			{
-			return groupFilter.accept(f);
+			return groupFilter.accept(new File(f));
 			}
 
-		public GmFile readFile(File f, ResNode root) throws GmFormatException
+		public GmFile read(InputStream is, URI uri, ResNode root) throws GmFormatException
 			{
-			return GmFileReader.readGmFile(f,root);
+			return GmFileReader.readGmFile(is,uri,root);
 			}
 		}
 
-	private void setTitleFile(String titleFile)
+	protected class GmWriter implements FileWriter
 		{
-		LGM.frame.setTitle(Messages.format("LGM.TITLE",titleFile)); //$NON-NLS-1$
+		int ver;
+
+		public GmWriter(int ver)
+			{
+			this.ver = ver;
+			}
+
+		public void write(OutputStream out, GmFile f, ResNode root) throws IOException
+			{
+			GmFileWriter.writeGmFile(out,f,root,ver);
+			}
+
+		public String getSelectionName()
+			{
+			//XXX: Externalize the version string?
+			return Integer.toString(ver);
+			}
+
+		public String getExtension()
+			{
+			switch (ver)
+				{
+				case 530:
+					return ".gmd";
+				case 600:
+					return ".gm6";
+				case 701:
+				case 800:
+					return ".gmk";
+				case 810:
+					return ".gm81";
+				default:
+					throw new IllegalArgumentException(Integer.toString(ver));
+				}
+			}
+		}
+
+	protected class GmWriterFilter implements GroupFilter
+		{
+		protected CustomFileFilter[] filters;
+		protected CustomFileFilter groupFilter;
+
+		protected GmWriterFilter()
+			{
+			final String exts[] = { ".gm81",".gmk",".gm6" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			final String[] descs = { "GM81","GMK","GM6" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			groupFilter = new CustomFileFilter(Messages.getString("FileChooser.FORMAT_WRITERS_GM"),exts); //$NON-NLS-1$
+			filters = new CustomFileFilter[exts.length];
+			for (int i = 0; i < exts.length; i++)
+				filters[i] = new CustomFileFilter(
+						Messages.getString("FileChooser.FORMAT_" + descs[i]),exts[i]); //$NON-NLS-1$
+			}
+
+		public FileFilter[] getFilters()
+			{
+			return filters;
+			}
+
+		public FileFilter getGroupFilter()
+			{
+			return groupFilter;
+			}
+		}
+
+	public void setTitleURI(URI uri)
+		{
+		LGM.frame.setTitle(Messages.format("LGM.TITLE",getTitleFromURI(uri))); //$NON-NLS-1$
+		}
+
+	private String getTitleFromURI(URI uri)
+		{
+		if (uri == null) return Messages.getString("LGM.NEWGAME"); //$NON-NLS-1$
+		try
+			{
+			return new File(uri).getName();
+			}
+		catch (IllegalArgumentException e)
+			{
+			}
+		return uri.toString();
 		}
 
 	public void newFile()
 		{
-		setTitleFile(Messages.getString("LGM.NEWGAME")); //$NON-NLS-1$
+		setTitleURI(null);
 		LGM.newRoot();
 		LGM.currentFile = new GmFile();
 		LGM.populateTree();
@@ -229,31 +434,46 @@ public class FileChooser
 		if (fc.showOpenDialog(LGM.frame) != CustomFileChooser.APPROVE_OPTION) return;
 		File f = fc.getSelectedFile();
 		if (f == null) return;
-		openFile(f);
+		open(f.toURI());
 		}
 
 	/** Note that passing in null will cause an open dialog to display */
-	public void openFile(File file)
+	public void open(URI uri)
 		{
-		if (file == null)
+		if (uri == null)
 			{
 			openNewFile();
 			return;
 			}
-		if (!file.exists()) return;
 
-		FileReader reader = findReader(file);
+		FileReader reader = findReader(uri);
 		if (reader == null)
 			{
 			String title = Messages.getString("FileChooser.UNRECOGNIZED_TITLE"); //$NON-NLS-1$
-			String message = Messages.format("FileChooser.UNRECOGNIZED",file.getName()); //$NON-NLS-1$
+			String message = Messages.format("FileChooser.UNRECOGNIZED",uri); //$NON-NLS-1$
 			JOptionPane.showMessageDialog(LGM.frame,message,title,JOptionPane.WARNING_MESSAGE);
 			return;
 			}
+		open(uri,reader);
+		}
 
+	public void open(URI uri, FileReader reader)
+		{
+		if (uri == null) return;
 		try
 			{
-			LGM.currentFile = reader.readFile(file,LGM.newRoot());
+			try
+				{
+				LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot());
+				}
+			catch (MalformedURLException e)
+				{
+				return;
+				}
+			catch (IOException e)
+				{
+				return;
+				}
 			}
 		catch (GmFormatException ex)
 			{
@@ -264,16 +484,16 @@ public class FileChooser
 			LGM.populateTree();
 			rebuildTree();
 			}
-		setTitleFile(file.getName());
-		PrefsStore.addRecentFile(file.getPath());
+		setTitleURI(uri);
+		PrefsStore.addRecentFile(uri.toString());
 		((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 		LGM.reload(true);
 		}
 
-	private FileReader findReader(File file)
+	private FileReader findReader(URI uri)
 		{
 		for (FileReader fr : readers)
-			if (fr.canRead(file)) return fr;
+			if (fr.canRead(uri)) return fr;
 		return null;
 		}
 
@@ -291,16 +511,55 @@ public class FileChooser
 			}
 		}
 
-	public boolean saveFile()
+	public boolean saveNewFile()
 		{
-		if (LGM.currentFile.filename == null) return saveNewFile();
+		fc.setFilterSet(saveFs);
+		//Populated fresh each time to ensure an up-to-date list of writers
+		fc.setAccessory(makeSelectionAccessory());
+		URI uri = LGM.currentFile.uri;
+		File file = uri == null ? null : new File(uri);
+		fc.setSelectedFile(file);
+		while (true) //repeatedly display dialog until a valid response is given
+			{
+			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return false;
+			file = fc.getSelectedFile();
+			if (forceExt.isSelected())
+				{
+				String ext = selectedWriter.getExtension();
+				if (!file.getName().endsWith(ext)) file = new File(file.getPath() + ext);
+				}
+			int result = JOptionPane.YES_OPTION;
+			if (file.exists())
+				result = JOptionPane.showConfirmDialog(
+						LGM.frame,
+						Messages.format("FileChooser.CONFIRM_REPLACE",file.getPath()), //$NON-NLS-1$
+						Messages.getString("FileChooser.CONFIRM_REPLACE_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
+						JOptionPane.WARNING_MESSAGE);
+			if (result == JOptionPane.YES_OPTION) return save(file.toURI());
+			if (result == JOptionPane.CANCEL_OPTION) return false;
+			}
+		}
+
+	public boolean save(URI uri)
+		{
+		if (uri == null) return saveNewFile();
+
+		if (uri != LGM.currentFile.uri)
+			{
+			LGM.currentFile.uri = uri;
+			setTitleURI(uri);
+			PrefsStore.addRecentFile(uri.getPath());
+			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+			}
+
 		LGM.commitAll();
-		String ext = getVersionExtension(LGM.currentFile.fileVersion);
-		if (!LGM.currentFile.filename.endsWith(ext))
+
+		String ext = selectedWriter.getExtension();
+		if (!uri.toString().endsWith(ext))
 			{
 			int result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
 					"FileChooser.CONFIRM_EXTENSION",ext,LGM.currentFile.fileVersion), //$NON-NLS-1$
-					LGM.currentFile.filename,JOptionPane.YES_NO_CANCEL_OPTION);
+					uri.toString(),JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.CANCEL_OPTION) return false;
 			if (result == JOptionPane.NO_OPTION) return saveNewFile();
 			//if result == yes then continue
@@ -308,60 +567,40 @@ public class FileChooser
 		attemptBackup();
 		try
 			{
-			writeFile(LGM.currentFile,LGM.root);
+			save(uri,selectedWriter);
 			return true;
 			}
 		catch (IOException e)
 			{
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(LGM.frame,Messages.format("FileChooser.ERROR_SAVE", //$NON-NLS-1$
-					LGM.currentFile.filename,e.getClass().getName(),e.getMessage()),
+					uri,e.getClass().getName(),e.getMessage()),
 					Messages.getString("FileChooser.ERROR_SAVE_TITLE"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
 			return false;
 			}
 		}
 
-	public boolean saveNewFile()
+	public void save(URI uri, FileWriter writer) throws IOException
 		{
-		fc.setFilterSet(saveFs);
-		fc.setAccessory(makeVersionRadio());
-		String filename = LGM.currentFile.filename;
-		fc.setSelectedFile(filename == null ? null : new File(filename));
-		while (true) //repeatedly display dialog until a valid response is given
+		System.out.println(uri);
+		try
 			{
-			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return false;
-			filename = fc.getSelectedFile().getPath();
-			if (forceExt.isSelected())
-				{
-				String ext = getVersionExtension(LGM.currentFile.fileVersion);
-				if (!filename.endsWith(ext)) filename += ext;
-				}
-			int result = JOptionPane.YES_OPTION;
-			if (new File(filename).exists())
-				result = JOptionPane.showConfirmDialog(
-						LGM.frame,
-						Messages.format("FileChooser.CONFIRM_REPLACE",filename), //$NON-NLS-1$
-						Messages.getString("FileChooser.CONFIRM_REPLACE_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
-						JOptionPane.WARNING_MESSAGE);
-			if (result == JOptionPane.YES_OPTION)
-				{
-				LGM.currentFile.filename = filename;
-				LGM.frame.setTitle(Messages.format("LGM.TITLE",new File(filename).getName())); //$NON-NLS-1$
-				if (!saveFile()) return false;
-				PrefsStore.addRecentFile(filename);
-				((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-				return true;
-				}
-			if (result == JOptionPane.CANCEL_OPTION) return false;
+			writer.write(new FileOutputStream(new File(uri)),LGM.currentFile,LGM.root);
+			return;
 			}
+		catch (IllegalArgumentException e)
+			{
+			}
+		URLConnection uc = uri.toURL().openConnection();
+		uc.setDoOutput(true);
+		writer.write(uc.getOutputStream(),LGM.currentFile,LGM.root);
 		}
 
-	//Backups
 	public static boolean attemptBackup()
 		{
-		if (pushBackups(LGM.currentFile.filename)) return true;
+		if (pushBackups(LGM.currentFile.uri.toString())) return true;
 		int result = JOptionPane.showOptionDialog(LGM.frame,Messages.format("FileChooser.ERROR_BACKUP", //$NON-NLS-1$
-				LGM.currentFile.filename),Messages.getString("FileChooser.ERROR_BACKUP_TITLE"), //$NON-NLS-1$
+				LGM.currentFile.uri),Messages.getString("FileChooser.ERROR_BACKUP_TITLE"), //$NON-NLS-1$
 				JOptionPane.YES_NO_OPTION,JOptionPane.ERROR_MESSAGE,null,null,null);
 		return result == JOptionPane.YES_OPTION;
 		}
@@ -401,54 +640,31 @@ public class FileChooser
 		return false;
 		}
 
-	//Version Radio
-	public static String getVersionExtension(int version)
-		{
-		switch (version)
-			{
-			case 530:
-				return ".gmd";
-			case 600:
-				return ".gm6";
-			case 701:
-			case 800:
-				return ".gmk";
-			case 810:
-				return ".gm81";
-			default:
-				throw new IllegalArgumentException(Integer.toString(version));
-			}
-		}
-
 	JCheckBox forceExt = new JCheckBox(Messages.getString("FileChooser.FORCE_EXT"),true); //$NON-NLS-1$
 
-	public JPanel makeVersionRadio()
+	JPanel makeSelectionAccessory()
 		{
-		final int versions[] = { 810,800,701,600 };
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p,BoxLayout.PAGE_AXIS));
 		ButtonGroup bg = new ButtonGroup();
-		for (final int v : versions)
+		for (final FileWriter writer : writers)
 			{
-			//XXX: Externalize the version string?
-			JRadioButton b = new JRadioButton(Integer.toString(v),LGM.currentFile.fileVersion == v);
+			JRadioButton b = new JRadioButton(writer.getSelectionName(),selectedWriter == writer);
 			bg.add(b);
 			p.add(b);
 			b.addActionListener(new ActionListener()
 				{
 					public void actionPerformed(ActionEvent e)
 						{
-						LGM.currentFile.fileVersion = v;
+						selectedWriter = writer;
 						}
 				});
 			}
-		p.add(forceExt);
-		return p;
-		}
 
-	//TODO: Remove
-	void writeFile(GmFile f, ResNode root) throws IOException
-		{
-		GmFileWriter.writeGmFile(f,root);
+		JPanel r = new JPanel();
+		r.setLayout(new BoxLayout(r,BoxLayout.PAGE_AXIS));
+		r.add(new JScrollPane(p));
+		r.add(forceExt);
+		return r;
 		}
 	}

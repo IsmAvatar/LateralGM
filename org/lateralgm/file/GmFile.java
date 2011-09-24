@@ -24,6 +24,7 @@ package org.lateralgm.file;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -174,7 +175,7 @@ public class GmFile implements UpdateListener
 
 	/** One of 530, 600, 701, 800, 810 */
 	public int fileVersion = 810;
-	public String filename = null;
+	public URI uri;
 
 	private final EnumMap<Resource.Kind,ResourceList<?>> resMap;
 	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class);

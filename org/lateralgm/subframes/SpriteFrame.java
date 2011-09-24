@@ -87,7 +87,6 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 	//toolbar
 	public JButton load, loadStrip;
-	public JCheckBox showBbox;
 
 	//origin
 	public NumberField originX, originY;
@@ -113,6 +112,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 	public JButton subLeft, subRight, play;
 	public JLabel showLab;
 	public int currSub;
+	public JCheckBox showBbox, showOrigin;
 
 	public boolean imageChanged = false;
 	public JSplitPane splitPane;
@@ -178,11 +178,6 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		tool.add(name);
 
 		tool.addSeparator();
-
-		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true);
-		showBbox.setOpaque(false); //so it doesn't hide the toolbar gradient...
-		showBbox.addActionListener(this);
-		tool.add(showBbox);
 
 		return tool;
 		}
@@ -577,7 +572,12 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		play = new JButton(PLAY_ICON);
 		play.addActionListener(this);
 
-		layout.setHorizontalGroup(layout.createSequentialGroup()
+		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true);
+		showBbox.addActionListener(this);
+		showOrigin = new JCheckBox(Messages.getString("SpriteFrame.SHOW_ORIGIN"),true);
+		showOrigin.addActionListener(this);
+
+		layout.setHorizontalGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
 		/**/.addGap(5)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(lab,Alignment.CENTER)
@@ -590,7 +590,10 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		/*	*/.addComponent(lab2,Alignment.CENTER)
 		/*	*/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(speed)
-		/*		*/.addComponent(play,20,20,20)))
+		/*		*/.addComponent(play,20,20,20))))
+		/*	*/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(showBbox)
+		/*		*/.addComponent(showOrigin))
 		/**/.addGap(5));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
@@ -603,6 +606,9 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		/*	*/.addComponent(subRight,20,20,20)
 		/*	*/.addComponent(speed,21,21,21)
 		/*	*/.addComponent(play,20,20,20))
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(showBbox)
+		/*	*/.addComponent(showOrigin))
 		/**/.addGap(5));
 
 		pane.add(scroll,BorderLayout.CENTER);
@@ -709,6 +715,12 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 		if (e.getSource() == showBbox)
 			{
 			preview.setShowBbox(showBbox.isSelected());
+			preview.updateUI();
+			return;
+			}
+		if (e.getSource() == showOrigin)
+			{
+			preview.setShowOrigin(showOrigin.isSelected());
 			preview.updateUI();
 			return;
 			}

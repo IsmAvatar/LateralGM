@@ -150,4 +150,18 @@ public class Argument
 		this.res = res;
 		fireStateChanged();
 		}
+
+	@Override
+	public boolean equals(Object obj)
+		{
+		if (this == obj) return true;
+		if (obj == null || !(obj instanceof Argument)) return false;
+		Argument other = (Argument) obj;
+		if (res == null)
+			{
+			if (other.res != null) return false;
+			}
+		else if (!res.equals(other.res)) return false;
+		return (kind == other.kind && val.equals(other.val));
+		}
 	}

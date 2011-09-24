@@ -32,6 +32,7 @@ import java.awt.SplashScreen;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -472,6 +473,7 @@ public final class LGM
 		JPanel f = new JPanel(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(f);
+		frame.setTransferHandler(listener.fc.new DropHandler());
 		f.add(BorderLayout.NORTH,toolbar);
 		f.add(BorderLayout.CENTER,split);
 		f.setOpaque(true);
@@ -493,7 +495,14 @@ public final class LGM
 		if (args.length != 0)
 			{
 			SplashProgress.progress(95,Messages.getString("LGM.SPLASH_PRELOAD")); //$NON-NLS-1$
-			listener.fc.openFile(new File(args[0]));
+			try
+				{
+				listener.fc.open(new URI(args[0]));
+				}
+			catch (URISyntaxException e)
+				{
+				e.printStackTrace();
+				}
 			}
 		SplashProgress.complete();
 		frame.setVisible(true);
