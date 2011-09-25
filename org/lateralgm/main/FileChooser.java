@@ -111,7 +111,9 @@ public class FileChooser
 		fc.setFileView(new FileViewUnion());
 
 		//Add GM default readers, writers, and filters
-		readers.add(new GmReader());
+		GmReader r = new GmReader();
+		readers.add(r);
+		addOpenFilters(r);
 
 		int[] gmvers = { 810,800,701,600 };
 		for (int gmver : gmvers)
