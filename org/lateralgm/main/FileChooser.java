@@ -57,7 +57,7 @@ import org.lateralgm.resources.Resource;
 public class FileChooser
 	{
 	public static List<FileReader> readers = new ArrayList<FileReader>();
-	static List<FileWriter> writers = new ArrayList<FileWriter>();
+	public static List<FileWriter> writers = new ArrayList<FileWriter>();
 	public static List<FileView> fileViews = new ArrayList<FileView>();
 	FileWriter selectedWriter;
 	CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
