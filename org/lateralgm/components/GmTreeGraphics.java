@@ -24,8 +24,11 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.resources.Background;
+import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.Sprite;
 
 public class GmTreeGraphics extends DefaultTreeCellRenderer
 	{
@@ -91,8 +94,12 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 	public static Icon getResourceIcon(ResourceReference<?> r)
 		{
 		Resource<?,?> res = deRef(r);
-		BufferedImage bi = res == null ? null : res.getDisplayImage();
-		return bi == null ? getBlankIcon() : getScaledIcon(bi);
+		if (res != null && res instanceof Resource.Viewable)
+			{
+			BufferedImage bi = ((Resource.Viewable) res).getDisplayImage();
+			if (bi != null) return getScaledIcon(bi);
+			}
+		return getBlankIcon();
 		}
 
 	public Icon getLeafIcon()
@@ -118,13 +125,8 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 	private Icon getIconisedGroup()
 		{
 		if (Prefs.iconizeGroup && last != null && last.status != ResNode.STATUS_PRIMARY)
-			switch (last.kind)
-				{
-				case SPRITE:
-				case BACKGROUND:
-				case OBJECT:
-					return last.getIcon();
-				}
+			if (last.kind == Sprite.class || last.kind == Background.class || last.kind == GmObject.class)
+				return last.getIcon();
 		return null;
 		}
 

@@ -100,7 +100,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			s = Messages.getString("ActionFrame.SELF"); //$NON-NLS-1$
 		else
 			s = Messages.getString("ActionFrame.OTHER"); //$NON-NLS-1$
-		appliesObject = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,s,false,100);
+		appliesObject = new ResourceMenu<GmObject>(GmObject.class,s,false,100);
 		appliesObject.setEnabled(GmObject.refAsInt(at) >= 0);
 		appliesObject.setOpaque(false);
 		appliesObject.setSelected(at);
@@ -421,17 +421,17 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			return arg;
 			}
 
-		private String getNoSelectionString(Resource.Kind resourceKind)
+		private String getNoSelectionString(Class<? extends Resource<?,?>> resourceKind)
 			{
 			String key;
 			if (resourceKind != null)
-				key = "ArgumentComponent." + resourceKind.name();
+				key = "ArgumentComponent." + Resource.kindNames.get(resourceKind);
 			else
 				key = "";
 			return Messages.format("ArgumentComponent.NO_SELECTION",Messages.getString(key)); //$NON-NLS-1$
 			}
 
-		@SuppressWarnings("rawtypes")
+		@SuppressWarnings( { "unchecked","rawtypes" })
 		private JComponent makeEditor(LibArgument la)
 			{
 			switch (arg.kind)
@@ -454,7 +454,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 				case Argument.ARG_ROOM:
 				case Argument.ARG_FONT:
 				case Argument.ARG_TIMELINE:
-					Resource.Kind rk = Argument.getResourceKind(arg.kind);
+					Class<? extends Resource<?,?>> rk = Argument.getResourceKind(arg.kind);
 					return new ResourceMenu(rk,getNoSelectionString(rk),120);
 				default:
 					return new JTextField(arg.getVal());

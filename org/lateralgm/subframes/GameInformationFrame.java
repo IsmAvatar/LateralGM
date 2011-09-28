@@ -86,7 +86,6 @@ import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameInformation;
-import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.GameInformation.PGameInformation;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 
@@ -556,7 +555,7 @@ public class GameInformationFrame extends RevertableMDIFrame implements ActionLi
 		for (int m = 0; m < LGM.root.getChildCount(); m++)
 			{
 			ResNode n = (ResNode) LGM.root.getChildAt(m);
-			if (n.kind == Resource.Kind.GAMEINFO) return n.getUserObject();
+			if (n.kind == GameInformation.class) return n.getUserObject();
 			}
 		return Messages.getString("LGM.GAMEINFO"); //$NON-NLS-1$
 		}

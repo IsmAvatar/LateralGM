@@ -67,7 +67,6 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.GmObject.PGmObject;
@@ -196,7 +195,7 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		origin.setLayout(oLayout);
 		origin.setBorder(BorderFactory.createTitledBorder(Messages.getString("GmObjectFrame.SPRITE"))); //$NON-NLS-1$
 		String t = Messages.getString("GmObjectFrame.NO_SPRITE"); //$NON-NLS-1$
-		sprite = new ResourceMenu<Sprite>(Resource.Kind.SPRITE,t,144);
+		sprite = new ResourceMenu<Sprite>(Sprite.class,t,144);
 		plf.make(sprite,PGmObject.SPRITE);
 		newSprite = new JButton(Messages.getString("GmObjectFrame.NEW")); //$NON-NLS-1$
 		newSprite.addActionListener(this);
@@ -230,11 +229,11 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		plf.make(persistent,PGmObject.PERSISTENT);
 		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.NO_PARENT"); //$NON-NLS-1$
-		parent = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,t,110);
+		parent = new ResourceMenu<GmObject>(GmObject.class,t,110);
 		plf.make(parent,PGmObject.PARENT);
 		JLabel mLabel = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.SAME_AS_SPRITE"); //$NON-NLS-1$
-		mask = new ResourceMenu<Sprite>(Resource.Kind.SPRITE,t,110);
+		mask = new ResourceMenu<Sprite>(Sprite.class,t,110);
 		plf.make(mask,PGmObject.MASK);
 		information = new JButton(Messages.getString("GmObjectFrame.INFO"),INFO_ICON); //$NON-NLS-1$
 		information.addActionListener(this);
@@ -656,9 +655,9 @@ public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements 
 		{
 		if (e.getSource() == newSprite)
 			{
-			ResNode n = Listener.getPrimaryParent(Resource.Kind.SPRITE);
+			ResNode n = Listener.getPrimaryParent(Sprite.class);
 			Sprite spr = LGM.currentFile.sprites.add();
-			Listener.putNode(LGM.tree,n,n,Resource.Kind.SPRITE,n.getChildCount(),spr);
+			Listener.putNode(LGM.tree,n,n,Sprite.class,n.getChildCount(),spr);
 			res.put(PGmObject.SPRITE,spr.reference);
 			return;
 			}

@@ -48,15 +48,23 @@ import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Font;
+import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.Resource.Kind;
+import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Sound;
+import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.Timeline;
 
 public class GMLTextArea extends JEditTextArea implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
-	private static final Kind[] KM_RESOURCES = { Kind.BACKGROUND,Kind.FONT,Kind.OBJECT,Kind.PATH,
-			Kind.ROOM,Kind.SCRIPT,Kind.SOUND,Kind.SPRITE,Kind.TIMELINE };
+	private static final Class<?>[] KM_RESOURCES = { Background.class,Font.class,GmObject.class,
+			Path.class,Room.class,Script.class,Sound.class,Sprite.class,Timeline.class };
 	private static final GMLKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,
 			GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
 

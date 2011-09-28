@@ -11,10 +11,10 @@ package org.lateralgm.file;
 
 import java.util.Hashtable;
 
-import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.ResourceReference;
 
-public class RefList<R extends Resource<R,?>>
+public class RefList<R extends InstantiableResource<R,?>>
 	{
 	private Hashtable<Integer,ResRef<R>> rrt = new Hashtable<Integer,ResRef<R>>();
 	private Class<R> clazz;
@@ -48,7 +48,7 @@ public class RefList<R extends Resource<R,?>>
 		return null;
 		}
 
-	private static class ResRef<R extends Resource<R,?>>
+	private static class ResRef<R extends InstantiableResource<R,?>>
 		{
 		ResourceReference<R> reference;
 		/**

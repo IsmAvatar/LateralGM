@@ -31,7 +31,8 @@ import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class Sprite extends Resource<Sprite,Sprite.PSprite>
+public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implements
+		Resource.Viewable
 	{
 	public enum BBMode
 		{
@@ -68,7 +69,7 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 		super(r);
 		properties.getUpdateSource(PSprite.TRANSPARENT).addListener(spl);
 		properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
-		setName(Prefs.prefixes.get(Kind.SPRITE));
+		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Sprite makeInstance(ResourceReference<Sprite> r)
@@ -200,13 +201,9 @@ public class Sprite extends Resource<Sprite,Sprite.PSprite>
 	@Override
 	protected void postCopy(Sprite dest)
 		{
+		super.postCopy(dest);
 		for (int j = 0; j < subImages.size(); j++)
 			dest.subImages.add(Util.cloneImage(subImages.get(j)));
-		}
-
-	public Kind getKind()
-		{
-		return Kind.SPRITE;
 		}
 
 	@Override

@@ -57,7 +57,6 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
@@ -114,7 +113,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		side2.add(objectFramePanel);
 		JLabel windowLabel = new JLabel(Messages.getString("EventFrame.OBJECT_WINDOW"));
 		objectFramePanel.add(windowLabel,BorderLayout.CENTER); //$NON-NLS-1$
-		linkSelect = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
+		linkSelect = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("EventFrame.NO_LINK"),false,140,true,true); //$NON-NLS-1$
 		linkSelect.addActionListener(this);
 		objectFramePanel.add(linkSelect,BorderLayout.EAST);
@@ -383,7 +382,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 			for (int i = 0; i < LGM.root.getChildCount(); i++)
 				{
 				ResNode group = (ResNode) LGM.root.getChildAt(i);
-				if (group.kind != Resource.Kind.OBJECT) continue;
+				if (group.kind != GmObject.class) continue;
 				populate_object_nodes(collision,group);
 				return;
 				}
@@ -398,7 +397,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		for (int i = 0; i < group.getChildCount(); i++)
 			{
 			ResNode child = (ResNode) group.getChildAt(i);
-			if (child.kind != Resource.Kind.OBJECT) continue;
+			if (child.kind != GmObject.class) continue;
 			if (child.status == ResNode.STATUS_SECONDARY)
 				parent.add(MainEvent.EV_COLLISION,(ResourceReference<GmObject>) child.getRes());
 			else if (child.status == ResNode.STATUS_GROUP)

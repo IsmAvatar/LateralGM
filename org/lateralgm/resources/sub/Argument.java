@@ -12,8 +12,17 @@ package org.lateralgm.resources.sub;
 
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
+import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Font;
+import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Sound;
+import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.library.LibArgument;
 
 public class Argument
@@ -55,28 +64,28 @@ public class Argument
 		this(kind,"",null);
 		}
 
-	public static Resource.Kind getResourceKind(byte argumentKind)
+	public static Class<? extends Resource<?,?>> getResourceKind(byte argumentKind)
 		{
 		switch (argumentKind)
 			{
 			case ARG_SPRITE:
-				return Resource.Kind.SPRITE;
+				return Sprite.class;
 			case ARG_SOUND:
-				return Resource.Kind.SOUND;
+				return Sound.class;
 			case ARG_BACKGROUND:
-				return Resource.Kind.BACKGROUND;
+				return Background.class;
 			case ARG_PATH:
-				return Resource.Kind.PATH;
+				return Path.class;
 			case ARG_SCRIPT:
-				return Resource.Kind.SCRIPT;
+				return Script.class;
 			case ARG_GMOBJECT:
-				return Resource.Kind.OBJECT;
+				return GmObject.class;
 			case ARG_ROOM:
-				return Resource.Kind.ROOM;
+				return Room.class;
 			case ARG_FONT:
-				return Resource.Kind.FONT;
+				return Font.class;
 			case ARG_TIMELINE:
-				return Resource.Kind.TIMELINE;
+				return Timeline.class;
 			default:
 				return null;
 			}
@@ -84,7 +93,7 @@ public class Argument
 
 	public String toString(LibArgument la)
 		{
-		Resource.Kind rk = Argument.getResourceKind(kind);
+		Class<? extends Resource<?,?>> rk = Argument.getResourceKind(kind);
 		switch (kind)
 			{
 			case Argument.ARG_BOOLEAN:

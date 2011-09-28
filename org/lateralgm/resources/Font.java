@@ -14,7 +14,7 @@ import java.util.EnumMap;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.util.PropertyMap;
 
-public class Font extends Resource<Font,Font.PFont>
+public class Font extends InstantiableResource<Font,Font.PFont>
 	{
 	public enum PFont
 		{
@@ -32,16 +32,12 @@ public class Font extends Resource<Font,Font.PFont>
 	public Font(ResourceReference<Font> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(Kind.FONT));
+		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Font makeInstance(ResourceReference<Font> r)
 		{
 		return new Font(r);
-		}
-
-	protected void postCopy(Font dest)
-		{
 		}
 
 	public void setRange(int min, int max)
@@ -57,11 +53,6 @@ public class Font extends Resource<Font,Font.PFont>
 			put(PFont.RANGE_MIN,min);
 			put(PFont.RANGE_MAX,max);
 			}
-		}
-
-	public Kind getKind()
-		{
-		return Kind.FONT;
 		}
 
 	@Override

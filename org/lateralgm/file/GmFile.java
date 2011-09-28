@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,13 +44,13 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Extensions;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Sound;
@@ -129,14 +130,13 @@ public class GmFile implements UpdateListener
 		GS_INCFOLDER_CODE = Collections.unmodifiableMap(m6);
 		}
 
-	public static final Resource.Kind[] RESOURCE_KIND = { null,Resource.Kind.OBJECT,
-			Resource.Kind.SPRITE,Resource.Kind.SOUND,Resource.Kind.ROOM,null,Resource.Kind.BACKGROUND,
-			Resource.Kind.SCRIPT,Resource.Kind.PATH,Resource.Kind.FONT,Resource.Kind.GAMEINFO,
-			Resource.Kind.GAMESETTINGS,Resource.Kind.TIMELINE,Resource.Kind.EXTENSIONS };
-	public static final Map<Resource.Kind,Integer> RESOURCE_CODE;
+	public static final Class<?>[] RESOURCE_KIND = { null,GmObject.class,Sprite.class,Sound.class,
+			Room.class,null,Background.class,Script.class,Path.class,Font.class,GameInformation.class,
+			GameSettings.class,Timeline.class,Extensions.class };
+	public static final Map<Class<?>,Integer> RESOURCE_CODE;
 	static
 		{
-		EnumMap<Resource.Kind,Integer> m = new EnumMap<Resource.Kind,Integer>(Resource.Kind.class);
+		Map<Class<?>,Integer> m = new HashMap<Class<?>,Integer>();
 		for (int i = 0; i < RESOURCE_KIND.length; i++)
 			if (RESOURCE_KIND[i] != null) m.put(RESOURCE_KIND[i],i);
 		RESOURCE_CODE = Collections.unmodifiableMap(m);
@@ -177,7 +177,7 @@ public class GmFile implements UpdateListener
 	public int fileVersion = 810;
 	public URI uri;
 
-	private final EnumMap<Resource.Kind,ResourceList<?>> resMap;
+	private final Map<Class<?>,ResourceList<?>> resMap;
 	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class);
 	public final ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class);
 	public final ResourceList<Background> backgrounds = new ResourceList<Background>(//force newline
@@ -204,20 +204,18 @@ public class GmFile implements UpdateListener
 
 	public GmFile()
 		{
-		resMap = new EnumMap<Resource.Kind,ResourceList<?>>(Resource.Kind.class);
-		resMap.put(Resource.Kind.SPRITE,sprites);
-		resMap.put(Resource.Kind.SOUND,sounds);
-		resMap.put(Resource.Kind.BACKGROUND,backgrounds);
-		resMap.put(Resource.Kind.PATH,paths);
-		resMap.put(Resource.Kind.SCRIPT,scripts);
-		resMap.put(Resource.Kind.FONT,fonts);
-		resMap.put(Resource.Kind.TIMELINE,timelines);
-		resMap.put(Resource.Kind.OBJECT,gmObjects);
-		resMap.put(Resource.Kind.ROOM,rooms);
+		resMap = new HashMap<Class<?>,ResourceList<?>>();
+		resMap.put(Sprite.class,sprites);
+		resMap.put(Sound.class,sounds);
+		resMap.put(Background.class,backgrounds);
+		resMap.put(Path.class,paths);
+		resMap.put(Script.class,scripts);
+		resMap.put(Font.class,fonts);
+		resMap.put(Timeline.class,timelines);
+		resMap.put(GmObject.class,gmObjects);
+		resMap.put(Room.class,rooms);
 		for (ResourceList<?> rl : resMap.values())
-			{
 			rl.updateSource.addListener(this);
-			}
 		Random random = new Random();
 		gameSettings.put(PGameSettings.GAME_ID,random.nextInt(100000001));
 		random.nextBytes((byte[]) gameSettings.get(PGameSettings.DPLAY_GUID));
@@ -260,7 +258,7 @@ public class GmFile implements UpdateListener
 		}
 
 	// Returns the ResourceList corresponding to given Resource constant
-	public ResourceList<?> getList(Resource.Kind res)
+	public ResourceList<?> getList(Class<?> res)
 		{
 		return resMap.get(res);
 		}

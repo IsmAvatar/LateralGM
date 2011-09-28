@@ -37,8 +37,10 @@ import org.lateralgm.components.AboutBox;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.subframes.ResourceFrame;
 
 public class Listener extends TransferHandler implements ActionListener,CellEditorListener
 	{
@@ -46,29 +48,26 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	MListener mListener = new MListener();
 	public FileChooser fc = new FileChooser();
 
-	public static Resource.Kind stringToRes(String com)
+	public static Class<?> stringToKind(String com)
 		{
-		try
-			{
-			return Resource.Kind.valueOf(com);
-			}
-		catch (IllegalArgumentException e)
-			{
-			return null;
-			}
+		Class<?> rk = Resource.kindsByName.get(com);
+		if (rk != null) return rk;
+		for (Class<?> k : Resource.kinds)
+			if (k.getSimpleName().equalsIgnoreCase(com)) return k;
+		return null;
 		}
 
 	protected static void addResource(JTree tree, String com)
 		{
-		addResource(tree,stringToRes(com),null);
+		addResource(tree,stringToKind(com),null);
 		}
 
-	protected static void addResource(JTree tree, Resource.Kind r)
+	protected static void addResource(JTree tree, Class<?> r)
 		{
 		addResource(tree,r,null);
 		}
 
-	protected static void addResource(JTree tree, Resource.Kind r, Resource<?,?> res)
+	protected static void addResource(JTree tree, Class<?> r, Resource<?,?> res)
 		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
@@ -89,15 +88,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	protected static void insertResource(JTree tree, String com)
 		{
-		insertResource(tree,stringToRes(com),null);
+		insertResource(tree,stringToKind(com),null);
 		}
 
-	protected static void insertResource(JTree tree, Resource.Kind r)
+	protected static void insertResource(JTree tree, Class<?> r)
 		{
 		insertResource(tree,r,null);
 		}
 
-	private static void insertResource(JTree tree, Resource.Kind r, Resource<?,?> res)
+	private static void insertResource(JTree tree, Class<?> r, Resource<?,?> res)
 		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
@@ -111,7 +110,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		putNode(tree,node,parent,r,pos,res);
 		}
 
-	public static void putNode(JTree tree, ResNode node, ResNode parent, Resource.Kind r, int pos,
+	public static void putNode(JTree tree, ResNode node, ResNode parent, Class<?> r, int pos,
 			Resource<?,?> res)
 		{
 		if (r == null)
@@ -119,7 +118,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
 			String name = JOptionPane.showInputDialog(msg,
 					Messages.getString("Listener.DEFAULT_GROUPNAME")); //$NON-NLS-1$
-			if (name == "" || name == null) return; //$NON-NLS-1$
+			if (name == null || name.isEmpty()) return;
 			ResNode g = new ResNode(name,ResNode.STATUS_GROUP,parent.kind);
 			parent.insert(g,pos);
 			tree.expandPath(new TreePath(parent.getPath()));
@@ -270,7 +269,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		}
 
-	public static ResNode getPrimaryParent(Resource.Kind kind)
+	public static ResNode getPrimaryParent(Class<?> kind)
 		{
 		for (int i = 0; i < LGM.root.getChildCount(); i++)
 			if (((ResNode) LGM.root.getChildAt(i)).kind == kind) return (ResNode) LGM.root.getChildAt(i);
@@ -282,13 +281,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		ResNode n = (ResNode) ((JTree) c).getLastSelectedPathComponent();
 
 		if (n.status == ResNode.STATUS_PRIMARY) return null;
-		switch (n.kind)
-			{
-			case GAMEINFO:
-			case GAMESETTINGS:
-			case EXTENSIONS:
-				return null;
-			}
+		if (!n.isInstantiable()) return null;
 		return n;
 		}
 
@@ -386,9 +379,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				Resource<?,?> resource = null;
 				try
 					{
-					if (node.frame != null) node.frame.commitChanges();
+					if (node.frame != null) ((ResourceFrame<?,?>) node.frame).commitChanges();
 					//FIXME: dodgy workaround to avoid warnings
-					resource = (Resource<?,?>) rl.getClass().getMethod("duplicate",Resource.class).invoke(//$NON-NLS-1$
+					resource = (Resource<?,?>) rl.getClass().getMethod("duplicate",InstantiableResource.class).invoke(//$NON-NLS-1$
 							rl,node.getRes().get());
 					}
 				catch (Exception e1)
@@ -445,17 +438,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public void editingStopped(ChangeEvent e)
 		{
 		ResNode node = (ResNode) LGM.tree.getLastSelectedPathComponent();
-		if (node.status == ResNode.STATUS_SECONDARY)
-			switch (node.kind)
-				{
-				case GAMEINFO:
-				case GAMESETTINGS:
-				case EXTENSIONS:
-					break;
-				default:
-					String txt = ((String) node.getUserObject()).replaceAll("\\W","").replaceAll("^([0-9]+)",""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-					Resource<?,?> r = deRef((ResourceReference<?>) node.getRes());
-					if (r != null) r.setName(txt);
-				}
+		if (node.status == ResNode.STATUS_SECONDARY && node.isEditable())
+			{
+			String txt = ((String) node.getUserObject()).replaceAll("\\W","").replaceAll("^([0-9]+)",""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			Resource<?,?> r = deRef((ResourceReference<?>) node.getRes());
+			if (r != null) r.setName(txt);
+			}
 		}
 	}

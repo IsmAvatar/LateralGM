@@ -20,10 +20,12 @@ import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
+import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 
-public class ResourceList<R extends Resource<R,?>> extends TreeSet<R> implements UpdateListener
+public class ResourceList<R extends InstantiableResource<R,?>> extends TreeSet<R> implements
+		UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -255,9 +257,9 @@ public class ResourceList<R extends Resource<R,?>> extends TreeSet<R> implements
 			}
 		}
 
-	private static class IdComparator implements Comparator<Resource<?,?>>
+	private static class IdComparator implements Comparator<InstantiableResource<?,?>>
 		{
-		public int compare(Resource<?,?> o1, Resource<?,?> o2)
+		public int compare(InstantiableResource<?,?> o1, InstantiableResource<?,?> o2)
 			{
 			if (o1.reference == o2.reference) return 0;
 			int i1 = o1.getId();

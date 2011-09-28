@@ -22,8 +22,9 @@ import javax.swing.JSeparator;
 
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.PrefsStore;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.InstantiableResource;
+import org.lateralgm.resources.Resource;
 
 public class GmMenuBar extends JMenuBar
 	{
@@ -52,9 +53,7 @@ public class GmMenuBar extends JMenuBar
 		{
 		String[] recentList = PrefsStore.getRecentFiles().toArray(new String[0]);
 		for (JMenuItem item : recentFiles)
-			{
 			fileMenu.remove(item);
-			}
 		recentFiles = new JMenuItem[recentList.length];
 		for (int i = 0; i < recentFiles.length; i++)
 			{
@@ -63,7 +62,7 @@ public class GmMenuBar extends JMenuBar
 			JMenuItem item = new JMenuItem(String.format("%s %s  [%s]",number,file.getName(),
 					file.getParent()),number.codePointAt(0));
 			recentFiles[i] = item;
-			item.setActionCommand("GmMenuBar.OPEN " + Util.urlEncode(file.toString())); //$NON-NLS-1$
+			item.setActionCommand("GmMenuBar.OPEN " + recentList[i]); //$NON-NLS-1$
 			item.addActionListener(LGM.listener);
 			fileMenu.insert(item,recentFilesPos + i);
 			}
@@ -93,33 +92,23 @@ public class GmMenuBar extends JMenuBar
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_EDIT")); //$NON-NLS-1$
 		add(menu);
 
-		GmMenu sub = new GmMenu(Messages.getString("GmMenuBar.MENU_INSERT")); //$NON-NLS-1$
-		menu.add(sub);
-		sub.addItem("GmMenuBar.INSERT_GROUP"); //$NON-NLS-1$
-		sub.add(new JSeparator());
-		sub.addItem("GmMenuBar.INSERT_SPRITE"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.INSERT_SOUND"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.INSERT_BACKGROUND"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.INSERT_PATH"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.INSERT_SCRIPT"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.INSERT_FONT"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.INSERT_TIMELINE"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.INSERT_OBJECT"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.INSERT_ROOM"); //$NON-NLS-1$
+		GmMenu subIns = new GmMenu(Messages.getString("GmMenuBar.MENU_INSERT")); //$NON-NLS-1$
+		menu.add(subIns);
+		subIns.addItem("GmMenuBar.INSERT_GROUP"); //$NON-NLS-1$
+		subIns.add(new JSeparator());
 
-		sub = new GmMenu(Messages.getString("GmMenuBar.MENU_ADD")); //$NON-NLS-1$
-		menu.add(sub);
-		sub.addItem("GmMenuBar.ADD_GROUP"); //$NON-NLS-1$
-		sub.add(new JSeparator());
-		sub.addItem("GmMenuBar.ADD_SPRITE"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.ADD_SOUND"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.ADD_BACKGROUND"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.ADD_PATH"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.ADD_SCRIPT"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.ADD_FONT"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.ADD_TIMELINE"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.ADD_OBJECT"); //$NON-NLS-1$
-		sub.addItem("GmMenuBar.ADD_ROOM"); //$NON-NLS-1$
+		GmMenu subAdd = new GmMenu(Messages.getString("GmMenuBar.MENU_ADD")); //$NON-NLS-1$
+		menu.add(subAdd);
+		subAdd.addItem("GmMenuBar.ADD_GROUP"); //$NON-NLS-1$
+		subAdd.add(new JSeparator());
+
+		for (Class<? extends Resource<?,?>> k : Resource.kinds)
+			if (InstantiableResource.class.isAssignableFrom(k))
+				{
+				String name = Resource.kindNames.get(k);
+				subIns.addItem("GmMenuBar.INSERT_" + name); //$NON-NLS-1$
+				subAdd.addItem("GmMenuBar.ADD_" + name); //$NON-NLS-1$
+				}
 
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.RENAME",KeyEvent.VK_F2,0); //$NON-NLS-1$

@@ -37,11 +37,13 @@ public final class PrefsStore
 
 	public static void addRecentFile(String name)
 		{
+		System.out.println(name);
 		int maxcount = PREFS.getInt("FILE_RECENT_COUNT",4);
 		ArrayList<String> oldList = getRecentFiles();
 		oldList.remove(name);
 		String newList;
 		newList = Util.urlEncode(name);
+		System.out.println(newList);
 		for (int i = 0; i + 1 < maxcount && i < oldList.size(); i++)
 			newList += " " + Util.urlEncode(oldList.get(i));
 		PREFS.put("FILE_RECENT",newList);

@@ -30,7 +30,7 @@ import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 
-public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
+public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeHolder
 	{
 	public static final int TAB_OBJECTS = 0;
 	public static final int TAB_SETTINGS = 1;
@@ -67,7 +67,7 @@ public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
 	public Room(ResourceReference<Room> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(Kind.ROOM));
+		setName(Prefs.prefixes.get(getClass()));
 		BackgroundDef[] b = new BackgroundDef[8];
 		for (int j = 0; j < b.length; j++)
 			b[j] = new BackgroundDef();
@@ -104,6 +104,7 @@ public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
 	@Override
 	protected void postCopy(Room dest)
 		{
+		super.postCopy(dest);
 		for (Instance inst : instances)
 			{
 			Instance inst2 = dest.addInstance();
@@ -129,11 +130,6 @@ public class Room extends Resource<Room,Room.PRoom> implements CodeHolder
 			BackgroundDef back2 = dest.backgroundDefs.get(i);
 			back2.properties.putAll(back.properties);
 			}
-		}
-
-	public Kind getKind()
-		{
-		return Kind.ROOM;
 		}
 
 	@Override

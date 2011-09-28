@@ -16,7 +16,7 @@ import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.util.PropertyMap;
 
-public class Timeline extends Resource<Timeline,Timeline.PTimeline>
+public class Timeline extends InstantiableResource<Timeline,Timeline.PTimeline>
 	{
 	public ArrayList<Moment> moments = new ArrayList<Moment>();
 
@@ -32,7 +32,7 @@ public class Timeline extends Resource<Timeline,Timeline.PTimeline>
 	public Timeline(ResourceReference<Timeline> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(Kind.TIMELINE));
+		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Timeline makeInstance(ResourceReference<Timeline> r)
@@ -50,6 +50,7 @@ public class Timeline extends Resource<Timeline,Timeline.PTimeline>
 	@Override
 	protected void postCopy(Timeline dest)
 		{
+		super.postCopy(dest);
 		for (Moment mom : moments)
 			{
 			Moment mom2 = mom.copy();
@@ -109,11 +110,6 @@ public class Timeline extends Resource<Timeline,Timeline.PTimeline>
 			moments.get(left).actions.addAll(moments.remove(i).actions);
 			}
 		return left;
-		}
-
-	public Kind getKind()
-		{
-		return Kind.TIMELINE;
 		}
 
 	@Override

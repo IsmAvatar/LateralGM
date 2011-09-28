@@ -47,7 +47,6 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
-import org.lateralgm.resources.Resource.Kind;
 import org.lateralgm.util.PropertyEditor;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap;
@@ -64,7 +63,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	protected JMenuItem noResource;
 	protected boolean onlyOpen;
 	private ActionEvent actionEvent;
-	protected Kind kind;
+	protected Class<? extends Resource<?,?>> kind;
 	private MListener mListener = new MListener();
 	protected static final ImageIcon GROUP_ICO = LGM.getIconForKey("GmTreeGraphics.GROUP"); //$NON-NLS-1$;
 	private final Preview rPreview;
@@ -141,18 +140,19 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		public Preview()
 			{
 			//Must be set or else toolTip won't show
-			setToolTipText(""); //$NON-NLS-1$
+			setToolTipText(new String());
 			}
 
 		public <R extends Resource<R,?>>void setResource(ResourceReference<R> r)
 			{
 			Resource<R,?> res = Util.deRef(r);
-			displayImage = res == null ? null : res.getDisplayImage();
-			if (res == null)
+			if (res == null || !(res instanceof Resource.Viewable))
 				{
+				displayImage = null;
 				setIcon(null);
 				return;
 				}
+			displayImage = ((Resource.Viewable) res).getDisplayImage();
 			ResNode rn = res.getNode();
 			setIcon(rn == null ? null : rn.getIcon());
 			}
@@ -178,7 +178,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	 * @param showDef - Whether to display the default value as a selectable menu option
 	 * @param width - The component width desired
 	 */
-	public ResourceMenu(Kind kind, String def, boolean showDef, int width)
+	public ResourceMenu(Class<? extends Resource<?,?>> kind, String def, boolean showDef, int width)
 		{
 		this(kind,def,showDef,width,false,canPreview(kind));
 		}
@@ -192,8 +192,8 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	 * @param onlyOpen  - Whether to only show open frames on the menu
 	 * @param preview - Whether to display a preview icon
 	 */
-	public ResourceMenu(Kind kind, String def, boolean showDef, int width, boolean onlyOpen,
-			boolean preview)
+	public ResourceMenu(Class<? extends Resource<?,?>> kind, String def, boolean showDef, int width,
+			boolean onlyOpen, boolean preview)
 		{
 		this.kind = kind;
 		this.onlyOpen = onlyOpen;
@@ -238,7 +238,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	 * @param def - The default value to display if no resource is selected (selectable in menu)
 	 * @param width - The component width desired
 	 */
-	public ResourceMenu(Kind kind, String def, int width)
+	public ResourceMenu(Class<? extends Resource<?,?>> kind, String def, int width)
 		{
 		this(kind,def,true,width,false,canPreview(kind));
 		}
@@ -249,20 +249,14 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		return label.getBaseline(width,height);
 		}
 
-	public static boolean canPreview(Kind kind)
+	public static boolean canPreview(Class<? extends Resource<?,?>> kind)
 		{
-		switch (kind)
-			{
-			case SPRITE:
-			case BACKGROUND:
-			case OBJECT:
-				return true;
-			default:
-				return false;
-			}
+		for (Class<?> i : kind.getInterfaces())
+			if (i == Resource.Viewable.class) return true;
+		return false;
 		}
 
-	protected void populate(Kind kind)
+	protected void populate(Class<? extends Resource<?,?>> kind)
 		{
 		if (Prefs.groupKind)
 			{
@@ -280,7 +274,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		return;
 		}
 
-	private void populate(JComponent parent, ResNode group, Kind kind)
+	private void populate(JComponent parent, ResNode group, Class<? extends Resource<?,?>> kind)
 		{
 		for (int i = 0; i < group.getChildCount(); i++)
 			{

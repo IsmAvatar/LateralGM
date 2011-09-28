@@ -18,7 +18,8 @@ import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.util.PropertyMap;
 
-public class Background extends Resource<Background,Background.PBackground>
+public class Background extends InstantiableResource<Background,Background.PBackground> implements
+		Resource.Viewable
 	{
 	private BufferedImage backgroundImage = null;
 	private SoftReference<BufferedImage> imageCache = null;
@@ -40,7 +41,7 @@ public class Background extends Resource<Background,Background.PBackground>
 	public Background(ResourceReference<Background> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(Kind.BACKGROUND));
+		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Background makeInstance(ResourceReference<Background> r)
@@ -68,12 +69,8 @@ public class Background extends Resource<Background,Background.PBackground>
 
 	protected void postCopy(Background dest)
 		{
+		super.postCopy(dest);
 		dest.backgroundImage = Util.cloneImage(backgroundImage);
-		}
-
-	public Kind getKind()
-		{
-		return Kind.BACKGROUND;
 		}
 
 	@Override

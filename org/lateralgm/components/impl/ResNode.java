@@ -15,8 +15,9 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -27,6 +28,7 @@ import javax.swing.tree.MutableTreeNode;
 
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.mdi.MDIFrame;
+import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
@@ -37,37 +39,22 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
-import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Path;
+import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
-import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Script;
-import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.Timeline;
-import org.lateralgm.resources.Resource.Kind;
-import org.lateralgm.subframes.BackgroundFrame;
-import org.lateralgm.subframes.FontFrame;
-import org.lateralgm.subframes.GmObjectFrame;
-import org.lateralgm.subframes.PathFrame;
 import org.lateralgm.subframes.ResourceFrame;
-import org.lateralgm.subframes.RoomFrame;
-import org.lateralgm.subframes.ScriptFrame;
-import org.lateralgm.subframes.SoundFrame;
-import org.lateralgm.subframes.SpriteFrame;
 import org.lateralgm.subframes.SubframeInformer;
-import org.lateralgm.subframes.TimelineFrame;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable,UpdateListener
 	{
-	public static final Map<Kind,ImageIcon> ICON;
+	public static final Map<Class<?>,ImageIcon> ICON;
 	static
 		{
-		Map<Kind,ImageIcon> m = new EnumMap<Kind,ImageIcon>(Kind.class);
-		for (Kind k : Kind.values())
-			m.put(k,LGM.getIconForKey("Resource." + k.name()));
+		Map<Class<?>,ImageIcon> m = new HashMap<Class<?>,ImageIcon>();
+		for (Entry<Class<? extends Resource<?,?>>,String> k : Resource.kindNames.entrySet())
+			m.put(k.getKey(),LGM.getIconForKey("Resource." + k.getValue()));
 		ICON = java.util.Collections.unmodifiableMap(m);
 		}
 
@@ -81,12 +68,12 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 	/** One of PRIMARY, GROUP, or SECONDARY*/
 	public byte status;
 	/** What kind of Resource this is */
-	public Resource.Kind kind;
+	public Class<?> kind;
 	/**
 	 * The <code>Resource</code> this node represents.
 	 */
 	private final ResourceReference<? extends Resource<?,?>> res;
-	public ResourceFrame<?,?> frame = null;
+	public RevertableMDIFrame frame = null;
 	private Icon icon;
 	private final NameUpdater nameUpdater = new NameUpdater();
 	private final UpdateTrigger trigger = new UpdateTrigger();
@@ -95,15 +82,14 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 
 	public Icon getIcon()
 		{
-		if (status == STATUS_SECONDARY) switch (kind)
+		if (status == STATUS_SECONDARY)
 			{
-			case SPRITE:
-			case BACKGROUND:
-			case OBJECT:
+			if (kind == Sprite.class || kind == Background.class || kind == GmObject.class)
+				{
 				if (icon == null) updateIcon();
 				return icon;
-			default:
-				return ICON.get(kind);
+				}
+			return ICON.get(kind);
 			}
 		if (Prefs.iconizeGroup && getChildCount() > 0)
 			{
@@ -118,7 +104,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		icon = GmTreeGraphics.getResourceIcon(res);
 		}
 
-	public ResNode(String name, byte status, Resource.Kind kind,
+	public ResNode(String name, byte status, Class<?> kind,
 			ResourceReference<? extends Resource<?,?>> res)
 		{
 		super(name);
@@ -133,12 +119,12 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			}
 		}
 
-	public ResNode(String name, byte status, Kind kind)
+	public ResNode(String name, byte status, Class<?> kind)
 		{
 		this(name,status,kind,null);
 		}
 
-	public ResNode addChild(String name, byte stat, Kind k)
+	public ResNode addChild(String name, byte stat, Class<?> k)
 		{
 		ResNode b = new ResNode(name,stat,k,null);
 		add(b);
@@ -178,62 +164,20 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		this.newRes = newRes;
 		Resource<?,?> r = deRef();
 		if (SubframeInformer.fireSubframeRequest(r,this)) return;
+		MDIFrame rf = frame;
 		if (frame == null)
 			{
-			MDIFrame rf = null;
-			switch (kind)
-				{
-				case SPRITE:
-					rf = new SpriteFrame((Sprite) r,this);
-					break;
-				case SOUND:
-					rf = new SoundFrame((Sound) r,this);
-					break;
-				case BACKGROUND:
-					rf = new BackgroundFrame((Background) r,this);
-					break;
-				case PATH:
-					rf = new PathFrame((Path) r,this);
-					break;
-				case SCRIPT:
-					rf = new ScriptFrame((Script) r,this);
-					break;
-				case FONT:
-					rf = new FontFrame((Font) r,this);
-					break;
-				case TIMELINE:
-					rf = new TimelineFrame((Timeline) r,this);
-					break;
-				case OBJECT:
-					rf = new GmObjectFrame((GmObject) r,this);
-					break;
-				case ROOM:
-					rf = new RoomFrame((Room) r,this);
-					break;
-				case GAMEINFO:
-					rf = LGM.getGameInfo();
-					SubframeInformer.fireSubframeAppear(rf);
-					rf.toTop();
-					return;
-				case GAMESETTINGS:
-					rf = LGM.getGameSettings();
-					SubframeInformer.fireSubframeAppear(rf);
-					rf.toTop();
-					return;
-				case EXTENSIONS:
-					//TODO: Create Extensions front-end
-					return;
-				}
-			if (rf != null)
+			rf = ResourceFrame.getFrame(kind,r,this);
+			if (rf != null && rf instanceof ResourceFrame<?,?>)
 				{
 				frame = (ResourceFrame<?,?>) rf;
 				LGM.mdi.add(rf);
 				}
 			}
-		if (frame != null)
+		if (rf != null)
 			{
-			SubframeInformer.fireSubframeAppear(frame);
-			frame.toTop();
+			SubframeInformer.fireSubframeAppear(rf);
+			rf.toTop();
 			}
 		}
 
@@ -249,14 +193,11 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		{
 		JPopupMenu popup = new JPopupMenu();
 		ActionListener al = new Listener.NodeMenuListener(this);
-		switch (kind)
+		if (!isInstantiable())
 			{
-			case GAMESETTINGS:
-			case GAMEINFO:
-			case EXTENSIONS:
-				popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
-				popup.show(e.getComponent(),e.getX(),e.getY());
-				return;
+			popup.add(makeMenuItem("Listener.TREE_EDIT",al)); //$NON-NLS-1$
+			popup.show(e.getComponent(),e.getX(),e.getY());
+			return;
 			}
 		if (status == ResNode.STATUS_SECONDARY)
 			{
@@ -364,18 +305,29 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		{
 		public void run()
 			{
-			if (frame != null)
+			if (frame != null && frame instanceof ResourceFrame<?,?>)
 				{
+				ResourceFrame<?,?> resFrame = (ResourceFrame<?,?>) frame;
 				Resource<?,?> r = deRef();
 				if (r != null)
 					{
 					String n = r.getName();
-					frame.setTitle(n);
-					if (!frame.name.getText().equals(n)) frame.name.setText(n);
+					resFrame.setTitle(n);
+					if (!resFrame.name.getText().equals(n)) resFrame.name.setText(n);
 					}
 				}
 			//FIXME: Update the tree by having it listen to its root node instead of here
 			LGM.tree.updateUI();
 			}
+		}
+
+	public boolean isInstantiable()
+		{
+		return InstantiableResource.class.isAssignableFrom(kind);
+		}
+
+	public boolean isEditable()
+		{
+		return isInstantiable();
 		}
 	}

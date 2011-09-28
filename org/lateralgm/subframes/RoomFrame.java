@@ -72,7 +72,6 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Background.PBackground;
@@ -319,7 +318,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		oNew = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
+		oNew = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 		oNew.addActionListener(this);
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
@@ -345,7 +344,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		layout2.setAutoCreateContainerGaps(true);
 		edit.setLayout(layout2);
 
-		oSource = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
+		oSource = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
 		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
@@ -564,7 +563,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		taSource = new ResourceMenu<Background>(Resource.Kind.BACKGROUND,
+		taSource = new ResourceMenu<Background>(Background.class,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110);
 		taSource.addActionListener(this);
 		tSelect = new TileSelector();
@@ -716,7 +715,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		psl.setAutoCreateGaps(true);
 		psl.setAutoCreateContainerGaps(true);
 		pSet.setLayout(psl);
-		teSource = new ResourceMenu<Background>(Resource.Kind.BACKGROUND,
+		teSource = new ResourceMenu<Background>(Background.class,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,110); //$NON-NLS-1$
 		JLabel ltsx = new JLabel(Messages.getString("RoomFrame.TILESET_X")); //$NON-NLS-1$
 		tsX = new NumberField(0);
@@ -838,7 +837,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		bVisible = new JCheckBox(Messages.getString("RoomFrame.BACK_VISIBLE")); //$NON-NLS-1$
 		bForeground = new JCheckBox(Messages.getString("RoomFrame.BACK_FOREGROUND")); //$NON-NLS-1$
 
-		bSource = new ResourceMenu<Background>(Resource.Kind.BACKGROUND,
+		bSource = new ResourceMenu<Background>(Background.class,
 				Messages.getString("RoomFrame.NO_BACKGROUND"),true,150); //$NON-NLS-1$
 
 		bTileH = new JCheckBox(Messages.getString("RoomFrame.BACK_TILE_HOR")); //$NON-NLS-1$
@@ -1053,7 +1052,7 @@ public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectio
 		pf.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.FOLLOW"))); //$NON-NLS-1$
 		GroupLayout lf = new GroupLayout(pf);
 		pf.setLayout(lf);
-		vObj = new ResourceMenu<GmObject>(Resource.Kind.OBJECT,
+		vObj = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 		JLabel lH = new JLabel(Messages.getString("RoomFrame.VIEW_HORIZONTAL"));
 		JLabel lV = new JLabel(Messages.getString("RoomFrame.VIEW_VERTICAL"));

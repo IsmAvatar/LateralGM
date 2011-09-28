@@ -25,11 +25,13 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Extensions;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
+import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
@@ -390,7 +392,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 800) throw versionError(f,"BEFORE","SND",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int no = in.read4();
 		for (int i = 0; i < no; i++)
@@ -402,7 +404,7 @@ public final class GmFileReader
 				continue;
 				}
 			ver = in.read4();
-			if (ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 800) throw versionError(f,"BEFORE","SND",ver); //$NON-NLS-1$ //$NON-NLS-2$
 			Trigger trig = new Trigger();
 			f.triggers.add(trig);
 			trig.name = in.readStr();
@@ -420,7 +422,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 800) throw versionError(f,"BEFORE","SND",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int no = in.read4();
 		for (int i = 0; i < no; i++)
@@ -440,7 +442,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SOUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SND",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noSounds = in.read4();
 		for (int i = 0; i < noSounds; i++)
@@ -456,7 +458,7 @@ public final class GmFileReader
 			snd.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 440 && ver != 600 && ver != 800) throw versionError(f,"IN","SOUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 440 && ver != 600 && ver != 800) throw versionError(f,"IN","SND",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			int kind53 = -1;
 			if (ver == 440)
 				kind53 = in.read4(); //kind (wav, mp3, etc)
@@ -504,7 +506,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SPRITES",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SPR",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noSprites = in.read4();
 		for (int i = 0; i < noSprites; i++)
@@ -520,7 +522,7 @@ public final class GmFileReader
 			spr.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 400 && ver != 542 && ver != 800) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 400 && ver != 542 && ver != 800) throw versionError(f,"IN","SPR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			int w = 0, h = 0;
 			if (ver < 800)
 				{
@@ -552,7 +554,7 @@ public final class GmFileReader
 				if (ver >= 800)
 					{
 					ver = in.read4();
-					if (ver != 800) throw versionError(f,"IN","SPRITES",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+					if (ver != 800) throw versionError(f,"IN","SPR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 					w = in.read4();
 					h = in.read4();
 					if (w != 0 && h != 0) spr.subImages.add(in.readBGRAImage(w,h));
@@ -582,7 +584,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","BACKGROUNDS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","BKG",ver); //$NON-NLS-1$ //$NON-NLS-2$
 		int noBackgrounds = in.read4();
 		for (int i = 0; i < noBackgrounds; i++)
 			{
@@ -597,7 +599,7 @@ public final class GmFileReader
 			back.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 400 && ver != 543 && ver != 710) throw versionError(f,"IN","BACKGROUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 400 && ver != 543 && ver != 710) throw versionError(f,"IN","BKG",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			if (ver < 710)
 				{
 				int w = in.read4();
@@ -628,7 +630,7 @@ public final class GmFileReader
 				in.read4(back.properties,PBackground.TILE_WIDTH,PBackground.TILE_HEIGHT,
 						PBackground.H_OFFSET,PBackground.V_OFFSET,PBackground.H_SEP,PBackground.V_SEP);
 				ver = in.read4();
-				if (ver != 800) throw versionError(f,"IN","BACKGROUNDS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+				if (ver != 800) throw versionError(f,"IN","BKG",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				int w = in.read4();
 				int h = in.read4();
 				if (w != 0 && h != 0) back.setBackgroundImage(in.readBGRAImage(w,h));
@@ -643,7 +645,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 420 && ver != 800) throw versionError(f,"BEFORE","PATHS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 420 && ver != 800) throw versionError(f,"BEFORE","PTH",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noPaths = in.read4();
 		for (int i = 0; i < noPaths; i++)
@@ -659,7 +661,7 @@ public final class GmFileReader
 			path.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 530) throw versionError(f,"IN","PATHS",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 530) throw versionError(f,"IN","PTH",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			in.readBool(path.properties,PPath.SMOOTH,PPath.CLOSED);
 			path.put(PPath.PRECISION,in.read4());
 			path.put(PPath.BACKGROUND_ROOM,c.rmids.get(in.read4()));
@@ -679,7 +681,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SCRIPTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SCR",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noScripts = in.read4();
 		for (int i = 0; i < noScripts; i++)
@@ -695,7 +697,7 @@ public final class GmFileReader
 			scr.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 400 && ver != 800) throw versionError(f,"IN","SCRIPTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 400 && ver != 800) throw versionError(f,"IN","SCR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			String code = in.readStr();
 			scr.put(PScript.CODE,code);
 
@@ -710,7 +712,7 @@ public final class GmFileReader
 
 		int ver = in.read4();
 		if (ver != 440 && ver != 540 && ver != 800)
-			throw versionError(f,"BEFORE","FONTS",(int) in.getPos()); //$NON-NLS-1$ //$NON-NLS-2$
+			throw versionError(f,"BEFORE","FNT",(int) in.getPos()); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (ver == 440) //data files
 			{
@@ -756,7 +758,7 @@ public final class GmFileReader
 			font.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 540 && ver != 800) throw versionError(f,"IN","FONTS",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 540 && ver != 800) throw versionError(f,"IN","FNT",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			font.put(PFont.FONT_NAME,in.readStr());
 			font.put(PFont.SIZE,in.read4());
 			in.readBool(font.properties,PFont.BOLD,PFont.ITALIC);
@@ -776,7 +778,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 500 && ver != 800) throw versionError(f,"BEFORE","TIMELINES",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 500 && ver != 800) throw versionError(f,"BEFORE","TML",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noTimelines = in.read4();
 		for (int i = 0; i < noTimelines; i++)
@@ -793,7 +795,7 @@ public final class GmFileReader
 			time.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 500) throw versionError(f,"IN","TIMELINES",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 500) throw versionError(f,"IN","TML",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			int nomoms = in.read4();
 			for (int j = 0; j < nomoms; j++)
 				{
@@ -814,7 +816,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","OBJECTS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","OBJ",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noGmObjects = in.read4();
 		for (int i = 0; i < noGmObjects; i++)
@@ -831,7 +833,7 @@ public final class GmFileReader
 			obj.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 430) throw versionError(f,"IN","OBJECTS",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 430) throw versionError(f,"IN","OBJ",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			Sprite temp = f.sprites.getUnsafe(in.read4());
 			if (temp != null) obj.put(PGmObject.SPRITE,temp.reference);
 			in.readBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
@@ -876,7 +878,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 420 && ver != 800) throw versionError(f,"BEFORE","ROOMS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 420 && ver != 800) throw versionError(f,"BEFORE","RMM",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noRooms = in.read4();
 		for (int i = 0; i < noRooms; i++)
@@ -893,7 +895,7 @@ public final class GmFileReader
 			rm.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
-			if (ver2 != 520 && ver2 != 541) throw versionError(f,"IN","ROOMS",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver2 != 520 && ver2 != 541) throw versionError(f,"IN","RMM",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
 			rm.put(PRoom.CAPTION,in.readStr());
 			in.read4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
 			rm.put(PRoom.ISOMETRIC,in.readBool());
@@ -974,7 +976,7 @@ public final class GmFileReader
 
 		int ver = in.read4();
 		if (ver != 430 && ver != 600 && ver != 620 && ver != 800)
-			throw versionError(f,"BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
+			throw versionError(f,"BEFORE","GMI",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noIncludes = in.read4();
 		for (int i = 0; i < noIncludes; i++)
@@ -1015,7 +1017,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 700) throw versionError(f,"BEFORE","EXTENSIONS",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 700) throw versionError(f,"BEFORE","EXT",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noPackages = in.read4();
 		for (int i = 0; i < noPackages; i++)
@@ -1030,7 +1032,7 @@ public final class GmFileReader
 
 		int ver = in.read4();
 		if (ver != 430 && ver != 600 && ver != 620 && ver != 800)
-			throw versionError(c.f,"BEFORE","GAMEINFO",ver); //$NON-NLS-1$ //$NON-NLS-2$
+			throw versionError(c.f,"BEFORE","GMI",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (ver == 800) in.beginInflate();
 		int bc = in.read4();
@@ -1064,30 +1066,19 @@ public final class GmFileReader
 		while (rootnodes-- > 0)
 			{
 			byte status = (byte) in.read4();
-			Resource.Kind type = GmFile.RESOURCE_KIND[(byte) in.read4()];
+			Class<?> type = GmFile.RESOURCE_KIND[(byte) in.read4()];
 			int ind = in.read4();
 			String name = in.readStr();
 			boolean hasRef;
 			if (status == ResNode.STATUS_SECONDARY)
-				switch (type)
-					{
-					case GAMEINFO:
-					case GAMESETTINGS:
-					case EXTENSIONS:
-						hasRef = false;
-						break;
-					case FONT:
-						hasRef = ver != 500;
-						break;
-					default:
-						hasRef = true;
-					}
+				hasRef = type == Font.class ? ver != 500
+						: type.getSuperclass() == InstantiableResource.class;
 			else
 				hasRef = false;
 			ResourceList<?> rl = hasRef ? f.getList(type) : null;
 			ResNode node = new ResNode(name,status,type,hasRef ? rl.getUnsafe(ind).reference : null);
-			if (ver == 500 && status == ResNode.STATUS_PRIMARY && type == Resource.Kind.FONT)
-				path.peek().addChild(Messages.getString("LGM.FONTS"),status,type); //$NON-NLS-1$
+			if (ver == 500 && status == ResNode.STATUS_PRIMARY && type == Font.class)
+				path.peek().addChild(Messages.getString("LGM.FNT"),status,type); //$NON-NLS-1$
 			else
 				path.peek().add(node);
 			int contents = in.read4();
@@ -1103,8 +1094,8 @@ public final class GmFileReader
 				path.pop();
 				}
 			}
-		if (ver <= 540) root.addChild(Messages.getString("LGM.EXTENSIONS"), //$NON-NLS-1$
-				ResNode.STATUS_SECONDARY,Resource.Kind.EXTENSIONS);
+		if (ver <= 540) root.addChild(Messages.getString("LGM.EXT"), //$NON-NLS-1$
+				ResNode.STATUS_SECONDARY,Extensions.class);
 		}
 
 	private static void readActions(GmFileContext c, ActionContainer container, String errorKey,
@@ -1113,7 +1104,6 @@ public final class GmFileReader
 		GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
-		Resource<?,?> tag = new Script();
 		int ver = in.read4();
 		if (ver != 400)
 			{
@@ -1193,32 +1183,23 @@ public final class GmFileReader
 				args[l] = new Argument(argkinds[l]);
 
 				String strval = in.readStr();
-				Resource<?,?> res = tag;
+				Resource<?,?> res = null;
 				switch (argkinds[l])
 					{
 					case Argument.ARG_SPRITE:
-						res = f.sprites.getUnsafe(Integer.parseInt(strval));
-						break;
 					case Argument.ARG_SOUND:
-						res = f.sounds.getUnsafe(Integer.parseInt(strval));
-						break;
 					case Argument.ARG_BACKGROUND:
-						res = f.backgrounds.getUnsafe(Integer.parseInt(strval));
-						break;
 					case Argument.ARG_PATH:
-						res = f.paths.getUnsafe(Integer.parseInt(strval));
-						break;
 					case Argument.ARG_SCRIPT:
-						res = f.scripts.getUnsafe(Integer.parseInt(strval));
+					case Argument.ARG_FONT:
+						res = f.getList(Argument.getResourceKind(argkinds[l])).getUnsafe(
+								Integer.parseInt(strval));
 						break;
 					case Argument.ARG_GMOBJECT:
 						args[l].setRes(c.objids.get(Integer.parseInt(strval)));
 						break;
 					case Argument.ARG_ROOM:
 						args[l].setRes(c.rmids.get(Integer.parseInt(strval)));
-						break;
-					case Argument.ARG_FONT:
-						res = f.fonts.getUnsafe(Integer.parseInt(strval));
 						break;
 					case Argument.ARG_TIMELINE:
 						args[l].setRes(c.timeids.get(Integer.parseInt(strval)));
@@ -1227,10 +1208,7 @@ public final class GmFileReader
 						args[l].setVal(strval);
 						break;
 					}
-				if (res != null && res != tag)
-					{
-					args[l].setRes(res.reference);
-					}
+				if (res != null) args[l].setRes(res.reference);
 				act.setArguments(args);
 				}
 			act.setNot(in.readBool());

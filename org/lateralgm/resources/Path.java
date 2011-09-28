@@ -17,7 +17,7 @@ import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 
-public class Path extends Resource<Path,Path.PPath>
+public class Path extends InstantiableResource<Path,Path.PPath>
 	{
 	public final ActiveArrayList<PathPoint> points = new ActiveArrayList<PathPoint>();
 
@@ -37,7 +37,7 @@ public class Path extends Resource<Path,Path.PPath>
 	public Path(ResourceReference<Path> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(Kind.PATH));
+		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Path makeInstance(ResourceReference<Path> r)
@@ -55,16 +55,12 @@ public class Path extends Resource<Path,Path.PPath>
 	@Override
 	protected void postCopy(Path dest)
 		{
+		super.postCopy(dest);
 		for (PathPoint point : points)
 			{
 			PathPoint point2 = new PathPoint(point.getX(),point.getY(),point.getSpeed());
 			dest.points.add(point2);
 			}
-		}
-
-	public Kind getKind()
-		{
-		return Kind.PATH;
 		}
 
 	@Override

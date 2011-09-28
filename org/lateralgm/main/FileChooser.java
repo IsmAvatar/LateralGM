@@ -499,6 +499,7 @@ public class FileChooser
 		return null;
 		}
 
+	@SuppressWarnings("unchecked")
 	private void rebuildTree()
 		{
 		for (int i = 0; i < LGM.root.getChildCount(); i++)
@@ -509,7 +510,8 @@ public class FileChooser
 			if (rn.status != ResNode.STATUS_PRIMARY) continue;
 			ResourceList<?> rl = LGM.currentFile.getList(rn.kind);
 			for (Resource<?,?> r : rl)
-				rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getKind(),r.reference));
+				rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,
+						(Class<? extends Resource<?,?>>) r.getClass(),r.reference));
 			}
 		}
 
@@ -550,7 +552,7 @@ public class FileChooser
 			{
 			LGM.currentFile.uri = uri;
 			setTitleURI(uri);
-			PrefsStore.addRecentFile(uri.getPath());
+			PrefsStore.addRecentFile(uri.toString());
 			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 			}
 

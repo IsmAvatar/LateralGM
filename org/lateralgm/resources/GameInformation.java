@@ -13,9 +13,8 @@ import java.awt.Color;
 import java.util.EnumMap;
 
 import org.lateralgm.util.PropertyMap;
-import org.lateralgm.util.PropertyMap.PropertyValidator;
 
-public class GameInformation implements PropertyValidator<GameInformation.PGameInformation>
+public class GameInformation extends Resource<GameInformation,GameInformation.PGameInformation>
 	{
 	public static final Color DEFAULT_COLOR = new Color(0xFFFFE1);
 	/*
@@ -35,14 +34,21 @@ public class GameInformation implements PropertyValidator<GameInformation.PGameI
 	private static final EnumMap<PGameInformation,Object> DEFS = PropertyMap.makeDefaultMap(
 			PGameInformation.class,DEFAULT_COLOR,false,"",-1,-1,600,400,true,true,false,true,DEFAULT_TEXT);
 
-	public final PropertyMap<PGameInformation> properties = new PropertyMap<PGameInformation>(
-			PGameInformation.class,this,DEFS);
-
-	public GameInformation clone()
+	@Override
+	public GameInformation makeInstance(ResourceReference<GameInformation> ref)
 		{
-		GameInformation dest = new GameInformation();
-		dest.properties.putAll(properties);
-		return dest;
+		return new GameInformation();
+		}
+
+	@Override
+	protected PropertyMap<PGameInformation> makePropertyMap()
+		{
+		return new PropertyMap<PGameInformation>(PGameInformation.class,this,DEFS);
+		}
+
+	@Override
+	protected void postCopy(GameInformation dest)
+		{
 		}
 
 	public Object validate(PGameInformation k, Object v)

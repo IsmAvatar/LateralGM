@@ -25,6 +25,7 @@ import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
 
+import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.util.PropertyMap;
@@ -124,8 +125,9 @@ public class GmStreamEncoder extends StreamEncoder
 	public <R extends Resource<R,?>>void writeId(ResourceReference<R> id, int noneval)
 			throws IOException
 		{
-		if (deRef(id) != null)
-			write4(id.get().getId());
+		R r = deRef(id);
+		if (r != null && r instanceof InstantiableResource<?,?>)
+			write4(((InstantiableResource<?,?>) r).getId());
 		else
 			write4(noneval);
 		}

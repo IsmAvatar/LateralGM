@@ -16,7 +16,7 @@ import org.lateralgm.main.Prefs;
 import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.util.PropertyMap;
 
-public class Script extends Resource<Script,Script.PScript> implements CodeHolder
+public class Script extends InstantiableResource<Script,Script.PScript> implements CodeHolder
 	{
 	public enum PScript
 		{
@@ -33,22 +33,12 @@ public class Script extends Resource<Script,Script.PScript> implements CodeHolde
 	public Script(ResourceReference<Script> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(Kind.SCRIPT));
+		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Script makeInstance(ResourceReference<Script> r)
 		{
 		return new Script(r);
-		}
-
-	@Override
-	protected void postCopy(Script dest)
-		{
-		}
-
-	public Kind getKind()
-		{
-		return Kind.SCRIPT;
 		}
 
 	@Override

@@ -34,10 +34,22 @@ import javax.swing.event.DocumentListener;
 
 import org.lateralgm.components.impl.NameDocument;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Font;
+import org.lateralgm.resources.GameInformation;
+import org.lateralgm.resources.GameSettings;
+import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Sound;
+import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 
 /** Provides common functionality and structure to Resource editing frames */
@@ -64,6 +76,38 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 
 	protected final PropertyLinkFactory<P> plf;
 
+	public static MDIFrame getFrame(Class<?> kind, Resource<?,?> r, ResNode node)
+		{
+		if (kind == Sprite.class) return new SpriteFrame((Sprite) r,node);
+		if (kind == Sound.class) return new SoundFrame((Sound) r,node);
+		if (kind == Background.class) return new BackgroundFrame((Background) r,node);
+		if (kind == Path.class) return new PathFrame((Path) r,node);
+		if (kind == Script.class) return new ScriptFrame((Script) r,node);
+		if (kind == Font.class) return new FontFrame((Font) r,node);
+		if (kind == Timeline.class) return new TimelineFrame((Timeline) r,node);
+		if (kind == GmObject.class) return new GmObjectFrame((GmObject) r,node);
+		if (kind == Room.class) return new RoomFrame((Room) r,node);
+
+		if (kind == GameInformation.class) return LGM.getGameInfo();
+		if (kind == GameSettings.class) return LGM.getGameSettings();
+		//extensions returns null too, for now
+		return null;
+
+		/*			case GAMEINFO:
+						rf = LGM.getGameInfo();
+						SubframeInformer.fireSubframeAppear(rf);
+						rf.toTop();
+						return;
+					case GAMESETTINGS:
+						rf = LGM.getGameSettings();
+						SubframeInformer.fireSubframeAppear(rf);
+						rf.toTop();
+						return;
+					case EXTENSIONS:
+						//TODO: Create Extensions front-end
+						return;*/
+		}
+
 	/**
 	 * Note for inheriting classes. Be sure to call this parent instantiation for proper setup.
 	 * The res and node parameters are only needed in the instantiation to assign globals;
@@ -76,7 +120,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		this.res = res;
 		this.node = node;
 		resOriginal = res.clone();
-		setFrameIcon(ResNode.ICON.get(res.getKind()));
+		setFrameIcon(ResNode.ICON.get(res.getClass()));
 		name.setDocument(new NameDocument());
 		name.setText(res.getName());
 		name.getDocument().addDocumentListener(this);

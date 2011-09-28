@@ -1,6 +1,6 @@
 /*
+ * Copyright (C) 2007, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
- * Copyright (C) 2007, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -22,24 +22,50 @@
 package org.lateralgm.resources;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
 
 public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> implements
-		Comparable<Resource<R,P>>,PropertyValidator<P>
+		PropertyValidator<P>
 	{
-	public enum Kind
+	public static final Map<String,Class<? extends Resource<?,?>>> kindsByName = new HashMap<String,Class<? extends Resource<?,?>>>();
+	public static final Map<Class<? extends Resource<?,?>>,String> kindNames = new HashMap<Class<? extends Resource<?,?>>,String>();
+	public static final ArrayList<Class<? extends Resource<?,?>>> kinds = new ArrayList<Class<? extends Resource<?,?>>>();
+
+	static
 		{
-		SPRITE,SOUND,BACKGROUND,PATH,SCRIPT,FONT,TIMELINE,OBJECT,ROOM,GAMEINFO,GAMESETTINGS,EXTENSIONS
+		String[] chr3 = { "SPR","SND","BKG","PTH", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				"SCR","FNT","TML","OBJ", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				"RMM","GMI","GMS","EXT" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		Class<?>[] ca = { Sprite.class,Sound.class,Background.class,Path.class,Script.class,Font.class,
+				Timeline.class,GmObject.class,Room.class,GameInformation.class,GameSettings.class,
+				Extensions.class, };
+		for (int i = 0; i < chr3.length; i++)
+			addKind(chr3[i],ca[i]);
 		}
 
-	private ResNode node;
-	private String name = "";
-	private int id = -1; //indicates id not set
+	@SuppressWarnings("unchecked")
+	public static void addKind(String str3, Class<?> clz)
+		{
+		kinds.add((Class<? extends Resource<?,?>>) clz);
+		kindsByName.put(str3,(Class<? extends Resource<?,?>>) clz);
+		kindNames.put((Class<? extends Resource<?,?>>) clz,str3);
+		}
+
+	protected ResNode node;
+	protected String name = new String();
 	public final ResourceReference<R> reference;
 	public final PropertyMap<P> properties = makePropertyMap();
+
+	public static interface Viewable
+		{
+		BufferedImage getDisplayImage();
+		}
 
 	public Resource()
 		{
@@ -53,22 +79,6 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 			reference = new ResourceReference<R>((R) this);
 		else
 			reference = r;
-		}
-
-	public void setId(int id)
-		{
-		this.id = id;
-		fireUpdate();
-		}
-
-	public int getId()
-		{
-		return id;
-		}
-
-	public int compareTo(Resource<R,P> res)
-		{
-		return res.id == id ? 0 : (res.id < id ? -1 : 1);
 		}
 
 	protected void fireUpdate()
@@ -97,11 +107,6 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 		this.node = node;
 		}
 
-	public BufferedImage getDisplayImage()
-		{
-		return null;
-		}
-
 	@SuppressWarnings("unchecked")
 	public final void updateReference()
 		{
@@ -120,7 +125,6 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 		{
 		R dest = makeInstance(reference);
 		dest.properties.putAll(properties);
-		dest.setId(getId());
 		dest.setName(getName());
 		postCopy(dest);
 		return dest;
@@ -148,8 +152,6 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 	/** Copies over information not stored in the properties map. */
 	protected abstract void postCopy(R dest);
 
-	public abstract Kind getKind();
-
 	public Object validate(P k, Object v)
 		{
 		return v;
@@ -161,7 +163,7 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 		if (this == obj) return true;
 		if (obj == null || !(obj instanceof Resource<?,?>)) return false;
 		Resource<?,?> other = (Resource<?,?>) obj;
-		if (id != other.id || !name.equals(other.name) || reference != other.reference) return false;
+		if (!name.equals(other.name) || reference != other.reference) return false;
 		return properties.equals(other.properties);
 		}
 

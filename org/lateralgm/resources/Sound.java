@@ -15,7 +15,7 @@ import java.util.EnumMap;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.util.PropertyMap;
 
-public class Sound extends Resource<Sound,Sound.PSound>
+public class Sound extends InstantiableResource<Sound,Sound.PSound>
 	{
 	public byte[] data = new byte[0];
 
@@ -40,7 +40,7 @@ public class Sound extends Resource<Sound,Sound.PSound>
 	public Sound(ResourceReference<Sound> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(Kind.SOUND));
+		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Sound makeInstance(ResourceReference<Sound> r)
@@ -51,13 +51,9 @@ public class Sound extends Resource<Sound,Sound.PSound>
 	@Override
 	protected void postCopy(Sound dest)
 		{
+		super.postCopy(dest);
 		dest.data = new byte[data.length];
 		System.arraycopy(data,0,dest.data,0,data.length);
-		}
-
-	public Kind getKind()
-		{
-		return Kind.SOUND;
 		}
 
 	@Override

@@ -9,8 +9,6 @@
 
 package org.lateralgm.resources;
 
-import static org.lateralgm.main.Util.deRef;
-
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +27,8 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.PropertyMap.PropertyValidationException;
 
-public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements UpdateListener
+public class GmObject extends InstantiableResource<GmObject,GmObject.PGmObject> implements
+		Resource.Viewable,UpdateListener
 	{
 	public static final ResourceReference<GmObject> OBJECT_SELF = new ResourceReference<GmObject>(
 			null);
@@ -40,7 +39,7 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 		{
 		if (ref == OBJECT_SELF) return -1;
 		if (ref == OBJECT_OTHER) return -2;
-		if (deRef(ref) == null) return -100;
+		if (Util.deRef(ref) == null) return -100;
 		return ref.get().getId();
 		}
 
@@ -69,7 +68,7 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 		for (int j = 0; j < 12; j++)
 			e[j] = new MainEvent();
 		mainEvents = Collections.unmodifiableList(Arrays.asList(e));
-		setName(Prefs.prefixes.get(Kind.OBJECT));
+		setName(Prefs.prefixes.get(getClass()));
 		properties.getUpdateSource(PGmObject.SPRITE).addListener(opl);
 		}
 
@@ -81,6 +80,7 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 	@Override
 	protected void postCopy(GmObject dest)
 		{
+		super.postCopy(dest);
 		for (int i = 0; i < 12; i++)
 			{
 			MainEvent mev = mainEvents.get(i);
@@ -92,17 +92,11 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 			}
 		}
 
-	@Override
 	public BufferedImage getDisplayImage()
 		{
 		ResourceReference<Sprite> r = get(PGmObject.SPRITE);
 		Sprite s = Util.deRef(r);
 		return s == null ? null : s.getDisplayImage();
-		}
-
-	public Kind getKind()
-		{
-		return Kind.OBJECT;
 		}
 
 	public void updated(UpdateEvent e)
@@ -125,7 +119,7 @@ public class GmObject extends Resource<GmObject,GmObject.PGmObject> implements U
 		while (true)
 			{
 			ResourceReference<GmObject> r = p.get(PGmObject.PARENT);
-			p = deRef(r);
+			p = Util.deRef(r);
 			if (p == null) return true;
 			if (p == this || !traversed.add(p)) return false;
 			}

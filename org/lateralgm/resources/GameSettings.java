@@ -14,9 +14,8 @@ import java.util.EnumMap;
 
 import org.lateralgm.file.GmFile;
 import org.lateralgm.util.PropertyMap;
-import org.lateralgm.util.PropertyMap.PropertyValidator;
 
-public class GameSettings implements PropertyValidator<GameSettings.PGameSettings>
+public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettings>
 	{
 	public enum ColorDepth
 		{
@@ -74,14 +73,21 @@ public class GameSettings implements PropertyValidator<GameSettings.PGameSetting
 			true,false,false,false,true,"","100",GmFile.longTimeToGmTime(System.currentTimeMillis()),"",/**///$NON-NLS-1$ //$NON-NLS-3$
 			IncludeFolder.MAIN,false,false,1,0,0,0,"","","","",null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-	public final PropertyMap<PGameSettings> properties = new PropertyMap<PGameSettings>(
-			PGameSettings.class,this,DEFS);
-
-	public GameSettings clone()
+	@Override
+	public GameSettings makeInstance(ResourceReference<GameSettings> ref)
 		{
-		GameSettings dest = new GameSettings();
-		dest.properties.putAll(properties);
-		return dest;
+		return new GameSettings();
+		}
+
+	@Override
+	protected PropertyMap<PGameSettings> makePropertyMap()
+		{
+		return new PropertyMap<PGameSettings>(PGameSettings.class,this,DEFS);
+		}
+
+	@Override
+	protected void postCopy(GameSettings dest)
+		{
 		}
 
 	public Object validate(PGameSettings k, Object v)

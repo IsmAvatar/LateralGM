@@ -38,17 +38,8 @@ public class GmTreeEditor extends DefaultTreeCellEditor
 			ResNode node = ((ResNode) tree.getLastSelectedPathComponent());
 			if (node != null)
 				{
-				if (Prefs.renamableRoots)
-					return true;
-				else if (node.status != ResNode.STATUS_PRIMARY) switch (node.kind)
-					{
-					case GAMEINFO:
-					case GAMESETTINGS:
-					case EXTENSIONS:
-						return false;
-					default:
-						return true;
-					}
+				if (Prefs.renamableRoots) return true;
+				if (node.status != ResNode.STATUS_PRIMARY) return node.isEditable();
 				return false;
 				}
 			}

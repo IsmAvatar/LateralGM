@@ -12,7 +12,7 @@ package org.lateralgm.main;
 
 import java.awt.Font;
 import java.awt.event.KeyEvent;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -78,16 +78,17 @@ public final class Prefs
 		String fontName = getString("codeFontName","Monospaced");
 		codeFont = new Font(fontName,Font.PLAIN,getInt("codeFontSize",12));
 		tabSize = getInt("tabSize",4);
-		String d = "OBJECT>obj_	SPRITE>spr_	SOUND>snd_	ROOM>rm_	BACKGROUND>bkg_	SCRIPT>scr_	"
-				+ "PATH>path_	FONT>font_	TIMELINE>time_";
+		String d = "OBJ>obj_	SPR>spr_	SND>snd_	RMM>rm_	BKG>bkg_	SCR>scr_	"
+				+ "PTH>path_	FNT>font_	TML>time_";
 		String[] p = getString("prefixes",d).split("\\t+");
-		prefixes = new EnumMap<Resource.Kind,String>(Resource.Kind.class);
+		prefixes = new HashMap<Class<? extends Resource<?,?>>,String>();
 		for (int i = 0; i < p.length; i++)
 			{
 			String[] kv = p[i].split(">",2);
 			try
 				{
-				prefixes.put(Resource.Kind.valueOf(kv[0]),kv[1]);
+				Class<? extends Resource<?,?>> k = Resource.kindsByName.get(kv[0]);
+				if (k != null) prefixes.put(k,kv[1]);
 				}
 			catch (IllegalArgumentException e)
 				{
@@ -121,7 +122,7 @@ public final class Prefs
 	public static boolean renamableRoots;
 	public static boolean groupKind;
 	public static boolean iconizeGroup;
-	public static Map<Resource.Kind,String> prefixes;
+	public static Map<Class<? extends Resource<?,?>>,String> prefixes;
 
 	public static Font codeFont;
 	public static int tabSize;

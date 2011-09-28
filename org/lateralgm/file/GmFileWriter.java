@@ -29,6 +29,7 @@ import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Include;
+import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
@@ -763,8 +764,8 @@ public final class GmFileWriter
 			out.write4(node.status);
 			out.write4(GmFile.RESOURCE_CODE.get(node.kind));
 			Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
-			if (res != null)
-				out.write4(res.getId());
+			if (res != null && res instanceof InstantiableResource<?,?>)
+				out.write4(((InstantiableResource<?,?>) res).getId());
 			else
 				out.write4(0);
 			out.writeStr((String) node.getUserObject());
@@ -832,8 +833,8 @@ public final class GmFileWriter
 					case Argument.ARG_FONT:
 					case Argument.ARG_TIMELINE:
 						Resource<?,?> r = deRef((ResourceReference<?>) arg.getRes());
-						if (r != null)
-							out.writeStr(Integer.toString(r.getId()));
+						if (r != null && r instanceof InstantiableResource<?,?>)
+							out.writeStr(Integer.toString(((InstantiableResource<?,?>) r).getId()));
 						else
 							out.writeStr("-1"); //$NON-NLS-1$
 						break;

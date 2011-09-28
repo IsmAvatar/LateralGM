@@ -42,7 +42,6 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Path.PPath;
-import org.lateralgm.resources.Resource.Kind;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.PathPoint.PPathPoint;
 import org.lateralgm.ui.swing.propertylink.FormattedLink;
@@ -126,7 +125,7 @@ public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListen
 		JToggleButton grid = new JCheckBox(Messages.getString("PathFrame.GRID"));
 		grid.setOpaque(false);
 		peplf.make(grid,PPathEditor.SHOW_GRID);
-		ResourceMenu<Room> room = new ResourceMenu<Room>(Kind.ROOM,
+		ResourceMenu<Room> room = new ResourceMenu<Room>(Room.class,
 				Messages.getString("PathFrame.NO_ROOM"),160);
 		plf.make(room,PPath.BACKGROUND_ROOM);
 		layout.setHorizontalGroup(layout.createSequentialGroup()
