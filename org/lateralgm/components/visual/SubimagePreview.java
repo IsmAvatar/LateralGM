@@ -70,8 +70,8 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 			g.setXORMode(Color.BLACK); //XOR mode so that bbox and origin can counter
 			g.setColor(Color.WHITE);
 
-			if (showOrigin) g.drawRect(left,top,right - left,bottom - top);
-			if (showBbox)
+			if (showBbox) g.drawRect(left,top,right - left,bottom - top);
+			if (showOrigin)
 				{
 				g.drawLine(originX - ORIGIN_SIZE,originY,originX + ORIGIN_SIZE,originY);
 				g.drawLine(originX,originY - ORIGIN_SIZE,originX,originY + ORIGIN_SIZE);

@@ -762,7 +762,10 @@ public final class GmFileWriter
 			{
 			ResNode node = (ResNode) e.nextElement();
 			out.write4(node.status);
-			out.write4(GmFile.RESOURCE_CODE.get(node.kind));
+			if (GmFile.RESOURCE_CODE.containsKey(node.kind))
+				out.write4(GmFile.RESOURCE_CODE.get(node.kind));
+			else
+				out.write4(0);
 			Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
 			if (res != null && res instanceof InstantiableResource<?,?>)
 				out.write4(((InstantiableResource<?,?>) res).getId());

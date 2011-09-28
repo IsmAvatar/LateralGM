@@ -1071,8 +1071,8 @@ public final class GmFileReader
 			String name = in.readStr();
 			boolean hasRef;
 			if (status == ResNode.STATUS_SECONDARY)
-				hasRef = type == Font.class ? ver != 500
-						: type.getSuperclass() == InstantiableResource.class;
+				hasRef = type == Font.class ? ver != 500 : (type == null ? false
+						: InstantiableResource.class.isAssignableFrom(type));
 			else
 				hasRef = false;
 			ResourceList<?> rl = hasRef ? f.getList(type) : null;
