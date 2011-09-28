@@ -80,7 +80,7 @@ public final class PrefsStore
 		styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0x770077),false,false); //Resource Names
 		styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x660099),false,false); //Strings
 		styles[Token.LITERAL2] = new SyntaxStyle(new Color(0x771111),false,false); //Predefined Constants
-		styles[Token.LABEL] = new SyntaxStyle(new Color(0x111177),false,false); //Functions
+		styles[Token.LABEL] = new SyntaxStyle(Color.RED,false,false); //Functions
 		styles[Token.OPERATOR] = new SyntaxStyle(new Color(0x000000),false,true); //?
 		styles[Token.INVALID] = new SyntaxStyle(new Color(0xEE0000),false,true); //?
 
