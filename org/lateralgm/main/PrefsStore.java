@@ -37,13 +37,11 @@ public final class PrefsStore
 
 	public static void addRecentFile(String name)
 		{
-		System.out.println(name);
 		int maxcount = PREFS.getInt("FILE_RECENT_COUNT",4);
 		ArrayList<String> oldList = getRecentFiles();
 		oldList.remove(name);
 		String newList;
 		newList = Util.urlEncode(name);
-		System.out.println(newList);
 		for (int i = 0; i + 1 < maxcount && i < oldList.size(); i++)
 			newList += " " + Util.urlEncode(oldList.get(i));
 		PREFS.put("FILE_RECENT",newList);
@@ -80,7 +78,7 @@ public final class PrefsStore
 		styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0x770077),false,false); //Resource Names
 		styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x660099),false,false); //Strings
 		styles[Token.LITERAL2] = new SyntaxStyle(new Color(0x771111),false,false); //Predefined Constants
-		styles[Token.LABEL] = new SyntaxStyle(Color.RED,false,false); //Functions
+		styles[Token.LABEL] = new SyntaxStyle(new Color(0x111177),false,false); //Functions
 		styles[Token.OPERATOR] = new SyntaxStyle(new Color(0x000000),false,true); //?
 		styles[Token.INVALID] = new SyntaxStyle(new Color(0xEE0000),false,true); //?
 

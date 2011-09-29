@@ -125,6 +125,7 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 		{
 		R dest = makeInstance(reference);
 		dest.properties.putAll(properties);
+		dest.node = node;
 		dest.setName(getName());
 		postCopy(dest);
 		return dest;
