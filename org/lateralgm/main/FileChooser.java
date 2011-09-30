@@ -51,6 +51,7 @@ import org.lateralgm.file.GmFileReader;
 import org.lateralgm.file.GmFileWriter;
 import org.lateralgm.file.GmFormatException;
 import org.lateralgm.file.ResourceList;
+import org.lateralgm.file.GmFile.FormatFlavor;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
@@ -85,6 +86,8 @@ public class FileChooser
 		String getSelectionName();
 
 		String getExtension();
+
+		FormatFlavor getFlavor();
 		}
 
 	public void addOpenFilters(GroupFilter gf)
@@ -372,6 +375,11 @@ public class FileChooser
 					throw new IllegalArgumentException(Integer.toString(ver));
 				}
 			}
+
+		public FormatFlavor getFlavor()
+			{
+			return FormatFlavor.getVersionFlavor(ver);
+			}
 		}
 
 	protected class GmWriterFilter implements GroupFilter
@@ -426,6 +434,7 @@ public class FileChooser
 		LGM.currentFile = new GmFile();
 		LGM.populateTree();
 		fc.setSelectedFile(new File(new String()));
+		selectedWriter = null;
 		LGM.reload(true);
 		}
 
@@ -489,6 +498,7 @@ public class FileChooser
 		setTitleURI(uri);
 		PrefsStore.addRecentFile(uri.toString());
 		((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+		selectedWriter = null;
 		LGM.reload(true);
 		}
 
@@ -523,7 +533,8 @@ public class FileChooser
 		URI uri = LGM.currentFile.uri;
 		File file = uri == null ? null : new File(uri);
 		fc.setSelectedFile(file);
-		while (true) //repeatedly display dialog until a valid response is given
+		uri = null;
+		do //repeatedly display dialog until a valid response is given
 			{
 			if (fc.showSaveDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return false;
 			file = fc.getSelectedFile();
@@ -539,14 +550,17 @@ public class FileChooser
 						Messages.format("FileChooser.CONFIRM_REPLACE",file.getPath()), //$NON-NLS-1$
 						Messages.getString("FileChooser.CONFIRM_REPLACE_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
 						JOptionPane.WARNING_MESSAGE);
-			if (result == JOptionPane.YES_OPTION) return save(file.toURI());
+			if (result == JOptionPane.YES_OPTION) uri = file.toURI();
 			if (result == JOptionPane.CANCEL_OPTION) return false;
 			}
+		while (uri == null);
+		return save(uri);
 		}
 
 	public boolean save(URI uri)
 		{
-		if (uri == null) return saveNewFile();
+		selectedWriter = findWriter(LGM.currentFile.format);
+		if (uri == null || selectedWriter == null) return saveNewFile();
 
 		if (uri != LGM.currentFile.uri)
 			{
@@ -559,15 +573,16 @@ public class FileChooser
 		LGM.commitAll();
 
 		String ext = selectedWriter.getExtension();
-		if (!uri.toString().endsWith(ext))
+		if (!uri.getPath().endsWith(ext))
 			{
 			int result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
-					"FileChooser.CONFIRM_EXTENSION",ext,LGM.currentFile.fileVersion), //$NON-NLS-1$
+					"FileChooser.CONFIRM_EXTENSION",ext,selectedWriter.getSelectionName()), //$NON-NLS-1$
 					uri.toString(),JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.CANCEL_OPTION) return false;
 			if (result == JOptionPane.NO_OPTION) return saveNewFile();
 			//if result == yes then continue
 			}
+
 		attemptBackup();
 		try
 			{
@@ -598,6 +613,26 @@ public class FileChooser
 		URLConnection uc = uri.toURL().openConnection();
 		uc.setDoOutput(true);
 		writer.write(uc.getOutputStream(),LGM.currentFile,LGM.root);
+		}
+
+	private FileWriter findWriter(FormatFlavor flavor)
+		{
+		if (flavor == null) return null;
+		//Already have a selected writer? Don't need to find one (or worry about ambiguity)
+		if (selectedWriter != null && selectedWriter.getFlavor() == flavor) return selectedWriter;
+		//Else, look for writers that support our flavor
+		FileWriter first = null;
+		for (FileWriter writer : writers)
+			if (writer.getFlavor() == flavor)
+				{
+				if (first == null)
+					first = writer; //found one
+				else
+					//we found another writer supporting our flavor, leading to ambiguity
+					//usually, we resolve this by opening a Save As dialog and let the user pick one.
+					return null;
+				}
+		return first;
 		}
 
 	public static boolean attemptBackup()
@@ -651,6 +686,9 @@ public class FileChooser
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p,BoxLayout.PAGE_AXIS));
 		ButtonGroup bg = new ButtonGroup();
+		selectedWriter = findWriter(LGM.currentFile.format);
+		//pick an arbitrary default
+		if (selectedWriter == null) selectedWriter = writers.get(0);
 		for (final FileWriter writer : writers)
 			{
 			JRadioButton b = new JRadioButton(writer.getSelectionName(),selectedWriter == writer);

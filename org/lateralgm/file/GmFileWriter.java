@@ -78,7 +78,7 @@ public final class GmFileWriter
 	public static void writeGmFile(OutputStream os, GmFile f, ResNode root, int ver)
 			throws IOException
 		{
-		f.fileVersion = ver;
+		f.format = GmFile.FormatFlavor.getVersionFlavor(ver);
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = new GmStreamEncoder(os);
 		out.write4(1234321);
@@ -98,34 +98,34 @@ public final class GmFileWriter
 			out.write4(gameId);
 		out.write((byte[]) f.gameSettings.get(PGameSettings.DPLAY_GUID)); //16 bytes
 
-		writeSettings(f,out,savetime);
+		writeSettings(f,out,ver,savetime);
 
 		if (ver >= 800)
 			{
-			writeTriggers(f,out);
-			writeConstants(f,out);
+			writeTriggers(f,out,ver);
+			writeConstants(f,out,ver);
 			}
 
-		writeSounds(f,out);
-		writeSprites(f,out);
-		writeBackgrounds(f,out);
-		writePaths(f,out);
-		writeScripts(f,out);
-		writeFonts(f,out);
-		writeTimelines(f,out);
-		writeGmObjects(f,out);
-		writeRooms(f,out);
+		writeSounds(f,out,ver);
+		writeSprites(f,out,ver);
+		writeBackgrounds(f,out,ver);
+		writePaths(f,out,ver);
+		writeScripts(f,out,ver);
+		writeFonts(f,out,ver);
+		writeTimelines(f,out,ver);
+		writeGmObjects(f,out,ver);
+		writeRooms(f,out,ver);
 
 		out.write4(f.lastInstanceId);
 		out.write4(f.lastTileId);
 
 		if (ver >= 700)
 			{
-			writeIncludedFiles(f,out);
-			writePackages(f,out);
+			writeIncludedFiles(f,out,ver);
+			writePackages(f,out,ver);
 			}
 
-		writeGameInformation(f,out);
+		writeGameInformation(f,out,ver);
 
 		//Library Creation Code
 		out.write4(500);
@@ -139,9 +139,9 @@ public final class GmFileWriter
 		out.close();
 		}
 
-	public static void writeSettings(GmFile f, GmStreamEncoder out, long savetime) throws IOException
+	public static void writeSettings(GmFile f, GmStreamEncoder out, int ver, long savetime)
+			throws IOException
 		{
-		int ver = f.fileVersion;
 		ver = ver >= 810 ? 810 : ver >= 800 ? 800 : ver >= 701 ? 702 : ver;
 		out.write4(ver >= 800 ? 800 : ver);
 		if (ver >= 800) out.beginDeflate();
@@ -199,7 +199,7 @@ public final class GmFileWriter
 		out.writeBool(p,PGameSettings.SCALE_PROGRESS_BAR);
 
 		//FIXME: GM8 icons
-		Util.fixIcon((ICOFile) g.get(PGameSettings.GAME_ICON),f.fileVersion);
+		Util.fixIcon((ICOFile) g.get(PGameSettings.GAME_ICON),ver);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		((ICOFile) g.get(PGameSettings.GAME_ICON)).write(baos);
 		out.write4(baos.size());
@@ -255,9 +255,9 @@ public final class GmFileWriter
 		out.endDeflate();
 		}
 
-	public static void writeTriggers(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeTriggers(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		if (f.fileVersion < 800) return;
+		if (ver < 800) return;
 
 		out.write4(800);
 		out.write4(f.triggers.size());
@@ -275,9 +275,9 @@ public final class GmFileWriter
 		out.writeD(f.gameSettings.getLastChanged());
 		}
 
-	public static void writeConstants(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeConstants(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		if (f.fileVersion < 800) return;
+		if (ver < 800) return;
 
 		out.write4(800);
 		out.write4(f.constants.size());
@@ -289,9 +289,8 @@ public final class GmFileWriter
 		out.writeD(f.gameSettings.getLastChanged());
 		}
 
-	public static void writeSounds(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeSounds(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		int ver = f.fileVersion;
 		ver = ver >= 800 ? 800 : ver >= 600 ? 600 : 440;
 		out.write4(ver == 800 ? 800 : 400);
 		out.write4(f.sounds.lastId + 1);
@@ -335,9 +334,8 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeSprites(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeSprites(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		int ver = f.fileVersion;
 		ver = ver >= 800 ? 800 : ver >= 542 ? 542 : 400;
 		out.write4(ver == 800 ? 800 : 400);
 		out.write4(f.sprites.lastId + 1);
@@ -395,9 +393,8 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeBackgrounds(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeBackgrounds(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		int ver = f.fileVersion;
 		ver = ver >= 710 ? 710 : ver >= 543 ? 543 : 400;
 		out.write4(ver == 710 ? 800 : 400);
 		out.write4(f.backgrounds.lastId + 1);
@@ -448,9 +445,8 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writePaths(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writePaths(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		int ver = f.fileVersion;
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 420);
 		out.write4(f.paths.lastId + 1);
@@ -480,9 +476,8 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeScripts(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeScripts(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		int ver = f.fileVersion;
 		ver = ver >= 800 ? 800 : 400;
 		out.write4(ver);
 		out.write4(f.scripts.lastId + 1);
@@ -502,9 +497,8 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeFonts(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeFonts(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		int ver = f.fileVersion;
 		out.write4(ver >= 800 ? 800 : 540);
 		out.write4(f.fonts.lastId + 1);
 		for (int i = 0; i <= f.fonts.lastId; i++)
@@ -534,9 +528,8 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeTimelines(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeTimelines(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		int ver = f.fileVersion;
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 500);
 		out.write4(f.timelines.lastId + 1);
@@ -561,9 +554,8 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeGmObjects(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeGmObjects(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		int ver = f.fileVersion;
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 400);
 		out.write4(f.gmObjects.lastId + 1);
@@ -603,9 +595,8 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeRooms(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeRooms(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		int ver = f.fileVersion;
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 420);
 		out.write4(f.rooms.lastId + 1);
@@ -684,9 +675,8 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeIncludedFiles(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeIncludedFiles(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		int ver = f.fileVersion;
 		ver = ver > 800 ? 800 : ver >= 620 ? 620 : 0;
 		if (ver < 620) return;
 
@@ -721,9 +711,9 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writePackages(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writePackages(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		if (f.fileVersion < 700) return;
+		if (ver < 700) return;
 
 		out.write4(700);
 		out.write4(f.packages.size());
@@ -731,9 +721,9 @@ public final class GmFileWriter
 			out.writeStr(s);
 		}
 
-	public static void writeGameInformation(GmFile f, GmStreamEncoder out) throws IOException
+	public static void writeGameInformation(GmFile f, GmStreamEncoder out, int ver)
+			throws IOException
 		{
-		int ver = f.fileVersion;
 		ver = ver >= 800 ? 800 : /*ver >= 620 ? 620 : */ver >= 600 ? 600 : 430;
 		out.write4(ver);
 		if (ver == 800) out.beginDeflate();

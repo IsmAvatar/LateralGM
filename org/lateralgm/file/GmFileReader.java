@@ -137,7 +137,7 @@ public final class GmFileReader
 				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_INVALID",uri, //$NON-NLS-1$
 						identifier));
 			int ver = in.read4();
-			f.fileVersion = ver;
+			f.format = GmFile.FormatFlavor.getVersionFlavor(ver);
 			if (ver != 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810)
 				{
 				String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$ //$NON-NLS-2$
@@ -765,7 +765,7 @@ public final class GmFileReader
 			font.put(PFont.RANGE_MIN,in.read2());
 			font.put(PFont.CHARSET,in.read());
 			int aa = in.read();
-			if (aa == 0 && LGM.currentFile.fileVersion < 810) aa = 3;
+			if (aa == 0 && LGM.currentFile.format != GmFile.FormatFlavor.GM_810) aa = 3;
 			font.put(PFont.ANTIALIAS,aa);
 			font.put(PFont.RANGE_MAX,in.read4());
 			in.endInflate();

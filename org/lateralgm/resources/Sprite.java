@@ -23,6 +23,7 @@ import java.util.EnumMap;
 
 import javax.imageio.ImageIO;
 
+import org.lateralgm.file.GmFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
@@ -331,7 +332,9 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 	@Override
 	protected PropertyMap<PSprite> makePropertyMap()
 		{
-		DEFS.put(PSprite.TRANSPARENT,LGM.currentFile.fileVersion <= 600);
+		if (LGM.currentFile.format != null
+				&& LGM.currentFile.format.getOwner() == GmFile.FormatFlavor.GM_OWNER)
+			DEFS.put(PSprite.TRANSPARENT,LGM.currentFile.format.getVersion() <= 600);
 		return new PropertyMap<PSprite>(PSprite.class,this,DEFS);
 		}
 

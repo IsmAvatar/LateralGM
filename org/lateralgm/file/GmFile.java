@@ -173,8 +173,7 @@ public class GmFile implements UpdateListener
 		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
 		}
 
-	/** One of 530, 600, 701, 800, 810 */
-	public int fileVersion = 810;
+	public FormatFlavor format;
 	public URI uri;
 
 	private final Map<Class<?>,ResourceList<?>> resMap;
@@ -201,6 +200,54 @@ public class GmFile implements UpdateListener
 
 	private final UpdateTrigger updateTrigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,updateTrigger);
+
+	public static class FormatFlavor
+		{
+		public static final String GM_OWNER = "GM";
+		public static final FormatFlavor GM_530 = new FormatFlavor(GM_OWNER,530);
+		public static final FormatFlavor GM_600 = new FormatFlavor(GM_OWNER,600);
+		public static final FormatFlavor GM_701 = new FormatFlavor(GM_OWNER,701);
+		public static final FormatFlavor GM_800 = new FormatFlavor(GM_OWNER,800);
+		public static final FormatFlavor GM_810 = new FormatFlavor(GM_OWNER,810);
+
+		protected Object owner;
+		protected int version;
+
+		public FormatFlavor(Object owner, int version)
+			{
+			this.owner = owner;
+			this.version = version;
+			}
+
+		public static FormatFlavor getVersionFlavor(int ver)
+			{
+			switch (ver)
+				{
+				case 530:
+					return FormatFlavor.GM_530;
+				case 600:
+					return FormatFlavor.GM_600;
+				case 701:
+					return FormatFlavor.GM_701;
+				case 800:
+					return FormatFlavor.GM_800;
+				case 810:
+					return FormatFlavor.GM_810;
+				default:
+					return null;
+				}
+			}
+
+		public Object getOwner()
+			{
+			return owner;
+			}
+
+		public int getVersion()
+			{
+			return version;
+			}
+		}
 
 	public GmFile()
 		{
