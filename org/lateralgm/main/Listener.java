@@ -203,7 +203,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (com.endsWith(".SAVE")) //$NON-NLS-1$
 			{
-			fc.save(LGM.currentFile.uri);
+			fc.save(LGM.currentFile.uri,LGM.currentFile.format);
 			return;
 			}
 		if (com.endsWith(".SAVEAS")) //$NON-NLS-1$

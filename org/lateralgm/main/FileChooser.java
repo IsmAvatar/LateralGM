@@ -554,13 +554,16 @@ public class FileChooser
 			if (result == JOptionPane.CANCEL_OPTION) return false;
 			}
 		while (uri == null);
-		return save(uri);
+		return save(uri,selectedWriter.getFlavor());
 		}
 
-	public boolean save(URI uri)
+	public boolean save(URI uri, FormatFlavor flavor)
 		{
-		selectedWriter = findWriter(LGM.currentFile.format);
+		selectedWriter = findWriter(flavor);
+		System.out.println(selectedWriter == null ? "null writer" : selectedWriter.getSelectionName());
 		if (uri == null || selectedWriter == null) return saveNewFile();
+
+		LGM.currentFile.format = flavor;
 
 		if (uri != LGM.currentFile.uri)
 			{
@@ -617,7 +620,11 @@ public class FileChooser
 
 	private FileWriter findWriter(FormatFlavor flavor)
 		{
-		if (flavor == null) return null;
+		if (flavor == null)
+			{
+			System.out.println("null flavor");
+			return null;
+			}
 		//Already have a selected writer? Don't need to find one (or worry about ambiguity)
 		if (selectedWriter != null && selectedWriter.getFlavor() == flavor) return selectedWriter;
 		//Else, look for writers that support our flavor
@@ -628,10 +635,14 @@ public class FileChooser
 				if (first == null)
 					first = writer; //found one
 				else
+					{
+					System.out.println("two flavor writers");
 					//we found another writer supporting our flavor, leading to ambiguity
 					//usually, we resolve this by opening a Save As dialog and let the user pick one.
 					return null;
+					}
 				}
+		if (first == null) System.out.println("No registered writer for flavor");
 		return first;
 		}
 
