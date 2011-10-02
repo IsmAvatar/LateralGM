@@ -77,7 +77,7 @@ import org.lateralgm.resources.sub.MainEvent;
 
 import com.sun.corba.se.spi.orbutil.fsm.Action;
 
-public class GmObjectFrame extends ResourceFrame<GmObject,PGmObject> implements ActionListener,
+public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject> implements ActionListener,
 		TreeSelectionListener
 	{
 	private static final long serialVersionUID = 1L;

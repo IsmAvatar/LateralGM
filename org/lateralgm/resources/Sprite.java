@@ -116,8 +116,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		switch (mode)
 			{
 			case AUTO:
-				Rectangle r = get(PSprite.TRANSPARENT) ? getOverallBounds(subImages) : new Rectangle(0,0,
-						subImages.getWidth() - 1,subImages.getHeight() - 1);
+				Rectangle r = getOverallBounds(subImages,(Boolean) get(PSprite.TRANSPARENT));
 				put(PSprite.BB_LEFT,r.x);
 				put(PSprite.BB_RIGHT,r.x + r.width);
 				put(PSprite.BB_TOP,r.y);
@@ -134,11 +133,11 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 			}
 		}
 
-	public static Rectangle getOverallBounds(ImageList l)
+	public static Rectangle getOverallBounds(ImageList l, boolean transPixel)
 		{
 		Rectangle r = new Rectangle();
 		for (BufferedImage bi : l)
-			getCropBounds(bi,r);
+			getCropBounds(bi,r,transPixel);
 		if (r.width > 0 && r.height > 0)
 			{
 			r.width--;
@@ -147,7 +146,52 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		return r;
 		}
 
-	public static void getCropBounds(BufferedImage img, Rectangle u)
+	public static void getCropBounds(BufferedImage img, Rectangle u, boolean transPixel)
+		{
+		if (transPixel)
+			getCropBoundsPixel(img,u);
+		else
+			getCropBoundsAlpha(img,u,0);
+		}
+
+	public static void getCropBoundsAlpha(BufferedImage img, Rectangle u, int tolerance)
+		{
+		System.out.println("Cropping alpha");
+		int width = img.getWidth();
+		int height = img.getHeight();
+		boolean unz = u.width > 0 && u.height > 0;
+
+		int uy2 = unz ? u.y + u.height - 1 : -1;
+		int y2 = height - 1;
+		y2loop: for (; y2 > uy2; y2--)
+			for (int i = 0; i < width; i++)
+				if (img.getRGB(i,y2) >> 24 < tolerance) break y2loop;
+
+		int ux2 = unz ? u.x + u.width - 1 : -1;
+		int x2 = width - 1;
+		x2loop: for (; x2 > ux2; x2--)
+			for (int j = 0; j <= y2; j++)
+				if (img.getRGB(x2,j) >> 24 < tolerance) break x2loop;
+
+		int uy1 = unz ? u.y : y2;
+		int y1 = 0;
+		y1loop: for (; y1 < uy1; y1++)
+			for (int i = 0; i < x2; i++)
+				if (img.getRGB(i,y1) >> 24 < tolerance) break y1loop;
+
+		int ux1 = unz ? u.x : x2;
+		int x1 = 0;
+		x1loop: for (; x1 < ux1; x1++)
+			for (int j = y1; j < y2; j++)
+				if (img.getRGB(x1,j) >> 24 < tolerance) break x1loop;
+
+		u.x = x1;
+		u.y = y1;
+		u.width = 1 + x2 - x1;
+		u.height = 1 + y2 - y1;
+		}
+
+	public static void getCropBoundsPixel(BufferedImage img, Rectangle u)
 		{
 		int transparent = img.getRGB(0,img.getHeight() - 1);
 		int width = img.getWidth();

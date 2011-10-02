@@ -76,8 +76,8 @@ import org.lateralgm.ui.swing.util.SwingExecutor;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements ActionListener,
-		MouseListener,UpdateListener,ValueChangeListener
+public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> implements
+		ActionListener,MouseListener,UpdateListener,ValueChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -100,7 +100,7 @@ public class SpriteFrame extends ResourceFrame<Sprite,PSprite> implements Action
 
 	//properties
 	public JRadioButton rect, prec, disk, diam;
-	public JCheckBox preciseCC, smooth, preload, transparent;
+	public JCheckBox smooth, preload, transparent;
 	public JLabel subCount, width, height;
 
 	//subimages

@@ -25,16 +25,13 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.ExceptionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
-import org.lateralgm.components.impl.NameDocument;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
@@ -54,14 +51,9 @@ import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 
 /** Provides common functionality and structure to Resource editing frames */
 public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> extends
-		RevertableMDIFrame implements DocumentListener,ActionListener,ExceptionListener
+		RevertableMDIFrame implements ActionListener,ExceptionListener
 	{
 	private static final long serialVersionUID = 1L;
-	/**
-	 * The Resource's name - setup automatically to update the title of the frame and
-	 * the ResNode's text
-	 */
-	public final JTextField name = new JTextField();
 	/** Automatically set up to save and close the frame */
 	public final JButton save = new JButton();
 	/** The resource this frame is editing (feel free to change it as you wish) */
@@ -71,41 +63,48 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 	/** The ResNode this frame is linked to */
 	public final ResNode node;
 
-	public String titlePrefix = ""; //$NON-NLS-1$
-	public String titleSuffix = ""; //$NON-NLS-1$
-
 	protected final PropertyLinkFactory<P> plf;
 
-	public static MDIFrame getFrame(Class<?> kind, Resource<?,?> r, ResNode node)
+	// Static Factory methods //
+	public static Map<Class<?>,ResourceFrameFactory> factories = new HashMap<Class<?>,ResourceFrameFactory>();
+
+	public static interface ResourceFrameFactory
 		{
-		if (kind == Sprite.class) return new SpriteFrame((Sprite) r,node);
-		if (kind == Sound.class) return new SoundFrame((Sound) r,node);
-		if (kind == Background.class) return new BackgroundFrame((Background) r,node);
-		if (kind == Path.class) return new PathFrame((Path) r,node);
-		if (kind == Script.class) return new ScriptFrame((Script) r,node);
-		if (kind == Font.class) return new FontFrame((Font) r,node);
-		if (kind == Timeline.class) return new TimelineFrame((Timeline) r,node);
-		if (kind == GmObject.class) return new GmObjectFrame((GmObject) r,node);
-		if (kind == Room.class) return new RoomFrame((Room) r,node);
+		public ResourceFrame<?,?> makeFrame(Resource<?,?> r, ResNode node);
+		}
 
-		if (kind == GameInformation.class) return LGM.getGameInfo();
-		if (kind == GameSettings.class) return LGM.getGameSettings();
-		//extensions returns null too, for now
-		return null;
+	private static class DefaultResourceFrameFactory implements ResourceFrameFactory
+		{
+		Class<?> kind;
 
-		/*			case GAMEINFO:
-						rf = LGM.getGameInfo();
-						SubframeInformer.fireSubframeAppear(rf);
-						rf.toTop();
-						return;
-					case GAMESETTINGS:
-						rf = LGM.getGameSettings();
-						SubframeInformer.fireSubframeAppear(rf);
-						rf.toTop();
-						return;
-					case EXTENSIONS:
-						//TODO: Create Extensions front-end
-						return;*/
+		DefaultResourceFrameFactory(Class<?> kind)
+			{
+			this.kind = kind;
+			}
+
+		public ResourceFrame<?,?> makeFrame(Resource<?,?> r, ResNode node)
+			{
+			if (kind == Sprite.class) return new SpriteFrame((Sprite) r,node);
+			if (kind == Sound.class) return new SoundFrame((Sound) r,node);
+			if (kind == Background.class) return new BackgroundFrame((Background) r,node);
+			if (kind == Path.class) return new PathFrame((Path) r,node);
+			if (kind == Script.class) return new ScriptFrame((Script) r,node);
+			if (kind == Font.class) return new FontFrame((Font) r,node);
+			if (kind == Timeline.class) return new TimelineFrame((Timeline) r,node);
+			if (kind == GmObject.class) return new GmObjectFrame((GmObject) r,node);
+			if (kind == Room.class) return new RoomFrame((Room) r,node);
+
+			if (kind == GameInformation.class) return LGM.getGameInfo();
+			if (kind == GameSettings.class) return LGM.getGameSettings();
+			//extensions returns null too, for now
+			return null;
+			}
+		}
+
+	static
+		{
+		for (Class<?> k : Resource.kinds)
+			factories.put(k,new DefaultResourceFrameFactory(k));
 		}
 
 	/**
@@ -115,16 +114,25 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 	 */
 	public ResourceFrame(R res, ResNode node)
 		{
-		super(res.getName(),true);
+		this(res,node,res.getName(),true);
+		}
+
+	public ResourceFrame(R res, ResNode node, String title, boolean functional)
+		{
+		this(res,node,title,functional,functional,functional,functional);
+		}
+
+	public ResourceFrame(R res, ResNode node, String title, boolean resizable, boolean closable,
+			boolean maximizable, boolean iconifiable)
+		{
+		super(title,resizable,closable,maximizable,iconifiable);
+
 		plf = new PropertyLinkFactory<P>(res.properties,this);
 		this.res = res;
 		this.node = node;
 		resOriginal = res.clone();
 		setFrameIcon(ResNode.ICON.get(res.getClass()));
-		name.setDocument(new NameDocument());
-		name.setText(res.getName());
-		name.getDocument().addDocumentListener(this);
-		name.setCaretPosition(0);
+
 		save.setToolTipText(Messages.getString("ResourceFrame.SAVE")); //$NON-NLS-1$
 		save.setIcon(LGM.getIconForKey("ResourceFrame.SAVE")); //$NON-NLS-1$
 		save.addActionListener(this);
@@ -168,27 +176,12 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		c.add(l);
 		}
 
-	public void changedUpdate(DocumentEvent e)
-		{
-		// Not used
-		}
-
-	public void insertUpdate(DocumentEvent e)
-		{
-		if (e.getDocument() == name.getDocument()) res.setName(name.getText());
-		}
-
-	public void removeUpdate(DocumentEvent e)
-		{
-		if (e.getDocument() == name.getDocument()) res.setName(name.getText());
-		}
-
 	public void actionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == save)
 			{
 			updateResource();
-			dispose();
+			close();
 			}
 		}
 
@@ -197,16 +190,10 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		e.printStackTrace();
 		}
 
-	public void setTitle(String title)
-		{
-		super.setTitle(titlePrefix + title + titleSuffix);
-		}
-
 	public void dispose()
 		{
 		super.dispose();
-		node.frame = null; // allows a new frame to open
-		name.getDocument().removeDocumentListener(this);
+		if (node != null) node.frame = null; // allows a new frame to open
 		save.removeActionListener(this);
 		removeAll();
 		}

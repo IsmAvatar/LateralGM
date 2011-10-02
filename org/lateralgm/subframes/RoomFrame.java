@@ -93,7 +93,7 @@ import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class RoomFrame extends ResourceFrame<Room,PRoom> implements ListSelectionListener,
+public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements ListSelectionListener,
 		CommandHandler,UpdateListener
 	{
 	private static final long serialVersionUID = 1L;

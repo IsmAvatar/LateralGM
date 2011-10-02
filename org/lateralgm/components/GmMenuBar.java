@@ -12,6 +12,8 @@ package org.lateralgm.components;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,14 +59,32 @@ public class GmMenuBar extends JMenuBar
 		recentFiles = new JMenuItem[recentList.length];
 		for (int i = 0; i < recentFiles.length; i++)
 			{
-			File file = new File(recentList[i]).getAbsoluteFile();
-			String number = Integer.toString(i + 1);
-			JMenuItem item = new JMenuItem(String.format("%s %s  [%s]",number,file.getName(),
-					file.getParent()),number.codePointAt(0));
-			recentFiles[i] = item;
-			item.setActionCommand("GmMenuBar.OPEN " + recentList[i]); //$NON-NLS-1$
-			item.addActionListener(LGM.listener);
-			fileMenu.insert(item,recentFilesPos + i);
+			try
+				{
+				URI uri = new URI(recentList[i]);
+				JMenuItem item;
+				String number = Integer.toString(i + 1);
+				try
+					{
+					File file = new File(uri).getAbsoluteFile();
+					item = new JMenuItem(String.format("%s %s  [%s]",number,file.getName(),file.getParent()),
+							number.codePointAt(0));
+					}
+				catch (IllegalArgumentException e)
+					{
+					item = new JMenuItem(String.format("%s %s",number,uri),number.codePointAt(0));
+					}
+
+				recentFiles[i] = item;
+				item.setActionCommand("GmMenuBar.OPEN " + recentList[i]); //$NON-NLS-1$
+				item.addActionListener(LGM.listener);
+				fileMenu.insert(item,recentFilesPos + i);
+				}
+			catch (URISyntaxException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
 			}
 		}
 

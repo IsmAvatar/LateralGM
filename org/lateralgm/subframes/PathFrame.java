@@ -51,7 +51,7 @@ import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class PathFrame extends ResourceFrame<Path,PPath> implements ActionListener
+public class PathFrame extends InstantiableResourceFrame<Path,PPath> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 

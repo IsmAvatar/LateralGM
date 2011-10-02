@@ -64,7 +64,7 @@ import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sound.SoundKind;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 
-public class SoundFrame extends ResourceFrame<Sound,PSound>
+public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SoundFrame.LOAD"); //$NON-NLS-1$

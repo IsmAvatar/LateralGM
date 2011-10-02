@@ -32,7 +32,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.beans.ExceptionListener;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -82,19 +81,15 @@ import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
-import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameInformation.PGameInformation;
-import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 
-public class GameInformationFrame extends RevertableMDIFrame implements ActionListener,
-		ExceptionListener
+public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInformation> implements
+		ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	protected GameInformation res, resOriginal;
-	protected final PropertyLinkFactory<PGameInformation> plf;
 	protected JTabbedPane tabs;
 	protected JEditorPane editor;
 	private RTFEditorKit rtf = new RTFEditorKit();
@@ -162,18 +157,13 @@ public class GameInformationFrame extends RevertableMDIFrame implements ActionLi
 		return menuBar;
 		}
 
-	protected JButton save;
-
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 
 		// Setup the buttons
-		save = new JButton(LGM.getIconForKey("GameInformationFrame.CLOSESAVE")); //$NON-NLS-1$
 		save.setRequestFocusEnabled(false);
-		save.setActionCommand("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
-		save.addActionListener(this);
 		tool.add(save);
 
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -371,11 +361,12 @@ public class GameInformationFrame extends RevertableMDIFrame implements ActionLi
 
 	public GameInformationFrame(GameInformation res)
 		{
-		super(Messages.getString("GameInformationFrame.TITLE"),true); //$NON-NLS-1$
-		plf = new PropertyLinkFactory<PGameInformation>(res.properties,this);
-		this.res = res;
-		resOriginal = res.clone();
-		setFrameIcon(LGM.getIconForKey("GameInformationFrame.INFO")); //$NON-NLS-1$
+		this(res,null);
+		}
+
+	public GameInformationFrame(GameInformation res, ResNode node)
+		{
+		super(res,node,Messages.getString("GameInformationFrame.TITLE"),true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(600,400);
 
@@ -552,27 +543,23 @@ public class GameInformationFrame extends RevertableMDIFrame implements ActionLi
 
 	public Object getUserObject()
 		{
+		if (node != null) return node.getUserObject();
 		for (int m = 0; m < LGM.root.getChildCount(); m++)
 			{
 			ResNode n = (ResNode) LGM.root.getChildAt(m);
 			if (n.kind == GameInformation.class) return n.getUserObject();
 			}
-		return Messages.getString("LGM.GAMEINFO"); //$NON-NLS-1$
+		return Messages.getString("LGM.GMI"); //$NON-NLS-1$
 		}
 
-	public void actionPerformed(ActionEvent arg0)
+	public void actionPerformed(ActionEvent ev)
 		{
-		String com = arg0.getActionCommand();
+		super.actionPerformed(ev);
+		String com = ev.getActionCommand();
 		if (com.equals("GameInformationFrame.LOAD")) //$NON-NLS-1$
 			{
 			tabs.setSelectedIndex(0);
 			loadFromFile();
-			}
-		if (com.equals("GameInformationFrame.CLOSESAVE")) //$NON-NLS-1$
-			{
-			updateResource();
-			close();
-			return;
 			}
 		if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
 			{
@@ -669,10 +656,5 @@ public class GameInformationFrame extends RevertableMDIFrame implements ActionLi
 		{
 		commitChanges();
 		resOriginal = res.clone();
-		}
-
-	public void exceptionThrown(Exception e)
-		{
-		e.printStackTrace();
 		}
 	}

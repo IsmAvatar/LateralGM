@@ -46,7 +46,7 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 
-public class ScriptFrame extends ResourceFrame<Script,PScript> implements ActionListener
+public class ScriptFrame extends InstantiableResourceFrame<Script,PScript> implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	public JToolBar tool;

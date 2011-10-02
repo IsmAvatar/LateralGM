@@ -22,7 +22,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 
 import org.lateralgm.main.WeakArrayList;
-import org.lateralgm.subframes.ResourceFrame;
+import org.lateralgm.subframes.InstantiableResourceFrame;
 
 public class MDIPane extends JDesktopPane
 	{
@@ -106,7 +106,7 @@ public class MDIPane extends JDesktopPane
 		{
 		for (JInternalFrame f : getAllFrames())
 			{
-			if (f instanceof ResourceFrame<?,?>)
+			if (f instanceof InstantiableResourceFrame<?,?>)
 				try
 					{
 					f.setClosed(true);
@@ -126,7 +126,7 @@ public class MDIPane extends JDesktopPane
 		{
 		if (getSelectedFrame() != null) for (JInternalFrame f : getAllFrames())
 			{
-			if (f != getSelectedFrame()) if (f instanceof ResourceFrame<?,?>)
+			if (f != getSelectedFrame()) if (f instanceof InstantiableResourceFrame<?,?>)
 				try
 					{
 					f.setClosed(true);

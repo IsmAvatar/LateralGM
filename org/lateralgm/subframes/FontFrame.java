@@ -39,7 +39,7 @@ import org.lateralgm.ui.swing.propertylink.ComboBoxLink.IndexComboBoxConversion;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class FontFrame extends ResourceFrame<Font,PFont>
+public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 	{
 	private static final long serialVersionUID = 1L;
 

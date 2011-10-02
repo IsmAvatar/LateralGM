@@ -44,8 +44,10 @@ import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Sprite;
+import org.lateralgm.subframes.InstantiableResourceFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.SubframeInformer;
+import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable,UpdateListener
 	{
@@ -167,11 +169,12 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		MDIFrame rf = frame;
 		if (frame == null)
 			{
-			rf = ResourceFrame.getFrame(kind,r,this);
+			ResourceFrameFactory factory = ResourceFrame.factories.get(kind);
+			rf = factory == null ? null : factory.makeFrame(r,this);
 			if (rf != null && rf instanceof ResourceFrame<?,?>)
 				{
 				frame = (ResourceFrame<?,?>) rf;
-				LGM.mdi.add(rf);
+				if (rf instanceof InstantiableResourceFrame<?,?>) LGM.mdi.add(rf);
 				}
 			}
 		if (rf != null)
@@ -305,9 +308,9 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		{
 		public void run()
 			{
-			if (frame != null && frame instanceof ResourceFrame<?,?>)
+			if (frame != null && frame instanceof InstantiableResourceFrame<?,?>)
 				{
-				ResourceFrame<?,?> resFrame = (ResourceFrame<?,?>) frame;
+				InstantiableResourceFrame<?,?> resFrame = (InstantiableResourceFrame<?,?>) frame;
 				Resource<?,?> r = deRef();
 				if (r != null)
 					{

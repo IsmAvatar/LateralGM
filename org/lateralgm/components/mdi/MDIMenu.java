@@ -30,7 +30,7 @@ import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.GmMenu;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.subframes.ResourceFrame;
+import org.lateralgm.subframes.InstantiableResourceFrame;
 
 public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 	{
@@ -85,7 +85,7 @@ public class MDIMenu extends GmMenu implements ActionListener,ContainerListener
 			}
 		if (e.getActionCommand().endsWith("CLOSE") && pane.getSelectedFrame() != null)
 			{
-			if (pane.getSelectedFrame() instanceof ResourceFrame<?,?>)
+			if (pane.getSelectedFrame() instanceof InstantiableResourceFrame<?,?>)
 				try
 					{
 					pane.getSelectedFrame().setClosed(true);

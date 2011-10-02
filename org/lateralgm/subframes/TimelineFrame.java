@@ -44,7 +44,7 @@ import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.Timeline.PTimeline;
 import org.lateralgm.resources.sub.Moment;
 
-public class TimelineFrame extends ResourceFrame<Timeline,PTimeline> implements ActionListener,
+public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline> implements ActionListener,
 		ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;

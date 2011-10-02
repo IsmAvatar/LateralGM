@@ -52,7 +52,7 @@ import org.lateralgm.ui.swing.util.SwingExecutor;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class BackgroundFrame extends ResourceFrame<Background,PBackground> implements
+public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackground> implements
 		UpdateListener
 	{
 	private static final long serialVersionUID = 1L;

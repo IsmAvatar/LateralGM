@@ -60,7 +60,7 @@ import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
-import org.lateralgm.components.mdi.RevertableMDIFrame;
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.file.GmStreamEncoder;
@@ -78,15 +78,12 @@ import org.lateralgm.resources.GameSettings.Priority;
 import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.sub.Constant;
-import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 
-public class GameSettingFrame extends RevertableMDIFrame implements ActionListener,
-		ExceptionListener
+public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings> implements
+		ActionListener,ExceptionListener
 	{
 	private static final long serialVersionUID = 1L;
 
-	public GameSettings res, resOriginal;
-	protected final PropertyLinkFactory<PGameSettings> plf;
 	boolean imagesChanged = false;
 	public JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -796,16 +793,17 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 		return panel;
 		}
 
-	public JButton saveButton;
 	public JButton discardButton;
 
 	public GameSettingFrame(GameSettings res, List<Constant> constants, List<Include> includes)
 		{
-		super(Messages.getString("GameSettingFrame.TITLE"),false,true,true,true); //$NON-NLS-1$
-		plf = new PropertyLinkFactory<PGameSettings>(res.properties,this);
-		this.res = res;
-		resOriginal = res.clone();
-		setFrameIcon(LGM.findIcon("restree/gm.png")); //$NON-NLS-1$
+		this(res,null,constants,includes);
+		}
+
+	public GameSettingFrame(GameSettings res, ResNode node, List<Constant> constants,
+			List<Include> includes)
+		{
+		super(res,node,Messages.getString("GameSettingFrame.TITLE"),false,true,true,true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 
 		GroupLayout layout = new GroupLayout(getContentPane());
@@ -815,8 +813,7 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 		buildTabs(constants,includes);
 
 		String t = Messages.getString("GameSettingFrame.BUTTON_SAVE"); //$NON-NLS-1$
-		saveButton = new JButton(t);
-		saveButton.addActionListener(this);
+		save.setText(t);
 		t = Messages.getString("GameSettingFrame.BUTTON_DISCARD"); //$NON-NLS-1$
 		discardButton = new JButton(t);
 		discardButton.addActionListener(this);
@@ -825,14 +822,14 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 		/**/.addComponent(tabbedPane)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addContainerGap()
-		/*		*/.addComponent(saveButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*		*/.addComponent(discardButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*		*/.addContainerGap()));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(tabbedPane)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(saveButton)
+		/*		*/.addComponent(save)
 		/*		*/.addComponent(discardButton))
 		/**/.addContainerGap());
 		pack();
@@ -883,12 +880,7 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 
 	public void actionPerformed(ActionEvent e)
 		{
-		if (e.getSource() == saveButton)
-			{
-			updateResource();
-			close();
-			return;
-			}
+		super.actionPerformed(e);
 
 		if (e.getSource() == discardButton)
 			{
@@ -1270,10 +1262,5 @@ public class GameSettingFrame extends RevertableMDIFrame implements ActionListen
 		commitChanges();
 		resOriginal = res.clone();
 		imagesChanged = false;
-		}
-
-	public void exceptionThrown(Exception e)
-		{
-		e.printStackTrace();
 		}
 	}
