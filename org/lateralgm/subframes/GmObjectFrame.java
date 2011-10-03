@@ -77,8 +77,8 @@ import org.lateralgm.resources.sub.MainEvent;
 
 import com.sun.corba.se.spi.orbutil.fsm.Action;
 
-public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject> implements ActionListener,
-		TreeSelectionListener
+public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject> implements
+		ActionListener,TreeSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon INFO_ICON = LGM.getIconForKey("GmObjectFrame.INFO"); //$NON-NLS-1$
@@ -593,7 +593,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 					node.add(new EventInstanceNode(e));
 				}
 			}
-		if (res.getNode().newRes)
+		if (res.getNode().newRes && rootEvent.getChildCount() == 0)
 			{
 			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_CREATE,0,null)));
 			rootEvent.add(new EventInstanceNode(new Event(MainEvent.EV_STEP,Event.EV_STEP_NORMAL,null)));
