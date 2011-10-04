@@ -372,9 +372,11 @@ public final class LGM
 		LGM.eventSelect = new EventFrame();
 		LGM.mdi.add(LGM.eventSelect);
 
-		LGM.getGameSettings().setComponents(LGM.currentFile.gameSettings);
+		LGM.getGameSettings().resOriginal = LGM.currentFile.gameSettings;
+		LGM.getGameSettings().revertResource();
 		LGM.getGameSettings().setVisible(false);
-		LGM.getGameInfo().setComponents(LGM.currentFile.gameInfo);
+		LGM.getGameInfo().resOriginal = LGM.currentFile.gameInfo;
+		LGM.getGameInfo().revertResource();
 		LGM.getGameInfo().setVisible(false);
 
 		LGM.fireReloadPerformed(newRoot);

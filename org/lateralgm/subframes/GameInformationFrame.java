@@ -650,11 +650,4 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		res.properties.putAll(resOriginal.properties);
 		setComponents(res);
 		}
-
-	@Override
-	public void updateResource()
-		{
-		commitChanges();
-		resOriginal = res.clone();
-		}
 	}
