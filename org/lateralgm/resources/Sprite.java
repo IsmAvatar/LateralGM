@@ -156,7 +156,6 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 
 	public static void getCropBoundsAlpha(BufferedImage img, Rectangle u, int tolerance)
 		{
-		System.out.println("Cropping alpha");
 		int width = img.getWidth();
 		int height = img.getHeight();
 		boolean unz = u.width > 0 && u.height > 0;
