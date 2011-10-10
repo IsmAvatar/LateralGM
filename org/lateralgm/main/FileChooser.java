@@ -489,8 +489,7 @@ public class FileChooser
 		catch (GmFormatException ex)
 			{
 			new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
-					Messages.getString("FileChooser.ERROR_LOAD"),Messages.format("FileChooser.DEBUG_INFO", //$NON-NLS-1$ //$NON-NLS-2$
-							ex.getClass().getName(),ex.getMessage(),ex.stackAsString())).setVisible(true);
+					Messages.getString("FileChooser.ERROR_LOAD"),ex).setVisible(true); //$NON-NLS-1$
 			LGM.currentFile = ex.file;
 			LGM.populateTree();
 			rebuildTree();

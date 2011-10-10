@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008 Clam <clamisgood@gmail.com>
+ * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,6 +13,8 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -38,6 +41,11 @@ public class ErrorDialog extends JDialog implements ActionListener
 		return but;
 		}
 
+	public ErrorDialog(Frame parent, String title, String message, Exception e)
+		{
+		this(parent,title,message,exceptionToString(e));
+		}
+
 	public ErrorDialog(Frame parent, String title, String message, String debugInfo)
 		{
 		super(parent,title,true);
@@ -59,6 +67,13 @@ public class ErrorDialog extends JDialog implements ActionListener
 		add(wtfwjd);
 		pack();
 		setLocationRelativeTo(parent);
+		}
+
+	protected static String exceptionToString(Exception e)
+		{
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
 		}
 
 	public void actionPerformed(ActionEvent e)

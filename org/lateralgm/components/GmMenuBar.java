@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -14,6 +14,8 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,8 +33,8 @@ import org.lateralgm.resources.Resource;
 public class GmMenuBar extends JMenuBar
 	{
 	private static final long serialVersionUID = 1L;
-	private JMenuItem[] recentFiles = new JMenuItem[0];
-	private int recentFilesPos;
+	private List<JMenuItem> recentFiles = new ArrayList<JMenuItem>();
+	private final int recentFilesPos;
 	private GmMenu fileMenu;
 
 	public static final void setTextAndAlt(JMenuItem item, String input)
@@ -53,17 +55,17 @@ public class GmMenuBar extends JMenuBar
 
 	public void updateRecentFiles()
 		{
-		String[] recentList = PrefsStore.getRecentFiles().toArray(new String[0]);
+		List<String> recentList = PrefsStore.getRecentFiles();
 		for (JMenuItem item : recentFiles)
 			fileMenu.remove(item);
-		recentFiles = new JMenuItem[recentList.length];
-		for (int i = 0; i < recentFiles.length; i++)
+		recentFiles.clear();
+		for (String recentStr : recentList)
 			{
 			try
 				{
-				URI uri = new URI(recentList[i]);
+				URI uri = new URI(recentStr);
 				JMenuItem item;
-				String number = Integer.toString(i + 1);
+				String number = Integer.toString(recentFiles.size() + 1);
 				try
 					{
 					File file = new File(uri).getAbsoluteFile();
@@ -75,10 +77,10 @@ public class GmMenuBar extends JMenuBar
 					item = new JMenuItem(String.format("%s %s",number,uri),number.codePointAt(0));
 					}
 
-				recentFiles[i] = item;
-				item.setActionCommand("GmMenuBar.OPEN " + recentList[i]); //$NON-NLS-1$
+				item.setActionCommand("GmMenuBar.OPEN " + recentStr); //$NON-NLS-1$
 				item.addActionListener(LGM.listener);
-				fileMenu.insert(item,recentFilesPos + i);
+				fileMenu.insert(item,recentFilesPos + recentFiles.size());
+				recentFiles.add(item);
 				}
 			catch (URISyntaxException e)
 				{
