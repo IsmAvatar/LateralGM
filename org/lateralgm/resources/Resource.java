@@ -27,14 +27,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
 
 public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> implements
 		PropertyValidator<P>
 	{
-	public static final Map<String,Class<? extends Resource<?,?>>> kindsByName = new HashMap<String,Class<? extends Resource<?,?>>>();
+	public static final Map<String,Class<? extends Resource<?,?>>> kindsByName3 = new HashMap<String,Class<? extends Resource<?,?>>>();
 	public static final Map<Class<? extends Resource<?,?>>,String> kindNames = new HashMap<Class<? extends Resource<?,?>>,String>();
+	public static final Map<Class<? extends Resource<?,?>>,String> kindNamesPlural = new HashMap<Class<? extends Resource<?,?>>,String>();
 	public static final ArrayList<Class<? extends Resource<?,?>>> kinds = new ArrayList<Class<? extends Resource<?,?>>>();
 
 	static
@@ -53,8 +55,10 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 	public static void addKind(String str3, Class<?> clz)
 		{
 		kinds.add((Class<? extends Resource<?,?>>) clz);
-		kindsByName.put(str3,(Class<? extends Resource<?,?>>) clz);
-		kindNames.put((Class<? extends Resource<?,?>>) clz,str3);
+		kindsByName3.put(str3,(Class<? extends Resource<?,?>>) clz);
+
+		kindNames.put((Class<? extends Resource<?,?>>) clz,Messages.getString("LGM." + str3)); //$NON-NLS-1$
+		kindNamesPlural.put((Class<? extends Resource<?,?>>) clz,Messages.getString("LGM.PL_" + str3)); //$NON-NLS-1$
 		}
 
 	protected ResNode node;

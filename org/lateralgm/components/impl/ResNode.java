@@ -55,8 +55,8 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 	static
 		{
 		ICON = new HashMap<Class<?>,ImageIcon>();
-		for (Entry<Class<? extends Resource<?,?>>,String> k : Resource.kindNames.entrySet())
-			ICON.put(k.getKey(),LGM.getIconForKey("Resource." + k.getValue()));
+		for (Entry<String,Class<? extends Resource<?,?>>> k : Resource.kindsByName3.entrySet())
+			ICON.put(k.getValue(),LGM.getIconForKey("Resource." + k.getKey()));
 		}
 
 	private static final long serialVersionUID = 1L;

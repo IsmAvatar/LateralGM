@@ -227,17 +227,25 @@ public final class LGM
 		{
 		tool = new JToolBar();
 		tool.setFloatable(false);
-		tool.add(makeButton("LGM.NEW")); //$NON-NLS-1$
-		tool.add(makeButton("LGM.OPEN")); //$NON-NLS-1$
-		tool.add(makeButton("LGM.SAVE")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.NEW")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.OPEN")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.SAVE")); //$NON-NLS-1$
 		tool.addSeparator();
-		tool.add(makeButton("LGM.SAVEAS")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.SAVEAS")); //$NON-NLS-1$
 		tool.addSeparator();
 		for (Class<? extends Resource<?,?>> k : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(k))
-				tool.add(makeButton("Toolbar.ADD_" + Resource.kindNames.get(k))); //$NON-NLS-1$
+				{
+				//tool.add(makeButton("Toolbar.ADD_" + Resource.kindNames.get(k)));
+				Icon ico = ResNode.ICON.get(k);
+				if (ico == null) ico = GmTreeGraphics.getBlankIcon();
+				JButton but = new JButton(ico);
+				but.setToolTipText(Messages.format("Toolbar.ADD",Resource.kindNames.get(k)));
+				but.addActionListener(new Listener.ResourceAdder(false,k));
+				tool.add(but);
+				}
 		tool.addSeparator();
-		tool.add(makeButton("LGM.EVENT_BUTTON")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
 		return tool;
 		}
 
@@ -331,7 +339,7 @@ public final class LGM
 		{
 		for (Class<? extends Resource<?,?>> k : Resource.kinds)
 			{
-			String name = Messages.getString("LGM." + Resource.kindNames.get(k)); //$NON-NLS-1$
+			String name = Resource.kindNamesPlural.get(k);
 			byte status = InstantiableResource.class.isAssignableFrom(k) ? ResNode.STATUS_PRIMARY
 					: ResNode.STATUS_SECONDARY;
 			root.addChild(name,status,k);

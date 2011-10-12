@@ -15,16 +15,22 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.Icon;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Listener;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.InstantiableResource;
@@ -90,6 +96,15 @@ public class GmMenuBar extends JMenuBar
 			}
 		}
 
+	protected static final Map<Class<? extends Resource<?,?>>,Character> MNEMONICS;
+	static
+		{
+		MNEMONICS = new HashMap<Class<? extends Resource<?,?>>,Character>();
+		for (Entry<String,Class<? extends Resource<?,?>>> k : Resource.kindsByName3.entrySet())
+			MNEMONICS.put(k.getValue(),
+					Messages.getString("GmMenuBar.MNEMONIC_" + k.getKey()).toUpperCase().charAt(0)); //$NON-NLS-1$
+		}
+
 	public GmMenuBar()
 		{
 		GmMenu menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
@@ -124,12 +139,26 @@ public class GmMenuBar extends JMenuBar
 		subAdd.addItem("GmMenuBar.ADD_GROUP"); //$NON-NLS-1$
 		subAdd.add(new JSeparator());
 
-		for (Class<? extends Resource<?,?>> k : Resource.kinds)
+		for (final Class<? extends Resource<?,?>> k : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(k))
 				{
-				String name = Resource.kindNames.get(k);
-				subIns.addItem("GmMenuBar.INSERT_" + name); //$NON-NLS-1$
-				subAdd.addItem("GmMenuBar.ADD_" + name); //$NON-NLS-1$
+				String nodeName = Resource.kindNames.get(k);
+				//				subIns.addItem("GmMenuBar.INSERT_" + name3); //$NON-NLS-1$
+				//				subAdd.addItem("GmMenuBar.ADD_" + name3); //$NON-NLS-1$
+				Icon icon = ResNode.ICON.get(k);
+				int mnemonic = MNEMONICS.get(k);
+				String insNodeName = Messages.format("GmMenuBar.INSERT",nodeName); //$NON-NLS-1$
+				String addNodeName = Messages.format("GmMenuBar.ADD",nodeName); //$NON-NLS-1$
+
+				JMenuItem item = new JMenuItem(insNodeName,icon);
+				if (mnemonic != '!') item.setMnemonic(mnemonic);
+				item.addActionListener(new Listener.ResourceAdder(true,k));
+				subIns.add(item);
+
+				item = new JMenuItem(addNodeName,icon);
+				if (mnemonic != '!') item.setMnemonic(mnemonic);
+				item.addActionListener(new Listener.ResourceAdder(false,k));
+				subAdd.add(item);
 				}
 
 		menu.add(new JSeparator());

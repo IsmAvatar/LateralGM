@@ -421,17 +421,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			return arg;
 			}
 
-		private String getNoSelectionString(Class<? extends Resource<?,?>> resourceKind)
-			{
-			String key;
-			if (resourceKind != null)
-				key = "ArgumentComponent." + Resource.kindNames.get(resourceKind);
-			else
-				key = "";
-			return Messages.format("ArgumentComponent.NO_SELECTION",Messages.getString(key)); //$NON-NLS-1$
-			}
-
-		@SuppressWarnings( { "unchecked","rawtypes" })
+		@SuppressWarnings("unchecked")
 		private JComponent makeEditor(LibArgument la)
 			{
 			switch (arg.kind)
@@ -455,7 +445,8 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 				case Argument.ARG_FONT:
 				case Argument.ARG_TIMELINE:
 					Class<? extends Resource<?,?>> rk = Argument.getResourceKind(arg.kind);
-					return new ResourceMenu(rk,getNoSelectionString(rk),120);
+					String none = Messages.format("ArgumentComponent.NO_SELECTION",Resource.kindNames.get(rk)); //$NON-NLS-1$
+					return new ResourceMenu(rk,none,120);
 				default:
 					return new JTextField(arg.getVal());
 				}
@@ -505,7 +496,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 				}
 			}
 
-		@SuppressWarnings( { "unchecked","rawtypes" })
+		@SuppressWarnings("unchecked")
 		public void discard()
 			{
 			if (editor instanceof JTextField)

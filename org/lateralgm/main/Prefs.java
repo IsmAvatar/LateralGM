@@ -87,7 +87,7 @@ public final class Prefs
 			String[] kv = p[i].split(">",2);
 			try
 				{
-				Class<? extends Resource<?,?>> k = Resource.kindsByName.get(kv[0]);
+				Class<? extends Resource<?,?>> k = Resource.kindsByName3.get(kv[0]);
 				if (k != null) prefixes.put(k,kv[1]);
 				}
 			catch (IllegalArgumentException e)

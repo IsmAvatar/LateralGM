@@ -48,21 +48,27 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	MListener mListener = new MListener();
 	public FileChooser fc = new FileChooser();
 
-	public static Class<?> stringToKind(String com)
+	public static class ResourceAdder implements ActionListener
 		{
-		Class<?> rk = Resource.kindsByName.get(com);
-		if (rk != null) return rk;
-		for (Class<?> k : Resource.kinds)
-			if (k.getSimpleName().equalsIgnoreCase(com)) return k;
-		return null;
+		public boolean insert;
+		public Class<?> k;
+
+		public ResourceAdder(boolean insert, Class<?> k)
+			{
+			this.insert = insert;
+			this.k = k;
+			}
+
+		public void actionPerformed(ActionEvent e)
+			{
+			if (insert)
+				Listener.insertResource(LGM.tree,k);
+			else
+				Listener.addResource(LGM.tree,k);
+			}
 		}
 
-	protected static void addResource(JTree tree, String com)
-		{
-		addResource(tree,stringToKind(com),null);
-		}
-
-	protected static void addResource(JTree tree, Class<?> r)
+	public static void addResource(JTree tree, Class<?> r)
 		{
 		addResource(tree,r,null);
 		}
@@ -86,17 +92,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		putNode(tree,node,parent,r,pos,res);
 		}
 
-	protected static void insertResource(JTree tree, String com)
-		{
-		insertResource(tree,stringToKind(com),null);
-		}
-
-	protected static void insertResource(JTree tree, Class<?> r)
+	public static void insertResource(JTree tree, Class<?> r)
 		{
 		insertResource(tree,r,null);
 		}
 
-	private static void insertResource(JTree tree, Class<?> r, Resource<?,?> res)
+	protected static void insertResource(JTree tree, Class<?> r, Resource<?,?> res)
 		{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
@@ -222,15 +223,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			System.exit(0);
 			return;
 			}
-		if (com.contains(".INSERT_")) //$NON-NLS-1$
+		if (com.contains(".INSERT_") || com.contains(".ADD_")) //$NON-NLS-1$ //$NON-NLS-2$
 			{
-			insertResource(tree,com.substring(com.lastIndexOf('_') + 1));
-			return;
-			}
-		if (com.contains(".ADD_")) //$NON-NLS-1$
-			{
-			addResource(tree,com.substring(com.lastIndexOf('_') + 1));
-			return;
+			//we no longer do it this way
+			throw new UnsupportedOperationException(com);
 			}
 		if (com.endsWith(".RENAME")) //$NON-NLS-1$
 			{
@@ -358,9 +354,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (com.equals("GROUP")) //$NON-NLS-1$
 				{
 				if (node.status == ResNode.STATUS_SECONDARY)
-					insertResource(tree,"GROUP"); //$NON-NLS-1$
+					insertResource(tree,null);
 				else
-					addResource(tree,"GROUP"); //$NON-NLS-1$
+					addResource(tree,null);
 				return;
 				}
 			if (com.equals("INSERT")) //$NON-NLS-1$
