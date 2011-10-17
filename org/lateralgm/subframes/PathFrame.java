@@ -16,9 +16,9 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -28,9 +28,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.ListSelectionModel;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.ListSelectionModel;
 
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
@@ -40,8 +39,8 @@ import org.lateralgm.components.visual.PathEditor;
 import org.lateralgm.components.visual.PathEditor.PPathEditor;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Path.PPath;
+import org.lateralgm.resources.Room;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.PathPoint.PPathPoint;
 import org.lateralgm.ui.swing.propertylink.FormattedLink;
@@ -51,7 +50,7 @@ import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class PathFrame extends InstantiableResourceFrame<Path,PPath> implements ActionListener
+public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 	{
 	private static final long serialVersionUID = 1L;
 

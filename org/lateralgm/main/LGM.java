@@ -82,7 +82,6 @@ import org.lateralgm.subframes.GameSettingFrame;
 
 public final class LGM
 	{
-	private static final long serialVersionUID = 1L;
 	public static int javaVersion;
 	public static File tempDir, workDir;
 	static
@@ -150,6 +149,7 @@ public final class LGM
 			}
 		catch (InterruptedException e)
 			{
+			//We tried...
 			}
 		return gameInfo;
 		}
@@ -162,6 +162,7 @@ public final class LGM
 			}
 		catch (InterruptedException e)
 			{
+			//We tried...
 			}
 		return gameSet;
 		}

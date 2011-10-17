@@ -63,6 +63,8 @@ public class EditorScrollPane extends JScrollPane implements PropertyEditor<Inte
 
 		protected void setComponent(Integer i)
 			{
+			//Currently only used for Room zoom. Since RoomFrame
+			//only sets components at init, this is never called.
 			}
 
 		@Override
@@ -78,5 +80,4 @@ public class EditorScrollPane extends JScrollPane implements PropertyEditor<Inte
 			editProperty(v + i);
 			}
 		}
-
 	}

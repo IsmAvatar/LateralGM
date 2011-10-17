@@ -27,6 +27,7 @@ public class Extensions extends Resource<Extensions,Extensions.PExtensions>
 	{
 	public enum PExtensions
 		{
+		//TODO: Extensions
 		}
 
 	private static final EnumMap<PExtensions,Object> DEF = null;
@@ -45,6 +46,6 @@ public class Extensions extends Resource<Extensions,Extensions.PExtensions>
 
 	@Override
 	protected void postCopy(Extensions dest)
-		{
+		{ //Nothing else to copy
 		}
 	}

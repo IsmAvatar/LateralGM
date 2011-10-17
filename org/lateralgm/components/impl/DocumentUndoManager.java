@@ -50,6 +50,7 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 						}
 					catch (CannotUndoException e)
 						{
+						//Nothing to undo
 						}
 					updateActions();
 					}
@@ -67,6 +68,7 @@ public class DocumentUndoManager extends UndoManager implements CaretListener
 						}
 					catch (CannotRedoException e)
 						{
+						//Nothing to redo
 						}
 					updateActions();
 					}

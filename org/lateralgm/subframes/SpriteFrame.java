@@ -18,7 +18,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -35,6 +34,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -52,7 +52,6 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.TransferHandler;
-import javax.swing.GroupLayout.Alignment;
 
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.NumberField.ValueChangeEvent;
@@ -65,9 +64,9 @@ import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.BBMode;
@@ -77,7 +76,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> implements
-		ActionListener,MouseListener,UpdateListener,ValueChangeListener
+		MouseListener,UpdateListener,ValueChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -470,7 +469,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		public void exportDone(JComponent c, Transferable t, int action)
 			{
 			if (action == MOVE)
-				{
+				{ //TODO: Fix sprite drop import
 				}
 			}
 
@@ -487,7 +486,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 					Transferable t = s.getTransferable();
 					if (t instanceof StringSelection)
 						{
-
+						//TODO: Fix sprite drop import
 						}
 					try
 						{
@@ -662,6 +661,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		catch (NumberFormatException nfe)
 			{
+			//d = 1.0
 			}
 		speed.setValue((int) (i * d));
 		//triggers listener
@@ -951,23 +951,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		}
 
-	//unused
-	public void mouseClicked(MouseEvent e)
-		{
-		}
-
-	public void mouseEntered(MouseEvent e)
-		{
-		}
-
-	public void mouseExited(MouseEvent e)
-		{
-		}
-
-	public void mouseReleased(MouseEvent e)
-		{
-		}
-
 	public void updated(UpdateEvent e)
 		{
 		updateInfo();
@@ -1068,5 +1051,22 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		if (editors != null)
 			for (ImageEditor ie : editors.values().toArray(new ImageEditor[editors.size()]))
 				ie.stop();
+		}
+
+	//unused
+	public void mouseClicked(MouseEvent e)
+		{ //unused
+		}
+
+	public void mouseEntered(MouseEvent e)
+		{ //unused
+		}
+
+	public void mouseExited(MouseEvent e)
+		{ //unused
+		}
+
+	public void mouseReleased(MouseEvent e)
+		{ //unused
 		}
 	}

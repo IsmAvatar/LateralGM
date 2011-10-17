@@ -98,7 +98,7 @@ public class SyntaxDocument extends PlainDocument
 	 * empty.
 	 */
 	public void beginStructEdit()
-		{
+		{ //See comments
 		}
 
 	/**
@@ -108,7 +108,7 @@ public class SyntaxDocument extends PlainDocument
 	 * empty.
 	 */
 	public void endStructEdit()
-		{
+		{ //See comments
 		}
 
 	/**
@@ -119,7 +119,7 @@ public class SyntaxDocument extends PlainDocument
 	 * @since jEdit 2.2pre1
 	 */
 	public void addUndoableEdit(UndoableEdit edit)
-		{
+		{ //See comments
 		}
 
 	// protected members

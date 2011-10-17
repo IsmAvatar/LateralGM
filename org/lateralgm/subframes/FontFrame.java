@@ -101,6 +101,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 			{
 				public void changedUpdate(DocumentEvent e)
 					{
+					//Unused
 					}
 
 				public void insertUpdate(DocumentEvent e)

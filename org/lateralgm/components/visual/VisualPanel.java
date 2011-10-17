@@ -84,29 +84,29 @@ public class VisualPanel extends JPanel
 		r.height = zoom(r.height,z);
 		}
 
-	protected double zoom(double d, int z)
+	protected static double zoom(double d, int z)
 		{
 		return z > 0 ? z * d : d / (2 - z);
 		}
 
-	protected int zoom(int i, int z)
+	protected static int zoom(int i, int z)
 		{
 		return z > 0 ? z * i : negDiv(i,2 - z);
 		}
 
-	protected int zoomAlign(int i, int z, boolean ceil)
+	protected static int zoomAlign(int i, int z, boolean ceil)
 		{
 		return z <= 0 ? (2 - z) * negDiv(i + (ceil ? 1 - z : 0),2 - z) : i;
 		}
 
-	protected void zoomAlign(Rectangle r, int z, boolean out)
+	protected static void zoomAlign(Rectangle r, int z, boolean out)
 		{
 		int x0 = zoomAlign(r.x,z,!out);
 		int y0 = zoomAlign(r.y,z,!out);
 		r.setBounds(x0,y0,zoomAlign(r.width + r.x - x0,z,out),zoomAlign(r.height + r.y - y0,z,out));
 		}
 
-	protected void zoom(Rectangle r, int z)
+	protected static void zoom(Rectangle r, int z)
 		{
 		r.x = zoom(r.x,z);
 		r.y = zoom(r.y,z);
@@ -131,7 +131,7 @@ public class VisualPanel extends JPanel
 		return r;
 		}
 
-	protected void calculateOverallBounds(Rectangle b)
+	protected static void calculateOverallBounds(Rectangle b)
 		{
 		b.grow(128,128);
 		b.add(0,0);
@@ -254,8 +254,9 @@ public class VisualPanel extends JPanel
 			zoomAlign(overallBounds,zoom,true);
 			if (oob.equals(overallBounds) && !uz) return;
 			Point p = getLocation();
-			setBounds(p.x + co.x - zoom(o.x - overallBounds.x,zoom),p.y + co.y
-					- zoom(o.y - overallBounds.y,zoom),Math.max(getWidth(),zoom(overallBounds.width,zoom)),
+			setBounds(p.x + co.x - zoom(o.x - overallBounds.x,zoom),
+					p.y + co.y - zoom(o.y - overallBounds.y,zoom),
+					Math.max(getWidth(),zoom(overallBounds.width,zoom)),
 					Math.max(getHeight(),zoom(overallBounds.height,zoom)));
 			oldZoom = zoom;
 			revalidate();

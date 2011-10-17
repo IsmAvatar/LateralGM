@@ -16,7 +16,6 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -46,7 +45,7 @@ import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 
-public class ScriptFrame extends InstantiableResourceFrame<Script,PScript> implements ActionListener
+public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 	{
 	private static final long serialVersionUID = 1L;
 	public JToolBar tool;

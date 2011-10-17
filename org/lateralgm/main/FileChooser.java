@@ -409,12 +409,12 @@ public class FileChooser
 			}
 		}
 
-	public void setTitleURI(URI uri)
+	public static void setTitleURI(URI uri)
 		{
 		LGM.frame.setTitle(Messages.format("LGM.TITLE",getTitleFromURI(uri))); //$NON-NLS-1$
 		}
 
-	private String getTitleFromURI(URI uri)
+	private static String getTitleFromURI(URI uri)
 		{
 		if (uri == null) return Messages.getString("LGM.NEWGAME"); //$NON-NLS-1$
 		try
@@ -423,8 +423,8 @@ public class FileChooser
 			}
 		catch (IllegalArgumentException e)
 			{
+			return uri.toString();
 			}
-		return uri.toString();
 		}
 
 	public void newFile()
@@ -501,15 +501,14 @@ public class FileChooser
 		LGM.reload(true);
 		}
 
-	private FileReader findReader(URI uri)
+	private static FileReader findReader(URI uri)
 		{
 		for (FileReader fr : readers)
 			if (fr.canRead(uri)) return fr;
 		return null;
 		}
 
-	@SuppressWarnings("unchecked")
-	private void rebuildTree()
+	private static void rebuildTree()
 		{
 		for (int i = 0; i < LGM.root.getChildCount(); i++)
 			{
@@ -519,8 +518,7 @@ public class FileChooser
 			if (rn.status != ResNode.STATUS_PRIMARY) continue;
 			ResourceList<?> rl = LGM.currentFile.getList(rn.kind);
 			for (Resource<?,?> r : rl)
-				rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,
-						(Class<? extends Resource<?,?>>) r.getClass(),r.reference));
+				rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getClass(),r.reference));
 			}
 		}
 
@@ -577,8 +575,8 @@ public class FileChooser
 		String ext = selectedWriter.getExtension();
 		if (!uri.getPath().endsWith(ext))
 			{
-			int result = JOptionPane.showConfirmDialog(LGM.frame,Messages.format(
-					"FileChooser.CONFIRM_EXTENSION",ext,selectedWriter.getSelectionName()), //$NON-NLS-1$
+			int result = JOptionPane.showConfirmDialog(LGM.frame,
+					Messages.format("FileChooser.CONFIRM_EXTENSION",ext,selectedWriter.getSelectionName()), //$NON-NLS-1$
 					uri.toString(),JOptionPane.YES_NO_CANCEL_OPTION);
 			if (result == JOptionPane.CANCEL_OPTION) return false;
 			if (result == JOptionPane.NO_OPTION) return saveNewFile();
@@ -601,7 +599,7 @@ public class FileChooser
 			}
 		}
 
-	public void save(URI uri, FileWriter writer) throws IOException
+	public static void save(URI uri, FileWriter writer) throws IOException
 		{
 		System.out.println(uri);
 		try
@@ -610,7 +608,7 @@ public class FileChooser
 			return;
 			}
 		catch (IllegalArgumentException e)
-			{
+			{ //Do the stuff below
 			}
 		URLConnection uc = uri.toURL().openConnection();
 		uc.setDoOutput(true);

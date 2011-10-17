@@ -21,7 +21,7 @@ public class Timeline extends InstantiableResource<Timeline,Timeline.PTimeline>
 	public ArrayList<Moment> moments = new ArrayList<Moment>();
 
 	public enum PTimeline
-		{
+		{ //Unused
 		}
 
 	public Timeline()

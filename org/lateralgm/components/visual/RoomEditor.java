@@ -307,8 +307,9 @@ public class RoomEditor extends VisualPanel
 				alist = room.tiles;
 				jlist = frame.tList;
 				}
+			else
+				return; //unknown component with unknown lists
 
-			if (i == -1) return;
 			int i2 = jlist.getSelectedIndex();
 			alist.remove(i);
 			jlist.setSelectedIndex(Math.min(alist.size() - 1,i2));
@@ -434,7 +435,9 @@ public class RoomEditor extends VisualPanel
 							}
 						catch (IllegalArgumentException iae)
 							{
-							}
+							//Some of these settings aren't reflected in the
+							//PRoom structure, so we just discard them for now.
+						}
 				}
 			}
 		}

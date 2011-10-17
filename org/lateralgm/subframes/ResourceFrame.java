@@ -151,6 +151,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		}
 
 	/** Override to check additional fields other than the Resource<> defaults. */
+	@SuppressWarnings("static-method")
 	protected boolean areResourceFieldsEqual()
 		{
 		return true;

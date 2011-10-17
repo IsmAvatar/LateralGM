@@ -16,10 +16,8 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.beans.ExceptionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,6 +32,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -49,10 +48,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.table.AbstractTableModel;
 
 import org.lateralgm.components.ColorSelect;
@@ -69,7 +67,6 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameSettings;
-import org.lateralgm.resources.Include;
 import org.lateralgm.resources.GameSettings.ColorDepth;
 import org.lateralgm.resources.GameSettings.Frequency;
 import org.lateralgm.resources.GameSettings.IncludeFolder;
@@ -77,10 +74,10 @@ import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GameSettings.Priority;
 import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
+import org.lateralgm.resources.Include;
 import org.lateralgm.resources.sub.Constant;
 
-public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings> implements
-		ActionListener,ExceptionListener
+public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	{
 	private static final long serialVersionUID = 1L;
 

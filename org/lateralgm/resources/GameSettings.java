@@ -87,7 +87,7 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 
 	@Override
 	protected void postCopy(GameSettings dest)
-		{
+		{ //Nothing else to copy
 		}
 
 	public Object validate(PGameSettings k, Object v)

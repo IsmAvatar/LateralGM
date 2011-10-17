@@ -428,7 +428,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		}
 
 	public void editingCanceled(ChangeEvent e)
-		{
+		{ //Unused
 		}
 
 	public void editingStopped(ChangeEvent e)

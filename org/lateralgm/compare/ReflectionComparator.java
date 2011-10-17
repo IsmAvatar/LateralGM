@@ -178,7 +178,7 @@ public abstract class ReflectionComparator
 	 *          A pair of two same objects will not be compared again, in order to avoid infinite
 	 *          loops
 	 */
-	private void registerTraversedInstancePair(Object left, Object right,
+	private static void registerTraversedInstancePair(Object left, Object right,
 			Set<TraversedInstancePair> traversedInstancePairs)
 		{
 		if (left != null && right != null)

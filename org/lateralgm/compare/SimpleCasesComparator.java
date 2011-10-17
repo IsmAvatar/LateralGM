@@ -89,7 +89,7 @@ public class SimpleCasesComparator extends ReflectionComparator
 	 * @param object the Character or Number, not null
 	 * @return the value as a Double (this way NaN and infinity can be compared)
 	 */
-	private Double getDoubleValue(Object object)
+	private static Double getDoubleValue(Object object)
 		{
 		if (object instanceof Number)
 			{

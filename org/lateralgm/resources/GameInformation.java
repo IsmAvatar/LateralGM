@@ -48,7 +48,7 @@ public class GameInformation extends Resource<GameInformation,GameInformation.PG
 
 	@Override
 	protected void postCopy(GameInformation dest)
-		{
+		{ //Nothing else to copy
 		}
 
 	public Object validate(PGameInformation k, Object v)

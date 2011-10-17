@@ -41,6 +41,7 @@ import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -61,7 +62,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
@@ -86,8 +86,7 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameInformation.PGameInformation;
 
-public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInformation> implements
-		ActionListener
+public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInformation>
 	{
 	private static final long serialVersionUID = 1L;
 	protected JTabbedPane tabs;
@@ -505,8 +504,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{
 			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			if (fc.getSelectedFile().exists()) break;
-			JOptionPane.showMessageDialog(null,fc.getSelectedFile().getName()
-					+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
+			JOptionPane.showMessageDialog(null,
+					fc.getSelectedFile().getName() + Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
 					Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-1$
 					JOptionPane.WARNING_MESSAGE);
 			}
@@ -606,10 +605,10 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			res.put(PGameInformation.TEXT,baos.toString("UTF-8")); //$NON-NLS-1$
 			}
 		catch (IOException e)
-			{
+			{ //Nevermind
 			}
 		catch (BadLocationException e)
-			{
+			{ //Should never happen, but we have to catch this anyways
 			}
 		}
 
@@ -624,10 +623,10 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 					editor.getDocument(),0);
 			}
 		catch (IOException e)
-			{
+			{ //Nevermind
 			}
 		catch (BadLocationException e)
-			{
+			{ //Should never happen, but we have to catch this anyways
 			}
 		}
 

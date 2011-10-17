@@ -299,8 +299,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 				f = fc.getSelectedFile();
 				if (f.exists()) break;
-				JOptionPane.showMessageDialog(null,f.getName()
-						+ Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
+				JOptionPane.showMessageDialog(null,
+						f.getName() + Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
 						Messages.getString("SoundFrame.FILE_OPEN"),JOptionPane.WARNING_MESSAGE); //$NON-NLS-1$
 				}
 			try
@@ -354,6 +354,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 								}
 							catch (InterruptedException e)
 								{
+								//Should never happen, but if it does, we just give up.
 								}
 							clip.stop();
 							clip.close();

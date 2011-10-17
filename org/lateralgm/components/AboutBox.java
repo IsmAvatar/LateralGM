@@ -112,6 +112,7 @@ public class AboutBox extends JDialog implements PropertyChangeListener
 			}
 		catch (NoClassDefFoundError e)
 			{
+			//Desktop not defined in Java 1.5
 			}
 		((HTMLEditorKit) ep.getEditorKit()).setLinkCursor(null);
 		}

@@ -421,7 +421,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			return arg;
 			}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked","rawtypes" })
 		private JComponent makeEditor(LibArgument la)
 			{
 			switch (arg.kind)
@@ -496,7 +496,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 				}
 			}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "rawtypes","unchecked" })
 		public void discard()
 			{
 			if (editor instanceof JTextField)
@@ -514,13 +514,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 				}
 			else if (editor instanceof ResourceMenu)
 				{
-				try
-					{
-					((ResourceMenu) editor).setSelected(arg.getRes());
-					}
-				catch (NumberFormatException nfe)
-					{
-					}
+				((ResourceMenu) editor).setSelected(arg.getRes());
 				}
 			}
 		}
@@ -541,7 +535,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 
 	@Override
 	public void revertResource()
-		{
+		{ //updatable only, no revert
 		}
 
 	@Override

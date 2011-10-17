@@ -195,6 +195,7 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 
 	public void updateBounds()
 		{
+		//Unused
 		}
 
 	public void extendBounds(Rectangle b)

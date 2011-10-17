@@ -128,6 +128,7 @@ public abstract class TokenMarker
 	 * The default implementation returns true; it should be overridden
 	 * to return false on simpler token markers for increased speed.
 	 */
+	@SuppressWarnings("static-method")
 	public boolean supportsMultilineTokens()
 		{
 		return true;

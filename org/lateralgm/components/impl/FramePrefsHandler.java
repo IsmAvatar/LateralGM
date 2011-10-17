@@ -11,14 +11,13 @@ package org.lateralgm.components.impl;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 
 import javax.swing.JFrame;
 
 import org.lateralgm.main.PrefsStore;
 
-public class FramePrefsHandler implements ComponentListener,WindowListener,WindowStateListener
+public class FramePrefsHandler implements ComponentListener,WindowStateListener
 	{
 	private final JFrame frame;
 
@@ -32,7 +31,6 @@ public class FramePrefsHandler implements ComponentListener,WindowListener,Windo
 				| (PrefsStore.getWindowMaximized() ? JFrame.MAXIMIZED_BOTH : 0);
 		frame.setExtendedState(state);
 		frame.addComponentListener(this);
-		frame.addWindowListener(this);
 		frame.addWindowStateListener(this);
 		}
 
@@ -58,38 +56,11 @@ public class FramePrefsHandler implements ComponentListener,WindowListener,Windo
 
 	public void componentHidden(ComponentEvent e)
 		{
+		//Unused
 		}
 
 	public void componentShown(ComponentEvent e)
 		{
+		//Unused
 		}
-
-	public void windowActivated(WindowEvent e)
-		{
-		}
-
-	public void windowClosed(WindowEvent e)
-		{
-		}
-
-	public void windowClosing(WindowEvent e)
-		{
-		}
-
-	public void windowDeactivated(WindowEvent e)
-		{
-		}
-
-	public void windowDeiconified(WindowEvent e)
-		{
-		}
-
-	public void windowIconified(WindowEvent e)
-		{
-		}
-
-	public void windowOpened(WindowEvent e)
-		{
-		}
-
 	}

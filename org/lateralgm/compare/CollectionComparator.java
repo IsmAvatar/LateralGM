@@ -102,6 +102,7 @@ public class CollectionComparator extends ReflectionComparator
 	 * @param object the array
 	 * @return the object array
 	 */
+	@SuppressWarnings("static-method")
 	protected Object[] convertToObjectArray(Object object)
 		{
 		return (Object[]) object;

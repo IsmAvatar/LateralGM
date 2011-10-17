@@ -61,7 +61,7 @@ public class Argument
 
 	public Argument(byte kind)
 		{
-		this(kind,"",null);
+		this(kind,new String(),null);
 		}
 
 	public static Class<? extends Resource<?,?>> getResourceKind(byte argumentKind)
@@ -97,7 +97,7 @@ public class Argument
 		switch (kind)
 			{
 			case Argument.ARG_BOOLEAN:
-				return Boolean.toString(val != "0");
+				return Boolean.toString(!val.equals("0"));
 			case Argument.ARG_MENU:
 				String[] sam = la.menu.split("\\|");
 				try
@@ -105,10 +105,10 @@ public class Argument
 					return sam[Integer.parseInt(val)];
 					}
 				catch (NumberFormatException nfe)
-					{
+					{ //Silly user. Return default val
 					}
 				catch (IndexOutOfBoundsException be)
-					{
+					{ //Silly user. Return default val
 					}
 				return val;
 			case Argument.ARG_COLOR:
@@ -117,19 +117,13 @@ public class Argument
 					return String.format("%06X",Integer.parseInt(val));
 					}
 				catch (NumberFormatException e)
-					{
+					{ //Silly user. Return default val
 					}
 				return val;
 			default:
 				if (rk == null) return val;
-				try
-					{
-					return res.get().getName();
-					}
-				catch (NullPointerException e)
-					{
-					}
-				return "<none>";
+				if (res == null || res.get() == null) return "<none>";
+				return res.get().getName();
 			}
 		}
 

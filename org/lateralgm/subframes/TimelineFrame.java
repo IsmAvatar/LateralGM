@@ -17,10 +17,10 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Collections;
 
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -29,7 +29,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -44,7 +43,7 @@ import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.Timeline.PTimeline;
 import org.lateralgm.resources.sub.Moment;
 
-public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline> implements ActionListener,
+public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline> implements
 		ListSelectionListener
 	{
 	private static final long serialVersionUID = 1L;

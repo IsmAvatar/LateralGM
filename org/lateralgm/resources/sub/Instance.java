@@ -30,8 +30,6 @@ import org.lateralgm.util.PropertyMap.PropertyValidator;
 public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		PropertyValidator<Instance.PInstance>
 	{
-	private static final long serialVersionUID = 1L;
-
 	private ResourceReference<?> object = null; //kept for listening purposes
 	public final PropertyMap<PInstance> properties;
 	private final ResourceReference<Room> room;

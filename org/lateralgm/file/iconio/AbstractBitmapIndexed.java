@@ -80,7 +80,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 			}
 		}
 
-	private Color readColor(final StreamDecoder in) throws IOException
+	private static Color readColor(final StreamDecoder in) throws IOException
 		{
 		final int lBlue = in.read();
 		final int lGreen = in.read();

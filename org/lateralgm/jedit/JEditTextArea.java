@@ -1717,7 +1717,7 @@ public class JEditTextArea extends JComponent
 			}
 
 		public void changedUpdate(DocumentEvent evt)
-			{
+			{ //Unused
 			}
 
 		protected void findWidestLine()
@@ -1751,7 +1751,7 @@ public class JEditTextArea extends JComponent
 			}
 
 		public void mouseMoved(MouseEvent evt)
-			{
+			{ //Unused
 			}
 		}
 

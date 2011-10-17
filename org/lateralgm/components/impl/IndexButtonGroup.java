@@ -16,8 +16,6 @@ import javax.swing.ButtonGroup;
 
 public class IndexButtonGroup
 	{
-	private static final long serialVersionUID = 1L;
-
 	private class But
 		{
 		AbstractButton b;

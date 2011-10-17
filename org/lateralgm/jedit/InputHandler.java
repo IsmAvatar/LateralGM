@@ -371,7 +371,7 @@ public abstract class InputHandler extends KeyAdapter
 	 * Instead, it will handle the repetition itself.
 	 */
 	public interface NonRepeatable
-		{
+		{ //Just an interface for identification
 		}
 
 	/**
@@ -379,7 +379,7 @@ public abstract class InputHandler extends KeyAdapter
 	 * by the macro recorder. Instead, it will do its own recording.
 	 */
 	public interface NonRecordable
-		{
+		{ //Just an interface for identification
 		}
 
 	/**
@@ -387,7 +387,7 @@ public abstract class InputHandler extends KeyAdapter
 	 * @since jEdit 2.2final
 	 */
 	public interface Wrapper
-		{
+		{ //Just an interface for identification
 		}
 
 	/**
@@ -723,7 +723,7 @@ public abstract class InputHandler extends KeyAdapter
 				insertTab(textArea);
 			}
 
-		private void insertTab(JEditTextArea textArea)
+		private static void insertTab(JEditTextArea textArea)
 			{
 			if (Boolean.TRUE.equals(textArea.getClientProperty(CONVERT_TABS_PROPERTY)))
 				{

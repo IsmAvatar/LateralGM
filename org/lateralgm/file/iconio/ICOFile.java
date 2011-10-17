@@ -236,7 +236,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @return
 	 * @throws IOException
 	 */
-	private BitmapDescriptor readDescriptor(final StreamDecoder pDec) throws IOException
+	private static BitmapDescriptor readDescriptor(final StreamDecoder pDec) throws IOException
 		{
 		return new BitmapDescriptor(pDec);
 		}
@@ -257,7 +257,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @return Bitmap, type depends on BPP
 	 * @throws IOException
 	 */
-	private AbstractBitmap readBitmap(final StreamDecoder pDec, final BitmapDescriptor pDescriptor)
+	private static AbstractBitmap readBitmap(final StreamDecoder pDec, final BitmapDescriptor pDescriptor)
 			throws IOException
 		{
 		final int lBitsPerPixel = pDescriptor.getHeader().getBPP();

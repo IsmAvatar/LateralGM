@@ -34,6 +34,7 @@ import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -50,7 +51,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -71,18 +71,18 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.sub.BackgroundDef;
-import org.lateralgm.resources.sub.Instance;
-import org.lateralgm.resources.sub.Tile;
-import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
+import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.ui.swing.propertylink.ButtonModelLink;
@@ -788,7 +788,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		}
 
 	//TODO 1.7?: Batch tile operations
-	public JPanel makeTilesBatchPane()
+	public static JPanel makeTilesBatchPane()
 		{
 		JPanel panel = new JPanel();
 		//		GroupLayout layout = new GroupLayout(panel);

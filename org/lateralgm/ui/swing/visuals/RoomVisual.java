@@ -203,7 +203,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		}
 
 	@SuppressWarnings("unchecked")
-	private <P extends Piece, V extends PieceVisual<P>>Class<V> getVisualClass(Class<P> p)
+	private static <P extends Piece, V extends PieceVisual<P>>Class<V> getVisualClass(Class<P> p)
 		{
 		if (p == Piece.class) return (Class<V>) PieceVisual.class;
 		if (p == Instance.class) return (Class<V>) InstanceVisual.class;
@@ -226,7 +226,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		return intersect(r,Piece.class);
 		}
 
-	private void paintBackground(Graphics g, BackgroundDef bd, int width, int height)
+	private static void paintBackground(Graphics g, BackgroundDef bd, int width, int height)
 		{
 		Rectangle c = g.getClipBounds();
 		ResourceReference<Background> rb = bd.properties.get(PBackgroundDef.BACKGROUND);

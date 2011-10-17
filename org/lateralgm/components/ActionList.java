@@ -148,6 +148,7 @@ public class ActionList extends JList
 			}
 		catch (PropertyVetoException pve)
 			{
+			//Guess it doesn't want us doing that. Oh well.
 			}
 		return af;
 		}
@@ -298,7 +299,7 @@ public class ActionList extends JList
 							if (j >= 0) indent = indents.get(j);
 							}
 						catch (EmptyStackException e)
-							{
+							{ //Silly user put a standalone Else
 							}
 						nextIndent = indent + 1;
 						break;
@@ -784,6 +785,7 @@ public class ActionList extends JList
 				}
 			catch (IndexOutOfBoundsException e)
 				{
+				//Lazy way of dealing with an invalid index value passed in.
 				}
 			arc.setSelected(isSelected);
 			return arc;

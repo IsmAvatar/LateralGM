@@ -51,10 +51,11 @@ public class FileChooserImagePreview extends JLabel implements PropertyChangeLis
 					BufferedImage img = null;
 					try
 						{
-						img = ImageIO.read(f);
+						img = ImageIO.read(f); //can return null
 						}
 					catch (Throwable t)
 						{
+						//img = null
 						}
 					if (img != null)
 						{

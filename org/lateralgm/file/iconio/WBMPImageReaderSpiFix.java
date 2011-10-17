@@ -32,7 +32,7 @@ public class WBMPImageReaderSpiFix extends WBMPImageReaderSpi
 		return !ret;
 		}
 
-	private int readMultiInt(ImageInputStream s) throws IOException
+	private static int readMultiInt(ImageInputStream s) throws IOException
 		{
 		int val = s.readByte();
 		int ret = val & 0x7f;

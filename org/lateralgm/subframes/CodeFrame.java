@@ -121,6 +121,7 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 	@Override
 	public void revertResource()
 		{
+		//updatable only, no revert
 		}
 
 	@Override

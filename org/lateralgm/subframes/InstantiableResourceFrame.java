@@ -20,9 +20,6 @@
 
 package org.lateralgm.subframes;
 
-import java.awt.event.ActionListener;
-import java.beans.ExceptionListener;
-
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -33,7 +30,7 @@ import org.lateralgm.resources.InstantiableResource;
 
 /** Provides common functionality and structure to Resource editing frames */
 public abstract class InstantiableResourceFrame<R extends InstantiableResource<R,P>, P extends Enum<P>>
-		extends ResourceFrame<R,P> implements DocumentListener,ActionListener,ExceptionListener
+		extends ResourceFrame<R,P> implements DocumentListener
 	{
 	private static final long serialVersionUID = 1L;
 	/**

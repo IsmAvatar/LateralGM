@@ -23,7 +23,6 @@ import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ import java.util.Enumeration;
 import javax.swing.BorderFactory;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -46,7 +46,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -67,10 +66,10 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.ResourceReference;
-import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.GmObject.ParentLoopException;
+import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
@@ -78,7 +77,7 @@ import org.lateralgm.resources.sub.MainEvent;
 import com.sun.corba.se.spi.orbutil.fsm.Action;
 
 public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject> implements
-		ActionListener,TreeSelectionListener
+		TreeSelectionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon INFO_ICON = LGM.getIconForKey("GmObjectFrame.INFO"); //$NON-NLS-1$

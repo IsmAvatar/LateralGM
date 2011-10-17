@@ -183,7 +183,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			}
 		}
 
-	private JMenuItem makeMenuItem(String command, ActionListener al)
+	private static JMenuItem makeMenuItem(String command, ActionListener al)
 		{
 		JMenuItem menuItem = new JMenuItem(Messages.getString(command));
 		menuItem.setActionCommand(command);
