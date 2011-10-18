@@ -25,6 +25,7 @@ import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -41,11 +42,11 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.lateralgm.components.CustomFileChooser;
+import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.visual.FileChooserImagePreview;
 import org.lateralgm.file.iconio.BitmapDescriptor;
@@ -202,14 +203,7 @@ public final class Util
 	 * 
 	 * @return The selected image, or null if one is not chosen
 	 */
-	public static BufferedImage getValidImage()
-		{
-		BufferedImage[] img = getValidImages();
-		if (img == null || img.length == 0) return null;
-		return img[0];
-		}
-
-	public static BufferedImage[] getValidImages()
+	public static File chooseImageFile()
 		{
 		if (imageFc == null)
 			{
@@ -230,29 +224,54 @@ public final class Util
 			imageFc.setFileFilter(filt);
 			}
 		if (imageFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+			return imageFc.getSelectedFile();
+		return null;
+		}
+
+	public static BufferedImage getValidImage()
+		{
+		File f = chooseImageFile();
+		if (f == null) return null;
+		try
 			{
-			try
-				{
-				ImageInputStream in = ImageIO.createImageInputStream(imageFc.getSelectedFile());
-				Iterator<ImageReader> it = ImageIO.getImageReaders(in);
-				ImageReader reader = it.next();
-				reader.setInput(in);
-				int count = reader.getNumImages(true);
-				BufferedImage[] img = new BufferedImage[count];
-				for (int i = 0; i < count; i++)
-					img[i] = reader.read(i);
-				//TODO: Gif overlay support (as GM already does)
-				return img;
-				}
-			catch (Throwable t)
-				{
-				String msg = Messages.format("Util.ERROR_LOADING",imageFc.getSelectedFile()); //$NON-NLS-1$
-				String title = Messages.getString("Util.ERROR_TITLE"); //$NON-NLS-1$
-				JOptionPane.showMessageDialog(LGM.frame,msg,title,JOptionPane.ERROR_MESSAGE);
-				t.printStackTrace();
-				}
+			return ImageIO.read(f);
+			}
+		catch (IOException e)
+			{
+			new ErrorDialog(LGM.frame,Messages.getString("Util.ERROR_TITLE"), //$NON-NLS-1$
+					Messages.format("Util.ERROR_LOADING",f),e).setVisible(true); //$NON-NLS-1$
 			}
 		return null;
+		}
+
+	public static BufferedImage[] getValidImages()
+		{
+		File f = chooseImageFile();
+		if (f == null) return null;
+		try
+			{
+			return getValidImages(ImageIO.createImageInputStream(f));
+			}
+		catch (Exception e)
+			{
+			new ErrorDialog(LGM.frame,Messages.getString("Util.ERROR_TITLE"), //$NON-NLS-1$
+					Messages.format("Util.ERROR_LOADING",f),e).setVisible(true); //$NON-NLS-1$
+			}
+		return null;
+		}
+
+	public static BufferedImage[] getValidImages(ImageInputStream in) throws IOException,
+			IllegalArgumentException
+		{
+		Iterator<ImageReader> it = ImageIO.getImageReaders(in);
+		ImageReader reader = it.next();
+		reader.setInput(in);
+		int count = reader.getNumImages(true);
+		BufferedImage[] img = new BufferedImage[count];
+		for (int i = 0; i < count; i++)
+			img[i] = reader.read(i);
+		//TODO: Gif overlay support (as GM already does)
+		return img;
 		}
 
 	public static BufferedImage cloneImage(BufferedImage bi)

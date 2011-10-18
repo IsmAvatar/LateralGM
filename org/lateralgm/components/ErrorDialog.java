@@ -41,9 +41,9 @@ public class ErrorDialog extends JDialog implements ActionListener
 		return but;
 		}
 
-	public ErrorDialog(Frame parent, String title, String message, Exception e)
+	public ErrorDialog(Frame parent, String title, String message, Throwable e)
 		{
-		this(parent,title,message,exceptionToString(e));
+		this(parent,title,message,throwableToString(e));
 		}
 
 	public ErrorDialog(Frame parent, String title, String message, String debugInfo)
@@ -69,7 +69,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 		setLocationRelativeTo(parent);
 		}
 
-	protected static String exceptionToString(Exception e)
+	protected static String throwableToString(Throwable e)
 		{
 		StringWriter sw = new StringWriter();
 		e.printStackTrace(new PrintWriter(sw));

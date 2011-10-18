@@ -11,13 +11,14 @@
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -26,10 +27,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.DropMode;
@@ -62,6 +66,7 @@ import org.lateralgm.components.impl.SpriteStripDialog;
 import org.lateralgm.components.visual.SubimagePreview;
 import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
+import org.lateralgm.main.FileChooser.FileDropHandler;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -433,85 +438,127 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		makeToolButton(tool,"SpriteFrame.PREVIOUS"); //$NON-NLS-1$
 		makeToolButton(tool,"SpriteFrame.NEXT"); //$NON-NLS-1$
 
-		subList = new SubImageList();
+		JCheckBox cb = new JCheckBox("Wrap",true);
+		tool.add(cb);
+		cb.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+					{
+					boolean b = ((JCheckBox) e.getSource()).isSelected();
+					if (b)
+						subList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+					else
+						subList.setLayoutOrientation(JList.VERTICAL);
+					}
+			});
+
+		subList = new JList();
+		subList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		subList.setVisibleRowCount(-1);
+		subList.setBackground(Color.LIGHT_GRAY);
+		subList.setDragEnabled(true);
+		subList.setDropMode(DropMode.ON_OR_INSERT);
+		subList.setTransferHandler(new SubImageTransfer());
 		subList.addMouseListener(this);
 		subList.setDragEnabled(true);
 		pane.add(new JScrollPane(subList),BorderLayout.CENTER);
+
 		return pane;
 		}
 
-	class SubImageList extends JList
+	class SubImageTransfer extends FileDropHandler implements Transferable
 		{
 		private static final long serialVersionUID = 1L;
-
-		public SubImageList()
-			{
-			setDragEnabled(true);
-			setDropMode(DropMode.INSERT);
-			setTransferHandler(new SubImageTransfer());
-			}
-		}
-
-	class SubImageTransfer extends TransferHandler
-		{
-		private static final long serialVersionUID = 1L;
+		private final DataFlavor flavors[] = { DataFlavor.imageFlavor };
+		int index;
+		BufferedImage data;
 
 		public int getSourceActions(JComponent c)
 			{
 			return COPY_OR_MOVE;
 			}
 
+		public DataFlavor[] getTransferDataFlavors()
+			{
+			return flavors;
+			}
+
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,IOException
+			{
+			if (flavor != DataFlavor.imageFlavor) throw new UnsupportedFlavorException(flavor);
+			return data;
+			}
+
 		public Transferable createTransferable(JComponent c)
 			{
-			return null;
+			JList l = ((JList) c);
+			index = l.getSelectedIndex();
+			if (index == -1) return null;
+			data = res.subImages.get(index);
+			return this;
 			}
 
 		public void exportDone(JComponent c, Transferable t, int action)
 			{
-			if (action == MOVE)
-				{ //TODO: Fix sprite drop import
-				}
+			if (action == MOVE) res.subImages.remove(index);
 			}
 
-		public boolean canImport(TransferHandler.TransferSupport s)
+		public boolean isDataFlavorSupported(DataFlavor df)
 			{
-			System.out.println(s.getTransferable());
-			DataFlavor fl[] = s.getDataFlavors();
-			//			System.out.println(fl);
-			for (DataFlavor f : fl)
+			if (super.isDataFlavorSupported(df)) return true;
+			return df == DataFlavor.imageFlavor;
+			}
+
+		public boolean importData(TransferHandler.TransferSupport evt)
+			{
+			BufferedImage bi[] = null;
+
+			try
 				{
-				if (f.equals(DataFlavor.javaFileListFlavor)) System.out.println("Oh hi");
-				if (f.equals(DataFlavor.stringFlavor))
+				if (evt.isDataFlavorSupported(DataFlavor.imageFlavor))
 					{
-					Transferable t = s.getTransferable();
-					if (t instanceof StringSelection)
-						{
-						//TODO: Fix sprite drop import
-						}
-					try
-						{
-						System.out.println(s.getTransferable().getTransferData(f));
-						}
-					catch (UnsupportedFlavorException e)
-						{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						}
-					catch (IOException e)
-						{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						}
-					//					System.out.println(f);
+					BufferedImage b = (BufferedImage) evt.getTransferable().getTransferData(
+							DataFlavor.imageFlavor);
+					if (b != null) bi = new BufferedImage[] { b };
+					//otherwise, we'll see if there's a list flavor
+					//(Yeah right, as if anybody else uses imageFlavor)
 					}
-				//				System.out.println(" " + f.getRepresentationClass());
-				}
-			return false;
-			}
 
-		public boolean importData(TransferHandler.TransferSupport s)
-			{
-			return false;
+				if (bi == null)
+					{
+					List<?> files = getDropList(evt);
+					if (files == null || files.isEmpty()) return false;
+					if (files.size() != 1) return false; //handle multiple files down the road
+					Object o = files.get(0);
+
+					ImageInputStream iis = null;
+					if (o instanceof File) iis = ImageIO.createImageInputStream(o);
+					if (o instanceof URI)
+						iis = ImageIO.createImageInputStream(((URI) o).toURL().openStream());
+					bi = Util.getValidImages(iis);
+					}
+				}
+			catch (Exception e)
+				{
+				//Bastard lied to us
+				e.printStackTrace();
+				}
+
+			if (bi == null) return false;
+
+			int index = -1;
+			if (evt.isDrop())
+				{
+				JList.DropLocation loc = (JList.DropLocation) evt.getDropLocation();
+				index = loc.getIndex();
+				if (!loc.isInsert()) res.subImages.remove(index);
+				}
+			if (index < 0) index = res.subImages.size();
+
+			for (BufferedImage b : bi)
+				res.subImages.add(index++,b);
+			return true;
+
 			}
 		}
 
@@ -890,9 +937,14 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private void updateImageList()
 		{
 		ImageIcon ii[] = new ImageIcon[res.subImages.size()];
+		int maxWidth = -1;
 		for (int i = 0; i < res.subImages.size(); i++)
+			{
 			ii[i] = new ImageIcon(res.subImages.get(i));
+			maxWidth = Math.max(maxWidth,ii[i].getIconWidth());
+			}
 		subList.setListData(ii);
+		//		subList.setFixedCellWidth(maxWidth);
 		updateImageControls();
 		}
 

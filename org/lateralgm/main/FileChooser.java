@@ -127,27 +127,9 @@ public class FileChooser
 		addSaveFilters(new GmWriterFilter());
 		}
 
-	public class DropHandler extends TransferHandler
+	public class LGMDropHandler extends FileDropHandler
 		{
 		private static final long serialVersionUID = 1L;
-
-		static final String MIME_URI_LIST = "uri-list";
-
-		public boolean canImport(TransferHandler.TransferSupport evt)
-			{
-			//Although I'd love to actually grab the list of files, Mac won't let me.
-			return getSupportedFlavor(evt.getDataFlavors()) != null;
-			}
-
-		DataFlavor getSupportedFlavor(DataFlavor...dfs)
-			{
-			for (DataFlavor df : dfs)
-				{
-				if (df.isFlavorJavaFileListType()) return df;
-				if (df.isRepresentationClassReader() && MIME_URI_LIST.equals(df.getSubType())) return df;
-				}
-			return null;
-			}
 
 		public boolean importData(TransferHandler.TransferSupport evt)
 			{
@@ -167,8 +149,35 @@ public class FileChooser
 				}
 			return false;
 			}
+		}
 
-		protected List<?> getDropList(TransferHandler.TransferSupport evt)
+	public static abstract class FileDropHandler extends TransferHandler
+		{
+		private static final long serialVersionUID = 1L;
+
+		public static final String MIME_URI_LIST = "uri-list";
+
+		@SuppressWarnings("static-method")
+		public boolean isDataFlavorSupported(DataFlavor df)
+			{
+			return df.isFlavorJavaFileListType()
+					|| (df.isRepresentationClassReader() && MIME_URI_LIST.equals(df.getSubType()));
+			}
+
+		public boolean canImport(TransferHandler.TransferSupport evt)
+			{
+			//Mac won't let us grab the transferable.
+			return getSupportedFlavor(evt.getDataFlavors()) != null;
+			}
+
+		protected DataFlavor getSupportedFlavor(DataFlavor...dfs)
+			{
+			for (DataFlavor df : dfs)
+				if (isDataFlavorSupported(df)) return df;
+			return null;
+			}
+
+		public List<?> getDropList(TransferHandler.TransferSupport evt)
 			{
 			Transferable tr = evt.getTransferable();
 			DataFlavor df = getSupportedFlavor(evt.getDataFlavors());
@@ -177,7 +186,11 @@ public class FileChooser
 				{
 				if (df.isFlavorJavaFileListType())
 					return (List<?>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+
 				//Linux support (uri-list reader)
+				if (!df.isRepresentationClassReader() || !MIME_URI_LIST.equals(df.getSubType()))
+					return null; //Or not? Let implementation handle it.
+
 				BufferedReader br = new BufferedReader(df.getReaderForText(tr));
 				List<URI> uriList = new ArrayList<URI>();
 				String line;

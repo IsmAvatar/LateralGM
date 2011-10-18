@@ -462,7 +462,7 @@ public final class LGM
 		JPanel f = new JPanel(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(f);
-		frame.setTransferHandler(listener.fc.new DropHandler());
+		frame.setTransferHandler(listener.fc.new LGMDropHandler());
 		f.add(BorderLayout.NORTH,toolbar);
 		f.add(BorderLayout.CENTER,split);
 		f.setOpaque(true);
