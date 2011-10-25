@@ -38,10 +38,8 @@ import org.lateralgm.components.AboutBox;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
-import org.lateralgm.subframes.InstantiableResourceFrame;
 
 public class Listener extends TransferHandler implements ActionListener,CellEditorListener
 	{
@@ -377,18 +375,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (com.equals("DUPLICATE")) //$NON-NLS-1$
 				{
 				ResourceList<?> rl = LGM.currentFile.getList(node.kind);
-				Resource<?,?> resource = null;
-				try
-					{
-					if (node.frame != null) ((InstantiableResourceFrame<?,?>) node.frame).commitChanges();
-					//FIXME: dodgy workaround to avoid warnings
-					resource = (Resource<?,?>) rl.getClass().getMethod("duplicate",InstantiableResource.class).invoke(//$NON-NLS-1$
-							rl,node.getRes().get());
-					}
-				catch (Exception e1)
-					{
-					e1.printStackTrace();
-					}
+				if (node.frame != null) node.frame.commitChanges();
+				Resource<?,?> resource = rl.duplicate(node.getRes().get());
 				Listener.addResource(tree,node.kind,resource);
 				return;
 				}

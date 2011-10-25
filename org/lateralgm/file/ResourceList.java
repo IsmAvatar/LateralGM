@@ -115,13 +115,13 @@ public class ResourceList<R extends InstantiableResource<R,?>> extends TreeSet<R
 
 	/**
 	 * Duplicates the given resource as per user request. Adds the duplicate to this list.
-	 * This is used by Listener.NodeMenuListener.actionPerformed on command "COPY"
 	 */
-	public R duplicate(R src)
+	@SuppressWarnings("unchecked")
+	public R duplicate(Resource<?,?> src)
 		{
 		if (!this.contains(src)) return null;
 		R dest = add();
-		src.copy(dest);
+		((R) src).copy(dest);
 		return dest;
 		}
 

@@ -27,16 +27,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
 import org.lateralgm.components.GmTreeGraphics;
-import org.lateralgm.components.mdi.MDIFrame;
-import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource;
-import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
@@ -46,8 +44,8 @@ import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.subframes.InstantiableResourceFrame;
 import org.lateralgm.subframes.ResourceFrame;
-import org.lateralgm.subframes.SubframeInformer;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
+import org.lateralgm.subframes.SubframeInformer;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable,UpdateListener
 	{
@@ -74,7 +72,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 	 * The <code>Resource</code> this node represents.
 	 */
 	private final ResourceReference<? extends Resource<?,?>> res;
-	public RevertableMDIFrame frame = null;
+	public ResourceFrame<?,?> frame = null;
 	private Icon icon;
 	private final NameUpdater nameUpdater = new NameUpdater();
 	private final UpdateTrigger trigger = new UpdateTrigger();
@@ -165,14 +163,14 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		this.newRes = newRes;
 		Resource<?,?> r = deRef();
 		if (SubframeInformer.fireSubframeRequest(r,this)) return;
-		MDIFrame rf = frame;
+		ResourceFrame<?,?> rf = frame;
 		if (frame == null)
 			{
 			ResourceFrameFactory factory = ResourceFrame.factories.get(kind);
 			rf = factory == null ? null : factory.makeFrame(r,this);
-			if (rf != null && rf instanceof ResourceFrame<?,?>)
+			if (rf != null)
 				{
-				frame = (ResourceFrame<?,?>) rf;
+				frame = rf;
 				if (rf instanceof InstantiableResourceFrame<?,?>) LGM.mdi.add(rf);
 				}
 			}
