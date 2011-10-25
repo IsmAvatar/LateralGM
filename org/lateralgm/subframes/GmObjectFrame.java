@@ -540,14 +540,14 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
 			path = node == null ? null : new TreePath(node.getPath());
 			}
-		int func = path == null ? EventFrame.FUNCTION_ADD : LGM.eventSelect.function.getValue();
+		int func = path == null ? EventPanel.FUNCTION_ADD : LGM.eventSelect.function.getValue();
 
 		switch (func)
 			{
-			case EventFrame.FUNCTION_ADD:
+			case EventPanel.FUNCTION_ADD:
 				addEvent(new Event(mainId,id,other));
 				break;
-			case EventFrame.FUNCTION_REPLACE:
+			case EventPanel.FUNCTION_REPLACE:
 				DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
 				if (!(dropNode instanceof EventInstanceNode)) return;
 				EventInstanceNode drop = (EventInstanceNode) dropNode;
@@ -558,7 +558,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 				ev.other = other;
 				addEvent(ev);
 				break;
-			case EventFrame.FUNCTION_DUPLICATE:
+			case EventPanel.FUNCTION_DUPLICATE:
 				dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
 				if (!(dropNode instanceof EventInstanceNode)) return;
 				drop = (EventInstanceNode) dropNode;
@@ -674,23 +674,20 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			}
 		if (e.getSource() == eventAdd || e.getSource() == eventAddItem)
 			{
-			LGM.eventSelect.show();
-			LGM.eventSelect.toTop();
-			LGM.eventSelect.function.setValue(EventFrame.FUNCTION_ADD);
+			LGM.eventSelect.setVisible(true);
+			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_ADD);
 			return;
 			}
 		if (e.getSource() == eventReplace || e.getSource() == eventReplaceItem)
 			{
-			LGM.eventSelect.show();
-			LGM.eventSelect.toTop();
-			LGM.eventSelect.function.setValue(EventFrame.FUNCTION_REPLACE);
+			LGM.eventSelect.setVisible(true);
+			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_REPLACE);
 			return;
 			}
 		if (e.getSource() == eventDuplicate || e.getSource() == eventDuplicateItem)
 			{
-			LGM.eventSelect.show();
-			LGM.eventSelect.toTop();
-			LGM.eventSelect.function.setValue(EventFrame.FUNCTION_DUPLICATE);
+			LGM.eventSelect.setVisible(true);
+			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_DUPLICATE);
 			return;
 			}
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)

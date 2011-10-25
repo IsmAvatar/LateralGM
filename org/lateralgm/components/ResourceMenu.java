@@ -61,6 +61,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	protected ResourceReference<R> selected;
 	protected JPopupMenu pm;
 	protected JMenuItem noResource;
+	protected String defStr;
 	protected boolean onlyOpen;
 	private ActionEvent actionEvent;
 	protected Class<? extends Resource<?,?>> kind;
@@ -197,6 +198,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		{
 		this.kind = kind;
 		this.onlyOpen = onlyOpen;
+		this.defStr = def;
 		GroupLayout layout = new GroupLayout(this);
 		setLayout(layout);
 		label = new JLabel(def);
@@ -281,7 +283,6 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			ResNode child = (ResNode) group.getChildAt(i);
 			if (child.status != ResNode.STATUS_SECONDARY)
 				{
-
 				JMenuItem newParent;
 				if (child.getChildCount() == 0)
 					newParent = new ResourceMenuItem(child);
@@ -341,7 +342,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		{
 		selected = res;
 		Resource<R,?> r = deRef(res);
-		label.setText(r == null ? (noResource != null ? noResource.getText() : "") : r.getName()); //$NON-NLS-1$
+		label.setText(r == null ? defStr : r.getName());
 		if (rPreview != null) rPreview.setResource(res);
 		}
 

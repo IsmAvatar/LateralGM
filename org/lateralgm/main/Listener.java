@@ -27,6 +27,7 @@ import java.util.HashSet;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
@@ -214,8 +215,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (com.endsWith(".EVENT_BUTTON")) //$NON-NLS-1$
 			{
-			LGM.eventSelect.setVisible(true);
-			LGM.eventSelect.toTop();
+			Object o = e.getSource();
+			if (o instanceof JToggleButton) LGM.eventSelect.setVisible(((JToggleButton) o).isSelected());
 			return;
 			}
 		if (com.endsWith(".EXIT")) //$NON-NLS-1$

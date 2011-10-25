@@ -11,10 +11,7 @@ package org.lateralgm.subframes;
 
 import static org.lateralgm.main.Util.deRef;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,20 +22,17 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.ref.WeakReference;
 
-import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
-import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -49,7 +43,6 @@ import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
@@ -63,7 +56,7 @@ import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
 import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
-public class EventFrame extends MDIFrame implements ActionListener,TreeSelectionListener,
+public class EventPanel extends JPanel implements ActionListener,TreeSelectionListener,
 		PropertyChangeListener,UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
@@ -73,72 +66,58 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 	public static final int FUNCTION_DUPLICATE = 2;
 
 	public IndexButtonGroup function;
-	public JPanel keySelectPanel;
-	public ResourceMenu<GmObject> collisionSelect;
-	public JPanel collisionSelectPanel;
-	public JPanel emptyPanel;
 	public ResourceMenu<GmObject> linkSelect;
 	public WeakReference<GmObjectFrame> linkedFrame;
-	public JButton okButton;
 	private MListener mListener = new MListener();
 	public EventNode root;
 	public JTree events;
 	public EventNode selectedNode;
-	public JPopupMenu eventMenu;
 	public EventNode collision;
-	protected static final ImageIcon GROUP_ICO = LGM.getIconForKey("GmTreeGraphics.GROUP"); //$NON-NLS-1$;
+	public JCheckBox stayOpen;
 
-	public EventFrame()
+	public EventPanel()
 		{
-		super(Messages.getString("EventFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
+		super();
+		GroupLayout layout = new GroupLayout(this);
+		setLayout(layout);
 
-		setSize(250,355);
-		setDefaultCloseOperation(JInternalFrame.HIDE_ON_CLOSE);
-		setFrameIcon(LGM.getIconForKey("LGM.TOGGLE_EVENT")); //$NON-NLS-1$
-		setMinimumSize(new Dimension(250,355));
-		setLayout(new BoxLayout(getContentPane(),BoxLayout.Y_AXIS));
-		JPanel side1 = new JPanel(new BorderLayout());
-		makeTree(side1);
-
-		JPanel side2Parent = new JPanel();
-		FlowLayout side2Layout = new FlowLayout(FlowLayout.LEADING);
-		side2Layout.setHgap(12);
-		JPanel side2 = new JPanel(side2Layout);
-		side2Parent.add(side2);
-		side2.setPreferredSize(new Dimension(250,50));
-		side2.setMaximumSize(new Dimension(250,50));
-		side2.setMinimumSize(new Dimension(250,50));
-
-		JPanel objectFramePanel = new JPanel(new BorderLayout(0,0));
-		side2.add(objectFramePanel);
-		JLabel windowLabel = new JLabel(Messages.getString("EventFrame.OBJECT_WINDOW"));
-		objectFramePanel.add(windowLabel,BorderLayout.CENTER); //$NON-NLS-1$
-		linkSelect = new ResourceMenu<GmObject>(GmObject.class,
-				Messages.getString("EventFrame.NO_LINK"),false,140,true,true); //$NON-NLS-1$
-		linkSelect.addActionListener(this);
-		objectFramePanel.add(linkSelect,BorderLayout.EAST);
-
-		JPanel functionPanel = new JPanel(new BorderLayout(8,0));
-		side2.add(functionPanel);
 		function = new IndexButtonGroup(3,true,false);
-		JRadioButton rad = new JRadioButton(Messages.getString("EventFrame.ADD")); //$NON-NLS-1$
-		function.add(rad);
-		functionPanel.add(rad,BorderLayout.WEST);
-		rad = new JRadioButton(Messages.getString("EventFrame.REPLACE")); //$NON-NLS-1$
-		function.add(rad);
-		functionPanel.add(rad,BorderLayout.CENTER);
-		rad = new JRadioButton(Messages.getString("EventFrame.DUPLICATE")); //$NON-NLS-1$
-		function.add(rad);
-		functionPanel.add(rad,BorderLayout.EAST);
+		JRadioButton ra = new JRadioButton(Messages.getString("EventPanel.ADD")); //$NON-NLS-1$
+		JRadioButton rr = new JRadioButton(Messages.getString("EventPanel.REPLACE")); //$NON-NLS-1$
+		JRadioButton rd = new JRadioButton(Messages.getString("EventPanel.DUPLICATE")); //$NON-NLS-1$
+		function.add(ra);
+		function.add(rr);
+		function.add(rd);
 		function.setValue(FUNCTION_ADD);
 
-		add(side2Parent);
-		add(side1);
+		JLabel windowLabel = new JLabel(Messages.getString("EventPanel.OBJECT_WINDOW"));
+		linkSelect = new ResourceMenu<GmObject>(GmObject.class,
+				Messages.getString("EventPanel.NO_LINK"),false,120,true,true); //$NON-NLS-1$
+		linkSelect.addActionListener(this);
+
+		stayOpen = new JCheckBox(Messages.getString("EventPanel.STAY_OPEN")); //$NON-NLS-1$
+
+		JScrollPane treeScroll = new JScrollPane(makeTree());
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(ra).addComponent(rr).addComponent(rd))
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(windowLabel).addComponent(linkSelect))
+		/**/.addComponent(stayOpen).addComponent(treeScroll));
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(ra).addComponent(rr).addComponent(rd))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(windowLabel).addComponent(linkSelect))
+		/**/.addComponent(stayOpen).addComponent(treeScroll));
+
 		LGM.mdi.addPropertyChangeListener(MDIPane.SELECTED_FRAME_PROPERTY,this);
 		LGM.root.updateSource.addListener(this);
 		}
 
-	private void makeTree(JPanel side1)
+	private JTree makeTree()
 		{
 		root = new EventNode("Root"); //$NON-NLS-1$
 
@@ -180,7 +159,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_ENTER);
 
 		EventNode subkey;
-		subkey = new EventNode(Messages.getString("EventFrame.KEYPAD"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.KEYPAD"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
 		keyboard.add(subkey);
 		for (int i = KeyEvent.VK_NUMPAD0; i <= KeyEvent.VK_NUMPAD9; i++)
 			subkey.add(MainEvent.EV_KEYBOARD,i);
@@ -191,22 +170,22 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_ADD);
 		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_DECIMAL);
 
-		subkey = new EventNode(Messages.getString("EventFrame.DIGITS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.DIGITS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
 		keyboard.add(subkey);
 		for (int i = KeyEvent.VK_0; i <= KeyEvent.VK_9; i++)
 			subkey.add(MainEvent.EV_KEYBOARD,i);
 
-		subkey = new EventNode(Messages.getString("EventFrame.LETTERS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.LETTERS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
 		keyboard.add(subkey);
 		for (int i = KeyEvent.VK_A; i <= KeyEvent.VK_Z; i++)
 			subkey.add(MainEvent.EV_KEYBOARD,i);
 
-		subkey = new EventNode(Messages.getString("EventFrame.FUNCTION_KEYS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.FUNCTION_KEYS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
 		keyboard.add(subkey);
 		for (int i = KeyEvent.VK_F1; i <= KeyEvent.VK_F12; i++)
 			subkey.add(MainEvent.EV_KEYBOARD,i);
 
-		subkey = new EventNode(Messages.getString("EventFrame.OTHERS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.OTHERS"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
 		keyboard.add(subkey);
 		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_BACK_SPACE);
 		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_ESCAPE);
@@ -227,17 +206,17 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 			mouse.add(MainEvent.EV_MOUSE,i);
 
 		EventNode submouse;
-		submouse = new EventNode(Messages.getString("EventFrame.GLOBAL_MOUSE"),MainEvent.EV_MOUSE,0); //$NON-NLS-1$
+		submouse = new EventNode(Messages.getString("EventPanel.GLOBAL_MOUSE"),MainEvent.EV_MOUSE,0); //$NON-NLS-1$
 		mouse.add(submouse);
 		for (int i = Event.EV_GLOBAL_LEFT_BUTTON; i <= Event.EV_GLOBAL_MIDDLE_RELEASE; i++)
 			submouse.add(MainEvent.EV_MOUSE,i);
 
-		submouse = new EventNode(Messages.getString("EventFrame.JOYSTICK_1"),MainEvent.EV_MOUSE,0); //$NON-NLS-1$
+		submouse = new EventNode(Messages.getString("EventPanel.JOYSTICK_1"),MainEvent.EV_MOUSE,0); //$NON-NLS-1$
 		mouse.add(submouse);
 		for (int i = Event.EV_JOYSTICK1_LEFT; i <= Event.EV_JOYSTICK1_BUTTON8; i++)
 			if (i != 20) submouse.add(MainEvent.EV_MOUSE,i);
 
-		submouse = new EventNode(Messages.getString("EventFrame.JOYSTICK_2"),MainEvent.EV_MOUSE,0); //$NON-NLS-1$
+		submouse = new EventNode(Messages.getString("EventPanel.JOYSTICK_2"),MainEvent.EV_MOUSE,0); //$NON-NLS-1$
 		mouse.add(submouse);
 		for (int i = Event.EV_JOYSTICK2_LEFT; i <= Event.EV_JOYSTICK2_BUTTON8; i++)
 			if (i != 35) submouse.add(MainEvent.EV_MOUSE,i);
@@ -249,7 +228,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 			other.add(MainEvent.EV_OTHER,i);
 
 		EventNode user = new EventNode(
-				Messages.getString("EventFrame.USER_DEFINED"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
+				Messages.getString("EventPanel.USER_DEFINED"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(user);
 		for (int i = 0; i <= 14; i++)
 			{
@@ -273,7 +252,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_SPACE);
 		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_ENTER);
 
-		subkey = new EventNode(Messages.getString("EventFrame.KEYPAD"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.KEYPAD"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
 		keypress.add(subkey);
 		for (int i = KeyEvent.VK_NUMPAD0; i <= KeyEvent.VK_NUMPAD9; i++)
 			subkey.add(MainEvent.EV_KEYPRESS,i);
@@ -284,22 +263,22 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_ADD);
 		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_DECIMAL);
 
-		subkey = new EventNode(Messages.getString("EventFrame.DIGITS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.DIGITS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
 		keypress.add(subkey);
 		for (int i = KeyEvent.VK_0; i <= KeyEvent.VK_9; i++)
 			subkey.add(MainEvent.EV_KEYPRESS,i);
 
-		subkey = new EventNode(Messages.getString("EventFrame.LETTERS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.LETTERS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
 		keypress.add(subkey);
 		for (int i = KeyEvent.VK_A; i <= KeyEvent.VK_Z; i++)
 			subkey.add(MainEvent.EV_KEYPRESS,i);
 
-		subkey = new EventNode(Messages.getString("EventFrame.FUNCTION_KEYS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.FUNCTION_KEYS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
 		keypress.add(subkey);
 		for (int i = KeyEvent.VK_F1; i <= KeyEvent.VK_F12; i++)
 			subkey.add(MainEvent.EV_KEYPRESS,i);
 
-		subkey = new EventNode(Messages.getString("EventFrame.OTHERS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.OTHERS"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
 		keypress.add(subkey);
 		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_BACK_SPACE);
 		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_ESCAPE);
@@ -323,7 +302,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_SPACE);
 		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_ENTER);
 
-		subkey = new EventNode(Messages.getString("EventFrame.KEYPAD"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.KEYPAD"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
 		keyrelase.add(subkey);
 		for (int i = KeyEvent.VK_NUMPAD0; i <= KeyEvent.VK_NUMPAD9; i++)
 			subkey.add(MainEvent.EV_KEYRELEASE,i);
@@ -334,22 +313,22 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_ADD);
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_DECIMAL);
 
-		subkey = new EventNode(Messages.getString("EventFrame.DIGITS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.DIGITS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
 		keyrelase.add(subkey);
 		for (int i = KeyEvent.VK_0; i <= KeyEvent.VK_9; i++)
 			subkey.add(MainEvent.EV_KEYRELEASE,i);
 
-		subkey = new EventNode(Messages.getString("EventFrame.LETTERS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.LETTERS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
 		keyrelase.add(subkey);
 		for (int i = KeyEvent.VK_A; i <= KeyEvent.VK_Z; i++)
 			subkey.add(MainEvent.EV_KEYRELEASE,i);
 
-		subkey = new EventNode(Messages.getString("EventFrame.FUNCTION_KEYS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.FUNCTION_KEYS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
 		keyrelase.add(subkey);
 		for (int i = KeyEvent.VK_F1; i <= KeyEvent.VK_F12; i++)
 			subkey.add(MainEvent.EV_KEYRELEASE,i);
 
-		subkey = new EventNode(Messages.getString("EventFrame.OTHERS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
+		subkey = new EventNode(Messages.getString("EventPanel.OTHERS"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
 		keyrelase.add(subkey);
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_BACK_SPACE);
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_ESCAPE);
@@ -369,9 +348,8 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 		events.addTreeSelectionListener(this);
 		events.setScrollsOnExpand(true);
 		events.addMouseListener(mListener);
-		JScrollPane scroll = new JScrollPane(events);
-		scroll.setMinimumSize(new Dimension(120,260));
-		side1.add(scroll,BorderLayout.CENTER);
+
+		return events;
 		}
 
 	public void populate_collision_node()
@@ -488,6 +466,7 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 					{
 					f.functionEvent(n.mainId,n.eventId,n.other,null);
 					f.toTop();
+					if (!stayOpen.isSelected()) LGM.eventSelect.setVisible(false);
 					}
 				}
 			}
@@ -505,7 +484,6 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 				GmObjectFrame f = (GmObjectFrame) node.frame;
 				linkedFrame = new WeakReference<GmObjectFrame>(f);
 				f.toTop();
-				if (isVisible()) toTop();
 				}
 			else
 				linkedFrame = null;
@@ -513,15 +491,11 @@ public class EventFrame extends MDIFrame implements ActionListener,TreeSelection
 			}
 		}
 
-	public void fireInternalFrameEvent(int id)
-		{
-		if (id == InternalFrameEvent.INTERNAL_FRAME_ICONIFIED) LGM.mdi.setLayer(getDesktopIcon(),0);
-		super.fireInternalFrameEvent(id);
-		}
-
 	public void setVisible(boolean b)
 		{
+		if (b == isVisible()) return;
 		super.setVisible(b);
+		LGM.eventButton.setSelected(b);
 		if (!b && events != null) for (int m = events.getRowCount() - 1; m >= 0; m--)
 			events.collapseRow(m);
 		}

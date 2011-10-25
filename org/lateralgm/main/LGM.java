@@ -45,6 +45,7 @@ import java.util.jar.Manifest;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
+import javax.swing.Box;
 import javax.swing.DropMode;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -56,6 +57,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
@@ -76,7 +78,7 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibManager;
-import org.lateralgm.subframes.EventFrame;
+import org.lateralgm.subframes.EventPanel;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 
@@ -139,7 +141,8 @@ public final class LGM
 	private static GameInformationFrame gameInfo;
 	public static Thread gameSettingFrameBuilder;
 	private static GameSettingFrame gameSet;
-	public static EventFrame eventSelect;
+	public static EventPanel eventSelect;
+	public static AbstractButton eventButton;
 
 	public static GameInformationFrame getGameInfo()
 		{
@@ -237,7 +240,6 @@ public final class LGM
 		for (Class<? extends Resource<?,?>> k : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(k))
 				{
-				//tool.add(makeButton("Toolbar.ADD_" + Resource.kindNames.get(k)));
 				Icon ico = ResNode.ICON.get(k);
 				if (ico == null) ico = GmTreeGraphics.getBlankIcon();
 				JButton but = new JButton(ico);
@@ -246,7 +248,8 @@ public final class LGM
 				tool.add(but);
 				}
 		tool.addSeparator();
-		tool.add(makeButton("Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
+		tool.add(Box.createHorizontalGlue()); //right align after this
+		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
 		return tool;
 		}
 
@@ -303,8 +306,8 @@ public final class LGM
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		mdi.setBackground(Color.BLACK);
-		eventSelect = new EventFrame();
-		mdi.add(eventSelect);
+		//		eventSelect = new EventPanel();
+		//		mdi.add(eventSelect);
 		return scroll;
 		}
 
@@ -378,7 +381,7 @@ public final class LGM
 
 		//This hack ensures EventSelector.linkSelect knows of the new root
 		LGM.mdi.remove(LGM.eventSelect);
-		LGM.eventSelect = new EventFrame();
+		LGM.eventSelect = new EventPanel();
 		LGM.mdi.add(LGM.eventSelect);
 
 		LGM.getGameSettings().resOriginal = LGM.currentFile.gameSettings;
@@ -396,7 +399,7 @@ public final class LGM
 		/**
 		 * Called after LGM performs a reload, e.g. when a new file is created or loaded.
 		 * A reload causes the MDI to be flushed, the tree to refresh
-		 * (especially if a new root is provided), the EventFrame is recreated
+		 * (especially if a new root is provided), the EventPanel is recreated
 		 * (a hack to ensure that the events' link selectors know of the new root),
 		 * and Game Settings and Game Info are re-calibrated with their new settings
 		 * (but not recreated). Note that the Menu bar is left untouched and remains in tact.
@@ -465,6 +468,8 @@ public final class LGM
 		frame.setTransferHandler(listener.fc.new LGMDropHandler());
 		f.add(BorderLayout.NORTH,toolbar);
 		f.add(BorderLayout.CENTER,split);
+		f.add(BorderLayout.EAST,eventSelect = new EventPanel());
+		eventSelect.setVisible(false);
 		f.setOpaque(true);
 		new FramePrefsHandler(frame);
 		SplashProgress.progress(70,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$

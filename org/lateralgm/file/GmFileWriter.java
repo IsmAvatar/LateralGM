@@ -813,28 +813,19 @@ public final class GmFileWriter
 
 			out.write4(args.size());
 			for (Argument arg : args)
-				switch (arg.kind)
-
+				{
+				Class<? extends Resource<?,?>> kind = Argument.getResourceKind(arg.kind);
+				if (kind != null && InstantiableResource.class.isAssignableFrom(kind))
 					{
-					case Argument.ARG_SPRITE:
-					case Argument.ARG_SOUND:
-					case Argument.ARG_BACKGROUND:
-					case Argument.ARG_PATH:
-					case Argument.ARG_SCRIPT:
-					case Argument.ARG_GMOBJECT:
-					case Argument.ARG_ROOM:
-					case Argument.ARG_FONT:
-					case Argument.ARG_TIMELINE:
-						Resource<?,?> r = deRef((ResourceReference<?>) arg.getRes());
-						if (r != null && r instanceof InstantiableResource<?,?>)
-							out.writeStr(Integer.toString(((InstantiableResource<?,?>) r).getId()));
-						else
-							out.writeStr("-1"); //$NON-NLS-1$
-						break;
-					default:
-						out.writeStr(arg.getVal());
-						break;
+					Resource<?,?> r = deRef((ResourceReference<?>) arg.getRes());
+					if (r != null && r instanceof InstantiableResource<?,?>)
+						out.writeStr(Integer.toString(((InstantiableResource<?,?>) r).getId()));
+					else
+						out.writeStr("-1");
 					}
+				else
+					out.writeStr(arg.getVal());
+				}
 			out.writeBool(act.isNot());
 			}
 		}
