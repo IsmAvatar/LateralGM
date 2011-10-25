@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
@@ -128,7 +129,10 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		{
 		if (sprite == null) return null;
 		int s = sprite.subImages.size();
-		return s == 0 || subIndex < 0 ? null : sprite.subImages.get(subIndex % s);
+		if (s == 0 || subIndex < 0) return null;
+		BufferedImage bi = sprite.subImages.get(subIndex % s);
+		if (!(Boolean) sprite.get(PSprite.TRANSPARENT)) return bi;
+		return Util.getTransparentIcon(bi);
 		}
 
 	public void updated(UpdateEvent e)
