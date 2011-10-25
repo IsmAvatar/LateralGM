@@ -231,7 +231,6 @@ public final class LGM
 		{
 		tool = new JToolBar();
 		tool.setFloatable(false);
-		tool.add(makeButton("Toolbar.NEW")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.OPEN")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.SAVE")); //$NON-NLS-1$
 		tool.addSeparator();

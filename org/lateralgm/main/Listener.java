@@ -188,7 +188,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		String com = args[0];
 		if (com.endsWith(".NEW")) //$NON-NLS-1$
 			{
-			fc.newFile();
+			String title = Messages.getString("Listener.CONFIRM_NEW_TITLE"); //$NON-NLS-1$
+			String message = Messages.getString("Listener.CONFIRM_NEW"); //$NON-NLS-1$
+			int opt = JOptionPane.showConfirmDialog(LGM.frame,message,title,JOptionPane.YES_NO_OPTION);
+			//I'd love to default to "No", but apparently that's not an option.
+			if (opt == JOptionPane.YES_OPTION) fc.newFile();
 			return;
 			}
 		if (com.endsWith(".OPEN")) //$NON-NLS-1$
