@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -41,17 +42,17 @@ import javax.swing.filechooser.FileView;
 import javax.swing.tree.TreeNode;
 
 import org.lateralgm.components.CustomFileChooser;
+import org.lateralgm.components.CustomFileChooser.FilterSet;
 import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
-import org.lateralgm.components.CustomFileChooser.FilterSet;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.GmFile;
+import org.lateralgm.file.GmFile.FormatFlavor;
 import org.lateralgm.file.GmFileReader;
 import org.lateralgm.file.GmFileWriter;
 import org.lateralgm.file.GmFormatException;
 import org.lateralgm.file.ResourceList;
-import org.lateralgm.file.GmFile.FormatFlavor;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
@@ -192,7 +193,7 @@ public class FileChooser
 					return null; //Or not? Let implementation handle it.
 
 				BufferedReader br = new BufferedReader(df.getReaderForText(tr));
-				List<URI> uriList = new ArrayList<URI>();
+				List<URI> uriList = new LinkedList<URI>();
 				String line;
 				while ((line = br.readLine()) != null)
 					{

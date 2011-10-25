@@ -28,7 +28,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -457,7 +459,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		subList.setVisibleRowCount(-1);
 		subList.setBackground(Color.LIGHT_GRAY);
 		subList.setDragEnabled(true);
-		subList.setDropMode(DropMode.ON_OR_INSERT);
+		subList.setDropMode(DropMode.INSERT);
 		subList.setTransferHandler(new SubImageTransfer());
 		subList.addMouseListener(this);
 		subList.setDragEnabled(true);
@@ -470,7 +472,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		{
 		private static final long serialVersionUID = 1L;
 		private final DataFlavor flavors[] = { DataFlavor.imageFlavor };
-		int index;
 		BufferedImage data;
 
 		public int getSourceActions(JComponent c)
@@ -486,13 +487,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException,IOException
 			{
 			if (flavor != DataFlavor.imageFlavor) throw new UnsupportedFlavorException(flavor);
-			return data;
+			return Util.cloneImage(data);
 			}
 
 		public Transferable createTransferable(JComponent c)
 			{
 			JList l = ((JList) c);
-			index = l.getSelectedIndex();
+			int index = l.getSelectedIndex();
 			if (index == -1) return null;
 			data = res.subImages.get(index);
 			return this;
@@ -500,7 +501,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		public void exportDone(JComponent c, Transferable t, int action)
 			{
-			if (action == MOVE) res.subImages.remove(index);
+			if (action == MOVE) res.subImages.remove(data);
 			}
 
 		public boolean isDataFlavorSupported(DataFlavor df)
@@ -511,7 +512,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		public boolean importData(TransferHandler.TransferSupport evt)
 			{
-			BufferedImage bi[] = null;
+			List<BufferedImage> bi = new LinkedList<BufferedImage>();
 
 			try
 				{
@@ -519,23 +520,25 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 					{
 					BufferedImage b = (BufferedImage) evt.getTransferable().getTransferData(
 							DataFlavor.imageFlavor);
-					if (b != null) bi = new BufferedImage[] { b };
+					if (b != null) bi.add(b);
 					//otherwise, we'll see if there's a list flavor
 					//(Yeah right, as if anybody else uses imageFlavor)
 					}
 
-				if (bi == null)
+				if (bi.isEmpty())
 					{
 					List<?> files = getDropList(evt);
 					if (files == null || files.isEmpty()) return false;
-					if (files.size() != 1) return false; //handle multiple files down the road
-					Object o = files.get(0);
-
-					ImageInputStream iis = null;
-					if (o instanceof File) iis = ImageIO.createImageInputStream(o);
-					if (o instanceof URI)
-						iis = ImageIO.createImageInputStream(((URI) o).toURL().openStream());
-					bi = Util.getValidImages(iis);
+					for (Object o : files)
+						{
+						ImageInputStream iis = null;
+						if (o instanceof File) iis = ImageIO.createImageInputStream(o);
+						if (o instanceof URI)
+							iis = ImageIO.createImageInputStream(((URI) o).toURL().openStream());
+						BufferedImage bia[] = Util.getValidImages(iis);
+						if (files.size() != 1 && bia.length > 1) return false;
+						Collections.addAll(bi,bia);
+						}
 					}
 				}
 			catch (Exception e)
@@ -544,7 +547,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				e.printStackTrace();
 				}
 
-			if (bi == null) return false;
+			if (bi.isEmpty()) return false;
 
 			int index = -1;
 			if (evt.isDrop())
@@ -552,13 +555,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				JList.DropLocation loc = (JList.DropLocation) evt.getDropLocation();
 				index = loc.getIndex();
 				if (!loc.isInsert()) res.subImages.remove(index);
+				System.out.println(loc.isInsert());
 				}
 			if (index < 0) index = res.subImages.size();
 
 			for (BufferedImage b : bi)
 				res.subImages.add(index++,b);
 			return true;
-
 			}
 		}
 
