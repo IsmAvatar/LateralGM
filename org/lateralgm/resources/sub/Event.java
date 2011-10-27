@@ -13,9 +13,9 @@ package org.lateralgm.resources.sub;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
@@ -128,7 +128,8 @@ public class Event extends ActionContainer implements Comparable<Event>
 	public ResourceReference<GmObject> other = null; // For collision Events
 	public int mainId = 0;
 
-	public static final List<Integer> KEYS;
+	/** Left index shall be Java Key, right index shall be GM Key. */
+	public static final Map<Integer,Integer> KEYS;
 
 	public Event()
 		{
@@ -206,7 +207,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 		return KeyEvent.getKeyText(keyCode);
 		}
 
-	public static int getGmKeyCode(int keyCode)
+/*	public static int getGmKeyCode(int keyCode)
 		{
 		switch (keyCode)
 			{
@@ -219,7 +220,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 			default:
 				return keyCode;
 			}
-		}
+		}*/
 
 	public static String eventName(int mainId, int eventId)
 		{
@@ -278,98 +279,73 @@ public class Event extends ActionContainer implements Comparable<Event>
 
 	static
 		{
-		List<Integer> keys = new ArrayList<Integer>();
+		Map<Integer,Integer> keys = new HashMap<Integer,Integer>();
 
-		keys.add(37); //vk_left
-		keys.add(39); //vk_right
-		keys.add(38); //vk_up
-		keys.add(40); //vk_down
+		keys.put(KeyEvent.VK_LEFT,37);
+		keys.put(KeyEvent.VK_RIGHT,39);
+		keys.put(KeyEvent.VK_UP,38);
+		keys.put(KeyEvent.VK_DOWN,40);
 
-		keys.add(17); //vk_control
-		keys.add(18); //vk_alt
-		keys.add(16); //vk_shift
-		keys.add(32); //vk_space
-		keys.add(13); //vk_enter
+		keys.put(KeyEvent.VK_CONTROL,17); //vk_control
+		keys.put(KeyEvent.VK_ALT,18); //vk_alt
+		keys.put(KeyEvent.VK_SHIFT,16); //vk_shift
+		keys.put(KeyEvent.VK_SPACE,32); //vk_space
+		keys.put(KeyEvent.VK_ENTER,13); //vk_enter
 
-		keys.add(96); //vk_numpad0
-		keys.add(97); //vk_numpad1
-		keys.add(98); //vk_numpad2
-		keys.add(99); //vk_numpad3
-		keys.add(100); //vk_numpad4
-		keys.add(101); //vk_numpad5
-		keys.add(102); //vk_numpad6
-		keys.add(103); //vk_numpad7
-		keys.add(104); //vk_numpad8
-		keys.add(105); //vk_numpad9
+		//Numpad happens to map 1:1 (96..105)
+		for (int c = KeyEvent.VK_NUMPAD0; c <= KeyEvent.VK_NUMPAD9; c++)
+			keys.put(c,c);
+		/*		keys.put(KeyEvent.VK_NUMPAD0,96); //vk_numpad0
+				keys.put(KeyEvent.VK_97); //vk_numpad1
+				keys.put(KeyEvent.VK_98); //vk_numpad2
+				keys.put(KeyEvent.VK_99); //vk_numpad3
+				keys.put(KeyEvent.VK_100); //vk_numpad4
+				keys.put(KeyEvent.VK_101); //vk_numpad5
+				keys.put(KeyEvent.VK_102); //vk_numpad6
+				keys.put(KeyEvent.VK_103); //vk_numpad7
+				keys.put(KeyEvent.VK_104); //vk_numpad8
+				keys.put(KeyEvent.VK_105); //vk_numpad9
+		*/
+		keys.put(KeyEvent.VK_DIVIDE,111); //vk_divide
+		keys.put(KeyEvent.VK_MULTIPLY,106); //vk_multiply
+		keys.put(KeyEvent.VK_SUBTRACT,109); //vk_subtract
+		keys.put(KeyEvent.VK_ADD,107); //vk_add		
+		keys.put(KeyEvent.VK_DECIMAL,110); //vk_decimal
 
-		keys.add(111); //vk_divide
-		keys.add(106); //vk_multiply
-		keys.add(109); //vk_subtract
-		keys.add(107); //vk_add		
-		keys.add(110); //vk_decimal
+		//VK_0-9 and VK_A-Z are the same as ASCII
+		for (int c = '0'; c <= '9'; c++)
+			keys.put(c,c);
 
-		keys.add(48); //0
-		keys.add(49); //1
-		keys.add(50); //2
-		keys.add(51); //3
-		keys.add(52); //4
-		keys.add(53); //5
-		keys.add(54); //6
-		keys.add(55); //7
-		keys.add(56); //8
-		keys.add(57); //9
+		for (int c = 'A'; c <= 'Z'; c++)
+			keys.put(c,c);
 
-		keys.add(65); //A
-		keys.add(66); //B
-		keys.add(67); //C
-		keys.add(68); //D
-		keys.add(69); //E
-		keys.add(70); //F
-		keys.add(71); //G
-		keys.add(72); //H
-		keys.add(73); //I
-		keys.add(74); //J
-		keys.add(75); //K
-		keys.add(76); //L
-		keys.add(77); //M
-		keys.add(78); //N
-		keys.add(79); //O
-		keys.add(80); //P
-		keys.add(81); //Q
-		keys.add(82); //R
-		keys.add(83); //S
-		keys.add(84); //T
-		keys.add(85); //U
-		keys.add(86); //V
-		keys.add(87); //W
-		keys.add(88); //X
-		keys.add(89); //Y
-		keys.add(90); //Z
+		//F1-12 happen to map 1:1 (112..123)
+		for (int c = KeyEvent.VK_F1; c <= KeyEvent.VK_F12; c++)
+			keys.put(c,c);
+		/*		keys.put(KeyEvent.VK_F1,112); //vk_f1
+				keys.put(KeyEvent.VK_113); //vk_f2
+				keys.put(KeyEvent.VK_114); //vk_f3
+				keys.put(KeyEvent.VK_115); //vk_f4
+				keys.put(KeyEvent.VK_116); //vk_f5
+				keys.put(KeyEvent.VK_117); //vk_f6
+				keys.put(KeyEvent.VK_118); //vk_f7
+				keys.put(KeyEvent.VK_119); //vk_f8
+				keys.put(KeyEvent.VK_120); //vk_f9
+				keys.put(KeyEvent.VK_121); //vk_f10
+				keys.put(KeyEvent.VK_122); //vk_f11
+				keys.put(KeyEvent.VK_123); //vk_f12
+		*/
+		keys.put(KeyEvent.VK_BACK_SPACE,8); //vk_backspace
+		keys.put(KeyEvent.VK_ESCAPE,27); //vk_escape
+		keys.put(KeyEvent.VK_HOME,36); //vk_home
+		keys.put(KeyEvent.VK_END,35); //vk_end
+		keys.put(KeyEvent.VK_PAGE_UP,33); //vk_pageup
+		keys.put(KeyEvent.VK_PAGE_DOWN,34); //vk_pagedown	
+		keys.put(KeyEvent.VK_DELETE,46); //vk_delete
+		keys.put(KeyEvent.VK_INSERT,45); //vk_insert
 
-		keys.add(112); //vk_f1
-		keys.add(113); //vk_f2
-		keys.add(114); //vk_f3
-		keys.add(115); //vk_f4
-		keys.add(116); //vk_f5
-		keys.add(117); //vk_f6
-		keys.add(118); //vk_f7
-		keys.add(119); //vk_f8
-		keys.add(120); //vk_f9
-		keys.add(121); //vk_f10
-		keys.add(122); //vk_f11
-		keys.add(123); //vk_f12
-
-		keys.add(8); //vk_backspace
-		keys.add(27); //vk_escape
-		keys.add(36); //vk_home
-		keys.add(35); //vk_end
-		keys.add(33); //vk_pageup
-		keys.add(34); //vk_pagedown	
-		keys.add(46); //vk_delete
-		keys.add(45); //vk_insert
-
-		keys.add(0); //vk_nokey
-		keys.add(1); //vk_anykey
-		KEYS = Collections.unmodifiableList((keys));
+		keys.put(0,0); //vk_nokey
+		keys.put(1,1); //vk_anykey
+		KEYS = Collections.unmodifiableMap((keys));
 		}
 	}

@@ -133,7 +133,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			pos = parent.getChildCount();
 			}
 
-		Resource<?,?> resource = res == null ? LGM.currentFile.getList(parent.kind).add() : res;
+		Resource<?,?> resource = res == null ? LGM.currentFile.resMap.get(parent.kind).getResource()
+				: res;
 		ResNode g = new ResNode(resource.getName(),ResNode.STATUS_SECONDARY,parent.kind,
 				resource.reference);
 		parent.insert(g,pos);
@@ -146,8 +147,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	protected static void deleteSelectedResource(JTree tree)
 		{
 		ResNode me = (ResNode) tree.getLastSelectedPathComponent();
-		if (me == null) return;
-		if (me.status == ResNode.STATUS_PRIMARY) return;
+		if (me == null || !me.isInstantiable() || me.status == ResNode.STATUS_PRIMARY) return;
 		String msg = Messages.getString("Listener.CONFIRM_DELETERESOURCE"); //$NON-NLS-1$
 		if (JOptionPane.showConfirmDialog(null,msg,
 				Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"), //$NON-NLS-1$
@@ -169,7 +169,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					{
 					Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
 					if (res != null) rs.add(res);
-					LGM.currentFile.getList(node.kind).remove(res);
+					((ResourceList<?>) LGM.currentFile.resMap.get(node.kind)).remove(res);
 					}
 				}
 			for (Resource<?,?> r : rs)
@@ -374,7 +374,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			if (com.equals("DUPLICATE")) //$NON-NLS-1$
 				{
-				ResourceList<?> rl = LGM.currentFile.getList(node.kind);
+				ResourceList<?> rl = (ResourceList<?>) LGM.currentFile.resMap.get(node.kind);
 				if (node.frame != null) node.frame.commitChanges();
 				Resource<?,?> resource = rl.duplicate(node.getRes().get());
 				Listener.addResource(tree,node.kind,resource);

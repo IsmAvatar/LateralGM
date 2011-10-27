@@ -12,6 +12,7 @@ package org.lateralgm.subframes;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,13 +29,14 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.plaf.basic.BasicToolBarUI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
@@ -56,7 +58,7 @@ import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
 import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
-public class EventPanel extends JPanel implements ActionListener,TreeSelectionListener,
+public class EventPanel extends JToolBar implements ActionListener,TreeSelectionListener,
 		PropertyChangeListener,UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
@@ -77,7 +79,7 @@ public class EventPanel extends JPanel implements ActionListener,TreeSelectionLi
 
 	public EventPanel()
 		{
-		super();
+		super(VERTICAL);
 		GroupLayout layout = new GroupLayout(this);
 		setLayout(layout);
 
@@ -466,7 +468,7 @@ public class EventPanel extends JPanel implements ActionListener,TreeSelectionLi
 					{
 					f.functionEvent(n.mainId,n.eventId,n.other,null);
 					f.toTop();
-					if (!stayOpen.isSelected()) LGM.eventSelect.setVisible(false);
+					if (!stayOpen.isSelected() ^ e.isControlDown()) LGM.eventSelect.setVisible(false);
 					}
 				}
 			}
@@ -494,10 +496,17 @@ public class EventPanel extends JPanel implements ActionListener,TreeSelectionLi
 	public void setVisible(boolean b)
 		{
 		if (b == isVisible()) return;
+		//workaround for java bug 4782243
+		Container c = this, p = c.getParent();
+		while (p != null && p != LGM.frame && p != LGM.frame.getContentPane())
+			{
+			c = p;
+			p = c.getParent();
+			}
+		if (c != this) c.setVisible(b);
+		((BasicToolBarUI) getUI()).isFloating();
 		super.setVisible(b);
 		LGM.eventButton.setSelected(b);
-		if (!b && events != null) for (int m = events.getRowCount() - 1; m >= 0; m--)
-			events.collapseRow(m);
 		}
 
 	public void valueChanged(TreeSelectionEvent e)

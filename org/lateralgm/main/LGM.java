@@ -378,11 +378,6 @@ public final class LGM
 		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
 		LGM.tree.setSelectionRow(0);
 
-		//This hack ensures EventSelector.linkSelect knows of the new root
-		LGM.mdi.remove(LGM.eventSelect);
-		LGM.eventSelect = new EventPanel();
-		LGM.mdi.add(LGM.eventSelect);
-
 		LGM.getGameSettings().resOriginal = LGM.currentFile.gameSettings;
 		LGM.getGameSettings().revertResource();
 		LGM.getGameSettings().setVisible(false);

@@ -49,7 +49,7 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 		this.mainId = mainId;
 		this.eventId = eventId;
 		}
-	
+
 	public EventNode(int mainId, ResourceReference<GmObject> other)
 		{
 		Resource<GmObject,?> r = deRef(other);
@@ -67,7 +67,7 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 		{
 		add(new EventNode(mainId,other));
 		}
-	
+
 	public void add(int mainId)
 		{
 		add(new EventNode(Messages.getString("MainEvent.EVENT" + mainId),mainId,0)); //$NON-NLS-1$
@@ -80,7 +80,7 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 			case MainEvent.EV_KEYBOARD:
 			case MainEvent.EV_KEYPRESS:
 			case MainEvent.EV_KEYRELEASE:
-				return Event.KEYS.contains(eventId);
+				return Event.KEYS.containsKey(eventId);
 			case MainEvent.EV_COLLISION:
 				return other != null;
 			default:

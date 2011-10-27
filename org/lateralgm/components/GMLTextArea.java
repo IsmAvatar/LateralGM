@@ -13,26 +13,32 @@ import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.text.PlainDocument;
 
 import org.lateralgm.components.impl.DocumentUndoManager;
+import org.lateralgm.file.GmFile.ResourceHolder;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.jedit.CompletionMenu;
+import org.lateralgm.jedit.CompletionMenu.Completion;
 import org.lateralgm.jedit.DefaultInputHandler;
 import org.lateralgm.jedit.GMLKeywords;
 import org.lateralgm.jedit.GMLTokenMarker;
@@ -41,30 +47,18 @@ import org.lateralgm.jedit.JEditTextArea;
 import org.lateralgm.jedit.KeywordMap;
 import org.lateralgm.jedit.SyntaxDocument;
 import org.lateralgm.jedit.Token;
-import org.lateralgm.jedit.CompletionMenu.Completion;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.Background;
-import org.lateralgm.resources.Font;
-import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Script;
-import org.lateralgm.resources.Sound;
-import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.Timeline;
 
 public class GMLTextArea extends JEditTextArea implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
-	private static final Class<?>[] KM_RESOURCES = { Background.class,Font.class,GmObject.class,
-			Path.class,Room.class,Script.class,Sound.class,Sprite.class,Timeline.class };
 	private static final GMLKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,
 			GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
 
@@ -72,7 +66,7 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 	private final DocumentUndoManager undoManager = new DocumentUndoManager();
 	protected static Timer timer;
 	protected Integer lastUpdateTaskID = 0;
-	private String[][] resourceKeywords = new String[KM_RESOURCES.length][];
+	private Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
 	protected Completion[] completions;
 
 	public GMLTextArea(String text)
@@ -205,15 +199,14 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 
 	public void updateResourceKeywords()
 		{
-		for (int j = 0; j < resourceKeywords.length; j++)
+		for (ResourceHolder<?> rh : LGM.currentFile.resMap.values())
 			{
-			ResourceList<?> rl = LGM.currentFile.getList(KM_RESOURCES[j]);
-			int l = rl.size();
-			String[] a = new String[l];
-			int i = 0;
+			if (!(rh instanceof ResourceList<?>)) continue;
+			ResourceList<?> rl = (ResourceList<?>) rh;
+			SortedSet<String> a = new TreeSet<String>();
 			for (Resource<?,?> r : rl)
-				a[i++] = r.getName();
-			resourceKeywords[j] = a;
+				a.add(r.getName());
+			resourceKeywords.add(a);
 			}
 		completions = null;
 		updateTokenMarker();
@@ -222,39 +215,25 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 	private void updateTokenMarker()
 		{
 		KeywordMap km = new KeywordMap(false);
-		for (String[] a : resourceKeywords)
-			{
+		for (Set<String> a : resourceKeywords)
 			for (String s : a)
-				{
 				if (s.length() > 0) km.add(s,Token.KEYWORD3);
-				}
-			}
 		gmlTokenMarker.setCustomKeywords(km);
 		}
 
 	protected void updateCompletions()
 		{
 		int l = 0;
-		for (String[] a : resourceKeywords)
-			{
-			l += a.length;
-			}
+		for (Set<String> a : resourceKeywords)
+			l += a.size();
 		for (GMLKeywords.Keyword[] a : GML_KEYWORDS)
-			{
 			l += a.length;
-			}
 		completions = new Completion[l];
 		int i = 0;
-		for (String[] a : resourceKeywords)
-			{
+		for (Set<String> a : resourceKeywords)
 			for (String s : a)
-				{
-				completions[i] = new CompletionMenu.WordCompletion(s);
-				i++;
-				}
-			}
+				completions[i++] = new CompletionMenu.WordCompletion(s);
 		for (GMLKeywords.Keyword[] a : GML_KEYWORDS)
-			{
 			for (GMLKeywords.Keyword k : a)
 				{
 				if (k instanceof GMLKeywords.Function)
@@ -265,7 +244,6 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 					completions[i] = new CompletionMenu.WordCompletion(k.getName());
 				i++;
 				}
-			}
 		}
 
 	public class VariableCompletion extends CompletionMenu.Completion

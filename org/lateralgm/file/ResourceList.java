@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeSet;
 
+import org.lateralgm.file.GmFile.ResourceHolder;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -25,7 +26,7 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 
 public class ResourceList<R extends InstantiableResource<R,?>> extends TreeSet<R> implements
-		UpdateListener
+		UpdateListener,ResourceHolder<R>
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -111,6 +112,11 @@ public class ResourceList<R extends InstantiableResource<R,?>> extends TreeSet<R
 			add(res);
 			}
 		return res;
+		}
+
+	public R getResource()
+		{
+		return add();
 		}
 
 	/**

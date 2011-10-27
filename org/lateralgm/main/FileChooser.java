@@ -529,8 +529,8 @@ public class FileChooser
 			TreeNode n = LGM.root.getChildAt(i);
 			if (!(n instanceof ResNode)) continue;
 			ResNode rn = (ResNode) n;
-			if (rn.status != ResNode.STATUS_PRIMARY) continue;
-			ResourceList<?> rl = LGM.currentFile.getList(rn.kind);
+			if (rn.status != ResNode.STATUS_PRIMARY || !rn.isInstantiable()) continue;
+			ResourceList<?> rl = (ResourceList<?>) LGM.currentFile.resMap.get(rn.kind);
 			for (Resource<?,?> r : rl)
 				rn.add(new ResNode(r.getName(),ResNode.STATUS_SECONDARY,r.getClass(),r.reference));
 			}

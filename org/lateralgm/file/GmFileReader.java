@@ -16,42 +16,45 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.GmFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Extensions;
 import org.lateralgm.resources.Font;
-import org.lateralgm.resources.GameInformation;
-import org.lateralgm.resources.GameSettings;
-import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Include;
-import org.lateralgm.resources.InstantiableResource;
-import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.ResourceReference;
-import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Script;
-import org.lateralgm.resources.Sound;
-import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.Timeline;
-import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Font.PFont;
+import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameInformation.PGameInformation;
+import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.IncludeFolder;
 import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GameSettings.ProgressBar;
+import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
+import org.lateralgm.resources.Include;
+import org.lateralgm.resources.InstantiableResource;
+import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
+import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
+import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Script.PScript;
+import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
+import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.BBMode;
 import org.lateralgm.resources.Sprite.PSprite;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
 import org.lateralgm.resources.library.LibManager;
@@ -59,18 +62,18 @@ import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.BackgroundDef;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.Trigger;
 import org.lateralgm.resources.sub.View;
-import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
-import org.lateralgm.resources.sub.Instance.PInstance;
-import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.PropertyMap;
 
@@ -78,6 +81,36 @@ public final class GmFileReader
 	{
 	private GmFileReader()
 		{
+		}
+
+	static Queue<PostponedRef> postpone = new LinkedList<PostponedRef>();
+
+	static interface PostponedRef
+		{
+		boolean invoke();
+		}
+
+	static class DefaultPostponedRef<K extends Enum<K>> implements PostponedRef
+		{
+		ResourceList<?> list;
+		String name;
+		PropertyMap<K> p;
+		K key;
+
+		DefaultPostponedRef(ResourceList<?> list, PropertyMap<K> p, K key, String name)
+			{
+			this.list = list;
+			this.p = p;
+			this.key = key;
+			this.name = name;
+			}
+
+		public boolean invoke()
+			{
+			Resource<?,?> temp = list.get(name);
+			if (temp != null) p.put(key,temp.reference);
+			return temp != null;
+			}
 		}
 
 	//Workaround for Parameter limit
@@ -449,11 +482,11 @@ public final class GmFileReader
 			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
-				f.sounds.lastId++;
+				f.resMap.getList(Sound.class).lastId++;
 				in.endInflate();
 				continue;
 				}
-			Sound snd = f.sounds.add();
+			Sound snd = f.resMap.getList(Sound.class).add();
 			snd.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
@@ -513,11 +546,11 @@ public final class GmFileReader
 			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
-				f.sprites.lastId++;
+				f.resMap.getList(Sprite.class).lastId++;
 				in.endInflate();
 				continue;
 				}
-			Sprite spr = f.sprites.add();
+			Sprite spr = f.resMap.getList(Sprite.class).add();
 			spr.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
@@ -590,11 +623,11 @@ public final class GmFileReader
 			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
-				f.backgrounds.lastId++;
+				f.resMap.getList(Background.class).lastId++;
 				in.endInflate();
 				continue;
 				}
-			Background back = f.backgrounds.add();
+			Background back = f.resMap.getList(Background.class).add();
 			back.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
@@ -652,11 +685,11 @@ public final class GmFileReader
 			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
-				f.paths.lastId++;
+				f.resMap.getList(Path.class).lastId++;
 				in.endInflate();
 				continue;
 				}
-			Path path = f.paths.add();
+			Path path = f.resMap.getList(Path.class).add();
 			path.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
@@ -688,11 +721,11 @@ public final class GmFileReader
 			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
-				f.scripts.lastId++;
+				f.resMap.getList(Script.class).lastId++;
 				in.endInflate();
 				continue;
 				}
-			Script scr = f.scripts.add();
+			Script scr = f.resMap.getList(Script.class).add();
 			scr.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
@@ -749,11 +782,11 @@ public final class GmFileReader
 			if (ver == 800) in.beginInflate();
 			if (!in.readBool())
 				{
-				f.fonts.lastId++;
+				f.resMap.getList(Font.class).lastId++;
 				in.endInflate();
 				continue;
 				}
-			Font font = f.fonts.add();
+			Font font = f.resMap.getList(Font.class).add();
 			font.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
@@ -790,7 +823,7 @@ public final class GmFileReader
 				}
 			ResourceReference<Timeline> r = c.timeids.get(i); //includes ID
 			Timeline time = r.get();
-			f.timelines.add(time);
+			f.resMap.getList(Timeline.class).add(time);
 			time.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
@@ -806,7 +839,7 @@ public final class GmFileReader
 				}
 			in.endInflate();
 			}
-		f.timelines.lastId = noTimelines - 1;
+		f.resMap.getList(Timeline.class).lastId = noTimelines - 1;
 		}
 
 	private static void readGmObjects(GmFileContext c) throws IOException,GmFormatException
@@ -828,18 +861,18 @@ public final class GmFileReader
 				}
 			ResourceReference<GmObject> r = c.objids.get(i); //includes ID
 			GmObject obj = r.get();
-			f.gmObjects.add(obj);
+			f.resMap.getList(GmObject.class).add(obj);
 			obj.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
 			if (ver2 != 430) throw versionError(f,"IN","OBJ",i,ver2); //$NON-NLS-1$ //$NON-NLS-2$
-			Sprite temp = f.sprites.getUnsafe(in.read4());
+			Sprite temp = f.resMap.getList(Sprite.class).getUnsafe(in.read4());
 			if (temp != null) obj.put(PGmObject.SPRITE,temp.reference);
 			in.readBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
 			obj.put(PGmObject.DEPTH,in.read4());
 			obj.put(PGmObject.PERSISTENT,in.readBool());
 			obj.put(PGmObject.PARENT,c.objids.get(in.read4()));
-			temp = f.sprites.getUnsafe(in.read4());
+			temp = f.resMap.getList(Sprite.class).getUnsafe(in.read4());
 			if (temp != null) obj.put(PGmObject.MASK,temp.reference);
 			int noEvents = in.read4() + 1;
 			for (int j = 0; j < noEvents; j++)
@@ -868,7 +901,7 @@ public final class GmFileReader
 				}
 			in.endInflate();
 			}
-		f.gmObjects.lastId = noGmObjects - 1;
+		f.resMap.getList(GmObject.class).lastId = noGmObjects - 1;
 		}
 
 	private static void readRooms(GmFileContext c) throws IOException,GmFormatException
@@ -890,7 +923,7 @@ public final class GmFileReader
 				}
 			ResourceReference<Room> r = c.rmids.get(i); //includes ID
 			Room rm = r.get();
-			f.rooms.add(rm);
+			f.resMap.getList(Room.class).add(rm);
 			rm.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			int ver2 = in.read4();
@@ -908,7 +941,7 @@ public final class GmFileReader
 				{
 				BackgroundDef bk = rm.backgroundDefs.get(j);
 				in.readBool(bk.properties,PBackgroundDef.VISIBLE,PBackgroundDef.FOREGROUND);
-				Background temp = f.backgrounds.getUnsafe(in.read4());
+				Background temp = f.resMap.getList(Background.class).getUnsafe(in.read4());
 				if (temp != null) bk.properties.put(PBackgroundDef.BACKGROUND,temp.reference);
 				in.read4(bk.properties,PBackgroundDef.X,PBackgroundDef.Y);
 				in.readBool(bk.properties,PBackgroundDef.TILE_HORIZ,PBackgroundDef.TILE_VERT);
@@ -926,7 +959,7 @@ public final class GmFileReader
 						PView.PORT_Y);
 				if (ver2 > 520) in.read4(vw.properties,PView.PORT_W,PView.PORT_H);
 				in.read4(vw.properties,PView.BORDER_H,PView.BORDER_V,PView.SPEED_H,PView.SPEED_V);
-				GmObject temp = f.gmObjects.getUnsafe(in.read4());
+				GmObject temp = f.resMap.getList(GmObject.class).getUnsafe(in.read4());
 				if (temp != null) vw.properties.put(PView.OBJECT,temp.reference);
 				}
 			int noinstances = in.read4();
@@ -934,7 +967,7 @@ public final class GmFileReader
 				{
 				Instance inst = rm.addInstance();
 				inst.setPosition(new Point(in.read4(),in.read4()));
-				GmObject temp = f.gmObjects.getUnsafe(in.read4());
+				GmObject temp = f.resMap.getList(GmObject.class).getUnsafe(in.read4());
 				if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
 				inst.properties.put(PInstance.ID,in.read4());
 				inst.setCreationCode(in.readStr());
@@ -945,7 +978,7 @@ public final class GmFileReader
 				{
 				Tile t = new Tile(rm);
 				t.setRoomPosition(new Point(in.read4(),in.read4()));
-				Background temp = f.backgrounds.getUnsafe(in.read4());
+				Background temp = f.resMap.getList(Background.class).getUnsafe(in.read4());
 				ResourceReference<Background> bkg = null;
 				if (temp != null) bkg = temp.reference;
 				t.properties.put(PTile.BACKGROUND,bkg);
@@ -965,7 +998,7 @@ public final class GmFileReader
 			in.read4(rm.properties,PRoom.CURRENT_TAB,PRoom.SCROLL_BAR_X,PRoom.SCROLL_BAR_Y);
 			in.endInflate();
 			}
-		f.rooms.lastId = noRooms - 1;
+		f.resMap.getList(Room.class).lastId = noRooms - 1;
 		}
 
 	private static void readIncludedFiles(GmFileContext c) throws IOException,GmFormatException
@@ -1074,7 +1107,7 @@ public final class GmFileReader
 						: InstantiableResource.class.isAssignableFrom(type));
 			else
 				hasRef = false;
-			ResourceList<?> rl = hasRef ? f.getList(type) : null;
+			ResourceList<?> rl = hasRef ? (ResourceList<?>) f.resMap.get(type) : null;
 			ResNode node = new ResNode(name,status,type,hasRef ? rl.getUnsafe(ind).reference : null);
 			if (ver == 500 && status == ResNode.STATUS_PRIMARY && type == Font.class)
 				path.peek().addChild(Messages.getString("LGM.FNT"),status,type); //$NON-NLS-1$
@@ -1100,7 +1133,7 @@ public final class GmFileReader
 	private static void readActions(GmFileContext c, ActionContainer container, String errorKey,
 			int format1, int format2) throws IOException,GmFormatException
 		{
-		GmFile f = c.f;
+		final GmFile f = c.f;
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
@@ -1182,32 +1215,59 @@ public final class GmFileReader
 				args[l] = new Argument(argkinds[l]);
 
 				String strval = in.readStr();
-				Resource<?,?> res = null;
-				switch (argkinds[l])
+				args[l].setVal(strval);
+
+				Class<? extends Resource<?,?>> kind = Argument.getResourceKind(argkinds[l]);
+				if (kind != null && Resource.class.isAssignableFrom(kind)) try
 					{
-					case Argument.ARG_SPRITE:
-					case Argument.ARG_SOUND:
-					case Argument.ARG_BACKGROUND:
-					case Argument.ARG_PATH:
-					case Argument.ARG_SCRIPT:
-					case Argument.ARG_FONT:
-						res = f.getList(Argument.getResourceKind(argkinds[l])).getUnsafe(
-								Integer.parseInt(strval));
-						break;
-					case Argument.ARG_GMOBJECT:
-						args[l].setRes(c.objids.get(Integer.parseInt(strval)));
-						break;
-					case Argument.ARG_ROOM:
-						args[l].setRes(c.rmids.get(Integer.parseInt(strval)));
-						break;
-					case Argument.ARG_TIMELINE:
-						args[l].setRes(c.timeids.get(Integer.parseInt(strval)));
-						break;
-					default:
-						args[l].setVal(strval);
-						break;
+					final int id = Integer.parseInt(strval);
+					final Argument arg = args[l];
+					PostponedRef pr = new PostponedRef()
+						{
+							public boolean invoke()
+								{
+								ResourceHolder<?> rh = f.resMap.get(Argument.getResourceKind(arg.kind));
+								Resource<?,?> temp = null;
+								if (rh instanceof ResourceList<?>)
+									temp = ((ResourceList<?>) rh).getUnsafe(id);
+								else
+									temp = rh.getResource();
+								if (temp != null) arg.setRes(temp.reference);
+								return temp != null;
+								}
+						};
+					if (!pr.invoke()) postpone.add(pr);
 					}
-				if (res != null) args[l].setRes(res.reference);
+				catch (NumberFormatException e)
+					{
+					//Trying to ref a resource without a valid id number?
+					//Fallback to strval (already set)
+					}
+
+				/*				switch (argkinds[l])
+									{
+									case Argument.ARG_SPRITE:
+									case Argument.ARG_SOUND:
+									case Argument.ARG_BACKGROUND:
+									case Argument.ARG_PATH:
+									case Argument.ARG_SCRIPT:
+									case Argument.ARG_FONT:
+										res = ((ResourceList<?>) f.resMap.get(Argument.getResourceKind(argkinds[l]))).getUnsafe(Integer.parseInt(strval));
+										break;
+									case Argument.ARG_GMOBJECT:
+										args[l].setRes(c.objids.get(Integer.parseInt(strval)));
+										break;
+									case Argument.ARG_ROOM:
+										args[l].setRes(c.rmids.get(Integer.parseInt(strval)));
+										break;
+									case Argument.ARG_TIMELINE:
+										args[l].setRes(c.timeids.get(Integer.parseInt(strval)));
+										break;
+									default:
+										args[l].setVal(strval);
+										break;
+									}
+								if (res != null) args[l].setRes(res.reference);*/
 				act.setArguments(args);
 				}
 			act.setNot(in.readBool());

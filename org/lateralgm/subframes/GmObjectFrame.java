@@ -655,7 +655,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (e.getSource() == newSprite)
 			{
 			ResNode n = Listener.getPrimaryParent(Sprite.class);
-			Sprite spr = LGM.currentFile.sprites.add();
+			Sprite spr = LGM.currentFile.resMap.getList(Sprite.class).add();
 			Listener.putNode(LGM.tree,n,n,Sprite.class,n.getChildCount(),spr);
 			res.put(PGmObject.SPRITE,spr.reference);
 			return;

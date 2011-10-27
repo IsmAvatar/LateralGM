@@ -293,11 +293,11 @@ public final class GmFileWriter
 		{
 		ver = ver >= 800 ? 800 : ver >= 600 ? 600 : 440;
 		out.write4(ver == 800 ? 800 : 400);
-		out.write4(f.sounds.lastId + 1);
-		for (int i = 0; i <= f.sounds.lastId; i++)
+		out.write4(f.resMap.getList(Sound.class).lastId + 1);
+		for (int i = 0; i <= f.resMap.getList(Sound.class).lastId; i++)
 			{
 			if (ver == 800) out.beginDeflate();
-			Sound snd = f.sounds.getUnsafe(i);
+			Sound snd = f.resMap.getList(Sound.class).getUnsafe(i);
 			out.writeBool(snd != null);
 			if (snd != null)
 				{
@@ -338,11 +338,11 @@ public final class GmFileWriter
 		{
 		ver = ver >= 800 ? 800 : ver >= 542 ? 542 : 400;
 		out.write4(ver == 800 ? 800 : 400);
-		out.write4(f.sprites.lastId + 1);
-		for (int i = 0; i <= f.sprites.lastId; i++)
+		out.write4(f.resMap.getList(Sprite.class).lastId + 1);
+		for (int i = 0; i <= f.resMap.getList(Sprite.class).lastId; i++)
 			{
 			if (ver == 800) out.beginDeflate();
-			Sprite spr = f.sprites.getUnsafe(i);
+			Sprite spr = f.resMap.getList(Sprite.class).getUnsafe(i);
 			out.writeBool(spr != null);
 			if (spr != null)
 				{
@@ -397,11 +397,11 @@ public final class GmFileWriter
 		{
 		ver = ver >= 710 ? 710 : ver >= 543 ? 543 : 400;
 		out.write4(ver == 710 ? 800 : 400);
-		out.write4(f.backgrounds.lastId + 1);
-		for (int i = 0; i <= f.backgrounds.lastId; i++)
+		out.write4(f.resMap.getList(Background.class).lastId + 1);
+		for (int i = 0; i <= f.resMap.getList(Background.class).lastId; i++)
 			{
 			if (ver == 710) out.beginDeflate();
-			Background back = f.backgrounds.getUnsafe(i);
+			Background back = f.resMap.getList(Background.class).getUnsafe(i);
 			out.writeBool(back != null);
 			if (back != null)
 				{
@@ -449,11 +449,11 @@ public final class GmFileWriter
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 420);
-		out.write4(f.paths.lastId + 1);
-		for (int i = 0; i <= f.paths.lastId; i++)
+		out.write4(f.resMap.getList(Path.class).lastId + 1);
+		for (int i = 0; i <= f.resMap.getList(Path.class).lastId; i++)
 			{
 			if (ver == 800) out.beginDeflate();
-			Path path = f.paths.getUnsafe(i);
+			Path path = f.resMap.getList(Path.class).getUnsafe(i);
 			out.writeBool(path != null);
 			if (path != null)
 				{
@@ -480,11 +480,11 @@ public final class GmFileWriter
 		{
 		ver = ver >= 800 ? 800 : 400;
 		out.write4(ver);
-		out.write4(f.scripts.lastId + 1);
-		for (int i = 0; i <= f.scripts.lastId; i++)
+		out.write4(f.resMap.getList(Script.class).lastId + 1);
+		for (int i = 0; i <= f.resMap.getList(Script.class).lastId; i++)
 			{
 			if (ver == 800) out.beginDeflate();
-			Script scr = f.scripts.getUnsafe(i);
+			Script scr = f.resMap.getList(Script.class).getUnsafe(i);
 			out.writeBool(scr != null);
 			if (scr != null)
 				{
@@ -500,11 +500,11 @@ public final class GmFileWriter
 	public static void writeFonts(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		out.write4(ver >= 800 ? 800 : 540);
-		out.write4(f.fonts.lastId + 1);
-		for (int i = 0; i <= f.fonts.lastId; i++)
+		out.write4(f.resMap.getList(Font.class).lastId + 1);
+		for (int i = 0; i <= f.resMap.getList(Font.class).lastId; i++)
 			{
 			if (ver >= 800) out.beginDeflate();
-			Font font = f.fonts.getUnsafe(i);
+			Font font = f.resMap.getList(Font.class).getUnsafe(i);
 			out.writeBool(font != null);
 			if (font != null)
 				{
@@ -532,11 +532,11 @@ public final class GmFileWriter
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 500);
-		out.write4(f.timelines.lastId + 1);
-		for (int i = 0; i <= f.timelines.lastId; i++)
+		out.write4(f.resMap.getList(Timeline.class).lastId + 1);
+		for (int i = 0; i <= f.resMap.getList(Timeline.class).lastId; i++)
 			{
 			if (ver == 800) out.beginDeflate();
-			Timeline time = f.timelines.getUnsafe(i);
+			Timeline time = f.resMap.getList(Timeline.class).getUnsafe(i);
 			out.writeBool(time != null);
 			if (time != null)
 				{
@@ -558,11 +558,11 @@ public final class GmFileWriter
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 400);
-		out.write4(f.gmObjects.lastId + 1);
-		for (int i = 0; i <= f.gmObjects.lastId; i++)
+		out.write4(f.resMap.getList(GmObject.class).lastId + 1);
+		for (int i = 0; i <= f.resMap.getList(GmObject.class).lastId; i++)
 			{
 			if (ver == 800) out.beginDeflate();
-			GmObject obj = f.gmObjects.getUnsafe(i);
+			GmObject obj = f.resMap.getList(GmObject.class).getUnsafe(i);
 			out.writeBool(obj != null);
 			if (obj != null)
 				{
@@ -599,11 +599,11 @@ public final class GmFileWriter
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 420);
-		out.write4(f.rooms.lastId + 1);
-		for (int i = 0; i <= f.rooms.lastId; i++)
+		out.write4(f.resMap.getList(Room.class).lastId + 1);
+		for (int i = 0; i <= f.resMap.getList(Room.class).lastId; i++)
 			{
 			if (ver == 800) out.beginDeflate();
-			Room rm = f.rooms.getUnsafe(i);
+			Room rm = f.resMap.getList(Room.class).getUnsafe(i);
 			out.writeBool(rm != null);
 			if (rm != null)
 				{

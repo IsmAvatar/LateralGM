@@ -48,14 +48,6 @@ import org.lateralgm.resources.Extensions;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
-import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.Include;
-import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Script;
-import org.lateralgm.resources.Sound;
-import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.GameSettings.ColorDepth;
 import org.lateralgm.resources.GameSettings.Frequency;
 import org.lateralgm.resources.GameSettings.IncludeFolder;
@@ -63,16 +55,26 @@ import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GameSettings.Priority;
 import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
+import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Include;
+import org.lateralgm.resources.InstantiableResource;
+import org.lateralgm.resources.Path;
+import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sound.SoundKind;
+import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.BBMode;
 import org.lateralgm.resources.Sprite.MaskShape;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Instance;
-import org.lateralgm.resources.sub.Tile;
-import org.lateralgm.resources.sub.Trigger;
 import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.resources.sub.Trigger;
 
 public class GmFile implements UpdateListener
 	{
@@ -176,17 +178,65 @@ public class GmFile implements UpdateListener
 	public FormatFlavor format;
 	public URI uri;
 
-	private final Map<Class<?>,ResourceList<?>> resMap;
-	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class);
-	public final ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class);
-	public final ResourceList<Background> backgrounds = new ResourceList<Background>(//force newline
-			Background.class);
-	public final ResourceList<Path> paths = new ResourceList<Path>(Path.class);
-	public final ResourceList<Script> scripts = new ResourceList<Script>(Script.class);
-	public final ResourceList<Font> fonts = new ResourceList<Font>(Font.class);
-	public final ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class);
-	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class);
-	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class);
+	public static interface ResourceHolder<T extends Resource<T,?>>
+		{
+		T getResource();
+		}
+
+	public static class SingletonResourceHolder<T extends Resource<T,?>> implements ResourceHolder<T>
+		{
+		T r;
+
+		public SingletonResourceHolder(T r)
+			{
+			this.r = r;
+			}
+
+		public T getResource()
+			{
+			return r;
+			}
+		}
+
+	@SuppressWarnings("unchecked")
+	public class ResourceMap extends HashMap<Class<?>,ResourceHolder<?>>
+		{
+		private static final long serialVersionUID = 1L;
+
+		public <R extends Resource<R,?>>ResourceHolder<R> put(Class<R> key, ResourceHolder<R> value)
+			{
+			return (ResourceHolder<R>) super.put(key,value);
+			}
+
+		public <R extends Resource<R,?>>ResourceHolder<R> get(Class<R> key)
+			{
+			return (ResourceHolder<R>) super.get(key);
+			}
+
+		public <R extends InstantiableResource<R,?>>ResourceList<R> getList(Class<R> key)
+			{
+			return (ResourceList<R>) super.get(key);
+			}
+
+		@SuppressWarnings("rawtypes")
+		public void addList(Class<?> kind)
+			{
+			put(kind,new ResourceList(kind));
+			}
+		}
+
+	public final ResourceMap resMap;
+
+	//	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class);
+	//	public final ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class);
+	//	public final ResourceList<Background> backgrounds = new ResourceList<Background>(//force newline
+	//			Background.class);
+	//	public final ResourceList<Path> paths = new ResourceList<Path>(Path.class);
+	//	public final ResourceList<Script> scripts = new ResourceList<Script>(Script.class);
+	//	public final ResourceList<Font> fonts = new ResourceList<Font>(Font.class);
+	//	public final ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class);
+	//	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class);
+	//	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class);
 
 	public List<Trigger> triggers = new ArrayList<Trigger>();
 	public List<Constant> constants = new ArrayList<Constant>();
@@ -251,18 +301,28 @@ public class GmFile implements UpdateListener
 
 	public GmFile()
 		{
-		resMap = new HashMap<Class<?>,ResourceList<?>>();
-		resMap.put(Sprite.class,sprites);
-		resMap.put(Sound.class,sounds);
-		resMap.put(Background.class,backgrounds);
-		resMap.put(Path.class,paths);
-		resMap.put(Script.class,scripts);
-		resMap.put(Font.class,fonts);
-		resMap.put(Timeline.class,timelines);
-		resMap.put(GmObject.class,gmObjects);
-		resMap.put(Room.class,rooms);
-		for (ResourceList<?> rl : resMap.values())
-			rl.updateSource.addListener(this);
+		resMap = new ResourceMap();
+		for (Class<?> kind : Resource.kinds)
+			if (InstantiableResource.class.isAssignableFrom(kind)) resMap.addList(kind);
+
+		//			resMap.put(kind,new ResourceList(kind));
+
+		//		resMap.put(Sprite.class,new ResourceList<Sprite>(Sprite.class));
+
+		/*		resMap.put(Sprite.class,sprites);
+				resMap.put(Sound.class,sounds);
+				resMap.put(Background.class,backgrounds);
+				resMap.put(Path.class,paths);
+				resMap.put(Script.class,scripts);
+				resMap.put(Font.class,fonts);
+				resMap.put(Timeline.class,timelines);
+				resMap.put(GmObject.class,gmObjects);
+				resMap.put(Room.class,rooms);*/
+		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
+		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gameSettings));
+		for (ResourceHolder<?> rl : resMap.values())
+			if (rl instanceof ResourceList<?>) ((ResourceList<?>) rl).updateSource.addListener(this);
+
 		Random random = new Random();
 		gameSettings.put(PGameSettings.GAME_ID,random.nextInt(100000001));
 		random.nextBytes((byte[]) gameSettings.get(PGameSettings.DPLAY_GUID));
@@ -305,19 +365,27 @@ public class GmFile implements UpdateListener
 		}
 
 	// Returns the ResourceList corresponding to given Resource constant
-	public ResourceList<?> getList(Class<?> res)
-		{
-		return resMap.get(res);
-		}
+	/*	public ResourceList<?> getList(Class<?> res)
+			{
+			return (ResourceList<?>) resMap.get(res);
+			}
+
+		public ResourceHolder<?> getHolder(Class<?> res)
+			{
+			return resMap.get(res);
+			}*/
 
 	public void defragIds()
 		{
-		Iterator<ResourceList<?>> iter = resMap.values().iterator();
+		Iterator<ResourceHolder<?>> iter = resMap.values().iterator();
 		while (iter.hasNext())
-			iter.next().defragIds();
+			{
+			ResourceHolder<?> rh = iter.next();
+			if (rh instanceof ResourceList<?>) ((ResourceList<?>) rh).defragIds();
+			}
 		lastInstanceId = 100000;
 		lastTileId = 10000000;
-		for (Room r : rooms)
+		for (Room r : resMap.getList(Room.class))
 			{
 			for (Instance j : r.instances)
 				j.properties.put(PInstance.ID,++lastInstanceId);
