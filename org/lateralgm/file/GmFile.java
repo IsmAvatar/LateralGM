@@ -320,6 +320,7 @@ public class GmFile implements UpdateListener
 				resMap.put(Room.class,rooms);*/
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
 		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gameSettings));
+		resMap.put(Extensions.class,new SingletonResourceHolder<Extensions>(new Extensions()));
 		for (ResourceHolder<?> rl : resMap.values())
 			if (rl instanceof ResourceList<?>) ((ResourceList<?>) rl).updateSource.addListener(this);
 
