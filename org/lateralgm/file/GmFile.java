@@ -227,17 +227,6 @@ public class GmFile implements UpdateListener
 
 	public final ResourceMap resMap;
 
-	//	public final ResourceList<Sprite> sprites = new ResourceList<Sprite>(Sprite.class);
-	//	public final ResourceList<Sound> sounds = new ResourceList<Sound>(Sound.class);
-	//	public final ResourceList<Background> backgrounds = new ResourceList<Background>(//force newline
-	//			Background.class);
-	//	public final ResourceList<Path> paths = new ResourceList<Path>(Path.class);
-	//	public final ResourceList<Script> scripts = new ResourceList<Script>(Script.class);
-	//	public final ResourceList<Font> fonts = new ResourceList<Font>(Font.class);
-	//	public final ResourceList<Timeline> timelines = new ResourceList<Timeline>(Timeline.class);
-	//	public final ResourceList<GmObject> gmObjects = new ResourceList<GmObject>(GmObject.class);
-	//	public final ResourceList<Room> rooms = new ResourceList<Room>(Room.class);
-
 	public List<Trigger> triggers = new ArrayList<Trigger>();
 	public List<Constant> constants = new ArrayList<Constant>();
 	public List<Include> includes = new ArrayList<Include>();
@@ -305,19 +294,6 @@ public class GmFile implements UpdateListener
 		for (Class<?> kind : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(kind)) resMap.addList(kind);
 
-		//			resMap.put(kind,new ResourceList(kind));
-
-		//		resMap.put(Sprite.class,new ResourceList<Sprite>(Sprite.class));
-
-		/*		resMap.put(Sprite.class,sprites);
-				resMap.put(Sound.class,sounds);
-				resMap.put(Background.class,backgrounds);
-				resMap.put(Path.class,paths);
-				resMap.put(Script.class,scripts);
-				resMap.put(Font.class,fonts);
-				resMap.put(Timeline.class,timelines);
-				resMap.put(GmObject.class,gmObjects);
-				resMap.put(Room.class,rooms);*/
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
 		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gameSettings));
 		resMap.put(Extensions.class,new SingletonResourceHolder<Extensions>(new Extensions()));
@@ -364,17 +340,6 @@ public class GmFile implements UpdateListener
 		base.setTimeInMillis(base.getTimeInMillis() + ((long) (time * 86400000)));
 		return DateFormat.getDateTimeInstance().format(base.getTime());
 		}
-
-	// Returns the ResourceList corresponding to given Resource constant
-	/*	public ResourceList<?> getList(Class<?> res)
-			{
-			return (ResourceList<?>) resMap.get(res);
-			}
-
-		public ResourceHolder<?> getHolder(Class<?> res)
-			{
-			return resMap.get(res);
-			}*/
 
 	public void defragIds()
 		{
