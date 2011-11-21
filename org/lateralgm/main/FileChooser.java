@@ -482,6 +482,10 @@ public class FileChooser
 		open(uri,reader);
 		}
 
+	/**
+	 * Both open() methods are not headless. For a headless open:
+	 * <code>findReader(uri).read(uriStream,uri,root)</code>
+	 */
 	public void open(URI uri, FileReader reader)
 		{
 		if (uri == null) return;
@@ -515,7 +519,7 @@ public class FileChooser
 		LGM.reload(true);
 		}
 
-	private static FileReader findReader(URI uri)
+	public static FileReader findReader(URI uri)
 		{
 		for (FileReader fr : readers)
 			if (fr.canRead(uri)) return fr;
@@ -568,6 +572,10 @@ public class FileChooser
 		return save(uri,selectedWriter.getFlavor());
 		}
 
+	/**
+	 * This method is not headless. For a headless save:
+	 * <code>save(uri,findWriter(flavor))</code>
+	 */
 	public boolean save(URI uri, FormatFlavor flavor)
 		{
 		selectedWriter = findWriter(flavor);
@@ -613,6 +621,7 @@ public class FileChooser
 			}
 		}
 
+	/** This method is headless-safe. */
 	public static void save(URI uri, FileWriter writer) throws IOException
 		{
 		System.out.println(uri);
@@ -629,7 +638,7 @@ public class FileChooser
 		writer.write(uc.getOutputStream(),LGM.currentFile,LGM.root);
 		}
 
-	private FileWriter findWriter(FormatFlavor flavor)
+	public FileWriter findWriter(FormatFlavor flavor)
 		{
 		if (flavor == null)
 			{

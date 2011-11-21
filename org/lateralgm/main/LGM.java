@@ -378,6 +378,8 @@ public final class LGM
 		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
 		LGM.tree.setSelectionRow(0);
 
+		LGM.eventSelect.reload();
+
 		LGM.getGameSettings().resOriginal = LGM.currentFile.gameSettings;
 		LGM.getGameSettings().revertResource();
 		LGM.getGameSettings().setVisible(false);

@@ -115,8 +115,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		/*	*/.addComponent(windowLabel).addComponent(linkSelect))
 		/**/.addComponent(stayOpen).addComponent(treeScroll));
 
-		LGM.mdi.addPropertyChangeListener(MDIPane.SELECTED_FRAME_PROPERTY,this);
-		LGM.root.updateSource.addListener(this);
+		reload();
 		}
 
 	private JTree makeTree()
@@ -145,7 +144,6 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		//COLLISION
 		collision = new EventNode(MainEvent.EV_COLLISION);
 		root.add(collision);
-		populate_collision_node();
 
 		//KEYBOARD
 		EventNode keyboard = new EventNode(MainEvent.EV_KEYBOARD);
@@ -537,6 +535,14 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 
 	public void updated(UpdateEvent e)
 		{
+		populate_collision_node();
+		events.updateUI();
+		}
+
+	public void reload()
+		{
+		LGM.mdi.addPropertyChangeListener(MDIPane.SELECTED_FRAME_PROPERTY,this);
+		LGM.root.updateSource.addListener(this);
 		populate_collision_node();
 		events.updateUI();
 		}
