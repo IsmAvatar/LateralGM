@@ -12,7 +12,6 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
-import org.lateralgm.main.Prefs;
 import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.util.PropertyMap;
 
@@ -33,7 +32,6 @@ public class Script extends InstantiableResource<Script,Script.PScript> implemen
 	public Script(ResourceReference<Script> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Script makeInstance(ResourceReference<Script> r)

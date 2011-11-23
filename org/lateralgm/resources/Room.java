@@ -17,15 +17,14 @@ import java.util.EnumMap;
 import java.util.List;
 
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
-import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
@@ -67,7 +66,6 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 	public Room(ResourceReference<Room> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(getClass()));
 		BackgroundDef[] b = new BackgroundDef[8];
 		for (int j = 0; j < b.length; j++)
 			b[j] = new BackgroundDef();

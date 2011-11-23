@@ -14,7 +14,6 @@ import java.awt.image.BufferedImage;
 import java.lang.ref.SoftReference;
 import java.util.EnumMap;
 
-import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.util.PropertyMap;
 
@@ -41,7 +40,6 @@ public class Background extends InstantiableResource<Background,Background.PBack
 	public Background(ResourceReference<Background> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Background makeInstance(ResourceReference<Background> r)

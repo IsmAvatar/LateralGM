@@ -19,6 +19,8 @@
 
 package org.lateralgm.resources;
 
+import org.lateralgm.main.Prefs;
+
 public abstract class InstantiableResource<R extends InstantiableResource<R,P>, P extends Enum<P>>
 		extends Resource<R,P>
 	{
@@ -26,12 +28,13 @@ public abstract class InstantiableResource<R extends InstantiableResource<R,P>, 
 
 	public InstantiableResource()
 		{
-		super();
+		this(null);
 		}
 
 	public InstantiableResource(ResourceReference<R> r)
 		{
 		super(r);
+		name = Prefs.prefixes.get(getClass());
 		}
 
 	public void setId(int id)

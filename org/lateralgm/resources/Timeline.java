@@ -12,7 +12,6 @@ package org.lateralgm.resources;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.util.PropertyMap;
 
@@ -32,7 +31,6 @@ public class Timeline extends InstantiableResource<Timeline,Timeline.PTimeline>
 	public Timeline(ResourceReference<Timeline> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Timeline makeInstance(ResourceReference<Timeline> r)

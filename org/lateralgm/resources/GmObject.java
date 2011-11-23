@@ -16,10 +16,9 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 
-import org.lateralgm.main.Prefs;
-import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.util.PropertyMap;
@@ -68,7 +67,6 @@ public class GmObject extends InstantiableResource<GmObject,GmObject.PGmObject> 
 		for (int j = 0; j < 12; j++)
 			e[j] = new MainEvent();
 		mainEvents = Collections.unmodifiableList(Arrays.asList(e));
-		setName(Prefs.prefixes.get(getClass()));
 		properties.getUpdateSource(PGmObject.SPRITE).addListener(opl);
 		}
 

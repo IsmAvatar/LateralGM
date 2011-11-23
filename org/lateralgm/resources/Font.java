@@ -11,7 +11,6 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
-import org.lateralgm.main.Prefs;
 import org.lateralgm.util.PropertyMap;
 
 public class Font extends InstantiableResource<Font,Font.PFont>
@@ -32,7 +31,6 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 	public Font(ResourceReference<Font> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Font makeInstance(ResourceReference<Font> r)

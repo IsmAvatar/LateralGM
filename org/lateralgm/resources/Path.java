@@ -12,7 +12,6 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
-import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
@@ -37,7 +36,6 @@ public class Path extends InstantiableResource<Path,Path.PPath>
 	public Path(ResourceReference<Path> r)
 		{
 		super(r);
-		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Path makeInstance(ResourceReference<Path> r)

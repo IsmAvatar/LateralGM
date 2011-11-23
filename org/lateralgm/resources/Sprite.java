@@ -25,7 +25,6 @@ import javax.imageio.ImageIO;
 
 import org.lateralgm.file.GmFile;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.util.PropertyMap;
@@ -70,7 +69,6 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		super(r);
 		properties.getUpdateSource(PSprite.TRANSPARENT).addListener(spl);
 		properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
-		setName(Prefs.prefixes.get(getClass()));
 		}
 
 	public Sprite makeInstance(ResourceReference<Sprite> r)
