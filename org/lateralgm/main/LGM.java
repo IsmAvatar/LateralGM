@@ -129,8 +129,7 @@ public final class LGM
 			e1.printStackTrace();
 			}
 		}
-	public static JFrame frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
-			Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
+	public static JFrame frame;
 	public static Listener listener = new Listener();
 	public static JToolBar tool;
 	public static JTree tree;
@@ -259,7 +258,7 @@ public final class LGM
 
 	private static JComponent createTree(ResNode newroot)
 		{
-		tree = new JTree(new DefaultTreeModel(root));
+		tree = new JTree(new DefaultTreeModel(newroot));
 		GmTreeGraphics renderer = new GmTreeGraphics();
 		GmTreeEditor editor = new GmTreeEditor(tree,renderer);
 		editor.addCellEditorListener(listener);
@@ -456,6 +455,8 @@ public final class LGM
 		gameInformationFrameBuilder.start(); //must occur after createMDI
 		gameSettingFrameBuilder.start(); //must occur after createMDI
 		SplashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
+		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
+				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
 		frame.setJMenuBar(new GmMenuBar());
 		SplashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
