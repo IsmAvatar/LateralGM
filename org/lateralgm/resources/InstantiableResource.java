@@ -49,8 +49,7 @@ public abstract class InstantiableResource<R extends InstantiableResource<R,P>, 
 		}
 
 	protected void postCopy(R dest)
-		{
-		dest.setId(getId());
+		{ //default implementation is to do nothing
 		}
 
 	public abstract R makeInstance(ResourceReference<R> ref);

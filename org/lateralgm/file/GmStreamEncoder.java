@@ -183,9 +183,17 @@ public class GmStreamEncoder extends StreamEncoder
 		WritableRaster raster = cm.createCompatibleWritableRaster(image.getWidth(),image.getHeight());
 		int[] data = ((DataBufferInt) raster.getDataBuffer()).getData();
 
+		//color to replace fully transparent pixels with
+		//TODO: Replace with a user-selectable system
+		final int transparentReplacement = 0xF496A1; //0xF496A1 is "flamingo pink"
+		final int threshold = 0x80000000;
+
 		//assume the two buffers are the same size...
 		for (int i = 0; i < pixels.length; i++)
-			data[i] = pixels[i] & 0x00FFFFFF; //forcibly drop alpha channel
+			if (pixels[i] < threshold)
+				data[i] = transparentReplacement;
+			else
+				data[i] = pixels[i] & 0x00FFFFFF; //forcibly drop alpha channel
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		ImageIO.write(new BufferedImage(cm,raster,false,null),"bmp",out); //$NON-NLS-1$
