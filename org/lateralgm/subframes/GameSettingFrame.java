@@ -1069,7 +1069,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				for (File file : f)
 					{
 					Include inc = new Include();
+					inc.filename = file.getName();
 					inc.filepath = file.getAbsolutePath();
+					inc.size = (int) file.length();
 					iModel.addElement(inc);
 					}
 				}

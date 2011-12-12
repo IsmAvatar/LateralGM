@@ -677,7 +677,7 @@ public final class GmFileWriter
 
 	public static void writeIncludedFiles(GmFile f, GmStreamEncoder out, int ver) throws IOException
 		{
-		ver = ver > 800 ? 800 : ver >= 620 ? 620 : 0;
+		ver = ver >= 800 ? 800 : ver >= 620 ? 620 : 0;
 		if (ver < 620) return;
 
 		out.write4(ver);
