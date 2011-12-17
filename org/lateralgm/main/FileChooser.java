@@ -668,15 +668,16 @@ public class FileChooser
 
 	public static boolean attemptBackup()
 		{
-		if (pushBackups(LGM.currentFile.uri.toString())) return true;
+		if (pushBackups(new File(LGM.currentFile.uri))) return true;
 		int result = JOptionPane.showOptionDialog(LGM.frame,Messages.format("FileChooser.ERROR_BACKUP", //$NON-NLS-1$
 				LGM.currentFile.uri),Messages.getString("FileChooser.ERROR_BACKUP_TITLE"), //$NON-NLS-1$
 				JOptionPane.YES_NO_OPTION,JOptionPane.ERROR_MESSAGE,null,null,null);
 		return result == JOptionPane.YES_OPTION;
 		}
 
-	private static boolean pushBackups(String fn)
+	private static boolean pushBackups(File f)
 		{
+		String fn = f.getPath();
 		int nb = PrefsStore.getNumberOfBackups();
 		if (nb <= 0 || !new File(fn).exists()) return true;
 		String bn;
@@ -692,8 +693,8 @@ public class FileChooser
 			int i;
 			for (i = 1; i <= nb; i++)
 				{
-				String f = String.format(ff,bn,i);
-				if (!new File(f).exists()) break;
+				String bf = String.format(ff,bn,i);
+				if (!new File(bf).exists()) break;
 				}
 			if (i > nb)
 				{
@@ -702,8 +703,8 @@ public class FileChooser
 				}
 			for (i--; i >= 0; i--)
 				{
-				File f = new File(i > 0 ? String.format(ff,bn,i) : fn);
-				if (!f.renameTo(new File(String.format(ff,bn,i + 1)))) break block;
+				File bf = new File(i > 0 ? String.format(ff,bn,i) : fn);
+				if (!bf.renameTo(new File(String.format(ff,bn,i + 1)))) break block;
 				}
 			return true;
 			}
