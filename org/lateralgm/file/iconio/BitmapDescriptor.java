@@ -40,12 +40,6 @@ public class BitmapDescriptor
 	private AbstractBitmap bitmap;
 
 	/**
-	 * For convenience, not part of an entry: The mask the entry refers to. Note that RGB images have
-	 * no mask
-	 */
-	private BitmapMask mask;
-
-	/**
 	 * Read the descriptor with the decoder (16 Bytes in total).
 	 * 
 	 * @param pDec The decoder.
@@ -234,16 +228,6 @@ public class BitmapDescriptor
 	void setHeader(final BitmapHeader pHeader)
 		{
 		header = pHeader;
-		}
-
-	/**
-	 * The mask of the bitmap this descriptor refers to. Null for RGB bitmaps.
-	 * 
-	 * @return Mask.
-	 */
-	public BitmapMask getMask()
-		{
-		return mask;
 		}
 
 	/**
