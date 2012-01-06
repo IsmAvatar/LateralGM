@@ -158,7 +158,7 @@ public class GmStreamEncoder extends StreamEncoder
 		Deflater compresser = new Deflater();
 		compresser.setInput(data);
 		compresser.finish();
-		byte[] buffer = new byte[2048];
+		byte[] buffer = new byte[131072];
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		while (!compresser.finished())
 			{
