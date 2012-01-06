@@ -569,6 +569,9 @@ public final class GmFileReader
 				continue;
 				}
 			Sprite spr = f.resMap.getList(Sprite.class).add();
+			//temporarily set bbmode to manual so bbox doesn't get recalculated until bbmode is ready
+			spr.put(PSprite.BB_MODE,BBMode.MANUAL);
+			BBMode actualBBMode = null;
 			spr.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
@@ -578,15 +581,13 @@ public final class GmFileReader
 				{
 				w = in.read4();
 				h = in.read4();
-				//temporarily set bbmode to manual so bbox doesn't get recalculated until bbmode is ready
-				spr.put(PSprite.BB_MODE,BBMode.MANUAL);
 				in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
 				spr.put(PSprite.TRANSPARENT,in.readBool()); //XXX: tends to cause an update...
 				if (ver > 400)
 					{
 					in.readBool(spr.properties,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
 					}
-				spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]); //now bbmode is ready
+				actualBBMode = GmFile.SPRITE_BB_MODE[in.read4()]; // delay setting BBMode to avoid expensive recalculations
 				boolean precise = in.readBool();
 				spr.put(PSprite.SHAPE,precise ? Sprite.MaskShape.PRECISE : Sprite.MaskShape.RECTANGLE);
 				if (ver == 400)
@@ -603,8 +604,8 @@ public final class GmFileReader
 				{
 				if (ver >= 800)
 					{
-					ver = in.read4();
-					if (ver != 800) throw versionError(f,"IN","SPR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+					int subver = in.read4();
+					if (subver != 800) throw versionError(f,"IN","SPR",i,subver); //$NON-NLS-1$ //$NON-NLS-2$
 					w = in.read4();
 					h = in.read4();
 					if (w != 0 && h != 0) spr.subImages.add(in.readBGRAImage(w,h));
@@ -620,9 +621,11 @@ public final class GmFileReader
 				spr.put(PSprite.SHAPE,GmFile.SPRITE_MASK_SHAPE[in.read4()]);
 				spr.put(PSprite.ALPHA_TOLERANCE,in.read4());
 				spr.put(PSprite.SEPARATE_MASK,in.readBool());
-				spr.put(PSprite.BB_MODE,GmFile.SPRITE_BB_MODE[in.read4()]);
+				actualBBMode = GmFile.SPRITE_BB_MODE[in.read4()];
 				in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
 				}
+			assert actualBBMode != null : "actualBBMode should always have been set at this point.";
+			spr.put(PSprite.BB_MODE,actualBBMode); //now bbmode is ready
 			in.endInflate();
 			}
 		}
