@@ -16,6 +16,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.List;
@@ -81,6 +82,10 @@ public final class GmFileWriter
 		f.format = GmFile.FormatFlavor.getVersionFlavor(ver);
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = new GmStreamEncoder(os);
+		if (ver >= 810)
+			out.setCharset(Charset.forName("UTF-8"));
+		else
+			out.setCharset(Charset.defaultCharset());
 		out.write4(1234321);
 		out.write4(ver);
 		if (ver == 530) out.write4(0);

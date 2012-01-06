@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
@@ -103,21 +104,35 @@ public class GmStreamDecoder extends StreamDecoder
 		return t;
 		}
 
-	/** GM uses ISO-LATIN-1 (ISO-8859-1) for its file string charset. */
-	public static final String CHARSET = "ISO-8859-1"; //$NON-NLS-1$
+	/** 
+	 * ISO8859-1 was the fixed charset in earlier LGM versions, so those parts of the code which
+	 * have not been updated to set the charset explicitly should continue to use it to avoid
+	 * regressions.
+	 */
+	private Charset charset = Charset.forName("ISO8859-1");
+
+	public Charset getCharset()
+		{
+		return charset;
+		}
+
+	public void setCharset(Charset charset)
+		{
+		this.charset = charset;
+		}
 
 	public String readStr() throws IOException
 		{
 		byte data[] = new byte[read4()];
 		read(data);
-		return new String(data,CHARSET);
+		return new String(data,charset);
 		}
 
 	public String readStr1() throws IOException
 		{
 		byte data[] = new byte[read()];
 		read(data);
-		return new String(data,CHARSET);
+		return new String(data,charset);
 		}
 
 	public boolean readBool() throws IOException

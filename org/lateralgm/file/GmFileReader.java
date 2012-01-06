@@ -14,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.LinkedList;
@@ -153,6 +154,12 @@ public final class GmFileReader
 	public static GmFile readGmFile(InputStream stream, URI uri, ResNode root)
 			throws GmFormatException
 		{
+		return readGmFile(stream,uri,root,null);
+		}
+
+	public static GmFile readGmFile(InputStream stream, URI uri, ResNode root, Charset forceCharset)
+			throws GmFormatException
+		{
 		GmFile f = new GmFile();
 		f.uri = uri;
 		GmStreamDecoder in = null;
@@ -175,6 +182,17 @@ public final class GmFileReader
 				String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				throw new GmFormatException(f,msg);
 				}
+
+			if (forceCharset == null)
+				{
+				if (ver >= 810)
+					in.setCharset(Charset.forName("UTF-8"));
+				else
+					in.setCharset(Charset.defaultCharset());
+				}
+			else
+				in.setCharset(forceCharset);
+
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
 				{

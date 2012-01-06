@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
@@ -76,16 +77,36 @@ public class GmStreamEncoder extends StreamEncoder
 		super.write(b);
 		}
 
+	/** 
+	 * ISO8859-1 was the fixed charset in earlier LGM versions, so those parts of the code which
+	 * have not been updated to set the charset explicitly should continue to use it to avoid
+	 * regressions.
+	 */
+	private Charset charset = Charset.forName("ISO8859-1");
+
+	public Charset getCharset()
+		{
+		return charset;
+		}
+
+	public void setCharset(Charset charset)
+		{
+		this.charset = charset;
+		}
+
 	public void writeStr(String str) throws IOException
 		{
-		write4(str.length());
-		write(str.getBytes(GmStreamDecoder.CHARSET));
+		byte[] encoded = str.getBytes(charset);
+		write4(encoded.length);
+		write(encoded);
 		}
 
 	public void writeStr1(String str) throws IOException
 		{
-		write(Math.min(str.length(),255));
-		write(str.getBytes(GmStreamDecoder.CHARSET),0,Math.min(str.length(),255));
+		byte[] encoded = str.getBytes(charset);
+		int writeSize = Math.min(encoded.length,255);
+		write(writeSize);
+		write(encoded,0,writeSize);
 		}
 
 	public void writeBool(boolean val) throws IOException
