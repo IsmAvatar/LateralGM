@@ -10,8 +10,9 @@
 package org.lateralgm.file;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DirectColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -232,20 +233,19 @@ public class GmStreamDecoder extends StreamDecoder
 
 	public BufferedImage readBGRAImage(int w, int h) throws IOException
 		{
-		DirectColorModel cm = new DirectColorModel(32,0x00FF0000,0x0000FF00,0x000000FF,0xFF000000);
-		WritableRaster raster = cm.createCompatibleWritableRaster(w,h);
+		WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,w,h,w * 4,4,
+				new int[] { 2,1,0,3 },null); //2103 = RGBA ordering
 
-		int[] data = ((DataBufferInt) raster.getDataBuffer()).getData();
+		byte[] data = ((DataBufferByte) raster.getDataBuffer()).getData();
 
 		int s = read4();
-		if (s != data.length * 4)
+		if (s != data.length)
 			throw new IOException(Messages.format(
 					"GmStreamDecoder.IMAGE_SIZE_MISMATCH",s,data.length,getPosString())); //$NON-NLS-1$
 
-		for (int i = 0; i < data.length; i++)
-			data[i] = read4();
-
-		return new BufferedImage(cm,raster,false,null);
+		read(data);
+		BufferedImage bi = new BufferedImage(1,1,BufferedImage.TYPE_4BYTE_ABGR);
+		return new BufferedImage(bi.getColorModel(),raster,false,null);
 		}
 
 	/**
