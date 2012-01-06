@@ -3,6 +3,8 @@
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
+ * Modified 2010 by Medo <smaxein@googlemail.com>
+ * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -317,7 +319,10 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 					}
 				}
 			//FIXME: Update the tree by having it listen to its root node instead of here
-			LGM.tree.updateUI();
+			if (LGM.tree != null)
+				{
+				LGM.tree.updateUI();
+				}
 			}
 		}
 
