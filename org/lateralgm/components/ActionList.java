@@ -112,7 +112,13 @@ public class ActionList extends JList
 		{
 		if (actionContainer == null) return;
 		for (WeakReference<ActionFrame> a : FRAMES.values())
-			if (a != null && a.get() != null) a.get().commitChanges();
+			{
+			if (a != null)
+				{
+				ActionFrame af = a.get();
+				if (af != null) af.commitChanges();
+				}
+			}
 		actionContainer.actions = model.list;
 		}
 
