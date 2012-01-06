@@ -29,7 +29,7 @@ public class FileChangeMonitor implements Runnable
 		CHANGED,DELETED
 		}
 
-	private static ScheduledExecutorService monitorService;
+	private static ScheduledExecutorService monitorService = Executors.newSingleThreadScheduledExecutor();
 
 	public final File file;
 	public final Executor executor;
@@ -47,7 +47,6 @@ public class FileChangeMonitor implements Runnable
 		executor = e;
 		changedRunnable = new UpdateRunnable(new FileUpdateEvent(updateSource,Flag.CHANGED));
 		deletedRunnable = new UpdateRunnable(new FileUpdateEvent(updateSource,Flag.DELETED));
-		if (monitorService == null) monitorService = Executors.newSingleThreadScheduledExecutor();
 		lastModified = file.lastModified();
 		length = file.length();
 		future = monitorService.scheduleWithFixedDelay(this,POLL_INTERVAL,POLL_INTERVAL,

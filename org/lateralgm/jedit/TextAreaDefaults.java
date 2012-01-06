@@ -54,29 +54,30 @@ public class TextAreaDefaults
 		{
 		if (defaults == null)
 			{
-			defaults = new TextAreaDefaults();
+			TextAreaDefaults newDefaults = new TextAreaDefaults();
 
-			defaults.inputHandler = new DefaultInputHandler();
-			defaults.inputHandler.addDefaultKeyBindings();
-			defaults.document = new SyntaxDocument();
-			defaults.editable = true;
+			newDefaults.inputHandler = new DefaultInputHandler();
+			newDefaults.inputHandler.addDefaultKeyBindings();
+			newDefaults.document = new SyntaxDocument();
+			newDefaults.editable = true;
 
-			defaults.caretVisible = true;
-			defaults.caretBlinks = true;
-			defaults.electricScroll = 3;
+			newDefaults.caretVisible = true;
+			newDefaults.caretBlinks = true;
+			newDefaults.electricScroll = 3;
 
-			defaults.cols = 80;
-			defaults.rows = 25;
-			defaults.styles = SyntaxUtilities.getDefaultSyntaxStyles();
-			defaults.caretColor = Color.red;
-			defaults.selectionColor = new Color(0xccccff);
-			defaults.lineHighlightColor = new Color(0xe0e0e0);
-			defaults.lineHighlight = true;
-			defaults.bracketHighlightColor = Color.black;
-			defaults.bracketHighlight = true;
-			defaults.eolMarkerColor = new Color(0x009999);
-			defaults.eolMarkers = true;
-			defaults.paintInvalid = true;
+			newDefaults.cols = 80;
+			newDefaults.rows = 25;
+			newDefaults.styles = SyntaxUtilities.getDefaultSyntaxStyles();
+			newDefaults.caretColor = Color.red;
+			newDefaults.selectionColor = new Color(0xccccff);
+			newDefaults.lineHighlightColor = new Color(0xe0e0e0);
+			newDefaults.lineHighlight = true;
+			newDefaults.bracketHighlightColor = Color.black;
+			newDefaults.bracketHighlight = true;
+			newDefaults.eolMarkerColor = new Color(0x009999);
+			newDefaults.eolMarkers = true;
+			newDefaults.paintInvalid = true;
+			defaults = newDefaults;
 			}
 
 		return defaults;

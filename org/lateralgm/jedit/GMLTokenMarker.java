@@ -154,17 +154,18 @@ public class GMLTokenMarker extends TokenMarker
 		{
 		if (gmlKeywords == null)
 			{
-			gmlKeywords = new KeywordMap(false);
+			KeywordMap newGmlKeywords = new KeywordMap(false);
 			for (GMLKeywords.Construct keyword : GMLKeywords.CONSTRUCTS)
-				gmlKeywords.add(keyword.getName(),Token.KEYWORD1);
+				newGmlKeywords.add(keyword.getName(),Token.KEYWORD1);
 			for (GMLKeywords.Operator keyword : GMLKeywords.OPERATORS)
-				gmlKeywords.add(keyword.getName(),Token.OPERATOR);
+				newGmlKeywords.add(keyword.getName(),Token.OPERATOR);
 			for (GMLKeywords.Constant keyword : GMLKeywords.CONSTANTS)
-				gmlKeywords.add(keyword.getName(),Token.LITERAL2);
+				newGmlKeywords.add(keyword.getName(),Token.LITERAL2);
 			for (GMLKeywords.Variable keyword : GMLKeywords.VARIABLES)
-				gmlKeywords.add(keyword.getName(),Token.KEYWORD2);
+				newGmlKeywords.add(keyword.getName(),Token.KEYWORD2);
 			for (GMLKeywords.Function keyword : GMLKeywords.FUNCTIONS)
-				gmlKeywords.add(keyword.getName(),Token.LABEL);
+				newGmlKeywords.add(keyword.getName(),Token.LABEL);
+			gmlKeywords = newGmlKeywords;
 			}
 		return gmlKeywords;
 		}
