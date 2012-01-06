@@ -589,8 +589,9 @@ public final class GmFileWriter
 				out.writeBool(obj.properties,PGmObject.PERSISTENT);
 				out.writeId((ResourceReference<?>) obj.get(PGmObject.PARENT),-100);
 				out.writeId((ResourceReference<?>) obj.get(PGmObject.MASK));
-				out.write4(10);
-				for (int j = 0; j < 11; j++)
+				int numMainEvents = ver == 800 ? 12 : 11;
+				out.write4(numMainEvents - 1);
+				for (int j = 0; j < numMainEvents; j++)
 					{
 					MainEvent me = obj.mainEvents.get(j);
 					for (int k = me.events.size(); k > 0; k--)
