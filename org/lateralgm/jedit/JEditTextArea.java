@@ -143,7 +143,7 @@ public class JEditTextArea extends JComponent
 		//					}
 		//			});
 		documentHandler = new DocumentHandler();
-		listenerList = new EventListenerList();
+		caretListenerList = new EventListenerList();
 		caretEvent = new MutableCaretEvent();
 		lineSegment = new Segment();
 		bracketPosition = -1;
@@ -1223,12 +1223,12 @@ public class JEditTextArea extends JComponent
 
 	public final void addCaretListener(CaretListener listener)
 		{
-		listenerList.add(CaretListener.class,listener);
+		caretListenerList.add(CaretListener.class,listener);
 		}
 
 	public final void removeCaretListener(CaretListener listener)
 		{
-		listenerList.remove(CaretListener.class,listener);
+		caretListenerList.remove(CaretListener.class,listener);
 		}
 
 	public void cut()
@@ -1332,7 +1332,7 @@ public class JEditTextArea extends JComponent
 
 	protected TextAreaPainter painter;
 	protected JPopupMenu popup;
-	protected EventListenerList listenerList;
+	protected EventListenerList caretListenerList;
 	protected MutableCaretEvent caretEvent;
 
 	protected boolean caretVisible;
@@ -1365,7 +1365,7 @@ public class JEditTextArea extends JComponent
 
 	protected void fireCaretEvent()
 		{
-		Object[] listeners = listenerList.getListenerList();
+		Object[] listeners = caretListenerList.getListenerList();
 		for (int i = listeners.length - 2; i >= 0; i--)
 			{
 			if (listeners[i] == CaretListener.class)
