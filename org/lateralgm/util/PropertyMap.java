@@ -175,32 +175,4 @@ public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
 		{
 		private static final long serialVersionUID = 1L;
 		}
-
-	public boolean equals(Object obj)
-		{
-		if (!(obj instanceof Map<?,?>))
-			{
-			System.out.println("Not a map");
-			return false;
-			}
-		Map<?,?> other = (Map<?,?>) obj;
-		if (size() != other.size())
-			{
-			System.out.println("Different map sizes");
-			return false;
-			}
-		for (Map.Entry<?,?> leftEntry : entrySet())
-			{
-			Object key = leftEntry.getKey();
-			//			if (contains(exclude,key)) continue;
-			Object left = leftEntry.getValue();
-			Object right = other.get(key);
-			if (right != left && (right == null || !right.equals(left)))
-				{
-				System.out.println(key + " differs: " + left + " (was " + right + ")");
-				return false;
-				}
-			}
-		return true;
-		}
 	}
