@@ -182,11 +182,30 @@ public class Action implements UpdateListener
 		}
 
 	@Override
+	public int hashCode()
+		{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((appliesTo == null) ? 0 : appliesTo.hashCode());
+		result = prime * result + ((arguments == null) ? 0 : arguments.hashCode());
+		result = prime * result + ((libAction == null) ? 0 : libAction.hashCode());
+		result = prime * result + (not ? 1231 : 1237);
+		result = prime * result + (relative ? 1231 : 1237);
+		return result;
+		}
+
+	@Override
 	public boolean equals(Object obj)
 		{
 		if (this == obj) return true;
-		if (obj == null || !(obj instanceof Action)) return false;
+		if (obj == null) return false;
+		if (!(obj instanceof Action)) return false;
 		Action other = (Action) obj;
+		if (appliesTo == null)
+			{
+			if (other.appliesTo != null) return false;
+			}
+		else if (!appliesTo.equals(other.appliesTo)) return false;
 		if (arguments == null)
 			{
 			if (other.arguments != null) return false;
@@ -197,6 +216,8 @@ public class Action implements UpdateListener
 			if (other.libAction != null) return false;
 			}
 		else if (!libAction.equals(other.libAction)) return false;
-		return (not == other.not && relative == other.relative && appliesTo.equals(other.appliesTo));
+		if (not != other.not) return false;
+		if (relative != other.relative) return false;
+		return true;
 		}
 	}

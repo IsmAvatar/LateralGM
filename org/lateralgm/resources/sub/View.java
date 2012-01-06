@@ -31,10 +31,27 @@ public class View
 		properties = new PropertyMap<PView>(PView.class,null,DEFS);
 		}
 
-	public boolean equals(Object o)
+	@Override
+	public int hashCode()
 		{
-		if (o == this) return true;
-		if (o == null || !(o instanceof View)) return false;
-		return properties.equals(((View) o).properties);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
+		return result;
+		}
+
+	@Override
+	public boolean equals(Object obj)
+		{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (!(obj instanceof View)) return false;
+		View other = (View) obj;
+		if (properties == null)
+			{
+			if (other.properties != null) return false;
+			}
+		else if (!properties.equals(other.properties)) return false;
+		return true;
 		}
 	}

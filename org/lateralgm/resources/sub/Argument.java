@@ -155,16 +155,34 @@ public class Argument
 		}
 
 	@Override
+	public int hashCode()
+		{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + kind;
+		result = prime * result + ((res == null) ? 0 : res.hashCode());
+		result = prime * result + ((val == null) ? 0 : val.hashCode());
+		return result;
+		}
+
+	@Override
 	public boolean equals(Object obj)
 		{
 		if (this == obj) return true;
-		if (obj == null || !(obj instanceof Argument)) return false;
+		if (obj == null) return false;
+		if (!(obj instanceof Argument)) return false;
 		Argument other = (Argument) obj;
+		if (kind != other.kind) return false;
 		if (res == null)
 			{
 			if (other.res != null) return false;
 			}
 		else if (!res.equals(other.res)) return false;
-		return (kind == other.kind && val.equals(other.val));
+		if (val == null)
+			{
+			if (other.val != null) return false;
+			}
+		else if (!val.equals(other.val)) return false;
+		return true;
 		}
 	}

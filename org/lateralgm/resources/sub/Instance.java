@@ -136,11 +136,27 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 			}
 		}
 
-	public boolean equals(Object o)
+	@Override
+	public int hashCode()
 		{
-		if (o == this) return true;
-		if (o == null || !(o instanceof Instance)) return false;
-		//room?
-		return properties.equals(((Instance) o).properties);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
+		return result;
+		}
+
+	@Override
+	public boolean equals(Object obj)
+		{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (!(obj instanceof Instance)) return false;
+		Instance other = (Instance) obj;
+		if (properties == null)
+			{
+			if (other.properties != null) return false;
+			}
+		else if (!properties.equals(other.properties)) return false;
+		return true;
 		}
 	}

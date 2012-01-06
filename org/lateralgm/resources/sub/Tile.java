@@ -175,11 +175,27 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 			}
 		}
 
-	public boolean equals(Object o)
+	@Override
+	public int hashCode()
 		{
-		if (o == this) return true;
-		if (o == null || !(o instanceof Tile)) return false;
-		//room?
-		return properties.equals(((Tile) o).properties);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
+		return result;
+		}
+
+	@Override
+	public boolean equals(Object obj)
+		{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (!(obj instanceof Tile)) return false;
+		Tile other = (Tile) obj;
+		if (properties == null)
+			{
+			if (other.properties != null) return false;
+			}
+		else if (!properties.equals(other.properties)) return false;
+		return true;
 		}
 	}

@@ -44,10 +44,31 @@ public class LibAction
 	public String execInfo = "";
 	public LibArgument[] libArguments;
 
-	public boolean equals(Object o)
+	@Override
+	public int hashCode()
 		{
-		if (!(o instanceof LibAction)) return false;
-		LibAction la = (LibAction) o;
-		return la.id == id && parent != null ? la.parent == parent : la.parentId == parentId;
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		result = prime * result + ((parent == null) ? 0 : parent.hashCode());
+		result = prime * result + parentId;
+		return result;
+		}
+
+	@Override
+	public boolean equals(Object obj)
+		{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (!(obj instanceof LibAction)) return false;
+		LibAction other = (LibAction) obj;
+		if (id != other.id) return false;
+		if (parent == null)
+			{
+			if (other.parent != null) return false;
+			}
+		else if (!parent.equals(other.parent)) return false;
+		if (parentId != other.parentId) return false;
+		return true;
 		}
 	}
