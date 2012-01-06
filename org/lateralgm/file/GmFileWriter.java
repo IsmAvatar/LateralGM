@@ -260,16 +260,25 @@ public final class GmFileWriter
 		if (ver < 800) return;
 
 		out.write4(800);
-		out.write4(f.triggers.size());
-		for (Trigger t : f.triggers)
+		int no = f.triggers.isEmpty() ? 0 : (f.triggers.lastKey() + 1);
+		out.write4(no);
+		for (Integer i = 0; i < no; i++)
 			{
 			out.beginDeflate();
-			out.writeBool(true); //trigger exists
-			out.write4(800);
-			out.writeStr(t.name);
-			out.writeStr(t.condition);
-			out.write4(t.checkStep);
-			out.writeStr(t.constant);
+			Trigger t = f.triggers.get(i);
+			if (t == null)
+				{
+				out.writeBool(false); // Trigger does not exist
+				}
+			else
+				{
+				out.writeBool(true); // Trigger exists
+				out.write4(800);
+				out.writeStr(t.name);
+				out.writeStr(t.condition);
+				out.write4(t.checkStep);
+				out.writeStr(t.constant);
+				}
 			out.endDeflate();
 			}
 		out.writeD(f.gameSettings.getLastChanged());

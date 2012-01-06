@@ -438,7 +438,7 @@ public final class GmFileReader
 			ver = in.read4();
 			if (ver != 800) throw versionError(f,"BEFORE","SND",ver); //$NON-NLS-1$ //$NON-NLS-2$
 			Trigger trig = new Trigger();
-			f.triggers.add(trig);
+			f.triggers.put(i,trig);
 			trig.name = in.readStr();
 			trig.condition = in.readStr();
 			trig.checkStep = in.read4();

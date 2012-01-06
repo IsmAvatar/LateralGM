@@ -35,6 +35,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
@@ -227,7 +229,7 @@ public class GmFile implements UpdateListener
 
 	public final ResourceMap resMap;
 
-	public List<Trigger> triggers = new ArrayList<Trigger>();
+	public SortedMap<Integer,Trigger> triggers = new TreeMap<Integer,Trigger>();
 	public List<Constant> constants = new ArrayList<Constant>();
 	public List<Include> includes = new ArrayList<Include>();
 	public List<String> packages = new ArrayList<String>();
