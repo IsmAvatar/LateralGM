@@ -88,37 +88,10 @@ public final class LGM
 	public static File tempDir, workDir;
 	static
 		{
-		//java6u10 regression causes graphical xor to be very slow
-		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
-		//Put the Mac menu bar where it belongs (ignored by other systems)
-		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
-		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
-		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
-		//annoyingly, Metal bolds almost all components by default. This unbolds them.
-		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
-
 		//Get Java Version
 		String jv = System.getProperty("java.version"); //$NON-NLS-1$
 		Scanner s = new Scanner(jv).useDelimiter("[\\._-]"); //$NON-NLS-1$
 		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
-		System.out.format("Java Version: %d (%s)\n",javaVersion,jv); //$NON-NLS-1$
-		if (javaVersion < 10600)
-			System.out.println("Some program functionality will be limited due to your outdated version"); //$NON-NLS-1$
-
-		SplashProgress.start();
-
-		//Set up temp dir and work dir
-		Util.tweakIIORegistry();
-		tempDir = new File(System.getProperty("java.io.tmpdir"),"lgm"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (!tempDir.exists())
-			{
-			tempDir.mkdir();
-			if (javaVersion >= 10600)
-				{
-				tempDir.setReadable(true,false);
-				tempDir.setWritable(true,false);
-				}
-			}
 
 		try
 			{
@@ -424,16 +397,45 @@ public final class LGM
 
 	public static void main(String[] args)
 		{
-		SplashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
+		//java6u10 regression causes graphical xor to be very slow
+		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
+		//Put the Mac menu bar where it belongs (ignored by other systems)
+		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
+		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
+		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
+		//annoyingly, Metal bolds almost all components by default. This unbolds them.
+		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
+
+		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
+		if (javaVersion < 10600)
+			System.out.println("Some program functionality will be limited due to your outdated version"); //$NON-NLS-1$
+
+		SplashProgress splashProgress = new SplashProgress();
+		splashProgress.start();
+
+		//Set up temp dir and work dir
+		Util.tweakIIORegistry();
+		tempDir = new File(System.getProperty("java.io.tmpdir"),"lgm"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (!tempDir.exists())
+			{
+			tempDir.mkdir();
+			if (javaVersion >= 10600)
+				{
+				tempDir.setReadable(true,false);
+				tempDir.setWritable(true,false);
+				}
+			}
+
+		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
-		SplashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
+		splashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
 		JComponent toolbar = createToolBar();
 		JComponent left = createTree();
 		JComponent right = createMDI();
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,left,right);
 		split.setDividerLocation(170);
 		split.setOneTouchExpandable(true);
-		SplashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
+		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
 		gameInformationFrameBuilder = new Thread()
 			{
 				public void run()
@@ -453,11 +455,11 @@ public final class LGM
 			};
 		gameInformationFrameBuilder.start(); //must occur after createMDI
 		gameSettingFrameBuilder.start(); //must occur after createMDI
-		SplashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
+		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
 		frame.setJMenuBar(new GmMenuBar());
-		SplashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
+		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setContentPane(f);
@@ -468,7 +470,7 @@ public final class LGM
 		eventSelect.setVisible(false);
 		f.setOpaque(true);
 		new FramePrefsHandler(frame);
-		SplashProgress.progress(70,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
+		splashProgress.progress(70,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
 		try
 			{
 			frame.setIconImage(ImageIO.read(LGM.class.getClassLoader().getResource(
@@ -478,69 +480,57 @@ public final class LGM
 			{
 			e.printStackTrace();
 			}
-		SplashProgress.progress(80,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
+		splashProgress.progress(80,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
 		populateTree();
-		SplashProgress.progress(90,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
+		splashProgress.progress(90,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
 		loadPlugins();
 		if (args.length != 0)
 			{
-			SplashProgress.progress(95,Messages.getString("LGM.SPLASH_PRELOAD")); //$NON-NLS-1$
+			splashProgress.progress(95,Messages.getString("LGM.SPLASH_PRELOAD")); //$NON-NLS-1$
 			try
 				{
-				listener.fc.open(new URI(args[0]));
+				Listener.getInstance().fc.open(new URI(args[0]));
 				}
 			catch (URISyntaxException e)
 				{
 				e.printStackTrace();
 				}
 			}
-		SplashProgress.complete();
+		splashProgress.complete();
 		frame.setVisible(true);
 		}
 
 	static final class SplashProgress
 		{
-		static final SplashScreen SPLASH;
-		static final Graphics2D SPLASH_GRAPHICS;
-		static final JProgressBar BAR;
-		static final Graphics BAR_GRAPHICS;
+		final SplashScreen splash;
+		final Graphics2D splashGraphics;
+		final JProgressBar bar;
+		final Graphics barGraphics;
 
-		private static String text = null;
+		private String text = null;
 
-		static final boolean TIMER = System.getProperty("lgm.progresstimer") != null; //$NON-NLS-1$
-		private static long startTime, completeTime;
-		private static ArrayList<Integer> progressValues;
-		private static ArrayList<Long> progressTimes;
+		final boolean TIMER = System.getProperty("lgm.progresstimer") != null; //$NON-NLS-1$
+		private long startTime, completeTime;
+		private ArrayList<Integer> progressValues;
+		private ArrayList<Long> progressTimes;
 
-		static
+		SplashProgress()
 			{
-			SplashScreen ss = null;
-			Graphics2D sg = null;
-			JProgressBar b = null;
-			Graphics bg = null;
-			try
+			splash = SplashScreen.getSplashScreen();
+			if (splash != null)
 				{
-				ss = SplashScreen.getSplashScreen();
-				sg = ss.createGraphics();
-				Dimension sss = ss.getSize();
+				splashGraphics = splash.createGraphics();
+				Dimension sss = splash.getSize();
 				Rectangle bb = new Rectangle(0,sss.height - 24,sss.width,24);
-				b = new JProgressBar();
-				b.setBounds(bb);
-				bg = sg.create(bb.x,bb.y,bb.width,bb.height);
+				bar = new JProgressBar();
+				bar.setBounds(bb);
+				barGraphics = splashGraphics.create(bb.x,bb.y,bb.width,bb.height);
 				}
-			catch (Throwable t)
+			else
 				{
-				ss = null;
-				sg = null;
-				b = null;
-				bg = null;
-				}
-			finally
-				{
-				SPLASH = ss;
-				SPLASH_GRAPHICS = sg;
-				BAR = b;
-				BAR_GRAPHICS = bg;
+				splashGraphics = null;
+				bar = null;
+				barGraphics = null;
 				}
 			if (TIMER)
 				{
@@ -549,17 +539,13 @@ public final class LGM
 				}
 			}
 
-		private SplashProgress()
-			{
-			}
-
-		static void start()
+		void start()
 			{
 			if (TIMER) startTime = System.currentTimeMillis();
 			progress(0,Messages.getString("LGM.SPLASH_START")); //$NON-NLS-1$
 			}
 
-		static void complete()
+		void complete()
 			{
 			if (TIMER)
 				{
@@ -586,12 +572,12 @@ public final class LGM
 				}
 			}
 
-		static void progress(int p)
+		void progress(int p)
 			{
 			progress(p,text);
 			}
 
-		static void progress(int p, String t)
+		void progress(int p, String t)
 			{
 			if (TIMER)
 				{
@@ -599,19 +585,19 @@ public final class LGM
 				progressTimes.add(System.currentTimeMillis() - startTime);
 				}
 			text = t;
-			if (SPLASH != null)
+			if (splash != null)
 				{
-				BAR.setValue(p);
-				BAR.setStringPainted(t != null);
-				BAR.setString(t);
+				bar.setValue(p);
+				bar.setStringPainted(t != null);
+				bar.setString(t);
 				update();
 				}
 			}
 
-		private static void update()
+		private void update()
 			{
-			BAR.paint(BAR_GRAPHICS);
-			SPLASH.update();
+			bar.paint(barGraphics);
+			splash.update();
 			}
 		}
 	}
