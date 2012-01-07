@@ -47,6 +47,20 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	MListener mListener = new MListener();
 	public FileChooser fc = new FileChooser();
 
+	private Listener()
+		{
+		}
+
+	private static final class LazyHolder
+		{
+		public static final Listener INSTANCE = new Listener();
+		}
+
+	public static Listener getInstance()
+		{
+		return LazyHolder.INSTANCE;
+		}
+
 	public static class ResourceAdder implements ActionListener
 		{
 		public boolean insert;
@@ -383,7 +397,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		}
 
-	private class MListener extends MouseAdapter
+	private static class MListener extends MouseAdapter
 		{
 		public MListener()
 			{

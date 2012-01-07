@@ -84,7 +84,7 @@ public class GmMenuBar extends JMenuBar
 					}
 
 				item.setActionCommand("GmMenuBar.OPEN " + recentStr); //$NON-NLS-1$
-				item.addActionListener(LGM.listener);
+				item.addActionListener(Listener.getInstance());
 				fileMenu.insert(item,recentFilesPos + recentFiles.size());
 				recentFiles.add(item);
 				}

@@ -18,6 +18,7 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Listener;
 import org.lateralgm.messages.Messages;
 
 public class GmMenu extends JMenu
@@ -32,7 +33,7 @@ public class GmMenu extends JMenu
 
 	public JMenuItem addItem(String key)
 		{
-		return addItem(key,-1,-1,LGM.listener);
+		return addItem(key,-1,-1,Listener.getInstance());
 		}
 
 	public JMenuItem addItem(String key, ActionListener listener)
@@ -42,7 +43,7 @@ public class GmMenu extends JMenu
 
 	public JMenuItem addItem(String key, int shortcut, int control)
 		{
-		return addItem(key,shortcut,control,LGM.listener);
+		return addItem(key,shortcut,control,Listener.getInstance());
 		}
 
 	public JMenuItem addItem(String key, int shortcut, int control, ActionListener listener)

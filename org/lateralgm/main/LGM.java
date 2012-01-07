@@ -130,7 +130,6 @@ public final class LGM
 			}
 		}
 	public static JFrame frame;
-	public static Listener listener = new Listener();
 	public static JToolBar tool;
 	public static JTree tree;
 	public static ResNode root;
@@ -222,7 +221,7 @@ public final class LGM
 			but.setIcon(GmTreeGraphics.getBlankIcon());
 		but.setActionCommand(key);
 		but.setToolTipText(Messages.getString(key));
-		but.addActionListener(listener);
+		but.addActionListener(Listener.getInstance());
 		return but;
 		}
 
@@ -261,12 +260,12 @@ public final class LGM
 		tree = new JTree(new DefaultTreeModel(newroot));
 		GmTreeGraphics renderer = new GmTreeGraphics();
 		GmTreeEditor editor = new GmTreeEditor(tree,renderer);
-		editor.addCellEditorListener(listener);
+		editor.addCellEditorListener(Listener.getInstance());
 		tree.setEditable(true);
-		tree.addMouseListener(listener.mListener);
+		tree.addMouseListener(Listener.getInstance().mListener);
 		if (javaVersion >= 10600)
 			{
-			tree.setTransferHandler(listener);
+			tree.setTransferHandler(Listener.getInstance());
 			tree.setDragEnabled(true);
 			tree.setDropMode(DropMode.ON_OR_INSERT);
 			}
@@ -462,7 +461,7 @@ public final class LGM
 		JPanel f = new JPanel(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setContentPane(f);
-		frame.setTransferHandler(listener.fc.new LGMDropHandler());
+		frame.setTransferHandler(Listener.getInstance().fc.new LGMDropHandler());
 		f.add(BorderLayout.NORTH,toolbar);
 		f.add(BorderLayout.CENTER,split);
 		f.add(BorderLayout.EAST,eventSelect = new EventPanel());
