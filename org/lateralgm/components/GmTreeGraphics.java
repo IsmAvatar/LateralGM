@@ -63,30 +63,19 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 
 	public static Icon getScaledIcon(Image i)
 		{
-		if (true)
-			{
-			int w = i.getWidth(null);
-			int h = i.getHeight(null);
+		int w = i.getWidth(null);
+		int h = i.getHeight(null);
 
-			int m;
-			if (false)
-				m = Math.max(w,h); //GM's scaling - needs stretching
-			else
-				m = Math.min(w,h); //Needs clipping
-			if (m > 16) i = i.getScaledInstance(w * 16 / m,h * 16 / m,BufferedImage.SCALE_SMOOTH);
-			// Crop and/or center the image
-			Image i2 = new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB);
-			int x = 0;
-			int y = 0;
-			if (w < 16) x = 8 - w / 2;
-			if (h < 16) y = 8 - h / 2;
-			i2.getGraphics().drawImage(i,x,y,null);
-			i = i2;
-			}
-		else
-			{
-			i = i.getScaledInstance(16,16,Image.SCALE_DEFAULT); //scale to 16x16 only
-			}
+		int m = Math.min(w,h); //Needs clipping
+		if (m > 16) i = i.getScaledInstance(w * 16 / m,h * 16 / m,BufferedImage.SCALE_SMOOTH);
+		// Crop and/or center the image
+		Image i2 = new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB);
+		int x = 0;
+		int y = 0;
+		if (w < 16) x = 8 - w / 2;
+		if (h < 16) y = 8 - h / 2;
+		i2.getGraphics().drawImage(i,x,y,null);
+		i = i2;
 
 		return new ImageIcon(i);
 		}

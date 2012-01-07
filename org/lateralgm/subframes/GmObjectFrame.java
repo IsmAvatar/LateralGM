@@ -148,18 +148,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		side2bottom.add(eventDelete,BorderLayout.CENTER);
 		side2.add(side2bottom,BorderLayout.SOUTH);
 
-		JComponent editor;
-		if (false)
-			{
-			//TODO
-			code = new GMLTextArea(""); //$NON-NLS-1$
-			editor = new JScrollPane(code);
-			}
-		else
-			{
-			actions = new ActionList(this);
-			editor = new ActionListEditor(actions);
-			}
+		actions = new ActionList(this);
+		JComponent editor = new ActionListEditor(actions);
 
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)

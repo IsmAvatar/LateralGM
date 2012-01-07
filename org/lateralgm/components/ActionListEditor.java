@@ -92,7 +92,6 @@ public class ActionListEditor extends JPanel
 			for (LibAction la : l.libActions)
 				{
 				if (la.hidden || la.actionKind == Action.ACT_SEPARATOR) continue;
-				if (la.advanced && !la.advanced) continue;
 				JLabel b;
 				if (la.actionKind == Action.ACT_LABEL)
 					{

@@ -62,7 +62,7 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 		}
 
 	protected ResNode node;
-	protected String name = new String();
+	protected String name = "";
 	public final ResourceReference<R> reference;
 	public final PropertyMap<P> properties = makePropertyMap();
 

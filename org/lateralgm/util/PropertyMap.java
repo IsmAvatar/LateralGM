@@ -130,6 +130,12 @@ public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
 		return m;
 		}
 
+	@Override
+	public boolean equals(Object arg0)
+		{
+		return super.equals(arg0);
+		}
+
 	public static class PropertyUpdateEvent<K extends Enum<K>> extends UpdateEvent
 		{
 		public final PropertyMap<K> map;

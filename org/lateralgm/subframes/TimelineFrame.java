@@ -75,17 +75,8 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		scroll.setPreferredSize(new Dimension(90,260));
 		side2.add(scroll,BorderLayout.CENTER);
 
-		JComponent editor;
-		if (false)
-			{
-			code = new GMLTextArea(""); //$NON-NLS-1$
-			editor = new JScrollPane(code);
-			}
-		else
-			{
-			actions = new ActionList(this);
-			editor = new ActionListEditor(actions);
-			}
+		actions = new ActionList(this);
+		JComponent editor = new ActionListEditor(actions);
 
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
