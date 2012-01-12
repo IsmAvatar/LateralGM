@@ -38,8 +38,9 @@ public class GmObject extends InstantiableResource<GmObject,GmObject.PGmObject> 
 		{
 		if (ref == OBJECT_SELF) return -1;
 		if (ref == OBJECT_OTHER) return -2;
-		if (Util.deRef(ref) == null) return -100;
-		return ref.get().getId();
+		GmObject obj = Util.deRef(ref);
+		if (obj == null) return -100;
+		return obj.getId();
 		}
 
 	private final ObjectPropertyListener opl = new ObjectPropertyListener();

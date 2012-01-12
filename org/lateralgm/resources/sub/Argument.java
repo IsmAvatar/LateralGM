@@ -122,8 +122,9 @@ public class Argument
 				return val;
 			default:
 				if (rk == null) return val;
-				if (res == null || res.get() == null) return "<none>";
-				return res.get().getName();
+				Resource<?,?> resource = res == null ? null : res.get();
+				if (resource == null) return "<none>";
+				return resource.getName();
 			}
 		}
 
