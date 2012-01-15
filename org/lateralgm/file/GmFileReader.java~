@@ -624,6 +624,7 @@ public final class GmFileReader
 				actualBBMode = GmFile.SPRITE_BB_MODE[in.read4()];
 				in.read4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,PSprite.BB_TOP);
 				}
+			assert actualBBMode != null : "actualBBMode should always have been set at this point.";
 			spr.put(PSprite.BB_MODE,actualBBMode); //now bbmode is ready
 			in.endInflate();
 			}
