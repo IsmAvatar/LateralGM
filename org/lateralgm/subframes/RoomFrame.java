@@ -1111,7 +1111,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		stat.add(new JLabel("|")); //$NON-NLS-1$
 
 		statId = new JLabel();
-		statId.setMaximumSize(new Dimension(75,13));
 		stat.add(statId);
 		stat.add(new JLabel("|")); //$NON-NLS-1$
 
