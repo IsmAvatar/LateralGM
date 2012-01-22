@@ -285,7 +285,7 @@ public final class LGM
 		{
 		File dir = new File(workDir.getParent(),"plugins"); //$NON-NLS-1$
 		if (!dir.exists()) dir = new File(workDir.getParent(),"Plugins"); //$NON-NLS-1$
-		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$s
+		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$
 		if (ps == null) return;
 		for (File f : ps)
 			{
