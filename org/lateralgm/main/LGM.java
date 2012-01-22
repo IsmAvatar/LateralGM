@@ -103,6 +103,7 @@ public final class LGM
 			}
 		}
 	public static JFrame frame;
+	public static JPanel content;
 	public static JToolBar tool;
 	public static JTree tree;
 	public static ResNode root;
@@ -429,11 +430,14 @@ public final class LGM
 		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
 		splashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
+
 		JComponent toolbar = createToolBar();
-		JComponent left = createTree();
-		JComponent right = createMDI();
-		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,left,right);
-		split.setDividerLocation(170);
+		JComponent tree = createTree();
+		content = new JPanel(new BorderLayout());
+		content.add(BorderLayout.CENTER,createMDI());
+		content.add(BorderLayout.EAST,eventSelect = new EventPanel());
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,tree,content);
+		split.setDividerLocation(200);
 		split.setOneTouchExpandable(true);
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
 		gameInformationFrameBuilder = new Thread()
@@ -461,13 +465,12 @@ public final class LGM
 		frame.setJMenuBar(new GmMenuBar());
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(f);
 		frame.setTransferHandler(Listener.getInstance().fc.new LGMDropHandler());
-		f.add(BorderLayout.NORTH,toolbar);
 		f.add(BorderLayout.CENTER,split);
-		f.add(BorderLayout.EAST,eventSelect = new EventPanel());
-		eventSelect.setVisible(false);
+		eventSelect.setVisible(false); //must occur after adding split
+		f.add(BorderLayout.NORTH,toolbar);
 		f.setOpaque(true);
 		new FramePrefsHandler(frame);
 		splashProgress.progress(70,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$

@@ -496,7 +496,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		if (b == isVisible()) return;
 		//workaround for java bug 4782243
 		Container c = this, p = c.getParent();
-		while (p != null && p != LGM.frame && p != LGM.frame.getContentPane())
+		while (p != null && p != LGM.frame && p != LGM.content)
 			{
 			c = p;
 			p = c.getParent();

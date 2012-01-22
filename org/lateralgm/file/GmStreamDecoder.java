@@ -110,11 +110,11 @@ public class GmStreamDecoder extends StreamDecoder
 		}
 
 	/** 
-	 * ISO8859-1 was the fixed charset in earlier LGM versions, so those parts of the code which
+	 * ISO-8859-1 was the fixed charset in earlier LGM versions, so those parts of the code which
 	 * have not been updated to set the charset explicitly should continue to use it to avoid
 	 * regressions.
 	 */
-	private Charset charset = Charset.forName("ISO8859-1");
+	private Charset charset = Charset.forName("ISO-8859-1");
 
 	public Charset getCharset()
 		{
