@@ -77,7 +77,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 			code.addEditorButtons(tool);
 		else
 			{
-			code.editable = false;
+			//code.editable = false;
 			edit = new JButton(Messages.getString("ScriptFrame.EDIT")); //$NON-NLS-1$
 			edit.addActionListener(this);
 			tool.add(edit);
@@ -104,7 +104,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 			});
 		add(status,BorderLayout.SOUTH);
 
-		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
+		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code.text));
 		}
 
 	public void commitChanges()

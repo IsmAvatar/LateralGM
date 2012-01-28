@@ -192,7 +192,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			add(code,BorderLayout.CENTER);
 			add(status,BorderLayout.SOUTH);
 
-			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
+			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code.text));
 			appliesPanel.setLayout(new BoxLayout(appliesPanel,BoxLayout.LINE_AXIS));
 			}
 		else
@@ -530,7 +530,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 	public boolean resourceChanged()
 		{
 		return act.getLibAction().interfaceKind == LibAction.INTERFACE_CODE
-				&& (code.getUndoManager().isModified() || !act.getAppliesTo().equals(getApplies()));
+				&& (code.isChanged() || !act.getAppliesTo().equals(getApplies()));
 		}
 
 	@Override
