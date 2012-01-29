@@ -174,6 +174,7 @@ public class CompletionMenu extends JWindow
 			{
 			Completion c = (Completion) o;
 			dispose();
+			if (input == '\n') input = '\0';
 			return c.apply(area,input,row,wordStart,wordEnd);
 			}
 		return false;
@@ -303,12 +304,6 @@ public class CompletionMenu extends JWindow
 						caret += 1;
 					e.consume();
 					reset();
-					break;
-				case KeyEvent.VK_ENTER:
-					if (apply())
-						e.consume();
-					else
-						dispose();
 					break;
 				case KeyEvent.VK_ESCAPE:
 					dispose();
