@@ -10,196 +10,189 @@ package org.lateralgm.ui.swing.visuals;
 
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-
-import org.lateralgm.util.BinPlane;
-import org.lateralgm.util.BinPlane.Candidate;
-import org.lateralgm.util.BinPlane.CandidateBin;
-import org.lateralgm.util.BinPlane.Edge;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class BinVisual extends AbstractVisual implements VisualContainer,BoundedVisual
 	{
-	private static final Rectangle ZERO_RECTANGLE = new Rectangle();
+	public static class MockVisual implements Visual
+		{
+		public void paint(Graphics g)
+			{
+			}
+		}
 
-	private final BinPlane binPlane;
-	private Visual vLeft, vRight, vTop, vBottom;
-	private final Rectangle boxBounds = new Rectangle();
-	private Map<Visual,Candidate> candidates;
+	private static class VisualItem
+		{
+		final Visual visual;
+		final Rectangle bounds;
+		final int depth;
+	
+		public VisualItem(Visual visual, Rectangle bounds, int depth)
+			{
+			this.visual = visual;
+			if (bounds == null)
+				this.bounds = null;
+			else
+				{
+				this.bounds = new Rectangle(bounds);
+				}
+			this.depth = depth;
+			}
+		}
 
-	public BinVisual(VisualContainer c, int s, int x, int y)
+	private static class InverseDepthComparator implements Comparator<VisualItem>
+		{
+		public int compare(VisualItem o1, VisualItem o2)
+			{
+			if (o1.depth > o2.depth)
+				return -1;
+			else if (o1.depth < o2.depth)
+				return 1;
+			else
+				return System.identityHashCode(o1) - System.identityHashCode(o2);
+			}
+		}
+
+	private final Map<Visual,VisualItem> itemMap = new HashMap<Visual,BinVisual.VisualItem>();
+	private final SortedSet<VisualItem> depthSortedItems = new TreeSet<VisualItem>(
+			new InverseDepthComparator());
+	private Rectangle overallBounds = new Rectangle();
+
+	public BinVisual(VisualContainer c)
 		{
 		super(c);
-		binPlane = new BinPlane(s,x,y);
 		}
 
 	@Override
 	public void repaint(Rectangle r)
 		{
-		super.repaint(r);
+		if (parent != null)
+			super.repaint(r);
 		}
 
-	void add(Visual v, Rectangle b, int d)
+	public void add(Visual v, Rectangle b, int d)
 		{
-		BinPlane.Candidate c = binPlane.new Candidate();
-		c.data = v;
-		c.setDepth(d);
-		if (candidates == null) candidates = new HashMap<Visual,Candidate>();
-		candidates.put(v,c);
-		if (b != null) setBounds(c,b);
+		VisualItem item = new VisualItem(v,b,d);
+		VisualItem previous = itemMap.put(v,item);
+		if (previous != null)
+			depthSortedItems.remove(previous);
+		if (b != null)
+			depthSortedItems.add(item);
+
+		if (item.bounds != null)
+			repaint(item.bounds);
+		if (!equalBounds(item,previous))
+			{
+			if (previous != null && previous.bounds != null)
+				repaint(previous.bounds);
+			invalidateBounds();
+			}
 		}
 
-	boolean remove(Visual v)
+	public boolean remove(Visual v)
 		{
-		if (candidates == null) return false;
-		Candidate c = candidates.remove(v);
-		if (c == null) return false;
-		repaint(c.getBounds(null));
-		c.remove();
-		Rectangle obb = boxBounds.getBounds();
-		if (v == vLeft) vLeft = null;
-		if (v == vRight) vRight = null;
-		if (v == vTop) vTop = null;
-		if (v == vBottom) vBottom = null;
-		fixBounds();
-		if (!obb.equals(boxBounds)) parent.updateBounds();
+		VisualItem item = itemMap.remove(v);
+		if (item == null) return false;
+		depthSortedItems.remove(item);
+		if (item.bounds != null)
+			{
+			repaint(item.bounds);
+			invalidateBounds();
+			}
 		return true;
 		}
 
 	public void setDepth(Visual v, int d)
 		{
-		Candidate c = getCandidate(v);
-		if (c == null) return;
-		c.setDepth(d);
-		Rectangle ob = c.getBounds(null);
-		if (ob != null && !ob.isEmpty()) repaint(ob);
+		VisualItem item = itemMap.get(v);
+		if (item == null) return;
+		add(v,item.bounds,d);
 		}
 
 	public void setBounds(Visual v, Rectangle b)
 		{
-		setBounds(getCandidate(v),b);
-		}
-
-	private Candidate getCandidate(Visual v)
-		{
-		return candidates == null ? null : candidates.get(v);
-		}
-
-	private void setBounds(Candidate c, Rectangle b)
-		{
-		Rectangle ob = c.getBounds(null);
-		if (!ob.isEmpty()) repaint(ob);
-		Visual v = (Visual) c.data;
-		c.setBounds(b);
-		Rectangle obb = boxBounds.getBounds();
-		if (b.x <= boxBounds.x)
-			{
-			vLeft = v;
-			boxBounds.width += boxBounds.x - b.x;
-			boxBounds.x = b.x;
-			}
-		else if (v == vLeft) vLeft = null;
-		int w = b.x + b.width - boxBounds.x;
-		if (w >= boxBounds.width)
-			{
-			vRight = v;
-			boxBounds.width = w;
-			}
-		else if (v == vRight) vRight = null;
-		if (b.y <= boxBounds.y)
-			{
-			vTop = v;
-			boxBounds.height += boxBounds.y - b.y;
-			boxBounds.y = b.y;
-			}
-		else if (v == vTop) vTop = null;
-		int h = b.y + b.height - boxBounds.y;
-		if (h >= boxBounds.height)
-			{
-			vBottom = v;
-			boxBounds.height = h;
-			}
-		else if (v == vBottom) vBottom = null;
-		fixBounds();
-		if (!obb.equals(boxBounds)) parent.updateBounds();
-		repaint(b);
-		}
-
-	private void fixBounds()
-		{
-		if (vLeft == null)
-			{
-			Candidate ec = binPlane.getEdgeCandidate(Edge.LEFT);
-			int l = ec == null ? 0 : ec.getBounds(null).x;
-			if (ec != null) vLeft = (VisualBox) ec.data;
-			boxBounds.width += boxBounds.x - l;
-			boxBounds.x = l;
-			}
-		if (vRight == null)
-			{
-			Candidate ec = binPlane.getEdgeCandidate(Edge.RIGHT);
-			Rectangle cb = ec == null ? ZERO_RECTANGLE : ec.getBounds(null);
-			if (ec != null) vRight = (VisualBox) ec.data;
-			boxBounds.width = cb.x + cb.width - boxBounds.x;
-			}
-		if (vTop == null)
-			{
-			Candidate ec = binPlane.getEdgeCandidate(Edge.TOP);
-			int t = ec == null ? 0 : ec.getBounds(null).y;
-			if (ec != null) vTop = (VisualBox) ec.data;
-			boxBounds.height += boxBounds.y - t;
-			boxBounds.y = t;
-			}
-		if (vBottom == null)
-			{
-			Candidate ec = binPlane.getEdgeCandidate(Edge.BOTTOM);
-			Rectangle cb = ec == null ? ZERO_RECTANGLE : ec.getBounds(null);
-			if (ec != null) vBottom = (VisualBox) ec.data;
-			boxBounds.height = cb.y + cb.height - boxBounds.y;
-			}
+		VisualItem item = itemMap.get(v);
+		if (item == null) return;
+		add(v,b,item.depth);
 		}
 
 	public Iterator<Visual> intersect(Rectangle r)
 		{
-		return intersect(r,Visual.class);
+		List<Visual> result = new ArrayList<Visual>();
+		for (VisualItem item : depthSortedItems)
+			if (r.intersects(item.bounds))
+				result.add(item.visual);
+		return result.iterator();
 		}
 
-	public <V extends Visual>Iterator<V> intersect(Rectangle r, Class<V> v)
+	@SuppressWarnings("unchecked")
+	public <V extends Visual>Iterator<V> intersect(Rectangle r, final Class<V> v)
 		{
-		return new BinPlane.CandidateDataIterator<V>(binPlane.intersect(r,true),v);
+		List<V> result = new ArrayList<V>();
+		for (VisualItem item : depthSortedItems)
+			if (v.isInstance(item.visual) && r.intersects(item.bounds))
+				result.add((V) item.visual);
+		return result.iterator();
 		}
 
 	public void paint(Graphics g)
 		{
 		Rectangle clip = g.getClipBounds();
-		Iterator<CandidateBin> cbi = clip == null ? binPlane.all(false)
-				: binPlane.intersect(clip,false);
-		Rectangle b = null;
-		while (cbi.hasNext())
+		for (VisualItem item : depthSortedItems)
 			{
-			CandidateBin cb = cbi.next();
-			g.clipRect(cb.x,cb.y,cb.w,cb.h);
-			while (cb.iterator.hasNext())
+			Rectangle b = item.bounds;
+			if (b.intersects(clip))
 				{
-				Candidate c = cb.iterator.next();
-				Visual v = (Visual) c.data;
-				b = c.getBounds(b);
 				Graphics g2 = g.create(b.x,b.y,b.width,b.height);
-				v.paint(g2);
+				item.visual.paint(g2);
 				g2.dispose();
 				}
-			g.setClip(clip);
 			}
+		}
+
+	public void invalidateBounds()
+		{
+		overallBounds = null;
+		if (parent != null)
+			parent.updateBounds();
 		}
 
 	public void updateBounds()
 		{
-		//Unused
+		// Unused
 		}
 
 	public void extendBounds(Rectangle b)
 		{
-		b.add(boxBounds);
+		if (overallBounds == null)
+			{
+			overallBounds = new Rectangle();
+			for (VisualItem item : depthSortedItems)
+				overallBounds.add(item.bounds);
+			}
+		b.add(overallBounds);
+		}
+
+	private boolean equalRect(Rectangle r1, Rectangle r2)
+		{
+		if (r1 == r2)
+			return true;
+		if (r1 == null || r2 == null)
+			return false;
+		return r1.equals(r2);
+		}
+
+	private boolean equalBounds(VisualItem i1, VisualItem i2)
+		{
+		Rectangle b1 = i1 == null ? null : i1.bounds;
+		Rectangle b2 = i2 == null ? null : i2.bounds;
+		return equalRect(b1,b2);
 		}
 	}
