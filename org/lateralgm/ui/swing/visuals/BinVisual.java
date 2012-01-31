@@ -80,6 +80,9 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 		add(v,b,item.depth);
 		}
 
+	/**
+	 * @return All mapped Visuals whose bounds intersect r, ordered greatest-depth-first.
+	 */
 	public Iterator<Visual> intersect(Rectangle r)
 		{
 		List<Visual> result = new ArrayList<Visual>();
@@ -88,12 +91,15 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 		return result.iterator();
 		}
 
+	/**
+	 * @return All mapped Visuals of type clazz whose bounds intersect r, ordered greatest-depth-first.
+	 */
 	@SuppressWarnings("unchecked")
-	public <V extends Visual>Iterator<V> intersect(Rectangle r, final Class<V> v)
+	public <V extends Visual>Iterator<V> intersect(Rectangle r, final Class<V> clazz)
 		{
 		List<V> result = new ArrayList<V>();
 		for (VisualItem item : spatialHashMap.intersect(r))
-			if (v.isInstance(item.visual))
+			if (clazz.isInstance(item.visual))
 				result.add((V) item.visual);
 		return result.iterator();
 		}
@@ -101,9 +107,7 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 	public void paint(Graphics g)
 		{
 		Rectangle clip = g.getClipBounds();
-		List<VisualItem> items = spatialHashMap.intersect(clip);
-		Collections.sort(items,new InverseDepthComparator());
-		for (VisualItem item : items)
+		for (VisualItem item : spatialHashMap.intersect(clip))
 			{
 			Rectangle b = item.bounds;
 			Graphics g2 = g.create(b.x,b.y,b.width,b.height);
@@ -172,6 +176,9 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 			}
 		}
 
+	/**
+	 * Note, this comparator is inconsistent with equals and should thus not be used for e.g. TreeSet.
+	 */
 	private static class InverseDepthComparator implements Comparator<VisualItem>
 		{
 		public int compare(VisualItem o1, VisualItem o2)
@@ -181,7 +188,7 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 			else if (o1.depth < o2.depth)
 				return 1;
 			else
-				return System.identityHashCode(o1) - System.identityHashCode(o2);
+				return 0;
 			}
 		}
 
@@ -191,6 +198,7 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 	private static class SpatialHashMap
 		{
 		private static final int BIN_SIZE = 128;
+		private static final Comparator<VisualItem> itemComparator = new InverseDepthComparator();
 		private HashMap<Point,Set<VisualItem>> binMap = new HashMap<Point,Set<VisualItem>>();
 
 		/**
@@ -232,7 +240,7 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 			}
 
 		/**
-		 * @return All mapped VisualItems whose bounds intersect r.
+		 * @return All mapped VisualItems whose bounds intersect r, ordered greatest-depth-first.
 		 */
 		public List<VisualItem> intersect(Rectangle r)
 			{
@@ -254,6 +262,7 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 				if (r.intersects(item.bounds))
 					result2.add(item);
 				}
+			Collections.sort(result2,itemComparator);
 			return result2;
 			}
 
