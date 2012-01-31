@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2012 Medo <smaxein@googlemail.com> 
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * 
  * This file is part of LateralGM.
@@ -9,197 +10,302 @@
 package org.lateralgm.ui.swing.visuals;
 
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-
-import org.lateralgm.util.BinPlane;
-import org.lateralgm.util.BinPlane.Candidate;
-import org.lateralgm.util.BinPlane.CandidateBin;
-import org.lateralgm.util.BinPlane.Edge;
+import java.util.Set;
 
 public class BinVisual extends AbstractVisual implements VisualContainer,BoundedVisual
 	{
-	private static final Rectangle ZERO_RECTANGLE = new Rectangle();
+	private final Map<Visual,VisualItem> itemMap = new HashMap<Visual,VisualItem>();
+	private final SpatialHashMap spatialHashMap = new SpatialHashMap();
+	private Rectangle overallBounds = new Rectangle();
 
-	private final BinPlane binPlane;
-	private Visual vLeft, vRight, vTop, vBottom;
-	private final Rectangle boxBounds = new Rectangle();
-	private Map<Visual,Candidate> candidates;
-
-	public BinVisual(VisualContainer c, int s, int x, int y)
+	public BinVisual(VisualContainer c)
 		{
 		super(c);
-		binPlane = new BinPlane(s,x,y);
 		}
 
-	@Override
-	public void repaint(Rectangle r)
+	public void add(Visual v, Rectangle b, int d)
 		{
-		super.repaint(r);
+		VisualItem item = new VisualItem(v,b,d);
+		VisualItem previous = itemMap.put(v,item);
+		if (previous != null)
+			spatialHashMap.remove(previous);
+		spatialHashMap.put(item);
+
+		if (item.bounds != null)
+			repaint(item.bounds);
+		if (!equalBounds(item,previous))
+			{
+			if (previous != null && previous.bounds != null)
+				repaint(previous.bounds);
+			invalidateBounds();
+			}
 		}
 
-	void add(Visual v, Rectangle b, int d)
+	public boolean remove(Visual v)
 		{
-		BinPlane.Candidate c = binPlane.new Candidate();
-		c.data = v;
-		c.setDepth(d);
-		if (candidates == null) candidates = new HashMap<Visual,Candidate>();
-		candidates.put(v,c);
-		if (b != null) setBounds(c,b);
-		}
-
-	boolean remove(Visual v)
-		{
-		if (candidates == null) return false;
-		Candidate c = candidates.remove(v);
-		if (c == null) return false;
-		repaint(c.getBounds(null));
-		c.remove();
-		Rectangle obb = boxBounds.getBounds();
-		if (v == vLeft) vLeft = null;
-		if (v == vRight) vRight = null;
-		if (v == vTop) vTop = null;
-		if (v == vBottom) vBottom = null;
-		fixBounds();
-		if (!obb.equals(boxBounds)) parent.updateBounds();
+		VisualItem item = itemMap.remove(v);
+		if (item == null) return false;
+		spatialHashMap.remove(item);
+		if (item.bounds != null)
+			{
+			repaint(item.bounds);
+			invalidateBounds();
+			}
 		return true;
 		}
 
 	public void setDepth(Visual v, int d)
 		{
-		Candidate c = getCandidate(v);
-		if (c == null) return;
-		c.setDepth(d);
-		Rectangle ob = c.getBounds(null);
-		if (ob != null && !ob.isEmpty()) repaint(ob);
+		VisualItem item = itemMap.get(v);
+		if (item == null) return;
+		add(v,item.bounds,d);
 		}
 
 	public void setBounds(Visual v, Rectangle b)
 		{
-		setBounds(getCandidate(v),b);
+		VisualItem item = itemMap.get(v);
+		if (item == null) return;
+		add(v,b,item.depth);
 		}
 
-	private Candidate getCandidate(Visual v)
-		{
-		return candidates == null ? null : candidates.get(v);
-		}
-
-	private void setBounds(Candidate c, Rectangle b)
-		{
-		Rectangle ob = c.getBounds(null);
-		if (!ob.isEmpty()) repaint(ob);
-		Visual v = (Visual) c.data;
-		c.setBounds(b);
-		Rectangle obb = boxBounds.getBounds();
-		if (b.x <= boxBounds.x)
-			{
-			vLeft = v;
-			boxBounds.width += boxBounds.x - b.x;
-			boxBounds.x = b.x;
-			}
-		else if (v == vLeft) vLeft = null;
-		int w = b.x + b.width - boxBounds.x;
-		if (w >= boxBounds.width)
-			{
-			vRight = v;
-			boxBounds.width = w;
-			}
-		else if (v == vRight) vRight = null;
-		if (b.y <= boxBounds.y)
-			{
-			vTop = v;
-			boxBounds.height += boxBounds.y - b.y;
-			boxBounds.y = b.y;
-			}
-		else if (v == vTop) vTop = null;
-		int h = b.y + b.height - boxBounds.y;
-		if (h >= boxBounds.height)
-			{
-			vBottom = v;
-			boxBounds.height = h;
-			}
-		else if (v == vBottom) vBottom = null;
-		fixBounds();
-		if (!obb.equals(boxBounds)) parent.updateBounds();
-		repaint(b);
-		}
-
-	private void fixBounds()
-		{
-		if (vLeft == null)
-			{
-			Candidate ec = binPlane.getEdgeCandidate(Edge.LEFT);
-			int l = ec == null ? 0 : ec.getBounds(null).x;
-			if (ec != null) vLeft = (VisualBox) ec.data;
-			boxBounds.width += boxBounds.x - l;
-			boxBounds.x = l;
-			}
-		if (vRight == null)
-			{
-			Candidate ec = binPlane.getEdgeCandidate(Edge.RIGHT);
-			Rectangle cb = ec == null ? ZERO_RECTANGLE : ec.getBounds(null);
-			if (ec != null) vRight = (VisualBox) ec.data;
-			boxBounds.width = cb.x + cb.width - boxBounds.x;
-			}
-		if (vTop == null)
-			{
-			Candidate ec = binPlane.getEdgeCandidate(Edge.TOP);
-			int t = ec == null ? 0 : ec.getBounds(null).y;
-			if (ec != null) vTop = (VisualBox) ec.data;
-			boxBounds.height += boxBounds.y - t;
-			boxBounds.y = t;
-			}
-		if (vBottom == null)
-			{
-			Candidate ec = binPlane.getEdgeCandidate(Edge.BOTTOM);
-			Rectangle cb = ec == null ? ZERO_RECTANGLE : ec.getBounds(null);
-			if (ec != null) vBottom = (VisualBox) ec.data;
-			boxBounds.height = cb.y + cb.height - boxBounds.y;
-			}
-		}
-
+	/**
+	 * @return All mapped Visuals whose bounds intersect r, ordered greatest-depth-first.
+	 */
 	public Iterator<Visual> intersect(Rectangle r)
 		{
-		return intersect(r,Visual.class);
+		List<Visual> result = new ArrayList<Visual>();
+		for (VisualItem item : spatialHashMap.intersect(r))
+			result.add(item.visual);
+		return result.iterator();
 		}
 
-	public <V extends Visual>Iterator<V> intersect(Rectangle r, Class<V> v)
+	/**
+	 * @return All mapped Visuals of type clazz whose bounds intersect r, ordered greatest-depth-first.
+	 */
+	@SuppressWarnings("unchecked")
+	public <V extends Visual>Iterator<V> intersect(Rectangle r, final Class<V> clazz)
 		{
-		return new BinPlane.CandidateDataIterator<V>(binPlane.intersect(r,true),v);
+		List<V> result = new ArrayList<V>();
+		for (VisualItem item : spatialHashMap.intersect(r))
+			if (clazz.isInstance(item.visual))
+				result.add((V) item.visual);
+		return result.iterator();
 		}
 
 	public void paint(Graphics g)
 		{
 		Rectangle clip = g.getClipBounds();
-		Iterator<CandidateBin> cbi = clip == null ? binPlane.all(false)
-				: binPlane.intersect(clip,false);
-		Rectangle b = null;
-		while (cbi.hasNext())
+		for (VisualItem item : spatialHashMap.intersect(clip))
 			{
-			CandidateBin cb = cbi.next();
-			g.clipRect(cb.x,cb.y,cb.w,cb.h);
-			while (cb.iterator.hasNext())
-				{
-				Candidate c = cb.iterator.next();
-				Visual v = (Visual) c.data;
-				b = c.getBounds(b);
-				Graphics g2 = g.create(b.x,b.y,b.width,b.height);
-				v.paint(g2);
-				g2.dispose();
-				}
-			g.setClip(clip);
+			Rectangle b = item.bounds;
+			Graphics g2 = g.create(b.x,b.y,b.width,b.height);
+			item.visual.paint(g2);
+			g2.dispose();
 			}
+		}
+
+	public void invalidateBounds()
+		{
+		overallBounds = null;
+		parent.updateBounds();
 		}
 
 	public void updateBounds()
 		{
-		//Unused
+		// Unused
 		}
 
 	public void extendBounds(Rectangle b)
 		{
-		b.add(boxBounds);
+		if (overallBounds == null)
+			{
+			overallBounds = new Rectangle();
+			for (VisualItem item : itemMap.values())
+				if (item.bounds != null)
+					overallBounds.add(item.bounds);
+			}
+		b.add(overallBounds);
+		}
+
+	@Override
+	public void repaint(Rectangle r)
+		{
+			super.repaint(r);
+		}
+
+	private boolean equalRect(Rectangle r1, Rectangle r2)
+		{
+		if (r1 == r2)
+			return true;
+		if (r1 == null || r2 == null)
+			return false;
+		return r1.equals(r2);
+		}
+
+	private boolean equalBounds(VisualItem i1, VisualItem i2)
+		{
+		Rectangle b1 = i1 == null ? null : i1.bounds;
+		Rectangle b2 = i2 == null ? null : i2.bounds;
+		return equalRect(b1,b2);
+		}
+
+	private static class VisualItem
+		{
+		final Visual visual;
+		// bounds is intended immutable, and SpatialHashMap relies on that - don't change it!
+		final Rectangle bounds;
+		final int depth;
+
+		public VisualItem(Visual visual, Rectangle bounds, int depth)
+			{
+			this.visual = visual;
+			this.bounds = bounds == null ? null : new Rectangle(bounds);
+			this.depth = depth;
+			}
+		}
+
+	/**
+	 * Note, this comparator is inconsistent with equals and should thus not be used for e.g. TreeSet.
+	 */
+	private static class InverseDepthComparator implements Comparator<VisualItem>
+		{
+		public int compare(VisualItem o1, VisualItem o2)
+			{
+			if (o1.depth > o2.depth)
+				return -1;
+			else if (o1.depth < o2.depth)
+				return 1;
+			else
+				return 0;
+			}
+		}
+
+	/**
+	 * Threadsafe
+	 */
+	private static class SpatialHashMap
+		{
+		private static final int BIN_SIZE = 128;
+		private static final Comparator<VisualItem> itemComparator = new InverseDepthComparator();
+		private HashMap<Point,Set<VisualItem>> binMap = new HashMap<Point,Set<VisualItem>>();
+
+		/**
+		 * @return true if the item was added to the map,
+		 *         false if it has no bounds or empty bounds, or if the item was already mapped
+		 */
+		synchronized boolean put(VisualItem item)
+			{
+			if (item.bounds == null || item.bounds.isEmpty()) return false;
+			for (Point key : overlappingBins(item.bounds))
+				{
+				Set<VisualItem> bin = binMap.get(key);
+				if (bin == null)
+					{
+					bin = new HashSet<VisualItem>();
+					binMap.put(key,bin);
+					}
+				if (!bin.add(item))
+					return false;
+				}
+			return true;
+			}
+
+		/**
+		 * @return true if item was removed, false if it was not mapped.
+		 */
+		synchronized boolean remove(VisualItem item)
+			{
+			if (item.bounds == null || item.bounds.isEmpty()) return false;
+			for (Point key : overlappingBins(item.bounds))
+				{
+				Set<VisualItem> bin = binMap.get(key);
+				if (bin == null || !bin.remove(item))
+					return false;
+				if (bin.isEmpty())
+					binMap.remove(key);
+				}
+			return true;
+			}
+
+		/**
+		 * @return All mapped VisualItems whose bounds intersect r, ordered greatest-depth-first.
+		 */
+		public List<VisualItem> intersect(Rectangle r)
+			{
+			Set<VisualItem> result1 = new HashSet<VisualItem>();
+			synchronized (this)
+				{
+				for (Point key : overlappingBins(r))
+					{
+					Set<VisualItem> bin = binMap.get(key);
+					if (bin != null)
+						result1.addAll(bin);
+					}
+				}
+
+			List<VisualItem> result2 = new ArrayList<VisualItem>();
+			for (Iterator<VisualItem> iter = result1.iterator(); iter.hasNext();)
+				{
+				VisualItem item = iter.next();
+				if (r.intersects(item.bounds))
+					result2.add(item);
+				}
+			Collections.sort(result2,itemComparator);
+			return result2;
+			}
+
+		/**
+		 * @return A collection of Points (keys to binMap), corresponding to the bins overlapped by rect.
+		 */
+		private Collection<Point> overlappingBins(Rectangle rect)
+			{
+			if (rect.isEmpty()) return Collections.emptyList();
+			final int binx = calculateBinCoord(rect.x);
+			final int biny = calculateBinCoord(rect.y);
+			final int binwidth = calculateBinCoord(rect.x + rect.width - 1) - binx + 1;
+			final int binheight = calculateBinCoord(rect.y + rect.height - 1) - biny + 1;
+			return new AbstractList<Point>()
+				{
+					@Override
+					public Point get(int index)
+						{
+						if (index < 0 || index >= size())
+							throw new IndexOutOfBoundsException();
+						return new Point(binx + (index % binwidth),biny + (index / binwidth));
+						}
+
+					@Override
+					public int size()
+						{
+						return binwidth * binheight;
+						}
+				};
+			}
+
+		/**
+		 * This function calculates the bin coordinate for a pixel coordinate.
+		 * With a bin size of 100, this maps coordinates the following way:
+		 * [-200, -101] -> -2
+		 * [-100, -1] -> -1
+		 * [0, 99] -> 0
+		 * [100, 199] -> 1
+		 * and so on.
+		 */
+		private int calculateBinCoord(int x)
+			{
+			return x >= 0 ? x / BIN_SIZE : ~(~x / BIN_SIZE);
+			}
 		}
 	}

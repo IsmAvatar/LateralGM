@@ -81,7 +81,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		super(vc);
 		room = r;
 		show = EnumSet.copyOf(s);
-		binVisual = new BinVisual(vc,128,(Integer) r.get(PRoom.WIDTH),(Integer) r.get(PRoom.HEIGHT));
+		binVisual = new BinVisual(vc);
 		gridVisual = new GridVisual((Boolean) r.get(PRoom.ISOMETRIC),(Integer) r.get(PRoom.SNAP_X),
 				(Integer) r.get(PRoom.SNAP_Y));
 		r.properties.updateSource.addListener(rpl);
