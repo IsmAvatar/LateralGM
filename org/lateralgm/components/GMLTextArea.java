@@ -280,20 +280,6 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 
 	/*
 		private final GMLTokenMarker gmlTokenMarker = new GMLTokenMarker();
-	  private void oldUpdateResourceKeywords()
-			{
-			for (ResourceHolder<?> rh : LGM.currentFile.resMap.values())
-				{
-				if (!(rh instanceof ResourceList<?>)) continue;
-				ResourceList<?> rl = (ResourceList<?>) rh;
-				SortedSet<String> a = new TreeSet<String>();
-				for (Resource<?,?> r : rl)
-					a.add(r.getName());
-				resourceKeywords.add(a);
-				}
-			completions = null;
-			updateTokenMarker();
-			}
 
 		private void updateTokenMarker()
 			{
@@ -505,6 +491,11 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 			}
 		}
 
+	public boolean requestFocusInWindow()
+		{
+		return text.requestFocusInWindow();
+		}
+	
 	public void markError(final int line, final int pos, int abs)
 		{
 		final Marker err = new ErrorMarker(line,pos);
