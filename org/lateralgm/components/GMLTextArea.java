@@ -197,6 +197,13 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 		return s;
 		}
 
+	public void markError(int row, int col, int abs)
+		{
+		setCaretPosition(abs);
+		setSelectionStart(abs);
+		setSelectionEnd(abs + 1);
+		}
+
 	public void updateResourceKeywords()
 		{
 		for (ResourceHolder<?> rh : LGM.currentFile.resMap.values())
