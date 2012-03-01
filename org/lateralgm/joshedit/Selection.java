@@ -79,12 +79,13 @@ public class Selection implements Marker
 		clipboard.setContents(stringSelection,joshText);
 	}
 
+	/// Returns the number of lines affected by a potential paste in this selection.
 	public int getInsertRipple(String str)
 	{
 		if (type == ST.RECT) return Math.abs(caret.row - row) + 1;
 		if (str.length() > 0 && str.charAt(str.length() - 1) == 0)
-			return Math.max(str.split("(\r?\n|\r)",-1).length - 1,0);
-		return 0;
+			return Math.max(str.split("(\r?\n|\r)",-1).length,0);
+		return 1;
 	}
 
 	public int getPasteRipple()

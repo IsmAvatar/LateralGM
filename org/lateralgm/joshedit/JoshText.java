@@ -349,7 +349,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		{
 				if (caret.row == sel.row) {
 					if (caret.row >= code.size() - 1) return;
-					UndoPatch up = new UndoPatch(caret.row + 1, caret.row);
+					UndoPatch up = new UndoPatch(caret.row, caret.row + 1);
 					StringBuilder swb = code.getsb(caret.row + 1);
 					code.get(caret.row + 1).sbuild = code.get(caret.row).sbuild;
 					code.get(caret.row).sbuild = swb;
@@ -415,10 +415,11 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 
 		public void actionPerformed(ActionEvent e)
 		{
-			UndoPatch up = new UndoPatch(Math.min(caret.row,sel.row),Math.min(code.size() - 1,
-					Math.max(caret.row,sel.row) + sel.getPasteRipple()));
+			UndoPatch up = new UndoPatch(Math.min(caret.row,sel.row),Math.max(Math.max(caret.row,sel.row), Math.min(code.size() - 1,
+					Math.min(caret.row,sel.row) + sel.getPasteRipple()-1)));
 			up.realize(sel.paste());
 			storeUndo(up,OPT.PASTE);
+			repaint();
 		}
 	};
 	public AbstractAction aUndo = new CustomAction("UNDO")
