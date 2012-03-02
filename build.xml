@@ -84,7 +84,7 @@
 		</jar>
 	</target>
 
-	<target name="build-bin" depends="batik,svn,compile" description="Fully prepares a binary-only jar for distribution">
+	<target name="build-bin" depends="batik,compile" description="Fully prepares a binary-only jar for distribution">
 		<antcall target="initialize" />
 		<antcall target="build-image" />
 		<antcall name="jar-bin" />
@@ -118,16 +118,10 @@
 		<taskdef name="rasterize" classname="org.apache.tools.ant.taskdefs.optional.RasterizerTask" />
 	</target>
 
-	<target name="svn">
-		<taskdef resource="org/tigris/subversion/svnant/svnantlib.xml" />
-	</target>
-
 	<!-- low-level "function" targets not intended for external use -->
-	<target name="getRevision" depends="svn">
-		<svn>
-			<status path="${basedir}" revisionProperty="svn.revision" />
-		</svn>
-		<echo message="r${svn.revision}" />
+	<target name="getRevision">
+		<property name="revision" value="" />
+		<echo message="Revision: ${revision}" />
 	</target>
 
 	<target name="backup">
@@ -137,8 +131,8 @@
 	</target>
 
 	<target name="replace" depends="getRevision">
-		<replace file="${svg}" token="$$rev$$" value="${svn.revision}" />
-		<replace file="${about}" token="$$rev$$" value="${svn.revision}" />
+		<replace file="${svg}" token="$$rev$$" value="${revision}" />
+		<replace file="${about}" token="$$rev$$" value="${revision}" />
 	</target>
 
 	<target name="revert">
@@ -147,7 +141,7 @@
 		<move file="${about}~" tofile="${about}" overwrite="true" />
 	</target>
 
-	<target name="initialize" depends="svn">
+	<target name="initialize">
 		<antcall target="backup" />
 		<antcall target="replace" />
 	</target>
