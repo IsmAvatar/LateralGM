@@ -69,7 +69,6 @@ public abstract class InstantiableResource<R extends InstantiableResource<R,P>, 
 		if (this == obj) return true;
 		if (obj == null || !(obj instanceof InstantiableResource<?,?>)) return false;
 		InstantiableResource<?,?> other = (InstantiableResource<?,?>) obj;
-		System.out.println(id + " " + other.id);
 		if (id != other.id || !name.equals(other.name) || reference != other.reference) return false;
 		return properties.equals(other.properties);
 		}
