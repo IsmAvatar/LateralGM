@@ -177,17 +177,9 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 
 			public void actionPerformed(ActionEvent e)
 				{
-				//TODO: Implement
-
-				/*int line = */showGotoDialog(getCaretLine());
-
-				/*
-				int lines = getLineCount();
-				if (line < 0) line = lines + line;
-				if (line < 0) line = 0;
-				if (line >= lines) line = lines - 1;
-				setCaretPosition(getLineStartOffset(line));
-				*/
+				int line = showGotoDialog(getCaretLine());
+				line = Math.max(0,Math.min(getLineCount() - 1,line));
+				setCaretPosition(line,0);
 				}
 		};
 
@@ -495,7 +487,7 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		{
 		return text.requestFocusInWindow();
 		}
-	
+
 	public void markError(final int line, final int pos, int abs)
 		{
 		final Marker err = new ErrorMarker(line,pos);
