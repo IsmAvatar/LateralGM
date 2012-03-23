@@ -45,7 +45,7 @@ public final class GMLKeywords
 			}
 		catch (FileNotFoundException e1)
 			{
-			is = GMLTokenMarker.class.getResourceAsStream(fn);
+			is = GMLKeywords.class.getResourceAsStream(fn);
 			}
 		Properties p = new Properties();
 		try
@@ -84,7 +84,7 @@ public final class GMLKeywords
 			}
 		catch (FileNotFoundException e)
 			{
-			InputStream is2 = GMLTokenMarker.class.getResourceAsStream(fn2);
+			InputStream is2 = GMLKeywords.class.getResourceAsStream(fn2);
 			br2 = new BufferedReader(new InputStreamReader(is2));
 			}
 
