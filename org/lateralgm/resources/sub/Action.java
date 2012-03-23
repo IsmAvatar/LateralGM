@@ -182,19 +182,6 @@ public class Action implements UpdateListener
 		}
 
 	@Override
-	public int hashCode()
-		{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((appliesTo == null) ? 0 : appliesTo.hashCode());
-		result = prime * result + ((arguments == null) ? 0 : arguments.hashCode());
-		result = prime * result + ((libAction == null) ? 0 : libAction.hashCode());
-		result = prime * result + (not ? 1231 : 1237);
-		result = prime * result + (relative ? 1231 : 1237);
-		return result;
-		}
-
-	@Override
 	public boolean equals(Object obj)
 		{
 		if (this == obj) return true;

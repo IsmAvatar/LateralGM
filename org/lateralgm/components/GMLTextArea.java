@@ -25,6 +25,7 @@ import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -39,6 +40,7 @@ import javax.swing.SwingUtilities;
 import org.lateralgm.file.GmFile.ResourceHolder;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.jedit.GMLKeywords;
+import org.lateralgm.joshedit.Code;
 import org.lateralgm.joshedit.CompletionMenu;
 import org.lateralgm.joshedit.CompletionMenu.Completion;
 import org.lateralgm.joshedit.GMLHighlighter;
@@ -46,7 +48,6 @@ import org.lateralgm.joshedit.GenericHighlighter;
 import org.lateralgm.joshedit.GenericHighlighter.KeywordSet;
 import org.lateralgm.joshedit.JoshText;
 import org.lateralgm.joshedit.JoshText.CodeMetrics;
-import org.lateralgm.joshedit.JoshText.CustomAction;
 import org.lateralgm.joshedit.JoshText.LineChangeListener;
 import org.lateralgm.joshedit.JoshText.Marker;
 import org.lateralgm.joshedit.Runner;
@@ -171,7 +172,7 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		tb.add(makeToolbarButton(text.aPaste));
 		}
 
-	CustomAction gotoAction = new CustomAction("GOTO")
+	AbstractAction gotoAction = new AbstractAction("GOTO")
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -428,7 +429,7 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		return new String();
 		}
 
-	CustomAction completionAction = new CustomAction("COMPLETE")
+	AbstractAction completionAction = new AbstractAction("COMPLETE")
 		{
 			private static final long serialVersionUID = 1L;
 			final Pattern W_BEFORE = Pattern.compile("\\w+$");
@@ -494,7 +495,7 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		text.markers.add(err);
 		text.addLineChangeListener(new LineChangeListener()
 			{
-				public void linesChanged(int start, int end)
+				public void linesChanged(Code code, int start, int end)
 					{
 					text.markers.remove(err);
 					text.removeLineChangeListener(this);
