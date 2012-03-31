@@ -41,7 +41,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 
 	public enum MaskShape
 		{
-		PRECISE,RECTANGLE,DISK,DIAMOND
+		PRECISE,RECTANGLE,DISK,DIAMOND,POLYGON
 		}
 
 	public final ImageList subImages = new ImageList();

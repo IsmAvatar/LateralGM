@@ -105,7 +105,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public JRadioButton auto, full, manual;
 
 	//properties
-	public JRadioButton rect, prec, disk, diam;
+	public JRadioButton rect, prec, disk, diam, poly;
 	public JCheckBox smooth, preload, transparent;
 	public JLabel subCount, width, height;
 
@@ -253,19 +253,23 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		g.add(disk);
 		diam = new JRadioButton(Messages.getString("SpriteFrame.DIAMOND")); //$NON-NLS-1$
 		g.add(diam);
+		poly = new JRadioButton(Messages.getString("SpriteFrame.POLYGON")); //$NON-NLS-1$
+		g.add(poly);
 		plf.make(g,PSprite.SHAPE,Sprite.MaskShape.class);
 
 		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
 		/**/.addComponent(prec)
 		/**/.addComponent(rect)
 		/**/.addComponent(disk)
-		/**/.addComponent(diam));
+		/**/.addComponent(diam)
+		/**/.addComponent(poly));
 
 		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
 		/**/.addComponent(prec)
 		/**/.addComponent(rect)
 		/**/.addComponent(disk)
-		/**/.addComponent(diam));
+		/**/.addComponent(diam)
+		/**/.addComponent(poly));
 
 		return pane;
 		}
