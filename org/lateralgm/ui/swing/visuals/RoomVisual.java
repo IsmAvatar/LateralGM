@@ -21,25 +21,27 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
-import org.lateralgm.main.Util;
+import org.lateralgm.main.LGM;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Room.Piece;
+import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.resources.sub.BackgroundDef;
-import org.lateralgm.resources.sub.Instance;
-import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
+import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
@@ -48,8 +50,9 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateListener
 	{
-	protected static final BufferedImage EMPTY_IMAGE = new BufferedImage(16,16,
-			BufferedImage.TYPE_INT_ARGB);
+	protected static final ImageIcon EMPTY_SPRITE = LGM.getIconForKey("Resource.OBJ"); //$NON-NLS-1$
+	protected static final BufferedImage EMPTY_IMAGE = new BufferedImage(EMPTY_SPRITE.getIconWidth(),
+			EMPTY_SPRITE.getIconHeight(),BufferedImage.TYPE_INT_ARGB);
 
 	private final BinVisual binVisual;
 	private final GridVisual gridVisual;
@@ -338,7 +341,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		public void paint(Graphics g)
 			{
-			if (show.contains(Show.INSTANCES)) g.drawImage(image,0,0,null);
+			if (show.contains(Show.INSTANCES))
+				g.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
 			}
 
 		@Override
