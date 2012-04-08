@@ -123,24 +123,14 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		{
 		super(code);
 
-		//		setDocument(new SyntaxDocument());
-		//		getDocument().getDocumentProperties().put(PlainDocument.tabSizeAttribute,Prefs.tabSize);
-
-		JoshText.Settings.indentSizeInSpaces = Prefs.tabSize;
+		setTabSize(Prefs.tabSize);
 		text.highlighter = highlighter = new GMLHighlighter(text);
 		setupKeywords();
 		updateKeywords();
 		updateResourceKeywords();
+		setFont(Prefs.codeFont);
 		/*		setTokenMarker(gmlTokenMarker);
-				painter.setFont(Prefs.codeFont);
 				painter.setStyles(PrefsStore.getSyntaxStyles());
-				painter.setBracketHighlightColor(Color.gray);
-				inputHandler = new DefaultInputHandler();
-				inputHandler.addDefaultKeyBindings();
-				putClientProperty(InputHandler.KEEP_INDENT_PROPERTY,Boolean.TRUE);
-				putClientProperty(InputHandler.TAB_TO_INDENT_PROPERTY,Boolean.TRUE);
-				putClientProperty(InputHandler.CONVERT_TABS_PROPERTY,Boolean.TRUE);
-				setCaretPosition(0);
 		 */
 		text.getActionMap().put("COMPLETIONS",completionAction);
 		LGM.currentFile.updateSource.addListener(this);
