@@ -1,6 +1,6 @@
 /*
+ * Copyright (C) 2008, 2012 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -128,7 +128,7 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		setupKeywords();
 		updateKeywords();
 		updateResourceKeywords();
-		setFont(Prefs.codeFont);
+		text.setFont(Prefs.codeFont);
 		/*		setTokenMarker(gmlTokenMarker);
 				painter.setStyles(PrefsStore.getSyntaxStyles());
 		 */
@@ -260,18 +260,6 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 				ks.words.add(r.getName());
 			}
 		}
-
-	/*
-		private final GMLTokenMarker gmlTokenMarker = new GMLTokenMarker();
-
-		private void updateTokenMarker()
-			{
-			KeywordMap km = new KeywordMap(false);
-			for (Set<String> a : resourceKeywords)
-				for (String s : a)
-					if (s.length() > 0) km.add(s,Token.KEYWORD3);
-			gmlTokenMarker.setCustomKeywords(km);
-			}*/
 
 	protected void updateCompletions()
 		{
