@@ -25,9 +25,9 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DropMode;
@@ -54,7 +54,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
 import org.lateralgm.components.GMLTextArea;
@@ -64,17 +63,15 @@ import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.GmObject.ParentLoopException;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
-
-import com.sun.corba.se.spi.orbutil.fsm.Action;
 
 public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject> implements
 		TreeSelectionListener
@@ -569,7 +566,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		for (int m = 0; m < 12; m++)
 			{
 			MainEvent me = res.mainEvents.get(m);
-			ArrayList<Event> ale = me.events;
+			List<Event> ale = me.events;
 			if (ale.size() == 1)
 				{
 				rootEvent.add(new EventInstanceNode(ale.get(0)));
@@ -617,7 +614,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			if (o instanceof EventInstanceNode)
 				{
 				EventInstanceNode ein = (EventInstanceNode) o;
-				if (ein.getUserObject().actions.size() > 0)
+				if (!ein.getUserObject().actions.isEmpty())
 					{
 					Event e = ein.getUserObject();
 					res.mainEvents.get(e.mainId).events.add(e);
@@ -628,10 +625,12 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 	protected boolean areResourceFieldsEqual()
 		{
-		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Action.class,"updateTrigger","updateSource");
-		c.addExclusions(Argument.class,"updateTrigger","updateSource");
-		return c.areEqual(res.mainEvents,resOriginal.mainEvents);
+		//		ResourceComparator c = new ResourceComparator();
+		//		c.addExclusions(Action.class,"updateTrigger","updateSource");
+		//		c.addExclusions(Argument.class,"updateTrigger","updateSource");
+		//		return c.areEqual(res.mainEvents,resOriginal.mainEvents);
+
+		return Util.areInherentlyUniquesEqual(res.mainEvents,resOriginal.mainEvents);
 		}
 
 	public void commitChanges()

@@ -9,8 +9,12 @@
 package org.lateralgm.resources.sub;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainEvent
+import org.lateralgm.main.Util;
+import org.lateralgm.main.Util.InherentlyUnique;
+
+public class MainEvent implements InherentlyUnique<MainEvent>
 	{
 	public static final byte EV_CREATE = 0;
 	public static final byte EV_DESTROY = 1;
@@ -25,12 +29,12 @@ public class MainEvent
 	public static final byte EV_KEYRELEASE = 10;
 	public static final byte EV_TRIGGER = 11;
 
-	public ArrayList<Event> events = new ArrayList<Event>();
+	public List<Event> events = new ArrayList<Event>();
 
-	public Event addEvent()
+	public boolean isEqual(MainEvent other)
 		{
-		Event ev = new Event();
-		events.add(ev);
-		return ev;
+		if (this == other) return true;
+		if (other == null) return false;
+		return Util.areInherentlyUniquesEqual(events,other.events);
 		}
 	}

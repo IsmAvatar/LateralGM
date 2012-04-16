@@ -33,6 +33,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -322,6 +324,40 @@ public final class Util
 	public static <R extends Resource<R,?>>R deRef(ResourceReference<R> ref)
 		{
 		return ref == null ? null : ref.get();
+		}
+
+	/**
+	 * Flags a class as inherently unique (when not cloned for modification),
+	 * indicating that it has an isEqual(E) method for comparing fields,
+	 * rather than the equals() method, which falls back to Object.equals.
+	 * @param <E> The other class to compare fields with. Typically, this
+	 * is the implementing class.
+	 */
+	public static interface InherentlyUnique<E extends InherentlyUnique<E>>
+		{
+		/**
+		 * Objects which are inherently unique (when not cloned for modification)
+		 * can't compare fields in their equals() method. As such, we instead
+		 * use our own method, isEqual, which compares fields for an equality check.
+		 * @return Whether the fields of these actions are equal.
+		 */
+		boolean isEqual(E other);
+		}
+
+	public static <V extends InherentlyUnique<V>>boolean areInherentlyUniquesEqual(List<V> a,
+			List<V> b)
+		{
+		if (a == b) return true;
+		if (a == null || b == null) return false;
+		ListIterator<V> e1 = a.listIterator();
+		ListIterator<V> e2 = b.listIterator();
+		while (e1.hasNext() && e2.hasNext())
+			{
+			V o1 = e1.next();
+			V o2 = e2.next();
+			if (!(o1 == null ? o2 == null : o1.isEqual(o2))) return false;
+			}
+		return !(e1.hasNext() || e2.hasNext());
 		}
 
 	public static int gcd(int a, int b)

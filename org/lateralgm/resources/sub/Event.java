@@ -17,11 +17,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.lateralgm.main.Util;
+import org.lateralgm.main.Util.InherentlyUnique;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 
-public class Event extends ActionContainer implements Comparable<Event>
+public class Event extends ActionContainer implements Comparable<Event>, InherentlyUnique<Event>
 	{
 	// mouse event types
 	public static final byte EV_LEFT_BUTTON = 0;
@@ -347,5 +349,14 @@ public class Event extends ActionContainer implements Comparable<Event>
 		keys.put(0,0); //vk_nokey
 		keys.put(1,1); //vk_anykey
 		KEYS = Collections.unmodifiableMap((keys));
+		}
+
+	public boolean isEqual(Event evt)
+		{
+		if (this == evt) return true;
+		if (evt == null || id != evt.id || mainId != evt.mainId) return false;
+		if (!Util.areInherentlyUniquesEqual(actions,evt.actions)) return false;
+		if (other == null) return evt.other == null;
+		return other.equals(evt.other);
 		}
 	}
