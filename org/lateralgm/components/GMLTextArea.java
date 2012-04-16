@@ -43,13 +43,13 @@ import org.lateralgm.jedit.GMLKeywords;
 import org.lateralgm.joshedit.Code;
 import org.lateralgm.joshedit.CompletionMenu;
 import org.lateralgm.joshedit.CompletionMenu.Completion;
-import org.lateralgm.joshedit.GMLHighlighter;
-import org.lateralgm.joshedit.GenericHighlighter;
-import org.lateralgm.joshedit.GenericHighlighter.KeywordSet;
+import org.lateralgm.joshedit.GMLTokenMarker;
+import org.lateralgm.joshedit.DefaultTokenMarker;
+import org.lateralgm.joshedit.DefaultTokenMarker.KeywordSet;
 import org.lateralgm.joshedit.JoshText;
 import org.lateralgm.joshedit.JoshText.CodeMetrics;
 import org.lateralgm.joshedit.JoshText.LineChangeListener;
-import org.lateralgm.joshedit.JoshText.Marker;
+import org.lateralgm.joshedit.JoshText.Highlighter;
 import org.lateralgm.joshedit.Runner;
 import org.lateralgm.joshedit.Runner.EditorInterface;
 import org.lateralgm.joshedit.Runner.JoshTextPanel;
@@ -95,7 +95,7 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 	protected Integer lastUpdateTaskID = 0;
 	private Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
 	protected Completion[] completions;
-	protected GenericHighlighter highlighter;
+	protected DefaultTokenMarker gmlTokenMarker = new GMLTokenMarker();
 
 	private static final Color PURPLE = new Color(128,0,128);
 	private static final Color BROWN = new Color(128,0,0);
@@ -124,14 +124,12 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		super(code);
 
 		setTabSize(Prefs.tabSize);
-		text.highlighter = highlighter = new GMLHighlighter(text);
+		setTokenMarker(gmlTokenMarker);
 		setupKeywords();
 		updateKeywords();
 		updateResourceKeywords();
 		text.setFont(Prefs.codeFont);
-		/*		setTokenMarker(gmlTokenMarker);
-				painter.setStyles(PrefsStore.getSyntaxStyles());
-		 */
+		//painter.setStyles(PrefsStore.getSyntaxStyles());
 		text.getActionMap().put("COMPLETIONS",completionAction);
 		LGM.currentFile.updateSource.addListener(this);
 		/*		addCaretListener(undoManager);
@@ -218,13 +216,13 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 
 	private void setupKeywords()
 		{
-		highlighter.hlKeywords.add(resNames);
-		highlighter.hlKeywords.add(scrNames);
-		highlighter.hlKeywords.add(functions);
-		highlighter.hlKeywords.add(constructs);
-		highlighter.hlKeywords.add(operators);
-		highlighter.hlKeywords.add(constants);
-		highlighter.hlKeywords.add(variables);
+		gmlTokenMarker.tmKeywords.add(resNames);
+		gmlTokenMarker.tmKeywords.add(scrNames);
+		gmlTokenMarker.tmKeywords.add(functions);
+		gmlTokenMarker.tmKeywords.add(constructs);
+		gmlTokenMarker.tmKeywords.add(operators);
+		gmlTokenMarker.tmKeywords.add(constants);
+		gmlTokenMarker.tmKeywords.add(variables);
 		}
 
 	public static void updateKeywords()
@@ -469,26 +467,26 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 
 	public void markError(final int line, final int pos, int abs)
 		{
-		final Marker err = new ErrorMarker(line,pos);
-		text.markers.add(err);
+		final Highlighter err = new ErrorHighlighter(line,pos);
+		text.highlighters.add(err);
 		text.addLineChangeListener(new LineChangeListener()
 			{
 				public void linesChanged(Code code, int start, int end)
 					{
-					text.markers.remove(err);
+					text.highlighters.remove(err);
 					text.removeLineChangeListener(this);
 					}
 			});
 		text.repaint();
 		}
 
-	class ErrorMarker implements Marker
+	class ErrorHighlighter implements Highlighter
 		{
 		protected final Color COL_SQ = Color.RED;
 		protected final Color COL_HL = new Color(255,240,230);
 		protected int line, pos, x2;
 
-		public ErrorMarker(int line, int pos)
+		public ErrorHighlighter(int line, int pos)
 			{
 			this.line = line;
 			this.pos = pos;
