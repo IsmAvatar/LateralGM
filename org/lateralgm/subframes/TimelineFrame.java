@@ -158,7 +158,6 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 
 	protected boolean areResourceFieldsEqual()
 		{
-//		return new ResourceComparator().areEqual(res.moments,resOriginal.moments);
 		return Util.areInherentlyUniquesEqual(res.moments,resOriginal.moments);
 		}
 

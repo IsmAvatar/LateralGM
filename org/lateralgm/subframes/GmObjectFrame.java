@@ -625,11 +625,6 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 	protected boolean areResourceFieldsEqual()
 		{
-		//		ResourceComparator c = new ResourceComparator();
-		//		c.addExclusions(Action.class,"updateTrigger","updateSource");
-		//		c.addExclusions(Argument.class,"updateTrigger","updateSource");
-		//		return c.areEqual(res.mainEvents,resOriginal.mainEvents);
-
 		return Util.areInherentlyUniquesEqual(res.mainEvents,resOriginal.mainEvents);
 		}
 
