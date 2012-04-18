@@ -297,7 +297,6 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		public boolean apply(JoshText a, char input, int row, int start, int end)
 			{
 			String s = name;
-			//			int l = input != '\0' ? pos : length;
 			int p = s.length();
 			if (variable.arraySize > 0)
 				{
@@ -320,9 +319,7 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 					p = s.length();
 				}
 			if (!replace(a,row,start,end,s)) return false;
-			//			a.caret.row = row;
-			//			a.caret.col = start + p;
-			//			a.setCaretPosition(offset + p);
+			setCaretPosition(row,start + p);
 			return true;
 			}
 
@@ -348,7 +345,6 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		public boolean apply(JoshText a, char input, int row, int start, int end)
 			{
 			String s = name + "(" + getArguments() + ")";
-			//			int l = input != '\0' ? pos : length;
 			int p1, p2;
 			boolean argSel = true;
 			switch (input)
@@ -373,8 +369,7 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 				p2 = p1;
 				}
 			if (!replace(a,row,start,end,s)) return false;
-			//			a.setSelectionStart(offset + p1);
-			//			a.setSelectionEnd(offset + p2);
+			setSelection(row,start + p1,row,start + p2);
 			return true;
 			}
 

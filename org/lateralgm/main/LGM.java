@@ -168,6 +168,7 @@ public final class LGM
 				"org/lateralgm/main/icons.properties"); //$NON-NLS-1$
 		try
 			{
+			if (is == null) throw new IOException();
 			iconProps.load(is);
 			}
 		catch (IOException e)
