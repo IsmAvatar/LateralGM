@@ -177,24 +177,37 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 	public <P extends Piece>Iterator<P> intersect(Rectangle r, Class<P> p)
 		{
-		final Iterator<PieceVisual<P>> vi = binVisual.intersect(r,getVisualClass(p));
-		return new Iterator<P>()
+		return new PieceIterator<P>(binVisual.intersect(r,getVisualClass(p)));
+		}
+
+	public <P extends Piece>Iterator<P> intersect(Rectangle r, Class<P> p, int depth)
+		{
+		return new PieceIterator<P>(binVisual.intersect(r,getVisualClass(p),depth));
+		}
+
+	private static class PieceIterator<P extends Piece> implements Iterator<P>
+		{
+		private Iterator<PieceVisual<P>> vi;
+
+		public PieceIterator(Iterator<PieceVisual<P>> vi)
 			{
-				public boolean hasNext()
-					{
-					return vi.hasNext();
-					}
+			this.vi = vi;
+			}
 
-				public P next()
-					{
-					return vi.next().piece;
-					}
+		public boolean hasNext()
+			{
+			return vi.hasNext();
+			}
 
-				public void remove()
-					{
-					vi.remove();
-					}
-			};
+		public P next()
+			{
+			return vi.next().piece;
+			}
+
+		public void remove()
+			{
+			vi.remove();
+			}
 		}
 
 	public boolean intersects(Rectangle r, Piece p)
@@ -214,9 +227,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		throw new IllegalArgumentException();
 		}
 
-	public Iterator<Tile> intersectTiles(Rectangle r)
+	public Iterator<Tile> intersectTiles(Rectangle r, int depth)
 		{
-		return intersect(r,Tile.class);
+		return intersect(r,Tile.class,depth);
 		}
 
 	public Iterator<Instance> intersectInstances(Rectangle r)

@@ -12,9 +12,9 @@ import java.awt.Rectangle;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BinPlane
@@ -432,79 +432,161 @@ public class BinPlane
 			}
 		}
 
-	public static final class CandidateIterator implements Iterator<Candidate>
+	public static abstract class LateralIterator<T> implements Iterator<T>
 		{
+		protected Iterator<T> iter;
 
+		public boolean hasNext()
+			{
+			if (iter == null || !iter.hasNext())
+				{
+				iter = getNextIterator();
+				if (iter == null) return false;
+				}
+			return true;
+			}
+
+		public T next()
+			{
+			return iter.next();
+			}
+
+		public void remove()
+			{
+			iter.remove();
+			}
+
+		protected abstract Iterator<T> getNextIterator();
+		}
+
+	public static final class CandidateIterator extends LateralIterator<Candidate>
+		{
 		final Iterator<CandidateBin> cbi;
-		Iterator<Candidate> ci = null;
 
 		public CandidateIterator(Iterator<CandidateBin> i)
 			{
 			cbi = i;
 			}
 
-		public boolean hasNext()
+		@Override
+		protected Iterator<Candidate> getNextIterator()
 			{
-			while (ci == null || !ci.hasNext())
+			while (cbi.hasNext())
 				{
-				if (!cbi.hasNext()) return false;
-				ci = cbi.next().iterator;
+				Iterator<Candidate> r = cbi.next().iterator;
+				if (r != null && r.hasNext()) return r;
 				}
-			return true;
-			}
-
-		public Candidate next()
-			{
-			if (!hasNext()) throw new NoSuchElementException();
-			return ci.next();
-			}
-
-		public void remove()
-			{
-			ci.remove();
+			return null;
 			}
 		}
 
-	public static final class CandidateDataIterator<T> implements Iterator<T>
+	/**
+	 * Abstract Iterator wrapper/implementation which allows the individual elements
+	 * to be converted or even bypassed as needed (by having convert() return null).
+	 * This implementation will not return null elements.
+	 * <p>
+	 * Note that due to the way this iterator is implemented,
+	 * dynamic removal of elements is not possible.
+	 * @param <T1> The type of the wrapped iterator.
+	 * @param <T2> The output (converted) type of the implementation iterator.
+	 */
+	public static abstract class ConversionIterator<T1, T2> implements Iterator<T2>
 		{
-		final CandidateIterator ci;
-		final Class<T> ct;
-		T next;
+		/** The wrapped iterator */
+		protected final Iterator<T1> iter;
+		/**
+		 * Temporarily stores the next element that was able
+		 * to convert, between calls to hasNext() and next()
+		 */
+		private T2 next;
 
-		public CandidateDataIterator(Iterator<CandidateBin> i, Class<T> t)
+		/**
+		 * Wraps the given iterator.
+		 * @param t1 The iterator to wrap
+		 */
+		public ConversionIterator(Iterator<T1> t1)
 			{
-			ci = new CandidateIterator(i);
-			ct = t;
-			next = findNext();
+			iter = t1;
 			}
 
 		public boolean hasNext()
 			{
+			if (next == null) next = findNext();
 			return next != null;
 			}
 
-		public T next()
+		public T2 next()
 			{
-			if (next == null) throw new NoSuchElementException();
-			T n = next;
-			next = findNext();
+			T2 n = next == null ? findNext() : next;
+			next = null;
 			return n;
 			}
 
+		@Deprecated
 		public void remove()
 			{
 			// Simply doing ci.remove() here wouldn't work if hasNext has been called.
 			throw new UnsupportedOperationException();
 			}
 
-		private T findNext()
+		/**
+		 * Prepares the next available converted element for iteration.
+		 * @return The converted element.
+		 */
+		private T2 findNext()
 			{
-			while (ci.hasNext())
+			while (iter.hasNext())
 				{
-				Candidate c = ci.next();
-				if (ct.isInstance(c.data)) return ct.cast(c.data);
+				T1 c = iter.next();
+				T2 r = convert(c);
+				if (r != null) return r;
 				}
 			return null;
+			}
+
+		/**
+		 * Converts a given element into the implementation type.
+		 * Implementations may return null to entirely skip the element.
+		 * The implementation iterator will skip to the next non-null conversion.
+		 * @param c An element from the wrapped iterator.
+		 * @return A converted element for the implementation iterator, or null.
+		 */
+		protected abstract T2 convert(T1 c);
+		}
+
+	public static final class CandidateDataIterator<T> extends ConversionIterator<Candidate,T>
+		{
+		private final Class<T> ct;
+
+		public CandidateDataIterator(Iterator<CandidateBin> i, Class<T> t)
+			{
+			super(new CandidateIterator(i));
+			ct = t;
+			}
+
+		@Override
+		protected T convert(Candidate c)
+			{
+			return ct.isInstance(c.data) ? ct.cast(c.data) : null;
+			}
+		}
+
+	public static final class CandidateDepthDataIterator<T> extends ConversionIterator<Candidate,T>
+		{
+		private final Class<T> ct;
+		private final int depth;
+
+		public CandidateDepthDataIterator(Iterator<CandidateBin> i, Class<T> t, int depth)
+			{
+			super(new CandidateIterator(i));
+			ct = t;
+			this.depth = depth;
+			}
+
+		@Override
+		protected T convert(Candidate c)
+			{
+			return ct.isInstance(c.data) && c.depth == depth ? ct.cast(c.data) : null;
 			}
 		}
 

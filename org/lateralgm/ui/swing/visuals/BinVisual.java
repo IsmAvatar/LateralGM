@@ -170,6 +170,11 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 		return new BinPlane.CandidateDataIterator<V>(binPlane.intersect(r,true),v);
 		}
 
+	public <V extends Visual>Iterator<V> intersect(Rectangle r, Class<V> v, int depth)
+		{
+		return new BinPlane.CandidateDepthDataIterator<V>(binPlane.intersect(r,true),v,depth);
+		}
+
 	public void paint(Graphics g)
 		{
 		Rectangle clip = g.getClipBounds();
