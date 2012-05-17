@@ -8,13 +8,9 @@
 
 package org.lateralgm.main;
 
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
-
-import org.lateralgm.jedit.SyntaxStyle;
-import org.lateralgm.jedit.Token;
 
 public final class PrefsStore
 	{
@@ -65,29 +61,6 @@ public final class PrefsStore
 	public static void setWindowMaximized(boolean b)
 		{
 		PREFS.putBoolean("WINDOW_MAXIMIZED",b);
-		}
-
-	public static SyntaxStyle[] getSyntaxStyles()
-		{
-		SyntaxStyle[] styles = new SyntaxStyle[Token.ID_COUNT];
-
-		styles[Token.COMMENT1] = new SyntaxStyle(new Color(0x338833),true,false); //Standard Comments
-		styles[Token.COMMENT2] = new SyntaxStyle(new Color(0x333388),true,false); //Javadocs
-		styles[Token.KEYWORD1] = new SyntaxStyle(new Color(0x000000),false,true); //Keywords (if, for, etc)
-		styles[Token.KEYWORD2] = new SyntaxStyle(new Color(0x1111DD),true,false); //Predefined Variables
-		styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0x770077),false,false); //Resource Names
-		styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x660099),false,false); //Strings
-		styles[Token.LITERAL2] = new SyntaxStyle(new Color(0x771111),false,false); //Predefined Constants
-		styles[Token.LABEL] = new SyntaxStyle(new Color(0x111177),false,false); //Functions
-		styles[Token.OPERATOR] = new SyntaxStyle(new Color(0x000000),false,true); //?
-		styles[Token.INVALID] = new SyntaxStyle(new Color(0xEE0000),false,true); //?
-
-		for (int i = 1; i < styles.length; i++)
-			{
-			String key = String.format("SYNTAX_STYLE_%02X",i);
-			styles[i] = Util.stringToSyntaxStyle(PREFS.get(key,null),styles[i]);
-			}
-		return styles;
 		}
 
 	public static int getNumberOfBackups()

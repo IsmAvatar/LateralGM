@@ -55,7 +55,6 @@ import org.lateralgm.file.iconio.BitmapDescriptor;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.file.iconio.ICOImageReaderSPI;
 import org.lateralgm.file.iconio.WBMPImageReaderSpiFix;
-import org.lateralgm.jedit.SyntaxStyle;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
@@ -140,32 +139,6 @@ public final class Util
 	public static String rectangleToString(Rectangle r)
 		{
 		return String.format("%d %d %d %d",r.x,r.y,r.width,r.height);
-		}
-
-	public static SyntaxStyle stringToSyntaxStyle(String s, SyntaxStyle defaultValue)
-		{
-		String[] a;
-		Color c;
-		try
-			{
-			a = s.split(" ",2);
-			c = new Color(Integer.valueOf(a[0],16));
-			}
-		catch (NullPointerException npe)
-			{
-			return defaultValue;
-			}
-		catch (NumberFormatException nfe)
-			{
-			return defaultValue;
-			}
-		boolean i = false, b = false;
-		if (a.length > 1)
-			{
-			i = a[1].matches("(?i).*\\bitalic\\b.*");
-			b = a[1].matches("(?i).*\\bbold\\b.*");
-			}
-		return new SyntaxStyle(c,i,b);
 		}
 
 	public static BufferedImage toBufferedImage(Image image)
