@@ -3,6 +3,7 @@
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
+ * Copyright (C) 2012, Marten de Vries <marten@opengamedesigner.org>
  * 
  * This file is part of LateralGM.
  * 
@@ -93,13 +94,22 @@ public final class LGM
 		Scanner s = new Scanner(jv).useDelimiter("[\\._-]"); //$NON-NLS-1$
 		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
 
-		try
+		//Get the current working directory. If running Jython, that's impossible
+		//and a warning message is printed.
+		if (LGM.class.getProtectionDomain().getCodeSource().getLocation() != null)
 			{
-			workDir = new File(LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+			try
+				{
+				workDir = new File(LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+				}
+			catch (URISyntaxException e1)
+				{
+				e1.printStackTrace();
+				}
 			}
-		catch (URISyntaxException e1)
+		else
 			{
-			e1.printStackTrace();
+			System.err.println("WARNING: couldn't determine the working directory. Running Jython?");
 			}
 		}
 	public static JFrame frame;
