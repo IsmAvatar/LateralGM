@@ -97,9 +97,9 @@ public final class LGM
 			{
 			workDir = new File(LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 			}
-		catch (URISyntaxException e1)
+		catch (Exception e)
 			{
-			e1.printStackTrace();
+			System.err.println(Messages.format("LGM.NO_WORKDIR",e.getClass(),e.getLocalizedMessage()));
 			}
 		}
 	public static JFrame frame;
@@ -285,6 +285,7 @@ public final class LGM
 
 	public static void loadPlugins()
 		{
+		if (workDir == null) return;
 		File dir = new File(workDir.getParent(),"plugins"); //$NON-NLS-1$
 		if (!dir.exists()) dir = new File(workDir.getParent(),"Plugins"); //$NON-NLS-1$
 		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$
