@@ -103,17 +103,6 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 
 	static KeywordSet resNames, scrNames, constructs, functions, operators, constants, variables;
 
-	static
-		{
-		resNames = new KeywordSet("Resource Names",PURPLE,Font.PLAIN);
-		scrNames = new KeywordSet("Script Names",FUNCTION,Font.PLAIN);
-		functions = new KeywordSet("Functions",FUNCTION,Font.PLAIN);
-		constructs = new KeywordSet("Constructs",Color.BLACK,Font.BOLD);
-		operators = new KeywordSet("Operators",Color.BLACK,Font.BOLD);
-		constants = new KeywordSet("Constants",BROWN,Font.PLAIN);
-		variables = new KeywordSet("Variables",Color.BLUE,Font.ITALIC);
-		}
-
 	public GMLTextArea()
 		{
 		this(null);
@@ -216,13 +205,13 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 
 	private void setupKeywords()
 		{
-		gmlTokenMarker.tmKeywords.add(resNames);
-		gmlTokenMarker.tmKeywords.add(scrNames);
-		gmlTokenMarker.tmKeywords.add(functions);
-		gmlTokenMarker.tmKeywords.add(constructs);
-		gmlTokenMarker.tmKeywords.add(operators);
-		gmlTokenMarker.tmKeywords.add(constants);
-		gmlTokenMarker.tmKeywords.add(variables);
+		resNames = gmlTokenMarker.addKeywordSet("Resource Names",PURPLE,Font.PLAIN);
+		scrNames = gmlTokenMarker.addKeywordSet("Script Names",FUNCTION,Font.PLAIN);
+		functions = gmlTokenMarker.addKeywordSet("Functions",FUNCTION,Font.PLAIN);
+		constructs = gmlTokenMarker.addKeywordSet("Constructs",Color.BLACK,Font.BOLD);
+		operators = gmlTokenMarker.addKeywordSet("Operators",Color.BLACK,Font.BOLD);
+		constants = gmlTokenMarker.addKeywordSet("Constants",BROWN,Font.PLAIN);
+		variables = gmlTokenMarker.addKeywordSet("Variables",Color.BLUE,Font.ITALIC);
 		}
 
 	public static void updateKeywords()
