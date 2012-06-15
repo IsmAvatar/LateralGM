@@ -209,15 +209,21 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (com.endsWith(".OPEN")) //$NON-NLS-1$
 			{
-			try
+			String title = Messages.getString("Listener.CONFIRM_LOAD_TITLE");
+			String message = Messages.getString("Listener.CONFIRM_LOAD");
+			int opt = JOptionPane.showConfirmDialog(LGM.frame,message,title,JOptionPane.YES_NO_OPTION);
+			if (opt == JOptionPane.YES_OPTION)
 				{
-				fc.open(args.length > 1 ? new URI(args[1]) : null);
+				try
+					{
+					fc.open(args.length > 1 ? new URI(args[1]) : null);
+					}
+				catch (URISyntaxException e1)
+					{
+					e1.printStackTrace();
+					}
+				return;
 				}
-			catch (URISyntaxException e1)
-				{
-				e1.printStackTrace();
-				}
-			return;
 			}
 		if (com.endsWith(".SAVE")) //$NON-NLS-1$
 			{
