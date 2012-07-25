@@ -52,13 +52,20 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 		}
 
 	@SuppressWarnings("unchecked")
-	public static void addKind(String str3, Class<?> clz)
+	private static void addKind(String str3, Class<?> clz)
 		{
-		kinds.add((Class<? extends Resource<?,?>>) clz);
-		kindsByName3.put(str3,(Class<? extends Resource<?,?>>) clz);
+		String name = Messages.getString("LGM." + str3); //$NON-NLS-1$
+		String plural = Messages.getString("LGM.PL_" + str3); //$NON-NLS-1$
+		addKind((Class<? extends Resource<?,?>>) clz,str3,name,plural);
+		}
 
-		kindNames.put((Class<? extends Resource<?,?>>) clz,Messages.getString("LGM." + str3)); //$NON-NLS-1$
-		kindNamesPlural.put((Class<? extends Resource<?,?>>) clz,Messages.getString("LGM.PL_" + str3)); //$NON-NLS-1$
+	public static void addKind(Class<? extends Resource<?,?>> kind, String name3, String name,
+			String plural)
+		{
+		kinds.add(kind);
+		kindsByName3.put(name3,kind);
+		kindNames.put(kind,name);
+		kindNamesPlural.put(kind,plural);
 		}
 
 	protected ResNode node;
