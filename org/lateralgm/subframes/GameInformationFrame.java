@@ -72,7 +72,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
@@ -108,7 +107,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	// because that would cause the selection to conform the text to the caret format
 	protected boolean fFamilyChange = false;
 	protected boolean fSizeChange = false;
-	protected boolean fFGChange = false;
 
 	protected boolean documentChanged = false;
 
