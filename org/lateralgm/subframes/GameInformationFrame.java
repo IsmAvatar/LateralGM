@@ -19,7 +19,7 @@ package org.lateralgm.subframes;
  * 	// setAttributeSet(attr);
  * 	// m_monitor.grabFocus();
  * 
- * TODO: Add font color functionality
+ * TODO: Add left, right, center text alignment
  */
 
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
@@ -72,6 +72,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.rtf.RTFEditorKit;
 
@@ -101,11 +102,13 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	protected JToggleButton tbUnderline;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	private CustomFileChooser fc;
+	protected Color fgColor;
 
 	// These prevent the Formatting Bar things from firing when the caret moves
 	// because that would cause the selection to conform the text to the caret format
 	protected boolean fFamilyChange = false;
 	protected boolean fSizeChange = false;
+	protected boolean fFGChange = false;
 
 	protected boolean documentChanged = false;
 
@@ -243,6 +246,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		tool.add(tbUnderline);
 
 		tool.addSeparator();
+		JButton butFontColor = new JButton(LGM.getIconForKey("GameInformationFrame.FONTCOLOR")); //$NON-NLS-1$
+		butFontColor.setRequestFocusEnabled(false);
+		butFontColor.setActionCommand("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
+		butFontColor.addActionListener(this);
+		tool.add(butFontColor);
 		JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
 		but.setRequestFocusEnabled(false);
 		but.setActionCommand("GameInformationFrame.COLOR"); //$NON-NLS-1$
@@ -373,6 +381,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		setJMenuBar(menubar);
 		toolbar = makeToolBar();
 		add(toolbar,BorderLayout.NORTH);
+		fgColor = Color.BLACK;
 
 		tabs = new JTabbedPane();
 		add(tabs,BorderLayout.CENTER);
@@ -415,6 +424,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 					if (ce.getMark() <= dot) dot--;
 					AttributeSet as = d.getCharacterElement(dot).getAttributes();
 					String f = StyleConstants.getFontFamily(as);
+					fgColor = StyleConstants.getForeground(as);
 					int s = StyleConstants.getFontSize(as);
 					boolean b = StyleConstants.isBold(as);
 					boolean i = StyleConstants.isItalic(as);
@@ -564,6 +574,17 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{
 			tabs.setSelectedIndex(0);
 			saveToFile();
+			return;
+			}
+		if (com.equals("GameInformationFrame.FONTCOLOR")) //$NON-NLS-1$
+			{
+			String colorStr = Messages.getString("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
+			Color c = JColorChooser.showDialog(this,colorStr,fgColor);
+			if (c != null)
+				{
+				fgColor = c;
+				setSelectionAttribute(StyleConstants.Foreground, c);
+				}
 			return;
 			}
 		if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
