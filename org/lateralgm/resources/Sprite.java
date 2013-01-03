@@ -173,13 +173,13 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		int uy1 = unz ? u.y : y2;
 		int y1 = 0;
 		y1loop: for (; y1 < uy1; y1++)
-			for (int i = 0; i < x2; i++)
+			for (int i = 0; i <= x2; i++)
 				if (img.getRGB(i,y1) >> 24 < tolerance) break y1loop;
 
 		int ux1 = unz ? u.x : x2;
 		int x1 = 0;
 		x1loop: for (; x1 < ux1; x1++)
-			for (int j = y1; j < y2; j++)
+			for (int j = y1; j <= y2; j++)
 				if (img.getRGB(x1,j) >> 24 < tolerance) break x1loop;
 
 		u.x = x1;
@@ -210,13 +210,13 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		int uy1 = unz ? u.y : y2;
 		int y1 = 0;
 		y1loop: for (; y1 < uy1; y1++)
-			for (int i = 0; i < x2; i++)
+			for (int i = 0; i <= x2; i++)
 				if (img.getRGB(i,y1) != transparent) break y1loop;
 
 		int ux1 = unz ? u.x : x2;
 		int x1 = 0;
 		x1loop: for (; x1 < ux1; x1++)
-			for (int j = y1; j < y2; j++)
+			for (int j = y1; j <= y2; j++)
 				if (img.getRGB(x1,j) != transparent) break x1loop;
 
 		u.x = x1;
