@@ -414,7 +414,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 		public void mouseReleased(MouseEvent e)
 			{
-			ResNode node = (ResNode) LGM.tree.getLastSelectedPathComponent();
+			ResNode node = (ResNode) LGM.tree.getPathForLocation(e.getX(), e.getY()).getLastPathComponent();
 			if (e.getX() >= LGM.tree.getWidth() && e.getY() >= LGM.tree.getHeight() || node == null)
 				return;
 			if (e.getModifiers() == InputEvent.BUTTON3_MASK
