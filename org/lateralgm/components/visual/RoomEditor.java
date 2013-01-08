@@ -249,6 +249,13 @@ public class RoomEditor extends VisualPanel
 				}
 			}
 		}
+	
+	private void processMiddleButton(int modifiers, boolean pressed, final Piece mc, Point p) {
+		//if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0) {
+			//if (!pressed) { return; }
+				setZoom(0);
+		//}
+	}
 
 	private void processRightButton(int modifiers, boolean pressed, final Piece mc, Point p)
 		{
