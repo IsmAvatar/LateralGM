@@ -414,8 +414,11 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 		public void mouseReleased(MouseEvent e)
 			{
-			ResNode node = (ResNode) LGM.tree.getPathForLocation(e.getX(), e.getY()).getLastPathComponent();
-			if (e.getX() >= LGM.tree.getWidth() && e.getY() >= LGM.tree.getHeight() || node == null)
+			TreePath p = LGM.tree.getPathForLocation(e.getX(), e.getY());
+			if (e.getX() >= LGM.tree.getWidth() && e.getY() >= LGM.tree.getHeight() || p == null)
+				return;
+			ResNode node = (ResNode) p.getLastPathComponent();
+			if(node == null)
 				return;
 			if (e.getModifiers() == InputEvent.BUTTON3_MASK
 			//Isn't Java supposed to handle ctrl+click for us? For some reason it doesn't.
