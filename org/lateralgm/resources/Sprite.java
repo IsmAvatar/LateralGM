@@ -38,6 +38,11 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		{
 		AUTO,FULL,MANUAL
 		}
+	
+	public enum Effects
+	{
+		INVERT,FLIP,ROTATE
+	}
 
 	public enum MaskShape
 		{

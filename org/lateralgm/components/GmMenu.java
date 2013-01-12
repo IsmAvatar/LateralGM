@@ -11,6 +11,7 @@ package org.lateralgm.components;
 
 import static org.lateralgm.components.GmMenuBar.setTextAndAlt;
 
+import java.awt.Color;
 import java.awt.event.ActionListener;
 
 import javax.swing.JMenu;
@@ -25,6 +26,9 @@ public class GmMenu extends JMenu
 	{
 	private static final long serialVersionUID = 1L;
 
+	public Color backColor = Color.black;
+	public Color foreColor = Color.white;
+	
 	public GmMenu(String s)
 		{
 		super();
@@ -49,6 +53,8 @@ public class GmMenu extends JMenu
 	public JMenuItem addItem(String key, int shortcut, int control, ActionListener listener)
 		{
 		JMenuItem item = new JMenuItem();
+		item.setBackground(backColor);
+		item.setForeground(foreColor);
 		if (key != null)
 			{
 			setTextAndAlt(item,Messages.getString(key));

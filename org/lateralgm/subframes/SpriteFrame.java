@@ -108,9 +108,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public JRadioButton rect, prec, disk, diam;
 	public JCheckBox smooth, preload, transparent;
 	public JLabel subCount, width, height;
-
+	
 	//subimages
 	public JList subList;
+	
+	//effects
+	public JButton invert, flip, rotate,
+	reverse, addreverse, fade, rotfract, srhink, grow, colalpha, alphacol;
 
 	//preview
 	public SubimagePreview preview;
@@ -142,9 +146,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		setLayout(new BorderLayout());
 
 		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab(Messages.getString("SpriteFrame.PROPERTIES"),makePropertiesPane()); //$NON-NLS-1$
-		tabs.addTab(Messages.getString("SpriteFrame.MASK"),makeMaskPane()); //$NON-NLS-1$
-		tabs.addTab(Messages.getString("SpriteFrame.SUBIMAGES"),makeSubimagesPane()); //$NON-NLS-1$
+		tabs.addTab(Messages.getString("SpriteFrame.PROPERTIES"), makePropertiesPane()); //$NON-NLS-1$
+		tabs.addTab(Messages.getString("SpriteFrame.MASK"), makeMaskPane()); //$NON-NLS-1$
+		tabs.addTab(Messages.getString("SpriteFrame.SUBIMAGES"), makeSubimagesPane()); //$NON-NLS-1$
+		tabs.addTab(Messages.getString("SpriteFrame.EFFECTS"), makeEffectsPane()); //$NON-NLS-1$
 
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,tabs,makePreviewPane());
 		splitPane.setOneTouchExpandable(true);
@@ -352,6 +357,127 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		/*		*/.addComponent(bLab)
 		/*		*/.addComponent(bboxBottom))
 		/**/.addContainerGap(2,2));
+
+		return pane;
+		}
+	
+	private JPanel makeEffectsPane()
+		{
+		JPanel pane = new JPanel();
+		GroupLayout layout = new GroupLayout(pane);
+		layout.setAutoCreateContainerGaps(true);
+
+		pane.setLayout(layout);
+
+		JButton invert = new JButton(Messages.getString("SpriteFrame.INVERT")); //$NON-NLS-1$
+		invert.setToolTipText("Invert All Subframes"); 
+		invert.addActionListener(this);
+		
+		JButton flip = new JButton(Messages.getString("SpriteFrame.FLIP")); //$NON-NLS-1$
+		flip.setToolTipText("Flip"); 
+		flip.addActionListener(this);
+		
+		JButton rotate = new JButton(Messages.getString("SpriteFrame.ROTATE")); //$NON-NLS-1$
+		rotate.setToolTipText("Rotate"); 
+		rotate.addActionListener(this);
+		
+		JButton rotfract = new JButton(Messages.getString("SpriteFrame.ROTATEFRACTION")); //$NON-NLS-1$
+		rotfract.setToolTipText("Rotate By An Incremented Fraction Each Subframe"); 
+		rotfract.addActionListener(this);
+		
+		JButton reverse = new JButton(Messages.getString("SpriteFrame.REVERSE")); //$NON-NLS-1$
+		reverse.setToolTipText("Reverse"); 
+		reverse.addActionListener(this);
+		
+		JButton addreverse = new JButton(Messages.getString("SpriteFrame.ADDREVERSE")); //$NON-NLS-1$
+		addreverse.setToolTipText("Add Reverse"); 
+		addreverse.addActionListener(this);
+		
+		JButton colalpha = new JButton(Messages.getString("SpriteFrame.COLORALPHA")); //$NON-NLS-1$
+		colalpha.setToolTipText("Color to Alpha");
+		colalpha.addActionListener(this);
+		
+		JButton alphacol = new JButton(Messages.getString("SpriteFrame.ALPHACOLOR")); //$NON-NLS-1$
+		alphacol.setToolTipText("Alpha to Color"); 
+		alphacol.addActionListener(this);
+		
+		JButton fade = new JButton(Messages.getString("SpriteFrame.FADE")); //$NON-NLS-1$
+		fade.setToolTipText("Fade"); 
+		fade.addActionListener(this);
+		
+		JButton shrink = new JButton(Messages.getString("SpriteFrame.SHRINK")); //$NON-NLS-1$
+		shrink.setToolTipText("Shrink"); 
+		shrink.addActionListener(this);
+		
+		JButton grow = new JButton(Messages.getString("SpriteFrame.GROW")); //$NON-NLS-1$
+		grow.setToolTipText("Grow");
+		grow.addActionListener(this);
+
+		
+		//public JButton invert, flip, rotate,
+		//reverse, addreverse, fade, rotfract, srhink, grow, colalpha, alphacol;
+		
+		layout.setHorizontalGroup(layout.createParallelGroup()
+	  /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+		/**/.addComponent(invert)
+		/**/.addGap(2)
+		/**/.addComponent(flip)
+		/**/.addGap(2))
+		
+		/**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+		/**/.addComponent(rotate)
+		/**/.addGap(2)
+		/**/.addComponent(rotfract)
+		/**/.addGap(2))
+		
+		/**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+		/**/.addComponent(reverse)
+		/**/.addGap(2)
+		/**/.addComponent(addreverse)
+		/**/.addGap(2))
+		
+		/**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+		/**/.addComponent(colalpha)
+		/**/.addGap(2)
+		/**/.addComponent(alphacol)
+		/**/.addGap(2))
+		
+		/**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+		/**/.addComponent(fade)
+		/**/.addGap(2)
+		/**/.addComponent(shrink)
+		/**/.addGap(2)
+		/**/.addComponent(grow)
+		/**/.addGap(2))
+		);
+
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup()
+		/**/.addComponent(invert)
+		/**/.addComponent(flip))
+		/**/.addGap(12)
+		
+		/**/.addGroup(layout.createParallelGroup()
+		/**/.addComponent(rotate)
+		/**/.addComponent(rotfract))
+		/**/.addGap(12)
+		
+		/**/.addGroup(layout.createParallelGroup()
+		/**/.addComponent(reverse)
+		/**/.addComponent(addreverse))
+		/**/.addGap(12)
+		
+		/**/.addGroup(layout.createParallelGroup()
+		/**/.addComponent(colalpha)
+		/**/.addComponent(alphacol))
+		/**/.addGap(12)
+		
+		/**/.addGroup(layout.createParallelGroup()
+		/**/.addComponent(fade)
+		/**/.addComponent(shrink)
+		/**/.addComponent(grow))
+		/**/.addGap(12));
 
 		return pane;
 		}
