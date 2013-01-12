@@ -9,6 +9,7 @@
 
 package org.lateralgm.components;
 
+import java.awt.Color;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -111,6 +112,7 @@ public class GmMenuBar extends JMenuBar
 		fileMenu = menu;
 		add(menu);
 
+		menu.setBackground(Color.black);
 		menu.addItem("GmMenuBar.NEW",KeyEvent.VK_N,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.OPEN",KeyEvent.VK_O,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SAVE",KeyEvent.VK_S,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
