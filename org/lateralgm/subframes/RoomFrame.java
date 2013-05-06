@@ -1185,7 +1185,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (d.width <= w && d.height <= h)
 				maximize = true;
 			else
-				setSize(w,h);
+				setSize(800, 520);
 			}
 		else
 			pack();

@@ -47,7 +47,10 @@ import java.awt.event.MouseWheelListener;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 import javax.swing.SwingUtilities;
@@ -113,6 +116,26 @@ public class JEditTextArea extends JComponent
 
 	public JEditTextArea()
 		{
+		 
+// add mouse listener
+this.addMouseListener(new MouseAdapter() {
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        showPopup(e);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        showPopup(e);
+        JOptionPane.showMessageDialog(null, "New Project clicked!");
+    }
+
+    private void showPopup(MouseEvent e) {
+            JOptionPane.showMessageDialog(null, "New Project clicked!");
+    }
+});
+
 		TextAreaDefaults defaults = TextAreaDefaults.getDefaults();
 
 		// Enable the necessary events

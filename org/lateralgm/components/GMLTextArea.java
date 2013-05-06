@@ -13,6 +13,10 @@ import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
@@ -26,10 +30,14 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.text.PlainDocument;
@@ -69,6 +77,7 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 	private Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
 	protected Completion[] completions;
 
+	
 	public GMLTextArea(String text)
 		{
 		super();
@@ -93,19 +102,52 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 		inputHandler.addKeyBinding("C+Z",undoManager.getUndoAction()); //$NON-NLS-1$
 		inputHandler.addKeyBinding("C+Y",undoManager.getRedoAction()); //$NON-NLS-1$
 		inputHandler.addKeyBinding("C+SPACE",new CompletionAction());
+
+    // build popup menu
+    final JPopupMenu popup = new JPopupMenu();
+
+    popup.add(makeContextButton(getUndoManager().getUndoAction()));
+    popup.add(makeContextButton(getUndoManager().getRedoAction()));
+    popup.addSeparator();
+    popup.add(makeInputHandlerContextButton(InputHandler.CUT,"GMLTextArea.CUT"));
+    popup.add(makeInputHandlerContextButton(InputHandler.COPY,"GMLTextArea.COPY"));
+    popup.add(makeInputHandlerContextButton(InputHandler.PASTE,"GMLTextArea.PASTE"));
+    popup.addSeparator();
+    popup.add(makeInputHandlerContextButton(InputHandler.SELECT_ALL,"GMLTextArea.SELECT_ALL"));
+    
+    painter.setComponentPopupMenu(popup);
+		painter.addMouseListener(new MouseAdapter() {
+
+    	@Override
+    	public void mousePressed(MouseEvent e) {
+        showPopup(e);
+    	}
+
+    	@Override
+    	public void mouseReleased(MouseEvent e) {
+        showPopup(e);
+    	}
+
+    	private void showPopup(MouseEvent e) {
+    		if (e.isPopupTrigger()) {
+    			popup.show(e.getComponent(), e.getX(), e.getY());
+    		}
+    	}
+		});
+    
 		}
 
 	private static JButton makeToolbarButton(Action a)
-		{
+	{
 		JButton b = new JButton(a);
 		b.setToolTipText(b.getText());
 		b.setText(null);
 		b.setRequestFocusEnabled(false);
 		return b;
-		}
+	}
 
 	private JButton makeInputHandlerToolbarButton(final ActionListener l, String key)
-		{
+	{
 		final GMLTextArea source = this;
 		Action a = new AbstractAction(Messages.getString(key),LGM.getIconForKey(key))
 			{
@@ -117,8 +159,32 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 					}
 			};
 		return makeToolbarButton(a);
-		}
+	}
 
+	private static JMenuItem makeContextButton(Action a)
+	{
+		JMenuItem b = new JMenuItem(a);
+		b.setToolTipText(b.getText());
+		b.setText(b.getText());
+		b.setRequestFocusEnabled(false);
+		return b;
+	}
+	
+	private JMenuItem makeInputHandlerContextButton(final ActionListener l, String key)
+	{
+		final GMLTextArea source = this;
+		Action a = new AbstractAction(Messages.getString(key),LGM.getIconForKey(key))
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent e)
+					{
+					inputHandler.executeAction(l,source,null);
+					}
+			};
+		return makeContextButton(a);
+	}
+	
 	public void addEditorButtons(JToolBar tb)
 		{
 		tb.add(makeToolbarButton(getUndoManager().getUndoAction()));
