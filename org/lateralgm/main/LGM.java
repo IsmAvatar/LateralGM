@@ -29,6 +29,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.SplashScreen;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +54,7 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -465,7 +467,14 @@ public final class LGM
 		frame.setJMenuBar(new GmMenuBar());
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		
+    frame.addWindowListener(new java.awt.event.WindowAdapter() {
+    public void windowClosing(WindowEvent winEvt) {
+      LGM.onMainFrameClosed();
+    }
+  });
+    
 		frame.setContentPane(f);
 		frame.setTransferHandler(Listener.getInstance().fc.new LGMDropHandler());
 		f.add(BorderLayout.CENTER,split);
@@ -501,6 +510,35 @@ public final class LGM
 			}
 		splashProgress.complete();
 		frame.setVisible(true);
+		}
+	
+	public static void onMainFrameClosed()
+		{
+	  Object[] options = {"Yes",
+        "No",
+        "Cancel"};
+		  int n = JOptionPane.showOptionDialog(null,
+		    "You have not saved your recent changes, "
+		    + "would you like to do so before closing?",
+        "Unsaved Changes",
+        JOptionPane.YES_NO_CANCEL_OPTION,
+        JOptionPane.WARNING_MESSAGE,
+        null,
+        options,
+		    options[2]);
+
+		  switch (n)
+		  {
+			  case JOptionPane.YES_OPTION:
+    		  System.exit(0);
+    		  break;
+			  case JOptionPane.NO_OPTION:
+    		  System.exit(0);
+    		  break;
+			  case JOptionPane.CANCEL_OPTION:
+    		  // do nothing
+    		  break;
+		  }
 		}
 
 	static final class SplashProgress
