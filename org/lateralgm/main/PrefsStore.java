@@ -58,17 +58,27 @@ public final class PrefsStore
 		}
 
 	public static boolean getWindowMaximized()
-		{
+	{
 		return PREFS.getBoolean("WINDOW_MAXIMIZED",true);
-		}
+	}
 
 	public static void setWindowMaximized(boolean b)
-		{
+	{
 		PREFS.putBoolean("WINDOW_MAXIMIZED",b);
-		}
+	}
+	
+	public static void setIconPack(String s)
+	{
+		PREFS.put("iconPack",s);
+	}
+	
+	public static void setSwingTheme(String s)
+	{
+		PREFS.put("swingTheme",s);
+	}
 
 	public static SyntaxStyle[] getSyntaxStyles()
-		{
+	{
 		SyntaxStyle[] styles = new SyntaxStyle[Token.ID_COUNT];
 
 		styles[Token.COMMENT1] = new SyntaxStyle(new Color(0x338833),true,false); //Standard Comments

@@ -657,13 +657,13 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			tabs.setSelectedIndex(0);
 			loadFromFile();
 			}
-		if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
 			{
 			tabs.setSelectedIndex(0);
 			saveToFile();
 			return;
 			}
-		if (com.equals("GameInformationFrame.FONTCOLOR")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.FONTCOLOR")) //$NON-NLS-1$
 			{
 			String colorStr = Messages.getString("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
 			Color c = JColorChooser.showDialog(this,colorStr,fgColor);
@@ -674,29 +674,29 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 				}
 			return;
 			}
-		if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
 			{
 			String colorStr = Messages.getString("GameInformationFrame.COLOR"); //$NON-NLS-1$
 			Color c = JColorChooser.showDialog(this,colorStr,editor.getBackground());
 			if (c != null) setEditorBackground(c);
 			return;
 			}
-		if (com.equals("GameInformationFrame.CUT")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.CUT")) //$NON-NLS-1$
 			{
 			editor.cut();
 			return;
 			}
-		if (com.equals("GameInformationFrame.COPY")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.COPY")) //$NON-NLS-1$
 			{
 			editor.copy();
 			return;
 			}
-		if (com.equals("GameInformationFrame.PASTE")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.PASTE")) //$NON-NLS-1$
 			{
 			editor.paste();
 			return;
 			}
-		if (com.equals("GameInformationFrame.SELECTALL")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.SELECTALL")) //$NON-NLS-1$
 			{
 			editor.selectAll();
 			return;
