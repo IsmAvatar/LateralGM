@@ -249,6 +249,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		tool.add(tbUnderline);
 
 		tool.addSeparator();
+		
 		JButton butFontColor = new JButton(LGM.getIconForKey("GameInformationFrame.FONTCOLOR")); //$NON-NLS-1$
 		butFontColor.setRequestFocusEnabled(false);
 		butFontColor.setActionCommand("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
@@ -259,6 +260,27 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		but.setActionCommand("GameInformationFrame.COLOR"); //$NON-NLS-1$
 		but.addActionListener(this);
 		tool.add(but);
+		
+		tool.addSeparator();
+		
+		JButton button;
+		
+		button = new JButton(undoManager.getUndoAction());//$NON-NLS-1$
+		button.setText("");
+		tool.add(button);
+		button = new JButton(undoManager.getRedoAction());//$NON-NLS-1$
+		button.setText("");
+		tool.add(button);
+		
+		tool.addSeparator();
+		
+		button = addToolbarItem("GameInformationFrame.CUT");
+		tool.add(button);
+		button = addToolbarItem("GameInformationFrame.COPY");
+		tool.add(button);
+		button = addToolbarItem("GameInformationFrame.PASTE");
+		tool.add(button);
+		
 		return tool;
 		}
 
@@ -378,7 +400,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		{
 		super(res,node,Messages.getString("GameInformationFrame.TITLE"),true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(600,400);
+		setSize(700,500);
 
 		menubar = makeMenuBar();
 		setJMenuBar(menubar);
@@ -544,22 +566,32 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		SimpleAttributeSet sas = new SimpleAttributeSet();
 		sas.addAttribute(key,value);
 		sd.setCharacterAttributes(a,b - a,sas,false);
-		}
+	}
 
 	public JMenuItem addItem(String key)
-		{
+	{
 		JMenuItem item = new JMenuItem(Messages.getString(key));
 		item.setIcon(LGM.getIconForKey(key));
 		item.setActionCommand(key);
 		item.addActionListener(this);
 		return item;
-		}
+	}
+	
+	public JButton addToolbarItem(String key)
+	{
+		JButton item = new JButton();
+		// Messages.getString(key)
+		item.setIcon(LGM.getIconForKey(key));
+		item.setActionCommand(key);
+		item.addActionListener(this);
+		return item;
+	}
 
 	public void loadFromFile()
-		{
+	{
 		fc.setDialogTitle(Messages.getString("GameInformationFrame.LOAD_TITLE")); //$NON-NLS-1$
 		while (true)
-			{
+		{
 			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			if (fc.getSelectedFile().exists()) break;
 			JOptionPane.showMessageDialog(null,
