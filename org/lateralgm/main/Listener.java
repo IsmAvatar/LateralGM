@@ -39,8 +39,12 @@ import org.lateralgm.components.AboutBox;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.Extensions;
+import org.lateralgm.resources.GameInformation;
+import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.subframes.PreferencesFrame;
 
 public class Listener extends TransferHandler implements ActionListener,CellEditorListener
 	{
@@ -223,6 +227,21 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		if (com.endsWith(".SAVE")) //$NON-NLS-1$
 		{
 			fc.save(LGM.currentFile.uri,LGM.currentFile.format);
+			return;
+		}
+		if (com.endsWith(".PREFERENCES")) //$NON-NLS-1$
+		{
+			new PreferencesFrame(null).show();
+			return;
+		}
+		if (com.endsWith(".GMS")) //$NON-NLS-1$
+		{
+		  LGM.getGameSettings().show();
+			return;
+		}
+		if (com.endsWith(".EXT")) //$NON-NLS-1$
+		{
+		  LGM.getGameExtensions().show();
 			return;
 		}
 		if (com.endsWith(".SAVEAS")) //$NON-NLS-1$

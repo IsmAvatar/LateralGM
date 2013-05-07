@@ -80,12 +80,15 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.GmFile;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.Extensions;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.subframes.EventPanel;
+import org.lateralgm.subframes.ExtensionsFrame;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
+import org.lateralgm.subframes.PreferencesFrame;
 
 public final class LGM
 	{
@@ -122,6 +125,8 @@ public final class LGM
 	private static GameInformationFrame gameInfo;
 	public static Thread gameSettingFrameBuilder;
 	private static GameSettingFrame gameSet;
+	public static Thread extensionsFrameBuilder;
+	private static ExtensionsFrame extSet;
 	public static EventPanel eventSelect;
 	public static AbstractButton eventButton;
 	
@@ -185,8 +190,7 @@ public final class LGM
 	
   // this function is for updating the look and feel after its
   // already been initialized and all controls created
-  public static void UpdateLookAndFeel(String LOOKANDFEEL) {
-    SetLookAndFeel(LOOKANDFEEL);
+  public static void UpdateLookAndFeel() {
     JFrame.setDefaultLookAndFeelDecorated(true);
     SwingUtilities.updateComponentTreeUI(frame);
     SwingUtilities.updateComponentTreeUI(mdi);
@@ -218,10 +222,23 @@ public final class LGM
 			}
 		return gameSet;
 		}
+	
+	public static ExtensionsFrame getGameExtensions()
+	{
+		try
+			{
+			extensionsFrameBuilder.join();
+			}
+		catch (InterruptedException e)
+			{
+			//We tried...
+			}
+		return extSet;
+	}
 
 	private LGM()
-		{
-		}
+	{
+	}
 
 	public static ImageIcon findIcon(String filename)
 		{
@@ -280,9 +297,9 @@ public final class LGM
 		{
 		tool = new JToolBar();
 		tool.setFloatable(true);
+		tool.add(makeButton("Toolbar.NEW")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.OPEN")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.SAVE")); //$NON-NLS-1$
-		tool.addSeparator();
 		tool.add(makeButton("Toolbar.SAVEAS")); //$NON-NLS-1$
 		tool.addSeparator();
 		for (Class<? extends Resource<?,?>> k : Resource.kinds)
@@ -296,6 +313,10 @@ public final class LGM
 				tool.add(but);
 				}
 		tool.addSeparator();
+		tool.add(makeButton("Toolbar.PREFERENCES")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.GMS")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.EXT")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.MANUAL")); //$NON-NLS-1$
 		tool.add(Box.createHorizontalGlue()); //right align after this
 		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
 		return tool;
@@ -518,27 +539,37 @@ public final class LGM
 		split.setOneTouchExpandable(true);
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
 		gameInformationFrameBuilder = new Thread()
-			{
+		{
 				public void run()
-					{
+				{
 					gameInfo = new GameInformationFrame(currentFile.gameInfo);
 					mdi.add(gameInfo);
-					}
-			};
+				}
+		};
 		gameSettingFrameBuilder = new Thread()
-			{
+		{
 				public void run()
-					{
+				{
 					gameSet = new GameSettingFrame(currentFile.gameSettings,currentFile.constants,
 							currentFile.includes);
 					mdi.add(gameSet);
+				}
+		};
+		extensionsFrameBuilder = new Thread()
+		{
+					public void run()
+					{
+						extSet = new ExtensionsFrame(new Extensions());
+						mdi.add(extSet);
 					}
-			};
+		};
 		gameInformationFrameBuilder.start(); //must occur after createMDI
 		gameSettingFrameBuilder.start(); //must occur after createMDI
+		extensionsFrameBuilder.start(); //must occur after createMDI
 		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
+		SetLookAndFeel(themename);
 		frame.setJMenuBar(new GmMenuBar());
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
@@ -585,11 +616,11 @@ public final class LGM
 			}
 		splashProgress.complete();
 		frame.setVisible(true);
-		UpdateLookAndFeel(themename);
-		}
+		UpdateLookAndFeel();
+	}
 	
 	public static void onMainFrameClosed()
-{
+  {
 		  int n = JOptionPane.showConfirmDialog(null,
 		    Messages.getString("LGM.KEEPCHANGES_MESSAGE"),
 		    Messages.getString("LGM.KEEPCHANGES_TITLE"),
