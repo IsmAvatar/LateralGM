@@ -40,6 +40,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.text.PlainDocument;
 
@@ -106,16 +107,33 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 
     // build popup menu
     final JPopupMenu popup = new JPopupMenu();
-
-    popup.add(makeContextButton(getUndoManager().getUndoAction()));
-    popup.add(makeContextButton(getUndoManager().getRedoAction()));
-    popup.addSeparator();
-    popup.add(makeInputHandlerContextButton(InputHandler.CUT,"GMLTextArea.CUT"));
-    popup.add(makeInputHandlerContextButton(InputHandler.COPY,"GMLTextArea.COPY"));
-    popup.add(makeInputHandlerContextButton(InputHandler.PASTE,"GMLTextArea.PASTE"));
-    popup.addSeparator();
-    popup.add(makeInputHandlerContextButton(InputHandler.SELECT_ALL,"GMLTextArea.SELECT_ALL"));
+    JMenuItem item;
     
+    item = makeContextButton(getUndoManager().getUndoAction());
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+    item = makeContextButton(getUndoManager().getRedoAction());
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
+		
+    popup.addSeparator();
+    
+    item = makeInputHandlerContextButton(InputHandler.CUT,"GMLTextArea.CUT");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+    item = makeInputHandlerContextButton(InputHandler.COPY,"GMLTextArea.COPY");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
+    item = makeInputHandlerContextButton(InputHandler.PASTE,"GMLTextArea.PASTE");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
+    
+		popup.addSeparator();
+    
+    item = makeInputHandlerContextButton(InputHandler.SELECT_ALL,"GMLTextArea.SELECT_ALL");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+		
     painter.setComponentPopupMenu(popup);
 		painter.addMouseListener(new MouseAdapter() {
 

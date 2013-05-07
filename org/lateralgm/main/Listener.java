@@ -231,7 +231,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		}
 		if (com.endsWith(".PREFERENCES")) //$NON-NLS-1$
 		{
-			new PreferencesFrame(null).show();
+			LGM.ShowPreferences();
 			return;
 		}
 		if (com.endsWith(".GMS")) //$NON-NLS-1$

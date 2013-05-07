@@ -25,6 +25,7 @@ package org.lateralgm.main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -129,6 +130,7 @@ public final class LGM
 	private static ExtensionsFrame extSet;
 	public static EventPanel eventSelect;
 	public static AbstractButton eventButton;
+	public static PreferencesFrame prefFrame;
 	
   public static void SetLookAndFeel(String LOOKANDFEEL) {
     String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
@@ -359,6 +361,7 @@ public final class LGM
 		// Setup the rest of the main window
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(200,100));
+		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
 		return scroll;
 		}
 
@@ -374,7 +377,7 @@ public final class LGM
 		mdi.setScrollPane(scroll);
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		mdi.setBackground(Color.BLACK);
+		mdi.setBackground(Color.GRAY);
 		//		eventSelect = new EventPanel();
 		//		mdi.add(eventSelect);
 		return scroll;
@@ -742,4 +745,12 @@ public final class LGM
 			splash.update();
 			}
 		}
+
+	public static void ShowPreferences()
+	{
+		if (prefFrame == null) {
+		  prefFrame = new PreferencesFrame(null);
+		}
+		prefFrame.show();
 	}
+}

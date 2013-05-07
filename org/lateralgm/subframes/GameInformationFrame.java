@@ -3,6 +3,7 @@
  * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -32,6 +33,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -54,6 +57,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
@@ -81,6 +85,7 @@ import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
+import org.lateralgm.jedit.InputHandler;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameInformation;
@@ -444,12 +449,58 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		fc.setFileFilter(new CustomFileFilter(
 				Messages.getString("GameInformationFrame.TYPE_RTF"),".rtf")); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+
+    // build popup menu
+    final JPopupMenu popup = new JPopupMenu();
+    JMenuItem item;
+    
+		item = new JMenuItem(undoManager.getUndoAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		item = new JMenuItem(undoManager.getRedoAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		popup.addSeparator();
+		item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		popup.addSeparator();
+		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		
+    editor.setComponentPopupMenu(popup);
+		editor.addMouseListener(new MouseAdapter() {
+
+    	@Override
+    	public void mousePressed(MouseEvent e) {
+        showPopup(e);
+    	}
+
+    	@Override
+    	public void mouseReleased(MouseEvent e) {
+        showPopup(e);
+    	}
+
+    	private void showPopup(MouseEvent e) {
+    		if (e.isPopupTrigger()) {
+    			popup.show(e.getComponent(), e.getX(), e.getY());
+    		}
+    	}
+		});
+		
+	}
 
 	private void addDocumentListeners()
-		{
+	{
 		editor.getDocument().addDocumentListener(new DocumentListener()
-			{
+		{
 				public void removeUpdate(DocumentEvent e)
 					{
 					documentChanged = true;
@@ -501,7 +552,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		item.setIcon(LGM.getIconForKey(key));
 		item.setActionCommand(key);
 		item.addActionListener(this);
-		add(item);
 		return item;
 		}
 
