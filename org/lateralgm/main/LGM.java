@@ -93,7 +93,8 @@ import org.lateralgm.subframes.PreferencesFrame;
 
 public final class LGM
 	{
-	public static String iconspath = "org/lateralgm/icons/Standard/";
+	public static String iconspath = "org/lateralgm/icons/";
+	public static String iconspack = "Standard";
 	public static String themename = "Native";
 	
 	public static int javaVersion;
@@ -240,11 +241,12 @@ public final class LGM
 
 	private LGM()
 	{
+	
 	}
 
 	public static ImageIcon findIcon(String filename)
 		{
-		String location = iconspath + filename; //$NON-NLS-1$
+		String location = iconspath + iconspack + "/" + filename; //$NON-NLS-1$
 		ImageIcon ico = new ImageIcon(location);
 		if (ico.getIconWidth() == -1)
 			{
@@ -527,11 +529,12 @@ public final class LGM
 				tempDir.setWritable(true,false);
 				}
 			}
-
+		
 		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
+		iconspack = Prefs.iconPack;
+		themename = Prefs.swingTheme;
 		splashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
-
 		JComponent toolbar = createToolBar();
 		JComponent tree = createTree();
 		content = new JPanel(new BorderLayout());
@@ -566,6 +569,7 @@ public final class LGM
 						mdi.add(extSet);
 					}
 		};
+		
 		gameInformationFrameBuilder.start(); //must occur after createMDI
 		gameSettingFrameBuilder.start(); //must occur after createMDI
 		extensionsFrameBuilder.start(); //must occur after createMDI
@@ -573,6 +577,7 @@ public final class LGM
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
 		SetLookAndFeel(themename);
+	
 		frame.setJMenuBar(new GmMenuBar());
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());

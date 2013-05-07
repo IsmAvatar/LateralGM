@@ -73,6 +73,8 @@ public final class Prefs
 	public static void loadPrefs()
 		{
 		renamableRoots = getBoolean("renamableRoots",false);
+		swingTheme = getString("swingTheme", "Native");
+		iconPack = getString("iconPack", "Standard");
 		groupKind = getBoolean("groupKind",true);
 		iconizeGroup = getBoolean("iconizeGroup",false);
 		String fontName = getString("codeFontName","Monospaced");
@@ -119,6 +121,9 @@ public final class Prefs
 		externalSoundEditorCommand = str.toLowerCase().equals("system") ? null : str;
 		}
 
+	public static String iconPack;
+	public static String swingTheme;
+	
 	public static boolean renamableRoots;
 	public static boolean groupKind;
 	public static boolean iconizeGroup;

@@ -39,6 +39,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.TransferHandler;
@@ -46,6 +49,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.lateralgm.components.ActionListEditor.LibActionButton;
 import org.lateralgm.components.mdi.MDIFrame;
+import org.lateralgm.jedit.InputHandler;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -73,11 +77,59 @@ public class ActionList extends JList
 
 	static
 		{
+		
 		FRAMES = new WeakHashMap<Action,WeakReference<ActionFrame>>();
 		}
 
 	public ActionList(MDIFrame parent)
 		{
+		
+	   // build popup menu
+    final JPopupMenu popup = new JPopupMenu();
+    JMenuItem item;
+    
+    /*
+    item = makeInputHandlerContextButton(InputHandler.CUT,"ActionList.CUT");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+    item = makeInputHandlerContextButton(InputHandler.COPY,"ActionList.COPY");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
+    item = makeInputHandlerContextButton(InputHandler.PASTE,"ActionList.PASTE");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
+    
+		popup.addSeparator();
+    
+    item = makeInputHandlerContextButton(InputHandler.SELECT_ALL,"ActionList.DELETE");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,KeyEvent.CTRL_DOWN_MASK));
+		
+    item = makeInputHandlerContextButton(InputHandler.SELECT_ALL,"ActionList.SELECT_ALL");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+*/
+    this.setComponentPopupMenu(popup);
+		this.addMouseListener(new MouseAdapter() {
+
+    	@Override
+    	public void mousePressed(MouseEvent e) {
+        showPopup(e);
+    	}
+
+    	@Override
+    	public void mouseReleased(MouseEvent e) {
+        showPopup(e);
+    	}
+
+    	private void showPopup(MouseEvent e) {
+    		if (e.isPopupTrigger()) {
+    			popup.show(e.getComponent(), e.getX(), e.getY());
+    		}
+    	}
+		});
+		
+		//actionContainer.
 		this.parent = new WeakReference<MDIFrame>(parent);
 		setActionContainer(null);
 		setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
@@ -202,12 +254,8 @@ public class ActionList extends JList
 			switch (e.getKeyCode())
 				{
 				case KeyEvent.VK_DELETE:
-					int[] indices = l.getSelectedIndices();
-					ActionListModel alm = (ActionListModel) l.getModel();
-					for (int i = indices.length - 1; i >= 0; i--)
-						alm.remove(indices[i]);
-					if (indices.length != 0) l.setSelectedIndex(Math.min(alm.getSize() - 1,indices[0]));
-					e.consume();
+          Actions_Delete(l);
+          e.consume();
 					break;
 				}
 			}
@@ -819,9 +867,13 @@ public class ActionList extends JList
 	  	
 	  }
 	  
-	  public void Actions_Delete()
+	  public static void Actions_Delete(JList l)
 	  {
-	  	
+		  int[] indices = l.getSelectedIndices();
+		  ActionListModel alm = (ActionListModel) l.getModel();
+		  for (int i = indices.length - 1; i >= 0; i--)
+			  alm.remove(indices[i]);
+		  if (indices.length != 0) l.setSelectedIndex(Math.min(alm.getSize() - 1,indices[0]));
 	  }
 	  
 	}

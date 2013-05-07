@@ -223,6 +223,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 					setSelectionAttribute(StyleConstants.Bold,tbBold.isSelected());
 					}
 			};
+		tbBold.setToolTipText(Messages.getString("GameInformationFrame.BOLD"));
 		tbBold.addActionListener(lst);
 		tool.add(tbBold);
 		tbItalic = new JToggleButton(LGM.getIconForKey("GameInformationFrame.ITALIC")); //$NON-NLS-1$
@@ -234,6 +235,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 					setSelectionAttribute(StyleConstants.Italic,tbItalic.isSelected());
 					}
 			};
+		tbItalic.setToolTipText(Messages.getString("GameInformationFrame.ITALIC"));
 		tbItalic.addActionListener(lst);
 		tool.add(tbItalic);
 		tbUnderline = new JToggleButton(LGM.getIconForKey("GameInformationFrame.UNDERLINED")); //$NON-NLS-1$
@@ -245,6 +247,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 					setSelectionAttribute(StyleConstants.Underline,tbUnderline.isSelected());
 					}
 			};
+		tbUnderline.setToolTipText(Messages.getString("GameInformationFrame.UNDERLINE"));
 		tbUnderline.addActionListener(lst);
 		tool.add(tbUnderline);
 
@@ -254,11 +257,13 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		butFontColor.setRequestFocusEnabled(false);
 		butFontColor.setActionCommand("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
 		butFontColor.addActionListener(this);
+		butFontColor.setToolTipText(Messages.getString("GameInformationFrame.FONTCOLOR"));
 		tool.add(butFontColor);
 		JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
 		but.setRequestFocusEnabled(false);
 		but.setActionCommand("GameInformationFrame.COLOR"); //$NON-NLS-1$
 		but.addActionListener(this);
+		but.setToolTipText(Messages.getString("GameInformationFrame.COLOR"));
 		tool.add(but);
 		
 		tool.addSeparator();
@@ -267,9 +272,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		
 		button = new JButton(undoManager.getUndoAction());//$NON-NLS-1$
 		button.setText("");
+		button.setToolTipText(Messages.getString("GameInformationFrame.UNDO"));
 		tool.add(button);
 		button = new JButton(undoManager.getRedoAction());//$NON-NLS-1$
 		button.setText("");
+		button.setToolTipText(Messages.getString("GameInformationFrame.REDO"));
 		tool.add(button);
 		
 		tool.addSeparator();
@@ -580,7 +587,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	public JButton addToolbarItem(String key)
 	{
 		JButton item = new JButton();
-		// Messages.getString(key)
+		item.setToolTipText(Messages.getString(key));
 		item.setIcon(LGM.getIconForKey(key));
 		item.setActionCommand(key);
 		item.addActionListener(this);
