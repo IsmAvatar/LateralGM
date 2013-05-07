@@ -2,6 +2,7 @@
  * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -797,4 +798,30 @@ public class ActionList extends JList
 			return arc;
 			}
 		}
+	  
+	  /* Please be aware I came across the fact that
+	   * action changes are not memorized, so theres 
+	   * no undo/redo here
+	   */
+	
+	  public void Actions_Cut()
+	  {
+	  
+	  }
+	
+	  public void Actions_Copy()
+	  {
+	  	
+	  }
+	  
+	  public void Actions_Paste()
+	  {
+	  	
+	  }
+	  
+	  public void Actions_Delete()
+	  {
+	  	
+	  }
+	  
 	}

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2006, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyrigth (C) 2013 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -119,8 +120,8 @@ public class GmMenuBar extends JMenuBar
 		// JCheckBoxMenuItem check = new JCheckBoxMenuItem();
 		// setTextAndAlt(check,Messages.getString("GmMenuBar.ADVANCED")); //$NON-NLS-1$
 		// menu.add(check);
-		// menu.addItem("GmMenuBar.PREFERENCES"); //$NON-NLS-1$
-		// menu.add(new JSeparator());
+		 menu.addItem("GmMenuBar.PREFERENCES"); //$NON-NLS-1$
+		 menu.add(new JSeparator());
 		recentFilesPos = menu.getMenuComponentCount();
 		menu.add(new JSeparator());
 		menu.addItem("GmMenuBar.EXIT",KeyEvent.VK_F4,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$

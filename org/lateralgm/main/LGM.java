@@ -3,6 +3,7 @@
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * 
@@ -63,7 +64,9 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -86,10 +89,14 @@ import org.lateralgm.subframes.GameSettingFrame;
 
 public final class LGM
 	{
+	public static String iconspath = "org/lateralgm/icons/Standard/";
+	public static String themename = "Native";
+	
 	public static int javaVersion;
 	public static File tempDir, workDir;
 	static
 		{
+		
 		//Get Java Version
 		String jv = System.getProperty("java.version"); //$NON-NLS-1$
 		Scanner s = new Scanner(jv).useDelimiter("[\\._-]"); //$NON-NLS-1$
@@ -117,7 +124,75 @@ public final class LGM
 	private static GameSettingFrame gameSet;
 	public static EventPanel eventSelect;
 	public static AbstractButton eventButton;
+	
+  public static void SetLookAndFeel(String LOOKANDFEEL) {
+    String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
+  
+    if (LOOKANDFEEL != null) {
+      if (LOOKANDFEEL.equals("Swing")) {
+          lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
+        //  an alternative way to set the Metal L&F is to replace the 
+        // previous line with:
+        // lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
+          
+      }
+      
+      else if (LOOKANDFEEL.equals("Native")) {
+          lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+      } 
+      
+      else if (LOOKANDFEEL.equals("Motif")) {
+          lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+      } 
+      
+      else if (LOOKANDFEEL.equals("GTK")) { 
+          lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+      } 
+      
+      else {
+          System.err.println("Unexpected value of LOOKANDFEEL specified: "
+                             + LOOKANDFEEL);
+          lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
+      }
 
+      try {
+          UIManager.setLookAndFeel(lookAndFeel);
+      } 
+      
+      catch (ClassNotFoundException e) {
+          System.err.println("Couldn't find class for specified look and feel:"
+                             + lookAndFeel);
+          System.err.println("Did you include the L&F library in the class path?");
+          System.err.println("Using the default look and feel.");
+      } 
+      
+      catch (UnsupportedLookAndFeelException e) {
+          System.err.println("Can't use the specified look and feel ("
+                             + lookAndFeel
+                             + ") on this platform.");
+          System.err.println("Using the default look and feel.");
+      } 
+      
+      catch (Exception e) {
+          System.err.println("Couldn't get specified look and feel ("
+                             + lookAndFeel
+                             + "), for some reason.");
+          System.err.println("Using the default look and feel.");
+          e.printStackTrace();
+      }
+  }
+}
+	
+  // this function is for updating the look and feel after its
+  // already been initialized and all controls created
+  public static void UpdateLookAndFeel(String LOOKANDFEEL) {
+    SetLookAndFeel(LOOKANDFEEL);
+    JFrame.setDefaultLookAndFeelDecorated(true);
+    SwingUtilities.updateComponentTreeUI(frame);
+    SwingUtilities.updateComponentTreeUI(mdi);
+    frame.pack();
+  }
+  
 	public static GameInformationFrame getGameInfo()
 		{
 		try
@@ -150,7 +225,7 @@ public final class LGM
 
 	public static ImageIcon findIcon(String filename)
 		{
-		String location = "org/lateralgm/icons/" + filename; //$NON-NLS-1$
+		String location = iconspath + filename; //$NON-NLS-1$
 		ImageIcon ico = new ImageIcon(location);
 		if (ico.getIconWidth() == -1)
 			{
@@ -204,7 +279,7 @@ public final class LGM
 	private static JToolBar createToolBar()
 		{
 		tool = new JToolBar();
-		tool.setFloatable(false);
+		tool.setFloatable(true);
 		tool.add(makeButton("Toolbar.OPEN")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.SAVE")); //$NON-NLS-1$
 		tool.addSeparator();
@@ -249,7 +324,7 @@ public final class LGM
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
 		tree.setCellEditor(editor);
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
 
 		//remove the cut, copy, and paste bindings
 		InputMap im = tree.getInputMap();
@@ -393,13 +468,13 @@ public final class LGM
 		}
 
 	protected static void fireReloadPerformed(boolean newRoot)
-		{
+	{
 		for (ReloadListener rl : reloadListeners)
 			rl.reloadPerformed(newRoot);
-		}
+	}
 
 	public static void main(String[] args)
-		{
+  {
 		//java6u10 regression causes graphical xor to be very slow
 		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
 		//Put the Mac menu bar where it belongs (ignored by other systems)
@@ -411,7 +486,7 @@ public final class LGM
 
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
 		if (javaVersion < 10600)
-			System.out.println("Some program functionality will be limited due to your outdated version"); //$NON-NLS-1$
+			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
 
 		SplashProgress splashProgress = new SplashProgress();
 		splashProgress.start();
@@ -510,22 +585,17 @@ public final class LGM
 			}
 		splashProgress.complete();
 		frame.setVisible(true);
+		UpdateLookAndFeel(themename);
 		}
 	
 	public static void onMainFrameClosed()
-		{
-	  Object[] options = {"Yes",
-        "No",
-        "Cancel"};
-		  int n = JOptionPane.showOptionDialog(null,
-		    "You have not saved your recent changes, "
-		    + "would you like to do so before closing?",
-        "Unsaved Changes",
+{
+		  int n = JOptionPane.showConfirmDialog(null,
+		    Messages.getString("LGM.KEEPCHANGES_MESSAGE"),
+		    Messages.getString("LGM.KEEPCHANGES_TITLE"),
         JOptionPane.YES_NO_CANCEL_OPTION,
-        JOptionPane.WARNING_MESSAGE,
-        null,
-        options,
-		    options[2]);
+        JOptionPane.QUESTION_MESSAGE,
+        null);
 
 		  switch (n)
 		  {
