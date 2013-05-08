@@ -19,6 +19,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -30,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.GroupLayout.Alignment;
@@ -69,14 +71,16 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		applyBut.setActionCommand(key);
 
 		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME") + ":");
-    String[] themeOptions = { "Swing", "Native", "Motif", "GTK"};
+    String[] themeOptions = { "Swing", "Native", "Motif", "GTK", "Custom"};
     themeCombo = new JComboBox(themeOptions);
     themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS") + ":");
-    String[] iconOptions = { "Swing", "Standard" };
+    String[] iconOptions = { "Swing", "Standard", "Custom" };
     iconCombo = new JComboBox(iconOptions);
     iconCombo.setSelectedItem(LGM.iconspack);
+    JCheckBox dndEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_DND"));
 
+    p.add(dndEnable);
     p.add(applyBut);
     p.add(themeLabel);
 		p.add(themeCombo);
@@ -86,11 +90,73 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		return p;
 	}
 	
+	private JPanel makeExternalEditorPrefs()
+	{
+		JPanel p = new JPanel();
+		GroupLayout gl = new GroupLayout(p);
+		//p.setLayout(gl);
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
+		
+		JLabel imageEditorLabel = new JLabel(Messages.getString("PreferencesFrame.IMAGE_EDITOR") + ":");
+    String[] imageEditorOptions = { Messages.getString("PreferencesFrame.DEFAULT"), 
+    		Messages.getString("PreferencesFrame.SYSTEM"), 
+    		Messages.getString("PreferencesFrame.CUSTOM") };
+    JComboBox imageEditorCombo = new JComboBox(imageEditorOptions);
+    imageEditorCombo.setSelectedItem("Default");
+		JTextField imageEditorPath = new JTextField();
+		JButton imageEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
+		
+		JLabel codeEditorLabel = new JLabel(Messages.getString("PreferencesFrame.CODE_EDITOR") + ":");
+    String[] codeEditorOptions = { Messages.getString("PreferencesFrame.DEFAULT"), 
+    		Messages.getString("PreferencesFrame.SYSTEM"), 
+    		Messages.getString("PreferencesFrame.CUSTOM") };
+    JComboBox codeEditorCombo = new JComboBox(imageEditorOptions);
+    imageEditorCombo.setSelectedItem("Default");
+		JTextField codeEditorPath = new JTextField();
+		JButton codeEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
+		
+		p.add(imageEditorLabel);
+		p.add(imageEditorCombo);
+		p.add(imageEditorPath);
+		p.add(imageEditorButton);
+		
+		p.add(codeEditorLabel);
+		p.add(codeEditorCombo);
+		p.add(codeEditorPath);
+		p.add(codeEditorButton);
+		
+		
+		/*gl.setVerticalGroup(
+			   gl.createSequentialGroup()
+			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			           //.addComponent(codeEditorLabel)
+			           //.addComponent(codeEditorCombo)
+			           .addComponent(codeEditorPath))
+			      //.addComponent(codeEditorButton)
+			);*/
+		
+		 // Create a sequential group for the vertical axis.
+	  // GroupLayout.SequentialGroup vGroup = gl.createSequentialGroup();
+	 
+	   // The sequential group contains two parallel groups that align
+	   // the contents along the baseline. The first parallel group contains
+	   // the first label and text field, and the second parallel group contains
+	   // the second label and text field. By using a sequential group
+	   // the labels and text fields are positioned vertically after one another.
+	   //vGroup.addGroup(gl.createParallelGroup(Alignment.BASELINE).
+	            //addComponent(codeEditorButton).addComponent(codeEditorPath));
+	   //vGroup.addGroup(gl.createParallelGroup(Alignment.BASELINE).
+	            //addComponent(label2).addComponent(tf2));
+	  // gl.setVerticalGroup(vGroup);
+		
+		return p;
+	}
+	
 	private JPanel makeCodeEditorPrefs()
 	{
 		JPanel p = new JPanel();
 		GroupLayout gl = new GroupLayout(p);
-		p.setLayout(gl);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
 
@@ -114,9 +180,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 
 		tabs.addTab(Messages.getString("PreferencesFrame.TAB_GENERAL"), //$NON-NLS-1$
 				/**/null,makeGeneralPrefs(),Messages.getString("PreferencesFrame.HINT_GENERAL")); //$NON-NLS-1$ 
+		tabs.addTab(Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"), //$NON-NLS-1$
+				/**/null,makeExternalEditorPrefs(),Messages.getString("PreferencesFrame.HINT_EXTERNAL_EDITOR")); //$NON-NLS-1$ 
 		tabs.addTab(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"), //$NON-NLS-1$
 				/**/null,makeCodeEditorPrefs(),Messages.getString("PreferencesFrame.HINT_CODE_EDITOR")); //$NON-NLS-1$ 
-
 	}
 	
 	public void SavePreferences()
