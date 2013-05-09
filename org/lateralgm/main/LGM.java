@@ -26,11 +26,13 @@ package org.lateralgm.main;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.SplashScreen;
+import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
@@ -50,6 +52,7 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.DropMode;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
@@ -64,6 +67,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.JWindow;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -78,6 +82,7 @@ import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.FramePrefsHandler;
 import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.mdi.MDIManager;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.GmFile;
 import org.lateralgm.messages.Messages;
@@ -95,7 +100,8 @@ public final class LGM
 	{
 	public static String iconspath = "org/lateralgm/icons/";
 	public static String iconspack = "Standard";
-	public static String themename = "Native";
+	public static String themename = "Swing";
+	public static boolean themechanged = false;
 	
 	public static int javaVersion;
 	public static File tempDir, workDir;
@@ -133,7 +139,15 @@ public final class LGM
 	public static AbstractButton eventButton;
 	public static PreferencesFrame prefFrame;
 	
-  public static void SetLookAndFeel(String LOOKANDFEEL) {
+  public static void SetLookAndFeel(String LOOKANDFEEL) 
+  {
+    if (LOOKANDFEEL.equals(themename))
+    {
+      themechanged = false;
+    	return;
+    }
+    themechanged = true;
+    themename = LOOKANDFEEL;
     String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
   
     if (LOOKANDFEEL != null) {
@@ -194,43 +208,57 @@ public final class LGM
   // this function is for updating the look and feel after its
   // already been initialized and all controls created
   public static void UpdateLookAndFeel() {
+    if (!themechanged)
+    {
+    	return;
+    }
     JFrame.setDefaultLookAndFeelDecorated(true);
-    SwingUtilities.updateComponentTreeUI(frame);
+    //SwingUtilities.updateComponentTreeUI(frame);
+    //SwingUtilities.updateComponentTreeUI(mdi);
+    //frame.pack();
+    Window windows[] = frame.getWindows();
+    for(Window window : windows) {
+        SwingUtilities.updateComponentTreeUI(window);
+    }
+    SwingUtilities.updateComponentTreeUI(content);
     SwingUtilities.updateComponentTreeUI(mdi);
-    frame.pack();
+    SwingUtilities.updateComponentTreeUI(MDIManager.pane);
+    SwingUtilities.updateComponentTreeUI(MDIManager.scroll);
+    //mdimanager.pane.scroll
+    SwingUtilities.updateComponentTreeUI(frame.getRootPane());
   }
   
 	public static GameInformationFrame getGameInfo()
-		{
+	{
 		try
-			{
+		{
 			gameInformationFrameBuilder.join();
-			}
-		catch (InterruptedException e)
-			{
-			//We tried...
-			}
-		return gameInfo;
 		}
+		catch (InterruptedException e)
+		{
+			//We tried...
+		}
+		return gameInfo;
+	}
 
 	public static GameSettingFrame getGameSettings()
-		{
+	{
 		try
-			{
+		{
 			gameSettingFrameBuilder.join();
-			}
+		}
 		catch (InterruptedException e)
 			{
 			//We tried...
 			}
 		return gameSet;
-		}
+	}
 	
 	public static ExtensionsFrame getGameExtensions()
 	{
 		try
 			{
-			extensionsFrameBuilder.join();
+			  extensionsFrameBuilder.join();
 			}
 		catch (InterruptedException e)
 			{
@@ -318,8 +346,8 @@ public final class LGM
 				}
 		tool.addSeparator();
 		tool.add(makeButton("Toolbar.PREFERENCES")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.GMI")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.GMS")); //$NON-NLS-1$
-		tool.add(makeButton("Toolbar.EXT")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.MANUAL")); //$NON-NLS-1$
 		tool.add(Box.createHorizontalGlue()); //right align after this
 		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
@@ -338,6 +366,7 @@ public final class LGM
 		GmTreeEditor editor = new GmTreeEditor(tree,renderer);
 		editor.addCellEditorListener(Listener.getInstance());
 		tree.setEditable(true);
+
 		tree.addMouseListener(Listener.getInstance().mListener);
 		if (javaVersion >= 10600)
 			{
@@ -362,7 +391,8 @@ public final class LGM
 
 		// Setup the rest of the main window
 		JScrollPane scroll = new JScrollPane(tree);
-		scroll.setPreferredSize(new Dimension(200,100));
+		//scroll.setFloatable(true);
+		scroll.setPreferredSize(new Dimension(250,100));
 		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
 		return scroll;
 		}
@@ -533,16 +563,35 @@ public final class LGM
 		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
 		iconspack = Prefs.iconPack;
-		themename = Prefs.swingTheme;
+		SetLookAndFeel(Prefs.swingTheme);
+		themechanged = false;
 		splashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
 		JComponent toolbar = createToolBar();
 		JComponent tree = createTree();
 		content = new JPanel(new BorderLayout());
 		content.add(BorderLayout.CENTER,createMDI());
 		content.add(BorderLayout.EAST,eventSelect = new EventPanel());
-		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,tree,content);
-		split.setDividerLocation(200);
-		split.setOneTouchExpandable(true);
+		JToolBar p = new JToolBar(JToolBar.VERTICAL);
+		p.setSize(500, 100);
+		p.setFloatable(true);
+		GroupLayout layout = new GroupLayout(p);
+		p.setLayout(layout);
+		
+		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addGap(10)
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(tree)));
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+						/**/.addGroup(layout.createParallelGroup()
+						/*	*/.addComponent(tree)));
+		
+		//p.add(tree, BorderLayout.);
+		//.add(new JButton("fuck you"));
+		content.add(BorderLayout.WEST, p);
+		//JPanel split = new JPanel(JSplitPane.HORIZONTAL_SPLIT,true,tree,content);
+		//split.setDividerLocation(200);
+		//split.setOneTouchExpandable(true);
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
 		gameInformationFrameBuilder = new Thread()
 		{
@@ -576,7 +625,6 @@ public final class LGM
 		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
-		SetLookAndFeel(themename);
 	
 		frame.setJMenuBar(new GmMenuBar());
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
@@ -591,7 +639,7 @@ public final class LGM
     
 		frame.setContentPane(f);
 		frame.setTransferHandler(Listener.getInstance().fc.new LGMDropHandler());
-		f.add(BorderLayout.CENTER,split);
+		f.add(BorderLayout.CENTER,content);
 		eventSelect.setVisible(false); //must occur after adding split
 		f.add(BorderLayout.NORTH,toolbar);
 		f.setOpaque(true);
@@ -624,7 +672,6 @@ public final class LGM
 			}
 		splashProgress.complete();
 		frame.setVisible(true);
-		UpdateLookAndFeel();
 	}
 	
 	public static void onMainFrameClosed()
@@ -754,7 +801,7 @@ public final class LGM
 	public static void ShowPreferences()
 	{
 		if (prefFrame == null) {
-		  prefFrame = new PreferencesFrame(null);
+		  prefFrame = new PreferencesFrame();
 		}
 		prefFrame.show();
 	}

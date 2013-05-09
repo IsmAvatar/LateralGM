@@ -2,6 +2,7 @@
  * Copyright (C) 2007, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -25,6 +26,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -48,6 +50,7 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
@@ -93,7 +96,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public ResourceMenu<Sprite> mask;
 	public JButton information;
 
-	public EventTree events;
+	public static EventTree events;
 	public JButton eventAdd;
 	public JButton eventReplace;
 	public JButton eventDuplicate;
@@ -102,10 +105,12 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public JMenuItem eventReplaceItem;
 	public JMenuItem eventDuplicateItem;
 	public JMenuItem eventDeleteItem;
-	public EventGroupNode rootEvent;
+	public static EventGroupNode rootEvent;
 	private MListener mListener = new MListener();
-	public ActionList actions;
+	public static ActionList actions;
 	public GMLTextArea code;
+	
+	public GmObjectInfoFrame infoFrame;
 
 	private DefaultMutableTreeNode lastValidEventSelection;
 
@@ -605,6 +610,15 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			}
 		}
 
+	public void showInfoFrame()
+	{
+    if (infoFrame == null) {
+      infoFrame = new GmObjectInfoFrame(this);
+    }
+    infoFrame.updateObjectInfo();
+    infoFrame.show();	
+	}
+	
 	public void saveEvents()
 		{
 		actions.save();
@@ -659,8 +673,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			}
 		if (e.getSource() == information)
 			{
-			//TODO: Object Information
-			return;
+					showInfoFrame();
+			  return;
 			}
 		if (e.getSource() == eventAdd || e.getSource() == eventAddItem)
 			{
@@ -704,8 +718,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		eventReplace.removeActionListener(this);
 		eventDuplicate.removeActionListener(this);
 		eventDelete.removeActionListener(this);
+		infoFrame.dispose();
 		}
-
+	
 	public void valueChanged(TreeSelectionEvent tse)
 		{
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();

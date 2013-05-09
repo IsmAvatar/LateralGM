@@ -102,6 +102,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		JScrollPane treeScroll = new JScrollPane(makeTree());
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		.addGap(10)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(ra).addComponent(rr).addComponent(rd))
 		/**/.addGroup(layout.createParallelGroup()

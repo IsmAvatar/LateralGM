@@ -18,6 +18,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +55,7 @@ import org.lateralgm.subframes.SubframeInformer;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable,UpdateListener
 	{
+	
 	public static final Map<Class<?>,ImageIcon> ICON;
 	static
 		{
@@ -110,7 +112,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 
 	public ResNode(String name, byte status, Class<?> kind,
 			ResourceReference<? extends Resource<?,?>> res)
-		{
+	{
 		super(name);
 		this.status = status;
 		this.kind = kind;
@@ -121,7 +123,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			r.setNode(this);
 			res.updateSource.addListener(this);
 			}
-		}
+	}
 
 	public ResNode(String name, byte status, Class<?> kind)
 		{
@@ -191,6 +193,8 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		JMenuItem menuItem = new JMenuItem(Messages.getString(command));
 		menuItem.setActionCommand(command);
 		menuItem.addActionListener(al);
+		//menuItem.addKeyListener(kl);
+		menuItem.addKeyListener(null);
 		return menuItem;
 		}
 
@@ -198,10 +202,13 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		{
 		JPopupMenu popup = new JPopupMenu();
 		ActionListener al = new Listener.NodeMenuListener(this);
+		//KeyListener kl = new Listener.NodeKeyListener(this);
+		
 		if (!isInstantiable())
 		{
 	    JMenuItem editItem = makeMenuItem("Listener.TREE_EDIT",al);
 		  popup.add(editItem); //$NON-NLS-1$
+		  editItem.setFocusable(true);
 		  editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
 			popup.show(e.getComponent(),e.getX(),e.getY());
 			return;
@@ -232,6 +239,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			popup.addSeparator();
 			JMenuItem deleteItem = makeMenuItem("Listener.TREE_DELETE",al);
 			deleteItem.setFocusable(true);
+			deleteItem.requestFocus();
 			popup.add(deleteItem); //$NON-NLS-1$
 			// KeyStroke.getKeyStroke("BACK_SPACE"); for delete key on mac
 			deleteItem.setAccelerator(KeyStroke.getKeyStroke("DELETE"));
@@ -356,4 +364,26 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		{
 		return isInstantiable();
 		}
+	
+	public void keyPressed(KeyEvent etv)
+		{
+		// TODO Auto-generated method stub
+		
+		}
+
+	public void keyReleased(KeyEvent evt)
+		{
+	   //int keyCode = evt.getKeyCode();
+	   // if (keyCode == KeyEvent.VK_DELETE)
+	      //add(-d, 0);
+	    //LGM.frame.setVisible(false);
+		System.exit(0);
+		}
+
+	public void keyTyped(KeyEvent evt)
+		{
+		// TODO Auto-generated method stub
+		
+		}
+	
 	}

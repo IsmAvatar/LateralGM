@@ -17,6 +17,8 @@ import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.WeakHashMap;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.DropMode;
@@ -70,7 +73,7 @@ public class ActionList extends JList
 	private static final WeakHashMap<Action,WeakReference<ActionFrame>> FRAMES;
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
 	protected ActionContainer actionContainer;
-	private ActionListModel model;
+	public ActionListModel model;
 	private final ActionRenderer renderer = new ActionRenderer();
 	public final WeakReference<MDIFrame> parent;
 	private final ActionListMouseListener alml;
@@ -81,6 +84,16 @@ public class ActionList extends JList
 		FRAMES = new WeakHashMap<Action,WeakReference<ActionFrame>>();
 		}
 
+	private static JMenuItem makeContextButton(String key)
+	{
+		JMenuItem b = new JMenuItem(Messages.getString(key));
+		b.setToolTipText(b.getText());
+		b.setText(b.getText());
+		b.setIcon(LGM.getIconForKey(key));
+		b.setRequestFocusEnabled(false);
+		return b;
+	}
+	
 	public ActionList(MDIFrame parent)
 		{
 		
@@ -88,27 +101,27 @@ public class ActionList extends JList
     final JPopupMenu popup = new JPopupMenu();
     JMenuItem item;
     
-    /*
-    item = makeInputHandlerContextButton(InputHandler.CUT,"ActionList.CUT");
+    
+    item = makeContextButton("ActionList.CUT");
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
-    item = makeInputHandlerContextButton(InputHandler.COPY,"ActionList.COPY");
+    item = makeContextButton("ActionList.COPY");
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
-    item = makeInputHandlerContextButton(InputHandler.PASTE,"ActionList.PASTE");
+    item = makeContextButton("ActionList.PASTE");
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
     
 		popup.addSeparator();
     
-    item = makeInputHandlerContextButton(InputHandler.SELECT_ALL,"ActionList.DELETE");
+    item = makeContextButton("ActionList.DELETE");
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,KeyEvent.CTRL_DOWN_MASK));
 		
-    item = makeInputHandlerContextButton(InputHandler.SELECT_ALL,"ActionList.SELECT_ALL");
+    item = makeContextButton("ActionList.SELECTALL");
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
-*/
+
     this.setComponentPopupMenu(popup);
 		this.addMouseListener(new MouseAdapter() {
 
@@ -264,7 +277,7 @@ public class ActionList extends JList
 	public static class ActionListModel extends AbstractListModel implements UpdateListener
 		{
 		private static final long serialVersionUID = 1L;
-		protected ArrayList<Action> list;
+		public ArrayList<Action> list;
 		protected ArrayList<Integer> indents;
 		private ActionRenderer renderer;
 
