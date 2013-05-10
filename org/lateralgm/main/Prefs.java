@@ -98,6 +98,7 @@ public final class Prefs
 				e.printStackTrace();
 				}
 			}
+		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
 		defaultLibraryPath = getString("defaultLibraryPath","org/lateralgm/resources/library/lib/");
 		userLibraryPath = getString("userLibraryPath","./lib");
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
@@ -134,6 +135,7 @@ public final class Prefs
 	public static int tabSize;
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 
+	public static boolean enableDragAndDrop;
 	public static String defaultLibraryPath;
 	public static String userLibraryPath;
 	public static int actionToolTipColumns;

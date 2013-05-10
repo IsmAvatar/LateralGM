@@ -391,7 +391,6 @@ public final class LGM
 
 		// Setup the rest of the main window
 		JScrollPane scroll = new JScrollPane(tree);
-		//scroll.setFloatable(true);
 		scroll.setPreferredSize(new Dimension(250,100));
 		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
 		return scroll;
@@ -572,7 +571,6 @@ public final class LGM
 		content.add(BorderLayout.CENTER,createMDI());
 		content.add(BorderLayout.EAST,eventSelect = new EventPanel());
 		JToolBar p = new JToolBar(JToolBar.VERTICAL);
-		p.setSize(500, 100);
 		p.setFloatable(true);
 		GroupLayout layout = new GroupLayout(p);
 		p.setLayout(layout);
@@ -797,7 +795,7 @@ public final class LGM
 			splash.update();
 			}
 		}
-
+	
 	public static void ShowPreferences()
 	{
 		if (prefFrame == null) {

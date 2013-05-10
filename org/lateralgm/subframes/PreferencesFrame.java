@@ -14,6 +14,8 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -43,6 +45,7 @@ import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameInformation;
@@ -56,6 +59,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	protected Color fgColor;
 	
 	JComboBox themeCombo, iconCombo;
+	JCheckBox dndEnable;
 
 	private JPanel makeGeneralPrefs()
 	{
@@ -72,8 +76,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
     String[] iconOptions = { "Swing", "Standard", "Custom" };
     iconCombo = new JComboBox(iconOptions);
     iconCombo.setSelectedItem(LGM.iconspack);
-    JCheckBox dndEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_DND"));
-
+    dndEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_DND"));
+    dndEnable.setSelected(Prefs.enableDragAndDrop);
+    
     p.add(dndEnable);
     p.add(themeLabel);
 		p.add(themeCombo);
@@ -83,59 +88,142 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		return p;
 	}
 	
+	private JPanel makeMimePrefixPrefs()
+	{
+		JPanel p = new JPanel();
+		
+		return p;
+	}
+	
 	private JPanel makeExternalEditorPrefs()
 	{
 		JPanel p = new JPanel();
-		GroupLayout gl = new GroupLayout(p);
-		p.setLayout(gl);
-		gl.setAutoCreateGaps(true);
-		gl.setAutoCreateContainerGaps(true);
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
 		
-		JLabel imageEditorLabel = new JLabel(Messages.getString("PreferencesFrame.IMAGE_EDITOR") + ":");
-    String[] imageEditorOptions = { Messages.getString("PreferencesFrame.DEFAULT"), 
+    String[] defaultEditorOptions = { Messages.getString("PreferencesFrame.DEFAULT"), 
     		Messages.getString("PreferencesFrame.SYSTEM"), 
     		Messages.getString("PreferencesFrame.CUSTOM") };
-    JComboBox imageEditorCombo = new JComboBox(imageEditorOptions);
-    imageEditorCombo.setSelectedItem("Default");
-		JTextField imageEditorPath = new JTextField();
-		JButton imageEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
 		
 		JLabel codeEditorLabel = new JLabel(Messages.getString("PreferencesFrame.CODE_EDITOR") + ":");
-    String[] codeEditorOptions = { Messages.getString("PreferencesFrame.DEFAULT"), 
-    		Messages.getString("PreferencesFrame.SYSTEM"), 
-    		Messages.getString("PreferencesFrame.CUSTOM") };
-    JComboBox codeEditorCombo = new JComboBox(imageEditorOptions);
-    imageEditorCombo.setSelectedItem("Default");
+    JComboBox codeEditorCombo = new JComboBox(defaultEditorOptions);
+    codeEditorCombo.setSelectedItem(0);
 		JTextField codeEditorPath = new JTextField();
 		JButton codeEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
 		
-		gl.setHorizontalGroup(
-			   gl.createParallelGroup()
-			      .addGroup(gl.createSequentialGroup()
-			      		.addComponent(codeEditorLabel)
-			      		.addComponent(codeEditorCombo)
-			      		.addComponent(codeEditorPath)
-			          .addComponent(codeEditorButton))
-			      .addGroup(gl.createSequentialGroup()
-			      		.addComponent(imageEditorLabel)
-			      		.addComponent(imageEditorCombo)
-			      		.addComponent(imageEditorPath)
-			          .addComponent(imageEditorButton))
-			  );
+		JLabel spriteEditorLabel = new JLabel(Messages.getString("PreferencesFrame.SPRITE_EDITOR") + ":");
+    JComboBox spriteEditorCombo = new JComboBox(defaultEditorOptions);
+    spriteEditorCombo.setSelectedItem(0);
+		JTextField spriteEditorPath = new JTextField();
+		JButton spriteEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
 		
-		gl.setVerticalGroup(
-			   gl.createSequentialGroup()
-			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			      		.addComponent(codeEditorLabel)
-			      		.addComponent(codeEditorCombo)
-			      		.addComponent(codeEditorPath)
-			          .addComponent(codeEditorButton))
-			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			      		.addComponent(imageEditorLabel)
-			      		.addComponent(imageEditorCombo)
-			      		.addComponent(imageEditorPath)
-			          .addComponent(imageEditorButton))
-			  );
+		JLabel backgroundEditorLabel = new JLabel(Messages.getString("PreferencesFrame.BACKGROUND_EDITOR") + ":");
+    JComboBox backgroundEditorCombo = new JComboBox(defaultEditorOptions);
+    backgroundEditorCombo.setSelectedItem(0);
+		JTextField backgroundEditorPath = new JTextField();
+		JButton backgroundEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
+		
+		JLabel soundEditorLabel = new JLabel(Messages.getString("PreferencesFrame.SOUND_EDITOR") + ":");
+    JComboBox soundEditorCombo = new JComboBox(defaultEditorOptions);
+    soundEditorCombo.setSelectedItem(0);
+		JTextField soundEditorPath = new JTextField();
+		JButton soundEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 1;
+		p.add(codeEditorLabel, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.weightx = 1.5;
+		p.add(codeEditorCombo, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 2;
+		gbc.gridy = 0;
+		gbc.weightx = 20;
+		p.add(codeEditorPath, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 3;
+		gbc.gridy = 0;
+		gbc.weightx = 1;
+		p.add(codeEditorButton, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.weightx = 1;
+		p.add(spriteEditorLabel, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.weightx = 1.5;
+		p.add(spriteEditorCombo, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 2;
+		gbc.gridy = 1;
+		gbc.weightx = 20;
+		p.add(spriteEditorPath, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 3;
+		gbc.gridy = 1;
+		gbc.weightx = 1;
+		p.add(spriteEditorButton, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.weightx = 1;
+		p.add(backgroundEditorLabel, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 1;
+		gbc.gridy = 2;
+		gbc.weightx = 1.5;
+		p.add(backgroundEditorCombo, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 2;
+		gbc.gridy = 2;
+		gbc.weightx = 20;
+		p.add(backgroundEditorPath, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 3;
+		gbc.gridy = 2;
+		gbc.weightx = 1;
+		p.add(backgroundEditorButton, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.weightx = 1;
+		p.add(soundEditorLabel, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 1;
+		gbc.gridy = 3;
+		gbc.weightx = 1.5;
+		p.add(soundEditorCombo, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 2;
+		gbc.gridy = 3;
+		gbc.weightx = 20;
+		p.add(soundEditorPath, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 3;
+		gbc.gridy = 3;
+		gbc.weightx = 1;
+		p.add(soundEditorButton, gbc);
 		
 		return p;
 	}
@@ -167,6 +255,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		JPanel pan = makeExternalEditorPrefs();
 		tabs.addTab(Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"), //$NON-NLS-1$
 				/**/null,pan,Messages.getString("PreferencesFrame.HINT_EXTERNAL_EDITOR")); //$NON-NLS-1$ 
+		tabs.addTab(Messages.getString("PreferencesFrame.TAB_MIME_PREFIX"), //$NON-NLS-1$
+				/**/null,makeMimePrefixPrefs(),Messages.getString("PreferencesFrame.HINT_MIME_PREFIX")); //$NON-NLS-1$
 		tabs.addTab(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"), //$NON-NLS-1$
 				/**/null,makeCodeEditorPrefs(),Messages.getString("PreferencesFrame.HINT_CODE_EDITOR")); //$NON-NLS-1$ 
 		
@@ -202,6 +292,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
     LGM.iconspack = (String)iconCombo.getSelectedItem();
     PrefsStore.setIconPack(LGM.iconspack);
 	  PrefsStore.setSwingTheme(LGM.themename);
+	  PrefsStore.setDNDEnabled(dndEnable.isSelected());
 	}
 	
 	public void ResetPreferences()

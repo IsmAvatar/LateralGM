@@ -77,6 +77,12 @@ public final class PrefsStore
 		PREFS.put("swingTheme",s);
 	}
 
+	public static void setDNDEnabled(boolean selected)
+	{
+		PREFS.putBoolean("enableDragAndDrop",selected);
+		Prefs.enableDragAndDrop = selected;
+	}
+	
 	public static SyntaxStyle[] getSyntaxStyles()
 	{
 		SyntaxStyle[] styles = new SyntaxStyle[Token.ID_COUNT];

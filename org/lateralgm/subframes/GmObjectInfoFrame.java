@@ -195,11 +195,20 @@ public JButton addToolbarItem(String key)
 	  
 	  objInfo += "\n---- Events -----";
 	  
+	  // this here will need rewritten if its ever planned that
+	  // event tree nodes and event tree group nodes will have
+	  // multiple child group nodes as this code is not recursive 
+	  // the event tree also needs to be abstracted enough for obtaining
+	  // the information from other classes and components 
+	  // i dont like it as is - Robert B. Colton
+	  
 	  // iterate events and get each ones model
 		EventGroupNode e = gmObjFrame.rootEvent;
-		gmObjFrame.saveEvents();
+		gmObjFrame.saveEvents(); // this here might need refactored 
+		// but i had to add it otherwise the panel your editings changes
+		// wont show to obj info window, but it might make the whole object
+		// save but i dont think so
 		EventInstanceNode etn, etnc;
-		ActionList list;
 		for (int i=0; i<e.getChildCount(); i++)
 		{
 		  TreeNode tn = (TreeNode) e.getChildAt(i);	
@@ -210,7 +219,6 @@ public JButton addToolbarItem(String key)
 				{
 				  etnc = (EventInstanceNode) tn.getChildAt(ii);	
 					objInfo += "\n\n  " + etnc.toString() + ":";
-					//objInfo += loopActionsToString(etnc.getUserObject().actions);
 			    if (etnc.getUserObject().actions.size() > 0) {
 		        objInfo += loopActionsToString(etnc.getUserObject().actions);
 		      } else {

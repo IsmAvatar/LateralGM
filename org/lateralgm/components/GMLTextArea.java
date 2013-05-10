@@ -105,6 +105,8 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 		inputHandler.addKeyBinding("C+Y",undoManager.getRedoAction()); //$NON-NLS-1$
 		inputHandler.addKeyBinding("C+SPACE",new CompletionAction());
 
+		// this popup menu will work with both JEdit and JoshEdit because it
+		// dont rely on the them internally
     // build popup menu
     final JPopupMenu popup = new JPopupMenu();
     JMenuItem item;

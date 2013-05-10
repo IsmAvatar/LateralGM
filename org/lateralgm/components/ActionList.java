@@ -122,22 +122,25 @@ public class ActionList extends JList
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
 
-    this.setComponentPopupMenu(popup);
+		// turning this off for now I can't find where the actions
+		// become transferable at, i suggest adding an edit button as
+		// well to this popup menu
+    //this.setComponentPopupMenu(popup);
 		this.addMouseListener(new MouseAdapter() {
 
     	@Override
     	public void mousePressed(MouseEvent e) {
-        showPopup(e);
+        //showPopup(e);
     	}
 
     	@Override
     	public void mouseReleased(MouseEvent e) {
-        showPopup(e);
+        //showPopup(e);
     	}
 
     	private void showPopup(MouseEvent e) {
     		if (e.isPopupTrigger()) {
-    			popup.show(e.getComponent(), e.getX(), e.getY());
+    			//popup.show(e.getComponent(), e.getX(), e.getY());
     		}
     	}
 		});
@@ -267,7 +270,7 @@ public class ActionList extends JList
 			switch (e.getKeyCode())
 				{
 				case KeyEvent.VK_DELETE:
-          Actions_Delete(l);
+          ActionsDelete(l);
           e.consume();
 					break;
 				}
@@ -865,22 +868,22 @@ public class ActionList extends JList
 	   * no undo/redo here
 	   */
 	
-	  public void Actions_Cut()
+	  public void ActionsCut()
 	  {
 	  
 	  }
 	
-	  public void Actions_Copy()
+	  public void ActionsCopy()
 	  {
 	  	
 	  }
 	  
-	  public void Actions_Paste()
+	  public void ActionsPaste()
 	  {
 	  	
 	  }
 	  
-	  public static void Actions_Delete(JList l)
+	  public static void ActionsDelete(JList l)
 	  {
 		  int[] indices = l.getSelectedIndices();
 		  ActionListModel alm = (ActionListModel) l.getModel();

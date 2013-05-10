@@ -21,6 +21,8 @@ import java.util.Collections;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.ParallelGroup;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -38,6 +40,7 @@ import org.lateralgm.components.ActionListEditor;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.Timeline.PTimeline;
@@ -54,6 +57,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	public JList moments;
 	public ActionList actions;
 	public GMLTextArea code;
+	private JComponent editor;
 
 	public TimelineFrame(Timeline res, ResNode node)
 		{
@@ -65,27 +69,40 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		makeSide1(side1);
 
 		JPanel side2 = new JPanel(new BorderLayout());
-		side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
+		//side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
 		side2.add(lab,BorderLayout.NORTH);
 		moments = new JList(res.moments.toArray());
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
 		JScrollPane scroll = new JScrollPane(moments);
-		scroll.setPreferredSize(new Dimension(90,260));
-		side2.add(scroll,BorderLayout.CENTER);
+		if (Prefs.enableDragAndDrop) {
+	    scroll.setPreferredSize(new Dimension(90,300));
+	  } else {
+	    scroll.setPreferredSize(new Dimension(200,400));
+	  }
+	  side2.add(scroll,BorderLayout.CENTER);
 
 		actions = new ActionList(this);
-		JComponent editor = new ActionListEditor(actions);
-
-		layout.setHorizontalGroup(layout.createSequentialGroup()
+		if (Prefs.enableDragAndDrop) {
+		  editor = new ActionListEditor(actions);
+		}
+	
+		SequentialGroup sg = layout.createSequentialGroup()
 		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addComponent(side2)
-		/**/.addComponent(editor));
-		layout.setVerticalGroup(layout.createParallelGroup()
+		/**/.addComponent(side2);
+		if (Prefs.enableDragAndDrop) {
+		  sg.addComponent(editor);
+		}
+		layout.setHorizontalGroup(sg);
+		
+		ParallelGroup pg = layout.createParallelGroup()
 		/**/.addComponent(side1)
-		/**/.addComponent(side2)
-		/**/.addComponent(editor));
+		/**/.addComponent(side2);
+		if (Prefs.enableDragAndDrop) {
+		  pg.addComponent(editor);
+		}
+		layout.setVerticalGroup(pg);
 
 		pack();
 
