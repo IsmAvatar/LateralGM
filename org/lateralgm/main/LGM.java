@@ -218,14 +218,14 @@ public final class LGM
     //frame.pack();
     Window windows[] = frame.getWindows();
     for(Window window : windows) {
-        SwingUtilities.updateComponentTreeUI(window);
+        //SwingUtilities.updateComponentTreeUI(window);
     }
-    SwingUtilities.updateComponentTreeUI(content);
-    SwingUtilities.updateComponentTreeUI(mdi);
-    SwingUtilities.updateComponentTreeUI(MDIManager.pane);
-    SwingUtilities.updateComponentTreeUI(MDIManager.scroll);
+    //SwingUtilities.updateComponentTreeUI(content);
+    //SwingUtilities.updateComponentTreeUI(mdi);
+    //SwingUtilities.updateComponentTreeUI(MDIManager.pane);
+    //SwingUtilities.updateComponentTreeUI(MDIManager.scroll);
     //mdimanager.pane.scroll
-    SwingUtilities.updateComponentTreeUI(frame.getRootPane());
+    //SwingUtilities.updateComponentTreeUI(frame.getRootPane());
   }
   
 	public static GameInformationFrame getGameInfo()
@@ -348,6 +348,7 @@ public final class LGM
 		tool.add(makeButton("Toolbar.PREFERENCES")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.GMI")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.GMS")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.EXT")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.MANUAL")); //$NON-NLS-1$
 		tool.add(Box.createHorizontalGlue()); //right align after this
 		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
@@ -571,12 +572,15 @@ public final class LGM
 		content.add(BorderLayout.CENTER,createMDI());
 		content.add(BorderLayout.EAST,eventSelect = new EventPanel());
 		JToolBar p = new JToolBar(JToolBar.VERTICAL);
-		p.setFloatable(true);
+		// It would be possible with a little extra coding to make the
+		// resource tree and event panel draggable, but I am going to have to disable it
+		// because there is no way to make it work with a resizable panel
+		p.setFloatable(false);
 		GroupLayout layout = new GroupLayout(p);
 		p.setLayout(layout);
 		
 		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addGap(10)
+				//.addGap(10) // uncomment this to add a gap to show the tree gripper
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(tree)));
 
@@ -584,12 +588,6 @@ public final class LGM
 						/**/.addGroup(layout.createParallelGroup()
 						/*	*/.addComponent(tree)));
 		
-		//p.add(tree, BorderLayout.);
-		//.add(new JButton("fuck you"));
-		content.add(BorderLayout.WEST, p);
-		//JPanel split = new JPanel(JSplitPane.HORIZONTAL_SPLIT,true,tree,content);
-		//split.setDividerLocation(200);
-		//split.setOneTouchExpandable(true);
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
 		gameInformationFrameBuilder = new Thread()
 		{
@@ -635,9 +633,17 @@ public final class LGM
     }
   });
     
+		//p.add(tree, BorderLayout.WEST);
+		//.add(new JButton("fuck you"));
+		//content.add(BorderLayout.WEST, p);
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,p,content);
+		split.setDividerLocation(250);
+		split.setOneTouchExpandable(true);
+		f.add(split);
+		
 		frame.setContentPane(f);
 		frame.setTransferHandler(Listener.getInstance().fc.new LGMDropHandler());
-		f.add(BorderLayout.CENTER,content);
+		//f.add(BorderLayout.CENTER,content);
 		eventSelect.setVisible(false); //must occur after adding split
 		f.add(BorderLayout.NORTH,toolbar);
 		f.setOpaque(true);
@@ -670,6 +676,7 @@ public final class LGM
 			}
 		splashProgress.complete();
 		frame.setVisible(true);
+		frame.pack();
 	}
 	
 	public static void onMainFrameClosed()

@@ -26,6 +26,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Stack;
 
 import javax.swing.GroupLayout;
@@ -53,7 +54,9 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.library.LibAction;
+import org.lateralgm.resources.library.LibArgument;
 import org.lateralgm.resources.sub.Action;
+import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
@@ -61,6 +64,8 @@ import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 import org.lateralgm.subframes.GmObjectFrame.EventTree;
 
 import com.sun.xml.internal.txw2.Document;
+
+// TODO: This window can be reformated to work with timelines as well
 
 public class GmObjectInfoFrame extends JFrame implements ActionListener
 {
@@ -146,10 +151,30 @@ public JButton addToolbarItem(String key)
 	  for (int i = 0; i < lms; i++)
 	  {
 		  Action a = list.get(i);
-		
 		  LibAction la = a.getLibAction();
 		
-		  info += "\n" + i + " " + la.description;
+		  List<Argument> args = a.getArguments();
+		  LibArgument[] libargs = la.libArguments;
+		  
+		  /* this is code that could be used to make the information more detailed with exact parameter values
+		   * i would also suggest adding this as a function to the action or lib action to convert it into a descriptive
+		   * string instead of just a generic list description
+		  String text = la.hintText;
+		  for (int ii = 0; ii < args.size(); ii++)
+		  {
+		  	text = text.replace("@" + ii, args.get(ii).toString(libargs[ii]));
+		  }
+		  */
+      String text = la.description;
+      
+      if (la.actionKind == Action.ACT_CODE)
+      {
+          text += "\n**** BEGIN ****";
+        	text += "\n" + args.get(args.size() - 1).toString(libargs[args.size() - 1]);
+        	text += "\n**** END ****";
+      }
+      
+		  info += "\n" + i + " " + text;
 	  }
 	  
 	  return info;
@@ -157,43 +182,43 @@ public JButton addToolbarItem(String key)
 	
 	public void updateObjectInfo()
 	{
-	  String objInfo = "----- Properties -----\n\n";
+	  String objInfo = "------ Properties ------\n\n";
 	  ResourceReference<?> res;
-	  objInfo += "Name: " + gmObjFrame.name.getText() + "\n";
+	  objInfo += Messages.getString("GmObjectFrame.NAME") + ": " + gmObjFrame.name.getText() + "\n";
 	  
 	  res = gmObjFrame.parent.getSelected();
-	  objInfo += "Parent: ";
+	  objInfo += Messages.getString("GmObjectFrame.PARENT") + ": ";
 	  if (res != null) {
 	    objInfo += res.get().getName();
 	  } else {
-  	  objInfo += "none";
+  	  objInfo += Messages.getString("GmObjectFrame.NO_PARENT");
     }
     objInfo += "\n";
     
 	  res = gmObjFrame.sprite.getSelected();
-	  objInfo += "Sprite: ";
+	  objInfo += Messages.getString("GmObjectFrame.SPRITE") + ": ";
 	  if (res != null) {
 	    objInfo += res.get().getName();
 	  } else {
-  	  objInfo += "none";
+  	  objInfo += Messages.getString("GmObjectFrame.NO_SPRITE");
     }
     objInfo += "\n";
     
 	  res = gmObjFrame.mask.getSelected();
-	  objInfo += "Mask: ";
+	  objInfo += Messages.getString("GmObjectFrame.MASK") + ": ";
 	  if (res != null) {
 	    objInfo += res.get().getName();
 	  } else {
-  	  objInfo += "same as sprite";
+  	  objInfo += Messages.getString("GmObjectFrame.SAME_AS_SPRITE");
     }
     objInfo += "\n";
 
-	  objInfo += "Visible: " + gmObjFrame.visible.isSelected() + "\n";
-	  objInfo += "Solid: " + gmObjFrame.solid.isSelected() + "\n";
-	  objInfo += "Depth: " + gmObjFrame.depth.getValue().toString() + "\n";
-	  objInfo += "Persistent: " + gmObjFrame.persistent.isSelected() + "\n";
+	  objInfo += Messages.getString("GmObjectFrame.VISIBLE") + ": " + gmObjFrame.visible.isSelected() + "\n";
+	  objInfo += Messages.getString("GmObjectFrame.SOLID") + ": " + gmObjFrame.solid.isSelected() + "\n"; 
+	  objInfo += Messages.getString("GmObjectFrame.DEPTH") + ": " + gmObjFrame.depth.getValue().toString() + "\n";
+	  objInfo += Messages.getString("GmObjectFrame.PERSISTENT") + ": " + gmObjFrame.persistent.isSelected() + "\n";
 	  
-	  objInfo += "\n---- Events -----";
+	  objInfo += "\n------ Events ------";
 	  
 	  // this here will need rewritten if its ever planned that
 	  // event tree nodes and event tree group nodes will have
@@ -202,12 +227,12 @@ public JButton addToolbarItem(String key)
 	  // the information from other classes and components 
 	  // i dont like it as is - Robert B. Colton
 	  
-	  // iterate events and get each ones model
-		EventGroupNode e = gmObjFrame.rootEvent;
 		gmObjFrame.saveEvents(); // this here might need refactored 
-		// but i had to add it otherwise the panel your editings changes
+		// but i had to add it otherwise the panel your editing, changes
 		// wont show to obj info window, but it might make the whole object
 		// save but i dont think so
+	  // iterate events and get each ones model
+		EventGroupNode e = (EventGroupNode)gmObjFrame.events.getModel().getRoot();
 		EventInstanceNode etn, etnc;
 		for (int i=0; i<e.getChildCount(); i++)
 		{
@@ -222,7 +247,7 @@ public JButton addToolbarItem(String key)
 			    if (etnc.getUserObject().actions.size() > 0) {
 		        objInfo += loopActionsToString(etnc.getUserObject().actions);
 		      } else {
-		        objInfo += "\n0 empty";
+		        objInfo += "\n0 " + Messages.getString("GmObjectFrame.EMPTY");
 		      }
 				}
 		  } else {
@@ -232,7 +257,7 @@ public JButton addToolbarItem(String key)
 		    if (etn.getUserObject().actions.size() > 0) {
 		      objInfo += loopActionsToString(etn.getUserObject().actions);
 		    } else {
-          objInfo += "\n0 empty";
+          objInfo += "\n0 " + Messages.getString("GmObjectFrame.EMPTY");
         }
 		  }
 		}

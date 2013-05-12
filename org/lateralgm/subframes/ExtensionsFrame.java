@@ -132,7 +132,7 @@ public class ExtensionsFrame extends ResourceFrame<Extensions,Extensions.PExtens
 			ResNode n = (ResNode) LGM.root.getChildAt(m);
 			if (n.kind == Extensions.class) return n.getUserObject();
 			}
-		return Messages.getString("LGM.EXT"); //$NON-NLS-1$
+		return 0;//Messages.getString("LGM.EXT"); //$NON-NLS-1$
 	}
 	
 	public void actionPerformed(ActionEvent ev)

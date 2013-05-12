@@ -165,11 +165,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		eventModify.addActionListener(this);
 		eventModify.setToolTipText(Messages.getString("GmObjectFrame.MODIFY_EVENT")); //$NON-NLS-1$
 		
-		if (!Prefs.enableDragAndDrop) {
-		  eventEdit = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
-		  eventEdit.addActionListener(this);
-		  eventEdit.setToolTipText(Messages.getString("GmObjectFrame.EDIT_EVENT")); //$NON-NLS-1$
-		}
+		eventEdit = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
+		eventEdit.addActionListener(this);
+		eventEdit.setToolTipText(Messages.getString("GmObjectFrame.EDIT_EVENT")); //$NON-NLS-1$
 		
 		eventDelete = new JButton(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
 		eventDelete.addActionListener(this);
@@ -183,15 +181,13 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		gbc.weighty = 1;
 		side2bottom.add(eventModify, gbc);
 		
-		if (!Prefs.enableDragAndDrop) {
-		  gbc.fill = GridBagConstraints.HORIZONTAL;
-		  gbc.gridx = 1;
-		  gbc.gridy = 0;
-		  gbc.gridwidth = 1;
-			gbc.weightx = 1;
-			gbc.weighty = 1;
-		  side2bottom.add(eventEdit, gbc);
-		}
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+	  gbc.weightx = 1;
+	  gbc.weighty = 1;
+		side2bottom.add(eventEdit, gbc);
 		
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 2;
@@ -244,7 +240,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		s1Layout.setAutoCreateGaps(true);
 		side1.setLayout(s1Layout);
 
-		JLabel nLabel = new JLabel(Messages.getString("GmObjectFrame.NAME")); //$NON-NLS-1$
+		JLabel nLabel = new JLabel(Messages.getString("GmObjectFrame.NAME") + ":"); //$NON-NLS-1$
 
 		JPanel origin = new JPanel();
 		GroupLayout oLayout = new GroupLayout(origin);
@@ -278,16 +274,16 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		plf.make(visible,PGmObject.VISIBLE);
 		solid = new JCheckBox(Messages.getString("GmObjectFrame.SOLID")); //$NON-NLS-1$
 		plf.make(solid,PGmObject.SOLID);
-		JLabel dLabel = new JLabel(Messages.getString("GmObjectFrame.DEPTH")); //$NON-NLS-1$
+		JLabel dLabel = new JLabel(Messages.getString("GmObjectFrame.DEPTH") + ":"); //$NON-NLS-1$
 		depth = new NumberField(0);
 		plf.make(depth,PGmObject.DEPTH);
 		persistent = new JCheckBox(Messages.getString("GmObjectFrame.PERSISTENT")); //$NON-NLS-1$
 		plf.make(persistent,PGmObject.PERSISTENT);
-		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
+		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT") + ":"); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.NO_PARENT"); //$NON-NLS-1$
 		parent = new ResourceMenu<GmObject>(GmObject.class,t,110);
 		plf.make(parent,PGmObject.PARENT);
-		JLabel mLabel = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
+		JLabel mLabel = new JLabel(Messages.getString("GmObjectFrame.MASK") + ":"); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.SAME_AS_SPRITE"); //$NON-NLS-1$
 		mask = new ResourceMenu<Sprite>(Sprite.class,t,110);
 		plf.make(mask,PGmObject.MASK);
@@ -678,7 +674,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
       infoFrame = new GmObjectInfoFrame(this);
     }
     infoFrame.updateObjectInfo();
-    infoFrame.show();	
+    infoFrame.setVisible(true);	
 	}
 	
 	public void saveEvents()
@@ -746,6 +742,11 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		}
 		if (e.getSource() == eventEdit || e.getSource() == eventEditItem)
 		{
+		 // /if (actions.getModel().getSize() == 0)
+		  //{
+		  	//return;
+		 // }
+		//res.mainEvents
 		  Action a = null;
 		  LibAction la = null;
 		  Boolean prependNew = true;

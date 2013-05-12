@@ -14,6 +14,7 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dialog;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -38,6 +39,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
@@ -59,14 +61,11 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	protected Color fgColor;
 	
 	JComboBox themeCombo, iconCombo;
-	JCheckBox dndEnable;
+	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable;
 
 	private JPanel makeGeneralPrefs()
 	{
 		JPanel p = new JPanel();
-		GroupLayout gl = new GroupLayout(p);
-		gl.setAutoCreateGaps(true);
-		gl.setAutoCreateContainerGaps(true);
 
 		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME") + ":");
     String[] themeOptions = { "Swing", "Native", "Motif", "GTK", "Custom"};
@@ -78,12 +77,41 @@ public class PreferencesFrame extends JFrame implements ActionListener
     iconCombo.setSelectedItem(LGM.iconspack);
     dndEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_DND"));
     dndEnable.setSelected(Prefs.enableDragAndDrop);
-    
-    p.add(dndEnable);
-    p.add(themeLabel);
-		p.add(themeCombo);
-		p.add(iconLabel);
-		p.add(iconCombo);
+    restrictTreeEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_TREE_RESTRICT"));
+    restrictTreeEnable.setSelected(Prefs.restrictHierarchy);
+    extraNodesEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_EXTRA_NODES"));
+    extraNodesEnable.setSelected(Prefs.extraNodes);
+		
+		GroupLayout gl = new GroupLayout(p);
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
+		
+		gl.setHorizontalGroup(
+			   gl.createParallelGroup()
+			      .addGroup(gl.createSequentialGroup()
+			           .addComponent(dndEnable)
+			           .addComponent(restrictTreeEnable)
+			           .addComponent(extraNodesEnable))
+			      .addGroup(gl.createSequentialGroup()
+			           .addComponent(themeLabel)
+			           .addComponent(themeCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+			           .addComponent(iconLabel)
+			           .addComponent(iconCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			  );
+		gl.setVerticalGroup(
+			   gl.createSequentialGroup()
+			      .addGroup(gl.createParallelGroup()
+			           .addComponent(dndEnable)
+			           .addComponent(restrictTreeEnable)
+			           .addComponent(extraNodesEnable))
+			      .addGroup(gl.createParallelGroup(Alignment.BASELINE)
+			           .addComponent(themeLabel)
+			           .addComponent(themeCombo)
+			           .addComponent(iconLabel)
+			           .addComponent(iconCombo))
+			  );
+		
+		p.setLayout(gl);
 		
 		return p;
 	}
@@ -92,14 +120,117 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	{
 		JPanel p = new JPanel();
 		
+		Dimension preferredSize = new Dimension(100, 30);
+		
+		JLabel spriteLabel = new JLabel("Sprite:");
+		JTextField spritePrefix = new JTextField("spr_");
+		spritePrefix.setPreferredSize(preferredSize);
+		JLabel soundLabel = new JLabel("Sound:");
+		JTextField soundPrefix = new JTextField("snd_");
+		soundPrefix.setPreferredSize(preferredSize);
+		JLabel backgroundLabel = new JLabel("Background:");
+		JTextField backgroundPrefix = new JTextField("bg_");
+		backgroundPrefix.setPreferredSize(preferredSize);
+		JLabel pathLabel = new JLabel("Path:");
+		JTextField pathPrefix = new JTextField("pth_");
+		pathPrefix.setPreferredSize(preferredSize);
+		JLabel scriptLabel = new JLabel("Script:");
+		JTextField scriptPrefix = new JTextField("scr_");
+		scriptPrefix.setPreferredSize(preferredSize);
+		JLabel fontLabel = new JLabel("Font:");
+		JTextField fontPrefix = new JTextField("fnt_");
+		fontPrefix.setPreferredSize(preferredSize);
+		JLabel timelineLabel = new JLabel("Timeline:");
+		JTextField timelinePrefix = new JTextField("tl_");
+		timelinePrefix.setPreferredSize(preferredSize);
+		JLabel objectLabel = new JLabel("Object:");
+		JTextField objectPrefix = new JTextField("obj_");
+		objectPrefix.setPreferredSize(preferredSize);
+		JLabel roomLabel = new JLabel("Room:");
+		JTextField roomPrefix = new JTextField("rm_");
+		roomPrefix.setPreferredSize(preferredSize);
+		
+		GroupLayout gl = new GroupLayout(p);
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
+	
+		gl.setHorizontalGroup(
+				gl.createParallelGroup(Alignment.LEADING)
+					.addGroup(gl.createSequentialGroup()
+						.addGroup(gl.createParallelGroup(Alignment.TRAILING)
+							.addComponent(timelineLabel)
+							.addComponent(pathLabel)
+							.addComponent(spriteLabel))
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addGroup(gl.createParallelGroup(Alignment.LEADING, false)
+							.addGroup(gl.createSequentialGroup()
+								.addComponent(spritePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(soundLabel))
+							.addGroup(gl.createSequentialGroup()
+								.addComponent(timelinePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(ComponentPlacement.RELATED)
+								.addComponent(objectLabel))
+							.addGroup(gl.createSequentialGroup()
+								.addComponent(pathPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(scriptLabel)))
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addGroup(gl.createParallelGroup(Alignment.LEADING, false)
+							.addGroup(gl.createSequentialGroup()
+								.addComponent(soundPrefix)
+								.addPreferredGap(ComponentPlacement.RELATED)
+								.addComponent(backgroundLabel))
+							.addGroup(gl.createSequentialGroup()
+								.addComponent(scriptPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(fontLabel))
+							.addGroup(gl.createSequentialGroup()
+								.addComponent(objectPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(roomLabel)))
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addGroup(gl.createParallelGroup(Alignment.LEADING)
+							.addComponent(roomPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(fontPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(backgroundPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+			);
+			gl.setVerticalGroup(
+				gl.createParallelGroup(Alignment.LEADING)
+					.addGroup(gl.createSequentialGroup()
+						.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+							.addComponent(soundPrefix)
+							.addComponent(backgroundLabel)
+							.addComponent(backgroundPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(spritePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(spriteLabel)
+							.addComponent(soundLabel))
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+							.addComponent(pathLabel)
+							.addComponent(pathPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(scriptPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(fontPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(scriptLabel)
+							.addComponent(fontLabel))
+						.addPreferredGap(ComponentPlacement.RELATED)
+						.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+							.addComponent(timelinePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(objectPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(roomPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(timelineLabel)
+							.addComponent(objectLabel)
+							.addComponent(roomLabel, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE)))
+			);
+		
+		p.setLayout(gl);
+		
 		return p;
 	}
 	
 	private JPanel makeExternalEditorPrefs()
 	{
 		JPanel p = new JPanel();
-		p.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
 		
     String[] defaultEditorOptions = { Messages.getString("PreferencesFrame.DEFAULT"), 
     		Messages.getString("PreferencesFrame.SYSTEM"), 
@@ -129,113 +260,76 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		JTextField soundEditorPath = new JTextField();
 		JButton soundEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
 		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 1;
-		p.add(codeEditorLabel, gbc);
+		GroupLayout gl = new GroupLayout(p);
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
 		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 1;
-		gbc.gridy = 0;
-		gbc.weightx = 1.5;
-		p.add(codeEditorCombo, gbc);
+		// TODO: Fix this layout so that it rezies the text fields properly
+		gl.setHorizontalGroup(
+			   gl.createSequentialGroup()
+			      .addGroup(gl.createParallelGroup(Alignment.TRAILING)
+			           .addComponent(spriteEditorLabel)
+			           .addComponent(soundEditorLabel)
+			           .addComponent(backgroundEditorLabel)
+			           .addComponent(codeEditorLabel))
+			      .addGroup(gl.createParallelGroup()
+			           .addComponent(spriteEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+			           .addComponent(soundEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+			           .addComponent(backgroundEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+			           .addComponent(codeEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			      .addGroup(gl.createParallelGroup()
+			           .addComponent(spriteEditorPath)
+			           .addComponent(soundEditorPath)
+			           .addComponent(backgroundEditorPath)
+			           .addComponent(codeEditorPath))
+			      .addGroup(gl.createParallelGroup()
+			           .addComponent(spriteEditorButton)
+			           .addComponent(soundEditorButton)
+			           .addComponent(backgroundEditorButton)
+			           .addComponent(codeEditorButton))
+			  );
+		gl.setVerticalGroup(
+			   gl.createSequentialGroup()
+			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			           .addComponent(spriteEditorLabel)
+			           .addComponent(spriteEditorCombo)
+			           .addComponent(spriteEditorPath)
+			           .addComponent(spriteEditorButton))
+			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			           .addComponent(soundEditorLabel)
+			           .addComponent(soundEditorCombo)
+			           .addComponent(soundEditorPath)
+			           .addComponent(soundEditorButton))
+			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			           .addComponent(backgroundEditorLabel)
+			           .addComponent(backgroundEditorCombo)
+			           .addComponent(backgroundEditorPath)
+			           .addComponent(backgroundEditorButton))
+			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			           .addComponent(codeEditorLabel)
+			           .addComponent(codeEditorCombo)
+			           .addComponent(codeEditorPath)
+			           .addComponent(codeEditorButton))
+			  );
 		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 2;
-		gbc.gridy = 0;
-		gbc.weightx = 20;
-		p.add(codeEditorPath, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 3;
-		gbc.gridy = 0;
-		gbc.weightx = 1;
-		p.add(codeEditorButton, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		gbc.weightx = 1;
-		p.add(spriteEditorLabel, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 1;
-		gbc.gridy = 1;
-		gbc.weightx = 1.5;
-		p.add(spriteEditorCombo, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 2;
-		gbc.gridy = 1;
-		gbc.weightx = 20;
-		p.add(spriteEditorPath, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 3;
-		gbc.gridy = 1;
-		gbc.weightx = 1;
-		p.add(spriteEditorButton, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.weightx = 1;
-		p.add(backgroundEditorLabel, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 1;
-		gbc.gridy = 2;
-		gbc.weightx = 1.5;
-		p.add(backgroundEditorCombo, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 2;
-		gbc.gridy = 2;
-		gbc.weightx = 20;
-		p.add(backgroundEditorPath, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 3;
-		gbc.gridy = 2;
-		gbc.weightx = 1;
-		p.add(backgroundEditorButton, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 0;
-		gbc.gridy = 3;
-		gbc.weightx = 1;
-		p.add(soundEditorLabel, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 1;
-		gbc.gridy = 3;
-		gbc.weightx = 1.5;
-		p.add(soundEditorCombo, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 2;
-		gbc.gridy = 3;
-		gbc.weightx = 20;
-		p.add(soundEditorPath, gbc);
-		
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 3;
-		gbc.gridy = 3;
-		gbc.weightx = 1;
-		p.add(soundEditorButton, gbc);
+		p.setLayout(gl);
 		
 		return p;
 	}
 	
 	private JPanel makeCodeEditorPrefs()
 	{
-		JPanel p = new JPanel();
-		GroupLayout gl = new GroupLayout(p);
-		gl.setAutoCreateGaps(true);
-		gl.setAutoCreateContainerGaps(true);
-
-		return p;
+	JPanel p = new JPanel();
+	
+	//TODO: Make components
+	
+	GroupLayout gl = new GroupLayout(p);
+	gl.setAutoCreateGaps(true);
+	gl.setAutoCreateContainerGaps(true);
+	
+	//TODO: Add components to layout
+	
+	return p;
 	}
 
 	public PreferencesFrame()
@@ -293,11 +387,17 @@ public class PreferencesFrame extends JFrame implements ActionListener
     PrefsStore.setIconPack(LGM.iconspack);
 	  PrefsStore.setSwingTheme(LGM.themename);
 	  PrefsStore.setDNDEnabled(dndEnable.isSelected());
+	  PrefsStore.setExtraNodes(extraNodesEnable.isSelected());
 	}
 	
 	public void ResetPreferences()
 	{
-		
+		//TODO: Reset preferences to their active state when this frame was first opened
+	}
+	
+	public void ResetPreferencesToDefault()
+	{
+		//TODO: Reset the preferences to their settings when LGM was first installed
 	}
 	
 	public void actionPerformed(ActionEvent ev)

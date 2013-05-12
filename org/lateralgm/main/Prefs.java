@@ -73,6 +73,8 @@ public final class Prefs
 
 	public static void loadPrefs()
 		{
+		extraNodes = getBoolean("extraNodes",true);
+		restrictHierarchy = getBoolean("restrictHierarchy",true);
 		renamableRoots = getBoolean("renamableRoots",false);
 		swingTheme = getString("swingTheme", "Native");
 		iconPack = getString("iconPack", "Standard");
@@ -126,6 +128,8 @@ public final class Prefs
 	public static String iconPack;
 	public static String swingTheme;
 	
+	public static boolean extraNodes;
+	public static boolean restrictHierarchy;
 	public static boolean renamableRoots;
 	public static boolean groupKind;
 	public static boolean iconizeGroup;

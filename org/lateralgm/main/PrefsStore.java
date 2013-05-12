@@ -83,6 +83,12 @@ public final class PrefsStore
 		Prefs.enableDragAndDrop = selected;
 	}
 	
+	public static void setExtraNodes(boolean selected)
+	{
+	  PREFS.putBoolean("extraNodes",selected);
+	  Prefs.extraNodes = selected;
+	}
+	
 	public static SyntaxStyle[] getSyntaxStyles()
 	{
 		SyntaxStyle[] styles = new SyntaxStyle[Token.ID_COUNT];
