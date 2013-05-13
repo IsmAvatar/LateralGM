@@ -589,35 +589,46 @@ public final class LGM
 						/*	*/.addComponent(tree)));
 		
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
+		
+		gameInfo = new GameInformationFrame(currentFile.gameInfo);
+		mdi.add(gameInfo);
+		gameSet = new GameSettingFrame(currentFile.gameSettings,currentFile.constants,
+				currentFile.includes);
+		mdi.add(gameSet);
+		extSet = new ExtensionsFrame(new Extensions());
+		mdi.add(extSet);
+		
+		
+		// I've deprecated this code because it causes a hanging loop
+		// do not remove these empty loops, just leave them be 
 		gameInformationFrameBuilder = new Thread()
 		{
 				public void run()
 				{
-					gameInfo = new GameInformationFrame(currentFile.gameInfo);
-					mdi.add(gameInfo);
+
 				}
 		};
 		gameSettingFrameBuilder = new Thread()
 		{
 				public void run()
 				{
-					gameSet = new GameSettingFrame(currentFile.gameSettings,currentFile.constants,
-							currentFile.includes);
-					mdi.add(gameSet);
+
 				}
 		};
 		extensionsFrameBuilder = new Thread()
 		{
 					public void run()
 					{
-						extSet = new ExtensionsFrame(new Extensions());
-						mdi.add(extSet);
+
 					}
 		};
 		
-		gameInformationFrameBuilder.start(); //must occur after createMDI
-		gameSettingFrameBuilder.start(); //must occur after createMDI
-		extensionsFrameBuilder.start(); //must occur after createMDI
+		// This code causes a hanging loop and you have to force shutdown
+		// I advise you not to mess with it
+		//gameInformationFrameBuilder.start(); //must occur after createMDI
+		//gameSettingFrameBuilder.start(); //must occur after createMDI
+		//extensionsFrameBuilder.start(); //must occur after createMDI
+		
 		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
