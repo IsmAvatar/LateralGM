@@ -105,16 +105,16 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public ResourceMenu<Sprite> mask;
 	public JButton information;
 
-	public static EventTree events;
+	public EventTree events;
 	public JButton eventModify;
 	public JButton eventEdit;
 	public JButton eventDelete;
 	public JMenuItem eventModifyItem;
 	public JMenuItem eventEditItem;
 	public JMenuItem eventDeleteItem;
-	public static EventGroupNode rootEvent;
+	public EventGroupNode rootEvent;
 	private MListener mListener = new MListener();
-	public static ActionList actions;
+	public ActionList actions;
 	public GMLTextArea code;
 	private JComponent editor;
 	
