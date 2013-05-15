@@ -742,11 +742,10 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		}
 		if (e.getSource() == eventEdit || e.getSource() == eventEditItem)
 		{
-		 // /if (actions.getModel().getSize() == 0)
-		  //{
-		  	//return;
-		 // }
-		//res.mainEvents
+		  if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)
+		  {
+		  	return;
+		  }
 		  Action a = null;
 		  LibAction la = null;
 		  Boolean prependNew = true;

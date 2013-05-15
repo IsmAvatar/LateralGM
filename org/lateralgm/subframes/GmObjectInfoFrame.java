@@ -43,6 +43,7 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.rtf.RTFEditorKit;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.lateralgm.components.ActionList;
@@ -227,11 +228,10 @@ public JButton addToolbarItem(String key)
 	  // the information from other classes and components 
 	  // i dont like it as is - Robert B. Colton
 	  
-		gmObjFrame.saveEvents(); // this here might need refactored 
-		// but i had to add it otherwise the panel your editing, changes
-		// wont show to obj info window, but it might make the whole object
-		// save but i dont think so
-	  // iterate events and get each ones model
+	  // Make the current selected event realize any recent changes to actions
+	  DefaultMutableTreeNode node = (DefaultMutableTreeNode) gmObjFrame.events.getLastSelectedPathComponent();
+		gmObjFrame.actions.setActionContainer((Event) node.getUserObject());
+		
 		EventGroupNode e = (EventGroupNode)gmObjFrame.events.getModel().getRoot();
 		EventInstanceNode etn, etnc;
 		for (int i=0; i<e.getChildCount(); i++)

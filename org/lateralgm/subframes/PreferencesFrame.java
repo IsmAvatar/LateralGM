@@ -150,6 +150,16 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		JTextField roomPrefix = new JTextField("rm_");
 		roomPrefix.setPreferredSize(preferredSize);
 		
+		JLabel backgroundMIMELabel = new JLabel("Background MIME:");
+		JTextField backgroundMIME = new JTextField("png");
+		backgroundMIME.setPreferredSize(preferredSize);
+		JLabel spriteMIMELabel = new JLabel("Sprite MIME:");
+		JTextField spriteMIME = new JTextField("png");
+		spriteMIME.setPreferredSize(preferredSize);
+		JLabel scriptMIMELabel = new JLabel("Script MIME:");
+		JTextField scriptMIME = new JTextField("txt");
+		scriptMIME.setPreferredSize(preferredSize);
+		
 		GroupLayout gl = new GroupLayout(p);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
@@ -193,7 +203,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 						.addGroup(gl.createParallelGroup(Alignment.LEADING)
 							.addComponent(roomPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addComponent(fontPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(backgroundPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+							.addComponent(backgroundPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl.createSequentialGroup()
+								  .addComponent(backgroundMIMELabel)
+									.addComponent(backgroundMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
 			);
 			gl.setVerticalGroup(
 				gl.createParallelGroup(Alignment.LEADING)
@@ -218,9 +231,13 @@ public class PreferencesFrame extends JFrame implements ActionListener
 							.addComponent(timelinePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addComponent(objectPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addComponent(roomPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(backgroundMIMELabel)
 							.addComponent(timelineLabel)
 							.addComponent(objectLabel)
-							.addComponent(roomLabel, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE)))
+							.addComponent(roomLabel, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE))
+					  .addGroup(gl.createSequentialGroup()
+								.addComponent(backgroundMIMELabel)
+								.addComponent(backgroundMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
 			);
 		
 		p.setLayout(gl);
