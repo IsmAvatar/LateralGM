@@ -60,7 +60,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	private JButton button;
 	protected ResourceReference<R> selected;
 	protected JPopupMenu pm;
-	public static JMenuItem noResource;
+	public JMenuItem noResource;
 	protected String defStr;
 	protected boolean onlyOpen;
 	private ActionEvent actionEvent;
