@@ -27,19 +27,19 @@ public class GMLTokenMarker extends DefaultTokenMarker
 		schemes.add(new BlockDescriptor("Double Quote String","\"","\"",new Color(0,0,255),0));
 		schemes.add(new BlockDescriptor("Single Quote String","'","'",new Color(0,0,255),0));
 
-		KeywordSet kws = addKeywordSet("Statements",new Color(0,0,128),Font.BOLD);
+		KeywordSet kws = addKeywordSet("Statements",new Color(0,100,150),Font.BOLD);
 		//FIXME: Just remove these and make LGM add them from its properties file
 		Collections.addAll(kws.words,new String[] { "if","then","else","do","while","for","until",
 				"with","switch","case","default","break","continue","exit","return" });
 		tmKeywords.add(kws);
 
-		CharSymbolSet css = new CharSymbolSet("Operators and Separators",new Color(255,0,0),0);
+		CharSymbolSet css = new CharSymbolSet("Operators and Separators",new Color(200,0,0),0);
 		char[] ca = "{[()]}!%^&*-/+=?:~<>.,;".toCharArray();
 		for (int i = 0; i < ca.length; i++)
 			css.chars.add(ca[i]);
 		tmChars.add(css);
 
-		otherTokens.add(new SimpleToken("Numeric literal","[0-9]+",0,new Color(255,0,255)));
-		otherTokens.add(new SimpleToken("Hex literal","\\$[0-9A-Fa-f]+",0,new Color(255,100,100)));
+		otherTokens.add(new SimpleToken("Numeric literal","[0-9]+",0,new Color(255,0,128)));
+		otherTokens.add(new SimpleToken("Hex literal","\\$[0-9A-Fa-f]+",0,new Color(100,100,255)));
 	}
 }

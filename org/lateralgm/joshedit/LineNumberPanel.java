@@ -7,7 +7,9 @@
 
 package org.lateralgm.joshedit;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -17,6 +19,8 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+
+//import org.lateralgm.resources.Font;
 
 /** Panel to display line numbers. */
 public class LineNumberPanel extends JPanel
@@ -105,13 +109,22 @@ public class LineNumberPanel extends JPanel
 		int lineNum = clip.y / gh;
 		final int start = lineNum * gh + insetY;
 		final int end = clip.y + clip.height + gh;
-		if (!startZero) lineNum++;
-
-		g.setColor(getBackground());
+		if (!startZero) lineNum++;  
+     
+		g.setColor(new Color(220, 220, 220));
 		g.fillRect(clip.x,clip.y,clip.width,clip.height);
-		g.setColor(getForeground());
+		g.setColor(new Color(170, 170, 170));
 
+		g.setFont(new Font("Monospace", Font.PLAIN, 12));
+		
+    String str;
+    int strw = 0;
 		for (int y = start; lineNum < lines && y <= end; lineNum++, y += gh)
-			g.drawString(Integer.toString(lineNum),0,y);
+		{
+			str = Integer.toString(lineNum);
+		  strw = (int)  
+        g.getFontMetrics().getStringBounds(str, g).getWidth();  
+		  g.drawString(str, clip.width - strw, y);
+		}
 	}
 }

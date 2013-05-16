@@ -110,10 +110,10 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 	protected Completion[] completions;
 	protected DefaultTokenMarker gmlTokenMarker = new GMLTokenMarker();
 
-	private static final Color PURPLE = new Color(128,0,128);
-	private static final Color BROWN = new Color(128,0,0);
-	private static final Color FUNCTION = new Color(0,0,128);
-
+	private static final Color PURPLE = new Color(173,161,21);
+	private static final Color BROWN = new Color(200,0,0);
+	private static final Color FUNCTION = new Color(0,100,150);
+	//new Color(255,0,128);
 	static KeywordSet resNames, scrNames, constructs, functions, operators, constants, variables;
 
 	public GMLTextArea()
