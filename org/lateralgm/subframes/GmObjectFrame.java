@@ -698,17 +698,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 				}
 			}
 	}
-
-//TODO: idk josh said to do this
-/*
-	protected boolean areResourceFieldsEqual()
-	{
-		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(com.sun.corba.se.spi.orbutil.fsm.Action.class,"updateTrigger","updateSource");
-		c.addExclusions(Argument.class,"updateTrigger","updateSource");
-		return c.areEqual(res.mainEvents,resOriginal.mainEvents);
-	}
-*/
+	
 	protected boolean areResourceFieldsEqual()
 	{
 		return Util.areInherentlyUniquesEqual(res.mainEvents,resOriginal.mainEvents);
