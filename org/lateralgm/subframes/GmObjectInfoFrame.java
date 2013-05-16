@@ -230,9 +230,15 @@ public JButton addToolbarItem(String key)
 	  
 	  // Make the current selected event realize any recent changes to actions
 	  DefaultMutableTreeNode node = (DefaultMutableTreeNode) gmObjFrame.events.getLastSelectedPathComponent();
-		gmObjFrame.actions.setActionContainer((Event) node.getUserObject());
+	  if (node != null) {
+	    gmObjFrame.actions.setActionContainer((Event) node.getUserObject());
+	  }
 		
 		EventGroupNode e = (EventGroupNode)gmObjFrame.events.getModel().getRoot();
+		if (e == null)
+		{
+			return;
+		}
 		EventInstanceNode etn, etnc;
 		for (int i=0; i<e.getChildCount(); i++)
 		{

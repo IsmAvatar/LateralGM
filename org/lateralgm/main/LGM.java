@@ -217,12 +217,12 @@ public final class LGM
     	return;
     }
     JFrame.setDefaultLookAndFeelDecorated(true);
-    //SwingUtilities.updateComponentTreeUI(frame);
+    SwingUtilities.updateComponentTreeUI(frame);
     //SwingUtilities.updateComponentTreeUI(mdi);
     //frame.pack();
     Window windows[] = frame.getWindows();
     for(Window window : windows) {
-        //SwingUtilities.updateComponentTreeUI(window);
+        SwingUtilities.updateComponentTreeUI(window);
     }
     //SwingUtilities.updateComponentTreeUI(content);
     //SwingUtilities.updateComponentTreeUI(mdi);

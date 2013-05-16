@@ -23,8 +23,8 @@ import javax.swing.JScrollPane;
 public class MDIManager extends DefaultDesktopManager
 	{
 	private static final long serialVersionUID = 1L;
-	public static MDIPane pane;
-	public static JScrollPane scroll;
+	public MDIPane pane;
+	public JScrollPane scroll;
 	private CListener cListener = new CListener();
 	/**prevents recursion*/
 	public boolean resizing = false;
