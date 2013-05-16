@@ -376,8 +376,6 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 	   //int keyCode = evt.getKeyCode();
 	   // if (keyCode == KeyEvent.VK_DELETE)
 	      //add(-d, 0);
-	    //LGM.frame.setVisible(false);
-		System.exit(0);
 		}
 
 	public void keyTyped(KeyEvent evt)
