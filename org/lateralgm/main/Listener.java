@@ -50,7 +50,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	{
 	private static final long serialVersionUID = 1L;
 	MListener mListener = new MListener();
-	public static FileChooser fc = new FileChooser();
+	public FileChooser fc = new FileChooser();
 
 	private Listener()
 		{
@@ -60,7 +60,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		{
 		public static final Listener INSTANCE = new Listener();
 		}
-
+	
 	public static Listener getInstance()
 		{
 		return LazyHolder.INSTANCE;

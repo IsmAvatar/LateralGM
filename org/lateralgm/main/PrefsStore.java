@@ -14,9 +14,6 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
-import org.lateralgm.jedit.SyntaxStyle;
-import org.lateralgm.jedit.Token;
-
 public final class PrefsStore
 	{
 	private PrefsStore()

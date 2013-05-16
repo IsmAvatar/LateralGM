@@ -748,6 +748,12 @@ public final class LGM
 		frame.pack();
 	}
 	
+	public static void askToSaveProject()
+	{
+	  FileChooser fc = new FileChooser();
+	  fc.save(LGM.currentFile.uri,LGM.currentFile.format);
+	}
+	
 	public static void onMainFrameClosed()
   {
 		  int n = JOptionPane.showConfirmDialog(null,
@@ -760,7 +766,7 @@ public final class LGM
 		  switch (n)
 		  {
 			  case JOptionPane.YES_OPTION:
-			    Listener.fc.save(LGM.currentFile.uri,LGM.currentFile.format);
+			    askToSaveProject();
     		  System.exit(0);
     		  break;
 			  case JOptionPane.NO_OPTION:
