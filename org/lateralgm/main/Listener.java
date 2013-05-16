@@ -50,7 +50,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	{
 	private static final long serialVersionUID = 1L;
 	MListener mListener = new MListener();
-	public FileChooser fc = new FileChooser();
+	public static FileChooser fc = new FileChooser();
 
 	private Listener()
 		{
@@ -268,7 +268,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		}
 		if (com.contains(".INSERT_") || com.contains(".ADD_")) //$NON-NLS-1$ //$NON-NLS-2$
 		{
-			//we no longer do it this way
+			if (com.endsWith("GROUP")) //$NON-NLS-1$
+				{
+				if (com.contains(".INSERT_"))
+					insertResource(tree,null);
+				else
+					addResource(tree,null);
+				return;
+				}
+			//we no longer do it this way for resources
 			throw new UnsupportedOperationException(com);
 		}
 		if (com.endsWith(".RENAME")) //$NON-NLS-1$

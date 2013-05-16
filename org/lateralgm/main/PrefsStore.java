@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -89,29 +90,6 @@ public final class PrefsStore
 	  Prefs.extraNodes = selected;
 	}
 	
-	public static SyntaxStyle[] getSyntaxStyles()
-	{
-		SyntaxStyle[] styles = new SyntaxStyle[Token.ID_COUNT];
-
-		styles[Token.COMMENT1] = new SyntaxStyle(new Color(0x338833),true,false); //Standard Comments
-		styles[Token.COMMENT2] = new SyntaxStyle(new Color(0x333388),true,false); //Javadocs
-		styles[Token.KEYWORD1] = new SyntaxStyle(new Color(0x000000),false,true); //Keywords (if, for, etc)
-		styles[Token.KEYWORD2] = new SyntaxStyle(new Color(0x1111DD),true,false); //Predefined Variables
-		styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0x770077),false,false); //Resource Names
-		styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x660099),false,false); //Strings
-		styles[Token.LITERAL2] = new SyntaxStyle(new Color(0x771111),false,false); //Predefined Constants
-		styles[Token.LABEL] = new SyntaxStyle(new Color(0x111177),false,false); //Functions
-		styles[Token.OPERATOR] = new SyntaxStyle(new Color(0x000000),false,true); //?
-		styles[Token.INVALID] = new SyntaxStyle(new Color(0xEE0000),false,true); //?
-
-		for (int i = 1; i < styles.length; i++)
-			{
-			String key = String.format("SYNTAX_STYLE_%02X",i);
-			styles[i] = Util.stringToSyntaxStyle(PREFS.get(key,null),styles[i]);
-			}
-		return styles;
-		}
-
 	public static int getNumberOfBackups()
 		{
 		return PREFS.getInt("FILE_BACKUP_COUNT",1);

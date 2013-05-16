@@ -19,13 +19,12 @@ public class NameDocument extends PlainDocument
 	public void insertString(int offs, String str, AttributeSet a) throws BadLocationException
 		{
 		if (str == null) return;
-		// if (true) return;
 		if (offs == 0)
 			{
-			if (str.matches("[a-zA-Z_]\\w*")) super.insertString(offs,str,a);
+			if (str.matches("[a-zA-Z_][\\w ]*")) super.insertString(offs,str,a);
 			return;
 			}
-		if (str.matches("\\w*"))
+		if (str.matches("[\\w ]*"))
 			{
 			super.insertString(offs,str,a);
 			}

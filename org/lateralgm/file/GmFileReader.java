@@ -14,9 +14,9 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
@@ -238,6 +238,10 @@ public final class GmFileReader
 				}
 
 			readGameInformation(c);
+
+			//Resources read. Now we can invoke our postpones.
+			for (PostponedRef i : postpone)
+				i.invoke();
 
 			//Library Creation Code
 			ver = in.read4();

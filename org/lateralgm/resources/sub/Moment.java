@@ -8,7 +8,10 @@
 
 package org.lateralgm.resources.sub;
 
-public class Moment extends ActionContainer implements Comparable<Object>
+import org.lateralgm.main.Util;
+import org.lateralgm.main.Util.InherentlyUnique;
+
+public class Moment extends ActionContainer implements Comparable<Object>,InherentlyUnique<Moment>
 	{
 	public int stepNo = 0;
 
@@ -31,5 +34,12 @@ public class Moment extends ActionContainer implements Comparable<Object>
 	public String toString()
 		{
 		return "Step " + stepNo;
+		}
+
+	public boolean isEqual(Moment other)
+		{
+		if (this == other) return true;
+		if (other == null || stepNo != other.stepNo) return false;
+		return Util.areInherentlyUniquesEqual(actions,other.actions);
 		}
 	}

@@ -83,7 +83,7 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 		add(code,BorderLayout.CENTER);
 		add(status,BorderLayout.SOUTH);
 
-		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
+		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code.text));
 
 		SubframeInformer.fireSubframeAppear(this);
 		}
@@ -115,7 +115,7 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 	@Override
 	public boolean resourceChanged()
 		{
-		return code.getUndoManager().isModified();
+		return code.isChanged();
 		}
 
 	@Override

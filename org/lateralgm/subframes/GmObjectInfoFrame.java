@@ -145,7 +145,7 @@ public JButton addToolbarItem(String key)
 	item.addActionListener(this);
 	return item;
 }
-	public String loopActionsToString(ArrayList<Action> list)
+	public String loopActionsToString(List<Action> list)
 	{
 	  String info = "";
 	  int lms = list.size();

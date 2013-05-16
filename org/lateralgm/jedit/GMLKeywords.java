@@ -9,12 +9,7 @@
 
 package org.lateralgm.jedit;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,8 +17,6 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.lateralgm.main.LGM;
 
 public final class GMLKeywords
 	{
@@ -35,18 +28,7 @@ public final class GMLKeywords
 
 	static
 		{
-		final String fn = "gmlkeywords.properties";
-		InputStream is;
-		File dir = LGM.workDir;
-		if (!dir.isDirectory()) dir = dir.getParentFile();
-		try
-			{
-			is = new BufferedInputStream(new FileInputStream(new File(dir,fn)));
-			}
-		catch (FileNotFoundException e1)
-			{
-			is = GMLTokenMarker.class.getResourceAsStream(fn);
-			}
+		InputStream is = GMLKeywords.class.getResourceAsStream("gmlkeywords.properties");
 		Properties p = new Properties();
 		try
 			{
@@ -75,20 +57,9 @@ public final class GMLKeywords
 		p.clear();
 
 		//read functions
-
-		final String fn2 = "functions.txt";
-		BufferedReader br2 = null;
-		try
-			{
-			br2 = new BufferedReader(new FileReader(new File(dir,fn2)));
-			}
-		catch (FileNotFoundException e)
-			{
-			InputStream is2 = GMLTokenMarker.class.getResourceAsStream(fn2);
-			br2 = new BufferedReader(new InputStreamReader(is2));
-			}
-
-		ArrayList<Function> list = new ArrayList<Function>();
+		InputStream is2 = GMLKeywords.class.getResourceAsStream("functions.txt");
+		BufferedReader	br2 = new BufferedReader(new InputStreamReader(is2));
+		ArrayList<Function> funcList = new ArrayList<Function>();
 
 		try
 			{
@@ -97,7 +68,7 @@ public final class GMLKeywords
 				{
 				String args = br2.readLine();
 				String desc = br2.readLine();
-				list.add(new Function(func,args,desc));
+				funcList.add(new Function(func,args,desc));
 				}
 			}
 		catch (IOException e)
@@ -105,7 +76,7 @@ public final class GMLKeywords
 			e.printStackTrace();
 			}
 
-		FUNCTIONS = list.toArray(new Function[0]);
+		FUNCTIONS = funcList.toArray(new Function[0]);
 		}
 
 	private GMLKeywords()
@@ -146,11 +117,11 @@ public final class GMLKeywords
 		public Variable(String input)
 			{
 			Matcher m = Pattern.compile("(\\w+)(\\[(\\d+)])?(\\*)?").matcher(input);
-			if (!m.matches()) System.err.println("Invalid variable: " + input);
+			if (!m.matches()) System.err.println("Invalid variable: " + input); //$NON-NLS-1$
 			name = m.group(1);
 			String s = m.group(3);
 			arraySize = s != null ? Integer.valueOf(m.group(3)) : 0;
-			readOnly = "*".equals(m.group(4));
+			readOnly = "*".equals(m.group(4)); //$NON-NLS-1$
 			}
 		}
 
@@ -177,7 +148,7 @@ public final class GMLKeywords
 			//   fun  (  arg,     arg  { 0   , 9   }        ,    arg   )
 			String re = "(\\w+)\\(((\\w+,)*)((\\w+)\\{(\\d+),(\\d+)}((?=\\))|,))?(\\w+)?\\)";
 			Matcher m = Pattern.compile(re).matcher(input);
-			if (!m.matches()) System.err.println("Invalid function: " + input);
+			if (!m.matches()) System.err.println("Invalid function: " + input); //$NON-NLS-1$
 			name = m.group(1); //the function name
 			String a1 = m.group(2); //plain arguments with commas
 			String da = m.group(5); //argument with range
@@ -201,7 +172,7 @@ public final class GMLKeywords
 				arguments[aa1.length] = da;
 				}
 			if (a2 != null) arguments[arguments.length - 1] = a2;
-			description = "";
+			description = ""; //$NON-NLS-1$
 			}
 
 		public Function(String func, String args, String desc)

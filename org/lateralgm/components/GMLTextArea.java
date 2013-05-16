@@ -1,7 +1,11 @@
 /*
+ * Copyright (C) 2008, 2012 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+<<<<<<< HEAD
  * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2013 Robert B. Colton
+=======
+>>>>>>> origin/joshedit
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -11,7 +15,10 @@
 package org.lateralgm.components;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -19,11 +26,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,102 +49,108 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.text.PlainDocument;
 
-import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.file.GmFile.ResourceHolder;
 import org.lateralgm.file.ResourceList;
-import org.lateralgm.jedit.CompletionMenu;
-import org.lateralgm.jedit.CompletionMenu.Completion;
-import org.lateralgm.jedit.DefaultInputHandler;
 import org.lateralgm.jedit.GMLKeywords;
-import org.lateralgm.jedit.GMLTokenMarker;
-import org.lateralgm.jedit.InputHandler;
-import org.lateralgm.jedit.JEditTextArea;
-import org.lateralgm.jedit.KeywordMap;
-import org.lateralgm.jedit.SyntaxDocument;
-import org.lateralgm.jedit.Token;
+import org.lateralgm.joshedit.Code;
+import org.lateralgm.joshedit.CompletionMenu;
+import org.lateralgm.joshedit.CompletionMenu.Completion;
+import org.lateralgm.joshedit.GMLTokenMarker;
+import org.lateralgm.joshedit.DefaultTokenMarker;
+import org.lateralgm.joshedit.DefaultTokenMarker.KeywordSet;
+import org.lateralgm.joshedit.JoshText;
+import org.lateralgm.joshedit.JoshText.CodeMetrics;
+import org.lateralgm.joshedit.JoshText.LineChangeListener;
+import org.lateralgm.joshedit.JoshText.Highlighter;
+import org.lateralgm.joshedit.Runner;
+import org.lateralgm.joshedit.Runner.EditorInterface;
+import org.lateralgm.joshedit.Runner.JoshTextPanel;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.Script;
 
-public class GMLTextArea extends JEditTextArea implements UpdateListener
+public class GMLTextArea extends JoshTextPanel implements UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
+
+	static
+		{
+		Runner.editorInterface = new EditorInterface()
+			{
+				public ImageIcon getIconForKey(String key)
+					{
+					return LGM.getIconForKey(key);
+					}
+
+				public String getString(String key)
+					{
+					return Messages.getString(key);
+					}
+
+				public String getString(String key, String def)
+					{
+					String str = getString(key);
+					if (str.equals('!' + key + '!')) return def;
+					return str;
+					}
+			};
+		}
 
 	private static final GMLKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,
 			GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
 
-	private final GMLTokenMarker gmlTokenMarker = new GMLTokenMarker();
-	private final DocumentUndoManager undoManager = new DocumentUndoManager();
 	protected static Timer timer;
 	protected Integer lastUpdateTaskID = 0;
 	private Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
 	protected Completion[] completions;
+	protected DefaultTokenMarker gmlTokenMarker = new GMLTokenMarker();
 
-	
-	public GMLTextArea(String text)
+	private static final Color PURPLE = new Color(128,0,128);
+	private static final Color BROWN = new Color(128,0,0);
+	private static final Color FUNCTION = new Color(0,0,128);
+
+	static KeywordSet resNames, scrNames, constructs, functions, operators, constants, variables;
+
+	public GMLTextArea()
 		{
-		super();
-		setDocument(new SyntaxDocument());
-		getDocument().getDocumentProperties().put(PlainDocument.tabSizeAttribute,Prefs.tabSize);
-		updateResourceKeywords();
-		setTokenMarker(gmlTokenMarker);
-		painter.setFont(Prefs.codeFont);
-		painter.setStyles(PrefsStore.getSyntaxStyles());
-		painter.setBracketHighlightColor(Color.gray);
-		inputHandler = new DefaultInputHandler();
-		inputHandler.addDefaultKeyBindings();
-		putClientProperty(InputHandler.KEEP_INDENT_PROPERTY,Boolean.TRUE);
-		putClientProperty(InputHandler.TAB_TO_INDENT_PROPERTY,Boolean.TRUE);
-		putClientProperty(InputHandler.CONVERT_TABS_PROPERTY,Boolean.TRUE);
-		text = text.replace("\r\n","\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		setText(text);
-		setCaretPosition(0);
-		LGM.currentFile.updateSource.addListener(this);
-		addCaretListener(undoManager);
-		document.addUndoableEditListener(undoManager);
-		inputHandler.addKeyBinding("C+Z",undoManager.getUndoAction()); //$NON-NLS-1$
-		inputHandler.addKeyBinding("C+Y",undoManager.getRedoAction()); //$NON-NLS-1$
-		inputHandler.addKeyBinding("C+SPACE",new CompletionAction());
+		this(null);
+		}
 
-		// this popup menu will work with both JEdit and JoshEdit because it
-		// dont rely on the them internally
+	public GMLTextArea(String code)
+		{
+		super(code);
+
+		setTabSize(Prefs.tabSize);
+		setTokenMarker(gmlTokenMarker);
+		setupKeywords();
+		updateKeywords();
+		updateResourceKeywords();
+		text.setFont(Prefs.codeFont);
+		//painter.setStyles(PrefsStore.getSyntaxStyles());
+		text.getActionMap().put("COMPLETIONS",completionAction);
+		LGM.currentFile.updateSource.addListener(this);
+
     // build popup menu
     final JPopupMenu popup = new JPopupMenu();
-    JMenuItem item;
     
-    item = makeContextButton(getUndoManager().getUndoAction());
-    popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
-    item = makeContextButton(getUndoManager().getRedoAction());
-    popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
-		
-    popup.addSeparator();
-    
-    item = makeInputHandlerContextButton(InputHandler.CUT,"GMLTextArea.CUT");
-    popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
-    item = makeInputHandlerContextButton(InputHandler.COPY,"GMLTextArea.COPY");
-    popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
-    item = makeInputHandlerContextButton(InputHandler.PASTE,"GMLTextArea.PASTE");
-    popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
-    
+		popup.add(makeContextButton(text.aUndo));
+		popup.add(makeContextButton(text.aRedo));
+		//popup.add(makeContextButton(gotoAction));
 		popup.addSeparator();
-    
-    item = makeInputHandlerContextButton(InputHandler.SELECT_ALL,"GMLTextArea.SELECT_ALL");
-    popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(makeContextButton(text.aCut));
+		popup.add(makeContextButton(text.aCopy));
+		popup.add(makeContextButton(text.aPaste));
+		popup.addSeparator();
+		// select all dont work right as a popup button, no idea why
+		popup.add(makeContextButton(text.aSelAll));
 		
-    painter.setComponentPopupMenu(popup);
-		painter.addMouseListener(new MouseAdapter() {
+    text.setComponentPopupMenu(popup);
+		text.addMouseListener(new MouseAdapter() {
 
     	@Override
     	public void mousePressed(MouseEvent e) {
@@ -159,160 +172,133 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 		}
 
 	private static JButton makeToolbarButton(Action a)
-	{
-		JButton b = new JButton(a);
-		b.setToolTipText(b.getText());
-		b.setText(null);
+		{
+		String key = "JoshText." + a.getValue(Action.NAME);
+		JButton b = new JButton(LGM.getIconForKey(key));
+		b.setToolTipText(Messages.getString(key));
 		b.setRequestFocusEnabled(false);
+		b.addActionListener(a);
 		return b;
-	}
-
-	private JButton makeInputHandlerToolbarButton(final ActionListener l, String key)
-	{
-		final GMLTextArea source = this;
-		Action a = new AbstractAction(Messages.getString(key),LGM.getIconForKey(key))
-			{
-				private static final long serialVersionUID = 1L;
-
-				public void actionPerformed(ActionEvent e)
-					{
-					inputHandler.executeAction(l,source,null);
-					}
-			};
-		return makeToolbarButton(a);
 	}
 
 	private static JMenuItem makeContextButton(Action a)
 	{
-		JMenuItem b = new JMenuItem(a);
-		b.setToolTipText(b.getText());
-		b.setText(b.getText());
-		b.setRequestFocusEnabled(false);
+	  String key = "JoshText." + a.getValue(Action.NAME);
+	  JMenuItem b = new JMenuItem(LGM.getIconForKey(key));
+	  b.setText(Messages.getString(key));
+	  b.setRequestFocusEnabled(false);
+	  b.addActionListener(a);
 		return b;
-	}
-	
-	private JMenuItem makeInputHandlerContextButton(final ActionListener l, String key)
-	{
-		final GMLTextArea source = this;
-		Action a = new AbstractAction(Messages.getString(key),LGM.getIconForKey(key))
-			{
-				private static final long serialVersionUID = 1L;
-
-				public void actionPerformed(ActionEvent e)
-					{
-					inputHandler.executeAction(l,source,null);
-					}
-			};
-		return makeContextButton(a);
 	}
 	
 	public void addEditorButtons(JToolBar tb)
 		{
-		tb.add(makeToolbarButton(getUndoManager().getUndoAction()));
-		tb.add(makeToolbarButton(getUndoManager().getRedoAction()));
-		tb.add(makeToolbarButton(getGotoLineAction()));
+		tb.add(makeToolbarButton(text.aUndo));
+		tb.add(makeToolbarButton(text.aRedo));
+		tb.add(makeToolbarButton(gotoAction));
 		tb.addSeparator();
-		tb.add(makeInputHandlerToolbarButton(InputHandler.CUT,"GMLTextArea.CUT")); //$NON-NLS-1$
-		tb.add(makeInputHandlerToolbarButton(InputHandler.COPY,"GMLTextArea.COPY")); //$NON-NLS-1$
-		tb.add(makeInputHandlerToolbarButton(InputHandler.PASTE,"GMLTextArea.PASTE")); //$NON-NLS-1$
+		tb.add(makeToolbarButton(text.aCut));
+		tb.add(makeToolbarButton(text.aCopy));
+		tb.add(makeToolbarButton(text.aPaste));
 		}
 
-	private Action getGotoLineAction()
+	AbstractAction gotoAction = new AbstractAction("GOTO")
 		{
-		return new AbstractAction(Messages.getString("GMLTextArea.GOTO_LINE"), //$NON-NLS-1$
-				LGM.getIconForKey("GMLTextArea.GOTO_LINE")) //$NON-NLS-1$
-			{
-				private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 1L;
 
-				public void actionPerformed(ActionEvent arg0)
+			public void actionPerformed(ActionEvent e)
+				{
+				int line = showGotoDialog(getCaretLine());
+				line = Math.max(0,Math.min(getLineCount() - 1,line));
+				setCaretPosition(line,0);
+				}
+		};
+
+	public static int showGotoDialog(int defVal)
+		{
+		final JDialog d = new JDialog((Frame) null,true);
+		JPanel p = new JPanel();
+		GroupLayout layout = new GroupLayout(p);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		p.setLayout(layout);
+
+		JLabel l = new JLabel("Line: ");
+		NumberField f = new NumberField(defVal);
+		f.selectAll();
+		JButton b = new JButton("Goto");
+		b.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
 					{
-					final JDialog d = new JDialog((Frame) null,true);
-					JPanel p = new JPanel();
-					GroupLayout layout = new GroupLayout(p);
-					layout.setAutoCreateGaps(true);
-					layout.setAutoCreateContainerGaps(true);
-					p.setLayout(layout);
-
-					JLabel l = new JLabel("Line: ");
-					NumberField f = new NumberField(getCaretLine());
-					f.selectAll();
-					JButton b = new JButton("Goto");
-					b.addActionListener(new ActionListener()
-						{
-							public void actionPerformed(ActionEvent e)
-								{
-								d.setVisible(false);
-								}
-						});
-
-					layout.setHorizontalGroup(layout.createParallelGroup()
-					/**/.addGroup(layout.createSequentialGroup()
-					/*	*/.addComponent(l)
-					/*	*/.addComponent(f))
-					/**/.addComponent(b,Alignment.CENTER));
-					layout.setVerticalGroup(layout.createSequentialGroup()
-					/**/.addGroup(layout.createParallelGroup()
-					/*	*/.addComponent(l)
-					/*	*/.addComponent(f))
-					/**/.addComponent(b));
-
-					//					JOptionPane.showMessageDialog(null,p);
-					d.setContentPane(p);
-					d.pack();
-					d.setResizable(false);
-					d.setLocationRelativeTo(null);
-					d.setVisible(true); //blocks until user clicks OK
-					int line = f.getIntValue();
-					int lines = getLineCount();
-					if (line < 0) line = lines + line;
-					if (line < 0) line = 0;
-					if (line >= lines) line = lines - 1;
-					setCaretPosition(getLineStartOffset(line));
+					d.setVisible(false);
 					}
-			};
+			});
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(l)
+		/*	*/.addComponent(f))
+		/**/.addComponent(b,Alignment.CENTER));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(l)
+		/*	*/.addComponent(f))
+		/**/.addComponent(b));
+
+		//					JOptionPane.showMessageDialog(null,p);
+		d.setContentPane(p);
+		d.pack();
+		d.setResizable(false);
+		d.setLocationRelativeTo(null);
+		d.setVisible(true); //blocks until user clicks OK
+
+		return f.getIntValue();
 		}
 
-	public DocumentUndoManager getUndoManager()
+	private void setupKeywords()
 		{
-		return undoManager;
+		resNames = gmlTokenMarker.addKeywordSet("Resource Names",PURPLE,Font.PLAIN);
+		scrNames = gmlTokenMarker.addKeywordSet("Script Names",FUNCTION,Font.PLAIN);
+		functions = gmlTokenMarker.addKeywordSet("Functions",FUNCTION,Font.PLAIN);
+		constructs = gmlTokenMarker.addKeywordSet("Constructs",Color.BLACK,Font.BOLD);
+		operators = gmlTokenMarker.addKeywordSet("Operators",Color.BLACK,Font.BOLD);
+		constants = gmlTokenMarker.addKeywordSet("Constants",BROWN,Font.PLAIN);
+		variables = gmlTokenMarker.addKeywordSet("Variables",Color.BLUE,Font.ITALIC);
 		}
 
-	public String getTextCompat()
+	public static void updateKeywords()
 		{
-		String s = getText();
-		s = s.replaceAll("\r?\n","\r\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		return s;
+		constructs.words.clear();
+		operators.words.clear();
+		constants.words.clear();
+		variables.words.clear();
+		functions.words.clear();
+
+		for (GMLKeywords.Construct keyword : GMLKeywords.CONSTRUCTS)
+			constructs.words.add(keyword.getName());
+		for (GMLKeywords.Operator keyword : GMLKeywords.OPERATORS)
+			operators.words.add(keyword.getName());
+		for (GMLKeywords.Constant keyword : GMLKeywords.CONSTANTS)
+			constants.words.add(keyword.getName());
+		for (GMLKeywords.Variable keyword : GMLKeywords.VARIABLES)
+			variables.words.add(keyword.getName());
+		for (GMLKeywords.Function keyword : GMLKeywords.FUNCTIONS)
+			functions.words.add(keyword.getName());
 		}
 
-	public void markError(int row, int col, int abs)
+	public static void updateResourceKeywords()
 		{
-		setCaretPosition(abs);
-		setSelectionStart(abs);
-		setSelectionEnd(abs + 1);
-		}
-
-	public void updateResourceKeywords()
-		{
-		for (ResourceHolder<?> rh : LGM.currentFile.resMap.values())
+		resNames.words.clear();
+		scrNames.words.clear();
+		for (Entry<Class<?>,ResourceHolder<?>> e : LGM.currentFile.resMap.entrySet())
 			{
-			if (!(rh instanceof ResourceList<?>)) continue;
-			ResourceList<?> rl = (ResourceList<?>) rh;
-			SortedSet<String> a = new TreeSet<String>();
+			if (!(e.getValue() instanceof ResourceList<?>)) continue;
+			ResourceList<?> rl = (ResourceList<?>) e.getValue();
+			KeywordSet ks = e.getKey() == Script.class ? scrNames : resNames;
 			for (Resource<?,?> r : rl)
-				a.add(r.getName());
-			resourceKeywords.add(a);
+				ks.words.add(r.getName());
 			}
-		completions = null;
-		updateTokenMarker();
-		}
-
-	private void updateTokenMarker()
-		{
-		KeywordMap km = new KeywordMap(false);
-		for (Set<String> a : resourceKeywords)
-			for (String s : a)
-				if (s.length() > 0) km.add(s,Token.KEYWORD3);
-		gmlTokenMarker.setCustomKeywords(km);
 		}
 
 	protected void updateCompletions()
@@ -350,10 +336,9 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 			name = v.getName();
 			}
 
-		public boolean apply(JEditTextArea a, char input, int offset, int pos, int length)
+		public boolean apply(JoshText a, char input, int row, int start, int end)
 			{
 			String s = name;
-			int l = input != '\0' ? pos : length;
 			int p = s.length();
 			if (variable.arraySize > 0)
 				{
@@ -375,9 +360,8 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 				else
 					p = s.length();
 				}
-			SyntaxDocument d = a.getDocument();
-			if (!replace(d,offset,l,s)) return false;
-			a.setCaretPosition(offset + p);
+			if (!replace(a,row,start,end,s)) return false;
+			setCaretPosition(row,start + p);
 			return true;
 			}
 
@@ -400,10 +384,9 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 			name = f.getName();
 			}
 
-		public boolean apply(JEditTextArea a, char input, int offset, int pos, int length)
+		public boolean apply(JoshText a, char input, int row, int start, int end)
 			{
 			String s = name + "(" + getArguments() + ")";
-			int l = input != '\0' ? pos : length;
 			int p1, p2;
 			boolean argSel = true;
 			switch (input)
@@ -427,10 +410,8 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 				p1 = s.length();
 				p2 = p1;
 				}
-			SyntaxDocument d = a.getDocument();
-			if (!replace(d,offset,l,s)) return false;
-			a.setSelectionStart(offset + p1);
-			a.setSelectionEnd(offset + p2);
+			if (!replace(a,row,start,end,s)) return false;
+			setSelection(row,start + p1,row,start + p2);
 			return true;
 			}
 
@@ -454,36 +435,30 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 			}
 		}
 
-	private class CompletionAction implements ActionListener
+	private static String find(String input, Pattern p)
 		{
-		public CompletionAction()
-			{
-			super();
-			}
-
-		private String find(String input, String regex)
-			{
-			Pattern p = Pattern.compile(regex);
-			Matcher m = p.matcher(input);
-			if (m.find()) return m.group();
-			return "";
-			}
-
-		public void actionPerformed(ActionEvent e)
-			{
-			if (editable)
-				{
-				int s = getSelectionStart();
-				int sl = getSelectionStartLine();
-				int ls = s - getLineStartOffset(sl);
-				String lt = getLineText(sl);
-				int l1 = find(lt.substring(0,ls),"\\w+$").length();
-				int l2 = find(lt.substring(ls),"^\\w+").length();
-				if (completions == null) updateCompletions();
-				new CompletionMenu(LGM.frame,GMLTextArea.this,s - l1,l1,l1 + l2,completions);
-				}
-			}
+		Matcher m = p.matcher(input);
+		if (m.find()) return m.group();
+		return new String();
 		}
+
+	AbstractAction completionAction = new AbstractAction("COMPLETE")
+		{
+			private static final long serialVersionUID = 1L;
+			final Pattern W_BEFORE = Pattern.compile("\\w+$");
+			final Pattern W_AFTER = Pattern.compile("^\\w+");
+
+			public void actionPerformed(ActionEvent e)
+				{
+				int pos = getCaretColumn();
+				int row = getCaretLine();
+				String lt = getLineText(row);
+				int x1 = pos - find(lt.substring(0,pos),W_BEFORE).length();
+				int x2 = pos + find(lt.substring(pos),W_AFTER).length();
+				if (completions == null) updateCompletions();
+				new CompletionMenu(LGM.frame,text,row,x1,x2,pos,completions);
+				}
+		};
 
 	public void updated(UpdateEvent e)
 		{
@@ -514,10 +489,68 @@ public class GMLTextArea extends JEditTextArea implements UpdateListener
 					public void run()
 						{
 						updateResourceKeywords();
-						int fl = getFirstLine();
-						painter.invalidateLineRange(fl,fl + getVisibleLines());
+						text.repaint(); //should be capable of figuring out its own visible lines
+						//int fl = getFirstLine();
+						//painter.invalidateLineRange(fl,fl + getVisibleLines());
 						}
 				});
+			}
+		}
+
+	public boolean requestFocusInWindow()
+		{
+		return text.requestFocusInWindow();
+		}
+
+	public void markError(final int line, final int pos, int abs)
+		{
+		final Highlighter err = new ErrorHighlighter(line,pos);
+		text.highlighters.add(err);
+		text.addLineChangeListener(new LineChangeListener()
+			{
+				public void linesChanged(Code code, int start, int end)
+					{
+					text.highlighters.remove(err);
+					text.removeLineChangeListener(this);
+					}
+			});
+		text.repaint();
+		}
+
+	class ErrorHighlighter implements Highlighter
+		{
+		protected final Color COL_SQ = Color.RED;
+		protected final Color COL_HL = new Color(255,240,230);
+		protected int line, pos, x2;
+
+		public ErrorHighlighter(int line, int pos)
+			{
+			this.line = line;
+			this.pos = pos;
+			String code = getLineText(line);
+			int otype = JoshText.selGetKind(code,pos);
+			x2 = pos;
+			do
+				x2++;
+			while (JoshText.selOfKind(code,x2,otype));
+			}
+
+		public void paint(Graphics g, Insets i, CodeMetrics cm, int line_start, int line_end)
+			{
+			int gh = cm.lineHeight();
+			g.setColor(COL_HL);
+			g.fillRect(0,i.top + line * gh,g.getClipBounds().width,gh);
+			g.setColor(COL_SQ);
+
+			int y = i.top + line * gh + gh;
+			int start = i.left + cm.lineWidth(line,pos);
+			int end = i.left + cm.lineWidth(line,x2);
+
+			for (int x = start; x < end; x += 2)
+				{
+				g.drawLine(x,y,x + 1,y - 1);
+				g.drawLine(x + 1,y - 1,x + 2,y);
+				}
 			}
 		}
 	}

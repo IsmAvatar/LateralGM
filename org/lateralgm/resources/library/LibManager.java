@@ -63,8 +63,12 @@ public final class LibManager
 	public static void autoLoad()
 		{
 		File defdir = new File(Prefs.defaultLibraryPath);
-		if (!defdir.exists()) defdir = new File(LGM.workDir,Prefs.defaultLibraryPath);
-		if (!defdir.exists()) defdir = LGM.workDir;
+		if (!defdir.exists())
+			{
+			if (LGM.workDir == null) return;
+			defdir = new File(LGM.workDir,Prefs.defaultLibraryPath);
+			if (!defdir.exists()) defdir = LGM.workDir;
+			}
 
 		codeAction = null;
 

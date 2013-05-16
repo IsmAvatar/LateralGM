@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.WeakHashMap;
 
@@ -52,7 +53,6 @@ import javax.swing.border.EmptyBorder;
 
 import org.lateralgm.components.ActionListEditor.LibActionButton;
 import org.lateralgm.components.mdi.MDIFrame;
-import org.lateralgm.jedit.InputHandler;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -70,7 +70,7 @@ import org.lateralgm.subframes.ActionFrame;
 public class ActionList extends JList
 	{
 	private static final long serialVersionUID = 1L;
-	private static final WeakHashMap<Action,WeakReference<ActionFrame>> FRAMES;
+	private static final Map<Action,WeakReference<ActionFrame>> FRAMES;
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
 	protected ActionContainer actionContainer;
 	public ActionListModel model;
@@ -185,7 +185,7 @@ public class ActionList extends JList
 			if (a != null)
 				{
 				ActionFrame af = a.get();
-				if (af != null) af.commitChanges();
+				if (af != null && !af.isClosed()) af.commitChanges();
 				}
 			}
 		actionContainer.actions = model.list;

@@ -16,12 +16,13 @@ import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
+import org.lateralgm.main.Util.InherentlyUnique;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
 
-public class Action implements UpdateListener
+public class Action implements UpdateListener, InherentlyUnique<Action>
 	{
 	public static final byte ACT_NORMAL = 0;
 	public static final byte ACT_BEGIN = 1;
@@ -181,26 +182,10 @@ public class Action implements UpdateListener
 		fireUpdate();
 		}
 
-	@Override
-	public int hashCode()
+	public boolean isEqual(Action other)
 		{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((appliesTo == null) ? 0 : appliesTo.hashCode());
-		result = prime * result + ((arguments == null) ? 0 : arguments.hashCode());
-		result = prime * result + ((libAction == null) ? 0 : libAction.hashCode());
-		result = prime * result + (not ? 1231 : 1237);
-		result = prime * result + (relative ? 1231 : 1237);
-		return result;
-		}
-
-	@Override
-	public boolean equals(Object obj)
-		{
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (!(obj instanceof Action)) return false;
-		Action other = (Action) obj;
+		if (this == other) return true;
+		if (other == null) return false;
 		if (appliesTo == null)
 			{
 			if (other.appliesTo != null) return false;
@@ -216,8 +201,6 @@ public class Action implements UpdateListener
 			if (other.libAction != null) return false;
 			}
 		else if (!libAction.equals(other.libAction)) return false;
-		if (not != other.not) return false;
-		if (relative != other.relative) return false;
-		return true;
+		return (not == other.not && relative == other.relative);
 		}
 	}

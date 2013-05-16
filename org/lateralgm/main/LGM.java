@@ -85,6 +85,8 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIManager;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.GmFile;
+import org.lateralgm.file.GmFile.ResourceHolder;
+import org.lateralgm.file.GmFile.SingletonResourceHolder;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Extensions;
 import org.lateralgm.resources.InstantiableResource;
@@ -95,6 +97,8 @@ import org.lateralgm.subframes.ExtensionsFrame;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 import org.lateralgm.subframes.PreferencesFrame;
+import org.lateralgm.subframes.ResourceFrame;
+import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
 public final class LGM
 	{
@@ -117,9 +121,9 @@ public final class LGM
 			{
 			workDir = new File(LGM.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 			}
-		catch (URISyntaxException e1)
+		catch (Exception e)
 			{
-			e1.printStackTrace();
+			System.err.println(Messages.format("LGM.NO_WORKDIR",e.getClass(),e.getLocalizedMessage()));
 			}
 		}
 	public static JFrame frame;
@@ -294,6 +298,7 @@ public final class LGM
 				"org/lateralgm/main/icons.properties"); //$NON-NLS-1$
 		try
 			{
+			if (is == null) throw new IOException();
 			iconProps.load(is);
 			}
 		catch (IOException e)
@@ -417,9 +422,10 @@ public final class LGM
 
 	public static void loadPlugins()
 		{
+		if (workDir == null) return;
 		File dir = new File(workDir.getParent(),"plugins"); //$NON-NLS-1$
 		if (!dir.exists()) dir = new File(workDir.getParent(),"Plugins"); //$NON-NLS-1$
-		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$s
+		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$
 		if (ps == null) return;
 		for (File f : ps)
 			{
@@ -528,6 +534,58 @@ public final class LGM
 		for (ReloadListener rl : reloadListeners)
 			rl.reloadPerformed(newRoot);
 	}
+
+	public static void addPluginResource(PluginResource pr)
+		{
+		ImageIcon i = pr.getIcon();
+		if (i != null) ResNode.ICON.put(pr.getKind(),i);
+		String p = pr.getPrefix();
+		if (p != null) Prefs.prefixes.put(pr.getKind(),p);
+		Resource.addKind(pr.getKind(),pr.getName3(),pr.getName(),pr.getPlural());
+		LGM.currentFile.resMap.put(pr.getKind(),pr.getResourceHolder());
+		ResourceFrame.factories.put(pr.getKind(),pr.getResourceFrameFactory());
+		}
+
+	public static interface PluginResource
+		{
+		Class<? extends Resource<?,?>> getKind();
+
+		/** Can be null, in which case the default icon is used. */
+		ImageIcon getIcon();
+
+		String getName3();
+
+		String getName();
+
+		String getPlural();
+
+		String getPrefix();
+
+		ResourceHolder<?> getResourceHolder();
+
+		ResourceFrameFactory getResourceFrameFactory();
+		}
+
+	public static abstract class SingletonPluginResource<T extends Resource<T,?>> implements
+			PluginResource
+		{
+		public String getPlural()
+			{
+			return getName();
+			}
+
+		public String getPrefix()
+			{
+			return null;
+			}
+
+		public ResourceHolder<?> getResourceHolder()
+			{
+			return new SingletonResourceHolder<T>(getInstance());
+			}
+
+		public abstract T getInstance();
+		}
 
 	public static void main(String[] args)
   {
@@ -702,6 +760,7 @@ public final class LGM
 		  switch (n)
 		  {
 			  case JOptionPane.YES_OPTION:
+			    Listener.fc.save(LGM.currentFile.uri,LGM.currentFile.format);
     		  System.exit(0);
     		  break;
 			  case JOptionPane.NO_OPTION:

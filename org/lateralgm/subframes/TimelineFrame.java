@@ -35,7 +35,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
 import org.lateralgm.components.GMLTextArea;
@@ -43,6 +42,7 @@ import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.Timeline.PTimeline;
@@ -184,9 +184,10 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	}
 
 	protected boolean areResourceFieldsEqual()
-	{
-		return new ResourceComparator().areEqual(res.moments,resOriginal.moments);
-	}
+// return new ResourceComparator().areEqual(res.moments,resOriginal.moments);
+		{
+		return Util.areInherentlyUniquesEqual(res.moments,resOriginal.moments);
+		}
 
 	public void commitChanges()
 	{

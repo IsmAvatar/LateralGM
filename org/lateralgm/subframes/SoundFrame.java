@@ -55,9 +55,9 @@ import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
@@ -87,7 +87,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	public boolean modified = false;
 	private CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_SOUND_DIR");
 	private SoundEditor editor;
-	private Clip clip;
+	private Clip clip; //TODO: Be able to stop older started audio clips
 
 	public SoundFrame(Sound res, ResNode node)
 		{
@@ -346,17 +346,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 						public void run()
 							{
 							clip.start();
-							try
-								{
-								do
-									Thread.sleep(99);
-								while (clip.isActive());
-								}
-							catch (InterruptedException e)
-								{
-								//Should never happen, but if it does, we just give up.
-								}
-							clip.stop();
+							SoundFrame.this.clip = clip;
+							clip.drain();
 							clip.close();
 							}
 					}.start();
