@@ -1,5 +1,6 @@
 /* Copyright (C) 2011 Josh Ventura <joshv@zoominternet.net>
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of JoshEdit. JoshEdit is free software.
  * You can use, modify, and distribute it under the terms of
@@ -27,6 +28,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
@@ -140,9 +142,15 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 
 		/** Find and replace the next match. */
 		void replaceNext();
+		
+		/** Replaces all the matches and returns the count. */
+		int replaceAll();
 
 		/** Find and replace the previous match. */
 		void replacePrevious();
+		
+		/** Performs the replace action. */
+		void doReplace();
 	}
 
 	/** Create the form layout. */
@@ -252,6 +260,25 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 					selectedJoshText.finder.replaceNext();
 			}
 		});
+		
+		bRepAll.addActionListener(new ActionListener()
+		{
+	//r@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				if (selectedJoshText == null)
+				{
+					System.err.println("No text editor selected. Ever.");
+					return;
+				}
+				setVisible(false);
+				selectedJoshText.finder.updateParameters((String) tFind.getEditor().getItem(),
+						(String) tReplace.getEditor().getItem());
+				int results = selectedJoshText.finder.replaceAll();
+				JOptionPane.showMessageDialog(null, results + " Occurences Replaced");
+			}
+		});
+		
 		bClose.addActionListener(new ActionListener()
 		{
 	//r@Override

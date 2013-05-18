@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,6 +13,7 @@ package org.lateralgm.joshedit;
 import java.awt.AWTEvent;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -42,6 +44,9 @@ import javax.swing.UIManager;
  * @author IsmAvatar
  * Class to handle code completion.
  */
+// TODO: doCodeSize(true); <- call that when the auto completion is confirmed
+// otherwise it doesnt update the client area, i propose making a system 
+// wherein all insertions/deletions of text will invalidate a client area resizing
 public class CompletionMenu
 	{
 	/** The text area in which to handle code completion. */
@@ -75,6 +80,8 @@ public class CompletionMenu
 
 		keyHandler = new KeyHandler();
 		completionList = new JList();
+		completionList.setFixedCellHeight(12);
+		completionList.setFont(new Font("Monospace", Font.PLAIN, 10));
 		completionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		completionList.addKeyListener(keyHandler);
 		completionList.addMouseListener(new MouseAdapter()
@@ -118,14 +125,17 @@ public class CompletionMenu
 		{
 		Point p = area.getLocationOnScreen();
 		int y = (row + 1) * area.metrics.lineHeight();
-		int x = area.metrics.lineWidth(row,wordStart);
+		int x = area.metrics.lineWidth(row,wordEnd);
+		// adding this breaks it, but without it shows at the correct position
+		// ffs wtf?
+		/*
 		if (area.getParent() instanceof JViewport)
 			{
 			Point vp = ((JViewport) area.getParent()).getViewPosition();
 			x -= vp.x;
 			y -= vp.y;
 			}
-
+    */
 		p.x += Math.min(area.getWidth(),Math.max(0,x));
 		p.y += Math.min(area.getHeight(),Math.max(0,y)) + 3;
 		loc = p;

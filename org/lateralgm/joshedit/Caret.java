@@ -119,12 +119,12 @@ public class Caret implements ActionListener
 		{
 			FontMetrics fm = painter.getFontMetrics(painter.getFont());
 			Insets i = painter.getInsets();
-			int gw = fm.getMaxAdvance(), gh = fm.getHeight();
+			int gw = fm.getMaxAdvance() / 2, gh = fm.getHeight();
 			if (joshText.sel.type == ST.RECT)
 				painter.repaint(i.left + col * gw,i.top + row * gh,gw + 1,gh);
 			else
 				painter.repaint(i.left + joshText.line_wid_at(row,col),i.top + row * gh,
-						insert ? gw + 1 : 2,gh);
+						insert ? gw + 1 : 1,gh);
 		}
 	}
 
@@ -139,14 +139,14 @@ public class Caret implements ActionListener
 		{
 			FontMetrics fm = painter.getFontMetrics(painter.getFont());
 			Insets i = painter.getInsets();
-			int gw = fm.getMaxAdvance(), gh = fm.getHeight();
+			int gw = fm.getMaxAdvance() / 2, gh = fm.getHeight();
 
 			g.setXORMode(Color.WHITE);
 			if (sel.type == ST.RECT)
-				g.fillRect(i.left + col * gw,i.top + Math.min(row,sel.row) * gh,insert ? 2 : gw + 1,
+				g.fillRect(i.left + col * gw,i.top + Math.min(row,sel.row) * gh,insert ? 1 : gw + 1,
 						(Math.abs(row - sel.row) + 1) * gh);
 			else
-				g.fillRect(i.left + joshText.line_wid_at(row,col),i.top + row * gh,insert ? 2 : gw + 1,gh);
+				g.fillRect(i.left + joshText.line_wid_at(row,col),i.top + row * gh,insert ? 1 : gw + 1,gh);
 			g.setPaintMode();
 		}
 	}

@@ -1,11 +1,7 @@
 /*
  * Copyright (C) 2008, 2012 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
-<<<<<<< HEAD
- * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2013 Robert B. Colton
-=======
->>>>>>> origin/joshedit
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -31,6 +27,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -110,7 +107,7 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 	protected Completion[] completions;
 	protected DefaultTokenMarker gmlTokenMarker = new GMLTokenMarker();
 
-	private static final Color PURPLE = new Color(173,161,21);
+	private static final Color PURPLE = new Color(162,27,224);
 	private static final Color BROWN = new Color(200,0,0);
 	private static final Color FUNCTION = new Color(0,100,150);
 	//new Color(255,0,128);
@@ -192,15 +189,21 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 	}
 	
 	public void addEditorButtons(JToolBar tb)
-		{
+	{
+		tb.add(makeToolbarButton(text.aSave));
+		tb.add(makeToolbarButton(text.aLoad));
+		tb.add(makeToolbarButton(text.aPrint));
+		tb.addSeparator();
 		tb.add(makeToolbarButton(text.aUndo));
 		tb.add(makeToolbarButton(text.aRedo));
+		tb.addSeparator();
+		tb.add(makeToolbarButton(text.aFind));
 		tb.add(makeToolbarButton(gotoAction));
 		tb.addSeparator();
 		tb.add(makeToolbarButton(text.aCut));
 		tb.add(makeToolbarButton(text.aCopy));
 		tb.add(makeToolbarButton(text.aPaste));
-		}
+	}
 
 	AbstractAction gotoAction = new AbstractAction("GOTO")
 		{
@@ -287,8 +290,11 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 			functions.words.add(keyword.getName());
 		}
 
+	// This below is the broken JoshEdit version 
+	// only JEdit version works for now
+	/*
 	public static void updateResourceKeywords()
-		{
+	{
 		resNames.words.clear();
 		scrNames.words.clear();
 		for (Entry<Class<?>,ResourceHolder<?>> e : LGM.currentFile.resMap.entrySet())
@@ -297,22 +303,44 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 			ResourceList<?> rl = (ResourceList<?>) e.getValue();
 			KeywordSet ks = e.getKey() == Script.class ? scrNames : resNames;
 			for (Resource<?,?> r : rl)
-				ks.words.add(r.getName());
+				functions.words.add(r.getName());
 			}
-		}
+	}
+*/
+	
+  // This is the JEdit version which actually works
+  public void updateResourceKeywords()
+  {
+    for (ResourceHolder<?> rh : LGM.currentFile.resMap.values())
+    {
+      if (!(rh instanceof ResourceList<?>)) continue;
+      ResourceList<?> rl = (ResourceList<?>) rh;
+      SortedSet<String> a = new TreeSet<String>();
+      for (Resource<?,?> r : rl)
+      a.add(r.getName());
+      resourceKeywords.add(a);
+    }
+    completions = null;
+  }
 
 	protected void updateCompletions()
-		{
+	{
 		int l = 0;
-		for (Set<String> a : resourceKeywords)
+		for (Set<String> a : resourceKeywords) {
 			l += a.size();
+		}
 		for (GMLKeywords.Keyword[] a : GML_KEYWORDS)
 			l += a.length;
 		completions = new Completion[l];
 		int i = 0;
 		for (Set<String> a : resourceKeywords)
+		{
 			for (String s : a)
-				completions[i++] = new CompletionMenu.WordCompletion(s);
+			{
+				completions[i] = new CompletionMenu.WordCompletion(s);
+				i += 1;
+			}
+		}
 		for (GMLKeywords.Keyword[] a : GML_KEYWORDS)
 			for (GMLKeywords.Keyword k : a)
 				{
@@ -324,10 +352,10 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 					completions[i] = new CompletionMenu.WordCompletion(k.getName());
 				i++;
 				}
-		}
+	}
 
 	public class VariableCompletion extends CompletionMenu.Completion
-		{
+	{
 		private final GMLKeywords.Variable variable;
 
 		public VariableCompletion(GMLKeywords.Variable v)

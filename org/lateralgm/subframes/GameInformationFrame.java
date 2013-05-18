@@ -130,6 +130,10 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 		menu.addSeparator();
+		item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,KeyEvent.CTRL_DOWN_MASK));
+		menu.add(item);
+		menu.addSeparator();
 		item = addItem("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
 		menu.add(item);
 
@@ -601,7 +605,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			if (fc.getSelectedFile().exists()) break;
 			JOptionPane.showMessageDialog(null,
-					fc.getSelectedFile().getName() + Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
+					fc.getSelectedFile().getName() + Messages.getString("GameInformationFrame.FILE_MISSING"), //$NON-NLS-1$
 					Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-1$
 					JOptionPane.WARNING_MESSAGE);
 			}
@@ -655,6 +659,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{
 			tabs.setSelectedIndex(0);
 			loadFromFile();
+			}
+		else if (com.equals("GameInformationFrame.PRINT")) //$NON-NLS-1$
+			{
+			JOptionPane.showMessageDialog(null, "Print option not finished yet, sorry :(");
+			return;
 			}
 		else if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
 			{

@@ -52,7 +52,7 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 		super(MessageFormat.format(titleFormat,titleArg),true,true,true,true);
 		this.codeHolder = codeHolder;
 		this.titleFormat = titleFormat;
-		setSize(600,400);
+		setSize(600,600);
 
 		tool = new JToolBar();
 		tool.setFloatable(false);

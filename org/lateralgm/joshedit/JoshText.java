@@ -1,5 +1,6 @@
 /* Copyright (C) 2011 Josh Ventura <joshv@zoominternet.net>
  * Copyright (C) 2011, 2012 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of JoshEdit. JoshEdit is free software.
  * You can use, modify, and distribute it under the terms of
@@ -36,12 +37,20 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -49,6 +58,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.Scrollable;
@@ -58,9 +69,14 @@ import javax.swing.TransferHandler;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import org.lateralgm.components.CustomFileChooser;
+import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.joshedit.FindDialog.FindNavigator;
 import org.lateralgm.joshedit.Selection.ST;
 import org.lateralgm.joshedit.TokenMarker.TokenMarkerInfo;
+import org.lateralgm.main.FileChooser;
+import org.lateralgm.main.LGM;
+import org.lateralgm.messages.Messages;
 
 /**
  * The main component class; instantiate this, and you're good to go.
@@ -101,6 +117,9 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 	/** The listener that will handle text drag-and-drop. */
 	DragListener dragger;
 
+	/** File chooser used for save/load dialogue */
+	public CustomFileChooser fc;
+	
 	/** The TokenMarker that will be polled for character formatting. */
 	private TokenMarker marker;
 	/**
@@ -372,6 +391,10 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			}
 		});
 
+		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
+		fc.setFileFilter(new CustomFileFilter(
+				Messages.getString("JoshText.TYPE_TXT"),".txt")); //$NON-NLS-1$ //$NON-NLS-2$
+		
 		doCodeSize(true);
 	}
 
@@ -496,6 +519,68 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		fireLineChange(0,code.size());
 	}
 
+	public void loadFromFile()
+	{
+		fc.setDialogTitle(Messages.getString("JoshText.LOAD_TITLE")); //$NON-NLS-1$
+		while (true)
+		{
+			if (fc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) return;
+			if (fc.getSelectedFile().exists()) break;
+			JOptionPane.showMessageDialog(null,
+					fc.getSelectedFile().getName() + Messages.getString("JoshText.FILE_MISSING"), //$NON-NLS-1$
+					Messages.getString("JoshText.LOAD_TITLE"), //$NON-NLS-1$
+					JOptionPane.WARNING_MESSAGE);
+		}
+		try
+		{
+			BufferedReader br = new BufferedReader(new FileReader(fc.getSelectedFile()));
+			code.clear();
+			
+	    String line = br.readLine();
+	    try {
+	      while (line != null){
+          code.add(line);
+          line = br.readLine();
+	      }
+	    }
+	    finally {
+	      br.close();
+	    }
+			fireLineChange(0,0);
+			doCodeSize(true);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void saveToFile()
+	{
+		fc.setDialogTitle(Messages.getString("JoshText.SAVE_TITLE")); //$NON-NLS-1$
+		if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+		String name = fc.getSelectedFile().getPath();
+		if (CustomFileFilter.getExtension(name) == null) name += ".txt"; //$NON-NLS-1$
+		try
+		{
+		  BufferedWriter bw = new BufferedWriter(new FileWriter(fc.getSelectedFile()));
+
+      try {
+        for (int i = 0; i < code.size(); i++) {
+           bw.write(code.getsb(i).toString() + "\n");
+        }
+      }
+      finally {
+        bw.close();
+      }
+
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	// ==========================================================
 	// == Map action names to their implementations =============
 	// ==========================================================
@@ -613,6 +698,43 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			repaint();
 		}
 	};
+	/** Open a file chooser to save the contents of the editor. */
+	public AbstractAction aSave = new AbstractAction("SAVE")
+	{
+		private static final long serialVersionUID = 1L;
+
+		/** @see AbstractAction#actionPerformed(ActionEvent) */
+	//r@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			saveToFile();
+		}
+	};
+	/** Open a dialog to load the contents of the editor from a file. */
+	public AbstractAction aLoad = new AbstractAction("LOAD")
+	{
+		private static final long serialVersionUID = 1L;
+
+		/** @see AbstractAction#actionPerformed(ActionEvent) */
+	//r@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			loadFromFile();
+			repaint();
+		}
+	};
+	/** Open a print dialogue to print the contents of the editor. */
+	public AbstractAction aPrint = new AbstractAction("PRINT")
+	{
+		private static final long serialVersionUID = 1L;
+
+		/** @see AbstractAction#actionPerformed(ActionEvent) */
+	//r@Override
+		public void actionPerformed(ActionEvent e)
+		{
+		  JOptionPane.showMessageDialog(null, "Print option not finished yet, sorry :(");
+		}
+	};
 	/** Copy the contents of the selection to the clipboard. */
 	public AbstractAction aCopy = new AbstractAction("COPY")
 	{
@@ -643,6 +765,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			sel.deleteSel();
 			up.realize(Math.max(caret.row,sel.row));
 			storeUndo(up,OPT.DELETE);
+			doCodeSize(true);
 			repaint();
 		}
 	};
@@ -663,6 +786,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 					Math.min(code.size() - 1,Math.min(caret.row,sel.row) + sel.getPasteRipple() - 1)));
 			up.realize(sel.paste());
 			storeUndo(up,OPT.PASTE);
+			doCodeSize(true);
 			repaint();
 		}
 	};
@@ -676,6 +800,8 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		public void actionPerformed(ActionEvent e)
 		{
 			undo();
+			doCodeSize(true);
+			repaint();
 		}
 	};
 	
@@ -689,6 +815,8 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		public void actionPerformed(ActionEvent e)
 		{
 			redo();
+			doCodeSize(true);
+			repaint();
 		}
 	};
 	/** Display the find dialog. */

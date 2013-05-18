@@ -1,5 +1,6 @@
 /* Copyright (C) 2011 Josh Ventura <joshv@zoominternet.net>
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of JoshEdit. JoshEdit is free software.
  * You can use, modify, and distribute it under the terms of
@@ -245,7 +246,7 @@ public class QuickFind extends JToolBar implements FindNavigator
 	}
 
 	/** Replace the current selection in the text editor. */
-	protected void doReplace()
+	public void doReplace()
 	{
 		UndoPatch up = joshText.new UndoPatch();
 		joshText.sel.insert(tReplace.getText());
@@ -339,7 +340,7 @@ public class QuickFind extends JToolBar implements FindNavigator
 		if (lastResult != null) selectFind(lastResult);
 		return;
 	}
-
+	
 	/** @see org.lateralgm.joshedit.FindDialog.FindNavigator#findPrevious()	 */
 //r@Override
 	public void findPrevious()
@@ -375,6 +376,61 @@ public class QuickFind extends JToolBar implements FindNavigator
 	{
 		findNext();
 		toggleModeReplace();
+	}
+	
+	public int replaceAll()
+	{
+	  int count = 0;
+		toggleModeReplace();
+		
+		String ftext = tFind.getText();
+		if (ftext.length() == 0) return count;
+		if (FindDialog.regex.isSelected())
+		{
+			Pattern p;
+			try
+			{
+				p = Pattern.compile(ftext,Pattern.CASE_INSENSITIVE);
+			}
+			catch (PatternSyntaxException pse)
+			{
+				System.out.println("Shit man, your expression sucks");
+				return count;
+			}
+			
+			Boolean resultsExist = true;
+			while (resultsExist) {
+			  lastResult = joshText.code.findNext(p,joshText.caret.row,
+					  joshText.caret.col + (joshText.sel.isEmpty() ? 0 : 1));
+			  if (lastResult != null) 
+			  {
+			    selectFind(lastResult);
+			    doReplace();
+			    count += 1;
+		  	} else {
+		  	  resultsExist = false;
+		  	}
+			}
+
+			return count;
+		}
+		String[] findme = ftext.split("\r?\n");
+		
+		Boolean resultsExist = true;
+		while (resultsExist) {
+		  lastResult = joshText.code.findNext(findme,joshText.caret.row,joshText.caret.col
+				+ (joshText.sel.isEmpty() ? 0 : 1));
+		  if (lastResult != null) 
+		  {
+		    selectFind(lastResult);
+		    doReplace();
+		    count += 1;
+	  	} else {
+	  	  resultsExist = false;
+	  	}
+		}
+		
+		return count;
 	}
 
 	/** @see org.lateralgm.joshedit.FindDialog.FindNavigator#replacePrevious() */

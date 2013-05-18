@@ -152,8 +152,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		applies.setValue(Math.min(GmObject.refAsInt(at),0));
 
 		if (la.interfaceKind == LibAction.INTERFACE_CODE)
-			{
-			setSize(600,400);
+		{
 			setClosable(true);
 			setMaximizable(true);
 			setResizable(true);
@@ -195,13 +194,19 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 
 			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code.text));
 			appliesPanel.setLayout(new BoxLayout(appliesPanel,BoxLayout.LINE_AXIS));
-			}
-		else
-			makeArgumentPane(a,la);
-		pack();
-		repaint();
-		SubframeInformer.fireSubframeAppear(this);
+			pack();
+			repaint();
+			setSize(new Dimension(this.getWidth(),500));
 		}
+		else
+		{
+			makeArgumentPane(a,la);
+			pack();
+			repaint();
+		}
+
+		SubframeInformer.fireSubframeAppear(this);
+	}
 
 	private void makeArgumentPane(Action a, LibAction la)
 		{

@@ -88,12 +88,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
+	private static final ImageIcon LOAD_SUBIMAGE_ICON = LGM.getIconForKey("SpriteFrame.LOAD_SUBIMAGE"); //$NON-NLS-1$
 	private static final ImageIcon LOAD_STRIP_ICON = LGM.getIconForKey("SpriteFrame.LOAD_STRIP"); //$NON-NLS-1$
 	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SpriteFrame.PLAY"); //$NON-NLS-1$
 	private static final ImageIcon STOP_ICON = LGM.getIconForKey("SpriteFrame.STOP"); //$NON-NLS-1$
 
 	//toolbar
-	public JButton load, loadStrip;
+	public JButton load, loadSubimage, loadStrip;
 
 	//origin
 	public NumberField originX, originY;
@@ -178,6 +179,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		load.addActionListener(this);
 		tool.add(load);
 
+		loadSubimage = new JButton(LOAD_SUBIMAGE_ICON);
+		loadSubimage.setToolTipText(Messages.getString("SpriteFrame.LOAD_SUBIMAGE")); //$NON-NLS-1$
+		loadSubimage.addActionListener(this);
+		tool.add(loadSubimage);
+		
 		loadStrip = new JButton(LOAD_STRIP_ICON);
 		loadStrip.setToolTipText(Messages.getString("SpriteFrame.LOAD_STRIP")); //$NON-NLS-1$
 		loadStrip.addActionListener(this);
@@ -904,6 +910,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			addFromStrip(true);
 			return;
 			}
+		if (e.getSource() == loadSubimage)
+			{
+			BufferedImage[] img = Util.getValidImages();
+			if (img != null) addSubimages(img,false);
+			return;
+			}
 		if (e.getSource() == showBbox)
 			{
 			preview.setShowBbox(showBbox.isSelected());
@@ -1022,7 +1034,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		if (clear) setSubIndex(0);
 		updateInfo();
 		}
-
+	
 	public void addFromStrip(boolean clear)
 		{
 		//ask for an image first
