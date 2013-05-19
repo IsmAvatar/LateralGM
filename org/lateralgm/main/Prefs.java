@@ -77,7 +77,9 @@ public final class Prefs
 		restrictHierarchy = getBoolean("restrictHierarchy",true);
 		renamableRoots = getBoolean("renamableRoots",false);
 		swingTheme = getString("swingTheme", "Native");
+		swingThemePath = getString("swingThemePath", "");
 		iconPack = getString("iconPack", "Standard");
+		iconPath = getString("iconPath", "/icons/");
 		groupKind = getBoolean("groupKind",true);
 		iconizeGroup = getBoolean("iconizeGroup",false);
 		String fontName = getString("codeFontName","Monospaced");
@@ -100,6 +102,7 @@ public final class Prefs
 				e.printStackTrace();
 				}
 			}
+		manualPath = getString("manualPath", "http://enigma-dev.org/docs/Wiki/Main_Page");
 		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
 		defaultLibraryPath = getString("defaultLibraryPath","org/lateralgm/resources/library/lib/");
 		userLibraryPath = getString("userLibraryPath","./lib");
@@ -126,7 +129,10 @@ public final class Prefs
 		}
 
 	public static String iconPack;
+	public static String iconPath;
 	public static String swingTheme;
+	public static String swingThemePath;
+	public static String manualPath;
 	
 	public static boolean extraNodes;
 	public static boolean restrictHierarchy;

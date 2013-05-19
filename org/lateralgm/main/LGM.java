@@ -72,6 +72,8 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.metal.DefaultMetalTheme;
+import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -145,6 +147,7 @@ public final class LGM
 	
   public static void SetLookAndFeel(String LOOKANDFEEL) 
   {
+ // MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
     if (LOOKANDFEEL.equals(themename))
     {
       themechanged = false;
@@ -160,21 +163,25 @@ public final class LGM
         //  an alternative way to set the Metal L&F is to replace the 
         // previous line with:
         // lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
-          
       }
-      
       else if (LOOKANDFEEL.equals("Native")) {
           lookAndFeel = UIManager.getSystemLookAndFeelClassName();
       } 
-      
+      else if (LOOKANDFEEL.equals("Nimbus")) {
+          lookAndFeel = "javax.swing.plaf.nimbus.NimbusLookAndFeel";
+      } 
+      else if (LOOKANDFEEL.equals("Windows")) {
+          lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+      } 
       else if (LOOKANDFEEL.equals("Motif")) {
           lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
       } 
-      
       else if (LOOKANDFEEL.equals("GTK")) { 
           lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
       } 
-      
+      else if (LOOKANDFEEL.equals("Custom")) { 
+          lookAndFeel = Prefs.swingThemePath;
+      } 
       else {
           System.err.println("Unexpected value of LOOKANDFEEL specified: "
                              + LOOKANDFEEL);
@@ -184,7 +191,6 @@ public final class LGM
       try {
           UIManager.setLookAndFeel(lookAndFeel);
       } 
-      
       catch (ClassNotFoundException e) {
           System.err.println("Couldn't find class for specified look and feel:"
                              + lookAndFeel);
@@ -215,7 +221,7 @@ public final class LGM
     if (!themechanged)
     {
     	return;
-    }
+    } 
     JFrame.setDefaultLookAndFeelDecorated(true);
     SwingUtilities.updateComponentTreeUI(frame);
     //SwingUtilities.updateComponentTreeUI(mdi);
@@ -224,12 +230,6 @@ public final class LGM
     for(Window window : windows) {
         SwingUtilities.updateComponentTreeUI(window);
     }
-    //SwingUtilities.updateComponentTreeUI(content);
-    //SwingUtilities.updateComponentTreeUI(mdi);
-    //SwingUtilities.updateComponentTreeUI(MDIManager.pane);
-    //SwingUtilities.updateComponentTreeUI(MDIManager.scroll);
-    //mdimanager.pane.scroll
-    //SwingUtilities.updateComponentTreeUI(frame.getRootPane());
   }
   
 	public static GameInformationFrame getGameInfo()
@@ -278,7 +278,20 @@ public final class LGM
 
 	public static ImageIcon findIcon(String filename)
 		{
-		String location = iconspath + iconspack + "/" + filename; //$NON-NLS-1$
+		String fixedpath = iconspath + iconspack + "/" + filename;
+	  String custompath = Prefs.iconPath + filename;
+		String location = ""; //$NON-NLS-1$
+		File f = new File(custompath);
+		if (Prefs.iconPack == "Custom") { 
+		  location = custompath;
+		} else {
+		  if (f.exists()) {
+		    location = custompath;
+		  } else {
+		    location = fixedpath;
+		  }
+		}
+		
 		ImageIcon ico = new ImageIcon(location);
 		if (ico.getIconWidth() == -1)
 			{
@@ -399,6 +412,7 @@ public final class LGM
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(250,100));
 		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
+		
 		return scroll;
 		}
 
@@ -595,8 +609,6 @@ public final class LGM
 		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
 		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
 		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
-		//annoyingly, Metal bolds almost all components by default. This unbolds them.
-		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
 
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
 		if (javaVersion < 10600)
@@ -620,31 +632,19 @@ public final class LGM
 		
 		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
+		
 		iconspack = Prefs.iconPack;
 		SetLookAndFeel(Prefs.swingTheme);
+		//annoyingly, Metal bolds almost all components by default. This unbolds them.
+		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
 		themechanged = false;
+		
 		splashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
 		JComponent toolbar = createToolBar();
 		JComponent tree = createTree();
 		content = new JPanel(new BorderLayout());
 		content.add(BorderLayout.CENTER,createMDI());
 		content.add(BorderLayout.EAST,eventSelect = new EventPanel());
-		JToolBar p = new JToolBar(JToolBar.VERTICAL);
-		// It would be possible with a little extra coding to make the
-		// resource tree and event panel draggable, but I am going to have to disable it
-		// because there is no way to make it work with a resizable panel
-		p.setFloatable(false);
-		GroupLayout layout = new GroupLayout(p);
-		p.setLayout(layout);
-		
-		layout.setVerticalGroup(layout.createSequentialGroup()
-				//.addGap(10) // uncomment this to add a gap to show the tree gripper
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(tree)));
-
-		layout.setHorizontalGroup(layout.createParallelGroup()
-						/**/.addGroup(layout.createParallelGroup()
-						/*	*/.addComponent(tree)));
 		
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
 		
@@ -705,7 +705,7 @@ public final class LGM
 		//p.add(tree, BorderLayout.WEST);
 		//.add(new JButton("fuck you"));
 		//content.add(BorderLayout.WEST, p);
-		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,p,content);
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,tree,content);
 		split.setDividerLocation(250);
 		split.setOneTouchExpandable(true);
 		f.add(split);

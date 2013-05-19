@@ -14,6 +14,7 @@ package org.lateralgm.main;
 
 import static org.lateralgm.main.Util.deRef;
 
+import java.awt.Desktop;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
@@ -21,6 +22,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
@@ -307,6 +309,22 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		{
 			for (int m = tree.getRowCount() - 1; m >= 0; m--)
 				tree.collapseRow(m);
+			return;
+		}
+		if (com.endsWith(".MANUAL")) //$NON-NLS-1$
+		{
+	    try {
+        // Auto detects if path is web url or local file
+        String path = Prefs.manualPath;
+        if (path.contains("http://")) {
+          Desktop.getDesktop().browse(java.net.URI.create(path));
+        } else {
+          Desktop.getDesktop().open(new File(path));
+        }
+      }
+      catch (java.io.IOException ioe) {
+        System.out.println(ioe.getMessage());
+      }
 			return;
 		}
 		if (com.endsWith(".ABOUT")) //$NON-NLS-1$

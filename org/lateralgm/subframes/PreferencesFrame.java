@@ -62,13 +62,14 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	
 	JComboBox themeCombo, iconCombo;
 	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable;
-
+  JTextField iconPath, themePath, manualPath;
+	
 	private JPanel makeGeneralPrefs()
 	{
 		JPanel p = new JPanel();
 
 		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME") + ":");
-    String[] themeOptions = { "Swing", "Native", "Motif", "GTK", "Custom"};
+    String[] themeOptions = { "Swing", "Native", "Nimbus", "Motif", "GTK", "Windows", "Custom"};
     themeCombo = new JComboBox(themeOptions);
     themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS") + ":");
@@ -81,7 +82,13 @@ public class PreferencesFrame extends JFrame implements ActionListener
     restrictTreeEnable.setSelected(Prefs.restrictHierarchy);
     extraNodesEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_EXTRA_NODES"));
     extraNodesEnable.setSelected(Prefs.extraNodes);
-		
+		JLabel themePathLabel = new JLabel("Theme Path:");
+		themePath = new JTextField(Prefs.swingThemePath);
+		JLabel iconPathLabel = new JLabel("Icons Path:");
+		iconPath = new JTextField(Prefs.iconPath);
+		JLabel manualPathLabel = new JLabel("Manual Path:");
+		manualPath = new JTextField(Prefs.manualPath);
+    
 		GroupLayout gl = new GroupLayout(p);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
@@ -97,7 +104,15 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			           .addComponent(themeCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 			           .addComponent(iconLabel)
 			           .addComponent(iconCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-			  );
+			  		.addGroup(gl.createParallelGroup()
+			           .addComponent(themePathLabel)
+			           .addComponent(iconPathLabel)
+			           .addComponent(manualPathLabel))
+			      .addGroup(gl.createParallelGroup()
+			      		 .addComponent(themePath)
+			           .addComponent(iconPath)
+			           .addComponent(manualPath))
+				);
 		gl.setVerticalGroup(
 			   gl.createSequentialGroup()
 			      .addGroup(gl.createParallelGroup()
@@ -109,6 +124,15 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			           .addComponent(themeCombo)
 			           .addComponent(iconLabel)
 			           .addComponent(iconCombo))
+			      .addGroup(gl.createSequentialGroup()
+			           .addComponent(themePathLabel)
+			           .addComponent(themePath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			      .addGroup(gl.createSequentialGroup()
+			           .addComponent(iconPathLabel)
+			           .addComponent(iconPath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			      .addGroup(gl.createSequentialGroup()
+			           .addComponent(manualPathLabel)
+			           .addComponent(manualPath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 			  );
 		
 		p.setLayout(gl);
@@ -281,7 +305,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
 		
-		// TODO: Fix this layout so that it rezies the text fields properly
+		// TODO: Fix this layout so that it resizes the text fields properly
 		gl.setHorizontalGroup(
 			   gl.createSequentialGroup()
 			      .addGroup(gl.createParallelGroup(Alignment.TRAILING)
@@ -402,7 +426,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
   {
     LGM.iconspack = (String)iconCombo.getSelectedItem();
     PrefsStore.setIconPack(LGM.iconspack);
+    PrefsStore.setIconPath(iconPath.getText());
+    PrefsStore.setSwingThemePath(themePath.getText());
 	  PrefsStore.setSwingTheme(LGM.themename);
+	  PrefsStore.setManualPath(manualPath.getText());
 	  PrefsStore.setDNDEnabled(dndEnable.isSelected());
 	  PrefsStore.setExtraNodes(extraNodesEnable.isSelected());
 	}

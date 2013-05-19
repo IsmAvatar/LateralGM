@@ -68,17 +68,37 @@ public final class PrefsStore
 	public static void setIconPack(String s)
 	{
 		PREFS.put("iconPack",s);
+		Prefs.iconPack = s;
+	}
+	
+	public static void setIconPath(String s)
+	{
+		PREFS.put("iconPath",s);
+		Prefs.iconPath = s;
 	}
 	
 	public static void setSwingTheme(String s)
 	{
 		PREFS.put("swingTheme",s);
+		Prefs.swingTheme = s;
+	}
+	
+	public static void setSwingThemePath(String s)
+	{
+		PREFS.put("swingThemePath",s);
+		Prefs.swingThemePath = s;
 	}
 
 	public static void setDNDEnabled(boolean selected)
 	{
 		PREFS.putBoolean("enableDragAndDrop",selected);
 		Prefs.enableDragAndDrop = selected;
+	}
+	
+	public static void setManualPath(String path)
+	{
+		PREFS.put("manualPath", path);
+		Prefs.manualPath = path;
 	}
 	
 	public static void setExtraNodes(boolean selected)
