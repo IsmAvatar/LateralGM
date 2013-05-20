@@ -35,9 +35,9 @@
      inkscape:window-height="744"
      id="namedview73"
      showgrid="false"
-     inkscape:zoom="1"
-     inkscape:cx="271.84261"
-     inkscape:cy="141.79466"
+     inkscape:zoom="1.3054847"
+     inkscape:cx="293.20234"
+     inkscape:cy="143.60736"
      inkscape:window-x="49"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
@@ -630,6 +630,88 @@
          offset="1"
          id="stop5621-5" />
     </linearGradient>
+    <filter
+       id="filterShadow"
+       x="-0.038737993"
+       y="-0.13299849"
+       width="1.077476"
+       height="1.265997"
+       inkscape:collect="always">
+      <feGaussianBlur
+         id="feGaussianBlur3515"
+         stdDeviation="3.8594238"
+         inkscape:collect="always" />
+    </filter>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3141">
+      <rect
+         style="fill:none;stroke:#ffffff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         id="rect3143"
+         width="273.50427"
+         height="45.073505"
+         x="-10.304416"
+         y="-68.810074" />
+    </clipPath>
+    <filter
+       id="filter3169"
+       inkscape:label="Fancy blur"
+       inkscape:menu="Blurs"
+       inkscape:menu-tooltip="Smooth colorized contour which allows desaturation and hue rotation"
+       color-interpolation-filters="sRGB">
+      <feColorMatrix
+         id="feColorMatrix3171"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0 "
+         result="result7" />
+      <feGaussianBlur
+         id="feGaussianBlur3173"
+         result="result6"
+         stdDeviation="5" />
+      <feComposite
+         id="feComposite3175"
+         in2="result7"
+         operator="atop"
+         in="result6"
+         result="result91" />
+      <feComposite
+         id="feComposite3177"
+         in2="result91"
+         operator="in"
+         result="fbSourceGraphic" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix3179" />
+      <feGaussianBlur
+         id="feGaussianBlur3181"
+         stdDeviation="5"
+         result="result1"
+         in="fbSourceGraphic" />
+      <feComposite
+         id="feComposite3183"
+         in2="result1"
+         operator="arithmetic"
+         k2="2"
+         in="result1" />
+    </filter>
+    <filter
+       id="filter3977"
+       inkscape:label="Fancy blur"
+       inkscape:menu="Blurs"
+       inkscape:menu-tooltip="Smooth colorized contour which allows desaturation and hue rotation"
+       color-interpolation-filters="sRGB">
+      <feGaussianBlur
+         id="feGaussianBlur3979"
+         stdDeviation="5"
+         result="result1" />
+      <feComposite
+         id="feComposite3981"
+         in2="result1"
+         operator="arithmetic"
+         k2="2"
+         in="result1" />
+    </filter>
   </defs>
   <metadata
      id="metadata7453">
@@ -815,41 +897,6 @@
            sodipodi:type="arc" />
       </g>
     </g>
-    <g
-       id="gText"
-       transform="matrix(0.98881236,0,0,0.86237555,27.750334,-15.318676)">
-      <text
-         xml:space="preserve"
-         style="font-size:61.51007080000000116px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Liberation Serif;-inkscape-font-specification:Liberation Serif;"
-         x="254.33099"
-         y="107.89143"
-         id="text3818"
-         sodipodi:linespacing="125%"
-         transform="scale(0.75188106,1.3299976)"><tspan
-           sodipodi:role="line"
-           id="tspan3820"
-           x="254.33099"
-           y="107.89143"
-           style="font-size:86.11409759999999380px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;stroke:#ffffff;stroke-width:3.07550383000000016;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Monospace;-inkscape-font-specification:Monospace Bold;">LateralGM</tspan></text>
-    </g>
-    <g
-       style="display:inline"
-       id="gText-0"
-       transform="translate(29.086176,35.025489)">
-      <text
-         xml:space="preserve"
-         style="font-size:36.59440994px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Liberation Serif;-inkscape-font-specification:Liberation Serif"
-         x="209.14972"
-         y="124.64689"
-         id="text3818-2"
-         sodipodi:linespacing="125%"
-         transform="scale(0.91486027,1.0930631)"><tspan
-           sodipodi:role="line"
-           id="tspan3820-2"
-           x="209.14972"
-           y="124.64689"
-           style="font-size:51.23217392px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;stroke:#ffffff;stroke-width:1.82972062;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Monospace;-inkscape-font-specification:Monospace Bold">v1.8</tspan></text>
-    </g>
     <rect
        y="0.99999952"
        x="1.3452525"
@@ -857,6 +904,39 @@
        width="579.30951"
        id="rectBackgroundGradient-5"
        style="fill:none;stroke:#ffffff;stroke-width:5;stroke-opacity:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <g
+       style="display:inline"
+       id="gText"
+       transform="translate(15.657197,-32.969183)">
+      <use
+         id="useShadow"
+         xlink:href="#useText"
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:6;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;filter:url(#filterShadow)"
+         x="0"
+         y="0"
+         width="1"
+         height="1"
+         transform="translate(0.5929374,8.515039e-7)" />
+      <use
+         id="useTextOutline"
+         xlink:href="#useText"
+         style="fill:none;stroke:#ffffff;stroke-width:4;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+         x="0"
+         y="0"
+         width="1"
+         height="1"
+         transform="translate(0.5929374,8.515039e-7)" />
+      <use
+         id="useText"
+         xlink:href="#textLabel"
+         transform="matrix(1.3549548,0,0,1.7176889,205.38394,182.85588)"
+         style="display:inline"
+         x="0"
+         y="0"
+         width="1"
+         height="1"
+         clip-path="url(#clipPath3141)" />
+    </g>
   </g>
   <g
      id="layer3"
