@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -21,6 +22,8 @@ import java.util.Collections;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.ParallelGroup;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -32,15 +35,20 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.NumberField;
+import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.Timeline.PTimeline;
+import org.lateralgm.resources.library.LibAction;
+import org.lateralgm.resources.library.LibManager;
+import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Moment;
 
 public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline> implements
@@ -48,15 +56,16 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	{
 	private static final long serialVersionUID = 1L;
 
-	public JButton add, change, delete, duplicate;
+	public JButton add, edit, change, delete, duplicate;
 	public JButton shift, merge, clear;
 
 	public JList moments;
 	public ActionList actions;
 	public GMLTextArea code;
+	private JComponent editor;
 
 	public TimelineFrame(Timeline res, ResNode node)
-		{
+	{
 		super(res,node);
 		GroupLayout layout = new GroupLayout(getContentPane());
 		setLayout(layout);
@@ -65,35 +74,48 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		makeSide1(side1);
 
 		JPanel side2 = new JPanel(new BorderLayout());
-		side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
+		//side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
 		side2.add(lab,BorderLayout.NORTH);
 		moments = new JList(res.moments.toArray());
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
 		JScrollPane scroll = new JScrollPane(moments);
-		scroll.setPreferredSize(new Dimension(90,260));
-		side2.add(scroll,BorderLayout.CENTER);
+		if (Prefs.enableDragAndDrop) {
+	    scroll.setPreferredSize(new Dimension(90,300));
+	  } else {
+	    scroll.setPreferredSize(new Dimension(200,400));
+	  }
+	  side2.add(scroll,BorderLayout.CENTER);
 
 		actions = new ActionList(this);
-		JComponent editor = new ActionListEditor(actions);
-
-		layout.setHorizontalGroup(layout.createSequentialGroup()
+		if (Prefs.enableDragAndDrop) {
+		  editor = new ActionListEditor(actions);
+		}
+	
+		SequentialGroup sg = layout.createSequentialGroup()
 		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addComponent(side2)
-		/**/.addComponent(editor));
-		layout.setVerticalGroup(layout.createParallelGroup()
+		/**/.addComponent(side2);
+		if (Prefs.enableDragAndDrop) {
+		  sg.addComponent(editor);
+		}
+		layout.setHorizontalGroup(sg);
+		
+		ParallelGroup pg = layout.createParallelGroup()
 		/**/.addComponent(side1)
-		/**/.addComponent(side2)
-		/**/.addComponent(editor));
+		/**/.addComponent(side2);
+		if (Prefs.enableDragAndDrop) {
+		  pg.addComponent(editor);
+		}
+		layout.setVerticalGroup(pg);
 
 		pack();
 
 		moments.setSelectedIndex(0);
-		}
+	}
 
 	private void makeSide1(JPanel side1)
-		{
+	{
 		GroupLayout layout = new GroupLayout(side1);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
@@ -102,6 +124,8 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.NAME")); //$NON-NLS-1$
 
+		edit = new JButton(Messages.getString("TimelineFrame.EDIT")); //$NON-NLS-1$
+		edit.addActionListener(this);
 		add = new JButton(Messages.getString("TimelineFrame.ADD")); //$NON-NLS-1$
 		add.addActionListener(this);
 		change = new JButton(Messages.getString("TimelineFrame.CHANGE")); //$NON-NLS-1$
@@ -124,6 +148,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(lab)
 		/*		*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
+	  /**/.addComponent(edit,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addGroup(layout.createParallelGroup()
 		/*				*/.addComponent(add,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
@@ -136,11 +161,13 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		/*		*/.addComponent(merge,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addComponent(clear,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lab)
 		/*		*/.addComponent(name))
 		/**/.addGap(32)
+		/**/.addComponent(edit)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(add)
 		/*		*/.addComponent(change))
@@ -154,29 +181,30 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		/**/.addComponent(clear)
 		/**/.addGap(32,32,MAX_VALUE)
 		/**/.addComponent(save));
-		}
+	}
 
 	protected boolean areResourceFieldsEqual()
+// return new ResourceComparator().areEqual(res.moments,resOriginal.moments);
 		{
-		return new ResourceComparator().areEqual(res.moments,resOriginal.moments);
+		return Util.areInherentlyUniquesEqual(res.moments,resOriginal.moments);
 		}
 
 	public void commitChanges()
-		{
+	{
 		actions.save();
 		res.setName(name.getText());
-		}
+	}
 
 	public void actionPerformed(ActionEvent e)
-		{
+	{
 		if (!(e.getSource() instanceof JButton))
-			{
+		{
 			super.actionPerformed(e);
 			return;
-			}
+		}
 		JButton but = (JButton) e.getSource();
 		if (but == add || but == change || but == duplicate)
-			{
+		{
 			Moment m = (Moment) moments.getSelectedValue();
 			if (m == null && but != add) return;
 			int sn = (m == null) ? -1 : m.stepNo;
@@ -200,16 +228,16 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			if (ret == sn) return;
 			int p = -Collections.binarySearch(res.moments,ret) - 1;
 			if (but == add)
-				{
+			{
 				if (p < 0)
-					{
+				{
 					moments.setSelectedIndex(-p);
 					return;
-					}
+				}
 				Moment m2 = new Moment();
 				m2.stepNo = ret;
 				res.moments.add(p,m2);
-				}
+			}
 			else if (but == change)
 				{
 				if (p < 0)
@@ -253,6 +281,36 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			moments.setSelectedIndex(Math.min(res.moments.size() - 1,p));
 			return;
 			}
+		if (but == edit) 
+		{
+		  int p = moments.getSelectedIndex();
+		  if (p == -1) return;
+	    Action a = null;
+	    LibAction la = null;
+	    Boolean prependNew = true;
+	    if (actions.model.list.size() > 0) {
+	      a = actions.model.list.get(0);
+	      la = a.getLibAction();
+	      if (la.actionKind == Action.ACT_CODE)
+	      {
+	    	  prependNew = false;
+	      } else {
+	        prependNew = true;
+	      }
+	    } else {
+        prependNew = true;
+	    }
+
+	    if (prependNew)
+	    {
+        a = new Action(LibManager.codeAction);
+		    ((ActionListModel) actions.getModel()).add(0,a);
+		    actions.setSelectedValue(a, true);
+	    }
+
+		  ActionList.openActionFrame(this, a);
+		  return;
+		}
 		if (but == clear)
 			{
 			if (res.moments.size() == 0) return;

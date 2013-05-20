@@ -91,6 +91,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 	private ActionFrame(Action a, LibAction la)
 		{
 		super(la.description,false);
+		setTitle(la.name.replace("_", " "));
 		if (la.parent == null) setTitle(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
 		if (la.actImage != null)
 			setFrameIcon(new ImageIcon(la.actImage.getScaledInstance(16,16,Image.SCALE_SMOOTH)));
@@ -151,8 +152,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		applies.setValue(Math.min(GmObject.refAsInt(at),0));
 
 		if (la.interfaceKind == LibAction.INTERFACE_CODE)
-			{
-			setSize(600,400);
+		{
 			setClosable(true);
 			setMaximizable(true);
 			setResizable(true);
@@ -192,15 +192,21 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			add(code,BorderLayout.CENTER);
 			add(status,BorderLayout.SOUTH);
 
-			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
+			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code.text));
 			appliesPanel.setLayout(new BoxLayout(appliesPanel,BoxLayout.LINE_AXIS));
-			}
-		else
-			makeArgumentPane(a,la);
-		pack();
-		repaint();
-		SubframeInformer.fireSubframeAppear(this);
+			pack();
+			repaint();
+			setSize(new Dimension(this.getWidth(),500));
 		}
+		else
+		{
+			makeArgumentPane(a,la);
+			pack();
+			repaint();
+		}
+
+		SubframeInformer.fireSubframeAppear(this);
+	}
 
 	private void makeArgumentPane(Action a, LibAction la)
 		{
@@ -530,7 +536,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 	public boolean resourceChanged()
 		{
 		return act.getLibAction().interfaceKind == LibAction.INTERFACE_CODE
-				&& (code.getUndoManager().isModified() || !act.getAppliesTo().equals(getApplies()));
+				&& (code.isChanged() || !act.getAppliesTo().equals(getApplies()));
 		}
 
 	@Override

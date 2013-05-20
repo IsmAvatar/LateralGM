@@ -19,6 +19,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -155,7 +156,8 @@ public class RoomEditor extends VisualPanel
 		if (duo && cursor instanceof Instance)
 			deleteUnderlying(roomVisual.intersectInstances(new Rectangle(p.x,p.y,1,1)),room.instances);
 		else if (dut && cursor instanceof Tile)
-			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(p.x,p.y,1,1)),room.tiles);
+			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(p.x,p.y,1,1),getTileDepth()),
+					room.tiles);
 		unlockBounds();
 		cursor = null;
 		}
@@ -352,7 +354,7 @@ public class RoomEditor extends VisualPanel
 		Piece mc = null;
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 			{
-			Tile tile = getTopPiece(p,Tile.class);
+			Tile tile = getTopPiece(p,Tile.class,getTileDepth());
 			mc = tile;
 			if (mc != null)
 				{
@@ -400,6 +402,27 @@ public class RoomEditor extends VisualPanel
 		while (pi.hasNext())
 			piece = pi.next();
 		return piece;
+		}
+
+	private <P extends Piece>P getTopPiece(Point p, Class<P> c, int depth)
+		{
+		Iterator<P> pi = roomVisual.intersect(new Rectangle(p.x,p.y,1,1),c,depth);
+		P piece = null;
+		while (pi.hasNext())
+			piece = pi.next();
+		return piece;
+		}
+
+	protected int getTileDepth()
+		{
+		try
+			{
+			frame.taDepth.commitEdit();
+			}
+		catch (ParseException e)
+			{ //use the old value, but don't force a revert
+			}
+		return (Integer) frame.taDepth.getValue();
 		}
 
 	public static interface CommandHandler

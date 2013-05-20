@@ -174,6 +174,7 @@ public class GmFile implements UpdateListener
 		EnumMap<MaskShape,Integer> m = new EnumMap<MaskShape,Integer>(MaskShape.class);
 		for (int i = 0; i < SPRITE_MASK_SHAPE.length; i++)
 			m.put(SPRITE_MASK_SHAPE[i],i);
+		m.put(MaskShape.POLYGON,m.get(MaskShape.RECTANGLE));
 		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
 		}
 

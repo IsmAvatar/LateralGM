@@ -2,6 +2,7 @@
  * Copyright (C) 2007, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * 
@@ -24,9 +25,11 @@ package org.lateralgm.resources;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
@@ -40,25 +43,35 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 	public static final ArrayList<Class<? extends Resource<?,?>>> kinds = new ArrayList<Class<? extends Resource<?,?>>>();
 
 	static
-		{
-		String[] chr3 = { "SPR","SND","BKG","PTH", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				"SCR","FNT","TML","OBJ", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				"RMM","GMI","GMS","EXT" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		Class<?>[] ca = { Sprite.class,Sound.class,Background.class,Path.class,Script.class,Font.class,
-				Timeline.class,GmObject.class,Room.class,GameInformation.class,GameSettings.class,
-				Extensions.class, };
-		for (int i = 0; i < chr3.length; i++)
-			addKind(chr3[i],ca[i]);
-		}
+	{
+    Class<?>[] ca = { Sprite.class,Sound.class,Background.class,Path.class,Script.class,Font.class,
+	  Timeline.class,GmObject.class,Room.class,GameInformation.class,GameSettings.class,
+	  Extensions.class, };
+	  String[] chr3 = { "SPR","SND","BKG","PTH", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		  	  "SCR","FNT","TML","OBJ", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		  	  "RMM", "GMI", "GMS", "EXT" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+    
+	  int leng = chr3.length;
+	  for (int i = 0; i < leng; i++) {
+		  addKind(chr3[i],ca[i]);
+	  }
+	}
 
 	@SuppressWarnings("unchecked")
-	public static void addKind(String str3, Class<?> clz)
+	private static void addKind(String str3, Class<?> clz)
 		{
-		kinds.add((Class<? extends Resource<?,?>>) clz);
-		kindsByName3.put(str3,(Class<? extends Resource<?,?>>) clz);
+		String name = Messages.getString("LGM." + str3); //$NON-NLS-1$
+		String plural = Messages.getString("LGM.PL_" + str3); //$NON-NLS-1$
+		addKind((Class<? extends Resource<?,?>>) clz,str3,name,plural);
+		}
 
-		kindNames.put((Class<? extends Resource<?,?>>) clz,Messages.getString("LGM." + str3)); //$NON-NLS-1$
-		kindNamesPlural.put((Class<? extends Resource<?,?>>) clz,Messages.getString("LGM.PL_" + str3)); //$NON-NLS-1$
+	public static void addKind(Class<? extends Resource<?,?>> kind, String name3, String name,
+			String plural)
+		{
+		kinds.add(kind);
+		kindsByName3.put(name3,kind);
+		kindNames.put(kind,name);
+		kindNamesPlural.put(kind,plural);
 		}
 
 	protected ResNode node;

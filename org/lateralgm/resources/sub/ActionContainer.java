@@ -9,12 +9,13 @@
 package org.lateralgm.resources.sub;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.lateralgm.resources.library.LibAction;
 
 public abstract class ActionContainer
 	{
-	public ArrayList<Action> actions = new ArrayList<Action>();
+	public List<Action> actions = new ArrayList<Action>();
 
 	public Action addAction()
 		{

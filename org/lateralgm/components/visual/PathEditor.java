@@ -90,7 +90,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 		{
 		enableEvents(AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
 		properties = new PropertyMap<PPathEditor>(PPathEditor.class,pepv,DEFS);
-		binVisual = new BinVisual(container);
+		binVisual = new BinVisual(container,128,512,512);
 		put(BIN_LAYER,binVisual);
 		int sx = p.get(PPath.SNAP_X);
 		int sy = p.get(PPath.SNAP_Y);

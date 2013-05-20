@@ -2,6 +2,7 @@
  * Copyright (C) 2007, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -18,6 +19,9 @@ import static org.lateralgm.main.Util.deRef;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -25,14 +29,18 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.ParallelGroup;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -48,33 +56,38 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.lateralgm.compare.ResourceComparator;
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
 import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
+import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
+import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.GmObject.ParentLoopException;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.library.LibAction;
+import org.lateralgm.resources.library.LibManager;
+import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
-
-import com.sun.corba.se.spi.orbutil.fsm.Action;
 
 public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject> implements
 		TreeSelectionListener
@@ -94,21 +107,34 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public JButton information;
 
 	public EventTree events;
-	public JButton eventAdd;
-	public JButton eventReplace;
-	public JButton eventDuplicate;
+	public JButton eventModify;
+	public JButton eventEdit;
 	public JButton eventDelete;
-	public JMenuItem eventAddItem;
-	public JMenuItem eventReplaceItem;
-	public JMenuItem eventDuplicateItem;
+	public JMenuItem eventModifyItem;
+	public JMenuItem eventEditItem;
 	public JMenuItem eventDeleteItem;
 	public EventGroupNode rootEvent;
 	private MListener mListener = new MListener();
 	public ActionList actions;
 	public GMLTextArea code;
+	private JComponent editor;
+	
+	public GmObjectInfoFrame infoFrame;
 
 	private DefaultMutableTreeNode lastValidEventSelection;
 
+	// if drag and drop is not enabled the frame will not create or show
+	// the action list editor but still create the action list, and add
+	// an extra edit button for events, which when clicked checks the first
+	// action of the action list to be a code window and if it is opens it
+	// otherwise it creates one and opens it
+	// this was the safest way I could think to do it, because it could get
+	// tricky opening a DND game when you have it turned off, so I abstracted it
+	// so that they are still there and you can see them if you just go to
+	// the prefs panel and turn em back on, it will ensure the system doesnt
+	// mess anything up or screw up somebodies game without giving them
+	// a chance to fix it, very safe - Robert B. Colton
+	
 	public GmObjectFrame(GmObject res, ResNode node)
 		{
 		super(res,node);
@@ -124,41 +150,79 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		side2.add(lab,BorderLayout.NORTH);
 		makeEventTree(res);
 		JScrollPane scroll = new JScrollPane(events);
-		scroll.setPreferredSize(new Dimension(140,260));
+		if (Prefs.enableDragAndDrop) {
+		  scroll.setPreferredSize(new Dimension(140,260));
+		} else {
+		  scroll.setPreferredSize(new Dimension(300,260));
+		}
 		side2.add(scroll,BorderLayout.CENTER);
 
 		JPanel side2bottom = new JPanel(new BorderLayout());
-		eventAdd = new JButton(Messages.getString("GmObjectFrame.ADD_EVENT")); //$NON-NLS-1
-		eventAdd.addActionListener(this);
-		eventReplace = new JButton(Messages.getString("GmObjectFrame.REP")); //$NON-NLS-1
-		eventReplace.addActionListener(this);
-		eventReplace.setToolTipText(Messages.getString("GmObjectFrame.REPLACE_EVENT")); //$NON-NLS-1$
-		eventReplace.setMargin(new Insets(1,7,1,7));
-		eventDuplicate = new JButton(Messages.getString("GmObjectFrame.DUP")); //$NON-NLS-1
-		eventDuplicate.addActionListener(this);
-		eventDuplicate.setToolTipText(Messages.getString("GmObjectFrame.DUPLICATE_EVENT")); //$NON-NLS-1$
-		eventDuplicate.setMargin(new Insets(1,7,1,7));
+		//side2bottom.setPreferredSize(new Dimension(200,200));
+		side2bottom.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		
+		eventModify = new JButton(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
+		eventModify.addActionListener(this);
+		eventModify.setToolTipText(Messages.getString("GmObjectFrame.MODIFY_EVENT")); //$NON-NLS-1$
+		
+		eventEdit = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
+		eventEdit.addActionListener(this);
+		eventEdit.setToolTipText(Messages.getString("GmObjectFrame.EDIT_EVENT")); //$NON-NLS-1$
+		
 		eventDelete = new JButton(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
 		eventDelete.addActionListener(this);
 		eventDelete.setToolTipText(Messages.getString("GmObjectFrame.DELETE_EVENT")); //$NON-NLS-1$
-		eventDelete.setMargin(new Insets(2,0,2,0));
-		side2bottom.add(eventAdd,BorderLayout.NORTH);
-		side2bottom.add(eventReplace,BorderLayout.WEST);
-		side2bottom.add(eventDuplicate,BorderLayout.EAST);
-		side2bottom.add(eventDelete,BorderLayout.CENTER);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		side2bottom.add(eventModify, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+	  gbc.weightx = 1;
+	  gbc.weighty = 1;
+		side2bottom.add(eventEdit, gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 2;
+		gbc.gridy = 0;
+		gbc.gridwidth = 1;
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		side2bottom.add(eventDelete, gbc);
+		
 		side2.add(side2bottom,BorderLayout.SOUTH);
 
 		actions = new ActionList(this);
-		JComponent editor = new ActionListEditor(actions);
+		if (Prefs.enableDragAndDrop) {
+		  editor = new ActionListEditor(actions);
+		}
 
-		layout.setHorizontalGroup(layout.createSequentialGroup()
+		ParallelGroup pg = null;
+		SequentialGroup sg = null;
+		
+		sg = layout.createSequentialGroup()
 		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addComponent(side2)
-		/**/.addComponent(editor));
-		layout.setVerticalGroup(layout.createParallelGroup()
+		/**/.addComponent(side2);
+		if (Prefs.enableDragAndDrop) {
+		  sg.addComponent(editor);
+		}
+		layout.setHorizontalGroup(sg);
+
+		pg = layout.createParallelGroup()
 		/**/.addComponent(side1)
-		/**/.addComponent(side2)
-		/**/.addComponent(editor));
+		/**/.addComponent(side2);
+		if (Prefs.enableDragAndDrop) {
+		  pg.addComponent(editor);
+		}
+		layout.setVerticalGroup(pg);
 
 		pack();
 
@@ -177,7 +241,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		s1Layout.setAutoCreateGaps(true);
 		side1.setLayout(s1Layout);
 
-		JLabel nLabel = new JLabel(Messages.getString("GmObjectFrame.NAME")); //$NON-NLS-1$
+		JLabel nLabel = new JLabel(Messages.getString("GmObjectFrame.NAME") + ":"); //$NON-NLS-1$
 
 		JPanel origin = new JPanel();
 		GroupLayout oLayout = new GroupLayout(origin);
@@ -211,16 +275,16 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		plf.make(visible,PGmObject.VISIBLE);
 		solid = new JCheckBox(Messages.getString("GmObjectFrame.SOLID")); //$NON-NLS-1$
 		plf.make(solid,PGmObject.SOLID);
-		JLabel dLabel = new JLabel(Messages.getString("GmObjectFrame.DEPTH")); //$NON-NLS-1$
+		JLabel dLabel = new JLabel(Messages.getString("GmObjectFrame.DEPTH") + ":"); //$NON-NLS-1$
 		depth = new NumberField(0);
 		plf.make(depth,PGmObject.DEPTH);
 		persistent = new JCheckBox(Messages.getString("GmObjectFrame.PERSISTENT")); //$NON-NLS-1$
 		plf.make(persistent,PGmObject.PERSISTENT);
-		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
+		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT") + ":"); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.NO_PARENT"); //$NON-NLS-1$
 		parent = new ResourceMenu<GmObject>(GmObject.class,t,110);
 		plf.make(parent,PGmObject.PARENT);
-		JLabel mLabel = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
+		JLabel mLabel = new JLabel(Messages.getString("GmObjectFrame.MASK") + ":"); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.SAME_AS_SPRITE"); //$NON-NLS-1$
 		mask = new ResourceMenu<Sprite>(Sprite.class,t,110);
 		plf.make(mask,PGmObject.MASK);
@@ -569,7 +633,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		for (int m = 0; m < 12; m++)
 			{
 			MainEvent me = res.mainEvents.get(m);
-			ArrayList<Event> ale = me.events;
+			List<Event> ale = me.events;
 			if (ale.size() == 1)
 				{
 				rootEvent.add(new EventInstanceNode(ale.get(0)));
@@ -605,6 +669,15 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			}
 		}
 
+	public void showInfoFrame()
+	{
+    if (infoFrame == null) {
+      infoFrame = new GmObjectInfoFrame(this);
+    }
+    infoFrame.updateObjectInfo();
+    infoFrame.setVisible(true);	
+	}
+	
 	public void saveEvents()
 		{
 		actions.save();
@@ -617,78 +690,96 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			if (o instanceof EventInstanceNode)
 				{
 				EventInstanceNode ein = (EventInstanceNode) o;
-				if (ein.getUserObject().actions.size() > 0)
+				if (!ein.getUserObject().actions.isEmpty())
 					{
 					Event e = ein.getUserObject();
 					res.mainEvents.get(e.mainId).events.add(e);
 					}
 				}
 			}
-		}
-
+	}
+	
 	protected boolean areResourceFieldsEqual()
-		{
-		ResourceComparator c = new ResourceComparator();
-		c.addExclusions(Action.class,"updateTrigger","updateSource");
-		c.addExclusions(Argument.class,"updateTrigger","updateSource");
-		return c.areEqual(res.mainEvents,resOriginal.mainEvents);
-		}
+	{
+		return Util.areInherentlyUniquesEqual(res.mainEvents,resOriginal.mainEvents);
+	}
+
 
 	public void commitChanges()
-		{
+	{
 		saveEvents();
 		res.setName(name.getText());
-		}
+	}
 
 	public void actionPerformed(ActionEvent e)
-		{
+	{
 		if (e.getSource() == newSprite)
-			{
+		{
 			ResNode n = Listener.getPrimaryParent(Sprite.class);
 			Sprite spr = LGM.currentFile.resMap.getList(Sprite.class).add();
 			Listener.putNode(LGM.tree,n,n,Sprite.class,n.getChildCount(),spr);
 			res.put(PGmObject.SPRITE,spr.reference);
 			return;
-			}
+		}
 		if (e.getSource() == editSprite)
-			{
+		{
 			Sprite spr = deRef(sprite.getSelected());
 			if (spr == null) return;
 			spr.getNode().openFrame();
 			return;
-			}
+		}
 		if (e.getSource() == information)
-			{
-			//TODO: Object Information
-			return;
-			}
-		if (e.getSource() == eventAdd || e.getSource() == eventAddItem)
-			{
+		{
+				showInfoFrame();
+			  return;
+		}
+		if (e.getSource() == eventModify || e.getSource() == eventModifyItem)
+		{
 			LGM.eventSelect.setVisible(true);
 			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_ADD);
 			return;
-			}
-		if (e.getSource() == eventReplace || e.getSource() == eventReplaceItem)
-			{
-			LGM.eventSelect.setVisible(true);
-			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_REPLACE);
+		}
+		if (e.getSource() == eventEdit || e.getSource() == eventEditItem)
+		{
+		  if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)
+		  {
+		  	return;
+		  }
+		  Action a = null;
+		  LibAction la = null;
+		  Boolean prependNew = true;
+		  if (actions.model.list.size() > 0) {
+		    a = actions.model.list.get(0);
+		    la = a.getLibAction();
+		    if (la.actionKind == Action.ACT_CODE)
+		    {
+		    	prependNew = false;
+		    } else {
+		      prependNew = true;
+		    }
+		  } else {
+        prependNew = true;
+		  }
+
+		  if (prependNew)
+		  {
+        a = new Action(LibManager.codeAction);
+			  ((ActionListModel) actions.getModel()).add(0,a);
+			  actions.setSelectedValue(a, true);
+		  }
+
+			ActionList.openActionFrame(actions.parent.get(), a);
 			return;
-			}
-		if (e.getSource() == eventDuplicate || e.getSource() == eventDuplicateItem)
-			{
-			LGM.eventSelect.setVisible(true);
-			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_DUPLICATE);
-			return;
-			}
+		}
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
-			{
+		{
 			Object comp = events.getLastSelectedPathComponent();
 			if (!(comp instanceof EventInstanceNode)) return;
 			removeEvent((EventInstanceNode) comp);
 			return;
-			}
-		super.actionPerformed(e);
 		}
+		super.actionPerformed(e);
+	}
 
 	@Override
 	public void dispose()
@@ -700,12 +791,12 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		information.removeActionListener(this);
 		newSprite.removeActionListener(this);
 		editSprite.removeActionListener(this);
-		eventAdd.removeActionListener(this);
-		eventReplace.removeActionListener(this);
-		eventDuplicate.removeActionListener(this);
+		eventModify.removeActionListener(this);
+		eventEdit.removeActionListener(this);
 		eventDelete.removeActionListener(this);
+		infoFrame.dispose();
 		}
-
+	
 	public void valueChanged(TreeSelectionEvent tse)
 		{
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
@@ -789,16 +880,13 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 					events.setSelectionPath(path);
 
 					JPopupMenu menu = new JPopupMenu();
-					eventAddItem = new JMenuItem(Messages.getString("GmObjectFrame.ADD_EVENT")); //$NON-NLS-1
-					menu.add(eventAddItem);
-					eventAddItem.addActionListener(GmObjectFrame.this);
-					eventReplaceItem = new JMenuItem(Messages.getString("GmObjectFrame.REPLACE_EVENT")); //$NON-NLS-1
-					menu.add(eventReplaceItem);
-					eventReplaceItem.addActionListener(GmObjectFrame.this);
-					eventDuplicateItem = new JMenuItem(Messages.getString("GmObjectFrame.DUPLICATE_EVENT")); //$NON-NLS-1
-					menu.add(eventDuplicateItem);
-					eventDuplicateItem.addActionListener(GmObjectFrame.this);
-					eventDeleteItem = new JMenuItem(Messages.getString("GmObjectFrame.DELETE_EVENT")); //$NON-NLS-1
+					eventModifyItem = new JMenuItem(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
+					menu.add(eventModifyItem);
+					eventModifyItem.addActionListener(GmObjectFrame.this);
+					eventEditItem = new JMenuItem(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
+					menu.add(eventEditItem);
+					eventEditItem.addActionListener(GmObjectFrame.this);
+					eventDeleteItem = new JMenuItem(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1
 					menu.add(eventDeleteItem);
 					eventDeleteItem.addActionListener(GmObjectFrame.this);
 					menu.show(e.getComponent(),e.getX(),e.getY());

@@ -102,6 +102,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		JScrollPane treeScroll = new JScrollPane(makeTree());
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		.addGap(10)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(ra).addComponent(rr).addComponent(rd))
 		/**/.addGroup(layout.createParallelGroup()
@@ -230,7 +231,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		EventNode user = new EventNode(
 				Messages.getString("EventPanel.USER_DEFINED"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(user);
-		for (int i = 0; i <= 14; i++)
+		for (int i = 0; i <= 15; i++)
 			{
 			user.add(new EventNode(
 					Messages.format("Event.EVENT7_X",i),MainEvent.EV_OTHER,Event.EV_USER0 + i)); //$NON-NLS-1$

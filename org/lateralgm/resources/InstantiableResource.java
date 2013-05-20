@@ -49,7 +49,16 @@ public abstract class InstantiableResource<R extends InstantiableResource<R,P>, 
 		}
 
 	protected void postCopy(R dest)
-		{ //default implementation is to do nothing
+		{
+		//Default implementation is to do nothing except copy ID if not set.
+		/*
+		 * Normally, ID copy would have been performed in clone,
+		 * but we can't override that method (final) and Resource doesn't know about ID.
+		 * User-duplicated objects call this method as well, after the ID is assigned.
+		 * Because of this, we have to check if the ID is set before copying,
+		 * so as to avoid user-duplicated objects getting a duplicate ID.
+		 */
+		if (dest.id == -1) dest.id = id;
 		}
 
 	public abstract R makeInstance(ResourceReference<R> ref);

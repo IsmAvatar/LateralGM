@@ -3,6 +3,7 @@
  * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -32,6 +33,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -54,6 +57,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
@@ -124,6 +128,10 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		menu.add(item);
 		item = addItem("GameInformationFrame.FILESAVE"); //$NON-NLS-1$
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,KeyEvent.CTRL_DOWN_MASK));
+		menu.add(item);
+		menu.addSeparator();
+		item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
@@ -218,6 +226,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 					setSelectionAttribute(StyleConstants.Bold,tbBold.isSelected());
 					}
 			};
+		tbBold.setToolTipText(Messages.getString("GameInformationFrame.BOLD"));
 		tbBold.addActionListener(lst);
 		tool.add(tbBold);
 		tbItalic = new JToggleButton(LGM.getIconForKey("GameInformationFrame.ITALIC")); //$NON-NLS-1$
@@ -229,6 +238,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 					setSelectionAttribute(StyleConstants.Italic,tbItalic.isSelected());
 					}
 			};
+		tbItalic.setToolTipText(Messages.getString("GameInformationFrame.ITALIC"));
 		tbItalic.addActionListener(lst);
 		tool.add(tbItalic);
 		tbUnderline = new JToggleButton(LGM.getIconForKey("GameInformationFrame.UNDERLINED")); //$NON-NLS-1$
@@ -240,20 +250,47 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 					setSelectionAttribute(StyleConstants.Underline,tbUnderline.isSelected());
 					}
 			};
+		tbUnderline.setToolTipText(Messages.getString("GameInformationFrame.UNDERLINE"));
 		tbUnderline.addActionListener(lst);
 		tool.add(tbUnderline);
 
 		tool.addSeparator();
+		
 		JButton butFontColor = new JButton(LGM.getIconForKey("GameInformationFrame.FONTCOLOR")); //$NON-NLS-1$
 		butFontColor.setRequestFocusEnabled(false);
 		butFontColor.setActionCommand("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
 		butFontColor.addActionListener(this);
+		butFontColor.setToolTipText(Messages.getString("GameInformationFrame.FONTCOLOR"));
 		tool.add(butFontColor);
 		JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
 		but.setRequestFocusEnabled(false);
 		but.setActionCommand("GameInformationFrame.COLOR"); //$NON-NLS-1$
 		but.addActionListener(this);
+		but.setToolTipText(Messages.getString("GameInformationFrame.COLOR"));
 		tool.add(but);
+		
+		tool.addSeparator();
+		
+		JButton button;
+		
+		button = new JButton(undoManager.getUndoAction());//$NON-NLS-1$
+		button.setText("");
+		button.setToolTipText(Messages.getString("GameInformationFrame.UNDO"));
+		tool.add(button);
+		button = new JButton(undoManager.getRedoAction());//$NON-NLS-1$
+		button.setText("");
+		button.setToolTipText(Messages.getString("GameInformationFrame.REDO"));
+		tool.add(button);
+		
+		tool.addSeparator();
+		
+		button = addToolbarItem("GameInformationFrame.CUT");
+		tool.add(button);
+		button = addToolbarItem("GameInformationFrame.COPY");
+		tool.add(button);
+		button = addToolbarItem("GameInformationFrame.PASTE");
+		tool.add(button);
+		
 		return tool;
 		}
 
@@ -373,7 +410,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		{
 		super(res,node,Messages.getString("GameInformationFrame.TITLE"),true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(600,400);
+		setSize(700,500);
 
 		menubar = makeMenuBar();
 		setJMenuBar(menubar);
@@ -444,12 +481,58 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		fc.setFileFilter(new CustomFileFilter(
 				Messages.getString("GameInformationFrame.TYPE_RTF"),".rtf")); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+
+    // build popup menu
+    final JPopupMenu popup = new JPopupMenu();
+    JMenuItem item;
+    
+		item = new JMenuItem(undoManager.getUndoAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		item = new JMenuItem(undoManager.getRedoAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		popup.addSeparator();
+		item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		popup.addSeparator();
+		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		
+    editor.setComponentPopupMenu(popup);
+		editor.addMouseListener(new MouseAdapter() {
+
+    	@Override
+    	public void mousePressed(MouseEvent e) {
+        showPopup(e);
+    	}
+
+    	@Override
+    	public void mouseReleased(MouseEvent e) {
+        showPopup(e);
+    	}
+
+    	private void showPopup(MouseEvent e) {
+    		if (e.isPopupTrigger()) {
+    			popup.show(e.getComponent(), e.getX(), e.getY());
+    		}
+    	}
+		});
+		
+	}
 
 	private void addDocumentListeners()
-		{
+	{
 		editor.getDocument().addDocumentListener(new DocumentListener()
-			{
+		{
 				public void removeUpdate(DocumentEvent e)
 					{
 					documentChanged = true;
@@ -493,27 +576,36 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		SimpleAttributeSet sas = new SimpleAttributeSet();
 		sas.addAttribute(key,value);
 		sd.setCharacterAttributes(a,b - a,sas,false);
-		}
+	}
 
 	public JMenuItem addItem(String key)
-		{
+	{
 		JMenuItem item = new JMenuItem(Messages.getString(key));
 		item.setIcon(LGM.getIconForKey(key));
 		item.setActionCommand(key);
 		item.addActionListener(this);
-		add(item);
 		return item;
-		}
+	}
+	
+	public JButton addToolbarItem(String key)
+	{
+		JButton item = new JButton();
+		item.setToolTipText(Messages.getString(key));
+		item.setIcon(LGM.getIconForKey(key));
+		item.setActionCommand(key);
+		item.addActionListener(this);
+		return item;
+	}
 
 	public void loadFromFile()
-		{
+	{
 		fc.setDialogTitle(Messages.getString("GameInformationFrame.LOAD_TITLE")); //$NON-NLS-1$
 		while (true)
-			{
+		{
 			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			if (fc.getSelectedFile().exists()) break;
 			JOptionPane.showMessageDialog(null,
-					fc.getSelectedFile().getName() + Messages.getString("SoundFrame.FILE_MISSING"), //$NON-NLS-1$
+					fc.getSelectedFile().getName() + Messages.getString("GameInformationFrame.FILE_MISSING"), //$NON-NLS-1$
 					Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-1$
 					JOptionPane.WARNING_MESSAGE);
 			}
@@ -568,13 +660,18 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			tabs.setSelectedIndex(0);
 			loadFromFile();
 			}
-		if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.PRINT")) //$NON-NLS-1$
+			{
+			JOptionPane.showMessageDialog(null, "Print option not finished yet, sorry :(");
+			return;
+			}
+		else if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
 			{
 			tabs.setSelectedIndex(0);
 			saveToFile();
 			return;
 			}
-		if (com.equals("GameInformationFrame.FONTCOLOR")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.FONTCOLOR")) //$NON-NLS-1$
 			{
 			String colorStr = Messages.getString("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
 			Color c = JColorChooser.showDialog(this,colorStr,fgColor);
@@ -585,29 +682,29 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 				}
 			return;
 			}
-		if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
 			{
 			String colorStr = Messages.getString("GameInformationFrame.COLOR"); //$NON-NLS-1$
 			Color c = JColorChooser.showDialog(this,colorStr,editor.getBackground());
 			if (c != null) setEditorBackground(c);
 			return;
 			}
-		if (com.equals("GameInformationFrame.CUT")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.CUT")) //$NON-NLS-1$
 			{
 			editor.cut();
 			return;
 			}
-		if (com.equals("GameInformationFrame.COPY")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.COPY")) //$NON-NLS-1$
 			{
 			editor.copy();
 			return;
 			}
-		if (com.equals("GameInformationFrame.PASTE")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.PASTE")) //$NON-NLS-1$
 			{
 			editor.paste();
 			return;
 			}
-		if (com.equals("GameInformationFrame.SELECTALL")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.SELECTALL")) //$NON-NLS-1$
 			{
 			editor.selectAll();
 			return;

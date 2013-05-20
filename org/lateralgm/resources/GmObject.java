@@ -89,7 +89,7 @@ public class GmObject extends InstantiableResource<GmObject,GmObject.PGmObject> 
 				}
 			}
 		}
-
+	
 	public BufferedImage getDisplayImage()
 		{
 		ResourceReference<Sprite> r = get(PGmObject.SPRITE);

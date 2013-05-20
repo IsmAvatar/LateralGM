@@ -61,10 +61,22 @@ public class FileChooser
 	public static List<FileReader> readers = new ArrayList<FileReader>();
 	public static List<FileWriter> writers = new ArrayList<FileWriter>();
 	public static List<FileView> fileViews = new ArrayList<FileView>();
+	static GmReader gmReader;
 	FileWriter selectedWriter;
 	CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 	FilterSet openFs = new FilterSet(), saveFs = new FilterSet();
 	FilterUnion openAllFilter = new FilterUnion(), saveAllFilter = new FilterUnion();
+
+	public static void addDefaultReadersAndWriters()
+		{
+		if (gmReader != null) return;
+
+		readers.add(gmReader = new GmReader());
+
+		int[] gmvers = { 810,800,701,600 };
+		for (int gmver : gmvers)
+			writers.add(new GmWriter(gmver));
+		}
 
 	public static interface GroupFilter
 		{
@@ -110,19 +122,16 @@ public class FileChooser
 		if (all.size() == 2) fs.add(0,all);
 		}
 
+	/**
+	 * Typically you construct a FileChooser when you want a graphical side of things.
+	 * Headless applications should use the static methods and fields available.
+	 */
 	public FileChooser()
 		{
 		fc.setFileView(new FileViewUnion());
 
-		//Add GM default readers, writers, and filters
-		GmReader r = new GmReader();
-		readers.add(r);
-		addOpenFilters(r);
-
-		int[] gmvers = { 810,800,701,600 };
-		for (int gmver : gmvers)
-			writers.add(new GmWriter(gmver));
-
+		addDefaultReadersAndWriters();
+		addOpenFilters(gmReader);
 		selectedWriter = writers.get(0); //TODO: need a better way to pick a default...
 
 		addSaveFilters(new GmWriterFilter());
@@ -315,7 +324,7 @@ public class FileChooser
 			}
 		}
 
-	protected class GmReader implements FileReader,GroupFilter
+	protected static class GmReader implements FileReader,GroupFilter
 		{
 		protected CustomFileFilter[] filters;
 		protected CustomFileFilter groupFilter;
@@ -352,7 +361,7 @@ public class FileChooser
 			}
 		}
 
-	protected class GmWriter implements FileWriter
+	protected static class GmWriter implements FileWriter
 		{
 		int ver;
 

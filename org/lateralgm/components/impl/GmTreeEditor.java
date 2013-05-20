@@ -21,9 +21,9 @@ import org.lateralgm.main.Prefs;
 public class GmTreeEditor extends DefaultTreeCellEditor
 	{
 	public GmTreeEditor(JTree tree, GmTreeGraphics renderer)
-		{
+	{
 		super(tree,renderer);
-		}
+	}
 
 	public boolean isCellEditable(EventObject event)
 		{

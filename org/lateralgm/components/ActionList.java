@@ -2,6 +2,7 @@
  * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -16,6 +17,8 @@ import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -28,9 +31,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EmptyStackException;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.WeakHashMap;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.DropMode;
@@ -38,6 +43,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.TransferHandler;
@@ -62,21 +70,82 @@ import org.lateralgm.subframes.ActionFrame;
 public class ActionList extends JList
 	{
 	private static final long serialVersionUID = 1L;
-	private static final WeakHashMap<Action,WeakReference<ActionFrame>> FRAMES;
+	private static final Map<Action,WeakReference<ActionFrame>> FRAMES;
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
 	protected ActionContainer actionContainer;
-	private ActionListModel model;
+	public ActionListModel model;
 	private final ActionRenderer renderer = new ActionRenderer();
 	public final WeakReference<MDIFrame> parent;
 	private final ActionListMouseListener alml;
 
 	static
 		{
+		
 		FRAMES = new WeakHashMap<Action,WeakReference<ActionFrame>>();
 		}
 
+	private static JMenuItem makeContextButton(String key)
+	{
+		JMenuItem b = new JMenuItem(Messages.getString(key));
+		b.setToolTipText(b.getText());
+		b.setText(b.getText());
+		b.setIcon(LGM.getIconForKey(key));
+		b.setRequestFocusEnabled(false);
+		return b;
+	}
+	
 	public ActionList(MDIFrame parent)
 		{
+		
+	   // build popup menu
+    final JPopupMenu popup = new JPopupMenu();
+    JMenuItem item;
+    
+    
+    item = makeContextButton("ActionList.CUT");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+    item = makeContextButton("ActionList.COPY");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
+    item = makeContextButton("ActionList.PASTE");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
+    
+		popup.addSeparator();
+    
+    item = makeContextButton("ActionList.DELETE");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,KeyEvent.CTRL_DOWN_MASK));
+		
+    item = makeContextButton("ActionList.SELECTALL");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+
+		// turning this off for now I can't find where the actions
+		// become transferable at, i suggest adding an edit button as
+		// well to this popup menu
+    //this.setComponentPopupMenu(popup);
+		this.addMouseListener(new MouseAdapter() {
+
+    	@Override
+    	public void mousePressed(MouseEvent e) {
+        //showPopup(e);
+    	}
+
+    	@Override
+    	public void mouseReleased(MouseEvent e) {
+        //showPopup(e);
+    	}
+
+    	private void showPopup(MouseEvent e) {
+    		if (e.isPopupTrigger()) {
+    			//popup.show(e.getComponent(), e.getX(), e.getY());
+    		}
+    	}
+		});
+		
+		//actionContainer.
 		this.parent = new WeakReference<MDIFrame>(parent);
 		setActionContainer(null);
 		setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
@@ -116,7 +185,7 @@ public class ActionList extends JList
 			if (a != null)
 				{
 				ActionFrame af = a.get();
-				if (af != null) af.commitChanges();
+				if (af != null && !af.isClosed()) af.commitChanges();
 				}
 			}
 		actionContainer.actions = model.list;
@@ -201,12 +270,8 @@ public class ActionList extends JList
 			switch (e.getKeyCode())
 				{
 				case KeyEvent.VK_DELETE:
-					int[] indices = l.getSelectedIndices();
-					ActionListModel alm = (ActionListModel) l.getModel();
-					for (int i = indices.length - 1; i >= 0; i--)
-						alm.remove(indices[i]);
-					if (indices.length != 0) l.setSelectedIndex(Math.min(alm.getSize() - 1,indices[0]));
-					e.consume();
+          ActionsDelete(l);
+          e.consume();
 					break;
 				}
 			}
@@ -215,7 +280,7 @@ public class ActionList extends JList
 	public static class ActionListModel extends AbstractListModel implements UpdateListener
 		{
 		private static final long serialVersionUID = 1L;
-		protected ArrayList<Action> list;
+		public ArrayList<Action> list;
 		protected ArrayList<Integer> indents;
 		private ActionRenderer renderer;
 
@@ -797,4 +862,34 @@ public class ActionList extends JList
 			return arc;
 			}
 		}
+	  
+	  /* Please be aware I came across the fact that
+	   * action changes are not memorized, so theres 
+	   * no undo/redo here
+	   */
+	
+	  public void ActionsCut()
+	  {
+	  
+	  }
+	
+	  public void ActionsCopy()
+	  {
+	  	
+	  }
+	  
+	  public void ActionsPaste()
+	  {
+	  	
+	  }
+	  
+	  public static void ActionsDelete(JList l)
+	  {
+		  int[] indices = l.getSelectedIndices();
+		  ActionListModel alm = (ActionListModel) l.getModel();
+		  for (int i = indices.length - 1; i >= 0; i--)
+			  alm.remove(indices[i]);
+		  if (indices.length != 0) l.setSelectedIndex(Math.min(alm.getSize() - 1,indices[0]));
+	  }
+	  
 	}
