@@ -2,6 +2,7 @@
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2013 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -39,9 +40,14 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		AUTO,FULL,MANUAL
 		}
 
+	public enum Effects
+	  {
+	    INVERT,FLIP,ROTATE
+	  } 
+	
 	public enum MaskShape
 		{
-		PRECISE,RECTANGLE,DISK,DIAMOND
+		PRECISE,RECTANGLE,DISK,DIAMOND,POLYGON
 		}
 
 	public final ImageList subImages = new ImageList();

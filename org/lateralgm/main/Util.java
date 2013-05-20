@@ -33,6 +33,8 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -53,7 +55,6 @@ import org.lateralgm.file.iconio.BitmapDescriptor;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.file.iconio.ICOImageReaderSPI;
 import org.lateralgm.file.iconio.WBMPImageReaderSpiFix;
-import org.lateralgm.jedit.SyntaxStyle;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
@@ -138,32 +139,6 @@ public final class Util
 	public static String rectangleToString(Rectangle r)
 		{
 		return String.format("%d %d %d %d",r.x,r.y,r.width,r.height);
-		}
-
-	public static SyntaxStyle stringToSyntaxStyle(String s, SyntaxStyle defaultValue)
-		{
-		String[] a;
-		Color c;
-		try
-			{
-			a = s.split(" ",2);
-			c = new Color(Integer.valueOf(a[0],16));
-			}
-		catch (NullPointerException npe)
-			{
-			return defaultValue;
-			}
-		catch (NumberFormatException nfe)
-			{
-			return defaultValue;
-			}
-		boolean i = false, b = false;
-		if (a.length > 1)
-			{
-			i = a[1].matches("(?i).*\\bitalic\\b.*");
-			b = a[1].matches("(?i).*\\bbold\\b.*");
-			}
-		return new SyntaxStyle(c,i,b);
 		}
 
 	public static BufferedImage toBufferedImage(Image image)
@@ -322,6 +297,40 @@ public final class Util
 	public static <R extends Resource<R,?>>R deRef(ResourceReference<R> ref)
 		{
 		return ref == null ? null : ref.get();
+		}
+
+	/**
+	 * Flags a class as inherently unique (when not cloned for modification),
+	 * indicating that it has an isEqual(E) method for comparing fields,
+	 * rather than the equals() method, which falls back to Object.equals.
+	 * @param <E> The other class to compare fields with. Typically, this
+	 * is the implementing class.
+	 */
+	public static interface InherentlyUnique<E extends InherentlyUnique<E>>
+		{
+		/**
+		 * Objects which are inherently unique (when not cloned for modification)
+		 * can't compare fields in their equals() method. As such, we instead
+		 * use our own method, isEqual, which compares fields for an equality check.
+		 * @return Whether the fields of these actions are equal.
+		 */
+		boolean isEqual(E other);
+		}
+
+	public static <V extends InherentlyUnique<V>>boolean areInherentlyUniquesEqual(List<V> a,
+			List<V> b)
+		{
+		if (a == b) return true;
+		if (a == null || b == null) return false;
+		ListIterator<V> e1 = a.listIterator();
+		ListIterator<V> e2 = b.listIterator();
+		while (e1.hasNext() && e2.hasNext())
+			{
+			V o1 = e1.next();
+			V o2 = e2.next();
+			if (!(o1 == null ? o2 == null : o1.isEqual(o2))) return false;
+			}
+		return !(e1.hasNext() || e2.hasNext());
 		}
 
 	public static int gcd(int a, int b)

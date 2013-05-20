@@ -3,6 +3,7 @@
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2006, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
+ * Copyright (C) 2013 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -77,7 +78,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 			code.addEditorButtons(tool);
 		else
 			{
-			code.editable = false;
+			//code.editable = false;
 			edit = new JButton(Messages.getString("ScriptFrame.EDIT")); //$NON-NLS-1$
 			edit.addActionListener(this);
 			tool.add(edit);
@@ -104,7 +105,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 			});
 		add(status,BorderLayout.SOUTH);
 
-		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code));
+		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code.text));
 		}
 
 	public void commitChanges()

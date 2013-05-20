@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2013 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * 
@@ -36,6 +37,7 @@ import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Extensions;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
@@ -96,6 +98,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 
 			if (kind == GameInformation.class) return LGM.getGameInfo();
 			if (kind == GameSettings.class) return LGM.getGameSettings();
+			if (kind == Extensions.class) return LGM.getGameExtensions();
 			//extensions returns null too, for now
 			return null;
 			}

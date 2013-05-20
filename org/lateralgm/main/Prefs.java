@@ -2,6 +2,7 @@
  * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013 Robert B.Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -72,7 +73,13 @@ public final class Prefs
 
 	public static void loadPrefs()
 		{
+		extraNodes = getBoolean("extraNodes",true);
+		restrictHierarchy = getBoolean("restrictHierarchy",true);
 		renamableRoots = getBoolean("renamableRoots",false);
+		swingTheme = getString("swingTheme", "Native");
+		swingThemePath = getString("swingThemePath", "");
+		iconPack = getString("iconPack", "Standard");
+		iconPath = getString("iconPath", "/icons/");
 		groupKind = getBoolean("groupKind",true);
 		iconizeGroup = getBoolean("iconizeGroup",false);
 		String fontName = getString("codeFontName","Monospaced");
@@ -95,6 +102,8 @@ public final class Prefs
 				e.printStackTrace();
 				}
 			}
+		manualPath = getString("manualPath", "http://enigma-dev.org/docs/Wiki/Main_Page");
+		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
 		defaultLibraryPath = getString("defaultLibraryPath","org/lateralgm/resources/library/lib/");
 		userLibraryPath = getString("userLibraryPath","./lib");
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
@@ -119,6 +128,14 @@ public final class Prefs
 		externalSoundEditorCommand = str.toLowerCase().equals("system") ? null : str;
 		}
 
+	public static String iconPack;
+	public static String iconPath;
+	public static String swingTheme;
+	public static String swingThemePath;
+	public static String manualPath;
+	
+	public static boolean extraNodes;
+	public static boolean restrictHierarchy;
 	public static boolean renamableRoots;
 	public static boolean groupKind;
 	public static boolean iconizeGroup;
@@ -128,6 +145,7 @@ public final class Prefs
 	public static int tabSize;
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 
+	public static boolean enableDragAndDrop;
 	public static String defaultLibraryPath;
 	public static String userLibraryPath;
 	public static int actionToolTipColumns;

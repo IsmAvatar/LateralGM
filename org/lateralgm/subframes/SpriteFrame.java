@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008, 2011 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2013 Robert B. Colton
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * 
@@ -87,12 +88,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
+	private static final ImageIcon LOAD_SUBIMAGE_ICON = LGM.getIconForKey("SpriteFrame.LOAD_SUBIMAGE"); //$NON-NLS-1$
 	private static final ImageIcon LOAD_STRIP_ICON = LGM.getIconForKey("SpriteFrame.LOAD_STRIP"); //$NON-NLS-1$
 	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SpriteFrame.PLAY"); //$NON-NLS-1$
 	private static final ImageIcon STOP_ICON = LGM.getIconForKey("SpriteFrame.STOP"); //$NON-NLS-1$
 
 	//toolbar
-	public JButton load, loadStrip;
+	public JButton load, loadSubimage, loadStrip;
 
 	//origin
 	public NumberField originX, originY;
@@ -105,13 +107,18 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public JRadioButton auto, full, manual;
 
 	//properties
-	public JRadioButton rect, prec, disk, diam;
+	public JRadioButton rect, prec, disk, diam, poly;
 	public JCheckBox smooth, preload, transparent;
 	public JLabel subCount, width, height;
 
 	//subimages
 	public JList subList;
-
+	
+  //effects
+  public JButton invert, flip, rotate,
+  reverse, addreverse, fade, rotfract, srhink, grow, colalpha, alphacol; 
+  public JLabel notimplemented;
+  
 	//preview
 	public SubimagePreview preview;
 	public NumberField show, speed;
@@ -142,9 +149,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		setLayout(new BorderLayout());
 
 		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab(Messages.getString("SpriteFrame.PROPERTIES"),makePropertiesPane()); //$NON-NLS-1$
-		tabs.addTab(Messages.getString("SpriteFrame.MASK"),makeMaskPane()); //$NON-NLS-1$
-		tabs.addTab(Messages.getString("SpriteFrame.SUBIMAGES"),makeSubimagesPane()); //$NON-NLS-1$
+		tabs.addTab(Messages.getString("SpriteFrame.PROPERTIES"), makePropertiesPane()); //$NON-NLS-1$
+    tabs.addTab(Messages.getString("SpriteFrame.MASK"), makeMaskPane()); //$NON-NLS-1$
+    tabs.addTab(Messages.getString("SpriteFrame.SUBIMAGES"), makeSubimagesPane()); //$NON-NLS-1$
+    tabs.addTab(Messages.getString("SpriteFrame.EFFECTS"), makeEffectsPane()); //$NON-NLS-1$ 
 
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,tabs,makePreviewPane());
 		splitPane.setOneTouchExpandable(true);
@@ -171,6 +179,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		load.addActionListener(this);
 		tool.add(load);
 
+		loadSubimage = new JButton(LOAD_SUBIMAGE_ICON);
+		loadSubimage.setToolTipText(Messages.getString("SpriteFrame.LOAD_SUBIMAGE")); //$NON-NLS-1$
+		loadSubimage.addActionListener(this);
+		tool.add(loadSubimage);
+		
 		loadStrip = new JButton(LOAD_STRIP_ICON);
 		loadStrip.setToolTipText(Messages.getString("SpriteFrame.LOAD_STRIP")); //$NON-NLS-1$
 		loadStrip.addActionListener(this);
@@ -253,19 +266,23 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		g.add(disk);
 		diam = new JRadioButton(Messages.getString("SpriteFrame.DIAMOND")); //$NON-NLS-1$
 		g.add(diam);
+		poly = new JRadioButton(Messages.getString("SpriteFrame.POLYGON")); //$NON-NLS-1$
+		g.add(poly);
 		plf.make(g,PSprite.SHAPE,Sprite.MaskShape.class);
 
 		bLayout.setHorizontalGroup(bLayout.createParallelGroup()
 		/**/.addComponent(prec)
 		/**/.addComponent(rect)
 		/**/.addComponent(disk)
-		/**/.addComponent(diam));
+		/**/.addComponent(diam)
+		/**/.addComponent(poly));
 
 		bLayout.setVerticalGroup(bLayout.createSequentialGroup()
 		/**/.addComponent(prec)
 		/**/.addComponent(rect)
 		/**/.addComponent(disk)
-		/**/.addComponent(diam));
+		/**/.addComponent(diam)
+		/**/.addComponent(poly));
 
 		return pane;
 		}
@@ -356,6 +373,137 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		return pane;
 		}
 
+  private JPanel makeEffectsPane()
+  {
+    JPanel pane = new JPanel();
+    GroupLayout layout = new GroupLayout(pane);
+    layout.setAutoCreateContainerGaps(true);
+
+    pane.setLayout(layout);
+
+    JLabel notimplemented = new JLabel("Note: These buttons do not do anything yet."); //$NON-NLS-1$
+    
+    JButton invert = new JButton(Messages.getString("SpriteFrame.INVERT")); //$NON-NLS-1$
+    invert.setToolTipText("Invert All Subframes"); 
+    invert.addActionListener(this);
+    
+    JButton flip = new JButton(Messages.getString("SpriteFrame.FLIP")); //$NON-NLS-1$
+    flip.setToolTipText("Flip"); 
+    flip.addActionListener(this);
+    
+    JButton rotate = new JButton(Messages.getString("SpriteFrame.ROTATE")); //$NON-NLS-1$
+    rotate.setToolTipText("Rotate"); 
+    rotate.addActionListener(this);
+    
+    JButton rotfract = new JButton(Messages.getString("SpriteFrame.ROTATEFRACTION")); //$NON-NLS-1$
+    rotfract.setToolTipText("Rotate By An Incremented Fraction Each Subframe"); 
+    rotfract.addActionListener(this);
+    
+    JButton reverse = new JButton(Messages.getString("SpriteFrame.REVERSE")); //$NON-NLS-1$
+    reverse.setToolTipText("Reverse"); 
+    reverse.addActionListener(this);
+    
+    JButton addreverse = new JButton(Messages.getString("SpriteFrame.ADDREVERSE")); //$NON-NLS-1$
+    addreverse.setToolTipText("Add Reverse"); 
+    addreverse.addActionListener(this);
+    
+    JButton colalpha = new JButton(Messages.getString("SpriteFrame.COLORALPHA")); //$NON-NLS-1$
+    colalpha.setToolTipText("Color to Alpha");
+    colalpha.addActionListener(this);
+    
+    JButton alphacol = new JButton(Messages.getString("SpriteFrame.ALPHACOLOR")); //$NON-NLS-1$
+    alphacol.setToolTipText("Alpha to Color"); 
+    alphacol.addActionListener(this);
+    
+    JButton fade = new JButton(Messages.getString("SpriteFrame.FADE")); //$NON-NLS-1$
+    fade.setToolTipText("Fade"); 
+    fade.addActionListener(this);
+    
+    JButton shrink = new JButton(Messages.getString("SpriteFrame.SHRINK")); //$NON-NLS-1$
+    shrink.setToolTipText("Shrink"); 
+    shrink.addActionListener(this);
+    
+    JButton grow = new JButton(Messages.getString("SpriteFrame.GROW")); //$NON-NLS-1$
+    grow.setToolTipText("Grow");
+    grow.addActionListener(this);
+
+    
+    //public JButton invert, flip, rotate,
+    //reverse, addreverse, fade, rotfract, srhink, grow, colalpha, alphacol;
+
+    layout.setHorizontalGroup(layout.createParallelGroup()
+    		
+    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+    /**/.addComponent(notimplemented))
+            
+    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+    /**/.addComponent(invert)
+    /**/.addGap(2)
+    /**/.addComponent(flip)
+    /**/.addGap(2))
+    
+    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+    /**/.addComponent(rotate)
+    /**/.addGap(2)
+    /**/.addComponent(rotfract)
+    /**/.addGap(2))
+    
+    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+    /**/.addComponent(reverse)
+    /**/.addGap(2)
+    /**/.addComponent(addreverse)
+    /**/.addGap(2))
+    
+    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+    /**/.addComponent(colalpha)
+    /**/.addGap(2)
+    /**/.addComponent(alphacol)
+    /**/.addGap(2))
+    
+    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
+    /**/.addComponent(fade)
+    /**/.addGap(2)
+    /**/.addComponent(shrink)
+    /**/.addGap(2)
+    /**/.addComponent(grow)
+    /**/.addGap(2))
+    );
+
+    layout.setVerticalGroup(layout.createSequentialGroup()
+    		
+    /**/.addGroup(layout.createParallelGroup()
+    /**/.addComponent(notimplemented))
+    /**/.addGap(12)
+            
+    /**/.addGroup(layout.createParallelGroup()
+    /**/.addComponent(invert)
+    /**/.addComponent(flip))
+    /**/.addGap(12)
+    
+    /**/.addGroup(layout.createParallelGroup()
+    /**/.addComponent(rotate)
+    /**/.addComponent(rotfract))
+    /**/.addGap(12)
+    
+    /**/.addGroup(layout.createParallelGroup()
+    /**/.addComponent(reverse)
+    /**/.addComponent(addreverse))
+    /**/.addGap(12)
+    
+    /**/.addGroup(layout.createParallelGroup()
+    /**/.addComponent(colalpha)
+    /**/.addComponent(alphacol))
+    /**/.addGap(12)
+    
+    /**/.addGroup(layout.createParallelGroup()
+    /**/.addComponent(fade)
+    /**/.addComponent(shrink)
+    /**/.addComponent(grow))
+    /**/.addGap(12));
+    
+    return pane;
+  } 
+	
 	private JPanel makePropertiesPane()
 		{
 		JPanel pane = new JPanel();
@@ -762,6 +910,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			addFromStrip(true);
 			return;
 			}
+		if (e.getSource() == loadSubimage)
+			{
+			BufferedImage[] img = Util.getValidImages();
+			if (img != null) addSubimages(img,false);
+			return;
+			}
 		if (e.getSource() == showBbox)
 			{
 			preview.setShowBbox(showBbox.isSelected());
@@ -880,7 +1034,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		if (clear) setSubIndex(0);
 		updateInfo();
 		}
-
+	
 	public void addFromStrip(boolean clear)
 		{
 		//ask for an image first
