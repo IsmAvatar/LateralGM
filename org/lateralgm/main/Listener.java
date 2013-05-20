@@ -316,7 +316,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	    try {
         // Auto detects if path is web url or local file
         String path = Prefs.manualPath;
-        if (path.contains("http://")) {
+        if (path.startsWith("http") || path.startsWith("https")) {
           Desktop.getDesktop().browse(java.net.URI.create(path));
         } else {
           Desktop.getDesktop().open(new File(path));

@@ -143,7 +143,6 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		popup.add(makeContextButton(text.aCopy));
 		popup.add(makeContextButton(text.aPaste));
 		popup.addSeparator();
-		// select all dont work right as a popup button, no idea why
 		popup.add(makeContextButton(text.aSelAll));
 		
     text.setComponentPopupMenu(popup);

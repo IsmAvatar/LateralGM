@@ -73,7 +73,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
     themeCombo = new JComboBox(themeOptions);
     themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS") + ":");
-    String[] iconOptions = { "Swing", "Standard", "Custom" };
+    String[] iconOptions = { "Swing", "Calico", "Custom" };
     iconCombo = new JComboBox(iconOptions);
     iconCombo.setSelectedItem(LGM.iconspack);
     dndEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_DND"));

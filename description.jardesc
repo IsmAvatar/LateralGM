@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <jardesc>
-    <jar path="LateralGM/lgm16b4.jar"/>
+    <jar path="LateralGM/lateralgm.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/LateralGM/description.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
@@ -11,42 +11,34 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
-        <javaElement handleIdentifier="=JoshEdit/&lt;org.lateralgm.joshedit"/>
-        <javaElement handleIdentifier="=JoshEdit/&lt;org.lateralgm.joshedit.icons"/>
-        <javaElement handleIdentifier="=JoshEdit/&lt;org.lateralgm.joshedit.icons.actions"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.compare"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.impl"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.mdi"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.visual"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file.iconio"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.actions"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.events"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.restree"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.jedit"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.messages"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Calico.restree"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library.lib"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.visual"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.compare"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.sub"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.subframes"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.propertylink"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.util"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.visuals"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.mdi"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file.iconio"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Swing.actions"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Swing.events"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.util"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.util"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.subframes"/>
         <folder path="/LateralGM/.settings"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.impl"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.messages"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Swing.restree"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.visuals"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Calico.events"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Calico.actions"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library.lib"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.propertylink"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.joshedit"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.jedit"/>
         <folder path="/LateralGM/META-INF"/>
-        <file path="/LateralGM/.checkstyle"/>
-        <file path="/LateralGM/.classpath"/>
-        <file path="/LateralGM/.project"/>
-        <file path="/LateralGM/description.jardesc"/>
-        <file path="/LateralGM/Makefile"/>
-        <file path="/LateralGM/checkstyle.xml"/>
-        <file path="/LateralGM/LICENSE"/>
-        <file path="/LateralGM/COPYING"/>
-        <file path="/LateralGM/README"/>
     </selectedElements>
 </jardesc>

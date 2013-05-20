@@ -105,7 +105,7 @@ import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 public final class LGM
 	{
 	public static String iconspath = "org/lateralgm/icons/";
-	public static String iconspack = "Standard";
+	public static String iconspack = "Calico";
 	public static String themename = "Swing";
 	public static boolean themechanged = false;
 	
