@@ -4,6 +4,8 @@ This project is meant to create a simple, free alternative to icon sets such as 
 enough to be GPL-incompatible. While I respect icon authors' wishes to be credited for their work, I also respect free
 software programmers who want to release their applications without worring about license violations.
 
+This icon set is hosted on a GitHub repository. https://github.com/enigma-dev/Calico-Icon
+
 All the icons in this set are vectorized, but designed to look good at small resolutions. You can, of course, render them
 at larger resolutions, but due to SVG's lack of hinting, this might turn out bad at magnifications under 2x, and due to
 their design focus on small resolutions, they might not look that great at larger sizes, anyway, from the 1px lines
