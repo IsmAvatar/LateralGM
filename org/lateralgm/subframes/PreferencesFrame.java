@@ -8,49 +8,31 @@
 
 package org.lateralgm.subframes;
 
-import static javax.swing.GroupLayout.DEFAULT_SIZE;
-import static javax.swing.GroupLayout.PREFERRED_SIZE;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-import org.lateralgm.components.CustomFileChooser;
-import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.DocumentUndoManager;
-import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.GameInformation;
 
 public class PreferencesFrame extends JFrame implements ActionListener
 {
@@ -175,13 +157,13 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		roomPrefix.setPreferredSize(preferredSize);
 		
 		JLabel backgroundMIMELabel = new JLabel("Background MIME:");
-		JTextField backgroundMIME = new JTextField("png");
+		JTextField backgroundMIME = new JTextField(Prefs.externalBackgroundExtension);
 		backgroundMIME.setPreferredSize(preferredSize);
 		JLabel spriteMIMELabel = new JLabel("Sprite MIME:");
-		JTextField spriteMIME = new JTextField("png");
+		JTextField spriteMIME = new JTextField(Prefs.externalSpriteExtension);
 		spriteMIME.setPreferredSize(preferredSize);
 		JLabel scriptMIMELabel = new JLabel("Script MIME:");
-		JTextField scriptMIME = new JTextField("txt");
+		JTextField scriptMIME = new JTextField(Prefs.externalScriptExtension);
 		scriptMIME.setPreferredSize(preferredSize);
 		
 		GroupLayout gl = new GroupLayout(p);
