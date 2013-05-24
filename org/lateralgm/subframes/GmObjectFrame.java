@@ -783,7 +783,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 	@Override
 	public void dispose()
-		{
+	{
 		super.dispose();
 		events.removeTreeSelectionListener(this);
 		events.setModel(null);
@@ -794,8 +794,10 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		eventModify.removeActionListener(this);
 		eventEdit.removeActionListener(this);
 		eventDelete.removeActionListener(this);
-		infoFrame.dispose();
+		if (infoFrame != null) {
+		  infoFrame.dispose();
 		}
+	}
 	
 	public void valueChanged(TreeSelectionEvent tse)
 		{
