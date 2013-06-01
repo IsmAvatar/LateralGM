@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * 
@@ -23,15 +24,36 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
+import org.lateralgm.main.PrefsStore;
+
 public final class Messages
 	{
 	private static final String BUNDLE_NAME = "org.lateralgm.messages.messages"; //$NON-NLS-1$
 
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);;
 
 	private Messages()
-		{
-		}
+  {
+
+	}
+	
+	public static void updateLangPack() {
+    String langbundle = "";
+	  if (Prefs.languageName.contains("English")) {
+	    langbundle = "org.lateralgm.messages.messages"; //$NON-NLS-1$
+	  } else if (Prefs.languageName.contains("French")) {
+	    langbundle = "org.lateralgm.messages.messages_fr"; //$NON-NLS-1$
+	  } else if (Prefs.languageName.contains("Turkish")) {
+	    langbundle = "org.lateralgm.messages.messages_tr_TR"; //$NON-NLS-1$
+	  } else if (Prefs.languageName.contains("Danish")) {
+	    langbundle = "org.lateralgm.messages.messages_da"; //$NON-NLS-1$
+	  } else {
+	    langbundle = "org.lateralgm.messages.messages"; //$NON-NLS-1$
+	  }
+	  RESOURCE_BUNDLE = ResourceBundle.getBundle(langbundle);
+	}
 
 	public static String getString(String key)
 		{

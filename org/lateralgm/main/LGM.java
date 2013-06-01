@@ -629,12 +629,14 @@ public final class LGM
 				tempDir.setWritable(true,false);
 				}
 			}
-		
+
 		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
 		
 		iconspack = Prefs.iconPack;
 		SetLookAndFeel(Prefs.swingTheme);
+		Messages.updateLangPack();
+		
 		//annoyingly, Metal bolds almost all components by default. This unbolds them.
 		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
 		themechanged = false;
@@ -697,10 +699,10 @@ public final class LGM
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
     frame.addWindowListener(new java.awt.event.WindowAdapter() {
-    public void windowClosing(WindowEvent winEvt) {
-      LGM.onMainFrameClosed();
-    }
-  });
+      public void windowClosing(WindowEvent winEvt) {
+        LGM.onMainFrameClosed();
+      }
+    });
     
 		//p.add(tree, BorderLayout.WEST);
 		//.add(new JButton("fuck you"));

@@ -2,6 +2,7 @@
  * Copyright (C) 2006-2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -177,7 +178,7 @@ public final class GmFileReader
 						identifier));
 			int ver = in.read4();
 			f.format = GmFile.FormatFlavor.getVersionFlavor(ver);
-			if (ver != 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810)
+			if (ver != 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810 && ver != 820)
 				{
 				String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$ //$NON-NLS-2$
 				throw new GmFormatException(f,msg);
@@ -295,12 +296,12 @@ public final class GmFileReader
 		PropertyMap<PGameSettings> p = g.properties;
 
 		int ver = in.read4();
-		if (ver != 530 && ver != 542 && ver != 600 && ver != 702 && ver != 800)
+		if (ver != 530 && ver != 542 && ver != 600 && ver != 702 && ver != 800 && ver != 810 && ver != 820)
 			{
 			String msg = Messages.format("GmFileReader.ERROR_UNSUPPORTED","",ver); //$NON-NLS-1$ //$NON-NLS-2$
 			throw new GmFormatException(c.f,msg);
 			}
-		if (ver == 800) in.beginInflate();
+		if (ver >= 800) in.beginInflate();
 		in.readBool(p,PGameSettings.START_FULLSCREEN);
 		if (ver >= 600) in.readBool(p,PGameSettings.INTERPOLATE);
 		in.readBool(p,PGameSettings.DONT_DRAW_BORDER,PGameSettings.DISPLAY_CURSOR);
@@ -560,7 +561,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SPR",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800 && ver != 810) throw versionError(f,"BEFORE","SPR",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noSprites = in.read4();
 		for (int i = 0; i < noSprites; i++)
@@ -579,7 +580,7 @@ public final class GmFileReader
 			spr.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 400 && ver != 542 && ver != 800) throw versionError(f,"IN","SPR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 400 && ver != 542 && ver != 800 && ver != 810) throw versionError(f,"IN","SPR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			int w = 0, h = 0;
 			if (ver < 800)
 				{
@@ -609,7 +610,7 @@ public final class GmFileReader
 				if (ver >= 800)
 					{
 					int subver = in.read4();
-					if (subver != 800) throw versionError(f,"IN","SPR",i,subver); //$NON-NLS-1$ //$NON-NLS-2$
+					if (subver != 800 && subver != 810) throw versionError(f,"IN","SPR",i,subver); //$NON-NLS-1$ //$NON-NLS-2$
 					w = in.read4();
 					h = in.read4();
 					if (w != 0 && h != 0) spr.subImages.add(in.readBGRAImage(w,h));
