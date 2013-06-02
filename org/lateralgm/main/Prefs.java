@@ -110,6 +110,7 @@ public final class Prefs
 		languageName = getString("languageName", "English");
 		manualPath = getString("manualPath", "http://enigma-dev.org/docs/Wiki/Main_Page");
 		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
+		forceMaximized = getBoolean("forceMaximized", false);
 		defaultLibraryPath = getString("defaultLibraryPath","org/lateralgm/resources/library/lib/");
 		userLibraryPath = getString("userLibraryPath","./lib");
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
@@ -141,6 +142,7 @@ public final class Prefs
 	public static String manualPath;
 	public static String languageName;
 	
+	public static boolean forceMaximized;
 	public static boolean extraNodes;
 	public static boolean restrictHierarchy;
 	public static boolean renamableRoots;

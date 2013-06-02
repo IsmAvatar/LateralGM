@@ -688,7 +688,9 @@ public final class LGM
 		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
-	
+		if (Prefs.forceMaximized) {
+	    frame.setExtendedState(JFrame.MAXIMIZED_BOTH);  
+		}
 		frame.setJMenuBar(new GmMenuBar());
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
