@@ -74,8 +74,8 @@ public final class Prefs
 	public static void loadPrefs()
 		{
 		if (new File("preferences.properties").exists()) {
-		  BUNDLE_NAME = "preferences";
-		  RESOURCE_BUNDLE = ResourceBundle.getBundle("preferences");
+		  BUNDLE_NAME = "preferences.properties";
+		  RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 		}
 		
 		extraNodes = getBoolean("extraNodes",true);
