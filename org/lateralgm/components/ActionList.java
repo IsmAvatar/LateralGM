@@ -80,7 +80,6 @@ public class ActionList extends JList
 
 	static
 		{
-		
 		FRAMES = new WeakHashMap<Action,WeakReference<ActionFrame>>();
 		}
 
@@ -96,7 +95,6 @@ public class ActionList extends JList
 	
 	public ActionList(MDIFrame parent)
 		{
-		
 	   // build popup menu
     final JPopupMenu popup = new JPopupMenu();
     JMenuItem item;

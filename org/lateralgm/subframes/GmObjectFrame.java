@@ -66,6 +66,7 @@ import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
 import org.lateralgm.main.Prefs;
@@ -112,7 +113,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public GMLTextArea code;
 	private JComponent editor;
 	
-	public GmObjectInfoFrame infoFrame;
+	private ResourceInfoFrame infoFrame;
 
 	private DefaultMutableTreeNode lastValidEventSelection;
 
@@ -665,7 +666,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public void showInfoFrame()
 	{
     if (infoFrame == null) {
-      infoFrame = new GmObjectInfoFrame(this);
+      infoFrame = new ResourceInfoFrame(this);
     }
     infoFrame.updateObjectInfo();
     infoFrame.setVisible(true);	
@@ -728,7 +729,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		}
 		if (e.getSource() == eventModify || e.getSource() == eventModifyItem)
 		{
-			LGM.eventSelect.setVisible(true);
+			LGM.showEventPanel();
 			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_ADD);
 			return;
 		}
@@ -761,8 +762,11 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			  actions.setSelectedValue(a, true);
 		  }
 
-			ActionList.openActionFrame(actions.parent.get(), a);
-			return;
+		  MDIFrame af = ActionList.openActionFrame(actions.parent.get(), a);
+		  EventInstanceNode evnode = (EventInstanceNode)events.getLastSelectedPathComponent();
+		  af.setTitle(this.name.getText() + " : " + evnode.toString());
+		  af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId));
+		  return;
 		}
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
 		{
@@ -778,6 +782,14 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public void dispose()
 	{
 		super.dispose();
+		// TODO: Fix disposal of open action frames, NPE occurs
+		// when the object frame closes before them, for instance
+		// open up LGM create a object and open an action frame on it
+		// then in the background close the object frame and leave
+		// the action frame open, bam, NPE
+		// I propose making action list editor memorize them as it is the
+		// one with the function that opens the action frames
+		// - Robert B. Colton
 		events.removeTreeSelectionListener(this);
 		events.setModel(null);
 		events.setTransferHandler(null);

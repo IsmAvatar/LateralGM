@@ -32,6 +32,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import org.lateralgm.main.LGM;
+
 /**
  * @author Josh Ventura
  * Class to display a full set of find and replace options.
@@ -80,7 +82,7 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 	public static JButton bRepAll;
 
 	/** The static FindDialog isntance (one per program). */
-	protected static FindDialog INSTANCE = new FindDialog();
+	protected static FindDialog INSTANCE;
 	/** A collection of action listeners. */
 	protected Set<ActionListener> listenerList = new HashSet<ActionListener>();
 	/** A collection of permanent action listeners. */
@@ -102,6 +104,10 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 	/** @return Returns the static FindDialog instance.  */
 	public static FindDialog getInstance()
 	{
+	  if (INSTANCE == null) {
+	    INSTANCE = new FindDialog();
+	    INSTANCE.setLocationRelativeTo(LGM.frame);
+	  }
 		return INSTANCE;
 	}
 

@@ -259,7 +259,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		if (com.endsWith(".EVENT_BUTTON")) //$NON-NLS-1$
 		{
 			Object o = e.getSource();
-			if (o instanceof JToggleButton) LGM.eventSelect.setVisible(((JToggleButton) o).isSelected());
+			if (o instanceof JToggleButton) LGM.showEventPanel();
 			return;
 		}
 		if (com.endsWith(".EXIT")) //$NON-NLS-1$

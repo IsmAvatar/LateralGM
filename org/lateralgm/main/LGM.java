@@ -25,8 +25,7 @@ package org.lateralgm.main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.ComponentOrientation;
-import java.awt.Dialog;
+import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -52,7 +51,6 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.DropMode;
-import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
@@ -67,13 +65,10 @@ import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
-import javax.swing.JWindow;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.plaf.metal.DefaultMetalTheme;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -84,7 +79,6 @@ import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.FramePrefsHandler;
 import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.components.mdi.MDIManager;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.GmFile;
 import org.lateralgm.file.GmFile.ResourceHolder;
@@ -142,6 +136,7 @@ public final class LGM
 	public static Thread extensionsFrameBuilder;
 	private static ExtensionsFrame extSet;
 	public static EventPanel eventSelect;
+	private static JFrame eventFrame;
 	public static AbstractButton eventButton;
 	public static PreferencesFrame prefFrame;
 	
@@ -227,9 +222,6 @@ public final class LGM
     //SwingUtilities.updateComponentTreeUI(mdi);
     //frame.pack();
     Window windows[] = frame.getWindows();
-    for(Window window : windows) {
-        SwingUtilities.updateComponentTreeUI(window);
-    }
   }
   
 	public static GameInformationFrame getGameInfo()
@@ -642,11 +634,14 @@ public final class LGM
 		themechanged = false;
 		
 		splashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
-		JComponent toolbar = createToolBar();
+		JToolBar toolbar = createToolBar();
 		JComponent tree = createTree();
 		content = new JPanel(new BorderLayout());
 		content.add(BorderLayout.CENTER,createMDI());
-		content.add(BorderLayout.EAST,eventSelect = new EventPanel());
+		eventSelect = new EventPanel();
+	  //content.add(BorderLayout.EAST,eventSelect);
+
+		//((BasicToolBarUI) eventSelect.getUI()).setFloating(true, new Point(500,50));
 		
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
 		
@@ -881,6 +876,28 @@ public final class LGM
 			}
 		}
 	
+  public static void showEventPanel() {
+    if (eventFrame == null) {
+      eventFrame = new JFrame();
+      eventFrame.setAlwaysOnTop(true);
+		  eventFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+      eventFrame.setSize(new Dimension(250, 300));
+      eventFrame.add(eventSelect);
+      eventSelect.setVisible(true);
+      eventSelect.setFloatable(false);
+      eventFrame.setLocationRelativeTo(frame);
+    }
+    eventFrame.setVisible(true);
+  }
+
+  public static void hideEventPanel() {
+    if (eventFrame != null) {
+      eventFrame.setVisible(false);
+    } else {
+      eventSelect.setVisible(false);
+    }
+  }
+
 	public static void ShowPreferences()
 	{
 		if (prefFrame == null) {

@@ -41,6 +41,8 @@ import org.lateralgm.components.GMLTextArea;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.mdi.MDIFrame;
+import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
@@ -50,6 +52,7 @@ import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Moment;
+import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
 public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline> implements
 		ListSelectionListener
@@ -57,12 +60,14 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	private static final long serialVersionUID = 1L;
 
 	public JButton add, edit, change, delete, duplicate;
-	public JButton shift, merge, clear;
+	public JButton shift, merge, clear, showInfo;
 
 	public JList moments;
 	public ActionList actions;
 	public GMLTextArea code;
 	private JComponent editor;
+	
+	private ResourceInfoFrame infoFrame;
 
 	public TimelineFrame(Timeline res, ResNode node)
 	{
@@ -141,6 +146,10 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		merge.addActionListener(this);
 		clear = new JButton(Messages.getString("TimelineFrame.CLEAR")); //$NON-NLS-1$
 		clear.addActionListener(this);
+		
+	  showInfo = new JButton(Messages.getString("TimelineFrame.SHOWINFORMATION")); //$NON-NLS-1$
+		showInfo.addActionListener(this);
+		showInfo.setIcon(LGM.getIconForKey("TimelineFrame.SHOWINFORMATION"));
 
 		save.setText(Messages.getString("TimelineFrame.SAVE")); //$NON-NLS-1$
 
@@ -160,6 +169,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		/*		*/.addComponent(shift,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*		*/.addComponent(merge,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addComponent(clear,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(showInfo,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		
 		layout.setVerticalGroup(layout.createSequentialGroup()
@@ -179,6 +189,8 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		/*		*/.addComponent(shift)
 		/*		*/.addComponent(merge))
 		/**/.addComponent(clear)
+		/**/.addGap(8,8,MAX_VALUE)
+		/**/.addComponent(showInfo)
 		/**/.addGap(32,32,MAX_VALUE)
 		/**/.addComponent(save));
 	}
@@ -194,7 +206,33 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		actions.save();
 		res.setName(name.getText());
 	}
+	
+	public void showInfoFrame()
+	{
+    if (infoFrame == null) {
+      infoFrame = new ResourceInfoFrame(this);
+    }
+    infoFrame.updateTimelineInfo();
+    infoFrame.setVisible(true);	
+	}
 
+	@Override
+	public void dispose()
+	{
+		super.dispose();
+		// TODO: Fix disposal of open action frames, NPE occurs
+		// when the timeline frame closes before them, for instance
+		// open up LGM create a timeline and open an action frame on it
+		// then in the background close the timeline frame and leave
+		// the action frame open, bam, NPE
+		// I propose making action list editor memorize them as it is the
+		// one with the function that opens the action frames
+		// - Robert B. Colton
+		if (infoFrame != null) {
+		  infoFrame.dispose();
+		}
+	}
+	
 	public void actionPerformed(ActionEvent e)
 	{
 		if (!(e.getSource() instanceof JButton))
@@ -281,6 +319,10 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			moments.setSelectedIndex(Math.min(res.moments.size() - 1,p));
 			return;
 			}
+		if (but == showInfo) {
+		  showInfoFrame();
+	    return;
+		}
 		if (but == edit) 
 		{
 		  int p = moments.getSelectedIndex();
@@ -308,7 +350,10 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		    actions.setSelectedValue(a, true);
 	    }
 
-		  ActionList.openActionFrame(this, a);
+		  MDIFrame af = ActionList.openActionFrame(actions.parent.get(), a);
+		  Object momentitem = moments.getSelectedValue();
+		  af.setTitle(this.name.getText() + " : " + momentitem.toString());
+		  af.setFrameIcon(LGM.getIconForKey("MomentNode.STEP"));
 		  return;
 		}
 		if (but == clear)

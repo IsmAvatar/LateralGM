@@ -13,6 +13,7 @@ package org.lateralgm.main;
 
 import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -23,9 +24,8 @@ import org.lateralgm.resources.Resource;
 
 public final class Prefs
 	{
-	private static final String BUNDLE_NAME = "org.lateralgm.main.preferences"; //$NON-NLS-1$
-
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+	private static String BUNDLE_NAME = "org.lateralgm.main.preferences"; //$NON-NLS-1$
+	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 	private static final Preferences PREFS = Preferences.userRoot().node("/org/lateralgm");
 
 	static
@@ -42,7 +42,7 @@ public final class Prefs
 		String r;
 		try
 			{
-			r = RESOURCE_BUNDLE.getString(key);
+			  r = RESOURCE_BUNDLE.getString(key);
 			}
 		catch (MissingResourceException e)
 			{
@@ -73,6 +73,11 @@ public final class Prefs
 
 	public static void loadPrefs()
 		{
+		if (new File("preferences.properties").exists()) {
+		  BUNDLE_NAME = "preferences";
+		  RESOURCE_BUNDLE = ResourceBundle.getBundle("preferences");
+		}
+		
 		extraNodes = getBoolean("extraNodes",true);
 		restrictHierarchy = getBoolean("restrictHierarchy",true);
 		renamableRoots = getBoolean("renamableRoots",false);

@@ -13,6 +13,8 @@ import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -117,6 +119,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		/**/.addComponent(stayOpen).addComponent(treeScroll));
 
 		reload();
+		setPreferredSize(new Dimension(250, 300));
 		}
 
 	private JTree makeTree()
@@ -467,7 +470,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 					{
 					f.functionEvent(n.mainId,n.eventId,n.other,null);
 					f.toTop();
-					if (!stayOpen.isSelected() ^ e.isControlDown()) LGM.eventSelect.setVisible(false);
+					if (!stayOpen.isSelected() ^ e.isControlDown()) LGM.hideEventPanel();
 					}
 				}
 			}
