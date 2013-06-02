@@ -35,6 +35,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -410,7 +412,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		{
 		super(res,node,Messages.getString("GameInformationFrame.TITLE"),true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(700,500);
+		setSize(725,500);
 
 		menubar = makeMenuBar();
 		setJMenuBar(menubar);
@@ -661,10 +663,19 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			loadFromFile();
 			}
 		else if (com.equals("GameInformationFrame.PRINT")) //$NON-NLS-1$
-			{
-			JOptionPane.showMessageDialog(null, "Print option not finished yet, sorry :(");
+		{
+	    //TODO: Make the fucker actually print
+	    PrinterJob pj = PrinterJob.getPrinterJob();
+      if (pj.printDialog()) {
+          try {
+            pj.print();
+          }
+          catch (PrinterException exc) {
+            System.out.println(exc);
+          }
+       }   
 			return;
-			}
+		}
 		else if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
 			{
 			tabs.setSelectedIndex(0);

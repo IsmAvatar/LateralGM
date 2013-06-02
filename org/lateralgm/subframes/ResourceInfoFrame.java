@@ -16,6 +16,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -87,12 +89,12 @@ public class ResourceInfoFrame extends JFrame implements ActionListener
 	public JToolBar makeToolbar()
 	{
 		JToolBar tb = new JToolBar();
-		tb.add(addToolbarItem("GmObjectInfoFrame.CONFIRM"));
+		tb.add(addToolbarItem("ResourceInfoFrame.CONFIRM"));
 		tb.addSeparator();
-		tb.add(addToolbarItem("GmObjectInfoFrame.FILESAVE"));
-		tb.add(addToolbarItem("GmObjectInfoFrame.PRINT"));
+		tb.add(addToolbarItem("ResourceInfoFrame.FILESAVE"));
+		tb.add(addToolbarItem("ResourceInfoFrame.PRINT"));
 		tb.addSeparator();
-		tb.add(addToolbarItem("GmObjectInfoFrame.COPY"));
+		tb.add(addToolbarItem("ResourceInfoFrame.COPY"));
 		return tb;
 	}
 
@@ -102,11 +104,11 @@ public JPopupMenu makeContextMenu()
   final JPopupMenu popup = new JPopupMenu();
   JMenuItem item;
   
-	item = addItem("GmObjectInfoFrame.COPY"); //$NON-NLS-1$
+	item = addItem("ResourceInfoFrame.COPY"); //$NON-NLS-1$
 	item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
 	popup.add(item);
 	popup.addSeparator();
-	item = addItem("GmObjectInfoFrame.SELECTALL"); //$NON-NLS-1$
+	item = addItem("ResourceInfoFrame.SELECTALL"); //$NON-NLS-1$
 	item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
 	popup.add(item);
 	
@@ -374,7 +376,7 @@ public static int countLines(String str)
     setAlwaysOnTop(true);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(440,500);
-		setTitle(Messages.getString("GmObjectInfoFrame.TITLE"));
+		setTitle(Messages.getString("ResourceInfoFrame.TITLE"));
 		setResizable(true);
 		setLocationRelativeTo(LGM.frame);
 		
@@ -394,6 +396,7 @@ public static int countLines(String str)
 		p.add(editor, BorderLayout.CENTER);
     add(new JScrollPane(editor),BorderLayout.CENTER);
     editor.setText("object info will be displayed here when loaded");
+    editor.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
     editor.setEditable(false);
     editor.getCaret().setVisible(true); // show the caret anyway
 		makeContextMenu();
@@ -413,7 +416,7 @@ public static int countLines(String str)
 	
 	public void saveToFile()
 		{
-		fc.setDialogTitle(Messages.getString("GmObjectInfoFrame.SAVE_TITLE")); //$NON-NLS-1$
+		fc.setDialogTitle(Messages.getString("ResourceInfoFrame.SAVE_TITLE")); //$NON-NLS-1$
 		if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 		String name = fc.getSelectedFile().getPath();
 		if (CustomFileFilter.getExtension(name) == null) name += ".rtf"; //$NON-NLS-1$
@@ -432,24 +435,38 @@ public static int countLines(String str)
 	public void actionPerformed(ActionEvent ev)
 	{
 		String com = ev.getActionCommand();
-		if (com.equals("GmObjectInfoFrame.FILESAVE")) //$NON-NLS-1$
+		if (com.equals("ResourceInfoFrame.FILESAVE")) //$NON-NLS-1$
 		{
 			saveToFile();
 			return;
 		}
-		else if (com.equals("GmObjectInfoFrame.COPY")) //$NON-NLS-1$
+		else if (com.equals("ResourceInfoFrame.COPY")) //$NON-NLS-1$
 		{
 			editor.copy();
 			return;
 		}
-		else if (com.equals("GmObjectInfoFrame.SELECTALL")) //$NON-NLS-1$
+		else if (com.equals("ResourceInfoFrame.SELECTALL")) //$NON-NLS-1$
 		{
 			editor.selectAll();
 			return;
 		}
-		else if (com.equals("GmObjectInfoFrame.CONFIRM")) //$NON-NLS-1$
+		else if (com.equals("ResourceInfoFrame.CONFIRM")) //$NON-NLS-1$
 		{
 			this.setVisible(false);
+			return;
+		}
+		else if (com.equals("ResourceInfoFrame.PRINT")) //$NON-NLS-1$
+		{
+	    //TODO: Make the fucker actually print
+	    PrinterJob pj = PrinterJob.getPrinterJob();
+      if (pj.printDialog()) {
+          try {
+            pj.print();
+          }
+          catch (PrinterException exc) {
+            System.out.println(exc);
+          }
+       }   
 			return;
 		}
 		

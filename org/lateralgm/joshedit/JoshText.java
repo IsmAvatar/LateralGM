@@ -20,6 +20,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -733,7 +735,16 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 	//r@Override
 		public void actionPerformed(ActionEvent e)
 		{
-		  JOptionPane.showMessageDialog(null, "Print option not finished yet, sorry :(");
+		  //TODO: Make the fucker actually print
+		  PrinterJob pj = PrinterJob.getPrinterJob();
+	    if (pj.printDialog()) {
+	        try {
+	          pj.print();
+	        }
+	        catch (PrinterException exc) {
+	          System.out.println(exc);
+	        }
+	     }   
 		}
 	};
 	/** Copy the contents of the selection to the clipboard. */

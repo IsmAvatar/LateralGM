@@ -57,6 +57,7 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -741,6 +742,7 @@ public final class LGM
 				}
 			}
 		splashProgress.complete();
+		applyBackground("lgm1.png"); //$NON-NLS-1$
 		frame.setVisible(true);
 		frame.pack();
 	}
@@ -905,4 +907,43 @@ public final class LGM
 		}
 		prefFrame.show();
 	}
+	
+	public static class MDIBackground extends JComponent
+	{
+	private static final long serialVersionUID = 1L;
+	ImageIcon image;
+
+	public MDIBackground(ImageIcon icon)
+		{
+		image = icon;
+		if (image == null) return;
+		if (image.getIconWidth() <= 0) image = null;
+		}
+
+	public int getWidth()
+		{
+		return LGM.mdi.getWidth();
+		}
+
+	public int getHeight()
+		{
+		return LGM.mdi.getHeight();
+		}
+
+	public void paintComponent(Graphics g)
+		{
+		super.paintComponent(g);
+		if (image == null) return;
+		for (int y = 0; y < getHeight(); y += image.getIconHeight())
+			for (int x = 0; x < getWidth(); x += image.getIconWidth())
+				g.drawImage(image.getImage(),x,y,null);
+		}
+	}
+
+	public static void applyBackground(String bgloc)
+	{
+	  ImageIcon bg = new ImageIcon(bgloc);
+	  mdi.add(new MDIBackground(bg), JLayeredPane.FRAME_CONTENT_LAYER);
+	}
+	
 }
