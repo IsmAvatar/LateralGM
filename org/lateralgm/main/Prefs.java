@@ -111,6 +111,7 @@ public final class Prefs
 		manualPath = getString("manualPath", "http://enigma-dev.org/docs/Wiki/Main_Page");
 		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
 		forceMaximized = getBoolean("forceMaximized", false);
+		dockEventPanel = getBoolean("dockEventPanel", false);
 		defaultLibraryPath = getString("defaultLibraryPath","org/lateralgm/resources/library/lib/");
 		userLibraryPath = getString("userLibraryPath","./lib");
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
@@ -154,6 +155,7 @@ public final class Prefs
 	public static int tabSize;
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 
+	public static boolean dockEventPanel;
 	public static boolean enableDragAndDrop;
 	public static String defaultLibraryPath;
 	public static String userLibraryPath;

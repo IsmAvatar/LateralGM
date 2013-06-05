@@ -640,8 +640,13 @@ public final class LGM
 		content = new JPanel(new BorderLayout());
 		content.add(BorderLayout.CENTER,createMDI());
 		eventSelect = new EventPanel();
-	  //content.add(BorderLayout.EAST,eventSelect);
+		
+		if (Prefs.dockEventPanel) {
+	    content.add(BorderLayout.EAST,eventSelect);
+		}
 
+		// could possibly be used to force the toolbar with event panel to popout
+		// reducing code, i can not get it to work right however
 		//((BasicToolBarUI) eventSelect.getUI()).setFloating(true, new Point(500,50));
 		
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
@@ -881,17 +886,21 @@ public final class LGM
 		}
 	
   public static void showEventPanel() {
-    if (eventFrame == null) {
-      eventFrame = new JFrame();
-      eventFrame.setAlwaysOnTop(true);
-		  eventFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-      eventFrame.setSize(new Dimension(250, 300));
-      eventFrame.add(eventSelect);
+    if (Prefs.dockEventPanel) {
       eventSelect.setVisible(true);
-      eventSelect.setFloatable(false);
-      eventFrame.setLocationRelativeTo(frame);
+    } else {
+      if (eventFrame == null) {
+        eventFrame = new JFrame();
+        eventFrame.setAlwaysOnTop(true);
+		    eventFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        eventFrame.setSize(new Dimension(250, 300));
+        eventFrame.add(eventSelect);
+        eventSelect.setVisible(true);
+        eventSelect.setFloatable(false);
+        eventFrame.setLocationRelativeTo(frame);
+      }
+      eventFrame.setVisible(true);
     }
-    eventFrame.setVisible(true);
   }
 
   public static void hideEventPanel() {
@@ -902,7 +911,7 @@ public final class LGM
     }
   }
 
-	public static void ShowPreferences()
+	public static void showPreferences()
 	{
 		if (prefFrame == null) {
 		  prefFrame = new PreferencesFrame();

@@ -43,6 +43,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -105,6 +106,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public JButton eventEdit;
 	public JButton eventDelete;
 	public JMenuItem eventModifyItem;
+	public JMenuItem eventAddItem;
+	public JMenuItem eventReplaceItem;
+	public JMenuItem eventDuplicateItem;
 	public JMenuItem eventEditItem;
 	public JMenuItem eventDeleteItem;
 	public EventGroupNode rootEvent;
@@ -730,7 +734,24 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (e.getSource() == eventModify || e.getSource() == eventModifyItem)
 		{
 			LGM.showEventPanel();
+			return;
+		}
+		if (e.getSource() == eventAddItem)
+		{
+			LGM.showEventPanel();
 			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_ADD);
+			return;
+		}
+		if (e.getSource() == eventReplaceItem)
+		{
+			LGM.showEventPanel();
+			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_REPLACE);
+			return;
+		}
+		if (e.getSource() == eventDuplicateItem)
+		{
+			LGM.showEventPanel();
+			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_DUPLICATE);
 			return;
 		}
 		if (e.getSource() == eventEdit || e.getSource() == eventEditItem)
@@ -887,9 +908,20 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 					events.setSelectionPath(path);
 
 					JPopupMenu menu = new JPopupMenu();
-					eventModifyItem = new JMenuItem(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
+					eventModifyItem = new JMenu(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
 					menu.add(eventModifyItem);
 					eventModifyItem.addActionListener(GmObjectFrame.this);
+					
+					eventAddItem = new JMenuItem(Messages.getString("GmObjectFrame.ADD")); //$NON-NLS-1
+					eventModifyItem.add(eventAddItem);
+					eventAddItem.addActionListener(GmObjectFrame.this);
+					eventReplaceItem = new JMenuItem(Messages.getString("GmObjectFrame.REPLACE")); //$NON-NLS-1
+					eventModifyItem.add(eventReplaceItem);
+					eventReplaceItem.addActionListener(GmObjectFrame.this);
+					eventDuplicateItem = new JMenuItem(Messages.getString("GmObjectFrame.DUPLICATE")); //$NON-NLS-1
+					eventModifyItem.add(eventDuplicateItem);
+					eventDuplicateItem.addActionListener(GmObjectFrame.this);
+					
 					eventEditItem = new JMenuItem(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
 					menu.add(eventEditItem);
 					eventEditItem.addActionListener(GmObjectFrame.this);
