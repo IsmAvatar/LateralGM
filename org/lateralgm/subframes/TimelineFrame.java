@@ -89,6 +89,11 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
 		
+		// This listener should be added to each node maybe 
+		// otherwise you can click on the whitespace and open it
+		// but then again I suppose its fine like this because I have
+		// ensured checks to make sure there are no NPE's trying to edit
+		// an event that don't exist. Meh, this is fine as is.
 		MouseListener ml = new MouseAdapter() {
     public void mousePressed(MouseEvent e) {
         if (e.getClickCount() == 2) {

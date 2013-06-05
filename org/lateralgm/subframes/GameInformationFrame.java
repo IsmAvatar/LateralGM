@@ -733,9 +733,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			}
 		catch (IOException e)
 			{ //Nevermind
+			e.printStackTrace();
 			}
 		catch (BadLocationException e)
 			{ //Should never happen, but we have to catch this anyways
+			e.printStackTrace();
 			}
 		}
 

@@ -20,6 +20,7 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,7 +48,6 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListModel;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.rtf.RTFEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
@@ -80,7 +80,6 @@ public class ResourceInfoFrame extends JFrame implements ActionListener
 	protected JSpinner sSizes;
 	protected JEditorPane editor;
 	protected Color fgColor;
-	private RTFEditorKit rtf = new RTFEditorKit();
 	private CustomFileChooser fc;
 	private GmObjectFrame gmObjFrame;
 	private TimelineFrame timelineFrame;
@@ -382,7 +381,7 @@ public static int countLines(String str)
 		
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		fc.setFileFilter(new CustomFileFilter(
-				Messages.getString("GameInformationFrame.TYPE_RTF"),".rtf")); //$NON-NLS-1$ //$NON-NLS-2$
+				Messages.getString("ResourceInfoFrame.TYPE_TXT"),".txt")); //$NON-NLS-1$ //$NON-NLS-2$
 		add(makeToolbar(), BorderLayout.NORTH);
 		
 		JPanel p = new JPanel();
@@ -392,7 +391,6 @@ public static int countLines(String str)
 		
 		//String key;
 		editor = new JEditorPane();
-		//editor.setEditorKit(rtf);
 		p.add(editor, BorderLayout.CENTER);
     add(new JScrollPane(editor),BorderLayout.CENTER);
     editor.setText("object info will be displayed here when loaded");
@@ -419,12 +417,12 @@ public static int countLines(String str)
 		fc.setDialogTitle(Messages.getString("ResourceInfoFrame.SAVE_TITLE")); //$NON-NLS-1$
 		if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 		String name = fc.getSelectedFile().getPath();
-		if (CustomFileFilter.getExtension(name) == null) name += ".rtf"; //$NON-NLS-1$
+		if (CustomFileFilter.getExtension(name) == null) name += ".txt"; //$NON-NLS-1$
 		try
 			{
-			FileOutputStream i = new FileOutputStream(new File(name));
-			rtf.write(i,editor.getDocument(),0,0);
-			i.close();
+			FileWriter out = new FileWriter(name);
+      out.write(editor.getText());
+      out.close();
 			}
 		catch (Exception e)
 			{

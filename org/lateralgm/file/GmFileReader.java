@@ -1032,19 +1032,19 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 430 && ver != 600 && ver != 620 && ver != 800)
+		if (ver != 430 && ver != 600 && ver != 620 && ver != 800 && ver != 810 && ver != 820)
 			throw versionError(f,"BEFORE","GMI",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noIncludes = in.read4();
 		for (int i = 0; i < noIncludes; i++)
 			{
-			if (ver == 800)
+			if (ver >= 800)
 				{
 				in.beginInflate();
 				in.skip(8); //last changed
 				}
 			ver = in.read4();
-			if (ver != 620 && ver != 800)
+			if (ver != 620 && ver != 800 && ver != 810 && ver != 820)
 				throw new GmFormatException(f,Messages.format("GmFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("GmFileReader.ININCLUDEDFILES"),ver)); //$NON-NLS-1$
 			Include inc = new Include();
@@ -1088,10 +1088,10 @@ public final class GmFileReader
 		PropertyMap<PGameInformation> p = gameInfo.properties;
 
 		int ver = in.read4();
-		if (ver != 430 && ver != 600 && ver != 620 && ver != 800)
+		if (ver != 430 && ver != 600 && ver != 620 && ver != 800 && ver != 810 && ver != 820)
 			throw versionError(c.f,"BEFORE","GMI",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
-		if (ver == 800) in.beginInflate();
+		if (ver >= 800) in.beginInflate();
 		int bc = in.read4();
 		if (bc >= 0) p.put(PGameInformation.BACKGROUND_COLOR,Util.convertGmColor(bc));
 		if (ver < 800)
@@ -1106,7 +1106,7 @@ public final class GmFileReader
 			in.readBool(p,PGameInformation.SHOW_BORDER,PGameInformation.ALLOW_RESIZE,
 					PGameInformation.STAY_ON_TOP,PGameInformation.PAUSE_GAME);
 			}
-		if (ver == 800) in.skip(8); //last changed
+		if (ver >= 800) in.skip(8); //last changed
 		in.readStr(p,PGameInformation.TEXT);
 		in.endInflate();
 		}

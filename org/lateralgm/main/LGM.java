@@ -132,11 +132,8 @@ public static JTree tree;
 public static ResNode root;
 public static GmFile currentFile = new GmFile();
 public static MDIPane mdi;
-public static Thread gameInformationFrameBuilder;
 private static GameInformationFrame gameInfo;
-public static Thread gameSettingFrameBuilder;
 private static GameSettingFrame gameSet;
-public static Thread extensionsFrameBuilder;
 private static ExtensionsFrame extSet;
 public static EventPanel eventSelect;
 private static JFrame eventFrame;
@@ -233,40 +230,16 @@ public static PreferencesFrame prefFrame;
   
 public static GameInformationFrame getGameInfo()
 {
-try
-{
-gameInformationFrameBuilder.join();
-}
-catch (InterruptedException e)
-{
-//We tried...
-}
 return gameInfo;
 }
 
 public static GameSettingFrame getGameSettings()
 {
-try
-{
-gameSettingFrameBuilder.join();
-}
-catch (InterruptedException e)
-{
-//We tried...
-}
 return gameSet;
 }
 
 public static ExtensionsFrame getGameExtensions()
 {
-try
-{
-extensionsFrameBuilder.join();
-}
-catch (InterruptedException e)
-{
-//We tried...
-}
 return extSet;
 }
 
@@ -666,31 +639,6 @@ currentFile.includes);
 mdi.add(gameSet);
 extSet = new ExtensionsFrame(new Extensions());
 mdi.add(extSet);
-
-
-// I've deprecated this code because it causes a hanging loop
-// do not remove these empty loops, just leave them be
-gameInformationFrameBuilder = new Thread()
-{
-public void run()
-{
-
-}
-};
-gameSettingFrameBuilder = new Thread()
-{
-public void run()
-{
-
-}
-};
-extensionsFrameBuilder = new Thread()
-{
-public void run()
-{
-
-}
-};
 
 // This code causes a hanging loop and you have to force shutdown
 // I advise you not to mess with it

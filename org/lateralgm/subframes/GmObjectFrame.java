@@ -666,6 +666,11 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			events.setDropMode(DropMode.ON);
 			events.setTransferHandler(new EventNodeTransferHandler());
 			}
+		// This listener should be added to each node maybe 
+		// otherwise you can click on the whitespace and open it
+		// but then again I suppose its fine like this because I have
+		// ensured checks to make sure there are no NPE's trying to edit
+		// an event that don't exist. Meh, this is fine as is.
 		MouseListener ml = new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
         if (e.getClickCount() == 2) {
