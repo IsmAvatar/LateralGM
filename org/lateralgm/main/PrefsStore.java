@@ -88,6 +88,12 @@ public final class PrefsStore
 		PREFS.put("swingThemePath",s);
 		Prefs.swingThemePath = s;
 	}
+	
+	public static void setLanguageName(String s)
+	{
+		PREFS.put("languageName",s);
+		Prefs.languageName = s;
+	}
 
 	public static void setDNDEnabled(boolean selected)
 	{

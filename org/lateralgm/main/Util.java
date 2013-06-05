@@ -2,6 +2,7 @@
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -174,7 +175,7 @@ public final class Util
 
 	/**
 	 * Shows a JFileChooser with file filters for all currently registered instances of
-	 * ImageReaderSpi.
+	 * ImageReaderSpi with multiple file selection.
 	 * 
 	 * @return The selected image, or null if one is not chosen
 	 */
@@ -198,8 +199,41 @@ public final class Util
 				}
 			imageFc.setFileFilter(filt);
 			}
+		imageFc.setMultiSelectionEnabled(false);
 		if (imageFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 			return imageFc.getSelectedFile();
+		return null;
+		}
+	
+	/**
+	 * Shows a JFileChooser with file filters for all currently registered instances of
+	 * ImageReaderSpi with multiple file selection.
+	 * 
+	 * @return The selected image, or null if one is not chosen
+	 */
+	public static File[] chooseImageFiles()
+		{
+		if (imageFc == null)
+			{
+			imageFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
+			imageFc.setAccessory(new FileChooserImagePreview(imageFc));
+			String[] exts = { "jpg","bmp","tif","jpeg","wbmp","png","ico","TIF","TIFF","gif","tiff" };
+			if (LGM.javaVersion >= 10600) exts = ImageIO.getReaderFileSuffixes();
+			for (int i = 0; i < exts.length; i++)
+				exts[i] = "." + exts[i]; //$NON-NLS-1$
+			String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
+			CustomFileFilter filt = new CustomFileFilter(allSpiImages,exts);
+			imageFc.addChoosableFileFilter(filt);
+			for (String element : exts)
+				{
+				imageFc.addChoosableFileFilter(new CustomFileFilter(Messages.format("Util.FILES", //$NON-NLS-1$
+						element),element));
+				}
+			imageFc.setFileFilter(filt);
+			}
+		imageFc.setMultiSelectionEnabled(true);
+		if (imageFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+			return imageFc.getSelectedFiles();
 		return null;
 		}
 
@@ -221,16 +255,20 @@ public final class Util
 
 	public static BufferedImage[] getValidImages()
 		{
-		File f = chooseImageFile();
+		File[] f = chooseImageFiles();
 		if (f == null) return null;
 		try
 			{
-			return getValidImages(ImageIO.createImageInputStream(f));
+			BufferedImage ret[] = new BufferedImage[f.length];
+			for (int i = 0; i < f.length; i++) {
+			  ret[i] = ImageIO.read(f[i]);
+			}
+			return ret;
 			}
 		catch (Exception e)
 			{
 			new ErrorDialog(LGM.frame,Messages.getString("Util.ERROR_TITLE"), //$NON-NLS-1$
-					Messages.format("Util.ERROR_LOADING",f),e).setVisible(true); //$NON-NLS-1$
+					Messages.format("Util.ERROR_LOADING",(Object[])f),e).setVisible(true); //$NON-NLS-1$
 			}
 		return null;
 		}

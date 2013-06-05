@@ -755,6 +755,7 @@ public final class GmFileWriter
 		out.writeBool(p,PGameInformation.SHOW_BORDER,PGameInformation.ALLOW_RESIZE,
 				PGameInformation.STAY_ON_TOP,PGameInformation.PAUSE_GAME);
 		if (ver >= 800) out.writeD(f.gameSettings.getLastChanged());
+		
 		out.writeStr(p,PGameInformation.TEXT);
 		out.endDeflate();
 		}
