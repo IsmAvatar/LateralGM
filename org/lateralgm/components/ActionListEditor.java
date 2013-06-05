@@ -45,6 +45,15 @@ public class ActionListEditor extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
 
+	// TODO: Fix disposal of open action frames, NPE occurs
+	// when the object frame closes before them, for instance
+	// open up LGM create a object and open an action frame on it
+	// then in the background close the object frame and leave
+	// the action frame open, bam, NPE
+	// I propose making action list editor memorize them as it is the
+	// one with the function that opens the action frames
+	// - Robert B. Colton
+	
 	public ActionListEditor(ActionList list)
 		{
 		GroupLayout layout = new GroupLayout(this);

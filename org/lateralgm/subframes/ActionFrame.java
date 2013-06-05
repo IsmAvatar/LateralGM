@@ -55,6 +55,7 @@ import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
@@ -170,9 +171,11 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			code = new GMLTextArea(a.getArguments().get(0).getVal());
 			code.addEditorButtons(tool);
 
-			tool.addSeparator();
-			tool.add(new JLabel(Messages.getString("ActionFrame.APPLIES"))); //$NON-NLS-1$
-			tool.add(appliesPanel);
+			if (Prefs.enableDragAndDrop) {
+			  tool.addSeparator();
+			  tool.add(new JLabel(Messages.getString("ActionFrame.APPLIES"))); //$NON-NLS-1$
+			  tool.add(appliesPanel);
+			}
 
 			status = new JPanel(new FlowLayout());
 			status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
@@ -196,7 +199,11 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			appliesPanel.setLayout(new BoxLayout(appliesPanel,BoxLayout.LINE_AXIS));
 			pack();
 			repaint();
-			setSize(new Dimension(this.getWidth(),500));
+			if (Prefs.enableDragAndDrop) {
+			  setSize(new Dimension(this.getWidth(),500));
+			} else {
+			  setSize(new Dimension(this.getWidth()+100, this.getHeight()+50));
+			}
 		}
 		else
 		{

@@ -53,6 +53,8 @@ import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 import org.lateralgm.subframes.SubframeInformer;
 
+import com.sun.org.apache.xalan.internal.lib.Extensions;
+
 public class ResNode extends DefaultMutableTreeNode implements Transferable,UpdateListener
 	{
 	

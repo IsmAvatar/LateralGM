@@ -13,6 +13,7 @@ package org.lateralgm.main;
 
 import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -23,9 +24,8 @@ import org.lateralgm.resources.Resource;
 
 public final class Prefs
 	{
-	private static final String BUNDLE_NAME = "org.lateralgm.main.preferences"; //$NON-NLS-1$
-
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+	private static String BUNDLE_NAME = "org.lateralgm.main.preferences"; //$NON-NLS-1$
+	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 	private static final Preferences PREFS = Preferences.userRoot().node("/org/lateralgm");
 
 	static
@@ -42,7 +42,7 @@ public final class Prefs
 		String r;
 		try
 			{
-			r = RESOURCE_BUNDLE.getString(key);
+			  r = RESOURCE_BUNDLE.getString(key);
 			}
 		catch (MissingResourceException e)
 			{
@@ -73,6 +73,11 @@ public final class Prefs
 
 	public static void loadPrefs()
 		{
+		if (new File("preferences.properties").exists()) {
+		  BUNDLE_NAME = "preferences.properties";
+		  RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+		}
+		
 		extraNodes = getBoolean("extraNodes",true);
 		restrictHierarchy = getBoolean("restrictHierarchy",true);
 		renamableRoots = getBoolean("renamableRoots",false);
@@ -102,8 +107,11 @@ public final class Prefs
 				e.printStackTrace();
 				}
 			}
+		languageName = getString("languageName", "English");
 		manualPath = getString("manualPath", "http://enigma-dev.org/docs/Wiki/Main_Page");
 		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
+		forceMaximized = getBoolean("forceMaximized", false);
+		dockEventPanel = getBoolean("dockEventPanel", false);
 		defaultLibraryPath = getString("defaultLibraryPath","org/lateralgm/resources/library/lib/");
 		userLibraryPath = getString("userLibraryPath","./lib");
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
@@ -133,7 +141,9 @@ public final class Prefs
 	public static String swingTheme;
 	public static String swingThemePath;
 	public static String manualPath;
+	public static String languageName;
 	
+	public static boolean forceMaximized;
 	public static boolean extraNodes;
 	public static boolean restrictHierarchy;
 	public static boolean renamableRoots;
@@ -145,6 +155,7 @@ public final class Prefs
 	public static int tabSize;
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 
+	public static boolean dockEventPanel;
 	public static boolean enableDragAndDrop;
 	public static String defaultLibraryPath;
 	public static String userLibraryPath;

@@ -136,7 +136,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(bold)
 		/*		*/.addComponent(italic)
-		/*		*/.addComponent(aa).addComponent(aaLabel))
+		/*		*/.addComponent(aaLabel).addComponent(aa))
 		/**/.addComponent(crPane)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(lPreview)

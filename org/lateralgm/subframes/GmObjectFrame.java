@@ -21,16 +21,13 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -47,6 +44,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -56,7 +54,6 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
@@ -85,7 +82,6 @@ import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.sub.Action;
-import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 
@@ -111,6 +107,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public JButton eventEdit;
 	public JButton eventDelete;
 	public JMenuItem eventModifyItem;
+	public JMenuItem eventAddItem;
+	public JMenuItem eventReplaceItem;
+	public JMenuItem eventDuplicateItem;
 	public JMenuItem eventEditItem;
 	public JMenuItem eventDeleteItem;
 	public EventGroupNode rootEvent;
@@ -119,7 +118,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public GMLTextArea code;
 	private JComponent editor;
 	
-	public GmObjectInfoFrame infoFrame;
+	private ResourceInfoFrame infoFrame;
 
 	private DefaultMutableTreeNode lastValidEventSelection;
 
@@ -667,12 +666,26 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			events.setDropMode(DropMode.ON);
 			events.setTransferHandler(new EventNodeTransferHandler());
 			}
+		// This listener should be added to each node maybe 
+		// otherwise you can click on the whitespace and open it
+		// but then again I suppose its fine like this because I have
+		// ensured checks to make sure there are no NPE's trying to edit
+		// an event that don't exist. Meh, this is fine as is.
+		MouseListener ml = new MouseAdapter() {
+      public void mousePressed(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+          editSelectedEvent();
+        }
+      }
+    };
+    events.addMouseListener(ml);
+
 		}
 
 	public void showInfoFrame()
 	{
     if (infoFrame == null) {
-      infoFrame = new GmObjectInfoFrame(this);
+      infoFrame = new ResourceInfoFrame(this);
     }
     infoFrame.updateObjectInfo();
     infoFrame.setVisible(true);	
@@ -735,41 +748,31 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		}
 		if (e.getSource() == eventModify || e.getSource() == eventModifyItem)
 		{
-			LGM.eventSelect.setVisible(true);
+			LGM.showEventPanel();
+			return;
+		}
+		if (e.getSource() == eventAddItem)
+		{
+			LGM.showEventPanel();
 			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_ADD);
+			return;
+		}
+		if (e.getSource() == eventReplaceItem)
+		{
+			LGM.showEventPanel();
+			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_REPLACE);
+			return;
+		}
+		if (e.getSource() == eventDuplicateItem)
+		{
+			LGM.showEventPanel();
+			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_DUPLICATE);
 			return;
 		}
 		if (e.getSource() == eventEdit || e.getSource() == eventEditItem)
 		{
-		  if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)
-		  {
-		  	return;
-		  }
-		  Action a = null;
-		  LibAction la = null;
-		  Boolean prependNew = true;
-		  if (actions.model.list.size() > 0) {
-		    a = actions.model.list.get(0);
-		    la = a.getLibAction();
-		    if (la.actionKind == Action.ACT_CODE)
-		    {
-		    	prependNew = false;
-		    } else {
-		      prependNew = true;
-		    }
-		  } else {
-        prependNew = true;
-		  }
-
-		  if (prependNew)
-		  {
-        a = new Action(LibManager.codeAction);
-			  ((ActionListModel) actions.getModel()).add(0,a);
-			  actions.setSelectedValue(a, true);
-		  }
-
-			ActionList.openActionFrame(actions.parent.get(), a);
-			return;
+      editSelectedEvent();
+      return;
 		}
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
 		{
@@ -781,10 +784,54 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		super.actionPerformed(e);
 	}
 
+	private void editSelectedEvent()
+  {
+	  if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)
+	  {
+	  	return;
+	  }
+	  Action a = null;
+	  LibAction la = null;
+	  Boolean prependNew = true;
+	  if (actions.model.list.size() > 0) {
+	    a = actions.model.list.get(0);
+	    la = a.getLibAction();
+	    if (la.actionKind == Action.ACT_CODE)
+	    {
+	    	prependNew = false;
+	    } else {
+	      prependNew = true;
+	    }
+	  } else {
+      prependNew = true;
+	  }
+
+	  if (prependNew)
+	  {
+      a = new Action(LibManager.codeAction);
+		  ((ActionListModel) actions.getModel()).add(0,a);
+		  actions.setSelectedValue(a, true);
+	  }
+
+	  MDIFrame af = ActionList.openActionFrame(actions.parent.get(), a);
+	  EventInstanceNode evnode = (EventInstanceNode)events.getLastSelectedPathComponent();
+	  af.setTitle(this.name.getText() + " : " + evnode.toString());
+	  af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId));
+	  return;
+}
+
 	@Override
 	public void dispose()
 	{
 		super.dispose();
+		// TODO: Fix disposal of open action frames, NPE occurs
+		// when the object frame closes before them, for instance
+		// open up LGM create a object and open an action frame on it
+		// then in the background close the object frame and leave
+		// the action frame open, bam, NPE
+		// I propose making action list editor memorize them as it is the
+		// one with the function that opens the action frames
+		// - Robert B. Colton
 		events.removeTreeSelectionListener(this);
 		events.setModel(null);
 		events.setTransferHandler(null);
@@ -882,9 +929,20 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 					events.setSelectionPath(path);
 
 					JPopupMenu menu = new JPopupMenu();
-					eventModifyItem = new JMenuItem(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
+					eventModifyItem = new JMenu(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
 					menu.add(eventModifyItem);
 					eventModifyItem.addActionListener(GmObjectFrame.this);
+					
+					eventAddItem = new JMenuItem(Messages.getString("GmObjectFrame.ADD")); //$NON-NLS-1
+					eventModifyItem.add(eventAddItem);
+					eventAddItem.addActionListener(GmObjectFrame.this);
+					eventReplaceItem = new JMenuItem(Messages.getString("GmObjectFrame.REPLACE")); //$NON-NLS-1
+					eventModifyItem.add(eventReplaceItem);
+					eventReplaceItem.addActionListener(GmObjectFrame.this);
+					eventDuplicateItem = new JMenuItem(Messages.getString("GmObjectFrame.DUPLICATE")); //$NON-NLS-1
+					eventModifyItem.add(eventDuplicateItem);
+					eventDuplicateItem.addActionListener(GmObjectFrame.this);
+					
 					eventEditItem = new JMenuItem(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
 					menu.add(eventEditItem);
 					eventEditItem.addActionListener(GmObjectFrame.this);

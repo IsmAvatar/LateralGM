@@ -18,6 +18,7 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -35,6 +36,9 @@ public class LineNumberPanel extends JPanel
 	protected int lines;
 	/** Indicates whether line numbering starts at 0 */
 	protected boolean startZero;
+	
+	public Color fgColor = new Color(170, 170, 170);
+	public Color bgColor = new Color(220, 220, 220);
 
 	/**
 	 * @param metrics The font metrics to use to paint numbers at the correct position.
@@ -112,9 +116,9 @@ public class LineNumberPanel extends JPanel
 		final int end = clip.y + clip.height + gh;
 		if (!startZero) lineNum++;  
      
-		g.setColor(new Color(220, 220, 220));
+		g.setColor(bgColor);
 		g.fillRect(clip.x,clip.y,clip.width,clip.height);
-		g.setColor(new Color(170, 170, 170));
+		g.setColor(fgColor);
 
 		g.setFont(new Font("Monospace", Font.PLAIN, 12));
 		

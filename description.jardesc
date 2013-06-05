@@ -19,6 +19,7 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.visual"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.compare"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.sub"/>
+        <file path="/LateralGM/lgm1.png"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.mdi"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file.iconio"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Swing.actions"/>

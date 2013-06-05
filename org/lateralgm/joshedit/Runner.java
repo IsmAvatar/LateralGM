@@ -9,6 +9,7 @@
 package org.lateralgm.joshedit;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -20,6 +21,7 @@ import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.prefs.Preferences;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -114,7 +116,6 @@ public class Runner
 
 			scroller = new JScrollPane(text);
 			scroller.setRowHeaderView(lines);
-
 			add(scroller,BorderLayout.CENTER);
 			add(find,BorderLayout.SOUTH);
 		}

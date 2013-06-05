@@ -251,7 +251,8 @@ public class GmFile implements UpdateListener
 		public static final FormatFlavor GM_701 = new FormatFlavor(GM_OWNER,701);
 		public static final FormatFlavor GM_800 = new FormatFlavor(GM_OWNER,800);
 		public static final FormatFlavor GM_810 = new FormatFlavor(GM_OWNER,810);
-
+		public static final FormatFlavor GM_820 = new FormatFlavor(GM_OWNER,820);
+		
 		protected Object owner;
 		protected int version;
 
@@ -275,6 +276,8 @@ public class GmFile implements UpdateListener
 					return FormatFlavor.GM_800;
 				case 810:
 					return FormatFlavor.GM_810;
+				case 820:
+				  return FormatFlavor.GM_820;
 				default:
 					return null;
 				}

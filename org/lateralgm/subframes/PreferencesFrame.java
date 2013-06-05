@@ -42,7 +42,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	protected Color fgColor;
 	
-	JComboBox themeCombo, iconCombo;
+	JComboBox themeCombo, iconCombo, langCombo;
 	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable;
   JTextField iconPath, themePath, manualPath;
 	
@@ -51,13 +51,17 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		JPanel p = new JPanel();
 
 		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME") + ":");
-    String[] themeOptions = { "Swing", "Native", "Nimbus", "Motif", "GTK", "Windows", "Custom"};
+    String[] themeOptions = { "Swing", "Native", "Nimbus", "Motif", "Metal", "GTK", "Windows", "Custom"};
     themeCombo = new JComboBox(themeOptions);
     themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS") + ":");
     String[] iconOptions = { "Swing", "Calico", "Custom" };
     iconCombo = new JComboBox(iconOptions);
     iconCombo.setSelectedItem(LGM.iconspack);
+		JLabel langLabel = new JLabel(Messages.getString("PreferencesFrame.LANGUAGE") + ":");
+    String[] langOptions = { "English", "French", "Turkish", "Danish" };
+    langCombo = new JComboBox(langOptions);
+    langCombo.setSelectedItem(Prefs.languageName);
     dndEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_DND"));
     dndEnable.setSelected(Prefs.enableDragAndDrop);
     restrictTreeEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_TREE_RESTRICT"));
@@ -85,8 +89,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			           .addComponent(themeLabel)
 			           .addComponent(themeCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 			           .addComponent(iconLabel)
-			           .addComponent(iconCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-			  		.addGroup(gl.createParallelGroup()
+			           .addComponent(iconCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+			  				 .addComponent(langLabel)
+			           .addComponent(langCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			      .addGroup(gl.createParallelGroup()
 			           .addComponent(themePathLabel)
 			           .addComponent(iconPathLabel)
 			           .addComponent(manualPathLabel))
@@ -105,7 +111,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			           .addComponent(themeLabel)
 			           .addComponent(themeCombo)
 			           .addComponent(iconLabel)
-			           .addComponent(iconCombo))
+			           .addComponent(iconCombo)
+			           .addComponent(langLabel)
+			           .addComponent(langCombo))
 			      .addGroup(gl.createSequentialGroup()
 			           .addComponent(themePathLabel)
 			           .addComponent(themePath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
@@ -414,6 +422,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	  PrefsStore.setManualPath(manualPath.getText());
 	  PrefsStore.setDNDEnabled(dndEnable.isSelected());
 	  PrefsStore.setExtraNodes(extraNodesEnable.isSelected());
+	  PrefsStore.setLanguageName((String)langCombo.getSelectedItem());
 	}
 	
 	public void ResetPreferences()
