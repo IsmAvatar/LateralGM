@@ -27,6 +27,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
@@ -665,6 +666,15 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			events.setDropMode(DropMode.ON);
 			events.setTransferHandler(new EventNodeTransferHandler());
 			}
+		MouseListener ml = new MouseAdapter() {
+      public void mousePressed(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+          editSelectedEvent();
+        }
+      }
+    };
+    events.addMouseListener(ml);
+
 		}
 
 	public void showInfoFrame()
@@ -756,38 +766,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		}
 		if (e.getSource() == eventEdit || e.getSource() == eventEditItem)
 		{
-		  if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)
-		  {
-		  	return;
-		  }
-		  Action a = null;
-		  LibAction la = null;
-		  Boolean prependNew = true;
-		  if (actions.model.list.size() > 0) {
-		    a = actions.model.list.get(0);
-		    la = a.getLibAction();
-		    if (la.actionKind == Action.ACT_CODE)
-		    {
-		    	prependNew = false;
-		    } else {
-		      prependNew = true;
-		    }
-		  } else {
-        prependNew = true;
-		  }
-
-		  if (prependNew)
-		  {
-        a = new Action(LibManager.codeAction);
-			  ((ActionListModel) actions.getModel()).add(0,a);
-			  actions.setSelectedValue(a, true);
-		  }
-
-		  MDIFrame af = ActionList.openActionFrame(actions.parent.get(), a);
-		  EventInstanceNode evnode = (EventInstanceNode)events.getLastSelectedPathComponent();
-		  af.setTitle(this.name.getText() + " : " + evnode.toString());
-		  af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId));
-		  return;
+      editSelectedEvent();
+      return;
 		}
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
 		{
@@ -798,6 +778,42 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		}
 		super.actionPerformed(e);
 	}
+
+	private void editSelectedEvent()
+  {
+	  if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)
+	  {
+	  	return;
+	  }
+	  Action a = null;
+	  LibAction la = null;
+	  Boolean prependNew = true;
+	  if (actions.model.list.size() > 0) {
+	    a = actions.model.list.get(0);
+	    la = a.getLibAction();
+	    if (la.actionKind == Action.ACT_CODE)
+	    {
+	    	prependNew = false;
+	    } else {
+	      prependNew = true;
+	    }
+	  } else {
+      prependNew = true;
+	  }
+
+	  if (prependNew)
+	  {
+      a = new Action(LibManager.codeAction);
+		  ((ActionListModel) actions.getModel()).add(0,a);
+		  actions.setSelectedValue(a, true);
+	  }
+
+	  MDIFrame af = ActionList.openActionFrame(actions.parent.get(), a);
+	  EventInstanceNode evnode = (EventInstanceNode)events.getLastSelectedPathComponent();
+	  af.setTitle(this.name.getText() + " : " + evnode.toString());
+	  af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId));
+	  return;
+}
 
 	@Override
 	public void dispose()

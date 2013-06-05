@@ -51,7 +51,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		JPanel p = new JPanel();
 
 		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME") + ":");
-    String[] themeOptions = { "Swing", "Native", "Nimbus", "Motif", "GTK", "Windows", "Custom"};
+    String[] themeOptions = { "Swing", "Native", "Nimbus", "Motif", "Metal", "GTK", "Windows", "Custom"};
     themeCombo = new JComboBox(themeOptions);
     themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS") + ":");

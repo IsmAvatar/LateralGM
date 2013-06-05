@@ -18,6 +18,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Collections;
 
 import javax.swing.GroupLayout;
@@ -85,6 +88,16 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		moments = new JList(res.moments.toArray());
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
+		
+		MouseListener ml = new MouseAdapter() {
+    public void mousePressed(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+          editSelectedEvent();
+        }
+      }
+    };
+    moments.addMouseListener(ml);
+		
 		JScrollPane scroll = new JScrollPane(moments);
 		if (Prefs.enableDragAndDrop) {
 	    scroll.setPreferredSize(new Dimension(90,300));
@@ -325,36 +338,8 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		}
 		if (but == edit) 
 		{
-		  int p = moments.getSelectedIndex();
-		  if (p == -1) return;
-	    Action a = null;
-	    LibAction la = null;
-	    Boolean prependNew = true;
-	    if (actions.model.list.size() > 0) {
-	      a = actions.model.list.get(0);
-	      la = a.getLibAction();
-	      if (la.actionKind == Action.ACT_CODE)
-	      {
-	    	  prependNew = false;
-	      } else {
-	        prependNew = true;
-	      }
-	    } else {
-        prependNew = true;
-	    }
-
-	    if (prependNew)
-	    {
-        a = new Action(LibManager.codeAction);
-		    ((ActionListModel) actions.getModel()).add(0,a);
-		    actions.setSelectedValue(a, true);
-	    }
-
-		  MDIFrame af = ActionList.openActionFrame(actions.parent.get(), a);
-		  Object momentitem = moments.getSelectedValue();
-		  af.setTitle(this.name.getText() + " : " + momentitem.toString());
-		  af.setFrameIcon(LGM.getIconForKey("MomentNode.STEP"));
-		  return;
+      editSelectedEvent();
+      return;
 		}
 		if (but == clear)
 			{
@@ -420,13 +405,47 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		super.actionPerformed(e);
 		}
 
+	private void editSelectedEvent()
+	{
+	  int p = moments.getSelectedIndex();
+	  if (p == -1) return;
+    Action a = null;
+    LibAction la = null;
+    Boolean prependNew = true;
+    if (actions.model.list.size() > 0) {
+      a = actions.model.list.get(0);
+      la = a.getLibAction();
+      if (la.actionKind == Action.ACT_CODE)
+      {
+    	  prependNew = false;
+      } else {
+        prependNew = true;
+      }
+    } else {
+      prependNew = true;
+    }
+
+    if (prependNew)
+    {
+      a = new Action(LibManager.codeAction);
+	    ((ActionListModel) actions.getModel()).add(0,a);
+	    actions.setSelectedValue(a, true);
+    }
+
+	  MDIFrame af = ActionList.openActionFrame(actions.parent.get(), a);
+	  Object momentitem = moments.getSelectedValue();
+	  af.setTitle(this.name.getText() + " : " + momentitem.toString());
+	  af.setFrameIcon(LGM.getIconForKey("MomentNode.STEP"));
+	  return;
+  }
+
 	//Moments selection changed
 	public void valueChanged(ListSelectionEvent e)
-		{
+	{
 		if (e.getValueIsAdjusting()) return;
 		Moment m = (Moment) moments.getSelectedValue();
 		actions.setActionContainer(m);
-		}
+	}
 
 	@Override
 	public Dimension getMinimumSize()

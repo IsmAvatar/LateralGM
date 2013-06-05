@@ -35,8 +35,8 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Calico.events"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Calico.actions"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library.lib"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library.lib"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.propertylink"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.joshedit"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.jedit"/>
