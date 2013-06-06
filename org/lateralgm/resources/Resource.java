@@ -25,11 +25,9 @@ package org.lateralgm.resources;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyValidator;

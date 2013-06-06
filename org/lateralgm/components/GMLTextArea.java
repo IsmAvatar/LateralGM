@@ -17,12 +17,9 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Timer;
@@ -35,17 +32,14 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import org.lateralgm.file.GmFile.ResourceHolder;
@@ -66,12 +60,10 @@ import org.lateralgm.joshedit.Runner.EditorInterface;
 import org.lateralgm.joshedit.Runner.JoshTextPanel;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.Script;
 
 public class GMLTextArea extends JoshTextPanel implements UpdateListener
 	{

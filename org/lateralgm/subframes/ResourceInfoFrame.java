@@ -18,20 +18,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.EmptyStackException;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Stack;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -47,15 +35,11 @@ import javax.swing.JSpinner;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListModel;
-import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import org.lateralgm.components.ActionList;
 import org.lateralgm.components.CustomFileChooser;
-import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.CustomFileFilter;
-import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.ResourceReference;
@@ -64,13 +48,9 @@ import org.lateralgm.resources.library.LibArgument;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
-import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
 import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
-import org.lateralgm.subframes.GmObjectFrame.EventTree;
-
-import com.sun.xml.internal.txw2.Document;
 
 // TODO: This window can be reformated to work with timelines as well
 
