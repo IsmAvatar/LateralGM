@@ -62,20 +62,22 @@ public final class LibManager
 	 */
 	public static void autoLoad()
 		{
-		File defdir = new File(Prefs.defaultLibraryPath);
-		if (!defdir.exists())
+		File dir = new File(Prefs.getActionLibraryFullPath());
+		if (!dir.exists())
 			{
 			if (LGM.workDir == null) return;
-			defdir = new File(LGM.workDir,Prefs.defaultLibraryPath);
-			if (!defdir.exists()) defdir = LGM.workDir;
+			dir = new File(LGM.workDir,Prefs.getActionLibraryFullPath());
+			if (!dir.exists()) dir = LGM.workDir;
 			}
 
 		codeAction = null;
 
-		autoLoad(defdir);
-
-		if (Prefs.userLibraryPath != null && Prefs.userLibraryPath.length() != 0)
-			autoLoad(new File(Prefs.userLibraryPath));
+		if (!Prefs.actionLibrary.contains("Custom"))
+			autoLoad(dir);
+    
+		File userLibF = new File(Prefs.userLibraryPath);
+		if (userLibF.exists())
+			autoLoad(userLibF);
 
 		if (codeAction == null) codeAction = makeCodeAction();
 		}

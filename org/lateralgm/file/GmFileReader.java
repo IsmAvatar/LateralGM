@@ -738,7 +738,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SCR",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800 && ver != 810 && ver != 820) throw versionError(f,"BEFORE","SCR",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noScripts = in.read4();
 		for (int i = 0; i < noScripts; i++)
@@ -752,9 +752,9 @@ public final class GmFileReader
 				}
 			Script scr = f.resMap.getList(Script.class).add();
 			scr.setName(in.readStr());
-			if (ver == 800) in.skip(8); //last changed
+			if (ver >= 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 400 && ver != 800) throw versionError(f,"IN","SCR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 400 && ver != 800 && ver != 810 && ver != 820) throw versionError(f,"IN","SCR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			String code = in.readStr();
 			scr.put(PScript.CODE,code);
 
