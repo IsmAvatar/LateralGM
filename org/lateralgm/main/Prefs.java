@@ -112,7 +112,7 @@ public final class Prefs
 		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
 		forceMaximized = getBoolean("forceMaximized", false);
 		dockEventPanel = getBoolean("dockEventPanel", false);
-		actionLibrary = getString("actionLibrary","Default");
+		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
 		userLibraryPath = getString("userLibraryPath","./lib");
 		
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
@@ -158,7 +158,7 @@ public final class Prefs
 
 	public static boolean dockEventPanel;
 	public static boolean enableDragAndDrop;
-	public static String actionLibrary;
+	public static String actionLibraryPath;
 	public static String userLibraryPath;
 	public static int actionToolTipColumns;
 	public static int actionToolTipLines;
@@ -174,27 +174,5 @@ public final class Prefs
 	public static String externalScriptExtension;
 	public static boolean useExternalSoundEditor;
 	public static String externalSoundEditorCommand;
-	
-	public static String getActionLibraryPath()
-	{
-	  String ret;
-		if (actionLibrary.contains("Custom")) {
-	  	ret = userLibraryPath;
-		} else {
-		  ret = "org/lateralgm/resources/library/libs/";
-		}
-		return ret;
-	}
-	
-	public static String getActionLibraryFullPath()
-	{
-	  String ret;
-		if (actionLibrary.contains("Custom")) {
-	  	ret = userLibraryPath;
-		} else {
-		  ret = "org/lateralgm/resources/library/libs/" + actionLibrary.toLowerCase();
-		}
-		return ret;
-	}
 
 	}

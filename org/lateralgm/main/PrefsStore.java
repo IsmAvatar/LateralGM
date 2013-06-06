@@ -71,12 +71,6 @@ public final class PrefsStore
 		Prefs.iconPack = s;
 	}
 	
-	public static void setActionLibrary(String s)
-	{
-		PREFS.put("actionLibrary",s);
-		Prefs.actionLibrary = s;
-	}
-	
 	public static void setUserLibraryPath(String s)
 	{
 		PREFS.put("userLibraryPath",s);

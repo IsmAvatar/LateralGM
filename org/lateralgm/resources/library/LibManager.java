@@ -62,24 +62,30 @@ public final class LibManager
 	 */
 	public static void autoLoad()
 		{
-		File dir = new File(Prefs.getActionLibraryFullPath());
+		if (!Prefs.enableDragAndDrop) {
+      codeAction = makeCodeAction(); 
+      return;
+    }
+		
+		File dir = new File(Prefs.actionLibraryPath);
 		if (!dir.exists())
 			{
 			if (LGM.workDir == null) return;
-			dir = new File(LGM.workDir,Prefs.getActionLibraryFullPath());
+			dir = new File(LGM.workDir,Prefs.actionLibraryPath);
 			if (!dir.exists()) dir = LGM.workDir;
 			}
 
 		codeAction = null;
 
-		if (!Prefs.actionLibrary.contains("Custom"))
-			autoLoad(dir);
+		autoLoad(dir);
     
 		File userLibF = new File(Prefs.userLibraryPath);
 		if (userLibF.exists())
 			autoLoad(userLibF);
 
-		if (codeAction == null) codeAction = makeCodeAction();
+		if (codeAction == null) {
+	    codeAction = makeCodeAction(); 
+	  }
 		}
 
 	/** Loads in all libs/lgls in a given location (directory or zip file) */

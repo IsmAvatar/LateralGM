@@ -96,7 +96,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		JLabel actionsLabel = new JLabel(Messages.getString("PreferencesFrame.ACTIONLIBRARY") + ":");
     String[] actionsOptions = { "Standard", "Logic", "Custom" };
     actionsCombo = new JComboBox(actionsOptions);
-    actionsCombo.setSelectedItem(Prefs.actionLibrary);
+    //actionsCombo.setSelectedItem(Prefs.actionLibrary);
     actionsPath = new JTextField();
     actionsPath.setText(Prefs.userLibraryPath);
     
@@ -125,10 +125,12 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			      		 .addComponent(themePath)
 			           .addComponent(iconPath)
 			           .addComponent(manualPath))
+			           /*
 			      .addGroup(gl.createSequentialGroup()
 			      		 .addComponent(actionsLabel)
 			           .addComponent(actionsCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 			           .addComponent(actionsPath))
+				*/
 				);
 		gl.setVerticalGroup(
 			   gl.createSequentialGroup()
@@ -152,10 +154,12 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			      .addGroup(gl.createSequentialGroup()
 			           .addComponent(manualPathLabel)
 			           .addComponent(manualPath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			           /*
 			  		.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 			      		 .addComponent(actionsLabel)
 			           .addComponent(actionsCombo)
 			           .addComponent(actionsPath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			           */
 				);
 		
 		p.setLayout(gl);
@@ -439,7 +443,6 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	  PrefsStore.setDNDEnabled(dndEnable.isSelected());
 	  PrefsStore.setExtraNodes(extraNodesEnable.isSelected());
 	  PrefsStore.setLanguageName((String)langCombo.getSelectedItem());
-	  PrefsStore.setActionLibrary((String)actionsCombo.getSelectedItem());
 	  PrefsStore.setUserLibraryPath(actionsPath.getText());
 	  PrefsStore.setSpriteExt(spriteMIME.getText());
 	  PrefsStore.setBackgroundExt(backgroundMIME.getText());
