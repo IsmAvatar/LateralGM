@@ -99,7 +99,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 			if (kind == GameInformation.class) return LGM.getGameInfo();
 			if (kind == GameSettings.class) return LGM.getGameSettings();
 			if (kind == Extensions.class) return LGM.getGameExtensions();
-			//extensions returns null too, for now
+
 			return null;
 			}
 		}

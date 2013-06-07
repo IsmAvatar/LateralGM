@@ -9,7 +9,6 @@
 
 package org.lateralgm.main;
 
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
@@ -69,6 +68,54 @@ public final class PrefsStore
 	{
 		PREFS.put("iconPack",s);
 		Prefs.iconPack = s;
+	}
+	
+	public static void setUserLibraryPath(String s)
+	{
+		PREFS.put("userLibraryPath",s);
+		Prefs.userLibraryPath = s;
+	}
+	
+	public static void setSpriteExt(String s)
+	{
+		PREFS.put("externalSpriteExtension",s);
+		Prefs.externalSpriteExtension = s;
+	}
+	
+	public static void setBackgroundExt(String s)
+	{
+		PREFS.put("externalBackgroundExtension",s);
+		Prefs.externalBackgroundExtension = s;
+	}
+	
+	public static void setScriptExt(String s)
+	{
+		PREFS.put("externalScriptExtension",s);
+		Prefs.externalScriptExtension = s;
+	}
+	
+	public static void setBackgroundEditorCommand(String s)
+	{
+		PREFS.put("externalBackgroundEditorCommand",s);
+		Prefs.externalBackgroundEditorCommand = s;
+	}
+	
+	public static void setSpriteEditorCommand(String s)
+	{
+		PREFS.put("externalSpriteEditorCommand",s);
+		Prefs.externalSpriteEditorCommand = s;
+	}
+	
+	public static void setScriptEditorCommand(String s)
+	{
+		PREFS.put("externalScriptEditorCommand",s);
+		Prefs.externalScriptEditorCommand = s;
+	}
+	
+	public static void setSoundEditorCommand(String s)
+	{
+		PREFS.put("externalSoundEditorCommand",s);
+		Prefs.externalSoundEditorCommand = s;
 	}
 	
 	public static void setIconPath(String s)

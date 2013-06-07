@@ -112,8 +112,9 @@ public final class Prefs
 		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
 		forceMaximized = getBoolean("forceMaximized", false);
 		dockEventPanel = getBoolean("dockEventPanel", false);
-		defaultLibraryPath = getString("defaultLibraryPath","org/lateralgm/resources/library/lib/");
+		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
 		userLibraryPath = getString("userLibraryPath","./lib");
+		
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
 		actionToolTipLines = getInt("actionToolTipLines",10);
@@ -157,7 +158,7 @@ public final class Prefs
 
 	public static boolean dockEventPanel;
 	public static boolean enableDragAndDrop;
-	public static String defaultLibraryPath;
+	public static String actionLibraryPath;
 	public static String userLibraryPath;
 	public static int actionToolTipColumns;
 	public static int actionToolTipLines;

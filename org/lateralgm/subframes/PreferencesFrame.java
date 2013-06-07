@@ -10,10 +10,11 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -26,7 +27,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.main.LGM;
@@ -42,17 +44,30 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	protected Color fgColor;
 	
-	JComboBox themeCombo, iconCombo, langCombo;
+	JComboBox themeCombo, iconCombo, langCombo, actionsCombo;
 	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable;
-  JTextField iconPath, themePath, manualPath;
+  JTextField iconPath, themePath, manualPath, actionsPath;
+  
+	JTextField soundEditorPath, backgroundEditorPath, spriteEditorPath, codeEditorPath;
+  // Sounds use their own stored filename/extension, which may vary from sound to sound. 
+  JTextField backgroundMIME, spriteMIME, scriptMIME;
 	
 	private JPanel makeGeneralPrefs()
 	{
 		JPanel p = new JPanel();
 
 		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME") + ":");
-    String[] themeOptions = { "Swing", "Native", "Nimbus", "Motif", "Metal", "GTK", "Windows", "Custom"};
-    themeCombo = new JComboBox(themeOptions);
+    Vector<String> comboBoxItems = new Vector<String>();
+    comboBoxItems.add("Swing");
+    comboBoxItems.add("Native");
+    LookAndFeelInfo lnfs[] = UIManager.getInstalledLookAndFeels();
+    for (int i = 0; i < lnfs.length; i++) {
+      comboBoxItems.add(lnfs[i].getName());
+    }
+    comboBoxItems.add("Custom");
+    final DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(comboBoxItems);
+    
+    themeCombo = new JComboBox(model);
     themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS") + ":");
     String[] iconOptions = { "Swing", "Calico", "Custom" };
@@ -74,6 +89,12 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		iconPath = new JTextField(Prefs.iconPath);
 		JLabel manualPathLabel = new JLabel("Manual Path:");
 		manualPath = new JTextField(Prefs.manualPath);
+		JLabel actionsLabel = new JLabel(Messages.getString("PreferencesFrame.ACTIONLIBRARY") + ":");
+    String[] actionsOptions = { "Standard", "Logic", "Custom" };
+    actionsCombo = new JComboBox(actionsOptions);
+    //actionsCombo.setSelectedItem(Prefs.actionLibrary);
+    actionsPath = new JTextField();
+    actionsPath.setText(Prefs.userLibraryPath);
     
 		GroupLayout gl = new GroupLayout(p);
 		gl.setAutoCreateGaps(true);
@@ -100,6 +121,12 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			      		 .addComponent(themePath)
 			           .addComponent(iconPath)
 			           .addComponent(manualPath))
+			           /*
+			      .addGroup(gl.createSequentialGroup()
+			      		 .addComponent(actionsLabel)
+			           .addComponent(actionsCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+			           .addComponent(actionsPath))
+				*/
 				);
 		gl.setVerticalGroup(
 			   gl.createSequentialGroup()
@@ -123,7 +150,13 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			      .addGroup(gl.createSequentialGroup()
 			           .addComponent(manualPathLabel)
 			           .addComponent(manualPath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-			  );
+			           /*
+			  		.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+			      		 .addComponent(actionsLabel)
+			           .addComponent(actionsCombo)
+			           .addComponent(actionsPath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			           */
+				);
 		
 		p.setLayout(gl);
 		
@@ -134,45 +167,31 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	{
 		JPanel p = new JPanel();
 		
-		Dimension preferredSize = new Dimension(100, 30);
-		
 		JLabel spriteLabel = new JLabel("Sprite:");
 		JTextField spritePrefix = new JTextField("spr_");
-		spritePrefix.setPreferredSize(preferredSize);
 		JLabel soundLabel = new JLabel("Sound:");
 		JTextField soundPrefix = new JTextField("snd_");
-		soundPrefix.setPreferredSize(preferredSize);
 		JLabel backgroundLabel = new JLabel("Background:");
 		JTextField backgroundPrefix = new JTextField("bg_");
-		backgroundPrefix.setPreferredSize(preferredSize);
 		JLabel pathLabel = new JLabel("Path:");
 		JTextField pathPrefix = new JTextField("pth_");
-		pathPrefix.setPreferredSize(preferredSize);
 		JLabel scriptLabel = new JLabel("Script:");
 		JTextField scriptPrefix = new JTextField("scr_");
-		scriptPrefix.setPreferredSize(preferredSize);
 		JLabel fontLabel = new JLabel("Font:");
 		JTextField fontPrefix = new JTextField("fnt_");
-		fontPrefix.setPreferredSize(preferredSize);
 		JLabel timelineLabel = new JLabel("Timeline:");
 		JTextField timelinePrefix = new JTextField("tl_");
-		timelinePrefix.setPreferredSize(preferredSize);
 		JLabel objectLabel = new JLabel("Object:");
 		JTextField objectPrefix = new JTextField("obj_");
-		objectPrefix.setPreferredSize(preferredSize);
 		JLabel roomLabel = new JLabel("Room:");
 		JTextField roomPrefix = new JTextField("rm_");
-		roomPrefix.setPreferredSize(preferredSize);
 		
 		JLabel backgroundMIMELabel = new JLabel("Background MIME:");
-		JTextField backgroundMIME = new JTextField(Prefs.externalBackgroundExtension);
-		backgroundMIME.setPreferredSize(preferredSize);
+		backgroundMIME = new JTextField(Prefs.externalBackgroundExtension);
 		JLabel spriteMIMELabel = new JLabel("Sprite MIME:");
-		JTextField spriteMIME = new JTextField(Prefs.externalSpriteExtension);
-		spriteMIME.setPreferredSize(preferredSize);
+		spriteMIME = new JTextField(Prefs.externalSpriteExtension);
 		JLabel scriptMIMELabel = new JLabel("Script MIME:");
-		JTextField scriptMIME = new JTextField(Prefs.externalScriptExtension);
-		scriptMIME.setPreferredSize(preferredSize);
+		scriptMIME = new JTextField(Prefs.externalScriptExtension);
 		
 		GroupLayout gl = new GroupLayout(p);
 		gl.setAutoCreateGaps(true);
@@ -185,54 +204,45 @@ public class PreferencesFrame extends JFrame implements ActionListener
 							.addComponent(timelineLabel)
 							.addComponent(pathLabel)
 							.addComponent(spriteLabel))
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addGroup(gl.createParallelGroup(Alignment.LEADING, false)
-							.addGroup(gl.createSequentialGroup()
-								.addComponent(spritePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(soundLabel))
-							.addGroup(gl.createSequentialGroup()
-								.addComponent(timelinePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.RELATED)
-								.addComponent(objectLabel))
-							.addGroup(gl.createSequentialGroup()
-								.addComponent(pathPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(scriptLabel)))
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addGroup(gl.createParallelGroup(Alignment.LEADING, false)
-							.addGroup(gl.createSequentialGroup()
-								.addComponent(soundPrefix)
-								.addPreferredGap(ComponentPlacement.RELATED)
-								.addComponent(backgroundLabel))
-							.addGroup(gl.createSequentialGroup()
-								.addComponent(scriptPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(fontLabel))
-							.addGroup(gl.createSequentialGroup()
-								.addComponent(objectPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(roomLabel)))
-						.addPreferredGap(ComponentPlacement.RELATED)
 						.addGroup(gl.createParallelGroup(Alignment.LEADING)
-							.addComponent(roomPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(fontPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(backgroundPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+								.addComponent(spritePrefix)
+								.addComponent(timelinePrefix)
+								.addComponent(pathPrefix))
+						.addGroup(gl.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(soundLabel)
+								.addComponent(objectLabel)
+								.addComponent(scriptLabel))
+						.addGroup(gl.createParallelGroup(Alignment.LEADING)
+								.addComponent(soundPrefix)
+								.addComponent(scriptPrefix)
+								.addComponent(objectPrefix))
+						.addGroup(gl.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(backgroundLabel)
+								.addComponent(fontLabel)
+								.addComponent(roomLabel))
+						.addGroup(gl.createParallelGroup(Alignment.LEADING)
+							.addComponent(roomPrefix)
+							.addComponent(fontPrefix)
+							.addComponent(backgroundPrefix)))
 						.addGroup(gl.createSequentialGroup()
 								  .addComponent(backgroundMIMELabel)
-									.addComponent(backgroundMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+									.addComponent(backgroundMIME)
+									.addComponent(spriteMIMELabel)
+									.addComponent(spriteMIME)
+									.addComponent(scriptMIMELabel)
+									.addComponent(scriptMIME))
 			);
 			gl.setVerticalGroup(
-				gl.createParallelGroup(Alignment.LEADING)
+				gl.createSequentialGroup()
 					.addGroup(gl.createSequentialGroup()
 						.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 							.addComponent(soundPrefix)
 							.addComponent(backgroundLabel)
-							.addComponent(backgroundPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(backgroundPrefix)
 							.addComponent(spritePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addComponent(spriteLabel)
 							.addComponent(soundLabel))
-						.addPreferredGap(ComponentPlacement.RELATED)
+						//.addPreferredGap(ComponentPlacement.RELATED)
 						.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 							.addComponent(pathLabel)
 							.addComponent(pathPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
@@ -240,18 +250,21 @@ public class PreferencesFrame extends JFrame implements ActionListener
 							.addComponent(fontPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addComponent(scriptLabel)
 							.addComponent(fontLabel))
-						.addPreferredGap(ComponentPlacement.RELATED)
+						//.addPreferredGap(ComponentPlacement.RELATED)
 						.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 							.addComponent(timelinePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addComponent(objectPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addComponent(roomPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(backgroundMIMELabel)
 							.addComponent(timelineLabel)
 							.addComponent(objectLabel)
-							.addComponent(roomLabel, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE))
-					  .addGroup(gl.createSequentialGroup()
+							.addComponent(roomLabel, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE)))
+						.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 								.addComponent(backgroundMIMELabel)
-								.addComponent(backgroundMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+								.addComponent(backgroundMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(spriteMIMELabel)
+								.addComponent(spriteMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(scriptMIMELabel)
+								.addComponent(scriptMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 			);
 		
 		p.setLayout(gl);
@@ -267,29 +280,32 @@ public class PreferencesFrame extends JFrame implements ActionListener
     		Messages.getString("PreferencesFrame.SYSTEM"), 
     		Messages.getString("PreferencesFrame.CUSTOM") };
 		
+    // Uncomment the shit for this panel if you dun want people messin with commands
+    // too lazy to code it.
+    
 		JLabel codeEditorLabel = new JLabel(Messages.getString("PreferencesFrame.CODE_EDITOR") + ":");
-    JComboBox codeEditorCombo = new JComboBox(defaultEditorOptions);
-    codeEditorCombo.setSelectedItem(0);
-		JTextField codeEditorPath = new JTextField();
-		JButton codeEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
+    //JComboBox codeEditorCombo = new JComboBox(defaultEditorOptions);
+    //codeEditorCombo.setSelectedItem(0);
+		codeEditorPath = new JTextField(Prefs.externalScriptEditorCommand);
+		//JButton codeEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
 		
 		JLabel spriteEditorLabel = new JLabel(Messages.getString("PreferencesFrame.SPRITE_EDITOR") + ":");
-    JComboBox spriteEditorCombo = new JComboBox(defaultEditorOptions);
-    spriteEditorCombo.setSelectedItem(0);
-		JTextField spriteEditorPath = new JTextField();
-		JButton spriteEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
+    //JComboBox spriteEditorCombo = new JComboBox(defaultEditorOptions);
+    //spriteEditorCombo.setSelectedItem(0);
+		spriteEditorPath = new JTextField(Prefs.externalSpriteEditorCommand);
+		//JButton spriteEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
 		
 		JLabel backgroundEditorLabel = new JLabel(Messages.getString("PreferencesFrame.BACKGROUND_EDITOR") + ":");
-    JComboBox backgroundEditorCombo = new JComboBox(defaultEditorOptions);
-    backgroundEditorCombo.setSelectedItem(0);
-		JTextField backgroundEditorPath = new JTextField();
-		JButton backgroundEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
+    //JComboBox backgroundEditorCombo = new JComboBox(defaultEditorOptions);
+    //backgroundEditorCombo.setSelectedItem(0);
+		backgroundEditorPath = new JTextField(Prefs.externalBackgroundEditorCommand);
+		//JButton backgroundEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
 		
 		JLabel soundEditorLabel = new JLabel(Messages.getString("PreferencesFrame.SOUND_EDITOR") + ":");
-    JComboBox soundEditorCombo = new JComboBox(defaultEditorOptions);
-    soundEditorCombo.setSelectedItem(0);
-		JTextField soundEditorPath = new JTextField();
-		JButton soundEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
+    //JComboBox soundEditorCombo = new JComboBox(defaultEditorOptions);
+    //soundEditorCombo.setSelectedItem(0);
+		soundEditorPath = new JTextField(Prefs.externalSoundEditorCommand);
+		//JButton soundEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
 		
 		GroupLayout gl = new GroupLayout(p);
 		gl.setAutoCreateGaps(true);
@@ -303,44 +319,44 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			           .addComponent(soundEditorLabel)
 			           .addComponent(backgroundEditorLabel)
 			           .addComponent(codeEditorLabel))
-			      .addGroup(gl.createParallelGroup()
-			           .addComponent(spriteEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			           .addComponent(soundEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			           .addComponent(backgroundEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			           .addComponent(codeEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			      //.addGroup(gl.createParallelGroup()
+			           //.addComponent(spriteEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+			           //.addComponent(soundEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+			           //.addComponent(backgroundEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+			           //.addComponent(codeEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 			      .addGroup(gl.createParallelGroup()
 			           .addComponent(spriteEditorPath)
 			           .addComponent(soundEditorPath)
 			           .addComponent(backgroundEditorPath)
 			           .addComponent(codeEditorPath))
-			      .addGroup(gl.createParallelGroup()
-			           .addComponent(spriteEditorButton)
-			           .addComponent(soundEditorButton)
-			           .addComponent(backgroundEditorButton)
-			           .addComponent(codeEditorButton))
+			      //.addGroup(gl.createParallelGroup()
+			           //.addComponent(spriteEditorButton)
+			           //.addComponent(soundEditorButton)
+			           //.addComponent(backgroundEditorButton)
+			           //.addComponent(codeEditorButton))
 			  );
 		gl.setVerticalGroup(
 			   gl.createSequentialGroup()
 			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			           .addComponent(spriteEditorLabel)
-			           .addComponent(spriteEditorCombo)
-			           .addComponent(spriteEditorPath)
-			           .addComponent(spriteEditorButton))
+			           //.addComponent(spriteEditorCombo)
+			           .addComponent(spriteEditorPath))
+			           //.addComponent(spriteEditorButton))
 			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			           .addComponent(soundEditorLabel)
-			           .addComponent(soundEditorCombo)
-			           .addComponent(soundEditorPath)
-			           .addComponent(soundEditorButton))
+			           //.addComponent(soundEditorCombo)
+			           .addComponent(soundEditorPath))
+			           //.addComponent(soundEditorButton))
 			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			           .addComponent(backgroundEditorLabel)
-			           .addComponent(backgroundEditorCombo)
-			           .addComponent(backgroundEditorPath)
-			           .addComponent(backgroundEditorButton))
+			           //.addComponent(backgroundEditorCombo)
+			           .addComponent(backgroundEditorPath))
+			           //.addComponent(backgroundEditorButton))
 			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			           .addComponent(codeEditorLabel)
-			           .addComponent(codeEditorCombo)
-			           .addComponent(codeEditorPath)
-			           .addComponent(codeEditorButton))
+			           //.addComponent(codeEditorCombo)
+			           .addComponent(codeEditorPath))
+			           //.addComponent(codeEditorButton))
 			  );
 		
 		p.setLayout(gl);
@@ -423,11 +439,21 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	  PrefsStore.setDNDEnabled(dndEnable.isSelected());
 	  PrefsStore.setExtraNodes(extraNodesEnable.isSelected());
 	  PrefsStore.setLanguageName((String)langCombo.getSelectedItem());
+	  PrefsStore.setUserLibraryPath(actionsPath.getText());
+	  PrefsStore.setSpriteExt(spriteMIME.getText());
+	  PrefsStore.setBackgroundExt(backgroundMIME.getText());
+	  PrefsStore.setScriptExt(scriptMIME.getText());
+	  PrefsStore.setBackgroundEditorCommand(backgroundEditorPath.getText());
+	  PrefsStore.setSpriteEditorCommand(spriteEditorPath.getText());
+	  PrefsStore.setSoundEditorCommand(soundEditorPath.getText());
+	  PrefsStore.setScriptEditorCommand(codeEditorPath.getText());
 	}
 	
 	public void ResetPreferences()
 	{
 		//TODO: Reset preferences to their active state when this frame was first opened
+	  // For this one just copy the shit above where I give the controls their default
+	  // values froms Prefs.
 	}
 	
 	public void ResetPreferencesToDefault()

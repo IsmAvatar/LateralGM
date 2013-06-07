@@ -738,7 +738,7 @@ public final class GmFileReader
 		GmStreamDecoder in = c.in;
 
 		int ver = in.read4();
-		if (ver != 400 && ver != 800) throw versionError(f,"BEFORE","SCR",ver); //$NON-NLS-1$ //$NON-NLS-2$
+		if (ver != 400 && ver != 800 && ver != 810 && ver != 820) throw versionError(f,"BEFORE","SCR",ver); //$NON-NLS-1$ //$NON-NLS-2$
 
 		int noScripts = in.read4();
 		for (int i = 0; i < noScripts; i++)
@@ -752,9 +752,9 @@ public final class GmFileReader
 				}
 			Script scr = f.resMap.getList(Script.class).add();
 			scr.setName(in.readStr());
-			if (ver == 800) in.skip(8); //last changed
+			if (ver >= 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 400 && ver != 800) throw versionError(f,"IN","SCR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 400 && ver != 800 && ver != 810 && ver != 820) throw versionError(f,"IN","SCR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			String code = in.readStr();
 			scr.put(PScript.CODE,code);
 
@@ -1182,6 +1182,13 @@ public final class GmFileReader
 				la.id = actid;
 				la.parentId = libid;
 				la.actionKind = (byte) in.read4();
+                                //XXX: Maybe make this more agnostic?"
+				if (la.actionKind == Action.ACT_CODE) {
+				  la = LibManager.codeAction;
+					in.skip(16);
+					in.skip(in.read4());
+					in.skip(in.read4());
+				} else {
 				la.allowRelative = in.readBool();
 				la.question = in.readBool();
 				la.canApplyTo = in.readBool();
@@ -1194,6 +1201,7 @@ public final class GmFileReader
 					la.execInfo = in.readStr();
 				else
 					in.skip(in.read4());
+				}
 				}
 			else
 				{

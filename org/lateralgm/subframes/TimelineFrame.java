@@ -55,7 +55,6 @@ import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Moment;
-import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
 public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline> implements
 		ListSelectionListener

@@ -41,9 +41,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -52,14 +49,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -77,8 +72,6 @@ import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.joshedit.FindDialog.FindNavigator;
 import org.lateralgm.joshedit.Selection.ST;
 import org.lateralgm.joshedit.TokenMarker.TokenMarkerInfo;
-import org.lateralgm.main.FileChooser;
-import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 
 /**

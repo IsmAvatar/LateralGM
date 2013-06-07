@@ -461,6 +461,8 @@ public class RoomEditor extends VisualPanel
 							//Some of these settings aren't reflected in the
 							//PRoom structure, so we just discard them for now.
 						}
+			default:
+				break;
 				}
 			}
 		}

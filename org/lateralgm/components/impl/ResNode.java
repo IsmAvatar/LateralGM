@@ -18,7 +18,6 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,8 +51,6 @@ import org.lateralgm.subframes.InstantiableResourceFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 import org.lateralgm.subframes.SubframeInformer;
-
-import com.sun.org.apache.xalan.internal.lib.Extensions;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable,UpdateListener
 	{

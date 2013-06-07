@@ -398,6 +398,9 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 				case BB_MODE:
 					updateBoundingBox();
 					break;
+			default:
+		    //TODO: maybe put a failsafe here?
+				break;
 				}
 			}
 		}

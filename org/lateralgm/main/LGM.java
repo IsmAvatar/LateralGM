@@ -24,8 +24,8 @@
 package org.lateralgm.main;
 
 import java.awt.BorderLayout;
+
 import java.awt.Color;
-import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -70,6 +70,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.tree.DefaultTreeModel;
@@ -98,6 +99,7 @@ import org.lateralgm.subframes.GameSettingFrame;
 import org.lateralgm.subframes.PreferencesFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
+
 
 public final class LGM
 	{
@@ -142,7 +144,7 @@ public final class LGM
 
 	public static void SetLookAndFeel(String LOOKANDFEEL)
 		{
-		// MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
+		
 		if (LOOKANDFEEL.equals(themename))
 			{
 			themechanged = false;
@@ -173,7 +175,7 @@ public final class LGM
 				{
 				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
 				}
-			else if (LOOKANDFEEL.equals("Motif"))
+			else if (LOOKANDFEEL.equals("CDE/Motif"))
 				{
 				lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
 				}
@@ -182,7 +184,7 @@ public final class LGM
 				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
 				MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
 				}
-			else if (LOOKANDFEEL.equals("GTK"))
+			else if (LOOKANDFEEL.equals("GTK+"))
 				{
 				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 				}
@@ -192,8 +194,20 @@ public final class LGM
 				}
 			else
 				{
-				System.err.println("Unexpected value of LOOKANDFEEL specified: " + LOOKANDFEEL);
-				lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
+				// Perhaps we did not get the name right, see if the theme is installed
+				// and attempt to use it.
+				boolean foundMatch = false;
+		    LookAndFeelInfo lnfs[] = UIManager.getInstalledLookAndFeels();
+		    for (int i = 0; i < lnfs.length; i++) {
+		      if (LOOKANDFEEL.equals(lnfs[i].getName())) {
+		        lookAndFeel = lnfs[i].getClassName();
+		        foundMatch = true;
+		      }
+		    }
+				if (!foundMatch) {
+				  System.err.println("Unexpected value of LOOKANDFEEL specified: " + LOOKANDFEEL);
+				  lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
+				}
 				}
 
 			try
@@ -227,17 +241,19 @@ public final class LGM
 	// this function is for updating the look and feel after its
 	// already been initialized and all controls created
 	public static void UpdateLookAndFeel()
-		{
+	{
 		if (!themechanged)
 			{
 			return;
 			}
-		JFrame.setDefaultLookAndFeelDecorated(true);
-		SwingUtilities.updateComponentTreeUI(frame);
-		//SwingUtilities.updateComponentTreeUI(mdi);
-		//frame.pack();
+		SwingUtilities.updateComponentTreeUI(tree);
+		SwingUtilities.updateComponentTreeUI(mdi);
+		frame.pack();
 		Window windows[] = frame.getWindows();
-		}
+		for(Window i : windows) {
+		  SwingUtilities.updateComponentTreeUI(i);
+    }
+	}
 
 	public static GameInformationFrame getGameInfo()
 		{
@@ -500,7 +516,7 @@ public final class LGM
 		LGM.getGameInfo().resOriginal = LGM.currentFile.gameInfo;
 		LGM.getGameInfo().revertResource();
 		LGM.getGameInfo().setVisible(false);
-
+		
 		LGM.fireReloadPerformed(newRoot);
 		}
 
@@ -603,6 +619,11 @@ public final class LGM
 		if (javaVersion < 10600)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
 
+		iconspack = Prefs.iconPack;
+		SetLookAndFeel(Prefs.swingTheme);
+		JFrame.setDefaultLookAndFeelDecorated(true);
+		themechanged = false;
+		
 		SplashProgress splashProgress = new SplashProgress();
 		splashProgress.start();
 
@@ -619,15 +640,8 @@ public final class LGM
 				}
 			}
 
-		splashProgress.progress(10,Messages.getString("LGM.SPLASH_THEME"));
-
-		iconspack = Prefs.iconPack;
-		SetLookAndFeel(Prefs.swingTheme);
+		splashProgress.progress(10,Messages.getString("LGM.SPLASH_LANG"));
 		Messages.updateLangPack();
-
-		//annoyingly, Metal bolds almost all components by default. This unbolds them.
-		UIManager.put("swing.boldMetal",Boolean.FALSE); //$NON-NLS-1$
-		themechanged = false;
 
 		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
@@ -658,12 +672,6 @@ public final class LGM
 		extSet = new ExtensionsFrame(new Extensions());
 		mdi.add(extSet);
 
-		// This code causes a hanging loop and you have to force shutdown
-		// I advise you not to mess with it
-		//gameInformationFrameBuilder.start(); //must occur after createMDI
-		//gameSettingFrameBuilder.start(); //must occur after createMDI
-		//extensionsFrameBuilder.start(); //must occur after createMDI
-
 		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
@@ -680,9 +688,6 @@ public final class LGM
 					}
 			});
 
-		//p.add(tree, BorderLayout.WEST);
-		//.add(new JButton("fuck you"));
-		//content.add(BorderLayout.WEST, p);
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,tree,content);
 		split.setDividerLocation(250);
 		split.setOneTouchExpandable(true);

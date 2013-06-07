@@ -18,7 +18,6 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
