@@ -1,5 +1,5 @@
 /*
-a * Copyright (C) 2006-2011 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2006-2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, Robert B. Colton
@@ -1182,6 +1182,7 @@ public final class GmFileReader
 				la.id = actid;
 				la.parentId = libid;
 				la.actionKind = (byte) in.read4();
+                                //TODO: Maybe make this more agnostic?"
 				if (la.actionKind == Action.ACT_CODE) {
 				  la = LibManager.codeAction;
 					in.skip(16);
