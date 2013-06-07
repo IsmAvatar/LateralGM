@@ -1289,7 +1289,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (s == tDel)
 			{
 			int i = tList.getSelectedIndex();
-			if (i == -1) return;
+			if (i >= res.tiles.size() || i < 0) return;
 			res.tiles.remove(i);
 			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,i));
 			return;
