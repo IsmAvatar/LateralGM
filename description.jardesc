@@ -11,6 +11,7 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library.libs"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Calico.restree"/>
@@ -19,7 +20,7 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.visual"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.compare"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.sub"/>
-        <file path="/LateralGM/lgm1.png"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library.libs.logic"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.mdi"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file.iconio"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Swing.actions"/>
@@ -36,10 +37,10 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Calico.actions"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library.lib"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.propertylink"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.joshedit"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.jedit"/>
         <folder path="/LateralGM/META-INF"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library.libs.standard"/>
     </selectedElements>
 </jardesc>

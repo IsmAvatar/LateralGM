@@ -41,12 +41,8 @@ import org.lateralgm.components.AboutBox;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.Extensions;
-import org.lateralgm.resources.GameInformation;
-import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
-import org.lateralgm.subframes.PreferencesFrame;
 
 public class Listener extends TransferHandler implements ActionListener,CellEditorListener
 	{

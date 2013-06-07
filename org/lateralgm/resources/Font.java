@@ -79,6 +79,9 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 				else if (max > 255) min = 255;
 				if (max < (Integer) get(PFont.RANGE_MIN)) put(PFont.RANGE_MIN,max);
 				if (max != (Integer) v) return max;
+		default:
+		  //TODO: maybe put a failsafe here?
+			break;
 			}
 		return v;
 		}
