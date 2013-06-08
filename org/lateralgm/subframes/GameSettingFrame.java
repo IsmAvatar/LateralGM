@@ -1214,7 +1214,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		scaling.setValue(s > 1 ? 1 : s);
 		if (s > 1) scale.setValue(s);
 		scale.setEnabled(s > 0);
-
 		lastChanged.setText(GmFile.gmTimeToString(g.getLastChanged()));
 
 		customLoadingImage = g.get(PGameSettings.LOADING_IMAGE);

@@ -266,25 +266,48 @@ public final class LGM
 	}
 
 	public static GameInformationFrame getGameInfo()
-		{
-		gameInfo = new GameInformationFrame(currentFile.gameInfo);
-		mdi.add(gameInfo);
+	{
+	  gameInfo.dispose();
+	  gameInfo = new GameInformationFrame(currentFile.gameInfo);
+	  mdi.add(gameInfo);
+	  gameInfo.revertResource();
 		return gameInfo;
-		}
+	}
 
 	public static GameSettingFrame getGameSettings()
-		{
+	{
+		gameSet.dispose();
 		gameSet = new GameSettingFrame(currentFile.gameSettings, currentFile.constants, currentFile.includes);
 		mdi.add(gameSet);
 		return gameSet;
-		}
+	}
 
 	public static ExtensionsFrame getGameExtensions()
 		{
-
+		if (extSet == null) {
+		  //extSet = new ExtensionsFrame(currentFile.);
+		  mdi.add(extSet);
+		}
+  	// extSet.res =
+    extSet.revertResource();
 		return extSet;
 		}
 
+	public static void showGameInformation()
+	{
+    getGameInfo().show();
+	}
+	
+	public static void showGameSettings()
+	{
+    getGameSettings().show();
+	}
+	
+	public static void showGameExtensions()
+	{
+    getGameExtensions().show();
+	}
+	
 	private LGM()
 		{
 
