@@ -801,7 +801,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			List<Include> includes)
 		{
 		super(res,node,Messages.getString("GameSettingFrame.TITLE"),false,true,true,true); //$NON-NLS-1$
-		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		GroupLayout layout = new GroupLayout(getContentPane());
 		layout.setAutoCreateGaps(true);
@@ -1214,7 +1214,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		scaling.setValue(s > 1 ? 1 : s);
 		if (s > 1) scale.setValue(s);
 		scale.setEnabled(s > 0);
-
 		lastChanged.setText(GmFile.gmTimeToString(g.getLastChanged()));
 
 		customLoadingImage = g.get(PGameSettings.LOADING_IMAGE);

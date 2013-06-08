@@ -10,6 +10,7 @@
 
 package org.lateralgm.components;
 
+import java.awt.Font;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -83,7 +84,7 @@ public class GmMenuBar extends JMenuBar
 					{
 					item = new JMenuItem(String.format("%s %s",number,uri),number.codePointAt(0));
 					}
-
+        item.setFont(LGM.lnfFont);
 				item.setActionCommand("GmMenuBar.OPEN " + recentStr); //$NON-NLS-1$
 				item.addActionListener(Listener.getInstance());
 				fileMenu.insert(item,recentFilesPos + recentFiles.size());
@@ -105,7 +106,7 @@ public class GmMenuBar extends JMenuBar
 			MNEMONICS.put(k.getValue(),
 					Messages.getString("GmMenuBar.MNEMONIC_" + k.getKey()).toUpperCase().charAt(0)); //$NON-NLS-1$
 		}
-
+	
 	public GmMenuBar()
 		{
 		GmMenu menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
@@ -150,15 +151,17 @@ public class GmMenuBar extends JMenuBar
 				int mnemonic = MNEMONICS.get(k);
 				String insNodeName = Messages.format("GmMenuBar.INSERT",nodeName); //$NON-NLS-1$
 				String addNodeName = Messages.format("GmMenuBar.ADD",nodeName); //$NON-NLS-1$
-
+        
 				JMenuItem item = new JMenuItem(insNodeName,icon);
 				if (mnemonic != '!') item.setMnemonic(mnemonic);
 				item.addActionListener(new Listener.ResourceAdder(true,k));
+				item.setFont(LGM.lnfFont.deriveFont(Font.BOLD));
 				subIns.add(item);
 
 				item = new JMenuItem(addNodeName,icon);
 				if (mnemonic != '!') item.setMnemonic(mnemonic);
 				item.addActionListener(new Listener.ResourceAdder(false,k));
+				item.setFont(LGM.lnfFont.deriveFont(Font.BOLD));
 				subAdd.add(item);
 				}
 

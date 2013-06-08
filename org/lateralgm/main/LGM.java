@@ -26,7 +26,9 @@ package org.lateralgm.main;
 import java.awt.BorderLayout;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -58,6 +60,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -68,9 +71,11 @@ import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.tree.DefaultTreeModel;
@@ -106,6 +111,7 @@ public final class LGM
 	public static String iconspath = "org/lateralgm/icons/";
 	public static String iconspack = "Calico";
 	public static String themename = "Swing";
+	public static Font lnfFont = new Font("Monospace", Font.PLAIN, 12);
 	public static boolean themechanged = false;
 
 	public static int javaVersion;
@@ -144,7 +150,6 @@ public final class LGM
 
 	public static void SetLookAndFeel(String LOOKANDFEEL)
 		{
-		
 		if (LOOKANDFEEL.equals(themename))
 			{
 			themechanged = false;
@@ -153,7 +158,6 @@ public final class LGM
 		themechanged = true;
 		themename = LOOKANDFEEL;
 		String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
-
 		if (LOOKANDFEEL != null)
 			{
 			if (LOOKANDFEEL.equals("Swing"))
@@ -213,6 +217,7 @@ public final class LGM
 			try
 				{
 				UIManager.setLookAndFeel(lookAndFeel);
+
 				}
 			catch (ClassNotFoundException e)
 				{
@@ -248,6 +253,11 @@ public final class LGM
 			}
 		SwingUtilities.updateComponentTreeUI(tree);
 		SwingUtilities.updateComponentTreeUI(mdi);
+		if (eventFrame == null) {
+		  SwingUtilities.updateComponentTreeUI(eventSelect);
+		} else {
+		  SwingUtilities.updateComponentTreeUI(eventFrame);
+		}
 		frame.pack();
 		Window windows[] = frame.getWindows();
 		for(Window i : windows) {
@@ -256,20 +266,48 @@ public final class LGM
 	}
 
 	public static GameInformationFrame getGameInfo()
-		{
+	{
+	  gameInfo.dispose();
+	  gameInfo = new GameInformationFrame(currentFile.gameInfo);
+	  mdi.add(gameInfo);
+	  gameInfo.revertResource();
 		return gameInfo;
-		}
+	}
 
 	public static GameSettingFrame getGameSettings()
-		{
+	{
+		gameSet.dispose();
+		gameSet = new GameSettingFrame(currentFile.gameSettings, currentFile.constants, currentFile.includes);
+		mdi.add(gameSet);
 		return gameSet;
-		}
+	}
 
 	public static ExtensionsFrame getGameExtensions()
 		{
+		if (extSet == null) {
+		  //extSet = new ExtensionsFrame(currentFile.);
+		  mdi.add(extSet);
+		}
+  	// extSet.res =
+    extSet.revertResource();
 		return extSet;
 		}
 
+	public static void showGameInformation()
+	{
+    getGameInfo().show();
+	}
+	
+	public static void showGameSettings()
+	{
+    getGameSettings().show();
+	}
+	
+	public static void showGameExtensions()
+	{
+    getGameExtensions().show();
+	}
+	
 	private LGM()
 		{
 
@@ -345,6 +383,7 @@ public final class LGM
 		but.setActionCommand(key);
 		but.setToolTipText(Messages.getString(key));
 		but.addActionListener(Listener.getInstance());
+	
 		return but;
 		}
 
@@ -375,6 +414,7 @@ public final class LGM
 		tool.add(makeButton("Toolbar.MANUAL")); //$NON-NLS-1$
 		tool.add(Box.createHorizontalGlue()); //right align after this
 		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
+		tool.setFont(LGM.lnfFont);
 		return tool;
 		}
 
@@ -386,8 +426,12 @@ public final class LGM
 	private static JComponent createTree(ResNode newroot)
 		{
 		tree = new JTree(new DefaultTreeModel(newroot));
+		tree.setFont(lnfFont);
+
 		GmTreeGraphics renderer = new GmTreeGraphics();
+		
 		GmTreeEditor editor = new GmTreeEditor(tree,renderer);
+
 		editor.addCellEditorListener(Listener.getInstance());
 		tree.setEditable(true);
 
@@ -510,12 +554,12 @@ public final class LGM
 
 		LGM.eventSelect.reload();
 
-		LGM.getGameSettings().resOriginal = LGM.currentFile.gameSettings;
-		LGM.getGameSettings().revertResource();
-		LGM.getGameSettings().setVisible(false);
-		LGM.getGameInfo().resOriginal = LGM.currentFile.gameInfo;
-		LGM.getGameInfo().revertResource();
-		LGM.getGameInfo().setVisible(false);
+		gameSet.resOriginal = LGM.currentFile.gameSettings;
+		gameSet.revertResource();
+		gameSet.setVisible(false);
+		gameInfo.resOriginal = LGM.currentFile.gameInfo;
+		gameInfo.revertResource();
+		gameInfo.setVisible(false);
 		
 		LGM.fireReloadPerformed(newRoot);
 		}
@@ -605,9 +649,10 @@ public final class LGM
 
 		public abstract T getInstance();
 		}
-
+  
 	public static void main(String[] args)
 		{
+		
 		//java6u10 regression causes graphical xor to be very slow
 		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
 		//Put the Mac menu bar where it belongs (ignored by other systems)
@@ -675,7 +720,9 @@ public final class LGM
 		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
-		frame.setJMenuBar(new GmMenuBar());
+		JMenuBar gmnb = new GmMenuBar();
+		gmnb.setFont(lnfFont);
+		frame.setJMenuBar(gmnb);
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
