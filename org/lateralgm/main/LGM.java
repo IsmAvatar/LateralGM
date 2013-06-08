@@ -111,7 +111,7 @@ public final class LGM
 	public static String iconspath = "org/lateralgm/icons/";
 	public static String iconspack = "Calico";
 	public static String themename = "Swing";
-	public static Font lnfFont = new Font("Monospace", Font.PLAIN, 11);
+	public static Font lnfFont = new Font("Monospace", Font.PLAIN, 12);
 	public static boolean themechanged = false;
 
 	public static int javaVersion;
@@ -554,12 +554,12 @@ public final class LGM
 
 		LGM.eventSelect.reload();
 
-		LGM.getGameSettings().resOriginal = LGM.currentFile.gameSettings;
-		LGM.getGameSettings().revertResource();
-		LGM.getGameSettings().setVisible(false);
-		LGM.getGameInfo().resOriginal = LGM.currentFile.gameInfo;
-		LGM.getGameInfo().revertResource();
-		LGM.getGameInfo().setVisible(false);
+		gameSet.resOriginal = LGM.currentFile.gameSettings;
+		gameSet.revertResource();
+		gameSet.setVisible(false);
+		gameInfo.resOriginal = LGM.currentFile.gameInfo;
+		gameInfo.revertResource();
+		gameInfo.setVisible(false);
 		
 		LGM.fireReloadPerformed(newRoot);
 		}

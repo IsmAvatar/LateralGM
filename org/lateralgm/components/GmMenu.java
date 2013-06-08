@@ -30,7 +30,7 @@ public class GmMenu extends JMenu
 		{
 		super();
 		setTextAndAlt(this,s);
-		this.setFont(LGM.lnfFont.deriveFont(Font.BOLD));
+		this.setFont(LGM.lnfFont.deriveFont(Font.BOLD, 14));
 		}
 
 	public JMenuItem addItem(String key)

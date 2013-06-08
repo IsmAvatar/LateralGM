@@ -14,6 +14,7 @@ import static org.lateralgm.main.Util.deRef;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -343,6 +344,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_INSERT);
 
 		events = new JTree(root);
+		events.setFont(LGM.lnfFont.deriveFont(Font.BOLD));
 		events.setCellRenderer(new EventNodeRenderer());
 		events.setRootVisible(false);
 		events.setShowsRootHandles(true);
