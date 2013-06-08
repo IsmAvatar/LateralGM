@@ -53,6 +53,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -411,7 +412,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	public GameInformationFrame(GameInformation res, ResNode node)
 		{
 		super(res,node,Messages.getString("GameInformationFrame.TITLE"),true); //$NON-NLS-1$
-		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setSize(725,500);
 
 		menubar = makeMenuBar();

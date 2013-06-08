@@ -267,16 +267,21 @@ public final class LGM
 
 	public static GameInformationFrame getGameInfo()
 		{
+		gameInfo = new GameInformationFrame(currentFile.gameInfo);
+		mdi.add(gameInfo);
 		return gameInfo;
 		}
 
 	public static GameSettingFrame getGameSettings()
 		{
+		gameSet = new GameSettingFrame(currentFile.gameSettings, currentFile.constants, currentFile.includes);
+		mdi.add(gameSet);
 		return gameSet;
 		}
 
 	public static ExtensionsFrame getGameExtensions()
 		{
+
 		return extSet;
 		}
 
