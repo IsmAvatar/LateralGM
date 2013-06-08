@@ -11,6 +11,7 @@ package org.lateralgm.components;
 
 import static org.lateralgm.components.GmMenuBar.setTextAndAlt;
 
+import java.awt.Font;
 import java.awt.event.ActionListener;
 
 import javax.swing.JMenu;
@@ -29,6 +30,7 @@ public class GmMenu extends JMenu
 		{
 		super();
 		setTextAndAlt(this,s);
+		this.setFont(LGM.lnfFont.deriveFont(Font.BOLD));
 		}
 
 	public JMenuItem addItem(String key)
@@ -57,6 +59,7 @@ public class GmMenu extends JMenu
 			}
 		if (shortcut >= 0) item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
 		item.addActionListener(listener);
+		item.setFont(LGM.lnfFont.deriveFont(Font.BOLD));
 		add(item);
 		return item;
 		}

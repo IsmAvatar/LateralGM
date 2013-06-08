@@ -743,7 +743,7 @@ public final class GmFileReader
 		int noScripts = in.read4();
 		for (int i = 0; i < noScripts; i++)
 			{
-			if (ver == 800) in.beginInflate();
+			if (ver >= 800) in.beginInflate();
 			if (!in.readBool())
 				{
 				f.resMap.getList(Script.class).lastId++;
