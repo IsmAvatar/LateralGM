@@ -448,7 +448,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		plf.make(sHeight,PRoom.HEIGHT);
 
 		JLabel lSpeed = new JLabel(Messages.getString("RoomFrame.SPEED")); //$NON-NLS-1$
-		NumberField sSpeed = new NumberField(1,9999);
+		NumberField sSpeed = new NumberField(0,9999);
 		plf.make(sSpeed,PRoom.SPEED);
 
 		String str = Messages.getString("RoomFrame.PERSISTENT"); //$NON-NLS-1$
