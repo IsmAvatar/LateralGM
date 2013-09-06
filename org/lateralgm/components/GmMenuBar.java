@@ -10,7 +10,6 @@
 
 package org.lateralgm.components;
 
-import java.awt.Font;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -84,8 +83,10 @@ public class GmMenuBar extends JMenuBar
 					{
 					item = new JMenuItem(String.format("%s %s",number,uri),number.codePointAt(0));
 					}
-        item.setFont(LGM.lnfFont);
-				item.setActionCommand("GmMenuBar.OPEN " + recentStr); //$NON-NLS-1$
+				if (LGM.themename.equals("Quantum")) {
+          item.setFont(LGM.lnfFont);
+				}
+				item.setActionCommand("GmMenuBar.OPENRECENT " + recentStr); //$NON-NLS-1$
 				item.addActionListener(Listener.getInstance());
 				fileMenu.insert(item,recentFilesPos + recentFiles.size());
 				recentFiles.add(item);
@@ -155,13 +156,17 @@ public class GmMenuBar extends JMenuBar
 				JMenuItem item = new JMenuItem(insNodeName,icon);
 				if (mnemonic != '!') item.setMnemonic(mnemonic);
 				item.addActionListener(new Listener.ResourceAdder(true,k));
-				item.setFont(LGM.lnfFont.deriveFont(Font.BOLD));
+				if (LGM.themename.equals("Quantum")) {
+				  item.setFont(LGM.lnfFont);
+				}
 				subIns.add(item);
 
 				item = new JMenuItem(addNodeName,icon);
 				if (mnemonic != '!') item.setMnemonic(mnemonic);
 				item.addActionListener(new Listener.ResourceAdder(false,k));
-				item.setFont(LGM.lnfFont.deriveFont(Font.BOLD));
+				if (LGM.themename.equals("Quantum")) {
+				  item.setFont(LGM.lnfFont);
+				}
 				subAdd.add(item);
 				}
 

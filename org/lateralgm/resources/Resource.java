@@ -42,11 +42,11 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 
 	static
 	{
-    Class<?>[] ca = { Sprite.class,Sound.class,Background.class,Path.class,Script.class,Font.class,
+    Class<?>[] ca = { Sprite.class,Sound.class,Background.class,Path.class,Script.class,Shader.class,Font.class,
 	  Timeline.class,GmObject.class,Room.class,GameInformation.class,GameSettings.class,
 	  Extensions.class, };
 	  String[] chr3 = { "SPR","SND","BKG","PTH", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		  	  "SCR","FNT","TML","OBJ", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		  	  "SCR","SHR", "FNT","TML","OBJ", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		  	  "RMM", "GMI", "GMS", "EXT" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     
 	  int leng = chr3.length;

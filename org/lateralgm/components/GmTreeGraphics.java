@@ -12,7 +12,6 @@ package org.lateralgm.components;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 

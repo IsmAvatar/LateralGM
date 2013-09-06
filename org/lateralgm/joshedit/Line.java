@@ -11,12 +11,12 @@ package org.lateralgm.joshedit;
 /**
  * Class representing a line of code in our editor.
  */
-class Line
+public class Line
 {
 	/** The StringBuilder we will use for line manipulation */
-	StringBuilder sbuild;
+	public StringBuilder sbuild;
 	/** A bit string indicating line attributes. A value less than zero marks invalidity. */
-	long attr;
+	public long attr;
 
 	/**
 	 * @author Josh Ventura

@@ -24,24 +24,29 @@
 package org.lateralgm.main;
 
 import java.awt.BorderLayout;
-
 import java.awt.Color;
-import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SplashScreen;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -71,11 +76,9 @@ import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.tree.DefaultTreeModel;
@@ -89,9 +92,9 @@ import org.lateralgm.components.impl.FramePrefsHandler;
 import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
-import org.lateralgm.file.GmFile;
-import org.lateralgm.file.GmFile.ResourceHolder;
-import org.lateralgm.file.GmFile.SingletonResourceHolder;
+import org.lateralgm.file.ProjectFile;
+import org.lateralgm.file.ProjectFile.ResourceHolder;
+import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Extensions;
 import org.lateralgm.resources.InstantiableResource;
@@ -111,9 +114,14 @@ public final class LGM
 	public static String iconspath = "org/lateralgm/icons/";
 	public static String iconspack = "Calico";
 	public static String themename = "Swing";
-	public static Font lnfFont = new Font("Monospace", Font.PLAIN, 12);
+	// this font is used on some controls in my Quantum theme
+	// for the time being to fix the GTK bug with it not
+	// using the UIManager resources for font and color on controls
+	// in its look and feel classes, this is Java's fault not ours
+	public static Font lnfFont = new Font("Ubuntu", Font.PLAIN, 14);
 	public static boolean themechanged = false;
 
+	public static boolean isloaded;
 	public static int javaVersion;
 	public static File tempDir, workDir;
 	static
@@ -138,7 +146,7 @@ public final class LGM
 	public static JToolBar tool;
 	public static JTree tree;
 	public static ResNode root;
-	public static GmFile currentFile = new GmFile();
+	public static ProjectFile currentFile = new ProjectFile();
 	public static MDIPane mdi;
 	private static GameInformationFrame gameInfo;
 	private static GameSettingFrame gameSet;
@@ -147,7 +155,35 @@ public final class LGM
 	private static JFrame eventFrame;
 	public static AbstractButton eventButton;
 	public static PreferencesFrame prefFrame;
+	public static Cursor zoomCursor;
+	public static Cursor zoomInCursor;
+	public static Cursor zoomOutCursor;
 
+	private static void createMouseCursors() {
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		
+		Image cimg = LGM.getIconForKey("CursorDisplay.ZOOM").getImage();
+		BufferedImage img = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = img.createGraphics();
+		g.drawImage(cimg, 0, 0, null);
+		zoomCursor = toolkit.createCustomCursor(img, 
+				new Point(0,0), "Zoom");  
+		
+		cimg = LGM.getIconForKey("CursorDisplay.ZOOM_IN").getImage();
+		img = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+		g = img.createGraphics();
+		g.drawImage(cimg, 0, 0, null);
+		zoomInCursor = toolkit.createCustomCursor(img, 
+				new Point(0,0), "ZoomIn");  
+		
+		cimg = LGM.getIconForKey("CursorDisplay.ZOOM_OUT").getImage();
+		img = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+		g = img.createGraphics();
+		g.drawImage(cimg, 0, 0, null);
+		zoomOutCursor = toolkit.createCustomCursor(img, 
+				new Point(0,0), "ZoomOut");  
+	}
+	
 	public static void SetLookAndFeel(String LOOKANDFEEL)
 		{
 		if (LOOKANDFEEL.equals(themename))
@@ -189,6 +225,10 @@ public final class LGM
 				MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
 				}
 			else if (LOOKANDFEEL.equals("GTK+"))
+				{
+				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+				}
+			else if (LOOKANDFEEL.equals("Quantum"))
 				{
 				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 				}
@@ -267,45 +307,33 @@ public final class LGM
 
 	public static GameInformationFrame getGameInfo()
 	{
-	  gameInfo.dispose();
-	  gameInfo = new GameInformationFrame(currentFile.gameInfo);
-	  mdi.add(gameInfo);
-	  gameInfo.revertResource();
 		return gameInfo;
 	}
 
 	public static GameSettingFrame getGameSettings()
 	{
-		gameSet.dispose();
-		gameSet = new GameSettingFrame(currentFile.gameSettings, currentFile.constants, currentFile.includes);
-		mdi.add(gameSet);
 		return gameSet;
 	}
 
 	public static ExtensionsFrame getGameExtensions()
 		{
-		if (extSet == null) {
-		  //extSet = new ExtensionsFrame(currentFile.);
-		  mdi.add(extSet);
-		}
-  	// extSet.res =
     extSet.revertResource();
 		return extSet;
 		}
 
 	public static void showGameInformation()
 	{
-    getGameInfo().show();
+    getGameInfo().setVisible(true);
 	}
 	
 	public static void showGameSettings()
 	{
-    getGameSettings().show();
+    getGameSettings().setVisible(true);
 	}
 	
 	public static void showGameExtensions()
 	{
-    getGameExtensions().show();
+    getGameExtensions().setVisible(true);
 	}
 	
 	private LGM()
@@ -414,7 +442,9 @@ public final class LGM
 		tool.add(makeButton("Toolbar.MANUAL")); //$NON-NLS-1$
 		tool.add(Box.createHorizontalGlue()); //right align after this
 		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
-		tool.setFont(LGM.lnfFont);
+		if (LGM.themename.equals("Quantum")) {
+		  tool.setFont(LGM.lnfFont);
+		}
 		return tool;
 		}
 
@@ -426,7 +456,9 @@ public final class LGM
 	private static JComponent createTree(ResNode newroot)
 		{
 		tree = new JTree(new DefaultTreeModel(newroot));
-		tree.setFont(lnfFont);
+		if (LGM.themename.equals("Quantum")) {
+		  tree.setFont(lnfFont);
+		}
 
 		GmTreeGraphics renderer = new GmTreeGraphics();
 		
@@ -650,7 +682,7 @@ public final class LGM
 		public abstract T getInstance();
 		}
   
-	public static void main(String[] args)
+	public static void main(final String[] args) throws URISyntaxException, UnsupportedEncodingException
 		{
 		
 		//java6u10 regression causes graphical xor to be very slow
@@ -660,6 +692,11 @@ public final class LGM
 		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
 		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
 
+		// Enable antialasing of fonts
+		System.setProperty("awt.useSystemAAFontSettings",Prefs.antialiasContolFont);
+		System.setProperty("swing.aatext", "true");
+
+		
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
 		if (javaVersion < 10600)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
@@ -688,6 +725,9 @@ public final class LGM
 		splashProgress.progress(10,Messages.getString("LGM.SPLASH_LANG"));
 		Messages.updateLangPack();
 
+		splashProgress.progress(15,Messages.getString("LGM.SPLASH_CURSOR"));
+		createMouseCursors();
+		
 		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
 
@@ -697,7 +737,7 @@ public final class LGM
 		content = new JPanel(new BorderLayout());
 		content.add(BorderLayout.CENTER,createMDI());
 		eventSelect = new EventPanel();
-
+		
 		if (Prefs.dockEventPanel)
 			{
 			content.add(BorderLayout.EAST,eventSelect);
@@ -708,7 +748,7 @@ public final class LGM
 		//((BasicToolBarUI) eventSelect.getUI()).setFloating(true, new Point(500,50));
 
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
-
+		
 		gameInfo = new GameInformationFrame(currentFile.gameInfo);
 		mdi.add(gameInfo);
 		gameSet = new GameSettingFrame(currentFile.gameSettings,currentFile.constants,
@@ -721,7 +761,9 @@ public final class LGM
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
 		JMenuBar gmnb = new GmMenuBar();
-		gmnb.setFont(lnfFont);
+		if (LGM.themename.equals("Quantum")) {
+		  gmnb.setFont(lnfFont);
+		}
 		frame.setJMenuBar(gmnb);
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
@@ -747,7 +789,7 @@ public final class LGM
 		f.add(BorderLayout.NORTH,toolbar);
 		f.setOpaque(true);
 		new FramePrefsHandler(frame);
-		splashProgress.progress(70,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
+		splashProgress.progress(65,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
 		try
 			{
 			frame.setIconImage(ImageIO.read(LGM.class.getClassLoader().getResource(
@@ -757,30 +799,26 @@ public final class LGM
 			{
 			e.printStackTrace();
 			}
-		splashProgress.progress(80,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
-		populateTree();
-		splashProgress.progress(90,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
+    splashProgress.progress(70,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
+    populateTree();
+    isloaded = false;
+		splashProgress.progress(75,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
 		loadPlugins();
-		if (args.length != 0)
-			{
-			splashProgress.progress(95,Messages.getString("LGM.SPLASH_PRELOAD")); //$NON-NLS-1$
-			try
-				{
-				Listener.getInstance().fc.open(new URI(args[0]));
-				}
-			catch (URISyntaxException e)
-				{
-				e.printStackTrace();
-				}
-			}
+		splashProgress.progress(90,Messages.getString("LGM.SPLASH_PRELOAD")); //$NON-NLS-1$
+		if (args.length > 0 && args[0].length() > 1) {
+			  String path = args[0].replace("\\","/");
+			  URI uri = new File(path).toURI();
+				Listener.getInstance().fc.open(uri); 
+		}
+		isloaded = true;
 		splashProgress.complete();
 		applyBackground("org/lateralgm/main/lgm1.png"); //$NON-NLS-1$
-		if (Prefs.forceMaximized)
-			{
-			frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			}
 		frame.setVisible(true);
 		frame.pack();
+		if (Prefs.frameMaximized) {
+			frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		}
+
 		}
 
 	public static void askToSaveProject()
@@ -794,6 +832,13 @@ public final class LGM
 		int n = JOptionPane.showConfirmDialog(null,Messages.getString("LGM.KEEPCHANGES_MESSAGE"),
 				Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE,null);
+
+		// java preferences do not seem to memorize maximized state
+		if ((frame.getExtendedState() & frame.MAXIMIZED_BOTH) != 0) {
+				PrefsStore.setFrameMaximized(true);
+		} else {
+				PrefsStore.setFrameMaximized(false);
+		}
 
 		switch (n)
 			{
@@ -911,11 +956,14 @@ public final class LGM
 			}
 		}
 
+	private static boolean eventVisible = false;
+
 	public static void showEventPanel()
 		{
 		if (Prefs.dockEventPanel)
 			{
-			eventSelect.setVisible(true);
+			eventVisible = !eventVisible;
+			eventSelect.setVisible(eventVisible);
 			}
 		else
 			{
@@ -925,6 +973,8 @@ public final class LGM
 				eventFrame.setAlwaysOnTop(true);
 				eventFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 				eventFrame.setSize(new Dimension(250,300));
+				eventFrame.setIconImage(LGM.getIconForKey("Toolbar.EVENT_BUTTON").getImage());
+				eventFrame.setTitle(Messages.getString("Toolbar.EVENT_BUTTON"));
 				eventFrame.add(eventSelect);
 				eventSelect.setVisible(true);
 				eventSelect.setFloatable(false);

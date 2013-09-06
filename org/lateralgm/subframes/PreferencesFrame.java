@@ -10,11 +10,8 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -29,11 +26,9 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.plaf.FontUIResource;
 
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.main.LGM;
@@ -50,7 +45,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	protected Color fgColor;
 	
 	JComboBox themeCombo, iconCombo, langCombo, actionsCombo;
-	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable;
+	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, dockEvent;
   JTextField iconPath, themePath, manualPath, actionsPath;
   
 	JTextField soundEditorPath, backgroundEditorPath, spriteEditorPath, codeEditorPath;
@@ -68,6 +63,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
     LookAndFeelInfo lnfs[] = UIManager.getInstalledLookAndFeels();
     for (int i = 0; i < lnfs.length; i++) {
       comboBoxItems.add(lnfs[i].getName());
+      if (lnfs[i].getName().toLowerCase().contains("gtk")) {
+        comboBoxItems.add("Quantum");
+      }
     }
     comboBoxItems.add("Custom");
     final DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(comboBoxItems);
@@ -88,6 +86,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
     restrictTreeEnable.setSelected(Prefs.restrictHierarchy);
     extraNodesEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_EXTRA_NODES"));
     extraNodesEnable.setSelected(Prefs.extraNodes);
+    dockEvent = new JCheckBox(Messages.getString("PreferencesFrame.DOCK_EVENT_PANEL"));
+    dockEvent.setSelected(Prefs.dockEventPanel);
 		JLabel themePathLabel = new JLabel("Theme Path:");
 		themePath = new JTextField(Prefs.swingThemePath);
 		JLabel iconPathLabel = new JLabel("Icons Path:");
@@ -126,6 +126,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			      		 .addComponent(themePath)
 			           .addComponent(iconPath)
 			           .addComponent(manualPath))
+			      .addGroup(gl.createParallelGroup()
+			      		 .addComponent(dockEvent))
 			           /*
 			      .addGroup(gl.createSequentialGroup()
 			      		 .addComponent(actionsLabel)
@@ -155,6 +157,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			      .addGroup(gl.createSequentialGroup()
 			           .addComponent(manualPathLabel)
 			           .addComponent(manualPath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			      .addGroup(gl.createSequentialGroup()
+			           .addComponent(dockEvent, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 			           /*
 			  		.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 			      		 .addComponent(actionsLabel)
@@ -391,6 +395,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		setSize(600,400);
 	  setLocationRelativeTo(LGM.frame);
 		setTitle(Messages.getString("PreferencesFrame.TITLE"));
+		setIconImage(LGM.getIconForKey("Toolbar.PREFERENCES").getImage());
 		setResizable(true);
 
 		tabs = new JTabbedPane();
@@ -452,6 +457,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	  PrefsStore.setSpriteEditorCommand(spriteEditorPath.getText());
 	  PrefsStore.setSoundEditorCommand(soundEditorPath.getText());
 	  PrefsStore.setScriptEditorCommand(codeEditorPath.getText());
+	  PrefsStore.setDockEventPanel(dockEvent.isSelected());
 	}
 	
 	public void ResetPreferences()

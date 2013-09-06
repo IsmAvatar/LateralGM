@@ -12,7 +12,7 @@ package org.lateralgm.resources;
 import java.awt.Color;
 import java.util.EnumMap;
 
-import org.lateralgm.file.GmFile;
+import org.lateralgm.file.ProjectFile;
 import org.lateralgm.util.PropertyMap;
 
 public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettings>
@@ -70,7 +70,7 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 			false,ColorDepth.NO_CHANGE,Resolution.NO_CHANGE,Frequency.NO_CHANGE,/**/
 			false,false,true,true,true,true,false,false,true,Priority.NORMAL,/**/
 			false,ProgressBar.DEFAULT,null,null,false,null,false,255,true,/**/
-			true,false,false,false,true,"","100",GmFile.longTimeToGmTime(System.currentTimeMillis()),"",/**///$NON-NLS-1$ //$NON-NLS-3$
+			true,false,false,false,true,"","100",ProjectFile.longTimeToGmTime(System.currentTimeMillis()),"",/**///$NON-NLS-1$ //$NON-NLS-3$
 			IncludeFolder.MAIN,false,false,1,0,0,0,"","","","",null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	@Override

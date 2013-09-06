@@ -11,11 +11,20 @@
 package org.lateralgm.resources;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferDouble;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferShort;
 import java.lang.ref.SoftReference;
 import java.util.EnumMap;
 
 import org.lateralgm.main.Util;
+import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.util.PropertyMap;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class Background extends InstantiableResource<Background,Background.PBackground> implements
 		Resource.Viewable
@@ -23,6 +32,8 @@ public class Background extends InstantiableResource<Background,Background.PBack
 	private BufferedImage backgroundImage = null;
 	private SoftReference<BufferedImage> imageCache = null;
 
+	private final BackgroundPropertyListener bpl = new BackgroundPropertyListener();
+	
 	public enum PBackground
 		{
 		TRANSPARENT,SMOOTH_EDGES,PRELOAD,USE_AS_TILESET,TILE_WIDTH,TILE_HEIGHT,H_OFFSET,V_OFFSET,H_SEP,
@@ -40,6 +51,7 @@ public class Background extends InstantiableResource<Background,Background.PBack
 	public Background(ResourceReference<Background> r)
 		{
 		super(r);
+		properties.getUpdateSource(PBackground.TRANSPARENT).addListener(bpl);
 		}
 
 	public Background makeInstance(ResourceReference<Background> r)
@@ -88,6 +100,39 @@ public class Background extends InstantiableResource<Background,Background.PBack
 		this.backgroundImage = backgroundImage;
 		fireUpdate();
 		}
+	
+	/** Returns the byte length of a DataBuffer **/
+	public long getDataBytes(DataBuffer data) {
+		int dataType = data.getDataType();
+		switch (dataType) {
+			case DataBuffer.TYPE_BYTE:
+				byte[] bytes = ((DataBufferByte) data).getData();
+				return bytes.length;
+			case DataBuffer.TYPE_USHORT:
+				short[] shorts = ((DataBufferShort) data).getData();
+				return shorts.length * 2;
+			case DataBuffer.TYPE_INT:
+				int[] ints = ((DataBufferInt) data).getData();
+				return ints.length * 4;
+			case DataBuffer.TYPE_FLOAT:
+				float[] floats = ((DataBufferFloat) data).getData();
+				return floats.length * 4;
+			case DataBuffer.TYPE_DOUBLE:
+				double[] doubles = ((DataBufferDouble) data).getData();
+				return doubles.length * 8;
+			default:
+  			throw new IllegalArgumentException("Unknown data buffer type: "+
+                                     dataType);
+		}
+	}
+	
+	/** Returns the size of the background image in bytes */
+	public long getSize() {
+		if (backgroundImage != null) {
+			return getDataBytes(backgroundImage.getRaster().getDataBuffer());
+		}
+		return 0;
+	}
 
 	public int getWidth()
 		{
@@ -104,4 +149,22 @@ public class Background extends InstantiableResource<Background,Background.PBack
 		{
 		return new PropertyMap<PBackground>(PBackground.class,this,DEFS);
 		}
+	
+	private class BackgroundPropertyListener extends PropertyUpdateListener<PBackground>
+		{
+		@Override
+		public void updated(PropertyUpdateEvent<PBackground> e)
+			{
+			switch (e.key)
+				{
+				case TRANSPARENT:
+					fireUpdate();
+					break;
+			default:
+		    //TODO: maybe put a failsafe here?
+				break;
+				}
+			}
+		}
+	
 	}

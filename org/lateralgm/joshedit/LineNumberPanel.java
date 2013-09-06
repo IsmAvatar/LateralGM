@@ -90,7 +90,7 @@ public class LineNumberPanel extends JPanel
 		//get line height, multiply by number of lines. + 1 line since the end seems to have a little extra
 		int height = metrics.getHeight() * (lines + 1);
 
-		setPreferredSize(new Dimension(width,height));
+		setPreferredSize(new Dimension(width + 3,height));
 		revalidate();
 
 		//this particular line appears to be necessary to allow these changes to take effect.
@@ -107,7 +107,11 @@ public class LineNumberPanel extends JPanel
 		Object map = Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints"); //$NON-NLS-1$
 		if (map != null) ((Graphics2D) g).addRenderingHints((Map<?,?>) map);
 
-		Rectangle clip = g.getClipBounds();
+		Rectangle clip = this.getVisibleRect();
+		// line numbering is always there regardless of horizontal scroll
+		// if you don't make the width static and drag the code editor
+		// so that line numbers are outside the mdi area, the numbers smudge
+		clip.setSize(this.getWidth(), clip.height);
 		final int insetY = metrics.getLeading() + metrics.getAscent();
 		final int gh = metrics.getHeight();
 		int lineNum = clip.y / gh;
@@ -116,7 +120,8 @@ public class LineNumberPanel extends JPanel
 		if (!startZero) lineNum++;  
      
 		g.setColor(bgColor);
-		g.fillRect(clip.x,clip.y,clip.width,clip.height);
+		//g.fillRect(clip.x,clip.y,clip.width,clip.height);
+		 g.fillRect(0,0,getWidth(),getHeight());	
 		g.setColor(fgColor);
 
 		g.setFont(new Font("Monospace", Font.PLAIN, 12));
@@ -128,7 +133,7 @@ public class LineNumberPanel extends JPanel
 			str = Integer.toString(lineNum);
 		  strw = (int)  
         g.getFontMetrics().getStringBounds(str, g).getWidth();  
-		  g.drawString(str, clip.width - strw, y);
+		  g.drawString(str, clip.width - strw - 3, y);
 		}
 	}
 }

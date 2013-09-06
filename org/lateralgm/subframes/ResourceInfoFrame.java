@@ -2,8 +2,19 @@
  * Copyright (C) 2013 Robert B. Colton
  * 
  * This file is part of LateralGM.
- * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
- * See LICENSE for details.
+ * 
+ * LateralGM is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * LateralGM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License (COPYING) for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.lateralgm.subframes;
@@ -23,7 +34,6 @@ import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -32,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListModel;
@@ -40,6 +51,7 @@ import javax.swing.tree.TreeNode;
 
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
+import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.ResourceReference;
@@ -52,13 +64,11 @@ import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
 import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
-// TODO: This window can be reformated to work with timelines as well
-
 public class ResourceInfoFrame extends JFrame implements ActionListener
 {
 	private static final long serialVersionUID = 1L;
 	protected JSpinner sSizes;
-	protected JEditorPane editor;
+	protected JTextArea editor;
 	protected Color fgColor;
 	private CustomFileChooser fc;
 	private GmObjectFrame gmObjFrame;
@@ -202,7 +212,6 @@ public static int countLines(String str)
 	  }
 	  int totalLinesOfCode = 0;
 	  String propInfo = "------ Properties ------\n\n";
-	  ResourceReference<?> res;
 	  propInfo += Messages.getString("TimelineFrame.NAME") + " " + timelineFrame.name.getText() + "\n";
 	  propInfo += Messages.getString("TimelineFrame.MOMENTS") + " " +
 	    timelineFrame.moments.getModel().getSize() + "\n";
@@ -211,8 +220,8 @@ public static int countLines(String str)
 	  String momInfo = "\n------ Moments ------";
 	  
 	  // Make the current selected event realize any recent changes to actions
-		JList moms = timelineFrame.moments;
-		ListModel mommodel = moms.getModel();
+		JList<?> moms = timelineFrame.moments;
+		ListModel<?> mommodel = moms.getModel();
 		
 		if (mommodel.getSize() > 0) {
 	    Moment node = (Moment)mommodel.getElementAt(moms.getSelectedIndex());
@@ -352,11 +361,9 @@ public static int countLines(String str)
 	
 	public ResourceInfoFrame()
 	{
-    setAlwaysOnTop(true);
+    //setAlwaysOnTop(true);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(440,500);
-		setTitle(Messages.getString("ResourceInfoFrame.TITLE"));
-		setResizable(true);
+		setSize(440, 500);
 		setLocationRelativeTo(LGM.frame);
 		
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -370,26 +377,32 @@ public static int countLines(String str)
 		gl.setAutoCreateContainerGaps(true);
 		
 		//String key;
-		editor = new JEditorPane();
-		p.add(editor, BorderLayout.CENTER);
-    add(new JScrollPane(editor),BorderLayout.CENTER);
+		editor = new JTextArea();
+		editor.setWrapStyleWord(false);
+    JScrollPane scrollable = new JScrollPane(editor);
+		add(scrollable, BorderLayout.CENTER);
+    setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(editor));
     editor.setText("object info will be displayed here when loaded");
     editor.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
     editor.setEditable(false);
     editor.getCaret().setVisible(true); // show the caret anyway
 		makeContextMenu();
 	}
-	
+  
 	public ResourceInfoFrame(GmObjectFrame gmObjF)
 		{
       this();
 		  gmObjFrame = gmObjF;
+		  this.setIconImage(LGM.getIconForKey("Resource.OBJ").getImage());
+		  setTitle(Messages.getString("ResourceInfoFrame.OBJECT_TITLE")); 
 		}
 	
 	public ResourceInfoFrame(TimelineFrame timelineF)
 		{
       this();
 		  timelineFrame = timelineF;
+		  this.setIconImage(LGM.getIconForKey("Resource.TML").getImage());
+		  setTitle(Messages.getString("ResourceInfoFrame.TIMELINE_TITLE"));
 		}
 	
 	public void saveToFile()

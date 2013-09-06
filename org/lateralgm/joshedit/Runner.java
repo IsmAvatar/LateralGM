@@ -9,7 +9,7 @@
 package org.lateralgm.joshedit;
 
 import java.awt.BorderLayout;
-
+import java.awt.Graphics;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -24,6 +24,7 @@ import java.util.prefs.Preferences;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -33,6 +34,8 @@ import javax.swing.event.CaretListener;
 
 import org.lateralgm.joshedit.Code.CodeEvent;
 import org.lateralgm.joshedit.Code.CodeListener;
+import org.lateralgm.joshedit.lexers.GMLTokenMarker;
+import org.lateralgm.main.LGM;
 
 public class Runner
 {
@@ -113,10 +116,41 @@ public class Runner
 			find = new QuickFind(text);
 			text.finder = find;
 
-			scroller = new JScrollPane(text);
+			if (LGM.themename.equals("Quantum")) {
+			  scroller = new CustomJScrollPane(text);
+			} else {
+			  scroller = new JScrollPane(text);
+			}
 			scroller.setRowHeaderView(lines);
 			add(scroller,BorderLayout.CENTER);
 			add(find,BorderLayout.SOUTH);
+		}
+		
+		private class CustomJScrollPane extends JScrollPane
+		{
+
+		public CustomJScrollPane(JComponent c)
+				{
+				super(c);
+				// TODO Auto-generated constructor stub
+				}
+
+		@Override
+		public void paintComponent(Graphics g)
+			{
+			  // gtk does not outline the scroll component like the other look and feels
+			  // nimbus and the default and all the other ones put a border around the line
+			  // numbering as well as code area, gtk tries to put a border right between the
+			  // the two, this class gets around that by masking its back color to that of the 
+			  // line number area
+			  //super.paint(g);
+			  g.setColor(lines.bgColor);
+			  g.fillRect(-1,-1, getWidth() + 11,getHeight() + 1);
+			  // paint children, the line number panel and code area
+				this.paintChildren(g);
+			  return;
+			}
+		
 		}
 
 		public int getCaretLine()

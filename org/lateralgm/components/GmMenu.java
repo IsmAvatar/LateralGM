@@ -30,7 +30,9 @@ public class GmMenu extends JMenu
 		{
 		super();
 		setTextAndAlt(this,s);
-		this.setFont(LGM.lnfFont.deriveFont(Font.BOLD, 14));
+		if (LGM.themename.equals("Quantum")) {
+		  this.setFont(LGM.lnfFont.deriveFont(Font.ROMAN_BASELINE));
+		}
 		}
 
 	public JMenuItem addItem(String key)
@@ -59,7 +61,9 @@ public class GmMenu extends JMenu
 			}
 		if (shortcut >= 0) item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
 		item.addActionListener(listener);
-		item.setFont(LGM.lnfFont.deriveFont(Font.BOLD));
+		if (LGM.themename.equals("Quantum")) {
+		  item.setFont(LGM.lnfFont);
+		}
 		add(item);
 		return item;
 		}

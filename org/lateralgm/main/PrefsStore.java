@@ -160,6 +160,19 @@ public final class PrefsStore
 	  Prefs.extraNodes = selected;
 	}
 	
+	public static void setFrameMaximized(boolean selected)
+	{
+	  PREFS.putBoolean("frameMaximized",selected);
+	  Prefs.frameMaximized = selected;
+	}
+	
+	public static void setDockEventPanel(boolean selected)
+		{
+		// TODO Auto-generated method stub
+		PREFS.putBoolean("dockEventPanel", selected);
+		Prefs.dockEventPanel = selected;
+		}
+	
 	public static int getNumberOfBackups()
 		{
 		return PREFS.getInt("FILE_BACKUP_COUNT",1);

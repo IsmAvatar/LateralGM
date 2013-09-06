@@ -45,7 +45,7 @@ public class Argument
 	public static final byte ARG_FONT = 12;
 	public static final byte ARG_TIMELINE = 14;
 
-	public final byte kind;
+	public byte kind;
 	private String val;
 	private ResourceReference<? extends Resource<?,?>> res; // for references to Resources
 

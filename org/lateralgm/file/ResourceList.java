@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeSet;
 
-import org.lateralgm.file.GmFile.ResourceHolder;
+import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;

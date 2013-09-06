@@ -1,9 +1,21 @@
 /*
  * Copyright (C) 2007-2011 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2013 Robert B. Colton
  * 
  * This file is part of LateralGM.
- * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
- * See LICENSE for details.
+ * 
+ * LateralGM is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * LateralGM is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License (COPYING) for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package org.lateralgm.main;
@@ -47,11 +59,13 @@ import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.GmFile;
-import org.lateralgm.file.GmFile.FormatFlavor;
+import org.lateralgm.file.GMXFileReader;
+import org.lateralgm.file.GMXFileWriter;
 import org.lateralgm.file.GmFileReader;
 import org.lateralgm.file.GmFileWriter;
-import org.lateralgm.file.GmFormatException;
+import org.lateralgm.file.ProjectFile;
+import org.lateralgm.file.ProjectFile.FormatFlavor;
+import org.lateralgm.file.ProjectFormatException;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
@@ -61,7 +75,7 @@ public class FileChooser
 	public static List<FileReader> readers = new ArrayList<FileReader>();
 	public static List<FileWriter> writers = new ArrayList<FileWriter>();
 	public static List<FileView> fileViews = new ArrayList<FileView>();
-	static GmReader gmReader;
+	static ProjectReader projectReader;
 	FileWriter selectedWriter;
 	CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 	FilterSet openFs = new FilterSet(), saveFs = new FilterSet();
@@ -69,13 +83,13 @@ public class FileChooser
 
 	public static void addDefaultReadersAndWriters()
 		{
-		if (gmReader != null) return;
+		if (projectReader != null) return;
 
-		readers.add(gmReader = new GmReader());
+		readers.add(projectReader = new ProjectReader());
 
-		int[] gmvers = { 810,800,701,600 };
+		int[] gmvers = { 810,800,701,600,1110 };
 		for (int gmver : gmvers)
-			writers.add(new GmWriter(gmver));
+			writers.add(new ProjectWriter(gmver));
 		}
 
 	public static interface GroupFilter
@@ -89,12 +103,12 @@ public class FileChooser
 		{
 		boolean canRead(URI uri);
 
-		GmFile read(InputStream is, URI pathname, ResNode root) throws GmFormatException;
+		ProjectFile read(InputStream is, URI pathname, ResNode root, boolean gmx) throws ProjectFormatException;
 		}
 
 	public static interface FileWriter
 		{
-		void write(OutputStream out, GmFile f, ResNode root) throws IOException;
+		void write(OutputStream out, ProjectFile f, ResNode root) throws IOException;
 
 		String getSelectionName();
 
@@ -131,10 +145,10 @@ public class FileChooser
 		fc.setFileView(new FileViewUnion());
 
 		addDefaultReadersAndWriters();
-		addOpenFilters(gmReader);
+		addOpenFilters(projectReader);
 		selectedWriter = writers.get(0); //TODO: need a better way to pick a default...
 
-		addSaveFilters(new GmWriterFilter());
+		addSaveFilters(new ProjectWriterFilter());
 		}
 
 	public class LGMDropHandler extends FileDropHandler
@@ -238,6 +252,7 @@ public class FileChooser
 
 	private class FileViewUnion extends FileView
 		{
+		@Override
 		public String getName(File f)
 			{
 			for (FileView fv : fileViews)
@@ -247,7 +262,7 @@ public class FileChooser
 				}
 			return super.getName(f);
 			}
-
+    @Override
 		public String getDescription(File f)
 			{
 			for (FileView fv : fileViews)
@@ -257,7 +272,7 @@ public class FileChooser
 				}
 			return super.getDescription(f);
 			}
-
+    @Override
 		public String getTypeDescription(File f)
 			{
 			for (FileView fv : fileViews)
@@ -267,7 +282,7 @@ public class FileChooser
 				}
 			return super.getTypeDescription(f);
 			}
-
+    @Override
 		public Icon getIcon(File f)
 			{
 			for (FileView fv : fileViews)
@@ -277,7 +292,7 @@ public class FileChooser
 				}
 			return super.getIcon(f);
 			}
-
+    @Override
 		public Boolean isTraversable(File f)
 			{
 			for (FileView fv : fileViews)
@@ -324,15 +339,15 @@ public class FileChooser
 			}
 		}
 
-	protected static class GmReader implements FileReader,GroupFilter
+	protected static class ProjectReader implements FileReader,GroupFilter
 		{
 		protected CustomFileFilter[] filters;
 		protected CustomFileFilter groupFilter;
 
-		protected GmReader()
+		protected ProjectReader()
 			{
-			String[] exts = { ".gm81",".gmk",".gm6",".gmd" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			String[] descs = { "GM81","GMK","GM6","GMD" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			String[] exts = { ".gm81",".gmk",".gm6",".gmd",".gmx" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			String[] descs = { "GM81","GMK","GM6","GMD","GMX" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			groupFilter = new CustomFileFilter(Messages.getString("FileChooser.FORMAT_READERS_GM"),exts); //$NON-NLS-1$
 			filters = new CustomFileFilter[exts.length];
 			for (int i = 0; i < exts.length; i++)
@@ -355,24 +370,36 @@ public class FileChooser
 			return groupFilter.accept(new File(f));
 			}
 
-		public GmFile read(InputStream is, URI uri, ResNode root) throws GmFormatException
+		public ProjectFile read(InputStream is, URI uri, ResNode root, boolean gmx) throws ProjectFormatException
 			{
-			return GmFileReader.readGmFile(is,uri,root);
+			//TODO: should be a little more graceful than this
+			ProjectFile f = null;
+			if (gmx) {
+		    f = GMXFileReader.readProjectFile(is, uri, root);
+		  } else {
+		    f = GmFileReader.readProjectFile(is, uri, root);
+	  	}
+			return f;
 			}
 		}
 
-	protected static class GmWriter implements FileWriter
+	protected static class ProjectWriter implements FileWriter
 		{
 		int ver;
 
-		public GmWriter(int ver)
+		public ProjectWriter(int ver)
 			{
 			this.ver = ver;
 			}
 
-		public void write(OutputStream out, GmFile f, ResNode root) throws IOException
+		public void write(OutputStream out, ProjectFile f, ResNode root) throws IOException
 			{
-			GmFileWriter.writeGmFile(out,f,root,ver);
+			//TODO: should be a little more graceful than this
+			if (ver > 1000) {
+			  GMXFileWriter.writeProjectFile(out,f,root,ver);
+			} else {
+			  GmFileWriter.writeProjectFile(out,f,root,ver);
+			}
 			}
 
 		public String getSelectionName()
@@ -381,39 +408,41 @@ public class FileChooser
 			return Integer.toString(ver);
 			}
 
-		public String getExtension()
-			{
-			switch (ver)
-				{
-				case 530:
-					return ".gmd";
-				case 600:
-					return ".gm6";
-				case 701:
-				case 800:
-					return ".gmk";
-				case 810:
-					return ".gm81";
-				default:
-					throw new IllegalArgumentException(Integer.toString(ver));
-				}
-			}
-
 		public FormatFlavor getFlavor()
 			{
 			return FormatFlavor.getVersionFlavor(ver);
 			}
+
+		public String getExtension()
+			{
+			switch (ver)
+			{
+			case 530:
+				return ".gmd";
+			case 600:
+				return ".gm6";
+			case 701:
+			case 800:
+				return ".gmk";
+			case 810:
+				return ".gm81";
+			case 1110:
+			  return ".gmx";
+			default:
+				throw new IllegalArgumentException(Integer.toString(ver));
+			}
+			}
 		}
 
-	protected class GmWriterFilter implements GroupFilter
+	protected class ProjectWriterFilter implements GroupFilter
 		{
 		protected CustomFileFilter[] filters;
 		protected CustomFileFilter groupFilter;
 
-		protected GmWriterFilter()
+		protected ProjectWriterFilter()
 			{
-			final String exts[] = { ".gm81",".gmk",".gm6" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			final String[] descs = { "GM81","GMK","GM6" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			final String exts[] = { ".gm81",".gmk",".gm6",".gmx" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			final String[] descs = { "GM81","GMK","GM6","GMX" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			groupFilter = new CustomFileFilter(Messages.getString("FileChooser.FORMAT_WRITERS_GM"),exts); //$NON-NLS-1$
 			filters = new CustomFileFilter[exts.length];
 			for (int i = 0; i < exts.length; i++)
@@ -454,7 +483,7 @@ public class FileChooser
 		{
 		setTitleURI(null);
 		LGM.newRoot();
-		LGM.currentFile = new GmFile();
+		LGM.currentFile = new ProjectFile();
 		LGM.populateTree();
 		fc.setSelectedFile(new File(new String()));
 		selectedWriter = null;
@@ -502,7 +531,9 @@ public class FileChooser
 			{
 			try
 				{
-				LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot());
+				String ext = uri.getPath().substring(uri.getPath().lastIndexOf("."));
+				boolean gmx = (".gmx".equals(ext));
+				LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot(), gmx);
 				}
 			catch (MalformedURLException e)
 				{
@@ -513,7 +544,7 @@ public class FileChooser
 				return;
 				}
 			}
-		catch (GmFormatException ex)
+		catch (ProjectFormatException ex)
 			{
 			new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
 					Messages.getString("FileChooser.ERROR_LOAD"),ex).setVisible(true); //$NON-NLS-1$

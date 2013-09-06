@@ -214,7 +214,29 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		{
 			try
 				{
-				fc.open(args.length > 1 ? new URI(args[1]) : null);
+					fc.open(args.length > 1 ? new URI(args[1]) : null); 
+				}
+			catch (URISyntaxException e1)
+				{
+				e1.printStackTrace();
+				}
+			return;
+		}
+		if (com.endsWith(".OPENRECENT")) //$NON-NLS-1$
+		{
+			try
+				{
+				URI path = new URI("");
+				if (args.length > 1) {
+					path = new URI(args[1]);
+				}
+				File f = new File(path);
+				if(f.exists()) { 
+					fc.open(path); 
+				} else {
+					JOptionPane.showMessageDialog(null,path.getPath(), "Error! File does not exist.", JOptionPane.ERROR_MESSAGE);
+				}
+				
 				}
 			catch (URISyntaxException e1)
 				{

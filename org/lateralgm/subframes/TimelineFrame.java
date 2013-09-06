@@ -40,7 +40,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
-import org.lateralgm.components.GMLTextArea;
+import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.impl.ResNode;
@@ -66,7 +66,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 
 	public JList moments;
 	public ActionList actions;
-	public GMLTextArea code;
+	public CodeTextArea code;
 	private JComponent editor;
 	
 	private ResourceInfoFrame infoFrame;

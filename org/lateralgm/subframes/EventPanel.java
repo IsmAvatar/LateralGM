@@ -241,7 +241,10 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 			}
 
 		//DRAW
-		root.add(MainEvent.EV_DRAW);
+		EventNode drawev = new EventNode(MainEvent.EV_DRAW);
+		root.add(drawev);
+		drawev.add(MainEvent.EV_DRAW, Event.EV_DRAW_NORMAL);
+		drawev.add(MainEvent.EV_DRAW, Event.EV_DRAW_GUI);
 
 		//KEYPRESS
 		EventNode keypress = new EventNode(MainEvent.EV_KEYPRESS);
@@ -344,7 +347,9 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_INSERT);
 
 		events = new JTree(root);
-		events.setFont(LGM.lnfFont.deriveFont(Font.BOLD));
+		if (LGM.themename.equals("Quantum")) {
+		  events.setFont(LGM.lnfFont.deriveFont(Font.PLAIN));
+		}
 		events.setCellRenderer(new EventNodeRenderer());
 		events.setRootVisible(false);
 		events.setShowsRootHandles(true);
