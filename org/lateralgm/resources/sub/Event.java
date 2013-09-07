@@ -102,6 +102,7 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 	public static final byte EV_USER13 = 23;
 	public static final byte EV_USER14 = 24;
 	public static final byte EV_USER15 = 25;
+	public static final byte EV_CLOSEWINDOW = 30;
 
 	// step event types
 	public static final byte EV_STEP_NORMAL = 0;
@@ -266,7 +267,7 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 			case MainEvent.EV_KEYRELEASE:
 				return Messages.format("Event.EVENT" + mainId + "_X",getGmKeyName(eventId)); //$NON-NLS-1$
 			case MainEvent.EV_OTHER:
-				if (eventId >= EV_USER0)
+				if (eventId >= EV_USER0 && eventId <= EV_USER15)
 					return Messages.format("Event.EVENT" + mainId + "_X",eventId - EV_USER0); //$NON-NLS-1$
 				return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
 			default:

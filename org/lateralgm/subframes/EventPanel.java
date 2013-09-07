@@ -234,6 +234,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		EventNode user = new EventNode(
 				Messages.getString("EventPanel.USER_DEFINED"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(user);
+		other.add(new EventNode(
+					Messages.format("Event.EVENT7_20"),MainEvent.EV_OTHER,20));
 		for (int i = 0; i <= 15; i++)
 			{
 			user.add(new EventNode(

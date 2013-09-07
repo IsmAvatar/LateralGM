@@ -708,12 +708,12 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		}
 	
 	public void setAlignmentOptions(int alignment) {
-	miLeft.setSelected(alignment == StyleConstants.ALIGN_LEFT);
-	miCenter.setSelected(alignment == StyleConstants.ALIGN_CENTER);
-	miRight.setSelected(alignment == StyleConstants.ALIGN_RIGHT);
-	tbLeft.setSelected(alignment == StyleConstants.ALIGN_LEFT);
-	tbCenter.setSelected(alignment == StyleConstants.ALIGN_CENTER);
-	tbRight.setSelected(alignment == StyleConstants.ALIGN_RIGHT);
+		miLeft.setSelected(alignment == StyleConstants.ALIGN_LEFT);
+		miCenter.setSelected(alignment == StyleConstants.ALIGN_CENTER);
+		miRight.setSelected(alignment == StyleConstants.ALIGN_RIGHT);
+		tbLeft.setSelected(alignment == StyleConstants.ALIGN_LEFT);
+		tbCenter.setSelected(alignment == StyleConstants.ALIGN_CENTER);
+		tbRight.setSelected(alignment == StyleConstants.ALIGN_RIGHT);
 	}
 	
 	public void setSelectionAlignment(int alignment) {
@@ -825,19 +825,16 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		else if (com.equals("GameInformationFrame.ALIGN_LEFT")) //$NON-NLS-1$
 			{
 			setSelectionAlignment(StyleConstants.ALIGN_LEFT);
-			//setSelectionAttribute(StyleConstants.Alignment,StyleConstants.ALIGN_LEFT);
 			return;
 			}
 		else if (com.equals("GameInformationFrame.ALIGN_CENTER")) //$NON-NLS-1$
 			{
 			setSelectionAlignment(StyleConstants.ALIGN_CENTER);
-			//setSelectionAttribute(StyleConstants.Alignment,StyleConstants.ALIGN_CENTER);
 			return;
 			}
 		else if (com.equals("GameInformationFrame.ALIGN_RIGHT")) //$NON-NLS-1$
 			{
 			setSelectionAlignment(StyleConstants.ALIGN_RIGHT);
-			//setSelectionAttribute(StyleConstants.ALIGN_RIGHT,true);
 			return;
 			}
 		else if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
@@ -880,7 +877,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try
 			{
-			rtf.write(baos,editor.getDocument(),0,0);
+			StyledDocument doc = (StyledDocument)editor.getDocument();
+			rtf.write(baos,doc, doc.getStartPosition().getOffset(), doc.getLength());
 			res.put(PGameInformation.TEXT,baos.toString("UTF-8")); //$NON-NLS-1$
 			}
 		catch (IOException e)
