@@ -682,7 +682,7 @@ public final class LGM
 		public abstract T getInstance();
 		}
   
-	public static void main(final String[] args) throws URISyntaxException, UnsupportedEncodingException
+	public static void main(final String[] args)
 		{
 		
 		//java6u10 regression causes graphical xor to be very slow
