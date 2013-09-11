@@ -103,7 +103,7 @@ public class FileChooser
 		{
 		boolean canRead(URI uri);
 
-		ProjectFile read(InputStream is, URI pathname, ResNode root, boolean gmx) throws ProjectFormatException;
+		ProjectFile read(InputStream is, URI pathname, ResNode root, String format) throws ProjectFormatException;
 		}
 
 	public static interface FileWriter
@@ -370,11 +370,11 @@ public class FileChooser
 			return groupFilter.accept(new File(f));
 			}
 
-		public ProjectFile read(InputStream is, URI uri, ResNode root, boolean gmx) throws ProjectFormatException
+		public ProjectFile read(InputStream is, URI uri, ResNode root, String format) throws ProjectFormatException
 			{
 			//TODO: should be a little more graceful than this
 			ProjectFile f = null;
-			if (gmx) {
+			if (format.endsWith("gmx")) {
 		    f = GMXFileReader.readProjectFile(is, uri, root);
 		  } else {
 		    f = GmFileReader.readProjectFile(is, uri, root);
@@ -532,8 +532,7 @@ public class FileChooser
 			try
 				{
 				String ext = uri.getPath().substring(uri.getPath().lastIndexOf("."));
-				boolean gmx = (".gmx".equals(ext));
-				LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot(), gmx);
+				LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot(), ext);
 				}
 			catch (MalformedURLException e)
 				{

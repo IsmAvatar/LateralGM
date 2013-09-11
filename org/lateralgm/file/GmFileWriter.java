@@ -768,7 +768,7 @@ public final class GmFileWriter
 		while (e.hasMoreElements())
 			{
 			ResNode node = (ResNode) e.nextElement();
-			if (node.toString().toLowerCase().contains("shader") || node.kind == Shader.class) {
+			if (node.kind == Shader.class) {
 			  continue;
 			}
 			out.write4(node.status);
