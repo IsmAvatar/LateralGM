@@ -227,6 +227,7 @@ public final class GmFileReader
 			readBackgrounds(c);
 			readPaths(c);
 			readScripts(c);
+			//TODO: GMK 820 reads shaders first
 			int rver = in.read4();
 			  readFonts(c, rver);
 			readTimelines(c);
