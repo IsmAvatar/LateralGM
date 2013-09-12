@@ -406,21 +406,21 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		return panel;
 		}
 	
-	private void realizeScrollBarIncrement(JScrollPane scroll)
+	private void realizeScrollBarIncrement(JScrollPane scroll, Dimension size)
 		{
 		JScrollBar vertical = scroll.getVerticalScrollBar();
 		JScrollBar horizontal = scroll.getHorizontalScrollBar();
 		if (vertical != null) {
-			vertical.setUnitIncrement(scroll.getHeight() / 5);
+			vertical.setUnitIncrement((int) (size.getHeight() / 5));
 		}
 		if (horizontal != null) {
-			horizontal.setUnitIncrement(scroll.getHeight() / 5);
+			horizontal.setUnitIncrement((int) (size.getHeight() / 5));
 		}
 		}
 	
 	private void updateScrollBars()
 		{
-		realizeScrollBarIncrement(previewScroll);
+		realizeScrollBarIncrement(previewScroll, previewScroll.getPreferredSize());
 		}
 
 	public double getZoom() {

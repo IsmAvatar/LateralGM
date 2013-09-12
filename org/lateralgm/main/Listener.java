@@ -35,6 +35,7 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.text.Position;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
@@ -161,37 +162,42 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		g.openFrame(true);
 		}
 
-	protected static void deleteSelectedResource(JTree tree)
+	protected static void deleteResourcePath(Object[] resources) 
 		{
-		ResNode me = (ResNode) tree.getLastSelectedPathComponent();
-		if (me == null || !me.isInstantiable() || me.status == ResNode.STATUS_PRIMARY) return;
+		HashSet<Resource<?,?>> rs = new HashSet<Resource<?,?>>();
+		for (int i = 0; i < resources.length; i++)
+			{
+			ResNode node = (ResNode) resources[i];
+			if (node.frame != null) node.frame.dispose();
+			if (node.status == ResNode.STATUS_SECONDARY)
+				{
+				Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
+				if (res != null) rs.add(res);
+				((ResourceList<?>) LGM.currentFile.resMap.get(node.kind)).remove(res);
+				}
+			}
+		for (Resource<?,?> r : rs)
+			r.dispose();
+		}
+		
+	
+	protected static void deleteSelectedResources(JTree tree)
+		{
 		String msg = Messages.getString("Listener.CONFIRM_DELETERESOURCE"); //$NON-NLS-1$
 		if (JOptionPane.showConfirmDialog(null,msg,
 				Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"), //$NON-NLS-1$
 				JOptionPane.YES_NO_OPTION) == 0)
 			{
-			ResNode next = (ResNode) me.getNextSibling();
-			if (next == null) next = (ResNode) me.getParent();
-			if (next.isRoot()) next = (ResNode) next.getFirstChild();
-			tree.setSelectionPath(new TreePath(next.getPath()));
-			Enumeration<?> nodes = me.depthFirstEnumeration();
-			// Calling dispose() on a resource modifies the tree and invalidates
-			// the enumeration, so we need to wait until after traversal.
-			HashSet<Resource<?,?>> rs = new HashSet<Resource<?,?>>();
-			while (nodes.hasMoreElements())
-				{
-				ResNode node = (ResNode) nodes.nextElement();
-				if (node.frame != null) node.frame.dispose();
-				if (node.status == ResNode.STATUS_SECONDARY)
-					{
-					Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
-					if (res != null) rs.add(res);
-					((ResourceList<?>) LGM.currentFile.resMap.get(node.kind)).remove(res);
-					}
-				}
-			for (Resource<?,?> r : rs)
-				r.dispose();
-			me.removeFromParent();
+			TreePath[] selections = tree.getSelectionPaths();
+			
+			//NOTE: Must be obtained before the for loop deletes the path.
+			int row = tree.getRowForPath(selections[selections.length - 1]);
+					
+			for (int i = 0; i < selections.length; i++) {
+				deleteResourcePath(selections[i].getPath());
+			}
+			
+			tree.setSelectionPath(tree.getNextMatch("",row + 1,Position.Bias.Forward));
 			tree.updateUI();
 			}
 		}
@@ -307,7 +313,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		}
 		if (com.endsWith(".DELETE")) //$NON-NLS-1$
 		{
-			deleteSelectedResource(tree);
+			deleteSelectedResources(tree);
 			return;
 		}
 		if (com.endsWith(".DEFRAGIDS")) //$NON-NLS-1$
@@ -429,7 +435,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 			if (com.equals("DELETE")) //$NON-NLS-1$
 			{
-				deleteSelectedResource(tree);
+				deleteSelectedResources(tree);
 				return;
 			}
 			if (com.equals("RENAME")) //$NON-NLS-1$
@@ -478,7 +484,16 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			{
 			int selRow = LGM.tree.getRowForLocation(e.getX(),e.getY());
 			TreePath selPath = LGM.tree.getPathForLocation(e.getX(),e.getY());
-			if (selRow != -1 && e.getModifiers() == InputEvent.BUTTON3_MASK)
+			
+			TreePath[] paths = LGM.tree.getSelectionPaths();
+			boolean inpath = false;
+			for (int i = 0; i < paths.length; i++) {
+				if (paths[i].equals(selPath)) {
+					inpath = true;
+				}
+			}
+			
+			if (selRow != -1 && e.getModifiers() == InputEvent.BUTTON3_MASK && !inpath)
 				LGM.tree.setSelectionPath(selPath);
 			}
 

@@ -1364,22 +1364,22 @@ mouseMotionListener = new MouseMotionListener() {
 		super.actionPerformed(e);
 		}
 	
-	private void realizeScrollBarIncrement(JScrollPane scroll)
+	private void realizeScrollBarIncrement(JScrollPane scroll, Dimension size, Dimension scale)
 		{
 		JScrollBar vertical = scroll.getVerticalScrollBar();
 		JScrollBar horizontal = scroll.getHorizontalScrollBar();
 		if (vertical != null) {
-			vertical.setUnitIncrement(scroll.getHeight() / 5);
+			vertical.setUnitIncrement((int) (size.getWidth() / scale.width));
 		}
 		if (horizontal != null) {
-			horizontal.setUnitIncrement(scroll.getHeight() / 5);
+			horizontal.setUnitIncrement((int) (size.getHeight() / scale.height));
 		}
 		}
 	
 	private void updateScrollBars()
 		{
-		realizeScrollBarIncrement(previewScroll);
-		realizeScrollBarIncrement(subimagesScroll);
+		realizeScrollBarIncrement(previewScroll, previewScroll.getSize(), new Dimension(5, 5));
+		realizeScrollBarIncrement(subimagesScroll, subimagesScroll.getPreferredSize(), new Dimension(4,4));
 		}
 
 	public void addSubimages(BufferedImage img[], boolean clear)
