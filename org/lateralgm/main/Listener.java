@@ -162,23 +162,33 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		g.openFrame(true);
 		}
 
-	protected static void deleteResourcePath(Object[] resources) 
-		{
+	/** Deletes the given resource nodes, including groups, and 
+	 * returns the index (row) of the last node that was deleted.
+	 * @param resources An array of resource nodes to delete.
+	 */
+	protected static int deleteResources(Object[] resources, JTree tree) 
+	{
 		HashSet<Resource<?,?>> rs = new HashSet<Resource<?,?>>();
+		int last = -1;
 		for (int i = 0; i < resources.length; i++)
-			{
+		{
 			ResNode node = (ResNode) resources[i];
-			if (node.frame != null) node.frame.dispose();
 			if (node.status == ResNode.STATUS_SECONDARY)
-				{
+			{
+				if (node.frame != null) node.frame.dispose();
 				Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
 				if (res != null) rs.add(res);
 				((ResourceList<?>) LGM.currentFile.resMap.get(node.kind)).remove(res);
-				}
+				last = tree.getRowForPath(new TreePath(node));
+			} else if (node.status == ResNode.STATUS_GROUP) {
+				node.removeFromParent();
+				last = tree.getRowForPath(new TreePath(node));
 			}
+		}
 		for (Resource<?,?> r : rs)
 			r.dispose();
-		}
+		return last;
+	}
 		
 	
 	protected static void deleteSelectedResources(JTree tree)
@@ -191,13 +201,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			TreePath[] selections = tree.getSelectionPaths();
 			
 			//NOTE: Must be obtained before the for loop deletes the path.
-			int row = tree.getRowForPath(selections[selections.length - 1]);
+			int row = -1;
 					
 			for (int i = 0; i < selections.length; i++) {
-				deleteResourcePath(selections[i].getPath());
+				row = deleteResources(selections[i].getPath(), tree);
 			}
 			
-			tree.setSelectionPath(tree.getNextMatch("",row + 1,Position.Bias.Forward));
+			if (row != -1) {
+				tree.setSelectionPath(tree.getNextMatch("",row,Position.Bias.Forward));
+			}			
 			tree.updateUI();
 			}
 		}
@@ -487,9 +499,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			
 			TreePath[] paths = LGM.tree.getSelectionPaths();
 			boolean inpath = false;
-			for (int i = 0; i < paths.length; i++) {
-				if (paths[i].equals(selPath)) {
-					inpath = true;
+			
+			if (paths != null) {
+				for (int i = 0; i < paths.length; i++) {
+					if (paths[i].equals(selPath)) {
+						inpath = true;
+					}
 				}
 			}
 			
@@ -505,14 +520,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			ResNode node = (ResNode) p.getLastPathComponent();
 			if(node == null)
 				return;
-			if (e.getModifiers() == InputEvent.BUTTON3_MASK
 			//Isn't Java supposed to handle ctrl+click for us? For some reason it doesn't.
-					|| (e.getClickCount() == 1 && e.isControlDown()))
+			//TODO: Yes, some components let you call setComponentPopupMenu() which will handle it for you.
+			//So this code should probably be moved.
+			if (e.getModifiers() == InputEvent.BUTTON3_MASK && e.getClickCount() == 1)
 				{
 				node.showMenu(e);
 				return;
 				}
-			if (e.getClickCount() == 2)
+			if (e.getModifiers() == InputEvent.BUTTON1_MASK && e.getClickCount() == 2)
 				{
 				// kind must be a Resource kind
 				if (node.status != ResNode.STATUS_SECONDARY) return;

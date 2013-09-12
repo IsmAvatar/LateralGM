@@ -478,7 +478,7 @@ public final class LGM
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
 		tree.setCellEditor(editor);
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.CONTIGUOUS_TREE_SELECTION);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 
 		//remove the cut, copy, and paste bindings
 		InputMap im = tree.getInputMap();

@@ -658,7 +658,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		events.setShowsRootHandles(true);
 		events.setExpandsSelectedPaths(false);
 		events.addMouseListener(mListener);
-		events.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		events.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		events.addTreeSelectionListener(this);
 		if (LGM.javaVersion >= 10600)
 			{
