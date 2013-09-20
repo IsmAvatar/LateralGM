@@ -958,6 +958,9 @@ x1,y1,x2,y2,col1,col2,outline
 draw_roundrect
 x1,y1,x2,y2,outline
 
+draw_self
+none
+
 draw_set_alpha
 alpha
 
