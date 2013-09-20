@@ -49,7 +49,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.lateralgm.components.ColorSelect;
-import org.lateralgm.components.GMLTextArea;
+import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
@@ -80,7 +80,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 	private JButton save;
 	private JButton discard;
 	public JToolBar tool;
-	public GMLTextArea code;
+	public CodeTextArea code;
 	public JPanel status;
 
 	public ActionFrame(Action a)
@@ -168,7 +168,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			tool.add(save);
 			tool.addSeparator();
 
-			code = new GMLTextArea(a.getArguments().get(0).getVal());
+			code = new CodeTextArea(a.getArguments().get(0).getVal());
 			code.addEditorButtons(tool);
 
 			if (Prefs.enableDragAndDrop) {
@@ -180,14 +180,14 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			status = new JPanel(new FlowLayout());
 			status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
 			status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
-			final JLabel caretPos = new JLabel((code.getCaretLine() + 1) + ":"
+			final JLabel caretPos = new JLabel(" INS | UTF-8 | " + (code.getCaretLine() + 1) + " : "
 					+ (code.getCaretColumn() + 1));
 			status.add(caretPos);
 			code.addCaretListener(new CaretListener()
 				{
 					public void caretUpdate(CaretEvent e)
 						{
-						caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretColumn() + 1));
+						caretPos.setText(" INS | UTF-8 | " + (code.getCaretLine() + 1) + ":" + (code.getCaretColumn() + 1));
 						}
 				});
 
@@ -198,12 +198,10 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code.text));
 			appliesPanel.setLayout(new BoxLayout(appliesPanel,BoxLayout.LINE_AXIS));
 			pack();
-			repaint();
-			if (Prefs.enableDragAndDrop) {
-			  setSize(new Dimension(this.getWidth(),500));
-			} else {
-			  setSize(new Dimension(this.getWidth()+100, this.getHeight()+50));
+			if (!Prefs.enableDragAndDrop) {
+			  setSize(new Dimension(this.getWidth()+300, this.getHeight()+100));
 			}
+			repaint();
 		}
 		else
 		{
@@ -382,7 +380,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			{
 			setLayout(new GridLayout(3,3));
 			arrows = new JToggleButton[9];
-			String location = "org/lateralgm/resources/library/lib/arrows.png";
+			String location = "org/lateralgm/resources/library/default/arrows.png";
 			URL url = LGM.class.getClassLoader().getResource(location);
 			BufferedImage icons;
 			try

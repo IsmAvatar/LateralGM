@@ -62,7 +62,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
-import org.lateralgm.components.GMLTextArea;
+import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.ActionList.ActionListModel;
@@ -115,7 +115,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public EventGroupNode rootEvent;
 	private MListener mListener = new MListener();
 	public ActionList actions;
-	public GMLTextArea code;
+	public CodeTextArea code;
 	private JComponent editor;
 	
 	private ResourceInfoFrame infoFrame;
@@ -658,7 +658,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		events.setShowsRootHandles(true);
 		events.setExpandsSelectedPaths(false);
 		events.addMouseListener(mListener);
-		events.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		events.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		events.addTreeSelectionListener(this);
 		if (LGM.javaVersion >= 10600)
 			{

@@ -29,12 +29,14 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog.ModalExclusionType;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.ByteArrayInputStream;
@@ -53,6 +55,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -95,7 +98,7 @@ import org.lateralgm.resources.GameInformation.PGameInformation;
 public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInformation>
 	{
 	private static final long serialVersionUID = 1L;
-	protected JTabbedPane tabs;
+	protected SettingsFrame settings;
 	protected JEditorPane editor;
 	private RTFEditorKit rtf = new RTFEditorKit();
 	protected JMenuBar menubar;
@@ -105,6 +108,19 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	protected JToggleButton tbBold;
 	protected JToggleButton tbItalic;
 	protected JToggleButton tbUnderline;
+	
+	protected JToggleButton tbLeft;
+	protected JToggleButton tbCenter;
+	protected JToggleButton tbRight;
+	
+	private JMenuItem miBold;
+	private JMenuItem miItalic;
+	private JMenuItem miUnderline;
+	
+	private JMenuItem miLeft;
+	private JMenuItem miCenter;
+	private JMenuItem miRight;
+	
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	private CustomFileChooser fc;
 	protected Color fgColor;
@@ -115,6 +131,25 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	protected boolean fSizeChange = false;
 
 	protected boolean documentChanged = false;
+	
+	public class SettingsFrame extends JFrame
+	{
+	
+	public SettingsFrame() {
+		super();
+  	setAlwaysOnTop(true);
+  	setDefaultCloseOperation(HIDE_ON_CLOSE);
+  	setLocationRelativeTo(LGM.getGameInfo());
+  	
+		setTitle(Messages.getString("GameInformationFrame.SETTINGS"));
+		setIconImage(LGM.getIconForKey("GameInformationFrame.SETTINGS").getImage());
+		setResizable(false);
+		this.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
+		this.add(makeSettings());
+		pack();
+	}
+	
+	}
 
 	private JMenuBar makeMenuBar()
 		{
@@ -132,11 +167,16 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 		menu.addSeparator();
+		item = addItem("GameInformationFrame.SETTINGS"); //$NON-NLS-1$
+		menu.add(item);
 		item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 		menu.addSeparator();
-		item = addItem("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
+		item = new JMenuItem(Messages.getString("GameInformationFrame.CLOSESAVE"));
+		item.setIcon(save.getIcon());
+		item.setActionCommand("GameInformationFrame.CLOSESAVE");
+		item.addActionListener(this);
 		menu.add(item);
 
 		//Edit
@@ -162,6 +202,36 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+		menu.add(item);
+		
+		//Format
+		menu = new JMenu(Messages.getString("GameInformationFrame.MENU_FORMAT")); //$NON-NLS-1$
+		menuBar.add(menu);
+		
+		miBold = addItem("GameInformationFrame.BOLD"); //$NON-NLS-1$
+		miBold.setActionCommand("GameInformationFrame.MENU_BOLD");
+		menu.add(miBold);
+		miItalic = addItem("GameInformationFrame.ITALIC"); //$NON-NLS-1$
+		miItalic.setActionCommand("GameInformationFrame.MENU_ITALIC");
+		menu.add(miItalic);
+		miUnderline = addItem("GameInformationFrame.UNDERLINE"); //$NON-NLS-1$
+		miUnderline.setActionCommand("GameInformationFrame.MENU_UNDERLINE");
+		menu.add(miUnderline);
+		menu.addSeparator();
+		miLeft = addItem("GameInformationFrame.ALIGN_LEFT"); //$NON-NLS-1$
+		miLeft.setActionCommand("GameInformationFrame.ALIGN_LEFT");
+		miLeft.setSelected(true);
+		menu.add(miLeft);
+		miCenter = addItem("GameInformationFrame.ALIGN_CENTER"); //$NON-NLS-1$
+		miCenter.setActionCommand("GameInformationFrame.ALIGN_CENTER");
+		menu.add(miCenter);
+		miRight = addItem("GameInformationFrame.ALIGN_RIGHT"); //$NON-NLS-1$
+		miRight.setActionCommand("GameInformationFrame.ALIGN_RIGHT");
+		menu.add(miRight);
+		menu.addSeparator();
+		item = addItem("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
+		menu.add(item);
+		item = addItem("GameInformationFrame.COLOR"); //$NON-NLS-1$
 		menu.add(item);
 
 		return menuBar;
@@ -219,42 +289,28 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		tool.add(sSizes);
 		tool.addSeparator();
 
-		tbBold = new JToggleButton(LGM.getIconForKey("GameInformationFrame.BOLD")); //$NON-NLS-1$
+		tbBold = addToggleButton("GameInformationFrame.BOLD"); //$NON-NLS-1$
 		tbBold.setRequestFocusEnabled(false);
-		lst = new ActionListener()
-			{
-				public void actionPerformed(ActionEvent arg0)
-					{
-					setSelectionAttribute(StyleConstants.Bold,tbBold.isSelected());
-					}
-			};
-		tbBold.setToolTipText(Messages.getString("GameInformationFrame.BOLD"));
-		tbBold.addActionListener(lst);
 		tool.add(tbBold);
-		tbItalic = new JToggleButton(LGM.getIconForKey("GameInformationFrame.ITALIC")); //$NON-NLS-1$
+		tbItalic = addToggleButton("GameInformationFrame.ITALIC"); //$NON-NLS-1$
 		tbItalic.setRequestFocusEnabled(false);
-		lst = new ActionListener()
-			{
-				public void actionPerformed(ActionEvent arg0)
-					{
-					setSelectionAttribute(StyleConstants.Italic,tbItalic.isSelected());
-					}
-			};
-		tbItalic.setToolTipText(Messages.getString("GameInformationFrame.ITALIC"));
-		tbItalic.addActionListener(lst);
 		tool.add(tbItalic);
-		tbUnderline = new JToggleButton(LGM.getIconForKey("GameInformationFrame.UNDERLINED")); //$NON-NLS-1$
+		tbUnderline = addToggleButton("GameInformationFrame.UNDERLINE"); //$NON-NLS-1$
 		tbUnderline.setRequestFocusEnabled(false);
-		lst = new ActionListener()
-			{
-				public void actionPerformed(ActionEvent arg0)
-					{
-					setSelectionAttribute(StyleConstants.Underline,tbUnderline.isSelected());
-					}
-			};
-		tbUnderline.setToolTipText(Messages.getString("GameInformationFrame.UNDERLINE"));
-		tbUnderline.addActionListener(lst);
 		tool.add(tbUnderline);
+		
+		tool.addSeparator();
+		
+		tbLeft = addToggleButton("GameInformationFrame.ALIGN_LEFT"); //$NON-NLS-1$
+		tbLeft.setRequestFocusEnabled(false);
+		tbLeft.setSelected(true);
+		tool.add(tbLeft);
+		tbCenter = addToggleButton("GameInformationFrame.ALIGN_CENTER"); //$NON-NLS-1$
+		tbCenter.setRequestFocusEnabled(false);
+		tool.add(tbCenter);
+		tbRight = addToggleButton("GameInformationFrame.ALIGN_RIGHT"); //$NON-NLS-1$
+		tbRight.setRequestFocusEnabled(false);
+		tool.add(tbRight);
 
 		tool.addSeparator();
 		
@@ -286,11 +342,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		
 		tool.addSeparator();
 		
-		button = addToolbarItem("GameInformationFrame.CUT");
+		button = addToolButton("GameInformationFrame.CUT");
 		tool.add(button);
-		button = addToolbarItem("GameInformationFrame.COPY");
+		button = addToolButton("GameInformationFrame.COPY");
 		tool.add(button);
-		button = addToolbarItem("GameInformationFrame.PASTE");
+		button = addToolButton("GameInformationFrame.PASTE");
 		tool.add(button);
 		
 		return tool;
@@ -379,6 +435,10 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/*				*/.addComponent(lHeight)
 		/*				*/.addComponent(sHeight,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
 
+		JButton closeButton = new JButton(Messages.getString("GameInformationFrame.CLOSE"));
+		closeButton.setActionCommand("GameInformationFrame.CLOSE");
+		closeButton.addActionListener(this);
+		
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()
 		/*		*/.addComponent(lTitle)
@@ -388,7 +448,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/**/.addComponent(sAllowResize)
 		/**/.addComponent(sAlwaysOnTop)
 		/**/.addComponent(sPauseGame)
-		/**/.addComponent(sEmbed));
+		/**/.addComponent(sEmbed)
+		/**/.addComponent(closeButton, Alignment.CENTER));
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
 		/**/.addGroup(gl.createParallelGroup()
@@ -399,7 +460,9 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/**/.addComponent(sAllowResize)
 		/**/.addComponent(sAlwaysOnTop)
 		/**/.addComponent(sPauseGame)
-		/**/.addComponent(sEmbed));
+		/**/.addComponent(sEmbed)
+		/**/.addComponent(closeButton));
+		
 		return p;
 		}
 
@@ -419,29 +482,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		toolbar = makeToolBar();
 		add(toolbar,BorderLayout.NORTH);
 		fgColor = Color.BLACK;
-
-		tabs = new JTabbedPane();
-		add(tabs,BorderLayout.CENTER);
-		tabs.addChangeListener(new ChangeListener()
-			{
-				public void stateChanged(ChangeEvent e)
-					{
-					boolean enabled = tabs.getSelectedIndex() == 0;
-					if (enabled) editor.requestFocusInWindow();
-					JMenuBar mb = getJMenuBar();
-					for (int i = 0; i < mb.getComponentCount(); i++)
-						{
-						JMenu m = (JMenu) mb.getComponent(i);
-						if (!m.getText().equals(Messages.getString("GameInformationFrame.MENU_FILE"))) //$NON-NLS-1$
-							m.setEnabled(enabled);
-						}
-					for (int i = 0; i < toolbar.getComponentCount(); i++)
-						{
-						Component c = toolbar.getComponent(i);
-						if (c != save) c.setEnabled(enabled);
-						}
-					}
-			});
 
 		editor = new JEditorPane();
 		editor.setEditorKit(rtf);
@@ -468,18 +508,22 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 					boolean u = StyleConstants.isUnderline(as);
 					cbFonts.setSelectedItem(f);
 					sSizes.setValue(s);
+					miBold.setSelected(b);
 					tbBold.setSelected(b);
+					
 					tbItalic.setSelected(i);
+					miItalic.setSelected(i);
 					tbUnderline.setSelected(u);
+					miUnderline.setSelected(u);
+					
+					setAlignmentOptions(StyleConstants.getAlignment(as));
 					}
 			});
 
-		tabs.addTab(Messages.getString("GameInformationFrame.TAB_INFO"), //$NON-NLS-1$
-				/**/null,new JScrollPane(editor),Messages.getString("GameInformationFrame.HINT_INFO")); //$NON-NLS-1$ 
-		tabs.addTab(Messages.getString("GameInformationFrame.TAB_SETTINGS"), //$NON-NLS-1$
-				/**/null,makeSettings(),Messages.getString("GameInformationFrame.HINT_SETTINGS")); //$NON-NLS-1$ 
 		revertResource();
 
+		this.add(new JScrollPane(editor), BorderLayout.CENTER);
+		
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		fc.setFileFilter(new CustomFileFilter(
 				Messages.getString("GameInformationFrame.TYPE_RTF"),".rtf")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -589,9 +633,19 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		return item;
 	}
 	
-	public JButton addToolbarItem(String key)
+	public JButton addToolButton(String key)
 	{
 		JButton item = new JButton();
+		item.setToolTipText(Messages.getString(key));
+		item.setIcon(LGM.getIconForKey(key));
+		item.setActionCommand(key);
+		item.addActionListener(this);
+		return item;
+	}
+	
+	public JToggleButton addToggleButton(String key)
+	{
+		JToggleButton item = new JToggleButton();
 		item.setToolTipText(Messages.getString(key));
 		item.setIcon(LGM.getIconForKey(key));
 		item.setActionCommand(key);
@@ -652,14 +706,40 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			}
 		return Messages.getString("LGM.GMI"); //$NON-NLS-1$
 		}
+	
+	public void setAlignmentOptions(int alignment) {
+		miLeft.setSelected(alignment == StyleConstants.ALIGN_LEFT);
+		miCenter.setSelected(alignment == StyleConstants.ALIGN_CENTER);
+		miRight.setSelected(alignment == StyleConstants.ALIGN_RIGHT);
+		tbLeft.setSelected(alignment == StyleConstants.ALIGN_LEFT);
+		tbCenter.setSelected(alignment == StyleConstants.ALIGN_CENTER);
+		tbRight.setSelected(alignment == StyleConstants.ALIGN_RIGHT);
+	}
+	
+	public void setSelectionAlignment(int alignment) {
+		setAlignmentOptions(alignment);
+
+		StyledDocument sd = (StyledDocument) editor.getDocument();
+		int a = editor.getSelectionStart();
+		int b = editor.getSelectionEnd();
+		if (a == b)
+			{
+			rtf.getInputAttributes().addAttribute(StyleConstants.Alignment,alignment);
+			return;
+			}
+		SimpleAttributeSet sas = new SimpleAttributeSet();
+		StyleConstants.setAlignment(sas,alignment);
+		sd.setParagraphAttributes(a,b - a,sas,false);
+		return;
+	}
 
 	public void actionPerformed(ActionEvent ev)
 		{
 		super.actionPerformed(ev);
 		String com = ev.getActionCommand();
+		
 		if (com.equals("GameInformationFrame.LOAD")) //$NON-NLS-1$
 			{
-			tabs.setSelectedIndex(0);
 			loadFromFile();
 			}
 		else if (com.equals("GameInformationFrame.PRINT")) //$NON-NLS-1$
@@ -676,9 +756,19 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
        }   
 			return;
 		}
+		else if (com.equals("GameInformationFrame.SETTINGS")) {
+			if (settings == null) {
+				settings = new SettingsFrame();
+
+		
+				JPanel settingsPanel = makeSettings();
+				settings.add(settingsPanel);
+
+			}
+			settings.setVisible(true);
+		}
 		else if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
 			{
-			tabs.setSelectedIndex(0);
 			saveToFile();
 			return;
 			}
@@ -691,6 +781,60 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 				fgColor = c;
 				setSelectionAttribute(StyleConstants.Foreground, c);
 				}
+			return;
+			}
+		else if (com.equals("GameInformationFrame.BOLD")) //$NON-NLS-1$
+			{
+			miBold.setSelected(tbBold.isSelected());
+			setSelectionAttribute(StyleConstants.Bold,tbBold.isSelected());
+			return;
+			}
+		else if (com.equals("GameInformationFrame.ITALIC")) //$NON-NLS-1$
+			{
+			miItalic.setSelected(tbItalic.isSelected());
+			setSelectionAttribute(StyleConstants.Italic,tbItalic.isSelected());
+			return;
+			}
+		else if (com.equals("GameInformationFrame.UNDERLINE")) //$NON-NLS-1$
+			{
+			miUnderline.setSelected(tbUnderline.isSelected());
+			setSelectionAttribute(StyleConstants.Underline,tbUnderline.isSelected());
+			return;
+			}
+		else if (com.equals("GameInformationFrame.MENU_BOLD")) //$NON-NLS-1$
+			{
+			miBold.setSelected(!miBold.isSelected());
+			tbBold.setSelected(miBold.isSelected());
+			setSelectionAttribute(StyleConstants.Bold,miBold.isSelected());
+			return;
+			}
+		else if (com.equals("GameInformationFrame.MENU_ITALIC")) //$NON-NLS-1$
+			{
+			miItalic.setSelected(!miItalic.isSelected());
+			tbItalic.setSelected(miItalic.isSelected());
+			setSelectionAttribute(StyleConstants.Italic,miItalic.isSelected());
+			return;
+			}
+		else if (com.equals("GameInformationFrame.MENU_UNDERLINE")) //$NON-NLS-1$
+			{
+			miUnderline.setSelected(!miUnderline.isSelected());
+			tbUnderline.setSelected(miUnderline.isSelected());
+			setSelectionAttribute(StyleConstants.Underline,miUnderline.isSelected());
+			return;
+			}
+		else if (com.equals("GameInformationFrame.ALIGN_LEFT")) //$NON-NLS-1$
+			{
+			setSelectionAlignment(StyleConstants.ALIGN_LEFT);
+			return;
+			}
+		else if (com.equals("GameInformationFrame.ALIGN_CENTER")) //$NON-NLS-1$
+			{
+			setSelectionAlignment(StyleConstants.ALIGN_CENTER);
+			return;
+			}
+		else if (com.equals("GameInformationFrame.ALIGN_RIGHT")) //$NON-NLS-1$
+			{
+			setSelectionAlignment(StyleConstants.ALIGN_RIGHT);
 			return;
 			}
 		else if (com.equals("GameInformationFrame.COLOR")) //$NON-NLS-1$
@@ -719,6 +863,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{
 			editor.selectAll();
 			return;
+			}		
+		else if (com.equals("GameInformationFrame.CLOSE")) //$NON-NLS-1$
+			{
+				settings.setVisible(false);
+				return;
 			}
 		}
 
@@ -728,7 +877,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try
 			{
-			rtf.write(baos,editor.getDocument(),0,0);
+			StyledDocument doc = (StyledDocument)editor.getDocument();
+			rtf.write(baos,doc, doc.getStartPosition().getOffset(), doc.getLength());
 			res.put(PGameInformation.TEXT,baos.toString("UTF-8")); //$NON-NLS-1$
 			}
 		catch (IOException e)
@@ -739,6 +889,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{ //Should never happen, but we have to catch this anyways
 			e.printStackTrace();
 			}
+			LGM.currentFile.gameInfo = res;
 		}
 
 	public void setComponents(GameInformation info)
@@ -750,6 +901,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			rtf.read(
 					new ByteArrayInputStream(((String) res.get(PGameInformation.TEXT)).getBytes("UTF-8")), //$NON-NLS-1$
 					editor.getDocument(),0);
+			editor.setCaretPosition(0);
 			}
 		catch (IOException e)
 			{ //Nevermind

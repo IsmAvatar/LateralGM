@@ -36,6 +36,7 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
@@ -76,10 +77,10 @@ public final class GmFileWriter
 		{
 		}
 
-	public static void writeGmFile(OutputStream os, GmFile f, ResNode root, int ver)
+	public static void writeProjectFile(OutputStream os, ProjectFile f, ResNode root, int ver)
 			throws IOException
 		{
-		f.format = GmFile.FormatFlavor.getVersionFlavor(ver);
+		f.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = new GmStreamEncoder(os);
 		if (ver >= 810)
@@ -144,7 +145,7 @@ public final class GmFileWriter
 		out.close();
 		}
 
-	public static void writeSettings(GmFile f, GmStreamEncoder out, int ver, long savetime)
+	public static void writeSettings(ProjectFile f, GmStreamEncoder out, int ver, long savetime)
 			throws IOException
 		{
 		ver = ver >= 810 ? 810 : ver >= 800 ? 800 : ver >= 701 ? 702 : ver;
@@ -159,18 +160,18 @@ public final class GmFileWriter
 		out.writeBool(p,PGameSettings.ALLOW_WINDOW_RESIZE,PGameSettings.ALWAYS_ON_TOP);
 		out.write4(Util.getGmColor((Color) p.get(PGameSettings.COLOR_OUTSIDE_ROOM)));
 		out.writeBool(p,PGameSettings.SET_RESOLUTION);
-		out.write4(GmFile.GS_DEPTH_CODE.get(p.get(PGameSettings.COLOR_DEPTH)));
-		out.write4(GmFile.GS_RESOL_CODE.get(p.get(PGameSettings.RESOLUTION)));
-		out.write4(GmFile.GS_FREQ_CODE.get(p.get(PGameSettings.FREQUENCY)));
+		out.write4(ProjectFile.GS_DEPTH_CODE.get(p.get(PGameSettings.COLOR_DEPTH)));
+		out.write4(ProjectFile.GS_RESOL_CODE.get(p.get(PGameSettings.RESOLUTION)));
+		out.write4(ProjectFile.GS_FREQ_CODE.get(p.get(PGameSettings.FREQUENCY)));
 		out.writeBool(p,PGameSettings.DONT_SHOW_BUTTONS,PGameSettings.USE_SYNCHRONIZATION);
 		if (ver >= 800) out.writeBool(p,PGameSettings.DISABLE_SCREENSAVERS);
 		out.writeBool(p,PGameSettings.LET_F4_SWITCH_FULLSCREEN,PGameSettings.LET_F1_SHOW_GAME_INFO,
 				PGameSettings.LET_ESC_END_GAME,PGameSettings.LET_F5_SAVE_F6_LOAD);
 		if (ver >= 702)
 			out.writeBool(p,PGameSettings.LET_F9_SCREENSHOT,PGameSettings.TREAT_CLOSE_AS_ESCAPE);
-		out.write4(GmFile.GS_PRIORITY_CODE.get(p.get(PGameSettings.GAME_PRIORITY)));
+		out.write4(ProjectFile.GS_PRIORITY_CODE.get(p.get(PGameSettings.GAME_PRIORITY)));
 		out.writeBool(p,PGameSettings.FREEZE_ON_LOSE_FOCUS);
-		out.write4(GmFile.GS_PROGBAR_CODE.get(p.get(PGameSettings.LOAD_BAR_MODE)));
+		out.write4(ProjectFile.GS_PROGBAR_CODE.get(p.get(PGameSettings.LOAD_BAR_MODE)));
 		if (p.get(PGameSettings.LOAD_BAR_MODE) == ProgressBar.CUSTOM)
 			{
 			if (p.get(PGameSettings.BACK_LOAD_BAR) != null)
@@ -228,7 +229,7 @@ public final class GmFileWriter
 			}
 		else
 			out.writeStr(p,PGameSettings.VERSION);
-		p.put(PGameSettings.LAST_CHANGED,GmFile.longTimeToGmTime(savetime));
+		p.put(PGameSettings.LAST_CHANGED,ProjectFile.longTimeToGmTime(savetime));
 		out.writeD(p,PGameSettings.LAST_CHANGED);
 		out.writeStr(p,PGameSettings.INFORMATION);
 		if (ver < 800)
@@ -244,7 +245,7 @@ public final class GmFileWriter
 				out.write4(f.includes.size());
 				for (Include inc : f.includes)
 					out.writeStr(inc.filepath);
-				out.write4(GmFile.GS_INCFOLDER_CODE.get(p.get(PGameSettings.INCLUDE_FOLDER)));
+				out.write4(ProjectFile.GS_INCFOLDER_CODE.get(p.get(PGameSettings.INCLUDE_FOLDER)));
 				out.writeBool(p,PGameSettings.OVERWRITE_EXISTING,PGameSettings.REMOVE_AT_GAME_END);
 				}
 			}
@@ -260,7 +261,7 @@ public final class GmFileWriter
 		out.endDeflate();
 		}
 
-	public static void writeTriggers(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeTriggers(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		if (ver < 800) return;
 
@@ -289,7 +290,7 @@ public final class GmFileWriter
 		out.writeD(f.gameSettings.getLastChanged());
 		}
 
-	public static void writeConstants(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeConstants(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		if (ver < 800) return;
 
@@ -303,7 +304,7 @@ public final class GmFileWriter
 		out.writeD(f.gameSettings.getLastChanged());
 		}
 
-	public static void writeSounds(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeSounds(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		ver = ver >= 800 ? 800 : ver >= 600 ? 600 : 440;
 		out.write4(ver == 800 ? 800 : 400);
@@ -318,7 +319,7 @@ public final class GmFileWriter
 				out.writeStr(snd.getName());
 				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
 				out.write4(ver);
-				out.write4(GmFile.SOUND_CODE.get(snd.get(PSound.KIND)));
+				out.write4(ProjectFile.SOUND_CODE.get(snd.get(PSound.KIND)));
 				out.writeStr(snd.properties,PSound.FILE_TYPE,PSound.FILE_NAME);
 				if (snd.data != null)
 					{
@@ -335,7 +336,7 @@ public final class GmFileWriter
 					out.writeBool(false);
 				int effects = 0;
 				int n = 1;
-				for (PSound k : GmFile.SOUND_FX_FLAGS)
+				for (PSound k : ProjectFile.SOUND_FX_FLAGS)
 					{
 					if (snd.get(k)) effects |= n;
 					n <<= 1;
@@ -348,7 +349,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeSprites(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeSprites(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		ver = ver >= 800 ? 800 : ver >= 542 ? 542 : 400;
 		out.write4(ver == 800 ? 800 : 400);
@@ -370,7 +371,7 @@ public final class GmFileWriter
 					out.write4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,
 							PSprite.BB_TOP);
 					out.writeBool(spr.properties,PSprite.TRANSPARENT,PSprite.SMOOTH_EDGES,PSprite.PRELOAD);
-					out.write4(GmFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)));
+					out.write4(ProjectFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)));
 					out.writeBool(spr.get(PSprite.SHAPE) == Sprite.MaskShape.PRECISE);
 					}
 				out.write4(spr.properties,PSprite.ORIGIN_X,PSprite.ORIGIN_Y);
@@ -395,10 +396,10 @@ public final class GmFileWriter
 					}
 				if (ver >= 800)
 					{
-					out.write4(GmFile.SPRITE_MASK_CODE.get(spr.get(PSprite.SHAPE)));
+					out.write4(ProjectFile.SPRITE_MASK_CODE.get(spr.get(PSprite.SHAPE)));
 					out.write4(spr.properties,PSprite.ALPHA_TOLERANCE);
 					out.writeBool(spr.properties,PSprite.SEPARATE_MASK);
-					out.write4(GmFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)));
+					out.write4(ProjectFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)));
 					out.write4(spr.properties,PSprite.BB_LEFT,PSprite.BB_RIGHT,PSprite.BB_BOTTOM,
 							PSprite.BB_TOP);
 					}
@@ -407,7 +408,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeBackgrounds(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeBackgrounds(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		ver = ver >= 710 ? 710 : ver >= 543 ? 543 : 400;
 		out.write4(ver == 710 ? 800 : 400);
@@ -459,7 +460,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writePaths(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writePaths(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 420);
@@ -490,7 +491,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeScripts(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeScripts(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		ver = ver >= 800 ? 800 : 400;
 		out.write4(ver);
@@ -511,7 +512,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeFonts(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeFonts(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		out.write4(ver >= 800 ? 800 : 540);
 		out.write4(f.resMap.getList(Font.class).lastId + 1);
@@ -542,7 +543,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeTimelines(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeTimelines(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 500);
@@ -568,7 +569,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeGmObjects(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeGmObjects(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 400);
@@ -610,7 +611,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeRooms(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeRooms(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 420);
@@ -690,7 +691,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeIncludedFiles(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeIncludedFiles(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		ver = ver >= 800 ? 800 : ver >= 620 ? 620 : 0;
 		if (ver < 620) return;
@@ -726,7 +727,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writePackages(GmFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writePackages(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
 		{
 		if (ver < 700) return;
 
@@ -736,7 +737,7 @@ public final class GmFileWriter
 			out.writeStr(s);
 		}
 
-	public static void writeGameInformation(GmFile f, GmStreamEncoder out, int ver)
+	public static void writeGameInformation(ProjectFile f, GmStreamEncoder out, int ver)
 			throws IOException
 		{
 		ver = ver >= 800 ? 800 : /*ver >= 620 ? 620 : */ver >= 600 ? 600 : 430;
@@ -767,9 +768,12 @@ public final class GmFileWriter
 		while (e.hasMoreElements())
 			{
 			ResNode node = (ResNode) e.nextElement();
+			if (node.kind == Shader.class) {
+			  continue;
+			}
 			out.write4(node.status);
-			if (GmFile.RESOURCE_CODE.containsKey(node.kind))
-				out.write4(GmFile.RESOURCE_CODE.get(node.kind));
+			if (ProjectFile.RESOURCE_CODE.containsKey(node.kind))
+				out.write4(ProjectFile.RESOURCE_CODE.get(node.kind));
 			else
 				out.write4(0);
 			Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());

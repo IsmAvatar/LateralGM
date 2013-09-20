@@ -14,6 +14,7 @@ import static org.lateralgm.main.Util.deRef;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -233,6 +234,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		EventNode user = new EventNode(
 				Messages.getString("EventPanel.USER_DEFINED"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(user);
+		other.add(new EventNode(
+					Messages.format("Event.EVENT7_20"),MainEvent.EV_OTHER,20));
 		for (int i = 0; i <= 15; i++)
 			{
 			user.add(new EventNode(
@@ -240,7 +243,10 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 			}
 
 		//DRAW
-		root.add(MainEvent.EV_DRAW);
+		EventNode drawev = new EventNode(MainEvent.EV_DRAW);
+		root.add(drawev);
+		drawev.add(MainEvent.EV_DRAW, Event.EV_DRAW_NORMAL);
+		drawev.add(MainEvent.EV_DRAW, Event.EV_DRAW_GUI);
 
 		//KEYPRESS
 		EventNode keypress = new EventNode(MainEvent.EV_KEYPRESS);
@@ -343,6 +349,9 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_INSERT);
 
 		events = new JTree(root);
+		if (LGM.themename.equals("Quantum")) {
+		  events.setFont(LGM.lnfFont.deriveFont(Font.PLAIN));
+		}
 		events.setCellRenderer(new EventNodeRenderer());
 		events.setRootVisible(false);
 		events.setShowsRootHandles(true);

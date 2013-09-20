@@ -59,7 +59,7 @@ import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.GmFile;
+import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.file.GmStreamEncoder;
 import org.lateralgm.file.iconio.ICOFile;
@@ -562,7 +562,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		ConstantsTableModel(List<Constant> list)
 			{
-			constants = GmFile.copyConstants(list);
+			constants = ProjectFile.copyConstants(list);
 			}
 
 		public int getColumnCount()
@@ -734,8 +734,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		return panel;
 		}
 
+	JTextField product;
 	JTextField author;
 	JTextField version;
+	JTextField copyright;
 	JTextField lastChanged;
 	JTextArea information;
 
@@ -747,41 +749,57 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
+		JLabel lProduct = new JLabel(Messages.getString("GameSettingFrame.PRODUCT")); //$NON-NLS-1$
+		product = new JTextField();
 		JLabel lAuthor = new JLabel(Messages.getString("GameSettingFrame.AUTHOR")); //$NON-NLS-1$
 		author = new JTextField();
 		JLabel lVersion = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
 		version = new JTextField();
+		JLabel lCopyright = new JLabel(Messages.getString("GameSettingFrame.COPYRIGHT")); //$NON-NLS-1$
+		copyright = new JTextField();
 		JLabel lChanged = new JLabel(Messages.getString("GameSettingFrame.LASTCHANGED")); //$NON-NLS-1$
-		lastChanged = new JTextField(GmFile.gmTimeToString(res.getLastChanged()));
+		lastChanged = new JTextField(ProjectFile.gmTimeToString(res.getLastChanged()));
 		lastChanged.setEditable(false);
 		JLabel lInfo = new JLabel(Messages.getString("GameSettingFrame.INFORMATION")); //$NON-NLS-1$
 		information = new JTextArea();
 		information.setLineWrap(true);
 		JScrollPane infoScroll = new JScrollPane(information);
 
+		plf.make(product.getDocument(),PGameSettings.PRODUCT);
 		plf.make(author.getDocument(),PGameSettings.AUTHOR);
 		plf.make(version.getDocument(),PGameSettings.VERSION);
+		plf.make(copyright.getDocument(),PGameSettings.COPYRIGHT);
 		plf.make(information.getDocument(),PGameSettings.INFORMATION);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(lProduct)
 		/*				*/.addComponent(lAuthor)
 		/*				*/.addComponent(lVersion)
+		/*				*/.addComponent(lCopyright)
 		/*				*/.addComponent(lChanged))
 		/*		*/.addGroup(layout.createParallelGroup()
+		/*				*/.addComponent(product,DEFAULT_SIZE,240,MAX_VALUE)
 		/*				*/.addComponent(author,DEFAULT_SIZE,240,MAX_VALUE)
 		/*				*/.addComponent(version,DEFAULT_SIZE,240,MAX_VALUE)
+		/*				*/.addComponent(copyright,DEFAULT_SIZE,240,MAX_VALUE)
 		/*				*/.addComponent(lastChanged,DEFAULT_SIZE,240,MAX_VALUE)))
 		/**/.addComponent(lInfo,DEFAULT_SIZE,320,MAX_VALUE)
 		/**/.addComponent(infoScroll));
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lProduct)
+		/*		*/.addComponent(product))
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lAuthor)
 		/*		*/.addComponent(author))
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lVersion)
 		/*		*/.addComponent(version))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lCopyright)
+		/*		*/.addComponent(copyright))
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lChanged)
 		/*		*/.addComponent(lastChanged))
@@ -814,7 +832,11 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		t = Messages.getString("GameSettingFrame.BUTTON_DISCARD"); //$NON-NLS-1$
 		discardButton = new JButton(t);
 		discardButton.addActionListener(this);
-
+		discardButton.setIcon(LGM.getIconForKey("GameSettingFrame.BUTTON_DISCARD"));
+		// make discard button the height as save, Win32 look and feel makes
+		// buttons with icons 2x as tall
+		discardButton.setMinimumSize(save.getMaximumSize());
+		
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(tabbedPane)
 		/**/.addGroup(layout.createSequentialGroup()
@@ -1193,19 +1215,24 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public void commitChanges()
 		{
-		res.put(PGameSettings.SCALING,scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue());
-		res.put(PGameSettings.LOADING_IMAGE,customLoadingImage);
-		res.put(PGameSettings.BACK_LOAD_BAR,backLoadImage);
-		res.put(PGameSettings.FRONT_LOAD_BAR,frontLoadImage);
-		res.put(PGameSettings.GAME_ICON,gameIcon);
+		res.put(PGameSettings.SCALING, scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue());
+		res.put(PGameSettings.LOADING_IMAGE, customLoadingImage);
+		res.put(PGameSettings.BACK_LOAD_BAR, backLoadImage);
+		res.put(PGameSettings.FRONT_LOAD_BAR, frontLoadImage);
+		res.put(PGameSettings.GAME_ICON, gameIcon);
+		res.put(PGameSettings.DESCRIPTION, information.getText());
+		res.put(PGameSettings.COPYRIGHT, copyright.getText());
+		res.put(PGameSettings.PRODUCT, product.getText());
 		//we don't update the lastChanged time - that's only altered on file save/load
 
 		//Constants
 		cModel.removeEmptyConstants();
-		LGM.currentFile.constants = GmFile.copyConstants(cModel.constants);
+		LGM.currentFile.constants = ProjectFile.copyConstants(cModel.constants);
 
 		//Includes
 		LGM.currentFile.includes = iModel.toArrayList();
+		
+		LGM.currentFile.gameSettings = res;
 		}
 
 	public void setComponents(GameSettings g)
@@ -1214,8 +1241,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		scaling.setValue(s > 1 ? 1 : s);
 		if (s > 1) scale.setValue(s);
 		scale.setEnabled(s > 0);
-
-		lastChanged.setText(GmFile.gmTimeToString(g.getLastChanged()));
+		lastChanged.setText(ProjectFile.gmTimeToString(g.getLastChanged()));
 
 		customLoadingImage = g.get(PGameSettings.LOADING_IMAGE);
 		backLoadImage = g.get(PGameSettings.BACK_LOAD_BAR);

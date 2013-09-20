@@ -13,22 +13,37 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.instrument.Instrumentation;
 import java.net.URI;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -39,26 +54,33 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.TransferHandler;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.NumberField.ValueChangeEvent;
@@ -84,7 +106,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> implements
-		MouseListener,UpdateListener,ValueChangeListener
+		MouseListener,UpdateListener,ValueChangeListener, ClipboardOwner
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -92,9 +114,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private static final ImageIcon LOAD_STRIP_ICON = LGM.getIconForKey("SpriteFrame.LOAD_STRIP"); //$NON-NLS-1$
 	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SpriteFrame.PLAY"); //$NON-NLS-1$
 	private static final ImageIcon STOP_ICON = LGM.getIconForKey("SpriteFrame.STOP"); //$NON-NLS-1$
-
+	private static final ImageIcon ZOOM_ICON = LGM.getIconForKey("SpriteFrame.ZOOM"); //$NON-NLS-1$
+	private static final ImageIcon ZOOM_IN_ICON = LGM.getIconForKey("SpriteFrame.ZOOM_IN"); //$NON-NLS-1$
+	private static final ImageIcon ZOOM_OUT_ICON = LGM.getIconForKey("SpriteFrame.ZOOM_OUT"); //$NON-NLS-1$
+	
 	//toolbar
-	public JButton load, loadSubimage, loadStrip;
+	public JButton load, loadSubimage, loadStrip, zoomIn, zoomOut;
+	public JToggleButton zoomButton;
 
 	//origin
 	public NumberField originX, originY;
@@ -109,23 +135,20 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	//properties
 	public JRadioButton rect, prec, disk, diam, poly;
 	public JCheckBox smooth, preload, transparent;
-	public JLabel subCount, width, height;
+	public JLabel statusLabel;
 
 	//subimages
 	public JList subList;
-	
-  //effects
-  public JButton invert, flip, rotate,
-  reverse, addreverse, fade, rotfract, srhink, grow, colalpha, alphacol; 
-  public JLabel notimplemented;
   
 	//preview
+	public JScrollPane previewScroll, subimagesScroll;
 	public SubimagePreview preview;
 	public NumberField show, speed;
-	public JButton subLeft, subRight, play;
+	public JButton subLeft, subRight, play, cut, copy, paste, undo, redo;
 	public JLabel showLab;
 	public int currSub;
 	public JCheckBox showBbox, showOrigin;
+	public JCheckBox wrapBox, shiftBox;
 
 	public boolean imageChanged = false;
 	public JSplitPane splitPane;
@@ -139,7 +162,37 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private final SpritePropertyListener spl = new SpritePropertyListener();
 
 	private Map<BufferedImage,ImageEditor> editors;
+	private JButton addSubframe;
+	private JButton remSubframe;
+	private MouseListener mouseListener;
+	private MouseMotionListener mouseMotionListener;
 
+	/** Zoom in, centering around a specific point, usually the mouse. */
+	public void zoomIn(Point point) {
+	    this.setZoom(this.getZoom() * 1.1f);
+	    Point pos = previewScroll.getViewport().getViewPosition();
+
+	    int newX = (int)(point.x*(1.1f - 1f) + 1.1f*pos.x);
+	    int newY = (int)(point.y*(1.1f - 1f) + 1.1f*pos.y);
+	    previewScroll.getViewport().setViewPosition(new Point(newX, newY));
+
+	    previewScroll.revalidate();
+	    previewScroll.repaint();
+	}
+	
+	/** Zoom out, centering around a specific point, usually the mouse. */
+	public void zoomOut(Point point) {
+	    this.setZoom(this.getZoom() * 0.9f);
+	    Point pos = previewScroll.getViewport().getViewPosition();
+
+	    int newX = (int)(point.x*(0.9f - 1f) + 0.9f*pos.x);
+	    int newY = (int)(point.y*(0.9f - 1f) + 0.9f*pos.y);
+	    previewScroll.getViewport().setViewPosition(new Point(newX, newY));
+
+	    previewScroll.revalidate();
+	    previewScroll.repaint();
+		}
+	
 	public SpriteFrame(Sprite res, ResNode node)
 		{
 		super(res,node);
@@ -148,22 +201,84 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		setLayout(new BorderLayout());
 
-		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab(Messages.getString("SpriteFrame.PROPERTIES"), makePropertiesPane()); //$NON-NLS-1$
-    tabs.addTab(Messages.getString("SpriteFrame.MASK"), makeMaskPane()); //$NON-NLS-1$
-    tabs.addTab(Messages.getString("SpriteFrame.SUBIMAGES"), makeSubimagesPane()); //$NON-NLS-1$
-    tabs.addTab(Messages.getString("SpriteFrame.EFFECTS"), makeEffectsPane()); //$NON-NLS-1$ 
-
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,tabs,makePreviewPane());
+    JSplitPane previewPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, makePreviewPane(), makeSubimagesPane());
+    splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,makePropertiesPane(),previewPane);
 		splitPane.setOneTouchExpandable(true);
 
 		add(makeToolBar(),BorderLayout.NORTH);
 		add(splitPane,BorderLayout.CENTER);
+		add(makeStatusBar(), BorderLayout.SOUTH);
+		
+mouseMotionListener = new MouseMotionListener() {
+		
+    public void mouseMoved(MouseEvent e) {
+        final int x = e.getX();
+        final int y = e.getY();
+        // only display a hand if the cursor is over the items
+        final Rectangle cellBounds = preview.getBounds();
+        if (cellBounds != null && cellBounds.contains(x, y)) {
+            //preview.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        } else {
+           // 
+        }
+    }
+
+    public void mouseDragged(MouseEvent e) {
+    }
+		};
+		
+		mouseListener = new MouseListener() {
+
+		public void mouseClicked(MouseEvent ev)
+			{
+			// TODO Auto-generated method stub
+
+			}
+
+		public void mouseEntered(MouseEvent ev)
+			{
+			// TODO Auto-generated method stub
+
+			preview.setCursor(LGM.zoomCursor);
+			}
+
+		public void mouseExited(MouseEvent ev)
+			{
+			// TODO Auto-generated method stub
+			preview.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			}
+
+		public void mousePressed(MouseEvent ev)
+			{
+			// TODO Auto-generated method stub
+			if (ev.getButton() == MouseEvent.BUTTON1) {
+				preview.setCursor(LGM.zoomInCursor);
+			}
+			if (ev.getButton() == MouseEvent.BUTTON3) {
+				preview.setCursor(LGM.zoomOutCursor);
+			}
+			}
+
+		public void mouseReleased(MouseEvent ev)
+			{
+			// TODO Auto-generated method stub
+			if (ev.getButton() == MouseEvent.BUTTON1) {
+				zoomIn(ev.getPoint());
+			}
+			if (ev.getButton() == MouseEvent.BUTTON3) {
+				zoomOut(ev.getPoint());
+			}
+			preview.setCursor(LGM.zoomCursor);
+			}
+		};
 
 		updateImageList();
-		updateInfo();
+		updateStatusLabel();
 
 		pack();
+		this.setSize(750, 500);
+		previewPane.setDividerLocation(getHeight() / 2);
+		updateScrollBars();
 		}
 
 	private JToolBar makeToolBar()
@@ -197,9 +312,110 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.add(name);
 
 		tool.addSeparator();
+		
+		zoomButton = new JToggleButton(ZOOM_ICON);
+		zoomButton.setToolTipText(Messages.getString("SpriteFrame.ZOOM"));
+		zoomButton.addActionListener(this);
+		tool.add(zoomButton);
+		
+		zoomIn = new JButton(ZOOM_IN_ICON);
+		zoomIn.setToolTipText(Messages.getString("SpriteFrame.ZOOM_IN")); //$NON-NLS-1$
+		zoomIn.addActionListener(this);
+		tool.add(zoomIn);
+		
+		zoomOut = new JButton(ZOOM_OUT_ICON);
+		zoomOut.setToolTipText(Messages.getString("SpriteFrame.ZOOM_OUT")); //$NON-NLS-1$
+		zoomOut.addActionListener(this);
+		tool.add(zoomOut);
+		
+		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true);
+		showBbox.addActionListener(this);
+		tool.add(showBbox);
+		showOrigin = new JCheckBox(Messages.getString("SpriteFrame.SHOW_ORIGIN"),true);
+		showOrigin.addActionListener(this);
+		tool.add(showOrigin);
+		
+		
+		tool.addSeparator();
+		JLabel lab2 = new JLabel(Messages.getString("SpriteFrame.ANIM_SPEED")); //$NON-NLS-1$
+		//lab2.setHorizontalAlignment(SwingConstants.CENTER);
+		tool.add(lab2);
+
+		speed = new NumberField(1,Integer.MAX_VALUE,30);
+		speed.setColumns(10);
+		speed.setMaximumSize(speed.getPreferredSize());
+		speed.setToolTipText(Messages.getString("SpriteFrame.CALC_TIP")); //$NON-NLS-1$
+		speed.addValueChangeListener(this);
+		speed.addMouseListener(new MouseAdapter()
+			{
+				public void mouseClicked(MouseEvent e)
+					{
+					//works for all mouse buttons
+					if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0)
+						{
+						showSpeedDialog();
+						return;
+						}
+					}
+			});
+		tool.add(speed);
+		play = new JButton(PLAY_ICON);
+		play.addActionListener(this);
+		tool.add(play);
 
 		return tool;
 		}
+
+	public static class ObjectSizeFetcher {
+	    private static Instrumentation instrumentation;
+
+	    public static void premain(String args, Instrumentation inst) {
+	        instrumentation = inst;
+	    }
+
+	    public static long getObjectSize(Object o) {
+	        return instrumentation.getObjectSize(o);
+	    }
+	}
+	
+	public static String formatData(long bytes) {
+		if (bytes <= 0) return "0 B";
+		final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
+		int digits = (int) (Math.log(bytes)/Math.log(1024));
+		return new DecimalFormat("#,##0.##").format(bytes/Math.pow(1024, digits)) + " " + 
+				units[digits];
+	}
+
+	private void updateStatusLabel() {
+  	String stat = " " + Messages.getString("SpriteFrame.WIDTH") + ": " + res.subImages.getWidth() + " | " +
+  		Messages.getString("SpriteFrame.HEIGHT") + ": " + res.subImages.getHeight() + " | " +
+  		Messages.getString("SpriteFrame.NO_OF_SUBIMAGES") + ": "
+			+ res.subImages.size() + " | " + Messages.getString("SpriteFrame.MEMORY") + ": ";
+  		
+  	if (res.subImages != null) {
+  		stat += formatData(res.subImages.getSize());
+  	} else {
+			stat += formatData(0);
+  	}
+	
+  	String zoom = new DecimalFormat("#,##0.##").format(getZoom() * 100);
+  	stat += " | " + Messages.getString("SpriteFrame.ZOOM") + ": " + zoom + "%";
+	
+		statusLabel.setText(stat);
+	}
+	
+	private JPanel makeStatusBar() {
+		JPanel status = new JPanel(new FlowLayout());
+		BoxLayout layout = new BoxLayout(status,BoxLayout.X_AXIS);
+		status.setLayout(layout);
+		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
+		
+		statusLabel = new JLabel();
+		
+		status.add(statusLabel);
+		
+		return status;
+	}
 
 	private JPanel makeOriginPane()
 		{
@@ -254,6 +470,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		{
 		JPanel pane = new JPanel();
 		GroupLayout bLayout = new GroupLayout(pane);
+		
 		pane.setLayout(bLayout);
 		pane.setBorder(BorderFactory.createTitledBorder(Messages.getString("SpriteFrame.COLLISION"))); //$NON-NLS-1$
 
@@ -373,137 +590,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		return pane;
 		}
 
-  private JPanel makeEffectsPane()
-  {
-    JPanel pane = new JPanel();
-    GroupLayout layout = new GroupLayout(pane);
-    layout.setAutoCreateContainerGaps(true);
-
-    pane.setLayout(layout);
-
-    JLabel notimplemented = new JLabel("Note: These buttons do not do anything yet."); //$NON-NLS-1$
-    
-    JButton invert = new JButton(Messages.getString("SpriteFrame.INVERT")); //$NON-NLS-1$
-    invert.setToolTipText("Invert All Subframes"); 
-    invert.addActionListener(this);
-    
-    JButton flip = new JButton(Messages.getString("SpriteFrame.FLIP")); //$NON-NLS-1$
-    flip.setToolTipText("Flip"); 
-    flip.addActionListener(this);
-    
-    JButton rotate = new JButton(Messages.getString("SpriteFrame.ROTATE")); //$NON-NLS-1$
-    rotate.setToolTipText("Rotate"); 
-    rotate.addActionListener(this);
-    
-    JButton rotfract = new JButton(Messages.getString("SpriteFrame.ROTATEFRACTION")); //$NON-NLS-1$
-    rotfract.setToolTipText("Rotate By An Incremented Fraction Each Subframe"); 
-    rotfract.addActionListener(this);
-    
-    JButton reverse = new JButton(Messages.getString("SpriteFrame.REVERSE")); //$NON-NLS-1$
-    reverse.setToolTipText("Reverse"); 
-    reverse.addActionListener(this);
-    
-    JButton addreverse = new JButton(Messages.getString("SpriteFrame.ADDREVERSE")); //$NON-NLS-1$
-    addreverse.setToolTipText("Add Reverse"); 
-    addreverse.addActionListener(this);
-    
-    JButton colalpha = new JButton(Messages.getString("SpriteFrame.COLORALPHA")); //$NON-NLS-1$
-    colalpha.setToolTipText("Color to Alpha");
-    colalpha.addActionListener(this);
-    
-    JButton alphacol = new JButton(Messages.getString("SpriteFrame.ALPHACOLOR")); //$NON-NLS-1$
-    alphacol.setToolTipText("Alpha to Color"); 
-    alphacol.addActionListener(this);
-    
-    JButton fade = new JButton(Messages.getString("SpriteFrame.FADE")); //$NON-NLS-1$
-    fade.setToolTipText("Fade"); 
-    fade.addActionListener(this);
-    
-    JButton shrink = new JButton(Messages.getString("SpriteFrame.SHRINK")); //$NON-NLS-1$
-    shrink.setToolTipText("Shrink"); 
-    shrink.addActionListener(this);
-    
-    JButton grow = new JButton(Messages.getString("SpriteFrame.GROW")); //$NON-NLS-1$
-    grow.setToolTipText("Grow");
-    grow.addActionListener(this);
-
-    
-    //public JButton invert, flip, rotate,
-    //reverse, addreverse, fade, rotfract, srhink, grow, colalpha, alphacol;
-
-    layout.setHorizontalGroup(layout.createParallelGroup()
-    		
-    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
-    /**/.addComponent(notimplemented))
-            
-    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
-    /**/.addComponent(invert)
-    /**/.addGap(2)
-    /**/.addComponent(flip)
-    /**/.addGap(2))
-    
-    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
-    /**/.addComponent(rotate)
-    /**/.addGap(2)
-    /**/.addComponent(rotfract)
-    /**/.addGap(2))
-    
-    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
-    /**/.addComponent(reverse)
-    /**/.addGap(2)
-    /**/.addComponent(addreverse)
-    /**/.addGap(2))
-    
-    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
-    /**/.addComponent(colalpha)
-    /**/.addGap(2)
-    /**/.addComponent(alphacol)
-    /**/.addGap(2))
-    
-    /**/.addGroup(Alignment.LEADING, layout.createSequentialGroup()
-    /**/.addComponent(fade)
-    /**/.addGap(2)
-    /**/.addComponent(shrink)
-    /**/.addGap(2)
-    /**/.addComponent(grow)
-    /**/.addGap(2))
-    );
-
-    layout.setVerticalGroup(layout.createSequentialGroup()
-    		
-    /**/.addGroup(layout.createParallelGroup()
-    /**/.addComponent(notimplemented))
-    /**/.addGap(12)
-            
-    /**/.addGroup(layout.createParallelGroup()
-    /**/.addComponent(invert)
-    /**/.addComponent(flip))
-    /**/.addGap(12)
-    
-    /**/.addGroup(layout.createParallelGroup()
-    /**/.addComponent(rotate)
-    /**/.addComponent(rotfract))
-    /**/.addGap(12)
-    
-    /**/.addGroup(layout.createParallelGroup()
-    /**/.addComponent(reverse)
-    /**/.addComponent(addreverse))
-    /**/.addGap(12)
-    
-    /**/.addGroup(layout.createParallelGroup()
-    /**/.addComponent(colalpha)
-    /**/.addComponent(alphacol))
-    /**/.addGap(12)
-    
-    /**/.addGroup(layout.createParallelGroup()
-    /**/.addComponent(fade)
-    /**/.addComponent(shrink)
-    /**/.addComponent(grow))
-    /**/.addGap(12));
-    
-    return pane;
-  } 
-	
 	private JPanel makePropertiesPane()
 		{
 		JPanel pane = new JPanel();
@@ -511,10 +597,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		layout.setAutoCreateContainerGaps(true);
 
 		pane.setLayout(layout);
-
-		subCount = new JLabel();
-		width = new JLabel();
-		height = new JLabel();
 
 		smooth = new JCheckBox(Messages.getString("SpriteFrame.SMOOTH")); //$NON-NLS-1$
 		plf.make(smooth,PSprite.SMOOTH_EDGES);
@@ -525,83 +607,201 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		plf.make(transparent,PSprite.TRANSPARENT);
 
 		JPanel origin = makeOriginPane();
-
-		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(subCount,Alignment.CENTER)
-		/**/.addGroup(Alignment.CENTER,layout.createSequentialGroup()
-		/*	*/.addComponent(width)
-		/*	*/.addGap(12)
-		/*	*/.addComponent(height))
-		/**/.addComponent(smooth)
-		/**/.addComponent(preload)
-		/**/.addComponent(transparent)
-		/**/.addComponent(origin));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(subCount)
-		/**/.addGap(4)
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(width)
-		/*	*/.addComponent(height))
-		/**/.addComponent(smooth)
-		/**/.addComponent(preload)
-		/**/.addComponent(transparent)
-		/**/.addComponent(origin));
-
-		return pane;
-		}
-
-	private JPanel makeMaskPane()
-		{
-		JPanel pane = new JPanel();
-		GroupLayout layout = new GroupLayout(pane);
-		layout.setAutoCreateContainerGaps(true);
-
-		pane.setLayout(layout);
-
 		JPanel coll = makeCollisionPane();
 		JPanel bbox = makeBBoxPane();
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(smooth)
+		/**/.addComponent(preload)
+		/**/.addComponent(transparent)
+		/**/.addComponent(origin)
 		/**/.addComponent(coll)
 		/**/.addComponent(bbox));
-
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(smooth)
+		/**/.addComponent(preload)
+		/**/.addComponent(transparent)
+		/**/.addComponent(origin)
 		/**/.addComponent(coll)
 		/**/.addComponent(bbox));
 
 		return pane;
 		}
+	
+	public BufferedImage paintBackground(int width, int height, int tile) {
+  BufferedImage dest = new BufferedImage(width, height,
+  BufferedImage.TYPE_INT_ARGB);
+  Graphics2D g = dest.createGraphics();
 
+	g.setClip(0,0,width,height);
+	int TILE = tile;
+	g.setColor(Color.lightGray);
+	int w = width / TILE + 1;
+	int h = height / TILE + 1;
+	for (int row = 0; row < h; row++) {
+  		for (int col = 0; col < w; col++) {
+      		if ((row + col) % 2 == 0) {
+          		g.fillRect(col * TILE, row * TILE, TILE, TILE);
+      		}
+  		}
+	}
+	return dest;
+}
+	
+	public BufferedImage compositeImage(BufferedImage dst, BufferedImage src) {
+		BufferedImage img = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_ARGB);
+  	Graphics2D g = img.createGraphics();
+  	g.drawImage(dst,0,0,src.getWidth(),src.getHeight(),null);
+		g.drawImage(src,0,0,null);
+		return img;
+	}
+	
+	
+	public class ImageLabel extends JLabel {
+		BufferedImage img;
+		int index = -1;
+		JList list;
+		
+		public void paintComponent(Graphics g) {
+			g.drawImage(img, 0, 0,this.getWidth()-1,this.getHeight()-1, null);
+			if (list.isSelectedIndex(index)) {
+				g.setColor(Color.red);
+				g.drawRect(0, 0,this.getWidth()-1,this.getHeight()-1);
+			}
+			g.dispose();
+		}
+	}
+	
+	BufferedImage transparencyBackground = null;
+
+  public class ImageCellRenderer extends DefaultListCellRenderer
+  {
+      @Override
+      public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected, final boolean hasFocus)
+      {
+          
+          //create panel
+          final JPanel p = new JPanel(new BorderLayout(0,0));
+          //p.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+          final ImageLabel l = new ImageLabel(); //<-- this will be an icon instead of a text
+          BufferedImage img = res.subImages.get(index);
+          
+          if (img == null) { return null; }
+          float imgwidth = img.getWidth();
+          float imgheight = img.getHeight();
+          float width = 61;
+          float height = width/imgwidth * imgheight;
+          l.setPreferredSize(new Dimension(61,(int) height));
+  				//subList.setFixedCellWidth(61);
+  				//subList.setFixedCellHeight(61);
+          if (transparencyBackground == null) {
+          	transparencyBackground = paintBackground((int)width, (int)height, 7);
+          }
+      		if (!(Boolean) res.get(PSprite.TRANSPARENT)) {
+      			l.img = compositeImage(transparencyBackground, img);
+      		} else {
+      			l.img = compositeImage(transparencyBackground, Util.getTransparentIcon(img));
+      		}
+          
+          l.index = index;
+          l.list = list;
+          p.add(l);
+
+          return p;
+
+      }
+  }
+  
+  private JButton makeJButton(String key) {
+  
+		JButton but = new JButton(LGM.getIconForKey(key));
+		but.setToolTipText(Messages.getString(key));
+		but.addActionListener(this);
+		but.setActionCommand(key);
+		return but;
+  }
+  
+  private JMenuItem makeJMenuItem(String key) {
+		JMenuItem but = new JMenuItem(LGM.getIconForKey(key));
+		but.setText(Messages.getString(key));
+		but.addActionListener(this);
+		but.setActionCommand(key);
+		return but;
+  }
+	
 	private JPanel makeSubimagesPane()
 		{
 		JPanel pane = new JPanel(new BorderLayout());
 		//prevents resizing on large subimages with size(1,1)
-		pane.setPreferredSize(new Dimension(1,1));
+		//pane.setPreferredSize(pane.getMinimumSize());
 
+		final JPopupMenu popup = new JPopupMenu();
+		
+		popup.add(makeJMenuItem("SpriteFrame.EDIT"));
+		
+		popup.addSeparator();
+		
+		popup.add(makeJMenuItem("SpriteFrame.SELECT_ALL"));
+		
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		pane.add(tool,BorderLayout.NORTH);
 
-		makeToolButton(tool,"SpriteFrame.ADD"); //$NON-NLS-1$
-		makeToolButton(tool,"SpriteFrame.REMOVE"); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.ADD"));
+		tool.add(makeJButton("SpriteFrame.EDIT"));
+		tool.add(makeJButton("SpriteFrame.EFFECT"));
+		tool.add(makeJButton("SpriteFrame.REMOVE"));
+		
 		tool.addSeparator();
-		makeToolButton(tool,"SpriteFrame.PREVIOUS"); //$NON-NLS-1$
-		makeToolButton(tool,"SpriteFrame.NEXT"); //$NON-NLS-1$
+		
+		tool.add(makeJButton("SpriteFrame.UNDO"));
+		tool.add(makeJButton("SpriteFrame.REDO"));
+		
+		tool.addSeparator();
+		
+		//TODO: Implement undo/redo for this and effects
+		tool.add(makeJButton("SpriteFrame.CUT"));
+		tool.add(makeJButton("SpriteFrame.COPY"));
+		tool.add(makeJButton("SpriteFrame.PASTE"));
+		
+		tool.addSeparator();
+		
+		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
+		subLeft.addActionListener(this);
+		tool.add(subLeft);
+		
+		show = new NumberField(0,res.subImages.size() - 1);
+		show.setHorizontalAlignment(SwingConstants.CENTER);
+		show.addValueChangeListener(this);
+		show.setColumns(10);
+		show.setMaximumSize(show.getPreferredSize());
+		//		show.setValue(0);
+		tool.add(show);
 
-		JCheckBox cb = new JCheckBox("Wrap",true);
-		tool.add(cb);
-		cb.addActionListener(new ActionListener()
-			{
-				public void actionPerformed(ActionEvent e)
-					{
-					boolean b = ((JCheckBox) e.getSource()).isSelected();
-					if (b)
-						subList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-					else
-						subList.setLayoutOrientation(JList.VERTICAL);
-					}
-			});
+		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
+		subRight.addActionListener(this);
+		tool.add(subRight);
 
+		JLabel lab = new JLabel(Messages.getString("SpriteFrame.ANIM_SUBIMG")); //$NON-NLS-1$
+		
+		shiftBox = new JCheckBox(Messages.getString("SpriteFrame.SHIFT"),true);
+		shiftBox.setSelected(false);
+		tool.add(shiftBox);
+		wrapBox = new JCheckBox(Messages.getString("SpriteFrame.WRAP"),true);
+		wrapBox.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0)
+				{
+				if (!wrapBox.isSelected()) {
+					subLeft.setEnabled(timer == null && currSub > 0);
+					subRight.setEnabled(timer == null && currSub < res.subImages.size() - 1);
+				} else {
+					subLeft.setEnabled(true);
+					subRight.setEnabled(true);
+				}
+				}
+		});
+		tool.add(wrapBox);
+		
 		subList = new JList();
 		subList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		subList.setVisibleRowCount(-1);
@@ -611,7 +811,25 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		subList.setTransferHandler(new SubImageTransfer());
 		subList.addMouseListener(this);
 		subList.setDragEnabled(true);
-		pane.add(new JScrollPane(subList),BorderLayout.CENTER);
+		
+		subList.addListSelectionListener(new ListSelectionListener() {
+		public void valueChanged(ListSelectionEvent ev)
+			{
+			if (timer == null) {
+			setSubIndex(subList.getSelectedIndex());
+			}
+				
+			}
+		});
+		 
+		subList.setCellRenderer(new ImageCellRenderer());
+		subList.setComponentPopupMenu(popup);
+		
+		subimagesScroll = new JScrollPane(subList);
+		subimagesScroll.getVerticalScrollBar().setUnitIncrement(0);
+		subimagesScroll.getHorizontalScrollBar().setUnitIncrement(0);
+		//scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		pane.add(subimagesScroll,BorderLayout.CENTER);
 
 		return pane;
 		}
@@ -713,103 +931,15 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		}
 
-	private void makeToolButton(JToolBar tool, String icon)
-		{
-		ImageIcon ii = LGM.getIconForKey(icon);
-		JButton but = new JButton(ii);
-		but.setActionCommand(icon);
-		but.addActionListener(this);
-		tool.add(but);
-		}
-
 	private JPanel makePreviewPane()
 		{
 		JPanel pane = new JPanel(new BorderLayout());
 
 		preview = new SubimagePreview(res);
-		JScrollPane scroll = new JScrollPane(preview);
-		scroll.setPreferredSize(scroll.getSize());
+		previewScroll = new JScrollPane(preview);
+		previewScroll.setPreferredSize(previewScroll.getSize());
 
-		JPanel controls = new JPanel();
-		GroupLayout layout = new GroupLayout(controls);
-		layout.setAutoCreateGaps(false);
-		layout.setAutoCreateContainerGaps(false);
-		controls.setLayout(layout);
-
-		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
-		subLeft.addActionListener(this);
-
-		show = new NumberField(0,res.subImages.size() - 1);
-		show.setHorizontalAlignment(SwingConstants.CENTER);
-		show.addValueChangeListener(this);
-		//		show.setValue(0);
-
-		subRight = new JButton(LGM.getIconForKey("SpriteFrame.NEXT")); //$NON-NLS-1$
-		subRight.addActionListener(this);
-
-		JLabel lab = new JLabel(Messages.getString("SpriteFrame.ANIM_SUBIMG")); //$NON-NLS-1$
-		JLabel lab2 = new JLabel(Messages.getString("SpriteFrame.ANIM_SPEED")); //$NON-NLS-1$
-		lab2.setHorizontalAlignment(SwingConstants.CENTER);
-
-		speed = new NumberField(1,Integer.MAX_VALUE,30);
-		speed.setToolTipText(Messages.getString("SpriteFrame.CALC_TIP")); //$NON-NLS-1$
-		speed.addValueChangeListener(this);
-		speed.addMouseListener(new MouseAdapter()
-			{
-				public void mouseClicked(MouseEvent e)
-					{
-					//works for all mouse buttons
-					if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) != 0)
-						{
-						showSpeedDialog();
-						return;
-						}
-					}
-			});
-		play = new JButton(PLAY_ICON);
-		play.addActionListener(this);
-
-		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true);
-		showBbox.addActionListener(this);
-		showOrigin = new JCheckBox(Messages.getString("SpriteFrame.SHOW_ORIGIN"),true);
-		showOrigin.addActionListener(this);
-
-		layout.setHorizontalGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
-		/**/.addGap(5)
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(lab,Alignment.CENTER)
-		/*	*/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(subLeft,20,20,20)
-		/*		*/.addComponent(show)
-		/*		*/.addComponent(subRight,20,20,20)))
-		/**/.addGap(10,10,Integer.MAX_VALUE)
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(lab2,Alignment.CENTER)
-		/*	*/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(speed)
-		/*		*/.addComponent(play,20,20,20))))
-		/*	*/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(showBbox)
-		/*		*/.addComponent(showOrigin))
-		/**/.addGap(5));
-
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(lab,Alignment.CENTER)
-		/*	*/.addComponent(lab2,Alignment.CENTER))
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(subLeft,20,20,20)
-		/*	*/.addComponent(show,21,21,21)
-		/*	*/.addComponent(subRight,20,20,20)
-		/*	*/.addComponent(speed,21,21,21)
-		/*	*/.addComponent(play,20,20,20))
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(showBbox)
-		/*	*/.addComponent(showOrigin))
-		/**/.addGap(5));
-
-		pane.add(scroll,BorderLayout.CENTER);
-		pane.add(controls,BorderLayout.SOUTH);
+		pane.add(previewScroll,BorderLayout.CENTER);
 
 		return pane;
 		}
@@ -885,9 +1015,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		{
 		if (e.getSource() == show)
 			{
-			updateSub = false;
-			setSubIndex(show.getIntValue());
-			updateSub = true;
+			subList.setSelectedIndex(show.getIntValue());
 			return;
 			}
 		if (e.getSource() == speed)
@@ -896,59 +1024,323 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			return;
 			}
 		}
+	
+	private static class ClipboardImages {
+		List<BufferedImage> bi;
+		public ClipboardImages(List<BufferedImage> images) {
+			bi = images;
+		}
+	}
+	
+	 private static DataFlavor imgClipFlavor = new DataFlavor(ClipboardImages.class, "Buffered Images Clipboard");
+	
+	 private static class TransferableImages implements Transferable {
+	
+   ClipboardImages ci;
+
+	public TransferableImages( ClipboardImages images ) {
+       this.ci = images;
+   }
+
+	public DataFlavor[] getTransferDataFlavors(){
+     DataFlavor[] ret = {imgClipFlavor};
+     return ret;
+  }
+
+  public boolean isDataFlavorSupported(DataFlavor flavor){
+     return imgClipFlavor.equals(flavor);
+  }
+
+  public synchronized Object getTransferData (DataFlavor flavor)
+     throws UnsupportedFlavorException 
+  {
+     if (isDataFlavorSupported(flavor)){
+        return this.ci;
+     } else {
+        throw new UnsupportedFlavorException(imgClipFlavor);
+     }
+  }
+}
+	 
+	 public void editActionsPerformed(String cmd) {
+		int pos = subList.getSelectedIndex();
+		if (cmd.endsWith(".UNDO")) {
+
+		return;
+	}
+	else if (cmd.endsWith(".REDO")) {
+
+		return;
+	}
+	else if (cmd.endsWith(".SELECT_ALL")) {
+		subList.setSelectionInterval(0,res.subImages.size()-1);
+		return;
+	}
+	else if (cmd.endsWith(".CUT")) {
+ 	List<BufferedImage> images = new ArrayList<BufferedImage>(0);
+ 	int[] selections = subList.getSelectedIndices();
+		for (int i = 0; i < selections.length; i++) {
+			images.add(res.subImages.get(selections[i] - i));
+			res.subImages.remove(selections[i] - i);
+		}
+
+ 	Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
+ 	clip.setContents(new TransferableImages(new ClipboardImages(images)),this);
+ 	imageChanged = true;
+ 	subList.setSelectedIndex(pos - 1);
+
+ 	return;
+	}
+	else if (cmd.endsWith(".COPY")) {
+		List<BufferedImage> images = new ArrayList<BufferedImage>(0);
+		int[] selections = subList.getSelectedIndices();
+		for (int i = 0; i < selections.length; i++) {
+			images.add(res.subImages.get(selections[i]));
+		}
+		
+		Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
+		clip.setContents(new TransferableImages(new ClipboardImages(images)),this);
+		return;
+	}
+	else if (cmd.endsWith(".PASTE")) {
+ 	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+ 	Transferable content = clipboard.getContents(this);
+ 	if (content.isDataFlavorSupported( imgClipFlavor )) {
+ 		ClipboardImages images = null;
+			try
+				{
+				images = (ClipboardImages) content.getTransferData( imgClipFlavor );
+				}
+			catch (UnsupportedFlavorException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+			catch (IOException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+  		 imageChanged = true;
+ 		 res.subImages.addAll(pos + 1, images.bi);
+ 		 subList.setSelectionInterval(pos + 1, pos + images.bi.size());
+ 		 subList.setSelectionInterval(pos + 1, pos + images.bi.size());
+ 	}
+ 	
+ 	//subList.setSelectedIndex(pos);
+ 	return;
+	}
+	else if (cmd.endsWith(".ADD")) //$NON-NLS-1$
+		{
+		BufferedImage bi = res.addSubImage();
+		pos = pos >= 0 ? pos + 1 : res.subImages.size();
+		imageChanged = true;
+		res.subImages.add(pos,bi);
+		subList.setSelectedIndex(pos);
+		
+		return;
+		}
+	else if (cmd.endsWith(".EDIT")) //$NON-NLS-1$
+		{
+	 	int[] selections = subList.getSelectedIndices();
+			for (int i = 0; i < selections.length; i++) {
+				editSubimage(res.subImages.get(selections[i]));
+			}
+		return;
+		}
+	else if (cmd.endsWith(".REMOVE")) //$NON-NLS-1$
+		{
+		int[] selections = subList.getSelectedIndices();
+		for (int i = 0; i < selections.length; i++) {
+			ImageEditor ie = editors == null ? null : editors.get(res.subImages.get(selections[i] - i));
+			imageChanged = true;
+			res.subImages.remove(selections[i] - i);
+			if (ie != null) ie.stop();
+		}
+		subList.setSelectedIndex(Math.min(res.subImages.size() - 1,pos));
+		return;
+		}
+	 }
+	 
+		public double getZoom() {
+		return preview.getZoom();
+	}
+
+	public void setZoom(double nzoom) {
+		preview.setZoom(nzoom);
+		updateStatusLabel();
+		updateScrollBars();
+	}
+	
+	public void zoomIn() {
+		double zoom = getZoom();
+		if (zoom < 5) {
+			setZoom(getZoom() * 2);
+		}
+		return;
+	}
+	
+	public void zoomOut() {
+		double zoom = getZoom();
+		if (zoom > 0.125) {
+			setZoom(getZoom() / 2);
+		}
+		return;
+	}
+	 
+	 private class AnimThread extends Thread {
+	 public boolean freeze = false;
+		public void run() {
+			while (!freeze && subList != null && preview != null) {
+			  //TODO: Shit throws all kinds of NPE's
+			  //These two are threaded because updating the Swing controls
+			  //Slows down the animation so its best to thread them to within a 
+			  //60 frame per second quality playback.
+				//subList.setSelectedIndex(preview.getIndex());
+				//updateImageControls();
+				try
+					{
+					Thread.sleep(25);
+					}
+				catch (InterruptedException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+			}
+		}
+	 }
+	 private AnimThread animThread = null;
 
 	public void actionPerformed(ActionEvent e)
 		{
+		String cmd = e.getActionCommand();
+		if (cmd != null) {
+			editActionsPerformed(cmd);
+		}
+		int pos = subList.getSelectedIndex();
 		if (e.getSource() == load)
 			{
 			BufferedImage[] img = Util.getValidImages();
 			if (img != null) addSubimages(img,true);
 			return;
 			}
-		if (e.getSource() == loadStrip)
+		else if (e.getSource() == loadStrip)
 			{
 			addFromStrip(true);
 			return;
 			}
-		if (e.getSource() == loadSubimage)
+		else if (e.getSource() == loadSubimage)
 			{
 			BufferedImage[] img = Util.getValidImages();
 			if (img != null) addSubimages(img,false);
 			return;
 			}
-		if (e.getSource() == showBbox)
+		else if (e.getSource() == showBbox)
 			{
 			preview.setShowBbox(showBbox.isSelected());
 			preview.updateUI();
 			return;
 			}
-		if (e.getSource() == showOrigin)
+		else if (e.getSource() == showOrigin)
 			{
 			preview.setShowOrigin(showOrigin.isSelected());
 			preview.updateUI();
 			return;
 			}
-		if (e.getSource() == subLeft)
+		else if (e.getSource() == subLeft)
 			{
-			if (currSub > 0) setSubIndex(currSub - 1);
+			if (pos <= 0 && !wrapBox.isSelected()) {
+				subList.setSelectedIndex(currSub - 1); return;
+			}
+			
+			if (shiftBox.isSelected()) {
+			  //TODO: This may be firing an event causing you not to be able
+			  //to shift multiple images at a time.
+				int[] selections = subList.getSelectedIndices();
+				for (int i = 0; i < selections.length; i++) {
+					pos = selections[i];
+					BufferedImage bi = res.subImages.remove(pos);
+					if (pos <= 0 && wrapBox.isSelected()) {
+						pos = res.subImages.size() + 1;
+					}
+					res.subImages.add(pos - 1,bi);
+				}
+				imageChanged = true;
+				subList.setSelectedIndex(pos - 1);
+			} else {
+				if (currSub > 0) subList.setSelectedIndex(currSub - 1);
+				else if (wrapBox.isSelected()) subList.setSelectedIndex(res.subImages.size() - 1);
+			}
 			return;
 			}
-		if (e.getSource() == subRight)
+		else if (e.getSource() == subRight)
 			{
-			if (currSub < res.subImages.size() - 1) setSubIndex(currSub + 1);
+			if (pos >= res.subImages.size() - 1 && !wrapBox.isSelected()) {
+				subList.setSelectedIndex(res.subImages.size()); return;
+			}
+			if (shiftBox.isSelected()) {
+		  	//TODO: This may be firing an event causing you not to be able
+		  	//to shift multiple images at a time.
+				int[] selections = subList.getSelectedIndices();
+				for (int i = 0; i < selections.length; i++) {
+					pos = selections[i];
+					preview.setIndex(pos);
+					BufferedImage bi = res.subImages.remove(pos);
+					if (pos > res.subImages.size() - 1 && wrapBox.isSelected()) {
+						pos = -1;
+					}
+					res.subImages.add(pos + 1,bi);
+				}
+				imageChanged = true;
+				subList.setSelectedIndex(pos + 1);
+			}  else {
+				if (currSub < res.subImages.size() - 1) subList.setSelectedIndex(currSub + 1);
+				else if (wrapBox.isSelected()) subList.setSelectedIndex(0);
+			}
+			
 			return;
 			}
-		if (e.getSource() == play)
+		else if (e.getSource() == zoomButton) 
+			{
+				if (zoomButton.isSelected()) {
+					preview.enablemouse = false;
+					preview.addMouseListener(mouseListener);
+					preview.addMouseMotionListener(mouseMotionListener);
+				} else {
+					preview.enablemouse = true;
+					preview.removeMouseListener(mouseListener);
+					preview.removeMouseMotionListener(mouseMotionListener);
+				}
+			}
+		else if (e.getSource() == zoomIn)
+			{
+			zoomIn();
+			return;
+			}
+		else if (e.getSource() == zoomOut)
+			{
+			zoomOut();
+			return;
+			}
+		else if (e.getSource() == play)
 			{
 			if (timer != null)
 				{
 				play.setIcon(PLAY_ICON);
+				animThread = null;
 				timer.stop();
 				timer = null; //used to indicate that this is not animating, and frees memory
 				updateImageControls();
 				}
 			else if (res.subImages.size() > 1)
 				{
+				if (animThread == null) {
+					animThread = new AnimThread();
+					
+					animThread.start();
+				}
+				animThread.freeze = false;
 				play.setIcon(STOP_ICON);
 				timer = new Timer(1000 / speed.getIntValue(),this);
 				timer.start();
@@ -956,66 +1348,38 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				}
 			return;
 			}
-		if (e.getSource() == timer)
+		else if (e.getSource() == timer)
 			{
 			int s = res.subImages.size();
 			if (s > 0) setSubIndex((currSub + 1) % s);
 			return;
 			}
-		if (e.getSource() == centre)
+		else if (e.getSource() == centre)
 			{
 			res.put(PSprite.ORIGIN_X,res.subImages.getWidth() / 2);
 			res.put(PSprite.ORIGIN_Y,res.subImages.getHeight() / 2);
 			return;
 			}
-		String cmd = e.getActionCommand();
-		if (cmd != null && cmd.startsWith("SpriteFrame.")) //$NON-NLS-1$
-			handleToolbarEvent(cmd.substring(12));
 
 		super.actionPerformed(e);
 		}
-
-	private void handleToolbarEvent(String cmd)
+	
+	private void realizeScrollBarIncrement(JScrollPane scroll, Dimension size, Dimension scale)
 		{
-		int pos = subList.getSelectedIndex();
-		if (cmd.equals("ADD")) //$NON-NLS-1$
-			{
-			BufferedImage bi = res.addSubImage();
-			pos = pos >= 0 ? pos + 1 : res.subImages.size();
-			imageChanged = true;
-			res.subImages.add(pos,bi);
-			subList.setSelectedIndex(pos);
-			editSubimage(bi);
-			return;
-			}
-		if (pos == -1) return;
-		if (cmd.equals("REMOVE")) //$NON-NLS-1$
-			{
-			ImageEditor ie = editors == null ? null : editors.get(res.subImages.get(pos));
-			imageChanged = true;
-			res.subImages.remove(pos);
-			if (ie != null) ie.stop();
-			subList.setSelectedIndex(Math.min(res.subImages.size() - 1,pos));
-			return;
-			}
-		if (cmd.equals("PREVIOUS")) //$NON-NLS-1$
-			{
-			if (pos == 0) return;
-			imageChanged = true;
-			BufferedImage bi = res.subImages.remove(pos);
-			res.subImages.add(pos - 1,bi);
-			subList.setSelectedIndex(pos - 1);
-			return;
-			}
-		if (cmd.equals("NEXT")) //$NON-NLS-1$
-			{
-			if (pos == res.subImages.size() - 1) return;
-			imageChanged = true;
-			BufferedImage bi = res.subImages.remove(pos);
-			res.subImages.add(pos + 1,bi);
-			subList.setSelectedIndex(pos + 1);
-			return;
-			}
+		JScrollBar vertical = scroll.getVerticalScrollBar();
+		JScrollBar horizontal = scroll.getHorizontalScrollBar();
+		if (vertical != null) {
+			vertical.setUnitIncrement((int) (size.getWidth() / scale.width));
+		}
+		if (horizontal != null) {
+			horizontal.setUnitIncrement((int) (size.getHeight() / scale.height));
+		}
+		}
+	
+	private void updateScrollBars()
+		{
+		realizeScrollBarIncrement(previewScroll, previewScroll.getSize(), new Dimension(5, 5));
+		realizeScrollBarIncrement(subimagesScroll, subimagesScroll.getPreferredSize(), new Dimension(4,4));
 		}
 
 	public void addSubimages(BufferedImage img[], boolean clear)
@@ -1032,7 +1396,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			res.subImages.add(i);
 		show.setRange(0,res.subImages.size());
 		if (clear) setSubIndex(0);
-		updateInfo();
+		updateStatusLabel();
+		
+		Component[] comps = subList.getComponents();
+		for (Component comp : comps) {
+		comp.setSize(50,50);
+		}
+		updateScrollBars();
 		}
 	
 	public void addFromStrip(boolean clear)
@@ -1050,32 +1420,33 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		addSubimages(img,clear);
 		}
 
-	public void updateInfo()
-		{
-		width.setText(Messages.getString("SpriteFrame.WIDTH") + res.subImages.getWidth()); //$NON-NLS-1$
-		height.setText(Messages.getString("SpriteFrame.HEIGHT") + res.subImages.getHeight()); //$NON-NLS-1$
-		subCount.setText(Messages.getString("SpriteFrame.NO_OF_SUBIMAGES") //$NON-NLS-1$
-				+ res.subImages.size());
-		}
-
 	private void updateImageControls()
 		{
 		int s = res.subImages.size();
 		if (s > 0)
 			{
-			if (currSub > s)
+			if (subList.getSelectedIndex() > s)
 				{
 				setSubIndex(s - 1);
 				return;
 				}
-			subLeft.setEnabled(timer == null && currSub > 0);
-			subRight.setEnabled(timer == null && currSub < s - 1);
+			if (!wrapBox.isSelected()) {
+				subLeft.setEnabled(timer == null && subList.getSelectedIndex() > 0);
+				subRight.setEnabled(timer == null && subList.getSelectedIndex() < s - 1);
+			} else {
+				subLeft.setEnabled(timer == null);
+				subRight.setEnabled(timer == null);
+			}
 			play.setEnabled(s > 1);
 			if (updateSub)
 				{
+				try {
 				show.setRange(0,s - 1);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				show.setEnabled(timer == null);
-				show.setValue(currSub);
+				//show.setValue(subList.getSelectedIndex());
 				}
 			}
 		else
@@ -1101,15 +1472,19 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			maxWidth = Math.max(maxWidth,ii[i].getIconWidth());
 			}
 		subList.setListData(ii);
-		//		subList.setFixedCellWidth(maxWidth);
+
 		updateImageControls();
 		}
 
 	private void setSubIndex(int i)
 		{
+		if (currSub == i) { return; }
 		currSub = i;
 		preview.setIndex(i);
-		updateImageControls();
+		if (timer == null) {
+			updateImageControls();
+		}
+
 		}
 
 	private void updateBoundingBoxEditors()
@@ -1162,7 +1537,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 	public void updated(UpdateEvent e)
 		{
-		updateInfo();
+		updateStatusLabel();
 		updateImageList();
 		}
 
@@ -1277,5 +1652,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 	public void mouseReleased(MouseEvent e)
 		{ //unused
+		}
+
+	public void lostOwnership(Clipboard arg0, Transferable arg1)
+		{
+		// TODO Auto-generated method stub
+		System.out.println("Sprite editor has lost clipboard ownership.");
 		}
 	}

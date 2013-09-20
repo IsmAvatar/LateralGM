@@ -46,6 +46,7 @@ import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
@@ -87,20 +88,19 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		public ResourceFrame<?,?> makeFrame(Resource<?,?> r, ResNode node)
 			{
 			if (kind == Sprite.class) return new SpriteFrame((Sprite) r,node);
-			if (kind == Sound.class) return new SoundFrame((Sound) r,node);
-			if (kind == Background.class) return new BackgroundFrame((Background) r,node);
-			if (kind == Path.class) return new PathFrame((Path) r,node);
-			if (kind == Script.class) return new ScriptFrame((Script) r,node);
-			if (kind == Font.class) return new FontFrame((Font) r,node);
-			if (kind == Timeline.class) return new TimelineFrame((Timeline) r,node);
-			if (kind == GmObject.class) return new GmObjectFrame((GmObject) r,node);
-			if (kind == Room.class) return new RoomFrame((Room) r,node);
-
-			if (kind == GameInformation.class) return LGM.getGameInfo();
-			if (kind == GameSettings.class) return LGM.getGameSettings();
-			if (kind == Extensions.class) return LGM.getGameExtensions();
-
-			return null;
+			else if (kind == Sound.class) return new SoundFrame((Sound) r,node);
+			else if (kind == Background.class) return new BackgroundFrame((Background) r,node);
+			else if (kind == Path.class) return new PathFrame((Path) r,node);
+			else if (kind == Script.class) return new ScriptFrame((Script) r,node);
+			else if (kind == Shader.class) return new ShaderFrame((Shader) r,node);
+ 			else if (kind == Font.class) return new FontFrame((Font) r,node);
+			else if (kind == Timeline.class) return new TimelineFrame((Timeline) r,node);
+			else if (kind == GmObject.class) return new GmObjectFrame((GmObject) r,node);
+			else if (kind == Room.class) return new RoomFrame((Room) r,node);
+			else if (kind == GameInformation.class) return LGM.getGameInfo();
+			else if (kind == GameSettings.class) return LGM.getGameSettings();
+			else if (kind == Extensions.class) return LGM.getGameExtensions();
+			else return null;
 			}
 		}
 

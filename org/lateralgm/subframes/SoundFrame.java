@@ -14,6 +14,8 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -23,7 +25,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.Enumeration;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -40,6 +44,7 @@ import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -47,6 +52,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
@@ -77,7 +85,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	public JButton play;
 	public JButton stop;
 	public JButton store;
-	public JLabel filename;
 	public JSlider volume;
 	public JSlider pan;
 	public JButton center;
@@ -87,8 +94,21 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	public boolean modified = false;
 	private CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_SOUND_DIR");
 	private SoundEditor editor;
-	private Clip clip; //TODO: Be able to stop older started audio clips
+	private Clip clip;
+	private JLabel statusLabel;
+	private JPanel statusBar;
+	private JSlider pitch;
+	private JSlider position;
 
+	public String formatTime(long duration) {
+		String formated = String.format("%dm%ds", 
+	    TimeUnit.MICROSECONDS.toMinutes(duration),
+	    TimeUnit.MICROSECONDS.toSeconds(duration) - 
+	    TimeUnit.MINUTES.toSeconds(TimeUnit.MICROSECONDS.toMinutes(duration))
+		);
+		return formated;
+	}
+	
 	public SoundFrame(Sound res, ResNode node)
 		{
 		super(res,node);
@@ -97,6 +117,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		setResizable(false);
 		setMaximizable(false);
 
+		statusBar = makeStatusBar();
+		add(statusBar, BorderLayout.SOUTH);
 		add(makeToolBar(),BorderLayout.NORTH);
 		JPanel content = new JPanel();
 		add(content,BorderLayout.CENTER);
@@ -124,65 +146,131 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		edit.addActionListener(this);
 		play = new JButton(PLAY_ICON);
 		play.addActionListener(this);
+		play.setEnabled(false);
 		stop = new JButton(STOP_ICON);
 		stop.addActionListener(this);
-
-		filename = new JLabel(Messages.format("SoundFrame.FILE",res.get(PSound.FILE_NAME))); //$NON-NLS-1$
+		stop.setEnabled(false);
 
 		JPanel pKind = makeKindPane();
-
 		JPanel pEffects = makeEffectsPane();
+		//TODO:Finish Quality Pane
+		//JPanel pQuality = makeQualityPane();
 
-		JLabel lVolume = new JLabel(Messages.getString("SoundFrame.VOLUME")); //$NON-NLS-1$
+		final JLabel lVolume = new JLabel(Messages.getString("SoundFrame.VOLUME") + ": 100"); //$NON-NLS-1$
 		volume = new JSlider(0,100,100);
+		//volume.setPaintLabels(true);
 		volume.setMajorTickSpacing(10);
 		volume.setPaintTicks(true);
+		volume.setSize(new Dimension(50, 50));
+		volume.addChangeListener(new ChangeListener() {
+
+		public void stateChanged(ChangeEvent ev)
+			{
+			lVolume.setText(Messages.getString("SoundFrame.VOLUME") + ": " + volume.getValue());
+			}
+	
+		});
 		plf.make(volume.getModel(),PSound.VOLUME,100.0);
 
-		JLabel lPan = new JLabel(Messages.getString("SoundFrame.PAN")); //$NON-NLS-1$
+		final JLabel lPan = new JLabel(Messages.getString("SoundFrame.PAN") + ": 0"); //$NON-NLS-1$
 		pan = new JSlider(-100,100,0);
+		//pan.setPaintLabels(true);
 		pan.setMajorTickSpacing(20);
 		pan.setPaintTicks(true);
+		pan.addChangeListener(new ChangeListener() {
+
+			public void stateChanged(ChangeEvent ev)
+				{
+				lPan.setText(Messages.getString("SoundFrame.PAN") + ": " + pan.getValue());
+				}
+		
+		});
 		plf.make(pan.getModel(),PSound.PAN,100.0);
 
+		/* TODO: Implement Pitch
+		JLabel lPitch = new JLabel(Messages.getString("SoundFrame.PITCH") + ": 0"); //$NON-NLS-1$
+		pitch = new JSlider(-100,100,0);
+		//pan.setPaintLabels(true);
+		pitch.setMajorTickSpacing(20);
+		pitch.setPaintTicks(true);
+		*/
+		
+		String positiontxt = "";
+		if (clip != null) { 
+			positiontxt = Messages.getString("SoundFrame.POSITION") + ": " + formatTime(clip.getMicrosecondPosition()) + " | " +
+					Messages.getString("SoundFrame.DURATION") + ": " + formatTime(clip.getMicrosecondLength());
+		} else {
+			positiontxt = Messages.getString("SoundFrame.POSITION") + ": 0m0s | " +
+				Messages.getString("SoundFrame.DURATION") + ": 0m0s";
+		}
+		final JLabel lPosition = new JLabel(Messages.getString("SoundFrame.POSITION") + ": 0m0s | " + 
+		Messages.getString("SoundFrame.DURATION") + ": 0m0s"); //$NON-NLS-1$
+		position = new JSlider(0,100,0);
+		//pan.setPaintLabels(true);
+		position.setMajorTickSpacing(10);
+		position.setMinorTickSpacing(2);
+		position.setPaintTicks(true);
+		position.addChangeListener(new ChangeListener() {
+
+		public void stateChanged(ChangeEvent ev)
+			{
+			if (clip == null) { return; }
+			lPosition.setText(Messages.getString("SoundFrame.POSITION") + ": " + formatTime(clip.getMicrosecondPosition()) + " | " +
+					Messages.getString("SoundFrame.DURATION") + ": " + formatTime(clip.getMicrosecondLength()) );
+			}
+	
+		});
+		
+		/* TODO: Not sure if this button is needed since I added the label listener
+		 * and you can tell when you set it to 0.
+		 */
+		/*
 		center = new JButton(Messages.getString("SoundFrame.PAN_CENTER")); //$NON-NLS-1$
 		center.addActionListener(this);
-
-		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD")); //$NON-NLS-1$
-		plf.make(preload,PSound.PRELOAD);
-
+		center.setPreferredSize(edit.getSize());
+		*/
+		
 		data = res.data;
-
+		loadClip();
+		
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(filename,120,120,MAX_VALUE)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(edit)
-		/*	*/.addComponent(play)
-		/*	*/.addComponent(stop))
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(pKind,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*	*/.addComponent(pEffects,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
-		/**/.addComponent(lVolume)
-		/**/.addComponent(volume)
-		/**/.addComponent(lPan)
-		/**/.addComponent(pan)
-		/**/.addComponent(center)
-		/**/.addComponent(preload));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(filename)
-		/**/.addGroup(layout.createParallelGroup()
+				/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(edit)
-		/*	*/.addComponent(play)
-		/*	*/.addComponent(stop))
+		/*	*/.addComponent(stop)
+		/*	*/.addComponent(play))
+		.addGroup(layout.createSequentialGroup()
+		/**/.addComponent(lPosition))
+		/**/.addComponent(position)
+		.addGroup(layout.createSequentialGroup()
+		/**/.addComponent(lVolume))
+		/**/.addComponent(volume)
+		.addGroup(layout.createSequentialGroup()
+		/**/.addComponent(lPan))
+		/**/.addComponent(pan)
+		.addGroup(layout.createSequentialGroup()));
+		
+		
+		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(pKind)
 		/*	*/.addComponent(pEffects))
-		/**/.addComponent(lVolume).addGap(0)
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(edit)
+		/*	*/.addComponent(stop)
+		/*	*/.addComponent(play))
+		.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/**/.addComponent(lPosition).addGap(0))
+		/**/.addComponent(position)
+		.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/**/.addComponent(lVolume).addGap(0))
 		/**/.addComponent(volume)
-		/**/.addComponent(lPan).addGap(0)
-		/**/.addComponent(pan)
-		/**/.addComponent(center)
-		/**/.addComponent(preload));
+		.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/**/.addComponent(lPan).addGap(0))
+		/**/.addComponent(pan));
+		
 		pack();
 		}
 
@@ -211,9 +299,33 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		tool.add(new JLabel(Messages.getString("SoundFrame.NAME"))); //$NON-NLS-1$
 		tool.add(name);
 
+		tool.addSeparator();
+		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD")); //$NON-NLS-1$
+		plf.make(preload,PSound.PRELOAD);
+		tool.add(preload);
+		
 		return tool;
 		}
 
+	private JPanel makeQualityPane()
+		{
+		//TODO: Finish this fuckin panel
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		panel.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.QUALITY")));
+		//panel.setLayout(layout);
+		
+		// The buttons must be added in the order corresponding to Sound.SoundKind.
+		JComboBox typeBox = new JComboBox(); //$NON-NLS-1$
+		typeBox.setEditable(true);
+		panel.add(typeBox);
+		AbstractButton kBackground = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
+		AbstractButton k3d = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
+		AbstractButton kMult = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
+
+		return panel;
+		}
+	
 	private JPanel makeKindPane()
 		{
 		ButtonGroup g = new ButtonGroup();
@@ -306,12 +418,21 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			try
 				{
 				data = fileToBytes(f);
+				//loadClip();
 				String fn = f.getName();
 				res.put(PSound.FILE_NAME,fn);
 				String ft = CustomFileFilter.getExtension(fn);
 				if (ft == null) ft = "";
 				res.put(PSound.FILE_TYPE,ft);
-				filename.setText(Messages.format("SoundFrame.FILE",fn)); //$NON-NLS-1$
+				updateStatusLabel();
+				play.setEnabled(false);
+				if (clip != null) {
+					clip.stop();
+					clip.close();
+					clip.flush();
+					clip = null;
+				}
+				loadClip();
 				}
 			catch (Exception ex)
 				{
@@ -324,51 +445,38 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		if (e.getSource() == play)
 			{
 			if (data == null || data.length == 0) return;
-			try
-				{
-				InputStream source = new ByteArrayInputStream(data);
-				AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(source));
-				AudioFormat fmt = ais.getFormat();
-				//Forcibly convert to PCM Signed because non-pulse can't play unsigned (Java bug)
-				if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED)
-					{
-					fmt = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,fmt.getSampleRate(),
-							fmt.getSampleSizeInBits() * 2,fmt.getChannels(),fmt.getFrameSize() * 2,
-							fmt.getFrameRate(),true);
-					ais = AudioSystem.getAudioInputStream(fmt,ais);
-					}
-				//Clip c = AudioSystem.getClip() generates a bogus format instead of using ais.getFormat.
-				final Clip clip = (Clip) AudioSystem.getLine(new DataLine.Info(Clip.class,fmt));
-				clip.open(ais);
-
-				new Thread()
-					{
-						public void run()
-							{
-							clip.start();
-							SoundFrame.this.clip = clip;
-							clip.drain();
-							clip.close();
-							}
-					}.start();
-				}
-			catch (UnsupportedAudioFileException e1)
-				{
-				e1.printStackTrace();
-				}
-			catch (IOException e1)
-				{
-				e1.printStackTrace();
-				}
-			catch (LineUnavailableException e1)
-				{
-				e1.printStackTrace();
-				}
-			return;
+			if (clip == null) {
+				loadClip();
 			}
+			play.setEnabled(false);
+			stop.setEnabled(true);
+			clip.setFramePosition((int)(((float)position.getValue()/100) * clip.getFrameLength()));
+			//FloatControl gainControl = 
+			    //(FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+			//gainControl.setValue(-10);
+			clip.start();
+			new Thread()
+			{
+				public void run()
+				{
+					while (clip.isActive()) {
+						//NOTE: Fuck you Java for actually making me have to cast like this.
+						float pos = (float)clip.getLongFramePosition() / (float)clip.getFrameLength();
+
+						position.setValue((int)(pos * position.getMaximum()));
+					}
+
+					clip.setFramePosition(0);
+					position.setValue(0);
+					play.setEnabled(true);
+					stop.setEnabled(false);
+				}
+			}.start();
+		return;
+		}
 		if (e.getSource() == stop)
 			{
-			if (clip != null) clip.stop();
+			if (clip != null) clip.stop(); stop.setEnabled(false);
 			return;
 			}
 		if (e.getSource() == store)
@@ -422,6 +530,77 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			if (in != null) in.close();
 			}
 		}
+	
+	private JPanel makeStatusBar() {
+		JPanel status = new JPanel(new FlowLayout());
+		BoxLayout layout = new BoxLayout(status,BoxLayout.X_AXIS);
+		status.setLayout(layout);
+		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
+
+		statusLabel = new JLabel();
+		status.add(statusLabel);
+		
+		updateStatusLabel();
+
+		return status;
+	}
+	
+	public static String formatData(long bytes) {
+		if (bytes <= 0) return "0 B";
+		final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
+		int digits = (int) (Math.log(bytes)/Math.log(1024));
+		return new DecimalFormat("#,##0.##").format(bytes/Math.pow(1024, digits)) + " " + 
+			units[digits];
+	}
+	
+	public void loadClip () {
+		if (data == null && data.length > 0) { return; }
+		try {
+			InputStream source = new ByteArrayInputStream(data);
+			AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(source));
+			AudioFormat fmt = ais.getFormat();
+			//Forcibly convert to PCM Signed because non-pulse can't play unsigned (Java bug)
+			if (fmt.getEncoding() != AudioFormat.Encoding.PCM_SIGNED)
+			{
+					fmt = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,fmt.getSampleRate(),
+					fmt.getSampleSizeInBits() * 2,fmt.getChannels(),fmt.getFrameSize() * 2,
+					fmt.getFrameRate(),true);
+					ais = AudioSystem.getAudioInputStream(fmt,ais);
+			}
+			//Clip c = AudioSystem.getClip() generates a bogus format instead of using ais.getFormat.
+		  clip = (Clip) AudioSystem.getLine(new DataLine.Info(Clip.class,fmt));
+		 
+			clip.open(ais);
+			play.setEnabled(true);
+		} catch (IOException e) {
+				e.printStackTrace();
+		}
+		catch (LineUnavailableException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (UnsupportedAudioFileException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void updateStatusLabel() {
+		String stat = " " + Messages.getString("SoundFrame.FILENAME") + ": " +  res.get(PSound.FILE_NAME) + " | " + 
+				Messages.getString("SoundFrame.MEMORY") + ": ";
+		
+		if (res.data.length != 0) {
+			stat += formatData(res.data.length);
+		} else if (data != null) {
+			stat += formatData(data.length);
+		} else {
+			stat += formatData(0);
+		}
+
+		statusLabel.setText(stat);
+	}
 
 	private class SoundEditor implements UpdateListener
 		{
@@ -429,7 +608,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 		public SoundEditor() throws IOException,UnsupportedOperationException
 			{
-			File f = File.createTempFile(res.getName(),((File) res.get(PSound.FILE_NAME)).getName(),
+			File f = File.createTempFile(res.getName(),new File((String) res.get(PSound.FILE_NAME)).getName(),
 					LGM.tempDir);
 			f.deleteOnExit();
 			FileOutputStream out = new FileOutputStream(f);
@@ -446,11 +625,14 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			if (!Prefs.useExternalSoundEditor || Prefs.externalSoundEditorCommand == null)
 				try
 					{
-					Desktop.getDesktop().edit(monitor.file);
+						Desktop.getDesktop().edit(monitor.file);
 					}
 				catch (UnsupportedOperationException e)
 					{
-					throw new UnsupportedOperationException("no internal or system sound editor",e);
+						throw new UnsupportedOperationException("no internal or system sound editor",e);
+					}
+				catch (IOException e) {
+						e.printStackTrace();
 					}
 			else
 				Runtime.getRuntime().exec(
@@ -473,6 +655,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 					try
 						{
 						data = fileToBytes(monitor.file);
+						updateStatusLabel();
 						}
 					catch (IOException ioe)
 						{
@@ -496,5 +679,10 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	protected void cleanup()
 		{
 		if (editor != null) editor.stop();
+		if (clip != null) {
+			clip.stop();
+			clip.close();
+			clip = null;
+		}
 		}
 	}

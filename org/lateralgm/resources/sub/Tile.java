@@ -14,7 +14,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.EnumMap;
 
-import org.lateralgm.file.GmFile;
+import org.lateralgm.file.ProjectFile;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -68,7 +68,7 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 	 * Constructs a tile for this GmFile, and determines ID via the last tile id.
 	 * Notice that a tile initializes with no settings.
 	 */
-	public Tile(Room r, GmFile f)
+	public Tile(Room r, ProjectFile f)
 		{
 		this(r,++f.lastTileId);
 		}

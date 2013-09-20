@@ -55,6 +55,7 @@ import java.util.TimerTask;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -73,6 +74,8 @@ import org.lateralgm.joshedit.FindDialog.FindNavigator;
 import org.lateralgm.joshedit.Selection.ST;
 import org.lateralgm.joshedit.TokenMarker.TokenMarkerInfo;
 import org.lateralgm.messages.Messages;
+
+import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.Key;
 
 /**
  * The main component class; instantiate this, and you're good to go.
@@ -328,10 +331,10 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		setFocusTraversalKeysEnabled(false);
 		setTransferHandler(new JoshTextTransferHandler());
 
-		mapActions();
-
 		// The mapping of keystrokes and action names
 		Bindings.readMappings(getInputMap());
+		
+		mapActions();
 
 		// Events
 		enableEvents(AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK
@@ -577,43 +580,25 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		}
 	}
 	
-	// ==========================================================
-	// == Map action names to their implementations =============
-	// ==========================================================
-	/** Delete the current line, including the newline character. */
-	public AbstractAction aLineDel = new AbstractAction("LINEDEL")
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		// ==========================================================
+		// == Map action names to their implementations =============
+		// ==========================================================
+		/** Delete the current line, including the newline character. */
+		public void aLineDel()
 		{
 			// delete the line where the caret is
 		}
-	};
-	/** Duplicate the current line, placing the copy beneath this one. */
-	public AbstractAction aLineDup = new AbstractAction("LINEDUP")
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+	
+		/** Duplicate the current line, placing the copy beneath this one. */
+		public void aLineDup()
 		{
 			UndoPatch up = new UndoPatch();
 			up.realize(up.startRow + sel.duplicate());
 			storeUndo(up,OPT.DUPLICATE);
 		}
-	};
-	/** Swap the currently selected lines, or this line and the line above it. */
-	public AbstractAction aLineSwap = new AbstractAction("LINESWAP")
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		
+		/** Swap the currently selected lines, or this line and the line above it. */
+		public void aLineSwap()
 		{
 			if (caret.row == sel.row)
 			{
@@ -639,15 +624,9 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 				storeUndo(up,OPT.SWAP);
 			}
 		}
-	};
-	/** Un-swap the selected lines, or this line and the line below it. */
-	public AbstractAction aLineUnSwap = new AbstractAction("LINEUNSWAP")
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		
+		/** Un-swap the selected lines, or this line and the line below it. */
+		public void aLineUnSwap()
 		{
 			if (caret.row == sel.row)
 			{
@@ -673,18 +652,12 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 				if (sel.type != ST.RECT) sel.col = caret.col = line_offset_from(caret.row,caret.colw);
 			}
 		}
-	};
-	/**
-	 * Select all: Place the caret at the end of the code,
-	 * and start the selection from the beginning.
-	 */
-	public AbstractAction aSelAll = new AbstractAction("SELALL")
-	{
-		private static final long serialVersionUID = 1L;
 
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		/**
+	 	* Select all: Place the caret at the end of the code,
+	 	* and start the selection from the beginning.
+	 	*/
+		public void aSelAll()
 		{
 			sel.row = sel.col = 0;
 			caret.row = code.size() - 1;
@@ -693,40 +666,22 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			sel.selectionChanged();
 			repaint();
 		}
-	};
-	/** Open a file chooser to save the contents of the editor. */
-	public AbstractAction aSave = new AbstractAction("SAVE")
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		
+		/** Open a file chooser to save the contents of the editor. */
+		public void aSave()
 		{
 			saveToFile();
 		}
-	};
-	/** Open a dialog to load the contents of the editor from a file. */
-	public AbstractAction aLoad = new AbstractAction("LOAD")
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		
+		/** Open a dialog to load the contents of the editor from a file. */
+		public void aLoad()
 		{
 			loadFromFile();
 			repaint();
 		}
-	};
-	/** Open a print dialogue to print the contents of the editor. */
-	public AbstractAction aPrint = new AbstractAction("PRINT")
-	{
-		private static final long serialVersionUID = 1L;
 
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		/** Open a print dialogue to print the contents of the editor. */
+		public void aPrint()
 		{
 		  //TODO: Make the fucker actually print
 		  PrinterJob pj = PrinterJob.getPrinterJob();
@@ -739,30 +694,18 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 	        }
 	     }   
 		}
-	};
-	/** Copy the contents of the selection to the clipboard. */
-	public AbstractAction aCopy = new AbstractAction("COPY")
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		
+		/** Copy the contents of the selection to the clipboard. */
+		public void aCopy()
 		{
 			sel.copy();
 		}
-	};
-	/**
-	 * Cut the contents of the selection, removing them from
-	 * the code and storing them in the clipboard.
-	 */
-	public AbstractAction aCut = new AbstractAction("CUT")
-	{
-		private static final long serialVersionUID = 1L;
 
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		/**
+	 	* Cut the contents of the selection, removing them from
+	 	* the code and storing them in the clipboard.
+	 	*/
+		public void aCut()
 		{
 			if (sel.isEmpty()) return;
 			sel.copy();
@@ -773,18 +716,12 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			doCodeSize(true);
 			repaint();
 		}
-	};
-	/**
-	 * Paste the clipboard into the code, overwriting the selection if there is
-	 * one.
-	 */
-	public AbstractAction aPaste = new AbstractAction("PASTE")
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		
+		/**
+		* Paste the clipboard into the code, overwriting the selection if there is
+	 	* one.
+	 	*/
+		public void aPaste()
 		{
 			UndoPatch up = new UndoPatch(Math.min(caret.row,sel.row),Math.max(
 					Math.max(caret.row,sel.row),
@@ -794,68 +731,39 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			doCodeSize(true);
 			repaint();
 		}
-	};
-	/** Undo the most recent action. */
-	public AbstractAction aUndo = new AbstractAction("UNDO")
-	{
-		private static final long serialVersionUID = 1L;
 
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		/** Undo the most recent action. */
+		public void aUndo()
 		{
 			undo();
 			doCodeSize(true);
 			repaint();
 		}
-	};
 	
-	/** Redo the most recently undone action. */
-	public AbstractAction aRedo = new AbstractAction("REDO")
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		/** Redo the most recently undone action. */
+		public void aRedo()
 		{
 			redo();
 			doCodeSize(true);
 			repaint();
 		}
-	};
-	/** Display the find dialog. */
-	public AbstractAction aFind = new AbstractAction("FIND")
-	{
-		private static final long serialVersionUID = 1L;
 
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		/** Display the find dialog. */
+		public void aFind()
 		{
+			FindDialog.getInstance().selectedJoshText = this;
 			findDialog.setVisible(true);
 		}
-	};
-	/** Display the quick find dialog. */
-	public AbstractAction aQuickFind = new AbstractAction("QUICKFIND")
-	{
-		private static final long serialVersionUID = 1L;
 
-		/** @see AbstractAction#actionPerformed(ActionEvent) */
-	//r@Override
-		public void actionPerformed(ActionEvent e)
+		/** Display the quick find dialog. */
+		public void aQuickFind()
 		{
 			finder.present();
 		}
-	};
-	/** Decrease the indent for all selected lines. */
-	/*public AbstractAction aUnindent = new AbstractAction("UNINDENT")
-	{
-		private static final long serialVersionUID = 1L;
 
-		/** @see AbstractAction#actionPerformed(ActionEvent) * /
-		@Override
-		public void actionPerformed(ActionEvent e)
+		/** Decrease the indent for all selected lines. */
+		/*
+		public void aUnindent(ActionEvent e)
 		{
 			UndoPatch up = new UndoPatch();
 			int erow;
@@ -866,22 +774,146 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			}
 			up.realize(erow);
 			storeUndo(up,OPT.INDENT);
+		}*/
+		
+		public AbstractAction actCut = new AbstractAction("CUT")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aCut();
 		}
-	};*/
+		};
+		
+		public AbstractAction actCopy = new AbstractAction("COPY")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aCopy();
+		}
+		};
+		
+		public AbstractAction actPaste = new AbstractAction("PASTE")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aPaste();
+		}
+		};
+		
+		public AbstractAction actUndo = new AbstractAction("UNDO")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aUndo();
+		}
+		};
+		
+		public AbstractAction actRedo = new AbstractAction("REDO")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aRedo();
+		}
+		};
+		
+		public AbstractAction actFind = new AbstractAction("FIND")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aFind();
+		}
+		};
+		
+		public AbstractAction actQuickFind = new AbstractAction("QUICKFIND")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aQuickFind();
+		}
+		};
+		
+		public AbstractAction actLineDel = new AbstractAction("LINEDEL")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aLineDel();
+		}
+		};
+		
+		public AbstractAction actLineDup = new AbstractAction("LINEDUP")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aLineDup();
+		}
+		};
+		
+		public AbstractAction actLineSwap = new AbstractAction("LINESWAP")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aLineSwap();
+		}
+		};
+		
+		public AbstractAction actLineUnSwap = new AbstractAction("LINEUNSWAP")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aLineUnSwap();
+		}
+		};
+		
+		public AbstractAction actSelAll = new AbstractAction("SELALL")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aSelAll();
+		}
+		};
+		
+		public AbstractAction actPrint = new AbstractAction("PRINT")
+		{
+		private static final long serialVersionUID = 1L;
+		public void actionPerformed(ActionEvent e)
+		{
+			aPrint();
+		}
+		};
 
-	/** Map the AbstractActions declared in JoshText to keyboard hotkeys. */
-	private void mapActions()
-	{
-		ActionMap am = getActionMap();
-		Action acts[] = { aLineDel,aLineDup,aLineSwap,aLineUnSwap,aSelAll,aCopy,aCut,aPaste,aUndo,
-				aRedo,aFind,aQuickFind };
-		for (Action a : acts)
-			am.put(a.getValue(Action.NAME),a);
-	}
-
+		private void mapActions()
+			{
+			ActionMap am = getActionMap();
+			Action acts[] = { actLineDel,actLineDup,actLineSwap,actLineUnSwap,actSelAll,actCopy,actCut,
+					actPaste,actUndo,actRedo,actFind,actQuickFind,actPrint };
+			InputMap map = getInputMap();
+			KeyStroke[] strokes = map.allKeys();
+			for (Action a : acts) {
+				for (KeyStroke ks : strokes) {
+					if (map.get(ks).equals(a.getValue(Action.NAME))) {
+						a.putValue(a.ACCELERATOR_KEY, ks);
+					}
+				}
+				am.put(a.getValue(Action.NAME),a);
+			}
+			
+			}
+		
 	/** The global find dialog. */
 	FindDialog findDialog = FindDialog.getInstance();
-
+	
 	/**
 	 * Adds a unit of indentation to the beginning of a given row.
 	 * 
@@ -1479,14 +1511,13 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			baseFont = getFont();
 			specialFonts.clear();
 		}
-
 		g.setColor(getForeground());
 		Font drawingFont = baseFont;
 		g.setFont(drawingFont);
 		int fontFlags = 0;
 
 		StringBuilder line = code.getsb(lineNum);
-		int xx = getInsets().left;
+		int xx = 1 + getInsets().left;
 		char[] a = line.toString().toCharArray();
 		Color c = g.getColor();
 
@@ -1530,7 +1561,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 	{
 		Object map = Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints"); //$NON-NLS-1$
 		if (map != null) ((Graphics2D) g).addRenderingHints((Map<?,?>) map);
-
+		
 		Rectangle clip = g.getClipBounds();
 
 		// Fill background
