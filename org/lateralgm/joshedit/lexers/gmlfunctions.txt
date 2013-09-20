@@ -898,6 +898,9 @@ x1,y1,x2,y2,col1,col2,outline
 draw_ellipse
 x1,y1,x2,y2,outline
 
+draw_enable_drawevent
+enable
+
 draw_getpixel
 x,y
 
