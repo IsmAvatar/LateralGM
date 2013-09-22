@@ -47,7 +47,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.GmFileReader.PostponedRef;
 import org.lateralgm.file.GmFileReader.ProjectFileContext;
+import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Extensions;
@@ -64,6 +66,7 @@ import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Shader;
@@ -522,7 +525,6 @@ public final class GMXFileReader
 	private static void iteratePaths(ProjectFileContext c, NodeList pthList, ResNode node) throws IOException,GmFormatException, SAXException
 	{
 	ProjectFile f = c.f;
-	Document in = c.in;
 	
 	for (int i = 0; i < pthList.getLength(); i++) {
 	Node cNode = pthList.item(i);
@@ -589,7 +591,6 @@ public final class GMXFileReader
 	private static void iterateScripts(ProjectFileContext c, NodeList scrList, ResNode node) throws IOException,GmFormatException
 	{
 	ProjectFile f = c.f;
-	Document in = c.in;
 	
 	for (int i = 0; i < scrList.getLength(); i++) {
 	Node cNode = scrList.item(i);
@@ -650,7 +651,6 @@ public final class GMXFileReader
 	private static void iterateShaders(ProjectFileContext c, NodeList shrList, ResNode node) throws IOException,GmFormatException
 	{
 	ProjectFile f = c.f;
-	Document in = c.in;
 	
 	for (int i = 0; i < shrList.getLength(); i++) {
 	Node cNode = shrList.item(i);
@@ -715,7 +715,6 @@ public final class GMXFileReader
 	private static void iterateFonts(ProjectFileContext c, NodeList fntList, ResNode node) throws IOException,GmFormatException, SAXException
 	{
 	ProjectFile f = c.f;
-	Document in = c.in;
 	
 	for (int i = 0; i < fntList.getLength(); i++) {
 	Node cNode = fntList.item(i);
@@ -775,7 +774,6 @@ public final class GMXFileReader
 	private static void iterateTimelines(ProjectFileContext c, NodeList tmlList, ResNode node) throws IOException,GmFormatException, SAXException
 	{
 	ProjectFile f = c.f;
-	Document in = c.in;
 	
 	for (int i = 0; i < tmlList.getLength(); i++) {
 	Node cNode = tmlList.item(i);
@@ -844,8 +842,7 @@ public final class GMXFileReader
 
 	private static void iterateGmObjects(ProjectFileContext c, NodeList objList, ResNode node) throws IOException,GmFormatException, SAXException
 	{
-	ProjectFile f = c.f;
-	Document in = c.in;
+	final ProjectFile f = c.f;
 	
 	for (int i = 0; i < objList.getLength(); i++) {
 	Node cNode = objList.item(i);
@@ -860,54 +857,73 @@ public final class GMXFileReader
 		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, GmObject.class, null);
 		node.add(rnode);
 	} else if (cname.equals("object")){
+		ResourceReference<GmObject> r = c.objids.get(i); //includes ID
+		final GmObject obj = r.get();
+		f.resMap.getList(GmObject.class).add(obj);
 	  f.resMap.getList(GmObject.class).lastId++;
-	  GmObject obj = f.resMap.getList(GmObject.class).add();
+	  
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  obj.setName(fileName);
 	  obj.setNode(rnode);
-	  rnode = new ResNode(obj.getName(), (byte)3, GmObject.class, obj.reference);
-	  node.add(rnode);
+
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
 	  
 		Document objdoc = documentBuilder.parse(path + ".object.gmx");
 
-		String sprname = objdoc.getElementsByTagName("spriteName").item(0).getTextContent();
-		//TODO: because of the way this is set up sprites must be loaded before objects
-		if (!sprname.equals("&lt;undefined&gt;")) {
-		  ResourceList<Sprite> temp = f.resMap.getList(Sprite.class);
-		  for (Sprite spr : temp) {
-		  	if (spr.getName().equals(sprname)) {
-		  	  if (temp != null) obj.put(PGmObject.SPRITE, spr.reference);
-		  	}
-		  }
+		final String sprname = objdoc.getElementsByTagName("spriteName").item(0).getTextContent();
+		if (!sprname.equals("<undefined>")) {
+			PostponedRef pr = new PostponedRef()
+			{
+				public boolean invoke()
+				{
+					ResourceList<Sprite> list = f.resMap.getList(Sprite.class);
+					if (list == null) {	return false; }						
+					Sprite spr = list.get(sprname);
+					if (spr == null) { return false; }
+					obj.put(PGmObject.SPRITE, spr.reference);
+					return true;
+				}
+			};
+			postpone.add(pr);
 		} else {
 		  obj.put(PGmObject.SPRITE,null);
 		}
 		
-		String mskname = objdoc.getElementsByTagName("maskName").item(0).getTextContent();
-		//TODO: because of the way this is set up sprites must be loaded before objects
-		if (!mskname.equals("&lt;undefined&gt;")) {
-		  ResourceList<Sprite> temp = f.resMap.getList(Sprite.class);
-		  for (Sprite spr : temp) {
-		  	if (spr.getName().equals(mskname)) {
-		  	  if (temp != null) obj.put(PGmObject.MASK, spr.reference);
-		  	}
-		  }
+		final String mskname = objdoc.getElementsByTagName("maskName").item(0).getTextContent();		
+		if (!mskname.equals("<undefined>")) {
+			PostponedRef pr = new PostponedRef()
+			{
+				public boolean invoke()
+				{
+					ResourceList<Sprite> list = f.resMap.getList(Sprite.class);
+					if (list == null) {	return false; }						
+					Sprite msk = list.get(mskname);
+					if (msk == null) { return false; }
+					obj.put(PGmObject.MASK, msk.reference);
+					return true;
+				}
+			};
+			postpone.add(pr);
 		} else {
 		  obj.put(PGmObject.MASK,null);
 		}
 		
-		String parname = objdoc.getElementsByTagName("parentName").item(0).getTextContent();
-		//TODO: shit, fuck, ass, this won't fuckin work, you'd have to load all objects then
-		// go back through them to find their parents, wtf
-		if (!parname.equals("&lt;undefined&gt;")) {
-		  ResourceList<GmObject> temp = f.resMap.getList(GmObject.class);
-		  for (GmObject par : temp) {
-		  	if (par.getName().equals(sprname)) {
-		  	  if (temp != null) obj.put(PGmObject.PARENT, par.reference);
-		  	}
-		  }
+		final String parname = objdoc.getElementsByTagName("parentName").item(0).getTextContent();
+		if (!parname.equals("<undefined>") && !parname.equals("self")) {
+				PostponedRef pr = new PostponedRef()
+					{
+						public boolean invoke()
+						{
+							ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
+							if (list == null) { return false; }			
+							GmObject par = list.get(parname);
+							if (par == null) { return false; }
+							obj.put(PGmObject.PARENT, par.reference);
+							return true;
+						}
+					};
+				postpone.add(pr);
 		} else {
 		  obj.put(PGmObject.PARENT,null);
 		}
@@ -922,14 +938,25 @@ public final class GMXFileReader
 		for (int ii = 0; ii < frList.getLength(); ii++) {
 		  Node fnode = frList.item(ii);
 		  MainEvent me = obj.mainEvents.get(ii);
-		  Event ev = new Event();
+		  final Event ev = new Event();
 			me.events.add(0,ev);
 			
 			ev.mainId = Integer.parseInt(fnode.getAttributes().getNamedItem("eventtype").getTextContent());
 			if (ev.mainId == MainEvent.EV_COLLISION) {
-			  //TODO: Get object reference by string id
-			  String objname = fnode.getAttributes().getNamedItem("ename").getTextContent();
-			  //ev.id = c.objids.get(0);
+			  final String colname = fnode.getAttributes().getNamedItem("ename").getTextContent();
+				PostponedRef pr = new PostponedRef()
+					{
+						public boolean invoke()
+						{
+							ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
+							if (list == null) {	return false; }	
+							GmObject col = list.get(colname);
+							if (col == null) { return false; }
+							ev.other = col.reference;
+							return true;
+						}
+					};
+					postpone.add(pr);
 			} else {
 			  ev.id = Integer.parseInt(fnode.getAttributes().getNamedItem("enumb").getTextContent());
 			}
@@ -937,6 +964,8 @@ public final class GMXFileReader
 			readActions(c,ev,"INOBJECTACTION", i, ii * 1000 + ev.id, fnode.getChildNodes()); //$NON-NLS-1$
 		}
 		f.resMap.getList(GmObject.class).lastId = frList.getLength() - 1;
+	  rnode = new ResNode(obj.getName(), (byte)3, GmObject.class, obj.reference);
+	  node.add(rnode);
 	}
 	iterateGmObjects(c, cNode.getChildNodes(), rnode);
 	}
@@ -964,8 +993,7 @@ public final class GMXFileReader
 	private static void iterateRooms(ProjectFileContext c, NodeList rmnList, ResNode node) throws IOException,GmFormatException, SAXException
 	{
 	ProjectFile f = c.f;
-	Document in = c.in;
-	
+
 	for (int i = 0; i < rmnList.getLength(); i++) {
 	Node cNode = rmnList.item(i);
 	String cname = cNode.getNodeName();
@@ -1058,12 +1086,12 @@ public final class GMXFileReader
 			    String iname = inode.getNodeName();
 			    if (iname.equals("#text")) { 
 			    	continue; 
-			    } else if (iname.equals("instance")) {
+			    } else if (iname.equals("instance") && inode.getAttributes().getLength() > 0) {
 						Instance inst = rmn.addInstance();
 						
 						//TODO: Replace this with DelayedRef
-						String objname = inode.getAttributes().getNamedItem("objName").getNodeValue();
-
+						String objname = inode.getAttributes().getNamedItem("objName").getTextContent();
+						
 						//TODO: because of the way this is set up sprites must be loaded before objects
 						GmObject temp = f.resMap.getList(GmObject.class).get(objname);
 								if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
@@ -1192,7 +1220,6 @@ public final class GMXFileReader
 			int format1, int format2, NodeList actList) throws IOException,GmFormatException
 		{
 		final ProjectFile f = c.f;
-		Document in = c.in;
 		
 		for (int i = 0; i < actList.getLength(); i++)
 			{
@@ -1257,99 +1284,175 @@ public final class GMXFileReader
 					}
 					
 					args = new Argument[argList.size()];
-					la = LibManager.getLibAction(libid, actid);
-					boolean unknownLib = la == null;
-					//The libAction will have a null parent, among other things
-					if (unknownLib)
-					{
-						la = new LibAction();
-						la.id = actid;
-						la.parentId = libid;
-						la.actionKind = kind;
-		        //XXX: Maybe make this more agnostic?"
-						if (la.actionKind == Action.ACT_CODE) {
-						  la = LibManager.codeAction;
-						} else {
-							la.allowRelative = userelative;
-							la.question = isquestion;
-							la.canApplyTo = useapplyto;
-							la.execType = exectype;
-							if (la.execType == Action.EXEC_FUNCTION)
-								la.execInfo = execInfo;
-							if (la.execType == Action.EXEC_CODE)
-								la.execInfo = execInfo;
-						}
-					}
-					
-					if (unknownLib)
-					{
-						la.libArguments = new LibArgument[argList.size()];
-					}
-					args = new Argument[argList.size()];
 
 					for (int x = 0; x < argList.size(); x++) {
 						Node arg = argList.get(x);
 
 						if (arg.getNodeName().equals("#text")) {  continue; }
 					
-						if (unknownLib) {
-							la.libArguments[x] = new LibArgument();
-						}
 						args[x] = new Argument((byte) 0);
-						
+
 						NodeList argproplist = arg.getChildNodes();
 						for (int xx = 0; xx < argproplist.getLength(); xx++) {
 							Node argprop = argproplist.item(xx);
 							
 							if (prop.getNodeName().equals("#text")) { continue; }
 							
-							//TODO: Replace all the shit below with a postponed reference
-							if (argprop.getNodeName().equals("kind")) {
-								if (unknownLib) {
-									la.libArguments[x].kind = Byte.parseByte(argprop.getTextContent());
-								}
-								args[x].kind = Byte.parseByte(argprop.getTextContent());
-							} else if (argprop.getNodeName().equals("sprite")) {
-								String name = argprop.getTextContent();
-								Sprite temp = f.resMap.getList(Sprite.class).get(name);
-								if (temp != null) args[x].setRes(temp.reference);
-							} else if (argprop.getNodeName().equals("background")) {
-								String name = argprop.getTextContent();
-								Background temp = f.resMap.getList(Background.class).get(name);
-								if (temp != null) args[x].setRes(temp.reference);
-							} else if (argprop.getNodeName().equals("path")) {
-								String name = argprop.getTextContent();
-							  Path temp = f.resMap.getList(Path.class).get(name);
-								if (temp != null) args[x].setRes(temp.reference);
-							} else if (argprop.getNodeName().equals("script")) {
-								String name = argprop.getTextContent();
-								Script temp = f.resMap.getList(Script.class).get(name);
-								if (temp != null) args[x].setRes(temp.reference);
-							} else if (argprop.getNodeName().equals("font")) {
-								String name = argprop.getTextContent();
-								Font temp = f.resMap.getList(Font.class).get(name);
-								if (temp != null) args[x].setRes(temp.reference);
-							} else if (argprop.getNodeName().equals("string")) {
-								args[x].setVal(argprop.getTextContent());
 							
+							final String proptext = argprop.getTextContent();
+							final Argument argument = args[x];
+							if (argprop.getNodeName().equals("kind")) {
+								argument.kind = Byte.parseByte(argprop.getTextContent());
+							} else if (argprop.getNodeName().equals("sprite")) {
+								PostponedRef pr = new PostponedRef()
+								{
+									public boolean invoke()
+									{
+										ResourceList<Sprite> list = f.resMap.getList(Sprite.class);
+										if (list == null) {	return false; }						
+										Sprite spr = list.get(proptext);
+										if (spr == null) { return false; }
+										argument.setRes(spr.reference);
+										return true;
+									}
+								};
+								postpone.add(pr);
+							} else if (argprop.getNodeName().equals("background")) {
+								PostponedRef pr = new PostponedRef()
+								{
+									public boolean invoke()
+									{
+										ResourceList<Background> list = f.resMap.getList(Background.class);
+										if (list == null) {	return false; }						
+									  Background bkg = list.get(proptext);
+										if (bkg == null) { return false; }
+										argument.setRes(bkg.reference);
+										return true;
+									}
+								};
+								postpone.add(pr);
+							} else if (argprop.getNodeName().equals("path")) {
+								PostponedRef pr = new PostponedRef()
+								{
+									public boolean invoke()
+									{
+										ResourceList<Path> list = f.resMap.getList(Path.class);
+										if (list == null) {	return false; }						
+										Path pth = list.get(proptext);
+										if (pth == null) { return false; }
+										argument.setRes(pth.reference);
+										return true;
+									}
+								};
+								postpone.add(pr);
+							} else if (argprop.getNodeName().equals("script")) {
+								PostponedRef pr = new PostponedRef()
+								{
+									public boolean invoke()
+									{
+										ResourceList<Script> list = f.resMap.getList(Script.class);
+										if (list == null) {	return false; }						
+										Script scr = list.get(proptext);
+										if (scr == null) { return false; }
+										argument.setRes(scr.reference);
+										return true;
+									}
+								};
+								postpone.add(pr);
+							} else if (argprop.getNodeName().equals("font")) {
+								PostponedRef pr = new PostponedRef()
+								{
+									public boolean invoke()
+									{
+										ResourceList<Font> list = f.resMap.getList(Font.class);
+										if (list == null) {	return false; }						
+										Font fnt = list.get(proptext);
+										if (fnt == null) { return false; }
+										argument.setRes(fnt.reference);
+										return true;
+									}
+								};
+								postpone.add(pr);
+							} else if (argprop.getNodeName().equals("object")) {
+								PostponedRef pr = new PostponedRef()
+								{
+									public boolean invoke()
+									{
+										ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
+										if (list == null) {	return false; }						
+										GmObject obj = list.get(proptext);
+										if (obj == null) { return false; }
+										argument.setRes(obj.reference);
+										return true;
+									}
+								};
+								postpone.add(pr);
+							} else if (argprop.getNodeName().equals("string")) {
+								argument.setVal(proptext);
 							}
 						}
 					}
 				}
 			}
-
-			Action act = container.addAction(la);
+			
+			la = LibManager.getLibAction(libid, actid);
+			boolean unknownLib = la == null;
+			//The libAction will have a null parent, among other things
+			if (unknownLib)
+			{
+				la = new LibAction();
+				la.id = actid;
+				la.parentId = libid;
+				la.actionKind = kind;
+        //XXX: Maybe make this more agnostic?"
+				if (la.actionKind == Action.ACT_CODE) {
+				  la = LibManager.codeAction;
+				} else {
+					la.allowRelative = userelative;
+					la.question = isquestion;
+					la.canApplyTo = useapplyto;
+					la.execType = exectype;
+					if (la.execType == Action.EXEC_FUNCTION)
+						la.execInfo = execInfo;
+					if (la.execType == Action.EXEC_CODE)
+						la.execInfo = execInfo;
+				}
+				if (args != null) {
+					la.libArguments = new LibArgument[args.length];
+					for (int b = 0; b < args.length; b++) {
+						LibArgument argument = new LibArgument();
+						argument.kind = args[b].kind;
+						la.libArguments[b] = argument;
+					}
+				}
+			}
+			
+			final Action act = container.addAction(la);
 			if (appliesto.equals("self")) {
 				act.setAppliesTo(GmObject.OBJECT_SELF);
 			} else if (appliesto.equals("other")) {
 				act.setAppliesTo(GmObject.OBJECT_OTHER);
 			} else {
-				//TODO: search for the object with the name (appliesto value) and get its reference
-				//act.setAppliesTo(???);
+				final String objname = appliesto;
+				PostponedRef pr = new PostponedRef()
+					{
+						public boolean invoke()
+						{
+							ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
+							if (list == null) {	return false; }						
+							GmObject obj = list.get(objname);
+							if (obj == null) { return false; }
+							act.setAppliesTo(obj.reference);
+							return true;
+						}
+					};
+					postpone.add(pr);
 			}
 			
 			act.setRelative(isrelative);
-			act.setArguments(args);
+			if (args != null && args.length > 0) {
+			  act.setArguments(args);
+			}
 			act.setNot(isquestiontrue);
 			}
 			
