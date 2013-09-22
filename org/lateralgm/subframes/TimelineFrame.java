@@ -416,18 +416,15 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
     Action a = null;
     LibAction la = null;
     Boolean prependNew = true;
-    if (actions.model.list.size() > 0) {
-      a = actions.model.list.get(0);
-      la = a.getLibAction();
-      if (la.actionKind == Action.ACT_CODE)
-      {
-    	  prependNew = false;
-      } else {
-        prependNew = true;
-      }
-    } else {
-      prependNew = true;
-    }
+    
+	  for (int i = 0; i < actions.model.list.size(); i++) {
+  		a = actions.model.list.get(i);
+  		la = a.getLibAction();
+  		if (la.actionKind == Action.ACT_CODE) {
+	    		prependNew = false;
+	    		break;
+  		}
+	  }
 
     if (prependNew)
     {
