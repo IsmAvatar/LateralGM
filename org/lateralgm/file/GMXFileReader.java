@@ -275,8 +275,26 @@ public final class GMXFileReader
 		
 		GameSettings gSet = c.f.gameSettings;
 		
-		NodeList rtfNodes = in.getElementsByTagName("Config"); 
-		Node rtfNode = rtfNodes.item(rtfNodes.getLength() - 1);
+		NodeList rtfNodes = in.getElementsByTagName("Configs"); 
+		Node rtfNode = null;
+		for (int i = 0; i < rtfNodes.getLength(); i++) {
+		  Node node = rtfNodes.item(i);
+		  if (node.getAttributes().getNamedItem("name").getTextContent().equals("configs")) {
+		  	rtfNode = node;
+		  	break;
+		  }
+		}
+		
+		rtfNodes = rtfNode.getChildNodes(); 
+		rtfNode = null;
+		for (int i = 0; i < rtfNodes.getLength(); i++) {
+		  Node node = rtfNodes.item(i);
+		  
+		  if (node.getNodeName().equals("Config")) {
+		  	rtfNode = node;
+		  	break;
+		  }
+		}
 		
 	  String path = c.f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(rtfNode.getTextContent());
@@ -937,11 +955,11 @@ public final class GMXFileReader
 		NodeList frList = objdoc.getElementsByTagName("event"); 
 		for (int ii = 0; ii < frList.getLength(); ii++) {
 		  Node fnode = frList.item(ii);
-		  MainEvent me = obj.mainEvents.get(ii);
 		  final Event ev = new Event();
-			me.events.add(0,ev);
 			
 			ev.mainId = Integer.parseInt(fnode.getAttributes().getNamedItem("eventtype").getTextContent());
+		  MainEvent me = obj.mainEvents.get(ev.mainId);
+			me.events.add(0,ev);
 			if (ev.mainId == MainEvent.EV_COLLISION) {
 			  final String colname = fnode.getAttributes().getNamedItem("ename").getTextContent();
 				PostponedRef pr = new PostponedRef()
