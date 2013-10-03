@@ -102,7 +102,31 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 	public static final byte EV_USER13 = 23;
 	public static final byte EV_USER14 = 24;
 	public static final byte EV_USER15 = 25;
+	public static final byte EV_OUTSIDEVIEW0 = 40;
+	public static final byte EV_OUTSIDEVIEW1 = 41;
+	public static final byte EV_OUTSIDEVIEW2 = 42;
+	public static final byte EV_OUTSIDEVIEW3 = 43;
+	public static final byte EV_OUTSIDEVIEW4 = 44;
+	public static final byte EV_OUTSIDEVIEW5 = 45;
+	public static final byte EV_OUTSIDEVIEW6 = 46;
+	public static final byte EV_OUTSIDEVIEW7 = 47;
+	public static final byte EV_BOUNDARYVIEW0 = 50;
+	public static final byte EV_BOUNDARYVIEW1 = 51;
+	public static final byte EV_BOUNDARYVIEW2 = 52;
+	public static final byte EV_BOUNDARYVIEW3 = 53;
+	public static final byte EV_BOUNDARYVIEW4 = 54;
+	public static final byte EV_BOUNDARYVIEW5 = 55;
+	public static final byte EV_BOUNDARYVIEW6 = 56;
+	public static final byte EV_BOUNDARYVIEW7 = 57;
 	public static final byte EV_CLOSEWINDOW = 30;
+	public static final byte EV_IMAGELOADED = 60;
+	public static final byte EV_SOUNDLOADED = 61;
+	public static final byte EV_HTTP = 62;
+	public static final byte EV_DIALOG = 63;
+	public static final byte EV_IAP = 66;
+	public static final byte EV_CLOUD = 67;
+	public static final byte EV_NETWORKING = 68;
+	public static final byte EV_SOCIAL = 70;
 
 	// step event types
 	public static final byte EV_STEP_NORMAL = 0;
@@ -269,6 +293,10 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 			case MainEvent.EV_OTHER:
 				if (eventId >= EV_USER0 && eventId <= EV_USER15)
 					return Messages.format("Event.EVENT" + mainId + "_X",eventId - EV_USER0); //$NON-NLS-1$
+				if (eventId >= EV_OUTSIDEVIEW0 && eventId <= EV_OUTSIDEVIEW7)
+					return Messages.format("Event.EVENT" + mainId + "_40X",eventId - EV_OUTSIDEVIEW0); //$NON-NLS-1$
+				if (eventId >= EV_BOUNDARYVIEW0 && eventId <= EV_BOUNDARYVIEW7)
+					return Messages.format("Event.EVENT" + mainId + "_50X",eventId - EV_BOUNDARYVIEW0); //$NON-NLS-1$
 				return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
 			default:
 				return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
