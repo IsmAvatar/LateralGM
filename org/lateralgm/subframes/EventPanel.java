@@ -268,6 +268,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		asynchronous.add(MainEvent.EV_OTHER, Event.EV_IAP);
 		asynchronous.add(MainEvent.EV_OTHER, Event.EV_CLOUD);
 		asynchronous.add(MainEvent.EV_OTHER, Event.EV_NETWORKING);
+		asynchronous.add(MainEvent.EV_OTHER, Event.EV_STEAM);
 		asynchronous.add(MainEvent.EV_OTHER, Event.EV_SOCIAL);
 		
 		//DRAW

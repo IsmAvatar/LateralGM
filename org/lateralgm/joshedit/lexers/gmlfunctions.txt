@@ -1639,7 +1639,7 @@ string
 game_save_buffer
 buffer
 
-◦gamepad_is_supported
+gamepad_is_supported
 none
 
 gamepad_get_device_count
@@ -1693,13 +1693,28 @@ dname
 get_integer
 str,def
 
+get_integer_async
+str,def
+
+get_login_async
+name,password
+
 get_open_filename
 filter,fname
+
+get_open_filename_ext
+filter,fname,directory,caption
 
 get_save_filename
 filter,fname
 
+get_save_filename_ext
+filter,fname,directory,caption
+
 get_string
+str,def
+
+get_string_async
 str,def
 
 highscore_add_current
@@ -2983,7 +2998,13 @@ str,but1,but2,but3
 show_message
 str
 
+show_message_async
+str
+
 show_question
+str
+
+show_question_async
 str
 
 sign
@@ -3708,6 +3729,102 @@ type,usage
 
 vertex_format_end
 none
+
+win8_device_touchscreen_available
+none
+
+win8_livetile_notification_begin
+template
+
+win8_livetile_notification_secondary_begin
+template,tile_id
+
+win8_livetile_notification_expiry
+expiry_time
+
+win8_livetile_notification_tag
+tag
+
+win8_livetile_notification_text_add
+text
+
+win8_livetile_notification_image_add
+image
+
+win8_livetile_notification_end
+none
+
+win8_livetile_tile_notification
+template, ds_map, expiry, tag
+
+win8_livetile_tile_clear
+none
+
+win8_livetile_badge_notification
+id
+
+win8_livetile_badge_clear
+none
+
+win8_livetile_queue_enable
+enabled
+
+win8_secondarytile_pin
+tile_id,short_name,display_name,cmd_line_args,ds_list_options,image,wide_image,text_col
+
+win8_secondarytile_badge_notification
+data,tile_id
+
+win8_secondarytile_delete
+tile_id
+
+win8_appbar_enable
+enabled
+
+win8_appbar_add_element
+type,icon,label,section,tooltip,callback
+
+win8_appbar_remove_element
+id
+
+win8_settingscharm_add_entry
+name,callback
+
+win8_settingscharm_add_html_entry
+id,name,htmlpath
+
+win8_settingscharm_remove_entry
+name
+
+win8_share_image
+filename,title,description,immediate
+
+win8_share_screenshot
+title,description,immediate
+
+win8_share_file
+filename,title,description,immediate
+
+win8_share_url
+URL,title,description,immediate
+
+win8_share_text
+text,title,description,immediate
+
+win8_search_enable
+callback
+
+win8_search_add_suggestions
+list
+
+win8_search_disable
+none
+
+win8_license_trial_version
+none
+
+win8_license_initialize_sandbox
+xml
 
 window_center
 none
