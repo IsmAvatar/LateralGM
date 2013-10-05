@@ -23,8 +23,6 @@ import java.util.Queue;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
-import javax.swing.JOptionPane;
-
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;

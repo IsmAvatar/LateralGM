@@ -42,15 +42,12 @@ import java.util.Queue;
 import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.GmFileReader.PostponedRef;
-import org.lateralgm.file.GmFileReader.ProjectFileContext;
-import org.lateralgm.file.ProjectFile.ResourceHolder;
+import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Extensions;
@@ -174,6 +171,16 @@ public final class GMXFileReader
 				"ProjectFileReader.ERROR_UNSUPPORTED",Messages.format(//$NON-NLS-1$
 						"ProjectFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
+	
+	private static byte[] ReadBinaryFile(String path) throws IOException
+	{
+	  File file = new File(path);
+	  byte [] fileData = new byte[(int)file.length()];
+	  DataInputStream dis = new DataInputStream(new FileInputStream(file));
+	  dis.readFully(fileData);
+	  dis.close();
+		return fileData;
+	}
 
 	public static ProjectFile readProjectFile(InputStream stream, URI uri, ResNode root)
 			throws GmFormatException
@@ -225,7 +232,7 @@ public final class GMXFileReader
 			long startTime = System.currentTimeMillis();
 
 			ProjectFileContext c = new ProjectFileContext(f,document,timeids,objids,rmids);
-			int ver = 1110;
+			int ver = 1110; // GMX is not versioned
 			
 			readSprites(c, root);
 			readSounds(c, root);
@@ -246,7 +253,9 @@ public final class GMXFileReader
 			//Resources read. Now we can invoke our postpones.
 			for (PostponedRef i : postpone)
 				i.invoke();
-		
+			
+			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
+					- startTime));
 		}
 		catch (Exception e)
 			{
@@ -275,6 +284,7 @@ public final class GMXFileReader
 		Document in = c.in;
 		
 		GameSettings gSet = c.f.gameSettings;
+		PropertyMap<PGameSettings> pSet = gSet.properties;
 		
 		NodeList rtfNodes = in.getElementsByTagName("Configs"); 
 		Node rtfNode = null;
@@ -302,9 +312,56 @@ public final class GMXFileReader
 		
 		Document setdoc = documentBuilder.parse(path + ".config.gmx");
 		
-		gSet.put(PGameSettings.START_FULLSCREEN, Boolean.parseBoolean(setdoc.getElementsByTagName("option_fullscreen").item(0).getTextContent()));
-		//gSet.put(PSprite.ORIGIN_Y, Integer.parseInt(setdoc.getElementsByTagName("yorigin").item(0).getTextContent()));
-		//gameInfo.put(PGameInformation.TEXT, text);
+		pSet.put(PGameSettings.START_FULLSCREEN, Boolean.parseBoolean(setdoc.getElementsByTagName("option_fullscreen").item(0).getTextContent()));
+		pSet.put(PGameSettings.ALLOW_WINDOW_RESIZE, Boolean.parseBoolean(setdoc.getElementsByTagName("option_sizeable").item(0).getTextContent()));
+		pSet.put(PGameSettings.ALWAYS_ON_TOP, Boolean.parseBoolean(setdoc.getElementsByTagName("option_stayontop").item(0).getTextContent()));
+		pSet.put(PGameSettings.ABORT_ON_ERROR, Boolean.parseBoolean(setdoc.getElementsByTagName("option_aborterrors").item(0).getTextContent()));
+		//TODO: Value in the gmx was clBlack, wtf???
+		//gSet.put(PGameSettings.COLOR_OUTSIDE_ROOM, Integer.parseInt(setdoc.getElementsByTagName("option_windowcolor").item(0).getTextContent()));
+		pSet.put(PGameSettings.DISABLE_SCREENSAVERS, Boolean.parseBoolean(setdoc.getElementsByTagName("option_noscreensaver").item(0).getTextContent()));
+		pSet.put(PGameSettings.DISPLAY_CURSOR, Boolean.parseBoolean(setdoc.getElementsByTagName("option_showcursor").item(0).getTextContent()));
+		pSet.put(PGameSettings.DISPLAY_ERRORS, Boolean.parseBoolean(setdoc.getElementsByTagName("option_displayerrors").item(0).getTextContent()));
+		pSet.put(PGameSettings.DONT_DRAW_BORDER, Boolean.parseBoolean(setdoc.getElementsByTagName("option_noborder").item(0).getTextContent()));
+		pSet.put(PGameSettings.DONT_SHOW_BUTTONS, Boolean.parseBoolean(setdoc.getElementsByTagName("option_nobuttons").item(0).getTextContent()));
+		pSet.put(PGameSettings.ERROR_ON_ARGS, Boolean.parseBoolean(setdoc.getElementsByTagName("option_argumenterrors").item(0).getTextContent()));
+		pSet.put(PGameSettings.FREEZE_ON_LOSE_FOCUS, Boolean.parseBoolean(setdoc.getElementsByTagName("option_freeze").item(0).getTextContent()));
+		
+		pSet.put(PGameSettings.COLOR_DEPTH, ProjectFile.GS_DEPTHS[Integer.parseInt(setdoc.getElementsByTagName("option_colordepth").item(0).getTextContent())]);
+		pSet.put(PGameSettings.FREQUENCY, ProjectFile.GS_FREQS[Integer.parseInt(setdoc.getElementsByTagName("option_frequency").item(0).getTextContent())]);
+		pSet.put(PGameSettings.RESOLUTION, ProjectFile.GS_RESOLS[Integer.parseInt(setdoc.getElementsByTagName("option_resolution").item(0).getTextContent())]);
+		pSet.put(PGameSettings.SET_RESOLUTION, Boolean.parseBoolean(setdoc.getElementsByTagName("option_changeresolution").item(0).getTextContent()));
+		pSet.put(PGameSettings.GAME_PRIORITY, ProjectFile.GS_PRIORITIES[Integer.parseInt(setdoc.getElementsByTagName("option_priority").item(0).getTextContent())]);
+		//gSet.put(PGameSettings.USE_SYNCHRONIZATION, Integer.parseInt(setdoc.getElementsByTagName("option_priority").item(0).getTextContent()));
+		
+		pSet.put(PGameSettings.LET_ESC_END_GAME, Boolean.parseBoolean(setdoc.getElementsByTagName("option_closeesc").item(0).getTextContent()));
+		pSet.put(PGameSettings.INTERPOLATE, Boolean.parseBoolean(setdoc.getElementsByTagName("option_interpolate").item(0).getTextContent()));
+		pSet.put(PGameSettings.SCALING, Integer.parseInt(setdoc.getElementsByTagName("option_scale").item(0).getTextContent()));
+		pSet.put(PGameSettings.TREAT_CLOSE_AS_ESCAPE, Boolean.parseBoolean(setdoc.getElementsByTagName("option_closeesc").item(0).getTextContent()));
+		String changed = setdoc.getElementsByTagName("option_lastchanged").item(0).getTextContent();
+		if (changed != "") {
+			pSet.put(PGameSettings.LAST_CHANGED, Double.parseDouble(changed));
+		}
+		
+		//TODO: Could not find these properties in GMX
+		//gSet.put(PGameSettings.BACK_LOAD_BAR, Boolean.parseBoolean(setdoc.getElementsByTagName("option_stayontop").item(0).getTextContent()));
+		//gSet.put(PGameSettings.FRONT_LOAD_BAR, Boolean.parseBoolean(setdoc.getElementsByTagName("option_showcursor").item(0).getTextContent()));
+		
+		String icopath = new File(c.f.getPath()).getParent() + '\\' +
+				setdoc.getElementsByTagName("option_windows_game_icon").item(0).getTextContent();
+		pSet.put(PGameSettings.GAME_ICON, new ICOFile(ReadBinaryFile(icopath)));
+		pSet.put(PGameSettings.GAME_ID, Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent()));
+	  pSet.put(PGameSettings.DPLAY_GUID, setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent());
+		
+		pSet.put(PGameSettings.AUTHOR, setdoc.getElementsByTagName("option_author").item(0).getTextContent());
+		pSet.put(PGameSettings.COMPANY, setdoc.getElementsByTagName("option_version_company").item(0).getTextContent());
+		pSet.put(PGameSettings.COPYRIGHT,setdoc.getElementsByTagName("option_version_copyright").item(0).getTextContent());
+		pSet.put(PGameSettings.DESCRIPTION, setdoc.getElementsByTagName("option_version_description").item(0).getTextContent());
+		pSet.put(PGameSettings.PRODUCT, setdoc.getElementsByTagName("option_version_product").item(0).getTextContent());
+		pSet.put(PGameSettings.VERSION, setdoc.getElementsByTagName("option_version").item(0).getTextContent());
+		pSet.put(PGameSettings.VERSION_BUILD, Integer.parseInt(setdoc.getElementsByTagName("option_version_build").item(0).getTextContent()));
+		pSet.put(PGameSettings.VERSION_MAJOR, Integer.parseInt(setdoc.getElementsByTagName("option_version_major").item(0).getTextContent()));
+		pSet.put(PGameSettings.VERSION_MINOR, Integer.parseInt(setdoc.getElementsByTagName("option_version_minor").item(0).getTextContent()));
+		pSet.put(PGameSettings.VERSION_RELEASE, Integer.parseInt(setdoc.getElementsByTagName("option_version_release").item(0).getTextContent()));
 		
 		ResNode node = new ResNode("Global Game Settings", (byte)3, GameSettings.class, gSet.reference);
 		root.add(node);
@@ -370,12 +427,7 @@ public final class GMXFileReader
 	  path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + "/sound/audio/" + fname;
 	  
-	  File file = new File(path);
-	  byte [] fileData = new byte[(int)file.length()];
-	  DataInputStream dis = new DataInputStream(new FileInputStream(file));
-	  dis.readFully(fileData);
-	  dis.close();
-	  snd.data = fileData;
+	  snd.data = ReadBinaryFile(path);
 	}
 	iterateSounds(c, cNode.getChildNodes(), rnode);
 	}
