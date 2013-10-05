@@ -27,6 +27,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -359,20 +360,22 @@ public final class GMXFileReader
 		NodeList nl = snddoc.getElementsByTagName("volume");
 		snd.put(PSound.VOLUME, Double.parseDouble(nl.item(nl.getLength() - 1).getTextContent()));
 		snd.put(PSound.PAN, Double.parseDouble(snddoc.getElementsByTagName("pan").item(0).getTextContent()));
-		//TODO: This reads in an integer, but pretends its a boolean, preload was -1 when I looked at a GMX sound, idk
 		snd.put(PSound.PRELOAD, Boolean.parseBoolean(snddoc.getElementsByTagName("preload").item(0).getTextContent()));
-		//TODO: This reads in an int but LGM uses a struct for kind somewhere
-		//snd.put(PSound.KIND, Integer.parseInt(sprdoc.getElementsByTagName("kind").item(0).getTextContent()));
+		int sndkind =  Integer.parseInt(snddoc.getElementsByTagName("kind").item(0).getTextContent());
+		snd.put(PSound.KIND, ProjectFile.SOUND_KIND[sndkind]);
+		snd.put(PSound.FILE_TYPE, snddoc.getElementsByTagName("extension").item(0).getTextContent());
+		String fname = snddoc.getElementsByTagName("data").item(0).getTextContent();
+		snd.put(PSound.FILE_NAME, fname);
 		
-	  // iterate and load the sprites subimages
-		Node fnode = snddoc.getElementsByTagName("data").item(0); 
 	  path = f.getPath();
-	  path = path.substring(0, path.lastIndexOf('/')+1) + "/sounds/";
+	  path = path.substring(0, path.lastIndexOf('/')+1) + "/sound/audio/" + fname;
 	  
-	  //TODO: Read in the fuckin sound data
-		//int s = in.read4();
-		//snd.data = new byte[s];
-		//in.read(snd.data);
+	  File file = new File(path);
+	  byte [] fileData = new byte[(int)file.length()];
+	  DataInputStream dis = new DataInputStream(new FileInputStream(file));
+	  dis.readFully(fileData);
+	  dis.close();
+	  snd.data = fileData;
 	}
 	iterateSounds(c, cNode.getChildNodes(), rnode);
 	}
