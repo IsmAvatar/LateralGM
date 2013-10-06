@@ -107,7 +107,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	public JLabel statX, statY, statId, statSrc;
 	//ToolBar
 	private JButton zoomIn, zoomOut;
-	private JToggleButton gridVis, gridIso;
+	private JToggleButton gridVis;
+	JToggleButton gridIso;
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	private ButtonModelLink<PInstance> loLocked;
@@ -184,15 +185,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tool.add(zoomOut);
 		tool.addSeparator();
 
-		String st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
-		gridVis = new JToggleButton(st);
+		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
 		tool.add(gridVis);
-		st = Messages.getString("RoomFrame.GRID_ISOMETRIC"); //$NON-NLS-1$
-		gridIso = new JToggleButton(st);
+		gridIso = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_ISOMETRIC"));
 		plf.make(gridIso,PRoom.ISOMETRIC);
 		tool.add(gridIso);
-
+		tool.addSeparator();
+		
 		// Add the grid sizers
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.GRID_X")); //$NON-NLS-1$
 		NumberField nf = new NumberField(0,999);

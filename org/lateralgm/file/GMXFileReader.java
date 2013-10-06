@@ -24,6 +24,7 @@
 package org.lateralgm.file;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -42,6 +43,7 @@ import java.util.Queue;
 import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -82,12 +84,18 @@ import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
+import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.View;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.PropertyMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -1065,7 +1073,7 @@ public final class GMXFileReader
 
 	private static void iterateRooms(ProjectFileContext c, NodeList rmnList, ResNode node) throws IOException,GmFormatException, SAXException
 	{
-	ProjectFile f = c.f;
+	final ProjectFile f = c.f;
 
 	for (int i = 0; i < rmnList.getLength(); i++) {
 	Node cNode = rmnList.item(i);
@@ -1129,29 +1137,147 @@ public final class GMXFileReader
 			} else if (pname.equals("clearViewBackground")) {
 			  //TODO: This setting is not implemented in ENIGMA
 			} else if (pname.equals("makerSettings")) {
-			  //TODO: add this shit
 		    NodeList msnodes = pnode.getChildNodes();
 		    for (int y = 0; y < msnodes.getLength(); y++) {
 		      Node mnode = msnodes.item(y);
 		      String mname = mnode.getNodeName();
-		      if (mname.equals("#text")) { continue; }
+		      if (mname.equals("#text")) { 
+		      	continue; 
+		      } else if (mname.equals("isSet")) {
+		      	if (!(Integer.parseInt(mnode.getTextContent()) < 0)) {
+		      		y = msnodes.getLength() + 1; continue;
+		      	}
+		      } else if (mname.equals("w")) {
+		      	rmn.put(PRoom.EDITOR_WIDTH, Integer.parseInt(mnode.getTextContent()));
+		      } else if (mname.equals("h")) {
+		      	rmn.put(PRoom.EDITOR_HEIGHT, Integer.parseInt(mnode.getTextContent()));
+		      } else if (mname.equals("showGrid")) {
+		      	rmn.put(PRoom.SHOW_GRID, Integer.parseInt(mnode.getTextContent()) < 0);
+		      } else if (mname.equals("showObjects")) {
+		      	rmn.put(PRoom.SHOW_OBJECTS, Integer.parseInt(mnode.getTextContent()) < 0);
+		      } else if (mname.equals("showTiles")) {
+		      	rmn.put(PRoom.SHOW_TILES, Integer.parseInt(mnode.getTextContent()) < 0);
+		      } else if (mname.equals("showBackgrounds")) {
+		      	rmn.put(PRoom.SHOW_BACKGROUNDS, Integer.parseInt(mnode.getTextContent()) < 0);
+		      } else if (mname.equals("showForegrounds")) {
+		      	rmn.put(PRoom.SHOW_FOREGROUNDS, Integer.parseInt(mnode.getTextContent()) < 0);
+		      } else if (mname.equals("showViews")) {
+		      	rmn.put(PRoom.SHOW_VIEWS, Integer.parseInt(mnode.getTextContent()) < 0);
+		      } else if (mname.equals("deleteUnderlyingObj")) {
+		      	rmn.put(PRoom.DELETE_UNDERLYING_OBJECTS, Integer.parseInt(mnode.getTextContent()) < 0);
+		      } else if (mname.equals("deleteUnderlyingTiles")) {
+		      	rmn.put(PRoom.DELETE_UNDERLYING_TILES, Integer.parseInt(mnode.getTextContent()) < 0);
+		      } else if (mname.equals("page")) {
+		      	rmn.put(PRoom.CURRENT_TAB, Integer.parseInt(mnode.getTextContent()));
+		      } else if (mname.equals("xoffset")) {
+		      	rmn.put(PRoom.SCROLL_BAR_X, Integer.parseInt(mnode.getTextContent()));
+		      } else if (mname.equals("yoffset")) {
+		      	rmn.put(PRoom.SCROLL_BAR_Y, Integer.parseInt(mnode.getTextContent()));
+		      }
 		    }
 			} else if (pname.equals("backgrounds")) {
-			  //TODO: add background reading
 		  	NodeList bgnodes = pnode.getChildNodes();
+		  	int bkgnum = 0;
 		  	for (int y = 0; y < bgnodes.getLength(); y++) {
 		    	Node bnode = bgnodes.item(y);
 		    	String bname = bnode.getNodeName();
 		    	if (bname.equals("#text")) { continue; }
-		    	}
+		    	final BackgroundDef bkg = rmn.backgroundDefs.get(bkgnum);
+		    	bkgnum += 1;
+		    	
+		    	bkg.properties.put(PBackgroundDef.VISIBLE, Integer.parseInt
+		    			(bnode.getAttributes().getNamedItem("visible").getTextContent()) < 0);
+		    	final String bkgname = bnode.getAttributes().getNamedItem("name").getTextContent();
+		    	
+
+					PostponedRef pr = new PostponedRef()
+					{
+						public boolean invoke()
+						{
+							ResourceList<Background> list = f.resMap.getList(Background.class);
+							if (list == null) {	return false; }						
+							Background bg = list.get(bkgname);
+							if (bg == null) { return false; }
+							bkg.properties.put(PBackgroundDef.BACKGROUND, bg.reference);
+							return true;
+						}
+					};
+					postpone.add(pr);
+					
+					bkg.properties.put(PBackgroundDef.FOREGROUND, Integer.parseInt
+		    			(bnode.getAttributes().getNamedItem("foreground").getTextContent()) < 0);
+					bkg.properties.put(PBackgroundDef.TILE_HORIZ, Integer.parseInt
+		    			(bnode.getAttributes().getNamedItem("htiled").getTextContent()) < 0);
+					bkg.properties.put(PBackgroundDef.TILE_VERT, Integer.parseInt
+		    			(bnode.getAttributes().getNamedItem("vtiled").getTextContent()) < 0);
+					bkg.properties.put(PBackgroundDef.STRETCH, Integer.parseInt
+		    			(bnode.getAttributes().getNamedItem("stretch").getTextContent()) < 0);
+					bkg.properties.put(PBackgroundDef.H_SPEED, Integer.parseInt
+		    			(bnode.getAttributes().getNamedItem("hspeed").getTextContent()));
+					bkg.properties.put(PBackgroundDef.V_SPEED, Integer.parseInt
+		    			(bnode.getAttributes().getNamedItem("vspeed").getTextContent()));
+					bkg.properties.put(PBackgroundDef.X, Integer.parseInt
+		    			(bnode.getAttributes().getNamedItem("x").getTextContent()));
+					bkg.properties.put(PBackgroundDef.Y, Integer.parseInt
+		    			(bnode.getAttributes().getNamedItem("y").getTextContent()));
+		    	
+		    }
 			} else if (pname.equals("views")) {
-			  //TODO: add view reading
 		  	NodeList vinodes = pnode.getChildNodes();
+		  	int viewnum = 0;
 		  	for (int y = 0; y < vinodes.getLength(); y++) {
 		    	Node vnode = vinodes.item(y);
 		    	String vname = vnode.getNodeName();
 		    	if (vname.equals("#text")) { continue; }
-		    	}
+		    	final View vw = rmn.views.get(viewnum);
+		    	viewnum += 1;
+		    	
+		    	vw.properties.put(PView.VISIBLE, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("visible").getTextContent()) < 0);
+		    	final String objname = vnode.getAttributes().getNamedItem("objName").getTextContent();
+		    	
+
+					PostponedRef pr = new PostponedRef()
+					{
+						public boolean invoke()
+						{
+							ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
+							if (list == null) {	return false; }						
+							GmObject obj = list.get(objname);
+							if (obj == null) { return false; }
+							vw.properties.put(PView.OBJECT, obj.reference);
+							return true;
+						}
+					};
+					postpone.add(pr);
+					
+		    	vw.properties.put(PView.SPEED_H, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("hspeed").getTextContent()));
+		    	vw.properties.put(PView.SPEED_V, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("vspeed").getTextContent()));
+		    	vw.properties.put(PView.BORDER_H, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("hborder").getTextContent()));
+		    	vw.properties.put(PView.BORDER_V, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("vborder").getTextContent()));
+		    	
+		    	vw.properties.put(PView.PORT_H, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("hport").getTextContent()));
+		    	vw.properties.put(PView.PORT_W, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("wport").getTextContent()));
+		    	vw.properties.put(PView.PORT_X, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("xport").getTextContent()));
+		    	vw.properties.put(PView.PORT_Y, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("yport").getTextContent()));
+		    	
+		    	vw.properties.put(PView.VIEW_H, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("hview").getTextContent()));
+		    	vw.properties.put(PView.VIEW_W, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("wview").getTextContent()));
+		    	vw.properties.put(PView.VIEW_X, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("xview").getTextContent()));
+		    	vw.properties.put(PView.VIEW_Y, Integer.parseInt
+		    			(vnode.getAttributes().getNamedItem("yview").getTextContent()));
+		    }
 			} else if (pname.equals("instances")) {
 			  NodeList insnodes = pnode.getChildNodes();
 			  for (int y = 0; y < insnodes.getLength(); y++) {
@@ -1179,12 +1305,44 @@ public final class GMXFileReader
 			    }
 			  }
 			} else if (pname.equals("tiles")) {
-			  //TODO: Add tile reading
 		  	NodeList tinodes = pnode.getChildNodes();
-		  	for (int y = 0; y < tinodes.getLength(); y++) {
-		    	Node tnode = tinodes.item(y);
+		  	for (int p = 0; p < tinodes.getLength(); p++) {
+		    	Node tnode = tinodes.item(p);
 		    	String tname = tnode.getNodeName();
 		    	if (tname.equals("#text")) { continue; }
+					final Tile tile = new Tile(rmn);
+					tile.setRoomPosition(
+							new Point(Integer.parseInt(tnode.getAttributes().getNamedItem("x").getTextContent()),
+												Integer.parseInt(tnode.getAttributes().getNamedItem("y").getTextContent())));
+					
+					final String bkgname = tnode.getAttributes().getNamedItem("bgName").getTextContent();
+					PostponedRef pr = new PostponedRef()
+					{
+						public boolean invoke()
+						{
+							ResourceList<Background> list = f.resMap.getList(Background.class);
+							if (list == null) {	return false; }						
+							Background bkg = list.get(bkgname);
+							if (bkg == null) { return false; }
+							tile.properties.put(PTile.BACKGROUND, bkg.reference);
+							return true;
+						}
+					};
+					postpone.add(pr);
+					
+					JOptionPane.showMessageDialog(null,"wtf");
+					tile.setBackgroundPosition(
+							new Point(Integer.parseInt(tnode.getAttributes().getNamedItem("xo").getTextContent()),
+												Integer.parseInt(tnode.getAttributes().getNamedItem("yo").getTextContent())));
+					tile.setSize(
+							new Dimension(Integer.parseInt(tnode.getAttributes().getNamedItem("w").getTextContent()),
+												Integer.parseInt(tnode.getAttributes().getNamedItem("h").getTextContent())));
+					tile.setDepth(Integer.parseInt(tnode.getAttributes().getNamedItem("depth").getTextContent()));
+					//TODO: Tiles use strings in GMX like instance names, GMK used to use integers I guess
+					//tile.properties.put(PTile.ID,tnode.getAttributes().getNamedItem("name").getTextContent());
+					tile.setLocked(Integer.parseInt(tnode.getAttributes().getNamedItem("h").getTextContent()) < 0);
+					
+					rmn.tiles.add(tile);
 		    }
 			}
 		
