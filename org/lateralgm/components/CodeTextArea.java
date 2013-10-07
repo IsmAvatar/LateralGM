@@ -158,25 +158,6 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		popup.add(makeContextButton(this.text.actSelAll));
 		
     text.setComponentPopupMenu(popup);
-		text.addMouseListener(new MouseAdapter() {
-
-    	@Override
-    	public void mousePressed(MouseEvent e) {
-        showPopup(e);
-    	}
-
-    	@Override
-    	public void mouseReleased(MouseEvent e) {
-        showPopup(e);
-    	}
-
-    	private void showPopup(MouseEvent e) {
-    		if (e.isPopupTrigger()) {
-    			popup.show(e.getComponent(), e.getX(), e.getY());
-    		}
-    	}
-		});
-    
 		}
 
 	private JButton makeToolbarButton(String name)
@@ -193,7 +174,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 	private static JMenuItem makeContextButton(Action a)
 	{
 		String key = "JoshText." + a.getValue(Action.NAME);
-		JMenuItem b = new JMenuItem(a);
+		JMenuItem b = new JMenuItem();
 		b.setIcon(LGM.getIconForKey(key));
 		b.setText(Messages.getString(key));
 		b.setRequestFocusEnabled(false);
