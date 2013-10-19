@@ -121,7 +121,6 @@ public final class LGM
 	public static Font lnfFont = new Font("Ubuntu", Font.PLAIN, 14);
 	public static boolean themechanged = false;
 
-	public static boolean isloaded;
 	public static int javaVersion;
 	public static File tempDir, workDir;
 	static
@@ -801,7 +800,6 @@ public final class LGM
 			}
     splashProgress.progress(70,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
     populateTree();
-    isloaded = false;
 		splashProgress.progress(75,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
 		loadPlugins();
 		splashProgress.progress(90,Messages.getString("LGM.SPLASH_PRELOAD")); //$NON-NLS-1$
@@ -810,7 +808,6 @@ public final class LGM
 			  URI uri = new File(path).toURI();
 				Listener.getInstance().fc.open(uri); 
 		}
-		isloaded = true;
 		splashProgress.complete();
 		applyBackground("org/lateralgm/main/lgm1.png"); //$NON-NLS-1$
 		frame.setVisible(true);
