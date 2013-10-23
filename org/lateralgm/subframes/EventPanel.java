@@ -231,6 +231,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		for (int i = Event.EV_OUTSIDE; i <= Event.EV_NO_MORE_HEALTH; i++)
 			other.add(MainEvent.EV_OTHER,i);
 
+		other.add(MainEvent.EV_OTHER, Event.EV_CLOSEWINDOW);
+		
 		EventNode user = new EventNode(
 				Messages.getString("EventPanel.USER_DEFINED"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(user);
