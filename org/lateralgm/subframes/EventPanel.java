@@ -278,7 +278,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		root.add(drawev);
 		drawev.add(MainEvent.EV_DRAW, Event.EV_DRAW_NORMAL);
 		drawev.add(MainEvent.EV_DRAW, Event.EV_DRAW_GUI);
-
+		drawev.add(MainEvent.EV_DRAW, Event.EV_DRAW_RESIZE);
+		
 		//KEYPRESS
 		EventNode keypress = new EventNode(MainEvent.EV_KEYPRESS);
 		root.add(keypress);
