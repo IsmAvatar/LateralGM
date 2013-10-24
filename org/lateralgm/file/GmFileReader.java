@@ -23,9 +23,12 @@ import java.util.Queue;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
+import javax.swing.JOptionPane;
+
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
+import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
@@ -270,8 +273,10 @@ public final class GmFileReader
 		catch (Exception e)
 			{
 			e.printStackTrace();
-			if ((e instanceof GmFormatException)) throw (GmFormatException) e;
-			throw new GmFormatException(f,e);
+			JOptionPane.showMessageDialog(LGM.frame,
+			    "There was an issue loading the project.",
+			    "Read Error",
+			    JOptionPane.ERROR_MESSAGE);
 			}
 		finally
 			{
@@ -286,7 +291,10 @@ public final class GmFileReader
 			catch (IOException ex)
 				{
 				String key = Messages.getString("ProjectFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
-				throw new GmFormatException(f,key);
+				JOptionPane.showMessageDialog(LGM.frame,
+				    key,
+				    "Read Error",
+				    JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		return f;

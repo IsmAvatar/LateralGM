@@ -43,12 +43,14 @@ import java.util.Queue;
 import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
+import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Extensions;
@@ -65,7 +67,6 @@ import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Shader;
@@ -268,8 +269,10 @@ public final class GMXFileReader
 		catch (Exception e)
 			{
 			e.printStackTrace();
-			if ((e instanceof GmFormatException)) throw (GmFormatException) e;
-			throw new GmFormatException(f,e);
+			JOptionPane.showMessageDialog(LGM.frame,
+			    "There was an issue loading the project.",
+			    "Read Error",
+			    JOptionPane.ERROR_MESSAGE);
 			}
 		finally
 			{
@@ -281,7 +284,10 @@ public final class GMXFileReader
 			catch (Exception ex) //IOException
 				{
 				String key = Messages.getString("ProjectFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
-				throw new GmFormatException(f,key);
+				JOptionPane.showMessageDialog(LGM.frame,
+				    key,
+				    "Read Error",
+				    JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		return f;
@@ -316,11 +322,13 @@ public final class GMXFileReader
 		  	break;
 		  }
 		}
+		if (setNode == null) { return; }
 		
 	  String path = c.f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(setNode.getTextContent());
 		
 		Document setdoc = documentBuilder.parse(path + ".config.gmx");
+		if (setdoc == null) { return; }
 		
 		pSet.put(PGameSettings.START_FULLSCREEN, Boolean.parseBoolean(setdoc.getElementsByTagName("option_fullscreen").item(0).getTextContent()));
 		pSet.put(PGameSettings.ALLOW_WINDOW_RESIZE, Boolean.parseBoolean(setdoc.getElementsByTagName("option_sizeable").item(0).getTextContent()));
@@ -699,14 +707,16 @@ public final class GMXFileReader
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
 	  FileInputStream ins = new FileInputStream(path);
+	  BufferedReader reader = null;
     try {
-    	BufferedReader reader = new BufferedReader(new InputStreamReader(ins));
+    	reader = new BufferedReader(new InputStreamReader(ins));
     	String line = "";
       while ((line = reader.readLine()) != null) {
           code += line + "\n";
       }
     } finally {
-        ins.close();
+    	reader.close();
+      ins.close();
     }
 	  scr.put(PScript.CODE, code);
 	}
@@ -760,14 +770,16 @@ public final class GMXFileReader
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
 	  FileInputStream ins = new FileInputStream(path);
+	  BufferedReader reader = null;
     try {
-    	BufferedReader reader = new BufferedReader(new InputStreamReader(ins));
+    	reader = new BufferedReader(new InputStreamReader(ins));
     	String line = "";
       while ((line = reader.readLine()) != null) {
           code += line + "\n";
       }
     } finally {
         ins.close();
+        reader.close();
     }
     String[] splitcode = code.split("//######################_==_YOYO_SHADER_MARKER_==_######################@~//");
 	  shr.put(PShader.VERTEX, splitcode[0]);
@@ -1418,7 +1430,6 @@ public final class GMXFileReader
 		Document in = c.in;
 		
 		GameInformation gameInfo = c.f.gameInfo;
-		PropertyMap<PGameInformation> p = gameInfo.properties;
 		
 		NodeList rtfNodes = in.getElementsByTagName("rtf"); 
 		if (rtfNodes.getLength() == 0) { return; }
@@ -1430,14 +1441,16 @@ public final class GMXFileReader
 		String text = "";
 		
 	  FileInputStream ins = new FileInputStream(path);
+	  BufferedReader reader = null;
     try {
-    	BufferedReader reader = new BufferedReader(new InputStreamReader(ins));
+    	reader = new BufferedReader(new InputStreamReader(ins));
     	String line = "";
       while ((line = reader.readLine()) != null) {
           text += line + "\n";
       }
     } finally {
         ins.close();
+        reader.close();
     }
 		
 		gameInfo.put(PGameInformation.TEXT, text);
@@ -1469,12 +1482,10 @@ public final class GMXFileReader
 			boolean useapplyto = false;
 			byte exectype = 0;
 			
-			String code;
 			String execInfo = "";
 			String appliesto = "";
 		
 			Argument[] args = null;
-			byte[] argkinds = null;
 			
 			LibAction la = null;
 			
