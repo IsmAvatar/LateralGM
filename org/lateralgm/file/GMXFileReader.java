@@ -184,13 +184,34 @@ public final class GMXFileReader
 						"ProjectFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 	
-	private static byte[] ReadBinaryFile(String path) throws IOException
+	private static byte[] ReadBinaryFile(String path)
 	{
 	  File file = new File(path);
 	  byte [] fileData = new byte[(int)file.length()];
-	  DataInputStream dis = new DataInputStream(new FileInputStream(file));
-	  dis.readFully(fileData);
-	  dis.close();
+	  DataInputStream dis = null;
+	  try {
+	  	dis = new DataInputStream(new FileInputStream(file));
+	  	dis.readFully(fileData);
+	  } catch (IOException e) {
+	  	e.printStackTrace();
+			JOptionPane.showMessageDialog(LGM.frame,
+		    "There was an issue opening a data input stream.",
+		    "Read Error",
+		    JOptionPane.ERROR_MESSAGE);
+	  } finally {
+	  	try
+				{
+				dis.close();
+				}
+			catch (IOException e)
+				{
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(LGM.frame,
+				    "There was an issue closing a data input stream.",
+				    "Read Error",
+				    JOptionPane.ERROR_MESSAGE);
+				}
+	  }
 		return fileData;
 	}
 

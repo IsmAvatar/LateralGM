@@ -24,6 +24,7 @@
 package org.lateralgm.file;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -45,6 +46,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
@@ -55,6 +57,7 @@ import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Shader.PShader;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.GameInformation.PGameInformation;
+import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.resources.sub.ActionContainer;
 import org.w3c.dom.Document;
@@ -91,6 +94,40 @@ public final class GMXFileWriter
 			}
 		}
 
+	private static void WriteBinaryFile(String filename, byte[] data)
+	{
+		BufferedOutputStream bos = null;
+		FileOutputStream fos = null;
+		try {
+		//create an object of FileOutputStream
+		fos = new FileOutputStream(new File(filename));
+	
+		//create an object of BufferedOutputStream
+		bos = new BufferedOutputStream(fos);
+		bos.write(data);
+		} catch (IOException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(LGM.frame,
+			    "There was an issue opening a file output stream.",
+			    "Write Error",
+			    JOptionPane.ERROR_MESSAGE);
+		} finally {
+			try
+				{
+				bos.close();
+				fos.close();
+				}
+			catch (IOException e)
+				{
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(LGM.frame,
+				    "There was an issue closing a file output stream.",
+				    "Write Error",
+				    JOptionPane.ERROR_MESSAGE);
+				}
+		}
+	}
+	
 	public static String getUnixPath(String path) {
 		return path.replace("\\","/");
 	}
@@ -161,6 +198,12 @@ public final class GMXFileWriter
 		}
     return;
 	}
+	
+	private static Element createElement(Document dom, String name, String value) {
+		Element ret = dom.createElement(name);
+		ret.setTextContent(value);
+		return ret;
+	}
 
 	public static void writeSettings(ProjectFileContext c, Element root)
 			throws IOException
@@ -180,6 +223,90 @@ public final class GMXFileWriter
 	dom.appendChild(conNode);
 	Element optNode = dom.createElement("Options");
 	conNode.appendChild(optNode);
+	
+	optNode.appendChild(createElement(dom,
+			"option_fullscreen",f.gameSettings.get(PGameSettings.START_FULLSCREEN).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_sizeable",f.gameSettings.get(PGameSettings.ALLOW_WINDOW_RESIZE).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_stayontop",f.gameSettings.get(PGameSettings.ALWAYS_ON_TOP).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_aborterrors",f.gameSettings.get(PGameSettings.ABORT_ON_ERROR).toString()));
+	
+	optNode.appendChild(createElement(dom,
+			"option_noscreensaver",(String)f.gameSettings.get(PGameSettings.DISABLE_SCREENSAVERS).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_showcursor",(String)f.gameSettings.get(PGameSettings.DISPLAY_CURSOR).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_displayerrors",(String)f.gameSettings.get(PGameSettings.DISPLAY_ERRORS).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_noborder",(String)f.gameSettings.get(PGameSettings.DONT_DRAW_BORDER).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_nobuttons",(String)f.gameSettings.get(PGameSettings.DONT_SHOW_BUTTONS).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_argumenterrors",(String)f.gameSettings.get(PGameSettings.ERROR_ON_ARGS).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_freeze",(String)f.gameSettings.get(PGameSettings.FREEZE_ON_LOSE_FOCUS).toString()));
+	
+	optNode.appendChild(createElement(dom,
+			"option_colordepth",ProjectFile.GS_DEPTH_CODE.get(f.gameSettings.get(PGameSettings.COLOR_DEPTH)).toString()));
+	
+	optNode.appendChild(createElement(dom,
+			"option_frequency",ProjectFile.GS_FREQ_CODE.get(f.gameSettings.get(PGameSettings.FREQUENCY)).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_resolution",ProjectFile.GS_RESOL_CODE.get(f.gameSettings.get(PGameSettings.RESOLUTION)).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_changeresolution",f.gameSettings.get(PGameSettings.SET_RESOLUTION).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_priority",ProjectFile.GS_PRIORITY_CODE.get(f.gameSettings.get(PGameSettings.GAME_PRIORITY)).toString()));
+	
+	optNode.appendChild(createElement(dom,
+			"option_closeesc",f.gameSettings.get(PGameSettings.LET_ESC_END_GAME).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_interpolate",f.gameSettings.get(PGameSettings.INTERPOLATE).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_scale",f.gameSettings.get(PGameSettings.SCALING).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_closeesc",f.gameSettings.get(PGameSettings.TREAT_CLOSE_AS_ESCAPE).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_lastchanged",f.gameSettings.get(PGameSettings.LAST_CHANGED).toString()));
+	
+	optNode.appendChild(createElement(dom,
+			"option_gameid",f.gameSettings.get(PGameSettings.GAME_ID).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_gameguid",f.gameSettings.get(PGameSettings.DPLAY_GUID).toString()));
+	
+	optNode.appendChild(createElement(dom,
+			"option_author",(String)f.gameSettings.get(PGameSettings.AUTHOR)));
+	optNode.appendChild(createElement(dom,
+			"option_version_company",(String)f.gameSettings.get(PGameSettings.COMPANY)));
+	optNode.appendChild(createElement(dom,
+			"option_version_copyright",(String)f.gameSettings.get(PGameSettings.COPYRIGHT)));
+	optNode.appendChild(createElement(dom,
+			"option_version_description",(String)f.gameSettings.get(PGameSettings.DESCRIPTION)));
+	optNode.appendChild(createElement(dom,
+			"option_version_product",(String)f.gameSettings.get(PGameSettings.PRODUCT)));
+	optNode.appendChild(createElement(dom,
+			"option_version",f.gameSettings.get(PGameSettings.VERSION).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_version_build",f.gameSettings.get(PGameSettings.VERSION_BUILD).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_version_major",f.gameSettings.get(PGameSettings.VERSION_MAJOR).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_version_minor",f.gameSettings.get(PGameSettings.VERSION_MINOR).toString()));
+	optNode.appendChild(createElement(dom,
+			"option_version_release",f.gameSettings.get(PGameSettings.VERSION_RELEASE).toString()));
+	
+	String icoPath = "Configs\\Default\\windows\\runner_icon.ico";
+	optNode.appendChild(createElement(dom,
+			"option_windows_game_icon",icoPath));
+	
+	icoPath = f.getDirectory() + "\\" + icoPath;
+	File file = new File(icoPath).getParentFile();
+	file.mkdirs();
+	
+	FileOutputStream fos = new FileOutputStream(icoPath);
+	((ICOFile) f.gameSettings.get(PGameSettings.GAME_ICON)).write(fos);
 
   try {
 	  Transformer tr = TransformerFactory.newInstance().newTransformer();
@@ -187,7 +314,7 @@ public final class GMXFileWriter
 	  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
 	  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 	
-		File file = new File(f.getDirectory() + "/Configs");
+		file = new File(f.getDirectory() + "/Configs");
 		file.mkdir();
 		
 	  // send DOM to file
