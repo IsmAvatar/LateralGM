@@ -186,6 +186,12 @@ public class ProjectFile implements UpdateListener
 		return uri.getPath().replace("\\","/");
 	}
 
+	// This will return the top level folder path with name that the
+	// main project file is in.
+	public String getDirectory() {
+		return new File(uri.getPath().replace("\\","/")).getParent();
+	}
+	
 	public FormatFlavor format;
 	public URI uri;
 
@@ -259,7 +265,7 @@ public class ProjectFile implements UpdateListener
 		public static final FormatFlavor GM_701 = new FormatFlavor(GM_OWNER,701);
 		public static final FormatFlavor GM_800 = new FormatFlavor(GM_OWNER,800);
 		public static final FormatFlavor GM_810 = new FormatFlavor(GM_OWNER,810);
-		public static final FormatFlavor GMX_110 = new FormatFlavor(GM_OWNER,110);
+		public static final FormatFlavor GMX_1110 = new FormatFlavor(GM_OWNER,1110);
 		
 		protected Object owner;
 		protected int version;
@@ -284,6 +290,8 @@ public class ProjectFile implements UpdateListener
 					return FormatFlavor.GM_800;
 				case 810:
 					return FormatFlavor.GM_810;
+				case 1110:
+					return FormatFlavor.GMX_1110;
 				default:
 					return null;
 				}

@@ -372,11 +372,8 @@ public class FileChooser
 
 		public ProjectFile read(InputStream is, URI uri, ResNode root) throws ProjectFormatException
 			{
-			//TODO: should be a little more graceful than this
-			String ext = uri.getPath().substring(uri.getPath().lastIndexOf("."));
-			
 			ProjectFile f = null;
-			if (ext.endsWith("gmx")) {
+			if (uri.getPath().endsWith(".project.gmx")) {
 		    f = GMXFileReader.readProjectFile(is, uri, root);
 		  } else {
 		    f = GmFileReader.readProjectFile(is, uri, root);
@@ -397,7 +394,7 @@ public class FileChooser
 		public void write(OutputStream out, ProjectFile f, ResNode root) throws IOException
 			{
 			//TODO: should be a little more graceful than this
-			if (ver > 1000) {
+			if (f.getPath().endsWith(".project.gmx")) {
 			  GMXFileWriter.writeProjectFile(out,f,root,ver);
 			} else {
 			  GmFileWriter.writeProjectFile(out,f,root,ver);
@@ -429,7 +426,7 @@ public class FileChooser
 			case 810:
 				return ".gm81";
 			case 1110:
-			  return ".gmx";
+			  return ".project.gmx";
 			default:
 				throw new IllegalArgumentException(Integer.toString(ver));
 			}

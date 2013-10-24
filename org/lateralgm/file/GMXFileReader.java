@@ -101,6 +101,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+// TODO: Possibly rewrite from a DOM parser to a SAX parser,
+// because SAX is light weight faster and uses more memory,
+// DOM reads the whole thing into memory and then parses it.
+// There is a downside to SAX such as incompatibility with UTF-8
 public final class GMXFileReader
 	{
 	
@@ -189,21 +193,22 @@ public final class GMXFileReader
 		return fileData;
 	}
 
+	public static String getUnixPath(String path) {
+		return path.replace("\\","/");
+	}
+	
 	public static ProjectFile readProjectFile(InputStream stream, URI uri, ResNode root)
 			throws GmFormatException
 		{
 		return readProjectFile(stream,uri,root,null);
 		}
 	
-	public static String getUnixPath(String path) {
-		return path.replace("\\","/");
-	}
-	
 	public static ProjectFile readProjectFile(InputStream stream, URI uri, ResNode root, Charset forceCharset)
 			throws GmFormatException
 		{
 		ProjectFile f = new ProjectFile();
 		f.uri = uri;
+		f.format = ProjectFile.FormatFlavor.getVersionFlavor(1110); // GMX is not versioned
 		
 		File file = new File(uri);
 		Document document = null;	
@@ -216,18 +221,15 @@ public final class GMXFileReader
 				}
 			catch (SAXException e)
 				{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				}
 			catch (IOException e)
 				{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				}
 			}
 		catch (ParserConfigurationException e1)
 			{
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			}
 		
@@ -239,7 +241,6 @@ public final class GMXFileReader
 			long startTime = System.currentTimeMillis();
 
 			ProjectFileContext c = new ProjectFileContext(f,document,timeids,objids,rmids);
-			int ver = 1110; // GMX is not versioned
 			
 			readSprites(c, root);
 			readSounds(c, root);
@@ -274,7 +275,8 @@ public final class GMXFileReader
 			{
 			try
 				{
-					// close up any open file streams
+					// close up the stream and release the lock on the file
+					stream.close();
 				}
 			catch (Exception ex) //IOException
 				{
@@ -293,29 +295,30 @@ public final class GMXFileReader
 		GameSettings gSet = c.f.gameSettings;
 		PropertyMap<PGameSettings> pSet = gSet.properties;
 		
-		NodeList rtfNodes = in.getElementsByTagName("Configs"); 
-		Node rtfNode = null;
-		for (int i = 0; i < rtfNodes.getLength(); i++) {
-		  Node node = rtfNodes.item(i);
+		NodeList setNodes = in.getElementsByTagName("Configs"); 
+		Node setNode = null;
+		for (int i = 0; i < setNodes.getLength(); i++) {
+		  Node node = setNodes.item(i);
 		  if (node.getAttributes().getNamedItem("name").getTextContent().equals("configs")) {
-		  	rtfNode = node;
+		  	setNode = node;
 		  	break;
 		  }
 		}
 		
-		rtfNodes = rtfNode.getChildNodes(); 
-		rtfNode = null;
-		for (int i = 0; i < rtfNodes.getLength(); i++) {
-		  Node node = rtfNodes.item(i);
+		if (setNode == null) { return; }
+		setNodes = setNode.getChildNodes(); 
+		setNode = null;
+		for (int i = 0; i < setNodes.getLength(); i++) {
+		  Node node = setNodes.item(i);
 		  
 		  if (node.getNodeName().equals("Config")) {
-		  	rtfNode = node;
+		  	setNode = node;
 		  	break;
 		  }
 		}
 		
 	  String path = c.f.getPath();
-	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(rtfNode.getTextContent());
+	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(setNode.getTextContent());
 		
 		Document setdoc = documentBuilder.parse(path + ".config.gmx");
 		
@@ -685,8 +688,8 @@ public final class GMXFileReader
 		node.add(rnode);
 		iterateScripts(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("script")){
-	  f.resMap.getList(Script.class).lastId++;
 	  Script scr = f.resMap.getList(Script.class).add();
+	  f.resMap.getList(Script.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  scr.setName(fileName.substring(0, fileName.lastIndexOf(".")));
 	  scr.setNode(rnode);
@@ -1418,6 +1421,7 @@ public final class GMXFileReader
 		PropertyMap<PGameInformation> p = gameInfo.properties;
 		
 		NodeList rtfNodes = in.getElementsByTagName("rtf"); 
+		if (rtfNodes.getLength() == 0) { return; }
 		Node rtfNode = rtfNodes.item(rtfNodes.getLength() - 1);
 		
 	  String path = c.f.getPath();

@@ -22,6 +22,7 @@ import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -312,6 +313,10 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 				}
 		return false;
 		}
+	
+	public Vector<ResNode> getChildren() {
+		return children;
+	}
 
 	public ResourceReference<? extends Resource<?,?>> getRes()
 		{
