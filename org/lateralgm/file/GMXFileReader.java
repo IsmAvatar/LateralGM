@@ -485,7 +485,7 @@ public final class GMXFileReader
 	{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Sprites", (byte)1, Sprite.class, null);
+		ResNode node = new ResNode("Sprites", ResNode.STATUS_PRIMARY, Sprite.class, null);
 		root.add(node);
 		
 		NodeList sprList = in.getElementsByTagName("sprites"); 
@@ -552,7 +552,7 @@ public final class GMXFileReader
 	{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Sounds", (byte)1, Sound.class, null);
+		ResNode node = new ResNode("Sounds", ResNode.STATUS_PRIMARY, Sound.class, null);
 		root.add(node);
 		
 		NodeList sndList = in.getElementsByTagName("sounds"); 
@@ -621,7 +621,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Backgrounds", (byte)1, Background.class, null);
+		ResNode node = new ResNode("Backgrounds", ResNode.STATUS_PRIMARY, Background.class, null);
 		root.add(node);
 		
 		NodeList bkgList = in.getElementsByTagName("backgrounds"); 
@@ -662,7 +662,7 @@ public final class GMXFileReader
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
 	  
 		Document pthdoc = documentBuilder.parse(path + ".path.gmx");
-		//pth.put(PPath.PRECISION, pthdoc.getElementsByTagName("name").item(0).getTextContent());
+		pth.put(PPath.SMOOTH, Integer.parseInt(pthdoc.getElementsByTagName("kind").item(0).getTextContent()) < 0);
 		pth.put(PPath.PRECISION, Integer.parseInt(pthdoc.getElementsByTagName("precision").item(0).getTextContent()));
 	  pth.put(PPath.CLOSED, Integer.parseInt(pthdoc.getElementsByTagName("closed").item(0).getTextContent()) < 0);
 	  pth.put(PPath.BACKGROUND_ROOM, c.rmids.get(Integer.parseInt(pthdoc.getElementsByTagName("backroom").item(0).getTextContent())));
@@ -686,7 +686,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Paths", (byte)1, Sprite.class, null);
+		ResNode node = new ResNode("Paths", ResNode.STATUS_PRIMARY, Sprite.class, null);
 		root.add(node);
 		
 		NodeList pthList = in.getElementsByTagName("paths"); 
@@ -748,7 +748,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Scripts", (byte)1, Script.class, null);
+		ResNode node = new ResNode("Scripts", ResNode.STATUS_PRIMARY, Script.class, null);
 		root.add(node);
 		
 		NodeList scrList = in.getElementsByTagName("scripts"); 
@@ -814,7 +814,7 @@ public final class GMXFileReader
 	{
 	Document in = c.in;
 	
-	ResNode node = new ResNode("Shaders", (byte)1, Shader.class, null);
+	ResNode node = new ResNode("Shaders", ResNode.STATUS_PRIMARY, Shader.class, null);
 	root.add(node);
 	
 	NodeList shrList = in.getElementsByTagName("shaders"); 
@@ -873,7 +873,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Fonts", (byte)1, Font.class, null);
+		ResNode node = new ResNode("Fonts", ResNode.STATUS_PRIMARY, Font.class, null);
 		root.add(node);
 		
 		NodeList fntList = in.getElementsByTagName("fonts"); 
@@ -942,7 +942,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Timelines", (byte)1, Timeline.class, null);
+		ResNode node = new ResNode("Timelines", ResNode.STATUS_PRIMARY, Timeline.class, null);
 		root.add(node);
 		
 		NodeList tmlList = in.getElementsByTagName("timelines"); 
@@ -1088,7 +1088,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		ProjectFile f = c.f;
-		ResNode node = new ResNode("Objects", (byte)1, GmObject.class, null);
+		ResNode node = new ResNode("Objects", ResNode.STATUS_PRIMARY, GmObject.class, null);
 		root.add(node);
 
 		NodeList objList = in.getElementsByTagName("objects"); 
@@ -1388,7 +1388,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Rooms", (byte)1, Room.class, null);
+		ResNode node = new ResNode("Rooms", ResNode.STATUS_PRIMARY, Room.class, null);
 		root.add(node);
 		
 		NodeList rmnList = in.getElementsByTagName("rooms"); 
@@ -1404,7 +1404,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Includes", (byte)1, Include.class, null);
+		ResNode node = new ResNode("Includes", ResNode.STATUS_PRIMARY, Include.class, null);
 		root.add(node);
 		
 		NodeList incList = in.getElementsByTagName("includes"); 
@@ -1433,7 +1433,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Extensions", (byte)1, Extensions.class, null);
+		ResNode node = new ResNode("Extensions", ResNode.STATUS_PRIMARY, Extensions.class, null);
 		root.add(node);
 		
 		NodeList extList = in.getElementsByTagName("extensions"); 

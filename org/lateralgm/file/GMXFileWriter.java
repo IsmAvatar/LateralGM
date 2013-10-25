@@ -57,6 +57,7 @@ import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
+import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
@@ -73,6 +74,7 @@ import org.lateralgm.resources.GameInformation.PGameInformation;
 import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.resources.sub.ActionContainer;
+import org.lateralgm.resources.sub.PathPoint;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -452,6 +454,7 @@ public final class GMXFileWriter
 					e.printStackTrace();
 					}
 			}
+		  break;
 		}
 		node.appendChild(res);
 		}
@@ -558,6 +561,7 @@ public final class GMXFileWriter
 					e.printStackTrace();
 					}
 			}
+		  break;
 		}
 		node.appendChild(res);
 		}
@@ -668,6 +672,7 @@ public final class GMXFileWriter
 					e.printStackTrace();
 					}
 			}
+		  break;
 		}
 		node.appendChild(res);
 		}
@@ -675,23 +680,112 @@ public final class GMXFileWriter
 
 	public static void writeBackgrounds(ProjectFileContext c, Element root) throws IOException
 	{
-	Document dom = c.dom;
+		Document dom = c.dom;
+		
+		Element node = dom.createElement("backgrounds");
+		node.setAttribute("name","background");
+		root.appendChild(node);
+		
+		ResourceList<Background> bkgList = c.f.resMap.getList(Background.class);
+		if (bkgList.size() == 0) {
+			return;
+		}
+		ResNode bkgRoot = (ResNode) bkgList.getUnsafe(0).getNode().getParent(); 
 	
-	Element node = dom.createElement("backgrounds");
-	node.setAttribute("name","background");
-	root.appendChild(node);
-	
-	ResourceList<Background> bkgList = c.f.resMap.getList(Background.class);
-	if (bkgList.size() == 0) {
-		return;
-	}
-	ResNode bkgRoot = (ResNode) bkgList.getUnsafe(0).getNode().getParent(); 
-
-	iterateBackgrounds(c, bkgRoot, node);
+		iterateBackgrounds(c, bkgRoot, node);
 	}
 	
 	private static void iteratePaths(ProjectFileContext c, ResNode root, Element node) {
-	
+		ProjectFile f = c.f;
+		Document dom = c.dom;
+		Vector<ResNode> children = root.getChildren();
+		if (children == null) { return; }
+		for (Object obj : children) {
+			if (!(obj instanceof ResNode)) { continue; }
+			ResNode resNode = (ResNode) obj;
+			Element res = null;
+			switch (resNode.status) {
+			case ResNode.STATUS_PRIMARY:
+				res = dom.createElement("paths");
+				res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
+				iteratePaths(c, resNode, res);
+				break;
+			case ResNode.STATUS_GROUP:
+				res = dom.createElement("paths");
+				res.setAttribute("name", resNode.getUserObject().toString());
+				iteratePaths(c, resNode, res);
+				break;
+			case ResNode.STATUS_SECONDARY:
+				Path path = (Path) resNode.getRes().get();
+				res = dom.createElement("path");
+				String fname = f.getDirectory() + "\\paths\\";
+				res.setTextContent("paths\\" + path.getName());
+				File file = new File(f.getDirectory() + "/paths");
+				file.mkdir();
+				
+				Document doc = documentBuilder.newDocument();
+				
+				Element pathroot = doc.createElement("path");
+				doc.appendChild(pathroot);
+
+				int kind = path.get(PPath.SMOOTH) ? 1 : 0;
+				pathroot.appendChild(createElement(doc, "kind", Integer.toString(kind)));
+				int closed = path.get(PPath.CLOSED) ? -1 : 0;
+				pathroot.appendChild(createElement(doc, "closed", Integer.toString(closed)));
+				pathroot.appendChild(createElement(doc, "precision", 
+						path.get(PPath.PRECISION).toString()));
+				
+				Room bgroom = path.get(PPath.BACKGROUND_ROOM);
+				if (bgroom != null) {
+					pathroot.appendChild(createElement(doc, "backroom", bgroom.getName()));
+				} else {
+					pathroot.appendChild(createElement(doc, "backroom", "-1"));
+				}
+				
+				pathroot.appendChild(createElement(doc, "hsnap", 
+						path.get(PPath.SNAP_X).toString()));
+				pathroot.appendChild(createElement(doc, "vsnap", 
+						path.get(PPath.SNAP_Y).toString()));
+				
+				Element rootpoint = doc.createElement("points");
+				pathroot.appendChild(rootpoint);
+				for (PathPoint p : path.points)
+				{
+					rootpoint.appendChild(createElement(doc,"point",
+							p.getX() + "," + p.getY() + "," + p.getSpeed()));
+				}
+				
+				FileOutputStream fos = null;
+			  try {
+				  Transformer tr = TransformerFactory.newInstance().newTransformer();
+				  tr.setOutputProperty(OutputKeys.INDENT, "yes");
+				  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
+				  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+				
+				  // send DOM to file
+				  fos = new FileOutputStream(fname + path.getName() + ".path.gmx");
+				  tr.transform(new DOMSource(doc), 
+				            new StreamResult(fos));
+				} catch (TransformerException te) {
+				   System.out.println(te.getMessage());
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					try
+						{
+						fos.close();
+						}
+					catch (IOException e)
+						{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						}
+				}
+				break;
+			}
+			node.appendChild(res);
+		}
 	}
 
 	public static void writePaths(ProjectFileContext c, Element root) throws IOException
@@ -935,6 +1029,7 @@ public final class GMXFileWriter
 					e.printStackTrace();
 					}
 			}
+		  break;
 		}
 		node.appendChild(res);
 		}
