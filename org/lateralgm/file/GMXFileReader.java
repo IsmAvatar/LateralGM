@@ -439,8 +439,8 @@ public final class GMXFileReader
 		node.add(rnode);
 		iterateSounds(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("sound")) {
-	  f.resMap.getList(Sound.class).lastId++;
 	  Sound snd = f.resMap.getList(Sound.class).add();
+	  f.resMap.getList(Sound.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  snd.setName(fileName);
 	  snd.setNode(rnode);
@@ -507,8 +507,8 @@ public final class GMXFileReader
 		node.add(rnode);
 		iterateSprites(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("sprite")) {
-	  f.resMap.getList(Sprite.class).lastId++;
 	  Sprite spr = f.resMap.getList(Sprite.class).add();
+	  f.resMap.getList(Sprite.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  spr.setName(fileName);
 	  spr.setNode(rnode);
@@ -521,8 +521,8 @@ public final class GMXFileReader
 		
 		spr.put(PSprite.ORIGIN_X, Integer.parseInt(sprdoc.getElementsByTagName("xorig").item(0).getTextContent()));
 		spr.put(PSprite.ORIGIN_Y, Integer.parseInt(sprdoc.getElementsByTagName("yorigin").item(0).getTextContent()));
-		//TODO: Our mode is not equal to their integer modes for bbox, this errors
-		//spr.put(PSprite.BB_MODE, Integer.parseInt(sprdoc.getElementsByTagName("bboxmode").item(0).getTextContent()));
+		spr.put(PSprite.BB_MODE, ProjectFile.SPRITE_BB_CODE.get(
+				Integer.parseInt(sprdoc.getElementsByTagName("bboxmode").item(0).getTextContent())));
 		spr.put(PSprite.BB_LEFT, Integer.parseInt(sprdoc.getElementsByTagName("bbox_left").item(0).getTextContent()));
 		spr.put(PSprite.BB_RIGHT, Integer.parseInt(sprdoc.getElementsByTagName("bbox_right").item(0).getTextContent()));
 		spr.put(PSprite.BB_TOP, Integer.parseInt(sprdoc.getElementsByTagName("bbox_top").item(0).getTextContent()));
@@ -530,8 +530,8 @@ public final class GMXFileReader
 		spr.put(PSprite.ALPHA_TOLERANCE, Integer.parseInt(sprdoc.getElementsByTagName("coltolerance").item(0).getTextContent()));
 
 		//TODO: Just extra shit stored in the GMX by studio
-		int width = Integer.parseInt(sprdoc.getElementsByTagName("width").item(0).getTextContent());
-		int height = Integer.parseInt(sprdoc.getElementsByTagName("height").item(0).getTextContent());
+		//int width = Integer.parseInt(sprdoc.getElementsByTagName("width").item(0).getTextContent());
+		//int height = Integer.parseInt(sprdoc.getElementsByTagName("height").item(0).getTextContent());
 
 		
 	  // iterate and load the sprites subimages
@@ -583,8 +583,8 @@ public final class GMXFileReader
 		node.add(rnode);
 		iterateBackgrounds(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("background")) {
-	  f.resMap.getList(Background.class).lastId++;
 	  Background bkg = f.resMap.getList(Background.class).add();
+	  f.resMap.getList(Background.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  bkg.setName(fileName);
 	  bkg.setNode(rnode);
@@ -604,8 +604,8 @@ public final class GMXFileReader
 		bkg.put(PBackground.V_SEP, Integer.parseInt(bkgdoc.getElementsByTagName("tilevsep").item(0).getTextContent()));
 
 		//TODO: Just extra shit stored in the GMX by studio
-		int width = Integer.parseInt(bkgdoc.getElementsByTagName("width").item(0).getTextContent());
-		int height = Integer.parseInt(bkgdoc.getElementsByTagName("height").item(0).getTextContent());
+		//int width = Integer.parseInt(bkgdoc.getElementsByTagName("width").item(0).getTextContent());
+		//int height = Integer.parseInt(bkgdoc.getElementsByTagName("height").item(0).getTextContent());
 
 	  path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + "/background/";
@@ -652,8 +652,8 @@ public final class GMXFileReader
 		node.add(rnode);
 		iteratePaths(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("path")){
-	  f.resMap.getList(Path.class).lastId++;
 	  Path pth = f.resMap.getList(Path.class).add();
+	  f.resMap.getList(Path.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  pth.setName(fileName);
 	  pth.setNode(rnode);
@@ -779,8 +779,8 @@ public final class GMXFileReader
 		node.add(rnode);
 		iterateScripts(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("shader")){
-	  f.resMap.getList(Script.class).lastId++;
 	  Shader shr = f.resMap.getList(Shader.class).add();
+	  f.resMap.getList(Script.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  shr.setName(fileName.substring(0, fileName.lastIndexOf(".")));
 	  shr.setNode(rnode);
@@ -845,8 +845,8 @@ public final class GMXFileReader
 		node.add(rnode);
 		iterateFonts(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("font")){
-	  f.resMap.getList(Font.class).lastId++;
 	  Font fnt = f.resMap.getList(Font.class).add();
+	  f.resMap.getList(Font.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  fnt.setName(fileName);
 	  fnt.setNode(rnode);
@@ -903,8 +903,8 @@ public final class GMXFileReader
 		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Timeline.class, null);
 		node.add(rnode);
 	} else if (cname.equals("timeline")){
-	  f.resMap.getList(Timeline.class).lastId++;
 	  Timeline tml = f.resMap.getList(Timeline.class).add();
+	  f.resMap.getList(Timeline.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  tml.setName(fileName);
 	  tml.setNode(rnode);
@@ -974,8 +974,8 @@ public final class GMXFileReader
 	} else if (cname.equals("object")) {
 		
 		final GmObject obj = new GmObject();
-		f.resMap.getList(GmObject.class).lastId++;
 		f.resMap.getList(GmObject.class).add(obj);
+		f.resMap.getList(GmObject.class).lastId++;
 	  
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  obj.setName(fileName);
@@ -1121,8 +1121,8 @@ public final class GMXFileReader
 		node.add(rnode);
 		iterateRooms(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("room")){
-	  f.resMap.getList(Timeline.class).lastId++;
 	  Room rmn = f.resMap.getList(Room.class).add();
+	  f.resMap.getList(Timeline.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  rmn.setName(fileName);
 	  rmn.setNode(rnode);

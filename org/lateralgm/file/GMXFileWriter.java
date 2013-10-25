@@ -23,6 +23,7 @@
 
 package org.lateralgm.file;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -34,6 +35,7 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -49,12 +51,18 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.InstantiableResource;
+import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Shader.PShader;
+import org.lateralgm.resources.Sprite.PSprite;
+import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.GameInformation.PGameInformation;
 import org.lateralgm.resources.GameSettings.PGameSettings;
@@ -153,11 +161,11 @@ public final class GMXFileWriter
 		Element root = dom.createElement("assets");
 		//TODO: Handle actual fuck loading here
 		writeSettings(c, root);
-		/*
+		
 		writeSprites(c, root);
-		writeSounds(c, root);
+		//writeSounds(c, root); 
 		writeBackgrounds(c, root);
-		writePaths(c, root);*/
+		//writePaths(c, root);
 		writeScripts(c, root);
 		writeShaders(c, root);
 		/*
@@ -177,7 +185,7 @@ public final class GMXFileWriter
     Transformer tr = TransformerFactory.newInstance().newTransformer();
     tr.setOutputProperty(OutputKeys.INDENT, "yes");
     tr.setOutputProperty(OutputKeys.METHOD, "xml");;
-    tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+    tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
     // send DOM to file
     tr.transform(new DOMSource(dom), 
@@ -307,7 +315,9 @@ public final class GMXFileWriter
 	
 	FileOutputStream fos = new FileOutputStream(icoPath);
 	((ICOFile) f.gameSettings.get(PGameSettings.GAME_ICON)).write(fos);
-
+	fos.close();
+	
+	fos = null;
   try {
 	  Transformer tr = TransformerFactory.newInstance().newTransformer();
 	  tr.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -318,10 +328,13 @@ public final class GMXFileWriter
 		file.mkdir();
 		
 	  // send DOM to file
+		fos = new FileOutputStream(f.getDirectory() + "/Configs/Default.config.gmx");
 	  tr.transform(new DOMSource(dom), 
-	            new StreamResult(new FileOutputStream(f.getDirectory() + "/Configs/Default.config.gmx")));
+	            new StreamResult(fos));
 	} catch (TransformerException te) {
 	    System.out.println(te.getMessage());
+	} finally {
+		fos.close();
 	}
   return;
 	}
@@ -340,15 +353,236 @@ public final class GMXFileWriter
 	{
 		//TODO: Implement
 	}
+	
+	private static void iterateSprites(ProjectFileContext c, ResNode root, Element node) {
+	ProjectFile f = c.f;
+	Document dom = c.dom;
+	Vector<ResNode> children = root.getChildren();
+	if (children == null) { return; }
+	for (Object obj : children) {
+		if (!(obj instanceof ResNode)) { continue; }
+		ResNode resNode = (ResNode) obj;
+		Element res = null;
+		switch (resNode.status) {
+		case ResNode.STATUS_PRIMARY:
+			res = dom.createElement("sprites");
+			res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
+			iterateSprites(c, resNode, res);
+			break;
+		case ResNode.STATUS_GROUP:
+			res = dom.createElement("sprites");
+			res.setAttribute("name", resNode.getUserObject().toString());
+			iterateSprites(c, resNode, res);
+			break;
+		case ResNode.STATUS_SECONDARY:
+			Sprite spr = (Sprite) resNode.getRes().get();
+			res = dom.createElement("sprite");
+			String fname = f.getDirectory() + "\\sprites\\";
+			res.setTextContent("sprites\\" + spr.getName());
+			File file = new File(fname + "\\images");
+			file.mkdirs();
+			
+			Document doc = documentBuilder.newDocument();
+			
+			Element sprroot = doc.createElement("sprite");
+			doc.appendChild(sprroot);
+			
+			sprroot.appendChild(createElement(doc, "xorig", 
+					spr.get(PSprite.ORIGIN_X).toString()));
+			sprroot.appendChild(createElement(doc, "yorigin", 
+					spr.get(PSprite.ORIGIN_Y).toString()));
+			sprroot.appendChild(createElement(doc, "bbox_left", 
+					spr.get(PSprite.BB_LEFT).toString()));
+			sprroot.appendChild(createElement(doc, "bbox_right", 
+					spr.get(PSprite.BB_RIGHT).toString()));
+			sprroot.appendChild(createElement(doc, "bbox_top", 
+					spr.get(PSprite.BB_TOP).toString()));
+			sprroot.appendChild(createElement(doc, "bbox_bottom", 
+					spr.get(PSprite.BB_BOTTOM).toString()));
+			//TODO: Causin error
+			sprroot.appendChild(createElement(doc, "bboxmode", 
+					ProjectFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)).toString()));
+			sprroot.appendChild(createElement(doc, "coltolerance", 
+					spr.get(PSprite.ALPHA_TOLERANCE).toString()));
+			
+			Element frameroot = doc.createElement("frames");
+			for (int j = 0; j < spr.subImages.size(); j++)
+				{
+					String framefname = "images\\" + spr.getName() + "_" + j + ".png";
+					File outputfile = new File(fname + framefname);
+					Element frameNode = createElement(doc, "frame", framefname);
+					frameNode.setAttribute("index",Integer.toString(j));
+					frameroot.appendChild(frameNode);
+					BufferedImage sub = spr.subImages.get(j);
+					try
+						{
+						ImageIO.write(sub, "png", outputfile);
+						}
+					catch (IOException e)
+						{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						}
+				}
+			sprroot.appendChild(frameroot);
+			
+			FileOutputStream fos = null;
+		  try {
+			  Transformer tr = TransformerFactory.newInstance().newTransformer();
+			  tr.setOutputProperty(OutputKeys.INDENT, "yes");
+			  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
+			  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			
+			  // send DOM to file
+			  fos = new FileOutputStream(fname + spr.getName() + ".sprite.gmx");
+			  tr.transform(new DOMSource(doc), 
+			            new StreamResult(fos));
+			} catch (TransformerException te) {
+			   System.out.println(te.getMessage());
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				try
+					{
+					fos.close();
+					}
+				catch (IOException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+			}
+		}
+		node.appendChild(res);
+		}
+	}
 
 	public static void writeSprites(ProjectFileContext c, Element root) throws IOException
 	{
-		//TODO: Implement
+		Document dom = c.dom;
+		
+		Element node = dom.createElement("sprites");
+		node.setAttribute("name","sprites");
+		root.appendChild(node);
+		
+		ResourceList<Sprite> sprList = c.f.resMap.getList(Sprite.class);
+		if (sprList.size() == 0) {
+			return;
+		}
+		ResNode sprRoot = (ResNode) sprList.getUnsafe(0).getNode().getParent(); 
+	
+		iterateSprites(c, sprRoot, node);
+	}
+	
+	private static void iterateBackgrounds(ProjectFileContext c, ResNode root, Element node) {
+	ProjectFile f = c.f;
+	Document dom = c.dom;
+	Vector<ResNode> children = root.getChildren();
+	if (children == null) { return; }
+	for (Object obj : children) {
+		if (!(obj instanceof ResNode)) { continue; }
+		ResNode resNode = (ResNode) obj;
+		Element res = null;
+		switch (resNode.status) {
+		case ResNode.STATUS_PRIMARY:
+			res = dom.createElement("backgrounds");
+			res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
+			iterateBackgrounds(c, resNode, res);
+			break;
+		case ResNode.STATUS_GROUP:
+			res = dom.createElement("backgrounds");
+			res.setAttribute("name", resNode.getUserObject().toString());
+			iterateBackgrounds(c, resNode, res);
+			break;
+		case ResNode.STATUS_SECONDARY:
+			Background bkg = (Background) resNode.getRes().get();
+			res = dom.createElement("background");
+			String fname = f.getDirectory() + "\\background\\";
+			res.setTextContent("background\\" + bkg.getName());
+			File file = new File(fname + "\\images");
+			file.mkdirs();
+			
+			Document doc = documentBuilder.newDocument();
+			
+			Element bkgroot = doc.createElement("background");
+			doc.appendChild(bkgroot);
+			
+			bkgroot.appendChild(createElement(doc, "istileset", 
+					bkg.get(PBackground.USE_AS_TILESET).toString()));
+			bkgroot.appendChild(createElement(doc, "tilewidth", 
+					bkg.get(PBackground.TILE_WIDTH).toString()));
+			bkgroot.appendChild(createElement(doc, "tileheight", 
+					bkg.get(PBackground.TILE_HEIGHT).toString()));
+			bkgroot.appendChild(createElement(doc, "tilexoff", 
+					bkg.get(PBackground.H_OFFSET).toString()));
+			bkgroot.appendChild(createElement(doc, "tileyoff", 
+					bkg.get(PBackground.V_OFFSET).toString()));
+			bkgroot.appendChild(createElement(doc, "tilehsep", 
+					bkg.get(PBackground.H_SEP).toString()));
+			bkgroot.appendChild(createElement(doc, "tilevsep", 
+					bkg.get(PBackground.V_SEP).toString()));
+
+			bkgroot.appendChild(createElement(doc, "data", 
+					"images\\" + resNode.getUserObject().toString() + ".png"));
+			File outputfile = new File(fname + "images\\" + bkg.getName() + ".png");
+			try
+				{
+				ImageIO.write(bkg.getBackgroundImage(), "png", outputfile);
+				}
+			catch (IOException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+			
+			FileOutputStream fos = null;
+		  try {
+			  Transformer tr = TransformerFactory.newInstance().newTransformer();
+			  tr.setOutputProperty(OutputKeys.INDENT, "yes");
+			  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
+			  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			
+			  // send DOM to file
+			  fos = new FileOutputStream(fname + resNode.getUserObject().toString() + ".background.gmx");
+			  tr.transform(new DOMSource(doc), 
+			            new StreamResult(fos));
+			} catch (TransformerException te) {
+			   System.out.println(te.getMessage());
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				try
+					{
+					fos.close();
+					}
+				catch (IOException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+			}
+		}
+		node.appendChild(res);
+		}
 	}
 
 	public static void writeBackgrounds(ProjectFileContext c, Element root) throws IOException
 	{
-		//TODO: Implement
+	Document dom = c.dom;
+	
+	Element node = dom.createElement("backgrounds");
+	node.setAttribute("name","backgrounds");
+	root.appendChild(node);
+	
+	ResourceList<Background> bkgList = c.f.resMap.getList(Background.class);
+	if (bkgList.size() == 0) {
+		return;
+	}
+	ResNode bkgRoot = (ResNode) bkgList.getUnsafe(0).getNode().getParent(); 
+
+	iterateBackgrounds(c, bkgRoot, node);
 	}
 
 	public static void writePaths(ProjectFileContext c, Element root) throws IOException
@@ -366,17 +600,17 @@ public final class GMXFileWriter
 			ResNode resNode = (ResNode) obj;
 			Element res = null;
 			switch (resNode.status) {
-			case 1:
+			case ResNode.STATUS_PRIMARY:
 				res = dom.createElement("scripts");
 				res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
 				iterateScripts(c, resNode, res);
 				break;
-			case 2:
+			case ResNode.STATUS_GROUP:
 				res = dom.createElement("scripts");
 				res.setAttribute("name", resNode.getUserObject().toString());
 				iterateScripts(c, resNode, res);
 				break;
-			case 3:
+			case ResNode.STATUS_SECONDARY:
 				res = dom.createElement("script");
 				String fname = "scripts\\" + resNode.getUserObject().toString() + ".gml";
 				res.setTextContent(fname);
@@ -427,17 +661,17 @@ public final class GMXFileWriter
 		ResNode resNode = (ResNode) obj;
 		Element res = null;
 		switch (resNode.status) {
-		case 1:
+		case ResNode.STATUS_PRIMARY:
 			res = dom.createElement("shaders");
 			res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
 			iterateShaders(c, resNode, res);
 			break;
-		case 2:
+		case ResNode.STATUS_GROUP:
 			res = dom.createElement("shaders");
 			res.setAttribute("name", resNode.getUserObject().toString());
 			iterateShaders(c, resNode, res);
 			break;
-		case 3:
+		case ResNode.STATUS_SECONDARY:
 			res = dom.createElement("shader"
 					+ "");
 			String fname = "shaders\\" + resNode.getUserObject().toString() + ".gml";

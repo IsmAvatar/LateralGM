@@ -124,6 +124,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 	private void updateBoundingBox()
 		{
 		BBMode mode = get(PSprite.BB_MODE);
+		if (mode == null) { return; }
 		switch (mode)
 			{
 			case AUTO:

@@ -21,6 +21,8 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.Util;
@@ -413,6 +415,7 @@ public final class GmFileWriter
 		ver = ver >= 710 ? 710 : ver >= 543 ? 543 : 400;
 		out.write4(ver == 710 ? 800 : 400);
 		out.write4(f.resMap.getList(Background.class).lastId + 1);
+
 		for (int i = 0; i <= f.resMap.getList(Background.class).lastId; i++)
 			{
 			if (ver == 710) out.beginDeflate();

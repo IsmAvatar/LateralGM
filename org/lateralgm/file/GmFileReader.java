@@ -587,6 +587,7 @@ public final class GmFileReader
 				}
 			Sprite spr = f.resMap.getList(Sprite.class).add();
 			//temporarily set bbmode to manual so bbox doesn't get recalculated until bbmode is ready
+			//TODO: This should be made a little less retarded, I added a null check to bbmode call - Robert
 			spr.put(PSprite.BB_MODE,BBMode.MANUAL);
 			BBMode actualBBMode = null;
 			spr.setName(in.readStr());
