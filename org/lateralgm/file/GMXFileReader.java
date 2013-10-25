@@ -421,74 +421,6 @@ public final class GMXFileReader
 		
 		}
 	
-	private static void iterateSounds(ProjectFileContext c, NodeList sndList, ResNode node) throws IOException,GmFormatException, ParserConfigurationException, SAXException
-	{
-	ProjectFile f = c.f;
-	
-	for (int i = 0; i < sndList.getLength(); i++) {
-	Node cNode = sndList.item(i);
-	String cname = cNode.getNodeName();
-	if (cname.equals("#text")) {
-	  continue;
-	}
-	
-	ResNode rnode = null;
-	
-	if (cname.equals("sounds")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Sound.class, null);
-		node.add(rnode);
-		iterateSounds(c, cNode.getChildNodes(), rnode);
-	} else if (cname.equals("sound")) {
-	  Sound snd = f.resMap.getList(Sound.class).add();
-	  f.resMap.getList(Sound.class).lastId++;
-	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
-	  snd.setName(fileName);
-	  snd.setNode(rnode);
-	  rnode = new ResNode(snd.getName(), (byte)3, Sound.class, snd.reference);
-	  node.add(rnode);
-	  String path = f.getPath();
-	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
-	  
-		Document snddoc = documentBuilder.parse(path + ".sound.gmx");
-		
-		snd.put(PSound.FILE_NAME, snddoc.getElementsByTagName("data").item(0).getTextContent());
-		// TODO: The fuckin, god damn Studio has the volume tag nested inside itself in
-		// some versions of their gay ass format
-		NodeList nl = snddoc.getElementsByTagName("volume");
-		snd.put(PSound.VOLUME, Double.parseDouble(nl.item(nl.getLength() - 1).getTextContent()));
-		snd.put(PSound.PAN, Double.parseDouble(snddoc.getElementsByTagName("pan").item(0).getTextContent()));
-		snd.put(PSound.PRELOAD, Boolean.parseBoolean(snddoc.getElementsByTagName("preload").item(0).getTextContent()));
-		int sndkind =  Integer.parseInt(snddoc.getElementsByTagName("kind").item(0).getTextContent());
-		snd.put(PSound.KIND, ProjectFile.SOUND_KIND[sndkind]);
-		snd.put(PSound.FILE_TYPE, snddoc.getElementsByTagName("extension").item(0).getTextContent());
-		String fname = snddoc.getElementsByTagName("data").item(0).getTextContent();
-		snd.put(PSound.FILE_NAME, fname);
-		
-	  path = f.getPath();
-	  path = path.substring(0, path.lastIndexOf('/')+1) + "/sound/audio/" + fname;
-	  
-	  snd.data = ReadBinaryFile(path);
-	}
-	}
-	}
-
-	private static void readSounds(ProjectFileContext c, ResNode root) throws IOException,GmFormatException,
-			DataFormatException, ParserConfigurationException, SAXException
-		{
-		Document in = c.in;
-		
-		ResNode node = new ResNode("Sounds", (byte)1, Sound.class, null);
-		root.add(node);
-		
-		NodeList sndList = in.getElementsByTagName("sounds"); 
-		if (sndList.getLength() > 0) {
-		  sndList = sndList.item(0).getChildNodes();
-		} else {
-			return;
-		}
-		iterateSounds(c, sndList, node);
-		}
-	
 	private static void iterateSprites(ProjectFileContext c, NodeList sprList, ResNode node) throws IOException,GmFormatException, ParserConfigurationException, SAXException
 	{
 	ProjectFile f = c.f;
@@ -550,7 +482,7 @@ public final class GMXFileReader
 
 	private static void readSprites(ProjectFileContext c, ResNode root) throws IOException,GmFormatException,
 			DataFormatException, ParserConfigurationException, SAXException
-		{
+	{
 		Document in = c.in;
 		
 		ResNode node = new ResNode("Sprites", (byte)1, Sprite.class, null);
@@ -563,8 +495,75 @@ public final class GMXFileReader
 			return;
 		}
 		iterateSprites(c, sprList, node);
-		}
+	}
 
+	private static void iterateSounds(ProjectFileContext c, NodeList sndList, ResNode node) throws IOException,GmFormatException, ParserConfigurationException, SAXException
+	{
+	ProjectFile f = c.f;
+	
+	for (int i = 0; i < sndList.getLength(); i++) {
+	Node cNode = sndList.item(i);
+	String cname = cNode.getNodeName();
+	if (cname.equals("#text")) {
+	  continue;
+	}
+	
+	ResNode rnode = null;
+	
+	if (cname.equals("sounds")) { 
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Sound.class, null);
+		node.add(rnode);
+		iterateSounds(c, cNode.getChildNodes(), rnode);
+	} else if (cname.equals("sound")) {
+	  Sound snd = f.resMap.getList(Sound.class).add();
+	  f.resMap.getList(Sound.class).lastId++;
+	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+	  snd.setName(fileName);
+	  snd.setNode(rnode);
+	  rnode = new ResNode(snd.getName(), (byte)3, Sound.class, snd.reference);
+	  node.add(rnode);
+	  String path = f.getPath();
+	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
+	  
+		Document snddoc = documentBuilder.parse(path + ".sound.gmx");
+		
+		snd.put(PSound.FILE_NAME, snddoc.getElementsByTagName("origname").item(0).getTextContent());
+		// TODO: The fuckin, god damn Studio has the volume tag nested inside itself in
+		// some versions of their gay ass format
+		NodeList nl = snddoc.getElementsByTagName("volume");
+		snd.put(PSound.VOLUME, Double.parseDouble(nl.item(nl.getLength() - 1).getTextContent()));
+		snd.put(PSound.PAN, Double.parseDouble(snddoc.getElementsByTagName("pan").item(0).getTextContent()));
+		snd.put(PSound.PRELOAD, Boolean.parseBoolean(snddoc.getElementsByTagName("preload").item(0).getTextContent()));
+		int sndkind =  Integer.parseInt(snddoc.getElementsByTagName("kind").item(0).getTextContent());
+		snd.put(PSound.KIND, ProjectFile.SOUND_KIND[sndkind]);
+		snd.put(PSound.FILE_TYPE, snddoc.getElementsByTagName("extension").item(0).getTextContent());
+		String fname = snddoc.getElementsByTagName("data").item(0).getTextContent();
+		
+	  path = f.getPath();
+	  path = path.substring(0, path.lastIndexOf('/')+1) + "/sound/audio/" + fname;
+	  
+	  snd.data = ReadBinaryFile(path);
+	}
+	}
+	}
+
+	private static void readSounds(ProjectFileContext c, ResNode root) throws IOException,GmFormatException,
+			DataFormatException, ParserConfigurationException, SAXException
+	{
+		Document in = c.in;
+		
+		ResNode node = new ResNode("Sounds", (byte)1, Sound.class, null);
+		root.add(node);
+		
+		NodeList sndList = in.getElementsByTagName("sounds"); 
+		if (sndList.getLength() > 0) {
+		  sndList = sndList.item(0).getChildNodes();
+		} else {
+			return;
+		}
+		iterateSounds(c, sndList, node);
+	}
+	
 	private static void iterateBackgrounds(ProjectFileContext c, NodeList bkgList, ResNode node) throws IOException,GmFormatException, ParserConfigurationException, SAXException
 	{
 	ProjectFile f = c.f;

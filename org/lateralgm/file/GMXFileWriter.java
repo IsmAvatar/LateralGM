@@ -53,17 +53,22 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
+import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.InstantiableResource;
+import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Shader.PShader;
+import org.lateralgm.resources.Sound;
+import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Timeline;
+import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.GameInformation.PGameInformation;
 import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.Script.PScript;
@@ -163,19 +168,18 @@ public final class GMXFileWriter
 		writeSettings(c, root);
 		
 		writeSprites(c, root);
-		//writeSounds(c, root); 
+		writeSounds(c, root); 
 		writeBackgrounds(c, root);
-		//writePaths(c, root);
+		writePaths(c, root);
 		writeScripts(c, root);
 		writeShaders(c, root);
-		/*
 		writeFonts(c, root);
 		writeTimelines(c, root);
 		writeGmObjects(c, root);
 		writeRooms(c, root);
-		writeIncludedFiles(c, root);
-		writePackages(c, root);
-		writeExtensions(c, root);*/
+		//writeIncludedFiles(c, root);
+		//writePackages(c, root);
+		//writeExtensions(c, root);
 		writeGameInformation(c, root);
 		
 		dom.appendChild(root);
@@ -348,11 +352,6 @@ public final class GMXFileWriter
 	{
 		//TODO: Implement
 	}
-
-	public static void writeSounds(ProjectFileContext c, Element root) throws IOException
-	{
-		//TODO: Implement
-	}
 	
 	private static void iterateSprites(ProjectFileContext c, ResNode root, Element node) {
 	ProjectFile f = c.f;
@@ -475,6 +474,112 @@ public final class GMXFileWriter
 		iterateSprites(c, sprRoot, node);
 	}
 	
+	private static void iterateSounds(ProjectFileContext c, ResNode root, Element node) {
+	ProjectFile f = c.f;
+	Document dom = c.dom;
+	Vector<ResNode> children = root.getChildren();
+	if (children == null) { return; }
+	for (Object obj : children) {
+		if (!(obj instanceof ResNode)) { continue; }
+		ResNode resNode = (ResNode) obj;
+		Element res = null;
+		switch (resNode.status) {
+		case ResNode.STATUS_PRIMARY:
+			res = dom.createElement("sounds");
+			res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
+			iterateBackgrounds(c, resNode, res);
+			break;
+		case ResNode.STATUS_GROUP:
+			res = dom.createElement("sounds");
+			res.setAttribute("name", resNode.getUserObject().toString());
+			iterateBackgrounds(c, resNode, res);
+			break;
+		case ResNode.STATUS_SECONDARY:
+			Sound snd = (Sound) resNode.getRes().get();
+			res = dom.createElement("sound");
+			String fname = f.getDirectory() + "\\sound\\";
+			res.setTextContent("sound\\" + snd.getName());
+			File file = new File(fname + "\\audio");
+			file.mkdirs();
+			
+			Document doc = documentBuilder.newDocument();
+			
+			Element sndroot = doc.createElement("sound");
+			doc.appendChild(sndroot);
+			
+			String ftype = snd.get(PSound.FILE_TYPE).toString();
+			sndroot.appendChild(createElement(doc, "extension", ftype));
+			sndroot.appendChild(createElement(doc, "origname", 
+					snd.get(PSound.FILE_NAME).toString()));
+			sndroot.appendChild(createElement(doc, "kind", 
+					ProjectFile.SOUND_CODE.get(snd.get(PSound.KIND)).toString()));
+			sndroot.appendChild(createElement(doc, "volume", 
+					snd.get(PSound.VOLUME).toString()));
+			sndroot.appendChild(createElement(doc, "pan", 
+					snd.get(PSound.PAN).toString()));
+			sndroot.appendChild(createElement(doc, "preload", 
+					snd.get(PSound.PRELOAD).toString()));
+			int effects = 0;
+			int n = 1;
+			for (PSound k : ProjectFile.SOUND_FX_FLAGS)
+				{
+				if (snd.get(k)) effects |= n;
+				n <<= 1;
+				}
+			sndroot.appendChild(createElement(doc, "effects", Integer.toString(effects)));
+
+			sndroot.appendChild(createElement(doc, "data", snd.getName() + ftype));
+			WriteBinaryFile(fname + "audio\\" + snd.getName() + ftype, snd.data);
+			
+			FileOutputStream fos = null;
+		  try {
+			  Transformer tr = TransformerFactory.newInstance().newTransformer();
+			  tr.setOutputProperty(OutputKeys.INDENT, "yes");
+			  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
+			  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			
+			  // send DOM to file
+			  fos = new FileOutputStream(fname + resNode.getUserObject().toString() + ".sound.gmx");
+			  tr.transform(new DOMSource(doc), 
+			            new StreamResult(fos));
+			} catch (TransformerException te) {
+			   System.out.println(te.getMessage());
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				try
+					{
+					fos.close();
+					}
+				catch (IOException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+			}
+		}
+		node.appendChild(res);
+		}
+	}
+
+	public static void writeSounds(ProjectFileContext c, Element root) throws IOException
+	{
+		Document dom = c.dom;
+		
+		Element node = dom.createElement("sounds");
+		node.setAttribute("name","sound");
+		root.appendChild(node);
+		
+		ResourceList<Sound> sndList = c.f.resMap.getList(Sound.class);
+		if (sndList.size() == 0) {
+			return;
+		}
+		ResNode sndRoot = (ResNode) sndList.getUnsafe(0).getNode().getParent(); 
+	
+		iterateSounds(c, sndRoot, node);
+	}
+	
 	private static void iterateBackgrounds(ProjectFileContext c, ResNode root, Element node) {
 	ProjectFile f = c.f;
 	Document dom = c.dom;
@@ -524,7 +629,7 @@ public final class GMXFileWriter
 					bkg.get(PBackground.V_SEP).toString()));
 
 			bkgroot.appendChild(createElement(doc, "data", 
-					"images\\" + resNode.getUserObject().toString() + ".png"));
+					"images\\" + bkg.getName() + ".png"));
 			File outputfile = new File(fname + "images\\" + bkg.getName() + ".png");
 			try
 				{
@@ -573,7 +678,7 @@ public final class GMXFileWriter
 	Document dom = c.dom;
 	
 	Element node = dom.createElement("backgrounds");
-	node.setAttribute("name","backgrounds");
+	node.setAttribute("name","background");
 	root.appendChild(node);
 	
 	ResourceList<Background> bkgList = c.f.resMap.getList(Background.class);
@@ -584,10 +689,26 @@ public final class GMXFileWriter
 
 	iterateBackgrounds(c, bkgRoot, node);
 	}
+	
+	private static void iteratePaths(ProjectFileContext c, ResNode root, Element node) {
+	
+	}
 
 	public static void writePaths(ProjectFileContext c, Element root) throws IOException
 	{
-		//TODO: Implement
+		Document dom = c.dom;
+		
+		Element node = dom.createElement("paths");
+		node.setAttribute("name","paths");
+		root.appendChild(node);
+		
+		ResourceList<Path> pthList = c.f.resMap.getList(Path.class);
+		if (pthList.size() == 0) {
+			return;
+		}
+		ResNode pthRoot = (ResNode) pthList.getUnsafe(0).getNode().getParent(); 
+	
+		iteratePaths(c, pthRoot, node);
 	}
 
 	private static void iterateScripts(ProjectFileContext c, ResNode root, Element node) {
@@ -611,8 +732,9 @@ public final class GMXFileWriter
 				iterateScripts(c, resNode, res);
 				break;
 			case ResNode.STATUS_SECONDARY:
+				Script scr = (Script) resNode.getRes().get();
 				res = dom.createElement("script");
-				String fname = "scripts\\" + resNode.getUserObject().toString() + ".gml";
+				String fname = "scripts\\" + scr.getName() + ".gml";
 				res.setTextContent(fname);
 				File file = new File(f.getDirectory() + "/scripts");
 				file.mkdir();
@@ -620,7 +742,7 @@ public final class GMXFileWriter
 				try
 					{
 					out = new PrintWriter(f.getDirectory() + "/" + getUnixPath(fname));
-					out.println(resNode.getRes().get().properties.get(PScript.CODE));
+					out.println(scr.properties.get(PScript.CODE));
 					out.close();
 					}
 				catch (FileNotFoundException e)
@@ -672,20 +794,21 @@ public final class GMXFileWriter
 			iterateShaders(c, resNode, res);
 			break;
 		case ResNode.STATUS_SECONDARY:
+			Shader shr = (Shader) resNode.getRes().get();
 			res = dom.createElement("shader"
 					+ "");
-			String fname = "shaders\\" + resNode.getUserObject().toString() + ".gml";
+			String fname = "shaders\\" + shr.getName() + ".gml";
 			res.setTextContent(fname);
-			res.setAttribute("type",(String) resNode.getRes().get().properties.get(PShader.TYPE));
+			res.setAttribute("type",shr.properties.get(PShader.TYPE).toString());
 			File file = new File(f.getDirectory() + "/shaders");
 			file.mkdir();
 			PrintWriter out = null;
 			try
 				{
 				out = new PrintWriter(f.getDirectory() + "/" + getUnixPath(fname));
-				String code = resNode.getRes().get().properties.get(PShader.VERTEX)
+				String code = shr.properties.get(PShader.VERTEX)
 						+ "\n//######################_==_YOYO_SHADER_MARKER_==_######################@~//\n" +
-								resNode.getRes().get().properties.get(PShader.FRAGMENT);
+								shr.properties.get(PShader.FRAGMENT);
 				out.println(code);
 				out.close();
 				}
@@ -702,39 +825,199 @@ public final class GMXFileWriter
 	
 	public static void writeShaders(ProjectFileContext c, Element root) throws IOException
 	{
-	Document dom = c.dom;
+		Document dom = c.dom;
+		
+		Element node = dom.createElement("shaders");
+		node.setAttribute("name","shaders");
+		root.appendChild(node);
+		
+		ResourceList<Shader> shrList = c.f.resMap.getList(Shader.class);
+		if (shrList.size() == 0) {
+			return;
+		}
+		ResNode shrRoot = (ResNode) shrList.getUnsafe(0).getNode().getParent(); 
 	
-	Element node = dom.createElement("shaders");
-	node.setAttribute("name","shaders");
-	root.appendChild(node);
-	
-	ResourceList<Shader> shrList = c.f.resMap.getList(Shader.class);
-	if (shrList.size() == 0) {
-		return;
+		iterateShaders(c, shrRoot, node);
 	}
-	ResNode shrRoot = (ResNode) shrList.getUnsafe(0).getNode().getParent(); 
+	
+	private static void iterateFonts(ProjectFileContext c, ResNode root, Element node) {
+	ProjectFile f = c.f;
+	Document dom = c.dom;
+	Vector<ResNode> children = root.getChildren();
+	if (children == null) { return; }
+	for (Object obj : children) {
+		if (!(obj instanceof ResNode)) { continue; }
+		ResNode resNode = (ResNode) obj;
+		Element res = null;
+		switch (resNode.status) {
+		case ResNode.STATUS_PRIMARY:
+			res = dom.createElement("fonts");
+			res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
+			iterateFonts(c, resNode, res);
+			break;
+		case ResNode.STATUS_GROUP:
+			res = dom.createElement("fonts");
+			res.setAttribute("name", resNode.getUserObject().toString());
+			iterateFonts(c, resNode, res);
+			break;
+		case ResNode.STATUS_SECONDARY:
+			Font fnt = (Font) resNode.getRes().get();
+			res = dom.createElement("font");
+			String fname = f.getDirectory() + "\\fonts\\";
+			res.setTextContent("fonts\\" + fnt.getName());
+			File file = new File(fname);
+			file.mkdirs();
+			
+			Document doc = documentBuilder.newDocument();
+			
+			Element fntroot = doc.createElement("font");
+			doc.appendChild(fntroot);
+			
+			fntroot.appendChild(createElement(doc, "name", 
+					fnt.get(PFont.FONT_NAME).toString()));
+			fntroot.appendChild(createElement(doc, "size", 
+					fnt.get(PFont.SIZE).toString()));
+			fntroot.appendChild(createElement(doc, "bold", 
+					fnt.get(PFont.BOLD).toString()));
+			fntroot.appendChild(createElement(doc, "italic", 
+					fnt.get(PFont.ITALIC).toString()));
+			fntroot.appendChild(createElement(doc, "charset", 
+					fnt.get(PFont.CHARSET).toString()));
+			fntroot.appendChild(createElement(doc, "aa", 
+					fnt.get(PFont.ANTIALIAS).toString()));
+			
+			//TODO: Implement multiple ranges
+			Element rangeroot = doc.createElement("ranges");
+			fntroot.appendChild(rangeroot);
+			rangeroot.appendChild(createElement(doc, "range0", fnt.get(PFont.RANGE_MIN).toString()
+					+ "," + fnt.get(PFont.RANGE_MAX).toString()));
 
-	iterateShaders(c, shrRoot, node);
+			// TODO: Move glyph renderer from the plugin to LGM and write glyphs here
+			fntroot.appendChild(createElement(doc, "image", 
+					fnt.getName() + ".png"));
+			File outputfile = new File(fname + fnt.getName() + ".png");
+			/*
+			try
+				{
+				ImageIO.write(fnt.getBackgroundImage(), "png", outputfile);
+				}
+			catch (IOException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+			*/
+			
+			FileOutputStream fos = null;
+		  try {
+			  Transformer tr = TransformerFactory.newInstance().newTransformer();
+			  tr.setOutputProperty(OutputKeys.INDENT, "yes");
+			  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
+			  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			
+			  // send DOM to file
+			  fos = new FileOutputStream(fname + resNode.getUserObject().toString() + ".font.gmx");
+			  tr.transform(new DOMSource(doc), 
+			            new StreamResult(fos));
+			} catch (TransformerException te) {
+			   System.out.println(te.getMessage());
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				try
+					{
+					fos.close();
+					}
+				catch (IOException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+			}
+		}
+		node.appendChild(res);
+		}
 	}
 
 	public static void writeFonts(ProjectFileContext c, Element root) throws IOException
 	{
-		//TODO: Implement
+		Document dom = c.dom;
+		
+		Element node = dom.createElement("fonts");
+		node.setAttribute("name","fonts");
+		root.appendChild(node);
+		
+		ResourceList<Font> fntList = c.f.resMap.getList(Font.class);
+		if (fntList.size() == 0) {
+			return;
+		}
+		ResNode fntRoot = (ResNode) fntList.getUnsafe(0).getNode().getParent(); 
+	
+		iterateFonts(c, fntRoot, node);
+	}
+	
+	private static void iterateTimelines(ProjectFileContext c, ResNode root, Element node) {
+	
 	}
 
 	public static void writeTimelines(ProjectFileContext c, Element root) throws IOException
 	{
-		//TODO: Implement
+		Document dom = c.dom;
+		
+		Element node = dom.createElement("timelines");
+		node.setAttribute("name","timelines");
+		root.appendChild(node);
+		
+		ResourceList<Timeline> tmlList = c.f.resMap.getList(Timeline.class);
+		if (tmlList.size() == 0) {
+			return;
+		}
+		ResNode tmlRoot = (ResNode) tmlList.getUnsafe(0).getNode().getParent(); 
+	
+		iterateTimelines(c, tmlRoot, node);
 	}
 
+	private static void iterateGmObjects(ProjectFileContext c, ResNode root, Element node) {
+	
+	}
+	
 	public static void writeGmObjects(ProjectFileContext c, Element root) throws IOException
 	{
-		//TODO: Implement
+		Document dom = c.dom;
+		
+		Element node = dom.createElement("objects");
+		node.setAttribute("name","objects");
+		root.appendChild(node);
+		
+		ResourceList<GmObject> objList = c.f.resMap.getList(GmObject.class);
+		if (objList.size() == 0) {
+			return;
+		}
+		ResNode objRoot = (ResNode) objList.getUnsafe(0).getNode().getParent(); 
+	
+		iterateGmObjects(c, objRoot, node);
+	}
+	
+	private static void iterateRooms(ProjectFileContext c, ResNode root, Element node) {
+	
 	}
 
 	public static void writeRooms(ProjectFileContext c, Element root) throws IOException
 	{
-		//TODO: Implement
+		Document dom = c.dom;
+		
+		Element node = dom.createElement("rooms");
+		node.setAttribute("name","rooms");
+		root.appendChild(node);
+		
+		ResourceList<Room> rmnList = c.f.resMap.getList(Room.class);
+		if (rmnList.size() == 0) {
+			return;
+		}
+		ResNode rmnRoot = (ResNode) rmnList.getUnsafe(0).getNode().getParent(); 
+	
+		iterateRooms(c, rmnRoot, node);
 	}
 
 	public static void writeIncludedFiles(ProjectFileContext c, Element root) throws IOException
@@ -765,14 +1048,10 @@ public final class GMXFileWriter
 		root.appendChild(helpNode);
 	}
 
-	public static void writeTree(GmStreamEncoder out, ResNode root) throws IOException
-	{
-		//TODO: Implement
-	}
-
 	public static void writeActions(GmStreamEncoder out, ActionContainer container)
 			throws IOException
 	{
 		//TODO: Implement
 	}
+	
 }
