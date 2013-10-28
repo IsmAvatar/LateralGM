@@ -45,6 +45,7 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.propertylink"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.joshedit"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.jedit"/>
         <file path="/LateralGM/README"/>
         <folder path="/LateralGM/META-INF"/>
         <file path="/LateralGM/.gitignore"/>

@@ -1176,9 +1176,7 @@ public final class GMXFileReader
 		      if (mname.equals("#text")) { 
 		      	continue; 
 		      } else if (mname.equals("isSet")) {
-		      	if (!(Integer.parseInt(mnode.getTextContent()) < 0)) {
-		      		y = msnodes.getLength() + 1; continue;
-		      	}
+		      	rmn.put(PRoom.REMEMBER_WINDOW_SIZE, Integer.parseInt(mnode.getTextContent()) < 0);
 		      } else if (mname.equals("w")) {
 		      	rmn.put(PRoom.EDITOR_WIDTH, Integer.parseInt(mnode.getTextContent()));
 		      } else if (mname.equals("h")) {

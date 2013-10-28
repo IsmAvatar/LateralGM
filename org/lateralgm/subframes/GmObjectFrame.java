@@ -821,14 +821,6 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public void dispose()
 	{
 		super.dispose();
-		// TODO: Fix disposal of open action frames, NPE occurs
-		// when the object frame closes before them, for instance
-		// open up LGM create a object and open an action frame on it
-		// then in the background close the object frame and leave
-		// the action frame open, bam, NPE
-		// I propose making action list editor memorize them as it is the
-		// one with the function that opens the action frames
-		// - Robert B. Colton
 		events.removeTreeSelectionListener(this);
 		events.setModel(null);
 		events.setTransferHandler(null);
@@ -841,6 +833,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (infoFrame != null) {
 		  infoFrame.dispose();
 		}
+		//NOTE: Uncomment this to have the action frames close when the object frame closes.
+		//((ActionListEditor) editor).dispose();
 	}
 	
 	public void valueChanged(TreeSelectionEvent tse)

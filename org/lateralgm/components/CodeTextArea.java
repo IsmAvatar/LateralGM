@@ -61,6 +61,7 @@ import org.lateralgm.joshedit.lexers.GMLTokenMarker;
 import org.lateralgm.joshedit.lexers.DefaultTokenMarker;
 import org.lateralgm.joshedit.lexers.DefaultTokenMarker.KeywordSet;
 import org.lateralgm.joshedit.lexers.HLSLKeywords;
+import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.joshedit.JoshText;
 import org.lateralgm.joshedit.JoshText.CodeMetrics;
 import org.lateralgm.joshedit.JoshText.LineChangeListener;
@@ -117,10 +118,10 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 	protected Integer lastUpdateTaskID = 0;
 	private Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
 	protected Completion[] completions;
-	protected DefaultTokenMarker tokenMarker = new GMLTokenMarker();
+	protected DefaultTokenMarker tokenMarker;
 
-	private static final Color PURPLE = new Color(162,27,224);
-	private static final Color BROWN = new Color(200,0,0);
+	private static final Color PURPLE = new Color(138,54,186);
+	private static final Color BROWN = new Color(150,0,0);
 	private static final Color FUNCTION = new Color(0,100,150);
 	
 	//new Color(255,0,128);
@@ -128,13 +129,20 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 
 	public CodeTextArea()
 		{
-		this(null);
+		this(null, MarkerCache.getMarker("gml"));
+		}
+	
+	public CodeTextArea(String code)
+		{
+		this(code, MarkerCache.getMarker("gml"));
 		}
 
-	public CodeTextArea(String code)
+	public CodeTextArea(String code, DefaultTokenMarker marker)
 		{
 		super(code);
 
+		tokenMarker = marker;
+		
 		setTabSize(Prefs.tabSize);
 		setTokenMarker(tokenMarker);
 		setupKeywords();
@@ -145,7 +153,6 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		text.getActionMap().put("COMPLETIONS",completionAction);
 		LGM.currentFile.updateSource.addListener(this);
 		
-
     // build popup menu
     final JPopupMenu popup = new JPopupMenu();
 		popup.add(makeContextButton(this.text.actUndo));
@@ -292,7 +299,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 			ResourceList<?> rl = (ResourceList<?>) e.getValue();
 			KeywordSet ks = e.getKey() == Script.class ? scrNames : resNames;
 			for (Resource<?,?> r : rl)
-				functions.words.add(r.getName());
+				ks.words.add(r.getName());
 			}
 	}
 

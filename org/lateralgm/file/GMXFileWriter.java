@@ -23,6 +23,7 @@
 
 package org.lateralgm.file;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -55,6 +56,7 @@ import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
@@ -63,6 +65,7 @@ import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Shader;
+import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Shader.PShader;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
@@ -1053,7 +1056,71 @@ public final class GMXFileWriter
 	}
 	
 	private static void iterateTimelines(ProjectFileContext c, ResNode root, Element node) {
-	
+		ProjectFile f = c.f;
+		Document dom = c.dom;
+		Vector<ResNode> children = root.getChildren();
+		if (children == null) { return; }
+		for (Object obj : children) {
+			if (!(obj instanceof ResNode)) { continue; }
+			ResNode resNode = (ResNode) obj;
+			Element res = null;
+			switch (resNode.status) {
+			case ResNode.STATUS_PRIMARY:
+				res = dom.createElement("timelines");
+				res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
+				iterateTimelines(c, resNode, res);
+				break;
+			case ResNode.STATUS_GROUP:
+				res = dom.createElement("timelines");
+				res.setAttribute("name", resNode.getUserObject().toString());
+				iterateTimelines(c, resNode, res);
+				break;
+			case ResNode.STATUS_SECONDARY:
+				Timeline timeline = (Timeline) resNode.getRes().get();
+				res = dom.createElement("timeline");
+				String fname = f.getDirectory() + "\\timelines\\";
+				res.setTextContent("timelines\\" + timeline.getName());
+				File file = new File(f.getDirectory() + "/timelines");
+				file.mkdir();
+				
+				Document doc = documentBuilder.newDocument();
+				
+				Element tmlroot = doc.createElement("timeline");
+				doc.appendChild(tmlroot);
+
+				//TODO: Write properties
+				
+				FileOutputStream fos = null;
+			  try {
+				  Transformer tr = TransformerFactory.newInstance().newTransformer();
+				  tr.setOutputProperty(OutputKeys.INDENT, "yes");
+				  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
+				  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+				
+				  // send DOM to file
+				  fos = new FileOutputStream(fname + timeline.getName() + ".timeline.gmx");
+				  tr.transform(new DOMSource(doc), 
+				            new StreamResult(fos));
+				} catch (TransformerException te) {
+				   System.out.println(te.getMessage());
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					try
+						{
+						fos.close();
+						}
+					catch (IOException e)
+						{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						}
+				}
+				break;
+			}
+			node.appendChild(res);
+		}
 	}
 
 	public static void writeTimelines(ProjectFileContext c, Element root) throws IOException
@@ -1074,7 +1141,84 @@ public final class GMXFileWriter
 	}
 
 	private static void iterateGmObjects(ProjectFileContext c, ResNode root, Element node) {
-	
+		ProjectFile f = c.f;
+		Document dom = c.dom;
+		Vector<ResNode> children = root.getChildren();
+		if (children == null) { return; }
+		for (Object obj : children) {
+			if (!(obj instanceof ResNode)) { continue; }
+			ResNode resNode = (ResNode) obj;
+			Element res = null;
+			switch (resNode.status) {
+			case ResNode.STATUS_PRIMARY:
+				res = dom.createElement("objects");
+				res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
+				iterateGmObjects(c, resNode, res);
+				break;
+			case ResNode.STATUS_GROUP:
+				res = dom.createElement("objects");
+				res.setAttribute("name", resNode.getUserObject().toString());
+				iterateGmObjects(c, resNode, res);
+				break;
+			case ResNode.STATUS_SECONDARY:
+				GmObject object = (GmObject) resNode.getRes().get();
+				res = dom.createElement("object");
+				String fname = f.getDirectory() + "\\objects\\";
+				res.setTextContent("objects\\" + object.getName());
+				File file = new File(f.getDirectory() + "/objects");
+				file.mkdir();
+				
+				Document doc = documentBuilder.newDocument();
+				
+				Element objroot = doc.createElement("object");
+				doc.appendChild(objroot);
+				
+				objroot.appendChild(createElement(doc, "spriteName", 
+						object.get(PGmObject.SPRITE).toString()));
+				objroot.appendChild(createElement(doc, "solid", 
+						object.get(PGmObject.SOLID).toString()));
+				objroot.appendChild(createElement(doc, "visible", 
+						object.get(PGmObject.VISIBLE).toString()));
+				objroot.appendChild(createElement(doc, "depth", 
+						object.get(PGmObject.DEPTH).toString()));
+				objroot.appendChild(createElement(doc, "persistent", 
+						object.get(PGmObject.PERSISTENT).toString()));
+				objroot.appendChild(createElement(doc, "maskName", 
+						object.get(PGmObject.MASK).toString()));
+				
+				// TODO: Write actions
+				
+				FileOutputStream fos = null;
+			  try {
+				  Transformer tr = TransformerFactory.newInstance().newTransformer();
+				  tr.setOutputProperty(OutputKeys.INDENT, "yes");
+				  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
+				  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+				
+				  // send DOM to file
+				  fos = new FileOutputStream(fname + object.getName() + ".object.gmx");
+				  tr.transform(new DOMSource(doc), 
+				            new StreamResult(fos));
+				} catch (TransformerException te) {
+				   System.out.println(te.getMessage());
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					try
+						{
+						fos.close();
+						}
+					catch (IOException e)
+						{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						}
+				}
+				break;
+			}
+			node.appendChild(res);
+		}
 	}
 	
 	public static void writeGmObjects(ProjectFileContext c, Element root) throws IOException
@@ -1095,7 +1239,136 @@ public final class GMXFileWriter
 	}
 	
 	private static void iterateRooms(ProjectFileContext c, ResNode root, Element node) {
-	
+		ProjectFile f = c.f;
+		Document dom = c.dom;
+		Vector<ResNode> children = root.getChildren();
+		if (children == null) { return; }
+		for (Object obj : children) {
+			if (!(obj instanceof ResNode)) { continue; }
+			ResNode resNode = (ResNode) obj;
+			Element res = null;
+			switch (resNode.status) {
+			case ResNode.STATUS_PRIMARY:
+				res = dom.createElement("rooms");
+				res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
+				iterateRooms(c, resNode, res);
+				break;
+			case ResNode.STATUS_GROUP:
+				res = dom.createElement("rooms");
+				res.setAttribute("name", resNode.getUserObject().toString());
+				iterateRooms(c, resNode, res);
+				break;
+			case ResNode.STATUS_SECONDARY:
+				Room room = (Room) resNode.getRes().get();
+				res = dom.createElement("room");
+				String fname = f.getDirectory() + "\\rooms\\";
+				res.setTextContent("rooms\\" + room.getName());
+				File file = new File(f.getDirectory() + "/rooms");
+				file.mkdir();
+				
+				Document doc = documentBuilder.newDocument();
+				
+				Element roomroot = doc.createElement("room");
+				doc.appendChild(roomroot);
+				
+				roomroot.appendChild(createElement(doc, "caption", 
+						room.get(PRoom.CAPTION).toString()));
+				roomroot.appendChild(createElement(doc, "width", 
+						room.get(PRoom.WIDTH).toString()));
+				roomroot.appendChild(createElement(doc, "height", 
+						room.get(PRoom.HEIGHT).toString()));
+				roomroot.appendChild(createElement(doc, "vsnap", 
+						room.get(PRoom.SNAP_X).toString()));
+				roomroot.appendChild(createElement(doc, "hsnap", 
+						room.get(PRoom.SNAP_Y).toString()));
+				roomroot.appendChild(createElement(doc, "isometric", 
+						room.get(PRoom.ISOMETRIC).toString()));
+				roomroot.appendChild(createElement(doc, "speed", 
+						room.get(PRoom.SPEED).toString()));
+				roomroot.appendChild(createElement(doc, "persistent", 
+						room.get(PRoom.PERSISTENT).toString()));
+				roomroot.appendChild(createElement(doc, "colour", 
+						room.get(PRoom.BACKGROUND_COLOR).toString()));
+				roomroot.appendChild(createElement(doc, "showcolour", 
+						room.get(PRoom.DRAW_BACKGROUND_COLOR).toString()));
+				roomroot.appendChild(createElement(doc, "code", 
+						room.get(PRoom.CREATION_CODE).toString()));
+				roomroot.appendChild(createElement(doc, "enableViews", 
+						room.get(PRoom.ENABLE_VIEWS).toString()));
+				roomroot.appendChild(createElement(doc, "clearViewBackground", 
+						room.get(PRoom.CAPTION).toString()));
+				
+				// Write the maker settings, or basically the settings of the editor.
+				Element mkeroot = doc.createElement("makerSettings");
+				mkeroot.appendChild(createElement(doc, "isSet", 
+						room.get(PRoom.REMEMBER_WINDOW_SIZE).toString()));
+				mkeroot.appendChild(createElement(doc, "w", 
+						room.get(PRoom.WIDTH).toString()));
+				mkeroot.appendChild(createElement(doc, "h", 
+						room.get(PRoom.HEIGHT).toString()));
+				mkeroot.appendChild(createElement(doc, "showGrid",
+						room.get(PRoom.SHOW_GRID).toString()));
+				mkeroot.appendChild(createElement(doc, "showObjects", 
+						room.get(PRoom.SHOW_OBJECTS).toString()));
+				mkeroot.appendChild(createElement(doc, "showTiles", 
+						room.get(PRoom.SHOW_TILES).toString()));
+				mkeroot.appendChild(createElement(doc, "showBackgrounds", 
+						room.get(PRoom.SHOW_BACKGROUNDS).toString()));
+				mkeroot.appendChild(createElement(doc, "showForegrounds", 
+						room.get(PRoom.SHOW_FOREGROUNDS).toString()));
+				mkeroot.appendChild(createElement(doc, "showViews", 
+						room.get(PRoom.SHOW_VIEWS).toString()));
+				mkeroot.appendChild(createElement(doc, "deleteUnderlyingObj", 
+						room.get(PRoom.DELETE_UNDERLYING_OBJECTS).toString()));
+				mkeroot.appendChild(createElement(doc, "deleteUnderlyingTiles", 
+						room.get(PRoom.DELETE_UNDERLYING_TILES).toString()));
+				mkeroot.appendChild(createElement(doc, "page", 
+						room.get(PRoom.CURRENT_TAB).toString()));
+				mkeroot.appendChild(createElement(doc, "xoffset", 
+						room.get(PRoom.SCROLL_BAR_X).toString()));
+				mkeroot.appendChild(createElement(doc, "yoffset", 
+						room.get(PRoom.SCROLL_BAR_Y).toString()));
+				roomroot.appendChild(mkeroot);
+				
+				//TODO: Iterate Backgrounds
+				
+				//TODO: Iterate Views
+				
+				//TODO: Iterate Instances
+				
+				//TODO: Iterate Tiles
+				
+				FileOutputStream fos = null;
+			  try {
+				  Transformer tr = TransformerFactory.newInstance().newTransformer();
+				  tr.setOutputProperty(OutputKeys.INDENT, "yes");
+				  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
+				  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+				
+				  // send DOM to file
+				  fos = new FileOutputStream(fname + room.getName() + ".room.gmx");
+				  tr.transform(new DOMSource(doc), 
+				            new StreamResult(fos));
+				} catch (TransformerException te) {
+				   System.out.println(te.getMessage());
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					try
+						{
+						fos.close();
+						}
+					catch (IOException e)
+						{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						}
+				}
+				break;
+			}
+			node.appendChild(res);
+		}
 	}
 
 	public static void writeRooms(ProjectFileContext c, Element root) throws IOException

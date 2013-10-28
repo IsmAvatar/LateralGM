@@ -17,6 +17,8 @@ import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -64,7 +66,7 @@ import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.subframes.ActionFrame;
 
-public class ActionList extends JList
+public class ActionList extends JList implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final Map<Action,WeakReference<ActionFrame>> FRAMES;
@@ -80,13 +82,14 @@ public class ActionList extends JList
 		FRAMES = new WeakHashMap<Action,WeakReference<ActionFrame>>();
 		}
 
-	private static JMenuItem makeContextButton(String key)
+	private JMenuItem makeContextButton(String key)
 	{
 		JMenuItem b = new JMenuItem(Messages.getString(key));
-		b.setToolTipText(b.getText());
+		b.setActionCommand(key);
 		b.setText(b.getText());
 		b.setIcon(LGM.getIconForKey(key));
 		b.setRequestFocusEnabled(false);
+		b.addActionListener(this);
 		return b;
 	}
 	
@@ -96,10 +99,9 @@ public class ActionList extends JList
     final JPopupMenu popup = new JPopupMenu();
     JMenuItem item;
     
-    
     item = makeContextButton("ActionList.CUT");
     popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,KeyEvent.CTRL_DOWN_MASK));
     item = makeContextButton("ActionList.COPY");
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
@@ -109,6 +111,14 @@ public class ActionList extends JList
     
 		popup.addSeparator();
     
+    item = makeContextButton("ActionList.UNDO");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+    item = makeContextButton("ActionList.REDO");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
+		
+		popup.addSeparator();
     item = makeContextButton("ActionList.DELETE");
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,KeyEvent.CTRL_DOWN_MASK));
@@ -120,25 +130,7 @@ public class ActionList extends JList
 		// turning this off for now I can't find where the actions
 		// become transferable at, i suggest adding an edit button as
 		// well to this popup menu
-    //this.setComponentPopupMenu(popup);
-		this.addMouseListener(new MouseAdapter() {
-
-    	@Override
-    	public void mousePressed(MouseEvent e) {
-        //showPopup(e);
-    	}
-
-    	@Override
-    	public void mouseReleased(MouseEvent e) {
-        //showPopup(e);
-    	}
-
-    	private void showPopup(MouseEvent e) {
-    		if (e.isPopupTrigger()) {
-    			//popup.show(e.getComponent(), e.getX(), e.getY());
-    		}
-    	}
-		});
+    this.setComponentPopupMenu(popup);
 		
 		//actionContainer.
 		this.parent = new WeakReference<MDIFrame>(parent);
@@ -222,6 +214,13 @@ public class ActionList extends JList
 			}
 		return af;
 		}
+	
+	public static void closeFrames() {
+	for (Map.Entry<Action, WeakReference<ActionFrame>> entry : FRAMES.entrySet())
+		{
+			entry.getValue().get().dispose();
+		}
+	}
 
 	private static class ActionListMouseListener extends MouseAdapter
 		{
@@ -886,5 +885,16 @@ public class ActionList extends JList
 			  alm.remove(indices[i]);
 		  if (indices.length != 0) l.setSelectedIndex(Math.min(alm.getSize() - 1,indices[0]));
 	  }
+
+		public void actionPerformed(ActionEvent ev)
+			{
+			String com = ev.getActionCommand();
+			if (com.endsWith("DELETE")) //$NON-NLS-1$
+				{
+				ActionsDelete(this);
+				return;
+				}
+			
+			}
 	  
 	}

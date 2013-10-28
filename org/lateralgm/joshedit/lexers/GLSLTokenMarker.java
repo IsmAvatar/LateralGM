@@ -43,15 +43,13 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 	{
 		super();
 		schemes.add(new BlockDescriptor("Javadoc","/\\*(?=\\*)","\\*/",new Color(128,128,255),Font.BOLD));
-		schemes.add(new BlockDescriptor("Block Comment","/(?=\\*)","\\*/",new Color(13,165,13),
+		schemes.add(new BlockDescriptor("Block Comment","/(?=\\*)","\\*/",new Color(13,135,13),
 				Font.ITALIC));
 		schemes.add(new BlockDescriptor("Doc Line Comment","///","$",new Color(128,128,255),Font.BOLD));
-		schemes.add(new BlockDescriptor("Line Comment","//","$",new Color(13,165,13),Font.ITALIC));
+		schemes.add(new BlockDescriptor("Line Comment","//","$",new Color(13,135,13),Font.ITALIC));
 		schemes.add(new BlockDescriptor("Double Quote String","\"","\"",new Color(0,0,255),0));
 		schemes.add(new BlockDescriptor("Single Quote String","'","'",new Color(0,0,255),0));
 		
-		//resNames = addKeywordSet("Resource Names",PURPLE,Font.PLAIN);
-		//scrNames = addKeywordSet("Script Names",FUNCTION,Font.PLAIN);
 		functions = addKeywordSet("Functions", FUNCTION, Font.PLAIN);
 		for (GLSLKeywords.Function f : GLSLKeywords.FUNCTIONS) {
 			Collections.addAll(functions.words, f.getName());

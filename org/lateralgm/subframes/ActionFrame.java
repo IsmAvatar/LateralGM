@@ -54,6 +54,8 @@ import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.RevertableMDIFrame;
+import org.lateralgm.joshedit.lexers.GMLTokenMarker;
+import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
@@ -168,7 +170,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			tool.add(save);
 			tool.addSeparator();
 
-			code = new CodeTextArea(a.getArguments().get(0).getVal());
+			code = new CodeTextArea(a.getArguments().get(0).getVal(), MarkerCache.getMarker("gml"));
 			code.addEditorButtons(tool);
 
 			if (Prefs.enableDragAndDrop) {

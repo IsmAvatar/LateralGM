@@ -58,6 +58,7 @@ import org.lateralgm.joshedit.TokenMarker;
 import org.lateralgm.joshedit.lexers.GLSLESTokenMarker;
 import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
 import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
+import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -97,8 +98,8 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tool.add(save);
 		tool.addSeparator();
 
-		vcode = new CodeTextArea((String) res.get(PShader.VERTEX));
-		fcode = new CodeTextArea((String) res.get(PShader.FRAGMENT));
+		vcode = new CodeTextArea((String) res.get(PShader.VERTEX), MarkerCache.getMarker("glsles"));
+		fcode = new CodeTextArea((String) res.get(PShader.FRAGMENT), MarkerCache.getMarker("glsles"));
 		
 		editors = new JTabbedPane();
 		editors.add(vcode, "Vertex");

@@ -1,6 +1,6 @@
 /**
 * @file  HLSLKeywords.java
-* @brief Class implementing a HLSL keyword container.
+* @brief Class implementing an HLSL keyword container.
 *
 * @section License
 *

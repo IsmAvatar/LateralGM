@@ -26,6 +26,8 @@ import javax.swing.event.CaretListener;
 import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.RevertableMDIFrame;
+import org.lateralgm.joshedit.lexers.GMLTokenMarker;
+import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.main.LGM;
 
 public class CodeFrame extends RevertableMDIFrame implements ActionListener
@@ -63,7 +65,7 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 		tool.add(save);
 		tool.addSeparator();
 
-		code = new CodeTextArea(codeHolder.getCode());
+		code = new CodeTextArea(codeHolder.getCode(), MarkerCache.getMarker("gml"));
 		code.addEditorButtons(tool);
 
 		status = new JPanel(new FlowLayout());

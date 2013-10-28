@@ -37,6 +37,8 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
+import org.lateralgm.joshedit.lexers.GMLTokenMarker;
+import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -71,7 +73,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 		tool.add(save);
 		tool.addSeparator();
 
-		code = new CodeTextArea((String) res.get(PScript.CODE));
+		code = new CodeTextArea((String) res.get(PScript.CODE), MarkerCache.getMarker("gml"));
 		add(code,BorderLayout.CENTER);
 
 		if (!Prefs.useExternalScriptEditor)

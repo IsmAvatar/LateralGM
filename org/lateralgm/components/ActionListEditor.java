@@ -44,15 +44,6 @@ import org.lateralgm.resources.sub.Action;
 public class ActionListEditor extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
-
-	// TODO: Fix disposal of open action frames, NPE occurs
-	// when the object frame closes before them, for instance
-	// open up LGM create a object and open an action frame on it
-	// then in the background close the object frame and leave
-	// the action frame open, bam, NPE
-	// I propose making action list editor memorize them as it is the
-	// one with the function that opens the action frames
-	// - Robert B. Colton
 	
 	public ActionListEditor(ActionList list)
 		{
@@ -77,7 +68,7 @@ public class ActionListEditor extends JPanel
 	private static JPanel makeLabelPane(String name)
 		{
 		JPanel lp = new JPanel(new GridLayout(0,3,0,0));
-		Border mb = BorderFactory.createMatteBorder(1,0,0,0,new Color(184,207,229));
+		Border mb = BorderFactory.createMatteBorder(1,0,0,0,new Color(184,184,184));
 		Border tb = BorderFactory.createTitledBorder(mb,name);
 		lp.setBorder(tb);
 		return lp;
@@ -170,6 +161,11 @@ public class ActionListEditor extends JPanel
 			{
 			return libAction;
 			}
+		}
+
+	public void dispose()
+		{
+		ActionList.closeFrames();
 		}
 
 	}

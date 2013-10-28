@@ -237,17 +237,11 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	public void dispose()
 	{
 		super.dispose();
-		// TODO: Fix disposal of open action frames, NPE occurs
-		// when the timeline frame closes before them, for instance
-		// open up LGM create a timeline and open an action frame on it
-		// then in the background close the timeline frame and leave
-		// the action frame open, bam, NPE
-		// I propose making action list editor memorize them as it is the
-		// one with the function that opens the action frames
-		// - Robert B. Colton
 		if (infoFrame != null) {
 		  infoFrame.dispose();
 		}
+		//NOTE: Uncomment this to have the action frames close when the timeline frame closes.
+		//((ActionListEditor) editor).dispose();
 	}
 	
 	public void actionPerformed(ActionEvent e)
