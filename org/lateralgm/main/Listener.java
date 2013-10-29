@@ -173,6 +173,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		for (int i = 0; i < resources.length; i++)
 		{
 			ResNode node = (ResNode) resources[i];
+			if (node == null) { continue; }
 			if (node.status == ResNode.STATUS_SECONDARY)
 			{
 				if (node.frame != null) node.frame.dispose();
@@ -203,9 +204,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			//NOTE: Must be obtained before the for loop deletes the path.
 			int row = -1;
 					
+			Object[] resources = new Object[selections.length];
 			for (int i = 0; i < selections.length; i++) {
-				row = deleteResources(selections[i].getPath(), tree);
+				resources[i] = selections[i].getLastPathComponent();
+				
 			}
+			row = deleteResources(resources, tree);
 			
 			if (row != -1) {
 				tree.setSelectionPath(tree.getNextMatch("",row,Position.Bias.Forward));
