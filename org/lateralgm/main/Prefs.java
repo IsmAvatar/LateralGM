@@ -112,6 +112,7 @@ public final class Prefs
 		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
 		frameMaximized = getBoolean("frameMaximized", true);
 		dockEventPanel = getBoolean("dockEventPanel", false);
+		boldPrimaryNodes = getBoolean("boldPrimaryNodes", true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
 		userLibraryPath = getString("userLibraryPath","./lib");
 		antialiasContolFont = getString("antialiasContolFont", "on");
@@ -158,6 +159,7 @@ public final class Prefs
 	public static int tabSize;
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 
+	public static boolean boldPrimaryNodes;
 	public static boolean dockEventPanel;
 	public static boolean enableDragAndDrop;
 	public static String actionLibraryPath;

@@ -54,8 +54,7 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		{
 		last = (ResNode) val;
 		Component com = super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
-		//TODO: Make this a preference
-		if (((ResNode)val).status == ResNode.STATUS_PRIMARY) {
+		if (Prefs.boldPrimaryNodes && ((ResNode)val).status == ResNode.STATUS_PRIMARY) {
 			com.setFont(com.getFont().deriveFont(Font.BOLD));
 		} else {
 			com.setFont(com.getFont().deriveFont(Font.PLAIN));
