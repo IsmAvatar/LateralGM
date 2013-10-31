@@ -103,6 +103,9 @@ user_uuid,ad_app_key
 ads_set_reward_callback 
 placement
 
+ansi_char
+byte
+
 array_height_2d
 array,n
 
@@ -3475,6 +3478,12 @@ dlc_id
 steam_user_installed_dlc
 dlc_id
 
+string_byte_at
+str,index
+
+string_byte_length
+str
+
 string_char_at
 str,index
 
@@ -3517,11 +3526,14 @@ substr,str
 string_repeat
 str,count
 
+string_replace
+str,substr,newstr
+
 string_replace_all
 str,substr,newstr
 
-string_replace
-str,substr,newstr
+string_set_byte_at
+str,pos,byte
 
 string_upper
 str
