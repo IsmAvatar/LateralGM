@@ -2116,6 +2116,12 @@ name,size,color,style
 min
 val1,val2,val3,...
 
+motion_set
+dir,speed
+
+motion_add
+dir,speed
+
 mouse_check_button_pressed
 numb
 

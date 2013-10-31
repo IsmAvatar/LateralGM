@@ -14,6 +14,9 @@ package org.lateralgm.components;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -24,6 +27,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -66,7 +70,7 @@ import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.subframes.ActionFrame;
 
-public class ActionList extends JList implements ActionListener
+public class ActionList extends JList implements ActionListener, ClipboardOwner
 	{
 	private static final long serialVersionUID = 1L;
 	private static final Map<Action,WeakReference<ActionFrame>> FRAMES;
@@ -99,6 +103,10 @@ public class ActionList extends JList implements ActionListener
     final JPopupMenu popup = new JPopupMenu();
     JMenuItem item;
     
+    item = makeContextButton("ActionList.EDIT");
+    popup.add(item);
+    popup.addSeparator();
+    
     item = makeContextButton("ActionList.CUT");
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,KeyEvent.CTRL_DOWN_MASK));
@@ -111,22 +119,28 @@ public class ActionList extends JList implements ActionListener
     
 		popup.addSeparator();
     
+		/*
     item = makeContextButton("ActionList.UNDO");
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
     item = makeContextButton("ActionList.REDO");
     popup.add(item);
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
+		popup.addSeparator();
+		*/
+		
+		item = makeContextButton("ActionList.SELECTALL");
+    popup.add(item);
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
 		
 		popup.addSeparator();
     item = makeContextButton("ActionList.DELETE");
     popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,KeyEvent.CTRL_DOWN_MASK));
-		
-    item = makeContextButton("ActionList.SELECTALL");
-    popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+    item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 
+    item = makeContextButton("ActionList.CLEAR");
+    popup.add(item);
+		
 		// turning this off for now I can't find where the actions
 		// become transferable at, i suggest adding an edit button as
 		// well to this popup menu
@@ -856,44 +870,123 @@ public class ActionList extends JList implements ActionListener
 			return arc;
 			}
 		}
-	  
-	  /* Please be aware I came across the fact that
-	   * action changes are not memorized, so theres 
-	   * no undo/redo here
-	   */
 	
-	  public void ActionsCut()
+  public void ActionsEdit(JList list)
+  {
+	  int index = list.getSelectedIndex();
+	  ActionListModel alm = (ActionListModel) list.getModel();
+	  this.openActionFrame(parent.get(), (Action)alm.getElementAt(index));
+  }
+	
+	  public void ActionsCut(JList list)
 	  {
-	  
+	  	ActionsCopy(list);
+	  	ActionsDelete(list);
 	  }
 	
-	  public void ActionsCopy()
+	  public void ActionsCopy(JList list)
 	  {
-	  	
+
+	  Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	  
+		int[] indices = list.getSelectedIndices();
+		Object[] o = list.getSelectedValues();
+		Action[] a = new Action[o.length];
+		a = Arrays.asList(o).toArray(a);
+	  
+	  ActionTransferable at = new ActionTransferable(a);
+	  
+    clipboard.setContents(at, this);
+
+    //DataFlavor[] flavors = clipboardContent.setTransferDataFlavors();
 	  }
 	  
-	  public void ActionsPaste()
+	  public void ActionsPaste(JList list)
 	  {
-	  	
+	  	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	  	Transferable clipboardContent = clipboard.getContents(this);
+
+	  	DataFlavor[] flavors = clipboardContent.getTransferDataFlavors();
+		  ActionListModel alm = (ActionListModel) list.getModel();
+		  List<Action> actions = null;
+			try
+				{
+				actions = (List<Action>) clipboardContent.getTransferData(flavors[0]);
+				}
+			catch (UnsupportedFlavorException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+			catch (IOException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+		  for (int i = 0; i < actions.size(); i++) {
+					alm.add((Action) actions.get(i));
+		  }
 	  }
 	  
-	  public static void ActionsDelete(JList l)
+	  //TODO: Implement Undo/Redo manager
+	  public static void ActionsUndo(JList list) {
+	  
+	  }
+	  
+	  public static void ActionsRedo(JList list) {
+	  
+	  }
+	  
+	  public static void ActionsDelete(JList list)
 	  {
-		  int[] indices = l.getSelectedIndices();
-		  ActionListModel alm = (ActionListModel) l.getModel();
+		  int[] indices = list.getSelectedIndices();
+		  ActionListModel alm = (ActionListModel) list.getModel();
 		  for (int i = indices.length - 1; i >= 0; i--)
 			  alm.remove(indices[i]);
-		  if (indices.length != 0) l.setSelectedIndex(Math.min(alm.getSize() - 1,indices[0]));
+		  if (indices.length != 0) list.setSelectedIndex(Math.min(alm.getSize() - 1,indices[0]));
+	  }
+	  
+	  public static void ActionsSelectAll(JList list) {
+		  int start = 0;
+	    int end = list.getModel().getSize() - 1;
+	    if (end >= 0) {
+	      list.setSelectionInterval(start, end);
+	    }
 	  }
 
+	  public static void ActionsClear(JList list) {
+	  	ActionsSelectAll(list);
+	  	ActionsDelete(list);
+	  }
+	  
 		public void actionPerformed(ActionEvent ev)
 			{
 			String com = ev.getActionCommand();
-			if (com.endsWith("DELETE")) //$NON-NLS-1$
-				{
+			if (com.endsWith("EDIT")) {
+				ActionsEdit(this);
+			} else if (com.endsWith("CUT")) {
+				ActionsCut(this);
+			} else if (com.endsWith("COPY")) {
+				ActionsCopy(this);
+			} else if (com.endsWith("PASTE")) {
+				ActionsPaste(this);
+			} else if (com.endsWith("UNDO")) {
+				ActionsUndo(this);
+			} else if (com.endsWith("REDO")) {
+				ActionsRedo(this);
+			} else if (com.endsWith("SELECTALL")) {
+				ActionsSelectAll(this);
+			} else if (com.endsWith("DELETE")) {
 				ActionsDelete(this);
-				return;
-				}
+			}  else if (com.endsWith("CLEAR")) {
+				ActionsClear(this);
+			}
+			
+			}
+
+		public void lostOwnership(Clipboard arg0, Transferable arg1)
+			{
+			// TODO Auto-generated method stub
 			
 			}
 	  
