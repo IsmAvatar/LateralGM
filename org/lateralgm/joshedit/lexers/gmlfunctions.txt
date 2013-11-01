@@ -239,6 +239,9 @@ background_add_alpha
 fname,preload
 
 background_add
+fname,transparent,smooth
+
+background_add
 fname,transparent,smooth,preload
 
 background_assign
@@ -303,6 +306,9 @@ ind
 
 background_replace_alpha
 ind,fname,preload
+
+background_replace
+ind,fname,transparent,smooth
 
 background_replace
 ind,fname,transparent,smooth,preload
@@ -3263,6 +3269,9 @@ sprite_add_from_surface
 ind,id,x,y,w,h
 
 sprite_add
+fname,imgnumb,precise,transparent,smooth,xorig,yorig
+
+sprite_add
 fname,imgnumb,precise,transparent,smooth,preload,xorig,yorig
 
 sprite_assign
@@ -3345,6 +3354,9 @@ ind1,ind2
 
 sprite_replace_alpha
 ind,fname,imgnumb,precise,preload,xorig,yorig
+
+sprite_replace
+ind,fname,imgnumb,precise,transparent,smooth,xorig,yorig
 
 sprite_replace
 ind,fname,imgnumb,precise,transparent,smooth,preload,xorig,yorig
