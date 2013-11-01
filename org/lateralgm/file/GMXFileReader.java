@@ -450,11 +450,12 @@ public final class GMXFileReader
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
 	  
 		Document sprdoc = documentBuilder.parse(path + ".sprite.gmx");
-		
 		spr.put(PSprite.ORIGIN_X, Integer.parseInt(sprdoc.getElementsByTagName("xorig").item(0).getTextContent()));
 		spr.put(PSprite.ORIGIN_Y, Integer.parseInt(sprdoc.getElementsByTagName("yorigin").item(0).getTextContent()));
-		spr.put(PSprite.BB_MODE, ProjectFile.SPRITE_BB_CODE.get(
-				Integer.parseInt(sprdoc.getElementsByTagName("bboxmode").item(0).getTextContent())));
+		boolean precise = Integer.parseInt(sprdoc.getElementsByTagName("colkind").item(0).getTextContent()) < 0;
+		spr.put(PSprite.SHAPE, precise ? Sprite.MaskShape.PRECISE : Sprite.MaskShape.RECTANGLE);
+		spr.put(PSprite.SEPARATE_MASK, Integer.parseInt(sprdoc.getElementsByTagName("sepmasks").item(0).getTextContent()) < 0);
+		spr.put(PSprite.BB_MODE, ProjectFile.SPRITE_BB_MODE[Integer.parseInt(sprdoc.getElementsByTagName("bboxmode").item(0).getTextContent())]);
 		spr.put(PSprite.BB_LEFT, Integer.parseInt(sprdoc.getElementsByTagName("bbox_left").item(0).getTextContent()));
 		spr.put(PSprite.BB_RIGHT, Integer.parseInt(sprdoc.getElementsByTagName("bbox_right").item(0).getTextContent()));
 		spr.put(PSprite.BB_TOP, Integer.parseInt(sprdoc.getElementsByTagName("bbox_top").item(0).getTextContent()));
