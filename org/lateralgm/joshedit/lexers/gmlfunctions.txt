@@ -245,13 +245,25 @@ background_assign
 ind,back
 
 background_create_color
+w,h,col
+
+background_create_color
 w,h,col,preload
+
+background_create_from_screen
+x,y,w,h,transparent,smooth
 
 background_create_from_screen
 x,y,w,h,transparent,smooth,preload
 
 background_create_from_surface
+id,x,y,w,h,transparent,smooth
+
+background_create_from_surface
 id,x,y,w,h,transparent,smooth,preload
+
+background_create_gradient
+w,h,col1,col2,kind
 
 background_create_gradient
 w,h,col1,col2,kind,preload
@@ -3257,10 +3269,16 @@ sprite_assign
 ind,spr
 
 sprite_create_from_screen
-x,y,w,h,precice
+x,y,w,h,precise,transparent,smooth,xorig,yorig
+
+sprite_create_from_screen
+x,y,w,h,precise,transparent,smooth,preload,xorig,yorig
 
 sprite_create_from_surface
-id,x,y,w,h,p
+id,x,y,w,h,precise,transparent,smooth,xorig,yorig
+
+sprite_create_from_surface
+id,x,y,w,h,precise,transparent,smooth,preload,xorig,yorig
 
 sprite_delete
 ind
@@ -4080,3 +4098,54 @@ id
 
 window_view_mouse_set
 id,x,y
+
+winphone_license_trial_version
+none
+
+winphone_tile_back_content
+string
+
+winphone_tile_back_content_wide
+string
+
+winphone_tile_back_image
+img
+
+winphone_tile_back_image_wide
+img
+
+winphone_tile_back_title
+title
+
+winphone_tile_background_color
+color
+
+winphone_tile_count
+num
+
+winphone_tile_cycle_images
+fname0,fname1,...
+
+winphone_tile_front_image
+img
+
+winphone_tile_front_image_small
+img
+
+winphone_tile_front_image_width
+img
+
+winphone_tile_icon_image
+fname
+
+winphone_tile_small_background_image
+img
+
+winphone_tile_small_icon_image
+fname
+
+winphone_tile_title
+title
+
+winphone_tile_wide_content 
+string,index
