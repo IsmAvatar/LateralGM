@@ -452,8 +452,7 @@ public final class GMXFileReader
 		Document sprdoc = documentBuilder.parse(path + ".sprite.gmx");
 		spr.put(PSprite.ORIGIN_X, Integer.parseInt(sprdoc.getElementsByTagName("xorig").item(0).getTextContent()));
 		spr.put(PSprite.ORIGIN_Y, Integer.parseInt(sprdoc.getElementsByTagName("yorigin").item(0).getTextContent()));
-		boolean precise = Integer.parseInt(sprdoc.getElementsByTagName("colkind").item(0).getTextContent()) < 0;
-		spr.put(PSprite.SHAPE, precise ? Sprite.MaskShape.PRECISE : Sprite.MaskShape.RECTANGLE);
+		spr.put(PSprite.SHAPE, ProjectFile.SPRITE_MASK_SHAPE[Integer.parseInt(sprdoc.getElementsByTagName("colkind").item(0).getTextContent())]);
 		spr.put(PSprite.SEPARATE_MASK, Integer.parseInt(sprdoc.getElementsByTagName("sepmasks").item(0).getTextContent()) < 0);
 		spr.put(PSprite.BB_MODE, ProjectFile.SPRITE_BB_MODE[Integer.parseInt(sprdoc.getElementsByTagName("bboxmode").item(0).getTextContent())]);
 		spr.put(PSprite.BB_LEFT, Integer.parseInt(sprdoc.getElementsByTagName("bbox_left").item(0).getTextContent()));
@@ -862,9 +861,10 @@ public final class GMXFileReader
 		fnt.put(PFont.ITALIC, Integer.parseInt(fntdoc.getElementsByTagName("italic").item(0).getTextContent()) < 0);
 		fnt.put(PFont.CHARSET, Integer.parseInt(fntdoc.getElementsByTagName("charset").item(0).getTextContent()));
 		fnt.put(PFont.ANTIALIAS, Integer.parseInt(fntdoc.getElementsByTagName("aa").item(0).getTextContent()));
-		String range = fntdoc.getElementsByTagName("range0").item(0).getTextContent();
-		fnt.put(PFont.RANGE_MIN, Integer.parseInt(range.substring(0, range.indexOf(','))));
-		fnt.put(PFont.RANGE_MAX, Integer.parseInt(range.substring(range.indexOf(',') + 1, range.length() - range.indexOf(',') + 1)));
+		//TODO: Read all ranges
+		String[] range = fntdoc.getElementsByTagName("range0").item(0).getTextContent().split(",");
+		fnt.put(PFont.RANGE_MIN, Integer.parseInt(range[0]));
+		fnt.put(PFont.RANGE_MAX, Integer.parseInt(range[1]));
 	}
 	}
 	

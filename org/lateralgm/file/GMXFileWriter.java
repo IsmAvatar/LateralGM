@@ -49,6 +49,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
@@ -395,6 +396,10 @@ public final class GMXFileWriter
 					spr.get(PSprite.ORIGIN_X).toString()));
 			sprroot.appendChild(createElement(doc, "yorigin", 
 					spr.get(PSprite.ORIGIN_Y).toString()));
+			sprroot.appendChild(createElement(doc, "colkind", 
+					ProjectFile.SPRITE_MASK_CODE.get(spr.get(PSprite.SHAPE)).toString()));
+			sprroot.appendChild(createElement(doc, "sepmasks", 
+					boolToString((Boolean) spr.get(PSprite.SEPARATE_MASK))));
 			sprroot.appendChild(createElement(doc, "bbox_left", 
 					spr.get(PSprite.BB_LEFT).toString()));
 			sprroot.appendChild(createElement(doc, "bbox_right", 
@@ -403,7 +408,6 @@ public final class GMXFileWriter
 					spr.get(PSprite.BB_TOP).toString()));
 			sprroot.appendChild(createElement(doc, "bbox_bottom", 
 					spr.get(PSprite.BB_BOTTOM).toString()));
-			//TODO: Causin error
 			sprroot.appendChild(createElement(doc, "bboxmode", 
 					ProjectFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)).toString()));
 			sprroot.appendChild(createElement(doc, "coltolerance", 
@@ -462,6 +466,13 @@ public final class GMXFileWriter
 		node.appendChild(res);
 		}
 	}
+
+	//This is used to stored booleans since GMX uses -1 and 0 and other times false and true
+	private static String boolToString(boolean bool)
+		{
+		if (bool) { return "-1"; }
+		else { return "0"; } 
+		}
 
 	public static void writeSprites(ProjectFileContext c, Element root) throws IOException
 	{
@@ -975,9 +986,9 @@ public final class GMXFileWriter
 			fntroot.appendChild(createElement(doc, "size", 
 					fnt.get(PFont.SIZE).toString()));
 			fntroot.appendChild(createElement(doc, "bold", 
-					fnt.get(PFont.BOLD).toString()));
+					boolToString((Boolean) fnt.get(PFont.BOLD))));
 			fntroot.appendChild(createElement(doc, "italic", 
-					fnt.get(PFont.ITALIC).toString()));
+					boolToString((Boolean) fnt.get(PFont.ITALIC))));
 			fntroot.appendChild(createElement(doc, "charset", 
 					fnt.get(PFont.CHARSET).toString()));
 			fntroot.appendChild(createElement(doc, "aa", 
@@ -1173,18 +1184,34 @@ public final class GMXFileWriter
 				Element objroot = doc.createElement("object");
 				doc.appendChild(objroot);
 				
-				objroot.appendChild(createElement(doc, "spriteName", 
-						object.get(PGmObject.SPRITE).toString()));
+				ResourceReference<Sprite> spr =
+						((ResourceReference<Sprite>)object.get(PGmObject.SPRITE));
+				if (spr != null) {
+					objroot.appendChild(createElement(doc, "spriteName", spr.get().getName()));
+				} else {
+					objroot.appendChild(createElement(doc, "spriteName", "<undefined>"));
+				}
 				objroot.appendChild(createElement(doc, "solid", 
-						object.get(PGmObject.SOLID).toString()));
+						boolToString((Boolean)object.get(PGmObject.SOLID))));
 				objroot.appendChild(createElement(doc, "visible", 
-						object.get(PGmObject.VISIBLE).toString()));
+						boolToString((Boolean)object.get(PGmObject.VISIBLE))));
 				objroot.appendChild(createElement(doc, "depth", 
 						object.get(PGmObject.DEPTH).toString()));
 				objroot.appendChild(createElement(doc, "persistent", 
-						object.get(PGmObject.PERSISTENT).toString()));
-				objroot.appendChild(createElement(doc, "maskName", 
-						object.get(PGmObject.MASK).toString()));
+						boolToString((Boolean)object.get(PGmObject.PERSISTENT))));
+				spr = ((ResourceReference<Sprite>)object.get(PGmObject.MASK));
+				if (spr != null) {
+					objroot.appendChild(createElement(doc, "maskName", spr.get().getName()));
+				} else {
+					objroot.appendChild(createElement(doc, "maskName", "<undefined>"));
+				}
+				
+				ResourceReference<GmObject> par = ((ResourceReference<GmObject>)object.get(PGmObject.PARENT));
+				if (par != null) {
+					objroot.appendChild(createElement(doc, "parentName", par.get().getName()));
+				} else {
+					objroot.appendChild(createElement(doc, "parentName", "<undefined>"));
+				}
 				
 				// TODO: Write actions
 				
@@ -1282,46 +1309,46 @@ public final class GMXFileWriter
 				roomroot.appendChild(createElement(doc, "hsnap", 
 						room.get(PRoom.SNAP_Y).toString()));
 				roomroot.appendChild(createElement(doc, "isometric", 
-						room.get(PRoom.ISOMETRIC).toString()));
+						boolToString((Boolean)room.get(PRoom.ISOMETRIC))));
 				roomroot.appendChild(createElement(doc, "speed", 
 						room.get(PRoom.SPEED).toString()));
 				roomroot.appendChild(createElement(doc, "persistent", 
-						room.get(PRoom.PERSISTENT).toString()));
+						boolToString((Boolean)room.get(PRoom.PERSISTENT))));
 				roomroot.appendChild(createElement(doc, "colour", 
-						room.get(PRoom.BACKGROUND_COLOR).toString()));
+						Integer.toString(((Color)room.get(PRoom.BACKGROUND_COLOR)).getRGB())));
 				roomroot.appendChild(createElement(doc, "showcolour", 
-						room.get(PRoom.DRAW_BACKGROUND_COLOR).toString()));
+						boolToString((Boolean)room.get(PRoom.DRAW_BACKGROUND_COLOR))));
 				roomroot.appendChild(createElement(doc, "code", 
 						room.get(PRoom.CREATION_CODE).toString()));
 				roomroot.appendChild(createElement(doc, "enableViews", 
-						room.get(PRoom.ENABLE_VIEWS).toString()));
-				roomroot.appendChild(createElement(doc, "clearViewBackground", 
-						room.get(PRoom.CAPTION).toString()));
+						boolToString((Boolean)room.get(PRoom.ENABLE_VIEWS))));
+				//roomroot.appendChild(createElement(doc, "clearViewBackground", 
+						//boolToString((Boolean)room.get(PRoom.clearViewBackground))));
 				
 				// Write the maker settings, or basically the settings of the editor.
 				Element mkeroot = doc.createElement("makerSettings");
 				mkeroot.appendChild(createElement(doc, "isSet", 
-						room.get(PRoom.REMEMBER_WINDOW_SIZE).toString()));
+						boolToString((Boolean)room.get(PRoom.REMEMBER_WINDOW_SIZE))));
 				mkeroot.appendChild(createElement(doc, "w", 
 						room.get(PRoom.WIDTH).toString()));
 				mkeroot.appendChild(createElement(doc, "h", 
 						room.get(PRoom.HEIGHT).toString()));
 				mkeroot.appendChild(createElement(doc, "showGrid",
-						room.get(PRoom.SHOW_GRID).toString()));
+						boolToString((Boolean)room.get(PRoom.SHOW_GRID))));
 				mkeroot.appendChild(createElement(doc, "showObjects", 
-						room.get(PRoom.SHOW_OBJECTS).toString()));
+						boolToString((Boolean)room.get(PRoom.SHOW_OBJECTS))));
 				mkeroot.appendChild(createElement(doc, "showTiles", 
-						room.get(PRoom.SHOW_TILES).toString()));
+						boolToString((Boolean)room.get(PRoom.SHOW_TILES))));
 				mkeroot.appendChild(createElement(doc, "showBackgrounds", 
-						room.get(PRoom.SHOW_BACKGROUNDS).toString()));
+						boolToString((Boolean)room.get(PRoom.SHOW_BACKGROUNDS))));
 				mkeroot.appendChild(createElement(doc, "showForegrounds", 
-						room.get(PRoom.SHOW_FOREGROUNDS).toString()));
+						boolToString((Boolean)room.get(PRoom.SHOW_FOREGROUNDS))));
 				mkeroot.appendChild(createElement(doc, "showViews", 
-						room.get(PRoom.SHOW_VIEWS).toString()));
+						boolToString((Boolean)room.get(PRoom.SHOW_VIEWS))));
 				mkeroot.appendChild(createElement(doc, "deleteUnderlyingObj", 
-						room.get(PRoom.DELETE_UNDERLYING_OBJECTS).toString()));
+						boolToString((Boolean)room.get(PRoom.DELETE_UNDERLYING_OBJECTS))));
 				mkeroot.appendChild(createElement(doc, "deleteUnderlyingTiles", 
-						room.get(PRoom.DELETE_UNDERLYING_TILES).toString()));
+						boolToString((Boolean)room.get(PRoom.DELETE_UNDERLYING_TILES))));
 				mkeroot.appendChild(createElement(doc, "page", 
 						room.get(PRoom.CURRENT_TAB).toString()));
 				mkeroot.appendChild(createElement(doc, "xoffset", 

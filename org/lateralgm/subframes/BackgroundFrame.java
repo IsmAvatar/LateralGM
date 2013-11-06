@@ -15,12 +15,14 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -39,17 +41,20 @@ import java.text.DecimalFormat;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JViewport;
@@ -493,8 +498,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		}
 
 	public void handleToolBar(String cmd) {
-	if (cmd.endsWith(".LOAD"))
-		{
+	if (cmd.endsWith(".LOAD")) {
 		BufferedImage img = Util.getValidImage();
 		if (img != null)
 			{
@@ -503,9 +507,9 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			cleanup();
 			}
 		return;
-		}
-	else if (cmd.endsWith(".EDIT"))
-		{
+	} else if (cmd.endsWith(".CREATE")) {
+		createNewImage(true);
+	} else if (cmd.endsWith(".EDIT")) {
 		try
 			{
 			if (editor == null)
@@ -557,6 +561,43 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		l.height += s.height - p.height;
 		return l;
 		}
+	
+	private BufferedImage createNewImage(boolean askforsize)
+		{
+		int width = 256;
+		int height = 256;
+		if (askforsize) { 
+	    JFormattedTextField wField = new JFormattedTextField();
+	    wField.setValue(new Integer(width));
+	    JFormattedTextField hField = new JFormattedTextField();
+	    hField.setValue(new Integer(height));
+	    
+	    JPanel myPanel = new JPanel();
+	    GridLayout layout = new GridLayout(0, 2);
+	    myPanel.setLayout(layout);
+	    myPanel.add(new JLabel("Width:"));
+	    myPanel.add(wField);
+	    //myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+	    myPanel.add(new JLabel("Height:"));
+	    myPanel.add(hField);
+
+	    int result = JOptionPane.showConfirmDialog(null, myPanel, 
+	        "Enter Size of New Image", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+	    if (result == JOptionPane.CANCEL_OPTION) {
+	    	return null;
+	    }
+	
+	    width = (Integer)wField.getValue();
+	    height = (Integer)hField.getValue();
+		}
+		BufferedImage bi = new BufferedImage(width,height,BufferedImage.TYPE_3BYTE_BGR);
+		Graphics g = bi.getGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0,0,width,height);
+		res.setBackgroundImage(bi);
+		imageChanged = true;
+		return bi;
+		}
 
 	private class BackgroundEditor implements UpdateListener
 		{
@@ -565,12 +606,9 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		public BackgroundEditor() throws IOException
 			{
 			BufferedImage bi = res.getBackgroundImage();
-			if (bi == null)
-				{
-				bi = new BufferedImage(640,480,BufferedImage.TYPE_3BYTE_BGR);
-				res.setBackgroundImage(bi);
-				imageChanged = true;
-				}
+			if (bi == null) {
+				bi = createNewImage(false);
+			}
 			File f = File.createTempFile(res.getName(),
 					"." + Prefs.externalBackgroundExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();

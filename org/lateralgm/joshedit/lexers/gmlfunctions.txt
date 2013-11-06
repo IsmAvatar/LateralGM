@@ -518,7 +518,10 @@ d3d_draw_wall
 x1,y1,z1,x2,y2,z2,texid,hrepeat,vrepeat
 
 d3d_end
+none
 
+d3d_light_define_ambient
+col
 
 d3d_light_define_direction
 ind,dx,dy,dz,col

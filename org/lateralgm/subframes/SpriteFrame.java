@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -63,6 +64,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
@@ -1062,6 +1064,48 @@ mouseMotionListener = new MouseMotionListener() {
   }
 }
 	 
+		private BufferedImage createNewImage(boolean askforsize)
+			{
+			int width = res.subImages.getWidth();
+			int height = res.subImages.getHeight();
+			if (width == 0 || height == 0)
+				{
+				width = 32;
+				height = 32;
+				}
+			if (askforsize) { 
+		    JFormattedTextField wField = new JFormattedTextField();
+		    wField.setValue(new Integer(width));
+		    JFormattedTextField hField = new JFormattedTextField();
+		    hField.setValue(new Integer(height));
+		    
+		    JPanel myPanel = new JPanel();
+		    GridLayout layout = new GridLayout(0, 2);
+		    myPanel.setLayout(layout);
+		    myPanel.add(new JLabel("Width:"));
+		    myPanel.add(wField);
+		    //myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+		    myPanel.add(new JLabel("Height:"));
+		    myPanel.add(hField);
+
+		    int result = JOptionPane.showConfirmDialog(null, myPanel, 
+		        "Enter Size of New Image", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		    if (result == JOptionPane.CANCEL_OPTION) {
+		    	return null;
+		    }
+		
+		    width = (Integer)wField.getValue();
+		    height = (Integer)hField.getValue();
+			}
+			BufferedImage bi = new BufferedImage(width,height,BufferedImage.TYPE_3BYTE_BGR);
+			Graphics g = bi.getGraphics();
+			g.setColor(Color.WHITE);
+			g.fillRect(0,0,width,height);
+			imageChanged = true;
+			
+			return bi;
+			}
+	 
 	 public void editActionsPerformed(String cmd) {
 		int pos = subList.getSelectedIndex();
 		if (cmd.endsWith(".UNDO")) {
@@ -1132,12 +1176,13 @@ mouseMotionListener = new MouseMotionListener() {
 	}
 	else if (cmd.endsWith(".ADD")) //$NON-NLS-1$
 		{
-		BufferedImage bi = res.addSubImage();
-		pos = pos >= 0 ? pos + 1 : res.subImages.size();
-		imageChanged = true;
-		res.subImages.add(pos,bi);
-		subList.setSelectedIndex(pos);
-		
+		BufferedImage bi = createNewImage(res.subImages.size() == 0);
+		if (bi != null) {
+			pos = pos >= 0 ? pos + 1 : res.subImages.size();
+			imageChanged = true;
+			res.subImages.add(pos,bi);
+			subList.setSelectedIndex(pos);
+		}
 		return;
 		}
 	else if (cmd.endsWith(".EDIT")) //$NON-NLS-1$
