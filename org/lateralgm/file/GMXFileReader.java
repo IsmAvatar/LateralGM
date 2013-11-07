@@ -51,6 +51,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Extensions;
@@ -915,7 +916,7 @@ public final class GMXFileReader
 	  
 		Document tmldoc = documentBuilder.parse(path + ".timeline.gmx");
 
-		//iterate the events and load the actions
+		//Iterate the moments and load the actions
 		NodeList frList = tmldoc.getElementsByTagName("entry"); 
 		for (int ii = 0; ii < frList.getLength(); ii++) {
 		  Node fnode = frList.item(ii);
@@ -1159,8 +1160,7 @@ public final class GMXFileReader
 			  rmn.put(PRoom.PERSISTENT, Integer.parseInt(pnode.getTextContent()) < 0);
 			} else if (pname.equals("colour")) {
 			  int col = Integer.parseInt(pnode.getTextContent());
-			  Color color = new Color(col & 0x0000FF, (col & 0x00FF00)>>8, (col & 0xFF0000)>>16);
-			  rmn.put(PRoom.BACKGROUND_COLOR, color);
+			  rmn.put(PRoom.BACKGROUND_COLOR, Util.convertGmColor(col));
 			} else if (pname.equals("showcolour")) {
 			  rmn.put(PRoom.DRAW_BACKGROUND_COLOR, Integer.parseInt(pnode.getTextContent()) < 0);
 			} else if (pname.equals("code")) {
@@ -1501,8 +1501,9 @@ public final class GMXFileReader
 			boolean useapplyto = false;
 			byte exectype = 0;
 			
-			String execInfo = "";
 			String appliesto = "";
+			String functionname = ""; // execInfo for if the action just calls an action function
+			String codestring = ""; // execInfo for if the action executes code
 		
 			Argument[] args = null;
 			
@@ -1534,6 +1535,10 @@ public final class GMXFileReader
 		  		exectype = Byte.parseByte(prop.getTextContent());
 			  } else if (prop.getNodeName().equals("whoName")) {
 	  			appliesto = prop.getTextContent();
+			  } else if (prop.getNodeName().equals("functionname")) {
+  				functionname = prop.getTextContent();
+			  } else if (prop.getNodeName().equals("codestring")) {
+					codestring = prop.getTextContent();
 			  } else if (prop.getNodeName().equals("arguments")) {
 					NodeList targList = prop.getChildNodes();
 					
@@ -1673,9 +1678,9 @@ public final class GMXFileReader
 					la.canApplyTo = useapplyto;
 					la.execType = exectype;
 					if (la.execType == Action.EXEC_FUNCTION)
-						la.execInfo = execInfo;
+						la.execInfo = functionname;
 					if (la.execType == Action.EXEC_CODE)
-						la.execInfo = execInfo;
+						la.execInfo = codestring;
 				}
 				if (args != null) {
 					la.libArguments = new LibArgument[args.length];

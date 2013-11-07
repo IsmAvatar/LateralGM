@@ -23,17 +23,18 @@
 
 package org.lateralgm.file;
 
+import static org.lateralgm.main.Util.deRef;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -49,18 +50,17 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
-import org.lateralgm.messages.Messages;
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
-import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
+import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
@@ -77,12 +77,23 @@ import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.GameInformation.PGameInformation;
 import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.Script.PScript;
+import org.lateralgm.resources.library.LibAction;
+import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
+import org.lateralgm.resources.sub.Argument;
+import org.lateralgm.resources.sub.BackgroundDef;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
+import org.lateralgm.resources.sub.Event;
+import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.MainEvent;
+import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.resources.sub.View;
+import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.View.PView;
+import org.lateralgm.util.PropertyMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 public final class GMXFileWriter
 	{
@@ -486,7 +497,7 @@ public final class GMXFileWriter
 		if (sprList.size() == 0) {
 			return;
 		}
-		ResNode sprRoot = (ResNode) sprList.getUnsafe(0).getNode().getParent(); 
+		ResNode sprRoot = (ResNode) sprList.first().getNode().getParent(); 
 	
 		iterateSprites(c, sprRoot, node);
 	}
@@ -593,7 +604,7 @@ public final class GMXFileWriter
 		if (sndList.size() == 0) {
 			return;
 		}
-		ResNode sndRoot = (ResNode) sndList.getUnsafe(0).getNode().getParent(); 
+		ResNode sndRoot = (ResNode) sndList.first().getNode().getParent(); 
 	
 		iterateSounds(c, sndRoot, node);
 	}
@@ -704,7 +715,7 @@ public final class GMXFileWriter
 		if (bkgList.size() == 0) {
 			return;
 		}
-		ResNode bkgRoot = (ResNode) bkgList.getUnsafe(0).getNode().getParent(); 
+		ResNode bkgRoot = (ResNode) bkgList.first().getNode().getParent(); 
 	
 		iterateBackgrounds(c, bkgRoot, node);
 	}
@@ -814,7 +825,7 @@ public final class GMXFileWriter
 		if (pthList.size() == 0) {
 			return;
 		}
-		ResNode pthRoot = (ResNode) pthList.getUnsafe(0).getNode().getParent(); 
+		ResNode pthRoot = (ResNode) pthList.first().getNode().getParent(); 
 	
 		iteratePaths(c, pthRoot, node);
 	}
@@ -876,7 +887,7 @@ public final class GMXFileWriter
 	if (scrList.size() == 0) {
 		return;
 	}
-	ResNode scrRoot = (ResNode) scrList.getUnsafe(0).getNode().getParent(); 
+	ResNode scrRoot = (ResNode) scrList.first().getNode().getParent(); 
 
 	iterateScripts(c, scrRoot, node);
 	}
@@ -943,7 +954,7 @@ public final class GMXFileWriter
 		if (shrList.size() == 0) {
 			return;
 		}
-		ResNode shrRoot = (ResNode) shrList.getUnsafe(0).getNode().getParent(); 
+		ResNode shrRoot = (ResNode) shrList.first().getNode().getParent(); 
 	
 		iterateShaders(c, shrRoot, node);
 	}
@@ -1061,7 +1072,7 @@ public final class GMXFileWriter
 		if (fntList.size() == 0) {
 			return;
 		}
-		ResNode fntRoot = (ResNode) fntList.getUnsafe(0).getNode().getParent(); 
+		ResNode fntRoot = (ResNode) fntList.first().getNode().getParent(); 
 	
 		iterateFonts(c, fntRoot, node);
 	}
@@ -1099,7 +1110,15 @@ public final class GMXFileWriter
 				Element tmlroot = doc.createElement("timeline");
 				doc.appendChild(tmlroot);
 
-				//TODO: Write properties
+				for (Moment mom : timeline.moments)
+				{
+					Element entroot = doc.createElement("entry");
+					tmlroot.appendChild(entroot);
+					entroot.appendChild(createElement(doc, "step", Integer.toString(mom.stepNo)));
+					Element evtroot = doc.createElement("event");
+					entroot.appendChild(evtroot);
+					writeActions(doc,evtroot,mom);
+				}
 				
 				FileOutputStream fos = null;
 			  try {
@@ -1146,7 +1165,7 @@ public final class GMXFileWriter
 		if (tmlList.size() == 0) {
 			return;
 		}
-		ResNode tmlRoot = (ResNode) tmlList.getUnsafe(0).getNode().getParent(); 
+		ResNode tmlRoot = (ResNode) tmlList.first().getNode().getParent(); 
 	
 		iterateTimelines(c, tmlRoot, node);
 	}
@@ -1213,7 +1232,29 @@ public final class GMXFileWriter
 					objroot.appendChild(createElement(doc, "parentName", "<undefined>"));
 				}
 				
-				// TODO: Write actions
+				Element evtroot = doc.createElement("events");
+				objroot.appendChild(evtroot);
+				for (int i = 0; i < object.mainEvents.size(); i++) {
+					MainEvent me = object.mainEvents.get(i);
+					for (int k = me.events.size(); k > 0; k--)
+						{
+						Event ev = me.events.get(k - 1);
+						Element evtelement = doc.createElement("event");
+						evtelement.setAttribute("eventtype",Integer.toString(ev.mainId));
+						if (ev.mainId == MainEvent.EV_COLLISION) {
+							ResourceReference<GmObject> other = ev.other;
+							if (other != null) {
+								evtelement.setAttribute("ename", other.get().getName());
+							} else {
+								evtelement.setAttribute("ename", "<undefined>");
+							}
+						} else {
+							evtelement.setAttribute("enumb",Integer.toString(ev.id));
+						}
+						evtroot.appendChild(evtelement);
+						writeActions(doc,evtelement,ev);
+						}
+				}
 				
 				FileOutputStream fos = null;
 			  try {
@@ -1260,7 +1301,7 @@ public final class GMXFileWriter
 		if (objList.size() == 0) {
 			return;
 		}
-		ResNode objRoot = (ResNode) objList.getUnsafe(0).getNode().getParent(); 
+		ResNode objRoot = (ResNode) objList.first().getNode().getParent(); 
 	
 		iterateGmObjects(c, objRoot, node);
 	}
@@ -1315,7 +1356,7 @@ public final class GMXFileWriter
 				roomroot.appendChild(createElement(doc, "persistent", 
 						boolToString((Boolean)room.get(PRoom.PERSISTENT))));
 				roomroot.appendChild(createElement(doc, "colour", 
-						Integer.toString(((Color)room.get(PRoom.BACKGROUND_COLOR)).getRGB())));
+						Integer.toString(Util.getGmColor((Color)room.get(PRoom.BACKGROUND_COLOR)))));
 				roomroot.appendChild(createElement(doc, "showcolour", 
 						boolToString((Boolean)room.get(PRoom.DRAW_BACKGROUND_COLOR))));
 				roomroot.appendChild(createElement(doc, "code", 
@@ -1357,11 +1398,78 @@ public final class GMXFileWriter
 						room.get(PRoom.SCROLL_BAR_Y).toString()));
 				roomroot.appendChild(mkeroot);
 				
-				//TODO: Iterate Backgrounds
+				// Write Backgrounds
+				Element backroot = doc.createElement("backgrounds");
+				roomroot.appendChild(backroot);
+				for (BackgroundDef back : room.backgroundDefs) {
+					PropertyMap<PBackgroundDef> props = back.properties;
+					Element bckelement = doc.createElement("background");
+					backroot.appendChild(bckelement);
+					
+					bckelement.setAttribute("visible",boolToString((Boolean)props.get(PBackgroundDef.VISIBLE)));
+					bckelement.setAttribute("foreground",boolToString((Boolean)props.get(PBackgroundDef.FOREGROUND)));
+					ResourceReference<Background> br = ((ResourceReference<Background>) props.get(PBackgroundDef.BACKGROUND));
+					if (br != null) { 
+						bckelement.setAttribute("name", br.get().getName());
+					} else {
+						bckelement.setAttribute("name", "");
+					}
+					bckelement.setAttribute("x",Integer.toString((Integer)props.get(PBackgroundDef.X)));
+					bckelement.setAttribute("y",Integer.toString((Integer)props.get(PBackgroundDef.Y)));
+					bckelement.setAttribute("htiled",boolToString((Boolean)props.get(PBackgroundDef.TILE_HORIZ)));
+					bckelement.setAttribute("vtiled",boolToString((Boolean)props.get(PBackgroundDef.TILE_VERT)));
+					bckelement.setAttribute("hspeed",Integer.toString((Integer)props.get(PBackgroundDef.H_SPEED)));
+					bckelement.setAttribute("vspeed",Integer.toString((Integer)props.get(PBackgroundDef.V_SPEED)));
+					bckelement.setAttribute("stretch",boolToString((Boolean)props.get(PBackgroundDef.STRETCH)));
+				}
 				
-				//TODO: Iterate Views
+				// Write Views
+				Element viewroot = doc.createElement("views");
+				roomroot.appendChild(viewroot);
+				for (View view : room.views) {
+					PropertyMap<PView> props = view.properties;
+					Element vwelement = doc.createElement("view");
+					viewroot.appendChild(vwelement);
+					
+					vwelement.setAttribute("visible",boolToString((Boolean)props.get(PView.VISIBLE)));
+					ResourceReference<GmObject> or = ((ResourceReference<GmObject>) props.get(PInstance.OBJECT));
+					if (or != null) { 
+						vwelement.setAttribute("objName",or.get().getName());
+					} else {
+						vwelement.setAttribute("objName","<undefined>");
+					}
+					vwelement.setAttribute("xview",Integer.toString((Integer)props.get(PView.VIEW_X)));
+					vwelement.setAttribute("yview",Integer.toString((Integer)props.get(PView.VIEW_Y)));
+					vwelement.setAttribute("wview",Integer.toString((Integer)props.get(PView.VIEW_W)));
+					vwelement.setAttribute("hview",Integer.toString((Integer)props.get(PView.VIEW_H)));
+					vwelement.setAttribute("xport",Integer.toString((Integer)props.get(PView.PORT_X)));
+					vwelement.setAttribute("yport",Integer.toString((Integer)props.get(PView.PORT_Y)));
+					vwelement.setAttribute("wport",Integer.toString((Integer)props.get(PView.PORT_W)));
+					vwelement.setAttribute("hport",Integer.toString((Integer)props.get(PView.PORT_H)));
+					vwelement.setAttribute("hborder",Integer.toString((Integer)props.get(PView.BORDER_H)));
+					vwelement.setAttribute("vborder",Integer.toString((Integer)props.get(PView.BORDER_V)));
+					vwelement.setAttribute("hspeed",Integer.toString((Integer)props.get(PView.SPEED_H)));
+					vwelement.setAttribute("vspeed",Integer.toString((Integer)props.get(PView.SPEED_V)));
+				}
 				
-				//TODO: Iterate Instances
+				// Write instances
+				Element insroot = doc.createElement("instances");
+				roomroot.appendChild(insroot);
+				for (Instance in : room.instances) {
+					Element inselement = doc.createElement("instance");
+					insroot.appendChild(inselement);
+					ResourceReference<GmObject> or = in.properties.get(PInstance.OBJECT);
+					inselement.setAttribute("objName",or.get().getName());
+					inselement.setAttribute("x",Integer.toString(in.getPosition().x));
+					inselement.setAttribute("y",Integer.toString(in.getPosition().y));
+					inselement.setAttribute("name","inst_");
+					inselement.setAttribute("locked",boolToString(in.isLocked()));
+					inselement.setAttribute("code",in.getCreationCode());
+					inselement.setAttribute("scaleX","1");
+					inselement.setAttribute("scaleY","1");
+					inselement.setAttribute("colour","4294967295"); // default white
+					inselement.setAttribute("rotation","0");
+				}
 				
 				//TODO: Iterate Tiles
 				
@@ -1410,8 +1518,9 @@ public final class GMXFileWriter
 		if (rmnList.size() == 0) {
 			return;
 		}
-		ResNode rmnRoot = (ResNode) rmnList.getUnsafe(0).getNode().getParent(); 
-	
+		
+		ResNode rmnRoot = (ResNode) rmnList.first().getNode().getParent(); 
+
 		iterateRooms(c, rmnRoot, node);
 	}
 
@@ -1426,7 +1535,6 @@ public final class GMXFileWriter
 	}
 
 	public static void writeGameInformation(ProjectFileContext c, Element root)
-			throws IOException
 	{
 		Document dom = c.dom;
 		ProjectFile f = c.f;
@@ -1436,17 +1544,100 @@ public final class GMXFileWriter
 		rtfNode.setTextContent("help.rtf");
 		helpNode.appendChild(rtfNode);
 		
-		PrintWriter out = new PrintWriter(f.getDirectory() + "/help.rtf");
-		out.println(f.gameInfo.properties.get(PGameInformation.TEXT));
-		out.close();
+		PrintWriter out = null;
+		try
+			{
+			out = new PrintWriter(f.getDirectory() + "/help.rtf");
+			out.println(f.gameInfo.properties.get(PGameInformation.TEXT));
+			}
+		catch (FileNotFoundException e)
+			{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
+		finally { 
+			out.close();
+		}
 		
 		root.appendChild(helpNode);
 	}
 
-	public static void writeActions(GmStreamEncoder out, ActionContainer container)
-			throws IOException
+	public static void writeActions(Document doc, Element root, ActionContainer container)
 	{
-		//TODO: Implement
+		for (Action act : container.actions)
+		{
+			Element actelement = doc.createElement("action");
+			root.appendChild(actelement);
+			LibAction la = act.getLibAction();
+			
+			actelement.appendChild(createElement(doc, "libid", 
+					Integer.toString(la.parent != null ? la.parent.id : la.parentId)));
+			actelement.appendChild(createElement(doc, "id", 
+					Integer.toString(la.id)));
+			actelement.appendChild(createElement(doc, "kind", 
+					Integer.toString(la.actionKind)));
+			actelement.appendChild(createElement(doc, "userelative", 
+					boolToString(la.allowRelative)));
+			actelement.appendChild(createElement(doc, "useapplyto", 
+					boolToString(la.canApplyTo)));
+			actelement.appendChild(createElement(doc, "isquestion", 
+					boolToString(la.question)));
+			actelement.appendChild(createElement(doc, "exetype", 
+					Integer.toString(la.execType)));
+			String execinfo = "";
+			if (la.execType == Action.EXEC_FUNCTION) {
+				execinfo = la.execInfo;
+			}
+			actelement.appendChild(createElement(doc, "functionname", ""));
+			execinfo = "";
+			if (la.execType == Action.EXEC_CODE) {
+				execinfo = la.execInfo;
+			}
+			actelement.appendChild(createElement(doc, "codestring", execinfo));
+			
+			ResourceReference<GmObject> at = act.getAppliesTo();
+			if (at != null)
+				{
+				if (at == GmObject.OBJECT_OTHER)
+					actelement.appendChild(createElement(doc, "whoName", "other"));
+				else if (at == GmObject.OBJECT_SELF)
+					actelement.appendChild(createElement(doc, "whoName", "self"));
+				else
+					actelement.appendChild(createElement(doc, "whoName", at.get().getName()));
+				}
+			else
+				actelement.appendChild(createElement(doc, "whoName", "self"));
+			
+			actelement.appendChild(createElement(doc, "relative", 
+					boolToString(act.isRelative())));
+			actelement.appendChild(createElement(doc, "isnot", 
+					boolToString(act.isNot())));
+			
+			// Now we write the arguments
+			Element argsroot = doc.createElement("arguments");
+		  actelement.appendChild(argsroot);
+			
+			List<Argument> args = act.getArguments();
+			for (Argument arg : args)
+			{
+				Element argelement = doc.createElement("argument");
+				argsroot.appendChild(argelement);
+				
+				argelement.appendChild(createElement(doc, "kind", 
+						Integer.toString(arg.kind)));
+				Class<? extends Resource<?,?>> kind = Argument.getResourceKind(arg.kind);
+				if (kind != null && InstantiableResource.class.isAssignableFrom(kind)) {
+					Resource<?,?> r = deRef((ResourceReference<?>) arg.getRes());
+					//TODO: Finish this
+					//if (r != null && r instanceof InstantiableResource<?,?>)
+						//out.writeStr(Integer.toString(((InstantiableResource<?,?>) r).getName()));
+					//else
+						//out.writeStr("-1");
+				} else {
+					argelement.appendChild(createElement(doc, "string", arg.getVal()));
+				}
+			}
+		}
 	}
 	
 }
