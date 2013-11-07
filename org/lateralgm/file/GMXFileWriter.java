@@ -88,6 +88,8 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.View.PView;
@@ -1471,7 +1473,35 @@ public final class GMXFileWriter
 					inselement.setAttribute("rotation","0");
 				}
 				
-				//TODO: Iterate Tiles
+				//bgName, x, y, w, h, xo, yo, id, name, depth, locked, colour, scaleX, scaleY
+				// Write Tiles
+				Element tileroot = doc.createElement("tiles");
+				roomroot.appendChild(tileroot);
+				for (Tile tile : room.tiles) {
+					PropertyMap<PTile> props = tile.properties;
+					Element tileelement = doc.createElement("tile");
+					tileroot.appendChild(tileelement);
+					
+					ResourceReference<Background> br = ((ResourceReference<Background>) props.get(PTile.BACKGROUND));
+					if (br != null) { 
+						tileelement.setAttribute("bgName", br.get().getName());
+					} else {
+						tileelement.setAttribute("bgName", "");
+					}
+					tileelement.setAttribute("x",Integer.toString((Integer)props.get(PTile.ROOM_X)));
+					tileelement.setAttribute("y",Integer.toString((Integer)props.get(PTile.ROOM_Y)));
+					tileelement.setAttribute("w",Integer.toString((Integer)props.get(PTile.WIDTH)));
+					tileelement.setAttribute("h",Integer.toString((Integer)props.get(PTile.HEIGHT)));
+					tileelement.setAttribute("xo",Integer.toString((Integer)props.get(PTile.BG_X)));
+					tileelement.setAttribute("yo",Integer.toString((Integer)props.get(PTile.BG_Y)));
+					tileelement.setAttribute("id",Integer.toString((Integer)props.get(PTile.ID)));
+					tileelement.setAttribute("name","inst_");
+					tileelement.setAttribute("depth",Integer.toString((Integer)props.get(PTile.DEPTH)));
+					tileelement.setAttribute("locked",boolToString((Boolean)props.get(PTile.LOCKED)));
+					tileelement.setAttribute("colour","4294967295"); //TODO: Use white until we add this property
+					tileelement.setAttribute("scaleX","1");
+					tileelement.setAttribute("scaleY","1");
+				}
 				
 				FileOutputStream fos = null;
 			  try {
