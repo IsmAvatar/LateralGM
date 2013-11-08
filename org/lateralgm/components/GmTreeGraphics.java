@@ -54,7 +54,9 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		{
 		last = (ResNode) val;
 		Component com = super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
-		if (Prefs.boldPrimaryNodes && ((ResNode)val).status == ResNode.STATUS_PRIMARY) {
+		//TODO: Sometimes when renaming secondary nodes the text box will be bold and sometimes it wont
+		//should be fixed but no idea what is wrong.
+		if (Prefs.boldPrimaryNodes && last.status == ResNode.STATUS_PRIMARY) {
 			com.setFont(com.getFont().deriveFont(Font.BOLD));
 		} else {
 			com.setFont(com.getFont().deriveFont(Font.PLAIN));

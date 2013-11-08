@@ -128,18 +128,20 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		layout.setAutoCreateContainerGaps(true);
 		content.setLayout(layout);
 
-		String s[] = { ".wav",".mid",".mp3",".ogg",".mod",".xm",".s3m",".it",".nfs",".gfs",".minigfs",
+		String s[] = { ".ogg",".wav",".mid",".mp3",".mod",".xm",".s3m",".it",".nfs",".gfs",".minigfs",
 				".flac" };
 		String[] d = { Messages.getString("SoundFrame.FORMAT_SOUND"), //$NON-NLS-1$
+				Messages.getString("SoundFrame.FORMAT_OGG"), //$NON-NLS-1$
 				Messages.getString("SoundFrame.FORMAT_WAV"), //$NON-NLS-1$
 				Messages.getString("SoundFrame.FORMAT_MID"), //$NON-NLS-1$
 				Messages.getString("SoundFrame.FORMAT_MP3") }; //$NON-NLS-1$
 
 		CustomFileFilter soundsFilter = new CustomFileFilter(d[0],s);
 		fc.addChoosableFileFilter(soundsFilter);
-		fc.addChoosableFileFilter(new CustomFileFilter(d[0],s[1]));
-		fc.addChoosableFileFilter(new CustomFileFilter(d[1],s[2]));
-		fc.addChoosableFileFilter(new CustomFileFilter(d[2],s[3]));
+		fc.addChoosableFileFilter(new CustomFileFilter(d[1],s[0]));
+		fc.addChoosableFileFilter(new CustomFileFilter(d[2],s[1]));
+		fc.addChoosableFileFilter(new CustomFileFilter(d[3],s[2]));
+		fc.addChoosableFileFilter(new CustomFileFilter(d[4],s[3]));
 		fc.setFileFilter(soundsFilter);
 
 		edit = new JButton(Messages.getString("SoundFrame.EDIT"),EDIT_ICON); //$NON-NLS-1$
@@ -554,7 +556,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	}
 	
 	public void loadClip () {
-		if (data == null && data.length > 0) { return; }
+		if (data == null || data.length <= 0) { return; }
 		try {
 			InputStream source = new ByteArrayInputStream(data);
 			AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(source));

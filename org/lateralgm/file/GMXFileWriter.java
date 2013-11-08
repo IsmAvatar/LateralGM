@@ -132,7 +132,7 @@ public final class GMXFileWriter
 		FileOutputStream fos = null;
 		try {
 		//create an object of FileOutputStream
-		fos = new FileOutputStream(new File(filename));
+		fos = new FileOutputStream(new File(getUnixPath(filename)));
 	
 		//create an object of BufferedOutputStream
 		bos = new BufferedOutputStream(fos);
@@ -333,10 +333,10 @@ public final class GMXFileWriter
 			"option_windows_game_icon",icoPath));
 	
 	icoPath = f.getDirectory() + "\\" + icoPath;
-	File file = new File(icoPath).getParentFile();
+	File file = new File(getUnixPath(icoPath)).getParentFile();
 	file.mkdirs();
 	
-	FileOutputStream fos = new FileOutputStream(icoPath);
+	FileOutputStream fos = new FileOutputStream(getUnixPath(icoPath));
 	((ICOFile) f.gameSettings.get(PGameSettings.GAME_ICON)).write(fos);
 	fos.close();
 	
@@ -347,11 +347,11 @@ public final class GMXFileWriter
 	  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
 	  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 	
-		file = new File(f.getDirectory() + "/Configs");
+		file = new File(getUnixPath(f.getDirectory() + "/Configs"));
 		file.mkdir();
 		
 	  // send DOM to file
-		fos = new FileOutputStream(f.getDirectory() + "/Configs/Default.config.gmx");
+		fos = new FileOutputStream(getUnixPath(f.getDirectory() + "/Configs/Default.config.gmx"));
 	  tr.transform(new DOMSource(dom), 
 	            new StreamResult(fos));
 	} catch (TransformerException te) {
@@ -397,7 +397,7 @@ public final class GMXFileWriter
 			res = dom.createElement("sprite");
 			String fname = f.getDirectory() + "\\sprites\\";
 			res.setTextContent("sprites\\" + spr.getName());
-			File file = new File(fname + "\\images");
+			File file = new File(getUnixPath(fname + "\\images"));
 			file.mkdirs();
 			
 			Document doc = documentBuilder.newDocument();
@@ -430,7 +430,7 @@ public final class GMXFileWriter
 			for (int j = 0; j < spr.subImages.size(); j++)
 				{
 					String framefname = "images\\" + spr.getName() + "_" + j + ".png";
-					File outputfile = new File(fname + framefname);
+					File outputfile = new File(getUnixPath(fname + framefname));
 					Element frameNode = createElement(doc, "frame", framefname);
 					frameNode.setAttribute("index",Integer.toString(j));
 					frameroot.appendChild(frameNode);
@@ -455,7 +455,7 @@ public final class GMXFileWriter
 			  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			
 			  // send DOM to file
-			  fos = new FileOutputStream(fname + spr.getName() + ".sprite.gmx");
+			  fos = new FileOutputStream(getUnixPath(fname + spr.getName() + ".sprite.gmx"));
 			  tr.transform(new DOMSource(doc), 
 			            new StreamResult(fos));
 			} catch (TransformerException te) {
@@ -529,7 +529,7 @@ public final class GMXFileWriter
 			res = dom.createElement("sound");
 			String fname = f.getDirectory() + "\\sound\\";
 			res.setTextContent("sound\\" + snd.getName());
-			File file = new File(fname + "\\audio");
+			File file = new File(getUnixPath(fname + "\\audio"));
 			file.mkdirs();
 			
 			Document doc = documentBuilder.newDocument();
@@ -569,7 +569,7 @@ public final class GMXFileWriter
 			  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			
 			  // send DOM to file
-			  fos = new FileOutputStream(fname + resNode.getUserObject().toString() + ".sound.gmx");
+			  fos = new FileOutputStream(getUnixPath(fname + resNode.getUserObject().toString() + ".sound.gmx"));
 			  tr.transform(new DOMSource(doc), 
 			            new StreamResult(fos));
 			} catch (TransformerException te) {
@@ -636,7 +636,7 @@ public final class GMXFileWriter
 			res = dom.createElement("background");
 			String fname = f.getDirectory() + "\\background\\";
 			res.setTextContent("background\\" + bkg.getName());
-			File file = new File(fname + "\\images");
+			File file = new File(getUnixPath(fname + "\\images"));
 			file.mkdirs();
 			
 			Document doc = documentBuilder.newDocument();
@@ -661,7 +661,7 @@ public final class GMXFileWriter
 
 			bkgroot.appendChild(createElement(doc, "data", 
 					"images\\" + bkg.getName() + ".png"));
-			File outputfile = new File(fname + "images\\" + bkg.getName() + ".png");
+			File outputfile = new File(getUnixPath(fname + "images\\" + bkg.getName() + ".png"));
 			try
 				{
 				ImageIO.write(bkg.getBackgroundImage(), "png", outputfile);
@@ -680,7 +680,7 @@ public final class GMXFileWriter
 			  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			
 			  // send DOM to file
-			  fos = new FileOutputStream(fname + resNode.getUserObject().toString() + ".background.gmx");
+			  fos = new FileOutputStream(getUnixPath(fname + resNode.getUserObject().toString() + ".background.gmx"));
 			  tr.transform(new DOMSource(doc), 
 			            new StreamResult(fos));
 			} catch (TransformerException te) {
@@ -747,7 +747,7 @@ public final class GMXFileWriter
 				res = dom.createElement("path");
 				String fname = f.getDirectory() + "\\paths\\";
 				res.setTextContent("paths\\" + path.getName());
-				File file = new File(f.getDirectory() + "/paths");
+				File file = new File(getUnixPath(f.getDirectory() + "/paths"));
 				file.mkdir();
 				
 				Document doc = documentBuilder.newDocument();
@@ -790,7 +790,7 @@ public final class GMXFileWriter
 				  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 				
 				  // send DOM to file
-				  fos = new FileOutputStream(fname + path.getName() + ".path.gmx");
+				  fos = new FileOutputStream(getUnixPath(fname + path.getName() + ".path.gmx"));
 				  tr.transform(new DOMSource(doc), 
 				            new StreamResult(fos));
 				} catch (TransformerException te) {
@@ -857,12 +857,12 @@ public final class GMXFileWriter
 				res = dom.createElement("script");
 				String fname = "scripts\\" + scr.getName() + ".gml";
 				res.setTextContent(fname);
-				File file = new File(f.getDirectory() + "/scripts");
+				File file = new File(getUnixPath(f.getDirectory() + "/scripts"));
 				file.mkdir();
 				PrintWriter out = null;
 				try
 					{
-					out = new PrintWriter(f.getDirectory() + "/" + getUnixPath(fname));
+					out = new PrintWriter(getUnixPath(f.getDirectory() + "/" + getUnixPath(fname)));
 					out.println(scr.properties.get(PScript.CODE));
 					out.close();
 					}
@@ -921,12 +921,12 @@ public final class GMXFileWriter
 			String fname = "shaders\\" + shr.getName() + ".gml";
 			res.setTextContent(fname);
 			res.setAttribute("type",shr.properties.get(PShader.TYPE).toString());
-			File file = new File(f.getDirectory() + "/shaders");
+			File file = new File(getUnixPath(f.getDirectory() + "/shaders"));
 			file.mkdir();
 			PrintWriter out = null;
 			try
 				{
-				out = new PrintWriter(f.getDirectory() + "/" + getUnixPath(fname));
+				out = new PrintWriter(getUnixPath(f.getDirectory() + "/" + fname));
 				String code = shr.properties.get(PShader.VERTEX)
 						+ "\n//######################_==_YOYO_SHADER_MARKER_==_######################@~//\n" +
 								shr.properties.get(PShader.FRAGMENT);
@@ -986,7 +986,7 @@ public final class GMXFileWriter
 			res = dom.createElement("font");
 			String fname = f.getDirectory() + "\\fonts\\";
 			res.setTextContent("fonts\\" + fnt.getName());
-			File file = new File(fname);
+			File file = new File(getUnixPath(fname));
 			file.mkdirs();
 			
 			Document doc = documentBuilder.newDocument();
@@ -1016,7 +1016,7 @@ public final class GMXFileWriter
 			// TODO: Move glyph renderer from the plugin to LGM and write glyphs here
 			fntroot.appendChild(createElement(doc, "image", 
 					fnt.getName() + ".png"));
-			File outputfile = new File(fname + fnt.getName() + ".png");
+			File outputfile = new File(getUnixPath(fname + fnt.getName() + ".png"));
 			/*
 			try
 				{
@@ -1037,7 +1037,7 @@ public final class GMXFileWriter
 			  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			
 			  // send DOM to file
-			  fos = new FileOutputStream(fname + resNode.getUserObject().toString() + ".font.gmx");
+			  fos = new FileOutputStream(getUnixPath(fname + fnt.getName() + ".font.gmx"));
 			  tr.transform(new DOMSource(doc), 
 			            new StreamResult(fos));
 			} catch (TransformerException te) {
@@ -1104,7 +1104,7 @@ public final class GMXFileWriter
 				res = dom.createElement("timeline");
 				String fname = f.getDirectory() + "\\timelines\\";
 				res.setTextContent("timelines\\" + timeline.getName());
-				File file = new File(f.getDirectory() + "/timelines");
+				File file = new File(getUnixPath(f.getDirectory() + "/timelines"));
 				file.mkdir();
 				
 				Document doc = documentBuilder.newDocument();
@@ -1130,7 +1130,7 @@ public final class GMXFileWriter
 				  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 				
 				  // send DOM to file
-				  fos = new FileOutputStream(fname + timeline.getName() + ".timeline.gmx");
+				  fos = new FileOutputStream(getUnixPath(fname + timeline.getName() + ".timeline.gmx"));
 				  tr.transform(new DOMSource(doc), 
 				            new StreamResult(fos));
 				} catch (TransformerException te) {
@@ -1197,7 +1197,7 @@ public final class GMXFileWriter
 				res = dom.createElement("object");
 				String fname = f.getDirectory() + "\\objects\\";
 				res.setTextContent("objects\\" + object.getName());
-				File file = new File(f.getDirectory() + "/objects");
+				File file = new File(getUnixPath(f.getDirectory() + "/objects"));
 				file.mkdir();
 				
 				Document doc = documentBuilder.newDocument();
@@ -1266,7 +1266,7 @@ public final class GMXFileWriter
 				  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 				
 				  // send DOM to file
-				  fos = new FileOutputStream(fname + object.getName() + ".object.gmx");
+				  fos = new FileOutputStream(getUnixPath(fname + object.getName() + ".object.gmx"));
 				  tr.transform(new DOMSource(doc), 
 				            new StreamResult(fos));
 				} catch (TransformerException te) {
@@ -1333,7 +1333,7 @@ public final class GMXFileWriter
 				res = dom.createElement("room");
 				String fname = f.getDirectory() + "\\rooms\\";
 				res.setTextContent("rooms\\" + room.getName());
-				File file = new File(f.getDirectory() + "/rooms");
+				File file = new File(getUnixPath(f.getDirectory() + "/rooms"));
 				file.mkdir();
 				
 				Document doc = documentBuilder.newDocument();
@@ -1473,7 +1473,6 @@ public final class GMXFileWriter
 					inselement.setAttribute("rotation","0");
 				}
 				
-				//bgName, x, y, w, h, xo, yo, id, name, depth, locked, colour, scaleX, scaleY
 				// Write Tiles
 				Element tileroot = doc.createElement("tiles");
 				roomroot.appendChild(tileroot);
@@ -1511,7 +1510,7 @@ public final class GMXFileWriter
 				  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 				
 				  // send DOM to file
-				  fos = new FileOutputStream(fname + room.getName() + ".room.gmx");
+				  fos = new FileOutputStream(getUnixPath(fname + room.getName() + ".room.gmx"));
 				  tr.transform(new DOMSource(doc), 
 				            new StreamResult(fos));
 				} catch (TransformerException te) {
@@ -1577,7 +1576,7 @@ public final class GMXFileWriter
 		PrintWriter out = null;
 		try
 			{
-			out = new PrintWriter(f.getDirectory() + "/help.rtf");
+			out = new PrintWriter(getUnixPath(f.getDirectory() + "/help.rtf"));
 			out.println(f.gameInfo.properties.get(PGameInformation.TEXT));
 			}
 		catch (FileNotFoundException e)
