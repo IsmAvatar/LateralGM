@@ -196,9 +196,10 @@ public class GmMenuBar extends JMenuBar
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_HELP")); //$NON-NLS-1$
 		add(menu);
 		menu.addItem("GmMenuBar.DOCUMENTATION",KeyEvent.VK_F1,0); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.ABOUT"); //$NON-NLS-1$
 		menu.addSeparator();
 		menu.addItem("GmMenuBar.EXPLORELATERALGM",KeyEvent.VK_O,InputEvent.ALT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.EXPLOREPROJECT",KeyEvent.VK_P,InputEvent.ALT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
+		menu.addSeparator();
+		menu.addItem("GmMenuBar.ABOUT"); //$NON-NLS-1$
 		}
 	}

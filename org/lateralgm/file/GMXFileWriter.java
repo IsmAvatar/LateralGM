@@ -1657,11 +1657,12 @@ public final class GMXFileWriter
 				Class<? extends Resource<?,?>> kind = Argument.getResourceKind(arg.kind);
 				if (kind != null && InstantiableResource.class.isAssignableFrom(kind)) {
 					Resource<?,?> r = deRef((ResourceReference<?>) arg.getRes());
-					//TODO: Finish this
-					//if (r != null && r instanceof InstantiableResource<?,?>)
-						//out.writeStr(Integer.toString(((InstantiableResource<?,?>) r).getName()));
-					//else
-						//out.writeStr("-1");
+					String name = "<undefined>";
+					if (r != null && r instanceof InstantiableResource<?,?>) {
+						name = ((InstantiableResource<?,?>) r).getName();
+					}
+					argelement.appendChild(createElement(doc, Resource.kindNames.get(kind).toLowerCase(), 
+							name));
 				} else {
 					argelement.appendChild(createElement(doc, "string", arg.getVal()));
 				}
