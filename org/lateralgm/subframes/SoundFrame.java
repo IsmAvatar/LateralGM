@@ -422,6 +422,17 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				data = fileToBytes(f);
 				//loadClip();
 				String fn = f.getName();
+				String extension = "";
+
+				int i = fn.lastIndexOf('.');
+				if (i > 0) {
+				    extension = fn.substring(i+1);
+				}
+				// Set multi-media player for mp3's like Game Maker 8.1 one did for DirectSound
+				// is ignored in OpenAL anyway so it don't matter.
+				if (extension.toLowerCase().equals("mp3")) {
+					res.put(PSound.KIND,Sound.SoundKind.MULTIMEDIA);
+				}
 				res.put(PSound.FILE_NAME,fn);
 				String ft = CustomFileFilter.getExtension(fn);
 				if (ft == null) ft = "";

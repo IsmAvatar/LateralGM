@@ -438,7 +438,7 @@ public final class LGM
 		tool.add(makeButton("Toolbar.GMI")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.GMS")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.EXT")); //$NON-NLS-1$
-		tool.add(makeButton("Toolbar.MANUAL")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.DOCUMENTATION")); //$NON-NLS-1$
 		tool.add(Box.createHorizontalGlue()); //right align after this
 		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
 		if (LGM.themename.equals("Quantum")) {

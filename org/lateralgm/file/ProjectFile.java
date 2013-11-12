@@ -189,7 +189,15 @@ public class ProjectFile implements UpdateListener
 	// This will return the top level folder path with name that the
 	// main project file is in.
 	public String getDirectory() {
-		return new File(uri.getPath().replace("\\","/")).getParent();
+		String path = "";
+		if (uri != null) {
+			path = uri.getPath().replace("\\","/");
+		}
+		File f = new File(path);
+		if (f != null) {
+			return f.getParent();
+		}
+		return path;
 	}
 	
 	public FormatFlavor format;

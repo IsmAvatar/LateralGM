@@ -23,6 +23,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
@@ -91,23 +92,21 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		}
 
 	protected static void addResource(JTree tree, Class<?> r, Resource<?,?> res)
-		{
+	{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
 		ResNode parent;
 		int pos;
-		if (node.getAllowsChildren())
-			{
+		if (node.getAllowsChildren()) {
 			parent = node;
 			pos = parent.getChildCount();
-			}
-		else
-			{
+		} else {
 			parent = (ResNode) node.getParent();
+			//TODO: Following line causes an NPE for Greg after deleting multiple resources
 			pos = parent.getIndex(node) + 1;
-			}
-		putNode(tree,node,parent,r,pos,res);
 		}
+		putNode(tree,node,parent,r,pos,res);
+	}
 
 	public static void insertResource(JTree tree, Class<?> r)
 		{
@@ -231,9 +230,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			//I'd love to default to "No", but apparently that's not an option.
 			if (opt == JOptionPane.YES_OPTION) fc.newFile();
 			return;
-		}
-		if (com.endsWith(".OPEN")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".OPEN")) { //$NON-NLS-1$
 			try
 				{
 					fc.open(args.length > 1 ? new URI(args[1]) : null); 
@@ -243,9 +240,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				e1.printStackTrace();
 				}
 			return;
-		}
-		if (com.endsWith(".OPENRECENT")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".OPENRECENT")) { //$NON-NLS-1$
 			try
 				{
 				URI path = new URI("");
@@ -265,51 +260,60 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				e1.printStackTrace();
 				}
 			return;
-		}
-		if (com.endsWith(".SAVE")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".SAVE")) { //$NON-NLS-1$
 			fc.save(LGM.currentFile.uri,LGM.currentFile.format);
 			return;
-		}
-		if (com.endsWith(".PREFERENCES")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".EXPLORELATERALGM")) {
+			String userDir = System.getProperty("user.dir");
+			if (userDir == null) { return; }
+			Desktop dt = Desktop.getDesktop();
+	    try
+				{
+				dt.open(new File(userDir));
+				}
+			catch (IOException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+		} else if (com.endsWith(".EXPLOREPROJECT")) {
+			String userDir = LGM.currentFile.getDirectory();
+			if (userDir == null) { return; }
+			Desktop dt = Desktop.getDesktop();
+			File f = new File(userDir);
+	    try
+			{
+					dt.open(f);
+			}
+			catch (IOException e1)
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		} else if (com.endsWith(".PREFERENCES")) { //$NON-NLS-1$
 			LGM.showPreferences();
 			return;
-		}
-		if (com.endsWith(".GMI")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".GMI")) { //$NON-NLS-1$
 		  LGM.showGameInformation();
 			return;
-		}
-		if (com.endsWith(".GMS")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".GMS")) { //$NON-NLS-1$
 		  LGM.showGameSettings();
 			return;
-		}
-		if (com.endsWith(".EXT")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".EXT")) { //$NON-NLS-1$
 		  LGM.showGameExtensions();
 			return;
-		}
-		if (com.endsWith(".SAVEAS")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".SAVEAS")) { //$NON-NLS-1$
 			fc.saveNewFile();
 			return;
-		}
-		if (com.endsWith(".EVENT_BUTTON")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".EVENT_BUTTON")) { //$NON-NLS-1$
 			Object o = e.getSource();
 			if (o instanceof JToggleButton) LGM.showEventPanel();
 			return;
-		}
-		if (com.endsWith(".EXIT")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".EXIT")) { //$NON-NLS-1$
 		  LGM.onMainFrameClosed();
 			
 			return;
-		}
-		if (com.contains(".INSERT_") || com.contains(".ADD_")) //$NON-NLS-1$ //$NON-NLS-2$
-		{
+		} else if (com.contains(".INSERT_") || com.contains(".ADD_")) { //$NON-NLS-1$ //$NON-NLS-2$
 			if (com.endsWith("GROUP")) //$NON-NLS-1$
 				{
 				if (com.contains(".INSERT_"))
@@ -320,39 +324,27 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			//we no longer do it this way for resources
 			throw new UnsupportedOperationException(com);
-		}
-		if (com.endsWith(".RENAME")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".RENAME")) { //$NON-NLS-1$
 			if (tree.getCellEditor().isCellEditable(null))
 				tree.startEditingAtPath(tree.getLeadSelectionPath());
 			return;
-		}
-		if (com.endsWith(".DELETE")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".DELETE")) { //$NON-NLS-1$
 			deleteSelectedResources(tree);
 			return;
-		}
-		if (com.endsWith(".DEFRAGIDS")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".DEFRAGIDS")) { //$NON-NLS-1$
 			String msg = Messages.getString("Listener.CONFIRM_DEFRAGIDS"); //$NON-NLS-1$
 			if (JOptionPane.showConfirmDialog(LGM.frame,msg,
 					Messages.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"), //$NON-NLS-1$
 					JOptionPane.YES_NO_OPTION) == 0) LGM.currentFile.defragIds();
-		}
-		if (com.endsWith(".EXPAND")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".EXPAND")) { //$NON-NLS-1$
 			for (int m = 0; m < tree.getRowCount(); m++)
 				tree.expandRow(m);
 			return;
-		}
-		if (com.endsWith(".COLLAPSE")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".COLLAPSE")) { //$NON-NLS-1$
 			for (int m = tree.getRowCount() - 1; m >= 0; m--)
 				tree.collapseRow(m);
 			return;
-		}
-		if (com.endsWith(".MANUAL")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".DOCUMENTATION")) { //$NON-NLS-1$
 	    try {
         // Auto detects if path is web url or local file
         String path = Prefs.manualPath;
@@ -366,9 +358,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
         System.out.println(ioe.getMessage());
       }
 			return;
-		}
-		if (com.endsWith(".ABOUT")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".ABOUT")) { //$NON-NLS-1$
 			new AboutBox(LGM.frame).setVisible(true);
 			return;
 		}
