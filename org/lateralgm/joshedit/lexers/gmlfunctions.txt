@@ -1099,6 +1099,12 @@ none
 draw_set_alpha
 alpha
 
+draw_set_alpha_test
+enable
+
+draw_set_alpha_test_ref_value
+value
+
 draw_set_blend_mode_ext
 src,dest
 
@@ -1110,6 +1116,15 @@ precision
 
 draw_set_color
 col
+
+draw_set_color_rgb
+red,green,blue
+
+draw_set_color_rgba
+red,green,blue,alpha
+
+draw_set_color_write_enable
+red,green,blue,alpha
 
 draw_set_font
 font
