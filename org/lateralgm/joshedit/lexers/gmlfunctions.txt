@@ -3604,6 +3604,9 @@ id
 surface_get_width
 id
 
+surface_get_texture
+id
+
 surface_set_target
 id
 
