@@ -1039,6 +1039,9 @@ enable
 draw_getpixel
 x,y
 
+draw_getpixel_ext
+x,y
+
 draw_get_alpha
 none
 
@@ -2110,6 +2113,18 @@ hue,saturation,value
 make_color_rgb
 red,green,blue
 
+matrix_get
+type
+
+matrix_set
+type,matrix
+
+matrix_build
+x,y,z,xrotation,yrotation,zrotation,xscale,yscale,zscale
+
+matrix_multiply
+matrix,matrix
+
 max
 val1,val2,val3,...
 
@@ -2207,7 +2222,7 @@ move_wrap
 hor,vert,margin
 
 mplay_connect_status
-
+none
 
 mplay_data_mode
 guar
@@ -2219,7 +2234,7 @@ mplay_data_write
 ind,val
 
 mplay_end
-
+none
 
 mplay_init_ipx
 none
@@ -2234,7 +2249,7 @@ mplay_init_tcpip
 addr
 
 mplay_ipaddress
-
+none
 
 mplay_message_clear
 player
@@ -3614,6 +3629,9 @@ surface_free
 id
 
 surface_getpixel
+id,x,y
+
+surface_getpixel_ext
 id,x,y
 
 surface_get_height
