@@ -517,12 +517,12 @@ public final class GMXFileWriter
 		case ResNode.STATUS_PRIMARY:
 			res = dom.createElement("sounds");
 			res.setAttribute("name", resNode.getUserObject().toString().toLowerCase());
-			iterateBackgrounds(c, resNode, res);
+			iterateSounds(c, resNode, res);
 			break;
 		case ResNode.STATUS_GROUP:
 			res = dom.createElement("sounds");
 			res.setAttribute("name", resNode.getUserObject().toString());
-			iterateBackgrounds(c, resNode, res);
+			iterateSounds(c, resNode, res);
 			break;
 		case ResNode.STATUS_SECONDARY:
 			Sound snd = (Sound) resNode.getRes().get();
@@ -664,6 +664,7 @@ public final class GMXFileWriter
 			File outputfile = new File(getUnixPath(fname + "images\\" + bkg.getName() + ".png"));
 			try
 				{
+				//TODO: Can't handle image with 0x0 dimensions
 				ImageIO.write(bkg.getBackgroundImage(), "png", outputfile);
 				}
 			catch (IOException e)
@@ -718,7 +719,7 @@ public final class GMXFileWriter
 			return;
 		}
 		ResNode bkgRoot = (ResNode) bkgList.first().getNode().getParent(); 
-	
+		
 		iterateBackgrounds(c, bkgRoot, node);
 	}
 	
@@ -762,9 +763,9 @@ public final class GMXFileWriter
 				pathroot.appendChild(createElement(doc, "precision", 
 						path.get(PPath.PRECISION).toString()));
 				
-				Room bgroom = path.get(PPath.BACKGROUND_ROOM);
+				ResourceReference<Room> bgroom = path.get(PPath.BACKGROUND_ROOM);
 				if (bgroom != null) {
-					pathroot.appendChild(createElement(doc, "backroom", bgroom.getName()));
+					pathroot.appendChild(createElement(doc, "backroom", bgroom.get().getName()));
 				} else {
 					pathroot.appendChild(createElement(doc, "backroom", "-1"));
 				}
@@ -1461,7 +1462,11 @@ public final class GMXFileWriter
 					Element inselement = doc.createElement("instance");
 					insroot.appendChild(inselement);
 					ResourceReference<GmObject> or = in.properties.get(PInstance.OBJECT);
-					inselement.setAttribute("objName",or.get().getName());
+					if (or != null) {
+						inselement.setAttribute("objName",or.get().getName());
+					} else {
+						inselement.setAttribute("objName","<undefined>");
+					}
 					inselement.setAttribute("x",Integer.toString(in.getPosition().x));
 					inselement.setAttribute("y",Integer.toString(in.getPosition().y));
 					inselement.setAttribute("name","inst_");

@@ -636,7 +636,7 @@ public final class GMXFileReader
 
 	private static void iteratePaths(ProjectFileContext c, NodeList pthList, ResNode node) throws IOException,GmFormatException, SAXException
 	{
-	ProjectFile f = c.f;
+	final ProjectFile f = c.f;
 	
 	for (int i = 0; i < pthList.getLength(); i++) {
 	Node cNode = pthList.item(i);
@@ -652,7 +652,7 @@ public final class GMXFileReader
 		node.add(rnode);
 		iteratePaths(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("path")){
-	  Path pth = f.resMap.getList(Path.class).add();
+	  final Path pth = f.resMap.getList(Path.class).add();
 	  f.resMap.getList(Path.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  pth.setName(fileName);
@@ -666,7 +666,23 @@ public final class GMXFileReader
 		pth.put(PPath.SMOOTH, Integer.parseInt(pthdoc.getElementsByTagName("kind").item(0).getTextContent()) < 0);
 		pth.put(PPath.PRECISION, Integer.parseInt(pthdoc.getElementsByTagName("precision").item(0).getTextContent()));
 	  pth.put(PPath.CLOSED, Integer.parseInt(pthdoc.getElementsByTagName("closed").item(0).getTextContent()) < 0);
-	  pth.put(PPath.BACKGROUND_ROOM, c.rmids.get(Integer.parseInt(pthdoc.getElementsByTagName("backroom").item(0).getTextContent())));
+	  final String proptext = pthdoc.getElementsByTagName("backroom").item(0).getTextContent();
+	  
+		PostponedRef pr = new PostponedRef()
+		{
+			public boolean invoke()
+			{
+				ResourceList<Room> list = f.resMap.getList(Room.class);
+				if (list == null) {	return false; }						
+			  Room rmn = list.get(proptext);
+				if (rmn == null) { return false; }
+				pth.put(PPath.BACKGROUND_ROOM, rmn.reference);
+				 
+				return true;
+			}
+		};
+		postpone.add(pr);
+	  
 	  pth.put(PPath.SNAP_X, Integer.parseInt(pthdoc.getElementsByTagName("hsnap").item(0).getTextContent()));
 	  pth.put(PPath.SNAP_Y, Integer.parseInt(pthdoc.getElementsByTagName("vsnap").item(0).getTextContent()));
 	
