@@ -1247,6 +1247,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		backLoadImage = g.get(PGameSettings.BACK_LOAD_BAR);
 		frontLoadImage = g.get(PGameSettings.FRONT_LOAD_BAR);
 		gameIcon = g.get(PGameSettings.GAME_ICON);
+		iconPreview.setIcon(new ImageIcon(gameIcon.getDisplayImage()));
+		imagesChanged = true;
 
 		//Constants
 		cModel = new ConstantsTableModel(LGM.currentFile.constants);
