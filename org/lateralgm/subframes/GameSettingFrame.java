@@ -88,6 +88,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	public IndexButtonGroup scaling;
 	public NumberField scale;
 	public JCheckBox interpolatecolors;
+	public JCheckBox softwareVertexProcessing;
 	public ColorSelect colorbutton;
 	public JCheckBox resizeWindow;
 	public JCheckBox stayOnTop;
@@ -142,7 +143,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		t = Messages.getString("GameSettingFrame.INTERPOLATE"); //$NON-NLS-1$
 		plf.make(interpolatecolors = new JCheckBox(t),PGameSettings.INTERPOLATE);
-
+		softwareVertexProcessing = new JCheckBox(Messages.getString("GameSettingFrame.FORCE_SOFTWARE_VERTEX_PROCESSING")); //$NON-NLS-1$
+		plf.make(softwareVertexProcessing,PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING);
+		
 		JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
 		plf.make(colorbutton = new ColorSelect(),PGameSettings.COLOR_OUTSIDE_ROOM);
 
@@ -164,6 +167,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addComponent(startFullscreen)
 		/**/.addComponent(scalegroup)
 		/**/.addComponent(interpolatecolors)
+		/**/.addComponent(softwareVertexProcessing)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(backcolor)
 		/*	*/.addComponent(colorbutton,DEFAULT_SIZE,DEFAULT_SIZE,120))
@@ -177,6 +181,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addComponent(startFullscreen)
 		/**/.addComponent(scalegroup)
 		/**/.addComponent(interpolatecolors)
+		/**/.addComponent(softwareVertexProcessing)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE,false)
 		/*	*/.addComponent(backcolor)
 		/*	*/.addComponent(colorbutton))
@@ -1218,6 +1223,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public void commitChanges()
 		{
+		//res.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,softwareVertexProcessing.is);
 		res.put(PGameSettings.SCALING, scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue());
 		res.put(PGameSettings.LOADING_IMAGE, customLoadingImage);
 		res.put(PGameSettings.BACK_LOAD_BAR, backLoadImage);

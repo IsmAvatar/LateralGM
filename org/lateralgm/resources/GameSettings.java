@@ -50,7 +50,7 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 
 	public enum PGameSettings
 		{
-		GAME_ID,DPLAY_GUID,START_FULLSCREEN,INTERPOLATE,DONT_DRAW_BORDER,DISPLAY_CURSOR,SCALING,
+		GAME_ID,DPLAY_GUID,START_FULLSCREEN,INTERPOLATE,FORCE_SOFTWARE_VERTEX_PROCESSING,DONT_DRAW_BORDER,DISPLAY_CURSOR,SCALING,
 		ALLOW_WINDOW_RESIZE,ALWAYS_ON_TOP,COLOR_OUTSIDE_ROOM,/**/
 		SET_RESOLUTION,COLOR_DEPTH,RESOLUTION,FREQUENCY,/**/
 		DONT_SHOW_BUTTONS,USE_SYNCHRONIZATION,DISABLE_SCREENSAVERS,LET_F4_SWITCH_FULLSCREEN,
@@ -66,7 +66,7 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 
 	//GAME_ID and  DPLAY_GUID randomized in GmFile constructor
 	private static final EnumMap<PGameSettings,Object> DEFS = PropertyMap.makeDefaultMap(
-			PGameSettings.class,-1,new byte[16],false,false,false,true,-1,false,false,Color.BLACK,/**/
+			PGameSettings.class,-1,new byte[16],false,false,false,false,true,-1,false,false,Color.BLACK,/**/
 			false,ColorDepth.NO_CHANGE,Resolution.NO_CHANGE,Frequency.NO_CHANGE,/**/
 			false,false,true,true,true,true,false,false,true,Priority.NORMAL,/**/
 			false,ProgressBar.DEFAULT,null,null,false,null,false,255,true,/**/

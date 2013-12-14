@@ -371,7 +371,15 @@ public final class GMXFileReader
 		pSet.put(PGameSettings.RESOLUTION, ProjectFile.GS_RESOLS[Integer.parseInt(setdoc.getElementsByTagName("option_resolution").item(0).getTextContent())]);
 		pSet.put(PGameSettings.SET_RESOLUTION, Boolean.parseBoolean(setdoc.getElementsByTagName("option_changeresolution").item(0).getTextContent()));
 		pSet.put(PGameSettings.GAME_PRIORITY, ProjectFile.GS_PRIORITIES[Integer.parseInt(setdoc.getElementsByTagName("option_priority").item(0).getTextContent())]);
-		//gSet.put(PGameSettings.USE_SYNCHRONIZATION, Integer.parseInt(setdoc.getElementsByTagName("option_priority").item(0).getTextContent()));
+		
+		// For some odd reason these two settings are fucked up; combined; and not even combined properly
+		//2147483649 - Both
+		//2147483648 - Software Vertex Processing only
+		//1 - Synchronization Only
+		//0 - None
+		long syncvertex = Long.parseLong(setdoc.getElementsByTagName("option_sync_vertex").item(0).getTextContent());
+		gSet.put(PGameSettings.USE_SYNCHRONIZATION, (syncvertex == 2147483649L || syncvertex == 1));
+		pSet.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING, (syncvertex == 2147483649L || syncvertex == 2147483648L));
 		
 		pSet.put(PGameSettings.LET_ESC_END_GAME, Boolean.parseBoolean(setdoc.getElementsByTagName("option_closeesc").item(0).getTextContent()));
 		pSet.put(PGameSettings.INTERPOLATE, Boolean.parseBoolean(setdoc.getElementsByTagName("option_interpolate").item(0).getTextContent()));

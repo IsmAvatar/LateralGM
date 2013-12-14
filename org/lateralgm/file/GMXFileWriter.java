@@ -255,6 +255,22 @@ public final class GMXFileWriter
 	Element optNode = dom.createElement("Options");
 	conNode.appendChild(optNode);
 	
+	// For some odd reason these two settings are fucked up; combined; and not even combined properly
+	//2147483649 - Both
+	//2147483648 - Software Vertex Processing only
+	//1 - Synchronization Only
+	//0 - None
+
+	long syncvertex = 0;
+	if (f.gameSettings.get(PGameSettings.USE_SYNCHRONIZATION)) {
+		syncvertex += 1;
+	}
+	if (f.gameSettings.get(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING)) {
+		syncvertex += 2147483648L;
+	}
+	optNode.appendChild(createElement(dom,
+			"option_sync_vertex",Long.toString(syncvertex)));
+	
 	optNode.appendChild(createElement(dom,
 			"option_fullscreen",f.gameSettings.get(PGameSettings.START_FULLSCREEN).toString()));
 	optNode.appendChild(createElement(dom,
