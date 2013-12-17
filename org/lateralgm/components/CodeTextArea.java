@@ -11,15 +11,19 @@
 package org.lateralgm.components;
 
 import java.awt.Color;
+import java.awt.Event;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Timer;
@@ -37,20 +41,27 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import org.lateralgm.file.GmFile.ResourceHolder;
+import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ResourceList;
-import org.lateralgm.jedit.GMLKeywords;
+import org.lateralgm.joshedit.lexers.GMLKeywords;
 import org.lateralgm.joshedit.Code;
 import org.lateralgm.joshedit.CompletionMenu;
 import org.lateralgm.joshedit.CompletionMenu.Completion;
-import org.lateralgm.joshedit.GMLTokenMarker;
-import org.lateralgm.joshedit.DefaultTokenMarker;
-import org.lateralgm.joshedit.DefaultTokenMarker.KeywordSet;
+import org.lateralgm.joshedit.lexers.GLSLESKeywords;
+import org.lateralgm.joshedit.lexers.GLSLKeywords;
+import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
+import org.lateralgm.joshedit.lexers.GMLTokenMarker;
+import org.lateralgm.joshedit.lexers.DefaultTokenMarker;
+import org.lateralgm.joshedit.lexers.DefaultTokenMarker.KeywordSet;
+import org.lateralgm.joshedit.lexers.HLSLKeywords;
+import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.joshedit.JoshText;
 import org.lateralgm.joshedit.JoshText.CodeMetrics;
 import org.lateralgm.joshedit.JoshText.LineChangeListener;
@@ -58,14 +69,16 @@ import org.lateralgm.joshedit.JoshText.Highlighter;
 import org.lateralgm.joshedit.Runner;
 import org.lateralgm.joshedit.Runner.EditorInterface;
 import org.lateralgm.joshedit.Runner.JoshTextPanel;
+import org.lateralgm.joshedit.TokenMarker;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.Script;
 
-public class GMLTextArea extends JoshTextPanel implements UpdateListener
+public class CodeTextArea extends JoshTextPanel implements UpdateListener, ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -94,30 +107,44 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 
 	private static final GMLKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,
 			GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
-
+	private static final GLSLKeywords.Keyword[][] GLSL_KEYWORDS = { GLSLKeywords.CONSTRUCTS,
+			GLSLKeywords.FUNCTIONS,GLSLKeywords.VARIABLES,GLSLKeywords.OPERATORS,GLSLKeywords.CONSTANTS };
+	private static final GLSLESKeywords.Keyword[][] GLSLES_KEYWORDS = { GLSLESKeywords.CONSTRUCTS,
+			GLSLESKeywords.FUNCTIONS,GLSLESKeywords.VARIABLES,GLSLESKeywords.OPERATORS,GLSLESKeywords.CONSTANTS };
+	private static final HLSLKeywords.Keyword[][] HLSL_KEYWORDS = { HLSLKeywords.CONSTRUCTS,
+			HLSLKeywords.FUNCTIONS,HLSLKeywords.VARIABLES,HLSLKeywords.OPERATORS,HLSLKeywords.CONSTANTS };
+	
 	protected static Timer timer;
 	protected Integer lastUpdateTaskID = 0;
 	private Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
 	protected Completion[] completions;
-	protected DefaultTokenMarker gmlTokenMarker = new GMLTokenMarker();
+	protected DefaultTokenMarker tokenMarker;
 
-	private static final Color PURPLE = new Color(162,27,224);
-	private static final Color BROWN = new Color(200,0,0);
+	private static final Color PURPLE = new Color(138,54,186);
+	private static final Color BROWN = new Color(150,0,0);
 	private static final Color FUNCTION = new Color(0,100,150);
+	
 	//new Color(255,0,128);
 	static KeywordSet resNames, scrNames, constructs, functions, operators, constants, variables;
 
-	public GMLTextArea()
+	public CodeTextArea()
 		{
-		this(null);
+		this(null, MarkerCache.getMarker("gml"));
+		}
+	
+	public CodeTextArea(String code)
+		{
+		this(code, MarkerCache.getMarker("gml"));
 		}
 
-	public GMLTextArea(String code)
+	public CodeTextArea(String code, DefaultTokenMarker marker)
 		{
 		super(code);
 
+		tokenMarker = marker;
+		
 		setTabSize(Prefs.tabSize);
-		setTokenMarker(gmlTokenMarker);
+		setTokenMarker(tokenMarker);
 		setupKeywords();
 		updateKeywords();
 		updateResourceKeywords();
@@ -125,90 +152,69 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 		//painter.setStyles(PrefsStore.getSyntaxStyles());
 		text.getActionMap().put("COMPLETIONS",completionAction);
 		LGM.currentFile.updateSource.addListener(this);
-
+		
     // build popup menu
     final JPopupMenu popup = new JPopupMenu();
-    
-		popup.add(makeContextButton(text.aUndo));
-		popup.add(makeContextButton(text.aRedo));
-		//popup.add(makeContextButton(gotoAction));
+		popup.add(makeContextButton(this.text.actUndo));
+		popup.add(makeContextButton(this.text.actRedo));
 		popup.addSeparator();
-		popup.add(makeContextButton(text.aCut));
-		popup.add(makeContextButton(text.aCopy));
-		popup.add(makeContextButton(text.aPaste));
+		popup.add(makeContextButton(this.text.actCut));
+		popup.add(makeContextButton(this.text.actCopy));
+		popup.add(makeContextButton(this.text.actPaste));
 		popup.addSeparator();
-		popup.add(makeContextButton(text.aSelAll));
+		popup.add(makeContextButton(this.text.actSelAll));
 		
     text.setComponentPopupMenu(popup);
-		text.addMouseListener(new MouseAdapter() {
-
-    	@Override
-    	public void mousePressed(MouseEvent e) {
-        showPopup(e);
-    	}
-
-    	@Override
-    	public void mouseReleased(MouseEvent e) {
-        showPopup(e);
-    	}
-
-    	private void showPopup(MouseEvent e) {
-    		if (e.isPopupTrigger()) {
-    			popup.show(e.getComponent(), e.getX(), e.getY());
-    		}
-    	}
-		});
-    
 		}
 
-	private static JButton makeToolbarButton(Action a)
+	private JButton makeToolbarButton(String name)
 		{
-		String key = "JoshText." + a.getValue(Action.NAME);
+		String key = "JoshText." + name;
 		JButton b = new JButton(LGM.getIconForKey(key));
 		b.setToolTipText(Messages.getString(key));
+		b.setRequestFocusEnabled(false);
+		b.setActionCommand(key);
+		b.addActionListener(this);
+		return b;
+	}
+	
+	private static JMenuItem makeContextButton(Action a)
+	{
+		String key = "JoshText." + a.getValue(Action.NAME);
+		JMenuItem b = new JMenuItem();
+		b.setIcon(LGM.getIconForKey(key));
+		b.setText(Messages.getString(key));
 		b.setRequestFocusEnabled(false);
 		b.addActionListener(a);
 		return b;
 	}
-
-	private static JMenuItem makeContextButton(Action a)
-	{
-	  String key = "JoshText." + a.getValue(Action.NAME);
-	  JMenuItem b = new JMenuItem(LGM.getIconForKey(key));
-	  b.setText(Messages.getString(key));
-	  b.setRequestFocusEnabled(false);
-	  b.addActionListener(a);
-		return b;
-	}
+	
 	
 	public void addEditorButtons(JToolBar tb)
 	{
-		tb.add(makeToolbarButton(text.aSave));
-		tb.add(makeToolbarButton(text.aLoad));
-		tb.add(makeToolbarButton(text.aPrint));
+	  
+		tb.add(makeToolbarButton("SAVE"));
+		tb.add(makeToolbarButton("LOAD"));
+		tb.add(makeToolbarButton("PRINT"));
 		tb.addSeparator();
-		tb.add(makeToolbarButton(text.aUndo));
-		tb.add(makeToolbarButton(text.aRedo));
+		tb.add(makeToolbarButton("UNDO"));
+		tb.add(makeToolbarButton("REDO"));
 		tb.addSeparator();
-		tb.add(makeToolbarButton(text.aFind));
-		tb.add(makeToolbarButton(gotoAction));
+		tb.add(makeToolbarButton("FIND"));
+		tb.add(makeToolbarButton("GOTO"));
 		tb.addSeparator();
-		tb.add(makeToolbarButton(text.aCut));
-		tb.add(makeToolbarButton(text.aCopy));
-		tb.add(makeToolbarButton(text.aPaste));
+		tb.add(makeToolbarButton("CUT"));
+		tb.add(makeToolbarButton("COPY"));
+		tb.add(makeToolbarButton("PASTE"));
 	}
 
-	AbstractAction gotoAction = new AbstractAction("GOTO")
-		{
-			private static final long serialVersionUID = 1L;
 
-			public void actionPerformed(ActionEvent e)
+			public void aGoto()
 				{
 				int line = showGotoDialog(getCaretLine());
 				line = Math.max(0,Math.min(getLineCount() - 1,line));
 				setCaretPosition(line,0);
 				}
-		};
 
 	public static int showGotoDialog(int defVal)
 		{
@@ -254,13 +260,13 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 
 	private void setupKeywords()
 		{
-		resNames = gmlTokenMarker.addKeywordSet("Resource Names",PURPLE,Font.PLAIN);
-		scrNames = gmlTokenMarker.addKeywordSet("Script Names",FUNCTION,Font.PLAIN);
-		functions = gmlTokenMarker.addKeywordSet("Functions",FUNCTION,Font.PLAIN);
-		constructs = gmlTokenMarker.addKeywordSet("Constructs",Color.BLACK,Font.BOLD);
-		operators = gmlTokenMarker.addKeywordSet("Operators",Color.BLACK,Font.BOLD);
-		constants = gmlTokenMarker.addKeywordSet("Constants",BROWN,Font.PLAIN);
-		variables = gmlTokenMarker.addKeywordSet("Variables",Color.BLUE,Font.ITALIC);
+		resNames = tokenMarker.addKeywordSet("Resource Names",PURPLE,Font.PLAIN);
+		scrNames = tokenMarker.addKeywordSet("Script Names",FUNCTION,Font.PLAIN);
+		functions = tokenMarker.addKeywordSet("Functions",FUNCTION,Font.PLAIN);
+		constructs = tokenMarker.addKeywordSet("Constructs",Color.BLACK,Font.BOLD);
+		operators = tokenMarker.addKeywordSet("Operators",Color.BLACK,Font.BOLD);
+		constants = tokenMarker.addKeywordSet("Constants",BROWN,Font.PLAIN);
+		variables = tokenMarker.addKeywordSet("Variables",Color.BLUE,Font.ITALIC);
 		}
 
 	public static void updateKeywords()
@@ -283,9 +289,6 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 			functions.words.add(keyword.getName());
 		}
 
-	// This below is the broken JoshEdit version 
-	// only JEdit version works for now
-	/*
 	public static void updateResourceKeywords()
 	{
 		resNames.words.clear();
@@ -296,27 +299,11 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 			ResourceList<?> rl = (ResourceList<?>) e.getValue();
 			KeywordSet ks = e.getKey() == Script.class ? scrNames : resNames;
 			for (Resource<?,?> r : rl)
-				functions.words.add(r.getName());
+				ks.words.add(r.getName());
 			}
 	}
-*/
-	
-  // This is the JEdit version which actually works
-  public void updateResourceKeywords()
-  {
-    for (ResourceHolder<?> rh : LGM.currentFile.resMap.values())
-    {
-      if (!(rh instanceof ResourceList<?>)) continue;
-      ResourceList<?> rl = (ResourceList<?>) rh;
-      SortedSet<String> a = new TreeSet<String>();
-      for (Resource<?,?> r : rl)
-      a.add(r.getName());
-      resourceKeywords.add(a);
-    }
-    completions = null;
-  }
 
-	protected void updateCompletions()
+	protected void updateOldCompletions()
 	{
 		int l = 0;
 		for (Set<String> a : resourceKeywords) {
@@ -347,6 +334,60 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 				}
 	}
 
+	protected void updateCompletions(DefaultTokenMarker marker)
+	{
+		int l = 0;
+		for (Set<String> a : resourceKeywords) {
+			l += a.size();
+		}
+		if (marker instanceof GMLTokenMarker) {
+			//JOptionPane.showMessageDialog(null,"ok");
+			for (GMLKeywords.Keyword[] a : GML_KEYWORDS)
+				l += a.length;
+		} else if (marker instanceof GLSLTokenMarker) {
+			//JOptionPane.showMessageDialog(null,"wtf");
+			for (GLSLKeywords.Keyword[] a : GLSL_KEYWORDS)
+				l += a.length;
+		}
+		//for (KeywordSet ks : marker.tmKeywords)
+			//l += ks.words.size();
+		completions = new Completion[l];
+		int i = 0;
+		for (Set<String> a : resourceKeywords)
+		{
+			for (String s : a)
+			{
+				completions[i] = new CompletionMenu.WordCompletion(s);
+				i += 1;
+			}
+		}
+		if (marker instanceof GMLTokenMarker) {
+		for (GMLKeywords.Keyword[] a : GML_KEYWORDS)
+			for (GMLKeywords.Keyword k : a)
+				{
+				if (k instanceof GMLKeywords.Function)
+					completions[i] = new FunctionCompletion((GMLKeywords.Function) k);
+				else if (k instanceof GMLKeywords.Variable)
+					completions[i] = new VariableCompletion((GMLKeywords.Variable) k);
+				else
+					completions[i] = new CompletionMenu.WordCompletion(k.getName());
+				i++;
+				}
+		}	else if (marker instanceof GLSLTokenMarker) {
+		for (GLSLKeywords.Keyword[] a : GLSL_KEYWORDS)
+			for (GLSLKeywords.Keyword k : a)
+				{
+				//if (k instanceof GLSLKeywords.Function)
+					//completions[i] = new FunctionCompletion((GLSLKeywords.Function) k);
+				//else if (k instanceof GLSLKeywords.Variable)
+					//completions[i] = new VariableCompletion((GLSLKeywords.Variable) k);
+				//else
+					completions[i] = new CompletionMenu.WordCompletion(k.getName());
+				i++;
+				}
+		}
+	}
+	
 	public class VariableCompletion extends CompletionMenu.Completion
 	{
 		private final GMLKeywords.Variable variable;
@@ -476,7 +517,7 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 				String lt = getLineText(row);
 				int x1 = pos - find(lt.substring(0,pos),W_BEFORE).length();
 				int x2 = pos + find(lt.substring(pos),W_AFTER).length();
-				if (completions == null) updateCompletions();
+				if (completions == null) updateCompletions(tokenMarker);
 				new CompletionMenu(LGM.frame,text,row,x1,x2,pos,completions);
 				}
 		};
@@ -572,6 +613,38 @@ public class GMLTextArea extends JoshTextPanel implements UpdateListener
 				g.drawLine(x,y,x + 1,y - 1);
 				g.drawLine(x + 1,y - 1,x + 2,y);
 				}
+			}
+		}
+	
+		public void setTokenMarker(DefaultTokenMarker marker) {
+			tokenMarker = marker;
+			super.setTokenMarker(marker);
+			this.updateCompletions(marker);
+		}
+		
+		public void actionPerformed(ActionEvent ev)
+		{
+			String com = ev.getActionCommand();
+			if (com.equals("JoshText.LOAD")) {
+				text.aLoad();
+			} else if (com.equals("JoshText.SAVE")) {
+				text.aSave();
+			} else if (com.equals("JoshText.UNDO")) {
+				text.aUndo();
+			} else if (com.equals("JoshText.REDO")) {
+				text.aRedo();
+			} else if (com.equals("JoshText.CUT")) {
+				text.aCut();
+			} else if (com.equals("JoshText.COPY")) {
+				text.aCopy();
+			} else if (com.equals("JoshText.PASTE")) {
+				text.aPaste();
+			} else if (com.equals("JoshText.FIND")) {
+				text.aFind();
+			} else if (com.equals("JoshText.GOTO")) {
+				this.aGoto();
+			} else if (com.equals("JoshText.SELALL")) {
+				text.aSelAll();
 			}
 		}
 	}

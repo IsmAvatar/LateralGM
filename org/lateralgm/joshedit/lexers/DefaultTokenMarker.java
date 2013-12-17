@@ -5,7 +5,7 @@
  * the GNU General Public License, version 3 or later. 
  */
 
-package org.lateralgm.joshedit;
+package org.lateralgm.joshedit.lexers;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -14,8 +14,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.lateralgm.joshedit.DefaultTokenMarker.SchemeInfo.SchemeType;
+import org.lateralgm.joshedit.Code;
+import org.lateralgm.joshedit.Line;
+import org.lateralgm.joshedit.TokenMarker;
 import org.lateralgm.joshedit.Line.LINE_ATTRIBS;
+import org.lateralgm.joshedit.lexers.DefaultTokenMarker.SchemeInfo.SchemeType;
 
 /**
  * A default implementation of TokenMarker taking regular expressions for everything,
@@ -23,7 +26,7 @@ import org.lateralgm.joshedit.Line.LINE_ATTRIBS;
  * 
  * @author Josh Ventura
  */
-public class DefaultTokenMarker implements TokenMarker
+public abstract class DefaultTokenMarker implements TokenMarker
 {
 	/** The number of lines last time we parsed; used to determine change type. */
 	private int line_count;

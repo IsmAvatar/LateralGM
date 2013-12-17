@@ -130,7 +130,9 @@ public class QuickFind extends JToolBar implements FindNavigator
 		//		close.setPreferredSize(new Dimension(12,12));
 		add(swapFnR = new JLabel(S_FIND));
 		add(tFind = new JTextField());
+		tFind.setColumns(13);
 		add(tReplace = new JTextField());
+		tReplace.setColumns(13);
 		add(prev = new JButton(I_PREV));
 		add(next = new JButton(I_NEXT));
 		add(highlight = new JToggleButton(B_HIGHL,I_MARK));
@@ -313,6 +315,10 @@ public class QuickFind extends JToolBar implements FindNavigator
 //r@Override
 	public void findNext()
 	{
+  	if (FindDialog.wrap.isSelected() && joshText.caret.row == joshText.getLineCount() - 1) {
+  		joshText.caret.col = 0;
+  		joshText.caret.row = 0;
+  	}
 		// TODO: I have no idea how multiline regexp search will be handled.
 		String ftext = tFind.getText();
 		if (ftext.length() == 0) return;
@@ -345,6 +351,10 @@ public class QuickFind extends JToolBar implements FindNavigator
 //r@Override
 	public void findPrevious()
 	{
+  	if (FindDialog.wrap.isSelected() && joshText.caret.row == joshText.getLineCount() - 1) {
+  		joshText.caret.col = 0;
+  		joshText.caret.row = 0;
+  	}
 		String ftext = tFind.getText();
 		if (ftext.length() == 0) return;
 		if (FindDialog.regex.isSelected()) return;
@@ -380,6 +390,11 @@ public class QuickFind extends JToolBar implements FindNavigator
 	
 	public int replaceAll()
 	{
+	  if (FindDialog.wrap.isSelected()) {
+	    joshText.caret.col = 0;
+	    joshText.caret.row = 0;
+    }
+	
 	  int count = 0;
 		toggleModeReplace();
 		

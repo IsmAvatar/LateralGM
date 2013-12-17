@@ -23,6 +23,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
@@ -35,6 +36,7 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.text.Position;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
@@ -90,23 +92,21 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		}
 
 	protected static void addResource(JTree tree, Class<?> r, Resource<?,?> res)
-		{
+	{
 		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
 		if (node == null) return;
 		ResNode parent;
 		int pos;
-		if (node.getAllowsChildren())
-			{
+		if (node.getAllowsChildren()) {
 			parent = node;
 			pos = parent.getChildCount();
-			}
-		else
-			{
+		} else {
 			parent = (ResNode) node.getParent();
+			//TODO: Following line causes an NPE for Greg after deleting multiple resources
 			pos = parent.getIndex(node) + 1;
-			}
-		putNode(tree,node,parent,r,pos,res);
 		}
+		putNode(tree,node,parent,r,pos,res);
+	}
 
 	public static void insertResource(JTree tree, Class<?> r)
 		{
@@ -161,37 +161,58 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		g.openFrame(true);
 		}
 
-	protected static void deleteSelectedResource(JTree tree)
+	/** Deletes the given resource nodes, including groups, and 
+	 * returns the index (row) of the last node that was deleted.
+	 * @param resources An array of resource nodes to delete.
+	 */
+	protected static int deleteResources(Object[] resources, JTree tree) 
+	{
+		HashSet<Resource<?,?>> rs = new HashSet<Resource<?,?>>();
+		int last = -1;
+		for (int i = 0; i < resources.length; i++)
 		{
-		ResNode me = (ResNode) tree.getLastSelectedPathComponent();
-		if (me == null || !me.isInstantiable() || me.status == ResNode.STATUS_PRIMARY) return;
+			ResNode node = (ResNode) resources[i];
+			if (node == null) { continue; }
+			if (node.status == ResNode.STATUS_SECONDARY)
+			{
+				if (node.frame != null) node.frame.dispose();
+				Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
+				if (res != null) rs.add(res);
+				((ResourceList<?>) LGM.currentFile.resMap.get(node.kind)).remove(res);
+				last = tree.getRowForPath(new TreePath(node));
+			} else if (node.status == ResNode.STATUS_GROUP) {
+				node.removeFromParent();
+				last = tree.getRowForPath(new TreePath(node));
+			}
+		}
+		for (Resource<?,?> r : rs)
+			r.dispose();
+		return last;
+	}
+		
+	
+	protected static void deleteSelectedResources(JTree tree)
+		{
 		String msg = Messages.getString("Listener.CONFIRM_DELETERESOURCE"); //$NON-NLS-1$
 		if (JOptionPane.showConfirmDialog(null,msg,
 				Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"), //$NON-NLS-1$
 				JOptionPane.YES_NO_OPTION) == 0)
 			{
-			ResNode next = (ResNode) me.getNextSibling();
-			if (next == null) next = (ResNode) me.getParent();
-			if (next.isRoot()) next = (ResNode) next.getFirstChild();
-			tree.setSelectionPath(new TreePath(next.getPath()));
-			Enumeration<?> nodes = me.depthFirstEnumeration();
-			// Calling dispose() on a resource modifies the tree and invalidates
-			// the enumeration, so we need to wait until after traversal.
-			HashSet<Resource<?,?>> rs = new HashSet<Resource<?,?>>();
-			while (nodes.hasMoreElements())
-				{
-				ResNode node = (ResNode) nodes.nextElement();
-				if (node.frame != null) node.frame.dispose();
-				if (node.status == ResNode.STATUS_SECONDARY)
-					{
-					Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
-					if (res != null) rs.add(res);
-					((ResourceList<?>) LGM.currentFile.resMap.get(node.kind)).remove(res);
-					}
-				}
-			for (Resource<?,?> r : rs)
-				r.dispose();
-			me.removeFromParent();
+			TreePath[] selections = tree.getSelectionPaths();
+			
+			//NOTE: Must be obtained before the for loop deletes the path.
+			int row = -1;
+					
+			Object[] resources = new Object[selections.length];
+			for (int i = 0; i < selections.length; i++) {
+				resources[i] = selections[i].getLastPathComponent();
+				
+			}
+			row = deleteResources(resources, tree);
+			
+			if (row != -1) {
+				tree.setSelectionPath(tree.getNextMatch("",row,Position.Bias.Forward));
+			}			
 			tree.updateUI();
 			}
 		}
@@ -209,63 +230,90 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			//I'd love to default to "No", but apparently that's not an option.
 			if (opt == JOptionPane.YES_OPTION) fc.newFile();
 			return;
-		}
-		if (com.endsWith(".OPEN")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".OPEN")) { //$NON-NLS-1$
 			try
 				{
-				fc.open(args.length > 1 ? new URI(args[1]) : null);
+					fc.open(args.length > 1 ? new URI(args[1]) : null); 
 				}
 			catch (URISyntaxException e1)
 				{
 				e1.printStackTrace();
 				}
 			return;
-		}
-		if (com.endsWith(".SAVE")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".OPENRECENT")) { //$NON-NLS-1$
+			try
+				{
+				URI path = new URI("");
+				if (args.length > 1) {
+					path = new URI(args[1]);
+				}
+				File f = new File(path);
+				if(f.exists()) { 
+					fc.open(path); 
+				} else {
+					JOptionPane.showMessageDialog(null,path.getPath(), "Error! File does not exist.", JOptionPane.ERROR_MESSAGE);
+				}
+				
+				}
+			catch (URISyntaxException e1)
+				{
+				e1.printStackTrace();
+				}
+			return;
+		} else if (com.endsWith(".SAVE")) { //$NON-NLS-1$
 			fc.save(LGM.currentFile.uri,LGM.currentFile.format);
 			return;
-		}
-		if (com.endsWith(".PREFERENCES")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".EXPLORELATERALGM")) {
+			String userDir = System.getProperty("user.dir");
+			if (userDir == null) { return; }
+			Desktop dt = Desktop.getDesktop();
+	    try
+				{
+				dt.open(new File(userDir));
+				}
+			catch (IOException e1)
+				{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				}
+		} else if (com.endsWith(".EXPLOREPROJECT")) {
+			String userDir = LGM.currentFile.getDirectory();
+			if (userDir == null) { return; }
+			Desktop dt = Desktop.getDesktop();
+			File f = new File(userDir);
+	    try
+			{
+					dt.open(f);
+			}
+			catch (IOException e1)
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		} else if (com.endsWith(".PREFERENCES")) { //$NON-NLS-1$
 			LGM.showPreferences();
 			return;
-		}
-		if (com.endsWith(".GMI")) //$NON-NLS-1$
-		{
-		  LGM.getGameInfo().show();
+		} else if (com.endsWith(".GMI")) { //$NON-NLS-1$
+		  LGM.showGameInformation();
 			return;
-		}
-		if (com.endsWith(".GMS")) //$NON-NLS-1$
-		{
-		  LGM.getGameSettings().show();
+		} else if (com.endsWith(".GMS")) { //$NON-NLS-1$
+		  LGM.showGameSettings();
 			return;
-		}
-		if (com.endsWith(".EXT")) //$NON-NLS-1$
-		{
-		  LGM.getGameExtensions().show();
+		} else if (com.endsWith(".EXT")) { //$NON-NLS-1$
+		  LGM.showGameExtensions();
 			return;
-		}
-		if (com.endsWith(".SAVEAS")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".SAVEAS")) { //$NON-NLS-1$
 			fc.saveNewFile();
 			return;
-		}
-		if (com.endsWith(".EVENT_BUTTON")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".EVENT_BUTTON")) { //$NON-NLS-1$
 			Object o = e.getSource();
 			if (o instanceof JToggleButton) LGM.showEventPanel();
 			return;
-		}
-		if (com.endsWith(".EXIT")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".EXIT")) { //$NON-NLS-1$
 		  LGM.onMainFrameClosed();
 			
 			return;
-		}
-		if (com.contains(".INSERT_") || com.contains(".ADD_")) //$NON-NLS-1$ //$NON-NLS-2$
-		{
+		} else if (com.contains(".INSERT_") || com.contains(".ADD_")) { //$NON-NLS-1$ //$NON-NLS-2$
 			if (com.endsWith("GROUP")) //$NON-NLS-1$
 				{
 				if (com.contains(".INSERT_"))
@@ -276,39 +324,27 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			//we no longer do it this way for resources
 			throw new UnsupportedOperationException(com);
-		}
-		if (com.endsWith(".RENAME")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".RENAME")) { //$NON-NLS-1$
 			if (tree.getCellEditor().isCellEditable(null))
 				tree.startEditingAtPath(tree.getLeadSelectionPath());
 			return;
-		}
-		if (com.endsWith(".DELETE")) //$NON-NLS-1$
-		{
-			deleteSelectedResource(tree);
+		} else if (com.endsWith(".DELETE")) { //$NON-NLS-1$
+			deleteSelectedResources(tree);
 			return;
-		}
-		if (com.endsWith(".DEFRAGIDS")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".DEFRAGIDS")) { //$NON-NLS-1$
 			String msg = Messages.getString("Listener.CONFIRM_DEFRAGIDS"); //$NON-NLS-1$
 			if (JOptionPane.showConfirmDialog(LGM.frame,msg,
 					Messages.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"), //$NON-NLS-1$
 					JOptionPane.YES_NO_OPTION) == 0) LGM.currentFile.defragIds();
-		}
-		if (com.endsWith(".EXPAND")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".EXPAND")) { //$NON-NLS-1$
 			for (int m = 0; m < tree.getRowCount(); m++)
 				tree.expandRow(m);
 			return;
-		}
-		if (com.endsWith(".COLLAPSE")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".COLLAPSE")) { //$NON-NLS-1$
 			for (int m = tree.getRowCount() - 1; m >= 0; m--)
 				tree.collapseRow(m);
 			return;
-		}
-		if (com.endsWith(".MANUAL")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".DOCUMENTATION")) { //$NON-NLS-1$
 	    try {
         // Auto detects if path is web url or local file
         String path = Prefs.manualPath;
@@ -322,9 +358,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
         System.out.println(ioe.getMessage());
       }
 			return;
-		}
-		if (com.endsWith(".ABOUT")) //$NON-NLS-1$
-		{
+		} else if (com.endsWith(".ABOUT")) { //$NON-NLS-1$
 			new AboutBox(LGM.frame).setVisible(true);
 			return;
 		}
@@ -407,7 +441,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 			if (com.equals("DELETE")) //$NON-NLS-1$
 			{
-				deleteSelectedResource(tree);
+				deleteSelectedResources(tree);
 				return;
 			}
 			if (com.equals("RENAME")) //$NON-NLS-1$
@@ -456,7 +490,19 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			{
 			int selRow = LGM.tree.getRowForLocation(e.getX(),e.getY());
 			TreePath selPath = LGM.tree.getPathForLocation(e.getX(),e.getY());
-			if (selRow != -1 && e.getModifiers() == InputEvent.BUTTON3_MASK)
+			
+			TreePath[] paths = LGM.tree.getSelectionPaths();
+			boolean inpath = false;
+			
+			if (paths != null) {
+				for (int i = 0; i < paths.length; i++) {
+					if (paths[i].equals(selPath)) {
+						inpath = true;
+					}
+				}
+			}
+			
+			if (selRow != -1 && e.getModifiers() == InputEvent.BUTTON3_MASK && !inpath)
 				LGM.tree.setSelectionPath(selPath);
 			}
 
@@ -468,14 +514,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			ResNode node = (ResNode) p.getLastPathComponent();
 			if(node == null)
 				return;
-			if (e.getModifiers() == InputEvent.BUTTON3_MASK
 			//Isn't Java supposed to handle ctrl+click for us? For some reason it doesn't.
-					|| (e.getClickCount() == 1 && e.isControlDown()))
+			//TODO: Yes, some components let you call setComponentPopupMenu() which will handle it for you.
+			//So this code should probably be moved.
+			if (e.getModifiers() == InputEvent.BUTTON3_MASK && e.getClickCount() == 1)
 				{
 				node.showMenu(e);
 				return;
 				}
-			if (e.getClickCount() == 2)
+			if (e.getModifiers() == InputEvent.BUTTON1_MASK && e.getClickCount() == 2)
 				{
 				// kind must be a Resource kind
 				if (node.status != ResNode.STATUS_SECONDARY) return;

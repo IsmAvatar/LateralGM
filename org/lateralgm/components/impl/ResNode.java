@@ -22,6 +22,7 @@ import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Vector;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -187,11 +188,15 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			}
 		}
 
-	private static JMenuItem makeMenuItem(String command, ActionListener al)
+	private static JMenuItem makeMenuItem(String command, ActionListener al, boolean setIcon)
 		{
 		JMenuItem menuItem = new JMenuItem(Messages.getString(command));
 		menuItem.setActionCommand(command);
 		menuItem.addActionListener(al);
+		ImageIcon icon = LGM.getIconForKey(command);
+		if (icon != null && setIcon) {
+			menuItem.setIcon(icon);
+		}
 		//menuItem.addKeyListener(kl);
 		menuItem.addKeyListener(null);
 		return menuItem;
@@ -205,7 +210,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		
 		if (!isInstantiable())
 		{
-	    JMenuItem editItem = makeMenuItem("Listener.TREE_EDIT",al);
+	    JMenuItem editItem = makeMenuItem("Listener.TREE_EDIT",al, true);
 		  popup.add(editItem); //$NON-NLS-1$
 		  editItem.setFocusable(true);
 		  editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
@@ -214,35 +219,35 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		}
 		if (status == ResNode.STATUS_SECONDARY)
 		{
-		  JMenuItem editItem = makeMenuItem("Listener.TREE_EDIT",al);
+		  JMenuItem editItem = makeMenuItem("Listener.TREE_EDIT",al, true);
 		  editItem.setFocusable(true);
 			popup.add(editItem); //$NON-NLS-1$
 			editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
 			popup.addSeparator();
-			JMenuItem insertItem = makeMenuItem("Listener.TREE_INSERT",al);
+			JMenuItem insertItem = makeMenuItem("Listener.TREE_INSERT",al, true);
 			insertItem.setFocusable(true);
 			popup.add(insertItem); //$NON-NLS-1$
 			insertItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, KeyEvent.CTRL_DOWN_MASK));
-			JMenuItem duplicateItem = makeMenuItem("Listener.TREE_DUPLICATE",al);
+			JMenuItem duplicateItem = makeMenuItem("Listener.TREE_DUPLICATE",al, true);
 			duplicateItem.setFocusable(true);
 			popup.add(duplicateItem); //$NON-NLS-1$
 			duplicateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, KeyEvent.ALT_DOWN_MASK));
 		}
 		else
-			popup.add(makeMenuItem("Listener.TREE_ADD",al)); //$NON-NLS-1$
+			popup.add(makeMenuItem("Listener.TREE_ADD",al, true)); //$NON-NLS-1$
 		popup.addSeparator();
-		popup.add(makeMenuItem("Listener.TREE_GROUP",al)); //$NON-NLS-1$
-		if (status != ResNode.STATUS_SECONDARY) popup.add(makeMenuItem("Listener.TREE_SORT",al)); //$NON-NLS-1$
+		popup.add(makeMenuItem("Listener.TREE_GROUP",al, true)); //$NON-NLS-1$
+		if (status != ResNode.STATUS_SECONDARY) popup.add(makeMenuItem("Listener.TREE_SORT",al,false)); //$NON-NLS-1$
 		if (status != ResNode.STATUS_PRIMARY)
 		{
 			popup.addSeparator();
-			JMenuItem deleteItem = makeMenuItem("Listener.TREE_DELETE",al);
+			JMenuItem deleteItem = makeMenuItem("Listener.TREE_DELETE",al, true);
 			deleteItem.setFocusable(true);
 			deleteItem.requestFocus();
 			popup.add(deleteItem); //$NON-NLS-1$
 			// KeyStroke.getKeyStroke("BACK_SPACE"); for delete key on mac
 			deleteItem.setAccelerator(KeyStroke.getKeyStroke("DELETE"));
-			JMenuItem renameItem = makeMenuItem("Listener.TREE_RENAME",al);
+			JMenuItem renameItem = makeMenuItem("Listener.TREE_RENAME",al, true);
 			renameItem.setFocusable(true);
 			popup.add(renameItem); //$NON-NLS-1$
 			renameItem.setAccelerator(KeyStroke.getKeyStroke("F2"));
@@ -308,6 +313,10 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 				}
 		return false;
 		}
+	
+	public Vector<ResNode> getChildren() {
+		return children;
+	}
 
 	public ResourceReference<? extends Resource<?,?>> getRes()
 		{

@@ -32,11 +32,13 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.InternalFrameEvent;
 
-import org.lateralgm.components.GMLTextArea;
+import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
+import org.lateralgm.joshedit.lexers.GMLTokenMarker;
+import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -50,7 +52,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 	{
 	private static final long serialVersionUID = 1L;
 	public JToolBar tool;
-	public GMLTextArea code;
+	public CodeTextArea code;
 	public JButton edit;
 	public JPanel status;
 
@@ -59,7 +61,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 	public ScriptFrame(Script res, ResNode node)
 		{
 		super(res,node);
-		setSize(600,400);
+		setSize(700,430);
 		setLayout(new BorderLayout());
 
 		// Setup the toolbar
@@ -71,7 +73,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 		tool.add(save);
 		tool.addSeparator();
 
-		code = new GMLTextArea((String) res.get(PScript.CODE));
+		code = new CodeTextArea((String) res.get(PScript.CODE), MarkerCache.getMarker("gml"));
 		add(code,BorderLayout.CENTER);
 
 		if (!Prefs.useExternalScriptEditor)
@@ -91,16 +93,17 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 		tool.add(name);
 
 		status = new JPanel(new FlowLayout());
-		status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
+		BoxLayout layout = new BoxLayout(status,BoxLayout.X_AXIS);
+		status.setLayout(layout);
 		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
-		final JLabel caretPos = new JLabel((code.getCaretLine() + 1) + ":"
+		final JLabel caretPos = new JLabel(" INS | UTF-8 | " + (code.getCaretLine() + 1) + " : "
 				+ (code.getCaretColumn() + 1));
 		status.add(caretPos);
 		code.addCaretListener(new CaretListener()
 			{
 				public void caretUpdate(CaretEvent e)
 					{
-					caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretColumn() + 1));
+					caretPos.setText(" INS | UTF-8 | " + (code.getCaretLine() + 1) + " : " + (code.getCaretColumn() + 1));
 					}
 			});
 		add(status,BorderLayout.SOUTH);

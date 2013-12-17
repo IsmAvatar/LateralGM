@@ -2,6 +2,7 @@
  * Copyright (C) 2006, 2007, 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2013, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * 
@@ -38,6 +39,8 @@ import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.swing.JOptionPane;
+
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.UpdateSource;
@@ -64,6 +67,7 @@ import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sound.SoundKind;
@@ -78,7 +82,7 @@ import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.Trigger;
 
-public class GmFile implements UpdateListener
+public class ProjectFile implements UpdateListener
 	{
 	//Game Settings Enums
 	public static final ColorDepth[] GS_DEPTHS = { ColorDepth.NO_CHANGE,ColorDepth.BIT_16,
@@ -136,7 +140,7 @@ public class GmFile implements UpdateListener
 
 	public static final Class<?>[] RESOURCE_KIND = { null,GmObject.class,Sprite.class,Sound.class,
 			Room.class,null,Background.class,Script.class,Path.class,Font.class,GameInformation.class,
-			GameSettings.class,Timeline.class,Extensions.class };
+			GameSettings.class,Timeline.class,Extensions.class,Shader.class};
 	public static final Map<Class<?>,Integer> RESOURCE_CODE;
 	static
 		{
@@ -177,7 +181,25 @@ public class GmFile implements UpdateListener
 		m.put(MaskShape.POLYGON,m.get(MaskShape.RECTANGLE));
 		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
 		}
+	
+	public String getPath() {
+		return uri.getPath().replace("\\","/");
+	}
 
+	// This will return the top level folder path with name that the
+	// main project file is in.
+	public String getDirectory() {
+		String path = "";
+		if (uri != null) {
+			path = uri.getPath().replace("\\","/");
+		}
+		File f = new File(path);
+		if (f != null) {
+			return f.getParent();
+		}
+		return path;
+	}
+	
 	public FormatFlavor format;
 	public URI uri;
 
@@ -251,7 +273,7 @@ public class GmFile implements UpdateListener
 		public static final FormatFlavor GM_701 = new FormatFlavor(GM_OWNER,701);
 		public static final FormatFlavor GM_800 = new FormatFlavor(GM_OWNER,800);
 		public static final FormatFlavor GM_810 = new FormatFlavor(GM_OWNER,810);
-		public static final FormatFlavor GM_820 = new FormatFlavor(GM_OWNER,820);
+		public static final FormatFlavor GMX_1110 = new FormatFlavor(GM_OWNER,1110);
 		
 		protected Object owner;
 		protected int version;
@@ -276,8 +298,8 @@ public class GmFile implements UpdateListener
 					return FormatFlavor.GM_800;
 				case 810:
 					return FormatFlavor.GM_810;
-				case 820:
-				  return FormatFlavor.GM_820;
+				case 1110:
+					return FormatFlavor.GMX_1110;
 				default:
 					return null;
 				}
@@ -294,7 +316,7 @@ public class GmFile implements UpdateListener
 			}
 		}
 
-	public GmFile()
+	public ProjectFile()
 		{
 		resMap = new ResourceMap();
 		for (Class<?> kind : Resource.kinds)

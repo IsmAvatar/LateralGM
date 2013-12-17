@@ -23,9 +23,11 @@ import javax.swing.JToolBar;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-import org.lateralgm.components.GMLTextArea;
+import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.RevertableMDIFrame;
+import org.lateralgm.joshedit.lexers.GMLTokenMarker;
+import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.main.LGM;
 
 public class CodeFrame extends RevertableMDIFrame implements ActionListener
@@ -41,7 +43,7 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 
 	public final CodeHolder codeHolder;
 	public final JToolBar tool;
-	public final GMLTextArea code;
+	public final CodeTextArea code;
 	public final JPanel status;
 
 	private final String titleFormat;
@@ -50,9 +52,10 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 	public CodeFrame(CodeHolder codeHolder, String titleFormat, Object titleArg)
 		{
 		super(MessageFormat.format(titleFormat,titleArg),true,true,true,true);
+		this.setFrameIcon(LGM.getIconForKey("Resource.SCR"));
 		this.codeHolder = codeHolder;
 		this.titleFormat = titleFormat;
-		setSize(600,600);
+		setSize(700,430);
 
 		tool = new JToolBar();
 		tool.setFloatable(false);
@@ -62,20 +65,20 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 		tool.add(save);
 		tool.addSeparator();
 
-		code = new GMLTextArea(codeHolder.getCode());
+		code = new CodeTextArea(codeHolder.getCode(), MarkerCache.getMarker("gml"));
 		code.addEditorButtons(tool);
 
 		status = new JPanel(new FlowLayout());
 		status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
 		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
-		final JLabel caretPos = new JLabel((code.getCaretLine() + 1) + ":"
+		final JLabel caretPos = new JLabel(" INS | UTF-8 | " + (code.getCaretLine() + 1) + " : "
 				+ (code.getCaretColumn() + 1));
 		status.add(caretPos);
 		code.addCaretListener(new CaretListener()
 			{
 				public void caretUpdate(CaretEvent e)
 					{
-					caretPos.setText((code.getCaretLine() + 1) + ":" + (code.getCaretColumn() + 1));
+					caretPos.setText(" INS | UTF-8 | " + (code.getCaretLine() + 1) + ":" + (code.getCaretColumn() + 1));
 					}
 			});
 

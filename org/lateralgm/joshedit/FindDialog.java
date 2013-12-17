@@ -183,6 +183,7 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 		options.add(whole = new JCheckBox("Whole word"));
 		options.add(start = new JCheckBox("Start of word"));
 		options.add(wrap = new JCheckBox("Wrap at EOF"));
+		wrap.setSelected(true);
 		options.add(sens = new JCheckBox("Case sensitive"));
 		options.add(esc = new JCheckBox("Escape sequences"));
 		options.add(regex = new JCheckBox("Regular expression"));

@@ -90,8 +90,8 @@ public final class Prefs
 		String fontName = getString("codeFontName","Monospaced");
 		codeFont = new Font(fontName,Font.PLAIN,getInt("codeFontSize",12));
 		tabSize = getInt("tabSize",4);
-		String d = "OBJ>obj_	SPR>spr_	SND>snd_	RMM>rm_	BKG>bkg_	SCR>scr_	"
-				+ "PTH>path_	FNT>font_	TML>time_";
+		String d = "OBJ>obj_	SPR>spr_	SND>snd_	RMM>rm_	 BKG>bkg_  PTH>path_	SCR>scr_"
+				+ "  SHR>shr_	 FNT>font_	TML>time_";
 		String[] p = getString("prefixes",d).split("\\t+");
 		prefixes = new HashMap<Class<? extends Resource<?,?>>,String>();
 		for (int i = 0; i < p.length; i++)
@@ -110,10 +110,12 @@ public final class Prefs
 		languageName = getString("languageName", "English");
 		manualPath = getString("manualPath", "http://enigma-dev.org/docs/Wiki/Main_Page");
 		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
-		forceMaximized = getBoolean("forceMaximized", false);
+		frameMaximized = getBoolean("frameMaximized", true);
 		dockEventPanel = getBoolean("dockEventPanel", false);
+		boldPrimaryNodes = getBoolean("boldPrimaryNodes", true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
 		userLibraryPath = getString("userLibraryPath","./lib");
+		antialiasContolFont = getString("antialiasContolFont", "on");
 		
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
@@ -143,8 +145,9 @@ public final class Prefs
 	public static String swingThemePath;
 	public static String manualPath;
 	public static String languageName;
+	public static String antialiasContolFont;
 	
-	public static boolean forceMaximized;
+	public static boolean frameMaximized;
 	public static boolean extraNodes;
 	public static boolean restrictHierarchy;
 	public static boolean renamableRoots;
@@ -156,6 +159,7 @@ public final class Prefs
 	public static int tabSize;
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 
+	public static boolean boldPrimaryNodes;
 	public static boolean dockEventPanel;
 	public static boolean enableDragAndDrop;
 	public static String actionLibraryPath;

@@ -1,6 +1,120 @@
 abs
 x
 
+achievement_available
+none
+
+achievement_filter_all_players
+ident,minindex,maxindex,filter
+
+achievement_filter_friends_only
+ident,minindex,maxindex,filter
+
+achievement_get_challenges
+none
+
+achievement_get_pic
+char
+
+achievement_leaderboards_info
+ident,minindex,maxindex,filter
+
+achievement_load_friends
+none
+
+achievement_load_leaderboard
+ident,minindex,maxindex,filter
+
+achievement_load_progress
+none
+
+achievement_login
+none
+
+achievement_login_status
+none
+
+achievement_logout
+none
+
+achievement_pic_loaded
+char
+
+achievement_post
+achievement,percent
+
+achievement_post_score
+name,score
+
+achievement_reset
+none
+
+achievement_send_challenge
+player,challenge,score,type,message
+
+achievement_show_achievements
+none
+
+achievement_show_challenge_notifications
+receive,local,remote
+
+achievement_show_leaderboards 
+none
+
+ads_disable
+num
+
+ads_enable
+x,y,num
+
+ads_engagement_active
+none
+
+ads_engagement_available
+none
+
+ads_engagement_launch
+none
+
+ads_event
+placement
+
+ads_event_preload
+placement
+
+ads_get_display_width
+num
+
+ads_get_display_height
+num
+
+ads_interstitial_available
+none
+
+ads_interstitial_display
+none
+
+ads_move
+x,y,num
+
+ads_setup
+user_uuid,ad_app_key
+
+ads_set_reward_callback 
+placement
+
+ansi_char
+byte
+
+array_height_2d
+array,n
+
+array_length_1d
+array
+
+array_length_2d
+array,n
+
 arccos
 x
 
@@ -13,8 +127,119 @@ y,x
 arctan
 x
 
+audio_system
+none
+
+audio_exists
+index
+
+audio_get_type
+index
+
+audio_play_music
+index,loop
+
+audio_pause_music
+none
+
+audio_stop_music
+none
+
+audio_play_sound
+index,priority,loop
+
+audio_play_sound_at
+index,x,y,z,falloff_ref,falloff_max,falloff_factor,loop,priority
+
+audio_pause_sound
+index
+
+audio_pause_all
+none
+
+audio_resume_sound
+index
+
+audio_resume_music
+none
+
+audio_resume_all
+none
+
+audio_stop_sound
+index
+
+audio_stop_all
+none
+
+audio_is_playing
+index
+
+audio_music_is_playing
+none
+
+audio_sound_length
+index
+
+audio_sound_pitch
+index,pitch
+
+audio_falloff_set_model
+model
+
+audio_music_gain
+volume,time
+
+audio_sound_gain
+index,volume,time
+
+audio_master_gain
+gain
+
+audio_channel_num
+num
+
+audio_emitter_create
+none
+
+audio_emitter_exists
+ind
+
+audio_emitter_position
+ind,x,y,z
+
+audio_emitter_velocity
+ind,vx,vy,vz
+
+audio_emitter_falloff
+ind,ref,max,factor
+
+audio_emitter_gain
+ind,gain
+
+audio_emitter_pitch
+ind,pitch
+
+audio_emitter_free
+ind
+
+audio_play_sound_on
+ind,sound,loop,priority
+
+audio_listener_position
+x,y,z
+
+audio_listener_velocity
+vx,vy,vz
+
+audio_listener_orientation
+lookat_x,lookat_y,lookat_z,up_x,up_y,up_z
+
 background_add_alpha
 fname,preload
+
+background_add
+fname,transparent,smooth
 
 background_add
 fname,transparent,smooth,preload
@@ -23,13 +248,25 @@ background_assign
 ind,back
 
 background_create_color
+w,h,col
+
+background_create_color
 w,h,col,preload
+
+background_create_from_screen
+x,y,w,h,transparent,smooth
 
 background_create_from_screen
 x,y,w,h,transparent,smooth,preload
 
 background_create_from_surface
+id,x,y,w,h,transparent,smooth
+
+background_create_from_surface
 id,x,y,w,h,transparent,smooth,preload
+
+background_create_gradient
+w,h,col1,col2,kind
 
 background_create_gradient
 w,h,col1,col2,kind,preload
@@ -58,6 +295,9 @@ ind
 background_get_texture
 back
 
+background_get_uvs
+back
+
 background_get_transparent
 ind
 
@@ -68,6 +308,9 @@ background_replace_alpha
 ind,fname,preload
 
 background_replace
+ind,fname,transparent,smooth
+
+background_replace
 ind,fname,transparent,smooth,preload
 
 background_save
@@ -75,6 +318,69 @@ ind,fname
 
 background_set_alpha_from_background
 ind,back
+
+buffer_create
+size,type,alignment
+
+buffer_delete
+buffer
+
+buffer_read
+buffer,type
+
+buffer_write
+buffer,type,value
+
+buffer_fill
+buffer,offset,type,value,size
+
+buffer_seek
+buffer,base,offset
+
+buffer_tell
+buffer
+
+buffer_peek
+buffer,offset,type
+
+buffer_poke
+buffer,offset,type,value
+
+buffer_save
+buffer,filename
+
+buffer_save_ext
+buffer,filename,offset,size
+
+buffer_load
+filename
+
+buffer_load_ext
+buffer,filename,offset
+
+buffer_copy
+src_buffer,src_offset,size,dest_buffer,dest_offset
+
+buffer_get_size
+index
+
+buffer_resize
+buffer,newsize
+
+buffer_sizeof
+type
+
+buffer_md5
+buffer,offset,size
+
+buffer_sha1
+buffer,offset,size
+
+buffer_base64_encode
+buffer,offset,size
+
+buffer_base64_decode
+string
 
 cd_close_door
 none
@@ -129,6 +435,15 @@ none
 
 cd_track
 none
+
+cloud_synchronise
+none
+
+cloud_string_save
+string, description
+
+cloud_file_save
+file,description
 
 ceil
 x
@@ -203,7 +518,10 @@ d3d_draw_wall
 x1,y1,z1,x2,y2,z2,texid,hrepeat,vrepeat
 
 d3d_end
+none
 
+d3d_light_define_ambient
+col
 
 d3d_light_define_direction
 ind,dx,dy,dz,col
@@ -247,6 +565,9 @@ ind,fname
 d3d_model_primitive_begin
 ind,kind
 
+d3d_model_primitive_end
+ind
+
 d3d_model_save
 ind,fname
 
@@ -286,14 +607,14 @@ kind
 d3d_primitive_end
 none
 
-d3d_primitive_end
-none
-
 d3d_set_culling
 cull
 
 d3d_set_depth
 depth
+
+d3d_set_zwriteenable
+enable
 
 d3d_set_fog
 enable,color,start,end
@@ -550,6 +871,42 @@ date1,date2
 degtorad
 x
 
+device_mouse_check_button
+device,button
+
+device_mouse_check_button_pressed
+device,button
+
+device_mouse_check_button_released
+device,button
+
+device_mouse_dbclick_enable
+enable
+
+device_mouse_x
+device
+
+device_mouse_y
+device
+
+device_mouse_raw_x
+device
+
+device_mouse_raw_y
+device
+
+device_is_keypad_open
+none
+
+device_get_tilt_x
+none
+
+device_get_tilt_y
+none
+
+device_get_tilt_z 
+none
+
 directory_create
 dname
 
@@ -568,7 +925,22 @@ none
 display_get_height
 none
 
+display_get_orientation
+none
+
 display_get_width
+none
+
+display_get_dpi_x
+none
+
+display_get_dpi_y
+none
+
+display_get_gui_width
+none
+
+display_get_gui_height
 none
 
 display_mouse_get_x
@@ -581,7 +953,7 @@ display_mouse_set
 x,y
 
 display_reset
-none
+aa,vsync
 
 display_set_all
 w,h,frequency,coldepth
@@ -593,6 +965,9 @@ display_set_frequency
 frequency
 
 display_set_size
+w,h
+
+display_set_gui_size
 w,h
 
 display_test_all
@@ -655,7 +1030,16 @@ x1,y1,x2,y2,col1,col2,outline
 draw_ellipse
 x1,y1,x2,y2,outline
 
+draw_enable_alphablend
+enable
+
+draw_enable_drawevent
+enable
+
 draw_getpixel
+x,y
+
+draw_getpixel_ext
 x,y
 
 draw_get_alpha
@@ -715,8 +1099,17 @@ x1,y1,x2,y2,col1,col2,outline
 draw_roundrect
 x1,y1,x2,y2,outline
 
+draw_self
+none
+
 draw_set_alpha
 alpha
+
+draw_set_alpha_test
+enable
+
+draw_set_alpha_test_ref_value
+value
 
 draw_set_blend_mode_ext
 src,dest
@@ -729,6 +1122,15 @@ precision
 
 draw_set_color
 col
+
+draw_set_color_rgb
+red,green,blue
+
+draw_set_color_rgba
+red,green,blue,alpha
+
+draw_set_color_write_enable
+red,green,blue,alpha
 
 draw_set_font
 font
@@ -751,6 +1153,9 @@ sprite,subimg,left,top,width,height,x,y,xscale,yscale,color,alpha
 draw_sprite_part
 sprite,subimg,left,top,width,height,x,y
 
+draw_sprite_pos
+sprite,subimg,x1,y1,x2,y2,x3,y3,x4,y4,alpha
+
 draw_sprite_stretched_ext
 sprite,subimg,x,y,w,h,color,alpha
 
@@ -765,6 +1170,9 @@ sprite,subimg,x,y
 
 draw_sprite
 sprite,subimg,x,y
+
+draw_surface
+id,x,y
 
 draw_surface_ext
 id,x,y,xscale,yscale,rot,color,alpha
@@ -1351,6 +1759,12 @@ ind
 font_get_name
 ind
 
+font_get_texture
+ind
+
+font_get_uvs
+ind
+
 font_replace_sprite
 ind,spr,first,prop,sep
 
@@ -1366,11 +1780,59 @@ none
 game_load
 string
 
+game_load_buffer
+buffer
+
 game_restart
 none
 
 game_save
 string
+
+game_save_buffer
+buffer
+
+gamepad_is_supported
+none
+
+gamepad_get_device_count
+none
+
+gamepad_is_connected
+id
+
+gamepad_get_description
+id
+
+gamepad_get_button_threshold
+id
+
+gamepad_set_button_threshold
+id,threshold
+
+gamepad_axis_count
+id
+
+gamepad_axis_value
+id,axis
+
+gamepad_button_check
+id,button
+
+gamepad_button_check_pressed
+id,button
+
+gamepad_button_check_released
+id,button
+
+gamepad_button_count
+id
+
+gamepad_button_value
+id,button
+
+gamepad_set_vibration
+id,left_motor,right_motor
 
 get_color
 defcol
@@ -1384,14 +1846,32 @@ dname
 get_integer
 str,def
 
+get_integer_async
+str,def
+
+get_login_async
+name,password
+
 get_open_filename
 filter,fname
+
+get_open_filename_ext
+filter,fname,directory,caption
 
 get_save_filename
 filter,fname
 
+get_save_filename_ext
+filter,fname,directory,caption
+
 get_string
 str,def
+
+get_string_async
+str,def
+
+get_timer
+none
 
 highscore_add_current
 none
@@ -1564,6 +2044,12 @@ id
 joystick_zpos
 id
 
+json_encode
+map
+
+json_decode
+string
+
 keyboard_check_direct
 key
 
@@ -1627,6 +2113,18 @@ hue,saturation,value
 make_color_rgb
 red,green,blue
 
+matrix_get
+type
+
+matrix_set
+type,matrix
+
+matrix_build
+x,y,z,xrotation,yrotation,zrotation,xscale,yscale,zscale
+
+matrix_multiply
+matrix,matrix
+
 max
 val1,val2,val3,...
 
@@ -1675,6 +2173,12 @@ name,size,color,style
 min
 val1,val2,val3,...
 
+motion_set
+dir,speed
+
+motion_add
+dir,speed
+
 mouse_check_button_pressed
 numb
 
@@ -1718,7 +2222,7 @@ move_wrap
 hor,vert,margin
 
 mplay_connect_status
-
+none
 
 mplay_data_mode
 guar
@@ -1730,7 +2234,7 @@ mplay_data_write
 ind,val
 
 mplay_end
-
+none
 
 mplay_init_ipx
 none
@@ -1745,7 +2249,7 @@ mplay_init_tcpip
 addr
 
 mplay_ipaddress
-
+none
 
 mplay_message_clear
 player
@@ -1858,6 +2362,39 @@ x,y,stepsize,obj
 mp_potential_step
 x,y,stepsize,checkall
 
+network_create_server
+type,port,max_client
+
+network_create_socket
+type
+
+network_connect
+socket,url,port
+
+network_connect_raw
+socket,url,port
+
+network_resolve
+url
+
+network_set_timeout
+socket,read_timeout,write_timeout
+
+network_send_broadcast
+socket,port,buffer,size
+
+network_send_packet
+socket,buffer,size
+
+network_send_raw
+socket,buffer,size
+
+network_send_udp
+socket,url,port,buffer,size
+
+network_destroy
+socket
+
 object_add
 none
 
@@ -1923,6 +2460,24 @@ ind,vis
 
 ord
 str
+
+os_is_paused
+none
+
+os_is_network_connected
+none
+
+os_lock_orientation
+enable
+
+os_get_language
+none
+
+os_get_config 
+none
+
+os_powersave_enable
+enable
 
 parameter_count
 none
@@ -2263,6 +2818,105 @@ ind,xshift,yshift
 path_start
 path,speed,endaction,absolute
 
+physics_apply_force
+xpos,ypos,xforce,yforce
+
+physics_apply_impulse
+xpos,ypos,ximpulse,yimpulse
+
+physics_apply_local_force
+xlocal,ylocal,xforce,yforce
+
+physics_apply_local_impulse
+xpos,ypos,ximpulse,yimpulse
+
+physics_apply_torque
+torque
+
+physics_fixture_create
+none
+
+physics_fixture_bind
+fixture,target
+
+physics_fixture_set_collision_group
+fixture,group
+
+physics_fixture_delete
+fixture
+
+physics_fixture_set_box_shape
+fixture,halfWidth,halfHeight
+
+physics_fixture_set_circle_shape
+fixture,radius
+
+physics_fixture_set_edge_shape
+fixture,x1,y1,x2,y2
+
+physics_fixture_set_polygon_shape
+fixture
+
+physics_fixture_add_point
+fixture,x,y
+
+physics_fixture_set_density
+fixture,density
+
+physics_fixture_set_friction
+fixture,friction
+
+physics_fixture_set_linear_damping
+fixture,damping
+
+physics_fixture_set_angular_damping
+fixture,damping
+
+physics_fixture_set_restitution
+fixture,restitution
+
+physics_fixture_set_sensor
+fixture,state
+
+physics_fixture_set_kinematic
+fixture
+
+physics_fixture_set_awake
+fixture,state
+
+physics_joint_distance_create
+inst1,inst2,w_anchor1_x,w_anchor1_y,w_anchor2_x,w_anchor2_y,col
+
+physics_joint_revolute_create
+inst1,inst2,w_anchor_x,w_anchor_y,ang_min_limt,ang_max_limit,ang_limit,max_motor_torque,motor_speed,motor,col
+
+physics_joint_prismatic_create
+inst1,inst2,w_anchor_x,w_anchor_y,w_axis_x,w_axis_x,lower_trans_limit,upper_trans_limit,limit,max_motor_force,motor_speed,motor,col
+
+physics_joint_pulley_create
+inst1,inst2,w_anchor1_x,w_anchor1_y,w_anchor2_x,w_anchor2_y,l_anchor1_x,l_anchor1_y,l_anchor2_x,l_anchor2_y,ratio,max_len1,max_len2,col
+
+physics_joint_gear_create
+inst1,inst2,joint_1,joint_2,ratio
+
+physics_joint_delete
+joint
+
+physics_joint_enable_motor
+joint,motor
+
+physics_joint_get_value
+joint,field
+
+physics_joint_set_value
+joint,field,value
+
+physics_test_overlap
+x,y,angle,object
+
+physics_mass_properties
+mass,local_center_x,local_center_y,inertia
+
 place_empty
 x,y
 
@@ -2461,6 +3115,45 @@ priority
 set_synchronization
 value
 
+shader_set
+shader
+
+shader_get_uniform
+shader,uniform
+
+shader_get_sampler_index
+shader,uniform
+
+shader_set_uniform_f
+handle,value1,value2 - value4
+
+shader_set_uniform_f_array
+handle,array
+
+shader_set_uniform_i
+handle,value1,value2 - value4
+
+shader_set_uniform_i_array
+handle,array
+
+shader_set_uniform_matrix
+handle
+
+shader_set_uniform_matrix_array
+handle,array
+
+shader_reset
+none
+
+shader_is_compiled
+shader
+
+shaders_are_supported
+none
+
+shader_enable_corner_id
+enable
+
 show_debug_message
 str
 
@@ -2479,7 +3172,13 @@ str,but1,but2,but3
 show_message
 str
 
+show_message_async
+str
+
 show_question
+str
+
+show_question_async
 str
 
 sign
@@ -2606,16 +3305,25 @@ sprite_add_from_surface
 ind,id,x,y,w,h
 
 sprite_add
+fname,imgnumb,precise,transparent,smooth,xorig,yorig
+
+sprite_add
 fname,imgnumb,precise,transparent,smooth,preload,xorig,yorig
 
 sprite_assign
 ind,spr
 
 sprite_create_from_screen
-x,y,w,h,precice
+x,y,w,h,precise,transparent,smooth,xorig,yorig
+
+sprite_create_from_screen
+x,y,w,h,precise,transparent,smooth,preload,xorig,yorig
 
 sprite_create_from_surface
-id,x,y,w,h,p
+id,x,y,w,h,precise,transparent,smooth,xorig,yorig
+
+sprite_create_from_surface
+id,x,y,w,h,precise,transparent,smooth,preload,xorig,yorig
 
 sprite_delete
 ind
@@ -2662,6 +3370,9 @@ ind
 sprite_get_texture
 spr,subimg
 
+sprite_get_uvs
+spr,subimg
+
 sprite_get_transparent
 ind
 
@@ -2679,6 +3390,9 @@ ind1,ind2
 
 sprite_replace_alpha
 ind,fname,imgnumb,precise,preload,xorig,yorig
+
+sprite_replace
+ind,fname,imgnumb,precise,transparent,smooth,xorig,yorig
 
 sprite_replace
 ind,fname,imgnumb,precise,transparent,smooth,preload,xorig,yorig
@@ -2706,6 +3420,135 @@ x
 
 sqr
 x
+
+steam_initialised
+none
+
+steam_stats_ready
+none
+
+steam_is_overlay_enabled
+none
+
+steam_get_persona_name
+none
+
+steam_get_user_steam_id
+none
+
+steam_is_user_logged_on
+none
+
+steam_activate_overlay
+overlay
+
+steam_is_overlay_activated
+none
+
+steam_create_leaderboard
+lb_name,sort_method,display_type
+
+steam_upload_score
+lb_name,score
+
+steam_download_scores
+lb_name,start_idx,end_idx
+
+steam_download_scores_around_user
+lb_name,range_start,range_end
+
+steam_download_friends_scores
+lb_name
+
+steam_set_achievement
+ach_name
+
+steam_get_achievement
+ach_name
+
+steam_clear_achievement
+ach_name
+
+steam_set_stat_int
+stat_name,value
+
+steam_set_stat_float
+stat_name,value
+
+steam_set_stat_avg_rate
+stat_name,session_count,session_length
+
+steam_get_stat_int
+stat_name
+
+steam_get_stat_float
+stat_name
+
+steam_get_stat_avg_rate
+stat_name
+
+steam_reset_all_stats
+none
+
+steam_reset_all_stats_achievements
+none
+
+steam_is_cloud_enabled_for_app
+none
+
+steam_is_cloud_enabled_for_account
+none
+
+steam_get_quota_total
+none
+
+steam_get_quota_free
+none
+
+steam_file_exists
+filename
+
+steam_file_size
+filename
+
+steam_file_persisted
+filename
+
+steam_file_write
+filename,data,size
+
+steam_file_write_file
+steam_filename,local_filename
+
+steam_file_read
+filename
+
+steam_file_share
+filename
+
+steam_file_delete
+filename
+
+steam_publish_workshop_file
+filename,preview_image,title,description
+
+steam_is_screenshot_requested
+none
+
+steam_send_screenshot
+filename,width,height
+
+steam_user_owns_dlc
+dlc_id
+
+steam_user_installed_dlc
+dlc_id
+
+string_byte_at
+str,index
+
+string_byte_length
+str
 
 string_char_at
 str,index
@@ -2749,11 +3592,14 @@ substr,str
 string_repeat
 str,count
 
+string_replace
+str,substr,newstr
+
 string_replace_all
 str,substr,newstr
 
-string_replace
-str,substr,newstr
+string_set_byte_at
+str,pos,byte
 
 string_upper
 str
@@ -2766,6 +3612,9 @@ string
 
 string
 val
+
+surface_create
+width,height
 
 surface_copy_part
 destination,x,y,source,xs,ys,ws,hs
@@ -2782,10 +3631,19 @@ id
 surface_getpixel
 id,x,y
 
+surface_getpixel_ext
+id,x,y
+
 surface_get_height
 id
 
 surface_get_width
+id
+
+surface_get_texture
+id
+
+surface_set_target
 id
 
 surface_reset_target
@@ -2806,6 +3664,12 @@ texid
 texture_get_width
 texid
 
+texture_get_texel_width
+texid
+
+texture_get_texel_height
+texid
+
 texture_preload
 texid
 
@@ -2815,11 +3679,20 @@ blend
 texture_set_interpolation
 linear
 
+texture_set_interpolation_ext
+sampler_id,linear
+
 texture_set_priority
 texid,prio
 
 texture_set_repeat
 repeat
+
+texture_set_repeat_ext
+sampler_id,repeat
+
+texture_set_stage
+stage,texid
 
 tile_add
 background,left,top,width,height,x,y,depth
@@ -2977,6 +3850,183 @@ name
 variable_local_set
 name,value
 
+vertex_create_buffer
+none
+
+vertex_create_buffer_ext
+size
+
+vertex_delete_buffer
+buffer
+
+vertex_begin
+buffer,format
+
+vertex_colour
+buffer,colour,alpha
+
+vertex_normal
+buffer,nx,ny,nz
+
+vertex_position
+buffer,x,y
+
+vertex_position_3d
+buffer,x,y,z
+
+vertex_argb
+buffer,a,r,g,b
+
+vertex_texcoord
+buffer,u,v
+
+vertex_float1
+buffer,f1
+
+vertex_float2
+buffer,f1,f2
+
+vertex_float3
+buffer,f1,f2,f3
+
+vertex_float4
+buffer,f1,f2,f3,f4
+
+vertex_ubyte4
+buffer,b1,b2,b3,b4
+
+vertex_end
+buffer
+
+vertex_freeze
+buffer
+
+vertex_submit
+buffer,primitive,texture
+
+vertex_delete
+buffer
+
+vertex_format_begin
+none
+
+vertex_format_add_colour
+none
+
+vertex_format_add_position
+none
+
+vertex_format_add_position_3d
+none
+
+vertex_format_add_textcoord
+none
+
+vertex_format_add_normal
+none
+
+vertex_format_add_custom
+type,usage
+
+vertex_format_end
+none
+
+win8_device_touchscreen_available
+none
+
+win8_livetile_notification_begin
+template
+
+win8_livetile_notification_secondary_begin
+template,tile_id
+
+win8_livetile_notification_expiry
+expiry_time
+
+win8_livetile_notification_tag
+tag
+
+win8_livetile_notification_text_add
+text
+
+win8_livetile_notification_image_add
+image
+
+win8_livetile_notification_end
+none
+
+win8_livetile_tile_notification
+template, ds_map, expiry, tag
+
+win8_livetile_tile_clear
+none
+
+win8_livetile_badge_notification
+id
+
+win8_livetile_badge_clear
+none
+
+win8_livetile_queue_enable
+enabled
+
+win8_secondarytile_pin
+tile_id,short_name,display_name,cmd_line_args,ds_list_options,image,wide_image,text_col
+
+win8_secondarytile_badge_notification
+data,tile_id
+
+win8_secondarytile_delete
+tile_id
+
+win8_appbar_enable
+enabled
+
+win8_appbar_add_element
+type,icon,label,section,tooltip,callback
+
+win8_appbar_remove_element
+id
+
+win8_settingscharm_add_entry
+name,callback
+
+win8_settingscharm_add_html_entry
+id,name,htmlpath
+
+win8_settingscharm_remove_entry
+name
+
+win8_share_image
+filename,title,description,immediate
+
+win8_share_screenshot
+title,description,immediate
+
+win8_share_file
+filename,title,description,immediate
+
+win8_share_url
+URL,title,description,immediate
+
+win8_share_text
+text,title,description,immediate
+
+win8_search_enable
+callback
+
+win8_search_add_suggestions
+list
+
+win8_search_disable
+none
+
+win8_license_trial_version
+none
+
+win8_license_initialize_sandbox
+xml
+
 window_center
 none
 
@@ -3102,3 +4152,54 @@ id
 
 window_view_mouse_set
 id,x,y
+
+winphone_license_trial_version
+none
+
+winphone_tile_back_content
+string
+
+winphone_tile_back_content_wide
+string
+
+winphone_tile_back_image
+img
+
+winphone_tile_back_image_wide
+img
+
+winphone_tile_back_title
+title
+
+winphone_tile_background_color
+color
+
+winphone_tile_count
+num
+
+winphone_tile_cycle_images
+fname0,fname1,...
+
+winphone_tile_front_image
+img
+
+winphone_tile_front_image_small
+img
+
+winphone_tile_front_image_width
+img
+
+winphone_tile_icon_image
+fname
+
+winphone_tile_small_background_image
+img
+
+winphone_tile_small_icon_image
+fname
+
+winphone_tile_title
+title
+
+winphone_tile_wide_content 
+string,index

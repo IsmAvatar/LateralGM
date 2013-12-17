@@ -9,21 +9,21 @@
 
 package org.lateralgm.file;
 
-public class GmFormatException extends Exception
+public class GmFormatException extends ProjectFormatException
 	{
 	private static final long serialVersionUID = 1L;
-	public GmFile file;
+	public ProjectFile file;
 	public Exception e;
 
-	public GmFormatException(GmFile file, String message)
+	public GmFormatException(ProjectFile file, String message)
 		{
-		super(message);
+		super(file, message);
 		this.file = file;
 		}
 
-	public GmFormatException(GmFile file, Exception e)
+	public GmFormatException(ProjectFile file, Exception e)
 		{
-		super(e.getClass().getName() + ": " + e.getMessage());
+		super(file, e);
 		this.e = e;
 		this.file = file;
 		}

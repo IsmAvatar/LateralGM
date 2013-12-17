@@ -16,22 +16,27 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import java.awt.BorderLayout;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
@@ -48,8 +53,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 	public JCheckBox italic, bold;
 	public JComboBox aa;
 	public NumberField charMin, charMax;
-	public JLabel preview;
-	public JTextField previewText;
+	public JEditorPane previewText;
 
 	private FontPropertyListener fpl = new FontPropertyListener();
 
@@ -63,7 +67,11 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 
 		GroupLayout layout = new GroupLayout(getContentPane());
 		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateContainerGaps(false);
+    int lmargin = 3;
+    int rmargin = 3;
+    int bmargin = 3;
+    int tmargin = 3;
 		setLayout(layout);
 
 		JLabel lName = new JLabel(Messages.getString("FontFrame.NAME")); //$NON-NLS-1$
@@ -94,37 +102,24 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 
 		JPanel crPane = makeCRPane();
 
-		JLabel lPreview = new JLabel(Messages.getString("FontFrame.PREVIEW")); //$NON-NLS-1$
-		previewText = new JTextField(Messages.getString("FontFrame.PREVIEW_DEFAULT"));
-		previewText.setColumns(10);
-		previewText.getDocument().addDocumentListener(new DocumentListener()
-			{
-				public void changedUpdate(DocumentEvent e)
-					{
-					//Unused
-					}
+		previewText = new JEditorPane();
+		
+    add(new JScrollPane(previewText),BorderLayout.CENTER);
+    previewText.setText(Messages.getString("FontFrame.PREVIEW_DEFAULT"));
+    //editor.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
+    //editor.setEditable(false);
+    //editor.getCaret().setVisible(true); // show the caret anyway
+		makeContextMenu();
 
-				public void insertUpdate(DocumentEvent e)
-					{
-					preview.setText(previewText.getText());
-					}
-
-				public void removeUpdate(DocumentEvent e)
-					{
-					preview.setText(previewText.getText());
-					}
-			});
-		JPanel prev = new JPanel(new BorderLayout());
-		prev.setBorder(BorderFactory.createEtchedBorder());
-		preview = new JLabel(previewText.getText());
-		preview.setHorizontalAlignment(SwingConstants.CENTER);
-		prev.add(preview,"Center"); //$NON-NLS-1$
+		JScrollPane prev = new JScrollPane(previewText);
+		//prev.setBorder(BorderFactory.createEtchedBorder());
 		updatePreview();
 
 		save.setText(Messages.getString("FontFrame.SAVE")); //$NON-NLS-1$
-
+		
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
+				.addGap(lmargin)
 		/*		*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
 		/*				*/.addComponent(lName)
 		/*				*/.addComponent(lFont)
@@ -132,18 +127,26 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 		/*		*/.addGroup(layout.createParallelGroup()
 		/*				*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE)
 		/*				*/.addComponent(fonts,120,160,MAX_VALUE)
-		/*				*/.addComponent(size)))
+		/*				*/.addComponent(size))
+		     .addGap(rmargin))
 		/**/.addGroup(layout.createSequentialGroup()
+				 .addGap(lmargin)
+		/*		*/.addComponent(aaLabel).addComponent(aa)
 		/*		*/.addComponent(bold)
 		/*		*/.addComponent(italic)
-		/*		*/.addComponent(aaLabel).addComponent(aa))
+		     .addGap(rmargin))
+		    .addGap(lmargin)
 		/**/.addComponent(crPane)
+		    .addGap(rmargin)
 		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(lPreview)
-		/*		*/.addComponent(previewText))
+				.addGap(lmargin)
 		/**/.addComponent(prev,120,220,MAX_VALUE)
-		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		    .addGap(rmargin))
+		    .addGap(lmargin)
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		.addGap(rmargin));
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		.addGap(tmargin)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lName)
 		/*		*/.addComponent(name))
@@ -154,17 +157,68 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 		/*		*/.addComponent(lSize)
 		/*		*/.addComponent(size))
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(aa).addComponent(aaLabel)
 		/*		*/.addComponent(bold)
-		/*		*/.addComponent(italic)
-		/*		*/.addComponent(aa).addComponent(aaLabel))
+		/*		*/.addComponent(italic))
 		/**/.addComponent(crPane)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lPreview)
-		/*		*/.addComponent(previewText))
-		/**/.addComponent(prev,DEFAULT_SIZE,120,MAX_VALUE)
-		/**/.addComponent(save));
+		/**/.addComponent(prev,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addComponent(save)
+		.addGap(bmargin));
 		pack();
 		}
+	
+	public JMenuItem addItem(String key)
+		{
+			JMenuItem item = new JMenuItem(Messages.getString(key));
+			item.setIcon(LGM.getIconForKey(key));
+			item.setActionCommand(key);
+			item.addActionListener(this);
+			return item;
+		}
+	
+	public JPopupMenu makeContextMenu()
+		{
+	  // build popup menu
+	  final JPopupMenu popup = new JPopupMenu();
+	  JMenuItem item;
+	  
+		item = addItem("FontFrame.CUT"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		item = addItem("FontFrame.COPY"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		item = addItem("FontFrame.PASTE"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		popup.addSeparator();
+		item = addItem("FontFrame.SELECTALL"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+		popup.add(item);
+		
+	  previewText.setComponentPopupMenu(popup);
+		previewText.addMouseListener(new MouseAdapter() {
+
+	  	@Override
+	  	public void mousePressed(MouseEvent e) {
+	      showPopup(e);
+	  	}
+
+	  	@Override
+	  	public void mouseReleased(MouseEvent e) {
+	      showPopup(e);
+	  	}
+
+	  	private void showPopup(MouseEvent e) {
+	  		if (e.isPopupTrigger()) {
+	  			popup.show(e.getComponent(), e.getX(), e.getY());
+	  		}
+	  	}
+		});
+		
+		return popup;
+	}
 
 	private JPanel makeCRPane()
 		{
@@ -199,6 +253,11 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 		crLetters.setActionCommand("Letters"); //$NON-NLS-1$
 		crLetters.addActionListener(this);
 
+    int lmargin = 2;
+    int rmargin = 2;
+    int bmargin = 2;
+    int tmargin = 2;
+    layout.setAutoCreateContainerGaps(false);
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(charMin)
@@ -212,6 +271,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 		/*				*/.addComponent(crAll,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*				*/.addComponent(crLetters,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		.addGap(tmargin)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(charMin)
 		/*		*/.addComponent(lTo)
@@ -222,7 +282,8 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 		/*				*/.addComponent(crAll))
 		/*		*/.addGroup(layout.createParallelGroup()
 		/*				*/.addComponent(crDigits)
-		/*				*/.addComponent(crLetters))));
+		/*				*/.addComponent(crLetters)))
+		.addGap(bmargin));
 		return panel;
 		}
 
@@ -233,29 +294,50 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 		res.setName(name.getText());
 		}
 
-	public void actionPerformed(ActionEvent e)
+	public void actionPerformed(ActionEvent ev)
 		{
-		if (e.getActionCommand() == "Normal") //$NON-NLS-1$
+		String com = ev.getActionCommand();
+		if (com.equals("Normal")) //$NON-NLS-1$
 			{
 			res.setRange(32,127);
 			return;
 			}
-		if (e.getActionCommand() == "All") //$NON-NLS-1$
+		else if (com.equals("All")) //$NON-NLS-1$
 			{
 			res.setRange(0,255);
 			return;
 			}
-		if (e.getActionCommand() == "Digits") //$NON-NLS-1$
+		else if (com.equals("Digits")) //$NON-NLS-1$
 			{
 			res.setRange(48,57);
 			return;
 			}
-		if (e.getActionCommand() == "Letters") //$NON-NLS-1$
+		else if (com.equals("Letters")) //$NON-NLS-1$
 			{
 			res.setRange(65,122);
 			return;
 			}
-		super.actionPerformed(e);
+		else if (com.equals("FontFrame.CUT")) //$NON-NLS-1$
+		{
+			previewText.cut();
+			return;
+		}
+		else if (com.equals("FontFrame.COPY")) //$NON-NLS-1$
+		{
+			previewText.copy();
+			return;
+		}
+		else if (com.equals("FontFrame.PASTE")) //$NON-NLS-1$
+		{
+			previewText.paste();
+			return;
+		}
+		else if (com.equals("FontFrame.SELECTALL")) //$NON-NLS-1$
+		{
+			previewText.selectAll();
+			return;
+		}
+		super.actionPerformed(ev);
 		}
 
 	public void updatePreview()
@@ -268,7 +350,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont>
 		 * For consistent pixel size across different systems, we should pick a common default.
 		 * AFAIK, the default in Windows (and thus GM) is 96 dpi. */
 		int fontSize = (int) Math.round(s * 96.0 / 72.0);
-		preview.setFont(new java.awt.Font(fn,makeStyle(b,i),fontSize));
+		previewText.setFont(new java.awt.Font(fn,makeStyle(b,i),fontSize));
 		}
 
 	public static int makeStyle(boolean bold, boolean italic)

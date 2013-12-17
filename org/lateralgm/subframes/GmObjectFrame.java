@@ -62,7 +62,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
-import org.lateralgm.components.GMLTextArea;
+import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.ActionList.ActionListModel;
@@ -115,7 +115,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public EventGroupNode rootEvent;
 	private MListener mListener = new MListener();
 	public ActionList actions;
-	public GMLTextArea code;
+	public CodeTextArea code;
 	private JComponent editor;
 	
 	private ResourceInfoFrame infoFrame;
@@ -658,7 +658,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		events.setShowsRootHandles(true);
 		events.setExpandsSelectedPaths(false);
 		events.addMouseListener(mListener);
-		events.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		events.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		events.addTreeSelectionListener(this);
 		if (LGM.javaVersion >= 10600)
 			{
@@ -793,17 +793,14 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	  Action a = null;
 	  LibAction la = null;
 	  Boolean prependNew = true;
-	  if (actions.model.list.size() > 0) {
-	    a = actions.model.list.get(0);
-	    la = a.getLibAction();
-	    if (la.actionKind == Action.ACT_CODE)
-	    {
-	    	prependNew = false;
-	    } else {
-	      prependNew = true;
-	    }
-	  } else {
-      prependNew = true;
+	  
+	  for (int i = 0; i < actions.model.list.size(); i++) {
+	  	a = actions.model.list.get(i);
+	  	la = a.getLibAction();
+	  	if (la.actionKind == Action.ACT_CODE) {
+		    	prependNew = false;
+		    	break;
+		  }
 	  }
 
 	  if (prependNew)
@@ -824,14 +821,6 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public void dispose()
 	{
 		super.dispose();
-		// TODO: Fix disposal of open action frames, NPE occurs
-		// when the object frame closes before them, for instance
-		// open up LGM create a object and open an action frame on it
-		// then in the background close the object frame and leave
-		// the action frame open, bam, NPE
-		// I propose making action list editor memorize them as it is the
-		// one with the function that opens the action frames
-		// - Robert B. Colton
 		events.removeTreeSelectionListener(this);
 		events.setModel(null);
 		events.setTransferHandler(null);
@@ -844,6 +833,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (infoFrame != null) {
 		  infoFrame.dispose();
 		}
+		//NOTE: Uncomment this to have the action frames close when the object frame closes.
+		//((ActionListEditor) editor).dispose();
 	}
 	
 	public void valueChanged(TreeSelectionEvent tse)

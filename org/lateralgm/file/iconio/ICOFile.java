@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -297,6 +299,14 @@ public class ICOFile implements Comparable<ICOFile>
 		return lBitmap;
 		}
 
+	public byte[] getDigest(String method) throws IOException, NoSuchAlgorithmException {
+		byte[][] bitmaps = getBitmaps();
+		MessageDigest md5 = MessageDigest.getInstance(method);
+		for (byte[] bitmap : bitmaps)
+			md5.update(bitmap);
+		return md5.digest();
+	}
+	
 	/**
 	 * Get all contained images (comfort method).
 	 * 

@@ -21,7 +21,7 @@
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
-   inkscape:export-filename="/home/owner/Desktop/workspace/LateralGM/org/lateralgm/main/lgm-splash.png">
+   inkscape:export-filename="C:\Users\Owner\Desktop\LateralGM\org\lateralgm\main\lgm-splash.png">
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -31,15 +31,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1311"
-     inkscape:window-height="744"
+     inkscape:window-width="1360"
+     inkscape:window-height="706"
      id="namedview73"
      showgrid="false"
      inkscape:zoom="1.3054847"
-     inkscape:cx="293.20234"
-     inkscape:cy="143.60736"
-     inkscape:window-x="49"
-     inkscape:window-y="24"
+     inkscape:cx="316.07846"
+     inkscape:cy="90.602374"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
      fit-margin-top="0"
@@ -712,6 +712,39 @@
          k2="2"
          in="result1" />
     </filter>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3141-5">
+      <rect
+         style="fill:none;stroke:#ffffff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         id="rect3143-5"
+         width="273.50427"
+         height="45.073505"
+         x="-10.304416"
+         y="-68.810074" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3193">
+      <rect
+         style="fill:none;stroke:#ffffff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         id="rect3195"
+         width="273.50427"
+         height="45.073505"
+         x="-10.304416"
+         y="-68.810074" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3197">
+      <rect
+         style="fill:none;stroke:#ffffff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         id="rect3199"
+         width="273.50427"
+         height="45.073505"
+         x="-10.304416"
+         y="-68.810074" />
+    </clipPath>
   </defs>
   <metadata
      id="metadata7453">

@@ -15,6 +15,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferDouble;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferShort;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -23,8 +29,9 @@ import java.util.Collection;
 import java.util.EnumMap;
 
 import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
-import org.lateralgm.file.GmFile;
+import org.lateralgm.file.ProjectFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
@@ -117,6 +124,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 	private void updateBoundingBox()
 		{
 		BBMode mode = get(PSprite.BB_MODE);
+		if (mode == null) { return; }
 		switch (mode)
 			{
 			case AUTO:
@@ -269,7 +277,55 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		private ImageList()
 			{
 			}
+		
+		/** Returns the byte length of a DataBuffer **/
+		public long getDataBytes(DataBuffer buffer) {
+			int dataType = buffer.getDataType();
+			long length = 0;
+			short bytes = 0;
+			switch (dataType) {
+				case DataBuffer.TYPE_BYTE:
+					length = ((DataBufferByte) buffer).getData().length;
+					bytes = 1; break;
+				case DataBuffer.TYPE_USHORT:
+					length = ((DataBufferShort) buffer).getData().length;
+					bytes = 2; break;
+				case DataBuffer.TYPE_INT:
+					length = ((DataBufferInt) buffer).getData().length;
+					bytes = 4; break;
+				case DataBuffer.TYPE_FLOAT:
+					length = ((DataBufferFloat) buffer).getData().length;
+					bytes = 4; break;
+				case DataBuffer.TYPE_DOUBLE:
+					length = ((DataBufferDouble) buffer).getData().length;
+					bytes = 8; break;
+				default:
+    			throw new IllegalArgumentException("Unknown data buffer type: "+
+                                       dataType);
+			}
+			
+			return length * bytes;
+		}
 
+		/** Returns the size of the image list in bytes */
+		public long getSize() {
+			long count = 0;
+
+			for (int i = 0; i < this.size(); i++) {
+				count += getDataBytes(this.get(i).getRaster().getDataBuffer());
+    	}
+
+			return count;
+		}
+		
+		/** Returns the size of the subimage in bytes */
+		public long getSize(int index) {
+			if (this.size() > index) {
+				return getDataBytes(this.get(index).getRaster().getDataBuffer());
+			}
+			return 0;
+		}
+		
 		public int getWidth()
 			{
 			if (size() > 0) return get(0).getWidth();
@@ -380,7 +436,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 	protected PropertyMap<PSprite> makePropertyMap()
 		{
 		if (LGM.currentFile.format != null
-				&& LGM.currentFile.format.getOwner() == GmFile.FormatFlavor.GM_OWNER)
+				&& LGM.currentFile.format.getOwner() == ProjectFile.FormatFlavor.GM_OWNER)
 			DEFS.put(PSprite.TRANSPARENT,LGM.currentFile.format.getVersion() <= 600);
 		return new PropertyMap<PSprite>(PSprite.class,this,DEFS);
 		}

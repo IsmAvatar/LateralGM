@@ -46,6 +46,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
@@ -106,7 +107,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	public JLabel statX, statY, statId, statSrc;
 	//ToolBar
 	private JButton zoomIn, zoomOut;
-	private JToggleButton gridVis, gridIso;
+	private JToggleButton gridVis;
+	JToggleButton gridIso;
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	private ButtonModelLink<PInstance> loLocked;
@@ -183,15 +185,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tool.add(zoomOut);
 		tool.addSeparator();
 
-		String st = Messages.getString("RoomFrame.GRID_VISIBLE"); //$NON-NLS-1$
-		gridVis = new JToggleButton(st);
+		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
 		tool.add(gridVis);
-		st = Messages.getString("RoomFrame.GRID_ISOMETRIC"); //$NON-NLS-1$
-		gridIso = new JToggleButton(st);
+		gridIso = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_ISOMETRIC"));
 		plf.make(gridIso,PRoom.ISOMETRIC);
 		tool.add(gridIso);
-
+		tool.addSeparator();
+		
 		// Add the grid sizers
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.GRID_X")); //$NON-NLS-1$
 		NumberField nf = new NumberField(0,999);
@@ -447,7 +448,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		plf.make(sHeight,PRoom.HEIGHT);
 
 		JLabel lSpeed = new JLabel(Messages.getString("RoomFrame.SPEED")); //$NON-NLS-1$
-		NumberField sSpeed = new NumberField(0,9999);
+		NumberField sSpeed = new NumberField(1,9999);
 		plf.make(sSpeed,PRoom.SPEED);
 
 		String str = Messages.getString("RoomFrame.PERSISTENT"); //$NON-NLS-1$
@@ -1103,18 +1104,29 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		statX = new JLabel(Messages.getString("RoomFrame.STAT_X")); //$NON-NLS-1$
 		statX.setMaximumSize(new Dimension(50,14));
 		stat.add(statX);
-		stat.add(new JLabel("|")); //$NON-NLS-1$
+		
+		//stat.add(new JLabel("|")); //$NON-NLS-1$
 		//visible divider    ^   since JSeparator isn't visible
-
+    JSeparator sep;
+    sep = new JSeparator(JSeparator.VERTICAL);
+    sep.setMaximumSize(new Dimension(8, sep.getMaximumSize().height));
+    stat.add(sep);
+    
 		statY = new JLabel(Messages.getString("RoomFrame.STAT_Y")); //$NON-NLS-1$
 		statY.setMaximumSize(new Dimension(50,13));
 		stat.add(statY);
-		stat.add(new JLabel("|")); //$NON-NLS-1$
-
+		
+    sep = new JSeparator(JSeparator.VERTICAL);
+    sep.setMaximumSize(new Dimension(8, sep.getMaximumSize().height));
+    stat.add(sep);
+    
 		statId = new JLabel();
 		stat.add(statId);
-		stat.add(new JLabel("|")); //$NON-NLS-1$
-
+    
+    sep = new JSeparator(JSeparator.VERTICAL);
+    sep.setMaximumSize(new Dimension(8, sep.getMaximumSize().height));
+    stat.add(sep);
+    
 		statSrc = new JLabel();
 		stat.add(statSrc); //resizes at will, so no Max size
 

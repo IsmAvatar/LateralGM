@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2013 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,6 +13,7 @@ package org.lateralgm.components;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
@@ -44,14 +46,22 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		setClosedIcon(LGM.getIconForKey("GmTreeGraphics.GROUP")); //$NON-NLS-1$
 		setLeafIcon(getClosedIcon());
 		setBorder(BorderFactory.createEmptyBorder(1,0,0,0));
+		
 		}
 
 	public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel, boolean exp,
 			boolean leaf, int row, boolean focus)
 		{
 		last = (ResNode) val;
-		super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
-		return this;
+		Component com = super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
+		//TODO: Sometimes when renaming secondary nodes the text box will be bold and sometimes it wont
+		//should be fixed but no idea what is wrong.
+		if (Prefs.boldPrimaryNodes && last.status == ResNode.STATUS_PRIMARY) {
+			com.setFont(com.getFont().deriveFont(Font.BOLD));
+		} else {
+			com.setFont(com.getFont().deriveFont(Font.PLAIN));
+		}
+		return com;
 		}
 
 	public static ImageIcon getBlankIcon()

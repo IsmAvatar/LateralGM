@@ -40,7 +40,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ActionListEditor;
-import org.lateralgm.components.GMLTextArea;
+import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.impl.ResNode;
@@ -66,7 +66,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 
 	public JList moments;
 	public ActionList actions;
-	public GMLTextArea code;
+	public CodeTextArea code;
 	private JComponent editor;
 	
 	private ResourceInfoFrame infoFrame;
@@ -237,17 +237,11 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	public void dispose()
 	{
 		super.dispose();
-		// TODO: Fix disposal of open action frames, NPE occurs
-		// when the timeline frame closes before them, for instance
-		// open up LGM create a timeline and open an action frame on it
-		// then in the background close the timeline frame and leave
-		// the action frame open, bam, NPE
-		// I propose making action list editor memorize them as it is the
-		// one with the function that opens the action frames
-		// - Robert B. Colton
 		if (infoFrame != null) {
 		  infoFrame.dispose();
 		}
+		//NOTE: Uncomment this to have the action frames close when the timeline frame closes.
+		//((ActionListEditor) editor).dispose();
 	}
 	
 	public void actionPerformed(ActionEvent e)
@@ -416,18 +410,15 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
     Action a = null;
     LibAction la = null;
     Boolean prependNew = true;
-    if (actions.model.list.size() > 0) {
-      a = actions.model.list.get(0);
-      la = a.getLibAction();
-      if (la.actionKind == Action.ACT_CODE)
-      {
-    	  prependNew = false;
-      } else {
-        prependNew = true;
-      }
-    } else {
-      prependNew = true;
-    }
+    
+	  for (int i = 0; i < actions.model.list.size(); i++) {
+  		a = actions.model.list.get(i);
+  		la = a.getLibAction();
+  		if (la.actionKind == Action.ACT_CODE) {
+	    		prependNew = false;
+	    		break;
+  		}
+	  }
 
     if (prependNew)
     {
