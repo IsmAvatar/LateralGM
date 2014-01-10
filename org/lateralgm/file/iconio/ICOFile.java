@@ -457,6 +457,12 @@ public class ICOFile implements Comparable<ICOFile>
 
 	public Image getDisplayImage()
 		{
-		return descriptors.get(descriptors.size() - 1).getImageRGB();
+			BitmapDescriptor desc = descriptors.get(descriptors.size() - 1);
+			if (desc != null) {
+				return desc.getImageRGB();
+			} else {
+				return null;
+			}
+		
 		}
 	}

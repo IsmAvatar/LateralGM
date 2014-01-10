@@ -15,6 +15,7 @@ import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -1256,7 +1257,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		backLoadImage = g.get(PGameSettings.BACK_LOAD_BAR);
 		frontLoadImage = g.get(PGameSettings.FRONT_LOAD_BAR);
 		gameIcon = g.get(PGameSettings.GAME_ICON);
-		iconPreview.setIcon(new ImageIcon(gameIcon.getDisplayImage()));
+		Image icoimg = gameIcon.getDisplayImage();
+		if (icoimg != null) {
+			iconPreview.setIcon(new ImageIcon(icoimg));
+		}
 		imagesChanged = true;
 
 		//Constants
