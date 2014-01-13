@@ -436,6 +436,9 @@ none
 cd_track
 none
 
+clamp
+val,min,max
+
 cloud_synchronise
 none
 
