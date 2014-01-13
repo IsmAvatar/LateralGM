@@ -2137,6 +2137,9 @@ len,dir
 lengthdir_y
 len,dir
 
+lerp
+a,b,amount
+
 ln
 x
 
