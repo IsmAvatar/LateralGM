@@ -279,6 +279,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 			}
 		
 		/** Returns the byte length of a DataBuffer **/
+		//TODO: This function reports astronomical values for some reason.
 		public long getDataBytes(DataBuffer buffer) {
 			int dataType = buffer.getDataType();
 			long length = 0;
@@ -303,7 +304,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
     			throw new IllegalArgumentException("Unknown data buffer type: "+
                                        dataType);
 			}
-			
+			//JOptionPane.showMessageDialog(null,bytes);
 			return length * bytes;
 		}
 
@@ -312,7 +313,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 			long count = 0;
 
 			for (int i = 0; i < this.size(); i++) {
-				count += getDataBytes(this.get(i).getRaster().getDataBuffer());
+				count += this.getSize(i);//getDataBytes(this.get(i).getData().getDataBuffer());
     	}
 
 			return count;
@@ -320,10 +321,11 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		
 		/** Returns the size of the subimage in bytes */
 		public long getSize(int index) {
-			if (this.size() > index) {
-				return getDataBytes(this.get(index).getRaster().getDataBuffer());
-			}
-			return 0;
+			return this.get(index).getWidth() * this.get(index).getHeight() * 4;
+			//if (this.size() > index) {
+				//return getDataBytes(this.get(index).getRaster().getDataBuffer());
+			//}
+			//return 0;
 		}
 		
 		public int getWidth()

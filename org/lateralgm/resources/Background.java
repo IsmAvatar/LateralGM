@@ -102,6 +102,7 @@ public class Background extends InstantiableResource<Background,Background.PBack
 		}
 	
 	/** Returns the byte length of a DataBuffer **/
+	//TODO: This function reports astronomical values for some reason.
 	public long getDataBytes(DataBuffer data) {
 		int dataType = data.getDataType();
 		switch (dataType) {
@@ -129,7 +130,7 @@ public class Background extends InstantiableResource<Background,Background.PBack
 	/** Returns the size of the background image in bytes */
 	public long getSize() {
 		if (backgroundImage != null) {
-			return getDataBytes(backgroundImage.getRaster().getDataBuffer());
+			return this.getWidth() * this.getHeight() * 4;//getDataBytes(backgroundImage.getRaster().getDataBuffer());
 		}
 		return 0;
 	}
