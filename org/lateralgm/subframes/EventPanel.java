@@ -152,6 +152,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		//KEYBOARD
 		EventNode keyboard = new EventNode(MainEvent.EV_KEYBOARD);
 		root.add(keyboard);
+		keyboard.add(MainEvent.EV_KEYBOARD,Event.EV_NO_KEY);
+		keyboard.add(MainEvent.EV_KEYBOARD,Event.EV_ANY_KEY);
 		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_LEFT);
 		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_RIGHT);
 		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_UP);
@@ -283,6 +285,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		//KEYPRESS
 		EventNode keypress = new EventNode(MainEvent.EV_KEYPRESS);
 		root.add(keypress);
+		keypress.add(MainEvent.EV_KEYPRESS,Event.EV_NO_KEY);
+		keypress.add(MainEvent.EV_KEYPRESS,Event.EV_ANY_KEY);
 		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_LEFT);
 		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_RIGHT);
 		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_UP);
@@ -333,6 +337,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		//KEYRELEASE
 		EventNode keyrelase = new EventNode(MainEvent.EV_KEYRELEASE);
 		root.add(keyrelase);
+		keyrelase.add(MainEvent.EV_KEYRELEASE,Event.EV_NO_KEY);
+		keyrelase.add(MainEvent.EV_KEYRELEASE,Event.EV_ANY_KEY);
 		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_LEFT);
 		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_RIGHT);
 		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_UP);

@@ -75,6 +75,10 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 	public static final byte EV_JOYSTICK2_BUTTON7 = 42;
 	public static final byte EV_JOYSTICK2_BUTTON8 = 43;
 
+	// keyboard events
+	public static final byte EV_NO_KEY = 0;
+	public static final byte EV_ANY_KEY = 1;
+	
 	// other event types
 	public static final byte EV_OUTSIDE = 0;
 	public static final byte EV_BOUNDARY = 1;
