@@ -277,7 +277,7 @@ public final class GMXFileReader
 			readTimelines(c, root);
 			readGmObjects(c, root);
 			readRooms(c, root);
-			readIncludedFiles(c, root);
+			//readIncludedFiles(c, root);
 			readPackages(c, root);
 			readExtensions(c, root);
 			readGameInformation(c, root);
@@ -714,7 +714,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Paths", ResNode.STATUS_PRIMARY, Sprite.class, null);
+		ResNode node = new ResNode("Paths", ResNode.STATUS_PRIMARY, Path.class, null);
 		root.add(node);
 		
 		NodeList pthList = in.getElementsByTagName("paths"); 
