@@ -104,7 +104,7 @@ public final class GmFileWriter
 			}
 		else
 			out.write4(gameId);
-		out.write((byte[]) f.gameSettings.get(PGameSettings.DPLAY_GUID)); //16 bytes
+		out.write((byte[]) f.gameSettings.get(PGameSettings.GAME_GUID)); //16 bytes
 
 		writeSettings(f,out,ver,savetime);
 

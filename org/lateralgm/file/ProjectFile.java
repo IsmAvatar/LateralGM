@@ -330,7 +330,7 @@ public class ProjectFile implements UpdateListener
 
 		Random random = new Random();
 		gameSettings.put(PGameSettings.GAME_ID,random.nextInt(100000001));
-		random.nextBytes((byte[]) gameSettings.get(PGameSettings.DPLAY_GUID));
+		random.nextBytes((byte[]) gameSettings.get(PGameSettings.GAME_GUID));
 		try
 			{
 			String loc = "org/lateralgm/file/default.ico";

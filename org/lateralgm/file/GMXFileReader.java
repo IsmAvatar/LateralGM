@@ -103,6 +103,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
+
 // TODO: Possibly rewrite from a DOM parser to a SAX parser,
 // because SAX is light weight faster and uses more memory,
 // DOM reads the whole thing into memory and then parses it.
@@ -398,7 +400,8 @@ public final class GMXFileReader
 				setdoc.getElementsByTagName("option_windows_game_icon").item(0).getTextContent();
 		pSet.put(PGameSettings.GAME_ICON, new ICOFile(ReadBinaryFile(icopath)));
 		pSet.put(PGameSettings.GAME_ID, Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent()));
-	  pSet.put(PGameSettings.DPLAY_GUID, setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent());
+	  pSet.put(PGameSettings.GAME_GUID, HexBin.decode(
+	  		setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent().replace("-","").replace("{","").replace("}","")));
 		
 		pSet.put(PGameSettings.AUTHOR, setdoc.getElementsByTagName("option_author").item(0).getTextContent());
 		pSet.put(PGameSettings.COMPANY, setdoc.getElementsByTagName("option_version_company").item(0).getTextContent());

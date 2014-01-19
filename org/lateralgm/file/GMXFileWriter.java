@@ -97,6 +97,8 @@ import org.lateralgm.util.PropertyMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
+
 public final class GMXFileWriter
 	{
 	
@@ -320,8 +322,10 @@ public final class GMXFileWriter
 	
 	optNode.appendChild(createElement(dom,
 			"option_gameid",f.gameSettings.get(PGameSettings.GAME_ID).toString()));
+	String guid = HexBin.encode((byte[]) f.gameSettings.get(PGameSettings.GAME_GUID));
 	optNode.appendChild(createElement(dom,
-			"option_gameguid",f.gameSettings.get(PGameSettings.DPLAY_GUID).toString()));
+			"option_gameguid", "{" + guid.substring(0, 8) + "-" + guid.substring(8, 12) + "-" +
+			guid.substring(12, 16) + "-" + guid.substring(16, 20) + "-" + guid.substring(20, 32) + "}" ));
 	
 	optNode.appendChild(createElement(dom,
 			"option_author",(String)f.gameSettings.get(PGameSettings.AUTHOR)));
