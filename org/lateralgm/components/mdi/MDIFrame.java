@@ -143,7 +143,7 @@ public class MDIFrame extends JInternalFrame
 		Color lightColor = null, darkColor = null;
     Color frameColor = null;
   
-    if (!Prefs.antialiasContolFont.toLowerCase().equals("off")) {
+    if (!Prefs.antialiasControlFont.toLowerCase().equals("off")) {
       g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     }
 	  
@@ -295,7 +295,7 @@ public class MDIFrame extends JInternalFrame
 	      
 
 	      Graphics2D g2 = (Graphics2D) g.create();
-	      if (!Prefs.antialiasContolFont.toLowerCase().equals("off")) {
+	      if (!Prefs.antialiasControlFont.toLowerCase().equals("off")) {
 	        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	      }
 	      Graphics2D g2d = (Graphics2D)g;
@@ -563,7 +563,7 @@ public class MDIFrame extends JInternalFrame
 		    //super.paint(g);
 		    this.paintChildren(g);
 		    Graphics2D g2d = (Graphics2D)g;
-	      if (!Prefs.antialiasContolFont.toLowerCase().equals("off")) {
+	      if (!Prefs.antialiasControlFont.toLowerCase().equals("off")) {
 	        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	      }
 		    frame.getFrameIcon().paintIcon(this,g,2,2);

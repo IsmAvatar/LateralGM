@@ -10,6 +10,7 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
@@ -45,10 +46,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	protected Color fgColor;
 	
 	JComboBox themeCombo, iconCombo, langCombo, actionsCombo;
-	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, dockEvent;
+	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, dockEvent, backupsEnable;
   JTextField iconPath, themePath, manualPath, actionsPath;
   
-	JTextField soundEditorPath, backgroundEditorPath, spriteEditorPath, codeEditorPath;
+	JTextField soundEditorPath, backgroundEditorPath, spriteEditorPath, codeEditorPath, numberBackupsField;
   // Sounds use their own stored filename/extension, which may vary from sound to sound. 
   JTextField backgroundMIME, spriteMIME, scriptMIME;
 	
@@ -88,11 +89,11 @@ public class PreferencesFrame extends JFrame implements ActionListener
     extraNodesEnable.setSelected(Prefs.extraNodes);
     dockEvent = new JCheckBox(Messages.getString("PreferencesFrame.DOCK_EVENT_PANEL"));
     dockEvent.setSelected(Prefs.dockEventPanel);
-		JLabel themePathLabel = new JLabel("Theme Path:");
+		JLabel themePathLabel = new JLabel(Messages.getString("PreferencesFrame.THEME_PATH") + ":");
 		themePath = new JTextField(Prefs.swingThemePath);
-		JLabel iconPathLabel = new JLabel("Icons Path:");
+		JLabel iconPathLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS_PATH") + ":");
 		iconPath = new JTextField(Prefs.iconPath);
-		JLabel manualPathLabel = new JLabel("Manual Path:");
+		JLabel manualPathLabel = new JLabel(Messages.getString("PreferencesFrame.MANUAL_PATH") + ":");
 		manualPath = new JTextField(Prefs.manualPath);
 		JLabel actionsLabel = new JLabel(Messages.getString("PreferencesFrame.ACTIONLIBRARY") + ":");
     String[] actionsOptions = { "Standard", "Logic", "Custom" };
@@ -100,6 +101,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
     //actionsCombo.setSelectedItem(Prefs.actionLibrary);
     actionsPath = new JTextField();
     actionsPath.setText(Prefs.userLibraryPath);
+    backupsEnable = new JCheckBox(Messages.getString("PreferencesFrame.CREATE_BACKUPS"));
+    backupsEnable.setSelected(Prefs.enableBackupSave);
+		JLabel backupsLabel = new JLabel(Messages.getString("PreferencesFrame.NUMBER_BACKUPS") + ":");
+		numberBackupsField = new JTextField(Prefs.numberofBackups);
     
 		GroupLayout gl = new GroupLayout(p);
 		gl.setAutoCreateGaps(true);
@@ -128,6 +133,11 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			           .addComponent(manualPath))
 			      .addGroup(gl.createParallelGroup()
 			      		 .addComponent(dockEvent))
+			      .addGroup(gl.createParallelGroup()
+			      		 .addComponent(backupsEnable))
+			      .addGroup(gl.createParallelGroup()
+			           .addComponent(backupsLabel)
+			      		 .addComponent(numberBackupsField))
 			           /*
 			      .addGroup(gl.createSequentialGroup()
 			      		 .addComponent(actionsLabel)
@@ -159,6 +169,12 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			           .addComponent(manualPath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 			      .addGroup(gl.createSequentialGroup()
 			           .addComponent(dockEvent, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			      .addGroup(gl.createSequentialGroup()
+			           .addComponent(backupsEnable, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+			      .addGroup(gl.createSequentialGroup()
+			           .addComponent(backupsLabel))
+			      .addGroup(gl.createSequentialGroup()
+			           .addComponent(numberBackupsField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE))   
 			           /*
 			  		.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 			      		 .addComponent(actionsLabel)

@@ -115,11 +115,14 @@ public final class Prefs
 		boldPrimaryNodes = getBoolean("boldPrimaryNodes", true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
 		userLibraryPath = getString("userLibraryPath","./lib");
-		antialiasContolFont = getString("antialiasContolFont", "on");
+		antialiasControlFont = getString("antialiasControlFont", "on");
 		
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
 		actionToolTipLines = getInt("actionToolTipLines",10);
+		
+		enableBackupSave = getBoolean("enableBackupSave", true);
+		numberofBackups = getInt("actionToolTipColumns", 5);
 
 		externalSpriteExtension = getString("externalSpriteExtension","png");
 		externalBackgroundExtension = getString("externalBackgroundExtension","png");
@@ -145,7 +148,7 @@ public final class Prefs
 	public static String swingThemePath;
 	public static String manualPath;
 	public static String languageName;
-	public static String antialiasContolFont;
+	public static String antialiasControlFont;
 	
 	public static boolean frameMaximized;
 	public static boolean extraNodes;
@@ -166,6 +169,9 @@ public final class Prefs
 	public static String userLibraryPath;
 	public static int actionToolTipColumns;
 	public static int actionToolTipLines;
+	
+	public static boolean enableBackupSave;
+	public static int numberofBackups;
 
 	public static boolean useExternalBackgroundEditor;
 	public static String externalBackgroundEditorCommand;

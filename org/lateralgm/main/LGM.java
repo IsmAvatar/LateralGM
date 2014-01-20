@@ -692,7 +692,7 @@ public final class LGM
 		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		// Enable antialasing of fonts
-		System.setProperty("awt.useSystemAAFontSettings",Prefs.antialiasContolFont);
+		System.setProperty("awt.useSystemAAFontSettings",Prefs.antialiasControlFont);
 		System.setProperty("swing.aatext", "true");
 
 		
