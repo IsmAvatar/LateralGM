@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2008, 2012 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2013 Robert B. Colton
+ * Copyright (C) 2013-2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -11,24 +11,18 @@
 package org.lateralgm.components;
 
 import java.awt.Color;
-import java.awt.Event;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,11 +35,9 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import org.lateralgm.file.ProjectFile.ResourceHolder;
@@ -55,13 +47,8 @@ import org.lateralgm.joshedit.Code;
 import org.lateralgm.joshedit.CompletionMenu;
 import org.lateralgm.joshedit.CompletionMenu.Completion;
 import org.lateralgm.joshedit.lexers.DefaultKeywords;
-import org.lateralgm.joshedit.lexers.GLESKeywords;
-import org.lateralgm.joshedit.lexers.GLSLKeywords;
-import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
-import org.lateralgm.joshedit.lexers.GMLTokenMarker;
 import org.lateralgm.joshedit.lexers.DefaultTokenMarker;
 import org.lateralgm.joshedit.lexers.DefaultTokenMarker.KeywordSet;
-import org.lateralgm.joshedit.lexers.HLSLKeywords;
 import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.joshedit.JoshText;
 import org.lateralgm.joshedit.JoshText.CodeMetrics;
@@ -70,7 +57,6 @@ import org.lateralgm.joshedit.JoshText.Highlighter;
 import org.lateralgm.joshedit.Runner;
 import org.lateralgm.joshedit.Runner.EditorInterface;
 import org.lateralgm.joshedit.Runner.JoshTextPanel;
-import org.lateralgm.joshedit.TokenMarker;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -106,15 +92,6 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 			};
 		}
 
-	//private static final DefaultKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,
-			//GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
-	//private static final DefaultKeywords.Keyword[][] GLSL_KEYWORDS = { GLSLKeywords.CONSTRUCTS,
-			//GLSLKeywords.FUNCTIONS,GLSLKeywords.VARIABLES,GLSLKeywords.OPERATORS,GLSLKeywords.CONSTANTS };
-	//private static final DefaultKeywords.Keyword[][] GLSLES_KEYWORDS = { GLSLESKeywords.CONSTRUCTS,
-			//GLSLESKeywords.FUNCTIONS,GLSLESKeywords.VARIABLES,GLSLESKeywords.OPERATORS,GLSLESKeywords.CONSTANTS };
-	//private static final DefaultKeywords.Keyword[][] HLSL_KEYWORDS = { HLSLKeywords.CONSTRUCTS,
-			//HLSLKeywords.FUNCTIONS,HLSLKeywords.VARIABLES,HLSLKeywords.OPERATORS,HLSLKeywords.CONSTANTS };
-	
 	protected static Timer timer;
 	protected Integer lastUpdateTaskID = 0;
 	private Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
