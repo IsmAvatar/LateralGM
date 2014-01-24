@@ -49,7 +49,7 @@ public final class MarkerCache
 		DefaultTokenMarker marker = markers.get(language);
 		if (marker == null) {
 			if (language == "glsles") {
-				marker = new GLSLESTokenMarker();
+				marker = new GLESTokenMarker();
 			} if (language == "glsl") {
 				marker = new GLSLTokenMarker();
 			}	if (language == "hlsl") {

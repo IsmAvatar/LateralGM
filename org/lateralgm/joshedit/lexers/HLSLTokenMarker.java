@@ -27,6 +27,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.Collections;
 
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Constant;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Construct;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Function;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Keyword;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Operator;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Variable;
+
 /**
  * Sample HLSL token marker class based on the default token marker.
  */
@@ -50,23 +57,23 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 		schemes.add(new BlockDescriptor("Single Quote String","'","'",new Color(0,0,255),0));
 		
 		functions = addKeywordSet("Functions", FUNCTION, Font.PLAIN);
-		for (HLSLKeywords.Function f : HLSLKeywords.FUNCTIONS) {
+		for (Function f : HLSLKeywords.FUNCTIONS) {
 			Collections.addAll(functions.words, f.getName());
 		}
 		constructs = addKeywordSet("Constructs", FUNCTION, Font.BOLD);
-		for (HLSLKeywords.Construct c : HLSLKeywords.CONSTRUCTS) {
+		for (Construct c : HLSLKeywords.CONSTRUCTS) {
 			Collections.addAll(constructs.words, c.getName());
 		}
 		operators = addKeywordSet("Operators", Color.BLACK ,Font.BOLD);
-		for (HLSLKeywords.Operator o : HLSLKeywords.OPERATORS) {
+		for (Operator o : HLSLKeywords.OPERATORS) {
 			Collections.addAll(functions.words, o.getName());
 		}
 		constants = addKeywordSet("Constants", BROWN, Font.PLAIN);
-		for (HLSLKeywords.Constant c : HLSLKeywords.CONSTANTS) {
+		for (Constant c : HLSLKeywords.CONSTANTS) {
 			Collections.addAll(constants.words, c.getName());
 		}
 		variables = addKeywordSet("Variables", Color.BLUE, Font.ITALIC);
-		for (HLSLKeywords.Variable v : HLSLKeywords.VARIABLES) {
+		for (Variable v : HLSLKeywords.VARIABLES) {
 			Collections.addAll(variables.words, v.getName());
 		}
 		
@@ -85,4 +92,12 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 		otherTokens.add(new SimpleToken("Numeric literal","[0-9]+",0,new Color(20, 50, 90)));
 		otherTokens.add(new SimpleToken("Hex literal","\\$[0-9A-Fa-f]+",0,new Color(100,100,255)));
 	}
+	
+	@Override
+	public Keyword[][] GetKeywords()
+		{
+		DefaultKeywords.Keyword[][] HLSL_KEYWORDS = { HLSLKeywords.CONSTRUCTS,
+		HLSLKeywords.FUNCTIONS,HLSLKeywords.VARIABLES,HLSLKeywords.OPERATORS,HLSLKeywords.CONSTANTS };
+		return HLSL_KEYWORDS;
+		}
 }

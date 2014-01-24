@@ -41,6 +41,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
@@ -55,7 +56,8 @@ import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.joshedit.FindDialog;
 import org.lateralgm.joshedit.TokenMarker;
-import org.lateralgm.joshedit.lexers.GLSLESTokenMarker;
+import org.lateralgm.joshedit.lexers.DefaultTokenMarker;
+import org.lateralgm.joshedit.lexers.GLESTokenMarker;
 import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
 import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
 import org.lateralgm.joshedit.lexers.MarkerCache;
@@ -171,11 +173,12 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 
 	private void updateLexer()
 		{
+		//TODO: This should be moved into the base CodeTextArea, as a feature of JoshEdit
 		String val = typeCombo.getSelectedItem().toString();
 		if (val.equals(currentLang)) { return; }
-		TokenMarker marker = null;
+		DefaultTokenMarker marker = null;
 		if (val.equals("GLSLES")) {
-			marker = new GLSLESTokenMarker();
+			marker = new GLESTokenMarker();
 		} else if (val.equals("GLSL")) {
 			marker = new GLSLTokenMarker();
 		} else if (val.equals("HLSL9")) {
@@ -185,6 +188,10 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		} else {
 		
 		}
+		//TODO: Both of these calls will utilize the same lexer, but they both
+		//will recompose the list of completions. Should possibly add an abstract
+		//GetCompletions() to the DefaultTokenMarker class, so they all code editors
+		//can utilize the same completions list to save memory.
 		vcode.setTokenMarker(marker);
 		fcode.setTokenMarker(marker);
 		currentLang = val;

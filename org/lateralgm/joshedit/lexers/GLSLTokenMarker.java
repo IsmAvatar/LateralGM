@@ -27,6 +27,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.Collections;
 
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Constant;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Construct;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Function;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Keyword;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Operator;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Variable;
+
 /**
  * Sample GLSL token marker class based on the default token marker.
  */
@@ -51,23 +58,23 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 		schemes.add(new BlockDescriptor("Single Quote String","'","'",new Color(0,0,255),0));
 		
 		functions = addKeywordSet("Functions", FUNCTION, Font.PLAIN);
-		for (GLSLKeywords.Function f : GLSLKeywords.FUNCTIONS) {
+		for (Function f : GLSLKeywords.FUNCTIONS) {
 			Collections.addAll(functions.words, f.getName());
 		}
 		constructs = addKeywordSet("Constructs", FUNCTION, Font.BOLD);
-		for (GLSLKeywords.Construct c : GLSLKeywords.CONSTRUCTS) {
+		for (Construct c : GLSLKeywords.CONSTRUCTS) {
 			Collections.addAll(constructs.words, c.getName());
 		}
 		operators = addKeywordSet("Operators", Color.BLACK ,Font.BOLD);
-		for (GLSLKeywords.Operator o : GLSLKeywords.OPERATORS) {
+		for (Operator o : GLSLKeywords.OPERATORS) {
 			Collections.addAll(functions.words, o.getName());
 		}
 		constants = addKeywordSet("Constants", BROWN, Font.PLAIN);
-		for (GLSLKeywords.Constant c : GLSLKeywords.CONSTANTS) {
+		for (Constant c : GLSLKeywords.CONSTANTS) {
 			Collections.addAll(constants.words, c.getName());
 		}
 		variables = addKeywordSet("Variables", Color.BLUE, Font.ITALIC);
-		for (GLSLKeywords.Variable v : GLSLKeywords.VARIABLES) {
+		for (Variable v : GLSLKeywords.VARIABLES) {
 			Collections.addAll(variables.words, v.getName());
 		}
 		
@@ -87,4 +94,12 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 		otherTokens.add(new SimpleToken("Numeric literal","[0-9]+",0,new Color(20, 50, 90)));
 		otherTokens.add(new SimpleToken("Hex literal","\\$[0-9A-Fa-f]+",0,new Color(100,100,255)));
 	}
+
+	@Override
+	public Keyword[][] GetKeywords()
+		{
+		DefaultKeywords.Keyword[][] GLSL_KEYWORDS = { GLSLKeywords.CONSTRUCTS,
+		GLSLKeywords.FUNCTIONS,GLSLKeywords.VARIABLES,GLSLKeywords.OPERATORS,GLSLKeywords.CONSTANTS };
+		return GLSL_KEYWORDS;
+		}
 }

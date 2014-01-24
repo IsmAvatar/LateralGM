@@ -215,6 +215,9 @@ public class Runner
 			JoshText.Settings.indentSizeInSpaces = spaces;
 		}
 
+		//TODO: This method is icky because CodeTextArea takes DefaultTokenMarker
+		//and it is very easy to mix these two up when you are not aware that CodeTextArea
+		//derives from this class JoshTextPanel.
 		public void setTokenMarker(TokenMarker tm)
 		{
 			text.setTokenMarker(tm);

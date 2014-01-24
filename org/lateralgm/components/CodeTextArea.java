@@ -54,7 +54,8 @@ import org.lateralgm.joshedit.lexers.GMLKeywords;
 import org.lateralgm.joshedit.Code;
 import org.lateralgm.joshedit.CompletionMenu;
 import org.lateralgm.joshedit.CompletionMenu.Completion;
-import org.lateralgm.joshedit.lexers.GLSLESKeywords;
+import org.lateralgm.joshedit.lexers.DefaultKeywords;
+import org.lateralgm.joshedit.lexers.GLESKeywords;
 import org.lateralgm.joshedit.lexers.GLSLKeywords;
 import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
 import org.lateralgm.joshedit.lexers.GMLTokenMarker;
@@ -105,14 +106,14 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 			};
 		}
 
-	private static final GMLKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,
-			GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
-	private static final GLSLKeywords.Keyword[][] GLSL_KEYWORDS = { GLSLKeywords.CONSTRUCTS,
-			GLSLKeywords.FUNCTIONS,GLSLKeywords.VARIABLES,GLSLKeywords.OPERATORS,GLSLKeywords.CONSTANTS };
-	private static final GLSLESKeywords.Keyword[][] GLSLES_KEYWORDS = { GLSLESKeywords.CONSTRUCTS,
-			GLSLESKeywords.FUNCTIONS,GLSLESKeywords.VARIABLES,GLSLESKeywords.OPERATORS,GLSLESKeywords.CONSTANTS };
-	private static final HLSLKeywords.Keyword[][] HLSL_KEYWORDS = { HLSLKeywords.CONSTRUCTS,
-			HLSLKeywords.FUNCTIONS,HLSLKeywords.VARIABLES,HLSLKeywords.OPERATORS,HLSLKeywords.CONSTANTS };
+	//private static final DefaultKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,
+			//GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
+	//private static final DefaultKeywords.Keyword[][] GLSL_KEYWORDS = { GLSLKeywords.CONSTRUCTS,
+			//GLSLKeywords.FUNCTIONS,GLSLKeywords.VARIABLES,GLSLKeywords.OPERATORS,GLSLKeywords.CONSTANTS };
+	//private static final DefaultKeywords.Keyword[][] GLSLES_KEYWORDS = { GLSLESKeywords.CONSTRUCTS,
+			//GLSLESKeywords.FUNCTIONS,GLSLESKeywords.VARIABLES,GLSLESKeywords.OPERATORS,GLSLESKeywords.CONSTANTS };
+	//private static final DefaultKeywords.Keyword[][] HLSL_KEYWORDS = { HLSLKeywords.CONSTRUCTS,
+			//HLSLKeywords.FUNCTIONS,HLSLKeywords.VARIABLES,HLSLKeywords.OPERATORS,HLSLKeywords.CONSTANTS };
 	
 	protected static Timer timer;
 	protected Integer lastUpdateTaskID = 0;
@@ -209,12 +210,12 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 	}
 
 
-			public void aGoto()
-				{
-				int line = showGotoDialog(getCaretLine());
-				line = Math.max(0,Math.min(getLineCount() - 1,line));
-				setCaretPosition(line,0);
-				}
+	public void aGoto()
+	{
+		int line = showGotoDialog(getCaretLine());
+		line = Math.max(0,Math.min(getLineCount() - 1,line));
+		setCaretPosition(line,0);
+	}
 
 	public static int showGotoDialog(int defVal)
 		{
@@ -277,15 +278,15 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		variables.words.clear();
 		functions.words.clear();
 
-		for (GMLKeywords.Construct keyword : GMLKeywords.CONSTRUCTS)
+		for (DefaultKeywords.Construct keyword : GMLKeywords.CONSTRUCTS)
 			constructs.words.add(keyword.getName());
-		for (GMLKeywords.Operator keyword : GMLKeywords.OPERATORS)
+		for (DefaultKeywords.Operator keyword : GMLKeywords.OPERATORS)
 			operators.words.add(keyword.getName());
-		for (GMLKeywords.Constant keyword : GMLKeywords.CONSTANTS)
+		for (DefaultKeywords.Constant keyword : GMLKeywords.CONSTANTS)
 			constants.words.add(keyword.getName());
-		for (GMLKeywords.Variable keyword : GMLKeywords.VARIABLES)
+		for (DefaultKeywords.Variable keyword : GMLKeywords.VARIABLES)
 			variables.words.add(keyword.getName());
-		for (GMLKeywords.Function keyword : GMLKeywords.FUNCTIONS)
+		for (DefaultKeywords.Function keyword : GMLKeywords.FUNCTIONS)
 			functions.words.add(keyword.getName());
 		}
 
@@ -303,13 +304,14 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 			}
 	}
 
-	protected void updateOldCompletions()
+	protected void updateCompletions(DefaultTokenMarker marker)
 	{
 		int l = 0;
 		for (Set<String> a : resourceKeywords) {
 			l += a.size();
 		}
-		for (GMLKeywords.Keyword[] a : GML_KEYWORDS)
+		DefaultKeywords.Keyword[][] keywords = marker.GetKeywords();
+		for (DefaultKeywords.Keyword[] a : keywords)
 			l += a.length;
 		completions = new Completion[l];
 		int i = 0;
@@ -321,78 +323,24 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 				i += 1;
 			}
 		}
-		for (GMLKeywords.Keyword[] a : GML_KEYWORDS)
-			for (GMLKeywords.Keyword k : a)
+		for (DefaultKeywords.Keyword[] a : keywords)
+			for (DefaultKeywords.Keyword k : a)
 				{
-				if (k instanceof GMLKeywords.Function)
-					completions[i] = new FunctionCompletion((GMLKeywords.Function) k);
-				else if (k instanceof GMLKeywords.Variable)
-					completions[i] = new VariableCompletion((GMLKeywords.Variable) k);
+				if (k instanceof DefaultKeywords.Function)
+					completions[i] = new FunctionCompletion((DefaultKeywords.Function) k);
+				else if (k instanceof DefaultKeywords.Variable)
+					completions[i] = new VariableCompletion((DefaultKeywords.Variable) k);
 				else
 					completions[i] = new CompletionMenu.WordCompletion(k.getName());
 				i++;
 				}
-	}
-
-	protected void updateCompletions(DefaultTokenMarker marker)
-	{
-		int l = 0;
-		for (Set<String> a : resourceKeywords) {
-			l += a.size();
-		}
-		if (marker instanceof GMLTokenMarker) {
-			//JOptionPane.showMessageDialog(null,"ok");
-			for (GMLKeywords.Keyword[] a : GML_KEYWORDS)
-				l += a.length;
-		} else if (marker instanceof GLSLTokenMarker) {
-			//JOptionPane.showMessageDialog(null,"wtf");
-			for (GLSLKeywords.Keyword[] a : GLSL_KEYWORDS)
-				l += a.length;
-		}
-		//for (KeywordSet ks : marker.tmKeywords)
-			//l += ks.words.size();
-		completions = new Completion[l];
-		int i = 0;
-		for (Set<String> a : resourceKeywords)
-		{
-			for (String s : a)
-			{
-				completions[i] = new CompletionMenu.WordCompletion(s);
-				i += 1;
-			}
-		}
-		if (marker instanceof GMLTokenMarker) {
-		for (GMLKeywords.Keyword[] a : GML_KEYWORDS)
-			for (GMLKeywords.Keyword k : a)
-				{
-				if (k instanceof GMLKeywords.Function)
-					completions[i] = new FunctionCompletion((GMLKeywords.Function) k);
-				else if (k instanceof GMLKeywords.Variable)
-					completions[i] = new VariableCompletion((GMLKeywords.Variable) k);
-				else
-					completions[i] = new CompletionMenu.WordCompletion(k.getName());
-				i++;
-				}
-		}	else if (marker instanceof GLSLTokenMarker) {
-		for (GLSLKeywords.Keyword[] a : GLSL_KEYWORDS)
-			for (GLSLKeywords.Keyword k : a)
-				{
-				//if (k instanceof GLSLKeywords.Function)
-					//completions[i] = new FunctionCompletion((GLSLKeywords.Function) k);
-				//else if (k instanceof GLSLKeywords.Variable)
-					//completions[i] = new VariableCompletion((GLSLKeywords.Variable) k);
-				//else
-					completions[i] = new CompletionMenu.WordCompletion(k.getName());
-				i++;
-				}
-		}
 	}
 	
 	public class VariableCompletion extends CompletionMenu.Completion
 	{
-		private final GMLKeywords.Variable variable;
+		private final DefaultKeywords.Variable variable;
 
-		public VariableCompletion(GMLKeywords.Variable v)
+		public VariableCompletion(DefaultKeywords.Variable v)
 			{
 			variable = v;
 			name = v.getName();
@@ -438,9 +386,9 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 
 	public class FunctionCompletion extends CompletionMenu.Completion
 		{
-		private final GMLKeywords.Function function;
+		private final DefaultKeywords.Function function;
 
-		public FunctionCompletion(GMLKeywords.Function f)
+		public FunctionCompletion(DefaultKeywords.Function f)
 			{
 			function = f;
 			name = f.getName();

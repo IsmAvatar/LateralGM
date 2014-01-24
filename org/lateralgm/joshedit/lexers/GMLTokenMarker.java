@@ -28,7 +28,12 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.Collections;
 
-import org.lateralgm.joshedit.lexers.DefaultTokenMarker.KeywordSet;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Constant;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Construct;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Function;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Keyword;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Operator;
+import org.lateralgm.joshedit.lexers.DefaultKeywords.Variable;
 
 /**
  * Sample GML token marker class based on the default token marker.
@@ -53,23 +58,23 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 		schemes.add(new BlockDescriptor("Single Quote String","'","'",new Color(0,0,100),0));
 		
 		functions = addKeywordSet("Functions", FUNCTION, Font.PLAIN);
-		for (GMLKeywords.Function f : GMLKeywords.FUNCTIONS) {
+		for (Function f : GMLKeywords.FUNCTIONS) {
 			Collections.addAll(functions.words, f.getName());
 		}
 		constructs = addKeywordSet("Constructs", new Color(0,0,200), Font.PLAIN);
-		for (GMLKeywords.Construct c : GMLKeywords.CONSTRUCTS) {
+		for (Construct c : GMLKeywords.CONSTRUCTS) {
 			Collections.addAll(constructs.words, c.getName());
 		}
 		operators = addKeywordSet("Operators", new Color(0,0,200), Font.PLAIN);
-		for (GMLKeywords.Operator o : GMLKeywords.OPERATORS) {
+		for (Operator o : GMLKeywords.OPERATORS) {
 			Collections.addAll(operators.words, o.getName());
 		}
 		constants = addKeywordSet("Constants", BROWN, Font.PLAIN);
-		for (GMLKeywords.Constant c : GMLKeywords.CONSTANTS) {
+		for (Constant c : GMLKeywords.CONSTANTS) {
 			Collections.addAll(constants.words, c.getName());
 		}
 		variables = addKeywordSet("Variables", new Color(0,0,100), Font.ITALIC);
-		for (GMLKeywords.Variable v : GMLKeywords.VARIABLES) {
+		for (Variable v : GMLKeywords.VARIABLES) {
 			Collections.addAll(variables.words, v.getName());
 		}
 		
@@ -88,4 +93,12 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 		otherTokens.add(new SimpleToken("Numeric literal","[0-9]+",0,BROWN));
 		otherTokens.add(new SimpleToken("Hex literal","\\$[0-9A-Fa-f]+",0,new Color(100,100,255)));
 	}
+	
+	@Override
+	public Keyword[][] GetKeywords()
+		{
+		DefaultKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,
+		GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
+		return GML_KEYWORDS;
+		}
 }

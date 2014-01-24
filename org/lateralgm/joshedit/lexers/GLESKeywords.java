@@ -1,11 +1,25 @@
-/*
- * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
- *
- * This file is part of LateralGM.
- * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
- * See LICENSE for details.
- */
+/**
+* @file  GLSLESKeywords.java
+* @brief Class implementing a GLSLES keyword container.
+*
+* @section License
+*
+* Copyright (C) 2013 Robert B. Colton
+* This file is a part of the LateralGM IDE.
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+**/
 
 package org.lateralgm.joshedit.lexers;
 
@@ -15,24 +29,23 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Properties;
-
 import org.lateralgm.joshedit.lexers.DefaultKeywords.Constant;
 import org.lateralgm.joshedit.lexers.DefaultKeywords.Construct;
 import org.lateralgm.joshedit.lexers.DefaultKeywords.Function;
 import org.lateralgm.joshedit.lexers.DefaultKeywords.Operator;
 import org.lateralgm.joshedit.lexers.DefaultKeywords.Variable;
 
-public final class GMLKeywords
+public final class GLESKeywords
 	{
-	public static DefaultKeywords.Construct[] CONSTRUCTS;
-	public static DefaultKeywords.Operator[] OPERATORS;
-	public static DefaultKeywords.Variable[] VARIABLES;
-	public static DefaultKeywords.Constant[] CONSTANTS;
-	public static DefaultKeywords.Function[] FUNCTIONS;
-	
+	public static Construct[] CONSTRUCTS;
+	public static Operator[] OPERATORS;
+	public static Variable[] VARIABLES;
+	public static Constant[] CONSTANTS;
+	public static Function[] FUNCTIONS;
+
 	static
 		{
-		InputStream is = GMLKeywords.class.getResourceAsStream("gmlkeywords.properties");
+		InputStream is = GLESKeywords.class.getResourceAsStream("glsleskeywords.properties");
 		Properties p = new Properties();
 		try
 			{
@@ -61,7 +74,7 @@ public final class GMLKeywords
 		p.clear();
 
 		//read functions
-		InputStream is2 = GMLKeywords.class.getResourceAsStream("gmlfunctions.txt");
+		InputStream is2 = GLESKeywords.class.getResourceAsStream("glslesfunctions.txt");
 		BufferedReader	br2 = new BufferedReader(new InputStreamReader(is2));
 		ArrayList<Function> funcList = new ArrayList<Function>();
 
@@ -83,10 +96,8 @@ public final class GMLKeywords
 		FUNCTIONS = funcList.toArray(new Function[0]);
 		}
 
-	public GMLKeywords()
+	public GLESKeywords()
 		{
-	
 		}
-		
-		
+
 	}

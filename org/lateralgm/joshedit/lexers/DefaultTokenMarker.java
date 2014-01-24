@@ -40,6 +40,9 @@ public abstract class DefaultTokenMarker implements TokenMarker
 	public DefaultTokenMarker()
 	{
 	}
+	
+	
+	public abstract DefaultKeywords.Keyword[][] GetKeywords();
 
 	/**
 	 * Construct with case sensitivity option.

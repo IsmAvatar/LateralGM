@@ -75,8 +75,6 @@ import org.lateralgm.joshedit.Selection.ST;
 import org.lateralgm.joshedit.TokenMarker.TokenMarkerInfo;
 import org.lateralgm.messages.Messages;
 
-import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.Key;
-
 /**
  * The main component class; instantiate this, and you're good to go.
  */
