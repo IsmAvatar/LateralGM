@@ -56,7 +56,7 @@ import org.lateralgm.joshedit.JoshText.LineChangeListener;
 import org.lateralgm.joshedit.JoshText.Highlighter;
 import org.lateralgm.joshedit.Runner;
 import org.lateralgm.joshedit.Runner.EditorInterface;
-import org.lateralgm.joshedit.Runner.JoshTextPanel;
+import org.lateralgm.joshedit.JoshTextPanel;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -247,6 +247,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		variables = tokenMarker.addKeywordSet("Variables",Color.BLUE,Font.ITALIC);
 		}
 
+	//TODO: I believe this method can be removed.
 	public static void updateKeywords()
 		{
 		constructs.words.clear();
@@ -551,25 +552,25 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		{
 			String com = ev.getActionCommand();
 			if (com.equals("JoshText.LOAD")) {
-				text.aLoad();
+				text.Load();
 			} else if (com.equals("JoshText.SAVE")) {
-				text.aSave();
+				text.Save();
 			} else if (com.equals("JoshText.UNDO")) {
-				text.aUndo();
+				text.Undo();
 			} else if (com.equals("JoshText.REDO")) {
-				text.aRedo();
+				text.Redo();
 			} else if (com.equals("JoshText.CUT")) {
-				text.aCut();
+				text.Cut();
 			} else if (com.equals("JoshText.COPY")) {
-				text.aCopy();
+				text.Copy();
 			} else if (com.equals("JoshText.PASTE")) {
-				text.aPaste();
+				text.Paste();
 			} else if (com.equals("JoshText.FIND")) {
-				text.aFind();
+				text.ShowFind();
 			} else if (com.equals("JoshText.GOTO")) {
 				this.aGoto();
 			} else if (com.equals("JoshText.SELALL")) {
-				text.aSelAll();
+				text.SelectAll();
 			}
 		}
 	}

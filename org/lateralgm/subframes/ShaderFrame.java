@@ -191,7 +191,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		}
 		//TODO: Both of these calls will utilize the same lexer, but they both
 		//will recompose the list of completions. Should possibly add an abstract
-		//GetCompletions() to the DefaultTokenMarker class, so they all code editors
+		//GetCompletions() to the DefaultTokenMarker class, so that all code editors
 		//can utilize the same completions list to save memory.
 		vcode.setTokenMarker(marker);
 		fcode.setTokenMarker(marker);
@@ -360,25 +360,25 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			}
 			
 			if (com.equals("JoshText.LOAD")) {
-				tcode.text.aLoad();
+				tcode.text.Load();
 			} else if (com.equals("JoshText.SAVE")) {
-				tcode.text.aSave();
+				tcode.text.Save();
 			} else if (com.equals("JoshText.UNDO")) {
-				tcode.text.aUndo();
+				tcode.text.Undo();
 			} else if (com.equals("JoshText.REDO")) {
-				tcode.text.aRedo();
+				tcode.text.Redo();
 			} else if (com.equals("JoshText.CUT")) {
-				tcode.text.aCut();
+				tcode.text.Cut();
 			} else if (com.equals("JoshText.COPY")) {
-				tcode.text.aCopy();
+				tcode.text.Copy();
 			} else if (com.equals("JoshText.PASTE")) {
-				tcode.text.aPaste();
+				tcode.text.Paste();
 			} else if (com.equals("JoshText.FIND")) {
-				tcode.text.aFind();
+				tcode.text.ShowFind();
 			} else if (com.equals("JoshText.GOTO")) {
 				tcode.aGoto();
 			} else if (com.equals("JoshText.SELALL")) {
-				tcode.text.aSelAll();
+				tcode.text.SelectAll();
 			}
 		}
 	}

@@ -582,13 +582,13 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		// == Map action names to their implementations =============
 		// ==========================================================
 		/** Delete the current line, including the newline character. */
-		public void aLineDel()
+		public void LineDel()
 		{
 			// delete the line where the caret is
 		}
 	
 		/** Duplicate the current line, placing the copy beneath this one. */
-		public void aLineDup()
+		public void LineDup()
 		{
 			UndoPatch up = new UndoPatch();
 			up.realize(up.startRow + sel.duplicate());
@@ -596,7 +596,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		}
 		
 		/** Swap the currently selected lines, or this line and the line above it. */
-		public void aLineSwap()
+		public void LineSwap()
 		{
 			if (caret.row == sel.row)
 			{
@@ -624,7 +624,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		}
 		
 		/** Un-swap the selected lines, or this line and the line below it. */
-		public void aLineUnSwap()
+		public void LineUnSwap()
 		{
 			if (caret.row == sel.row)
 			{
@@ -655,7 +655,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 	 	* Select all: Place the caret at the end of the code,
 	 	* and start the selection from the beginning.
 	 	*/
-		public void aSelAll()
+		public void SelectAll()
 		{
 			sel.row = sel.col = 0;
 			caret.row = code.size() - 1;
@@ -666,20 +666,20 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		}
 		
 		/** Open a file chooser to save the contents of the editor. */
-		public void aSave()
+		public void Save()
 		{
 			saveToFile();
 		}
 		
 		/** Open a dialog to load the contents of the editor from a file. */
-		public void aLoad()
+		public void Load()
 		{
 			loadFromFile();
 			repaint();
 		}
 
 		/** Open a print dialogue to print the contents of the editor. */
-		public void aPrint()
+		public void Print()
 		{
 		  //TODO: Make the fucker actually print
 		  PrinterJob pj = PrinterJob.getPrinterJob();
@@ -694,7 +694,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		}
 		
 		/** Copy the contents of the selection to the clipboard. */
-		public void aCopy()
+		public void Copy()
 		{
 			sel.copy();
 		}
@@ -703,7 +703,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 	 	* Cut the contents of the selection, removing them from
 	 	* the code and storing them in the clipboard.
 	 	*/
-		public void aCut()
+		public void Cut()
 		{
 			if (sel.isEmpty()) return;
 			sel.copy();
@@ -719,7 +719,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		* Paste the clipboard into the code, overwriting the selection if there is
 	 	* one.
 	 	*/
-		public void aPaste()
+		public void Paste()
 		{
 			UndoPatch up = new UndoPatch(Math.min(caret.row,sel.row),Math.max(
 					Math.max(caret.row,sel.row),
@@ -731,7 +731,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		}
 
 		/** Undo the most recent action. */
-		public void aUndo()
+		public void Undo()
 		{
 			undo();
 			doCodeSize(true);
@@ -739,7 +739,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		}
 	
 		/** Redo the most recently undone action. */
-		public void aRedo()
+		public void Redo()
 		{
 			redo();
 			doCodeSize(true);
@@ -747,14 +747,14 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		}
 
 		/** Display the find dialog. */
-		public void aFind()
+		public void ShowFind()
 		{
 			FindDialog.getInstance().selectedJoshText = this;
 			findDialog.setVisible(true);
 		}
 
 		/** Display the quick find dialog. */
-		public void aQuickFind()
+		public void ShowQuickFind()
 		{
 			finder.present();
 		}
@@ -779,7 +779,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aCut();
+			Cut();
 		}
 		};
 		
@@ -788,7 +788,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aCopy();
+			Copy();
 		}
 		};
 		
@@ -797,7 +797,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aPaste();
+			Paste();
 		}
 		};
 		
@@ -806,7 +806,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aUndo();
+			Undo();
 		}
 		};
 		
@@ -815,7 +815,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aRedo();
+			Redo();
 		}
 		};
 		
@@ -824,7 +824,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aFind();
+			ShowFind();
 		}
 		};
 		
@@ -833,7 +833,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aQuickFind();
+			ShowQuickFind();
 		}
 		};
 		
@@ -842,7 +842,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aLineDel();
+			LineDel();
 		}
 		};
 		
@@ -851,7 +851,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aLineDup();
+			LineDup();
 		}
 		};
 		
@@ -860,7 +860,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aLineSwap();
+			LineSwap();
 		}
 		};
 		
@@ -869,7 +869,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aLineUnSwap();
+			LineUnSwap();
 		}
 		};
 		
@@ -878,7 +878,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aSelAll();
+			SelectAll();
 		}
 		};
 		
@@ -887,7 +887,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		private static final long serialVersionUID = 1L;
 		public void actionPerformed(ActionEvent e)
 		{
-			aPrint();
+			Print();
 		}
 		};
 
