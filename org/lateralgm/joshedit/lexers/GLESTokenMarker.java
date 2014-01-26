@@ -27,12 +27,14 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.Collections;
 
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Constant;
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Construct;
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Function;
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Keyword;
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Operator;
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Variable;
+import org.lateralgm.joshedit.DefaultKeywords;
+import org.lateralgm.joshedit.DefaultTokenMarker;
+import org.lateralgm.joshedit.DefaultKeywords.Constant;
+import org.lateralgm.joshedit.DefaultKeywords.Construct;
+import org.lateralgm.joshedit.DefaultKeywords.Function;
+import org.lateralgm.joshedit.DefaultKeywords.Keyword;
+import org.lateralgm.joshedit.DefaultKeywords.Operator;
+import org.lateralgm.joshedit.DefaultKeywords.Variable;
 
 /**
  * Sample GLSLES token marker class based on the default token marker.

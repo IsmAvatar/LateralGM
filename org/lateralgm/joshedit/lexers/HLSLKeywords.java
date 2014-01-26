@@ -30,11 +30,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Constant;
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Construct;
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Function;
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Operator;
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Variable;
+import org.lateralgm.joshedit.DefaultKeywords.Constant;
+import org.lateralgm.joshedit.DefaultKeywords.Construct;
+import org.lateralgm.joshedit.DefaultKeywords.Function;
+import org.lateralgm.joshedit.DefaultKeywords.Operator;
+import org.lateralgm.joshedit.DefaultKeywords.Variable;
 
 public final class HLSLKeywords
 	{

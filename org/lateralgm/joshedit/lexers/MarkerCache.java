@@ -26,6 +26,8 @@ package org.lateralgm.joshedit.lexers;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.lateralgm.joshedit.DefaultTokenMarker;
+
 /**
  * A non-instantiable token marker cache that avoids instantiating more 
  * markers than is necessary.

@@ -10,7 +10,8 @@ package org.lateralgm.joshedit.lexers;
 import java.awt.Color;
 import java.awt.Font;
 
-import org.lateralgm.joshedit.lexers.DefaultKeywords.Keyword;
+import org.lateralgm.joshedit.DefaultTokenMarker;
+import org.lateralgm.joshedit.DefaultKeywords.Keyword;
 
 /**
  * Sample C++ token marker class based on the default token marker.

@@ -901,7 +901,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			for (Action a : acts) {
 				for (KeyStroke ks : strokes) {
 					if (map.get(ks).equals(a.getValue(Action.NAME))) {
-						a.putValue(a.ACCELERATOR_KEY, ks);
+						a.putValue(Action.ACCELERATOR_KEY, ks);
 					}
 				}
 				am.put(a.getValue(Action.NAME),a);

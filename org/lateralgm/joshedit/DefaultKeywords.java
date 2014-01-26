@@ -23,7 +23,7 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-package org.lateralgm.joshedit.lexers;
+package org.lateralgm.joshedit;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
