@@ -181,6 +181,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				((ResourceList<?>) LGM.currentFile.resMap.get(node.kind)).remove(res);
 				last = tree.getRowForPath(new TreePath(node));
 			} else if (node.status == ResNode.STATUS_GROUP) {
+				deleteResources(node.getChildren().toArray(), tree);
 				node.removeFromParent();
 				last = tree.getRowForPath(new TreePath(node));
 			}

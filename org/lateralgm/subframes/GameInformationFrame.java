@@ -28,7 +28,6 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
@@ -36,7 +35,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.ByteArrayInputStream;
@@ -65,7 +63,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -135,6 +132,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	public class SettingsFrame extends JFrame
 	{
 	
+	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 	public SettingsFrame() {
 		super();
   	setAlwaysOnTop(true);
@@ -686,9 +688,10 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		if (CustomFileFilter.getExtension(name) == null) name += ".rtf"; //$NON-NLS-1$
 		try
 			{
-			FileOutputStream i = new FileOutputStream(new File(name));
-			rtf.write(i,editor.getDocument(),0,0);
-			i.close();
+			FileOutputStream out = new FileOutputStream(new File(name));
+			StyledDocument doc = (StyledDocument)editor.getDocument();
+			rtf.write(out,doc, doc.getStartPosition().getOffset(), doc.getLength());
+			out.close();
 			}
 		catch (Exception e)
 			{
