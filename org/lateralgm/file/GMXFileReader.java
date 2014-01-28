@@ -49,6 +49,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.GmFileReader.PostponedRef;
+import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -1595,106 +1597,33 @@ public final class GMXFileReader
 							final Argument argument = args[x];
 							if (argprop.getNodeName().equals("kind")) {
 								argument.kind = Byte.parseByte(argprop.getTextContent());
-							} else if (argprop.getNodeName().equals("sprite")) {
-								PostponedRef pr = new PostponedRef()
-								{
-									public boolean invoke()
-									{
-										ResourceList<Sprite> list = f.resMap.getList(Sprite.class);
-										if (list == null) {	return false; }						
-										Sprite spr = list.get(proptext);
-										if (spr == null) { return false; }
-										argument.setRes(spr.reference);
-										return true;
-									}
-								};
-								postpone.add(pr);
-							} else if (argprop.getNodeName().equals("background")) {
-								PostponedRef pr = new PostponedRef()
-								{
-									public boolean invoke()
-									{
-										ResourceList<Background> list = f.resMap.getList(Background.class);
-										if (list == null) {	return false; }						
-									  Background bkg = list.get(proptext);
-										if (bkg == null) { return false; }
-										argument.setRes(bkg.reference);
-										return true;
-									}
-								};
-								postpone.add(pr);
-							} else if (argprop.getNodeName().equals("path")) {
-								PostponedRef pr = new PostponedRef()
-								{
-									public boolean invoke()
-									{
-										ResourceList<Path> list = f.resMap.getList(Path.class);
-										if (list == null) {	return false; }						
-										Path pth = list.get(proptext);
-										if (pth == null) { return false; }
-										argument.setRes(pth.reference);
-										return true;
-									}
-								};
-								postpone.add(pr);
-							} else if (argprop.getNodeName().equals("script")) {
-								PostponedRef pr = new PostponedRef()
-								{
-									public boolean invoke()
-									{
-										ResourceList<Script> list = f.resMap.getList(Script.class);
-										if (list == null) {	return false; }						
-										Script scr = list.get(proptext);
-										if (scr == null) { return false; }
-										argument.setRes(scr.reference);
-										return true;
-									}
-								};
-								postpone.add(pr);
-							} else if (argprop.getNodeName().equals("font")) {
-								PostponedRef pr = new PostponedRef()
-								{
-									public boolean invoke()
-									{
-										ResourceList<Font> list = f.resMap.getList(Font.class);
-										if (list == null) {	return false; }						
-										Font fnt = list.get(proptext);
-										if (fnt == null) { return false; }
-										argument.setRes(fnt.reference);
-										return true;
-									}
-								};
-								postpone.add(pr);
-							} else if (argprop.getNodeName().equals("room")) {
-							PostponedRef pr = new PostponedRef()
-							{
-								public boolean invoke()
-								{
-									ResourceList<Room> list = f.resMap.getList(Room.class);
-									if (list == null) {	return false; }						
-									Room rmn = list.get(proptext);
-									if (rmn == null) { return false; }
-									argument.setRes(rmn.reference);
-									return true;
-								}
-							};
-							postpone.add(pr);
-						} else if (argprop.getNodeName().equals("object")) {
-								PostponedRef pr = new PostponedRef()
-								{
-									public boolean invoke()
-									{
-										ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
-										if (list == null) {	return false; }						
-										GmObject obj = list.get(proptext);
-										if (obj == null) { return false; }
-										argument.setRes(obj.reference);
-										return true;
-									}
-								};
-								postpone.add(pr);
-							} else if (argprop.getNodeName().equals("string")) {
+							}  else if (argprop.getNodeName().equals("string")) {
 								argument.setVal(proptext);
+							} else {
+								Class<? extends Resource<?,?>> kindc = Argument.getResourceKind(argument.kind);
+								if (kindc != null && Resource.class.isAssignableFrom(kindc)) try
+								{
+									PostponedRef pr = new PostponedRef()
+										{
+											public boolean invoke()
+												{
+												ResourceHolder<?> rh = f.resMap.get(Argument.getResourceKind(argument.kind));
+												if (rh == null) {	return false; }		
+												Resource<?,?> temp = null;
+												if (rh instanceof ResourceList<?>)
+													temp = ((ResourceList<?>) rh).get(proptext);
+												else
+													temp = rh.getResource();
+												if (temp == null) return false;
+												argument.setRes(temp.reference);
+												return true;
+												}
+										};
+									postpone.add(pr);
+								}	catch (NumberFormatException e) {
+										//Trying to ref a resource without a valid id number?
+										//Fallback to strval (already set)
+								}
 							}
 						}
 					}
