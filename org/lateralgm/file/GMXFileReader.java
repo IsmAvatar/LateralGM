@@ -1665,7 +1665,21 @@ public final class GMXFileReader
 									}
 								};
 								postpone.add(pr);
-							} else if (argprop.getNodeName().equals("object")) {
+							} else if (argprop.getNodeName().equals("room")) {
+							PostponedRef pr = new PostponedRef()
+							{
+								public boolean invoke()
+								{
+									ResourceList<Room> list = f.resMap.getList(Room.class);
+									if (list == null) {	return false; }						
+									Room rmn = list.get(proptext);
+									if (rmn == null) { return false; }
+									argument.setRes(rmn.reference);
+									return true;
+								}
+							};
+							postpone.add(pr);
+						} else if (argprop.getNodeName().equals("object")) {
 								PostponedRef pr = new PostponedRef()
 								{
 									public boolean invoke()
