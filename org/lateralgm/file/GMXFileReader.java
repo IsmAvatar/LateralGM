@@ -23,7 +23,6 @@
 
 package org.lateralgm.file;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -49,7 +48,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.GmFileReader.PostponedRef;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
@@ -416,7 +414,7 @@ public final class GMXFileReader
 		pSet.put(PGameSettings.VERSION_MINOR, Integer.parseInt(setdoc.getElementsByTagName("option_version_minor").item(0).getTextContent()));
 		pSet.put(PGameSettings.VERSION_RELEASE, Integer.parseInt(setdoc.getElementsByTagName("option_version_release").item(0).getTextContent()));
 		
-		ResNode node = new ResNode("Global Game Settings", (byte)3, GameSettings.class, gSet.reference);
+		ResNode node = new ResNode("Global Game Settings", ResNode.STATUS_SECONDARY, GameSettings.class, gSet.reference);
 		root.add(node);
 		}
 
@@ -449,7 +447,7 @@ public final class GMXFileReader
 	ResNode rnode = null;
 	
 	if (cname.equals("sprites")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Sprite.class, null);
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), ResNode.STATUS_GROUP, Sprite.class, null);
 		node.add(rnode);
 		iterateSprites(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("sprite")) {
@@ -458,7 +456,7 @@ public final class GMXFileReader
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  spr.setName(fileName);
 	  spr.setNode(rnode);
-	  rnode = new ResNode(spr.getName(), (byte)3, Sprite.class, spr.reference);
+	  rnode = new ResNode(spr.getName(), ResNode.STATUS_SECONDARY, Sprite.class, spr.reference);
 	  node.add(rnode);
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
@@ -525,7 +523,7 @@ public final class GMXFileReader
 	ResNode rnode = null;
 	
 	if (cname.equals("sounds")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Sound.class, null);
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), ResNode.STATUS_GROUP, Sound.class, null);
 		node.add(rnode);
 		iterateSounds(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("sound")) {
@@ -534,7 +532,7 @@ public final class GMXFileReader
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  snd.setName(fileName);
 	  snd.setNode(rnode);
-	  rnode = new ResNode(snd.getName(), (byte)3, Sound.class, snd.reference);
+	  rnode = new ResNode(snd.getName(), ResNode.STATUS_SECONDARY, Sound.class, snd.reference);
 	  node.add(rnode);
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
@@ -592,7 +590,7 @@ public final class GMXFileReader
 	ResNode rnode = null;
 	
 	if (cname.equals("backgrounds")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Background.class, null);
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), ResNode.STATUS_GROUP, Background.class, null);
 		node.add(rnode);
 		iterateBackgrounds(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("background")) {
@@ -601,7 +599,7 @@ public final class GMXFileReader
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  bkg.setName(fileName);
 	  bkg.setNode(rnode);
-	  rnode = new ResNode(bkg.getName(), (byte)3, Background.class, bkg.reference);
+	  rnode = new ResNode(bkg.getName(), ResNode.STATUS_SECONDARY, Background.class, bkg.reference);
 	  node.add(rnode);
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
@@ -661,7 +659,7 @@ public final class GMXFileReader
 	ResNode rnode = null;
 	
 	if (cname.equals("paths")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Path.class, null);
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), ResNode.STATUS_GROUP, Path.class, null);
 		node.add(rnode);
 		iteratePaths(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("path")){
@@ -670,7 +668,7 @@ public final class GMXFileReader
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  pth.setName(fileName);
 	  pth.setNode(rnode);
-	  rnode = new ResNode(pth.getName(), (byte)3, Path.class, pth.reference);
+	  rnode = new ResNode(pth.getName(), ResNode.STATUS_SECONDARY, Path.class, pth.reference);
 	  node.add(rnode);
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
@@ -742,7 +740,7 @@ public final class GMXFileReader
 	ResNode rnode = null;
 	
 	if (cname.equals("scripts")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Script.class, null);
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), ResNode.STATUS_GROUP, Script.class, null);
 		node.add(rnode);
 		iterateScripts(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("script")){
@@ -751,7 +749,7 @@ public final class GMXFileReader
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  scr.setName(fileName.substring(0, fileName.lastIndexOf(".")));
 	  scr.setNode(rnode);
-	  rnode = new ResNode(scr.getName(), (byte)3, Script.class, scr.reference);
+	  rnode = new ResNode(scr.getName(), ResNode.STATUS_SECONDARY, Script.class, scr.reference);
 	  node.add(rnode);
 	  String code = "";
 	  String path = f.getPath();
@@ -804,7 +802,7 @@ public final class GMXFileReader
 	ResNode rnode = null;
 	
 	if (cname.equals("shaders")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Shader.class, null);
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), ResNode.STATUS_GROUP, Shader.class, null);
 		node.add(rnode);
 		iterateScripts(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("shader")){
@@ -813,7 +811,7 @@ public final class GMXFileReader
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  shr.setName(fileName.substring(0, fileName.lastIndexOf(".")));
 	  shr.setNode(rnode);
-	  rnode = new ResNode(shr.getName(), (byte)3, Shader.class, shr.reference);
+	  rnode = new ResNode(shr.getName(), ResNode.STATUS_SECONDARY, Shader.class, shr.reference);
 	  node.add(rnode);
 	  shr.put(PShader.TYPE, cNode.getAttributes().item(0).getTextContent());
 	  String code = "";
@@ -870,7 +868,7 @@ public final class GMXFileReader
 	ResNode rnode = null;
 	
 	if (cname.equals("fonts")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Font.class, null);
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), ResNode.STATUS_GROUP, Font.class, null);
 		node.add(rnode);
 		iterateFonts(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("font")){
@@ -879,7 +877,7 @@ public final class GMXFileReader
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  fnt.setName(fileName);
 	  fnt.setNode(rnode);
-	  rnode = new ResNode(fnt.getName(), (byte)3, Font.class, fnt.reference);
+	  rnode = new ResNode(fnt.getName(), ResNode.STATUS_SECONDARY, Font.class, fnt.reference);
 	  node.add(rnode);
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
@@ -930,7 +928,7 @@ public final class GMXFileReader
 	ResNode rnode = null;
 	
 	if (cname.equals("timelines")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Timeline.class, null);
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), ResNode.STATUS_GROUP, Timeline.class, null);
 		node.add(rnode);
 	} else if (cname.equals("timeline")){
 	  Timeline tml = f.resMap.getList(Timeline.class).add();
@@ -938,7 +936,7 @@ public final class GMXFileReader
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  tml.setName(fileName);
 	  tml.setNode(rnode);
-	  rnode = new ResNode(tml.getName(), (byte)3, Timeline.class, tml.reference);
+	  rnode = new ResNode(tml.getName(), ResNode.STATUS_SECONDARY, Timeline.class, tml.reference);
 	  node.add(rnode);
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
@@ -998,7 +996,7 @@ public final class GMXFileReader
 	ResNode rnode = null;
 	
 	if (cname.equals("objects")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, GmObject.class, null);
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), ResNode.STATUS_GROUP, GmObject.class, null);
 		node.add(rnode);
 		iterateGmObjects(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("object")) {
@@ -1108,7 +1106,7 @@ public final class GMXFileReader
 			
 			readActions(c,ev,"INOBJECTACTION", i, ii * 1000 + ev.id, fnode.getChildNodes()); //$NON-NLS-1$
 		}
-	  rnode = new ResNode(obj.getName(), (byte)3, GmObject.class, obj.reference);
+	  rnode = new ResNode(obj.getName(), ResNode.STATUS_SECONDARY, GmObject.class, obj.reference);
 	  node.add(rnode);
 	}
 	}
@@ -1147,7 +1145,7 @@ public final class GMXFileReader
 	ResNode rnode = null;
 	
 	if (cname.equals("rooms")) { 
-		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), (byte)2, Room.class, null);
+		rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(), ResNode.STATUS_GROUP, Room.class, null);
 		node.add(rnode);
 		iterateRooms(c, cNode.getChildNodes(), rnode);
 	} else if (cname.equals("room")){
@@ -1156,7 +1154,7 @@ public final class GMXFileReader
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  rmn.setName(fileName);
 	  rmn.setNode(rnode);
-	  rnode = new ResNode(rmn.getName(), (byte)3, Room.class, rmn.reference);
+	  rnode = new ResNode(rmn.getName(), ResNode.STATUS_SECONDARY, Room.class, rmn.reference);
 	  node.add(rnode);
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
@@ -1503,7 +1501,7 @@ public final class GMXFileReader
 		
 		gameInfo.put(PGameInformation.TEXT, text);
 		
-		ResNode node = new ResNode("Game Information", (byte)3, GameInformation.class, gameInfo.reference);
+		ResNode node = new ResNode("Game Information", ResNode.STATUS_SECONDARY, GameInformation.class, gameInfo.reference);
 		root.add(node);
 		}
 	

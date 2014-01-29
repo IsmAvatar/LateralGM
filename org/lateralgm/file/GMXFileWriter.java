@@ -500,13 +500,22 @@ public final class GMXFileWriter
 		}
 	}
 
+	//This is used to obtain the primary node for a resource type.
+	//TODO: This is rather ugly and doesn't allow multiple primary nodes.
+	private static ResNode getPrimaryNode(ResNode first) {
+		while (first.status != ResNode.STATUS_PRIMARY) 
+			first = (ResNode) first.getParent();
+		return first;
+	}
+
+	
 	//This is used to stored booleans since GMX uses -1 and 0 and other times false and true
 	private static String boolToString(boolean bool)
 		{
 		if (bool) { return "-1"; }
 		else { return "0"; } 
 		}
-
+	
 	public static void writeSprites(ProjectFileContext c, Element root) throws IOException
 	{
 		Document dom = c.dom;
@@ -519,9 +528,8 @@ public final class GMXFileWriter
 		if (sprList.size() == 0) {
 			return;
 		}
-		ResNode sprRoot = (ResNode) sprList.first().getNode().getParent(); 
 	
-		iterateSprites(c, sprRoot, node);
+		iterateSprites(c, getPrimaryNode(sprList.first().getNode()), node);
 	}
 	
 	private static void iterateSounds(ProjectFileContext c, ResNode root, Element node) {
@@ -626,9 +634,7 @@ public final class GMXFileWriter
 		if (sndList.size() == 0) {
 			return;
 		}
-		ResNode sndRoot = (ResNode) sndList.first().getNode().getParent(); 
-	
-		iterateSounds(c, sndRoot, node);
+		iterateSounds(c, getPrimaryNode(sndList.first().getNode()), node);
 	}
 	
 	private static void iterateBackgrounds(ProjectFileContext c, ResNode root, Element node) {
@@ -738,9 +744,8 @@ public final class GMXFileWriter
 		if (bkgList.size() == 0) {
 			return;
 		}
-		ResNode bkgRoot = (ResNode) bkgList.first().getNode().getParent(); 
 		
-		iterateBackgrounds(c, bkgRoot, node);
+		iterateBackgrounds(c, getPrimaryNode(bkgList.first().getNode()), node);
 	}
 	
 	private static void iteratePaths(ProjectFileContext c, ResNode root, Element node) {
@@ -848,9 +853,8 @@ public final class GMXFileWriter
 		if (pthList.size() == 0) {
 			return;
 		}
-		ResNode pthRoot = (ResNode) pthList.first().getNode().getParent(); 
-	
-		iteratePaths(c, pthRoot, node);
+
+		iteratePaths(c, getPrimaryNode(pthList.first().getNode()), node);
 	}
 
 	private static void iterateScripts(ProjectFileContext c, ResNode root, Element node) {
@@ -910,9 +914,8 @@ public final class GMXFileWriter
 	if (scrList.size() == 0) {
 		return;
 	}
-	ResNode scrRoot = (ResNode) scrList.first().getNode().getParent(); 
 
-	iterateScripts(c, scrRoot, node);
+	iterateScripts(c, getPrimaryNode(scrList.first().getNode()), node);
 	}
 	
 	private static void iterateShaders(ProjectFileContext c, ResNode root, Element node) {
@@ -977,9 +980,7 @@ public final class GMXFileWriter
 		if (shrList.size() == 0) {
 			return;
 		}
-		ResNode shrRoot = (ResNode) shrList.first().getNode().getParent(); 
-	
-		iterateShaders(c, shrRoot, node);
+		iterateShaders(c, getPrimaryNode(shrList.first().getNode()), node);
 	}
 	
 	private static void iterateFonts(ProjectFileContext c, ResNode root, Element node) {
@@ -1095,9 +1096,7 @@ public final class GMXFileWriter
 		if (fntList.size() == 0) {
 			return;
 		}
-		ResNode fntRoot = (ResNode) fntList.first().getNode().getParent(); 
-	
-		iterateFonts(c, fntRoot, node);
+		iterateFonts(c, getPrimaryNode(fntList.first().getNode()), node);
 	}
 	
 	private static void iterateTimelines(ProjectFileContext c, ResNode root, Element node) {
@@ -1188,9 +1187,8 @@ public final class GMXFileWriter
 		if (tmlList.size() == 0) {
 			return;
 		}
-		ResNode tmlRoot = (ResNode) tmlList.first().getNode().getParent(); 
-	
-		iterateTimelines(c, tmlRoot, node);
+
+		iterateTimelines(c, getPrimaryNode(tmlList.first().getNode()), node);
 	}
 
 	private static void iterateGmObjects(ProjectFileContext c, ResNode root, Element node) {
@@ -1324,9 +1322,8 @@ public final class GMXFileWriter
 		if (objList.size() == 0) {
 			return;
 		}
-		ResNode objRoot = (ResNode) objList.first().getNode().getParent(); 
-	
-		iterateGmObjects(c, objRoot, node);
+
+		iterateGmObjects(c, getPrimaryNode(objList.first().getNode()), node);
 	}
 	
 	private static void iterateRooms(ProjectFileContext c, ResNode root, Element node) {
@@ -1572,10 +1569,7 @@ public final class GMXFileWriter
 		if (rmnList.size() == 0) {
 			return;
 		}
-		
-		ResNode rmnRoot = (ResNode) rmnList.first().getNode().getParent(); 
-
-		iterateRooms(c, rmnRoot, node);
+		iterateRooms(c, getPrimaryNode(rmnList.first().getNode()), node);
 	}
 
 	public static void writeIncludedFiles(ProjectFileContext c, Element root) throws IOException
