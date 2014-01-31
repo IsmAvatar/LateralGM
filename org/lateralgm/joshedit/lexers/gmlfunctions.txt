@@ -2188,6 +2188,9 @@ col1,col2,amount
 message_alpha
 alpha
 
+message_background
+back
+
 message_button_font
 name,size,color,style
 
@@ -2214,6 +2217,9 @@ w,h
 
 message_text_font
 name,size,color,style
+
+message_text_charset
+type,charset
 
 min
 val1,val2,val3,...
