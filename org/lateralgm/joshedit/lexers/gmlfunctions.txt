@@ -319,6 +319,12 @@ ind,fname
 background_set_alpha_from_background
 ind,back
 
+base64_decode
+string
+
+base64_encode
+string
+
 buffer_create
 size,type,alignment
 
@@ -381,6 +387,9 @@ buffer,offset,size
 
 buffer_base64_decode
 string
+
+buffer_base64_decode_ext
+buffer,string,offset
 
 cd_close_door
 none
@@ -2038,6 +2047,9 @@ none
 io_handle
 none
 
+is_array
+x
+
 is_real
 x
 
@@ -2175,6 +2187,15 @@ val1,val2,val3,...
 
 MCI_command
 str
+
+md5_file
+filename
+
+md5_string_unicode
+string
+
+md5_string_utf8
+string
 
 mean
 val1,val2,val3,...
@@ -3165,6 +3186,15 @@ priority
 
 set_synchronization
 value
+
+sha1_string_utf8
+string
+
+sha1_string_unicode
+string
+
+sha1_file
+filename
 
 shader_set
 shader
