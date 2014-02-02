@@ -875,7 +875,7 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
   {
 	  int index = list.getSelectedIndex();
 	  ActionListModel alm = (ActionListModel) list.getModel();
-	  this.openActionFrame(parent.get(), (Action)alm.getElementAt(index));
+	  ActionList.openActionFrame(parent.get(), (Action)alm.getElementAt(index));
   }
 	
 	  public void ActionsCut(JList list)

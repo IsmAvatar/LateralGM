@@ -194,7 +194,7 @@ public class ProjectFile implements UpdateListener
 			path = uri.getPath().replace("\\","/");
 		}
 		File f = new File(path);
-		if (f != null) {
+		if (f.exists()) {
 			return f.getParent();
 		}
 		return path;

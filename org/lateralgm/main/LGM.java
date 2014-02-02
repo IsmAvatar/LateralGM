@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -81,6 +82,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.OceanTheme;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -107,7 +109,6 @@ import org.lateralgm.subframes.GameSettingFrame;
 import org.lateralgm.subframes.PreferencesFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
-
 
 public final class LGM
 	{
@@ -195,48 +196,32 @@ public final class LGM
 		String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
 		if (LOOKANDFEEL != null)
 			{
-			if (LOOKANDFEEL.equals("Swing"))
-				{
+			if (LOOKANDFEEL.equals("Swing")) {
 				lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
-				// an alternative way to set the Metal L&F is to replace the
-				// previous line with:
-				// lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
-				}
-			else if (LOOKANDFEEL.equals("Native"))
-				{
+				// This theme is also known as Metal - Ocean
+				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
+				MetalLookAndFeel.setCurrentTheme(new OceanTheme());
+			} else if (LOOKANDFEEL.equals("Native")) {
 				lookAndFeel = UIManager.getSystemLookAndFeelClassName();
-				}
-			else if (LOOKANDFEEL.equals("Nimbus"))
-				{
+			} else if (LOOKANDFEEL.equals("Nimbus")) {
 				lookAndFeel = "javax.swing.plaf.nimbus.NimbusLookAndFeel";
-				}
-			else if (LOOKANDFEEL.equals("Windows"))
-				{
+			} else if (LOOKANDFEEL.equals("Windows")) {
 				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-				}
-			else if (LOOKANDFEEL.equals("CDE/Motif"))
-				{
+			} else if (LOOKANDFEEL.equals("CDE/Motif")) {
 				lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-				}
-			else if (LOOKANDFEEL.equals("Metal"))
-				{
+			} else if (LOOKANDFEEL.equals("Metal")) {
 				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
 				MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
-				}
-			else if (LOOKANDFEEL.equals("GTK+"))
-				{
+			} else if (LOOKANDFEEL.equals("Ocean")) {
+				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
+				MetalLookAndFeel.setCurrentTheme(new OceanTheme());
+			} else if (LOOKANDFEEL.equals("GTK+")) {
 				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-				}
-			else if (LOOKANDFEEL.equals("Quantum"))
-				{
+			} else if (LOOKANDFEEL.equals("Quantum")) {
 				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-				}
-			else if (LOOKANDFEEL.equals("Custom"))
-				{
+			} else if (LOOKANDFEEL.equals("Custom")) {
 				lookAndFeel = Prefs.swingThemePath;
-				}
-			else
-				{
+			} else {
 				// Perhaps we did not get the name right, see if the theme is installed
 				// and attempt to use it.
 				boolean foundMatch = false;
@@ -292,14 +277,15 @@ public final class LGM
 			}
 		SwingUtilities.updateComponentTreeUI(tree);
 		SwingUtilities.updateComponentTreeUI(mdi);
+		mdi.updateUI();
 		if (eventFrame == null) {
 		  SwingUtilities.updateComponentTreeUI(eventSelect);
 		} else {
 		  SwingUtilities.updateComponentTreeUI(eventFrame);
 		}
 		frame.pack();
-		Window windows[] = frame.getWindows();
-		for(Window i : windows) {
+		Window windows[] = Window.getWindows();
+		for (Window i : windows) {
 		  SwingUtilities.updateComponentTreeUI(i);
     }
 	}
@@ -612,6 +598,7 @@ public final class LGM
 		}
 
 	protected static ArrayList<ReloadListener> reloadListeners = new ArrayList<ReloadListener>();
+	public static GmMenuBar menuBar;
 
 	public static void addReloadListener(ReloadListener l)
 		{
@@ -759,11 +746,11 @@ public final class LGM
 		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
-		JMenuBar gmnb = new GmMenuBar();
+		menuBar = new GmMenuBar();
 		if (LGM.themename.equals("Quantum")) {
-		  gmnb.setFont(lnfFont);
+		  menuBar.setFont(lnfFont);
 		}
-		frame.setJMenuBar(gmnb);
+		frame.setJMenuBar(menuBar);
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -831,7 +818,7 @@ public final class LGM
 				JOptionPane.QUESTION_MESSAGE,null);
 
 		// java preferences do not seem to memorize maximized state
-		if ((frame.getExtendedState() & frame.MAXIMIZED_BOTH) != 0) {
+		if ((frame.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0) {
 				PrefsStore.setFrameMaximized(true);
 		} else {
 				PrefsStore.setFrameMaximized(false);
@@ -999,7 +986,7 @@ public final class LGM
 			{
 			prefFrame = new PreferencesFrame();
 			}
-		prefFrame.show();
+		prefFrame.setVisible(true);
 		}
 
 	public static class MDIBackground extends JComponent

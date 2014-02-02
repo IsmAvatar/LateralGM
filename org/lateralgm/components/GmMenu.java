@@ -35,6 +35,11 @@ public class GmMenu extends JMenu
 		}
 		}
 
+	public GmMenu()
+		{
+		// TODO Auto-generated constructor stub
+		}
+
 	public JMenuItem addItem(String key)
 		{
 		return addItem(key,-1,-1,Listener.getInstance());
@@ -60,6 +65,39 @@ public class GmMenu extends JMenu
 			item.setActionCommand(key);
 			}
 		if (shortcut >= 0) item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
+		item.addActionListener(listener);
+		if (LGM.themename.equals("Quantum")) {
+		  item.setFont(LGM.lnfFont);
+		}
+		add(item);
+		return item;
+		}
+	
+	public GmMenu addMenu(String key)
+		{
+		return addMenu(key,-1,-1,Listener.getInstance());
+		}
+
+	public GmMenu addMenu(String key, ActionListener listener)
+		{
+		return addMenu(key,-1,-1,listener);
+		}
+
+	public GmMenu addMenu(String key, int shortcut, int control)
+		{
+		return addMenu(key,shortcut,control,Listener.getInstance());
+		}
+
+	public GmMenu addMenu(String key, int shortcut, int control, ActionListener listener)
+		{
+		GmMenu item = new GmMenu();
+		if (key != null)
+			{
+			setTextAndAlt(item,Messages.getString(key));
+			item.setIcon(LGM.getIconForKey(key));
+			item.setActionCommand(key);
+			}
+		//if (shortcut >= 0) item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
 		item.addActionListener(listener);
 		if (LGM.themename.equals("Quantum")) {
 		  item.setFont(LGM.lnfFont);

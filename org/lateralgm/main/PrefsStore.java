@@ -21,6 +21,11 @@ public final class PrefsStore
 
 	private static final Preferences PREFS = Preferences.userRoot().node("/org/lateralgm");
 
+	public static void clearRecentFiles() {
+		PREFS.remove("FILE_RECENT");
+		LGM.menuBar.setRecentMenuEnabled(false);
+	}
+	
 	public static ArrayList<String> getRecentFiles()
 		{
 		String value = PREFS.get("FILE_RECENT",null);
@@ -30,11 +35,12 @@ public final class PrefsStore
 		for (String name : array)
 			list.add(Util.urlDecode(name));
 		return list;
+		
 		}
-
+	
 	public static void addRecentFile(String name)
 		{
-		int maxcount = PREFS.getInt("FILE_RECENT_COUNT",4);
+		int maxcount = PREFS.getInt("FILE_RECENT_COUNT",10);
 		ArrayList<String> oldList = getRecentFiles();
 		oldList.remove(name);
 		String newList;

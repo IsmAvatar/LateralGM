@@ -25,8 +25,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.Icon;
+import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 
 import org.lateralgm.components.impl.ResNode;
@@ -43,6 +45,8 @@ public class GmMenuBar extends JMenuBar
 	private List<JMenuItem> recentFiles = new ArrayList<JMenuItem>();
 	private final int recentFilesPos;
 	private GmMenu fileMenu;
+	private GmMenu recentMenu;
+	private JMenuItem clearRecent;
 
 	public static final void setTextAndAlt(JMenuItem item, String input)
 		{
@@ -60,11 +64,23 @@ public class GmMenuBar extends JMenuBar
 			}
 		}
 
+	public void setRecentMenuEnabled(boolean enabled) {
+		recentMenu.setEnabled(enabled);
+		if (!enabled) {
+			recentMenu.removeAll();
+		}
+	}
+	
 	public void updateRecentFiles()
 		{
 		List<String> recentList = PrefsStore.getRecentFiles();
-		for (JMenuItem item : recentFiles)
-			fileMenu.remove(item);
+		if (recentList.size() > 0) {
+			setRecentMenuEnabled(true);
+		} else {
+			setRecentMenuEnabled(false);
+			return;
+		}
+		recentMenu.removeAll();
 		recentFiles.clear();
 		for (String recentStr : recentList)
 			{
@@ -88,7 +104,7 @@ public class GmMenuBar extends JMenuBar
 				}
 				item.setActionCommand("GmMenuBar.OPENRECENT " + recentStr); //$NON-NLS-1$
 				item.addActionListener(Listener.getInstance());
-				fileMenu.insert(item,recentFilesPos + recentFiles.size());
+				recentMenu.insert(item,recentFilesPos + recentFiles.size());
 				recentFiles.add(item);
 				}
 			catch (URISyntaxException e)
@@ -97,6 +113,8 @@ public class GmMenuBar extends JMenuBar
 				e.printStackTrace();
 				}
 			}
+		recentMenu.addSeparator();
+		clearRecent = recentMenu.addItem("GmMenuBar.CLEARRECENT");
 		}
 
 	protected static final Map<Class<? extends Resource<?,?>>,Character> MNEMONICS;
@@ -116,6 +134,7 @@ public class GmMenuBar extends JMenuBar
 
 		menu.addItem("GmMenuBar.NEW",KeyEvent.VK_N,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.OPEN",KeyEvent.VK_O,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
+		recentMenu = (GmMenu) menu.addMenu("GmMenuBar.RECENTFILES");
 		menu.addItem("GmMenuBar.SAVE",KeyEvent.VK_S,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SAVEAS"); //$NON-NLS-1$
 		menu.addSeparator();

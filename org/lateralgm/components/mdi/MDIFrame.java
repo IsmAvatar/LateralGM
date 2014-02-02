@@ -36,10 +36,12 @@ import javax.swing.plaf.basic.BasicInternalFrameUI;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 
+import com.sun.java.swing.plaf.windows.WindowsInternalFrameTitlePane;
+import com.sun.java.swing.plaf.windows.WindowsInternalFrameUI;
+
 public class MDIFrame extends JInternalFrame
 	{
 	private static final long serialVersionUID = 1L;
-	private javax.swing.plaf.basic.BasicInternalFrameTitlePane titlePane;
 
 	public MDIFrame()
 		{
@@ -71,7 +73,7 @@ public class MDIFrame extends JInternalFrame
 	{
 		super(title,resizable,closable,maximizable,iconifiable);
 		if (LGM.themename.equals("Quantum")) {
-		  this.setUI(new CustomInternalFrameUI(this));
+		  this.setUI(new QuantumInternalFrameUI(this));
 		  // please leave the frame as opaque
 		  // set it to false to fix the corners of mdi frames from
 		  // not bliting properly
@@ -83,7 +85,9 @@ public class MDIFrame extends JInternalFrame
 		  // of the mdiframe, but this screws up the DesktopPane's zordering
 		  // so just leave it be is my suggestion to you - Robert B. Colton
 			setOpaque(true);
-		}
+		} 
+		//TODO: this is a possibility to fix bugs in the Windows native look and feel
+		//this.setUI(new WinInternalFrameUI(this));
 	}
 
 	private MDIPane getMDIPane()
@@ -224,8 +228,40 @@ public class MDIFrame extends JInternalFrame
 				}
 			}
 		}
+
+	private class QuantumInternalFrameUI extends BasicInternalFrameUI
+	{
 	
-	private class CustomInternalFrameTitlePane extends BasicInternalFrameTitlePane
+	public QuantumInternalFrameUI(JInternalFrame b)
+			{
+			super(b);
+			// TODO Auto-generated constructor stub
+			}
+
+	protected JComponent createNorthPane(JInternalFrame w)
+		{
+		  return new QuantumInternalFrameTitlePane(w);
+		}
+	
+	}
+	
+	private class WinInternalFrameUI extends WindowsInternalFrameUI
+	{
+	
+	public WinInternalFrameUI(JInternalFrame b)
+			{
+			super(b);
+			// TODO Auto-generated constructor stub
+			}
+
+	protected JComponent createNorthPane(JInternalFrame w)
+		{
+		  return new WinInternalFrameTitlePane(w);
+		}
+	
+	}
+	
+	private class QuantumInternalFrameTitlePane extends BasicInternalFrameTitlePane
 	{
 	
 	  /**
@@ -344,7 +380,7 @@ public class MDIFrame extends JInternalFrame
 	    }
 	  }
 
-		public CustomInternalFrameTitlePane(JInternalFrame f)
+		public QuantumInternalFrameTitlePane(JInternalFrame f)
 			{
 			super(f);
 			// TODO Auto-generated constructor stub
@@ -395,11 +431,11 @@ public class MDIFrame extends JInternalFrame
 		@Override
 		protected LayoutManager createLayout() 
 			{
-				 return new TitlePaneLayout();
+				 return new QuantumTitlePaneLayout();
 			}
 		
-		/**	Layout for the InternalFrameTitlePane */
-		class TitlePaneLayout implements LayoutManager
+		/**	Layout for the QuantumInternalFrameTitlePane */
+		class QuantumTitlePaneLayout implements LayoutManager
 		{
 			private boolean isPalette = false;
 			private int paletteTitleHeight = 50;
@@ -576,20 +612,182 @@ public class MDIFrame extends JInternalFrame
 		   }
 	}
 	
-	private class CustomInternalFrameUI extends BasicInternalFrameUI
+	
+	private class WinInternalFrameTitlePane extends WindowsInternalFrameTitlePane
 	{
 	
-	public CustomInternalFrameUI(JInternalFrame b)
+		public WinInternalFrameTitlePane(JInternalFrame f)
 			{
-			super(b);
-			// TODO Auto-generated constructor stub
+			super(f);
 			}
 
-	protected JComponent createNorthPane(JInternalFrame w)
+		
+		@Override
+		protected LayoutManager createLayout() 
+			{
+				 return new WinTitlePaneLayout();
+			}
+		
+		/**	Layout for the WinInternalFrameTitlePane */
+		class WinTitlePaneLayout implements LayoutManager
 		{
-		  return new CustomInternalFrameTitlePane(w);
+			private boolean isPalette = false;
+			private int paletteTitleHeight = 50;
+
+
+			/**	Adds a component which is to be layouted */
+			public void addLayoutComponent(String name, Component c)
+			{
+				// Does nothing
+			}
+			
+			
+			/**	Removes a component which is to be layouted */
+			public void removeLayoutComponent(Component c)
+			{
+				// Does nothing
+			}
+			
+			
+			/**	Returns the preferred size of this layout for the specified component */
+			public Dimension preferredLayoutSize(Container c)
+			{
+				return minimumLayoutSize(c);
+			}
+
+
+			/**	Returns the minimum size of this layout for the specified component */
+			public Dimension minimumLayoutSize(Container c)
+			{
+				// Compute width.
+				int width= 30;
+				if (frame.isClosable())
+				{
+					width += closeIcon.getIconWidth();
+				}
+				if (frame.isMaximizable())
+				{
+					width += maxIcon.getIconWidth() + (frame.isClosable() ? 10 : 4);
+				}
+				if (frame.isIconifiable())
+				{
+					width += iconIcon.getIconWidth() 
+						+ (frame.isMaximizable() ? 2 : (frame.isClosable() ? 10 : 4));
+				}
+				FontMetrics fm= getFontMetrics(getFont());
+				String frameTitle= frame.getTitle();
+				int title_w= frameTitle != null ? fm.stringWidth(frameTitle) : 0;
+				int title_length= frameTitle != null ? frameTitle.length() : 0;
+
+				if (title_length > 2)
+				{
+					int subtitle_w=
+						fm.stringWidth(frame.getTitle().substring(0, 2) + "...");
+					width += (title_w < subtitle_w) ? title_w : subtitle_w;
+				}
+				else
+				{
+					width += title_w;
+				}
+
+				// Compute height.
+				int height= 0;
+				if (isPalette)
+				{
+					height= paletteTitleHeight;
+				}
+				else
+				{
+					int fontHeight= fm.getHeight();
+					fontHeight += 7;
+					Icon icon= frame.getFrameIcon();
+					int iconHeight= 0;
+					if (icon != null)
+					{
+						// SystemMenuBar forces the icon to be 16x16 or less.
+						iconHeight= Math.min(icon.getIconHeight(), 16);
+					}
+					iconHeight += 5;
+					height= Math.max(fontHeight, iconHeight);
+				}
+				return new Dimension(width, height);
+			}
+
+			
+			/**	Does a layout for the specified container */
+			public void layoutContainer(Container c)
+			{
+				boolean leftToRight = true;
+
+				int w= getWidth();
+				int x= leftToRight ? w : 0;
+				int spacing;
+
+				// assumes all buttons have the same dimensions
+				// these dimensions include the borders
+				int buttonHeight= closeButton.getIcon().getIconHeight();
+				int buttonWidth= closeButton.getIcon().getIconWidth();
+				int y = 1;
+				
+				spacing= 0;
+				x += leftToRight ? -spacing - (buttonWidth + 2) : spacing;
+				iconButton.setBounds(x, y, buttonWidth + 2, getHeight() - 4);
+				if (!leftToRight)
+					x += (buttonWidth + 2);
+				
+				if (frame.isClosable())
+				{
+					if (isPalette)
+					{
+						spacing= 3;
+						x += leftToRight ? -spacing - (buttonWidth) : spacing;
+						closeButton.setBounds(x + 30, y, buttonWidth, getHeight() - 4);
+						if (!leftToRight)
+							x += (buttonWidth + 2);
+					}
+					else
+					{
+						spacing= 0;
+						x += leftToRight ? -spacing - buttonWidth : spacing;
+						closeButton.setBounds(x + 30, y + 1, buttonWidth, buttonHeight);
+						if (!leftToRight)
+							x += buttonWidth;
+					}
+				}
+
+				if (frame.isMaximizable() && !isPalette)
+				{
+					x += leftToRight ? -spacing - buttonWidth : spacing;
+					buttonHeight= closeButton.getIcon().getIconHeight();
+					buttonWidth= closeButton.getIcon().getIconWidth();
+					closeButton.setBounds(x + 30, y, buttonWidth, buttonHeight);
+					if (!leftToRight)
+						x += buttonWidth;
+				}
+				
+				if (frame.isMaximizable() && !isPalette)
+				{
+					x += leftToRight ? -spacing - buttonWidth : spacing;
+					buttonHeight= maxButton.getIcon().getIconHeight();
+					buttonWidth= maxButton.getIcon().getIconWidth();
+					maxButton.setBounds(x + 30, y, buttonWidth, buttonHeight);
+					if (!leftToRight)
+						x += buttonWidth;
+				}
+				
+				if (frame.isIconifiable() && !isPalette)
+				{
+					x += leftToRight ? -spacing - buttonWidth : spacing;
+					buttonHeight= iconButton.getIcon().getIconHeight();
+					buttonWidth= iconButton.getIcon().getIconWidth();
+					iconButton.setBounds(x + 30, y, buttonWidth, buttonHeight);
+					if (!leftToRight)
+						x += buttonWidth;
+				}
+			}
 		}
-	
+		
 	}
+	
 	
 	}

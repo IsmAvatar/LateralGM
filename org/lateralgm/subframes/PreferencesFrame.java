@@ -406,7 +406,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 
 	public PreferencesFrame()
 	{
-	  setAlwaysOnTop(true);
+	  setAlwaysOnTop(false);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(600,400);
 	  setLocationRelativeTo(LGM.frame);

@@ -15,10 +15,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Shape;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JOptionPane;
 
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -27,6 +28,8 @@ import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
+
+import sun.security.ssl.Debug;
 
 public class SubimagePreview extends AbstractImagePreview implements UpdateListener
 	{
@@ -65,7 +68,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		{
 		BufferedImage img = getImage();
 		if (img == null) return super.getPreferredSize();
-		return new Dimension((int)(img.getWidth()*zoom),(int)(img.getHeight()*zoom));
+		return new Dimension((int)Math.ceil(img.getWidth()*zoom),(int)Math.ceil(img.getHeight()*zoom));
 		}
 	
 	public BufferedImage paintBackground() {
@@ -95,7 +98,6 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	
 	public void paintComponent(Graphics g)
 		{
-		
 		if ((Boolean) sprite.get(PSprite.TRANSPARENT)) {
 			if (transparentImage == null) {
 				image = getTransparentImage();
@@ -109,54 +111,50 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		g.setColor(this.getBackground());
 		g.fillRect(0,0,this.getWidth(),this.getHeight());
 		
-		int imgwidth = 0;
-		int imgheight = 0;
-		
 		if (image != null) {
-			imgwidth = (int)(image.getWidth()*zoom);
-			imgheight = (int)(image.getHeight()*zoom);
+			Dimension d = getPreferredSize();
 
 			if (transparentBackground == null) {
 				transparentBackground = paintBackground();
 			}
 			
-			g.drawImage(transparentBackground, 0, 0, imgwidth, imgheight, null);
+			g.drawImage(transparentBackground, 0, 0, d.width, d.height, null);
     
-			g.drawImage(image, 0, 0, imgwidth, imgheight, null);
-		}		else
+			g.drawImage(image, 0, 0, d.width, d.height, null);
+		}	else {
 			setPreferredSize(new Dimension(0,0));
+		}
 
 		if (image != null && (showBbox || showOrigin))
 			{
-			int originX = sprite.get(PSprite.ORIGIN_X);
-			originX *= zoom;
-			int originY = sprite.get(PSprite.ORIGIN_Y);
-			originY *= zoom;
-			int bboxLeft = sprite.get(PSprite.BB_LEFT);
-			bboxLeft *= zoom;
-			int bboxRight = sprite.get(PSprite.BB_RIGHT);
-			bboxRight *= zoom;
-			int bboxTop = sprite.get(PSprite.BB_TOP);
-			bboxTop *= zoom;
-			int bboxBottom = sprite.get(PSprite.BB_BOTTOM);
-			bboxBottom *= zoom;
+			//TODO: The rounding that follows is extremely sensitive.
+			int originX = (int) Math.floor((Integer)sprite.get(PSprite.ORIGIN_X) * zoom);
+			int originY = (int) Math.floor((Integer)sprite.get(PSprite.ORIGIN_Y) * zoom);
+			int left = sprite.get(PSprite.BB_LEFT);
+			int right = sprite.get(PSprite.BB_RIGHT);
+			int top = sprite.get(PSprite.BB_TOP);
+			int bottom = sprite.get(PSprite.BB_BOTTOM);
 			
-			int left = Math.min(bboxLeft,bboxRight);
-			int right = Math.max(bboxLeft,bboxRight);
-			int top = Math.min(bboxTop,bboxBottom);
-			int bottom = Math.max(bboxTop,bboxBottom);
+			left = Math.min(left,right);
+			right = Math.max(left,right);
+			top = Math.min(top,bottom);
+			bottom = Math.max(top,bottom);
+
+			left = (int)Math.floor(left * zoom);
+			top = (int)Math.floor(top * zoom);
+			right = (int)Math.ceil((right + 1) * zoom) - 1;
+			bottom = (int)Math.ceil((bottom + 1) * zoom) - 1;
 
 			//Shape oldClip = reclip(g);
 
 			g.setXORMode(Color.BLACK); //XOR mode so that bbox and origin can counter
 			g.setColor(Color.WHITE);
-
 			if (showBbox) g.drawRect(left,top,right - left,bottom - top);
 			if (showOrigin)
-				{
+			{
 				g.drawLine(originX - ORIGIN_SIZE,originY,originX + ORIGIN_SIZE,originY);
 				g.drawLine(originX,originY - ORIGIN_SIZE,originX,originY + ORIGIN_SIZE);
-				}
+			}
 
 			g.setPaintMode(); //just in case
 			//g.setClip(oldClip); //restore the clip
@@ -168,8 +166,8 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	private void setBoundedOrigin(int x, int y)
 		{
 		Dimension d = getPreferredSize();
-		x = (int) Math.max(0,Math.min(d.width/zoom - 1,x));
-		y = (int) Math.max(0,Math.min(d.height/zoom - 1,y));
+		x = (int) Math.max(0,Math.min(getImage().getWidth(),x));
+		y = (int) Math.max(0,Math.min(getImage().getHeight(),y));
 		sprite.put(PSprite.ORIGIN_X,x);
 		sprite.put(PSprite.ORIGIN_Y,y);
 		}
@@ -206,16 +204,15 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		}
 
 	protected void processMouseEvent(MouseEvent e)
-		{
+	{
 		if (enablemouse) {
-		int mx = (int)(e.getX()/zoom);
-		int my = (int)(e.getY()/zoom);
-		if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1
-				&& mx < getPreferredSize().width && my < getPreferredSize().height)
+		int mx = (int)Math.floor(e.getX()/zoom);
+		int my = (int)Math.floor(e.getY()/zoom);
+		if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1)
 			setBoundedOrigin(mx,my);
 		}
 		super.processMouseEvent(e);
-		}
+	}
 
 	protected void processMouseMotionEvent(MouseEvent e)
 		{

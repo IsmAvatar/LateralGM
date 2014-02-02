@@ -40,6 +40,7 @@ import javax.swing.text.Position;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
+import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
@@ -240,6 +241,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				{
 				e1.printStackTrace();
 				}
+			return;
+		} else if (com.endsWith(".CLEARRECENT")) { //$NON-NLS-1$
+			PrefsStore.clearRecentFiles();
 			return;
 		} else if (com.endsWith(".OPENRECENT")) { //$NON-NLS-1$
 			try

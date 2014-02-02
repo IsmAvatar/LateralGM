@@ -69,7 +69,7 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 			PGameSettings.class,-1,new byte[16],false,false,false,false,true,-1,false,false,Color.BLACK,/**/
 			false,ColorDepth.NO_CHANGE,Resolution.NO_CHANGE,Frequency.NO_CHANGE,/**/
 			false,false,true,true,true,true,false,false,true,Priority.NORMAL,/**/
-			false,ProgressBar.DEFAULT,null,null,false,null,false,255,true,/**/
+			true,ProgressBar.DEFAULT,null,null,false,null,false,255,true,/**/
 			true,false,false,false,true,"","100",ProjectFile.longTimeToGmTime(System.currentTimeMillis()),"",/**///$NON-NLS-1$ //$NON-NLS-3$
 			IncludeFolder.MAIN,false,false,1,0,0,0,"","","","",null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
