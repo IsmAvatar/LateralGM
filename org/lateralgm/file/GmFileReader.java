@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.file.GMXFileReader.PostponedRef;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
@@ -200,7 +201,7 @@ public final class GmFileReader
 				in.setCharset(forceCharset);
 
 			JProgressBar progressBar = LGM.getProgressDialogBar();
-			progressBar.setMaximum(190);
+			progressBar.setMaximum(200);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING"));
 			
 			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
@@ -269,8 +270,12 @@ public final class GmFileReader
 
 			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED"));
 			//Resources read. Now we can invoke our postpones.
-			for (PostponedRef i : postpone)
+			int percent = 0;
+			for (PostponedRef i : postpone) {
 				i.invoke();
+				percent += 1;
+				LGM.setProgress(160 + percent/postpone.size(),Messages.getString("ProgressDialog.POSTPONED"));
+			}
 
 			LGM.setProgress(170,Messages.getString("ProgressDialog.LIBRARYCREATION"));
 			//Library Creation Code
@@ -322,6 +327,7 @@ public final class GmFileReader
 				    JOptionPane.ERROR_MESSAGE);
 				}
 			}
+		LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED"));
 		return f;
 		}
 

@@ -273,7 +273,7 @@ public final class GMXFileReader
 			ProjectFileContext c = new ProjectFileContext(f,document,timeids,objids,rmids);
 			
 			JProgressBar progressBar = LGM.getProgressDialogBar();
-			progressBar.setMaximum(150);
+			progressBar.setMaximum(160);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING"));
 			
 			LGM.setProgress(0,Messages.getString("ProgressDialog.SPRITES"));
@@ -339,6 +339,7 @@ public final class GMXFileReader
 				    JOptionPane.ERROR_MESSAGE);
 				}
 			}
+		LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED"));
 		return f;
 		}
 

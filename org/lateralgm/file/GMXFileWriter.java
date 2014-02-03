@@ -186,7 +186,7 @@ public final class GMXFileWriter
 			}
 		
 		JProgressBar progressBar = LGM.getProgressDialogBar();
-		progressBar.setMaximum(150);
+		progressBar.setMaximum(160);
 		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_SAVING"));
 		
 		ProjectFileContext c = new ProjectFileContext(f,dom);
@@ -249,7 +249,7 @@ public final class GMXFileWriter
 			// close up the stream and release the lock on the file
 			os.close();
 		}
-    
+    LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED"));
     return;
 	}
 	

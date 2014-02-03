@@ -183,7 +183,11 @@ public final class LGM
 	
 	public static void setProgressDialogVisible(boolean visible) {
 		if (!visible) {
-			if (progressDialog != null) { progressDialog.setVisible(false); }
+			if (progressDialog != null) { 
+				progressDialog.setVisible(false); 
+				progressTitle = "Progress Dialog";
+				progressDialogBar.setValue(0);
+			}
 			return;
 		}
 		getProgressDialog().setVisible(true);

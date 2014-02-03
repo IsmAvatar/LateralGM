@@ -90,7 +90,7 @@ public final class GmFileWriter
 		GmStreamEncoder out = new GmStreamEncoder(os);
 		
 		JProgressBar progressBar = LGM.getProgressDialogBar();
-		progressBar.setMaximum(190);
+		progressBar.setMaximum(200);
 		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_SAVING"));
 		
 		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
@@ -171,6 +171,7 @@ public final class GmFileWriter
 		LGM.setProgress(170,Messages.getString("ProgressDialog.FILETREE"));
 		writeTree(out,root);
 		out.close();
+		LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED"));
 		}
 
 	public static void writeSettings(ProjectFile f, GmStreamEncoder out, int ver, long savetime)
