@@ -64,7 +64,9 @@ import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
@@ -112,6 +114,8 @@ import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
 public final class LGM
 	{
+	public static JDialog progressDialog = null;
+	public static JProgressBar progressDialogBar = null;
 	public static String iconspath = "org/lateralgm/icons/";
 	public static String iconspack = "Calico";
 	public static String themename = "Swing";
@@ -158,7 +162,42 @@ public final class LGM
 	public static Cursor zoomCursor;
 	public static Cursor zoomInCursor;
 	public static Cursor zoomOutCursor;
+	private static String progressTitle;
 
+	public static JDialog getProgressDialog() {
+		if (progressDialog == null) {
+	  	progressDialog = new JDialog(LGM.frame, "Progress Dialog", true);
+	  	progressDialogBar = new JProgressBar(0, 140);
+	  	progressDialogBar.setStringPainted(true);
+	    progressDialog.add(BorderLayout.CENTER, progressDialogBar);
+	    progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+	    progressDialog.setSize(320, 65);
+	    progressDialog.setLocationRelativeTo(LGM.frame);
+		}
+		return progressDialog;
+	}
+	
+	public static JProgressBar getProgressDialogBar() {
+		return progressDialogBar;
+	}
+	
+	public static void setProgressDialogVisible(boolean visible) {
+		if (!visible) {
+			if (progressDialog != null) { progressDialog.setVisible(false); }
+			return;
+		}
+		getProgressDialog().setVisible(true);
+	}
+	
+	public static void setProgressTitle(String title) {
+		progressTitle = title;
+	}
+	
+	public static void setProgress(int value, String message) {
+		progressDialog.setTitle(progressTitle + " - " + message);
+		progressDialogBar.setValue(value);
+	}
+	
 	private static void createMouseCursors() {
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		
@@ -565,7 +604,7 @@ public final class LGM
 	public static void reload(boolean newRoot)
 		{
 		LGM.mdi.closeAll();
-
+		
 		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
 		LGM.tree.setSelectionRow(0);
 
@@ -802,7 +841,6 @@ public final class LGM
 		if (Prefs.frameMaximized) {
 			frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		}
-
 		}
 
 	public static void askToSaveProject()

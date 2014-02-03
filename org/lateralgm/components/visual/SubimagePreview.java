@@ -118,6 +118,10 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 				transparentBackground = paintBackground();
 			}
 			
+	    Graphics2D g2d = (Graphics2D) g;
+	   // g2d.translate(this.getWidth()/2 - d.width/2, 
+	    		//this.getHeight()/2 - d.height/2);
+			
 			g.drawImage(transparentBackground, 0, 0, d.width, d.height, null);
     
 			g.drawImage(image, 0, 0, d.width, d.height, null);

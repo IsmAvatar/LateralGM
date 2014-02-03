@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -523,36 +524,43 @@ public class FileChooser
 	 * Both open() methods are not headless. For a headless open:
 	 * <code>findReader(uri).read(uriStream,uri,root)</code>
 	 */
-	public void open(URI uri, FileReader reader)
+	public void open(final URI uri, final FileReader reader)
 		{
 		if (uri == null) return;
-		try
-			{
+	  Thread t = new Thread(new Runnable() {
+		  public void run() {
 			try
 				{
-				LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot());
+				try
+					{
+					LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot());
+					}
+				catch (MalformedURLException e)
+					{
+					return;
+					}
+				catch (IOException e)
+					{
+					return;
+					}
 				}
-			catch (MalformedURLException e)
+			catch (ProjectFormatException ex)
 				{
-				return;
+				new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
+						Messages.getString("FileChooser.ERROR_LOAD"),ex).setVisible(true); //$NON-NLS-1$
+				LGM.currentFile = ex.file;
+				LGM.populateTree();
+				rebuildTree();
 				}
-			catch (IOException e)
-				{
-				return;
-				}
-			}
-		catch (ProjectFormatException ex)
-			{
-			new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
-					Messages.getString("FileChooser.ERROR_LOAD"),ex).setVisible(true); //$NON-NLS-1$
-			LGM.currentFile = ex.file;
-			LGM.populateTree();
-			rebuildTree();
-			}
-		setTitleURI(uri);
-		PrefsStore.addRecentFile(uri.toString());
-		((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-		selectedWriter = null;
+			setTitleURI(uri);
+			PrefsStore.addRecentFile(uri.toString());
+			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+			selectedWriter = null;
+			LGM.setProgressDialogVisible(false);
+		  }
+		});
+		t.start();
+		LGM.setProgressDialogVisible(true);
 		LGM.reload(true);
 		}
 
@@ -659,20 +667,61 @@ public class FileChooser
 		}
 
 	/** This method is headless-safe. */
-	public static void save(URI uri, FileWriter writer) throws IOException
+	public static void save(final URI uri, final FileWriter writer) throws IOException
 		{
 		System.out.println(uri);
-		try
-			{
-			writer.write(new FileOutputStream(new File(uri)),LGM.currentFile,LGM.root);
-			return;
-			}
-		catch (IllegalArgumentException e)
-			{ //Do the stuff below
-			}
-		URLConnection uc = uri.toURL().openConnection();
-		uc.setDoOutput(true);
-		writer.write(uc.getOutputStream(),LGM.currentFile,LGM.root);
+	  Thread t = new Thread(new Runnable() {
+		  public void run() {
+				try
+					{
+					writer.write(new FileOutputStream(new File(uri)),LGM.currentFile,LGM.root);
+					LGM.setProgressDialogVisible(false);
+					return;
+					}
+				catch (IllegalArgumentException e)
+					{ //Do the stuff below
+					}
+				catch (FileNotFoundException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+				catch (IOException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+				URLConnection uc = null;
+				try
+					{
+					uc = uri.toURL().openConnection();
+					}
+				catch (MalformedURLException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+				catch (IOException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+				uc.setDoOutput(true);
+				try
+					{
+					writer.write(uc.getOutputStream(),LGM.currentFile,LGM.root);
+					LGM.setProgressDialogVisible(false);
+					return;
+					}
+				catch (IOException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+		  }
+	  });
+	  t.start();
+	  LGM.setProgressDialogVisible(true);
 		}
 
 	public FileWriter findWriter(FormatFlavor flavor)

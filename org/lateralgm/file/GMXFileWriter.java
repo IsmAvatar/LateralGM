@@ -39,6 +39,7 @@ import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -53,6 +54,7 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Font;
@@ -183,40 +185,58 @@ public final class GMXFileWriter
 			pce.printStackTrace();
 			}
 		
+		JProgressBar progressBar = LGM.getProgressDialogBar();
+		progressBar.setMaximum(150);
+		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_SAVING"));
+		
 		ProjectFileContext c = new ProjectFileContext(f,dom);
 		Element root = dom.createElement("assets");
-		//TODO: Handle actual fuck loading here
+		//TODO: Handle actual writing here
+		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
 		writeSettings(c, root);
 		
+		LGM.setProgress(10,Messages.getString("ProgressDialog.SPRITES"));
 		writeSprites(c, root);
+		LGM.setProgress(20,Messages.getString("ProgressDialog.SOUNDS"));
 		writeSounds(c, root); 
+		LGM.setProgress(30,Messages.getString("ProgressDialog.BACKGROUNDS"));
 		writeBackgrounds(c, root);
+		LGM.setProgress(40,Messages.getString("ProgressDialog.PATHS"));
 		writePaths(c, root);
+		LGM.setProgress(50,Messages.getString("ProgressDialog.SCRIPTS"));
 		writeScripts(c, root);
+		LGM.setProgress(60,Messages.getString("ProgressDialog.SHADERS"));
 		writeShaders(c, root);
+		LGM.setProgress(70,Messages.getString("ProgressDialog.FONTS"));
 		writeFonts(c, root);
+		LGM.setProgress(80,Messages.getString("ProgressDialog.TIMELINES"));
 		writeTimelines(c, root);
+		LGM.setProgress(90,Messages.getString("ProgressDialog.OBJECTS"));
 		writeGmObjects(c, root);
+		LGM.setProgress(100,Messages.getString("ProgressDialog.ROOMS"));
 		writeRooms(c, root);
+		LGM.setProgress(110,Messages.getString("ProgressDialog.INCLUDEFILES"));
 		//writeIncludedFiles(c, root);
+		LGM.setProgress(120,Messages.getString("ProgressDialog.PACKAGES"));
 		//writePackages(c, root);
+		LGM.setProgress(130,Messages.getString("ProgressDialog.EXTENSIONS"));
 		//writeExtensions(c, root);
+		LGM.setProgress(140,Messages.getString("ProgressDialog.GAMEINFORMATION"));
 		writeGameInformation(c, root);
 		
 		dom.appendChild(root);
 	
 		// Now take the serialized XML data and format and write it to the actual file
+		LGM.setProgress(150,Messages.getString("ProgressDialog.DOCUMENT"));
     try {
-    Transformer tr = TransformerFactory.newInstance().newTransformer();
-    tr.setOutputProperty(OutputKeys.INDENT, "yes");
-    tr.setOutputProperty(OutputKeys.METHOD, "xml");;
-    tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-    // send DOM to file
-    tr.transform(new DOMSource(dom), 
-                         new StreamResult(os));
-
-    
+	    Transformer tr = TransformerFactory.newInstance().newTransformer();
+	    tr.setOutputProperty(OutputKeys.INDENT, "yes");
+	    tr.setOutputProperty(OutputKeys.METHOD, "xml");;
+	    tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+	
+	    // send DOM to file
+	    tr.transform(new DOMSource(dom), 
+	                         new StreamResult(os));
 		} catch (TransformerException te) {
 		    te.printStackTrace();
 		    JOptionPane.showMessageDialog(LGM.frame,
@@ -229,6 +249,7 @@ public final class GMXFileWriter
 			// close up the stream and release the lock on the file
 			os.close();
 		}
+    
     return;
 	}
 	

@@ -22,10 +22,13 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.iconio.ICOFile;
+import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
@@ -85,6 +88,12 @@ public final class GmFileWriter
 		f.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = new GmStreamEncoder(os);
+		
+		JProgressBar progressBar = LGM.getProgressDialogBar();
+		progressBar.setMaximum(190);
+		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_SAVING"));
+		
+		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
 		if (ver >= 810)
 			out.setCharset(Charset.forName("UTF-8"));
 		else
@@ -110,18 +119,29 @@ public final class GmFileWriter
 
 		if (ver >= 800)
 			{
+			LGM.setProgress(10,Messages.getString("ProgressDialog.TRIGGERS"));
 			writeTriggers(f,out,ver);
+			LGM.setProgress(20,Messages.getString("ProgressDialog.CONSTANTS"));
 			writeConstants(f,out,ver);
 			}
 
+		LGM.setProgress(30,Messages.getString("ProgressDialog.SOUNDS"));
 		writeSounds(f,out,ver);
+		LGM.setProgress(40,Messages.getString("ProgressDialog.SPRITES"));
 		writeSprites(f,out,ver);
+		LGM.setProgress(50,Messages.getString("ProgressDialog.BACKGROUNDS"));
 		writeBackgrounds(f,out,ver);
+		LGM.setProgress(60,Messages.getString("ProgressDialog.PATHS"));
 		writePaths(f,out,ver);
+		LGM.setProgress(70,Messages.getString("ProgressDialog.SCRIPTS"));
 		writeScripts(f,out,ver);
+		LGM.setProgress(80,Messages.getString("ProgressDialog.FONTS"));
 		writeFonts(f,out,ver);
+		LGM.setProgress(90,Messages.getString("ProgressDialog.TIMELINES"));
 		writeTimelines(f,out,ver);
+		LGM.setProgress(100,Messages.getString("ProgressDialog.OBJECTS"));
 		writeGmObjects(f,out,ver);
+		LGM.setProgress(110,Messages.getString("ProgressDialog.ROOMS"));
 		writeRooms(f,out,ver);
 
 		out.write4(f.lastInstanceId);
@@ -129,20 +149,26 @@ public final class GmFileWriter
 
 		if (ver >= 700)
 			{
+			LGM.setProgress(120,Messages.getString("ProgressDialog.INCLUDEFILES"));
 			writeIncludedFiles(f,out,ver);
+			LGM.setProgress(130,Messages.getString("ProgressDialog.PACKAGES"));
 			writePackages(f,out,ver);
 			}
 
+		LGM.setProgress(140,Messages.getString("ProgressDialog.GAMEINFORMATION"));
 		writeGameInformation(f,out,ver);
 
+		LGM.setProgress(150,Messages.getString("ProgressDialog.LIBRARYCREATION"));
 		//Library Creation Code
 		out.write4(500);
 		out.write4(0);
 
+		LGM.setProgress(160,Messages.getString("ProgressDialog.ROOMEXECUTION"));
 		//Room Execution Order
 		out.write4(ver >= 700 ? 700 : 540);
 		out.write4(0);
 
+		LGM.setProgress(170,Messages.getString("ProgressDialog.FILETREE"));
 		writeTree(out,root);
 		out.close();
 		}

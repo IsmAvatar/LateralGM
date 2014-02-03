@@ -24,6 +24,7 @@ import java.util.Stack;
 import java.util.zip.DataFormatException;
 
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
@@ -198,6 +199,11 @@ public final class GmFileReader
 			else
 				in.setCharset(forceCharset);
 
+			JProgressBar progressBar = LGM.getProgressDialogBar();
+			progressBar.setMaximum(190);
+			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING"));
+			
+			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
 				{
@@ -219,20 +225,32 @@ public final class GmFileReader
 
 			if (ver >= 800)
 				{
+				LGM.setProgress(10,Messages.getString("ProgressDialog.TRIGGERS"));
 				readTriggers(c);
+				LGM.setProgress(20,Messages.getString("ProgressDialog.CONSTANTS"));
 				readConstants(c);
 				}
 
+			LGM.setProgress(30,Messages.getString("ProgressDialog.SOUNDS"));
 			readSounds(c);
+			LGM.setProgress(40,Messages.getString("ProgressDialog.SPRITES"));
 			readSprites(c);
+			LGM.setProgress(50,Messages.getString("ProgressDialog.BACKGROUNDS"));
 			readBackgrounds(c);
+			LGM.setProgress(60,Messages.getString("ProgressDialog.PATHS"));
 			readPaths(c);
+			LGM.setProgress(70,Messages.getString("ProgressDialog.SCRIPTS"));
 			readScripts(c);
+			LGM.setProgress(80,Messages.getString("ProgressDialog.SHADERS"));
 			//TODO: GMK 820 reads shaders first
+			LGM.setProgress(90,Messages.getString("ProgressDialog.FONTS"));
 			int rver = in.read4();
 			  readFonts(c, rver);
+			LGM.setProgress(100,Messages.getString("ProgressDialog.TIMELINES"));
 			readTimelines(c);
+			LGM.setProgress(110,Messages.getString("ProgressDialog.OBJECTS"));
 			readGmObjects(c);
+			LGM.setProgress(120,Messages.getString("ProgressDialog.ROOMS"));
 			readRooms(c);
 
 			f.lastInstanceId = in.read4();
@@ -240,16 +258,21 @@ public final class GmFileReader
 
 			if (ver >= 700)
 				{
+				LGM.setProgress(130,Messages.getString("ProgressDialog.INCLUDEFILES"));
 				readIncludedFiles(c);
+				LGM.setProgress(140,Messages.getString("ProgressDialog.PACKAGES"));
 				readPackages(c);
 				}
 
+			LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION"));
 			readGameInformation(c);
 
+			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED"));
 			//Resources read. Now we can invoke our postpones.
 			for (PostponedRef i : postpone)
 				i.invoke();
 
+			LGM.setProgress(170,Messages.getString("ProgressDialog.LIBRARYCREATION"));
 			//Library Creation Code
 			ver = in.read4();
 			if (ver != 500)
@@ -259,6 +282,7 @@ public final class GmFileReader
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 
+			LGM.setProgress(180,Messages.getString("ProgressDialog.ROOMEXECUTION"));
 			//Room Execution Order
 			ver = in.read4();
 			if (ver != 500 && ver != 540 && ver != 700)
@@ -266,6 +290,7 @@ public final class GmFileReader
 						Messages.getString("ProjectFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4);
 
+			LGM.setProgress(190,Messages.getString("ProgressDialog.FILETREE"));
 			readTree(c, root, ver);
 			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
 					- startTime));

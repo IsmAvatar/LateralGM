@@ -23,6 +23,7 @@
 
 package org.lateralgm.file;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -42,7 +43,10 @@ import java.util.Queue;
 import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -231,6 +235,7 @@ public final class GMXFileReader
 	public static ProjectFile readProjectFile(InputStream stream, URI uri, ResNode root, Charset forceCharset)
 			throws GmFormatException
 		{
+		
 		ProjectFile f = new ProjectFile();
 		f.uri = uri;
 		f.format = ProjectFile.FormatFlavor.getVersionFlavor(1110); // GMX is not versioned
@@ -267,22 +272,42 @@ public final class GMXFileReader
 
 			ProjectFileContext c = new ProjectFileContext(f,document,timeids,objids,rmids);
 			
+			JProgressBar progressBar = LGM.getProgressDialogBar();
+			progressBar.setMaximum(150);
+			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING"));
+			
+			LGM.setProgress(0,Messages.getString("ProgressDialog.SPRITES"));
 			readSprites(c, root);
+			LGM.setProgress(10,Messages.getString("ProgressDialog.SOUNDS"));
 			readSounds(c, root);
+			LGM.setProgress(20,Messages.getString("ProgressDialog.BACKGROUNDS"));
 			readBackgrounds(c, root);
+			LGM.setProgress(30,Messages.getString("ProgressDialog.PATHS"));
 			readPaths(c, root);
+			LGM.setProgress(40,Messages.getString("ProgressDialog.SCRIPTS"));
 			readScripts(c, root);
+			LGM.setProgress(50,Messages.getString("ProgressDialog.SHADERS"));
 			readShaders(c, root);
+			LGM.setProgress(60,Messages.getString("ProgressDialog.FONTS"));
 			readFonts(c, root);
+			LGM.setProgress(70,Messages.getString("ProgressDialog.TIMELINES"));
 			readTimelines(c, root);
+			LGM.setProgress(80,Messages.getString("ProgressDialog.OBJECTS"));
 			readGmObjects(c, root);
+			LGM.setProgress(90,Messages.getString("ProgressDialog.ROOMS"));
 			readRooms(c, root);
+			LGM.setProgress(100,Messages.getString("ProgressDialog.INCLUDEFILES"));
 			//readIncludedFiles(c, root);
+			LGM.setProgress(110,Messages.getString("ProgressDialog.PACKAGES"));
 			readPackages(c, root);
+			LGM.setProgress(120,Messages.getString("ProgressDialog.EXTENSIONS"));
 			readExtensions(c, root);
+			LGM.setProgress(130,Messages.getString("ProgressDialog.GAMEINFORMATION"));
 			readGameInformation(c, root);
+			LGM.setProgress(140,Messages.getString("ProgressDialog.SETTINGS"));
 			readSettings(c, root);
 			
+			LGM.setProgress(150,Messages.getString("ProgressDialog.POSTPONED"));
 			//Resources read. Now we can invoke our postpones.
 			for (PostponedRef i : postpone)
 				i.invoke();

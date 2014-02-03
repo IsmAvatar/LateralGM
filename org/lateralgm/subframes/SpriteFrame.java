@@ -211,7 +211,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		add(splitPane,BorderLayout.CENTER);
 		add(makeStatusBar(), BorderLayout.SOUTH);
 		
-mouseMotionListener = new MouseMotionListener() {
+		mouseMotionListener = new MouseMotionListener() {
 		
     public void mouseMoved(MouseEvent e) {
         final int x = e.getX();
