@@ -7,7 +7,7 @@ A C++11 compliant library for reading LGM's Action Library format is also availa
 
 License
 -------
-This library is licensed under the GNU GPL v3 License for more information please read the included LICENSE file or visit http://www.gnu.org/licenses
+This project is licensed under the GNU GPL v3 License for more information please read the included LICENSE file or visit http://www.gnu.org/licenses
 
 Contributors
 -------
