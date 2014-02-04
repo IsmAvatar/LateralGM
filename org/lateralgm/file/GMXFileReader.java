@@ -91,6 +91,8 @@ import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.Event;
+import org.lateralgm.resources.sub.GlyphMetric;
+import org.lateralgm.resources.sub.GlyphMetric.PGlyphMetric;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
@@ -103,6 +105,7 @@ import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.PropertyMap;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -915,10 +918,24 @@ public final class GMXFileReader
 		fnt.put(PFont.ITALIC, Integer.parseInt(fntdoc.getElementsByTagName("italic").item(0).getTextContent()) < 0);
 		fnt.put(PFont.CHARSET, Integer.parseInt(fntdoc.getElementsByTagName("charset").item(0).getTextContent()));
 		fnt.put(PFont.ANTIALIAS, Integer.parseInt(fntdoc.getElementsByTagName("aa").item(0).getTextContent()));
-		//TODO: Read all ranges
-		String[] range = fntdoc.getElementsByTagName("range0").item(0).getTextContent().split(",");
-		fnt.put(PFont.RANGE_MIN, Integer.parseInt(range[0]));
-		fnt.put(PFont.RANGE_MAX, Integer.parseInt(range[1]));
+		NodeList ranges = fntdoc.getElementsByTagName("range0");
+		for (int item = 0; item < ranges.getLength(); item++) {
+			String[] range = ranges.item(item).getTextContent().split(",");
+			fnt.addRange(Integer.parseInt(range[0]),Integer.parseInt(range[1]));
+		}
+		
+		NodeList glyphs = fntdoc.getElementsByTagName("glyph");
+		for (int item = 0; item < glyphs.getLength(); item++) {
+			NamedNodeMap attribs = glyphs.item(item).getAttributes();
+			GlyphMetric gm = fnt.addGlyph();
+			gm.properties.put(PGlyphMetric.CHARACTER,Integer.parseInt(attribs.getNamedItem("character").getTextContent()));
+			gm.properties.put(PGlyphMetric.X,Integer.parseInt(attribs.getNamedItem("x").getTextContent()));
+			gm.properties.put(PGlyphMetric.Y,Integer.parseInt(attribs.getNamedItem("y").getTextContent()));
+			gm.properties.put(PGlyphMetric.W,Integer.parseInt(attribs.getNamedItem("w").getTextContent()));
+			gm.properties.put(PGlyphMetric.H,Integer.parseInt(attribs.getNamedItem("h").getTextContent()));
+			gm.properties.put(PGlyphMetric.SHIFT,Integer.parseInt(attribs.getNamedItem("shift").getTextContent()));
+			gm.properties.put(PGlyphMetric.OFFSET,Integer.parseInt(attribs.getNamedItem("offset").getTextContent()));
+		}
 	}
 	}
 	

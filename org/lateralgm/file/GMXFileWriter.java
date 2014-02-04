@@ -85,7 +85,11 @@ import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
+import org.lateralgm.resources.sub.CharacterRange;
+import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
 import org.lateralgm.resources.sub.Event;
+import org.lateralgm.resources.sub.GlyphMetric;
+import org.lateralgm.resources.sub.GlyphMetric.PGlyphMetric;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
@@ -1050,11 +1054,26 @@ public final class GMXFileWriter
 			fntroot.appendChild(createElement(doc, "aa", 
 					fnt.get(PFont.ANTIALIAS).toString()));
 			
-			//TODO: Implement multiple ranges
 			Element rangeroot = doc.createElement("ranges");
 			fntroot.appendChild(rangeroot);
-			rangeroot.appendChild(createElement(doc, "range0", fnt.get(PFont.RANGE_MIN).toString()
-					+ "," + fnt.get(PFont.RANGE_MAX).toString()));
+			for (CharacterRange cr : fnt.characterRanges) {
+				rangeroot.appendChild(createElement(doc, "range0", cr.properties.get(PCharacterRange.RANGE_MIN).toString()
+						+ "," + cr.properties.get(PCharacterRange.RANGE_MAX).toString()));
+			}
+			
+			Element glyphroot = doc.createElement("glyphs");
+			fntroot.appendChild(glyphroot);
+			for (GlyphMetric gm : fnt.glyphMetrics) {
+				Element gelement = doc.createElement("glyph");
+				gelement.setAttribute("character",gm.properties.get(PGlyphMetric.CHARACTER).toString());
+				gelement.setAttribute("x",gm.properties.get(PGlyphMetric.X).toString());
+				gelement.setAttribute("y",gm.properties.get(PGlyphMetric.Y).toString());
+				gelement.setAttribute("w",gm.properties.get(PGlyphMetric.W).toString());
+				gelement.setAttribute("h",gm.properties.get(PGlyphMetric.H).toString());
+				gelement.setAttribute("shift",gm.properties.get(PGlyphMetric.SHIFT).toString());
+				gelement.setAttribute("offset",gm.properties.get(PGlyphMetric.OFFSET).toString());
+				glyphroot.appendChild(gelement);
+			}
 
 			// TODO: Move glyph renderer from the plugin to LGM and write glyphs here
 			fntroot.appendChild(createElement(doc, "image", 

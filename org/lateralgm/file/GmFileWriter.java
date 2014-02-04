@@ -61,6 +61,8 @@ import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.BackgroundDef;
+import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
+import org.lateralgm.resources.sub.CharacterRange;
 import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.Instance;
@@ -559,15 +561,21 @@ public final class GmFileWriter
 				out.writeStr(font.properties,PFont.FONT_NAME);
 				out.write4(font.properties,PFont.SIZE);
 				out.writeBool(font.properties,PFont.BOLD,PFont.ITALIC);
+				CharacterRange cr = font.characterRanges.get(0);
+				int rangemin = 0, rangemax = 0;
+				if (cr != null) {
+					rangemin = cr.properties.get(PCharacterRange.RANGE_MIN);
+					rangemax = cr.properties.get(PCharacterRange.RANGE_MIN);
+				}
 				if (ver >= 810)
 					{
-					out.write2((Integer) font.get(PFont.RANGE_MIN));
+					out.write2(rangemin);
 					out.write((Integer) font.get(PFont.CHARSET));
 					out.write((Integer) font.get(PFont.ANTIALIAS));
 					}
 				else
-					out.write4(font.properties,PFont.RANGE_MIN);
-				out.write4(font.properties,PFont.RANGE_MAX);
+					out.write4(rangemin);
+				out.write4(rangemax);
 				}
 			out.endDeflate();
 			}

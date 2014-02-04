@@ -11,18 +11,33 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
+import javax.swing.JOptionPane;
+
+import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateTrigger;
+import org.lateralgm.resources.sub.CharacterRange;
+import org.lateralgm.resources.sub.GlyphMetric;
+import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 
 public class Font extends InstantiableResource<Font,Font.PFont>
-	{
+{
+
 	public enum PFont
-		{
-		FONT_NAME,SIZE,BOLD,ITALIC,ANTIALIAS,CHARSET,RANGE_MIN,RANGE_MAX
-		}
-
+	{
+		FONT_NAME,SIZE,BOLD,ITALIC,ANTIALIAS,CHARSET
+	}
+	
 	private static final EnumMap<PFont,Object> DEFS = PropertyMap.makeDefaultMap(PFont.class,"Arial",
-			12,false,false,3,0,32,127);
-
+			12,false,false,3,0);
+	
+	public final ActiveArrayList<CharacterRange> characterRanges = new ActiveArrayList<CharacterRange>();
+	public final ActiveArrayList<GlyphMetric> glyphMetrics = new ActiveArrayList<GlyphMetric>();
+	
+	private final UpdateTrigger rangeUpdateTrigger = new UpdateTrigger();
+	public final UpdateSource rangeUpdateSource = new UpdateSource(this,rangeUpdateTrigger);
+	
 	public Font()
 		{
 		this(null);
@@ -37,20 +52,25 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 		{
 		return new Font(r);
 		}
+	
+	public GlyphMetric addGlyph()
+		{
+		GlyphMetric gm = new GlyphMetric();
+		glyphMetrics.add(gm);
+		return gm;
+		}
 
-	public void setRange(int min, int max)
+	public CharacterRange addRange()
+		{
+		CharacterRange cr = new CharacterRange(this);
+		characterRanges.add(cr);
+		return cr;
+		}
+	
+	public void addRange(int min, int max)
 		{
 		if (min < 0 || max > 255 || min > max) throw new IllegalArgumentException();
-		if (min > (Integer) get(PFont.RANGE_MAX))
-			{
-			put(PFont.RANGE_MAX,max);
-			put(PFont.RANGE_MIN,min);
-			}
-		else
-			{
-			put(PFont.RANGE_MIN,min);
-			put(PFont.RANGE_MAX,max);
-			}
+		characterRanges.add(new CharacterRange(this, min, max));
 		}
 
 	@Override
@@ -58,31 +78,25 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 		{
 		return new PropertyMap<PFont>(PFont.class,this,DEFS);
 		}
-
+	
 	@Override
-	public Object validate(PFont k, Object v)
+	protected void postCopy(Font dest)
 		{
-		switch (k)
+		super.postCopy(dest);
+		for (CharacterRange cr : characterRanges)
 			{
-			case RANGE_MIN:
-				int min = (Integer) v;
-				if (min < 0)
-					min = 0;
-				else if (min > 255) min = 255;
-				if (min > (Integer) get(PFont.RANGE_MAX)) put(PFont.RANGE_MAX,min);
-				if (min != (Integer) v) return min;
-				break;
-			case RANGE_MAX:
-				int max = (Integer) v;
-				if (max < 0)
-					max = 0;
-				else if (max > 255) min = 255;
-				if (max < (Integer) get(PFont.RANGE_MIN)) put(PFont.RANGE_MIN,max);
-				if (max != (Integer) v) return max;
-		default:
-		  //TODO: maybe put a failsafe here?
-			break;
+			CharacterRange r2 = dest.addRange();
+			r2.properties.putAll(cr.properties);
 			}
-		return v;
+		for (GlyphMetric gm : glyphMetrics)
+			{
+			GlyphMetric g2 = dest.addGlyph();
+			g2.properties.putAll(gm.properties);
+			}
+		}
+
+	public void rangeUpdated(UpdateEvent e)
+		{
+		rangeUpdateTrigger.fire(new UpdateEvent(rangeUpdateSource,e));
 		}
 	}

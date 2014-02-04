@@ -862,12 +862,12 @@ public final class GmFileReader
 			font.put(PFont.FONT_NAME,in.readStr());
 			font.put(PFont.SIZE,in.read4());
 			in.readBool(font.properties,PFont.BOLD,PFont.ITALIC);
-			font.put(PFont.RANGE_MIN,in.read2());
+			int rangemin = in.read2();
 			font.put(PFont.CHARSET,in.read());
 			int aa = in.read();
 			if (aa == 0 && f.format != ProjectFile.FormatFlavor.GM_810) aa = 3;
 			font.put(PFont.ANTIALIAS,aa);
-			font.put(PFont.RANGE_MAX,in.read4());
+			font.addRange(rangemin,in.read4());
 			in.endInflate();
 			}
 		}

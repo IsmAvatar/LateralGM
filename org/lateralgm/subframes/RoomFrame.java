@@ -43,6 +43,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -53,6 +54,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -821,7 +823,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		JLabel[] backLabs = new JLabel[res.backgroundDefs.size()];
 		for (int i = 0; i < backLabs.length; i++)
 			{
-			backLabs[i] = new JLabel(Messages.getString("RoomFrame.BACK") + i); //$NON-NLS-1$
+			backLabs[i] = new JLabel(" " + Messages.getString("RoomFrame.BACK") + i); //$NON-NLS-1$
 			boolean v = res.backgroundDefs.get(i).properties.get(PBackgroundDef.VISIBLE);
 			backLabs[i].setFont(backLabs[i].getFont().deriveFont(v ? Font.BOLD : Font.PLAIN));
 			backLabs[i].setOpaque(true);
@@ -926,7 +928,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		JLabel[] viewLabs = new JLabel[res.views.size()];
 		for (int i = 0; i < viewLabs.length; i++)
 			{
-			viewLabs[i] = new JLabel(Messages.getString("RoomFrame.VIEW") + i); //$NON-NLS-1$
+			viewLabs[i] = new JLabel(" " + Messages.getString("RoomFrame.VIEW") + i); //$NON-NLS-1$
 			boolean v = res.views.get(i).properties.get(PView.VISIBLE);
 			viewLabs[i].setFont(viewLabs[i].getFont().deriveFont(v ? Font.BOLD : Font.PLAIN));
 			viewLabs[i].setOpaque(true);

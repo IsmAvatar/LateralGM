@@ -24,6 +24,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -102,24 +104,6 @@ public JPopupMenu makeContextMenu()
 	popup.add(item);
 	
   editor.setComponentPopupMenu(popup);
-	editor.addMouseListener(new MouseAdapter() {
-
-  	@Override
-  	public void mousePressed(MouseEvent e) {
-      showPopup(e);
-  	}
-
-  	@Override
-  	public void mouseReleased(MouseEvent e) {
-      showPopup(e);
-  	}
-
-  	private void showPopup(MouseEvent e) {
-  		if (e.isPopupTrigger()) {
-  			popup.show(e.getComponent(), e.getX(), e.getY());
-  		}
-  	}
-	});
 	
 	return popup;
 }
@@ -386,6 +370,15 @@ public static int countLines(String str)
     editor.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
     editor.setEditable(false);
     editor.getCaret().setVisible(true); // show the caret anyway
+    editor.addFocusListener(new FocusListener() {
+		  public void focusLost(FocusEvent e) {
+			  return;
+			}
+			
+			public void focusGained(FocusEvent e) {
+				editor.getCaret().setVisible(true); // show the caret anyway
+			}
+		});
 		makeContextMenu();
 	}
   

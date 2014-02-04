@@ -556,25 +556,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		popup.add(item);
 		
     editor.setComponentPopupMenu(popup);
-		editor.addMouseListener(new MouseAdapter() {
-
-    	@Override
-    	public void mousePressed(MouseEvent e) {
-        showPopup(e);
-    	}
-
-    	@Override
-    	public void mouseReleased(MouseEvent e) {
-        showPopup(e);
-    	}
-
-    	private void showPopup(MouseEvent e) {
-    		if (e.isPopupTrigger()) {
-    			popup.show(e.getComponent(), e.getX(), e.getY());
-    		}
-    	}
-		});
-		
 	}
 
 	private void addDocumentListeners()

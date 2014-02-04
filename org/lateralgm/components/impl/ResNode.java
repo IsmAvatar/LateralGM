@@ -219,24 +219,20 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		}
 		if (status == ResNode.STATUS_SECONDARY)
 		{
-		  JMenuItem editItem = makeMenuItem("Listener.TREE_EDIT",al, true);
-		  editItem.setFocusable(true);
-			popup.add(editItem); //$NON-NLS-1$
-			editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
-			popup.addSeparator();
-			JMenuItem insertItem = makeMenuItem("Listener.TREE_INSERT",al, true);
+			popup.add(makeMenuItem("Listener.TREE_INSERT_GROUP",al, true)); //$NON-NLS-1$
+			JMenuItem insertItem = makeMenuItem("Listener.TREE_INSERT_RESOURCE",al, true);
 			insertItem.setFocusable(true);
 			popup.add(insertItem); //$NON-NLS-1$
 			insertItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, KeyEvent.CTRL_DOWN_MASK));
-			JMenuItem duplicateItem = makeMenuItem("Listener.TREE_DUPLICATE",al, true);
+			JMenuItem duplicateItem = makeMenuItem("Listener.TREE_DUPLICATE_RESOURCE",al, true);
 			duplicateItem.setFocusable(true);
 			popup.add(duplicateItem); //$NON-NLS-1$
 			duplicateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, KeyEvent.ALT_DOWN_MASK));
 		}
-		else
-			popup.add(makeMenuItem("Listener.TREE_ADD",al, true)); //$NON-NLS-1$
-		popup.addSeparator();
-		popup.add(makeMenuItem("Listener.TREE_GROUP",al, true)); //$NON-NLS-1$
+		else {
+			popup.add(makeMenuItem("Listener.TREE_CREATE_GROUP",al, true)); //$NON-NLS-1$
+			popup.add(makeMenuItem("Listener.TREE_CREATE_RESOURCE",al, true)); //$NON-NLS-1$
+		}
 		if (status != ResNode.STATUS_SECONDARY) popup.add(makeMenuItem("Listener.TREE_SORT",al,false)); //$NON-NLS-1$
 		if (status != ResNode.STATUS_PRIMARY)
 		{
@@ -251,6 +247,12 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			renameItem.setFocusable(true);
 			popup.add(renameItem); //$NON-NLS-1$
 			renameItem.setAccelerator(KeyStroke.getKeyStroke("F2"));
+		}
+		if (status == ResNode.STATUS_SECONDARY) {
+		  JMenuItem editItem = makeMenuItem("Listener.TREE_EDIT",al, true);
+		  editItem.setFocusable(true);
+			popup.add(editItem); //$NON-NLS-1$
+			editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
 		}
 		popup.show(e.getComponent(),e.getX(),e.getY());
 		}

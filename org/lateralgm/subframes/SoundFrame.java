@@ -45,6 +45,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -53,6 +54,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -234,7 +236,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		
 		data = res.data;
 		loadClip();
-		
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(pKind,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)

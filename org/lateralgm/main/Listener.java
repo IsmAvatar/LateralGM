@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Enumeration;
 import java.util.HashSet;
 
 import javax.swing.JComponent;
@@ -40,7 +39,6 @@ import javax.swing.text.Position;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
-import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
@@ -88,43 +86,69 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		}
 
 	public static void addResource(JTree tree, Class<?> r)
-		{
-		addResource(tree,r,null);
-		}
-
-	protected static void addResource(JTree tree, Class<?> r, Resource<?,?> res)
 	{
-		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
-		if (node == null) return;
-		ResNode parent;
-		int pos;
-		if (node.getAllowsChildren()) {
-			parent = node;
-			pos = parent.getChildCount();
-		} else {
-			parent = (ResNode) node.getParent();
-			//TODO: Following line causes an NPE for Greg after deleting multiple resources
-			pos = parent.getIndex(node) + 1;
+			addResource(tree,r,null,null);
+	}
+	
+	public static void addResource(JTree tree, Class<?> r, Resource<?,?> res)
+	{
+			addResource(tree,r,res,null);
+	}
+
+	public static void addResource(JTree tree, Class<?> r, ResNode parent)
+	{
+			addResource(tree,r,null,parent);
+	}
+	
+	protected static void addResource(JTree tree, Class<?> r, Resource<?,?> res, ResNode parent)
+	{
+		//TODO: Java selection models allow for -1 meaning no selected item.
+		//This can cause issues here when say a user presses the create script button
+		//on the toolbar after having just deleted a resource.
+		//The assumption is that addResource adds a resource to the trees primary node
+		//that matches the resource kind, this is how it behaves in GM, and that 
+		//insertResource will insert a resource to the last selected path component.
+		//This is why I am changing the behavior of this function, another possible solution
+		//is to add a selection change listener to the tree to ensure that it is never negative.
+		// - Robert B. Colton
+		if (parent != null) {
+			putNode(tree,parent,parent,r,parent.getChildCount(),res);
+			return;
 		}
-		putNode(tree,node,parent,r,pos,res);
+		for (ResNode rn : LGM.root.getChildren()) {
+			if (rn.status == ResNode.STATUS_PRIMARY && r == rn.kind) {
+				putNode(tree,rn,rn,r,rn.getChildCount(),res);
+				return;
+			}
+		}
 	}
 
 	public static void insertResource(JTree tree, Class<?> r)
 		{
-		insertResource(tree,r,null);
+		insertResource(tree,r,null,(ResNode) tree.getLastSelectedPathComponent(), 0);
+		}
+	
+	public static void insertResource(JTree tree, Class<?> r, Resource<?,?> res)
+		{
+		insertResource(tree,r,res,(ResNode) tree.getLastSelectedPathComponent(), 0);
 		}
 
-	protected static void insertResource(JTree tree, Class<?> r, Resource<?,?> res)
+	public static void insertResource(JTree tree, Class<?> r, ResNode node)
 		{
-		ResNode node = (ResNode) tree.getLastSelectedPathComponent();
-		if (node == null) return;
+		insertResource(tree,r,null,node, 0);
+		}
+	
+	protected static void insertResource(JTree tree, Class<?> r, Resource<?,?> res, ResNode node, int offset)
+		{
+		if (node == null) addResource(tree,r,res,node);
 		ResNode parent = (ResNode) node.getParent();
+		if (parent == null) addResource(tree,r,res,node);
 		if (parent.isRoot())
 			{
-			addResource(tree,r,res);
+			addResource(tree,r,res,node);
 			return;
 			}
-		int pos = parent.getIndex(node);
+		int pos = parent.getIndex(node) + offset;
 		putNode(tree,node,parent,r,pos,res);
 		}
 
@@ -178,11 +202,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			{
 				if (node.frame != null) node.frame.dispose();
 				Resource<?,?> res = deRef((ResourceReference<?>) node.getRes());
-				if (res != null) rs.add(res);
-				((ResourceList<?>) LGM.currentFile.resMap.get(node.kind)).remove(res);
+				if (res != null) {
+					rs.add(res);
+					((ResourceList<?>) LGM.currentFile.resMap.get(node.kind)).remove(res);
+				}
 				last = tree.getRowForPath(new TreePath(node));
 			} else if (node.status == ResNode.STATUS_GROUP) {
-				deleteResources(node.getChildren().toArray(), tree);
+				if (node.getChildren() != null) {
+					deleteResources(node.getChildren().toArray(), tree);
+				}
 				node.removeFromParent();
 				last = tree.getRowForPath(new TreePath(node));
 			}
@@ -438,47 +466,49 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		public void actionPerformed(ActionEvent e)
 		{
 			JTree tree = LGM.tree;
-			String com = e.getActionCommand().substring(e.getActionCommand().lastIndexOf('_') + 1);
-			if (com.equals("EDIT")) //$NON-NLS-1$
+			String com = e.getActionCommand();
+			if (com.endsWith("EDIT")) //$NON-NLS-1$
 			{
 				if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
 				return;
 			}
-			if (com.equals("DELETE")) //$NON-NLS-1$
+			if (com.endsWith("DELETE")) //$NON-NLS-1$
 			{
 				deleteSelectedResources(tree);
 				return;
 			}
-			if (com.equals("RENAME")) //$NON-NLS-1$
+			if (com.endsWith("RENAME")) //$NON-NLS-1$
 			{
 				if (tree.getCellEditor().isCellEditable(null))
 					tree.startEditingAtPath(tree.getLeadSelectionPath());
 				return;
 			}
-			if (com.equals("GROUP")) //$NON-NLS-1$
+			if (com.endsWith("CREATE_RESOURCE")) //$NON-NLS-1$
 			{
-				if (node.status == ResNode.STATUS_SECONDARY)
-					insertResource(tree,null);
-				else
-					addResource(tree,null);
+				addResource(tree, node.kind, node);
 				return;
 			}
-			if (com.equals("INSERT")) //$NON-NLS-1$
+			if (com.endsWith("CREATE_GROUP")) //$NON-NLS-1$
 			{
-				insertResource(tree,node.kind);
+				addResource(tree, null, node);
 				return;
 			}
-			if (com.equals("ADD")) //$NON-NLS-1$
+			if (com.endsWith("INSERT_RESOURCE")) //$NON-NLS-1$
 			{
-				addResource(tree,node.kind);
+				insertResource(tree, node.kind, node);
 				return;
 			}
-			if (com.equals("DUPLICATE")) //$NON-NLS-1$
+			if (com.endsWith("INSERT_GROUP")) //$NON-NLS-1$
+			{
+				insertResource(tree, null, node);
+				return;
+			}
+			if (com.endsWith("DUPLICATE_RESOURCE")) //$NON-NLS-1$
 			{
 				ResourceList<?> rl = (ResourceList<?>) LGM.currentFile.resMap.get(node.kind);
 				if (node.frame != null) node.frame.commitChanges();
 				Resource<?,?> resource = rl.duplicate(node.getRes().get());
-				Listener.addResource(tree,node.kind,resource);
+				Listener.insertResource(tree,node.kind,resource,node,1);
 				return;
 			}
 		}

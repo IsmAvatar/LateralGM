@@ -364,6 +364,8 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		fireActionPerformed();
 		}
 
+	//TODO: Possibly replace with addComponentPopupListener?
+	//Though maybe not since this is used on a label.
 	private class MListener extends MouseAdapter
 		{
 		public MListener()
