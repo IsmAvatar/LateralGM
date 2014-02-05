@@ -4,7 +4,7 @@
 *
 * @section License
 *
-* Copyright (C) 2013 Robert B. Colton
+* Copyright (C) 2013-2014 Robert B. Colton
 * This file is a part of the LateralGM IDE.
 *
 * This program is free software: you can redistribute it and/or modify
@@ -24,8 +24,10 @@
 package org.lateralgm.file;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -97,6 +99,7 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.resources.sub.ShapePoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
@@ -560,30 +563,41 @@ public final class GMXFileReader
 	  f.resMap.getList(Sound.class).lastId++;
 	  String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
 	  snd.setName(fileName);
-	  snd.setNode(rnode);
 	  rnode = new ResNode(snd.getName(), ResNode.STATUS_SECONDARY, Sound.class, snd.reference);
 	  node.add(rnode);
+	  snd.setNode(rnode);
 	  String path = f.getPath();
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
 	  
 		Document snddoc = documentBuilder.parse(path + ".sound.gmx");
 		
 		snd.put(PSound.FILE_NAME, snddoc.getElementsByTagName("origname").item(0).getTextContent());
-		// TODO: The fuckin, god damn Studio has the volume tag nested inside itself in
-		// some versions of their gay ass format
+		// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
+		// There is a special clause here, every one of those tags after volume, the nested
+		// tag is singular, where its parent is plural.
 		NodeList nl = snddoc.getElementsByTagName("volume");
 		snd.put(PSound.VOLUME, Double.parseDouble(nl.item(nl.getLength() - 1).getTextContent()));
 		snd.put(PSound.PAN, Double.parseDouble(snddoc.getElementsByTagName("pan").item(0).getTextContent()));
-		snd.put(PSound.PRELOAD, Boolean.parseBoolean(snddoc.getElementsByTagName("preload").item(0).getTextContent()));
+		snd.put(PSound.BIT_RATE, Integer.parseInt(snddoc.getElementsByTagName("bitRate").item(0).getTextContent()));
+		snd.put(PSound.SAMPLE_RATE, Integer.parseInt(snddoc.getElementsByTagName("sampleRate").item(0).getTextContent()));
+		snd.put(PSound.TYPE, Integer.parseInt(snddoc.getElementsByTagName("type").item(0).getTextContent()));
+		snd.put(PSound.BIT_DEPTH, Integer.parseInt(snddoc.getElementsByTagName("bitDepth").item(0).getTextContent()));
+		snd.put(PSound.PRELOAD, Integer.parseInt(snddoc.getElementsByTagName("preload").item(0).getTextContent()) < 0);
+		snd.put(PSound.COMPRESSED, Integer.parseInt(snddoc.getElementsByTagName("compressed").item(0).getTextContent()) < 0);
+		snd.put(PSound.STREAMED, Integer.parseInt(snddoc.getElementsByTagName("streamed").item(0).getTextContent()) < 0);
+		snd.put(PSound.DECOMPRESS_ON_LOAD, Integer.parseInt(snddoc.getElementsByTagName("uncompressOnLoad").item(0).getTextContent()) < 0);
 		int sndkind =  Integer.parseInt(snddoc.getElementsByTagName("kind").item(0).getTextContent());
 		snd.put(PSound.KIND, ProjectFile.SOUND_KIND[sndkind]);
 		snd.put(PSound.FILE_TYPE, snddoc.getElementsByTagName("extension").item(0).getTextContent());
-		String fname = snddoc.getElementsByTagName("data").item(0).getTextContent();
-		
-	  path = f.getPath();
-	  path = path.substring(0, path.lastIndexOf('/')+1) + "/sound/audio/" + fname;
-	  
-	  snd.data = ReadBinaryFile(path);
+		NodeList data = snddoc.getElementsByTagName("data");
+		if (data.item(0) != null) {
+			String fname = data.item(0).getTextContent();
+			
+		  path = f.getPath();
+		  path = path.substring(0, path.lastIndexOf('/')+1) + "/sound/audio/" + fname;
+		  
+		  snd.data = ReadBinaryFile(path);
+		}
 	}
 	}
 	}
@@ -1118,7 +1132,7 @@ public final class GMXFileReader
 		obj.put(PGmObject.VISIBLE, Integer.parseInt(objdoc.getElementsByTagName("visible").item(0).getTextContent()) < 0);
 		obj.put(PGmObject.DEPTH, Integer.parseInt(objdoc.getElementsByTagName("depth").item(0).getTextContent()));
 		obj.put(PGmObject.PERSISTENT, Integer.parseInt(objdoc.getElementsByTagName("persistent").item(0).getTextContent()) < 0);
-	
+
 		//Now that properties are loaded iterate the events and load the actions
 		NodeList frList = objdoc.getElementsByTagName("event"); 
 		for (int ii = 0; ii < frList.getLength(); ii++) {
@@ -1146,9 +1160,27 @@ public final class GMXFileReader
 			} else {
 			  ev.id = Integer.parseInt(fnode.getAttributes().getNamedItem("enumb").getTextContent());
 			}
-			
 			readActions(c,ev,"INOBJECTACTION", i, ii * 1000 + ev.id, fnode.getChildNodes()); //$NON-NLS-1$
 		}
+		obj.put(PGmObject.PHYSICS_OBJECT, Integer.parseInt(objdoc.getElementsByTagName("PhysicsObject").item(0).getTextContent()) < 0);
+		obj.put(PGmObject.PHYSICS_SENSOR, Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectSensor").item(0).getTextContent()) < 0);
+		obj.put(PGmObject.PHYSICS_SHAPE, Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectShape").item(0).getTextContent()));
+		obj.put(PGmObject.PHYSICS_DENSITY, Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectDensity").item(0).getTextContent()));
+		obj.put(PGmObject.PHYSICS_RESTITUTION, Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectRestitution").item(0).getTextContent()));
+		obj.put(PGmObject.PHYSICS_GROUP, Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectGroup").item(0).getTextContent()));
+		obj.put(PGmObject.PHYSICS_DAMPING_LINEAR, Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectLinearDamping").item(0).getTextContent()));
+		obj.put(PGmObject.PHYSICS_DAMPING_ANGULAR, Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectAngularDamping").item(0).getTextContent()));
+		obj.put(PGmObject.PHYSICS_FRICTION, Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectFriction").item(0).getTextContent()));
+		obj.put(PGmObject.PHYSICS_AWAKE, Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectAwake").item(0).getTextContent()) < 0);
+		obj.put(PGmObject.PHYSICS_KINEMATIC, Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectKinematic").item(0).getTextContent()) < 0);
+		
+		NodeList pointNodes = objdoc.getElementsByTagName("point");
+		for (int p = 0; p < pointNodes.getLength(); p++) {
+		  String[] coords = pointNodes.item(p).getTextContent().split(",");
+		  obj.shapePoints.add(new ShapePoint(Integer.parseInt(coords[0]), 
+		  		Integer.parseInt(coords[1])));
+		}
+		
 	  rnode = new ResNode(obj.getName(), ResNode.STATUS_SECONDARY, GmObject.class, obj.reference);
 	  node.add(rnode);
 	}
@@ -1395,12 +1427,19 @@ public final class GMXFileReader
 						//TODO: because of the way this is set up sprites must be loaded before objects
 						GmObject temp = f.resMap.getList(GmObject.class).get(objname);
 								if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
-						
-						int xx = Integer.parseInt(inode.getAttributes().getNamedItem("x").getNodeValue());
-						int yy = Integer.parseInt(inode.getAttributes().getNamedItem("y").getNodeValue());
+						NamedNodeMap attribs = inode.getAttributes();
+						int xx = Integer.parseInt(attribs.getNamedItem("x").getNodeValue());
+						int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue());
+						double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue());
+						double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue());
+						long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue());
+						double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue());
 						//TODO: fuck they use strings we use integers
 						//inst.properties.put(PInstance.ID, inode.getAttributes().getNamedItem("name").getNodeValue());
 						inst.setPosition(new Point(xx,yy));
+						inst.setScale(new Point2D.Double(sx,sy));
+						inst.setRotation(rot);
+						inst.setColor(col);
 						inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue());
 						inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) < 0);
 			    }
@@ -1412,9 +1451,12 @@ public final class GMXFileReader
 		    	String tname = tnode.getNodeName();
 		    	if (tname.equals("#text")) { continue; }
 					final Tile tile = new Tile(rmn);
+					
+					NamedNodeMap attribs = tnode.getAttributes();
+					
 					tile.setRoomPosition(
-							new Point(Integer.parseInt(tnode.getAttributes().getNamedItem("x").getTextContent()),
-												Integer.parseInt(tnode.getAttributes().getNamedItem("y").getTextContent())));
+							new Point(Integer.parseInt(attribs.getNamedItem("x").getTextContent()),
+												Integer.parseInt(attribs.getNamedItem("y").getTextContent())));
 					
 					final String bkgname = tnode.getAttributes().getNamedItem("bgName").getTextContent();
 					PostponedRef pr = new PostponedRef()
@@ -1432,21 +1474,40 @@ public final class GMXFileReader
 					postpone.add(pr);
 					
 					tile.setBackgroundPosition(
-							new Point(Integer.parseInt(tnode.getAttributes().getNamedItem("xo").getTextContent()),
-												Integer.parseInt(tnode.getAttributes().getNamedItem("yo").getTextContent())));
+							new Point(Integer.parseInt(attribs.getNamedItem("xo").getTextContent()),
+												Integer.parseInt(attribs.getNamedItem("yo").getTextContent())));
 					tile.setSize(
-							new Dimension(Integer.parseInt(tnode.getAttributes().getNamedItem("w").getTextContent()),
-												Integer.parseInt(tnode.getAttributes().getNamedItem("h").getTextContent())));
-					tile.setDepth(Integer.parseInt(tnode.getAttributes().getNamedItem("depth").getTextContent()));
+							new Dimension(Integer.parseInt(attribs.getNamedItem("w").getTextContent()),
+												Integer.parseInt(attribs.getNamedItem("h").getTextContent())));
+					tile.setDepth(Integer.parseInt(attribs.getNamedItem("depth").getTextContent()));
 					//TODO: Tiles use strings in GMX like instance names, GMK used to use integers I guess
 					//tile.properties.put(PTile.ID,tnode.getAttributes().getNamedItem("name").getTextContent());
-					tile.setLocked(Integer.parseInt(tnode.getAttributes().getNamedItem("h").getTextContent()) < 0);
+					tile.setLocked(Integer.parseInt(attribs.getNamedItem("h").getTextContent()) < 0);
+					
+					double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue());
+					double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue());
+					tile.setScale(new Point2D.Double(sx, sy));
+					tile.setColor(Long.parseLong(attribs.getNamedItem("colour").getNodeValue()));
 					
 					rmn.tiles.add(tile);
 		    }
+			} else if (pname.equals("PhysicsWorld")) {
+				rmn.put(PRoom.PHYSICS_WORLD,Integer.parseInt(pnode.getTextContent()) < 0);
+			} else if (pname.equals("PhysicsWorldTop")) {
+				rmn.put(PRoom.PHYSICS_TOP,Integer.parseInt(pnode.getTextContent()));
+			} else if (pname.equals("PhysicsWorldLeft")) {
+				rmn.put(PRoom.PHYSICS_LEFT,Integer.parseInt(pnode.getTextContent()));
+			} else if (pname.equals("PhysicsWorldRight")) {
+				rmn.put(PRoom.PHYSICS_RIGHT,Integer.parseInt(pnode.getTextContent()));
+			} else if (pname.equals("PhysicsWorldBottom")) {
+				rmn.put(PRoom.PHYSICS_BOTTOM,Integer.parseInt(pnode.getTextContent()));
+			} else if (pname.equals("PhysicsWorldGravityX")) {
+				rmn.put(PRoom.PHYSICS_GRAVITY_X,Double.parseDouble(pnode.getTextContent()));
+			} else if (pname.equals("PhysicsWorldGravityY")) {
+				rmn.put(PRoom.PHYSICS_GRAVITY_Y,Double.parseDouble(pnode.getTextContent()));
+			} else if (pname.equals("PhysicsWorldPixToMeters")) {
+				rmn.put(PRoom.PHYSICS_PIXTOMETERS,Double.parseDouble(pnode.getTextContent()));
 			}
-		
-		  //TODO: Ignoring physics settings for now
 		}
 	}
 	}

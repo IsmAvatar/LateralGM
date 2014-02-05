@@ -10,7 +10,10 @@
 
 package org.lateralgm.resources.sub;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.EnumMap;
 
 import org.lateralgm.main.UpdateSource;
@@ -41,11 +44,11 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 
 	public enum PInstance
 		{
-		X,Y,OBJECT,ID,CREATION_CODE,LOCKED
+		X,Y,OBJECT,ID,CREATION_CODE,LOCKED,SCALE_X,SCALE_Y,COLOR,ROTATION
 		}
 
 	private static final EnumMap<PInstance,Object> DEFS = PropertyMap.makeDefaultMap(PInstance.class,
-			0,0,null,0,"",false);
+			0,0,null,0,"",false,1,1,new Color(255, 255, 255, 255),0);
 
 	public Instance(Room r)
 		{
@@ -66,13 +69,41 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		{
 		return new Point((Integer) properties.get(PInstance.X),(Integer) properties.get(PInstance.Y));
 		}
+	
+	public Point2D getScale() {
+		return new Point2D.Double((Double)properties.get(PInstance.SCALE_X), 
+				(Double)properties.get(PInstance.SCALE_Y));
+	}
+	
+	public double getRotation() {
+		return properties.get(PInstance.ROTATION);
+	}
+	
+	public long getColor() {
+		return properties.get(PInstance.COLOR);
+	}
 
 	public void setPosition(Point pos)
-		{
+	{
 		properties.put(PInstance.X,pos.x);
 		properties.put(PInstance.Y,pos.y);
-		}
+	}
 
+
+	public void setScale(Point2D scale)
+	{
+		properties.put(PInstance.SCALE_X,scale.getX());
+		properties.put(PInstance.SCALE_Y,scale.getY());
+	}
+	
+	public void setRotation(double degrees) {
+		properties.put(PInstance.ROTATION,degrees);
+	}
+	
+	public void setColor(long color) {
+		properties.put(PInstance.COLOR,color);
+	}
+	
 	public String getCreationCode()
 		{
 		return (String) properties.get(PInstance.CREATION_CODE);

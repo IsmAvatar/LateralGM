@@ -23,13 +23,16 @@ public class Sound extends InstantiableResource<Sound,Sound.PSound>
 		NORMAL,BACKGROUND,SPATIAL,MULTIMEDIA
 		}
 
+	//NOTE: Kind is different than type in the GMX format
 	public enum PSound
 		{
-		KIND,FILE_TYPE,FILE_NAME,CHORUS,ECHO,FLANGER,GARGLE,REVERB,VOLUME,PAN,PRELOAD
+		KIND,FILE_TYPE,FILE_NAME,CHORUS,ECHO,FLANGER,GARGLE,REVERB,VOLUME,PAN,PRELOAD,
+		BIT_RATE,SAMPLE_RATE,TYPE,BIT_DEPTH,COMPRESSED,STREAMED,DECOMPRESS_ON_LOAD
 		}
 
 	private static final EnumMap<PSound,Object> DEFS = PropertyMap.makeDefaultMap(PSound.class,
-			SoundKind.NORMAL,"","",false,false,false,false,false,1.0,0.0,true);
+			SoundKind.NORMAL,"","",false,false,false,false,false,1.0,0.0,true,
+			192,44100,16,0,false,false,false);
 
 	public Sound()
 		{

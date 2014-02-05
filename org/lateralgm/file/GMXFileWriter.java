@@ -26,6 +26,7 @@ package org.lateralgm.file;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -94,6 +95,7 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.resources.sub.ShapePoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View;
@@ -195,7 +197,6 @@ public final class GMXFileWriter
 		
 		ProjectFileContext c = new ProjectFileContext(f,dom);
 		Element root = dom.createElement("assets");
-		//TODO: Handle actual writing here
 		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
 		writeSettings(c, root);
 		
@@ -590,18 +591,51 @@ public final class GMXFileWriter
 			Element sndroot = doc.createElement("sound");
 			doc.appendChild(sndroot);
 			
+			// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
+			// There is a special clause here, every one of those tags after volume, the nested
+			// tag is singular, where its parent is plural.
 			String ftype = snd.get(PSound.FILE_TYPE).toString();
 			sndroot.appendChild(createElement(doc, "extension", ftype));
 			sndroot.appendChild(createElement(doc, "origname", 
 					snd.get(PSound.FILE_NAME).toString()));
 			sndroot.appendChild(createElement(doc, "kind", 
 					ProjectFile.SOUND_CODE.get(snd.get(PSound.KIND)).toString()));
-			sndroot.appendChild(createElement(doc, "volume", 
+			
+			Element volumeRoot = doc.createElement("volume");
+			volumeRoot.appendChild(createElement(doc, "volume", 
 					snd.get(PSound.VOLUME).toString()));
+			sndroot.appendChild(volumeRoot);
+			
+			Element bitRateRoot = doc.createElement("bitRates");
+			bitRateRoot.appendChild(createElement(doc, "bitRate", 
+					snd.get(PSound.BIT_RATE).toString()));
+			sndroot.appendChild(bitRateRoot);
+			
+			Element sampleRateRoot = doc.createElement("sampleRates");
+			sampleRateRoot.appendChild(createElement(doc, "sampleRate", 
+					snd.get(PSound.SAMPLE_RATE).toString()));
+			sndroot.appendChild(sampleRateRoot);
+			
+			Element typesRoot = doc.createElement("types");
+			typesRoot.appendChild(createElement(doc, "type", 
+					snd.get(PSound.TYPE).toString()));
+			sndroot.appendChild(typesRoot);
+			
+			Element bitDepthRoot = doc.createElement("bitDepths");
+			bitDepthRoot.appendChild(createElement(doc, "bitDepth", 
+					snd.get(PSound.BIT_DEPTH).toString()));
+			sndroot.appendChild(bitDepthRoot);
+			
 			sndroot.appendChild(createElement(doc, "pan", 
 					snd.get(PSound.PAN).toString()));
 			sndroot.appendChild(createElement(doc, "preload", 
-					snd.get(PSound.PRELOAD).toString()));
+					boolToString((Boolean) snd.get(PSound.PRELOAD))));
+			sndroot.appendChild(createElement(doc, "compressed", 
+					boolToString((Boolean) snd.get(PSound.COMPRESSED))));
+			sndroot.appendChild(createElement(doc, "streamed", 
+					boolToString((Boolean) snd.get(PSound.STREAMED))));
+			sndroot.appendChild(createElement(doc, "uncompressOnLoad", 
+					boolToString((Boolean) snd.get(PSound.DECOMPRESS_ON_LOAD))));
 			int effects = 0;
 			int n = 1;
 			for (PSound k : ProjectFile.SOUND_FX_FLAGS)
@@ -1294,7 +1328,6 @@ public final class GMXFileWriter
 				}
 				
 				Element evtroot = doc.createElement("events");
-				objroot.appendChild(evtroot);
 				for (int i = 0; i < object.mainEvents.size(); i++) {
 					MainEvent me = object.mainEvents.get(i);
 					for (int k = me.events.size(); k > 0; k--)
@@ -1316,6 +1349,38 @@ public final class GMXFileWriter
 						writeActions(doc,evtelement,ev);
 						}
 				}
+				objroot.appendChild(evtroot);
+				
+				// Physics Properties
+				objroot.appendChild(createElement(doc, "PhysicsObject", 
+						boolToString((Boolean) object.get(PGmObject.PHYSICS_OBJECT))));
+				objroot.appendChild(createElement(doc, "PhysicsObjectSensor", 
+						boolToString((Boolean) object.get(PGmObject.PHYSICS_SENSOR))));
+				objroot.appendChild(createElement(doc, "PhysicsObjectShape", 
+						Integer.toString((Integer) object.get(PGmObject.PHYSICS_SHAPE))));
+				objroot.appendChild(createElement(doc, "PhysicsObjectDensity", 
+						Double.toString((Double) object.get(PGmObject.PHYSICS_DENSITY))));
+				objroot.appendChild(createElement(doc, "PhysicsObjectRestitution", 
+						Double.toString((Double) object.get(PGmObject.PHYSICS_RESTITUTION))));
+				objroot.appendChild(createElement(doc, "PhysicsObjectGroup", 
+						Integer.toString((Integer) object.get(PGmObject.PHYSICS_GROUP))));
+				objroot.appendChild(createElement(doc, "PhysicsObjectLinearDamping", 
+						Double.toString((Double) object.get(PGmObject.PHYSICS_DAMPING_LINEAR))));
+				objroot.appendChild(createElement(doc, "PhysicsObjectAngularDamping", 
+						Double.toString((Double) object.get(PGmObject.PHYSICS_DAMPING_ANGULAR))));
+				objroot.appendChild(createElement(doc, "PhysicsObjectFriction", 
+						Double.toString((Double) object.get(PGmObject.PHYSICS_FRICTION))));
+				objroot.appendChild(createElement(doc, "PhysicsObjectAwake", 
+						boolToString((Boolean) object.get(PGmObject.PHYSICS_AWAKE))));
+				objroot.appendChild(createElement(doc, "PhysicsObjectKinematic", 
+						boolToString((Boolean) object.get(PGmObject.PHYSICS_KINEMATIC))));
+				
+				Element pointsroot = doc.createElement("PhysicsShapePoints");
+				for (ShapePoint point : object.shapePoints) {
+					pointsroot.appendChild(createElement(doc,"point",
+							point.getX() + "," + point.getY()));
+				}
+				objroot.appendChild(pointsroot);
 				
 				FileOutputStream fos = null;
 			  try {
@@ -1529,10 +1594,10 @@ public final class GMXFileWriter
 					inselement.setAttribute("name","inst_");
 					inselement.setAttribute("locked",boolToString(in.isLocked()));
 					inselement.setAttribute("code",in.getCreationCode());
-					inselement.setAttribute("scaleX","1");
-					inselement.setAttribute("scaleY","1");
-					inselement.setAttribute("colour","4294967295"); // default white
-					inselement.setAttribute("rotation","0");
+					inselement.setAttribute("scaleX",Double.toString(in.getScale().getX()));
+					inselement.setAttribute("scaleY",Double.toString(in.getScale().getY()));
+					inselement.setAttribute("colour",Long.toString(in.getColor())); // default white
+					inselement.setAttribute("rotation",Double.toString(in.getRotation()));
 				}
 				
 				// Write Tiles
@@ -1559,10 +1624,29 @@ public final class GMXFileWriter
 					tileelement.setAttribute("name","inst_");
 					tileelement.setAttribute("depth",Integer.toString((Integer)props.get(PTile.DEPTH)));
 					tileelement.setAttribute("locked",boolToString((Boolean)props.get(PTile.LOCKED)));
-					tileelement.setAttribute("colour","4294967295"); //TODO: Use white until we add this property
-					tileelement.setAttribute("scaleX","1");
-					tileelement.setAttribute("scaleY","1");
+					Point2D scale = tile.getScale();
+					tileelement.setAttribute("scaleX",Double.toString(scale.getX()));
+					tileelement.setAttribute("scaleY",Double.toString(scale.getY()));
+					tileelement.setAttribute("colour",Long.toString((Long) props.get(PTile.COLOR)));
 				}
+				
+				// Physics properties
+				roomroot.appendChild(createElement(doc, "PhysicsWorld", 
+						boolToString((Boolean)room.get(PRoom.PHYSICS_WORLD))));
+				roomroot.appendChild(createElement(doc, "PhysicsWorldTop", 
+						Integer.toString((Integer)room.get(PRoom.PHYSICS_TOP))));
+				roomroot.appendChild(createElement(doc, "PhysicsWorldLeft", 
+						Integer.toString((Integer)room.get(PRoom.PHYSICS_LEFT))));
+				roomroot.appendChild(createElement(doc, "PhysicsWorldRight", 
+						Integer.toString((Integer)room.get(PRoom.PHYSICS_RIGHT))));
+				roomroot.appendChild(createElement(doc, "PhysicsWorldBottom", 
+						Integer.toString((Integer)room.get(PRoom.PHYSICS_BOTTOM))));
+				roomroot.appendChild(createElement(doc, "PhysicsWorldGravityX", 
+						Double.toString((Double)room.get(PRoom.PHYSICS_GRAVITY_X))));
+				roomroot.appendChild(createElement(doc, "PhysicsWorldGravityY", 
+						Double.toString((Double)room.get(PRoom.PHYSICS_GRAVITY_Y))));
+				roomroot.appendChild(createElement(doc, "PhysicsWorldPixToMeters", 
+						Double.toString((Double)room.get(PRoom.PHYSICS_PIXTOMETERS))));
 				
 				FileOutputStream fos = null;
 			  try {

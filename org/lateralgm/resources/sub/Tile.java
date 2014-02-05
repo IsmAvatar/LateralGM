@@ -10,8 +10,11 @@
 
 package org.lateralgm.resources.sub;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.geom.Dimension2D;
+import java.awt.geom.Point2D;
 import java.util.EnumMap;
 
 import org.lateralgm.file.ProjectFile;
@@ -41,11 +44,11 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 
 	public enum PTile
 		{
-		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED
+		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED,COLOR,SCALE_X,SCALE_Y
 		}
 
 	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,0,0,0,0,
-			0,0,0,null,0,false);
+			0,0,0,null,0,false,new Color(255, 255, 255, 255),1,1);
 
 	/**
 	 * Do not call this constructor unless you intend
@@ -121,6 +124,24 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		properties.put(PTile.HEIGHT,s.height);
 		fireUpdate(null);
 		}
+	
+	public void setScale(Point2D scale) {
+		properties.put(PTile.SCALE_X,scale.getX());
+		properties.put(PTile.SCALE_Y,scale.getY());
+	}
+	
+	public void setColor(long color) {
+		properties.put(PTile.COLOR,color);
+	}
+	
+	public Point2D getScale() {
+		return new Point2D.Double((Double)properties.get(PTile.SCALE_X),
+				(Double)properties.get(PTile.SCALE_Y));
+	}
+
+	public long getColor() {
+		return properties.get(PTile.COLOR);
+	}
 
 	public int getDepth()
 		{

@@ -21,6 +21,9 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
+import org.lateralgm.resources.sub.PathPoint;
+import org.lateralgm.resources.sub.ShapePoint;
+import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -46,14 +49,18 @@ public class GmObject extends InstantiableResource<GmObject,GmObject.PGmObject> 
 
 	private ResourceReference<?> sprite = null; //kept for listening purposes
 	public final List<MainEvent> mainEvents;
-
+	public final ActiveArrayList<ShapePoint> shapePoints = new ActiveArrayList<ShapePoint>();
+	
 	public enum PGmObject
 		{
-		SPRITE,SOLID,VISIBLE,DEPTH,PERSISTENT,PARENT,MASK
+		SPRITE,SOLID,VISIBLE,DEPTH,PERSISTENT,PARENT,MASK,
+		PHYSICS_OBJECT, PHYSICS_SENSOR, PHYSICS_SHAPE, PHYSICS_DENSITY, PHYSICS_RESTITUTION, PHYSICS_GROUP, PHYSICS_DAMPING_LINEAR,
+		PHYSICS_DAMPING_ANGULAR, PHYSICS_FRICTION, PHYSICS_AWAKE, PHYSICS_KINEMATIC
 		}
 
 	private static final EnumMap<PGmObject,Object> DEFS = PropertyMap.makeDefaultMap(PGmObject.class,
-			null,false,true,0,false,null,null);
+			null,false,true,0,false,null,null,
+			false, false, 0, 0.5, 0.1, 0, 0.1, 0.1, 0.2, false, false);
 
 	public GmObject()
 		{
@@ -87,6 +94,11 @@ public class GmObject extends InstantiableResource<GmObject,GmObject.PGmObject> 
 				{
 				mev2.events.add(ev.copy());
 				}
+			}
+		for (ShapePoint point : shapePoints)
+			{
+			ShapePoint point2 = new ShapePoint(point.getX(),point.getY());
+			dest.shapePoints.add(point2);
 			}
 		}
 	
