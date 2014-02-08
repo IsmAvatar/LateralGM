@@ -19,7 +19,7 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
 
-public class ArrayListModel<E> implements ListModel,UpdateListener
+public class ArrayListModel<E> implements ListModel<Object>,UpdateListener
 	{
 	ActiveArrayList<E> list;
 	ArrayList<ListDataListener> listeners;

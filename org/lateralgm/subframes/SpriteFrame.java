@@ -55,7 +55,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -78,6 +77,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.TransferHandler;
@@ -140,7 +140,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public JLabel statusLabel;
 
 	//subimages
-	public JList subList;
+	public JList<ImageIcon> subList;
   
 	//preview
 	public JScrollPane previewScroll, subimagesScroll;
@@ -164,8 +164,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private final SpritePropertyListener spl = new SpritePropertyListener();
 
 	private Map<BufferedImage,ImageEditor> editors;
-	private JButton addSubframe;
-	private JButton remSubframe;
 	private MouseListener mouseListener;
 	private MouseMotionListener mouseMotionListener;
 
@@ -660,9 +658,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	
 	
 	public class ImageLabel extends JLabel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 749151178684203437L;
 		BufferedImage img;
 		int index = -1;
-		JList list;
+		JList<ImageIcon> list;
 		
 		public void paintComponent(Graphics g) {
 			g.drawImage(img, 0, 0,this.getWidth()-1,this.getHeight()-1, null);
@@ -676,10 +678,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	
 	BufferedImage transparencyBackground = null;
 
-  public class ImageCellRenderer extends DefaultListCellRenderer
+  public class ImageCellRenderer implements ListCellRenderer<ImageIcon>
   {
-      @Override
-      public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected, final boolean hasFocus)
+     public Component getListCellRendererComponent(final JList<? extends ImageIcon> list, final ImageIcon value, final int index, final boolean isSelected, final boolean hasFocus)
       {
           
           //create panel
@@ -706,7 +707,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
       		}
           
           l.index = index;
-          l.list = list;
+          l.list = (JList<ImageIcon>) list;
           p.add(l);
 
           return p;
@@ -784,7 +785,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		subRight.addActionListener(this);
 		tool.add(subRight);
 
-		JLabel lab = new JLabel(Messages.getString("SpriteFrame.ANIM_SUBIMG")); //$NON-NLS-1$
+		//JLabel lab = new JLabel(Messages.getString("SpriteFrame.ANIM_SUBIMG")); //$NON-NLS-1$
 		
 		shiftBox = new JCheckBox(Messages.getString("SpriteFrame.SHIFT"),true);
 		shiftBox.setSelected(false);
@@ -804,7 +805,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		});
 		tool.add(wrapBox);
 		
-		subList = new JList();
+		subList = new JList<ImageIcon>();
 		subList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		subList.setVisibleRowCount(-1);
 		subList.setBackground(Color.LIGHT_GRAY);
@@ -860,7 +861,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		public Transferable createTransferable(JComponent c)
 			{
-			JList l = ((JList) c);
+			JList<ImageIcon> l = ((JList<ImageIcon>) c);
 			int index = l.getSelectedIndex();
 			if (index == -1) return null;
 			data = res.subImages.get(index);

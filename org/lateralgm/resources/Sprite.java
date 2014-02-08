@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.EnumMap;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 
 import org.lateralgm.file.ProjectFile;
 import org.lateralgm.main.LGM;

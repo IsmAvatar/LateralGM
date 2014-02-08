@@ -23,8 +23,6 @@
 
 package org.lateralgm.file;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -45,8 +43,6 @@ import java.util.Queue;
 import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.xml.parsers.DocumentBuilder;
@@ -1268,9 +1264,9 @@ public final class GMXFileReader
 			} else if (pname.equals("code")) {
 			  rmn.put(PRoom.CREATION_CODE, pnode.getTextContent());
 			} else if (pname.equals("enableViews")) {
-			  rmn.put(PRoom.ENABLE_VIEWS, Integer.parseInt(pnode.getTextContent()) < 0);
+			  rmn.put(PRoom.VIEWS_ENABLED, Integer.parseInt(pnode.getTextContent()) < 0);
 			} else if (pname.equals("clearViewBackground")) {
-			  //TODO: This setting is not implemented in ENIGMA
+				rmn.put(PRoom.VIEWS_CLEAR, Integer.parseInt(pnode.getTextContent()) < 0);
 			} else if (pname.equals("makerSettings")) {
 		    NodeList msnodes = pnode.getChildNodes();
 		    for (int y = 0; y < msnodes.getLength(); y++) {

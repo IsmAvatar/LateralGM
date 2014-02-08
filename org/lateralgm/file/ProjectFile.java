@@ -39,8 +39,6 @@ import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.swing.JOptionPane;
-
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.UpdateSource;

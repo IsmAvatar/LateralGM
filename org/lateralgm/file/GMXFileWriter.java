@@ -4,7 +4,7 @@
 *
 * @section License
 *
-* Copyright (C) 2013 Robert B. Colton
+* Copyright (C) 2013-2014 Robert B. Colton
 * This file is a part of the LateralGM IDE.
 *
 * This program is free software: you can redistribute it and/or modify
@@ -1112,7 +1112,7 @@ public final class GMXFileWriter
 			// TODO: Move glyph renderer from the plugin to LGM and write glyphs here
 			fntroot.appendChild(createElement(doc, "image", 
 					fnt.getName() + ".png"));
-			File outputfile = new File(getUnixPath(fname + fnt.getName() + ".png"));
+			//File outputfile = new File(getUnixPath(fname + fnt.getName() + ".png"));
 			/*
 			try
 				{
@@ -1487,9 +1487,9 @@ public final class GMXFileWriter
 				roomroot.appendChild(createElement(doc, "code", 
 						room.get(PRoom.CREATION_CODE).toString()));
 				roomroot.appendChild(createElement(doc, "enableViews", 
-						boolToString((Boolean)room.get(PRoom.ENABLE_VIEWS))));
-				//roomroot.appendChild(createElement(doc, "clearViewBackground", 
-						//boolToString((Boolean)room.get(PRoom.clearViewBackground))));
+						boolToString((Boolean)room.get(PRoom.VIEWS_ENABLED))));
+				roomroot.appendChild(createElement(doc, "clearViewBackground", 
+						boolToString((Boolean)room.get(PRoom.VIEWS_CLEAR))));
 				
 				// Write the maker settings, or basically the settings of the editor.
 				Element mkeroot = doc.createElement("makerSettings");

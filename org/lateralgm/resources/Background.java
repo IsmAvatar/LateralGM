@@ -21,7 +21,6 @@ import java.lang.ref.SoftReference;
 import java.util.EnumMap;
 
 import org.lateralgm.main.Util;
-import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;

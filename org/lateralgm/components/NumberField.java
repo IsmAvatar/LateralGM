@@ -38,6 +38,11 @@ public class NumberField extends JFormattedTextField
 		this(min,max,value,getFormatter(getIntegerFormat()));
 		setColumns(1 + Math.max(numDigits(min),numDigits(max)));
 		}
+	
+	public NumberField(double value)
+		{
+		this(Double.MIN_VALUE,Double.MAX_VALUE,value,getFormatter(getNumberFormat()));
+		}
 
 	public NumberField(double min, double max, double value)
 		{

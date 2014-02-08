@@ -27,7 +27,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.GMXFileReader.PostponedRef;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
@@ -1016,7 +1015,7 @@ public final class GmFileReader
 				in.read4(bk.properties,PBackgroundDef.H_SPEED,PBackgroundDef.V_SPEED);
 				bk.properties.put(PBackgroundDef.STRETCH,in.readBool());
 				}
-			rm.put(PRoom.ENABLE_VIEWS,in.readBool());
+			rm.put(PRoom.VIEWS_ENABLED,in.readBool());
 			int noviews = in.read4();
 			for (int j = 0; j < noviews; j++)
 				{

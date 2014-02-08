@@ -25,11 +25,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.Icon;
-import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JSeparator;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
@@ -44,9 +41,7 @@ public class GmMenuBar extends JMenuBar
 	private static final long serialVersionUID = 1L;
 	private List<JMenuItem> recentFiles = new ArrayList<JMenuItem>();
 	private final int recentFilesPos;
-	private GmMenu fileMenu;
 	private GmMenu recentMenu;
-	private JMenuItem clearRecent;
 
 	public static final void setTextAndAlt(JMenuItem item, String input)
 		{
@@ -114,7 +109,7 @@ public class GmMenuBar extends JMenuBar
 				}
 			}
 		recentMenu.addSeparator();
-		clearRecent = recentMenu.addItem("GmMenuBar.CLEARRECENT");
+		recentMenu.addItem("GmMenuBar.CLEARRECENT");
 		}
 
 	protected static final Map<Class<? extends Resource<?,?>>,Character> MNEMONICS;
@@ -129,7 +124,6 @@ public class GmMenuBar extends JMenuBar
 	public GmMenuBar()
 		{
 		GmMenu menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
-		fileMenu = menu;
 		add(menu);
 
 		menu.addItem("GmMenuBar.NEW",KeyEvent.VK_N,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$

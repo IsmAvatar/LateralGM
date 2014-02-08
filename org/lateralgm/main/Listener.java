@@ -3,7 +3,7 @@
  * Copyright (C) 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2013, Robert B. Colton
+ * Copyright (C) 2013, 2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -520,38 +520,40 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			{
 			super();
 			}
-
-		public void mousePressed(MouseEvent e)
+		
+		@Override
+		public void mouseReleased(MouseEvent e)
 			{
-			int selRow = LGM.tree.getRowForLocation(e.getX(),e.getY());
-			TreePath selPath = LGM.tree.getPathForLocation(e.getX(),e.getY());
+			if (e.getSource() != LGM.tree) return;
+			TreePath path = LGM.tree.getPathForLocation(e.getX(), e.getY());
+			if (path == null)
+				return;
 			
 			TreePath[] paths = LGM.tree.getSelectionPaths();
 			boolean inpath = false;
 			
 			if (paths != null) {
 				for (int i = 0; i < paths.length; i++) {
-					if (paths[i].equals(selPath)) {
+					if (paths[i].equals(path)) {
 						inpath = true;
 					}
 				}
 			}
 			
-			if (selRow != -1 && e.getModifiers() == InputEvent.BUTTON3_MASK && !inpath)
-				LGM.tree.setSelectionPath(selPath);
+			// Yes the right click button does change the selection,
+			// go ahead and experiment with Eclipse, CodeBlocks, Visual Studio
+			// or Qt. Swing's default component popup listener does not do this
+			// indicating it is an inconsistency with the framework compared to
+			// other GUI libraries.
+			if (e.getModifiers() == InputEvent.BUTTON3_MASK ||
+					e.getModifiers() == InputEvent.BUTTON1_MASK) {
+				LGM.tree.setSelectionPath(path);
 			}
-
-		public void mouseReleased(MouseEvent e)
-			{
-			TreePath p = LGM.tree.getPathForLocation(e.getX(), e.getY());
-			if (e.getX() >= LGM.tree.getWidth() && e.getY() >= LGM.tree.getHeight() || p == null)
-				return;
-			ResNode node = (ResNode) p.getLastPathComponent();
+			
+			ResNode node = (ResNode) path.getLastPathComponent();
 			if(node == null)
 				return;
 			//Isn't Java supposed to handle ctrl+click for us? For some reason it doesn't.
-			//TODO: Yes, some components let you call setComponentPopupMenu() which will handle it for you.
-			//So this code should probably be moved.
 			if (e.getModifiers() == InputEvent.BUTTON3_MASK && e.getClickCount() == 1)
 				{
 				node.showMenu(e);

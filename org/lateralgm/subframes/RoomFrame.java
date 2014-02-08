@@ -2,7 +2,7 @@
  * Copyright (C) 2007, 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2013 Robert B. Colton
+ * Copyright (C) 2013, 2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -43,7 +43,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -54,7 +53,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -114,7 +112,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	private ButtonModelLink<PInstance> loLocked;
-	public JList oList;
+	public JList<Instance> oList;
 	private Instance lastObj = null; //non-guaranteed copy of oList.getLastSelectedValue()
 	private JButton oAdd, oDel;
 	public ResourceMenu<GmObject> oNew, oSource;
@@ -136,7 +134,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private ButtonModelLink<PTile> ltLocked;
 	public TileSelector tSelect;
 	private JScrollPane tScroll;
-	public JList tList;
+	public JList<Tile> tList;
 	private Tile lastTile = null; //non-guaranteed copy of tList.getLastSelectedValue()
 	private JButton tDel;
 	public ResourceMenu<Background> taSource, teSource;
@@ -147,7 +145,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
 	private ButtonModelLink<PBackgroundDef> lbVisible, lbForeground, lbTileH, lbTileV, lbStretch;
 	private ColorSelect bColor;
-	private JList bList;
+	private JList<BackgroundDef> bList;
 	/**Guaranteed valid version of bList.getLastSelectedIndex()*/
 	private int lastValidBack = -1;
 	private ResourceMenu<Background> bSource;
@@ -158,7 +156,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	//Views
 	private JCheckBox vEnabled, vVisible;
 	private ButtonModelLink<PView> lvVisible;
-	private JList vList;
+	private JList<View> vList;
 	/**Guaranteed valid version of vList.getLastSelectedIndex()*/
 	private int lastValidView = -1;
 	private NumberField vRX, vRY, vRW, vRH;
@@ -171,6 +169,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private final ViewPropertyListener vpl = new ViewPropertyListener();
 
 	private final PropertyLinkFactory<PRoomEditor> prelf;
+	private JCheckBox vClear;
 
 	private JToolBar makeToolBar()
 		{
@@ -235,7 +234,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		return tool;
 		}
 
-	private static class ObjectListComponentRenderer implements ListCellRenderer
+	private static class ObjectListComponentRenderer implements ListCellRenderer<Instance>
 		{
 		private final JLabel lab = new JLabel();
 		private final ListComponentRenderer lcr = new ListComponentRenderer();
@@ -245,7 +244,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			lab.setOpaque(true);
 			}
 
-		public Component getListCellRendererComponent(JList list, Object val, int ind,
+		public Component getListCellRendererComponent(JList<? extends Instance> list, Instance val, int ind,
 				boolean selected, boolean focus)
 			{
 			Instance i = (Instance) val;
@@ -260,7 +259,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			}
 		}
 
-	private static class TileListComponentRenderer implements ListCellRenderer
+	private static class TileListComponentRenderer implements ListCellRenderer<Tile>
 		{
 		private final JLabel lab = new JLabel();
 		private final TileIcon ti = new TileIcon();
@@ -272,7 +271,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			lab.setIcon(ti);
 			}
 
-		public Component getListCellRendererComponent(JList list, Object val, int ind,
+		public Component getListCellRendererComponent(JList<? extends Tile> list, Tile val, int ind,
 				boolean selected, boolean focus)
 			{
 			Tile t = (Tile) val;
@@ -328,7 +327,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		prelf.make(oUnderlying,PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 
-		oList = new JList(new ArrayListModel<Instance>(res.instances));
+		oList = new JList<Instance>(new ArrayListModel(res.instances));
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		oList.setVisibleRowCount(8);
 		oList.setCellRenderer(new ObjectListComponentRenderer());
@@ -704,7 +703,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		tList = new JList(new ArrayListModel<Tile>(res.tiles));
+		tList = new JList<Tile>(new ArrayListModel(res.tiles));
 		tList.addListSelectionListener(this);
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tList.setCellRenderer(new TileListComponentRenderer());
@@ -913,6 +912,60 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/**/.addComponent(bStretch));
 		return panel;
 		}
+	
+	public JPanel makePhysicsPane() {
+		JPanel panel = new JPanel();
+		
+		JCheckBox phyWorldCB = new JCheckBox(Messages.getString("RoomFrame.PHY_WORLD_ENABLED"));
+		plf.make(phyWorldCB,PRoom.PHYSICS_WORLD);
+		
+		JLabel pixMetersLabel = new JLabel(Messages.getString("RoomFrame.PHY_PIXELSPERMETER") + ":");
+		NumberField pixMetersField = new NumberField(0.1000);
+		plf.make(pixMetersField,PRoom.PHYSICS_PIXTOMETERS);
+		pixMetersField.setColumns(16);
+		
+		JLabel gravityXLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_X") + ":");
+		NumberField gravityXField = new NumberField(0.0);
+		plf.make(gravityXField,PRoom.PHYSICS_GRAVITY_X);
+		gravityXField.setColumns(16);
+		
+		JLabel gravityYLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_Y") + ":");
+		NumberField gravityYField = new NumberField(10.0);
+		plf.make(gravityYField,PRoom.PHYSICS_GRAVITY_Y);
+		gravityYField.setColumns(16);
+		
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
+		
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(phyWorldCB)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(pixMetersLabel)
+		/*  */.addComponent(pixMetersField))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(gravityXLabel)
+		/*  */.addComponent(gravityXField))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(gravityYLabel)
+		/*  */.addComponent(gravityYField))
+		);
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(phyWorldCB)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*  */.addComponent(pixMetersLabel)
+		/*  */.addComponent(pixMetersField))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*  */.addComponent(gravityXLabel)
+		/*  */.addComponent(gravityXField))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*  */.addComponent(gravityYLabel)
+		/*  */.addComponent(gravityYField))
+		);
+		
+		return panel;
+	}
 
 	public JPanel makeViewsPane()
 		{
@@ -922,8 +975,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		vEnabled = new JCheckBox(Messages.getString("RoomFrame.ENABLE_VIEWS")); //$NON-NLS-1$
-		plf.make(vEnabled,PRoom.ENABLE_VIEWS);
+		vEnabled = new JCheckBox(Messages.getString("RoomFrame.VIEWS_ENABLED")); //$NON-NLS-1$
+		plf.make(vEnabled,PRoom.VIEWS_ENABLED);
+		vClear = new JCheckBox(Messages.getString("RoomFrame.VIEWS_CLEAR")); //$NON-NLS-1$
+		plf.make(vClear,PRoom.VIEWS_CLEAR);
 
 		JLabel[] viewLabs = new JLabel[res.views.size()];
 		for (int i = 0; i < viewLabs.length; i++)
@@ -954,12 +1009,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		int spmh = vList.getMaximumSize().height + spi.bottom + spi.top;
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(vEnabled)
+		/**/.addComponent(vClear)
 		/**/.addComponent(sp)
 		/**/.addComponent(vVisible)
 		/**/.addComponent(tp)
 		/**/.addComponent(pf));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(vEnabled)
+		/**/.addComponent(vClear)
 		/**/.addComponent(sp,DEFAULT_SIZE,DEFAULT_SIZE,spmh)
 		/**/.addComponent(vVisible)
 		/**/.addComponent(tp,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
@@ -1168,6 +1225,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		String bks = Messages.getString("RoomFrame.TAB_BACKGROUNDS"); //$NON-NLS-1$
 		tabs.addTab(bks,makeBackgroundsPane());
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
+		tabs.addTab(Messages.getString("RoomFrame.TAB_PHYSICS"),makePhysicsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex((Integer) res.get(PRoom.CURRENT_TAB));
 
 		res.instanceUpdateSource.addListener(this);
@@ -1517,7 +1575,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			UpdateSource s2 = (isBgDef ? res.backgroundDefs.get(i).properties
 					: res.views.get(i).properties).updateSource;
 			if (s2 != s) continue;
-			JList l = isBgDef ? bList : vList;
+			JList<?> l = isBgDef ? bList : vList;
 			JLabel ll = (JLabel) l.getModel().getElementAt(i);
 			ll.setFont(ll.getFont().deriveFont(v ? Font.BOLD : Font.PLAIN));
 			l.setPrototypeCellValue(null);

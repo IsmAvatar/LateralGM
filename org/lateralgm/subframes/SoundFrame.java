@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2014, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -26,7 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.util.Enumeration;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
@@ -39,22 +40,18 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -71,7 +68,9 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
-import org.lateralgm.resources.Sound.SoundKind;
+import org.lateralgm.ui.swing.propertylink.ComboBoxLink.ComboBoxConversion;
+import org.lateralgm.ui.swing.propertylink.ComboBoxLink.DefaultComboBoxConversion;
+import org.lateralgm.ui.swing.propertylink.ComboBoxLink.IndexComboBoxConversion;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 
 public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
@@ -99,7 +98,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	private Clip clip;
 	private JLabel statusLabel;
 	private JPanel statusBar;
-	private JSlider pitch;
+	//private JSlider pitch;
 	private JSlider position;
 
 	public String formatTime(long duration) {
@@ -115,9 +114,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		{
 		super(res,node);
 		setLayout(new BorderLayout());
-
-		setResizable(false);
-		setMaximizable(false);
 
 		statusBar = makeStatusBar();
 		add(statusBar, BorderLayout.SOUTH);
@@ -155,10 +151,9 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		stop.addActionListener(this);
 		stop.setEnabled(false);
 
-		JPanel pKind = makeKindPane();
+		JPanel pKind = makeAttributesPane();
 		JPanel pEffects = makeEffectsPane();
-		//TODO:Finish Quality Pane
-		//JPanel pQuality = makeQualityPane();
+		JPanel pAttr = makeFormatPane();
 
 		final JLabel lVolume = new JLabel(Messages.getString("SoundFrame.VOLUME") + ": 100"); //$NON-NLS-1$
 		volume = new JSlider(0,100,100);
@@ -199,6 +194,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		pitch.setPaintTicks(true);
 		*/
 		
+		/*
 		String positiontxt = "";
 		if (clip != null) { 
 			positiontxt = Messages.getString("SoundFrame.POSITION") + ": " + formatTime(clip.getMicrosecondPosition()) + " | " +
@@ -207,6 +203,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			positiontxt = Messages.getString("SoundFrame.POSITION") + ": 0m0s | " +
 				Messages.getString("SoundFrame.DURATION") + ": 0m0s";
 		}
+		*/
 		final JLabel lPosition = new JLabel(Messages.getString("SoundFrame.POSITION") + ": 0m0s | " + 
 		Messages.getString("SoundFrame.DURATION") + ": 0m0s"); //$NON-NLS-1$
 		position = new JSlider(0,100,0);
@@ -239,7 +236,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(pKind,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*	*/.addComponent(pEffects,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*	*/.addComponent(pEffects,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*	*/.addComponent(pAttr,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 				/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(edit)
 		/*	*/.addComponent(stop)
@@ -259,7 +257,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(pKind)
-		/*	*/.addComponent(pEffects))
+		/*	*/.addComponent(pEffects)
+		/*	*/.addComponent(pAttr))
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(edit)
 		/*	*/.addComponent(stop)
@@ -310,45 +309,131 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		return tool;
 		}
 
-	private JPanel makeQualityPane()
+	private JPanel makeAttributesPane()
 		{
-		//TODO: Finish this fuckin panel
-		JPanel panel = new JPanel();
-		GroupLayout layout = new GroupLayout(panel);
-		panel.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.QUALITY")));
-		//panel.setLayout(layout);
+		JPanel pAttr = new JPanel();
+		// The options must be added in the order corresponding to Sound.SoundKind
+		final String kindOptions[] = { 
+				Messages.getString("SoundFrame.NORMAL"),
+				Messages.getString("SoundFrame.BACKGROUND"),
+				Messages.getString("SoundFrame.THREE"),
+				Messages.getString("SoundFrame.MULT")
+		};
 		
-		// The buttons must be added in the order corresponding to Sound.SoundKind.
-		JComboBox typeBox = new JComboBox(); //$NON-NLS-1$
-		typeBox.setEditable(true);
-		panel.add(typeBox);
-		AbstractButton kBackground = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
-		AbstractButton k3d = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
-		AbstractButton kMult = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
-
-		return panel;
+		JComboBox kindCombo = new JComboBox(kindOptions);
+		plf.make(kindCombo,PSound.KIND,new IndexComboBoxConversion() {
+		public Object convertItem(int ind, Object o)
+			{
+			return ind;
+			}
+		});
+		JOptionPane.showMessageDialog(null,this.res.properties.get(PSound.KIND));
+		JLabel kindLabel = new JLabel(Messages.getString("SoundFrame.KIND") + ":");
+		
+		JCheckBox compressedCB = new JCheckBox(Messages.getString("SoundFrame.COMPRESSED"));
+		plf.make(compressedCB,PSound.COMPRESSED);
+		JCheckBox streamedCB = new JCheckBox(Messages.getString("SoundFrame.STREAMED"));
+		plf.make(streamedCB,PSound.STREAMED);
+		JCheckBox decompressCB = new JCheckBox(Messages.getString("SoundFrame.DECOMPRESS"));
+		plf.make(decompressCB,PSound.DECOMPRESS_ON_LOAD);
+		
+		GroupLayout aLayout = new GroupLayout(pAttr);
+		pAttr.setLayout(aLayout);
+		aLayout.setHorizontalGroup(aLayout.createParallelGroup()
+		/**/.addGroup(aLayout.createSequentialGroup()
+		/*  */.addComponent(kindLabel)
+		/*  */.addComponent(kindCombo))
+		/**/.addComponent(compressedCB)
+		/**/.addComponent(streamedCB)
+		/**/.addComponent(decompressCB));
+		aLayout.setVerticalGroup(aLayout.createSequentialGroup()
+		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
+				/*  */.addComponent(kindLabel)
+				/*  */.addComponent(kindCombo))
+		/**/.addComponent(compressedCB)
+		/**/.addComponent(streamedCB)
+		/**/.addComponent(decompressCB));
+		return pAttr;
 		}
 	
-	private JPanel makeKindPane()
-		{
-		ButtonGroup g = new ButtonGroup();
-		// The buttons must be added in the order corresponding to Sound.SoundKind.
-		AbstractButton kNormal = new JRadioButton(Messages.getString("SoundFrame.NORMAL")); //$NON-NLS-1$
-		g.add(kNormal);
-		AbstractButton kBackground = new JRadioButton(Messages.getString("SoundFrame.BACKGROUND")); //$NON-NLS-1$
-		g.add(kBackground);
-		AbstractButton k3d = new JRadioButton(Messages.getString("SoundFrame.THREE")); //$NON-NLS-1$
-		g.add(k3d);
-		AbstractButton kMult = new JRadioButton(Messages.getString("SoundFrame.MULT")); //$NON-NLS-1$
-		g.add(kMult);
-		plf.make(g,PSound.KIND,SoundKind.class);
-		JPanel pKind = new JPanel();
-		pKind.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.KIND")));
-		pKind.setLayout(new BoxLayout(pKind,BoxLayout.PAGE_AXIS));
-		for (Enumeration<AbstractButton> e = g.getElements(); e.hasMoreElements();)
-			pKind.add(e.nextElement());
-		return pKind;
+	private JPanel makeFormatPane() {
+		JPanel pFormat = new JPanel();
+		
+		final String typeOptions[] = { 
+				Messages.getString("SoundFrame.MONO"),
+				Messages.getString("SoundFrame.STEREO"),
+				Messages.getString("SoundFrame.THREE")
+		};
+		JComboBox<String> typeCombo = new JComboBox<String>(typeOptions);
+		plf.make(typeCombo,PSound.TYPE,new ComboBoxConversion() {
+		public Object convertItem(int index, Object o)
+			{
+			return index;
+			}
+		});
+		
+		final String depthOptions[] = { "8 bit", "16 bit" };
+		JComboBox<String> depthCombo = new JComboBox<String>(depthOptions);
+		plf.make(depthCombo,PSound.BIT_DEPTH,new DefaultComboBoxConversion() {
+			public Object convertItem(int index, Object o)
+			{
+				return ((String)o).substring(0, ((String)o).indexOf(' '));
+			}
+			public void select(JComboBox<Object> b, Object o)
+			{
+				b.setSelectedItem(o + " bit");
+			}
+		});
+		
+		final Integer sampleOptions[] = { 5512, 11025, 22050, 32000, 44100, 48000 };
+		JComboBox<Integer> sampleCombo = new JComboBox<Integer>(sampleOptions);
+		plf.make(sampleCombo,PSound.SAMPLE_RATE,new ComboBoxConversion() {
+			public Object convertItem(int index, Object o)
+				{
+				return o;
+				}
+		});
+		JLabel sampleLabel = new JLabel(Messages.getString("SoundFrame.SAMPLERATE"));
+		
+		ArrayList<Integer> bitOptions = new ArrayList<Integer>();
+    for (int i = 8; i <= 512; i += 8 * Math.floor(Math.log(i)/Math.log(8))) {
+			bitOptions.add(i);
 		}
+		JComboBox<Integer> bitCombo = new JComboBox(bitOptions.toArray());
+		plf.make(bitCombo,PSound.BIT_RATE,new ComboBoxConversion() {
+		public Object convertItem(int index, Object o)
+			{
+			return o;
+			}
+		});
+		JLabel bitLabel = new JLabel(Messages.getString("SoundFrame.BITRATE"));
+		
+		GroupLayout aLayout = new GroupLayout(pFormat);
+		aLayout.setAutoCreateGaps(true);
+		pFormat.setLayout(aLayout);
+		pFormat.setBorder(BorderFactory.createTitledBorder(Messages.getString("SoundFrame.FORMAT")));
+		aLayout.setHorizontalGroup(aLayout.createSequentialGroup()
+		/**/.addGroup(aLayout.createParallelGroup()
+		/*  */.addComponent(typeCombo)
+		/*  */.addComponent(depthCombo))
+		/**/.addGroup(aLayout.createParallelGroup()
+		/*  */.addComponent(sampleLabel)
+		/*  */.addComponent(bitLabel))
+		/**/.addGroup(aLayout.createParallelGroup()
+		/*  */.addComponent(sampleCombo)
+		/*  */.addComponent(bitCombo)));
+		aLayout.setVerticalGroup(aLayout.createSequentialGroup()
+		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
+		/*  */.addComponent(typeCombo)
+		/*  */.addComponent(sampleLabel)
+		/*  */.addComponent(sampleCombo))
+		/**/.addGroup(aLayout.createParallelGroup(Alignment.BASELINE)
+		/*  */.addComponent(depthCombo)
+		/*  */.addComponent(bitLabel)
+		/*  */.addComponent(bitCombo)));
+		
+		return pFormat;
+	}
 
 	private JPanel makeEffectsPane()
 		{

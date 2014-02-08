@@ -3,7 +3,7 @@
 * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
 * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
 * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
-* Copyright (C) 2013, Robert B. Colton
+* Copyright (C) 2013, 2014, Robert B. Colton
 *
 * This file is part of LateralGM.
 *
@@ -42,12 +42,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -66,9 +63,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
-import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -133,8 +128,10 @@ public final class LGM
 
 		//Get Java Version
 		String jv = System.getProperty("java.version"); //$NON-NLS-1$
-		Scanner s = new Scanner(jv).useDelimiter("[\\._-]"); //$NON-NLS-1$
+		Scanner s = new Scanner(jv);
+		s.useDelimiter("[\\._-]"); //$NON-NLS-1$
 		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
+		s.close();
 
 		try
 			{
@@ -169,10 +166,13 @@ public final class LGM
 	  	progressDialog = new JDialog(LGM.frame, "Progress Dialog", true);
 	  	progressDialogBar = new JProgressBar(0, 140);
 	  	progressDialogBar.setStringPainted(true);
+	  	progressDialogBar.setPreferredSize(new Dimension(240,20));
 	    progressDialog.add(BorderLayout.CENTER, progressDialogBar);
 	    progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-	    progressDialog.setSize(320, 65);
+	   
+	    progressDialog.pack();
 	    progressDialog.setLocationRelativeTo(LGM.frame);
+	    progressDialog.setResizable(false);
 		}
 		return progressDialog;
 	}
@@ -556,12 +556,18 @@ public final class LGM
 			try
 				{
 				String pluginEntry = "LGM-Plugin"; //$NON-NLS-1$
-				Manifest mf = new JarFile(f).getManifest();
+				JarFile jar = new JarFile(f);
+				Manifest mf = jar.getManifest();
+				jar.close();
 				String clastr = mf.getMainAttributes().getValue(pluginEntry);
 				if (clastr == null)
 					throw new Exception(Messages.format("LGM.PLUGIN_MISSING_ENTRY",pluginEntry));
 				URLClassLoader ucl = new URLClassLoader(new URL[] { f.toURI().toURL() });
 				ucl.loadClass(clastr).newInstance();
+				//TODO: Closing the ucl will basically unload the entire plugin
+				//plugin system needs revamped so that a callback can be implemented
+				//where a plugin unloads itself.
+				//ucl.close();
 				}
 			catch (Exception e)
 				{

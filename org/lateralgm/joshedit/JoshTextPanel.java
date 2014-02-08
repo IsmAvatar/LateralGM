@@ -74,6 +74,11 @@ public class JoshTextPanel extends JPanel
 	private class CustomJScrollPane extends JScrollPane
 	{
 
+	/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4960571003195771376L;
+
 	public CustomJScrollPane(JComponent c)
 			{
 			super(c);

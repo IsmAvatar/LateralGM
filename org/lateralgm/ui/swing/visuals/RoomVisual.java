@@ -379,6 +379,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					case OBJECT:
 						invalidate();
 						break;
+					default:
+						break;
 					}
 				}
 			}
@@ -448,6 +450,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					case ROOM_X:
 					case ROOM_Y:
 						invalidate();
+						break;
+					default:
 						break;
 					}
 				}
@@ -559,7 +563,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				case DRAW_BACKGROUND_COLOR:
 					repaint(null);
 					break;
-				case ENABLE_VIEWS:
+				case VIEWS_ENABLED:
 					if (show.contains(Show.VIEWS)) repaint(null);
 					break;
 				case ISOMETRIC:
@@ -577,6 +581,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				case WIDTH:
 				case HEIGHT:
 					parent.updateBounds();
+					break;
+				default:
 					break;
 				}
 			}
@@ -599,6 +605,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				case H_SPEED:
 				case V_SPEED:
 					return;
+				default:
+					break;
 				}
 			if (e.map.get(PBackgroundDef.VISIBLE))
 				if ((bg && fg) || (e.map.get(PBackgroundDef.FOREGROUND) ? fg : bg)) repaint(null);

@@ -70,7 +70,7 @@ import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.subframes.ActionFrame;
 
-public class ActionList extends JList implements ActionListener, ClipboardOwner
+public class ActionList extends JList<Action> implements ActionListener, ClipboardOwner
 	{
 	private static final long serialVersionUID = 1L;
 	private static final Map<Action,WeakReference<ActionFrame>> FRAMES;
@@ -249,7 +249,7 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 		public void mouseClicked(MouseEvent e)
 			{
 			if (e.getClickCount() != 2 || !(e.getSource() instanceof JList)) return;
-			JList l = (JList) e.getSource();
+			JList<Action> l = (JList<Action>) e.getSource();
 			Object o = l.getSelectedValue();
 
 			if (o == null && l.getModel().getSize() == 0)
@@ -274,7 +274,7 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 		@Override
 		public void keyPressed(KeyEvent e)
 			{
-			JList l = (JList) e.getSource();
+			JList<Action> l = (JList<Action>) e.getSource();
 			switch (e.getKeyCode())
 				{
 				case KeyEvent.VK_DELETE:
@@ -285,7 +285,7 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 			}
 		}
 
-	public static class ActionListModel extends AbstractListModel implements UpdateListener
+	public static class ActionListModel extends AbstractListModel<Action> implements UpdateListener
 		{
 		private static final long serialVersionUID = 1L;
 		public ArrayList<Action> list;
@@ -331,7 +331,7 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 			fireIntervalRemoved(this,index,index);
 			}
 
-		public Object getElementAt(int index)
+		public Action getElementAt(int index)
 			{
 			return list.get(index);
 			}
@@ -470,28 +470,27 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 
 	public static class ActionTransferable implements Transferable
 		{
-		private final Action[] actions;
+		private final ArrayList<Action> actions;
 		private final DataFlavor[] flavors;
 
-		public ActionTransferable(Action[] a)
+		public ActionTransferable(ArrayList<Action> a)
 			{
 			actions = a;
 			ArrayList<DataFlavor> fl = new ArrayList<DataFlavor>(2);
 			fl.add(ACTION_ARRAY_FLAVOR);
-			if (a.length == 1) fl.add(ACTION_FLAVOR);
+			if (a.size() == 1) fl.add(ACTION_FLAVOR);
 			flavors = fl.toArray(new DataFlavor[2]);
 			}
 
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 			{
-			if (flavor == ACTION_FLAVOR && actions.length == 1)
+			if (flavor == ACTION_FLAVOR && actions.size() == 1)
 				{
-				return actions[0];
+				return actions.get(0);
 				}
 			if (flavor == ACTION_ARRAY_FLAVOR)
 				{
-				List<Action> l = Arrays.asList(actions);
-				return l;
+				return actions;
 				}
 			throw new UnsupportedFlavorException(flavor);
 			}
@@ -530,7 +529,7 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 			{
 			if (action == MOVE && indices != null)
 				{
-				JList ls = (JList) source;
+				JList<Action> ls = (JList<Action>) source;
 				ActionListModel model = (ActionListModel) ls.getModel();
 				if (addCount > 0)
 					{
@@ -650,16 +649,12 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 
 		protected Transferable createTransferable(JComponent c)
 			{
-			JList list = (JList) c;
-			indices = list.getSelectedIndices();
-			Object[] o = list.getSelectedValues();
-			Action[] a = new Action[o.length];
-			a = Arrays.asList(o).toArray(a);
-			return new ActionTransferable(a);
+			JList<Action> list = (JList<Action>) c;
+			return new ActionTransferable((ArrayList<Action>) list.getSelectedValuesList());
 			}
 		}
 
-	private static class ActionRenderer implements ListCellRenderer
+	private static class ActionRenderer implements ListCellRenderer<Action>
 		{
 		private final WeakHashMap<Action,SoftReference<ActionRendererComponent>> lcrMap;
 
@@ -752,9 +747,9 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 			private static final long serialVersionUID = 1L;
 			private int indent;
 			private boolean selected;
-			private final JList list;
+			private final JList<Action> list;
 
-			public ActionRendererComponent(Action a, JList list)
+			public ActionRendererComponent(Action a, JList<Action> list)
 				{
 				this.list = list;
 				setOpaque(true);
@@ -843,7 +838,7 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 				}
 			}
 
-		public Component getListCellRendererComponent(JList list, Object cell, int index,
+		public Component getListCellRendererComponent(JList<? extends Action> list, Action cell, int index,
 				boolean isSelected, boolean hasFocus)
 			{
 			final Action cellAction = (Action) cell;
@@ -853,10 +848,10 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 			if (arcref != null) arc = arcref.get();
 			if (arc == null)
 				{
-				arc = new ActionRendererComponent(cellAction,list);
+				arc = new ActionRendererComponent(cellAction,(JList<Action>) list);
 				lcrMap.put(cellAction,new SoftReference<ActionRendererComponent>(arc));
 				}
-			ListModel lm = list.getModel();
+			ListModel<Action> lm = (ListModel<Action>) list.getModel();
 			try
 				{
 				if (lm instanceof ActionListModel)
@@ -871,37 +866,32 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 			}
 		}
 	
-  public void ActionsEdit(JList list)
+  public void ActionsEdit(JList<Action> list)
   {
 	  int index = list.getSelectedIndex();
 	  ActionListModel alm = (ActionListModel) list.getModel();
 	  ActionList.openActionFrame(parent.get(), (Action)alm.getElementAt(index));
   }
 	
-	  public void ActionsCut(JList list)
+	  public void ActionsCut(JList<Action> list)
 	  {
 	  	ActionsCopy(list);
 	  	ActionsDelete(list);
 	  }
 	
-	  public void ActionsCopy(JList list)
+	  public void ActionsCopy(JList<Action> list)
 	  {
 
 	  Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-	  
-		int[] indices = list.getSelectedIndices();
-		Object[] o = list.getSelectedValues();
-		Action[] a = new Action[o.length];
-		a = Arrays.asList(o).toArray(a);
-	  
-	  ActionTransferable at = new ActionTransferable(a);
+
+	  ActionTransferable at = new ActionTransferable((ArrayList<Action>) list.getSelectedValuesList());
 	  
     clipboard.setContents(at, this);
 
     //DataFlavor[] flavors = clipboardContent.setTransferDataFlavors();
 	  }
 	  
-	  public void ActionsPaste(JList list)
+	  public void ActionsPaste(JList<Action> list)
 	  {
 	  	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	  	Transferable clipboardContent = clipboard.getContents(this);
@@ -929,15 +919,15 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 	  }
 	  
 	  //TODO: Implement Undo/Redo manager
-	  public static void ActionsUndo(JList list) {
+	  public static void ActionsUndo(JList<Action> list) {
 	  
 	  }
 	  
-	  public static void ActionsRedo(JList list) {
+	  public static void ActionsRedo(JList<Action> list) {
 	  
 	  }
 	  
-	  public static void ActionsDelete(JList list)
+	  public static void ActionsDelete(JList<Action> list)
 	  {
 		  int[] indices = list.getSelectedIndices();
 		  ActionListModel alm = (ActionListModel) list.getModel();
@@ -946,7 +936,7 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 		  if (indices.length != 0) list.setSelectedIndex(Math.min(alm.getSize() - 1,indices[0]));
 	  }
 	  
-	  public static void ActionsSelectAll(JList list) {
+	  public static void ActionsSelectAll(JList<Action> list) {
 		  int start = 0;
 	    int end = list.getModel().getSize() - 1;
 	    if (end >= 0) {
@@ -954,7 +944,7 @@ public class ActionList extends JList implements ActionListener, ClipboardOwner
 	    }
 	  }
 
-	  public static void ActionsClear(JList list) {
+	  public static void ActionsClear(JList<Action> list) {
 	  	ActionsSelectAll(list);
 	  	ActionsDelete(list);
 	  }

@@ -10,25 +10,20 @@
 
 package org.lateralgm.subframes;
 
-import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -41,10 +36,8 @@ import java.text.DecimalFormat;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
@@ -54,13 +47,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.ViewportLayout;
 
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
@@ -83,8 +73,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
-	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("BackgroundFrame.LOAD"); //$NON-NLS-1$
-	private static final ImageIcon EDIT_ICON = LGM.getIconForKey("BackgroundFrame.EDIT"); //$NON-NLS-1$
 	public JButton load;
 	public JLabel statusLabel;
 	public JCheckBox transparent;
@@ -236,8 +224,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
-
-		JLabel nLabel = new JLabel(Messages.getString("BackgroundFrame.NAME"));
 		
 		tool.add(save);
 		tool.add(makeJButton("BackgroundFrame.LOAD"));

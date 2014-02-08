@@ -10,7 +10,6 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
-import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.util.PropertyMap;
 
 public class Shader extends InstantiableResource<Shader,Shader.PShader>

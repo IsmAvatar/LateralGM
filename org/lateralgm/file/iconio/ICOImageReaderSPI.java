@@ -23,7 +23,7 @@ public class ICOImageReaderSPI extends ImageReaderSpi
 		{
 		super("Christian Treber, www.ctreber.com, ct@ctreber.com","1.0 December 2003",new String[] {
 				"ico","ICO" },new String[] { "ico" },new String[] { "image/x-ico" },
-				"org.lateralgm.file.iconio.ICOReader",STANDARD_INPUT_TYPE,null,false,null,null,null,null,
+				"org.lateralgm.file.iconio.ICOReader",new Class[] {ImageInputStream.class},null,false,null,null,null,null,
 				false,null,null,null,null);
 		}
 

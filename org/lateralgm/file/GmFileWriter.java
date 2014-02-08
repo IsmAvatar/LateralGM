@@ -21,7 +21,6 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
 import org.lateralgm.components.impl.ResNode;
@@ -682,7 +681,7 @@ public final class GmFileWriter
 					out.write4(back.properties,PBackgroundDef.H_SPEED,PBackgroundDef.V_SPEED);
 					out.writeBool(back.properties,PBackgroundDef.STRETCH);
 					}
-				out.writeBool(rm.properties,PRoom.ENABLE_VIEWS);
+				out.writeBool(rm.properties,PRoom.VIEWS_ENABLED);
 				out.write4(rm.views.size());
 				for (View view : rm.views)
 					{

@@ -11,8 +11,6 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
-import javax.swing.JOptionPane;
-
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;

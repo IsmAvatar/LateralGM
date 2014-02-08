@@ -176,7 +176,7 @@ public class MDIFrame extends JInternalFrame
      * NOTE! Breaks Z-ordering */
     Rectangle clipRect = this.getRootPane().getBounds();
     clipRect.setLocation(this.getRootPane().getX(), getRootPane().getY());
-    Area insideClip = calculateRectOutside(clipRect);
+    //Area insideClip = calculateRectOutside(clipRect);
     //g2d.setClip(insideClip); 
     
     int arcWidth = 10;
@@ -335,9 +335,9 @@ public class MDIFrame extends JInternalFrame
 	        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	      }
 	      Graphics2D g2d = (Graphics2D)g;
-	  		boolean gradientBackground = true;
+	  		//boolean gradientBackground = true;
 	  		Color lightColor = null, darkColor = null;
-	      Color frameColor = null;
+	      //Color frameColor = null;
 	    
 	      if (clicked) {
           //g2d.setComposite(AlphaComposite.getInstance(

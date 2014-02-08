@@ -15,11 +15,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-
-import javax.swing.JOptionPane;
 
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -28,8 +25,6 @@ import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
-
-import sun.security.ssl.Debug;
 
 public class SubimagePreview extends AbstractImagePreview implements UpdateListener
 	{
@@ -119,8 +114,8 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 			}
 			
 	    Graphics2D g2d = (Graphics2D) g;
-	   // g2d.translate(this.getWidth()/2 - d.width/2, 
-	    		//this.getHeight()/2 - d.height/2);
+	    g2d.translate(this.getWidth()/2 - d.width/2, 
+	    		this.getHeight()/2 - d.height/2);
 			
 			g.drawImage(transparentBackground, 0, 0, d.width, d.height, null);
     

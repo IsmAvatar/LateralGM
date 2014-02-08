@@ -309,6 +309,8 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 						ltsp = null;
 						}
 					break;
+				default:
+					break;
 				}
 			}
 		}

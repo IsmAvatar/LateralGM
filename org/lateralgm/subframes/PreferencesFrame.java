@@ -10,7 +10,6 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
@@ -45,7 +44,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	protected Color fgColor;
 	
-	JComboBox themeCombo, iconCombo, langCombo, actionsCombo;
+	JComboBox<String> themeCombo, iconCombo, langCombo, actionsCombo;
 	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, dockEvent, backupsEnable;
   JTextField iconPath, themePath, manualPath, actionsPath;
   
@@ -71,15 +70,15 @@ public class PreferencesFrame extends JFrame implements ActionListener
     comboBoxItems.add("Custom");
     final DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(comboBoxItems);
     
-    themeCombo = new JComboBox(model);
+    themeCombo = new JComboBox<String>(model);
     themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS") + ":");
     String[] iconOptions = { "Swing", "Calico", "Custom" };
-    iconCombo = new JComboBox(iconOptions);
+    iconCombo = new JComboBox<String>(iconOptions);
     iconCombo.setSelectedItem(LGM.iconspack);
 		JLabel langLabel = new JLabel(Messages.getString("PreferencesFrame.LANGUAGE") + ":");
     String[] langOptions = { "English", "French", "Turkish", "Danish" };
-    langCombo = new JComboBox(langOptions);
+    langCombo = new JComboBox<String>(langOptions);
     langCombo.setSelectedItem(Prefs.languageName);
     dndEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_DND"));
     dndEnable.setSelected(Prefs.enableDragAndDrop);
@@ -95,9 +94,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		iconPath = new JTextField(Prefs.iconPath);
 		JLabel manualPathLabel = new JLabel(Messages.getString("PreferencesFrame.MANUAL_PATH") + ":");
 		manualPath = new JTextField(Prefs.manualPath);
-		JLabel actionsLabel = new JLabel(Messages.getString("PreferencesFrame.ACTIONLIBRARY") + ":");
+		//JLabel actionsLabel = new JLabel(Messages.getString("PreferencesFrame.ACTIONLIBRARY") + ":");
     String[] actionsOptions = { "Standard", "Logic", "Custom" };
-    actionsCombo = new JComboBox(actionsOptions);
+    actionsCombo = new JComboBox<String>(actionsOptions);
     //actionsCombo.setSelectedItem(Prefs.actionLibrary);
     actionsPath = new JTextField();
     actionsPath.setText(Prefs.userLibraryPath);
@@ -135,7 +134,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			      		 .addComponent(dockEvent))
 			      .addGroup(gl.createParallelGroup()
 			      		 .addComponent(backupsEnable))
-			      .addGroup(gl.createParallelGroup()
+			      .addGroup(gl.createSequentialGroup()
 			           .addComponent(backupsLabel)
 			      		 .addComponent(numberBackupsField))
 			           /*
@@ -171,10 +170,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			           .addComponent(dockEvent, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 			      .addGroup(gl.createSequentialGroup()
 			           .addComponent(backupsEnable, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-			      .addGroup(gl.createSequentialGroup()
-			           .addComponent(backupsLabel))
-			      .addGroup(gl.createSequentialGroup()
-			           .addComponent(numberBackupsField, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE))   
+			      .addGroup(gl.createParallelGroup(Alignment.BASELINE)
+			           .addComponent(backupsLabel)
+			           .addComponent(numberBackupsField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 			           /*
 			  		.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 			      		 .addComponent(actionsLabel)
@@ -301,9 +299,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	{
 		JPanel p = new JPanel();
 		
-    String[] defaultEditorOptions = { Messages.getString("PreferencesFrame.DEFAULT"), 
-    		Messages.getString("PreferencesFrame.SYSTEM"), 
-    		Messages.getString("PreferencesFrame.CUSTOM") };
+    //String[] defaultEditorOptions = { Messages.getString("PreferencesFrame.DEFAULT"), 
+    		//Messages.getString("PreferencesFrame.SYSTEM"), 
+    	//	Messages.getString("PreferencesFrame.CUSTOM") };
 		
     // Uncomment the shit for this panel if you dun want people messin with commands
     // too lazy to code it.

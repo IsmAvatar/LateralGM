@@ -8,8 +8,6 @@
 
 package org.lateralgm.joshedit;
 
-import java.awt.BorderLayout;
-import java.awt.Graphics;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -24,18 +22,12 @@ import java.util.prefs.Preferences;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import javax.swing.event.CaretListener;
 
-import org.lateralgm.joshedit.Code.CodeEvent;
-import org.lateralgm.joshedit.Code.CodeListener;
 import org.lateralgm.joshedit.lexers.GMLTokenMarker;
-import org.lateralgm.main.LGM;
 
 public class Runner
 {
@@ -118,6 +110,7 @@ public class Runner
 		Scanner sc = new Scanner(text);
 		while (sc.hasNext())
 			list.add(sc.nextLine());
+		sc.close();
 		return list.toArray(new String[0]);
 	}
 

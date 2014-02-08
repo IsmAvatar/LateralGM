@@ -21,7 +21,6 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
-import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.ShapePoint;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;

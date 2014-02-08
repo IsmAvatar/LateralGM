@@ -16,7 +16,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.image.BufferedImage;
 
 import org.lateralgm.main.Util;
@@ -24,7 +23,6 @@ import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
-import org.lateralgm.resources.Sprite.PSprite;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
@@ -99,20 +97,20 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		}
 		
 		
-		int imgwidth = 0;
-		int imgheight = 0;
+		Dimension d = getPreferredSize();
 		
 		if (image != null) {
-			imgwidth = (int)(image.getWidth()*zoom);
-			imgheight = (int)(image.getHeight()*zoom);
-
 			if (transparentBackground == null) {
 				transparentBackground = paintBackground();
 			}
 			
-			g.drawImage(transparentBackground, 0, 0, imgwidth, imgheight, null);
+	    Graphics2D g2d = (Graphics2D) g;
+	    g2d.translate(this.getWidth()/2 - d.width/2, 
+	    		this.getHeight()/2 - d.height/2);
+	    
+			g.drawImage(transparentBackground, 0, 0, d.width, d.height, null);
     
-			g.drawImage(image, 0, 0, imgwidth, imgheight, null);
+			g.drawImage(image, 0, 0, d.width, d.height, null);
 		}		else
 			setPreferredSize(new Dimension(0,0));
 		
@@ -137,7 +135,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 					vsep *= zoom;
 
 					Rectangle r = g.getClipBounds().intersection(
-							new Rectangle(hoffset,voffset,imgwidth - hoffset,imgheight - voffset));
+							new Rectangle(hoffset,voffset,d.width - hoffset,d.height - voffset));
 
 					int newx = ((r.x - hoffset) / (width + hsep)) * (width + hsep) + hoffset;
 					r.width += r.x - newx;
@@ -147,7 +145,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 					r.height += r.y - newy;
 					r.y = newy;
 
-					g.setClip(0, 0, imgwidth, imgheight); 
+					g.setClip(0, 0, d.width, d.height); 
 					g.setXORMode(Color.BLACK);
 					g.setColor(Color.WHITE);
 					for (int i = r.x; i < r.x + r.width; i += width + hsep)
