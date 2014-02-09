@@ -64,7 +64,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	public JButton add, edit, change, delete, duplicate;
 	public JButton shift, merge, clear, showInfo;
 
-	public JList moments;
+	public JList<Moment> moments;
 	public ActionList actions;
 	public CodeTextArea code;
 	private JComponent editor;
@@ -84,7 +84,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		//side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
 		side2.add(lab,BorderLayout.NORTH);
-		moments = new JList(res.moments.toArray());
+		moments = new JList<Moment>(res.moments.toArray(new Moment[res.moments.size()]));
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
 		
@@ -310,7 +310,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 				m2.stepNo = ret;
 				res.moments.add(p,m2);
 				}
-			moments.setListData(res.moments.toArray());
+			moments.setListData(res.moments.toArray(new Moment[res.moments.size()]));
 			moments.setSelectedIndex(p);
 			return;
 			}
@@ -326,7 +326,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 				if (r == JOptionPane.NO_OPTION) return;
 				}
 			res.moments.remove(p);
-			moments.setListData(res.moments.toArray());
+			moments.setListData(res.moments.toArray(new Moment[res.moments.size()]));
 			moments.setSelectedIndex(Math.min(res.moments.size() - 1,p));
 			return;
 			}
@@ -347,7 +347,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			int r = JOptionPane.showConfirmDialog(this,msg,ttl,JOptionPane.YES_NO_OPTION);
 			if (r == JOptionPane.NO_OPTION) return;
 			res.moments.clear();
-			moments.setListData(res.moments.toArray());
+			moments.setListData(res.moments.toArray(new Moment[res.moments.size()]));
 			}
 		if (but == shift)
 			{
@@ -371,7 +371,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			int ret = JOptionPane.showConfirmDialog(this,pane,ttl,JOptionPane.OK_CANCEL_OPTION);
 			if (ret == JOptionPane.CANCEL_OPTION) return;
 			int p = res.shiftMoments(iStart.getIntValue(),iEnd.getIntValue(),iAmt.getIntValue());
-			moments.setListData(res.moments.toArray());
+			moments.setListData(res.moments.toArray(new Moment[res.moments.size()]));
 			//this is actually the *old* position of first shifted moment, the same as GM does it.
 			//if we wanted to, we could find the new position, but it's a lot of work for nothing
 			moments.setSelectedIndex(p);
@@ -396,7 +396,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			if (ret == JOptionPane.CANCEL_OPTION) return;
 			actions.save(); //prevents "fresh" actions from being overwritten
 			int p = res.mergeMoments(iStart.getIntValue(),iEnd.getIntValue());
-			moments.setListData(res.moments.toArray());
+			moments.setListData(res.moments.toArray(new Moment[res.moments.size()]));
 			moments.setSelectedIndex(p);
 			return;
 			}

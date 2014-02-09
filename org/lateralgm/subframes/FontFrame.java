@@ -73,7 +73,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 	public JComboBox<String> fonts;
 	public NumberField size;
 	public JCheckBox italic, bold;
-	public JComboBox<Integer> aa;
+	public JComboBox<String> aa;
 	public NumberField charMin, charMax;
 	private FormattedLink<PCharacterRange> minLink, maxLink;
 	public JEditorPane previewText;
@@ -119,7 +119,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		String aalevels[] = new String[4];
 		for (int i = 0; i < aalevels.length; i++)
 			aalevels[i] = Messages.getString(aaprefix + i);
-		aa = new JComboBox(aalevels);
+		aa = new JComboBox<String>(aalevels);
 		plf.make(aa,PFont.ANTIALIAS,new IndexComboBoxConversion());
 		JLabel aaLabel = new JLabel(Messages.getString("FontFrame.ANTIALIAS")); //$NON-NLS-1$
 		//		aa.addActionListener(this);

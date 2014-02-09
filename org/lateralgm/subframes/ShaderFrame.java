@@ -77,7 +77,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 	public JButton edit;
 	public JPanel status;
 	public JCheckBox precompileCB;
-	public JComboBox typeCombo;
+	public JComboBox<String> typeCombo;
 	public String currentLang = "";
 
 	private ScriptEditor editor;
@@ -124,7 +124,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tool.addSeparator();
 		tool.add(new JLabel(Messages.getString("ShaderFrame.TYPE")));
 		String[] typeOptions = { "GLSLES", "GLSL", "HLSL9", "HLSL11" };
-		typeCombo = new JComboBox(typeOptions);
+		typeCombo = new JComboBox<String>(typeOptions);
 		typeCombo.setMaximumSize(new Dimension(100, 20));
 		typeCombo.addItemListener (new ItemListener() {
 			public void itemStateChanged(ItemEvent arg0)
