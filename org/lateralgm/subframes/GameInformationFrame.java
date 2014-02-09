@@ -98,7 +98,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	private RTFEditorKit rtf = new RTFEditorKit();
 	protected JMenuBar menubar;
 	protected JToolBar toolbar;
-	protected JComboBox cbFonts;
+	protected JComboBox<String> cbFonts;
 	protected JSpinner sSizes;
 	protected JToggleButton tbBold;
 	protected JToggleButton tbItalic;
@@ -249,7 +249,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		String[] fontNames = ge.getAvailableFontFamilyNames();
 		tool.addSeparator();
-		cbFonts = new JComboBox(fontNames);
+		cbFonts = new JComboBox<String>(fontNames);
 		cbFonts.setRequestFocusEnabled(false);
 		cbFonts.setMaximumSize(cbFonts.getPreferredSize());
 		cbFonts.setEditable(true);

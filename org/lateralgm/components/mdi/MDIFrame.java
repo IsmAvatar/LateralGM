@@ -616,6 +616,11 @@ public class MDIFrame extends JInternalFrame
 	private class WinInternalFrameTitlePane extends WindowsInternalFrameTitlePane
 	{
 	
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8196008182338058385L;
+
 		public WinInternalFrameTitlePane(JInternalFrame f)
 			{
 			super(f);

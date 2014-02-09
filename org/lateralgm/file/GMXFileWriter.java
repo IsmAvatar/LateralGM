@@ -1298,8 +1298,7 @@ public final class GMXFileWriter
 				Element objroot = doc.createElement("object");
 				doc.appendChild(objroot);
 				
-				ResourceReference<Sprite> spr =
-						((ResourceReference<Sprite>)object.get(PGmObject.SPRITE));
+				ResourceReference<?> spr = object.get(PGmObject.SPRITE);
 				if (spr != null) {
 					objroot.appendChild(createElement(doc, "spriteName", spr.get().getName()));
 				} else {
@@ -1313,14 +1312,14 @@ public final class GMXFileWriter
 						object.get(PGmObject.DEPTH).toString()));
 				objroot.appendChild(createElement(doc, "persistent", 
 						boolToString((Boolean)object.get(PGmObject.PERSISTENT))));
-				spr = ((ResourceReference<Sprite>)object.get(PGmObject.MASK));
+				spr = object.get(PGmObject.MASK);
 				if (spr != null) {
 					objroot.appendChild(createElement(doc, "maskName", spr.get().getName()));
 				} else {
 					objroot.appendChild(createElement(doc, "maskName", "<undefined>"));
 				}
 				
-				ResourceReference<GmObject> par = ((ResourceReference<GmObject>)object.get(PGmObject.PARENT));
+				ResourceReference<?> par = object.get(PGmObject.PARENT);
 				if (par != null) {
 					objroot.appendChild(createElement(doc, "parentName", par.get().getName()));
 				} else {
@@ -1533,7 +1532,7 @@ public final class GMXFileWriter
 					
 					bckelement.setAttribute("visible",boolToString((Boolean)props.get(PBackgroundDef.VISIBLE)));
 					bckelement.setAttribute("foreground",boolToString((Boolean)props.get(PBackgroundDef.FOREGROUND)));
-					ResourceReference<Background> br = ((ResourceReference<Background>) props.get(PBackgroundDef.BACKGROUND));
+					ResourceReference<?> br = props.get(PBackgroundDef.BACKGROUND);
 					if (br != null) { 
 						bckelement.setAttribute("name", br.get().getName());
 					} else {
@@ -1557,7 +1556,7 @@ public final class GMXFileWriter
 					viewroot.appendChild(vwelement);
 					
 					vwelement.setAttribute("visible",boolToString((Boolean)props.get(PView.VISIBLE)));
-					ResourceReference<GmObject> or = ((ResourceReference<GmObject>) props.get(PInstance.OBJECT));
+					ResourceReference<?> or = (ResourceReference<?>) props.get(PInstance.OBJECT);
 					if (or != null) { 
 						vwelement.setAttribute("objName",or.get().getName());
 					} else {
@@ -1608,7 +1607,7 @@ public final class GMXFileWriter
 					Element tileelement = doc.createElement("tile");
 					tileroot.appendChild(tileelement);
 					
-					ResourceReference<Background> br = ((ResourceReference<Background>) props.get(PTile.BACKGROUND));
+					ResourceReference<?> br = props.get(PTile.BACKGROUND);
 					if (br != null) { 
 						tileelement.setAttribute("bgName", br.get().getName());
 					} else {

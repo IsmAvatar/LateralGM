@@ -33,6 +33,10 @@ import org.lateralgm.messages.Messages;
 public class EffectsFrame extends JFrame
 	{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4668913557919192011L;
 	private BufferedImage image = null;
 	
 	public EffectsFrame(BufferedImage source) {

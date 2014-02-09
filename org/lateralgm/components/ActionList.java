@@ -248,8 +248,8 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 
 		public void mouseClicked(MouseEvent e)
 			{
-			if (e.getClickCount() != 2 || !(e.getSource() instanceof JList)) return;
-			JList<Action> l = (JList<Action>) e.getSource();
+			if (e.getClickCount() != 2 || !(e.getSource() instanceof JList<?>)) return;
+			JList<?> l = (JList<?>) e.getSource();
 			Object o = l.getSelectedValue();
 
 			if (o == null && l.getModel().getSize() == 0)

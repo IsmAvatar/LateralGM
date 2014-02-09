@@ -164,7 +164,6 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	
 	private void setBoundedOrigin(int x, int y)
 		{
-		Dimension d = getPreferredSize();
 		x = (int) Math.max(0,Math.min(getImage().getWidth(),x));
 		y = (int) Math.max(0,Math.min(getImage().getHeight(),y));
 		sprite.put(PSprite.ORIGIN_X,x);

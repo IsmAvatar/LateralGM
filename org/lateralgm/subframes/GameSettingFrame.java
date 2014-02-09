@@ -618,7 +618,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			}
 		}
 
-	public JList includes;
+	public JList<Include> includes;
 	public IncludesListModel iModel;
 	public JButton iAdd;
 	public JButton iDelete;
@@ -639,7 +639,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		JLabel lFiles = new JLabel(Messages.getString("GameSettingFrame.FILES_TO_INCLUDE")); //$NON-NLS-1$
 
 		iModel = new IncludesListModel(curIncludeList);
-		includes = new JList(iModel);
+		includes = new JList<Include>(iModel);
 		JScrollPane iScroll = new JScrollPane(includes);
 		iAdd = new JButton(Messages.getString("GameSettingFrame.ADD_INCLUDE")); //$NON-NLS-1$
 		iAdd.addActionListener(this);
@@ -689,7 +689,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		return panel;
 		}
 
-	private class IncludesListModel extends DefaultListModel
+	private class IncludesListModel extends DefaultListModel<Include>
 		{
 		private static final long serialVersionUID = 1L;
 

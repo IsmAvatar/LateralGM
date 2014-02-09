@@ -54,7 +54,7 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 	{
 	private static final long serialVersionUID = 1L;
 
-	private JList list;
+	private JList<PathPoint> list;
 	private NumberField tx, ty, tsp;
 	private NumberField tpr;
 	private JButton add, insert, delete;
@@ -152,7 +152,7 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 
 		final JLabel lName = new JLabel(Messages.getString("PathFrame.NAME")); //$NON-NLS-1$
 
-		list = new JList(new ArrayListModel<PathPoint>(res.points));
+		list = new JList<PathPoint>(new ArrayListModel(res.points));
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		peplf.make(list,PPathEditor.SELECTED_POINT);
 		list.setFont(new Font("Monospaced",Font.PLAIN,10)); //$NON-NLS-1$
