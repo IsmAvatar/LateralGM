@@ -82,19 +82,30 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 	private CharacterRange lastRange = null; //non-guaranteed copy of rangeList.getLastSelectedValue()
 	public JList<CharacterRange> rangeList;
 
+	private PropertyUpdateListener<PFont> propUpdateListener;
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		res.properties.updateSource.removeListener(propUpdateListener);
+		res.rangeUpdateSource.removeListener(this);
+	}
+	
 	public FontFrame(Font res, ResNode node)
 		{
 		super(res,node);
 		((JComponent)getContentPane()).setBorder(new EmptyBorder(4, 4, 4, 4));
 		
-		res.properties.updateSource.addListener(new PropertyUpdateListener<PFont>()
-		{
-			public void updated(PropertyUpdateEvent<PFont> e)
-			{
-				updatePreviewText();
-				updatePreviewRange();
-			}
-		});
+		propUpdateListener = new PropertyUpdateListener<PFont>()
+				{
+					public void updated(PropertyUpdateEvent<PFont> e)
+					{
+						updatePreviewText();
+						updatePreviewRange();
+					}
+				};
+		
+		res.properties.updateSource.addListener(propUpdateListener);
 		res.rangeUpdateSource.addListener(this);
 
 		GroupLayout layout = new GroupLayout(getContentPane());
@@ -436,22 +447,10 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		}
 		super.actionPerformed(ev);
 		}
-	
-	public java.awt.Font getAWTFont() {
-		int s = res.get(PFont.SIZE);
-		String fn = res.get(PFont.FONT_NAME);
-		boolean b = res.get(PFont.BOLD);
-		boolean i = res.get(PFont.ITALIC);
-		/* Java assumes 72 dpi, but we shouldn't depend on the native resolution either.
-		 * For consistent pixel size across different systems, we should pick a common default.
-		 * AFAIK, the default in Windows (and thus GM) is 96 dpi. */
-		int fontSize = (int) Math.round(s * 96.0 / 72.0);
-		return new java.awt.Font(fn,makeStyle(b,i),fontSize);
-	}
 
 	public void updatePreviewText()
 		{
-		previewText.setFont(getAWTFont());
+		previewText.setFont(res.getAWTFont());
 		}
 	
 	public void updatePreviewRange() {
@@ -468,13 +467,8 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 			text += "\n";
 		}
 		previewRange.setText(text);
-		previewRange.setFont(getAWTFont());
+		previewRange.setFont(res.getAWTFont());
 	}
-
-	public static int makeStyle(boolean bold, boolean italic)
-		{
-		return (italic ? java.awt.Font.ITALIC : 0) | (bold ? java.awt.Font.BOLD : 0);
-		}
 
 	private static class RangeListComponentRenderer implements ListCellRenderer<CharacterRange>
 	{

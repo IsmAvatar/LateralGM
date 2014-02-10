@@ -239,9 +239,9 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	    }
 		}
     if (infoFrame == null) {
-      infoFrame = new ResourceInfoFrame(res);
+      infoFrame = new ResourceInfoFrame();
     }
-    infoFrame.updateTimelineInfo();
+    infoFrame.updateTimelineInfo(res.reference);
     infoFrame.setVisible(true);	
 	}
 

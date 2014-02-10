@@ -145,7 +145,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
 	private ButtonModelLink<PBackgroundDef> lbVisible, lbForeground, lbTileH, lbTileV, lbStretch;
 	private ColorSelect bColor;
-	private JList<BackgroundDef> bList;
+	private JList<JLabel> bList;
 	/**Guaranteed valid version of bList.getLastSelectedIndex()*/
 	private int lastValidBack = -1;
 	private ResourceMenu<Background> bSource;
@@ -156,7 +156,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	//Views
 	private JCheckBox vEnabled, vVisible;
 	private ButtonModelLink<PView> lvVisible;
-	private JList<View> vList;
+	private JList<JLabel> vList;
 	/**Guaranteed valid version of vList.getLastSelectedIndex()*/
 	private int lastValidView = -1;
 	private NumberField vRX, vRY, vRW, vRH;
@@ -827,7 +827,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			backLabs[i].setFont(backLabs[i].getFont().deriveFont(v ? Font.BOLD : Font.PLAIN));
 			backLabs[i].setOpaque(true);
 			}
-		bList = new JList(backLabs);
+		bList = new JList<JLabel>(backLabs);
 		bList.setCellRenderer(new ListComponentRenderer());
 		bList.addListSelectionListener(this);
 		bList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -988,7 +988,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			viewLabs[i].setFont(viewLabs[i].getFont().deriveFont(v ? Font.BOLD : Font.PLAIN));
 			viewLabs[i].setOpaque(true);
 			}
-		vList = new JList(viewLabs);
+		vList = new JList<JLabel>(viewLabs);
 		vList.setCellRenderer(new ListComponentRenderer());
 		//vList.setVisibleRowCount(4);
 		vList.addListSelectionListener(this);
@@ -1283,9 +1283,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			}
 		}
 
-	public static class ListComponentRenderer implements ListCellRenderer
+	public static class ListComponentRenderer implements ListCellRenderer<Object>
 		{
-		public Component getListCellRendererComponent(JList list, Object val, int ind,
+		public Component getListCellRendererComponent(JList<? extends Object> list, Object val, int ind,
 				boolean selected, boolean focus)
 			{
 			Component lab = (Component) val;

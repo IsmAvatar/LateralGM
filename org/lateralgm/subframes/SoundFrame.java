@@ -399,7 +399,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
     for (int i = 8; i <= 512; i += 8 * Math.floor(Math.log(i)/Math.log(8))) {
 			bitOptions.add(i);
 		}
-		JComboBox<Integer> bitCombo = new JComboBox(bitOptions.toArray());
+		JComboBox<Integer> bitCombo = 
+				new JComboBox<Integer>(bitOptions.toArray(new Integer[bitOptions.size()]));
 		plf.make(bitCombo,PSound.BIT_RATE,new ComboBoxConversion() {
 		public Object convertItem(int index, Object o)
 			{

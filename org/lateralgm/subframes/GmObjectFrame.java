@@ -125,6 +125,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	private DefaultMutableTreeNode lastValidEventSelection;
 	private JCheckBox physics;
 	private JPanel phyPane;
+	private PropertyUpdateListener<PGmObject> propUpdateListener;
 
 	// if drag and drop is not enabled the frame will not create or show
 	// the action list editor but still create the action list, and add
@@ -230,15 +231,19 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		layout.setVerticalGroup(pg);
 
 		pack();
-		
+
 		phyPane.setVisible((Boolean) res.properties.get(PGmObject.PHYSICS_OBJECT));
-		res.properties.updateSource.addListener(new PropertyUpdateListener<PGmObject>()
+		
+		propUpdateListener = new PropertyUpdateListener<PGmObject>()
 		{
 			public void updated(PropertyUpdateEvent<PGmObject> e)
 			{
-				phyPane.setVisible((Boolean) e.map.get(e.key));
+				if (e.key == PGmObject.PHYSICS_OBJECT) {
+					phyPane.setVisible((Boolean) e.map.get(e.key));
+				}
 			}
-		});
+		};
+		res.properties.updateSource.addListener(propUpdateListener);
 
 		// Select first event
 		TreeNode event = (TreeNode) events.getModel().getRoot();
@@ -801,9 +806,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	  saveEvents();
 
     if (infoFrame == null) {
-      infoFrame = new ResourceInfoFrame(res);
+      infoFrame = new ResourceInfoFrame();
     }
-    infoFrame.updateObjectInfo();
+    infoFrame.updateObjectInfo(res.reference);
     infoFrame.setVisible(true);	
 	}
 	
@@ -949,6 +954,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (infoFrame != null) {
 		  infoFrame.dispose();
 		}
+		res.properties.updateSource.removeListener(propUpdateListener);
 		//NOTE: Uncomment this to have the action frames close when the object frame closes.
 		//((ActionListEditor) editor).dispose();
 	}

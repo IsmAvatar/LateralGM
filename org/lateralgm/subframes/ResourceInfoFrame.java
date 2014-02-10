@@ -35,7 +35,6 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -44,9 +43,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-import javax.swing.ListModel;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
@@ -65,8 +61,6 @@ import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.ShapePoint;
-import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
-import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
 public class ResourceInfoFrame extends JFrame implements ActionListener
 {
@@ -75,7 +69,6 @@ public class ResourceInfoFrame extends JFrame implements ActionListener
 	protected JTextArea editor;
 	protected Color fgColor;
 	private CustomFileChooser fc;
-	private Object res;
 	private int linesOfCode = 0;
 
 	public JToolBar makeToolbar()
@@ -187,22 +180,19 @@ public static int countLines(String str)
 	  return info;
 	}
 	
-	public void updateTimelineInfo()
+	public void updateTimelineInfo(ResourceReference<Timeline> res)
 	{
+		setIconImage(LGM.getIconForKey("Resource.TML").getImage());
+		setTitle(Messages.getString("ResourceInfoFrame.TIMELINE_TITLE"));
 	  if (res == null) {
 	    editor.setText("ERROR! Timeline does not exist.");
 	    editor.setCaretPosition(0);
       editor.getCaret().setVisible(true); // show the caret
       return;
-	  } else if (!(res instanceof Timeline)) {
-	    editor.setText("ERROR! Resource is not a timeline.");
-	    editor.setCaretPosition(0);
-	    editor.getCaret().setVisible(true); // show the caret
-	    return;
 	  }
 	  int totalLinesOfCode = 0;
 	  
-	  Timeline tml = (Timeline) res;
+	  Timeline tml = res.get();
 	  String propInfo = "**** Properties ****\n\n";
 	  propInfo += Messages.getString("TimelineFrame.NAME") + " " + tml.getName() + "\n";
 	  propInfo += Messages.getString("TimelineFrame.MOMENTS") + " " +
@@ -230,22 +220,19 @@ public static int countLines(String str)
     editor.getCaret().setVisible(true); // show the caret
 	}
 	
-	public void updateObjectInfo()
+	public void updateObjectInfo(ResourceReference<GmObject> ref)
 	{
-	  if (res == null) {
+  	setIconImage(LGM.getIconForKey("Resource.OBJ").getImage());
+  	setTitle(Messages.getString("ResourceInfoFrame.OBJECT_TITLE")); 
+	  if (ref == null) {
 		  editor.setText("ERROR! Object does not exist.");
-		  editor.setCaretPosition(0);
-		  editor.getCaret().setVisible(true); // show the caret
-		  return;
-		} else if (!(res instanceof GmObject)) {
-		  editor.setText("ERROR! Resource is not an object.");
 		  editor.setCaretPosition(0);
 		  editor.getCaret().setVisible(true); // show the caret
 		  return;
 		}
 		int totalLinesOfCode = 0;
 		
-		GmObject obj = (GmObject) res;
+		GmObject obj = ref.get();
 
 	  String propInfo = "**** Properties ****\n\n";
 	  propInfo += Messages.getString("GmObjectFrame.NAME") + ": " + obj.getName() + "\n";
@@ -284,6 +271,7 @@ public static int countLines(String str)
 	  propInfo += "Total Lines of Code" + ": ";
 	  
 	  String phyInfo = "**** Physics ****\n\n";
+	  phyInfo += Messages.getString("GmObjectFrame.USES_PHYSICS") + ": " + obj.get(PGmObject.PHYSICS_OBJECT) + "\n";
 	  phyInfo += Messages.getString("GmObjectFrame.AWAKE") + ": " + obj.get(PGmObject.PHYSICS_AWAKE) + "\n";
 	  phyInfo += Messages.getString("GmObjectFrame.SENSOR") + ": " + obj.get(PGmObject.PHYSICS_SENSOR) + "\n";
 	  phyInfo += Messages.getString("GmObjectFrame.KINEMATIC") + ": " + obj.get(PGmObject.PHYSICS_KINEMATIC) + "\n";
@@ -359,22 +347,6 @@ public static int countLines(String str)
 		});
 		makeContextMenu();
 	}
-  
-	public ResourceInfoFrame(GmObject obj)
-		{
-      this();
-		  res = obj;
-		  this.setIconImage(LGM.getIconForKey("Resource.OBJ").getImage());
-		  setTitle(Messages.getString("ResourceInfoFrame.OBJECT_TITLE")); 
-		}
-	
-	public ResourceInfoFrame(Timeline tml)
-		{
-      this();
-		  res = tml;
-		  this.setIconImage(LGM.getIconForKey("Resource.TML").getImage());
-		  setTitle(Messages.getString("ResourceInfoFrame.TIMELINE_TITLE"));
-		}
 	
 	public void saveToFile()
 		{

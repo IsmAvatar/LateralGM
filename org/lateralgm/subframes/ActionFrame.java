@@ -490,7 +490,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 				}
 			if (editor instanceof JComboBox)
 				{
-				arg.setVal(Integer.toString(((JComboBox) editor).getSelectedIndex()));
+				arg.setVal(Integer.toString(((JComboBox<?>) editor).getSelectedIndex()));
 				return;
 				}
 			if (editor instanceof ColorSelect)

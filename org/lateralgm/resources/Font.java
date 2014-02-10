@@ -70,6 +70,23 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 		if (min < 0 || max > 255 || min > max) throw new IllegalArgumentException();
 		characterRanges.add(new CharacterRange(this, min, max));
 		}
+	
+	public static int makeStyle(boolean bold, boolean italic)
+	{
+		return (italic ? java.awt.Font.ITALIC : 0) | (bold ? java.awt.Font.BOLD : 0);
+	}
+	
+	public java.awt.Font getAWTFont() {
+		int s = get(PFont.SIZE);
+		String fn = get(PFont.FONT_NAME);
+		boolean b = get(PFont.BOLD);
+		boolean i = get(PFont.ITALIC);
+		/* Java assumes 72 dpi, but we shouldn't depend on the native resolution either.
+		 * For consistent pixel size across different systems, we should pick a common default.
+		 * AFAIK, the default in Windows (and thus GM) is 96 dpi. */
+		int fontSize = (int) Math.round(s * 96.0 / 72.0);
+		return new java.awt.Font(fn,makeStyle(b,i),fontSize);
+	}
 
 	@Override
 	protected PropertyMap<PFont> makePropertyMap()
