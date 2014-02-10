@@ -59,6 +59,7 @@ import org.lateralgm.resources.GameSettings.Priority;
 import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.GmObject.PhysicsShape;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
@@ -158,6 +159,16 @@ public class ProjectFile implements UpdateListener
 		for (int i = 0; i < SOUND_KIND.length; i++)
 			m.put(SOUND_KIND[i],i);
 		SOUND_CODE = Collections.unmodifiableMap(m);
+		}
+	public static final PhysicsShape[] PHYSICS_SHAPE = { PhysicsShape.CIRCLE, PhysicsShape.BOX,
+			PhysicsShape.SHAPE};
+	public static final Map<PhysicsShape,Integer> SHAPE_CODE;
+	static
+		{
+		EnumMap<PhysicsShape,Integer> m = new EnumMap<PhysicsShape,Integer>(PhysicsShape.class);
+		for (int i = 0; i < PHYSICS_SHAPE.length; i++)
+			m.put(PHYSICS_SHAPE[i],i);
+		SHAPE_CODE = Collections.unmodifiableMap(m);
 		}
 	public static final BBMode[] SPRITE_BB_MODE = { BBMode.AUTO,BBMode.FULL,BBMode.MANUAL };
 	public static final Map<BBMode,Integer> SPRITE_BB_CODE;

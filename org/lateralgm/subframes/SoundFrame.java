@@ -59,6 +59,7 @@ import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.FileChangeMonitor;
+import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
@@ -68,6 +69,7 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
+import org.lateralgm.resources.Sound.SoundKind;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.ComboBoxConversion;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.DefaultComboBoxConversion;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.IndexComboBoxConversion;
@@ -320,14 +322,18 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				Messages.getString("SoundFrame.MULT")
 		};
 		
-		JComboBox kindCombo = new JComboBox(kindOptions);
+		JComboBox<String> kindCombo = new JComboBox<String>(kindOptions);
 		plf.make(kindCombo,PSound.KIND,new IndexComboBoxConversion() {
 		public Object convertItem(int ind, Object o)
 			{
-			return ind;
+			return ProjectFile.SOUND_KIND[ind];
+			}
+
+		public void select(JComboBox<Object> b, Object o)
+			{
+			if (o instanceof SoundKind) b.setSelectedIndex(ProjectFile.SOUND_CODE.get(o));
 			}
 		});
-		JOptionPane.showMessageDialog(null,this.res.properties.get(PSound.KIND));
 		JLabel kindLabel = new JLabel(Messages.getString("SoundFrame.KIND") + ":");
 		
 		JCheckBox compressedCB = new JCheckBox(Messages.getString("SoundFrame.COMPRESSED"));

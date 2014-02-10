@@ -1356,7 +1356,7 @@ public final class GMXFileWriter
 				objroot.appendChild(createElement(doc, "PhysicsObjectSensor", 
 						boolToString((Boolean) object.get(PGmObject.PHYSICS_SENSOR))));
 				objroot.appendChild(createElement(doc, "PhysicsObjectShape", 
-						Integer.toString((Integer) object.get(PGmObject.PHYSICS_SHAPE))));
+						ProjectFile.SHAPE_CODE.get(object.get(PGmObject.PHYSICS_SHAPE)).toString()));
 				objroot.appendChild(createElement(doc, "PhysicsObjectDensity", 
 						Double.toString((Double) object.get(PGmObject.PHYSICS_DENSITY))));
 				objroot.appendChild(createElement(doc, "PhysicsObjectRestitution", 

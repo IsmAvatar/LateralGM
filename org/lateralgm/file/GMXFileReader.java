@@ -1160,7 +1160,8 @@ public final class GMXFileReader
 		}
 		obj.put(PGmObject.PHYSICS_OBJECT, Integer.parseInt(objdoc.getElementsByTagName("PhysicsObject").item(0).getTextContent()) < 0);
 		obj.put(PGmObject.PHYSICS_SENSOR, Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectSensor").item(0).getTextContent()) < 0);
-		obj.put(PGmObject.PHYSICS_SHAPE, Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectShape").item(0).getTextContent()));
+		int shapekind =  Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectShape").item(0).getTextContent());
+		obj.put(PGmObject.PHYSICS_SHAPE, ProjectFile.PHYSICS_SHAPE[shapekind]);
 		obj.put(PGmObject.PHYSICS_DENSITY, Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectDensity").item(0).getTextContent()));
 		obj.put(PGmObject.PHYSICS_RESTITUTION, Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectRestitution").item(0).getTextContent()));
 		obj.put(PGmObject.PHYSICS_GROUP, Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectGroup").item(0).getTextContent()));
