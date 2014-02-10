@@ -47,7 +47,7 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		}
 
 	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,0,0,0,0,
-			0,0,0,null,0,false,new Color(255, 255, 255, 255),1,1);
+			0,0,0,null,0,false,4294967295L,1.0,1.0);
 
 	/**
 	 * Do not call this constructor unless you intend

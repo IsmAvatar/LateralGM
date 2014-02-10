@@ -42,30 +42,30 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		Resource.Viewable
 	{
 	public enum BBMode
-		{
+	{
 		AUTO,FULL,MANUAL
-		}
+	}
 
 	public enum Effects
-	  {
-	    INVERT,FLIP,ROTATE
-	  } 
+  {
+    INVERT,FLIP,ROTATE
+  } 
 	
 	public enum MaskShape
-		{
+	{
 		PRECISE,RECTANGLE,DISK,DIAMOND,POLYGON
-		}
+	}
 
 	public final ImageList subImages = new ImageList();
 
 	public enum PSprite
-		{
+	{
 		TRANSPARENT,SHAPE,ALPHA_TOLERANCE,SEPARATE_MASK,SMOOTH_EDGES,PRELOAD,ORIGIN_X,ORIGIN_Y,BB_MODE,
-		BB_LEFT,BB_RIGHT,BB_TOP,BB_BOTTOM
-		}
+		BB_LEFT,BB_RIGHT,BB_TOP,BB_BOTTOM,TILE_HORIZONTALLY,TILE_VERTICALLY,FOR3D
+	}
 
 	private static final EnumMap<PSprite,Object> DEFS = PropertyMap.makeDefaultMap(PSprite.class,
-			false,MaskShape.RECTANGLE,0,false,false,true,0,0,BBMode.AUTO,0,31,0,31);
+			false,MaskShape.RECTANGLE,0,false,false,true,0,0,BBMode.AUTO,0,31,0,31,false,false,false);
 
 	private SoftReference<BufferedImage> imageCache = null;
 
@@ -144,6 +144,14 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 			}
 		}
 
+	public int getWidth() {
+		return subImages.getWidth();
+	}
+	
+	public int getHeight() {
+		return subImages.getHeight();
+	}
+	
 	public static Rectangle getOverallBounds(ImageList l, boolean transPixel)
 		{
 		Rectangle r = new Rectangle();

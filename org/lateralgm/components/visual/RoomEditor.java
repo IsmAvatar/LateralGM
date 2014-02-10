@@ -291,7 +291,7 @@ public class RoomEditor extends VisualPanel
 			{
 			ArrayList<?> alist = null;
 			int i = -1;
-			JList jlist = null;
+			JList<?> jlist = null;
 
 			if (mc instanceof Instance)
 				{

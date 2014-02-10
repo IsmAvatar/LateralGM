@@ -36,11 +36,11 @@ public class Background extends InstantiableResource<Background,Background.PBack
 	public enum PBackground
 		{
 		TRANSPARENT,SMOOTH_EDGES,PRELOAD,USE_AS_TILESET,TILE_WIDTH,TILE_HEIGHT,H_OFFSET,V_OFFSET,H_SEP,
-		V_SEP
+		V_SEP,TILE_HORIZONTALLY,TILE_VERTICALLY,FOR3D
 		}
 
 	private static final EnumMap<PBackground,Object> DEFS = PropertyMap.makeDefaultMap(
-			PBackground.class,false,false,false,false,16,16,0,0,0,0);
+			PBackground.class,false,false,false,false,16,16,0,0,0,0,false,false,false);
 
 	public Background()
 		{

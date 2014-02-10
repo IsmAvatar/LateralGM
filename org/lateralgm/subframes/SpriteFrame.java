@@ -387,8 +387,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	}
 
 	private void updateStatusLabel() {
-  	String stat = " " + Messages.getString("SpriteFrame.WIDTH") + ": " + res.subImages.getWidth() + " | " +
-  		Messages.getString("SpriteFrame.HEIGHT") + ": " + res.subImages.getHeight() + " | " +
+  	String stat = " " + Messages.getString("SpriteFrame.WIDTH") + ": " + res.getWidth() + " | " +
+  		Messages.getString("SpriteFrame.HEIGHT") + ": " + res.getHeight() + " | " +
   		Messages.getString("SpriteFrame.NO_OF_SUBIMAGES") + ": "
 			+ res.subImages.size() + " | " + Messages.getString("SpriteFrame.MEMORY") + ": ";
   		
@@ -1067,8 +1067,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	 
 		private BufferedImage createNewImage(boolean askforsize)
 			{
-			int width = res.subImages.getWidth();
-			int height = res.subImages.getHeight();
+			int width = res.getWidth();
+			int height = res.getHeight();
 			if (width == 0 || height == 0)
 				{
 				width = 32;
@@ -1402,8 +1402,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		else if (e.getSource() == centre)
 			{
-			res.put(PSprite.ORIGIN_X,res.subImages.getWidth() / 2);
-			res.put(PSprite.ORIGIN_Y,res.subImages.getHeight() / 2);
+			res.put(PSprite.ORIGIN_X,res.getWidth() / 2);
+			res.put(PSprite.ORIGIN_Y,res.getHeight() / 2);
 			return;
 			}
 

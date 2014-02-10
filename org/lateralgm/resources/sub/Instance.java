@@ -47,7 +47,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		}
 
 	private static final EnumMap<PInstance,Object> DEFS = PropertyMap.makeDefaultMap(PInstance.class,
-			0,0,null,0,"",false,1,1,new Color(255, 255, 255, 255),0);
+			0,0,null,0,"",false,1.0,1.0,4294967295L,0.0);
 
 	public Instance(Room r)
 		{
@@ -79,6 +79,11 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 	}
 	
 	public long getColor() {
+		return properties.get(PInstance.COLOR);
+	}
+	
+	public Color getAWTColor() {
+		//TODO: Write this properly
 		return properties.get(PInstance.COLOR);
 	}
 

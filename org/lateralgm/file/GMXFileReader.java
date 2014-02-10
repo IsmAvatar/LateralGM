@@ -501,11 +501,17 @@ public final class GMXFileReader
 		spr.put(PSprite.BB_BOTTOM, Integer.parseInt(sprdoc.getElementsByTagName("bbox_bottom").item(0).getTextContent()));
 		spr.put(PSprite.ALPHA_TOLERANCE, Integer.parseInt(sprdoc.getElementsByTagName("coltolerance").item(0).getTextContent()));
 
+		spr.put(PSprite.TILE_HORIZONTALLY, Integer.parseInt(sprdoc.getElementsByTagName("HTile").item(0).getTextContent()) < 0);
+		spr.put(PSprite.TILE_VERTICALLY, Integer.parseInt(sprdoc.getElementsByTagName("VTile").item(0).getTextContent()) < 0);
+
+		//TODO: Read texture groups
+		
+		spr.put(PSprite.FOR3D, Integer.parseInt(sprdoc.getElementsByTagName("For3D").item(0).getTextContent()) < 0);
+		
 		//TODO: Just extra shit stored in the GMX by studio
 		//int width = Integer.parseInt(sprdoc.getElementsByTagName("width").item(0).getTextContent());
 		//int height = Integer.parseInt(sprdoc.getElementsByTagName("height").item(0).getTextContent());
 
-		
 	  // iterate and load the sprites subimages
 		NodeList frList = sprdoc.getElementsByTagName("frame"); 
 	  path = f.getPath();
@@ -645,14 +651,20 @@ public final class GMXFileReader
 	  
 		Document bkgdoc = documentBuilder.parse(path + ".background.gmx");
 		
-		bkg.put(PBackground.USE_AS_TILESET, Boolean.parseBoolean(bkgdoc.getElementsByTagName("istileset").item(0).getTextContent()));
+		bkg.put(PBackground.USE_AS_TILESET, Integer.parseInt(bkgdoc.getElementsByTagName("istileset").item(0).getTextContent()) < 0);
 		bkg.put(PBackground.TILE_WIDTH, Integer.parseInt(bkgdoc.getElementsByTagName("tilewidth").item(0).getTextContent()));
 		bkg.put(PBackground.TILE_HEIGHT, Integer.parseInt(bkgdoc.getElementsByTagName("tileheight").item(0).getTextContent()));
 		bkg.put(PBackground.H_OFFSET, Integer.parseInt(bkgdoc.getElementsByTagName("tilexoff").item(0).getTextContent()));
 		bkg.put(PBackground.V_OFFSET, Integer.parseInt(bkgdoc.getElementsByTagName("tileyoff").item(0).getTextContent()));
 		bkg.put(PBackground.H_SEP, Integer.parseInt(bkgdoc.getElementsByTagName("tilehsep").item(0).getTextContent()));
 		bkg.put(PBackground.V_SEP, Integer.parseInt(bkgdoc.getElementsByTagName("tilevsep").item(0).getTextContent()));
+		bkg.put(PBackground.TILE_HORIZONTALLY, Integer.parseInt(bkgdoc.getElementsByTagName("HTile").item(0).getTextContent()) < 0);
+		bkg.put(PBackground.TILE_VERTICALLY, Integer.parseInt(bkgdoc.getElementsByTagName("VTile").item(0).getTextContent()) < 0);
 
+		//TODO: Read texture groups
+		
+		bkg.put(PBackground.FOR3D, Integer.parseInt(bkgdoc.getElementsByTagName("For3D").item(0).getTextContent()) < 0);
+		
 		//TODO: Just extra shit stored in the GMX by studio
 		//int width = Integer.parseInt(bkgdoc.getElementsByTagName("width").item(0).getTextContent());
 		//int height = Integer.parseInt(bkgdoc.getElementsByTagName("height").item(0).getTextContent());
@@ -661,8 +673,11 @@ public final class GMXFileReader
 	  path = path.substring(0, path.lastIndexOf('/')+1) + "/background/";
 		Node fnode = bkgdoc.getElementsByTagName("data").item(0);
 		BufferedImage img = null;
-		img = ImageIO.read(new File(path + getUnixPath(fnode.getTextContent())));
-		bkg.setBackgroundImage(img);
+		File imgfile = new File(path + getUnixPath(fnode.getTextContent()));
+		if (imgfile.exists()) {
+			img = ImageIO.read(imgfile);
+			bkg.setBackgroundImage(img);
+		}
 	}
 	}
 	}

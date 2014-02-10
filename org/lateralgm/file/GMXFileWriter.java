@@ -263,6 +263,22 @@ public final class GMXFileWriter
 		ret.setTextContent(value);
 		return ret;
 	}
+	
+	//This is used to obtain the primary node for a resource type.
+	//TODO: This is rather ugly and doesn't allow multiple primary nodes.
+	private static ResNode getPrimaryNode(ResNode first) {
+		while (first.status != ResNode.STATUS_PRIMARY) 
+			first = (ResNode) first.getParent();
+		return first;
+	}
+
+	
+	//This is used to stored booleans since GMX uses -1 and 0 and other times false and true
+	private static String boolToString(boolean bool)
+		{
+		if (bool) { return "-1"; }
+		else { return "0"; } 
+		}
 
 	public static void writeSettings(ProjectFileContext c, Element root)
 			throws IOException
@@ -472,6 +488,23 @@ public final class GMXFileWriter
 			sprroot.appendChild(createElement(doc, "coltolerance", 
 					spr.get(PSprite.ALPHA_TOLERANCE).toString()));
 			
+			sprroot.appendChild(createElement(doc, "HTile", 
+					boolToString((Boolean) spr.get(PSprite.TILE_HORIZONTALLY))));
+			sprroot.appendChild(createElement(doc, "VTile", 
+					boolToString((Boolean) spr.get(PSprite.TILE_VERTICALLY))));
+			
+			//TODO: Write texture groups
+			
+			sprroot.appendChild(createElement(doc, "For3D", 
+					boolToString((Boolean) spr.get(PSprite.FOR3D))));
+			
+			int width = spr.getWidth(), height = spr.getHeight();
+			
+			sprroot.appendChild(createElement(doc, "width", 
+					Integer.toString(width)));
+			sprroot.appendChild(createElement(doc, "height", 
+					Integer.toString(height)));
+			
 			Element frameroot = doc.createElement("frames");
 			for (int j = 0; j < spr.subImages.size(); j++)
 				{
@@ -525,22 +558,6 @@ public final class GMXFileWriter
 		node.appendChild(res);
 		}
 	}
-
-	//This is used to obtain the primary node for a resource type.
-	//TODO: This is rather ugly and doesn't allow multiple primary nodes.
-	private static ResNode getPrimaryNode(ResNode first) {
-		while (first.status != ResNode.STATUS_PRIMARY) 
-			first = (ResNode) first.getParent();
-		return first;
-	}
-
-	
-	//This is used to stored booleans since GMX uses -1 and 0 and other times false and true
-	private static String boolToString(boolean bool)
-		{
-		if (bool) { return "-1"; }
-		else { return "0"; } 
-		}
 	
 	public static void writeSprites(ProjectFileContext c, Element root) throws IOException
 	{
@@ -730,7 +747,7 @@ public final class GMXFileWriter
 			doc.appendChild(bkgroot);
 			
 			bkgroot.appendChild(createElement(doc, "istileset", 
-					bkg.get(PBackground.USE_AS_TILESET).toString()));
+					boolToString((Boolean) bkg.get(PBackground.USE_AS_TILESET))));
 			bkgroot.appendChild(createElement(doc, "tilewidth", 
 					bkg.get(PBackground.TILE_WIDTH).toString()));
 			bkgroot.appendChild(createElement(doc, "tileheight", 
@@ -743,20 +760,37 @@ public final class GMXFileWriter
 					bkg.get(PBackground.H_SEP).toString()));
 			bkgroot.appendChild(createElement(doc, "tilevsep", 
 					bkg.get(PBackground.V_SEP).toString()));
+			bkgroot.appendChild(createElement(doc, "HTile", 
+					boolToString((Boolean) bkg.get(PBackground.TILE_HORIZONTALLY))));
+			bkgroot.appendChild(createElement(doc, "VTile", 
+					boolToString((Boolean) bkg.get(PBackground.TILE_VERTICALLY))));
+			
+			//TODO: Write texture groups
+			
+			bkgroot.appendChild(createElement(doc, "For3D", 
+					boolToString((Boolean) bkg.get(PBackground.FOR3D))));
+			
+			int width = bkg.getWidth(), height = bkg.getHeight();
+			
+			bkgroot.appendChild(createElement(doc, "width", 
+					Integer.toString(width)));
+			bkgroot.appendChild(createElement(doc, "height", 
+					Integer.toString(height)));
 
 			bkgroot.appendChild(createElement(doc, "data", 
 					"images\\" + bkg.getName() + ".png"));
-			File outputfile = new File(getUnixPath(fname + "images\\" + bkg.getName() + ".png"));
-			try
-				{
-				//TODO: Can't handle image with 0x0 dimensions
-				ImageIO.write(bkg.getBackgroundImage(), "png", outputfile);
-				}
-			catch (IOException e)
-				{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				}
+			if (width > 0 && height > 0) {
+				File outputfile = new File(getUnixPath(fname + "images\\" + bkg.getName() + ".png"));
+				try
+					{
+					ImageIO.write(bkg.getBackgroundImage(), "png", outputfile);
+					}
+				catch (IOException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+			}
 			
 			FileOutputStream fos = null;
 		  try {
