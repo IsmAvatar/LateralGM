@@ -21,7 +21,6 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -54,13 +53,18 @@ import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.GmObject.PGmObject;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
+import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
+import org.lateralgm.resources.sub.ShapePoint;
 import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
 import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
@@ -71,8 +75,7 @@ public class ResourceInfoFrame extends JFrame implements ActionListener
 	protected JTextArea editor;
 	protected Color fgColor;
 	private CustomFileChooser fc;
-	private GmObjectFrame gmObjFrame;
-	private TimelineFrame timelineFrame;
+	private Object res;
 	private int linesOfCode = 0;
 
 	public JToolBar makeToolbar()
@@ -173,9 +176,9 @@ public static int countLines(String str)
           code = args.get(args.size() - 1).toString(libargs[args.size() - 1]);
           linesOfCode += countLines(code);
           text += " (" + linesOfCode + " Lines)";
-          text += "\n**** BEGIN ****";
+          text += "\n------ BEGIN ------";
         	text += "\n" + code;
-        	text += "\n**** END ****";
+        	text += "\n------  END  ------";
       }
       
 		  info += "\n" + i + " " + text;
@@ -186,37 +189,31 @@ public static int countLines(String str)
 	
 	public void updateTimelineInfo()
 	{
-	  if (timelineFrame == null) {
-	    editor.setText("ERROR! Timeline Frame Does Not Exist");
+	  if (res == null) {
+	    editor.setText("ERROR! Timeline does not exist.");
 	    editor.setCaretPosition(0);
       editor.getCaret().setVisible(true); // show the caret
       return;
+	  } else if (!(res instanceof Timeline)) {
+	    editor.setText("ERROR! Resource is not a timeline.");
+	    editor.setCaretPosition(0);
+	    editor.getCaret().setVisible(true); // show the caret
+	    return;
 	  }
 	  int totalLinesOfCode = 0;
-	  String propInfo = "------ Properties ------\n\n";
-	  propInfo += Messages.getString("TimelineFrame.NAME") + " " + timelineFrame.name.getText() + "\n";
+	  
+	  Timeline tml = (Timeline) res;
+	  String propInfo = "**** Properties ****\n\n";
+	  propInfo += Messages.getString("TimelineFrame.NAME") + " " + tml.getName() + "\n";
 	  propInfo += Messages.getString("TimelineFrame.MOMENTS") + " " +
-	    timelineFrame.moments.getModel().getSize() + "\n";
+	    tml.moments.size() + "\n";
 	  propInfo += "Total Lines of Code" + ": ";
 	  
-	  String momInfo = "\n------ Moments ------";
-	  
-	  // Make the current selected event realize any recent changes to actions
-		JList<?> moms = timelineFrame.moments;
-		ListModel<?> mommodel = moms.getModel();
-		
-		if (mommodel.getSize() > 0) {
-	    Moment node = (Moment)mommodel.getElementAt(moms.getSelectedIndex());
-	    if (node != null) {
-	      timelineFrame.actions.setActionContainer(node);
-	    }
-		}
+	  String momInfo = "\n**** Moments ****";
 
-		Moment mom = null;
 		String actInfo;
-		for (int i = 0; i < mommodel.getSize(); i++)
+		for (Moment mom : tml.moments)
 		{
-		  mom = (Moment)mommodel.getElementAt(i);
 			momInfo += "\n\n  " + mom.toString();
 	    if (mom.actions.size() > 0) {
 	      actInfo = loopActionsToString(mom.actions);
@@ -228,26 +225,32 @@ public static int countLines(String str)
       }
 		}
 	 
-	  editor.setText(propInfo + totalLinesOfCode + "\n" + momInfo);
+	  editor.setText(propInfo + totalLinesOfCode + "\n" + momInfo + "\n");
 	  editor.setCaretPosition(0);
     editor.getCaret().setVisible(true); // show the caret
 	}
 	
 	public void updateObjectInfo()
 	{
-    if (gmObjFrame == null) {
-      editor.setText("ERROR! Object Frame Does Not Exist");
-      editor.setCaretPosition(0);
-      editor.getCaret().setVisible(true); // show the caret
-      return;
-    }
+	  if (res == null) {
+		  editor.setText("ERROR! Object does not exist.");
+		  editor.setCaretPosition(0);
+		  editor.getCaret().setVisible(true); // show the caret
+		  return;
+		} else if (!(res instanceof GmObject)) {
+		  editor.setText("ERROR! Resource is not an object.");
+		  editor.setCaretPosition(0);
+		  editor.getCaret().setVisible(true); // show the caret
+		  return;
+		}
+		int totalLinesOfCode = 0;
+		
+		GmObject obj = (GmObject) res;
 
-    int totalLinesOfCode = 0;
-	  String propInfo = "------ Properties ------\n\n";
-	  ResourceReference<?> res;
-	  propInfo += Messages.getString("GmObjectFrame.NAME") + ": " + gmObjFrame.name.getText() + "\n";
+	  String propInfo = "**** Properties ****\n\n";
+	  propInfo += Messages.getString("GmObjectFrame.NAME") + ": " + obj.getName() + "\n";
 	  
-	  res = gmObjFrame.parent.getSelected();
+	  ResourceReference<?> res = obj.get(PGmObject.PARENT);
 	  propInfo += Messages.getString("GmObjectFrame.PARENT") + ": ";
 	  if (res != null) {
 	    propInfo += res.get().getName();
@@ -256,7 +259,7 @@ public static int countLines(String str)
     }
     propInfo += "\n";
     
-	  res = gmObjFrame.sprite.getSelected();
+	  res = obj.get(PGmObject.SPRITE);
 	  propInfo += Messages.getString("GmObjectFrame.SPRITE") + ": ";
 	  if (res != null) {
 	    propInfo += res.get().getName();
@@ -265,7 +268,7 @@ public static int countLines(String str)
     }
     propInfo += "\n";
     
-	  res = gmObjFrame.mask.getSelected();
+	  res = obj.get(PGmObject.MASK);
 	  propInfo += Messages.getString("GmObjectFrame.MASK") + ": ";
 	  if (res != null) {
 	    propInfo += res.get().getName();
@@ -274,69 +277,46 @@ public static int countLines(String str)
     }
     propInfo += "\n";
 
-	  propInfo += Messages.getString("GmObjectFrame.VISIBLE") + ": " + gmObjFrame.visible.isSelected() + "\n";
-	  propInfo += Messages.getString("GmObjectFrame.SOLID") + ": " + gmObjFrame.solid.isSelected() + "\n"; 
-	  propInfo += Messages.getString("GmObjectFrame.DEPTH") + ": " + gmObjFrame.depth.getValue().toString() + "\n";
-	  propInfo += Messages.getString("GmObjectFrame.PERSISTENT") + ": " + gmObjFrame.persistent.isSelected() + "\n";
+	  propInfo += Messages.getString("GmObjectFrame.VISIBLE") + ": " + obj.get(PGmObject.VISIBLE) + "\n";
+	  propInfo += Messages.getString("GmObjectFrame.SOLID") + ": " + obj.get(PGmObject.SOLID) + "\n"; 
+	  propInfo += Messages.getString("GmObjectFrame.DEPTH") + ": " + obj.get(PGmObject.DEPTH) + "\n";
+	  propInfo += Messages.getString("GmObjectFrame.PERSISTENT") + ": " + obj.get(PGmObject.PERSISTENT) + "\n";
 	  propInfo += "Total Lines of Code" + ": ";
 	  
-	  String evtInfo = "\n------ Events ------";
+	  String phyInfo = "**** Physics ****\n\n";
+	  phyInfo += Messages.getString("GmObjectFrame.AWAKE") + ": " + obj.get(PGmObject.PHYSICS_AWAKE) + "\n";
+	  phyInfo += Messages.getString("GmObjectFrame.SENSOR") + ": " + obj.get(PGmObject.PHYSICS_SENSOR) + "\n";
+	  phyInfo += Messages.getString("GmObjectFrame.KINEMATIC") + ": " + obj.get(PGmObject.PHYSICS_KINEMATIC) + "\n";
+	  phyInfo += Messages.getString("GmObjectFrame.DENSITY") + ": " + obj.get(PGmObject.PHYSICS_DENSITY) + "\n";
+	  phyInfo += Messages.getString("GmObjectFrame.RESTITUTION") + ": " + obj.get(PGmObject.PHYSICS_RESTITUTION) + "\n";
+	  phyInfo += Messages.getString("GmObjectFrame.COLLISION_GROUP") + ": " + obj.get(PGmObject.PHYSICS_GROUP) + "\n";
+	  phyInfo += Messages.getString("GmObjectFrame.DAMPING_LINEAR") + ": " + obj.get(PGmObject.PHYSICS_DAMPING_LINEAR) + "\n";
+	  phyInfo += Messages.getString("GmObjectFrame.DAMPING_ANGULAR") + ": " + obj.get(PGmObject.PHYSICS_DAMPING_ANGULAR) + "\n";
+	  phyInfo += Messages.getString("GmObjectFrame.FRICTION") + ": " + obj.get(PGmObject.PHYSICS_FRICTION) + "\n";
+	  phyInfo += Messages.getString("GmObjectFrame.COLLISION_SHAPE") + ": " + obj.get(PGmObject.PHYSICS_SHAPE) + "\n";
+	  phyInfo += Messages.getString("GmObjectFrame.SHAPE_POINTS") + ": " + obj.shapePoints.size() + "\n";
 	  
-	  // this here will need rewritten if its ever planned that
-	  // event tree nodes and event tree group nodes will have
-	  // multiple child group nodes as this code is not recursive 
-	  // the event tree also needs to be abstracted enough for obtaining
-	  // the information from other classes and components 
-	  // i dont like it as is - Robert B. Colton
-	  
-	  // Make the current selected event realize any recent changes to actions
-	  DefaultMutableTreeNode node = (DefaultMutableTreeNode) gmObjFrame.events.getLastSelectedPathComponent();
-	  if (node != null) {
-	    gmObjFrame.actions.setActionContainer((Event) node.getUserObject());
+	  for (ShapePoint sp : obj.shapePoints) {
+	  	phyInfo += sp.getX() + ", " + sp.getY() + "\n";
 	  }
-		
-		EventGroupNode e = (EventGroupNode)gmObjFrame.events.getModel().getRoot();
-		if (e == null)
-		{
-			return;
-		}
-		EventInstanceNode etn, etnc;
-		String actInfo;
-		for (int i=0; i<e.getChildCount(); i++)
-		{
-		  TreeNode tn = (TreeNode) e.getChildAt(i);	
-		  int etncc = tn.getChildCount();
-		  if (etncc > 0)
-		  {
-			  for (int ii=0; ii<etncc; ii++)
-				{
-				  etnc = (EventInstanceNode) tn.getChildAt(ii);	
-					evtInfo += "\n\n  " + etnc.toString();
-			    if (etnc.getUserObject().actions.size() > 0) {
-			      actInfo = loopActionsToString(etnc.getUserObject().actions);
-			      totalLinesOfCode += linesOfCode;
-			      evtInfo += " (" + linesOfCode + " Lines Of Code) :";
-		        evtInfo += actInfo;
-		      } else {
-		        evtInfo += ":\n " + Messages.getString("GmObjectFrame.EMPTY");
-		      }
-				}
-		  } else {
-		    etn = (EventInstanceNode) e.getChildAt(i);	
-			  evtInfo += "\n\n  " + etn.toString();
-		    evtInfo += ""; 
-		    if (etn.getUserObject().actions.size() > 0) {
-	        actInfo = loopActionsToString(etn.getUserObject().actions);
-	        evtInfo += " (" + linesOfCode + " Lines Of Code) :";
-	        totalLinesOfCode += linesOfCode;
-          evtInfo += actInfo;
-		    } else {
-          evtInfo += ":\n " + Messages.getString("GmObjectFrame.EMPTY");
-        }
-		  }
-		}
 	  
-	  editor.setText(propInfo + totalLinesOfCode + "\n" + evtInfo);
+	  String evtInfo = "\n**** Events ****";
+
+    for (MainEvent me : obj.mainEvents) {
+    	for (Event ev : me.events) {
+	      if (ev.actions.size() > 0) {
+	      	evtInfo += "\n\n  " + Event.eventName(ev.mainId,ev.id);
+		      String actInfo = loopActionsToString(ev.actions);
+		      totalLinesOfCode += linesOfCode;
+		      evtInfo += " (" + linesOfCode + " Lines Of Code) :";
+		      evtInfo += actInfo;
+		    } else {
+		      evtInfo += ":\n " + Messages.getString("GmObjectFrame.EMPTY");
+		    }
+    	}
+    }
+	  
+	  editor.setText(propInfo + totalLinesOfCode + "\n\n" + phyInfo + evtInfo + "\n");
 	  editor.setCaretPosition(0);
     editor.getCaret().setVisible(true); // show the caret
 	}
@@ -358,14 +338,14 @@ public static int countLines(String str)
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
 		
-		//String key;
 		editor = new JTextArea();
 		editor.setWrapStyleWord(false);
     JScrollPane scrollable = new JScrollPane(editor);
 		add(scrollable, BorderLayout.CENTER);
     setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(editor));
+    //NOTE: Use monospaced font
+    editor.setFont(editor.getFont().deriveFont(12.0f));
     editor.setText("object info will be displayed here when loaded");
-    editor.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
     editor.setEditable(false);
     editor.getCaret().setVisible(true); // show the caret anyway
     editor.addFocusListener(new FocusListener() {
@@ -380,18 +360,18 @@ public static int countLines(String str)
 		makeContextMenu();
 	}
   
-	public ResourceInfoFrame(GmObjectFrame gmObjF)
+	public ResourceInfoFrame(GmObject obj)
 		{
       this();
-		  gmObjFrame = gmObjF;
+		  res = obj;
 		  this.setIconImage(LGM.getIconForKey("Resource.OBJ").getImage());
 		  setTitle(Messages.getString("ResourceInfoFrame.OBJECT_TITLE")); 
 		}
 	
-	public ResourceInfoFrame(TimelineFrame timelineF)
+	public ResourceInfoFrame(Timeline tml)
 		{
       this();
-		  timelineFrame = timelineF;
+		  res = tml;
 		  this.setIconImage(LGM.getIconForKey("Resource.TML").getImage());
 		  setTitle(Messages.getString("ResourceInfoFrame.TIMELINE_TITLE"));
 		}

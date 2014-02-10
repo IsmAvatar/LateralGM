@@ -269,10 +269,10 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP")  + ":");
 		NumberField groupField = new NumberField(0.0);
 		plf.make(groupField,PGmObject.PHYSICS_GROUP);
-		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.LINEAR_DAMPING")  + ":");
+		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_LINEAR")  + ":");
 		NumberField linearField = new NumberField(0.0);
 		plf.make(linearField,PGmObject.PHYSICS_DAMPING_LINEAR);
-		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.ANGULAR_DAMPING")  + ":");
+		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_ANGULAR")  + ":");
 		NumberField angularField = new NumberField(0.0);
 		plf.make(angularField,PGmObject.PHYSICS_DAMPING_ANGULAR);
 		JLabel frictionLabel = new JLabel(Messages.getString("GmObjectFrame.FRICTION")  + ":");
@@ -796,8 +796,12 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 	public void showInfoFrame()
 	{
+		// NOTE: This does affect reverting the resource, just makes it so
+		// the info frame can use the up to date version.
+	  saveEvents();
+
     if (infoFrame == null) {
-      infoFrame = new ResourceInfoFrame(this);
+      infoFrame = new ResourceInfoFrame(res);
     }
     infoFrame.updateObjectInfo();
     infoFrame.setVisible(true);	

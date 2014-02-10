@@ -34,6 +34,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -96,7 +97,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		MouseListener ml = new MouseAdapter() {
     public void mousePressed(MouseEvent e) {
         if (e.getClickCount() == 2) {
-          editSelectedEvent();
+          editSelectedMoment();
         }
       }
     };
@@ -226,8 +227,19 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	
 	public void showInfoFrame()
 	{
+	  // The first code here is a little routine to realize all changes to every moments actions
+		// NOTE: This does affect reverting the resource, just makes it so
+		// the info frame can use the up to date version.
+		ListModel<Moment> mommodel = moments.getModel();
+		
+		if (mommodel.getSize() > 0) {
+	    Moment node = (Moment)mommodel.getElementAt(moments.getSelectedIndex());
+	    if (node != null) {
+	      actions.setActionContainer(node);
+	    }
+		}
     if (infoFrame == null) {
-      infoFrame = new ResourceInfoFrame(this);
+      infoFrame = new ResourceInfoFrame(res);
     }
     infoFrame.updateTimelineInfo();
     infoFrame.setVisible(true);	
@@ -336,7 +348,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		}
 		if (but == edit) 
 		{
-      editSelectedEvent();
+      editSelectedMoment();
       return;
 		}
 		if (but == clear)
@@ -403,7 +415,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		super.actionPerformed(e);
 		}
 
-	private void editSelectedEvent()
+	private void editSelectedMoment()
 	{
 	  int p = moments.getSelectedIndex();
 	  if (p == -1) return;
