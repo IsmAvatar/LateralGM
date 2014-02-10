@@ -81,16 +81,20 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 	private JMenuItem cutItem, copyItem, pasteItem, selAllItem;
 	private CharacterRange lastRange = null; //non-guaranteed copy of rangeList.getLastSelectedValue()
 	public JList<CharacterRange> rangeList;
-	
-	private FontPropertyListener fpl = new FontPropertyListener();
 
 	public FontFrame(Font res, ResNode node)
 		{
 		super(res,node);
 		((JComponent)getContentPane()).setBorder(new EmptyBorder(4, 4, 4, 4));
 		
-		res.properties.updateSource.addListener(fpl);
-		res.rangeUpdateSource.addListener(this);
+		res.properties.updateSource.addListener(new PropertyUpdateListener<PFont>()
+		{
+			public void updated(PropertyUpdateEvent<PFont> e)
+			{
+				updatePreviewText();
+				updatePreviewRange();
+			}
+		});
 		res.rangeUpdateSource.addListener(this);
 
 		GroupLayout layout = new GroupLayout(getContentPane());
@@ -472,15 +476,6 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		return (italic ? java.awt.Font.ITALIC : 0) | (bold ? java.awt.Font.BOLD : 0);
 		}
 
-	private class FontPropertyListener extends PropertyUpdateListener<PFont>
-		{
-		public void updated(PropertyUpdateEvent<PFont> e)
-			{
-				updatePreviewText();
-				updatePreviewRange();
-			}
-		}
-	
 	private static class RangeListComponentRenderer implements ListCellRenderer<CharacterRange>
 	{
 	private final JLabel lab = new JLabel();

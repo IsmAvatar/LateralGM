@@ -84,6 +84,8 @@ import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.MainEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
+import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject> implements
 		TreeSelectionListener
@@ -121,6 +123,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	private ResourceInfoFrame infoFrame;
 
 	private DefaultMutableTreeNode lastValidEventSelection;
+	private JCheckBox physics;
+	private JPanel phyPane;
 
 	// if drag and drop is not enabled the frame will not create or show
 	// the action list editor but still create the action list, and add
@@ -141,12 +145,12 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		GroupLayout layout = new GroupLayout(getContentPane());
 		setLayout(layout);
 
-		JPanel side1 = new JPanel();
-		makeSide1(side1);
+		JPanel propPane = makePropertiesPane();
+		phyPane = makePhysicsPane();
 
-		JPanel side2 = new JPanel(new BorderLayout());
+		JPanel evtPane = new JPanel(new BorderLayout());
 		JLabel lab = new JLabel(Messages.getString("GmObjectFrame.EVENTS")); //$NON-NLS-1$
-		side2.add(lab,BorderLayout.NORTH);
+		evtPane.add(lab,BorderLayout.NORTH);
 		makeEventTree(res);
 		JScrollPane scroll = new JScrollPane(events);
 		if (Prefs.enableDragAndDrop) {
@@ -154,7 +158,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		} else {
 		  scroll.setPreferredSize(new Dimension(300,260));
 		}
-		side2.add(scroll,BorderLayout.CENTER);
+		evtPane.add(scroll,BorderLayout.CENTER);
 
 		JPanel side2bottom = new JPanel(new BorderLayout());
 		//side2bottom.setPreferredSize(new Dimension(200,200));
@@ -197,7 +201,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		gbc.weighty = 1;
 		side2bottom.add(eventDelete, gbc);
 		
-		side2.add(side2bottom,BorderLayout.SOUTH);
+		evtPane.add(side2bottom,BorderLayout.SOUTH);
 
 		actions = new ActionList(this);
 		if (Prefs.enableDragAndDrop) {
@@ -208,22 +212,33 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		SequentialGroup sg = null;
 		
 		sg = layout.createSequentialGroup()
-		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addComponent(side2);
+		/**/.addComponent(propPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+		/**/.addComponent(phyPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+		/**/.addComponent(evtPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE);
 		if (Prefs.enableDragAndDrop) {
 		  sg.addComponent(editor);
 		}
 		layout.setHorizontalGroup(sg);
 
 		pg = layout.createParallelGroup()
-		/**/.addComponent(side1)
-		/**/.addComponent(side2);
+		/**/.addComponent(propPane)
+		/**/.addComponent(phyPane)
+		/**/.addComponent(evtPane);
 		if (Prefs.enableDragAndDrop) {
 		  pg.addComponent(editor);
 		}
 		layout.setVerticalGroup(pg);
 
 		pack();
+		
+		phyPane.setVisible((Boolean) res.properties.get(PGmObject.PHYSICS_OBJECT));
+		res.properties.updateSource.addListener(new PropertyUpdateListener<PGmObject>()
+		{
+			public void updated(PropertyUpdateEvent<PGmObject> e)
+			{
+				phyPane.setVisible((Boolean) e.map.get(e.key));
+			}
+		});
 
 		// Select first event
 		TreeNode event = (TreeNode) events.getModel().getRoot();
@@ -232,13 +247,100 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (event != events.getModel().getRoot())
 			events.setSelectionPath(new TreePath(((DefaultMutableTreeNode) event).getPath()));
 		}
+	
+	private JPanel makePhysicsPane() {
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder(
+				Messages.getString("GmObjectFrame.PHYSICS_PROPERTIES")));
+		
+		JCheckBox awakeCB = new JCheckBox(Messages.getString("GmObjectFrame.AWAKE"));
+		plf.make(awakeCB,PGmObject.PHYSICS_AWAKE);
+		JCheckBox kinematicCB = new JCheckBox(Messages.getString("GmObjectFrame.KINEMATIC"));
+		plf.make(kinematicCB,PGmObject.PHYSICS_KINEMATIC);
+		JCheckBox sensorCB = new JCheckBox(Messages.getString("GmObjectFrame.SENSOR"));
+		plf.make(sensorCB,PGmObject.PHYSICS_SENSOR);
+		
+		JLabel densityLabel = new JLabel(Messages.getString("GmObjectFrame.DENSITY") + ":");
+		NumberField densityField = new NumberField(0.0);
+		plf.make(densityField,PGmObject.PHYSICS_DENSITY);
+		JLabel restLabel = new JLabel(Messages.getString("GmObjectFrame.RESTITUTION")  + ":");
+		NumberField restField = new NumberField(0.0);
+		plf.make(restField,PGmObject.PHYSICS_RESTITUTION);
+		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP")  + ":");
+		NumberField groupField = new NumberField(0.0);
+		plf.make(groupField,PGmObject.PHYSICS_GROUP);
+		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.LINEAR_DAMPING")  + ":");
+		NumberField linearField = new NumberField(0.0);
+		plf.make(linearField,PGmObject.PHYSICS_DAMPING_LINEAR);
+		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.ANGULAR_DAMPING")  + ":");
+		NumberField angularField = new NumberField(0.0);
+		plf.make(angularField,PGmObject.PHYSICS_DAMPING_ANGULAR);
+		JLabel frictionLabel = new JLabel(Messages.getString("GmObjectFrame.FRICTION")  + ":");
+		NumberField frictionField = new NumberField(0.0);
+		plf.make(frictionField,PGmObject.PHYSICS_FRICTION);
+		
+		JButton shapeBT = new JButton(Messages.getString("GmObjectFrame.COLLISION_SHAPE"));
+		
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateGaps(true);
+		panel.setLayout(layout);
+		
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(awakeCB)
+		/*  */.addComponent(kinematicCB))
+		/**/.addComponent(sensorCB)
+		/**/.addGroup(layout.createParallelGroup()
+		/*  */.addComponent(densityLabel)
+		/*  */.addComponent(restLabel)
+		/*  */.addComponent(groupLabel)
+		/*  */.addComponent(linearLabel)
+		/*  */.addComponent(angularLabel)
+		/*  */.addComponent(frictionLabel))
+		/**/.addGroup(layout.createParallelGroup()
+		/*  */.addComponent(densityField)
+		/*  */.addComponent(restField)
+		/*  */.addComponent(groupField)
+		/*  */.addComponent(linearField)
+		/*  */.addComponent(angularField)
+		/*  */.addComponent(frictionField))
+		/**/.addComponent(shapeBT));
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup()
+		/*  */.addComponent(awakeCB)
+		/*  */.addComponent(kinematicCB))
+		/**/.addComponent(sensorCB)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(densityLabel)
+		/*  */.addComponent(densityField))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(restLabel)
+		/*  */.addComponent(restField))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(groupLabel)
+		/*  */.addComponent(groupField))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(linearLabel)
+		/*  */.addComponent(linearField))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(angularLabel)
+		/*  */.addComponent(angularField))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(frictionLabel)
+		/*  */.addComponent(frictionField))
+		/**/.addComponent(shapeBT));
+		
+		return panel;
+	}
 
-	private void makeSide1(JPanel side1)
+	private JPanel makePropertiesPane()
 		{
-		GroupLayout s1Layout = new GroupLayout(side1);
-		s1Layout.setAutoCreateContainerGaps(true);
-		s1Layout.setAutoCreateGaps(true);
-		side1.setLayout(s1Layout);
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateGaps(true);
+		panel.setLayout(layout);
 
 		JLabel nLabel = new JLabel(Messages.getString("GmObjectFrame.NAME") + ":"); //$NON-NLS-1$
 
@@ -279,6 +381,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		plf.make(depth,PGmObject.DEPTH);
 		persistent = new JCheckBox(Messages.getString("GmObjectFrame.PERSISTENT")); //$NON-NLS-1$
 		plf.make(persistent,PGmObject.PERSISTENT);
+		physics = new JCheckBox(Messages.getString("GmObjectFrame.PHYSICS")); //$NON-NLS-1$
+		plf.make(physics,PGmObject.PHYSICS_OBJECT);
 		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT") + ":"); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.NO_PARENT"); //$NON-NLS-1$
 		parent = new ResourceMenu<GmObject>(GmObject.class,t,110);
@@ -291,34 +395,37 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		information.addActionListener(this);
 		save.setText(Messages.getString("GmObjectFrame.SAVE")); //$NON-NLS-1$
 
-		s1Layout.setHorizontalGroup(s1Layout.createParallelGroup()
-		/**/.addGroup(s1Layout.createSequentialGroup()
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(nLabel)
 		/*		*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addComponent(origin)
-		/**/.addGroup(s1Layout.createSequentialGroup()
+		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(dLabel)
 		/*		*/.addComponent(depth))
-		/**/.addGroup(s1Layout.createParallelGroup(Alignment.LEADING)
+		/**/.addGroup(layout.createParallelGroup(Alignment.LEADING)
 		/*		*/.addComponent(pLabel)
 		/*		*/.addComponent(mLabel))
-		/**/.addGroup(s1Layout.createSequentialGroup()
-		/*		*/.addGroup(s1Layout.createParallelGroup(Alignment.TRAILING)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
 		/*				*/.addComponent(parent,DEFAULT_SIZE,120,MAX_VALUE)
 		/*				*/.addComponent(mask,DEFAULT_SIZE,120,MAX_VALUE)))
-		/**/.addGroup(s1Layout.createSequentialGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(visible)
 		/*		*/.addComponent(solid))
-		/**/.addComponent(persistent)
+		/**/.addGroup(layout.createParallelGroup()
+		/*		*/.addComponent(persistent)
+		/*		*/.addComponent(physics)))
 		/**/.addComponent(information,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 
-		s1Layout.setVerticalGroup(s1Layout.createSequentialGroup()
-		/**/.addGroup(s1Layout.createParallelGroup(Alignment.BASELINE)
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(nLabel)
 		/*		*/.addComponent(name))
 		/**/.addComponent(origin)
-		/**/.addGroup(s1Layout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(dLabel)
 		/*		*/.addComponent(depth))
 		/**/.addComponent(pLabel)
@@ -328,13 +435,18 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		/**/.addGap(4)
 		/**/.addComponent(mask,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/**/.addGap(8)
-		/**/.addGroup(s1Layout.createParallelGroup(Alignment.BASELINE)
+		/**/.addGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(visible)
 		/*		*/.addComponent(solid))
-		/**/.addComponent(persistent)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(persistent)
+		/*		*/.addComponent(physics)))
 		/**/.addGap(8,8,MAX_VALUE)
 		/**/.addComponent(information)
 		/**/.addComponent(save));
+		
+		return panel;
 		}
 
 	public static class EventTree extends JTree
