@@ -40,7 +40,6 @@ public class GmMenuBar extends JMenuBar
 	{
 	private static final long serialVersionUID = 1L;
 	private List<JMenuItem> recentFiles = new ArrayList<JMenuItem>();
-	private final int recentFilesPos;
 	private GmMenu recentMenu;
 
 	public static final void setTextAndAlt(JMenuItem item, String input)
@@ -99,7 +98,7 @@ public class GmMenuBar extends JMenuBar
 				}
 				item.setActionCommand("GmMenuBar.OPENRECENT " + recentStr); //$NON-NLS-1$
 				item.addActionListener(Listener.getInstance());
-				recentMenu.insert(item,recentFilesPos + recentFiles.size());
+				recentMenu.insert(item,recentFiles.size());
 				recentFiles.add(item);
 				}
 			catch (URISyntaxException e)
@@ -136,8 +135,6 @@ public class GmMenuBar extends JMenuBar
 		// setTextAndAlt(check,Messages.getString("GmMenuBar.ADVANCED")); //$NON-NLS-1$
 		// menu.add(check);
 		menu.addItem("GmMenuBar.PREFERENCES"); //$NON-NLS-1$
-		menu.addSeparator();
-		recentFilesPos = menu.getMenuComponentCount();
 		menu.addSeparator();
 		menu.addItem("GmMenuBar.EXIT",KeyEvent.VK_F4,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$
 		updateRecentFiles();

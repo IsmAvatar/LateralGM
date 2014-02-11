@@ -34,7 +34,7 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
-import org.lateralgm.resources.Extensions;
+import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.GameInformation;
@@ -1195,7 +1195,7 @@ public final class GmFileReader
 	
 			}
 		if (ver <= 540) root.addChild(Messages.getString("LGM.EXT"), //$NON-NLS-1$
-				ResNode.STATUS_SECONDARY,Extensions.class);
+				ResNode.STATUS_SECONDARY,ExtensionPackages.class);
 		
 	  ResNode node = new ResNode("Shaders", ResNode.STATUS_PRIMARY, Shader.class);
 	  root.insert(node,5);

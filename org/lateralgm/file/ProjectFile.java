@@ -47,7 +47,7 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
-import org.lateralgm.resources.Extensions;
+import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
@@ -139,7 +139,7 @@ public class ProjectFile implements UpdateListener
 
 	public static final Class<?>[] RESOURCE_KIND = { null,GmObject.class,Sprite.class,Sound.class,
 			Room.class,null,Background.class,Script.class,Path.class,Font.class,GameInformation.class,
-			GameSettings.class,Timeline.class,Extensions.class,Shader.class};
+			GameSettings.class,Timeline.class,ExtensionPackages.class,Shader.class};
 	public static final Map<Class<?>,Integer> RESOURCE_CODE;
 	static
 		{
@@ -333,7 +333,7 @@ public class ProjectFile implements UpdateListener
 
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
 		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gameSettings));
-		resMap.put(Extensions.class,new SingletonResourceHolder<Extensions>(new Extensions()));
+		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(new ExtensionPackages()));
 		for (ResourceHolder<?> rl : resMap.values())
 			if (rl instanceof ResourceList<?>) ((ResourceList<?>) rl).updateSource.addListener(this);
 

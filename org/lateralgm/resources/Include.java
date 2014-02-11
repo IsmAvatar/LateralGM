@@ -8,8 +8,20 @@
 
 package org.lateralgm.resources;
 
-public class Include
+import java.util.EnumMap;
+
+import org.lateralgm.util.PropertyMap;
+
+public class Include extends InstantiableResource<Include,Include.PInclude>
 	{
+	
+	public enum PInclude
+	{
+	//TODO: Includes
+	}
+	
+	private static final EnumMap<PInclude,Object> DEF = null;
+	
 	public String filename = ""; //$NON-NLS-1$
 	public String filepath = ""; //$NON-NLS-1$
 	public boolean isOriginal;
@@ -40,5 +52,23 @@ public class Include
 	public String toString()
 		{
 		return filepath;
+		}
+	
+	@Override
+	public Include makeInstance(ResourceReference<Include> ref)
+		{
+		return new Include();
+		}
+
+	@Override
+	protected PropertyMap<PInclude> makePropertyMap()
+		{
+		return new PropertyMap<PInclude>(PInclude.class,this,DEF);
+		}
+
+	@Override
+	protected void postCopy(Include dest)
+		{ //Nothing else to copy
+		
 		}
 	}

@@ -95,12 +95,12 @@ import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.Extensions;
+import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.subframes.EventPanel;
-import org.lateralgm.subframes.ExtensionsFrame;
+import org.lateralgm.subframes.ExtensionPackagesFrame;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 import org.lateralgm.subframes.PreferencesFrame;
@@ -151,7 +151,7 @@ public final class LGM
 	public static MDIPane mdi;
 	private static GameInformationFrame gameInfo;
 	private static GameSettingFrame gameSet;
-	private static ExtensionsFrame extSet;
+	private static ExtensionPackagesFrame extSet;
 	public static EventPanel eventSelect;
 	private static JFrame eventFrame;
 	public static AbstractButton eventButton;
@@ -343,7 +343,7 @@ public final class LGM
 		return gameSet;
 	}
 
-	public static ExtensionsFrame getGameExtensions()
+	public static ExtensionPackagesFrame getExtensionPackages()
 		{
     extSet.revertResource();
 		return extSet;
@@ -359,9 +359,9 @@ public final class LGM
     getGameSettings().setVisible(true);
 	}
 	
-	public static void showGameExtensions()
+	public static void showExtensionPackages()
 	{
-    getGameExtensions().setVisible(true);
+    getExtensionPackages().setVisible(true);
 	}
 	
 	private LGM()
@@ -466,7 +466,7 @@ public final class LGM
 		tool.add(makeButton("Toolbar.PREFERENCES")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.GMI")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.GMS")); //$NON-NLS-1$
-		tool.add(makeButton("Toolbar.EXT")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.PKG")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.DOCUMENTATION")); //$NON-NLS-1$
 		tool.add(Box.createHorizontalGlue()); //right align after this
 		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
@@ -789,7 +789,7 @@ public final class LGM
 		gameSet = new GameSettingFrame(currentFile.gameSettings,currentFile.constants,
 				currentFile.includes);
 		mdi.add(gameSet);
-		extSet = new ExtensionsFrame(new Extensions());
+		extSet = new ExtensionPackagesFrame(new ExtensionPackages());
 		mdi.add(extSet);
 
 		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$

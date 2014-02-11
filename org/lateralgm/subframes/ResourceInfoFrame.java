@@ -31,12 +31,10 @@ import java.awt.print.PrinterJob;
 import java.io.FileWriter;
 import java.util.List;
 
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -320,11 +318,6 @@ public static int countLines(String str)
 		fc.setFileFilter(new CustomFileFilter(
 				Messages.getString("ResourceInfoFrame.TYPE_TXT"),".txt")); //$NON-NLS-1$ //$NON-NLS-2$
 		add(makeToolbar(), BorderLayout.NORTH);
-		
-		JPanel p = new JPanel();
-		GroupLayout gl = new GroupLayout(p);
-		gl.setAutoCreateGaps(true);
-		gl.setAutoCreateContainerGaps(true);
 		
 		editor = new JTextArea();
 		editor.setWrapStyleWord(false);

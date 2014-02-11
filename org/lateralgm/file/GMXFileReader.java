@@ -56,7 +56,7 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
-import org.lateralgm.resources.Extensions;
+import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Font.PFont;
@@ -1575,7 +1575,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 		
-		ResNode node = new ResNode("Extensions", ResNode.STATUS_PRIMARY, Extensions.class, null);
+		ResNode node = new ResNode("Extensions", ResNode.STATUS_PRIMARY, ExtensionPackages.class, null);
 		root.add(node);
 		
 		NodeList extList = in.getElementsByTagName("extensions"); 

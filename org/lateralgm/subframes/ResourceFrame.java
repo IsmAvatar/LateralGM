@@ -37,11 +37,13 @@ import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
-import org.lateralgm.resources.Extensions;
+import org.lateralgm.resources.Extension;
+import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
@@ -97,9 +99,11 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 			else if (kind == Timeline.class) return new TimelineFrame((Timeline) r,node);
 			else if (kind == GmObject.class) return new GmObjectFrame((GmObject) r,node);
 			else if (kind == Room.class) return new RoomFrame((Room) r,node);
+			else if (kind == Include.class) return new IncludeFrame((Include) r,node);
+			else if (kind == Extension.class) return new ExtensionFrame((Extension) r,node);
 			else if (kind == GameInformation.class) return LGM.getGameInfo();
 			else if (kind == GameSettings.class) return LGM.getGameSettings();
-			else if (kind == Extensions.class) return LGM.getGameExtensions();
+			else if (kind == ExtensionPackages.class) return LGM.getExtensionPackages();
 			else return null;
 			}
 		}

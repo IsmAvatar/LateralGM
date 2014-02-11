@@ -23,29 +23,29 @@ import java.util.EnumMap;
 
 import org.lateralgm.util.PropertyMap;
 
-public class Extensions extends Resource<Extensions,Extensions.PExtensions>
+public class ExtensionPackages extends Resource<ExtensionPackages,ExtensionPackages.PExtensionPackages>
 	{
-	public enum PExtensions
+	public enum PExtensionPackages
 		{
-		//TODO: Extensions
+		//TODO: Extension Packages
 		}
 
-	private static final EnumMap<PExtensions,Object> DEF = null;
+	private static final EnumMap<PExtensionPackages,Object> DEF = null;
 
 	@Override
-	public Extensions makeInstance(ResourceReference<Extensions> ref)
+	public ExtensionPackages makeInstance(ResourceReference<ExtensionPackages> ref)
 		{
-		return new Extensions();
-		}
-
-	@Override
-	protected PropertyMap<PExtensions> makePropertyMap()
-		{
-		return new PropertyMap<PExtensions>(PExtensions.class,this,DEF);
+		return new ExtensionPackages();
 		}
 
 	@Override
-	protected void postCopy(Extensions dest)
+	protected PropertyMap<PExtensionPackages> makePropertyMap()
+		{
+		return new PropertyMap<PExtensionPackages>(PExtensionPackages.class,this,DEF);
+		}
+
+	@Override
+	protected void postCopy(ExtensionPackages dest)
 		{ //Nothing else to copy
 		}
 	}

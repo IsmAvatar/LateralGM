@@ -1,35 +1,42 @@
-/*
- * Copyright (C) 2013, Robert B. Colton
- * 
- * This file is part of LateralGM.
- * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
- * See LICENSE for details.
- */
+/**
+* @file  IncludeFrame.java
+* @brief Class implementing the instantiable include frame
+*
+* @section License
+*
+* Copyright (C) 2014 Robert B. Colton
+* This file is a part of the LateralGM IDE.
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+**/
 
 package org.lateralgm.subframes;
 
-/*
- * Stolen from Font Family listener. Not sure what m_monitor was... 
- * 	String m_fontName = m_cbFonts.getSelectedItem().toString();
- * 	MutableAttributeSet attr = new SimpleAttributeSet();
- * 	StyleConstants.setFontFamily(attr,m_fontName);
- * 	// setAttributeSet(attr);
- * 	// m_monitor.grabFocus();
- * 
- * TODO: Add left, right, center text alignment
- */
-
 import java.awt.event.ActionEvent;
+
 import javax.swing.GroupLayout;
 import javax.swing.JPanel;
+
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.Extensions;
+import org.lateralgm.resources.ExtensionPackages;
+import org.lateralgm.resources.Include;
 
-public class ExtensionsFrame extends ResourceFrame<Extensions,Extensions.PExtensions>
+public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInclude>
 {
 	private static final long serialVersionUID = 1L;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
@@ -46,14 +53,15 @@ public class ExtensionsFrame extends ResourceFrame<Extensions,Extensions.PExtens
 		return p;
 	}
 
-	public ExtensionsFrame(Extensions res)
+	public IncludeFrame(Include res)
 	{
 		this(res,null);
 	}
 
-	public ExtensionsFrame(Extensions res, ResNode node)
+	public IncludeFrame(Include r, ResNode node)
 	{
-		super(res,node,Messages.getString("ExtensionsFrame.TITLE"),true); //$NON-NLS-1$
+		//,Messages.getString("IncludeFrame.TITLE"),true
+		super(r,node); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(600,400);
 
@@ -71,7 +79,7 @@ public class ExtensionsFrame extends ResourceFrame<Extensions,Extensions.PExtens
 		for (int m = 0; m < LGM.root.getChildCount(); m++)
 			{
 			ResNode n = (ResNode) LGM.root.getChildAt(m);
-			if (n.kind == Extensions.class) return n.getUserObject();
+			if (n.kind == ExtensionPackages.class) return n.getUserObject();
 			}
 		return 0;//Messages.getString("LGM.EXT"); //$NON-NLS-1$
 	}
@@ -95,7 +103,7 @@ public class ExtensionsFrame extends ResourceFrame<Extensions,Extensions.PExtens
 
 	}
 
-	public void setComponents(Extensions ext)
+	public void setComponents(ExtensionPackages ext)
 	{
 
 	}
