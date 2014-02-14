@@ -1045,7 +1045,7 @@ public final class GMXFileWriter
 				{
 				out = new PrintWriter(getUnixPath(f.getDirectory() + "/" + fname));
 				String code = shr.properties.get(PShader.VERTEX)
-						+ "\n//######################_==_YOYO_SHADER_MARKER_==_######################@~//\n" +
+						+ "\n//######################_==_YOYO_SHADER_MARKER_==_######################@~" +
 								shr.properties.get(PShader.FRAGMENT);
 				out.println(code);
 				out.close();

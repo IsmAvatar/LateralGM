@@ -883,7 +883,7 @@ public final class GMXFileReader
         ins.close();
         reader.close();
     }
-    String[] splitcode = code.split("//######################_==_YOYO_SHADER_MARKER_==_######################@~//");
+    String[] splitcode = code.split("//######################_==_YOYO_SHADER_MARKER_==_######################@~");
 	  shr.put(PShader.VERTEX, splitcode[0]);
 	  shr.put(PShader.FRAGMENT, splitcode[1]);
 	}
