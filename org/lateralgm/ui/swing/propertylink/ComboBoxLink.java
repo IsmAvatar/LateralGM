@@ -17,10 +17,10 @@ import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 
-public class ComboBoxLink<K extends Enum<K>> extends PropertyLink<K,Object> implements
+public class ComboBoxLink<K extends Enum<K>, T> extends PropertyLink<K,Object> implements
 		ActionListener
 	{
-	public final JComboBox<Object> box;
+	public final JComboBox<T> box;
 	private final ComboBoxConversion conv;
 
 	public static interface ComboBoxConversion
@@ -62,7 +62,7 @@ public class ComboBoxLink<K extends Enum<K>> extends PropertyLink<K,Object> impl
 			}
 		}
 
-	public ComboBoxLink(JComboBox<Object> b, PropertyMap<K> m, K k, ComboBoxConversion conv)
+	public ComboBoxLink(JComboBox<T> b, PropertyMap<K> m, K k, ComboBoxConversion conv)
 		{
 		super(m,k);
 		box = b;
@@ -84,7 +84,7 @@ public class ComboBoxLink<K extends Enum<K>> extends PropertyLink<K,Object> impl
 		{
 		if (conv instanceof ComboBoxSelectable)
 			{
-			((ComboBoxSelectable) conv).select(box,o);
+			((ComboBoxSelectable) conv).select((JComboBox<Object>) box,o);
 			return;
 			}
 		if (o == null) return;

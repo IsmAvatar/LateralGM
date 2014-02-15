@@ -19,7 +19,7 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
 
-public class ArrayListModel<E> implements ListModel<Object>,UpdateListener
+public class ArrayListModel<E> implements ListModel<E>,UpdateListener
 	{
 	ActiveArrayList<E> list;
 	ArrayList<ListDataListener> listeners;
@@ -36,7 +36,7 @@ public class ArrayListModel<E> implements ListModel<Object>,UpdateListener
 		listeners.add(l);
 		}
 
-	public Object getElementAt(int index)
+	public E getElementAt(int index)
 		{
 		try
 			{

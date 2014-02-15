@@ -316,6 +316,8 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		return false;
 		}
 	
+	//TODO: This should be generic if ResNode is ever changed to have
+	//generic tree node children.
 	public Vector<ResNode> getChildren() {
 		return children;
 	}

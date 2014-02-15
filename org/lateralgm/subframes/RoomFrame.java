@@ -327,7 +327,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		prelf.make(oUnderlying,PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 
-		oList = new JList<Instance>(new ArrayListModel(res.instances));
+		oList = new JList<Instance>(new ArrayListModel<Instance>(res.instances));
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		oList.setVisibleRowCount(8);
 		oList.setCellRenderer(new ObjectListComponentRenderer());
@@ -703,7 +703,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		tList = new JList<Tile>(new ArrayListModel(res.tiles));
+		tList = new JList<Tile>(new ArrayListModel<Tile>(res.tiles));
 		tList.addListSelectionListener(this);
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tList.setCellRenderer(new TileListComponentRenderer());

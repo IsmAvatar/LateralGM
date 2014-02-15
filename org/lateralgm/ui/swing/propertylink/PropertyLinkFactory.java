@@ -46,14 +46,14 @@ public class PropertyLinkFactory<K extends Enum<K>>
 		return init(pe.getLink(map,k));
 		}
 
-	public ComboBoxLink<K> make(JComboBox<?> b, K k, ComboBoxConversion conv)
+	public <V>ComboBoxLink<K,V> make(JComboBox<V> b, K k, ComboBoxConversion conv)
 		{
-		return init(new ComboBoxLink<K>((JComboBox<Object>) b,map,k,conv));
+		return init(new ComboBoxLink<K,V>((JComboBox<V>) b,map,k,conv));
 		}
 
-	public ListLink<K> make(JList<?> l, K k)
+	public <V>ListLink<K,V> make(JList<V> l, K k)
 		{
-		return init(new ListLink<K>((JList<Object>) l,map,k));
+		return init(new ListLink<K,V>((JList<V>) l,map,k));
 		}
 
 	public FormattedLink<K> make(JFormattedTextField f, K k)

@@ -2,7 +2,7 @@
  * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2013, Robert B. Colton
+ * Copyright (C) 2013, 2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -274,6 +274,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 		@Override
 		public void keyPressed(KeyEvent e)
 			{
+			@SuppressWarnings("unchecked")
 			JList<Action> l = (JList<Action>) e.getSource();
 			switch (e.getKeyCode())
 				{
@@ -838,10 +839,12 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 				}
 			}
 
-		public Component getListCellRendererComponent(JList<? extends Action> list, Action cell, int index,
+		public Component getListCellRendererComponent(JList<? extends Action> l, Action cell, int index,
 				boolean isSelected, boolean hasFocus)
 			{
 			final Action cellAction = (Action) cell;
+			@SuppressWarnings("unchecked")
+			final JList<Action> list = (JList<Action>) l;
 
 			SoftReference<ActionRendererComponent> arcref = lcrMap.get(cellAction);
 			ActionRendererComponent arc = null;

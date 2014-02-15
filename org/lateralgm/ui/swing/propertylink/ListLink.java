@@ -16,12 +16,12 @@ import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 
-public class ListLink<K extends Enum<K>> extends PropertyLink<K,Object> implements
+public class ListLink<K extends Enum<K>,V> extends PropertyLink<K,V> implements
 		ListSelectionListener
 	{
-	public final JList<Object> list;
+	public final JList<V> list;
 
-	public ListLink(JList<Object> l, PropertyMap<K> m, K k)
+	public ListLink(JList<V> l, PropertyMap<K> m, K k)
 		{
 		super(m,k);
 		list = l;

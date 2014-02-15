@@ -156,7 +156,8 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		});
 		previewRange.setWrapStyleWord(false);
 		
-		rangeList = new JList<CharacterRange>(new ArrayListModel(res.characterRanges));
+		rangeList = new JList<CharacterRange>();
+		rangeList.setModel(new ArrayListModel<CharacterRange>(res.characterRanges));
 		rangeList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		RangeListComponentRenderer renderer = new RangeListComponentRenderer();  
 		rangeList.setCellRenderer(renderer);

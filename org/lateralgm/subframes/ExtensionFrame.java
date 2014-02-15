@@ -32,7 +32,6 @@ import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
-import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Extension;
 import org.lateralgm.resources.ExtensionPackages;
 
