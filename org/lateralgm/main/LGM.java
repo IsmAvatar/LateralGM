@@ -109,6 +109,9 @@ import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
 public final class LGM
 	{
+	//TODO: This list holds the class loader for any loaded plugins which should be
+	// cleaned up and closed when the application closes.
+	public static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
 	public static JDialog progressDialog = null;
 	public static JProgressBar progressDialogBar = null;
 	public static String iconspath = "org/lateralgm/icons/";
@@ -564,10 +567,7 @@ public final class LGM
 					throw new Exception(Messages.format("LGM.PLUGIN_MISSING_ENTRY",pluginEntry));
 				URLClassLoader ucl = new URLClassLoader(new URL[] { f.toURI().toURL() });
 				ucl.loadClass(clastr).newInstance();
-				//TODO: Closing the ucl will basically unload the entire plugin
-				//plugin system needs revamped so that a callback can be implemented
-				//where a plugin unloads itself.
-				//ucl.close();
+				classLoaders.add(ucl);
 				}
 			catch (Exception e)
 				{
