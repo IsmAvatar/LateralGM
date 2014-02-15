@@ -872,6 +872,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
   public void ActionsEdit(JList<Action> list)
   {
 	  int index = list.getSelectedIndex();
+	  if (index == -1) return;
 	  ActionListModel alm = (ActionListModel) list.getModel();
 	  ActionList.openActionFrame(parent.get(), (Action)alm.getElementAt(index));
   }
@@ -884,10 +885,11 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 	
 	  public void ActionsCopy(JList<Action> list)
 	  {
-
+	  List<Action> actionList = list.getSelectedValuesList();
+	  if (actionList.size() <= 0) return;
 	  Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
-	  ActionTransferable at = new ActionTransferable((ArrayList<Action>) list.getSelectedValuesList());
+	  ActionTransferable at = new ActionTransferable((ArrayList<Action>) actionList);
 	  
     clipboard.setContents(at, this);
 
@@ -900,6 +902,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 	  	Transferable clipboardContent = clipboard.getContents(this);
 
 	  	DataFlavor[] flavors = clipboardContent.getTransferDataFlavors();
+	  	if (flavors.length <= 0) return;
 		  ActionListModel alm = (ActionListModel) list.getModel();
 		  List<Action> actions = null;
 			try
