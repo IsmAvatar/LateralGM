@@ -240,7 +240,7 @@ public final class GMXFileReader
 		
 		ProjectFile f = new ProjectFile();
 		f.uri = uri;
-		f.format = ProjectFile.FormatFlavor.getVersionFlavor(1110); // GMX is not versioned
+		f.format = ProjectFile.FormatFlavor.getVersionFlavor(1200); // GMX is not versioned
 		
 		File file = new File(uri);
 		Document document = null;	

@@ -282,7 +282,7 @@ public class ProjectFile implements UpdateListener
 		public static final FormatFlavor GM_701 = new FormatFlavor(GM_OWNER,701);
 		public static final FormatFlavor GM_800 = new FormatFlavor(GM_OWNER,800);
 		public static final FormatFlavor GM_810 = new FormatFlavor(GM_OWNER,810);
-		public static final FormatFlavor GMX_1110 = new FormatFlavor(GM_OWNER,1110);
+		public static final FormatFlavor GMX_1200 = new FormatFlavor(GM_OWNER,1200);
 		
 		protected Object owner;
 		protected int version;
@@ -307,8 +307,8 @@ public class ProjectFile implements UpdateListener
 					return FormatFlavor.GM_800;
 				case 810:
 					return FormatFlavor.GM_810;
-				case 1110:
-					return FormatFlavor.GMX_1110;
+				case 1200:
+					return FormatFlavor.GMX_1200;
 				default:
 					return null;
 				}

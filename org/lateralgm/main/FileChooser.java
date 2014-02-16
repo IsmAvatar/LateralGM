@@ -88,7 +88,7 @@ public class FileChooser
 
 		readers.add(projectReader = new ProjectReader());
 
-		int[] gmvers = { 810,800,701,600,1110 };
+		int[] gmvers = { 1200,810,800,701,600 };
 		for (int gmver : gmvers)
 			writers.add(new ProjectWriter(gmver));
 		}
@@ -426,7 +426,7 @@ public class FileChooser
 				return ".gmk";
 			case 810:
 				return ".gm81";
-			case 1110:
+			case 1200:
 			  return ".project.gmx";
 			default:
 				throw new IllegalArgumentException(Integer.toString(ver));

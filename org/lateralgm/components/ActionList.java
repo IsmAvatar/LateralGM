@@ -480,7 +480,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 			ArrayList<DataFlavor> fl = new ArrayList<DataFlavor>(2);
 			fl.add(ACTION_ARRAY_FLAVOR);
 			if (a.size() == 1) fl.add(ACTION_FLAVOR);
-			flavors = fl.toArray(new DataFlavor[2]);
+			flavors = fl.toArray(new DataFlavor[fl.size()]);
 			}
 
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
@@ -643,14 +643,17 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 			return false;
 			}
 
+		@Override
 		public int getSourceActions(JComponent c)
 			{
 			return COPY_OR_MOVE;
 			}
 
+		@Override
 		protected Transferable createTransferable(JComponent c)
 			{
 			JList<Action> list = (JList<Action>) c;
+			indices = list.getSelectedIndices();
 			return new ActionTransferable((ArrayList<Action>) list.getSelectedValuesList());
 			}
 		}
@@ -899,29 +902,34 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 	  public void ActionsPaste(JList<Action> list)
 	  {
 	  	Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-	  	Transferable clipboardContent = clipboard.getContents(this);
+	  	Transferable clipboardContents = clipboard.getContents(this);
 
-	  	DataFlavor[] flavors = clipboardContent.getTransferDataFlavors();
-	  	if (flavors.length <= 0) return;
-		  ActionListModel alm = (ActionListModel) list.getModel();
-		  List<Action> actions = null;
-			try
-				{
-				actions = (List<Action>) clipboardContent.getTransferData(flavors[0]);
-				}
-			catch (UnsupportedFlavorException e)
-				{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				}
-			catch (IOException e)
-				{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				}
-		  for (int i = 0; i < actions.size(); i++) {
-					alm.add((Action) actions.get(i));
-		  }
+	  	for (DataFlavor flavor : clipboardContents.getTransferDataFlavors()) {
+	  		Object content = null;
+				try
+					{
+					content = clipboardContents.getTransferData(flavor);
+					}
+				catch (UnsupportedFlavorException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+				catch (IOException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+	  		if (flavor.equals(ACTION_ARRAY_FLAVOR)) {
+		  		ActionListModel alm = (ActionListModel) list.getModel();
+				  @SuppressWarnings("unchecked")
+					List<Action> actions = (List<Action>) content;
+				  for (int i = 0; i < actions.size(); i++) {
+							alm.add((Action) actions.get(i));
+				  }
+	  		}
+	  		// throw unsupported flavor exception?
+	  	}
 	  }
 	  
 	  //TODO: Implement Undo/Redo manager
@@ -983,7 +991,10 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 		public void lostOwnership(Clipboard arg0, Transferable arg1)
 			{
 			// TODO Auto-generated method stub
-			
+			// You could hold the transferable in like a lastTransferable
+			// so if the user hits copy it uses the last transferable
+			// instead of doign nothing, assuming this is the purpose
+			// of this lost ownership method in Java.
 			}
 	  
 	}
