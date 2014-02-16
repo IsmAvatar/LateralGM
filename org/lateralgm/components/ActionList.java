@@ -991,9 +991,9 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 		public void lostOwnership(Clipboard arg0, Transferable arg1)
 			{
 			// TODO Auto-generated method stub
-			// You could hold the transferable in like a lastTransferable
-			// so if the user hits copy it uses the last transferable
-			// instead of doign nothing, assuming this is the purpose
+			// You could hold the transferable in like a lastTransferable field
+			// so if the user hits paste it uses the last transferable
+			// instead of doing nothing, assuming this is the purpose
 			// of this lost ownership method in Java.
 			}
 	  
