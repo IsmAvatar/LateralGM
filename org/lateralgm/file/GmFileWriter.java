@@ -560,11 +560,13 @@ public final class GmFileWriter
 				out.writeStr(font.properties,PFont.FONT_NAME);
 				out.write4(font.properties,PFont.SIZE);
 				out.writeBool(font.properties,PFont.BOLD,PFont.ITALIC);
-				CharacterRange cr = font.characterRanges.get(0);
 				int rangemin = 0, rangemax = 0;
-				if (cr != null) {
-					rangemin = cr.properties.get(PCharacterRange.RANGE_MIN);
-					rangemax = cr.properties.get(PCharacterRange.RANGE_MIN);
+				if (font.characterRanges.size() > 0) {
+					CharacterRange cr = font.characterRanges.get(0);
+					if (cr != null) {
+						rangemin = cr.properties.get(PCharacterRange.RANGE_MIN);
+						rangemax = cr.properties.get(PCharacterRange.RANGE_MAX);
+					}
 				}
 				if (ver >= 810)
 					{
