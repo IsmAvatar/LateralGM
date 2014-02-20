@@ -9,15 +9,25 @@
 
 package org.lateralgm.resources;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.sub.CharacterRange;
+import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
 import org.lateralgm.resources.sub.GlyphMetric;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
+
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 public class Font extends InstantiableResource<Font,Font.PFont>
 {
@@ -65,10 +75,43 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 		return cr;
 		}
 	
-	public void addRange(int min, int max)
+	public CharacterRange addRange(int min, int max)
 		{
 		if (min < 0 || max > 255 || min > max) throw new IllegalArgumentException();
-		characterRanges.add(new CharacterRange(this, min, max));
+		CharacterRange cr = new CharacterRange(this, min, max);
+		characterRanges.add(cr);
+		return cr;
+		}
+	
+	public void addRangesFromString(String s)
+		{
+			ArrayList<Integer> sorted = new ArrayList<Integer>();
+			for (int i = 0; i < s.length(); i++) {
+				sorted.add((int) s.charAt(i));
+			}
+			Collections.sort(sorted);
+		
+			int last = sorted.get(0);
+			CharacterRange cr = addRange(last,last);
+			for (Integer charint : sorted) {
+				int current = charint;
+				if (current - last > 1) cr = addRange(current, current);
+				last = current;
+				cr.properties.put(PCharacterRange.RANGE_MAX,current);
+			}
+		}
+	
+	public void addRangesFromFile(File f)
+		{
+		try
+			{
+			addRangesFromString(new String(Files.readAllBytes(f.toPath())));
+			}
+		catch (IOException e)
+			{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
 		}
 	
 	public static int makeStyle(boolean bold, boolean italic)

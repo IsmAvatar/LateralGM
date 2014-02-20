@@ -29,9 +29,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -47,8 +49,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.ListSelectionModel;
 
+import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.main.FileChooser;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -167,13 +171,22 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		rangeList.setLayoutOrientation(JList.VERTICAL);
 		rangeList.setVisibleRowCount(6);
 		
+		JButton fromPreview = new JButton(Messages.getString("FontFrame.FROMPREVIEW"));
+		fromPreview.setActionCommand("FromPreview"); //$NON-NLS-1$
+		fromPreview.addActionListener(this);
+		JButton fromString = new JButton(Messages.getString("FontFrame.FROMSTRING"));
+		fromString.setActionCommand("FromString"); //$NON-NLS-1$
+		fromString.addActionListener(this);
+		JButton fromFile = new JButton(Messages.getString("FontFrame.FROMFILE"));
+		fromFile.setActionCommand("FromFile"); //$NON-NLS-1$
+		fromFile.addActionListener(this);
 		JButton addRange = new JButton("+");
 		addRange.setActionCommand("Add"); //$NON-NLS-1$
 		addRange.addActionListener(this);
 		JButton remRange = new JButton("-");
 		remRange.setActionCommand("Remove"); //$NON-NLS-1$
 		remRange.addActionListener(this);
-		JButton clearRange = new JButton("Clear");
+		JButton clearRange = new JButton(Messages.getString("FontFrame.CLEAR"));
 		clearRange.setActionCommand("Clear"); //$NON-NLS-1$
 		clearRange.addActionListener(this);
 
@@ -209,6 +222,10 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		/*		*/.addComponent(italic))
 		/**/.addComponent(crPane)
 		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(fromPreview)
+		/*		*/.addComponent(fromString)
+		/*		*/.addComponent(fromFile))
+		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(addRange)
 		/*		*/.addComponent(remRange)
 		/*		*/.addComponent(clearRange))
@@ -216,7 +233,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		/**/.addComponent(listScroller,120,220,MAX_VALUE))
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		.addGroup(layout.createParallelGroup()
-		.addComponent(previewTextScroll)
+		.addComponent(previewTextScroll,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		.addComponent(previewRangeScroll,0,500,MAX_VALUE)));
 		
 		layout.setVerticalGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
@@ -235,6 +252,10 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		/*		*/.addComponent(italic))
 		/**/.addComponent(crPane)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(fromPreview)
+		/*		*/.addComponent(fromString)
+		/*		*/.addComponent(fromFile))
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(addRange)
 		/*		*/.addComponent(remRange)
 		/*		*/.addComponent(clearRange))
@@ -242,8 +263,8 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		/**/.addComponent(listScroller,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addComponent(save))
 		.addGroup(layout.createSequentialGroup()
-		.addComponent(previewTextScroll)
-		.addComponent(previewRangeScroll)));
+		.addComponent(previewTextScroll,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		.addComponent(previewRangeScroll,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)));
 		pack();
 		}
 	
@@ -401,6 +422,23 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 			}
 			return;
 			}
+		else if (com.equals("FromPreview")) {
+			res.addRangesFromString(previewText.getText());
+			return;
+		}
+		else if (com.equals("FromString")) {
+			String result = JOptionPane.showInputDialog(null,"", "Character Sequence",JOptionPane.PLAIN_MESSAGE);
+
+			res.addRangesFromString(result);
+			return;
+		}
+		else if (com.equals("FromFile")) {
+			CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR");
+			fc.setMultiSelectionEnabled(false);
+			if (fc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+				res.addRangesFromFile(fc.getSelectedFile());
+			return;
+		}
 		else if (com.equals("Add")) {
 			res.addRange();
 			return;
@@ -459,7 +497,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		for (CharacterRange cr : res.characterRanges) {
 			int min = cr.properties.get(PCharacterRange.RANGE_MIN);
 			int max = cr.properties.get(PCharacterRange.RANGE_MAX);
-			for (int i = min; i < max; i++) {
+			for (int i = min; i <= max; i++) {
 				//TODO: Replace new line character with just an empty space, 
 				// otherwise it will screw up word wrapping in the preview area.
 				if ((char) i == '\n') { text += ' '; continue; }
