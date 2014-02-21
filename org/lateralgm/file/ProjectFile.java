@@ -47,6 +47,7 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Constants;
 import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
@@ -60,7 +61,6 @@ import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PhysicsShape;
-import org.lateralgm.resources.Include;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
@@ -262,10 +262,9 @@ public class ProjectFile implements UpdateListener
 	public final ResourceMap resMap;
 
 	public SortedMap<Integer,Trigger> triggers = new TreeMap<Integer,Trigger>();
-	public List<Constant> constants = new ArrayList<Constant>();
-	public List<Include> includes = new ArrayList<Include>();
 	public List<String> packages = new ArrayList<String>();
 
+	public Constants defaultConstants = new Constants();
 	public GameInformation gameInfo = new GameInformation();
 	public GameSettings gameSettings = new GameSettings();
 	public int lastInstanceId = 100000;

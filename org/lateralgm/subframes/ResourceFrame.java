@@ -37,6 +37,7 @@ import org.lateralgm.components.mdi.RevertableMDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Constants;
 import org.lateralgm.resources.Extension;
 import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
@@ -101,6 +102,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 			else if (kind == Room.class) return new RoomFrame((Room) r,node);
 			else if (kind == Include.class) return new IncludeFrame((Include) r,node);
 			else if (kind == Extension.class) return new ExtensionFrame((Extension) r,node);
+			else if (kind == Constants.class) return LGM.getConstantsFrame();
 			else if (kind == GameInformation.class) return LGM.getGameInfo();
 			else if (kind == GameSettings.class) return LGM.getGameSettings();
 			else if (kind == ExtensionPackages.class) return LGM.getExtensionPackages();

@@ -34,6 +34,8 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
+import org.lateralgm.resources.Constants;
+import org.lateralgm.resources.Extension;
 import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
@@ -443,7 +445,8 @@ public final class GmFileReader
 			for (int i = 0; i < no; i++)
 				{
 				Constant con = new Constant();
-				c.f.constants.add(con);
+				g.constants.constants.add(con);
+				
 				con.name = in.readStr();
 				con.value = in.readStr();
 				}
@@ -466,8 +469,7 @@ public final class GmFileReader
 		int no = in.read4();
 		for (int i = 0; i < no; i++)
 			{
-			Include inc = new Include();
-			f.includes.add(inc);
+			Include inc = f.resMap.getList(Include.class).add();
 			inc.filepath = in.readStr();
 			inc.filename = new File(inc.filepath).getName();
 			}
@@ -475,7 +477,7 @@ public final class GmFileReader
 		//		f.gameSettings.includeFolder = in.read4(); //0 = main, 1 = temp
 		in.readBool(f.gameSettings.properties,PGameSettings.OVERWRITE_EXISTING,
 				PGameSettings.REMOVE_AT_GAME_END);
-		for (Include inc : f.includes)
+		for (Include inc : f.resMap.getList(Include.class))
 			{
 			inc.export = f.gameSettings.get(PGameSettings.INCLUDE_FOLDER) == IncludeFolder.TEMP ? 1 : 2; //1 = temp, 2 = main
 			inc.overwriteExisting = f.gameSettings.get(PGameSettings.OVERWRITE_EXISTING);
@@ -525,7 +527,8 @@ public final class GmFileReader
 		for (int i = 0; i < no; i++)
 			{
 			Constant con = new Constant();
-			f.constants.add(con);
+			f.gameSettings.constants.constants.add(con);
+			
 			con.name = in.readStr();
 			con.value = in.readStr();
 			}
@@ -823,8 +826,7 @@ public final class GmFileReader
 				if (in.read4() != 440)
 					throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 							Messages.getString("ProjectFileReader.INDATAFILES"),ver)); //$NON-NLS-1$
-				Include inc = new Include();
-				f.includes.add(inc);
+				Include inc = f.resMap.getList(Include.class).add();
 				inc.filepath = in.readStr();
 				inc.filename = new File(inc.filepath).getName();
 				if (in.readBool()) //file data exists?
@@ -1089,8 +1091,7 @@ public final class GmFileReader
 			if (ver != 620 && ver != 800 && ver != 810)
 				throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("ProjectFileReader.ININCLUDEDFILES"),ver)); //$NON-NLS-1$
-			Include inc = new Include();
-			f.includes.add(inc);
+			Include inc = f.resMap.getList(Include.class).add();
 			inc.filename = in.readStr();
 			inc.filepath = in.readStr();
 			inc.isOriginal = in.readBool();
@@ -1197,8 +1198,19 @@ public final class GmFileReader
 		if (ver <= 540) root.addChild(Messages.getString("LGM.EXT"), //$NON-NLS-1$
 				ResNode.STATUS_SECONDARY,ExtensionPackages.class);
 		
+		//TODO: This just makes the GMK arrange to the modern version of the IDE
 	  ResNode node = new ResNode("Shaders", ResNode.STATUS_PRIMARY, Shader.class);
 	  root.insert(node,5);
+	  node = new ResNode("Extensions", ResNode.STATUS_PRIMARY, Extension.class);
+	  root.insert(node,10);
+	  node = new ResNode("Includes", ResNode.STATUS_PRIMARY, Include.class);
+	  root.insert(node,10);
+	  for (Include inc : f.resMap.getList(Include.class)) {
+	  	node.add(new ResNode(inc.getName(), ResNode.STATUS_SECONDARY, Include.class));
+	  }
+	  node = new ResNode("Constants", ResNode.STATUS_SECONDARY, Constants.class);
+	  root.insert(node,12);
+	  
 		}
 	
 	private static void readActions(ProjectFileContext c, ActionContainer container, String errorKey,

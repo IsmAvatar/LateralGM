@@ -17,6 +17,9 @@ import org.lateralgm.util.PropertyMap;
 
 public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettings>
 	{
+	
+	public Constants constants = new Constants();
+	
 	public enum ColorDepth
 		{
 		NO_CHANGE,BIT_16,BIT_32

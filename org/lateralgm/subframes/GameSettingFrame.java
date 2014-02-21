@@ -3,6 +3,7 @@
  * Copyright (C) 2007, 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2014, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -23,15 +24,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
@@ -46,13 +43,10 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.table.AbstractTableModel;
 
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.CustomFileChooser;
@@ -61,8 +55,6 @@ import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile;
-import org.lateralgm.file.GmStreamDecoder;
-import org.lateralgm.file.GmStreamEncoder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -76,7 +68,6 @@ import org.lateralgm.resources.GameSettings.Priority;
 import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.Include;
-import org.lateralgm.resources.sub.Constant;
 
 public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	{
@@ -475,178 +466,19 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		return panel;
 		}
 
-	public JButton importBut;
-	public JButton exportBut;
-	public JTable constants;
-	public ConstantsTableModel cModel;
-	public JButton add;
-	public JButton insert;
-	public JButton delete;
-	public JButton clear;
-	public JButton up;
-	public JButton down;
-	public JButton sort;
-	private CustomFileChooser constantsFc;
-
-	private JPanel makeConstantsPane(List<Constant> curConstList)
-		{
-		JPanel panel = new JPanel();
-		GroupLayout layout = new GroupLayout(panel);
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
-		panel.setLayout(layout);
-
-		importBut = new JButton(Messages.getString("GameSettingFrame.IMPORT")); //$NON-NLS-1$
-		importBut.addActionListener(this);
-		exportBut = new JButton(Messages.getString("GameSettingFrame.EXPORT")); //$NON-NLS-1$
-		exportBut.addActionListener(this);
-
-		cModel = new ConstantsTableModel(curConstList);
-		constants = new JTable(cModel);
-		JScrollPane scroll = new JScrollPane(constants);
-		constants.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		constants.getTableHeader().setReorderingAllowed(false);
-		constants.setTransferHandler(null);
-		//this fixes java bug 4709394, where the cell editor does not commit on focus lost,
-		//causing the value to remain in-limbo even after the "Save" button is clicked.
-		constants.putClientProperty("terminateEditOnFocusLost",Boolean.TRUE); //$NON-NLS-1$
-
-		add = new JButton(Messages.getString("GameSettingFrame.ADD")); //$NON-NLS-1$
-		add.addActionListener(this);
-		insert = new JButton(Messages.getString("GameSettingFrame.INSERT")); //$NON-NLS-1$
-		insert.addActionListener(this);
-		delete = new JButton(Messages.getString("GameSettingFrame.DELETE")); //$NON-NLS-1$
-		delete.addActionListener(this);
-		clear = new JButton(Messages.getString("GameSettingFrame.CLEAR")); //$NON-NLS-1$
-		clear.addActionListener(this);
-		up = new JButton(Messages.getString("GameSettingFrame.UP")); //$NON-NLS-1$
-		up.addActionListener(this);
-		down = new JButton(Messages.getString("GameSettingFrame.DOWN")); //$NON-NLS-1$
-		down.addActionListener(this);
-		sort = new JButton(Messages.getString("GameSettingFrame.SORT")); //$NON-NLS-1$
-		sort.addActionListener(this);
-
-		constantsFc = new CustomFileChooser("/org/lateralgm","LAST_LGC_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
-		constantsFc.setFileFilter(new CustomFileFilter(
-				Messages.getString("GameSettingFrame.LGC_FILES"),".lgc")); //$NON-NLS-1$ //$NON-NLS-2$
-
-		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(importBut,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*		*/.addComponent(exportBut,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
-		/**/.addComponent(scroll)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(add,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*				*/.addComponent(insert,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(delete,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*				*/.addComponent(clear,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
-		/*		*/.addPreferredGap(ComponentPlacement.UNRELATED)
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(up,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*				*/.addComponent(down,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
-		/*		*/.addComponent(sort,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)));
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(importBut)
-		/*		*/.addComponent(exportBut))
-		/**/.addComponent(scroll,DEFAULT_SIZE,120,MAX_VALUE)
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(add)
-		/*		*/.addComponent(delete)
-		/*		*/.addComponent(up)
-		/*		*/.addComponent(sort))
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(insert)
-		/*		*/.addComponent(clear)
-		/*		*/.addComponent(down)));
-		return panel;
-		}
-
-	private class ConstantsTableModel extends AbstractTableModel
-		{
-		private static final long serialVersionUID = 1L;
-		List<Constant> constants;
-
-		ConstantsTableModel(List<Constant> list)
-			{
-			constants = ProjectFile.copyConstants(list);
-			}
-
-		public int getColumnCount()
-			{
-			return 2;
-			}
-
-		public int getRowCount()
-			{
-			return constants.size();
-			}
-
-		public Object getValueAt(int rowIndex, int columnIndex)
-			{
-			Constant c = constants.get(rowIndex);
-			return (columnIndex == 0) ? c.name : c.value;
-			}
-
-		public void setValueAt(Object aValue, int rowIndex, int columnIndex)
-			{
-			Constant c = constants.get(rowIndex);
-			if (columnIndex == 0)
-				c.name = aValue.toString();
-			else
-				c.value = aValue.toString();
-			}
-
-		public boolean isCellEditable(int row, int col)
-			{
-			return true;
-			}
-
-		public String getColumnName(int column)
-			{
-			String ind = (column == 0) ? "NAME" : "VALUE"; //$NON-NLS-1$ //$NON-NLS-2$
-			return Messages.getString("GameSettingFrame." + ind); //$NON-NLS-1$
-			}
-
-		public void removeEmptyConstants()
-			{
-			for (int i = constants.size() - 1; i >= 0; i--)
-				if (constants.get(i).name.equals("")) constants.remove(i); //$NON-NLS-1$
-			fireTableDataChanged();
-			}
-		}
-
 	public JList<Include> includes;
-	public IncludesListModel iModel;
-	public JButton iAdd;
-	public JButton iDelete;
-	public JButton iClear;
 	public ButtonGroup exportFolder;
 	public JCheckBox overwriteExisting;
 	public JCheckBox removeAtGameEnd;
 	private CustomFileChooser includesFc;
 
-	private JPanel makeIncludePane(List<Include> curIncludeList)
+	private JPanel makeIncludePane()
 		{
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
-
-		JLabel lFiles = new JLabel(Messages.getString("GameSettingFrame.FILES_TO_INCLUDE")); //$NON-NLS-1$
-
-		iModel = new IncludesListModel(curIncludeList);
-		includes = new JList<Include>(iModel);
-		JScrollPane iScroll = new JScrollPane(includes);
-		iAdd = new JButton(Messages.getString("GameSettingFrame.ADD_INCLUDE")); //$NON-NLS-1$
-		iAdd.addActionListener(this);
-		iDelete = new JButton(Messages.getString("GameSettingFrame.DELETE_INCLUDE")); //$NON-NLS-1$
-		iDelete.addActionListener(this);
-		iClear = new JButton(Messages.getString("GameSettingFrame.CLEAR_INCLUDES")); //$NON-NLS-1$
-		iClear.addActionListener(this);
 
 		String incFolders[] = { "GameSettingFrame.SAME_FOLDER","GameSettingFrame.TEMP_DIRECTORY" }; //$NON-NLS-1$ //$NON-NLS-2$
 		JPanel folderPanel = makeRadioPane(
@@ -663,49 +495,18 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		includesFc.setMultiSelectionEnabled(true);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(lFiles)
-		/**/.addComponent(iScroll,DEFAULT_SIZE,320,MAX_VALUE)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(iAdd,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*		*/.addComponent(iDelete,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*		*/.addComponent(iClear,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(folderPanel).addGap(4,8,MAX_VALUE)
 		/*		*/.addGroup(layout.createParallelGroup()
 		/*				*/.addComponent(overwriteExisting)
 		/*				*/.addComponent(removeAtGameEnd))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(lFiles)
-		/**/.addComponent(iScroll)
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(iAdd)
-		/*		*/.addComponent(iDelete)
-		/*		*/.addComponent(iClear))
 		/**/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(folderPanel)
 		/*		*/.addGroup(layout.createSequentialGroup()
 		/*				*/.addComponent(overwriteExisting)
 		/*				*/.addComponent(removeAtGameEnd))));
 		return panel;
-		}
-
-	private class IncludesListModel extends DefaultListModel<Include>
-		{
-		private static final long serialVersionUID = 1L;
-
-		IncludesListModel(List<Include> list)
-			{
-			for (Include i : list)
-				addElement(i.copy());
-			}
-
-		public List<Include> toArrayList()
-			{
-			List<Include> list = new ArrayList<Include>();
-			for (Object o : toArray())
-				list.add((Include) o);
-			return list;
-			}
 		}
 
 	JCheckBox displayErrors;
@@ -819,13 +620,12 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public JButton discardButton;
 
-	public GameSettingFrame(GameSettings res, List<Constant> constants, List<Include> includes)
+	public GameSettingFrame(GameSettings res)
 		{
-		this(res,null,constants,includes);
+		this(res,null);
 		}
 
-	public GameSettingFrame(GameSettings res, ResNode node, List<Constant> constants,
-			List<Include> includes)
+	public GameSettingFrame(GameSettings res, ResNode node)
 		{
 		super(res,node,Messages.getString("GameSettingFrame.TITLE"),false,true,true,true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -834,7 +634,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		layout.setAutoCreateGaps(true);
 		setLayout(layout);
 
-		buildTabs(constants,includes);
+		buildTabs();
 
 		String t = Messages.getString("GameSettingFrame.BUTTON_SAVE"); //$NON-NLS-1$
 		save.setText(t);
@@ -863,7 +663,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		pack();
 		}
 
-	private void buildTabs(List<Constant> constants, List<Include> includes)
+	private void buildTabs()
 		{
 		JComponent pane = makeGraphicsPane();
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_GRAPHICS"), //$NON-NLS-1$
@@ -885,12 +685,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				null,pane,Messages.getString("GameSettingFrame.HINT_LOADING")); //$NON-NLS-1$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 
-		pane = makeConstantsPane(LGM.currentFile.constants);
-		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_CONSTANTS"), //$NON-NLS-1$
-				null,pane,Messages.getString("GameSettingFrame.HINT_CONSTANTS")); //$NON-NLS-1$
-		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
-
-		pane = makeIncludePane(LGM.currentFile.includes);
+		pane = makeIncludePane();
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_INCLUDE"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_INCLUDE")); //$NON-NLS-1$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
@@ -927,12 +722,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				break;
 			case 3:
 				loadActionPerformed(e);
-				break;
-			case 4:
-				constantsActionPerformed(e);
-				break;
-			case 5:
-				includesActionPerformed(e);
 				break;
 			}
 		}
@@ -1006,222 +795,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			}
 		}
 
-	private void constantsActionPerformed(ActionEvent e)
-		{
-		if (e.getSource() == importBut)
-			{
-			importConstants();
-			return;
-			}
-		if (e.getSource() == exportBut)
-			{
-			exportConstants();
-			return;
-			}
-		if (e.getSource() == add)
-			{
-			if (constants.getCellEditor() != null) constants.getCellEditor().stopCellEditing();
-			cModel.constants.add(new Constant());
-			int row = cModel.constants.size() - 1;
-			cModel.fireTableRowsInserted(row,row);
-			constants.getSelectionModel().setSelectionInterval(row,row);
-			return;
-			}
-		if (e.getSource() == insert)
-			{
-			if (constants.getSelectedRow() == -1) return;
-			if (constants.getCellEditor() != null) constants.getCellEditor().stopCellEditing();
-			cModel.constants.add(constants.getSelectedRow(),new Constant());
-			cModel.fireTableRowsInserted(constants.getSelectedRow(),constants.getSelectedRow());
-			constants.getSelectionModel().setSelectionInterval(0,constants.getSelectedRow() - 1);
-			return;
-			}
-		if (e.getSource() == delete)
-			{
-			if (constants.getSelectedRow() == -1) return;
-			int row = constants.getSelectedRow();
-			cModel.constants.remove(row);
-			cModel.fireTableRowsDeleted(row,row);
-			if (cModel.constants.size() > 0)
-				constants.getSelectionModel().setSelectionInterval(0,
-						Math.min(row,cModel.constants.size() - 1));
-			return;
-			}
-		if (e.getSource() == clear)
-			{
-			if (cModel.constants.size() == 0) return;
-			int last = cModel.constants.size() - 1;
-			cModel.constants.clear();
-			cModel.fireTableRowsDeleted(0,last);
-			return;
-			}
-		if (e.getSource() == up)
-			{
-			int row = constants.getSelectedRow();
-			if (row <= 0) return;
-			if (constants.getCellEditor() != null) constants.getCellEditor().stopCellEditing();
-
-			Constant c = cModel.constants.get(row - 1);
-			cModel.constants.set(row - 1,cModel.constants.get(row));
-			cModel.constants.set(row,c);
-			cModel.fireTableDataChanged();
-			constants.getSelectionModel().setSelectionInterval(0,row - 1);
-			return;
-			}
-		if (e.getSource() == down)
-			{
-			int row = constants.getSelectedRow();
-			if (row == -1 || row >= cModel.constants.size() - 1) return;
-			if (constants.getCellEditor() != null) constants.getCellEditor().stopCellEditing();
-			Constant c = cModel.constants.get(row + 1);
-			cModel.constants.set(row + 1,cModel.constants.get(row));
-			cModel.constants.set(row,c);
-			cModel.fireTableDataChanged();
-			constants.getSelectionModel().setSelectionInterval(0,row + 1);
-			return;
-			}
-		if (e.getSource() == sort)
-			{
-			if (constants.getCellEditor() != null) constants.getCellEditor().stopCellEditing();
-			Collections.sort(cModel.constants);
-			cModel.fireTableDataChanged();
-			if (cModel.constants.size() > 0) constants.getSelectionModel().setSelectionInterval(0,0);
-			return;
-			}
-		}
-
-	private void includesActionPerformed(ActionEvent e)
-		{
-		if (e.getSource() == iAdd)
-			{
-			if (includesFc.showOpenDialog(getParent()) == JFileChooser.APPROVE_OPTION)
-				{
-				File[] f = includesFc.getSelectedFiles();
-				for (File file : f)
-					{
-					Include inc = new Include();
-					inc.filename = file.getName();
-					inc.filepath = file.getAbsolutePath();
-					inc.size = (int) file.length();
-					iModel.addElement(inc);
-					}
-				}
-			return;
-			}
-		if (e.getSource() == iDelete)
-			{
-			int[] ind = includes.getSelectedIndices();
-			for (int i = ind.length - 1; i >= 0; i--)
-				iModel.removeElementAt(ind[i]);
-			return;
-			}
-		if (e.getSource() == iClear)
-			{
-			iModel.clear();
-			return;
-			}
-		}
-
-	private void importConstants()
-		{
-		if (constantsFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
-			{
-			cModel.removeEmptyConstants();
-			GmStreamDecoder in = null;
-			try
-				{
-				File f = constantsFc.getSelectedFile();
-				if (f == null || !f.exists()) throw new Exception();
-
-				in = new GmStreamDecoder(f);
-				if (in.read3() != ('L' | ('G' << 8) | ('C' << 16))) throw new Exception();
-				int count = in.read2();
-				for (int i = 0; i < count; i++)
-					{
-					Constant c = new Constant();
-					c.name = in.readStr1();
-					c.value = in.readStr1();
-					if (!cModel.constants.contains(c)) cModel.constants.add(c);
-					}
-				cModel.fireTableDataChanged();
-				if (cModel.constants.size() > 0) constants.getSelectionModel().setSelectionInterval(0,0);
-				}
-			catch (Exception ex)
-				{
-				JOptionPane.showMessageDialog(LGM.frame,
-						Messages.getString("GameSettingFrame.ERROR_IMPORTING_CONSTANTS"), //$NON-NLS-1$
-						Messages.getString("GameSettingFrame.TITLE_ERROR"),JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
-				}
-			finally
-				{
-				if (in != null) try
-					{
-					in.close();
-					}
-				catch (IOException e)
-					{
-					e.printStackTrace();
-					}
-				}
-			}
-		}
-
-	private void exportConstants()
-		{
-		while (constantsFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
-			{
-			File f = constantsFc.getSelectedFile();
-			if (f == null) return;
-			if (!f.getPath().endsWith(".lgc")) f = new File(f.getPath() + ".lgc"); //$NON-NLS-1$ //$NON-NLS-2$
-			int result = 0;
-			if (f.exists())
-				{
-				result = JOptionPane.showConfirmDialog(LGM.frame,
-						Messages.getString("GameSettingFrame.REPLACE_FILE"), //$NON-NLS-1$
-						Messages.getString("GameSettingFrame.TITLE_REPLACE_FILE"), //$NON-NLS-1$
-						JOptionPane.YES_NO_CANCEL_OPTION);
-				}
-			if (result == 2) return;
-			if (result == 1) continue;
-
-			cModel.removeEmptyConstants();
-			GmStreamEncoder out = null;
-			try
-				{
-				out = new GmStreamEncoder(f);
-				out.write('L');
-				out.write('G');
-				out.write('C');
-				out.write2(cModel.constants.size());
-				for (Constant c : cModel.constants)
-					{
-					out.writeStr1(c.name);
-					out.writeStr1(c.value);
-					}
-				}
-			catch (FileNotFoundException e1)
-				{
-				e1.printStackTrace();
-				}
-			catch (IOException ex)
-				{
-				ex.printStackTrace();
-				}
-			finally
-				{
-				if (out != null) try
-					{
-					out.close();
-					}
-				catch (IOException ex)
-					{
-					ex.printStackTrace();
-					}
-				}
-			return;
-			}
-		}
-
 	public void commitChanges()
 		{
 		//res.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,softwareVertexProcessing.is);
@@ -1234,13 +807,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		res.put(PGameSettings.COPYRIGHT, copyright.getText());
 		res.put(PGameSettings.PRODUCT, product.getText());
 		//we don't update the lastChanged time - that's only altered on file save/load
-
-		//Constants
-		cModel.removeEmptyConstants();
-		LGM.currentFile.constants = ProjectFile.copyConstants(cModel.constants);
-
-		//Includes
-		LGM.currentFile.includes = iModel.toArrayList();
 		
 		LGM.currentFile.gameSettings = res;
 		}
@@ -1262,16 +828,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			iconPreview.setIcon(new ImageIcon(icoimg));
 		}
 		imagesChanged = true;
-
-		//Constants
-		cModel = new ConstantsTableModel(LGM.currentFile.constants);
-		constants.setModel(cModel);
-		constants.updateUI();
-
-		//Includes
-		iModel = new IncludesListModel(LGM.currentFile.includes);
-		includes.setModel(iModel);
-		includes.updateUI();
 		}
 
 	@Override

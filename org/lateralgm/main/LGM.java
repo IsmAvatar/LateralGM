@@ -60,9 +60,11 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -99,6 +101,7 @@ import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.library.LibManager;
+import org.lateralgm.subframes.ConstantsFrame;
 import org.lateralgm.subframes.EventPanel;
 import org.lateralgm.subframes.ExtensionPackagesFrame;
 import org.lateralgm.subframes.GameInformationFrame;
@@ -152,6 +155,7 @@ public final class LGM
 	public static ResNode root;
 	public static ProjectFile currentFile = new ProjectFile();
 	public static MDIPane mdi;
+	private static ConstantsFrame constantsFrame;
 	private static GameInformationFrame gameInfo;
 	private static GameSettingFrame gameSet;
 	private static ExtensionPackagesFrame extSet;
@@ -336,6 +340,11 @@ public final class LGM
     }
 	}
 
+	public static ConstantsFrame getConstantsFrame()
+	{
+		return constantsFrame;
+	}
+	
 	public static GameInformationFrame getGameInfo()
 	{
 		return gameInfo;
@@ -352,6 +361,11 @@ public final class LGM
 		return extSet;
 		}
 
+	public static void showConstantsFrame()
+	{
+    getConstantsFrame().setVisible(true);
+	}
+	
 	public static void showGameInformation()
 	{
     getGameInfo().setVisible(true);
@@ -466,10 +480,19 @@ public final class LGM
 				tool.add(but);
 				}
 		tool.addSeparator();
-		tool.add(makeButton("Toolbar.PREFERENCES")); //$NON-NLS-1$
+		tool.add(makeButton("Toolbar.CST")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.GMI")); //$NON-NLS-1$
-		tool.add(makeButton("Toolbar.GMS")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.PKG")); //$NON-NLS-1$
+		tool.addSeparator();
+		tool.add(new JLabel(Messages.getString("Toolbar.Configurations") + ":"));
+		String strs[] = {"Default"};
+		JComboBox<String> configsCombo = new JComboBox<String>(strs);
+		configsCombo.setMaximumSize(new Dimension(100, 20));
+		tool.add(configsCombo);
+		tool.addSeparator();
+		tool.add(makeButton("Toolbar.GMS")); //$NON-NLS-1$
+		tool.addSeparator();
+		tool.add(makeButton("Toolbar.PREFERENCES")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.DOCUMENTATION")); //$NON-NLS-1$
 		tool.add(Box.createHorizontalGlue()); //right align after this
 		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
@@ -607,8 +630,9 @@ public final class LGM
 			ResNode node = (ResNode) nodes.nextElement();
 			if (node.frame != null) node.frame.updateResource(); // update open frames
 			}
-		LGM.getGameSettings().commitChanges();
+		LGM.getConstantsFrame().commitChanges();
 		LGM.getGameInfo().updateResource();
+		LGM.getGameSettings().commitChanges();
 		}
 
 	public static void reload(boolean newRoot)
@@ -620,12 +644,15 @@ public final class LGM
 
 		LGM.eventSelect.reload();
 
-		gameSet.resOriginal = LGM.currentFile.gameSettings;
-		gameSet.revertResource();
-		gameSet.setVisible(false);
+		constantsFrame.resOriginal = LGM.currentFile.defaultConstants;
+		constantsFrame.revertResource();
+		constantsFrame.setVisible(false);
 		gameInfo.resOriginal = LGM.currentFile.gameInfo;
 		gameInfo.revertResource();
 		gameInfo.setVisible(false);
+		gameSet.resOriginal = LGM.currentFile.gameSettings;
+		gameSet.revertResource();
+		gameSet.setVisible(false);
 		
 		LGM.fireReloadPerformed(newRoot);
 		}
@@ -784,10 +811,11 @@ public final class LGM
 
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
 		
+		constantsFrame = new ConstantsFrame(currentFile.defaultConstants);
+		mdi.add(constantsFrame);
 		gameInfo = new GameInformationFrame(currentFile.gameInfo);
 		mdi.add(gameInfo);
-		gameSet = new GameSettingFrame(currentFile.gameSettings,currentFile.constants,
-				currentFile.includes);
+		gameSet = new GameSettingFrame(currentFile.gameSettings);
 		mdi.add(gameSet);
 		extSet = new ExtensionPackagesFrame(new ExtensionPackages());
 		mdi.add(extSet);

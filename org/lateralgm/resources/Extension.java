@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * 
@@ -21,13 +22,21 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
+import org.lateralgm.resources.sub.ExtensionFile;
+import org.lateralgm.resources.sub.ExtensionFunction;
+import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 
 public class Extension extends InstantiableResource<Extension,Extension.PExtension>
 	{
+	
+	public final ActiveArrayList<ExtensionFile> files = new ActiveArrayList<ExtensionFile>();
+	public final ActiveArrayList<ExtensionFunction> functions = new ActiveArrayList<ExtensionFunction>();
+	
 	public enum PExtension
 		{
 		//TODO: Extensions
+		NAME,VERSION,AUTHOR,DATE,LICENSE,DESCRIPTION,HELPFILE,INSTALLDIR
 		}
 
 	private static final EnumMap<PExtension,Object> DEF = null;

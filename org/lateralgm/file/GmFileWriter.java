@@ -29,6 +29,8 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Constants;
+import org.lateralgm.resources.Extension;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameSettings;
@@ -264,16 +266,17 @@ public final class GmFileWriter
 		out.writeStr(p,PGameSettings.INFORMATION);
 		if (ver < 800)
 			{
-			out.write4(f.constants.size());
-			for (Constant con : f.constants)
+			out.write4(g.constants.constants.size());
+			for (Constant con : g.constants.constants)
 				{
 				out.writeStr(con.name);
 				out.writeStr(con.value);
 				}
 			if (ver == 542 || ver == 600)
 				{
-				out.write4(f.includes.size());
-				for (Include inc : f.includes)
+				ResourceList<Include> includes = f.resMap.getList(Include.class);
+				out.write4(includes.size());
+				for (Include inc : includes)
 					out.writeStr(inc.filepath);
 				out.write4(ProjectFile.GS_INCFOLDER_CODE.get(p.get(PGameSettings.INCLUDE_FOLDER)));
 				out.writeBool(p,PGameSettings.OVERWRITE_EXISTING,PGameSettings.REMOVE_AT_GAME_END);
@@ -325,8 +328,8 @@ public final class GmFileWriter
 		if (ver < 800) return;
 
 		out.write4(800);
-		out.write4(f.constants.size());
-		for (Constant c : f.constants)
+		out.write4(f.gameSettings.constants.constants.size());
+		for (Constant c : f.gameSettings.constants.constants)
 			{
 			out.writeStr(c.name);
 			out.writeStr(c.value);
@@ -736,8 +739,9 @@ public final class GmFileWriter
 		if (ver < 620) return;
 
 		out.write4(ver);
-		out.write4(f.includes.size());
-		for (Include i : f.includes)
+		ResourceList<Include> includes =  f.resMap.getList(Include.class);
+		out.write4(includes.size());
+		for (Include i : includes)
 			{
 			if (ver >= 800)
 				{
@@ -807,7 +811,8 @@ public final class GmFileWriter
 		while (e.hasMoreElements())
 			{
 			ResNode node = (ResNode) e.nextElement();
-			if (node.kind == Shader.class) {
+			if (node.kind == Shader.class || node.kind == Include.class || node.kind == Extension.class
+					|| node.kind == Constants.class) {
 			  continue;
 			}
 			out.write4(node.status);

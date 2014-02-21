@@ -11,8 +11,6 @@ package org.lateralgm.resources;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,8 +24,6 @@ import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
 import org.lateralgm.resources.sub.GlyphMetric;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
-
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 public class Font extends InstantiableResource<Font,Font.PFont>
 {
