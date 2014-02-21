@@ -23,15 +23,22 @@
 
 package org.lateralgm.subframes;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 
 import javax.swing.GroupLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
 
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Include;
 
@@ -40,17 +47,8 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 	private static final long serialVersionUID = 1L;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	private CustomFileChooser fc;
-
-	private JPanel makeSettings()
-	{
-		JPanel p = new JPanel();
-		GroupLayout gl = new GroupLayout(p);
-		p.setLayout(gl);
-		gl.setAutoCreateGaps(true);
-		gl.setAutoCreateContainerGaps(true);
-
-		return p;
-	}
+	private JButton exportBut;
+	private JButton importBut;
 
 	public IncludeFrame(Include res)
 	{
@@ -62,8 +60,37 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 		//,Messages.getString("IncludeFrame.TITLE"),true
 		super(r,node); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(600,400);
+		setSize(300,350);
+		this.setLayout(new BorderLayout());
 
+		JToolBar toolbar = new JToolBar();
+		toolbar.setFloatable(false);
+		toolbar.add(save);
+		toolbar.addSeparator();
+		exportBut = new JButton(LGM.getIconForKey("IncludeFrame.EXPORT")); //$NON-NLS-1$
+		exportBut.setToolTipText(Messages.getString("IncludeFrame.EXPORT"));
+		exportBut.addActionListener(this);
+		toolbar.add(exportBut);
+		importBut = new JButton(LGM.getIconForKey("IncludeFrame.IMPORT")); //$NON-NLS-1$
+		importBut.setToolTipText(Messages.getString("IncludeFrame.IMPORT"));
+		importBut.addActionListener(this);
+		toolbar.add(importBut);
+		toolbar.addSeparator();
+		toolbar.add(new JLabel("Name:"));
+		name.setColumns(13);
+		name.setMaximumSize(name.getPreferredSize());
+		toolbar.add(name);
+		
+		
+		JPanel p = new JPanel();
+		GroupLayout gl = new GroupLayout(p);
+		p.setLayout(gl);
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
+		
+		this.add(p, BorderLayout.CENTER);
+		this.add(toolbar, BorderLayout.NORTH);
+		
 	}
 
 	private void addDocumentListeners()

@@ -364,21 +364,25 @@ public final class LGM
 	public static void showConstantsFrame()
 	{
     getConstantsFrame().setVisible(true);
+    getConstantsFrame().toTop();
 	}
 	
 	public static void showGameInformation()
 	{
     getGameInfo().setVisible(true);
+    getGameInfo().toTop();
 	}
 	
 	public static void showGameSettings()
 	{
     getGameSettings().setVisible(true);
+    getGameSettings().toTop();
 	}
 	
 	public static void showExtensionPackages()
 	{
     getExtensionPackages().setVisible(true);
+    getExtensionPackages().toTop();
 	}
 	
 	private LGM()

@@ -16,6 +16,7 @@ import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,11 +26,14 @@ import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
@@ -50,6 +54,7 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 	{
 	private static final long serialVersionUID = 1L;
 
+	public JToolBar toolbar;
 	public JButton importBut;
 	public JButton exportBut;
 	public JTable constants;
@@ -136,12 +141,28 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 		content.setLayout(layout);
 		
 		this.setLayout(new BorderLayout());
-		this.add(content);
 
-		importBut = new JButton(Messages.getString("ConstantsFrame.IMPORT")); //$NON-NLS-1$
-		importBut.addActionListener(this);
-		exportBut = new JButton(Messages.getString("ConstantsFrame.EXPORT")); //$NON-NLS-1$
+		toolbar = new JToolBar();
+		toolbar.setFloatable(false);
+		toolbar.add(save);
+		toolbar.addSeparator();
+		exportBut = new JButton(LGM.getIconForKey("ConstantsFrame.EXPORT")); //$NON-NLS-1$
+		exportBut.setToolTipText(Messages.getString("ConstantsFrame.EXPORT"));
 		exportBut.addActionListener(this);
+		toolbar.add(exportBut);
+		importBut = new JButton(LGM.getIconForKey("ConstantsFrame.IMPORT")); //$NON-NLS-1$
+		importBut.setToolTipText(Messages.getString("ConstantsFrame.IMPORT"));
+		importBut.addActionListener(this);
+		toolbar.add(importBut);
+		toolbar.addSeparator();
+		toolbar.add(new JLabel("Configuration:"));
+		String strs[] = {"All Configurations", "Default"};
+		JComboBox<String> configCombo = new JComboBox<String>(strs);
+		configCombo.setMaximumSize(new Dimension(130, 22));
+		toolbar.add(configCombo);
+		
+		this.add(toolbar,BorderLayout.NORTH);
+		this.add(content,BorderLayout.CENTER);
 
 		cModel = new ConstantsTableModel(res.constants);
 		constants = new JTable(cModel);
@@ -173,9 +194,6 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 				Messages.getString("ConstantsFrame.LGC_FILES"),".lgc")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(importBut,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*		*/.addComponent(exportBut,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addComponent(scroll)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addGroup(layout.createParallelGroup()
@@ -190,9 +208,6 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 		/*				*/.addComponent(down,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/*		*/.addComponent(sort,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(importBut)
-		/*		*/.addComponent(exportBut))
 		/**/.addComponent(scroll,DEFAULT_SIZE,300,MAX_VALUE)
 		/**/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(add)

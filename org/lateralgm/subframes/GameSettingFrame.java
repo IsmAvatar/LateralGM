@@ -315,6 +315,16 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addComponent(priority));
 		return panel;
 		}
+	
+	private JPanel makeTextureAtlasesPane()
+		{
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
+		return panel;
+		}
 
 	public JCheckBox showCustomLoadImage;
 	public BufferedImage customLoadingImage;
@@ -665,6 +675,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	private void buildTabs()
 		{
+		//Looks horrible under any look and feel
+		//tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		
 		JComponent pane = makeGraphicsPane();
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_GRAPHICS"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_GRAPHICS")); //$NON-NLS-1$
@@ -698,6 +711,11 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		pane = makeInfoPane();
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_INFO"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_INFO")); //$NON-NLS-1$
+		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
+		
+		pane = makeTextureAtlasesPane();
+		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_TEXTUREATLASES"), //$NON-NLS-1$
+				null,pane,Messages.getString("GameSettingFrame.HINT_TEXTUREATLASES")); //$NON-NLS-1$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
 		}
 

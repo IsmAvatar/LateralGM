@@ -10,23 +10,27 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
+import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.util.PropertyMap;
 
 public class Include extends InstantiableResource<Include,Include.PInclude>
 	{
 	
+	public byte[] data = new byte[0];
+	
 	public enum PInclude
 	{
-	//TODO: Includes
+	FILENAME,FILEPATH,ORIGINAL,SIZE,EXPORTACTION,EXPORTFOLDER,OVERWRITE,
+	FREEMEMORY,REMOVEATGAMEEND,STORE
 	}
 	
-	private static final EnumMap<PInclude,Object> DEF = null;
+	private static final EnumMap<PInclude,Object> DEF = PropertyMap.makeDefaultMap(PInclude.class,
+			"","",true,0,2,"",false,true,true,false);
 	
 	public String filename = ""; //$NON-NLS-1$
 	public String filepath = ""; //$NON-NLS-1$
 	public boolean isOriginal;
 	public int size = 0;
-	public byte[] data =  null;
 	public int export = 2;
 	public String exportFolder = ""; //$NON-NLS-1$
 	public boolean overwriteExisting = false;
