@@ -532,6 +532,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (path == null)
 				return;
 			
+			//TODO: Not sure if checking this is even necessary.
 			TreePath[] paths = LGM.tree.getSelectionPaths();
 			boolean inpath = false;
 			
@@ -549,7 +550,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			// indicating it is an inconsistency with the framework compared to
 			// other GUI libraries.
 			if (e.getModifiers() == InputEvent.BUTTON3_MASK ||
-					e.getModifiers() == InputEvent.BUTTON1_MASK) {
+					e.getModifiers() == InputEvent.BUTTON1_MASK
+					&& inpath) {
 				LGM.tree.setSelectionPath(path);
 			}
 			

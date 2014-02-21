@@ -329,7 +329,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			return ProjectFile.SOUND_KIND[ind];
 			}
 
-		public void select(JComboBox<Object> b, Object o)
+		public void select(JComboBox<?> b, Object o)
 			{
 			if (o instanceof SoundKind) b.setSelectedIndex(ProjectFile.SOUND_CODE.get(o));
 			}
@@ -385,7 +385,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			{
 				return ((String)o).substring(0, ((String)o).indexOf(' '));
 			}
-			public void select(JComboBox<Object> b, Object o)
+			public void select(JComboBox<?> b, Object o)
 			{
 				b.setSelectedItem(o + " bit");
 			}

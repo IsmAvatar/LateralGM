@@ -77,7 +77,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
 	protected ActionContainer actionContainer;
 	public ActionListModel model;
-	private final ActionRenderer renderer = new ActionRenderer();
+	private final ActionRenderer renderer = new ActionRenderer(this);
 	public final WeakReference<MDIFrame> parent;
 	private final ActionListMouseListener alml;
 
@@ -141,9 +141,6 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
     item = makeContextButton("ActionList.CLEAR");
     popup.add(item);
 		
-		// turning this off for now I can't find where the actions
-		// become transferable at, i suggest adding an edit button as
-		// well to this popup menu
     this.setComponentPopupMenu(popup);
 		
 		//actionContainer.
@@ -152,7 +149,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 		setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
 		if (LGM.javaVersion >= 10600)
 			{
-			setTransferHandler(new ActionTransferHandler(this.parent));
+			setTransferHandler(new ActionTransferHandler(this.parent,this));
 			setDragEnabled(true);
 			setDropMode(DropMode.ON_OR_INSERT);
 			}
@@ -518,11 +515,13 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 		private int addIndex = -1; //Location where items were added
 		private int addCount = 0; //Number of items added.
 		private final WeakReference<MDIFrame> parent;
+		private ActionList list = null;
 
-		public ActionTransferHandler(WeakReference<MDIFrame> parent)
+		public ActionTransferHandler(WeakReference<MDIFrame> parent, ActionList l)
 			{
 			super();
 			this.parent = parent;
+			this.list = l;
 			}
 
 		@Override
@@ -530,8 +529,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 			{
 			if (action == MOVE && indices != null)
 				{
-				JList<Action> ls = (JList<Action>) source;
-				ActionListModel model = (ActionListModel) ls.getModel();
+				ActionListModel model = (ActionListModel) list.getModel();
 				if (addCount > 0)
 					{
 					for (int i = 0; i < indices.length; i++)
@@ -652,7 +650,6 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 		@Override
 		protected Transferable createTransferable(JComponent c)
 			{
-			JList<Action> list = (JList<Action>) c;
 			indices = list.getSelectedIndices();
 			return new ActionTransferable((ArrayList<Action>) list.getSelectedValuesList());
 			}
@@ -661,12 +658,14 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 	private static class ActionRenderer implements ListCellRenderer<Action>
 		{
 		private final WeakHashMap<Action,SoftReference<ActionRendererComponent>> lcrMap;
+		private final ActionList list;
 
-		public ActionRenderer()
+		public ActionRenderer(ActionList l)
 			{
 			super();
 			lcrMap = new WeakHashMap<Action,SoftReference<ActionRendererComponent>>();
-			}
+			this.list = l;
+			}		
 
 		public void clearCache()
 			{
@@ -753,9 +752,9 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 			private boolean selected;
 			private final JList<Action> list;
 
-			public ActionRendererComponent(Action a, JList<Action> list)
+			public ActionRendererComponent(Action a, JList<Action> l)
 				{
-				this.list = list;
+				this.list = l;
 				setOpaque(true);
 				setBackground(selected ? list.getSelectionBackground() : list.getBackground());
 				setForeground(selected ? list.getSelectionForeground() : list.getForeground());
@@ -846,8 +845,6 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 				boolean isSelected, boolean hasFocus)
 			{
 			final Action cellAction = (Action) cell;
-			@SuppressWarnings("unchecked")
-			final JList<Action> list = (JList<Action>) l;
 
 			SoftReference<ActionRendererComponent> arcref = lcrMap.get(cellAction);
 			ActionRendererComponent arc = null;

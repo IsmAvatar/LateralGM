@@ -28,13 +28,10 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
-import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
@@ -46,7 +43,6 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 {
 	private static final long serialVersionUID = 1L;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
-	private CustomFileChooser fc;
 	private JButton exportBut;
 	private JButton importBut;
 
@@ -93,12 +89,6 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 		
 	}
 
-	private void addDocumentListeners()
-	{
-
-	}
-	
-
 	public Object getUserObject()
 	{
 		if (node != null) return node.getUserObject();
@@ -113,12 +103,12 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 	public void actionPerformed(ActionEvent ev)
 	{
 		super.actionPerformed(ev);
-		String com = ev.getActionCommand();
-		if (com.equals("ExtensionsFrame.INSTALL")) //$NON-NLS-1$
+		Object source = ev.getSource();
+		if (source == importBut) //$NON-NLS-1$
 		{
       return;
 		}
-		if (com.equals("ExtensionsFrame.SAVE")) //$NON-NLS-1$
+		if (source == exportBut) //$NON-NLS-1$
 		{
       return;
 		}
@@ -129,7 +119,7 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 
 	}
 
-	public void setComponents(ExtensionPackages ext)
+	public void setComponents(Include inc)
 	{
 
 	}

@@ -66,12 +66,6 @@ public class ExtensionFrame extends InstantiableResourceFrame<Extension,Extensio
 
 	}
 
-	private void addDocumentListeners()
-	{
-
-	}
-	
-
 	public Object getUserObject()
 	{
 		if (node != null) return node.getUserObject();

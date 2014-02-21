@@ -159,6 +159,7 @@ public class JoshTextPanel extends JPanel
 		return text.code.size();
 	}
 
+	//TODO: Does not appear to actually be any warning hear to suppress.
 	@SuppressWarnings("static-method")
 	public void setTabSize(int spaces)
 	{

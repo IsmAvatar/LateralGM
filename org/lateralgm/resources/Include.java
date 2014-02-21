@@ -10,7 +10,6 @@ package org.lateralgm.resources;
 
 import java.util.EnumMap;
 
-import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.util.PropertyMap;
 
 public class Include extends InstantiableResource<Include,Include.PInclude>

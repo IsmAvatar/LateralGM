@@ -33,7 +33,7 @@ public class ComboBoxLink<K extends Enum<K>, T> extends PropertyLink<K,Object> i
 
 	public static interface ComboBoxSelectable
 		{
-		public void select(JComboBox<Object> b, Object o);
+		public void select(JComboBox<?> b, Object o);
 		}
 
 	public static class DefaultComboBoxConversion implements ComboBoxConversion,ComboBoxSelectable
@@ -43,7 +43,7 @@ public class ComboBoxLink<K extends Enum<K>, T> extends PropertyLink<K,Object> i
 			return o;
 			}
 
-		public void select(JComboBox<Object> b, Object o)
+		public void select(JComboBox<?> b, Object o)
 			{
 			b.setSelectedItem(o);
 			}
@@ -56,7 +56,7 @@ public class ComboBoxLink<K extends Enum<K>, T> extends PropertyLink<K,Object> i
 			return ind;
 			}
 
-		public void select(JComboBox<Object> b, Object o)
+		public void select(JComboBox<?> b, Object o)
 			{
 			if (o instanceof Integer) b.setSelectedIndex((Integer) o);
 			}
@@ -84,7 +84,7 @@ public class ComboBoxLink<K extends Enum<K>, T> extends PropertyLink<K,Object> i
 		{
 		if (conv instanceof ComboBoxSelectable)
 			{
-			((ComboBoxSelectable) conv).select((JComboBox<Object>) box,o);
+			((ComboBoxSelectable) conv).select((JComboBox<?>) box,o);
 			return;
 			}
 		if (o == null) return;

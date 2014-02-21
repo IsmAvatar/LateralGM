@@ -680,7 +680,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
   public class ImageCellRenderer implements ListCellRenderer<ImageIcon>
   {
-     public Component getListCellRendererComponent(final JList<? extends ImageIcon> list, final ImageIcon value, final int index, final boolean isSelected, final boolean hasFocus)
+  	private final JList<ImageIcon> list;
+  	public ImageCellRenderer(JList<ImageIcon> l) {
+  		super();
+  		this.list = l;
+  	}
+  
+     public Component getListCellRendererComponent(final JList<? extends ImageIcon> genericlist, final ImageIcon value, final int index, final boolean isSelected, final boolean hasFocus)
       {
           
           //create panel
@@ -707,7 +713,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
       		}
           
           l.index = index;
-          l.list = (JList<ImageIcon>) list;
+          l.list = list;
           p.add(l);
 
           return p;
@@ -825,7 +831,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		});
 		 
-		subList.setCellRenderer(new ImageCellRenderer());
+		subList.setCellRenderer(new ImageCellRenderer(subList));
 		subList.setComponentPopupMenu(popup);
 		
 		subimagesScroll = new JScrollPane(subList);
@@ -859,7 +865,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			return Util.cloneImage(data);
 			}
 
-		public Transferable createTransferable(JComponent c)
+		public Transferable createTransferable(JList<ImageIcon> c )
 			{
 			JList<ImageIcon> l = ((JList<ImageIcon>) c);
 			int index = l.getSelectedIndex();
