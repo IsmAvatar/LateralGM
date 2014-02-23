@@ -3386,7 +3386,7 @@ sprite_add_from_surface
 ind,id,x,y,w,h
 
 sprite_add
-fname,imgnumb,precise,transparent,smooth,xorig,yorig
+fname,imgnumb,transparent,smooth,xorig,yorig
 
 sprite_add
 fname,imgnumb,precise,transparent,smooth,preload,xorig,yorig
