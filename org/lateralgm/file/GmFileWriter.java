@@ -790,9 +790,9 @@ public final class GmFileWriter
 		PropertyMap<PGameInformation> p = g.properties;
 		out.write4(Util.getGmColor((Color) p.get(PGameInformation.BACKGROUND_COLOR)));
 		if (ver < 800)
-			out.writeBool(p,PGameInformation.MIMIC_GAME_WINDOW);
+			out.writeBool(p,PGameInformation.EMBED_GAME_WINDOW);
 		else
-			out.writeBool(!(Boolean) p.get(PGameInformation.MIMIC_GAME_WINDOW));
+			out.writeBool(!(Boolean) p.get(PGameInformation.EMBED_GAME_WINDOW));
 		out.writeStr(p,PGameInformation.FORM_CAPTION);
 		out.write4(p,PGameInformation.LEFT,PGameInformation.TOP,PGameInformation.WIDTH,
 				PGameInformation.HEIGHT);

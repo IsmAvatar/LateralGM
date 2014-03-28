@@ -1138,9 +1138,9 @@ public final class GmFileReader
 		int bc = in.read4();
 		if (bc >= 0) p.put(PGameInformation.BACKGROUND_COLOR,Util.convertGmColor(bc));
 		if (ver < 800)
-			in.readBool(p,PGameInformation.MIMIC_GAME_WINDOW);
+			in.readBool(p,PGameInformation.EMBED_GAME_WINDOW);
 		else
-			p.put(PGameInformation.MIMIC_GAME_WINDOW,!in.readBool()); //Show help in a separate window
+			p.put(PGameInformation.EMBED_GAME_WINDOW,!in.readBool()); //Show help in a separate window
 		if (ver > 430)
 			{
 			in.readStr(p,PGameInformation.FORM_CAPTION);

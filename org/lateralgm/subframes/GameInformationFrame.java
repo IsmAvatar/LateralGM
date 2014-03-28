@@ -406,7 +406,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		plf.make(sAllowResize,PGameInformation.ALLOW_RESIZE);
 		plf.make(sAlwaysOnTop,PGameInformation.STAY_ON_TOP);
 		plf.make(sPauseGame,PGameInformation.PAUSE_GAME);
-		plf.make(sEmbed,PGameInformation.MIMIC_GAME_WINDOW);
+		plf.make(sEmbed,PGameInformation.EMBED_GAME_WINDOW);
 
 		pl.setHorizontalGroup(pl.createSequentialGroup()
 
