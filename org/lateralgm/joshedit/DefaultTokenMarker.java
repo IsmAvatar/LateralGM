@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JOptionPane;
+
 import org.lateralgm.joshedit.DefaultTokenMarker.SchemeInfo.SchemeType;
 import org.lateralgm.joshedit.Line.LINE_ATTRIBS;
 
@@ -377,6 +379,12 @@ public abstract class DefaultTokenMarker implements TokenMarker
 	{
 		line_count = code.size();
 		if (start < invalid_line || invalid_line == -1) invalid_line = start;
+		
+		//TODO: This was a temporary fix for undo/redo
+		//with cut/copy/and paste.
+		if (start > code.size()) { start = code.size(); }
+		if (end > code.size()) { end = code.size(); }
+		
 		for (int i = start; i < end; i++)
 			if (code.get(i).attr > 0)
 				code.get(i).attr = -code.get(i).attr;

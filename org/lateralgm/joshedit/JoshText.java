@@ -708,9 +708,9 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			if (sel.isEmpty()) return;
 			sel.copy();
 			UndoPatch up = new UndoPatch();
+			sel.deleteSel();
 			up.realize(Math.max(caret.row,sel.row));
 			storeUndo(up,OPT.DELETE);
-			sel.deleteSel();
 			doCodeSize(true);
 			repaint();
 		}
@@ -2620,7 +2620,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 			Color c = g.getColor();
 			//Make sure we haven't deleted a selection of code that fires a bracket repaint on a line
 			//that was deleted. - Robert
-			if (matchLine < line_end) {
+			if (matchLine < line_end && matchLine > line_start) {
 				if (matching == MatchState.MATCHING)
 				{
 					g.setColor(new Color(100,100,100));
