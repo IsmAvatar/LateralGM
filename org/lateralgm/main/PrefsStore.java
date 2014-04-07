@@ -26,11 +26,12 @@ public final class PrefsStore
 		LGM.menuBar.setRecentMenuEnabled(false);
 	}
 	
+	//TODO: These are now delimited by a tab instead of a space to allow spaces in recent file paths. - Robert
 	public static ArrayList<String> getRecentFiles()
 		{
 		String value = PREFS.get("FILE_RECENT",null);
 		if (value == null) return new ArrayList<String>(0);
-		String[] array = value.split(" ");
+		String[] array = value.split("	");
 		ArrayList<String> list = new ArrayList<String>(array.length);
 		for (String name : array)
 			list.add(Util.urlDecode(name));
@@ -46,7 +47,7 @@ public final class PrefsStore
 		String newList;
 		newList = Util.urlEncode(name);
 		for (int i = 0; i + 1 < maxcount && i < oldList.size(); i++)
-			newList += " " + Util.urlEncode(oldList.get(i));
+			newList += "	" + Util.urlEncode(oldList.get(i));
 		PREFS.put("FILE_RECENT",newList);
 		}
 

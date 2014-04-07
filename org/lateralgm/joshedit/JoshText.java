@@ -2618,7 +2618,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		public void paint(Graphics g, Insets i, CodeMetrics gm, int line_start, int line_end)
 		{
 			Color c = g.getColor();
-			//Make sure we haven't deleted a selection of code that fires a bracket repaint on a line
+			//TODO: Make sure we haven't deleted a selection of code that fires a bracket repaint on a line
 			//that was deleted. - Robert
 			if (matchLine < line_end && matchLine > line_start) {
 				if (matching == MatchState.MATCHING)
