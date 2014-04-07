@@ -99,7 +99,7 @@ PropertyValidator<CharacterRange.PCharacterRange>
 				int min = (Integer) v;
 				if (min < 0)
 					min = 0;
-				else if (min > 255) min = 255;
+				else if (min > 65536) min = 65536;
 				if (min > (Integer) v) {
 					properties.get(PCharacterRange.RANGE_MAX);
 					properties.put(PCharacterRange.RANGE_MAX,min);
@@ -110,7 +110,7 @@ PropertyValidator<CharacterRange.PCharacterRange>
 				int max = (Integer) v;
 				if (max < 0)
 					max = 0;
-				else if (max > 255) min = 255;
+				else if (max > 65536) min = 65536;
 				if (max < (Integer) v) {
 					properties.get(PCharacterRange.RANGE_MIN);
 					properties.put(PCharacterRange.RANGE_MIN,max);

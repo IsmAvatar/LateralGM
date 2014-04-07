@@ -321,12 +321,12 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		charMin = new NumberField(0,255);
+		charMin = new NumberField(0,65536);
 		charMin.setCommitsOnValidEdit(true);
 		//charMin.addValueChangeListener(this);
 		//plf.make(charMin,PFont.RANGE_MIN);
 		JLabel lTo = new JLabel(Messages.getString("FontFrame.TO")); //$NON-NLS-1$
-		charMax = new NumberField(0,255);
+		charMax = new NumberField(0,65536);
 		charMax.setCommitsOnValidEdit(true);
 		//charMin.addValueChangeListener(this);
 		//plf.make(charMax,PFont.RANGE_MAX);

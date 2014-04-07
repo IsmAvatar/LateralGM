@@ -73,7 +73,7 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 	
 	public CharacterRange addRange(int min, int max)
 		{
-		if (min < 0 || max > 255 || min > max) throw new IllegalArgumentException();
+		if (min < 0 || max > 65536 || min > max) throw new IllegalArgumentException();
 		CharacterRange cr = new CharacterRange(this, min, max);
 		characterRanges.add(cr);
 		return cr;
