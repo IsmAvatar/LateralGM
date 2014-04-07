@@ -430,28 +430,35 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		TreePath drop = ((JTree.DropLocation) support.getDropLocation()).getPath();
 		if (drop == null) return false;
 		ResNode dropNode = (ResNode) drop.getLastPathComponent();
-		ResNode dragNode = (ResNode) ((JTree) support.getComponent()).getLastSelectedPathComponent();
-		if (dragNode == dropNode) return false;
-		if (dragNode.isNodeDescendant(dropNode)) return false;
-		if (Prefs.groupKind && dropNode.kind != dragNode.kind) return false;
+		TreePath[] paths = ((JTree) support.getComponent()).getSelectionPaths();
+		for (int i = 0; i < paths.length; i++) {
+			ResNode dragNode = (ResNode) paths[i].getLastPathComponent();
+			if (dragNode == dropNode) return false;
+			if (dragNode.isNodeDescendant(dropNode)) return false;
+			if (Prefs.groupKind && dropNode.kind != dragNode.kind) return false;
+		}
 		if (dropNode.status == ResNode.STATUS_SECONDARY) return false;
 		return true;
 	}
 
 	public boolean importData(TransferHandler.TransferSupport support)
 	{
+	
 		if (!canImport(support)) return false;
 		JTree.DropLocation drop = (JTree.DropLocation) support.getDropLocation();
 		int dropIndex = drop.getChildIndex();
 		ResNode dropNode = (ResNode) drop.getPath().getLastPathComponent();
-		ResNode dragNode = (ResNode) ((JTree) support.getComponent()).getLastSelectedPathComponent();
-		if (dropIndex == -1)
-		{
-			dropIndex = dropNode.getChildCount();
+		TreePath[] paths = ((JTree) support.getComponent()).getSelectionPaths();
+		for (int i = 0; i < paths.length; i++) {
+			ResNode dragNode = (ResNode) paths[i].getLastPathComponent();
+			if (dropIndex == -1)
+			{
+				dropIndex = dropNode.getChildCount();
+			}
+			if (dropNode == dragNode.getParent() && dropIndex > dragNode.getParent().getIndex(dragNode))
+				dropIndex--;
+			dropNode.insert(dragNode,dropIndex);
 		}
-		if (dropNode == dragNode.getParent() && dropIndex > dragNode.getParent().getIndex(dragNode))
-			dropIndex--;
-		dropNode.insert(dragNode,dropIndex);
 		LGM.tree.expandPath(new TreePath(dropNode.getPath()));
 		LGM.tree.updateUI();
 		return true;
