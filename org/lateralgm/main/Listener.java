@@ -532,7 +532,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (path == null)
 				return;
 			
-			//TODO: Not sure if checking this is even necessary.
+			//Check to see if we have clicked on a different node then the one
+			//currently selected.
 			TreePath[] paths = LGM.tree.getSelectionPaths();
 			boolean inpath = false;
 			
@@ -544,14 +545,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			}
 			
-			// Yes the right click button does change the selection,
-			// go ahead and experiment with Eclipse, CodeBlocks, Visual Studio
-			// or Qt. Swing's default component popup listener does not do this
-			// indicating it is an inconsistency with the framework compared to
-			// other GUI libraries.
-			if (e.getModifiers() == InputEvent.BUTTON3_MASK ||
-					e.getModifiers() == InputEvent.BUTTON1_MASK
-					&& inpath) {
+			if (e.getModifiers() == InputEvent.BUTTON1_MASK && inpath) {
 				LGM.tree.setSelectionPath(path);
 			}
 			
@@ -561,6 +555,14 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			//Isn't Java supposed to handle ctrl+click for us? For some reason it doesn't.
 			if (e.getModifiers() == InputEvent.BUTTON3_MASK && e.getClickCount() == 1)
 				{
+				// Yes the right click button does change the selection,
+				// go ahead and experiment with Eclipse, CodeBlocks, Visual Studio
+				// or Qt. Swing's default component popup listener does not do this
+				// indicating it is an inconsistency with the framework compared to
+				// other GUI libraries.
+				if (!inpath) {
+					LGM.tree.setSelectionPath(path);
+				}
 				node.showMenu(e);
 				return;
 				}
