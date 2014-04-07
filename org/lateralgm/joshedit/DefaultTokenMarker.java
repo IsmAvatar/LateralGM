@@ -381,7 +381,7 @@ public abstract class DefaultTokenMarker implements TokenMarker
 		if (start < invalid_line || invalid_line == -1) invalid_line = start;
 		
 		//TODO: This was a temporary fix for undo/redo
-		//with cut/copy/and paste.
+		//with cut/copy/and paste. - Robert
 		if (start > code.size()) { start = code.size(); }
 		if (end > code.size()) { end = code.size(); }
 		

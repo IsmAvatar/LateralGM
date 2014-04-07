@@ -681,7 +681,7 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		/** Open a print dialogue to print the contents of the editor. */
 		public void Print()
 		{
-		  //TODO: Make the fucker actually print
+		  //TODO: Make the fucker actually prints
 		  PrinterJob pj = PrinterJob.getPrinterJob();
 	    if (pj.printDialog()) {
 	        try {
@@ -2618,9 +2618,15 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		public void paint(Graphics g, Insets i, CodeMetrics gm, int line_start, int line_end)
 		{
 			Color c = g.getColor();
+
+			//It should be assumed that line_start is smaller than line end
+			//if (line_start > line_end) {
+				//JOptionPane.showMessageDialog(null,"line start larger than line end!");
+			//}
+			
 			//TODO: Make sure we haven't deleted a selection of code that fires a bracket repaint on a line
-			//that was deleted. - Robert
-			if (matchLine < line_end && matchLine > line_start) {
+			//that was deleted. Current check suffices to fix the exception. - Robert
+			if (matchLine < line_end) {
 				if (matching == MatchState.MATCHING)
 				{
 					g.setColor(new Color(100,100,100));
