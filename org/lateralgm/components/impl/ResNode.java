@@ -242,7 +242,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			deleteItem.requestFocus();
 			popup.add(deleteItem); //$NON-NLS-1$
 			// KeyStroke.getKeyStroke("BACK_SPACE"); for delete key on mac
-			deleteItem.setAccelerator(KeyStroke.getKeyStroke("DELETE"));
+			deleteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, KeyEvent.SHIFT_DOWN_MASK));
 			JMenuItem renameItem = makeMenuItem("Listener.TREE_RENAME",al, true);
 			renameItem.setFocusable(true);
 			popup.add(renameItem); //$NON-NLS-1$
