@@ -516,21 +516,11 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		fireLineChange(0,code.size());
 	}
 
-	public void loadFromFile()
+	public void loadFromFile(String name)
 	{
-		fc.setDialogTitle(Messages.getString("JoshText.LOAD_TITLE")); //$NON-NLS-1$
-		while (true)
-		{
-			if (fc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) return;
-			if (fc.getSelectedFile().exists()) break;
-			JOptionPane.showMessageDialog(null,
-					fc.getSelectedFile().getName() + Messages.getString("JoshText.FILE_MISSING"), //$NON-NLS-1$
-					Messages.getString("JoshText.LOAD_TITLE"), //$NON-NLS-1$
-					JOptionPane.WARNING_MESSAGE);
-		}
 		try
 		{
-			BufferedReader br = new BufferedReader(new FileReader(fc.getSelectedFile()));
+			BufferedReader br = new BufferedReader(new FileReader(name));
 			code.clear();
 			
 	    String line = br.readLine();
@@ -552,15 +542,12 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		}
 	}
 
-	public void saveToFile()
+	public void saveToFile(String name)
 	{
-		fc.setDialogTitle(Messages.getString("JoshText.SAVE_TITLE")); //$NON-NLS-1$
-		if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
-		String name = fc.getSelectedFile().getPath();
 		if (CustomFileFilter.getExtension(name) == null) name += ".txt"; //$NON-NLS-1$
 		try
 		{
-		  BufferedWriter bw = new BufferedWriter(new FileWriter(fc.getSelectedFile()));
+		  BufferedWriter bw = new BufferedWriter(new FileWriter(name));
 
       try {
         for (int i = 0; i < code.size(); i++) {
@@ -668,13 +655,17 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		/** Open a file chooser to save the contents of the editor. */
 		public void Save()
 		{
-			saveToFile();
+			fc.setDialogTitle(Messages.getString("JoshText.SAVE_TITLE")); //$NON-NLS-1$
+			if (fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+			saveToFile(fc.getSelectedFile().getPath());
 		}
 		
 		/** Open a dialog to load the contents of the editor from a file. */
 		public void Load()
 		{
-			loadFromFile();
+			fc.setDialogTitle(Messages.getString("JoshText.LOAD_TITLE")); //$NON-NLS-1$
+			if (fc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) return;
+			loadFromFile(fc.getSelectedFile().getPath());
 			repaint();
 		}
 

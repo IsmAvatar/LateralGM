@@ -192,6 +192,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		int line = showGotoDialog(getCaretLine());
 		line = Math.max(0,Math.min(getLineCount() - 1,line));
 		setCaretPosition(line,0);
+		repaint();
 	}
 
 	public static int showGotoDialog(int defVal)

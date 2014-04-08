@@ -42,6 +42,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.DialogTypeSelection;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -727,10 +730,27 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		else if (com.equals("GameInformationFrame.PRINT")) //$NON-NLS-1$
 		{
 	    //TODO: Make the fucker actually print
+    final PrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
+    attributes.add(DialogTypeSelection.COMMON);
 	    PrinterJob pj = PrinterJob.getPrinterJob();
-      if (pj.printDialog()) {
+	    pj.pageDialog(pj.defaultPage());
+	    /*
+	    try {
+	    boolean done = editor.print();
+	    if (done) {
+	        JOptionPane.showMessageDialog(null, "Printing is done");
+	    } else {
+	        JOptionPane.showMessageDialog(null, "Error while printing");
+	    }
+	} catch (Exception pex) {
+	    JOptionPane.showMessageDialog(null, "Error while printing");
+	    pex.printStackTrace();
+	}
+*/
+      if (pj.printDialog(attributes)) {
           try {
             pj.print();
+            editor.print();
           }
           catch (PrinterException exc) {
             System.out.println(exc);
