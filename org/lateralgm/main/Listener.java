@@ -22,12 +22,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -37,6 +40,7 @@ import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.text.Position;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
@@ -381,6 +385,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			for (int m = tree.getRowCount() - 1; m >= 0; m--)
 				tree.collapseRow(m);
 			return;
+		} else if (com.endsWith("SORT")) { //$NON-NLS-1$
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent();
+				sortNodeChildrenAlphabetically(node,false);
+				LGM.tree.expandPath(new TreePath(node.getPath()));
+				LGM.tree.updateUI();
+				return;
 		} else if (com.endsWith(".DOCUMENTATION")) { //$NON-NLS-1$
 	    try {
         // Auto detects if path is web url or local file
@@ -422,6 +432,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		return MOVE;
 	}
 
+	// Fails if the drag node can not be dropped on the drop node.
+	public boolean canImportNode(ResNode dragNode, ResNode dropNode) {
+		if (dragNode == dropNode) return false;
+		if (Prefs.groupKind && dropNode.kind != dragNode.kind) return false;
+		return true;
+	}
+	
+	// Checks if data can be imported, fails if only one of the nodes can not be
+	// imported.
 	public boolean canImport(TransferHandler.TransferSupport support)
 	{
 		if (!support.isDataFlavorSupported(ResNode.NODE_FLAVOR)) return false;
@@ -431,20 +450,21 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		TreePath drop = ((JTree.DropLocation) support.getDropLocation()).getPath();
 		if (drop == null) return false;
 		ResNode dropNode = (ResNode) drop.getLastPathComponent();
+		if (dropNode.status == ResNode.STATUS_SECONDARY) return false;
+		
+		// Check each of the nodes being dragged.
 		TreePath[] paths = ((JTree) support.getComponent()).getSelectionPaths();
 		for (int i = 0; i < paths.length; i++) {
 			ResNode dragNode = (ResNode) paths[i].getLastPathComponent();
-			if (dragNode == dropNode) return false;
-			if (dragNode.isNodeDescendant(dropNode)) return false;
-			if (Prefs.groupKind && dropNode.kind != dragNode.kind) return false;
+			if (!canImportNode(dragNode, dropNode)) { return false; }
+			else { continue; }
 		}
-		if (dropNode.status == ResNode.STATUS_SECONDARY) return false;
+		
 		return true;
 	}
 
 	public boolean importData(TransferHandler.TransferSupport support)
 	{
-	
 		if (!canImport(support)) return false;
 		JTree.DropLocation drop = (JTree.DropLocation) support.getDropLocation();
 		int dropIndex = drop.getChildIndex();
@@ -452,17 +472,36 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		TreePath[] paths = ((JTree) support.getComponent()).getSelectionPaths();
 		for (int i = 0; i < paths.length; i++) {
 			ResNode dragNode = (ResNode) paths[i].getLastPathComponent();
+			int ind = dropIndex;
 			if (dropIndex == -1)
 			{
-				dropIndex = dropNode.getChildCount();
+				ind = dropNode.getChildCount();
+				if (dropNode == dragNode.getParent()) ind--;
 			}
-			if (dropNode == dragNode.getParent() && dropIndex > dragNode.getParent().getIndex(dragNode))
-				dropIndex--;
-			dropNode.insert(dragNode,dropIndex);
+			dropNode.insert(dragNode,ind);
 		}
 		LGM.tree.expandPath(new TreePath(dropNode.getPath()));
 		LGM.tree.updateUI();
 		return true;
+	}
+	
+	public static void sortNodeChildrenAlphabetically(DefaultMutableTreeNode node, boolean recursive) {
+			ArrayList<DefaultMutableTreeNode> children = (ArrayList<DefaultMutableTreeNode>)Collections.list(node.children());
+      Comparator<DefaultMutableTreeNode> comp = new Comparator<DefaultMutableTreeNode>() {
+	      public int compare(DefaultMutableTreeNode o1,DefaultMutableTreeNode o2) {
+	           return o1.toString().compareTo(o2.toString());
+	      }
+      };
+			children.sort(comp);
+			node.removeAllChildren();
+			Iterator<DefaultMutableTreeNode> childrenIterator = children.iterator();
+			while (childrenIterator.hasNext()) {
+				DefaultMutableTreeNode child = (DefaultMutableTreeNode) childrenIterator.next();
+				node.add(child);
+				if (recursive && child.getChildCount() > 0) {
+					sortNodeChildrenAlphabetically(child, recursive);
+				}
+			}
 	}
 
 	public static class NodeMenuListener implements ActionListener
@@ -481,6 +520,13 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (com.endsWith("EDIT")) //$NON-NLS-1$
 			{
 				if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
+				return;
+			}
+			if (com.endsWith("SORT")) //$NON-NLS-1$
+			{
+				sortNodeChildrenAlphabetically(node, false);
+				LGM.tree.expandPath(new TreePath(node.getPath()));
+				LGM.tree.updateUI();
 				return;
 			}
 			if (com.endsWith("DELETE")) //$NON-NLS-1$
