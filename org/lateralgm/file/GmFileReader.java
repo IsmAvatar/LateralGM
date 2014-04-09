@@ -201,6 +201,7 @@ public final class GmFileReader
 			else
 				in.setCharset(forceCharset);
 
+			//TODO: fix exception here caused by trying to open file too soon after loading LGM
 			JProgressBar progressBar = LGM.getProgressDialogBar();
 			progressBar.setMaximum(200);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING"));

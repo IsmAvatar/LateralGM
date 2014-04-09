@@ -492,7 +492,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	           return o1.toString().compareTo(o2.toString());
 	      }
       };
-			children.sort(comp);
+			Collections.sort(children, comp);
 			node.removeAllChildren();
 			Iterator<DefaultMutableTreeNode> childrenIterator = children.iterator();
 			while (childrenIterator.hasNext()) {
