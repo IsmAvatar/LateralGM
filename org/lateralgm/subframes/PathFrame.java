@@ -37,6 +37,7 @@ import org.lateralgm.components.impl.EditorScrollPane;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.PathEditor;
 import org.lateralgm.components.visual.PathEditor.PPathEditor;
+import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
@@ -121,8 +122,13 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		plf.make(sy,PPath.SNAP_Y);
 		// For some reason, JToolBar + GroupLayout makes the button too small to show all the text.
 		// Using a JCheckBox instead. This also mathces the other components better.
-		JToggleButton grid = new JCheckBox(Messages.getString("PathFrame.GRID"));
+		
+		JToggleButton grid = new JToggleButton();
+		grid.setToolTipText(Messages.getString("PathFrame.GRID"));
+		grid.setActionCommand("PathFrame.GRID");
+		grid.setIcon(LGM.getIconForKey("PathFrame.GRID"));
 		grid.setOpaque(false);
+		
 		peplf.make(grid,PPathEditor.SHOW_GRID);
 		ResourceMenu<Room> room = new ResourceMenu<Room>(Room.class,
 				Messages.getString("PathFrame.NO_ROOM"),160);

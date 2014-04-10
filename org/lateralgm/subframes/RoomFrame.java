@@ -179,17 +179,21 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tool.addSeparator();
 
 		zoomIn = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_IN")); //$NON-NLS-1$
+		zoomIn.setToolTipText(Messages.getString("RoomFrame.ZOOM_IN"));
 		prelf.make(zoomIn,PRoomEditor.ZOOM,1,RoomEditor.ZOOM_MAX);
 		tool.add(zoomIn);
 		zoomOut = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_OUT")); //$NON-NLS-1$
+		zoomOut.setToolTipText(Messages.getString("RoomFrame.ZOOM_OUT"));
 		prelf.make(zoomOut,PRoomEditor.ZOOM,-1,RoomEditor.ZOOM_MIN);
 		tool.add(zoomOut);
 		tool.addSeparator();
 
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
+		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
 		tool.add(gridVis);
 		gridIso = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_ISOMETRIC"));
+		gridIso.setToolTipText(Messages.getString("RoomFrame.GRID_ISOMETRIC"));
 		plf.make(gridIso,PRoom.ISOMETRIC);
 		tool.add(gridIso);
 		tool.addSeparator();
