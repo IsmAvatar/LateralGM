@@ -154,11 +154,11 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		evtPane.add(lab,BorderLayout.NORTH);
 		makeEventTree(res);
 		JScrollPane scroll = new JScrollPane(events);
-		if (Prefs.enableDragAndDrop) {
+		//if (Prefs.enableDragAndDrop) {
 		  scroll.setPreferredSize(new Dimension(140,260));
-		} else {
-		  scroll.setPreferredSize(new Dimension(300,260));
-		}
+		//} else {
+		  //scroll.setPreferredSize(new Dimension(300,260));
+		//}
 		evtPane.add(scroll,BorderLayout.CENTER);
 
 		JPanel side2bottom = new JPanel(new BorderLayout());
@@ -215,7 +215,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		sg = layout.createSequentialGroup()
 		/**/.addComponent(propPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addComponent(phyPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addComponent(evtPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE);
+		/**/.addComponent(evtPane);
 		if (Prefs.enableDragAndDrop) {
 		  sg.addComponent(editor);
 		}
