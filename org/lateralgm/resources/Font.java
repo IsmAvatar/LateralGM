@@ -9,8 +9,6 @@
 
 package org.lateralgm.resources;
 
-import java.awt.GraphicsEnvironment;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
