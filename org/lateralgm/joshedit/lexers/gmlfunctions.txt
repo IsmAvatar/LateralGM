@@ -103,6 +103,9 @@ user_uuid,ad_app_key
 ads_set_reward_callback 
 placement
 
+angle_difference
+ang1,ang2
+
 ansi_char
 byte
 
@@ -990,6 +993,18 @@ obj
 
 distance_to_point
 x,y
+
+dot_product
+x1,y1,x2,y2
+
+dot_product_3d
+x1,y1,z1,x2,y2,z2
+
+dot_product_normalised
+x1,y1,x2,y2
+
+dot_product_normalised_3d
+x1,y1,z1,x2,y2,z2
 
 draw_arrow
 x1,y1,x2,y2,size
@@ -2047,6 +2062,12 @@ none
 io_handle
 none
 
+irandom
+n
+
+irandom_range
+n1,n2
+
 is_array
 x
 
@@ -3007,6 +3028,18 @@ x1,y1,x2,y2
 point_distance
 x1,y1,x2,y2
 
+point_distance_3d
+x1,y1,z1,x2,y2,z2
+
+point_in_rectangle
+px,py,x1,y1,x2,y2
+
+point_in_triangle
+px,py,x1,y1,x2,y2,x3,y3
+
+point_in_circle
+px,py,cx,cy,rad
+
 position_change
 x,y,obj,perf
 
@@ -3037,8 +3070,20 @@ seed
 random
 x
 
+random_range
+n1,n2
+
 real
 str
+
+rectangle_in_rectangle
+sx1,sy1,sx2,sy2,dx1,dy1,dx2,dy2
+
+rectangle_in_triangle
+sx1,sy1,sx2,sy2,dx1,dy1,dx2,dy2,dx3,dy3
+
+rectangle_in_circle
+x1,y1,x2,y2,cx,cy,rad
 
 registry_exists_ext
 key,name
