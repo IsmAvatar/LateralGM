@@ -15,8 +15,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JOptionPane;
 
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -91,6 +94,11 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		return dest;
 	}
 	
+	public Point getTopLeftCentered() {
+		Dimension d = getPreferredSize();
+		return new Point(this.getWidth()/2 - d.width/2, this.getHeight()/2 - d.height/2);
+	}
+	
 	public void paintComponent(Graphics g)
 		{
 		if ((Boolean) sprite.get(PSprite.TRANSPARENT)) {
@@ -114,8 +122,8 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 			}
 			
 	    Graphics2D g2d = (Graphics2D) g;
-	    g2d.translate(this.getWidth()/2 - d.width/2, 
-	    		this.getHeight()/2 - d.height/2);
+	    Point pnt = getTopLeftCentered();
+	    g2d.translate(pnt.x, pnt.y);
 			
 			g.drawImage(transparentBackground, 0, 0, d.width, d.height, null);
     
@@ -215,8 +223,10 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	protected void processMouseMotionEvent(MouseEvent e)
 		{
 		if (enablemouse) {
-		if (e.getID() == MouseEvent.MOUSE_DRAGGED && (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)
-			setBoundedOrigin((int)(e.getX()/zoom),(int)(e.getY()/zoom));
+			if (e.getID() == MouseEvent.MOUSE_DRAGGED && (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+				Point pnt = getTopLeftCentered();
+				setBoundedOrigin((int)((e.getX()/zoom) - (pnt.x/zoom)),(int)((e.getY()/zoom) - (pnt.y/zoom)));
+			}
 		}
 		super.processMouseMotionEvent(e);
 		}
