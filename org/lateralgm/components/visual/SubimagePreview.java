@@ -212,10 +212,11 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	protected void processMouseEvent(MouseEvent e)
 	{
 		if (enablemouse) {
-		int mx = (int)Math.floor(e.getX()/zoom);
-		int my = (int)Math.floor(e.getY()/zoom);
-		if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1)
-			setBoundedOrigin(mx,my);
+			Point pnt = getTopLeftCentered();
+			int mx = (int)Math.floor((e.getX()/zoom) - (pnt.x/zoom));
+			int my = (int)Math.floor((e.getY()/zoom) - (pnt.y/zoom));
+			if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1)
+				setBoundedOrigin(mx,my);
 		}
 		super.processMouseEvent(e);
 	}
