@@ -251,6 +251,21 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			tree.updateUI();
 			}
 		}
+	
+	public DefaultMutableTreeNode findNode(DefaultMutableTreeNode parent, String name, boolean recursive) {
+		ArrayList<DefaultMutableTreeNode> children = (ArrayList<DefaultMutableTreeNode>)Collections.list(parent.children());
+		Iterator<DefaultMutableTreeNode> childrenIterator = children.iterator();
+		while (childrenIterator.hasNext()) {
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) childrenIterator.next();
+			if (child.toString().equals(name)) return child;
+			if (recursive && child.getChildCount() > 0) {
+				DefaultMutableTreeNode ret = findNode(child, name, recursive);
+				if (ret != null) return ret;
+			}
+		}
+	
+		return null;
+	}
 
 	public void actionPerformed(ActionEvent e)
 	{
@@ -416,6 +431,22 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			return;
 		}	else if (com.endsWith(".PROPERTIES")) { //$NON-NLS-1$
 			if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
+			return;
+		} else if (com.endsWith(".FIND")) {
+			String name = JOptionPane.showInputDialog(null, "Enter the resource name:", "Find Resource", JOptionPane.PLAIN_MESSAGE);
+			if (name != null) {
+				// find the resource with the name
+				DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
+				ResNode resn = (ResNode) findNode(root, name, true);
+				if (resn != null) {
+					tree.expandPath(new TreePath(resn.getPath()));
+					tree.setSelectionPath(new TreePath(resn.getPath()));
+					tree.updateUI();
+					if (resn.status == ResNode.STATUS_SECONDARY) resn.openFrame();
+				} else {
+					JOptionPane.showMessageDialog(null,"Resource not found: " + name);
+				}
+			}
 			return;
 		}
 	}
