@@ -255,6 +255,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public void actionPerformed(ActionEvent e)
 	{
 		JTree tree = LGM.tree;
+		ResNode node = (ResNode) tree.getSelectionPath().getLastPathComponent();
 		String[] args = e.getActionCommand().split(" "); //$NON-NLS-1$
 		String com = args[0];
 		if (com.endsWith(".NEW")) //$NON-NLS-1$
@@ -385,8 +386,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			for (int m = tree.getRowCount() - 1; m >= 0; m--)
 				tree.collapseRow(m);
 			return;
-		} else if (com.endsWith("SORT")) { //$NON-NLS-1$
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent();
+		} else if (com.endsWith(".SORT")) { //$NON-NLS-1$
 				sortNodeChildrenAlphabetically(node,false);
 				LGM.tree.expandPath(new TreePath(node.getPath()));
 				LGM.tree.updateUI();
@@ -407,6 +407,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			return;
 		} else if (com.endsWith(".ABOUT")) { //$NON-NLS-1$
 			new AboutBox(LGM.frame).setVisible(true);
+			return;
+		}	else if (com.endsWith(".DUPLICATE")) { //$NON-NLS-1$
+			ResourceList<?> rl = (ResourceList<?>) LGM.currentFile.resMap.get(node.kind);
+			if (node.frame != null) node.frame.commitChanges();
+			Resource<?,?> resource = rl.duplicate(node.getRes().get());
+			Listener.insertResource(tree,node.kind,resource,node,1);
+			return;
+		}	else if (com.endsWith(".PROPERTIES")) { //$NON-NLS-1$
+			if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
 			return;
 		}
 	}
@@ -517,7 +526,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		{
 			JTree tree = LGM.tree;
 			String com = e.getActionCommand();
-			if (com.endsWith("EDIT")) //$NON-NLS-1$
+			if (com.endsWith("PROPERTIES")) //$NON-NLS-1$
 			{
 				if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
 				return;

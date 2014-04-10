@@ -249,10 +249,10 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			renameItem.setAccelerator(KeyStroke.getKeyStroke("F2"));
 		}
 		if (status == ResNode.STATUS_SECONDARY) {
-		  JMenuItem editItem = makeMenuItem("Listener.TREE_EDIT",al, true);
+		  JMenuItem editItem = makeMenuItem("Listener.TREE_PROPERTIES",al, true);
 		  editItem.setFocusable(true);
 			popup.add(editItem); //$NON-NLS-1$
-			editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, KeyEvent.CTRL_DOWN_MASK));
+			editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, KeyEvent.ALT_DOWN_MASK));
 		}
 		popup.show(e.getComponent(),e.getX(),e.getY());
 		}
