@@ -321,12 +321,12 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		charMin = new NumberField(0,65536);
+		charMin = new NumberField(0, Integer.MAX_VALUE);
 		charMin.setCommitsOnValidEdit(true);
 		//charMin.addValueChangeListener(this);
 		//plf.make(charMin,PFont.RANGE_MIN);
 		JLabel lTo = new JLabel(Messages.getString("FontFrame.TO")); //$NON-NLS-1$
-		charMax = new NumberField(0,65536);
+		charMax = new NumberField(0, Integer.MAX_VALUE);
 		charMax.setCommitsOnValidEdit(true);
 		//charMin.addValueChangeListener(this);
 		//plf.make(charMax,PFont.RANGE_MAX);
@@ -335,8 +335,8 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		crNormal.setActionCommand("Normal"); //$NON-NLS-1$
 		crNormal.addActionListener(this);
 
-		JButton crAll = new JButton(Messages.getString("FontFrame.ALL")); //$NON-NLS-1$
-		crAll.setActionCommand("All"); //$NON-NLS-1$
+		JButton crAll = new JButton(Messages.getString("FontFrame.ASCII")); //$NON-NLS-1$
+		crAll.setActionCommand("ASCII"); //$NON-NLS-1$
 		crAll.addActionListener(this);
 
 		JButton crDigits = new JButton(Messages.getString("FontFrame.DIGITS")); //$NON-NLS-1$
@@ -394,7 +394,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 			}
 			return;
 			}
-		else if (com.equals("All")) //$NON-NLS-1$
+		else if (com.equals("ASCII")) //$NON-NLS-1$
 			{
 			CharacterRange cr = rangeList.getSelectedValue();
 			if (cr != null) {
@@ -496,6 +496,9 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		for (CharacterRange cr : res.characterRanges) {
 			int min = cr.properties.get(PCharacterRange.RANGE_MIN);
 			int max = cr.properties.get(PCharacterRange.RANGE_MAX);
+			//NOTE: Arbitrarily limit a single range to no more than 1000 sequential characters to stop
+			//our editor from lagging like GM's
+			if (max - min > 1000 || max < min) { max = min + 1000; }
 			for (int i = min; i <= max; i++) {
 				//TODO: Replace new line character with just an empty space, 
 				// otherwise it will screw up word wrapping in the preview area.

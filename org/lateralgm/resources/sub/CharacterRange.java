@@ -61,6 +61,7 @@ PropertyValidator<CharacterRange.PCharacterRange>
 		font = fnt.reference;
 		properties = new PropertyMap<PCharacterRange>(PCharacterRange.class,this,DEFS);
 		properties.getUpdateSource(PCharacterRange.RANGE_MAX).addListener(rpl);
+		properties.getUpdateSource(PCharacterRange.RANGE_MIN).addListener(rpl);
 		}
 	
 	public CharacterRange(Font fnt, int min, int max)
@@ -99,10 +100,10 @@ PropertyValidator<CharacterRange.PCharacterRange>
 				int min = (Integer) v;
 				if (min < 0)
 					min = 0;
-				else if (min > 65536) min = 65536;
+				//TODO: No limit since Unicode supported
+				//else if (min > 65536) min = 65536;
 				if (min > (Integer) v) {
-					properties.get(PCharacterRange.RANGE_MAX);
-					properties.put(PCharacterRange.RANGE_MAX,min);
+					properties.put(PCharacterRange.RANGE_MIN,min);
 				}
 				if (min != (Integer) v) return min;
 				break;
@@ -110,12 +111,13 @@ PropertyValidator<CharacterRange.PCharacterRange>
 				int max = (Integer) v;
 				if (max < 0)
 					max = 0;
-				else if (max > 65536) min = 65536;
+				//TODO: No limit since Unicode supported
+				//else if (max > 65536) max = 65536;
 				if (max < (Integer) v) {
-					properties.get(PCharacterRange.RANGE_MIN);
-					properties.put(PCharacterRange.RANGE_MIN,max);
+					properties.put(PCharacterRange.RANGE_MAX,max);
 				}
 				if (max != (Integer) v) return max;
+				break;
 		default:
 		  //TODO: maybe put a failsafe here?
 			break;
