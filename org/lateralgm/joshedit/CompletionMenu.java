@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2013, Robert B. Colton
+ * Copyright (C) 2013, 2014, Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -68,6 +68,9 @@ public class CompletionMenu
 	protected PopupHandler ph;
 	protected Point loc;
 
+	//FIXME: For some reason this completion menu can not accept focus allowing VK_TAB to not be
+	// dispatched.
+	
 	public CompletionMenu(Frame owner, JoshText a, int y, int x1, int x2, int caret, Completion[] c)
 		{
 		area = a;
@@ -570,9 +573,10 @@ public class CompletionMenu
 			char c = e.getKeyChar();
 			if (c == KeyEvent.VK_BACK_SPACE) return;
 			String s = String.valueOf(c);
-			//TODO: This statement used to check \\v as well, but it was causing VK_ENTER not to be accepted
-			// as completing the menu which resulted in a paintaing exception.
-			if (s.matches("[^\\t\\w]")) 
+			//TODO: This statement used to check \\v and \\t as well, but it was causing VK_ENTER and VK_TAB not to be accepted
+			// as completing the menu which resulted in a painting exception. VK_TAB and VK_ENTER are standard for completing
+			// an autocompletion menu, see Eclipse and Scintilla/CodeBlock.
+			if (s.matches("\\w")) 
 				{
 				apply(c);
 				e.consume();
