@@ -58,6 +58,7 @@ import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.Scrollable;
@@ -1564,8 +1565,9 @@ public class JoshText extends JComponent implements Scrollable,ComponentListener
 		int lineNum = clip.y / lineHeight;
 
 		for (int ty = lineNum * lineHeight + insetY; ty < clip.y + clip.height + lineHeight
-				&& lineNum < code.size(); ty += lineHeight)
+				&& lineNum < code.size(); ty += lineHeight) {
 			drawLine(g,lineNum++,ty);
+		}
 
 		if (isFocusOwner()) caret.paint(g,sel);
 	}

@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JOptionPane;
+
 import org.lateralgm.joshedit.DefaultTokenMarker.SchemeInfo.SchemeType;
 import org.lateralgm.joshedit.Line.LINE_ATTRIBS;
 
