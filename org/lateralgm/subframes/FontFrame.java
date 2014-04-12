@@ -65,6 +65,7 @@ import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.IndexComboBoxConversion;
 import org.lateralgm.ui.swing.util.ArrayListModel;
+import org.lateralgm.util.AutoComboBox;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -119,9 +120,9 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		JLabel lName = new JLabel(Messages.getString("FontFrame.NAME")); //$NON-NLS-1$
 
 		JLabel lFont = new JLabel(Messages.getString("FontFrame.FONT")); //$NON-NLS-1$
-		fonts = new JComboBox<String>(
+		fonts = new AutoComboBox<String>(
 				GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
-		fonts.setEditable(true);
+		//fonts.setEditable(true);
 		plf.make(fonts,PFont.FONT_NAME,null);
 
 		JLabel lSize = new JLabel(Messages.getString("FontFrame.SIZE")); //$NON-NLS-1$
