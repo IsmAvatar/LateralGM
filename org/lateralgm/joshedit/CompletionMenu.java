@@ -33,7 +33,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.Popup;
@@ -250,7 +249,7 @@ public class CompletionMenu
 
 		protected void install()
 			{
-			long mask = AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_WHEEL_EVENT_MASK | AWTEvent.KEY_EVENT_MASK;
+			long mask = AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_WHEEL_EVENT_MASK;
 			Toolkit.getDefaultToolkit().addAWTEventListener(this,mask);
 			invoker.addWindowListener(this);
 			invoker.addComponentListener(this);
@@ -322,38 +321,25 @@ public class CompletionMenu
 	//r@Override
 		public void eventDispatched(AWTEvent ev)
 			{
-			if (ev instanceof MouseEvent) {
-				MouseEvent me = (MouseEvent) ev;
-				Component src = me.getComponent();
-				switch (me.getID())
-					{
-					case MouseEvent.MOUSE_PRESSED:
-						if (isInPopup(src)) return;
-						hide();
-						// Ask UIManager about should we consume event that closes
-						// popup. This made to match native apps behaviour.
-						// Consume the event so that normal processing stops.
-						if (UIManager.getBoolean("PopupMenu.consumeEventOnClose")) me.consume();
-						break;
-					case MouseEvent.MOUSE_WHEEL:
-						if (isInPopup(src)) return;
-						hide();
-						break;
-					}
-			} else if (ev instanceof KeyEvent) {
-				KeyEvent ke = (KeyEvent) ev;
-				Component src = ke.getComponent();
-				switch (ke.getKeyCode())
+			// We are interested in MouseEvents only
+			if (!(ev instanceof MouseEvent)) return;
+			MouseEvent me = (MouseEvent) ev;
+			Component src = me.getComponent();
+			switch (me.getID())
 				{
-					case KeyEvent.VK_ENTER:
-					//hide();
-						// Ask UIManager about should we consume event that closes
-						// popup. This made to match native apps behaviour.
-						// Consume the event so that normal processing stops.
-						 ke.consume();
-						break;
+				case MouseEvent.MOUSE_PRESSED:
+					if (isInPopup(src)) return;
+					hide();
+					// Ask UIManager about should we consume event that closes
+					// popup. This made to match native apps behaviour.
+					// Consume the event so that normal processing stops.
+					if (UIManager.getBoolean("PopupMenu.consumeEventOnClose")) me.consume();
+					break;
+				case MouseEvent.MOUSE_WHEEL:
+					if (isInPopup(src)) return;
+					hide();
+					break;
 				}
-			}
 			}
 
 		/** Just hide the window. */
@@ -586,7 +572,7 @@ public class CompletionMenu
 			String s = String.valueOf(c);
 			//TODO: This statement used to check \\v as well, but it was causing VK_ENTER not to be accepted
 			// as completing the menu which resulted in a paintaing exception.
-			if (s.matches("[^\\t\\w]"))
+			if (s.matches("[^\\t\\w]")) 
 				{
 				apply(c);
 				e.consume();
