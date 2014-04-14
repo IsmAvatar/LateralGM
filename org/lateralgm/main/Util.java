@@ -124,7 +124,7 @@ public final class Util
 		// Close the input stream and return bytes
 		return baos;
 		}
-
+	
 	public static Rectangle stringToRectangle(String s, Rectangle defaultValue)
 		{
 		if (s == null) return defaultValue;
