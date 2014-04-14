@@ -575,7 +575,7 @@ public class CompletionMenu
 			String s = String.valueOf(c);
 			//TODO: This statement used to check \\v and \\t as well, but it was causing VK_ENTER and VK_TAB not to be accepted
 			// as completing the menu which resulted in a painting exception. VK_TAB and VK_ENTER are standard for completing
-			// an autocompletion menu, see Eclipse and Scintilla/CodeBlock.
+			// an autocompletion menu, see Eclipse and Scintilla/CodeBlocks.
 			if (s.matches("\\w")) 
 				{
 				apply(c);

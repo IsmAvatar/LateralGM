@@ -811,7 +811,7 @@ public final class GMXFileReader
 	  FileInputStream ins = new FileInputStream(path);
 	  BufferedReader reader = null;
     try {
-    	reader = new BufferedReader(new InputStreamReader(ins));
+    	reader = new BufferedReader(new InputStreamReader(ins, "UTF-8"));
     	String line = "";
       while ((line = reader.readLine()) != null) {
           code += line + "\n";
@@ -1081,7 +1081,7 @@ public final class GMXFileReader
 	  path = path.substring(0, path.lastIndexOf('/')+1) + getUnixPath(cNode.getTextContent());
 	  
 		Document objdoc = documentBuilder.parse(path + ".object.gmx");
-
+		
 		final String sprname = objdoc.getElementsByTagName("spriteName").item(0).getTextContent();
 		if (!sprname.equals("<undefined>")) {
 			PostponedRef pr = new PostponedRef()

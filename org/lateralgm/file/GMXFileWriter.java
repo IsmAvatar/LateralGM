@@ -29,12 +29,15 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.Vector;
 
@@ -977,14 +980,20 @@ public final class GMXFileWriter
 				res.setTextContent(fname);
 				File file = new File(getUnixPath(f.getDirectory() + "/scripts"));
 				file.mkdir();
-				PrintWriter out = null;
+				Writer out = null;
 				try
 					{
-					out = new PrintWriter(getUnixPath(f.getDirectory() + "/" + getUnixPath(fname)));
-					out.println(scr.properties.get(PScript.CODE));
+					out = new BufferedWriter(new OutputStreamWriter(
+					    new FileOutputStream(getUnixPath(f.getDirectory() + "/" + getUnixPath(fname))), "UTF-8"));
+					out.write((String)scr.properties.get(PScript.CODE));
 					out.close();
 					}
 				catch (FileNotFoundException e)
+					{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					}
+				catch (IOException e)
 					{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1040,17 +1049,23 @@ public final class GMXFileWriter
 			res.setAttribute("type",shr.properties.get(PShader.TYPE).toString());
 			File file = new File(getUnixPath(f.getDirectory() + "/shaders"));
 			file.mkdir();
-			PrintWriter out = null;
+			Writer out = null;
 			try
 				{
-				out = new PrintWriter(getUnixPath(f.getDirectory() + "/" + fname));
+				out = new BufferedWriter(new OutputStreamWriter(
+				    new FileOutputStream(getUnixPath(f.getDirectory() + "/" + fname)), "UTF-8"));
 				String code = shr.properties.get(PShader.VERTEX)
 						+ "\n//######################_==_YOYO_SHADER_MARKER_==_######################@~" +
 								shr.properties.get(PShader.FRAGMENT);
-				out.println(code);
+				out.write(code);
 				out.close();
 				}
 			catch (FileNotFoundException e)
+				{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				}
+			catch (IOException e)
 				{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1420,6 +1435,7 @@ public final class GMXFileWriter
 				  Transformer tr = TransformerFactory.newInstance().newTransformer();
 				  tr.setOutputProperty(OutputKeys.INDENT, "yes");
 				  tr.setOutputProperty(OutputKeys.METHOD, "xml");;
+				  tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");;
 				  tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 				
 				  // send DOM to file
