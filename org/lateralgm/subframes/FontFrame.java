@@ -503,8 +503,8 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 			for (int i = min; i <= max; i++) {
 				//TODO: Replace new line character with just an empty space, 
 				// otherwise it will screw up word wrapping in the preview area.
-				if ((char) i == '\n') { text += ' '; continue; }
-				text += (char) (i);
+				if ( i == '\n') { text += ' '; continue; }
+				text += new String(Character.toChars(i));
 			}
 			text += "\n";
 		}

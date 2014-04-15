@@ -73,7 +73,7 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 	
 	public CharacterRange addRange(int min, int max)
 		{
-		if (min < 0 || max > 65536 || min > max) throw new IllegalArgumentException();
+		if (min < 0 || min > max) throw new IllegalArgumentException();
 		CharacterRange cr = new CharacterRange(this, min, max);
 		characterRanges.add(cr);
 		return cr;
@@ -82,9 +82,13 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 	public void addRangesFromString(String s)
 		{
 			ArrayList<Integer> sorted = new ArrayList<Integer>();
-			for (int i = 0; i < s.length(); i++) {
-				sorted.add((int) s.charAt(i));
+			int cp = 0;
+			for (int i = 0; i < s.codePointCount(0, s.length()); i++) {
+				int cpa = s.codePointAt(cp);
+				sorted.add(cpa);
+				cp += Character.toChars(cpa).length;
 			}
+
 			Collections.sort(sorted);
 		
 			int last = sorted.get(0);
