@@ -105,7 +105,7 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 		{
 		try
 			{
-			addRangesFromString(new String(Files.readAllBytes(f.toPath())));
+			addRangesFromString(new String(Files.readAllBytes(f.toPath()), "UTF-8"));
 			}
 		catch (IOException e)
 			{
