@@ -1118,11 +1118,7 @@ public final class LGM
 	    Thread.setDefaultUncaughtExceptionHandler(
 	        new Thread.UncaughtExceptionHandler() {
 	            public void uncaughtException(Thread t, Throwable e) {
-	                System.out.println(t.getName()+": "+e);
-	                e.printStackTrace();
-	            		new ErrorDialog(LGM.frame,Messages.getString("ErrorDialog.UNCAUGHT_TITLE"), //$NON-NLS-1$
-	            				Messages.getString("ErrorDialog.UNCAUGHT_MESSAGE"),e,
-	            				"https://github.com/IsmAvatar/LateralGM/issues").setVisible(true); //$NON-NLS-1$
+	                LGM.showDefaultExceptionHandler(e);
 	            }
 	    });
 		}
