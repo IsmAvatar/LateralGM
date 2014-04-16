@@ -202,11 +202,11 @@ public final class GMXFileReader
 	  	dis = new DataInputStream(new FileInputStream(file));
 	  	dis.readFully(fileData);
 	  } catch (IOException e) {
-	  	e.printStackTrace();
-			JOptionPane.showMessageDialog(LGM.frame,
-		    "There was an issue opening a data input stream.",
-		    "Read Error",
-		    JOptionPane.ERROR_MESSAGE);
+		  	e.printStackTrace();
+				JOptionPane.showMessageDialog(LGM.frame,
+			    "There was an issue opening a data input stream.",
+			    "Read Error",
+			    JOptionPane.ERROR_MESSAGE);
 	  } finally {
 	  	try
 				{
@@ -253,16 +253,16 @@ public final class GMXFileReader
 				}
 			catch (SAXException e)
 				{
-				e.printStackTrace();
+				throw new GmFormatException(f,e);
 				}
 			catch (IOException e)
 				{
-				e.printStackTrace();
+				throw new GmFormatException(f,e);
 				}
 			}
 		catch (ParserConfigurationException e1)
 			{
-			e1.printStackTrace();
+			throw new GmFormatException(f,e1);
 			}
 		
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
@@ -319,11 +319,8 @@ public final class GMXFileReader
 		}
 		catch (Exception e)
 			{
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(LGM.frame,
-			    "There was an issue loading the project.",
-			    "Read Error",
-			    JOptionPane.ERROR_MESSAGE);
+			if ((e instanceof GmFormatException)) throw (GmFormatException) e;
+			throw new GmFormatException(f,e);
 			}
 		finally
 			{
@@ -334,11 +331,8 @@ public final class GMXFileReader
 				}
 			catch (Exception ex) //IOException
 				{
-				String key = Messages.getString("ProjectFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
-				JOptionPane.showMessageDialog(LGM.frame,
-				    key,
-				    "Read Error",
-				    JOptionPane.ERROR_MESSAGE);
+				String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				throw new GmFormatException(f,key);
 				}
 			}
 		LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED"));

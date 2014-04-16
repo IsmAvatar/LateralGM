@@ -9,10 +9,12 @@
 
 package org.lateralgm.components;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -30,9 +32,11 @@ public class ErrorDialog extends JDialog implements ActionListener
 	private static final long serialVersionUID = 1L;
 	private static final int DEBUG_HEIGHT = 200;
 
+	private static String submiturl = "https://github.com/IsmAvatar/LateralGM/issues";
 	protected JTextArea debugInfo;
 	protected JButton copy;
-	protected JButton ok;
+	protected JButton submit;
+	protected JButton cancel;
 
 	private static JButton makeButton(String key, ActionListener listener)
 		{
@@ -41,12 +45,17 @@ public class ErrorDialog extends JDialog implements ActionListener
 		return but;
 		}
 
+	public ErrorDialog(Frame parent, String title, String message, Throwable e, String url)
+		{
+		this(parent,title,message,throwableToString(e), url);
+		}
+	
 	public ErrorDialog(Frame parent, String title, String message, Throwable e)
 		{
-		this(parent,title,message,throwableToString(e));
+		this(parent,title,message,throwableToString(e),submiturl);
 		}
 
-	public ErrorDialog(Frame parent, String title, String message, String debugInfo)
+	public ErrorDialog(Frame parent, String title, String message, String debugInfo, String url)
 		{
 		super(parent,title,true);
 		setResizable(false);
@@ -57,13 +66,16 @@ public class ErrorDialog extends JDialog implements ActionListener
 		Dimension dim = new Dimension(scroll.getWidth(),DEBUG_HEIGHT);
 		scroll.setPreferredSize(dim);
 		copy = makeButton("ErrorDialog.COPY",this); //$NON-NLS-1$
-		ok = makeButton("ErrorDialog.OK",this); //$NON-NLS-1$
-		dim = new Dimension(Math.max(copy.getPreferredSize().width,ok.getPreferredSize().width),
+		submit = makeButton("ErrorDialog.SUBMIT",this); //$NON-NLS-1$
+		cancel = makeButton("ErrorDialog.CANCEL",this); //$NON-NLS-1$
+		
+		dim = new Dimension(Math.max(copy.getPreferredSize().width,cancel.getPreferredSize().width),
 				copy.getPreferredSize().height);
+		submit.setPreferredSize(dim);
 		copy.setPreferredSize(dim);
-		ok.setPreferredSize(dim);
+		cancel.setPreferredSize(dim);
 		JOptionPane wtfwjd = new JOptionPane(new Object[] { message,scroll },JOptionPane.ERROR_MESSAGE,
-				JOptionPane.DEFAULT_OPTION,null,new JButton[] { copy,ok });
+				JOptionPane.DEFAULT_OPTION,null,new JButton[] { copy, submit,cancel });
 		add(wtfwjd);
 		pack();
 		setLocationRelativeTo(parent);
@@ -78,11 +90,20 @@ public class ErrorDialog extends JDialog implements ActionListener
 
 	public void actionPerformed(ActionEvent e)
 		{
-		if (e.getSource() == copy)
-			{
+		if (e.getSource() == submit)
+		{
+			try
+				{
+				Desktop.getDesktop().browse(java.net.URI.create(submiturl));
+				}
+			catch (IOException e1)
+				{
+				//TODO: Fail silently I guess?
+				e1.printStackTrace();
+				}
+		} else if (e.getSource() == copy) {
 			debugInfo.selectAll();
 			debugInfo.copy();
-			}
-		else if (e.getSource() == ok) dispose();
+		} else if (e.getSource() == cancel) dispose();
 		}
 	}

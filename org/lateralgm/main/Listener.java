@@ -327,8 +327,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			catch (IOException e1)
 				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				LGM.showDefaultExceptionHandler(e1);
 				}
 		} else if (com.endsWith(".EXPLOREPROJECT")) {
 			String userDir = LGM.currentFile.getDirectory();
@@ -341,8 +340,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 			catch (IOException e1)
 			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			LGM.showDefaultExceptionHandler(e1);
 			}
 		} else if (com.endsWith(".PREFERENCES")) { //$NON-NLS-1$
 			LGM.showPreferences();

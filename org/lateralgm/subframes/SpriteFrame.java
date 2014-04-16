@@ -1128,19 +1128,20 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		return;
 	}
 	else if (cmd.endsWith(".CUT")) {
- 	List<BufferedImage> images = new ArrayList<BufferedImage>(0);
- 	int[] selections = subList.getSelectedIndices();
-		for (int i = 0; i < selections.length; i++) {
-			images.add(res.subImages.get(selections[i] - i));
-			res.subImages.remove(selections[i] - i);
-		}
+	 	List<BufferedImage> images = new ArrayList<BufferedImage>(0);
+	 	int[] selections = subList.getSelectedIndices();
+	 	if (selections.length == 0) { return; }
+			for (int i = 0; i < selections.length; i++) {
+				images.add(res.subImages.get(selections[i] - i));
+				res.subImages.remove(selections[i] - i);
+			}
+	
+	 	Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
+	 	clip.setContents(new TransferableImages(new ClipboardImages(images)),this);
+	 	imageChanged = true;
+	 	subList.setSelectedIndex(pos -1);
 
- 	Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
- 	clip.setContents(new TransferableImages(new ClipboardImages(images)),this);
- 	imageChanged = true;
- 	subList.setSelectedIndex(pos - 1);
-
- 	return;
+	 	return;
 	}
 	else if (cmd.endsWith(".COPY")) {
 		List<BufferedImage> images = new ArrayList<BufferedImage>(0);
@@ -1162,15 +1163,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				{
 				images = (ClipboardImages) content.getTransferData( imgClipFlavor );
 				}
-			catch (UnsupportedFlavorException e1)
+			catch (UnsupportedFlavorException e)
 				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				LGM.showDefaultExceptionHandler(e);
 				}
-			catch (IOException e1)
+			catch (IOException e)
 				{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				LGM.showDefaultExceptionHandler(e);
 				}
   		 imageChanged = true;
  		 res.subImages.addAll(pos + 1, images.bi);
@@ -1256,8 +1255,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 					}
 				catch (InterruptedException e)
 					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LGM.showDefaultExceptionHandler(e);
 					}
 			}
 		}

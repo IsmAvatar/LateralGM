@@ -23,7 +23,6 @@ import java.util.Queue;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
 import org.lateralgm.components.impl.ResNode;
@@ -304,11 +303,8 @@ public final class GmFileReader
 			}
 		catch (Exception e)
 			{
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(LGM.frame,
-			    "There was an issue loading the project.",
-			    "Read Error",
-			    JOptionPane.ERROR_MESSAGE);
+			if ((e instanceof GmFormatException)) throw (GmFormatException) e;
+			throw new GmFormatException(f,e);
 			}
 		finally
 			{
@@ -322,11 +318,8 @@ public final class GmFileReader
 				}
 			catch (IOException ex)
 				{
-				String key = Messages.getString("ProjectFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
-				JOptionPane.showMessageDialog(LGM.frame,
-				    key,
-				    "Read Error",
-				    JOptionPane.ERROR_MESSAGE);
+				String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				throw new GmFormatException(f,key);
 				}
 			}
 		LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED"));

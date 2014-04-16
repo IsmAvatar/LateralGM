@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -139,7 +138,7 @@ public final class GMXFileWriter
 			}
 		}
 
-	private static void WriteBinaryFile(String filename, byte[] data)
+	private static void WriteBinaryFile(String filename, byte[] data) throws IOException
 	{
 		BufferedOutputStream bos = null;
 		FileOutputStream fos = null;
@@ -150,26 +149,9 @@ public final class GMXFileWriter
 		//create an object of BufferedOutputStream
 		bos = new BufferedOutputStream(fos);
 		bos.write(data);
-		} catch (IOException e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(LGM.frame,
-			    "There was an issue opening a file output stream.",
-			    "Write Error",
-			    JOptionPane.ERROR_MESSAGE);
 		} finally {
-			try
-				{
-				bos.close();
-				fos.close();
-				}
-			catch (IOException e)
-				{
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(LGM.frame,
-				    "There was an issue closing a file output stream.",
-				    "Write Error",
-				    JOptionPane.ERROR_MESSAGE);
-				}
+			bos.close();
+			fos.close();
 		}
 	}
 	
@@ -178,7 +160,7 @@ public final class GMXFileWriter
 	}
 	
 	public static void writeProjectFile(OutputStream os, ProjectFile f, ResNode rootRes, int ver)
-			throws IOException
+			throws IOException, GmFormatException,  TransformerException
 	{
 		f.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 		long savetime = System.currentTimeMillis();
@@ -191,7 +173,7 @@ public final class GMXFileWriter
 			}
 		catch (ParserConfigurationException pce)
 			{
-			pce.printStackTrace();
+			throw new GmFormatException(f, pce);
 			}
 		
 		JProgressBar progressBar = LGM.getProgressDialogBar();
@@ -246,11 +228,7 @@ public final class GMXFileWriter
 	    tr.transform(new DOMSource(dom), 
 	                         new StreamResult(os));
 		} catch (TransformerException te) {
-		    te.printStackTrace();
-		    JOptionPane.showMessageDialog(LGM.frame,
-				    "There was an issue saving the project.",
-				    "Read Error",
-				    JOptionPane.ERROR_MESSAGE);
+			throw new GmFormatException(f, te);
 		}
 		finally
 		{
@@ -284,7 +262,7 @@ public final class GMXFileWriter
 		}
 
 	public static void writeSettings(ProjectFileContext c, Element root)
-			throws IOException
+			throws IOException, TransformerException
 	{
 	Document dom = c.dom;
 	ProjectFile f = c.f;
@@ -419,8 +397,6 @@ public final class GMXFileWriter
 		fos = new FileOutputStream(getUnixPath(f.getDirectory() + "/Configs/Default.config.gmx"));
 	  tr.transform(new DOMSource(dom), 
 	            new StreamResult(fos));
-	} catch (TransformerException te) {
-	    System.out.println(te.getMessage());
 	} finally {
 		fos.close();
 	}
@@ -437,7 +413,7 @@ public final class GMXFileWriter
 		//TODO: Implement
 	}
 	
-	private static void iterateSprites(ProjectFileContext c, ResNode root, Element node) {
+	private static void iterateSprites(ProjectFileContext c, ResNode root, Element node) throws IOException,  TransformerException {
 	ProjectFile f = c.f;
 	Document dom = c.dom;
 	Vector<ResNode> children = root.getChildren();
@@ -517,15 +493,7 @@ public final class GMXFileWriter
 					frameNode.setAttribute("index",Integer.toString(j));
 					frameroot.appendChild(frameNode);
 					BufferedImage sub = spr.subImages.get(j);
-					try
-						{
-						ImageIO.write(sub, "png", outputfile);
-						}
-					catch (IOException e)
-						{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						}
+					ImageIO.write(sub, "png", outputfile);
 				}
 			sprroot.appendChild(frameroot);
 			
@@ -540,21 +508,8 @@ public final class GMXFileWriter
 			  fos = new FileOutputStream(getUnixPath(fname + spr.getName() + ".sprite.gmx"));
 			  tr.transform(new DOMSource(doc), 
 			            new StreamResult(fos));
-			} catch (TransformerException te) {
-			   System.out.println(te.getMessage());
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} finally {
-				try
-					{
 					fos.close();
-					}
-				catch (IOException e)
-					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					}
 			}
 		  break;
 		}
@@ -562,7 +517,7 @@ public final class GMXFileWriter
 		}
 	}
 	
-	public static void writeSprites(ProjectFileContext c, Element root) throws IOException
+	public static void writeSprites(ProjectFileContext c, Element root) throws IOException,  TransformerException
 	{
 		Document dom = c.dom;
 		
@@ -578,7 +533,7 @@ public final class GMXFileWriter
 		iterateSprites(c, getPrimaryNode(sprList.first().getNode()), node);
 	}
 	
-	private static void iterateSounds(ProjectFileContext c, ResNode root, Element node) {
+	private static void iterateSounds(ProjectFileContext c, ResNode root, Element node) throws IOException,  TransformerException {
 	ProjectFile f = c.f;
 	Document dom = c.dom;
 	Vector<ResNode> children = root.getChildren();
@@ -679,21 +634,8 @@ public final class GMXFileWriter
 			  fos = new FileOutputStream(getUnixPath(fname + resNode.getUserObject().toString() + ".sound.gmx"));
 			  tr.transform(new DOMSource(doc), 
 			            new StreamResult(fos));
-			} catch (TransformerException te) {
-			   System.out.println(te.getMessage());
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} finally {
-				try
-					{
-					fos.close();
-					}
-				catch (IOException e)
-					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					}
+				fos.close();
 			}
 		  break;
 		}
@@ -701,7 +643,7 @@ public final class GMXFileWriter
 		}
 	}
 
-	public static void writeSounds(ProjectFileContext c, Element root) throws IOException
+	public static void writeSounds(ProjectFileContext c, Element root) throws IOException,  TransformerException
 	{
 		Document dom = c.dom;
 		
@@ -716,7 +658,7 @@ public final class GMXFileWriter
 		iterateSounds(c, getPrimaryNode(sndList.first().getNode()), node);
 	}
 	
-	private static void iterateBackgrounds(ProjectFileContext c, ResNode root, Element node) {
+	private static void iterateBackgrounds(ProjectFileContext c, ResNode root, Element node) throws IOException, TransformerException {
 	ProjectFile f = c.f;
 	Document dom = c.dom;
 	Vector<ResNode> children = root.getChildren();
@@ -784,15 +726,7 @@ public final class GMXFileWriter
 					"images\\" + bkg.getName() + ".png"));
 			if (width > 0 && height > 0) {
 				File outputfile = new File(getUnixPath(fname + "images\\" + bkg.getName() + ".png"));
-				try
-					{
 					ImageIO.write(bkg.getBackgroundImage(), "png", outputfile);
-					}
-				catch (IOException e)
-					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					}
 			}
 			
 			FileOutputStream fos = null;
@@ -806,21 +740,8 @@ public final class GMXFileWriter
 			  fos = new FileOutputStream(getUnixPath(fname + resNode.getUserObject().toString() + ".background.gmx"));
 			  tr.transform(new DOMSource(doc), 
 			            new StreamResult(fos));
-			} catch (TransformerException te) {
-			   System.out.println(te.getMessage());
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} finally {
-				try
-					{
 					fos.close();
-					}
-				catch (IOException e)
-					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					}
 			}
 		  break;
 		}
@@ -828,7 +749,7 @@ public final class GMXFileWriter
 		}
 	}
 
-	public static void writeBackgrounds(ProjectFileContext c, Element root) throws IOException
+	public static void writeBackgrounds(ProjectFileContext c, Element root) throws IOException, TransformerException
 	{
 		Document dom = c.dom;
 		
@@ -844,7 +765,7 @@ public final class GMXFileWriter
 		iterateBackgrounds(c, getPrimaryNode(bkgList.first().getNode()), node);
 	}
 	
-	private static void iteratePaths(ProjectFileContext c, ResNode root, Element node) {
+	private static void iteratePaths(ProjectFileContext c, ResNode root, Element node) throws TransformerException, IOException {
 		ProjectFile f = c.f;
 		Document dom = c.dom;
 		Vector<ResNode> children = root.getChildren();
@@ -915,21 +836,8 @@ public final class GMXFileWriter
 				  fos = new FileOutputStream(getUnixPath(fname + path.getName() + ".path.gmx"));
 				  tr.transform(new DOMSource(doc), 
 				            new StreamResult(fos));
-				} catch (TransformerException te) {
-				   System.out.println(te.getMessage());
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} finally {
-					try
-						{
 						fos.close();
-						}
-					catch (IOException e)
-						{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						}
 				}
 				break;
 			}
@@ -937,7 +845,7 @@ public final class GMXFileWriter
 		}
 	}
 
-	public static void writePaths(ProjectFileContext c, Element root) throws IOException
+	public static void writePaths(ProjectFileContext c, Element root) throws IOException, TransformerException
 	{
 		Document dom = c.dom;
 		
@@ -953,7 +861,7 @@ public final class GMXFileWriter
 		iteratePaths(c, getPrimaryNode(pthList.first().getNode()), node);
 	}
 
-	private static void iterateScripts(ProjectFileContext c, ResNode root, Element node) {
+	private static void iterateScripts(ProjectFileContext c, ResNode root, Element node) throws IOException {
 		ProjectFile f = c.f;
 		Document dom = c.dom;
 		Vector<ResNode> children = root.getChildren();
@@ -986,17 +894,8 @@ public final class GMXFileWriter
 					out = new BufferedWriter(new OutputStreamWriter(
 					    new FileOutputStream(getUnixPath(f.getDirectory() + "/" + getUnixPath(fname))), "UTF-8"));
 					out.write((String)scr.properties.get(PScript.CODE));
-					out.close();
-					}
-				catch (FileNotFoundException e)
-					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					}
-				catch (IOException e)
-					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					} finally {
+						out.close();
 					}
 				break;
 			}
@@ -1020,7 +919,7 @@ public final class GMXFileWriter
 	iterateScripts(c, getPrimaryNode(scrList.first().getNode()), node);
 	}
 	
-	private static void iterateShaders(ProjectFileContext c, ResNode root, Element node) {
+	private static void iterateShaders(ProjectFileContext c, ResNode root, Element node) throws IOException {
 	ProjectFile f = c.f;
 	Document dom = c.dom;
 	Vector<ResNode> children = root.getChildren();
@@ -1058,17 +957,8 @@ public final class GMXFileWriter
 						+ "\n//######################_==_YOYO_SHADER_MARKER_==_######################@~" +
 								shr.properties.get(PShader.FRAGMENT);
 				out.write(code);
-				out.close();
-				}
-			catch (FileNotFoundException e)
-				{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				}
-			catch (IOException e)
-				{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				} finally {
+					out.close();
 				}
 			break;
 		}
@@ -1091,7 +981,7 @@ public final class GMXFileWriter
 		iterateShaders(c, getPrimaryNode(shrList.first().getNode()), node);
 	}
 	
-	private static void iterateFonts(ProjectFileContext c, ResNode root, Element node) {
+	private static void iterateFonts(ProjectFileContext c, ResNode root, Element node) throws IOException, TransformerException {
 	ProjectFile f = c.f;
 	Document dom = c.dom;
 	Vector<ResNode> children = root.getChildren();
@@ -1185,21 +1075,8 @@ public final class GMXFileWriter
 			  fos = new FileOutputStream(getUnixPath(fname + fnt.getName() + ".font.gmx"));
 			  tr.transform(new DOMSource(doc), 
 			            new StreamResult(fos));
-			} catch (TransformerException te) {
-			   System.out.println(te.getMessage());
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} finally {
-				try
-					{
-					fos.close();
-					}
-				catch (IOException e)
-					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					}
+				fos.close();
 			}
 		  break;
 		}
@@ -1207,7 +1084,7 @@ public final class GMXFileWriter
 		}
 	}
 
-	public static void writeFonts(ProjectFileContext c, Element root) throws IOException
+	public static void writeFonts(ProjectFileContext c, Element root) throws IOException, TransformerException
 	{
 		Document dom = c.dom;
 		
@@ -1222,7 +1099,7 @@ public final class GMXFileWriter
 		iterateFonts(c, getPrimaryNode(fntList.first().getNode()), node);
 	}
 	
-	private static void iterateTimelines(ProjectFileContext c, ResNode root, Element node) {
+	private static void iterateTimelines(ProjectFileContext c, ResNode root, Element node) throws IOException, TransformerException {
 		ProjectFile f = c.f;
 		Document dom = c.dom;
 		Vector<ResNode> children = root.getChildren();
@@ -1276,21 +1153,8 @@ public final class GMXFileWriter
 				  fos = new FileOutputStream(getUnixPath(fname + timeline.getName() + ".timeline.gmx"));
 				  tr.transform(new DOMSource(doc), 
 				            new StreamResult(fos));
-				} catch (TransformerException te) {
-				   System.out.println(te.getMessage());
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} finally {
-					try
-						{
 						fos.close();
-						}
-					catch (IOException e)
-						{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						}
 				}
 				break;
 			}
@@ -1298,7 +1162,7 @@ public final class GMXFileWriter
 		}
 	}
 
-	public static void writeTimelines(ProjectFileContext c, Element root) throws IOException
+	public static void writeTimelines(ProjectFileContext c, Element root) throws IOException, TransformerException
 	{
 		Document dom = c.dom;
 		
@@ -1314,7 +1178,7 @@ public final class GMXFileWriter
 		iterateTimelines(c, getPrimaryNode(tmlList.first().getNode()), node);
 	}
 
-	private static void iterateGmObjects(ProjectFileContext c, ResNode root, Element node) {
+	private static void iterateGmObjects(ProjectFileContext c, ResNode root, Element node) throws IOException, TransformerException {
 		ProjectFile f = c.f;
 		Document dom = c.dom;
 		Vector<ResNode> children = root.getChildren();
@@ -1442,21 +1306,8 @@ public final class GMXFileWriter
 				  fos = new FileOutputStream(getUnixPath(fname + object.getName() + ".object.gmx"));
 				  tr.transform(new DOMSource(doc), 
 				            new StreamResult(fos));
-				} catch (TransformerException te) {
-				   System.out.println(te.getMessage());
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} finally {
-					try
-						{
 						fos.close();
-						}
-					catch (IOException e)
-						{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						}
 				}
 				break;
 			}
@@ -1464,7 +1315,7 @@ public final class GMXFileWriter
 		}
 	}
 	
-	public static void writeGmObjects(ProjectFileContext c, Element root) throws IOException
+	public static void writeGmObjects(ProjectFileContext c, Element root) throws IOException, TransformerException
 	{
 		Document dom = c.dom;
 		
@@ -1480,7 +1331,7 @@ public final class GMXFileWriter
 		iterateGmObjects(c, getPrimaryNode(objList.first().getNode()), node);
 	}
 	
-	private static void iterateRooms(ProjectFileContext c, ResNode root, Element node) {
+	private static void iterateRooms(ProjectFileContext c, ResNode root, Element node) throws IOException, TransformerException {
 		ProjectFile f = c.f;
 		Document dom = c.dom;
 		Vector<ResNode> children = root.getChildren();
@@ -1708,21 +1559,8 @@ public final class GMXFileWriter
 				  fos = new FileOutputStream(getUnixPath(fname + room.getName() + ".room.gmx"));
 				  tr.transform(new DOMSource(doc), 
 				            new StreamResult(fos));
-				} catch (TransformerException te) {
-				   System.out.println(te.getMessage());
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} finally {
-					try
-						{
 						fos.close();
-						}
-					catch (IOException e)
-						{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						}
 				}
 				break;
 			}
@@ -1730,7 +1568,7 @@ public final class GMXFileWriter
 		}
 	}
 
-	public static void writeRooms(ProjectFileContext c, Element root) throws IOException
+	public static void writeRooms(ProjectFileContext c, Element root) throws IOException, TransformerException
 	{
 		Document dom = c.dom;
 		
@@ -1755,7 +1593,7 @@ public final class GMXFileWriter
 		//TODO: Implement
 	}
 
-	public static void writeGameInformation(ProjectFileContext c, Element root)
+	public static void writeGameInformation(ProjectFileContext c, Element root) throws FileNotFoundException
 	{
 		Document dom = c.dom;
 		ProjectFile f = c.f;
@@ -1770,11 +1608,6 @@ public final class GMXFileWriter
 			{
 			out = new PrintWriter(getUnixPath(f.getDirectory() + "/help.rtf"));
 			out.println(f.gameInfo.properties.get(PGameInformation.TEXT));
-			}
-		catch (FileNotFoundException e)
-			{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 			}
 		finally { 
 			out.close();

@@ -222,6 +222,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 		catch (PropertyVetoException pve)
 			{
 			//Guess it doesn't want us doing that. Oh well.
+			LGM.showDefaultExceptionHandler(pve);
 			}
 		return af;
 		}
@@ -585,6 +586,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 					}
 				catch (Exception e)
 					{
+					LGM.showDefaultExceptionHandler(e);
 					return false;
 					}
 				//clone properly for drag-copy or clipboard paste
@@ -605,7 +607,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 					}
 				catch (Exception e)
 					{
-					e.printStackTrace();
+					LGM.showDefaultExceptionHandler(e);
 					return false;
 					}
 				//clone properly for drag-copy or clipboard paste
@@ -630,6 +632,7 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 					}
 				catch (Exception e)
 					{
+					LGM.showDefaultExceptionHandler(e);
 					return false;
 					}
 				addIndex = index;
@@ -909,13 +912,11 @@ public class ActionList extends JList<Action> implements ActionListener, Clipboa
 					}
 				catch (UnsupportedFlavorException e)
 					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LGM.showDefaultExceptionHandler(e);
 					}
 				catch (IOException e)
 					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LGM.showDefaultExceptionHandler(e);
 					}
 	  		if (flavor.equals(ACTION_ARRAY_FLAVOR)) {
 		  		ActionListModel alm = (ActionListModel) list.getModel();

@@ -28,6 +28,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
+import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 
 public class AboutBox extends JDialog implements PropertyChangeListener
@@ -98,11 +99,11 @@ public class AboutBox extends JDialog implements PropertyChangeListener
 									}
 								catch (URISyntaxException use)
 									{
-									use.printStackTrace();
+									LGM.showDefaultExceptionHandler(use);
 									}
 								catch (IOException ioe)
 									{
-									ioe.printStackTrace();
+									LGM.showDefaultExceptionHandler(ioe);
 									}
 								}
 							}
@@ -113,6 +114,7 @@ public class AboutBox extends JDialog implements PropertyChangeListener
 		catch (NoClassDefFoundError e)
 			{
 			//Desktop not defined in Java 1.5
+			LGM.showDefaultExceptionHandler(e);
 			}
 		((HTMLEditorKit) ep.getEditorKit()).setLinkCursor(null);
 		}

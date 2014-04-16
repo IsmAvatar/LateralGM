@@ -679,17 +679,15 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			clip.open(ais);
 			play.setEnabled(true);
 		} catch (IOException e) {
-				e.printStackTrace();
+			LGM.showDefaultExceptionHandler(e);
 		}
 		catch (LineUnavailableException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LGM.showDefaultExceptionHandler(e);
 		}
 		catch (UnsupportedAudioFileException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LGM.showDefaultExceptionHandler(e);
 		}
 	}
 	

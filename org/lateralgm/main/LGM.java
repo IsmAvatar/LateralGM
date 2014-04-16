@@ -86,6 +86,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.impl.CustomFileFilter;
@@ -751,6 +752,9 @@ public final class LGM
 	public static void main(final String[] args)
 		{
 		
+		// Create the uncaught exception handler so that users will be displayed with a generic form to submit bug reports.
+		LGM.addDefaultExceptionHandler();
+    
 		//java6u10 regression causes graphical xor to be very slow
 		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
 		//Put the Mac menu bar where it belongs (ignored by other systems)
@@ -766,7 +770,7 @@ public final class LGM
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
 		if (javaVersion < 10600)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
-
+		
 		iconspack = Prefs.iconPack;
 		SetLookAndFeel(Prefs.swingTheme);
 		JFrame.setDefaultLookAndFeelDecorated(true);
@@ -1108,4 +1112,29 @@ public final class LGM
 		mdi.add(new MDIBackground(bg),JLayeredPane.FRAME_CONTENT_LAYER);
 		}
 
+	public static void addDefaultExceptionHandler()
+		{
+			// Create the uncaught exception handler so that users will be displayed with a generic form to submit bug reports.
+	    Thread.setDefaultUncaughtExceptionHandler(
+	        new Thread.UncaughtExceptionHandler() {
+	            public void uncaughtException(Thread t, Throwable e) {
+	                System.out.println(t.getName()+": "+e);
+	                e.printStackTrace();
+	            		new ErrorDialog(LGM.frame,Messages.getString("ErrorDialog.UNCAUGHT_TITLE"), //$NON-NLS-1$
+	            				Messages.getString("ErrorDialog.UNCAUGHT_MESSAGE"),e,
+	            				"https://github.com/IsmAvatar/LateralGM/issues").setVisible(true); //$NON-NLS-1$
+	            }
+	    });
+		}
+
+	public static void showDefaultExceptionHandler(Throwable e)
+		{
+			// Create the uncaught exception handler so that users will be displayed with a generic form to submit bug reports.
+      System.out.println(Thread.currentThread().getName()+": "+e);
+      e.printStackTrace();
+  		new ErrorDialog(LGM.frame,Messages.getString("ErrorDialog.UNCAUGHT_TITLE"), //$NON-NLS-1$
+  				Messages.getString("ErrorDialog.UNCAUGHT_MESSAGE"),e,
+  				"https://github.com/IsmAvatar/LateralGM/issues").setVisible(true); //$NON-NLS-1$
+		}
+	
 	}

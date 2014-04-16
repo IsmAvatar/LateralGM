@@ -27,12 +27,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
@@ -64,6 +62,7 @@ import org.lateralgm.file.GMXFileReader;
 import org.lateralgm.file.GMXFileWriter;
 import org.lateralgm.file.GmFileReader;
 import org.lateralgm.file.GmFileWriter;
+import org.lateralgm.file.GmFormatException;
 import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.ProjectFile.FormatFlavor;
 import org.lateralgm.file.ProjectFormatException;
@@ -109,7 +108,7 @@ public class FileChooser
 
 	public static interface FileWriter
 		{
-		void write(OutputStream out, ProjectFile f, ResNode root) throws IOException;
+		void write(OutputStream out, ProjectFile f, ResNode root) throws ProjectFormatException, IOException;
 
 		String getSelectionName();
 
@@ -392,13 +391,27 @@ public class FileChooser
 			this.ver = ver;
 			}
 
-		public void write(OutputStream out, ProjectFile f, ResNode root) throws IOException
+		public void write(OutputStream out, ProjectFile f, ResNode root) throws ProjectFormatException
 			{
 			//TODO: should be a little more graceful than this
 			if (f.getPath().endsWith(".project.gmx")) {
-			  GMXFileWriter.writeProjectFile(out,f,root,ver);
+			  try
+					{
+						GMXFileWriter.writeProjectFile(out,f,root,ver);
+					}
+				catch (Exception e)
+					{
+					throw new GmFormatException(f, e);
+					}
 			} else {
-			  GmFileWriter.writeProjectFile(out,f,root,ver);
+			  try
+					{
+					GmFileWriter.writeProjectFile(out,f,root,ver);
+					}
+				catch (IOException e)
+					{
+					throw new GmFormatException(f, e);
+					}
 			}
 			}
 
@@ -492,6 +505,7 @@ public class FileChooser
 
 	public void openNewFile()
 		{
+		//fc = null;
 		fc.setFilterSet(openFs);
 		fc.setAccessory(null);
 		if (fc.showOpenDialog(LGM.frame) != CustomFileChooser.APPROVE_OPTION) return;
@@ -529,34 +543,33 @@ public class FileChooser
 		if (uri == null) return;
 	  Thread t = new Thread(new Runnable() {
 		  public void run() {
-			try
-				{
+			  LGM.addDefaultExceptionHandler();
 				try
 					{
-					LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot());
+						LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot());
 					}
-				catch (MalformedURLException e)
+				catch (ProjectFormatException ex)
 					{
-					return;
+						LGM.currentFile = ex.file;
+						LGM.populateTree();
+						rebuildTree();
+						new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
+								Messages.getString("FileChooser.ERROR_LOAD"),ex).setVisible(true); //$NON-NLS-1$
 					}
-				catch (IOException e)
+				catch (Exception e)
 					{
-					return;
+						//TODO: This catches exceptions in EGM reading without freezing the program with the progress bar
+						// or destroying the tree.
+						LGM.populateTree();
+						rebuildTree();
+						new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
+								Messages.getString("FileChooser.ERROR_LOAD"),e).setVisible(true); //$NON-NLS-1$
 					}
-				}
-			catch (ProjectFormatException ex)
-				{
-				new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
-						Messages.getString("FileChooser.ERROR_LOAD"),ex).setVisible(true); //$NON-NLS-1$
-				LGM.currentFile = ex.file;
-				LGM.populateTree();
-				rebuildTree();
-				}
-			setTitleURI(uri);
-			PrefsStore.addRecentFile(uri.toString());
-			((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-			selectedWriter = null;
-			LGM.setProgressDialogVisible(false);
+				setTitleURI(uri);
+				PrefsStore.addRecentFile(uri.toString());
+				((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+				selectedWriter = null;
+				LGM.setProgressDialogVisible(false);
 		  }
 		});
 		t.start();
@@ -672,52 +685,44 @@ public class FileChooser
 		System.out.println(uri);
 	  Thread t = new Thread(new Runnable() {
 		  public void run() {
+		  	LGM.addDefaultExceptionHandler();
 				try
 					{
 					writer.write(new FileOutputStream(new File(uri)),LGM.currentFile,LGM.root);
 					LGM.setProgressDialogVisible(false);
 					return;
 					}
-				catch (IllegalArgumentException e)
+				catch (ProjectFormatException e)
+					{
+					LGM.showDefaultExceptionHandler(e);
+					}
+				catch (Exception e)
 					{ //Do the stuff below
-					}
-				catch (FileNotFoundException e)
-					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					}
-				catch (IOException e)
-					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LGM.showDefaultExceptionHandler(e);
 					}
 				URLConnection uc = null;
 				try
 					{
 					uc = uri.toURL().openConnection();
 					}
-				catch (MalformedURLException e)
+				catch (Exception e)
 					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					}
-				catch (IOException e)
-					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LGM.showDefaultExceptionHandler(e);
 					}
 				uc.setDoOutput(true);
 				try
 					{
 					writer.write(uc.getOutputStream(),LGM.currentFile,LGM.root);
-					LGM.setProgressDialogVisible(false);
-					return;
 					}
-				catch (IOException e)
+				catch (ProjectFormatException e)
 					{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LGM.showDefaultExceptionHandler(e);
 					}
+				catch (Exception e)
+					{
+					LGM.showDefaultExceptionHandler(e);
+					}
+				LGM.setProgressDialogVisible(false);
 		  }
 	  });
 	  t.start();

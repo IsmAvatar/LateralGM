@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 
+import org.lateralgm.main.LGM;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateTrigger;
@@ -109,8 +110,7 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 			}
 		catch (IOException e)
 			{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LGM.showDefaultExceptionHandler(e);
 			}
 		}
 	

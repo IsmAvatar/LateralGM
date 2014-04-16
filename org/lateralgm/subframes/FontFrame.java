@@ -428,8 +428,9 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		}
 		else if (com.equals("FromString")) {
 			String result = JOptionPane.showInputDialog(null,"", "Character Sequence",JOptionPane.PLAIN_MESSAGE);
-
-			res.addRangesFromString(result);
+			if (result != null) {
+				res.addRangesFromString(result);
+			}
 			return;
 		}
 		else if (com.equals("FromFile")) {

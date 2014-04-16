@@ -103,8 +103,7 @@ public class GmMenuBar extends JMenuBar
 				}
 			catch (URISyntaxException e)
 				{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LGM.showDefaultExceptionHandler(e);
 				}
 			}
 		recentMenu.addSeparator();
