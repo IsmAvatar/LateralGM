@@ -118,6 +118,7 @@ public final class LGM
 	public static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
 	public static JDialog progressDialog = null;
 	public static JProgressBar progressDialogBar = null;
+	public static String trackerURL = "https://github.com/IsmAvatar/LateralGM/issues";
 	public static String iconspath = "org/lateralgm/icons/";
 	public static String iconspack = "Calico";
 	public static String themename = "Swing";
@@ -1115,7 +1116,7 @@ public final class LGM
 	public static void addDefaultExceptionHandler()
 		{
 			// Create the uncaught exception handler so that users will be displayed with a generic form to submit bug reports.
-	    Thread.setDefaultUncaughtExceptionHandler(
+	    Thread.currentThread().setUncaughtExceptionHandler(
 	        new Thread.UncaughtExceptionHandler() {
 	            public void uncaughtException(Thread t, Throwable e) {
 	                LGM.showDefaultExceptionHandler(e);

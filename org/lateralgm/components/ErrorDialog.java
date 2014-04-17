@@ -32,7 +32,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 	private static final long serialVersionUID = 1L;
 	private static final int DEBUG_HEIGHT = 200;
 
-	private static String submiturl = "https://github.com/IsmAvatar/LateralGM/issues";
+	private String submiturl = LGM.trackerURL;
 	protected JTextArea debugInfo;
 	protected JButton copy;
 	protected JButton submit;
@@ -52,13 +52,14 @@ public class ErrorDialog extends JDialog implements ActionListener
 	
 	public ErrorDialog(Frame parent, String title, String message, Throwable e)
 		{
-		this(parent,title,message,throwableToString(e),submiturl);
+		this(parent,title,message,throwableToString(e),LGM.trackerURL);
 		}
 
 	public ErrorDialog(Frame parent, String title, String message, String debugInfo, String url)
 		{
 		super(parent,title,true);
 		setResizable(false);
+		submiturl = url;
 
 		this.debugInfo = new JTextArea(debugInfo);
 		JScrollPane scroll = new JScrollPane(this.debugInfo);
