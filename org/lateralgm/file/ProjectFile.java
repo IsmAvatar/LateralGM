@@ -398,7 +398,7 @@ public class ProjectFile implements UpdateListener
 
 	public static List<Constant> copyConstants(List<Constant> source)
 		{
-		List<Constant> dest = new ArrayList<Constant>();
+		List<Constant> dest = new ArrayList<Constant>(source.size());
 		for (Constant c : source)
 			dest.add(c.copy());
 		return dest;

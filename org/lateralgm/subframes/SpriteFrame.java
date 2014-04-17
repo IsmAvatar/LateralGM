@@ -1128,9 +1128,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		return;
 	}
 	else if (cmd.endsWith(".CUT")) {
-	 	List<BufferedImage> images = new ArrayList<BufferedImage>(0);
 	 	int[] selections = subList.getSelectedIndices();
 	 	if (selections.length == 0) { return; }
+	 	List<BufferedImage> images = new ArrayList<BufferedImage>(selections.length);
 			for (int i = 0; i < selections.length; i++) {
 				images.add(res.subImages.get(selections[i] - i));
 				res.subImages.remove(selections[i] - i);
@@ -1144,8 +1144,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	 	return;
 	}
 	else if (cmd.endsWith(".COPY")) {
-		List<BufferedImage> images = new ArrayList<BufferedImage>(0);
 		int[] selections = subList.getSelectedIndices();
+		List<BufferedImage> images = new ArrayList<BufferedImage>(selections.length);
 		for (int i = 0; i < selections.length; i++) {
 			images.add(res.subImages.get(selections[i]));
 		}
