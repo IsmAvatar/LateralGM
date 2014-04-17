@@ -542,7 +542,7 @@ public class FileChooser
 	public void open(final URI uri, final FileReader reader)
 		{
 		if (uri == null) return;
-		LGM.setProgressDialogVisible(true);
+		LGM.getProgressDialog().setVisible(false);
 	  Thread t = new Thread(new Runnable() {
 		  public void run() {
 			  LGM.addDefaultExceptionHandler();
@@ -575,6 +575,7 @@ public class FileChooser
 		  }
 		});
 		t.start();
+		LGM.setProgressDialogVisible(true);
 		LGM.reload(true);
 		}
 
@@ -684,7 +685,7 @@ public class FileChooser
 	public static void save(final URI uri, final FileWriter writer) throws IOException
 		{
 		System.out.println(uri);
-		LGM.setProgressDialogVisible(true);
+		LGM.getProgressDialog().setVisible(false);
 	  Thread t = new Thread(new Runnable() {
 		  public void run() {
 		  	LGM.addDefaultExceptionHandler();
@@ -728,6 +729,7 @@ public class FileChooser
 		  }
 	  });
 	  t.start();
+	  LGM.setProgressDialogVisible(true);
 		}
 
 	public FileWriter findWriter(FormatFlavor flavor)
