@@ -753,8 +753,8 @@ public final class LGM
 	public static void main(final String[] args)
 		{
 		
-		// Create the uncaught exception handler so that users will be displayed with a generic form to submit bug reports.
-		LGM.addDefaultExceptionHandler();
+		// Set the default uncaught exception handler.
+		LGM.setDefaultExceptionHandler();
     
 		//java6u10 regression causes graphical xor to be very slow
 		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1113,9 +1113,21 @@ public final class LGM
 		mdi.add(new MDIBackground(bg),JLayeredPane.FRAME_CONTENT_LAYER);
 		}
 
+	// Sets the default uncaught exception handler in case any threads forget to add one.
+	public static void setDefaultExceptionHandler()
+		{
+	    Thread.setDefaultUncaughtExceptionHandler(
+	        new Thread.UncaughtExceptionHandler() {
+	            public void uncaughtException(Thread t, Throwable e) {
+	                LGM.showDefaultExceptionHandler(e);
+	            }
+	    });
+		}
+	
+	// Adds a default uncaught exception handler to the current thread. This allows LGM to catch most exceptions
+	// and properly display a stack trace for the user to file a bug report.
 	public static void addDefaultExceptionHandler()
 		{
-			// Create the uncaught exception handler so that users will be displayed with a generic form to submit bug reports.
 	    Thread.currentThread().setUncaughtExceptionHandler(
 	        new Thread.UncaughtExceptionHandler() {
 	            public void uncaughtException(Thread t, Throwable e) {
@@ -1124,9 +1136,9 @@ public final class LGM
 	    });
 		}
 
+	// Show the default uncaught exception handler dialog to the user with a stack trace they can use to submit a bug report.
 	public static void showDefaultExceptionHandler(Throwable e)
 		{
-			// Create the uncaught exception handler so that users will be displayed with a generic form to submit bug reports.
       System.out.println(Thread.currentThread().getName()+": "+e);
       e.printStackTrace();
   		new ErrorDialog(LGM.frame,Messages.getString("ErrorDialog.UNCAUGHT_TITLE"), //$NON-NLS-1$
