@@ -510,9 +510,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		TreePath[] paths = ((JTree) support.getComponent()).getSelectionPaths();
 		DefaultTreeModel model = (DefaultTreeModel) ((JTree) support.getComponent()).getModel();
 		int ancestors = 0;
-		ArrayList<ResNode> nodes = new ArrayList<ResNode>();
-		for (int i = 0; i < paths.length; i++) {
-			ResNode dragNode = (ResNode) paths[i].getLastPathComponent();
+		ArrayList<ResNode> nodes = new ArrayList<ResNode>(paths.length);
+		
+		for (TreePath treePath : paths) {
+			ResNode dragNode = (ResNode) treePath.getLastPathComponent();
 			if (dropNode == dragNode.getParent()) ancestors++;
 			nodes.add(dragNode);
 			model.removeNodeFromParent(dragNode);
@@ -526,11 +527,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			dropIndex -= ancestors;
 			if (dropIndex < 0) dropIndex = 0;
 		}
-		for (int i = 0; i < paths.length; i++) {
-			ResNode dragNode = nodes.get(i);
+		for (ResNode dragNode : nodes) {
 			dropNode.insert(dragNode,dropIndex++);
-			
 		}
+		
 		LGM.tree.expandPath(new TreePath(dropNode.getPath()));
 		LGM.tree.updateUI();
 		return true;
