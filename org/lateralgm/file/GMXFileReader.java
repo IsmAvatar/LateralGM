@@ -319,6 +319,7 @@ public final class GMXFileReader
 		}
 		catch (Exception e)
 			{
+			LGM.showDefaultExceptionHandler(e);
 			if ((e instanceof GmFormatException)) throw (GmFormatException) e;
 			throw new GmFormatException(f,e);
 			}

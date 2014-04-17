@@ -115,6 +115,7 @@ public final class LGM
 	//TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
 	public static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
+	public static boolean LOADING_PROJECT = false;
 	public static JDialog progressDialog = null;
 	public static JProgressBar progressDialogBar = null;
 	public static String trackerURL = "https://github.com/IsmAvatar/LateralGM/issues";
@@ -695,6 +696,7 @@ public final class LGM
 		{
 		for (ReloadListener rl : reloadListeners)
 			rl.reloadPerformed(newRoot);
+		LGM.LOADING_PROJECT = false;
 		}
 
 	public static void addPluginResource(PluginResource pr)
@@ -870,24 +872,34 @@ public final class LGM
 			{
 			e.printStackTrace();
 			}
+		applyBackground("org/lateralgm/main/lgm1.png"); //$NON-NLS-1$
     splashProgress.progress(70,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
     populateTree();
-		splashProgress.progress(75,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
+		splashProgress.progress(80,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
+		LOADING_PROJECT = true;
 		loadPlugins();
-		splashProgress.progress(90,Messages.getString("LGM.SPLASH_PRELOAD")); //$NON-NLS-1$
-		if (args.length > 0 && args[0].length() > 1) {
-			  String path = args[0].replace("\\","/");
-			  URI uri = new File(path).toURI();
-				Listener.getInstance().fc.open(uri); 
-		}
 		splashProgress.complete();
-		applyBackground("org/lateralgm/main/lgm1.png"); //$NON-NLS-1$
+		
 		frame.setVisible(true);
 		frame.pack();
 		// This needs to be here after the frame is set to visible for some reason,
 		// it was causing the bug with the frame not memorizing its maximized state.
 		new FramePrefsHandler(frame);
+		
+		// Load any projects entered on the command line
+		if (args.length > 0 && args[0].length() > 1) {
+			  String path = args[0].replace("\\","/");
+			  URI uri = new File(path).toURI();
+				Listener.getInstance().fc.open(uri); 
+		} else { LOADING_PROJECT = false; }
+
 		}
+	
+	//NOTE: This method is required by the ENIGMA plugin, threads should never
+	//call Swing methods directly.
+	public static void updateTreeUI() {
+		LGM.tree.updateUI();
+	}
 
 	public static void askToSaveProject()
 		{
