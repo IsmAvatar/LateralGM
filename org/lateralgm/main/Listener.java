@@ -512,6 +512,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		int ancestors = 0;
 		ArrayList<ResNode> nodes = new ArrayList<ResNode>(paths.length);
 		
+		// Collect all of the nodes being dragged and remove them from the tree, also
+		// keeping a count of how many of them will not be changing parents.
 		for (TreePath treePath : paths) {
 			ResNode dragNode = (ResNode) treePath.getLastPathComponent();
 			if (dropNode == dragNode.getParent()) ancestors++;
@@ -520,13 +522,16 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		}
 		
 		int dropIndex = drop.getChildIndex();
+		// If we are dropping directly onto a node append the dragged nodes to the very end.
 		if (dropIndex == -1)
 		{
 			dropIndex = dropNode.getChildCount();
+		// This keeps the selection order from being screwed up.
 		} else if (dropIndex > dropNode.getChildCount() - ancestors) {
 			dropIndex -= ancestors;
 			if (dropIndex < 0) dropIndex = 0;
 		}
+		// Finally, reinsert all of the dragged nodes.
 		for (ResNode dragNode : nodes) {
 			dropNode.insert(dragNode,dropIndex++);
 		}
