@@ -41,6 +41,7 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
@@ -505,18 +506,30 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	{
 		if (!canImport(support)) return false;
 		JTree.DropLocation drop = (JTree.DropLocation) support.getDropLocation();
-		int dropIndex = drop.getChildIndex();
 		ResNode dropNode = (ResNode) drop.getPath().getLastPathComponent();
 		TreePath[] paths = ((JTree) support.getComponent()).getSelectionPaths();
+		DefaultTreeModel model = (DefaultTreeModel) ((JTree) support.getComponent()).getModel();
+		int ancestors = 0;
+		ArrayList<ResNode> nodes = new ArrayList<ResNode>();
 		for (int i = 0; i < paths.length; i++) {
 			ResNode dragNode = (ResNode) paths[i].getLastPathComponent();
-			int ind = dropIndex;
-			if (dropIndex == -1)
-			{
-				ind = dropNode.getChildCount();
-				if (dropNode == dragNode.getParent()) ind--;
-			}
-			dropNode.insert(dragNode,ind);
+			if (dropNode == dragNode.getParent()) ancestors++;
+			nodes.add(dragNode);
+			model.removeNodeFromParent(dragNode);
+		}
+		
+		int dropIndex = drop.getChildIndex();
+		if (dropIndex == -1)
+		{
+			dropIndex = dropNode.getChildCount();
+		} else if (dropIndex > dropNode.getChildCount() - ancestors) {
+			dropIndex -= ancestors;
+			if (dropIndex < 0) dropIndex = 0;
+		}
+		for (int i = 0; i < paths.length; i++) {
+			ResNode dragNode = nodes.get(i);
+			dropNode.insert(dragNode,dropIndex++);
+			
 		}
 		LGM.tree.expandPath(new TreePath(dropNode.getPath()));
 		LGM.tree.updateUI();
