@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -860,7 +859,7 @@ public final class LGM
 		eventSelect.setVisible(false); //must occur after adding split
 		f.add(BorderLayout.NORTH,toolbar);
 		f.setOpaque(true);
-		new FramePrefsHandler(frame);
+		
 		splashProgress.progress(65,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
 		try
 			{
@@ -885,9 +884,9 @@ public final class LGM
 		applyBackground("org/lateralgm/main/lgm1.png"); //$NON-NLS-1$
 		frame.setVisible(true);
 		frame.pack();
-		if (Prefs.frameMaximized) {
-			frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-		}
+		// This needs to be here after the frame is set to visible for some reason,
+		// it was causing the bug with the frame not memorizing its maximized state.
+		new FramePrefsHandler(frame);
 		}
 
 	public static void askToSaveProject()
@@ -902,13 +901,8 @@ public final class LGM
 				Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE,null);
 
-		// java preferences do not seem to memorize maximized state
-		if ((frame.getExtendedState() & Frame.MAXIMIZED_BOTH) != 0) {
-				PrefsStore.setFrameMaximized(true);
-		} else {
-				PrefsStore.setFrameMaximized(false);
-		}
-
+		//NOTE: When System.exit() is fired certain events such as WindowStateChanged for WindowListeners
+		//will not be fired!
 		switch (n)
 			{
 			case JOptionPane.YES_OPTION:

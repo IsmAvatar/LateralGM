@@ -110,7 +110,6 @@ public final class Prefs
 		languageName = getString("languageName", "English");
 		manualPath = getString("manualPath", "http://enigma-dev.org/docs/Wiki/Main_Page");
 		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
-		frameMaximized = getBoolean("frameMaximized", true);
 		dockEventPanel = getBoolean("dockEventPanel", false);
 		boldPrimaryNodes = getBoolean("boldPrimaryNodes", true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
@@ -150,7 +149,6 @@ public final class Prefs
 	public static String languageName;
 	public static String antialiasControlFont;
 	
-	public static boolean frameMaximized;
 	public static boolean extraNodes;
 	public static boolean restrictHierarchy;
 	public static boolean renamableRoots;

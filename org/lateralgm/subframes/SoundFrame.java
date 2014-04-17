@@ -565,6 +565,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			{
 				public void run()
 				{
+					LGM.addDefaultExceptionHandler();
 					while (clip.isActive()) {
 						//NOTE: Fuck you Java for actually making me have to cast like this.
 						float pos = (float)clip.getLongFramePosition() / (float)clip.getFrameLength();

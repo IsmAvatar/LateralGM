@@ -105,6 +105,7 @@ public class FileChooser
 
 		ProjectFile read(InputStream is, URI pathname, ResNode root) throws ProjectFormatException;
 		}
+	//private static MyProgressBar singleton = new MyProgressBar(); public static MyProgressBar getInstance() { return singleton; }
 
 	public static interface FileWriter
 		{
