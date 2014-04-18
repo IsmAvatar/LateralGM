@@ -18,8 +18,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JOptionPane;
-
 import org.lateralgm.main.Util;
 import org.lateralgm.main.Util.InherentlyUnique;
 import org.lateralgm.messages.Messages;
