@@ -30,6 +30,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 
 import org.lateralgm.components.GmTreeGraphics;
@@ -81,7 +82,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 	private final ResourceReference<? extends Resource<?,?>> res;
 	public ResourceFrame<?,?> frame = null;
 	private Icon icon;
-	private final NameUpdater nameUpdater = new NameUpdater();
+	private final NameUpdater nameUpdater = new NameUpdater(this);
 	private final UpdateTrigger trigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,trigger);
 	public boolean newRes = false;
@@ -346,6 +347,13 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 
 	private class NameUpdater implements Runnable
 		{
+		ResNode node;
+		
+		public NameUpdater(ResNode resNode)
+			{
+			node = resNode;
+			}
+
 		public void run()
 			{
 			if (frame != null && frame instanceof InstantiableResourceFrame<?,?>)
@@ -359,10 +367,15 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 					if (!resFrame.name.getText().equals(n)) resFrame.name.setText(n);
 					}
 				}
-			//FIXME: Update the tree by having it listen to its root node instead of here
+			
 			if (LGM.tree != null)
 				{
-				LGM.tree.updateUI();
+				//FIXME: Update the tree by having it listen to its root node instead of here
+				//LGM.tree.updateUI();
+				
+				// Never update the entire tree UI for a single node, just reload the node.
+				DefaultTreeModel model = ((DefaultTreeModel)LGM.tree.getModel());
+				model.reload(node);
 				}
 			}
 		}

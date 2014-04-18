@@ -894,12 +894,6 @@ public final class LGM
 		} else { LOADING_PROJECT = false; }
 
 		}
-	
-	//NOTE: This method is required by the ENIGMA plugin, threads should never
-	//call Swing methods directly.
-	public static void updateTreeUI() {
-		LGM.tree.updateUI();
-	}
 
 	public static void askToSaveProject()
 		{
@@ -909,12 +903,12 @@ public final class LGM
 
 	public static void onMainFrameClosed()
 		{
+		//NOTE: This is called by a WindowListener added to the main JFrame, and may be blocking
+		//FramePrefsHandler from intercepting a Window closed event.
 		int n = JOptionPane.showConfirmDialog(null,Messages.getString("LGM.KEEPCHANGES_MESSAGE"),
 				Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE,null);
-
-		//NOTE: When System.exit() is fired certain events such as WindowStateChanged for WindowListeners
-		//will not be fired!
+		
 		switch (n)
 			{
 			case JOptionPane.YES_OPTION:

@@ -162,7 +162,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_ALT);
 		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_SHIFT);
 		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_SPACE);
-		keyboard.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_ENTER);
+		keyboard.add(MainEvent.EV_KEYBOARD,Event.EV_ENTER_KEY);
 
 		EventNode subkey;
 		subkey = new EventNode(Messages.getString("EventPanel.KEYPAD"),MainEvent.EV_KEYBOARD,0); //$NON-NLS-1$
@@ -199,8 +199,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_END);
 		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_PAGE_UP);
 		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_PAGE_DOWN);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_DELETE);
-		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_INSERT);
+		subkey.add(MainEvent.EV_KEYBOARD,Event.EV_DELETE_KEY);
+		subkey.add(MainEvent.EV_KEYBOARD,Event.EV_INSERT_KEY);
 
 		//MOUSE
 		EventNode mouse = new EventNode(MainEvent.EV_MOUSE);

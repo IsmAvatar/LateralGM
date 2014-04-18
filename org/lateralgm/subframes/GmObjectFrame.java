@@ -715,6 +715,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		switch (func)
 			{
 			case EventPanel.FUNCTION_ADD:
+				
 				addEvent(new Event(mainId,id,other));
 				break;
 			case EventPanel.FUNCTION_REPLACE:

@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JOptionPane;
+
 import org.lateralgm.main.Util;
 import org.lateralgm.main.Util.InherentlyUnique;
 import org.lateralgm.messages.Messages;
@@ -78,6 +80,9 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 	// keyboard events
 	public static final byte EV_NO_KEY = 0;
 	public static final byte EV_ANY_KEY = 1;
+	public static final byte EV_ENTER_KEY = 13;
+	public static final byte EV_DELETE_KEY = 46;
+	public static final byte EV_INSERT_KEY = 45;
 	
 	// other event types
 	public static final byte EV_OUTSIDE = 0;
@@ -341,7 +346,7 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 		keys.put(KeyEvent.VK_ALT,18); //vk_alt
 		keys.put(KeyEvent.VK_SHIFT,16); //vk_shift
 		keys.put(KeyEvent.VK_SPACE,32); //vk_space
-		keys.put(KeyEvent.VK_ENTER,13); //vk_enter
+		keys.put((int) Event.EV_ENTER_KEY,13); //vk_enter
 
 		//Numpad happens to map 1:1 (96..105)
 		for (int c = KeyEvent.VK_NUMPAD0; c <= KeyEvent.VK_NUMPAD9; c++)
@@ -392,11 +397,11 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 		keys.put(KeyEvent.VK_END,35); //vk_end
 		keys.put(KeyEvent.VK_PAGE_UP,33); //vk_pageup
 		keys.put(KeyEvent.VK_PAGE_DOWN,34); //vk_pagedown	
-		keys.put(KeyEvent.VK_DELETE,46); //vk_delete
-		keys.put(KeyEvent.VK_INSERT,45); //vk_insert
+		keys.put((int) Event.EV_DELETE_KEY,46); //vk_delete
+		keys.put((int) Event.EV_INSERT_KEY,45); //vk_insert
 
-		keys.put(0,0); //vk_nokey
-		keys.put(1,1); //vk_anykey
+		keys.put((int) Event.EV_NO_KEY,0); //vk_nokey
+		keys.put((int) Event.EV_ANY_KEY,1); //vk_anykey
 		KEYS = Collections.unmodifiableMap((keys));
 		}
 
