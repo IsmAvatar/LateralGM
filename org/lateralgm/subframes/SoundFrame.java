@@ -30,6 +30,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import javax.sound.sampled.AudioFileFormat.Type;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -661,6 +662,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	}
 	
 	public void loadClip () {
+	
 		if (data == null || data.length <= 0) { return; }
 		try {
 			InputStream source = new ByteArrayInputStream(data);
@@ -688,7 +690,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		}
 		catch (UnsupportedAudioFileException e)
 		{
-			LGM.showDefaultExceptionHandler(e);
+			// do nothing, file was unsupported
 		}
 	}
 	
