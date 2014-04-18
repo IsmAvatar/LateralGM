@@ -264,7 +264,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		/**/.addComponent(save))
 		.addGroup(layout.createSequentialGroup()
 		.addComponent(previewTextScroll,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		.addComponent(previewRangeScroll,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)));
+		.addComponent(previewRangeScroll,DEFAULT_SIZE,100,MAX_VALUE)));
 		pack();
 		}
 	
