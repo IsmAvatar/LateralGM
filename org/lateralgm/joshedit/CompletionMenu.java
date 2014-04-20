@@ -572,18 +572,17 @@ public class CompletionMenu
 			if ((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) return;
 			char c = e.getKeyChar();
 			if (c == KeyEvent.VK_BACK_SPACE) return;
-			String s = String.valueOf(c);
 			//TODO: This statement used to check \\v and \\t as well, but it was causing VK_ENTER and VK_TAB not to be accepted
 			// as completing the menu which resulted in a painting exception. VK_TAB and VK_ENTER are standard for completing
 			// an autocompletion menu, see Eclipse and Scintilla/CodeBlocks.
-			if (s.matches("\\w")) 
+			if (c == KeyEvent.VK_ENTER || c == KeyEvent.VK_TAB || c == KeyEvent.VK_SPACE) 
 				{
 				apply(c);
 				e.consume();
 				dispose();
 				return;
 				}
-			setSelectedText(s);
+			setSelectedText(String.valueOf(c));
 			e.consume();
 			reset();
 			}
