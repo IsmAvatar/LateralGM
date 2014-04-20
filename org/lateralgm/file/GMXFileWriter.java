@@ -1457,7 +1457,7 @@ public final class GMXFileWriter
 					viewroot.appendChild(vwelement);
 					
 					vwelement.setAttribute("visible",boolToString((Boolean)props.get(PView.VISIBLE)));
-					ResourceReference<?> or = (ResourceReference<?>) props.get(PInstance.OBJECT);
+					ResourceReference<?> or = (ResourceReference<?>) props.get(PView.OBJECT);
 					if (or != null) { 
 						vwelement.setAttribute("objName",or.get().getName());
 					} else {
