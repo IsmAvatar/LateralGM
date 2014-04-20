@@ -1141,9 +1141,10 @@ public final class LGM
 		{
       System.out.println(Thread.currentThread().getName()+": "+e);
       e.printStackTrace();
-  		new ErrorDialog(LGM.frame,Messages.getString("ErrorDialog.UNCAUGHT_TITLE"), //$NON-NLS-1$
-  				Messages.getString("ErrorDialog.UNCAUGHT_MESSAGE"),e,
-  				"https://github.com/IsmAvatar/LateralGM/issues").setVisible(true); //$NON-NLS-1$
+      if (!ErrorDialog.getInstance().isVisible()) {
+      	ErrorDialog.getInstance().setVisible(true);
+      }
+  		ErrorDialog.getInstance().appenDebugInfo(e); //$NON-NLS-1$
 		}
 	
 	}

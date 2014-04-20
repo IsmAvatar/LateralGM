@@ -506,7 +506,6 @@ public class FileChooser
 
 	public void openNewFile()
 		{
-		//fc = null;
 		fc.setFilterSet(openFs);
 		fc.setAccessory(null);
 		if (fc.showOpenDialog(LGM.frame) != CustomFileChooser.APPROVE_OPTION) return;

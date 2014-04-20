@@ -31,6 +31,8 @@ public class ErrorDialog extends JDialog implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final int DEBUG_HEIGHT = 200;
+	private static ErrorDialog myInstance = new ErrorDialog(LGM.frame,Messages.getString("ErrorDialog.UNCAUGHT_TITLE"), //$NON-NLS-1$
+			Messages.getString("ErrorDialog.UNCAUGHT_MESSAGE"),"https://github.com/IsmAvatar/LateralGM/issues");
 
 	private String submiturl = LGM.trackerURL;
 	protected JTextArea debugInfo;
@@ -38,11 +40,28 @@ public class ErrorDialog extends JDialog implements ActionListener
 	protected JButton submit;
 	protected JButton cancel;
 
+	public static ErrorDialog getInstance() {
+		return myInstance;
+	}
+	
+	public void appenDebugInfo(String text) {
+		debugInfo.append("\n" + text);
+	}
+	
+	public void appenDebugInfo(Throwable e) {
+		debugInfo.append("\n" + throwableToString(e));
+	}
+	
 	private static JButton makeButton(String key, ActionListener listener)
 		{
 		JButton but = new JButton(Messages.getString(key),LGM.getIconForKey(key));
 		but.addActionListener(listener);
 		return but;
+		}
+	
+	public ErrorDialog(Frame parent, String title, String message, String url)
+		{
+		this(parent,title,message,"", url);
 		}
 
 	public ErrorDialog(Frame parent, String title, String message, Throwable e, String url)
@@ -57,7 +76,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 
 	public ErrorDialog(Frame parent, String title, String message, String debugInfo, String url)
 		{
-		super(parent,title,true);
+		super(parent,title);
 		setResizable(false);
 		submiturl = url;
 
