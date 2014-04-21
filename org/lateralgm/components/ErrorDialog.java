@@ -74,13 +74,13 @@ public class ErrorDialog extends JDialog implements ActionListener
 		this(parent,title,message,throwableToString(e),LGM.trackerURL);
 		}
 
-	public ErrorDialog(Frame parent, String title, String message, String debugInfo, String url)
+	public ErrorDialog(Frame parent, String title, String message, String debugText, String url)
 		{
 		super(parent,title);
 		setResizable(false);
 		submiturl = url;
 
-		this.debugInfo = new JTextArea(debugInfo);
+		this.debugInfo = new JTextArea(debugText);
 		JScrollPane scroll = new JScrollPane(this.debugInfo);
 
 		Dimension dim = new Dimension(scroll.getWidth(),DEBUG_HEIGHT);
@@ -99,6 +99,12 @@ public class ErrorDialog extends JDialog implements ActionListener
 		add(wtfwjd);
 		pack();
 		setLocationRelativeTo(parent);
+		this.addWindowListener(new java.awt.event.WindowAdapter() {
+	    @Override
+	    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+	    	debugInfo.setText("");
+	    }
+		});
 		}
 
 	protected static String throwableToString(Throwable e)
@@ -124,6 +130,10 @@ public class ErrorDialog extends JDialog implements ActionListener
 		} else if (e.getSource() == copy) {
 			debugInfo.selectAll();
 			debugInfo.copy();
-		} else if (e.getSource() == cancel) dispose();
+		} else if (e.getSource() == cancel) { 
+			debugInfo.setText(""); 
+			dispose();
+		}
+		
 		}
 	}
