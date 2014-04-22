@@ -376,6 +376,11 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		return panel;
 		}
 
+	protected boolean areResourceFieldsEqual()
+		{
+		return res.characterRanges.equals(resOriginal.characterRanges);
+		}
+	
 	public void commitChanges()
 		{
 		charMin.commitOrRevert();
