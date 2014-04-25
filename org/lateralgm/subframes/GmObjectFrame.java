@@ -898,8 +898,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		}
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
 		{
-			Object comp = events.getLastSelectedPathComponent();
-			if (!(comp instanceof EventInstanceNode)) return;
+			DefaultMutableTreeNode comp = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
+			if (!(comp instanceof EventInstanceNode) || comp == null || comp.isRoot()) return;
 			removeEvent((EventInstanceNode) comp);
 			return;
 		}
