@@ -295,7 +295,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_ALT);
 		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_SHIFT);
 		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_SPACE);
-		keypress.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_ENTER);
+		keypress.add(MainEvent.EV_KEYPRESS,Event.EV_ENTER_KEY);
 
 		subkey = new EventNode(Messages.getString("EventPanel.KEYPAD"),MainEvent.EV_KEYPRESS,0); //$NON-NLS-1$
 		keypress.add(subkey);
@@ -331,8 +331,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_END);
 		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_PAGE_UP);
 		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_PAGE_DOWN);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_DELETE);
-		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_INSERT);
+		subkey.add(MainEvent.EV_KEYPRESS,Event.EV_DELETE_KEY);
+		subkey.add(MainEvent.EV_KEYPRESS,Event.EV_INSERT_KEY);
 
 		//KEYRELEASE
 		EventNode keyrelase = new EventNode(MainEvent.EV_KEYRELEASE);
@@ -347,7 +347,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_ALT);
 		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_SHIFT);
 		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_SPACE);
-		keyrelase.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_ENTER);
+		keyrelase.add(MainEvent.EV_KEYRELEASE,Event.EV_ENTER_KEY);
 
 		subkey = new EventNode(Messages.getString("EventPanel.KEYPAD"),MainEvent.EV_KEYRELEASE,0); //$NON-NLS-1$
 		keyrelase.add(subkey);
@@ -383,8 +383,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_END);
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_PAGE_UP);
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_PAGE_DOWN);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_DELETE);
-		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_INSERT);
+		subkey.add(MainEvent.EV_KEYRELEASE,Event.EV_DELETE_KEY);
+		subkey.add(MainEvent.EV_KEYRELEASE,Event.EV_INSERT_KEY);
 
 		events = new JTree(root);
 		if (LGM.themename.equals("Quantum")) {
