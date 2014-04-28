@@ -271,7 +271,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public void actionPerformed(ActionEvent e)
 	{
 		JTree tree = LGM.tree;
-		ResNode node = (ResNode) tree.getSelectionPath().getLastPathComponent();
+		TreePath treepath = tree.getSelectionPath();
+		ResNode node = null;
+		if (treepath != null) {
+			node = (ResNode) treepath.getLastPathComponent();
+		}
+		
 		String[] args = e.getActionCommand().split(" "); //$NON-NLS-1$
 		String com = args[0];
 		if (com.endsWith(".NEW")) //$NON-NLS-1$
@@ -401,6 +406,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				tree.collapseRow(m);
 			return;
 		} else if (com.endsWith(".SORT")) { //$NON-NLS-1$
+				if (node == null) { return; }
 				sortNodeChildrenAlphabetically(node,false);
 				LGM.tree.expandPath(new TreePath(node.getPath()));
 				LGM.tree.updateUI();
@@ -423,12 +429,14 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			new AboutBox(LGM.frame).setVisible(true);
 			return;
 		}	else if (com.endsWith(".DUPLICATE")) { //$NON-NLS-1$
+			if (node == null) { return; }
 			ResourceList<?> rl = (ResourceList<?>) LGM.currentFile.resMap.get(node.kind);
 			if (node.frame != null) node.frame.commitChanges();
 			Resource<?,?> resource = rl.duplicate(node.getRes().get());
 			Listener.insertResource(tree,node.kind,resource,node,1);
 			return;
 		}	else if (com.endsWith(".PROPERTIES")) { //$NON-NLS-1$
+			if (node == null) { return; }
 			if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
 			return;
 		} else if (com.endsWith(".FIND")) {
