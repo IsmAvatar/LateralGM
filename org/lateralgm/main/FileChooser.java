@@ -617,6 +617,11 @@ public class FileChooser
 				String ext = selectedWriter.getExtension();
 				if (!file.getName().endsWith(ext)) file = new File(file.getPath() + ext);
 				}
+			// Create the folder for the user, otherwise people get confused.
+			if (file.getName().endsWith(".project.gmx")) {
+				file = new File(file.getAbsolutePath().replace(".project.gmx",".gmx") + "/" + file.getName());
+				file.getParentFile().mkdir();
+			}
 			int result = JOptionPane.YES_OPTION;
 			if (file.exists())
 				result = JOptionPane.showConfirmDialog(
