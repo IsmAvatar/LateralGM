@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.GroupLayout;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.DocumentUndoManager;
@@ -63,7 +64,12 @@ public class ExtensionFrame extends InstantiableResourceFrame<Extension,Extensio
 		super(res,node); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(600,400);
-
+		JTabbedPane tabPane = new JTabbedPane();
+		tabPane.add(new JPanel(), "General");
+		tabPane.add(new JPanel(), "Includes");
+		tabPane.add(new JPanel(), "Functions");
+		tabPane.add(new JPanel(), "Constants");
+		this.add(tabPane);
 	}
 
 	public Object getUserObject()

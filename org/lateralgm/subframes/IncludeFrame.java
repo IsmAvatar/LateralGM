@@ -25,13 +25,16 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.io.File;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
+import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
@@ -43,6 +46,7 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 {
 	private static final long serialVersionUID = 1L;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
+	private CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR");
 	private JButton exportBut;
 	private JButton importBut;
 
@@ -106,6 +110,11 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 		Object source = ev.getSource();
 		if (source == importBut) //$NON-NLS-1$
 		{
+			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
+			File f = fc.getSelectedFile();
+			if (!f.exists()) return;
+			//TODO: can't handle .ext
+			res.setName(f.getName());
       return;
 		}
 		if (source == exportBut) //$NON-NLS-1$

@@ -195,7 +195,7 @@ public final class GMXFileReader
 	
 	private static byte[] ReadBinaryFile(String path)
 	{
-	  File file = new File(path);
+	  File file = new File(getUnixPath(path));
 	  byte [] fileData = new byte[(int)file.length()];
 	  DataInputStream dis = null;
 	  try {
@@ -436,7 +436,7 @@ public final class GMXFileReader
 		pSet.put(PGameSettings.VERSION_MINOR, Integer.parseInt(setdoc.getElementsByTagName("option_version_minor").item(0).getTextContent()));
 		pSet.put(PGameSettings.VERSION_RELEASE, Integer.parseInt(setdoc.getElementsByTagName("option_version_release").item(0).getTextContent()));
 		
-		ResNode node = new ResNode("Global Game Settings", ResNode.STATUS_SECONDARY, GameSettings.class, gSet.reference);
+		ResNode node = new ResNode("Game Settings", ResNode.STATUS_SECONDARY, GameSettings.class, gSet.reference);
 		root.add(node);
 		}
 
