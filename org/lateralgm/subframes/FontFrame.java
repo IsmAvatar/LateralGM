@@ -233,7 +233,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		/**/.addComponent(listScroller,120,220,MAX_VALUE))
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		.addGroup(layout.createParallelGroup()
-		.addComponent(previewTextScroll,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		.addComponent(previewTextScroll,0,500,MAX_VALUE)
 		.addComponent(previewRangeScroll,0,500,MAX_VALUE)));
 		
 		layout.setVerticalGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
@@ -263,7 +263,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		/**/.addComponent(listScroller,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addComponent(save))
 		.addGroup(layout.createSequentialGroup()
-		.addComponent(previewTextScroll,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		.addComponent(previewTextScroll,DEFAULT_SIZE,100,MAX_VALUE)
 		.addComponent(previewRangeScroll,DEFAULT_SIZE,100,MAX_VALUE)));
 		pack();
 		}
