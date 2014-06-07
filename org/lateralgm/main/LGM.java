@@ -1144,7 +1144,7 @@ public final class LGM
       if (!ErrorDialog.getInstance().isVisible()) {
       	ErrorDialog.getInstance().setVisible(true);
       }
-  		ErrorDialog.getInstance().appenDebugInfo(e); //$NON-NLS-1$
+  		ErrorDialog.getInstance().appendDebugInfo(e); //$NON-NLS-1$
 		}
 	
 	}

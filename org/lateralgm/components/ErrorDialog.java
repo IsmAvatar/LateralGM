@@ -14,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -44,11 +45,44 @@ public class ErrorDialog extends JDialog implements ActionListener
 		return myInstance;
 	}
 	
-	public void appenDebugInfo(String text) {
+	public String generateAgnosticInformation() {
+		String ret = "Operating System: " + System.getProperty("os.name");
+		ret += "\nVersion: " + System.getProperty("os.version");
+		ret += "\nArchitecture: " + System.getProperty("os.arch");
+		
+		ret += "\n\nJava Vendor: " + System.getProperty("java.vendor");
+		ret += "\nVersion: " + System.getProperty("java.version");
+		
+		ret += "\n\nAvailable processors (cores): " + 
+        Runtime.getRuntime().availableProcessors();
+		ret += "\nFree memory (bytes): " + 
+        Runtime.getRuntime().freeMemory();
+		long maxMemory = Runtime.getRuntime().maxMemory();
+		ret += "\nMaximum memory (bytes): " + 
+        (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory);
+		ret += "\nTotal memory available to JVM (bytes): " + 
+        Runtime.getRuntime().totalMemory();
+		
+    /* Get a list of all filesystem roots on this system */
+    File[] roots = File.listRoots();
+
+    /* For each filesystem root, print some info */
+    for (File root : roots) {
+	    ret += "\n\nFile system root: " + root.getAbsolutePath();
+	    ret += "\nTotal space (bytes): " + root.getTotalSpace();
+	    ret += "\nFree space (bytes): " + root.getFreeSpace();
+	    ret += "\nUsable space (bytes): " + root.getUsableSpace();
+    }
+		
+		ret += "\n\nStack trace:";
+		return ret;
+	}
+	
+	public void appendDebugInfo(String text) {
 		debugInfo.append("\n" + text);
 	}
 	
-	public void appenDebugInfo(Throwable e) {
+	public void appendDebugInfo(Throwable e) {
 		debugInfo.append("\n" + throwableToString(e));
 	}
 	
@@ -80,7 +114,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 		setResizable(false);
 		submiturl = url;
 
-		this.debugInfo = new JTextArea(debugText);
+		this.debugInfo = new JTextArea(generateAgnosticInformation() + debugText);
 		JScrollPane scroll = new JScrollPane(this.debugInfo);
 
 		Dimension dim = new Dimension(scroll.getWidth(),DEBUG_HEIGHT);
