@@ -81,6 +81,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 	
 	public void appendDebugInfo(String text) {
 		debugInfo.append("\n" + text);
+		debugInfo.setCaretPosition(0);
 	}
 	
 	public void appendDebugInfo(Throwable e) {
