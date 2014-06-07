@@ -40,6 +40,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 	protected JButton copy;
 	protected JButton submit;
 	protected JButton cancel;
+	protected JScrollPane scroll;
 
 	public static ErrorDialog getInstance() {
 		return myInstance;
@@ -84,6 +85,7 @@ public class ErrorDialog extends JDialog implements ActionListener
 	
 	public void appendDebugInfo(Throwable e) {
 		debugInfo.append("\n" + throwableToString(e));
+		debugInfo.setCaretPosition(0);
 	}
 	
 	private static JButton makeButton(String key, ActionListener listener)
@@ -114,8 +116,8 @@ public class ErrorDialog extends JDialog implements ActionListener
 		setResizable(false);
 		submiturl = url;
 
-		this.debugInfo = new JTextArea(generateAgnosticInformation() + debugText);
-		JScrollPane scroll = new JScrollPane(this.debugInfo);
+		this.debugInfo = new JTextArea(debugText);
+		scroll = new JScrollPane(this.debugInfo);
 
 		Dimension dim = new Dimension(scroll.getWidth(),DEBUG_HEIGHT);
 		scroll.setPreferredSize(dim);
@@ -140,6 +142,12 @@ public class ErrorDialog extends JDialog implements ActionListener
 	    }
 		});
 		}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		debugInfo.setText(generateAgnosticInformation());
+	}
 
 	protected static String throwableToString(Throwable e)
 		{
