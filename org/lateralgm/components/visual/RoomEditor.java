@@ -72,6 +72,8 @@ public class RoomEditor extends VisualPanel
 	private final RoomPropertyListener rpl = new RoomPropertyListener();
 	private final RoomEditorPropertyValidator repv = new RoomEditorPropertyValidator();
 
+	private Point objectOriginalPosition;
+	
 	public enum PRoomEditor
 		{
 		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
@@ -235,6 +237,9 @@ public class RoomEditor extends VisualPanel
 					Instance instance = room.addInstance();
 					instance.properties.put(PInstance.OBJECT,obj);
 					instance.setPosition(p);
+					System.out.println("Pressed");
+					// Record the original position of the object for the undo
+					objectOriginalPosition = p;
 					
 		      // Record the effect of adding an object for the undo
 		      UndoableEdit edit = new AddObjectInstance(room, instance, room.instances.size() -1 );
@@ -408,7 +413,9 @@ public class RoomEditor extends VisualPanel
 			}
 
 		if ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0)
+			{
 			processLeftButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,new Point(x,y));
+			}
 		else if (cursor != null) releaseCursor(new Point(x,y));
 		if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
 			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,p); //use mouse point
