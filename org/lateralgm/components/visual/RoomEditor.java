@@ -50,6 +50,7 @@ import org.lateralgm.subframes.CodeFrame;
 import org.lateralgm.ui.swing.visuals.RoomVisual;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.AddObjectInstance;
+import org.lateralgm.util.MoveObjectInstance;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.RemoveObjectInstance;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
@@ -72,6 +73,7 @@ public class RoomEditor extends VisualPanel
 	private final RoomPropertyListener rpl = new RoomPropertyListener();
 	private final RoomEditorPropertyValidator repv = new RoomEditorPropertyValidator();
 
+	// Record the original position of an object (Used for the undo)
 	private Point objectOriginalPosition;
 	
 	public enum PRoomEditor
@@ -155,7 +157,21 @@ public class RoomEditor extends VisualPanel
 		}
 
 	public void releaseCursor(Point p)
-		{ //it must be guaranteed that cursor != null
+		{
+		if (cursor instanceof Instance)
+			{
+				// The action to be recorded for the undo
+				UndoableEdit edit;
+				
+				if (objectOriginalPosition == null)
+		      edit = new MoveObjectInstance(room, (Instance)cursor, objectOriginalPosition, p);
+				else
+					edit = new AddObjectInstance(room, (Instance)cursor, room.instances.size() -1);
+				
+				// notify the listeners	
+	      frame.undoSupport.postEdit( edit );
+			}
+		//it must be guaranteed that cursor != null
 		boolean duo = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 		boolean dut = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
 		if (duo && cursor instanceof Instance)
@@ -181,6 +197,7 @@ public class RoomEditor extends VisualPanel
 	/** Do not call with null */
 	public void setCursor(Piece ds)
 		{
+		System.out.println("set cursor");
 		cursor = ds;
 		if (ds instanceof Instance)
 			{
@@ -197,15 +214,24 @@ public class RoomEditor extends VisualPanel
 
 	private void processLeftButton(int modifiers, boolean pressed, Piece mc, Point p)
 		{
+		objectOriginalPosition = null;
 		boolean shift = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
-			if (pressed && mc != null && !mc.isLocked()) setCursor(mc);
+			if (pressed && mc != null && !mc.isLocked())
+				{
+				System.out.println("moving a new object");
+					// Record the original position of the object for the undo
+					objectOriginalPosition = p;
+					
+					setCursor(mc);
+				}
 			}
 		else
 			{
 			if (shift && cursor != null) if (!roomVisual.intersects(new Rectangle(p.x,p.y,1,1),cursor))
 				{
+				System.out.println("Releasing cursor 2");
 				releaseCursor(p);
 				pressed = true; //ensures that a new instance is created below
 				}
@@ -237,15 +263,13 @@ public class RoomEditor extends VisualPanel
 					Instance instance = room.addInstance();
 					instance.properties.put(PInstance.OBJECT,obj);
 					instance.setPosition(p);
-					System.out.println("Pressed");
+					System.out.println("Adding a new object");
 					// Record the original position of the object for the undo
 					objectOriginalPosition = p;
-					
-		      // Record the effect of adding an object for the undo
+		      
+					// Record the effect of adding an object for the undo
+					// Don't post the edit, as we don't know yet, if the user will drag the object
 		      UndoableEdit edit = new AddObjectInstance(room, instance, room.instances.size() -1 );
-		      // notify the listeners
-		      frame.undoSupport.postEdit( edit );
-
 		      
 					setCursor(instance);
 					shift = true; //prevents unnecessary coordinate update below
