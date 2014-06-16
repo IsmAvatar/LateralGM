@@ -58,6 +58,11 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
+import javax.swing.undo.UndoableEditSupport;
 
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.NumberField;
@@ -91,9 +96,11 @@ import org.lateralgm.ui.swing.propertylink.ButtonModelLink;
 import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
+import org.lateralgm.util.AddObjectInstance;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
+import org.lateralgm.util.RemoveObjectInstance;
 
 public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements ListSelectionListener,
 		CommandHandler,UpdateListener
@@ -106,7 +113,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	public final JTabbedPane tabs;
 	public JLabel statX, statY, statId, statSrc;
 	//ToolBar
-	private JButton zoomIn, zoomOut;
+	private JButton zoomIn, zoomOut, undo, redo;
 	private JToggleButton gridVis;
 	JToggleButton gridIso;
 	//Objects
@@ -171,6 +178,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private final PropertyLinkFactory<PRoomEditor> prelf;
 	private JCheckBox vClear;
 
+	// Undo system elements
+  public UndoManager undoManager;     
+  public UndoableEditSupport undoSupport;
+
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
@@ -188,6 +199,16 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tool.add(zoomOut);
 		tool.addSeparator();
 
+		undo = new JButton(LGM.getIconForKey("RoomFrame.UNDO"));
+		undo.setToolTipText(Messages.getString("RoomFrame.UNDO"));
+		undo.addActionListener(this);
+		tool.add(undo);
+		redo = new JButton(LGM.getIconForKey("RoomFrame.REDO"));
+		redo.setToolTipText(Messages.getString("RoomFrame.REDO"));
+		redo.addActionListener(this);
+		tool.add(redo);
+		tool.addSeparator();
+		
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
@@ -1254,6 +1275,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/*		*/.addComponent(editorPane,DEFAULT_SIZE,480,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
 
+    // initialize the undo/redo system
+    undoManager= new UndoManager();
+    undoSupport = new UndoableEditSupport();
+    undoSupport.addUndoableEditListener(new UndoAdapter());
+    refreshUndoRedoButtons();
+
 		if (res.get(PRoom.REMEMBER_WINDOW_SIZE))
 			{
 			int h = res.get(PRoom.EDITOR_HEIGHT);
@@ -1334,29 +1361,69 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (editor != null) editor.refresh();
 		Object s = e.getSource();
 
+		// If the user has pressed the undo button
+		if (s == undo)
+		{
+    	undoManager.undo();
+    	refreshUndoRedoButtons();
+			return;
+		}
+		
+		// If the user has pressed the redo button
+		if (s == redo)
+		{
+  		undoManager.redo();
+  		refreshUndoRedoButtons();
+			return;
+		}
+
 		if (s == sShow)
 			{
 			sShowMenu.show(sShow,0,sShow.getHeight());
 			return;
 			}
+		
+		// If the user has pressed the 'Add' object button
 		if (s == oAdd)
 			{
+			// If no object is selected
 			if (oNew.getSelected() == null) return;
-			Instance i = res.addInstance();
-			i.properties.put(PInstance.OBJECT,oNew.getSelected());
-			i.setPosition(new Point());
-			oList.setSelectedIndex(res.instances.size() - 1);
+      // Add the new object instance
+			Instance newObject = res.addInstance();
+      newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
+      newObject.setPosition(new Point());
+      
+      int numberOfObjects = res.instances.size();
+      
+      // Record the effect of adding an object for the undo
+      UndoableEdit edit = new AddObjectInstance(res, newObject, numberOfObjects -1);
+      // notify the listeners
+      undoSupport.postEdit( edit );
+      
+			oList.setSelectedIndex(numberOfObjects - 1);
+			
 			return;
 			}
+
+		// If the user has pressed the 'Delete' object  button
 		if (s == oDel)
 			{
-			int i = oList.getSelectedIndex();
-			if (i == -1) return;
-			CodeFrame frame = codeFrames.get(res.instances.remove(i));
+			int selectedIndex = oList.getSelectedIndex();
+			if (selectedIndex == -1) return;
+			
+			Instance instance = (Instance) oList.getSelectedValue();
+			
+      // Record the effect of adding an object for the undo
+			UndoableEdit edit = new RemoveObjectInstance(res, instance, selectedIndex);
+      // notify the listeners
+			undoSupport.postEdit( edit );
+      
+			CodeFrame frame = codeFrames.get(res.instances.remove(selectedIndex));
 			if (frame != null) frame.dispose();
-			oList.setSelectedIndex(Math.min(res.instances.size() - 1,i));
+			oList.setSelectedIndex(Math.min(res.instances.size() - 1,selectedIndex));
 			return;
 			}
+
 		if (s == taSource)
 			{
 			tSelect.setBackground(taSource.getSelected());
@@ -1604,4 +1671,33 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (e.key == PView.VISIBLE) bdvListUpdate(false,e.source,(Boolean) e.map.get(e.key));
 			}
 		}
-	}
+  /**
+  * An undo/redo adapter. The adapter is notified when an undo edit occur(e.g. add or remove from the list)
+  * The adapter extract the edit from the event, add it to the UndoManager, and refresh the GUI
+  */
+
+  private class UndoAdapter implements UndoableEditListener
+  {
+  	public void undoableEditHappened (UndoableEditEvent evt)
+    {
+     	UndoableEdit edit = evt.getEdit();
+     	undoManager.addEdit( edit );
+     	refreshUndoRedoButtons();
+     }
+  }
+  
+  /**
+  * This method is called after each undoable operation
+  * in order to refresh the presentation state of the undo/redo GUI
+  */
+
+  public void refreshUndoRedoButtons() {
+
+     // refresh undo
+     undo.setEnabled(undoManager.canUndo() );
+
+     // refresh redo
+     redo.setEnabled(undoManager.canRedo() );
+  }
+
+}

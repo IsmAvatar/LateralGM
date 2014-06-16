@@ -30,6 +30,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.undo.UndoableEdit;
 
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
@@ -48,6 +49,7 @@ import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.subframes.CodeFrame;
 import org.lateralgm.ui.swing.visuals.RoomVisual;
 import org.lateralgm.util.ActiveArrayList;
+import org.lateralgm.util.AddObjectInstance;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -229,10 +231,17 @@ public class RoomEditor extends VisualPanel
 					{
 					ResourceReference<GmObject> obj = frame.oNew.getSelected();
 					if (obj == null) return; //I'd rather just break out of this IF, but this works
-					Instance i = room.addInstance();
-					i.properties.put(PInstance.OBJECT,obj);
-					i.setPosition(p);
-					setCursor(i);
+					Instance instance = room.addInstance();
+					instance.properties.put(PInstance.OBJECT,obj);
+					instance.setPosition(p);
+					
+		      // Record the effect of adding an object for the undo
+		      UndoableEdit edit = new AddObjectInstance(room, instance, room.instances.size() -1 );
+		      // notify the listeners
+		      frame.undoSupport.postEdit( edit );
+
+		      
+					setCursor(instance);
 					shift = true; //prevents unnecessary coordinate update below
 					}
 				}
