@@ -51,6 +51,7 @@ import org.lateralgm.ui.swing.visuals.RoomVisual;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.AddObjectInstance;
 import org.lateralgm.util.PropertyMap;
+import org.lateralgm.util.RemoveObjectInstance;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
@@ -306,6 +307,15 @@ public class RoomEditor extends VisualPanel
 				{
 				i = room.instances.indexOf(mc);
 				if (i == -1) return;
+				
+				// Get the object instance under the mouse cursor
+				Instance instance = room.instances.get(i);
+				
+	      // Record the effect of removing an object for the undo
+				UndoableEdit edit = new RemoveObjectInstance(room, instance, i);
+	      // notify the listeners
+				 frame.undoSupport.postEdit( edit );
+				
 				alist = room.instances;
 				jlist = frame.oList;
 				CodeFrame fr = frame.codeFrames.get(mc);

@@ -34,7 +34,7 @@ public class RemoveObjectInstance extends AbstractUndoableEdit
 
   public void undo() throws CannotUndoException
   {
-		room.instances.add(instance);
+		room.instances.add(index, instance);
   }
 
   public void redo() throws CannotRedoException

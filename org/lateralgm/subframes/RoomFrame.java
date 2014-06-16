@@ -1413,7 +1413,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			
 			Instance instance = (Instance) oList.getSelectedValue();
 			
-      // Record the effect of adding an object for the undo
+      // Record the effect of removing an object for the undo
 			UndoableEdit edit = new RemoveObjectInstance(res, instance, selectedIndex);
       // notify the listeners
 			undoSupport.postEdit( edit );
