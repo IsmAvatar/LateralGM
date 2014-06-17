@@ -13,6 +13,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.Room;
 
 public class MoveObjectInstance extends AbstractUndoableEdit
@@ -25,6 +26,7 @@ public class MoveObjectInstance extends AbstractUndoableEdit
 
   public MoveObjectInstance(Room room, Instance instance, Point oldPosition, Point newPosition)
   {
+  System.out.println("adding instance" + instance.properties.get(PInstance.ID));
   	this.instance = instance;
   	this.oldPosition = oldPosition;
   	this.newPosition = newPosition;
@@ -33,6 +35,7 @@ public class MoveObjectInstance extends AbstractUndoableEdit
 
   public void undo() throws CannotUndoException
   {
+  	System.out.println("undo instance" + instance.properties.get(PInstance.ID));
   	instance.setPosition(oldPosition);
   }
 

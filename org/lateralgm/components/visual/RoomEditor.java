@@ -156,7 +156,7 @@ public class RoomEditor extends VisualPanel
 		mouseEdit(e);
 		}
 
-	public void releaseCursor(Point p)
+	public void releaseCursor(Point lastPosition)
 		{
 		if (cursor instanceof Instance)
 			{
@@ -165,7 +165,7 @@ public class RoomEditor extends VisualPanel
 
 				// If the object was moved
 				if (objectOriginalPosition != null)
-					edit = new MoveObjectInstance(room, (Instance)cursor, objectOriginalPosition, p);
+					edit = new MoveObjectInstance(room, (Instance)cursor, objectOriginalPosition, new Point(lastPosition));
 				else
 				// A new object has been added
 					edit = new AddObjectInstance(room, (Instance)cursor, room.instances.size() -1);
@@ -179,21 +179,30 @@ public class RoomEditor extends VisualPanel
 		boolean duo = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 		boolean dut = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
 		if (duo && cursor instanceof Instance)
-			deleteUnderlying(roomVisual.intersectInstances(new Rectangle(p.x,p.y,1,1)),room.instances);
+			deleteUnderlying(roomVisual.intersectInstances(new Rectangle(lastPosition.x,lastPosition.y,1,1)),room.instances);
 		else if (dut && cursor instanceof Tile)
-			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(p.x,p.y,1,1),getTileDepth()),
-					room.tiles);
+			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(lastPosition.x,lastPosition.y,1,1),getTileDepth()),room.tiles);
 		unlockBounds();
 		cursor = null;
 		}
-
+ 
 	private <T>void deleteUnderlying(Iterator<T> i, ActiveArrayList<T> l)
 		{
 		HashSet<T> s = new HashSet<T>();
 		while (i.hasNext())
 			{
 			T t = i.next();
-			if (t != cursor) s.add(t);
+			if (t != cursor)
+				{
+					if (t instanceof Instance)
+						{
+			      // Record the effect of removing an object for the undo
+							 UndoableEdit edit = new RemoveObjectInstance(room, (Instance) t, room.instances.indexOf(t));
+				      // notify the listeners
+							 frame.undoSupport.postEdit( edit );
+						}
+				s.add(t);
+				}
 			}
 		l.removeAll(s);
 		}
