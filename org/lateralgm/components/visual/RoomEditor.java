@@ -74,7 +74,7 @@ public class RoomEditor extends VisualPanel
 	private final RoomEditorPropertyValidator repv = new RoomEditorPropertyValidator();
 
 	// Record the original position of an object (Used for the undo)
-	private Point objectOriginalPosition;
+	private Point objectOriginalPosition = null;
 	
 	public enum PRoomEditor
 		{
@@ -162,14 +162,18 @@ public class RoomEditor extends VisualPanel
 			{
 				// The action to be recorded for the undo
 				UndoableEdit edit;
-				
-				if (objectOriginalPosition == null)
-		      edit = new MoveObjectInstance(room, (Instance)cursor, objectOriginalPosition, p);
+
+				// If the object was moved
+				if (objectOriginalPosition != null)
+					edit = new MoveObjectInstance(room, (Instance)cursor, objectOriginalPosition, p);
 				else
+				// A new object has been added
 					edit = new AddObjectInstance(room, (Instance)cursor, room.instances.size() -1);
 				
 				// notify the listeners	
 	      frame.undoSupport.postEdit( edit );
+	      
+				objectOriginalPosition = null;
 			}
 		//it must be guaranteed that cursor != null
 		boolean duo = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
@@ -214,7 +218,6 @@ public class RoomEditor extends VisualPanel
 
 	private void processLeftButton(int modifiers, boolean pressed, Piece mc, Point p)
 		{
-		objectOriginalPosition = null;
 		boolean shift = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
@@ -263,13 +266,11 @@ public class RoomEditor extends VisualPanel
 					Instance instance = room.addInstance();
 					instance.properties.put(PInstance.OBJECT,obj);
 					instance.setPosition(p);
+					if (shift)
+					System.out.println("Adding a new object with shift");
+					else
 					System.out.println("Adding a new object");
-					// Record the original position of the object for the undo
-					objectOriginalPosition = p;
-		      
-					// Record the effect of adding an object for the undo
-					// Don't post the edit, as we don't know yet, if the user will drag the object
-		      UndoableEdit edit = new AddObjectInstance(room, instance, room.instances.size() -1 );
+
 		      
 					setCursor(instance);
 					shift = true; //prevents unnecessary coordinate update below
