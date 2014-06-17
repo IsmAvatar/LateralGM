@@ -30,6 +30,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
 import org.lateralgm.main.LGM;
@@ -158,35 +159,48 @@ public class RoomEditor extends VisualPanel
 
 	public void releaseCursor(Point lastPosition)
 		{
+		// Stores several actions in one undo
+		CompoundEdit compoundEdit = new CompoundEdit();
+		UndoableEdit edit;
+		
 		if (cursor instanceof Instance)
 			{
-				// The action to be recorded for the undo
-				UndoableEdit edit;
-
 				// If the object was moved
 				if (objectOriginalPosition != null)
+					{
+					// For the undo, record that the object was moved
 					edit = new MoveObjectInstance(room, (Instance)cursor, objectOriginalPosition, new Point(lastPosition));
+					}
 				else
-				// A new object has been added
+					{
+					// A new object has been added
 					edit = new AddObjectInstance(room, (Instance)cursor, room.instances.size() -1);
+					}
 				
-				// notify the listeners	
-	      frame.undoSupport.postEdit( edit );
+					compoundEdit.addEdit(edit);
+
 	      
 				objectOriginalPosition = null;
 			}
+		
 		//it must be guaranteed that cursor != null
 		boolean duo = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 		boolean dut = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
+		
 		if (duo && cursor instanceof Instance)
-			deleteUnderlying(roomVisual.intersectInstances(new Rectangle(lastPosition.x,lastPosition.y,1,1)),room.instances);
+			deleteUnderlying(roomVisual.intersectInstances(new Rectangle(lastPosition.x,lastPosition.y,1,1)),room.instances, compoundEdit);
 		else if (dut && cursor instanceof Tile)
-			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(lastPosition.x,lastPosition.y,1,1),getTileDepth()),room.tiles);
+			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(lastPosition.x,lastPosition.y,1,1),getTileDepth()),room.tiles, compoundEdit);
+		
+
+			compoundEdit.end();
+			frame.undoSupport.postEdit( compoundEdit );
+
 		unlockBounds();
 		cursor = null;
 		}
  
-	private <T>void deleteUnderlying(Iterator<T> i, ActiveArrayList<T> l)
+	private <T>void deleteUnderlying(Iterator<T> i, ActiveArrayList<T> l, CompoundEdit compoundEdit)
 		{
 		HashSet<T> s = new HashSet<T>();
 		while (i.hasNext())
@@ -198,8 +212,7 @@ public class RoomEditor extends VisualPanel
 						{
 			      // Record the effect of removing an object for the undo
 							 UndoableEdit edit = new RemoveObjectInstance(room, (Instance) t, room.instances.indexOf(t));
-				      // notify the listeners
-							 frame.undoSupport.postEdit( edit );
+							 compoundEdit.addEdit(edit);
 						}
 				s.add(t);
 				}
