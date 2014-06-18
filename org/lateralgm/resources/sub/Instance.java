@@ -89,7 +89,6 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 
 	public void setPosition(Point pos)
 	{
-	System.out.println("set position" + this.properties.get(PInstance.ID));
 		properties.put(PInstance.X,pos.x);
 		properties.put(PInstance.Y,pos.y);
 	}

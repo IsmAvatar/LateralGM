@@ -74,7 +74,7 @@ public class RoomEditor extends VisualPanel
 	private final RoomPropertyListener rpl = new RoomPropertyListener();
 	private final RoomEditorPropertyValidator repv = new RoomEditorPropertyValidator();
 
-	// Record the original position of an object (Used for the undo)
+	// Record the original position of an object (Used when moving an object for the undo)
 	private Point objectOriginalPosition = null;
 	
 	public enum PRoomEditor
@@ -169,7 +169,7 @@ public class RoomEditor extends VisualPanel
 				if (objectOriginalPosition != null)
 					{
 					// For the undo, record that the object was moved
-					edit = new MoveObjectInstance(room, (Instance)cursor, objectOriginalPosition, new Point(lastPosition));
+					edit = new MoveObjectInstance(this, (Instance)cursor, objectOriginalPosition, new Point(lastPosition));
 					}
 				else
 					{
@@ -184,17 +184,17 @@ public class RoomEditor extends VisualPanel
 			}
 		
 		//it must be guaranteed that cursor != null
-		boolean duo = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
-		boolean dut = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
+		boolean deleteUnderlyingObjects = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
+		boolean deleteUnderlyingTiles = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
 		
-		if (duo && cursor instanceof Instance)
+		if (deleteUnderlyingObjects && cursor instanceof Instance)
 			deleteUnderlying(roomVisual.intersectInstances(new Rectangle(lastPosition.x,lastPosition.y,1,1)),room.instances, compoundEdit);
-		else if (dut && cursor instanceof Tile)
+		else if (deleteUnderlyingTiles && cursor instanceof Tile)
 			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(lastPosition.x,lastPosition.y,1,1),getTileDepth()),room.tiles, compoundEdit);
 		
 
-			compoundEdit.end();
-			frame.undoSupport.postEdit( compoundEdit );
+		compoundEdit.end();
+		frame.undoSupport.postEdit( compoundEdit );
 
 		unlockBounds();
 		cursor = null;
@@ -210,7 +210,7 @@ public class RoomEditor extends VisualPanel
 				{
 					if (t instanceof Instance)
 						{
-			      // Record the effect of removing an object for the undo
+			      	// Record the effect of removing an object for the undo
 							 UndoableEdit edit = new RemoveObjectInstance(room, (Instance) t, room.instances.indexOf(t));
 							 compoundEdit.addEdit(edit);
 						}
@@ -223,7 +223,6 @@ public class RoomEditor extends VisualPanel
 	/** Do not call with null */
 	public void setCursor(Piece ds)
 		{
-		System.out.println("set cursor");
 		cursor = ds;
 		if (ds instanceof Instance)
 			{

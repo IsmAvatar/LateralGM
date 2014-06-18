@@ -22,6 +22,7 @@ public class AddObjectInstance extends AbstractUndoableEdit
 
   public AddObjectInstance(Room room, Instance instance, int index)
   {
+	System.out.println("Adding a new object for undo");
   	this.instance = instance;
   	this.index = index;
   	this.room = room;
