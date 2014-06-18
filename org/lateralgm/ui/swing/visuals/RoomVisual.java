@@ -421,7 +421,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					}
 				}
 			binVisual.setDepth(this,piece.getDepth());
-			Rectangle r = new Rectangle(piece.getRoomPosition(),piece.getSize());
+			Rectangle r = new Rectangle(piece.getPosition(),piece.getSize());
 			setBounds(r);
 			}
 

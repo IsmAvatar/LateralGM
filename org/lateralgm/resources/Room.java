@@ -12,6 +12,7 @@
 package org.lateralgm.resources;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -155,5 +156,7 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		boolean isLocked();
 
 		void setLocked(boolean l);
+		
+		public void setPosition(Point pos);
 		}
 	}

@@ -1,5 +1,5 @@
 /**
-* Record the effect of moving an object instance for the undo
+* Record the effect of moving a piece (object/tile) instance for the undo
 *
 * 
 */
@@ -14,20 +14,17 @@ import javax.swing.undo.CannotUndoException;
 
 import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.resources.Room.Piece;
-import org.lateralgm.resources.sub.Instance;
 
-public class MoveObjectInstance extends AbstractUndoableEdit
+public class MovePieceInstance extends AbstractUndoableEdit
 {
-
-  private Instance instance;
-  //private Piece piece;
+  private Piece piece;
   private Point oldPosition;
   private Point newPosition;
   private RoomEditor roomEditor;
 
-  public MoveObjectInstance(RoomEditor roomEditor, Instance instance, Point oldPosition, Point newPosition)
+  public MovePieceInstance(RoomEditor roomEditor, Piece piece, Point oldPosition, Point newPosition)
   { 
-  	this.instance = instance;
+  	this.piece = piece;
   	this.oldPosition = oldPosition;
   	this.newPosition = newPosition;
   	this.roomEditor = roomEditor;
@@ -36,16 +33,16 @@ public class MoveObjectInstance extends AbstractUndoableEdit
   public void undo() throws CannotUndoException
   {
   	// Select the current instance
-  	roomEditor.setCursor(instance);
-  	instance.setPosition(oldPosition);
+  	roomEditor.setCursor(piece);
+  	piece.setPosition(oldPosition);
 
   }
 
   public void redo() throws CannotRedoException
   {
   	// Select the current instance
-		roomEditor.setCursor(instance);
-		instance.setPosition(newPosition);
+		roomEditor.setCursor(piece);
+		piece.setPosition(newPosition);
   }
 
   public boolean canUndo()

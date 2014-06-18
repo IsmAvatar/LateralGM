@@ -1,5 +1,5 @@
 /**
-* Record the effect of removing an object instance for the undo
+* Record the effect of removing a piece (object/tile) instance for the undo
 *
 * 
 */
@@ -11,30 +11,38 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Room.Piece;
 
-public class RemoveObjectInstance extends AbstractUndoableEdit
+public class RemovePieceInstance extends AbstractUndoableEdit
 {
 
-  private Instance instance;
+  private Piece piece;
   private int index;
   private Room room;
 
-  public RemoveObjectInstance(Room room, Instance instance, int index)
+  public RemovePieceInstance(Room room, Piece piece, int index)
   {
-  	this.instance = instance;
+  	this.piece = piece;
   	this.index = index;
   	this.room = room;
   }
 
   public void undo() throws CannotUndoException
   {
-		room.instances.add(index, instance);
+		if (piece instanceof Instance)
+			room.instances.add(index, (Instance)piece);
+		else
+			room.tiles.add(index, (Tile)piece);
   }
 
   public void redo() throws CannotRedoException
   {
-  	room.instances.remove(index);
+		if (piece instanceof Instance)
+			room.instances.remove(index);
+		else
+			room.tiles.remove(index);
   }
 
   public boolean canUndo()

@@ -50,13 +50,13 @@ import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.subframes.CodeFrame;
 import org.lateralgm.ui.swing.visuals.RoomVisual;
 import org.lateralgm.util.ActiveArrayList;
-import org.lateralgm.util.AddObjectInstance;
-import org.lateralgm.util.MoveObjectInstance;
+import org.lateralgm.util.AddPieceInstance;
+import org.lateralgm.util.MovePieceInstance;
 import org.lateralgm.util.PropertyMap;
-import org.lateralgm.util.RemoveObjectInstance;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
+import org.lateralgm.util.RemovePieceInstance;
 
 public class RoomEditor extends VisualPanel
 	{
@@ -161,27 +161,18 @@ public class RoomEditor extends VisualPanel
 		{
 		// Stores several actions in one undo
 		CompoundEdit compoundEdit = new CompoundEdit();
-		UndoableEdit edit;
+		UndoableEdit edit = null;
 		
-		if (cursor instanceof Instance)
-			{
-				// If the object was moved
-				if (objectOriginalPosition != null)
-					{
-					// For the undo, record that the object was moved
-					edit = new MoveObjectInstance(this, (Instance)cursor, objectOriginalPosition, new Point(lastPosition));
-					}
-				else
-					{
-					// A new object has been added
-					edit = new AddObjectInstance(room, (Instance)cursor, room.instances.size() -1);
-					}
-				
-					compoundEdit.addEdit(edit);
-
-	      
-				objectOriginalPosition = null;
-			}
+		// If the object was moved
+		if (objectOriginalPosition != null)
+			// For the undo, record that the object was moved
+			edit = new MovePieceInstance(this, cursor, objectOriginalPosition, new Point(lastPosition));
+		else
+			// A new object has been added
+			edit = new AddPieceInstance(room, cursor, room.instances.size() -1);
+		
+		compoundEdit.addEdit(edit);
+		objectOriginalPosition = null;
 		
 		//it must be guaranteed that cursor != null
 		boolean deleteUnderlyingObjects = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
@@ -192,7 +183,6 @@ public class RoomEditor extends VisualPanel
 		else if (deleteUnderlyingTiles && cursor instanceof Tile)
 			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(lastPosition.x,lastPosition.y,1,1),getTileDepth()),room.tiles, compoundEdit);
 		
-
 		compoundEdit.end();
 		frame.undoSupport.postEdit( compoundEdit );
 
@@ -208,12 +198,10 @@ public class RoomEditor extends VisualPanel
 			T t = i.next();
 			if (t != cursor)
 				{
-					if (t instanceof Instance)
-						{
-			      	// Record the effect of removing an object for the undo
-							 UndoableEdit edit = new RemoveObjectInstance(room, (Instance) t, room.instances.indexOf(t));
-							 compoundEdit.addEdit(edit);
-						}
+	      	// Record the effect of removing an object for the undo
+					 UndoableEdit edit = new RemovePieceInstance(room, (Piece)t, room.instances.indexOf(t));
+					 compoundEdit.addEdit(edit);
+
 				s.add(t);
 				}
 			}
@@ -269,7 +257,7 @@ public class RoomEditor extends VisualPanel
 					Tile t = new Tile(room,LGM.currentFile);
 					t.properties.put(PTile.BACKGROUND,bkg);
 					t.setBackgroundPosition(new Point(frame.tSelect.tx,frame.tSelect.ty));
-					t.setRoomPosition(p);
+					t.setPosition(p);
 					if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
 						t.setSize(new Dimension(b.getWidth(),b.getHeight()));
 					else
@@ -308,7 +296,7 @@ public class RoomEditor extends VisualPanel
 			else if (cursor instanceof Tile)
 				{
 				Tile t = (Tile) cursor;
-				t.setRoomPosition(p);
+				t.setPosition(p);
 				}
 			}
 		}
@@ -363,7 +351,7 @@ public class RoomEditor extends VisualPanel
 				Instance instance = room.instances.get(i);
 				
 	      // Record the effect of removing an object for the undo
-				UndoableEdit edit = new RemoveObjectInstance(room, instance, i);
+				UndoableEdit edit = new RemovePieceInstance(room, instance, i);
 	      // notify the listeners
 				 frame.undoSupport.postEdit( edit );
 				

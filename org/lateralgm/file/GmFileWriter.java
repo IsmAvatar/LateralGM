@@ -710,8 +710,8 @@ public final class GmFileWriter
 				out.write4(rm.tiles.size());
 				for (Tile tile : rm.tiles)
 					{
-					out.write4(tile.getRoomPosition().x);
-					out.write4(tile.getRoomPosition().y);
+					out.write4(tile.getPosition().x);
+					out.write4(tile.getPosition().y);
 					ResourceReference<Background> rb = tile.properties.get(PTile.BACKGROUND);
 					out.writeId(rb);
 					out.write4(tile.getBackgroundPosition().x);
