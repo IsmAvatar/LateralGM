@@ -10,6 +10,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.Room;
@@ -20,29 +21,32 @@ public class RemovePieceInstance extends AbstractUndoableEdit
 
   private Piece piece;
   private int index;
-  private Room room;
+  private RoomEditor roomEditor;
 
-  public RemovePieceInstance(Room room, Piece piece, int index)
+  public RemovePieceInstance(RoomEditor roomEditor, Piece piece, int index)
   {
   	this.piece = piece;
   	this.index = index;
-  	this.room = room;
+  	this.roomEditor = roomEditor;
   }
 
   public void undo() throws CannotUndoException
   {
 		if (piece instanceof Instance)
-			room.instances.add(index, (Instance)piece);
+			roomEditor.room.instances.add(index, (Instance)piece);
 		else
-			room.tiles.add(index, (Tile)piece);
+			roomEditor.room.tiles.add(index, (Tile)piece);
+		
+  	// Select the current instance
+  	roomEditor.setCursor(piece);
   }
 
   public void redo() throws CannotRedoException
   {
 		if (piece instanceof Instance)
-			room.instances.remove(index);
+			roomEditor.room.instances.remove(index);
 		else
-			room.tiles.remove(index);
+			roomEditor.room.tiles.remove(index);
   }
 
   public boolean canUndo()

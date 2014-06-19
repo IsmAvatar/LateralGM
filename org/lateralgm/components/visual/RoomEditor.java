@@ -65,7 +65,7 @@ public class RoomEditor extends VisualPanel
 	public static final int ZOOM_MIN = -1;
 	public static final int ZOOM_MAX = 2;
 
-	private final Room room;
+	public final Room room;
 	protected final RoomFrame frame;
 	private Piece cursor;
 	public final PropertyMap<PRoomEditor> properties;
@@ -159,6 +159,7 @@ public class RoomEditor extends VisualPanel
 
 	public void releaseCursor(Point lastPosition)
 		{
+		System.out.println("release cursor");
 		// Stores several actions in one undo
 		CompoundEdit compoundEdit = new CompoundEdit();
 		UndoableEdit edit = null;
@@ -169,7 +170,7 @@ public class RoomEditor extends VisualPanel
 			edit = new MovePieceInstance(this, cursor, objectOriginalPosition, new Point(lastPosition));
 		else
 			// A new object has been added
-			edit = new AddPieceInstance(room, cursor, room.instances.size() -1);
+			edit = new AddPieceInstance(this, cursor, room.instances.size() -1);
 		
 		compoundEdit.addEdit(edit);
 		objectOriginalPosition = null;
@@ -199,7 +200,7 @@ public class RoomEditor extends VisualPanel
 			if (t != cursor)
 				{
 	      	// Record the effect of removing an object for the undo
-					 UndoableEdit edit = new RemovePieceInstance(room, (Piece)t, room.instances.indexOf(t));
+					 UndoableEdit edit = new RemovePieceInstance(this, (Piece)t, room.instances.indexOf(t));
 					 compoundEdit.addEdit(edit);
 
 				s.add(t);
@@ -211,6 +212,7 @@ public class RoomEditor extends VisualPanel
 	/** Do not call with null */
 	public void setCursor(Piece ds)
 		{
+		System.out.println("set cursor");
 		cursor = ds;
 		if (ds instanceof Instance)
 			{
@@ -351,7 +353,7 @@ public class RoomEditor extends VisualPanel
 				Instance instance = room.instances.get(i);
 				
 	      // Record the effect of removing an object for the undo
-				UndoableEdit edit = new RemovePieceInstance(room, instance, i);
+				UndoableEdit edit = new RemovePieceInstance(this, instance, i);
 	      // notify the listeners
 				 frame.undoSupport.postEdit( edit );
 				
@@ -378,12 +380,13 @@ public class RoomEditor extends VisualPanel
 
 	protected void mouseEdit(MouseEvent e)
 		{
+		System.out.println("Mouse edit");
 		int modifiers = e.getModifiersEx();
 		int type = e.getID();
-		Point p = e.getPoint().getLocation();
-		componentToVisual(p);
-		int x = p.x;
-		int y = p.y;
+		Point currentPosition = e.getPoint().getLocation();
+		componentToVisual(currentPosition);
+		int x = currentPosition.x;
+		int y = currentPosition.y;
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
 			int sx = room.get(PRoom.SNAP_X);
@@ -412,7 +415,7 @@ public class RoomEditor extends VisualPanel
 		Piece mc = null;
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 			{
-			Tile tile = getTopPiece(p,Tile.class,getTileDepth());
+			Tile tile = getTopPiece(currentPosition,Tile.class,getTileDepth());
 			mc = tile;
 			if (mc != null)
 				{
@@ -429,7 +432,7 @@ public class RoomEditor extends VisualPanel
 			}
 		else
 			{
-			Instance instance = getTopPiece(p,Instance.class);
+			Instance instance = getTopPiece(currentPosition,Instance.class);
 			mc = instance;
 			if (instance != null)
 				{
@@ -452,7 +455,7 @@ public class RoomEditor extends VisualPanel
 			}
 		else if (cursor != null) releaseCursor(new Point(x,y));
 		if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
-			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,p); //use mouse point
+			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,currentPosition); //use mouse point
 		}
 
 	private <P extends Piece>P getTopPiece(Point p, Class<P> c)

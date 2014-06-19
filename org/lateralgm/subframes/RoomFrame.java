@@ -1396,7 +1396,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
       int numberOfObjects = res.instances.size();
       
       // Record the effect of adding an object for the undo
-      UndoableEdit edit = new AddPieceInstance(res, newObject, numberOfObjects -1);
+      UndoableEdit edit = new AddPieceInstance(editor, newObject, numberOfObjects -1);
       // notify the listeners
       undoSupport.postEdit( edit );
       
@@ -1414,7 +1414,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			Instance instance = (Instance) oList.getSelectedValue();
 			
       // Record the effect of removing an object for the undo
-			UndoableEdit edit = new RemovePieceInstance(res, instance, selectedIndex);
+			UndoableEdit edit = new RemovePieceInstance(editor, instance, selectedIndex);
       // notify the listeners
 			undoSupport.postEdit( edit );
       
