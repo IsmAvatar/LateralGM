@@ -62,10 +62,11 @@ public final class LibManager
 	 */
 	public static void autoLoad()
 		{
-		if (!Prefs.enableDragAndDrop) {
-      codeAction = makeCodeAction(); 
-      return;
-    }
+		// We can't do this became EGM has no reflection capabilities in this regard.
+		//if (!Prefs.enableDragAndDrop) {
+      //codeAction = makeCodeAction(); 
+      //return;
+    //}
 		
 		File dir = new File(Prefs.actionLibraryPath);
 		if (!dir.exists())
