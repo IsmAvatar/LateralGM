@@ -65,7 +65,7 @@ public class RoomEditor extends VisualPanel
 	public static final int ZOOM_MIN = -1;
 	public static final int ZOOM_MAX = 2;
 
-	public final Room room;
+	private final Room room;
 	protected final RoomFrame frame;
 	private Piece cursor;
 	public final PropertyMap<PRoomEditor> properties;
@@ -167,10 +167,10 @@ public class RoomEditor extends VisualPanel
 		// If the object was moved
 		if (objectOriginalPosition != null)
 			// For the undo, record that the object was moved
-			edit = new MovePieceInstance(this, cursor, objectOriginalPosition, new Point(lastPosition));
+			edit = new MovePieceInstance(frame, cursor, objectOriginalPosition, new Point(lastPosition));
 		else
 			// A new object has been added
-			edit = new AddPieceInstance(this, cursor, room.instances.size() -1);
+			edit = new AddPieceInstance(frame, cursor, room.instances.size() -1);
 		
 		compoundEdit.addEdit(edit);
 		objectOriginalPosition = null;
@@ -200,7 +200,7 @@ public class RoomEditor extends VisualPanel
 			if (t != cursor)
 				{
 	      	// Record the effect of removing an object for the undo
-					 UndoableEdit edit = new RemovePieceInstance(this, (Piece)t, room.instances.indexOf(t));
+					 UndoableEdit edit = new RemovePieceInstance(frame, (Piece)t, room.instances.indexOf(t));
 					 compoundEdit.addEdit(edit);
 
 				s.add(t);
@@ -229,9 +229,11 @@ public class RoomEditor extends VisualPanel
 
 	private void processLeftButton(int modifiers, boolean pressed, Piece mc, Point p)
 		{
-		boolean shift = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
+		boolean shiftKeyPressed = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
+		
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
+			
 			if (pressed && mc != null && !mc.isLocked())
 				{
 				System.out.println("moving a new object");
@@ -240,17 +242,21 @@ public class RoomEditor extends VisualPanel
 					
 					setCursor(mc);
 				}
+			
 			}
 		else
 			{
-			if (shift && cursor != null) if (!roomVisual.intersects(new Rectangle(p.x,p.y,1,1),cursor))
+			
+			if (shiftKeyPressed && cursor != null) if (!roomVisual.intersects(new Rectangle(p.x,p.y,1,1),cursor))
 				{
-				System.out.println("Releasing cursor 2");
+				System.out.println("Going to release cursor after shit add");
 				releaseCursor(p);
 				pressed = true; //ensures that a new instance is created below
 				}
+			
 			if (pressed && cursor == null)
 				{
+				
 				if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 					{
 					ResourceReference<Background> bkg = frame.taSource.getSelected();
@@ -260,15 +266,17 @@ public class RoomEditor extends VisualPanel
 					t.properties.put(PTile.BACKGROUND,bkg);
 					t.setBackgroundPosition(new Point(frame.tSelect.tx,frame.tSelect.ty));
 					t.setPosition(p);
+					
 					if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
 						t.setSize(new Dimension(b.getWidth(),b.getHeight()));
 					else
 						t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
 								(Integer) b.get(PBackground.TILE_HEIGHT)));
+					
 					t.setDepth((Integer) frame.taDepth.getValue());
 					room.tiles.add(t);
 					setCursor(t);
-					shift = true; //prevents unnecessary coordinate update below
+					shiftKeyPressed = true; //prevents unnecessary coordinate update below
 					}
 				else if (frame.tabs.getSelectedIndex() == Room.TAB_OBJECTS)
 					{
@@ -277,18 +285,18 @@ public class RoomEditor extends VisualPanel
 					Instance instance = room.addInstance();
 					instance.properties.put(PInstance.OBJECT,obj);
 					instance.setPosition(p);
-					if (shift)
+					
+					if (shiftKeyPressed)
 					System.out.println("Adding a new object with shift");
 					else
 					System.out.println("Adding a new object");
 
-		      
 					setCursor(instance);
-					shift = true; //prevents unnecessary coordinate update below
+					shiftKeyPressed = true; //prevents unnecessary coordinate update below
 					}
 				}
 			}
-		if (cursor != null && !shift)
+		if (cursor != null && !shiftKeyPressed)
 			{
 			if (cursor instanceof Instance)
 				{
@@ -349,11 +357,8 @@ public class RoomEditor extends VisualPanel
 				i = room.instances.indexOf(mc);
 				if (i == -1) return;
 				
-				// Get the object instance under the mouse cursor
-				Instance instance = room.instances.get(i);
-				
 	      // Record the effect of removing an object for the undo
-				UndoableEdit edit = new RemovePieceInstance(this, instance, i);
+				UndoableEdit edit = new RemovePieceInstance(frame, mc, i);
 	      // notify the listeners
 				 frame.undoSupport.postEdit( edit );
 				
@@ -380,7 +385,6 @@ public class RoomEditor extends VisualPanel
 
 	protected void mouseEdit(MouseEvent e)
 		{
-		System.out.println("Mouse edit");
 		int modifiers = e.getModifiersEx();
 		int type = e.getID();
 		Point currentPosition = e.getPoint().getLocation();
@@ -413,6 +417,7 @@ public class RoomEditor extends VisualPanel
 		frame.statSrc.setText(""); //$NON-NLS-1$
 
 		Piece mc = null;
+		
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 			{
 			Tile tile = getTopPiece(currentPosition,Tile.class,getTileDepth());
@@ -432,8 +437,10 @@ public class RoomEditor extends VisualPanel
 			}
 		else
 			{
+			
 			Instance instance = getTopPiece(currentPosition,Instance.class);
 			mc = instance;
+			
 			if (instance != null)
 				{
 				String idt = Messages.getString("RoomFrame.STAT_ID") //$NON-NLS-1$
@@ -453,7 +460,12 @@ public class RoomEditor extends VisualPanel
 			{
 			processLeftButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,new Point(x,y));
 			}
-		else if (cursor != null) releaseCursor(new Point(x,y));
+		else if (cursor != null)
+			{
+				System.out.println("going to release cursor");
+				releaseCursor(new Point(x,y));
+			}
+		
 		if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
 			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,currentPosition); //use mouse point
 		}

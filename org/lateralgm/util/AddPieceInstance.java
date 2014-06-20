@@ -15,39 +15,39 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.Piece;
+import org.lateralgm.subframes.RoomFrame;
 
 public class AddPieceInstance extends AbstractUndoableEdit
 {
-
-  private Instance instance;
   private int index;
-  private RoomEditor roomEditor;
+  private RoomFrame roomFrame;
   private Piece piece;
 
-  public AddPieceInstance(RoomEditor roomEditor, Piece piece, int index)
+  public AddPieceInstance(RoomFrame roomFrame, Piece piece, int index)
   {
   	this.piece = piece;
   	this.index = index;
-  	this.roomEditor = roomEditor;
+  	this.roomFrame = roomFrame;
   }
 
   public void undo() throws CannotUndoException
   {
-  	if (piece instanceof Instance)
-  		roomEditor.room.instances.remove(index);
-  	else
-  		roomEditor.room.tiles.remove(index);
+		if (piece instanceof Instance)
+			roomFrame.res.instances.remove(index);
+		else
+			roomFrame.res.tiles.remove(index);
   }
 
   public void redo() throws CannotRedoException
   {
 		if (piece instanceof Instance)
-			roomEditor.room.instances.add((Instance)piece);
+			roomFrame.res.instances.add(index, (Instance)piece);
 		else
-			roomEditor.room.tiles.add((Tile)piece);
+			roomFrame.res.tiles.add(index, (Tile)piece);
 		
-  	// Select the current instance
-  	roomEditor.setCursor(piece);
+		// Select the current piece
+	  roomFrame.oList.setSelectedValue(piece,true);
+	  roomFrame.fireObjUpdate();
   }
 
   public boolean canUndo()

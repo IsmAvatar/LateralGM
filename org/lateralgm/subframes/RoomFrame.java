@@ -27,6 +27,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
@@ -51,6 +52,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
@@ -1394,9 +1396,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
       newObject.setPosition(new Point());
       
       int numberOfObjects = res.instances.size();
-      
+  		System.out.println("undo support adding button");
       // Record the effect of adding an object for the undo
-      UndoableEdit edit = new AddPieceInstance(editor, newObject, numberOfObjects -1);
+      UndoableEdit edit = new AddPieceInstance(this, newObject, numberOfObjects -1);
       // notify the listeners
       undoSupport.postEdit( edit );
       
@@ -1412,9 +1414,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (selectedIndex == -1) return;
 			
 			Instance instance = (Instance) oList.getSelectedValue();
-			
+			System.out.println("undo support delete button");
       // Record the effect of removing an object for the undo
-			UndoableEdit edit = new RemovePieceInstance(editor, instance, selectedIndex);
+			UndoableEdit edit = new RemovePieceInstance(this, instance, selectedIndex);
       // notify the listeners
 			undoSupport.postEdit( edit );
       
@@ -1691,13 +1693,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
   * in order to refresh the presentation state of the undo/redo GUI
   */
 
-  public void refreshUndoRedoButtons() {
-
-     // refresh undo
-     undo.setEnabled(undoManager.canUndo() );
-
-     // refresh redo
-     redo.setEnabled(undoManager.canRedo() );
-  }
+  public void refreshUndoRedoButtons()
+	  {
+	
+	     // refresh undo
+	     undo.setEnabled(undoManager.canUndo() );
+	
+	     // refresh redo
+	     redo.setEnabled(undoManager.canRedo() );
+	  }
 
 }
