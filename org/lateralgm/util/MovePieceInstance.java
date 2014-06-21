@@ -1,7 +1,7 @@
 /**
 * Record the effect of moving a piece (object/tile) instance for the undo
 *
-* 
+* Written in 2014 by egofree
 */
 
 package org.lateralgm.util;
@@ -12,7 +12,6 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.resources.Room.Piece;
 import org.lateralgm.subframes.RoomFrame;
 
@@ -38,7 +37,6 @@ public class MovePieceInstance extends AbstractUndoableEdit
 	  roomFrame.fireObjUpdate();
 
   	piece.setPosition(oldPosition);
-
   }
 
   public void redo() throws CannotRedoException

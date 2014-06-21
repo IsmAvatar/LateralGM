@@ -1,7 +1,7 @@
 /**
 * Record the effect of adding a piece (object/tile) for the undo
 *
-* 
+* Written in 2014 by egofree
 */
 
 package org.lateralgm.util;

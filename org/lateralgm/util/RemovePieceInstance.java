@@ -1,7 +1,7 @@
 /**
 * Record the effect of removing a piece (object/tile) instance for the undo
 *
-* 
+* Written in 2014 by egofree
 */
 
 package org.lateralgm.util;
@@ -10,10 +10,8 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
-import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.Piece;
 import org.lateralgm.subframes.RoomFrame;
 
