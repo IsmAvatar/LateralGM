@@ -33,12 +33,16 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
@@ -201,13 +205,42 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tool.add(zoomOut);
 		tool.addSeparator();
 
+		// Action fired when the undo button is clicked
+    Action undoAction = new AbstractAction()
+    	{
+				public void actionPerformed(ActionEvent actionEvent) 
+    			{
+        	undoManager.undo();
+        	refreshUndoRedoButtons();
+    			}
+    	};
+
 		undo = new JButton(LGM.getIconForKey("RoomFrame.UNDO"));
 		undo.setToolTipText(Messages.getString("RoomFrame.UNDO"));
-		undo.addActionListener(this);
+		// Bind the ctrl-z keystroke with the undo button
+		KeyStroke ctrlZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK);
+		undo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlZ, "ctrlZ");
+		undo.getActionMap().put("ctrlZ", undoAction);
+		undo.addActionListener(undoAction);
 		tool.add(undo);
+		
+		// Action fired when the redo button is clicked
+    Action redoAction = new AbstractAction()
+    	{
+				public void actionPerformed(ActionEvent actionEvent) 
+    			{
+      		undoManager.redo();
+      		refreshUndoRedoButtons();
+    			}
+    	};
+    	
 		redo = new JButton(LGM.getIconForKey("RoomFrame.REDO"));
 		redo.setToolTipText(Messages.getString("RoomFrame.REDO"));
-		redo.addActionListener(this);
+		// Bind the ctrl-y keystroke with the redo button
+		KeyStroke ctrlY = KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK);
+		redo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlY, "ctrlY");
+		redo.getActionMap().put("ctrlY", redoAction);
+		redo.addActionListener(redoAction);
 		tool.add(redo);
 		tool.addSeparator();
 		
@@ -1363,22 +1396,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (editor != null) editor.refresh();
 		Object s = e.getSource();
 
-		// If the user has pressed the undo button
-		if (s == undo)
-		{
-    	undoManager.undo();
-    	refreshUndoRedoButtons();
-			return;
-		}
-		
-		// If the user has pressed the redo button
-		if (s == redo)
-		{
-  		undoManager.redo();
-  		refreshUndoRedoButtons();
-			return;
-		}
-
 		if (s == sShow)
 			{
 			sShowMenu.show(sShow,0,sShow.getHeight());
@@ -1396,7 +1413,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
       newObject.setPosition(new Point());
       
       int numberOfObjects = res.instances.size();
-  		System.out.println("undo support adding button");
+
       // Record the effect of adding an object for the undo
       UndoableEdit edit = new AddPieceInstance(this, newObject, numberOfObjects -1);
       // notify the listeners
@@ -1695,7 +1712,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
   public void refreshUndoRedoButtons()
 	  {
-	
 	     // refresh undo
 	     undo.setEnabled(undoManager.canUndo() );
 	

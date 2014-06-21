@@ -396,6 +396,7 @@ public class RoomEditor extends VisualPanel
 		componentToVisual(currentPosition);
 		int x = currentPosition.x;
 		int y = currentPosition.y;
+		
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
 			int sx = room.get(PRoom.SNAP_X);
@@ -416,6 +417,7 @@ public class RoomEditor extends VisualPanel
 				y = oy + negDiv(y - oy,sy) * sy;
 				}
 			}
+		
 		frame.statX.setText(Messages.getString("RoomFrame.STAT_X") + x); //$NON-NLS-1$
 		frame.statY.setText(Messages.getString("RoomFrame.STAT_Y") + y); //$NON-NLS-1$
 		frame.statId.setText(""); //$NON-NLS-1$
