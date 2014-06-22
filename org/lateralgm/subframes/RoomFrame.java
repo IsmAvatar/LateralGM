@@ -27,9 +27,13 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
 
@@ -103,13 +107,14 @@ import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
 import org.lateralgm.util.AddPieceInstance;
+import org.lateralgm.util.MovePieceInstance;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.RemovePieceInstance;
 
 public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements ListSelectionListener,
-		CommandHandler,UpdateListener
+		CommandHandler, UpdateListener, FocusListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
@@ -118,10 +123,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private final EditorScrollPane editorPane;
 	public final JTabbedPane tabs;
 	public JLabel statX, statY, statId, statSrc;
+	
 	//ToolBar
 	private JButton zoomIn, zoomOut, undo, redo;
 	private JToggleButton gridVis;
 	JToggleButton gridIso;
+	
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	private ButtonModelLink<PInstance> loLocked;
@@ -130,15 +137,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private JButton oAdd, oDel;
 	public ResourceMenu<GmObject> oNew, oSource;
 	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
-	public NumberField oX, oY;
+	public NumberField objectHorizontalPosition, objectVerticalPosition;
 	private FormattedLink<PInstance> loX, loY;
 	private JButton oCreationCode;
+	
 	//Settings
 	private JTextField sCaption;
 	private JCheckBox sPersistent;
 	private JButton sCreationCode, sShow;
 	private JPopupMenu sShowMenu;
-
 	public HashMap<CodeHolder,CodeFrame> codeFrames = new HashMap<CodeHolder,CodeFrame>();
 
 	private JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
@@ -187,7 +194,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	// Undo system elements
   public UndoManager undoManager;     
   public UndoableEditSupport undoSupport;
-
+	// Record the original position of an piece (Used when moving an object for the undo)
+	private Point objectOriginalPosition = null;
+	
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
@@ -412,11 +421,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
 		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
 		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
-		oX = new NumberField(0);
-		oX.setColumns(4);
+		objectHorizontalPosition = new NumberField(0);
+		objectHorizontalPosition.setColumns(4);
+		objectHorizontalPosition.addFocusListener(this);
 		JLabel lObjY = new JLabel(Messages.getString("RoomFrame.OBJ_Y")); //$NON-NLS-1$
-		oY = new NumberField(0);
-		oY.setColumns(4);
+		objectVerticalPosition = new NumberField(0);
+		objectVerticalPosition.setColumns(4);
+		objectVerticalPosition.addFocusListener(this);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
@@ -426,18 +437,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/**/.addComponent(oLocked)
 		/**/.addGroup(layout2.createSequentialGroup()
 		/*		*/.addComponent(lObjX)
-		/*		*/.addComponent(oX)
+		/*		*/.addComponent(objectHorizontalPosition)
 		/*		*/.addComponent(lObjY)
-		/*		*/.addComponent(oY))
+		/*		*/.addComponent(objectVerticalPosition))
 		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout2.setVerticalGroup(layout2.createSequentialGroup()
 		/**/.addComponent(oSource)
 		/**/.addComponent(oLocked)
 		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lObjX)
-		/*		*/.addComponent(oX)
+		/*		*/.addComponent(objectHorizontalPosition)
 		/*		*/.addComponent(lObjY)
-		/*		*/.addComponent(oY))
+		/*		*/.addComponent(objectVerticalPosition))
 		/**/.addComponent(oCreationCode));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -1315,7 +1326,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
     undoSupport = new UndoableEditSupport();
     undoSupport.addUndoableEditListener(new UndoAdapter());
     refreshUndoRedoButtons();
-
+    
 		if (res.get(PRoom.REMEMBER_WINDOW_SIZE))
 			{
 			int h = res.get(PRoom.EDITOR_HEIGHT);
@@ -1431,7 +1442,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (selectedIndex == -1) return;
 			
 			Instance instance = (Instance) oList.getSelectedValue();
-			System.out.println("undo support delete button");
+
       // Record the effect of removing an object for the undo
 			UndoableEdit edit = new RemovePieceInstance(this, instance, selectedIndex);
       // notify the listeners
@@ -1480,8 +1491,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(i.properties,this);
 			loLocked = iplf.make(oLocked,PInstance.LOCKED);
 			loSource = iplf.make(oSource,PInstance.OBJECT);
-			loX = iplf.make(oX,PInstance.X);
-			loY = iplf.make(oY,PInstance.Y);
+			loX = iplf.make(objectHorizontalPosition,PInstance.X);
+			loY = iplf.make(objectVerticalPosition,PInstance.Y);
 			}
 		}
 
@@ -1690,6 +1701,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (e.key == PView.VISIBLE) bdvListUpdate(false,e.source,(Boolean) e.map.get(e.key));
 			}
 		}
+  
   /**
   * An undo/redo adapter. The adapter is notified when an undo edit occur(e.g. add or remove from the list)
   * The adapter extract the edit from the event, add it to the UndoManager, and refresh the GUI
@@ -1718,5 +1730,37 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	     // refresh redo
 	     redo.setEnabled(undoManager.canRedo() );
 	  }
+  
+  // When a text field gains the focus
+	public void focusGained(FocusEvent event)
+		{
+		// Store the position of the object
+		int horizontalPosition = objectHorizontalPosition.getIntValue();
+		int verticalPosition = objectVerticalPosition.getIntValue();
+		objectOriginalPosition = new Point (horizontalPosition, verticalPosition);
+		}
+
+	// When a text field has lost the focus
+	public void focusLost(FocusEvent event)
+		{
+		// Get the new position of the object
+		int horizontalPosition = objectHorizontalPosition.getIntValue();
+		int verticalPosition = objectVerticalPosition.getIntValue();
+		Point objectNewPosition = new Point (horizontalPosition, verticalPosition);
+		
+		if (!objectNewPosition.equals(objectOriginalPosition))
+			{
+			int selectedIndex = oList.getSelectedIndex();
+			if (selectedIndex == -1) return;
+			
+			Instance instance = (Instance) oList.getSelectedValue();
+			
+			// Record the effect of moving an object for the undo
+			UndoableEdit edit = new MovePieceInstance(this, instance, objectOriginalPosition, objectNewPosition);
+	    // notify the listeners
+	    undoSupport.postEdit( edit );
+			}
+
+		}
 
 }

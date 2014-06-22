@@ -511,6 +511,7 @@ public class RoomEditor extends VisualPanel
 		{
 		public void updated(PropertyUpdateEvent<PRoom> e)
 			{
+			System.out.println("property updated");
 			switch (e.key)
 				{
 				case SNAP_X:
@@ -564,6 +565,7 @@ public class RoomEditor extends VisualPanel
 		{
 		public Object validate(PRoomEditor k, Object v)
 			{
+			System.out.println("property validate");
 			switch (k)
 				{
 				case GRID_OFFSET_X:
