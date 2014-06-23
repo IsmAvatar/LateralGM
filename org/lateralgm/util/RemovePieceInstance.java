@@ -42,7 +42,11 @@ public class RemovePieceInstance extends AbstractUndoableEdit
 		
 		// Select the current piece
 	  roomFrame.oList.setSelectedValue(piece,true);
-	  roomFrame.fireObjUpdate();
+	  
+		if (piece instanceof Instance)
+			roomFrame.fireObjUpdate();
+		else
+			roomFrame.fireTileUpdate();
   }
 
   public void redo() throws CannotRedoException

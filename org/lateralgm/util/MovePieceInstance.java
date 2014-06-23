@@ -17,6 +17,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import org.lateralgm.resources.Room.Piece;
+import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.subframes.RoomFrame;
 
 public class MovePieceInstance extends AbstractUndoableEdit
@@ -38,7 +39,11 @@ public class MovePieceInstance extends AbstractUndoableEdit
   {
 		// Select the current piece
 	  roomFrame.oList.setSelectedValue(piece,true);
-	  roomFrame.fireObjUpdate();
+	  
+		if (piece instanceof Instance)
+			roomFrame.fireObjUpdate();
+		else
+			roomFrame.fireTileUpdate();
 
   	piece.setPosition(oldPosition);
   }
@@ -47,7 +52,11 @@ public class MovePieceInstance extends AbstractUndoableEdit
   {
 		// Select the current piece
 	  roomFrame.oList.setSelectedValue(piece,true);
-	  roomFrame.fireObjUpdate();
+	  
+		if (piece instanceof Instance)
+			roomFrame.fireObjUpdate();
+		else
+			roomFrame.fireTileUpdate();
   
 		piece.setPosition(newPosition);
   }

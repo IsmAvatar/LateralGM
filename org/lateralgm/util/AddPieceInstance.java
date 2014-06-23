@@ -51,7 +51,12 @@ public class AddPieceInstance extends AbstractUndoableEdit
 		
 		// Select the current piece
 	  roomFrame.oList.setSelectedValue(piece,true);
-	  roomFrame.fireObjUpdate();
+	  
+		if (piece instanceof Instance)
+			roomFrame.fireObjUpdate();
+		else
+			roomFrame.fireTileUpdate();
+
   }
 
   public boolean canUndo()
