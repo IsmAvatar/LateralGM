@@ -418,6 +418,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 		oSource = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
+		
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
 		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
 		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
@@ -1486,13 +1487,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 	public void fireObjUpdate()
 		{
-		Instance i = (Instance) oList.getSelectedValue();
-		if (lastObj == i) return;
-		lastObj = i;
+		Instance selectedInstance = (Instance) oList.getSelectedValue();
+		if (lastObj == selectedInstance) return;
+		lastObj = selectedInstance;
 		PropertyLink.removeAll(loLocked,loSource,loX,loY);
-		if (i != null)
+		
+		if (selectedInstance != null)
 			{
-			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(i.properties,this);
+			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(selectedInstance.properties,this);
 			loLocked = iplf.make(oLocked,PInstance.LOCKED);
 			loSource = iplf.make(oSource,PInstance.OBJECT);
 			loX = iplf.make(objectHorizontalPosition,PInstance.X);
@@ -1513,13 +1515,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 	public void fireTileUpdate()
 		{
-		Tile t = (Tile) tList.getSelectedValue();
-		if (lastTile == t) return;
-		lastTile = t;
+		Tile selectedTile = (Tile) tList.getSelectedValue();
+		if (lastTile == selectedTile) return;
+		lastTile = selectedTile;
 		PropertyLink.removeAll(ltDepth,ltLocked,ltSource,ltsX,ltsY,ltX,ltY);
-		if (t != null)
+		
+		if (selectedTile != null)
 			{
-			PropertyLinkFactory<PTile> tplf = new PropertyLinkFactory<PTile>(t.properties,this);
+			PropertyLinkFactory<PTile> tplf = new PropertyLinkFactory<PTile>(selectedTile.properties,this);
 			ltDepth = tplf.make(teDepth,PTile.DEPTH);
 			ltLocked = tplf.make(tLocked,PTile.LOCKED);
 			ltSource = tplf.make(teSource,PTile.BACKGROUND);
