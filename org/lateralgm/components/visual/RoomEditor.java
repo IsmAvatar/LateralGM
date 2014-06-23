@@ -74,7 +74,7 @@ public class RoomEditor extends VisualPanel
 	private final RoomPropertyListener rpl = new RoomPropertyListener();
 	private final RoomEditorPropertyValidator repv = new RoomEditorPropertyValidator();
 
-	// Record the original position of an piece (Used when moving an object for the undo)
+	// Save the original position of a selected piece (Used when moving an object for the undo)
 	private Point objectFirstPosition = null;
 	
 	public enum PRoomEditor
@@ -248,8 +248,8 @@ public class RoomEditor extends VisualPanel
 			
 			if (pressed && mc != null && !mc.isLocked())
 				{
-					// Record the original position of the object for the undo
-					objectFirstPosition = p;
+					// Record the original position of the object (without snapping) for the undo
+					objectFirstPosition = mc.getPosition();
 					
 					setCursor(mc);
 				}
@@ -398,7 +398,7 @@ public class RoomEditor extends VisualPanel
 		componentToVisual(currentPosition);
 		int x = currentPosition.x;
 		int y = currentPosition.y;
-		
+
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
 			int sx = room.get(PRoom.SNAP_X);

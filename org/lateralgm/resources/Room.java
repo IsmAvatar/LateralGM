@@ -157,6 +157,8 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 
 		void setLocked(boolean l);
 		
-		public void setPosition(Point pos);
+		void setPosition(Point pos);
+		
+		Point getPosition();
 		}
 	}
