@@ -467,8 +467,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/*		*/.addComponent(oAdd)
 		/*		*/.addComponent(oDel))
 		/**/.addComponent(edit));
-
+		
+		// Make sure the selected object in the list is activated
+		fireObjUpdate();
 		return panel;
+		
 		}
 
 	private JPopupMenu makeShowMenu()
@@ -626,6 +629,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane());
 		tab.addTab(Messages.getString("RoomFrame.TILE_BATCH"),makeTilesBatchPane());
 		tab.setSelectedIndex(0);
+		fireTileUpdate();
 		return tab;
 		}
 
@@ -1734,7 +1738,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
   // When a text field gains the focus
 	public void focusGained(FocusEvent event)
 		{
-		// Store the position of the object
+		// If no object is selected, return
+		int selectedIndex = oList.getSelectedIndex();
+		if (selectedIndex == -1) return;
+		
+		// Save the position of the object
 		int horizontalPosition = objectHorizontalPosition.getIntValue();
 		int verticalPosition = objectVerticalPosition.getIntValue();
 		objectOriginalPosition = new Point (horizontalPosition, verticalPosition);
@@ -1743,16 +1751,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	// When a text field has lost the focus
 	public void focusLost(FocusEvent event)
 		{
+		// If no object is selected, return
+		int selectedIndex = oList.getSelectedIndex();
+		if (selectedIndex == -1) return;
+		
 		// Get the new position of the object
 		int horizontalPosition = objectHorizontalPosition.getIntValue();
 		int verticalPosition = objectVerticalPosition.getIntValue();
 		Point objectNewPosition = new Point (horizontalPosition, verticalPosition);
 		
+		// If the position of the object has been changed
 		if (!objectNewPosition.equals(objectOriginalPosition))
 			{
-			int selectedIndex = oList.getSelectedIndex();
-			if (selectedIndex == -1) return;
-			
 			Instance instance = (Instance) oList.getSelectedValue();
 			
 			// Record the effect of moving an object for the undo

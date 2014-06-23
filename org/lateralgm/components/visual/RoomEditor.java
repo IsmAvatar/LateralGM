@@ -75,7 +75,7 @@ public class RoomEditor extends VisualPanel
 	private final RoomEditorPropertyValidator repv = new RoomEditorPropertyValidator();
 
 	// Record the original position of an piece (Used when moving an object for the undo)
-	private Point objectOriginalPosition = null;
+	private Point objectFirstPosition = null;
 	
 	public enum PRoomEditor
 		{
@@ -162,11 +162,11 @@ public class RoomEditor extends VisualPanel
 		// Stores several actions in one compound action for the undo
 		CompoundEdit compoundEdit = new CompoundEdit();
 		UndoableEdit edit = null;
-		
+
 		// If the piece was moved
-		if (objectOriginalPosition != null)
+		if (objectFirstPosition != null)
 			// For the undo, record that the object was moved
-			edit = new MovePieceInstance(frame, cursor, objectOriginalPosition, new Point(lastPosition));
+			edit = new MovePieceInstance(frame, cursor, objectFirstPosition, new Point(lastPosition));
 		else
 		// A new piece has been added
 			{
@@ -177,7 +177,7 @@ public class RoomEditor extends VisualPanel
 			}
 		
 		compoundEdit.addEdit(edit);
-		objectOriginalPosition = null;
+		objectFirstPosition = null;
 		
 		//it must be guaranteed that cursor != null
 		boolean deleteUnderlyingObjects = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
@@ -249,7 +249,7 @@ public class RoomEditor extends VisualPanel
 			if (pressed && mc != null && !mc.isLocked())
 				{
 					// Record the original position of the object for the undo
-					objectOriginalPosition = p;
+					objectFirstPosition = p;
 					
 					setCursor(mc);
 				}
@@ -390,6 +390,8 @@ public class RoomEditor extends VisualPanel
 
 	protected void mouseEdit(MouseEvent e)
 		{
+		// Get the focus, so we make sure the text fields of the objects/tiles lost focus
+		this.requestFocusInWindow();
 		int modifiers = e.getModifiersEx();
 		int type = e.getID();
 		Point currentPosition = e.getPoint().getLocation();
@@ -511,7 +513,6 @@ public class RoomEditor extends VisualPanel
 		{
 		public void updated(PropertyUpdateEvent<PRoom> e)
 			{
-			System.out.println("property updated");
 			switch (e.key)
 				{
 				case SNAP_X:
