@@ -38,12 +38,16 @@ public class MovePieceInstance extends AbstractUndoableEdit
   public void undo() throws CannotUndoException
   {
 		// Select the current piece
-	  roomFrame.oList.setSelectedValue(piece,true);
-	  
 		if (piece instanceof Instance)
+			{
+		  roomFrame.oList.setSelectedValue(piece,true);
 			roomFrame.fireObjUpdate();
+			}
 		else
+			{
+		  roomFrame.tList.setSelectedValue(piece,true);
 			roomFrame.fireTileUpdate();
+			}
 
   	piece.setPosition(oldPosition);
   }
@@ -51,12 +55,16 @@ public class MovePieceInstance extends AbstractUndoableEdit
   public void redo() throws CannotRedoException
   {
 		// Select the current piece
-	  roomFrame.oList.setSelectedValue(piece,true);
-	  
 		if (piece instanceof Instance)
+			{
+		  roomFrame.oList.setSelectedValue(piece,true);
 			roomFrame.fireObjUpdate();
+			}
 		else
+			{
+		  roomFrame.tList.setSelectedValue(piece,true);
 			roomFrame.fireTileUpdate();
+			}
   
 		piece.setPosition(newPosition);
   }

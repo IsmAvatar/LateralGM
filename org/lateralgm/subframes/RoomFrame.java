@@ -1743,7 +1743,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		pieceOriginalPosition = null;
 		
 	 	// If we are modifying objects
-		if (tabs.getSelectedIndex() == Room.TAB_OBJECTS)
+		if (event.getSource() == objectHorizontalPosition || event.getSource() == objectVerticalPosition)
 		 {
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
@@ -1772,7 +1772,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	public void focusLost(FocusEvent event)
 		{
 	 	// If we are modifying objects
-		if (tabs.getSelectedIndex() == Room.TAB_OBJECTS)
+		if (event.getSource() == objectHorizontalPosition || event.getSource() == objectVerticalPosition)
 			{
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
