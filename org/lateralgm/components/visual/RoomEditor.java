@@ -245,7 +245,6 @@ public class RoomEditor extends VisualPanel
 		// If the ctrl key is pressed, move the object
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
-			
 			if (pressed && mc != null && !mc.isLocked())
 				{
 					// Record the original position of the object (without snapping) for the undo
@@ -302,18 +301,7 @@ public class RoomEditor extends VisualPanel
 				}
 			}
 		if (cursor != null && !shiftKeyPressed)
-			{
-			if (cursor instanceof Instance)
-				{
-				Instance i = (Instance) cursor;
-				i.setPosition(p);
-				}
-			else if (cursor instanceof Tile)
-				{
-				Tile t = (Tile) cursor;
-				t.setPosition(p);
-				}
-			}
+			cursor.setPosition(p);
 		}
 
 	private void processRightButton(int modifiers, boolean pressed, final Piece mc, Point p)
@@ -399,12 +387,14 @@ public class RoomEditor extends VisualPanel
 		int x = currentPosition.x;
 		int y = currentPosition.y;
 
+		// If the alt key is not pressed, apply the 'snapping' to the current position
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
 			int sx = room.get(PRoom.SNAP_X);
 			int sy = room.get(PRoom.SNAP_Y);
 			int ox = properties.get(PRoomEditor.GRID_OFFSET_X);
 			int oy = properties.get(PRoomEditor.GRID_OFFSET_Y);
+			
 			if (room.get(PRoom.ISOMETRIC))
 				{
 				int gx = ox + negDiv(x - ox,sx) * sx;

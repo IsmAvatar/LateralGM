@@ -32,21 +32,17 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
@@ -159,7 +155,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private JButton tDel;
 	public ResourceMenu<Background> taSource, teSource;
 	private PropertyLink<PTile,ResourceReference<Background>> ltSource;
-	public NumberField tsX, tsY, tX, tY, taDepth, teDepth;
+	public NumberField tsX, tsY, tileHorizontalPosition, tileVerticalPosition, taDepth, teDepth;
 	private FormattedLink<PTile> ltsX, ltsY, ltX, ltY, ltDepth;
 	//Backgrounds
 	private JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
@@ -195,7 +191,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
   public UndoManager undoManager;     
   public UndoableEditSupport undoSupport;
 	// Record the original position of an piece (Used when moving an object for the undo)
-	private Point objectOriginalPosition = null;
+	private Point pieceOriginalPosition = null;
 	
 	private JToolBar makeToolBar()
 		{
@@ -824,29 +820,31 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		ptl.setAutoCreateContainerGaps(true);
 		pTile.setLayout(ptl);
 		JLabel ltx = new JLabel(Messages.getString("RoomFrame.TILE_X")); //$NON-NLS-1$
-		tX = new NumberField(0);
-		tX.setColumns(4);
+		tileHorizontalPosition = new NumberField(0);
+		tileHorizontalPosition.setColumns(4);
+		tileHorizontalPosition.addFocusListener(this);
 		JLabel lty = new JLabel(Messages.getString("RoomFrame.TILE_Y")); //$NON-NLS-1$
-		tY = new NumberField(0);
-		tY.setColumns(4);
+		tileVerticalPosition = new NumberField(0);
+		tileVerticalPosition.setColumns(4);
+		tileVerticalPosition.addFocusListener(this);
 		JLabel ltl = new JLabel(Messages.getString("RoomFrame.TILE_LAYER")); //$NON-NLS-1$
 		teDepth = new NumberField(1000000);
 		teDepth.setColumns(8);
 		ptl.setHorizontalGroup(ptl.createParallelGroup()
 		/**/.addGroup(ptl.createSequentialGroup()
 		/*		*/.addComponent(ltx)
-		/*		*/.addComponent(tX)
+		/*		*/.addComponent(tileHorizontalPosition)
 		/*		*/.addComponent(lty)
-		/*		*/.addComponent(tY))
+		/*		*/.addComponent(tileVerticalPosition))
 		/**/.addGroup(ptl.createSequentialGroup()
 		/*		*/.addComponent(ltl)
 		/*		*/.addComponent(teDepth)));
 		ptl.setVerticalGroup(ptl.createSequentialGroup()
 		/**/.addGroup(ptl.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(ltx)
-		/*		*/.addComponent(tX)
+		/*		*/.addComponent(tileHorizontalPosition)
 		/*		*/.addComponent(lty)
-		/*		*/.addComponent(tY))
+		/*		*/.addComponent(tileVerticalPosition))
 		/**/.addGroup(ptl.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(ltl)
 		/*		*/.addComponent(teDepth)));
@@ -1528,8 +1526,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			ltSource = tplf.make(teSource,PTile.BACKGROUND);
 			ltsX = tplf.make(tsX,PTile.BG_X);
 			ltsY = tplf.make(tsY,PTile.BG_Y);
-			ltX = tplf.make(tX,PTile.ROOM_X);
-			ltY = tplf.make(tY,PTile.ROOM_Y);
+			ltX = tplf.make(tileHorizontalPosition,PTile.ROOM_X);
+			ltY = tplf.make(tileVerticalPosition,PTile.ROOM_Y);
 			}
 		}
 
@@ -1590,6 +1588,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
 		}
 
+	// if an item of a listbox has been selected
 	public void valueChanged(ListSelectionEvent e)
 		{
 		if (e.getValueIsAdjusting()) return;
@@ -1741,39 +1740,84 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
   // When a text field gains the focus
 	public void focusGained(FocusEvent event)
 		{
-		// If no object is selected, return
-		int selectedIndex = oList.getSelectedIndex();
-		if (selectedIndex == -1) return;
+		pieceOriginalPosition = null;
 		
-		// Save the position of the object
-		int horizontalPosition = objectHorizontalPosition.getIntValue();
-		int verticalPosition = objectVerticalPosition.getIntValue();
-		objectOriginalPosition = new Point (horizontalPosition, verticalPosition);
+	 	// If we are modifying objects
+		if (tabs.getSelectedIndex() == Room.TAB_OBJECTS)
+		 {
+			// If no object is selected, return
+			int selectedIndex = oList.getSelectedIndex();
+			if (selectedIndex == -1) return;
+			
+			// Save the position of the object for the undo
+			int horizontalPosition = objectHorizontalPosition.getIntValue();
+			int verticalPosition = objectVerticalPosition.getIntValue();
+			pieceOriginalPosition = new Point (horizontalPosition, verticalPosition);
+		 }
+		// We are modifying tiles
+	 else
+		 {
+			// If no tile is selected, return
+			int selectedIndex = tList.getSelectedIndex();
+			if (selectedIndex == -1) return;
+			
+			// Save the position of the tile for the undo
+			int horizontalPosition = tileHorizontalPosition.getIntValue();
+			int verticalPosition = tileVerticalPosition.getIntValue();
+			pieceOriginalPosition = new Point (horizontalPosition, verticalPosition);
+		 }
 		}
 
 	// When a text field has lost the focus
 	public void focusLost(FocusEvent event)
 		{
-		// If no object is selected, return
-		int selectedIndex = oList.getSelectedIndex();
-		if (selectedIndex == -1) return;
-		
-		// Get the new position of the object
-		int horizontalPosition = objectHorizontalPosition.getIntValue();
-		int verticalPosition = objectVerticalPosition.getIntValue();
-		Point objectNewPosition = new Point (horizontalPosition, verticalPosition);
-		
-		// If the position of the object has been changed
-		if (!objectNewPosition.equals(objectOriginalPosition))
+	 	// If we are modifying objects
+		if (tabs.getSelectedIndex() == Room.TAB_OBJECTS)
 			{
-			Instance instance = (Instance) oList.getSelectedValue();
+			// If no object is selected, return
+			int selectedIndex = oList.getSelectedIndex();
+			if (selectedIndex == -1) return;
 			
-			// Record the effect of moving an object for the undo
-			UndoableEdit edit = new MovePieceInstance(this, instance, objectOriginalPosition, objectNewPosition);
-	    // notify the listeners
-	    undoSupport.postEdit( edit );
+			// Get the new position of the object
+			int horizontalPosition = objectHorizontalPosition.getIntValue();
+			int verticalPosition = objectVerticalPosition.getIntValue();
+			Point objectNewPosition = new Point (horizontalPosition, verticalPosition);
+			
+			// If the position of the object has been changed
+			if (!objectNewPosition.equals(pieceOriginalPosition))
+				{
+				Instance instance = (Instance) oList.getSelectedValue();
+				
+				// Record the effect of moving an object for the undo
+				UndoableEdit edit = new MovePieceInstance(this, instance, pieceOriginalPosition, objectNewPosition);
+			  // notify the listeners
+			  undoSupport.postEdit( edit );
+				}
 			}
-
+		 // We are modifying tiles
+		 else
+			 {
+				// If no tile is selected, return
+				int selectedIndex = tList.getSelectedIndex();
+				if (selectedIndex == -1) return;
+				
+				// Get the new position of the tile
+				int horizontalPosition = tileHorizontalPosition.getIntValue();
+				int verticalPosition = tileVerticalPosition.getIntValue();
+				Point tileNewPosition = new Point (horizontalPosition, verticalPosition);
+				
+				// If the position of the tile has been changed
+				if (!tileNewPosition.equals(pieceOriginalPosition))
+					{
+					Tile instance = (Tile) tList.getSelectedValue();
+					
+					// Record the effect of moving an tile for the undo
+					UndoableEdit edit = new MovePieceInstance(this, instance, pieceOriginalPosition, tileNewPosition);
+				  // notify the listeners
+				  undoSupport.postEdit( edit );
+					}
+			 }
+		
 		}
 
 }
