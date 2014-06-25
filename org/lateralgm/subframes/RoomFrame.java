@@ -89,6 +89,7 @@ import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
+import org.lateralgm.resources.Room.Piece;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance;
@@ -190,8 +191,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	// Undo system elements
   public UndoManager undoManager;     
   public UndoableEditSupport undoSupport;
-	// Record the original position of an piece (Used when moving an object for the undo)
+	// Save the original position of a piece when starting to move an object (Used for the undo)
 	private Point pieceOriginalPosition = null;
+	// Used to record the select piece before losing the focus.
+	private Piece selectedPiece = null;
 	
 	private JToolBar makeToolBar()
 		{
@@ -1741,6 +1744,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	public void focusGained(FocusEvent event)
 		{
 		pieceOriginalPosition = null;
+		selectedPiece = null;
 		
 	 	// If we are modifying objects
 		if (event.getSource() == objectHorizontalPosition || event.getSource() == objectVerticalPosition)
@@ -1748,6 +1752,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
 			if (selectedIndex == -1) return;
+			
+			// Save the selected instance
+			selectedPiece = (Instance) oList.getSelectedValue();
 			
 			// Save the position of the object for the undo
 			int horizontalPosition = objectHorizontalPosition.getIntValue();
@@ -1760,6 +1767,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			// If no tile is selected, return
 			int selectedIndex = tList.getSelectedIndex();
 			if (selectedIndex == -1) return;
+			
+			// Save the selected tile
+			selectedPiece = (Tile) tList.getSelectedValue();
 			
 			// Save the position of the tile for the undo
 			int horizontalPosition = tileHorizontalPosition.getIntValue();
@@ -1786,10 +1796,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			// If the position of the object has been changed
 			if (!objectNewPosition.equals(pieceOriginalPosition))
 				{
-				Instance instance = (Instance) oList.getSelectedValue();
-				
 				// Record the effect of moving an object for the undo
-				UndoableEdit edit = new MovePieceInstance(this, instance, pieceOriginalPosition, objectNewPosition);
+				UndoableEdit edit = new MovePieceInstance(this, selectedPiece, pieceOriginalPosition, objectNewPosition);
 			  // notify the listeners
 			  undoSupport.postEdit( edit );
 				}
@@ -1809,10 +1817,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 				// If the position of the tile has been changed
 				if (!tileNewPosition.equals(pieceOriginalPosition))
 					{
-					Tile instance = (Tile) tList.getSelectedValue();
-					
 					// Record the effect of moving an tile for the undo
-					UndoableEdit edit = new MovePieceInstance(this, instance, pieceOriginalPosition, tileNewPosition);
+					UndoableEdit edit = new MovePieceInstance(this, selectedPiece, pieceOriginalPosition, tileNewPosition);
 				  // notify the listeners
 				  undoSupport.postEdit( edit );
 					}

@@ -240,6 +240,8 @@ public class RoomEditor extends VisualPanel
 
 	private void processLeftButton(int modifiers, boolean pressed, Piece mc, Point p)
 		{
+		// Get the focus, so we make sure the text fields of the objects/tiles lost focus
+		this.requestFocusInWindow();
 		boolean shiftKeyPressed = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
 		
 		// If the ctrl key is pressed, move the object
@@ -306,6 +308,8 @@ public class RoomEditor extends VisualPanel
 
 	private void processRightButton(int modifiers, boolean pressed, final Piece mc, Point p)
 		{
+		// Get the focus, so we make sure the text fields of the objects/tiles lost focus
+		this.requestFocusInWindow();
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
 			if (!pressed) return;
@@ -378,8 +382,6 @@ public class RoomEditor extends VisualPanel
 
 	protected void mouseEdit(MouseEvent e)
 		{
-		// Get the focus, so we make sure the text fields of the objects/tiles lost focus
-		this.requestFocusInWindow();
 		int modifiers = e.getModifiersEx();
 		int type = e.getID();
 		Point currentPosition = e.getPoint().getLocation();
