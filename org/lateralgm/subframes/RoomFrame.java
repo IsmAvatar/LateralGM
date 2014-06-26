@@ -131,7 +131,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private ButtonModelLink<PInstance> loLocked;
 	public JList<Instance> oList;
 	private Instance lastObj = null; //non-guaranteed copy of oList.getLastSelectedValue()
-	private JButton oAdd, oDel;
+	private JButton addObjectButton, deleteObjectButton;
 	public ResourceMenu<GmObject> oNew, oSource;
 	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
 	public NumberField objectHorizontalPosition, objectVerticalPosition;
@@ -153,7 +153,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private JScrollPane tScroll;
 	public JList<Tile> tList;
 	private Tile lastTile = null; //non-guaranteed copy of tList.getLastSelectedValue()
-	private JButton tDel;
+	private JButton deleteTileButton;
 	public ResourceMenu<Background> taSource, teSource;
 	private PropertyLink<PTile,ResourceReference<Background>> ltSource;
 	public NumberField tsX, tsY, tileHorizontalPosition, tileVerticalPosition, taDepth, teDepth;
@@ -402,10 +402,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		oList.setSelectedIndex(0);
 		oList.addListSelectionListener(this);
 		JScrollPane sp = new JScrollPane(oList);
-		oAdd = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
-		oAdd.addActionListener(this);
-		oDel = new JButton(Messages.getString("RoomFrame.OBJ_DELETE")); //$NON-NLS-1$
-		oDel.addActionListener(this);
+		addObjectButton = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
+		addObjectButton.addActionListener(this);
+		deleteObjectButton = new JButton(Messages.getString("RoomFrame.OBJ_DELETE")); //$NON-NLS-1$
+		deleteObjectButton.addActionListener(this);
 
 		JPanel edit = new JPanel();
 		String title = Messages.getString("RoomFrame.OBJ_INSTANCES"); //$NON-NLS-1$
@@ -456,16 +456,16 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/**/.addComponent(oUnderlying)
 		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(oAdd,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*		*/.addComponent(oDel,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*		*/.addComponent(addObjectButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(deleteObjectButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addComponent(edit));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(oNew)
 		/**/.addComponent(oUnderlying)
 		/**/.addComponent(sp)
 		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(oAdd)
-		/*		*/.addComponent(oDel))
+		/*		*/.addComponent(addObjectButton)
+		/*		*/.addComponent(deleteObjectButton))
 		/**/.addComponent(edit));
 		
 		// Make sure the selected object in the list is activated
@@ -783,8 +783,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tList.setCellRenderer(new TileListComponentRenderer());
 		JScrollPane sp = new JScrollPane(tList);
-		tDel = new JButton(Messages.getString("RoomFrame.TILE_DELETE")); //$NON-NLS-1$
-		tDel.addActionListener(this);
+		deleteTileButton = new JButton(Messages.getString("RoomFrame.TILE_DELETE")); //$NON-NLS-1$
+		deleteTileButton.addActionListener(this);
 		tLocked = new JCheckBox(Messages.getString("RoomFrame.TILE_LOCKED")); //$NON-NLS-1$
 
 		JPanel pSet = new JPanel();
@@ -854,13 +854,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
-		/**/.addComponent(tDel,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(deleteTileButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(tLocked)
 		/**/.addComponent(pSet)
 		/**/.addComponent(pTile));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(sp,DEFAULT_SIZE,60,MAX_VALUE)
-		/**/.addComponent(tDel)
+		/**/.addComponent(deleteTileButton)
 		/**/.addComponent(tLocked)
 		/**/.addComponent(pSet)
 		/**/.addComponent(pTile));
@@ -1411,16 +1411,16 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	public void actionPerformed(ActionEvent e)
 		{
 		if (editor != null) editor.refresh();
-		Object s = e.getSource();
+		Object eventSource = e.getSource();
 
-		if (s == sShow)
+		if (eventSource == sShow)
 			{
 			sShowMenu.show(sShow,0,sShow.getHeight());
 			return;
 			}
 		
 		// If the user has pressed the 'Add' object button
-		if (s == oAdd)
+		if (eventSource == addObjectButton)
 			{
 			// If no object is selected
 			if (oNew.getSelected() == null) return;
@@ -1442,7 +1442,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			}
 
 		// If the user has pressed the 'Delete' object  button
-		if (s == oDel)
+		if (eventSource == deleteObjectButton)
 			{
 			int selectedIndex = oList.getSelectedIndex();
 			if (selectedIndex == -1) return;
@@ -1460,19 +1460,30 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			return;
 			}
 
-		if (s == taSource)
+		if (eventSource == taSource)
 			{
 			tSelect.setBackground(taSource.getSelected());
 			return;
 			}
-		if (s == tDel)
+		
+		// If the user has pressed the 'Delete' tile  button
+		if (eventSource == deleteTileButton)
 			{
-			int i = tList.getSelectedIndex();
-			if (i >= res.tiles.size() || i < 0) return;
-			res.tiles.remove(i);
-			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,i));
+			int selectedIndex = tList.getSelectedIndex();
+			if (selectedIndex >= res.tiles.size() || selectedIndex < 0) return;
+			
+			Tile tile = (Tile) tList.getSelectedValue();
+
+      // Record the effect of removing an object for the undo
+			UndoableEdit edit = new RemovePieceInstance(this, tile, selectedIndex);
+      // notify the listeners
+			undoSupport.postEdit( edit );
+			
+			res.tiles.remove(selectedIndex);
+			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,selectedIndex));
 			return;
 			}
+		
 		if (e.getSource() == sCreationCode)
 			{
 			openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
@@ -1656,14 +1667,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		// garbage collection.
 		oNew.removeActionListener(this);
 		oList.removeListSelectionListener(this);
-		oAdd.removeActionListener(this);
-		oDel.removeActionListener(this);
+		addObjectButton.removeActionListener(this);
+		deleteObjectButton.removeActionListener(this);
 		oCreationCode.removeActionListener(this);
 		sCreationCode.removeActionListener(this);
 		sShow.removeActionListener(this);
 		taSource.removeActionListener(this);
 		tList.removeListSelectionListener(this);
-		tDel.removeActionListener(this);
+		deleteTileButton.removeActionListener(this);
 		bList.removeListSelectionListener(this);
 		vList.removeListSelectionListener(this);
 		editorPane.setViewport(null);
@@ -1783,6 +1794,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	// Save the position of a piece for the undo
 	public void processFocusLost()
 		{
+		if (selectedPiece == null)
+			return;
+			
 	 	// If we are modifying objects
 		if (selectedPiece instanceof Instance)
 			{
