@@ -122,7 +122,7 @@ public class RoomEditor extends VisualPanel
 
 		room = r;
 		this.frame = frame;
-
+		setFocusable(true);
 		zoomOrigin = ORIGIN_MOUSE;
 
 		r.properties.updateSource.addListener(rpl);
@@ -240,8 +240,13 @@ public class RoomEditor extends VisualPanel
 
 	private void processLeftButton(int modifiers, boolean pressed, Piece mc, Point p)
 		{
-		// Get the focus, so we make sure the text fields of the objects/tiles lost focus
-		this.requestFocusInWindow();
+		// If we are modifying the position of a piece with the text fields, save the position for the undo
+		if (frame.selectedPiece != null)
+			{
+			frame.processFocusLost();
+			this.requestFocusInWindow();
+			}
+		
 		boolean shiftKeyPressed = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
 		
 		// If the ctrl key is pressed, move the object
@@ -308,8 +313,13 @@ public class RoomEditor extends VisualPanel
 
 	private void processRightButton(int modifiers, boolean pressed, final Piece mc, Point p)
 		{
-		// Get the focus, so we make sure the text fields of the objects/tiles lost focus
-		this.requestFocusInWindow();
+		// If we are modifying the position of a piece with the text fields, save the position for the undo
+		if (frame.selectedPiece != null)
+			{
+			frame.processFocusLost();
+			this.requestFocusInWindow();
+			}
+		
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
 			if (!pressed) return;
@@ -558,7 +568,6 @@ public class RoomEditor extends VisualPanel
 		{
 		public Object validate(PRoomEditor k, Object v)
 			{
-			System.out.println("property validate");
 			switch (k)
 				{
 				case GRID_OFFSET_X:

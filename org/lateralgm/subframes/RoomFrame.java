@@ -194,7 +194,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	// Save the original position of a piece when starting to move an object (Used for the undo)
 	private Point pieceOriginalPosition = null;
 	// Used to record the select piece before losing the focus.
-	private Piece selectedPiece = null;
+	public Piece selectedPiece = null;
 	
 	private JToolBar makeToolBar()
 		{
@@ -1740,7 +1740,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	     redo.setEnabled(undoManager.canRedo() );
 	  }
   
-  // When a text field gains the focus
+  // When a text field related to the position of a piece gains the focus
 	public void focusGained(FocusEvent event)
 		{
 		pieceOriginalPosition = null;
@@ -1778,11 +1778,17 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		 }
 		}
 
-	// When a text field has lost the focus
+	// When a text field related to a piece position has lost the focus
 	public void focusLost(FocusEvent event)
 		{
+			processFocusLost();
+		}
+
+	// Save the position of a piece for the undo
+	public void processFocusLost()
+		{
 	 	// If we are modifying objects
-		if (event.getSource() == objectHorizontalPosition || event.getSource() == objectVerticalPosition)
+		if (selectedPiece instanceof Instance)
 			{
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
@@ -1824,6 +1830,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 					}
 			 }
 		
+			 selectedPiece = null;
 		}
-
 }
