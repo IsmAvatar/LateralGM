@@ -1721,7 +1721,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (e.key == PView.VISIBLE) bdvListUpdate(false,e.source,(Boolean) e.map.get(e.key));
 			}
 		}
-  
+	
+	// When a resource has been updated, reset the undo manager
+	public void resetUndoManager()
+		{
+		undoManager.discardAllEdits();
+		refreshUndoRedoButtons();
+		}
+	
   /**
   * An undo/redo adapter. The adapter is notified when an undo edit occur(e.g. add or remove from the list)
   * The adapter extract the edit from the event, add it to the UndoManager, and refresh the GUI
