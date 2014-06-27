@@ -1,7 +1,7 @@
 /**
 * Record the effect of moving a piece (object/tile) instance for the undo
 *
-* Written in 2014 by egofree
+* Copyright (C) 2014, egofree
 *
 * This file is part of LateralGM.
 * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.

@@ -1,7 +1,7 @@
 /**
 * Record the effect of adding a piece (object/tile) for the undo
 *
-* Written in 2014 by egofree
+* Copyright (C) 2014, egofree
 * 
 * This file is part of LateralGM.
 * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -14,10 +14,8 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
-import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.Piece;
 import org.lateralgm.subframes.RoomFrame;
 

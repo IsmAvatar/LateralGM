@@ -3,6 +3,7 @@
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, Robert B. Colton
+ * Copyright (C) 2014, egofree
  * 
  * Modified 2010 by Medo <smaxein@googlemail.com>
  * 
