@@ -8,11 +8,14 @@
 
 package org.lateralgm.ui.swing.visuals;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
@@ -143,20 +146,31 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			gridVisual.paint(g2);
 			}
 		
-		if (show.contains(Show.VIEWS)) for (View view : room.views)
+		boolean viewsEnabled =  room.get(PRoom.VIEWS_ENABLED);
+		
+		// Display the view when the views are enabled and when the option to show them is set
+		if (show.contains(Show.VIEWS) && viewsEnabled) for (View view : room.views)
 			if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
+
 		
 		g2.dispose();
 		}
 	
+	// Display a view on the panel
 	private void paintView(Graphics g2, View view)
 		{
+		// Get the properties of the view
 		int x = view.properties.get(PView.VIEW_X);
 		int y = view.properties.get(PView.VIEW_Y);
 		int width = view.properties.get(PView.VIEW_W);
 		int height = view.properties.get(PView.VIEW_H);
 		
+		g2.setColor(Color.BLACK);
 		g2.drawRect(x,y,width,height);
+		g2.drawRect(x+2,y+2,width-4,height-4);
+		g2.setColor(Color.WHITE);
+		g2.drawRect(x+1,y+1,width-2,height-2);
+
 		}
 	
 	private static boolean shouldPaint(BackgroundDef bd, Boolean fg)
@@ -622,20 +636,19 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		@Override
 		public void updated(PropertyUpdateEvent<PView> e)
 			{
-			if (!show.contains(Show.VIEWS))
-				return;
-			System.out.println("view updated");
+			// Update the display of the view only when updating the position or the size of the view
 			switch (e.key)
-			{
+				{
+				case VISIBLE:
 				case VIEW_X:
-					repaint(null);
 				case VIEW_Y:
+				case VIEW_W:
+				case VIEW_H:
 					repaint(null);
-					return;
 				default:
 					break;
-			}
-		
+				}
+			
 			}
 		}
 	
