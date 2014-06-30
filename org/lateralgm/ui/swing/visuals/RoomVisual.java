@@ -75,6 +75,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 	private int gridFactor = 1;
 	private int gridX, gridY;
 
+	private boolean viewsVisible;
+	
 	public enum Show
 		{
 		BACKGROUNDS,INSTANCES,TILES,FOREGROUNDS,GRID,VIEWS
@@ -112,6 +114,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		}
 
+	// Set the if the views should visible or not (used when the 'views' tab is selected)
+	public void setViewsVisible(boolean visible)
+		{
+		viewsVisible = visible;
+		repaint(null);
+		}
+	
 	public void extendBounds(Rectangle b)
 		{
 		b.add(new Rectangle(0,0,(Integer) room.get(PRoom.WIDTH),(Integer) room.get(PRoom.HEIGHT)));
@@ -146,12 +155,15 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			gridVisual.paint(g2);
 			}
 		
-		boolean viewsEnabled =  room.get(PRoom.VIEWS_ENABLED);
-		
-		// Display the view when the views are enabled and when the option to show them is set
-		if (show.contains(Show.VIEWS) && viewsEnabled) for (View view : room.views)
-			if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
-
+		// If 'Show tiles' option has been set or if the 'Views' tab is selected
+		if (show.contains(Show.VIEWS) || viewsVisible)
+			{
+			boolean viewsEnabled =  room.get(PRoom.VIEWS_ENABLED);
+			
+			// Display the view when the views are enabled
+			if (viewsEnabled) for (View view : room.views)
+				if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
+			}
 		
 		g2.dispose();
 		}
@@ -606,7 +618,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					repaint(null);
 					break;
 				case VIEWS_ENABLED:
-					if (show.contains(Show.VIEWS)) repaint(null);
+					if (show.contains(Show.VIEWS) || viewsVisible) repaint(null);
 					break;
 				case ISOMETRIC:
 					gridVisual.setRhombic((Boolean) room.get(PRoom.ISOMETRIC));
@@ -679,7 +691,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 	public void updated(UpdateEvent e)
 		{
-		System.out.println("updated");
 		if (e.source.owner instanceof BackgroundDef)
 			{
 			boolean bg = show.contains(Show.BACKGROUNDS);

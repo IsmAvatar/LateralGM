@@ -70,7 +70,7 @@ public class RoomEditor extends VisualPanel
 	protected final RoomFrame frame;
 	private Piece cursor;
 	public final PropertyMap<PRoomEditor> properties;
-	private final RoomVisual roomVisual;
+	public final RoomVisual roomVisual;
 
 	private final RoomPropertyListener rpl = new RoomPropertyListener();
 	private final RoomEditorPropertyValidator repv = new RoomEditorPropertyValidator();

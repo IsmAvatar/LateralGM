@@ -60,6 +60,8 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -112,7 +114,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.RemovePieceInstance;
 
 public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements ListSelectionListener,
-		CommandHandler, UpdateListener, FocusListener
+		CommandHandler, UpdateListener, FocusListener, ChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
@@ -1305,7 +1307,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.addTab(Messages.getString("RoomFrame.TAB_PHYSICS"),makePhysicsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex((Integer) res.get(PRoom.CURRENT_TAB));
-
+		tabs.addChangeListener(this);
+		
 		res.instanceUpdateSource.addListener(this);
 		res.tileUpdateSource.addListener(this);
 
@@ -1845,5 +1848,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			 }
 		
 			 selectedPiece = null;
+		}
+
+	// When a new tab is selected
+	public void stateChanged(ChangeEvent event)
+		{
+    JTabbedPane sourceTabbedPane = (JTabbedPane) event.getSource();
+    int index = sourceTabbedPane.getSelectedIndex();
+    
+    // If the views tab is selected, always display the views
+    if (sourceTabbedPane.getTitleAt(index) == Messages.getString("RoomFrame.TAB_VIEWS"))
+    	editor.roomVisual.setViewsVisible(true);
+    else
+    	editor.roomVisual.setViewsVisible(false);
 		}
 }
