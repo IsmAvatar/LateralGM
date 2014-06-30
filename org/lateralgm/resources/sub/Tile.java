@@ -96,14 +96,14 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		fireUpdate(null);
 		}
 
-	public Point getRoomPosition()
+	public Point getPosition()
 		{
 		int x = properties.get(PTile.ROOM_X);
 		int y = properties.get(PTile.ROOM_Y);
 		return new Point(x,y);
 		}
 
-	public void setRoomPosition(Point p)
+	public void setPosition(Point p)
 		{
 		properties.put(PTile.ROOM_X,p.x);
 		properties.put(PTile.ROOM_Y,p.y);

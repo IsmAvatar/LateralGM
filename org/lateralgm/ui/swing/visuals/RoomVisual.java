@@ -8,11 +8,14 @@
 
 package org.lateralgm.ui.swing.visuals;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
@@ -43,6 +46,8 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.resources.sub.View;
+import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
@@ -64,11 +69,14 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 	private final RoomPropertyListener rpl = new RoomPropertyListener();
 	private final BgDefPropertyListener bdpl = new BgDefPropertyListener();
-
+	private final ViewPropertyListener viewPropertyListener = new ViewPropertyListener();
+	
 	private EnumSet<Show> show;
 	private int gridFactor = 1;
 	private int gridX, gridY;
 
+	private boolean viewsVisible;
+	
 	public enum Show
 		{
 		BACKGROUNDS,INSTANCES,TILES,FOREGROUNDS,GRID,VIEWS
@@ -90,13 +98,29 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		r.properties.updateSource.addListener(rpl);
 		ivlm = new InstanceVisualListManager();
 		tvlm = new TileVisualListManager();
+	
+		// Set the property listener for each background
 		for (BackgroundDef bd : room.backgroundDefs)
 			{
 			bd.properties.updateSource.addListener(bdpl);
 			bd.updateSource.addListener(this);
 			}
+		
+		// Set the property listener for each view
+		for (View view : room.views)
+			{
+				view.properties.updateSource.addListener(viewPropertyListener);
+			}
+
 		}
 
+	// Set the if the views should visible or not (used when the 'views' tab is selected)
+	public void setViewsVisible(boolean visible)
+		{
+		viewsVisible = visible;
+		repaint(null);
+		}
+	
 	public void extendBounds(Rectangle b)
 		{
 		b.add(new Rectangle(0,0,(Integer) room.get(PRoom.WIDTH),(Integer) room.get(PRoom.HEIGHT)));
@@ -114,8 +138,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			g2.setColor((Color) room.get(PRoom.BACKGROUND_COLOR));
 			g2.fillRect(0,0,width,height);
 			}
+		
 		if (show.contains(Show.BACKGROUNDS)) for (BackgroundDef bd : room.backgroundDefs)
 			if (shouldPaint(bd,false)) paintBackground(g2,bd,width,height);
+		
 		// Paint pieces and tiles on the unclipped g, so that they are visible
 		// even if outside the room
 		if (show.contains(Show.INSTANCES) || show.contains(Show.TILES)) binVisual.paint(g);
@@ -128,9 +154,37 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 							: 0),gridY);
 			gridVisual.paint(g2);
 			}
+		
+		// If 'Show tiles' option has been set or if the 'Views' tab is selected
+		if (show.contains(Show.VIEWS) || viewsVisible)
+			{
+			boolean viewsEnabled =  room.get(PRoom.VIEWS_ENABLED);
+			
+			// Display the view when the views are enabled
+			if (viewsEnabled) for (View view : room.views)
+				if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
+			}
+		
 		g2.dispose();
 		}
+	
+	// Display a view on the panel
+	private void paintView(Graphics g2, View view)
+		{
+		// Get the properties of the view
+		int x = view.properties.get(PView.VIEW_X);
+		int y = view.properties.get(PView.VIEW_Y);
+		int width = view.properties.get(PView.VIEW_W);
+		int height = view.properties.get(PView.VIEW_H);
+		
+		g2.setColor(Color.BLACK);
+		g2.drawRect(x,y,width,height);
+		g2.drawRect(x+2,y+2,width-4,height-4);
+		g2.setColor(Color.WHITE);
+		g2.drawRect(x+1,y+1,width-2,height-2);
 
+		}
+	
 	private static boolean shouldPaint(BackgroundDef bd, Boolean fg)
 		{
 		if (!(Boolean) bd.properties.get(PBackgroundDef.VISIBLE)) return false;
@@ -421,7 +475,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					}
 				}
 			binVisual.setDepth(this,piece.getDepth());
-			Rectangle r = new Rectangle(piece.getRoomPosition(),piece.getSize());
+			Rectangle r = new Rectangle(piece.getPosition(),piece.getSize());
 			setBounds(r);
 			}
 
@@ -564,7 +618,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					repaint(null);
 					break;
 				case VIEWS_ENABLED:
-					if (show.contains(Show.VIEWS)) repaint(null);
+					if (show.contains(Show.VIEWS) || viewsVisible) repaint(null);
 					break;
 				case ISOMETRIC:
 					gridVisual.setRhombic((Boolean) room.get(PRoom.ISOMETRIC));
@@ -588,6 +642,28 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 		}
 
+	// Class which manages the update of view's properties
+	private class ViewPropertyListener extends PropertyUpdateListener<PView>
+		{
+		@Override
+		public void updated(PropertyUpdateEvent<PView> e)
+			{
+			// Update the display of the view only when updating the position or the size of the view
+			switch (e.key)
+				{
+				case VISIBLE:
+				case VIEW_X:
+				case VIEW_Y:
+				case VIEW_W:
+				case VIEW_H:
+					repaint(null);
+				default:
+					break;
+				}
+			
+			}
+		}
+	
 	private class BgDefPropertyListener extends PropertyUpdateListener<PBackgroundDef>
 		{
 		@Override
