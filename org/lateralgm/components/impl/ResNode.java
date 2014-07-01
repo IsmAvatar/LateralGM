@@ -223,7 +223,6 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		}
 		if (status == ResNode.STATUS_SECONDARY)
 		{
-			popup.add(makeMenuItem("Listener.TREE_INSERT_GROUP",al, true)); //$NON-NLS-1$
 			JMenuItem insertItem = makeMenuItem("Listener.TREE_INSERT_RESOURCE",al, true);
 			insertItem.setFocusable(true);
 			popup.add(insertItem); //$NON-NLS-1$
@@ -232,10 +231,11 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			duplicateItem.setFocusable(true);
 			popup.add(duplicateItem); //$NON-NLS-1$
 			duplicateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, KeyEvent.ALT_DOWN_MASK));
+			popup.add(makeMenuItem("Listener.TREE_INSERT_GROUP",al, true)); //$NON-NLS-1$
 		}
 		else {
-			popup.add(makeMenuItem("Listener.TREE_CREATE_GROUP",al, true)); //$NON-NLS-1$
 			popup.add(makeMenuItem("Listener.TREE_CREATE_RESOURCE",al, true)); //$NON-NLS-1$
+			popup.add(makeMenuItem("Listener.TREE_CREATE_GROUP",al, true)); //$NON-NLS-1$
 		}
 		if (status != ResNode.STATUS_SECONDARY) popup.add(makeMenuItem("Listener.TREE_SORT",al,false)); //$NON-NLS-1$
 		if (status != ResNode.STATUS_PRIMARY)
