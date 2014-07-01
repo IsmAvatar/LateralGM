@@ -1480,6 +1480,9 @@ public final class GMXFileReader
 					};
 					postpone.add(pr);
 					
+					//TODO: Tiles use string names in GMX like instance names
+					tile.properties.put(PTile.ID,Integer.parseInt(attribs.getNamedItem("id").getTextContent()));
+					
 					tile.setBackgroundPosition(
 							new Point(Integer.parseInt(attribs.getNamedItem("xo").getTextContent()),
 												Integer.parseInt(attribs.getNamedItem("yo").getTextContent())));
@@ -1487,9 +1490,8 @@ public final class GMXFileReader
 							new Dimension(Integer.parseInt(attribs.getNamedItem("w").getTextContent()),
 												Integer.parseInt(attribs.getNamedItem("h").getTextContent())));
 					tile.setDepth(Integer.parseInt(attribs.getNamedItem("depth").getTextContent()));
-					//TODO: Tiles use strings in GMX like instance names, GMK used to use integers I guess
-					//tile.properties.put(PTile.ID,tnode.getAttributes().getNamedItem("name").getTextContent());
-					tile.setLocked(Integer.parseInt(attribs.getNamedItem("h").getTextContent()) < 0);
+					
+					tile.setLocked(Integer.parseInt(attribs.getNamedItem("locked").getTextContent()) < 0);
 					
 					double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue());
 					double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue());
