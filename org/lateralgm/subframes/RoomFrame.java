@@ -1452,6 +1452,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (selectedIndex == -1) return;
 			
 			Instance instance = (Instance) oList.getSelectedValue();
+			if (instance == null) return;
 
       // Record the effect of removing an object for the undo
 			UndoableEdit edit = new RemovePieceInstance(this, instance, selectedIndex);
