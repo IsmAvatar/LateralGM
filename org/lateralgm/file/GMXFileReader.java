@@ -1461,7 +1461,7 @@ public final class GMXFileReader
 					
 					NamedNodeMap attribs = tnode.getAttributes();
 					
-					tile.setRoomPosition(
+					tile.setPosition(
 							new Point(Integer.parseInt(attribs.getNamedItem("x").getTextContent()),
 												Integer.parseInt(attribs.getNamedItem("y").getTextContent())));
 					

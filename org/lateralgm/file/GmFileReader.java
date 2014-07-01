@@ -1040,7 +1040,7 @@ public final class GmFileReader
 			for (int j = 0; j < notiles; j++)
 				{
 				Tile t = new Tile(rm);
-				t.setRoomPosition(new Point(in.read4(),in.read4()));
+				t.setPosition(new Point(in.read4(),in.read4()));
 				Background temp = f.resMap.getList(Background.class).getUnsafe(in.read4());
 				ResourceReference<Background> bkg = null;
 				if (temp != null) bkg = temp.reference;

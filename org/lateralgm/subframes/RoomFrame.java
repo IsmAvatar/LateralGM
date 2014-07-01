@@ -3,6 +3,7 @@
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, 2014 Robert B. Colton
+ * Copyright (C) 2014, egofree
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -27,11 +28,16 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
@@ -51,13 +57,21 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
+import javax.swing.undo.UndoableEditSupport;
 
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.NumberField;
@@ -78,6 +92,7 @@ import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
+import org.lateralgm.resources.Room.Piece;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance;
@@ -91,12 +106,15 @@ import org.lateralgm.ui.swing.propertylink.ButtonModelLink;
 import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
+import org.lateralgm.util.AddPieceInstance;
+import org.lateralgm.util.MovePieceInstance;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
+import org.lateralgm.util.RemovePieceInstance;
 
 public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements ListSelectionListener,
-		CommandHandler,UpdateListener
+		CommandHandler, UpdateListener, FocusListener, ChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
@@ -105,27 +123,29 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private final EditorScrollPane editorPane;
 	public final JTabbedPane tabs;
 	public JLabel statX, statY, statId, statSrc;
+	
 	//ToolBar
-	private JButton zoomIn, zoomOut;
+	private JButton zoomIn, zoomOut, undo, redo;
 	private JToggleButton gridVis;
 	JToggleButton gridIso;
+	
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	private ButtonModelLink<PInstance> loLocked;
 	public JList<Instance> oList;
 	private Instance lastObj = null; //non-guaranteed copy of oList.getLastSelectedValue()
-	private JButton oAdd, oDel;
+	private JButton addObjectButton, deleteObjectButton;
 	public ResourceMenu<GmObject> oNew, oSource;
 	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
-	public NumberField oX, oY;
+	public NumberField objectHorizontalPosition, objectVerticalPosition;
 	private FormattedLink<PInstance> loX, loY;
 	private JButton oCreationCode;
+	
 	//Settings
 	private JTextField sCaption;
 	private JCheckBox sPersistent;
 	private JButton sCreationCode, sShow;
 	private JPopupMenu sShowMenu;
-
 	public HashMap<CodeHolder,CodeFrame> codeFrames = new HashMap<CodeHolder,CodeFrame>();
 
 	private JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
@@ -136,10 +156,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private JScrollPane tScroll;
 	public JList<Tile> tList;
 	private Tile lastTile = null; //non-guaranteed copy of tList.getLastSelectedValue()
-	private JButton tDel;
+	private JButton deleteTileButton;
 	public ResourceMenu<Background> taSource, teSource;
 	private PropertyLink<PTile,ResourceReference<Background>> ltSource;
-	public NumberField tsX, tsY, tX, tY, taDepth, teDepth;
+	public NumberField tsX, tsY, tileHorizontalPosition, tileVerticalPosition, taDepth, teDepth;
 	private FormattedLink<PTile> ltsX, ltsY, ltX, ltY, ltDepth;
 	//Backgrounds
 	private JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
@@ -171,6 +191,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private final PropertyLinkFactory<PRoomEditor> prelf;
 	private JCheckBox vClear;
 
+	// Undo system elements
+  public UndoManager undoManager;     
+  public UndoableEditSupport undoSupport;
+	// Save the original position of a piece when starting to move an object (Used for the undo)
+	private Point pieceOriginalPosition = null;
+	// Used to record the select piece before losing the focus.
+	public Piece selectedPiece = null;
+	
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
@@ -188,6 +216,45 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tool.add(zoomOut);
 		tool.addSeparator();
 
+		// Action fired when the undo button is clicked
+    Action undoAction = new AbstractAction()
+    	{
+				public void actionPerformed(ActionEvent actionEvent) 
+    			{
+        	undoManager.undo();
+        	refreshUndoRedoButtons();
+    			}
+    	};
+
+		undo = new JButton(LGM.getIconForKey("RoomFrame.UNDO"));
+		undo.setToolTipText(Messages.getString("RoomFrame.UNDO"));
+		// Bind the ctrl-z keystroke with the undo button
+		KeyStroke ctrlZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK);
+		undo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlZ, "ctrlZ");
+		undo.getActionMap().put("ctrlZ", undoAction);
+		undo.addActionListener(undoAction);
+		tool.add(undo);
+		
+		// Action fired when the redo button is clicked
+    Action redoAction = new AbstractAction()
+    	{
+				public void actionPerformed(ActionEvent actionEvent) 
+    			{
+      		undoManager.redo();
+      		refreshUndoRedoButtons();
+    			}
+    	};
+    	
+		redo = new JButton(LGM.getIconForKey("RoomFrame.REDO"));
+		redo.setToolTipText(Messages.getString("RoomFrame.REDO"));
+		// Bind the ctrl-y keystroke with the redo button
+		KeyStroke ctrlY = KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK);
+		redo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlY, "ctrlY");
+		redo.getActionMap().put("ctrlY", redoAction);
+		redo.addActionListener(redoAction);
+		tool.add(redo);
+		tool.addSeparator();
+		
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
@@ -338,10 +405,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		oList.setSelectedIndex(0);
 		oList.addListSelectionListener(this);
 		JScrollPane sp = new JScrollPane(oList);
-		oAdd = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
-		oAdd.addActionListener(this);
-		oDel = new JButton(Messages.getString("RoomFrame.OBJ_DELETE")); //$NON-NLS-1$
-		oDel.addActionListener(this);
+		addObjectButton = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
+		addObjectButton.addActionListener(this);
+		deleteObjectButton = new JButton(Messages.getString("RoomFrame.OBJ_DELETE")); //$NON-NLS-1$
+		deleteObjectButton.addActionListener(this);
 
 		JPanel edit = new JPanel();
 		String title = Messages.getString("RoomFrame.OBJ_INSTANCES"); //$NON-NLS-1$
@@ -353,14 +420,17 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 		oSource = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
+		
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
 		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
 		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
-		oX = new NumberField(0);
-		oX.setColumns(4);
+		objectHorizontalPosition = new NumberField(0);
+		objectHorizontalPosition.setColumns(4);
+		objectHorizontalPosition.addFocusListener(this);
 		JLabel lObjY = new JLabel(Messages.getString("RoomFrame.OBJ_Y")); //$NON-NLS-1$
-		oY = new NumberField(0);
-		oY.setColumns(4);
+		objectVerticalPosition = new NumberField(0);
+		objectVerticalPosition.setColumns(4);
+		objectVerticalPosition.addFocusListener(this);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
@@ -370,18 +440,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/**/.addComponent(oLocked)
 		/**/.addGroup(layout2.createSequentialGroup()
 		/*		*/.addComponent(lObjX)
-		/*		*/.addComponent(oX)
+		/*		*/.addComponent(objectHorizontalPosition)
 		/*		*/.addComponent(lObjY)
-		/*		*/.addComponent(oY))
+		/*		*/.addComponent(objectVerticalPosition))
 		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout2.setVerticalGroup(layout2.createSequentialGroup()
 		/**/.addComponent(oSource)
 		/**/.addComponent(oLocked)
 		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lObjX)
-		/*		*/.addComponent(oX)
+		/*		*/.addComponent(objectHorizontalPosition)
 		/*		*/.addComponent(lObjY)
-		/*		*/.addComponent(oY))
+		/*		*/.addComponent(objectVerticalPosition))
 		/**/.addComponent(oCreationCode));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -389,19 +459,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/**/.addComponent(oUnderlying)
 		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(oAdd,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*		*/.addComponent(oDel,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*		*/.addComponent(addObjectButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*		*/.addComponent(deleteObjectButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addComponent(edit));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(oNew)
 		/**/.addComponent(oUnderlying)
 		/**/.addComponent(sp)
 		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(oAdd)
-		/*		*/.addComponent(oDel))
+		/*		*/.addComponent(addObjectButton)
+		/*		*/.addComponent(deleteObjectButton))
 		/**/.addComponent(edit));
-
+		
+		// Make sure the selected object in the list is activated
+		fireObjUpdate();
 		return panel;
+		
 		}
 
 	private JPopupMenu makeShowMenu()
@@ -559,6 +632,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane());
 		tab.addTab(Messages.getString("RoomFrame.TILE_BATCH"),makeTilesBatchPane());
 		tab.setSelectedIndex(0);
+		fireTileUpdate();
 		return tab;
 		}
 
@@ -712,8 +786,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tList.setCellRenderer(new TileListComponentRenderer());
 		JScrollPane sp = new JScrollPane(tList);
-		tDel = new JButton(Messages.getString("RoomFrame.TILE_DELETE")); //$NON-NLS-1$
-		tDel.addActionListener(this);
+		deleteTileButton = new JButton(Messages.getString("RoomFrame.TILE_DELETE")); //$NON-NLS-1$
+		deleteTileButton.addActionListener(this);
 		tLocked = new JCheckBox(Messages.getString("RoomFrame.TILE_LOCKED")); //$NON-NLS-1$
 
 		JPanel pSet = new JPanel();
@@ -752,42 +826,44 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		ptl.setAutoCreateContainerGaps(true);
 		pTile.setLayout(ptl);
 		JLabel ltx = new JLabel(Messages.getString("RoomFrame.TILE_X")); //$NON-NLS-1$
-		tX = new NumberField(0);
-		tX.setColumns(4);
+		tileHorizontalPosition = new NumberField(0);
+		tileHorizontalPosition.setColumns(4);
+		tileHorizontalPosition.addFocusListener(this);
 		JLabel lty = new JLabel(Messages.getString("RoomFrame.TILE_Y")); //$NON-NLS-1$
-		tY = new NumberField(0);
-		tY.setColumns(4);
+		tileVerticalPosition = new NumberField(0);
+		tileVerticalPosition.setColumns(4);
+		tileVerticalPosition.addFocusListener(this);
 		JLabel ltl = new JLabel(Messages.getString("RoomFrame.TILE_LAYER")); //$NON-NLS-1$
 		teDepth = new NumberField(1000000);
 		teDepth.setColumns(8);
 		ptl.setHorizontalGroup(ptl.createParallelGroup()
 		/**/.addGroup(ptl.createSequentialGroup()
 		/*		*/.addComponent(ltx)
-		/*		*/.addComponent(tX)
+		/*		*/.addComponent(tileHorizontalPosition)
 		/*		*/.addComponent(lty)
-		/*		*/.addComponent(tY))
+		/*		*/.addComponent(tileVerticalPosition))
 		/**/.addGroup(ptl.createSequentialGroup()
 		/*		*/.addComponent(ltl)
 		/*		*/.addComponent(teDepth)));
 		ptl.setVerticalGroup(ptl.createSequentialGroup()
 		/**/.addGroup(ptl.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(ltx)
-		/*		*/.addComponent(tX)
+		/*		*/.addComponent(tileHorizontalPosition)
 		/*		*/.addComponent(lty)
-		/*		*/.addComponent(tY))
+		/*		*/.addComponent(tileVerticalPosition))
 		/**/.addGroup(ptl.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(ltl)
 		/*		*/.addComponent(teDepth)));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(sp,DEFAULT_SIZE,120,MAX_VALUE)
-		/**/.addComponent(tDel,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(deleteTileButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(tLocked)
 		/**/.addComponent(pSet)
 		/**/.addComponent(pTile));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(sp,DEFAULT_SIZE,60,MAX_VALUE)
-		/**/.addComponent(tDel)
+		/**/.addComponent(deleteTileButton)
 		/**/.addComponent(tLocked)
 		/**/.addComponent(pSet)
 		/**/.addComponent(pTile));
@@ -1231,7 +1307,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.addTab(Messages.getString("RoomFrame.TAB_PHYSICS"),makePhysicsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex((Integer) res.get(PRoom.CURRENT_TAB));
-
+		tabs.addChangeListener(this);
+		
 		res.instanceUpdateSource.addListener(this);
 		res.tileUpdateSource.addListener(this);
 
@@ -1254,6 +1331,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/*		*/.addComponent(editorPane,DEFAULT_SIZE,480,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
 
+    // initialize the undo/redo system
+    undoManager= new UndoManager();
+    undoSupport = new UndoableEditSupport();
+    undoSupport.addUndoableEditListener(new UndoAdapter());
+    refreshUndoRedoButtons();
+    
 		if (res.get(PRoom.REMEMBER_WINDOW_SIZE))
 			{
 			int h = res.get(PRoom.EDITOR_HEIGHT);
@@ -1332,44 +1415,79 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	public void actionPerformed(ActionEvent e)
 		{
 		if (editor != null) editor.refresh();
-		Object s = e.getSource();
+		Object eventSource = e.getSource();
 
-		if (s == sShow)
+		if (eventSource == sShow)
 			{
 			sShowMenu.show(sShow,0,sShow.getHeight());
 			return;
 			}
-		if (s == oAdd)
+		
+		// If the user has pressed the 'Add' object button
+		if (eventSource == addObjectButton)
 			{
+			// If no object is selected
 			if (oNew.getSelected() == null) return;
-			Instance i = res.addInstance();
-			i.properties.put(PInstance.OBJECT,oNew.getSelected());
-			i.setPosition(new Point());
-			oList.setSelectedIndex(res.instances.size() - 1);
+      // Add the new object instance
+			Instance newObject = res.addInstance();
+      newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
+      newObject.setPosition(new Point());
+      
+      int numberOfObjects = res.instances.size();
+
+      // Record the effect of adding an object for the undo
+      UndoableEdit edit = new AddPieceInstance(this, newObject, numberOfObjects -1);
+      // notify the listeners
+      undoSupport.postEdit( edit );
+      
+			oList.setSelectedIndex(numberOfObjects - 1);
+			
 			return;
 			}
-		if (s == oDel)
+
+		// If the user has pressed the 'Delete' object  button
+		if (eventSource == deleteObjectButton)
 			{
-			int i = oList.getSelectedIndex();
-			if (i == -1) return;
-			CodeFrame frame = codeFrames.get(res.instances.remove(i));
+			int selectedIndex = oList.getSelectedIndex();
+			if (selectedIndex == -1) return;
+			
+			Instance instance = (Instance) oList.getSelectedValue();
+
+      // Record the effect of removing an object for the undo
+			UndoableEdit edit = new RemovePieceInstance(this, instance, selectedIndex);
+      // notify the listeners
+			undoSupport.postEdit( edit );
+      
+			CodeFrame frame = codeFrames.get(res.instances.remove(selectedIndex));
 			if (frame != null) frame.dispose();
-			oList.setSelectedIndex(Math.min(res.instances.size() - 1,i));
+			oList.setSelectedIndex(Math.min(res.instances.size() - 1,selectedIndex));
 			return;
 			}
-		if (s == taSource)
+
+		if (eventSource == taSource)
 			{
 			tSelect.setBackground(taSource.getSelected());
 			return;
 			}
-		if (s == tDel)
+		
+		// If the user has pressed the 'Delete' tile  button
+		if (eventSource == deleteTileButton)
 			{
-			int i = tList.getSelectedIndex();
-			if (i >= res.tiles.size() || i < 0) return;
-			res.tiles.remove(i);
-			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,i));
+			int selectedIndex = tList.getSelectedIndex();
+			if (selectedIndex >= res.tiles.size() || selectedIndex < 0) return;
+			
+			Tile tile = (Tile) tList.getSelectedValue();
+
+      // Record the effect of removing an object for the undo
+			UndoableEdit edit = new RemovePieceInstance(this, tile, selectedIndex);
+      // notify the listeners
+			undoSupport.postEdit( edit );
+			
+			res.tiles.remove(selectedIndex);
+			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,selectedIndex));
 			return;
 			}
+		
 		if (e.getSource() == sCreationCode)
 			{
 			openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
@@ -1385,17 +1503,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 	public void fireObjUpdate()
 		{
-		Instance i = (Instance) oList.getSelectedValue();
-		if (lastObj == i) return;
-		lastObj = i;
+		Instance selectedInstance = (Instance) oList.getSelectedValue();
+		if (lastObj == selectedInstance) return;
+		lastObj = selectedInstance;
 		PropertyLink.removeAll(loLocked,loSource,loX,loY);
-		if (i != null)
+		
+		if (selectedInstance != null)
 			{
-			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(i.properties,this);
+			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(selectedInstance.properties,this);
 			loLocked = iplf.make(oLocked,PInstance.LOCKED);
 			loSource = iplf.make(oSource,PInstance.OBJECT);
-			loX = iplf.make(oX,PInstance.X);
-			loY = iplf.make(oY,PInstance.Y);
+			loX = iplf.make(objectHorizontalPosition,PInstance.X);
+			loY = iplf.make(objectVerticalPosition,PInstance.Y);
 			}
 		}
 
@@ -1412,20 +1531,21 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 	public void fireTileUpdate()
 		{
-		Tile t = (Tile) tList.getSelectedValue();
-		if (lastTile == t) return;
-		lastTile = t;
+		Tile selectedTile = (Tile) tList.getSelectedValue();
+		if (lastTile == selectedTile) return;
+		lastTile = selectedTile;
 		PropertyLink.removeAll(ltDepth,ltLocked,ltSource,ltsX,ltsY,ltX,ltY);
-		if (t != null)
+		
+		if (selectedTile != null)
 			{
-			PropertyLinkFactory<PTile> tplf = new PropertyLinkFactory<PTile>(t.properties,this);
+			PropertyLinkFactory<PTile> tplf = new PropertyLinkFactory<PTile>(selectedTile.properties,this);
 			ltDepth = tplf.make(teDepth,PTile.DEPTH);
 			ltLocked = tplf.make(tLocked,PTile.LOCKED);
 			ltSource = tplf.make(teSource,PTile.BACKGROUND);
 			ltsX = tplf.make(tsX,PTile.BG_X);
 			ltsY = tplf.make(tsY,PTile.BG_Y);
-			ltX = tplf.make(tX,PTile.ROOM_X);
-			ltY = tplf.make(tY,PTile.ROOM_Y);
+			ltX = tplf.make(tileHorizontalPosition,PTile.ROOM_X);
+			ltY = tplf.make(tileVerticalPosition,PTile.ROOM_Y);
 			}
 		}
 
@@ -1486,6 +1606,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
 		}
 
+	// if an item of a listbox has been selected
 	public void valueChanged(ListSelectionEvent e)
 		{
 		if (e.getValueIsAdjusting()) return;
@@ -1550,14 +1671,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		// garbage collection.
 		oNew.removeActionListener(this);
 		oList.removeListSelectionListener(this);
-		oAdd.removeActionListener(this);
-		oDel.removeActionListener(this);
+		addObjectButton.removeActionListener(this);
+		deleteObjectButton.removeActionListener(this);
 		oCreationCode.removeActionListener(this);
 		sCreationCode.removeActionListener(this);
 		sShow.removeActionListener(this);
 		taSource.removeActionListener(this);
 		tList.removeListSelectionListener(this);
-		tDel.removeActionListener(this);
+		deleteTileButton.removeActionListener(this);
 		bList.removeListSelectionListener(this);
 		vList.removeListSelectionListener(this);
 		editorPane.setViewport(null);
@@ -1604,4 +1725,141 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (e.key == PView.VISIBLE) bdvListUpdate(false,e.source,(Boolean) e.map.get(e.key));
 			}
 		}
-	}
+	
+	// When a resource has been updated, reset the undo manager
+	public void resetUndoManager()
+		{
+		undoManager.discardAllEdits();
+		refreshUndoRedoButtons();
+		}
+	
+  /**
+  * An undo/redo adapter. The adapter is notified when an undo edit occur(e.g. add or remove from the list)
+  * The adapter extract the edit from the event, add it to the UndoManager, and refresh the GUI
+  */
+
+  private class UndoAdapter implements UndoableEditListener
+  {
+  	public void undoableEditHappened (UndoableEditEvent evt)
+    {
+     	UndoableEdit edit = evt.getEdit();
+     	undoManager.addEdit( edit );
+     	refreshUndoRedoButtons();
+     }
+  }
+  
+  /**
+  * This method is called after each undoable operation
+  * in order to refresh the presentation state of the undo/redo GUI
+  */
+
+  public void refreshUndoRedoButtons()
+	  {
+	     // refresh undo
+	     undo.setEnabled(undoManager.canUndo() );
+	
+	     // refresh redo
+	     redo.setEnabled(undoManager.canRedo() );
+	  }
+  
+  // When a text field related to the position of a piece gains the focus
+	public void focusGained(FocusEvent event)
+		{
+		pieceOriginalPosition = null;
+		selectedPiece = null;
+		
+	 	// If we are modifying objects
+		if (event.getSource() == objectHorizontalPosition || event.getSource() == objectVerticalPosition)
+		 {
+			// If no object is selected, return
+			int selectedIndex = oList.getSelectedIndex();
+			if (selectedIndex == -1) return;
+			
+			// Save the selected instance
+			selectedPiece = (Instance) oList.getSelectedValue();
+			
+			// Save the position of the object for the undo
+			pieceOriginalPosition = new Point (selectedPiece.getPosition());
+		 }
+		// We are modifying tiles
+	 else
+		 {
+			// If no tile is selected, return
+			int selectedIndex = tList.getSelectedIndex();
+			if (selectedIndex == -1) return;
+			
+			// Save the selected tile
+			selectedPiece = (Tile) tList.getSelectedValue();
+			
+			// Save the position of the tile for the undo
+			pieceOriginalPosition = new Point (selectedPiece.getPosition());
+		 }
+		}
+
+	// When a text field related to a piece position has lost the focus
+	public void focusLost(FocusEvent event)
+		{
+			processFocusLost();
+		}
+
+	// Save the position of a piece for the undo
+	public void processFocusLost()
+		{
+		if (selectedPiece == null)
+			return;
+			
+	 	// If we are modifying objects
+		if (selectedPiece instanceof Instance)
+			{
+			// If no object is selected, return
+			int selectedIndex = oList.getSelectedIndex();
+			if (selectedIndex == -1) return;
+			
+			// Get the new position of the object
+			Point objectNewPosition = new Point (selectedPiece.getPosition());
+			
+			// If the position of the object has been changed
+			if (!objectNewPosition.equals(pieceOriginalPosition))
+				{
+				// Record the effect of moving an object for the undo
+				UndoableEdit edit = new MovePieceInstance(this, selectedPiece, pieceOriginalPosition, objectNewPosition);
+			  // notify the listeners
+			  undoSupport.postEdit( edit );
+				}
+			}
+		 // We are modifying tiles
+		 else
+			 {
+				// If no tile is selected, return
+				int selectedIndex = tList.getSelectedIndex();
+				if (selectedIndex == -1) return;
+				
+				// Get the new position of the tile
+				Point tileNewPosition = new Point (selectedPiece.getPosition());
+				
+				// If the position of the tile has been changed
+				if (!tileNewPosition.equals(pieceOriginalPosition))
+					{
+					// Record the effect of moving an tile for the undo
+					UndoableEdit edit = new MovePieceInstance(this, selectedPiece, pieceOriginalPosition, tileNewPosition);
+				  // notify the listeners
+				  undoSupport.postEdit( edit );
+					}
+			 }
+		
+			 selectedPiece = null;
+		}
+
+	// When a new tab is selected
+	public void stateChanged(ChangeEvent event)
+		{
+    JTabbedPane sourceTabbedPane = (JTabbedPane) event.getSource();
+    int index = sourceTabbedPane.getSelectedIndex();
+    
+    // If the views tab is selected, always display the views
+    if (sourceTabbedPane.getTitleAt(index) == Messages.getString("RoomFrame.TAB_VIEWS"))
+    	editor.roomVisual.setViewsVisible(true);
+    else
+    	editor.roomVisual.setViewsVisible(false);
+		}
+}

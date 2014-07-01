@@ -3,6 +3,7 @@
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, Robert B. Colton
+ * Copyright (C) 2014, egofree
  * 
  * Modified 2010 by Medo <smaxein@googlemail.com>
  * 
@@ -26,6 +27,7 @@ import java.util.Vector;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
@@ -52,6 +54,7 @@ import org.lateralgm.resources.Sprite;
 import org.lateralgm.subframes.InstantiableResourceFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
+import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.subframes.SubframeInformer;
 
 public class ResNode extends DefaultMutableTreeNode implements Transferable,UpdateListener
@@ -330,6 +333,17 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 
 	public void updated(UpdateEvent e)
 		{
+		
+		// If a sprite, a background, or an object has been udpated, reset the undo
+		if (kind == Sprite.class || kind == Background.class || kind == GmObject.class)
+			{
+			for (JInternalFrame room : LGM.mdi.getAllFrames())
+				{
+					if (room instanceof RoomFrame)
+					((RoomFrame) room).resetUndoManager();
+				}
+			}
+
 		if (status == STATUS_SECONDARY)
 			{
 			icon = null;

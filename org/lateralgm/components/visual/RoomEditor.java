@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007, 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2014, egofree
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -30,6 +31,8 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.undo.CompoundEdit;
+import javax.swing.undo.UndoableEdit;
 
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
@@ -48,10 +51,13 @@ import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.subframes.CodeFrame;
 import org.lateralgm.ui.swing.visuals.RoomVisual;
 import org.lateralgm.util.ActiveArrayList;
+import org.lateralgm.util.AddPieceInstance;
+import org.lateralgm.util.MovePieceInstance;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
+import org.lateralgm.util.RemovePieceInstance;
 
 public class RoomEditor extends VisualPanel
 	{
@@ -64,11 +70,14 @@ public class RoomEditor extends VisualPanel
 	protected final RoomFrame frame;
 	private Piece cursor;
 	public final PropertyMap<PRoomEditor> properties;
-	private final RoomVisual roomVisual;
+	public final RoomVisual roomVisual;
 
 	private final RoomPropertyListener rpl = new RoomPropertyListener();
 	private final RoomEditorPropertyValidator repv = new RoomEditorPropertyValidator();
 
+	// Save the original position of a selected piece (Used when moving an object for the undo)
+	private Point objectFirstPosition = null;
+	
 	public enum PRoomEditor
 		{
 		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
@@ -114,7 +123,7 @@ public class RoomEditor extends VisualPanel
 
 		room = r;
 		this.frame = frame;
-
+		setFocusable(true);
 		zoomOrigin = ORIGIN_MOUSE;
 
 		r.properties.updateSource.addListener(rpl);
@@ -149,26 +158,66 @@ public class RoomEditor extends VisualPanel
 		mouseEdit(e);
 		}
 
-	public void releaseCursor(Point p)
-		{ //it must be guaranteed that cursor != null
-		boolean duo = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
-		boolean dut = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
-		if (duo && cursor instanceof Instance)
-			deleteUnderlying(roomVisual.intersectInstances(new Rectangle(p.x,p.y,1,1)),room.instances);
-		else if (dut && cursor instanceof Tile)
-			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(p.x,p.y,1,1),getTileDepth()),
-					room.tiles);
+	public void releaseCursor(Point lastPosition)
+		{
+		// Stores several actions in one compound action for the undo
+		CompoundEdit compoundEdit = new CompoundEdit();
+		UndoableEdit edit = null;
+
+		// If the piece was moved
+		if (objectFirstPosition != null)
+			// For the undo, record that the object was moved
+			edit = new MovePieceInstance(frame, cursor, objectFirstPosition, new Point(lastPosition));
+		else
+		// A new piece has been added
+			{
+				if (cursor instanceof Instance)
+					edit = new AddPieceInstance(frame, cursor, room.instances.size() -1);
+				else
+					edit = new AddPieceInstance(frame, cursor, room.tiles.size() -1);
+			}
+		
+		compoundEdit.addEdit(edit);
+		objectFirstPosition = null;
+		
+		//it must be guaranteed that cursor != null
+		boolean deleteUnderlyingObjects = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
+		boolean deleteUnderlyingTiles = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
+		
+		if (deleteUnderlyingObjects && cursor instanceof Instance)
+			deleteUnderlying(roomVisual.intersectInstances(new Rectangle(lastPosition.x,lastPosition.y,1,1)),room.instances, compoundEdit);
+		else if (deleteUnderlyingTiles && cursor instanceof Tile)
+			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(lastPosition.x,lastPosition.y,1,1),getTileDepth()),room.tiles, compoundEdit);
+		
+		// Save the action for the undo
+		compoundEdit.end();
+		frame.undoSupport.postEdit( compoundEdit );
+
 		unlockBounds();
 		cursor = null;
 		}
-
-	private <T>void deleteUnderlying(Iterator<T> i, ActiveArrayList<T> l)
+ 
+	private <T>void deleteUnderlying(Iterator<T> i, ActiveArrayList<T> l, CompoundEdit compoundEdit)
 		{
 		HashSet<T> s = new HashSet<T>();
 		while (i.hasNext())
 			{
 			T t = i.next();
-			if (t != cursor) s.add(t);
+			if (t != cursor)
+				{
+					UndoableEdit edit;
+					
+	      	// Record the effect of removing an piece for the undo
+					if (cursor instanceof Instance)
+						 edit = new RemovePieceInstance(frame, (Piece)t, room.instances.indexOf(t));
+					else
+						 edit = new RemovePieceInstance(frame, (Piece)t, room.tiles.indexOf(t));
+					
+					 compoundEdit.addEdit(edit);
+
+				s.add(t);
+				
+				}
 			}
 		l.removeAll(s);
 		}
@@ -192,20 +241,39 @@ public class RoomEditor extends VisualPanel
 
 	private void processLeftButton(int modifiers, boolean pressed, Piece mc, Point p)
 		{
-		boolean shift = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
+		// If we are modifying the position of a piece with the text fields, save the position for the undo
+		if (frame.selectedPiece != null)
+			{
+			frame.processFocusLost();
+			this.requestFocusInWindow();
+			}
+		
+		boolean shiftKeyPressed = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
+		
+		// If the ctrl key is pressed, move the object
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
-			if (pressed && mc != null && !mc.isLocked()) setCursor(mc);
+			if (pressed && mc != null && !mc.isLocked())
+				{
+					// Record the original position of the object (without snapping) for the undo
+					objectFirstPosition = mc.getPosition();
+					
+					setCursor(mc);
+				}
+			
 			}
 		else
 			{
-			if (shift && cursor != null) if (!roomVisual.intersects(new Rectangle(p.x,p.y,1,1),cursor))
+			// If the shift key is pressed, add objects under the cursor
+			if (shiftKeyPressed && cursor != null) if (!roomVisual.intersects(new Rectangle(p.x,p.y,1,1),cursor))
 				{
 				releaseCursor(p);
 				pressed = true; //ensures that a new instance is created below
 				}
+			
 			if (pressed && cursor == null)
 				{
+				
 				if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 					{
 					ResourceReference<Background> bkg = frame.taSource.getSelected();
@@ -214,46 +282,45 @@ public class RoomEditor extends VisualPanel
 					Tile t = new Tile(room,LGM.currentFile);
 					t.properties.put(PTile.BACKGROUND,bkg);
 					t.setBackgroundPosition(new Point(frame.tSelect.tx,frame.tSelect.ty));
-					t.setRoomPosition(p);
+					t.setPosition(p);
+					
 					if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
 						t.setSize(new Dimension(b.getWidth(),b.getHeight()));
 					else
 						t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
 								(Integer) b.get(PBackground.TILE_HEIGHT)));
+					
 					t.setDepth((Integer) frame.taDepth.getValue());
 					room.tiles.add(t);
 					setCursor(t);
-					shift = true; //prevents unnecessary coordinate update below
+					shiftKeyPressed = true; //prevents unnecessary coordinate update below
 					}
 				else if (frame.tabs.getSelectedIndex() == Room.TAB_OBJECTS)
 					{
 					ResourceReference<GmObject> obj = frame.oNew.getSelected();
 					if (obj == null) return; //I'd rather just break out of this IF, but this works
-					Instance i = room.addInstance();
-					i.properties.put(PInstance.OBJECT,obj);
-					i.setPosition(p);
-					setCursor(i);
-					shift = true; //prevents unnecessary coordinate update below
+					Instance instance = room.addInstance();
+					instance.properties.put(PInstance.OBJECT,obj);
+					instance.setPosition(p);
+
+					setCursor(instance);
+					shiftKeyPressed = true; //prevents unnecessary coordinate update below
 					}
 				}
 			}
-		if (cursor != null && !shift)
-			{
-			if (cursor instanceof Instance)
-				{
-				Instance i = (Instance) cursor;
-				i.setPosition(p);
-				}
-			else if (cursor instanceof Tile)
-				{
-				Tile t = (Tile) cursor;
-				t.setRoomPosition(p);
-				}
-			}
+		if (cursor != null && !shiftKeyPressed)
+			cursor.setPosition(p);
 		}
 
 	private void processRightButton(int modifiers, boolean pressed, final Piece mc, Point p)
 		{
+		// If we are modifying the position of a piece with the text fields, save the position for the undo
+		if (frame.selectedPiece != null)
+			{
+			frame.processFocusLost();
+			this.requestFocusInWindow();
+			}
+		
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
 			if (!pressed) return;
@@ -290,13 +357,14 @@ public class RoomEditor extends VisualPanel
 		else if (!mc.isLocked())
 			{
 			ArrayList<?> alist = null;
-			int i = -1;
+			int pieceIndex = -1;
 			JList<?> jlist = null;
 
 			if (mc instanceof Instance)
 				{
-				i = room.instances.indexOf(mc);
-				if (i == -1) return;
+				pieceIndex = room.instances.indexOf(mc);
+				if (pieceIndex == -1) return;
+				
 				alist = room.instances;
 				jlist = frame.oList;
 				CodeFrame fr = frame.codeFrames.get(mc);
@@ -304,16 +372,21 @@ public class RoomEditor extends VisualPanel
 				}
 			else if (mc instanceof Tile)
 				{
-				i = room.tiles.indexOf(mc);
-				if (i == -1) return;
+				pieceIndex = room.tiles.indexOf(mc);
+				if (pieceIndex == -1) return;
 				alist = room.tiles;
 				jlist = frame.tList;
 				}
 			else
 				return; //unknown component with unknown lists
 
+      // Record the effect of removing an object for the undo
+			UndoableEdit edit = new RemovePieceInstance(frame, mc, pieceIndex);
+      // notify the listeners
+			frame.undoSupport.postEdit( edit );
+			 
 			int i2 = jlist.getSelectedIndex();
-			alist.remove(i);
+			alist.remove(pieceIndex);
 			jlist.setSelectedIndex(Math.min(alist.size() - 1,i2));
 			}
 		}
@@ -322,16 +395,19 @@ public class RoomEditor extends VisualPanel
 		{
 		int modifiers = e.getModifiersEx();
 		int type = e.getID();
-		Point p = e.getPoint().getLocation();
-		componentToVisual(p);
-		int x = p.x;
-		int y = p.y;
+		Point currentPosition = e.getPoint().getLocation();
+		componentToVisual(currentPosition);
+		int x = currentPosition.x;
+		int y = currentPosition.y;
+
+		// If the alt key is not pressed, apply the 'snapping' to the current position
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
 			int sx = room.get(PRoom.SNAP_X);
 			int sy = room.get(PRoom.SNAP_Y);
 			int ox = properties.get(PRoomEditor.GRID_OFFSET_X);
 			int oy = properties.get(PRoomEditor.GRID_OFFSET_Y);
+			
 			if (room.get(PRoom.ISOMETRIC))
 				{
 				int gx = ox + negDiv(x - ox,sx) * sx;
@@ -346,15 +422,17 @@ public class RoomEditor extends VisualPanel
 				y = oy + negDiv(y - oy,sy) * sy;
 				}
 			}
+		
 		frame.statX.setText(Messages.getString("RoomFrame.STAT_X") + x); //$NON-NLS-1$
 		frame.statY.setText(Messages.getString("RoomFrame.STAT_Y") + y); //$NON-NLS-1$
 		frame.statId.setText(""); //$NON-NLS-1$
 		frame.statSrc.setText(""); //$NON-NLS-1$
 
 		Piece mc = null;
+		
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 			{
-			Tile tile = getTopPiece(p,Tile.class,getTileDepth());
+			Tile tile = getTopPiece(currentPosition,Tile.class,getTileDepth());
 			mc = tile;
 			if (mc != null)
 				{
@@ -371,8 +449,10 @@ public class RoomEditor extends VisualPanel
 			}
 		else
 			{
-			Instance instance = getTopPiece(p,Instance.class);
+			
+			Instance instance = getTopPiece(currentPosition,Instance.class);
 			mc = instance;
+			
 			if (instance != null)
 				{
 				String idt = Messages.getString("RoomFrame.STAT_ID") //$NON-NLS-1$
@@ -390,9 +470,11 @@ public class RoomEditor extends VisualPanel
 
 		if ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0)
 			processLeftButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,new Point(x,y));
-		else if (cursor != null) releaseCursor(new Point(x,y));
+		else if (cursor != null)
+				releaseCursor(new Point(x,y));
+		
 		if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
-			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,p); //use mouse point
+			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,currentPosition); //use mouse point
 		}
 
 	private <P extends Piece>P getTopPiece(Point p, Class<P> c)
