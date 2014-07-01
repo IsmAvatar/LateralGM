@@ -943,7 +943,7 @@ public final class GMXFileWriter
 			Shader shr = (Shader) resNode.getRes().get();
 			res = dom.createElement("shader"
 					+ "");
-			String fname = "shaders\\" + shr.getName() + ".gml";
+			String fname = "shaders\\" + shr.getName() + ".shader";
 			res.setTextContent(fname);
 			res.setAttribute("type",shr.properties.get(PShader.TYPE).toString());
 			File file = new File(getUnixPath(f.getDirectory() + "/shaders"));
@@ -1642,7 +1642,7 @@ public final class GMXFileWriter
 			if (la.execType == Action.EXEC_FUNCTION) {
 				execinfo = la.execInfo;
 			}
-			actelement.appendChild(createElement(doc, "functionname", ""));
+			actelement.appendChild(createElement(doc, "functionname", execinfo));
 			execinfo = "";
 			if (la.execType == Action.EXEC_CODE) {
 				execinfo = la.execInfo;
