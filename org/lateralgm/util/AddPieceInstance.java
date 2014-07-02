@@ -21,6 +21,8 @@ import org.lateralgm.subframes.RoomFrame;
 
 public class AddPieceInstance extends AbstractUndoableEdit
 {
+  private static final long serialVersionUID = 1L;
+
   private int index;
   private RoomFrame roomFrame;
   private Piece piece;

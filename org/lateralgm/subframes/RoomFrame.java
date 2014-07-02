@@ -219,6 +219,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		// Action fired when the undo button is clicked
     Action undoAction = new AbstractAction()
     	{
+    	  private static final long serialVersionUID = 1L;
+    	
 				public void actionPerformed(ActionEvent actionEvent) 
     			{
         	undoManager.undo();
@@ -238,6 +240,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		// Action fired when the redo button is clicked
     Action redoAction = new AbstractAction()
     	{
+  	    private static final long serialVersionUID = 1L;
+  	  
 				public void actionPerformed(ActionEvent actionEvent) 
     			{
       		undoManager.redo();

@@ -22,6 +22,8 @@ import org.lateralgm.subframes.RoomFrame;
 
 public class MovePieceInstance extends AbstractUndoableEdit
 {
+  private static final long serialVersionUID = 1L;
+
   private Piece piece;
   private Point oldPosition;
   private Point newPosition;
