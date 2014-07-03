@@ -1631,10 +1631,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		int viewportHeight = viewport.getHeight();
 		int viewportWidth = viewport.getWidth();
 		
+		// Get room properties
+		Room room = editor.roomVisual.room;
+		int roomHeight = room.properties.get(PRoom.HEIGHT);
+		int roomWidth = room.properties.get(PRoom.WIDTH);
+		
+		// Calculate the offsets between the room and the editor coordinates
+		int editorHeight = editor.getHeight();
+		int editorWidth = editor.getWidth();
+		
+		int roomHorizontalOffset = (editorWidth - roomWidth) / 2;
+		int roomVerticalOffset = (editorHeight - roomHeight) / 2;
+			
 		// Center the view in the viewport
 		int newViewPortHorizontalPosition = viewHorizontalPosition - (viewportWidth - viewWidth) / 2;
 		int newViewPortVerticalPosition = viewVerticalPosition - (viewportHeight - viewHeight) / 2;
-		viewport.setViewPosition(new Point(newViewPortHorizontalPosition + 128,newViewPortVerticalPosition + 128));
+		viewport.setViewPosition(new Point(newViewPortHorizontalPosition + roomHorizontalOffset,newViewPortVerticalPosition + roomVerticalOffset));
 		}
 	
 	// if an item of a listbox has been selected
