@@ -1612,25 +1612,29 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
 		}
 
+	// Display the selected view in the center of the window
 	private void showSelectedView()
 		{
-		View view = res.views.get(vList.getSelectedIndex());
 		if (editorPane == null)
 			return;
 		
+		View view = res.views.get(vList.getSelectedIndex());
+		
 		// Get the properties of the view
-		int x = view.properties.get(PView.VIEW_X);
-		int y = view.properties.get(PView.VIEW_Y);
-		int width = view.properties.get(PView.VIEW_W);
-		int height = view.properties.get(PView.VIEW_H);
+		int viewHorizontalPosition = view.properties.get(PView.VIEW_X);
+		int viewVerticalPosition = view.properties.get(PView.VIEW_Y);
+		int viewWidth = view.properties.get(PView.VIEW_W);
+		int viewHeight = view.properties.get(PView.VIEW_H);
+		
+		// Get the properties of the viewport
 		JViewport viewport = editorPane.getViewport();
-
-		//- viewport.getHeight()/6)
-		viewport.setViewPosition(new Point(x-128,y-30));
-		//viewport.setViewPosition(new Point(-128,-128));
-		//System.out.println(viewport.getViewPosition());
-		//editorPane.revalidate();  
-		//editorPane.repaint();  
+		int viewportHeight = viewport.getHeight();
+		int viewportWidth = viewport.getWidth();
+		
+		// Center the view in the viewport
+		int newViewPortHorizontalPosition = viewHorizontalPosition - (viewportWidth - viewWidth) / 2;
+		int newViewPortVerticalPosition = viewVerticalPosition - (viewportHeight - viewHeight) / 2;
+		viewport.setViewPosition(new Point(newViewPortHorizontalPosition + 128,newViewPortVerticalPosition + 128));
 		}
 	
 	// if an item of a listbox has been selected
@@ -1643,8 +1647,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (e.getSource() == bList) fireBackUpdate();
 		if (e.getSource() == vList)
 			{
-			showSelectedView();
 			fireViewUpdate();
+			showSelectedView();
 			}
 		}
 
@@ -1889,8 +1893,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
     
     // If the views tab is selected, always display the views
     if (sourceTabbedPane.getTitleAt(index) == Messages.getString("RoomFrame.TAB_VIEWS"))
+    	{
+    	showSelectedView();
     	editor.roomVisual.setViewsVisible(true);
+    	}
     else
+    	{
     	editor.roomVisual.setViewsVisible(false);
+    	}
 		}
 }
