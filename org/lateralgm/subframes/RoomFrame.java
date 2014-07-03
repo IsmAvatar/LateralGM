@@ -57,6 +57,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
@@ -1593,8 +1594,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		lastValidView = i;
 		PropertyLink.removeAll(lvVisible,lvRX,lvRY,lvRW,lvRH,lvPX,lvPY,lvPW,lvPH,lvObj,lvOHBor,lvOVBor,
 				lvOHSp,lvOVSp);
-		View v = res.views.get(i);
-		PropertyLinkFactory<PView> vplf = new PropertyLinkFactory<PView>(v.properties,this);
+		View view = res.views.get(i);
+		PropertyLinkFactory<PView> vplf = new PropertyLinkFactory<PView>(view.properties,this);
 		lvVisible = vplf.make(vVisible,PView.VISIBLE);
 		lvRX = vplf.make(vRX,PView.VIEW_X);
 		lvRY = vplf.make(vRY,PView.VIEW_Y);
@@ -1611,6 +1612,27 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
 		}
 
+	private void showSelectedView()
+		{
+		View view = res.views.get(vList.getSelectedIndex());
+		if (editorPane == null)
+			return;
+		
+		// Get the properties of the view
+		int x = view.properties.get(PView.VIEW_X);
+		int y = view.properties.get(PView.VIEW_Y);
+		int width = view.properties.get(PView.VIEW_W);
+		int height = view.properties.get(PView.VIEW_H);
+		JViewport viewport = editorPane.getViewport();
+
+		//- viewport.getHeight()/6)
+		viewport.setViewPosition(new Point(x-128,y-30));
+		//viewport.setViewPosition(new Point(-128,-128));
+		//System.out.println(viewport.getViewPosition());
+		//editorPane.revalidate();  
+		//editorPane.repaint();  
+		}
+	
 	// if an item of a listbox has been selected
 	public void valueChanged(ListSelectionEvent e)
 		{
@@ -1619,7 +1641,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (e.getSource() == oList) fireObjUpdate();
 		if (e.getSource() == tList) fireTileUpdate();
 		if (e.getSource() == bList) fireBackUpdate();
-		if (e.getSource() == vList) fireViewUpdate();
+		if (e.getSource() == vList)
+			{
+			showSelectedView();
+			fireViewUpdate();
+			}
 		}
 
 	public void openCodeFrame(Instance i)
