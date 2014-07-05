@@ -69,7 +69,7 @@ public class VisualPanel extends JPanel
 		visualToComponent(p,zoom);
 		}
 
-	protected void visualToComponent(Point p, int z)
+	public void visualToComponent(Point p, int z)
 		{
 		p.x = zoom(p.x - overallBounds.x,z) + visualOffsetX(z);
 		p.y = zoom(p.y - overallBounds.y,z) + visualOffsetY(z);

@@ -1618,35 +1618,31 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (editorPane == null)
 			return;
 		
+		// Get the selected view
 		View view = res.views.get(vList.getSelectedIndex());
+		
+		int zoomLevel = editor.properties.get(PRoomEditor.ZOOM);
 		
 		// Get the properties of the view
 		int viewHorizontalPosition = view.properties.get(PView.VIEW_X);
 		int viewVerticalPosition = view.properties.get(PView.VIEW_Y);
-		int viewWidth = view.properties.get(PView.VIEW_W);
-		int viewHeight = view.properties.get(PView.VIEW_H);
-		
+		int viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
+		int viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
+
 		// Get the properties of the viewport
 		JViewport viewport = editorPane.getViewport();
 		int viewportHeight = viewport.getHeight();
 		int viewportWidth = viewport.getWidth();
-		
-		// Get room properties
-		Room room = editor.roomVisual.room;
-		int roomHeight = room.properties.get(PRoom.HEIGHT);
-		int roomWidth = room.properties.get(PRoom.WIDTH);
-		
-		// Calculate the offsets between the room and the editor coordinates
-		int editorHeight = editor.getHeight();
-		int editorWidth = editor.getWidth();
-		
-		int roomHorizontalOffset = (editorWidth - roomWidth) / 2;
-		int roomVerticalOffset = (editorHeight - roomHeight) / 2;
 			
 		// Center the view in the viewport
 		int newViewPortHorizontalPosition = viewHorizontalPosition - (viewportWidth - viewWidth) / 2;
 		int newViewPortVerticalPosition = viewVerticalPosition - (viewportHeight - viewHeight) / 2;
-		viewport.setViewPosition(new Point(newViewPortHorizontalPosition + roomHorizontalOffset,newViewPortVerticalPosition + roomVerticalOffset));
+		Point newViewportPosition = new Point(newViewPortHorizontalPosition,newViewPortVerticalPosition);
+
+		// Take into account the visual offset of the border and the zoom level
+		editor.visualToComponent(newViewportPosition,zoomLevel);
+
+		viewport.setViewPosition(newViewportPosition);
 		}
 	
 	// if an item of a listbox has been selected
