@@ -168,9 +168,28 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 	// Display a view on the panel
 	private void paintView(Graphics g2, View view)
 		{
-		// Get the properties of the view
-		int x = view.properties.get(PView.VIEW_X);
-		int y = view.properties.get(PView.VIEW_Y);
+		
+		// View location
+		int x;
+		int y;
+		
+		int objectFollowingX = view.properties.get(PView.VIEW_OBJECT_FOLLOWING_X);
+		int objectFollowingY = view.properties.get(PView.VIEW_OBJECT_FOLLOWING_Y);
+		
+		// If the view is following an object, center the view around the object
+		if (objectFollowingX > -1)
+			{
+			x = objectFollowingX;
+			y = objectFollowingY;
+			}
+		else
+			{
+			// Use the 'normal' view location
+			x = view.properties.get(PView.VIEW_X);
+			y = view.properties.get(PView.VIEW_Y);
+			}
+		
+		// Get the view dimension
 		int width = view.properties.get(PView.VIEW_W);
 		int height = view.properties.get(PView.VIEW_H);
 		

@@ -33,6 +33,8 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
 
@@ -1200,8 +1202,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		pf.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.FOLLOW"))); //$NON-NLS-1$
 		GroupLayout lf = new GroupLayout(pf);
 		pf.setLayout(lf);
+
 		vObj = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
+		
 		JLabel lH = new JLabel(Messages.getString("RoomFrame.VIEW_HORIZONTAL"));
 		JLabel lV = new JLabel(Messages.getString("RoomFrame.VIEW_VERTICAL"));
 		JLabel lBorder = new JLabel(Messages.getString("RoomFrame.VIEW_BORDER"));
@@ -1663,22 +1667,41 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		int viewWidth;
 		int viewHeight;
 		
+		viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
+		viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
+		
 		// If there is an instance to follow, use the instance properties for centering the view
 		if (instanceToFollow != null)
 			{
+			// Get the instance properties
 			BufferedImage image = objectToFollowReference.get().getDisplayImage();
-			viewWidth = image.getHeight();
-			viewHeight = image.getWidth();
-			viewHorizontalPosition = (Integer) instanceToFollow.properties.get(PInstance.X);
-			viewVerticalPosition = (Integer) instanceToFollow.properties.get(PInstance.Y);
+			int instanceWidth = image.getHeight() * zoomLevel;
+			int instanceHeight = image.getWidth() * zoomLevel;
+			int instanceHorizontalPosition = (Integer) instanceToFollow.properties.get(PInstance.X);
+			int instanceVerticalPosition = (Integer) instanceToFollow.properties.get(PInstance.Y);
+			
+			// Calculate the center of the instance
+			int objectCenterPositionX = instanceHorizontalPosition + image.getWidth() / 2;
+			int objectCenterPositionY = instanceVerticalPosition + image.getHeight() / 2;
+			
+			viewHorizontalPosition = instanceHorizontalPosition;
+			viewVerticalPosition = instanceVerticalPosition;
+			
+			viewHorizontalPosition = objectCenterPositionX - viewWidth /2;
+			viewVerticalPosition = objectCenterPositionY - viewHeight /2;
+			
+			view.properties.put(PView.VIEW_OBJECT_FOLLOWING_X,viewHorizontalPosition);
+			view.properties.put(PView.VIEW_OBJECT_FOLLOWING_Y,viewVerticalPosition);
 			}
 		else
 			{
 			// Get the properties of the view
 			viewHorizontalPosition = view.properties.get(PView.VIEW_X);
 			viewVerticalPosition = view.properties.get(PView.VIEW_Y);
-			viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
-			viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
+			
+			view.properties.put(PView.VIEW_OBJECT_FOLLOWING_X,-1);
+			view.properties.put(PView.VIEW_OBJECT_FOLLOWING_Y,-1);
+
 			}
 		
 		// Get the properties of the viewport
