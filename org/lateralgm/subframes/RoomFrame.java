@@ -1618,16 +1618,44 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (editorPane == null)
 			return;
 		
+		// If the views are not enabled
+		if ((Boolean) editor.roomVisual.room.get(PRoom.VIEWS_ENABLED) == false)
+			return;
+		
 		// Get the selected view
 		View view = res.views.get(vList.getSelectedIndex());
 		
 		// If the view is not visible, don't show it
 		if ((Boolean) view.properties.get(PView.VISIBLE) == false)
 			return;
+	
+		// Get the reference to the 'Object following' object
+		ResourceReference<GmObject> objectToFollowReference = null;
 		
-		// If the views are not enabled
-		if ((Boolean) editor.roomVisual.room.get(PRoom.VIEWS_ENABLED) == false)
-			return;
+		// If there is 'Object following' object for the selected view
+		if (view.properties.get(PView.OBJECT) != null)
+			objectToFollowReference = view.properties.get(PView.OBJECT);
+		
+		Instance instanceToFollow = null;
+		
+		// Get the first instance in the room of the selected 'Object following' object
+		for (Instance instance : editor.roomVisual.room.instances)
+			{
+				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+				
+				if (instanceObject == objectToFollowReference)
+					{
+					instanceToFollow = instance;
+					break;
+					}
+			}
+		
+		if (instanceToFollow != null)
+			{
+			int instanceHorizontalPosition = (Integer) instanceToFollow.properties.get(PInstance.X);
+			int instanceVerticalPosition = (Integer) instanceToFollow.properties.get(PInstance.Y);
+			System.out.println(instanceHorizontalPosition + "," + instanceVerticalPosition);
+			}
 		
 		int zoomLevel = editor.properties.get(PRoomEditor.ZOOM);
 		
