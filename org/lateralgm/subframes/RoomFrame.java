@@ -1085,8 +1085,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		JScrollPane sp = new JScrollPane(vList);
 
 		for (View v : res.views)
+			{
 			v.properties.getUpdateSource(PView.VISIBLE).addListener(vpl);
-
+			v.properties.getUpdateSource(PView.OBJECT).addListener(vpl);
+			}
+		
 		vVisible = new JCheckBox(Messages.getString("RoomFrame.VIEW_ENABLED")); //$NON-NLS-1$
 
 		JTabbedPane tp = makeViewsDimensionsPane();
@@ -1848,6 +1851,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		public void updated(PropertyUpdateEvent<PView> e)
 			{
 			if (e.key == PView.VISIBLE) bdvListUpdate(false,e.source,(Boolean) e.map.get(e.key));
+			// If the 'Object following' object has been changed, update the display of the view
+			if (e.key == PView.OBJECT) showSelectedView();
 			}
 		}
 	
