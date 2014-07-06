@@ -1640,10 +1640,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		Point newViewportPosition = new Point(newViewPortHorizontalPosition,newViewPortVerticalPosition);
 
 		// If the new position of the viewport is above the origin coordinates
-		if (newViewportPosition.x < 0)
+		if (newViewportPosition.x < editor.getOverallBounds().x)
 			newViewportPosition.x = editor.getOverallBounds().x;
 	
-		if (newViewportPosition.y < 0)
+		if (newViewportPosition.y < editor.getOverallBounds().y)
 			newViewportPosition.y =  editor.getOverallBounds().y;
 	
 		// Take into account the visual offset of the border and the zoom level
