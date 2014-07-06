@@ -1621,6 +1621,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		// Get the selected view
 		View view = res.views.get(vList.getSelectedIndex());
 		
+		// If the view is not visible, don't show it
+		if ((Boolean) view.properties.get(PView.VISIBLE) == false)
+			return;
+		
+		// If the views are not enabled
+		if ((Boolean) editor.roomVisual.room.get(PRoom.VIEWS_ENABLED) == false)
+			return;
+		
 		int zoomLevel = editor.properties.get(PRoomEditor.ZOOM);
 		
 		// Get the properties of the view
@@ -1633,7 +1641,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		JViewport viewport = editorPane.getViewport();
 		int viewportHeight = viewport.getHeight();
 		int viewportWidth = viewport.getWidth();
-			
+				
 		// Center the view in the viewport
 		int newViewPortHorizontalPosition = viewHorizontalPosition - (viewportWidth - viewWidth) / 2;
 		int newViewPortVerticalPosition = viewVerticalPosition - (viewportHeight - viewHeight) / 2;
