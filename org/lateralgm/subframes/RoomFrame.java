@@ -90,10 +90,12 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Room.Piece;
+import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Instance;
@@ -1638,33 +1640,47 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		
 		Instance instanceToFollow = null;
 		
-		// Get the first instance in the room of the selected 'Object following' object
-		for (Instance instance : editor.roomVisual.room.instances)
+		// If there is an object to follow, get the first instance in the room
+		if (objectToFollowReference != null)
 			{
-				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
-				
-				if (instanceObject == objectToFollowReference)
-					{
-					instanceToFollow = instance;
-					break;
-					}
-			}
-		
-		if (instanceToFollow != null)
-			{
-			int instanceHorizontalPosition = (Integer) instanceToFollow.properties.get(PInstance.X);
-			int instanceVerticalPosition = (Integer) instanceToFollow.properties.get(PInstance.Y);
-			System.out.println(instanceHorizontalPosition + "," + instanceVerticalPosition);
+			for (Instance instance : editor.roomVisual.room.instances)
+				{
+					ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+					
+					if (instanceObject == objectToFollowReference)
+						{
+						instanceToFollow = instance;
+						break;
+						}
+				}
 			}
 		
 		int zoomLevel = editor.properties.get(PRoomEditor.ZOOM);
 		
-		// Get the properties of the view
-		int viewHorizontalPosition = view.properties.get(PView.VIEW_X);
-		int viewVerticalPosition = view.properties.get(PView.VIEW_Y);
-		int viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
-		int viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
-
+		// Properties of the view
+		int viewHorizontalPosition;
+		int viewVerticalPosition;
+		int viewWidth;
+		int viewHeight;
+		
+		// If there is an instance to follow, use the instance properties for centering the view
+		if (instanceToFollow != null)
+			{
+			BufferedImage image = objectToFollowReference.get().getDisplayImage();
+			viewWidth = image.getHeight();
+			viewHeight = image.getWidth();
+			viewHorizontalPosition = (Integer) instanceToFollow.properties.get(PInstance.X);
+			viewVerticalPosition = (Integer) instanceToFollow.properties.get(PInstance.Y);
+			}
+		else
+			{
+			// Get the properties of the view
+			viewHorizontalPosition = view.properties.get(PView.VIEW_X);
+			viewVerticalPosition = view.properties.get(PView.VIEW_Y);
+			viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
+			viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
+			}
+		
 		// Get the properties of the viewport
 		JViewport viewport = editorPane.getViewport();
 		int viewportHeight = viewport.getHeight();
