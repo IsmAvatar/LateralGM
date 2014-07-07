@@ -1670,8 +1670,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		int viewWidth;
 		int viewHeight;
 		
-		viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
-		viewHeight = (Integer) view.properties.get(PView.VIEW_H)* zoomLevel;
+		viewWidth = (Integer) view.properties.get(PView.VIEW_W);
+		viewHeight = (Integer) view.properties.get(PView.VIEW_H);
 		
 		// If there is an instance to follow, use the instance properties for centering the view
 		if (instanceToFollow != null)
@@ -1710,19 +1710,33 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		int viewportWidth = viewport.getWidth();
 				
 		// Center the view in the viewport
-		int newViewPortHorizontalPosition = viewHorizontalPosition - (viewportWidth - viewWidth) / 2;
-		int newViewPortVerticalPosition = viewVerticalPosition - (viewportHeight - viewHeight) / 2;
+		int newViewPortHorizontalPosition = viewHorizontalPosition - (viewportWidth - viewWidth) / (2*zoomLevel);
+		int newViewPortVerticalPosition = viewVerticalPosition - (viewportHeight - viewHeight) / (2*zoomLevel);
 		Point newViewportPosition = new Point(newViewPortHorizontalPosition,newViewPortVerticalPosition);
 
+		if (zoomLevel == 2)
+			//newViewportPosition = new Point(869+48,340+48);
+			newViewportPosition = new Point(newViewPortHorizontalPosition,newViewPortVerticalPosition);
+		System.out.println("--------------------------");
+		System.out.println("newViewportPosition" + newViewportPosition);
+		/*
 		// If the new position of the viewport is above the origin coordinates
 		if (newViewportPosition.x < editor.getOverallBounds().x)
 			newViewportPosition.x = editor.getOverallBounds().x;
 	
 		if (newViewportPosition.y < editor.getOverallBounds().y)
 			newViewportPosition.y =  editor.getOverallBounds().y;
-	
+	*/
+		newViewportPosition.x -= editor.getOverallBounds().x;
+		newViewportPosition.y -= editor.getOverallBounds().y;
+		
+		newViewportPosition.x *= zoomLevel;
+		newViewportPosition.y *= zoomLevel;
+		
 		// Take into account the visual offset of the border and the zoom level
-		editor.visualToComponent(newViewportPosition,zoomLevel);
+		//editor.visualToComponent(newViewportPosition,zoomLevel);
+
+		System.out.println("newViewportPosition" + newViewportPosition);
 
 		viewport.setViewPosition(newViewportPosition);
 		}
