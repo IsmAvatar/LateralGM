@@ -173,8 +173,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		int x;
 		int y;
 		
-		int objectFollowingX = view.properties.get(PView.VIEW_OBJECT_FOLLOWING_X);
-		int objectFollowingY = view.properties.get(PView.VIEW_OBJECT_FOLLOWING_Y);
+		int objectFollowingX = view.properties.get(PView.OBJECT_FOLLOWING_X);
+		int objectFollowingY = view.properties.get(PView.OBJECT_FOLLOWING_Y);
 		
 		// If the view is following an object, center the view around the object
 		if (objectFollowingX > -1)

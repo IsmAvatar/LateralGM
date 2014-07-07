@@ -1671,15 +1671,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		int viewHeight;
 		
 		viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
-		viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
+		viewHeight = (Integer) view.properties.get(PView.VIEW_H)* zoomLevel;
 		
 		// If there is an instance to follow, use the instance properties for centering the view
 		if (instanceToFollow != null)
 			{
 			// Get the instance properties
 			BufferedImage image = objectToFollowReference.get().getDisplayImage();
-			int instanceWidth = image.getHeight() * zoomLevel;
-			int instanceHeight = image.getWidth() * zoomLevel;
 			int instanceHorizontalPosition = (Integer) instanceToFollow.properties.get(PInstance.X);
 			int instanceVerticalPosition = (Integer) instanceToFollow.properties.get(PInstance.Y);
 			
@@ -1687,14 +1685,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			int objectCenterPositionX = instanceHorizontalPosition + image.getWidth() / 2;
 			int objectCenterPositionY = instanceVerticalPosition + image.getHeight() / 2;
 			
-			viewHorizontalPosition = instanceHorizontalPosition;
-			viewVerticalPosition = instanceVerticalPosition;
-			
+			// Calculate the view centered around the object
 			viewHorizontalPosition = objectCenterPositionX - viewWidth /2;
 			viewVerticalPosition = objectCenterPositionY - viewHeight /2;
 			
-			view.properties.put(PView.VIEW_OBJECT_FOLLOWING_X,viewHorizontalPosition);
-			view.properties.put(PView.VIEW_OBJECT_FOLLOWING_Y,viewVerticalPosition);
+			// Set this new location into the view properties
+			view.properties.put(PView.OBJECT_FOLLOWING_X,viewHorizontalPosition);
+			view.properties.put(PView.OBJECT_FOLLOWING_Y,viewVerticalPosition);
 			}
 		else
 			{
@@ -1702,8 +1699,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			viewHorizontalPosition = view.properties.get(PView.VIEW_X);
 			viewVerticalPosition = view.properties.get(PView.VIEW_Y);
 			
-			view.properties.put(PView.VIEW_OBJECT_FOLLOWING_X,-1);
-			view.properties.put(PView.VIEW_OBJECT_FOLLOWING_Y,-1);
+			view.properties.put(PView.OBJECT_FOLLOWING_X,-1);
+			view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
 
 			}
 		

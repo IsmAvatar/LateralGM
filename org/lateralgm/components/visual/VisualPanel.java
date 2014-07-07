@@ -64,7 +64,7 @@ public class VisualPanel extends JPanel
 		r.height = zoom(r.height,2 - z);
 		}
 
-	protected void visualToComponent(Point p)
+	public void visualToComponent(Point p)
 		{
 		visualToComponent(p,zoom);
 		}
