@@ -1084,6 +1084,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			{
 			v.properties.getUpdateSource(PView.VISIBLE).addListener(vpl);
 			v.properties.getUpdateSource(PView.OBJECT).addListener(vpl);
+			v.properties.getUpdateSource(PView.VIEW_W).addListener(vpl);
+			v.properties.getUpdateSource(PView.VIEW_H).addListener(vpl);
 			}
 		
 		vVisible = new JCheckBox(Messages.getString("RoomFrame.VIEW_ENABLED")); //$NON-NLS-1$
@@ -1845,8 +1847,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		public void updated(PropertyUpdateEvent<PView> e)
 			{
 			if (e.key == PView.VISIBLE) bdvListUpdate(false,e.source,(Boolean) e.map.get(e.key));
+			
 			// If the 'Object following' object has been changed, update the display of the view
 			if (e.key == PView.OBJECT) showSelectedView();
+			
+			// If we are modifying the view dimension
+			if (e.key == PView.VIEW_W || e.key == PView.VIEW_H)
+				{
+				// Get the selected view
+				View view = res.views.get(vList.getSelectedIndex());
+
+				// If there is 'Object following' object for the selected view, update the display of the view
+				if (view.properties.get(PView.OBJECT) != null)
+					showSelectedView();
+				}
 			}
 		}
 	
