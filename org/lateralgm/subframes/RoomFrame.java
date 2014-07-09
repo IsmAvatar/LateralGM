@@ -1675,17 +1675,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (instanceToFollow != null)
 			{
 			// Get the instance properties
-			BufferedImage image = objectToFollowReference.get().getDisplayImage();
 			int instanceHorizontalPosition = (Integer) instanceToFollow.properties.get(PInstance.X);
 			int instanceVerticalPosition = (Integer) instanceToFollow.properties.get(PInstance.Y);
-			
-			// Calculate the center of the instance
-			int objectCenterPositionX = instanceHorizontalPosition + image.getWidth() / 2;
-			int objectCenterPositionY = instanceVerticalPosition + image.getHeight() / 2;
-			
-			// Calculate the view centered around the object
-			viewHorizontalPosition = objectCenterPositionX - viewWidth /2;
-			viewVerticalPosition = objectCenterPositionY - viewHeight /2;
+
+			viewHorizontalPosition = instanceHorizontalPosition - viewWidth /2;
+			viewVerticalPosition = instanceVerticalPosition - viewHeight /2;
 			
 			// Set this new location into the view properties
 			view.properties.put(PView.OBJECT_FOLLOWING_X,viewHorizontalPosition);
@@ -1699,7 +1693,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			
 			view.properties.put(PView.OBJECT_FOLLOWING_X,-1);
 			view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
-
 			}
 		
 		// Get the properties of the viewport
@@ -1711,10 +1704,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		float newViewPortHorizontalPosition = viewHorizontalPosition - (viewportWidth - viewWidth) / (2 * zoomLevel);
 		float newViewPortVerticalPosition = viewVerticalPosition - (viewportHeight - viewHeight) / (2 * zoomLevel);
 
-		
 		Point newViewportPosition = new Point((int)newViewPortHorizontalPosition,(int)newViewPortVerticalPosition);
 
-		
 		// If the new position of the viewport is above the origin coordinates
 		if (newViewportPosition.x < editor.getOverallBounds().x)
 			newViewportPosition.x = editor.getOverallBounds().x;
