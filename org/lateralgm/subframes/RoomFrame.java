@@ -1668,8 +1668,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		int viewWidth;
 		int viewHeight;
 		
-		viewWidth = (Integer) view.properties.get(PView.VIEW_W);
-		viewHeight = (Integer) view.properties.get(PView.VIEW_H);
+		viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
+		viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
 		
 		// If there is an instance to follow, use the instance properties for centering the view
 		if (instanceToFollow != null)
@@ -1708,9 +1708,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		int viewportWidth = viewport.getWidth();
 				
 		// Center the view in the viewport
-		int newViewPortHorizontalPosition = viewHorizontalPosition - (viewportWidth - viewWidth) / (2*zoomLevel);
-		int newViewPortVerticalPosition = viewVerticalPosition - (viewportHeight - viewHeight) / (2*zoomLevel);
-		Point newViewportPosition = new Point(newViewPortHorizontalPosition,newViewPortVerticalPosition);
+		float newViewPortHorizontalPosition = viewHorizontalPosition - (viewportWidth - viewWidth) / (2 * zoomLevel);
+		float newViewPortVerticalPosition = viewVerticalPosition - (viewportHeight - viewHeight) / (2 * zoomLevel);
+
+		
+		Point newViewportPosition = new Point((int)newViewPortHorizontalPosition,(int)newViewPortVerticalPosition);
 
 		
 		// If the new position of the viewport is above the origin coordinates
