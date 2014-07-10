@@ -1665,8 +1665,19 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		// Properties of the view
 		int viewHorizontalPosition;
 		int viewVerticalPosition;
-		int viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
-		int viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
+		int viewWidth;
+		int viewHeight;
+			
+		if (zoomLevel < 1)
+			{
+			viewWidth = (Integer) view.properties.get(PView.VIEW_W) / 4;
+			viewHeight = (Integer) view.properties.get(PView.VIEW_H) / 4;
+			}
+		else
+			{
+		viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
+		viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
+			}
 		
 		// If there is an instance to follow, use the instance properties for centering the view
 		if (instanceToFollow != null)
@@ -1695,8 +1706,19 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		JViewport viewport = editorPane.getViewport();
 				
 		// Center the view in the viewport
-		float newViewPortHorizontalPosition = viewHorizontalPosition - (viewport.getWidth() - viewWidth) / (2 * zoomLevel);
-		float newViewPortVerticalPosition = viewVerticalPosition - (viewport.getHeight() - viewHeight) / (2 * zoomLevel);
+		float newViewPortHorizontalPosition;
+		float newViewPortVerticalPosition;
+		if (zoomLevel < 1)
+			{
+			newViewPortHorizontalPosition = viewHorizontalPosition - (viewport.getWidth() /4 - viewWidth) ;
+			newViewPortVerticalPosition = viewVerticalPosition - (viewport.getHeight() /4 - viewHeight) ;			
+			}
+		else
+			{
+			newViewPortHorizontalPosition = viewHorizontalPosition - (viewport.getWidth() - viewWidth) / (2 * zoomLevel);
+			newViewPortVerticalPosition = viewVerticalPosition - (viewport.getHeight() - viewHeight) / (2 * zoomLevel);			
+			}
+
 
 		Point newViewportPosition = new Point((int)newViewPortHorizontalPosition,(int)newViewPortVerticalPosition);
 
