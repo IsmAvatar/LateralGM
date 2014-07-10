@@ -1665,11 +1665,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		// Properties of the view
 		int viewHorizontalPosition;
 		int viewVerticalPosition;
-		int viewWidth;
-		int viewHeight;
-		
-		viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
-		viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
+		int viewWidth = (Integer) view.properties.get(PView.VIEW_W) * zoomLevel;
+		int viewHeight = (Integer) view.properties.get(PView.VIEW_H) * zoomLevel;
 		
 		// If there is an instance to follow, use the instance properties for centering the view
 		if (instanceToFollow != null)
