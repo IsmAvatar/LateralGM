@@ -1842,7 +1842,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (e.key == PView.VISIBLE) bdvListUpdate(false,e.source,(Boolean) e.map.get(e.key));
 			
 			// If the 'Object following' object has been changed, update the display of the view
-			if (e.key == PView.OBJECT) showSelectedView();
+			if (e.key == PView.OBJECT || e.key == PView.VISIBLE) showSelectedView();
 			
 			// If we are modifying the view dimension
 			if (e.key == PView.VIEW_W || e.key == PView.VIEW_H)
