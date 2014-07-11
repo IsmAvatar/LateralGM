@@ -1666,12 +1666,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		Point viewPosition = new Point(0,0);
 		int viewWidth = (Integer) view.properties.get(PView.VIEW_W);
 		int viewHeight = (Integer) view.properties.get(PView.VIEW_H);
-			
-		if (zoomLevel > 1)
-			{
-			viewWidth = viewWidth * zoomLevel;
-			viewHeight = viewHeight * zoomLevel;
-			}
 		
 		// If there is an instance to follow, use the instance properties for centering the view
 		if (instanceToFollow != null)
@@ -1681,8 +1675,17 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			instancePosition.x = (Integer) instanceToFollow.properties.get(PInstance.X);
 			instancePosition.y = (Integer) instanceToFollow.properties.get(PInstance.Y);
 
-			viewPosition.x = instancePosition.x - viewWidth / (2 * zoomLevel);
-			viewPosition.y = instancePosition.y - viewHeight / (2 * zoomLevel);
+			// If we are zooming out
+			if (zoomLevel < 1)
+				{
+				viewPosition.x = instancePosition.x - viewWidth / 2;
+				viewPosition.y = instancePosition.y - viewHeight / 2;
+				}
+			else
+				{
+				viewPosition.x = instancePosition.x - (viewWidth * zoomLevel) / (2 * zoomLevel);
+				viewPosition.y = instancePosition.y - (viewHeight * zoomLevel) / (2 * zoomLevel);
+				}
 			
 			// Set this new location into the view properties
 			view.properties.put(PView.OBJECT_FOLLOWING_X, viewPosition.x);
@@ -1703,6 +1706,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		// Center the view in the viewport
 		Point newViewportPosition = new Point(0,0);
 
+		// Viewport scale when zooming out
 		int viewportScale = 0;
 		
 		if (zoomLevel == -1)
@@ -1711,6 +1715,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (zoomLevel == 0)
 			viewportScale = 2;
 		
+		// If we are zooming out
 		if (zoomLevel < 1)
 			{
 			newViewportPosition.x = viewPosition.x -(viewport.getWidth() * viewportScale - viewWidth) / 2;
@@ -1718,8 +1723,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			}
 		else
 			{
-			newViewportPosition.x = viewPosition.x - (viewport.getWidth() - viewWidth) / (2 * zoomLevel);
-			newViewportPosition.y = viewPosition.y - (viewport.getHeight() - viewHeight) / (2 * zoomLevel);			
+			newViewportPosition.x = viewPosition.x - (viewport.getWidth() - viewWidth * zoomLevel) / (2 * zoomLevel);
+			newViewportPosition.y = viewPosition.y - (viewport.getHeight() - viewHeight * zoomLevel) / (2 * zoomLevel);			
 			}
 
 		// If the new position of the viewport is above the room origin coordinates, use the room coordinates for the new viewport coordinates
