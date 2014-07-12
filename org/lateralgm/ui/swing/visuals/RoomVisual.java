@@ -105,9 +105,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		
 		// Set the property listener for each view
 		for (View view : room.views)
-			{
 				view.properties.updateSource.addListener(viewPropertyListener);
-			}
 
 		}
 
