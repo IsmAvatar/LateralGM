@@ -669,6 +669,11 @@ public class RoomEditor extends VisualPanel
 					view.properties.put(PView.OBJECT_FOLLOWING_X, viewPosition.x);
 					view.properties.put(PView.OBJECT_FOLLOWING_Y, viewPosition.y);
 					}
+				else
+					{
+					view.properties.put(PView.OBJECT_FOLLOWING_X,-1);
+					view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
+					}
 				}
 			}
 		}
