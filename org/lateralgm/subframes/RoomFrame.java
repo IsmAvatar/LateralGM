@@ -1675,18 +1675,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			instancePosition.x = (Integer) instanceToFollow.properties.get(PInstance.X);
 			instancePosition.y = (Integer) instanceToFollow.properties.get(PInstance.Y);
 
-			// If we are zooming out
-			if (zoomLevel < 1)
-				{
-				viewPosition.x = instancePosition.x - viewWidth / 2;
-				viewPosition.y = instancePosition.y - viewHeight / 2;
-				}
-			else
-				{
-				viewPosition.x = instancePosition.x - (viewWidth * zoomLevel) / (2 * zoomLevel);
-				viewPosition.y = instancePosition.y - (viewHeight * zoomLevel) / (2 * zoomLevel);
-				}
-			
+			viewPosition.x = instancePosition.x - viewWidth / 2;
+			viewPosition.y = instancePosition.y - viewHeight / 2;
+
 			// Set this new location into the view properties
 			view.properties.put(PView.OBJECT_FOLLOWING_X, viewPosition.x);
 			view.properties.put(PView.OBJECT_FOLLOWING_Y, viewPosition.y);
