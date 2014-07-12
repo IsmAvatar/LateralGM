@@ -632,8 +632,13 @@ public class RoomEditor extends VisualPanel
 				if (view.properties.get(PView.OBJECT) != null)
 					objectToFollowReference = view.properties.get(PView.OBJECT);
 				
+				// If there is no object to follow, reset the corresponding view properties
 				if (objectToFollowReference == null)
+					{
+					view.properties.put(PView.OBJECT_FOLLOWING_X,-1);
+					view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
 					continue;
+					}
 				
 				Instance instanceToFollow = null;
 				
