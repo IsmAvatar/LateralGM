@@ -612,7 +612,7 @@ public class RoomEditor extends VisualPanel
 			return v;
 			}
 		
-		// Get the 'object to follow' coordinates for each view in the room
+		// Set the 'object to follow' coordinates for each view in the room
 		private void updateViewsObjectFollowingProperty()
 			{
 			// If the views are not enabled
