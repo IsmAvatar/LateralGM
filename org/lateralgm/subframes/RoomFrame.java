@@ -1086,6 +1086,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			v.properties.getUpdateSource(PView.OBJECT).addListener(vpl);
 			v.properties.getUpdateSource(PView.VIEW_W).addListener(vpl);
 			v.properties.getUpdateSource(PView.VIEW_H).addListener(vpl);
+			v.properties.getUpdateSource(PView.BORDER_H).addListener(vpl);
+			v.properties.getUpdateSource(PView.BORDER_V).addListener(vpl);
 			}
 		
 		vVisible = new JCheckBox(Messages.getString("RoomFrame.VIEW_ENABLED")); //$NON-NLS-1$
@@ -1867,7 +1869,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (e.key == PView.OBJECT || e.key == PView.VISIBLE) showSelectedView();
 			
 			// If we are modifying the view dimension
-			if (e.key == PView.VIEW_W || e.key == PView.VIEW_H)
+			if (e.key == PView.VIEW_W || e.key == PView.VIEW_H || e.key == PView.BORDER_H || e.key == PView.BORDER_V)
 				{
 				// Get the selected view
 				View view = res.views.get(vList.getSelectedIndex());
