@@ -163,7 +163,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			if (viewsEnabled) for (View view : room.views)
 				if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
 			}
-		
+
 		g2.dispose();
 		}
 	
@@ -193,22 +193,26 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			int borderH = view.properties.get(PView.BORDER_H);
 			int borderV = view.properties.get(PView.BORDER_V);
 			
-			// Define the strokes for the border zone
-	    float black[] = {10.0f};
-	    float white[] = {8.0f,12.0f};
-	    BasicStroke dashed_black = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, black, 0.0f);
-	    BasicStroke dashed_white = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, white, 19.0f);
-	    
-			// Draw the border zone
-			g2.setColor(Color.BLACK);
-			g2.setStroke(dashed_black);
-			g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
-
-			g2.setColor(Color.WHITE);
-			g2.setStroke(dashed_white);
-			g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
-			
-			g2.setStroke(new BasicStroke());
+			// If the border zone is not empty
+			if (!(borderH == 0 & borderV ==0))
+				{
+				// Define the strokes for the border zone
+		    float black[] = {10.0f};
+		    float white[] = {8.0f,12.0f};
+		    BasicStroke dashed_black = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, black, 0.0f);
+		    BasicStroke dashed_white = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, white, 19.0f);
+		    
+				// Draw the border zone
+				g2.setColor(Color.BLACK);
+				g2.setStroke(dashed_black);
+				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
+	
+				g2.setColor(Color.WHITE);
+				g2.setStroke(dashed_white);
+				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
+				
+				g2.setStroke(new BasicStroke());
+				}
 
 			}
 		else
