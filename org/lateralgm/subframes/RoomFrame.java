@@ -83,6 +83,7 @@ import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.components.visual.RoomEditor.CommandHandler;
 import org.lateralgm.components.visual.RoomEditor.PRoomEditor;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -1346,7 +1347,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/*		*/.addComponent(stats))));
 
     // initialize the undo/redo system
-    undoManager= new UndoManager();
+    undoManager = new UndoManager();
+    undoManager.setLimit(Prefs.undoHistorySize);
     undoSupport = new UndoableEditSupport();
     undoSupport.addUndoableEditListener(new UndoAdapter());
     refreshUndoRedoButtons();
