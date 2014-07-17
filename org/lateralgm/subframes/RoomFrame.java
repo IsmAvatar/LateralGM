@@ -57,6 +57,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
@@ -82,6 +83,7 @@ import org.lateralgm.components.visual.RoomEditor;
 import org.lateralgm.components.visual.RoomEditor.CommandHandler;
 import org.lateralgm.components.visual.RoomEditor.PRoomEditor;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -1080,8 +1082,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		JScrollPane sp = new JScrollPane(vList);
 
 		for (View v : res.views)
+			{
 			v.properties.getUpdateSource(PView.VISIBLE).addListener(vpl);
-
+			v.properties.getUpdateSource(PView.OBJECT).addListener(vpl);
+			v.properties.getUpdateSource(PView.VIEW_W).addListener(vpl);
+			v.properties.getUpdateSource(PView.VIEW_H).addListener(vpl);
+			v.properties.getUpdateSource(PView.BORDER_H).addListener(vpl);
+			v.properties.getUpdateSource(PView.BORDER_V).addListener(vpl);
+			}
+		
 		vVisible = new JCheckBox(Messages.getString("RoomFrame.VIEW_ENABLED")); //$NON-NLS-1$
 
 		JTabbedPane tp = makeViewsDimensionsPane();
@@ -1197,8 +1206,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		pf.setBorder(BorderFactory.createTitledBorder(Messages.getString("RoomFrame.FOLLOW"))); //$NON-NLS-1$
 		GroupLayout lf = new GroupLayout(pf);
 		pf.setLayout(lf);
+
 		vObj = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
+		
 		JLabel lH = new JLabel(Messages.getString("RoomFrame.VIEW_HORIZONTAL"));
 		JLabel lV = new JLabel(Messages.getString("RoomFrame.VIEW_VERTICAL"));
 		JLabel lBorder = new JLabel(Messages.getString("RoomFrame.VIEW_BORDER"));
@@ -1336,7 +1347,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/*		*/.addComponent(stats))));
 
     // initialize the undo/redo system
-    undoManager= new UndoManager();
+    undoManager = new UndoManager();
+    undoManager.setLimit(Prefs.undoHistorySize);
     undoSupport = new UndoableEditSupport();
     undoSupport.addUndoableEditListener(new UndoAdapter());
     refreshUndoRedoButtons();
@@ -1593,8 +1605,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		lastValidView = i;
 		PropertyLink.removeAll(lvVisible,lvRX,lvRY,lvRW,lvRH,lvPX,lvPY,lvPW,lvPH,lvObj,lvOHBor,lvOVBor,
 				lvOHSp,lvOVSp);
-		View v = res.views.get(i);
-		PropertyLinkFactory<PView> vplf = new PropertyLinkFactory<PView>(v.properties,this);
+		View view = res.views.get(i);
+		PropertyLinkFactory<PView> vplf = new PropertyLinkFactory<PView>(view.properties,this);
 		lvVisible = vplf.make(vVisible,PView.VISIBLE);
 		lvRX = vplf.make(vRX,PView.VIEW_X);
 		lvRY = vplf.make(vRY,PView.VIEW_Y);
@@ -1611,6 +1623,128 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
 		}
 
+	// Display the selected view in the center of the window
+	private void showSelectedView()
+		{
+		if (editorPane == null)
+			return;
+		
+		// If the views are not enabled
+		if ((Boolean) editor.roomVisual.room.get(PRoom.VIEWS_ENABLED) == false)
+			return;
+		
+		// Get the selected view
+		View view = res.views.get(vList.getSelectedIndex());
+		
+		// If the view is not visible, don't show it
+		if ((Boolean) view.properties.get(PView.VISIBLE) == false)
+			return;
+	
+		// Get the reference to the 'Object following' object
+		ResourceReference<GmObject> objectToFollowReference = null;
+		
+		// If there is 'Object following' object for the selected view
+		if (view.properties.get(PView.OBJECT) != null)
+			objectToFollowReference = view.properties.get(PView.OBJECT);
+		
+		Instance instanceToFollow = null;
+		
+		// If there is an object to follow, get the first instance in the room
+		if (objectToFollowReference != null)
+			{
+			for (Instance instance : editor.roomVisual.room.instances)
+				{
+					ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+					
+					if (instanceObject == objectToFollowReference)
+						{
+						instanceToFollow = instance;
+						break;
+						}
+				}
+			}
+		
+		int zoomLevel = editor.properties.get(PRoomEditor.ZOOM);
+		
+		// Properties of the view
+		Point viewPosition = new Point(0,0);
+		int viewWidth = (Integer) view.properties.get(PView.VIEW_W);
+		int viewHeight = (Integer) view.properties.get(PView.VIEW_H);
+		
+		// If there is an instance to follow, use the instance properties for centering the view
+		if (instanceToFollow != null)
+			{
+			// Get the instance position
+			Point instancePosition = new Point(0,0);
+			instancePosition.x = (Integer) instanceToFollow.properties.get(PInstance.X);
+			instancePosition.y = (Integer) instanceToFollow.properties.get(PInstance.Y);
+
+			viewPosition.x = instancePosition.x - viewWidth / 2;
+			viewPosition.y = instancePosition.y - viewHeight / 2;
+
+			// Set this new location into the view properties
+			view.properties.put(PView.OBJECT_FOLLOWING_X, viewPosition.x);
+			view.properties.put(PView.OBJECT_FOLLOWING_Y, viewPosition.y);
+			}
+		else
+			{
+			// Get the properties of the view
+			viewPosition.x = view.properties.get(PView.VIEW_X);
+			viewPosition.y = view.properties.get(PView.VIEW_Y);
+			
+			view.properties.put(PView.OBJECT_FOLLOWING_X,-1);
+			view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
+			}
+		
+		JViewport viewport = editorPane.getViewport();
+				
+		// Center the view in the viewport
+		Point newViewportPosition = new Point(0,0);
+
+		// Viewport scale when zooming out
+		int viewportScale = 0;
+		
+		if (zoomLevel == -1)
+			viewportScale = 3;
+		
+		if (zoomLevel == 0)
+			viewportScale = 2;
+		
+		// If we are zooming out
+		if (zoomLevel < 1)
+			{
+			newViewportPosition.x = viewPosition.x -(viewport.getWidth() * viewportScale - viewWidth) / 2;
+			newViewportPosition.y = viewPosition.y -(viewport.getHeight() * viewportScale - viewHeight) / 2;
+			}
+		else
+			{
+			newViewportPosition.x = viewPosition.x - (viewport.getWidth() - viewWidth * zoomLevel) / (2 * zoomLevel);
+			newViewportPosition.y = viewPosition.y - (viewport.getHeight() - viewHeight * zoomLevel) / (2 * zoomLevel);			
+			}
+
+		// If the new position of the viewport is above the room origin coordinates, use the room coordinates for the new viewport coordinates
+		if (newViewportPosition.x < editor.getOverallBounds().x)
+			newViewportPosition.x = editor.getOverallBounds().x;
+	
+		if (newViewportPosition.y < editor.getOverallBounds().y)
+			newViewportPosition.y =  editor.getOverallBounds().y;
+		
+		if (instanceToFollow == null)
+			{
+			// If the view position is above the viewport coordinates, use the view coordinates for the new viewport coordinates
+			if (viewPosition.x < newViewportPosition.x)
+				newViewportPosition.x = viewPosition.x;
+			
+			if (viewPosition.y < newViewportPosition.y)
+				newViewportPosition.y = viewPosition.x;
+			}
+		
+		// For the new viewport position, take into account the visual offset of the border and the zoom level
+		editor.visualToComponent(newViewportPosition);
+
+		viewport.setViewPosition(newViewportPosition);
+		}
+	
 	// if an item of a listbox has been selected
 	public void valueChanged(ListSelectionEvent e)
 		{
@@ -1619,7 +1753,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (e.getSource() == oList) fireObjUpdate();
 		if (e.getSource() == tList) fireTileUpdate();
 		if (e.getSource() == bList) fireBackUpdate();
-		if (e.getSource() == vList) fireViewUpdate();
+		if (e.getSource() == vList)
+			{
+			fireViewUpdate();
+			showSelectedView();
+			}
 		}
 
 	public void openCodeFrame(Instance i)
@@ -1728,6 +1866,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		public void updated(PropertyUpdateEvent<PView> e)
 			{
 			if (e.key == PView.VISIBLE) bdvListUpdate(false,e.source,(Boolean) e.map.get(e.key));
+			
+			// If the 'Object following' object has been changed, update the display of the view
+			if (e.key == PView.OBJECT || e.key == PView.VISIBLE) showSelectedView();
+			
+			// If we are modifying the view dimension
+			if (e.key == PView.VIEW_W || e.key == PView.VIEW_H || e.key == PView.BORDER_H || e.key == PView.BORDER_V)
+				{
+				// Get the selected view
+				View view = res.views.get(vList.getSelectedIndex());
+
+				// If there is 'Object following' object for the selected view, update the display of the view
+				if (view.properties.get(PView.OBJECT) != null)
+					showSelectedView();
+				}
 			}
 		}
 	
@@ -1863,8 +2015,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
     
     // If the views tab is selected, always display the views
     if (sourceTabbedPane.getTitleAt(index) == Messages.getString("RoomFrame.TAB_VIEWS"))
+    	{
+    	showSelectedView();
     	editor.roomVisual.setViewsVisible(true);
+    	}
     else
+    	{
     	editor.roomVisual.setViewsVisible(false);
+    	}
 		}
 }

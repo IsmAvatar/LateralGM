@@ -47,6 +47,8 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.resources.sub.View.PView;
+import org.lateralgm.resources.sub.View;
 import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.subframes.CodeFrame;
 import org.lateralgm.ui.swing.visuals.RoomVisual;
@@ -587,6 +589,7 @@ public class RoomEditor extends VisualPanel
 				case SHOW_OBJECTS:
 				case SHOW_TILES:
 				case SHOW_VIEWS:
+					updateViewsObjectFollowingProperty();
 					roomVisual.setVisible(k.rvBinding,(Boolean) v);
 					break;
 				case DELETE_UNDERLYING_OBJECTS:
@@ -607,6 +610,76 @@ public class RoomEditor extends VisualPanel
 						}
 				}
 			return v;
+			}
+		
+		// Set the 'object to follow' coordinates for each view in the room
+		private void updateViewsObjectFollowingProperty()
+			{
+			// If the views are not enabled
+			if ((Boolean) room.get(PRoom.VIEWS_ENABLED) == false)
+				return;
+
+			for (View view : room.views)
+				{
+				// If the view is not visible, don't show it
+				if ((Boolean) view.properties.get(PView.VISIBLE) == false)
+					return;
+				
+				// Get the reference to the 'Object following' object
+				ResourceReference<GmObject> objectToFollowReference = null;
+				
+				// If there is 'Object following' object for the selected view
+				if (view.properties.get(PView.OBJECT) != null)
+					objectToFollowReference = view.properties.get(PView.OBJECT);
+				
+				// If there is no object to follow, reset the corresponding view properties
+				if (objectToFollowReference == null)
+					{
+					view.properties.put(PView.OBJECT_FOLLOWING_X,-1);
+					view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
+					continue;
+					}
+				
+				Instance instanceToFollow = null;
+				
+				// get the first instance in the room
+				for (Instance instance : room.instances)
+					{
+						ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+							
+						if (instanceObject == objectToFollowReference)
+							{
+							instanceToFollow = instance;
+							break;
+							}
+					}
+				
+				// If there is an instance to follow
+				if (instanceToFollow != null)
+					{
+					// Properties of the view
+					Point viewPosition = new Point(0,0);
+					int viewWidth = (Integer) view.properties.get(PView.VIEW_W);
+					int viewHeight = (Integer) view.properties.get(PView.VIEW_H);
+					
+					// Get the instance position
+					Point instancePosition = new Point(0,0);
+					instancePosition.x = (Integer) instanceToFollow.properties.get(PInstance.X);
+					instancePosition.y = (Integer) instanceToFollow.properties.get(PInstance.Y);
+	
+					viewPosition.x = instancePosition.x - viewWidth / 2;
+					viewPosition.y = instancePosition.y - viewHeight / 2;
+	
+					// Set this new location into the view properties
+					view.properties.put(PView.OBJECT_FOLLOWING_X, viewPosition.x);
+					view.properties.put(PView.OBJECT_FOLLOWING_Y, viewPosition.y);
+					}
+				else
+					{
+					view.properties.put(PView.OBJECT_FOLLOWING_X,-1);
+					view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
+					}
+				}
 			}
 		}
 	}

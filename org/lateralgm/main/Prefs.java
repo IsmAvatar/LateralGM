@@ -139,6 +139,8 @@ public final class Prefs
 		str = getString("externalSoundEditorCommand","null");
 		useExternalSoundEditor = !str.isEmpty() && !str.toLowerCase().equals("null");
 		externalSoundEditorCommand = str.toLowerCase().equals("system") ? null : str;
+
+		undoHistorySize = getInt("undoHistorySize", 100);
 		}
 
 	public static String iconPack;
@@ -183,4 +185,6 @@ public final class Prefs
 	public static boolean useExternalSoundEditor;
 	public static String externalSoundEditorCommand;
 
+	public static int undoHistorySize;
+	
 	}

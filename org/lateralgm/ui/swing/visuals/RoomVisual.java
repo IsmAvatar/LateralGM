@@ -8,9 +8,11 @@
 
 package org.lateralgm.ui.swing.visuals;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -49,6 +51,8 @@ import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
+
+
 
 public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateListener
 	{
@@ -105,9 +109,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		
 		// Set the property listener for each view
 		for (View view : room.views)
-			{
 				view.properties.updateSource.addListener(viewPropertyListener);
-			}
 
 		}
 
@@ -161,25 +163,71 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			if (viewsEnabled) for (View view : room.views)
 				if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
 			}
-		
+
 		g2.dispose();
 		}
 	
 	// Display a view on the panel
-	private void paintView(Graphics g2, View view)
+	private void paintView(Graphics g, View view)
 		{
-		// Get the properties of the view
-		int x = view.properties.get(PView.VIEW_X);
-		int y = view.properties.get(PView.VIEW_Y);
+    Graphics2D g2 = (Graphics2D) g;
+    
+		// View location
+		int x;
+		int y;
+		
+		int objectFollowingX = view.properties.get(PView.OBJECT_FOLLOWING_X);
+		int objectFollowingY = view.properties.get(PView.OBJECT_FOLLOWING_Y);
+
+		// Get the view dimension
 		int width = view.properties.get(PView.VIEW_W);
 		int height = view.properties.get(PView.VIEW_H);
 		
+		// If the view is following an object, center the view around the object
+		if (objectFollowingX > -1)
+			{
+			x = objectFollowingX;
+			y = objectFollowingY;
+			
+			// Get the border zone properties
+			int borderH = view.properties.get(PView.BORDER_H);
+			int borderV = view.properties.get(PView.BORDER_V);
+			
+			// If the border zone is not empty
+			if (!(borderH == 0 & borderV ==0))
+				{
+				// Define the strokes for the border zone
+		    float black[] = {10.0f};
+		    float white[] = {8.0f,12.0f};
+		    BasicStroke dashed_black = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, black, 0.0f);
+		    BasicStroke dashed_white = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, white, 19.0f);
+		    
+				// Draw the border zone
+				g2.setColor(Color.BLACK);
+				g2.setStroke(dashed_black);
+				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
+	
+				g2.setColor(Color.WHITE);
+				g2.setStroke(dashed_white);
+				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
+				
+				g2.setStroke(new BasicStroke());
+				}
+
+			}
+		else
+			{
+			// Use the 'normal' view location
+			x = view.properties.get(PView.VIEW_X);
+			y = view.properties.get(PView.VIEW_Y);
+			}
+
 		g2.setColor(Color.BLACK);
 		g2.drawRect(x,y,width,height);
 		g2.drawRect(x+2,y+2,width-4,height-4);
 		g2.setColor(Color.WHITE);
 		g2.drawRect(x+1,y+1,width-2,height-2);
-
+		
 		}
 	
 	private static boolean shouldPaint(BackgroundDef bd, Boolean fg)
@@ -653,6 +701,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				case VIEW_Y:
 				case VIEW_W:
 				case VIEW_H:
+				case BORDER_H:
+				case BORDER_V:
 					repaint(null);
 				default:
 					break;

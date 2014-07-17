@@ -174,6 +174,13 @@ public final class PrefsStore
 		Prefs.dockEventPanel = selected;
 		}
 	
+	public static void setUndoHistorySize(int undoHistorySize)
+		{
+		PREFS.putInt("undoHistorySize",undoHistorySize);
+		Prefs.undoHistorySize = undoHistorySize;
+		}
+	
+	
 	public static int getNumberOfBackups()
 		{
 		return PREFS.getInt("FILE_BACKUP_COUNT",1);

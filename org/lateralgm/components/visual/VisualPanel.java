@@ -64,12 +64,12 @@ public class VisualPanel extends JPanel
 		r.height = zoom(r.height,2 - z);
 		}
 
-	protected void visualToComponent(Point p)
+	public void visualToComponent(Point p)
 		{
 		visualToComponent(p,zoom);
 		}
 
-	protected void visualToComponent(Point p, int z)
+	public void visualToComponent(Point p, int z)
 		{
 		p.x = zoom(p.x - overallBounds.x,z) + visualOffsetX(z);
 		p.y = zoom(p.y - overallBounds.y,z) + visualOffsetY(z);
@@ -84,6 +84,10 @@ public class VisualPanel extends JPanel
 		r.height = zoom(r.height,z);
 		}
 
+	public Rectangle getOverallBounds()
+	{
+		return overallBounds;
+	}
 	protected static double zoom(double d, int z)
 		{
 		return z > 0 ? z * d : d / (2 - z);

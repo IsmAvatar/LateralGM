@@ -10,6 +10,7 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
@@ -30,6 +31,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
@@ -51,6 +53,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	JTextField soundEditorPath, backgroundEditorPath, spriteEditorPath, codeEditorPath, numberBackupsField;
   // Sounds use their own stored filename/extension, which may vary from sound to sound. 
   JTextField backgroundMIME, spriteMIME, scriptMIME;
+  
+  // Room editor fields
+  NumberField undoHistorySize;
 	
 	private JPanel makeGeneralPrefs()
 	{
@@ -402,6 +407,38 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	return p;
 	}
 
+	// Create the room editor panel
+	private Component makeRoomEditorPrefs()
+		{
+		JPanel p = new JPanel();
+		
+		JLabel undoHistorySizeLabel = new JLabel(Messages.getString("PreferencesFrame.UNDO_HISTORY_SIZE") + " : ");
+		undoHistorySize = new NumberField(-1, 999999, Prefs.undoHistorySize);
+		
+		GroupLayout gl = new GroupLayout(p);
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
+		
+		gl.setHorizontalGroup(
+			   gl.createSequentialGroup()
+			      .addGroup(gl.createParallelGroup(Alignment.TRAILING)
+			           .addComponent(undoHistorySizeLabel))
+			      .addGroup(gl.createParallelGroup()
+			           .addComponent(undoHistorySize, 100, 100, 100))
+			   );
+			   
+		gl.setVerticalGroup(
+			   gl.createSequentialGroup()
+			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			           .addComponent(undoHistorySizeLabel)
+			           .addComponent(undoHistorySize, 18, 18, 18))
+					);
+		
+		p.setLayout(gl);	
+		
+		return p;
+		}
+	
 	public PreferencesFrame()
 	{
 	  setAlwaysOnTop(false);
@@ -424,6 +461,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 				/**/null,makeMimePrefixPrefs(),Messages.getString("PreferencesFrame.HINT_MIME_PREFIX")); //$NON-NLS-1$
 		tabs.addTab(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"), //$NON-NLS-1$
 				/**/null,makeCodeEditorPrefs(),Messages.getString("PreferencesFrame.HINT_CODE_EDITOR")); //$NON-NLS-1$ 
+		tabs.addTab(Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR"), //$NON-NLS-1$
+				/**/null,makeRoomEditorPrefs(),Messages.getString("PreferencesFrame.HINT_ROOM_EDITOR")); //$NON-NLS-1$ 
 		
 		JPanel p = new JPanel();
 		GroupLayout gl = new GroupLayout(p);
@@ -451,7 +490,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		
     add(p,BorderLayout.SOUTH);
 	}
-	
+
 	public void SavePreferences()
   {
     LGM.iconspack = (String)iconCombo.getSelectedItem();
@@ -472,6 +511,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	  PrefsStore.setSoundEditorCommand(soundEditorPath.getText());
 	  PrefsStore.setScriptEditorCommand(codeEditorPath.getText());
 	  PrefsStore.setDockEventPanel(dockEvent.isSelected());
+	  PrefsStore.setDockEventPanel(dockEvent.isSelected());
+	  PrefsStore.setUndoHistorySize(undoHistorySize.getIntValue());
 	}
 	
 	public void ResetPreferences()
