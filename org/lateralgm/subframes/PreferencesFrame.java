@@ -511,7 +511,6 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	  PrefsStore.setSoundEditorCommand(soundEditorPath.getText());
 	  PrefsStore.setScriptEditorCommand(codeEditorPath.getText());
 	  PrefsStore.setDockEventPanel(dockEvent.isSelected());
-	  PrefsStore.setDockEventPanel(dockEvent.isSelected());
 	  PrefsStore.setUndoHistorySize(undoHistorySize.getIntValue());
 	}
 	
