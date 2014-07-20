@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -410,33 +411,42 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	// Create the room editor panel
 	private Component makeRoomEditorPrefs()
 		{
-		JPanel p = new JPanel();
+		JPanel roomEditorPanel = new JPanel();
 		
 		JLabel undoHistorySizeLabel = new JLabel(Messages.getString("PreferencesFrame.UNDO_HISTORY_SIZE") + " : ");
 		undoHistorySize = new NumberField(-1, 999999, Prefs.undoHistorySize);
 		
-		GroupLayout gl = new GroupLayout(p);
+		JPanel viewsPanel = new JPanel();
+		
+		String title = Messages.getString("PreferencesFrame.VIEWS_TITLE");
+		viewsPanel.setBorder(BorderFactory.createTitledBorder(title));
+		
+    
+		GroupLayout gl = new GroupLayout(roomEditorPanel);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
 		
 		gl.setHorizontalGroup(
-			   gl.createSequentialGroup()
-			      .addGroup(gl.createParallelGroup(Alignment.TRAILING)
-			           .addComponent(undoHistorySizeLabel))
-			      .addGroup(gl.createParallelGroup()
-			           .addComponent(undoHistorySize, 100, 100, 100))
+				gl.createParallelGroup()
+				 		.addGroup(gl.createSequentialGroup()
+	           .addComponent(undoHistorySizeLabel)
+	           .addComponent(undoHistorySize, 100, 100, 100))  
+           .addGroup(gl.createSequentialGroup()
+  	          .addComponent(viewsPanel, 250, 250, 250)) 
+
 			   );
 			   
 		gl.setVerticalGroup(
 			   gl.createSequentialGroup()
-			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			      .addGroup(gl.createParallelGroup()
 			           .addComponent(undoHistorySizeLabel)
 			           .addComponent(undoHistorySize, 18, 18, 18))
+			      .addComponent(viewsPanel, 200, 200, 200)
 					);
 		
-		p.setLayout(gl);	
+		roomEditorPanel.setLayout(gl);	
 		
-		return p;
+		return roomEditorPanel;
 		}
 	
 	public PreferencesFrame()
