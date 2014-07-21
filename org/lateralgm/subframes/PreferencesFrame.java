@@ -441,12 +441,12 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		
 		// Set the layout for the views
 		viewsLayout.setHorizontalGroup(
-				viewsLayout.createParallelGroup()
-				.addGroup(viewsLayout.createSequentialGroup()
+				viewsLayout.createSequentialGroup()
+				.addGroup(viewsLayout.createParallelGroup(Alignment.TRAILING)
 						.addComponent(insideColorLabel)
-						.addComponent(viewInsideColor, 120, 120, 120))
-				.addGroup(viewsLayout.createSequentialGroup()
-						.addComponent(outsideColorLabel)
+						.addComponent(outsideColorLabel))
+				.addGroup(viewsLayout.createParallelGroup()
+						.addComponent(viewInsideColor, 120, 120, 120)
 						.addComponent(viewOutsideColor, 120, 120, 120))
 				);
 		
