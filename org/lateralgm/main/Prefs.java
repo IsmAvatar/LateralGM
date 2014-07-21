@@ -11,6 +11,7 @@
 
 package org.lateralgm.main;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -62,7 +63,7 @@ public final class Prefs
 			return def;
 			}
 		}
-
+	
 	public static boolean getBoolean(String key, boolean def)
 		{
 		String ret = getString(key,null).trim().toLowerCase();
@@ -141,6 +142,8 @@ public final class Prefs
 		externalSoundEditorCommand = str.toLowerCase().equals("system") ? null : str;
 
 		undoHistorySize = getInt("undoHistorySize", 100);
+		viewInsideColor = getInt("viewInsideColor", Util.getGmColor(Color.WHITE));
+		viewOutsideColor = getInt("viewOutsideColor", Util.getGmColor(Color.BLACK));
 		}
 
 	public static String iconPack;
@@ -186,5 +189,6 @@ public final class Prefs
 	public static String externalSoundEditorCommand;
 
 	public static int undoHistorySize;
-	
+	public static int viewInsideColor;
+	public static int viewOutsideColor;
 	}

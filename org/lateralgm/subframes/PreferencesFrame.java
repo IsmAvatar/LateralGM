@@ -8,6 +8,8 @@
 
 package org.lateralgm.subframes;
 
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -29,14 +31,17 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
+import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 
 public class PreferencesFrame extends JFrame implements ActionListener
@@ -57,6 +62,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
   
   // Room editor fields
   NumberField undoHistorySize;
+  ColorSelect viewInsideColor, viewOutsideColor;
 	
 	private JPanel makeGeneralPrefs()
 	{
@@ -413,15 +419,46 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		{
 		JPanel roomEditorPanel = new JPanel();
 		
+		// Undo settings
 		JLabel undoHistorySizeLabel = new JLabel(Messages.getString("PreferencesFrame.UNDO_HISTORY_SIZE") + " : ");
 		undoHistorySize = new NumberField(-1, 999999, Prefs.undoHistorySize);
 		
+		// Views setttings
 		JPanel viewsPanel = new JPanel();
+		GroupLayout viewsLayout = new GroupLayout(viewsPanel);
+		viewsLayout.setAutoCreateGaps(true);
+		viewsLayout.setAutoCreateContainerGaps(true);
+		viewsPanel.setLayout(viewsLayout);
 		
 		String title = Messages.getString("PreferencesFrame.VIEWS_TITLE");
 		viewsPanel.setBorder(BorderFactory.createTitledBorder(title));
 		
-    
+		JLabel insideColorLabel = new JLabel(Messages.getString("PreferencesFrame.INSIDE_COLOR") + " : ");
+		viewInsideColor = new ColorSelect(Util.convertGmColor(Prefs.viewInsideColor));
+		
+		JLabel outsideColorLabel = new JLabel(Messages.getString("PreferencesFrame.OUTSIDE_COLOR") + " : ");
+		viewOutsideColor = new ColorSelect(Util.convertGmColor(Prefs.viewOutsideColor));
+		
+		viewsLayout.setHorizontalGroup(
+				viewsLayout.createParallelGroup()
+				.addGroup(viewsLayout.createSequentialGroup()
+						.addComponent(insideColorLabel)
+						.addComponent(viewInsideColor, 120, 120, 120))
+				.addGroup(viewsLayout.createSequentialGroup()
+						.addComponent(outsideColorLabel)
+						.addComponent(viewOutsideColor, 120, 120, 120))
+				);
+		
+		viewsLayout.setVerticalGroup(
+				viewsLayout.createSequentialGroup()
+			      .addGroup(viewsLayout.createParallelGroup()
+			           .addComponent(insideColorLabel)
+			           .addComponent(viewInsideColor, 18, 18, 18))
+			      .addGroup(viewsLayout.createParallelGroup()
+			           .addComponent(outsideColorLabel)
+			           .addComponent(viewOutsideColor, 18, 18, 18))
+					);
+		
 		GroupLayout gl = new GroupLayout(roomEditorPanel);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
@@ -432,7 +469,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	           .addComponent(undoHistorySizeLabel)
 	           .addComponent(undoHistorySize, 100, 100, 100))  
            .addGroup(gl.createSequentialGroup()
-  	          .addComponent(viewsPanel, 250, 250, 250)) 
+  	          .addComponent(viewsPanel, 320, 320, 320)) 
 
 			   );
 			   
@@ -522,6 +559,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	  PrefsStore.setScriptEditorCommand(codeEditorPath.getText());
 	  PrefsStore.setDockEventPanel(dockEvent.isSelected());
 	  PrefsStore.setUndoHistorySize(undoHistorySize.getIntValue());
+	  PrefsStore.setViewInsideColor(Util.getGmColor(viewInsideColor.getSelectedColor()));
+	  PrefsStore.setViewOutsideColor(Util.getGmColor(viewOutsideColor.getSelectedColor()));
 	}
 	
 	public void ResetPreferences()

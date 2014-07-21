@@ -9,6 +9,7 @@
 
 package org.lateralgm.main;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
@@ -180,6 +181,17 @@ public final class PrefsStore
 		Prefs.undoHistorySize = undoHistorySize;
 		}
 	
+	public static void setViewInsideColor(int viewInsideColor)
+		{
+		PREFS.putInt("viewInsideColor", viewInsideColor);
+		Prefs.viewInsideColor = viewInsideColor;
+		}
+	
+	public static void setViewOutsideColor(int viewOutsideColor)
+		{
+		PREFS.putInt("viewOutsideColor", viewOutsideColor);
+		Prefs.viewOutsideColor = viewOutsideColor;
+		}
 	
 	public static int getNumberOfBackups()
 		{
