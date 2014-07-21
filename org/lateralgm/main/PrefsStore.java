@@ -181,6 +181,12 @@ public final class PrefsStore
 		Prefs.undoHistorySize = undoHistorySize;
 		}
 	
+	public static void setFilledRectangle(boolean selected)
+	{
+	  PREFS.putBoolean("filledRectangle",selected);
+	  Prefs.useFilledRectangle = selected;
+	}
+	
 	public static void setViewInsideColor(int viewInsideColor)
 		{
 		PREFS.putInt("viewInsideColor", viewInsideColor);

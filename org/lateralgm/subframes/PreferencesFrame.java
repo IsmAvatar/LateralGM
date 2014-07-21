@@ -31,7 +31,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -62,6 +61,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
   
   // Room editor fields
   NumberField undoHistorySize;
+  JCheckBox useFilledRectangle;
   ColorSelect viewInsideColor, viewOutsideColor;
 	
 	private JPanel makeGeneralPrefs()
@@ -433,6 +433,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		String title = Messages.getString("PreferencesFrame.VIEWS_TITLE");
 		viewsPanel.setBorder(BorderFactory.createTitledBorder(title));
 		
+    useFilledRectangle = new JCheckBox(Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
+    useFilledRectangle.setSelected(Prefs.useFilledRectangle);
+    
 		JLabel insideColorLabel = new JLabel(Messages.getString("PreferencesFrame.INSIDE_COLOR") + " : ");
 		viewInsideColor = new ColorSelect(Util.convertGmColor(Prefs.viewInsideColor));
 		
@@ -441,17 +444,21 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		
 		// Set the layout for the views
 		viewsLayout.setHorizontalGroup(
-				viewsLayout.createSequentialGroup()
-				.addGroup(viewsLayout.createParallelGroup(Alignment.TRAILING)
-						.addComponent(insideColorLabel)
-						.addComponent(outsideColorLabel))
-				.addGroup(viewsLayout.createParallelGroup()
-						.addComponent(viewInsideColor, 120, 120, 120)
-						.addComponent(viewOutsideColor, 120, 120, 120))
+				viewsLayout.createParallelGroup()
+				.addGroup(viewsLayout.createSequentialGroup()
+						.addComponent(useFilledRectangle))
+						.addGroup(viewsLayout.createSequentialGroup()
+							.addGroup(viewsLayout.createParallelGroup()
+										.addComponent(insideColorLabel)
+										.addComponent(outsideColorLabel))
+							.addGroup(viewsLayout.createParallelGroup()
+										.addComponent(viewInsideColor, 120, 120, 120)
+										.addComponent(viewOutsideColor, 120, 120, 120)))
 				);
 		
 		viewsLayout.setVerticalGroup(
 				viewsLayout.createSequentialGroup()
+						.addComponent(useFilledRectangle)
 			      .addGroup(viewsLayout.createParallelGroup()
 			           .addComponent(insideColorLabel)
 			           .addComponent(viewInsideColor, 18, 18, 18))
@@ -460,7 +467,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			           .addComponent(viewOutsideColor, 18, 18, 18))
 					);
 		
-		// Set the layout for the room editor
+		// Set the layout for the main panel
 		GroupLayout gl = new GroupLayout(roomEditorPanel);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
@@ -561,6 +568,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	  PrefsStore.setScriptEditorCommand(codeEditorPath.getText());
 	  PrefsStore.setDockEventPanel(dockEvent.isSelected());
 	  PrefsStore.setUndoHistorySize(undoHistorySize.getIntValue());
+	  PrefsStore.setFilledRectangle(useFilledRectangle.isSelected());
 	  PrefsStore.setViewInsideColor(Util.getGmColor(viewInsideColor.getSelectedColor()));
 	  PrefsStore.setViewOutsideColor(Util.getGmColor(viewOutsideColor.getSelectedColor()));
 	}
