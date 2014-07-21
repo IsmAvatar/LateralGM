@@ -423,7 +423,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		JLabel undoHistorySizeLabel = new JLabel(Messages.getString("PreferencesFrame.UNDO_HISTORY_SIZE") + " : ");
 		undoHistorySize = new NumberField(-1, 999999, Prefs.undoHistorySize);
 		
-		// Views setttings
+		// Views settings
 		JPanel viewsPanel = new JPanel();
 		GroupLayout viewsLayout = new GroupLayout(viewsPanel);
 		viewsLayout.setAutoCreateGaps(true);
@@ -439,6 +439,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		JLabel outsideColorLabel = new JLabel(Messages.getString("PreferencesFrame.OUTSIDE_COLOR") + " : ");
 		viewOutsideColor = new ColorSelect(Util.convertGmColor(Prefs.viewOutsideColor));
 		
+		// Set the layout for the views
 		viewsLayout.setHorizontalGroup(
 				viewsLayout.createParallelGroup()
 				.addGroup(viewsLayout.createSequentialGroup()
@@ -459,6 +460,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			           .addComponent(viewOutsideColor, 18, 18, 18))
 					);
 		
+		// Set the layout for the room editor
 		GroupLayout gl = new GroupLayout(roomEditorPanel);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);

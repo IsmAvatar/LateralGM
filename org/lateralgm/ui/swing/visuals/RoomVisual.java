@@ -27,6 +27,7 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.Util;
@@ -197,17 +198,17 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			if (!(borderH == 0 & borderV ==0))
 				{
 				// Define the strokes for the border zone
-		    float black[] = {10.0f};
-		    float white[] = {8.0f,12.0f};
-		    BasicStroke dashed_black = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, black, 0.0f);
-		    BasicStroke dashed_white = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, white, 19.0f);
+		    float outside[] = {10.0f};
+		    float inside[] = {8.0f,12.0f};
+		    BasicStroke dashed_black = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, outside, 0.0f);
+		    BasicStroke dashed_white = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, inside, 19.0f);
 		    
 				// Draw the border zone
-				g2.setColor(Color.BLACK);
+				g2.setColor(Util.convertGmColor(Prefs.viewOutsideColor));
 				g2.setStroke(dashed_black);
 				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
 	
-				g2.setColor(Color.WHITE);
+				g2.setColor(Util.convertGmColor(Prefs.viewInsideColor));
 				g2.setStroke(dashed_white);
 				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
 				
@@ -222,10 +223,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			y = view.properties.get(PView.VIEW_Y);
 			}
 
-		g2.setColor(Color.BLACK);
+		g2.setColor(Util.convertGmColor(Prefs.viewOutsideColor));
 		g2.drawRect(x,y,width,height);
 		g2.drawRect(x+2,y+2,width-4,height-4);
-		g2.setColor(Color.WHITE);
+		g2.setColor(Util.convertGmColor(Prefs.viewInsideColor));
 		g2.drawRect(x+1,y+1,width-2,height-2);
 		
 		}
