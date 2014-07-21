@@ -435,12 +435,12 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		
     useFilledRectangle = new JCheckBox(Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
     useFilledRectangle.setSelected(Prefs.useFilledRectangle);
-    
+
 		JLabel insideColorLabel = new JLabel(Messages.getString("PreferencesFrame.INSIDE_COLOR") + " : ");
-		viewInsideColor = new ColorSelect(Util.convertGmColor(Prefs.viewInsideColor));
+		viewInsideColor = new ColorSelect(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 		
 		JLabel outsideColorLabel = new JLabel(Messages.getString("PreferencesFrame.OUTSIDE_COLOR") + " : ");
-		viewOutsideColor = new ColorSelect(Util.convertGmColor(Prefs.viewOutsideColor));
+		viewOutsideColor = new ColorSelect(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 		
 		// Set the layout for the views
 		viewsLayout.setHorizontalGroup(
@@ -569,8 +569,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	  PrefsStore.setDockEventPanel(dockEvent.isSelected());
 	  PrefsStore.setUndoHistorySize(undoHistorySize.getIntValue());
 	  PrefsStore.setFilledRectangle(useFilledRectangle.isSelected());
-	  PrefsStore.setViewInsideColor(Util.getGmColor(viewInsideColor.getSelectedColor()));
-	  PrefsStore.setViewOutsideColor(Util.getGmColor(viewOutsideColor.getSelectedColor()));
+	  PrefsStore.setViewInsideColor(Util.getGmColorWithAlpha(viewInsideColor.getSelectedColor()));
+	  PrefsStore.setViewOutsideColor(Util.getGmColorWithAlpha(viewOutsideColor.getSelectedColor()));
 	}
 	
 	public void ResetPreferences()

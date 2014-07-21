@@ -142,8 +142,8 @@ public final class Prefs
 		externalSoundEditorCommand = str.toLowerCase().equals("system") ? null : str;
 
 		undoHistorySize = getInt("undoHistorySize", 100);
-		viewInsideColor = getInt("viewInsideColor", Util.getGmColor(Color.WHITE));
-		viewOutsideColor = getInt("viewOutsideColor", Util.getGmColor(Color.BLACK));
+		viewInsideColor = getInt("viewInsideColor", Util.getGmColorWithAlpha(Color.WHITE));
+		viewOutsideColor = getInt("viewOutsideColor", Util.getGmColorWithAlpha(Color.BLACK));
 		useFilledRectangle = getBoolean("filledRectangle", false);
 		}
 
