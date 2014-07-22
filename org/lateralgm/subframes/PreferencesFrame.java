@@ -492,7 +492,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			      .addGroup(gl.createParallelGroup()
 			           .addComponent(undoHistorySizeLabel)
 			           .addComponent(undoHistorySize, 18, 18, 18))
-			      .addComponent(viewsPanel, 200, 200, 200)
+			      .addComponent(viewsPanel, 150, 150, 150)
 					);
 		
 		roomEditorPanel.setLayout(gl);	

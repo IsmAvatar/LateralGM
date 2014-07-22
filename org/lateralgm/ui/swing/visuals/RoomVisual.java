@@ -8,6 +8,7 @@
 
 package org.lateralgm.ui.swing.visuals;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -197,7 +198,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			y = view.properties.get(PView.VIEW_Y);
 			}
 		
-		g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
+		if (Prefs.useInvertedColor)
+			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
+		else
+			g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 		
 		// Draw the 'outside' rectangle
 		if (Prefs.useFilledRectangle)
@@ -211,7 +215,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			g2.drawRect(x+2, y+2,width-4, height-4);
 			}
 		
-		g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
+		if (Prefs.useInvertedColor)
+			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
+		else
+			g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 		
 		// Draw the 'inside' rectangle
 		if (Prefs.useFilledRectangle)
