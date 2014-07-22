@@ -8,7 +8,6 @@
 
 package org.lateralgm.ui.swing.visuals;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;

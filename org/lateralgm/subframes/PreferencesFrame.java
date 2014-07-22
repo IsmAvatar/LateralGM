@@ -8,7 +8,6 @@
 
 package org.lateralgm.subframes;
 
-import static javax.swing.GroupLayout.DEFAULT_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

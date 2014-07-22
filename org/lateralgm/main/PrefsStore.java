@@ -9,7 +9,6 @@
 
 package org.lateralgm.main;
 
-import java.awt.Color;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
