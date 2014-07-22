@@ -196,19 +196,19 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			x = view.properties.get(PView.VIEW_X);
 			y = view.properties.get(PView.VIEW_Y);
 			}
-
+		
 		g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 		
 		// Draw the 'outside' rectangle
 		if (Prefs.useFilledRectangle)
 			{
-			g2.drawRect(x-2,y-2,width+3,height+3);
-			g2.drawRect(x-1,y-1,width+1,height+1);
+			g2.drawRect(x-2, y-2, width+3, height+3);
+			g2.drawRect(x-1, y-1, width+1, height+1);
 			}
 		else
 			{
-			g2.drawRect(x,y,width,height);
-			g2.drawRect(x+2,y+2,width-4,height-4);
+			g2.drawRect(x, y, width, height);
+			g2.drawRect(x+2, y+2,width-4, height-4);
 			}
 		
 		g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
@@ -216,11 +216,11 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		// Draw the 'inside' rectangle
 		if (Prefs.useFilledRectangle)
 			{
-				g2.fillRect(x,y,width,height);
+				g2.fillRect(x, y, width, height);
 			}
 		else
 			{
-				g2.drawRect(x+1,y+1,width-2,height-2);
+				g2.drawRect(x+1, y+1, width-2, height-2);
 			}
 		
 		// If the view is following an object
