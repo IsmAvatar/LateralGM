@@ -463,7 +463,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		viewsLayout.setVerticalGroup(
 				viewsLayout.createSequentialGroup()
 						.addComponent(useFilledRectangle)
-						.addComponent(useInvertedColor)
+						.addComponent(useInvertedColor).addGap(10)
 			      .addGroup(viewsLayout.createParallelGroup()
 			           .addComponent(insideColorLabel)
 			           .addComponent(viewInsideColor, 18, 18, 18))
