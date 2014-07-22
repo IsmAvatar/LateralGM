@@ -435,7 +435,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		
     useFilledRectangle = new JCheckBox(Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
     useFilledRectangle.setSelected(Prefs.useFilledRectangle);
-
+	  
 		JLabel insideColorLabel = new JLabel(Messages.getString("PreferencesFrame.INSIDE_COLOR") + " : ");
 		viewInsideColor = new ColorSelect(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 		

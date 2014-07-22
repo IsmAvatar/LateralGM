@@ -405,7 +405,7 @@ public final class Util
 
 	public static Color convertGmColorWithAlpha(int col)
 		{
-		return new Color(col & 0xFF,(col & 0xFF00) >> 8,(col & 0xFF0000) >> 16, (col & 0xFF000000) >> 24);
+		return new Color(col & 0xFF,(col & 0xFF00) >> 8,(col & 0xFF0000) >> 16, (col & 0xFF000000) >>> 24);
 		}
 	
 	public static int getGmColor(Color col)
