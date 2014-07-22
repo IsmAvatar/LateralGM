@@ -204,11 +204,11 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		    BasicStroke dashed_white = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, inside, 19.0f);
 		    
 				// Draw the border zone
-				g2.setColor(Util.convertGmColor(Prefs.viewOutsideColor));
+				g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 				g2.setStroke(dashed_black);
 				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
 	
-				g2.setColor(Util.convertGmColor(Prefs.viewInsideColor));
+				g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 				g2.setStroke(dashed_white);
 				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
 				
@@ -223,7 +223,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			y = view.properties.get(PView.VIEW_Y);
 			}
 
-		g2.setColor(Util.convertGmColor(Prefs.viewOutsideColor));
+		g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 		
 		if (Prefs.useFilledRectangle)
 			{
@@ -235,7 +235,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			g2.drawRect(x+2,y+2,width-4,height-4);
 			}
 		
-		g2.setColor(Util.convertGmColor(Prefs.viewInsideColor));
+		g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 		
 		if (Prefs.useFilledRectangle)
 			{
