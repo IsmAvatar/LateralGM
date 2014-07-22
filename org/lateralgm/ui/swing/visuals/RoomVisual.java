@@ -189,32 +189,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			{
 			x = objectFollowingX;
 			y = objectFollowingY;
-			
-			// Get the border zone properties
-			int borderH = view.properties.get(PView.BORDER_H);
-			int borderV = view.properties.get(PView.BORDER_V);
-			
-			// If the border zone is not empty
-			if (!(borderH == 0 & borderV ==0))
-				{
-				// Define the strokes for the border zone
-		    float outside[] = {10.0f};
-		    float inside[] = {8.0f,12.0f};
-		    BasicStroke dashed_black = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, outside, 0.0f);
-		    BasicStroke dashed_white = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, inside, 19.0f);
-		    
-				// Draw the border zone
-				g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
-				g2.setStroke(dashed_black);
-				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
-	
-				g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
-				g2.setStroke(dashed_white);
-				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
-				
-				g2.setStroke(new BasicStroke());
-				}
-
 			}
 		else
 			{
@@ -225,8 +199,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 		
+		// Draw the 'outside' rectangle
 		if (Prefs.useFilledRectangle)
 			{
+			g2.drawRect(x-2,y-2,width+3,height+3);
 			g2.drawRect(x-1,y-1,width+1,height+1);
 			}
 		else
@@ -237,6 +213,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		
 		g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 		
+		// Draw the 'inside' rectangle
 		if (Prefs.useFilledRectangle)
 			{
 				g2.fillRect(x,y,width,height);
@@ -244,6 +221,50 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		else
 			{
 				g2.drawRect(x+1,y+1,width-2,height-2);
+			}
+		
+		// If the view is following an object
+		if (objectFollowingX > -1)
+			{
+			// Get the border zone properties
+			int borderH = view.properties.get(PView.BORDER_H);
+			int borderV = view.properties.get(PView.BORDER_V);
+			
+			// If the border zone is not empty
+			if (!(borderH == 0 & borderV ==0))
+				{
+				if (Prefs.useFilledRectangle)
+					{
+					// Define the stroke for the border zone
+			    float dash[] = {10.0f};
+			    BasicStroke dashed = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f);			
+
+			    // Draw the border zone
+					g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
+					g2.setStroke(dashed);
+					g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
+					}
+				else
+					{
+					// Define the strokes for the border zone
+			    float outside[] = {10.0f};
+			    float inside[] = {8.0f,12.0f};
+			    BasicStroke dashed_black = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, outside, 0.0f);
+			    BasicStroke dashed_white = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, inside, 19.0f);
+			    
+					// Draw the border zone
+					g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
+					g2.setStroke(dashed_black);
+					g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
+		
+					g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
+					g2.setStroke(dashed_white);
+					g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
+					}
+				
+				g2.setStroke(new BasicStroke());
+				}
+							
 			}
 		
 		}
