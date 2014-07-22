@@ -145,6 +145,7 @@ public final class Prefs
 		viewInsideColor = getInt("viewInsideColor", Util.getGmColorWithAlpha(Color.WHITE));
 		viewOutsideColor = getInt("viewOutsideColor", Util.getGmColorWithAlpha(Color.BLACK));
 		useFilledRectangle = getBoolean("filledRectangle", false);
+		useInvertedColor = getBoolean("invertedColor", false);
 		}
 
 	public static String iconPack;
@@ -194,4 +195,5 @@ public final class Prefs
 	public static int viewInsideColor;
 	public static int viewOutsideColor;
 	public static boolean useFilledRectangle;
+	public static boolean useInvertedColor;
 	}

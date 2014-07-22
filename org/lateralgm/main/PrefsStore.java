@@ -187,6 +187,12 @@ public final class PrefsStore
 	  Prefs.useFilledRectangle = selected;
 	}
 	
+	public static void setInvertedColor(boolean selected)
+	{
+	  PREFS.putBoolean("invertedColor",selected);
+	  Prefs.useInvertedColor = selected;
+	}
+	
 	public static void setViewInsideColor(int viewInsideColor)
 		{
 		PREFS.putInt("viewInsideColor", viewInsideColor);

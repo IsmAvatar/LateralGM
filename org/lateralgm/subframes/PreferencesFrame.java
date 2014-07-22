@@ -61,7 +61,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
   
   // Room editor fields
   NumberField undoHistorySize;
-  JCheckBox useFilledRectangle;
+  JCheckBox useFilledRectangle, useInvertedColor;
   ColorSelect viewInsideColor, viewOutsideColor;
 	
 	private JPanel makeGeneralPrefs()
@@ -436,6 +436,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
     useFilledRectangle = new JCheckBox(Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
     useFilledRectangle.setSelected(Prefs.useFilledRectangle);
 	  
+    useInvertedColor = new JCheckBox(Messages.getString("PreferencesFrame.INVERTED_COLOR"));
+    useInvertedColor.setSelected(Prefs.useInvertedColor);
+    
 		JLabel insideColorLabel = new JLabel(Messages.getString("PreferencesFrame.INSIDE_COLOR") + " : ");
 		viewInsideColor = new ColorSelect(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 		
@@ -449,6 +452,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 						.addComponent(useFilledRectangle))
 						.addGroup(viewsLayout.createSequentialGroup()
 							.addGroup(viewsLayout.createParallelGroup()
+										.addComponent(useInvertedColor)
 										.addComponent(insideColorLabel)
 										.addComponent(outsideColorLabel))
 							.addGroup(viewsLayout.createParallelGroup()
@@ -459,6 +463,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		viewsLayout.setVerticalGroup(
 				viewsLayout.createSequentialGroup()
 						.addComponent(useFilledRectangle)
+						.addComponent(useInvertedColor)
 			      .addGroup(viewsLayout.createParallelGroup()
 			           .addComponent(insideColorLabel)
 			           .addComponent(viewInsideColor, 18, 18, 18))
@@ -569,6 +574,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	  PrefsStore.setDockEventPanel(dockEvent.isSelected());
 	  PrefsStore.setUndoHistorySize(undoHistorySize.getIntValue());
 	  PrefsStore.setFilledRectangle(useFilledRectangle.isSelected());
+	  PrefsStore.setInvertedColor(useInvertedColor.isSelected());
 	  PrefsStore.setViewInsideColor(Util.getGmColorWithAlpha(viewInsideColor.getSelectedColor()));
 	  PrefsStore.setViewOutsideColor(Util.getGmColorWithAlpha(viewOutsideColor.getSelectedColor()));
 	}
