@@ -307,88 +307,51 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	private JPanel makeExternalEditorPrefs()
 	{
 		JPanel p = new JPanel();
-		
-    //String[] defaultEditorOptions = { Messages.getString("PreferencesFrame.DEFAULT"), 
-    		//Messages.getString("PreferencesFrame.SYSTEM"), 
-    	//	Messages.getString("PreferencesFrame.CUSTOM") };
-		
-    // Uncomment the shit for this panel if you dun want people messin with commands
-    // too lazy to code it.
     
 		JLabel codeEditorLabel = new JLabel(Messages.getString("PreferencesFrame.CODE_EDITOR") + ":");
-    //JComboBox codeEditorCombo = new JComboBox(defaultEditorOptions);
-    //codeEditorCombo.setSelectedItem(0);
 		codeEditorPath = new JTextField(Prefs.externalScriptEditorCommand);
-		//JButton codeEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
 		
 		JLabel spriteEditorLabel = new JLabel(Messages.getString("PreferencesFrame.SPRITE_EDITOR") + ":");
-    //JComboBox spriteEditorCombo = new JComboBox(defaultEditorOptions);
-    //spriteEditorCombo.setSelectedItem(0);
 		spriteEditorPath = new JTextField(Prefs.externalSpriteEditorCommand);
-		//JButton spriteEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
-		
+
 		JLabel backgroundEditorLabel = new JLabel(Messages.getString("PreferencesFrame.BACKGROUND_EDITOR") + ":");
-    //JComboBox backgroundEditorCombo = new JComboBox(defaultEditorOptions);
-    //backgroundEditorCombo.setSelectedItem(0);
 		backgroundEditorPath = new JTextField(Prefs.externalBackgroundEditorCommand);
-		//JButton backgroundEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
 		
 		JLabel soundEditorLabel = new JLabel(Messages.getString("PreferencesFrame.SOUND_EDITOR") + ":");
-    //JComboBox soundEditorCombo = new JComboBox(defaultEditorOptions);
-    //soundEditorCombo.setSelectedItem(0);
 		soundEditorPath = new JTextField(Prefs.externalSoundEditorCommand);
-		//JButton soundEditorButton = new JButton(Messages.getString("PreferencesFrame.FIND"));
-		
+
 		GroupLayout gl = new GroupLayout(p);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
 		
 		// TODO: Fix this layout so that it resizes the text fields properly
 		gl.setHorizontalGroup(
-			   gl.createSequentialGroup()
-			      .addGroup(gl.createParallelGroup(Alignment.TRAILING)
-			           .addComponent(spriteEditorLabel)
-			           .addComponent(soundEditorLabel)
-			           .addComponent(backgroundEditorLabel)
-			           .addComponent(codeEditorLabel))
-			      //.addGroup(gl.createParallelGroup()
-			           //.addComponent(spriteEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			           //.addComponent(soundEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			           //.addComponent(backgroundEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			           //.addComponent(codeEditorCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-			      .addGroup(gl.createParallelGroup()
-			           .addComponent(spriteEditorPath)
-			           .addComponent(soundEditorPath)
-			           .addComponent(backgroundEditorPath)
-			           .addComponent(codeEditorPath))
-			      //.addGroup(gl.createParallelGroup()
-			           //.addComponent(spriteEditorButton)
-			           //.addComponent(soundEditorButton)
-			           //.addComponent(backgroundEditorButton)
-			           //.addComponent(codeEditorButton))
+		/**/gl.createSequentialGroup()
+		/*	*/.addGroup(gl.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(spriteEditorLabel)
+		/*		*/.addComponent(soundEditorLabel)
+		/*		*/.addComponent(backgroundEditorLabel)
+		/*		*/.addComponent(codeEditorLabel))
+		/*	*/.addGroup(gl.createParallelGroup()
+		/*		*/.addComponent(spriteEditorPath)
+		/*		*/.addComponent(soundEditorPath)
+		/*		*/.addComponent(backgroundEditorPath)
+		/*		*/.addComponent(codeEditorPath))
 			  );
 		gl.setVerticalGroup(
-			   gl.createSequentialGroup()
-			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			           .addComponent(spriteEditorLabel)
-			           //.addComponent(spriteEditorCombo)
-			           .addComponent(spriteEditorPath))
-			           //.addComponent(spriteEditorButton))
-			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			           .addComponent(soundEditorLabel)
-			           //.addComponent(soundEditorCombo)
-			           .addComponent(soundEditorPath))
-			           //.addComponent(soundEditorButton))
-			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			           .addComponent(backgroundEditorLabel)
-			           //.addComponent(backgroundEditorCombo)
-			           .addComponent(backgroundEditorPath))
-			           //.addComponent(backgroundEditorButton))
-			      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
-			           .addComponent(codeEditorLabel)
-			           //.addComponent(codeEditorCombo)
-			           .addComponent(codeEditorPath))
-			           //.addComponent(codeEditorButton))
+		/**/gl.createSequentialGroup()
+		/*	*/.addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		/*		*/.addComponent(spriteEditorLabel)
+		/*		*/.addComponent(spriteEditorPath))
+		/*	*/.addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		/*		*/.addComponent(soundEditorLabel)
+		/*		*/.addComponent(soundEditorPath))
+		/*	*/.addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		/*		*/.addComponent(backgroundEditorLabel)
+		/*		*/.addComponent(backgroundEditorPath))
+		/*	*/.addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		/*		*/.addComponent(codeEditorLabel)
+		/*		*/.addComponent(codeEditorPath))
 			  );
 		
 		p.setLayout(gl);
