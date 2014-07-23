@@ -148,13 +148,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*	*/.addGroup(gl.createSequentialGroup()
 		/*		*/.addComponent(backupsLabel)
 		/*		*/.addComponent(numberBackupsField))
-			           /*
-			      .addGroup(gl.createSequentialGroup()
-			      		 .addComponent(actionsLabel)
-			           .addComponent(actionsCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			           .addComponent(actionsPath))
-				*/
-				);
+		);
+		
 		gl.setVerticalGroup(
 		/**/gl.createSequentialGroup()
 		/*	*/.addGroup(gl.createParallelGroup()
@@ -184,13 +179,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*	*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(backupsLabel)
 		/*		*/.addComponent(numberBackupsField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-			           /*
-			  		.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-			      		 .addComponent(actionsLabel)
-			           .addComponent(actionsCombo)
-			           .addComponent(actionsPath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-			           */
-				);
+		);
 		
 		p.setLayout(gl);
 		
@@ -265,39 +254,40 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*			*/.addComponent(spriteMIME)
 		/*			*/.addComponent(scriptMIMELabel)
 		/*			*/.addComponent(scriptMIME))
-			);
-			gl.setVerticalGroup(
-			/**/gl.createSequentialGroup()
-			/*	*/.addGroup(gl.createSequentialGroup()
-			/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-			/*			*/.addComponent(soundPrefix)
-			/*			*/.addComponent(backgroundLabel)
-			/*			*/.addComponent(backgroundPrefix)
-			/*			*/.addComponent(spritePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			/*			*/.addComponent(spriteLabel)
-			/*			*/.addComponent(soundLabel))
-			/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-			/*			*/.addComponent(pathLabel)
-			/*			*/.addComponent(pathPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			/*			*/.addComponent(scriptPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			/*			*/.addComponent(fontPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			/*			*/.addComponent(scriptLabel)
-			/*			*/.addComponent(fontLabel))
-			/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-			/*			*/.addComponent(timelinePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			/*			*/.addComponent(objectPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			/*			*/.addComponent(roomPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			/*			*/.addComponent(timelineLabel)
-			/*			*/.addComponent(objectLabel)
-			/*			*/.addComponent(roomLabel, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE)))
-			/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-			/*			*/.addComponent(backgroundMIMELabel)
-			/*			*/.addComponent(backgroundMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			/*			*/.addComponent(spriteMIMELabel)
-			/*			*/.addComponent(spriteMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-			/*			*/.addComponent(scriptMIMELabel)
-			/*			*/.addComponent(scriptMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-			);
+		);
+		
+		gl.setVerticalGroup(
+		/**/gl.createSequentialGroup()
+		/*	*/.addGroup(gl.createSequentialGroup()
+		/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+		/*			*/.addComponent(soundPrefix)
+		/*			*/.addComponent(backgroundLabel)
+		/*			*/.addComponent(backgroundPrefix)
+		/*			*/.addComponent(spritePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+		/*			*/.addComponent(spriteLabel)
+		/*			*/.addComponent(soundLabel))
+		/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+		/*			*/.addComponent(pathLabel)
+		/*			*/.addComponent(pathPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+		/*			*/.addComponent(scriptPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+		/*			*/.addComponent(fontPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+		/*			*/.addComponent(scriptLabel)
+		/*			*/.addComponent(fontLabel))
+		/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+		/*			*/.addComponent(timelinePrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+		/*			*/.addComponent(objectPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+		/*			*/.addComponent(roomPrefix, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+		/*			*/.addComponent(timelineLabel)
+		/*			*/.addComponent(objectLabel)
+		/*			*/.addComponent(roomLabel, GroupLayout.PREFERRED_SIZE, 18, GroupLayout.PREFERRED_SIZE)))
+		/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+		/*			*/.addComponent(backgroundMIMELabel)
+		/*			*/.addComponent(backgroundMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+		/*			*/.addComponent(spriteMIMELabel)
+		/*			*/.addComponent(spriteMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+		/*			*/.addComponent(scriptMIMELabel)
+		/*			*/.addComponent(scriptMIME, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+		);
 		
 		p.setLayout(gl);
 		
@@ -337,7 +327,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*		*/.addComponent(soundEditorPath)
 		/*		*/.addComponent(backgroundEditorPath)
 		/*		*/.addComponent(codeEditorPath))
-			  );
+		);
+		
 		gl.setVerticalGroup(
 		/**/gl.createSequentialGroup()
 		/*	*/.addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -352,7 +343,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*	*/.addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		/*		*/.addComponent(codeEditorLabel)
 		/*		*/.addComponent(codeEditorPath))
-			  );
+		);
 		
 		p.setLayout(gl);
 		
@@ -407,30 +398,30 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		
 		// Set the layout for the views
 		viewsLayout.setHorizontalGroup(
-				viewsLayout.createParallelGroup()
-				.addGroup(viewsLayout.createSequentialGroup()
-						.addComponent(useFilledRectangle))
-						.addGroup(viewsLayout.createSequentialGroup()
-							.addGroup(viewsLayout.createParallelGroup()
-										.addComponent(useInvertedColor)
-										.addComponent(insideColorLabel)
-										.addComponent(outsideColorLabel))
-							.addGroup(viewsLayout.createParallelGroup()
-										.addComponent(viewInsideColor, 120, 120, 120)
-										.addComponent(viewOutsideColor, 120, 120, 120)))
-				);
+		/**/viewsLayout.createParallelGroup()
+		/*	*/.addGroup(viewsLayout.createSequentialGroup()
+		/*		*/.addComponent(useFilledRectangle))
+		/*	*/.addGroup(viewsLayout.createSequentialGroup()
+		/*		*/.addGroup(viewsLayout.createParallelGroup()
+		/*			*/.addComponent(useInvertedColor)
+		/*			*/.addComponent(insideColorLabel)
+		/*			*/.addComponent(outsideColorLabel))
+		/*		*/.addGroup(viewsLayout.createParallelGroup()
+		/*			*/.addComponent(viewInsideColor, 120, 120, 120)
+		/*			*/.addComponent(viewOutsideColor, 120, 120, 120)))
+		);
 		
 		viewsLayout.setVerticalGroup(
-				viewsLayout.createSequentialGroup()
-						.addComponent(useFilledRectangle)
-						.addComponent(useInvertedColor).addGap(10)
-			      .addGroup(viewsLayout.createParallelGroup()
-			           .addComponent(insideColorLabel)
-			           .addComponent(viewInsideColor, 18, 18, 18))
-			      .addGroup(viewsLayout.createParallelGroup()
-			           .addComponent(outsideColorLabel)
-			           .addComponent(viewOutsideColor, 18, 18, 18))
-					);
+		/**/viewsLayout.createSequentialGroup()
+		/*	*/.addComponent(useFilledRectangle)
+		/*	*/.addComponent(useInvertedColor).addGap(10)
+		/*	*/.addGroup(viewsLayout.createParallelGroup()
+		/*		*/.addComponent(insideColorLabel)
+		/*		*/.addComponent(viewInsideColor, 18, 18, 18))
+		/*	*/.addGroup(viewsLayout.createParallelGroup()
+		/*		*/.addComponent(outsideColorLabel)
+		/*		*/.addComponent(viewOutsideColor, 18, 18, 18))
+		);
 		
 		// Set the layout for the main panel
 		GroupLayout gl = new GroupLayout(roomEditorPanel);
@@ -438,22 +429,21 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		gl.setAutoCreateContainerGaps(true);
 		
 		gl.setHorizontalGroup(
-				gl.createParallelGroup()
-				 		.addGroup(gl.createSequentialGroup()
-	           .addComponent(undoHistorySizeLabel)
-	           .addComponent(undoHistorySize, 100, 100, 100))  
-           .addGroup(gl.createSequentialGroup()
-  	          .addComponent(viewsPanel, 320, 320, 320)) 
-
-			   );
+		/**/gl.createParallelGroup()
+		/*	*/.addGroup(gl.createSequentialGroup()
+		/*		*/.addComponent(undoHistorySizeLabel)
+	  /*		*/.addComponent(undoHistorySize, 100, 100, 100))  
+	  /*	*/.addGroup(gl.createSequentialGroup()
+	  /*		*/.addComponent(viewsPanel, 320, 320, 320)) 
+		);
 			   
 		gl.setVerticalGroup(
-			   gl.createSequentialGroup()
-			      .addGroup(gl.createParallelGroup()
-			         .addComponent(undoHistorySizeLabel)
-			         .addComponent(undoHistorySize, 18, 18, 18))
-			      .addComponent(viewsPanel, 150, 150, 150)
-					);
+		/**/gl.createSequentialGroup()
+		/*	*/.addGroup(gl.createParallelGroup()
+		/*		*/.addComponent(undoHistorySizeLabel)
+		/*		*/.addComponent(undoHistorySize, 18, 18, 18))
+		/*		*/.addComponent(viewsPanel, 150, 150, 150)
+		);
 		
 		roomEditorPanel.setLayout(gl);	
 		
@@ -503,10 +493,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		closeBut.setActionCommand(key);
     
 		gl.setHorizontalGroup(
-	   gl.createSequentialGroup()
-	      .addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
-	           .addComponent(applyBut)
-	           .addComponent(closeBut))
+		/**/gl.createSequentialGroup()
+	  /*	*/.addGroup(gl.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	  /*		*/.addComponent(applyBut)
+	  /*		*/.addComponent(closeBut))
 	  );
 		
     add(p,BorderLayout.SOUTH);
