@@ -27,6 +27,7 @@ import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.main.Util;
@@ -52,8 +53,6 @@ import org.lateralgm.util.ActiveArrayList.ListUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-
-
 public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateListener
 	{
 	protected static final ImageIcon EMPTY_SPRITE = LGM.getIconForKey("Resource.OBJ"); //$NON-NLS-1$
@@ -71,13 +70,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 	private final RoomPropertyListener rpl = new RoomPropertyListener();
 	private final BgDefPropertyListener bdpl = new BgDefPropertyListener();
 	private final ViewPropertyListener viewPropertyListener = new ViewPropertyListener();
-	
+
 	private EnumSet<Show> show;
 	private int gridFactor = 1;
 	private int gridX, gridY;
 
 	private boolean viewsVisible;
-	
+
 	public enum Show
 		{
 		BACKGROUNDS,INSTANCES,TILES,FOREGROUNDS,GRID,VIEWS
@@ -99,17 +98,17 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		r.properties.updateSource.addListener(rpl);
 		ivlm = new InstanceVisualListManager();
 		tvlm = new TileVisualListManager();
-	
+
 		// Set the property listener for each background
 		for (BackgroundDef bd : room.backgroundDefs)
 			{
 			bd.properties.updateSource.addListener(bdpl);
 			bd.updateSource.addListener(this);
 			}
-		
+
 		// Set the property listener for each view
 		for (View view : room.views)
-				view.properties.updateSource.addListener(viewPropertyListener);
+			view.properties.updateSource.addListener(viewPropertyListener);
 
 		}
 
@@ -119,7 +118,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		viewsVisible = visible;
 		repaint(null);
 		}
-	
+
 	public void extendBounds(Rectangle b)
 		{
 		b.add(new Rectangle(0,0,(Integer) room.get(PRoom.WIDTH),(Integer) room.get(PRoom.HEIGHT)));
@@ -137,10 +136,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			g2.setColor((Color) room.get(PRoom.BACKGROUND_COLOR));
 			g2.fillRect(0,0,width,height);
 			}
-		
+
 		if (show.contains(Show.BACKGROUNDS)) for (BackgroundDef bd : room.backgroundDefs)
 			if (shouldPaint(bd,false)) paintBackground(g2,bd,width,height);
-		
+
 		// Paint pieces and tiles on the unclipped g, so that they are visible
 		// even if outside the room
 		if (show.contains(Show.INSTANCES) || show.contains(Show.TILES)) binVisual.paint(g);
@@ -153,12 +152,12 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 							: 0),gridY);
 			gridVisual.paint(g2);
 			}
-		
+
 		// If 'Show tiles' option has been set or if the 'Views' tab is selected
 		if (show.contains(Show.VIEWS) || viewsVisible)
 			{
-			boolean viewsEnabled =  room.get(PRoom.VIEWS_ENABLED);
-			
+			boolean viewsEnabled = room.get(PRoom.VIEWS_ENABLED);
+
 			// Display the view when the views are enabled
 			if (viewsEnabled) for (View view : room.views)
 				if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
@@ -166,54 +165,28 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		g2.dispose();
 		}
-	
+
 	// Display a view on the panel
 	private void paintView(Graphics g, View view)
 		{
-    Graphics2D g2 = (Graphics2D) g;
-    
+		Graphics2D g2 = (Graphics2D) g;
+
 		// View location
 		int x;
 		int y;
-		
+
 		int objectFollowingX = view.properties.get(PView.OBJECT_FOLLOWING_X);
 		int objectFollowingY = view.properties.get(PView.OBJECT_FOLLOWING_Y);
 
 		// Get the view dimension
 		int width = view.properties.get(PView.VIEW_W);
 		int height = view.properties.get(PView.VIEW_H);
-		
+
 		// If the view is following an object, center the view around the object
 		if (objectFollowingX > -1)
 			{
 			x = objectFollowingX;
 			y = objectFollowingY;
-			
-			// Get the border zone properties
-			int borderH = view.properties.get(PView.BORDER_H);
-			int borderV = view.properties.get(PView.BORDER_V);
-			
-			// If the border zone is not empty
-			if (!(borderH == 0 & borderV ==0))
-				{
-				// Define the strokes for the border zone
-		    float black[] = {10.0f};
-		    float white[] = {8.0f,12.0f};
-		    BasicStroke dashed_black = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, black, 0.0f);
-		    BasicStroke dashed_white = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, white, 19.0f);
-		    
-				// Draw the border zone
-				g2.setColor(Color.BLACK);
-				g2.setStroke(dashed_black);
-				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
-	
-				g2.setColor(Color.WHITE);
-				g2.setStroke(dashed_white);
-				g2.drawRect(x + borderH, y + borderV, width - borderH * 2, height - borderV * 2);
-				
-				g2.setStroke(new BasicStroke());
-				}
-
 			}
 		else
 			{
@@ -222,14 +195,85 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			y = view.properties.get(PView.VIEW_Y);
 			}
 
-		g2.setColor(Color.BLACK);
-		g2.drawRect(x,y,width,height);
-		g2.drawRect(x+2,y+2,width-4,height-4);
-		g2.setColor(Color.WHITE);
-		g2.drawRect(x+1,y+1,width-2,height-2);
-		
+		// If the option 'invert colors' is set
+		if (Prefs.useInvertedColor)
+			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
+		else
+			g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
+
+		// Draw the 'outside' rectangle
+		if (Prefs.useFilledRectangle)
+			{
+			g2.drawRect(x - 2,y - 2,width + 3,height + 3);
+			g2.drawRect(x - 1,y - 1,width + 1,height + 1);
+			}
+		else
+			{
+			g2.drawRect(x,y,width,height);
+			g2.drawRect(x + 2,y + 2,width - 4,height - 4);
+			}
+
+		// If the option 'invert colors' is set
+		if (Prefs.useInvertedColor)
+			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
+		else
+			g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
+
+		// Draw the 'inside' rectangle
+		if (Prefs.useFilledRectangle)
+			g2.fillRect(x,y,width,height);
+		else
+			g2.drawRect(x + 1,y + 1,width - 2,height - 2);
+
+		// If the view is following an object
+		if (objectFollowingX > -1)
+			{
+			// Get the border zone properties
+			int borderH = view.properties.get(PView.BORDER_H);
+			int borderV = view.properties.get(PView.BORDER_V);
+
+			// If the border zone is not empty
+			if (!(borderH == 0 & borderV == 0))
+				{
+				if (Prefs.useFilledRectangle)
+					{
+					// Define the stroke for the border zone
+					float dash[] = { 10.0f };
+					BasicStroke dashed = new BasicStroke(2.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,
+							10.0f,dash,0.0f);
+
+					// Draw the border zone
+					g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
+					g2.setStroke(dashed);
+					g2.drawRect(x + borderH,y + borderV,width - borderH * 2,height - borderV * 2);
+					}
+				else
+					{
+					// Define the strokes for the border zone
+					float outside[] = { 10.0f };
+					float inside[] = { 8.0f,12.0f };
+					BasicStroke dashed_black = new BasicStroke(3.0f,BasicStroke.CAP_BUTT,
+							BasicStroke.JOIN_MITER,10.0f,outside,0.0f);
+					BasicStroke dashed_white = new BasicStroke(1.0f,BasicStroke.CAP_BUTT,
+							BasicStroke.JOIN_MITER,10.0f,inside,19.0f);
+
+					// Draw the border zone
+					g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
+					g2.setStroke(dashed_black);
+					g2.drawRect(x + borderH,y + borderV,width - borderH * 2,height - borderV * 2);
+
+					g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
+					g2.setStroke(dashed_white);
+					g2.drawRect(x + borderH,y + borderV,width - borderH * 2,height - borderV * 2);
+					}
+
+				g2.setStroke(new BasicStroke());
+				}
+
+			}
+
 		}
-	
+
 	private static boolean shouldPaint(BackgroundDef bd, Boolean fg)
 		{
 		if (!(Boolean) bd.properties.get(PBackgroundDef.VISIBLE)) return false;
@@ -707,10 +751,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				default:
 					break;
 				}
-			
+
 			}
 		}
-	
+
 	private class BgDefPropertyListener extends PropertyUpdateListener<PBackgroundDef>
 		{
 		@Override

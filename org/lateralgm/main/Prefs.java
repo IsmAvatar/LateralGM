@@ -11,6 +11,7 @@
 
 package org.lateralgm.main;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -42,7 +43,7 @@ public final class Prefs
 		String r;
 		try
 			{
-			  r = RESOURCE_BUNDLE.getString(key);
+			r = RESOURCE_BUNDLE.getString(key);
 			}
 		catch (MissingResourceException e)
 			{
@@ -73,18 +74,19 @@ public final class Prefs
 
 	public static void loadPrefs()
 		{
-		if (new File("preferences.properties").exists()) {
-		  BUNDLE_NAME = "preferences.properties";
-		  RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
-		}
-		
+		if (new File("preferences.properties").exists())
+			{
+			BUNDLE_NAME = "preferences.properties";
+			RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+			}
+
 		extraNodes = getBoolean("extraNodes",true);
 		restrictHierarchy = getBoolean("restrictHierarchy",true);
 		renamableRoots = getBoolean("renamableRoots",false);
-		swingTheme = getString("swingTheme", "Native");
-		swingThemePath = getString("swingThemePath", "");
-		iconPack = getString("iconPack", "Standard");
-		iconPath = getString("iconPath", "/icons/");
+		swingTheme = getString("swingTheme","Native");
+		swingThemePath = getString("swingThemePath","");
+		iconPack = getString("iconPack","Standard");
+		iconPath = getString("iconPath","/icons/");
 		groupKind = getBoolean("groupKind",true);
 		iconizeGroup = getBoolean("iconizeGroup",false);
 		String fontName = getString("codeFontName","Monospaced");
@@ -107,21 +109,21 @@ public final class Prefs
 				e.printStackTrace();
 				}
 			}
-		languageName = getString("languageName", "English");
-		manualPath = getString("manualPath", "http://enigma-dev.org/docs/Wiki/Main_Page");
-		enableDragAndDrop = getBoolean("enableDragAndDrop", true);
-		dockEventPanel = getBoolean("dockEventPanel", false);
-		boldPrimaryNodes = getBoolean("boldPrimaryNodes", true);
+		languageName = getString("languageName","English");
+		manualPath = getString("manualPath","http://enigma-dev.org/docs/Wiki/Main_Page");
+		enableDragAndDrop = getBoolean("enableDragAndDrop",true);
+		dockEventPanel = getBoolean("dockEventPanel",false);
+		boldPrimaryNodes = getBoolean("boldPrimaryNodes",true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
 		userLibraryPath = getString("userLibraryPath","./lib");
-		antialiasControlFont = getString("antialiasControlFont", "on");
-		
+		antialiasControlFont = getString("antialiasControlFont","on");
+
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
 		actionToolTipLines = getInt("actionToolTipLines",10);
-		
-		enableBackupSave = getBoolean("enableBackupSave", true);
-		numberofBackups = getInt("actionToolTipColumns", 5);
+
+		enableBackupSave = getBoolean("enableBackupSave",true);
+		numberofBackups = getInt("actionToolTipColumns",5);
 
 		externalSpriteExtension = getString("externalSpriteExtension","png");
 		externalBackgroundExtension = getString("externalBackgroundExtension","png");
@@ -140,7 +142,11 @@ public final class Prefs
 		useExternalSoundEditor = !str.isEmpty() && !str.toLowerCase().equals("null");
 		externalSoundEditorCommand = str.toLowerCase().equals("system") ? null : str;
 
-		undoHistorySize = getInt("undoHistorySize", 100);
+		undoHistorySize = getInt("undoHistorySize",100);
+		viewInsideColor = getInt("viewInsideColor",Util.getGmColorWithAlpha(Color.WHITE));
+		viewOutsideColor = getInt("viewOutsideColor",Util.getGmColorWithAlpha(Color.BLACK));
+		useFilledRectangle = getBoolean("filledRectangle",false);
+		useInvertedColor = getBoolean("invertedColor",false);
 		}
 
 	public static String iconPack;
@@ -150,7 +156,7 @@ public final class Prefs
 	public static String manualPath;
 	public static String languageName;
 	public static String antialiasControlFont;
-	
+
 	public static boolean extraNodes;
 	public static boolean restrictHierarchy;
 	public static boolean renamableRoots;
@@ -169,7 +175,7 @@ public final class Prefs
 	public static String userLibraryPath;
 	public static int actionToolTipColumns;
 	public static int actionToolTipLines;
-	
+
 	public static boolean enableBackupSave;
 	public static int numberofBackups;
 
@@ -185,6 +191,10 @@ public final class Prefs
 	public static boolean useExternalSoundEditor;
 	public static String externalSoundEditorCommand;
 
+	// Room editor settings
 	public static int undoHistorySize;
-	
+	public static int viewInsideColor;
+	public static int viewOutsideColor;
+	public static boolean useFilledRectangle;
+	public static boolean useInvertedColor;
 	}
