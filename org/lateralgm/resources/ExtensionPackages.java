@@ -23,7 +23,8 @@ import java.util.EnumMap;
 
 import org.lateralgm.util.PropertyMap;
 
-public class ExtensionPackages extends Resource<ExtensionPackages,ExtensionPackages.PExtensionPackages>
+public class ExtensionPackages extends
+		Resource<ExtensionPackages,ExtensionPackages.PExtensionPackages>
 	{
 	public enum PExtensionPackages
 		{

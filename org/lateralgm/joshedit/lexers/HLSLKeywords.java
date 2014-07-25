@@ -76,7 +76,7 @@ public final class HLSLKeywords
 
 		//read functions
 		InputStream is2 = HLSLKeywords.class.getResourceAsStream("hlslfunctions.txt");
-		BufferedReader	br2 = new BufferedReader(new InputStreamReader(is2));
+		BufferedReader br2 = new BufferedReader(new InputStreamReader(is2));
 		ArrayList<Function> funcList = new ArrayList<Function>();
 
 		try

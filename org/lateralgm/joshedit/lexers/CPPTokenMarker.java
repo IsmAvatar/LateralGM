@@ -17,10 +17,10 @@ import org.lateralgm.joshedit.DefaultKeywords.Keyword;
  * Sample C++ token marker class based on the default token marker.
  */
 public class CPPTokenMarker extends DefaultTokenMarker
-{
+	{
 	/** Construct, populating language data. */
 	public CPPTokenMarker()
-	{
+		{
 		super();
 		schemes.add(new BlockDescriptor("Formal Comment","/\\*!","\\*/",true,false,(char) 0,new Color(
 				128,128,255),Font.BOLD));
@@ -55,7 +55,7 @@ public class CPPTokenMarker extends DefaultTokenMarker
 		otherTokens.add(new SimpleToken("Hex literal","0[Xx][0-9A-Fa-f]+[FfUuLlDd]*",0,new Color(255,
 				100,100)));
 		otherTokens.add(new SimpleToken("Numeric literal","[0-9]+[FfUuLlDd]*",0,new Color(255,0,255)));
-	}
+		}
 
 	@Override
 	public Keyword[][] GetKeywords()
@@ -63,4 +63,4 @@ public class CPPTokenMarker extends DefaultTokenMarker
 		// TODO Auto-generated method stub
 		return null;
 		}
-}
+	}

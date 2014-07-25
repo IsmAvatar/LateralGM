@@ -70,7 +70,8 @@ import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
-public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements ListSelectionListener,ListDataListener,UpdateListener
+public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
+		ListSelectionListener,ListDataListener,UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -89,26 +90,27 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 	private PropertyUpdateListener<PFont> propUpdateListener;
 
 	@Override
-	public void dispose() {
+	public void dispose()
+		{
 		super.dispose();
 		res.properties.updateSource.removeListener(propUpdateListener);
 		res.rangeUpdateSource.removeListener(this);
-	}
-	
+		}
+
 	public FontFrame(Font res, ResNode node)
 		{
 		super(res,node);
-		((JComponent)getContentPane()).setBorder(new EmptyBorder(4, 4, 4, 4));
-		
+		((JComponent) getContentPane()).setBorder(new EmptyBorder(4,4,4,4));
+
 		propUpdateListener = new PropertyUpdateListener<PFont>()
-				{
-					public void updated(PropertyUpdateEvent<PFont> e)
+			{
+				public void updated(PropertyUpdateEvent<PFont> e)
 					{
-						updatePreviewText();
-						updatePreviewRange();
+					updatePreviewText();
+					updatePreviewRange();
 					}
-				};
-		
+			};
+
 		res.properties.updateSource.addListener(propUpdateListener);
 		res.rangeUpdateSource.addListener(this);
 
@@ -149,28 +151,31 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		previewRange = new JTextArea();
 		previewRange.setEditable(false);
 		previewRange.getCaret().setVisible(true); // show the caret anyway
-		previewRange.addFocusListener(new FocusListener() {
-		  public void focusLost(FocusEvent e) {
-		    return;
-		  }
-		
-		  public void focusGained(FocusEvent e) {
-		  	previewRange.getCaret().setVisible(true); // show the caret anyway
-		  }
-		});
+		previewRange.addFocusListener(new FocusListener()
+			{
+				public void focusLost(FocusEvent e)
+					{
+					return;
+					}
+
+				public void focusGained(FocusEvent e)
+					{
+					previewRange.getCaret().setVisible(true); // show the caret anyway
+					}
+			});
 		previewRange.setWrapStyleWord(false);
-		
+
 		rangeList = new JList<CharacterRange>();
 		rangeList.setModel(new ArrayListModel<CharacterRange>(res.characterRanges));
 		rangeList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		RangeListComponentRenderer renderer = new RangeListComponentRenderer();  
+		RangeListComponentRenderer renderer = new RangeListComponentRenderer();
 		rangeList.setCellRenderer(renderer);
 		rangeList.getModel().addListDataListener(this);
 		rangeList.addListSelectionListener(this);
 		rangeList.setSelectedIndex(0);
 		rangeList.setLayoutOrientation(JList.VERTICAL);
 		rangeList.setVisibleRowCount(6);
-		
+
 		JButton fromPreview = new JButton(Messages.getString("FontFrame.FROMPREVIEW"));
 		fromPreview.setActionCommand("FromPreview"); //$NON-NLS-1$
 		fromPreview.addActionListener(this);
@@ -191,21 +196,21 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		clearRange.addActionListener(this);
 
 		JScrollPane listScroller = new JScrollPane(rangeList);
-		listScroller.setPreferredSize(new Dimension(250, 80));
+		listScroller.setPreferredSize(new Dimension(250,80));
 		add(listScroller);
-    previewText.setText(Messages.getString("FontFrame.PREVIEW_DEFAULT"));
+		previewText.setText(Messages.getString("FontFrame.PREVIEW_DEFAULT"));
 		makeContextMenu();
 
 		JScrollPane previewTextScroll = new JScrollPane(previewText);
 		JScrollPane previewRangeScroll = new JScrollPane(previewRange);
 		previewRangeScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-		previewText.setSize(500, 500);
+		previewText.setSize(500,500);
 		updatePreviewText();
 		updatePreviewRange();
 		//prev.setBorder(BorderFactory.createEtchedBorder());
 
 		save.setText(Messages.getString("FontFrame.SAVE")); //$NON-NLS-1$
-		
+
 		layout.setHorizontalGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
@@ -231,11 +236,10 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		/*		*/.addComponent(clearRange))
 		/**/.addGroup(layout.createSequentialGroup()
 		/**/.addComponent(listScroller,120,220,MAX_VALUE))
-		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
-		.addGroup(layout.createParallelGroup()
-		.addComponent(previewTextScroll,0,500,MAX_VALUE)
-		.addComponent(previewRangeScroll,0,500,MAX_VALUE)));
-		
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)).addGroup(
+				layout.createParallelGroup().addComponent(previewTextScroll,0,500,MAX_VALUE).addComponent(
+						previewRangeScroll,0,500,MAX_VALUE)));
+
 		layout.setVerticalGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lName)
@@ -261,27 +265,26 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		/*		*/.addComponent(clearRange))
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/**/.addComponent(listScroller,DEFAULT_SIZE,120,MAX_VALUE))
-		/**/.addComponent(save))
-		.addGroup(layout.createSequentialGroup()
-		.addComponent(previewTextScroll,DEFAULT_SIZE,100,MAX_VALUE)
-		.addComponent(previewRangeScroll,DEFAULT_SIZE,100,MAX_VALUE)));
+		/**/.addComponent(save)).addGroup(
+				layout.createSequentialGroup().addComponent(previewTextScroll,DEFAULT_SIZE,100,MAX_VALUE).addComponent(
+						previewRangeScroll,DEFAULT_SIZE,100,MAX_VALUE)));
 		pack();
 		}
-	
+
 	public JMenuItem addItem(String key)
 		{
-			JMenuItem item = new JMenuItem(Messages.getString(key));
-			item.setIcon(LGM.getIconForKey(key));
-			item.setActionCommand(key);
-			item.addActionListener(this);
-			return item;
+		JMenuItem item = new JMenuItem(Messages.getString(key));
+		item.setIcon(LGM.getIconForKey(key));
+		item.setActionCommand(key);
+		item.addActionListener(this);
+		return item;
 		}
-	
+
 	public void makeContextMenu()
 		{
-	  // build popup menu
-	  JPopupMenu popup = new JPopupMenu();
-	  
+		// build popup menu
+		JPopupMenu popup = new JPopupMenu();
+
 		cutItem = addItem("FontFrame.CUT"); //$NON-NLS-1$
 		cutItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,KeyEvent.CTRL_DOWN_MASK));
 		popup.add(cutItem);
@@ -295,11 +298,11 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		selAllItem = addItem("FontFrame.SELECTALL"); //$NON-NLS-1$
 		selAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
 		popup.add(selAllItem);
-		
-	  previewText.setComponentPopupMenu(popup);
-	  
-	  popup = new JPopupMenu();
-	  
+
+		previewText.setComponentPopupMenu(popup);
+
+		popup = new JPopupMenu();
+
 		copyItem = addItem("FontFrame.COPY"); //$NON-NLS-1$
 		copyItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
 		copyItem.setActionCommand("COPYRANGE");
@@ -309,9 +312,9 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		selAllItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
 		selAllItem.setActionCommand("SELECTALLRANGE");
 		popup.add(selAllItem);
-	  
-	  previewRange.setComponentPopupMenu(popup);
-	}
+
+		previewRange.setComponentPopupMenu(popup);
+		}
 
 	private JPanel makeCRPane()
 		{
@@ -322,12 +325,12 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		charMin = new NumberField(0, Integer.MAX_VALUE);
+		charMin = new NumberField(0,Integer.MAX_VALUE);
 		charMin.setCommitsOnValidEdit(true);
 		//charMin.addValueChangeListener(this);
 		//plf.make(charMin,PFont.RANGE_MIN);
 		JLabel lTo = new JLabel(Messages.getString("FontFrame.TO")); //$NON-NLS-1$
-		charMax = new NumberField(0, Integer.MAX_VALUE);
+		charMax = new NumberField(0,Integer.MAX_VALUE);
 		charMax.setCommitsOnValidEdit(true);
 		//charMin.addValueChangeListener(this);
 		//plf.make(charMax,PFont.RANGE_MAX);
@@ -348,7 +351,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		crLetters.setActionCommand("Letters"); //$NON-NLS-1$
 		crLetters.addActionListener(this);
 
-    layout.setAutoCreateContainerGaps(false);
+		layout.setAutoCreateContainerGaps(false);
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(charMin)
@@ -380,7 +383,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		{
 		return res.characterRanges.equals(resOriginal.characterRanges);
 		}
-	
+
 	public void commitChanges()
 		{
 		charMin.commitOrRevert();
@@ -394,102 +397,115 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		if (com.equals("Normal")) //$NON-NLS-1$
 			{
 			CharacterRange cr = rangeList.getSelectedValue();
-			if (cr != null) {
+			if (cr != null)
+				{
 				cr.properties.put(PCharacterRange.RANGE_MIN,32);
 				cr.properties.put(PCharacterRange.RANGE_MAX,127);
-			}
+				}
 			return;
 			}
 		else if (com.equals("ASCII")) //$NON-NLS-1$
 			{
 			CharacterRange cr = rangeList.getSelectedValue();
-			if (cr != null) {
+			if (cr != null)
+				{
 				cr.properties.put(PCharacterRange.RANGE_MIN,0);
 				cr.properties.put(PCharacterRange.RANGE_MAX,255);
-			}
+				}
 			return;
 			}
 		else if (com.equals("Digits")) //$NON-NLS-1$
 			{
 			CharacterRange cr = rangeList.getSelectedValue();
-			if (cr != null) {
+			if (cr != null)
+				{
 				cr.properties.put(PCharacterRange.RANGE_MIN,48);
 				cr.properties.put(PCharacterRange.RANGE_MAX,57);
-			}
+				}
 			return;
 			}
 		else if (com.equals("Letters")) //$NON-NLS-1$
 			{
 			CharacterRange cr = rangeList.getSelectedValue();
-			if (cr != null) {
+			if (cr != null)
+				{
 				cr.properties.put(PCharacterRange.RANGE_MIN,65);
 				cr.properties.put(PCharacterRange.RANGE_MAX,122);
-			}
+				}
 			return;
 			}
-		else if (com.equals("FromPreview")) {
+		else if (com.equals("FromPreview"))
+			{
 			res.addRangesFromString(previewText.getText());
 			return;
-		}
-		else if (com.equals("FromString")) {
-			String result = JOptionPane.showInputDialog(null,"", "Character Sequence",JOptionPane.PLAIN_MESSAGE);
-			if (result != null) {
-				res.addRangesFromString(result);
 			}
+		else if (com.equals("FromString"))
+			{
+			String result = JOptionPane.showInputDialog(null,"","Character Sequence",
+					JOptionPane.PLAIN_MESSAGE);
+			if (result != null)
+				{
+				res.addRangesFromString(result);
+				}
 			return;
-		}
-		else if (com.equals("FromFile")) {
+			}
+		else if (com.equals("FromFile"))
+			{
 			CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR");
 			fc.setMultiSelectionEnabled(false);
 			if (fc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 				res.addRangesFromFile(fc.getSelectedFile());
 			return;
-		}
-		else if (com.equals("Add")) {
+			}
+		else if (com.equals("Add"))
+			{
 			res.addRange();
 			return;
-		}
-		else if (com.equals("Remove")) {
-			int sel = rangeList.getSelectedIndex();
-			if (rangeList.getSelectedValue() != null) {
-				res.characterRanges.remove(sel);
 			}
+		else if (com.equals("Remove"))
+			{
+			int sel = rangeList.getSelectedIndex();
+			if (rangeList.getSelectedValue() != null)
+				{
+				res.characterRanges.remove(sel);
+				}
 			return;
-		}
-		else if (com.equals("Clear")) {
+			}
+		else if (com.equals("Clear"))
+			{
 			res.characterRanges.clear();
 			return;
-		}
+			}
 		else if (com.equals("FontFrame.CUT")) //$NON-NLS-1$
-		{
+			{
 			previewText.cut();
 			return;
-		}
+			}
 		else if (com.equals("FontFrame.COPY")) //$NON-NLS-1$
-		{
+			{
 			previewText.copy();
 			return;
-		}
+			}
 		else if (com.equals("FontFrame.PASTE")) //$NON-NLS-1$
-		{
+			{
 			previewText.paste();
 			return;
-		}
+			}
 		else if (com.equals("FontFrame.SELECTALL")) //$NON-NLS-1$
-		{
+			{
 			previewText.selectAll();
 			return;
-		}
+			}
 		else if (com.equals("SELECTALLRANGE")) //$NON-NLS-1$
-		{
+			{
 			previewRange.selectAll();
 			return;
-		}
+			}
 		else if (com.equals("COPYRANGE")) //$NON-NLS-1$
-		{
+			{
 			previewRange.copy();
 			return;
-		}
+			}
 		super.actionPerformed(ev);
 		}
 
@@ -497,75 +513,87 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		{
 		previewText.setFont(res.getAWTFont());
 		}
-	
-	public void updatePreviewRange() {
+
+	public void updatePreviewRange()
+		{
 		String text = "";
-		for (CharacterRange cr : res.characterRanges) {
+		for (CharacterRange cr : res.characterRanges)
+			{
 			int min = cr.properties.get(PCharacterRange.RANGE_MIN);
 			int max = cr.properties.get(PCharacterRange.RANGE_MAX);
 			//NOTE: Arbitrarily limit a single range to no more than 1000 sequential characters to stop
 			//our editor from lagging like GM's
-			if (max - min > 1000 || max < min) { max = min + 1000; }
-			for (int i = min; i <= max; i++) {
+			if (max - min > 1000 || max < min)
+				{
+				max = min + 1000;
+				}
+			for (int i = min; i <= max; i++)
+				{
 				//TODO: Replace new line character with just an empty space, 
 				// otherwise it will screw up word wrapping in the preview area.
-				if ( i == '\n') { text += ' '; continue; }
+				if (i == '\n')
+					{
+					text += ' ';
+					continue;
+					}
 				text += new String(Character.toChars(i));
-			}
+				}
 			text += "\n";
-		}
+			}
 		previewRange.setText(text);
 		previewRange.setFont(res.getAWTFont());
-	}
+		}
 
 	private static class RangeListComponentRenderer implements ListCellRenderer<CharacterRange>
-	{
-	private final JLabel lab = new JLabel();
-	private final ListComponentRenderer lcr = new ListComponentRenderer();
-
-	public RangeListComponentRenderer()
 		{
-		lab.setOpaque(true);
+		private final JLabel lab = new JLabel();
+		private final ListComponentRenderer lcr = new ListComponentRenderer();
+
+		public RangeListComponentRenderer()
+			{
+			lab.setOpaque(true);
+			}
+
+		public Component getListCellRendererComponent(JList<? extends CharacterRange> list,
+				CharacterRange val, int ind, boolean selected, boolean focus)
+			{
+			CharacterRange i = (CharacterRange) val;
+			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
+			lab.setText(" " + i.properties.get(PCharacterRange.RANGE_MIN) + " "
+					+ Messages.getString("FontFrame.TO") + " " + i.properties.get(PCharacterRange.RANGE_MAX));
+			return lab;
+			}
+
 		}
 
-	public Component getListCellRendererComponent(JList<? extends CharacterRange> list, CharacterRange val, int ind,
-			boolean selected, boolean focus)
+	public void fireRangeUpdate()
 		{
-		CharacterRange i = (CharacterRange) val;
-		lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-		lab.setText(" " + i.properties.get(PCharacterRange.RANGE_MIN) + " " + 
-				Messages.getString("FontFrame.TO") + " " +
-				i.properties.get(PCharacterRange.RANGE_MAX));
-		return lab;
-		}
-
-	}
-	
-	public void fireRangeUpdate() {
 		CharacterRange cr = rangeList.getSelectedValue();
 		if (lastRange == cr) return;
 		lastRange = cr;
-		PropertyLink.removeAll(minLink, maxLink);
+		PropertyLink.removeAll(minLink,maxLink);
 		if (cr != null)
-		{
-			PropertyLinkFactory<PCharacterRange> rplf = new PropertyLinkFactory<PCharacterRange>(cr.properties,this);
+			{
+			PropertyLinkFactory<PCharacterRange> rplf = new PropertyLinkFactory<PCharacterRange>(
+					cr.properties,this);
 			minLink = rplf.make(charMin,PCharacterRange.RANGE_MIN);
 			maxLink = rplf.make(charMax,PCharacterRange.RANGE_MAX);
+			}
 		}
-	}
-	
+
 	public void updated(UpdateEvent e)
-	{
+		{
 		if (e.source == res.rangeUpdateSource) rangeList.setPrototypeCellValue(null);
 		updatePreviewRange();
-	}
+		}
 
-  public void valueChanged(ListSelectionEvent e) {
+	public void valueChanged(ListSelectionEvent e)
+		{
 		if (e.getValueIsAdjusting()) return;
-	
+
 		if (e.getSource() == rangeList) fireRangeUpdate();
-		
-	}
+
+		}
 
 	public void contentsChanged(ListDataEvent arg0)
 		{
@@ -581,5 +609,5 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements 
 		{
 		updatePreviewRange();
 		}
-	
+
 	}

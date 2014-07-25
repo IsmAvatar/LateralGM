@@ -91,11 +91,11 @@ public final class GmFileWriter
 		f.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 		long savetime = System.currentTimeMillis();
 		GmStreamEncoder out = new GmStreamEncoder(os);
-		
+
 		JProgressBar progressBar = LGM.getProgressDialogBar();
 		progressBar.setMaximum(200);
 		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_SAVING"));
-		
+
 		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
 		if (ver >= 810)
 			out.setCharset(Charset.forName("UTF-8"));
@@ -441,7 +441,8 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeBackgrounds(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeBackgrounds(ProjectFile f, GmStreamEncoder out, int ver)
+			throws IOException
 		{
 		ver = ver >= 710 ? 710 : ver >= 543 ? 543 : 400;
 		out.write4(ver == 710 ? 800 : 400);
@@ -564,13 +565,15 @@ public final class GmFileWriter
 				out.write4(font.properties,PFont.SIZE);
 				out.writeBool(font.properties,PFont.BOLD,PFont.ITALIC);
 				int rangemin = 0, rangemax = 0;
-				if (font.characterRanges.size() > 0) {
+				if (font.characterRanges.size() > 0)
+					{
 					CharacterRange cr = font.characterRanges.get(0);
-					if (cr != null) {
+					if (cr != null)
+						{
 						rangemin = cr.properties.get(PCharacterRange.RANGE_MIN);
 						rangemax = cr.properties.get(PCharacterRange.RANGE_MAX);
+						}
 					}
-				}
 				if (ver >= 810)
 					{
 					out.write2(rangemin);
@@ -733,13 +736,14 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeIncludedFiles(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeIncludedFiles(ProjectFile f, GmStreamEncoder out, int ver)
+			throws IOException
 		{
 		ver = ver >= 800 ? 800 : ver >= 620 ? 620 : 0;
 		if (ver < 620) return;
 
 		out.write4(ver);
-		ResourceList<Include> includes =  f.resMap.getList(Include.class);
+		ResourceList<Include> includes = f.resMap.getList(Include.class);
 		out.write4(includes.size());
 		for (Include i : includes)
 			{
@@ -799,7 +803,7 @@ public final class GmFileWriter
 		out.writeBool(p,PGameInformation.SHOW_BORDER,PGameInformation.ALLOW_RESIZE,
 				PGameInformation.STAY_ON_TOP,PGameInformation.PAUSE_GAME);
 		if (ver >= 800) out.writeD(f.gameSettings.getLastChanged());
-		
+
 		out.writeStr(p,PGameInformation.TEXT);
 		out.endDeflate();
 		}
@@ -812,9 +816,10 @@ public final class GmFileWriter
 			{
 			ResNode node = (ResNode) e.nextElement();
 			if (node.kind == Shader.class || node.kind == Include.class || node.kind == Extension.class
-					|| node.kind == Constants.class) {
-			  continue;
-			}
+					|| node.kind == Constants.class)
+				{
+				continue;
+				}
 			out.write4(node.status);
 			if (ProjectFile.RESOURCE_CODE.containsKey(node.kind))
 				out.write4(ProjectFile.RESOURCE_CODE.get(node.kind));

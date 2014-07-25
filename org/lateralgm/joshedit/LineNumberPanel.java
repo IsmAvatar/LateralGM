@@ -25,7 +25,7 @@ import javax.swing.JPanel;
 
 /** Panel to display line numbers. */
 public class LineNumberPanel extends JPanel
-{
+	{
 	/** Shut up, ECJ. */
 	private static final long serialVersionUID = 1L;
 
@@ -35,9 +35,9 @@ public class LineNumberPanel extends JPanel
 	protected int lines;
 	/** Indicates whether line numbering starts at 0 */
 	protected boolean startZero;
-	
-	public Color fgColor = new Color(170, 170, 170);
-	public Color bgColor = new Color(220, 220, 220);
+
+	public Color fgColor = new Color(170,170,170);
+	public Color bgColor = new Color(220,220,220);
 
 	/**
 	 * @param metrics The font metrics to use to paint numbers at the correct position.
@@ -45,12 +45,12 @@ public class LineNumberPanel extends JPanel
 	 * @param startZero True if the first line should be given index 0, false if it should be given index 1.
 	 */
 	public LineNumberPanel(FontMetrics metrics, int lines, boolean startZero)
-	{
+		{
 		this.metrics = metrics;
 		this.lines = lines;
 		this.startZero = startZero;
 		resize();
-	}
+		}
 
 	/**
 	 * @param textarea The text area component to draw next to.
@@ -58,26 +58,26 @@ public class LineNumberPanel extends JPanel
 	 * @param startZero True if the first line should be given index 0, false if it should be given index 1.
 	 */
 	public LineNumberPanel(JComponent textarea, int lines, boolean startZero)
-	{
+		{
 		this(textarea.getFontMetrics(textarea.getFont()),lines,startZero);
-	}
+		}
 
 	/**
 	 * Set the number of lines to be numbered.
 	 * @param lines The number of lines.
 	 */
 	public void setLines(int lines)
-	{
+		{
 		this.lines = lines + (startZero ? 0 : 1);
 		resize();
 		repaint();
-	}
+		}
 
 	/**
 	 * Call upon resize to repaint.
 	 */
 	public void resize()
-	{
+		{
 		//find the advance of the widest number
 		int[] widths = getFontMetrics(getFont()).getWidths();
 		int maxAdvance = 0;
@@ -96,14 +96,14 @@ public class LineNumberPanel extends JPanel
 		//this particular line appears to be necessary to allow these changes to take effect.
 		//note that we can't swap out with validate() or revalidate() for some reason.
 		//		getParent().doLayout();
-	}
+		}
 
 	/**
 	 * @param g The graphics object to which to paint.
 	 */
 	@Override
 	public void paintComponent(Graphics g)
-	{
+		{
 		Object map = Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints"); //$NON-NLS-1$
 		if (map != null) ((Graphics2D) g).addRenderingHints((Map<?,?>) map);
 
@@ -111,29 +111,28 @@ public class LineNumberPanel extends JPanel
 		// line numbering is always there regardless of horizontal scroll
 		// if you don't make the width static and drag the code editor
 		// so that line numbers are outside the mdi area, the numbers smudge
-		clip.setSize(this.getWidth(), clip.height);
+		clip.setSize(this.getWidth(),clip.height);
 		final int insetY = metrics.getLeading() + metrics.getAscent();
 		final int gh = metrics.getHeight();
 		int lineNum = clip.y / gh;
 		final int start = lineNum * gh + insetY;
 		final int end = clip.y + clip.height + gh;
-		if (!startZero) lineNum++;  
-     
+		if (!startZero) lineNum++;
+
 		g.setColor(bgColor);
 		//g.fillRect(clip.x,clip.y,clip.width,clip.height);
-		 g.fillRect(0,0,getWidth(),getHeight());	
+		g.fillRect(0,0,getWidth(),getHeight());
 		g.setColor(fgColor);
 
-		g.setFont(new Font("Monospace", Font.PLAIN, 12));
-		
-    String str;
-    int strw = 0;
+		g.setFont(new Font("Monospace",Font.PLAIN,12));
+
+		String str;
+		int strw = 0;
 		for (int y = start; lineNum < lines && y <= end; lineNum++, y += gh)
-		{
+			{
 			str = Integer.toString(lineNum);
-		  strw = (int)  
-        g.getFontMetrics().getStringBounds(str, g).getWidth();  
-		  g.drawString(str, clip.width - strw - 3, y);
+			strw = (int) g.getFontMetrics().getStringBounds(str,g).getWidth();
+			g.drawString(str,clip.width - strw - 3,y);
+			}
 		}
 	}
-}

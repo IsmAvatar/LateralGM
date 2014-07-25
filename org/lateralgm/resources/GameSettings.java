@@ -17,9 +17,9 @@ import org.lateralgm.util.PropertyMap;
 
 public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettings>
 	{
-	
+
 	public Constants constants = new Constants();
-	
+
 	public enum ColorDepth
 		{
 		NO_CHANGE,BIT_16,BIT_32
@@ -53,8 +53,8 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 
 	public enum PGameSettings
 		{
-		GAME_ID,GAME_GUID,START_FULLSCREEN,INTERPOLATE,FORCE_SOFTWARE_VERTEX_PROCESSING,DONT_DRAW_BORDER,DISPLAY_CURSOR,SCALING,
-		ALLOW_WINDOW_RESIZE,ALWAYS_ON_TOP,COLOR_OUTSIDE_ROOM,/**/
+		GAME_ID,GAME_GUID,START_FULLSCREEN,INTERPOLATE,FORCE_SOFTWARE_VERTEX_PROCESSING,
+		DONT_DRAW_BORDER,DISPLAY_CURSOR,SCALING,ALLOW_WINDOW_RESIZE,ALWAYS_ON_TOP,COLOR_OUTSIDE_ROOM,/**/
 		SET_RESOLUTION,COLOR_DEPTH,RESOLUTION,FREQUENCY,/**/
 		DONT_SHOW_BUTTONS,USE_SYNCHRONIZATION,DISABLE_SCREENSAVERS,LET_F4_SWITCH_FULLSCREEN,
 		LET_F1_SHOW_GAME_INFO,LET_ESC_END_GAME,LET_F5_SAVE_F6_LOAD,LET_F9_SCREENSHOT,
@@ -73,7 +73,8 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 			false,ColorDepth.NO_CHANGE,Resolution.NO_CHANGE,Frequency.NO_CHANGE,/**/
 			false,false,true,true,true,true,false,false,true,Priority.NORMAL,/**/
 			true,ProgressBar.DEFAULT,null,null,false,null,false,255,true,/**/
-			true,false,false,false,true,"","100",ProjectFile.longTimeToGmTime(System.currentTimeMillis()),"",/**///$NON-NLS-1$ //$NON-NLS-3$
+			true,false,false,false,true,
+			"","100",ProjectFile.longTimeToGmTime(System.currentTimeMillis()),"",/**///$NON-NLS-1$ //$NON-NLS-3$
 			IncludeFolder.MAIN,false,false,1,0,0,0,"","","","",null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	@Override

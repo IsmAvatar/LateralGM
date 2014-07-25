@@ -54,14 +54,13 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		DRAW_BACKGROUND_COLOR,CREATION_CODE,REMEMBER_WINDOW_SIZE,EDITOR_WIDTH,EDITOR_HEIGHT,SHOW_GRID,
 		SHOW_OBJECTS,SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,
 		DELETE_UNDERLYING_TILES,CURRENT_TAB,SCROLL_BAR_X,SCROLL_BAR_Y,VIEWS_ENABLED,VIEWS_CLEAR,
-		PHYSICS_WORLD,PHYSICS_TOP,PHYSICS_LEFT,PHYSICS_RIGHT,PHYSICS_BOTTOM,
-		PHYSICS_GRAVITY_X,PHYSICS_GRAVITY_Y,PHYSICS_PIXTOMETERS
+		PHYSICS_WORLD,PHYSICS_TOP,PHYSICS_LEFT,PHYSICS_RIGHT,PHYSICS_BOTTOM,PHYSICS_GRAVITY_X,
+		PHYSICS_GRAVITY_Y,PHYSICS_PIXTOMETERS
 		}
 
 	private static final EnumMap<PRoom,Object> DEFS = PropertyMap.makeDefaultMap(PRoom.class,"",640,
-			480,18,18,false,30,false,new Color(30, 160, 230),true,"",true,500,450,true,true,true,true,true,
-			false,false,false,TAB_OBJECTS,0,0,false,true,
-			false, 0, 0, 640, 480, 0.0, 10.0, 0.1);
+			480,18,18,false,30,false,new Color(30,160,230),true,"",true,500,450,true,true,true,true,true,
+			false,false,false,TAB_OBJECTS,0,0,false,true,false,0,0,640,480,0.0,10.0,0.1);
 
 	public Room()
 		{
@@ -156,9 +155,9 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		boolean isLocked();
 
 		void setLocked(boolean l);
-		
+
 		void setPosition(Point pos);
-		
+
 		Point getPosition();
 		}
 	}

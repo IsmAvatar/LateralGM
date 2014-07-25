@@ -14,13 +14,15 @@ import org.lateralgm.joshedit.JoshText.LineChangeListener;
 /**
  * An interface for getting marker styles for a given line.
  */
-public interface TokenMarker extends LineChangeListener {
+public interface TokenMarker extends LineChangeListener
+	{
 	/**
 	 * A storage class for information about a given marked block.
 	 * 
 	 * @author Josh Ventura
 	 */
-	class TokenMarkerInfo {
+	class TokenMarkerInfo
+		{
 		/** The font style flags to use, such as BOLD or ITALIC. */
 		int fontStyle;
 		/** The font color to use. */
@@ -44,13 +46,14 @@ public interface TokenMarker extends LineChangeListener {
 		 * @param hash
 		 *            The block hash to assign.
 		 */
-		public TokenMarkerInfo(int fs, Color col, int start, int end, int hash) {
+		public TokenMarkerInfo(int fs, Color col, int start, int end, int hash)
+			{
 			fontStyle = fs;
 			color = col;
 			startPos = start;
 			endPos = end;
 			blockHash = hash;
-		}
+			}
 
 		/**
 		 * Convenience constructor for simple information.
@@ -60,10 +63,11 @@ public interface TokenMarker extends LineChangeListener {
 		 * @param col
 		 *            The font color to use when rendering this block.
 		 */
-		public TokenMarkerInfo(int fs, Color col) {
-			this(fs, col, 0, 0, 0);
+		public TokenMarkerInfo(int fs, Color col)
+			{
+			this(fs,col,0,0,0);
+			}
 		}
-	}
 
 	/**
 	 * Return an array of line mark colors with their positions
@@ -81,4 +85,4 @@ public interface TokenMarker extends LineChangeListener {
 	 *            The code to format.
 	 */
 	void formatCode(Code code);
-}
+	}

@@ -22,7 +22,7 @@ import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
 
-public class Action implements UpdateListener, InherentlyUnique<Action>
+public class Action implements UpdateListener,InherentlyUnique<Action>
 	{
 	public static final byte ACT_NORMAL = 0;
 	public static final byte ACT_BEGIN = 1;

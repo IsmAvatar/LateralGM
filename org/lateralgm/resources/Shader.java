@@ -19,7 +19,8 @@ public class Shader extends InstantiableResource<Shader,Shader.PShader>
 		VERTEX,FRAGMENT,TYPE,PRECOMPILE
 		}
 
-	private static final EnumMap<PShader,Object> DEFS = PropertyMap.makeDefaultMap(PShader.class,"","","GLSLES",false);
+	private static final EnumMap<PShader,Object> DEFS = PropertyMap.makeDefaultMap(PShader.class,"",
+			"","GLSLES",false);
 
 	public Shader()
 		{
@@ -46,12 +47,12 @@ public class Shader extends InstantiableResource<Shader,Shader.PShader>
 		{
 		return properties.get(PShader.VERTEX);
 		}
-	
+
 	public boolean getPrecompile()
 		{
 		return properties.get(PShader.PRECOMPILE);
 		}
-	
+
 	public String getType()
 		{
 		return properties.get(PShader.TYPE);
@@ -61,7 +62,7 @@ public class Shader extends InstantiableResource<Shader,Shader.PShader>
 		{
 		properties.put(PShader.VERTEX,s);
 		}
-	
+
 	public String getFragmentCode()
 		{
 		return properties.get(PShader.FRAGMENT);

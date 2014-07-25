@@ -62,12 +62,12 @@ public final class LibManager
 	 */
 	public static void autoLoad()
 		{
-			// We can't do this became EGM has no reflection capabilities in this regard.
-			//if (!Prefs.enableDragAndDrop) {
-				//codeAction = makeCodeAction(); 
-				//return;
-			//}
-		
+		// We can't do this became EGM has no reflection capabilities in this regard.
+		//if (!Prefs.enableDragAndDrop) {
+		//codeAction = makeCodeAction(); 
+		//return;
+		//}
+
 		File dir = new File(Prefs.actionLibraryPath);
 		if (!dir.exists())
 			{
@@ -79,14 +79,14 @@ public final class LibManager
 		codeAction = null;
 
 		autoLoad(dir);
-    
-		File userLibF = new File(Prefs.userLibraryPath);
-		if (userLibF.exists())
-			autoLoad(userLibF);
 
-		if (codeAction == null) {
-	    codeAction = makeCodeAction(); 
-	  }
+		File userLibF = new File(Prefs.userLibraryPath);
+		if (userLibF.exists()) autoLoad(userLibF);
+
+		if (codeAction == null)
+			{
+			codeAction = makeCodeAction();
+			}
 		}
 
 	/** Loads in all libs/lgls in a given location (directory or zip file) */

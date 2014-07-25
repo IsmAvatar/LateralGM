@@ -41,19 +41,21 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 	public static final ArrayList<Class<? extends Resource<?,?>>> kinds = new ArrayList<Class<? extends Resource<?,?>>>();
 
 	static
-	{
-    Class<?>[] ca = { Sprite.class,Sound.class,Background.class,Path.class,Script.class,Shader.class,Font.class,
-	  Timeline.class,GmObject.class,Room.class,Include.class,Extension.class,Constants.class,GameInformation.class,GameSettings.class,
-	  ExtensionPackages.class};
-	  String[] chr3 = { "SPR","SND","BKG","PTH", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		  	  "SCR","SHR", "FNT","TML","OBJ", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		  	  "RMM", "INC", "EXT", "CST", "GMI", "GMS", "PKG" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-    
-	  int leng = chr3.length;
-	  for (int i = 0; i < leng; i++) {
-		  addKind(chr3[i],ca[i]);
-	  }
-	}
+		{
+		Class<?>[] ca = { Sprite.class,Sound.class,Background.class,Path.class,Script.class,
+				Shader.class,Font.class,Timeline.class,GmObject.class,Room.class,Include.class,
+				Extension.class,Constants.class,GameInformation.class,GameSettings.class,
+				ExtensionPackages.class };
+		String[] chr3 = { "SPR","SND","BKG","PTH", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				"SCR","SHR","FNT","TML","OBJ", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				"RMM","INC","EXT","CST","GMI","GMS","PKG" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		int leng = chr3.length;
+		for (int i = 0; i < leng; i++)
+			{
+			addKind(chr3[i],ca[i]);
+			}
+		}
 
 	@SuppressWarnings("unchecked")
 	private static void addKind(String str3, Class<?> clz)

@@ -44,7 +44,7 @@ import org.lateralgm.resources.sub.Action;
 public class ActionListEditor extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
-	
+
 	public ActionListEditor(ActionList list)
 		{
 		GroupLayout layout = new GroupLayout(this);

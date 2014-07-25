@@ -43,7 +43,7 @@ import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Include;
 
 public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInclude>
-{
+	{
 	private static final long serialVersionUID = 1L;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	private CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR");
@@ -51,12 +51,12 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 	private JButton importBut;
 
 	public IncludeFrame(Include res)
-	{
+		{
 		this(res,null);
-	}
+		}
 
 	public IncludeFrame(Include r, ResNode node)
-	{
+		{
 		//,Messages.getString("IncludeFrame.TITLE"),true
 		super(r,node); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -80,21 +80,20 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 		name.setColumns(13);
 		name.setMaximumSize(name.getPreferredSize());
 		toolbar.add(name);
-		
-		
+
 		JPanel p = new JPanel();
 		GroupLayout gl = new GroupLayout(p);
 		p.setLayout(gl);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
-		
-		this.add(p, BorderLayout.CENTER);
-		this.add(toolbar, BorderLayout.NORTH);
-		
-	}
+
+		this.add(p,BorderLayout.CENTER);
+		this.add(toolbar,BorderLayout.NORTH);
+
+		}
 
 	public Object getUserObject()
-	{
+		{
 		if (node != null) return node.getUserObject();
 		for (int m = 0; m < LGM.root.getChildCount(); m++)
 			{
@@ -102,54 +101,54 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 			if (n.kind == ExtensionPackages.class) return n.getUserObject();
 			}
 		return 0;//Messages.getString("LGM.EXT"); //$NON-NLS-1$
-	}
-	
+		}
+
 	public void actionPerformed(ActionEvent ev)
-	{
+		{
 		super.actionPerformed(ev);
 		Object source = ev.getSource();
 		if (source == importBut) //$NON-NLS-1$
-		{
+			{
 			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			File f = fc.getSelectedFile();
 			if (!f.exists()) return;
 			//TODO: can't handle .ext
 			res.setName(f.getName());
-      return;
-		}
+			return;
+			}
 		if (source == exportBut) //$NON-NLS-1$
-		{
-      return;
+			{
+			return;
+			}
 		}
-	}
 
 	public void commitChanges()
-	{
+		{
 
-	}
+		}
 
 	public void setComponents(Include inc)
-	{
+		{
 
-	}
+		}
 
 	@Override
 	public String getConfirmationName()
-	{
-	  return (String) getUserObject();
-	}
+		{
+		return (String) getUserObject();
+		}
 
 	@Override
 	public boolean resourceChanged()
-	{
+		{
 		commitChanges();
 		return !res.properties.equals(resOriginal.properties);
-	}
+		}
 
 	@Override
 	public void revertResource()
-	{
+		{
 		res.properties.putAll(resOriginal.properties);
 		//setComponents(res);
+		}
 	}
-}

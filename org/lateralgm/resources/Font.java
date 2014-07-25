@@ -27,22 +27,22 @@ import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.PropertyMap;
 
 public class Font extends InstantiableResource<Font,Font.PFont>
-{
+	{
 
 	public enum PFont
-	{
+		{
 		FONT_NAME,SIZE,BOLD,ITALIC,ANTIALIAS,CHARSET
-	}
-	
+		}
+
 	private static final EnumMap<PFont,Object> DEFS = PropertyMap.makeDefaultMap(PFont.class,"Arial",
 			12,false,false,3,0);
-	
+
 	public final ActiveArrayList<CharacterRange> characterRanges = new ActiveArrayList<CharacterRange>();
 	public final ActiveArrayList<GlyphMetric> glyphMetrics = new ActiveArrayList<GlyphMetric>();
-	
+
 	private final UpdateTrigger rangeUpdateTrigger = new UpdateTrigger();
 	public final UpdateSource rangeUpdateSource = new UpdateSource(this,rangeUpdateTrigger);
-	
+
 	public Font()
 		{
 		this(null);
@@ -57,7 +57,7 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 		{
 		return new Font(r);
 		}
-	
+
 	public GlyphMetric addGlyph()
 		{
 		GlyphMetric gm = new GlyphMetric();
@@ -71,55 +71,58 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 		characterRanges.add(cr);
 		return cr;
 		}
-	
+
 	public CharacterRange addRange(int min, int max)
 		{
 		if (min < 0 || min > max) throw new IllegalArgumentException();
-		CharacterRange cr = new CharacterRange(this, min, max);
+		CharacterRange cr = new CharacterRange(this,min,max);
 		characterRanges.add(cr);
 		return cr;
 		}
-	
+
 	public void addRangesFromString(String s)
 		{
-			ArrayList<Integer> sorted = new ArrayList<Integer>();
-			int cp = 0;
-			for (int i = 0; i < s.codePointCount(0, s.length()); i++) {
-				int cpa = s.codePointAt(cp);
-				sorted.add(cpa);
-				cp += Character.toChars(cpa).length;
+		ArrayList<Integer> sorted = new ArrayList<Integer>();
+		int cp = 0;
+		for (int i = 0; i < s.codePointCount(0,s.length()); i++)
+			{
+			int cpa = s.codePointAt(cp);
+			sorted.add(cpa);
+			cp += Character.toChars(cpa).length;
 			}
 
-			Collections.sort(sorted);
-		
-			int last = sorted.get(0);
-			CharacterRange cr = addRange(last,last);
-			for (Integer charint : sorted) {
-				int current = charint;
-				if (current - last > 1) cr = addRange(current, current);
-				last = current;
-				cr.properties.put(PCharacterRange.RANGE_MAX,current);
+		Collections.sort(sorted);
+
+		int last = sorted.get(0);
+		CharacterRange cr = addRange(last,last);
+		for (Integer charint : sorted)
+			{
+			int current = charint;
+			if (current - last > 1) cr = addRange(current,current);
+			last = current;
+			cr.properties.put(PCharacterRange.RANGE_MAX,current);
 			}
 		}
-	
+
 	public void addRangesFromFile(File f)
 		{
 		try
 			{
-			addRangesFromString(new String(Files.readAllBytes(f.toPath()), "UTF-8"));
+			addRangesFromString(new String(Files.readAllBytes(f.toPath()),"UTF-8"));
 			}
 		catch (IOException e)
 			{
 			LGM.showDefaultExceptionHandler(e);
 			}
 		}
-	
+
 	public static int makeStyle(boolean bold, boolean italic)
-	{
+		{
 		return (italic ? java.awt.Font.ITALIC : 0) | (bold ? java.awt.Font.BOLD : 0);
-	}
-	
-	public java.awt.Font getAWTFont(int resolution) {
+		}
+
+	public java.awt.Font getAWTFont(int resolution)
+		{
 		int s = get(PFont.SIZE);
 		String fn = get(PFont.FONT_NAME);
 		boolean b = get(PFont.BOLD);
@@ -128,20 +131,21 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 		 * For consistent pixel size across different systems, we should pick a common default.
 		 * AFAIK, the default in Windows (and thus GM) is 96 dpi. */
 		int fontSize = (int) Math.round(s * resolution / 72.0);
-		
+
 		return new java.awt.Font(fn,makeStyle(b,i),fontSize);
-	}
-	
-	public java.awt.Font getAWTFont() {
+		}
+
+	public java.awt.Font getAWTFont()
+		{
 		return getAWTFont(96);
-	}
+		}
 
 	@Override
 	protected PropertyMap<PFont> makePropertyMap()
 		{
 		return new PropertyMap<PFont>(PFont.class,this,DEFS);
 		}
-	
+
 	@Override
 	protected void postCopy(Font dest)
 		{

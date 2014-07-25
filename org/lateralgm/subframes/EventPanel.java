@@ -103,8 +103,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 
 		JScrollPane treeScroll = new JScrollPane(makeTree());
 
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		.addGap(10)
+		layout.setVerticalGroup(layout.createSequentialGroup().addGap(10)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(ra).addComponent(rr).addComponent(rd))
 		/**/.addGroup(layout.createParallelGroup()
@@ -119,7 +118,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		/**/.addComponent(stayOpen).addComponent(treeScroll));
 
 		reload();
-		setPreferredSize(new Dimension(250, 300));
+		setPreferredSize(new Dimension(250,300));
 		}
 
 	private JTree makeTree()
@@ -233,8 +232,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		for (int i = Event.EV_OUTSIDE; i <= Event.EV_NO_MORE_HEALTH; i++)
 			other.add(MainEvent.EV_OTHER,i);
 
-		other.add(MainEvent.EV_OTHER, Event.EV_CLOSEWINDOW);
-		
+		other.add(MainEvent.EV_OTHER,Event.EV_CLOSEWINDOW);
+
 		EventNode user = new EventNode(
 				Messages.getString("EventPanel.USER_DEFINED"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(user);
@@ -243,7 +242,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 			user.add(new EventNode(
 					Messages.format("Event.EVENT7_X",i),MainEvent.EV_OTHER,Event.EV_USER0 + i)); //$NON-NLS-1$
 			}
-		
+
 		EventNode outside = new EventNode(
 				Messages.getString("EventPanel.OUTSIDE_VIEW"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(outside);
@@ -252,7 +251,7 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 			outside.add(new EventNode(
 					Messages.format("Event.EVENT7_40X",i),MainEvent.EV_OTHER,Event.EV_OUTSIDEVIEW0 + i)); //$NON-NLS-1$
 			}
-		
+
 		EventNode boundary = new EventNode(
 				Messages.getString("EventPanel.BOUNDARY_VIEW"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(boundary);
@@ -261,27 +260,27 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 			boundary.add(new EventNode(
 					Messages.format("Event.EVENT7_50X",i),MainEvent.EV_OTHER,Event.EV_BOUNDARYVIEW0 + i)); //$NON-NLS-1$
 			}
-		
+
 		EventNode asynchronous = new EventNode(
 				Messages.getString("EventPanel.ASYNCHRONOUS"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(asynchronous);
-		asynchronous.add(MainEvent.EV_OTHER, Event.EV_IMAGELOADED);
-		asynchronous.add(MainEvent.EV_OTHER, Event.EV_SOUNDLOADED);
-		asynchronous.add(MainEvent.EV_OTHER, Event.EV_HTTP);
-		asynchronous.add(MainEvent.EV_OTHER, Event.EV_DIALOG);
-		asynchronous.add(MainEvent.EV_OTHER, Event.EV_IAP);
-		asynchronous.add(MainEvent.EV_OTHER, Event.EV_CLOUD);
-		asynchronous.add(MainEvent.EV_OTHER, Event.EV_NETWORKING);
-		asynchronous.add(MainEvent.EV_OTHER, Event.EV_STEAM);
-		asynchronous.add(MainEvent.EV_OTHER, Event.EV_SOCIAL);
-		
+		asynchronous.add(MainEvent.EV_OTHER,Event.EV_IMAGELOADED);
+		asynchronous.add(MainEvent.EV_OTHER,Event.EV_SOUNDLOADED);
+		asynchronous.add(MainEvent.EV_OTHER,Event.EV_HTTP);
+		asynchronous.add(MainEvent.EV_OTHER,Event.EV_DIALOG);
+		asynchronous.add(MainEvent.EV_OTHER,Event.EV_IAP);
+		asynchronous.add(MainEvent.EV_OTHER,Event.EV_CLOUD);
+		asynchronous.add(MainEvent.EV_OTHER,Event.EV_NETWORKING);
+		asynchronous.add(MainEvent.EV_OTHER,Event.EV_STEAM);
+		asynchronous.add(MainEvent.EV_OTHER,Event.EV_SOCIAL);
+
 		//DRAW
 		EventNode drawev = new EventNode(MainEvent.EV_DRAW);
 		root.add(drawev);
-		drawev.add(MainEvent.EV_DRAW, Event.EV_DRAW_NORMAL);
-		drawev.add(MainEvent.EV_DRAW, Event.EV_DRAW_GUI);
-		drawev.add(MainEvent.EV_DRAW, Event.EV_DRAW_RESIZE);
-		
+		drawev.add(MainEvent.EV_DRAW,Event.EV_DRAW_NORMAL);
+		drawev.add(MainEvent.EV_DRAW,Event.EV_DRAW_GUI);
+		drawev.add(MainEvent.EV_DRAW,Event.EV_DRAW_RESIZE);
+
 		//KEYPRESS
 		EventNode keypress = new EventNode(MainEvent.EV_KEYPRESS);
 		root.add(keypress);
@@ -387,9 +386,10 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYRELEASE,Event.EV_INSERT_KEY);
 
 		events = new JTree(root);
-		if (LGM.themename.equals("Quantum")) {
-		  events.setFont(LGM.lnfFont.deriveFont(Font.PLAIN));
-		}
+		if (LGM.themename.equals("Quantum"))
+			{
+			events.setFont(LGM.lnfFont.deriveFont(Font.PLAIN));
+			}
 		events.setCellRenderer(new EventNodeRenderer());
 		events.setRootVisible(false);
 		events.setShowsRootHandles(true);

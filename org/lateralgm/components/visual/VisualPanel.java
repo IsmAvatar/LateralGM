@@ -85,9 +85,10 @@ public class VisualPanel extends JPanel
 		}
 
 	public Rectangle getOverallBounds()
-	{
+		{
 		return overallBounds;
-	}
+		}
+
 	protected static double zoom(double d, int z)
 		{
 		return z > 0 ? z * d : d / (2 - z);

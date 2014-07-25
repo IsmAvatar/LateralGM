@@ -119,7 +119,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public ActionList actions;
 	public CodeTextArea code;
 	private JComponent editor;
-	
+
 	private ResourceInfoFrame infoFrame;
 
 	private DefaultMutableTreeNode lastValidEventSelection;
@@ -138,7 +138,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	// the prefs panel and turn em back on, it will ensure the system doesnt
 	// mess anything up or screw up somebodies game without giving them
 	// a chance to fix it, very safe - Robert B. Colton
-	
+
 	public GmObjectFrame(GmObject res, ResNode node)
 		{
 		super(res,node);
@@ -155,9 +155,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		makeEventTree(res);
 		JScrollPane scroll = new JScrollPane(events);
 		//if (Prefs.enableDragAndDrop) {
-		  scroll.setPreferredSize(new Dimension(140,260));
+		scroll.setPreferredSize(new Dimension(140,260));
 		//} else {
-		  //scroll.setPreferredSize(new Dimension(300,260));
+		//scroll.setPreferredSize(new Dimension(300,260));
 		//}
 		evtPane.add(scroll,BorderLayout.CENTER);
 
@@ -165,84 +165,88 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		//side2bottom.setPreferredSize(new Dimension(200,200));
 		side2bottom.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-		
+
 		eventModify = new JButton(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
 		eventModify.addActionListener(this);
 		eventModify.setToolTipText(Messages.getString("GmObjectFrame.MODIFY_EVENT")); //$NON-NLS-1$
-		
+
 		eventEdit = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
 		eventEdit.addActionListener(this);
 		eventEdit.setToolTipText(Messages.getString("GmObjectFrame.EDIT_EVENT")); //$NON-NLS-1$
-		
+
 		eventDelete = new JButton(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
 		eventDelete.addActionListener(this);
 		eventDelete.setToolTipText(Messages.getString("GmObjectFrame.DELETE_EVENT")); //$NON-NLS-1$
-		
+
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.gridwidth = 1;
 		gbc.weightx = 1;
 		gbc.weighty = 1;
-		side2bottom.add(eventModify, gbc);
-		
+		side2bottom.add(eventModify,gbc);
+
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 		gbc.gridwidth = 1;
-	  gbc.weightx = 1;
-	  gbc.weighty = 1;
-		side2bottom.add(eventEdit, gbc);
-		
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		side2bottom.add(eventEdit,gbc);
+
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 2;
 		gbc.gridy = 0;
 		gbc.gridwidth = 1;
 		gbc.weightx = 1;
 		gbc.weighty = 1;
-		side2bottom.add(eventDelete, gbc);
-		
+		side2bottom.add(eventDelete,gbc);
+
 		evtPane.add(side2bottom,BorderLayout.SOUTH);
 
 		actions = new ActionList(this);
-		if (Prefs.enableDragAndDrop) {
-		  editor = new ActionListEditor(actions);
-		}
+		if (Prefs.enableDragAndDrop)
+			{
+			editor = new ActionListEditor(actions);
+			}
 
 		ParallelGroup pg = null;
 		SequentialGroup sg = null;
-		
+
 		sg = layout.createSequentialGroup()
 		/**/.addComponent(propPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addComponent(phyPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addComponent(evtPane);
-		if (Prefs.enableDragAndDrop) {
-		  sg.addComponent(editor);
-		}
+		if (Prefs.enableDragAndDrop)
+			{
+			sg.addComponent(editor);
+			}
 		layout.setHorizontalGroup(sg);
 
 		pg = layout.createParallelGroup()
 		/**/.addComponent(propPane)
 		/**/.addComponent(phyPane)
 		/**/.addComponent(evtPane);
-		if (Prefs.enableDragAndDrop) {
-		  pg.addComponent(editor);
-		}
+		if (Prefs.enableDragAndDrop)
+			{
+			pg.addComponent(editor);
+			}
 		layout.setVerticalGroup(pg);
 
 		pack();
 
 		phyPane.setVisible((Boolean) res.properties.get(PGmObject.PHYSICS_OBJECT));
-		
+
 		propUpdateListener = new PropertyUpdateListener<PGmObject>()
-		{
-			public void updated(PropertyUpdateEvent<PGmObject> e)
 			{
-				if (e.key == PGmObject.PHYSICS_OBJECT) {
-					phyPane.setVisible((Boolean) e.map.get(e.key));
-				}
-			}
-		};
+				public void updated(PropertyUpdateEvent<PGmObject> e)
+					{
+					if (e.key == PGmObject.PHYSICS_OBJECT)
+						{
+						phyPane.setVisible((Boolean) e.map.get(e.key));
+						}
+					}
+			};
 		res.properties.updateSource.addListener(propUpdateListener);
 
 		// Select first event
@@ -252,45 +256,45 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (event != events.getModel().getRoot())
 			events.setSelectionPath(new TreePath(((DefaultMutableTreeNode) event).getPath()));
 		}
-	
-	private JPanel makePhysicsPane() {
+
+	private JPanel makePhysicsPane()
+		{
 		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder(
-				Messages.getString("GmObjectFrame.PHYSICS_PROPERTIES")));
-		
+		panel.setBorder(BorderFactory.createTitledBorder(Messages.getString("GmObjectFrame.PHYSICS_PROPERTIES")));
+
 		JCheckBox awakeCB = new JCheckBox(Messages.getString("GmObjectFrame.AWAKE"));
 		plf.make(awakeCB,PGmObject.PHYSICS_AWAKE);
 		JCheckBox kinematicCB = new JCheckBox(Messages.getString("GmObjectFrame.KINEMATIC"));
 		plf.make(kinematicCB,PGmObject.PHYSICS_KINEMATIC);
 		JCheckBox sensorCB = new JCheckBox(Messages.getString("GmObjectFrame.SENSOR"));
 		plf.make(sensorCB,PGmObject.PHYSICS_SENSOR);
-		
+
 		JLabel densityLabel = new JLabel(Messages.getString("GmObjectFrame.DENSITY") + ":");
 		NumberField densityField = new NumberField(0.0);
 		plf.make(densityField,PGmObject.PHYSICS_DENSITY);
-		JLabel restLabel = new JLabel(Messages.getString("GmObjectFrame.RESTITUTION")  + ":");
+		JLabel restLabel = new JLabel(Messages.getString("GmObjectFrame.RESTITUTION") + ":");
 		NumberField restField = new NumberField(0.0);
 		plf.make(restField,PGmObject.PHYSICS_RESTITUTION);
-		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP")  + ":");
+		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP") + ":");
 		NumberField groupField = new NumberField(0.0);
 		plf.make(groupField,PGmObject.PHYSICS_GROUP);
-		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_LINEAR")  + ":");
+		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_LINEAR") + ":");
 		NumberField linearField = new NumberField(0.0);
 		plf.make(linearField,PGmObject.PHYSICS_DAMPING_LINEAR);
-		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_ANGULAR")  + ":");
+		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_ANGULAR") + ":");
 		NumberField angularField = new NumberField(0.0);
 		plf.make(angularField,PGmObject.PHYSICS_DAMPING_ANGULAR);
-		JLabel frictionLabel = new JLabel(Messages.getString("GmObjectFrame.FRICTION")  + ":");
+		JLabel frictionLabel = new JLabel(Messages.getString("GmObjectFrame.FRICTION") + ":");
 		NumberField frictionField = new NumberField(0.0);
 		plf.make(frictionField,PGmObject.PHYSICS_FRICTION);
-		
+
 		JButton shapeBT = new JButton(Messages.getString("GmObjectFrame.COLLISION_SHAPE"));
-		
+
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateContainerGaps(true);
 		layout.setAutoCreateGaps(true);
 		panel.setLayout(layout);
-		
+
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*  */.addComponent(awakeCB)
@@ -335,9 +339,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		/*  */.addComponent(frictionLabel)
 		/*  */.addComponent(frictionField))
 		/**/.addComponent(shapeBT));
-		
+
 		return panel;
-	}
+		}
 
 	private JPanel makePropertiesPane()
 		{
@@ -450,7 +454,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		/**/.addGap(8,8,MAX_VALUE)
 		/**/.addComponent(information)
 		/**/.addComponent(save));
-		
+
 		return panel;
 		}
 
@@ -715,7 +719,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		switch (func)
 			{
 			case EventPanel.FUNCTION_ADD:
-				
+
 				addEvent(new Event(mainId,id,other));
 				break;
 			case EventPanel.FUNCTION_REPLACE:
@@ -789,30 +793,34 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		// but then again I suppose its fine like this because I have
 		// ensured checks to make sure there are no NPE's trying to edit
 		// an event that don't exist. Meh, this is fine as is.
-		MouseListener ml = new MouseAdapter() {
-      public void mousePressed(MouseEvent e) {
-        if (e.getClickCount() == 2) {
-          editSelectedEvent();
-        }
-      }
-    };
-    events.addMouseListener(ml);
+		MouseListener ml = new MouseAdapter()
+			{
+				public void mousePressed(MouseEvent e)
+					{
+					if (e.getClickCount() == 2)
+						{
+						editSelectedEvent();
+						}
+					}
+			};
+		events.addMouseListener(ml);
 
 		}
 
 	public void showInfoFrame()
-	{
+		{
 		// NOTE: This does affect reverting the resource, just makes it so
 		// the info frame can use the up to date version.
-	  saveEvents();
+		saveEvents();
 
-    if (infoFrame == null) {
-      infoFrame = new ResourceInfoFrame();
-    }
-    infoFrame.updateObjectInfo(res.reference);
-    infoFrame.setVisible(true);	
-	}
-	
+		if (infoFrame == null)
+			{
+			infoFrame = new ResourceInfoFrame();
+			}
+		infoFrame.updateObjectInfo(res.reference);
+		infoFrame.setVisible(true);
+		}
+
 	public void saveEvents()
 		{
 		actions.save();
@@ -832,116 +840,117 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 					}
 				}
 			}
-	}
-	
-	protected boolean areResourceFieldsEqual()
-	{
-		return Util.areInherentlyUniquesEqual(res.mainEvents,resOriginal.mainEvents);
-	}
+		}
 
+	protected boolean areResourceFieldsEqual()
+		{
+		return Util.areInherentlyUniquesEqual(res.mainEvents,resOriginal.mainEvents);
+		}
 
 	public void commitChanges()
-	{
+		{
 		saveEvents();
 		res.setName(name.getText());
-	}
+		}
 
 	public void actionPerformed(ActionEvent e)
-	{
-		if (e.getSource() == newSprite)
 		{
+		if (e.getSource() == newSprite)
+			{
 			ResNode n = Listener.getPrimaryParent(Sprite.class);
 			Sprite spr = LGM.currentFile.resMap.getList(Sprite.class).add();
 			Listener.putNode(LGM.tree,n,n,Sprite.class,n.getChildCount(),spr);
 			res.put(PGmObject.SPRITE,spr.reference);
 			return;
-		}
+			}
 		if (e.getSource() == editSprite)
-		{
+			{
 			Sprite spr = deRef(sprite.getSelected());
 			if (spr == null) return;
 			spr.getNode().openFrame();
 			return;
-		}
+			}
 		if (e.getSource() == information)
-		{
-				showInfoFrame();
-			  return;
-		}
+			{
+			showInfoFrame();
+			return;
+			}
 		if (e.getSource() == eventModify || e.getSource() == eventModifyItem)
-		{
+			{
 			LGM.showEventPanel();
 			return;
-		}
+			}
 		if (e.getSource() == eventAddItem)
-		{
+			{
 			LGM.showEventPanel();
 			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_ADD);
 			return;
-		}
+			}
 		if (e.getSource() == eventReplaceItem)
-		{
+			{
 			LGM.showEventPanel();
 			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_REPLACE);
 			return;
-		}
+			}
 		if (e.getSource() == eventDuplicateItem)
-		{
+			{
 			LGM.showEventPanel();
 			LGM.eventSelect.function.setValue(EventPanel.FUNCTION_DUPLICATE);
 			return;
-		}
+			}
 		if (e.getSource() == eventEdit || e.getSource() == eventEditItem)
-		{
-      editSelectedEvent();
-      return;
-		}
+			{
+			editSelectedEvent();
+			return;
+			}
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
-		{
+			{
 			DefaultMutableTreeNode comp = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
 			if (!(comp instanceof EventInstanceNode) || comp == null || comp.isRoot()) return;
 			removeEvent((EventInstanceNode) comp);
 			return;
-		}
+			}
 		super.actionPerformed(e);
-	}
+		}
 
 	private void editSelectedEvent()
-  {
-	  if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)
-	  {
-	  	return;
-	  }
-	  Action a = null;
-	  LibAction la = null;
-	  Boolean prependNew = true;
-	  
-	  for (int i = 0; i < actions.model.list.size(); i++) {
-	  	a = actions.model.list.get(i);
-	  	la = a.getLibAction();
-	  	if (la.actionKind == Action.ACT_CODE) {
-		    	prependNew = false;
-		    	break;
-		  }
-	  }
+		{
+		if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)
+			{
+			return;
+			}
+		Action a = null;
+		LibAction la = null;
+		Boolean prependNew = true;
 
-	  if (prependNew)
-	  {
-      a = new Action(LibManager.codeAction);
-		  ((ActionListModel) actions.getModel()).add(0,a);
-		  actions.setSelectedValue(a, true);
-	  }
+		for (int i = 0; i < actions.model.list.size(); i++)
+			{
+			a = actions.model.list.get(i);
+			la = a.getLibAction();
+			if (la.actionKind == Action.ACT_CODE)
+				{
+				prependNew = false;
+				break;
+				}
+			}
 
-	  MDIFrame af = ActionList.openActionFrame(actions.parent.get(), a);
-	  EventInstanceNode evnode = (EventInstanceNode)events.getLastSelectedPathComponent();
-	  af.setTitle(this.name.getText() + " : " + evnode.toString());
-	  af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId));
-	  return;
-}
+		if (prependNew)
+			{
+			a = new Action(LibManager.codeAction);
+			((ActionListModel) actions.getModel()).add(0,a);
+			actions.setSelectedValue(a,true);
+			}
+
+		MDIFrame af = ActionList.openActionFrame(actions.parent.get(),a);
+		EventInstanceNode evnode = (EventInstanceNode) events.getLastSelectedPathComponent();
+		af.setTitle(this.name.getText() + " : " + evnode.toString());
+		af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId));
+		return;
+		}
 
 	@Override
 	public void dispose()
-	{
+		{
 		super.dispose();
 		events.removeTreeSelectionListener(this);
 		events.setModel(null);
@@ -952,14 +961,15 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		eventModify.removeActionListener(this);
 		eventEdit.removeActionListener(this);
 		eventDelete.removeActionListener(this);
-		if (infoFrame != null) {
-		  infoFrame.dispose();
-		}
+		if (infoFrame != null)
+			{
+			infoFrame.dispose();
+			}
 		res.properties.updateSource.removeListener(propUpdateListener);
 		//NOTE: Uncomment this to have the action frames close when the object frame closes.
 		//((ActionListEditor) editor).dispose();
-	}
-	
+		}
+
 	public void valueChanged(TreeSelectionEvent tse)
 		{
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
@@ -1046,7 +1056,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 					eventModifyItem = new JMenu(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
 					menu.add(eventModifyItem);
 					eventModifyItem.addActionListener(GmObjectFrame.this);
-					
+
 					eventAddItem = new JMenuItem(Messages.getString("GmObjectFrame.ADD")); //$NON-NLS-1
 					eventModifyItem.add(eventAddItem);
 					eventAddItem.addActionListener(GmObjectFrame.this);
@@ -1056,7 +1066,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 					eventDuplicateItem = new JMenuItem(Messages.getString("GmObjectFrame.DUPLICATE")); //$NON-NLS-1
 					eventModifyItem.add(eventDuplicateItem);
 					eventDuplicateItem.addActionListener(GmObjectFrame.this);
-					
+
 					eventEditItem = new JMenuItem(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
 					menu.add(eventEditItem);
 					eventEditItem.addActionListener(GmObjectFrame.this);

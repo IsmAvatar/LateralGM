@@ -126,7 +126,7 @@ public final class LGM
 	// for the time being to fix the GTK bug with it not
 	// using the UIManager resources for font and color on controls
 	// in its look and feel classes, this is Java's fault not ours
-	public static Font lnfFont = new Font("Ubuntu", Font.PLAIN, 14);
+	public static Font lnfFont = new Font("Ubuntu",Font.PLAIN,14);
 	public static boolean themechanged = false;
 
 	public static int javaVersion;
@@ -170,72 +170,78 @@ public final class LGM
 	public static Cursor zoomOutCursor;
 	private static String progressTitle;
 
-	public static JDialog getProgressDialog() {
-		if (progressDialog == null) {
-	  	progressDialog = new JDialog(LGM.frame, "Progress Dialog", true);
-	  	progressDialogBar = new JProgressBar(0, 140);
-	  	progressDialogBar.setStringPainted(true);
-	  	progressDialogBar.setPreferredSize(new Dimension(240,20));
-	    progressDialog.add(BorderLayout.CENTER, progressDialogBar);
-	    progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-	   
-	    progressDialog.pack();
-	    progressDialog.setLocationRelativeTo(LGM.frame);
-	    progressDialog.setResizable(false);
-		}
+	public static JDialog getProgressDialog()
+		{
+		if (progressDialog == null)
+			{
+			progressDialog = new JDialog(LGM.frame,"Progress Dialog",true);
+			progressDialogBar = new JProgressBar(0,140);
+			progressDialogBar.setStringPainted(true);
+			progressDialogBar.setPreferredSize(new Dimension(240,20));
+			progressDialog.add(BorderLayout.CENTER,progressDialogBar);
+			progressDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+
+			progressDialog.pack();
+			progressDialog.setLocationRelativeTo(LGM.frame);
+			progressDialog.setResizable(false);
+			}
 		return progressDialog;
-	}
-	
-	public static JProgressBar getProgressDialogBar() {
+		}
+
+	public static JProgressBar getProgressDialogBar()
+		{
 		return progressDialogBar;
-	}
-	
-	public static void setProgressDialogVisible(boolean visible) {
-		if (!visible) {
-			if (progressDialog != null) { 
-				progressDialog.setVisible(false); 
+		}
+
+	public static void setProgressDialogVisible(boolean visible)
+		{
+		if (!visible)
+			{
+			if (progressDialog != null)
+				{
+				progressDialog.setVisible(false);
 				progressTitle = "Progress Dialog";
 				progressDialogBar.setValue(0);
-			}
+				}
 			return;
-		}
+			}
 		getProgressDialog().setVisible(true);
-	}
-	
-	public static void setProgressTitle(String title) {
+		}
+
+	public static void setProgressTitle(String title)
+		{
 		progressTitle = title;
-	}
-	
-	public static void setProgress(int value, String message) {
+		}
+
+	public static void setProgress(int value, String message)
+		{
 		progressDialog.setTitle(progressTitle + " - " + message);
 		progressDialogBar.setValue(value);
-	}
-	
-	private static void createMouseCursors() {
+		}
+
+	private static void createMouseCursors()
+		{
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		
+
 		Image cimg = LGM.getIconForKey("CursorDisplay.ZOOM").getImage();
-		BufferedImage img = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);
 		Graphics g = img.createGraphics();
-		g.drawImage(cimg, 0, 0, null);
-		zoomCursor = toolkit.createCustomCursor(img, 
-				new Point(0,0), "Zoom");  
-		
+		g.drawImage(cimg,0,0,null);
+		zoomCursor = toolkit.createCustomCursor(img,new Point(0,0),"Zoom");
+
 		cimg = LGM.getIconForKey("CursorDisplay.ZOOM_IN").getImage();
-		img = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+		img = new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
-		g.drawImage(cimg, 0, 0, null);
-		zoomInCursor = toolkit.createCustomCursor(img, 
-				new Point(0,0), "ZoomIn");  
-		
+		g.drawImage(cimg,0,0,null);
+		zoomInCursor = toolkit.createCustomCursor(img,new Point(0,0),"ZoomIn");
+
 		cimg = LGM.getIconForKey("CursorDisplay.ZOOM_OUT").getImage();
-		img = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+		img = new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
-		g.drawImage(cimg, 0, 0, null);
-		zoomOutCursor = toolkit.createCustomCursor(img, 
-				new Point(0,0), "ZoomOut");  
-	}
-	
+		g.drawImage(cimg,0,0,null);
+		zoomOutCursor = toolkit.createCustomCursor(img,new Point(0,0),"ZoomOut");
+		}
+
 	public static void SetLookAndFeel(String LOOKANDFEEL)
 		{
 		if (LOOKANDFEEL.equals(themename))
@@ -248,46 +254,70 @@ public final class LGM
 		String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
 		if (LOOKANDFEEL != null)
 			{
-			if (LOOKANDFEEL.equals("Swing")) {
+			if (LOOKANDFEEL.equals("Swing"))
+				{
 				lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
 				// This theme is also known as Metal - Ocean
 				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
 				MetalLookAndFeel.setCurrentTheme(new OceanTheme());
-			} else if (LOOKANDFEEL.equals("Native")) {
+				}
+			else if (LOOKANDFEEL.equals("Native"))
+				{
 				lookAndFeel = UIManager.getSystemLookAndFeelClassName();
-			} else if (LOOKANDFEEL.equals("Nimbus")) {
+				}
+			else if (LOOKANDFEEL.equals("Nimbus"))
+				{
 				lookAndFeel = "javax.swing.plaf.nimbus.NimbusLookAndFeel";
-			} else if (LOOKANDFEEL.equals("Windows")) {
+				}
+			else if (LOOKANDFEEL.equals("Windows"))
+				{
 				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-			} else if (LOOKANDFEEL.equals("CDE/Motif")) {
+				}
+			else if (LOOKANDFEEL.equals("CDE/Motif"))
+				{
 				lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
-			} else if (LOOKANDFEEL.equals("Metal")) {
+				}
+			else if (LOOKANDFEEL.equals("Metal"))
+				{
 				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
 				MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
-			} else if (LOOKANDFEEL.equals("Ocean")) {
+				}
+			else if (LOOKANDFEEL.equals("Ocean"))
+				{
 				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
 				MetalLookAndFeel.setCurrentTheme(new OceanTheme());
-			} else if (LOOKANDFEEL.equals("GTK+")) {
+				}
+			else if (LOOKANDFEEL.equals("GTK+"))
+				{
 				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-			} else if (LOOKANDFEEL.equals("Quantum")) {
+				}
+			else if (LOOKANDFEEL.equals("Quantum"))
+				{
 				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-			} else if (LOOKANDFEEL.equals("Custom")) {
+				}
+			else if (LOOKANDFEEL.equals("Custom"))
+				{
 				lookAndFeel = Prefs.swingThemePath;
-			} else {
+				}
+			else
+				{
 				// Perhaps we did not get the name right, see if the theme is installed
 				// and attempt to use it.
 				boolean foundMatch = false;
-		    LookAndFeelInfo lnfs[] = UIManager.getInstalledLookAndFeels();
-		    for (int i = 0; i < lnfs.length; i++) {
-		      if (LOOKANDFEEL.equals(lnfs[i].getName())) {
-		        lookAndFeel = lnfs[i].getClassName();
-		        foundMatch = true;
-		      }
-		    }
-				if (!foundMatch) {
-				  System.err.println("Unexpected value of LOOKANDFEEL specified: " + LOOKANDFEEL);
-				  lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
-				}
+				LookAndFeelInfo lnfs[] = UIManager.getInstalledLookAndFeels();
+				for (int i = 0; i < lnfs.length; i++)
+					{
+					if (LOOKANDFEEL.equals(lnfs[i].getName()))
+						{
+						lookAndFeel = lnfs[i].getClassName();
+						foundMatch = true;
+						}
+					}
+				if (!foundMatch)
+					{
+					System.err.println("Unexpected value of LOOKANDFEEL specified: " + LOOKANDFEEL);
+					lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
+					}
 				}
 
 			try
@@ -322,7 +352,7 @@ public final class LGM
 	// this function is for updating the look and feel after its
 	// already been initialized and all controls created
 	public static void UpdateLookAndFeel()
-	{
+		{
 		if (!themechanged)
 			{
 			return;
@@ -330,63 +360,67 @@ public final class LGM
 		SwingUtilities.updateComponentTreeUI(tree);
 		SwingUtilities.updateComponentTreeUI(mdi);
 		mdi.updateUI();
-		if (eventFrame == null) {
-		  SwingUtilities.updateComponentTreeUI(eventSelect);
-		} else {
-		  SwingUtilities.updateComponentTreeUI(eventFrame);
-		}
+		if (eventFrame == null)
+			{
+			SwingUtilities.updateComponentTreeUI(eventSelect);
+			}
+		else
+			{
+			SwingUtilities.updateComponentTreeUI(eventFrame);
+			}
 		frame.pack();
 		Window windows[] = Window.getWindows();
-		for (Window i : windows) {
-		  SwingUtilities.updateComponentTreeUI(i);
-    }
-	}
+		for (Window i : windows)
+			{
+			SwingUtilities.updateComponentTreeUI(i);
+			}
+		}
 
 	public static ConstantsFrame getConstantsFrame()
-	{
+		{
 		return constantsFrame;
-	}
-	
+		}
+
 	public static GameInformationFrame getGameInfo()
-	{
+		{
 		return gameInfo;
-	}
+		}
 
 	public static GameSettingFrame getGameSettings()
-	{
+		{
 		return gameSet;
-	}
+		}
 
 	public static ExtensionPackagesFrame getExtensionPackages()
 		{
-    extSet.revertResource();
+		extSet.revertResource();
 		return extSet;
 		}
 
 	public static void showConstantsFrame()
-	{
-    getConstantsFrame().setVisible(true);
-    getConstantsFrame().toTop();
-	}
-	
+		{
+		getConstantsFrame().setVisible(true);
+		getConstantsFrame().toTop();
+		}
+
 	public static void showGameInformation()
-	{
-    getGameInfo().setVisible(true);
-    getGameInfo().toTop();
-	}
-	
+		{
+		getGameInfo().setVisible(true);
+		getGameInfo().toTop();
+		}
+
 	public static void showGameSettings()
-	{
-    getGameSettings().setVisible(true);
-    getGameSettings().toTop();
-	}
-	
+		{
+		getGameSettings().setVisible(true);
+		getGameSettings().toTop();
+		}
+
 	public static void showExtensionPackages()
-	{
-    getExtensionPackages().setVisible(true);
-    getExtensionPackages().toTop();
-	}
-	
+		{
+		getExtensionPackages().setVisible(true);
+		getExtensionPackages().toTop();
+		}
+
 	private LGM()
 		{
 
@@ -462,7 +496,7 @@ public final class LGM
 		but.setActionCommand(key);
 		but.setToolTipText(Messages.getString(key));
 		but.addActionListener(Listener.getInstance());
-	
+
 		return but;
 		}
 
@@ -491,9 +525,9 @@ public final class LGM
 		tool.add(makeButton("Toolbar.PKG")); //$NON-NLS-1$
 		tool.addSeparator();
 		tool.add(new JLabel(Messages.getString("Toolbar.Configurations") + ":"));
-		String strs[] = {"Default"};
+		String strs[] = { "Default" };
 		JComboBox<String> configsCombo = new JComboBox<String>(strs);
-		configsCombo.setMaximumSize(new Dimension(100, 20));
+		configsCombo.setMaximumSize(new Dimension(100,20));
 		tool.add(configsCombo);
 		tool.addSeparator();
 		tool.add(makeButton("Toolbar.GMS")); //$NON-NLS-1$
@@ -502,9 +536,10 @@ public final class LGM
 		tool.add(makeButton("Toolbar.DOCUMENTATION")); //$NON-NLS-1$
 		tool.add(Box.createHorizontalGlue()); //right align after this
 		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
-		if (LGM.themename.equals("Quantum")) {
-		  tool.setFont(LGM.lnfFont);
-		}
+		if (LGM.themename.equals("Quantum"))
+			{
+			tool.setFont(LGM.lnfFont);
+			}
 		return tool;
 		}
 
@@ -516,12 +551,13 @@ public final class LGM
 	private static JComponent createTree(ResNode newroot)
 		{
 		tree = new JTree(new DefaultTreeModel(newroot));
-		if (LGM.themename.equals("Quantum")) {
-		  tree.setFont(lnfFont);
-		}
+		if (LGM.themename.equals("Quantum"))
+			{
+			tree.setFont(lnfFont);
+			}
 
 		GmTreeGraphics renderer = new GmTreeGraphics();
-		
+
 		GmTreeEditor editor = new GmTreeEditor(tree,renderer);
 
 		editor.addCellEditorListener(Listener.getInstance());
@@ -644,7 +680,7 @@ public final class LGM
 	public static void reload(boolean newRoot)
 		{
 		LGM.mdi.closeAll();
-		
+
 		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
 		LGM.tree.setSelectionRow(0);
 
@@ -659,7 +695,7 @@ public final class LGM
 		gameSet.resOriginal = LGM.currentFile.gameSettings;
 		gameSet.revertResource();
 		gameSet.setVisible(false);
-		
+
 		LGM.fireReloadPerformed(newRoot);
 		}
 
@@ -750,13 +786,13 @@ public final class LGM
 
 		public abstract T getInstance();
 		}
-  
+
 	public static void main(final String[] args)
 		{
-		
+
 		// Set the default uncaught exception handler.
 		LGM.setDefaultExceptionHandler();
-    
+
 		//java6u10 regression causes graphical xor to be very slow
 		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
 		//Put the Mac menu bar where it belongs (ignored by other systems)
@@ -766,18 +802,17 @@ public final class LGM
 
 		// Enable antialasing of fonts
 		System.setProperty("awt.useSystemAAFontSettings",Prefs.antialiasControlFont);
-		System.setProperty("swing.aatext", "true");
+		System.setProperty("swing.aatext","true");
 
-		
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
 		if (javaVersion < 10600)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
-		
+
 		iconspack = Prefs.iconPack;
 		SetLookAndFeel(Prefs.swingTheme);
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		themechanged = false;
-		
+
 		SplashProgress splashProgress = new SplashProgress();
 		splashProgress.start();
 
@@ -799,7 +834,7 @@ public final class LGM
 
 		splashProgress.progress(15,Messages.getString("LGM.SPLASH_CURSOR"));
 		createMouseCursors();
-		
+
 		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
 		LibManager.autoLoad();
 
@@ -809,7 +844,7 @@ public final class LGM
 		content = new JPanel(new BorderLayout());
 		content.add(BorderLayout.CENTER,createMDI());
 		eventSelect = new EventPanel();
-		
+
 		if (Prefs.dockEventPanel)
 			{
 			content.add(BorderLayout.EAST,eventSelect);
@@ -820,7 +855,7 @@ public final class LGM
 		//((BasicToolBarUI) eventSelect.getUI()).setFloating(true, new Point(500,50));
 
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
-		
+
 		constantsFrame = new ConstantsFrame(currentFile.defaultConstants);
 		mdi.add(constantsFrame);
 		gameInfo = new GameInformationFrame(currentFile.gameInfo);
@@ -834,9 +869,10 @@ public final class LGM
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
 		menuBar = new GmMenuBar();
-		if (LGM.themename.equals("Quantum")) {
-		  menuBar.setFont(lnfFont);
-		}
+		if (LGM.themename.equals("Quantum"))
+			{
+			menuBar.setFont(lnfFont);
+			}
 		frame.setJMenuBar(menuBar);
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
@@ -861,7 +897,7 @@ public final class LGM
 		eventSelect.setVisible(false); //must occur after adding split
 		f.add(BorderLayout.NORTH,toolbar);
 		f.setOpaque(true);
-		
+
 		splashProgress.progress(65,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
 		try
 			{
@@ -873,25 +909,30 @@ public final class LGM
 			e.printStackTrace();
 			}
 		applyBackground("org/lateralgm/main/lgm1.png"); //$NON-NLS-1$
-    splashProgress.progress(70,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
-    populateTree();
+		splashProgress.progress(70,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
+		populateTree();
 		splashProgress.progress(80,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
 		LOADING_PROJECT = true;
 		loadPlugins();
 		splashProgress.complete();
-		
+
 		frame.setVisible(true);
 		frame.pack();
 		// This needs to be here after the frame is set to visible for some reason,
 		// it was causing the bug with the frame not memorizing its maximized state.
 		new FramePrefsHandler(frame);
-		
+
 		// Load any projects entered on the command line
-		if (args.length > 0 && args[0].length() > 1) {
-			  String path = args[0].replace("\\","/");
-			  URI uri = new File(path).toURI();
-				Listener.getInstance().fc.open(uri); 
-		} else { LOADING_PROJECT = false; }
+		if (args.length > 0 && args[0].length() > 1)
+			{
+			String path = args[0].replace("\\","/");
+			URI uri = new File(path).toURI();
+			Listener.getInstance().fc.open(uri);
+			}
+		else
+			{
+			LOADING_PROJECT = false;
+			}
 
 		}
 
@@ -908,7 +949,7 @@ public final class LGM
 		int n = JOptionPane.showConfirmDialog(null,Messages.getString("LGM.KEEPCHANGES_MESSAGE"),
 				Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE,null);
-		
+
 		switch (n)
 			{
 			case JOptionPane.YES_OPTION:
@@ -1116,35 +1157,38 @@ public final class LGM
 	// Sets the default uncaught exception handler in case any threads forget to add one.
 	public static void setDefaultExceptionHandler()
 		{
-	    Thread.setDefaultUncaughtExceptionHandler(
-	        new Thread.UncaughtExceptionHandler() {
-	            public void uncaughtException(Thread t, Throwable e) {
-	                LGM.showDefaultExceptionHandler(e);
-	            }
-	    });
+		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
+			{
+				public void uncaughtException(Thread t, Throwable e)
+					{
+					LGM.showDefaultExceptionHandler(e);
+					}
+			});
 		}
-	
+
 	// Adds a default uncaught exception handler to the current thread. This allows LGM to catch most exceptions
 	// and properly display a stack trace for the user to file a bug report.
 	public static void addDefaultExceptionHandler()
 		{
-	    Thread.currentThread().setUncaughtExceptionHandler(
-	        new Thread.UncaughtExceptionHandler() {
-	            public void uncaughtException(Thread t, Throwable e) {
-	                LGM.showDefaultExceptionHandler(e);
-	            }
-	    });
+		Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
+			{
+				public void uncaughtException(Thread t, Throwable e)
+					{
+					LGM.showDefaultExceptionHandler(e);
+					}
+			});
 		}
 
 	// Show the default uncaught exception handler dialog to the user with a stack trace they can use to submit a bug report.
 	public static void showDefaultExceptionHandler(Throwable e)
 		{
-      System.out.println(Thread.currentThread().getName()+": "+e);
-      e.printStackTrace();
-      if (!ErrorDialog.getInstance().isVisible()) {
-      	ErrorDialog.getInstance().setVisible(true);
-      }
-  		ErrorDialog.getInstance().appendDebugInfo(e); //$NON-NLS-1$
+		System.out.println(Thread.currentThread().getName() + ": " + e);
+		e.printStackTrace();
+		if (!ErrorDialog.getInstance().isVisible())
+			{
+			ErrorDialog.getInstance().setVisible(true);
+			}
+		ErrorDialog.getInstance().appendDebugInfo(e); //$NON-NLS-1$
 		}
-	
+
 	}

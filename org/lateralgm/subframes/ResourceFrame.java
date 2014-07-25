@@ -90,23 +90,40 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 
 		public ResourceFrame<?,?> makeFrame(Resource<?,?> r, ResNode node)
 			{
-			if (kind == Sprite.class) return new SpriteFrame((Sprite) r,node);
-			else if (kind == Sound.class) return new SoundFrame((Sound) r,node);
-			else if (kind == Background.class) return new BackgroundFrame((Background) r,node);
-			else if (kind == Path.class) return new PathFrame((Path) r,node);
-			else if (kind == Script.class) return new ScriptFrame((Script) r,node);
-			else if (kind == Shader.class) return new ShaderFrame((Shader) r,node);
- 			else if (kind == Font.class) return new FontFrame((Font) r,node);
-			else if (kind == Timeline.class) return new TimelineFrame((Timeline) r,node);
-			else if (kind == GmObject.class) return new GmObjectFrame((GmObject) r,node);
-			else if (kind == Room.class) return new RoomFrame((Room) r,node);
-			else if (kind == Include.class) return new IncludeFrame((Include) r,node);
-			else if (kind == Extension.class) return new ExtensionFrame((Extension) r,node);
-			else if (kind == Constants.class) return LGM.getConstantsFrame();
-			else if (kind == GameInformation.class) return LGM.getGameInfo();
-			else if (kind == GameSettings.class) return LGM.getGameSettings();
-			else if (kind == ExtensionPackages.class) return LGM.getExtensionPackages();
-			else return null;
+			if (kind == Sprite.class)
+				return new SpriteFrame((Sprite) r,node);
+			else if (kind == Sound.class)
+				return new SoundFrame((Sound) r,node);
+			else if (kind == Background.class)
+				return new BackgroundFrame((Background) r,node);
+			else if (kind == Path.class)
+				return new PathFrame((Path) r,node);
+			else if (kind == Script.class)
+				return new ScriptFrame((Script) r,node);
+			else if (kind == Shader.class)
+				return new ShaderFrame((Shader) r,node);
+			else if (kind == Font.class)
+				return new FontFrame((Font) r,node);
+			else if (kind == Timeline.class)
+				return new TimelineFrame((Timeline) r,node);
+			else if (kind == GmObject.class)
+				return new GmObjectFrame((GmObject) r,node);
+			else if (kind == Room.class)
+				return new RoomFrame((Room) r,node);
+			else if (kind == Include.class)
+				return new IncludeFrame((Include) r,node);
+			else if (kind == Extension.class)
+				return new ExtensionFrame((Extension) r,node);
+			else if (kind == Constants.class)
+				return LGM.getConstantsFrame();
+			else if (kind == GameInformation.class)
+				return LGM.getGameInfo();
+			else if (kind == GameSettings.class)
+				return LGM.getGameSettings();
+			else if (kind == ExtensionPackages.class)
+				return LGM.getExtensionPackages();
+			else
+				return null;
 			}
 		}
 

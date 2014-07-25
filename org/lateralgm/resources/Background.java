@@ -32,7 +32,7 @@ public class Background extends InstantiableResource<Background,Background.PBack
 	private SoftReference<BufferedImage> imageCache = null;
 
 	private final BackgroundPropertyListener bpl = new BackgroundPropertyListener();
-	
+
 	public enum PBackground
 		{
 		TRANSPARENT,SMOOTH_EDGES,PRELOAD,USE_AS_TILESET,TILE_WIDTH,TILE_HEIGHT,H_OFFSET,V_OFFSET,H_SEP,
@@ -99,12 +99,14 @@ public class Background extends InstantiableResource<Background,Background.PBack
 		this.backgroundImage = backgroundImage;
 		fireUpdate();
 		}
-	
+
 	/** Returns the byte length of a DataBuffer **/
 	//TODO: This function reports astronomical values for some reason.
-	public long getDataBytes(DataBuffer data) {
+	public long getDataBytes(DataBuffer data)
+		{
 		int dataType = data.getDataType();
-		switch (dataType) {
+		switch (dataType)
+			{
 			case DataBuffer.TYPE_BYTE:
 				byte[] bytes = ((DataBufferByte) data).getData();
 				return bytes.length;
@@ -121,18 +123,19 @@ public class Background extends InstantiableResource<Background,Background.PBack
 				double[] doubles = ((DataBufferDouble) data).getData();
 				return doubles.length * 8;
 			default:
-  			throw new IllegalArgumentException("Unknown data buffer type: "+
-                                     dataType);
+				throw new IllegalArgumentException("Unknown data buffer type: " + dataType);
+			}
 		}
-	}
-	
+
 	/** Returns the size of the background image in bytes */
-	public long getSize() {
-		if (backgroundImage != null) {
+	public long getSize()
+		{
+		if (backgroundImage != null)
+			{
 			return this.getWidth() * this.getHeight() * 4;//getDataBytes(backgroundImage.getRaster().getDataBuffer());
-		}
+			}
 		return 0;
-	}
+		}
 
 	public int getWidth()
 		{
@@ -149,7 +152,7 @@ public class Background extends InstantiableResource<Background,Background.PBack
 		{
 		return new PropertyMap<PBackground>(PBackground.class,this,DEFS);
 		}
-	
+
 	private class BackgroundPropertyListener extends PropertyUpdateListener<PBackground>
 		{
 		@Override
@@ -160,11 +163,11 @@ public class Background extends InstantiableResource<Background,Background.PBack
 				case TRANSPARENT:
 					fireUpdate();
 					break;
-			default:
-		    //TODO: maybe put a failsafe here?
-				break;
+				default:
+					//TODO: maybe put a failsafe here?
+					break;
 				}
 			}
 		}
-	
+
 	}

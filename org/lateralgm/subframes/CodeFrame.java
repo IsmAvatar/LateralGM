@@ -64,7 +64,7 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 		tool.add(save);
 		tool.addSeparator();
 
-		code = new CodeTextArea(codeHolder.getCode(), MarkerCache.getMarker("gml"));
+		code = new CodeTextArea(codeHolder.getCode(),MarkerCache.getMarker("gml"));
 		code.addEditorButtons(tool);
 
 		status = new JPanel(new FlowLayout());
@@ -77,7 +77,8 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 			{
 				public void caretUpdate(CaretEvent e)
 					{
-					caretPos.setText(" INS | UTF-8 | " + (code.getCaretLine() + 1) + ":" + (code.getCaretColumn() + 1));
+					caretPos.setText(" INS | UTF-8 | " + (code.getCaretLine() + 1) + ":"
+							+ (code.getCaretColumn() + 1));
 					}
 			});
 

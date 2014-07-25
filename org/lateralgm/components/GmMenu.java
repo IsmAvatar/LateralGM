@@ -30,9 +30,10 @@ public class GmMenu extends JMenu
 		{
 		super();
 		setTextAndAlt(this,s);
-		if (LGM.themename.equals("Quantum")) {
-		  this.setFont(LGM.lnfFont.deriveFont(Font.ROMAN_BASELINE));
-		}
+		if (LGM.themename.equals("Quantum"))
+			{
+			this.setFont(LGM.lnfFont.deriveFont(Font.ROMAN_BASELINE));
+			}
 		}
 
 	public GmMenu()
@@ -66,13 +67,14 @@ public class GmMenu extends JMenu
 			}
 		if (shortcut >= 0) item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
 		item.addActionListener(listener);
-		if (LGM.themename.equals("Quantum")) {
-		  item.setFont(LGM.lnfFont);
-		}
+		if (LGM.themename.equals("Quantum"))
+			{
+			item.setFont(LGM.lnfFont);
+			}
 		add(item);
 		return item;
 		}
-	
+
 	public GmMenu addMenu(String key)
 		{
 		return addMenu(key,-1,-1,Listener.getInstance());
@@ -99,9 +101,10 @@ public class GmMenu extends JMenu
 			}
 		//if (shortcut >= 0) item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
 		item.addActionListener(listener);
-		if (LGM.themename.equals("Quantum")) {
-		  item.setFont(LGM.lnfFont);
-		}
+		if (LGM.themename.equals("Quantum"))
+			{
+			item.setFont(LGM.lnfFont);
+			}
 		add(item);
 		return item;
 		}

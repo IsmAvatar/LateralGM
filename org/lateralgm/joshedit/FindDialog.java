@@ -39,7 +39,7 @@ import org.lateralgm.main.LGM;
  * Class to display a full set of find and replace options.
  */
 public class FindDialog extends JDialog implements WindowListener,ActionListener
-{
+	{
 	/** Cram it, ECJ. */
 	private static final long serialVersionUID = 1L;
 
@@ -93,44 +93,45 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 
 	/** Construct, creating everything. */
 	private FindDialog()
-	{
+		{
 		super((Frame) null,"Find/Replace");
 		applyLayout();
 		addWindowListener(this);
 		pack();
 		setMinimumSize(getSize());
-	}
+		}
 
 	/** @return Returns the static FindDialog instance.  */
 	public static FindDialog getInstance()
-	{
-	  if (INSTANCE == null) {
-	    INSTANCE = new FindDialog();
-	    INSTANCE.setLocationRelativeTo(LGM.frame);
-	  }
+		{
+		if (INSTANCE == null)
+			{
+			INSTANCE = new FindDialog();
+			INSTANCE.setLocationRelativeTo(LGM.frame);
+			}
 		return INSTANCE;
-	}
+		}
 
 	/**
 	 * @author Josh Ventura
 	 * Class to listen for <Enter> presses on find/replace fields and act on them.
 	 */
 	class EnterListener implements ActionListener
-	{
-		/** Simulate a find press. */
-//r@Override
-		public void actionPerformed(ActionEvent e)
 		{
+		/** Simulate a find press. */
+		//r@Override
+		public void actionPerformed(ActionEvent e)
+			{
 			bFind.doClick();
+			}
 		}
-	}
 
 	/**
 	 * @author Josh Ventura
 	 * An interface by which find/replace navigators can be invoked to handle search queries.
 	 */
 	public interface FindNavigator
-	{
+		{
 		/**
 		 * @param find The new string to find.
 		 * @param replace The new string with which to replace found items.
@@ -148,20 +149,20 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 
 		/** Find and replace the next match. */
 		void replaceNext();
-		
+
 		/** Replaces all the matches and returns the count. */
 		int replaceAll();
 
 		/** Find and replace the previous match. */
 		void replacePrevious();
-		
+
 		/** Performs the replace action. */
 		void doReplace();
-	}
+		}
 
 	/** Create the form layout. */
 	private void applyLayout()
-	{
+		{
 		GroupLayout gl = new GroupLayout(getContentPane());
 		gl.setAutoCreateContainerGaps(true);
 		gl.setAutoCreateGaps(true);
@@ -192,14 +193,14 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 		new ButGroup(whole,start);
 		new ButGroup(esc,regex);
 		regex.addItemListener(new ItemListener()
-		{
-	//r@Override
-			public void itemStateChanged(ItemEvent e)
 			{
-				boolean b = regex.isSelected();
-				backward.setEnabled(!b);
-			}
-		});
+				//r@Override
+				public void itemStateChanged(ItemEvent e)
+					{
+					boolean b = regex.isSelected();
+					backward.setEnabled(!b);
+					}
+			});
 
 		JPanel scope = new JPanel();
 		scope.setLayout(new BoxLayout(scope,BoxLayout.PAGE_AXIS));
@@ -228,72 +229,72 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 		JButton bClose = new JButton("Close");
 
 		bFind.addActionListener(new ActionListener()
-		{
-	//r@Override
-			public void actionPerformed(ActionEvent e)
 			{
-				if (selectedJoshText == null)
-				{
-					System.err.println("No text editor selected. Ever.");
-					return;
-				}
-				setVisible(false);
-				selectedJoshText.finder.updateParameters((String) tFind.getEditor().getItem(),
-						(String) tReplace.getEditor().getItem());
-				selectedJoshText.finder.present();
-				if (backward.isSelected())
-					selectedJoshText.finder.findPrevious();
-				else
-					selectedJoshText.finder.findNext();
-			}
-		});
+				//r@Override
+				public void actionPerformed(ActionEvent e)
+					{
+					if (selectedJoshText == null)
+						{
+						System.err.println("No text editor selected. Ever.");
+						return;
+						}
+					setVisible(false);
+					selectedJoshText.finder.updateParameters((String) tFind.getEditor().getItem(),
+							(String) tReplace.getEditor().getItem());
+					selectedJoshText.finder.present();
+					if (backward.isSelected())
+						selectedJoshText.finder.findPrevious();
+					else
+						selectedJoshText.finder.findNext();
+					}
+			});
 		bReplace.addActionListener(new ActionListener()
-		{
-	//r@Override
-			public void actionPerformed(ActionEvent e)
 			{
-				if (selectedJoshText == null)
-				{
-					System.err.println("No text editor selected. Ever.");
-					return;
-				}
-				setVisible(false);
-				selectedJoshText.finder.updateParameters((String) tFind.getEditor().getItem(),
-						(String) tReplace.getEditor().getItem());
-				selectedJoshText.finder.present();
-				if (backward.isSelected())
-					selectedJoshText.finder.replacePrevious();
-				else
-					selectedJoshText.finder.replaceNext();
-			}
-		});
-		
+				//r@Override
+				public void actionPerformed(ActionEvent e)
+					{
+					if (selectedJoshText == null)
+						{
+						System.err.println("No text editor selected. Ever.");
+						return;
+						}
+					setVisible(false);
+					selectedJoshText.finder.updateParameters((String) tFind.getEditor().getItem(),
+							(String) tReplace.getEditor().getItem());
+					selectedJoshText.finder.present();
+					if (backward.isSelected())
+						selectedJoshText.finder.replacePrevious();
+					else
+						selectedJoshText.finder.replaceNext();
+					}
+			});
+
 		bRepAll.addActionListener(new ActionListener()
-		{
-	//r@Override
-			public void actionPerformed(ActionEvent e)
 			{
-				if (selectedJoshText == null)
-				{
-					System.err.println("No text editor selected. Ever.");
-					return;
-				}
-				setVisible(false);
-				selectedJoshText.finder.updateParameters((String) tFind.getEditor().getItem(),
-						(String) tReplace.getEditor().getItem());
-				int results = selectedJoshText.finder.replaceAll();
-				JOptionPane.showMessageDialog(null, results + " Occurences Replaced");
-			}
-		});
-		
+				//r@Override
+				public void actionPerformed(ActionEvent e)
+					{
+					if (selectedJoshText == null)
+						{
+						System.err.println("No text editor selected. Ever.");
+						return;
+						}
+					setVisible(false);
+					selectedJoshText.finder.updateParameters((String) tFind.getEditor().getItem(),
+							(String) tReplace.getEditor().getItem());
+					int results = selectedJoshText.finder.replaceAll();
+					JOptionPane.showMessageDialog(null,results + " Occurences Replaced");
+					}
+			});
+
 		bClose.addActionListener(new ActionListener()
-		{
-	//r@Override
-			public void actionPerformed(ActionEvent e)
 			{
-				dispose();
-			}
-		});
+				//r@Override
+				public void actionPerformed(ActionEvent e)
+					{
+					dispose();
+					}
+			});
 
 		int pref = GroupLayout.PREFERRED_SIZE;
 
@@ -329,7 +330,7 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 		/*	*/.addComponent(bReplace)
 		/*	*/.addComponent(bRepAll)
 		/*	*/.addComponent(bClose)));
-	}
+		}
 
 	/**
 	 * Adds an action listener to this dialog for when one of the buttons gets pressed.
@@ -340,9 +341,9 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 	 * @param l The <code>ActionListener</code> to be added.
 	 */
 	public void addActionListener(ActionListener l)
-	{
+		{
 		listenerList.add(l);
-	}
+		}
 
 	/**
 	 * Adds an action listener to this dialog that exists beyond dialog closes.
@@ -354,67 +355,67 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 	 * @param l The <code>ActionListener</code> to be added.
 	 */
 	public static void addPermanentActionListener(ActionListener l)
-	{
+		{
 		permListenerList.add(l);
-	}
+		}
 
 	/** @param l The listener to remove. */
 	public static void removePermanentActionListener(ActionListener l)
-	{
+		{
 		permListenerList.remove(l);
-	}
+		}
 
 	/** Dispatch performed actions to own listers. */
-//r@Override
+	//r@Override
 	public void actionPerformed(ActionEvent e)
-	{
+		{
 		for (ActionListener l : listenerList)
 			l.actionPerformed(e);
 		for (ActionListener l : permListenerList)
 			l.actionPerformed(e);
-	}
+		}
 
 	/** Clean up when window is closed. */
-//r@Override
+	//r@Override
 	public void windowClosed(WindowEvent e)
-	{
+		{
 		listenerList.clear();
-	}
+		}
 
 	/** Clean up when window is closed. */
-//r@Override
+	//r@Override
 	public void windowClosing(WindowEvent e)
-	{
+		{
 		listenerList.clear();
-	}
+		}
 
 	/** Unused. */
-//r@Override
+	//r@Override
 	public void windowActivated(WindowEvent e)
-	{ //unused
-	}
+		{ //unused
+		}
 
 	/** Unused. */
-//r@Override
+	//r@Override
 	public void windowDeactivated(WindowEvent e)
-	{ //unused
-	}
+		{ //unused
+		}
 
 	/** Unused. */
-//r@Override
+	//r@Override
 	public void windowDeiconified(WindowEvent e)
-	{ //unused
-	}
+		{ //unused
+		}
 
 	/** Unused. */
-//r@Override
+	//r@Override
 	public void windowIconified(WindowEvent e)
-	{ //unused
-	}
+		{ //unused
+		}
 
 	/** Unused. */
-//r@Override
+	//r@Override
 	public void windowOpened(WindowEvent e)
-	{ //unused
+		{ //unused
+		}
 	}
-}

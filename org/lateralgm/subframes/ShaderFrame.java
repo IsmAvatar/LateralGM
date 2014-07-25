@@ -97,12 +97,12 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tool.add(save);
 		tool.addSeparator();
 
-		vcode = new CodeTextArea((String) res.get(PShader.VERTEX), MarkerCache.getMarker("glsles"));
-		fcode = new CodeTextArea((String) res.get(PShader.FRAGMENT), MarkerCache.getMarker("glsles"));
-		
+		vcode = new CodeTextArea((String) res.get(PShader.VERTEX),MarkerCache.getMarker("glsles"));
+		fcode = new CodeTextArea((String) res.get(PShader.FRAGMENT),MarkerCache.getMarker("glsles"));
+
 		editors = new JTabbedPane();
-		editors.add(vcode, "Vertex");
-		editors.add(fcode, "Fragment");
+		editors.add(vcode,"Vertex");
+		editors.add(fcode,"Fragment");
 		add(editors,BorderLayout.CENTER);
 
 		if (!Prefs.useExternalScriptEditor)
@@ -123,22 +123,23 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tool.add(name);
 		tool.addSeparator();
 		tool.add(new JLabel(Messages.getString("ShaderFrame.TYPE")));
-		String[] typeOptions = { "GLSLES", "GLSL", "HLSL9", "HLSL11" };
+		String[] typeOptions = { "GLSLES","GLSL","HLSL9","HLSL11" };
 		typeCombo = new JComboBox<String>(typeOptions);
-		typeCombo.setMaximumSize(new Dimension(100, 20));
-		typeCombo.addItemListener (new ItemListener() {
-			public void itemStateChanged(ItemEvent arg0)
-				{
+		typeCombo.setMaximumSize(new Dimension(100,20));
+		typeCombo.addItemListener(new ItemListener()
+			{
+				public void itemStateChanged(ItemEvent arg0)
+					{
 					updateLexer();
-				}
+					}
 			});
-		
+
 		tool.add(typeCombo);
 		precompileCB = new JCheckBox(Messages.getString("ShaderFrame.PRECOMPILE"));
 		precompileCB.setSelected(res.getPrecompile());
 		tool.addSeparator();
 		tool.add(precompileCB);
-		
+
 		status = new JPanel(new FlowLayout());
 		BoxLayout layout = new BoxLayout(status,BoxLayout.X_AXIS);
 		status.setLayout(layout);
@@ -150,20 +151,22 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			{
 				public void caretUpdate(CaretEvent e)
 					{
-					caretPos.setText(" INS | UTF-8 | " + (vcode.getCaretLine() + 1) + " : " + (vcode.getCaretColumn() + 1));
+					caretPos.setText(" INS | UTF-8 | " + (vcode.getCaretLine() + 1) + " : "
+							+ (vcode.getCaretColumn() + 1));
 					}
 			});
 		fcode.addCaretListener(new CaretListener()
 			{
 				public void caretUpdate(CaretEvent e)
 					{
-					caretPos.setText(" INS | UTF-8 | " + (fcode.getCaretLine() + 1) + " : " + (fcode.getCaretColumn() + 1));
+					caretPos.setText(" INS | UTF-8 | " + (fcode.getCaretLine() + 1) + " : "
+							+ (fcode.getCaretColumn() + 1));
 					}
 			});
 		add(status,BorderLayout.SOUTH);
 
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(vcode.text));
-		
+
 		typeCombo.setSelectedItem(res.getType());
 		updateLexer();
 		}
@@ -172,19 +175,31 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		{
 		//TODO: This should be moved into the base CodeTextArea, as a feature of JoshEdit
 		String val = typeCombo.getSelectedItem().toString();
-		if (val.equals(currentLang)) { return; }
+		if (val.equals(currentLang))
+			{
+			return;
+			}
 		DefaultTokenMarker marker = null;
-		if (val.equals("GLSLES")) {
+		if (val.equals("GLSLES"))
+			{
 			marker = new GLESTokenMarker();
-		} else if (val.equals("GLSL")) {
+			}
+		else if (val.equals("GLSL"))
+			{
 			marker = new GLSLTokenMarker();
-		} else if (val.equals("HLSL9")) {
-		  marker = new HLSLTokenMarker();
-		} else if (val.equals("HLSL11")) {
-		  marker = new HLSLTokenMarker();
-		} else {
-		
-		}
+			}
+		else if (val.equals("HLSL9"))
+			{
+			marker = new HLSLTokenMarker();
+			}
+		else if (val.equals("HLSL11"))
+			{
+			marker = new HLSLTokenMarker();
+			}
+		else
+			{
+
+			}
 		//TODO: Both of these calls will utilize the same lexer, but they both
 		//will recompose the list of completions. Should possibly add an abstract
 		//GetCompletions() to the DefaultTokenMarker class, so that all code editors
@@ -200,15 +215,15 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		res.put(PShader.VERTEX,vcode.getTextCompat());
 		res.put(PShader.FRAGMENT,fcode.getTextCompat());
 		res.setName(name.getText());
-		res.put(PShader.TYPE, typeCombo.getSelectedItem());
-		res.put(PShader.PRECOMPILE, precompileCB.isSelected());
+		res.put(PShader.TYPE,typeCombo.getSelectedItem());
+		res.put(PShader.PRECOMPILE,precompileCB.isSelected());
 		}
 
 	public void fireInternalFrameEvent(int id)
 		{
 		if (id == InternalFrameEvent.INTERNAL_FRAME_CLOSED)
 			LGM.currentFile.updateSource.removeListener(vcode);
-		  LGM.currentFile.updateSource.removeListener(fcode);
+		LGM.currentFile.updateSource.removeListener(fcode);
 		super.fireInternalFrameEvent(id);
 		}
 
@@ -293,7 +308,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		if (editor != null) editor.stop();
 		super.dispose();
 		}
-	
+
 	private JButton makeToolbarButton(String name)
 		{
 		String key = "JoshText." + name;
@@ -303,11 +318,11 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		b.setActionCommand(key);
 		b.addActionListener(this);
 		return b;
-	}
-	
+		}
+
 	public void addEditorButtons(JToolBar tb)
-	{
-	  
+		{
+
 		tb.add(makeToolbarButton("SAVE"));
 		tb.add(makeToolbarButton("LOAD"));
 		tb.add(makeToolbarButton("PRINT"));
@@ -321,12 +336,12 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tb.add(makeToolbarButton("CUT"));
 		tb.add(makeToolbarButton("COPY"));
 		tb.add(makeToolbarButton("PASTE"));
-	}
-	
+		}
+
 	public void actionPerformed(ActionEvent ev)
 		{
-			super.actionPerformed(ev);
-			if (ev.getSource() == edit)
+		super.actionPerformed(ev);
+		if (ev.getSource() == edit)
 			{
 			try
 				{
@@ -341,40 +356,64 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 				}
 			return;
 			}
-		
-			String com = ev.getActionCommand();
-			
-			CodeTextArea tcode = null;
-			int stab = editors.getSelectedIndex(); 
-			
-			if (stab == 0) {
-				tcode = vcode;
-			} else if (stab == 1) {
-			  tcode = fcode;
-			} else {
-				// dun know what fucking tab u have selected
+
+		String com = ev.getActionCommand();
+
+		CodeTextArea tcode = null;
+		int stab = editors.getSelectedIndex();
+
+		if (stab == 0)
+			{
+			tcode = vcode;
 			}
-			
-			if (com.equals("JoshText.LOAD")) {
-				tcode.text.Load();
-			} else if (com.equals("JoshText.SAVE")) {
-				tcode.text.Save();
-			} else if (com.equals("JoshText.UNDO")) {
-				tcode.text.Undo();
-			} else if (com.equals("JoshText.REDO")) {
-				tcode.text.Redo();
-			} else if (com.equals("JoshText.CUT")) {
-				tcode.text.Cut();
-			} else if (com.equals("JoshText.COPY")) {
-				tcode.text.Copy();
-			} else if (com.equals("JoshText.PASTE")) {
-				tcode.text.Paste();
-			} else if (com.equals("JoshText.FIND")) {
-				tcode.text.ShowFind();
-			} else if (com.equals("JoshText.GOTO")) {
-				tcode.aGoto();
-			} else if (com.equals("JoshText.SELALL")) {
-				tcode.text.SelectAll();
+		else if (stab == 1)
+			{
+			tcode = fcode;
+			}
+		else
+			{
+			// dun know what fucking tab u have selected
+			}
+
+		if (com.equals("JoshText.LOAD"))
+			{
+			tcode.text.Load();
+			}
+		else if (com.equals("JoshText.SAVE"))
+			{
+			tcode.text.Save();
+			}
+		else if (com.equals("JoshText.UNDO"))
+			{
+			tcode.text.Undo();
+			}
+		else if (com.equals("JoshText.REDO"))
+			{
+			tcode.text.Redo();
+			}
+		else if (com.equals("JoshText.CUT"))
+			{
+			tcode.text.Cut();
+			}
+		else if (com.equals("JoshText.COPY"))
+			{
+			tcode.text.Copy();
+			}
+		else if (com.equals("JoshText.PASTE"))
+			{
+			tcode.text.Paste();
+			}
+		else if (com.equals("JoshText.FIND"))
+			{
+			tcode.text.ShowFind();
+			}
+		else if (com.equals("JoshText.GOTO"))
+			{
+			tcode.aGoto();
+			}
+		else if (com.equals("JoshText.SELALL"))
+			{
+			tcode.text.SelectAll();
 			}
 		}
 	}

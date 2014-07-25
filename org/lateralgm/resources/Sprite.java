@@ -42,27 +42,27 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		Resource.Viewable
 	{
 	public enum BBMode
-	{
+		{
 		AUTO,FULL,MANUAL
-	}
+		}
 
 	public enum Effects
-  {
-    INVERT,FLIP,ROTATE
-  } 
-	
+		{
+		INVERT,FLIP,ROTATE
+		}
+
 	public enum MaskShape
-	{
+		{
 		PRECISE,RECTANGLE,DISK,DIAMOND,POLYGON
-	}
+		}
 
 	public final ImageList subImages = new ImageList();
 
 	public enum PSprite
-	{
+		{
 		TRANSPARENT,SHAPE,ALPHA_TOLERANCE,SEPARATE_MASK,SMOOTH_EDGES,PRELOAD,ORIGIN_X,ORIGIN_Y,BB_MODE,
 		BB_LEFT,BB_RIGHT,BB_TOP,BB_BOTTOM,TILE_HORIZONTALLY,TILE_VERTICALLY,FOR3D
-	}
+		}
 
 	private static final EnumMap<PSprite,Object> DEFS = PropertyMap.makeDefaultMap(PSprite.class,
 			false,MaskShape.RECTANGLE,0,false,false,true,0,0,BBMode.AUTO,0,31,0,31,false,false,false);
@@ -123,7 +123,10 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 	private void updateBoundingBox()
 		{
 		BBMode mode = get(PSprite.BB_MODE);
-		if (mode == null) { return; }
+		if (mode == null)
+			{
+			return;
+			}
 		switch (mode)
 			{
 			case AUTO:
@@ -144,14 +147,16 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 			}
 		}
 
-	public int getWidth() {
+	public int getWidth()
+		{
 		return subImages.getWidth();
-	}
-	
-	public int getHeight() {
+		}
+
+	public int getHeight()
+		{
 		return subImages.getHeight();
-	}
-	
+		}
+
 	public static Rectangle getOverallBounds(ImageList l, boolean transPixel)
 		{
 		Rectangle r = new Rectangle();
@@ -284,57 +289,66 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		private ImageList()
 			{
 			}
-		
+
 		/** Returns the byte length of a DataBuffer **/
 		//TODO: This function reports astronomical values for some reason.
-		public long getDataBytes(DataBuffer buffer) {
+		public long getDataBytes(DataBuffer buffer)
+			{
 			int dataType = buffer.getDataType();
 			long length = 0;
 			short bytes = 0;
-			switch (dataType) {
+			switch (dataType)
+				{
 				case DataBuffer.TYPE_BYTE:
 					length = ((DataBufferByte) buffer).getData().length;
-					bytes = 1; break;
+					bytes = 1;
+					break;
 				case DataBuffer.TYPE_USHORT:
 					length = ((DataBufferShort) buffer).getData().length;
-					bytes = 2; break;
+					bytes = 2;
+					break;
 				case DataBuffer.TYPE_INT:
 					length = ((DataBufferInt) buffer).getData().length;
-					bytes = 4; break;
+					bytes = 4;
+					break;
 				case DataBuffer.TYPE_FLOAT:
 					length = ((DataBufferFloat) buffer).getData().length;
-					bytes = 4; break;
+					bytes = 4;
+					break;
 				case DataBuffer.TYPE_DOUBLE:
 					length = ((DataBufferDouble) buffer).getData().length;
-					bytes = 8; break;
+					bytes = 8;
+					break;
 				default:
-    			throw new IllegalArgumentException("Unknown data buffer type: "+
-                                       dataType);
-			}
+					throw new IllegalArgumentException("Unknown data buffer type: " + dataType);
+				}
 			//JOptionPane.showMessageDialog(null,bytes);
 			return length * bytes;
-		}
+			}
 
 		/** Returns the size of the image list in bytes */
-		public long getSize() {
+		public long getSize()
+			{
 			long count = 0;
 
-			for (int i = 0; i < this.size(); i++) {
+			for (int i = 0; i < this.size(); i++)
+				{
 				count += this.getSize(i);//getDataBytes(this.get(i).getData().getDataBuffer());
-    	}
+				}
 
 			return count;
-		}
-		
+			}
+
 		/** Returns the size of the subimage in bytes */
-		public long getSize(int index) {
+		public long getSize(int index)
+			{
 			return this.get(index).getWidth() * this.get(index).getHeight() * 4;
 			//if (this.size() > index) {
-				//return getDataBytes(this.get(index).getRaster().getDataBuffer());
+			//return getDataBytes(this.get(index).getRaster().getDataBuffer());
 			//}
 			//return 0;
-		}
-		
+			}
+
 		public int getWidth()
 			{
 			if (size() > 0) return get(0).getWidth();
@@ -463,9 +477,9 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 				case BB_MODE:
 					updateBoundingBox();
 					break;
-			default:
-		    //TODO: maybe put a failsafe here?
-				break;
+				default:
+					//TODO: maybe put a failsafe here?
+					break;
 				}
 			}
 		}

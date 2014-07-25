@@ -38,7 +38,7 @@ import org.lateralgm.joshedit.JoshText.UndoPatch;
  * A find navigator designed to be small and unobtrusive.
  */
 public class QuickFind extends JToolBar implements FindNavigator
-{
+	{
 	/** Blow it out your ears, ECJ. */
 	private static final long serialVersionUID = 1L;
 
@@ -66,7 +66,7 @@ public class QuickFind extends JToolBar implements FindNavigator
 	/** The string to display on the Set button. */
 	private static final ImageIcon I_SET;
 	static
-	{
+		{
 		S_FIND = Runner.editorInterface.getString("QuickFind.FIND") + ": "; //$NON-NLS-1$
 		S_REPL = Runner.editorInterface.getString("QuickFind.REPLACE") + ": "; //$NON-NLS-1$
 		B_HIGHL = Runner.editorInterface.getString("QuickFind.HIGHLIGHT"); //$NON-NLS-1$
@@ -78,7 +78,7 @@ public class QuickFind extends JToolBar implements FindNavigator
 		I_MARK = Runner.editorInterface.getIconForKey("QuickFind.MARK"); //$NON-NLS-1$
 		I_REPL = Runner.editorInterface.getIconForKey("QuickFind.REPL"); //$NON-NLS-1$
 		I_SET = Runner.editorInterface.getIconForKey("QuickFind.SET"); //$NON-NLS-1$
-	}
+		}
 
 	/** The Close button. */
 	public JButton close;
@@ -106,12 +106,12 @@ public class QuickFind extends JToolBar implements FindNavigator
 	 * @author Josh Ventura
 	 */
 	enum Mode
-	{
+		{
 		/** Find mode. */
 		mode_find,
 		/** Find and replace mode. */
 		mode_replace
-	}
+		}
 
 	/** The current find/replace mode. */
 	Mode mode = Mode.mode_find;
@@ -122,7 +122,7 @@ public class QuickFind extends JToolBar implements FindNavigator
 	 * @param text The owning JoshText.
 	 */
 	public QuickFind(JoshText text)
-	{
+		{
 		super();
 		setFloatable(false);
 		add(close = new JButton(I_CLOSE));
@@ -150,309 +150,319 @@ public class QuickFind extends JToolBar implements FindNavigator
 		joshText = text;
 
 		settings.addActionListener(new ActionListener()
-		{
-	//r@Override
-			public void actionPerformed(ActionEvent e)
 			{
-				FindDialog.tFind.setSelectedItem(tFind.getText());
-				FindDialog.getInstance().selectedJoshText = joshText;
-				FindDialog.getInstance().setVisible(true);
-			}
-		});
+				//r@Override
+				public void actionPerformed(ActionEvent e)
+					{
+					FindDialog.tFind.setSelectedItem(tFind.getText());
+					FindDialog.getInstance().selectedJoshText = joshText;
+					FindDialog.getInstance().setVisible(true);
+					}
+			});
 		close.addActionListener(new ActionListener()
-		{
-	//r@Override
-			public void actionPerformed(ActionEvent e)
 			{
-				setVisible(false);
-			}
-		});
+				//r@Override
+				public void actionPerformed(ActionEvent e)
+					{
+					setVisible(false);
+					}
+			});
 		prev.addActionListener(new ActionListener()
-		{
-	//r@Override
-			public void actionPerformed(ActionEvent arg0)
 			{
-				findPrevious();
-			}
-		});
-		next.addActionListener(new ActionListener()
-		{
-	//r@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				findNext();
-			}
-		});
-		tFind.addActionListener(new ActionListener()
-		{
-	//r@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				if ((e.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0 ^ FindDialog.backward.isSelected())
+				//r@Override
+				public void actionPerformed(ActionEvent arg0)
+					{
 					findPrevious();
-				else
+					}
+			});
+		next.addActionListener(new ActionListener()
+			{
+				//r@Override
+				public void actionPerformed(ActionEvent arg0)
+					{
 					findNext();
-			}
-		});
-		bReplace.addActionListener(new ActionListener()
-		{
-	//r@Override
-			public void actionPerformed(ActionEvent e)
+					}
+			});
+		tFind.addActionListener(new ActionListener()
 			{
-				if (lastResult == null || !isSelected(lastResult))
-				{
-					if (joshText.sel.isEmpty()) if (!FindDialog.backward.isSelected())
-						findNext();
-					else
+				//r@Override
+				public void actionPerformed(ActionEvent e)
+					{
+					if ((e.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0
+							^ FindDialog.backward.isSelected())
 						findPrevious();
-				}
-				else
-					doReplace();
-			}
-		});
+					else
+						findNext();
+					}
+			});
+		bReplace.addActionListener(new ActionListener()
+			{
+				//r@Override
+				public void actionPerformed(ActionEvent e)
+					{
+					if (lastResult == null || !isSelected(lastResult))
+						{
+						if (joshText.sel.isEmpty()) if (!FindDialog.backward.isSelected())
+							findNext();
+						else
+							findPrevious();
+						}
+					else
+						doReplace();
+					}
+			});
 		swapFnR.addMouseListener(new MouseAdapter()
-		{
-			final Color HIGHLIGHT = new Color(0,128,255);
-
-		//r@Override
-			public void mouseExited(MouseEvent arg0)
 			{
-				JComponent but = (JComponent) arg0.getSource();
-				//				Font mf = but.getFont();
-				//				if ((mf.getStyle() & Font.BOLD) != 0)
-				//					but.setFont(mf.deriveFont(mf.getStyle() & ~Font.BOLD));
-				but.setForeground(Color.BLACK);
-			}
+				final Color HIGHLIGHT = new Color(0,128,255);
 
-		//r@Override
-			public void mouseEntered(MouseEvent arg0)
-			{
-				JComponent but = (JComponent) arg0.getSource();
-				//				Font mf = but.getFont();
-				//				if ((mf.getStyle() & Font.BOLD) == 0)
-				//				{
-				//					orig = mf;
-				//					but.setFont(mf.deriveFont(mf.getStyle() | Font.BOLD));
-				//				}
-				but.setForeground(HIGHLIGHT);
-			}
+				//r@Override
+				public void mouseExited(MouseEvent arg0)
+					{
+					JComponent but = (JComponent) arg0.getSource();
+					//				Font mf = but.getFont();
+					//				if ((mf.getStyle() & Font.BOLD) != 0)
+					//					but.setFont(mf.deriveFont(mf.getStyle() & ~Font.BOLD));
+					but.setForeground(Color.BLACK);
+					}
 
-			@Override
-			public void mouseClicked(MouseEvent arg0)
-			{
-				toggleMode();
-			}
-		});
+				//r@Override
+				public void mouseEntered(MouseEvent arg0)
+					{
+					JComponent but = (JComponent) arg0.getSource();
+					//				Font mf = but.getFont();
+					//				if ((mf.getStyle() & Font.BOLD) == 0)
+					//				{
+					//					orig = mf;
+					//					but.setFont(mf.deriveFont(mf.getStyle() | Font.BOLD));
+					//				}
+					but.setForeground(HIGHLIGHT);
+					}
+
+				@Override
+				public void mouseClicked(MouseEvent arg0)
+					{
+					toggleMode();
+					}
+			});
 
 		setVisible(false);
-	}
+		}
 
 	/** Replace the current selection in the text editor. */
 	public void doReplace()
-	{
+		{
 		UndoPatch up = joshText.new UndoPatch();
 		joshText.sel.insert(tReplace.getText());
 		up.realize(Math.max(joshText.caret.row,joshText.sel.row));
 		joshText.storeUndo(up,OPT.REPLACE);
 		joshText.repaint();
-	}
+		}
 
 	/** Changes our mode between find and find and replace. */
 	protected void toggleMode()
-	{
+		{
 		if (mode != Mode.mode_find)
 			toggleModeFind();
 		else
 			toggleModeReplace();
-	}
+		}
 
 	/** Change the mode to find. */
 	protected void toggleModeFind()
-	{
+		{
 		swapFnR.setText(S_FIND);
 		tFind.setVisible(true);
 		tReplace.setVisible(false);
 		highlight.setVisible(true);
 		bReplace.setVisible(false);
 		mode = Mode.mode_find;
-	}
+		}
 
 	/** Change the mode to find and replace. */
 	protected void toggleModeReplace()
-	{
+		{
 		swapFnR.setText(S_REPL);
 		tFind.setVisible(false);
 		tReplace.setVisible(true);
 		highlight.setVisible(false);
 		bReplace.setVisible(true);
 		mode = Mode.mode_replace;
-	}
+		}
 
 	/** Select find results in the editor.
 	 * @param fr The find results to highlight. */
 	private void selectFind(FindResults fr)
-	{
+		{
 		joshText.caret.row = fr.line;
 		joshText.caret.col = fr.pos;
 		joshText.sel.row = fr.endLine;
 		joshText.sel.col = fr.endPos;
 		joshText.caret.positionChanged();
 		joshText.repaint();
-	}
+		}
 
 	/** Check if a set of find results is currently selected in the editor.
 	 * @param fr The find results to check.
 	 * @return True if the editor's selection mirrors the given find results, false otherwise. */
 	protected boolean isSelected(FindResults fr)
-	{
+		{
 		boolean res = (joshText.caret.row == fr.line && joshText.caret.col == fr.pos
 				&& joshText.sel.row == fr.endLine && joshText.sel.col == fr.endPos);
 		System.out.println("SELECTED: " + res);
 		return res;
-	}
+		}
 
 	/** @see org.lateralgm.joshedit.FindDialog.FindNavigator#findNext()	 */
-//r@Override
+	//r@Override
 	public void findNext()
-	{
-  	if (FindDialog.wrap.isSelected() && joshText.caret.row == joshText.getLineCount() - 1) {
-  		joshText.caret.col = 0;
-  		joshText.caret.row = 0;
-  	}
+		{
+		if (FindDialog.wrap.isSelected() && joshText.caret.row == joshText.getLineCount() - 1)
+			{
+			joshText.caret.col = 0;
+			joshText.caret.row = 0;
+			}
 		// TODO: I have no idea how multiline regexp search will be handled.
 		String ftext = tFind.getText();
 		if (ftext.length() == 0) return;
 		if (FindDialog.regex.isSelected())
-		{
+			{
 			Pattern p;
 			try
-			{
+				{
 				p = Pattern.compile(ftext,Pattern.CASE_INSENSITIVE);
-			}
+				}
 			catch (PatternSyntaxException pse)
-			{
+				{
 				System.out.println("Shit man, your expression sucks");
 				return;
-			}
+				}
 			lastResult = joshText.code.findNext(p,joshText.caret.row,
 					joshText.caret.col + (joshText.sel.isEmpty() ? 0 : 1));
 			if (lastResult != null) selectFind(lastResult);
 			return;
-		}
+			}
 		String[] findme = ftext.split("\r?\n");
 
 		lastResult = joshText.code.findNext(findme,joshText.caret.row,joshText.caret.col
 				+ (joshText.sel.isEmpty() ? 0 : 1));
 		if (lastResult != null) selectFind(lastResult);
 		return;
-	}
-	
+		}
+
 	/** @see org.lateralgm.joshedit.FindDialog.FindNavigator#findPrevious()	 */
-//r@Override
+	//r@Override
 	public void findPrevious()
-	{
-  	if (FindDialog.wrap.isSelected() && joshText.caret.row == joshText.getLineCount() - 1) {
-  		joshText.caret.col = 0;
-  		joshText.caret.row = 0;
-  	}
+		{
+		if (FindDialog.wrap.isSelected() && joshText.caret.row == joshText.getLineCount() - 1)
+			{
+			joshText.caret.col = 0;
+			joshText.caret.row = 0;
+			}
 		String ftext = tFind.getText();
 		if (ftext.length() == 0) return;
 		if (FindDialog.regex.isSelected()) return;
 		String[] findme = ftext.split("\r?\n");
 		lastResult = joshText.code.findPrevious(findme,joshText.caret.row,joshText.caret.col);
 		if (lastResult != null) selectFind(lastResult);
-	}
+		}
 
 	/** @see org.lateralgm.joshedit.FindDialog.FindNavigator#updateParameters(java.lang.String, java.lang.String)	 */
-//r@Override
+	//r@Override
 	public void updateParameters(String find, String replace)
-	{
+		{
 		tFind.setText(find);
 		tReplace.setText(replace);
-	}
+		}
 
 	/** @see org.lateralgm.joshedit.FindDialog.FindNavigator#present() */
-//r@Override
+	//r@Override
 	public void present()
-	{
+		{
 		setVisible(true);
 		tFind.selectAll();
 		tFind.grabFocus();
-	}
+		}
 
 	/** @see org.lateralgm.joshedit.FindDialog.FindNavigator#replaceNext() */
-//r@Override
+	//r@Override
 	public void replaceNext()
-	{
+		{
 		findNext();
 		toggleModeReplace();
-	}
-	
+		}
+
 	public int replaceAll()
-	{
-	  if (FindDialog.wrap.isSelected()) {
-	    joshText.caret.col = 0;
-	    joshText.caret.row = 0;
-    }
-	
-	  int count = 0;
+		{
+		if (FindDialog.wrap.isSelected())
+			{
+			joshText.caret.col = 0;
+			joshText.caret.row = 0;
+			}
+
+		int count = 0;
 		toggleModeReplace();
-		
+
 		String ftext = tFind.getText();
 		if (ftext.length() == 0) return count;
 		if (FindDialog.regex.isSelected())
-		{
+			{
 			Pattern p;
 			try
-			{
+				{
 				p = Pattern.compile(ftext,Pattern.CASE_INSENSITIVE);
-			}
+				}
 			catch (PatternSyntaxException pse)
-			{
+				{
 				System.out.println("Shit man, your expression sucks");
 				return count;
-			}
-			
+				}
+
 			Boolean resultsExist = true;
-			while (resultsExist) {
-			  lastResult = joshText.code.findNext(p,joshText.caret.row,
-					  joshText.caret.col + (joshText.sel.isEmpty() ? 0 : 1));
-			  if (lastResult != null) 
-			  {
-			    selectFind(lastResult);
-			    doReplace();
-			    count += 1;
-		  	} else {
-		  	  resultsExist = false;
-		  	}
-			}
+			while (resultsExist)
+				{
+				lastResult = joshText.code.findNext(p,joshText.caret.row,
+						joshText.caret.col + (joshText.sel.isEmpty() ? 0 : 1));
+				if (lastResult != null)
+					{
+					selectFind(lastResult);
+					doReplace();
+					count += 1;
+					}
+				else
+					{
+					resultsExist = false;
+					}
+				}
 
 			return count;
-		}
+			}
 		String[] findme = ftext.split("\r?\n");
-		
+
 		Boolean resultsExist = true;
-		while (resultsExist) {
-		  lastResult = joshText.code.findNext(findme,joshText.caret.row,joshText.caret.col
-				+ (joshText.sel.isEmpty() ? 0 : 1));
-		  if (lastResult != null) 
-		  {
-		    selectFind(lastResult);
-		    doReplace();
-		    count += 1;
-	  	} else {
-	  	  resultsExist = false;
-	  	}
-		}
-		
+		while (resultsExist)
+			{
+			lastResult = joshText.code.findNext(findme,joshText.caret.row,joshText.caret.col
+					+ (joshText.sel.isEmpty() ? 0 : 1));
+			if (lastResult != null)
+				{
+				selectFind(lastResult);
+				doReplace();
+				count += 1;
+				}
+			else
+				{
+				resultsExist = false;
+				}
+			}
+
 		return count;
-	}
+		}
 
 	/** @see org.lateralgm.joshedit.FindDialog.FindNavigator#replacePrevious() */
-//r@Override
+	//r@Override
 	public void replacePrevious()
-	{
+		{
 		findPrevious();
 		toggleModeReplace();
+		}
 	}
-}

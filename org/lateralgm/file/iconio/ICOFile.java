@@ -259,8 +259,8 @@ public class ICOFile implements Comparable<ICOFile>
 	 * @return Bitmap, type depends on BPP
 	 * @throws IOException
 	 */
-	private static AbstractBitmap readBitmap(final StreamDecoder pDec, final BitmapDescriptor pDescriptor)
-			throws IOException
+	private static AbstractBitmap readBitmap(final StreamDecoder pDec,
+			final BitmapDescriptor pDescriptor) throws IOException
 		{
 		final int lBitsPerPixel = pDescriptor.getHeader().getBPP();
 
@@ -299,14 +299,15 @@ public class ICOFile implements Comparable<ICOFile>
 		return lBitmap;
 		}
 
-	public byte[] getDigest(String method) throws IOException, NoSuchAlgorithmException {
+	public byte[] getDigest(String method) throws IOException,NoSuchAlgorithmException
+		{
 		byte[][] bitmaps = getBitmaps();
 		MessageDigest md5 = MessageDigest.getInstance(method);
 		for (byte[] bitmap : bitmaps)
 			md5.update(bitmap);
 		return md5.digest();
-	}
-	
+		}
+
 	/**
 	 * Get all contained images (comfort method).
 	 * 
@@ -457,12 +458,15 @@ public class ICOFile implements Comparable<ICOFile>
 
 	public Image getDisplayImage()
 		{
-			BitmapDescriptor desc = descriptors.get(descriptors.size() - 1);
-			if (desc != null) {
-				return desc.getImageRGB();
-			} else {
-				return null;
+		BitmapDescriptor desc = descriptors.get(descriptors.size() - 1);
+		if (desc != null)
+			{
+			return desc.getImageRGB();
 			}
-		
+		else
+			{
+			return null;
+			}
+
 		}
 	}

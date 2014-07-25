@@ -139,7 +139,7 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 		layout.setAutoCreateContainerGaps(true);
 		//this.setLayout(layout);
 		content.setLayout(layout);
-		
+
 		this.setLayout(new BorderLayout());
 
 		toolbar = new JToolBar();
@@ -156,11 +156,11 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 		toolbar.add(importBut);
 		toolbar.addSeparator();
 		toolbar.add(new JLabel("Configuration:"));
-		String strs[] = {"All Configurations", "Default"};
+		String strs[] = { "All Configurations","Default" };
 		JComboBox<String> configCombo = new JComboBox<String>(strs);
-		configCombo.setMaximumSize(new Dimension(130, 22));
+		configCombo.setMaximumSize(new Dimension(130,22));
 		toolbar.add(configCombo);
-		
+
 		this.add(toolbar,BorderLayout.NORTH);
 		this.add(content,BorderLayout.CENTER);
 
@@ -307,7 +307,7 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 			return;
 			}
 		}
-	
+
 	private void importConstants()
 		{
 		if (constantsFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)

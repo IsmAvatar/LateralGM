@@ -21,64 +21,64 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.subframes.RoomFrame;
 
 public class MovePieceInstance extends AbstractUndoableEdit
-{
-  private static final long serialVersionUID = 1L;
+	{
+	private static final long serialVersionUID = 1L;
 
-  private Piece piece;
-  private Point oldPosition;
-  private Point newPosition;
-  private RoomFrame roomFrame;
+	private Piece piece;
+	private Point oldPosition;
+	private Point newPosition;
+	private RoomFrame roomFrame;
 
-  public MovePieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition, Point newPosition)
-  { 
-  	this.piece = piece;
-  	this.oldPosition = oldPosition;
-  	this.newPosition = newPosition;
-  	this.roomFrame = roomFrame;
-  }
+	public MovePieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition, Point newPosition)
+		{
+		this.piece = piece;
+		this.oldPosition = oldPosition;
+		this.newPosition = newPosition;
+		this.roomFrame = roomFrame;
+		}
 
-  public void undo() throws CannotUndoException
-  {
+	public void undo() throws CannotUndoException
+		{
 		// Select the current piece
 		if (piece instanceof Instance)
 			{
-		  roomFrame.oList.setSelectedValue(piece,true);
+			roomFrame.oList.setSelectedValue(piece,true);
 			roomFrame.fireObjUpdate();
 			}
 		else
 			{
-		  roomFrame.tList.setSelectedValue(piece,true);
+			roomFrame.tList.setSelectedValue(piece,true);
 			roomFrame.fireTileUpdate();
 			}
 
-  	piece.setPosition(oldPosition);
-  }
+		piece.setPosition(oldPosition);
+		}
 
-  public void redo() throws CannotRedoException
-  {
+	public void redo() throws CannotRedoException
+		{
 		// Select the current piece
 		if (piece instanceof Instance)
 			{
-		  roomFrame.oList.setSelectedValue(piece,true);
+			roomFrame.oList.setSelectedValue(piece,true);
 			roomFrame.fireObjUpdate();
 			}
 		else
 			{
-		  roomFrame.tList.setSelectedValue(piece,true);
+			roomFrame.tList.setSelectedValue(piece,true);
 			roomFrame.fireTileUpdate();
 			}
-  
+
 		piece.setPosition(newPosition);
-  }
+		}
 
-  public boolean canUndo()
-  {
-     return true;
-  }
+	public boolean canUndo()
+		{
+		return true;
+		}
 
-  public boolean canRedo()
-  {
-     return true;
-  }
+	public boolean canRedo()
+		{
+		return true;
+		}
 
-}
+	}

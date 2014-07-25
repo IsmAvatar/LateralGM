@@ -69,11 +69,11 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	public ActionList actions;
 	public CodeTextArea code;
 	private JComponent editor;
-	
+
 	private ResourceInfoFrame infoFrame;
 
 	public TimelineFrame(Timeline res, ResNode node)
-	{
+		{
 		super(res,node);
 		GroupLayout layout = new GroupLayout(getContentPane());
 		setLayout(layout);
@@ -88,57 +88,66 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		moments = new JList<Moment>(res.moments.toArray(new Moment[res.moments.size()]));
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
-		
+
 		// This listener should be added to each node maybe 
 		// otherwise you can click on the whitespace and open it
 		// but then again I suppose its fine like this because I have
 		// ensured checks to make sure there are no NPE's trying to edit
 		// an event that don't exist. Meh, this is fine as is.
-		MouseListener ml = new MouseAdapter() {
-    public void mousePressed(MouseEvent e) {
-        if (e.getClickCount() == 2) {
-          editSelectedMoment();
-        }
-      }
-    };
-    moments.addMouseListener(ml);
-		
+		MouseListener ml = new MouseAdapter()
+			{
+				public void mousePressed(MouseEvent e)
+					{
+					if (e.getClickCount() == 2)
+						{
+						editSelectedMoment();
+						}
+					}
+			};
+		moments.addMouseListener(ml);
+
 		JScrollPane scroll = new JScrollPane(moments);
-		if (Prefs.enableDragAndDrop) {
-	    scroll.setPreferredSize(new Dimension(90,300));
-	  } else {
-	    scroll.setPreferredSize(new Dimension(200,400));
-	  }
-	  side2.add(scroll,BorderLayout.CENTER);
+		if (Prefs.enableDragAndDrop)
+			{
+			scroll.setPreferredSize(new Dimension(90,300));
+			}
+		else
+			{
+			scroll.setPreferredSize(new Dimension(200,400));
+			}
+		side2.add(scroll,BorderLayout.CENTER);
 
 		actions = new ActionList(this);
-		if (Prefs.enableDragAndDrop) {
-		  editor = new ActionListEditor(actions);
-		}
-	
+		if (Prefs.enableDragAndDrop)
+			{
+			editor = new ActionListEditor(actions);
+			}
+
 		SequentialGroup sg = layout.createSequentialGroup()
 		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addComponent(side2);
-		if (Prefs.enableDragAndDrop) {
-		  sg.addComponent(editor);
-		}
+		if (Prefs.enableDragAndDrop)
+			{
+			sg.addComponent(editor);
+			}
 		layout.setHorizontalGroup(sg);
-		
+
 		ParallelGroup pg = layout.createParallelGroup()
 		/**/.addComponent(side1)
 		/**/.addComponent(side2);
-		if (Prefs.enableDragAndDrop) {
-		  pg.addComponent(editor);
-		}
+		if (Prefs.enableDragAndDrop)
+			{
+			pg.addComponent(editor);
+			}
 		layout.setVerticalGroup(pg);
 
 		pack();
 
 		moments.setSelectedIndex(0);
-	}
+		}
 
 	private void makeSide1(JPanel side1)
-	{
+		{
 		GroupLayout layout = new GroupLayout(side1);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
@@ -164,8 +173,8 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		merge.addActionListener(this);
 		clear = new JButton(Messages.getString("TimelineFrame.CLEAR")); //$NON-NLS-1$
 		clear.addActionListener(this);
-		
-	  showInfo = new JButton(Messages.getString("TimelineFrame.SHOWINFORMATION")); //$NON-NLS-1$
+
+		showInfo = new JButton(Messages.getString("TimelineFrame.SHOWINFORMATION")); //$NON-NLS-1$
 		showInfo.addActionListener(this);
 		showInfo.setIcon(LGM.getIconForKey("TimelineFrame.SHOWINFORMATION"));
 
@@ -175,7 +184,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(lab)
 		/*		*/.addComponent(name,DEFAULT_SIZE,120,MAX_VALUE))
-	  /**/.addComponent(edit,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(edit,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addGroup(layout.createParallelGroup()
 		/*				*/.addComponent(add,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
@@ -189,7 +198,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		/**/.addComponent(clear,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(showInfo,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
-		
+
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lab)
@@ -211,61 +220,65 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		/**/.addComponent(showInfo)
 		/**/.addGap(32,32,MAX_VALUE)
 		/**/.addComponent(save));
-	}
+		}
 
 	protected boolean areResourceFieldsEqual()
-// return new ResourceComparator().areEqual(res.moments,resOriginal.moments);
+	// return new ResourceComparator().areEqual(res.moments,resOriginal.moments);
 		{
 		return Util.areInherentlyUniquesEqual(res.moments,resOriginal.moments);
 		}
 
 	public void commitChanges()
-	{
+		{
 		actions.save();
 		res.setName(name.getText());
-	}
-	
+		}
+
 	public void showInfoFrame()
-	{
-	  // The first code here is a little routine to realize all changes to every moments actions
+		{
+		// The first code here is a little routine to realize all changes to every moments actions
 		// NOTE: This does affect reverting the resource, just makes it so
 		// the info frame can use the up to date version.
 		ListModel<Moment> mommodel = moments.getModel();
-		
-		if (mommodel.getSize() > 0) {
-	    Moment node = (Moment)mommodel.getElementAt(moments.getSelectedIndex());
-	    if (node != null) {
-	      actions.setActionContainer(node);
-	    }
+
+		if (mommodel.getSize() > 0)
+			{
+			Moment node = (Moment) mommodel.getElementAt(moments.getSelectedIndex());
+			if (node != null)
+				{
+				actions.setActionContainer(node);
+				}
+			}
+		if (infoFrame == null)
+			{
+			infoFrame = new ResourceInfoFrame();
+			}
+		infoFrame.updateTimelineInfo(res.reference);
+		infoFrame.setVisible(true);
 		}
-    if (infoFrame == null) {
-      infoFrame = new ResourceInfoFrame();
-    }
-    infoFrame.updateTimelineInfo(res.reference);
-    infoFrame.setVisible(true);	
-	}
 
 	@Override
 	public void dispose()
-	{
+		{
 		super.dispose();
-		if (infoFrame != null) {
-		  infoFrame.dispose();
-		}
+		if (infoFrame != null)
+			{
+			infoFrame.dispose();
+			}
 		//NOTE: Uncomment this to have the action frames close when the timeline frame closes.
 		//((ActionListEditor) editor).dispose();
-	}
-	
+		}
+
 	public void actionPerformed(ActionEvent e)
-	{
-		if (!(e.getSource() instanceof JButton))
 		{
+		if (!(e.getSource() instanceof JButton))
+			{
 			super.actionPerformed(e);
 			return;
-		}
+			}
 		JButton but = (JButton) e.getSource();
 		if (but == add || but == change || but == duplicate)
-		{
+			{
 			Moment m = (Moment) moments.getSelectedValue();
 			if (m == null && but != add) return;
 			int sn = (m == null) ? -1 : m.stepNo;
@@ -289,16 +302,16 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			if (ret == sn) return;
 			int p = -Collections.binarySearch(res.moments,ret) - 1;
 			if (but == add)
-			{
-				if (p < 0)
 				{
+				if (p < 0)
+					{
 					moments.setSelectedIndex(-p);
 					return;
-				}
+					}
 				Moment m2 = new Moment();
 				m2.stepNo = ret;
 				res.moments.add(p,m2);
-			}
+				}
 			else if (but == change)
 				{
 				if (p < 0)
@@ -342,15 +355,16 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			moments.setSelectedIndex(Math.min(res.moments.size() - 1,p));
 			return;
 			}
-		if (but == showInfo) {
-		  showInfoFrame();
-	    return;
-		}
-		if (but == edit) 
-		{
-      editSelectedMoment();
-      return;
-		}
+		if (but == showInfo)
+			{
+			showInfoFrame();
+			return;
+			}
+		if (but == edit)
+			{
+			editSelectedMoment();
+			return;
+			}
 		if (but == clear)
 			{
 			if (res.moments.size() == 0) return;
@@ -416,43 +430,45 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		}
 
 	private void editSelectedMoment()
-	{
-	  int p = moments.getSelectedIndex();
-	  if (p == -1) return;
-    Action a = null;
-    LibAction la = null;
-    Boolean prependNew = true;
-    
-	  for (int i = 0; i < actions.model.list.size(); i++) {
-  		a = actions.model.list.get(i);
-  		la = a.getLibAction();
-  		if (la.actionKind == Action.ACT_CODE) {
-	    		prependNew = false;
-	    		break;
-  		}
-	  }
+		{
+		int p = moments.getSelectedIndex();
+		if (p == -1) return;
+		Action a = null;
+		LibAction la = null;
+		Boolean prependNew = true;
 
-    if (prependNew)
-    {
-      a = new Action(LibManager.codeAction);
-	    ((ActionListModel) actions.getModel()).add(0,a);
-	    actions.setSelectedValue(a, true);
-    }
+		for (int i = 0; i < actions.model.list.size(); i++)
+			{
+			a = actions.model.list.get(i);
+			la = a.getLibAction();
+			if (la.actionKind == Action.ACT_CODE)
+				{
+				prependNew = false;
+				break;
+				}
+			}
 
-	  MDIFrame af = ActionList.openActionFrame(actions.parent.get(), a);
-	  Object momentitem = moments.getSelectedValue();
-	  af.setTitle(this.name.getText() + " : " + momentitem.toString());
-	  af.setFrameIcon(LGM.getIconForKey("MomentNode.STEP"));
-	  return;
-  }
+		if (prependNew)
+			{
+			a = new Action(LibManager.codeAction);
+			((ActionListModel) actions.getModel()).add(0,a);
+			actions.setSelectedValue(a,true);
+			}
+
+		MDIFrame af = ActionList.openActionFrame(actions.parent.get(),a);
+		Object momentitem = moments.getSelectedValue();
+		af.setTitle(this.name.getText() + " : " + momentitem.toString());
+		af.setFrameIcon(LGM.getIconForKey("MomentNode.STEP"));
+		return;
+		}
 
 	//Moments selection changed
 	public void valueChanged(ListSelectionEvent e)
-	{
+		{
 		if (e.getValueIsAdjusting()) return;
 		Moment m = (Moment) moments.getSelectedValue();
 		actions.setActionContainer(m);
-	}
+		}
 
 	@Override
 	public Dimension getMinimumSize()

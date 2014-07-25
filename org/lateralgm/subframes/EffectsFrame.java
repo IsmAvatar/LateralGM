@@ -38,17 +38,18 @@ public class EffectsFrame extends JFrame
 	 */
 	private static final long serialVersionUID = 4668913557919192011L;
 	private BufferedImage image = null;
-	
-	public EffectsFrame(BufferedImage source) {
-  	setAlwaysOnTop(true);
-  	setDefaultCloseOperation(HIDE_ON_CLOSE);
-  	setSize(600,400);
-  	setLocationRelativeTo(LGM.frame);
-  	setTitle(Messages.getString("EffectsFrame.TITLE"));
-  	setIconImage(LGM.getIconForKey("EffectsFrame.TITLE").getImage());
-  	setResizable(true);
-  	
+
+	public EffectsFrame(BufferedImage source)
+		{
+		setAlwaysOnTop(true);
+		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		setSize(600,400);
+		setLocationRelativeTo(LGM.frame);
+		setTitle(Messages.getString("EffectsFrame.TITLE"));
+		setIconImage(LGM.getIconForKey("EffectsFrame.TITLE").getImage());
+		setResizable(true);
+
 		image = source;
-	}
-	
+		}
+
 	}

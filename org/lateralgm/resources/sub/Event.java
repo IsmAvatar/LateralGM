@@ -24,7 +24,7 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 
-public class Event extends ActionContainer implements Comparable<Event>, InherentlyUnique<Event>
+public class Event extends ActionContainer implements Comparable<Event>,InherentlyUnique<Event>
 	{
 	// mouse event types
 	public static final byte EV_LEFT_BUTTON = 0;
@@ -81,7 +81,7 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 	public static final byte EV_ENTER_KEY = 13;
 	public static final byte EV_DELETE_KEY = 46;
 	public static final byte EV_INSERT_KEY = 45;
-	
+
 	// other event types
 	public static final byte EV_OUTSIDE = 0;
 	public static final byte EV_BOUNDARY = 1;
@@ -154,7 +154,7 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 	public static final byte EV_ALARM9 = 9;
 	public static final byte EV_ALARM10 = 10;
 	public static final byte EV_ALARM11 = 11;
-	
+
 	// draw event types
 	public static final byte EV_DRAW_NORMAL = 0;
 	// for whatever dumbfuck reason the number jumps to 64 with GMX
@@ -257,20 +257,20 @@ public class Event extends ActionContainer implements Comparable<Event>, Inheren
 		return KeyEvent.getKeyText(keyCode);
 		}
 
-/*	public static int getGmKeyCode(int keyCode)
-		{
-		switch (keyCode)
+	/*	public static int getGmKeyCode(int keyCode)
 			{
-			case KeyEvent.VK_ENTER:
-				return 13;
-			case KeyEvent.VK_DELETE:
-				return 46;
-			case KeyEvent.VK_INSERT:
-				return 45;
-			default:
-				return keyCode;
-			}
-		}*/
+			switch (keyCode)
+				{
+				case KeyEvent.VK_ENTER:
+					return 13;
+				case KeyEvent.VK_DELETE:
+					return 46;
+				case KeyEvent.VK_INSERT:
+					return 45;
+				default:
+					return keyCode;
+				}
+			}*/
 
 	public static String eventName(int mainId, int eventId)
 		{

@@ -20,53 +20,53 @@ import org.lateralgm.resources.Room.Piece;
 import org.lateralgm.subframes.RoomFrame;
 
 public class RemovePieceInstance extends AbstractUndoableEdit
-{
+	{
 	private static final long serialVersionUID = 1L;
 
-  private Piece piece;
-  private int index;
-  private RoomFrame roomFrame;
+	private Piece piece;
+	private int index;
+	private RoomFrame roomFrame;
 
-  public RemovePieceInstance(RoomFrame roomFrame, Piece piece, int index)
-  {
-  	this.piece = piece;
-  	this.index = index;
-  	this.roomFrame = roomFrame;
-  }
+	public RemovePieceInstance(RoomFrame roomFrame, Piece piece, int index)
+		{
+		this.piece = piece;
+		this.index = index;
+		this.roomFrame = roomFrame;
+		}
 
-  public void undo() throws CannotUndoException
-  {
+	public void undo() throws CannotUndoException
+		{
 		if (piece instanceof Instance)
 			{
-			roomFrame.res.instances.add(index, (Instance)piece);
+			roomFrame.res.instances.add(index,(Instance) piece);
 			roomFrame.oList.setSelectedValue(piece,true);
 			roomFrame.fireObjUpdate();
 			}
 		else
 			{
-			roomFrame.res.tiles.add(index, (Tile)piece);
+			roomFrame.res.tiles.add(index,(Tile) piece);
 			roomFrame.tList.setSelectedValue(piece,true);
 			roomFrame.fireTileUpdate();
 			}
 
-  }
+		}
 
-  public void redo() throws CannotRedoException
-  {
+	public void redo() throws CannotRedoException
+		{
 		if (piece instanceof Instance)
 			roomFrame.res.instances.remove(index);
 		else
 			roomFrame.res.tiles.remove(index);
-  }
+		}
 
-  public boolean canUndo()
-  {
-     return true;
-  }
+	public boolean canUndo()
+		{
+		return true;
+		}
 
-  public boolean canRedo()
-  {
-     return true;
-  }
+	public boolean canRedo()
+		{
+		return true;
+		}
 
-}
+	}

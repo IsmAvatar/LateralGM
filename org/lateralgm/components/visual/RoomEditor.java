@@ -79,7 +79,7 @@ public class RoomEditor extends VisualPanel
 
 	// Save the original position of a selected piece (Used when moving an object for the undo)
 	private Point objectFirstPosition = null;
-	
+
 	public enum PRoomEditor
 		{
 		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
@@ -169,36 +169,40 @@ public class RoomEditor extends VisualPanel
 		// If the piece was moved
 		if (objectFirstPosition != null)
 			// For the undo, record that the object was moved
-			edit = new MovePieceInstance(frame, cursor, objectFirstPosition, new Point(lastPosition));
+			edit = new MovePieceInstance(frame,cursor,objectFirstPosition,new Point(lastPosition));
 		else
-		// A new piece has been added
+			// A new piece has been added
 			{
-				if (cursor instanceof Instance)
-					edit = new AddPieceInstance(frame, cursor, room.instances.size() -1);
-				else
-					edit = new AddPieceInstance(frame, cursor, room.tiles.size() -1);
+			if (cursor instanceof Instance)
+				edit = new AddPieceInstance(frame,cursor,room.instances.size() - 1);
+			else
+				edit = new AddPieceInstance(frame,cursor,room.tiles.size() - 1);
 			}
-		
+
 		compoundEdit.addEdit(edit);
 		objectFirstPosition = null;
-		
+
 		//it must be guaranteed that cursor != null
 		boolean deleteUnderlyingObjects = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 		boolean deleteUnderlyingTiles = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
-		
+
 		if (deleteUnderlyingObjects && cursor instanceof Instance)
-			deleteUnderlying(roomVisual.intersectInstances(new Rectangle(lastPosition.x,lastPosition.y,1,1)),room.instances, compoundEdit);
+			deleteUnderlying(
+					roomVisual.intersectInstances(new Rectangle(lastPosition.x,lastPosition.y,1,1)),
+					room.instances,compoundEdit);
 		else if (deleteUnderlyingTiles && cursor instanceof Tile)
-			deleteUnderlying(roomVisual.intersectTiles(new Rectangle(lastPosition.x,lastPosition.y,1,1),getTileDepth()),room.tiles, compoundEdit);
-		
+			deleteUnderlying(
+					roomVisual.intersectTiles(new Rectangle(lastPosition.x,lastPosition.y,1,1),getTileDepth()),
+					room.tiles,compoundEdit);
+
 		// Save the action for the undo
 		compoundEdit.end();
-		frame.undoSupport.postEdit( compoundEdit );
+		frame.undoSupport.postEdit(compoundEdit);
 
 		unlockBounds();
 		cursor = null;
 		}
- 
+
 	private <T>void deleteUnderlying(Iterator<T> i, ActiveArrayList<T> l, CompoundEdit compoundEdit)
 		{
 		HashSet<T> s = new HashSet<T>();
@@ -207,18 +211,18 @@ public class RoomEditor extends VisualPanel
 			T t = i.next();
 			if (t != cursor)
 				{
-					UndoableEdit edit;
-					
-	      	// Record the effect of removing an piece for the undo
-					if (cursor instanceof Instance)
-						 edit = new RemovePieceInstance(frame, (Piece)t, room.instances.indexOf(t));
-					else
-						 edit = new RemovePieceInstance(frame, (Piece)t, room.tiles.indexOf(t));
-					
-					 compoundEdit.addEdit(edit);
+				UndoableEdit edit;
+
+				// Record the effect of removing an piece for the undo
+				if (cursor instanceof Instance)
+					edit = new RemovePieceInstance(frame,(Piece) t,room.instances.indexOf(t));
+				else
+					edit = new RemovePieceInstance(frame,(Piece) t,room.tiles.indexOf(t));
+
+				compoundEdit.addEdit(edit);
 
 				s.add(t);
-				
+
 				}
 			}
 		l.removeAll(s);
@@ -249,33 +253,34 @@ public class RoomEditor extends VisualPanel
 			frame.processFocusLost();
 			this.requestFocusInWindow();
 			}
-		
+
 		boolean shiftKeyPressed = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
-		
+
 		// If the ctrl key is pressed, move the object
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
 			if (pressed && mc != null && !mc.isLocked())
 				{
-					// Record the original position of the object (without snapping) for the undo
-					objectFirstPosition = mc.getPosition();
-					
-					setCursor(mc);
+				// Record the original position of the object (without snapping) for the undo
+				objectFirstPosition = mc.getPosition();
+
+				setCursor(mc);
 				}
-			
+
 			}
 		else
 			{
 			// If the shift key is pressed, add objects under the cursor
-			if (shiftKeyPressed && cursor != null) if (!roomVisual.intersects(new Rectangle(p.x,p.y,1,1),cursor))
-				{
-				releaseCursor(p);
-				pressed = true; //ensures that a new instance is created below
-				}
-			
+			if (shiftKeyPressed && cursor != null)
+				if (!roomVisual.intersects(new Rectangle(p.x,p.y,1,1),cursor))
+					{
+					releaseCursor(p);
+					pressed = true; //ensures that a new instance is created below
+					}
+
 			if (pressed && cursor == null)
 				{
-				
+
 				if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 					{
 					ResourceReference<Background> bkg = frame.taSource.getSelected();
@@ -285,13 +290,13 @@ public class RoomEditor extends VisualPanel
 					t.properties.put(PTile.BACKGROUND,bkg);
 					t.setBackgroundPosition(new Point(frame.tSelect.tx,frame.tSelect.ty));
 					t.setPosition(p);
-					
+
 					if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
 						t.setSize(new Dimension(b.getWidth(),b.getHeight()));
 					else
 						t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
 								(Integer) b.get(PBackground.TILE_HEIGHT)));
-					
+
 					t.setDepth((Integer) frame.taDepth.getValue());
 					room.tiles.add(t);
 					setCursor(t);
@@ -310,8 +315,7 @@ public class RoomEditor extends VisualPanel
 					}
 				}
 			}
-		if (cursor != null && !shiftKeyPressed)
-			cursor.setPosition(p);
+		if (cursor != null && !shiftKeyPressed) cursor.setPosition(p);
 		}
 
 	private void processRightButton(int modifiers, boolean pressed, final Piece mc, Point p)
@@ -322,7 +326,7 @@ public class RoomEditor extends VisualPanel
 			frame.processFocusLost();
 			this.requestFocusInWindow();
 			}
-		
+
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
 			if (!pressed) return;
@@ -366,7 +370,7 @@ public class RoomEditor extends VisualPanel
 				{
 				pieceIndex = room.instances.indexOf(mc);
 				if (pieceIndex == -1) return;
-				
+
 				alist = room.instances;
 				jlist = frame.oList;
 				CodeFrame fr = frame.codeFrames.get(mc);
@@ -382,11 +386,11 @@ public class RoomEditor extends VisualPanel
 			else
 				return; //unknown component with unknown lists
 
-      // Record the effect of removing an object for the undo
-			UndoableEdit edit = new RemovePieceInstance(frame, mc, pieceIndex);
-      // notify the listeners
-			frame.undoSupport.postEdit( edit );
-			 
+			// Record the effect of removing an object for the undo
+			UndoableEdit edit = new RemovePieceInstance(frame,mc,pieceIndex);
+			// notify the listeners
+			frame.undoSupport.postEdit(edit);
+
 			int i2 = jlist.getSelectedIndex();
 			alist.remove(pieceIndex);
 			jlist.setSelectedIndex(Math.min(alist.size() - 1,i2));
@@ -409,7 +413,7 @@ public class RoomEditor extends VisualPanel
 			int sy = room.get(PRoom.SNAP_Y);
 			int ox = properties.get(PRoomEditor.GRID_OFFSET_X);
 			int oy = properties.get(PRoomEditor.GRID_OFFSET_Y);
-			
+
 			if (room.get(PRoom.ISOMETRIC))
 				{
 				int gx = ox + negDiv(x - ox,sx) * sx;
@@ -424,14 +428,14 @@ public class RoomEditor extends VisualPanel
 				y = oy + negDiv(y - oy,sy) * sy;
 				}
 			}
-		
+
 		frame.statX.setText(Messages.getString("RoomFrame.STAT_X") + x); //$NON-NLS-1$
 		frame.statY.setText(Messages.getString("RoomFrame.STAT_Y") + y); //$NON-NLS-1$
 		frame.statId.setText(""); //$NON-NLS-1$
 		frame.statSrc.setText(""); //$NON-NLS-1$
 
 		Piece mc = null;
-		
+
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 			{
 			Tile tile = getTopPiece(currentPosition,Tile.class,getTileDepth());
@@ -451,10 +455,10 @@ public class RoomEditor extends VisualPanel
 			}
 		else
 			{
-			
+
 			Instance instance = getTopPiece(currentPosition,Instance.class);
 			mc = instance;
-			
+
 			if (instance != null)
 				{
 				String idt = Messages.getString("RoomFrame.STAT_ID") //$NON-NLS-1$
@@ -472,9 +476,8 @@ public class RoomEditor extends VisualPanel
 
 		if ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0)
 			processLeftButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,new Point(x,y));
-		else if (cursor != null)
-				releaseCursor(new Point(x,y));
-		
+		else if (cursor != null) releaseCursor(new Point(x,y));
+
 		if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
 			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,currentPosition); //use mouse point
 		}
@@ -545,8 +548,8 @@ public class RoomEditor extends VisualPanel
 							//Some of these settings aren't reflected in the
 							//PRoom structure, so we just discard them for now.
 						}
-			default:
-				break;
+				default:
+					break;
 				}
 			}
 		}
@@ -611,27 +614,25 @@ public class RoomEditor extends VisualPanel
 				}
 			return v;
 			}
-		
+
 		// Set the 'object to follow' coordinates for each view in the room
 		private void updateViewsObjectFollowingProperty()
 			{
 			// If the views are not enabled
-			if ((Boolean) room.get(PRoom.VIEWS_ENABLED) == false)
-				return;
+			if ((Boolean) room.get(PRoom.VIEWS_ENABLED) == false) return;
 
 			for (View view : room.views)
 				{
 				// If the view is not visible, don't show it
-				if ((Boolean) view.properties.get(PView.VISIBLE) == false)
-					return;
-				
+				if ((Boolean) view.properties.get(PView.VISIBLE) == false) return;
+
 				// Get the reference to the 'Object following' object
 				ResourceReference<GmObject> objectToFollowReference = null;
-				
+
 				// If there is 'Object following' object for the selected view
 				if (view.properties.get(PView.OBJECT) != null)
 					objectToFollowReference = view.properties.get(PView.OBJECT);
-				
+
 				// If there is no object to follow, reset the corresponding view properties
 				if (objectToFollowReference == null)
 					{
@@ -639,21 +640,21 @@ public class RoomEditor extends VisualPanel
 					view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
 					continue;
 					}
-				
+
 				Instance instanceToFollow = null;
-				
+
 				// get the first instance in the room
 				for (Instance instance : room.instances)
 					{
-						ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
-							
-						if (instanceObject == objectToFollowReference)
-							{
-							instanceToFollow = instance;
-							break;
-							}
+					ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+
+					if (instanceObject == objectToFollowReference)
+						{
+						instanceToFollow = instance;
+						break;
+						}
 					}
-				
+
 				// If there is an instance to follow
 				if (instanceToFollow != null)
 					{
@@ -661,18 +662,18 @@ public class RoomEditor extends VisualPanel
 					Point viewPosition = new Point(0,0);
 					int viewWidth = (Integer) view.properties.get(PView.VIEW_W);
 					int viewHeight = (Integer) view.properties.get(PView.VIEW_H);
-					
+
 					// Get the instance position
 					Point instancePosition = new Point(0,0);
 					instancePosition.x = (Integer) instanceToFollow.properties.get(PInstance.X);
 					instancePosition.y = (Integer) instanceToFollow.properties.get(PInstance.Y);
-	
+
 					viewPosition.x = instancePosition.x - viewWidth / 2;
 					viewPosition.y = instancePosition.y - viewHeight / 2;
-	
+
 					// Set this new location into the view properties
-					view.properties.put(PView.OBJECT_FOLLOWING_X, viewPosition.x);
-					view.properties.put(PView.OBJECT_FOLLOWING_Y, viewPosition.y);
+					view.properties.put(PView.OBJECT_FOLLOWING_X,viewPosition.x);
+					view.properties.put(PView.OBJECT_FOLLOWING_Y,viewPosition.y);
 					}
 				else
 					{

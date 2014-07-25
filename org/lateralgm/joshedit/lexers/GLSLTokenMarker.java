@@ -40,16 +40,16 @@ import org.lateralgm.joshedit.DefaultKeywords.Variable;
  * Sample GLSL token marker class based on the default token marker.
  */
 public class GLSLTokenMarker extends DefaultTokenMarker
-{
+	{
 
-private static final Color BROWN = new Color(200,0,0);
-private static final Color FUNCTION = new Color(0,100,150);
-//new Color(255,0,128);
-static KeywordSet resNames, scrNames, constructs, functions, operators, constants, variables;
+	private static final Color BROWN = new Color(200,0,0);
+	private static final Color FUNCTION = new Color(0,100,150);
+	//new Color(255,0,128);
+	static KeywordSet resNames, scrNames, constructs, functions, operators, constants, variables;
 
 	/** Construct, populating language data. */
 	public GLSLTokenMarker()
-	{
+		{
 		super();
 		schemes.add(new BlockDescriptor("Javadoc","/\\*(?=\\*)","\\*/",new Color(128,128,255),Font.BOLD));
 		schemes.add(new BlockDescriptor("Block Comment","/(?=\\*)","\\*/",new Color(13,135,13),
@@ -58,28 +58,33 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 		schemes.add(new BlockDescriptor("Line Comment","//","$",new Color(13,135,13),Font.ITALIC));
 		schemes.add(new BlockDescriptor("Double Quote String","\"","\"",new Color(0,0,255),0));
 		schemes.add(new BlockDescriptor("Single Quote String","'","'",new Color(0,0,255),0));
-		
-		functions = addKeywordSet("Functions", FUNCTION, Font.PLAIN);
-		for (Function f : GLSLKeywords.FUNCTIONS) {
-			Collections.addAll(functions.words, f.getName());
-		}
-		constructs = addKeywordSet("Constructs", FUNCTION, Font.BOLD);
-		for (Construct c : GLSLKeywords.CONSTRUCTS) {
-			Collections.addAll(constructs.words, c.getName());
-		}
-		operators = addKeywordSet("Operators", Color.BLACK ,Font.BOLD);
-		for (Operator o : GLSLKeywords.OPERATORS) {
-			Collections.addAll(functions.words, o.getName());
-		}
-		constants = addKeywordSet("Constants", BROWN, Font.PLAIN);
-		for (Constant c : GLSLKeywords.CONSTANTS) {
-			Collections.addAll(constants.words, c.getName());
-		}
-		variables = addKeywordSet("Variables", Color.BLUE, Font.ITALIC);
-		for (Variable v : GLSLKeywords.VARIABLES) {
-			Collections.addAll(variables.words, v.getName());
-		}
-		
+
+		functions = addKeywordSet("Functions",FUNCTION,Font.PLAIN);
+		for (Function f : GLSLKeywords.FUNCTIONS)
+			{
+			Collections.addAll(functions.words,f.getName());
+			}
+		constructs = addKeywordSet("Constructs",FUNCTION,Font.BOLD);
+		for (Construct c : GLSLKeywords.CONSTRUCTS)
+			{
+			Collections.addAll(constructs.words,c.getName());
+			}
+		operators = addKeywordSet("Operators",Color.BLACK,Font.BOLD);
+		for (Operator o : GLSLKeywords.OPERATORS)
+			{
+			Collections.addAll(functions.words,o.getName());
+			}
+		constants = addKeywordSet("Constants",BROWN,Font.PLAIN);
+		for (Constant c : GLSLKeywords.CONSTANTS)
+			{
+			Collections.addAll(constants.words,c.getName());
+			}
+		variables = addKeywordSet("Variables",Color.BLUE,Font.ITALIC);
+		for (Variable v : GLSLKeywords.VARIABLES)
+			{
+			Collections.addAll(variables.words,v.getName());
+			}
+
 		//tmKeywords.add(kws);
 		tmKeywords.add(functions);
 		tmKeywords.add(constructs);
@@ -93,15 +98,15 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 			css.chars.add(ca[i]);
 		tmChars.add(css);
 
-		otherTokens.add(new SimpleToken("Numeric literal","[0-9]+",0,new Color(20, 50, 90)));
+		otherTokens.add(new SimpleToken("Numeric literal","[0-9]+",0,new Color(20,50,90)));
 		otherTokens.add(new SimpleToken("Hex literal","\\$[0-9A-Fa-f]+",0,new Color(100,100,255)));
-	}
+		}
 
 	@Override
 	public Keyword[][] GetKeywords()
 		{
-		DefaultKeywords.Keyword[][] GLSL_KEYWORDS = { GLSLKeywords.CONSTRUCTS,
-		GLSLKeywords.FUNCTIONS,GLSLKeywords.VARIABLES,GLSLKeywords.OPERATORS,GLSLKeywords.CONSTANTS };
+		DefaultKeywords.Keyword[][] GLSL_KEYWORDS = { GLSLKeywords.CONSTRUCTS,GLSLKeywords.FUNCTIONS,
+				GLSLKeywords.VARIABLES,GLSLKeywords.OPERATORS,GLSLKeywords.CONSTANTS };
 		return GLSL_KEYWORDS;
 		}
-}
+	}

@@ -38,15 +38,15 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	private final SpritePropertyListener spl = new SpritePropertyListener();
 
 	private static final int ORIGIN_SIZE = 20;
-	
+
 	private double zoom = 1;
-	
+
 	private BufferedImage transparentBackground;
 	private BufferedImage transparentImage;
 	private BufferedImage image;
-	
+
 	public UpdateListener mouseListener;
-	
+
 	public boolean enablemouse = true;
 
 	public SubimagePreview(Sprite s)
@@ -55,7 +55,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		sprite = s;
 		s.properties.updateSource.addListener(spl);
 		s.reference.updateSource.addListener(mouseListener);
-		
+
 		enableEvents(MouseEvent.MOUSE_PRESSED);
 		enableEvents(MouseEvent.MOUSE_DRAGGED);
 		}
@@ -64,91 +64,104 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		{
 		BufferedImage img = getImage();
 		if (img == null) return super.getPreferredSize();
-		return new Dimension((int)Math.ceil(img.getWidth()*zoom),(int)Math.ceil(img.getHeight()*zoom));
+		return new Dimension((int) Math.ceil(img.getWidth() * zoom),(int) Math.ceil(img.getHeight()
+				* zoom));
 		}
-	
-	public BufferedImage paintBackground() {
+
+	public BufferedImage paintBackground()
+		{
 		BufferedImage img = getImage();
-    BufferedImage dest = new BufferedImage(
-    img.getWidth(null), img.getHeight(null),
-    BufferedImage.TYPE_INT_ARGB);
-    Graphics2D g = dest.createGraphics();
-    
+		BufferedImage dest = new BufferedImage(img.getWidth(null),img.getHeight(null),
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = dest.createGraphics();
+
 		int imgwidth = img.getWidth();
 		int imgheight = img.getHeight();
-	
+
 		g.setClip(0,0,imgwidth,imgheight);
 		int TILE = 5;
 		g.setColor(Color.lightGray);
 		int w = imgwidth / TILE + 1;
 		int h = imgheight / TILE + 1;
-		for (int row = 0; row < h; row++) {
-    		for (int col = 0; col < w; col++) {
-        		if ((row + col) % 2 == 0) {
-            		g.fillRect(col * TILE, row * TILE, TILE, TILE);
-        		}
-    		}
-		}
+		for (int row = 0; row < h; row++)
+			{
+			for (int col = 0; col < w; col++)
+				{
+				if ((row + col) % 2 == 0)
+					{
+					g.fillRect(col * TILE,row * TILE,TILE,TILE);
+					}
+				}
+			}
 		return dest;
-	}
-	
-	public Point getTopLeftCentered() {
+		}
+
+	public Point getTopLeftCentered()
+		{
 		Dimension d = getPreferredSize();
-		return new Point(this.getWidth()/2 - d.width/2, this.getHeight()/2 - d.height/2);
-	}
-	
+		return new Point(this.getWidth() / 2 - d.width / 2,this.getHeight() / 2 - d.height / 2);
+		}
+
 	public void paintComponent(Graphics g)
 		{
-		if ((Boolean) sprite.get(PSprite.TRANSPARENT)) {
-			if (transparentImage == null) {
+		if ((Boolean) sprite.get(PSprite.TRANSPARENT))
+			{
+			if (transparentImage == null)
+				{
 				image = getTransparentImage();
+				}
 			}
-		} else {
+		else
+			{
 			image = getImage();
 			transparentImage = null;
-		}
-		
+			}
+
 		//super.paintComponent(g);		
 		g.setColor(this.getBackground());
 		g.fillRect(0,0,this.getWidth(),this.getHeight());
-		
-		if (image != null) {
+
+		if (image != null)
+			{
 			Dimension d = getPreferredSize();
 
-			if (transparentBackground == null) {
+			if (transparentBackground == null)
+				{
 				transparentBackground = paintBackground();
+				}
+
+			Graphics2D g2d = (Graphics2D) g;
+			Point pnt = getTopLeftCentered();
+			g2d.translate(pnt.x,pnt.y);
+
+			g.drawImage(transparentBackground,0,0,d.width,d.height,null);
+
+			g.drawImage(image,0,0,d.width,d.height,null);
 			}
-			
-	    Graphics2D g2d = (Graphics2D) g;
-	    Point pnt = getTopLeftCentered();
-	    g2d.translate(pnt.x, pnt.y);
-			
-			g.drawImage(transparentBackground, 0, 0, d.width, d.height, null);
-    
-			g.drawImage(image, 0, 0, d.width, d.height, null);
-		}	else {
+		else
+			{
 			setPreferredSize(new Dimension(0,0));
-		}
+			}
 
 		if (image != null && (showBbox || showOrigin))
 			{
 			//TODO: The rounding that follows is extremely sensitive.
-			int originX = (int) Math.floor((Integer)sprite.get(PSprite.ORIGIN_X) * zoom);
-			int originY = (int) Math.floor((Integer)sprite.get(PSprite.ORIGIN_Y) * zoom);
+			int originX = (int) Math.floor((Integer) sprite.get(PSprite.ORIGIN_X) * zoom);
+			int originY = (int) Math.floor((Integer) sprite.get(PSprite.ORIGIN_Y) * zoom);
 			int left = sprite.get(PSprite.BB_LEFT);
 			int right = sprite.get(PSprite.BB_RIGHT);
 			int top = sprite.get(PSprite.BB_TOP);
 			int bottom = sprite.get(PSprite.BB_BOTTOM);
-			
+
 			left = Math.min(left,right);
 			right = Math.max(left,right);
 			top = Math.min(top,bottom);
 			bottom = Math.max(top,bottom);
 
-			left = (int)Math.floor(left * zoom);
-			top = (int)Math.floor(top * zoom);
-			right = (int)Math.ceil((right + 1) * zoom) - 1;
-			bottom = (int)Math.ceil((bottom + 1) * zoom) - 1;
+			left = (int) Math.floor(left * zoom);
+			top = (int) Math.floor(top * zoom);
+			right = (int) Math.ceil((right + 1) * zoom) - 1;
+			bottom = (int) Math.ceil((bottom + 1) * zoom) - 1;
 
 			//Shape oldClip = reclip(g);
 
@@ -156,48 +169,51 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 			g.setColor(Color.WHITE);
 			if (showBbox) g.drawRect(left,top,right - left,bottom - top);
 			if (showOrigin)
-			{
+				{
 				g.drawLine(originX - ORIGIN_SIZE,originY,originX + ORIGIN_SIZE,originY);
 				g.drawLine(originX,originY - ORIGIN_SIZE,originX,originY + ORIGIN_SIZE);
-			}
+				}
 
 			g.setPaintMode(); //just in case
 			//g.setClip(oldClip); //restore the clip
 			}
-		
+
 		g.dispose();
 		}
-	
+
 	private void setBoundedOrigin(int x, int y)
 		{
 		BufferedImage img = getImage();
 		int w = 0, h = 0;
-		if (img != null) {
+		if (img != null)
+			{
 			w = img.getWidth();
 			h = img.getHeight();
-		}
+			}
 		x = (int) Math.max(0,Math.min(w,x));
 		y = (int) Math.max(0,Math.min(h,y));
 		sprite.put(PSprite.ORIGIN_X,x);
 		sprite.put(PSprite.ORIGIN_Y,y);
 		}
 
-	public double getZoom() {
+	public double getZoom()
+		{
 		return zoom;
-	}
-	
-	public void setZoom(double nzoom) {
+		}
+
+	public void setZoom(double nzoom)
+		{
 		zoom = nzoom;
 		updateUI();
-	}
-	
+		}
+
 	public void setIndex(int i)
 		{
 		subIndex = i;
 		updateUI();
 		this.repaint();
 		}
-	
+
 	public int getIndex()
 		{
 		return subIndex;
@@ -214,25 +230,30 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		}
 
 	protected void processMouseEvent(MouseEvent e)
-	{
-		if (enablemouse) {
+		{
+		if (enablemouse)
+			{
 			Point pnt = getTopLeftCentered();
-			int mx = (int)Math.floor((e.getX()/zoom) - (pnt.x/zoom));
-			int my = (int)Math.floor((e.getY()/zoom) - (pnt.y/zoom));
+			int mx = (int) Math.floor((e.getX() / zoom) - (pnt.x / zoom));
+			int my = (int) Math.floor((e.getY() / zoom) - (pnt.y / zoom));
 			if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1)
 				setBoundedOrigin(mx,my);
-		}
+			}
 		super.processMouseEvent(e);
-	}
+		}
 
 	protected void processMouseMotionEvent(MouseEvent e)
 		{
-		if (enablemouse) {
-			if (e.getID() == MouseEvent.MOUSE_DRAGGED && (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+		if (enablemouse)
+			{
+			if (e.getID() == MouseEvent.MOUSE_DRAGGED
+					&& (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)
+				{
 				Point pnt = getTopLeftCentered();
-				setBoundedOrigin((int)((e.getX()/zoom) - (pnt.x/zoom)),(int)((e.getY()/zoom) - (pnt.y/zoom)));
+				setBoundedOrigin((int) ((e.getX() / zoom) - (pnt.x / zoom)),
+						(int) ((e.getY() / zoom) - (pnt.y / zoom)));
+				}
 			}
-		}
 		super.processMouseMotionEvent(e);
 		}
 
@@ -244,7 +265,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		BufferedImage bi = sprite.subImages.get(subIndex % s);
 		return bi;
 		}
-	
+
 	protected BufferedImage getTransparentImage()
 		{
 		if (sprite == null) return null;
@@ -254,7 +275,6 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		if (!(Boolean) sprite.get(PSprite.TRANSPARENT)) return bi;
 		return Util.getTransparentIcon(bi);
 		}
-
 
 	public void updated(UpdateEvent e)
 		{
