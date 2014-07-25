@@ -65,7 +65,7 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Script;
 
-public class CodeTextArea extends JoshTextPanel implements UpdateListener, ActionListener
+public class CodeTextArea extends JoshTextPanel implements UpdateListener,ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -101,18 +101,18 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 	private static final Color PURPLE = new Color(138,54,186);
 	private static final Color BROWN = new Color(150,0,0);
 	private static final Color FUNCTION = new Color(0,100,150);
-	
+
 	//new Color(255,0,128);
 	static KeywordSet resNames, scrNames, constructs, functions, operators, constants, variables;
 
 	public CodeTextArea()
 		{
-		this(null, MarkerCache.getMarker("gml"));
+		this(null,MarkerCache.getMarker("gml"));
 		}
-	
+
 	public CodeTextArea(String code)
 		{
-		this(code, MarkerCache.getMarker("gml"));
+		this(code,MarkerCache.getMarker("gml"));
 		}
 
 	public CodeTextArea(String code, DefaultTokenMarker marker)
@@ -120,7 +120,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		super(code);
 
 		tokenMarker = marker;
-		
+
 		setTabSize(Prefs.tabSize);
 		setTokenMarker(tokenMarker);
 		setupKeywords();
@@ -130,9 +130,9 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		//painter.setStyles(PrefsStore.getSyntaxStyles());
 		text.getActionMap().put("COMPLETIONS",completionAction);
 		LGM.currentFile.updateSource.addListener(this);
-		
-    // build popup menu
-    final JPopupMenu popup = new JPopupMenu();
+
+		// build popup menu
+		final JPopupMenu popup = new JPopupMenu();
 		popup.add(makeContextButton(this.text.actUndo));
 		popup.add(makeContextButton(this.text.actRedo));
 		popup.addSeparator();
@@ -141,8 +141,8 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		popup.add(makeContextButton(this.text.actPaste));
 		popup.addSeparator();
 		popup.add(makeContextButton(this.text.actSelAll));
-		
-    text.setComponentPopupMenu(popup);
+
+		text.setComponentPopupMenu(popup);
 		}
 
 	private JButton makeToolbarButton(String name)
@@ -154,10 +154,10 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		b.setActionCommand(key);
 		b.addActionListener(this);
 		return b;
-	}
-	
+		}
+
 	private static JMenuItem makeContextButton(Action a)
-	{
+		{
 		String key = "JoshText." + a.getValue(Action.NAME);
 		JMenuItem b = new JMenuItem();
 		b.setIcon(LGM.getIconForKey(key));
@@ -165,12 +165,11 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		b.setRequestFocusEnabled(false);
 		b.addActionListener(a);
 		return b;
-	}
-	
-	
+		}
+
 	public void addEditorButtons(JToolBar tb)
-	{
-	  
+		{
+
 		tb.add(makeToolbarButton("SAVE"));
 		tb.add(makeToolbarButton("LOAD"));
 		tb.add(makeToolbarButton("PRINT"));
@@ -184,16 +183,15 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		tb.add(makeToolbarButton("CUT"));
 		tb.add(makeToolbarButton("COPY"));
 		tb.add(makeToolbarButton("PASTE"));
-	}
-
+		}
 
 	public void aGoto()
-	{
+		{
 		int line = showGotoDialog(getCaretLine());
 		line = Math.max(0,Math.min(getLineCount() - 1,line));
 		setCaretPosition(line,0);
 		repaint();
-	}
+		}
 
 	public static int showGotoDialog(int defVal)
 		{
@@ -270,7 +268,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 		}
 
 	public static void updateResourceKeywords()
-	{
+		{
 		resNames.words.clear();
 		scrNames.words.clear();
 		for (Entry<Class<?>,ResourceHolder<?>> e : LGM.currentFile.resMap.entrySet())
@@ -281,27 +279,28 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 			for (Resource<?,?> r : rl)
 				ks.words.add(r.getName());
 			}
-	}
+		}
 
 	protected void updateCompletions(DefaultTokenMarker marker)
-	{
+		{
 		int l = 0;
-		for (Set<String> a : resourceKeywords) {
+		for (Set<String> a : resourceKeywords)
+			{
 			l += a.size();
-		}
+			}
 		DefaultKeywords.Keyword[][] keywords = marker.GetKeywords();
 		for (DefaultKeywords.Keyword[] a : keywords)
 			l += a.length;
 		completions = new Completion[l];
 		int i = 0;
 		for (Set<String> a : resourceKeywords)
-		{
-			for (String s : a)
 			{
+			for (String s : a)
+				{
 				completions[i] = new CompletionMenu.WordCompletion(s);
 				i += 1;
+				}
 			}
-		}
 		for (DefaultKeywords.Keyword[] a : keywords)
 			for (DefaultKeywords.Keyword k : a)
 				{
@@ -313,10 +312,10 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 					completions[i] = new CompletionMenu.WordCompletion(k.getName());
 				i++;
 				}
-	}
-	
+		}
+
 	public class VariableCompletion extends CompletionMenu.Completion
-	{
+		{
 		private final DefaultKeywords.Variable variable;
 
 		public VariableCompletion(DefaultKeywords.Variable v)
@@ -542,36 +541,56 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener, Actio
 				}
 			}
 		}
-	
-		public void setTokenMarker(DefaultTokenMarker marker) {
-			tokenMarker = marker;
-			super.setTokenMarker(marker);
-			this.updateCompletions(marker);
-		}
-		
-		public void actionPerformed(ActionEvent ev)
+
+	public void setTokenMarker(DefaultTokenMarker marker)
 		{
-			String com = ev.getActionCommand();
-			if (com.equals("JoshText.LOAD")) {
-				text.Load();
-			} else if (com.equals("JoshText.SAVE")) {
-				text.Save();
-			} else if (com.equals("JoshText.UNDO")) {
-				text.Undo();
-			} else if (com.equals("JoshText.REDO")) {
-				text.Redo();
-			} else if (com.equals("JoshText.CUT")) {
-				text.Cut();
-			} else if (com.equals("JoshText.COPY")) {
-				text.Copy();
-			} else if (com.equals("JoshText.PASTE")) {
-				text.Paste();
-			} else if (com.equals("JoshText.FIND")) {
-				text.ShowFind();
-			} else if (com.equals("JoshText.GOTO")) {
-				this.aGoto();
-			} else if (com.equals("JoshText.SELALL")) {
-				text.SelectAll();
+		tokenMarker = marker;
+		super.setTokenMarker(marker);
+		this.updateCompletions(marker);
+		}
+
+	public void actionPerformed(ActionEvent ev)
+		{
+		String com = ev.getActionCommand();
+		if (com.equals("JoshText.LOAD"))
+			{
+			text.Load();
+			}
+		else if (com.equals("JoshText.SAVE"))
+			{
+			text.Save();
+			}
+		else if (com.equals("JoshText.UNDO"))
+			{
+			text.Undo();
+			}
+		else if (com.equals("JoshText.REDO"))
+			{
+			text.Redo();
+			}
+		else if (com.equals("JoshText.CUT"))
+			{
+			text.Cut();
+			}
+		else if (com.equals("JoshText.COPY"))
+			{
+			text.Copy();
+			}
+		else if (com.equals("JoshText.PASTE"))
+			{
+			text.Paste();
+			}
+		else if (com.equals("JoshText.FIND"))
+			{
+			text.ShowFind();
+			}
+		else if (com.equals("JoshText.GOTO"))
+			{
+			this.aGoto();
+			}
+		else if (com.equals("JoshText.SELALL"))
+			{
+			text.SelectAll();
 			}
 		}
 	}

@@ -20,19 +20,20 @@ public class Constants extends Resource<Constants,Constants.PConstants>
 	{
 
 	public List<Constant> constants = new ArrayList<Constant>();
-	
-	public enum PConstants {
+
+	public enum PConstants
+		{
 		//TODO:
-	}
-	
+		}
+
 	private static final EnumMap<PConstants,Object> DEF = null;
-	
+
 	@Override
 	public Constants makeInstance(ResourceReference<Constants> ref)
 		{
 		return new Constants();
 		}
-	
+
 	@Override
 	protected void postCopy(Constants dest)
 		{ //Nothing else to copy

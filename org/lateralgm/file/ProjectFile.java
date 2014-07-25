@@ -139,7 +139,7 @@ public class ProjectFile implements UpdateListener
 
 	public static final Class<?>[] RESOURCE_KIND = { null,GmObject.class,Sprite.class,Sound.class,
 			Room.class,null,Background.class,Script.class,Path.class,Font.class,GameInformation.class,
-			GameSettings.class,Timeline.class,ExtensionPackages.class,Shader.class};
+			GameSettings.class,Timeline.class,ExtensionPackages.class,Shader.class };
 	public static final Map<Class<?>,Integer> RESOURCE_CODE;
 	static
 		{
@@ -160,8 +160,8 @@ public class ProjectFile implements UpdateListener
 			m.put(SOUND_KIND[i],i);
 		SOUND_CODE = Collections.unmodifiableMap(m);
 		}
-	public static final PhysicsShape[] PHYSICS_SHAPE = { PhysicsShape.CIRCLE, PhysicsShape.BOX,
-			PhysicsShape.SHAPE};
+	public static final PhysicsShape[] PHYSICS_SHAPE = { PhysicsShape.CIRCLE,PhysicsShape.BOX,
+			PhysicsShape.SHAPE };
 	public static final Map<PhysicsShape,Integer> SHAPE_CODE;
 	static
 		{
@@ -190,25 +190,29 @@ public class ProjectFile implements UpdateListener
 		m.put(MaskShape.POLYGON,m.get(MaskShape.RECTANGLE));
 		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
 		}
-	
-	public String getPath() {
+
+	public String getPath()
+		{
 		return uri.getPath().replace("\\","/");
-	}
+		}
 
 	// This will return the top level folder path with name that the
 	// main project file is in.
-	public String getDirectory() {
+	public String getDirectory()
+		{
 		String path = "";
-		if (uri != null) {
+		if (uri != null)
+			{
 			path = uri.getPath().replace("\\","/");
-		}
+			}
 		File f = new File(path);
-		if (f.exists()) {
+		if (f.exists())
+			{
 			return f.getParent();
-		}
+			}
 		return path;
-	}
-	
+		}
+
 	public FormatFlavor format;
 	public URI uri;
 
@@ -282,7 +286,7 @@ public class ProjectFile implements UpdateListener
 		public static final FormatFlavor GM_800 = new FormatFlavor(GM_OWNER,800);
 		public static final FormatFlavor GM_810 = new FormatFlavor(GM_OWNER,810);
 		public static final FormatFlavor GMX_1200 = new FormatFlavor(GM_OWNER,1200);
-		
+
 		protected Object owner;
 		protected int version;
 
@@ -332,7 +336,8 @@ public class ProjectFile implements UpdateListener
 
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
 		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gameSettings));
-		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(new ExtensionPackages()));
+		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(
+				new ExtensionPackages()));
 		for (ResourceHolder<?> rl : resMap.values())
 			if (rl instanceof ResourceList<?>) ((ResourceList<?>) rl).updateSource.addListener(this);
 

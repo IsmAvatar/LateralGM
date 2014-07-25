@@ -68,46 +68,51 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		{
 		return new Point((Integer) properties.get(PInstance.X),(Integer) properties.get(PInstance.Y));
 		}
-	
-	public Point2D getScale() {
-		return new Point2D.Double((Double)properties.get(PInstance.SCALE_X), 
-				(Double)properties.get(PInstance.SCALE_Y));
-	}
-	
-	public double getRotation() {
+
+	public Point2D getScale()
+		{
+		return new Point2D.Double((Double) properties.get(PInstance.SCALE_X),
+				(Double) properties.get(PInstance.SCALE_Y));
+		}
+
+	public double getRotation()
+		{
 		return properties.get(PInstance.ROTATION);
-	}
-	
-	public long getColor() {
+		}
+
+	public long getColor()
+		{
 		return properties.get(PInstance.COLOR);
-	}
-	
-	public Color getAWTColor() {
+		}
+
+	public Color getAWTColor()
+		{
 		//TODO: Write this properly
 		return properties.get(PInstance.COLOR);
-	}
+		}
 
 	public void setPosition(Point pos)
-	{
+		{
 		properties.put(PInstance.X,pos.x);
 		properties.put(PInstance.Y,pos.y);
-	}
-
+		}
 
 	public void setScale(Point2D scale)
-	{
+		{
 		properties.put(PInstance.SCALE_X,scale.getX());
 		properties.put(PInstance.SCALE_Y,scale.getY());
-	}
-	
-	public void setRotation(double degrees) {
+		}
+
+	public void setRotation(double degrees)
+		{
 		properties.put(PInstance.ROTATION,degrees);
-	}
-	
-	public void setColor(long color) {
+		}
+
+	public void setColor(long color)
+		{
 		properties.put(PInstance.COLOR,color);
-	}
-	
+		}
+
 	public String getCreationCode()
 		{
 		return (String) properties.get(PInstance.CREATION_CODE);

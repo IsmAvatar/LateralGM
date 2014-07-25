@@ -135,9 +135,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		t = Messages.getString("GameSettingFrame.INTERPOLATE"); //$NON-NLS-1$
 		plf.make(interpolatecolors = new JCheckBox(t),PGameSettings.INTERPOLATE);
-		softwareVertexProcessing = new JCheckBox(Messages.getString("GameSettingFrame.FORCE_SOFTWARE_VERTEX_PROCESSING")); //$NON-NLS-1$
+		softwareVertexProcessing = new JCheckBox(
+				Messages.getString("GameSettingFrame.FORCE_SOFTWARE_VERTEX_PROCESSING")); //$NON-NLS-1$
 		plf.make(softwareVertexProcessing,PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING);
-		
+
 		JLabel backcolor = new JLabel(Messages.getString("GameSettingFrame.BACKCOLOR")); //$NON-NLS-1$
 		plf.make(colorbutton = new ColorSelect(),PGameSettings.COLOR_OUTSIDE_ROOM);
 
@@ -315,7 +316,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addComponent(priority));
 		return panel;
 		}
-	
+
 	private JPanel makeTextureAtlasesPane()
 		{
 		JPanel panel = new JPanel();
@@ -655,7 +656,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		// make discard button the height as save, Win32 look and feel makes
 		// buttons with icons 2x as tall
 		discardButton.setMinimumSize(save.getMaximumSize());
-		
+
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(tabbedPane)
 		/**/.addGroup(layout.createSequentialGroup()
@@ -677,7 +678,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		{
 		//Looks horrible under any look and feel
 		//tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		
+
 		JComponent pane = makeGraphicsPane();
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_GRAPHICS"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_GRAPHICS")); //$NON-NLS-1$
@@ -712,7 +713,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_INFO"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_INFO")); //$NON-NLS-1$
 		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
-		
+
 		pane = makeTextureAtlasesPane();
 		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_TEXTUREATLASES"), //$NON-NLS-1$
 				null,pane,Messages.getString("GameSettingFrame.HINT_TEXTUREATLASES")); //$NON-NLS-1$
@@ -816,16 +817,16 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	public void commitChanges()
 		{
 		//res.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,softwareVertexProcessing.is);
-		res.put(PGameSettings.SCALING, scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue());
-		res.put(PGameSettings.LOADING_IMAGE, customLoadingImage);
-		res.put(PGameSettings.BACK_LOAD_BAR, backLoadImage);
-		res.put(PGameSettings.FRONT_LOAD_BAR, frontLoadImage);
-		res.put(PGameSettings.GAME_ICON, gameIcon);
-		res.put(PGameSettings.DESCRIPTION, information.getText());
-		res.put(PGameSettings.COPYRIGHT, copyright.getText());
-		res.put(PGameSettings.PRODUCT, product.getText());
+		res.put(PGameSettings.SCALING,scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue());
+		res.put(PGameSettings.LOADING_IMAGE,customLoadingImage);
+		res.put(PGameSettings.BACK_LOAD_BAR,backLoadImage);
+		res.put(PGameSettings.FRONT_LOAD_BAR,frontLoadImage);
+		res.put(PGameSettings.GAME_ICON,gameIcon);
+		res.put(PGameSettings.DESCRIPTION,information.getText());
+		res.put(PGameSettings.COPYRIGHT,copyright.getText());
+		res.put(PGameSettings.PRODUCT,product.getText());
 		//we don't update the lastChanged time - that's only altered on file save/load
-		
+
 		LGM.currentFile.gameSettings = res;
 		}
 
@@ -842,9 +843,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		frontLoadImage = g.get(PGameSettings.FRONT_LOAD_BAR);
 		gameIcon = g.get(PGameSettings.GAME_ICON);
 		Image icoimg = gameIcon.getDisplayImage();
-		if (icoimg != null) {
+		if (icoimg != null)
+			{
 			iconPreview.setIcon(new ImageIcon(icoimg));
-		}
+			}
 		imagesChanged = true;
 		}
 

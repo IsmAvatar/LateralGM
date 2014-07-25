@@ -30,29 +30,28 @@ import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyValidator;
 
-public class GlyphMetric implements UpdateListener,
-PropertyValidator<GlyphMetric.PGlyphMetric>
+public class GlyphMetric implements UpdateListener,PropertyValidator<GlyphMetric.PGlyphMetric>
 	{
 	public enum PGlyphMetric
-	{
+		{
 		CHARACTER,X,Y,W,H,SHIFT,OFFSET
-	}
-	
-	private static final EnumMap<PGlyphMetric,Object> DEFS = PropertyMap.makeDefaultMap(PGlyphMetric.class,
-			0,0,0,0,0,0,0);
+		}
+
+	private static final EnumMap<PGlyphMetric,Object> DEFS = PropertyMap.makeDefaultMap(
+			PGlyphMetric.class,0,0,0,0,0,0,0);
 
 	public final PropertyMap<PGlyphMetric> properties;
-	
+
 	public GlyphMetric()
 		{
 		super();
 		properties = new PropertyMap<PGlyphMetric>(PGlyphMetric.class,this,DEFS);
 		}
-	
+
 	public void updated(UpdateEvent e)
 		{
 		// TODO Auto-generated method stub
-		
+
 		}
 
 	public Object validate(PGlyphMetric k, Object v)

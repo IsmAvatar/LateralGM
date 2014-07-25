@@ -37,13 +37,13 @@ import org.lateralgm.resources.Extension;
 import org.lateralgm.resources.ExtensionPackages;
 
 public class ExtensionFrame extends InstantiableResourceFrame<Extension,Extension.PExtension>
-{
+	{
 	private static final long serialVersionUID = 1L;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	private CustomFileChooser fc;
 
 	private JPanel makeSettings()
-	{
+		{
 		JPanel p = new JPanel();
 		GroupLayout gl = new GroupLayout(p);
 		p.setLayout(gl);
@@ -51,29 +51,29 @@ public class ExtensionFrame extends InstantiableResourceFrame<Extension,Extensio
 		gl.setAutoCreateContainerGaps(true);
 
 		return p;
-	}
+		}
 
 	public ExtensionFrame(Extension res)
-	{
+		{
 		this(res,null);
-	}
+		}
 
 	public ExtensionFrame(Extension res, ResNode node)
-	{
+		{
 		//,Messages.getString("ExtensionFrame.TITLE"),true
 		super(res,node); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(600,400);
 		JTabbedPane tabPane = new JTabbedPane();
-		tabPane.add(new JPanel(), "General");
-		tabPane.add(new JPanel(), "Includes");
-		tabPane.add(new JPanel(), "Functions");
-		tabPane.add(new JPanel(), "Constants");
+		tabPane.add(new JPanel(),"General");
+		tabPane.add(new JPanel(),"Includes");
+		tabPane.add(new JPanel(),"Functions");
+		tabPane.add(new JPanel(),"Constants");
 		this.add(tabPane);
-	}
+		}
 
 	public Object getUserObject()
-	{
+		{
 		if (node != null) return node.getUserObject();
 		for (int m = 0; m < LGM.root.getChildCount(); m++)
 			{
@@ -81,49 +81,49 @@ public class ExtensionFrame extends InstantiableResourceFrame<Extension,Extensio
 			if (n.kind == ExtensionPackages.class) return n.getUserObject();
 			}
 		return 0;//Messages.getString("LGM.EXT"); //$NON-NLS-1$
-	}
-	
+		}
+
 	public void actionPerformed(ActionEvent ev)
-	{
+		{
 		super.actionPerformed(ev);
 		String com = ev.getActionCommand();
 		if (com.equals("ExtensionsFrame.INSTALL")) //$NON-NLS-1$
-		{
-      return;
-		}
+			{
+			return;
+			}
 		if (com.equals("ExtensionsFrame.SAVE")) //$NON-NLS-1$
-		{
-      return;
+			{
+			return;
+			}
 		}
-	}
 
 	public void commitChanges()
-	{
+		{
 
-	}
+		}
 
 	public void setComponents(ExtensionPackages ext)
-	{
+		{
 
-	}
+		}
 
 	@Override
 	public String getConfirmationName()
-	{
-	  return (String) getUserObject();
-	}
+		{
+		return (String) getUserObject();
+		}
 
 	@Override
 	public boolean resourceChanged()
-	{
+		{
 		commitChanges();
 		return !res.properties.equals(resOriginal.properties);
-	}
+		}
 
 	@Override
 	public void revertResource()
-	{
+		{
 		res.properties.putAll(resOriginal.properties);
 		//setComponents(res);
+		}
 	}
-}

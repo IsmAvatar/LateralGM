@@ -106,19 +106,19 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	protected JToggleButton tbBold;
 	protected JToggleButton tbItalic;
 	protected JToggleButton tbUnderline;
-	
+
 	protected JToggleButton tbLeft;
 	protected JToggleButton tbCenter;
 	protected JToggleButton tbRight;
-	
+
 	private JMenuItem miBold;
 	private JMenuItem miItalic;
 	private JMenuItem miUnderline;
-	
+
 	private JMenuItem miLeft;
 	private JMenuItem miCenter;
 	private JMenuItem miRight;
-	
+
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	private CustomFileChooser fc;
 	protected Color fgColor;
@@ -129,30 +129,31 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	protected boolean fSizeChange = false;
 
 	protected boolean documentChanged = false;
-	
+
 	public class SettingsFrame extends JFrame
-	{
-	
-	/**
-		 * 
-		 */
+		{
+
+		/**
+			 * 
+			 */
 		private static final long serialVersionUID = 1L;
 
-	public SettingsFrame() {
-		super();
-  	setAlwaysOnTop(true);
-  	setDefaultCloseOperation(HIDE_ON_CLOSE);
-  	setLocationRelativeTo(LGM.getGameInfo());
-  	
-		setTitle(Messages.getString("GameInformationFrame.SETTINGS"));
-		setIconImage(LGM.getIconForKey("GameInformationFrame.SETTINGS").getImage());
-		setResizable(false);
-		this.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
-		this.add(makeSettings());
-		pack();
-	}
-	
-	}
+		public SettingsFrame()
+			{
+			super();
+			setAlwaysOnTop(true);
+			setDefaultCloseOperation(HIDE_ON_CLOSE);
+			setLocationRelativeTo(LGM.getGameInfo());
+
+			setTitle(Messages.getString("GameInformationFrame.SETTINGS"));
+			setIconImage(LGM.getIconForKey("GameInformationFrame.SETTINGS").getImage());
+			setResizable(false);
+			this.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
+			this.add(makeSettings());
+			pack();
+			}
+
+		}
 
 	private JMenuBar makeMenuBar()
 		{
@@ -206,11 +207,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
-		
+
 		//Format
 		menu = new JMenu(Messages.getString("GameInformationFrame.MENU_FORMAT")); //$NON-NLS-1$
 		menuBar.add(menu);
-		
+
 		miBold = addItem("GameInformationFrame.BOLD"); //$NON-NLS-1$
 		miBold.setActionCommand("GameInformationFrame.MENU_BOLD");
 		menu.add(miBold);
@@ -301,9 +302,9 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		tbUnderline = addToggleButton("GameInformationFrame.UNDERLINE"); //$NON-NLS-1$
 		tbUnderline.setRequestFocusEnabled(false);
 		tool.add(tbUnderline);
-		
+
 		tool.addSeparator();
-		
+
 		tbLeft = addToggleButton("GameInformationFrame.ALIGN_LEFT"); //$NON-NLS-1$
 		tbLeft.setRequestFocusEnabled(false);
 		tbLeft.setSelected(true);
@@ -316,7 +317,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		tool.add(tbRight);
 
 		tool.addSeparator();
-		
+
 		JButton butFontColor = new JButton(LGM.getIconForKey("GameInformationFrame.FONTCOLOR")); //$NON-NLS-1$
 		butFontColor.setRequestFocusEnabled(false);
 		butFontColor.setActionCommand("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
@@ -329,11 +330,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		but.addActionListener(this);
 		but.setToolTipText(Messages.getString("GameInformationFrame.COLOR"));
 		tool.add(but);
-		
+
 		tool.addSeparator();
-		
+
 		JButton button;
-		
+
 		button = new JButton(undoManager.getUndoAction());//$NON-NLS-1$
 		button.setText("");
 		button.setToolTipText(Messages.getString("GameInformationFrame.UNDO"));
@@ -342,16 +343,16 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		button.setText("");
 		button.setToolTipText(Messages.getString("GameInformationFrame.REDO"));
 		tool.add(button);
-		
+
 		tool.addSeparator();
-		
+
 		button = addToolButton("GameInformationFrame.CUT");
 		tool.add(button);
 		button = addToolButton("GameInformationFrame.COPY");
 		tool.add(button);
 		button = addToolButton("GameInformationFrame.PASTE");
 		tool.add(button);
-		
+
 		return tool;
 		}
 
@@ -441,7 +442,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		JButton closeButton = new JButton(Messages.getString("GameInformationFrame.CLOSE"));
 		closeButton.setActionCommand("GameInformationFrame.CLOSE");
 		closeButton.addActionListener(this);
-		
+
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()
 		/*		*/.addComponent(lTitle)
@@ -452,7 +453,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/**/.addComponent(sAlwaysOnTop)
 		/**/.addComponent(sPauseGame)
 		/**/.addComponent(sEmbed)
-		/**/.addComponent(closeButton, Alignment.CENTER));
+		/**/.addComponent(closeButton,Alignment.CENTER));
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
 		/**/.addGroup(gl.createParallelGroup()
@@ -465,7 +466,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/**/.addComponent(sPauseGame)
 		/**/.addComponent(sEmbed)
 		/**/.addComponent(closeButton));
-		
+
 		return p;
 		}
 
@@ -513,28 +514,28 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 					sSizes.setValue(s);
 					miBold.setSelected(b);
 					tbBold.setSelected(b);
-					
+
 					tbItalic.setSelected(i);
 					miItalic.setSelected(i);
 					tbUnderline.setSelected(u);
 					miUnderline.setSelected(u);
-					
+
 					setAlignmentOptions(StyleConstants.getAlignment(as));
 					}
 			});
 
 		revertResource();
 
-		this.add(new JScrollPane(editor), BorderLayout.CENTER);
-		
+		this.add(new JScrollPane(editor),BorderLayout.CENTER);
+
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		fc.setFileFilter(new CustomFileFilter(
 				Messages.getString("GameInformationFrame.TYPE_RTF"),".rtf")); //$NON-NLS-1$ //$NON-NLS-2$
 
-    // build popup menu
-    final JPopupMenu popup = new JPopupMenu();
-    JMenuItem item;
-    
+		// build popup menu
+		final JPopupMenu popup = new JPopupMenu();
+		JMenuItem item;
+
 		item = new JMenuItem(undoManager.getUndoAction());
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
 		popup.add(item);
@@ -555,14 +556,14 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
 		popup.add(item);
-		
-    editor.setComponentPopupMenu(popup);
-	}
+
+		editor.setComponentPopupMenu(popup);
+		}
 
 	private void addDocumentListeners()
-	{
-		editor.getDocument().addDocumentListener(new DocumentListener()
 		{
+		editor.getDocument().addDocumentListener(new DocumentListener()
+			{
 				public void removeUpdate(DocumentEvent e)
 					{
 					documentChanged = true;
@@ -606,42 +607,42 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		SimpleAttributeSet sas = new SimpleAttributeSet();
 		sas.addAttribute(key,value);
 		sd.setCharacterAttributes(a,b - a,sas,false);
-	}
+		}
 
 	public JMenuItem addItem(String key)
-	{
+		{
 		JMenuItem item = new JMenuItem(Messages.getString(key));
 		item.setIcon(LGM.getIconForKey(key));
 		item.setActionCommand(key);
 		item.addActionListener(this);
 		return item;
-	}
-	
+		}
+
 	public JButton addToolButton(String key)
-	{
+		{
 		JButton item = new JButton();
 		item.setToolTipText(Messages.getString(key));
 		item.setIcon(LGM.getIconForKey(key));
 		item.setActionCommand(key);
 		item.addActionListener(this);
 		return item;
-	}
-	
+		}
+
 	public JToggleButton addToggleButton(String key)
-	{
+		{
 		JToggleButton item = new JToggleButton();
 		item.setToolTipText(Messages.getString(key));
 		item.setIcon(LGM.getIconForKey(key));
 		item.setActionCommand(key);
 		item.addActionListener(this);
 		return item;
-	}
+		}
 
 	public void loadFromFile()
-	{
+		{
 		fc.setDialogTitle(Messages.getString("GameInformationFrame.LOAD_TITLE")); //$NON-NLS-1$
 		while (true)
-		{
+			{
 			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			if (fc.getSelectedFile().exists()) break;
 			JOptionPane.showMessageDialog(null,
@@ -671,8 +672,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		try
 			{
 			FileOutputStream out = new FileOutputStream(new File(name));
-			StyledDocument doc = (StyledDocument)editor.getDocument();
-			rtf.write(out,doc, doc.getStartPosition().getOffset(), doc.getLength());
+			StyledDocument doc = (StyledDocument) editor.getDocument();
+			rtf.write(out,doc,doc.getStartPosition().getOffset(),doc.getLength());
 			out.close();
 			}
 		catch (Exception e)
@@ -691,17 +692,19 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			}
 		return Messages.getString("LGM.GMI"); //$NON-NLS-1$
 		}
-	
-	public void setAlignmentOptions(int alignment) {
+
+	public void setAlignmentOptions(int alignment)
+		{
 		miLeft.setSelected(alignment == StyleConstants.ALIGN_LEFT);
 		miCenter.setSelected(alignment == StyleConstants.ALIGN_CENTER);
 		miRight.setSelected(alignment == StyleConstants.ALIGN_RIGHT);
 		tbLeft.setSelected(alignment == StyleConstants.ALIGN_LEFT);
 		tbCenter.setSelected(alignment == StyleConstants.ALIGN_CENTER);
 		tbRight.setSelected(alignment == StyleConstants.ALIGN_RIGHT);
-	}
-	
-	public void setSelectionAlignment(int alignment) {
+		}
+
+	public void setSelectionAlignment(int alignment)
+		{
 		setAlignmentOptions(alignment);
 
 		StyledDocument sd = (StyledDocument) editor.getDocument();
@@ -716,59 +719,63 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		StyleConstants.setAlignment(sas,alignment);
 		sd.setParagraphAttributes(a,b - a,sas,false);
 		return;
-	}
+		}
 
 	public void actionPerformed(ActionEvent ev)
 		{
 		super.actionPerformed(ev);
 		String com = ev.getActionCommand();
-		
+
 		if (com.equals("GameInformationFrame.LOAD")) //$NON-NLS-1$
 			{
 			loadFromFile();
 			}
 		else if (com.equals("GameInformationFrame.PRINT")) //$NON-NLS-1$
-		{
-	    //TODO: Make the fucker actually print
-    final PrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
-    attributes.add(DialogTypeSelection.COMMON);
-	    PrinterJob pj = PrinterJob.getPrinterJob();
-	    pj.pageDialog(pj.defaultPage());
-	    /*
-	    try {
-	    boolean done = editor.print();
-	    if (done) {
-	        JOptionPane.showMessageDialog(null, "Printing is done");
-	    } else {
-	        JOptionPane.showMessageDialog(null, "Error while printing");
-	    }
-	} catch (Exception pex) {
-	    JOptionPane.showMessageDialog(null, "Error while printing");
-	    pex.printStackTrace();
-	}
-*/
-      if (pj.printDialog(attributes)) {
-          try {
-            pj.print();
-            editor.print();
-          }
-          catch (PrinterException exc) {
-            System.out.println(exc);
-          }
-       }   
+			{
+			//TODO: Make the fucker actually print
+			final PrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
+			attributes.add(DialogTypeSelection.COMMON);
+			PrinterJob pj = PrinterJob.getPrinterJob();
+			pj.pageDialog(pj.defaultPage());
+			/*
+			try {
+			boolean done = editor.print();
+			if (done) {
+			    JOptionPane.showMessageDialog(null, "Printing is done");
+			} else {
+			    JOptionPane.showMessageDialog(null, "Error while printing");
+			}
+			} catch (Exception pex) {
+			JOptionPane.showMessageDialog(null, "Error while printing");
+			pex.printStackTrace();
+			}
+			*/
+			if (pj.printDialog(attributes))
+				{
+				try
+					{
+					pj.print();
+					editor.print();
+					}
+				catch (PrinterException exc)
+					{
+					System.out.println(exc);
+					}
+				}
 			return;
-		}
-		else if (com.equals("GameInformationFrame.SETTINGS")) {
-			if (settings == null) {
+			}
+		else if (com.equals("GameInformationFrame.SETTINGS"))
+			{
+			if (settings == null)
+				{
 				settings = new SettingsFrame();
 
-		
 				JPanel settingsPanel = makeSettings();
 				settings.add(settingsPanel);
 
-			}
+				}
 			settings.setVisible(true);
-		}
+			}
 		else if (com.equals("GameInformationFrame.FILESAVE")) //$NON-NLS-1$
 			{
 			saveToFile();
@@ -781,7 +788,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			if (c != null)
 				{
 				fgColor = c;
-				setSelectionAttribute(StyleConstants.Foreground, c);
+				setSelectionAttribute(StyleConstants.Foreground,c);
 				}
 			return;
 			}
@@ -865,11 +872,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{
 			editor.selectAll();
 			return;
-			}		
+			}
 		else if (com.equals("GameInformationFrame.CLOSE")) //$NON-NLS-1$
 			{
-				settings.setVisible(false);
-				return;
+			settings.setVisible(false);
+			return;
 			}
 		}
 
@@ -879,8 +886,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try
 			{
-			StyledDocument doc = (StyledDocument)editor.getDocument();
-			rtf.write(baos,doc, doc.getStartPosition().getOffset(), doc.getLength());
+			StyledDocument doc = (StyledDocument) editor.getDocument();
+			rtf.write(baos,doc,doc.getStartPosition().getOffset(),doc.getLength());
 			res.put(PGameInformation.TEXT,baos.toString("UTF-8")); //$NON-NLS-1$
 			}
 		catch (IOException e)
@@ -891,7 +898,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{ //Should never happen, but we have to catch this anyways
 			e.printStackTrace();
 			}
-			LGM.currentFile.gameInfo = res;
+		LGM.currentFile.gameInfo = res;
 		}
 
 	public void setComponents(GameInformation info)

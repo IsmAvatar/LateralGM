@@ -35,10 +35,10 @@ import org.lateralgm.joshedit.DefaultTokenMarker;
  * @author Robert B. Colton
  */
 public final class MarkerCache
-{
+	{
 	/** The cached token markers keyed with the language **/
-  private static Map<String,DefaultTokenMarker> markers = new HashMap<String,DefaultTokenMarker>();
-  
+	private static Map<String,DefaultTokenMarker> markers = new HashMap<String,DefaultTokenMarker>();
+
 	/**
 	 * Get one of the cached markers or cache it if it doesn't exist.
 	 * 
@@ -46,22 +46,30 @@ public final class MarkerCache
 	 *            One of available token markers, eg. "glsles", "glsl", "gml", "hlsl"
 	 **/
 	public static DefaultTokenMarker getMarker(String language)
-	{
+		{
 		language = language.toLowerCase();
 		DefaultTokenMarker marker = markers.get(language);
-		if (marker == null) {
-			if (language == "glsles") {
+		if (marker == null)
+			{
+			if (language == "glsles")
+				{
 				marker = new GLESTokenMarker();
-			} if (language == "glsl") {
+				}
+			if (language == "glsl")
+				{
 				marker = new GLSLTokenMarker();
-			}	if (language == "hlsl") {
+				}
+			if (language == "hlsl")
+				{
 				marker = new HLSLTokenMarker();
-			} if (language == "gml") {
+				}
+			if (language == "gml")
+				{
 				marker = new GMLTokenMarker();
-			}
+				}
 			markers.put(language,marker);
-		}
+			}
 		return marker;
-	}
+		}
 
-}
+	}

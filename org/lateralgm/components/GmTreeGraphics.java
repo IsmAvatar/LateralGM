@@ -46,7 +46,7 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		setClosedIcon(LGM.getIconForKey("GmTreeGraphics.GROUP")); //$NON-NLS-1$
 		setLeafIcon(getClosedIcon());
 		setBorder(BorderFactory.createEmptyBorder(1,0,0,0));
-		
+
 		}
 
 	public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel, boolean exp,
@@ -56,11 +56,14 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		Component com = super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
 		//TODO: Sometimes when renaming secondary nodes the text box will be bold and sometimes it wont
 		//should be fixed but no idea what is wrong.
-		if (Prefs.boldPrimaryNodes && last.status == ResNode.STATUS_PRIMARY) {
+		if (Prefs.boldPrimaryNodes && last.status == ResNode.STATUS_PRIMARY)
+			{
 			com.setFont(com.getFont().deriveFont(Font.BOLD));
-		} else {
+			}
+		else
+			{
 			com.setFont(com.getFont().deriveFont(Font.PLAIN));
-		}
+			}
 		return com;
 		}
 

@@ -81,7 +81,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	public JCheckBox smooth;
 	public JCheckBox preload;
 	public JCheckBox tileset;
-	
+
 	public MouseMotionListener mouseMotionListener = null;
 	public MouseListener mouseListener = null;
 
@@ -99,145 +99,160 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	private final BackgroundPropertyListener bpl = new BackgroundPropertyListener();
 
 	/** Zoom in, centering around a specific point, usually the mouse. */
-	public void zoomIn(Point point) {
-	    this.setZoom(this.getZoom() * 1.1f);
-	    Point pos = previewScroll.getViewport().getViewPosition();
+	public void zoomIn(Point point)
+		{
+		this.setZoom(this.getZoom() * 1.1f);
+		Point pos = previewScroll.getViewport().getViewPosition();
 
-	    int newX = (int)(point.x*(1.1f - 1f) + 1.1f*pos.x);
-	    int newY = (int)(point.y*(1.1f - 1f) + 1.1f*pos.y);
-	    previewScroll.getViewport().setViewPosition(new Point(newX, newY));
+		int newX = (int) (point.x * (1.1f - 1f) + 1.1f * pos.x);
+		int newY = (int) (point.y * (1.1f - 1f) + 1.1f * pos.y);
+		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
 
-	    previewScroll.revalidate();
-	    previewScroll.repaint();
-	}
-	
-	/** Zoom out, centering around a specific point, usually the mouse. */
-	public void zoomOut(Point point) {
-	    this.setZoom(this.getZoom() * 0.9f);
-	    Point pos = previewScroll.getViewport().getViewPosition();
-
-	    int newX = (int)(point.x*(0.9f - 1f) + 0.9f*pos.x);
-	    int newY = (int)(point.y*(0.9f - 1f) + 0.9f*pos.y);
-	    previewScroll.getViewport().setViewPosition(new Point(newX, newY));
-
-	    previewScroll.revalidate();
-	    previewScroll.repaint();
+		previewScroll.revalidate();
+		previewScroll.repaint();
 		}
-	
+
+	/** Zoom out, centering around a specific point, usually the mouse. */
+	public void zoomOut(Point point)
+		{
+		this.setZoom(this.getZoom() * 0.9f);
+		Point pos = previewScroll.getViewport().getViewPosition();
+
+		int newX = (int) (point.x * (0.9f - 1f) + 0.9f * pos.x);
+		int newY = (int) (point.y * (0.9f - 1f) + 0.9f * pos.y);
+		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
+
+		previewScroll.revalidate();
+		previewScroll.repaint();
+		}
+
 	public BackgroundFrame(Background res, ResNode node)
 		{
 		super(res,node);
 		res.properties.getUpdateSource(PBackground.USE_AS_TILESET).addListener(bpl);
 		res.reference.updateSource.addListener(this);
-		
+
 		this.setLayout(new BorderLayout());
 
 		preview = new BackgroundPreview(res);
 		preview.setVerticalAlignment(SwingConstants.TOP);
-		
-		mouseMotionListener = new MouseMotionListener() {
-		
-    public void mouseMoved(MouseEvent e) {
-        final int x = e.getX();
-        final int y = e.getY();
-        // only display a hand if the cursor is over the items
-        final Rectangle cellBounds = preview.getBounds();
-        if (cellBounds != null && cellBounds.contains(x, y)) {
-            //preview.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        } else {
-           // 
-        }
-    }
 
-    public void mouseDragged(MouseEvent e) {
-    }
-		};
-		
-		mouseListener = new MouseListener() {
-
-		public void mouseClicked(MouseEvent ev)
+		mouseMotionListener = new MouseMotionListener()
 			{
-			// TODO Auto-generated method stub
 
-			}
+				public void mouseMoved(MouseEvent e)
+					{
+					final int x = e.getX();
+					final int y = e.getY();
+					// only display a hand if the cursor is over the items
+					final Rectangle cellBounds = preview.getBounds();
+					if (cellBounds != null && cellBounds.contains(x,y))
+						{
+						//preview.setCursor(new Cursor(Cursor.HAND_CURSOR));
+						}
+					else
+						{
+						// 
+						}
+					}
 
-		public void mouseEntered(MouseEvent ev)
+				public void mouseDragged(MouseEvent e)
+					{
+					}
+			};
+
+		mouseListener = new MouseListener()
 			{
-			// TODO Auto-generated method stub
 
-			preview.setCursor(LGM.zoomCursor);
-			}
+				public void mouseClicked(MouseEvent ev)
+					{
+					// TODO Auto-generated method stub
 
-		public void mouseExited(MouseEvent ev)
-			{
-			// TODO Auto-generated method stub
-			preview.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-			}
+					}
 
-		public void mousePressed(MouseEvent ev)
-			{
-			// TODO Auto-generated method stub
-			if (ev.getButton() == MouseEvent.BUTTON1) {
-				preview.setCursor(LGM.zoomInCursor);
-			}
-			if (ev.getButton() == MouseEvent.BUTTON3) {
-				preview.setCursor(LGM.zoomOutCursor);
-			}
-			}
+				public void mouseEntered(MouseEvent ev)
+					{
+					// TODO Auto-generated method stub
 
-		public void mouseReleased(MouseEvent ev)
-			{
-			// TODO Auto-generated method stub
-			if (ev.getButton() == MouseEvent.BUTTON1) {
-				zoomIn(ev.getPoint());
-			}
-			if (ev.getButton() == MouseEvent.BUTTON3) {
-				zoomOut(ev.getPoint());
-			}
-			preview.setCursor(LGM.zoomCursor);
-			}
-		};
-		
+					preview.setCursor(LGM.zoomCursor);
+					}
+
+				public void mouseExited(MouseEvent ev)
+					{
+					// TODO Auto-generated method stub
+					preview.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+					}
+
+				public void mousePressed(MouseEvent ev)
+					{
+					// TODO Auto-generated method stub
+					if (ev.getButton() == MouseEvent.BUTTON1)
+						{
+						preview.setCursor(LGM.zoomInCursor);
+						}
+					if (ev.getButton() == MouseEvent.BUTTON3)
+						{
+						preview.setCursor(LGM.zoomOutCursor);
+						}
+					}
+
+				public void mouseReleased(MouseEvent ev)
+					{
+					// TODO Auto-generated method stub
+					if (ev.getButton() == MouseEvent.BUTTON1)
+						{
+						zoomIn(ev.getPoint());
+						}
+					if (ev.getButton() == MouseEvent.BUTTON3)
+						{
+						zoomOut(ev.getPoint());
+						}
+					preview.setCursor(LGM.zoomCursor);
+					}
+			};
+
 		previewScroll = new JScrollPane(preview);
-		
-		this.add(makeToolBar(), BorderLayout.NORTH);
-		this.add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, makeOptionsPanel(), previewScroll), BorderLayout.CENTER);
-		this.add(makeStatusBar(), BorderLayout.SOUTH);
+
+		this.add(makeToolBar(),BorderLayout.NORTH);
+		this.add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,makeOptionsPanel(),previewScroll),
+				BorderLayout.CENTER);
+		this.add(makeStatusBar(),BorderLayout.SOUTH);
 
 		updateStatusLabel();
 		updateScrollBars();
 
 		pack();
-		this.setSize(600, 400);
+		this.setSize(600,400);
 		}
-	
-  private JButton makeJButton(String key) {
+
+	private JButton makeJButton(String key)
+		{
 		JButton but = new JButton(LGM.getIconForKey(key));
 		but.setToolTipText(Messages.getString(key));
 		but.addActionListener(this);
 		but.setActionCommand(key);
 		return but;
-  }
-	
+		}
+
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		tool.setAlignmentX(0);
-		
+
 		tool.add(save);
 		tool.add(makeJButton("BackgroundFrame.LOAD"));
 		tool.add(makeJButton("BackgroundFrame.CREATE"));
 		tool.add(makeJButton("BackgroundFrame.EDIT"));
 		tool.add(makeJButton("BackgroundFrame.EFFECT"));
-		
+
 		tool.addSeparator();
-		
+
 		tool.add(makeJButton("BackgroundFrame.UNDO"));
 		tool.add(makeJButton("BackgroundFrame.REDO"));
 
 		tool.addSeparator();
-		
+
 		zoomButton = new JToggleButton(LGM.getIconForKey("BackgroundFrame.ZOOM"));
 		zoomButton.setToolTipText(Messages.getString("BackgroundFrame.ZOOM"));
 		zoomButton.addActionListener(this);
@@ -255,19 +270,20 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 		return tool;
 		}
-	
-	private JPanel makeStatusBar() {
+
+	private JPanel makeStatusBar()
+		{
 		JPanel status = new JPanel(new FlowLayout());
 		BoxLayout layout = new BoxLayout(status,BoxLayout.X_AXIS);
 		status.setLayout(layout);
 		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
-	
+
 		statusLabel = new JLabel();
-		
+
 		status.add(statusLabel);
-	
+
 		return status;
-	}
+		}
 
 	private JPanel makeOptionsPanel()
 		{
@@ -276,7 +292,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		layout.setAutoCreateContainerGaps(true);
 
 		panel.setLayout(layout);
-		
+
 		transparent = new JCheckBox(Messages.getString("BackgroundFrame.TRANSPARENT")); //$NON-NLS-1$
 		plf.make(transparent,PBackground.TRANSPARENT);
 		smooth = new JCheckBox(Messages.getString("BackgroundFrame.SMOOTH")); //$NON-NLS-1$
@@ -285,12 +301,12 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		plf.make(preload,PBackground.PRELOAD);
 		tileset = new JCheckBox(Messages.getString("BackgroundFrame.USE_AS_TILESET")); //$NON-NLS-1$
 		plf.make(tileset,PBackground.USE_AS_TILESET);
-		
+
 		panel.add(transparent);
 		panel.add(smooth);
 		panel.add(preload);
 		panel.add(tileset);
-		
+
 		JPanel groupPanel = new JPanel();
 		GroupLayout pLayout = new GroupLayout(groupPanel);
 		groupPanel.setLayout(pLayout);
@@ -393,76 +409,89 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		/**/.addComponent(tileset)
 		/**/.addGap(8)
 		/**/.addComponent(groupPanel));
-		
+
 		return panel;
 		}
-	
+
 	private void realizeScrollBarIncrement(JScrollPane scroll, Dimension size)
 		{
 		JScrollBar vertical = scroll.getVerticalScrollBar();
 		JScrollBar horizontal = scroll.getHorizontalScrollBar();
-		if (vertical != null) {
+		if (vertical != null)
+			{
 			vertical.setUnitIncrement((int) (size.getHeight() / 5));
-		}
-		if (horizontal != null) {
+			}
+		if (horizontal != null)
+			{
 			horizontal.setUnitIncrement((int) (size.getHeight() / 5));
+			}
 		}
-		}
-	
+
 	private void updateScrollBars()
 		{
-		realizeScrollBarIncrement(previewScroll, previewScroll.getPreferredSize());
+		realizeScrollBarIncrement(previewScroll,previewScroll.getPreferredSize());
 		}
 
-	public double getZoom() {
+	public double getZoom()
+		{
 		return preview.getZoom();
-	}
+		}
 
-	public void setZoom(double nzoom) {
+	public void setZoom(double nzoom)
+		{
 		preview.setZoom(nzoom);
 		updateStatusLabel();
 		updateScrollBars();
-	}
-	
-	public void zoomIn() {
+		}
+
+	public void zoomIn()
+		{
 		double zoom = getZoom();
-		if (zoom < 5) {
+		if (zoom < 5)
+			{
 			setZoom(getZoom() * 2);
-		}
+			}
 		return;
-	}
-	
-	public void zoomOut() {
+		}
+
+	public void zoomOut()
+		{
 		double zoom = getZoom();
-		if (zoom > 0.125) {
+		if (zoom > 0.125)
+			{
 			setZoom(getZoom() / 2);
-		}
+			}
 		return;
-	}
-	
-	public static String formatData(long bytes) {
-		if (bytes <= 0) return "0 B";
-		final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
-		int digits = (int) (Math.log(bytes)/Math.log(1024));
-		return new DecimalFormat("#,##0.##").format(bytes/Math.pow(1024, digits)) + " " + 
-			units[digits];
-	}
-	
-	private void updateStatusLabel() {
-		String stat = " " + Messages.getString("BackgroundFrame.WIDTH") + ": " + res.getWidth() + " | " +
-				Messages.getString("BackgroundFrame.HEIGHT") + ": " + res.getHeight() 
-				+ " | " + Messages.getString("BackgroundFrame.MEMORY") + ": ";
-		
-		if (res.getBackgroundImage() != null) {
-			stat += formatData(res.getSize());
-		} else {
-			stat += formatData(0);
 		}
+
+	public static String formatData(long bytes)
+		{
+		if (bytes <= 0) return "0 B";
+		final String[] units = new String[] { "B","KB","MB","GB","TB" };
+		int digits = (int) (Math.log(bytes) / Math.log(1024));
+		return new DecimalFormat("#,##0.##").format(bytes / Math.pow(1024,digits)) + " "
+				+ units[digits];
+		}
+
+	private void updateStatusLabel()
+		{
+		String stat = " " + Messages.getString("BackgroundFrame.WIDTH") + ": " + res.getWidth() + " | "
+				+ Messages.getString("BackgroundFrame.HEIGHT") + ": " + res.getHeight() + " | "
+				+ Messages.getString("BackgroundFrame.MEMORY") + ": ";
+
+		if (res.getBackgroundImage() != null)
+			{
+			stat += formatData(res.getSize());
+			}
+		else
+			{
+			stat += formatData(0);
+			}
 		String zoom = new DecimalFormat("#,##0.##").format(getZoom() * 100);
 		stat += " | " + Messages.getString("BackgroundFrame.ZOOM") + ": " + zoom + "%";
 
 		statusLabel.setText(stat);
-	}
+		}
 
 	protected boolean areResourceFieldsEqual()
 		{
@@ -483,54 +512,63 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		updateScrollBars();
 		}
 
-	public void handleToolBar(String cmd) {
-	if (cmd.endsWith(".LOAD")) {
-		BufferedImage img = Util.getValidImage();
-		if (img != null)
+	public void handleToolBar(String cmd)
+		{
+		if (cmd.endsWith(".LOAD"))
 			{
-			res.setBackgroundImage(img);
-			imageChanged = true;
-			cleanup();
+			BufferedImage img = Util.getValidImage();
+			if (img != null)
+				{
+				res.setBackgroundImage(img);
+				imageChanged = true;
+				cleanup();
+				}
+			return;
 			}
-		return;
-	} else if (cmd.endsWith(".CREATE")) {
-		createNewImage(true);
-	} else if (cmd.endsWith(".EDIT")) {
-		try
+		else if (cmd.endsWith(".CREATE"))
 			{
-			if (editor == null)
-				new BackgroundEditor();
+			createNewImage(true);
+			}
+		else if (cmd.endsWith(".EDIT"))
+			{
+			try
+				{
+				if (editor == null)
+					new BackgroundEditor();
+				else
+					editor.start();
+				}
+			catch (IOException ex)
+				{
+				ex.printStackTrace();
+				}
+			return;
+			}
+		else if (cmd.endsWith(".ZOOM"))
+			{
+			if (zoomButton.isSelected())
+				{
+				preview.addMouseListener(mouseListener);
+				preview.addMouseMotionListener(mouseMotionListener);
+				}
 			else
-				editor.start();
+				{
+				preview.removeMouseListener(mouseListener);
+				preview.removeMouseMotionListener(mouseMotionListener);
+				}
 			}
-		catch (IOException ex)
+		else if (cmd.endsWith(".ZOOM_IN"))
 			{
-			ex.printStackTrace();
+			zoomIn();
+			return;
 			}
-		return;
+		else if (cmd.endsWith(".ZOOM_OUT"))
+			{
+			zoomOut();
+			return;
+			}
 		}
-	else if (cmd.endsWith(".ZOOM")) 
-	{
-		if (zoomButton.isSelected()) {
-			preview.addMouseListener(mouseListener);
-			preview.addMouseMotionListener(mouseMotionListener);
-		} else {
-			preview.removeMouseListener(mouseListener);
-			preview.removeMouseMotionListener(mouseMotionListener);
-		}
-	}
-	else if (cmd.endsWith(".ZOOM_IN"))
-		{
-		zoomIn();
-		return;
-		}
-	else if (cmd.endsWith(".ZOOM_OUT"))
-		{
-		zoomOut();
-		return;
-		}
-	}
-	
+
 	public void actionPerformed(ActionEvent e)
 		{
 		handleToolBar(e.getActionCommand());
@@ -547,35 +585,37 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		l.height += s.height - p.height;
 		return l;
 		}
-	
+
 	private BufferedImage createNewImage(boolean askforsize)
 		{
 		int width = 256;
 		int height = 256;
-		if (askforsize) { 
-	    JFormattedTextField wField = new JFormattedTextField();
-	    wField.setValue(new Integer(width));
-	    JFormattedTextField hField = new JFormattedTextField();
-	    hField.setValue(new Integer(height));
-	    
-	    JPanel myPanel = new JPanel();
-	    GridLayout layout = new GridLayout(0, 2);
-	    myPanel.setLayout(layout);
-	    myPanel.add(new JLabel("Width:"));
-	    myPanel.add(wField);
-	    //myPanel.add(Box.createHorizontalStrut(15)); // a spacer
-	    myPanel.add(new JLabel("Height:"));
-	    myPanel.add(hField);
+		if (askforsize)
+			{
+			JFormattedTextField wField = new JFormattedTextField();
+			wField.setValue(new Integer(width));
+			JFormattedTextField hField = new JFormattedTextField();
+			hField.setValue(new Integer(height));
 
-	    int result = JOptionPane.showConfirmDialog(null, myPanel, 
-	        "Enter Size of New Image", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-	    if (result == JOptionPane.CANCEL_OPTION) {
-	    	return null;
-	    }
-	
-	    width = (Integer)wField.getValue();
-	    height = (Integer)hField.getValue();
-		}
+			JPanel myPanel = new JPanel();
+			GridLayout layout = new GridLayout(0,2);
+			myPanel.setLayout(layout);
+			myPanel.add(new JLabel("Width:"));
+			myPanel.add(wField);
+			//myPanel.add(Box.createHorizontalStrut(15)); // a spacer
+			myPanel.add(new JLabel("Height:"));
+			myPanel.add(hField);
+
+			int result = JOptionPane.showConfirmDialog(null,myPanel,"Enter Size of New Image",
+					JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+			if (result == JOptionPane.CANCEL_OPTION)
+				{
+				return null;
+				}
+
+			width = (Integer) wField.getValue();
+			height = (Integer) hField.getValue();
+			}
 		BufferedImage bi = new BufferedImage(width,height,BufferedImage.TYPE_3BYTE_BGR);
 		Graphics g = bi.getGraphics();
 		g.setColor(Color.WHITE);
@@ -592,9 +632,10 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		public BackgroundEditor() throws IOException
 			{
 			BufferedImage bi = res.getBackgroundImage();
-			if (bi == null) {
+			if (bi == null)
+				{
 				bi = createNewImage(false);
-			}
+				}
 			File f = File.createTempFile(res.getName(),
 					"." + Prefs.externalBackgroundExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
@@ -668,8 +709,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	public void updated(UpdateEvent e)
 		{
-			updateStatusLabel();
-			updateScrollBars();
+		updateStatusLabel();
+		updateScrollBars();
 		}
 
 	private class BackgroundPropertyListener extends PropertyUpdateListener<PBackground>
@@ -679,7 +720,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			//TODO: Maybe remove this
 			//USE_AS_TILESET
 			//side2.setVisible((Boolean) 
-					//res.get(PBackground.USE_AS_TILESET));
+			//res.get(PBackground.USE_AS_TILESET));
 			}
 		}
 	}

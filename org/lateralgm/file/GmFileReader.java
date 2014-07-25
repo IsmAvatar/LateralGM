@@ -151,7 +151,8 @@ public final class GmFileReader
 		return versionError(f,error,res,0,ver);
 		}
 
-	private static GmFormatException versionError(ProjectFile f, String error, String res, int i, int ver)
+	private static GmFormatException versionError(ProjectFile f, String error, String res, int i,
+			int ver)
 		{
 		return new GmFormatException(f,Messages.format(
 				"ProjectFileReader.ERROR_UNSUPPORTED",Messages.format(//$NON-NLS-1$
@@ -164,8 +165,8 @@ public final class GmFileReader
 		return readProjectFile(stream,uri,root,null);
 		}
 
-	public static ProjectFile readProjectFile(InputStream stream, URI uri, ResNode root, Charset forceCharset)
-			throws GmFormatException
+	public static ProjectFile readProjectFile(InputStream stream, URI uri, ResNode root,
+			Charset forceCharset) throws GmFormatException
 		{
 		ProjectFile f = new ProjectFile();
 		f.uri = uri;
@@ -204,7 +205,7 @@ public final class GmFileReader
 			JProgressBar progressBar = LGM.getProgressDialogBar();
 			progressBar.setMaximum(200);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING"));
-			
+
 			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
@@ -247,7 +248,7 @@ public final class GmFileReader
 			//TODO: GMK 820 reads shaders first
 			LGM.setProgress(90,Messages.getString("ProgressDialog.FONTS"));
 			int rver = in.read4();
-			  readFonts(c, rver);
+			readFonts(c,rver);
 			LGM.setProgress(100,Messages.getString("ProgressDialog.TIMELINES"));
 			readTimelines(c);
 			LGM.setProgress(110,Messages.getString("ProgressDialog.OBJECTS"));
@@ -272,11 +273,13 @@ public final class GmFileReader
 			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED"));
 			//Resources read. Now we can invoke our postpones.
 			int percent = 0;
-			for (PostponedRef i : postpone) {
+			for (PostponedRef i : postpone)
+				{
 				i.invoke();
 				percent += 1;
-				LGM.setProgress(160 + percent/postpone.size(),Messages.getString("ProgressDialog.POSTPONED"));
-			}
+				LGM.setProgress(160 + percent / postpone.size(),
+						Messages.getString("ProgressDialog.POSTPONED"));
+				}
 
 			LGM.setProgress(170,Messages.getString("ProgressDialog.LIBRARYCREATION"));
 			//Library Creation Code
@@ -297,7 +300,7 @@ public final class GmFileReader
 			in.skip(in.read4() * 4);
 
 			LGM.setProgress(190,Messages.getString("ProgressDialog.FILETREE"));
-			readTree(c, root, ver);
+			readTree(c,root,ver);
 			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
 					- startTime));
 			}
@@ -440,7 +443,7 @@ public final class GmFileReader
 				{
 				Constant con = new Constant();
 				g.constants.constants.add(con);
-				
+
 				con.name = in.readStr();
 				con.value = in.readStr();
 				}
@@ -522,7 +525,7 @@ public final class GmFileReader
 			{
 			Constant con = new Constant();
 			f.gameSettings.constants.constants.add(con);
-			
+
 			con.name = in.readStr();
 			con.value = in.readStr();
 			}
@@ -620,7 +623,8 @@ public final class GmFileReader
 			spr.setName(in.readStr());
 			if (ver == 800) in.skip(8); //last changed
 			ver = in.read4();
-			if (ver != 400 && ver != 542 && ver != 800 && ver != 810) throw versionError(f,"IN","SPR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
+			if (ver != 400 && ver != 542 && ver != 800 && ver != 810)
+				throw versionError(f,"IN","SPR",i,ver); //$NON-NLS-1$ //$NON-NLS-2$
 			int w = 0, h = 0;
 			if (ver < 800)
 				{
@@ -800,7 +804,7 @@ public final class GmFileReader
 
 			in.endInflate();
 			}
-	}
+		}
 
 	private static void readFonts(ProjectFileContext c, int ver) throws IOException,GmFormatException
 		{
@@ -1020,13 +1024,14 @@ public final class GmFileReader
 				//vw.properties.put(PView.VISIBLE,in.readBool());
 				in.read4(vw.properties,PView.VIEW_X,PView.VIEW_Y,PView.VIEW_W,PView.VIEW_H,PView.PORT_X,
 						PView.PORT_Y);
-				if (ver2 > 520) in.read4(vw.properties,PView.PORT_W,PView.PORT_H);
-			  else 
-			  	{
-			  	//Older versions of GM assume port_size == view_size.
-			  	vw.properties.put(PView.PORT_W,vw.properties.get(PView.VIEW_W));
-			    vw.properties.put(PView.PORT_H,vw.properties.get(PView.VIEW_H));
-			    }
+				if (ver2 > 520)
+					in.read4(vw.properties,PView.PORT_W,PView.PORT_H);
+				else
+					{
+					//Older versions of GM assume port_size == view_size.
+					vw.properties.put(PView.PORT_W,vw.properties.get(PView.VIEW_W));
+					vw.properties.put(PView.PORT_H,vw.properties.get(PView.VIEW_H));
+					}
 				in.read4(vw.properties,PView.BORDER_H,PView.BORDER_V,PView.SPEED_H,PView.SPEED_V);
 				GmObject temp = f.resMap.getList(GmObject.class).getUnsafe(in.read4());
 				if (temp != null) vw.properties.put(PView.OBJECT,temp.reference);
@@ -1124,7 +1129,8 @@ public final class GmFileReader
 			f.packages.add(in.readStr()); //Package name
 		}
 
-	private static void readGameInformation(ProjectFileContext c) throws IOException,GmFormatException
+	private static void readGameInformation(ProjectFileContext c) throws IOException,
+			GmFormatException
 		{
 		GmStreamDecoder in = c.in;
 		GameInformation gameInfo = c.f.gameInfo;
@@ -1163,7 +1169,8 @@ public final class GmFileReader
 		Stack<Integer> left = new Stack<Integer>();
 		path.push(root);
 		int rootnodes = (ver > 540) ? 12 : 11;
-		while (rootnodes-- > 0) {
+		while (rootnodes-- > 0)
+			{
 			byte status = (byte) in.read4();
 			Class<?> type = ProjectFile.RESOURCE_KIND[in.read4()];
 			int ind = in.read4();
@@ -1176,7 +1183,7 @@ public final class GmFileReader
 				hasRef = false;
 			ResourceList<?> rl = hasRef ? (ResourceList<?>) f.resMap.get(type) : null;
 			ResNode node = new ResNode(name,status,type,hasRef ? rl.getUnsafe(ind).reference : null);
-			
+
 			if (ver == 500 && status == ResNode.STATUS_PRIMARY && type == Font.class)
 				path.peek().addChild(Messages.getString("LGM.FNT"),status,type); //$NON-NLS-1$
 			else
@@ -1193,26 +1200,27 @@ public final class GmFileReader
 				rootnodes = left.pop().intValue();
 				path.pop();
 				}
-	
+
 			}
 		if (ver <= 540) root.addChild(Messages.getString("LGM.EXT"), //$NON-NLS-1$
 				ResNode.STATUS_SECONDARY,ExtensionPackages.class);
-		
+
 		//TODO: This just makes the GMK arrange to the modern version of the IDE
-	  ResNode node = new ResNode("Shaders", ResNode.STATUS_PRIMARY, Shader.class);
-	  root.insert(node,5);
-	  node = new ResNode("Extensions", ResNode.STATUS_PRIMARY, Extension.class);
-	  root.insert(node,10);
-	  node = new ResNode("Includes", ResNode.STATUS_PRIMARY, Include.class);
-	  root.insert(node,10);
-	  for (Include inc : f.resMap.getList(Include.class)) {
-	  	node.add(new ResNode(inc.getName(), ResNode.STATUS_SECONDARY, Include.class));
-	  }
-	  node = new ResNode("Constants", ResNode.STATUS_SECONDARY, Constants.class);
-	  root.insert(node,12);
-	  
+		ResNode node = new ResNode("Shaders",ResNode.STATUS_PRIMARY,Shader.class);
+		root.insert(node,5);
+		node = new ResNode("Extensions",ResNode.STATUS_PRIMARY,Extension.class);
+		root.insert(node,10);
+		node = new ResNode("Includes",ResNode.STATUS_PRIMARY,Include.class);
+		root.insert(node,10);
+		for (Include inc : f.resMap.getList(Include.class))
+			{
+			node.add(new ResNode(inc.getName(),ResNode.STATUS_SECONDARY,Include.class));
+			}
+		node = new ResNode("Constants",ResNode.STATUS_SECONDARY,Constants.class);
+		root.insert(node,12);
+
 		}
-	
+
 	private static void readActions(ProjectFileContext c, ActionContainer container, String errorKey,
 			int format1, int format2) throws IOException,GmFormatException
 		{
@@ -1240,26 +1248,29 @@ public final class GmFileReader
 				la.id = actid;
 				la.parentId = libid;
 				la.actionKind = (byte) in.read4();
-        //XXX: Maybe make this more agnostic?"
-				if (la.actionKind == Action.ACT_CODE) {
-				  la = LibManager.codeAction;
+				//XXX: Maybe make this more agnostic?"
+				if (la.actionKind == Action.ACT_CODE)
+					{
+					la = LibManager.codeAction;
 					in.skip(16);
 					in.skip(in.read4());
 					in.skip(in.read4());
-				} else {
-				la.allowRelative = in.readBool();
-				la.question = in.readBool();
-				la.canApplyTo = in.readBool();
-				la.execType = (byte) in.read4();
-				if (la.execType == Action.EXEC_FUNCTION)
-					la.execInfo = in.readStr();
+					}
 				else
-					in.skip(in.read4());
-				if (la.execType == Action.EXEC_CODE)
-					la.execInfo = in.readStr();
-				else
-					in.skip(in.read4());
-				}
+					{
+					la.allowRelative = in.readBool();
+					la.question = in.readBool();
+					la.canApplyTo = in.readBool();
+					la.execType = (byte) in.read4();
+					if (la.execType == Action.EXEC_FUNCTION)
+						la.execInfo = in.readStr();
+					else
+						in.skip(in.read4());
+					if (la.execType == Action.EXEC_CODE)
+						la.execInfo = in.readStr();
+					else
+						in.skip(in.read4());
+					}
 				}
 			else
 				{

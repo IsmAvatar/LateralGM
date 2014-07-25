@@ -70,7 +70,7 @@ public class CompletionMenu
 
 	//FIXME: For some reason this completion menu can not accept focus allowing VK_TAB to not be
 	// dispatched.
-	
+
 	public CompletionMenu(Frame owner, JoshText a, int y, int x1, int x2, int caret, Completion[] c)
 		{
 		area = a;
@@ -83,7 +83,7 @@ public class CompletionMenu
 		keyHandler = new KeyHandler();
 		completionList = new JList<Completion>();
 		completionList.setFixedCellHeight(12);
-		completionList.setFont(new Font("Monospace", Font.PLAIN, 10));
+		completionList.setFont(new Font("Monospace",Font.PLAIN,10));
 		completionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		completionList.addKeyListener(keyHandler);
 		completionList.addMouseListener(new MouseAdapter()
@@ -102,7 +102,7 @@ public class CompletionMenu
 		ph = new PopupHandler(owner,scroll);
 		ph.addHideListener(new PopupHandler.HideListener()
 			{
-		//r@Override
+				//r@Override
 				public void hidePerformed(boolean wasVisible)
 					{
 					dispose();
@@ -137,7 +137,7 @@ public class CompletionMenu
 			x -= vp.x;
 			y -= vp.y;
 			}
-    */
+		*/
 		p.x += Math.min(area.getWidth(),Math.max(0,x));
 		p.y += Math.min(area.getHeight(),Math.max(0,y)) + 3;
 		loc = p;
@@ -321,7 +321,7 @@ public class CompletionMenu
 			}
 
 		//events
-	//r@Override
+		//r@Override
 		public void eventDispatched(AWTEvent ev)
 			{
 			// We are interested in MouseEvents only
@@ -346,56 +346,56 @@ public class CompletionMenu
 			}
 
 		/** Just hide the window. */
-	//r@Override
+		//r@Override
 		public void componentResized(ComponentEvent e)
 			{
 			hide();
 			}
 
 		/** Just hide the window. */
-	//r@Override
-	 public void componentMoved(ComponentEvent e)
+		//r@Override
+		public void componentMoved(ComponentEvent e)
 			{
 			hide();
 			}
 
 		/** Just hide the window. */
-	//r@Override
+		//r@Override
 		public void componentShown(ComponentEvent e)
 			{
 			hide();
 			}
 
 		/** Just hide the window. */
-	//r@Override
+		//r@Override
 		public void componentHidden(ComponentEvent e)
 			{
 			hide();
 			}
 
 		/** Just hide the window. */
-	//r@Override
+		//r@Override
 		public void windowClosing(WindowEvent e)
 			{
 			hide();
 			}
 
 		/** Just hide the window. */
-	//r@Override
+		//r@Override
 		public void windowClosed(WindowEvent e)
 			{
 			hide();
 			}
 
 		/** Just hide the window. */
-	//r@Override
+		//r@Override
 		public void windowIconified(WindowEvent e)
 			{
 			hide();
 			}
 
 		/** Just hide the window. */
-	//r@Override
+		//r@Override
 		public void windowDeactivated(WindowEvent e)
 			{
 			hide();
@@ -403,19 +403,19 @@ public class CompletionMenu
 
 		/** Unused */
 		//Unused
-	//r@Override
+		//r@Override
 		public void windowOpened(WindowEvent e)
 			{ //Unused
 			}
 
 		/** Unused */
-	//r@Override
+		//r@Override
 		public void windowDeiconified(WindowEvent e)
 			{ //Unused
 			}
 
 		/** Unused */
-	//r@Override
+		//r@Override
 		public void windowActivated(WindowEvent e)
 			{ //Unused
 			}
@@ -575,7 +575,7 @@ public class CompletionMenu
 			//TODO: This statement used to check \\v and \\t as well, but it was causing VK_ENTER and VK_TAB not to be accepted
 			// as completing the menu which resulted in a painting exception. VK_TAB and VK_ENTER are standard for completing
 			// an autocompletion menu, see Eclipse and Scintilla/CodeBlocks.
-			if (c == KeyEvent.VK_ENTER || c == KeyEvent.VK_TAB || c == KeyEvent.VK_SPACE) 
+			if (c == KeyEvent.VK_ENTER || c == KeyEvent.VK_TAB || c == KeyEvent.VK_SPACE)
 				{
 				apply(c);
 				e.consume();

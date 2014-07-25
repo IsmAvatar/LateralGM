@@ -12,7 +12,7 @@ package org.lateralgm.joshedit;
  * Class representing a line of code in our editor.
  */
 public class Line
-{
+	{
 	/** The StringBuilder we will use for line manipulation */
 	public StringBuilder sbuild;
 	/** A bit string indicating line attributes. A value less than zero marks invalidity. */
@@ -23,7 +23,7 @@ public class Line
 	 * Set of attributes for which to test.
 	 */
 	public static final class LINE_ATTRIBS
-	{
+		{
 		/** Zero mask; equal if the line has no status markers. */
 		public static final long LA_NOTHING = 0x00;
 		// Regular status markers
@@ -59,25 +59,25 @@ public class Line
 		public static final long LA_INVALID = 0x80000000;
 		/** Mask to test if the line has any attributes at all. */
 		public static final long LA_ANY = 0x7FFFFF;
-	}
+		}
 
 	/**
 	 * @param sb Construct a line from a string builder; set attributes to invalid.
 	 */
 	public Line(StringBuilder sb)
-	{
+		{
 		sbuild = sb;
 		attr = -1;
-	}
+		}
 
 	/**
 	 * @param line The line to copy.
 	 */
 	public Line(Line line)
-	{
+		{
 		sbuild = new StringBuilder(line.sbuild);
 		attr = line.attr;
-	}
+		}
 
 	/**
 	 * Check if this line has a given attribute.
@@ -85,9 +85,9 @@ public class Line
 	 * @return Whether this line has the given attribute.
 	 */
 	public boolean testAttr(long tAttr)
-	{
+		{
 		return (attr & tAttr) != 0;
-	}
+		}
 
 	/**
 	 * Check if this line has a certain set of attributes, ORed together.
@@ -95,23 +95,23 @@ public class Line
 	 * @return Whether this line has all of the given attributes.
 	 */
 	public boolean testAttrAll(long tAttr)
-	{
+		{
 		return (attr & tAttr) == tAttr;
-	}
+		}
 
 	/**
 	 * @param sAttr Set an attribute on this line.
 	 */
 	public void setAttr(long sAttr)
-	{
+		{
 		attr |= sAttr;
-	}
+		}
 
 	/**
 	 * @param usAttr Unset an attribute on this line.
 	 */
 	public void unsetAttr(long usAttr)
-	{
+		{
 		attr &= ~usAttr;
+		}
 	}
-}

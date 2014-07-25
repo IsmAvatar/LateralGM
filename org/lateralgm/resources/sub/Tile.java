@@ -122,24 +122,28 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		properties.put(PTile.HEIGHT,s.height);
 		fireUpdate(null);
 		}
-	
-	public void setScale(Point2D scale) {
+
+	public void setScale(Point2D scale)
+		{
 		properties.put(PTile.SCALE_X,scale.getX());
 		properties.put(PTile.SCALE_Y,scale.getY());
-	}
-	
-	public void setColor(long color) {
-		properties.put(PTile.COLOR,color);
-	}
-	
-	public Point2D getScale() {
-		return new Point2D.Double((Double)properties.get(PTile.SCALE_X),
-				(Double)properties.get(PTile.SCALE_Y));
-	}
+		}
 
-	public long getColor() {
+	public void setColor(long color)
+		{
+		properties.put(PTile.COLOR,color);
+		}
+
+	public Point2D getScale()
+		{
+		return new Point2D.Double((Double) properties.get(PTile.SCALE_X),
+				(Double) properties.get(PTile.SCALE_Y));
+		}
+
+	public long getColor()
+		{
 		return properties.get(PTile.COLOR);
-	}
+		}
 
 	public int getDepth()
 		{

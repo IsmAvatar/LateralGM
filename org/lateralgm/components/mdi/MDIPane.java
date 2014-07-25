@@ -239,7 +239,7 @@ public class MDIPane extends JDesktopPane
 			setLayer(c,fl,fp);
 			}
 		}
-	
+
 	/**
 	 * Adds given child component to the z list of components such
 	 * that it will stay above the given parent component.

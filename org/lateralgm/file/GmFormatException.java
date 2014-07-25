@@ -17,13 +17,13 @@ public class GmFormatException extends ProjectFormatException
 
 	public GmFormatException(ProjectFile file, String message)
 		{
-		super(file, message);
+		super(file,message);
 		this.file = file;
 		}
 
 	public GmFormatException(ProjectFile file, Exception e)
 		{
-		super(file, e);
+		super(file,e);
 		this.e = e;
 		this.file = file;
 		}

@@ -115,8 +115,8 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.RemovePieceInstance;
 
-public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements ListSelectionListener,
-		CommandHandler, UpdateListener, FocusListener, ChangeListener
+public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
+		ListSelectionListener,CommandHandler,UpdateListener,FocusListener,ChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon CODE_ICON = LGM.getIconForKey("RoomFrame.CODE"); //$NON-NLS-1$
@@ -125,12 +125,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private final EditorScrollPane editorPane;
 	public final JTabbedPane tabs;
 	public JLabel statX, statY, statId, statSrc;
-	
+
 	//ToolBar
 	private JButton zoomIn, zoomOut, undo, redo;
 	private JToggleButton gridVis;
 	JToggleButton gridIso;
-	
+
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
 	private ButtonModelLink<PInstance> loLocked;
@@ -142,7 +142,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	public NumberField objectHorizontalPosition, objectVerticalPosition;
 	private FormattedLink<PInstance> loX, loY;
 	private JButton oCreationCode;
-	
+
 	//Settings
 	private JTextField sCaption;
 	private JCheckBox sPersistent;
@@ -194,13 +194,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	private JCheckBox vClear;
 
 	// Undo system elements
-  public UndoManager undoManager;     
-  public UndoableEditSupport undoSupport;
+	public UndoManager undoManager;
+	public UndoableEditSupport undoSupport;
 	// Save the original position of a piece when starting to move an object (Used for the undo)
 	private Point pieceOriginalPosition = null;
 	// Used to record the select piece before losing the focus.
 	public Piece selectedPiece = null;
-	
+
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
@@ -219,48 +219,48 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tool.addSeparator();
 
 		// Action fired when the undo button is clicked
-    Action undoAction = new AbstractAction()
-    	{
-    	  private static final long serialVersionUID = 1L;
-    	
-				public void actionPerformed(ActionEvent actionEvent) 
-    			{
-        	undoManager.undo();
-        	refreshUndoRedoButtons();
-    			}
-    	};
+		Action undoAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					undoManager.undo();
+					refreshUndoRedoButtons();
+					}
+			};
 
 		undo = new JButton(LGM.getIconForKey("RoomFrame.UNDO"));
 		undo.setToolTipText(Messages.getString("RoomFrame.UNDO"));
 		// Bind the ctrl-z keystroke with the undo button
 		KeyStroke ctrlZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK);
-		undo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlZ, "ctrlZ");
-		undo.getActionMap().put("ctrlZ", undoAction);
+		undo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlZ,"ctrlZ");
+		undo.getActionMap().put("ctrlZ",undoAction);
 		undo.addActionListener(undoAction);
 		tool.add(undo);
-		
+
 		// Action fired when the redo button is clicked
-    Action redoAction = new AbstractAction()
-    	{
-  	    private static final long serialVersionUID = 1L;
-  	  
-				public void actionPerformed(ActionEvent actionEvent) 
-    			{
-      		undoManager.redo();
-      		refreshUndoRedoButtons();
-    			}
-    	};
-    	
+		Action redoAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					undoManager.redo();
+					refreshUndoRedoButtons();
+					}
+			};
+
 		redo = new JButton(LGM.getIconForKey("RoomFrame.REDO"));
 		redo.setToolTipText(Messages.getString("RoomFrame.REDO"));
 		// Bind the ctrl-y keystroke with the redo button
 		KeyStroke ctrlY = KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK);
-		redo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlY, "ctrlY");
-		redo.getActionMap().put("ctrlY", redoAction);
+		redo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlY,"ctrlY");
+		redo.getActionMap().put("ctrlY",redoAction);
 		redo.addActionListener(redoAction);
 		tool.add(redo);
 		tool.addSeparator();
-		
+
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
@@ -270,7 +270,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		plf.make(gridIso,PRoom.ISOMETRIC);
 		tool.add(gridIso);
 		tool.addSeparator();
-		
+
 		// Add the grid sizers
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.GRID_X")); //$NON-NLS-1$
 		NumberField nf = new NumberField(0,999);
@@ -321,8 +321,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			lab.setOpaque(true);
 			}
 
-		public Component getListCellRendererComponent(JList<? extends Instance> list, Instance val, int ind,
-				boolean selected, boolean focus)
+		public Component getListCellRendererComponent(JList<? extends Instance> list, Instance val,
+				int ind, boolean selected, boolean focus)
 			{
 			Instance i = (Instance) val;
 			ResourceReference<GmObject> ro = i.properties.get(PInstance.OBJECT);
@@ -426,7 +426,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 		oSource = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
-		
+
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
 		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
 		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
@@ -476,11 +476,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/*		*/.addComponent(addObjectButton)
 		/*		*/.addComponent(deleteObjectButton))
 		/**/.addComponent(edit));
-		
+
 		// Make sure the selected object in the list is activated
 		fireObjUpdate();
 		return panel;
-		
+
 		}
 
 	private JPopupMenu makeShowMenu()
@@ -998,33 +998,34 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/**/.addComponent(bStretch));
 		return panel;
 		}
-	
-	public JPanel makePhysicsPane() {
+
+	public JPanel makePhysicsPane()
+		{
 		JPanel panel = new JPanel();
-		
+
 		JCheckBox phyWorldCB = new JCheckBox(Messages.getString("RoomFrame.PHY_WORLD_ENABLED"));
 		plf.make(phyWorldCB,PRoom.PHYSICS_WORLD);
-		
+
 		JLabel pixMetersLabel = new JLabel(Messages.getString("RoomFrame.PHY_PIXELSPERMETER") + ":");
 		NumberField pixMetersField = new NumberField(0.1000);
 		plf.make(pixMetersField,PRoom.PHYSICS_PIXTOMETERS);
 		pixMetersField.setColumns(16);
-		
+
 		JLabel gravityXLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_X") + ":");
 		NumberField gravityXField = new NumberField(0.0);
 		plf.make(gravityXField,PRoom.PHYSICS_GRAVITY_X);
 		gravityXField.setColumns(16);
-		
+
 		JLabel gravityYLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_Y") + ":");
 		NumberField gravityYField = new NumberField(10.0);
 		plf.make(gravityYField,PRoom.PHYSICS_GRAVITY_Y);
 		gravityYField.setColumns(16);
-		
+
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
-		
+
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(phyWorldCB)
 		/**/.addGroup(layout.createSequentialGroup()
@@ -1035,8 +1036,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/*  */.addComponent(gravityXField))
 		/**/.addGroup(layout.createSequentialGroup()
 		/*  */.addComponent(gravityYLabel)
-		/*  */.addComponent(gravityYField))
-		);
+		/*  */.addComponent(gravityYField)));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(phyWorldCB)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
@@ -1047,11 +1047,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/*  */.addComponent(gravityXField))
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*  */.addComponent(gravityYLabel)
-		/*  */.addComponent(gravityYField))
-		);
-		
+		/*  */.addComponent(gravityYField)));
+
 		return panel;
-	}
+		}
 
 	public JPanel makeViewsPane()
 		{
@@ -1090,7 +1089,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			v.properties.getUpdateSource(PView.BORDER_H).addListener(vpl);
 			v.properties.getUpdateSource(PView.BORDER_V).addListener(vpl);
 			}
-		
+
 		vVisible = new JCheckBox(Messages.getString("RoomFrame.VIEW_ENABLED")); //$NON-NLS-1$
 
 		JTabbedPane tp = makeViewsDimensionsPane();
@@ -1209,7 +1208,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 		vObj = new ResourceMenu<GmObject>(GmObject.class,
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
-		
+
 		JLabel lH = new JLabel(Messages.getString("RoomFrame.VIEW_HORIZONTAL"));
 		JLabel lV = new JLabel(Messages.getString("RoomFrame.VIEW_VERTICAL"));
 		JLabel lBorder = new JLabel(Messages.getString("RoomFrame.VIEW_BORDER"));
@@ -1258,29 +1257,29 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		statX = new JLabel(Messages.getString("RoomFrame.STAT_X")); //$NON-NLS-1$
 		statX.setMaximumSize(new Dimension(50,14));
 		stat.add(statX);
-		
+
 		//stat.add(new JLabel("|")); //$NON-NLS-1$
 		//visible divider    ^   since JSeparator isn't visible
-    JSeparator sep;
-    sep = new JSeparator(JSeparator.VERTICAL);
-    sep.setMaximumSize(new Dimension(8, sep.getMaximumSize().height));
-    stat.add(sep);
-    
+		JSeparator sep;
+		sep = new JSeparator(JSeparator.VERTICAL);
+		sep.setMaximumSize(new Dimension(8,sep.getMaximumSize().height));
+		stat.add(sep);
+
 		statY = new JLabel(Messages.getString("RoomFrame.STAT_Y")); //$NON-NLS-1$
 		statY.setMaximumSize(new Dimension(50,13));
 		stat.add(statY);
-		
-    sep = new JSeparator(JSeparator.VERTICAL);
-    sep.setMaximumSize(new Dimension(8, sep.getMaximumSize().height));
-    stat.add(sep);
-    
+
+		sep = new JSeparator(JSeparator.VERTICAL);
+		sep.setMaximumSize(new Dimension(8,sep.getMaximumSize().height));
+		stat.add(sep);
+
 		statId = new JLabel();
 		stat.add(statId);
-    
-    sep = new JSeparator(JSeparator.VERTICAL);
-    sep.setMaximumSize(new Dimension(8, sep.getMaximumSize().height));
-    stat.add(sep);
-    
+
+		sep = new JSeparator(JSeparator.VERTICAL);
+		sep.setMaximumSize(new Dimension(8,sep.getMaximumSize().height));
+		stat.add(sep);
+
 		statSrc = new JLabel();
 		stat.add(statSrc); //resizes at will, so no Max size
 
@@ -1323,7 +1322,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		tabs.addTab(Messages.getString("RoomFrame.TAB_PHYSICS"),makePhysicsPane()); //$NON-NLS-1$
 		tabs.setSelectedIndex((Integer) res.get(PRoom.CURRENT_TAB));
 		tabs.addChangeListener(this);
-		
+
 		res.instanceUpdateSource.addListener(this);
 		res.tileUpdateSource.addListener(this);
 
@@ -1346,13 +1345,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		/*		*/.addComponent(editorPane,DEFAULT_SIZE,480,DEFAULT_SIZE)
 		/*		*/.addComponent(stats))));
 
-    // initialize the undo/redo system
-    undoManager = new UndoManager();
-    undoManager.setLimit(Prefs.undoHistorySize);
-    undoSupport = new UndoableEditSupport();
-    undoSupport.addUndoableEditListener(new UndoAdapter());
-    refreshUndoRedoButtons();
-    
+		// initialize the undo/redo system
+		undoManager = new UndoManager();
+		undoManager.setLimit(Prefs.undoHistorySize);
+		undoSupport = new UndoableEditSupport();
+		undoSupport.addUndoableEditListener(new UndoAdapter());
+		refreshUndoRedoButtons();
+
 		if (res.get(PRoom.REMEMBER_WINDOW_SIZE))
 			{
 			int h = res.get(PRoom.EDITOR_HEIGHT);
@@ -1361,7 +1360,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			if (d.width <= w && d.height <= h)
 				maximize = true;
 			else
-				setSize(800, 520);
+				setSize(800,520);
 			}
 		else
 			pack();
@@ -1388,8 +1387,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 	public static class ListComponentRenderer implements ListCellRenderer<Object>
 		{
-		public Component getListCellRendererComponent(JList<? extends Object> list, Object val, int ind,
-				boolean selected, boolean focus)
+		public Component getListCellRendererComponent(JList<? extends Object> list, Object val,
+				int ind, boolean selected, boolean focus)
 			{
 			Component lab = (Component) val;
 			if (selected)
@@ -1438,26 +1437,26 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			sShowMenu.show(sShow,0,sShow.getHeight());
 			return;
 			}
-		
+
 		// If the user has pressed the 'Add' object button
 		if (eventSource == addObjectButton)
 			{
 			// If no object is selected
 			if (oNew.getSelected() == null) return;
-      // Add the new object instance
+			// Add the new object instance
 			Instance newObject = res.addInstance();
-      newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
-      newObject.setPosition(new Point());
-      
-      int numberOfObjects = res.instances.size();
+			newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
+			newObject.setPosition(new Point());
 
-      // Record the effect of adding an object for the undo
-      UndoableEdit edit = new AddPieceInstance(this, newObject, numberOfObjects -1);
-      // notify the listeners
-      undoSupport.postEdit( edit );
-      
+			int numberOfObjects = res.instances.size();
+
+			// Record the effect of adding an object for the undo
+			UndoableEdit edit = new AddPieceInstance(this,newObject,numberOfObjects - 1);
+			// notify the listeners
+			undoSupport.postEdit(edit);
+
 			oList.setSelectedIndex(numberOfObjects - 1);
-			
+
 			return;
 			}
 
@@ -1466,15 +1465,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			{
 			int selectedIndex = oList.getSelectedIndex();
 			if (selectedIndex == -1) return;
-			
+
 			Instance instance = (Instance) oList.getSelectedValue();
 			if (instance == null) return;
 
-      // Record the effect of removing an object for the undo
-			UndoableEdit edit = new RemovePieceInstance(this, instance, selectedIndex);
-      // notify the listeners
-			undoSupport.postEdit( edit );
-      
+			// Record the effect of removing an object for the undo
+			UndoableEdit edit = new RemovePieceInstance(this,instance,selectedIndex);
+			// notify the listeners
+			undoSupport.postEdit(edit);
+
 			CodeFrame frame = codeFrames.get(res.instances.remove(selectedIndex));
 			if (frame != null) frame.dispose();
 			oList.setSelectedIndex(Math.min(res.instances.size() - 1,selectedIndex));
@@ -1486,25 +1485,25 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			tSelect.setBackground(taSource.getSelected());
 			return;
 			}
-		
+
 		// If the user has pressed the 'Delete' tile  button
 		if (eventSource == deleteTileButton)
 			{
 			int selectedIndex = tList.getSelectedIndex();
 			if (selectedIndex >= res.tiles.size() || selectedIndex < 0) return;
-			
+
 			Tile tile = (Tile) tList.getSelectedValue();
 
-      // Record the effect of removing an object for the undo
-			UndoableEdit edit = new RemovePieceInstance(this, tile, selectedIndex);
-      // notify the listeners
-			undoSupport.postEdit( edit );
-			
+			// Record the effect of removing an object for the undo
+			UndoableEdit edit = new RemovePieceInstance(this,tile,selectedIndex);
+			// notify the listeners
+			undoSupport.postEdit(edit);
+
 			res.tiles.remove(selectedIndex);
 			tList.setSelectedIndex(Math.min(res.tiles.size() - 1,selectedIndex));
 			return;
 			}
-		
+
 		if (e.getSource() == sCreationCode)
 			{
 			openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
@@ -1524,10 +1523,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
 		PropertyLink.removeAll(loLocked,loSource,loX,loY);
-		
+
 		if (selectedInstance != null)
 			{
-			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(selectedInstance.properties,this);
+			PropertyLinkFactory<PInstance> iplf = new PropertyLinkFactory<PInstance>(
+					selectedInstance.properties,this);
 			loLocked = iplf.make(oLocked,PInstance.LOCKED);
 			loSource = iplf.make(oSource,PInstance.OBJECT);
 			loX = iplf.make(objectHorizontalPosition,PInstance.X);
@@ -1552,7 +1552,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		if (lastTile == selectedTile) return;
 		lastTile = selectedTile;
 		PropertyLink.removeAll(ltDepth,ltLocked,ltSource,ltsX,ltsY,ltX,ltY);
-		
+
 		if (selectedTile != null)
 			{
 			PropertyLinkFactory<PTile> tplf = new PropertyLinkFactory<PTile>(selectedTile.properties,this);
@@ -1626,51 +1626,48 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 	// Display the selected view in the center of the window
 	private void showSelectedView()
 		{
-		if (editorPane == null)
-			return;
-		
+		if (editorPane == null) return;
+
 		// If the views are not enabled
-		if ((Boolean) editor.roomVisual.room.get(PRoom.VIEWS_ENABLED) == false)
-			return;
-		
+		if ((Boolean) editor.roomVisual.room.get(PRoom.VIEWS_ENABLED) == false) return;
+
 		// Get the selected view
 		View view = res.views.get(vList.getSelectedIndex());
-		
+
 		// If the view is not visible, don't show it
-		if ((Boolean) view.properties.get(PView.VISIBLE) == false)
-			return;
-	
+		if ((Boolean) view.properties.get(PView.VISIBLE) == false) return;
+
 		// Get the reference to the 'Object following' object
 		ResourceReference<GmObject> objectToFollowReference = null;
-		
+
 		// If there is 'Object following' object for the selected view
 		if (view.properties.get(PView.OBJECT) != null)
 			objectToFollowReference = view.properties.get(PView.OBJECT);
-		
+
 		Instance instanceToFollow = null;
-		
+
 		// If there is an object to follow, get the first instance in the room
 		if (objectToFollowReference != null)
 			{
 			for (Instance instance : editor.roomVisual.room.instances)
 				{
-					ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
-					
-					if (instanceObject == objectToFollowReference)
-						{
-						instanceToFollow = instance;
-						break;
-						}
+				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+
+				if (instanceObject == objectToFollowReference)
+					{
+					instanceToFollow = instance;
+					break;
+					}
 				}
 			}
-		
+
 		int zoomLevel = editor.properties.get(PRoomEditor.ZOOM);
-		
+
 		// Properties of the view
 		Point viewPosition = new Point(0,0);
 		int viewWidth = (Integer) view.properties.get(PView.VIEW_W);
 		int viewHeight = (Integer) view.properties.get(PView.VIEW_H);
-		
+
 		// If there is an instance to follow, use the instance properties for centering the view
 		if (instanceToFollow != null)
 			{
@@ -1683,68 +1680,68 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 			viewPosition.y = instancePosition.y - viewHeight / 2;
 
 			// Set this new location into the view properties
-			view.properties.put(PView.OBJECT_FOLLOWING_X, viewPosition.x);
-			view.properties.put(PView.OBJECT_FOLLOWING_Y, viewPosition.y);
+			view.properties.put(PView.OBJECT_FOLLOWING_X,viewPosition.x);
+			view.properties.put(PView.OBJECT_FOLLOWING_Y,viewPosition.y);
 			}
 		else
 			{
 			// Get the properties of the view
 			viewPosition.x = view.properties.get(PView.VIEW_X);
 			viewPosition.y = view.properties.get(PView.VIEW_Y);
-			
+
 			view.properties.put(PView.OBJECT_FOLLOWING_X,-1);
 			view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
 			}
-		
+
 		JViewport viewport = editorPane.getViewport();
-				
+
 		// Center the view in the viewport
 		Point newViewportPosition = new Point(0,0);
 
 		// Viewport scale when zooming out
 		int viewportScale = 0;
-		
-		if (zoomLevel == -1)
-			viewportScale = 3;
-		
-		if (zoomLevel == 0)
-			viewportScale = 2;
-		
+
+		if (zoomLevel == -1) viewportScale = 3;
+
+		if (zoomLevel == 0) viewportScale = 2;
+
 		// If we are zooming out
 		if (zoomLevel < 1)
 			{
-			newViewportPosition.x = viewPosition.x -(viewport.getWidth() * viewportScale - viewWidth) / 2;
-			newViewportPosition.y = viewPosition.y -(viewport.getHeight() * viewportScale - viewHeight) / 2;
+			newViewportPosition.x = viewPosition.x - (viewport.getWidth() * viewportScale - viewWidth)
+					/ 2;
+			newViewportPosition.y = viewPosition.y - (viewport.getHeight() * viewportScale - viewHeight)
+					/ 2;
 			}
 		else
 			{
-			newViewportPosition.x = viewPosition.x - (viewport.getWidth() - viewWidth * zoomLevel) / (2 * zoomLevel);
-			newViewportPosition.y = viewPosition.y - (viewport.getHeight() - viewHeight * zoomLevel) / (2 * zoomLevel);			
+			newViewportPosition.x = viewPosition.x - (viewport.getWidth() - viewWidth * zoomLevel)
+					/ (2 * zoomLevel);
+			newViewportPosition.y = viewPosition.y - (viewport.getHeight() - viewHeight * zoomLevel)
+					/ (2 * zoomLevel);
 			}
 
 		// If the new position of the viewport is above the room origin coordinates, use the room coordinates for the new viewport coordinates
 		if (newViewportPosition.x < editor.getOverallBounds().x)
 			newViewportPosition.x = editor.getOverallBounds().x;
-	
+
 		if (newViewportPosition.y < editor.getOverallBounds().y)
-			newViewportPosition.y =  editor.getOverallBounds().y;
-		
+			newViewportPosition.y = editor.getOverallBounds().y;
+
 		if (instanceToFollow == null)
 			{
 			// If the view position is above the viewport coordinates, use the view coordinates for the new viewport coordinates
-			if (viewPosition.x < newViewportPosition.x)
-				newViewportPosition.x = viewPosition.x;
-			
-			if (viewPosition.y < newViewportPosition.y)
-				newViewportPosition.y = viewPosition.x;
+			if (viewPosition.x < newViewportPosition.x) newViewportPosition.x = viewPosition.x;
+
+			if (viewPosition.y < newViewportPosition.y) newViewportPosition.y = viewPosition.x;
 			}
-		
+
 		// For the new viewport position, take into account the visual offset of the border and the zoom level
 		editor.visualToComponent(newViewportPosition);
 
 		viewport.setViewPosition(newViewportPosition);
 		}
-	
+
 	// if an item of a listbox has been selected
 	public void valueChanged(ListSelectionEvent e)
 		{
@@ -1762,8 +1759,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 
 	public void openCodeFrame(Instance i)
 		{
-		openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),Messages.format(
-				"RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
+		openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
+				Messages.format("RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
 		}
 
 	public void openCodeFrame(CodeHolder code, String titleFormat, Object titleArg)
@@ -1866,162 +1863,164 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		public void updated(PropertyUpdateEvent<PView> e)
 			{
 			if (e.key == PView.VISIBLE) bdvListUpdate(false,e.source,(Boolean) e.map.get(e.key));
-			
+
 			// If the 'Object following' object has been changed, update the display of the view
 			if (e.key == PView.OBJECT || e.key == PView.VISIBLE) showSelectedView();
-			
+
 			// If we are modifying the view dimension
-			if (e.key == PView.VIEW_W || e.key == PView.VIEW_H || e.key == PView.BORDER_H || e.key == PView.BORDER_V)
+			if (e.key == PView.VIEW_W || e.key == PView.VIEW_H || e.key == PView.BORDER_H
+					|| e.key == PView.BORDER_V)
 				{
 				// Get the selected view
 				View view = res.views.get(vList.getSelectedIndex());
 
 				// If there is 'Object following' object for the selected view, update the display of the view
-				if (view.properties.get(PView.OBJECT) != null)
-					showSelectedView();
+				if (view.properties.get(PView.OBJECT) != null) showSelectedView();
 				}
 			}
 		}
-	
+
 	// When a resource has been updated, reset the undo manager
 	public void resetUndoManager()
 		{
 		undoManager.discardAllEdits();
 		refreshUndoRedoButtons();
 		}
-	
-  /**
-  * An undo/redo adapter. The adapter is notified when an undo edit occur(e.g. add or remove from the list)
-  * The adapter extract the edit from the event, add it to the UndoManager, and refresh the GUI
-  */
 
-  private class UndoAdapter implements UndoableEditListener
-  {
-  	public void undoableEditHappened (UndoableEditEvent evt)
-    {
-     	UndoableEdit edit = evt.getEdit();
-     	undoManager.addEdit( edit );
-     	refreshUndoRedoButtons();
-     }
-  }
-  
-  /**
-  * This method is called after each undoable operation
-  * in order to refresh the presentation state of the undo/redo GUI
-  */
+	/**
+	* An undo/redo adapter. The adapter is notified when an undo edit occur(e.g. add or remove from the list)
+	* The adapter extract the edit from the event, add it to the UndoManager, and refresh the GUI
+	*/
 
-  public void refreshUndoRedoButtons()
-	  {
-	     // refresh undo
-	     undo.setEnabled(undoManager.canUndo() );
-	
-	     // refresh redo
-	     redo.setEnabled(undoManager.canRedo() );
-	  }
-  
-  // When a text field related to the position of a piece gains the focus
+	private class UndoAdapter implements UndoableEditListener
+		{
+		public void undoableEditHappened(UndoableEditEvent evt)
+			{
+			UndoableEdit edit = evt.getEdit();
+			undoManager.addEdit(edit);
+			refreshUndoRedoButtons();
+			}
+		}
+
+	/**
+	* This method is called after each undoable operation
+	* in order to refresh the presentation state of the undo/redo GUI
+	*/
+
+	public void refreshUndoRedoButtons()
+		{
+		// refresh undo
+		undo.setEnabled(undoManager.canUndo());
+
+		// refresh redo
+		redo.setEnabled(undoManager.canRedo());
+		}
+
+	// When a text field related to the position of a piece gains the focus
 	public void focusGained(FocusEvent event)
 		{
 		pieceOriginalPosition = null;
 		selectedPiece = null;
-		
-	 	// If we are modifying objects
-		if (event.getSource() == objectHorizontalPosition || event.getSource() == objectVerticalPosition)
-		 {
+
+		// If we are modifying objects
+		if (event.getSource() == objectHorizontalPosition
+				|| event.getSource() == objectVerticalPosition)
+			{
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
 			if (selectedIndex == -1) return;
-			
+
 			// Save the selected instance
 			selectedPiece = (Instance) oList.getSelectedValue();
-			
+
 			// Save the position of the object for the undo
-			pieceOriginalPosition = new Point (selectedPiece.getPosition());
-		 }
+			pieceOriginalPosition = new Point(selectedPiece.getPosition());
+			}
 		// We are modifying tiles
-	 else
-		 {
+		else
+			{
 			// If no tile is selected, return
 			int selectedIndex = tList.getSelectedIndex();
 			if (selectedIndex == -1) return;
-			
+
 			// Save the selected tile
 			selectedPiece = (Tile) tList.getSelectedValue();
-			
+
 			// Save the position of the tile for the undo
-			pieceOriginalPosition = new Point (selectedPiece.getPosition());
-		 }
+			pieceOriginalPosition = new Point(selectedPiece.getPosition());
+			}
 		}
 
 	// When a text field related to a piece position has lost the focus
 	public void focusLost(FocusEvent event)
 		{
-			processFocusLost();
+		processFocusLost();
 		}
 
 	// Save the position of a piece for the undo
 	public void processFocusLost()
 		{
-		if (selectedPiece == null)
-			return;
-			
-	 	// If we are modifying objects
+		if (selectedPiece == null) return;
+
+		// If we are modifying objects
 		if (selectedPiece instanceof Instance)
 			{
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
 			if (selectedIndex == -1) return;
-			
+
 			// Get the new position of the object
-			Point objectNewPosition = new Point (selectedPiece.getPosition());
-			
+			Point objectNewPosition = new Point(selectedPiece.getPosition());
+
 			// If the position of the object has been changed
 			if (!objectNewPosition.equals(pieceOriginalPosition))
 				{
 				// Record the effect of moving an object for the undo
-				UndoableEdit edit = new MovePieceInstance(this, selectedPiece, pieceOriginalPosition, objectNewPosition);
-			  // notify the listeners
-			  undoSupport.postEdit( edit );
+				UndoableEdit edit = new MovePieceInstance(this,selectedPiece,pieceOriginalPosition,
+						objectNewPosition);
+				// notify the listeners
+				undoSupport.postEdit(edit);
 				}
 			}
-		 // We are modifying tiles
-		 else
-			 {
-				// If no tile is selected, return
-				int selectedIndex = tList.getSelectedIndex();
-				if (selectedIndex == -1) return;
-				
-				// Get the new position of the tile
-				Point tileNewPosition = new Point (selectedPiece.getPosition());
-				
-				// If the position of the tile has been changed
-				if (!tileNewPosition.equals(pieceOriginalPosition))
-					{
-					// Record the effect of moving an tile for the undo
-					UndoableEdit edit = new MovePieceInstance(this, selectedPiece, pieceOriginalPosition, tileNewPosition);
-				  // notify the listeners
-				  undoSupport.postEdit( edit );
-					}
-			 }
-		
-			 selectedPiece = null;
+		// We are modifying tiles
+		else
+			{
+			// If no tile is selected, return
+			int selectedIndex = tList.getSelectedIndex();
+			if (selectedIndex == -1) return;
+
+			// Get the new position of the tile
+			Point tileNewPosition = new Point(selectedPiece.getPosition());
+
+			// If the position of the tile has been changed
+			if (!tileNewPosition.equals(pieceOriginalPosition))
+				{
+				// Record the effect of moving an tile for the undo
+				UndoableEdit edit = new MovePieceInstance(this,selectedPiece,pieceOriginalPosition,
+						tileNewPosition);
+				// notify the listeners
+				undoSupport.postEdit(edit);
+				}
+			}
+
+		selectedPiece = null;
 		}
 
 	// When a new tab is selected
 	public void stateChanged(ChangeEvent event)
 		{
-    JTabbedPane sourceTabbedPane = (JTabbedPane) event.getSource();
-    int index = sourceTabbedPane.getSelectedIndex();
-    
-    // If the views tab is selected, always display the views
-    if (sourceTabbedPane.getTitleAt(index) == Messages.getString("RoomFrame.TAB_VIEWS"))
-    	{
-    	showSelectedView();
-    	editor.roomVisual.setViewsVisible(true);
-    	}
-    else
-    	{
-    	editor.roomVisual.setViewsVisible(false);
-    	}
+		JTabbedPane sourceTabbedPane = (JTabbedPane) event.getSource();
+		int index = sourceTabbedPane.getSelectedIndex();
+
+		// If the views tab is selected, always display the views
+		if (sourceTabbedPane.getTitleAt(index) == Messages.getString("RoomFrame.TAB_VIEWS"))
+			{
+			showSelectedView();
+			editor.roomVisual.setViewsVisible(true);
+			}
+		else
+			{
+			editor.roomVisual.setViewsVisible(false);
+			}
 		}
-}
+	}

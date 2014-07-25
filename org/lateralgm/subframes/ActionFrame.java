@@ -93,7 +93,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 	private ActionFrame(Action a, LibAction la)
 		{
 		super(la.description,false);
-		setTitle(la.name.replace("_", " "));
+		setTitle(la.name.replace("_"," "));
 		if (la.parent == null) setTitle(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
 		if (la.actImage != null)
 			setFrameIcon(new ImageIcon(la.actImage.getScaledInstance(16,16,Image.SCALE_SMOOTH)));
@@ -154,7 +154,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		applies.setValue(Math.min(GmObject.refAsInt(at),0));
 
 		if (la.interfaceKind == LibAction.INTERFACE_CODE)
-		{
+			{
 			setClosable(true);
 			setMaximizable(true);
 			setResizable(true);
@@ -169,14 +169,15 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			tool.add(save);
 			tool.addSeparator();
 
-			code = new CodeTextArea(a.getArguments().get(0).getVal(), MarkerCache.getMarker("gml"));
+			code = new CodeTextArea(a.getArguments().get(0).getVal(),MarkerCache.getMarker("gml"));
 			code.addEditorButtons(tool);
 
-			if (Prefs.enableDragAndDrop) {
-			  tool.addSeparator();
-			  tool.add(new JLabel(Messages.getString("ActionFrame.APPLIES"))); //$NON-NLS-1$
-			  tool.add(appliesPanel);
-			}
+			if (Prefs.enableDragAndDrop)
+				{
+				tool.addSeparator();
+				tool.add(new JLabel(Messages.getString("ActionFrame.APPLIES"))); //$NON-NLS-1$
+				tool.add(appliesPanel);
+				}
 
 			status = new JPanel(new FlowLayout());
 			status.setLayout(new BoxLayout(status,BoxLayout.X_AXIS));
@@ -188,7 +189,8 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 				{
 					public void caretUpdate(CaretEvent e)
 						{
-						caretPos.setText(" INS | UTF-8 | " + (code.getCaretLine() + 1) + ":" + (code.getCaretColumn() + 1));
+						caretPos.setText(" INS | UTF-8 | " + (code.getCaretLine() + 1) + ":"
+								+ (code.getCaretColumn() + 1));
 						}
 				});
 
@@ -199,20 +201,21 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code.text));
 			appliesPanel.setLayout(new BoxLayout(appliesPanel,BoxLayout.LINE_AXIS));
 			pack();
-			if (!Prefs.enableDragAndDrop) {
-			  setSize(new Dimension(this.getWidth()+300, this.getHeight()+100));
-			}
+			if (!Prefs.enableDragAndDrop)
+				{
+				setSize(new Dimension(this.getWidth() + 300,this.getHeight() + 100));
+				}
 			repaint();
-		}
+			}
 		else
-		{
+			{
 			makeArgumentPane(a,la);
 			pack();
 			repaint();
-		}
+			}
 
 		SubframeInformer.fireSubframeAppear(this);
-	}
+		}
 
 	private void makeArgumentPane(Action a, LibAction la)
 		{

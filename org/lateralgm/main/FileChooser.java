@@ -105,11 +105,13 @@ public class FileChooser
 
 		ProjectFile read(InputStream is, URI pathname, ResNode root) throws ProjectFormatException;
 		}
+
 	//private static MyProgressBar singleton = new MyProgressBar(); public static MyProgressBar getInstance() { return singleton; }
 
 	public static interface FileWriter
 		{
-		void write(OutputStream out, ProjectFile f, ResNode root) throws ProjectFormatException, IOException;
+		void write(OutputStream out, ProjectFile f, ResNode root) throws ProjectFormatException,
+				IOException;
 
 		String getSelectionName();
 
@@ -263,7 +265,8 @@ public class FileChooser
 				}
 			return super.getName(f);
 			}
-    @Override
+
+		@Override
 		public String getDescription(File f)
 			{
 			for (FileView fv : fileViews)
@@ -273,7 +276,8 @@ public class FileChooser
 				}
 			return super.getDescription(f);
 			}
-    @Override
+
+		@Override
 		public String getTypeDescription(File f)
 			{
 			for (FileView fv : fileViews)
@@ -283,7 +287,8 @@ public class FileChooser
 				}
 			return super.getTypeDescription(f);
 			}
-    @Override
+
+		@Override
 		public Icon getIcon(File f)
 			{
 			for (FileView fv : fileViews)
@@ -293,7 +298,8 @@ public class FileChooser
 				}
 			return super.getIcon(f);
 			}
-    @Override
+
+		@Override
 		public Boolean isTraversable(File f)
 			{
 			for (FileView fv : fileViews)
@@ -374,11 +380,14 @@ public class FileChooser
 		public ProjectFile read(InputStream is, URI uri, ResNode root) throws ProjectFormatException
 			{
 			ProjectFile f = null;
-			if (uri.getPath().endsWith(".project.gmx")) {
-		    f = GMXFileReader.readProjectFile(is, uri, root);
-		  } else {
-		    f = GmFileReader.readProjectFile(is, uri, root);
-	  	}
+			if (uri.getPath().endsWith(".project.gmx"))
+				{
+				f = GMXFileReader.readProjectFile(is,uri,root);
+				}
+			else
+				{
+				f = GmFileReader.readProjectFile(is,uri,root);
+				}
 			return f;
 			}
 		}
@@ -395,25 +404,28 @@ public class FileChooser
 		public void write(OutputStream out, ProjectFile f, ResNode root) throws ProjectFormatException
 			{
 			//TODO: should be a little more graceful than this
-			if (f.getPath().endsWith(".project.gmx")) {
-			  try
+			if (f.getPath().endsWith(".project.gmx"))
+				{
+				try
 					{
-						GMXFileWriter.writeProjectFile(out,f,root,ver);
+					GMXFileWriter.writeProjectFile(out,f,root,ver);
 					}
 				catch (Exception e)
 					{
-					throw new GmFormatException(f, e);
+					throw new GmFormatException(f,e);
 					}
-			} else {
-			  try
+				}
+			else
+				{
+				try
 					{
 					GmFileWriter.writeProjectFile(out,f,root,ver);
 					}
 				catch (IOException e)
 					{
-					throw new GmFormatException(f, e);
+					throw new GmFormatException(f,e);
 					}
-			}
+				}
 			}
 
 		public String getSelectionName()
@@ -430,21 +442,21 @@ public class FileChooser
 		public String getExtension()
 			{
 			switch (ver)
-			{
-			case 530:
-				return ".gmd";
-			case 600:
-				return ".gm6";
-			case 701:
-			case 800:
-				return ".gmk";
-			case 810:
-				return ".gm81";
-			case 1200:
-			  return ".project.gmx";
-			default:
-				throw new IllegalArgumentException(Integer.toString(ver));
-			}
+				{
+				case 530:
+					return ".gmd";
+				case 600:
+					return ".gm6";
+				case 701:
+				case 800:
+					return ".gmk";
+				case 810:
+					return ".gm81";
+				case 1200:
+					return ".project.gmx";
+				default:
+					throw new IllegalArgumentException(Integer.toString(ver));
+				}
 			}
 		}
 
@@ -542,37 +554,39 @@ public class FileChooser
 		{
 		if (uri == null) return;
 		LGM.getProgressDialog().setVisible(false);
-	  Thread t = new Thread(new Runnable() {
-		  public void run() {
-			  LGM.addDefaultExceptionHandler();
-				try
+		Thread t = new Thread(new Runnable()
+			{
+				public void run()
 					{
+					LGM.addDefaultExceptionHandler();
+					try
+						{
 						LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot());
-					}
-				catch (ProjectFormatException ex)
-					{
+						}
+					catch (ProjectFormatException ex)
+						{
 						LGM.currentFile = ex.file;
 						LGM.populateTree();
 						rebuildTree();
 						new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
 								Messages.getString("FileChooser.ERROR_LOAD"),ex).setVisible(true); //$NON-NLS-1$
-					}
-				catch (Exception e)
-					{
+						}
+					catch (Exception e)
+						{
 						//TODO: This catches exceptions in EGM reading without freezing the program with the progress bar
 						// or destroying the tree.
 						LGM.populateTree();
 						rebuildTree();
 						new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
 								Messages.getString("FileChooser.ERROR_LOAD"),e).setVisible(true); //$NON-NLS-1$
+						}
+					setTitleURI(uri);
+					PrefsStore.addRecentFile(uri.toString());
+					((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
+					selectedWriter = null;
+					LGM.setProgressDialogVisible(false);
 					}
-				setTitleURI(uri);
-				PrefsStore.addRecentFile(uri.toString());
-				((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
-				selectedWriter = null;
-				LGM.setProgressDialogVisible(false);
-		  }
-		});
+			});
 		t.start();
 		LGM.setProgressDialogVisible(true);
 		LGM.reload(true);
@@ -618,10 +632,12 @@ public class FileChooser
 				if (!file.getName().endsWith(ext)) file = new File(file.getPath() + ext);
 				}
 			// Create the folder for the user, otherwise people get confused.
-			if (file.getName().endsWith(".project.gmx")) {
-				file = new File(file.getAbsolutePath().replace(".project.gmx",".gmx") + "/" + file.getName());
+			if (file.getName().endsWith(".project.gmx"))
+				{
+				file = new File(file.getAbsolutePath().replace(".project.gmx",".gmx") + "/"
+						+ file.getName());
 				file.getParentFile().mkdir();
-			}
+				}
 			int result = JOptionPane.YES_OPTION;
 			if (file.exists())
 				result = JOptionPane.showConfirmDialog(
@@ -690,50 +706,52 @@ public class FileChooser
 		{
 		System.out.println(uri);
 		LGM.getProgressDialog().setVisible(false);
-	  Thread t = new Thread(new Runnable() {
-		  public void run() {
-		  	LGM.addDefaultExceptionHandler();
-				try
+		Thread t = new Thread(new Runnable()
+			{
+				public void run()
 					{
-					writer.write(new FileOutputStream(new File(uri)),LGM.currentFile,LGM.root);
+					LGM.addDefaultExceptionHandler();
+					try
+						{
+						writer.write(new FileOutputStream(new File(uri)),LGM.currentFile,LGM.root);
+						LGM.setProgressDialogVisible(false);
+						return;
+						}
+					catch (ProjectFormatException e)
+						{
+						LGM.showDefaultExceptionHandler(e);
+						}
+					catch (Exception e)
+						{ //Do the stuff below
+						LGM.showDefaultExceptionHandler(e);
+						}
+					URLConnection uc = null;
+					try
+						{
+						uc = uri.toURL().openConnection();
+						}
+					catch (Exception e)
+						{
+						LGM.showDefaultExceptionHandler(e);
+						}
+					uc.setDoOutput(true);
+					try
+						{
+						writer.write(uc.getOutputStream(),LGM.currentFile,LGM.root);
+						}
+					catch (ProjectFormatException e)
+						{
+						LGM.showDefaultExceptionHandler(e);
+						}
+					catch (Exception e)
+						{
+						LGM.showDefaultExceptionHandler(e);
+						}
 					LGM.setProgressDialogVisible(false);
-					return;
 					}
-				catch (ProjectFormatException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
-				catch (Exception e)
-					{ //Do the stuff below
-					LGM.showDefaultExceptionHandler(e);
-					}
-				URLConnection uc = null;
-				try
-					{
-					uc = uri.toURL().openConnection();
-					}
-				catch (Exception e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
-				uc.setDoOutput(true);
-				try
-					{
-					writer.write(uc.getOutputStream(),LGM.currentFile,LGM.root);
-					}
-				catch (ProjectFormatException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
-				catch (Exception e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
-				LGM.setProgressDialogVisible(false);
-		  }
-	  });
-	  t.start();
-	  LGM.setProgressDialogVisible(true);
+			});
+		t.start();
+		LGM.setProgressDialogVisible(true);
 		}
 
 	public FileWriter findWriter(FormatFlavor flavor)

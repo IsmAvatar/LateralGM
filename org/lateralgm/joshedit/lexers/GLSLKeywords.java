@@ -76,7 +76,7 @@ public final class GLSLKeywords
 
 		//read functions
 		InputStream is2 = GLSLKeywords.class.getResourceAsStream("glslfunctions.txt");
-		BufferedReader	br2 = new BufferedReader(new InputStreamReader(is2));
+		BufferedReader br2 = new BufferedReader(new InputStreamReader(is2));
 		ArrayList<Function> funcList = new ArrayList<Function>();
 
 		try

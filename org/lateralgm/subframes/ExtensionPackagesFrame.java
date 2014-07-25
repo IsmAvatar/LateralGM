@@ -55,29 +55,29 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.ExtensionPackages;
 
-public class ExtensionPackagesFrame extends ResourceFrame<ExtensionPackages,ExtensionPackages.PExtensionPackages>
-	implements ActionListener
-{
+public class ExtensionPackagesFrame extends
+		ResourceFrame<ExtensionPackages,ExtensionPackages.PExtensionPackages> implements ActionListener
+	{
 	private static final long serialVersionUID = 1L;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	private CustomFileChooser fc;
-	
+
 	JList<JCheckBox> packageList;
 	private JButton closeButton;
 	private JButton installButton;
 	private JButton uninstallButton;
-	
+
 	public ExtensionPackagesFrame(ExtensionPackages res)
-	{
+		{
 		this(res,null);
-	}
+		}
 
 	public ExtensionPackagesFrame(ExtensionPackages res, ResNode node)
-	{
+		{
 		super(res,node,Messages.getString("ExtensionPackagesFrame.TITLE"),true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(300,400);
-		
+
 		closeButton = new JButton(Messages.getString("ExtensionPackagesFrame.CLOSE"));
 		closeButton.addActionListener(this);
 		installButton = new JButton(Messages.getString("ExtensionPackagesFrame.INSTALL"));
@@ -90,17 +90,17 @@ public class ExtensionPackagesFrame extends ResourceFrame<ExtensionPackages,Exte
 		packageList = new JList<JCheckBox>(cbArray);
 		packageList.setCellRenderer(new CheckBoxListRenderer());
 		JScrollPane listScroll = new JScrollPane(packageList);
-//Messages.getString("ExtensionPackagesFrame.")
-		
+		//Messages.getString("ExtensionPackagesFrame.")
+
 		JPanel descPanel = new JPanel();
 		descPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("ExtensionPackagesFrame.ABOUT")));
-		
+
 		JPanel centerPanel = new JPanel();
 		GroupLayout gl = new GroupLayout(centerPanel);
 		centerPanel.setLayout(gl);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
-		
+
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()
 		/*  */.addComponent(closeButton)
@@ -115,13 +115,13 @@ public class ExtensionPackagesFrame extends ResourceFrame<ExtensionPackages,Exte
 		/*  */.addComponent(uninstallButton))
 		/**/.addComponent(listScroll)
 		/**/.addComponent(descPanel));
-		
+
 		this.add(centerPanel,BorderLayout.CENTER);
 		//this.pack();
-	}
-	
+		}
+
 	public Object getUserObject()
-	{
+		{
 		if (node != null) return node.getUserObject();
 		for (int m = 0; m < LGM.root.getChildCount(); m++)
 			{
@@ -129,82 +129,83 @@ public class ExtensionPackagesFrame extends ResourceFrame<ExtensionPackages,Exte
 			if (n.kind == ExtensionPackages.class) return n.getUserObject();
 			}
 		return 0;//Messages.getString("LGM.EXT"); //$NON-NLS-1$
-	}
-	
+		}
+
 	public void actionPerformed(ActionEvent ev)
-	{
+		{
 		super.actionPerformed(ev);
 		if (ev.getSource() == closeButton) //$NON-NLS-1$
-		{
+			{
 			this.setVisible(false);
-      return;
-		}
-		if (ev.getSource() == installButton) //$NON-NLS-1$
-		{
-      return;
-		}
-		if (ev.getSource() == uninstallButton) {
 			return;
+			}
+		if (ev.getSource() == installButton) //$NON-NLS-1$
+			{
+			return;
+			}
+		if (ev.getSource() == uninstallButton)
+			{
+			return;
+			}
 		}
-	}
 
 	public void commitChanges()
-	{
+		{
 
-	}
+		}
 
 	public void setComponents(ExtensionPackages ext)
-	{
+		{
 
-	}
+		}
 
 	@Override
 	public String getConfirmationName()
-	{
-	  return (String) getUserObject();
-	}
+		{
+		return (String) getUserObject();
+		}
 
 	@Override
 	public boolean resourceChanged()
-	{
+		{
 		commitChanges();
 		return !res.properties.equals(resOriginal.properties);
-	}
+		}
 
 	@Override
 	public void revertResource()
-	{
+		{
 		res.properties.putAll(resOriginal.properties);
 		//setComponents(res);
-	}
-	
+		}
+
 	private class CheckBoxListRenderer implements ListCellRenderer<JCheckBox>
-	{
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 2378731430979001755L;
+		{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2378731430979001755L;
 
 		public Component getListCellRendererComponent(JList<? extends JCheckBox> comp, JCheckBox value,
-		                 int index, boolean isSelected, boolean hasFocus)
-		{
+				int index, boolean isSelected, boolean hasFocus)
+			{
 			JCheckBox item = new JCheckBox(value.getText());
-		  item.setEnabled(comp.isEnabled());
-		  item.setSelected(value.isSelected());
-		  item.setFont(comp.getFont());
-		
-		  if (isSelected)
-		  {
-		    item.setBackground(comp.getSelectionBackground());
-		    item.setForeground(comp.getSelectionForeground());
-		  }
-		  else
-		  {
-		  	item.setBackground(comp.getBackground());
-		  	item.setForeground(comp.getForeground());
-		  }
-		
-		  return item;
+			item.setEnabled(comp.isEnabled());
+			item.setSelected(value.isSelected());
+			item.setFont(comp.getFont());
+
+			if (isSelected)
+				{
+				item.setBackground(comp.getSelectionBackground());
+				item.setForeground(comp.getSelectionForeground());
+				}
+			else
+				{
+				item.setBackground(comp.getBackground());
+				item.setForeground(comp.getForeground());
+				}
+
+			return item;
+			}
 		}
 	}
-}

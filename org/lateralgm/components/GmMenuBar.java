@@ -58,22 +58,27 @@ public class GmMenuBar extends JMenuBar
 			}
 		}
 
-	public void setRecentMenuEnabled(boolean enabled) {
+	public void setRecentMenuEnabled(boolean enabled)
+		{
 		recentMenu.setEnabled(enabled);
-		if (!enabled) {
+		if (!enabled)
+			{
 			recentMenu.removeAll();
+			}
 		}
-	}
-	
+
 	public void updateRecentFiles()
 		{
 		List<String> recentList = PrefsStore.getRecentFiles();
-		if (recentList.size() > 0) {
+		if (recentList.size() > 0)
+			{
 			setRecentMenuEnabled(true);
-		} else {
+			}
+		else
+			{
 			setRecentMenuEnabled(false);
 			return;
-		}
+			}
 		recentMenu.removeAll();
 		recentFiles.clear();
 		for (String recentStr : recentList)
@@ -93,9 +98,10 @@ public class GmMenuBar extends JMenuBar
 					{
 					item = new JMenuItem(String.format("%s %s",number,uri),number.codePointAt(0));
 					}
-				if (LGM.themename.equals("Quantum")) {
-          item.setFont(LGM.lnfFont);
-				}
+				if (LGM.themename.equals("Quantum"))
+					{
+					item.setFont(LGM.lnfFont);
+					}
 				item.setActionCommand("GmMenuBar.OPENRECENT " + recentStr); //$NON-NLS-1$
 				item.addActionListener(Listener.getInstance());
 				recentMenu.insert(item,recentFiles.size());
@@ -118,7 +124,7 @@ public class GmMenuBar extends JMenuBar
 			MNEMONICS.put(k.getValue(),
 					Messages.getString("GmMenuBar.MNEMONIC_" + k.getKey()).toUpperCase().charAt(0)); //$NON-NLS-1$
 		}
-	
+
 	public GmMenuBar()
 		{
 		GmMenu menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
@@ -161,21 +167,23 @@ public class GmMenuBar extends JMenuBar
 				int mnemonic = MNEMONICS.get(k);
 				String insNodeName = Messages.format("GmMenuBar.INSERT",nodeName); //$NON-NLS-1$
 				String addNodeName = Messages.format("GmMenuBar.ADD",nodeName); //$NON-NLS-1$
-        
+
 				JMenuItem item = new JMenuItem(insNodeName,icon);
 				if (mnemonic != '!') item.setMnemonic(mnemonic);
 				item.addActionListener(new Listener.ResourceAdder(true,k));
-				if (LGM.themename.equals("Quantum")) {
-				  item.setFont(LGM.lnfFont);
-				}
+				if (LGM.themename.equals("Quantum"))
+					{
+					item.setFont(LGM.lnfFont);
+					}
 				subIns.add(item);
 
 				item = new JMenuItem(addNodeName,icon);
 				if (mnemonic != '!') item.setMnemonic(mnemonic);
 				item.addActionListener(new Listener.ResourceAdder(false,k));
-				if (LGM.themename.equals("Quantum")) {
-				  item.setFont(LGM.lnfFont);
-				}
+				if (LGM.themename.equals("Quantum"))
+					{
+					item.setFont(LGM.lnfFont);
+					}
 				subAdd.add(item);
 				}
 
@@ -206,8 +214,10 @@ public class GmMenuBar extends JMenuBar
 		add(menu);
 		menu.addItem("GmMenuBar.DOCUMENTATION",KeyEvent.VK_F1,0); //$NON-NLS-1$
 		menu.addSeparator();
-		menu.addItem("GmMenuBar.EXPLORELATERALGM",KeyEvent.VK_O,InputEvent.ALT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.EXPLOREPROJECT",KeyEvent.VK_P,InputEvent.ALT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem(
+				"GmMenuBar.EXPLORELATERALGM",KeyEvent.VK_O,InputEvent.ALT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem(
+				"GmMenuBar.EXPLOREPROJECT",KeyEvent.VK_P,InputEvent.ALT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
 		menu.addSeparator();
 		menu.addItem("GmMenuBar.ABOUT"); //$NON-NLS-1$
 		}

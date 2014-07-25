@@ -14,18 +14,18 @@ import org.lateralgm.util.PropertyMap;
 
 public class Include extends InstantiableResource<Include,Include.PInclude>
 	{
-	
+
 	public byte[] data = new byte[0];
-	
+
 	public enum PInclude
-	{
-	FILENAME,FILEPATH,ORIGINAL,SIZE,EXPORTACTION,EXPORTFOLDER,OVERWRITE,
-	FREEMEMORY,REMOVEATGAMEEND,STORE
-	}
-	
-	private static final EnumMap<PInclude,Object> DEF = PropertyMap.makeDefaultMap(PInclude.class,
-			"","",true,0,2,"",false,true,true,false);
-	
+		{
+		FILENAME,FILEPATH,ORIGINAL,SIZE,EXPORTACTION,EXPORTFOLDER,OVERWRITE,FREEMEMORY,REMOVEATGAMEEND,
+		STORE
+		}
+
+	private static final EnumMap<PInclude,Object> DEF = PropertyMap.makeDefaultMap(PInclude.class,"",
+			"",true,0,2,"",false,true,true,false);
+
 	public String filename = ""; //$NON-NLS-1$
 	public String filepath = ""; //$NON-NLS-1$
 	public boolean isOriginal;
@@ -56,7 +56,7 @@ public class Include extends InstantiableResource<Include,Include.PInclude>
 		{
 		return filepath;
 		}
-	
+
 	@Override
 	public Include makeInstance(ResourceReference<Include> ref)
 		{
@@ -72,6 +72,6 @@ public class Include extends InstantiableResource<Include,Include.PInclude>
 	@Override
 	protected void postCopy(Include dest)
 		{ //Nothing else to copy
-		
+
 		}
 	}

@@ -72,7 +72,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 		tool.add(save);
 		tool.addSeparator();
 
-		code = new CodeTextArea((String) res.get(PScript.CODE), MarkerCache.getMarker("gml"));
+		code = new CodeTextArea((String) res.get(PScript.CODE),MarkerCache.getMarker("gml"));
 		add(code,BorderLayout.CENTER);
 
 		if (!Prefs.useExternalScriptEditor)
@@ -102,7 +102,8 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 			{
 				public void caretUpdate(CaretEvent e)
 					{
-					caretPos.setText(" INS | UTF-8 | " + (code.getCaretLine() + 1) + " : " + (code.getCaretColumn() + 1));
+					caretPos.setText(" INS | UTF-8 | " + (code.getCaretLine() + 1) + " : "
+							+ (code.getCaretColumn() + 1));
 					}
 			});
 		add(status,BorderLayout.SOUTH);

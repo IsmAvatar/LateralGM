@@ -594,8 +594,8 @@ public class PathEditor extends VisualPanel implements UpdateListener
 					int i2 = i - 1;
 					while (i2 > 0 && sqrdist(segment.px[i2] - x,segment.py[i2] - y) < 4)
 						i2--;
-					calculatePoints(x + segment.bounds.x,y + segment.bounds.y,Math.atan2(segment.py[i2] - y,x
-							- segment.px[i2]));
+					calculatePoints(x + segment.bounds.x,y + segment.bounds.y,
+							Math.atan2(segment.py[i2] - y,x - segment.px[i2]));
 					}
 				else
 					{
@@ -604,8 +604,8 @@ public class PathEditor extends VisualPanel implements UpdateListener
 					int i = 1;
 					while (i < segment.px.length - 1 && sqrdist(segment.px[i] - x,segment.py[i] - y) < 4)
 						i++;
-					calculatePoints(x + segment.bounds.x,y + segment.bounds.y,Math.atan2(y - segment.py[i],
-							segment.px[i] - x));
+					calculatePoints(x + segment.bounds.x,y + segment.bounds.y,
+							Math.atan2(y - segment.py[i],segment.px[i] - x));
 					}
 				}
 			Rectangle bounds = new Rectangle(-1,-1);

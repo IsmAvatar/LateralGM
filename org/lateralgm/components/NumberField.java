@@ -38,7 +38,7 @@ public class NumberField extends JFormattedTextField
 		this(min,max,value,getFormatter(getIntegerFormat()));
 		setColumns(1 + Math.max(numDigits(min),numDigits(max)));
 		}
-	
+
 	public NumberField(double value)
 		{
 		this(Double.MIN_VALUE,Double.MAX_VALUE,value,getFormatter(getNumberFormat()));
@@ -113,7 +113,7 @@ public class NumberField extends JFormattedTextField
 			super.addPropertyChangeListener("value",valListener); //$NON-NLS-1$
 			}
 		listenerList.add(ValueChangeListener.class,listener);
-//		listener.valueChange(new ValueChangeEvent(this,getValue(),getValue()));
+		//		listener.valueChange(new ValueChangeEvent(this,getValue(),getValue()));
 		}
 
 	public void removeValueChangeListener(ValueChangeListener listener)

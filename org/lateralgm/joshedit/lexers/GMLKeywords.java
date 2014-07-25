@@ -30,7 +30,7 @@ public final class GMLKeywords
 	public static DefaultKeywords.Variable[] VARIABLES;
 	public static DefaultKeywords.Constant[] CONSTANTS;
 	public static DefaultKeywords.Function[] FUNCTIONS;
-	
+
 	static
 		{
 		InputStream is = GMLKeywords.class.getResourceAsStream("gmlkeywords.properties");
@@ -63,7 +63,7 @@ public final class GMLKeywords
 
 		//read functions
 		InputStream is2 = GMLKeywords.class.getResourceAsStream("gmlfunctions.txt");
-		BufferedReader	br2 = new BufferedReader(new InputStreamReader(is2));
+		BufferedReader br2 = new BufferedReader(new InputStreamReader(is2));
 		ArrayList<Function> funcList = new ArrayList<Function>();
 
 		try
@@ -86,8 +86,7 @@ public final class GMLKeywords
 
 	public GMLKeywords()
 		{
-	
+
 		}
-		
-		
+
 	}

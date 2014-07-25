@@ -41,15 +41,15 @@ import org.lateralgm.joshedit.DefaultKeywords.Variable;
  * Sample GML token marker class based on the default token marker.
  */
 public class GMLTokenMarker extends DefaultTokenMarker
-{
+	{
 
-private static final Color BROWN = new Color(150,0,0);
-private static final Color FUNCTION = new Color(0,100,150);
-static KeywordSet resNames, scrNames, constructs, functions, operators, constants, variables;
+	private static final Color BROWN = new Color(150,0,0);
+	private static final Color FUNCTION = new Color(0,100,150);
+	static KeywordSet resNames, scrNames, constructs, functions, operators, constants, variables;
 
 	/** Construct, populating language data. */
 	public GMLTokenMarker()
-	{
+		{
 		super();
 		schemes.add(new BlockDescriptor("Javadoc","/\\*(?=\\*)","\\*/",new Color(54,116,186),Font.BOLD));
 		schemes.add(new BlockDescriptor("Block Comment","/(?=\\*)","\\*/",new Color(13,135,13),
@@ -58,35 +58,40 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 		schemes.add(new BlockDescriptor("Line Comment","//","$",new Color(13,135,13),Font.ITALIC));
 		schemes.add(new BlockDescriptor("Double Quote String","\"","\"",new Color(0,0,100),0));
 		schemes.add(new BlockDescriptor("Single Quote String","'","'",new Color(0,0,100),0));
-		
-		functions = addKeywordSet("Functions", FUNCTION, Font.PLAIN);
-		for (Function f : GMLKeywords.FUNCTIONS) {
-			Collections.addAll(functions.words, f.getName());
-		}
-		constructs = addKeywordSet("Constructs", new Color(0,0,200), Font.PLAIN);
-		for (Construct c : GMLKeywords.CONSTRUCTS) {
-			Collections.addAll(constructs.words, c.getName());
-		}
-		operators = addKeywordSet("Operators", new Color(0,0,200), Font.PLAIN);
-		for (Operator o : GMLKeywords.OPERATORS) {
-			Collections.addAll(operators.words, o.getName());
-		}
-		constants = addKeywordSet("Constants", BROWN, Font.PLAIN);
-		for (Constant c : GMLKeywords.CONSTANTS) {
-			Collections.addAll(constants.words, c.getName());
-		}
-		variables = addKeywordSet("Variables", new Color(0,0,100), Font.ITALIC);
-		for (Variable v : GMLKeywords.VARIABLES) {
-			Collections.addAll(variables.words, v.getName());
-		}
-		
+
+		functions = addKeywordSet("Functions",FUNCTION,Font.PLAIN);
+		for (Function f : GMLKeywords.FUNCTIONS)
+			{
+			Collections.addAll(functions.words,f.getName());
+			}
+		constructs = addKeywordSet("Constructs",new Color(0,0,200),Font.PLAIN);
+		for (Construct c : GMLKeywords.CONSTRUCTS)
+			{
+			Collections.addAll(constructs.words,c.getName());
+			}
+		operators = addKeywordSet("Operators",new Color(0,0,200),Font.PLAIN);
+		for (Operator o : GMLKeywords.OPERATORS)
+			{
+			Collections.addAll(operators.words,o.getName());
+			}
+		constants = addKeywordSet("Constants",BROWN,Font.PLAIN);
+		for (Constant c : GMLKeywords.CONSTANTS)
+			{
+			Collections.addAll(constants.words,c.getName());
+			}
+		variables = addKeywordSet("Variables",new Color(0,0,100),Font.ITALIC);
+		for (Variable v : GMLKeywords.VARIABLES)
+			{
+			Collections.addAll(variables.words,v.getName());
+			}
+
 		tmKeywords.add(functions);
 		tmKeywords.add(constructs);
 		tmKeywords.add(operators);
 		tmKeywords.add(constants);
 		tmKeywords.add(variables);
 
-		CharSymbolSet css = new CharSymbolSet("Operators and Separators",new Color(0, 0, 200),0);
+		CharSymbolSet css = new CharSymbolSet("Operators and Separators",new Color(0,0,200),0);
 		char[] ca = "{[()]}!%^&*-/+=?:~<>.,;".toCharArray();
 		for (int i = 0; i < ca.length; i++)
 			css.chars.add(ca[i]);
@@ -94,13 +99,13 @@ static KeywordSet resNames, scrNames, constructs, functions, operators, constant
 
 		otherTokens.add(new SimpleToken("Numeric literal","[0-9]+",0,BROWN));
 		otherTokens.add(new SimpleToken("Hex literal","\\$[0-9A-Fa-f]+",0,new Color(100,100,255)));
-	}
-	
+		}
+
 	@Override
 	public Keyword[][] GetKeywords()
 		{
-		DefaultKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,
-		GMLKeywords.FUNCTIONS,GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
+		DefaultKeywords.Keyword[][] GML_KEYWORDS = { GMLKeywords.CONSTRUCTS,GMLKeywords.FUNCTIONS,
+				GMLKeywords.VARIABLES,GMLKeywords.OPERATORS,GMLKeywords.CONSTANTS };
 		return GML_KEYWORDS;
 		}
-}
+	}

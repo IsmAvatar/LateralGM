@@ -37,7 +37,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 	private BufferedImage transparentBackground = null;
 
 	private Object transparentImage;
-	
+
 	public BackgroundPreview(Background b)
 		{
 		super();
@@ -45,21 +45,21 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		b.properties.updateSource.addListener(bpl);
 		b.reference.updateSource.addListener(this);
 		}
-	
+
 	protected BufferedImage getTransparentImage()
 		{
 		if (background == null) return null;
 		if (!(Boolean) background.get(PBackground.TRANSPARENT)) return background.getBackgroundImage();
 		return Util.getTransparentIcon(background.getBackgroundImage());
 		}
-	
-	public BufferedImage paintBackground() {
+
+	public BufferedImage paintBackground()
+		{
 		BufferedImage img = getImage();
-		BufferedImage dest = new BufferedImage(
-				img.getWidth(null), img.getHeight(null),
+		BufferedImage dest = new BufferedImage(img.getWidth(null),img.getHeight(null),
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = dest.createGraphics();
-  
+
 		int imgwidth = img.getWidth();
 		int imgheight = img.getHeight();
 
@@ -68,52 +68,59 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		g.setColor(Color.lightGray);
 		int w = imgwidth / TILE + 1;
 		int h = imgheight / TILE + 1;
-		for (int row = 0; row < h; row++) {
-  			for (int col = 0; col < w; col++) {
-      			if ((row + col) % 2 == 0) {
-          			g.fillRect(col * TILE, row * TILE, TILE, TILE);
-      			}
-  			}
-		}
+		for (int row = 0; row < h; row++)
+			{
+			for (int col = 0; col < w; col++)
+				{
+				if ((row + col) % 2 == 0)
+					{
+					g.fillRect(col * TILE,row * TILE,TILE,TILE);
+					}
+				}
+			}
 		return dest;
-	}
+		}
 
 	public void paintComponent(Graphics g)
 		{
 		//super.paintComponent(g);
 		g.setColor(this.getBackground());
 		g.fillRect(0,0,this.getWidth(),this.getHeight());
-		
-		
+
 		BufferedImage image = getImage();
-		
-		if ((Boolean) background.get(PBackground.TRANSPARENT)) {
-			if (transparentImage == null) {
+
+		if ((Boolean) background.get(PBackground.TRANSPARENT))
+			{
+			if (transparentImage == null)
+				{
 				image = getTransparentImage();
+				}
 			}
-		} else {
+		else
+			{
 			image = getImage();
 			transparentImage = null;
-		}
-		
-		
-		Dimension d = getPreferredSize();
-		
-		if (image != null) {
-			if (transparentBackground == null) {
-				transparentBackground = paintBackground();
 			}
-			
-	    Graphics2D g2d = (Graphics2D) g;
-	    g2d.translate(this.getWidth()/2 - d.width/2, 
-	    		this.getHeight()/2 - d.height/2);
-	    
-			g.drawImage(transparentBackground, 0, 0, d.width, d.height, null);
-    
-			g.drawImage(image, 0, 0, d.width, d.height, null);
-		}		else
+
+		Dimension d = getPreferredSize();
+
+		if (image != null)
+			{
+			if (transparentBackground == null)
+				{
+				transparentBackground = paintBackground();
+				}
+
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.translate(this.getWidth() / 2 - d.width / 2,this.getHeight() / 2 - d.height / 2);
+
+			g.drawImage(transparentBackground,0,0,d.width,d.height,null);
+
+			g.drawImage(image,0,0,d.width,d.height,null);
+			}
+		else
 			setPreferredSize(new Dimension(0,0));
-		
+
 		if (background.get(PBackground.USE_AS_TILESET))
 			{
 			if (image != null)
@@ -145,7 +152,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 					r.height += r.y - newy;
 					r.y = newy;
 
-					g.setClip(0, 0, d.width, d.height); 
+					g.setClip(0,0,d.width,d.height);
 					g.setXORMode(Color.BLACK);
 					g.setColor(Color.WHITE);
 					for (int i = r.x; i < r.x + r.width; i += width + hsep)
@@ -156,22 +163,24 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 				}
 			}
 		}
-	
+
 	public Dimension getPreferredSize()
 		{
 		BufferedImage img = getImage();
 		if (img == null) return super.getPreferredSize();
-		return new Dimension((int)(img.getWidth()*zoom),(int)(img.getHeight()*zoom));
+		return new Dimension((int) (img.getWidth() * zoom),(int) (img.getHeight() * zoom));
 		}
 
-	public double getZoom() {
+	public double getZoom()
+		{
 		return zoom;
-	}
-	
-	public void setZoom(double nzoom) {
+		}
+
+	public void setZoom(double nzoom)
+		{
 		zoom = nzoom;
 		updateUI();
-	}
+		}
 
 	protected BufferedImage getImage()
 		{

@@ -20,7 +20,7 @@ public class View
 	public enum PView
 		{
 		VISIBLE,VIEW_X,VIEW_Y,VIEW_W,VIEW_H,PORT_X,PORT_Y,PORT_W,PORT_H,BORDER_H,BORDER_V,SPEED_H,
-		SPEED_V,OBJECT, OBJECT_FOLLOWING_X, OBJECT_FOLLOWING_Y
+		SPEED_V,OBJECT,OBJECT_FOLLOWING_X,OBJECT_FOLLOWING_Y
 		}
 
 	private static final EnumMap<PView,Object> DEFS = PropertyMap.makeDefaultMap(PView.class,false,0,

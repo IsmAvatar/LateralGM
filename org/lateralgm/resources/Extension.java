@@ -32,10 +32,10 @@ import org.lateralgm.util.PropertyMap;
 
 public class Extension extends InstantiableResource<Extension,Extension.PExtension>
 	{
-	
+
 	public final ActiveArrayList<ExtensionFile> files = new ActiveArrayList<ExtensionFile>();
 	public final ActiveArrayList<ExtensionFunction> functions = new ActiveArrayList<ExtensionFunction>();
-	
+
 	public enum PExtension
 		{
 		//TODO: Extensions
