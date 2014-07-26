@@ -1446,18 +1446,19 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	    JTextField yField = new JTextField(5);
 
 	    JPanel myPanel = new JPanel();
-	    myPanel.add(new JLabel("x:"));
+	    myPanel.add(new JLabel("Horizontal:"));
 	    myPanel.add(xField);
 	    myPanel.add(Box.createHorizontalStrut(15));
-	    myPanel.add(new JLabel("y:"));
+	    myPanel.add(new JLabel("Vertical:"));
 	    myPanel.add(yField);
 	    
       int result = JOptionPane.showConfirmDialog(null, myPanel, 
-          "Please Enter X and Y Values", JOptionPane.OK_CANCEL_OPTION);
+          "Shift instances", JOptionPane.OK_CANCEL_OPTION,  JOptionPane.PLAIN_MESSAGE);
+      
       if (result == JOptionPane.OK_OPTION)
       	{
-      	System.out.println("x value: " + xField.getText());
-      	System.out.println("y value: " + yField.getText());
+      	System.out.println("Horizontal: " + xField.getText());
+      	System.out.println("Vertical: " + yField.getText());
       	}
  
 			return;
