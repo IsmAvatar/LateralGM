@@ -1440,15 +1440,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (editor != null) editor.refresh();
 		Object eventSource = e.getSource();
 		
+		// If the user has pressed the shift instances button
 		if (eventSource == shiftInstances)
 			{
-			JTextField xField = new JTextField(5);
-	    JTextField yField = new JTextField(5);
+			// Get the 'snap' properties of the current room
+			int snapX = editor.getRoom().properties.get(PRoom.SNAP_X);
+			int snapY = editor.getRoom().properties.get(PRoom.SNAP_Y);
+			
+			// Display the text fields with the snap properties
+			JTextField xField = new NumberField(1, 999999, snapX);
+	    JTextField yField = new NumberField(1, 999999, snapY);
 
+	    // Create the panel with the shift properties
 	    JPanel myPanel = new JPanel();
 	    myPanel.add(new JLabel("Horizontal:"));
 	    myPanel.add(xField);
-	    myPanel.add(Box.createHorizontalStrut(15));
+	    myPanel.add(Box.createHorizontalStrut(7));
 	    myPanel.add(new JLabel("Vertical:"));
 	    myPanel.add(yField);
 	    
