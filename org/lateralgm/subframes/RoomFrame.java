@@ -39,6 +39,7 @@ import java.util.HashMap;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -49,6 +50,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -263,6 +265,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		shiftInstances = new JButton(LGM.getIconForKey("RoomFrame.SHIFT"));
 		shiftInstances.setToolTipText(Messages.getString("RoomFrame.SHIFT"));
+		shiftInstances.addActionListener(this);
 		tool.add(shiftInstances);
 		tool.addSeparator();
 		
@@ -1436,7 +1439,30 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		{
 		if (editor != null) editor.refresh();
 		Object eventSource = e.getSource();
+		
+		if (eventSource == shiftInstances)
+			{
+			JTextField xField = new JTextField(5);
+	    JTextField yField = new JTextField(5);
 
+	    JPanel myPanel = new JPanel();
+	    myPanel.add(new JLabel("x:"));
+	    myPanel.add(xField);
+	    myPanel.add(Box.createHorizontalStrut(15));
+	    myPanel.add(new JLabel("y:"));
+	    myPanel.add(yField);
+	    
+      int result = JOptionPane.showConfirmDialog(null, myPanel, 
+          "Please Enter X and Y Values", JOptionPane.OK_CANCEL_OPTION);
+      if (result == JOptionPane.OK_OPTION)
+      	{
+      	System.out.println("x value: " + xField.getText());
+      	System.out.println("y value: " + yField.getText());
+      	}
+ 
+			return;
+			}
+		
 		if (eventSource == sShow)
 			{
 			sShowMenu.show(sShow,0,sShow.getHeight());
