@@ -116,6 +116,7 @@ import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.RemovePieceInstance;
+import org.lateralgm.util.ShiftPieceInstances;
 
 public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		ListSelectionListener,CommandHandler,UpdateListener,FocusListener,ChangeListener
@@ -1511,6 +1512,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						instance.setPosition(newPosition);
 						}
 					}
+
+				// Record the effect of shifting instances for the undo
+				UndoableEdit edit = new ShiftPieceInstances(currentRoom,shiftingTiles,horizontalShift,
+						verticalShift);
+				// notify the listeners
+				undoSupport.postEdit(edit);
 
 				}
 
