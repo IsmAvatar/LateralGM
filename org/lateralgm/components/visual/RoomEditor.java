@@ -141,6 +141,11 @@ public class RoomEditor extends VisualPanel
 		setZoom((Integer) properties.get(PRoomEditor.ZOOM));
 		refresh();
 		}
+	
+	public Room getRoom()
+		{
+			return room;
+		}
 
 	public void refresh()
 		{
@@ -174,9 +179,9 @@ public class RoomEditor extends VisualPanel
 			// A new piece has been added
 			{
 			if (cursor instanceof Instance)
-				edit = new AddPieceInstance(frame,cursor,getRoom().instances.size() - 1);
+				edit = new AddPieceInstance(frame,cursor,room.instances.size() - 1);
 			else
-				edit = new AddPieceInstance(frame,cursor,getRoom().tiles.size() - 1);
+				edit = new AddPieceInstance(frame,cursor,room.tiles.size() - 1);
 			}
 
 		compoundEdit.addEdit(edit);
@@ -189,11 +194,11 @@ public class RoomEditor extends VisualPanel
 		if (deleteUnderlyingObjects && cursor instanceof Instance)
 			deleteUnderlying(
 					roomVisual.intersectInstances(new Rectangle(lastPosition.x,lastPosition.y,1,1)),
-					getRoom().instances,compoundEdit);
+					room.instances,compoundEdit);
 		else if (deleteUnderlyingTiles && cursor instanceof Tile)
 			deleteUnderlying(
 					roomVisual.intersectTiles(new Rectangle(lastPosition.x,lastPosition.y,1,1),getTileDepth()),
-					getRoom().tiles,compoundEdit);
+					room.tiles,compoundEdit);
 
 		// Save the action for the undo
 		compoundEdit.end();
@@ -215,9 +220,9 @@ public class RoomEditor extends VisualPanel
 
 				// Record the effect of removing an piece for the undo
 				if (cursor instanceof Instance)
-					edit = new RemovePieceInstance(frame,(Piece) t,getRoom().instances.indexOf(t));
+					edit = new RemovePieceInstance(frame,(Piece) t,room.instances.indexOf(t));
 				else
-					edit = new RemovePieceInstance(frame,(Piece) t,getRoom().tiles.indexOf(t));
+					edit = new RemovePieceInstance(frame,(Piece) t,room.tiles.indexOf(t));
 
 				compoundEdit.addEdit(edit);
 
@@ -286,7 +291,7 @@ public class RoomEditor extends VisualPanel
 					ResourceReference<Background> bkg = frame.taSource.getSelected();
 					if (bkg == null) return; //I'd rather just break out of this IF, but this works
 					Background b = bkg.get();
-					Tile t = new Tile(getRoom(),LGM.currentFile);
+					Tile t = new Tile(room,LGM.currentFile);
 					t.properties.put(PTile.BACKGROUND,bkg);
 					t.setBackgroundPosition(new Point(frame.tSelect.tx,frame.tSelect.ty));
 					t.setPosition(p);
@@ -298,7 +303,7 @@ public class RoomEditor extends VisualPanel
 								(Integer) b.get(PBackground.TILE_HEIGHT)));
 
 					t.setDepth((Integer) frame.taDepth.getValue());
-					getRoom().tiles.add(t);
+					room.tiles.add(t);
 					setCursor(t);
 					shiftKeyPressed = true; //prevents unnecessary coordinate update below
 					}
@@ -306,7 +311,7 @@ public class RoomEditor extends VisualPanel
 					{
 					ResourceReference<GmObject> obj = frame.oNew.getSelected();
 					if (obj == null) return; //I'd rather just break out of this IF, but this works
-					Instance instance = getRoom().addInstance();
+					Instance instance = room.addInstance();
 					instance.properties.put(PInstance.OBJECT,obj);
 					instance.setPosition(p);
 
@@ -368,19 +373,19 @@ public class RoomEditor extends VisualPanel
 
 			if (mc instanceof Instance)
 				{
-				pieceIndex = getRoom().instances.indexOf(mc);
+				pieceIndex = room.instances.indexOf(mc);
 				if (pieceIndex == -1) return;
 
-				alist = getRoom().instances;
+				alist = room.instances;
 				jlist = frame.oList;
 				CodeFrame fr = frame.codeFrames.get(mc);
 				if (fr != null) fr.dispose();
 				}
 			else if (mc instanceof Tile)
 				{
-				pieceIndex = getRoom().tiles.indexOf(mc);
+				pieceIndex = room.tiles.indexOf(mc);
 				if (pieceIndex == -1) return;
-				alist = getRoom().tiles;
+				alist = room.tiles;
 				jlist = frame.tList;
 				}
 			else
@@ -409,12 +414,12 @@ public class RoomEditor extends VisualPanel
 		// If the alt key is not pressed, apply the 'snapping' to the current position
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
-			int sx = getRoom().get(PRoom.SNAP_X);
-			int sy = getRoom().get(PRoom.SNAP_Y);
+			int sx = room.get(PRoom.SNAP_X);
+			int sy = room.get(PRoom.SNAP_Y);
 			int ox = properties.get(PRoomEditor.GRID_OFFSET_X);
 			int oy = properties.get(PRoomEditor.GRID_OFFSET_Y);
 
-			if (getRoom().get(PRoom.ISOMETRIC))
+			if (room.get(PRoom.ISOMETRIC))
 				{
 				int gx = ox + negDiv(x - ox,sx) * sx;
 				int gy = oy + negDiv(y - oy,sy) * sy;
@@ -535,13 +540,13 @@ public class RoomEditor extends VisualPanel
 				case SHOW_OBJECTS:
 				case SHOW_TILES:
 				case SHOW_VIEWS:
-					if (!validating) properties.put(PRoomEditor.valueOf(e.key.name()),getRoom().get(e.key));
+					if (!validating) properties.put(PRoomEditor.valueOf(e.key.name()),room.get(e.key));
 					break;
 				case REMEMBER_WINDOW_SIZE:
-					if (getRoom().get(PRoom.REMEMBER_WINDOW_SIZE)) for (PRoomEditor pre : PRoomEditor.values())
+					if (room.get(PRoom.REMEMBER_WINDOW_SIZE)) for (PRoomEditor pre : PRoomEditor.values())
 						try
 							{
-							getRoom().put(PRoom.valueOf(pre.name()),properties.get(pre));
+							room.put(PRoom.valueOf(pre.name()),properties.get(pre));
 							}
 						catch (IllegalArgumentException iae)
 							{
@@ -562,15 +567,10 @@ public class RoomEditor extends VisualPanel
 			roomVisual.setGridFactor(1);
 		else
 			{
-			int sx = getRoom().get(PRoom.SNAP_X);
-			int sy = getRoom().get(PRoom.SNAP_Y);
+			int sx = room.get(PRoom.SNAP_X);
+			int sy = room.get(PRoom.SNAP_Y);
 			roomVisual.setGridFactor((2 - z) / gcd(2 - z,gcd(sx < 2 ? 0 : sx,sy < 2 ? 0 : sy)));
 			}
-		}
-
-	public Room getRoom()
-		{
-			return room;
 		}
 
 	private boolean validating;
@@ -602,19 +602,19 @@ public class RoomEditor extends VisualPanel
 					break;
 				case DELETE_UNDERLYING_OBJECTS:
 				case DELETE_UNDERLYING_TILES:
-					if (getRoom().get(PRoom.REMEMBER_WINDOW_SIZE))
+					if (room.get(PRoom.REMEMBER_WINDOW_SIZE))
 						{
 						PRoom prk = PRoom.valueOf(k.name());
 						validating = true;
 						try
 							{
-							getRoom().put(prk,v);
+							room.put(prk,v);
 							}
 						finally
 							{
 							validating = false;
 							}
-						return getRoom().get(prk);
+						return room.get(prk);
 						}
 				}
 			return v;
@@ -624,9 +624,9 @@ public class RoomEditor extends VisualPanel
 		private void updateViewsObjectFollowingProperty()
 			{
 			// If the views are not enabled
-			if ((Boolean) getRoom().get(PRoom.VIEWS_ENABLED) == false) return;
+			if ((Boolean) room.get(PRoom.VIEWS_ENABLED) == false) return;
 
-			for (View view : getRoom().views)
+			for (View view : room.views)
 				{
 				// If the view is not visible, don't show it
 				if ((Boolean) view.properties.get(PView.VISIBLE) == false) return;
@@ -649,7 +649,7 @@ public class RoomEditor extends VisualPanel
 				Instance instanceToFollow = null;
 
 				// get the first instance in the room
-				for (Instance instance : getRoom().instances)
+				for (Instance instance : room.instances)
 					{
 					ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
 

@@ -110,6 +110,7 @@ import org.lateralgm.ui.swing.propertylink.ButtonModelLink;
 import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
+import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.AddPieceInstance;
 import org.lateralgm.util.MovePieceInstance;
 import org.lateralgm.util.PropertyLink;
@@ -268,7 +269,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		shiftInstances.addActionListener(this);
 		tool.add(shiftInstances);
 		tool.addSeparator();
-		
+
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
@@ -1439,38 +1440,66 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		{
 		if (editor != null) editor.refresh();
 		Object eventSource = e.getSource();
-		
+
 		// If the user has pressed the shift instances button
 		if (eventSource == shiftInstances)
 			{
-			// Get the 'snap' properties of the current room
-			int snapX = editor.getRoom().properties.get(PRoom.SNAP_X);
-			int snapY = editor.getRoom().properties.get(PRoom.SNAP_Y);
-			
-			// Display the text fields with the snap properties
-			JTextField xField = new NumberField(1, 999999, snapX);
-	    JTextField yField = new NumberField(1, 999999, snapY);
+			Room currentRoom = editor.getRoom();
 
-	    // Create the panel with the shift properties
-	    JPanel myPanel = new JPanel();
-	    myPanel.add(new JLabel("Horizontal:"));
-	    myPanel.add(xField);
-	    myPanel.add(Box.createHorizontalStrut(7));
-	    myPanel.add(new JLabel("Vertical:"));
-	    myPanel.add(yField);
-	    
-      int result = JOptionPane.showConfirmDialog(null, myPanel, 
-          "Shift instances", JOptionPane.OK_CANCEL_OPTION,  JOptionPane.PLAIN_MESSAGE);
-      
-      if (result == JOptionPane.OK_OPTION)
-      	{
-      	System.out.println("Horizontal: " + xField.getText());
-      	System.out.println("Vertical: " + yField.getText());
-      	}
- 
+			// Get the 'snap' properties of the current room
+			int snapX = currentRoom.properties.get(PRoom.SNAP_X);
+			int snapY = currentRoom.properties.get(PRoom.SNAP_Y);
+
+			// Display the text fields with the snap properties
+			NumberField txtHorizontalShift = new NumberField(-999999,999999,snapX);
+			NumberField txtVerticalShift = new NumberField(-999999,999999,snapY);
+
+			// Create the panel with the shift properties
+			JPanel myPanel = new JPanel();
+			myPanel.add(new JLabel("Horizontal:"));
+			myPanel.add(txtHorizontalShift);
+			myPanel.add(Box.createHorizontalStrut(7));
+			myPanel.add(new JLabel("Vertical:"));
+			myPanel.add(txtVerticalShift);
+
+			int result = JOptionPane.showConfirmDialog(null,myPanel,"Shift instances",
+					JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+
+			if (result == JOptionPane.OK_OPTION)
+				{
+				// Get the shift values
+				int horizontalShift = txtHorizontalShift.getIntValue();
+				int verticalShift = txtVerticalShift.getIntValue();
+
+				// If the tiles tab is selected, shift the tiles
+				if (tabs.getTitleAt(tabs.getSelectedIndex()) == Messages.getString("RoomFrame.TAB_TILES"))
+					{
+					
+					for (Tile tile : currentRoom.tiles)
+						{
+						Point newPosition = new Point(tile.getPosition().x + horizontalShift,
+								tile.getPosition().y + verticalShift);
+						tile.setPosition(newPosition);
+						}
+					
+					}
+				else
+				// Shift the objects
+					{
+					
+					for (Instance instance : currentRoom.instances)
+						{
+						Point newPosition = new Point(instance.getPosition().x + horizontalShift,
+								instance.getPosition().y + verticalShift);
+						instance.setPosition(newPosition);
+						}
+					}
+
+				}
+
 			return;
 			}
-		
+
 		if (eventSource == sShow)
 			{
 			sShowMenu.show(sShow,0,sShow.getHeight());
@@ -1667,8 +1696,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		{
 		if (editorPane == null) return;
 
+		Room currentRoom = editor.getRoom();
+
 		// If the views are not enabled
-		if ((Boolean) editor.roomVisual.room.get(PRoom.VIEWS_ENABLED) == false) return;
+		if ((Boolean) currentRoom.get(PRoom.VIEWS_ENABLED) == false) return;
 
 		// Get the selected view
 		View view = res.views.get(vList.getSelectedIndex());
@@ -1688,7 +1719,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		// If there is an object to follow, get the first instance in the room
 		if (objectToFollowReference != null)
 			{
-			for (Instance instance : editor.roomVisual.room.instances)
+			for (Instance instance : currentRoom.instances)
 				{
 				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
 
