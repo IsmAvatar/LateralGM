@@ -1485,9 +1485,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			if (result == JOptionPane.OK_OPTION)
 				{
+				// If there is no tiles to shift
+				if (currentRoom.tiles.size() == 0 && shiftingTiles) return;
+
+				// If there is no objects to shift
+				if (currentRoom.instances.size() == 0 && shiftingTiles == false) return;
+
 				// Get the shift values
 				int horizontalShift = txtHorizontalShift.getIntValue();
 				int verticalShift = txtVerticalShift.getIntValue();
+
+				// If there is nothing to shift
+				if (horizontalShift == 0 & verticalShift == 0) return;
 
 				// If the tiles tab is selected, shift the tiles
 				if (shiftingTiles)
