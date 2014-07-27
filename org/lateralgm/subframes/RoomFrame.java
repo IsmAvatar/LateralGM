@@ -204,6 +204,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// Used to record the select piece before losing the focus.
 	public Piece selectedPiece = null;
 
+	public RoomEditor getRoomEditor()
+		{
+			return editor;
+		}
+	
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
@@ -1495,7 +1500,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				int horizontalShift = txtHorizontalShift.getIntValue();
 				int verticalShift = txtVerticalShift.getIntValue();
 
-				// If there is nothing to shift
+				// If the position is the same
 				if (horizontalShift == 0 & verticalShift == 0) return;
 
 				// If the tiles tab is selected, shift the tiles
@@ -1523,7 +1528,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 
 				// Record the effect of shifting instances for the undo
-				UndoableEdit edit = new ShiftPieceInstances(currentRoom,shiftingTiles,horizontalShift,
+				UndoableEdit edit = new ShiftPieceInstances(this,shiftingTiles,horizontalShift,
 						verticalShift);
 				// notify the listeners
 				undoSupport.postEdit(edit);

@@ -1,6 +1,8 @@
 /**
 * Record the effect of moving a piece (object/tile) instance for the undo
 *
+* I don't know why, but before moving a piece, the piece must be selected in the list.
+*
 * Copyright (C) 2014, egofree
 *
 * This file is part of LateralGM.

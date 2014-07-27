@@ -1,6 +1,8 @@
 /**
 * Record the effect of shifting piece (objects/tiles) instances for the undo
-*
+* 
+* I don't know why, but before moving a piece, the piece must be selected in the list.
+* 
 * Copyright (C) 2014, egofree
 *
 * This file is part of LateralGM.
@@ -19,6 +21,7 @@ import javax.swing.undo.CannotUndoException;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.subframes.RoomFrame;
 
 public class ShiftPieceInstances extends AbstractUndoableEdit
 	{
@@ -27,25 +30,30 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 	private int horizontalShift;
 	private int verticalShift;
 	private boolean shiftTiles;
-	private Room room;
+	private RoomFrame roomFrame;
 
-	public ShiftPieceInstances(Room room, boolean shiftTiles, int horizontalShift, int verticalShift)
+	public ShiftPieceInstances(RoomFrame roomFrame, boolean shiftTiles, int horizontalShift, int verticalShift)
 		{
 		this.horizontalShift = horizontalShift;
 		this.verticalShift = verticalShift;
-		this.room = room;
+		this.roomFrame = roomFrame;
 		this.shiftTiles = shiftTiles;
 		}
 
 	@Override
 	public void undo() throws CannotUndoException
 		{
+		Room room = roomFrame.getRoomEditor().getRoom();
+		
 		// If we are shifting tiles
 		if (shiftTiles)
 			{
 
 			for (Tile tile : room.tiles)
 				{
+					roomFrame.tList.setSelectedValue(tile,true);
+					roomFrame.fireTileUpdate();
+					
 				Point newPosition = new Point(tile.getPosition().x - horizontalShift,tile.getPosition().y
 						- verticalShift);
 				tile.setPosition(newPosition);
@@ -58,6 +66,9 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 
 			for (Instance instance : room.instances)
 				{
+				roomFrame.oList.setSelectedValue(instance,true);
+				roomFrame.fireObjUpdate();
+				
 				Point newPosition = new Point(instance.getPosition().x - horizontalShift,
 						instance.getPosition().y - verticalShift);
 				instance.setPosition(newPosition);
@@ -68,12 +79,18 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 	@Override
 	public void redo() throws CannotRedoException
 		{
+		Room room = roomFrame.getRoomEditor().getRoom();
+		
 		// If we are shifting tiles
 		if (shiftTiles)
 			{
 
 			for (Tile tile : room.tiles)
 				{
+				
+				roomFrame.tList.setSelectedValue(tile,true);
+				roomFrame.fireTileUpdate();
+				
 				Point newPosition = new Point(tile.getPosition().x + horizontalShift,tile.getPosition().y
 						+ verticalShift);
 				tile.setPosition(newPosition);
@@ -86,6 +103,10 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 
 			for (Instance instance : room.instances)
 				{
+				
+				roomFrame.oList.setSelectedValue(instance,true);
+				roomFrame.fireObjUpdate();
+				
 				Point newPosition = new Point(instance.getPosition().x + horizontalShift,
 						instance.getPosition().y + verticalShift);
 				instance.setPosition(newPosition);
