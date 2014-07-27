@@ -130,7 +130,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public JLabel statX, statY, statId, statSrc;
 
 	//ToolBar
-	private JButton zoomIn, zoomOut, undo, redo, shiftInstances;
+	private JButton zoomIn, zoomOut, undo, redo, clearInstances, shiftInstances;
 	private JToggleButton gridVis;
 	JToggleButton gridIso;
 
@@ -269,6 +269,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(redo);
 		tool.addSeparator();
 
+		clearInstances = new JButton(LGM.getIconForKey("RoomFrame.CLEAR"));
+		clearInstances.setToolTipText(Messages.getString("RoomFrame.CLEAR"));
+		clearInstances.addActionListener(this);
+		tool.add(clearInstances);
+		
 		shiftInstances = new JButton(LGM.getIconForKey("RoomFrame.SHIFT"));
 		shiftInstances.setToolTipText(Messages.getString("RoomFrame.SHIFT"));
 		shiftInstances.addActionListener(this);
