@@ -130,7 +130,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public JLabel statX, statY, statId, statSrc;
 
 	//ToolBar
-	private JButton zoomIn, zoomOut, undo, redo, clearInstances, shiftInstances;
+	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances;
 	private JToggleButton gridVis;
 	JToggleButton gridIso;
 
@@ -206,9 +206,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	public RoomEditor getRoomEditor()
 		{
-			return editor;
+		return editor;
 		}
-	
+
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
@@ -269,11 +269,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(redo);
 		tool.addSeparator();
 
-		clearInstances = new JButton(LGM.getIconForKey("RoomFrame.CLEAR"));
-		clearInstances.setToolTipText(Messages.getString("RoomFrame.CLEAR"));
-		clearInstances.addActionListener(this);
-		tool.add(clearInstances);
-		
+		deleteInstances = new JButton(LGM.getIconForKey("RoomFrame.DELETE"));
+		deleteInstances.setToolTipText(Messages.getString("RoomFrame.DELETE"));
+		deleteInstances.addActionListener(this);
+		tool.add(deleteInstances);
+
 		shiftInstances = new JButton(LGM.getIconForKey("RoomFrame.SHIFT"));
 		shiftInstances.setToolTipText(Messages.getString("RoomFrame.SHIFT"));
 		shiftInstances.addActionListener(this);
@@ -1458,6 +1458,35 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (editor != null) editor.refresh();
 		Object eventSource = e.getSource();
 
+		// If the user has pressed the delete instances button
+		if (eventSource == deleteInstances)
+			{
+			// If the tiles tab is selected, clear the tiles
+			boolean tilesTabIsSelected = (tabs.getTitleAt(tabs.getSelectedIndex()) == Messages.getString("RoomFrame.TAB_TILES"));
+
+			String message;
+
+			// Set message
+			if (tilesTabIsSelected)
+				message = Messages.getString("RoomFrame.DELETE_TILES");
+			else
+				message = Messages.getString("RoomFrame.DELETE_OBJECTS");
+
+			// Get a confirmation from the user
+			int result = JOptionPane.showConfirmDialog(null,message,
+					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+
+			if (result == JOptionPane.YES_OPTION)
+				{
+				Room currentRoom = editor.getRoom();
+
+				if (tilesTabIsSelected)
+					currentRoom.tiles.clear();
+				else
+					currentRoom.instances.clear();
+				}
+			}
+
 		// If the user has pressed the shift instances button
 		if (eventSource == shiftInstances)
 			{
@@ -1480,12 +1509,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			myPanel.add(txtVerticalShift);
 
 			// If the tiles tab is selected, shift the tiles
-			boolean shiftingTiles = (tabs.getTitleAt(tabs.getSelectedIndex()) == Messages.getString("RoomFrame.TAB_TILES"));
+			boolean tilesTabIsSelected = (tabs.getTitleAt(tabs.getSelectedIndex()) == Messages.getString("RoomFrame.TAB_TILES"));
 
 			String panelTitle;
 
 			// Set the panel title
-			if (shiftingTiles)
+			if (tilesTabIsSelected)
 				panelTitle = Messages.getString("RoomFrame.SHIFT_TILES_TITLE");
 			else
 				panelTitle = Messages.getString("RoomFrame.SHIFT_OBJECTS_TITLE");
@@ -1496,10 +1525,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (result == JOptionPane.OK_OPTION)
 				{
 				// If there is no tiles to shift
-				if (currentRoom.tiles.size() == 0 && shiftingTiles) return;
+				if (currentRoom.tiles.size() == 0 && tilesTabIsSelected) return;
 
 				// If there is no objects to shift
-				if (currentRoom.instances.size() == 0 && shiftingTiles == false) return;
+				if (currentRoom.instances.size() == 0 && tilesTabIsSelected == false) return;
 
 				// Get the shift values
 				int horizontalShift = txtHorizontalShift.getIntValue();
@@ -1509,7 +1538,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (horizontalShift == 0 & verticalShift == 0) return;
 
 				// If the tiles tab is selected, shift the tiles
-				if (shiftingTiles)
+				if (tilesTabIsSelected)
 					{
 
 					for (Tile tile : currentRoom.tiles)
@@ -1533,7 +1562,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 
 				// Record the effect of shifting instances for the undo
-				UndoableEdit edit = new ShiftPieceInstances(this,shiftingTiles,horizontalShift,
+				UndoableEdit edit = new ShiftPieceInstances(this,tilesTabIsSelected,horizontalShift,
 						verticalShift);
 				// notify the listeners
 				undoSupport.postEdit(edit);

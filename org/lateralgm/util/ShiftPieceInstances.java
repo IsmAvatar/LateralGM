@@ -29,31 +29,32 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 
 	private int horizontalShift;
 	private int verticalShift;
-	private boolean shiftTiles;
+	private boolean tilesTabIsSelected;
 	private RoomFrame roomFrame;
 
-	public ShiftPieceInstances(RoomFrame roomFrame, boolean shiftTiles, int horizontalShift, int verticalShift)
+	public ShiftPieceInstances(RoomFrame roomFrame, boolean tilesTabIsSelected, int horizontalShift,
+			int verticalShift)
 		{
 		this.horizontalShift = horizontalShift;
 		this.verticalShift = verticalShift;
 		this.roomFrame = roomFrame;
-		this.shiftTiles = shiftTiles;
+		this.tilesTabIsSelected = tilesTabIsSelected;
 		}
 
 	@Override
 	public void undo() throws CannotUndoException
 		{
 		Room room = roomFrame.getRoomEditor().getRoom();
-		
+
 		// If we are shifting tiles
-		if (shiftTiles)
+		if (tilesTabIsSelected)
 			{
 
 			for (Tile tile : room.tiles)
 				{
-					roomFrame.tList.setSelectedValue(tile,true);
-					roomFrame.fireTileUpdate();
-					
+				roomFrame.tList.setSelectedValue(tile,true);
+				roomFrame.fireTileUpdate();
+
 				Point newPosition = new Point(tile.getPosition().x - horizontalShift,tile.getPosition().y
 						- verticalShift);
 				tile.setPosition(newPosition);
@@ -68,7 +69,7 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 				{
 				roomFrame.oList.setSelectedValue(instance,true);
 				roomFrame.fireObjUpdate();
-				
+
 				Point newPosition = new Point(instance.getPosition().x - horizontalShift,
 						instance.getPosition().y - verticalShift);
 				instance.setPosition(newPosition);
@@ -80,17 +81,17 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 	public void redo() throws CannotRedoException
 		{
 		Room room = roomFrame.getRoomEditor().getRoom();
-		
+
 		// If we are shifting tiles
-		if (shiftTiles)
+		if (tilesTabIsSelected)
 			{
 
 			for (Tile tile : room.tiles)
 				{
-				
+
 				roomFrame.tList.setSelectedValue(tile,true);
 				roomFrame.fireTileUpdate();
-				
+
 				Point newPosition = new Point(tile.getPosition().x + horizontalShift,tile.getPosition().y
 						+ verticalShift);
 				tile.setPosition(newPosition);
@@ -103,10 +104,10 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 
 			for (Instance instance : room.instances)
 				{
-				
+
 				roomFrame.oList.setSelectedValue(instance,true);
 				roomFrame.fireObjUpdate();
-				
+
 				Point newPosition = new Point(instance.getPosition().x + horizontalShift,
 						instance.getPosition().y + verticalShift);
 				instance.setPosition(newPosition);
