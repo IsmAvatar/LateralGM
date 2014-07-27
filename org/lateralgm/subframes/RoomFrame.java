@@ -1484,6 +1484,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					currentRoom.tiles.clear();
 				else
 					currentRoom.instances.clear();
+
+				resetUndoManager();
 				}
 			}
 
