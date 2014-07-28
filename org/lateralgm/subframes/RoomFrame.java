@@ -39,6 +39,7 @@ import java.util.HashMap;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -49,6 +50,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -114,6 +116,7 @@ import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 import org.lateralgm.util.RemovePieceInstance;
+import org.lateralgm.util.ShiftPieceInstances;
 
 public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		ListSelectionListener,CommandHandler,UpdateListener,FocusListener,ChangeListener
@@ -127,7 +130,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public JLabel statX, statY, statId, statSrc;
 
 	//ToolBar
-	private JButton zoomIn, zoomOut, undo, redo;
+	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances;
 	private JToggleButton gridVis;
 	JToggleButton gridIso;
 
@@ -201,6 +204,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// Used to record the select piece before losing the focus.
 	public Piece selectedPiece = null;
 
+	public RoomEditor getRoomEditor()
+		{
+		return editor;
+		}
+
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
@@ -259,6 +267,17 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		redo.getActionMap().put("ctrlY",redoAction);
 		redo.addActionListener(redoAction);
 		tool.add(redo);
+		tool.addSeparator();
+
+		deleteInstances = new JButton(LGM.getIconForKey("RoomFrame.DELETE"));
+		deleteInstances.setToolTipText(Messages.getString("RoomFrame.DELETE"));
+		deleteInstances.addActionListener(this);
+		tool.add(deleteInstances);
+
+		shiftInstances = new JButton(LGM.getIconForKey("RoomFrame.SHIFT"));
+		shiftInstances.setToolTipText(Messages.getString("RoomFrame.SHIFT"));
+		shiftInstances.addActionListener(this);
+		tool.add(shiftInstances);
 		tool.addSeparator();
 
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
@@ -324,7 +343,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		public Component getListCellRendererComponent(JList<? extends Instance> list, Instance val,
 				int ind, boolean selected, boolean focus)
 			{
-			Instance i = (Instance) val;
+			Instance i = val;
 			ResourceReference<GmObject> ro = i.properties.get(PInstance.OBJECT);
 			GmObject o = deRef(ro);
 			String name = o == null ? Messages.getString("RoomFrame.NO_OBJECT") : o.getName();
@@ -351,7 +370,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		public Component getListCellRendererComponent(JList<? extends Tile> list, Tile val, int ind,
 				boolean selected, boolean focus)
 			{
-			Tile t = (Tile) val;
+			Tile t = val;
 			ResourceReference<Background> rb = t.properties.get(PTile.BACKGROUND);
 			Background bg = deRef(rb);
 			String name = bg == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : bg.getName();
@@ -710,6 +729,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			setIcon(bi == null ? null : new ImageIcon(bi));
 			}
 
+		@Override
 		public void paintComponent(Graphics g)
 			{
 			super.paintComponent(g);
@@ -735,6 +755,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			g.setClip(oldClip); //restore the clip
 			}
 
+		@Override
 		protected void processMouseEvent(MouseEvent e)
 			{
 			if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1
@@ -743,6 +764,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			super.processMouseEvent(e);
 			}
 
+		@Override
 		protected void processMouseMotionEvent(MouseEvent e)
 			{
 			if (e.getID() == MouseEvent.MOUSE_DRAGGED
@@ -1370,6 +1392,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	//maximizes over-sized RoomFrames, since setMaximum can't
 	//be called until after it's been added to the MDI
+	@Override
 	public void setVisible(boolean b)
 		{
 		super.setVisible(b);
@@ -1405,12 +1428,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			}
 		}
 
+	@Override
 	protected boolean areResourceFieldsEqual()
 		{
 		return (res.backgroundDefs.equals(resOriginal.backgroundDefs)
 				&& res.views.equals(resOriginal.views) && res.instances.equals(resOriginal.instances) && res.tiles.equals(resOriginal.tiles));
 		}
 
+	@Override
 	public void commitChanges()
 		{
 		res.setName(name.getText());
@@ -1427,10 +1452,133 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			}
 		}
 
+	@Override
 	public void actionPerformed(ActionEvent e)
 		{
 		if (editor != null) editor.refresh();
 		Object eventSource = e.getSource();
+
+		// If the user has pressed the delete instances button
+		if (eventSource == deleteInstances)
+			{
+			// If the tiles tab is selected, clear the tiles
+			boolean tilesTabIsSelected = (tabs.getTitleAt(tabs.getSelectedIndex()) == Messages.getString("RoomFrame.TAB_TILES"));
+
+			String message;
+
+			// Set message
+			if (tilesTabIsSelected)
+				message = Messages.getString("RoomFrame.DELETE_TILES");
+			else
+				message = Messages.getString("RoomFrame.DELETE_OBJECTS");
+
+			// Get a confirmation from the user
+			int result = JOptionPane.showConfirmDialog(null,message,
+					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+
+			if (result == JOptionPane.YES_OPTION)
+				{
+				Room currentRoom = editor.getRoom();
+
+				if (tilesTabIsSelected)
+					currentRoom.tiles.clear();
+				else
+					currentRoom.instances.clear();
+
+				resetUndoManager();
+				}
+			}
+
+		// If the user has pressed the shift instances button
+		if (eventSource == shiftInstances)
+			{
+			Room currentRoom = editor.getRoom();
+
+			// Get the 'snap' properties of the current room
+			int snapX = currentRoom.properties.get(PRoom.SNAP_X);
+			int snapY = currentRoom.properties.get(PRoom.SNAP_Y);
+
+			// Display the text fields with the snap properties
+			NumberField txtHorizontalShift = new NumberField(-999999,999999,snapX);
+			NumberField txtVerticalShift = new NumberField(-999999,999999,snapY);
+
+			// Create the panel with the shift properties
+			JPanel myPanel = new JPanel();
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.HORIZONTAL_SHIFT") + ":"));
+			myPanel.add(txtHorizontalShift);
+			myPanel.add(Box.createHorizontalStrut(7));
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.VERTICAL_SHIFT") + ":"));
+			myPanel.add(txtVerticalShift);
+
+			// If the tiles tab is selected, shift the tiles
+			boolean tilesTabIsSelected = (tabs.getTitleAt(tabs.getSelectedIndex()) == Messages.getString("RoomFrame.TAB_TILES"));
+
+			String panelTitle;
+
+			// Set the panel title
+			if (tilesTabIsSelected)
+				panelTitle = Messages.getString("RoomFrame.SHIFT_TILES_TITLE");
+			else
+				panelTitle = Messages.getString("RoomFrame.SHIFT_OBJECTS_TITLE");
+
+			int result = JOptionPane.showConfirmDialog(null,myPanel,panelTitle,
+					JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+
+			if (result == JOptionPane.OK_OPTION)
+				{
+				// If there is no tiles to shift
+				if (currentRoom.tiles.size() == 0 && tilesTabIsSelected) return;
+
+				// If there is no objects to shift
+				if (currentRoom.instances.size() == 0 && tilesTabIsSelected == false) return;
+
+				// Get the shift values
+				int horizontalShift = txtHorizontalShift.getIntValue();
+				int verticalShift = txtVerticalShift.getIntValue();
+
+				// If the position is the same
+				if (horizontalShift == 0 & verticalShift == 0) return;
+
+				// If the tiles tab is selected, shift the tiles
+				if (tilesTabIsSelected)
+					{
+
+					for (Tile tile : currentRoom.tiles)
+						{
+						// Select the instance in the list, otherwise it is sometimes not correctly selected
+						tList.setSelectedValue(tile,false);
+						
+						Point newPosition = new Point(tile.getPosition().x + horizontalShift,
+								tile.getPosition().y + verticalShift);
+						tile.setPosition(newPosition);
+						}
+
+					}
+				else
+					// Shift the objects
+					{
+
+					for (Instance instance : currentRoom.instances)
+						{
+						// Select the instance in the list, otherwise it is sometimes not correctly selected
+						oList.setSelectedValue(instance,false);
+						
+						Point newPosition = new Point(instance.getPosition().x + horizontalShift,
+								instance.getPosition().y + verticalShift);
+						instance.setPosition(newPosition);
+						}
+					}
+
+				// Record the effect of shifting instances for the undo
+				UndoableEdit edit = new ShiftPieceInstances(this,tilesTabIsSelected,horizontalShift,
+						verticalShift);
+				// notify the listeners
+				undoSupport.postEdit(edit);
+
+				}
+
+			return;
+			}
 
 		if (eventSource == sShow)
 			{
@@ -1466,7 +1614,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			int selectedIndex = oList.getSelectedIndex();
 			if (selectedIndex == -1) return;
 
-			Instance instance = (Instance) oList.getSelectedValue();
+			Instance instance = oList.getSelectedValue();
 			if (instance == null) return;
 
 			// Record the effect of removing an object for the undo
@@ -1492,7 +1640,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			int selectedIndex = tList.getSelectedIndex();
 			if (selectedIndex >= res.tiles.size() || selectedIndex < 0) return;
 
-			Tile tile = (Tile) tList.getSelectedValue();
+			Tile tile = tList.getSelectedValue();
 
 			// Record the effect of removing an object for the undo
 			UndoableEdit edit = new RemovePieceInstance(this,tile,selectedIndex);
@@ -1519,7 +1667,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	public void fireObjUpdate()
 		{
-		Instance selectedInstance = (Instance) oList.getSelectedValue();
+		Instance selectedInstance = oList.getSelectedValue();
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
 		PropertyLink.removeAll(loLocked,loSource,loX,loY);
@@ -1548,7 +1696,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	public void fireTileUpdate()
 		{
-		Tile selectedTile = (Tile) tList.getSelectedValue();
+		Tile selectedTile = tList.getSelectedValue();
 		if (lastTile == selectedTile) return;
 		lastTile = selectedTile;
 		PropertyLink.removeAll(ltDepth,ltLocked,ltSource,ltsX,ltsY,ltX,ltY);
@@ -1628,8 +1776,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		{
 		if (editorPane == null) return;
 
+		Room currentRoom = editor.getRoom();
+
 		// If the views are not enabled
-		if ((Boolean) editor.roomVisual.room.get(PRoom.VIEWS_ENABLED) == false) return;
+		if ((Boolean) currentRoom.get(PRoom.VIEWS_ENABLED) == false) return;
 
 		// Get the selected view
 		View view = res.views.get(vList.getSelectedIndex());
@@ -1649,7 +1799,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		// If there is an object to follow, get the first instance in the room
 		if (objectToFollowReference != null)
 			{
-			for (Instance instance : editor.roomVisual.room.instances)
+			for (Instance instance : currentRoom.instances)
 				{
 				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
 
@@ -1772,6 +1922,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			codeFrames.put(code,frame);
 			frame.addInternalFrameListener(new InternalFrameAdapter()
 				{
+					@Override
 					public void internalFrameClosed(InternalFrameEvent e)
 						{
 						CodeFrame f = ((CodeFrame) e.getSource());
@@ -1787,6 +1938,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			frame.toTop();
 		}
 
+	@Override
 	public void removeUpdate(DocumentEvent e)
 		{
 		CodeFrame f = codeFrames.get(res);
@@ -1794,6 +1946,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		super.removeUpdate(e);
 		}
 
+	@Override
 	public void insertUpdate(DocumentEvent e)
 		{
 		CodeFrame f = codeFrames.get(res);
@@ -1801,6 +1954,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		super.insertUpdate(e);
 		}
 
+	@Override
 	public void dispose()
 		{
 		super.dispose();
@@ -1931,7 +2085,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (selectedIndex == -1) return;
 
 			// Save the selected instance
-			selectedPiece = (Instance) oList.getSelectedValue();
+			selectedPiece = oList.getSelectedValue();
 
 			// Save the position of the object for the undo
 			pieceOriginalPosition = new Point(selectedPiece.getPosition());
@@ -1944,7 +2098,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (selectedIndex == -1) return;
 
 			// Save the selected tile
-			selectedPiece = (Tile) tList.getSelectedValue();
+			selectedPiece = tList.getSelectedValue();
 
 			// Save the position of the tile for the undo
 			pieceOriginalPosition = new Point(selectedPiece.getPosition());

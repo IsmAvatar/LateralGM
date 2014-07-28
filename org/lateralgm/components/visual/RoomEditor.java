@@ -141,6 +141,11 @@ public class RoomEditor extends VisualPanel
 		setZoom((Integer) properties.get(PRoomEditor.ZOOM));
 		refresh();
 		}
+	
+	public Room getRoom()
+		{
+			return room;
+		}
 
 	public void refresh()
 		{
