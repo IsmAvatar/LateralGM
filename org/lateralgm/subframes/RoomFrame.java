@@ -1545,6 +1545,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 					for (Tile tile : currentRoom.tiles)
 						{
+						// Select the instance in the list, otherwise it is sometimes not correctly selected
+						tList.setSelectedValue(tile,false);
+						
 						Point newPosition = new Point(tile.getPosition().x + horizontalShift,
 								tile.getPosition().y + verticalShift);
 						tile.setPosition(newPosition);
@@ -1557,6 +1560,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 					for (Instance instance : currentRoom.instances)
 						{
+						// Select the instance in the list, otherwise it is sometimes not correctly selected
+						oList.setSelectedValue(instance,false);
+						
 						Point newPosition = new Point(instance.getPosition().x + horizontalShift,
 								instance.getPosition().y + verticalShift);
 						instance.setPosition(newPosition);

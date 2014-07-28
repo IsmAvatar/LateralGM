@@ -52,8 +52,8 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 
 			for (Tile tile : room.tiles)
 				{
-				roomFrame.tList.setSelectedValue(tile,true);
-				roomFrame.fireTileUpdate();
+				// Select the tile in the list, otherwise it is sometimes not correctly selected
+				roomFrame.tList.setSelectedValue(tile,false);
 
 				Point newPosition = new Point(tile.getPosition().x - horizontalShift,tile.getPosition().y
 						- verticalShift);
@@ -67,8 +67,8 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 
 			for (Instance instance : room.instances)
 				{
-				roomFrame.oList.setSelectedValue(instance,true);
-				roomFrame.fireObjUpdate();
+				// Select the instance in the list, otherwise it is sometimes not correctly selected
+				roomFrame.oList.setSelectedValue(instance,false);
 
 				Point newPosition = new Point(instance.getPosition().x - horizontalShift,
 						instance.getPosition().y - verticalShift);
@@ -88,9 +88,8 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 
 			for (Tile tile : room.tiles)
 				{
-
-				roomFrame.tList.setSelectedValue(tile,true);
-				roomFrame.fireTileUpdate();
+				// Select the tile in the list, otherwise it is sometimes not correctly selected
+				roomFrame.tList.setSelectedValue(tile,false);
 
 				Point newPosition = new Point(tile.getPosition().x + horizontalShift,tile.getPosition().y
 						+ verticalShift);
@@ -104,9 +103,8 @@ public class ShiftPieceInstances extends AbstractUndoableEdit
 
 			for (Instance instance : room.instances)
 				{
-
-				roomFrame.oList.setSelectedValue(instance,true);
-				roomFrame.fireObjUpdate();
+				// Select the instance in the list, otherwise it is sometimes not correctly selected
+				roomFrame.oList.setSelectedValue(instance,false);
 
 				Point newPosition = new Point(instance.getPosition().x + horizontalShift,
 						instance.getPosition().y + verticalShift);
