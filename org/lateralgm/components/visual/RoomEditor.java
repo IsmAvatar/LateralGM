@@ -250,7 +250,7 @@ public class RoomEditor extends VisualPanel
 		lockBounds();
 		}
 
-	private void processLeftButton(int modifiers, boolean pressed, Piece mc, Point p)
+	private void processLeftButton(int modifiers, boolean pressed, Piece pieceUnderCursor, Point p)
 		{
 		// If we are modifying the position of a piece with the text fields, save the position for the undo
 		if (frame.selectedPiece != null)
@@ -264,12 +264,12 @@ public class RoomEditor extends VisualPanel
 		// If the ctrl key is pressed, move the object
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
-			if (pressed && mc != null && !mc.isLocked())
+			if (pressed && pieceUnderCursor != null && !pieceUnderCursor.isLocked())
 				{
 				// Record the original position of the object (without snapping) for the undo
-				objectFirstPosition = mc.getPosition();
+				objectFirstPosition = pieceUnderCursor.getPosition();
 
-				setCursor(mc);
+				setCursor(pieceUnderCursor);
 				}
 
 			}
