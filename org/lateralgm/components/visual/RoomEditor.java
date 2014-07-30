@@ -276,7 +276,11 @@ public class RoomEditor extends VisualPanel
 				}
 
 			// If there is no objects under the cursor, add a new object
-			if (pressed && pieceUnderCursor == null) addNewPieceInstance(shiftKeyPressed,position);
+			if (pressed && pieceUnderCursor == null)
+				{
+				addNewPieceInstance(position);
+				shiftKeyPressed = true; //prevents unnecessary coordinate update below
+				}
 
 			}
 		else
@@ -290,14 +294,18 @@ public class RoomEditor extends VisualPanel
 					}
 
 			// If we have pressed the ctrl key
-			if (pressed && cursor == null) addNewPieceInstance(shiftKeyPressed,position);
+			if (pressed && cursor == null)
+				{
+				addNewPieceInstance(position);
+				shiftKeyPressed = true; //prevents unnecessary coordinate update below
+				}
 
 			}
 
 		if (cursor != null && !shiftKeyPressed) cursor.setPosition(position);
 		}
 
-	private void addNewPieceInstance(boolean shiftKeyPressed, Point position)
+	private void addNewPieceInstance(Point position)
 		{
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 			{
@@ -318,7 +326,7 @@ public class RoomEditor extends VisualPanel
 			t.setDepth((Integer) frame.taDepth.getValue());
 			room.tiles.add(t);
 			setCursor(t);
-			shiftKeyPressed = true; //prevents unnecessary coordinate update below
+
 			}
 		else if (frame.tabs.getSelectedIndex() == Room.TAB_OBJECTS)
 			{
@@ -329,7 +337,6 @@ public class RoomEditor extends VisualPanel
 			instance.setPosition(position);
 
 			setCursor(instance);
-			shiftKeyPressed = true; //prevents unnecessary coordinate update below
 			}
 		}
 
