@@ -141,10 +141,10 @@ public class RoomEditor extends VisualPanel
 		setZoom((Integer) properties.get(PRoomEditor.ZOOM));
 		refresh();
 		}
-	
+
 	public Room getRoom()
 		{
-			return room;
+		return room;
 		}
 
 	public void refresh()
@@ -250,7 +250,8 @@ public class RoomEditor extends VisualPanel
 		lockBounds();
 		}
 
-	private void processLeftButton(int modifiers, boolean pressed, Piece pieceUnderCursor, Point p)
+	private void processLeftButton(int modifiers, boolean pressed, Piece pieceUnderCursor,
+			Point position)
 		{
 		// If we are modifying the position of a piece with the text fields, save the position for the undo
 		if (frame.selectedPiece != null)
@@ -260,10 +261,12 @@ public class RoomEditor extends VisualPanel
 			}
 
 		boolean shiftKeyPressed = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
+		boolean ctrlKeyPressed = ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0);
 
-		// If the ctrl key is pressed, move the object
-		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
+		// If the ctrl and shift keys are not pressed
+		if (shiftKeyPressed == false && ctrlKeyPressed == false)
 			{
+			// If left button has been clicked and if there is an object under the cursor, move the object
 			if (pressed && pieceUnderCursor != null && !pieceUnderCursor.isLocked())
 				{
 				// Record the original position of the object (without snapping) for the undo
@@ -272,55 +275,62 @@ public class RoomEditor extends VisualPanel
 				setCursor(pieceUnderCursor);
 				}
 
+			// If there is no objects under the cursor, add a new object
+			if (pressed && pieceUnderCursor == null) addNewPieceInstance(shiftKeyPressed,position);
+
 			}
 		else
 			{
 			// If the shift key is pressed, add objects under the cursor
 			if (shiftKeyPressed && cursor != null)
-				if (!roomVisual.intersects(new Rectangle(p.x,p.y,1,1),cursor))
+				if (!roomVisual.intersects(new Rectangle(position.x,position.y,1,1),cursor))
 					{
-					releaseCursor(p);
+					releaseCursor(position);
 					pressed = true; //ensures that a new instance is created below
 					}
 
-			if (pressed && cursor == null)
-				{
+			// If we have pressed the ctrl key
+			if (pressed && cursor == null) addNewPieceInstance(shiftKeyPressed,position);
 
-				if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
-					{
-					ResourceReference<Background> bkg = frame.taSource.getSelected();
-					if (bkg == null) return; //I'd rather just break out of this IF, but this works
-					Background b = bkg.get();
-					Tile t = new Tile(room,LGM.currentFile);
-					t.properties.put(PTile.BACKGROUND,bkg);
-					t.setBackgroundPosition(new Point(frame.tSelect.tx,frame.tSelect.ty));
-					t.setPosition(p);
-
-					if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
-						t.setSize(new Dimension(b.getWidth(),b.getHeight()));
-					else
-						t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
-								(Integer) b.get(PBackground.TILE_HEIGHT)));
-
-					t.setDepth((Integer) frame.taDepth.getValue());
-					room.tiles.add(t);
-					setCursor(t);
-					shiftKeyPressed = true; //prevents unnecessary coordinate update below
-					}
-				else if (frame.tabs.getSelectedIndex() == Room.TAB_OBJECTS)
-					{
-					ResourceReference<GmObject> obj = frame.oNew.getSelected();
-					if (obj == null) return; //I'd rather just break out of this IF, but this works
-					Instance instance = room.addInstance();
-					instance.properties.put(PInstance.OBJECT,obj);
-					instance.setPosition(p);
-
-					setCursor(instance);
-					shiftKeyPressed = true; //prevents unnecessary coordinate update below
-					}
-				}
 			}
-		if (cursor != null && !shiftKeyPressed) cursor.setPosition(p);
+
+		if (cursor != null && !shiftKeyPressed) cursor.setPosition(position);
+		}
+
+	private void addNewPieceInstance(boolean shiftKeyPressed, Point position)
+		{
+		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
+			{
+			ResourceReference<Background> bkg = frame.taSource.getSelected();
+			if (bkg == null) return; //I'd rather just break out of this IF, but this works
+			Background b = bkg.get();
+			Tile t = new Tile(room,LGM.currentFile);
+			t.properties.put(PTile.BACKGROUND,bkg);
+			t.setBackgroundPosition(new Point(frame.tSelect.tx,frame.tSelect.ty));
+			t.setPosition(position);
+
+			if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
+				t.setSize(new Dimension(b.getWidth(),b.getHeight()));
+			else
+				t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
+						(Integer) b.get(PBackground.TILE_HEIGHT)));
+
+			t.setDepth((Integer) frame.taDepth.getValue());
+			room.tiles.add(t);
+			setCursor(t);
+			shiftKeyPressed = true; //prevents unnecessary coordinate update below
+			}
+		else if (frame.tabs.getSelectedIndex() == Room.TAB_OBJECTS)
+			{
+			ResourceReference<GmObject> obj = frame.oNew.getSelected();
+			if (obj == null) return; //I'd rather just break out of this IF, but this works
+			Instance instance = room.addInstance();
+			instance.properties.put(PInstance.OBJECT,obj);
+			instance.setPosition(position);
+
+			setCursor(instance);
+			shiftKeyPressed = true; //prevents unnecessary coordinate update below
+			}
 		}
 
 	private void processRightButton(int modifiers, boolean pressed, final Piece mc, Point p)
