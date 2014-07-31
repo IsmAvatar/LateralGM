@@ -48,6 +48,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -63,6 +64,7 @@ import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -1462,6 +1464,32 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (editor != null) editor.refresh();
 		Object eventSource = e.getSource();
 
+		// If the user has pressed the room controls button
+		if (eventSource == roomControls)
+		{
+			 // Create a window and set the properties
+			 JFrame roomControlsFrame = new JFrame(Messages.getString("RoomControls.TITLE"));
+			 Border padding = BorderFactory.createEmptyBorder(15, 15, 15, 15);
+			 JPanel contentPanel = new JPanel();
+			 contentPanel.setBorder(padding);
+			 roomControlsFrame.setContentPane(contentPanel);
+			 roomControlsFrame.setLayout(new BoxLayout(roomControlsFrame.getContentPane(), BoxLayout.Y_AXIS));
+			 roomControlsFrame.setResizable(false);
+			 roomControlsFrame.setLocationRelativeTo(null);
+			 
+			 // Add the labels
+			 roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON")));
+			 roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_CTRl")));
+			 roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_ALT")));
+			 roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_SHIFT")));
+			 roomControlsFrame.add(Box.createRigidArea(new Dimension(0,5)));
+			 roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.RIGHT_BUTTON")));
+			 
+			 roomControlsFrame.pack();
+			 roomControlsFrame.setVisible(true);
+
+		}
+		
 		// If the user has pressed the delete instances button
 		if (eventSource == deleteInstances)
 			{
