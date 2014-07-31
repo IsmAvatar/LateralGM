@@ -1467,7 +1467,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		// If the user has pressed the 'room controls' button
 		if (eventSource == roomControls)
 			{
-			
+
 			// If the window is not open
 			if (LGM.roomControlsFrame == null)
 				{
@@ -1490,6 +1490,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				LGM.roomControlsFrame.add(Box.createRigidArea(new Dimension(0,5)));
 				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.RIGHT_BUTTON")));
 
+				// When closing the window, set the window to null
+				LGM.roomControlsFrame.addWindowListener(new java.awt.event.WindowAdapter()
+					{
+						@Override
+						public void windowClosing(java.awt.event.WindowEvent windowEvent)
+							{
+							LGM.roomControlsFrame = null;
+							}
+					});
 				LGM.roomControlsFrame.pack();
 				LGM.roomControlsFrame.setVisible(true);
 				}
