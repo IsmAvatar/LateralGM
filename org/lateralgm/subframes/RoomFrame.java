@@ -332,7 +332,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		roomControls.setToolTipText(Messages.getString("RoomFrame.ROOM_CONTROLS"));
 		roomControls.addActionListener(this);
 		tool.add(roomControls);
-		
+
 		return tool;
 		}
 
@@ -1464,32 +1464,38 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (editor != null) editor.refresh();
 		Object eventSource = e.getSource();
 
-		// If the user has pressed the room controls button
+		// If the user has pressed the 'room controls' button
 		if (eventSource == roomControls)
-		{
-			 // Create a window and set the properties
-			 JFrame roomControlsFrame = new JFrame(Messages.getString("RoomControls.TITLE"));
-			 Border padding = BorderFactory.createEmptyBorder(15, 15, 15, 15);
-			 JPanel contentPanel = new JPanel();
-			 contentPanel.setBorder(padding);
-			 roomControlsFrame.setContentPane(contentPanel);
-			 roomControlsFrame.setLayout(new BoxLayout(roomControlsFrame.getContentPane(), BoxLayout.Y_AXIS));
-			 roomControlsFrame.setResizable(false);
-			 roomControlsFrame.setLocationRelativeTo(null);
-			 
-			 // Add the labels
-			 roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON")));
-			 roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_CTRl")));
-			 roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_ALT")));
-			 roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_SHIFT")));
-			 roomControlsFrame.add(Box.createRigidArea(new Dimension(0,5)));
-			 roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.RIGHT_BUTTON")));
-			 
-			 roomControlsFrame.pack();
-			 roomControlsFrame.setVisible(true);
+			{
+			
+			// If the window is not open
+			if (LGM.roomControlsFrame == null)
+				{
+				// Create a window and set the properties
+				LGM.roomControlsFrame = new JFrame(Messages.getString("RoomControls.TITLE"));
+				Border padding = BorderFactory.createEmptyBorder(15,15,15,15);
+				JPanel contentPanel = new JPanel();
+				contentPanel.setBorder(padding);
+				LGM.roomControlsFrame.setContentPane(contentPanel);
+				LGM.roomControlsFrame.setLayout(new BoxLayout(LGM.roomControlsFrame.getContentPane(),
+						BoxLayout.Y_AXIS));
+				LGM.roomControlsFrame.setResizable(false);
+				LGM.roomControlsFrame.setLocationRelativeTo(null);
 
-		}
-		
+				// Add the labels
+				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON")));
+				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_CTRl")));
+				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_ALT")));
+				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_SHIFT")));
+				LGM.roomControlsFrame.add(Box.createRigidArea(new Dimension(0,5)));
+				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.RIGHT_BUTTON")));
+
+				LGM.roomControlsFrame.pack();
+				LGM.roomControlsFrame.setVisible(true);
+				}
+
+			}
+
 		// If the user has pressed the delete instances button
 		if (eventSource == deleteInstances)
 			{
@@ -1579,7 +1585,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						{
 						// Select the instance in the list, otherwise it is sometimes not correctly selected
 						tList.setSelectedValue(tile,false);
-						
+
 						Point newPosition = new Point(tile.getPosition().x + horizontalShift,
 								tile.getPosition().y + verticalShift);
 						tile.setPosition(newPosition);
@@ -1594,7 +1600,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						{
 						// Select the instance in the list, otherwise it is sometimes not correctly selected
 						oList.setSelectedValue(instance,false);
-						
+
 						Point newPosition = new Point(instance.getPosition().x + horizontalShift,
 								instance.getPosition().y + verticalShift);
 						instance.setPosition(newPosition);
