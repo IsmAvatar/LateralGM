@@ -112,7 +112,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		}
 
-	// Set the if the views should visible or not (used when the 'views' tab is selected)
+	// Set if the views should visible or not (used when the 'views' tab is selected)
 	public void setViewsVisible(boolean visible)
 		{
 		viewsVisible = visible;
