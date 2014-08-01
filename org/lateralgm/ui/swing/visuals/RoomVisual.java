@@ -493,22 +493,30 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			Point p = piece.getPosition();
 			if (s != null)
 				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
-			setBounds(new Rectangle(p.x,p.y,image.getWidth()+2,image.getHeight()+2));
+			
+			if (piece.isSelected())
+				setBounds(new Rectangle(p.x,p.y,image.getWidth()+2,image.getHeight()+2));
+			else
+				setBounds(new Rectangle(p.x,p.y,image.getWidth(),image.getHeight()));
 			}
 
 		public void paint(Graphics g)
 			{
 			if (show.contains(Show.INSTANCES))
 				{
-				g.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,1,1,null);
-				
-				if (piece.isSelected())
-					{
 					Graphics2D g2 = (Graphics2D) g;
-					g2.setXORMode(Color.BLACK);
-					g2.drawRect(0,0,image.getWidth()+1, image.getHeight()+1);
-					}
 				
+					if (piece.isSelected())
+						{
+						g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,1,1,null);
+						g2.setXORMode(Color.BLACK);
+						g2.drawRect(0,0,image.getWidth()+1, image.getHeight()+1);
+						}
+					else	
+						{
+						g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
+						}
+		
 				}
 			}
 
