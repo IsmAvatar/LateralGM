@@ -22,6 +22,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
@@ -1504,7 +1505,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			else
 				{
 				// Make sure the window is visible and not minimized
-				LGM.roomControlsFrame.setState(LGM.roomControlsFrame.NORMAL);
+				LGM.roomControlsFrame.setState(Frame.NORMAL);
 				LGM.roomControlsFrame.setVisible(true);
 				}
 
