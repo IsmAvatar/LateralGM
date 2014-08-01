@@ -155,6 +155,11 @@ public class RoomEditor extends VisualPanel
 		repaint();
 		}
 
+	public Piece getSelectedPiece()
+		{
+		return selectedPiece;
+		}
+	
 	protected void processMouseEvent(MouseEvent e)
 		{
 		super.processMouseEvent(e);

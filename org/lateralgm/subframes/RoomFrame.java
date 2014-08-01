@@ -236,6 +236,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
+					Piece selectedPiece = editor.getSelectedPiece();
+					
+					// If there is a selected piece, deselect it
+					if (selectedPiece!= null)
+						selectedPiece.setSelected(false);
+					
 					undoManager.undo();
 					refreshUndoRedoButtons();
 					}
