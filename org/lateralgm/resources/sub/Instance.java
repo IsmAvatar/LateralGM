@@ -183,6 +183,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		@Override
 		public void updated(PropertyUpdateEvent<PInstance> e)
 			{
+			if (e.key == PInstance.OBJECT) fireUpdate(null);
 			if (e.key == PInstance.SELECTED) fireUpdate(null);
 			}
 		}
