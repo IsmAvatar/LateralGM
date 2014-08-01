@@ -498,7 +498,18 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		public void paint(Graphics g)
 			{
 			if (show.contains(Show.INSTANCES))
+				{
 				g.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
+				
+				if (piece.isSelected())
+					{
+					Graphics2D g2 = (Graphics2D) g;
+					g2.setXORMode(Color.BLACK);
+					g2.drawRect(0,0,image.getWidth(), image.getHeight());
+					//g2.drawRect(0,0,image.getWidth()+1, image.getHeight()+1);
+					}
+				
+				}
 			}
 
 		@Override

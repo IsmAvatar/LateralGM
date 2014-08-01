@@ -23,6 +23,7 @@ import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -42,11 +43,11 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 
 	public enum PTile
 		{
-		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED,COLOR,SCALE_X,SCALE_Y
+		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED,COLOR,SCALE_X,SCALE_Y,SELECTED
 		}
 
 	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,0,0,0,0,
-			0,0,0,null,0,false,4294967295L,1.0,1.0);
+			0,0,0,null,0,false,4294967295L,1.0,1.0,false);
 
 	/**
 	 * Do not call this constructor unless you intend
@@ -116,6 +117,16 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		return new Dimension(w,h);
 		}
 
+	public void setSelected(boolean selected)
+		{
+		properties.put(PTile.SELECTED,selected);
+		}
+	
+	public boolean isSelected()
+		{
+		return (Boolean) properties.get(PTile.SELECTED);
+		}
+	
 	public void setSize(Dimension s)
 		{
 		properties.put(PTile.WIDTH,s.width);

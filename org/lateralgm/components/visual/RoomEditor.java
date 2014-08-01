@@ -237,6 +237,8 @@ public class RoomEditor extends VisualPanel
 	public void setCursor(Piece ds)
 		{
 		cursor = ds;
+		cursor.setSelected(true);
+		
 		if (ds instanceof Instance)
 			{
 			frame.oList.setSelectedValue(ds,true);
