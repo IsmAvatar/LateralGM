@@ -71,6 +71,7 @@ public class RoomEditor extends VisualPanel
 	private final Room room;
 	protected final RoomFrame frame;
 	private Piece cursor;
+	// The selected piece has a white border
 	private Piece selectedPiece;
 	public final PropertyMap<PRoomEditor> properties;
 	public final RoomVisual roomVisual;
@@ -237,14 +238,14 @@ public class RoomEditor extends VisualPanel
 	/** Do not call with null */
 	public void setCursor(Piece ds)
 		{
-		
+		// If there was a selected piece, deselect it
 		if (selectedPiece!= null)
 			selectedPiece.setSelected(false);
 		
+		// Save the selected piece
 		if (ds != null)
 			selectedPiece = ds;
 
-		
 		cursor = ds;
 		cursor.setSelected(true);
 		
