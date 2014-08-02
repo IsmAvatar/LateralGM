@@ -441,17 +441,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				@Override
 				public void mouseClicked(MouseEvent e)
 					{
-					Piece selectedPiece = editor.getSelectedPiece();
-
-					// If there is a selected piece, deselect it
-					if (selectedPiece != null) selectedPiece.setSelected(false);
-
-					// Display the selected instance with white border
-					Instance instance = oList.getSelectedValue();
-					instance.setSelected(true);
-
-					// Save the selected instance
-					editor.setSelectedPiece(instance);
+					// Display the selected instance with a border and centered in the editor window
+					showSelectedInstance();
 					}
 			};
 
@@ -1885,6 +1876,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		lvOVBor = vplf.make(vOVBor,PView.BORDER_V);
 		lvOHSp = vplf.make(vOHSp,PView.SPEED_H);
 		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
+		}
+
+	// Display the selected instance with a border and centered in the editor window
+	private void showSelectedInstance()
+		{
+		Piece selectedPiece = editor.getSelectedPiece();
+
+		// If there is a selected piece, deselect it
+		if (selectedPiece != null) selectedPiece.setSelected(false);
+
+		// Display the selected instance with white border
+		Instance instance = oList.getSelectedValue();
+		instance.setSelected(true);
+
+		// Save the selected instance
+		editor.setSelectedPiece(instance);
 		}
 
 	// Display the selected view in the center of the window
