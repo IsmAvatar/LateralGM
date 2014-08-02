@@ -1354,7 +1354,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tabs.addTab(bks,makeBackgroundsPane());
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.addTab(Messages.getString("RoomFrame.TAB_PHYSICS"),makePhysicsPane()); //$NON-NLS-1$
-		tabs.setSelectedIndex((Integer) res.get(PRoom.CURRENT_TAB));
+
+		int selectedTab = (Integer) res.get(PRoom.CURRENT_TAB);
+		tabs.setSelectedIndex(selectedTab);
 		tabs.addChangeListener(this);
 
 		res.instanceUpdateSource.addListener(this);
@@ -1362,6 +1364,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		editorPane = new EditorScrollPane(editor);
 		prelf.make(editorPane,PRoomEditor.ZOOM);
+
+		// If the view tab is selected, display the first selected view centered
+		if (selectedTab == Room.TAB_VIEWS) showSelectedView();
+
 		JPanel stats = makeStatsPane();
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
