@@ -32,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
@@ -435,12 +436,32 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		prelf.make(oUnderlying,PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 
+		MouseAdapter mouseListener = new MouseAdapter()
+			{
+				@Override
+				public void mouseClicked(MouseEvent e)
+					{
+					Piece selectedPiece = editor.getSelectedPiece();
+
+					// If there is a selected piece, deselect it
+					if (selectedPiece != null) selectedPiece.setSelected(false);
+
+					// Display the selected instance with white border
+					Instance instance = oList.getSelectedValue();
+					instance.setSelected(true);
+
+					// Save the selected instance
+					editor.setSelectedPiece(instance);
+					}
+			};
+
 		oList = new JList<Instance>(new ArrayListModel<Instance>(res.instances));
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		oList.setVisibleRowCount(8);
 		oList.setCellRenderer(new ObjectListComponentRenderer());
 		oList.setSelectedIndex(0);
 		oList.addListSelectionListener(this);
+		oList.addMouseListener(mouseListener);
 		JScrollPane sp = new JScrollPane(oList);
 		addObjectButton = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
 		addObjectButton.addActionListener(this);

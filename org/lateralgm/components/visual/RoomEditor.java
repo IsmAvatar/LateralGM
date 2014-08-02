@@ -160,6 +160,11 @@ public class RoomEditor extends VisualPanel
 		return selectedPiece;
 		}
 
+	public void setSelectedPiece(Piece selectedPiece)
+		{
+		this.selectedPiece = selectedPiece;
+		}
+
 	@Override
 	protected void processMouseEvent(MouseEvent e)
 		{
