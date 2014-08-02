@@ -237,11 +237,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				public void actionPerformed(ActionEvent actionEvent)
 					{
 					Piece selectedPiece = editor.getSelectedPiece();
-					
+
 					// If there is a selected piece, deselect it
-					if (selectedPiece!= null)
-						selectedPiece.setSelected(false);
-					
+					if (selectedPiece != null) selectedPiece.setSelected(false);
+
 					undoManager.undo();
 					refreshUndoRedoButtons();
 					}
@@ -1521,7 +1520,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (eventSource == deleteInstances)
 			{
 			// If the tiles tab is selected, clear the tiles
-			boolean tilesTabIsSelected = (tabs.getTitleAt(tabs.getSelectedIndex()) == Messages.getString("RoomFrame.TAB_TILES"));
+			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
 
 			String message;
 
@@ -1537,13 +1536,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			if (result == JOptionPane.YES_OPTION)
 				{
-				
+
 				Piece selectedPiece = editor.getSelectedPiece();
-				
+
 				// If there is a selected piece, deselect it
-				if (selectedPiece!= null)
-					selectedPiece.setSelected(false);
-				
+				if (selectedPiece != null) selectedPiece.setSelected(false);
+
 				Room currentRoom = editor.getRoom();
 
 				if (tilesTabIsSelected)
@@ -1577,7 +1575,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			myPanel.add(txtVerticalShift);
 
 			// If the tiles tab is selected, shift the tiles
-			boolean tilesTabIsSelected = (tabs.getTitleAt(tabs.getSelectedIndex()) == Messages.getString("RoomFrame.TAB_TILES"));
+			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
 
 			String panelTitle;
 
@@ -1606,11 +1604,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (horizontalShift == 0 & verticalShift == 0) return;
 
 				Piece selectedPiece = editor.getSelectedPiece();
-				
+
 				// If there is a selected piece, deselect it
-				if (selectedPiece!= null)
-					selectedPiece.setSelected(false);
-				
+				if (selectedPiece != null) selectedPiece.setSelected(false);
+
 				// If the tiles tab is selected, shift the tiles
 				if (tilesTabIsSelected)
 					{
@@ -2235,11 +2232,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// When a new tab is selected
 	public void stateChanged(ChangeEvent event)
 		{
-		JTabbedPane sourceTabbedPane = (JTabbedPane) event.getSource();
-		int index = sourceTabbedPane.getSelectedIndex();
-
 		// If the views tab is selected, always display the views
-		if (sourceTabbedPane.getTitleAt(index) == Messages.getString("RoomFrame.TAB_VIEWS"))
+		if (tabs.getSelectedIndex() == Room.TAB_VIEWS)
 			{
 			showSelectedView();
 			editor.roomVisual.setViewsVisible(true);
