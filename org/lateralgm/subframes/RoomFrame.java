@@ -1366,7 +1366,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		prelf.make(editorPane,PRoomEditor.ZOOM);
 
 		// If the view tab is selected, display the first selected view centered
-		if (selectedTab == Room.TAB_VIEWS) showSelectedView();
+		if (selectedTab == Room.TAB_VIEWS)
+			{
+			showSelectedView();
+			editor.roomVisual.setViewsVisible(true);
+			}
 
 		JPanel stats = makeStatsPane();
 
