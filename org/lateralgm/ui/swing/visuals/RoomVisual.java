@@ -494,7 +494,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			if (s != null)
 				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
 			
-			// If the piece is selected use a bigger bounds for borders
+			// If the piece is selected use bigger bounds for borders
 			if (piece.isSelected())
 				{
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);

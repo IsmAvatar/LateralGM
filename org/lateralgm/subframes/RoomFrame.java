@@ -1537,6 +1537,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			if (result == JOptionPane.YES_OPTION)
 				{
+				
+				Piece selectedPiece = editor.getSelectedPiece();
+				
+				// If there is a selected piece, deselect it
+				if (selectedPiece!= null)
+					selectedPiece.setSelected(false);
+				
 				Room currentRoom = editor.getRoom();
 
 				if (tilesTabIsSelected)
@@ -1598,6 +1605,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				// If the position is the same
 				if (horizontalShift == 0 & verticalShift == 0) return;
 
+				Piece selectedPiece = editor.getSelectedPiece();
+				
+				// If there is a selected piece, deselect it
+				if (selectedPiece!= null)
+					selectedPiece.setSelected(false);
+				
 				// If the tiles tab is selected, shift the tiles
 				if (tilesTabIsSelected)
 					{
