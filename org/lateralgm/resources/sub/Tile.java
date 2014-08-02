@@ -23,7 +23,6 @@ import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
-import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -58,6 +57,7 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		room = r.reference;
 		properties = new PropertyMap<PTile>(PTile.class,this,DEFS);
 		properties.getUpdateSource(PTile.BACKGROUND).addListener(tpl);
+		properties.getUpdateSource(PTile.SELECTED).addListener(tpl);
 		}
 
 	public Tile(Room r, int id)
@@ -121,12 +121,12 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		{
 		properties.put(PTile.SELECTED,selected);
 		}
-	
+
 	public boolean isSelected()
 		{
 		return (Boolean) properties.get(PTile.SELECTED);
 		}
-	
+
 	public void setSize(Dimension s)
 		{
 		properties.put(PTile.WIDTH,s.width);
@@ -206,6 +206,7 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		public void updated(PropertyUpdateEvent<PTile> e)
 			{
 			if (e.key == PTile.BACKGROUND) fireUpdate(null);
+			if (e.key == PTile.SELECTED) fireUpdate(null);
 			}
 		}
 
