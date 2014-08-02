@@ -622,9 +622,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					{
 					g2.drawImage(image,2,2,null);
 					g2.setColor(Color.WHITE);
-					g2.drawRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
+					g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
 					g2.setColor(Color.BLACK);
-					g2.drawRect(0,0,image.getWidth() + 4,image.getHeight() + 4);
+					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
 
 					}
 				else
