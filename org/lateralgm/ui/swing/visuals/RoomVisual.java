@@ -493,7 +493,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			if (s != null)
 				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
 
-			// If the piece is selected use bigger bounds for border
+			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
@@ -512,7 +512,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				{
 				Graphics2D g2 = (Graphics2D) g;
 
-				// If the piece is selected, display border around it
+				// If the instance is selected, display a border around it
 				if (piece.isSelected())
 					{
 					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
@@ -592,14 +592,47 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					image = EMPTY_IMAGE;
 					}
 				}
-			binVisual.setDepth(this,piece.getDepth());
-			Rectangle r = new Rectangle(piece.getPosition(),piece.getSize());
-			setBounds(r);
+
+			// If the tile is selected use bigger bounds for border, and make sure the tile is visible
+			if (piece.isSelected())
+				{
+				binVisual.setDepth(this,Integer.MIN_VALUE);
+				Point piecePosition = piece.getPosition();
+				Dimension pieceSize = piece.getSize();
+				setBounds(new Rectangle(piecePosition.x - 2,piecePosition.y - 2,pieceSize.width + 4,
+						pieceSize.height + 4));
+				}
+			else
+				{
+				binVisual.setDepth(this,piece.getDepth());
+				Rectangle r = new Rectangle(piece.getPosition(),piece.getSize());
+				setBounds(r);
+				}
+
 			}
 
 		public void paint(Graphics g)
 			{
-			if (show.contains(Show.TILES)) g.drawImage(image,0,0,null);
+			if (show.contains(Show.TILES))
+				{
+				Graphics2D g2 = (Graphics2D) g;
+
+				// If the tile is selected, display a border around it
+				if (piece.isSelected())
+					{
+					g2.drawImage(image,2,2,null);
+					g2.setColor(Color.WHITE);
+					g2.drawRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
+					g2.setColor(Color.BLACK);
+					g2.drawRect(0,0,image.getWidth() + 4,image.getHeight() + 4);
+
+					}
+				else
+					{
+					g.drawImage(image,0,0,null);
+					}
+
+				}
 			}
 
 		@Override
