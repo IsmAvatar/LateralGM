@@ -1670,6 +1670,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			// If no object is selected
 			if (oNew.getSelected() == null) return;
+
+			Piece selectedPiece = editor.getSelectedPiece();
+
+			// If there is a selected piece, deselect it
+			if (selectedPiece != null) selectedPiece.setSelected(false);
+
 			// Add the new object instance
 			Instance newObject = res.addInstance();
 			newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
@@ -1696,6 +1702,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			Instance instance = oList.getSelectedValue();
 			if (instance == null) return;
 
+			Piece selectedPiece = editor.getSelectedPiece();
+
+			// If there is a selected piece, deselect it
+			if (selectedPiece != null) selectedPiece.setSelected(false);
+
 			// Record the effect of removing an object for the undo
 			UndoableEdit edit = new RemovePieceInstance(this,instance,selectedIndex);
 			// notify the listeners
@@ -1718,6 +1729,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			int selectedIndex = tList.getSelectedIndex();
 			if (selectedIndex >= res.tiles.size() || selectedIndex < 0) return;
+
+			Piece selectedPiece = editor.getSelectedPiece();
+
+			// If there is a selected piece, deselect it
+			if (selectedPiece != null) selectedPiece.setSelected(false);
 
 			Tile tile = tList.getSelectedValue();
 
