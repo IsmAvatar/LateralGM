@@ -489,15 +489,22 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			Sprite s = rs == null ? null : rs.get();
 			image = s == null ? null : s.getDisplayImage();
 			if (image == null) image = EMPTY_IMAGE;
-			binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
+
 			Point p = piece.getPosition();
 			if (s != null)
 				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
 			
+			// If the piece is selected use a bigger bounds for borders
 			if (piece.isSelected())
-				setBounds(new Rectangle(p.x,p.y,image.getWidth()+2,image.getHeight()+2));
+				{
+				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
+				setBounds(new Rectangle(p.x-2,p.y-2,image.getWidth()+4,image.getHeight()+4));
+				}
 			else
+				{
+				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
 				setBounds(new Rectangle(p.x,p.y,image.getWidth(),image.getHeight()));
+				}
 			}
 
 		public void paint(Graphics g)
@@ -506,11 +513,15 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				{
 					Graphics2D g2 = (Graphics2D) g;
 				
+					// If the piece is selected, display borders around it
 					if (piece.isSelected())
 						{
-						g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,1,1,null);
+						g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
+						g2.setColor(Color.WHITE);
+						g2.drawRect(1,1,image.getWidth()+2, image.getHeight()+2);
 						g2.setXORMode(Color.BLACK);
-						g2.drawRect(0,0,image.getWidth()+1, image.getHeight()+1);
+						g2.drawRect(0,0,image.getWidth()+4, image.getHeight()+4);
+
 						}
 					else	
 						{
