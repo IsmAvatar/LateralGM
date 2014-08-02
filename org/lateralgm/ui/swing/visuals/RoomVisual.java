@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
@@ -493,12 +492,12 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			Point p = piece.getPosition();
 			if (s != null)
 				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
-			
-			// If the piece is selected use bigger bounds for borders
+
+			// If the piece is selected use bigger bounds for border
 			if (piece.isSelected())
 				{
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
-				setBounds(new Rectangle(p.x-2,p.y-2,image.getWidth()+4,image.getHeight()+4));
+				setBounds(new Rectangle(p.x - 2,p.y - 2,image.getWidth() + 4,image.getHeight() + 4));
 				}
 			else
 				{
@@ -511,23 +510,23 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			{
 			if (show.contains(Show.INSTANCES))
 				{
-					Graphics2D g2 = (Graphics2D) g;
-				
-					// If the piece is selected, display borders around it
-					if (piece.isSelected())
-						{
-						g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
-						g2.setColor(Color.WHITE);
-						g2.drawRect(1,1,image.getWidth()+2, image.getHeight()+2);
-						g2.setXORMode(Color.BLACK);
-						g2.drawRect(0,0,image.getWidth()+4, image.getHeight()+4);
+				Graphics2D g2 = (Graphics2D) g;
 
-						}
-					else	
-						{
-						g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
-						}
-		
+				// If the piece is selected, display border around it
+				if (piece.isSelected())
+					{
+					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
+					g2.setColor(Color.WHITE);
+					g2.drawRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
+					g2.setColor(Color.BLACK);
+					g2.drawRect(0,0,image.getWidth() + 4,image.getHeight() + 4);
+
+					}
+				else
+					{
+					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
+					}
+
 				}
 			}
 
@@ -638,11 +637,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			super(room.instances);
 			}
 
+		@Override
 		protected InstanceVisual createVisual(Instance t)
 			{
 			return new InstanceVisual(t);
 			}
 
+		@Override
 		protected Instance getT(InstanceVisual v)
 			{
 			return v.piece;
@@ -656,11 +657,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			super(room.tiles);
 			}
 
+		@Override
 		protected TileVisual createVisual(Tile t)
 			{
 			return new TileVisual(t);
 			}
 
+		@Override
 		protected Tile getT(TileVisual v)
 			{
 			return v.piece;
@@ -726,6 +729,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 	private class RoomPropertyListener extends PropertyUpdateListener<PRoom>
 		{
+		@Override
 		public void updated(PropertyUpdateEvent<PRoom> e)
 			{
 			switch (e.key)
