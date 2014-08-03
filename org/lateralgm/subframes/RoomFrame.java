@@ -1931,7 +1931,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		BufferedImage instanceImage = instanceObject.get().getDisplayImage();
 
 		centerObjectInViewport(instancePosition,instanceImage.getWidth(),instanceImage.getHeight(),null);
-
 		}
 
 	// Center an object in the viewport of the rooms editor

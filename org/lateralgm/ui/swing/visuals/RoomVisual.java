@@ -196,13 +196,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 
 		// If the option 'invert colors' is set
-		if (Prefs.useInvertedColor)
+		if (Prefs.useInvertedColorForViews)
 			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 		else
 			g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 
 		// Draw the 'outside' rectangle
-		if (Prefs.useFilledRectangle)
+		if (Prefs.useFilledRectangleForViews)
 			{
 			g2.drawRect(x - 2,y - 2,width + 3,height + 3);
 			g2.drawRect(x - 1,y - 1,width + 1,height + 1);
@@ -214,13 +214,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 
 		// If the option 'invert colors' is set
-		if (Prefs.useInvertedColor)
+		if (Prefs.useInvertedColorForViews)
 			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 		else
 			g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 
 		// Draw the 'inside' rectangle
-		if (Prefs.useFilledRectangle)
+		if (Prefs.useFilledRectangleForViews)
 			g2.fillRect(x,y,width,height);
 		else
 			g2.drawRect(x + 1,y + 1,width - 2,height - 2);
@@ -235,7 +235,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			// If the border zone is not empty
 			if (!(borderH == 0 & borderV == 0))
 				{
-				if (Prefs.useFilledRectangle)
+				if (Prefs.useFilledRectangleForViews)
 					{
 					// Define the stroke for the border zone
 					float dash[] = { 10.0f };

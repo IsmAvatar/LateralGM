@@ -8,6 +8,9 @@
 
 package org.lateralgm.subframes;
 
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -18,8 +21,7 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
-import static javax.swing.GroupLayout.DEFAULT_SIZE;
-import static javax.swing.GroupLayout.PREFERRED_SIZE;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -30,7 +32,6 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -62,8 +63,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 
 	// Room editor fields
 	NumberField undoHistorySize;
-	JCheckBox useFilledRectangle, useInvertedColor;
-	ColorSelect viewInsideColor, viewOutsideColor;
+	JCheckBox useFilledRectangleForViews, useInvertedColorForViews, useFilledRectangleForSelection,
+			useInvertedColorForSelection;
+	ColorSelect viewInsideColor, viewOutsideColor, selectionInsideColor, selectionOutsideColor;
 
 	private JPanel makeGeneralPrefs()
 		{
@@ -385,11 +387,12 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		String title = Messages.getString("PreferencesFrame.VIEWS_TITLE");
 		viewsPanel.setBorder(BorderFactory.createTitledBorder(title));
 
-		useFilledRectangle = new JCheckBox(Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
-		useFilledRectangle.setSelected(Prefs.useFilledRectangle);
+		useFilledRectangleForViews = new JCheckBox(
+				Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
+		useFilledRectangleForViews.setSelected(Prefs.useFilledRectangleForViews);
 
-		useInvertedColor = new JCheckBox(Messages.getString("PreferencesFrame.INVERTED_COLOR"));
-		useInvertedColor.setSelected(Prefs.useInvertedColor);
+		useInvertedColorForViews = new JCheckBox(Messages.getString("PreferencesFrame.INVERTED_COLOR"));
+		useInvertedColorForViews.setSelected(Prefs.useInvertedColorForViews);
 
 		JLabel insideColorLabel = new JLabel(Messages.getString("PreferencesFrame.INSIDE_COLOR")
 				+ " : ");
@@ -403,10 +406,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		viewsLayout.setHorizontalGroup(
 		/**/viewsLayout.createParallelGroup()
 		/*	*/.addGroup(viewsLayout.createSequentialGroup()
-		/*		*/.addComponent(useFilledRectangle))
+		/*		*/.addComponent(useFilledRectangleForViews))
 		/*	*/.addGroup(viewsLayout.createSequentialGroup()
 		/*		*/.addGroup(viewsLayout.createParallelGroup()
-		/*			*/.addComponent(useInvertedColor)
+		/*			*/.addComponent(useInvertedColorForViews)
 		/*			*/.addComponent(insideColorLabel)
 		/*			*/.addComponent(outsideColorLabel))
 		/*		*/.addGroup(viewsLayout.createParallelGroup()
@@ -415,14 +418,66 @@ public class PreferencesFrame extends JFrame implements ActionListener
 
 		viewsLayout.setVerticalGroup(
 		/**/viewsLayout.createSequentialGroup()
-		/*	*/.addComponent(useFilledRectangle)
-		/*	*/.addComponent(useInvertedColor).addGap(10)
+		/*	*/.addComponent(useFilledRectangleForViews)
+		/*	*/.addComponent(useInvertedColorForViews).addGap(10)
 		/*	*/.addGroup(viewsLayout.createParallelGroup()
 		/*		*/.addComponent(insideColorLabel)
 		/*		*/.addComponent(viewInsideColor,18,18,18))
 		/*	*/.addGroup(viewsLayout.createParallelGroup()
 		/*		*/.addComponent(outsideColorLabel)
 		/*		*/.addComponent(viewOutsideColor,18,18,18)));
+
+		// Selection settings
+		JPanel selectionPanel = new JPanel();
+		GroupLayout selectionLayout = new GroupLayout(selectionPanel);
+		selectionLayout.setAutoCreateGaps(true);
+		selectionLayout.setAutoCreateContainerGaps(true);
+		selectionPanel.setLayout(selectionLayout);
+
+		String selectionTitle = Messages.getString("PreferencesFrame.SELECTION");
+		selectionPanel.setBorder(BorderFactory.createTitledBorder(selectionTitle));
+
+		useFilledRectangleForSelection = new JCheckBox(
+				Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
+		useFilledRectangleForSelection.setSelected(Prefs.useFilledRectangleForSelection);
+
+		useInvertedColorForSelection = new JCheckBox(
+				Messages.getString("PreferencesFrame.INVERTED_COLOR"));
+		useInvertedColorForSelection.setSelected(Prefs.useInvertedColorForSelection);
+
+		JLabel insideColorLabelForSelection = new JLabel(
+				Messages.getString("PreferencesFrame.INSIDE_COLOR") + " : ");
+		selectionInsideColor = new ColorSelect(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+
+		JLabel outsideColorLabelForSelection = new JLabel(
+				Messages.getString("PreferencesFrame.OUTSIDE_COLOR") + " : ");
+		selectionOutsideColor = new ColorSelect(
+				Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+
+		// Set the layout for the views
+		selectionLayout.setHorizontalGroup(
+		/**/selectionLayout.createParallelGroup()
+		/*	*/.addGroup(selectionLayout.createSequentialGroup()
+		/*		*/.addComponent(useFilledRectangleForSelection))
+		/*	*/.addGroup(selectionLayout.createSequentialGroup()
+		/*		*/.addGroup(selectionLayout.createParallelGroup()
+		/*			*/.addComponent(useInvertedColorForSelection)
+		/*			*/.addComponent(insideColorLabelForSelection)
+		/*			*/.addComponent(outsideColorLabelForSelection))
+		/*		*/.addGroup(selectionLayout.createParallelGroup()
+		/*			*/.addComponent(selectionInsideColor,120,120,120)
+		/*			*/.addComponent(selectionOutsideColor,120,120,120))));
+
+		selectionLayout.setVerticalGroup(
+		/**/selectionLayout.createSequentialGroup()
+		/*	*/.addComponent(useFilledRectangleForSelection)
+		/*	*/.addComponent(useInvertedColorForSelection).addGap(10)
+		/*	*/.addGroup(selectionLayout.createParallelGroup()
+		/*		*/.addComponent(insideColorLabelForSelection)
+		/*		*/.addComponent(selectionInsideColor,18,18,18))
+		/*	*/.addGroup(selectionLayout.createParallelGroup()
+		/*		*/.addComponent(outsideColorLabelForSelection)
+		/*		*/.addComponent(selectionOutsideColor,18,18,18)));
 
 		// Set the layout for the main panel
 		GroupLayout gl = new GroupLayout(roomEditorPanel);
@@ -435,14 +490,16 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*		*/.addComponent(undoHistorySizeLabel)
 		/*		*/.addComponent(undoHistorySize,100,100,100))
 		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addComponent(viewsPanel,320,320,320)));
+		/*		*/.addComponent(viewsPanel,320,320,320))
+		/*		*/.addComponent(selectionPanel,320,320,320));
 
 		gl.setVerticalGroup(
 		/**/gl.createSequentialGroup()
 		/*	*/.addGroup(gl.createParallelGroup()
 		/*		*/.addComponent(undoHistorySizeLabel)
 		/*		*/.addComponent(undoHistorySize,18,18,18))
-		/*		*/.addComponent(viewsPanel,150,150,150));
+		/*		*/.addComponent(viewsPanel,150,150,150)
+		/*		*/.addComponent(selectionPanel,150,150,150));
 
 		roomEditorPanel.setLayout(gl);
 
@@ -453,7 +510,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		{
 		setAlwaysOnTop(false);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(600,415);
+		setSize(600,450);
 		setLocationRelativeTo(LGM.frame);
 		setTitle(Messages.getString("PreferencesFrame.TITLE"));
 		setIconImage(LGM.getIconForKey("Toolbar.PREFERENCES").getImage());
@@ -521,10 +578,15 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		PrefsStore.setScriptEditorCommand(codeEditorPath.getText());
 		PrefsStore.setDockEventPanel(dockEvent.isSelected());
 		PrefsStore.setUndoHistorySize(undoHistorySize.getIntValue());
-		PrefsStore.setFilledRectangle(useFilledRectangle.isSelected());
-		PrefsStore.setInvertedColor(useInvertedColor.isSelected());
+		PrefsStore.setFilledRectangleForViews(useFilledRectangleForViews.isSelected());
+		PrefsStore.setInvertedColorForViews(useInvertedColorForViews.isSelected());
 		PrefsStore.setViewInsideColor(Util.getGmColorWithAlpha(viewInsideColor.getSelectedColor()));
 		PrefsStore.setViewOutsideColor(Util.getGmColorWithAlpha(viewOutsideColor.getSelectedColor()));
+		PrefsStore.setFilledRectangleForSelection(useFilledRectangleForSelection.isSelected());
+		PrefsStore.setInvertedColorForSelection(useInvertedColorForSelection.isSelected());
+		PrefsStore.setSelectionInsideColor(Util.getGmColorWithAlpha(selectionInsideColor.getSelectedColor()));
+		PrefsStore.setSelectionOutsideColor(Util.getGmColorWithAlpha(selectionOutsideColor.getSelectedColor()));
+
 		}
 
 	public void ResetPreferences()
