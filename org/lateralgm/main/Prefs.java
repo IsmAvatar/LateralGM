@@ -147,8 +147,8 @@ public final class Prefs
 		viewOutsideColor = getInt("viewOutsideColor",Util.getGmColorWithAlpha(Color.BLACK));
 		useFilledRectangleForViews = getBoolean("filledRectangleForViews",false);
 		useInvertedColorForViews = getBoolean("invertedColorForViews",false);
-		selectionInsideColor = getInt("viewInsideColor",Util.getGmColorWithAlpha(Color.WHITE));
-		selectionOutsideColor = getInt("viewOutsideColor",Util.getGmColorWithAlpha(Color.BLACK));
+		selectionInsideColor = getInt("selectionInsideColor",Util.getGmColorWithAlpha(Color.WHITE));
+		selectionOutsideColor = getInt("selectionOutsideColor",Util.getGmColorWithAlpha(Color.BLACK));
 		useFilledRectangleForSelection = getBoolean("filledRectangleForSelection",false);
 		useInvertedColorForSelection = getBoolean("invertedColorForSelection",false);
 		}
