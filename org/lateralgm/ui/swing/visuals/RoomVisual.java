@@ -516,9 +516,26 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				if (piece.isSelected())
 					{
 					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
-					g2.setColor(Color.WHITE);
-					g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
-					g2.setColor(Color.BLACK);
+
+					// If the option 'Invert colors' is set
+					if (Prefs.useInvertedColorForSelection)
+						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+					else
+						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+
+					// If the option 'Fill rectangle' is set
+					if (Prefs.useFilledRectangleForSelection)
+						g2.fillRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+					else
+						g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+
+					// If the option 'Invert colors' is set
+					if (Prefs.useInvertedColorForSelection)
+						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+					else
+						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+
+					// Draw the inside border
 					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
 
 					}
@@ -621,11 +638,27 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				if (piece.isSelected())
 					{
 					g2.drawImage(image,2,2,null);
-					g2.setColor(Color.WHITE);
-					g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
-					g2.setColor(Color.BLACK);
-					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
 
+					// If the option 'Invert colors' is set
+					if (Prefs.useInvertedColorForSelection)
+						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+					else
+						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+
+					// If the option 'Fill rectangle' is set
+					if (Prefs.useFilledRectangleForSelection)
+						g2.fillRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+					else
+						g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+
+					// If the option 'Invert colors' is set
+					if (Prefs.useInvertedColorForSelection)
+						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+					else
+						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+
+					// Draw the inside border
+					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
 					}
 				else
 					{
