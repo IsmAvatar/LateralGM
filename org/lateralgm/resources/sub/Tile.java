@@ -42,11 +42,11 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 
 	public enum PTile
 		{
-		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED,COLOR,SCALE_X,SCALE_Y
+		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED,COLOR,SCALE_X,SCALE_Y,SELECTED
 		}
 
 	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,0,0,0,0,
-			0,0,0,null,0,false,4294967295L,1.0,1.0);
+			0,0,0,null,0,false,4294967295L,1.0,1.0,false);
 
 	/**
 	 * Do not call this constructor unless you intend
@@ -57,6 +57,7 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		room = r.reference;
 		properties = new PropertyMap<PTile>(PTile.class,this,DEFS);
 		properties.getUpdateSource(PTile.BACKGROUND).addListener(tpl);
+		properties.getUpdateSource(PTile.SELECTED).addListener(tpl);
 		}
 
 	public Tile(Room r, int id)
@@ -114,6 +115,16 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		int w = properties.get(PTile.WIDTH);
 		int h = properties.get(PTile.HEIGHT);
 		return new Dimension(w,h);
+		}
+
+	public void setSelected(boolean selected)
+		{
+		properties.put(PTile.SELECTED,selected);
+		}
+
+	public boolean isSelected()
+		{
+		return (Boolean) properties.get(PTile.SELECTED);
 		}
 
 	public void setSize(Dimension s)
@@ -195,6 +206,7 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		public void updated(PropertyUpdateEvent<PTile> e)
 			{
 			if (e.key == PTile.BACKGROUND) fireUpdate(null);
+			if (e.key == PTile.SELECTED) fireUpdate(null);
 			}
 		}
 

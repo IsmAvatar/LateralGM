@@ -32,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
@@ -236,6 +237,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
+					Piece selectedPiece = editor.getSelectedPiece();
+
+					// If there is a selected piece, deselect it
+					if (selectedPiece != null) selectedPiece.setSelected(false);
+
 					undoManager.undo();
 					refreshUndoRedoButtons();
 					}
@@ -430,12 +436,23 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		prelf.make(oUnderlying,PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 
+		MouseAdapter mouseListenerForInstances = new MouseAdapter()
+			{
+				@Override
+				public void mouseClicked(MouseEvent e)
+					{
+					// Display the selected instance with a border and centered in the editor window
+					showSelectedInstance();
+					}
+			};
+
 		oList = new JList<Instance>(new ArrayListModel<Instance>(res.instances));
 		oList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		oList.setVisibleRowCount(8);
 		oList.setCellRenderer(new ObjectListComponentRenderer());
 		oList.setSelectedIndex(0);
 		oList.addListSelectionListener(this);
+		oList.addMouseListener(mouseListenerForInstances);
 		JScrollPane sp = new JScrollPane(oList);
 		addObjectButton = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
 		addObjectButton.addActionListener(this);
@@ -816,8 +833,19 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
+		MouseAdapter mouseListenerForTiles = new MouseAdapter()
+			{
+				@Override
+				public void mouseClicked(MouseEvent e)
+					{
+					// Display the selected tile with a border and centered in the editor window
+					showSelectedTile();
+					}
+			};
+
 		tList = new JList<Tile>(new ArrayListModel<Tile>(res.tiles));
 		tList.addListSelectionListener(this);
+		tList.addMouseListener(mouseListenerForTiles);
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tList.setCellRenderer(new TileListComponentRenderer());
 		JScrollPane sp = new JScrollPane(tList);
@@ -1349,7 +1377,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tabs.addTab(bks,makeBackgroundsPane());
 		tabs.addTab(Messages.getString("RoomFrame.TAB_VIEWS"),makeViewsPane()); //$NON-NLS-1$
 		tabs.addTab(Messages.getString("RoomFrame.TAB_PHYSICS"),makePhysicsPane()); //$NON-NLS-1$
-		tabs.setSelectedIndex((Integer) res.get(PRoom.CURRENT_TAB));
+
+		int selectedTab = (Integer) res.get(PRoom.CURRENT_TAB);
+		tabs.setSelectedIndex(selectedTab);
 		tabs.addChangeListener(this);
 
 		res.instanceUpdateSource.addListener(this);
@@ -1357,6 +1387,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		editorPane = new EditorScrollPane(editor);
 		prelf.make(editorPane,PRoomEditor.ZOOM);
+
+		// If the view tab is selected, display the first selected view centered
+		if (selectedTab == Room.TAB_VIEWS)
+			{
+			showSelectedView();
+			editor.roomVisual.setViewsVisible(true);
+			}
+
 		JPanel stats = makeStatsPane();
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -1515,7 +1553,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (eventSource == deleteInstances)
 			{
 			// If the tiles tab is selected, clear the tiles
-			boolean tilesTabIsSelected = (tabs.getTitleAt(tabs.getSelectedIndex()) == Messages.getString("RoomFrame.TAB_TILES"));
+			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
 
 			String message;
 
@@ -1531,6 +1569,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			if (result == JOptionPane.YES_OPTION)
 				{
+
+				Piece selectedPiece = editor.getSelectedPiece();
+
+				// If there is a selected piece, deselect it
+				if (selectedPiece != null) selectedPiece.setSelected(false);
+
 				Room currentRoom = editor.getRoom();
 
 				if (tilesTabIsSelected)
@@ -1564,7 +1608,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			myPanel.add(txtVerticalShift);
 
 			// If the tiles tab is selected, shift the tiles
-			boolean tilesTabIsSelected = (tabs.getTitleAt(tabs.getSelectedIndex()) == Messages.getString("RoomFrame.TAB_TILES"));
+			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
 
 			String panelTitle;
 
@@ -1591,6 +1635,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				// If the position is the same
 				if (horizontalShift == 0 & verticalShift == 0) return;
+
+				Piece selectedPiece = editor.getSelectedPiece();
+
+				// If there is a selected piece, deselect it
+				if (selectedPiece != null) selectedPiece.setSelected(false);
 
 				// If the tiles tab is selected, shift the tiles
 				if (tilesTabIsSelected)
@@ -1644,6 +1693,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			// If no object is selected
 			if (oNew.getSelected() == null) return;
+
+			Piece selectedPiece = editor.getSelectedPiece();
+
+			// If there is a selected piece, deselect it
+			if (selectedPiece != null) selectedPiece.setSelected(false);
+
 			// Add the new object instance
 			Instance newObject = res.addInstance();
 			newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
@@ -1670,6 +1725,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			Instance instance = oList.getSelectedValue();
 			if (instance == null) return;
 
+			Piece selectedPiece = editor.getSelectedPiece();
+
+			// If there is a selected piece, deselect it
+			if (selectedPiece != null) selectedPiece.setSelected(false);
+
 			// Record the effect of removing an object for the undo
 			UndoableEdit edit = new RemovePieceInstance(this,instance,selectedIndex);
 			// notify the listeners
@@ -1692,6 +1752,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			int selectedIndex = tList.getSelectedIndex();
 			if (selectedIndex >= res.tiles.size() || selectedIndex < 0) return;
+
+			Piece selectedPiece = editor.getSelectedPiece();
+
+			// If there is a selected piece, deselect it
+			if (selectedPiece != null) selectedPiece.setSelected(false);
 
 			Tile tile = tList.getSelectedValue();
 
@@ -1824,6 +1889,104 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
 		}
 
+	// Display the selected tile with a border and centered in the editor window
+	private void showSelectedTile()
+		{
+		Piece selectedPiece = editor.getSelectedPiece();
+
+		// If there is a selected piece, deselect it
+		if (selectedPiece != null) selectedPiece.setSelected(false);
+
+		// Display the selected tile with white border
+		Tile tile = tList.getSelectedValue();
+		tile.setSelected(true);
+
+		// Save the selected tile
+		editor.setSelectedPiece(tile);
+
+		Point tilePosition = tile.getPosition();
+
+		centerObjectInViewport(tilePosition,tile.getSize().width,tile.getSize().height,null);
+		}
+
+	// Display the selected instance with a border and centered in the editor window
+	private void showSelectedInstance()
+		{
+		Piece selectedPiece = editor.getSelectedPiece();
+
+		// If there is a selected piece, deselect it
+		if (selectedPiece != null) selectedPiece.setSelected(false);
+
+		// Display the selected instance with white border
+		Instance instance = oList.getSelectedValue();
+		instance.setSelected(true);
+
+		// Save the selected instance
+		editor.setSelectedPiece(instance);
+
+		Point instancePosition = instance.getPosition();
+
+		// Get the image dimension
+		ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+		BufferedImage instanceImage = instanceObject.get().getDisplayImage();
+
+		centerObjectInViewport(instancePosition,instanceImage.getWidth(),instanceImage.getHeight(),null);
+		}
+
+	// Center an object in the viewport of the rooms editor
+	private void centerObjectInViewport(Point objectPosition, int objectWidth, int objectHeight,
+			Instance instanceToFollow)
+		{
+		JViewport viewport = editorPane.getViewport();
+
+		Point newViewportPosition = new Point(0,0);
+
+		int zoomLevel = editor.properties.get(PRoomEditor.ZOOM);
+
+		// Viewport scale when zooming out
+		int viewportScale = 0;
+
+		if (zoomLevel == -1) viewportScale = 3;
+
+		if (zoomLevel == 0) viewportScale = 2;
+
+		// If we are zooming out
+		if (zoomLevel < 1)
+			{
+			newViewportPosition.x = objectPosition.x
+					- (viewport.getWidth() * viewportScale - objectWidth) / 2;
+			newViewportPosition.y = objectPosition.y
+					- (viewport.getHeight() * viewportScale - objectHeight) / 2;
+			}
+		else
+			{
+			newViewportPosition.x = objectPosition.x - (viewport.getWidth() - objectWidth * zoomLevel)
+					/ (2 * zoomLevel);
+			newViewportPosition.y = objectPosition.y - (viewport.getHeight() - objectHeight * zoomLevel)
+					/ (2 * zoomLevel);
+			}
+
+		// If the new position of the object is above the room origin coordinates, use the room coordinates for the new object coordinates
+		if (newViewportPosition.x < editor.getOverallBounds().x)
+			newViewportPosition.x = editor.getOverallBounds().x;
+
+		if (newViewportPosition.y < editor.getOverallBounds().y)
+			newViewportPosition.y = editor.getOverallBounds().y;
+
+		if (instanceToFollow == null)
+			{
+			// If the object position is above the viewport coordinates, use the object coordinates for the new viewport coordinates
+			if (objectPosition.x < newViewportPosition.x) newViewportPosition.x = objectPosition.x;
+
+			if (objectPosition.y < newViewportPosition.y) newViewportPosition.y = objectPosition.x;
+			}
+
+		// For the new viewport position, take into account the visual offset of the border and the zoom level
+		editor.visualToComponent(newViewportPosition);
+
+		viewport.setViewPosition(newViewportPosition);
+		}
+
 	// Display the selected view in the center of the window
 	private void showSelectedView()
 		{
@@ -1864,8 +2027,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				}
 			}
 
-		int zoomLevel = editor.properties.get(PRoomEditor.ZOOM);
-
 		// Properties of the view
 		Point viewPosition = new Point(0,0);
 		int viewWidth = (Integer) view.properties.get(PView.VIEW_W);
@@ -1896,53 +2057,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
 			}
 
-		JViewport viewport = editorPane.getViewport();
-
-		// Center the view in the viewport
-		Point newViewportPosition = new Point(0,0);
-
-		// Viewport scale when zooming out
-		int viewportScale = 0;
-
-		if (zoomLevel == -1) viewportScale = 3;
-
-		if (zoomLevel == 0) viewportScale = 2;
-
-		// If we are zooming out
-		if (zoomLevel < 1)
-			{
-			newViewportPosition.x = viewPosition.x - (viewport.getWidth() * viewportScale - viewWidth)
-					/ 2;
-			newViewportPosition.y = viewPosition.y - (viewport.getHeight() * viewportScale - viewHeight)
-					/ 2;
-			}
-		else
-			{
-			newViewportPosition.x = viewPosition.x - (viewport.getWidth() - viewWidth * zoomLevel)
-					/ (2 * zoomLevel);
-			newViewportPosition.y = viewPosition.y - (viewport.getHeight() - viewHeight * zoomLevel)
-					/ (2 * zoomLevel);
-			}
-
-		// If the new position of the viewport is above the room origin coordinates, use the room coordinates for the new viewport coordinates
-		if (newViewportPosition.x < editor.getOverallBounds().x)
-			newViewportPosition.x = editor.getOverallBounds().x;
-
-		if (newViewportPosition.y < editor.getOverallBounds().y)
-			newViewportPosition.y = editor.getOverallBounds().y;
-
-		if (instanceToFollow == null)
-			{
-			// If the view position is above the viewport coordinates, use the view coordinates for the new viewport coordinates
-			if (viewPosition.x < newViewportPosition.x) newViewportPosition.x = viewPosition.x;
-
-			if (viewPosition.y < newViewportPosition.y) newViewportPosition.y = viewPosition.x;
-			}
-
-		// For the new viewport position, take into account the visual offset of the border and the zoom level
-		editor.visualToComponent(newViewportPosition);
-
-		viewport.setViewPosition(newViewportPosition);
+		centerObjectInViewport(viewPosition,viewWidth,viewHeight,instanceToFollow);
 		}
 
 	// if an item of a listbox has been selected
@@ -2216,11 +2331,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// When a new tab is selected
 	public void stateChanged(ChangeEvent event)
 		{
-		JTabbedPane sourceTabbedPane = (JTabbedPane) event.getSource();
-		int index = sourceTabbedPane.getSelectedIndex();
-
 		// If the views tab is selected, always display the views
-		if (sourceTabbedPane.getTitleAt(index) == Messages.getString("RoomFrame.TAB_VIEWS"))
+		if (tabs.getSelectedIndex() == Room.TAB_VIEWS)
 			{
 			showSelectedView();
 			editor.roomVisual.setViewsVisible(true);

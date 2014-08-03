@@ -145,8 +145,12 @@ public final class Prefs
 		undoHistorySize = getInt("undoHistorySize",100);
 		viewInsideColor = getInt("viewInsideColor",Util.getGmColorWithAlpha(Color.WHITE));
 		viewOutsideColor = getInt("viewOutsideColor",Util.getGmColorWithAlpha(Color.BLACK));
-		useFilledRectangle = getBoolean("filledRectangle",false);
-		useInvertedColor = getBoolean("invertedColor",false);
+		useFilledRectangleForViews = getBoolean("filledRectangleForViews",false);
+		useInvertedColorForViews = getBoolean("invertedColorForViews",false);
+		selectionInsideColor = getInt("selectionInsideColor",Util.getGmColorWithAlpha(Color.WHITE));
+		selectionOutsideColor = getInt("selectionOutsideColor",Util.getGmColorWithAlpha(Color.BLACK));
+		useFilledRectangleForSelection = getBoolean("filledRectangleForSelection",false);
+		useInvertedColorForSelection = getBoolean("invertedColorForSelection",false);
 		}
 
 	public static String iconPack;
@@ -195,6 +199,10 @@ public final class Prefs
 	public static int undoHistorySize;
 	public static int viewInsideColor;
 	public static int viewOutsideColor;
-	public static boolean useFilledRectangle;
-	public static boolean useInvertedColor;
+	public static boolean useFilledRectangleForViews;
+	public static boolean useInvertedColorForViews;
+	public static int selectionInsideColor;
+	public static int selectionOutsideColor;
+	public static boolean useFilledRectangleForSelection;
+	public static boolean useInvertedColorForSelection;
 	}

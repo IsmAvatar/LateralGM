@@ -37,20 +37,20 @@ import javax.swing.undo.UndoableEdit;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Room.Piece;
 import org.lateralgm.resources.sub.Instance;
-import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
-import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.resources.sub.View;
-import org.lateralgm.subframes.RoomFrame;
+import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.subframes.CodeFrame;
+import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.ui.swing.visuals.RoomVisual;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.AddPieceInstance;
@@ -71,6 +71,8 @@ public class RoomEditor extends VisualPanel
 	private final Room room;
 	protected final RoomFrame frame;
 	private Piece cursor;
+	// The selected piece has a white border
+	private Piece selectedPiece;
 	public final PropertyMap<PRoomEditor> properties;
 	public final RoomVisual roomVisual;
 
@@ -153,12 +155,24 @@ public class RoomEditor extends VisualPanel
 		repaint();
 		}
 
+	public Piece getSelectedPiece()
+		{
+		return selectedPiece;
+		}
+
+	public void setSelectedPiece(Piece selectedPiece)
+		{
+		this.selectedPiece = selectedPiece;
+		}
+
+	@Override
 	protected void processMouseEvent(MouseEvent e)
 		{
 		super.processMouseEvent(e);
 		mouseEdit(e);
 		}
 
+	@Override
 	protected void processMouseMotionEvent(MouseEvent e)
 		{
 		super.processMouseMotionEvent(e);
@@ -236,7 +250,15 @@ public class RoomEditor extends VisualPanel
 	/** Do not call with null */
 	public void setCursor(Piece ds)
 		{
+		// If there was a selected piece, deselect it
+		if (selectedPiece != null) selectedPiece.setSelected(false);
+
+		// Save the selected piece
+		if (ds != null) selectedPiece = ds;
+
 		cursor = ds;
+		cursor.setSelected(true);
+
 		if (ds instanceof Instance)
 			{
 			frame.oList.setSelectedValue(ds,true);
@@ -348,6 +370,9 @@ public class RoomEditor extends VisualPanel
 			frame.processFocusLost();
 			this.requestFocusInWindow();
 			}
+
+		// If there is a selected piece, deselect it
+		if (selectedPiece != null) selectedPiece.setSelected(false);
 
 		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
 			{
@@ -541,6 +566,7 @@ public class RoomEditor extends VisualPanel
 
 	private class RoomPropertyListener extends PropertyUpdateListener<PRoom>
 		{
+		@Override
 		public void updated(PropertyUpdateEvent<PRoom> e)
 			{
 			switch (e.key)

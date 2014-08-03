@@ -181,16 +181,16 @@ public final class PrefsStore
 		Prefs.undoHistorySize = undoHistorySize;
 		}
 
-	public static void setFilledRectangle(boolean selected)
+	public static void setFilledRectangleForViews(boolean selected)
 		{
-		PREFS.putBoolean("filledRectangle",selected);
-		Prefs.useFilledRectangle = selected;
+		PREFS.putBoolean("filledRectangleForViews",selected);
+		Prefs.useFilledRectangleForViews = selected;
 		}
 
-	public static void setInvertedColor(boolean selected)
+	public static void setInvertedColorForViews(boolean selected)
 		{
-		PREFS.putBoolean("invertedColor",selected);
-		Prefs.useInvertedColor = selected;
+		PREFS.putBoolean("invertedColorForViews",selected);
+		Prefs.useInvertedColorForViews = selected;
 		}
 
 	public static void setViewInsideColor(int viewInsideColor)
@@ -203,6 +203,30 @@ public final class PrefsStore
 		{
 		PREFS.putInt("viewOutsideColor",viewOutsideColor);
 		Prefs.viewOutsideColor = viewOutsideColor;
+		}
+
+	public static void setFilledRectangleForSelection(boolean selected)
+		{
+		PREFS.putBoolean("filledRectangleForSelection",selected);
+		Prefs.useFilledRectangleForSelection = selected;
+		}
+
+	public static void setInvertedColorForSelection(boolean selected)
+		{
+		PREFS.putBoolean("invertedColorForSelection",selected);
+		Prefs.useInvertedColorForSelection = selected;
+		}
+
+	public static void setSelectionInsideColor(int selectionInsideColor)
+		{
+		PREFS.putInt("selectionInsideColor",selectionInsideColor);
+		Prefs.selectionInsideColor = selectionInsideColor;
+		}
+
+	public static void setSelectionOutsideColor(int selectionOutsideColor)
+		{
+		PREFS.putInt("selectionOutsideColor",selectionOutsideColor);
+		Prefs.selectionOutsideColor = selectionOutsideColor;
 		}
 
 	public static int getNumberOfBackups()

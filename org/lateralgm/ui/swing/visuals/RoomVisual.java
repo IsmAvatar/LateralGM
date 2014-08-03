@@ -112,7 +112,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		}
 
-	// Set the if the views should visible or not (used when the 'views' tab is selected)
+	// Set if the views should visible or not (used when the 'views' tab is selected)
 	public void setViewsVisible(boolean visible)
 		{
 		viewsVisible = visible;
@@ -196,13 +196,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 
 		// If the option 'invert colors' is set
-		if (Prefs.useInvertedColor)
+		if (Prefs.useInvertedColorForViews)
 			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 		else
 			g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 
 		// Draw the 'outside' rectangle
-		if (Prefs.useFilledRectangle)
+		if (Prefs.useFilledRectangleForViews)
 			{
 			g2.drawRect(x - 2,y - 2,width + 3,height + 3);
 			g2.drawRect(x - 1,y - 1,width + 1,height + 1);
@@ -214,13 +214,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 
 		// If the option 'invert colors' is set
-		if (Prefs.useInvertedColor)
+		if (Prefs.useInvertedColorForViews)
 			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 		else
 			g2.setColor(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 
 		// Draw the 'inside' rectangle
-		if (Prefs.useFilledRectangle)
+		if (Prefs.useFilledRectangleForViews)
 			g2.fillRect(x,y,width,height);
 		else
 			g2.drawRect(x + 1,y + 1,width - 2,height - 2);
@@ -235,7 +235,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			// If the border zone is not empty
 			if (!(borderH == 0 & borderV == 0))
 				{
-				if (Prefs.useFilledRectangle)
+				if (Prefs.useFilledRectangleForViews)
 					{
 					// Define the stroke for the border zone
 					float dash[] = { 10.0f };
@@ -488,17 +488,63 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			Sprite s = rs == null ? null : rs.get();
 			image = s == null ? null : s.getDisplayImage();
 			if (image == null) image = EMPTY_IMAGE;
-			binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
+
 			Point p = piece.getPosition();
 			if (s != null)
 				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
-			setBounds(new Rectangle(p.x,p.y,image.getWidth(),image.getHeight()));
+
+			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
+			if (piece.isSelected())
+				{
+				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
+				setBounds(new Rectangle(p.x - 2,p.y - 2,image.getWidth() + 4,image.getHeight() + 4));
+				}
+			else
+				{
+				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
+				setBounds(new Rectangle(p.x,p.y,image.getWidth(),image.getHeight()));
+				}
 			}
 
 		public void paint(Graphics g)
 			{
 			if (show.contains(Show.INSTANCES))
-				g.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
+				{
+				Graphics2D g2 = (Graphics2D) g;
+
+				// If the instance is selected, display a border around it
+				if (piece.isSelected())
+					{
+					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
+
+					// If the option 'Invert colors' is set
+					if (Prefs.useInvertedColorForSelection)
+						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+					else
+						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+
+					// If the option 'Fill rectangle' is set
+					if (Prefs.useFilledRectangleForSelection)
+						g2.fillRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
+					else
+						g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+
+					// If the option 'Invert colors' is set
+					if (Prefs.useInvertedColorForSelection)
+						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+					else
+						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+
+					// Draw the outside border
+					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
+
+					}
+				else
+					{
+					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
+					}
+
+				}
 			}
 
 		@Override
@@ -563,14 +609,63 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					image = EMPTY_IMAGE;
 					}
 				}
-			binVisual.setDepth(this,piece.getDepth());
-			Rectangle r = new Rectangle(piece.getPosition(),piece.getSize());
-			setBounds(r);
+
+			// If the tile is selected use bigger bounds for border, and make sure the tile is visible
+			if (piece.isSelected())
+				{
+				binVisual.setDepth(this,Integer.MIN_VALUE);
+				Point piecePosition = piece.getPosition();
+				Dimension pieceSize = piece.getSize();
+				setBounds(new Rectangle(piecePosition.x - 2,piecePosition.y - 2,pieceSize.width + 4,
+						pieceSize.height + 4));
+				}
+			else
+				{
+				binVisual.setDepth(this,piece.getDepth());
+				Rectangle r = new Rectangle(piece.getPosition(),piece.getSize());
+				setBounds(r);
+				}
+
 			}
 
 		public void paint(Graphics g)
 			{
-			if (show.contains(Show.TILES)) g.drawImage(image,0,0,null);
+			if (show.contains(Show.TILES))
+				{
+				Graphics2D g2 = (Graphics2D) g;
+
+				// If the tile is selected, display a border around it
+				if (piece.isSelected())
+					{
+					g2.drawImage(image,2,2,null);
+
+					// If the option 'Invert colors' is set
+					if (Prefs.useInvertedColorForSelection)
+						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+					else
+						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+
+					// If the option 'Fill rectangle' is set
+					if (Prefs.useFilledRectangleForSelection)
+						g2.fillRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
+					else
+						g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+
+					// If the option 'Invert colors' is set
+					if (Prefs.useInvertedColorForSelection)
+						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+					else
+						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+
+					// Draw the outside border
+					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
+					}
+				else
+					{
+					g.drawImage(image,0,0,null);
+					}
+
+				}
 			}
 
 		@Override
@@ -608,11 +703,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			super(room.instances);
 			}
 
+		@Override
 		protected InstanceVisual createVisual(Instance t)
 			{
 			return new InstanceVisual(t);
 			}
 
+		@Override
 		protected Instance getT(InstanceVisual v)
 			{
 			return v.piece;
@@ -626,11 +723,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			super(room.tiles);
 			}
 
+		@Override
 		protected TileVisual createVisual(Tile t)
 			{
 			return new TileVisual(t);
 			}
 
+		@Override
 		protected Tile getT(TileVisual v)
 			{
 			return v.piece;
@@ -696,6 +795,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 	private class RoomPropertyListener extends PropertyUpdateListener<PRoom>
 		{
+		@Override
 		public void updated(PropertyUpdateEvent<PRoom> e)
 			{
 			switch (e.key)
