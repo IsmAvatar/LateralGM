@@ -525,7 +525,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 					// If the option 'Fill rectangle' is set
 					if (Prefs.useFilledRectangleForSelection)
-						g2.fillRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+						g2.fillRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
 					else
 						g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
 
@@ -535,7 +535,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					else
 						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
 
-					// Draw the inside border
+					// Draw the outside border
 					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
 
 					}
@@ -647,7 +647,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 					// If the option 'Fill rectangle' is set
 					if (Prefs.useFilledRectangleForSelection)
-						g2.fillRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+						g2.fillRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
 					else
 						g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
 
@@ -657,7 +657,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					else
 						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
 
-					// Draw the inside border
+					// Draw the outside border
 					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
 					}
 				else
