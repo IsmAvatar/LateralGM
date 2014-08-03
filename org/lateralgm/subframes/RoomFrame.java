@@ -1892,6 +1892,70 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		// Save the selected instance
 		editor.setSelectedPiece(instance);
+
+		Point instancePosition = instance.getPosition();
+
+		// Get the image dimension
+		ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+		BufferedImage instanceImage = instanceObject.get().getDisplayImage();
+		int instanceWidth = instanceImage.getWidth();
+		int instanceHeight = instanceImage.getHeight();
+
+		centerObjectInViewport(instancePosition,instanceWidth,instanceHeight,null);
+		}
+
+	// Center an object in the viewport of the rooms editor
+	private void centerObjectInViewport(Point objectPosition, int objectWidth, int objectHeight,
+			Instance instanceToFollow)
+		{
+		JViewport viewport = editorPane.getViewport();
+
+		Point newViewportPosition = new Point(0,0);
+
+		int zoomLevel = editor.properties.get(PRoomEditor.ZOOM);
+
+		// Viewport scale when zooming out
+		int viewportScale = 0;
+
+		if (zoomLevel == -1) viewportScale = 3;
+
+		if (zoomLevel == 0) viewportScale = 2;
+
+		// If we are zooming out
+		if (zoomLevel < 1)
+			{
+			newViewportPosition.x = objectPosition.x
+					- (viewport.getWidth() * viewportScale - objectWidth) / 2;
+			newViewportPosition.y = objectPosition.y
+					- (viewport.getHeight() * viewportScale - objectHeight) / 2;
+			}
+		else
+			{
+			newViewportPosition.x = objectPosition.x - (viewport.getWidth() - objectWidth * zoomLevel)
+					/ (2 * zoomLevel);
+			newViewportPosition.y = objectPosition.y - (viewport.getHeight() - objectHeight * zoomLevel)
+					/ (2 * zoomLevel);
+			}
+
+		// If the new position of the object is above the room origin coordinates, use the room coordinates for the new object coordinates
+		if (newViewportPosition.x < editor.getOverallBounds().x)
+			newViewportPosition.x = editor.getOverallBounds().x;
+
+		if (newViewportPosition.y < editor.getOverallBounds().y)
+			newViewportPosition.y = editor.getOverallBounds().y;
+
+		if (instanceToFollow == null)
+			{
+			// If the object position is above the viewport coordinates, use the object coordinates for the new viewport coordinates
+			if (objectPosition.x < newViewportPosition.x) newViewportPosition.x = objectPosition.x;
+
+			if (objectPosition.y < newViewportPosition.y) newViewportPosition.y = objectPosition.x;
+			}
+
+		// For the new viewport position, take into account the visual offset of the border and the zoom level
+		editor.visualToComponent(newViewportPosition);
+
+		viewport.setViewPosition(newViewportPosition);
 		}
 
 	// Display the selected view in the center of the window
@@ -1934,8 +1998,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				}
 			}
 
-		int zoomLevel = editor.properties.get(PRoomEditor.ZOOM);
-
 		// Properties of the view
 		Point viewPosition = new Point(0,0);
 		int viewWidth = (Integer) view.properties.get(PView.VIEW_W);
@@ -1966,53 +2028,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			view.properties.put(PView.OBJECT_FOLLOWING_Y,-1);
 			}
 
-		JViewport viewport = editorPane.getViewport();
-
-		// Center the view in the viewport
-		Point newViewportPosition = new Point(0,0);
-
-		// Viewport scale when zooming out
-		int viewportScale = 0;
-
-		if (zoomLevel == -1) viewportScale = 3;
-
-		if (zoomLevel == 0) viewportScale = 2;
-
-		// If we are zooming out
-		if (zoomLevel < 1)
-			{
-			newViewportPosition.x = viewPosition.x - (viewport.getWidth() * viewportScale - viewWidth)
-					/ 2;
-			newViewportPosition.y = viewPosition.y - (viewport.getHeight() * viewportScale - viewHeight)
-					/ 2;
-			}
-		else
-			{
-			newViewportPosition.x = viewPosition.x - (viewport.getWidth() - viewWidth * zoomLevel)
-					/ (2 * zoomLevel);
-			newViewportPosition.y = viewPosition.y - (viewport.getHeight() - viewHeight * zoomLevel)
-					/ (2 * zoomLevel);
-			}
-
-		// If the new position of the viewport is above the room origin coordinates, use the room coordinates for the new viewport coordinates
-		if (newViewportPosition.x < editor.getOverallBounds().x)
-			newViewportPosition.x = editor.getOverallBounds().x;
-
-		if (newViewportPosition.y < editor.getOverallBounds().y)
-			newViewportPosition.y = editor.getOverallBounds().y;
-
-		if (instanceToFollow == null)
-			{
-			// If the view position is above the viewport coordinates, use the view coordinates for the new viewport coordinates
-			if (viewPosition.x < newViewportPosition.x) newViewportPosition.x = viewPosition.x;
-
-			if (viewPosition.y < newViewportPosition.y) newViewportPosition.y = viewPosition.x;
-			}
-
-		// For the new viewport position, take into account the visual offset of the border and the zoom level
-		editor.visualToComponent(newViewportPosition);
-
-		viewport.setViewPosition(newViewportPosition);
+		centerObjectInViewport(viewPosition,viewWidth,viewHeight,instanceToFollow);
 		}
 
 	// if an item of a listbox has been selected
