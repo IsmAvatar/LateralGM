@@ -436,7 +436,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		oUnderlying = new JCheckBox(Messages.getString("RoomFrame.OBJ_UNDERLYING")); //$NON-NLS-1$
 		prelf.make(oUnderlying,PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 
-		MouseAdapter mouseListener = new MouseAdapter()
+		MouseAdapter mouseListenerForInstances = new MouseAdapter()
 			{
 				@Override
 				public void mouseClicked(MouseEvent e)
@@ -452,7 +452,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		oList.setCellRenderer(new ObjectListComponentRenderer());
 		oList.setSelectedIndex(0);
 		oList.addListSelectionListener(this);
-		oList.addMouseListener(mouseListener);
+		oList.addMouseListener(mouseListenerForInstances);
 		JScrollPane sp = new JScrollPane(oList);
 		addObjectButton = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
 		addObjectButton.addActionListener(this);
@@ -833,8 +833,19 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
+		MouseAdapter mouseListenerForTiles = new MouseAdapter()
+			{
+				@Override
+				public void mouseClicked(MouseEvent e)
+					{
+					// Display the selected tile with a border and centered in the editor window
+					showSelectedTile();
+					}
+			};
+
 		tList = new JList<Tile>(new ArrayListModel<Tile>(res.tiles));
 		tList.addListSelectionListener(this);
+		tList.addMouseListener(mouseListenerForTiles);
 		tList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tList.setCellRenderer(new TileListComponentRenderer());
 		JScrollPane sp = new JScrollPane(tList);
@@ -1878,6 +1889,26 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		lvOVSp = vplf.make(vOVSp,PView.SPEED_V);
 		}
 
+	// Display the selected tile with a border and centered in the editor window
+	private void showSelectedTile()
+		{
+		Piece selectedPiece = editor.getSelectedPiece();
+
+		// If there is a selected piece, deselect it
+		if (selectedPiece != null) selectedPiece.setSelected(false);
+
+		// Display the selected tile with white border
+		Tile tile = tList.getSelectedValue();
+		tile.setSelected(true);
+
+		// Save the selected tile
+		editor.setSelectedPiece(tile);
+
+		Point tilePosition = tile.getPosition();
+
+		centerObjectInViewport(tilePosition,tile.getSize().width,tile.getSize().height,null);
+		}
+
 	// Display the selected instance with a border and centered in the editor window
 	private void showSelectedInstance()
 		{
@@ -1898,10 +1929,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		// Get the image dimension
 		ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
 		BufferedImage instanceImage = instanceObject.get().getDisplayImage();
-		int instanceWidth = instanceImage.getWidth();
-		int instanceHeight = instanceImage.getHeight();
 
-		centerObjectInViewport(instancePosition,instanceWidth,instanceHeight,null);
+		centerObjectInViewport(instancePosition,instanceImage.getWidth(),instanceImage.getHeight(),null);
+
 		}
 
 	// Center an object in the viewport of the rooms editor
