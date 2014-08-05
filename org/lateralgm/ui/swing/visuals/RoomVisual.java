@@ -15,6 +15,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
@@ -481,6 +482,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		@Override
 		protected void validate()
 			{
+			
 			ResourceReference<GmObject> ro = piece.properties.get(PInstance.OBJECT);
 			GmObject o = ro == null ? null : ro.get();
 			ResourceReference<Sprite> rs = null;
@@ -493,16 +495,25 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			if (s != null)
 				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
 
+			double scaleX = (Double) piece.properties.get(PInstance.SCALE_X);
+			double scaleY = (Double) piece.properties.get(PInstance.SCALE_Y);
+			
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
-				setBounds(new Rectangle(p.x - 2,p.y - 2,image.getWidth() + 4,image.getHeight() + 4));
+				// Take into account the scaling
+				int newWidth = (int) ((image.getWidth() + 4) * scaleX);
+				int newHeight = (int) ((image.getHeight() + 4) * scaleY);
+				setBounds(new Rectangle(p.x - 2,p.y - 2,newWidth,newHeight));
 				}
 			else
 				{
+				// Take into account the scaling
+				int newWidth = (int) (image.getWidth() * scaleX);
+				int newHeight = (int) (image.getHeight() * scaleY);
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
-				setBounds(new Rectangle(p.x,p.y,image.getWidth(),image.getHeight()));
+				setBounds(new Rectangle(p.x,p.y,newWidth,newHeight));
 				}
 			}
 
@@ -512,6 +523,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				{
 				Graphics2D g2 = (Graphics2D) g;
 
+				// Get the scaling of the instance
+				double scaleX = (Double) piece.properties.get(PInstance.SCALE_X);
+				double scaleY = (Double) piece.properties.get(PInstance.SCALE_Y);
+				
+				// Apply the scaling
+				g2.scale(scaleX,scaleY);
+				
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
 					{
@@ -543,7 +561,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					{
 					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
 					}
-
+				
 				}
 			}
 
