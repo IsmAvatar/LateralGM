@@ -146,8 +146,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private JButton addObjectButton, deleteObjectButton;
 	public ResourceMenu<GmObject> oNew, oSource;
 	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
-	public NumberField objectHorizontalPosition, objectVerticalPosition,objectScaleX,objectScaleY,objectRotation, objectAlpha;
-	private FormattedLink<PInstance> loX, loY;
+	public NumberField objectHorizontalPosition, objectVerticalPosition, objectScaleX, objectScaleY,
+			objectRotation, objectAlpha;
+	private FormattedLink<PInstance> loX, loY, loScaleX, loScaleY, loRotation, loAlpha;
 	private JButton oCreationCode;
 
 	//Settings
@@ -512,16 +513,16 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/*		*/.addComponent(objectHorizontalPosition)
 		/*		*/.addComponent(objectScaleX)
 		/*		*/.addComponent(objectRotation))
-	 	/**/.addGroup(layout2.createParallelGroup()
-	 	/*		*/.addComponent(lObjY)
-	 	/*		*/.addComponent(lObjScaleY)
-	 	/*		*/.addComponent(lObjAlpha))
-	 	/**/.addGroup(layout2.createParallelGroup()
-	 	/*		*/.addComponent(objectVerticalPosition)
-	 	/*		*/.addComponent(objectScaleY)
-	 	/*		*/.addComponent(objectAlpha)))
+		/**/.addGroup(layout2.createParallelGroup()
+		/*		*/.addComponent(lObjY)
+		/*		*/.addComponent(lObjScaleY)
+		/*		*/.addComponent(lObjAlpha))
+		/**/.addGroup(layout2.createParallelGroup()
+		/*		*/.addComponent(objectVerticalPosition)
+		/*		*/.addComponent(objectScaleY)
+		/*		*/.addComponent(objectAlpha)))
 		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
-		
+
 		layout2.setVerticalGroup(layout2.createSequentialGroup()
 		/**/.addComponent(oSource)
 		/**/.addComponent(oLocked)
@@ -1827,7 +1828,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Instance selectedInstance = oList.getSelectedValue();
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
-		PropertyLink.removeAll(loLocked,loSource,loX,loY);
+		PropertyLink.removeAll(loLocked,loSource,loX,loY,loScaleX, loScaleY, loRotation);
 
 		if (selectedInstance != null)
 			{
@@ -1837,6 +1838,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			loSource = iplf.make(oSource,PInstance.OBJECT);
 			loX = iplf.make(objectHorizontalPosition,PInstance.X);
 			loY = iplf.make(objectVerticalPosition,PInstance.Y);
+			loScaleX = iplf.make(objectScaleX,PInstance.SCALE_X);
+			loScaleY = iplf.make(objectScaleY,PInstance.SCALE_Y);
+			loRotation = iplf.make(objectRotation,PInstance.ROTATION);
 			}
 		}
 
