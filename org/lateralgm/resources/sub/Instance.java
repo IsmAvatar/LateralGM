@@ -57,6 +57,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		properties.getUpdateSource(PInstance.SELECTED).addListener(ipl);
 		properties.getUpdateSource(PInstance.SCALE_X).addListener(ipl);
 		properties.getUpdateSource(PInstance.SCALE_Y).addListener(ipl);
+		properties.getUpdateSource(PInstance.ROTATION).addListener(ipl);
 		}
 
 	protected void fireUpdate(UpdateEvent e)
@@ -110,17 +111,17 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		{
 		properties.put(PInstance.ROTATION,degrees);
 		}
-	
+
 	public void setSelected(boolean selected)
 		{
 		properties.put(PInstance.SELECTED,selected);
 		}
-	
+
 	public boolean isSelected()
 		{
 		return (Boolean) properties.get(PInstance.SELECTED);
 		}
-	
+
 	public void setColor(long color)
 		{
 		properties.put(PInstance.COLOR,color);
@@ -189,6 +190,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 			if (e.key == PInstance.SELECTED) fireUpdate(null);
 			if (e.key == PInstance.SCALE_X) fireUpdate(null);
 			if (e.key == PInstance.SCALE_Y) fireUpdate(null);
+			if (e.key == PInstance.ROTATION) fireUpdate(null);
 			}
 		}
 

@@ -15,7 +15,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
@@ -482,7 +481,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		@Override
 		protected void validate()
 			{
-			
+
 			ResourceReference<GmObject> ro = piece.properties.get(PInstance.OBJECT);
 			GmObject o = ro == null ? null : ro.get();
 			ResourceReference<Sprite> rs = null;
@@ -497,7 +496,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 			double scaleX = (Double) piece.properties.get(PInstance.SCALE_X);
 			double scaleY = (Double) piece.properties.get(PInstance.SCALE_Y);
-			
+
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
@@ -526,10 +525,12 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Get the scaling of the instance
 				double scaleX = (Double) piece.properties.get(PInstance.SCALE_X);
 				double scaleY = (Double) piece.properties.get(PInstance.SCALE_Y);
-				
+				double rotation = (Double) piece.properties.get(PInstance.ROTATION);
+
 				// Apply the scaling
 				g2.scale(scaleX,scaleY);
-				
+				g2.rotate(rotation);
+
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
 					{
@@ -561,7 +562,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					{
 					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
 					}
-				
+
 				}
 			}
 

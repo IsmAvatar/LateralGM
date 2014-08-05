@@ -487,7 +487,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		JLabel lObjScaleY = new JLabel(Messages.getString("RoomFrame.SCALE_Y")); //$NON-NLS-1$
 		objectScaleY = new NumberField(-99999.0,99999.0,1.0);
 		JLabel lObjRotation = new JLabel(Messages.getString("RoomFrame.ROTATION")); //$NON-NLS-1$
-		objectRotation = new NumberField(-99999,99999);
+		objectRotation = new NumberField(-99999.0,99999.0,0.0);
 		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
 		objectAlpha = new NumberField(-99999,99999);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
@@ -1827,7 +1827,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Instance selectedInstance = oList.getSelectedValue();
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
-		PropertyLink.removeAll(loLocked,loSource,loX,loY,loScaleX, loScaleY, loRotation);
+		PropertyLink.removeAll(loLocked,loSource,loX,loY,loScaleX,loScaleY,loRotation);
 
 		if (selectedInstance != null)
 			{
