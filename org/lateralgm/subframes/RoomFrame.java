@@ -146,7 +146,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private JButton addObjectButton, deleteObjectButton;
 	public ResourceMenu<GmObject> oNew, oSource;
 	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
-	public NumberField objectHorizontalPosition, objectVerticalPosition,objectScaleX,objectScaleY;
+	public NumberField objectHorizontalPosition, objectVerticalPosition,objectScaleX,objectScaleY,objectRotation, objectAlpha;
 	private FormattedLink<PInstance> loX, loY;
 	private JButton oCreationCode;
 
@@ -488,6 +488,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectScaleY = new NumberField(-99999,99999);
 		objectScaleY.setColumns(4);
 		objectScaleY.addFocusListener(this);
+		JLabel lObjRotation = new JLabel(Messages.getString("RoomFrame.ROTATION")); //$NON-NLS-1$
+		objectRotation = new NumberField(-99999,99999);
+		objectRotation.setColumns(4);
+		objectRotation.addFocusListener(this);
+		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
+		objectAlpha = new NumberField(-99999,99999);
+		objectAlpha.setColumns(4);
+		objectAlpha.addFocusListener(this);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
@@ -498,16 +506,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addGroup(layout2.createSequentialGroup()
 		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(lObjX)
-		/*		*/.addComponent(lObjScaleX))
+		/*		*/.addComponent(lObjScaleX)
+		/*		*/.addComponent(lObjRotation))
 		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(objectHorizontalPosition)
-		/*		*/.addComponent(objectScaleX))
+		/*		*/.addComponent(objectScaleX)
+		/*		*/.addComponent(objectRotation))
 	 	/**/.addGroup(layout2.createParallelGroup()
 	 	/*		*/.addComponent(lObjY)
-	 	/*		*/.addComponent(lObjScaleY))
+	 	/*		*/.addComponent(lObjScaleY)
+	 	/*		*/.addComponent(lObjAlpha))
 	 	/**/.addGroup(layout2.createParallelGroup()
 	 	/*		*/.addComponent(objectVerticalPosition)
-	 	/*		*/.addComponent(objectScaleY)))
+	 	/*		*/.addComponent(objectScaleY)
+	 	/*		*/.addComponent(objectAlpha)))
 		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		
 		layout2.setVerticalGroup(layout2.createSequentialGroup()
@@ -523,6 +535,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/*		*/.addComponent(objectScaleX)
 		/*		*/.addComponent(lObjScaleY)
 		/*		*/.addComponent(objectScaleY))
+		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lObjRotation)
+		/*		*/.addComponent(objectRotation)
+		/*		*/.addComponent(lObjAlpha)
+		/*		*/.addComponent(objectAlpha))
 		/**/.addComponent(oCreationCode));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
