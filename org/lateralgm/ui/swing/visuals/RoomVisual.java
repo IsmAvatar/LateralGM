@@ -529,7 +529,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 				// Apply the scaling
 				g2.scale(scaleX,scaleY);
-				g2.rotate(rotation);
+				g2.rotate(Math.toRadians(-rotation));
 
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
