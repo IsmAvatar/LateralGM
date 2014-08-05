@@ -146,7 +146,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private JButton addObjectButton, deleteObjectButton;
 	public ResourceMenu<GmObject> oNew, oSource;
 	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
-	public NumberField objectHorizontalPosition, objectVerticalPosition;
+	public NumberField objectHorizontalPosition, objectVerticalPosition,objectScaleX,objectScaleY;
 	private FormattedLink<PInstance> loX, loY;
 	private JButton oCreationCode;
 
@@ -473,13 +473,21 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
 		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
 		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
-		objectHorizontalPosition = new NumberField(0);
+		objectHorizontalPosition = new NumberField(-99999,99999);
 		objectHorizontalPosition.setColumns(4);
 		objectHorizontalPosition.addFocusListener(this);
 		JLabel lObjY = new JLabel(Messages.getString("RoomFrame.OBJ_Y")); //$NON-NLS-1$
-		objectVerticalPosition = new NumberField(0);
+		objectVerticalPosition = new NumberField(-99999,99999);
 		objectVerticalPosition.setColumns(4);
 		objectVerticalPosition.addFocusListener(this);
+		JLabel lObjScaleX = new JLabel(Messages.getString("RoomFrame.SCALE_X")); //$NON-NLS-1$
+		objectScaleX = new NumberField(-99999,99999);
+		objectScaleX.setColumns(4);
+		objectScaleX.addFocusListener(this);
+		JLabel lObjScaleY = new JLabel(Messages.getString("RoomFrame.SCALE_Y")); //$NON-NLS-1$
+		objectScaleY = new NumberField(-99999,99999);
+		objectScaleY.setColumns(4);
+		objectScaleY.addFocusListener(this);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
@@ -488,11 +496,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addComponent(oSource)
 		/**/.addComponent(oLocked)
 		/**/.addGroup(layout2.createSequentialGroup()
+		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(lObjX)
+		/*		*/.addComponent(lObjScaleX))
+		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(objectHorizontalPosition)
-		/*		*/.addComponent(lObjY)
-		/*		*/.addComponent(objectVerticalPosition))
+		/*		*/.addComponent(objectScaleX))
+	 	/**/.addGroup(layout2.createParallelGroup()
+	 	/*		*/.addComponent(lObjY)
+	 	/*		*/.addComponent(lObjScaleY))
+	 	/**/.addGroup(layout2.createParallelGroup()
+	 	/*		*/.addComponent(objectVerticalPosition)
+	 	/*		*/.addComponent(objectScaleY)))
 		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		
 		layout2.setVerticalGroup(layout2.createSequentialGroup()
 		/**/.addComponent(oSource)
 		/**/.addComponent(oLocked)
@@ -501,6 +518,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/*		*/.addComponent(objectHorizontalPosition)
 		/*		*/.addComponent(lObjY)
 		/*		*/.addComponent(objectVerticalPosition))
+		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lObjScaleX)
+		/*		*/.addComponent(objectScaleX)
+		/*		*/.addComponent(lObjScaleY)
+		/*		*/.addComponent(objectScaleY))
 		/**/.addComponent(oCreationCode));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
