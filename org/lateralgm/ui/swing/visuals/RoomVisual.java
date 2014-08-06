@@ -8,6 +8,7 @@
 
 package org.lateralgm.ui.swing.visuals;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -525,10 +526,19 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Get the scaling of the instance
 				Point2D scale = piece.getScale();
 				double rotation = piece.getRotation();
+				int alpha = piece.getAlpha();
 
-				// Apply the scaling
-				g2.scale(scale.getX(),scale.getY());
-				g2.rotate(Math.toRadians(-rotation));
+				// Apply scaling and rotation
+				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
+				if (rotation != 0) g2.rotate(Math.toRadians(-rotation));
+
+				// Set alpha value
+				if (alpha != 255)
+					{
+					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+							(float) (alpha / 255.0));
+					g2.setComposite(ac);
+					}
 
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
