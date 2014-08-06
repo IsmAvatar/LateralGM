@@ -472,6 +472,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		private BufferedImage image;
 		private final InstancePropertyListener ipl = new InstancePropertyListener();
 
+		private int offsetx;
+		private int offsety;
+		
 		public InstanceVisual(Instance i)
 			{
 			super(i);
@@ -498,6 +501,21 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 			Point2D scale = piece.getScale();
 
+			double rotation = Math.toRadians(-piece.getRotation());
+			double sin = Math.abs(Math.sin(rotation));
+			double cos = Math.abs(Math.cos(rotation));
+			int imageWidth = image.getWidth();
+			int imageHeight = image.getHeight();
+			int neww = (int)Math.floor(imageWidth*cos+imageHeight*sin);
+			int newh = (int)Math.floor(imageHeight*cos+imageWidth*sin);
+			offsetx = neww - imageWidth;
+			offsety = newh - imageHeight;
+			
+			System.out.println("image width:" + imageWidth);
+			System.out.println("image height:" + imageHeight);
+			System.out.println("new width:" + neww);
+			System.out.println("new height: " + newh);
+			
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
@@ -510,10 +528,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			else
 				{
 				// Take into account the scaling
-				int newWidth = (int) (image.getWidth() * scale.getX());
-				int newHeight = (int) (image.getHeight() * scale.getY());
+				int newWidth = (int) (imageWidth * scale.getX());
+				int newHeight = (int) (imageHeight * scale.getY());
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
-				setBounds(new Rectangle(p.x,p.y,newWidth,newHeight));
+				setBounds(new Rectangle(p.x -offsetx,p.y -offsety,newWidth,newHeight));
 				}
 			}
 
@@ -569,7 +587,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				if (piece.isSelected())
 					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
 					else
-					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
+					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,offsetx,offsety,null);
 
 				}
 			}

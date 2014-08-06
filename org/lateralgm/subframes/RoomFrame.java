@@ -139,8 +139,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	JToggleButton gridIso;
 
 	//Objects
-	public JCheckBox oUnderlying, oLocked, oFlipX, oFlipY;
-	private ButtonModelLink<PInstance> loLocked, loFlipX, loFlipY;
+	public JCheckBox oUnderlying, oLocked;
+	private ButtonModelLink<PInstance> loLocked;
 	public JList<Instance> oList;
 	private Instance lastObj = null; //non-guaranteed copy of oList.getLastSelectedValue()
 	private JButton addObjectButton, deleteObjectButton;
@@ -472,8 +472,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
-		oFlipX = new JCheckBox(Messages.getString("RoomFrame.OBJ_FLIP_X")); //$NON-NLS-1$
-		oFlipY = new JCheckBox(Messages.getString("RoomFrame.OBJ_FLIP_Y")); //$NON-NLS-1$
 		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
 		objectHorizontalPosition = new NumberField(-99999,99999);
 		objectHorizontalPosition.setColumns(4);
@@ -497,9 +495,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		layout2.setHorizontalGroup(layout2.createParallelGroup()
 		/**/.addComponent(oSource)
 		/**/.addGroup(layout2.createSequentialGroup()
-		/**/.addComponent(oLocked)
-		/**/.addComponent(oFlipX)
-		/**/.addComponent(oFlipY))
+		/**/.addComponent(oLocked))
 		/**/.addGroup(layout2.createSequentialGroup()
 		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(lObjX)
@@ -522,9 +518,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		layout2.setVerticalGroup(layout2.createSequentialGroup()
 		/**/.addComponent(oSource)
 		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
-		/**/.addComponent(oLocked)
-		/**/.addComponent(oFlipX)
-		/**/.addComponent(oFlipY))
+		/**/.addComponent(oLocked))
 		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lObjX)
 		/*		*/.addComponent(objectHorizontalPosition)
