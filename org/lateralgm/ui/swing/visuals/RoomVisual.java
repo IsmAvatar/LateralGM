@@ -532,19 +532,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
 				if (rotation != 0) g2.rotate(Math.toRadians(-rotation));
 
-				// Set alpha value
-				if (alpha != 255)
-					{
-					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-							(float) (alpha / 255.0));
-					g2.setComposite(ac);
-					}
-
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
 					{
-					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
-
 					// If the option 'Invert colors' is set
 					if (Prefs.useInvertedColorForSelection)
 						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
@@ -567,10 +557,19 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
 
 					}
-				else
+
+				// Set alpha value
+				if (alpha != 255)
 					{
-					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
+					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+							(float) (alpha / 255.0));
+					g2.setComposite(ac);
 					}
+				
+				if (piece.isSelected())
+					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
+					else
+					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
 
 				}
 			}
