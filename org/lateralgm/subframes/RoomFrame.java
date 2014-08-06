@@ -489,7 +489,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		JLabel lObjRotation = new JLabel(Messages.getString("RoomFrame.ROTATION")); //$NON-NLS-1$
 		objectRotation = new NumberField(-99999.0,99999.0,0.0);
 		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
-		objectAlpha = new NumberField(-99999,99999);
+		objectAlpha = new NumberField(0,255, 255);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
@@ -1827,7 +1827,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Instance selectedInstance = oList.getSelectedValue();
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
-		PropertyLink.removeAll(loLocked,loSource,loX,loY,loScaleX,loScaleY,loRotation);
+		PropertyLink.removeAll(loLocked,loSource,loX,loY,loScaleX,loScaleY,loRotation,loAlpha);
 
 		if (selectedInstance != null)
 			{
@@ -1840,6 +1840,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			loScaleX = iplf.make(objectScaleX,PInstance.SCALE_X);
 			loScaleY = iplf.make(objectScaleY,PInstance.SCALE_Y);
 			loRotation = iplf.make(objectRotation,PInstance.ROTATION);
+			loAlpha = iplf.make(objectAlpha,PInstance.ALPHA);
 			}
 		}
 

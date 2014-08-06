@@ -43,11 +43,11 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 
 	public enum PInstance
 		{
-		X,Y,OBJECT,ID,CREATION_CODE,LOCKED,SCALE_X,SCALE_Y,COLOR,ROTATION,SELECTED
+		X,Y,OBJECT,ID,CREATION_CODE,LOCKED,SCALE_X,SCALE_Y,COLOR,ROTATION,SELECTED, ALPHA
 		}
 
 	private static final EnumMap<PInstance,Object> DEFS = PropertyMap.makeDefaultMap(PInstance.class,
-			0,0,null,0,"",false,1.0,1.0,4294967295L,0.0,false);
+			0,0,null,0,"",false,1.0,1.0,4294967295L,0.0,false, 255);
 
 	public Instance(Room r)
 		{
@@ -58,6 +58,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		properties.getUpdateSource(PInstance.SCALE_X).addListener(ipl);
 		properties.getUpdateSource(PInstance.SCALE_Y).addListener(ipl);
 		properties.getUpdateSource(PInstance.ROTATION).addListener(ipl);
+		properties.getUpdateSource(PInstance.ALPHA).addListener(ipl);
 		}
 
 	protected void fireUpdate(UpdateEvent e)
@@ -191,6 +192,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 			if (e.key == PInstance.SCALE_X) fireUpdate(null);
 			if (e.key == PInstance.SCALE_Y) fireUpdate(null);
 			if (e.key == PInstance.ROTATION) fireUpdate(null);
+			if (e.key == PInstance.ALPHA) fireUpdate(null);
 			}
 		}
 
