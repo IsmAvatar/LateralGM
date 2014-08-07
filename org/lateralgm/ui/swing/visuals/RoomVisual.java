@@ -16,6 +16,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
@@ -515,14 +516,16 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			System.out.println("image height:" + imageHeight);
 			System.out.println("new width:" + neww);
 			System.out.println("new height: " + newh);
+			System.out.println("offsetx:" + offsetx);
+			System.out.println("offsety:" + offsety);
 			
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
 				// Take into account the scaling
-				int newWidth = (int) ((image.getWidth() + 4) * scale.getX());
-				int newHeight = (int) ((image.getHeight() + 4) * scale.getY());
+				int newWidth = (int) ((imageWidth + 4) * scale.getX());
+				int newHeight = (int) ((imageHeight + 4) * scale.getY());
 				setBounds(new Rectangle(p.x - 2,p.y - 2,newWidth,newHeight));
 				}
 			else
@@ -531,8 +534,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				int newWidth = (int) (imageWidth * scale.getX());
 				int newHeight = (int) (imageHeight * scale.getY());
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
-				setBounds(new Rectangle(p.x -offsetx,p.y -offsety,newWidth,newHeight));
+				setBounds(new Rectangle(p.x-offsetx,p.y-offsety,neww,newh));
 				}
+
 			}
 
 		public void paint(Graphics g)
@@ -541,6 +545,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				{
 				Graphics2D g2 = (Graphics2D) g;
 
+				// g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				 
+				g2.translate(offsetx,offsety);
 				// Get the scaling of the instance
 				Point2D scale = piece.getScale();
 				double rotation = piece.getRotation();
@@ -549,7 +556,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Apply scaling and rotation
 				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
 				if (rotation != 0) g2.rotate(Math.toRadians(-rotation));
-
+		
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
 					{
@@ -584,10 +591,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					g2.setComposite(ac);
 					}
 				
+				System.out.println("offsetx:" + offsetx);
+				System.out.println("offsety:" + offsety);
+				
 				if (piece.isSelected())
 					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
 					else
-					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,offsetx,offsety,null);
+					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
 
 				}
 			}
