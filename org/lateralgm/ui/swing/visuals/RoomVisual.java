@@ -536,10 +536,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				newHeight = (int) -(upperRightPt[1] - lowerPt[1]);
 				}
 			
+			System.out.println("offsety:" + offsety);
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
-				// The selected instance must always visible
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
 				// Take into account the scaling
 				newWidth = (int) ((newWidth + 4) * scale.getX());
@@ -563,15 +563,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				{
 				Graphics2D g2 = (Graphics2D) g;
 
-				// g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-				g2.translate(0,-offsety);
-				// Get the scaling of the instance
+				// Get scaling and rotation of the instance
 				Point2D scale = piece.getScale();
 				double rotation = piece.getRotation();
 				int alpha = piece.getAlpha();
 
-				// Apply scaling and rotation
+				// Apply scaling, rotation and translation
+				if (offsetx != 0 || offsety !=0 )g2.translate(0,-offsety);
 				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
 				if (rotation != 0) g2.rotate(Math.toRadians(-rotation));
 
