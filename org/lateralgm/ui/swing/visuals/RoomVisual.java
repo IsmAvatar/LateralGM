@@ -529,22 +529,22 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				double[] lowerPt = { p.x,p.y + imageHeight };
 				AffineTransform.getRotateInstance(radian,p.x,p.y).transform(lowerPt,0,lowerPt,0,1);
 
-				offsetx = 0;
 
 				if (angle <= 90)
 					{
-					newWidth = (int) lowerRightPt[0] - p.x;
-					newHeight = (int) -(upperRightPt[1] - lowerPt[1]);
+					newWidth = (int) (lowerRightPt[0] - p.x);
+					newHeight = (int) (lowerPt[1] - upperRightPt[1]);
+					offsety = (int) upperRightPt[1] - p.y;
+					offsetx = 0;
 					}
 				else
 					{
-					newWidth = (int) -(p.x - lowerPt[0]);
-					newHeight = (int) lowerPt[1] - p.y;
+					newWidth = (int) (lowerPt[0] - upperRightPt[0]);
+					newHeight = (int) (p.y - lowerRightPt[1]);
+					offsety = (int) lowerRightPt[1] - p.y;
+					offsetx = (int) upperRightPt[0] - p.x;
 					}
-				
-				if (angle > 90) offsetx = (int) upperRightPt[0] - p.x;
 
-				offsety = (int) upperRightPt[1] - p.y;
 
 				}
 			System.out.println("angle:" + angle);
