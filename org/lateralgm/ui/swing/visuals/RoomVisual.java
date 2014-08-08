@@ -531,16 +531,27 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 				offsetx = 0;
 
+				if (angle <= 90)
+					{
+					newWidth = (int) lowerRightPt[0] - p.x;
+					newHeight = (int) -(upperRightPt[1] - lowerPt[1]);
+					}
+				else
+					{
+					newWidth = (int) -(p.x - lowerPt[0]);
+					newHeight = (int) lowerPt[1] - p.y;
+					}
+				
 				if (angle > 90) offsetx = (int) upperRightPt[0] - p.x;
 
 				offsety = (int) upperRightPt[1] - p.y;
 
-				newWidth = (int) lowerRightPt[0] - p.x;
-				newHeight = (int) -(upperRightPt[1] - lowerPt[1]);
 				}
 			System.out.println("angle:" + angle);
 			System.out.println("offsetx:" + offsetx);
 			System.out.println("offsety:" + offsety);
+			System.out.println("new width:" + newWidth);
+			System.out.println("new height:" + newHeight);
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
