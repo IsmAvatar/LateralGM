@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2014, egofree
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -474,9 +475,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		private BufferedImage image;
 		private final InstancePropertyListener ipl = new InstancePropertyListener();
 
-		private int offsetx;
-		private int offsety;
-		
+		// When rotating an instance, used to set the new position
+		private int offsetx = 0;
+		private int offsety = 0;
+
 		public InstanceVisual(Instance i)
 			{
 			super(i);
@@ -501,52 +503,56 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			if (s != null)
 				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
 
+			// Get the properties of the instance
 			Point2D scale = piece.getScale();
-
-			double rotation = Math.toRadians(-piece.getRotation());
-
-			double x = 0;
-			double y = 0;
-			double[] pt = {x, y};
-			AffineTransform.getRotateInstance(Math.toRadians(piece.getRotation()), p.x + image.getWidth(), p.y)
-			  .transform(pt, 0, pt, 0, 1); // specifying to use this double[] to hold coords
-			double newX = pt[0];
-			double newY = pt[1];
-			
-			
-			
-			double sin = Math.abs(Math.sin(rotation));
-			double cos = Math.abs(Math.cos(rotation));
 			int imageWidth = image.getWidth();
 			int imageHeight = image.getHeight();
-			int neww = (int)Math.floor(imageWidth*cos+imageHeight*sin);
-			int newh = (int)Math.floor(imageHeight*cos+imageWidth*sin);
-			offsetx = (int) pt[0];
-			offsety = (int) pt[1];
+			double angle = piece.getRotation();
+
+			int newWidth = imageWidth;
+			int newHeight = imageHeight;
 			
-			System.out.println("image width:" + imageWidth);
-			System.out.println("image height:" + imageHeight);
-			System.out.println("new width:" + neww);
-			System.out.println("new height: " + newh);
-			System.out.println("newX:" + newX);
-			System.out.println("newY:" + newY);
+			// If there is a rotation calculate the new bounds
+			if (angle != 0)
+				{
+				angle = Math.toRadians(-angle);
+
+				// Calculate the upper right corner of the instance after rotation
+				double[] upperRightPt = { p.x + imageWidth,p.y };
+				AffineTransform.getRotateInstance(angle,p.x,p.y).transform(upperRightPt,0,upperRightPt,0,1);
+
+				// Calculate the lower right corner of the instance after rotation
+				double[] lowerRightPt = { p.x + imageWidth,p.y + imageHeight };
+				AffineTransform.getRotateInstance(angle,p.x,p.y).transform(lowerRightPt,0,lowerRightPt,0,1);
+
+				// Calculate the lower corner of the instance after rotation
+				double[] lowerPt = { p.x,p.y + imageHeight };
+				AffineTransform.getRotateInstance(angle,p.x,p.y).transform(lowerPt,0,lowerPt,0,1);
+
+				offsetx = 0;
+				offsety = (int) upperRightPt[1] - p.y;
+
+				newWidth = (int) lowerRightPt[0] - p.x;
+				newHeight = (int) -(upperRightPt[1] - lowerPt[1]);
+				}
 			
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
+				// The selected instance must always visible
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
 				// Take into account the scaling
-				int newWidth = (int) ((imageWidth + 4) * scale.getX());
-				int newHeight = (int) ((imageHeight + 4) * scale.getY());
+				newWidth = (int) ((newWidth + 4) * scale.getX());
+				newHeight = (int) ((newHeight + 4) * scale.getY());
 				setBounds(new Rectangle(p.x - 2,p.y - 2,newWidth,newHeight));
 				}
 			else
 				{
 				// Take into account the scaling
-				int newWidth = (int) (imageWidth * scale.getX());
-				int newHeight = (int) (imageHeight * scale.getY());
+				newWidth = (int) (newWidth * scale.getX());
+				newHeight = (int) (newHeight * scale.getY());
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
-				setBounds(new Rectangle(p.x,p.y+offsety,neww,newHeight-offsety));
+				setBounds(new Rectangle(p.x,p.y + offsety,newWidth,newHeight));
 				}
 
 			}
@@ -558,7 +564,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				Graphics2D g2 = (Graphics2D) g;
 
 				// g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-				 
+
 				g2.translate(0,-offsety);
 				// Get the scaling of the instance
 				Point2D scale = piece.getScale();
@@ -568,7 +574,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Apply scaling and rotation
 				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
 				if (rotation != 0) g2.rotate(Math.toRadians(-rotation));
-		
+
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
 					{
@@ -602,11 +608,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 							(float) (alpha / 255.0));
 					g2.setComposite(ac);
 					}
-			
-				
+
 				if (piece.isSelected())
 					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
-					else
+				else
 					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
 
 				}
