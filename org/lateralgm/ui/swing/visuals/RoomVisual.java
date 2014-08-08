@@ -536,7 +536,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				newHeight = (int) -(upperRightPt[1] - lowerPt[1]);
 				}
 			
-			System.out.println("offsety:" + offsety);
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
