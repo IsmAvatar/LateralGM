@@ -534,8 +534,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					{
 					newWidth = (int) (lowerRightPt[0] - p.x);
 					newHeight = (int) (lowerPt[1] - upperRightPt[1]);
-					offsety = (int) upperRightPt[1] - p.y;
 					offsetx = 0;
+					offsety = (int) upperRightPt[1] - p.y;
 					}
 				else
 					{
@@ -545,13 +545,22 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					offsetx = (int) upperRightPt[0] - p.x;
 					}
 
-
 				}
+			
+			if (scale.getX() != 1.0 || scale.getY() != 1.0)
+				{
+				newWidth = (int) (newWidth * scale.getX());
+				newHeight = (int) (newHeight * scale.getY());
+				offsetx = (int) (offsetx * scale.getX());
+				offsety = (int) (offsety * scale.getY());
+				}
+			
 			System.out.println("angle:" + angle);
 			System.out.println("offsetx:" + offsetx);
 			System.out.println("offsety:" + offsety);
 			System.out.println("new width:" + newWidth);
 			System.out.println("new height:" + newHeight);
+			
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
@@ -563,9 +572,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				}
 			else
 				{
-				// Take into account the scaling
-				newWidth = (int) (newWidth * scale.getX());
-				newHeight = (int) (newHeight * scale.getY());
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
 				setBounds(new Rectangle(p.x + offsetx,p.y + offsety,newWidth,newHeight));
 				}
