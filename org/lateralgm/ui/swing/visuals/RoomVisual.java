@@ -513,16 +513,19 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			int newHeight = image.getHeight();
 
 			AffineTransform at = new AffineTransform();
+			// Rectangle with image's size
 			Rectangle myRect = new Rectangle(p.x,p.y,newWidth,newHeight);
 
 			// Calculate the new bounds when there is a rotation
 			if (angle != 0) at = AffineTransform.getRotateInstance(Math.toRadians(-angle),p.x,p.y);
 
+			// Apply scaling
 			if (scale.getX() != 1.0 || scale.getY() != 1.0)
 				at = AffineTransform.getScaleInstance(scale.getX(),scale.getY());
 
 			Shape rotatedRect = at.createTransformedShape(myRect);
 
+			// Use a rectangle2D and round the values with Math.round. Rectangle doesn't give correct rounded values.
 			Rectangle2D newBounds2D = rotatedRect.getBounds2D();
 			int x = (int) Math.round(newBounds2D.getX());
 			int y = (int) Math.round(newBounds2D.getY());
