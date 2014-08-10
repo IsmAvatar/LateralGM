@@ -17,7 +17,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -500,7 +499,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			Sprite s = rs == null ? null : rs.get();
 			image = s == null ? null : s.getDisplayImage();
 			if (image == null) image = EMPTY_IMAGE;
-			
+
 			Point p = piece.getPosition();
 			if (s != null)
 				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
@@ -514,36 +513,29 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			int newHeight = image.getHeight();
 
 			AffineTransform at = new AffineTransform();
-			Rectangle myRect = new Rectangle(p.x, p.y, newWidth, newHeight);
-			
+			Rectangle myRect = new Rectangle(p.x,p.y,newWidth,newHeight);
+
 			// Calculate the new bounds when there is a rotation
-			if (angle != 0)
-				{
-				double radian = Math.toRadians(-angle);
-				at = AffineTransform.getRotateInstance(radian, p.x, p.y);
-				}
-			
-			//at.translate(p.x,p.y);
-			
+			if (angle != 0) at = AffineTransform.getRotateInstance(Math.toRadians(-angle),p.x,p.y);
+
 			if (scale.getX() != 1.0 || scale.getY() != 1.0)
 				at = AffineTransform.getScaleInstance(scale.getX(),scale.getY());
 
-			
 			Shape rotatedRect = at.createTransformedShape(myRect);
-			
+
 			Rectangle2D newBounds2D = rotatedRect.getBounds2D();
-			int x = (int)Math.round(newBounds2D.getX());
-			int y = (int)Math.round(newBounds2D.getY());
-			int width = (int)Math.round(newBounds2D.getWidth());
-			int height = (int)Math.round(newBounds2D.getHeight());
+			int x = (int) Math.round(newBounds2D.getX());
+			int y = (int) Math.round(newBounds2D.getY());
+			int width = (int) Math.round(newBounds2D.getWidth());
+			int height = (int) Math.round(newBounds2D.getHeight());
 			Rectangle newBounds = new Rectangle(x,y,width,height);
-			
+
 			offsetx = newBounds.getX() - p.x;
-			offsety = newBounds.getY()- p.y;
+			offsety = newBounds.getY() - p.y;
 			System.out.println("offsetx: " + offsetx);
 			System.out.println("offsety: " + offsety);
 			System.out.println("new bounds: " + newBounds);
-			
+
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
