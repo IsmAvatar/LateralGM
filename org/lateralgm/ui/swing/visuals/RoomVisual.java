@@ -18,8 +18,10 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
@@ -476,8 +478,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		private final InstancePropertyListener ipl = new InstancePropertyListener();
 
 		// When rotating an instance, used to set the new position
-		private int offsetx = 0;
-		private int offsety = 0;
+		private double offsetx = 0;
+		private double offsety = 0;
 
 		public InstanceVisual(Instance i)
 			{
@@ -498,82 +500,64 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			Sprite s = rs == null ? null : rs.get();
 			image = s == null ? null : s.getDisplayImage();
 			if (image == null) image = EMPTY_IMAGE;
-
+			
 			Point p = piece.getPosition();
 			if (s != null)
 				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
 
 			// Get the properties of the instance
 			Point2D scale = piece.getScale();
-			int imageWidth = image.getWidth();
-			int imageHeight = image.getHeight();
+
 			double angle = piece.getRotation();
 
-			int newWidth = imageWidth;
-			int newHeight = imageHeight;
+			int newWidth = image.getWidth();
+			int newHeight = image.getHeight();
 
+			AffineTransform at = new AffineTransform();
+			Rectangle myRect = new Rectangle(p.x, p.y, newWidth, newHeight);
+			
 			// Calculate the new bounds when there is a rotation
 			if (angle != 0)
 				{
 				double radian = Math.toRadians(-angle);
-
-				// Calculate the upper right corner of the instance after rotation
-				double[] upperRightPt = { p.x + imageWidth,p.y };
-				AffineTransform.getRotateInstance(radian,p.x,p.y).transform(upperRightPt,0,upperRightPt,0,1);
-
-				// Calculate the lower right corner of the instance after rotation
-				double[] lowerRightPt = { p.x + imageWidth,p.y + imageHeight };
-				AffineTransform.getRotateInstance(radian,p.x,p.y).transform(lowerRightPt,0,lowerRightPt,0,1);
-
-				// Calculate the lower corner of the instance after rotation
-				double[] lowerPt = { p.x,p.y + imageHeight };
-				AffineTransform.getRotateInstance(radian,p.x,p.y).transform(lowerPt,0,lowerPt,0,1);
-
-
-				if (angle <= 90)
-					{
-					newWidth = (int) (lowerRightPt[0] - p.x);
-					newHeight = (int) (lowerPt[1] - upperRightPt[1]);
-					offsetx = 0;
-					offsety = (int) upperRightPt[1] - p.y;
-					}
-				else
-					{
-					newWidth = (int) (lowerPt[0] - upperRightPt[0]);
-					newHeight = (int) (p.y - lowerRightPt[1]);
-					offsety = (int) lowerRightPt[1] - p.y;
-					offsetx = (int) upperRightPt[0] - p.x;
-					}
-
+				at = AffineTransform.getRotateInstance(radian, p.x, p.y);
 				}
+			
+			//at.translate(p.x,p.y);
 			
 			if (scale.getX() != 1.0 || scale.getY() != 1.0)
-				{
-				newWidth = (int) (newWidth * scale.getX());
-				newHeight = (int) (newHeight * scale.getY());
-				offsetx = (int) (offsetx * scale.getX());
-				offsety = (int) (offsety * scale.getY());
-				}
+				at = AffineTransform.getScaleInstance(scale.getX(),scale.getY());
+
 			
-			System.out.println("angle:" + angle);
-			System.out.println("offsetx:" + offsetx);
-			System.out.println("offsety:" + offsety);
-			System.out.println("new width:" + newWidth);
-			System.out.println("new height:" + newHeight);
+			Shape rotatedRect = at.createTransformedShape(myRect);
+			
+			Rectangle2D newBounds2D = rotatedRect.getBounds2D();
+			int x = (int)Math.round(newBounds2D.getX());
+			int y = (int)Math.round(newBounds2D.getY());
+			int width = (int)Math.round(newBounds2D.getWidth());
+			int height = (int)Math.round(newBounds2D.getHeight());
+			Rectangle newBounds = new Rectangle(x,y,width,height);
+			
+			offsetx = newBounds.getX() - p.x;
+			offsety = newBounds.getY()- p.y;
+			System.out.println("offsetx: " + offsetx);
+			System.out.println("offsety: " + offsety);
+			System.out.println("new bounds: " + newBounds);
 			
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
 				// Take into account the scaling
-				newWidth = (int) ((newWidth + 4) * scale.getX());
-				newHeight = (int) ((newHeight + 4) * scale.getY());
-				setBounds(new Rectangle(p.x - 2,p.y - 2,newWidth,newHeight));
+				//newWidth = (int) ((newWidth + 4) * scale.getX());
+				//newHeight = (int) ((newHeight + 4) * scale.getY());
+				//setBounds(new Rectangle(p.x - 2,p.y - 2,newWidth,newHeight));
+				setBounds(rotatedRect.getBounds());
 				}
 			else
 				{
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
-				setBounds(new Rectangle(p.x + offsetx,p.y + offsety,newWidth,newHeight));
+				setBounds(rotatedRect.getBounds());
 				}
 
 			}
@@ -592,7 +576,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Apply scaling, rotation and translation
 				if (offsetx != 0 || offsety != 0) g2.translate(-offsetx,-offsety);
 				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
-				if (rotation != 0) g2.rotate(Math.toRadians(-rotation));
+				if (rotation != 0) g2.rotate(Math.toRadians(-rotation),0,0);
 
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
