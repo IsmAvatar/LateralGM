@@ -501,44 +501,61 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			image = s == null ? null : s.getDisplayImage();
 			if (image == null) image = EMPTY_IMAGE;
 
-			Point p = piece.getPosition();
+			Point position = piece.getPosition();
 			if (s != null)
-				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
+				position.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
 
 			// Get the properties of the instance
 			Point2D scale = piece.getScale();
-
 			double angle = piece.getRotation();
-
 			int newWidth = image.getWidth();
 			int newHeight = image.getHeight();
-
-			AffineTransform at = new AffineTransform();
-			// Rectangle with image's size
-			Rectangle myRect = new Rectangle(p.x,p.y,newWidth,newHeight);
-
+			int newPositionx = 0;
+			int newPositiony = 0;
+			
 			// Calculate the new bounds when there is a rotation
-			if (angle != 0) at = AffineTransform.getRotateInstance(Math.toRadians(-angle),p.x,p.y);
-
+			if (angle != 0)
+				{
+				AffineTransform at = new AffineTransform();
+				// Rectangle with image's size
+				Rectangle myRect = new Rectangle(position.x,position.y,newWidth,newHeight);
+				// Apply the rotation
+				at = AffineTransform.getRotateInstance(Math.toRadians(-angle),position.x,position.y);
+				Shape rotatedRect = at.createTransformedShape(myRect);
+				
+				// Use a rectangle2D and round manually values with Math.round. getBounds doesn't give correct rounded values.
+				Rectangle2D newBounds2D = rotatedRect.getBounds2D();
+				newPositionx = (int) Math.round(newBounds2D.getX());
+				newPositiony = (int) Math.round(newBounds2D.getY());
+				newWidth = (int) Math.round(newBounds2D.getWidth());
+				newHeight = (int) Math.round(newBounds2D.getHeight());
+				
+				offsetx = newPositionx - position.x;
+				offsety = newPositiony - position.y;
+				}
+			else
+				{
+				newPositionx = position.x;
+				newPositiony = position.y;
+				offsetx = 0;
+				offsety = 0;
+				}
+			
 			// Apply scaling
 			if (scale.getX() != 1.0 || scale.getY() != 1.0)
-				at = AffineTransform.getScaleInstance(scale.getX(),scale.getY());
-
-			Shape rotatedRect = at.createTransformedShape(myRect);
-
-			// Use a rectangle2D and round the values with Math.round. Rectangle doesn't give correct rounded values.
-			Rectangle2D newBounds2D = rotatedRect.getBounds2D();
-			int x = (int) Math.round(newBounds2D.getX());
-			int y = (int) Math.round(newBounds2D.getY());
-			int width = (int) Math.round(newBounds2D.getWidth());
-			int height = (int) Math.round(newBounds2D.getHeight());
-			Rectangle newBounds = new Rectangle(x,y,width,height);
-
-			offsetx = newBounds.getX() - p.x;
-			offsety = newBounds.getY() - p.y;
+				{
+				newPositionx *= scale.getX();
+				newPositiony *= scale.getY();
+				
+				newWidth *= scale.getX();
+				newHeight *= scale.getY();
+				
+				offsetx *= scale.getX();
+				offsety *= scale.getY();
+				}
+			
 			System.out.println("offsetx: " + offsetx);
 			System.out.println("offsety: " + offsety);
-			System.out.println("new bounds: " + newBounds);
 
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
@@ -548,12 +565,12 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				//newWidth = (int) ((newWidth + 4) * scale.getX());
 				//newHeight = (int) ((newHeight + 4) * scale.getY());
 				//setBounds(new Rectangle(p.x - 2,p.y - 2,newWidth,newHeight));
-				setBounds(rotatedRect.getBounds());
+				setBounds(new Rectangle(newPositionx,newPositiony,newWidth,newHeight));
 				}
 			else
 				{
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
-				setBounds(rotatedRect.getBounds());
+				setBounds(new Rectangle(newPositionx,newPositiony,newWidth,newHeight));
 				}
 
 			}
