@@ -17,6 +17,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -562,6 +563,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			if (show.contains(Show.INSTANCES))
 				{
 				Graphics2D g2 = (Graphics2D) g;
+
+				g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+						RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
 				// Get scaling and rotation of the instance
 				Point2D scale = piece.getScale();
