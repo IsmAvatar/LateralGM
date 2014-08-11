@@ -483,7 +483,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		// Sprite's origin. Used for rotation
 		private int originx = 0;
 		private int originy = 0;
-		
+
 		public InstanceVisual(Instance i)
 			{
 			super(i);
@@ -503,7 +503,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			Sprite s = rs == null ? null : rs.get();
 			image = s == null ? null : s.getDisplayImage();
 			if (image == null) image = EMPTY_IMAGE;
-		
+
 			// Get sprite's origin
 			if (s != null)
 				{
@@ -515,16 +515,16 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				originx = 0;
 				originy = 0;
 				}
-			
+
 			// Get the properties of the instance
 			Point2D scale = piece.getScale();
-			
+
 			if (scale.getX() != 1.0 || scale.getY() != 1.0)
 				{
 				originx *= scale.getX();
 				originy *= scale.getY();
 				}
-			
+
 			Point position = piece.getPosition();
 			if (s != null) position.translate(-originx,-originy);
 
@@ -585,11 +585,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 				offsetx *= scale.getX();
 				offsety *= scale.getY();
-				
 
 				}
 
-			setBounds(new Rectangle(newPositionx,newPositiony,newWidth,newHeight));
+			setBounds(new Rectangle(position.x + offsetx,position.y + offsety,newWidth,newHeight));
 			}
 
 		public void paint(Graphics g)
@@ -605,7 +604,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				Point2D scale = piece.getScale();
 				double rotation = piece.getRotation();
 				int alpha = piece.getAlpha();
-				
+
 				// Apply scaling, rotation and translation
 				if (offsetx != 0 || offsety != 0) g2.translate(-offsetx,-offsety);
 				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
