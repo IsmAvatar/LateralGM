@@ -516,11 +516,18 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				originy = 0;
 				}
 			
+			// Get the properties of the instance
+			Point2D scale = piece.getScale();
+			
+			if (scale.getX() != 1.0 || scale.getY() != 1.0)
+				{
+				originx *= scale.getX();
+				originy *= scale.getY();
+				}
+			
 			Point position = piece.getPosition();
 			if (s != null) position.translate(-originx,-originy);
 
-			// Get the properties of the instance
-			Point2D scale = piece.getScale();
 			double angle = piece.getRotation();
 			int newWidth = image.getWidth();
 			int newHeight = image.getHeight();
@@ -578,6 +585,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 				offsetx *= scale.getX();
 				offsety *= scale.getY();
+				
+
 				}
 
 			setBounds(new Rectangle(newPositionx,newPositiony,newWidth,newHeight));
