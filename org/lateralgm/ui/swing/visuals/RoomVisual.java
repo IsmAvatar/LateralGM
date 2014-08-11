@@ -510,7 +510,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			double angle = piece.getRotation();
 			int newWidth = image.getWidth();
 			int newHeight = image.getHeight();
-
+			
 			// Calculate the new bounds when there is a rotation
 			if (angle != 0)
 				{
@@ -535,6 +535,25 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				offsety = 0;
 				}
 
+			int newPositionx = 0;
+			int newPositiony = 0;
+			
+		// If the instance is selected use bigger bounds for border, and make sure the instance is visible
+			if (piece.isSelected())
+				{
+				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
+				newWidth += 4;
+				newHeight += 4;
+				newPositionx = position.x + offsetx - 2;
+				newPositiony = position.y + offsety - 2;
+				}
+			else
+				{
+				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
+				newPositionx = position.x + offsetx;
+				newPositiony = position.y + offsety;
+				}
+			
 			// Apply scaling
 			if (scale.getX() != 1.0 || scale.getY() != 1.0)
 				{
@@ -545,26 +564,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				offsety *= scale.getY();
 				}
 
-			System.out.println("offsetx: " + offsetx);
-			System.out.println("offsety: " + offsety);
-			System.out.println("newWidth: " + newWidth);
-			System.out.println("newHeight: " + newHeight);
-			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
-			if (piece.isSelected())
-				{
-				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
-				// Take into account the scaling
-				//newWidth = (int) ((newWidth + 4) * scale.getX());
-				//newHeight = (int) ((newHeight + 4) * scale.getY());
-				//setBounds(new Rectangle(p.x - 2,p.y - 2,newWidth,newHeight));
-				setBounds(new Rectangle(position.x + offsetx,position.y + offsety,newWidth,newHeight));
-				}
-			else
-				{
-				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
-				setBounds(new Rectangle(position.x + offsetx,position.y + offsety,newWidth,newHeight));
-				}
-
+			setBounds(new Rectangle(newPositionx,newPositiony,newWidth,newHeight));
 			}
 
 		public void paint(Graphics g)
