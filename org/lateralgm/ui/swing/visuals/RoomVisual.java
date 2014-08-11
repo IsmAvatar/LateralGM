@@ -478,8 +478,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		private final InstancePropertyListener ipl = new InstancePropertyListener();
 
 		// When rotating an instance, used to set the new position
-		private double offsetx = 0;
-		private double offsety = 0;
+		private int offsetx = 0;
+		private int offsety = 0;
 
 		public InstanceVisual(Instance i)
 			{
@@ -510,9 +510,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			double angle = piece.getRotation();
 			int newWidth = image.getWidth();
 			int newHeight = image.getHeight();
-			int newPositionx = 0;
-			int newPositiony = 0;
-			
+
 			// Calculate the new bounds when there is a rotation
 			if (angle != 0)
 				{
@@ -522,41 +520,35 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Apply the rotation
 				at = AffineTransform.getRotateInstance(Math.toRadians(-angle),position.x,position.y);
 				Shape rotatedRect = at.createTransformedShape(myRect);
-				
+
 				// Use a rectangle2D and round manually values with Math.round. getBounds doesn't give correct rounded values.
 				Rectangle2D newBounds2D = rotatedRect.getBounds2D();
-				newPositionx = (int) Math.round(newBounds2D.getX());
-				newPositiony = (int) Math.round(newBounds2D.getY());
 				newWidth = (int) Math.round(newBounds2D.getWidth());
 				newHeight = (int) Math.round(newBounds2D.getHeight());
-				
-				offsetx = newPositionx - position.x;
-				offsety = newPositiony - position.y;
+
+				offsetx = (int) Math.round(newBounds2D.getX()) - position.x;
+				offsety = (int) Math.round(newBounds2D.getY()) - position.y;
 				}
 			else
 				{
-				newPositionx = position.x;
-				newPositiony = position.y;
 				offsetx = 0;
 				offsety = 0;
 				}
-			
+
 			// Apply scaling
 			if (scale.getX() != 1.0 || scale.getY() != 1.0)
 				{
-				newPositionx *= scale.getX();
-				newPositiony *= scale.getY();
-				
 				newWidth *= scale.getX();
 				newHeight *= scale.getY();
-				
+
 				offsetx *= scale.getX();
 				offsety *= scale.getY();
 				}
-			
+
 			System.out.println("offsetx: " + offsetx);
 			System.out.println("offsety: " + offsety);
-
+			System.out.println("newWidth: " + newWidth);
+			System.out.println("newHeight: " + newHeight);
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
@@ -565,12 +557,12 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				//newWidth = (int) ((newWidth + 4) * scale.getX());
 				//newHeight = (int) ((newHeight + 4) * scale.getY());
 				//setBounds(new Rectangle(p.x - 2,p.y - 2,newWidth,newHeight));
-				setBounds(new Rectangle(newPositionx,newPositiony,newWidth,newHeight));
+				setBounds(new Rectangle(position.x + offsetx,position.y + offsety,newWidth,newHeight));
 				}
 			else
 				{
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
-				setBounds(new Rectangle(newPositionx,newPositiony,newWidth,newHeight));
+				setBounds(new Rectangle(position.x + offsetx,position.y + offsety,newWidth,newHeight));
 				}
 
 			}
