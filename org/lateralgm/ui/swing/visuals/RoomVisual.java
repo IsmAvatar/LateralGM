@@ -480,7 +480,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		// When rotating an instance, used to set the new position
 		private int offsetx = 0;
 		private int offsety = 0;
-
+		// Sprite's origin. Used for rotation
+		private int originx = 0;
+		private int originy = 0;
+		
 		public InstanceVisual(Instance i)
 			{
 			super(i);
@@ -500,25 +503,37 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			Sprite s = rs == null ? null : rs.get();
 			image = s == null ? null : s.getDisplayImage();
 			if (image == null) image = EMPTY_IMAGE;
-
-			Point position = piece.getPosition();
+		
+			// Get sprite's origin
 			if (s != null)
-				position.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
+				{
+				originx = (Integer) s.get(PSprite.ORIGIN_X);
+				originy = (Integer) s.get(PSprite.ORIGIN_Y);
+				}
+			else
+				{
+				originx = 0;
+				originy = 0;
+				}
+			
+			Point position = piece.getPosition();
+			if (s != null) position.translate(-originx,-originy);
 
 			// Get the properties of the instance
 			Point2D scale = piece.getScale();
 			double angle = piece.getRotation();
 			int newWidth = image.getWidth();
 			int newHeight = image.getHeight();
-			
+
 			// Calculate the new bounds when there is a rotation
 			if (angle != 0)
 				{
 				AffineTransform at = new AffineTransform();
-				// Rectangle with image's size
+				// Create a rectangle with image's size
 				Rectangle myRect = new Rectangle(position.x,position.y,newWidth,newHeight);
 				// Apply the rotation
-				at = AffineTransform.getRotateInstance(Math.toRadians(-angle),position.x,position.y);
+				at = AffineTransform.getRotateInstance(Math.toRadians(-angle),position.x + originx,
+						position.y + originy);
 				Shape rotatedRect = at.createTransformedShape(myRect);
 
 				// Use a rectangle2D and round manually values with Math.round. getBounds doesn't give correct rounded values.
@@ -528,6 +543,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 				offsetx = (int) Math.round(newBounds2D.getX()) - position.x;
 				offsety = (int) Math.round(newBounds2D.getY()) - position.y;
+
 				}
 			else
 				{
@@ -537,8 +553,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 			int newPositionx = 0;
 			int newPositiony = 0;
-			
-		// If the instance is selected use bigger bounds for border, and make sure the instance is visible
+
+			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
@@ -553,7 +569,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				newPositionx = position.x + offsetx;
 				newPositiony = position.y + offsety;
 				}
-			
+
 			// Apply scaling
 			if (scale.getX() != 1.0 || scale.getY() != 1.0)
 				{
@@ -576,15 +592,15 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
 						RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-				// Get scaling and rotation of the instance
+				// Get properties of the instance
 				Point2D scale = piece.getScale();
 				double rotation = piece.getRotation();
 				int alpha = piece.getAlpha();
-
+				
 				// Apply scaling, rotation and translation
 				if (offsetx != 0 || offsety != 0) g2.translate(-offsetx,-offsety);
 				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
-				if (rotation != 0) g2.rotate(Math.toRadians(-rotation),0,0);
+				if (rotation != 0) g2.rotate(Math.toRadians(-rotation),originx,originy);
 
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
