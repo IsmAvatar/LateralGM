@@ -527,6 +527,23 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			int newWidth = image.getWidth();
 			int newHeight = image.getHeight();
 
+			int borderOffsetx = 0;
+			int borderOffsety = 0;
+			
+			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
+			if (piece.isSelected())
+				{
+				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
+				newWidth += 4;
+				newHeight += 4;
+				borderOffsetx = (int) (2 * scale.getX());
+				borderOffsety = (int) (2 * scale.getY());
+				}
+			else
+				{
+				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
+				}
+			
 			// Calculate the new bounds when there is a rotation
 			if (angle != 0)
 				{
@@ -552,25 +569,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				offsety = 0;
 				}
 
-			int newOffsetx = 0;
-			int newOffsety = 0;
-
-			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
-			if (piece.isSelected())
-				{
-				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
-				newWidth += 4;
-				newHeight += 4;
-				newOffsetx = (int) (2 * scale.getX());
-				newOffsety = (int) (2 * scale.getY());
-				//	offsetx -= 2 * scale.getX();
-				//	offsety -= 2 * scale.getY();
-				}
-			else
-				{
-				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
-				}
-
 			// Apply scaling
 			if (scale.getX() != 1.0 || scale.getY() != 1.0)
 				{
@@ -581,7 +579,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				offsety *= scale.getY();
 				}
 
-			setBounds(new Rectangle(position.x + offsetx - newOffsetx,position.y + offsety - newOffsety,
+			setBounds(new Rectangle(position.x + offsetx - borderOffsetx,position.y + offsety - borderOffsety,
 					newWidth,newHeight));
 			}
 
