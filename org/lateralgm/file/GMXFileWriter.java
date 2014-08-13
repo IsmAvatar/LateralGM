@@ -1663,6 +1663,7 @@ public final class GMXFileWriter
 						inselement.setAttribute("scaleY",Double.toString(in.getScale().getY()));
 						inselement.setAttribute("colour",Long.toString(in.getColor())); // default white
 						inselement.setAttribute("rotation",Double.toString(in.getRotation()));
+						inselement.setAttribute("alpha",Integer.toString(in.getAlpha()));
 						}
 
 					// Write Tiles

@@ -481,9 +481,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectVerticalPosition.setColumns(4);
 		objectVerticalPosition.addFocusListener(this);
 		JLabel lObjScaleX = new JLabel(Messages.getString("RoomFrame.SCALE_X")); //$NON-NLS-1$
-		objectScaleX = new NumberField(-99999.0,99999.0,1.0,2);
+		objectScaleX = new NumberField(0.1,9999.0,1.0,2);
 		JLabel lObjScaleY = new JLabel(Messages.getString("RoomFrame.SCALE_Y")); //$NON-NLS-1$
-		objectScaleY = new NumberField(-99999.0,99999.0,1.0,2);
+		objectScaleY = new NumberField(0.1,9999.0,1.0,2);
 		JLabel lObjRotation = new JLabel(Messages.getString("RoomFrame.ROTATION")); //$NON-NLS-1$
 		objectRotation = new NumberField(0.0,360.0,0.0,2);
 		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
