@@ -529,7 +529,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 			int borderOffsetx = 0;
 			int borderOffsety = 0;
-			
+
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
@@ -543,7 +543,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				{
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
 				}
-			
+
 			// Calculate the new bounds when there is a rotation
 			if (angle != 0)
 				{
@@ -579,8 +579,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				offsety *= scale.getY();
 				}
 
-			setBounds(new Rectangle(position.x + offsetx - borderOffsetx,position.y + offsety - borderOffsety,
-					newWidth,newHeight));
+			setBounds(new Rectangle(position.x + offsetx - borderOffsetx,position.y + offsety
+					- borderOffsety,newWidth,newHeight));
 			}
 
 		public void paint(Graphics g)
@@ -629,7 +629,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					}
 
 				// Set alpha value
-				if (alpha != 255)
+				if (alpha > 0 && alpha <= 255)
 					{
 					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
 							(float) (alpha / 255.0));
@@ -637,9 +637,11 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					}
 
 				if (piece.isSelected())
-					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
+					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : image,2,2,
+							null);
 				else
-					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
+					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : image,0,0,
+							null);
 
 				}
 			}
