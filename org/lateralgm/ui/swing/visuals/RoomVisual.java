@@ -598,7 +598,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Get instance's properties
 				Point2D scale = piece.getScale();
 				double rotation = piece.getRotation();
-				byte alpha = (byte) piece.getAlpha();
+				int alpha = piece.getAlpha();
 
 				// Apply scaling, rotation and translation
 				if (offsetx != 0 || offsety != 0) g2.translate(-offsetx,-offsety);
@@ -630,33 +630,50 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
 
 					}
-				
+
 				// Set alpha value
 				if (alpha > 0 && alpha <= 255)
 					{
 					int width = image.getWidth();
 					int height = image.getHeight();
+
+					Color color = new Color(222,0,255);
+					byte newColorRed = (byte) color.getRed();
+					byte newColorGreen = (byte) color.getGreen();
+					byte newColorBlue = (byte) color.getBlue();
 					
-						for (int y=0; y<height; y++) {
-							for (int x=0; x<width; x++) {
-								int p = image.getRGB(x,y);
-								int alphaValue = (p>>24) &0xff;
-								int redValue = (p>>16) &0xff;
-								int greenValue = (p>>8) &0xff;
-								int blue  = (p) & 0xff;
-								
-								if (alphaValue >0)
-									{
-									p = (alpha<<24) | (redValue<<16) | (greenValue<<8) | blue;
-									image.setRGB(x,y,p);
+					// Loop every image's pixel
+					for (int y = 0; y < height; y++)
+						{
+						for (int x = 0; x < width; x++)
+							{
+							// Get the color code
+							int rgbValue = image.getRGB(x,y);
+
+							int alphaValue = (rgbValue >> 24) & 0xff;
+							int redValue = (rgbValue >> 16) & 0xff;
+							int greenValue = (rgbValue >> 8) & 0xff;
+							int blueValue = (rgbValue) & 0xff;
+
+							// Filter with the new color
+							redValue = redValue & newColorRed;
+							greenValue = greenValue & newColorGreen;
+							blueValue = blueValue & newColorBlue;
+							
+							System.out.println(alphaValue);
+							
+							// If the pixel is not totally transparent
+							if (alphaValue > 0)
+								{
+								// Set the pixel with the new color
+								rgbValue = (alpha << 24) | (redValue << 16) | (greenValue << 8) | blueValue;
+								image.setRGB(x,y,rgbValue);
 								}
-								
+
 							}
 						}
-					}
+				}
 
-
-				
 				if (piece.isSelected())
 					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : image,2,2,
 							null);
