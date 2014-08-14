@@ -9,7 +9,6 @@
 
 package org.lateralgm.ui.swing.visuals;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,7 +22,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.BufferedImageOp;
+
 import java.awt.image.LookupOp;
 import java.awt.image.RasterFormatException;
 import java.awt.image.ShortLookupTable;
@@ -637,10 +636,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					int width = image.getWidth();
 					int height = image.getHeight();
 
-					Color color = new Color(222,0,255);
-					byte newColorRed = (byte) color.getRed();
-					byte newColorGreen = (byte) color.getGreen();
-					byte newColorBlue = (byte) color.getBlue();
+					long pieceColor = piece.getColor();
+					int newColorRed = (byte) ((pieceColor >> 48) & 0xffff);
+					int newColorGreen = (byte) ((pieceColor >> 32) & 0xffff);
+					int newColorBlue = (byte) (pieceColor) & 0xffff;
 					
 					// Loop every image's pixel
 					for (int y = 0; y < height; y++)
