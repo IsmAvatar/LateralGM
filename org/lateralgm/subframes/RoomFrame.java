@@ -91,6 +91,7 @@ import org.lateralgm.components.visual.RoomEditor.PRoomEditor;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource;
+import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
@@ -148,7 +149,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
 	public NumberField objectHorizontalPosition, objectVerticalPosition, objectScaleX, objectScaleY,
 			objectRotation, objectAlpha;
-	private FormattedLink<PInstance> loX, loY, loScaleX, loScaleY, loRotation, loAlpha;
+	public ColorSelect objectColour;
+	private FormattedLink<PInstance> loX, loY, loScaleX, loScaleY, loRotation, loAlpha, loColour;
 	private JButton oCreationCode;
 
 	//Settings
@@ -488,6 +490,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectRotation = new NumberField(0.0,360.0,0.0,2);
 		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
 		objectAlpha = new NumberField(0,255,255);
+		JLabel lObjColour = new JLabel(Messages.getString("RoomFrame.COLOUR")); //$NON-NLS-1$
+		objectColour = new ColorSelect(Color.WHITE);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
@@ -500,11 +504,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(lObjX)
 		/*		*/.addComponent(lObjScaleX)
-		/*		*/.addComponent(lObjRotation))
+		/*		*/.addComponent(lObjRotation)
+		/*		*/.addComponent(lObjColour))
 		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(objectHorizontalPosition)
 		/*		*/.addComponent(objectScaleX)
-		/*		*/.addComponent(objectRotation))
+		/*		*/.addComponent(objectRotation)
+		/*		*/.addComponent(objectColour))
 		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(lObjY)
 		/*		*/.addComponent(lObjScaleY)
@@ -534,6 +540,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/*		*/.addComponent(objectRotation)
 		/*		*/.addComponent(lObjAlpha)
 		/*		*/.addComponent(objectAlpha))
+		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lObjColour)
+		/*		*/.addComponent(objectColour,18,18,18))
 		/**/.addComponent(oCreationCode));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -1834,6 +1843,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			loScaleX = iplf.make(objectScaleX,PInstance.SCALE_X);
 			loScaleY = iplf.make(objectScaleY,PInstance.SCALE_Y);
 			loRotation = iplf.make(objectRotation,PInstance.ROTATION);
+			loColour = iplf.make(objectAlpha,PInstance.COLOR);
 			loAlpha = iplf.make(objectAlpha,PInstance.ALPHA);
 			}
 		}

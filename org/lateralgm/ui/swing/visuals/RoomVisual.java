@@ -660,8 +660,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 							greenValue = greenValue & newColorGreen;
 							blueValue = blueValue & newColorBlue;
 							
-							System.out.println(alphaValue);
-							
 							// If the pixel is not totally transparent
 							if (alphaValue > 0)
 								{
