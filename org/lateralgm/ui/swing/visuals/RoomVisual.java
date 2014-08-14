@@ -23,7 +23,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.LookupOp;
 import java.awt.image.RasterFormatException;
+import java.awt.image.ShortLookupTable;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -595,7 +598,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Get instance's properties
 				Point2D scale = piece.getScale();
 				double rotation = piece.getRotation();
-				int alpha = piece.getAlpha();
+				byte alpha = (byte) piece.getAlpha();
 
 				// Apply scaling, rotation and translation
 				if (offsetx != 0 || offsety != 0) g2.translate(-offsetx,-offsety);
@@ -627,15 +630,33 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
 
 					}
-
+				
 				// Set alpha value
 				if (alpha > 0 && alpha <= 255)
 					{
-					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-							(float) (alpha / 255.0));
-					g2.setComposite(ac);
+					int width = image.getWidth();
+					int height = image.getHeight();
+					
+						for (int y=0; y<height; y++) {
+							for (int x=0; x<width; x++) {
+								int p = image.getRGB(x,y);
+								int alphaValue = (p>>24) &0xff;
+								int redValue = (p>>16) &0xff;
+								int greenValue = (p>>8) &0xff;
+								int blue  = (p) & 0xff;
+								
+								if (alphaValue >0)
+									{
+									p = (alpha<<24) | (redValue<<16) | (greenValue<<8) | blue;
+									image.setRGB(x,y,p);
+								}
+								
+							}
+						}
 					}
 
+
+				
 				if (piece.isSelected())
 					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : image,2,2,
 							null);
