@@ -669,22 +669,28 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 					}
 
+				Image newImage;
+
 				// Set alpha value
-				//if (alpha > 0 && alpha <= 255)
-				//	{
-				ImageFilter filter = new ColorFilter(Color.green);
-				FilteredImageSource filteredSrc = new FilteredImageSource(image.getSource(),filter);
-				Image image = Toolkit.getDefaultToolkit().createImage(filteredSrc);
-				//	}
+				if (alpha > 0 && alpha < 255)
+					{
+					ImageFilter filter = new ColorFilter(Color.green);
+					FilteredImageSource filteredSrc = new FilteredImageSource(image.getSource(),filter);
+					newImage = Toolkit.getDefaultToolkit().createImage(filteredSrc);
+					}
+				else
+					{
+					newImage = image;
+					}
 
 				if (piece.isSelected())
-					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : image,2,2,
-							null);
+					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,2,
+							2,null);
 				else
-					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : image,0,0,
-							null);
-
+					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,0,
+							0,null);
 				}
+
 			}
 
 		@Override
