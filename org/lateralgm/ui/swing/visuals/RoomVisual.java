@@ -483,9 +483,11 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		byte newColorRed;
 		byte newColorGreen;
 		byte newColorBlue;
+		byte newAlpha;
 
-		public ColorFilter(Color color)
+		public ColorFilter(Color color, byte alpha)
 			{
+			newAlpha = alpha;
 			newColorRed = (byte) color.getRed();
 			newColorGreen = (byte) color.getGreen();
 			newColorBlue = (byte) color.getBlue();
@@ -507,7 +509,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			// If the pixel is not totally transparent
 			if (alpha > 0)
 				// Set the pixel with the new color
-				return (alpha << 24) | (red << 16) | (green << 8) | blue;
+				return (newAlpha << 24) | (red << 16) | (green << 8) | blue;
 			else
 				return rgb;
 			}
@@ -674,7 +676,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Set alpha value
 				if (alpha > 0 && alpha < 255)
 					{
-					ImageFilter filter = new ColorFilter(Color.green);
+					ImageFilter filter = new ColorFilter(Color.green,(byte) piece.getAlpha());
 					FilteredImageSource filteredSrc = new FilteredImageSource(image.getSource(),filter);
 					newImage = Toolkit.getDefaultToolkit().createImage(filteredSrc);
 					}
