@@ -91,7 +91,6 @@ import org.lateralgm.components.visual.RoomEditor.PRoomEditor;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource;
-import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
@@ -1843,7 +1842,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			loScaleX = iplf.make(objectScaleX,PInstance.SCALE_X);
 			loScaleY = iplf.make(objectScaleY,PInstance.SCALE_Y);
 			loRotation = iplf.make(objectRotation,PInstance.ROTATION);
-			loColour = iplf.make(objectAlpha,PInstance.COLOR);
+			//loColour = iplf.make(objectAlpha,PInstance.COLOR);
 			loAlpha = iplf.make(objectAlpha,PInstance.ALPHA);
 			}
 		}

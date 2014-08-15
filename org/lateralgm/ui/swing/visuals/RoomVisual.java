@@ -14,18 +14,20 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-
-import java.awt.image.LookupOp;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.ImageFilter;
+import java.awt.image.RGBImageFilter;
 import java.awt.image.RasterFormatException;
-import java.awt.image.ShortLookupTable;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -474,6 +476,43 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 		}
 
+	// Apply a color filter to an image
+	class ColorFilter extends RGBImageFilter
+		{
+		// The RGB components of the new color
+		byte newColorRed;
+		byte newColorGreen;
+		byte newColorBlue;
+
+		public ColorFilter(Color color)
+			{
+			newColorRed = (byte) color.getRed();
+			newColorGreen = (byte) color.getGreen();
+			newColorBlue = (byte) color.getBlue();
+			}
+
+		@Override
+		public int filterRGB(int x, int y, int rgb)
+			{
+			int alpha = (rgb >> 24) & 0xff;
+			int red = (rgb >> 16) & 0xff;
+			int green = (rgb >> 8) & 0xff;
+			int blue = (rgb) & 0xff;
+
+			// Filter with the new color
+			red = red & newColorRed;
+			green = green & newColorGreen;
+			blue = blue & newColorBlue;
+
+			// If the pixel is not totally transparent
+			if (alpha > 0)
+				// Set the pixel with the new color
+				return (alpha << 24) | (red << 16) | (green << 8) | blue;
+			else
+				return rgb;
+			}
+		}
+
 	private class InstanceVisual extends PieceVisual<Instance>
 		{
 		private BufferedImage image;
@@ -631,45 +670,12 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					}
 
 				// Set alpha value
-				if (alpha > 0 && alpha <= 255)
-					{
-					int width = image.getWidth();
-					int height = image.getHeight();
-
-					long pieceColor = piece.getColor();
-					int newColorRed = (byte) ((pieceColor >> 48) & 0xffff);
-					int newColorGreen = (byte) ((pieceColor >> 32) & 0xffff);
-					int newColorBlue = (byte) (pieceColor) & 0xffff;
-					
-					// Loop every image's pixel
-					for (int y = 0; y < height; y++)
-						{
-						for (int x = 0; x < width; x++)
-							{
-							// Get the color code
-							int rgbValue = image.getRGB(x,y);
-
-							int alphaValue = (rgbValue >> 24) & 0xff;
-							int redValue = (rgbValue >> 16) & 0xff;
-							int greenValue = (rgbValue >> 8) & 0xff;
-							int blueValue = (rgbValue) & 0xff;
-
-							// Filter with the new color
-							redValue = redValue & newColorRed;
-							greenValue = greenValue & newColorGreen;
-							blueValue = blueValue & newColorBlue;
-							
-							// If the pixel is not totally transparent
-							if (alphaValue > 0)
-								{
-								// Set the pixel with the new color
-								rgbValue = (alpha << 24) | (redValue << 16) | (greenValue << 8) | blueValue;
-								image.setRGB(x,y,rgbValue);
-								}
-
-							}
-						}
-				}
+				//if (alpha > 0 && alpha <= 255)
+				//	{
+				ImageFilter filter = new ColorFilter(Color.green);
+				FilteredImageSource filteredSrc = new FilteredImageSource(image.getSource(),filter);
+				Image image = Toolkit.getDefaultToolkit().createImage(filteredSrc);
+				//	}
 
 				if (piece.isSelected())
 					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : image,2,2,
