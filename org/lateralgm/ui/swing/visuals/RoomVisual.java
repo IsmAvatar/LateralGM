@@ -485,9 +485,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		byte newColorBlue;
 		byte newAlpha;
 
-		public ColorFilter(Color color, byte alpha)
+		public ColorFilter(Color color)
 			{
-			newAlpha = alpha;
+			newAlpha = (byte) color.getAlpha();
 			newColorRed = (byte) color.getRed();
 			newColorGreen = (byte) color.getGreen();
 			newColorBlue = (byte) color.getBlue();
@@ -673,10 +673,12 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 				Image newImage;
 
-				// Set alpha value
-				if (alpha > 0 && alpha < 255)
+				Color selectedColor = piece.getAWTColor();
+
+				// If a color has been selected, apply color blending
+				if (!Color.WHITE.equals(selectedColor) && selectedColor.getAlpha() > 0)
 					{
-					ImageFilter filter = new ColorFilter(Color.green,(byte) piece.getAlpha());
+					ImageFilter filter = new ColorFilter(selectedColor);
 					FilteredImageSource filteredSrc = new FilteredImageSource(image.getSource(),filter);
 					newImage = Toolkit.getDefaultToolkit().createImage(filteredSrc);
 					}
