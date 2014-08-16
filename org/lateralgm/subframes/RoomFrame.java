@@ -488,10 +488,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectScaleY = new NumberField(0.1,9999.0,1.0,2);
 		JLabel lObjRotation = new JLabel(Messages.getString("RoomFrame.ROTATION")); //$NON-NLS-1$
 		objectRotation = new NumberField(0.0,360.0,0.0,2);
-		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
-		objectAlpha = new NumberField(0,255,255);
 		JLabel lObjColour = new JLabel(Messages.getString("RoomFrame.COLOUR")); //$NON-NLS-1$
 		objectColour = new ColorSelect(Color.WHITE);
+		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
+		objectAlpha = new NumberField(0,255,255);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
@@ -504,13 +504,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(lObjX)
 		/*		*/.addComponent(lObjScaleX)
-		/*		*/.addComponent(lObjRotation)
-		/*		*/.addComponent(lObjColour))
+		/*		*/.addComponent(lObjColour)
+		/*		*/.addComponent(lObjRotation))
 		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(objectHorizontalPosition)
 		/*		*/.addComponent(objectScaleX)
-		/*		*/.addComponent(objectRotation)
-		/*		*/.addComponent(objectColour))
+		/*		*/.addComponent(objectColour)
+		/*		*/.addComponent(objectRotation))
 		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(lObjY)
 		/*		*/.addComponent(lObjScaleY)
@@ -536,13 +536,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/*		*/.addComponent(lObjScaleY)
 		/*		*/.addComponent(objectScaleY))
 		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lObjRotation)
-		/*		*/.addComponent(objectRotation)
 		/*		*/.addComponent(lObjAlpha)
-		/*		*/.addComponent(objectAlpha))
-		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(objectAlpha)
 		/*		*/.addComponent(lObjColour)
 		/*		*/.addComponent(objectColour,18,18,18))
+		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(lObjRotation)
+		/*		*/.addComponent(objectRotation))
 		/**/.addComponent(oCreationCode));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
