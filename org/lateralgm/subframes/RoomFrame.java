@@ -149,7 +149,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public NumberField objectHorizontalPosition, objectVerticalPosition, objectScaleX, objectScaleY,
 			objectRotation, objectAlpha;
 	public ColorSelect objectColour;
-	private FormattedLink<PInstance> loX, loY, loScaleX, loScaleY, loRotation, loAlpha, loColour;
+	public PropertyLink<PInstance,Color> loColour;
+	private FormattedLink<PInstance> loX, loY, loScaleX, loScaleY, loRotation, loAlpha;
 	private JButton oCreationCode;
 
 	//Settings
@@ -1829,7 +1830,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Instance selectedInstance = oList.getSelectedValue();
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
-		PropertyLink.removeAll(loLocked,loSource,loX,loY,loScaleX,loScaleY,loRotation,loAlpha);
+		PropertyLink.removeAll(loLocked,loSource,loX,loY,loScaleX,loScaleY,loColour,loRotation,loAlpha);
 
 		if (selectedInstance != null)
 			{
@@ -1842,7 +1843,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			loScaleX = iplf.make(objectScaleX,PInstance.SCALE_X);
 			loScaleY = iplf.make(objectScaleY,PInstance.SCALE_Y);
 			loRotation = iplf.make(objectRotation,PInstance.ROTATION);
-			//loColour = iplf.make(objectAlpha,PInstance.COLOR);
+			loColour = iplf.make(objectColour,PInstance.COLOR);
 			loAlpha = iplf.make(objectAlpha,PInstance.ALPHA);
 			}
 		}
