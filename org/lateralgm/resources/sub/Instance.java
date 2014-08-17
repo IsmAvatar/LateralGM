@@ -208,13 +208,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 			if (e.key == PInstance.SCALE_X) fireUpdate(null);
 			if (e.key == PInstance.SCALE_Y) fireUpdate(null);
 			if (e.key == PInstance.ROTATION) fireUpdate(null);
-			if (e.key == PInstance.COLOR)
-				{
-				// Update the alpha text field when the color is updated
-				Color color = (Color) e.map.get(e.key);
-				properties.put(PInstance.ALPHA,color.getAlpha());
-				fireUpdate(null);
-				}
+			if (e.key == PInstance.COLOR) fireUpdate(null);
 			if (e.key == PInstance.ALPHA) fireUpdate(null);
 			}
 		}
