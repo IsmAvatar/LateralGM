@@ -2311,13 +2311,17 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			// If we are modifying the position, save the position for the undo
 			if (event.getSource() == objectHorizontalPosition
 					|| event.getSource() == objectVerticalPosition)
+				{
 				pieceOriginalPosition = new Point(selectedPiece.getPosition());
+				return;
+				}
 
 			// If we are modifying the scale, save the scale for the undo
 			if (event.getSource() == objectScaleX || event.getSource() == objectScaleY)
 				{
 				Point2D newScale = selectedPiece.getScale();
 				pieceOriginalScale = new Point2D.Double(newScale.getX(),newScale.getY());
+				return;
 				}
 
 			}
