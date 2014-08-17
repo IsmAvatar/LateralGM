@@ -2372,7 +2372,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 							objectNewPosition);
 					// notify the listeners
 					undoSupport.postEdit(edit);
-					return;
 					}
 				}
 
@@ -2390,7 +2389,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 							pieceOriginalScale,new Point2D.Double(objectNewScale.getX(),objectNewScale.getY()));
 					// notify the listeners
 					undoSupport.postEdit(edit);
-					return;
 					}
 				}
 
