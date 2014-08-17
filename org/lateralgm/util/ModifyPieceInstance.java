@@ -1,7 +1,7 @@
 /**
-* Record the effect of moving a piece (object/tile) instance for the undo
+* Record the effect of modifying a piece (object/tile) instance for the undo
 *
-* I don't know why, but before moving a piece, the piece must be selected in the list.
+* Before modifying a piece, the piece must be selected in the list.
 *
 * Copyright (C) 2014, egofree
 *
@@ -13,6 +13,7 @@
 package org.lateralgm.util;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
@@ -22,7 +23,7 @@ import org.lateralgm.resources.Room.Piece;
 import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.subframes.RoomFrame;
 
-public class MovePieceInstance extends AbstractUndoableEdit
+public class ModifyPieceInstance extends AbstractUndoableEdit
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -30,15 +31,31 @@ public class MovePieceInstance extends AbstractUndoableEdit
 	private Point oldPosition;
 	private Point newPosition;
 	private RoomFrame roomFrame;
+	private Point2D oldScale;
+	private Point2D newScale;
 
-	public MovePieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition, Point newPosition)
+	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition, Point newPosition)
 		{
 		this.piece = piece;
 		this.oldPosition = oldPosition;
 		this.newPosition = newPosition;
 		this.roomFrame = roomFrame;
+		this.oldScale = null;
+		this.newScale = null;
 		}
 
+	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition,
+			Point newPosition, Point2D oldScale, Point2D newScale)
+		{
+		this.piece = piece;
+		this.oldPosition = oldPosition;
+		this.newPosition = newPosition;
+		this.roomFrame = roomFrame;
+		this.oldScale = oldScale;
+		this.newScale = newScale;
+		}
+
+	@Override
 	public void undo() throws CannotUndoException
 		{
 		// Select the current piece
@@ -53,9 +70,11 @@ public class MovePieceInstance extends AbstractUndoableEdit
 			roomFrame.fireTileUpdate();
 			}
 
-		piece.setPosition(oldPosition);
+		if (oldPosition != null) piece.setPosition(oldPosition);
+		if (oldScale != null) piece.setScale(oldScale);
 		}
 
+	@Override
 	public void redo() throws CannotRedoException
 		{
 		// Select the current piece
@@ -70,14 +89,17 @@ public class MovePieceInstance extends AbstractUndoableEdit
 			roomFrame.fireTileUpdate();
 			}
 
-		piece.setPosition(newPosition);
+		if (newPosition != null) piece.setPosition(newPosition);
+		if (newScale != null) piece.setScale(newScale);
 		}
 
+	@Override
 	public boolean canUndo()
 		{
 		return true;
 		}
 
+	@Override
 	public boolean canRedo()
 		{
 		return true;

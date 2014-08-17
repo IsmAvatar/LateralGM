@@ -13,6 +13,7 @@ package org.lateralgm.resources;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -80,6 +81,7 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		views = Collections.unmodifiableList(Arrays.asList(v));
 		}
 
+	@Override
 	public Room makeInstance(ResourceReference<Room> r)
 		{
 		return new Room(r);
@@ -158,10 +160,14 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 
 		void setPosition(Point pos);
 
+		void setScale(Point2D scale);
+
+		Point2D getScale();
+
 		void setSelected(boolean l);
-		
+
 		boolean isSelected();
-		
+
 		Point getPosition();
 		}
 	}

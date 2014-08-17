@@ -44,6 +44,7 @@ public class ColorSelect extends JPanel implements ItemSelectable,PropertyEditor
 		selectedColor = col;
 		}
 
+	@Override
 	public void processMouseEvent(MouseEvent e)
 		{
 		if (e.getID() == MouseEvent.MOUSE_CLICKED)

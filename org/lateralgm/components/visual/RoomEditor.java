@@ -54,7 +54,7 @@ import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.ui.swing.visuals.RoomVisual;
 import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.AddPieceInstance;
-import org.lateralgm.util.MovePieceInstance;
+import org.lateralgm.util.ModifyPieceInstance;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -188,7 +188,7 @@ public class RoomEditor extends VisualPanel
 		// If the piece was moved
 		if (objectFirstPosition != null)
 			// For the undo, record that the object was moved
-			edit = new MovePieceInstance(frame,cursor,objectFirstPosition,new Point(lastPosition));
+			edit = new ModifyPieceInstance(frame,cursor,objectFirstPosition,new Point(lastPosition));
 		else
 			// A new piece has been added
 			{

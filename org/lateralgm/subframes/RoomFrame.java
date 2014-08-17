@@ -34,6 +34,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
@@ -115,7 +116,7 @@ import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
 import org.lateralgm.util.AddPieceInstance;
-import org.lateralgm.util.MovePieceInstance;
+import org.lateralgm.util.ModifyPieceInstance;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -208,6 +209,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public UndoableEditSupport undoSupport;
 	// Save the original position of a piece when starting to move an object (Used for the undo)
 	private Point pieceOriginalPosition = null;
+	private Point2D pieceOriginalScale = null;
 	// Used to record the select piece before losing the focus.
 	public Piece selectedPiece = null;
 
@@ -484,8 +486,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectVerticalPosition.addFocusListener(this);
 		JLabel lObjScaleX = new JLabel(Messages.getString("RoomFrame.SCALE_X")); //$NON-NLS-1$
 		objectScaleX = new NumberField(0.1,9999.0,1.0,2);
+		objectScaleX.addFocusListener(this);
 		JLabel lObjScaleY = new JLabel(Messages.getString("RoomFrame.SCALE_Y")); //$NON-NLS-1$
 		objectScaleY = new NumberField(0.1,9999.0,1.0,2);
+		objectScaleY.addFocusListener(this);
 		JLabel lObjRotation = new JLabel(Messages.getString("RoomFrame.ROTATION")); //$NON-NLS-1$
 		objectRotation = new NumberField(0.0,360.0,0.0,2);
 		JLabel lObjColour = new JLabel(Messages.getString("RoomFrame.COLOUR")); //$NON-NLS-1$
@@ -2285,15 +2289,17 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		redo.setEnabled(undoManager.canRedo());
 		}
 
-	// When a text field related to the position of a piece gains the focus
+	// When a text field related to a piece property gains the focus
 	public void focusGained(FocusEvent event)
 		{
 		pieceOriginalPosition = null;
+		pieceOriginalScale = null;
 		selectedPiece = null;
 
 		// If we are modifying objects
 		if (event.getSource() == objectHorizontalPosition
-				|| event.getSource() == objectVerticalPosition)
+				|| event.getSource() == objectVerticalPosition || event.getSource() == objectScaleX
+				|| event.getSource() == objectScaleY)
 			{
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
@@ -2302,8 +2308,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			// Save the selected instance
 			selectedPiece = oList.getSelectedValue();
 
-			// Save the position of the object for the undo
-			pieceOriginalPosition = new Point(selectedPiece.getPosition());
+			// If we are modifying the position, save the position for the undo
+			if (event.getSource() == objectHorizontalPosition
+					|| event.getSource() == objectVerticalPosition)
+				pieceOriginalPosition = new Point(selectedPiece.getPosition());
+
+			// If we are modifying the scale, save the scale for the undo
+			if (event.getSource() == objectScaleX || event.getSource() == objectScaleY)
+				{
+				Point2D newScale = selectedPiece.getScale();
+				pieceOriginalScale = new Point2D.Double(newScale.getX(),newScale.getY());
+				}
+
 			}
 		// We are modifying tiles
 		else
@@ -2338,18 +2354,42 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			int selectedIndex = oList.getSelectedIndex();
 			if (selectedIndex == -1) return;
 
-			// Get the new position of the object
-			Point objectNewPosition = new Point(selectedPiece.getPosition());
-
-			// If the position of the object has been changed
-			if (!objectNewPosition.equals(pieceOriginalPosition))
+			// If we have changed the position
+			if (pieceOriginalPosition != null)
 				{
-				// Record the effect of moving an object for the undo
-				UndoableEdit edit = new MovePieceInstance(this,selectedPiece,pieceOriginalPosition,
-						objectNewPosition);
-				// notify the listeners
-				undoSupport.postEdit(edit);
+				// Get the new position of the object
+				Point objectNewPosition = new Point(selectedPiece.getPosition());
+
+				// If the position of the object has been changed
+				if (!objectNewPosition.equals(pieceOriginalPosition))
+					{
+					// Record the effect of moving an object for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalPosition,
+							objectNewPosition);
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					return;
+					}
 				}
+
+			// If we have changed the scale
+			if (pieceOriginalScale != null)
+				{
+				// Get the new scale of the object
+				Point2D objectNewScale = selectedPiece.getScale();
+
+				// If the scale of the object has been modified
+				if (!objectNewScale.equals(pieceOriginalScale))
+					{
+					// Record the effect of modifying the scale an object for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,null,null,
+							pieceOriginalScale,new Point2D.Double(objectNewScale.getX(),objectNewScale.getY()));
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					return;
+					}
+				}
+
 			}
 		// We are modifying tiles
 		else
@@ -2365,11 +2405,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (!tileNewPosition.equals(pieceOriginalPosition))
 				{
 				// Record the effect of moving an tile for the undo
-				UndoableEdit edit = new MovePieceInstance(this,selectedPiece,pieceOriginalPosition,
+				UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalPosition,
 						tileNewPosition);
 				// notify the listeners
 				undoSupport.postEdit(edit);
 				}
+
 			}
 
 		selectedPiece = null;
