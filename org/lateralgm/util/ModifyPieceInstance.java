@@ -33,6 +33,8 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 	private RoomFrame roomFrame;
 	private Point2D oldScale;
 	private Point2D newScale;
+	private Double oldRotation;
+	private Double newRotation;
 
 	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition, Point newPosition)
 		{
@@ -42,10 +44,12 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		this.roomFrame = roomFrame;
 		this.oldScale = null;
 		this.newScale = null;
+		this.oldRotation = null;
+		this.newRotation = null;
 		}
 
 	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition,
-			Point newPosition, Point2D oldScale, Point2D newScale)
+			Point newPosition, Point2D oldScale, Point2D newScale, Double oldRotation, Double newRotation)
 		{
 		this.piece = piece;
 		this.oldPosition = oldPosition;
@@ -53,6 +57,8 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		this.roomFrame = roomFrame;
 		this.oldScale = oldScale;
 		this.newScale = newScale;
+		this.oldRotation = oldRotation;
+		this.newRotation = newRotation;
 		}
 
 	@Override
@@ -72,6 +78,7 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 
 		if (oldPosition != null) piece.setPosition(oldPosition);
 		if (oldScale != null) piece.setScale(oldScale);
+		if (oldRotation != null) piece.setRotation(oldRotation);
 		}
 
 	@Override
@@ -91,6 +98,7 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 
 		if (newPosition != null) piece.setPosition(newPosition);
 		if (newScale != null) piece.setScale(newScale);
+		if (newRotation != null) piece.setRotation(newRotation);
 		}
 
 	@Override

@@ -164,6 +164,10 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 
 		Point2D getScale();
 
+		double getRotation();
+
+		void setRotation(double rotation);
+
 		void setSelected(boolean l);
 
 		boolean isSelected();

@@ -207,9 +207,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// Undo system elements
 	public UndoManager undoManager;
 	public UndoableEditSupport undoSupport;
-	// Save the original position of a piece when starting to move an object (Used for the undo)
+	// Save the object's properties for the undo
 	private Point pieceOriginalPosition = null;
 	private Point2D pieceOriginalScale = null;
+	private Double pieceOriginalRotation = null;
 	// Used to record the select piece before losing the focus.
 	public Piece selectedPiece = null;
 
@@ -492,6 +493,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectScaleY.addFocusListener(this);
 		JLabel lObjRotation = new JLabel(Messages.getString("RoomFrame.ROTATION")); //$NON-NLS-1$
 		objectRotation = new NumberField(0.0,360.0,0.0,2);
+		objectRotation.addFocusListener(this);
 		JLabel lObjColour = new JLabel(Messages.getString("RoomFrame.COLOUR")); //$NON-NLS-1$
 		objectColour = new ColorSelect(Color.WHITE);
 		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
@@ -2294,12 +2296,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		{
 		pieceOriginalPosition = null;
 		pieceOriginalScale = null;
+		pieceOriginalRotation = null;
 		selectedPiece = null;
 
 		// If we are modifying objects
 		if (event.getSource() == objectHorizontalPosition
 				|| event.getSource() == objectVerticalPosition || event.getSource() == objectScaleX
-				|| event.getSource() == objectScaleY)
+				|| event.getSource() == objectScaleY || event.getSource() == objectRotation)
 			{
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
@@ -2308,7 +2311,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			// Save the selected instance
 			selectedPiece = oList.getSelectedValue();
 
-			// If we are modifying the position, save the position for the undo
+			// If we are modifying the position, save it for the undo
 			if (event.getSource() == objectHorizontalPosition
 					|| event.getSource() == objectVerticalPosition)
 				{
@@ -2316,11 +2319,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				return;
 				}
 
-			// If we are modifying the scale, save the scale for the undo
+			// If we are modifying the scale, save it for the undo
 			if (event.getSource() == objectScaleX || event.getSource() == objectScaleY)
 				{
 				Point2D newScale = selectedPiece.getScale();
 				pieceOriginalScale = new Point2D.Double(newScale.getX(),newScale.getY());
+				return;
+				}
+
+			// If we are modifying the rotation, save it for the undo
+			if (event.getSource() == objectRotation)
+				{
+				pieceOriginalRotation = new Double(selectedPiece.getRotation());
 				return;
 				}
 
@@ -2386,7 +2396,25 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					{
 					// Record the effect of modifying the scale an object for the undo
 					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,null,null,
-							pieceOriginalScale,new Point2D.Double(objectNewScale.getX(),objectNewScale.getY()));
+							pieceOriginalScale,new Point2D.Double(objectNewScale.getX(),objectNewScale.getY()),
+							null,null);
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					}
+				}
+
+			// If we have changed the rotation
+			if (pieceOriginalRotation != null)
+				{
+				// Get the new rotation of the object
+				Double objectNewRotation = new Double(selectedPiece.getRotation());
+
+				// If the rotation of the object has been changed
+				if (objectNewRotation != pieceOriginalRotation)
+					{
+					// Record the effect of rotating an object for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,null,null,null,null,
+							pieceOriginalRotation,objectNewRotation);
 					// notify the listeners
 					undoSupport.postEdit(edit);
 					}
