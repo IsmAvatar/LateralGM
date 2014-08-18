@@ -496,7 +496,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectRotation = new NumberField(0.0,360.0,0.0,2);
 		objectRotation.addFocusListener(this);
 		JLabel lObjColour = new JLabel(Messages.getString("RoomFrame.COLOUR")); //$NON-NLS-1$
-		objectColour = new ColorSelect(Color.WHITE);
+		objectColour = new ColorSelect(Color.WHITE, false);
 		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
 		objectAlpha = new NumberField(0,255,255);
 		objectAlpha.addFocusListener(this);

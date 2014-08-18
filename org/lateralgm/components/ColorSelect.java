@@ -30,20 +30,36 @@ public class ColorSelect extends JPanel implements ItemSelectable,PropertyEditor
 	{
 	private static final long serialVersionUID = 1L;
 	private Color selectedColor;
-
+	// If false, return always 255. Used for the instance's color.
+	private boolean returnAlpha = true;
+	
 	public ColorSelect()
 		{
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		enableEvents(MouseEvent.MOUSE_FIRST);
 		}
 
+	public ColorSelect(boolean returnAlpha)
+		{
+		this.returnAlpha = returnAlpha;
+		setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		enableEvents(MouseEvent.MOUSE_FIRST);
+		}
+	
 	public ColorSelect(Color col)
 		{
 		this();
 		setBackground(col);
 		selectedColor = col;
 		}
-
+	
+	public ColorSelect(Color col, boolean returnAlpha)
+		{
+		this();
+		this.returnAlpha = returnAlpha;
+		setBackground(col);
+		selectedColor = col;
+		}
 	@Override
 	public void processMouseEvent(MouseEvent e)
 		{
@@ -74,6 +90,9 @@ public class ColorSelect extends JPanel implements ItemSelectable,PropertyEditor
 
 	public void setSelectedColor(Color selectedColor)
 		{
+		if (returnAlpha == false)
+			selectedColor = new Color (selectedColor.getRed(),selectedColor.getGreen(),selectedColor.getBlue());
+		
 		this.selectedColor = selectedColor;
 		setBackground(selectedColor);
 		fireItemChanged();
@@ -81,7 +100,15 @@ public class ColorSelect extends JPanel implements ItemSelectable,PropertyEditor
 
 	public Color getSelectedColor()
 		{
-		return selectedColor;
+		if (returnAlpha == true)
+			{
+			return selectedColor;
+			}
+		else
+			{
+			Color selectedColorWithoutAlpha = new Color (selectedColor.getRed(),selectedColor.getGreen(),selectedColor.getBlue());
+			return selectedColorWithoutAlpha;
+			}
 		}
 
 	public void addItemListener(ItemListener l)
