@@ -211,6 +211,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private Point pieceOriginalPosition = null;
 	private Point2D pieceOriginalScale = null;
 	private Double pieceOriginalRotation = null;
+	private Integer pieceOriginalAlpha = null;
 	// Used to record the select piece before losing the focus.
 	public Piece selectedPiece = null;
 
@@ -498,6 +499,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectColour = new ColorSelect(Color.WHITE);
 		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
 		objectAlpha = new NumberField(0,255,255);
+		objectAlpha.addFocusListener(this);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
@@ -2297,12 +2299,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		pieceOriginalPosition = null;
 		pieceOriginalScale = null;
 		pieceOriginalRotation = null;
+		pieceOriginalAlpha = null;
 		selectedPiece = null;
 
 		// If we are modifying objects
 		if (event.getSource() == objectHorizontalPosition
 				|| event.getSource() == objectVerticalPosition || event.getSource() == objectScaleX
-				|| event.getSource() == objectScaleY || event.getSource() == objectRotation)
+				|| event.getSource() == objectScaleY || event.getSource() == objectRotation
+				|| event.getSource() == objectAlpha)
 			{
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
@@ -2331,6 +2335,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (event.getSource() == objectRotation)
 				{
 				pieceOriginalRotation = new Double(selectedPiece.getRotation());
+				return;
+				}
+
+			// If we are modifying the alpha, save it for the undo
+			if (event.getSource() == objectAlpha)
+				{
+				pieceOriginalAlpha = new Integer(selectedPiece.getAlpha());
 				return;
 				}
 
@@ -2419,6 +2430,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					}
 				}
 
+			// If we have changed the alpha value
+			if (pieceOriginalAlpha != null)
+				{
+				// Get the new alpha of the object
+				Integer objectNewAlpha = new Integer(selectedPiece.getAlpha());
+
+				// If the alpha value of the object has been changed
+				if (objectNewAlpha != pieceOriginalAlpha)
+					{
+					// Record the effect of modifying the alpha value of an object for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalAlpha,
+							objectNewAlpha);
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					}
+				}
 			}
 		// We are modifying tiles
 		else

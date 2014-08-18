@@ -168,6 +168,10 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 
 		void setRotation(double rotation);
 
+		void setAlpha(int alpha);
+		
+		int getAlpha();
+		
 		void setSelected(boolean l);
 
 		boolean isSelected();

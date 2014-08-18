@@ -35,7 +35,9 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 	private Point2D newScale = null;
 	private Double oldRotation = null;
 	private Double newRotation = null;
-
+	private Integer oldAlpha = null;
+	private Integer newAlpha = null;
+	
 	// Record the effect of moving a piece
 	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition, Point newPosition)
 		{
@@ -63,6 +65,15 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		this.newRotation = newRotation;
 		}
 	
+	// Record the effect of modifying the alpha of a piece
+	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Integer oldAlpha, Integer newAlpha)
+		{
+		this.roomFrame = roomFrame;
+		this.piece = piece;
+		this.oldAlpha = oldAlpha;
+		this.newAlpha = newAlpha;
+		}
+	
 	@Override
 	public void undo() throws CannotUndoException
 		{
@@ -81,6 +92,7 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		if (oldPosition != null) piece.setPosition(oldPosition);
 		if (oldScale != null) piece.setScale(oldScale);
 		if (oldRotation != null) piece.setRotation(oldRotation);
+		if (oldAlpha != null) piece.setAlpha(oldAlpha);
 		}
 
 	@Override
@@ -101,6 +113,7 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		if (newPosition != null) piece.setPosition(newPosition);
 		if (newScale != null) piece.setScale(newScale);
 		if (newRotation != null) piece.setRotation(newRotation);
+		if (newAlpha != null) piece.setAlpha(newAlpha);
 		}
 
 	@Override

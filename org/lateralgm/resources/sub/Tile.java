@@ -42,12 +42,12 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 
 	public enum PTile
 		{
-		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED,COLOR,SCALE_X,SCALE_Y,ROTATION,
-		SELECTED
+		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED,COLOR,ALPHA,SCALE_X,SCALE_Y,
+		ROTATION,SELECTED
 		}
 
 	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,0,0,0,0,
-			0,0,0,null,0,false,4294967295L,1.0,1.0,0.0,false);
+			0,0,0,null,0,false,4294967295L,255,1.0,1.0,0.0,false);
 
 	/**
 	 * Do not call this constructor unless you intend
@@ -119,6 +119,16 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		{
 		properties.put(PTile.ROOM_X,p.x);
 		properties.put(PTile.ROOM_Y,p.y);
+		}
+
+	public int getAlpha()
+		{
+		return properties.get(PTile.ALPHA);
+		}
+
+	public void setAlpha(int alpha)
+		{
+		properties.put(PTile.ALPHA,alpha);
 		}
 
 	public Dimension getSize()

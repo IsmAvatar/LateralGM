@@ -80,6 +80,11 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		return properties.get(PInstance.ALPHA);
 		}
 
+	public void setAlpha(int alpha)
+		{
+		properties.put(PInstance.ALPHA,alpha);		
+		}
+	
 	public Point2D getScale()
 		{
 		return new Point2D.Double((Double) properties.get(PInstance.SCALE_X),
