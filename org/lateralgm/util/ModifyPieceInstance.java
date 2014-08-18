@@ -36,27 +36,33 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 	private Double oldRotation = null;
 	private Double newRotation = null;
 
+	// Record the effect of moving a piece
 	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition, Point newPosition)
 		{
+		this.roomFrame = roomFrame;
 		this.piece = piece;
 		this.oldPosition = oldPosition;
 		this.newPosition = newPosition;
-		this.roomFrame = roomFrame;
 		}
 
-	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition,
-			Point newPosition, Point2D oldScale, Point2D newScale, Double oldRotation, Double newRotation)
+	// Record the effect of modifying the scale of a piece
+	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point2D oldScale, Point2D newScale)
 		{
-		this.piece = piece;
-		this.oldPosition = oldPosition;
-		this.newPosition = newPosition;
 		this.roomFrame = roomFrame;
+		this.piece = piece;
 		this.oldScale = oldScale;
 		this.newScale = newScale;
+		}
+
+	// Record the effect of modifying the rotation of a piece
+	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Double oldRotation, Double newRotation)
+		{
+		this.roomFrame = roomFrame;
+		this.piece = piece;
 		this.oldRotation = oldRotation;
 		this.newRotation = newRotation;
 		}
-
+	
 	@Override
 	public void undo() throws CannotUndoException
 		{

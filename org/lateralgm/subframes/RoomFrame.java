@@ -2395,9 +2395,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (!objectNewScale.equals(pieceOriginalScale))
 					{
 					// Record the effect of modifying the scale an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,null,null,
-							pieceOriginalScale,new Point2D.Double(objectNewScale.getX(),objectNewScale.getY()),
-							null,null);
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalScale,
+							new Point2D.Double(objectNewScale.getX(),objectNewScale.getY()));
 					// notify the listeners
 					undoSupport.postEdit(edit);
 					}
@@ -2413,8 +2412,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (objectNewRotation != pieceOriginalRotation)
 					{
 					// Record the effect of rotating an object for the undo
-					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,null,null,null,null,
-							pieceOriginalRotation,objectNewRotation);
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalRotation,
+							objectNewRotation);
 					// notify the listeners
 					undoSupport.postEdit(edit);
 					}
