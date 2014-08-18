@@ -28,13 +28,13 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 	private static final long serialVersionUID = 1L;
 
 	private Piece piece;
-	private Point oldPosition;
-	private Point newPosition;
 	private RoomFrame roomFrame;
-	private Point2D oldScale;
-	private Point2D newScale;
-	private Double oldRotation;
-	private Double newRotation;
+	private Point oldPosition = null;
+	private Point newPosition = null;
+	private Point2D oldScale = null;
+	private Point2D newScale = null;
+	private Double oldRotation = null;
+	private Double newRotation = null;
 
 	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition, Point newPosition)
 		{
@@ -42,10 +42,6 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		this.oldPosition = oldPosition;
 		this.newPosition = newPosition;
 		this.roomFrame = roomFrame;
-		this.oldScale = null;
-		this.newScale = null;
-		this.oldRotation = null;
-		this.newRotation = null;
 		}
 
 	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition,
