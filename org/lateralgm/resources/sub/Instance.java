@@ -47,7 +47,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		}
 
 	private static final EnumMap<PInstance,Object> DEFS = PropertyMap.makeDefaultMap(PInstance.class,
-			0,0,null,0,"",false,1.0,1.0,4294967295L,new Color(255,255,255),0.0,false,255);
+			0,0,null,0,"",false,1.0,1.0,4294967295L,0.0,false,255);
 
 	public Instance(Room r)
 		{
@@ -96,11 +96,6 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		return properties.get(PInstance.ROTATION);
 		}
 
-	public long getGMColor()
-		{
-		return properties.get(PInstance.GM_COLOR);
-		}
-
 	public long getColor()
 		{
 		return properties.get(PInstance.COLOR);
@@ -137,11 +132,6 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 	public boolean isSelected()
 		{
 		return (Boolean) properties.get(PInstance.SELECTED);
-		}
-
-	public void setGMColor(long color)
-		{
-		properties.put(PInstance.GM_COLOR,color);
 		}
 
 	public void setColor(long color)
@@ -213,7 +203,14 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 			if (e.key == PInstance.SCALE_X) fireUpdate(null);
 			if (e.key == PInstance.SCALE_Y) fireUpdate(null);
 			if (e.key == PInstance.ROTATION) fireUpdate(null);
-			if (e.key == PInstance.COLOR) fireUpdate(null);
+			if (e.key == PInstance.COLOR)
+				{
+				
+				Color color = (Color) e.map.get(e.key);
+				System.out.println("new color:" + color);
+
+				fireUpdate(null);
+				}
 			if (e.key == PInstance.ALPHA) fireUpdate(null);
 			}
 		}

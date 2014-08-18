@@ -1865,7 +1865,7 @@ public final class GMXFileReader
 								inst.setPosition(new Point(xx,yy));
 								inst.setScale(new Point2D.Double(sx,sy));
 								inst.setRotation(rot);
-								inst.setGMColor(col);
+								inst.setColor(col);
 								inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue());
 								inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) < 0);
 								}
