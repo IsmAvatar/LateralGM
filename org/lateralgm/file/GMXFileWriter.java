@@ -1661,9 +1661,11 @@ public final class GMXFileWriter
 						inselement.setAttribute("code",in.getCreationCode());
 						inselement.setAttribute("scaleX",Double.toString(in.getScale().getX()));
 						inselement.setAttribute("scaleY",Double.toString(in.getScale().getY()));
-						inselement.setAttribute("colour",Long.toString(Util.getGmColorWithAlpha(in.getColor(), in.getAlpha()))); // default white
+						Color color = in.getColor();
+						System.out.println("writing color:"
+								+ Util.getGmColorWithAlpha(in.getColor(), in.getAlpha()));
+						//inselement.setAttribute("colour",Long.toString(Util.getGmColorWithAlpha(in.getColor(), in.getAlpha()))); // default white
 						inselement.setAttribute("rotation",Double.toString(in.getRotation()));
-						inselement.setAttribute("alpha",Integer.toString(in.getAlpha()));
 						}
 
 					// Write Tiles

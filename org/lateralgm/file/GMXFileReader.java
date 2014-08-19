@@ -1859,16 +1859,22 @@ public final class GMXFileReader
 								int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue());
 								double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue());
 								double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue());
-								long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue());
+
+								// Read the color blending
+								if (attribs.getNamedItem("colour") != null)
+									{
+									long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue());
+									Color color = Util.convertInstanceColorWithAlpha((int) col);
+									inst.setColor(color);
+									inst.setAlpha(color.getAlpha());
+								}
+								
 								double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue());
 								//TODO: fuck they use strings we use integers
 								//inst.properties.put(PInstance.ID, inode.getAttributes().getNamedItem("name").getNodeValue());
 								inst.setPosition(new Point(xx,yy));
 								inst.setScale(new Point2D.Double(sx,sy));
 								inst.setRotation(rot);
-								Color color = Util.convertGmColorWithAlpha((int) col);
-								inst.setColor(color);
-								inst.setAlpha(color.getAlpha());
 								inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue());
 								inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) < 0);
 								}

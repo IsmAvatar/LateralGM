@@ -437,6 +437,12 @@ public final class Util
 				(col & 0xFF000000) >>> 24);
 		}
 
+	public static Color convertInstanceColorWithAlpha(int col)
+		{
+		return new Color((col & 0xFF0000) >> 16,(col & 0xFF00) >> 8,col & 0xFF,
+				(col & 0xFF000000) >>> 24);
+		}
+
 	public static int getGmColor(Color col)
 		{
 		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16;
@@ -447,11 +453,11 @@ public final class Util
 		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16 | col.getAlpha() << 24;
 		}
 
-	public static int getGmColorWithAlpha(Color col, int Alpha)
+	public static long getGmColorWithAlpha(Color col, int Alpha)
 		{
 		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16 | Alpha << 24;
 		}
-	
+
 	public static Component addDim(Container container, Component comp, int width, int height)
 		{
 		comp.setPreferredSize(new Dimension(width,height));
