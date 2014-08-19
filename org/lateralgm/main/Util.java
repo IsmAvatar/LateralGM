@@ -169,6 +169,7 @@ public final class Util
 		final int t = i.getRGB(0,i.getHeight() - 1) & 0x00FFFFFF;
 		ImageFilter filter = new RGBImageFilter()
 			{
+				@Override
 				public int filterRGB(int x, int y, int rgb)
 					{
 					if ((rgb & 0x00FFFFFF) == t) return t;
@@ -262,7 +263,7 @@ public final class Util
 	private static ArrayList<BufferedImage> readGIF(File gif) throws IOException
 		{
 		ArrayList<BufferedImage> frames = new ArrayList<BufferedImage>(0);
-		ImageReader reader = (ImageReader) ImageIO.getImageReadersByFormatName("gif").next();
+		ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
 		;
 		reader.setInput(ImageIO.createImageInputStream(gif));
 
@@ -453,9 +454,9 @@ public final class Util
 		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16 | col.getAlpha() << 24;
 		}
 
-	public static long getGmColorWithAlpha(Color col, int Alpha)
+	public static long getInstanceColorWithAlpha(Color col, int alpha)
 		{
-		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16 | Alpha << 24;
+		return (alpha << 24 | col.getRed() << 16 | col.getGreen() << 8 | col.getBlue()) & 0xFFFFFFFFL;
 		}
 
 	public static Component addDim(Container container, Component comp, int width, int height)
