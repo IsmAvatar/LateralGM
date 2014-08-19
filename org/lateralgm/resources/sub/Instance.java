@@ -43,11 +43,11 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 
 	public enum PInstance
 		{
-		X,Y,OBJECT,ID,CREATION_CODE,LOCKED,SCALE_X,SCALE_Y,GM_COLOR,COLOR,ROTATION,SELECTED,ALPHA
+		X,Y,OBJECT,ID,CREATION_CODE,LOCKED,SCALE_X,SCALE_Y,COLOR,ROTATION,SELECTED,ALPHA
 		}
 
 	private static final EnumMap<PInstance,Object> DEFS = PropertyMap.makeDefaultMap(PInstance.class,
-			0,0,null,0,"",false,1.0,1.0,4294967295L,0.0,false,255);
+			0,0,null,0,"",false,1.0,1.0,new Color(255,255,255),0.0,false,255);
 
 	public Instance(Room r)
 		{
