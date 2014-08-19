@@ -23,6 +23,7 @@
 
 package org.lateralgm.file;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -1865,7 +1866,9 @@ public final class GMXFileReader
 								inst.setPosition(new Point(xx,yy));
 								inst.setScale(new Point2D.Double(sx,sy));
 								inst.setRotation(rot);
-								inst.setColor(Util.convertGmColor((int)col));
+								Color color = Util.convertGmColorWithAlpha((int) col);
+								inst.setColor(color);
+								inst.setAlpha(color.getAlpha());
 								inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue());
 								inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) < 0);
 								}

@@ -447,6 +447,11 @@ public final class Util
 		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16 | col.getAlpha() << 24;
 		}
 
+	public static int getGmColorWithAlpha(Color col, int Alpha)
+		{
+		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16 | Alpha << 24;
+		}
+	
 	public static Component addDim(Container container, Component comp, int width, int height)
 		{
 		comp.setPreferredSize(new Dimension(width,height));
