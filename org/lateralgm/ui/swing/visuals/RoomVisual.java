@@ -676,7 +676,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				Color selectedColor = piece.getAWTColor();
 
 				// If a color has been selected, apply color blending
-				if (!Color.WHITE.equals(selectedColor) || alpha > 0)
+				if (!Color.WHITE.equals(selectedColor) || (alpha > 0 && alpha < 255))
 					{
 					ImageFilter filter = new ColorFilter(selectedColor,alpha);
 					FilteredImageSource filteredSrc = new FilteredImageSource(image.getSource(),filter);
