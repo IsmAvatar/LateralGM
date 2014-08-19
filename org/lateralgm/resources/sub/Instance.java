@@ -96,7 +96,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		return properties.get(PInstance.ROTATION);
 		}
 
-	public long getColor()
+	public Color getColor()
 		{
 		return properties.get(PInstance.COLOR);
 		}
@@ -134,7 +134,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		return (Boolean) properties.get(PInstance.SELECTED);
 		}
 
-	public void setColor(long color)
+	public void setColor(Color color)
 		{
 		properties.put(PInstance.COLOR,color);
 		}
@@ -203,14 +203,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 			if (e.key == PInstance.SCALE_X) fireUpdate(null);
 			if (e.key == PInstance.SCALE_Y) fireUpdate(null);
 			if (e.key == PInstance.ROTATION) fireUpdate(null);
-			if (e.key == PInstance.COLOR)
-				{
-				
-				Color color = (Color) e.map.get(e.key);
-				System.out.println("new color:" + color);
-
-				fireUpdate(null);
-				}
+			if (e.key == PInstance.COLOR)	fireUpdate(null);
 			if (e.key == PInstance.ALPHA) fireUpdate(null);
 			}
 		}

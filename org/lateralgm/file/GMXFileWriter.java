@@ -1661,7 +1661,7 @@ public final class GMXFileWriter
 						inselement.setAttribute("code",in.getCreationCode());
 						inselement.setAttribute("scaleX",Double.toString(in.getScale().getX()));
 						inselement.setAttribute("scaleY",Double.toString(in.getScale().getY()));
-						inselement.setAttribute("colour",Long.toString(in.getColor())); // default white
+						inselement.setAttribute("colour",Long.toString(Util.getGmColor(in.getColor()))); // default white
 						inselement.setAttribute("rotation",Double.toString(in.getRotation()));
 						inselement.setAttribute("alpha",Integer.toString(in.getAlpha()));
 						}
