@@ -1656,7 +1656,7 @@ public final class GMXFileWriter
 							}
 						inselement.setAttribute("x",Integer.toString(in.getPosition().x));
 						inselement.setAttribute("y",Integer.toString(in.getPosition().y));
-						inselement.setAttribute("name","inst_");
+						inselement.setAttribute("name","inst_" + Integer.toString(in.getID()));
 						inselement.setAttribute("locked",boolToString(in.isLocked()));
 						inselement.setAttribute("code",in.getCreationCode());
 						inselement.setAttribute("scaleX",Double.toString(in.getScale().getX()));

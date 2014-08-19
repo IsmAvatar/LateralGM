@@ -70,6 +70,11 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		if (r != null) r.instanceUpdated(e);
 		}
 
+	public int getID()
+		{
+		return properties.get(PInstance.ID);
+		}
+	
 	public Point getPosition()
 		{
 		return new Point((Integer) properties.get(PInstance.X),(Integer) properties.get(PInstance.Y));
