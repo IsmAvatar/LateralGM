@@ -9,6 +9,7 @@
 
 package org.lateralgm.ui.swing.visuals;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -483,11 +484,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		byte newColorRed;
 		byte newColorGreen;
 		byte newColorBlue;
-		byte newAlpha;
 
-		public ColorFilter(Color color, int alpha)
+		public ColorFilter(Color color)
 			{
-			newAlpha = (byte) alpha;
 			newColorRed = (byte) color.getRed();
 			newColorGreen = (byte) color.getGreen();
 			newColorBlue = (byte) color.getBlue();
@@ -509,7 +508,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			// If the pixel is not totally transparent
 			if (alpha > 0)
 				// Set the pixel with the new color
-				return (newAlpha << 24) | (red << 16) | (green << 8) | blue;
+				return (alpha << 24) | (red << 16) | (green << 8) | blue;
 			else
 				return rgb;
 			}
@@ -676,9 +675,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				Color selectedColor = piece.getAWTColor();
 
 				// If a color has been selected, apply color blending
-				if (!Color.WHITE.equals(selectedColor) || (alpha > 0 && alpha < 255))
+				if (!Color.WHITE.equals(selectedColor))
 					{
-					ImageFilter filter = new ColorFilter(selectedColor,alpha);
+					ImageFilter filter = new ColorFilter(selectedColor);
 					FilteredImageSource filteredSrc = new FilteredImageSource(image.getSource(),filter);
 					newImage = Toolkit.getDefaultToolkit().createImage(filteredSrc);
 					}
@@ -687,6 +686,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					newImage = image;
 					}
 
+				// Apply alpha
+				if (alpha > 0 && alpha < 255)
+					{
+					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (alpha / 255.0));
+					g2.setComposite(ac);
+					}
+				
 				if (piece.isSelected())
 					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,2,
 							2,null);
