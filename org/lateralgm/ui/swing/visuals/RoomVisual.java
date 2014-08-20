@@ -505,12 +505,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			green = green & newColorGreen;
 			blue = blue & newColorBlue;
 
-			// If the pixel is not totally transparent
-			if (alpha > 0)
-				// Set the pixel with the new color
-				return (alpha << 24) | (red << 16) | (green << 8) | blue;
-			else
-				return rgb;
+			// Set the pixel with the new color
+			return (alpha << 24) | (red << 16) | (green << 8) | blue;
+
 			}
 		}
 
