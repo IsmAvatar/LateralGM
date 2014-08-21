@@ -12,6 +12,7 @@
 
 package org.lateralgm.util;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
@@ -37,6 +38,8 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 	private Double newRotation = null;
 	private Integer oldAlpha = null;
 	private Integer newAlpha = null;
+	private Color oldColor = null;
+	private Color newColor = null;
 	
 	// Record the effect of moving a piece
 	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Point oldPosition, Point newPosition)
@@ -74,6 +77,15 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		this.newAlpha = newAlpha;
 		}
 	
+	// Record the effect of modifying the color of a piece
+	public ModifyPieceInstance(RoomFrame roomFrame, Piece piece, Color oldColor, Color newColor)
+		{
+		this.roomFrame = roomFrame;
+		this.piece = piece;
+		this.oldColor = oldColor;
+		this.newColor = newColor;
+		}
+	
 	@Override
 	public void undo() throws CannotUndoException
 		{
@@ -93,6 +105,7 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		if (oldScale != null) piece.setScale(oldScale);
 		if (oldRotation != null) piece.setRotation(oldRotation);
 		if (oldAlpha != null) piece.setAlpha(oldAlpha);
+		if (oldColor != null) piece.setColor(oldColor);
 		}
 
 	@Override
@@ -114,6 +127,7 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		if (newScale != null) piece.setScale(newScale);
 		if (newRotation != null) piece.setRotation(newRotation);
 		if (newAlpha != null) piece.setAlpha(newAlpha);
+		if (newColor != null) piece.setColor(newColor);
 		}
 
 	@Override

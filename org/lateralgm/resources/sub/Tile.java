@@ -10,6 +10,7 @@
 
 package org.lateralgm.resources.sub;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -23,6 +24,7 @@ import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -121,6 +123,12 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		properties.put(PTile.ROOM_Y,p.y);
 		}
 
+	public void setColor(Color color)
+		{
+		properties.put(PTile.COLOR,color);
+		}
+
+	
 	public int getAlpha()
 		{
 		return properties.get(PTile.ALPHA);

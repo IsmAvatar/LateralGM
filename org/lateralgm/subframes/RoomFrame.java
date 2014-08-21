@@ -31,11 +31,16 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
 
@@ -496,7 +501,56 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectRotation = new NumberField(0.0,360.0,0.0,2);
 		objectRotation.addFocusListener(this);
 		JLabel lObjColour = new JLabel(Messages.getString("RoomFrame.COLOUR")); //$NON-NLS-1$
-		objectColour = new ColorSelect(Color.WHITE, false);
+		objectColour = new ColorSelect(Color.WHITE,false);
+		objectColour.addMouseListener(new MouseListener()
+			{
+				Color originalColor;
+
+				public void mouseClicked(MouseEvent event)
+					{
+					if (selectedPiece == null) return;
+
+					Color newColour = objectColour.getSelectedColor();
+
+					// If the color has changed, save it in the undo
+					if (!originalColor.equals(newColour))
+						{
+						// Record the effect of modifying the color of an object for the undo
+						UndoableEdit edit = new ModifyPieceInstance(RoomFrame.this,selectedPiece,originalColor,
+								newColour);
+						// notify the listeners
+						undoSupport.postEdit(edit);
+						}
+					}
+
+				public void mousePressed(MouseEvent arg0)
+					{
+					selectedPiece = null;
+
+					// If no object is selected, return
+					int selectedIndex = oList.getSelectedIndex();
+					if (selectedIndex == -1) return;
+
+					// Save the selected instance
+					selectedPiece = oList.getSelectedValue();
+					// Save the original colour
+					originalColor = objectColour.getSelectedColor();
+					}
+
+				public void mouseEntered(MouseEvent arg0)
+					{
+					}
+
+				public void mouseExited(MouseEvent arg0)
+					{
+					}
+
+				public void mouseReleased(MouseEvent arg0)
+					{
+					}
+
+			});
+
 		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
 		objectAlpha = new NumberField(0,255,255);
 		objectAlpha.addFocusListener(this);

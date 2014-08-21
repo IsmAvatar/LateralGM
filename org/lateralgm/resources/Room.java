@@ -170,6 +170,8 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 
 		void setAlpha(int alpha);
 		
+		void setColor(Color color);
+		
 		int getAlpha();
 		
 		void setSelected(boolean l);
