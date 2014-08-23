@@ -583,6 +583,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
 				}
 
+			// Apply scaling
+			if (scale.getX() != 1.0 || scale.getY() != 1.0)
+				{
+				newWidth *= scale.getX();
+				newHeight *= scale.getY();
+				}
+			
 			// Calculate the new bounds when there is a rotation
 			if (angle != 0)
 				{
@@ -590,12 +597,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Create a rectangle with image's size
 				Rectangle myRect = new Rectangle(position.x,position.y,newWidth,newHeight);
 				// Apply the rotation
-				at = AffineTransform.getRotateInstance(Math.toRadians(-angle),position.x + originx,
-						position.y + originy);
+				at = AffineTransform.getRotateInstance(Math.toRadians(-angle),
+						position.x + originx * scale.getX(),position.y + originy * scale.getY());
 				Shape rotatedRect = at.createTransformedShape(myRect);
 
 				// Use a rectangle2D and round manually values with Math.round. getBounds doesn't give correct rounded values.
 				Rectangle2D newBounds2D = rotatedRect.getBounds2D();
+
 				newWidth = (int) Math.round(newBounds2D.getWidth());
 				newHeight = (int) Math.round(newBounds2D.getHeight());
 
@@ -606,16 +614,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				{
 				offsetx = 0;
 				offsety = 0;
-				}
-
-			// Apply scaling
-			if (scale.getX() != 1.0 || scale.getY() != 1.0)
-				{
-				newWidth *= scale.getX();
-				newHeight *= scale.getY();
-
-				offsetx *= scale.getX();
-				offsety *= scale.getY();
 				}
 
 			setBounds(new Rectangle(position.x + offsetx - borderOffsetx,position.y + offsety
@@ -638,8 +636,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 				// Apply scaling, rotation and translation
 				if (offsetx != 0 || offsety != 0) g2.translate(-offsetx,-offsety);
+				if (rotation != 0)
+					g2.rotate(Math.toRadians(-rotation),originx * scale.getX(),originy * scale.getY());
 				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
-				if (rotation != 0) g2.rotate(Math.toRadians(-rotation),originx,originy);
 
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
@@ -686,10 +685,11 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Apply alpha
 				if (alpha > 0 && alpha < 255)
 					{
-					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (alpha / 255.0));
+					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+							(float) (alpha / 255.0));
 					g2.setComposite(ac);
 					}
-				
+
 				if (piece.isSelected())
 					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,2,
 							2,null);
