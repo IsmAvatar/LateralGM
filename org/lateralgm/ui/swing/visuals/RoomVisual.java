@@ -589,7 +589,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				newWidth *= scale.getX();
 				newHeight *= scale.getY();
 				}
-			
+
 			// Calculate the new bounds when there is a rotation
 			if (angle != 0)
 				{
@@ -629,10 +629,15 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
 						RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
+				boolean rotationOrScaling = false;
+
 				// Get instance's properties
 				Point2D scale = piece.getScale();
 				double rotation = piece.getRotation();
 				int alpha = piece.getAlpha();
+
+				// If there is a rotation or a scaling, the border size is different
+				if (rotation != 0 || scale.getX() != 1.0 || scale.getY() != 1.0) rotationOrScaling = true;
 
 				// Apply scaling, rotation and translation
 				if (offsetx != 0 || offsety != 0) g2.translate(-offsetx,-offsety);
@@ -651,9 +656,16 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 					// If the option 'Fill rectangle' is set
 					if (Prefs.useFilledRectangleForSelection)
+						{
 						g2.fillRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
+						}
 					else
-						g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+						{
+						if (rotationOrScaling == false)
+							g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+						else
+							g2.drawRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
+						}
 
 					// If the option 'Invert colors' is set
 					if (Prefs.useInvertedColorForSelection)
@@ -662,8 +674,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
 
 					// Draw the outside border
-					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
-
+					if (rotationOrScaling == false)
+						g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
+					else
+						g2.drawRect(0,0,image.getWidth() + 4,image.getHeight() + 4);
 					}
 
 				Image newImage;
