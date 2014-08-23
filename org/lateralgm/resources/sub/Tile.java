@@ -24,7 +24,6 @@ import org.lateralgm.main.UpdateSource.UpdateTrigger;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
-import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -128,7 +127,6 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		properties.put(PTile.COLOR,color);
 		}
 
-	
 	public int getAlpha()
 		{
 		return properties.get(PTile.ALPHA);
