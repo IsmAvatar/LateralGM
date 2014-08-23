@@ -43,11 +43,11 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 
 	public enum PInstance
 		{
-		X,Y,OBJECT,ID,CREATION_CODE,LOCKED,SCALE_X,SCALE_Y,COLOR,ROTATION,SELECTED
+		X,Y,OBJECT,ID,CREATION_CODE,LOCKED,SCALE_X,SCALE_Y,COLOR,ROTATION,SELECTED,ALPHA
 		}
 
 	private static final EnumMap<PInstance,Object> DEFS = PropertyMap.makeDefaultMap(PInstance.class,
-			0,0,null,0,"",false,1.0,1.0,4294967295L,0.0,false);
+			0,0,null,0,"",false,1.0,1.0,new Color(255,255,255),0.0,false,255);
 
 	public Instance(Room r)
 		{
@@ -55,6 +55,11 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		properties = new PropertyMap<PInstance>(PInstance.class,this,DEFS);
 		properties.getUpdateSource(PInstance.OBJECT).addListener(ipl);
 		properties.getUpdateSource(PInstance.SELECTED).addListener(ipl);
+		properties.getUpdateSource(PInstance.SCALE_X).addListener(ipl);
+		properties.getUpdateSource(PInstance.SCALE_Y).addListener(ipl);
+		properties.getUpdateSource(PInstance.ROTATION).addListener(ipl);
+		properties.getUpdateSource(PInstance.COLOR).addListener(ipl);
+		properties.getUpdateSource(PInstance.ALPHA).addListener(ipl);
 		}
 
 	protected void fireUpdate(UpdateEvent e)
@@ -65,11 +70,26 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		if (r != null) r.instanceUpdated(e);
 		}
 
+	public int getID()
+		{
+		return properties.get(PInstance.ID);
+		}
+	
 	public Point getPosition()
 		{
 		return new Point((Integer) properties.get(PInstance.X),(Integer) properties.get(PInstance.Y));
 		}
 
+	public int getAlpha()
+		{
+		return properties.get(PInstance.ALPHA);
+		}
+
+	public void setAlpha(int alpha)
+		{
+		properties.put(PInstance.ALPHA,alpha);		
+		}
+	
 	public Point2D getScale()
 		{
 		return new Point2D.Double((Double) properties.get(PInstance.SCALE_X),
@@ -81,7 +101,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		return properties.get(PInstance.ROTATION);
 		}
 
-	public long getColor()
+	public Color getColor()
 		{
 		return properties.get(PInstance.COLOR);
 		}
@@ -108,18 +128,18 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		{
 		properties.put(PInstance.ROTATION,degrees);
 		}
-	
+
 	public void setSelected(boolean selected)
 		{
 		properties.put(PInstance.SELECTED,selected);
 		}
-	
+
 	public boolean isSelected()
 		{
 		return (Boolean) properties.get(PInstance.SELECTED);
 		}
-	
-	public void setColor(long color)
+
+	public void setColor(Color color)
 		{
 		properties.put(PInstance.COLOR,color);
 		}
@@ -185,6 +205,11 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 			{
 			if (e.key == PInstance.OBJECT) fireUpdate(null);
 			if (e.key == PInstance.SELECTED) fireUpdate(null);
+			if (e.key == PInstance.SCALE_X) fireUpdate(null);
+			if (e.key == PInstance.SCALE_Y) fireUpdate(null);
+			if (e.key == PInstance.ROTATION) fireUpdate(null);
+			if (e.key == PInstance.COLOR)	fireUpdate(null);
+			if (e.key == PInstance.ALPHA) fireUpdate(null);
 			}
 		}
 

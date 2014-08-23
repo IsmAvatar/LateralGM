@@ -34,6 +34,8 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.util.HashMap;
@@ -115,7 +117,7 @@ import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
 import org.lateralgm.util.AddPieceInstance;
-import org.lateralgm.util.MovePieceInstance;
+import org.lateralgm.util.ModifyPieceInstance;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
@@ -146,8 +148,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private JButton addObjectButton, deleteObjectButton;
 	public ResourceMenu<GmObject> oNew, oSource;
 	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
-	public NumberField objectHorizontalPosition, objectVerticalPosition;
-	private FormattedLink<PInstance> loX, loY;
+	public NumberField objectHorizontalPosition, objectVerticalPosition, objectScaleX, objectScaleY,
+			objectRotation, objectAlpha;
+	public ColorSelect objectColour;
+	public PropertyLink<PInstance,Color> loColour;
+	private FormattedLink<PInstance> loX, loY, loScaleX, loScaleY, loRotation, loAlpha;
 	private JButton oCreationCode;
 
 	//Settings
@@ -203,8 +208,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// Undo system elements
 	public UndoManager undoManager;
 	public UndoableEditSupport undoSupport;
-	// Save the original position of a piece when starting to move an object (Used for the undo)
+	// Save the object's properties for the undo
 	private Point pieceOriginalPosition = null;
+	private Point2D pieceOriginalScale = null;
+	private Double pieceOriginalRotation = null;
+	private Integer pieceOriginalAlpha = null;
 	// Used to record the select piece before losing the focus.
 	public Piece selectedPiece = null;
 
@@ -471,36 +479,128 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
-		oLocked.setHorizontalAlignment(JCheckBox.CENTER);
 		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
-		objectHorizontalPosition = new NumberField(0);
+		objectHorizontalPosition = new NumberField(-99999,99999);
 		objectHorizontalPosition.setColumns(4);
 		objectHorizontalPosition.addFocusListener(this);
 		JLabel lObjY = new JLabel(Messages.getString("RoomFrame.OBJ_Y")); //$NON-NLS-1$
-		objectVerticalPosition = new NumberField(0);
+		objectVerticalPosition = new NumberField(-99999,99999);
 		objectVerticalPosition.setColumns(4);
 		objectVerticalPosition.addFocusListener(this);
+		JLabel lObjScaleX = new JLabel(Messages.getString("RoomFrame.SCALE_X")); //$NON-NLS-1$
+		objectScaleX = new NumberField(0.1,9999.0,1.0,2);
+		objectScaleX.addFocusListener(this);
+		JLabel lObjScaleY = new JLabel(Messages.getString("RoomFrame.SCALE_Y")); //$NON-NLS-1$
+		objectScaleY = new NumberField(0.1,9999.0,1.0,2);
+		objectScaleY.addFocusListener(this);
+		JLabel lObjRotation = new JLabel(Messages.getString("RoomFrame.ROTATION")); //$NON-NLS-1$
+		objectRotation = new NumberField(0.0,360.0,0.0,2);
+		objectRotation.addFocusListener(this);
+		JLabel lObjColour = new JLabel(Messages.getString("RoomFrame.COLOUR")); //$NON-NLS-1$
+		objectColour = new ColorSelect(Color.WHITE,false);
+		objectColour.addMouseListener(new MouseListener()
+			{
+				Color originalColor;
+
+				public void mouseClicked(MouseEvent event)
+					{
+					if (selectedPiece == null) return;
+
+					Color newColour = objectColour.getSelectedColor();
+
+					// If the color has changed, save it in the undo
+					if (!originalColor.equals(newColour))
+						{
+						// Record the effect of modifying the color of an object for the undo
+						UndoableEdit edit = new ModifyPieceInstance(RoomFrame.this,selectedPiece,originalColor,
+								newColour);
+						// notify the listeners
+						undoSupport.postEdit(edit);
+						}
+					}
+
+				public void mousePressed(MouseEvent arg0)
+					{
+					selectedPiece = null;
+
+					// If no object is selected, return
+					int selectedIndex = oList.getSelectedIndex();
+					if (selectedIndex == -1) return;
+
+					// Save the selected instance
+					selectedPiece = oList.getSelectedValue();
+					// Save the original colour
+					originalColor = objectColour.getSelectedColor();
+					}
+
+				public void mouseEntered(MouseEvent arg0)
+					{
+					}
+
+				public void mouseExited(MouseEvent arg0)
+					{
+					}
+
+				public void mouseReleased(MouseEvent arg0)
+					{
+					}
+
+			});
+
+		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
+		objectAlpha = new NumberField(0,255,255);
+		objectAlpha.addFocusListener(this);
 		oCreationCode = new JButton(Messages.getString("RoomFrame.OBJ_CODE")); //$NON-NLS-1$
 		oCreationCode.setIcon(CODE_ICON);
 		oCreationCode.addActionListener(this);
 
 		layout2.setHorizontalGroup(layout2.createParallelGroup()
 		/**/.addComponent(oSource)
-		/**/.addComponent(oLocked)
 		/**/.addGroup(layout2.createSequentialGroup()
+		/**/.addComponent(oLocked))
+		/**/.addGroup(layout2.createSequentialGroup()
+		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(lObjX)
+		/*		*/.addComponent(lObjScaleX)
+		/*		*/.addComponent(lObjColour)
+		/*		*/.addComponent(lObjRotation))
+		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(objectHorizontalPosition)
+		/*		*/.addComponent(objectScaleX)
+		/*		*/.addComponent(objectColour)
+		/*		*/.addComponent(objectRotation))
+		/**/.addGroup(layout2.createParallelGroup()
 		/*		*/.addComponent(lObjY)
-		/*		*/.addComponent(objectVerticalPosition))
+		/*		*/.addComponent(lObjScaleY)
+		/*		*/.addComponent(lObjAlpha))
+		/**/.addGroup(layout2.createParallelGroup()
+		/*		*/.addComponent(objectVerticalPosition)
+		/*		*/.addComponent(objectScaleY)
+		/*		*/.addComponent(objectAlpha)))
 		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+
 		layout2.setVerticalGroup(layout2.createSequentialGroup()
 		/**/.addComponent(oSource)
-		/**/.addComponent(oLocked)
+		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+		/**/.addComponent(oLocked))
 		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lObjX)
 		/*		*/.addComponent(objectHorizontalPosition)
 		/*		*/.addComponent(lObjY)
 		/*		*/.addComponent(objectVerticalPosition))
+		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lObjScaleX)
+		/*		*/.addComponent(objectScaleX)
+		/*		*/.addComponent(lObjScaleY)
+		/*		*/.addComponent(objectScaleY))
+		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lObjAlpha)
+		/*		*/.addComponent(objectAlpha)
+		/*		*/.addComponent(lObjColour)
+		/*		*/.addComponent(objectColour,18,18,18))
+		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(lObjRotation)
+		/*		*/.addComponent(objectRotation))
 		/**/.addComponent(oCreationCode));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -1788,7 +1888,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Instance selectedInstance = oList.getSelectedValue();
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
-		PropertyLink.removeAll(loLocked,loSource,loX,loY);
+		PropertyLink.removeAll(loLocked,loSource,loX,loY,loScaleX,loScaleY,loColour,loRotation,loAlpha);
 
 		if (selectedInstance != null)
 			{
@@ -1798,6 +1898,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			loSource = iplf.make(oSource,PInstance.OBJECT);
 			loX = iplf.make(objectHorizontalPosition,PInstance.X);
 			loY = iplf.make(objectVerticalPosition,PInstance.Y);
+			loScaleX = iplf.make(objectScaleX,PInstance.SCALE_X);
+			loScaleY = iplf.make(objectScaleY,PInstance.SCALE_Y);
+			loRotation = iplf.make(objectRotation,PInstance.ROTATION);
+			loColour = iplf.make(objectColour,PInstance.COLOR);
+			loAlpha = iplf.make(objectAlpha,PInstance.ALPHA);
 			}
 		}
 
@@ -2238,15 +2343,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		redo.setEnabled(undoManager.canRedo());
 		}
 
-	// When a text field related to the position of a piece gains the focus
+	// When a text field related to a piece property gains the focus
 	public void focusGained(FocusEvent event)
 		{
 		pieceOriginalPosition = null;
+		pieceOriginalScale = null;
+		pieceOriginalRotation = null;
+		pieceOriginalAlpha = null;
 		selectedPiece = null;
 
 		// If we are modifying objects
 		if (event.getSource() == objectHorizontalPosition
-				|| event.getSource() == objectVerticalPosition)
+				|| event.getSource() == objectVerticalPosition || event.getSource() == objectScaleX
+				|| event.getSource() == objectScaleY || event.getSource() == objectRotation
+				|| event.getSource() == objectAlpha)
 			{
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
@@ -2255,8 +2365,36 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			// Save the selected instance
 			selectedPiece = oList.getSelectedValue();
 
-			// Save the position of the object for the undo
-			pieceOriginalPosition = new Point(selectedPiece.getPosition());
+			// If we are modifying the position, save it for the undo
+			if (event.getSource() == objectHorizontalPosition
+					|| event.getSource() == objectVerticalPosition)
+				{
+				pieceOriginalPosition = new Point(selectedPiece.getPosition());
+				return;
+				}
+
+			// If we are modifying the scale, save it for the undo
+			if (event.getSource() == objectScaleX || event.getSource() == objectScaleY)
+				{
+				Point2D newScale = selectedPiece.getScale();
+				pieceOriginalScale = new Point2D.Double(newScale.getX(),newScale.getY());
+				return;
+				}
+
+			// If we are modifying the rotation, save it for the undo
+			if (event.getSource() == objectRotation)
+				{
+				pieceOriginalRotation = new Double(selectedPiece.getRotation());
+				return;
+				}
+
+			// If we are modifying the alpha, save it for the undo
+			if (event.getSource() == objectAlpha)
+				{
+				pieceOriginalAlpha = new Integer(selectedPiece.getAlpha());
+				return;
+				}
+
 			}
 		// We are modifying tiles
 		else
@@ -2291,17 +2429,72 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			int selectedIndex = oList.getSelectedIndex();
 			if (selectedIndex == -1) return;
 
-			// Get the new position of the object
-			Point objectNewPosition = new Point(selectedPiece.getPosition());
-
-			// If the position of the object has been changed
-			if (!objectNewPosition.equals(pieceOriginalPosition))
+			// If we have changed the position
+			if (pieceOriginalPosition != null)
 				{
-				// Record the effect of moving an object for the undo
-				UndoableEdit edit = new MovePieceInstance(this,selectedPiece,pieceOriginalPosition,
-						objectNewPosition);
-				// notify the listeners
-				undoSupport.postEdit(edit);
+				// Get the new position of the object
+				Point objectNewPosition = new Point(selectedPiece.getPosition());
+
+				// If the position of the object has been changed
+				if (!objectNewPosition.equals(pieceOriginalPosition))
+					{
+					// Record the effect of moving an object for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalPosition,
+							objectNewPosition);
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					}
+				}
+
+			// If we have changed the scale
+			if (pieceOriginalScale != null)
+				{
+				// Get the new scale of the object
+				Point2D objectNewScale = selectedPiece.getScale();
+
+				// If the scale of the object has been modified
+				if (!objectNewScale.equals(pieceOriginalScale))
+					{
+					// Record the effect of modifying the scale an object for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalScale,
+							new Point2D.Double(objectNewScale.getX(),objectNewScale.getY()));
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					}
+				}
+
+			// If we have changed the rotation
+			if (pieceOriginalRotation != null)
+				{
+				// Get the new rotation of the object
+				Double objectNewRotation = new Double(selectedPiece.getRotation());
+
+				// If the rotation of the object has been changed
+				if (objectNewRotation != pieceOriginalRotation)
+					{
+					// Record the effect of rotating an object for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalRotation,
+							objectNewRotation);
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					}
+				}
+
+			// If we have changed the alpha value
+			if (pieceOriginalAlpha != null)
+				{
+				// Get the new alpha of the object
+				Integer objectNewAlpha = new Integer(selectedPiece.getAlpha());
+
+				// If the alpha value of the object has been changed
+				if (objectNewAlpha != pieceOriginalAlpha)
+					{
+					// Record the effect of modifying the alpha value of an object for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalAlpha,
+							objectNewAlpha);
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					}
 				}
 			}
 		// We are modifying tiles
@@ -2318,11 +2511,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (!tileNewPosition.equals(pieceOriginalPosition))
 				{
 				// Record the effect of moving an tile for the undo
-				UndoableEdit edit = new MovePieceInstance(this,selectedPiece,pieceOriginalPosition,
+				UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalPosition,
 						tileNewPosition);
 				// notify the listeners
 				undoSupport.postEdit(edit);
 				}
+
 			}
 
 		selectedPiece = null;

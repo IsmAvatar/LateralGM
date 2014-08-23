@@ -23,6 +23,7 @@
 
 package org.lateralgm.file;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -56,31 +57,31 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
-import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Font.PFont;
-import org.lateralgm.resources.GameInformation.PGameInformation;
-import org.lateralgm.resources.GameSettings.PGameSettings;
-import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.GameInformation;
+import org.lateralgm.resources.GameInformation.PGameInformation;
+import org.lateralgm.resources.GameSettings;
+import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
-import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Script;
-import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Room.PRoom;
+import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Script.PScript;
+import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Shader.PShader;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.Timeline;
-import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.resources.Sprite.PSprite;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibArgument;
 import org.lateralgm.resources.library.LibManager;
@@ -88,19 +89,19 @@ import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.BackgroundDef;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.GlyphMetric;
 import org.lateralgm.resources.sub.GlyphMetric.PGlyphMetric;
 import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.ShapePoint;
 import org.lateralgm.resources.sub.Tile;
-import org.lateralgm.resources.sub.View;
-import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
-import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.PropertyMap;
 import org.w3c.dom.Document;
@@ -1858,14 +1859,22 @@ public final class GMXFileReader
 								int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue());
 								double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue());
 								double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue());
-								long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue());
+
+								// Read the color blending
+								if (attribs.getNamedItem("colour") != null)
+									{
+									long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue());
+									Color color = Util.convertInstanceColorWithAlpha((int) col);
+									inst.setColor(color);
+									inst.setAlpha(color.getAlpha());
+								}
+								
 								double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue());
 								//TODO: fuck they use strings we use integers
 								//inst.properties.put(PInstance.ID, inode.getAttributes().getNamedItem("name").getNodeValue());
 								inst.setPosition(new Point(xx,yy));
 								inst.setScale(new Point2D.Double(sx,sy));
 								inst.setRotation(rot);
-								inst.setColor(col);
 								inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue());
 								inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) < 0);
 								}

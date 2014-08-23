@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2014, egofree
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -8,14 +9,25 @@
 
 package org.lateralgm.ui.swing.visuals;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.Toolkit;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.FilteredImageSource;
+import java.awt.image.ImageFilter;
+import java.awt.image.RGBImageFilter;
 import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -465,10 +477,51 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 		}
 
+	// Apply a color filter to an image
+	class ColorFilter extends RGBImageFilter
+		{
+		// The RGB components of the new color
+		byte newColorRed;
+		byte newColorGreen;
+		byte newColorBlue;
+
+		public ColorFilter(Color color)
+			{
+			newColorRed = (byte) color.getRed();
+			newColorGreen = (byte) color.getGreen();
+			newColorBlue = (byte) color.getBlue();
+			}
+
+		@Override
+		public int filterRGB(int x, int y, int rgb)
+			{
+			int alpha = (rgb >> 24) & 0xff;
+			int red = (rgb >> 16) & 0xff;
+			int green = (rgb >> 8) & 0xff;
+			int blue = (rgb) & 0xff;
+
+			// Filter with the new color
+			red = red & newColorRed;
+			green = green & newColorGreen;
+			blue = blue & newColorBlue;
+
+			// Set the pixel with the new color
+			return (alpha << 24) | (red << 16) | (green << 8) | blue;
+
+			}
+		}
+
 	private class InstanceVisual extends PieceVisual<Instance>
 		{
 		private BufferedImage image;
 		private final InstancePropertyListener ipl = new InstancePropertyListener();
+
+		// When rotating an instance, used to set the new position
+		private int offsetx = 0;
+		private int offsety = 0;
+		// Sprite's origin. Used for rotation
+		private int originx = 0;
+		private int originy = 0;
 
 		public InstanceVisual(Instance i)
 			{
@@ -481,6 +534,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		@Override
 		protected void validate()
 			{
+
 			ResourceReference<GmObject> ro = piece.properties.get(PInstance.OBJECT);
 			GmObject o = ro == null ? null : ro.get();
 			ResourceReference<Sprite> rs = null;
@@ -489,21 +543,81 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			image = s == null ? null : s.getDisplayImage();
 			if (image == null) image = EMPTY_IMAGE;
 
-			Point p = piece.getPosition();
+			// Get sprite's origin
 			if (s != null)
-				p.translate(-(Integer) s.get(PSprite.ORIGIN_X),-(Integer) s.get(PSprite.ORIGIN_Y));
+				{
+				originx = (Integer) s.get(PSprite.ORIGIN_X);
+				originy = (Integer) s.get(PSprite.ORIGIN_Y);
+				}
+			else
+				{
+				originx = 0;
+				originy = 0;
+				}
+
+			Point2D scale = piece.getScale();
+
+			Point position = piece.getPosition();
+			if (s != null)
+				position.translate(-(int) (originx * scale.getX()),-(int) (originy * scale.getY()));
+
+			// Get instance's properties
+			double angle = piece.getRotation();
+			int newWidth = image.getWidth();
+			int newHeight = image.getHeight();
+
+			int borderOffsetx = 0;
+			int borderOffsety = 0;
 
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
 				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
-				setBounds(new Rectangle(p.x - 2,p.y - 2,image.getWidth() + 4,image.getHeight() + 4));
+				newWidth += 4;
+				newHeight += 4;
+				borderOffsetx = (int) (2 * scale.getX());
+				borderOffsety = (int) (2 * scale.getY());
 				}
 			else
 				{
 				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
-				setBounds(new Rectangle(p.x,p.y,image.getWidth(),image.getHeight()));
 				}
+
+			// Apply scaling
+			if (scale.getX() != 1.0 || scale.getY() != 1.0)
+				{
+				newWidth *= scale.getX();
+				newHeight *= scale.getY();
+				}
+
+			// Calculate the new bounds when there is a rotation
+			if (angle != 0)
+				{
+				AffineTransform at = new AffineTransform();
+				// Create a rectangle with image's size
+				Rectangle myRect = new Rectangle(position.x,position.y,newWidth,newHeight);
+				// Apply the rotation
+				at = AffineTransform.getRotateInstance(Math.toRadians(-angle),
+						position.x + originx * scale.getX(),position.y + originy * scale.getY());
+				Shape rotatedRect = at.createTransformedShape(myRect);
+
+				// Use a rectangle2D and round manually values with Math.round. getBounds doesn't give correct rounded values.
+				Rectangle2D newBounds2D = rotatedRect.getBounds2D();
+
+				newWidth = (int) Math.round(newBounds2D.getWidth());
+				newHeight = (int) Math.round(newBounds2D.getHeight());
+
+				offsetx = (int) Math.round(newBounds2D.getX()) - position.x;
+				offsety = (int) Math.round(newBounds2D.getY()) - position.y;
+				}
+			else
+				{
+				offsetx = 0;
+				offsety = 0;
+				}
+
+			setBounds(new Rectangle(position.x + offsetx - borderOffsetx,position.y + offsety
+					- borderOffsety,newWidth,newHeight));
 			}
 
 		public void paint(Graphics g)
@@ -512,11 +626,28 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				{
 				Graphics2D g2 = (Graphics2D) g;
 
+				g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+						RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+				boolean rotationOrScaling = false;
+
+				// Get instance's properties
+				Point2D scale = piece.getScale();
+				double rotation = piece.getRotation();
+				int alpha = piece.getAlpha();
+
+				// If there is a rotation or a scaling, the border size is different
+				if (rotation != 0 || scale.getX() != 1.0 || scale.getY() != 1.0) rotationOrScaling = true;
+
+				// Apply scaling, rotation and translation
+				if (offsetx != 0 || offsety != 0) g2.translate(-offsetx,-offsety);
+				if (rotation != 0)
+					g2.rotate(Math.toRadians(-rotation),originx * scale.getX(),originy * scale.getY());
+				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
+
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
 					{
-					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,2,2,null);
-
 					// If the option 'Invert colors' is set
 					if (Prefs.useInvertedColorForSelection)
 						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
@@ -525,9 +656,16 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 					// If the option 'Fill rectangle' is set
 					if (Prefs.useFilledRectangleForSelection)
+						{
 						g2.fillRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
+						}
 					else
-						g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+						{
+						if (rotationOrScaling == false)
+							g2.drawRect(1,1,image.getWidth() + 1,image.getHeight() + 1);
+						else
+							g2.drawRect(1,1,image.getWidth() + 2,image.getHeight() + 2);
+						}
 
 					// If the option 'Invert colors' is set
 					if (Prefs.useInvertedColorForSelection)
@@ -536,15 +674,44 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 						g2.setColor(Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
 
 					// Draw the outside border
-					g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
+					if (rotationOrScaling == false)
+						g2.drawRect(0,0,image.getWidth() + 3,image.getHeight() + 3);
+					else
+						g2.drawRect(0,0,image.getWidth() + 4,image.getHeight() + 4);
+					}
 
+				Image newImage;
+
+				Color selectedColor = piece.getAWTColor();
+
+				// If a color has been selected, apply color blending
+				if (!Color.WHITE.equals(selectedColor))
+					{
+					ImageFilter filter = new ColorFilter(selectedColor);
+					FilteredImageSource filteredSrc = new FilteredImageSource(image.getSource(),filter);
+					newImage = Toolkit.getDefaultToolkit().createImage(filteredSrc);
 					}
 				else
 					{
-					g2.drawImage(image == EMPTY_IMAGE ? EMPTY_SPRITE.getImage() : image,0,0,null);
+					newImage = image;
 					}
 
+				// Apply alpha
+				if (alpha > 0 && alpha < 255)
+					{
+					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+							(float) (alpha / 255.0));
+					g2.setComposite(ac);
+					}
+
+				if (piece.isSelected())
+					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,2,
+							2,null);
+				else
+					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,0,
+							0,null);
 				}
+
 			}
 
 		@Override

@@ -41,14 +41,19 @@ public class NumberField extends JFormattedTextField
 
 	public NumberField(double value)
 		{
-		this(Double.MIN_VALUE,Double.MAX_VALUE,value,getFormatter(getNumberFormat()));
+		this(Double.MIN_VALUE,Double.MAX_VALUE,value,getFormatter(getNumberFormat(0)));
 		}
 
 	public NumberField(double min, double max, double value)
 		{
-		this(min,max,value,getFormatter(getNumberFormat()));
+		this(min,max,value,getFormatter(getNumberFormat(0)));
 		}
 
+	public NumberField(double min, double max, double value, int fractionDigits)
+		{
+		this(min,max,value,getFormatter(getNumberFormat(fractionDigits)));
+		}
+	
 	public <T extends Number & Comparable<T>> NumberField(T min, T max, T value, NumberFormatter f)
 		{
 		super(f);
@@ -166,9 +171,16 @@ public class NumberField extends JFormattedTextField
 		return f;
 		}
 
-	private static NumberFormat getNumberFormat()
+	private static NumberFormat getNumberFormat(int fractionDigits)
 		{
 		NumberFormat f = NumberFormat.getNumberInstance();
+		
+		if (fractionDigits !=0)
+			{
+			f.setMinimumFractionDigits(fractionDigits);
+			f.setMaximumFractionDigits(fractionDigits);
+			}
+		
 		f.setGroupingUsed(false);
 		return f;
 		}

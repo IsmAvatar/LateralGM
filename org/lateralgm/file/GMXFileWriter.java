@@ -61,27 +61,27 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Font;
-import org.lateralgm.resources.GmObject;
-import org.lateralgm.resources.GmObject.PGmObject;
-import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Path.PPath;
-import org.lateralgm.resources.InstantiableResource;
-import org.lateralgm.resources.Resource;
-import org.lateralgm.resources.ResourceReference;
-import org.lateralgm.resources.Room;
-import org.lateralgm.resources.Script;
-import org.lateralgm.resources.Shader;
-import org.lateralgm.resources.Room.PRoom;
-import org.lateralgm.resources.Shader.PShader;
-import org.lateralgm.resources.Sound;
-import org.lateralgm.resources.Sound.PSound;
-import org.lateralgm.resources.Sprite.PSprite;
-import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.GameInformation.PGameInformation;
 import org.lateralgm.resources.GameSettings.PGameSettings;
+import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.GmObject.PGmObject;
+import org.lateralgm.resources.InstantiableResource;
+import org.lateralgm.resources.Path;
+import org.lateralgm.resources.Path.PPath;
+import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Room.PRoom;
+import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Script.PScript;
+import org.lateralgm.resources.Shader;
+import org.lateralgm.resources.Shader.PShader;
+import org.lateralgm.resources.Sound;
+import org.lateralgm.resources.Sound.PSound;
+import org.lateralgm.resources.Sprite;
+import org.lateralgm.resources.Sprite.PSprite;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
@@ -94,6 +94,7 @@ import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.GlyphMetric;
 import org.lateralgm.resources.sub.GlyphMetric.PGlyphMetric;
 import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
@@ -101,7 +102,6 @@ import org.lateralgm.resources.sub.ShapePoint;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View;
-import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.PropertyMap;
 import org.w3c.dom.Document;
@@ -320,19 +320,19 @@ public final class GMXFileWriter
 				f.gameSettings.get(PGameSettings.ABORT_ON_ERROR).toString()));
 
 		optNode.appendChild(createElement(dom,"option_noscreensaver",
-				(String) f.gameSettings.get(PGameSettings.DISABLE_SCREENSAVERS).toString()));
+				f.gameSettings.get(PGameSettings.DISABLE_SCREENSAVERS).toString()));
 		optNode.appendChild(createElement(dom,"option_showcursor",
-				(String) f.gameSettings.get(PGameSettings.DISPLAY_CURSOR).toString()));
+				f.gameSettings.get(PGameSettings.DISPLAY_CURSOR).toString()));
 		optNode.appendChild(createElement(dom,"option_displayerrors",
-				(String) f.gameSettings.get(PGameSettings.DISPLAY_ERRORS).toString()));
+				f.gameSettings.get(PGameSettings.DISPLAY_ERRORS).toString()));
 		optNode.appendChild(createElement(dom,"option_noborder",
-				(String) f.gameSettings.get(PGameSettings.DONT_DRAW_BORDER).toString()));
+				f.gameSettings.get(PGameSettings.DONT_DRAW_BORDER).toString()));
 		optNode.appendChild(createElement(dom,"option_nobuttons",
-				(String) f.gameSettings.get(PGameSettings.DONT_SHOW_BUTTONS).toString()));
+				f.gameSettings.get(PGameSettings.DONT_SHOW_BUTTONS).toString()));
 		optNode.appendChild(createElement(dom,"option_argumenterrors",
-				(String) f.gameSettings.get(PGameSettings.ERROR_ON_ARGS).toString()));
+				f.gameSettings.get(PGameSettings.ERROR_ON_ARGS).toString()));
 		optNode.appendChild(createElement(dom,"option_freeze",
-				(String) f.gameSettings.get(PGameSettings.FREEZE_ON_LOSE_FOCUS).toString()));
+				f.gameSettings.get(PGameSettings.FREEZE_ON_LOSE_FOCUS).toString()));
 
 		optNode.appendChild(createElement(dom,"option_colordepth",
 				ProjectFile.GS_DEPTH_CODE.get(f.gameSettings.get(PGameSettings.COLOR_DEPTH)).toString()));
@@ -1656,12 +1656,13 @@ public final class GMXFileWriter
 							}
 						inselement.setAttribute("x",Integer.toString(in.getPosition().x));
 						inselement.setAttribute("y",Integer.toString(in.getPosition().y));
-						inselement.setAttribute("name","inst_");
+						inselement.setAttribute("name","inst_" + Integer.toString(in.getID()));
 						inselement.setAttribute("locked",boolToString(in.isLocked()));
 						inselement.setAttribute("code",in.getCreationCode());
 						inselement.setAttribute("scaleX",Double.toString(in.getScale().getX()));
 						inselement.setAttribute("scaleY",Double.toString(in.getScale().getY()));
-						inselement.setAttribute("colour",Long.toString(in.getColor())); // default white
+						String color = Long.toString(Util.getInstanceColorWithAlpha(in.getColor(),in.getAlpha()));
+						inselement.setAttribute("colour",color);// default white
 						inselement.setAttribute("rotation",Double.toString(in.getRotation()));
 						}
 

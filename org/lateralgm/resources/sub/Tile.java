@@ -10,6 +10,7 @@
 
 package org.lateralgm.resources.sub;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
@@ -42,11 +43,12 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 
 	public enum PTile
 		{
-		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED,COLOR,SCALE_X,SCALE_Y,SELECTED
+		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED,COLOR,ALPHA,SCALE_X,SCALE_Y,
+		ROTATION,SELECTED
 		}
 
 	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,0,0,0,0,
-			0,0,0,null,0,false,4294967295L,1.0,1.0,false);
+			0,0,0,null,0,false,4294967295L,255,1.0,1.0,0.0,false);
 
 	/**
 	 * Do not call this constructor unless you intend
@@ -97,6 +99,16 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		fireUpdate(null);
 		}
 
+	public double getRotation()
+		{
+		return properties.get(PTile.ROTATION);
+		}
+
+	public void setRotation(double degrees)
+		{
+		properties.put(PTile.ROTATION,degrees);
+		}
+
 	public Point getPosition()
 		{
 		int x = properties.get(PTile.ROOM_X);
@@ -108,6 +120,21 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		{
 		properties.put(PTile.ROOM_X,p.x);
 		properties.put(PTile.ROOM_Y,p.y);
+		}
+
+	public void setColor(Color color)
+		{
+		properties.put(PTile.COLOR,color);
+		}
+
+	public int getAlpha()
+		{
+		return properties.get(PTile.ALPHA);
+		}
+
+	public void setAlpha(int alpha)
+		{
+		properties.put(PTile.ALPHA,alpha);
 		}
 
 	public Dimension getSize()
