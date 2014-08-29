@@ -12,6 +12,7 @@ package org.lateralgm.ui.swing.visuals;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -645,9 +646,50 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					g2.rotate(Math.toRadians(-rotation),originx * scale.getX(),originy * scale.getY());
 				if (scale.getX() != 1.0 || scale.getY() != 1.0) g2.scale(scale.getX(),scale.getY());
 
+				Image newImage;
+
+				Color selectedColor = piece.getAWTColor();
+
+				// If a color has been selected, apply color blending
+				if (!Color.WHITE.equals(selectedColor))
+					{
+					ImageFilter filter = new ColorFilter(selectedColor);
+					FilteredImageSource filteredSrc = new FilteredImageSource(image.getSource(),filter);
+					newImage = Toolkit.getDefaultToolkit().createImage(filteredSrc);
+					}
+				else
+					{
+					newImage = image;
+					}
+
+				// Original composite
+				Composite oc = null;
+				
+				// Apply alpha
+				if (alpha > 0 && alpha < 255)
+					{
+					// Save the original composite
+					oc = g2.getComposite();
+					
+					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+							(float) (alpha / 255.0));
+					g2.setComposite(ac);
+					}
+
+				// Draw the instance
+				if (piece.isSelected())
+					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,2,
+							2,null);
+				else
+					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,0,
+							0,null);
+				
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
 					{
+					// If there was an alpha filtering, remove it
+					if (oc != null) g2.setComposite(oc);
+					
 					// If the option 'Invert colors' is set
 					if (Prefs.useInvertedColorForSelection)
 						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
@@ -680,36 +722,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 						g2.drawRect(0,0,image.getWidth() + 4,image.getHeight() + 4);
 					}
 
-				Image newImage;
-
-				Color selectedColor = piece.getAWTColor();
-
-				// If a color has been selected, apply color blending
-				if (!Color.WHITE.equals(selectedColor))
-					{
-					ImageFilter filter = new ColorFilter(selectedColor);
-					FilteredImageSource filteredSrc = new FilteredImageSource(image.getSource(),filter);
-					newImage = Toolkit.getDefaultToolkit().createImage(filteredSrc);
-					}
-				else
-					{
-					newImage = image;
-					}
-
-				// Apply alpha
-				if (alpha > 0 && alpha < 255)
-					{
-					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-							(float) (alpha / 255.0));
-					g2.setComposite(ac);
-					}
-
-				if (piece.isSelected())
-					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,2,
-							2,null);
-				else
-					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,0,
-							0,null);
 				}
 
 			}
