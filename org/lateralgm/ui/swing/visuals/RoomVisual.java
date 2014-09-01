@@ -68,7 +68,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateListener
 	{
-	protected static final ImageIcon EMPTY_SPRITE = LGM.getIconForKey("Resource.OBJ"); //$NON-NLS-1$
+	protected static final ImageIcon EMPTY_SPRITE = LGM.getIconForKey("Resource.EMPTY_OBJ"); //$NON-NLS-1$
 	protected static final BufferedImage EMPTY_IMAGE = new BufferedImage(EMPTY_SPRITE.getIconWidth(),
 			EMPTY_SPRITE.getIconHeight(),BufferedImage.TYPE_INT_ARGB);
 
