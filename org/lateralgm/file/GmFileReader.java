@@ -23,7 +23,6 @@ import java.util.Queue;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
 import org.lateralgm.components.impl.ResNode;
