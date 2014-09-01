@@ -2239,6 +2239,7 @@ public final class GMXFileReader
 								}
 							else
 								{
+								
 								Class<? extends Resource<?,?>> kindc = Argument.getResourceKind(argument.kind);
 								if (kindc != null && Resource.class.isAssignableFrom(kindc)) try
 									{
@@ -2256,9 +2257,9 @@ public final class GMXFileReader
 													temp = ((ResourceList<?>) rh).get(proptext);
 												else
 													temp = rh.getResource();
-												if (temp == null) return false;
-												argument.setRes(temp.reference);
-												return true;
+												if (temp != null) argument.setRes(temp.reference);
+												argument.setVal(proptext);
+												return temp != null;
 												}
 										};
 									postpone.add(pr);
