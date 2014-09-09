@@ -376,6 +376,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				}
 			Desktop dt = Desktop.getDesktop();
 			File f = new File(userDir);
+			if (!f.exists()) {
+				f = new File(System.getProperty("user.dir"));
+			}
 			try
 				{
 				dt.open(f);
