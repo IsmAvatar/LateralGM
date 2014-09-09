@@ -194,9 +194,9 @@ public final class LGM
 	public static Cursor zoomInCursor;
 	public static Cursor zoomOutCursor;
 	private static String progressTitle;
-	static JTextField filterText;
-	static JCheckBox filterTreeCB;
-	static JCheckBox wholeWordCB;
+	private static JTextField filterText;
+	private static JCheckBox filterTreeCB;
+	private static JCheckBox wholeWordCB;
 
 	public static JDialog getProgressDialog()
 		{
@@ -819,9 +819,12 @@ public final class LGM
 		public abstract T getInstance();
 		}
 	
-	public static class HintTextFieldUI extends BasicTextFieldUI implements FocusListener {
-
-	    private String hint;
+	public static class HintTextField extends JTextField implements FocusListener {
+		    /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			private String hint;
 	    private boolean hideOnFocus;
 	    private Color color;
 
@@ -832,12 +835,6 @@ public final class LGM
 	    public void setColor(Color color) {
 	        this.color = color;
 	        repaint();
-	    }
-
-	    private void repaint() {
-	        if(getComponent() != null) {
-	            getComponent().repaint();           
-	        }
 	    }
 
 	    public boolean isHideOnFocus() {
@@ -857,53 +854,43 @@ public final class LGM
 	        this.hint = hint;
 	        repaint();
 	    }
-	    public HintTextFieldUI(String hint) {
+	    
+	    public HintTextField(String hint) {
 	        this(hint,false);
 	    }
 
-	    public HintTextFieldUI(String hint, boolean hideOnFocus) {
+	    public HintTextField(String hint, boolean hideOnFocus) {
 	        this(hint,hideOnFocus, null);
 	    }
 
-	    public HintTextFieldUI(String hint, boolean hideOnFocus, Color color) {
+	    public HintTextField(String hint, boolean hideOnFocus, Color color) {
 	        this.hint = hint;
 	        this.hideOnFocus = hideOnFocus;
 	        this.color = color;
+	       addFocusListener(this);
 	    }
 
 	    @Override
-	    protected void paintSafely(Graphics g) {
-	        super.paintSafely(g);
-	        JTextComponent comp = getComponent();
-	        if(hint!=null && comp.getText().length() == 0 && (!(hideOnFocus && comp.hasFocus()))){
-	            if(color != null) {
+			public void paint(Graphics g) {
+	        super.paint(g);
+	        if (hint != null && getText().length() == 0 && (!(hideOnFocus && hasFocus()))){
+	            if (color != null) {
 	                g.setColor(color);
 	            } else {
-	                g.setColor(comp.getForeground().brighter().brighter().brighter());              
+	                g.setColor(getForeground().brighter().brighter().brighter());              
 	            }
-	            int padding = (comp.getHeight() - comp.getFont().getSize())/2;
+	            int padding = (getHeight() - getFont().getSize())/2;
 	            //g.setFont(g.getFont().deriveFont(Font.ITALIC));
-	            g.drawString(hint, 2, comp.getHeight()-padding-1);          
+	            g.drawString(hint, 2, getHeight()-padding-1);          
 	        }
 	    }
 
 	    public void focusGained(FocusEvent e) {
-	        if(hideOnFocus) repaint();
-
+	        if (hideOnFocus) repaint();
 	    }
 
 	    public void focusLost(FocusEvent e) {
-	        if(hideOnFocus) repaint();
-	    }
-	    @Override
-	    protected void installListeners() {
-	        super.installListeners();
-	        getComponent().addFocusListener(this);
-	    }
-	    @Override
-	    protected void uninstallListeners() {
-	        super.uninstallListeners();
-	        getComponent().removeFocusListener(this);
+	        if (hideOnFocus) repaint();
 	    }
 	}
 	
@@ -1137,8 +1124,7 @@ public final class LGM
 		GroupLayout filterLayout = new GroupLayout(filterPanel);
 		filterPanel.setLayout(filterLayout);
 
-  	filterText = new JTextField();
-		filterText.setUI(new HintTextFieldUI(Messages.getString("TreeFilter.SEARCHFOR"), true));
+  	filterText = new HintTextField(Messages.getString("TreeFilter.SEARCHFOR"),true);
     
     wholeWordCB = new JCheckBox(Messages.getString("TreeFilter.WHOLEWORD"));
 		wholeWordCB.addItemListener(new ItemListener() {
