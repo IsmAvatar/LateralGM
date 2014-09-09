@@ -191,6 +191,7 @@ public final class LGM
 	public static Cursor zoomInCursor;
 	public static Cursor zoomOutCursor;
 	private static String progressTitle;
+	public static JPanel filterPanel;
 	private static JTextField filterText;
 	private static JCheckBox filterTreeCB;
 	private static JCheckBox wholeWordCB;
@@ -1114,7 +1115,8 @@ public final class LGM
 					}
 			});
 		
-		JPanel filterPanel = new JPanel();
+		filterPanel = new JPanel();
+		filterPanel.setVisible(Prefs.showTreeFilter);
 		filterPanel.setBorder(new EmptyBorder(2, 2, 2, 2));
 		GroupLayout filterLayout = new GroupLayout(filterPanel);
 		filterPanel.setLayout(filterLayout);

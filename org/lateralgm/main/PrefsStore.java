@@ -162,6 +162,12 @@ public final class PrefsStore
 		Prefs.manualPath = path;
 		}
 
+	public static void setShowTreeFilter(boolean selected)
+		{
+		PREFS.putBoolean("showTreeFilter",selected);
+		Prefs.showTreeFilter = selected;
+		}
+	
 	public static void setExtraNodes(boolean selected)
 		{
 		PREFS.putBoolean("extraNodes",selected);

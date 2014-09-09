@@ -80,6 +80,7 @@ public final class Prefs
 			RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 			}
 
+		showTreeFilter = getBoolean("showTreeFilter",true);
 		extraNodes = getBoolean("extraNodes",true);
 		restrictHierarchy = getBoolean("restrictHierarchy",true);
 		renamableRoots = getBoolean("renamableRoots",false);
@@ -161,6 +162,7 @@ public final class Prefs
 	public static String languageName;
 	public static String antialiasControlFont;
 
+	public static boolean showTreeFilter;
 	public static boolean extraNodes;
 	public static boolean restrictHierarchy;
 	public static boolean renamableRoots;

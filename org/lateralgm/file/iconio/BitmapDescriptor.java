@@ -18,19 +18,12 @@ import org.lateralgm.file.StreamEncoder;
 public class BitmapDescriptor
 	{
 	private int width;
-
 	private int height;
-
 	private int colorCount;
-
 	private int reserved;
-
 	private int planes;
-
 	private int bpp;
-
 	private long size;
-
 	private long offset;
 
 	/** For convenience, not part of an entry: The header the entry refers to. */

@@ -32,7 +32,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.UIManager;
@@ -64,7 +63,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	protected JTree tree;
 
 	JComboBox<String> themeCombo, iconCombo, langCombo, actionsCombo;
-	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, dockEvent, backupsEnable;
+	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter, dockEvent, backupsEnable;
 	JTextField iconPath, themePath, manualPath, actionsPath;
 
 	JTextField soundEditorPath, backgroundEditorPath, spriteEditorPath, codeEditorPath,
@@ -114,6 +113,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		restrictTreeEnable.setSelected(Prefs.restrictHierarchy);
 		extraNodesEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_EXTRA_NODES"));
 		extraNodesEnable.setSelected(Prefs.extraNodes);
+		showTreeFilter = new JCheckBox(Messages.getString("PreferencesFrame.SHOW_TREE_FILTER"));
+		showTreeFilter.setSelected(Prefs.showTreeFilter);
 		dockEvent = new JCheckBox(Messages.getString("PreferencesFrame.DOCK_EVENT_PANEL"));
 		dockEvent.setSelected(Prefs.dockEventPanel);
 		JLabel themePathLabel = new JLabel(Messages.getString("PreferencesFrame.THEME_PATH") + ":");
@@ -142,7 +143,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*	*/.addGroup(gl.createSequentialGroup()
 		/*		*/.addComponent(dndEnable)
 		/*		*/.addComponent(restrictTreeEnable)
-		/*		*/.addComponent(extraNodesEnable))
+		/*		*/.addComponent(extraNodesEnable)
+		/*    */.addComponent(showTreeFilter))
 		/*	*/.addGroup(gl.createSequentialGroup()
 		/*		*/.addComponent(themeLabel)
 		/*		*/.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
@@ -171,7 +173,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*	*/.addGroup(gl.createParallelGroup()
 		/*		*/.addComponent(dndEnable)
 		/*		*/.addComponent(restrictTreeEnable)
-		/*		*/.addComponent(extraNodesEnable))
+		/*		*/.addComponent(extraNodesEnable)
+		/*    */.addComponent(showTreeFilter))
 		/*	*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(themeLabel)
 		/*		*/.addComponent(themeCombo)
@@ -623,6 +626,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		PrefsStore.setManualPath(manualPath.getText());
 		PrefsStore.setDNDEnabled(dndEnable.isSelected());
 		PrefsStore.setExtraNodes(extraNodesEnable.isSelected());
+		PrefsStore.setShowTreeFilter(showTreeFilter.isSelected());
 		PrefsStore.setLanguageName((String) langCombo.getSelectedItem());
 		PrefsStore.setUserLibraryPath(actionsPath.getText());
 		PrefsStore.setSpriteExt(spriteMIME.getText());
@@ -664,6 +668,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			{
 			JOptionPane.showMessageDialog(this,
 					Messages.getString("PreferencesFrame.APPLY_CHANGES_NOTICE"));
+			LGM.filterPanel.setVisible(showTreeFilter.isSelected());
 			LGM.SetLookAndFeel((String) themeCombo.getSelectedItem());
 			LGM.UpdateLookAndFeel();
 			SavePreferences();
