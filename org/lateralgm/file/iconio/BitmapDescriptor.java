@@ -48,8 +48,10 @@ public class BitmapDescriptor
 	// @PMD:REVIEWED:CallSuperInConstructor: by Chris on 06.03.06 10:32
 	public BitmapDescriptor(final StreamDecoder pDec) throws IOException
 		{
-		width = pDec.read();
-		height = pDec.read();
+		int w = pDec.read();
+		int h = pDec.read();
+		width = w==0 ? 256 : w;
+		height = h==0 ? 256 : h;
 		colorCount = pDec.read();
 
 		reserved = pDec.read();

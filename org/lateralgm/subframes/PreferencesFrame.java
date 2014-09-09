@@ -12,6 +12,7 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -30,10 +31,19 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.NumberField;
@@ -47,10 +57,11 @@ import org.lateralgm.messages.Messages;
 public class PreferencesFrame extends JFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	protected JTabbedPane tabs;
+	protected JPanel cardPane;
 	protected JSpinner sSizes;
 	protected DocumentUndoManager undoManager = new DocumentUndoManager();
 	protected Color fgColor;
+	protected JTree tree;
 
 	JComboBox<String> themeCombo, iconCombo, langCombo, actionsCombo;
 	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, dockEvent, backupsEnable;
@@ -510,27 +521,72 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		{
 		setAlwaysOnTop(false);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(600,450);
+		setSize(800,500);
 		setLocationRelativeTo(LGM.frame);
 		setTitle(Messages.getString("PreferencesFrame.TITLE"));
 		setIconImage(LGM.getIconForKey("Toolbar.PREFERENCES").getImage());
 		setResizable(true);
+		
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Preferences");
+		
+		tree = new JTree(new DefaultTreeModel(root));
+		tree.setEditable(false);
+		//tree.expandRow(0);
+		tree.setRootVisible(false);
+		tree.setShowsRootHandles(true);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		
+    DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) tree.getCellRenderer();
+    renderer.setLeafIcon(null);
+    renderer.setClosedIcon(null);
+    renderer.setOpenIcon(null);
 
-		tabs = new JTabbedPane();
-		add(tabs,BorderLayout.CENTER);
+		cardPane = new JPanel(new CardLayout());
 
-		tabs.addTab(Messages.getString("PreferencesFrame.TAB_GENERAL"), //$NON-NLS-1$
-				/**/null,makeGeneralPrefs(),Messages.getString("PreferencesFrame.HINT_GENERAL")); //$NON-NLS-1$ 
-		JPanel pan = makeExternalEditorPrefs();
-		tabs.addTab(Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"), //$NON-NLS-1$
-				/**/null,pan,Messages.getString("PreferencesFrame.HINT_EXTERNAL_EDITOR")); //$NON-NLS-1$ 
-		tabs.addTab(Messages.getString("PreferencesFrame.TAB_MIME_PREFIX"), //$NON-NLS-1$
-				/**/null,makeMimePrefixPrefs(),Messages.getString("PreferencesFrame.HINT_MIME_PREFIX")); //$NON-NLS-1$
-		tabs.addTab(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"), //$NON-NLS-1$
-				/**/null,makeCodeEditorPrefs(),Messages.getString("PreferencesFrame.HINT_CODE_EDITOR")); //$NON-NLS-1$ 
-		tabs.addTab(Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR"), //$NON-NLS-1$
-				/**/null,makeRoomEditorPrefs(),Messages.getString("PreferencesFrame.HINT_ROOM_EDITOR")); //$NON-NLS-1$ 
-
+		DefaultMutableTreeNode  node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_GENERAL"));
+		root.add(node);
+		cardPane.add(makeGeneralPrefs(),Messages.getString("PreferencesFrame.TAB_GENERAL"));
+		
+		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"));
+		root.add(node);
+		cardPane.add(makeExternalEditorPrefs(),Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"));
+		
+		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_MIME_PREFIX"));
+		root.add(node);
+		cardPane.add(makeMimePrefixPrefs(),Messages.getString("PreferencesFrame.TAB_MIME_PREFIX"));
+		
+		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"));
+		root.add(node);
+		cardPane.add(makeCodeEditorPrefs(),Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"));
+		
+		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR"));
+		root.add(node);
+		cardPane.add(makeRoomEditorPrefs(),Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR"));
+		
+		// expand after adding all root children to make sure its children are visible
+		tree.expandPath(new TreePath(root.getPath()));
+		
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+  	public void valueChanged(TreeSelectionEvent e) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+				                   tree.getLastSelectedPathComponent();
+				
+				/* if nothing is selected */ 
+				if (node == null) return;
+				
+				/* retrieve the node that was selected */ 
+				String nodeInfo = node.getUserObject().toString();
+				
+				CardLayout cl = (CardLayout)(cardPane.getLayout());
+		    cl.show(cardPane, nodeInfo);
+			}
+		});
+		
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,tree,cardPane);
+		split.setDividerLocation(200);
+		split.setOneTouchExpandable(true);
+		add(split);
+		
 		JPanel p = new JPanel();
 		GroupLayout gl = new GroupLayout(p);
 		gl.setAutoCreateGaps(true);

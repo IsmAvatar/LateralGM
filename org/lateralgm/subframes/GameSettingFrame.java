@@ -16,6 +16,8 @@ import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
+import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -42,10 +44,19 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTree;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import javax.swing.SwingConstants;
 
 import org.lateralgm.components.ColorSelect;
@@ -74,7 +85,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	private static final long serialVersionUID = 1L;
 
 	boolean imagesChanged = false;
-	public JTabbedPane tabbedPane = new JTabbedPane();
+	public JPanel cardPane;
 
 	public JCheckBox startFullscreen;
 	public IndexButtonGroup scaling;
@@ -631,6 +642,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public JButton discardButton;
 
+	private JTree tree;
+
 	public GameSettingFrame(GameSettings res)
 		{
 		this(res,null);
@@ -638,14 +651,12 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public GameSettingFrame(GameSettings res, ResNode node)
 		{
-		super(res,node,Messages.getString("GameSettingFrame.TITLE"),false,true,true,true); //$NON-NLS-1$
+		super(res,node,Messages.getString("GameSettingFrame.TITLE"),true,true,true,true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 
 		GroupLayout layout = new GroupLayout(getContentPane());
 		layout.setAutoCreateGaps(true);
 		setLayout(layout);
-
-		buildTabs();
 
 		String t = Messages.getString("GameSettingFrame.BUTTON_SAVE"); //$NON-NLS-1$
 		save.setText(t);
@@ -656,68 +667,119 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		// make discard button the height as save, Win32 look and feel makes
 		// buttons with icons 2x as tall
 		discardButton.setMinimumSize(save.getMaximumSize());
+		
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Preferences");
+		
+		tree = new JTree(new DefaultTreeModel(root));
+		tree.setEditable(false);
+		//tree.expandRow(0);
+		tree.setRootVisible(false);
+		tree.setShowsRootHandles(true);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		
+    DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) tree.getCellRenderer();
+    renderer.setLeafIcon(null);
+    renderer.setClosedIcon(null);
+    renderer.setOpenIcon(null);
+    
+    buildTabs(root);
+    
+    // expand after adding all root children to make sure its children are visible
+ 		tree.expandPath(new TreePath(root.getPath()));
+    
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+  	public void valueChanged(TreeSelectionEvent e) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+				                   tree.getLastSelectedPathComponent();
+				
+				/* if nothing is selected */ 
+				if (node == null) return;
+				
+				/* retrieve the node that was selected */ 
+				String nodeInfo = node.getUserObject().toString();
+				
+				CardLayout cl = (CardLayout)(cardPane.getLayout());
+		    cl.show(cardPane, nodeInfo);
+			}
+		});
+		
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,tree,cardPane);
+		split.setDividerLocation(200);
+		split.setOneTouchExpandable(true);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(tabbedPane)
+		/**/.addComponent(split)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addContainerGap()
 		/*		*/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*		*/.addComponent(discardButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*		*/.addContainerGap()));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(tabbedPane)
+		/**/.addComponent(split)
 		/**/.addPreferredGap(ComponentPlacement.UNRELATED)
 		/**/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(save)
 		/*		*/.addComponent(discardButton))
 		/**/.addContainerGap());
 		pack();
+		this.setSize(600,500);
 		}
 
-	private void buildTabs()
+	private void buildTabs(DefaultMutableTreeNode root)
 		{
-		//Looks horrible under any look and feel
-		//tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-
+		cardPane = new JPanel(new CardLayout());
+		
 		JComponent pane = makeGraphicsPane();
-		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_GRAPHICS"), //$NON-NLS-1$
-				null,pane,Messages.getString("GameSettingFrame.HINT_GRAPHICS")); //$NON-NLS-1$
-		tabbedPane.setMnemonicAt(0,KeyEvent.VK_1);
+		
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_GRAPHICS"));
+		root.add(node);
+		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_GRAPHICS"));
 
 		pane = makeResolutionPane();
-		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_RESOLUTION"), //$NON-NLS-1$
-				null,pane,Messages.getString("GameSettingFrame.HINT_RESOLUTION")); //$NON-NLS-1$
-		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
+		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_RESOLUTION"));
+		root.add(node);
+		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_RESOLUTION"));
 
 		pane = makeOtherPane();
-		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_OTHER"), //$NON-NLS-1$
-				null,pane,Messages.getString("GameSettingFrame.HINT_OTHER")); //$NON-NLS-1$
-		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
+		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_OTHER"));
+		root.add(node);
+		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_OTHER"));
 
 		pane = makeLoadingPane();
-		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_LOADING"), //$NON-NLS-1$
-				null,pane,Messages.getString("GameSettingFrame.HINT_LOADING")); //$NON-NLS-1$
-		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
+		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_LOADING"));
+		root.add(node);
+		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_LOADING"));
 
 		pane = makeIncludePane();
-		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_INCLUDE"), //$NON-NLS-1$
-				null,pane,Messages.getString("GameSettingFrame.HINT_INCLUDE")); //$NON-NLS-1$
-		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
+		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_INCLUDE"));
+		root.add(node);
+		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_INCLUDE"));
 
 		pane = makeErrorPane();
-		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_ERRORS"), //$NON-NLS-1$
-				null,pane,Messages.getString("GameSettingFrame.HINT_ERRORS")); //$NON-NLS-1$
-		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
+		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_ERRORS"));
+		root.add(node);
+		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_ERRORS"));
 
 		pane = makeInfoPane();
-		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_INFO"), //$NON-NLS-1$
-				null,pane,Messages.getString("GameSettingFrame.HINT_INFO")); //$NON-NLS-1$
-		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
+		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_INFO"));
+		root.add(node);
+		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_INFO"));
 
 		pane = makeTextureAtlasesPane();
-		tabbedPane.addTab(Messages.getString("GameSettingFrame.TAB_TEXTUREATLASES"), //$NON-NLS-1$
-				null,pane,Messages.getString("GameSettingFrame.HINT_TEXTUREATLASES")); //$NON-NLS-1$
-		tabbedPane.setMnemonicAt(1,KeyEvent.VK_2);
+		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_TEXTUREATLASES"));
+		root.add(node);
+		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_TEXTUREATLASES"));
+		
+		
+		DefaultMutableTreeNode pnode = new DefaultMutableTreeNode("Platforms");
+		root.add(pnode);
+		
+		node = new DefaultMutableTreeNode("Windows");
+		pnode.add(node);
+		node = new DefaultMutableTreeNode("Mac");
+		pnode.add(node);
+		node = new DefaultMutableTreeNode("Ubuntu");
+		pnode.add(node);
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -730,8 +792,15 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			close();
 			return;
 			}
-
-		switch (tabbedPane.getSelectedIndex())
+		//TODO: icky way of getting the selected index
+		int index = 0;
+		for (Component comp : cardPane.getComponents()) {
+		    if (comp.isVisible() == true) {
+		        break;
+		    }
+		    index++;
+		}
+		switch (index)
 			{
 			case 0:
 				if (e.getSource() instanceof JRadioButton) scale.setEnabled(scaling.getValue() > 0);
