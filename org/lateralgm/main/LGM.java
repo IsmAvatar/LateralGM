@@ -34,9 +34,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-import javax.swing.plaf.basic.BasicTextFieldUI;
-import javax.swing.text.JTextComponent;
-
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -994,7 +991,7 @@ public final class LGM
   	return false;
   }
 	
-	public static boolean searchFilter(ResNode child, boolean filter, String expression, boolean matchCase, boolean wholeWord, boolean backwards) {
+	public static boolean searchFilter(ResNode child, String expression, boolean matchCase, boolean wholeWord, boolean backwards) {
 		ResNode firstResult = null;
 		while (child != null) {
 			if (backwards) {
@@ -1006,9 +1003,7 @@ public final class LGM
 			boolean match = expressionMatch(child.toString(), expression, matchCase, wholeWord);
 			if (firstResult == null && match) {
 				firstResult = child;
-				if (filter) {
-					break;
-				}
+				break;
 			}
 		}
 		if (firstResult != null) {
@@ -1146,8 +1141,7 @@ public final class LGM
 		previousButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
-				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-				searchFilter((ResNode)tree.getLastSelectedPathComponent(), ml.isActivatedFilter(), filterText.getText(),
+				searchFilter((ResNode)tree.getLastSelectedPathComponent(),filterText.getText(),
 						false, wholeWordCB.isSelected(), true);
 			}
 		});
@@ -1156,8 +1150,7 @@ public final class LGM
 		nextButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
-				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-				searchFilter((ResNode)tree.getLastSelectedPathComponent(), ml.isActivatedFilter(), filterText.getText(),
+				searchFilter((ResNode)tree.getLastSelectedPathComponent(), filterText.getText(),
 						false, wholeWordCB.isSelected(), false);
 			}
 		});
@@ -1171,8 +1164,7 @@ public final class LGM
 		   	if (ml.isActivatedFilter()) {
 		   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
 		   	} else {
-		   		searchFilter(root, ml.isActivatedFilter(), filterText.getText(),
-						false, wholeWordCB.isSelected(), false);
+		   		searchFilter(root, filterText.getText(), false, wholeWordCB.isSelected(), false);
 		   	}
 		  }
 		  
@@ -1181,8 +1173,7 @@ public final class LGM
 		   	if (ml.isActivatedFilter()) {
 		   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
 		   	} else {
-		   		searchFilter(root, ml.isActivatedFilter(), filterText.getText(),
-						false, wholeWordCB.isSelected(), false);
+		   		searchFilter(root, filterText.getText(), false, wholeWordCB.isSelected(), false);
 		   	}
 		  }
 		});
