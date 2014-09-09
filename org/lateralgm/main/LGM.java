@@ -23,6 +23,9 @@
 
 package org.lateralgm.main;
 
+import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -30,13 +33,23 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+
+import javax.swing.plaf.basic.BasicTextFieldUI;
+import javax.swing.text.JTextComponent;
+
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SplashScreen;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
+import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +61,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Vector;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -55,10 +69,12 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.DropMode;
+import javax.swing.GroupLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -70,6 +86,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
@@ -77,11 +94,17 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -171,6 +194,9 @@ public final class LGM
 	public static Cursor zoomInCursor;
 	public static Cursor zoomOutCursor;
 	private static String progressTitle;
+	static JTextField filterText;
+	static JCheckBox filterTreeCB;
+	static JCheckBox wholeWordCB;
 
 	public static JDialog getProgressDialog()
 		{
@@ -545,14 +571,16 @@ public final class LGM
 		return tool;
 		}
 
-	private static JComponent createTree()
+	private static JTree createTree()
 		{
 		return createTree(newRoot());
 		}
 
-	private static JComponent createTree(ResNode newroot)
+	private static JTree createTree(ResNode newroot)
 		{
-		tree = new JTree(new DefaultTreeModel(newroot));
+		InvisibleTreeModel ml = new InvisibleTreeModel(newroot);
+		ml.activateFilter(false);
+		tree = new JTree(ml);
 		if (LGM.themename.equals("Quantum"))
 			{
 			tree.setFont(lnfFont);
@@ -587,12 +615,7 @@ public final class LGM
 				im.put(s,"none"); //null doesn't remove them //$NON-NLS-1$
 			}
 
-		// Setup the rest of the main window
-		JScrollPane scroll = new JScrollPane(tree);
-		scroll.setPreferredSize(new Dimension(250,100));
-		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
-
-		return scroll;
+		return tree;
 		}
 
 	public static ResNode newRoot()
@@ -683,7 +706,14 @@ public final class LGM
 		{
 		LGM.mdi.closeAll();
 
-		LGM.tree.setModel(new DefaultTreeModel(LGM.root));
+		InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
+		LGM.tree.setModel(ml);
+		
+   	ml.activateFilter(filterTreeCB.isSelected());
+   	if (ml.isActivatedFilter()) {
+ 			applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
+   	}
+		
 		LGM.tree.setSelectionRow(0);
 
 		LGM.eventSelect.reload();
@@ -788,6 +818,220 @@ public final class LGM
 
 		public abstract T getInstance();
 		}
+	
+	public static class HintTextFieldUI extends BasicTextFieldUI implements FocusListener {
+
+	    private String hint;
+	    private boolean hideOnFocus;
+	    private Color color;
+
+	    public Color getColor() {
+	        return color;
+	    }
+
+	    public void setColor(Color color) {
+	        this.color = color;
+	        repaint();
+	    }
+
+	    private void repaint() {
+	        if(getComponent() != null) {
+	            getComponent().repaint();           
+	        }
+	    }
+
+	    public boolean isHideOnFocus() {
+	        return hideOnFocus;
+	    }
+
+	    public void setHideOnFocus(boolean hideOnFocus) {
+	        this.hideOnFocus = hideOnFocus;
+	        repaint();
+	    }
+
+	    public String getHint() {
+	        return hint;
+	    }
+
+	    public void setHint(String hint) {
+	        this.hint = hint;
+	        repaint();
+	    }
+	    public HintTextFieldUI(String hint) {
+	        this(hint,false);
+	    }
+
+	    public HintTextFieldUI(String hint, boolean hideOnFocus) {
+	        this(hint,hideOnFocus, null);
+	    }
+
+	    public HintTextFieldUI(String hint, boolean hideOnFocus, Color color) {
+	        this.hint = hint;
+	        this.hideOnFocus = hideOnFocus;
+	        this.color = color;
+	    }
+
+	    @Override
+	    protected void paintSafely(Graphics g) {
+	        super.paintSafely(g);
+	        JTextComponent comp = getComponent();
+	        if(hint!=null && comp.getText().length() == 0 && (!(hideOnFocus && comp.hasFocus()))){
+	            if(color != null) {
+	                g.setColor(color);
+	            } else {
+	                g.setColor(comp.getForeground().brighter().brighter().brighter());              
+	            }
+	            int padding = (comp.getHeight() - comp.getFont().getSize())/2;
+	            //g.setFont(g.getFont().deriveFont(Font.ITALIC));
+	            g.drawString(hint, 2, comp.getHeight()-padding-1);          
+	        }
+	    }
+
+	    public void focusGained(FocusEvent e) {
+	        if(hideOnFocus) repaint();
+
+	    }
+
+	    public void focusLost(FocusEvent e) {
+	        if(hideOnFocus) repaint();
+	    }
+	    @Override
+	    protected void installListeners() {
+	        super.installListeners();
+	        getComponent().addFocusListener(this);
+	    }
+	    @Override
+	    protected void uninstallListeners() {
+	        super.uninstallListeners();
+	        getComponent().removeFocusListener(this);
+	    }
+	}
+	
+	public static class InvisibleTreeModel extends DefaultTreeModel {
+
+	  /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		protected boolean filterIsActive;
+	
+	  public InvisibleTreeModel(TreeNode root) {
+	    this(root, false);
+	  }
+	
+	  public InvisibleTreeModel(TreeNode root, boolean asksAllowsChildren) {
+	    this(root, false, false);
+	  }
+	
+	  public InvisibleTreeModel(TreeNode root, boolean asksAllowsChildren,
+	      boolean filterIsActive) {
+	    super(root, asksAllowsChildren);
+	    this.filterIsActive = filterIsActive;
+	  }
+	
+	  public void activateFilter(boolean newValue) {
+	    filterIsActive = newValue;
+	  }
+	
+	  public boolean isActivatedFilter() {
+	    return filterIsActive;
+	  }
+	
+	  public Object getChild(Object parent, int index) {
+	    if (filterIsActive) {
+	      if (parent instanceof ResNode) {
+	        return ((ResNode) parent).getChildAt(index,
+	            filterIsActive);
+	      }
+	    }
+	    return ((TreeNode) parent).getChildAt(index);
+	  }
+	
+	  public int getChildCount(Object parent) {
+	    if (filterIsActive) {
+	      if (parent instanceof ResNode) {
+	        return ((ResNode) parent).getChildCount(filterIsActive);
+	      }
+	    }
+	    return ((TreeNode) parent).getChildCount();
+	  }
+	
+	}
+	
+  private static boolean expressionMatch(String token, String expression, boolean matchCase, boolean wholeWord) {
+  	if (!matchCase) {
+  		token = token.toLowerCase();
+  		expression = expression.toLowerCase();
+  	}
+  	if (wholeWord) {
+  		return token.equals(expression);
+  	} else {
+  		//if (expression.length() == 0) { return false; } // without this all of your folders will be open by default, we don't want to 
+  		// check matches with an empty string - don't touch this as everything works so just leave it here in case I come back to it - Robert B. Colton
+  		return token.contains(expression);
+  	}
+  }
+  
+  public static DefaultMutableTreeNode applyFilterRecursion(Vector<ResNode> children, boolean filter, String expression, boolean matchCase, boolean wholeWord) {
+  	if (children == null) { return null; }
+  	DefaultMutableTreeNode firstResult = null;
+		for (ResNode child : children) {
+			boolean match = expressionMatch(child.toString(), expression, matchCase, wholeWord);
+			if (firstResult == null && match) {
+				firstResult = child;
+			}
+			DefaultMutableTreeNode childResult = applyFilterRecursion(child.getChildren(), filter, expression, matchCase, wholeWord) ;
+			if (firstResult == null && childResult != null) {
+			//if (childResult != null) {
+				firstResult = childResult;
+			}
+			if (childResult != null || match) {
+				child.setVisible(true);
+			} else {
+				child.setVisible(false);
+			}
+		}
+		return firstResult;
+  }
+  
+	public static boolean applyFilter(Vector<ResNode> children, boolean filter, String expression, boolean matchCase, boolean wholeWord, boolean selectFirst) {
+		if (children == null) { return false; }
+		DefaultMutableTreeNode firstResult = applyFilterRecursion(children, filter, expression, matchCase, wholeWord);
+
+  	if (firstResult != null && selectFirst) {
+  		tree.setSelectionPath(new TreePath(firstResult.getPath()));
+  		tree.updateUI();
+  		return true;
+  	}
+  	tree.updateUI();
+  	return false;
+  }
+	
+	public static boolean searchFilter(ResNode child, boolean filter, String expression, boolean matchCase, boolean wholeWord, boolean backwards) {
+		ResNode firstResult = null;
+		while (child != null) {
+			if (backwards) {
+				child = (ResNode) child.getPreviousNode();
+			} else {
+				child = (ResNode) child.getNextNode();
+			}
+			if (child == null) break;
+			boolean match = expressionMatch(child.toString(), expression, matchCase, wholeWord);
+			if (firstResult == null && match) {
+				firstResult = child;
+				if (filter) {
+					break;
+				}
+			}
+		}
+		if (firstResult != null) {
+			tree.setSelectionPath(new TreePath(firstResult.getPath()));
+			tree.updateUI();
+			//tree.expandPath(new TreePath(firstResult.getPath()));
+			return true;
+		}
+		return false;
+	}
 
 	public static void main(final String[] args)
 		{
@@ -842,7 +1086,7 @@ public final class LGM
 
 		splashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
 		JToolBar toolbar = createToolBar();
-		JComponent tree = createTree();
+		final JTree tree = createTree();
 		content = new JPanel(new BorderLayout());
 		content.add(BorderLayout.CENTER,createMDI());
 		eventSelect = new EventPanel();
@@ -887,8 +1131,113 @@ public final class LGM
 					LGM.onMainFrameClosed();
 					}
 			});
+		
+		JPanel filterPanel = new JPanel();
+		filterPanel.setBorder(new EmptyBorder(2, 2, 2, 2));
+		GroupLayout filterLayout = new GroupLayout(filterPanel);
+		filterPanel.setLayout(filterLayout);
 
-		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,tree,content);
+  	filterText = new JTextField();
+		filterText.setUI(new HintTextFieldUI(Messages.getString("TreeFilter.SEARCHFOR"), true));
+    
+    wholeWordCB = new JCheckBox(Messages.getString("TreeFilter.WHOLEWORD"));
+		wholeWordCB.addItemListener(new ItemListener() {
+		  public void itemStateChanged(ItemEvent e) {
+		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+		   	applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),false);
+		  }
+		});
+  	filterTreeCB = new JCheckBox(Messages.getString("TreeFilter.FILTERTREE"));
+		filterTreeCB.addItemListener(new ItemListener() {
+		  public void itemStateChanged(ItemEvent e) {
+		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+		   	ml.activateFilter(filterTreeCB.isSelected());
+	   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),false);
+		  }
+		});
+    
+    JButton previousButton = new JButton(Messages.getString("TreeFilter.PREVIOUS"));
+		previousButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0)
+			{
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+				searchFilter((ResNode)tree.getLastSelectedPathComponent(), ml.isActivatedFilter(), filterText.getText(),
+						false, wholeWordCB.isSelected(), true);
+			}
+		});
+    
+		JButton nextButton = new JButton(Messages.getString("TreeFilter.NEXT"));
+		nextButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0)
+			{
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+				searchFilter((ResNode)tree.getLastSelectedPathComponent(), ml.isActivatedFilter(), filterText.getText(),
+						false, wholeWordCB.isSelected(), false);
+			}
+		});
+    
+		filterText.getDocument().addDocumentListener(new DocumentListener() {
+		  public void changedUpdate(DocumentEvent e) {
+
+		  }
+		  public void removeUpdate(DocumentEvent e) {
+		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+		   	if (ml.isActivatedFilter()) {
+		   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
+		   	} else {
+		   		searchFilter(root, ml.isActivatedFilter(), filterText.getText(),
+						false, wholeWordCB.isSelected(), false);
+		   	}
+		  }
+		  
+		  public void insertUpdate(DocumentEvent e) {
+		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+		   	if (ml.isActivatedFilter()) {
+		   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
+		   	} else {
+		   		searchFilter(root, ml.isActivatedFilter(), filterText.getText(),
+						false, wholeWordCB.isSelected(), false);
+		   	}
+		  }
+		});
+		
+		filterText.addActionListener(new ActionListener() {
+	  public void actionPerformed(ActionEvent evt) {
+	  	ResNode node = (ResNode) tree.getLastSelectedPathComponent();
+	  	if (node == null) { return; }
+	  	if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
+	  	else tree.expandPath(new TreePath(node.getPath()));
+	  }
+		});
+		
+		filterLayout.setHorizontalGroup(filterLayout.createParallelGroup()
+		/**/.addComponent(filterText)
+		/**/.addGroup(filterLayout.createSequentialGroup()
+		/* */.addComponent(wholeWordCB,DEFAULT_SIZE,PREFERRED_SIZE,Short.MAX_VALUE)
+		/* */.addComponent(filterTreeCB,DEFAULT_SIZE,PREFERRED_SIZE,Short.MAX_VALUE))
+		/**/.addGroup(filterLayout.createSequentialGroup()
+		/* */.addComponent(previousButton,previousButton.getMinimumSize().width,DEFAULT_SIZE,Short.MAX_VALUE)
+		/* */.addComponent(nextButton,previousButton.getMinimumSize().width,DEFAULT_SIZE,Short.MAX_VALUE)));
+
+		filterLayout.setVerticalGroup(filterLayout.createSequentialGroup()
+		/**/.addComponent(filterText)
+		/**/.addGroup(filterLayout.createParallelGroup(Alignment.BASELINE)
+		/* */.addComponent(wholeWordCB)
+		/* */.addComponent(filterTreeCB))
+		/**/.addGroup(filterLayout.createParallelGroup(Alignment.BASELINE)
+		/* */.addComponent(previousButton)
+		/* */.addComponent(nextButton)));
+
+		JScrollPane scroll = new JScrollPane(tree);
+		scroll.setPreferredSize(new Dimension(250,100));
+		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
+    
+    JPanel hierarchyPanel = new JPanel();
+    hierarchyPanel.setLayout(new BorderLayout(0, 0));
+    hierarchyPanel.add(filterPanel, BorderLayout.NORTH);
+    hierarchyPanel.add(scroll,BorderLayout.CENTER);
+		
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,hierarchyPanel,content);
 		split.setDividerLocation(250);
 		split.setOneTouchExpandable(true);
 		f.add(split);

@@ -20,6 +20,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,6 +35,7 @@ import javax.swing.KeyStroke;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.main.LGM;
@@ -60,6 +62,8 @@ import org.lateralgm.subframes.SubframeInformer;
 public class ResNode extends DefaultMutableTreeNode implements Transferable,UpdateListener
 	{
 
+	protected boolean isVisible = true;
+	
 	public static final Map<Class<?>,ImageIcon> ICON;
 	static
 		{
@@ -89,6 +93,60 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 	private final UpdateTrigger trigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,trigger);
 	public boolean newRes = false;
+	
+	public void setVisible(boolean visible) {
+		this.isVisible = visible;
+	}
+	
+	public boolean isVisible() {
+		return this.isVisible;
+	}
+	
+  public TreeNode getChildAt(int index, boolean filterIsActive) {
+	  if (!filterIsActive) {
+	    return super.getChildAt(index);
+	  }
+	  if (children == null) {
+	    throw new ArrayIndexOutOfBoundsException("node has no children");
+	  }
+	
+	  int realIndex = -1;
+	  int visibleIndex = -1;
+	  Enumeration e = children.elements();
+	  while (e.hasMoreElements()) {
+	    ResNode node = (ResNode) e.nextElement();
+	    if (node.isVisible()) {
+	      visibleIndex++;
+	    }
+	    realIndex++;
+	    if (visibleIndex == index) {
+	      return (TreeNode) children.elementAt(realIndex);
+	    }
+	  }
+	
+	  throw new ArrayIndexOutOfBoundsException("index unmatched");
+	  //return (TreeNode)children.elementAt(index);
+	}
+
+	public int getChildCount(boolean filterIsActive) {
+	  if (!filterIsActive) {
+	    return super.getChildCount();
+	  }
+	  if (children == null) {
+	    return 0;
+	  }
+	
+	  int count = 0;
+	  Enumeration e = children.elements();
+	  while (e.hasMoreElements()) {
+	    ResNode node = (ResNode) e.nextElement();
+	    if (node.isVisible()) {
+	      count++;
+	    }
+	  }
+	
+	  return count;
+	}
 
 	public Icon getIcon()
 		{

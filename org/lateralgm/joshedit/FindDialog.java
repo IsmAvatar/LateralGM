@@ -99,6 +99,7 @@ public class FindDialog extends JDialog implements WindowListener,ActionListener
 		addWindowListener(this);
 		pack();
 		setMinimumSize(getSize());
+		setIconImage(Runner.editorInterface.getIconForKey("JoshText.FIND").getImage());
 		}
 
 	/** @return Returns the static FindDialog instance.  */
