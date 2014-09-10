@@ -17,8 +17,9 @@ import org.lateralgm.file.StreamEncoder;
  */
 public class BitmapDescriptor
 	{
-	private int width;
-	private int height;
+	//See note in constructor: the ICO format's width/height are broken and ignored.
+	//private int width;
+	//private int height;
 	private int colorCount;
 	private int reserved;
 	private int planes;
@@ -41,10 +42,12 @@ public class BitmapDescriptor
 	// @PMD:REVIEWED:CallSuperInConstructor: by Chris on 06.03.06 10:32
 	public BitmapDescriptor(final StreamDecoder pDec) throws IOException
 		{
-		int w = pDec.read();
-		int h = pDec.read();
-		width = w==0 ? 256 : w;
-		height = h==0 ? 256 : h;
+		//The ICO format's width/height fields are universally ignored 
+		//(Windows and Linux will both ignore them even if they are clearly set wrong).
+		//Instead, you have to use the internal bitmap/png's width/height.
+		/*int ignoredWidth =*/ pDec.read();
+		/*int ignoredHeight =*/ pDec.read();
+		
 		colorCount = pDec.read();
 
 		reserved = pDec.read();
@@ -59,7 +62,7 @@ public class BitmapDescriptor
 	 */
 	public String toString()
 		{
-		return "width: " + width + ", height: " + height + ", colorCount: " + colorCount + " ("
+		return "width: " + getWidth() + ", height: " + getHeight() + ", colorCount: " + colorCount + " ("
 				+ getColorCount() + ")" + ", planes: " + planes + ", BPP: " + bpp + ", size: " + size
 				+ ", offset: " + offset;
 		}
@@ -144,7 +147,7 @@ public class BitmapDescriptor
 	 */
 	public int getHeight()
 		{
-		return height;
+		return (header==null || header.getHeight()>Integer.MAX_VALUE) ? 0 : ((int)header.getHeight());
 		}
 
 	/**
@@ -204,7 +207,7 @@ public class BitmapDescriptor
 	 */
 	public int getWidth()
 		{
-		return width;
+		return (header==null || header.getWidth()>Integer.MAX_VALUE) ? 0 : ((int)header.getWidth());
 		}
 
 	/**
@@ -242,8 +245,8 @@ public class BitmapDescriptor
 
 	void write(StreamEncoder out) throws IOException
 		{
-		out.write(width);
-		out.write(height);
+		out.write(getWidth());
+		out.write(getHeight());
 		out.write(colorCount);
 
 		out.write(reserved);
