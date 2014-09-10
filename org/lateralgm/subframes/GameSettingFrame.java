@@ -18,8 +18,11 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -81,6 +84,8 @@ import org.lateralgm.resources.Include;
 public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	{
 	private static final long serialVersionUID = 1L;
+	
+	private static final int MAX_VIEWABLE_ICON_SIZE = 64; //Icons bigger than this are scaled down (for viewing only).
 
 	boolean imagesChanged = false;
 	public JPanel cardPane;
@@ -354,6 +359,31 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	public NumberField gameId;
 	public JButton randomise;
 	private CustomFileChooser iconFc;
+	
+	private static BufferedImage scale_image(BufferedImage src, int imgType, int destSize) {
+		if(src == null) { return null; }
+			BufferedImage dest = new BufferedImage(destSize, destSize, imgType);
+			Graphics2D g = dest.createGraphics();
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			
+			AffineTransform at = AffineTransform.getScaleInstance(destSize/((float)src.getWidth()), destSize/((float)src.getHeight()));
+			g.drawRenderedImage(src, at);
+
+			return dest;
+	}
+
+	private void setIconPreviewToGameIcon() {
+		BufferedImage src = null;
+		if (gameIcon != null) {
+			src = (BufferedImage)gameIcon.getDisplayImage();
+			if (src!=null) {
+				if (src.getWidth()>32 || src.getHeight()>32) {
+					src = scale_image((BufferedImage)src, BufferedImage.TYPE_INT_ARGB, MAX_VIEWABLE_ICON_SIZE);
+				}
+			}
+		}
+		iconPreview.setIcon(new ImageIcon(src));
+	}
 
 	private JPanel makeLoadingPane()
 		{
@@ -444,7 +474,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		gameIcon = res.properties.get(PGameSettings.GAME_ICON);
 		iconPreview = new JLabel(Messages.getString("GameSettingFrame.GAME_ICON")); //$NON-NLS-1$
-		if (gameIcon != null) iconPreview.setIcon(new ImageIcon(gameIcon.getDisplayImage()));
+		setIconPreviewToGameIcon();
 
 		iconPreview.setHorizontalTextPosition(SwingConstants.LEFT);
 		changeIcon = new JButton(Messages.getString("GameSettingFrame.CHANGE_ICON")); //$NON-NLS-1$
@@ -862,7 +892,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				if (f.exists()) try
 					{
 					gameIcon = new ICOFile(new FileInputStream(f));
-					iconPreview.setIcon(new ImageIcon(gameIcon.getDisplayImage()));
+					setIconPreviewToGameIcon();
 					imagesChanged = true;
 					}
 				catch (FileNotFoundException e1)
@@ -909,11 +939,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		backLoadImage = g.get(PGameSettings.BACK_LOAD_BAR);
 		frontLoadImage = g.get(PGameSettings.FRONT_LOAD_BAR);
 		gameIcon = g.get(PGameSettings.GAME_ICON);
-		Image icoimg = gameIcon.getDisplayImage();
-		if (icoimg != null)
-			{
-			iconPreview.setIcon(new ImageIcon(icoimg));
-			}
+		setIconPreviewToGameIcon();
 		imagesChanged = true;
 		}
 
