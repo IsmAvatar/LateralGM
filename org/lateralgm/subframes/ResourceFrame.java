@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
- * Copyright (C) 2013 Robert B. Colton
+ * Copyright (C) 2013-2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * 
@@ -68,6 +68,8 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 	public R resOriginal;
 	/** The ResNode this frame is linked to */
 	public final ResNode node;
+	
+	private ResourceFrameListener frameListener;
 
 	protected final PropertyLinkFactory<P> plf;
 
@@ -182,15 +184,21 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		{
 		return true;
 		}
+	
+	public void setFrameListener(ResourceFrameListener listener) {
+		frameListener = listener;
+	}
 
 	public void updateResource()
 		{
+		if (frameListener != null) frameListener.updateResource();
 		commitChanges();
 		resOriginal = res.clone();
 		}
 
 	public void revertResource()
 		{
+		if (frameListener != null) frameListener.revertResource();
 		resOriginal.updateReference();
 		}
 
@@ -224,4 +232,9 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		save.removeActionListener(this);
 		removeAll();
 		}
+	public abstract interface ResourceFrameListener
+	{
+	public abstract void updateResource();
+	public abstract void revertResource();
+	}
 	}

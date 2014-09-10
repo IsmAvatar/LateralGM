@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Robert B. Colton
+ * Copyright (C) 2013-2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -41,7 +41,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.ColorSelect;
@@ -534,7 +533,6 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		
 		tree = new JTree(new DefaultTreeModel(root));
 		tree.setEditable(false);
-		//tree.expandRow(0);
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -566,8 +564,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		root.add(node);
 		cardPane.add(makeRoomEditorPrefs(),Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR"));
 		
-		// expand after adding all root children to make sure its children are visible
-		tree.expandPath(new TreePath(root.getPath()));
+		// reload after adding all root children to make sure its children are visible
+		((DefaultTreeModel)tree.getModel()).reload();
 		
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
   	public void valueChanged(TreeSelectionEvent e) {

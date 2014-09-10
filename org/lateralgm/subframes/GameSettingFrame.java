@@ -53,7 +53,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.SwingConstants;
 
@@ -640,7 +639,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public JButton discardButton;
 
-	private JTree tree;
+	public JTree tree;
 
 	public GameSettingFrame(GameSettings res)
 		{
@@ -682,8 +681,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
     
     buildTabs(root);
     
-    // expand after adding all root children to make sure its children are visible
- 		tree.expandPath(new TreePath(root.getPath()));
+    // reload after adding all root children to make sure its children are visible
+    ((DefaultTreeModel)tree.getModel()).reload();
     
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
   	public void valueChanged(TreeSelectionEvent e) {
