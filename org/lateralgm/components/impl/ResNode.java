@@ -273,10 +273,10 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 
 		if (!isInstantiable())
 			{
-			JMenuItem editItem = makeMenuItem("Listener.TREE_EDIT",al,true);
+			JMenuItem editItem = makeMenuItem("Listener.TREE_PROPERTIES",al,true);
 			popup.add(editItem); //$NON-NLS-1$
 			editItem.setFocusable(true);
-			editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,KeyEvent.CTRL_DOWN_MASK));
+			editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,KeyEvent.ALT_DOWN_MASK));
 			popup.show(e.getComponent(),e.getX(),e.getY());
 			return;
 			}
