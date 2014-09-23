@@ -875,7 +875,7 @@ public final class GMXFileReader
 
 				Document pthdoc = documentBuilder.parse(path + ".path.gmx");
 				pth.put(PPath.SMOOTH,
-						Integer.parseInt(pthdoc.getElementsByTagName("kind").item(0).getTextContent()) < 0);
+						Integer.parseInt(pthdoc.getElementsByTagName("kind").item(0).getTextContent()) != 0);
 				pth.put(PPath.PRECISION,
 						Integer.parseInt(pthdoc.getElementsByTagName("precision").item(0).getTextContent()));
 				pth.put(PPath.CLOSED,
