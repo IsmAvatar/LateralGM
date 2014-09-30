@@ -2004,6 +2004,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		// Display the selected tile with white border
 		Tile tile = tList.getSelectedValue();
+		if (tile == null) return;
 		tile.setSelected(true);
 
 		// Save the selected tile
