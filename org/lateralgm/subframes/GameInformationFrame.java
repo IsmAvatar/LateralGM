@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map.Entry;
 
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
@@ -491,7 +492,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		editor.setEditorKit(rtf);
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(editor));
 
-		addDocumentListeners();
 		editor.addCaretListener(undoManager);
 
 		editor.addCaretListener(new CaretListener()
@@ -525,7 +525,9 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			});
 
 		revertResource();
-
+		//NOTE: DO not add the document listeners until the first time you set the text.
+		addDocumentListeners();
+		
 		this.add(new JScrollPane(editor),BorderLayout.CENTER);
 
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -566,17 +568,20 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{
 				public void removeUpdate(DocumentEvent e)
 					{
-					documentChanged = true;
+					if (isVisible()) 
+						documentChanged = true;
 					}
 
 				public void changedUpdate(DocumentEvent e)
 					{
-					documentChanged = true;
+					if (isVisible()) 
+						documentChanged = true;
 					}
 
 				public void insertUpdate(DocumentEvent e)
 					{
-					documentChanged = true;
+					if (isVisible()) 
+						documentChanged = true;
 					}
 			});
 		editor.getDocument().addUndoableEditListener(undoManager);
@@ -927,10 +932,27 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		}
 
 	@Override
+	public void setVisible(boolean visible) {
+		if (visible != this.isVisible()) {
+			documentChanged = false;
+		}
+		super.setVisible(visible);
+	}
+	
+	@Override
 	public boolean resourceChanged()
 		{
+		if (documentChanged) return true;
 		commitChanges();
-		return !res.properties.equals(resOriginal.properties);
+		for (Entry<PGameInformation,Object> entry : res.properties.entrySet()) {
+			if (entry.getKey() != PGameInformation.TEXT && 
+					entry.getValue() != resOriginal.get(entry.getKey())) {
+						return true;
+			}
+		}
+		//TODO: We can not just check differences in the properties because Java sucks at formatting RTF
+		//return !res.properties.equals(resOriginal.properties);
+		return false;
 		}
 
 	@Override

@@ -32,6 +32,10 @@ public abstract class RevertableMDIFrame extends MDIFrame
 	public abstract boolean resourceChanged();
 
 	public abstract void updateResource();
+	
+	public void setResourceChanged()
+		{
+		}
 
 	public abstract void revertResource();
 
@@ -63,6 +67,7 @@ public abstract class RevertableMDIFrame extends MDIFrame
 					if (ret == JOptionPane.YES_OPTION)
 						{
 						updateResource();
+						setResourceChanged();
 						close();
 						}
 					else if (ret == JOptionPane.NO_OPTION)

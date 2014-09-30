@@ -39,7 +39,8 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 	public static final Map<Class<? extends Resource<?,?>>,String> kindNames = new HashMap<Class<? extends Resource<?,?>>,String>();
 	public static final Map<Class<? extends Resource<?,?>>,String> kindNamesPlural = new HashMap<Class<? extends Resource<?,?>>,String>();
 	public static final ArrayList<Class<? extends Resource<?,?>>> kinds = new ArrayList<Class<? extends Resource<?,?>>>();
-
+	public static final boolean hasNode = true;
+	public boolean changed = false;
 	static
 		{
 		Class<?>[] ca = { Sprite.class,Sound.class,Background.class,Path.class,Script.class,

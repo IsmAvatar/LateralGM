@@ -2,10 +2,9 @@
  * Copyright (C) 2006, 2007, 2009 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2010 Medo <smaxein@googlemail.com>
  * Copyright (C) 2013, 2014 Robert B. Colton
- * Copyright (C) 2014, egofree
- * 
- * Modified 2010 by Medo <smaxein@googlemail.com>
+ * Copyright (C) 2014 egofree
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -14,13 +13,13 @@
 
 package org.lateralgm.components.impl;
 
+import java.awt.Font;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,11 +31,8 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreeNode;
-
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Listener;
@@ -59,10 +55,8 @@ import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 import org.lateralgm.subframes.RoomFrame;
 import org.lateralgm.subframes.SubframeInformer;
 
-public class ResNode extends DefaultMutableTreeNode implements Transferable,UpdateListener
+public class ResNode extends DefaultNode implements Transferable,UpdateListener
 	{
-
-	protected boolean isVisible = true;
 	
 	public static final Map<Class<?>,ImageIcon> ICON;
 	static
@@ -88,66 +82,13 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 	 */
 	private final ResourceReference<? extends Resource<?,?>> res;
 	public ResourceFrame<?,?> frame = null;
-	private Icon icon;
+	
 	private final NameUpdater nameUpdater = new NameUpdater(this);
 	private final UpdateTrigger trigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,trigger);
 	public boolean newRes = false;
-	
-	public void setVisible(boolean visible) {
-		this.isVisible = visible;
-	}
-	
-	public boolean isVisible() {
-		return this.isVisible;
-	}
-	
-  public TreeNode getChildAt(int index, boolean filterIsActive) {
-	  if (!filterIsActive) {
-	    return super.getChildAt(index);
-	  }
-	  if (children == null) {
-	    throw new ArrayIndexOutOfBoundsException("node has no children");
-	  }
-	
-	  int realIndex = -1;
-	  int visibleIndex = -1;
-	  Enumeration e = children.elements();
-	  while (e.hasMoreElements()) {
-	    ResNode node = (ResNode) e.nextElement();
-	    if (node.isVisible()) {
-	      visibleIndex++;
-	    }
-	    realIndex++;
-	    if (visibleIndex == index) {
-	      return (TreeNode) children.elementAt(realIndex);
-	    }
-	  }
-	
-	  throw new ArrayIndexOutOfBoundsException("index unmatched");
-	  //return (TreeNode)children.elementAt(index);
-	}
 
-	public int getChildCount(boolean filterIsActive) {
-	  if (!filterIsActive) {
-	    return super.getChildCount();
-	  }
-	  if (children == null) {
-	    return 0;
-	  }
-	
-	  int count = 0;
-	  Enumeration e = children.elements();
-	  while (e.hasMoreElements()) {
-	    ResNode node = (ResNode) e.nextElement();
-	    if (node.isVisible()) {
-	      count++;
-	    }
-	  }
-	
-	  return count;
-	}
-
+	@Override
 	public Icon getIcon()
 		{
 		if (status == STATUS_SECONDARY)
@@ -166,6 +107,31 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			}
 		return null;
 		}
+	
+	@Override
+	public Icon getIconisedGroup() {
+		if (status != ResNode.STATUS_PRIMARY && kind == Sprite.class || kind == Background.class || kind == GmObject.class)
+			return getIcon();
+		return null;
+	}
+	
+	@Override
+	public Icon getLeafIcon() {
+		if (status == ResNode.STATUS_SECONDARY) 
+			return getIcon();
+		return null;
+	}
+	
+	
+	@Override
+	public Font getFont(Font com) {
+		if (Prefs.boldPrimaryNodes && status == ResNode.STATUS_PRIMARY) {
+			com = com.deriveFont(Font.BOLD);
+		} else {
+			com = com.deriveFont(Font.PLAIN);
+		}
+		return com;
+	}
 
 	private void updateIcon()
 		{
@@ -199,6 +165,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		return b;
 		}
 
+	@Override
 	public boolean getAllowsChildren()
 		{
 		if (status == STATUS_SECONDARY) return false;
@@ -222,6 +189,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		return this;
 		}
 
+	@Override
 	public void openFrame()
 		{
 		openFrame(false);
@@ -231,6 +199,9 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 		{
 		this.newRes = newRes;
 		Resource<?,?> r = deRef();
+		if (r != null) {
+			r.changed = newRes;
+		}
 		if (SubframeInformer.fireSubframeRequest(r,this)) return;
 		ResourceFrame<?,?> rf = frame;
 		if (frame == null)
@@ -446,7 +417,7 @@ public class ResNode extends DefaultMutableTreeNode implements Transferable,Upda
 			if (LGM.tree != null)
 				{
 				//FIXME: Update the tree by having it listen to its root node instead of here
-				//LGM.tree.updateUI();
+				LGM.tree.updateUI();
 
 				// Never update the entire tree UI for a single node, just reload the node.
 				DefaultTreeModel model = ((DefaultTreeModel) LGM.tree.getModel());

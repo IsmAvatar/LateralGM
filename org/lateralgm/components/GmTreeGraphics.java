@@ -23,21 +23,18 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.impl.DefaultNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.resources.Background;
-import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
-import org.lateralgm.resources.Sprite;
 
 public class GmTreeGraphics extends DefaultTreeCellRenderer
 	{
 	private static final long serialVersionUID = 1L;
 
 	private static ImageIcon blankIcon;
-	private ResNode last;
+	private DefaultNode last;
 
 	public GmTreeGraphics()
 		{
@@ -46,24 +43,18 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		setClosedIcon(LGM.getIconForKey("GmTreeGraphics.GROUP")); //$NON-NLS-1$
 		setLeafIcon(getClosedIcon());
 		setBorder(BorderFactory.createEmptyBorder(1,0,0,0));
-
 		}
 
 	public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel, boolean exp,
 			boolean leaf, int row, boolean focus)
 		{
-		last = (ResNode) val;
+		last = (DefaultNode) val;
 		Component com = super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
 		//TODO: Sometimes when renaming secondary nodes the text box will be bold and sometimes it wont
 		//should be fixed but no idea what is wrong.
-		if (Prefs.boldPrimaryNodes && last.status == ResNode.STATUS_PRIMARY)
-			{
-			com.setFont(com.getFont().deriveFont(Font.BOLD));
-			}
-		else
-			{
-			com.setFont(com.getFont().deriveFont(Font.PLAIN));
-			}
+		//Most likely a look and feel bug.
+		Font fnt = last.getFont(com.getFont().deriveFont(Font.PLAIN));
+		com.setFont(fnt);
 		return com;
 		}
 
@@ -105,37 +96,43 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		}
 
 	public Icon getLeafIcon()
-		{
-		if (last.status == ResNode.STATUS_SECONDARY) return last.getIcon();
-		return getClosedIcon();
+	{
+		if (last != null) {
+			Icon icon = last.getLeafIcon();
+			if (icon != null) return icon;
 		}
+		return getClosedIcon();
+	}
 
 	public Icon getClosedIcon()
-		{
+	{
 		Icon ico = getIconisedGroup();
 		if (ico != null) return ico;
 		return super.getClosedIcon();
-		}
+	}
 
 	public Icon getOpenIcon()
-		{
+	{
 		Icon ico = getIconisedGroup();
 		if (ico != null) return ico;
 		return super.getOpenIcon();
-		}
+	}
 
 	private Icon getIconisedGroup()
-		{
-		if (Prefs.iconizeGroup && last != null && last.status != ResNode.STATUS_PRIMARY)
-			if (last.kind == Sprite.class || last.kind == Background.class || last.kind == GmObject.class)
-				return last.getIcon();
+	{
+		if (Prefs.iconizeGroup && last != null)
+			return last.getIconisedGroup();
+	
 		return null;
-		}
+	}
 
 	public Icon getNodeIcon(Object val, boolean exp, boolean leaf)
 		{
-		last = (ResNode) val;
-		if (leaf || last.status == ResNode.STATUS_SECONDARY) return getLeafIcon();
+		last = (DefaultNode) val;
+		if (leaf) {
+			Icon icon = getLeafIcon();
+			if (icon != null) return icon;
+		}
 		if (exp) return getOpenIcon();
 		return getClosedIcon();
 		}

@@ -19,7 +19,6 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.geom.AffineTransform;
@@ -922,7 +921,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		res.put(PGameSettings.COPYRIGHT,copyright.getText());
 		res.put(PGameSettings.PRODUCT,product.getText());
 		//we don't update the lastChanged time - that's only altered on file save/load
-
 		LGM.currentFile.gameSettings = res;
 		}
 
@@ -952,6 +950,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	public boolean resourceChanged()
 		{
 		commitChanges();
+		if (frameListener != null && frameListener.resourceChanged()) return true;
 		if (imagesChanged) return true;
 		return !res.properties.equals(resOriginal.properties);
 		}
@@ -959,6 +958,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	@Override
 	public void revertResource()
 		{
+		if (frameListener != null) frameListener.revertResource();
 		res.properties.putAll(resOriginal.properties);
 		setComponents(res);
 		imagesChanged = false;

@@ -333,7 +333,7 @@ public class ProjectFile implements UpdateListener
 		resMap = new ResourceMap();
 		for (Class<?> kind : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(kind)) resMap.addList(kind);
-
+		
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
 		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gameSettings));
 		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(

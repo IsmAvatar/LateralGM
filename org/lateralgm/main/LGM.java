@@ -23,9 +23,6 @@
 
 package org.lateralgm.main;
 
-import static javax.swing.GroupLayout.DEFAULT_SIZE;
-import static javax.swing.GroupLayout.PREFERRED_SIZE;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -33,7 +30,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-
+import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -56,11 +53,16 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Vector;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractButton;
@@ -76,6 +78,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
@@ -83,6 +86,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -91,9 +95,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.metal.DefaultMetalTheme;
@@ -116,10 +118,16 @@ import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
+import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.Constants;
 import org.lateralgm.resources.ExtensionPackages;
+import org.lateralgm.resources.GameInformation;
+import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.Script;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.subframes.ConstantsFrame;
 import org.lateralgm.subframes.EventPanel;
@@ -191,10 +199,17 @@ public final class LGM
 	public static Cursor zoomInCursor;
 	public static Cursor zoomOutCursor;
 	private static String progressTitle;
-	public static JPanel filterPanel;
+	public static GmMenuBar menuBar;
+	
+	public static JToolBar filterPanel;
 	private static JTextField filterText;
-	private static JCheckBox filterTreeCB;
 	private static JCheckBox wholeWordCB;
+	private static JCheckBox matchCaseCB;
+	private static JCheckBox regexCB;
+	private static JCheckBox pruneResultsCB;
+	private static JButton closeButton;
+
+	private static JTree searchTree;
 
 	public static JDialog getProgressDialog()
 		{
@@ -629,8 +644,6 @@ public final class LGM
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		mdi.setBackground(Color.GRAY);
-		// eventSelect = new EventPanel();
-		// mdi.add(eventSelect);
 		return scroll;
 		}
 
@@ -670,11 +683,61 @@ public final class LGM
 
 	public static void populateTree()
 		{
+		/* TODO: This method here does not give the top level nodes for Game Info, Extensions, and Settings
+		 * a proper resource reference, they get null. My commented code here will give them there
+		 * proper references, but when a reload happens the references are lost again.
+		 * I seriously do not believe there should be nodes with null references in the tree.
 		for (Class<? extends Resource<?,?>> k : Resource.kinds)
 			{
+				String name = Resource.kindNamesPlural.get(k);
+				byte status = InstantiableResource.class.isAssignableFrom(k) ? ResNode.STATUS_PRIMARY
+						: ResNode.STATUS_SECONDARY;
+				if (status == ResNode.STATUS_SECONDARY) {
+					SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) LGM.currentFile.resMap.get(k);
+					if (rh != null) {
+	    			Resource<?,?> res = rh.getResource();
+						root.add(new ResNode(name,status,k,res.reference));
+					} else {
+						root.addChild(name,status,k);
+					}
+				} else {
+					root.addChild(name,status,k);
+				}
+			}
+			
+		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
+		}
+		 */
+		for (Class<? extends Resource<?,?>> k : Resource.kinds)
+			{
+			boolean hasNode = true;
+			try
+				{
+				//NOTE: Use reflection on the class to see if it has a variable telling us whether to create
+				//a node in the tree for the resource type.
+				hasNode = k.getField("hasNode").getBoolean(hasNode);
+				}
+			catch (IllegalArgumentException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
+			catch (NoSuchFieldException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
+			catch (SecurityException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
+			catch (IllegalAccessException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
+			if (!hasNode) continue;
 			String name = Resource.kindNamesPlural.get(k);
 			byte status = InstantiableResource.class.isAssignableFrom(k) ? ResNode.STATUS_PRIMARY
 					: ResNode.STATUS_SECONDARY;
+			
 			root.addChild(name,status,k);
 			}
 		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
@@ -698,7 +761,7 @@ public final class LGM
 			if (node.frame != null) node.frame.updateResource(); // update open frames
 			}
 		LGM.getConstantsFrame().commitChanges();
-		LGM.getGameInfo().updateResource();
+		LGM.getGameInfo().commitChanges();
 		LGM.getGameSettings().commitChanges();
 		}
 
@@ -709,7 +772,7 @@ public final class LGM
 		InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
 		LGM.tree.setModel(ml);
 		
-   	ml.activateFilter(filterTreeCB.isSelected());
+   	ml.activateFilter(pruneResultsCB.isSelected());
    	if (ml.isActivatedFilter()) {
  			applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
    	}
@@ -717,16 +780,28 @@ public final class LGM
 		LGM.tree.setSelectionRow(0);
 
 		LGM.eventSelect.reload();
-
+		
+		// TODO: Make sure to update both copies or you end up with wrong references after a reload.
+		// We should do something a little more modular and safe here instead I don't like this at all. - Robert
 		constantsFrame.resOriginal = LGM.currentFile.defaultConstants;
 		constantsFrame.revertResource();
 		constantsFrame.setVisible(false);
-		gameInfo.resOriginal = LGM.currentFile.gameInfo;
+		gameInfo.res = LGM.currentFile.gameInfo;
 		gameInfo.revertResource();
 		gameInfo.setVisible(false);
 		gameSet.resOriginal = LGM.currentFile.gameSettings;
 		gameSet.revertResource();
 		gameSet.setVisible(false);
+		
+		//TODO: This is a temporary patch for which we need a more longer term solution, see GitHub ticket.
+		// https://github.com/IsmAvatar/LateralGM/issues/23
+		LGM.currentFile.gameInfo = gameInfo.res;
+		LGM.currentFile.gameSettings = gameSet.res;
+		LGM.currentFile.defaultConstants = constantsFrame.res;
+		
+		LGM.currentFile.resMap.put(GameInformation.class,new SingletonResourceHolder(gameInfo.res));
+		LGM.currentFile.resMap.put(GameSettings.class,new SingletonResourceHolder(gameSet.res));
+		LGM.currentFile.resMap.put(Constants.class,new SingletonResourceHolder(constantsFrame.res));
 
 		LGM.fireReloadPerformed(newRoot);
 		}
@@ -748,7 +823,6 @@ public final class LGM
 		}
 
 	protected static ArrayList<ReloadListener> reloadListeners = new ArrayList<ReloadListener>();
-	public static GmMenuBar menuBar;
 
 	public static void addReloadListener(ReloadListener l)
 		{
@@ -1017,6 +1091,125 @@ public final class LGM
 		}
 		return false;
 	}
+	public static class MatchBlock {
+	  public String content;
+	  public boolean highlighted;
+	  MatchBlock(String content, boolean highlighted) {
+	    this.content = content;
+	    this.highlighted = highlighted;
+	  }
+	}
+	public static class LineMatch {
+	  public int lineNum;
+	  public List<MatchBlock> matchedText = new ArrayList<MatchBlock>();
+	}
+	
+	private static final Pattern NEWLINE = Pattern.compile("\r\n|\r|\n");
+	static List<LineMatch> getMatchingLines(String code, Pattern content) {
+	  List<LineMatch> res = new ArrayList<LineMatch>();
+	  Matcher m = content.matcher(code), nl = NEWLINE.matcher(code);
+	  int lineNum = 1, lineAt = 0, lastEnd = -1;
+	  LineMatch lastMatch = null;
+	  while (m.find()) {
+	    nl.region(lineAt, m.start());
+	    int firstSkippedLineAt = lineAt;
+	    if (nl.find()) {
+	      firstSkippedLineAt = nl.start();
+	      lineAt = nl.end();
+	      ++lineNum;
+	      while (nl.find()) {
+	        ++lineNum;
+	        lineAt = nl.end();
+	      }
+	    }
+	    if (lastMatch != null) {
+	      // We have to add the rest of the line to the old match, either way.
+	      // And if we're matching on the same line, we add that match, too.
+	      if (lineNum == lastMatch.lineNum) {
+	        lastMatch.matchedText.add(new MatchBlock(code.substring(lastEnd, m.start()), false));
+	        lastMatch.matchedText.add(new MatchBlock(code.substring(m.start(), m.end()), true));
+	      } else {
+	        lastMatch.matchedText.add(
+	            new MatchBlock(code.substring(lastEnd, firstSkippedLineAt), false));
+	      }
+	    }
+	    if (lastMatch == null || lineNum != lastMatch.lineNum) {
+	      lastMatch = new LineMatch();
+	      lastMatch.lineNum = lineNum;
+	      if (m.start() > lineAt) {
+	        lastMatch.matchedText.add(new MatchBlock(code.substring(lineAt, m.start()), false));
+	      }
+	      lastMatch.matchedText.add(new MatchBlock(code.substring(m.start(), m.end()), false));
+	      res.add(lastMatch);
+	    }
+	    lastEnd = m.end();
+	  }
+	  if (lastMatch != null) {
+	    nl.region(lastEnd, code.length());
+	    int indTo = (nl.find())? nl.start() : code.length();
+	    lastMatch.matchedText.add(new MatchBlock(code.substring(lastEnd, indTo), false));
+	  }
+	  return res;
+	}
+	
+	
+	/*
+	public static void assertEquals(Object obj1, Object obj2) {
+		if (obj1.equals(obj2)) {
+			Debug.println("assertEquals: ",obj1.toString() + "," + obj2.toString());
+		} else {
+			Debug.println("assertEquals: ","false");
+		}
+	}
+
+  public static void testThing() {
+          String CODE = "runatestinatestwith\nsomemoretestsandthen\nyou'redone";
+          List<LineMatch> match  = getMatchingLines(CODE, Pattern.compile("test"));
+          LineMatch[] matches = (LineMatch[]) match.toArray(new LineMatch[match.size()]);
+          assertEquals(2, matches.length);
+          assertEquals(5, matches[0].matchedText.size());
+          assertEquals("runa",     matches[0].matchedText.get(0).content);
+          assertEquals("test",     matches[0].matchedText.get(1).content);
+          assertEquals("ina",      matches[0].matchedText.get(2).content);
+          assertEquals("test",     matches[0].matchedText.get(3).content);
+          assertEquals("with",     matches[0].matchedText.get(4).content);
+          assertEquals(3, matches[1].matchedText.size());
+          assertEquals("somemore", matches[1].matchedText.get(0).content);
+          assertEquals("test",     matches[1].matchedText.get(1).content);
+          assertEquals("sandthen", matches[1].matchedText.get(2).content);
+  }
+  */
+	
+	public static void searchInResourcesRecursion(DefaultMutableTreeNode node, Pattern pattern) {
+		int numChildren = node.getChildCount();
+	  for (int i = 0; i < numChildren; ++i) {
+	  	DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+			if (child instanceof ResNode) {
+				ResNode resNode = (ResNode)child;
+				if (resNode.status != ResNode.STATUS_SECONDARY) {
+					searchInResourcesRecursion(child, pattern);
+				} else {
+					if (resNode.kind == Script.class)	{
+						ResourceReference<Script> ref = (ResourceReference<Script>) resNode.getRes();
+						if (ref != null) {
+							Script res = ref.get();
+							String code = res.getCode();
+							List<LineMatch> matches = getMatchingLines(code, pattern);
+							if (matches.size() > 0) {
+								JOptionPane.showMessageDialog(null,matches.get(0).matchedText.get(2).content);
+							}
+						}
+					}
+				}
+			}
+		}	
+	}
+	
+	public static void searchInResources(DefaultMutableTreeNode node, String expression, boolean regex, boolean matchCase, boolean wholeWord) {
+		Pattern pattern = Pattern.compile(wholeWord? "\b" + Pattern.quote(expression) + "\b" : regex? expression : Pattern.quote(expression), matchCase? 0 : Pattern.CASE_INSENSITIVE);
+		searchInResourcesRecursion(node, pattern);
+		LGM.searchTree.updateUI();
+	}
 
 	public static void main(final String[] args)
 		{
@@ -1071,15 +1264,18 @@ public final class LGM
 
 		splashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
 		JToolBar toolbar = createToolBar();
-		final JTree tree = createTree();
+		final JTabbedPane treeTabs = new JTabbedPane();
+		tree = createTree();
+		DefaultMutableTreeNode sroot = new DefaultMutableTreeNode("root");
+		searchTree = new JTree(sroot);
+		sroot.add(new DefaultMutableTreeNode("No results found."));
+		searchTree.expandRow(0);
+		searchTree.setRootVisible(false);
+		searchTree.setShowsRootHandles(true);
+		searchTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		content = new JPanel(new BorderLayout());
 		content.add(BorderLayout.CENTER,createMDI());
 		eventSelect = new EventPanel();
-
-		if (Prefs.dockEventPanel)
-			{
-			content.add(BorderLayout.EAST,eventSelect);
-			}
 
 		// could possibly be used to force the toolbar with event panel to popout
 		// reducing code, i can not get it to work right however
@@ -1116,46 +1312,121 @@ public final class LGM
 					LGM.onMainFrameClosed();
 					}
 			});
-		
-		filterPanel = new JPanel();
-		filterPanel.setVisible(Prefs.showTreeFilter);
-		filterPanel.setBorder(new EmptyBorder(2, 2, 2, 2));
-		GroupLayout filterLayout = new GroupLayout(filterPanel);
-		filterPanel.setLayout(filterLayout);
 
-  	filterText = new HintTextField(Messages.getString("TreeFilter.SEARCHFOR"),true);
-    
+		final JFrame filterSettings = new JFrame();
+		
+		filterSettings.setIconImage(LGM.getIconForKey("TreeFilter.ICON").getImage());
+		filterSettings.setTitle(Messages.getString("TreeFilter.TITLE"));
+		filterSettings.setResizable(false);
+		
     wholeWordCB = new JCheckBox(Messages.getString("TreeFilter.WHOLEWORD"));
 		wholeWordCB.addItemListener(new ItemListener() {
 		  public void itemStateChanged(ItemEvent e) {
 		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-		   	applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),false);
+		   	applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),matchCaseCB.isSelected(),wholeWordCB.isSelected(),false);
 		  }
 		});
-  	filterTreeCB = new JCheckBox(Messages.getString("TreeFilter.FILTERTREE"));
-		filterTreeCB.addItemListener(new ItemListener() {
+  	regexCB = new JCheckBox(Messages.getString("TreeFilter.REGEX"));
+		regexCB.addItemListener(new ItemListener() {
 		  public void itemStateChanged(ItemEvent e) {
 		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-		   	ml.activateFilter(filterTreeCB.isSelected());
+		   	applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),matchCaseCB.isSelected(),wholeWordCB.isSelected(),false);
+		  }
+		});
+  	matchCaseCB = new JCheckBox(Messages.getString("TreeFilter.MATCHCASE"));
+		matchCaseCB.addItemListener(new ItemListener() {
+		  public void itemStateChanged(ItemEvent e) {
+		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+		   	applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),matchCaseCB.isSelected(),wholeWordCB.isSelected(),false);
+		  }
+		});
+  	pruneResultsCB = new JCheckBox(Messages.getString("TreeFilter.PRUNERESULTS"));
+		pruneResultsCB.addItemListener(new ItemListener() {
+		  public void itemStateChanged(ItemEvent e) {
+		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+		   	ml.activateFilter(pruneResultsCB.isSelected());
 	   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),false);
 		  }
 		});
+  	closeButton = new JButton(Messages.getString("TreeFilter.CLOSE"));
+		closeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0)
+				{
+					filterSettings.setVisible(false);
+				}
+		});
+		
+		JPanel panel = new JPanel();
+		GroupLayout gl = new GroupLayout(panel);
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
+		panel.setLayout(gl);
+		filterSettings.getContentPane().setLayout(new GridBagLayout());
+		filterSettings.add(panel);
+		
+		gl.setHorizontalGroup(gl.createParallelGroup(GroupLayout.Alignment.CENTER)
+		/**/.addGroup(gl.createSequentialGroup()
+		/* */.addGroup(gl.createParallelGroup()
+		/*  */.addComponent(wholeWordCB)
+		/*  */.addComponent(matchCaseCB))
+		/* */.addGroup(gl.createParallelGroup()
+		/*  */.addComponent(regexCB)
+		/*  */.addComponent(pruneResultsCB)))
+		/**/.addComponent(closeButton));
+		gl.setVerticalGroup(gl.createSequentialGroup()
+		/**/.addGroup(gl.createParallelGroup()
+		/* */.addGroup(gl.createSequentialGroup()
+		/*  */.addComponent(wholeWordCB)
+		/*  */.addComponent(matchCaseCB))
+		/* */.addGroup(gl.createSequentialGroup()
+		/*  */.addComponent(regexCB)
+		/*  */.addComponent(pruneResultsCB)))
+		/**/.addComponent(closeButton));
+		
+		
+		filterSettings.pack();
+		filterSettings.setSize(280, 140);
+		filterSettings.setLocationRelativeTo(LGM.frame);
+
+  	filterText = new HintTextField(Messages.getString("TreeFilter.SEARCHFOR"),true);
     
-    JButton previousButton = new JButton(Messages.getString("TreeFilter.PREVIOUS"));
-		previousButton.addActionListener(new ActionListener() {
+    JButton prevButton = new JButton(LGM.getIconForKey("TreeFilter.PREV"));
+    prevButton.setToolTipText(Messages.getString("TreeFilter.PREV"));
+		prevButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
 				searchFilter((ResNode)tree.getLastSelectedPathComponent(),filterText.getText(),
-						false, wholeWordCB.isSelected(), true);
+						matchCaseCB.isSelected(), wholeWordCB.isSelected(), true);
 			}
 		});
     
-		JButton nextButton = new JButton(Messages.getString("TreeFilter.NEXT"));
+    JButton nextButton = new JButton(LGM.getIconForKey("TreeFilter.NEXT"));
+    nextButton.setToolTipText(Messages.getString("TreeFilter.NEXT"));
 		nextButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
 				searchFilter((ResNode)tree.getLastSelectedPathComponent(), filterText.getText(),
-						false, wholeWordCB.isSelected(), false);
+						matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
+			}
+		});
+		
+    JButton searchInButton = new JButton(LGM.getIconForKey("TreeFilter.SEARCHIN"));
+    searchInButton.setToolTipText(Messages.getString("TreeFilter.SEARCHIN"));
+    searchInButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0)
+			{
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+				searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(), 
+						matchCaseCB.isSelected(), wholeWordCB.isSelected());
+			}
+		});
+		
+    JButton setButton = new JButton(LGM.getIconForKey("TreeFilter.SET"));
+    setButton.setToolTipText(Messages.getString("TreeFilter.SET"));
+		setButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0)
+			{
+				filterSettings.setVisible(true);
 			}
 		});
     
@@ -1168,7 +1439,7 @@ public final class LGM
 		   	if (ml.isActivatedFilter()) {
 		   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
 		   	} else {
-		   		searchFilter(root, filterText.getText(), false, wholeWordCB.isSelected(), false);
+		   		searchFilter(root, filterText.getText(), matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
 		   	}
 		  }
 		  
@@ -1177,7 +1448,7 @@ public final class LGM
 		   	if (ml.isActivatedFilter()) {
 		   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
 		   	} else {
-		   		searchFilter(root, filterText.getText(), false, wholeWordCB.isSelected(), false);
+		   		searchFilter(root, filterText.getText(), matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
 		   	}
 		  }
 		});
@@ -1191,42 +1462,38 @@ public final class LGM
 	  }
 		});
 		
-		filterLayout.setHorizontalGroup(filterLayout.createParallelGroup()
-		/**/.addComponent(filterText)
-		/**/.addGroup(filterLayout.createSequentialGroup()
-		/* */.addComponent(wholeWordCB,DEFAULT_SIZE,PREFERRED_SIZE,Short.MAX_VALUE)
-		/* */.addComponent(filterTreeCB,DEFAULT_SIZE,PREFERRED_SIZE,Short.MAX_VALUE))
-		/**/.addGroup(filterLayout.createSequentialGroup()
-		/* */.addComponent(previousButton,previousButton.getMinimumSize().width,DEFAULT_SIZE,Short.MAX_VALUE)
-		/* */.addComponent(nextButton,previousButton.getMinimumSize().width,DEFAULT_SIZE,Short.MAX_VALUE)));
-
-		filterLayout.setVerticalGroup(filterLayout.createSequentialGroup()
-		/**/.addComponent(filterText)
-		/**/.addGroup(filterLayout.createParallelGroup(Alignment.BASELINE)
-		/* */.addComponent(wholeWordCB)
-		/* */.addComponent(filterTreeCB))
-		/**/.addGroup(filterLayout.createParallelGroup(Alignment.BASELINE)
-		/* */.addComponent(previousButton)
-		/* */.addComponent(nextButton)));
+		filterPanel = new JToolBar();
+		filterPanel.add(filterText);
+		filterPanel.add(prevButton);
+		filterPanel.add(nextButton);
+		filterPanel.add(searchInButton);
+		filterPanel.add(setButton);
+		filterPanel.setFloatable(false);
 
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(250,100));
 		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
+		
+		treeTabs.addTab(Messages.getString("TreeFilter.TAB_RESOURCES"),scroll);
+		treeTabs.addTab(Messages.getString("TreeFilter.TAB_SEARCHRESULTS"),searchTree);
+		if (Prefs.dockEventPanel) {
+			treeTabs.addTab(Messages.getString("TreeFilter.TAB_EVENTS"),eventSelect);
+		} else {
+			eventSelect.setVisible(false); //must occur after adding split
+		}
     
     JPanel hierarchyPanel = new JPanel();
     hierarchyPanel.setLayout(new BorderLayout(0, 0));
     hierarchyPanel.add(filterPanel, BorderLayout.NORTH);
-    hierarchyPanel.add(scroll,BorderLayout.CENTER);
+    hierarchyPanel.add(treeTabs,BorderLayout.CENTER);
 		
 		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,hierarchyPanel,content);
-		split.setDividerLocation(250);
+		split.setDividerLocation(280);
 		split.setOneTouchExpandable(true);
 		f.add(split);
 
 		frame.setContentPane(f);
 		frame.setTransferHandler(Listener.getInstance().fc.new LGMDropHandler());
-		//f.add(BorderLayout.CENTER,content);
-		eventSelect.setVisible(false); //must occur after adding split
 		f.add(BorderLayout.NORTH,toolbar);
 		f.setOpaque(true);
 
@@ -1267,6 +1534,67 @@ public final class LGM
 			}
 
 		}
+	
+	/*
+	 * TODO: This checks for changes by iterating the tree, but there is one small caveat
+	 * because of the todo comment above this will not work because the top level nodes
+	 * for non-instantiable resources also have a null reference. The solution for now
+	 * to also make ENIGMA settings work was to iterate the resmap instead.
+	 */
+	public static boolean checkForChangesInTree(DefaultMutableTreeNode node) {
+		Enumeration<?> e = node.children();
+	  while (e.hasMoreElements()){
+	  	ResNode rnode = (ResNode) e.nextElement();
+	  	if (rnode.status != ResNode.STATUS_SECONDARY) {
+	  		if (checkForChangesInTree(rnode))
+	  			return true;
+	  	}
+	    if (rnode.newRes) {
+	    	return true;
+	    }
+	    ResourceReference<?> ref = rnode.getRes();
+	    if (ref != null) {
+	    	Resource<?,?> res = ref.get();
+	    	if (res != null && res.changed) {
+	    		return true;
+	    	}
+	    }
+	  }
+	  return false;
+	}
+	
+	public static boolean checkForChanges() {
+		for (JInternalFrame f : mdi.getAllFrames())
+		{
+			if (f instanceof ResourceFrame) {
+				if (((ResourceFrame<?,?>) f).resourceChanged()) {
+					return true;
+				}
+			}
+		}
+		
+		//TODO: See comment above.
+		//return checkForChangesInTree(LGM.root);
+
+		Iterator<?> it = currentFile.resMap.entrySet().iterator();
+		while (it.hasNext()) {
+		    Map.Entry<Class<?>,ResourceHolder<?>> pairs = (Map.Entry<Class<?>,ResourceHolder<?>>)it.next();
+		    if (pairs.getValue() instanceof ResourceList) {
+		    	ResourceList<?> list = (ResourceList<?>) pairs.getValue();
+		    	for (Resource<?,?> res : list) {
+		    		if (res.changed)
+		    			return true;
+		    	}
+		    } else if (pairs.getValue() instanceof SingletonResourceHolder) {
+		    	SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
+		    	Resource<?,?> res = rh.getResource();
+		    	if (res.changed) {
+		    		return true;
+		    	}
+		    }
+		}
+		return false;
+	}
 
 	public static void askToSaveProject()
 		{
@@ -1276,8 +1604,7 @@ public final class LGM
 
 	public static void onMainFrameClosed()
 		{
-		//NOTE: This is called by a WindowListener added to the main JFrame, and may be blocking
-		//FramePrefsHandler from intercepting a Window closed event.
+		if (!checkForChanges()) { System.exit(0); }
 		int n = JOptionPane.showConfirmDialog(null,Messages.getString("LGM.KEEPCHANGES_MESSAGE"),
 				Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE,null);

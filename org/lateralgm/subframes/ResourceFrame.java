@@ -66,10 +66,12 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 	public R res;
 	/** Backup of res as it was before changes were made */
 	public R resOriginal;
+	/** Whether changes were made and reported by the PropertyUpdateListener **/
+	public boolean resChanged;
 	/** The ResNode this frame is linked to */
 	public final ResNode node;
 	
-	private ResourceFrameListener frameListener;
+	protected ResourceFrameListener frameListener;
 
 	protected final PropertyLinkFactory<P> plf;
 
@@ -173,6 +175,8 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 
 	public boolean resourceChanged()
 		{
+		//NOTE: Any children that override this should call this.
+		if (frameListener != null && frameListener.resourceChanged()) return true;
 		commitChanges();
 		if (!areResourceFieldsEqual()) return true;
 		return !res.equals(resOriginal);
@@ -189,12 +193,21 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		frameListener = listener;
 	}
 
+	//TODO: There is a fundamental flaw in the way this function is utilized.
+	//Checking for changes causes the changes to be committed, and then if the user
+	//does choose to save this method will also commit changes a second time.
 	public void updateResource()
 		{
 		if (frameListener != null) frameListener.updateResource();
 		commitChanges();
 		resOriginal = res.clone();
 		}
+	
+	@Override
+	public void setResourceChanged() {
+		if (frameListener != null) frameListener.updateResource();
+		res.changed = true;
+	}
 
 	public void revertResource()
 		{
@@ -215,7 +228,10 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		{
 		if (e.getSource() == save)
 			{
-			updateResource();
+			if (resourceChanged()) {
+				setResourceChanged();
+				updateResource();
+			}
 			close();
 			}
 		}
@@ -234,7 +250,10 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		}
 	public abstract interface ResourceFrameListener
 	{
-	public abstract void updateResource();
-	public abstract void revertResource();
+		public abstract void updateResource();
+		public abstract void revertResource();
+		public abstract boolean resourceChanged();
+		public abstract void setResourceChanged();
 	}
+	
 	}

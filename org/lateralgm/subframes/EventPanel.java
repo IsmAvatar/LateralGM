@@ -51,7 +51,6 @@ import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
-import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
@@ -61,7 +60,7 @@ import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
 import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
 public class EventPanel extends JToolBar implements ActionListener,TreeSelectionListener,
-		PropertyChangeListener,UpdateListener
+		PropertyChangeListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -545,14 +544,15 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		{
 		if (b == isVisible()) return;
 		//workaround for java bug 4782243
-		Container c = this, p = c.getParent();
-		while (p != null && p != LGM.frame && p != LGM.content)
-			{
-			c = p;
-			p = c.getParent();
-			}
-		if (c != this) c.setVisible(b);
-		((BasicToolBarUI) getUI()).isFloating();
+		if (((BasicToolBarUI) getUI()).isFloating()) {
+			Container c = this, p = c.getParent();
+			while (p != null && p != LGM.frame && p != LGM.content)
+				{
+				c = p;
+				p = c.getParent();
+				}
+			if (c != this) c.setVisible(b);
+		}
 		super.setVisible(b);
 		LGM.eventButton.setSelected(b);
 		}
@@ -592,7 +592,6 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 	public void reload()
 		{
 		LGM.mdi.addPropertyChangeListener(MDIPane.SELECTED_FRAME_PROPERTY,this);
-		LGM.root.updateSource.addListener(this);
 		populate_collision_node();
 		events.updateUI();
 		}

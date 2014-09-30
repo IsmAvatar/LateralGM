@@ -101,8 +101,8 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		fcode = new CodeTextArea((String) res.get(PShader.FRAGMENT),MarkerCache.getMarker("glsles"));
 
 		editors = new JTabbedPane();
-		editors.add(vcode,"Vertex");
-		editors.add(fcode,"Fragment");
+		editors.addTab("Vertex",vcode);
+		editors.addTab("Fragment",fcode);
 		add(editors,BorderLayout.CENTER);
 
 		if (!Prefs.useExternalScriptEditor)

@@ -523,8 +523,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		{
 		setAlwaysOnTop(false);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(800,500);
-		setLocationRelativeTo(LGM.frame);
+		
 		setTitle(Messages.getString("PreferencesFrame.TITLE"));
 		setIconImage(LGM.getIconForKey("Toolbar.PREFERENCES").getImage());
 		setResizable(true);
@@ -611,7 +610,11 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*		*/.addComponent(applyBut)
 		/*		*/.addComponent(closeBut)));
 
+
 		add(p,BorderLayout.SOUTH);
+		pack();
+		setSize(800,500);
+		setLocationRelativeTo(LGM.frame);
 		}
 
 	public void SavePreferences()

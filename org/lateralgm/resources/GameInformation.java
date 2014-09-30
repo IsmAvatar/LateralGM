@@ -24,6 +24,10 @@ public class GameInformation extends Resource<GameInformation,GameInformation.PG
 	public static final String DEFAULT_TEXT = "{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang1033"
 			+ "{\\fonttbl{\\f0\\fnil Arial;}}{\\colortbl ;\\red0\\green0\\blue0;}"
 			+ "\\viewkind4\\uc1\\pard\\cf1\\f0\\fs24}";
+	/*
+	 * the default rtf text set by Java
+	 */
+	public static final String RTF_TEXT = "{\\rtf1\\ansi\n{\\fonttbl\\f0\\fnil Monospaced;}\n\n\\par\n}\n";
 
 	public enum PGameInformation
 		{
@@ -32,7 +36,7 @@ public class GameInformation extends Resource<GameInformation,GameInformation.PG
 		}
 
 	private static final EnumMap<PGameInformation,Object> DEFS = PropertyMap.makeDefaultMap(
-			PGameInformation.class,DEFAULT_COLOR,false,"",-1,-1,600,400,true,true,false,true,DEFAULT_TEXT);
+			PGameInformation.class,DEFAULT_COLOR,false,"",-1,-1,600,400,true,true,false,true,RTF_TEXT);
 
 	@Override
 	public GameInformation makeInstance(ResourceReference<GameInformation> ref)
