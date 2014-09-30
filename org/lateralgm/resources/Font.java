@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 
-import javax.swing.JOptionPane;
-
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
