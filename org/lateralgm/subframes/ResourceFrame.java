@@ -205,7 +205,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 	
 	@Override
 	public void setResourceChanged() {
-		if (frameListener != null) frameListener.updateResource();
+		if (frameListener != null) frameListener.setResourceChanged();
 		res.changed = true;
 	}
 
