@@ -129,8 +129,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	protected boolean fFamilyChange = false;
 	protected boolean fSizeChange = false;
 
-	protected boolean documentChanged = false;
-
 	public class SettingsFrame extends JFrame
 		{
 
@@ -568,20 +566,14 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{
 				public void removeUpdate(DocumentEvent e)
 					{
-					if (isVisible()) 
-						documentChanged = true;
 					}
 
 				public void changedUpdate(DocumentEvent e)
 					{
-					if (isVisible()) 
-						documentChanged = true;
 					}
 
 				public void insertUpdate(DocumentEvent e)
 					{
-					if (isVisible()) 
-						documentChanged = true;
 					}
 			});
 		editor.getDocument().addUndoableEditListener(undoManager);
@@ -923,6 +915,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		catch (BadLocationException e)
 			{ //Should never happen, but we have to catch this anyways
 			}
+		undoManager.discardAllEdits();
+		undoManager.updateActions();
 		}
 
 	@Override
@@ -933,8 +927,9 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 
 	@Override
 	public void setVisible(boolean visible) {
-		if (visible != this.isVisible()) {
-			documentChanged = false;
+		if (undoManager != null && visible != this.isVisible()) {
+			undoManager.discardAllEdits();
+			undoManager.updateActions();
 		}
 		super.setVisible(visible);
 	}
@@ -942,7 +937,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	@Override
 	public boolean resourceChanged()
 		{
-		if (documentChanged) return true;
+		if (undoManager.canUndo()) return true;
 		commitChanges();
 		for (Entry<PGameInformation,Object> entry : res.properties.entrySet()) {
 			if (entry.getKey() != PGameInformation.TEXT && 
