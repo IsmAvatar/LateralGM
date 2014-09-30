@@ -427,13 +427,13 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 	public boolean resourceChanged()
 		{
 		commitChanges();
-		return !res.properties.equals(resOriginal.properties);
+		return !res.properties.equals(resOriginal.properties) || !res.constants.equals(resOriginal.constants);
 		}
 
 	@Override
 	public void revertResource()
 		{
-		res.properties.putAll(resOriginal.properties);
+		resOriginal.copy(res);
 		setComponents(res);
 		}
 

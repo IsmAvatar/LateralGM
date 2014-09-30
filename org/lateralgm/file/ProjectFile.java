@@ -271,6 +271,7 @@ public class ProjectFile implements UpdateListener
 	public Constants defaultConstants = new Constants();
 	public GameInformation gameInfo = new GameInformation();
 	public GameSettings gameSettings = new GameSettings();
+	public ExtensionPackages extPackages = new ExtensionPackages();
 	public int lastInstanceId = 100000;
 	public int lastTileId = 10000000;
 
@@ -334,10 +335,10 @@ public class ProjectFile implements UpdateListener
 		for (Class<?> kind : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(kind)) resMap.addList(kind);
 		
+		resMap.put(Constants.class,new SingletonResourceHolder<Constants>(defaultConstants));
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
 		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gameSettings));
-		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(
-				new ExtensionPackages()));
+		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(extPackages));
 		for (ResourceHolder<?> rl : resMap.values())
 			if (rl instanceof ResourceList<?>) ((ResourceList<?>) rl).updateSource.addListener(this);
 

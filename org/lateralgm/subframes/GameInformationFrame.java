@@ -895,7 +895,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{ //Should never happen, but we have to catch this anyways
 			e.printStackTrace();
 			}
-		LGM.currentFile.gameInfo = res;
 		}
 
 	public void setComponents(GameInformation info)

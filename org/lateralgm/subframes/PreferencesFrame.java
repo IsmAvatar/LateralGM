@@ -17,7 +17,20 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -99,8 +112,81 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		themeCombo = new JComboBox<String>(model);
 		themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS") + ":");
-		String[] iconOptions = { "Swing","Calico","Custom" };
-		iconCombo = new JComboBox<String>(iconOptions);
+		iconCombo = new JComboBox<String>();
+		iconCombo.addItem("Custom");
+		iconCombo.addItem("Swing");
+		iconCombo.addItem("Calico");
+		/*  TODO: This is a failed experiment, the code for inside 
+		 *  Eclipse works, but outside the IDE we can't properly
+		 *  get directories from the Jar.
+		 *  This needs figured out so that users can edit the icon packs and add new ones.
+		 */
+		/*
+		File dir = new File("org/lateralgm/icons");
+		JOptionPane.showMessageDialog(null,LGM.workDir);
+		if (!dir.exists() && LGM.workDir != null)
+		{
+			dir = new File(LGM.workDir,"org/lateralgm/icons");
+			if (!dir.exists()) dir = LGM.workDir;
+		}
+		String[] directories = null;
+		if (!dir.exists()) {
+			directories = dir.list(new FilenameFilter() {
+				public boolean accept(File current, String name) {
+					JOptionPane.showMessageDialog(null,name);
+			  	return new File(current, name).isDirectory();
+			  }
+			});
+		} else {
+			List<String> res = new ArrayList<String>();
+			JarInputStream jar = null;
+			try
+				{
+				jar = new JarInputStream(new FileInputStream(dir));
+				}
+			catch (FileNotFoundException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
+			catch (IOException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
+	    JarEntry jarEntry = null;
+			try
+				{
+				jarEntry = jar.getNextJarEntry();
+				}
+			catch (IOException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
+	    while (jarEntry != null) {
+				if (jarEntry.isDirectory()) {
+					String str = jarEntry.getName();
+				  if (str.replace("\\","/").contains("org/lateralgm/icons")) {
+						JOptionPane.showMessageDialog(null,str);
+						res.add(str);
+				  }
+				 }
+				 try
+					{
+					jarEntry = jar.getNextJarEntry();
+					}
+				catch (IOException e)
+					{
+						LGM.showDefaultExceptionHandler(e);
+					}
+	    }  
+				
+			directories = res.toArray(new String[res.size()]);
+		}
+		if (directories != null) {
+			for (String name : directories) {
+				iconCombo.addItem(name);
+			}
+		}
+		*/
 		iconCombo.setSelectedItem(LGM.iconspack);
 		JLabel langLabel = new JLabel(Messages.getString("PreferencesFrame.LANGUAGE") + ":");
 		String[] langOptions = { "English","French","Turkish","Danish" };

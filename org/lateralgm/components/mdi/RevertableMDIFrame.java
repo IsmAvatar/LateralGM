@@ -50,7 +50,7 @@ public abstract class RevertableMDIFrame extends MDIFrame
 		{
 		if (!resourceChanged())
 			{
-			updateResource();
+			revertResource();
 			close();
 			return;
 			}

@@ -120,10 +120,6 @@ import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
-import org.lateralgm.resources.Constants;
-import org.lateralgm.resources.ExtensionPackages;
-import org.lateralgm.resources.GameInformation;
-import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
@@ -434,7 +430,6 @@ public final class LGM
 
 	public static ExtensionPackagesFrame getExtensionPackages()
 		{
-		extSet.revertResource();
 		return extSet;
 		}
 
@@ -760,6 +755,7 @@ public final class LGM
 			ResNode node = (ResNode) nodes.nextElement();
 			if (node.frame != null) node.frame.commitChanges(); // update open frames
 			}
+		LGM.getExtensionPackages().commitChanges();
 		LGM.getConstantsFrame().commitChanges();
 		LGM.getGameInfo().commitChanges();
 		LGM.getGameSettings().commitChanges();
@@ -781,27 +777,20 @@ public final class LGM
 
 		LGM.eventSelect.reload();
 		
-		// TODO: Make sure to update both copies or you end up with wrong references after a reload.
-		// We should do something a little more modular and safe here instead I don't like this at all. - Robert
-		constantsFrame.resOriginal = LGM.currentFile.defaultConstants;
+		//NOTE: We do this to update the reference to the one now loaded
+		//since we never close these frames, then we simply revert their controls.
+		constantsFrame.res = LGM.currentFile.defaultConstants;
+		constantsFrame.resOriginal = LGM.currentFile.defaultConstants.clone();
 		constantsFrame.revertResource();
 		constantsFrame.setVisible(false);
-		gameInfo.resOriginal = LGM.currentFile.gameInfo;
+		gameInfo.res = LGM.currentFile.gameInfo;
+		gameInfo.resOriginal = LGM.currentFile.gameInfo.clone();
 		gameInfo.revertResource();
 		gameInfo.setVisible(false);
-		gameSet.resOriginal = LGM.currentFile.gameSettings;
+		gameSet.res = LGM.currentFile.gameSettings;
+		gameSet.resOriginal = LGM.currentFile.gameSettings.clone();
 		gameSet.revertResource();
 		gameSet.setVisible(false);
-		
-		//TODO: This is a temporary patch for which we need a more longer term solution, see GitHub ticket.
-		// https://github.com/IsmAvatar/LateralGM/issues/23
-		LGM.currentFile.gameInfo = gameInfo.res;
-		LGM.currentFile.gameSettings = gameSet.res;
-		LGM.currentFile.defaultConstants = constantsFrame.res;
-		
-		LGM.currentFile.resMap.put(GameInformation.class,new SingletonResourceHolder(gameInfo.res));
-		LGM.currentFile.resMap.put(GameSettings.class,new SingletonResourceHolder(gameSet.res));
-		LGM.currentFile.resMap.put(Constants.class,new SingletonResourceHolder(constantsFrame.res));
 
 		LGM.fireReloadPerformed(newRoot);
 		}
@@ -1289,7 +1278,7 @@ public final class LGM
 		mdi.add(gameInfo);
 		gameSet = new GameSettingFrame(currentFile.gameSettings);
 		mdi.add(gameSet);
-		extSet = new ExtensionPackagesFrame(new ExtensionPackages());
+		extSet = new ExtensionPackagesFrame(currentFile.extPackages);
 		mdi.add(extSet);
 
 		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$

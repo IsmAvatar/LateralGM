@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 
+import javax.swing.JOptionPane;
+
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -150,11 +152,13 @@ public class Font extends InstantiableResource<Font,Font.PFont>
 	protected void postCopy(Font dest)
 		{
 		super.postCopy(dest);
+		dest.characterRanges.clear();
 		for (CharacterRange cr : characterRanges)
 			{
 			CharacterRange r2 = dest.addRange();
 			r2.properties.putAll(cr.properties);
 			}
+		dest.glyphMetrics.clear();
 		for (GlyphMetric gm : glyphMetrics)
 			{
 			GlyphMetric g2 = dest.addGlyph();

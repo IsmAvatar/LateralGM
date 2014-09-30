@@ -13,7 +13,11 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
+import org.lateralgm.resources.sub.CharacterRange;
 import org.lateralgm.resources.sub.Constant;
+import org.lateralgm.resources.sub.GlyphMetric;
 import org.lateralgm.util.PropertyMap;
 
 public class Constants extends Resource<Constants,Constants.PConstants>
@@ -36,7 +40,13 @@ public class Constants extends Resource<Constants,Constants.PConstants>
 
 	@Override
 	protected void postCopy(Constants dest)
-		{ //Nothing else to copy
+		{ 
+		dest.constants.clear();
+		for (Constant cnst : constants)
+			{
+			Constant r2 = cnst.copy();
+			dest.constants.add(r2);
+			}
 		}
 
 	public Object validate(PConstants k, Object v)

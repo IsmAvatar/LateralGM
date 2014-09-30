@@ -921,7 +921,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		res.put(PGameSettings.COPYRIGHT,copyright.getText());
 		res.put(PGameSettings.PRODUCT,product.getText());
 		//we don't update the lastChanged time - that's only altered on file save/load
-		LGM.currentFile.gameSettings = res;
 		}
 
 	public void setComponents(GameSettings g)
