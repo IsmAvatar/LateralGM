@@ -758,7 +758,7 @@ public final class LGM
 		while (nodes.hasMoreElements())
 			{
 			ResNode node = (ResNode) nodes.nextElement();
-			if (node.frame != null) node.frame.updateResource(); // update open frames
+			if (node.frame != null) node.frame.commitChanges(); // update open frames
 			}
 		LGM.getConstantsFrame().commitChanges();
 		LGM.getGameInfo().commitChanges();
@@ -786,7 +786,7 @@ public final class LGM
 		constantsFrame.resOriginal = LGM.currentFile.defaultConstants;
 		constantsFrame.revertResource();
 		constantsFrame.setVisible(false);
-		gameInfo.res = LGM.currentFile.gameInfo;
+		gameInfo.resOriginal = LGM.currentFile.gameInfo;
 		gameInfo.revertResource();
 		gameInfo.setVisible(false);
 		gameSet.resOriginal = LGM.currentFile.gameSettings;
