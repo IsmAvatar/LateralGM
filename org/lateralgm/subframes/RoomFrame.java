@@ -2025,6 +2025,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		// Display the selected instance with white border
 		Instance instance = oList.getSelectedValue();
+		if (instance == null) { return; }
 		instance.setSelected(true);
 
 		// Save the selected instance
