@@ -43,20 +43,10 @@ public class GmMenu extends JMenu
 
 	public JMenuItem addItem(String key)
 		{
-		return addItem(key,-1,-1,Listener.getInstance());
+		return addItem(key,Listener.getInstance());
 		}
 
 	public JMenuItem addItem(String key, ActionListener listener)
-		{
-		return addItem(key,-1,-1,listener);
-		}
-
-	public JMenuItem addItem(String key, int shortcut, int control)
-		{
-		return addItem(key,shortcut,control,Listener.getInstance());
-		}
-
-	public JMenuItem addItem(String key, int shortcut, int control, ActionListener listener)
 		{
 		JMenuItem item = new JMenuItem();
 		if (key != null)
@@ -65,7 +55,7 @@ public class GmMenu extends JMenu
 			item.setIcon(LGM.getIconForKey(key));
 			item.setActionCommand(key);
 			}
-		if (shortcut >= 0) item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString(key)));
 		item.addActionListener(listener);
 		if (LGM.themename.equals("Quantum"))
 			{
@@ -77,20 +67,10 @@ public class GmMenu extends JMenu
 
 	public GmMenu addMenu(String key)
 		{
-		return addMenu(key,-1,-1,Listener.getInstance());
+		return addMenu(key,Listener.getInstance());
 		}
 
 	public GmMenu addMenu(String key, ActionListener listener)
-		{
-		return addMenu(key,-1,-1,listener);
-		}
-
-	public GmMenu addMenu(String key, int shortcut, int control)
-		{
-		return addMenu(key,shortcut,control,Listener.getInstance());
-		}
-
-	public GmMenu addMenu(String key, int shortcut, int control, ActionListener listener)
 		{
 		GmMenu item = new GmMenu();
 		if (key != null)
@@ -99,7 +79,7 @@ public class GmMenu extends JMenu
 			item.setIcon(LGM.getIconForKey(key));
 			item.setActionCommand(key);
 			}
-		//if (shortcut >= 0) item.setAccelerator(KeyStroke.getKeyStroke(shortcut,control));
+		//item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString(key)));
 		item.addActionListener(listener);
 		if (LGM.themename.equals("Quantum"))
 			{

@@ -164,16 +164,16 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		menu.addActionListener(this);
 
 		JMenuItem item = addItem("GameInformationFrame.LOAD"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.LOAD")));
 		menu.add(item);
 		item = addItem("GameInformationFrame.FILESAVE"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.FILESAVE")));
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.SETTINGS"); //$NON-NLS-1$
 		menu.add(item);
 		item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.PRINT")));
 		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem(Messages.getString("GameInformationFrame.CLOSESAVE"));
@@ -187,24 +187,24 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		menuBar.add(menu);
 
 		item = new JMenuItem(undoManager.getUndoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.UNDO")));
 		menu.add(item);
 		item = new JMenuItem(undoManager.getRedoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.REDO")));
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.CUT")));
 		menu.add(item);
 		item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.COPY")));
 		menu.add(item);
 		item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.PASTE")));
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.SELECTALL")));
 		menu.add(item);
 
 		//Format
@@ -537,24 +537,24 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		JMenuItem item;
 
 		item = new JMenuItem(undoManager.getUndoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.UNDO")));
 		popup.add(item);
 		item = new JMenuItem(undoManager.getRedoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.REDO")));
 		popup.add(item);
 		popup.addSeparator();
 		item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.CUT")));
 		popup.add(item);
 		item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.COPY")));
 		popup.add(item);
 		item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.PASTE")));
 		popup.add(item);
 		popup.addSeparator();
 		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.SELECTALL")));
 		popup.add(item);
 
 		editor.setComponentPopupMenu(popup);

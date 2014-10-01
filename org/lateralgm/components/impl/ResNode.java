@@ -247,7 +247,7 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 			JMenuItem editItem = makeMenuItem("Listener.TREE_PROPERTIES",al,true);
 			popup.add(editItem); //$NON-NLS-1$
 			editItem.setFocusable(true);
-			editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,KeyEvent.ALT_DOWN_MASK));
+			editItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_PROPERTIES")));
 			popup.show(e.getComponent(),e.getX(),e.getY());
 			return;
 			}
@@ -256,11 +256,11 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 			JMenuItem insertItem = makeMenuItem("Listener.TREE_INSERT_RESOURCE",al,true);
 			insertItem.setFocusable(true);
 			popup.add(insertItem); //$NON-NLS-1$
-			insertItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,KeyEvent.CTRL_DOWN_MASK));
+			insertItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_INSERT_RESOURCE")));
 			JMenuItem duplicateItem = makeMenuItem("Listener.TREE_DUPLICATE_RESOURCE",al,true);
 			duplicateItem.setFocusable(true);
 			popup.add(duplicateItem); //$NON-NLS-1$
-			duplicateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT,KeyEvent.ALT_DOWN_MASK));
+			duplicateItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_DUPLICATE_RESOURCE")));
 			popup.add(makeMenuItem("Listener.TREE_INSERT_GROUP",al,true)); //$NON-NLS-1$
 			}
 		else
@@ -277,18 +277,18 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 			deleteItem.requestFocus();
 			popup.add(deleteItem); //$NON-NLS-1$
 			// KeyStroke.getKeyStroke("BACK_SPACE"); for delete key on mac
-			deleteItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE,KeyEvent.SHIFT_DOWN_MASK));
+			deleteItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_DELETE")));
 			JMenuItem renameItem = makeMenuItem("Listener.TREE_RENAME",al,true);
 			renameItem.setFocusable(true);
 			popup.add(renameItem); //$NON-NLS-1$
-			renameItem.setAccelerator(KeyStroke.getKeyStroke("F2"));
+			renameItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_RENAME")));
 			}
 		if (status == ResNode.STATUS_SECONDARY)
 			{
 			JMenuItem editItem = makeMenuItem("Listener.TREE_PROPERTIES",al,true);
 			editItem.setFocusable(true);
 			popup.add(editItem); //$NON-NLS-1$
-			editItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,KeyEvent.ALT_DOWN_MASK));
+			editItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_PROPERTIES")));
 			}
 		popup.show(e.getComponent(),e.getX(),e.getY());
 		}
@@ -444,6 +444,8 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 
 	public void keyReleased(KeyEvent evt)
 		{
+		//TODO: Whatever this code was, somebody make sure you put the key bindings into the
+		//new properties file if you decide to recover this code.
 		//int keyCode = evt.getKeyCode();
 		// if (keyCode == KeyEvent.VK_DELETE)
 		//add(-d, 0);

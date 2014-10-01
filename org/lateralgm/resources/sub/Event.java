@@ -234,6 +234,7 @@ public class Event extends ActionContainer implements Comparable<Event>,Inherent
 		return e.other == other;
 		}
 
+	//TODO: Move all of these keys to the new keyboard properties map.
 	public static String getGmKeyName(int keyCode)
 		{
 		switch (keyCode)

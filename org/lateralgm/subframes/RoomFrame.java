@@ -257,9 +257,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		undo = new JButton(LGM.getIconForKey("RoomFrame.UNDO"));
 		undo.setToolTipText(Messages.getString("RoomFrame.UNDO"));
-		// Bind the ctrl-z keystroke with the undo button
-		KeyStroke ctrlZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK);
-		undo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlZ,"ctrlZ");
+		// Bind the undo keystroke with the undo button
+		KeyStroke undoKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.UNDO"));
+		undo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(undoKey,"ctrlZ");
 		undo.getActionMap().put("ctrlZ",undoAction);
 		undo.addActionListener(undoAction);
 		tool.add(undo);
@@ -278,9 +278,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		redo = new JButton(LGM.getIconForKey("RoomFrame.REDO"));
 		redo.setToolTipText(Messages.getString("RoomFrame.REDO"));
-		// Bind the ctrl-y keystroke with the redo button
-		KeyStroke ctrlY = KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK);
-		redo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlY,"ctrlY");
+		// Bind the redo keystroke with the undo button
+		KeyStroke redoKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.REDO"));
+		redo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(redoKey,"ctrlY");
 		redo.getActionMap().put("ctrlY",redoAction);
 		redo.addActionListener(redoAction);
 		tool.add(redo);

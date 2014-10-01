@@ -91,11 +91,11 @@ public class ResourceInfoFrame extends JFrame implements ActionListener
 		JMenuItem item;
 
 		item = addItem("ResourceInfoFrame.COPY"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ResourceInfoFrame.COPY")));
 		popup.add(item);
 		popup.addSeparator();
 		item = addItem("ResourceInfoFrame.SELECTALL"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ResourceInfoFrame.SELECTALL")));
 		popup.add(item);
 
 		editor.setComponentPopupMenu(popup);

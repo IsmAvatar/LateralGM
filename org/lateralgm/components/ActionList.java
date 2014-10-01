@@ -109,34 +109,34 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 
 		item = makeContextButton("ActionList.CUT");
 		popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.CUT")));
 		item = makeContextButton("ActionList.COPY");
 		popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.COPY")));
 		item = makeContextButton("ActionList.PASTE");
 		popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.PASTE")));
 
 		popup.addSeparator();
 
 		/*
 		item = makeContextButton("ActionList.UNDO");
 		popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.UNDO")));
 		item = makeContextButton("ActionList.REDO");
 		popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.REDO")));
 		popup.addSeparator();
 		*/
 
 		item = makeContextButton("ActionList.SELECTALL");
 		popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,KeyEvent.CTRL_DOWN_MASK));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.SELECTALL")));
 
 		popup.addSeparator();
 		item = makeContextButton("ActionList.DELETE");
 		popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE,0));
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.DELETE")));
 
 		item = makeContextButton("ActionList.CLEAR");
 		popup.add(item);

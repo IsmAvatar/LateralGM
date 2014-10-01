@@ -130,10 +130,10 @@ public class GmMenuBar extends JMenuBar
 		GmMenu menu = new GmMenu(Messages.getString("GmMenuBar.MENU_FILE")); //$NON-NLS-1$
 		add(menu);
 
-		menu.addItem("GmMenuBar.NEW",KeyEvent.VK_N,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.OPEN",KeyEvent.VK_O,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.NEW"); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.OPEN"); //$NON-NLS-1$
 		recentMenu = (GmMenu) menu.addMenu("GmMenuBar.RECENTFILES");
-		menu.addItem("GmMenuBar.SAVE",KeyEvent.VK_S,InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.SAVE"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SAVEAS"); //$NON-NLS-1$
 		menu.addSeparator();
 		// JCheckBoxMenuItem check = new JCheckBoxMenuItem();
@@ -141,7 +141,7 @@ public class GmMenuBar extends JMenuBar
 		// menu.add(check);
 		menu.addItem("GmMenuBar.PREFERENCES"); //$NON-NLS-1$
 		menu.addSeparator();
-		menu.addItem("GmMenuBar.EXIT",KeyEvent.VK_F4,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.EXIT"); //$NON-NLS-1$
 		updateRecentFiles();
 
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_EDIT")); //$NON-NLS-1$
@@ -188,11 +188,11 @@ public class GmMenuBar extends JMenuBar
 				}
 
 		menu.addSeparator();
-		menu.addItem("GmMenuBar.RENAME",KeyEvent.VK_F2,0); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.DELETE",KeyEvent.VK_DELETE,InputEvent.SHIFT_DOWN_MASK); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.DUPLICATE",KeyEvent.VK_INSERT,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.RENAME"); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.DELETE"); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.DUPLICATE"); //$NON-NLS-1$
 		menu.addSeparator();
-		menu.addItem("GmMenuBar.PROPERTIES",KeyEvent.VK_ENTER,InputEvent.ALT_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.PROPERTIES"); //$NON-NLS-1$
 
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_RESOURCES")); //$NON-NLS-1$
 		add(menu);
@@ -201,8 +201,7 @@ public class GmMenuBar extends JMenuBar
 		menu.addItem("GmMenuBar.VERIFYNAMES"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.SYNTAXCHECK"); //$NON-NLS-1$
 		menu.addSeparator();
-		menu.addItem("GmMenuBar.FIND", //$NON-NLS-1$
-				KeyEvent.VK_F,InputEvent.ALT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK);
+		menu.addItem("GmMenuBar.FIND"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.ANNOTATE"); //$NON-NLS-1$
 		menu.addSeparator();
 		menu.addItem("GmMenuBar.EXPAND"); //$NON-NLS-1$
@@ -212,12 +211,10 @@ public class GmMenuBar extends JMenuBar
 
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_HELP")); //$NON-NLS-1$
 		add(menu);
-		menu.addItem("GmMenuBar.DOCUMENTATION",KeyEvent.VK_F1,0); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.DOCUMENTATION"); //$NON-NLS-1$
 		menu.addSeparator();
-		menu.addItem(
-				"GmMenuBar.EXPLORELATERALGM",KeyEvent.VK_O,InputEvent.ALT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
-		menu.addItem(
-				"GmMenuBar.EXPLOREPROJECT",KeyEvent.VK_P,InputEvent.ALT_DOWN_MASK + InputEvent.CTRL_DOWN_MASK); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.EXPLORELATERALGM"); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.EXPLOREPROJECT"); //$NON-NLS-1$
 		menu.addSeparator();
 		menu.addItem("GmMenuBar.ABOUT"); //$NON-NLS-1$
 		}

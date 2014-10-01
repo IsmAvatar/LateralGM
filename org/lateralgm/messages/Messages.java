@@ -29,14 +29,17 @@ import org.lateralgm.main.Prefs;
 public final class Messages
 	{
 	private static final String BUNDLE_NAME = "org.lateralgm.messages.messages"; //$NON-NLS-1$
-
-	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);;
-
+	private static final String KEYBOARD_BUNDLE_NAME = "org.lateralgm.messages.keyboard"; //$NON-NLS-1$
+	
+	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+	private static ResourceBundle KEYBOARD_BUNDLE = ResourceBundle.getBundle(KEYBOARD_BUNDLE_NAME);
+	
 	private Messages()
 		{
 
 		}
 
+	//TODO: This method is exceedingly verbose, and we also need a way for users to install their own language packages.
 	public static void updateLangPack()
 		{
 		String langbundle = "";
@@ -68,6 +71,18 @@ public final class Messages
 		try
 			{
 			return RESOURCE_BUNDLE.getString(key);
+			}
+		catch (MissingResourceException e)
+			{
+			return '!' + key + '!';
+			}
+		}
+	
+	public static String getKeyboardString(String key)
+		{
+		try
+			{
+			return KEYBOARD_BUNDLE.getString(key);
 			}
 		catch (MissingResourceException e)
 			{

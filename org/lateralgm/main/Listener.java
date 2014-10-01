@@ -498,6 +498,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				{
 				return;
 				}
+			//NOTE: This check is needed because the user may select some non-instantiable resource in the tree
+			//then mistakenly hit the Duplicate option under the Edit menu.
+			if (!node.isInstantiable()) return;
 			ResourceList<?> rl = (ResourceList<?>) LGM.currentFile.resMap.get(node.kind);
 			if (node.frame != null) node.frame.commitChanges();
 			Resource<?,?> resource = rl.duplicate(node.getRes().get());
