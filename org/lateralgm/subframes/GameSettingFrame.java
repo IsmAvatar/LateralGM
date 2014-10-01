@@ -960,6 +960,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		if (frameListener != null) frameListener.revertResource();
 		res.properties.putAll(resOriginal.properties);
 		setComponents(res);
+		plf.setMap(res.properties);
 		imagesChanged = false;
 		}
 

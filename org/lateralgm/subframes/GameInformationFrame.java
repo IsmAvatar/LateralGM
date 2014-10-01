@@ -3,7 +3,7 @@
  * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2013 Robert B. Colton
+ * Copyright (C) 2013, 2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -954,5 +954,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		{
 		res.properties.putAll(resOriginal.properties);
 		setComponents(res);
+		plf.setMap(res.properties);
 		}
 	}

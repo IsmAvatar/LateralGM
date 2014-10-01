@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
+ * Copyright (C) 2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -9,6 +10,8 @@
 package org.lateralgm.ui.swing.propertylink;
 
 import java.beans.ExceptionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoundedRangeModel;
@@ -26,9 +29,32 @@ import org.lateralgm.util.PropertyMap;
 
 public class PropertyLinkFactory<K extends Enum<K>>
 	{
-	private final PropertyMap<K> map;
+	private PropertyMap<K> map;
 	private final ExceptionListener exceptionListener;
+	/* This is a map used to inform all property links that the factory that created them has changed maps
+	 * and they should thus update their controls.
+	 */
+	private List<PropertyLinkMapListener<K>> mapListeners = new ArrayList<PropertyLinkMapListener<K>>();
+	
+	public void addLinkMapListener(PropertyLinkMapListener<K> plml) {
+		mapListeners.add(plml);
+	}
+	
+	public void removeLinkMapListener(PropertyLinkMapListener<K> plml) {
+		mapListeners.remove(plml);
+	}
+	
+	public void setMap(PropertyMap<K> m) {
+		map = m;
+		for (PropertyLinkMapListener<K> listener : mapListeners) {
+			listener.mapChanged(map);
+		}
+	}
 
+	public abstract interface PropertyLinkMapListener<K extends Enum<K>> {
+		public abstract void mapChanged(PropertyMap<K> m);
+	}
+	
 	public PropertyLinkFactory(PropertyMap<K> m, ExceptionListener el)
 		{
 		map = m;
@@ -37,6 +63,11 @@ public class PropertyLinkFactory<K extends Enum<K>>
 
 	public <L extends PropertyLink<K,?>>L init(L l)
 		{
+		/* This should probably be moved into PropertyLink itself, but either way the PropertyLink needs to know the plf that created it 
+		 * so it knows when to add and remove itself as a listener to revert when the PLF decides to changes its map.
+		 */
+		l.factory = this;
+		addLinkMapListener(l);
 		l.setExceptionListener(exceptionListener);
 		return l;
 		}
