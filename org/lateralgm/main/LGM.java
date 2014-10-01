@@ -56,6 +56,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.Vector;
@@ -1556,7 +1557,7 @@ public final class LGM
 		for (JInternalFrame f : mdi.getAllFrames())
 		{
 			if (f instanceof ResourceFrame) {
-				if (((ResourceFrame<?,?>) f).resourceChanged()) {
+				if (((ResourceFrame<?,?>) f).resourceChanged() && f.isVisible()) {
 					return true;
 				}
 			}
@@ -1567,24 +1568,49 @@ public final class LGM
 
 		Iterator<?> it = currentFile.resMap.entrySet().iterator();
 		while (it.hasNext()) {
-		    Map.Entry<Class<?>,ResourceHolder<?>> pairs = (Map.Entry<Class<?>,ResourceHolder<?>>)it.next();
-		    if (pairs.getValue() instanceof ResourceList) {
-		    	ResourceList<?> list = (ResourceList<?>) pairs.getValue();
-		    	for (Resource<?,?> res : list) {
-		    		if (res.changed)
-		    			return true;
-		    	}
-		    } else if (pairs.getValue() instanceof SingletonResourceHolder) {
-		    	SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
-		    	Resource<?,?> res = rh.getResource();
-		    	if (res.changed) {
-		    		return true;
-		    	}
-		    }
+	    Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
+	    if (pairs.getValue() instanceof ResourceList) {
+	    	ResourceList<?> list = (ResourceList<?>) pairs.getValue();
+	    	for (Resource<?,?> res : list) {
+	    		if (res.changed)
+	    			return true;
+	    	}
+	    } else if (pairs.getValue() instanceof SingletonResourceHolder) {
+	    	SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
+	    	Resource<?,?> res = rh.getResource();
+	    	if (res.changed) {
+	    		return true;
+	    	}
+	    }
 		}
 		return false;
 	}
 
+	/*
+	 * When the user saves reset all the resources to their unsaved state. We do not check the frames
+	 * because they commit their changes allowing them to be written, while still allowing the user to revert
+	 * the frame if they so choose.
+	 * If the user has an open frame with changes basically, the save button will save the changes to file
+	 * and if the user saves the frame then they will still be asked to save when they close, if they revert
+	 * the changes to the frame they will exit right out. This is the expected behavior of these functions.
+	 */
+	public static void resetChanges() {
+		Iterator<?> it = currentFile.resMap.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
+	    if (pairs.getValue() instanceof ResourceList) {
+	    	ResourceList<?> list = (ResourceList<?>) pairs.getValue();
+	    	for (Resource<?,?> res : list) {
+	    		res.changed = false;
+	    	}
+	    } else if (pairs.getValue() instanceof SingletonResourceHolder) {
+	    	SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
+	    	Resource<?,?> res = rh.getResource();
+	    	res.changed = false;
+	    }
+		}
+	}
+	
 	public static void askToSaveProject()
 		{
 		FileChooser fc = new FileChooser();

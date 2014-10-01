@@ -704,6 +704,7 @@ public class FileChooser
 	/** This method is headless-safe. */
 	public static void save(final URI uri, final FileWriter writer) throws IOException
 		{
+		LGM.resetChanges();
 		System.out.println(uri);
 		LGM.getProgressDialog().setVisible(false);
 		Thread t = new Thread(new Runnable()
