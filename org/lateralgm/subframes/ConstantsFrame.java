@@ -438,8 +438,8 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 		}
 
 	@Override
-	public void updateResource()
+	public void updateResource(boolean commit)
 		{
-		super.updateResource();
+		super.updateResource(commit);
 		}
 	}

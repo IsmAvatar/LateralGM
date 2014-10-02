@@ -196,10 +196,12 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 	//TODO: There is a fundamental flaw in the way this function is utilized.
 	//Checking for changes causes the changes to be committed, and then if the user
 	//does choose to save this method will also commit changes a second time.
-	public void updateResource()
+	public void updateResource(boolean commit)
 		{
-		if (frameListener != null) frameListener.updateResource();
-		commitChanges();
+		if (frameListener != null) frameListener.updateResource(commit);
+		if (commit) {
+			commitChanges();
+		}
 		resOriginal = res.clone();
 		}
 	
@@ -230,7 +232,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 			{
 			if (resourceChanged()) {
 				setResourceChanged();
-				updateResource();
+				updateResource(false);
 			}
 			close();
 			}
@@ -250,7 +252,7 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		}
 	public abstract interface ResourceFrameListener
 	{
-		public abstract void updateResource();
+		public abstract void updateResource(boolean commit);
 		public abstract void revertResource();
 		public abstract boolean resourceChanged();
 		public abstract void setResourceChanged();

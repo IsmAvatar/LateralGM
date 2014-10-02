@@ -1061,9 +1061,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		res.setName(name.getText());
 		}
 
-	public void updateResource()
+	public void updateResource(boolean commit)
 		{
-		super.updateResource();
+		super.updateResource(commit);
 		imageChanged = false;
 		}
 

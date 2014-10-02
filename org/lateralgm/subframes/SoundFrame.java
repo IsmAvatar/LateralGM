@@ -493,9 +493,9 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		res.data = data;
 		}
 
-	public void updateResource()
+	public void updateResource(boolean commit)
 		{
-		super.updateResource();
+		super.updateResource(commit);
 		modified = false;
 		}
 

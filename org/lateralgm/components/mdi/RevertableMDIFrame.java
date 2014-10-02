@@ -31,11 +31,9 @@ public abstract class RevertableMDIFrame extends MDIFrame
 
 	public abstract boolean resourceChanged();
 
-	public abstract void updateResource();
+	public abstract void updateResource(boolean commit);
 	
-	public void setResourceChanged()
-		{
-		}
+	public abstract void setResourceChanged();
 
 	public abstract void revertResource();
 
@@ -66,7 +64,7 @@ public abstract class RevertableMDIFrame extends MDIFrame
 							Messages.getString("RevertableMDIFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
 					if (ret == JOptionPane.YES_OPTION)
 						{
-						updateResource();
+						updateResource(false);
 						setResourceChanged();
 						close();
 						}

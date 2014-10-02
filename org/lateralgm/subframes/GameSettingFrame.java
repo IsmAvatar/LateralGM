@@ -965,9 +965,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		}
 
 	@Override
-	public void updateResource()
+	public void updateResource(boolean commit)
 		{
-		super.updateResource();
+		super.updateResource(commit);
 		imagesChanged = false;
 		}
 	}

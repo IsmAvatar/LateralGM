@@ -504,9 +504,9 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		}
 
 	@Override
-	public void updateResource()
+	public void updateResource(boolean commit)
 		{
-		super.updateResource();
+		super.updateResource(commit);
 		imageChanged = false;
 		updateStatusLabel();
 		updateScrollBars();

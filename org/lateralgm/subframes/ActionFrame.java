@@ -352,7 +352,8 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			}
 		else if (e.getSource() == save)
 			{
-			updateResource();
+			//commit changes because our resourceChanged() method does not
+			updateResource(true);
 			close();
 			}
 		}
@@ -554,8 +555,18 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		}
 
 	@Override
-	public void updateResource()
+	public void updateResource(boolean commit)
 		{
+		//NOTE: Ignore commit parameter, this is simply a flag to let us know if
+		//resourceChanged() was called recently as some resources commit before
+		//checking changes and we want to avoid resources committing twice.
 		commitChanges();
+		}
+
+	@Override
+	public void setResourceChanged()
+		{
+		// TODO: Discussion should be held about closing associated windows.
+		
 		}
 	}
