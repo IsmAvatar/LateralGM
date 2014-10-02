@@ -175,9 +175,9 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 
 	public boolean resourceChanged()
 		{
+		commitChanges();
 		//NOTE: Any children that override this should call this.
 		if (frameListener != null && frameListener.resourceChanged()) return true;
-		commitChanges();
 		if (!areResourceFieldsEqual()) return true;
 		return !res.equals(resOriginal);
 		}

@@ -940,8 +940,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	@Override
 	public boolean resourceChanged()
 		{
-		if (undoManager.canUndo()) return true;
+		//NOTE: commit changes must be the first line because if we don't
+		//the method will be flagged that we handled committing ourselves, 
+		//and the changes wont actually get committed.
 		commitChanges();
+		if (undoManager.canUndo()) return true;
 		for (Entry<PGameInformation,Object> entry : res.properties.entrySet()) {
 			if (entry.getKey() != PGameInformation.TEXT && 
 					entry.getValue() != resOriginal.get(entry.getKey())) {

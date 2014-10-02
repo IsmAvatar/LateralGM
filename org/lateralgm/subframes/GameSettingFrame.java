@@ -948,6 +948,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	@Override
 	public boolean resourceChanged()
 		{
+		//NOTE: commit changes must be the first line because if we don't
+		//the method will be flagged that we handled committing ourselves, 
+		//and the changes wont actually get committed.
 		commitChanges();
 		if (frameListener != null && frameListener.resourceChanged()) return true;
 		if (imagesChanged) return true;
