@@ -922,12 +922,17 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		{
 		return (String) getUserObject();
 		}
-
+	
 	@Override
 	public void setVisible(boolean visible) {
-		if (undoManager != null && visible != this.isVisible()) {
-			undoManager.discardAllEdits();
-			undoManager.updateActions();
+		if (visible != this.isVisible()) {
+			if (undoManager != null) {
+				undoManager.discardAllEdits();
+				undoManager.updateActions();
+			}
+			if (settings != null) {
+				settings.setVisible(false);
+			}
 		}
 		super.setVisible(visible);
 	}

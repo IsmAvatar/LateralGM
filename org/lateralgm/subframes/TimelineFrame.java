@@ -265,8 +265,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			{
 			infoFrame.dispose();
 			}
-		//NOTE: Uncomment this to have the action frames close when the timeline frame closes.
-		//((ActionListEditor) editor).dispose();
+		((ActionListEditor) editor).dispose();
 		}
 
 	public void actionPerformed(ActionEvent e)

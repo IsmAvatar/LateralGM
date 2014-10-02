@@ -245,13 +245,23 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 
 	public void dispose()
 		{
+		if (frameListener != null) frameListener.dispose();
 		super.dispose();
 		if (node != null) node.frame = null; // allows a new frame to open
 		save.removeActionListener(this);
 		removeAll();
 		}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (frameListener != null) frameListener.setVisible(visible);;
+		super.setVisible(visible);
+	}
+	
 	public abstract interface ResourceFrameListener
 	{
+		public abstract void dispose();
+		public abstract void setVisible(boolean visible);
 		public abstract void updateResource(boolean commit);
 		public abstract void revertResource();
 		public abstract boolean resourceChanged();

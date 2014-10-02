@@ -966,8 +966,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			infoFrame.dispose();
 			}
 		res.properties.updateSource.removeListener(propUpdateListener);
-		//NOTE: Uncomment this to have the action frames close when the object frame closes.
-		//((ActionListEditor) editor).dispose();
+		((ActionListEditor) editor).dispose();
 		}
 
 	public void valueChanged(TreeSelectionEvent tse)
