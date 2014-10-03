@@ -115,8 +115,6 @@ import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.impl.CustomFileFilter;
-import org.lateralgm.components.impl.DefaultNode;
-import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.FramePrefsHandler;
 import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
@@ -131,7 +129,6 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.library.LibManager;
-import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.subframes.ConstantsFrame;
 import org.lateralgm.subframes.EventPanel;
 import org.lateralgm.subframes.ExtensionPackagesFrame;
@@ -139,8 +136,6 @@ import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 import org.lateralgm.subframes.PreferencesFrame;
 import org.lateralgm.subframes.ResourceFrame;
-import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
-import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
 public final class LGM

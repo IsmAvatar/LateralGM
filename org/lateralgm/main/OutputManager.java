@@ -130,7 +130,12 @@ public class OutputManager
 		outputTabs.addTab("Log",logScroll);
 		DefaultTableModel model = new DefaultTableModel() {
 
-	    @Override
+	    /**
+			 * TODO: Change if needed.
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
 	    public boolean isCellEditable(int row, int column) {
 	       //all cells false
 	       return false;
@@ -202,15 +207,15 @@ public class OutputManager
 
 	public static void postWarning(String text)
 		{
-    Object[] data = {LGM.getIconForKey("OutputManager.WARNING"), "obj_0", text};
-    DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
+		Object[] data = {LGM.getIconForKey("OutputManager.WARNING"), "obj_0", text};
+		DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
 		model.addRow(data);
 		}
 
 	public static void postError(String text)
 		{
-    Object[] data = {LGM.getIconForKey("OutputManager.ERROR"), "obj_0", text};
-    DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
+		Object[] data = {LGM.getIconForKey("OutputManager.ERROR"), "obj_0", text};
+		DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
 		model.addRow(data);
 		}
 	
