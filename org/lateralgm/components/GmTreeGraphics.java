@@ -13,17 +13,18 @@ package org.lateralgm.components;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.lateralgm.components.impl.DefaultNode;
+import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.resources.Resource;
@@ -49,12 +50,26 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 			boolean leaf, int row, boolean focus)
 		{
 		last = (DefaultNode) val;
+
 		Component com = super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
+		
+		// Bold primary nodes
+		if (val instanceof ResNode && com instanceof JLabel) {
+			ResNode rn = (ResNode) val;
+			JLabel label = (JLabel) com;
+			if (rn.status == ResNode.STATUS_PRIMARY) {
+				label.setText("<html><b>" + label.getText() + "</b></html>");
+			}
+		}
+		
 		//TODO: Sometimes when renaming secondary nodes the text box will be bold and sometimes it wont
 		//should be fixed but no idea what is wrong.
 		//Most likely a look and feel bug.
-		Font fnt = last.getFont(com.getFont().deriveFont(Font.PLAIN));
-		com.setFont(fnt);
+		// 10/3/2014 This is no longer an issue because of the changes above we use HTML to get the bold 
+		// effect on the component and it doesn't bold the child nodes when you try to rename them, so it works much better.
+		//Font fnt = last.getFont(com.getFont().deriveFont(Font.PLAIN));
+		//com.setFont(fnt);
+
 		return com;
 		}
 

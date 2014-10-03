@@ -1095,6 +1095,21 @@ public final class LGM
 	public static class LineMatch {
 	  public int lineNum;
 	  public List<MatchBlock> matchedText = new ArrayList<MatchBlock>();
+		public String toHighlightableString()
+			{
+			String text = "<html>" + lineNum + ": ";
+			for (MatchBlock block : matchedText) {
+				if (block.highlighted) {
+					text += "<span bgcolor='#D6C2FF'>";
+				}
+				text += block.content;
+				if (block.highlighted) {
+					text += "</span>";
+				}
+			}
+			text += "</html>";
+			return text;
+			}
 	}
 	
 	private static final Pattern NEWLINE = Pattern.compile("\r\n|\r|\n");
@@ -1182,13 +1197,13 @@ public final class LGM
 				if (resNode.status != ResNode.STATUS_SECONDARY) {
 					searchInResourcesRecursion(child, pattern);
 				} else {
-					if (resNode.kind == Script.class)	{
-						ResourceReference<?> ref = (ResourceReference<?>) resNode.getRes();
-						if (ref != null) {
+					DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
+					ResourceReference<?> ref = (ResourceReference<?>) resNode.getRes();
+					if (ref != null) {
+						if (resNode.kind == Script.class)	{
 							Script res = (Script) ref.get();
 							String code = res.getCode();
 							List<LineMatch> matches = getMatchingLines(code, pattern);
-							DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
 							if (matches.size() > 0) {
 								SearchResultNode resultRoot = new SearchResultNode("<html>" + res.getName()
 										+ " <font color='blue'>(" + matches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
@@ -1196,17 +1211,7 @@ public final class LGM
 								resultRoot.setIcon(res.getNode().getIcon());
 								for (LineMatch match : matches) {
 									if (match.matchedText.size() > 0) {
-										String text = "<html>" + match.lineNum + ": ";
-										for (MatchBlock block : match.matchedText) {
-											if (block.highlighted) {
-												text += "<span bgcolor='#D6C2FF'>";
-											}
-											text += block.content;
-											if (block.highlighted) {
-												text += "</span>";
-											}
-										}
-										text += "</html>";
+										String text = match.toHighlightableString();
 										
 										SearchResultNode resultNode = new SearchResultNode(text);
 										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));

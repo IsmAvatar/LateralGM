@@ -132,7 +132,7 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 		}
 		return com;
 	}
-
+	
 	private void updateIcon()
 		{
 		icon = GmTreeGraphics.getResourceIcon(res);
