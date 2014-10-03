@@ -35,6 +35,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -514,6 +515,7 @@ public class FileChooser
 		fc.setSelectedFile(new File(new String()));
 		selectedWriter = null;
 		LGM.reload(true);
+		OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTCREATED") + ": " + new Date().toString());
 		}
 
 	public void openNewFile()
@@ -585,6 +587,7 @@ public class FileChooser
 					((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 					selectedWriter = null;
 					LGM.setProgressDialogVisible(false);
+					OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTLOADED") + ": " + new Date().toString() + " " + uri.getPath());
 					}
 			});
 		t.start();
@@ -715,6 +718,7 @@ public class FileChooser
 					try
 						{
 						writer.write(new FileOutputStream(new File(uri)),LGM.currentFile,LGM.root);
+						OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTSAVED") + ": " + new Date().toString() + " " + uri.getPath());
 						LGM.setProgressDialogVisible(false);
 						return;
 						}

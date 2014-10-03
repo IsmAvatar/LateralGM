@@ -25,9 +25,11 @@ package org.lateralgm.main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
@@ -103,6 +105,7 @@ import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -112,6 +115,8 @@ import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
 import org.lateralgm.components.impl.CustomFileFilter;
+import org.lateralgm.components.impl.DefaultNode;
+import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.FramePrefsHandler;
 import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
@@ -126,6 +131,7 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.library.LibManager;
+import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.subframes.ConstantsFrame;
 import org.lateralgm.subframes.EventPanel;
 import org.lateralgm.subframes.ExtensionPackagesFrame;
@@ -133,6 +139,8 @@ import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 import org.lateralgm.subframes.PreferencesFrame;
 import org.lateralgm.subframes.ResourceFrame;
+import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
+import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 
 public final class LGM
@@ -1129,7 +1137,7 @@ public final class LGM
 	      if (m.start() > lineAt) {
 	        lastMatch.matchedText.add(new MatchBlock(code.substring(lineAt, m.start()), false));
 	      }
-	      lastMatch.matchedText.add(new MatchBlock(code.substring(m.start(), m.end()), false));
+	      lastMatch.matchedText.add(new MatchBlock(code.substring(m.start(), m.end()), true));
 	      res.add(lastMatch);
 	    }
 	    lastEnd = m.end();
@@ -1180,13 +1188,36 @@ public final class LGM
 					searchInResourcesRecursion(child, pattern);
 				} else {
 					if (resNode.kind == Script.class)	{
-						ResourceReference<Script> ref = (ResourceReference<Script>) resNode.getRes();
+						ResourceReference<?> ref = (ResourceReference<?>) resNode.getRes();
 						if (ref != null) {
-							Script res = ref.get();
+							Script res = (Script) ref.get();
 							String code = res.getCode();
 							List<LineMatch> matches = getMatchingLines(code, pattern);
+							DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
 							if (matches.size() > 0) {
-								JOptionPane.showMessageDialog(null,matches.get(0).matchedText.get(2).content);
+								SearchResultNode resultRoot = new SearchResultNode("<html>" + res.getName()
+										+ " <font color='blue'>(" + matches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								searchRoot.add(resultRoot);
+								resultRoot.setIcon(res.getNode().getIcon());
+								for (LineMatch match : matches) {
+									if (match.matchedText.size() > 0) {
+										String text = "<html>" + match.lineNum + ": ";
+										for (MatchBlock block : match.matchedText) {
+											if (block.highlighted) {
+												text += "<span bgcolor='#D6C2FF'>";
+											}
+											text += block.content;
+											if (block.highlighted) {
+												text += "</span>";
+											}
+										}
+										text += "</html>";
+										
+										SearchResultNode resultNode = new SearchResultNode(text);
+										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+										resultRoot.add(resultNode);
+									}
+								}
 							}
 						}
 					}
@@ -1196,10 +1227,117 @@ public final class LGM
 	}
 	
 	public static void searchInResources(DefaultMutableTreeNode node, String expression, boolean regex, boolean matchCase, boolean wholeWord) {
-		Pattern pattern = Pattern.compile(wholeWord? "\b" + Pattern.quote(expression) + "\b" : regex? expression : Pattern.quote(expression), matchCase? 0 : Pattern.CASE_INSENSITIVE);
+		DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
+		searchRoot.removeAllChildren();
+		Pattern pattern = Pattern.compile(wholeWord? "\\b" + Pattern.quote(expression) + "\\b" : regex? expression : Pattern.quote(expression), matchCase? 0 : Pattern.CASE_INSENSITIVE);
 		searchInResourcesRecursion(node, pattern);
 		LGM.searchTree.updateUI();
 	}
+	
+	static class SearchResultNode extends DefaultMutableTreeNode {
+		/**
+		 * TODO: Change if needed.
+		 */
+		private static final long serialVersionUID = 1L;
+		private Icon icon = null;
+		
+		public SearchResultNode()
+			{
+				super();
+			}
+		
+		public SearchResultNode(String text)
+			{
+			super(text);
+			}
+
+		public void setIcon(Icon ico) {
+			icon = ico;
+		}
+	}
+	
+	public static class SearchResultsRenderer extends DefaultTreeCellRenderer
+	{
+		SearchResultNode last;
+		private static final long serialVersionUID = 1L;
+
+		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel,
+			boolean expanded, boolean leaf, int row, boolean hasFocus)
+		{
+		if (value instanceof SearchResultNode) {
+			last = (SearchResultNode) value;
+		}
+		return super.getTreeCellRendererComponent(tree,value,sel,expanded,leaf,row,hasFocus);
+		}
+		
+		public Icon getLeafIcon()
+		{
+			if (last != null) {
+				Icon icon = last.icon;
+				if (icon != null) return icon;
+			}
+			return null;
+		}
+
+		public Icon getClosedIcon()
+		{
+			if (last != null) {
+				Icon icon = last.icon;
+				if (icon != null) return icon;
+			}
+			return null;
+		}
+
+		public Icon getOpenIcon()
+		{
+			if (last != null) {
+				Icon icon = last.icon;
+				if (icon != null) return icon;
+			}
+			return null;
+		}
+	}
+	
+  static class HighlightLabel extends JLabel
+  {
+      private static final long serialVersionUID = 1L;
+      private int start;
+      private int end;
+
+      public HighlightLabel(String text)
+				{
+				super(text);
+				}
+
+			@Override
+      public void paint(Graphics g)
+      {
+          FontMetrics fontMetrics = g.getFontMetrics();
+
+          String startString = getText().substring(0, start);
+          String text = getText().substring(start, end);
+
+          int startX = this.getIconTextGap();
+          if (this.getIcon() != null)
+          	startX += this.getIcon().getIconWidth();
+          startX += fontMetrics.stringWidth(startString);
+          int startY = 0;
+
+          int length = fontMetrics.stringWidth(text);
+          int height = fontMetrics.getHeight();
+
+          g.setColor(new Color(0x33, 0x66, 0xFF, 0x66));
+          g.fillRect(startX, startY, length, height);
+
+          super.paint(g);
+      }
+
+      public void highlightRegion(int start, int end)
+      {
+          this.start = start;
+          this.end = end;
+      }
+  }
 
 	public static void main(final String[] args)
 		{
@@ -1258,13 +1396,15 @@ public final class LGM
 		tree = createTree();
 		DefaultMutableTreeNode sroot = new DefaultMutableTreeNode("root");
 		searchTree = new JTree(sroot);
-		sroot.add(new DefaultMutableTreeNode("No results found."));
+		sroot.add(new DefaultMutableTreeNode(Messages.getString("TreeFilter.NORESULTS")));
 		searchTree.expandRow(0);
+		searchTree.setCellRenderer(new SearchResultsRenderer());
 		searchTree.setRootVisible(false);
 		searchTree.setShowsRootHandles(true);
 		searchTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		content = new JPanel(new BorderLayout());
 		content.add(BorderLayout.CENTER,createMDI());
+		content.setPreferredSize(new Dimension(640, 640));
 		eventSelect = new EventPanel();
 
 		// could possibly be used to force the toolbar with event panel to popout
@@ -1451,6 +1591,9 @@ public final class LGM
 	  	else tree.expandPath(new TreePath(node.getPath()));
 	  }
 		});
+		//TODO: Fix LNF bugs where text field will not expand on a toolbar
+		//not a Win32 issue. So we give it at least a default size.
+		filterText.setColumns(14);
 		
 		filterPanel = new JToolBar();
 		filterPanel.add(filterText);
@@ -1464,6 +1607,9 @@ public final class LGM
 		scroll.setPreferredSize(new Dimension(250,100));
 		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
 		
+		//TODO: DO NOT remove this line, believe it or not it fixes a look and feel bug when you switch to
+		//nimbus and back to native on Windows.
+		treeTabs.setFont(treeTabs.getFont().deriveFont(Font.BOLD));
 		treeTabs.addTab(Messages.getString("TreeFilter.TAB_RESOURCES"),scroll);
 		treeTabs.addTab(Messages.getString("TreeFilter.TAB_SEARCHRESULTS"),searchTree);
 		if (Prefs.dockEventPanel) {
@@ -1471,16 +1617,20 @@ public final class LGM
 		} else {
 			eventSelect.setVisible(false); //must occur after adding split
 		}
-    
+		
     JPanel hierarchyPanel = new JPanel();
     hierarchyPanel.setLayout(new BorderLayout(0, 0));
     hierarchyPanel.add(filterPanel, BorderLayout.NORTH);
     hierarchyPanel.add(treeTabs,BorderLayout.CENTER);
+    
+    //OutputManager.initialize();
 		
-		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,hierarchyPanel,content);
-		split.setDividerLocation(280);
-		split.setOneTouchExpandable(true);
-		f.add(split);
+		JSplitPane verSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,true,content,OutputManager.outputTabs);
+		verSplit.setOneTouchExpandable(true);
+		JSplitPane horSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,hierarchyPanel,verSplit);
+		horSplit.setDividerLocation(280);
+		horSplit.setOneTouchExpandable(true);
+		f.add(horSplit);
 
 		frame.setContentPane(f);
 		frame.setTransferHandler(Listener.getInstance().fc.new LGMDropHandler());
@@ -1522,7 +1672,6 @@ public final class LGM
 			{
 			LOADING_PROJECT = false;
 			}
-
 		}
 	
 	/*
