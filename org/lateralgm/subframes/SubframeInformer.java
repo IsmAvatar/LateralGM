@@ -31,10 +31,10 @@ public final class SubframeInformer
 		return false;
 		}
 
-	public static void fireSubframeAppear(MDIFrame source)
+	public static void fireSubframeAppear(MDIFrame source, boolean wasVisible)
 		{
 		for (SubframeListener sl : listeners)
-			sl.subframeAppeared(source);
+			sl.subframeAppeared(source,wasVisible);
 		}
 
 	public static interface SubframeListener
@@ -44,6 +44,6 @@ public final class SubframeInformer
 		 */
 		boolean subframeRequested(Resource<?,?> res, ResNode node);
 
-		void subframeAppeared(MDIFrame source);
+		void subframeAppeared(MDIFrame source, boolean wasVisible);
 		}
 	}

@@ -214,7 +214,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 			repaint();
 			}
 
-		SubframeInformer.fireSubframeAppear(this);
+		SubframeInformer.fireSubframeAppear(this,false);
 		}
 
 	private void makeArgumentPane(Action a, LibAction la)

@@ -203,6 +203,7 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 		}
 		if (SubframeInformer.fireSubframeRequest(r,this)) return;
 		ResourceFrame<?,?> rf = frame;
+		boolean wasVisible = false;
 		if (frame == null)
 			{
 			ResourceFrameFactory factory = ResourceFrame.factories.get(kind);
@@ -212,10 +213,12 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 				frame = rf;
 				if (rf instanceof InstantiableResourceFrame<?,?>) LGM.mdi.add(rf);
 				}
+			} else {
+				wasVisible = frame.isVisible();
 			}
 		if (rf != null)
 			{
-			SubframeInformer.fireSubframeAppear(rf);
+			SubframeInformer.fireSubframeAppear(rf,wasVisible);
 			rf.toTop();
 			}
 		}

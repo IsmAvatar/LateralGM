@@ -382,7 +382,6 @@ public final class LGM
 			try
 				{
 				UIManager.setLookAndFeel(lookAndFeel);
-
 				}
 			catch (ClassNotFoundException e)
 				{

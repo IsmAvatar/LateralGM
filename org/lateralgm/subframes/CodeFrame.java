@@ -88,7 +88,7 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(code.text));
 
-		SubframeInformer.fireSubframeAppear(this);
+		SubframeInformer.fireSubframeAppear(this,false);
 		}
 
 	public void setTitleFormatArg(Object titleArg)
