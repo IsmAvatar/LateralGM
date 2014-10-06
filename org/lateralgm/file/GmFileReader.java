@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
@@ -239,7 +240,7 @@ public final class GmFileReader
 			LGM.setProgress(40,Messages.getString("ProgressDialog.SPRITES"));
 			readSprites(c);
 			LGM.setProgress(50,Messages.getString("ProgressDialog.BACKGROUNDS"));
-			readBackgrounds(c);
+			int bgVer = readBackgrounds(c);
 			LGM.setProgress(60,Messages.getString("ProgressDialog.PATHS"));
 			readPaths(c);
 			LGM.setProgress(70,Messages.getString("ProgressDialog.SCRIPTS"));
@@ -255,6 +256,21 @@ public final class GmFileReader
 			readGmObjects(c);
 			LGM.setProgress(120,Messages.getString("ProgressDialog.ROOMS"));
 			readRooms(c);
+			
+			//If the "use as tileset" flag was not part of this version, try to infer it from the backgrounds used in room tiles.
+			if (bgVer <= 400) {
+				HashSet<ResourceReference<Background>> tagged = new HashSet<ResourceReference<Background>>();
+				for (Room rm : f.resMap.getList(Room.class)) {
+					for (Tile tl : rm.tiles) {
+						ResourceReference<Background> bkg = tl.properties.get(PTile.BACKGROUND);
+						if (bkg!=null && bkg.get()!=null && !tagged.contains(bkg)) {
+							bkg.get().properties.put(PBackground.USE_AS_TILESET, true);
+							tagged.add(bkg);
+						}
+					}
+				}
+				tagged = null;
+			}
 
 			f.lastInstanceId = in.read4();
 			f.lastTileId = in.read4();
@@ -678,7 +694,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readBackgrounds(ProjectFileContext c) throws IOException,GmFormatException,
+	private static int readBackgrounds(ProjectFileContext c) throws IOException,GmFormatException,
 			DataFormatException
 		{
 		ProjectFile f = c.f;
@@ -738,6 +754,8 @@ public final class GmFileReader
 				}
 			in.endInflate();
 			}
+		
+			return ver;
 		}
 
 	private static void readPaths(ProjectFileContext c) throws IOException,GmFormatException
