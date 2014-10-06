@@ -736,11 +736,6 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	private static class MListener extends MouseAdapter
 		{
-		public MListener()
-			{
-			super();
-			}
-
 		@Override
 		public void mouseReleased(MouseEvent e)
 			{

@@ -47,6 +47,7 @@ import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.DocumentUndoManager;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.LGM.JSplitPaneExpandable;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.Util;
@@ -655,9 +656,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			}
 		});
 		
-		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,tree,cardPane);
+		JSplitPaneExpandable split = new JSplitPaneExpandable(JSplitPane.HORIZONTAL_SPLIT,true,tree,cardPane);
 		split.setDividerLocation(200);
-		split.setOneTouchExpandable(true);
+		split.setDoubleClickExpandable(true);
 		add(split);
 		
 		JPanel p = new JPanel();

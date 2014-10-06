@@ -23,7 +23,6 @@
 
 package org.lateralgm.components.impl;
 
-import java.awt.Font;
 import java.util.Enumeration;
 
 import javax.swing.Icon;
@@ -50,10 +49,6 @@ public class DefaultNode extends DefaultMutableTreeNode
 	
 	public Icon getLeafIcon() {
 		return getIcon();
-	}
-	
-	public Font getFont(Font com) {
-		return com;
 	}
 	
 	public void setVisible(boolean visible) {

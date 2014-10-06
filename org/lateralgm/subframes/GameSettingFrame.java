@@ -68,6 +68,7 @@ import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
+import org.lateralgm.main.LGM.JSplitPaneExpandable;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.ColorDepth;
@@ -729,9 +730,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			}
 		});
 		
-		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,tree,cardPane);
+		JSplitPaneExpandable split = new JSplitPaneExpandable(JSplitPane.HORIZONTAL_SPLIT,true,tree,cardPane);
 		split.setDividerLocation(200);
-		split.setOneTouchExpandable(true);
+		split.setDoubleClickExpandable(true);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(split)

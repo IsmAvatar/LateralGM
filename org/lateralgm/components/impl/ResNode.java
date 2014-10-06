@@ -122,8 +122,7 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 		return null;
 	}
 	
-	
-	@Override
+	// NOTE: DO NOT use this for tree graphics, format with HTML instead because there is a Java LNF bug that causes this not to work.
 	public Font getFont(Font com) {
 		if (Prefs.boldPrimaryNodes && status == ResNode.STATUS_PRIMARY) {
 			com = com.deriveFont(Font.BOLD);

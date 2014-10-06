@@ -29,7 +29,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
@@ -39,11 +38,16 @@ import java.awt.Rectangle;
 import java.awt.SplashScreen;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
@@ -68,7 +72,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
@@ -84,8 +90,10 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -101,6 +109,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
@@ -128,6 +138,7 @@ import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.subframes.ConstantsFrame;
 import org.lateralgm.subframes.EventPanel;
@@ -314,6 +325,12 @@ public final class LGM
 				{
 				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
 				}
+			else if (LOOKANDFEEL.equals("Windows Classic"))
+				{
+				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
+				//NOTE: Fixes UI bug in the JDK where the buttons look way too big and get cut off.
+				UIManager.put("InternalFrame.titleButtonWidth", 20);
+				}
 			else if (LOOKANDFEEL.equals("CDE/Motif"))
 				{
 				lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
@@ -354,6 +371,7 @@ public final class LGM
 						foundMatch = true;
 						}
 					}
+
 				if (!foundMatch)
 					{
 					System.err.println("Unexpected value of LOOKANDFEEL specified: " + LOOKANDFEEL);
@@ -399,17 +417,15 @@ public final class LGM
 			return;
 			}
 		SwingUtilities.updateComponentTreeUI(tree);
-		SwingUtilities.updateComponentTreeUI(mdi);
-		mdi.updateUI();
 		if (eventFrame == null)
 			{
 			SwingUtilities.updateComponentTreeUI(eventSelect);
+			eventSelect.updateUI();
 			}
 		else
 			{
 			SwingUtilities.updateComponentTreeUI(eventFrame);
 			}
-		frame.pack();
 		Window windows[] = Window.getWindows();
 		for (Window i : windows)
 			{
@@ -814,9 +830,84 @@ public final class LGM
 		*/
 		void reloadPerformed(boolean newRoot);
 		}
+	
+		public static class JSplitPaneExpandable extends JSplitPane {
+			/**
+			 * TODO: Change if needed.
+			 */
+			private static final long serialVersionUID = 1L;
+
+			public boolean doubleClickExpandable = false;
+			
+			public MouseAdapter dividerAdapter = new MouseAdapter() {
+				public void mouseReleased(MouseEvent me) {
+					if (me.getClickCount() > 1) {
+		      	if (getDividerLocation() <= 10) {
+		      		setDividerLocation(getLastDividerLocation());
+		      	} else {
+		      		setLastDividerLocation(getDividerLocation());
+		      		setDividerLocation(0);
+		      	}
+					}
+				}
+			};
+			
+			public JSplitPaneExpandable(int orientation, boolean b, JComponent first,
+					JComponent second)
+				{
+					super(orientation, b, first, second);
+				}
+
+			public JSplitPaneExpandable(int orientation, JComponent first, JComponent second)
+				{
+					super(orientation, first, second);
+				}
+
+			// The purpose of this is an alternative and more standard feature found in most software to 
+			// those tiny expand/collapse buttons with oneTouchExpandable.
+			// * This looks much better than the trashy collapse icons.
+			// * More user friendly, they can toggle the behavior much easier.
+			// * Standard and found in more software applications.
+			public void setDoubleClickExpandable(boolean enable) {
+				if (enable && !doubleClickExpandable) {
+					BasicSplitPaneUI basicSplitPaneUI = (BasicSplitPaneUI) this.getUI();
+					BasicSplitPaneDivider basicSplitPaneDivider = basicSplitPaneUI.getDivider();
+					basicSplitPaneDivider.addMouseListener(dividerAdapter);
+				} else if (!enable && doubleClickExpandable) {
+					BasicSplitPaneUI basicSplitPaneUI = (BasicSplitPaneUI) this.getUI();
+					BasicSplitPaneDivider basicSplitPaneDivider = basicSplitPaneUI.getDivider();
+					basicSplitPaneDivider.removeMouseListener(dividerAdapter);
+				}
+			}
+		}
 
 	protected static ArrayList<ReloadListener> reloadListeners = new ArrayList<ReloadListener>();
+	static Action treeCopyAction = new AbstractAction("COPY") {
 
+			 /**
+				 * TODO: Change if needed.
+				 */
+			private static final long serialVersionUID = 1L;
+
+			public void actionPerformed(ActionEvent ev)
+				{
+				Object obj = ev.getSource();
+				if (obj == null || !(obj instanceof JTree)) return;
+				JTree tree = (JTree) obj;
+				String text = "";
+				int[] rows = tree.getSelectionRows();
+				java.util.Arrays.sort(rows);
+				for (int i = 0; i < rows.length; i++) {
+					TreePath path = tree.getPathForRow(rows[i]);
+					text += path.getLastPathComponent().toString().replaceAll("\\<[^>]*>","") + "\n";
+				}
+				
+			  StringSelection selection = new StringSelection(text);
+		    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		    clipboard.setContents(selection, selection);
+				}
+		};
+	
 	public static void addReloadListener(ReloadListener l)
 		{
 		reloadListeners.add(l);
@@ -1197,7 +1288,7 @@ public final class LGM
 				if (resNode.status != ResNode.STATUS_SECONDARY) {
 					searchInResourcesRecursion(child, pattern);
 				} else {
-					DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
+					SearchResultNode resultRoot = null;
 					ResourceReference<?> ref = (ResourceReference<?>) resNode.getRes();
 					if (ref != null) {
 						if (resNode.kind == Script.class)	{
@@ -1205,9 +1296,10 @@ public final class LGM
 							String code = res.getCode();
 							List<LineMatch> matches = getMatchingLines(code, pattern);
 							if (matches.size() > 0) {
-								SearchResultNode resultRoot = new SearchResultNode("<html>" + res.getName()
+								resultRoot = new SearchResultNode("<html>" + res.getName()
 										+ " <font color='blue'>(" + matches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
-								searchRoot.add(resultRoot);
+								resultRoot.ref = res.reference;
+								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
 								for (LineMatch match : matches) {
 									if (match.matchedText.size() > 0) {
@@ -1215,10 +1307,81 @@ public final class LGM
 										
 										SearchResultNode resultNode = new SearchResultNode(text);
 										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+										resultNode.status = SearchResultNode.STATUS_RESULT;
 										resultRoot.add(resultNode);
 									}
 								}
 							}
+						} else if (resNode.kind == Shader.class) {
+							Shader res = (Shader) ref.get();
+							String vcode = res.getVertexCode();
+							String fcode = res.getFragmentCode();
+							List<LineMatch> vertexmatches = getMatchingLines(vcode, pattern);
+							List<LineMatch> fragmentmatches = getMatchingLines(fcode, pattern);
+							if (vertexmatches.size() + fragmentmatches.size() > 0) {
+								resultRoot = new SearchResultNode("<html>" + res.getName()
+										+ " <font color='blue'>(" + (vertexmatches.size() + fragmentmatches.size()) + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultRoot.ref = res.reference;
+								resultRoot.status = ResNode.STATUS_SECONDARY;
+								resultRoot.setIcon(res.getNode().getIcon());
+								
+								SearchResultNode resultGroupNode = new SearchResultNode("<html> Vertex Code:"
+										+ " <font color='blue'>(" + vertexmatches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultGroupNode.status = SearchResultNode.STATUS_RESULT;
+								resultRoot.add(resultGroupNode);
+								for (LineMatch match : vertexmatches) {
+									if (match.matchedText.size() > 0) {
+										String text = match.toHighlightableString();
+										
+										SearchResultNode resultNode = new SearchResultNode(text);
+										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+										resultNode.status = SearchResultNode.STATUS_RESULT;
+										resultGroupNode.add(resultNode);
+									}
+								}
+								
+								resultGroupNode = new SearchResultNode("<html> Fragment Code:"
+										+ " <font color='blue'>(" + fragmentmatches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultGroupNode.status = SearchResultNode.STATUS_RESULT;
+								resultRoot.add(resultGroupNode);
+								for (LineMatch match : fragmentmatches) {
+									if (match.matchedText.size() > 0) {
+										String text = match.toHighlightableString();
+										
+										SearchResultNode resultNode = new SearchResultNode(text);
+										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+										resultNode.status = SearchResultNode.STATUS_RESULT;
+										resultGroupNode.add(resultNode);
+									}
+								}
+							}
+						}
+						
+						if (resultRoot != null) {
+							TreeNode[] paths = resNode.getPath();
+							DefaultMutableTreeNode searchNode = (DefaultMutableTreeNode) LGM.searchTree.getModel().getRoot();
+							// start at 1 because we don't want to copy the root
+							// subtract 1 so we don't consider the node itself
+							for (int n = 1; n < paths.length - 1; n++) {
+								ResNode pathNode = (ResNode) paths[n];
+								boolean found = false;
+								for (int y = 0; y < searchNode.getChildCount(); y++) {
+								 DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) searchNode.getChildAt(y);
+								 if (childNode.getUserObject() == pathNode.getUserObject()) {
+								 		searchNode = childNode; found = true; break;
+								 }
+								}
+								if (!found) {
+									SearchResultNode newSearchNode = new SearchResultNode(pathNode.getUserObject());
+									newSearchNode.status = pathNode.status;
+									searchNode.add(newSearchNode);
+									searchNode = newSearchNode;
+								}
+								if (pathNode == resNode.getParent()) {
+									searchNode.add(resultRoot);
+								}
+							}
+							
 						}
 					}
 				}
@@ -1231,7 +1394,8 @@ public final class LGM
 		searchRoot.removeAllChildren();
 		Pattern pattern = Pattern.compile(wholeWord? "\\b" + Pattern.quote(expression) + "\\b" : regex? expression : Pattern.quote(expression), matchCase? 0 : Pattern.CASE_INSENSITIVE);
 		searchInResourcesRecursion(node, pattern);
-		LGM.searchTree.updateUI();
+		// Reload because root is invisible.
+		((DefaultTreeModel)searchTree.getModel()).reload();
 	}
 	
 	static class SearchResultNode extends DefaultMutableTreeNode {
@@ -1239,6 +1403,9 @@ public final class LGM
 		 * TODO: Change if needed.
 		 */
 		private static final long serialVersionUID = 1L;
+		public static final byte STATUS_RESULT = 4;
+		public byte status;
+		ResourceReference<?> ref;
 		private Icon icon = null;
 		
 		public SearchResultNode()
@@ -1246,13 +1413,33 @@ public final class LGM
 				super();
 			}
 		
-		public SearchResultNode(String text)
+		public SearchResultNode(Object text)
 			{
 			super(text);
 			}
 
 		public void setIcon(Icon ico) {
 			icon = ico;
+		}
+		
+		public void openFrame() {
+			if (status == STATUS_RESULT) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) this.getParent();
+				if (node instanceof SearchResultNode) {
+					SearchResultNode resNode = (SearchResultNode) node;
+					resNode.openFrame();
+				}
+			} else if (status == ResNode.STATUS_SECONDARY) {
+				if (ref != null) {
+					Resource<?,?> res = ref.get();
+					if (res != null) {
+						ResNode node = res.getNode();
+						if (node != null) {
+							node.openFrame();
+						}
+					}
+				}
+			}
 		}
 	}
 	
@@ -1264,10 +1451,21 @@ public final class LGM
 		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel,
 			boolean expanded, boolean leaf, int row, boolean hasFocus)
 		{
-		if (value instanceof SearchResultNode) {
-			last = (SearchResultNode) value;
-		}
-		return super.getTreeCellRendererComponent(tree,value,sel,expanded,leaf,row,hasFocus);
+			if (value instanceof SearchResultNode) {
+				last = (SearchResultNode) value;
+			}
+			Component com = super.getTreeCellRendererComponent(tree,value,sel,expanded,leaf,row,hasFocus);
+			
+			// Bold primary nodes
+			if (value instanceof SearchResultNode && com instanceof JLabel) {
+				SearchResultNode rn = (SearchResultNode) value;
+				JLabel label = (JLabel) com;
+				if (rn.status == ResNode.STATUS_PRIMARY) {
+					label.setText("<html><b>" + label.getText() + "</b></html>");
+				}
+			}
+	
+			return com;
 		}
 		
 		public Icon getLeafIcon()
@@ -1282,8 +1480,12 @@ public final class LGM
 		public Icon getClosedIcon()
 		{
 			if (last != null) {
-				Icon icon = last.icon;
-				if (icon != null) return icon;
+				if (last.status == ResNode.STATUS_PRIMARY || last.status == ResNode.STATUS_GROUP) {
+					return LGM.getIconForKey("GmTreeGraphics.GROUP");
+				} else {
+					Icon icon = last.icon;
+					if (icon != null) return icon;
+				}
 			}
 			return null;
 		}
@@ -1291,53 +1493,16 @@ public final class LGM
 		public Icon getOpenIcon()
 		{
 			if (last != null) {
-				Icon icon = last.icon;
-				if (icon != null) return icon;
+				if (last.status == ResNode.STATUS_PRIMARY || last.status == ResNode.STATUS_GROUP) {
+					return LGM.getIconForKey("GmTreeGraphics.GROUP_OPEN");
+				} else {
+					Icon icon = last.icon;
+					if (icon != null) return icon;
+				}
 			}
 			return null;
 		}
 	}
-	
-  static class HighlightLabel extends JLabel
-  {
-      private static final long serialVersionUID = 1L;
-      private int start;
-      private int end;
-
-      public HighlightLabel(String text)
-				{
-				super(text);
-				}
-
-			@Override
-      public void paint(Graphics g)
-      {
-          FontMetrics fontMetrics = g.getFontMetrics();
-
-          String startString = getText().substring(0, start);
-          String text = getText().substring(start, end);
-
-          int startX = this.getIconTextGap();
-          if (this.getIcon() != null)
-          	startX += this.getIcon().getIconWidth();
-          startX += fontMetrics.stringWidth(startString);
-          int startY = 0;
-
-          int length = fontMetrics.stringWidth(text);
-          int height = fontMetrics.getHeight();
-
-          g.setColor(new Color(0x33, 0x66, 0xFF, 0x66));
-          g.fillRect(startX, startY, length, height);
-
-          super.paint(g);
-      }
-
-      public void highlightRegion(int start, int end)
-      {
-          this.start = start;
-          this.end = end;
-      }
-  }
 
 	public static void main(final String[] args)
 		{
@@ -1395,13 +1560,127 @@ public final class LGM
 		final JTabbedPane treeTabs = new JTabbedPane();
 		tree = createTree();
 		DefaultMutableTreeNode sroot = new DefaultMutableTreeNode("root");
+		//sroot.add(new DefaultMutableTreeNode("cock"));
+		
 		searchTree = new JTree(sroot);
-		sroot.add(new DefaultMutableTreeNode(Messages.getString("TreeFilter.NORESULTS")));
-		searchTree.expandRow(0);
+
+		// Create tree context menu
+		final JPopupMenu searchMenu = new JPopupMenu();
+		JMenuItem copyItem = new JMenuItem();
+		copyItem.setAction(treeCopyAction);
+		copyItem.setText(Messages.getString("TreeFilter.COPY"));
+		copyItem.setIcon(LGM.getIconForKey("TreeFilter.COPY"));
+		copyItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.COPY")));
+
+    searchTree.getActionMap().put("COPY", treeCopyAction);
+    searchTree.getInputMap().put(copyItem.getAccelerator(), "COPY");
+    // Add it to the main tree as well to remove HTML formatting
+    tree.getActionMap().put("COPY", treeCopyAction);
+    tree.getInputMap().put(copyItem.getAccelerator(), "COPY");
+    
+		searchMenu.add(copyItem);
+		searchMenu.addSeparator();
+		JMenuItem selectAllItem = new JMenuItem(Messages.getString("TreeFilter.SELALL"));
+		
+		selectAllItem.setIcon(LGM.getIconForKey("TreeFilter.SELALL"));
+		selectAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.SELALL")));
+		//NOTE: It's possible to grab the trees built in Select All action.
+		//selectAllItem.setAction(searchTree.getActionMap().get(searchTree.getInputMap().get(selectAllItem.getAccelerator())));
+		
+		selectAllItem.addActionListener(new ActionListener() {
+			public void selectExpandedChildren(JTree tree, DefaultMutableTreeNode node) {
+				Enumeration<?> children = node.children();
+				DefaultMutableTreeNode it = null;
+				while (children.hasMoreElements()) {
+					it = (DefaultMutableTreeNode) children.nextElement();
+					tree.addSelectionPath(new TreePath(it.getPath()));
+					if (tree.isExpanded(new TreePath(it.getPath()))) {
+						selectExpandedChildren(tree, it);
+					}
+				}
+			}
+			public void actionPerformed(ActionEvent ev)
+				{
+					selectExpandedChildren(LGM.searchTree,(DefaultMutableTreeNode) LGM.searchTree.getModel().getRoot());
+				}
+		});
+		searchMenu.add(selectAllItem);
+
+		searchTree.setToggleClickCount(0); // we only want to expand on double click with group nodes, not result nodes
 		searchTree.setCellRenderer(new SearchResultsRenderer());
 		searchTree.setRootVisible(false);
 		searchTree.setShowsRootHandles(true);
 		searchTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
+		searchTree.addMouseListener(new MouseAdapter() {
+	    public void mouseReleased(MouseEvent me) {
+	    	TreePath path = LGM.searchTree.getPathForLocation(me.getX(),me.getY());
+	    	
+	    	boolean inpath = false;
+	    	if (path != null) {
+					//Check to see if we have clicked on a different node then the one
+					//currently selected.
+					TreePath[] paths = LGM.searchTree.getSelectionPaths();
+					
+	
+					if (paths != null)
+						{
+						for (int i = 0; i < paths.length; i++)
+							{
+							if (paths[i].equals(path))
+								{
+								inpath = true;
+								}
+							}
+						}
+					
+					if (me.getModifiers() == InputEvent.BUTTON1_MASK && inpath)
+						{
+						LGM.searchTree.setSelectionPath(path);
+						}
+	    	}
+				//Isn't Java supposed to handle ctrl+click for us? For some reason it doesn't.
+				if (me.getModifiers() == InputEvent.BUTTON3_MASK && me.getClickCount() == 1)
+					{
+					// Yes the right click button does change the selection,
+					// go ahead and experiment with Eclipse, CodeBlocks, Visual Studio
+					// or Qt. Swing's default component popup listener does not do this
+					// indicating it is an inconsistency with the framework compared to
+					// other GUI libraries.
+					if (!inpath && path != null)
+						{
+						LGM.searchTree.setSelectionPath(path);
+						}
+					searchMenu.show((Component)me.getSource(), me.getX(), me.getY());
+					return;
+					}
+				
+				if (path == null) return;
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+				if (node == null) return;
+				if (me.getModifiers() == InputEvent.BUTTON1_MASK && me.getClickCount() >= 2 && ((me.getClickCount() & 1) == 0)) {
+					if (node instanceof SearchResultNode) {
+						SearchResultNode srn = (SearchResultNode) node;
+						
+						if (srn.status == SearchResultNode.STATUS_RESULT || srn.status == ResNode.STATUS_SECONDARY) {
+							srn.openFrame();
+							return;
+						} else {
+							if (LGM.searchTree.isExpanded(path)) {
+								LGM.searchTree.collapsePath(path);
+							} else {
+								LGM.searchTree.expandPath(path);
+							}
+						}
+					} else {
+						if (LGM.searchTree.isExpanded(path)) {
+							LGM.searchTree.collapsePath(path);
+						} else {
+							LGM.searchTree.expandPath(path);
+						}
+					}
+				}
+	    }
+	  });
 		content = new JPanel(new BorderLayout());
 		content.add(BorderLayout.CENTER,createMDI());
 		content.setPreferredSize(new Dimension(640, 640));
@@ -1625,11 +1904,11 @@ public final class LGM
     
     //OutputManager.initialize();
 		
-		JSplitPane verSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,true,content,OutputManager.outputTabs);
-		verSplit.setOneTouchExpandable(true);
-		JSplitPane horSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,hierarchyPanel,verSplit);
-		horSplit.setDividerLocation(280);
-		horSplit.setOneTouchExpandable(true);
+		JSplitPaneExpandable verSplit = new JSplitPaneExpandable(JSplitPane.VERTICAL_SPLIT,true,content,OutputManager.outputTabs);
+		verSplit.setDoubleClickExpandable(true);
+		final JSplitPaneExpandable horSplit = new JSplitPaneExpandable(JSplitPane.HORIZONTAL_SPLIT,true,hierarchyPanel,verSplit);
+		horSplit.setDividerLocation(320);
+		horSplit.setDoubleClickExpandable(true);
 		f.add(horSplit);
 
 		frame.setContentPane(f);

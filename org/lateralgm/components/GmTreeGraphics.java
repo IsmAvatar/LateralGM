@@ -61,14 +61,6 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 				label.setText("<html><b>" + label.getText() + "</b></html>");
 			}
 		}
-		
-		//TODO: Sometimes when renaming secondary nodes the text box will be bold and sometimes it wont
-		//should be fixed but no idea what is wrong.
-		//Most likely a look and feel bug.
-		// 10/3/2014 This is no longer an issue because of the changes above we use HTML to get the bold 
-		// effect on the component and it doesn't bold the child nodes when you try to rename them, so it works much better.
-		//Font fnt = last.getFont(com.getFont().deriveFont(Font.PLAIN));
-		//com.setFont(fnt);
 
 		return com;
 		}

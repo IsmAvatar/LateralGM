@@ -95,6 +95,7 @@ import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.FileChooser.FileDropHandler;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.LGM.JSplitPaneExpandable;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -153,7 +154,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public JCheckBox wrapBox, shiftBox;
 
 	public boolean imageChanged = false;
-	public JSplitPane splitPane;
+	public JSplitPaneExpandable splitPane;
 
 	/** Used for animation, or null when not animating */
 	public Timer timer;
@@ -203,10 +204,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		setLayout(new BorderLayout());
 
-		JSplitPane previewPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,makePreviewPane(),
+		JSplitPaneExpandable previewPane = new JSplitPaneExpandable(JSplitPane.VERTICAL_SPLIT,makePreviewPane(),
 				makeSubimagesPane());
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,makePropertiesPane(),previewPane);
-		splitPane.setOneTouchExpandable(true);
+		splitPane = new JSplitPaneExpandable(JSplitPane.HORIZONTAL_SPLIT,makePropertiesPane(),previewPane);
+		splitPane.setDoubleClickExpandable(true);
 
 		add(makeToolBar(),BorderLayout.NORTH);
 		add(splitPane,BorderLayout.CENTER);
