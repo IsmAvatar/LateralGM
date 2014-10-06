@@ -231,7 +231,11 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		{
 		for (Map.Entry<Action,WeakReference<ActionFrame>> entry : FRAMES.entrySet())
 			{
-			entry.getValue().get().dispose();
+				ActionFrame frame = entry.getValue().get();
+				
+				if (frame != null) {
+					frame.dispose();
+				}
 			}
 		}
 
