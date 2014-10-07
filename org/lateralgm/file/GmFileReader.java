@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
@@ -259,17 +258,14 @@ public final class GmFileReader
 			
 			//If the "use as tileset" flag was not part of this version, try to infer it from the backgrounds used in room tiles.
 			if (bgVer <= 400) {
-				HashSet<ResourceReference<Background>> tagged = new HashSet<ResourceReference<Background>>();
 				for (Room rm : f.resMap.getList(Room.class)) {
 					for (Tile tl : rm.tiles) {
 						ResourceReference<Background> bkg = tl.properties.get(PTile.BACKGROUND);
-						if (bkg!=null && bkg.get()!=null && !tagged.contains(bkg)) {
+						if (bkg!=null && bkg.get()!=null) {
 							bkg.get().properties.put(PBackground.USE_AS_TILESET, true);
-							tagged.add(bkg);
 						}
 					}
 				}
-				tagged = null;
 			}
 
 			f.lastInstanceId = in.read4();
