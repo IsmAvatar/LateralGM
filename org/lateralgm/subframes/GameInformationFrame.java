@@ -80,7 +80,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.swing.text.rtf.RTFEditorKit;
+import javax.swing.text.rtf.RTFEditorKitExt;
 
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.NumberField;
@@ -98,7 +98,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 	private static final long serialVersionUID = 1L;
 	protected SettingsFrame settings;
 	protected JEditorPane editor;
-	private RTFEditorKit rtf = new RTFEditorKit();
+	private RTFEditorKitExt rtf = new RTFEditorKitExt();
 	protected JMenuBar menubar;
 	protected JToolBar toolbar;
 	protected JComboBox<String> cbFonts;
