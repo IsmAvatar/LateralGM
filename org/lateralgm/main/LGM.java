@@ -1896,14 +1896,14 @@ public final class LGM
 		
 		filterText.addActionListener(new ActionListener() {
 	  public void actionPerformed(ActionEvent evt) {
-	  	ResNode node = (ResNode) tree.getLastSelectedPathComponent();
-	  	if (node == null) { return; }
-	  	if (node.status == ResNode.STATUS_SECONDARY) node.openFrame();
-	  	else tree.expandPath(new TreePath(node.getPath()));
+			InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+			searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(), 
+					matchCaseCB.isSelected(), wholeWordCB.isSelected());
+			treeTabs.setSelectedIndex(1);
 	  }
 		});
-		//TODO: Fix LNF bugs where text field will not expand on a toolbar
-		//not a Win32 issue. So we give it at least a default size.
+		//TODO: Fix LNF bugs where text field will not expand on a toolbar,
+		//so we give it at least a default size. Does not pertain to the Windows look and feel. 
 		filterText.setColumns(14);
 		
 		filterPanel = new JToolBar();
