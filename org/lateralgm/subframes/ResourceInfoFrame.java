@@ -37,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -423,19 +424,11 @@ public class ResourceInfoFrame extends JFrame implements ActionListener
 			}
 		else if (com.equals("ResourceInfoFrame.PRINT")) //$NON-NLS-1$
 			{
-			//TODO: Make the fucker actually print
-			PrinterJob pj = PrinterJob.getPrinterJob();
-			if (pj.printDialog())
-				{
-				try
-					{
-					pj.print();
-					}
-				catch (PrinterException exc)
-					{
-					System.out.println(exc);
-					}
-				}
+			try {
+				editor.print();
+			} catch (Exception pex) {
+				LGM.showDefaultExceptionHandler(pex);
+			}
 			return;
 			}
 

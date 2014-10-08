@@ -728,36 +728,11 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			}
 		else if (com.equals("GameInformationFrame.PRINT")) //$NON-NLS-1$
 			{
-			//TODO: Make the fucker actually print
-			final PrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
-			attributes.add(DialogTypeSelection.COMMON);
-			PrinterJob pj = PrinterJob.getPrinterJob();
-			pj.pageDialog(pj.defaultPage());
-			/*
 			try {
-			boolean done = editor.print();
-			if (done) {
-			    JOptionPane.showMessageDialog(null, "Printing is done");
-			} else {
-			    JOptionPane.showMessageDialog(null, "Error while printing");
-			}
+				editor.print();
 			} catch (Exception pex) {
-			JOptionPane.showMessageDialog(null, "Error while printing");
-			pex.printStackTrace();
+				LGM.showDefaultExceptionHandler(pex);
 			}
-			*/
-			if (pj.printDialog(attributes))
-				{
-				try
-					{
-					pj.print();
-					editor.print();
-					}
-				catch (PrinterException exc)
-					{
-					System.out.println(exc);
-					}
-				}
 			return;
 			}
 		else if (com.equals("GameInformationFrame.SETTINGS"))
