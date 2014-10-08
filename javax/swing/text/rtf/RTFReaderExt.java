@@ -24,10 +24,8 @@
  */
 package javax.swing.text.rtf;
 
-import java.lang.*;
 import java.util.*;
 import java.io.*;
-import java.awt.Font;
 import java.awt.Color;
 
 import javax.swing.text.*;

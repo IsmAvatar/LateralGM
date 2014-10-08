@@ -25,7 +25,6 @@
 package javax.swing.text.rtf;
 
 import java.io.*;
-import java.lang.*;
 
 /**
  * A generic superclass for streams which read and parse text

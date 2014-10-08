@@ -25,7 +25,6 @@
 package javax.swing.text.rtf;
 
 import java.io.*;
-import java.lang.*;
 
 /**
  * <b>RTFParser</b> is a subclass of <b>AbstractFilter</b> which understands basic RTF syntax
@@ -193,7 +192,7 @@ abstract class RTFParserExt extends AbstractFilterExt
           char newstring[] = new char[1];
           newstring[0] = ch;
           if (!handleKeyword(new String(newstring))) {
-            warning("Unknown keyword: " + newstring + " (" + (byte)ch + ")");
+            warning("Unknown keyword: " + new String(newstring) + " (" + (byte)ch + ")");
           }
           state = S_text;
           pendingKeyword = null;
