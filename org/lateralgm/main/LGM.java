@@ -54,6 +54,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -661,6 +662,42 @@ public final class LGM
 		return scroll;
 		}
 
+	public static void addURL(URL url) throws Exception {
+	  URLClassLoader classLoader
+	         = (URLClassLoader) ClassLoader.getSystemClassLoader();
+	  Class<?> clazz = URLClassLoader.class;
+	
+	  // Use reflection
+	  Method method= clazz.getDeclaredMethod("addURL", new Class[] { URL.class });
+	  method.setAccessible(true);
+	  method.invoke(classLoader, new Object[] { url });
+	}
+	
+	public static void loadLookAndFeels()
+		{
+		if (workDir == null) return;
+		
+		File dir = new File(workDir,"lookandfeels"); //$NON-NLS-1$
+		if (!dir.exists()) {
+			dir = new File(workDir.getParent(),"lookandfeels"); //$NON-NLS-1$
+		}
+		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$
+		if (ps == null) return;
+		
+		for (File f : ps)
+			{
+			if (!f.exists()) continue;
+			try
+				{
+				addURL(f.toURI().toURL());
+				}
+			catch (Exception e)
+				{
+				e.printStackTrace();
+				}
+			}
+		}
+	
 	public static void loadPlugins()
 		{
 		if (workDir == null) return;
@@ -1555,6 +1592,9 @@ public final class LGM
 		if (javaVersion < 10600)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
 
+		// Load external look and feels the user has plugged in
+		loadLookAndFeels();
+		
 		iconspack = Prefs.iconPack;
 		SetLookAndFeel(Prefs.swingTheme);
 		JFrame.setDefaultLookAndFeelDecorated(true);

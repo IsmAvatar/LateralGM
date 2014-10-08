@@ -966,7 +966,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			infoFrame.dispose();
 			}
 		res.properties.updateSource.removeListener(propUpdateListener);
-		((ActionListEditor) editor).dispose();
+		if (editor != null) {
+			((ActionListEditor) editor).dispose();
+		}
 		}
 
 	public void valueChanged(TreeSelectionEvent tse)
