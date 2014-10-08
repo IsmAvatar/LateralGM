@@ -134,11 +134,13 @@ import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Shader;
+import org.lateralgm.resources.GameInformation.PGameInformation;
 import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.subframes.ConstantsFrame;
 import org.lateralgm.subframes.EventPanel;
@@ -891,14 +893,17 @@ public final class LGM
 			public void actionPerformed(ActionEvent ev)
 				{
 				Object obj = ev.getSource();
-				if (obj == null || !(obj instanceof JTree)) return;
-				JTree tree = (JTree) obj;
+				if (obj == null) return;
+				JTree tree = null;
+				if (!(obj instanceof JTree)) tree = LGM.searchTree;
+				else tree = (JTree) obj;
+				
 				String text = "";
 				int[] rows = tree.getSelectionRows();
 				java.util.Arrays.sort(rows);
 				for (int i = 0; i < rows.length; i++) {
 					TreePath path = tree.getPathForRow(rows[i]);
-					text += path.getLastPathComponent().toString().replaceAll("\\<[^>]*>","") + "\n";
+					text += (i > 0 ? "\n" : "") + path.getLastPathComponent().toString().replaceAll("\\<[^>]*>","");
 				}
 				
 			  StringSelection selection = new StringSelection(text);
@@ -1277,6 +1282,34 @@ public final class LGM
           assertEquals("sandthen", matches[1].matchedText.get(2).content);
   }
   */
+	
+	public static void buildSearchHierarchy(ResNode resNode, SearchResultNode resultRoot) {
+		DefaultMutableTreeNode searchNode = (DefaultMutableTreeNode) LGM.searchTree.getModel().getRoot();
+		if (resNode == null) { searchNode.add(resultRoot); return; }
+		TreeNode[] paths = resNode.getPath();
+		// start at 1 because we don't want to copy the root
+		// subtract 1 so we don't consider the node itself
+		for (int n = 1; n < paths.length - 1; n++) {
+			ResNode pathNode = (ResNode) paths[n];
+			boolean found = false;
+			for (int y = 0; y < searchNode.getChildCount(); y++) {
+			 DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) searchNode.getChildAt(y);
+			 if (childNode.getUserObject() == pathNode.getUserObject()) {
+			 		searchNode = childNode; found = true; break;
+			 }
+			}
+			if (!found) {
+				SearchResultNode newSearchNode = new SearchResultNode(pathNode.getUserObject());
+				newSearchNode.status = pathNode.status;
+				searchNode.add(newSearchNode);
+				searchNode = newSearchNode;
+			}
+			if (pathNode == resNode.getParent()) {
+				searchNode.insert(resultRoot, searchNode.getChildCount() + resNode.getDepth());
+			}
+		}
+	}
+	
 	
 	public static void searchInResourcesRecursion(DefaultMutableTreeNode node, Pattern pattern) {
 		int numChildren = node.getChildCount();
@@ -1889,7 +1922,10 @@ public final class LGM
 		//nimbus and back to native on Windows.
 		treeTabs.setFont(treeTabs.getFont().deriveFont(Font.BOLD));
 		treeTabs.addTab(Messages.getString("TreeFilter.TAB_RESOURCES"),scroll);
-		treeTabs.addTab(Messages.getString("TreeFilter.TAB_SEARCHRESULTS"),searchTree);
+		scroll = new JScrollPane(searchTree);
+		scroll.setPreferredSize(new Dimension(250,100));
+		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
+		treeTabs.addTab(Messages.getString("TreeFilter.TAB_SEARCHRESULTS"),scroll);
 		if (Prefs.dockEventPanel) {
 			treeTabs.addTab(Messages.getString("TreeFilter.TAB_EVENTS"),eventSelect);
 		} else {
