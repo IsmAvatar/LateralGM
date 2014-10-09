@@ -102,10 +102,10 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	public void zoomIn(Point point)
 		{
 		this.setZoom(this.getZoom() * 1.1f);
-		Point pos = previewScroll.getViewport().getViewPosition();
+		Dimension size = previewScroll.getViewport().getSize();
 
-		int newX = (int) (point.x * (1.1f - 1f) + 1.1f * pos.x);
-		int newY = (int) (point.y * (1.1f - 1f) + 1.1f * pos.y);
+		int newX = (int) (point.x * 1.1) - size.width / 2;
+		int newY = (int) (point.y * 1.1) - size.height / 2;
 		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
 
 		previewScroll.revalidate();
@@ -116,10 +116,10 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	public void zoomOut(Point point)
 		{
 		this.setZoom(this.getZoom() * 0.9f);
-		Point pos = previewScroll.getViewport().getViewPosition();
+		Dimension size = previewScroll.getViewport().getSize();
 
-		int newX = (int) (point.x * (0.9f - 1f) + 0.9f * pos.x);
-		int newY = (int) (point.y * (0.9f - 1f) + 0.9f * pos.y);
+		int newX = (int) (point.x * 0.9) - size.width / 2;
+		int newY = (int) (point.y * 0.9) - size.height / 2;
 		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
 
 		previewScroll.revalidate();
@@ -222,7 +222,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		updateScrollBars();
 
 		pack();
-		this.setSize(600,400);
+		this.setSize(800,450);
 		}
 
 	private JButton makeJButton(String key)

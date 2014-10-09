@@ -18,6 +18,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
+import javax.swing.JOptionPane;
+
 import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -164,6 +166,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 			}
 		}
 
+	@Override
 	public Dimension getPreferredSize()
 		{
 		BufferedImage img = getImage();
@@ -179,6 +182,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 	public void setZoom(double nzoom)
 		{
 		zoom = nzoom;
+		this.setSize(this.getPreferredSize());
 		updateUI();
 		}
 

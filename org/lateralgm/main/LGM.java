@@ -27,6 +27,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -427,9 +428,9 @@ public final class LGM
 			SwingUtilities.updateComponentTreeUI(eventFrame);
 			}
 		Window windows[] = Window.getWindows();
-		for (Window i : windows)
+		for (Window window : windows)
 			{
-			SwingUtilities.updateComponentTreeUI(i);
+			SwingUtilities.updateComponentTreeUI(window);
 			}
 		}
 

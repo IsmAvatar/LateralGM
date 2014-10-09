@@ -60,6 +60,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		enableEvents(MouseEvent.MOUSE_DRAGGED);
 		}
 
+	@Override
 	public Dimension getPreferredSize()
 		{
 		BufferedImage img = getImage();
@@ -204,6 +205,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 	public void setZoom(double nzoom)
 		{
 		zoom = nzoom;
+		this.setSize(this.getPreferredSize());
 		updateUI();
 		}
 
