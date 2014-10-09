@@ -1636,6 +1636,40 @@ public final class LGM
 
 		// Create tree context menu
 		final JPopupMenu searchMenu = new JPopupMenu();
+		JMenuItem expandAllItem = new JMenuItem(Messages.getString("TreeFilter.EXPANDALL"));
+		expandAllItem.setIcon(LGM.getIconForKey("TreeFilter.EXPANDALL"));
+		expandAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.EXPANDALL")));
+		expandAllItem.addActionListener(new ActionListener() {
+			public void expandChildren(JTree tree, DefaultMutableTreeNode node) {
+				Enumeration<?> children = node.children();
+				DefaultMutableTreeNode it = null;
+				while (children.hasMoreElements()) {
+					it = (DefaultMutableTreeNode) children.nextElement();
+					tree.expandPath(new TreePath(it.getPath()));
+					if (it.getChildCount() > 0) {
+						expandChildren(tree, it);
+					}
+				}
+			}
+			public void actionPerformed(ActionEvent ev)
+				{
+					expandChildren(LGM.searchTree,(DefaultMutableTreeNode) LGM.searchTree.getModel().getRoot());
+				}
+		});
+		searchMenu.add(expandAllItem);
+		JMenuItem collapseAllItem = new JMenuItem(Messages.getString("TreeFilter.COLLAPSEALL"));
+		collapseAllItem.setIcon(LGM.getIconForKey("TreeFilter.COLLAPSEALL"));
+		collapseAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.COLLAPSEALL")));
+		collapseAllItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev)
+				{
+					//NOTE: The code for expanding all nodes does not work here because collapsing a child node
+				  //will expand its parent, so you have to do it in reverse. For now I will just reload the tree.
+					((DefaultTreeModel)searchTree.getModel()).reload();
+				}
+		});
+		searchMenu.add(collapseAllItem);
+		searchMenu.addSeparator();
 		JMenuItem copyItem = new JMenuItem();
 		copyItem.setAction(treeCopyAction);
 		copyItem.setText(Messages.getString("TreeFilter.COPY"));
@@ -1650,29 +1684,29 @@ public final class LGM
     
 		searchMenu.add(copyItem);
 		searchMenu.addSeparator();
-		JMenuItem selectAllItem = new JMenuItem(Messages.getString("TreeFilter.SELALL"));
+		JMenuItem selectAllItem = new JMenuItem(Messages.getString("TreeFilter.SELECTALL"));
 		
-		selectAllItem.setIcon(LGM.getIconForKey("TreeFilter.SELALL"));
-		selectAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.SELALL")));
+		selectAllItem.setIcon(LGM.getIconForKey("TreeFilter.SELECTALL"));
+		selectAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.SELECTALL")));
 		//NOTE: It's possible to grab the trees built in Select All action.
 		//selectAllItem.setAction(searchTree.getActionMap().get(searchTree.getInputMap().get(selectAllItem.getAccelerator())));
 		
 		selectAllItem.addActionListener(new ActionListener() {
-			public void selectExpandedChildren(JTree tree, DefaultMutableTreeNode node) {
-				Enumeration<?> children = node.children();
-				DefaultMutableTreeNode it = null;
-				while (children.hasMoreElements()) {
-					it = (DefaultMutableTreeNode) children.nextElement();
-					tree.addSelectionPath(new TreePath(it.getPath()));
-					if (tree.isExpanded(new TreePath(it.getPath()))) {
-						selectExpandedChildren(tree, it);
-					}
+		public void selectAllChildren(JTree tree, DefaultMutableTreeNode node) {
+			Enumeration<?> children = node.children();
+			DefaultMutableTreeNode it = null;
+			while (children.hasMoreElements()) {
+				it = (DefaultMutableTreeNode) children.nextElement();
+				tree.addSelectionPath(new TreePath(it.getPath()));
+				if (tree.isExpanded(new TreePath(it.getPath()))) {
+					selectAllChildren(tree, it);
 				}
 			}
-			public void actionPerformed(ActionEvent ev)
-				{
-					selectExpandedChildren(LGM.searchTree,(DefaultMutableTreeNode) LGM.searchTree.getModel().getRoot());
-				}
+		}
+		public void actionPerformed(ActionEvent ev)
+			{
+				selectAllChildren(LGM.searchTree,(DefaultMutableTreeNode) LGM.searchTree.getModel().getRoot());
+			}
 		});
 		searchMenu.add(selectAllItem);
 
@@ -1897,6 +1931,7 @@ public final class LGM
 				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
 				searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(), 
 						matchCaseCB.isSelected(), wholeWordCB.isSelected());
+				treeTabs.setSelectedIndex(1);
 			}
 		});
 		
@@ -1940,16 +1975,28 @@ public final class LGM
 			treeTabs.setSelectedIndex(1);
 	  }
 		});
-		//TODO: Fix LNF bugs where text field will not expand on a toolbar,
-		//so we give it at least a default size. Does not pertain to the Windows look and feel. 
-		filterText.setColumns(14);
 		
+		// Use a toolbar so that the buttons render like tool buttons and smaller.
 		filterPanel = new JToolBar();
-		filterPanel.add(filterText);
-		filterPanel.add(prevButton);
-		filterPanel.add(nextButton);
-		filterPanel.add(searchInButton);
-		filterPanel.add(setButton);
+		
+		// Use a custom layout so that the filterText control will stretch horizontally under all Look and Feels.
+		GroupLayout filterLayout = new GroupLayout(filterPanel);
+		
+		filterLayout.setHorizontalGroup(filterLayout.createSequentialGroup()
+		/**/.addComponent(filterText)
+		/**/.addComponent(prevButton)
+		/**/.addComponent(nextButton)
+		/**/.addComponent(searchInButton)
+		/**/.addComponent(setButton));
+		
+		filterLayout.setVerticalGroup(filterLayout.createParallelGroup()
+		/**/.addComponent(filterText)
+		/**/.addComponent(prevButton)
+		/**/.addComponent(nextButton)
+		/**/.addComponent(searchInButton)
+		/**/.addComponent(setButton));
+		
+		filterPanel.setLayout(filterLayout);
 		filterPanel.setFloatable(false);
 
 		JScrollPane scroll = new JScrollPane(tree);

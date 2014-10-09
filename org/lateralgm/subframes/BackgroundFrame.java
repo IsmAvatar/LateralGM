@@ -101,11 +101,11 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	/** Zoom in, centering around a specific point, usually the mouse. */
 	public void zoomIn(Point point)
 		{
-		this.setZoom(this.getZoom() * 1.1f);
+		this.setZoom(this.getZoom() * 1.2f);
 		Dimension size = previewScroll.getViewport().getSize();
 
-		int newX = (int) (point.x * 1.1) - size.width / 2;
-		int newY = (int) (point.y * 1.1) - size.height / 2;
+		int newX = (int) (point.x * 1.2) - size.width / 2;
+		int newY = (int) (point.y * 1.2) - size.height / 2;
 		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
 
 		previewScroll.revalidate();
@@ -115,15 +115,27 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	/** Zoom out, centering around a specific point, usually the mouse. */
 	public void zoomOut(Point point)
 		{
-		this.setZoom(this.getZoom() * 0.9f);
+		this.setZoom(this.getZoom() * 0.8f);
 		Dimension size = previewScroll.getViewport().getSize();
 
-		int newX = (int) (point.x * 0.9) - size.width / 2;
-		int newY = (int) (point.y * 0.9) - size.height / 2;
+		int newX = (int) (point.x * 0.8) - size.width / 2;
+		int newY = (int) (point.y * 0.8) - size.height / 2;
 		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
 
 		previewScroll.revalidate();
 		previewScroll.repaint();
+		}
+	
+	public void zoomIn()
+		{
+		Dimension size = previewScroll.getViewport().getViewSize();
+		zoomIn(new Point(size.width/2,size.height/2));
+		}
+
+	public void zoomOut()
+		{
+		Dimension size = previewScroll.getViewport().getViewSize();
+		zoomOut(new Point(size.width/2,size.height/2));
 		}
 
 	public BackgroundFrame(Background res, ResNode node)
@@ -442,26 +454,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		preview.setZoom(nzoom);
 		updateStatusLabel();
 		updateScrollBars();
-		}
-
-	public void zoomIn()
-		{
-		double zoom = getZoom();
-		if (zoom < 5)
-			{
-			setZoom(getZoom() * 2);
-			}
-		return;
-		}
-
-	public void zoomOut()
-		{
-		double zoom = getZoom();
-		if (zoom > 0.125)
-			{
-			setZoom(getZoom() / 2);
-			}
-		return;
 		}
 
 	public static String formatData(long bytes)
