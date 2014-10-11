@@ -570,8 +570,9 @@ public class FileChooser
 						LGM.currentFile = ex.file;
 						LGM.populateTree();
 						rebuildTree();
-						new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
-								Messages.getString("FileChooser.ERROR_LOAD"),ex).setVisible(true); //$NON-NLS-1$
+						LGM.showDefaultExceptionHandler(ex);
+						ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD"));
+						ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE"));
 						}
 					catch (Exception e)
 						{
@@ -579,8 +580,9 @@ public class FileChooser
 						// or destroying the tree.
 						LGM.populateTree();
 						rebuildTree();
-						new ErrorDialog(LGM.frame,Messages.getString("FileChooser.ERROR_LOAD_TITLE"), //$NON-NLS-1$
-								Messages.getString("FileChooser.ERROR_LOAD"),e).setVisible(true); //$NON-NLS-1$
+						LGM.showDefaultExceptionHandler(e);
+						ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD"));
+						ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE"));
 						}
 					setTitleURI(uri);
 					PrefsStore.addRecentFile(uri.toString());

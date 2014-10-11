@@ -762,6 +762,16 @@ public final class LGM
 		for (Class<? extends Resource<?,?>> k : Resource.kinds)
 			{
 			boolean hasNode = true;
+			// Check to see if the appropriate node already exists.
+			Enumeration<?> children = root.depthFirstEnumeration();
+			while (children.hasMoreElements()) {
+				ResNode it = (ResNode) children.nextElement();
+				if (it.kind == k) {
+					hasNode = false;
+					break;
+				}
+			}
+			if (!hasNode) continue;
 			try
 				{
 				//NOTE: Use reflection on the class to see if it has a variable telling us whether to create
@@ -2409,6 +2419,7 @@ public final class LGM
 		if (!ErrorDialog.getInstance().isVisible())
 			{
 			ErrorDialog.getInstance().setVisible(true);
+			ErrorDialog.getInstance().setDebugInfo(ErrorDialog.generateAgnosticInformation());
 			}
 		ErrorDialog.getInstance().appendDebugInfo(e); //$NON-NLS-1$
 		}

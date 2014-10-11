@@ -44,13 +44,14 @@ public class ErrorDialog extends JDialog implements ActionListener
 	protected JButton submit;
 	protected JButton cancel;
 	protected JScrollPane scroll;
+	protected JOptionPane optionpane;
 
 	public static ErrorDialog getInstance()
 		{
 		return myInstance;
 		}
 
-	public String generateAgnosticInformation()
+	public static String generateAgnosticInformation()
 		{
 		String ret = "Operating System: " + System.getProperty("os.name");
 		ret += "\nVersion: " + System.getProperty("os.version");
@@ -80,17 +81,37 @@ public class ErrorDialog extends JDialog implements ActionListener
 		ret += "\n\nStack trace:";
 		return ret;
 		}
+	
+	public void setMessage(String message)
+		{
+		optionpane.setMessage(new Object[] { message,scroll });
+		}
+	
+	public void setDefaults() {
+		setMessage(Messages.getString("ErrorDialog.UNCAUGHT_MESSAGE"));
+		setTitle(Messages.getString("ErrorDialog.UNCAUGHT_TITLE"));
+	}
+	
+	public void setDebugInfo(String text)
+		{
+		debugInfo.setText("\n" + text);
+		debugInfo.setCaretPosition(0);
+		}
+
+	public void setDebugInfo(Throwable e)
+		{
+		debugInfo.setText("\n" + throwableToString(e));
+		debugInfo.setCaretPosition(0);
+		}
 
 	public void appendDebugInfo(String text)
 		{
 		debugInfo.append("\n" + text);
-		debugInfo.setCaretPosition(0);
 		}
 
 	public void appendDebugInfo(Throwable e)
 		{
 		debugInfo.append("\n" + throwableToString(e));
-		debugInfo.setCaretPosition(0);
 		}
 
 	private static JButton makeButton(String key, ActionListener listener)
@@ -121,7 +142,9 @@ public class ErrorDialog extends JDialog implements ActionListener
 		setResizable(false);
 		submiturl = url;
 
-		this.debugInfo = new JTextArea(debugText);
+		this.debugInfo = new JTextArea();
+		debugInfo.setText(ErrorDialog.generateAgnosticInformation());
+		this.appendDebugInfo(debugText);
 		scroll = new JScrollPane(this.debugInfo);
 
 		Dimension dim = new Dimension(scroll.getWidth(),DEBUG_HEIGHT);
@@ -135,9 +158,9 @@ public class ErrorDialog extends JDialog implements ActionListener
 		submit.setPreferredSize(dim);
 		copy.setPreferredSize(dim);
 		cancel.setPreferredSize(dim);
-		JOptionPane wtfwjd = new JOptionPane(new Object[] { message,scroll },JOptionPane.ERROR_MESSAGE,
+		optionpane = new JOptionPane(new Object[] { message,scroll },JOptionPane.ERROR_MESSAGE,
 				JOptionPane.DEFAULT_OPTION,null,new JButton[] { copy,submit,cancel });
-		add(wtfwjd);
+		add(optionpane);
 		pack();
 		setLocationRelativeTo(parent);
 		this.addWindowListener(new java.awt.event.WindowAdapter()
@@ -145,18 +168,17 @@ public class ErrorDialog extends JDialog implements ActionListener
 				@Override
 				public void windowClosing(java.awt.event.WindowEvent windowEvent)
 					{
-					debugInfo.setText("");
+					setDefaults();
 					}
 			});
 		}
 
 	@Override
-	public void setVisible(boolean visible)
-		{
+	public void setVisible(boolean visible) {
 		super.setVisible(visible);
-		debugInfo.setText(generateAgnosticInformation());
-		}
-
+		setDefaults();
+	}
+	
 	protected static String throwableToString(Throwable e)
 		{
 		StringWriter sw = new StringWriter();

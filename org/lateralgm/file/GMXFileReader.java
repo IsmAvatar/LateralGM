@@ -1481,15 +1481,19 @@ public final class GMXFileReader
 				obj.put(
 						PGmObject.PHYSICS_DAMPING_ANGULAR,
 						Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectAngularDamping").item(0).getTextContent()));
-				obj.put(
-						PGmObject.PHYSICS_FRICTION,
-						Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectFriction").item(0).getTextContent()));
-				obj.put(
-						PGmObject.PHYSICS_AWAKE,
-						Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectAwake").item(0).getTextContent()) < 0);
-				obj.put(
-						PGmObject.PHYSICS_KINEMATIC,
-						Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectKinematic").item(0).getTextContent()) < 0);
+				//TODO: I guess some versions of the format didn't have these?
+				Node fNode = objdoc.getElementsByTagName("PhysicsObjectFriction").item(0);
+				if (fNode != null) {
+					obj.put(
+							PGmObject.PHYSICS_FRICTION,
+							Double.parseDouble(fNode.getTextContent()));
+					obj.put(
+							PGmObject.PHYSICS_AWAKE,
+							Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectAwake").item(0).getTextContent()) < 0);
+					obj.put(
+							PGmObject.PHYSICS_KINEMATIC,
+							Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectKinematic").item(0).getTextContent()) < 0);
+				}
 
 				NodeList pointNodes = objdoc.getElementsByTagName("point");
 				for (int p = 0; p < pointNodes.getLength(); p++)
