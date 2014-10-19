@@ -58,6 +58,8 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
+import org.lateralgm.resources.Constants;
+import org.lateralgm.resources.Extension;
 import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
@@ -231,41 +233,36 @@ public final class GMXFileReader
 		return path.replace("\\","/");
 		}
 
-	public static ProjectFile readProjectFile(InputStream stream, URI uri, ResNode root)
+	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
 			throws GmFormatException
 		{
-		return readProjectFile(stream,uri,root,null);
+			readProjectFile(stream,file,uri,root,null);
 		}
 
-	public static ProjectFile readProjectFile(InputStream stream, URI uri, ResNode root,
+	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
-
-		ProjectFile f = new ProjectFile();
-		f.uri = uri;
-		f.format = ProjectFile.FormatFlavor.getVersionFlavor(1200); // GMX is not versioned
-
-		File file = new File(uri);
+		file.format = ProjectFile.FormatFlavor.getVersionFlavor(1200); // GMX will have version numbers in the future
 		Document document = null;
 		try
 			{
 			documentBuilder = documentBuilderFactory.newDocumentBuilder();
 			try
 				{
-				document = documentBuilder.parse(file);
+				document = documentBuilder.parse(new File(uri));
 				}
 			catch (SAXException e)
 				{
-				throw new GmFormatException(f,e);
+				throw new GmFormatException(file,e);
 				}
 			catch (IOException e)
 				{
-				throw new GmFormatException(f,e);
+				throw new GmFormatException(file,e);
 				}
 			}
 		catch (ParserConfigurationException e1)
 			{
-			throw new GmFormatException(f,e1);
+			throw new GmFormatException(file,e1);
 			}
 
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
@@ -275,7 +272,7 @@ public final class GMXFileReader
 			{
 			long startTime = System.currentTimeMillis();
 
-			ProjectFileContext c = new ProjectFileContext(f,document,timeids,objids,rmids);
+			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
 
 			JProgressBar progressBar = LGM.getProgressDialogBar();
 			progressBar.setMaximum(160);
@@ -302,17 +299,19 @@ public final class GMXFileReader
 			LGM.setProgress(90,Messages.getString("ProgressDialog.ROOMS"));
 			readRooms(c,root);
 			LGM.setProgress(100,Messages.getString("ProgressDialog.INCLUDEFILES"));
-			//readIncludedFiles(c, root);
-			LGM.setProgress(110,Messages.getString("ProgressDialog.PACKAGES"));
-			readPackages(c,root);
-			LGM.setProgress(120,Messages.getString("ProgressDialog.EXTENSIONS"));
+			readIncludedFiles(c, root);
+			LGM.setProgress(110,Messages.getString("ProgressDialog.EXTENSIONS"));
 			readExtensions(c,root);
+			LGM.setProgress(120,Messages.getString("ProgressDialog.CONSTANTS"));
+			readConstants(c,root);
 			LGM.setProgress(130,Messages.getString("ProgressDialog.GAMEINFORMATION"));
 			readGameInformation(c,root);
 			LGM.setProgress(140,Messages.getString("ProgressDialog.SETTINGS"));
 			readSettings(c,root);
+			LGM.setProgress(150,Messages.getString("ProgressDialog.PACKAGES"));
+			readPackages(c,root);
 
-			LGM.setProgress(150,Messages.getString("ProgressDialog.POSTPONED"));
+			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED"));
 			//Resources read. Now we can invoke our postpones.
 			for (PostponedRef i : postpone)
 				i.invoke();
@@ -323,7 +322,7 @@ public final class GMXFileReader
 		catch (Exception e)
 			{
 			if ((e instanceof GmFormatException)) throw (GmFormatException) e;
-			throw new GmFormatException(f,e);
+			throw new GmFormatException(file,e);
 			}
 		finally
 			{
@@ -335,11 +334,10 @@ public final class GMXFileReader
 			catch (Exception ex) //IOException
 				{
 				String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
-				throw new GmFormatException(f,key);
+				throw new GmFormatException(file,key);
 				}
 			}
 		LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED"));
-		return f;
 		}
 
 	private static void readSettings(ProjectFileContext c, ResNode root) throws IOException,
@@ -518,21 +516,6 @@ public final class GMXFileReader
 		root.add(node);
 		}
 
-	private static void readSettingsIncludes(ProjectFile f, GmStreamDecoder in) throws IOException
-		{
-
-		}
-
-	private static void readTriggers(ProjectFileContext c) throws IOException,GmFormatException
-		{
-
-		}
-
-	private static void readConstants(ProjectFileContext c) throws IOException,GmFormatException
-		{
-
-		}
-
 	private static void iterateSprites(ProjectFileContext c, NodeList sprList, ResNode node)
 			throws IOException,GmFormatException,ParserConfigurationException,SAXException
 		{
@@ -627,7 +610,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Sprites",ResNode.STATUS_PRIMARY,Sprite.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Sprite.class),ResNode.STATUS_PRIMARY,Sprite.class,null);
 		root.add(node);
 
 		NodeList sprList = in.getElementsByTagName("sprites");
@@ -726,7 +709,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Sounds",ResNode.STATUS_PRIMARY,Sound.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Sound.class),ResNode.STATUS_PRIMARY,Sound.class,null);
 		root.add(node);
 
 		NodeList sndList = in.getElementsByTagName("sounds");
@@ -824,7 +807,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Backgrounds",ResNode.STATUS_PRIMARY,Background.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Background.class),ResNode.STATUS_PRIMARY,Background.class,null);
 		root.add(node);
 
 		NodeList bkgList = in.getElementsByTagName("backgrounds");
@@ -927,7 +910,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Paths",ResNode.STATUS_PRIMARY,Path.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Path.class),ResNode.STATUS_PRIMARY,Path.class,null);
 		root.add(node);
 
 		NodeList pthList = in.getElementsByTagName("paths");
@@ -1003,7 +986,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Scripts",ResNode.STATUS_PRIMARY,Script.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Script.class),ResNode.STATUS_PRIMARY,Script.class,null);
 		root.add(node);
 
 		NodeList scrList = in.getElementsByTagName("scripts");
@@ -1082,7 +1065,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Shaders",ResNode.STATUS_PRIMARY,Shader.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Shader.class),ResNode.STATUS_PRIMARY,Shader.class,null);
 		root.add(node);
 
 		NodeList shrList = in.getElementsByTagName("shaders");
@@ -1180,7 +1163,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Fonts",ResNode.STATUS_PRIMARY,Font.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Font.class),ResNode.STATUS_PRIMARY,Font.class,null);
 		root.add(node);
 
 		NodeList fntList = in.getElementsByTagName("fonts");
@@ -1271,7 +1254,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Timelines",ResNode.STATUS_PRIMARY,Timeline.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Timeline.class),ResNode.STATUS_PRIMARY,Timeline.class,null);
 		root.add(node);
 
 		NodeList tmlList = in.getElementsByTagName("timelines");
@@ -1989,7 +1972,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Rooms",ResNode.STATUS_PRIMARY,Room.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Room.class),ResNode.STATUS_PRIMARY,Room.class,null);
 		root.add(node);
 
 		NodeList rmnList = in.getElementsByTagName("rooms");
@@ -2009,7 +1992,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Includes",ResNode.STATUS_PRIMARY,Include.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Include.class),ResNode.STATUS_PRIMARY,Include.class,null);
 		root.add(node);
 
 		NodeList incList = in.getElementsByTagName("includes");
@@ -2027,18 +2010,12 @@ public final class GMXFileReader
 	private static void readPackages(ProjectFileContext c, ResNode root) throws IOException,
 			GmFormatException
 		{
-		Document in = c.in;
 
-		NodeList pkgList = in.getElementsByTagName("packages");
-		if (pkgList.getLength() > 0)
-			{
-			pkgList = pkgList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
 		//iteratePackages(c, extList, node);
+		ExtensionPackages extpkgs = c.f.extPackages;
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(ExtensionPackages.class),ResNode.STATUS_SECONDARY,ExtensionPackages.class,
+				extpkgs.reference);
+		root.add(node);
 		}
 
 	private static void readExtensions(ProjectFileContext c, ResNode root) throws IOException,
@@ -2046,7 +2023,7 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode("Extensions",ResNode.STATUS_PRIMARY,ExtensionPackages.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Extension.class),ResNode.STATUS_PRIMARY,ExtensionPackages.class,null);
 		root.add(node);
 
 		NodeList extList = in.getElementsByTagName("extensions");
@@ -2060,6 +2037,14 @@ public final class GMXFileReader
 			}
 		//iterateExtensions(c, extList, node);
 		}
+	
+	private static void readConstants(ProjectFileContext c, ResNode root) throws IOException,GmFormatException
+	{
+	Constants cnsts = c.f.defaultConstants;
+	ResNode node = new ResNode(Resource.kindNamesPlural.get(Constants.class),ResNode.STATUS_SECONDARY,Constants.class,
+			cnsts.reference);
+	root.add(node);
+	}
 
 	private static void readGameInformation(ProjectFileContext c, ResNode root) throws IOException,
 			GmFormatException
@@ -2099,7 +2084,7 @@ public final class GMXFileReader
 
 		gameInfo.put(PGameInformation.TEXT,text);
 
-		ResNode node = new ResNode("Game Information",ResNode.STATUS_SECONDARY,GameInformation.class,
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(GameInformation.class),ResNode.STATUS_SECONDARY,GameInformation.class,
 				gameInfo.reference);
 		root.add(node);
 		}

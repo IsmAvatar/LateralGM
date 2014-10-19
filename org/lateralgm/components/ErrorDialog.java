@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.

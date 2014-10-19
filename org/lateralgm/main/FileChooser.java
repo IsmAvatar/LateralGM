@@ -104,10 +104,8 @@ public class FileChooser
 		{
 		boolean canRead(URI uri);
 
-		ProjectFile read(InputStream is, URI pathname, ResNode root) throws ProjectFormatException;
+		void read(InputStream is, ProjectFile file, URI pathname, ResNode root) throws ProjectFormatException;
 		}
-
-	//private static MyProgressBar singleton = new MyProgressBar(); public static MyProgressBar getInstance() { return singleton; }
 
 	public static interface FileWriter
 		{
@@ -378,18 +376,16 @@ public class FileChooser
 			return groupFilter.accept(new File(f));
 			}
 
-		public ProjectFile read(InputStream is, URI uri, ResNode root) throws ProjectFormatException
+		public void read(InputStream is, ProjectFile file, URI uri, ResNode root) throws ProjectFormatException
 			{
-			ProjectFile f = null;
 			if (uri.getPath().endsWith(".project.gmx"))
 				{
-				f = GMXFileReader.readProjectFile(is,uri,root);
+				GMXFileReader.readProjectFile(is,file,uri,root);
 				}
 			else
 				{
-				f = GmFileReader.readProjectFile(is,uri,root);
+				GmFileReader.readProjectFile(is,file,uri,root);
 				}
-			return f;
 			}
 		}
 
@@ -563,7 +559,10 @@ public class FileChooser
 					LGM.addDefaultExceptionHandler();
 					try
 						{
-						LGM.currentFile = reader.read(uri.toURL().openStream(),uri,LGM.newRoot());
+						ProjectFile f =  new ProjectFile();
+						f.uri = uri;
+						reader.read(uri.toURL().openStream(),f,uri,LGM.newRoot());
+						LGM.currentFile = f;
 						}
 					catch (ProjectFormatException ex)
 						{

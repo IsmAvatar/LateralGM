@@ -45,6 +45,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
+import org.lateralgm.components.PackageResourcesDialog;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
@@ -443,6 +444,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			deleteSelectedResources(tree);
 			return;
 			}
+		else if (com.endsWith(".PACKAGE")) { //$NON-NLS-1$
+			PackageResourcesDialog.getInstance().setVisible(true);
+		}
 		else if (com.endsWith(".DEFRAGIDS")) { //$NON-NLS-1$
 			String msg = Messages.getString("Listener.CONFIRM_DEFRAGIDS"); //$NON-NLS-1$
 			if (JOptionPane.showConfirmDialog(LGM.frame,msg,

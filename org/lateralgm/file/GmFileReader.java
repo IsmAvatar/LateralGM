@@ -159,17 +159,15 @@ public final class GmFileReader
 						"ProjectFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 
-	public static ProjectFile readProjectFile(InputStream stream, URI uri, ResNode root)
+	public static ProjectFile readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
 			throws GmFormatException
 		{
-		return readProjectFile(stream,uri,root,null);
+		return readProjectFile(stream,file,uri,root,null);
 		}
 
-	public static ProjectFile readProjectFile(InputStream stream, URI uri, ResNode root,
+	public static ProjectFile readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
-		ProjectFile f = new ProjectFile();
-		f.uri = uri;
 		GmStreamDecoder in = null;
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
@@ -178,17 +176,17 @@ public final class GmFileReader
 			{
 			long startTime = System.currentTimeMillis();
 			in = new GmStreamDecoder(stream);
-			ProjectFileContext c = new ProjectFileContext(f,in,timeids,objids,rmids);
+			ProjectFileContext c = new ProjectFileContext(file,in,timeids,objids,rmids);
 			int identifier = in.read4();
 			if (identifier != 1234321)
-				throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_INVALID",uri, //$NON-NLS-1$
+				throw new GmFormatException(file,Messages.format("ProjectFileReader.ERROR_INVALID",uri, //$NON-NLS-1$
 						identifier));
 			int ver = in.read4();
-			f.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
+			file.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 			if (ver != 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810)
 				{
 				String msg = Messages.format("ProjectFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$ //$NON-NLS-2$
-				throw new GmFormatException(f,msg);
+				throw new GmFormatException(file,msg);
 				}
 
 			if (forceCharset == null)
@@ -218,11 +216,11 @@ public final class GmFileReader
 				in.skip(s2 * 4);
 				int b1 = in.read();
 				in.setSeed(seed);
-				f.gameSettings.put(PGameSettings.GAME_ID,b1 | in.read3() << 8);
+				file.gameSettings.put(PGameSettings.GAME_ID,b1 | in.read3() << 8);
 				}
 			else
-				f.gameSettings.put(PGameSettings.GAME_ID,in.read4());
-			in.read((byte[]) f.gameSettings.get(PGameSettings.GAME_GUID)); //16 bytes
+				file.gameSettings.put(PGameSettings.GAME_ID,in.read4());
+			in.read((byte[]) file.gameSettings.get(PGameSettings.GAME_GUID)); //16 bytes
 
 			readSettings(c);
 
@@ -258,7 +256,7 @@ public final class GmFileReader
 			
 			//If the "use as tileset" flag was not part of this version, try to infer it from the backgrounds used in room tiles.
 			if (bgVer <= 400) {
-				for (Room rm : f.resMap.getList(Room.class)) {
+				for (Room rm : file.resMap.getList(Room.class)) {
 					for (Tile tl : rm.tiles) {
 						ResourceReference<Background> bkg = tl.properties.get(PTile.BACKGROUND);
 						if (bkg!=null && bkg.get()!=null) {
@@ -268,8 +266,8 @@ public final class GmFileReader
 				}
 			}
 
-			f.lastInstanceId = in.read4();
-			f.lastTileId = in.read4();
+			file.lastInstanceId = in.read4();
+			file.lastTileId = in.read4();
 
 			if (ver >= 700)
 				{
@@ -297,7 +295,7 @@ public final class GmFileReader
 			//Library Creation Code
 			ver = in.read4();
 			if (ver != 500)
-				throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+				throw new GmFormatException(file,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("ProjectFileReader.AFTERINFO"),ver)); //$NON-NLS-1$
 			int no = in.read4();
 			for (int j = 0; j < no; j++)
@@ -307,7 +305,7 @@ public final class GmFileReader
 			//Room Execution Order
 			ver = in.read4();
 			if (ver != 500 && ver != 540 && ver != 700)
-				throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
+				throw new GmFormatException(file,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("ProjectFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4);
 
@@ -319,7 +317,7 @@ public final class GmFileReader
 		catch (Exception e)
 			{
 			if ((e instanceof GmFormatException)) throw (GmFormatException) e;
-			throw new GmFormatException(f,e);
+			throw new GmFormatException(file,e);
 			}
 		finally
 			{
@@ -334,11 +332,11 @@ public final class GmFileReader
 			catch (IOException ex)
 				{
 				String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
-				throw new GmFormatException(f,key);
+				throw new GmFormatException(file,key);
 				}
 			}
 		LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED"));
-		return f;
+		return file;
 		}
 
 	private static void readSettings(ProjectFileContext c) throws IOException,GmFormatException,
