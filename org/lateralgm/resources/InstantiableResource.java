@@ -24,7 +24,7 @@ import org.lateralgm.main.Prefs;
 public abstract class InstantiableResource<R extends InstantiableResource<R,P>, P extends Enum<P>>
 		extends Resource<R,P>
 	{
-	private int id = -1; //indicates id not set
+	protected int id = -1; //indicates id not set
 
 	public InstantiableResource()
 		{

@@ -115,7 +115,7 @@ import org.xml.sax.SAXException;
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 
 // TODO: Possibly rewrite from a DOM parser to a SAX parser,
-// because SAX is light weight faster and uses more memory,
+// because SAX is light weight faster and uses less memory,
 // DOM reads the whole thing into memory and then parses it.
 // There is a downside to SAX such as incompatibility with UTF-8
 public final class GMXFileReader

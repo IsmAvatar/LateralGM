@@ -18,6 +18,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
+import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -46,6 +47,11 @@ import javax.swing.tree.TreeSelectionModel;
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.DocumentUndoManager;
+import org.lateralgm.joshedit.TokenMarker;
+import org.lateralgm.joshedit.lexers.GLESTokenMarker;
+import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
+import org.lateralgm.joshedit.lexers.GMLTokenMarker;
+import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.LGM.JSplitPaneExpandable;
 import org.lateralgm.main.Prefs;
@@ -631,7 +637,14 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		
 		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"));
 		root.add(node);
-		cardPane.add(makeCodeEditorPrefs(),Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"));
+		DefaultMutableTreeNode cnode = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS"));
+		node.add(cnode);
+		cnode = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_SYNTAX_HIGHLIGHTING"));
+		node.add(cnode);
+		cardPane.add(new org.lateralgm.joshedit.preferences.KeybindingsPanel(),Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS"));
+		cardPane.add(new org.lateralgm.joshedit.preferences.HighlightPreferences(
+				new TokenMarker.LanguageDescription[][] { GMLTokenMarker.getLanguageDescriptions(), GLSLTokenMarker.getLanguageDescriptions(), GLESTokenMarker.getLanguageDescriptions(), HLSLTokenMarker.getLanguageDescriptions() }, 
+				Preferences.userRoot().node("org/lateralgm/joshedit")),Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_SYNTAX_HIGHLIGHTING"));
 		
 		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR"));
 		root.add(node);

@@ -3,3 +3,5 @@
 lateralgm.jar
 *.jar
 *.db
+.git/modules
+org/lateralgm/joshedit

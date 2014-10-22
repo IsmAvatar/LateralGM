@@ -33,11 +33,11 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.CodeTextArea;
+import org.lateralgm.components.MarkerCache;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
-import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;

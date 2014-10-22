@@ -24,9 +24,9 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
 import org.lateralgm.components.CodeTextArea;
+import org.lateralgm.components.MarkerCache;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.components.mdi.RevertableMDIFrame;
-import org.lateralgm.joshedit.lexers.MarkerCache;
 import org.lateralgm.main.LGM;
 
 public class CodeFrame extends RevertableMDIFrame implements ActionListener

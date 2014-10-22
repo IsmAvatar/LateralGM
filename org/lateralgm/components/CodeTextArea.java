@@ -49,7 +49,7 @@ import org.lateralgm.joshedit.DefaultKeywords;
 import org.lateralgm.joshedit.DefaultTokenMarker;
 import org.lateralgm.joshedit.CompletionMenu.Completion;
 import org.lateralgm.joshedit.DefaultTokenMarker.KeywordSet;
-import org.lateralgm.joshedit.lexers.MarkerCache;
+import org.lateralgm.joshedit.DefaultKeywords.HasKeywords;
 import org.lateralgm.joshedit.JoshText;
 import org.lateralgm.joshedit.JoshText.CodeMetrics;
 import org.lateralgm.joshedit.JoshText.LineChangeListener;
@@ -57,6 +57,7 @@ import org.lateralgm.joshedit.JoshText.Highlighter;
 import org.lateralgm.joshedit.Runner;
 import org.lateralgm.joshedit.Runner.EditorInterface;
 import org.lateralgm.joshedit.JoshTextPanel;
+import org.lateralgm.joshedit.TokenMarker;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -170,8 +171,8 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 	public void addEditorButtons(JToolBar tb)
 		{
 
-		tb.add(makeToolbarButton("SAVE"));
 		tb.add(makeToolbarButton("LOAD"));
+		tb.add(makeToolbarButton("SAVE"));
 		tb.add(makeToolbarButton("PRINT"));
 		tb.addSeparator();
 		tb.add(makeToolbarButton("UNDO"));
@@ -281,16 +282,21 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 			}
 		}
 
-	protected void updateCompletions(DefaultTokenMarker marker)
+	protected void updateCompletions(DefaultTokenMarker tokenMarker2)
 		{
 		int l = 0;
 		for (Set<String> a : resourceKeywords)
 			{
 			l += a.size();
 			}
-		DefaultKeywords.Keyword[][] keywords = marker.GetKeywords();
-		for (DefaultKeywords.Keyword[] a : keywords)
-			l += a.length;
+		DefaultKeywords.Keyword[][] keywords = null;
+		if (tokenMarker2 instanceof HasKeywords) {
+			HasKeywords hk = (HasKeywords) tokenMarker2;
+			keywords = hk.getKeywords();
+			for (DefaultKeywords.Keyword[] a : keywords)
+				l += a.length;
+		}
+		
 		completions = new Completion[l];
 		int i = 0;
 		for (Set<String> a : resourceKeywords)
@@ -301,6 +307,8 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 				i += 1;
 				}
 			}
+		
+		if (keywords == null) return;
 		for (DefaultKeywords.Keyword[] a : keywords)
 			for (DefaultKeywords.Keyword k : a)
 				{
@@ -542,11 +550,11 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 			}
 		}
 
-	public void setTokenMarker(DefaultTokenMarker marker)
+	public void setTokenMarker(DefaultTokenMarker tokenMarker2)
 		{
-		tokenMarker = marker;
-		super.setTokenMarker(marker);
-		this.updateCompletions(marker);
+		tokenMarker = tokenMarker2;
+		super.setTokenMarker(tokenMarker2);
+		this.updateCompletions(tokenMarker2);
 		}
 
 	public void actionPerformed(ActionEvent ev)

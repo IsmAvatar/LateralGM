@@ -21,12 +21,16 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-package org.lateralgm.joshedit.lexers;
+package org.lateralgm.components;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.lateralgm.joshedit.DefaultTokenMarker;
+import org.lateralgm.joshedit.lexers.GLESTokenMarker;
+import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
+import org.lateralgm.joshedit.lexers.GMLTokenMarker;
+import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
 
 /**
  * A non-instantiable token marker cache that avoids instantiating more 

@@ -1,0 +1,12 @@
+[submodule "org/lateralgm/joshedit"]
+	path = org/lateralgm/joshedit
+	url = https://github.com/JoshDreamland/JoshEdit.git
+[submodule "JoshEdit"]
+	path = JoshEdit
+	url = https://github.com/JoshDreamland/JoshEdit.git
+[submodule "org/lateralgm/joshedits"]
+	path = org/lateralgm/joshedits
+	url = https://github.com/JoshDreamland/JoshEdit.git
+[submodule "modules/joshedit"]
+	path = modules/joshedit
+	url = https://github.com/JoshDreamland/JoshEdit.git
