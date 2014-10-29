@@ -710,7 +710,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		PrefsStore.setIconPack(LGM.iconspack);
 		PrefsStore.setIconPath(iconPath.getText());
 		PrefsStore.setSwingThemePath(themePath.getText());
-		PrefsStore.setSwingTheme(LGM.themename);
+		PrefsStore.setSwingTheme((String) themeCombo.getSelectedItem());
 		PrefsStore.setManualPath(manualPath.getText());
 		PrefsStore.setDNDEnabled(dndEnable.isSelected());
 		PrefsStore.setExtraNodes(extraNodesEnable.isSelected());
