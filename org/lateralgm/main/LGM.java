@@ -845,6 +845,12 @@ public final class LGM
    	}
 		
 		LGM.tree.setSelectionRow(0);
+		
+		// Reload the search tree so that orphaned references can be dumped.
+		DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
+		searchRoot.removeAllChildren();
+		// Reload because root is invisible.
+		((DefaultTreeModel)searchTree.getModel()).reload();
 
 		LGM.eventSelect.reload();
 		
@@ -1440,15 +1446,21 @@ public final class LGM
 						} else if (resNode.kind == GmObject.class) {
 							GmObject res = (GmObject) ref.get();
 							
-							ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
+							ArrayList<SearchResultNode> meNodes = new ArrayList<>();
 							int matchCount = 0;
 							for (MainEvent me : res.mainEvents) {
+								ArrayList<SearchResultNode> evNodes = new ArrayList<>();
+								int meMatches = 0;
+								int mainid = 0;
 								for (Event ev : me.events) {
+									mainid = ev.mainId;
+									ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
+									int evMatches = 0;
 									for (org.lateralgm.resources.sub.Action act : ev.actions) {
 										if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) continue;
 										String code = act.getArguments().get(0).getVal();
 										List<LineMatch> matches = getMatchingLines(code, pattern);
-										matchCount += matches.size();
+										evMatches += matches.size();
 										for (LineMatch match : matches) {
 											if (match.matchedText.size() > 0) {
 												String text = match.toHighlightableString();
@@ -1460,32 +1472,64 @@ public final class LGM
 											}
 										}
 									}
+									meMatches += evMatches;
+									if (resultNodes.size() > 0) {
+										SearchResultNode evRoot = new SearchResultNode("<html>" + ev.toString().replaceAll("<","&lt;").replaceAll(">","&gt;")
+												+ " <font color='blue'>(" + evMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+										evRoot.ref = res.reference;
+										evRoot.status = SearchResultNode.STATUS_EVENT;
+										evRoot.setIcon(LGM.getIconForKey("EventNode.EVENT" + ev.mainId));
+										for (SearchResultNode resn : resultNodes) {
+											evRoot.add(resn);
+										}
+										evNodes.add(evRoot);
+									}
+								}
+								matchCount += meMatches;
+								if (evNodes.size() > 0) {
+									if (evNodes.size() > 1) {
+										SearchResultNode meRoot = new SearchResultNode("<html>" + Messages.getString("MainEvent.EVENT" + mainid)
+												+ " <font color='blue'>(" + meMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+										meRoot.ref = res.reference;
+										meRoot.status = SearchResultNode.STATUS_EVENT;
+										meRoot.setIcon(LGM.getIconForKey("EventNode.GROUP" + mainid));
+										for (SearchResultNode resn : evNodes) {
+											meRoot.add(resn);
+										}
+										meNodes.add(meRoot);
+									} else {
+										for (SearchResultNode resn : evNodes) {
+											meNodes.add(resn);
+										}
+									}
 								}
 							}
 							
-							if (resultNodes.size() > 0) {
+							if (meNodes.size() > 0) {
 								resultRoot = new SearchResultNode("<html>" + res.getName()
-										+ " <font color='blue'>(" + matchCount+ " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+										+ " <font color='blue'>(" + matchCount + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
 							}
 							
-							for (SearchResultNode resn : resultNodes) {
+							for (SearchResultNode resn : meNodes) {
 								resultRoot.add(resn);
 							}
 	
 						} else if (resNode.kind == Timeline.class) {
 							Timeline res = (Timeline) ref.get();
 							
-							ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
+							ArrayList<SearchResultNode> momentNodes = new ArrayList<>();
 							int matchCount = 0;
 							for (Moment mom : res.moments) {
+								ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
+								int momentMatches = 0;
 								for (org.lateralgm.resources.sub.Action act : mom.actions) {
 									if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) continue;
 									String code = act.getArguments().get(0).getVal();
 									List<LineMatch> matches = getMatchingLines(code, pattern);
-									matchCount += matches.size();
+									momentMatches += matches.size();
 									for (LineMatch match : matches) {
 										if (match.matchedText.size() > 0) {
 											String text = match.toHighlightableString();
@@ -1497,9 +1541,21 @@ public final class LGM
 										}
 									}
 								}
+								matchCount += momentMatches;
+								if (resultNodes.size() > 0) {
+									SearchResultNode momentRoot = new SearchResultNode("<html>" + mom.toString()
+											+ " <font color='blue'>(" + momentMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+									momentRoot.ref = res.reference;
+									momentRoot.status = SearchResultNode.STATUS_MOMENT;
+									momentRoot.setIcon(null);
+									for (SearchResultNode resn : resultNodes) {
+										momentRoot.add(resn);
+									}
+									momentNodes.add(momentRoot);
+								}
 							}
 							
-							if (resultNodes.size() > 0) {
+							if (momentNodes.size() > 0) {
 								resultRoot = new SearchResultNode("<html>" + res.getName()
 										+ " <font color='blue'>(" + matchCount+ " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
 								resultRoot.ref = res.reference;
@@ -1507,8 +1563,8 @@ public final class LGM
 								resultRoot.setIcon(res.getNode().getIcon());
 							}
 							
-							for (SearchResultNode resn : resultNodes) {
-								resultRoot.add(resn);
+							for (SearchResultNode momn : momentNodes) {
+								resultRoot.add(momn);
 							}
 		
 						}
@@ -1858,7 +1914,7 @@ public final class LGM
 					if (node instanceof SearchResultNode) {
 						SearchResultNode srn = (SearchResultNode) node;
 						
-						if (srn.status == SearchResultNode.STATUS_RESULT || srn.status == ResNode.STATUS_SECONDARY) {
+						if (srn.status >= ResNode.STATUS_SECONDARY) {
 							srn.openFrame();
 							return;
 						} else {

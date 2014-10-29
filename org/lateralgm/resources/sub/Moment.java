@@ -10,6 +10,7 @@ package org.lateralgm.resources.sub;
 
 import org.lateralgm.main.Util;
 import org.lateralgm.main.Util.InherentlyUnique;
+import org.lateralgm.messages.Messages;
 
 public class Moment extends ActionContainer implements Comparable<Object>,InherentlyUnique<Moment>
 	{
@@ -33,7 +34,7 @@ public class Moment extends ActionContainer implements Comparable<Object>,Inhere
 
 	public String toString()
 		{
-		return "Step " + stepNo;
+		return Messages.getString("Moment.STEP") + " " + stepNo;
 		}
 
 	public boolean isEqual(Moment other)
