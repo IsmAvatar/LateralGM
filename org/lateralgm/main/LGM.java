@@ -302,7 +302,7 @@ public final class LGM
 
 	public static void SetLookAndFeel(String LOOKANDFEEL)
 		{
-		if (LOOKANDFEEL.equals(themename))
+		if (LOOKANDFEEL.equals(themename) && !LOOKANDFEEL.equals("Custom"))
 			{
 			themechanged = false;
 			return;

@@ -108,7 +108,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS") + ":");
 		iconCombo = new JComboBox<String>();
 		iconCombo.addItem("Custom");
-		iconCombo.addItem("Swing");
+		//iconCombo.addItem("Contrast");
 		iconCombo.addItem("Calico");
 		/*  TODO: This is a failed experiment, the code for inside 
 		 *  Eclipse works, but outside the IDE we can't properly
@@ -757,9 +757,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			JOptionPane.showMessageDialog(this,
 					Messages.getString("PreferencesFrame.APPLY_CHANGES_NOTICE"));
 			LGM.filterPanel.setVisible(showTreeFilter.isSelected());
+			SavePreferences();
 			LGM.SetLookAndFeel((String) themeCombo.getSelectedItem());
 			LGM.UpdateLookAndFeel();
-			SavePreferences();
 			}
 		if (com.equals("PreferencesFrame.CLOSE")) //$NON-NLS-1$
 			{
