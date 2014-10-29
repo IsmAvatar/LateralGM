@@ -998,8 +998,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (e instanceof ParentLoopException)
 			{
 			String msg = Messages.getString("GmObjectFrame.LOOPING_PARENTS"); //$NON-NLS-1$
-			String ttl = Messages.getString("GmObjectFrame.ERROR"); //$NON-NLS-1$
-			JOptionPane.showMessageDialog(this,msg,ttl,JOptionPane.ERROR_MESSAGE);
+			String ttl = Messages.getString("GmObjectFrame.WARNING"); //$NON-NLS-1$
+			JOptionPane.showMessageDialog(this,msg,ttl,JOptionPane.WARNING_MESSAGE);
 			return;
 			}
 		super.exceptionThrown(e);

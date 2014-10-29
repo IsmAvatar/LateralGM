@@ -43,6 +43,8 @@ public class ImageToolTip extends JToolTip
 
 		public void paint(Graphics g, JComponent c)
 			{
+			//TODO: This causes an exception under the Nimbus look and feel.
+			//Open the object frame and hover over the iconified area of the object or sprite resource menu and wait for tooltip and exception will occur.
 			ttui.paint(g,c);
 			BufferedImage img = aip.getImage();
 			if (img != null) g.drawImage(img,0,0,null);

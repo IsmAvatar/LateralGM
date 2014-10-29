@@ -57,7 +57,6 @@ import org.lateralgm.joshedit.JoshText.Highlighter;
 import org.lateralgm.joshedit.Runner;
 import org.lateralgm.joshedit.Runner.EditorInterface;
 import org.lateralgm.joshedit.JoshTextPanel;
-import org.lateralgm.joshedit.TokenMarker;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;

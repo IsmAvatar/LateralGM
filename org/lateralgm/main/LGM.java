@@ -135,12 +135,17 @@ import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Shader;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.library.LibManager;
+import org.lateralgm.resources.sub.Event;
+import org.lateralgm.resources.sub.MainEvent;
+import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.subframes.ConstantsFrame;
 import org.lateralgm.subframes.EventPanel;
 import org.lateralgm.subframes.ExtensionPackagesFrame;
@@ -1432,6 +1437,80 @@ public final class LGM
 									}
 								}
 							}
+						} else if (resNode.kind == GmObject.class) {
+							GmObject res = (GmObject) ref.get();
+							
+							ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
+							int matchCount = 0;
+							for (MainEvent me : res.mainEvents) {
+								for (Event ev : me.events) {
+									for (org.lateralgm.resources.sub.Action act : ev.actions) {
+										if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) continue;
+										String code = act.getArguments().get(0).getVal();
+										List<LineMatch> matches = getMatchingLines(code, pattern);
+										matchCount += matches.size();
+										for (LineMatch match : matches) {
+											if (match.matchedText.size() > 0) {
+												String text = match.toHighlightableString();
+												
+												SearchResultNode resultNode = new SearchResultNode(text);
+												resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+												resultNode.status = SearchResultNode.STATUS_RESULT;
+												resultNodes.add(resultNode);
+											}
+										}
+									}
+								}
+							}
+							
+							if (resultNodes.size() > 0) {
+								resultRoot = new SearchResultNode("<html>" + res.getName()
+										+ " <font color='blue'>(" + matchCount+ " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultRoot.ref = res.reference;
+								resultRoot.status = ResNode.STATUS_SECONDARY;
+								resultRoot.setIcon(res.getNode().getIcon());
+							}
+							
+							for (SearchResultNode resn : resultNodes) {
+								resultRoot.add(resn);
+							}
+	
+						} else if (resNode.kind == Timeline.class) {
+							Timeline res = (Timeline) ref.get();
+							
+							ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
+							int matchCount = 0;
+							for (Moment mom : res.moments) {
+								for (org.lateralgm.resources.sub.Action act : mom.actions) {
+									if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) continue;
+									String code = act.getArguments().get(0).getVal();
+									List<LineMatch> matches = getMatchingLines(code, pattern);
+									matchCount += matches.size();
+									for (LineMatch match : matches) {
+										if (match.matchedText.size() > 0) {
+											String text = match.toHighlightableString();
+											
+											SearchResultNode resultNode = new SearchResultNode(text);
+											resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+											resultNode.status = SearchResultNode.STATUS_RESULT;
+											resultNodes.add(resultNode);
+										}
+									}
+								}
+							}
+							
+							if (resultNodes.size() > 0) {
+								resultRoot = new SearchResultNode("<html>" + res.getName()
+										+ " <font color='blue'>(" + matchCount+ " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultRoot.ref = res.reference;
+								resultRoot.status = ResNode.STATUS_SECONDARY;
+								resultRoot.setIcon(res.getNode().getIcon());
+							}
+							
+							for (SearchResultNode resn : resultNodes) {
+								resultRoot.add(resn);
+							}
+		
 						}
 						
 						if (resultRoot != null) {
@@ -1481,6 +1560,10 @@ public final class LGM
 		 */
 		private static final long serialVersionUID = 1L;
 		public static final byte STATUS_RESULT = 4;
+		public static final byte STATUS_EVENT = 5;
+		public static final byte STATUS_MOMENT = 6;
+		public static final byte STATUS_ACTON = 7;
+		
 		public byte status;
 		ResourceReference<?> ref;
 		private Icon icon = null;
@@ -1500,7 +1583,7 @@ public final class LGM
 		}
 		
 		public void openFrame() {
-			if (status == STATUS_RESULT) {
+			if (status >= STATUS_RESULT) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) this.getParent();
 				if (node instanceof SearchResultNode) {
 					SearchResultNode resNode = (SearchResultNode) node;

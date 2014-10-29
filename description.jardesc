@@ -22,6 +22,7 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file.iconio"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file"/>
         <folder path="/LateralGM/META-INF"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.joshedit.icons"/>
         <file path="/LateralGM/.project"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.subframes"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Swing.events"/>
@@ -37,13 +38,16 @@
         <javaElement handleIdentifier="=LateralGM/&lt;javax.swing.text.rtf"/>
         <file path="/LateralGM/.gitignore"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.joshedit.swing"/>
         <folder path="/LateralGM/.settings"/>
         <file path="/LateralGM/COPYING"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.visual"/>
         <file path="/LateralGM/checkstyle.xml"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.joshedit"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.joshedit.preferences"/>
         <file path="/LateralGM/LICENSE"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Swing.actions"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.joshedit.eclipse.Profiles"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.impl"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.mdi"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.propertylink"/>

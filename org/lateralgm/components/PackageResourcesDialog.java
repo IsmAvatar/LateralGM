@@ -43,7 +43,7 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Listener;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
 public class PackageResourcesDialog extends JDialog
@@ -124,7 +124,8 @@ public class PackageResourcesDialog extends JDialog
 	
 	public PackageResourcesDialog(Frame parent) {
 		super(parent);
-		this.setTitle("Package Resources");
+		this.setTitle(Messages.getString("PackageResources.TITLE"));
+		this.setIconImage(LGM.getIconForKey("PackageResources.ICON").getImage());
 		//setResizable(false);
 		
 		typeList = new JList<TypeCheckBox>();
@@ -151,14 +152,14 @@ public class PackageResourcesDialog extends JDialog
 	  
 	  JScrollPane typeScroll = new JScrollPane(typeList);
 	  
-	  JButton selectAllButton = new JButton("Select All");
+	  JButton selectAllButton = new JButton(Messages.getString("PackageResources.SELECTALL"));
 	  selectAllButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
 					setAllSelected(true);
 				}
 	  });
-	  JButton selectNoneButton = new JButton("Select None");
+	  JButton selectNoneButton = new JButton(Messages.getString("PackageResources.SELECTNONE"));
 	  selectNoneButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
@@ -166,7 +167,7 @@ public class PackageResourcesDialog extends JDialog
 				}
 	  });
 	  
-	  JButton importButton = new JButton("Import");
+	  JButton importButton = new JButton(Messages.getString("PackageResources.IMPORT"));
 	  importButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
@@ -174,7 +175,7 @@ public class PackageResourcesDialog extends JDialog
 				}
 	  });
 	  
-	  JButton exportButton = new JButton("Export");
+	  JButton exportButton = new JButton(Messages.getString("PackageResources.EXPORT"));
 	  exportButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
@@ -182,7 +183,7 @@ public class PackageResourcesDialog extends JDialog
 				}
 	  });
 	  
-	  JButton closeButton = new JButton("Close");
+	  JButton closeButton = new JButton(Messages.getString("PackageResources.CLOSE"));
 	  closeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
