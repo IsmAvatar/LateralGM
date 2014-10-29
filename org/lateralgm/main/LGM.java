@@ -489,25 +489,19 @@ public final class LGM
 
 	public static ImageIcon findIcon(String filename)
 		{
-		String fixedpath = iconspath + iconspack + "/" + filename;
 		String custompath = Prefs.iconPath + filename;
+		String jarpath = iconspath + iconspack + "/" + filename;
 		String location = ""; //$NON-NLS-1$
-		File f = new File(custompath);
-		if (Prefs.iconPack == "Custom")
-			{
-			location = custompath;
-			}
-		else
-			{
-			if (f.exists())
-				{
+		if (Prefs.iconPack.equals("Custom"))
+		{
+			if (new File(custompath).exists()) {
 				location = custompath;
-				}
-			else
-				{
-				location = fixedpath;
-				}
+			} else {
+				location = jarpath;
 			}
+		} else {
+			location = jarpath;
+		}
 
 		ImageIcon ico = new ImageIcon(location);
 		if (ico.getIconWidth() == -1)

@@ -107,9 +107,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS") + ":");
 		iconCombo = new JComboBox<String>();
-		iconCombo.addItem("Custom");
-		//iconCombo.addItem("Contrast");
 		iconCombo.addItem("Calico");
+		//iconCombo.addItem("Contrast");
+		iconCombo.addItem("Custom");
 		/*  TODO: This is a failed experiment, the code for inside 
 		 *  Eclipse works, but outside the IDE we can't properly
 		 *  get directories from the Jar.
