@@ -2036,7 +2036,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
 		BufferedImage instanceImage = instanceObject.get().getDisplayImage();
 
-		centerObjectInViewport(instancePosition,instanceImage.getWidth(),instanceImage.getHeight(),null);
+		if (instanceImage == null) {
+			//TODO: This hard codes the dimensions of the default object sprite/icon which is just the 16x16 pixel ball
+			centerObjectInViewport(instancePosition,16,16,null);
+		} else {
+			centerObjectInViewport(instancePosition,instanceImage.getWidth(),instanceImage.getHeight(),null);
+		}
 		}
 
 	// Center an object in the viewport of the rooms editor
