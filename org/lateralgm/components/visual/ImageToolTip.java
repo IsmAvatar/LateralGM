@@ -41,15 +41,19 @@ public class ImageToolTip extends JToolTip
 			this.ttui = ttui;
 			}
 
+		@Override
 		public void paint(Graphics g, JComponent c)
 			{
 			//TODO: This causes an exception under the Nimbus look and feel.
 			//Open the object frame and hover over the iconified area of the object or sprite resource menu and wait for tooltip and exception will occur.
-			ttui.paint(g,c);
+			//ttui.paint(g,c);
+			//Calling the super paint method seems to still allow the look and feel to render the tooltip while not producing the exception.
+			super.paint(g,c);
 			BufferedImage img = aip.getImage();
 			if (img != null) g.drawImage(img,0,0,null);
 			}
 
+		@Override
 		public Dimension getPreferredSize(JComponent c)
 			{
 			BufferedImage img = aip.getImage();
