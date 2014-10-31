@@ -398,7 +398,7 @@ public class RoomEditor extends VisualPanel
 					{
 						public void actionPerformed(ActionEvent e)
 							{
-							frame.openCodeFrame(i);
+							frame.openInstanceCodeFrame(i);
 							}
 					});
 				jp.add(mi);
@@ -561,7 +561,7 @@ public class RoomEditor extends VisualPanel
 
 	public static interface CommandHandler
 		{
-		void openCodeFrame(Instance i);
+		void openInstanceCodeFrame(Instance i);
 		}
 
 	private class RoomPropertyListener extends PropertyUpdateListener<PRoom>

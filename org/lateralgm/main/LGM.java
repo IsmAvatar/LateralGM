@@ -122,6 +122,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.lateralgm.components.ActionList;
 import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
@@ -155,9 +156,12 @@ import org.lateralgm.subframes.EventPanel;
 import org.lateralgm.subframes.ExtensionPackagesFrame;
 import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
+import org.lateralgm.subframes.GmObjectFrame;
 import org.lateralgm.subframes.PreferencesFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
+import org.lateralgm.subframes.RoomFrame;
+import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
@@ -1376,10 +1380,17 @@ public final class LGM
 					searchInResourcesRecursion(child, pattern);
 				} else {
 					SearchResultNode resultRoot = null;
-					ResourceReference<?> ref = (ResourceReference<?>) resNode.getRes();
+					ResourceReference<?> ref = resNode.getRes();
+					
 					if (ref != null) {
+						Resource<?,?> resderef = ref.get();
+						if (resNode.frame != null) {
+							resNode.frame.commitChanges();
+							resderef = resNode.frame.res;
+						}
+						
 						if (resNode.kind == Script.class)	{
-							Script res = (Script) ref.get();
+							Script res = (Script) resderef;
 							String code = res.getCode();
 							List<LineMatch> matches = getMatchingLines(code, pattern);
 							if (matches.size() > 0) {
@@ -1400,7 +1411,7 @@ public final class LGM
 								}
 							}
 						} else if (resNode.kind == Shader.class) {
-							Shader res = (Shader) ref.get();
+							Shader res = (Shader) resderef;
 							String vcode = res.getVertexCode();
 							String fcode = res.getFragmentCode();
 							List<LineMatch> vertexmatches = getMatchingLines(vcode, pattern);
@@ -1443,7 +1454,7 @@ public final class LGM
 								}
 							}
 						} else if (resNode.kind == GmObject.class) {
-							GmObject res = (GmObject) ref.get();
+							GmObject res = (GmObject) resderef;
 							
 							ArrayList<SearchResultNode> meNodes = new ArrayList<>();
 							int matchCount = 0;
@@ -1455,13 +1466,15 @@ public final class LGM
 									mainid = ev.mainId;
 									ArrayList<SearchResultNode> actionNodes = new ArrayList<>();
 									int evMatches = 0;
-									for (org.lateralgm.resources.sub.Action act : ev.actions) {
+									List<org.lateralgm.resources.sub.Action> actions = ev.actions;
+									for (int ii = 0; ii < actions.size(); ii++) {
+										org.lateralgm.resources.sub.Action act = actions.get(ii);
 										ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
 										int actMatches = 0;
 										////if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) continue;
 										List<Argument> args = act.getArguments();
-										for (int ii = 0; ii < args.size(); ii++) {
-											Argument arg = args.get(ii);
+										for (int iii = 0; iii < args.size(); iii++) {
+											Argument arg = args.get(iii);
 											String code = arg.getVal();
 											List<LineMatch> matches = getMatchingLines(code, pattern);
 											actMatches += matches.size();
@@ -1470,7 +1483,7 @@ public final class LGM
 													String text = match.toHighlightableString();
 
 													if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE)
-														text = ("<html>" + Integer.toString(ii) + text.substring(text.indexOf(":"),text.length()));
+														text = ("<html>" + Integer.toString(iii) + text.substring(text.indexOf(":"),text.length()));
 													
 													SearchResultNode resultNode = new SearchResultNode(text);
 													resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
@@ -1484,8 +1497,8 @@ public final class LGM
 											// Uses the same method of getting the Action name as ActionFrame
 											SearchResultNode actRoot = new SearchResultNode("<html>" + act.getLibAction().name.replace("_"," ")
 													+ " <font color='blue'>(" + actMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
-											actRoot.ref = res.reference;
-											actRoot.status = SearchResultNode.STATUS_ACTON;
+											actRoot.status = SearchResultNode.STATUS_ACTION;
+											actRoot.data = new Object[]{ii};
 											actRoot.setIcon(new ImageIcon(act.getLibAction().actImage.getScaledInstance(16,16,0)));
 											for (SearchResultNode actn : resultNodes) {
 												actRoot.add(actn);
@@ -1497,9 +1510,9 @@ public final class LGM
 									if (actionNodes.size() > 0) {
 										SearchResultNode evRoot = new SearchResultNode("<html>" + ev.toString().replaceAll("<","&lt;").replaceAll(">","&gt;")
 												+ " <font color='blue'>(" + evMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
-										evRoot.ref = res.reference;
 										evRoot.status = SearchResultNode.STATUS_EVENT;
 										evRoot.setIcon(LGM.getIconForKey("EventNode.EVENT" + ev.mainId));
+										evRoot.data = new Object[]{ev.mainId,ev.id};
 										for (SearchResultNode resn : actionNodes) {
 											evRoot.add(resn);
 										}
@@ -1511,7 +1524,6 @@ public final class LGM
 									if (evNodes.size() > 1) {
 										SearchResultNode meRoot = new SearchResultNode("<html>" + Messages.getString("MainEvent.EVENT" + mainid)
 												+ " <font color='blue'>(" + meMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
-										meRoot.ref = res.reference;
 										meRoot.status = SearchResultNode.STATUS_MAIN_EVENT;
 										meRoot.setIcon(LGM.getIconForKey("EventNode.GROUP" + mainid));
 										for (SearchResultNode resn : evNodes) {
@@ -1539,21 +1551,22 @@ public final class LGM
 							}
 	
 						} else if (resNode.kind == Timeline.class) {
-							Timeline res = (Timeline) ref.get();
+							Timeline res = (Timeline) resderef;
 							
 							ArrayList<SearchResultNode> momentNodes = new ArrayList<>();
 							int matchCount = 0;
 							for (Moment mom : res.moments) {
 								ArrayList<SearchResultNode> actionNodes = new ArrayList<>();
 								int momentMatches = 0;
-								for (org.lateralgm.resources.sub.Action act : mom.actions) {
-
+								List<org.lateralgm.resources.sub.Action> actions = mom.actions;
+								for (int ii = 0; ii < actions.size(); ii++) {
+									org.lateralgm.resources.sub.Action act = actions.get(ii);
 									ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
 									int actMatches = 0;
 									////if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) continue;
 									List<Argument> args = act.getArguments();
-									for (int ii = 0; ii < args.size(); ii++) {
-										Argument arg = args.get(ii);
+									for (int iii = 0; iii < args.size(); iii++) {
+										Argument arg = args.get(iii);
 										String code = arg.getVal();
 										List<LineMatch> matches = getMatchingLines(code, pattern);
 										actMatches += matches.size();
@@ -1562,7 +1575,7 @@ public final class LGM
 												String text = match.toHighlightableString();
 	
 												if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE)
-													text = ("<html>" + Integer.toString(ii) + text.substring(text.indexOf(":"),text.length()));
+													text = ("<html>" + Integer.toString(iii) + text.substring(text.indexOf(":"),text.length()));
 												
 												SearchResultNode resultNode = new SearchResultNode(text);
 												resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
@@ -1577,8 +1590,8 @@ public final class LGM
 										// Uses the same method of getting the Action name as ActionFrame
 										SearchResultNode actRoot = new SearchResultNode("<html>" + act.getLibAction().name.replace("_"," ")
 												+ " <font color='blue'>(" + actMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
-										actRoot.ref = res.reference;
-										actRoot.status = SearchResultNode.STATUS_ACTON;
+										actRoot.status = SearchResultNode.STATUS_ACTION;
+										actRoot.data = new Object[]{ii};
 										actRoot.setIcon(new ImageIcon(act.getLibAction().actImage.getScaledInstance(16,16,0)));
 										for (SearchResultNode actn : resultNodes) {
 											actRoot.add(actn);
@@ -1591,8 +1604,8 @@ public final class LGM
 								if (actionNodes.size() > 0) {
 									SearchResultNode momentRoot = new SearchResultNode("<html>" + mom.toString()
 											+ " <font color='blue'>(" + momentMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
-									momentRoot.ref = res.reference;
 									momentRoot.status = SearchResultNode.STATUS_MOMENT;
+									momentRoot.data = new Object[]{mom.stepNo};
 									momentRoot.setIcon(null);
 									for (SearchResultNode resn : actionNodes) {
 										momentRoot.add(resn);
@@ -1614,7 +1627,7 @@ public final class LGM
 							}
 		
 						} else if (resNode.kind == Room.class) {
-							Room res = (Room) ref.get();
+							Room res = (Room) resderef;
 							
 							ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
 							int matchCount = 0;
@@ -1669,6 +1682,7 @@ public final class LGM
 									Resource<?,?> obj = ((ResourceReference<?>)inst.properties.get(PInstance.OBJECT)).get();
 									resultNode.setIcon(obj == null ? null : obj.getNode().getIcon());
 									resultNode.status = SearchResultNode.STATUS_INSTANCE_CREATION;
+									resultNode.data = new Object[]{inst};
 									resultNodes.add(resultNode);
 									
 									for (SearchResultNode codeNode : codeNodes) {
@@ -1740,13 +1754,15 @@ public final class LGM
 		public static final byte STATUS_MAIN_EVENT = 5;
 		public static final byte STATUS_EVENT = 6;
 		public static final byte STATUS_MOMENT = 7;
-		public static final byte STATUS_ACTON = 8;
+		public static final byte STATUS_ACTION = 8;
 		public static final byte STATUS_ROOM_CREATION = 9;
 		public static final byte STATUS_INSTANCE_CREATION = 10;
 		
 		public byte status;
 		ResourceReference<?> ref;
 		private Icon icon = null;
+		
+		Object[] data;
 		
 		public SearchResultNode()
 			{
@@ -1762,13 +1778,61 @@ public final class LGM
 			icon = ico;
 		}
 		
+		public ResourceReference<?> getRef() {
+			SearchResultNode par = (SearchResultNode) this.getParent();
+			ResourceReference<?> ret = par.ref;
+			while (ret == null) {
+				par = (SearchResultNode) par.getParent();
+				ret = par.ref;
+			}
+			return ret;
+		}
+		
 		public void openFrame() {
 			if (status >= STATUS_RESULT) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) this.getParent();
 				if (node instanceof SearchResultNode) {
-					SearchResultNode resNode = (SearchResultNode) node;
-					resNode.openFrame();
+					SearchResultNode parNode = (SearchResultNode) node;
+					parNode.openFrame();
+					
+					ResourceReference<?> parentRef = this.getRef();
+					if (parentRef != null) {
+						Resource<?,?> res = parentRef.get();
+						if (res != null) {
+							ResNode resNode = res.getNode();
+							if (resNode != null) {
+								ResourceFrame<?,?> frame = resNode.frame;
+								if (frame != null) {
+									if (resNode.kind == GmObject.class) {
+										GmObjectFrame objframe = (GmObjectFrame) frame;
+										if (status == STATUS_EVENT) {
+											objframe.setSelectedEvent((Integer)data[0],(Integer)data[1]);
+										} else if (status == STATUS_ACTION) {
+											objframe.actions.setSelectedIndex((Integer)data[0]);
+											ActionList.openActionFrame(objframe,objframe.actions.getSelectedValue());
+										}
+									} else if (resNode.kind == Timeline.class) {
+										TimelineFrame tmlframe = (TimelineFrame) frame;
+										if (status == STATUS_MOMENT) {
+											tmlframe.setSelectedMoment((Integer)data[0]);
+										} else if (status == STATUS_ACTION) {
+											tmlframe.actions.setSelectedIndex((Integer)data[0]);
+											ActionList.openActionFrame(tmlframe,tmlframe.actions.getSelectedValue());
+										}
+									} else if (resNode.kind == Room.class) {
+										RoomFrame roomframe = (RoomFrame) frame;
+										if (status == STATUS_ROOM_CREATION) {
+											roomframe.openRoomCreationCode();
+										} else if (status == STATUS_INSTANCE_CREATION) {
+											roomframe.openInstanceCodeFrame((Instance)data[0]);
+										}
+									}
+								}
+							}
+						}
+					}
 				}
+
 			} else if (status == ResNode.STATUS_SECONDARY) {
 				if (ref != null) {
 					Resource<?,?> res = ref.get();

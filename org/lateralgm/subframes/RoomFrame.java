@@ -1871,12 +1871,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		if (e.getSource() == sCreationCode)
 			{
-			openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
+			openRoomCreationCode();
 			return;
 			}
 		if (e.getSource() == oCreationCode)
 			{
-			if (lastObj != null) openCodeFrame(lastObj);
+			if (lastObj != null) openInstanceCodeFrame(lastObj);
 			return;
 			}
 		super.actionPerformed(e);
@@ -2186,12 +2186,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			}
 		}
 
-	public void openCodeFrame(Instance i)
-		{
-		openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
-				Messages.format("RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
-		}
-
 	public void openCodeFrame(CodeHolder code, String titleFormat, Object titleArg)
 		{
 		CodeFrame frame = codeFrames.get(code);
@@ -2215,6 +2209,17 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			}
 		else
 			frame.toTop();
+		}
+	
+	public void openInstanceCodeFrame(Instance i)
+		{
+			openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
+					Messages.format("RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
+		}
+	
+	public void openRoomCreationCode()
+		{
+			openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
 		}
 
 	@Override

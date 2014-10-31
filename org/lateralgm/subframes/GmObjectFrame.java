@@ -912,7 +912,33 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			}
 		super.actionPerformed(e);
 		}
+	
+	private TreeNode[] findEvent(DefaultMutableTreeNode node, int mainid, int id) {
+		Enumeration<?> children = node.children();
+		while (children.hasMoreElements()) {
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
+			if (child instanceof EventInstanceNode) {
+				EventInstanceNode evtNode = (EventInstanceNode) child;
+				Event evt = evtNode.getUserObject();
+				if (evt.mainId == mainid && evt.id == id) {
+					return evtNode.getPath();
+				}
+			}
+		}
+		return null;
+	}
+	
+	private TreeNode[] findEvent(int mainid, int id) {
+		return findEvent((DefaultMutableTreeNode) events.getModel().getRoot(), mainid, id);
+	}
 
+	public void setSelectedEvent(int mainid, int id) {
+		TreeNode[] path = findEvent(mainid, id);
+		if (path != null) {
+			events.setSelectionPath(new TreePath(path));
+		}
+	}
+	
 	private void editSelectedEvent()
 		{
 		if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)

@@ -233,6 +233,25 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		actions.save();
 		res.setName(name.getText());
 		}
+	
+	public int findMoment(int step) {
+		ListModel<Moment> model = moments.getModel();
+		
+		for (int i = 0; i < model.getSize(); i++){
+			Moment mom =  model.getElementAt(i);  
+		  if (mom.stepNo == step) {
+		  	return i;
+		  }
+		}
+		return -1;
+	}
+	
+	public void setSelectedMoment(int step) {
+		int index = findMoment(step);
+		if (index != -1) {
+			moments.setSelectedIndex(index);
+		}
+	}
 
 	public void showInfoFrame()
 		{
