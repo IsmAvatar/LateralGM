@@ -103,8 +103,10 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -123,6 +125,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.ActionList;
+import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
@@ -1813,6 +1816,17 @@ public final class LGM
 			return ret;
 		}
 		
+		public void threadCaretUpdate(final CodeTextArea code, int row, int col) {
+			SwingUtilities.invokeLater(new Runnable(){
+				@Override
+				public void run()
+					{
+						code.setCaretPosition((Integer)data[0],0);
+						code.repaint();
+					}
+			});
+		}
+		
 		public void openFrame() {
 			if (status >= STATUS_RESULT) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) this.getParent();
@@ -1851,7 +1865,7 @@ public final class LGM
 												af.focusArgumentComponent((Integer)data[0]);
 											} else {
 												if ((Integer)data[0] < af.code.getLineCount()) {
-													af.code.setCaretPosition((Integer)data[0],0);
+													threadCaretUpdate(af.code, (Integer)data[0],0);
 												}
 											}
 										}
@@ -1873,7 +1887,7 @@ public final class LGM
 												af.focusArgumentComponent((Integer)data[0]);
 											} else {
 												if ((Integer)data[0] < af.code.getLineCount()) {
-													af.code.setCaretPosition((Integer)data[0],0);
+													threadCaretUpdate(af.code, (Integer)data[0],0);
 												}
 											}
 										}
@@ -1889,15 +1903,15 @@ public final class LGM
 											if (parNode.status == STATUS_INSTANCE_CREATION || parNode.status == STATUS_ROOM_CREATION) {
 												CodeFrame cf = (CodeFrame) parNode.parentdata[0];
 												if ((Integer)data[0] < cf.code.getLineCount()) {
-													cf.code.setCaretPosition((Integer)data[0],0);
+													threadCaretUpdate(cf.code, (Integer)data[0],0);
 												}
 											}
 										}
 									} else if (resNode.kind == Script.class) {
-										ScriptFrame scrframe = (ScriptFrame) frame;
+										final ScriptFrame scrframe = (ScriptFrame) frame;
 										if (status == STATUS_RESULT) {
 											if ((Integer)data[0] < scrframe.code.text.getLineCount()) {
-												scrframe.code.setCaretPosition((Integer)data[0],0);
+												threadCaretUpdate(scrframe.code, (Integer)data[0],0);
 											}
 										}
 									} else if (resNode.kind == Shader.class) {
@@ -1910,12 +1924,12 @@ public final class LGM
 											if (parNode.status == STATUS_VERTEX_CODE) {
 												shrframe.vcode.requestFocusInWindow();
 												if ((Integer)data[0] < shrframe.vcode.text.getLineCount()) {
-													shrframe.vcode.setCaretPosition((Integer)data[0],0);
+													threadCaretUpdate(shrframe.vcode, (Integer)data[0],0);
 												}
 											} else if (parNode.status == STATUS_FRAGMENT_CODE) {
 												shrframe.fcode.requestFocusInWindow();
 												if ((Integer)data[0] < shrframe.fcode.text.getLineCount()) {
-													shrframe.fcode.setCaretPosition((Integer)data[0],0);
+													threadCaretUpdate(shrframe.fcode, (Integer)data[0],0);
 												}
 											}
 										}
