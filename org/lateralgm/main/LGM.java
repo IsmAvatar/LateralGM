@@ -1270,7 +1270,8 @@ public final class LGM
 	static List<LineMatch> getMatchingLines(String code, Pattern content) {
 	  List<LineMatch> res = new ArrayList<LineMatch>();
 	  Matcher m = content.matcher(code), nl = NEWLINE.matcher(code);
-	  int lineNum = 1, lineAt = 0, lastEnd = -1;
+	  // code editor starts at line 0 so we need to here as well
+	  int lineNum = 0, lineAt = 0, lastEnd = -1;
 	  LineMatch lastMatch = null;
 	  while (m.find()) {
 	    nl.region(lineAt, m.start());
