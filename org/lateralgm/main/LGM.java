@@ -1429,7 +1429,7 @@ public final class LGM
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
 								
-								SearchResultNode resultGroupNode = new SearchResultNode("<html> Vertex Code:"
+								SearchResultNode resultGroupNode = new SearchResultNode("<html> " + Messages.getString("TreeFilter.VERTEX_CODE") + ":"
 										+ " <font color='blue'>(" + vertexmatches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
 								resultGroupNode.status = SearchResultNode.STATUS_VERTEX_CODE;
 								resultRoot.add(resultGroupNode);
@@ -1445,7 +1445,7 @@ public final class LGM
 									}
 								}
 								
-								resultGroupNode = new SearchResultNode("<html> Fragment Code:"
+								resultGroupNode = new SearchResultNode("<html> " + Messages.getString("TreeFilter.FRAGMENT_CODE") + ":"
 										+ " <font color='blue'>(" + fragmentmatches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
 								resultGroupNode.status = SearchResultNode.STATUS_FRAGMENT_CODE;
 								resultRoot.add(resultGroupNode);
@@ -1669,7 +1669,7 @@ public final class LGM
 							}
 							
 							if (codeNodes.size() > 0) {
-								SearchResultNode resultNode = new SearchResultNode("<html> Creation Code"
+								SearchResultNode resultNode = new SearchResultNode("<html> " + Messages.getString("TreeFilter.CREATION_CODE")
 										+ " <font color='blue'>(" + matches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
 								resultNode.setIcon(null);
 								resultNode.status = SearchResultNode.STATUS_ROOM_CREATION;
@@ -1698,7 +1698,7 @@ public final class LGM
 								}
 								
 								if (codeNodes.size() > 0) {
-									SearchResultNode resultNode = new SearchResultNode("<html> Instance " + inst.getID()
+									SearchResultNode resultNode = new SearchResultNode("<html> " + Messages.getString("TreeFilter.INSTANCE") + " " + inst.getID()
 											+ " <font color='blue'>(" + matches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
 
 									Resource<?,?> obj = ((ResourceReference<?>)inst.properties.get(PInstance.OBJECT)).get();
