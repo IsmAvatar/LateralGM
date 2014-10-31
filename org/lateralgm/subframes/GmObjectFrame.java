@@ -51,11 +51,13 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -923,6 +925,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 				if (evt.mainId == mainid && evt.id == id) {
 					return evtNode.getPath();
 				}
+			} else if (child instanceof EventGroupNode) {
+				TreeNode[] ret = findEvent(child, mainid, id);
+				if (ret != null) return ret;
 			}
 		}
 		return null;
@@ -933,9 +938,14 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	}
 
 	public void setSelectedEvent(int mainid, int id) {
-		TreeNode[] path = findEvent(mainid, id);
-		if (path != null) {
-			events.setSelectionPath(new TreePath(path));
+		TreeNode[] nodes = findEvent(mainid, id);
+		if (nodes != null) {
+			TreePath path = new TreePath(nodes);
+			//TODO: Why does this not work? I tried it in a SwingUtilities as well as reloading the tree model.
+			//events.expandPath(path);
+			//Using this temporarily.
+			events.setExpandsSelectedPaths(true);
+			events.setSelectionPath(path);
 		}
 	}
 	
