@@ -1481,7 +1481,8 @@ public final class LGM
 										}
 										evMatches += actMatches;
 										if (resultNodes.size() > 0) {
-											SearchResultNode actRoot = new SearchResultNode("<html>" + act.getLibAction().name
+											// Uses the same method of getting the Action name as ActionFrame
+											SearchResultNode actRoot = new SearchResultNode("<html>" + act.getLibAction().name.replace("_"," ")
 													+ " <font color='blue'>(" + actMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
 											actRoot.ref = res.reference;
 											actRoot.status = SearchResultNode.STATUS_ACTON;
