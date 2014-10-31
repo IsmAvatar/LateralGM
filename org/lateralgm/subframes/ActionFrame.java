@@ -36,6 +36,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -534,6 +535,10 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 				}
 			}
 		}
+	
+	public Action getAction() {
+		return act;
+	}
 
 	@Override
 	public String getConfirmationName()
@@ -569,4 +574,12 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		// TODO: Discussion should be held about closing associated windows.
 		
 		}
+
+	public void focusArgumentComponent(int id) {
+		ArgumentComponent comp = argComp[id];
+		if (comp != null) {
+			comp.editor.requestFocus();
+		}
+	}
+
 	}

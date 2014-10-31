@@ -66,6 +66,7 @@ import javax.swing.JToolBar;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
@@ -2186,7 +2187,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			}
 		}
 
-	public void openCodeFrame(CodeHolder code, String titleFormat, Object titleArg)
+	public CodeFrame openCodeFrame(CodeHolder code, String titleFormat, Object titleArg)
 		{
 		CodeFrame frame = codeFrames.get(code);
 		if (frame == null)
@@ -2209,18 +2210,45 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			}
 		else
 			frame.toTop();
+		
+		return frame;
 		}
 	
-	public void openInstanceCodeFrame(Instance i)
+	public CodeFrame openInstanceCodeFrame(Instance inst)
 		{
-			openCodeFrame(i,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
-					Messages.format("RoomFrame.INSTANCE",i.properties.get(PInstance.ID)));
+			return openCodeFrame(inst,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
+					Messages.format("RoomFrame.INSTANCE",inst.properties.get(PInstance.ID)));
 		}
 	
-	public void openRoomCreationCode()
+	public CodeFrame openInstanceCodeFrame(int id, boolean select)
 		{
-			openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
+			Instance inst = findInstance(id, select);
+			if (inst != null) {
+				return openCodeFrame(inst,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
+					Messages.format("RoomFrame.INSTANCE",inst.properties.get(PInstance.ID)));
+			}
+			return null;
 		}
+	
+	public CodeFrame openRoomCreationCode()
+		{
+			return openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
+		}
+	
+	public Instance findInstance(int id, boolean select) {
+		ListModel<Instance> model = oList.getModel();
+	
+		for (int i = 0; i < model.getSize(); i++){
+			Instance inst = model.getElementAt(i);  
+			if (inst.getID() == id) {
+				if (select) {
+					oList.setSelectedIndex(i);
+				}
+				return inst;
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e)

@@ -151,6 +151,8 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.Instance.PInstance;
+import org.lateralgm.subframes.ActionFrame;
+import org.lateralgm.subframes.CodeFrame;
 import org.lateralgm.subframes.ConstantsFrame;
 import org.lateralgm.subframes.EventPanel;
 import org.lateralgm.subframes.ExtensionPackagesFrame;
@@ -161,12 +163,14 @@ import org.lateralgm.subframes.PreferencesFrame;
 import org.lateralgm.subframes.ResourceFrame;
 import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
 import org.lateralgm.subframes.RoomFrame;
+import org.lateralgm.subframes.ScriptFrame;
+import org.lateralgm.subframes.ShaderFrame;
 import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
 	//TODO: This list holds the class loader for any loaded plugins which should be
-	// cleaned up and closed when the application closes.
+	//cleaned up and closed when the application closes.
 	public static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
 	public static boolean LOADING_PROJECT = false;
 	public static JDialog progressDialog = null;
@@ -1407,6 +1411,7 @@ public final class LGM
 										SearchResultNode resultNode = new SearchResultNode(text);
 										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 										resultNode.status = SearchResultNode.STATUS_RESULT;
+										resultNode.data = new Object[]{match.lineNum};
 										resultRoot.add(resultNode);
 									}
 								}
@@ -1426,7 +1431,7 @@ public final class LGM
 								
 								SearchResultNode resultGroupNode = new SearchResultNode("<html> Vertex Code:"
 										+ " <font color='blue'>(" + vertexmatches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
-								resultGroupNode.status = SearchResultNode.STATUS_RESULT;
+								resultGroupNode.status = SearchResultNode.STATUS_VERTEX_CODE;
 								resultRoot.add(resultGroupNode);
 								for (LineMatch match : vertexmatches) {
 									if (match.matchedText.size() > 0) {
@@ -1435,13 +1440,14 @@ public final class LGM
 										SearchResultNode resultNode = new SearchResultNode(text);
 										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 										resultNode.status = SearchResultNode.STATUS_RESULT;
+										resultNode.data = new Object[]{match.lineNum};
 										resultGroupNode.add(resultNode);
 									}
 								}
 								
 								resultGroupNode = new SearchResultNode("<html> Fragment Code:"
 										+ " <font color='blue'>(" + fragmentmatches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
-								resultGroupNode.status = SearchResultNode.STATUS_RESULT;
+								resultGroupNode.status = SearchResultNode.STATUS_FRAGMENT_CODE;
 								resultRoot.add(resultGroupNode);
 								for (LineMatch match : fragmentmatches) {
 									if (match.matchedText.size() > 0) {
@@ -1450,6 +1456,7 @@ public final class LGM
 										SearchResultNode resultNode = new SearchResultNode(text);
 										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 										resultNode.status = SearchResultNode.STATUS_RESULT;
+										resultNode.data = new Object[]{match.lineNum};
 										resultGroupNode.add(resultNode);
 									}
 								}
@@ -1483,10 +1490,16 @@ public final class LGM
 												if (match.matchedText.size() > 0) {
 													String text = match.toHighlightableString();
 
-													if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE)
+													SearchResultNode resultNode = null;
+													if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) {
 														text = ("<html>" + Integer.toString(iii) + text.substring(text.indexOf(":"),text.length()));
+														resultNode = new SearchResultNode(text);
+														resultNode.data = new Object[]{iii};
+													} else {
+														resultNode = new SearchResultNode(text);
+														resultNode.data = new Object[]{match.lineNum};
+													}
 													
-													SearchResultNode resultNode = new SearchResultNode(text);
 													resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 													resultNode.status = SearchResultNode.STATUS_RESULT;
 													resultNodes.add(resultNode);
@@ -1575,10 +1588,16 @@ public final class LGM
 											if (match.matchedText.size() > 0) {
 												String text = match.toHighlightableString();
 	
-												if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE)
+												SearchResultNode resultNode = null;
+												if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) {
 													text = ("<html>" + Integer.toString(iii) + text.substring(text.indexOf(":"),text.length()));
+													resultNode = new SearchResultNode(text);
+													resultNode.data = new Object[]{iii};
+												} else {
+													resultNode = new SearchResultNode(text);
+													resultNode.data = new Object[]{match.lineNum};
+												}
 												
-												SearchResultNode resultNode = new SearchResultNode(text);
 												resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 												resultNode.status = SearchResultNode.STATUS_RESULT;
 												resultNodes.add(resultNode);
@@ -1644,6 +1663,7 @@ public final class LGM
 									SearchResultNode resultNode = new SearchResultNode(text);
 									resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 									resultNode.status = SearchResultNode.STATUS_RESULT;
+									resultNode.data = new Object[]{match.lineNum};
 									codeNodes.add(resultNode);
 								}
 							}
@@ -1671,6 +1691,7 @@ public final class LGM
 										
 										SearchResultNode resultNode = new SearchResultNode(text);
 										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+										resultNode.data = new Object[]{match.lineNum};
 										resultNode.status = SearchResultNode.STATUS_RESULT;
 										codeNodes.add(resultNode);
 									}
@@ -1683,7 +1704,7 @@ public final class LGM
 									Resource<?,?> obj = ((ResourceReference<?>)inst.properties.get(PInstance.OBJECT)).get();
 									resultNode.setIcon(obj == null ? null : obj.getNode().getIcon());
 									resultNode.status = SearchResultNode.STATUS_INSTANCE_CREATION;
-									resultNode.data = new Object[]{inst};
+									resultNode.data = new Object[]{inst.getID()};
 									resultNodes.add(resultNode);
 									
 									for (SearchResultNode codeNode : codeNodes) {
@@ -1755,15 +1776,18 @@ public final class LGM
 		public static final byte STATUS_MAIN_EVENT = 5;
 		public static final byte STATUS_EVENT = 6;
 		public static final byte STATUS_MOMENT = 7;
-		public static final byte STATUS_ACTION = 8;
-		public static final byte STATUS_ROOM_CREATION = 9;
-		public static final byte STATUS_INSTANCE_CREATION = 10;
+		public static final byte STATUS_VERTEX_CODE = 8;
+		public static final byte STATUS_FRAGMENT_CODE = 9;
+		public static final byte STATUS_ACTION = 10;
+		public static final byte STATUS_ROOM_CREATION = 11;
+		public static final byte STATUS_INSTANCE_CREATION = 12;
 		
 		public byte status;
 		ResourceReference<?> ref;
 		private Icon icon = null;
 		
 		Object[] data;
+		Object[] parentdata;
 		
 		public SearchResultNode()
 			{
@@ -1809,8 +1833,27 @@ public final class LGM
 										if (status == STATUS_EVENT) {
 											objframe.setSelectedEvent((Integer)data[0],(Integer)data[1]);
 										} else if (status == STATUS_ACTION) {
+											//TODO: There is a bug here where if the user deletes the action
+											//and then selects it again from the search results tree it may open
+											//and in fact scope a different action in the list because we have
+											//no unique reference to the action we want to open, and we can't
+											//because the frame may have been closed. May possibly lead to an NPE
 											objframe.actions.setSelectedIndex((Integer)data[0]);
-											ActionList.openActionFrame(objframe,objframe.actions.getSelectedValue());
+											org.lateralgm.resources.sub.Action act = objframe.actions.getSelectedValue();
+											if (act != null) {
+												ActionFrame af = (ActionFrame) ActionList.openActionFrame(objframe,act);
+												parentdata = new Object[]{af};
+											}
+										} else if (status == STATUS_RESULT && parNode.status == STATUS_ACTION) {
+											ActionFrame af = (ActionFrame) parNode.parentdata[0];
+											org.lateralgm.resources.sub.Action act = af.getAction();
+											if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) {
+												af.focusArgumentComponent((Integer)data[0]);
+											} else {
+												if ((Integer)data[0] < af.code.getLineCount()) {
+													af.code.setCaretPosition((Integer)data[0],0);
+												}
+											}
 										}
 									} else if (resNode.kind == Timeline.class) {
 										TimelineFrame tmlframe = (TimelineFrame) frame;
@@ -1818,14 +1861,63 @@ public final class LGM
 											tmlframe.setSelectedMoment((Integer)data[0]);
 										} else if (status == STATUS_ACTION) {
 											tmlframe.actions.setSelectedIndex((Integer)data[0]);
-											ActionList.openActionFrame(tmlframe,tmlframe.actions.getSelectedValue());
+											org.lateralgm.resources.sub.Action act = tmlframe.actions.getSelectedValue();
+											if (act != null) {
+												ActionFrame af = (ActionFrame) ActionList.openActionFrame(tmlframe,act);
+												parentdata = new Object[]{af};
+											}
+										} else if (status == STATUS_RESULT && parNode.status == STATUS_ACTION) {
+											ActionFrame af = (ActionFrame) parNode.parentdata[0];
+											org.lateralgm.resources.sub.Action act = af.getAction();
+											if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) {
+												af.focusArgumentComponent((Integer)data[0]);
+											} else {
+												if ((Integer)data[0] < af.code.getLineCount()) {
+													af.code.setCaretPosition((Integer)data[0],0);
+												}
+											}
 										}
 									} else if (resNode.kind == Room.class) {
 										RoomFrame roomframe = (RoomFrame) frame;
-										if (status == STATUS_ROOM_CREATION) {
-											roomframe.openRoomCreationCode();
-										} else if (status == STATUS_INSTANCE_CREATION) {
-											roomframe.openInstanceCodeFrame((Instance)data[0]);
+										if (status == STATUS_INSTANCE_CREATION) {
+											roomframe.tabs.setSelectedIndex(0);
+											parentdata = new Object[]{roomframe.openInstanceCodeFrame((Integer)data[0], true)};
+										} else if (status == STATUS_ROOM_CREATION) {
+											roomframe.tabs.setSelectedIndex(1);
+											parentdata = new Object[]{roomframe.openRoomCreationCode()};
+										} else if (status == STATUS_RESULT) {
+											if (parNode.status == STATUS_INSTANCE_CREATION || parNode.status == STATUS_ROOM_CREATION) {
+												CodeFrame cf = (CodeFrame) parNode.parentdata[0];
+												if ((Integer)data[0] < cf.code.getLineCount()) {
+													cf.code.setCaretPosition((Integer)data[0],0);
+												}
+											}
+										}
+									} else if (resNode.kind == Script.class) {
+										ScriptFrame scrframe = (ScriptFrame) frame;
+										if (status == STATUS_RESULT) {
+											if ((Integer)data[0] < scrframe.code.text.getLineCount()) {
+												scrframe.code.setCaretPosition((Integer)data[0],0);
+											}
+										}
+									} else if (resNode.kind == Shader.class) {
+										ShaderFrame shrframe = (ShaderFrame) frame;
+										if (status == STATUS_VERTEX_CODE) {
+											shrframe.editors.setSelectedIndex(0);
+										} else if (status == STATUS_FRAGMENT_CODE) {
+											shrframe.editors.setSelectedIndex(1);
+										} else if (status == STATUS_RESULT) {
+											if (parNode.status == STATUS_VERTEX_CODE) {
+												shrframe.vcode.requestFocusInWindow();
+												if ((Integer)data[0] < shrframe.vcode.text.getLineCount()) {
+													shrframe.vcode.setCaretPosition((Integer)data[0],0);
+												}
+											} else if (parNode.status == STATUS_FRAGMENT_CODE) {
+												shrframe.fcode.requestFocusInWindow();
+												if ((Integer)data[0] < shrframe.fcode.text.getLineCount()) {
+													shrframe.fcode.setCaretPosition((Integer)data[0],0);
+												}
+											}
 										}
 									}
 								}
@@ -1833,7 +1925,6 @@ public final class LGM
 						}
 					}
 				}
-
 			} else if (status == ResNode.STATUS_SECONDARY) {
 				if (ref != null) {
 					Resource<?,?> res = ref.get();

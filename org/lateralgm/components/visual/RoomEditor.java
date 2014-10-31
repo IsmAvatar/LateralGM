@@ -561,7 +561,7 @@ public class RoomEditor extends VisualPanel
 
 	public static interface CommandHandler
 		{
-		void openInstanceCodeFrame(Instance i);
+		CodeFrame openInstanceCodeFrame(Instance i);
 		}
 
 	private class RoomPropertyListener extends PropertyUpdateListener<PRoom>

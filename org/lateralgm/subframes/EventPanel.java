@@ -83,6 +83,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		super(VERTICAL);
 		GroupLayout layout = new GroupLayout(this);
 		setLayout(layout);
+		// This will ensure it gets the proper Window title when floating
+		setName(Messages.getString("Toolbar.EVENT_BUTTON"));
 
 		function = new IndexButtonGroup(3,true,false);
 		JRadioButton ra = new JRadioButton(Messages.getString("EventPanel.ADD")); //$NON-NLS-1$

@@ -71,7 +71,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 	{
 	private static final long serialVersionUID = 1L;
 	public JToolBar tool;
-	JTabbedPane editors;
+	public JTabbedPane editors;
 	public CodeTextArea vcode;
 	public CodeTextArea fcode;
 	public JButton edit;
