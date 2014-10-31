@@ -14,7 +14,7 @@ public class ImageToolTip extends JToolTip
 
 	public ImageToolTip(AbstractImagePreview ii)
 		{
-		setUI(new ImageToolTipUI(ii,getUI()));
+		setUI(new ImageToolTipUI(ii));
 		}
 
 	public ImageToolTip(final BufferedImage img)
@@ -33,21 +33,15 @@ public class ImageToolTip extends JToolTip
 	public class ImageToolTipUI extends ToolTipUI
 		{
 		private AbstractImagePreview aip;
-		private ToolTipUI ttui;
 
-		public ImageToolTipUI(AbstractImagePreview aip, ToolTipUI ttui)
+		public ImageToolTipUI(AbstractImagePreview aip)
 			{
 			this.aip = aip;
-			this.ttui = ttui;
 			}
 
 		@Override
 		public void paint(Graphics g, JComponent c)
 			{
-			//TODO: This causes an exception under the Nimbus look and feel.
-			//Open the object frame and hover over the iconified area of the object or sprite resource menu and wait for tooltip and exception will occur.
-			//ttui.paint(g,c);
-			//Calling the super paint method seems to still allow the look and feel to render the tooltip while not producing the exception.
 			super.paint(g,c);
 			BufferedImage img = aip.getImage();
 			if (img != null) g.drawImage(img,0,0,null);
