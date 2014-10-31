@@ -139,13 +139,17 @@ import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
+import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.library.LibManager;
+import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
+import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.subframes.ConstantsFrame;
 import org.lateralgm.subframes.EventPanel;
 import org.lateralgm.subframes.ExtensionPackagesFrame;
@@ -961,6 +965,7 @@ public final class LGM
 		    clipboard.setContents(selection, selection);
 				}
 		};
+	private static JTabbedPane treeTabs;
 	
 	public static void addReloadListener(ReloadListener l)
 		{
@@ -1448,32 +1453,53 @@ public final class LGM
 								int mainid = 0;
 								for (Event ev : me.events) {
 									mainid = ev.mainId;
-									ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
+									ArrayList<SearchResultNode> actionNodes = new ArrayList<>();
 									int evMatches = 0;
 									for (org.lateralgm.resources.sub.Action act : ev.actions) {
-										if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) continue;
-										String code = act.getArguments().get(0).getVal();
-										List<LineMatch> matches = getMatchingLines(code, pattern);
-										evMatches += matches.size();
-										for (LineMatch match : matches) {
-											if (match.matchedText.size() > 0) {
-												String text = match.toHighlightableString();
-												
-												SearchResultNode resultNode = new SearchResultNode(text);
-												resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
-												resultNode.status = SearchResultNode.STATUS_RESULT;
-												resultNodes.add(resultNode);
+										ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
+										int actMatches = 0;
+										////if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) continue;
+										List<Argument> args = act.getArguments();
+										for (int ii = 0; ii < args.size(); ii++) {
+											Argument arg = args.get(ii);
+											String code = arg.getVal();
+											List<LineMatch> matches = getMatchingLines(code, pattern);
+											actMatches += matches.size();
+											for (LineMatch match : matches) {
+												if (match.matchedText.size() > 0) {
+													String text = match.toHighlightableString();
+
+													if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE)
+														text = ("<html>" + Integer.toString(ii) + text.substring(text.indexOf(":"),text.length()));
+													
+													SearchResultNode resultNode = new SearchResultNode(text);
+													resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+													resultNode.status = SearchResultNode.STATUS_RESULT;
+													resultNodes.add(resultNode);
+												}
 											}
+										}
+										evMatches += actMatches;
+										if (resultNodes.size() > 0) {
+											SearchResultNode actRoot = new SearchResultNode("<html>" + act.getLibAction().name
+													+ " <font color='blue'>(" + actMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+											actRoot.ref = res.reference;
+											actRoot.status = SearchResultNode.STATUS_ACTON;
+											actRoot.setIcon(new ImageIcon(act.getLibAction().actImage.getScaledInstance(16,16,0)));
+											for (SearchResultNode actn : resultNodes) {
+												actRoot.add(actn);
+											}
+											actionNodes.add(actRoot);
 										}
 									}
 									meMatches += evMatches;
-									if (resultNodes.size() > 0) {
+									if (actionNodes.size() > 0) {
 										SearchResultNode evRoot = new SearchResultNode("<html>" + ev.toString().replaceAll("<","&lt;").replaceAll(">","&gt;")
 												+ " <font color='blue'>(" + evMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
 										evRoot.ref = res.reference;
 										evRoot.status = SearchResultNode.STATUS_EVENT;
 										evRoot.setIcon(LGM.getIconForKey("EventNode.EVENT" + ev.mainId));
-										for (SearchResultNode resn : resultNodes) {
+										for (SearchResultNode resn : actionNodes) {
 											evRoot.add(resn);
 										}
 										evNodes.add(evRoot);
@@ -1485,7 +1511,7 @@ public final class LGM
 										SearchResultNode meRoot = new SearchResultNode("<html>" + Messages.getString("MainEvent.EVENT" + mainid)
 												+ " <font color='blue'>(" + meMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
 										meRoot.ref = res.reference;
-										meRoot.status = SearchResultNode.STATUS_EVENT;
+										meRoot.status = SearchResultNode.STATUS_MAIN_EVENT;
 										meRoot.setIcon(LGM.getIconForKey("EventNode.GROUP" + mainid));
 										for (SearchResultNode resn : evNodes) {
 											meRoot.add(resn);
@@ -1551,7 +1577,7 @@ public final class LGM
 							
 							if (momentNodes.size() > 0) {
 								resultRoot = new SearchResultNode("<html>" + res.getName()
-										+ " <font color='blue'>(" + matchCount+ " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+										+ " <font color='blue'>(" + matchCount + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
@@ -1561,6 +1587,78 @@ public final class LGM
 								resultRoot.add(momn);
 							}
 		
+						} else if (resNode.kind == Room.class) {
+							Room res = (Room) ref.get();
+							
+							ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
+							int matchCount = 0;
+							
+							String code = res.getCode();
+							List<LineMatch> matches = getMatchingLines(code, pattern);
+							matchCount += matches.size();
+							ArrayList<SearchResultNode> codeNodes = new ArrayList<>();
+							for (LineMatch match : matches) {
+								if (match.matchedText.size() > 0) {
+									String text = match.toHighlightableString();
+									
+									SearchResultNode resultNode = new SearchResultNode(text);
+									resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+									resultNode.status = SearchResultNode.STATUS_RESULT;
+									codeNodes.add(resultNode);
+								}
+							}
+							
+							if (codeNodes.size() > 0) {
+								SearchResultNode resultNode = new SearchResultNode("Creation Code");
+								resultNode.setIcon(null);
+								resultNode.status = SearchResultNode.STATUS_ROOM_CREATION;
+								resultNodes.add(resultNode);
+								
+								for (SearchResultNode codeNode : codeNodes) {
+									resultNode.add(codeNode);
+								}
+							}
+							
+							for (Instance inst : res.instances) {
+								code = inst.getCode();
+								matches = getMatchingLines(code, pattern);
+								matchCount += matches.size();
+								codeNodes = new ArrayList<>();
+								for (LineMatch match : matches) {
+									if (match.matchedText.size() > 0) {
+										String text = match.toHighlightableString();
+										
+										SearchResultNode resultNode = new SearchResultNode(text);
+										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
+										resultNode.status = SearchResultNode.STATUS_RESULT;
+										codeNodes.add(resultNode);
+									}
+								}
+								
+								if (codeNodes.size() > 0) {
+									SearchResultNode resultNode = new SearchResultNode("Instance " + inst.getID());
+									Resource<?,?> obj = ((ResourceReference<?>)inst.properties.get(PInstance.OBJECT)).get();
+									resultNode.setIcon(obj == null ? null : obj.getNode().getIcon());
+									resultNode.status = SearchResultNode.STATUS_INSTANCE_CREATION;
+									resultNodes.add(resultNode);
+									
+									for (SearchResultNode codeNode : codeNodes) {
+										resultNode.add(codeNode);
+									}
+								}
+							}
+							
+							if (resultNodes.size() > 0) {
+								resultRoot = new SearchResultNode("<html>" + res.getName()
+										+ " <font color='blue'>(" + matchCount + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultRoot.ref = res.reference;
+								resultRoot.status = ResNode.STATUS_SECONDARY;
+								resultRoot.setIcon(res.getNode().getIcon());
+							}
+							
+							for (SearchResultNode resultNode : resultNodes) {
+								resultRoot.add(resultNode);
+							}
 						}
 						
 						if (resultRoot != null) {
@@ -1610,9 +1708,12 @@ public final class LGM
 		 */
 		private static final long serialVersionUID = 1L;
 		public static final byte STATUS_RESULT = 4;
-		public static final byte STATUS_EVENT = 5;
-		public static final byte STATUS_MOMENT = 6;
-		public static final byte STATUS_ACTON = 7;
+		public static final byte STATUS_MAIN_EVENT = 5;
+		public static final byte STATUS_EVENT = 6;
+		public static final byte STATUS_MOMENT = 7;
+		public static final byte STATUS_ACTON = 8;
+		public static final byte STATUS_ROOM_CREATION = 9;
+		public static final byte STATUS_INSTANCE_CREATION = 10;
 		
 		public byte status;
 		ResourceReference<?> ref;
@@ -1770,7 +1871,7 @@ public final class LGM
 
 		splashProgress.progress(30,Messages.getString("LGM.SPLASH_TOOLS")); //$NON-NLS-1$
 		JToolBar toolbar = createToolBar();
-		final JTabbedPane treeTabs = new JTabbedPane();
+		treeTabs = new JTabbedPane();
 		tree = createTree();
 		DefaultMutableTreeNode sroot = new DefaultMutableTreeNode("root");
 		//sroot.add(new DefaultMutableTreeNode("cock"));
@@ -2071,10 +2172,11 @@ public final class LGM
     searchInButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
+	  		if (filterText.getText().length() <= 0) return;
 				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
 				searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(), 
 						matchCaseCB.isSelected(), wholeWordCB.isSelected());
-				treeTabs.setSelectedIndex(1);
+				setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS"));
 			}
 		});
 		
@@ -2112,10 +2214,11 @@ public final class LGM
 		
 		filterText.addActionListener(new ActionListener() {
 	  public void actionPerformed(ActionEvent evt) {
+	  	if (filterText.getText().length() <= 0) return;
 			InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
 			searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(), 
 					matchCaseCB.isSelected(), wholeWordCB.isSelected());
-			treeTabs.setSelectedIndex(1);
+			setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS"));
 	  }
 		});
 		
@@ -2140,7 +2243,7 @@ public final class LGM
 		/**/.addComponent(setButton));
 		
 		filterPanel.setLayout(filterLayout);
-		filterPanel.setFloatable(false);
+		filterPanel.setFloatable(true);
 
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(250,100));
@@ -2216,6 +2319,22 @@ public final class LGM
 			}
 		}
 	
+	public static int getTabIndex(JTabbedPane tabs, String title) {
+		for (int i = 0; i < tabs.getTabCount(); i++) {
+			if (tabs.getTitleAt(i).equals(title))
+				return i;
+		}
+		return -1;
+	}
+	
+	public static void setSelectedTab(JTabbedPane tabs, String title)
+		{
+			if (tabs.getTitleAt(tabs.getSelectedIndex()).equals(title)) return;
+			int index = getTabIndex(tabs, title);
+			if (index == -1) return;
+			tabs.setSelectedIndex(index);
+		}
+
 	/*
 	 * TODO: This checks for changes by iterating the tree, but there is one small caveat
 	 * because of the todo comment above this will not work because the top level nodes
@@ -2439,6 +2558,7 @@ public final class LGM
 			{
 			eventVisible = !eventVisible;
 			eventSelect.setVisible(eventVisible);
+			setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_EVENTS"));
 			}
 		else
 			{
