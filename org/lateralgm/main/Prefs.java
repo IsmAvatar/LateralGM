@@ -119,6 +119,9 @@ public final class Prefs
 		userLibraryPath = getString("userLibraryPath","./lib");
 		antialiasControlFont = getString("antialiasControlFont","on");
 
+		imagePreviewBackgroundColor = getInt("imagePreviewBackgroundColor",Color.LIGHT_GRAY.getRGB());
+		imagePreviewForegroundColor = getInt("imagePreviewForegroundColor",Color.GRAY.getRGB());
+		
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
 		actionToolTipLines = getInt("actionToolTipLines",10);
@@ -207,4 +210,6 @@ public final class Prefs
 	public static int selectionOutsideColor;
 	public static boolean useFilledRectangleForSelection;
 	public static boolean useInvertedColorForSelection;
+	public static int imagePreviewForegroundColor;
+	public static int imagePreviewBackgroundColor;
 	}

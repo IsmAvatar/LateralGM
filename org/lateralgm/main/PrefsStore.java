@@ -199,6 +199,18 @@ public final class PrefsStore
 		Prefs.useInvertedColorForViews = selected;
 		}
 
+	public static void setImagePreviewBackgroundColor(int color)
+		{
+		PREFS.putInt("imagePreviewBackgroundColor",color);
+		Prefs.imagePreviewBackgroundColor = color;
+		}
+	
+	public static void setImagePreviewForegroundColor(int color)
+		{
+		PREFS.putInt("imagePreviewForegroundColor",color);
+		Prefs.imagePreviewForegroundColor = color;
+		}
+	
 	public static void setViewInsideColor(int viewInsideColor)
 		{
 		PREFS.putInt("viewInsideColor",viewInsideColor);

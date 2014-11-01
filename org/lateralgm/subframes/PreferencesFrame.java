@@ -82,11 +82,11 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	JCheckBox useFilledRectangleForViews, useInvertedColorForViews, useFilledRectangleForSelection,
 			useInvertedColorForSelection;
 	ColorSelect viewInsideColor, viewOutsideColor, selectionInsideColor, selectionOutsideColor;
+	private ColorSelect imagePreviewBackgroundColor;
+	private ColorSelect imagePreviewForegroundColor;
 
-	private JPanel makeGeneralPrefs()
-		{
-		JPanel p = new JPanel();
-
+	private JPanel makeAppearancePrefs() {
+		JPanel panel = new JPanel();
 		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME") + ":");
 		Vector<String> comboBoxItems = new Vector<String>();
 		comboBoxItems.add("Swing");
@@ -184,6 +184,90 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		}
 		*/
 		iconCombo.setSelectedItem(LGM.iconspack);
+		
+		JLabel iconPathLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS_PATH") + ":");
+		iconPath = new JTextField(Prefs.iconPath);
+		
+		JLabel themePathLabel = new JLabel(Messages.getString("PreferencesFrame.THEME_PATH") + ":");
+		themePath = new JTextField(Prefs.swingThemePath);
+		
+		JPanel imagePreviewPanel = new JPanel();
+		GroupLayout imagePreviewLayout = new GroupLayout(imagePreviewPanel);
+		imagePreviewLayout.setAutoCreateGaps(true);
+		imagePreviewLayout.setAutoCreateContainerGaps(true);
+		imagePreviewPanel.setLayout(imagePreviewLayout);
+
+		String title = Messages.getString("PreferencesFrame.IMAGE_PREVIEW");
+		imagePreviewPanel.setBorder(BorderFactory.createTitledBorder(title));
+
+		JLabel imagePreviewBackgroundLabel = new JLabel(Messages.getString("PreferencesFrame.IMAGE_PREVIEW_BACKGROUND_COLOR") + ":");
+		imagePreviewBackgroundColor = new ColorSelect(new Color(Prefs.imagePreviewBackgroundColor));
+		JLabel imagePreviewForegroundLabel = new JLabel(Messages.getString("PreferencesFrame.IMAGE_PREVIEW_FOREGROUND_COLOR") + ":");
+		imagePreviewForegroundColor = new ColorSelect(new Color(Prefs.imagePreviewForegroundColor));
+		
+		// Set the layout for the views
+		imagePreviewLayout.setHorizontalGroup(
+		/**/imagePreviewLayout.createParallelGroup()
+		/*	*/.addGroup(imagePreviewLayout.createSequentialGroup()
+		/*		*/.addGroup(imagePreviewLayout.createParallelGroup()
+		/*			*/.addComponent(imagePreviewBackgroundLabel)
+		/*			*/.addComponent(imagePreviewForegroundLabel))
+		/*		*/.addGroup(imagePreviewLayout.createParallelGroup()
+		/*			*/.addComponent(imagePreviewBackgroundColor,120,120,120)
+		/*			*/.addComponent(imagePreviewForegroundColor,120,120,120))));
+
+		imagePreviewLayout.setVerticalGroup(
+		/**/imagePreviewLayout.createSequentialGroup()
+		/*	*/.addGroup(imagePreviewLayout.createParallelGroup()
+		/*		*/.addComponent(imagePreviewBackgroundLabel)
+		/*		*/.addComponent(imagePreviewBackgroundColor,18,18,18))
+		/*	*/.addGroup(imagePreviewLayout.createParallelGroup()
+		/*		*/.addComponent(imagePreviewForegroundLabel)
+		/*		*/.addComponent(imagePreviewForegroundColor,18,18,18)));
+
+		
+		GroupLayout gl = new GroupLayout(panel);
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
+
+		gl.setHorizontalGroup(gl.createParallelGroup()
+		/**/.addGroup(gl.createSequentialGroup()
+		/* */.addComponent(iconLabel)
+		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/* */.addComponent(themeLabel)
+		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(gl.createSequentialGroup()
+		/* */.addGroup(gl.createParallelGroup(Alignment.TRAILING)
+		/*  */.addComponent(iconPathLabel)
+		/*  */.addComponent(themePathLabel))
+		/* */.addGroup(gl.createParallelGroup()
+		/*  */.addComponent(iconPath)
+		/*  */.addComponent(themePath)))
+		/**/.addComponent(imagePreviewPanel));
+
+		gl.setVerticalGroup(gl.createSequentialGroup()
+		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+		/* */.addComponent(iconLabel)
+		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/* */.addComponent(themeLabel)
+		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+		/* */.addComponent(iconPathLabel)
+		/* */.addComponent(iconPath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+		/* */.addComponent(themePathLabel)
+		/* */.addComponent(themePath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/**/.addComponent(imagePreviewPanel));
+
+		panel.setLayout(gl);
+		
+		return panel;
+	}
+	
+	private JPanel makeGeneralPrefs()
+		{
+		JPanel p = new JPanel();
+
 		JLabel langLabel = new JLabel(Messages.getString("PreferencesFrame.LANGUAGE") + ":");
 		String[] langOptions = { "English","French","Turkish","Danish" };
 		langCombo = new JComboBox<String>(langOptions);
@@ -198,10 +282,6 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		showTreeFilter.setSelected(Prefs.showTreeFilter);
 		dockEvent = new JCheckBox(Messages.getString("PreferencesFrame.DOCK_EVENT_PANEL"));
 		dockEvent.setSelected(Prefs.dockEventPanel);
-		JLabel themePathLabel = new JLabel(Messages.getString("PreferencesFrame.THEME_PATH") + ":");
-		themePath = new JTextField(Prefs.swingThemePath);
-		JLabel iconPathLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS_PATH") + ":");
-		iconPath = new JTextField(Prefs.iconPath);
 		JLabel manualPathLabel = new JLabel(Messages.getString("PreferencesFrame.MANUAL_PATH") + ":");
 		manualPath = new JTextField(Prefs.manualPath);
 		//JLabel actionsLabel = new JLabel(Messages.getString("PreferencesFrame.ACTIONLIBRARY") + ":");
@@ -219,66 +299,40 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
 
-		gl.setHorizontalGroup(
-		/**/gl.createParallelGroup()
-		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addComponent(dndEnable)
-		/*		*/.addComponent(restrictTreeEnable)
-		/*		*/.addComponent(extraNodesEnable)
-		/*    */.addComponent(showTreeFilter))
-		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addComponent(themeLabel)
-		/*		*/.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*		*/.addComponent(iconLabel)
-		/*		*/.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*		*/.addComponent(langLabel)
-		/*		*/.addComponent(langCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
-		/*	*/.addGroup(gl.createParallelGroup()
-		/*		*/.addComponent(themePathLabel)
-		/*		*/.addComponent(iconPathLabel)
-		/*		*/.addComponent(manualPathLabel))
-		/*	*/.addGroup(gl.createParallelGroup()
-		/*		*/.addComponent(themePath)
-		/*		*/.addComponent(iconPath)
-		/*		*/.addComponent(manualPath))
-		/*	*/.addGroup(gl.createParallelGroup()
-		/*		*/.addComponent(dockEvent))
-		/*	*/.addGroup(gl.createParallelGroup()
-		/*		*/.addComponent(backupsEnable))
-		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addComponent(backupsLabel)
-		/*		*/.addComponent(numberBackupsField)));
+		gl.setHorizontalGroup(gl.createParallelGroup()
+		/**/.addGroup(gl.createSequentialGroup()
+		/*	*/.addComponent(langLabel)
+		/*	*/.addComponent(langCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(gl.createSequentialGroup()
+		/*	*/.addComponent(dndEnable)
+		/*	*/.addComponent(dockEvent)
+		/*  */.addComponent(showTreeFilter))
+		/**/.addGroup(gl.createParallelGroup()
+		/*	*/.addComponent(backupsEnable))
+		/**/.addGroup(gl.createSequentialGroup()
+		/**/.addGroup(gl.createParallelGroup(Alignment.TRAILING)
+		/*	*/.addComponent(backupsLabel)
+		/*	*/.addComponent(manualPathLabel))
+		/* */.addGroup(gl.createParallelGroup()
+		/*	*/.addComponent(numberBackupsField)
+		/*	*/.addComponent(manualPath))));
 
-		gl.setVerticalGroup(
-		/**/gl.createSequentialGroup()
-		/*	*/.addGroup(gl.createParallelGroup()
-		/*		*/.addComponent(dndEnable)
-		/*		*/.addComponent(restrictTreeEnable)
-		/*		*/.addComponent(extraNodesEnable)
-		/*    */.addComponent(showTreeFilter))
-		/*	*/.addGroup(gl.createParallelGroup(Alignment.CENTER)
-		/*		*/.addComponent(themeLabel)
-		/*		*/.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*		*/.addComponent(iconLabel)
-		/*		*/.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*		*/.addComponent(langLabel)
-		/*		*/.addComponent(langCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
-		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addComponent(themePathLabel)
-		/*		*/.addComponent(themePath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
-		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addComponent(iconPathLabel)
-		/*		*/.addComponent(iconPath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
-		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addComponent(manualPathLabel)
-		/*		*/.addComponent(manualPath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
-		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addComponent(dockEvent,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
-		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addComponent(backupsEnable,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
-		/*	*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(backupsLabel)
-		/*		*/.addComponent(numberBackupsField,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)));
+		gl.setVerticalGroup(gl.createSequentialGroup()
+		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+		/*	*/.addComponent(langLabel)
+		/*	*/.addComponent(langCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(gl.createParallelGroup()
+		/*	*/.addComponent(dndEnable)
+		/*	*/.addComponent(dockEvent)
+		/*   */.addComponent(showTreeFilter))
+		/**/.addGroup(gl.createSequentialGroup()
+		/*	*/.addComponent(backupsEnable,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+		/*	*/.addComponent(backupsLabel)
+		/*	*/.addComponent(numberBackupsField,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+		/*	*/.addComponent(manualPathLabel)
+		/*	*/.addComponent(manualPath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)));
 
 		p.setLayout(gl);
 
@@ -629,6 +683,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		root.add(node);
 		cardPane.add(makeGeneralPrefs(),Messages.getString("PreferencesFrame.TAB_GENERAL"));
 		
+		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_APPEARANCE"));
+		root.add(node);
+		cardPane.add(makeAppearancePrefs(),Messages.getString("PreferencesFrame.TAB_APPEARANCE"));
+		
 		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"));
 		root.add(node);
 		cardPane.add(makeExternalEditorPrefs(),Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"));
@@ -736,7 +794,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		PrefsStore.setInvertedColorForSelection(useInvertedColorForSelection.isSelected());
 		PrefsStore.setSelectionInsideColor(Util.getGmColorWithAlpha(selectionInsideColor.getSelectedColor()));
 		PrefsStore.setSelectionOutsideColor(Util.getGmColorWithAlpha(selectionOutsideColor.getSelectedColor()));
-
+		
+		PrefsStore.setImagePreviewBackgroundColor(imagePreviewBackgroundColor.getSelectedColor().getRGB());
+		PrefsStore.setImagePreviewForegroundColor(imagePreviewForegroundColor.getSelectedColor().getRGB());
 		}
 
 	public void ResetPreferences()

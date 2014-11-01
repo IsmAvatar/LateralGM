@@ -662,15 +662,17 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		return pane;
 		}
-
+	
 	public BufferedImage paintBackground(int width, int height, int tile)
 		{
 		BufferedImage dest = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = dest.createGraphics();
 
 		g.setClip(0,0,width,height);
+		g.setColor(new Color(Prefs.imagePreviewBackgroundColor));
+		g.fillRect(0,0,width,height);
 		int TILE = tile;
-		g.setColor(Color.lightGray);
+		g.setColor(new Color(Prefs.imagePreviewForegroundColor));
 		int w = width / TILE + 1;
 		int h = height / TILE + 1;
 		for (int row = 0; row < h; row++)

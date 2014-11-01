@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.PSprite;
@@ -75,13 +76,16 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		BufferedImage dest = new BufferedImage(img.getWidth(null),img.getHeight(null),
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = dest.createGraphics();
-
+		
 		int imgwidth = img.getWidth();
 		int imgheight = img.getHeight();
 
 		g.setClip(0,0,imgwidth,imgheight);
+		g.setColor(new Color(Prefs.imagePreviewBackgroundColor));
+		g.fillRect(0,0,imgwidth,imgheight);
+		
 		int TILE = 5;
-		g.setColor(Color.lightGray);
+		g.setColor(new Color(Prefs.imagePreviewForegroundColor));
 		int w = imgwidth / TILE + 1;
 		int h = imgheight / TILE + 1;
 		for (int row = 0; row < h; row++)
