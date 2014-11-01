@@ -55,6 +55,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -499,7 +500,6 @@ public final class LGM
 		{
 
 		}
-
 	public static ImageIcon findIcon(String filename)
 		{
 		String custompath = Prefs.iconPath + filename;
@@ -2487,7 +2487,12 @@ public final class LGM
 			{
 			e.printStackTrace();
 			}
-		applyBackground("org/lateralgm/main/lgm1.png"); //$NON-NLS-1$
+		// let the user specify their own background
+		if (new File("lookandfeels/lgmbackground.png").exists()) {
+			applyBackground("lookandfeels/lgmbackground.png"); //$NON-NLS-1$
+		} else {
+			applyBackground("org/lateralgm/main/lgmbackground.png"); //$NON-NLS-1$
+		}
 		splashProgress.progress(70,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
 		populateTree();
 		splashProgress.progress(80,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
@@ -2829,8 +2834,15 @@ public final class LGM
 
 	public static void applyBackground(String bgloc)
 		{
-		URL url = LGM.class.getClassLoader().getResource(bgloc);
-		ImageIcon bg = new ImageIcon(url);
+		ImageIcon bg = new ImageIcon(bgloc);
+		if (bg.getIconWidth() == -1)
+			{
+			URL url = LGM.class.getClassLoader().getResource(bgloc);
+			if (url != null)
+				{
+				bg = new ImageIcon(url);
+				}
+			}
 		mdi.add(new MDIBackground(bg),JLayeredPane.FRAME_CONTENT_LAYER);
 		}
 
