@@ -1480,7 +1480,6 @@ public final class LGM
 										org.lateralgm.resources.sub.Action act = actions.get(ii);
 										ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
 										int actMatches = 0;
-										////if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) continue;
 										List<Argument> args = act.getArguments();
 										for (int iii = 0; iii < args.size(); iii++) {
 											Argument arg = args.get(iii);
@@ -1492,7 +1491,7 @@ public final class LGM
 													String text = match.toHighlightableString();
 
 													SearchResultNode resultNode = null;
-													if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) {
+													if (act.getLibAction().actionKind != org.lateralgm.resources.sub.Action.ACT_CODE) {
 														text = ("<html>" + Integer.toString(iii) + text.substring(text.indexOf(":"),text.length()));
 														resultNode = new SearchResultNode(text);
 														resultNode.data = new Object[]{iii};
@@ -1578,7 +1577,6 @@ public final class LGM
 									org.lateralgm.resources.sub.Action act = actions.get(ii);
 									ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
 									int actMatches = 0;
-									////if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) continue;
 									List<Argument> args = act.getArguments();
 									for (int iii = 0; iii < args.size(); iii++) {
 										Argument arg = args.get(iii);
@@ -1590,7 +1588,7 @@ public final class LGM
 												String text = match.toHighlightableString();
 	
 												SearchResultNode resultNode = null;
-												if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) {
+												if (act.getLibAction().actionKind != org.lateralgm.resources.sub.Action.ACT_CODE) {
 													text = ("<html>" + Integer.toString(iii) + text.substring(text.indexOf(":"),text.length()));
 													resultNode = new SearchResultNode(text);
 													resultNode.data = new Object[]{iii};
@@ -1859,7 +1857,7 @@ public final class LGM
 										} else if (status == STATUS_RESULT && parNode.status == STATUS_ACTION) {
 											ActionFrame af = (ActionFrame) parNode.parentdata[0];
 											org.lateralgm.resources.sub.Action act = af.getAction();
-											if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) {
+											if (act.getLibAction().actionKind != org.lateralgm.resources.sub.Action.ACT_CODE) {
 												af.focusArgumentComponent((Integer)data[0]);
 											} else {
 												if ((Integer)data[0] < af.code.getLineCount()) {
@@ -1881,7 +1879,7 @@ public final class LGM
 										} else if (status == STATUS_RESULT && parNode.status == STATUS_ACTION) {
 											ActionFrame af = (ActionFrame) parNode.parentdata[0];
 											org.lateralgm.resources.sub.Action act = af.getAction();
-											if (act.getLibAction().execType != org.lateralgm.resources.sub.Action.EXEC_CODE) {
+											if (act.getLibAction().actionKind != org.lateralgm.resources.sub.Action.ACT_CODE) {
 												af.focusArgumentComponent((Integer)data[0]);
 											} else {
 												if ((Integer)data[0] < af.code.getLineCount()) {
