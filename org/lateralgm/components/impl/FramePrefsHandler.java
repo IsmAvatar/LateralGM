@@ -8,6 +8,7 @@
 
 package org.lateralgm.components.impl;
 
+import java.awt.GraphicsEnvironment;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;
@@ -26,6 +27,7 @@ public class FramePrefsHandler implements ComponentListener,WindowStateListener
 		this.frame = frame;
 		frame.pack(); // makes the frame displayable, so that maximizing works
 		frame.setMinimumSize(frame.getSize());
+		frame.setMaximizedBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
 		frame.setBounds(PrefsStore.getWindowBounds());
 		int state = frame.getExtendedState()
 				| (PrefsStore.getWindowMaximized() ? JFrame.MAXIMIZED_BOTH : 0);
