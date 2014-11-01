@@ -28,6 +28,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.TabStop;
+
 import java.util.*;
 import java.io.IOException;
 
@@ -36,7 +37,7 @@ class RTFAttributesExt
     static RTFAttributeExt attributes[];
 
     static {
-        Vector a = new Vector();
+        Vector<GenericAttribute> a = new Vector<GenericAttribute>();
         int CHR = RTFAttributeExt.D_CHARACTER;
         int PGF = RTFAttributeExt.D_PARAGRAPH;
         int SEC = RTFAttributeExt.D_SECTION;
@@ -131,9 +132,9 @@ class RTFAttributesExt
         attributes = attrs;
     }
 
-    static Dictionary attributesByKeyword()
+    static Dictionary<String,RTFAttributeExt> attributesByKeyword()
     {
-        Dictionary d = new Hashtable(attributes.length);
+        Dictionary<String,RTFAttributeExt> d = new Hashtable<String,RTFAttributeExt>(attributes.length);
         int i, m;
 
         m = attributes.length;

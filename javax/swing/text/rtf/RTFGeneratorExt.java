@@ -51,11 +51,11 @@ class RTFGeneratorExt extends Object
 {
     /* These dictionaries map Colors, font names, or Style objects
        to Integers */
-    Dictionary colorTable;
+    Dictionary<Object,Integer> colorTable;
     int colorCount;
-    Dictionary fontTable;
+    Dictionary<String,Integer> fontTable;
     int fontCount;
-    Dictionary styleTable;
+    Dictionary<AttributeSet,Integer> styleTable;
     int styleCount;
 
     /* where all the text is going */
@@ -103,9 +103,9 @@ class RTFGeneratorExt extends Object
         MagicToken = new Object();
         ZeroPointZero = new Float(0);
 
-        Dictionary textKeywordDictionary = RTFReaderExt.textKeywords;
-        Enumeration keys = textKeywordDictionary.keys();
-        Vector tempPairs = new Vector();
+        Dictionary<?,?> textKeywordDictionary = RTFReaderExt.textKeywords;
+        Enumeration<?> keys = textKeywordDictionary.keys();
+        Vector<CharacterKeywordPair> tempPairs = new Vector<CharacterKeywordPair>();
         while(keys.hasMoreElements()) {
             CharacterKeywordPair pair = new CharacterKeywordPair();
             pair.keyword = (String)keys.nextElement();
@@ -140,14 +140,14 @@ static public void writeDocument(Document d, OutputStream to)
 
 public RTFGeneratorExt(OutputStream to)
 {
-    colorTable = new Hashtable();
+    colorTable = new Hashtable<Object,Integer>();
     colorTable.put(defaultRTFColor, new Integer(0));
     colorCount = 1;
 
-    fontTable = new Hashtable();
+    fontTable = new Hashtable<String,Integer>();
     fontCount = 0;
 
-    styleTable = new Hashtable();
+    styleTable = new Hashtable<AttributeSet,Integer>();
     /* TODO: put default style in style table */
     styleCount = 0;
 
@@ -329,7 +329,7 @@ public void writeRTFHeader()
 
     /* write font table */
     String[] sortedFontTable = new String[fontCount];
-    Enumeration fonts = fontTable.keys();
+    Enumeration<String> fonts = fontTable.keys();
     String font;
     while(fonts.hasMoreElements()) {
         font = (String)fonts.nextElement();
@@ -350,7 +350,7 @@ public void writeRTFHeader()
     /* write color table */
     if (colorCount > 1) {
         Color[] sortedColorTable = new Color[colorCount];
-        Enumeration colors = colorTable.keys();
+        Enumeration<Object> colors = colorTable.keys();
         Color color;
         while(colors.hasMoreElements()) {
             color = (Color)colors.nextElement();
@@ -376,7 +376,7 @@ public void writeRTFHeader()
     if (styleCount > 1) {
         writeBegingroup();
         writeControlWord("stylesheet");
-        Enumeration styles = styleTable.keys();
+        Enumeration<AttributeSet> styles = styleTable.keys();
         while(styles.hasMoreElements()) {
             Style style = (Style)styles.nextElement();
             int styleNumber = ((Integer)styleTable.get(style)).intValue();

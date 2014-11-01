@@ -61,7 +61,7 @@ class RTFReaderExt extends RTFParserExt
   MutableAttributeSet documentAttributes;
 
   /** This Dictionary maps Integer font numbers to String font names. */
-  Dictionary fontTable;
+  Dictionary<Object,String> fontTable;
   /** This array maps color indices to Color objects. */
   Color[] colorTable;
   /** This array maps character style numbers to Style objects. */
@@ -84,7 +84,7 @@ class RTFReaderExt extends RTFParserExt
    *  Unicode character. */
   int skippingCharacters;
 
-  static private Dictionary straightforwardAttributes;
+  static private Dictionary<?,?> straightforwardAttributes;
   static {
       straightforwardAttributes = RTFAttributesExt.attributesByKeyword();
   }
@@ -94,9 +94,9 @@ class RTFReaderExt extends RTFParserExt
   /* this should be final, but there's a bug in javac... */
   /** textKeywords maps RTF keywords to single-character strings,
    *  for those keywords which simply insert some text. */
-  static Dictionary textKeywords = null;
+  static Dictionary<String,String> textKeywords = null;
   static {
-      textKeywords = new Hashtable();
+      textKeywords = new Hashtable<String,String>();
       textKeywords.put("\\",         "\\");
       textKeywords.put("{",          "{");
       textKeywords.put("}",          "}");
@@ -127,10 +127,10 @@ class RTFReaderExt extends RTFParserExt
   static final String TabAlignmentKey = "tab_alignment";
   static final String TabLeaderKey = "tab_leader";
 
-  static Dictionary characterSets;
+  static Dictionary<String,char[]> characterSets;
   static boolean useNeXTForAnsi = false;
   static {
-      characterSets = new Hashtable();
+      characterSets = new Hashtable<String,char[]>();
   }
 
 /* TODO: per-font font encodings ( \fcharset control word ) ? */
@@ -146,8 +146,8 @@ public RTFReaderExt(StyledDocument destination)
     int i;
 
     target = destination;
-    parserState = new Hashtable();
-    fontTable = new Hashtable();
+    parserState = new Hashtable<String,Object>();
+    fontTable = new Hashtable<Object,String>();
 
     rtfversion = -1;
 
@@ -218,7 +218,7 @@ public void begingroup()
     Object oldSaveState = parserState.get("_savedState");
     if (oldSaveState != null)
         parserState.remove("_savedState");
-    Dictionary saveState = (Dictionary)((Hashtable)parserState).clone();
+    Dictionary<String,Object> saveState = (Dictionary<String,Object>)((Hashtable<String,Object>)parserState).clone();
     if (oldSaveState != null)
         saveState.put("_savedState", oldSaveState);
     parserState.put("_savedState", saveState);
@@ -240,13 +240,13 @@ public void endgroup()
         skippingCharacters = 0;
     }
 
-    Dictionary restoredState = (Dictionary)parserState.get("_savedState");
+    Dictionary<String,Object> restoredState = (Dictionary<String,Object>)parserState.get("_savedState");
     Destination restoredDestination = (Destination)restoredState.get("dst");
     if (restoredDestination != rtfDestination) {
         rtfDestination.close(); /* allow the destination to clean up */
         rtfDestination = restoredDestination;
     }
-    Dictionary oldParserState = parserState;
+    Dictionary<String,Object> oldParserState = parserState;
     parserState = restoredState;
     if (rtfDestination != null)
         rtfDestination.endgroup(oldParserState);
@@ -256,7 +256,7 @@ protected void setRTFDestination(Destination newDestination)
 {
     /* Check that setting the destination won't close the
        current destination (should never happen) */
-    Dictionary previousState = (Dictionary)parserState.get("_savedState");
+    Dictionary<?,?> previousState = (Dictionary<?,?>)parserState.get("_savedState");
     if (previousState != null) {
         if (rtfDestination != previousState.get("dst")) {
             warning("Warning, RTF destination overridden, invalid RTF.");
@@ -275,7 +275,7 @@ protected void setRTFDestination(Destination newDestination)
 public void close()
     throws IOException
 {
-    Enumeration docProps = documentAttributes.getAttributeNames();
+    Enumeration<?> docProps = documentAttributes.getAttributeNames();
     while(docProps.hasMoreElements()) {
         Object propName = docProps.nextElement();
         target.putProperty(propName,
@@ -630,7 +630,7 @@ interface Destination {
     boolean handleKeyword(String keyword, int parameter);
 
     void begingroup();
-    void endgroup(Dictionary oldState);
+    void endgroup(Dictionary<String,Object> oldState);
 
     void close();
 }
@@ -668,7 +668,7 @@ class DiscardingDestination implements Destination
            current group level as necessary */
     }
 
-    public void endgroup(Dictionary oldState)
+    public void endgroup(Dictionary<String,Object> oldState)
     {
         /* Ignore groups */
     }
@@ -739,13 +739,13 @@ class FonttblDestination implements Destination
 
     /* Groups are irrelevant. */
     public void begingroup() {}
-    public void endgroup(Dictionary oldState) {}
+    public void endgroup(Dictionary<String,Object> oldState) {}
 
     /* currently, the only thing we do when the font table ends is
        dump its contents to the debugging log. */
     public void close()
     {
-        Enumeration nums = fontTable.keys();
+        Enumeration<Object> nums = fontTable.keys();
         warning("Done reading font table.");
         while(nums.hasMoreElements()) {
             Integer num = (Integer)nums.nextElement();
@@ -759,14 +759,14 @@ class FonttblDestination implements Destination
 class ColortblDestination implements Destination
 {
     int red, green, blue;
-    Vector proTemTable;
+    Vector<Color> proTemTable;
 
     public ColortblDestination()
     {
         red = 0;
         green = 0;
         blue = 0;
-        proTemTable = new Vector();
+        proTemTable = new Vector<Color>();
     }
 
     public void handleText(String text)
@@ -809,7 +809,7 @@ class ColortblDestination implements Destination
 
     /* Groups are irrelevant. */
     public void begingroup() {}
-    public void endgroup(Dictionary oldState) {}
+    public void endgroup(Dictionary<String,Object> oldState) {}
 
     /* Shouldn't see any binary blobs ... */
     public void handleBinaryBlob(byte[] data) {}
@@ -821,11 +821,11 @@ class StylesheetDestination
     extends DiscardingDestination
     implements Destination
 {
-    Dictionary definedStyles;
+    Dictionary<Integer,StyleDefiningDestination> definedStyles;
 
     public StylesheetDestination()
     {
-        definedStyles = new Hashtable();
+        definedStyles = new Hashtable<Integer,StyleDefiningDestination>();
     }
 
     public void begingroup()
@@ -835,11 +835,11 @@ class StylesheetDestination
 
     public void close()
     {
-        Vector chrStyles, pgfStyles, secStyles;
-        chrStyles = new Vector();
-        pgfStyles = new Vector();
-        secStyles = new Vector();
-        Enumeration styles = definedStyles.elements();
+        Vector<Style> chrStyles, pgfStyles, secStyles;
+        chrStyles = new Vector<Style>();
+        pgfStyles = new Vector<Style>();
+        secStyles = new Vector<Style>();
+        Enumeration<StyleDefiningDestination> styles = definedStyles.elements();
         while(styles.hasMoreElements()) {
             StyleDefiningDestination style;
             Style defined;
@@ -847,7 +847,7 @@ class StylesheetDestination
             defined = style.realize();
             warning("Style "+style.number+" ("+style.styleName+"): "+defined);
             String stype = (String)defined.getAttribute(Constants.StyleType);
-            Vector toSet;
+            Vector<Style> toSet;
             if (stype.equals(Constants.STSection)) {
                 toSet = secStyles;
             } else if (stype.equals(Constants.STCharacter)) {
@@ -1102,7 +1102,7 @@ abstract class AttributeTrackingDestination implements Destination
         parserState.put("sec", sectionAttributes);
     }
 
-    public void endgroup(Dictionary oldState)
+    public void endgroup(Dictionary<String,Object> oldState)
     {
         characterAttributes = (MutableAttributeSet)parserState.get("chr");
         paragraphAttributes = (MutableAttributeSet)parserState.get("pgf");
@@ -1265,12 +1265,12 @@ abstract class AttributeTrackingDestination implements Destination
             parserState.remove("tab_leader");
 
             TabStop newStop = new TabStop(tabPosition, tabAlignment, tabLeader);
-            Dictionary tabs;
+            Dictionary<Comparable,Serializable> tabs;
             Integer stopCount;
 
-            tabs = (Dictionary)parserState.get("_tabs");
+            tabs = (Dictionary<Comparable,Serializable>)parserState.get("_tabs");
             if (tabs == null) {
-                tabs = new Hashtable();
+                tabs = new Hashtable<Comparable,Serializable>();
                 parserState.put("_tabs", tabs);
                 stopCount = Integer.valueOf(1);
             } else {
@@ -1426,7 +1426,7 @@ abstract class AttributeTrackingDestination implements Destination
 
         tabs = (TabStop[])parserState.get("_tabs_immutable");
         if (tabs == null) {
-            Dictionary workingTabs = (Dictionary)parserState.get("_tabs");
+            Dictionary<?,?> workingTabs = (Dictionary<?,?>)parserState.get("_tabs");
             if (workingTabs != null) {
                 int count = ((Integer)workingTabs.get("stop count")).intValue();
                 tabs = new TabStop[count];
@@ -1472,7 +1472,7 @@ abstract class AttributeTrackingDestination implements Destination
 
         handleKeyword("fs", 24);  /* 12 pt. */
 
-        Enumeration attributes = straightforwardAttributes.elements();
+        Enumeration<?> attributes = straightforwardAttributes.elements();
         while(attributes.hasMoreElements()) {
             RTFAttributeExt attr = (RTFAttributeExt)attributes.nextElement();
             if (attr.domain() == RTFAttributeExt.D_CHARACTER)
@@ -1496,7 +1496,7 @@ abstract class AttributeTrackingDestination implements Destination
         StyleConstants.setAlignment(paragraphAttributes,
                                     StyleConstants.ALIGN_LEFT);
 
-        Enumeration attributes = straightforwardAttributes.elements();
+        Enumeration<?> attributes = straightforwardAttributes.elements();
         while(attributes.hasMoreElements()) {
             RTFAttributeExt attr = (RTFAttributeExt)attributes.nextElement();
             if (attr.domain() == RTFAttributeExt.D_PARAGRAPH)
@@ -1509,7 +1509,7 @@ abstract class AttributeTrackingDestination implements Destination
      *  \sectd keyword. */
     protected void resetSectionAttributes()
     {
-        Enumeration attributes = straightforwardAttributes.elements();
+        Enumeration<?> attributes = straightforwardAttributes.elements();
         while(attributes.hasMoreElements()) {
             RTFAttributeExt attr = (RTFAttributeExt)attributes.nextElement();
             if (attr.domain() == RTFAttributeExt.D_SECTION)

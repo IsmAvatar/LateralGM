@@ -26,6 +26,7 @@ package javax.swing.text.rtf;
 
 import java.util.Dictionary;
 import java.util.Enumeration;
+
 import javax.swing.text.AttributeSet;
 import javax.swing.text.MutableAttributeSet;
 
@@ -35,7 +36,7 @@ import javax.swing.text.MutableAttributeSet;
 class MockAttributeSetExt
     implements AttributeSet, MutableAttributeSet
 {
-    public Dictionary backing;
+    public Dictionary<Object,Object> backing;
 
     public boolean isEmpty()
     {
@@ -74,7 +75,7 @@ class MockAttributeSetExt
 
     public void addAttributes(AttributeSet attr)
     {
-        Enumeration as = attr.getAttributeNames();
+        Enumeration<?> as = attr.getAttributeNames();
         while(as.hasMoreElements()) {
             Object el = as.nextElement();
             backing.put(el, attr.getAttribute(el));
@@ -102,7 +103,7 @@ class MockAttributeSetExt
     }
 
 
-    public Enumeration getAttributeNames()
+    public Enumeration<Object> getAttributeNames()
     {
          return backing.keys();
     }

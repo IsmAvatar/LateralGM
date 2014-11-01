@@ -38,6 +38,11 @@ import javax.swing.text.*;
 public class RTFEditorKitExt extends StyledEditorKit {
 
     /**
+	 * TODO: Change if needed.
+	 */
+	private static final long serialVersionUID = 1L;
+
+		/**
      * Constructs an RTFEditorKit.
      */
     public RTFEditorKitExt() {
