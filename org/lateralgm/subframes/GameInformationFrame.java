@@ -735,10 +735,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			if (settings == null)
 				{
 				settings = new SettingsFrame();
-
-				JPanel settingsPanel = makeSettings();
-				settings.add(settingsPanel);
-
 				}
 			settings.setVisible(true);
 			}

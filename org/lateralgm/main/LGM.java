@@ -2031,6 +2031,8 @@ public final class LGM
 		// Set the default uncaught exception handler.
 		LGM.setDefaultExceptionHandler();
 
+	//TODO: I have a feeling some of these should just be preferences, especially Direct3D hardware acceleration.
+		
 		//java6u10 regression causes graphical xor to be very slow
 		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
 		//Put the Mac menu bar where it belongs (ignored by other systems)
