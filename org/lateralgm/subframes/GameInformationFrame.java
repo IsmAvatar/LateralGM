@@ -916,7 +916,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		if (undoManager.canUndo()) return true;
 		for (Entry<PGameInformation,Object> entry : res.properties.entrySet()) {
 			if (entry.getKey() != PGameInformation.TEXT && 
-					entry.getValue() != resOriginal.get(entry.getKey())) {
+					!entry.getValue().equals(resOriginal.get(entry.getKey()))) {
 						return true;
 			}
 		}
