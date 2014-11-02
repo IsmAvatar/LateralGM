@@ -35,7 +35,7 @@ public abstract class PropertyLink<K extends Enum<K>, V> extends PropertyUpdateL
 
 	public void remove()
 		{
-		map.updateSource.removeListener(this);
+		map.getUpdateSource(key).removeListener(this);
 		factory.removeLinkMapListener(this);
 		}
 	

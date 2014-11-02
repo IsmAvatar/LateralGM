@@ -36,6 +36,9 @@ public class PropertyLinkFactory<K extends Enum<K>>
 	 */
 	private List<PropertyLinkMapListener<K>> mapListeners = new ArrayList<PropertyLinkMapListener<K>>();
 	
+	/* Necessary for mass disposing links created by the factory */
+	private List<PropertyLink<K,?>> mapLinks = new ArrayList<PropertyLink<K,?>>();
+	
 	public void addLinkMapListener(PropertyLinkMapListener<K> plml) {
 		mapListeners.add(plml);
 	}
@@ -68,6 +71,7 @@ public class PropertyLinkFactory<K extends Enum<K>>
 		 */
 		l.factory = this;
 		addLinkMapListener(l);
+		mapLinks.add(l);
 		l.setExceptionListener(exceptionListener);
 		return l;
 		}
@@ -125,5 +129,14 @@ public class PropertyLinkFactory<K extends Enum<K>>
 	public ButtonIncrementLink<K,Integer> make(AbstractButton ab, K k, int i, int l)
 		{
 		return init(ButtonIncrementLink.make(ab,i,l,map,k));
+		}
+
+	public void dispose()
+		{
+		for (PropertyLink<?,?> link : mapLinks) {
+			link.remove();
+		}
+		mapLinks.clear();
+		mapListeners.clear();
 		}
 	}

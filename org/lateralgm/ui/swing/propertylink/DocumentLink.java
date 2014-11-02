@@ -75,6 +75,7 @@ public class DocumentLink<K extends Enum<K>> extends PropertyLink<K,String> impl
 			}
 		}
 
+	@Override
 	public void updated(PropertyUpdateEvent<K> e)
 		{
 		String t = (String) map.get(key);
