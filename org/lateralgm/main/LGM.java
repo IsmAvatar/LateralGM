@@ -2456,6 +2456,7 @@ public final class LGM
 		
 		filterPanel.setLayout(filterLayout);
 		filterPanel.setFloatable(true);
+		filterPanel.setVisible(Prefs.showTreeFilter);
 
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(250,100));
