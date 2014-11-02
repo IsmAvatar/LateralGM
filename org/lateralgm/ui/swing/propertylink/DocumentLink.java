@@ -13,6 +13,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import org.lateralgm.main.LGM;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap;
 import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
@@ -30,16 +31,13 @@ public class DocumentLink<K extends Enum<K>> extends PropertyLink<K,String> impl
 		d.addDocumentListener(this);
 		}
 
-	protected void setComponent(String t)
+	protected void setComponent(final String t)
 		{
-		try
-			{
-			document.remove(0,document.getLength());
-			document.insertString(0,t,null);
-			}
-		catch (BadLocationException e)
-			{
-			e.printStackTrace();
+			try {
+				document.remove(0,document.getLength());
+				document.insertString(0,t,null);
+			} catch (BadLocationException e) {
+				LGM.showDefaultExceptionHandler(e);
 			}
 		}
 

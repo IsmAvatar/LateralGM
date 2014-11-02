@@ -839,10 +839,13 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			editor.selectAll();
 			return;
 			}
-		else if (com.equals("GameInformationFrame.CLOSE")) //$NON-NLS-1$
+		else if (com.equals("GameInformationFrame.CLOSESAVE")) //$NON-NLS-1$
 			{
-			settings.setVisible(false);
-			return;
+				this.doDefaultSaveAction();
+				return;
+			}
+		else if (com.equals("GameInformationFrame.CLOSE")) {
+				settings.setVisible(false);
 			}
 		}
 

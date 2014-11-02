@@ -144,6 +144,8 @@ public class ErrorDialog extends JDialog implements ActionListener
 		submiturl = url;
 
 		this.debugInfo = new JTextArea();
+		debugInfo.setEditable(false);
+		debugInfo.getCaret().setVisible(true); // show the caret anyway
 		debugInfo.setText(ErrorDialog.generateAgnosticInformation());
 		this.appendDebugInfo(debugText);
 		scroll = new JScrollPane(this.debugInfo);

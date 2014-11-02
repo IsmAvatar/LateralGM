@@ -225,16 +225,20 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 		l.setPreferredSize(new Dimension(w,h));
 		c.add(l);
 		}
+	
+	public void doDefaultSaveAction() {
+		if (resourceChanged()) {
+			setResourceChanged();
+			updateResource(false);
+		}
+		close();
+	}
 
 	public void actionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == save)
 			{
-			if (resourceChanged()) {
-				setResourceChanged();
-				updateResource(false);
-			}
-			close();
+				this.doDefaultSaveAction();
 			}
 		}
 
