@@ -41,7 +41,6 @@
         <file path="/LateralGM/org/lateralgm/main/lgm-logo.svg"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.visuals"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{OutputManager.java"/>
-        <file path="/LateralGM/org/lateralgm/main/lgm1.png"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.file"/>
         <folder path="/LateralGM/META-INF"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.joshedit.icons"/>
@@ -66,6 +65,7 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{Util.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.impl"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.mdi"/>
+        <file path="/LateralGM/org/lateralgm/main/lgmbackground.png"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.propertylink"/>
     </selectedElements>
 </jardesc>
