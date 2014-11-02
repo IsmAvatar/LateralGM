@@ -453,6 +453,24 @@ public final class Util
 		{
 		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16 | col.getAlpha() << 24;
 		}
+	
+	//Turns an ARGB Java Color into a rgba(r,g,b,a) CSS string
+	//NOTE: Java's 1.8 HTML implementation does not support opacity.
+	public static String getHTMLColor(int col, boolean hastransparency) {
+		if (hastransparency) {
+			return String.format("rgba(%d,%d,%d,%d)", col >> 16 & 0xFF, col >> 8 & 0xFF, col & 0xFF, col >> 24 & 0xFF);
+		}
+		return String.format("rgb(%d,%d,%d)", col >> 16 & 0xFF, col >> 8 & 0xFF, col & 0xFF);
+	}
+	
+	//Turns an AWT Java Color into a rgba(r,g,b,a) CSS string
+	//NOTE: Java's 1.8 HTML implementation does not support opacity.
+	public static String getHTMLColor(Color col, boolean hastransparency) {
+		if (hastransparency) {
+			return String.format("rgba(%d,%d,%d,%d)", col.getRed(), col.getGreen(), col.getBlue(), col.getAlpha());
+		}
+		return String.format("rgb(%d,%d,%d)", col.getRed(), col.getGreen(), col.getBlue());
+	}
 
 	public static long getInstanceColorWithAlpha(Color col, int alpha)
 		{

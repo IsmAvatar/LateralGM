@@ -1,10 +1,25 @@
-/*
- * Copyright (C) 2013-2014 Robert B. Colton
- * 
- * This file is part of LateralGM.
- * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
- * See LICENSE for details.
- */
+/**
+* @file  PreferencesFrame.java
+* @brief Class implementing a frame for the user to edit the Java preferences for the application including styles and the look and feel.
+*
+* @section License
+*
+* Copyright (C) 2013-2014 Robert B. Colton
+* This file is a part of the LateralGM IDE.
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+**/
 
 package org.lateralgm.subframes;
 
@@ -84,6 +99,14 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	ColorSelect viewInsideColor, viewOutsideColor, selectionInsideColor, selectionOutsideColor;
 	private ColorSelect imagePreviewBackgroundColor;
 	private ColorSelect imagePreviewForegroundColor;
+	private ColorSelect matchCountBackgroundColor;
+	private ColorSelect matchCountForegroundColor;
+	private ColorSelect resultMatchBackgroundColor;
+	private ColorSelect resultMatchForegroundColor;
+	private JCheckBox matchCountBackgroundCheckBox;
+	private JCheckBox matchCountForegroundCheckBox;
+	private JCheckBox resultMatchBackgroundCheckBox;
+	private JCheckBox resultMatchForegroundCheckBox;
 
 	private JPanel makeAppearancePrefs() {
 		JPanel panel = new JPanel();
@@ -197,17 +220,14 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		imagePreviewLayout.setAutoCreateContainerGaps(true);
 		imagePreviewPanel.setLayout(imagePreviewLayout);
 
-		String title = Messages.getString("PreferencesFrame.IMAGE_PREVIEW");
-		imagePreviewPanel.setBorder(BorderFactory.createTitledBorder(title));
+		imagePreviewPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("PreferencesFrame.IMAGE_PREVIEW")));
 
 		JLabel imagePreviewBackgroundLabel = new JLabel(Messages.getString("PreferencesFrame.IMAGE_PREVIEW_BACKGROUND_COLOR") + ":");
 		imagePreviewBackgroundColor = new ColorSelect(new Color(Prefs.imagePreviewBackgroundColor));
 		JLabel imagePreviewForegroundLabel = new JLabel(Messages.getString("PreferencesFrame.IMAGE_PREVIEW_FOREGROUND_COLOR") + ":");
 		imagePreviewForegroundColor = new ColorSelect(new Color(Prefs.imagePreviewForegroundColor));
 		
-		// Set the layout for the views
-		imagePreviewLayout.setHorizontalGroup(
-		/**/imagePreviewLayout.createParallelGroup()
+		imagePreviewLayout.setHorizontalGroup(imagePreviewLayout.createParallelGroup()
 		/*	*/.addGroup(imagePreviewLayout.createSequentialGroup()
 		/*		*/.addGroup(imagePreviewLayout.createParallelGroup()
 		/*			*/.addComponent(imagePreviewBackgroundLabel)
@@ -216,14 +236,67 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*			*/.addComponent(imagePreviewBackgroundColor,120,120,120)
 		/*			*/.addComponent(imagePreviewForegroundColor,120,120,120))));
 
-		imagePreviewLayout.setVerticalGroup(
-		/**/imagePreviewLayout.createSequentialGroup()
+		imagePreviewLayout.setVerticalGroup(imagePreviewLayout.createSequentialGroup()
 		/*	*/.addGroup(imagePreviewLayout.createParallelGroup()
 		/*		*/.addComponent(imagePreviewBackgroundLabel)
 		/*		*/.addComponent(imagePreviewBackgroundColor,18,18,18))
 		/*	*/.addGroup(imagePreviewLayout.createParallelGroup()
 		/*		*/.addComponent(imagePreviewForegroundLabel)
 		/*		*/.addComponent(imagePreviewForegroundColor,18,18,18)));
+		
+		JPanel searchResultsPanel = new JPanel();
+		GroupLayout searchResultsLayout = new GroupLayout(searchResultsPanel);
+		searchResultsLayout.setAutoCreateGaps(true);
+		searchResultsLayout.setAutoCreateContainerGaps(true);
+		searchResultsPanel.setLayout(searchResultsLayout);
+
+		searchResultsPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("PreferencesFrame.SEARCH_RESULTS")));
+
+		JLabel matchCountLable = new JLabel(Messages.getString("PreferencesFrame.MATCH_COUNT"));
+		matchCountBackgroundCheckBox = new JCheckBox(Messages.getString("PreferencesFrame.MATCH_COUNT_BACKGROUND_COLOR") + ":", Prefs.highlightMatchCountBackground);
+		matchCountBackgroundColor = new ColorSelect(new Color(Prefs.matchCountBackgroundColor));
+		matchCountForegroundCheckBox = new JCheckBox(Messages.getString("PreferencesFrame.MATCH_COUNT_FOREGROUND_COLOR") + ":", Prefs.highlightMatchCountForeground);
+		matchCountForegroundColor = new ColorSelect(new Color(Prefs.matchCountForegroundColor));
+		
+		JLabel resultMatchLabel = new JLabel(Messages.getString("PreferencesFrame.RESULT_MATCH"));
+		resultMatchBackgroundCheckBox = new JCheckBox(Messages.getString("PreferencesFrame.RESULT_MATCH_BACKGROUND_COLOR") + ":", Prefs.highlightResultMatchBackground);
+		resultMatchBackgroundColor = new ColorSelect(new Color(Prefs.resultMatchBackgroundColor));
+		resultMatchForegroundCheckBox = new JCheckBox(Messages.getString("PreferencesFrame.RESULT_MATCH_FOREGROUND_COLOR") + ":", Prefs.highlightResultMatchForeground);
+		resultMatchForegroundColor = new ColorSelect(new Color(Prefs.resultMatchForegroundColor));
+		
+		searchResultsLayout.setHorizontalGroup(searchResultsLayout.createParallelGroup()
+		/**/.addComponent(matchCountLable)
+		/*	*/.addGroup(searchResultsLayout.createSequentialGroup()
+		/*		*/.addGroup(searchResultsLayout.createParallelGroup(Alignment.TRAILING)
+		/*			*/.addComponent(matchCountBackgroundCheckBox)
+		/*			*/.addComponent(matchCountForegroundCheckBox))
+		/*		*/.addGroup(searchResultsLayout.createParallelGroup()
+		/*			*/.addComponent(matchCountBackgroundColor,120,120,120)
+		/*			*/.addComponent(matchCountForegroundColor,120,120,120)))
+		/**/.addComponent(resultMatchLabel)
+		/*	*/.addGroup(searchResultsLayout.createSequentialGroup()
+		/*		*/.addGroup(searchResultsLayout.createParallelGroup(Alignment.TRAILING)
+		/*			*/.addComponent(resultMatchBackgroundCheckBox)
+		/*			*/.addComponent(resultMatchForegroundCheckBox))
+		/*		*/.addGroup(searchResultsLayout.createParallelGroup()
+		/*			*/.addComponent(resultMatchBackgroundColor,120,120,120)
+		/*			*/.addComponent(resultMatchForegroundColor,120,120,120))));
+
+		searchResultsLayout.setVerticalGroup(searchResultsLayout.createSequentialGroup()
+		/**/.addComponent(matchCountLable)
+		/*	*/.addGroup(searchResultsLayout.createParallelGroup(Alignment.CENTER)
+		/*		*/.addComponent(matchCountBackgroundCheckBox)
+		/*		*/.addComponent(matchCountBackgroundColor,18,18,18))
+		/*	*/.addGroup(searchResultsLayout.createParallelGroup(Alignment.CENTER)
+		/*		*/.addComponent(matchCountForegroundCheckBox)
+		/*		*/.addComponent(matchCountForegroundColor,18,18,18))
+		/**/.addComponent(resultMatchLabel)
+		/*	*/.addGroup(searchResultsLayout.createParallelGroup(Alignment.CENTER)
+		/*		*/.addComponent(resultMatchBackgroundCheckBox)
+		/*		*/.addComponent(resultMatchBackgroundColor,18,18,18))
+		/*	*/.addGroup(searchResultsLayout.createParallelGroup(Alignment.CENTER)
+		/*		*/.addComponent(resultMatchForegroundCheckBox)
+		/*		*/.addComponent(resultMatchForegroundColor,18,18,18)));
 
 		
 		GroupLayout gl = new GroupLayout(panel);
@@ -232,32 +305,34 @@ public class PreferencesFrame extends JFrame implements ActionListener
 
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()
-		/* */.addComponent(iconLabel)
-		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/* */.addComponent(themeLabel)
-		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/* */.addComponent(iconLabel)
+		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
 		/**/.addGroup(gl.createSequentialGroup()
 		/* */.addGroup(gl.createParallelGroup(Alignment.TRAILING)
-		/*  */.addComponent(iconPathLabel)
-		/*  */.addComponent(themePathLabel))
+		/*  */.addComponent(themePathLabel)
+		/*  */.addComponent(iconPathLabel))
 		/* */.addGroup(gl.createParallelGroup()
-		/*  */.addComponent(iconPath)
-		/*  */.addComponent(themePath)))
-		/**/.addComponent(imagePreviewPanel));
+		/*  */.addComponent(themePath)
+		/*  */.addComponent(iconPath)))
+		/**/.addComponent(imagePreviewPanel)
+		/**/.addComponent(searchResultsPanel));
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
 		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
-		/* */.addComponent(iconLabel)
-		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/* */.addComponent(themeLabel)
-		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
-		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
-		/* */.addComponent(iconPathLabel)
-		/* */.addComponent(iconPath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/* */.addComponent(iconLabel)
+		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
 		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
 		/* */.addComponent(themePathLabel)
 		/* */.addComponent(themePath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
-		/**/.addComponent(imagePreviewPanel));
+		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+		/* */.addComponent(iconPathLabel)
+		/* */.addComponent(iconPath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/**/.addComponent(imagePreviewPanel)
+		/**/.addComponent(searchResultsPanel));
 
 		panel.setLayout(gl);
 		
@@ -797,6 +872,14 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		
 		PrefsStore.setImagePreviewBackgroundColor(imagePreviewBackgroundColor.getSelectedColor().getRGB());
 		PrefsStore.setImagePreviewForegroundColor(imagePreviewForegroundColor.getSelectedColor().getRGB());
+		PrefsStore.setHighlightMatchCountBackground(matchCountBackgroundCheckBox.isSelected());
+		PrefsStore.setHighlightMatchCountForeground(matchCountForegroundCheckBox.isSelected());
+		PrefsStore.setMatchCountBackgroundColor(matchCountBackgroundColor.getSelectedColor().getRGB());
+		PrefsStore.setMatchCountForegroundColor(matchCountForegroundColor.getSelectedColor().getRGB());
+		PrefsStore.setHighlightResultMatchBackground(resultMatchBackgroundCheckBox.isSelected());
+		PrefsStore.setHighlightResultMatchForeground(resultMatchForegroundCheckBox.isSelected());
+		PrefsStore.setResultMatchBackgroundColor(resultMatchBackgroundColor.getSelectedColor().getRGB());
+		PrefsStore.setResultMatchForegroundColor(resultMatchForegroundColor.getSelectedColor().getRGB());
 		}
 
 	public void ResetPreferences()

@@ -121,6 +121,14 @@ public final class Prefs
 
 		imagePreviewBackgroundColor = getInt("imagePreviewBackgroundColor",Color.LIGHT_GRAY.getRGB());
 		imagePreviewForegroundColor = getInt("imagePreviewForegroundColor",Color.GRAY.getRGB());
+		highlightMatchCountBackground = getBoolean("highlightMatchCountBackground",false);
+		highlightMatchCountForeground = getBoolean("highlightMatchCountForeground",true);
+		matchCountBackgroundColor = getInt("matchCountBackgroundColor",Color.BLACK.getRGB());
+		matchCountForegroundColor = getInt("matchCountForegroundColor",Color.BLUE.getRGB());
+		highlightResultMatchBackground = getBoolean("highlightResultMatchBackground",true);
+		highlightResultMatchForeground = getBoolean("highlightResultMatchForeground",false);
+		resultMatchBackgroundColor = getInt("resultMatchBackgroundColor",Color.PINK.getRGB());
+		resultMatchForegroundColor = getInt("resultMatchForegroundColor",Color.WHITE.getRGB());
 		
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
@@ -210,6 +218,16 @@ public final class Prefs
 	public static int selectionOutsideColor;
 	public static boolean useFilledRectangleForSelection;
 	public static boolean useInvertedColorForSelection;
+	
+	// Appearance
 	public static int imagePreviewForegroundColor;
 	public static int imagePreviewBackgroundColor;
+	public static boolean highlightMatchCountBackground;
+	public static boolean highlightMatchCountForeground;
+	public static int matchCountBackgroundColor;
+	public static int matchCountForegroundColor;
+	public static boolean highlightResultMatchBackground;
+	public static boolean highlightResultMatchForeground;
+	public static int resultMatchBackgroundColor;
+	public static int resultMatchForegroundColor;
 	}

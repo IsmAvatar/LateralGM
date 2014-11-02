@@ -55,7 +55,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -1256,19 +1255,43 @@ public final class LGM
 	  public List<MatchBlock> matchedText = new ArrayList<MatchBlock>();
 		public String toHighlightableString()
 			{
-			String text = "<html>" + lineNum + ": ";
+			boolean enablehtml = Prefs.highlightResultMatchBackground || Prefs.highlightResultMatchForeground;
+			String text = (enablehtml ? "<html>" : "") + lineNum + ": ";
 			for (MatchBlock block : matchedText) {
-				if (block.highlighted) {
-					text += "<span bgcolor='#D6C2FF'>";
+				if (block.highlighted && enablehtml) {
+					text += "<span";
+					if (Prefs.highlightResultMatchBackground) {
+						text += " bgcolor='" + Util.getHTMLColor(Prefs.resultMatchBackgroundColor,false) + "'";
+					}
+					if (Prefs.highlightResultMatchForeground) {
+						text += " color='" + Util.getHTMLColor(Prefs.resultMatchForegroundColor,false) + "'";
+					}
+					text += ">";
 				}
 				text += block.content;
-				if (block.highlighted) {
+				if (block.highlighted && enablehtml) {
 					text += "</span>";
 				}
 			}
-			text += "</html>";
+			if (enablehtml) {
+				text += "</html>";
+			}
 			return text;
 			}
+	}
+	
+	private static String formatMatchCountText(String pretext, int matches) {
+		boolean enablehtml = Prefs.highlightMatchCountBackground || Prefs.highlightMatchCountForeground;
+		String text = (enablehtml ? "<html>" : "") + pretext + " " + (enablehtml ? "<font" : "");
+		if (Prefs.highlightMatchCountBackground) {
+			text += " bgcolor='" + Util.getHTMLColor(Prefs.matchCountBackgroundColor,false) + "'";
+		}
+		if (Prefs.highlightMatchCountForeground) {
+			text += " color='" + Util.getHTMLColor(Prefs.matchCountForegroundColor,false) + "'";
+		}
+		text += (enablehtml ? ">" : "") + "(" + matches + " " + Messages.getString("TreeFilter.MATCHES") + ")" + (enablehtml ? "</font></html>" : "");
+	
+		return text;
 	}
 	
 	private static final Pattern NEWLINE = Pattern.compile("\r\n|\r|\n");
@@ -1400,8 +1423,7 @@ public final class LGM
 							String code = res.getCode();
 							List<LineMatch> matches = getMatchingLines(code, pattern);
 							if (matches.size() > 0) {
-								resultRoot = new SearchResultNode("<html>" + res.getName()
-										+ " <font color='blue'>(" + matches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultRoot = new SearchResultNode(formatMatchCountText(res.getName(),matches.size()));
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
@@ -1424,14 +1446,13 @@ public final class LGM
 							List<LineMatch> vertexmatches = getMatchingLines(vcode, pattern);
 							List<LineMatch> fragmentmatches = getMatchingLines(fcode, pattern);
 							if (vertexmatches.size() + fragmentmatches.size() > 0) {
-								resultRoot = new SearchResultNode("<html>" + res.getName()
-										+ " <font color='blue'>(" + (vertexmatches.size() + fragmentmatches.size()) + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultRoot = new SearchResultNode(formatMatchCountText(res.getName(),vertexmatches.size() + fragmentmatches.size()));
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
 								
-								SearchResultNode resultGroupNode = new SearchResultNode("<html> " + Messages.getString("TreeFilter.VERTEX_CODE") + ":"
-										+ " <font color='blue'>(" + vertexmatches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								SearchResultNode resultGroupNode = new SearchResultNode(formatMatchCountText(
+										Messages.getString("TreeFilter.VERTEX_CODE") + ":",vertexmatches.size()));
 								resultGroupNode.status = SearchResultNode.STATUS_VERTEX_CODE;
 								resultRoot.add(resultGroupNode);
 								for (LineMatch match : vertexmatches) {
@@ -1446,8 +1467,8 @@ public final class LGM
 									}
 								}
 								
-								resultGroupNode = new SearchResultNode("<html> " + Messages.getString("TreeFilter.FRAGMENT_CODE") + ":"
-										+ " <font color='blue'>(" + fragmentmatches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultGroupNode = new SearchResultNode(formatMatchCountText(
+										Messages.getString("TreeFilter.FRAGMENT_CODE") + ":",fragmentmatches.size()));
 								resultGroupNode.status = SearchResultNode.STATUS_FRAGMENT_CODE;
 								resultRoot.add(resultGroupNode);
 								for (LineMatch match : fragmentmatches) {
@@ -1492,7 +1513,8 @@ public final class LGM
 
 													SearchResultNode resultNode = null;
 													if (act.getLibAction().actionKind != org.lateralgm.resources.sub.Action.ACT_CODE) {
-														text = ("<html>" + Integer.toString(iii) + text.substring(text.indexOf(":"),text.length()));
+														boolean enablehtml = Prefs.highlightResultMatchBackground || Prefs.highlightResultMatchForeground;
+														text = ((enablehtml ? "<html>" : "") + Integer.toString(iii) + text.substring(text.indexOf(":"),text.length()));
 														resultNode = new SearchResultNode(text);
 														resultNode.data = new Object[]{iii};
 													} else {
@@ -1509,8 +1531,7 @@ public final class LGM
 										evMatches += actMatches;
 										if (resultNodes.size() > 0) {
 											// Uses the same method of getting the Action name as ActionFrame
-											SearchResultNode actRoot = new SearchResultNode("<html>" + act.getLibAction().name.replace("_"," ")
-													+ " <font color='blue'>(" + actMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+											SearchResultNode actRoot = new SearchResultNode(formatMatchCountText(act.getLibAction().name.replace("_"," "),actMatches));
 											actRoot.status = SearchResultNode.STATUS_ACTION;
 											actRoot.data = new Object[]{ii};
 											actRoot.setIcon(new ImageIcon(act.getLibAction().actImage.getScaledInstance(16,16,0)));
@@ -1522,8 +1543,7 @@ public final class LGM
 									}
 									meMatches += evMatches;
 									if (actionNodes.size() > 0) {
-										SearchResultNode evRoot = new SearchResultNode("<html>" + ev.toString().replaceAll("<","&lt;").replaceAll(">","&gt;")
-												+ " <font color='blue'>(" + evMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+										SearchResultNode evRoot = new SearchResultNode(formatMatchCountText(ev.toString().replaceAll("<","&lt;").replaceAll(">","&gt;"), evMatches));
 										evRoot.status = SearchResultNode.STATUS_EVENT;
 										evRoot.setIcon(LGM.getIconForKey("EventNode.EVENT" + ev.mainId));
 										evRoot.data = new Object[]{ev.mainId,ev.id};
@@ -1536,8 +1556,7 @@ public final class LGM
 								matchCount += meMatches;
 								if (evNodes.size() > 0) {
 									if (evNodes.size() > 1) {
-										SearchResultNode meRoot = new SearchResultNode("<html>" + Messages.getString("MainEvent.EVENT" + mainid)
-												+ " <font color='blue'>(" + meMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+										SearchResultNode meRoot = new SearchResultNode(formatMatchCountText(Messages.getString("MainEvent.EVENT" + mainid),meMatches));
 										meRoot.status = SearchResultNode.STATUS_MAIN_EVENT;
 										meRoot.setIcon(LGM.getIconForKey("EventNode.GROUP" + mainid));
 										for (SearchResultNode resn : evNodes) {
@@ -1553,8 +1572,7 @@ public final class LGM
 							}
 							
 							if (meNodes.size() > 0) {
-								resultRoot = new SearchResultNode("<html>" + res.getName()
-										+ " <font color='blue'>(" + matchCount + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultRoot = new SearchResultNode(formatMatchCountText(res.getName(), matchCount));
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
@@ -1589,7 +1607,8 @@ public final class LGM
 	
 												SearchResultNode resultNode = null;
 												if (act.getLibAction().actionKind != org.lateralgm.resources.sub.Action.ACT_CODE) {
-													text = ("<html>" + Integer.toString(iii) + text.substring(text.indexOf(":"),text.length()));
+													boolean enablehtml = Prefs.highlightResultMatchBackground || Prefs.highlightResultMatchForeground;
+													text = ((enablehtml ? "<html>" : "") + Integer.toString(iii) + text.substring(text.indexOf(":"),text.length()));
 													resultNode = new SearchResultNode(text);
 													resultNode.data = new Object[]{iii};
 												} else {
@@ -1607,8 +1626,7 @@ public final class LGM
 									momentMatches += actMatches;
 									if (resultNodes.size() > 0) {
 										// Uses the same method of getting the Action name as ActionFrame
-										SearchResultNode actRoot = new SearchResultNode("<html>" + act.getLibAction().name.replace("_"," ")
-												+ " <font color='blue'>(" + actMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+										SearchResultNode actRoot = new SearchResultNode(formatMatchCountText(act.getLibAction().name.replace("_"," "), actMatches));
 										actRoot.status = SearchResultNode.STATUS_ACTION;
 										actRoot.data = new Object[]{ii};
 										actRoot.setIcon(new ImageIcon(act.getLibAction().actImage.getScaledInstance(16,16,0)));
@@ -1621,8 +1639,7 @@ public final class LGM
 								}
 								matchCount += momentMatches;
 								if (actionNodes.size() > 0) {
-									SearchResultNode momentRoot = new SearchResultNode("<html>" + mom.toString()
-											+ " <font color='blue'>(" + momentMatches + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+									SearchResultNode momentRoot = new SearchResultNode(formatMatchCountText(mom.toString(),momentMatches));
 									momentRoot.status = SearchResultNode.STATUS_MOMENT;
 									momentRoot.data = new Object[]{mom.stepNo};
 									momentRoot.setIcon(null);
@@ -1634,8 +1651,7 @@ public final class LGM
 							}
 							
 							if (momentNodes.size() > 0) {
-								resultRoot = new SearchResultNode("<html>" + res.getName()
-										+ " <font color='blue'>(" + matchCount + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultRoot = new SearchResultNode(formatMatchCountText(res.getName(), matchCount));
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
@@ -1668,8 +1684,7 @@ public final class LGM
 							}
 							
 							if (codeNodes.size() > 0) {
-								SearchResultNode resultNode = new SearchResultNode("<html> " + Messages.getString("TreeFilter.CREATION_CODE")
-										+ " <font color='blue'>(" + matches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								SearchResultNode resultNode = new SearchResultNode(formatMatchCountText(Messages.getString("TreeFilter.CREATION_CODE"), matches.size()));
 								resultNode.setIcon(null);
 								resultNode.status = SearchResultNode.STATUS_ROOM_CREATION;
 								resultNodes.add(resultNode);
@@ -1697,8 +1712,8 @@ public final class LGM
 								}
 								
 								if (codeNodes.size() > 0) {
-									SearchResultNode resultNode = new SearchResultNode("<html> " + Messages.getString("TreeFilter.INSTANCE") + " " + inst.getID()
-											+ " <font color='blue'>(" + matches.size() + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+									SearchResultNode resultNode = new SearchResultNode(formatMatchCountText(
+											Messages.getString("TreeFilter.INSTANCE") + " " + inst.getID(), matches.size()));
 
 									Resource<?,?> obj = ((ResourceReference<?>)inst.properties.get(PInstance.OBJECT)).get();
 									resultNode.setIcon(obj == null ? null : obj.getNode().getIcon());
@@ -1713,8 +1728,7 @@ public final class LGM
 							}
 							
 							if (resultNodes.size() > 0) {
-								resultRoot = new SearchResultNode("<html>" + res.getName()
-										+ " <font color='blue'>(" + matchCount + " " + Messages.getString("TreeFilter.MATCHES") + ")</font></html>");
+								resultRoot = new SearchResultNode(formatMatchCountText(res.getName(),matchCount));
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());

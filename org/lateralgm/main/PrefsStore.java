@@ -211,6 +211,54 @@ public final class PrefsStore
 		Prefs.imagePreviewForegroundColor = color;
 		}
 	
+	public static void setHighlightMatchCountBackground(boolean selected)
+		{
+		PREFS.putBoolean("highlightMatchCountBackground",selected);
+		Prefs.highlightMatchCountBackground = selected;
+		}
+	
+	public static void setHighlightMatchCountForeground(boolean selected)
+		{
+		PREFS.putBoolean("highlightMatchCountForeground",selected);
+		Prefs.highlightMatchCountForeground = selected;
+		}
+	
+	public static void setMatchCountBackgroundColor(int color)
+		{
+		PREFS.putInt("matchCountBackgroundColor",color);
+		Prefs.matchCountBackgroundColor = color;
+		}
+	
+	public static void setMatchCountForegroundColor(int color)
+		{
+		PREFS.putInt("matchCountForegroundColor",color);
+		Prefs.matchCountForegroundColor = color;
+		}
+	
+	public static void setHighlightResultMatchBackground(boolean selected)
+		{
+		PREFS.putBoolean("highlightResultMatchBackground",selected);
+		Prefs.highlightResultMatchBackground = selected;
+		}
+	
+	public static void setHighlightResultMatchForeground(boolean selected)
+		{
+		PREFS.putBoolean("highlightResultMatchForeground",selected);
+		Prefs.highlightResultMatchForeground = selected;
+		}
+
+	public static void setResultMatchBackgroundColor(int color)
+		{
+		PREFS.putInt("resultMatchBackgroundColor",color);
+		Prefs.resultMatchBackgroundColor = color;
+		}
+	
+	public static void setResultMatchForegroundColor(int color)
+		{
+		PREFS.putInt("resultMatchForegroundColor",color);
+		Prefs.resultMatchForegroundColor = color;
+		}
+	
 	public static void setViewInsideColor(int viewInsideColor)
 		{
 		PREFS.putInt("viewInsideColor",viewInsideColor);
