@@ -47,6 +47,15 @@ public class PropertyLinkFactory<K extends Enum<K>>
 		mapListeners.remove(plml);
 	}
 	
+	public void removeAllLinks()
+	{
+		for (PropertyLink<?,?> link : mapLinks) {
+			link.remove();
+		}
+		mapLinks.clear();
+		mapListeners.clear();
+	}
+	
 	public void setMap(PropertyMap<K> m) {
 		map = m;
 		for (PropertyLinkMapListener<K> listener : mapListeners) {
@@ -129,14 +138,5 @@ public class PropertyLinkFactory<K extends Enum<K>>
 	public ButtonIncrementLink<K,Integer> make(AbstractButton ab, K k, int i, int l)
 		{
 		return init(ButtonIncrementLink.make(ab,i,l,map,k));
-		}
-
-	public void dispose()
-		{
-		for (PropertyLink<?,?> link : mapLinks) {
-			link.remove();
-		}
-		mapLinks.clear();
-		mapListeners.clear();
 		}
 	}
