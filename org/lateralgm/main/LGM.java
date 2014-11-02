@@ -1832,6 +1832,7 @@ public final class LGM
 				public void run()
 					{
 						code.setCaretPosition((Integer)data[0],0);
+						code.text.centerCaret();
 						code.repaint();
 					}
 			});
