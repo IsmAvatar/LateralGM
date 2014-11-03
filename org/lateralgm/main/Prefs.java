@@ -117,7 +117,6 @@ public final class Prefs
 		boldPrimaryNodes = getBoolean("boldPrimaryNodes",true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
 		userLibraryPath = getString("userLibraryPath","./lib");
-		antialiasControlFont = getString("antialiasControlFont","on");
 
 		imagePreviewBackgroundColor = getInt("imagePreviewBackgroundColor",Color.LIGHT_GRAY.getRGB());
 		imagePreviewForegroundColor = getInt("imagePreviewForegroundColor",Color.GRAY.getRGB());
@@ -129,6 +128,9 @@ public final class Prefs
 		highlightResultMatchForeground = getBoolean("highlightResultMatchForeground",false);
 		resultMatchBackgroundColor = getInt("resultMatchBackgroundColor",Color.PINK.getRGB());
 		resultMatchForegroundColor = getInt("resultMatchForegroundColor",Color.WHITE.getRGB());
+		antialiasControlFont = getString("antialiasControlFont","default");
+		direct3DAcceleration = getString("direct3DAcceleration","default");
+		openGLAcceleration = getString("openGLAcceleration","default");
 		
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
@@ -171,7 +173,6 @@ public final class Prefs
 	public static String swingThemePath;
 	public static String manualPath;
 	public static String languageName;
-	public static String antialiasControlFont;
 
 	public static boolean showTreeFilter;
 	public static boolean extraNodes;
@@ -230,4 +231,7 @@ public final class Prefs
 	public static boolean highlightResultMatchForeground;
 	public static int resultMatchBackgroundColor;
 	public static int resultMatchForegroundColor;
+	public static String antialiasControlFont;
+	public static String openGLAcceleration;
+	public static String direct3DAcceleration;
 	}

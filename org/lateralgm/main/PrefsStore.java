@@ -13,6 +13,8 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
+import javax.swing.JOptionPane;
+
 public final class PrefsStore
 	{
 	private PrefsStore()
@@ -124,6 +126,25 @@ public final class PrefsStore
 		{
 		PREFS.put("externalSoundEditorCommand",s);
 		Prefs.externalSoundEditorCommand = s;
+		}
+	
+	public static void setAntialiasControlFont(String s)
+		{
+		PREFS.put("antialiasControlFont",s);
+		Prefs.antialiasControlFont = s;
+		}
+	
+	
+	public static void setDirect3DAcceleration(String s)
+		{
+		PREFS.put("direct3DAcceleration",s);
+		Prefs.direct3DAcceleration = s;
+		}
+	
+	public static void setOpenGLAcceleration(String s)
+		{
+		PREFS.put("openGLAcceleration",s);
+		Prefs.openGLAcceleration = s;
 		}
 
 	public static void setIconPath(String s)

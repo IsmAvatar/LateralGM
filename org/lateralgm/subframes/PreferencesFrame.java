@@ -32,6 +32,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
@@ -107,24 +109,34 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	private JCheckBox matchCountForegroundCheckBox;
 	private JCheckBox resultMatchBackgroundCheckBox;
 	private JCheckBox resultMatchForegroundCheckBox;
+	private JComboBox<String> direct3DCombo;
+	private JComboBox<String> openGLCombo;
+	private JComboBox<String> antialiasCombo;
 
 	private JPanel makeAppearancePrefs() {
 		JPanel panel = new JPanel();
+		
+		String[] systemComboItems = { 
+				Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_DEFAULT"),
+				Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_OFF"),
+				Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_ON")
+		};
+		
 		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME") + ":");
-		Vector<String> comboBoxItems = new Vector<String>();
-		comboBoxItems.add("Swing");
-		comboBoxItems.add("Native");
+		Vector<String> themeComboItems = new Vector<String>();
+		themeComboItems.add("Swing");
+		themeComboItems.add("Native");
 		LookAndFeelInfo lnfs[] = UIManager.getInstalledLookAndFeels();
 		for (int i = 0; i < lnfs.length; i++)
 			{
-			comboBoxItems.add(lnfs[i].getName());
+			themeComboItems.add(lnfs[i].getName());
 			if (lnfs[i].getName().toLowerCase().contains("gtk"))
 				{
-				comboBoxItems.add("Quantum");
+				themeComboItems.add("Quantum");
 				}
 			}
-		comboBoxItems.add("Custom");
-		final DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(comboBoxItems);
+		themeComboItems.add("Custom");
+		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(themeComboItems);
 
 		themeCombo = new JComboBox<String>(model);
 		themeCombo.setSelectedItem(LGM.themename);
@@ -208,6 +220,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		*/
 		iconCombo.setSelectedItem(LGM.iconspack);
 		
+		JLabel antialiasLabel = new JLabel(Messages.getString("PreferencesFrame.ANTIALIASING") + ":");
+		antialiasCombo = new JComboBox<String>(new DefaultComboBoxModel<String>(systemComboItems));
+		antialiasCombo.setSelectedItem(Prefs.antialiasControlFont);
+		
 		JLabel iconPathLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS_PATH") + ":");
 		iconPath = new JTextField(Prefs.iconPath);
 		
@@ -244,6 +260,38 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*		*/.addComponent(imagePreviewForegroundLabel)
 		/*		*/.addComponent(imagePreviewForegroundColor,18,18,18)));
 		
+		JPanel hardwareAccelerationPanel = new JPanel();
+		GroupLayout hardwareAccelerationLayout = new GroupLayout(hardwareAccelerationPanel);
+		hardwareAccelerationLayout.setAutoCreateGaps(true);
+		hardwareAccelerationLayout.setAutoCreateContainerGaps(true);
+		hardwareAccelerationPanel.setLayout(hardwareAccelerationLayout);
+
+		hardwareAccelerationPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("PreferencesFrame.HARDWARE_ACCELERATION")));
+
+		JLabel direct3DLabel = new JLabel(Messages.getString("PreferencesFrame.DIRECT3D") + ":");
+		direct3DCombo = new JComboBox<String>(new DefaultComboBoxModel<String>(systemComboItems));
+		direct3DCombo.setSelectedItem(Prefs.direct3DAcceleration);
+		JLabel openGLLabel = new JLabel(Messages.getString("PreferencesFrame.OPENGL") + ":");
+		openGLCombo = new JComboBox<String>(new DefaultComboBoxModel<String>(systemComboItems));
+		openGLCombo.setSelectedItem(Prefs.openGLAcceleration);
+		
+		hardwareAccelerationLayout.setHorizontalGroup(hardwareAccelerationLayout.createParallelGroup()
+		/*	*/.addGroup(hardwareAccelerationLayout.createSequentialGroup()
+		/*		*/.addGroup(hardwareAccelerationLayout.createParallelGroup(Alignment.TRAILING)
+		/*			*/.addComponent(direct3DLabel)
+		/*			*/.addComponent(openGLLabel))
+		/*		*/.addGroup(hardwareAccelerationLayout.createParallelGroup(Alignment.TRAILING)
+		/*			*/.addComponent(direct3DCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*			*/.addComponent(openGLCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))));
+
+		hardwareAccelerationLayout.setVerticalGroup(hardwareAccelerationLayout.createSequentialGroup()
+		/*	*/.addGroup(hardwareAccelerationLayout.createParallelGroup(Alignment.CENTER)
+		/*			*/.addComponent(direct3DLabel)
+		/*			*/.addComponent(direct3DCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/*	*/.addGroup(hardwareAccelerationLayout.createParallelGroup(Alignment.CENTER)
+		/*			*/.addComponent(openGLLabel)
+		/*			*/.addComponent(openGLCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)));
+		
 		JPanel searchResultsPanel = new JPanel();
 		GroupLayout searchResultsLayout = new GroupLayout(searchResultsPanel);
 		searchResultsLayout.setAutoCreateGaps(true);
@@ -267,7 +315,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		searchResultsLayout.setHorizontalGroup(searchResultsLayout.createParallelGroup()
 		/**/.addComponent(matchCountLable)
 		/*	*/.addGroup(searchResultsLayout.createSequentialGroup()
-		/*		*/.addGroup(searchResultsLayout.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addGroup(searchResultsLayout.createParallelGroup(Alignment.LEADING)
 		/*			*/.addComponent(matchCountBackgroundCheckBox)
 		/*			*/.addComponent(matchCountForegroundCheckBox))
 		/*		*/.addGroup(searchResultsLayout.createParallelGroup()
@@ -275,7 +323,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*			*/.addComponent(matchCountForegroundColor,120,120,120)))
 		/**/.addComponent(resultMatchLabel)
 		/*	*/.addGroup(searchResultsLayout.createSequentialGroup()
-		/*		*/.addGroup(searchResultsLayout.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addGroup(searchResultsLayout.createParallelGroup(Alignment.LEADING)
 		/*			*/.addComponent(resultMatchBackgroundCheckBox)
 		/*			*/.addComponent(resultMatchForegroundCheckBox))
 		/*		*/.addGroup(searchResultsLayout.createParallelGroup()
@@ -308,7 +356,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/* */.addComponent(themeLabel)
 		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/* */.addComponent(iconLabel)
-		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/* */.addComponent(antialiasLabel)
+		/* */.addComponent(antialiasCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
 		/**/.addGroup(gl.createSequentialGroup()
 		/* */.addGroup(gl.createParallelGroup(Alignment.TRAILING)
 		/*  */.addComponent(themePathLabel)
@@ -316,7 +366,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/* */.addGroup(gl.createParallelGroup()
 		/*  */.addComponent(themePath)
 		/*  */.addComponent(iconPath)))
-		/**/.addComponent(imagePreviewPanel)
+		/**/.addGroup(gl.createSequentialGroup()
+		/* */.addComponent(imagePreviewPanel)
+		/* */.addComponent(hardwareAccelerationPanel))
 		/**/.addComponent(searchResultsPanel));
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
@@ -324,14 +376,18 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/* */.addComponent(themeLabel)
 		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/* */.addComponent(iconLabel)
-		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/* */.addComponent(antialiasLabel)
+		/* */.addComponent(antialiasCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
 		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
 		/* */.addComponent(themePathLabel)
 		/* */.addComponent(themePath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
 		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
 		/* */.addComponent(iconPathLabel)
 		/* */.addComponent(iconPath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
-		/**/.addComponent(imagePreviewPanel)
+		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+		/* */.addComponent(imagePreviewPanel)
+		/* */.addComponent(hardwareAccelerationPanel))
 		/**/.addComponent(searchResultsPanel));
 
 		panel.setLayout(gl);
@@ -839,7 +895,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		setLocationRelativeTo(LGM.frame);
 		}
 
-	public void SavePreferences()
+	public void savePreferences()
 		{
 		LGM.iconspack = (String) iconCombo.getSelectedItem();
 		PrefsStore.setIconPack(LGM.iconspack);
@@ -870,6 +926,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		PrefsStore.setSelectionInsideColor(Util.getGmColorWithAlpha(selectionInsideColor.getSelectedColor()));
 		PrefsStore.setSelectionOutsideColor(Util.getGmColorWithAlpha(selectionOutsideColor.getSelectedColor()));
 		
+		PrefsStore.setAntialiasControlFont(antialiasCombo.getSelectedItem().toString().toLowerCase());
+		PrefsStore.setDirect3DAcceleration(direct3DCombo.getSelectedItem().toString().toLowerCase());
+		PrefsStore.setOpenGLAcceleration(openGLCombo.getSelectedItem().toString().toLowerCase());
 		PrefsStore.setImagePreviewBackgroundColor(imagePreviewBackgroundColor.getSelectedColor().getRGB());
 		PrefsStore.setImagePreviewForegroundColor(imagePreviewForegroundColor.getSelectedColor().getRGB());
 		PrefsStore.setHighlightMatchCountBackground(matchCountBackgroundCheckBox.isSelected());
@@ -882,14 +941,14 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		PrefsStore.setResultMatchForegroundColor(resultMatchForegroundColor.getSelectedColor().getRGB());
 		}
 
-	public void ResetPreferences()
+	public void resetPreferences()
 		{
 		//TODO: Reset preferences to their active state when this frame was first opened
 		// For this one just copy the shit above where I give the controls their default
 		// values froms Prefs.
 		}
 
-	public void ResetPreferencesToDefault()
+	public void resetPreferencesToDefault()
 		{
 		//TODO: Reset the preferences to their settings when LGM was first installed
 		}
@@ -902,9 +961,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 			JOptionPane.showMessageDialog(this,
 					Messages.getString("PreferencesFrame.APPLY_CHANGES_NOTICE"));
 			LGM.filterPanel.setVisible(showTreeFilter.isSelected());
-			SavePreferences();
-			LGM.SetLookAndFeel((String) themeCombo.getSelectedItem());
-			LGM.UpdateLookAndFeel();
+			savePreferences();
+			LGM.applyPreferences();
+			LGM.setLookAndFeel((String) themeCombo.getSelectedItem());
+			LGM.updateLookAndFeel();
 			}
 		if (com.equals("PreferencesFrame.CLOSE")) //$NON-NLS-1$
 			{

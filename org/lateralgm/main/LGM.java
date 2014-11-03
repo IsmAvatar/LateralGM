@@ -35,6 +35,7 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.SplashScreen;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -313,7 +314,7 @@ public final class LGM
 		zoomOutCursor = toolkit.createCustomCursor(img,new Point(0,0),"ZoomOut");
 		}
 
-	public static void SetLookAndFeel(String LOOKANDFEEL)
+	public static void setLookAndFeel(String LOOKANDFEEL)
 		{
 		if (LOOKANDFEEL.equals(themename) && !LOOKANDFEEL.equals("Custom"))
 			{
@@ -428,7 +429,7 @@ public final class LGM
 
 	// this function is for updating the look and feel after its
 	// already been initialized and all controls created
-	public static void UpdateLookAndFeel()
+	public static void updateLookAndFeel()
 		{
 		if (!themechanged)
 			{
@@ -2024,35 +2025,54 @@ public final class LGM
 			return null;
 		}
 	}
+	
+	public static void applyPreferences() {
+		if (Prefs.direct3DAcceleration.equals("off")) {
+			//java6u10 regression causes graphical xor to be very slow
+			System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (Prefs.direct3DAcceleration.equals("on")) {
+			System.setProperty("sun.java2d.d3d","true"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		
+		if (Prefs.openGLAcceleration.equals("off")) {
+			System.setProperty("sun.java2d.opengl","false"); //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (Prefs.openGLAcceleration.equals("on")) {
+			//TODO: Causes JFrame's other than the main JFrame to be white on Windows under all Look and Feels - Robert
+			//System.setProperty("sun.java2d.opengl","true"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		
+		if (!Prefs.antialiasControlFont.equals("default")) {
+			// Set antialiasing mode
+			System.setProperty("awt.useSystemAAFontSettings",Prefs.antialiasControlFont);
+			// if the other antialiasing option is not off then assume this one is on as well
+			if (!Prefs.antialiasControlFont.equals("off")) {
+				System.setProperty("swing.aatext","true");
+			}
+		}
+	}
 
 	public static void main(final String[] args)
 		{
-
 		// Set the default uncaught exception handler.
 		LGM.setDefaultExceptionHandler();
 
-	//TODO: I have a feeling some of these should just be preferences, especially Direct3D hardware acceleration.
+		LGM.applyPreferences();
 		
-		//java6u10 regression causes graphical xor to be very slow
-		System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
+		//TODO: Should probably make these preferences as well, but I don't have a Mac to test - Robert
 		//Put the Mac menu bar where it belongs (ignored by other systems)
 		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
 		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
 		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
 
-		// Enable antialasing of fonts
-		System.setProperty("awt.useSystemAAFontSettings",Prefs.antialiasControlFont);
-		System.setProperty("swing.aatext","true");
-
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
-		if (javaVersion < 10600)
+		if (javaVersion <= 10600)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
 
 		// Load external look and feels the user has plugged in
 		loadLookAndFeels();
 		
 		iconspack = Prefs.iconPack;
-		SetLookAndFeel(Prefs.swingTheme);
+		setLookAndFeel(Prefs.swingTheme);
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		themechanged = false;
 
