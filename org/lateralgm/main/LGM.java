@@ -35,7 +35,6 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.SplashScreen;
 import java.awt.Toolkit;
 import java.awt.Window;

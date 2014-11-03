@@ -13,8 +13,6 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
-import javax.swing.JOptionPane;
-
 public final class PrefsStore
 	{
 	private PrefsStore()
