@@ -131,6 +131,7 @@ public final class Prefs
 		antialiasControlFont = getString("antialiasControlFont","default");
 		direct3DAcceleration = getString("direct3DAcceleration","default");
 		openGLAcceleration = getString("openGLAcceleration","default");
+		decorateWindowBorders = getBoolean("decorateWindowBorders",false);
 		
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
@@ -234,4 +235,5 @@ public final class Prefs
 	public static String antialiasControlFont;
 	public static String openGLAcceleration;
 	public static String direct3DAcceleration;
+	public static boolean decorateWindowBorders;
 	}

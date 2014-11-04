@@ -2060,7 +2060,7 @@ public final class LGM
 			}
 		}
 		
-
+		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
 	}
 
 	public static void main(final String[] args) throws InvocationTargetException, InterruptedException
@@ -2085,7 +2085,6 @@ public final class LGM
 		
 		iconspack = Prefs.iconPack;
 		setLookAndFeel(Prefs.swingTheme);
-		JFrame.setDefaultLookAndFeelDecorated(true);
 		themechanged = false;
 
 		//TODO: Break down this code and refactor it properly and make sure we don't put anymore Swing code in the EDT

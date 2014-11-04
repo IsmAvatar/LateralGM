@@ -110,6 +110,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	private JComboBox<String> direct3DCombo;
 	private JComboBox<String> openGLCombo;
 	private JComboBox<String> antialiasCombo;
+	private JCheckBox decorateWindowBordersCheckBox;
 
 	private JPanel makeAppearancePrefs() {
 		JPanel panel = new JPanel();
@@ -119,6 +120,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 				Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_OFF"),
 				Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_ON")
 		};
+		
+		decorateWindowBordersCheckBox = new JCheckBox(Messages.getString("PreferencesFrame.DECORATE_WINDOW_BORDERS"));
+		decorateWindowBordersCheckBox.setSelected(Prefs.decorateWindowBorders);
 		
 		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME") + ":");
 		Vector<String> themeComboItems = new Vector<String>();
@@ -350,6 +354,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		gl.setAutoCreateContainerGaps(true);
 
 		gl.setHorizontalGroup(gl.createParallelGroup()
+		/**/.addComponent(decorateWindowBordersCheckBox)
 		/**/.addGroup(gl.createSequentialGroup()
 		/* */.addComponent(themeLabel)
 		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
@@ -370,6 +375,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/**/.addComponent(searchResultsPanel));
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
+		/**/.addComponent(decorateWindowBordersCheckBox)
 		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
 		/* */.addComponent(themeLabel)
 		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
@@ -924,6 +930,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		PrefsStore.setSelectionInsideColor(Util.getGmColorWithAlpha(selectionInsideColor.getSelectedColor()));
 		PrefsStore.setSelectionOutsideColor(Util.getGmColorWithAlpha(selectionOutsideColor.getSelectedColor()));
 		
+		PrefsStore.setDecorateWindowBorders(decorateWindowBordersCheckBox.isSelected());
 		PrefsStore.setAntialiasControlFont(antialiasCombo.getSelectedItem().toString().toLowerCase());
 		PrefsStore.setDirect3DAcceleration(direct3DCombo.getSelectedItem().toString().toLowerCase());
 		PrefsStore.setOpenGLAcceleration(openGLCombo.getSelectedItem().toString().toLowerCase());

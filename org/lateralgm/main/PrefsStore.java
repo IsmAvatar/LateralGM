@@ -126,6 +126,13 @@ public final class PrefsStore
 		Prefs.externalSoundEditorCommand = s;
 		}
 	
+
+	public static void setDecorateWindowBorders(boolean selected)
+		{
+		PREFS.putBoolean("decorateWindowBorders",selected);
+		Prefs.decorateWindowBorders = selected;
+		}
+	
 	public static void setAntialiasControlFont(String s)
 		{
 		PREFS.put("antialiasControlFont",s);
