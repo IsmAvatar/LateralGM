@@ -2088,13 +2088,6 @@ public final class LGM
 		themechanged = false;
 		// must be called after setting the look and feel
 		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
-		
-		//TODO: Break down this code and refactor it properly and make sure we don't put anymore Swing code in the EDT
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run()
-				{
 
 		SplashProgress splashProgress = new SplashProgress();
 		splashProgress.start();
@@ -2580,10 +2573,6 @@ public final class LGM
 			{
 			LOADING_PROJECT = false;
 			}
-		
-				}
-		
-		});
 		}
 	
 	public static int getTabIndex(JTabbedPane tabs, String title) {
