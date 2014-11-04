@@ -27,16 +27,5 @@ public class GmFormatException extends ProjectFormatException
 		this.e = e;
 		this.file = file;
 		}
-
-	public String stackAsString()
-		{
-		StackTraceElement[] els = (e == null ? getStackTrace() : e.getStackTrace());
-		String res = ""; //$NON-NLS-1$
-		for (int i = 0; i < els.length; i++)
-			{
-			res += els[i].toString();
-			if (i != els.length - 1) res += "\n"; //$NON-NLS-1$
-			}
-		return res;
-		}
+	
 	}

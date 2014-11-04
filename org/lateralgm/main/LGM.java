@@ -2932,7 +2932,7 @@ public final class LGM
 	// Show the default uncaught exception handler dialog to the user with a stack trace they can use to submit a bug report.
 	public static void showDefaultExceptionHandler(Throwable e)
 		{
-		System.out.println(Thread.currentThread().getName() + ": " + e);
+		System.out.println(Thread.currentThread().getName() + ": ");
 		e.printStackTrace();
 		if (!ErrorDialog.getInstance().isVisible())
 			{

@@ -23,6 +23,7 @@ import java.util.Queue;
 import java.util.Stack;
 import java.util.zip.DataFormatException;
 
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 
 import org.lateralgm.components.impl.ResNode;
@@ -430,8 +431,7 @@ public final class GmFileReader
 			}
 		catch (Exception e)
 			{
-			// hopefully this won't happen
-			e.printStackTrace();
+			throw e;
 			}
 
 		in.readBool(p,PGameSettings.DISPLAY_ERRORS,PGameSettings.WRITE_TO_LOG,
