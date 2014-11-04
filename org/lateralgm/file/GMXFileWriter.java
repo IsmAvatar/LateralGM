@@ -1525,8 +1525,8 @@ public final class GMXFileWriter
 					roomroot.appendChild(createElement(doc,"caption",room.get(PRoom.CAPTION).toString()));
 					roomroot.appendChild(createElement(doc,"width",room.get(PRoom.WIDTH).toString()));
 					roomroot.appendChild(createElement(doc,"height",room.get(PRoom.HEIGHT).toString()));
-					roomroot.appendChild(createElement(doc,"vsnap",room.get(PRoom.SNAP_X).toString()));
-					roomroot.appendChild(createElement(doc,"hsnap",room.get(PRoom.SNAP_Y).toString()));
+					roomroot.appendChild(createElement(doc,"hsnap",room.get(PRoom.SNAP_X).toString()));
+					roomroot.appendChild(createElement(doc,"vsnap",room.get(PRoom.SNAP_Y).toString()));
 					roomroot.appendChild(createElement(doc,"isometric",
 							boolToString((Boolean) room.get(PRoom.ISOMETRIC))));
 					roomroot.appendChild(createElement(doc,"speed",room.get(PRoom.SPEED).toString()));
