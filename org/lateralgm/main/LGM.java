@@ -54,6 +54,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
@@ -2026,31 +2027,43 @@ public final class LGM
 	}
 	
 	public static void applyPreferences() {
-		if (Prefs.direct3DAcceleration.equals("off")) {
+
+		if (Prefs.direct3DAcceleration.equals("off")) { //$NON-NLS-1$
 			//java6u10 regression causes graphical xor to be very slow
 			System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
-		} else if (Prefs.direct3DAcceleration.equals("on")) {
+			System.setProperty("sun.java2d.ddscale", "false"); //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (Prefs.direct3DAcceleration.equals("on")) { //$NON-NLS-1$
 			System.setProperty("sun.java2d.d3d","true"); //$NON-NLS-1$ //$NON-NLS-2$
+			System.setProperty("sun.java2d.ddscale", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		
-		if (Prefs.openGLAcceleration.equals("off")) {
+		if (Prefs.openGLAcceleration.equals("off")) { //$NON-NLS-1$
 			System.setProperty("sun.java2d.opengl","false"); //$NON-NLS-1$ //$NON-NLS-2$
-		} else if (Prefs.openGLAcceleration.equals("on")) {
-			//TODO: Causes JFrame's other than the main JFrame to be white on Windows under all Look and Feels - Robert
-			//System.setProperty("sun.java2d.opengl","true"); //$NON-NLS-1$ //$NON-NLS-2$
+		} else if (Prefs.openGLAcceleration.equals("on")) { //$NON-NLS-1$
+			System.setProperty("sun.java2d.opengl","true"); //$NON-NLS-1$ //$NON-NLS-2$
+			//TODO: Causes JFrame's other than the main JFrame to be white on Windows 8 
+			//under all Look and Feels with AMD graphics card, seems to be a known issue
+			//with OpenGL for Java on Windows, as usual Oracle is unlikely to fix it.
+			//https://community.oracle.com/thread/1263741?start=0&tstart=0
+			if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+				//force directx completely off
+				System.setProperty("sun.java2d.noddraw","true"); //$NON-NLS-1$ //$NON-NLS-2$
+				System.setProperty("sun.java2d.opengl.fbobject","false"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
-		
-		if (!Prefs.antialiasControlFont.equals("default")) {
+		if (!Prefs.antialiasControlFont.equals("default")) { //$NON-NLS-1$
 			// Set antialiasing mode
 			System.setProperty("awt.useSystemAAFontSettings",Prefs.antialiasControlFont);
 			// if the other antialiasing option is not off then assume this one is on as well
-			if (!Prefs.antialiasControlFont.equals("off")) {
+			if (!Prefs.antialiasControlFont.equals("off")) { //$NON-NLS-1$
 				System.setProperty("swing.aatext","true");
 			}
 		}
+		
+
 	}
 
-	public static void main(final String[] args)
+	public static void main(final String[] args) throws InvocationTargetException, InterruptedException
 		{
 		// Set the default uncaught exception handler.
 		LGM.setDefaultExceptionHandler();
@@ -2074,6 +2087,13 @@ public final class LGM
 		setLookAndFeel(Prefs.swingTheme);
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		themechanged = false;
+
+		//TODO: Break down this code and refactor it properly and make sure we don't put anymore Swing code in the EDT
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run()
+				{
 
 		SplashProgress splashProgress = new SplashProgress();
 		splashProgress.start();
@@ -2554,6 +2574,10 @@ public final class LGM
 			{
 			LOADING_PROJECT = false;
 			}
+		
+				}
+		
+		});
 		}
 	
 	public static int getTabIndex(JTabbedPane tabs, String title) {
