@@ -30,6 +30,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.print.PrinterException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -382,6 +383,17 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		else if (com.equals("JoshText.SAVE"))
 			{
 			tcode.text.Save();
+			}
+		else if (com.equals("JoshText.PRINT"))
+			{
+			try
+				{
+				tcode.text.Print();
+				}
+			catch (PrinterException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
 			}
 		else if (com.equals("JoshText.UNDO"))
 			{

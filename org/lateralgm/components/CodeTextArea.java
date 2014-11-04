@@ -17,6 +17,7 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.print.PrinterException;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -566,6 +567,17 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		else if (com.equals("JoshText.SAVE"))
 			{
 			text.Save();
+			}
+		else if (com.equals("JoshText.PRINT"))
+			{
+			try
+				{
+				text.Print();
+				}
+			catch (PrinterException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
 			}
 		else if (com.equals("JoshText.UNDO"))
 			{
