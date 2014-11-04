@@ -2025,7 +2025,7 @@ public final class LGM
 			return null;
 		}
 	}
-	
+  
 	public static void applyPreferences() {
 
 		if (Prefs.direct3DAcceleration.equals("off")) { //$NON-NLS-1$
@@ -2060,9 +2060,9 @@ public final class LGM
 			}
 		}
 		
-		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
+		
 	}
-
+  
 	public static void main(final String[] args) throws InvocationTargetException, InterruptedException
 		{
 		// Set the default uncaught exception handler.
@@ -2086,7 +2086,9 @@ public final class LGM
 		iconspack = Prefs.iconPack;
 		setLookAndFeel(Prefs.swingTheme);
 		themechanged = false;
-
+		// must be called after setting the look and feel
+		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
+		
 		//TODO: Break down this code and refactor it properly and make sure we don't put anymore Swing code in the EDT
 		SwingUtilities.invokeLater(new Runnable() {
 
@@ -2495,6 +2497,11 @@ public final class LGM
 		filterPanel.setLayout(filterLayout);
 		filterPanel.setFloatable(true);
 		filterPanel.setVisible(Prefs.showTreeFilter);
+		// This fixes an issue with Swing traversal comparator. Basically, Swing likes to throw false positives
+		// about transitivity when window decorations are disabled.
+		// The exception occurs on Windows 8 at startup from the Event Dispatch Thread with the Swing Look and Feel when
+		// window decorations are disabled.
+		filterPanel.setFocusTraversalPolicyProvider(true);
 
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(250,100));
