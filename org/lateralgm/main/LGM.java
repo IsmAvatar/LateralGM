@@ -2490,11 +2490,6 @@ public final class LGM
 		filterPanel.setLayout(filterLayout);
 		filterPanel.setFloatable(true);
 		filterPanel.setVisible(Prefs.showTreeFilter);
-		// This fixes an issue with Swing traversal comparator. Basically, Swing likes to throw false positives
-		// about transitivity when window decorations are disabled.
-		// The exception occurs on Windows 8 at startup from the Event Dispatch Thread with the Swing Look and Feel when
-		// window decorations are disabled.
-		filterPanel.setFocusTraversalPolicyProvider(true);
 
 		JScrollPane scroll = new JScrollPane(tree);
 		scroll.setPreferredSize(new Dimension(250,100));
@@ -2533,6 +2528,13 @@ public final class LGM
 		f.add(BorderLayout.NORTH,toolbar);
 		f.setOpaque(true);
 
+		// This fixes an issue with Swing traversal comparator. Basically, Swing likes to throw false positives
+		// about transitivity when window decorations are disabled.
+		// The exception occurs on Windows 8 at startup from the Event Dispatch Thread with the Swing Look and Feel when
+		// window decorations are disabled.
+		filterPanel.setFocusTraversalPolicyProvider(true);
+		toolbar.setFocusTraversalPolicyProvider(true);
+		
 		splashProgress.progress(65,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
 		try
 			{
