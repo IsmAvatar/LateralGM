@@ -137,6 +137,7 @@ import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.ResourceList;
+import org.lateralgm.joshedit.FindDialog;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.InstantiableResource;
@@ -2564,6 +2565,9 @@ public final class LGM
 		// it was causing the bug with the frame not memorizing its maximized state.
 		new FramePrefsHandler(frame);
 
+		// center the JoshEdit find dialog, do it after packing and sizing the frame above
+		FindDialog.getInstance().setLocationRelativeTo(f);
+		
 		// Load any projects entered on the command line
 		if (args.length > 0 && args[0].length() > 1)
 			{
