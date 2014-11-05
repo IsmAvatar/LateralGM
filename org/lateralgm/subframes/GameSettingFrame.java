@@ -918,7 +918,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		res.put(PGameSettings.BACK_LOAD_BAR,backLoadImage);
 		res.put(PGameSettings.FRONT_LOAD_BAR,frontLoadImage);
 		res.put(PGameSettings.GAME_ICON,gameIcon);
-		res.put(PGameSettings.DESCRIPTION,information.getText());
+		res.put(PGameSettings.INFORMATION,information.getText());
 		res.put(PGameSettings.COPYRIGHT,copyright.getText());
 		res.put(PGameSettings.PRODUCT,product.getText());
 		//we don't update the lastChanged time - that's only altered on file save/load
