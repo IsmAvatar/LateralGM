@@ -82,7 +82,6 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		{
 		super(VERTICAL);
 		GroupLayout layout = new GroupLayout(this);
-		setLayout(layout);
 		// This will ensure it gets the proper Window title when floating
 		setName(Messages.getString("Toolbar.EVENT_BUTTON"));
 
@@ -118,6 +117,8 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		/*	*/.addComponent(windowLabel).addComponent(linkSelect))
 		/**/.addComponent(stayOpen).addComponent(treeScroll));
 
+		// set the layout after you actually create the layout, otherwise it won't work for certain look and feels
+		setLayout(layout);
 		reload();
 		setPreferredSize(new Dimension(250,300));
 		}
