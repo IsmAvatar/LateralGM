@@ -373,7 +373,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			}
 		else
 			{
-			// dun know what fucking tab u have selected
+			// do not know which tab you have selected
 			}
 
 		if (com.equals("JoshText.LOAD"))
@@ -388,7 +388,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			{
 			try
 				{
-				tcode.text.Print();
+				tcode.Print();
 				}
 			catch (PrinterException e)
 				{

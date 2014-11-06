@@ -572,7 +572,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 			{
 			try
 				{
-				text.Print();
+				this.Print();
 				}
 			catch (PrinterException e)
 				{
