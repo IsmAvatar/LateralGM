@@ -95,7 +95,7 @@ import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.FileChooser.FileDropHandler;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.LGM.JSplitPaneExpandable;
+import org.lateralgm.components.JSplitPaneExpandable;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;

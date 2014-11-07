@@ -129,8 +129,8 @@ public final class Prefs
 		resultMatchBackgroundColor = getInt("resultMatchBackgroundColor",Color.PINK.getRGB());
 		resultMatchForegroundColor = getInt("resultMatchForegroundColor",Color.WHITE.getRGB());
 		antialiasControlFont = getString("antialiasControlFont","default");
-		direct3DAcceleration = getString("direct3DAcceleration","default");
-		openGLAcceleration = getString("openGLAcceleration","default");
+		direct3DAcceleration = getString("direct3DAcceleration","off");
+		openGLAcceleration = getString("openGLAcceleration","off");
 		decorateWindowBorders = getBoolean("decorateWindowBorders",false);
 		
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;

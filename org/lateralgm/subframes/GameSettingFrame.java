@@ -68,7 +68,7 @@ import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
-import org.lateralgm.main.LGM.JSplitPaneExpandable;
+import org.lateralgm.components.JSplitPaneExpandable;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.ColorDepth;

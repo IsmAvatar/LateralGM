@@ -68,7 +68,7 @@ import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
 import org.lateralgm.joshedit.lexers.GMLTokenMarker;
 import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.LGM.JSplitPaneExpandable;
+import org.lateralgm.components.JSplitPaneExpandable;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.Util;

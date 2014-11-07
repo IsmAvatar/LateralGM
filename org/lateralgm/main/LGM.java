@@ -116,8 +116,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
-import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
@@ -134,6 +132,7 @@ import org.lateralgm.components.CustomJToolBar;
 import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
+import org.lateralgm.components.JSplitPaneExpandable;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.FramePrefsHandler;
 import org.lateralgm.components.impl.GmTreeEditor;
@@ -899,56 +898,6 @@ public final class LGM
 		* @see LGM#reload(boolean newRoot)
 		*/
 		void reloadPerformed(boolean newRoot);
-		}
-	
-		public static class JSplitPaneExpandable extends JSplitPane {
-			/**
-			 * TODO: Change if needed.
-			 */
-			private static final long serialVersionUID = 1L;
-
-			public boolean doubleClickExpandable = false;
-			
-			public MouseAdapter dividerAdapter = new MouseAdapter() {
-				public void mouseReleased(MouseEvent me) {
-					if (me.getClickCount() > 1) {
-		      	if (getDividerLocation() <= 10) {
-		      		setDividerLocation(getLastDividerLocation());
-		      	} else {
-		      		setLastDividerLocation(getDividerLocation());
-		      		setDividerLocation(0);
-		      	}
-					}
-				}
-			};
-			
-			public JSplitPaneExpandable(int orientation, boolean b, JComponent first,
-					JComponent second)
-				{
-					super(orientation, b, first, second);
-				}
-
-			public JSplitPaneExpandable(int orientation, JComponent first, JComponent second)
-				{
-					super(orientation, first, second);
-				}
-
-			// The purpose of this is an alternative and more standard feature found in most software to 
-			// those tiny expand/collapse buttons with oneTouchExpandable.
-			// * This looks much better than the trashy collapse icons.
-			// * More user friendly, they can toggle the behavior much easier.
-			// * Standard and found in more software applications.
-			public void setDoubleClickExpandable(boolean enable) {
-				if (enable && !doubleClickExpandable) {
-					BasicSplitPaneUI basicSplitPaneUI = (BasicSplitPaneUI) this.getUI();
-					BasicSplitPaneDivider basicSplitPaneDivider = basicSplitPaneUI.getDivider();
-					basicSplitPaneDivider.addMouseListener(dividerAdapter);
-				} else if (!enable && doubleClickExpandable) {
-					BasicSplitPaneUI basicSplitPaneUI = (BasicSplitPaneUI) this.getUI();
-					BasicSplitPaneDivider basicSplitPaneDivider = basicSplitPaneUI.getDivider();
-					basicSplitPaneDivider.removeMouseListener(dividerAdapter);
-				}
-			}
 		}
 
 	protected static ArrayList<ReloadListener> reloadListeners = new ArrayList<ReloadListener>();

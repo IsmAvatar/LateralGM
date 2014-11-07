@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
+ * Copyright (C) 2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -12,8 +13,6 @@ package org.lateralgm.components.mdi;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 import javax.swing.DefaultDesktopManager;
 import javax.swing.JComponent;
@@ -25,14 +24,12 @@ public class MDIManager extends DefaultDesktopManager
 	private static final long serialVersionUID = 1L;
 	public MDIPane pane;
 	public JScrollPane scroll;
-	private CListener cListener = new CListener();
 	/**prevents recursion*/
 	public boolean resizing = false;
 
 	public void setScrollPane(JScrollPane scroll)
 		{
 		this.scroll = scroll;
-		scroll.addComponentListener(cListener);
 		resizeDesktop();
 		}
 
@@ -42,12 +39,14 @@ public class MDIManager extends DefaultDesktopManager
 		this.pane = pane;
 		}
 
+	@Override
 	public void endResizingFrame(JComponent f)
 		{
 		super.endResizingFrame(f);
 		resizeDesktop();
 		}
 
+	@Override
 	public void endDraggingFrame(JComponent f)
 		{
 		super.endDraggingFrame(f);
@@ -58,42 +57,36 @@ public class MDIManager extends DefaultDesktopManager
 	 * Resizes the desktop to reflect the frame (and icon)
 	 * positions. Also repositions the frames so that empty
 	 * spaces are removed while preserving the current view
-	 * (similar behaviour to the windows MDI).
+	 * (similar behavior to the windows MDI).
 	 */
 	public void resizeDesktop()
 		{
-		if (!resizing && scroll != null)
+		Rectangle viewrect = scroll.getViewport().getViewRect();
+		int xmin = Integer.MAX_VALUE, ymin = Integer.MAX_VALUE, xmax = 0, ymax = 0;
+		for (JInternalFrame f : pane.getAllFrames())
 			{
-			resizing = true;
-
-			Rectangle viewrect = scroll.getViewport().getViewRect();
-			int xmin = Integer.MAX_VALUE, ymin = Integer.MAX_VALUE, xmax = 0, ymax = 0;
-			for (JInternalFrame f : pane.getAllFrames())
+			if (f.isVisible())
 				{
-				if (f.isVisible())
+				if (!f.isMaximum())
 					{
-					if (!f.isMaximum())
-						{
-						JComponent comp;
-						if (!f.isIcon())
-							comp = f;
-						else
-							comp = f.getDesktopIcon();
-						xmin = Math.min(comp.getX(),xmin);
-						ymin = Math.min(comp.getY(),ymin);
-						xmax = Math.max(comp.getX() + comp.getWidth(),xmax);
-						ymax = Math.max(comp.getY() + comp.getHeight(),ymax);
-						}
+					JComponent comp;
+					if (!f.isIcon())
+						comp = f;
 					else
-						{
-						pane.setPreferredSize(viewrect.getSize());
-						pane.getParent().invalidate();
-						pane.getParent().validate();
-						resizing = false;
-						return;
-						}
+						comp = f.getDesktopIcon();
+					xmin = Math.min(comp.getX(),xmin);
+					ymin = Math.min(comp.getY(),ymin);
+					xmax = Math.max(comp.getX() + comp.getWidth(),xmax);
+					ymax = Math.max(comp.getY() + comp.getHeight(),ymax);
+					}
+				else
+					{
+					pane.setPreferredSize(new Dimension(0,0));
+					f.setSize(viewrect.getSize());		
+					return;
 					}
 				}
+			}
 			int xcorrect = 0, ycorrect = 0;
 			if (viewrect.x < xmin)
 				xcorrect = -viewrect.x;
@@ -108,19 +101,19 @@ public class MDIManager extends DefaultDesktopManager
 			Point newviewpos = new Point(viewrect.x + xcorrect,viewrect.y + ycorrect);
 
 			Dimension newPaneSize = new Dimension(
-					Math.max(xmax + xcorrect,newviewpos.x + viewrect.width),Math.max(ymax + ycorrect,
-							newviewpos.y + viewrect.height));
+					Math.max(xmax + xcorrect,newviewpos.x + Math.min(viewrect.width,pane.getPreferredSize().width)),
+					Math.max(ymax + ycorrect,newviewpos.y + Math.min(viewrect.height,pane.getPreferredSize().height)));
 
-			for (JInternalFrame f : pane.getAllFrames())
+			for (JInternalFrame f1 : pane.getAllFrames())
 				{
-				if (!f.isIcon())
+				if (!f1.isIcon())
 					{
-					Point p = f.getLocation();
-					f.setLocation(new Point(p.x + xcorrect,p.y + ycorrect));
+					Point p = f1.getLocation();
+					f1.setLocation(new Point(p.x + xcorrect,p.y + ycorrect));
 					}
-				Point p = f.getDesktopIcon().getLocation();
-				f.getDesktopIcon().setLocation(new Point(p.x + xcorrect,p.y + ycorrect));
-				f.repaint();
+				Point p = f1.getDesktopIcon().getLocation();
+				f1.getDesktopIcon().setLocation(new Point(p.x + xcorrect,p.y + ycorrect));
+				f1.repaint();
 				}
 
 			scroll.getViewport().setViewPosition(newviewpos);
@@ -130,21 +123,5 @@ public class MDIManager extends DefaultDesktopManager
 			pane.getParent().validate();
 			pane.repaint();
 			resizing = false;
-			}
-		}
-
-	private class CListener extends ComponentAdapter
-		{
-		public CListener()
-			{
-			super();
-			}
-
-		public void componentResized(ComponentEvent e)
-			{
-			resizeDesktop();
-			for (JInternalFrame f : pane.getAllFrames())
-				if (f.isMaximum()) f.setSize(pane.getPreferredSize());
-			}
 		}
 	}
