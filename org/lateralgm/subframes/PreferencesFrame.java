@@ -636,21 +636,6 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		return p;
 		}
 
-	private JPanel makeCodeEditorPrefs()
-		{
-		JPanel p = new JPanel();
-
-		//TODO: Make components
-
-		GroupLayout gl = new GroupLayout(p);
-		gl.setAutoCreateGaps(true);
-		gl.setAutoCreateContainerGaps(true);
-
-		//TODO: Add components to layout
-
-		return p;
-		}
-
 	// Create the room editor panel
 	private Component makeRoomEditorPrefs()
 		{
@@ -789,6 +774,16 @@ public class PreferencesFrame extends JFrame implements ActionListener
 
 		return roomEditorPanel;
 		}
+	
+	// Simplest way to stop updateUI/setUI calls for changing the look and feel from reverting the tree icons.
+	private class CustomTreeCellRenderer extends DefaultTreeCellRenderer {
+
+		/**
+		 * TODO: Change if needed.
+		 */
+		private static final long serialVersionUID = 1L;
+		
+	}
 
 	public PreferencesFrame()
 		{
@@ -807,11 +802,12 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		tree.setShowsRootHandles(true);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		
-    DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) tree.getCellRenderer();
+		CustomTreeCellRenderer renderer = new CustomTreeCellRenderer();
     renderer.setLeafIcon(null);
     renderer.setClosedIcon(null);
     renderer.setOpenIcon(null);
-
+    tree.setCellRenderer(renderer);
+    
 		cardPane = new JPanel(new CardLayout());
 
 		DefaultMutableTreeNode  node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_GENERAL"));
@@ -967,9 +963,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 					Messages.getString("PreferencesFrame.APPLY_CHANGES_NOTICE"));
 			LGM.filterPanel.setVisible(showTreeFilter.isSelected());
 			savePreferences();
-			LGM.applyPreferences();
 			LGM.setLookAndFeel((String) themeCombo.getSelectedItem());
 			LGM.updateLookAndFeel();
+			// must be called after updating the look and feel so that laf can be asked if window borders should be decorated
+			LGM.applyPreferences();
 			}
 		if (com.equals("PreferencesFrame.CLOSE")) //$NON-NLS-1$
 			{

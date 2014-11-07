@@ -27,8 +27,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
@@ -97,6 +99,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
+import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -105,6 +108,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
+import javax.swing.LookAndFeel;
+import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -125,6 +130,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import org.lateralgm.components.ActionList;
 import org.lateralgm.components.CodeTextArea;
+import org.lateralgm.components.CustomJToolBar;
 import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
@@ -668,8 +674,8 @@ public final class LGM
 		mdi = new MDIPane();
 		JScrollPane scroll = new JScrollPane(mdi);
 		mdi.setScrollPane(scroll);
-		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		mdi.setBackground(Color.GRAY);
 		return scroll;
 		}
@@ -2027,7 +2033,6 @@ public final class LGM
 	}
   
 	public static void applyPreferences() {
-
 		if (Prefs.direct3DAcceleration.equals("off")) { //$NON-NLS-1$
 			//java6u10 regression causes graphical xor to be very slow
 			System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -2060,7 +2065,37 @@ public final class LGM
 			}
 		}
 		
-		
+		// this is necessary to make sure open/save dialogs get fixed
+		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
+		JDialog.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
+		// all this code is necessary to make sure toggling window decorations do not cause frameless borders
+		Window[] windows = Window.getWindows();
+		for (Window window : windows) {
+			boolean visible = window.isVisible();
+			LookAndFeel laf = UIManager.getLookAndFeel();
+			boolean decorate = Prefs.decorateWindowBorders && laf.getSupportsWindowDecorations();
+			if (window instanceof Frame) {
+				Frame decframe = (Frame) window;
+				if (decorate != decframe.isUndecorated()) {
+					//System.out.println(decframe.getTitle() + " : " + visible);
+					decframe.dispose();
+					decframe.setUndecorated(decorate);
+					decframe.setVisible(visible);
+					((RootPaneContainer) decframe).getRootPane().setWindowDecorationStyle(decorate ? JRootPane.FRAME : JRootPane.NONE);
+				}
+			} else if (window instanceof Dialog) {
+				Dialog decdialog = (Dialog) window;
+				if (decorate != decdialog.isUndecorated()) {
+					//TODO: isVisible()/isShowing() for Dialog does not work at all
+					visible = decdialog.isVisible();
+					//System.out.println(decdialog.getTitle() + " : " + visible);
+					decdialog.dispose();
+					decdialog.setUndecorated(decorate);
+					decdialog.setVisible(visible);
+					((RootPaneContainer) decdialog).getRootPane().setWindowDecorationStyle(decorate ? JRootPane.FRAME : JRootPane.NONE);
+				}	
+			}
+		}
 	}
   
 	public static void main(final String[] args) throws InvocationTargetException, InterruptedException
@@ -2088,6 +2123,7 @@ public final class LGM
 		themechanged = false;
 		// must be called after setting the look and feel
 		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
+		JDialog.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
 
 		SplashProgress splashProgress = new SplashProgress();
 		splashProgress.start();
@@ -2468,7 +2504,7 @@ public final class LGM
 		});
 		
 		// Use a toolbar so that the buttons render like tool buttons and smaller.
-		filterPanel = new JToolBar();
+		filterPanel = new CustomJToolBar();
 		
 		// Use a custom layout so that the filterText control will stretch horizontally under all Look and Feels.
 		GroupLayout filterLayout = new GroupLayout(filterPanel);

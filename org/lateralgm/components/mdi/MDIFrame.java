@@ -22,6 +22,8 @@ import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 
 import javax.swing.Icon;
@@ -29,6 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
+import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
@@ -41,7 +44,8 @@ import com.sun.java.swing.plaf.windows.WindowsInternalFrameUI;
 public class MDIFrame extends JInternalFrame
 	{
 	private static final long serialVersionUID = 1L;
-
+	private Border border;
+	
 	public MDIFrame()
 		{
 		this("",false,false,false,false);
@@ -71,6 +75,31 @@ public class MDIFrame extends JInternalFrame
 			boolean iconifiable)
 		{
 		super(title,resizable,closable,maximizable,iconifiable);
+		putClientProperty("JInternalFrame.isPalette", Boolean.TRUE);
+
+		// real multiple document interfaces hide the window border, it gives us a little extra room and makes it
+		// feel not only more native, but resemble DWM's better
+/*		
+		this.addPropertyChangeListener(IS_MAXIMUM_PROPERTY,new PropertyChangeListener() {	
+
+			@Override
+			public void propertyChange(PropertyChangeEvent ev)
+				{
+					if ((boolean) ev.getNewValue()) {
+						System.out.println("wtf");
+						border = getBorder();
+						
+						setBorder(null);
+						((BasicInternalFrameUI) getUI()).setNorthPane(null);;
+					} else {
+						System.out.println("ass");
+						if (border != null) {
+							setBorder(border);
+						}
+					}
+				}
+		
+		});*/
 		}
 	
 	@Override 
@@ -92,6 +121,10 @@ public class MDIFrame extends JInternalFrame
 			// of the mdiframe, but this screws up the DesktopPane's zordering
 			// so just leave it be is my suggestion to you - Robert B. Colton
 			setOpaque(true);
+		}
+		if (this.isMaximum()) {
+			//border = getBorder();
+			//setBorder(null);
 		}
 	}
 

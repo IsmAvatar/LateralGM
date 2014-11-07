@@ -33,7 +33,6 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
@@ -43,6 +42,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
+import org.lateralgm.components.CustomJToolBar;
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.EventNode;
 import org.lateralgm.components.impl.IndexButtonGroup;
@@ -59,7 +59,7 @@ import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
 import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
-public class EventPanel extends JToolBar implements ActionListener,TreeSelectionListener,
+public class EventPanel extends CustomJToolBar implements ActionListener,TreeSelectionListener,
 		PropertyChangeListener
 	{
 	private static final long serialVersionUID = 1L;

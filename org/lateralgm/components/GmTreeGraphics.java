@@ -13,6 +13,7 @@ package org.lateralgm.components;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 
@@ -52,13 +53,18 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		last = (DefaultNode) val;
 
 		Component com = super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
-		
+
 		// Bold primary nodes
 		if (val instanceof ResNode && com instanceof JLabel) {
 			ResNode rn = (ResNode) val;
 			JLabel label = (JLabel) com;
-			if (rn.status == ResNode.STATUS_PRIMARY) {
-				label.setText("<html><b>" + label.getText() + "</b></html>");
+			if (rn.status == ResNode.STATUS_PRIMARY && Prefs.boldPrimaryNodes) {
+				//TODO: Sometimes causes new secondary nodes to be bold when you go to rename them
+				label.setFont(label.getFont().deriveFont(Font.BOLD));
+				//TODO: Causes nodes under DarkMoon to occasionally turn black instead of white for the foreground
+				//label.setText("<html><b>" + label.getText() + "</b></html>");
+			} else {
+				label.setFont(label.getFont().deriveFont(Font.PLAIN));
 			}
 		}
 

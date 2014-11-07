@@ -1041,6 +1041,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		//		layout.setAutoCreateGaps(true);
 		//		layout.setAutoCreateContainerGaps(true);
 		//		panel.setLayout(layout);
+		//TODO: Translate
 		panel.add(new JLabel("<html>This tab will offer ways to<br />"
 				+ "perform batch operations on several<br />"
 				+ "tiles at once, or regions of tiles.</html>"));
