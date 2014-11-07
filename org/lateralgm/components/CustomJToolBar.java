@@ -35,7 +35,6 @@ public class CustomJToolBar extends JToolBar {
 	 * TODO: Change if needed.
 	 */
 	private static final long serialVersionUID = 1L;
-	private LayoutManager layout;
 
 	public CustomJToolBar(int orientation)
 		{
@@ -49,7 +48,7 @@ public class CustomJToolBar extends JToolBar {
 
 	@Override
 	public void updateUI() {
-		layout = this.getLayout();
+		LayoutManager  layout = this.getLayout();
 		super.updateUI();
 		this.setLayout(layout);
 	}
