@@ -75,7 +75,6 @@ public class MDIFrame extends JInternalFrame
 			boolean iconifiable)
 		{
 		super(title,resizable,closable,maximizable,iconifiable);
-		putClientProperty("JInternalFrame.isPalette", Boolean.TRUE);
 
 		// real multiple document interfaces hide the window border, it gives us a little extra room and makes it
 		// feel not only more native, but resemble DWM's better

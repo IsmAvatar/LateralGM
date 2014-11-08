@@ -2030,7 +2030,10 @@ public final class LGM
 					decframe.dispose();
 					decframe.setUndecorated(decorate);
 					decframe.setVisible(visible);
-					((RootPaneContainer) decframe).getRootPane().setWindowDecorationStyle(decorate ? JRootPane.FRAME : JRootPane.NONE);
+					// check cast to make sure we don't screw with the MDI frames.
+					if (decframe instanceof RootPaneContainer) {
+						((RootPaneContainer) decframe).getRootPane().setWindowDecorationStyle(decorate ? JRootPane.FRAME : JRootPane.NONE);
+					}
 				}
 			} else if (window instanceof Dialog) {
 				Dialog decdialog = (Dialog) window;
@@ -2041,7 +2044,10 @@ public final class LGM
 					decdialog.dispose();
 					decdialog.setUndecorated(decorate);
 					decdialog.setVisible(visible);
-					((RootPaneContainer) decdialog).getRootPane().setWindowDecorationStyle(decorate ? JRootPane.FRAME : JRootPane.NONE);
+					// check cast to make sure we don't screw with the MDI frames.
+					if (decdialog instanceof RootPaneContainer) {
+						((RootPaneContainer) decdialog).getRootPane().setWindowDecorationStyle(decorate ? JRootPane.FRAME : JRootPane.NONE);
+					}
 				}	
 			}
 		}
