@@ -31,12 +31,14 @@ import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.WeakHashMap;
 
 import javax.swing.AbstractListModel;
@@ -53,6 +55,12 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.TransferHandler;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 import org.lateralgm.components.ActionListEditor.LibActionButton;
 import org.lateralgm.components.mdi.MDIFrame;
@@ -80,6 +88,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 	private final ActionRenderer renderer = new ActionRenderer(this);
 	public final WeakReference<MDIFrame> parent;
 	private final ActionListMouseListener alml;
+	public UndoManager undomanager;
 
 	static
 		{
@@ -102,7 +111,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		// build popup menu
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem item;
-
+		
 		item = makeContextButton("ActionList.EDIT");
 		popup.add(item);
 		popup.addSeparator();
@@ -119,15 +128,14 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 
 		popup.addSeparator();
 
-		/*
-		item = makeContextButton("ActionList.UNDO");
-		popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.UNDO")));
-		item = makeContextButton("ActionList.REDO");
-		popup.add(item);
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.REDO")));
+		undomanager = new UndoManager();
+		final JMenuItem undoitem = makeContextButton("ActionList.UNDO");
+		popup.add(undoitem);
+		undoitem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.UNDO")));
+		final JMenuItem redoitem = makeContextButton("ActionList.REDO");
+		popup.add(redoitem);
+		redoitem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.REDO")));
 		popup.addSeparator();
-		*/
 
 		item = makeContextButton("ActionList.SELECTALL");
 		popup.add(item);
@@ -142,6 +150,30 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		popup.add(item);
 
 		this.setComponentPopupMenu(popup);
+		popup.addPopupMenuListener(new PopupMenuListener() {
+
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent arg0)
+				{
+				// TODO Auto-generated method stub
+				
+				}
+
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0)
+				{
+				// TODO Auto-generated method stub
+				
+				}
+
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0)
+				{
+				undoitem.setEnabled(undomanager.canUndo());
+				redoitem.setEnabled(undomanager.canRedo());
+				}
+		
+		});
 
 		//actionContainer.
 		this.parent = new WeakReference<MDIFrame>(parent);
@@ -163,7 +195,8 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		{
 		save();
 		actionContainer = ac;
-		model = new ActionListModel();
+		
+		model = new ActionListModel(undomanager);
 		model.renderer = renderer;
 		setModel(model);
 		if (ac == null) return;
@@ -277,8 +310,21 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		@Override
 		public void keyPressed(KeyEvent e)
 			{
-			@SuppressWarnings("unchecked")
-			JList<Action> l = (JList<Action>) e.getSource();
+			 if (!(e.getSource() instanceof ActionList)) {
+			 	return;
+			 }
+			 @SuppressWarnings("unchecked")
+				JList<Action> l = (JList<Action>) e.getSource();
+			 
+			 KeyStroke stroke = KeyStroke.getKeyStrokeForEvent(e);
+			 if (stroke != null) {
+				 if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.UNDO")))) {
+				 	ActionsUndo(l);
+				 } else if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.REDO")))) {
+				 	ActionsRedo(l);
+				 }
+			 }
+			
 			switch (e.getKeyCode())
 				{
 				case KeyEvent.VK_DELETE:
@@ -288,62 +334,252 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				}
 			}
 		}
+	
+	public class UndoableActionEdit extends AbstractUndoableEdit {
+		/**
+		 * TODO: Change if needed.
+		 */
+		private static final long serialVersionUID = 1L;
+		public static final byte ACTION_ADD = 0;
+		public static final byte ACTION_REMOVE = 1;
+		public static final byte ACTION_MOVE = 2;
+		public static final byte ACTION_EDIT = 3;
+	
+		public int type;
+		
+		List<Action> actions;
+		List<Integer> indices;
+		
+		public UndoableActionEdit(int t, List<Integer> inds, List<Action> acts) {
+			super();
+			type = t;
+			actions = acts;
+			indices = inds;
+		}
+		
+	  // Return a reasonable name for this edit.
+		@Override
+	  public String getPresentationName() {
+	    return "Action " + type;
+	  }
 
-	public static class ActionListModel extends AbstractListModel<Action> implements UpdateListener
+	  @Override
+	  public void redo() throws CannotRedoException {
+	  System.out.println("redo " + type);
+	    super.redo();
+	    if (type == ACTION_ADD) {
+	    	model.addAll(indices,actions,false);
+	    } else if (type == ACTION_REMOVE) {
+	    	model.removeAll(indices,false);
+	    } else if (type == ACTION_MOVE) {
+	    
+	    } else if (type == ACTION_EDIT) {
+	    
+	    }
+	  }
+
+	  @Override
+	  public void undo() throws CannotUndoException {
+	  System.out.println("undo " + type);
+	    super.undo();
+	    if (type == ACTION_ADD) {
+	    	model.removeAll(indices,false);
+	    } else if (type == ACTION_REMOVE) {
+	    	model.addAll(indices,actions,false);
+	    } else if (type == ACTION_MOVE) {
+	    
+	    } else if (type == ACTION_EDIT) {
+	    
+	    }
+	  }
+	}
+	
+	//TODO: Make sure a change actually happened before you store it
+	public class ActionListModel extends AbstractListModel<Action> implements UpdateListener
 		{
 		private static final long serialVersionUID = 1L;
 		public ArrayList<Action> list;
 		protected ArrayList<Integer> indents;
 		private ActionRenderer renderer;
+		private UndoManager undoManager;
 
-		public ActionListModel()
-			{
+		public ActionListModel(UndoManager um)
+		{
 			list = new ArrayList<Action>();
 			indents = new ArrayList<Integer>();
+			undoManager = um;
+		}
+
+		public void add(Action a, boolean updateundo)
+		{
+			if (updateundo) {
+				ArrayList<Integer> indices = new ArrayList<Integer>();
+				ArrayList<Action> actions = new ArrayList<Action>();
+				indices.add(getSize());
+				actions.add(a);
+				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_ADD, indices, actions));
 			}
+			add(getSize(),a);
+		}
 
 		public void add(Action a)
-			{
-			add(getSize(),a);
+		{
+			add(a, true);
+		}
+		
+		public void add(int index, Action a, boolean updateundo)
+		{
+			if (updateundo) {
+				List<Integer> indices = new ArrayList<Integer>();
+				List<Action> actions = new ArrayList<Action>();
+				indices.add(index);
+				actions.add(a);
+				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_ADD, indices, actions));
 			}
-
-		public void add(int index, Action a)
-			{
 			a.updateSource.addListener(this);
 			list.add(index,a);
 			updateIndentation();
 			fireIntervalAdded(this,index,index);
-			}
+		}
+		
+		public void add(int index, Action a)
+		{
+			add(index, a, true);
+		}
 
-		public void addAll(int index, Collection<? extends Action> c)
-			{
+		public void addAll(int index, List<Action> c, boolean updateundo)
+		{
 			int s = c.size();
 			if (s <= 0) return;
+			List<Integer> indices = new ArrayList<Integer>();
+			int i = index;
 			for (Action a : c)
-				{
+			{
+				System.out.println(i);
+				indices.add(i++);
 				a.updateSource.addListener(this);
-				}
+			}
 			list.addAll(index,c);
 			updateIndentation();
 			fireIntervalAdded(this,index,index + s - 1);
+			if (updateundo) {
+				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_ADD, indices, c));
 			}
-
-		public void remove(int index)
-			{
+		}
+		
+		public void addAll(int index, List<Action> c)
+		{
+			addAll(index, c, true);
+		}
+		
+		public void addAll(List<Integer> indices, List<Action> c, boolean updateundo)
+		{
+			int s = c.size();
+			if (s <= 0) return;
+			
+			// sort small to large to avoid oob
+			TreeMap<Integer,Action> map = new TreeMap<Integer,Action>();
+			for (int i = 0; i < indices.size(); i++) {
+				Integer ind = indices.get(i);
+				Action act = c.get(i);
+				System.out.println(ind);
+				map.put(ind,act);
+			}
+			for (Entry<Integer,Action> entry : map.entrySet()) {
+				//System.out.println(this.getSize());
+				Action a = entry.getValue();
+				Integer ind = entry.getKey();
+				a.updateSource.addListener(this);
+				list.add(ind, a);
+				fireIntervalAdded(this,ind,ind);
+			}
+			
+			updateIndentation();
+			
+			if (updateundo) {
+				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_ADD, indices, c));
+			}
+		}
+		
+		public void addAll(List<Integer> indices, List<Action> c)
+		{
+			addAll(indices, c, true);
+		}
+		
+		public void remove(int index, boolean updateundo)
+		{
+			if (updateundo) {
+				ArrayList<Integer> indices = new ArrayList<Integer>();
+				ArrayList<Action> actions = new ArrayList<Action>();
+				indices.add(index);
+				actions.add(list.get(index));
+				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_REMOVE, indices, actions));
+			}
 			list.remove(index).updateSource.removeListener(this);
 			updateIndentation();
 			fireIntervalRemoved(this,index,index);
+		}
+		
+		public void remove(int index)
+		{
+			remove(index, true);
+		}
+		
+		public void removeAll(List<Integer> indices, boolean updateundo)
+		{
+			List<Action> removed = new ArrayList<Action>();
+			// sort large to small to avoid oob
+			List<Integer> copy = new ArrayList<Integer>(indices);
+			Collections.sort(copy, new Comparator<Integer>() {
+			   public int compare(Integer a, Integer b) {
+			      //TODO: handle null
+			      return b.compareTo(a);
+			   }
+			});
+			// collect the removed ones in order
+			for (int i = 0; i < indices.size(); i++) {
+				int ind = indices.get(i);
+				System.out.println(ind);
+				removed.add(list.get(ind));
 			}
+			// now remove them in sorted order
+			for (int i = 0; i < copy.size(); i++) {
+				int ind = copy.get(i);
+				System.out.println(ind);
+				list.remove(ind).updateSource.removeListener(this);
+				fireIntervalRemoved(this,ind,ind);
+			}
+			
+			if (updateundo) {
+				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_REMOVE, indices, removed));
+			}
+
+			updateIndentation();
+		}
+		
+		public void removeAll(List<Integer> indices)
+		{
+			removeAll(indices, true);
+		}
+		
+		public void removeAll()
+		{
+			List<Integer> indices = new ArrayList<Integer>();
+			for (int i = 0; i < this.getSize(); i++) {
+				indices.add(i);
+			}
+			removeAll(indices, true);
+		}
 
 		public Action getElementAt(int index)
-			{
+		{
 			return list.get(index);
-			}
+		}
 
 		public int getSize()
-			{
+		{
 			return list.size();
-			}
+		}
 
 		private void updateIndentation()
 			{
@@ -473,195 +709,198 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		}
 
 	public static class ActionTransferable implements Transferable
+	{
+	private final ArrayList<Action> actions;
+	private final DataFlavor[] flavors;
+
+	public ActionTransferable(ArrayList<Action> a)
 		{
-		private final ArrayList<Action> actions;
-		private final DataFlavor[] flavors;
-
-		public ActionTransferable(ArrayList<Action> a)
-			{
-			actions = a;
-			ArrayList<DataFlavor> fl = new ArrayList<DataFlavor>(2);
-			fl.add(ACTION_ARRAY_FLAVOR);
-			if (a.size() == 1) fl.add(ACTION_FLAVOR);
-			flavors = fl.toArray(new DataFlavor[fl.size()]);
-			}
-
-		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
-			{
-			if (flavor == ACTION_FLAVOR && actions.size() == 1)
-				{
-				return actions.get(0);
-				}
-			if (flavor == ACTION_ARRAY_FLAVOR)
-				{
-				return actions;
-				}
-			throw new UnsupportedFlavorException(flavor);
-			}
-
-		public DataFlavor[] getTransferDataFlavors()
-			{
-			return flavors;
-			}
-
-		public boolean isDataFlavorSupported(DataFlavor flavor)
-			{
-			for (DataFlavor f : flavors)
-				{
-				if (f == flavor) return true;
-				}
-			return false;
-			}
+		actions = a;
+		ArrayList<DataFlavor> fl = new ArrayList<DataFlavor>(2);
+		fl.add(ACTION_ARRAY_FLAVOR);
+		if (a.size() == 1) fl.add(ACTION_FLAVOR);
+		flavors = fl.toArray(new DataFlavor[fl.size()]);
 		}
 
-	public static class ActionTransferHandler extends TransferHandler
+	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 		{
-		private static final long serialVersionUID = 1L;
-		private int[] indices = null; //Location of dragged items (to be deleted)
-		private int addIndex = -1; //Location where items were added
-		private int addCount = 0; //Number of items added.
-		private final WeakReference<MDIFrame> parent;
-		private ActionList list = null;
-
-		public ActionTransferHandler(WeakReference<MDIFrame> parent, ActionList l)
+		if (flavor == ACTION_FLAVOR && actions.size() == 1)
 			{
-			super();
-			this.parent = parent;
-			this.list = l;
+			return actions.get(0);
 			}
-
-		@Override
-		protected void exportDone(JComponent source, Transferable data, int action)
+		if (flavor == ACTION_ARRAY_FLAVOR)
 			{
-			if (action == MOVE && indices != null)
+			return actions;
+			}
+		throw new UnsupportedFlavorException(flavor);
+		}
+
+	public DataFlavor[] getTransferDataFlavors()
+		{
+		return flavors;
+		}
+
+	public boolean isDataFlavorSupported(DataFlavor flavor)
+		{
+		for (DataFlavor f : flavors)
+			{
+			if (f == flavor) return true;
+			}
+		return false;
+		}
+	}
+
+public static class ActionTransferHandler extends TransferHandler
+	{
+	private static final long serialVersionUID = 1L;
+	private int[] indices = null; //Location of dragged items (to be deleted)
+	private int addIndex = -1; //Location where items were added
+	private int addCount = 0; //Number of items added.
+	private final WeakReference<MDIFrame> parent;
+	private ActionList list = null;
+
+	public ActionTransferHandler(WeakReference<MDIFrame> parent, ActionList l)
+		{
+		super();
+		this.parent = parent;
+		this.list = l;
+		}
+
+	@Override
+	protected void exportDone(JComponent source, Transferable data, int action)
+		{
+		if (action == MOVE && indices != null)
+			{
+			ActionListModel model = (ActionListModel) list.getModel();
+			if (addCount > 0)
 				{
-				ActionListModel model = (ActionListModel) list.getModel();
-				if (addCount > 0)
+				for (int i = 0; i < indices.length; i++)
 					{
-					for (int i = 0; i < indices.length; i++)
+					if (indices[i] > addIndex)
 						{
-						if (indices[i] > addIndex)
-							{
-							indices[i] += addCount;
-							}
+						indices[i] += addCount;
 						}
 					}
-				for (int i = indices.length - 1; i >= 0; i--)
-					{
-					model.remove(indices[i]);
-					}
 				}
-			indices = null;
-			addCount = 0;
-			addIndex = -1;
-			}
-
-		public boolean canImport(TransferHandler.TransferSupport info)
+			List<Integer> inds = new ArrayList<Integer>(indices.length);
+			for (int i = 0; i < indices.length; i++)
 			{
-			DataFlavor[] f = info.getDataFlavors();
-			boolean supported = false;
-			for (DataFlavor flav : f)
+				inds.add(indices[i]);
+			}
+			model.removeAll(inds);
+			}
+		indices = null;
+		addCount = 0;
+		addIndex = -1;
+		}
+
+	public boolean canImport(TransferHandler.TransferSupport info)
+		{
+		DataFlavor[] f = info.getDataFlavors();
+		boolean supported = false;
+		for (DataFlavor flav : f)
+			{
+			if (flav == ACTION_FLAVOR || flav == ACTION_ARRAY_FLAVOR || flav == LIB_ACTION_FLAVOR)
+				supported = true;
+			}
+		if (!supported) return false;
+		ActionList list = (ActionList) info.getComponent();
+		if (list.actionContainer == null) return false;
+		if (info.isDrop() && ((JList.DropLocation) info.getDropLocation()).getIndex() == -1)
+			return false;
+		return true;
+		}
+
+	public boolean importData(TransferHandler.TransferSupport info)
+		{
+		if (!canImport(info)) return false;
+		ActionList list = (ActionList) info.getComponent();
+		ActionListModel alm = (ActionListModel) list.getModel();
+		Transferable t = info.getTransferable();
+
+		int index = list.getSelectedIndex();
+		index = index < 0 ? alm.getSize() : index;
+		if (info.isDrop()) index = ((JList.DropLocation) info.getDropLocation()).getIndex();
+		if (info.isDataFlavorSupported(ACTION_FLAVOR))
+			{
+			Action a;
+			try
 				{
-				if (flav == ACTION_FLAVOR || flav == ACTION_ARRAY_FLAVOR || flav == LIB_ACTION_FLAVOR)
-					supported = true;
+				a = (Action) t.getTransferData(ACTION_FLAVOR);
 				}
-			if (!supported) return false;
-			ActionList list = (ActionList) info.getComponent();
-			if (list.actionContainer == null) return false;
-			if (info.isDrop() && ((JList.DropLocation) info.getDropLocation()).getIndex() == -1)
+			catch (Exception e)
+				{
+				LGM.showDefaultExceptionHandler(e);
 				return false;
+				}
+			//clone properly for drag-copy or clipboard paste
+			if (!info.isDrop() || info.getDropAction() == COPY) a = a.copy();
+			//now add
+			addIndex = index;
+			addCount = 1;
+			alm.add(index,a);
+			list.setSelectedIndex(index);
 			return true;
 			}
-
-		public boolean importData(TransferHandler.TransferSupport info)
+		if (info.isDataFlavorSupported(ACTION_ARRAY_FLAVOR))
 			{
-			if (!canImport(info)) return false;
-			ActionList list = (ActionList) info.getComponent();
-			ActionListModel alm = (ActionListModel) list.getModel();
-			Transferable t = info.getTransferable();
-
-			int index = alm.list.size();
-			if (info.isDrop()) index = ((JList.DropLocation) info.getDropLocation()).getIndex();
-			if (info.isDataFlavorSupported(ACTION_FLAVOR))
+			List<Action> a;
+			try
 				{
-				Action a;
-				try
-					{
-					a = (Action) t.getTransferData(ACTION_FLAVOR);
-					}
-				catch (Exception e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					return false;
-					}
-				//clone properly for drag-copy or clipboard paste
-				if (!info.isDrop() || info.getDropAction() == COPY) a = a.copy();
-				//now add
-				addIndex = index;
-				addCount = 1;
-				alm.add(index,a);
-				list.setSelectedIndex(index);
-				return true;
+				a = ((List<Action>) t.getTransferData(ACTION_ARRAY_FLAVOR));
 				}
-			if (info.isDataFlavorSupported(ACTION_ARRAY_FLAVOR))
+			catch (Exception e)
 				{
-				Action[] a;
-				try
-					{
-					a = ((List<?>) t.getTransferData(ACTION_ARRAY_FLAVOR)).toArray(new Action[0]);
-					}
-				catch (Exception e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					return false;
-					}
-				//clone properly for drag-copy or clipboard paste
-				if (!info.isDrop() || info.getDropAction() == COPY) for (int i = 0; i < a.length; i++)
-					a[i] = a[i].copy();
-				//now add
-				addIndex = index;
-				addCount = a.length;
-				alm.addAll(index,Arrays.asList(a));
-				list.setSelectionInterval(index,index + a.length - 1);
-				return true;
+				LGM.showDefaultExceptionHandler(e);
+				return false;
 				}
-			if (info.isDataFlavorSupported(LIB_ACTION_FLAVOR))
-				{
-				LibAction la;
-				Action a;
-				try
-					{
-					la = (LibAction) t.getTransferData(LIB_ACTION_FLAVOR);
-					a = new Action(la);
-					ActionList.openActionFrame(parent.get(),a);
-					}
-				catch (Exception e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					return false;
-					}
-				addIndex = index;
-				addCount = 1;
-				alm.add(index,a);
-				list.setSelectedIndex(index);
-				return true;
-				}
-			return false;
+			//clone properly for drag-copy or clipboard paste
+			if (!info.isDrop() || info.getDropAction() == COPY) for (int i = 0; i < a.size(); i++)
+				a.set(i,a.get(i).copy());
+			//now add
+			addIndex = index;
+			addCount = a.size();
+			alm.addAll(index,a);
+			list.setSelectionInterval(index,index + a.size() - 1);
+			return true;
 			}
-
-		@Override
-		public int getSourceActions(JComponent c)
+		if (info.isDataFlavorSupported(LIB_ACTION_FLAVOR))
 			{
-			return COPY_OR_MOVE;
+			LibAction la;
+			Action a;
+			try
+				{
+				la = (LibAction) t.getTransferData(LIB_ACTION_FLAVOR);
+				a = new Action(la);
+				ActionList.openActionFrame(parent.get(),a);
+				}
+			catch (Exception e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				return false;
+				}
+			addIndex = index;
+			addCount = 1;
+			alm.add(index,a);
+			list.setSelectedIndex(index);
+			return true;
 			}
-
-		@Override
-		protected Transferable createTransferable(JComponent c)
-			{
-			indices = list.getSelectedIndices();
-			return new ActionTransferable((ArrayList<Action>) list.getSelectedValuesList());
-			}
+		return false;
 		}
+
+	@Override
+	public int getSourceActions(JComponent c)
+		{
+		return COPY_OR_MOVE;
+		}
+
+	@Override
+	protected Transferable createTransferable(JComponent c)
+		{
+		indices = list.getSelectedIndices();
+		return new ActionTransferable((ArrayList<Action>) list.getSelectedValuesList());
+		}
+	}
 
 	private static class ActionRenderer implements ListCellRenderer<Action>
 		{
@@ -893,11 +1132,20 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 
 	public void ActionsCopy(JList<Action> list)
 		{
-		List<Action> actionList = list.getSelectedValuesList();
-		if (actionList.size() <= 0) return;
+		int[] indices = list.getSelectedIndices();
+		ArrayList<Action> actions = (ArrayList<Action>) list.getSelectedValuesList();
+		if (indices.length <= 0) return;
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
-		ActionTransferable at = new ActionTransferable((ArrayList<Action>) actionList);
+		/*
+    TreeMap<Integer,Action> map = new TreeMap<Integer,Action>();
+
+    for (int i = 0; i < indices.length; i++) {
+      map.put(indices[i], actions.get(i));
+    }
+    */
+		
+		ActionTransferable at = new ActionTransferable(actions);
 
 		clipboard.setContents(at,this);
 
@@ -924,37 +1172,50 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				{
 				LGM.showDefaultExceptionHandler(e);
 				}
-			if (flavor.equals(ACTION_ARRAY_FLAVOR))
+			if (flavor.equals(ACTION_FLAVOR))
 				{
 				ActionListModel alm = (ActionListModel) list.getModel();
 				@SuppressWarnings("unchecked")
-				List<Action> actions = (List<Action>) content;
-				for (int i = 0; i < actions.size(); i++)
-					{
-					alm.add((Action) actions.get(i));
-					}
+				Map<Integer,Action> actions = (Map<Integer,Action>) content;
+				int ind = list.getSelectedIndex();
+				if (ind < 0) {
+					ind = alm.getSize();
+				}
+				alm.addAll(ind, (List<Action>) actions.values());
 				}
 			// throw unsupported flavor exception?
 			}
 		}
 
-	//TODO: Implement Undo/Redo manager
 	public static void ActionsUndo(JList<Action> list)
 		{
-
+			if (!(list instanceof ActionList)) {
+				return;
+			}
+			ActionList l = (ActionList) list;
+			if (l.undomanager.canUndo())
+				l.undomanager.undo();
 		}
 
 	public static void ActionsRedo(JList<Action> list)
 		{
-
+			if (!(list instanceof ActionList)) {
+				return;
+			}
+			ActionList l = (ActionList) list;
+			if (l.undomanager.canRedo())
+				l.undomanager.redo();
 		}
 
 	public static void ActionsDelete(JList<Action> list)
 		{
 		int[] indices = list.getSelectedIndices();
 		ActionListModel alm = (ActionListModel) list.getModel();
-		for (int i = indices.length - 1; i >= 0; i--)
-			alm.remove(indices[i]);
+		List<Integer> inds = new ArrayList<Integer>();
+		for (int i : indices) {
+			inds.add(i);
+		}
+		alm.removeAll(inds);
 		if (indices.length != 0) list.setSelectedIndex(Math.min(alm.getSize() - 1,indices[0]));
 		}
 
@@ -970,8 +1231,8 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 
 	public static void ActionsClear(JList<Action> list)
 		{
-		ActionsSelectAll(list);
-		ActionsDelete(list);
+		ActionListModel alm = (ActionListModel) list.getModel();
+		alm.removeAll();
 		}
 
 	public void actionPerformed(ActionEvent ev)
