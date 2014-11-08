@@ -55,6 +55,20 @@ public class BitmapIndexed1BPP extends AbstractBitmapIndexed
 				}
 			}
 		}
+	
+	
+	void fakeReadBitmap()
+		{
+		int lPixelNo = 0;
+		for (int lRowNo = 0; lRowNo < getHeight(); lRowNo++)
+			{
+			for (int lColNo = 0; lColNo < getWidth(); lColNo++)
+				{
+				pixels[lPixelNo++] = 1;
+				}
+			}
+		}
+	
 
 	private void writeBits(StreamEncoder out, int offset, int count) throws IOException
 		{

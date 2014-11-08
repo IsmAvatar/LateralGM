@@ -15,12 +15,16 @@ import org.lateralgm.file.StreamEncoder;
  */
 public class BitmapRGB32BPP extends AbstractBitmapRGB
 	{
+	///How far can we read before the next image? If <=0, read as far as necessary.
+	protected long readStreamLimit;
+	
 	/**
 	 * @param pDescriptor The image descriptor.
 	 */
 	public BitmapRGB32BPP(final BitmapDescriptor pDescriptor)
 		{
 		super(pDescriptor);
+		readStreamLimit = pDescriptor.getOffset() + pDescriptor.getSize();
 		}
 
 	/**
@@ -47,6 +51,22 @@ public class BitmapRGB32BPP extends AbstractBitmapRGB
 			}
 
 		}
+	
+	
+	/**
+	 * 32BPP Bitmaps can optionally have NO mask.
+	 */
+	protected void readMask(final StreamDecoder pDec) throws IOException
+	{
+	if (readStreamLimit<=0 || pDec.getPos()<readStreamLimit) 
+		{
+		super.readMask(pDec);
+		} else {
+			transparencyMask = new BitmapMask(descriptor);
+			transparencyMask.fakeRead();
+		}
+	}
+	
 
 	/**
 	 * @return Create an ARGB image.
