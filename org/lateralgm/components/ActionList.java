@@ -200,7 +200,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		model.renderer = renderer;
 		setModel(model);
 		if (ac == null) return;
-		model.addAll(0,ac.actions);
+		model.addAll(ac.actions,false);
 		}
 
 	public ActionContainer getActionContainer()
