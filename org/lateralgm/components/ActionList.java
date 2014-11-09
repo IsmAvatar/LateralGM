@@ -351,6 +351,12 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		List<Integer> indices = null;
 		List<Integer> indicesmoved = null;
 		
+		public UndoableActionEdit(int t, List<Action> acts) {
+			super();
+			type = t;
+			actions = acts;
+		}
+		
 		public UndoableActionEdit(int t, List<Integer> inds, List<Action> acts) {
 			super();
 			type = t;
@@ -375,9 +381,17 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 	  public void redo() throws CannotRedoException {
 	    super.redo();
 	    if (type == ACTION_ADD) {
-	    	model.addAll(indices,actions,false);
+	    	if (indices != null) {
+	    		model.addAll(indices,actions,false);
+	    	} else {
+	    		model.addAll(actions,false);
+	    	}
 	    } else if (type == ACTION_REMOVE) {
-	    	model.removeAll(indices,false);
+	    	if (indices != null) {
+	    		model.removeAll(indices,false);
+	    	} else {
+	    		model.clear(false);
+	    	}
 	    } else if (type == ACTION_MOVE) {
 	    	model.moveAll(indices, indicesmoved, false);
 	    } else if (type == ACTION_EDIT) {
@@ -389,9 +403,17 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 	  public void undo() throws CannotUndoException {
 	    super.undo();
 	    if (type == ACTION_ADD) {
-	    	model.removeAll(indices,false);
+	    	if (indices != null) {
+	    		model.removeAll(indices,false);
+	    	} else {
+	    		model.clear(false);
+	    	}
 	    } else if (type == ACTION_REMOVE) {
-	    	model.addAll(indices,actions,false);
+	    	if (indices != null) {
+	    		model.addAll(indices,actions,false);
+	    	} else {
+	    		model.addAll(actions,false);
+	    	}
 	    } else if (type == ACTION_MOVE) {
 	    	model.moveAll(indicesmoved, indices, false);
 	    } else if (type == ACTION_EDIT) {
@@ -475,6 +497,26 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		public void addAll(int index, List<Action> c)
 		{
 			addAll(index, c, true);
+		}
+		
+		public void addAll(List<Action> c, boolean updateundo)
+		{
+			int s = c.size();
+			if (s <= 0) return;
+			for (Action a : c)
+			{
+				a.updateSource.addListener(this);
+			}
+			list.addAll(c);
+			updateIndentation();
+			fireIntervalAdded(this,0,list.size());
+			if (updateundo) {
+				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_ADD, c));
+			}
+		}
+		
+		public void addAll(List<Action> c) {
+			addAll(c, true);
 		}
 		
 		public void addAll(List<Integer> indices, List<Action> c, boolean updateundo)
@@ -563,13 +605,18 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			removeAll(indices, true);
 		}
 		
-		public void removeAll()
+		public void clear(boolean updateundo)
 		{
-			List<Integer> indices = new ArrayList<Integer>();
-			for (int i = 0; i < this.getSize(); i++) {
-				indices.add(i);
+			ArrayList<Action> removed = new ArrayList<Action>(list);
+			list.clear();
+			fireIntervalRemoved(this,0,removed.size());
+			if (updateundo) {
+				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_REMOVE, removed));
 			}
-			removeAll(indices, true);
+		}
+		
+		public void clear() {
+			clear(true);
 		}
 		
 		public int move(int prev, int next, ArrayList<Action> unchanged, boolean updateundo) {
@@ -1296,7 +1343,7 @@ public static class ActionTransferHandler extends TransferHandler
 	public static void ActionsClear(JList<Action> list)
 		{
 		ActionListModel alm = (ActionListModel) list.getModel();
-		alm.removeAll();
+		alm.clear();
 		}
 
 	public void actionPerformed(ActionEvent ev)
