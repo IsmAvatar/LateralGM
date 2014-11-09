@@ -28,6 +28,7 @@ import java.awt.image.RGBImageFilter;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -52,9 +53,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.lateralgm.components.CustomFileChooser;
-import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.visual.FileChooserImagePreview;
+import org.lateralgm.file.ApngIO;
 import org.lateralgm.file.iconio.BitmapDescriptor;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.file.iconio.ICOImageReaderSPI;
@@ -192,8 +193,20 @@ public final class Util
 			{
 			imageFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
 			imageFc.setAccessory(new FileChooserImagePreview(imageFc));
-			String[] exts = { "jpg","bmp","tif","jpeg","wbmp","png","ico","TIF","TIFF","gif","tiff" };
-			if (LGM.javaVersion >= 10600) exts = ImageIO.getReaderFileSuffixes();
+			String[] exts = { "jpg","bmp","tif","jpeg","wbmp","apng","png","ico","TIF","TIFF","gif","tiff" };
+			if (LGM.javaVersion >= 10600) {
+				String[] internalexts = ImageIO.getReaderFileSuffixes();
+				ArrayList<String> extensions = new ArrayList<String>();
+				for (String ext : exts) {
+					extensions.add(ext);
+				}
+				for (String ext : internalexts) {
+					if (!extensions.contains(ext)) {
+						extensions.add(ext);
+					}
+				}
+				exts = extensions.toArray(new String[extensions.size()]);
+			}
 			for (int i = 0; i < exts.length; i++)
 				exts[i] = "." + exts[i]; //$NON-NLS-1$
 			String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
@@ -224,8 +237,20 @@ public final class Util
 			{
 			imageFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
 			imageFc.setAccessory(new FileChooserImagePreview(imageFc));
-			String[] exts = { "jpg","bmp","tif","jpeg","wbmp","png","ico","TIF","TIFF","gif","tiff" };
-			if (LGM.javaVersion >= 10600) exts = ImageIO.getReaderFileSuffixes();
+			String[] exts = { "jpg","bmp","tif","jpeg","wbmp","apng","png","ico","TIF","TIFF","gif","tiff" };
+			if (LGM.javaVersion >= 10600) {
+				String[] internalexts = ImageIO.getReaderFileSuffixes();
+				ArrayList<String> extensions = new ArrayList<String>();
+				for (String ext : exts) {
+					extensions.add(ext);
+				}
+				for (String ext : internalexts) {
+					if (!extensions.contains(ext)) {
+						extensions.add(ext);
+					}
+				}
+				exts = extensions.toArray(new String[extensions.size()]);
+			}
 			for (int i = 0; i < exts.length; i++)
 				exts[i] = "." + exts[i]; //$NON-NLS-1$
 			String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
@@ -247,15 +272,14 @@ public final class Util
 	public static BufferedImage getValidImage()
 		{
 		File f = chooseImageFile();
-		if (f == null) return null;
+		if (f == null || !f.exists()) return null;
 		try
 			{
 			return ImageIO.read(f);
 			}
 		catch (IOException e)
 			{
-			new ErrorDialog(LGM.frame,Messages.getString("Util.ERROR_TITLE"), //$NON-NLS-1$
-					Messages.format("Util.ERROR_LOADING",f),e).setVisible(true); //$NON-NLS-1$
+			LGM.showDefaultExceptionHandler(e);
 			}
 		return null;
 		}
@@ -383,9 +407,14 @@ public final class Util
 
 			for (int i = 0; i < f.length; i++)
 				{
+				if (!f[i].exists()) continue;
 				if (f[i].getName().endsWith(".gif"))
 					{
 					subframes.addAll(readGIF(f[i]));
+					}
+				else if (f[i].getName().endsWith(".apng"))
+					{
+					subframes.addAll(ApngIO.apngToBufferedImages(new FileInputStream(f[i])));
 					}
 				else
 					{
@@ -396,8 +425,7 @@ public final class Util
 			}
 		catch (Exception e)
 			{
-			new ErrorDialog(LGM.frame,Messages.getString("Util.ERROR_TITLE"), //$NON-NLS-1$
-					Messages.format("Util.ERROR_LOADING",(Object[]) f),e).setVisible(true); //$NON-NLS-1$
+			LGM.showDefaultExceptionHandler(e);
 			}
 		return null;
 		}
