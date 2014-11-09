@@ -33,6 +33,14 @@ public class BitmapMask
 		{
 		mask.readBitmap(pDec);
 		}
+	
+	/**
+	 * Fake a read operation, setting all pixels to 1 (full opacity).
+	 */
+	void fakeRead()
+		{
+		mask.fakeReadBitmap();
+		}
 
 	/**
 	 * @param pXPos
