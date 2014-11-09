@@ -14,6 +14,9 @@ package org.lateralgm.components;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -49,6 +52,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
@@ -1102,23 +1106,73 @@ public static class ActionTransferHandler extends TransferHandler
 			s = s.replaceAll("\n","&#35;"); //$NON-NLS-1$ //$NON-NLS-2$
 			return s.replaceAll(" ","&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
+		
+		private static class ActionLineComponent extends JLabel {
+			/**
+			 * TODO: Change if needed.
+			 */
+			private static final long serialVersionUID = 1L;
+			private JList<Action> list = null;
+			private int index = 0;
+			private int maxwidth = 0;
+			
+			public ActionLineComponent(int ind, JList<Action> l)
+				{
+					super();
+					this.setText(Integer.toString(ind));
+					//setBackground(Color.red);
+					index = ind;
+					list = l;
+				}
 
-		private static class ActionRendererComponent extends JLabel
+			@Override
+			public void paintComponent(Graphics g) {
+				int width = g.getFontMetrics().stringWidth(this.getText());
+				int height = g.getFontMetrics().getHeight();
+				g.setColor(this.getBackground());
+				g.fillRect(0,0,this.getWidth(),this.getHeight());
+				g.setColor(this.getForeground());
+				g.drawString(this.getText(),5 + maxwidth - width,(int)((this.getPreferredSize().getHeight() - height)/2 + getFontMetrics(getFont()).getAscent()));
+				g.fillRect(5 + maxwidth + 5,0,2,this.getPreferredSize().height);
+			}
+
+			public void setIndex(int ind)
+				{
+				index = ind;
+				this.setText(Integer.toString(index));
+				}
+
+			public void updatePreferredSize()
+				{
+					maxwidth = getFontMetrics(getFont()).stringWidth(Integer.toString(list.getModel().getSize() - 1));
+					setPreferredSize(new Dimension(5 + maxwidth + 7, this.getPreferredSize().height));
+				}
+		}
+
+		private static class ActionRendererComponent extends JPanel
 			{
 			private static final long serialVersionUID = 1L;
-			private int indent;
+			//private int indent;
 			private boolean selected;
 			private final JList<Action> list;
+			JLabel actlabel = null;
+			ActionLineComponent linelabel = null;
 
-			public ActionRendererComponent(Action a, JList<Action> l)
+			public ActionRendererComponent(int index, JList<Action> l)
 				{
 				this.list = l;
+				this.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+
+				actlabel = new JLabel();
+				linelabel = new ActionLineComponent(index, l);
+
 				setOpaque(true);
 				setBackground(selected ? list.getSelectionBackground() : list.getBackground());
-				setForeground(selected ? list.getSelectionForeground() : list.getForeground());
+				actlabel.setForeground(selected ? list.getSelectionForeground() : list.getForeground());
+				Action a = l.getModel().getElementAt(index);
 				LibAction la = a.getLibAction();
 				if (la.actImage == null)
-					setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
+					actlabel.setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
 				else
 					{
 					StringBuilder sb = new StringBuilder("<html>");
@@ -1127,8 +1181,8 @@ public static class ActionTransferHandler extends TransferHandler
 					if (la.listText.contains("@FB")) //$NON-NLS-1$
 						sb.append("<b>");
 					sb.append(escape(parse(la.listText,a)));
-					setText(sb.toString());
-					setIcon(new ImageIcon(la.actImage));
+					actlabel.setText(sb.toString());
+					actlabel.setIcon(new ImageIcon(la.actImage));
 
 					if (Prefs.actionToolTipLines > 0 && Prefs.actionToolTipColumns > 0)
 						{
@@ -1157,6 +1211,12 @@ public static class ActionTransferHandler extends TransferHandler
 						setToolTipText("<html><font face=\"Courier\">" + escape(sb.toString()));
 						}
 					}
+				
+				linelabel.setPreferredSize(new Dimension(linelabel.getPreferredSize().width, actlabel.getPreferredSize().height + 4));
+				
+				this.add(linelabel);
+				this.add(actlabel);
+				
 				}
 
 			//			public JToolTip createToolTip()
@@ -1177,9 +1237,10 @@ public static class ActionTransferHandler extends TransferHandler
 
 			public void setIndent(int indent)
 				{
-				if (this.indent == indent) return;
-				this.indent = indent;
-				setBorder(new EmptyBorder(1,2 + 8 * indent,1,2));
+				//if (this.indent == indent) return;
+				//this.indent = indent;
+				actlabel.setBorder(new EmptyBorder(2,2 + 8 * indent,2,2));
+				linelabel.updatePreferredSize();
 				}
 
 			public void setSelected(boolean selected)
@@ -1189,13 +1250,18 @@ public static class ActionTransferHandler extends TransferHandler
 				if (selected)
 					{
 					setBackground(list.getSelectionBackground());
-					setForeground(list.getSelectionForeground());
+					actlabel.setForeground(list.getSelectionForeground());
 					}
 				else
 					{
 					setBackground(list.getBackground());
-					setForeground(list.getForeground());
+					actlabel.setForeground(list.getForeground());
 					}
+				}
+
+			public void setIndex(int index)
+				{
+					linelabel.setIndex(index);
 				}
 			}
 
@@ -1209,7 +1275,7 @@ public static class ActionTransferHandler extends TransferHandler
 			if (arcref != null) arc = arcref.get();
 			if (arc == null)
 				{
-				arc = new ActionRendererComponent(cellAction,(JList<Action>) list);
+				arc = new ActionRendererComponent(index,(JList<Action>) list);
 				lcrMap.put(cellAction,new SoftReference<ActionRendererComponent>(arc));
 				}
 			ListModel<Action> lm = (ListModel<Action>) list.getModel();
@@ -1217,6 +1283,7 @@ public static class ActionTransferHandler extends TransferHandler
 				{
 				if (lm instanceof ActionListModel)
 					arc.setIndent(((ActionListModel) lm).indents.get(index));
+					arc.setIndex(index);
 				}
 			catch (IndexOutOfBoundsException e)
 				{
