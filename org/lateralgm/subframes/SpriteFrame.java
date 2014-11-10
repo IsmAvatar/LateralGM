@@ -113,6 +113,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
+	private static final ImageIcon SAVE_ICON = LGM.getIconForKey("SpriteFrame.SAVE"); //$NON-NLS-1$
 	private static final ImageIcon LOAD_SUBIMAGE_ICON = LGM.getIconForKey("SpriteFrame.LOAD_SUBIMAGE"); //$NON-NLS-1$
 	private static final ImageIcon LOAD_STRIP_ICON = LGM.getIconForKey("SpriteFrame.LOAD_STRIP"); //$NON-NLS-1$
 	private static final ImageIcon PLAY_ICON = LGM.getIconForKey("SpriteFrame.PLAY"); //$NON-NLS-1$
@@ -122,7 +123,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private static final ImageIcon ZOOM_OUT_ICON = LGM.getIconForKey("SpriteFrame.ZOOM_OUT"); //$NON-NLS-1$
 
 	//toolbar
-	public JButton load, loadSubimage, loadStrip, zoomIn, zoomOut;
+	public JButton load, loadSubimages, loadStrip, saveSubimages, zoomIn, zoomOut;
 	public JToggleButton zoomButton;
 
 	//origin
@@ -303,7 +304,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		updateStatusLabel();
 
 		pack();
-		this.setSize(750,500);
+		this.setSize(850,650);
 		previewPane.setDividerLocation(getHeight() / 2);
 		updateScrollBars();
 		}
@@ -321,15 +322,20 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		load.addActionListener(this);
 		tool.add(load);
 
-		loadSubimage = new JButton(LOAD_SUBIMAGE_ICON);
-		loadSubimage.setToolTipText(Messages.getString("SpriteFrame.LOAD_SUBIMAGE")); //$NON-NLS-1$
-		loadSubimage.addActionListener(this);
-		tool.add(loadSubimage);
+		loadSubimages = new JButton(LOAD_SUBIMAGE_ICON);
+		loadSubimages.setToolTipText(Messages.getString("SpriteFrame.LOAD_SUBIMAGE")); //$NON-NLS-1$
+		loadSubimages.addActionListener(this);
+		tool.add(loadSubimages);
 
 		loadStrip = new JButton(LOAD_STRIP_ICON);
 		loadStrip.setToolTipText(Messages.getString("SpriteFrame.LOAD_STRIP")); //$NON-NLS-1$
 		loadStrip.addActionListener(this);
 		tool.add(loadStrip);
+		
+		saveSubimages = new JButton(SAVE_ICON);
+		saveSubimages.setToolTipText(Messages.getString("SpriteFrame.SAVE")); //$NON-NLS-1$
+		saveSubimages.addActionListener(this);
+		tool.add(saveSubimages);
 
 		tool.addSeparator();
 
@@ -1340,6 +1346,21 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				}
 			}
 		}
+	
+	public ArrayList<BufferedImage> getSelectedImages() {
+		int[] selected = subList.getSelectedIndices();
+		if (selected.length <= 0) {
+			return res.subImages;
+		} else {
+			if (res.subImages.getSize() <= 0) return null;
+			ArrayList<BufferedImage> subimages = new ArrayList<BufferedImage>(selected.length);
+			for (int id : selected) {
+				subimages.add(res.subImages.get(id));
+			}
+			return subimages;
+		}
+		
+	}
 
 	private AnimThread animThread = null;
 
@@ -1362,10 +1383,18 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			addFromStrip(true);
 			return;
 			}
-		else if (e.getSource() == loadSubimage)
+		else if (e.getSource() == loadSubimages)
 			{
 			BufferedImage[] img = Util.getValidImages();
 			if (img != null) addSubimages(img,false);
+			return;
+			}
+		else if (e.getSource() == saveSubimages)
+			{
+			ArrayList<BufferedImage> imgs = getSelectedImages();
+			if (imgs != null) {
+				Util.saveImages(imgs);
+			}
 			return;
 			}
 		else if (e.getSource() == showBbox)

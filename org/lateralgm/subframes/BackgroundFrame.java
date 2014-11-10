@@ -253,8 +253,9 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		tool.setAlignmentX(0);
 
 		tool.add(save);
-		tool.add(makeJButton("BackgroundFrame.LOAD"));
 		tool.add(makeJButton("BackgroundFrame.CREATE"));
+		tool.add(makeJButton("BackgroundFrame.LOAD"));
+		tool.add(makeJButton("BackgroundFrame.SAVE"));
 		tool.add(makeJButton("BackgroundFrame.EDIT"));
 		tool.add(makeJButton("BackgroundFrame.EFFECT"));
 
@@ -514,6 +515,15 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				res.setBackgroundImage(img);
 				imageChanged = true;
 				cleanup();
+				}
+			return;
+			}
+		else if (cmd.endsWith(".SAVE"))
+			{
+			BufferedImage img = res.getBackgroundImage();
+			if (img != null)
+				{
+					Util.saveImage(img);
 				}
 			return;
 			}

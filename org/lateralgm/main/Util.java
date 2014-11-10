@@ -29,6 +29,7 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -181,6 +182,36 @@ public final class Util
 		return toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
 		}
 
+	private static void createImageChooser() {
+		imageFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
+		imageFc.setAccessory(new FileChooserImagePreview(imageFc));
+		String[] exts = { "jpg","bmp","tif","jpeg","wbmp","apng","png","ico","TIF","TIFF","gif","tiff" };
+		if (LGM.javaVersion >= 10600) {
+			String[] internalexts = ImageIO.getReaderFileSuffixes();
+			ArrayList<String> extensions = new ArrayList<String>();
+			for (String ext : exts) {
+				extensions.add(ext);
+			}
+			for (String ext : internalexts) {
+				if (!extensions.contains(ext)) {
+					extensions.add(ext);
+				}
+			}
+			exts = extensions.toArray(new String[extensions.size()]);
+		}
+		for (int i = 0; i < exts.length; i++)
+			exts[i] = "." + exts[i]; //$NON-NLS-1$
+		String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
+		CustomFileFilter filt = new CustomFileFilter(allSpiImages,exts);
+		imageFc.addChoosableFileFilter(filt);
+		for (String element : exts)
+			{
+			imageFc.addChoosableFileFilter(new CustomFileFilter(Messages.format("Util.FILES", //$NON-NLS-1$
+					element),element));
+			}
+		imageFc.setFileFilter(filt);
+	}
+	
 	/**
 	 * Shows a JFileChooser with file filters for all currently registered instances of
 	 * ImageReaderSpi with multiple file selection.
@@ -190,41 +221,15 @@ public final class Util
 	public static File chooseImageFile()
 		{
 		if (imageFc == null)
-			{
-			imageFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
-			imageFc.setAccessory(new FileChooserImagePreview(imageFc));
-			String[] exts = { "jpg","bmp","tif","jpeg","wbmp","apng","png","ico","TIF","TIFF","gif","tiff" };
-			if (LGM.javaVersion >= 10600) {
-				String[] internalexts = ImageIO.getReaderFileSuffixes();
-				ArrayList<String> extensions = new ArrayList<String>();
-				for (String ext : exts) {
-					extensions.add(ext);
-				}
-				for (String ext : internalexts) {
-					if (!extensions.contains(ext)) {
-						extensions.add(ext);
-					}
-				}
-				exts = extensions.toArray(new String[extensions.size()]);
-			}
-			for (int i = 0; i < exts.length; i++)
-				exts[i] = "." + exts[i]; //$NON-NLS-1$
-			String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
-			CustomFileFilter filt = new CustomFileFilter(allSpiImages,exts);
-			imageFc.addChoosableFileFilter(filt);
-			for (String element : exts)
-				{
-				imageFc.addChoosableFileFilter(new CustomFileFilter(Messages.format("Util.FILES", //$NON-NLS-1$
-						element),element));
-				}
-			imageFc.setFileFilter(filt);
-			}
+		{
+			createImageChooser();
+		}
 		imageFc.setMultiSelectionEnabled(false);
 		if (imageFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 			return imageFc.getSelectedFile();
 		return null;
 		}
-
+	
 	/**
 	 * Shows a JFileChooser with file filters for all currently registered instances of
 	 * ImageReaderSpi with multiple file selection.
@@ -235,40 +240,104 @@ public final class Util
 		{
 		if (imageFc == null)
 			{
-			imageFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
-			imageFc.setAccessory(new FileChooserImagePreview(imageFc));
-			String[] exts = { "jpg","bmp","tif","jpeg","wbmp","apng","png","ico","TIF","TIFF","gif","tiff" };
-			if (LGM.javaVersion >= 10600) {
-				String[] internalexts = ImageIO.getReaderFileSuffixes();
-				ArrayList<String> extensions = new ArrayList<String>();
-				for (String ext : exts) {
-					extensions.add(ext);
-				}
-				for (String ext : internalexts) {
-					if (!extensions.contains(ext)) {
-						extensions.add(ext);
-					}
-				}
-				exts = extensions.toArray(new String[extensions.size()]);
-			}
-			for (int i = 0; i < exts.length; i++)
-				exts[i] = "." + exts[i]; //$NON-NLS-1$
-			String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
-			CustomFileFilter filt = new CustomFileFilter(allSpiImages,exts);
-			imageFc.addChoosableFileFilter(filt);
-			for (String element : exts)
-				{
-				imageFc.addChoosableFileFilter(new CustomFileFilter(Messages.format("Util.FILES", //$NON-NLS-1$
-						element),element));
-				}
-			imageFc.setFileFilter(filt);
+				createImageChooser();
 			}
 		imageFc.setMultiSelectionEnabled(true);
 		if (imageFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 			return imageFc.getSelectedFiles();
 		return null;
 		}
+	
+	/**
+	 * Returns the selected file from a JFileChooser, including the extension from
+	 * the file filter.
+	 */
+	public static File getSelectedFileWithExtension(JFileChooser c) {
+	    File file = c.getSelectedFile();
+	    if (c.getFileFilter() instanceof CustomFileFilter) {
+	        String[] exts = ((CustomFileFilter)c.getFileFilter()).getExtensions();
+	        String nameLower = file.getName().toLowerCase();
+	        System.out.println(nameLower);
+	        for (String ext : exts) { // check if it already has a valid extension
+	            if (nameLower.endsWith('.' + ext.toLowerCase())) {
+	                return file; // if yes, return as-is
+	            }
+	        }
+	        // if not, append the first extension from the selected filter
+	        file = new File(file.toString() + (exts[0].startsWith(".") ? "" : ".") + exts[0]);
+	    }
+	    return file;
+	}
+	
 
+
+	private static String getFileExtension(File file) {
+	    String name = file.getName();
+	    int lastIndexOf = name.lastIndexOf(".");
+	    if (lastIndexOf == -1) {
+	        return ""; // empty extension
+	    }
+	    return name.substring(lastIndexOf + 1);
+	}
+
+	public static void saveImages(ArrayList<BufferedImage> imgs)
+		{
+			if (imageFc == null)
+			{
+				createImageChooser();
+			}
+			imageFc.setMultiSelectionEnabled(false);
+			if (imageFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION) {
+				try
+					{
+						File f = getSelectedFileWithExtension(imageFc);
+						String ext = getFileExtension(f);
+						System.out.println(f.getName() + " : " + ext);
+						if (ext.equals("apng")) {
+							FileOutputStream os = new FileOutputStream(f);
+							ApngIO.imagesToApng(imgs, os);
+							os.close();
+						} else {
+							ImageIO.write(imgs.get(0),ext,f);
+						}
+					}
+				catch (IOException e)
+					{
+					LGM.showDefaultExceptionHandler(e);
+					}
+			}
+		}
+	
+	public static void saveImage(BufferedImage img)
+		{
+			if (imageFc == null)
+			{
+				createImageChooser();
+			}
+			imageFc.setMultiSelectionEnabled(false);
+			if (imageFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION) {
+				try
+					{
+						File f = getSelectedFileWithExtension(imageFc);
+						String ext = getFileExtension(f);
+						System.out.println(f.getName() + " : " + ext);
+						if (ext.equals("apng")) {
+							ArrayList<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
+							imgs.add(img);
+							FileOutputStream os = new FileOutputStream(f);
+							ApngIO.imagesToApng(imgs,os);
+							os.close();
+						} else {
+							ImageIO.write(img,ext,f);
+						}
+					}
+				catch (IOException e)
+					{
+					LGM.showDefaultExceptionHandler(e);
+					}
+			}
+		}
+	
 	public static BufferedImage getValidImage()
 		{
 		File f = chooseImageFile();
@@ -414,7 +483,9 @@ public final class Util
 					}
 				else if (f[i].getName().endsWith(".apng"))
 					{
-					subframes.addAll(ApngIO.apngToBufferedImages(new FileInputStream(f[i])));
+					FileInputStream is = new FileInputStream(f[i]);
+					subframes.addAll(ApngIO.apngToBufferedImages(is));
+					is.close();
 					}
 				else
 					{
