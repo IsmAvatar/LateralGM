@@ -675,6 +675,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				}
 			}
 			fireContentsChanged(this, 0, list.size());
+			
 			if (updateundo) {
 				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_MOVE, indices, indicesmoved, null));
 			}
@@ -956,6 +957,7 @@ public static class ActionTransferHandler extends TransferHandler
 				addIndex = index;
 			} else {
 				alm.add(index, a);
+				list.setSelectionInterval(index,index);
 			}
 			return true;
 			}
@@ -978,6 +980,7 @@ public static class ActionTransferHandler extends TransferHandler
 				addIndex = index;
 			} else {
 				alm.addAll(index, a);
+				list.setSelectionInterval(index,index + a.size() - 1);
 			}
 			return true;
 			}
@@ -998,6 +1001,7 @@ public static class ActionTransferHandler extends TransferHandler
 				}
 
 			alm.add(index, a);
+			list.setSelectionInterval(index,index);
 			return true;
 			}
 		return false;
@@ -1360,6 +1364,7 @@ public static class ActionTransferHandler extends TransferHandler
 					ind = alm.getSize();
 				}
 				alm.addAll(ind, (List<Action>) actions);
+				list.setSelectionInterval(ind,ind += actions.size() - 1);
 				}
 			// throw unsupported flavor exception?
 			}

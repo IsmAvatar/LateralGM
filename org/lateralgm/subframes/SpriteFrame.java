@@ -413,15 +413,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		}
 
-	public static String formatData(long bytes)
-		{
-		if (bytes <= 0) return "0 B";
-		final String[] units = new String[] { "B","KB","MB","GB","TB" };
-		int digits = (int) (Math.log(bytes) / Math.log(1024));
-		return new DecimalFormat("#,##0.##").format(bytes / Math.pow(1024,digits)) + " "
-				+ units[digits];
-		}
-
 	private void updateStatusLabel()
 		{
 		String stat = " " + Messages.getString("SpriteFrame.WIDTH") + ": " + res.getWidth() + " | "
@@ -431,11 +422,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		if (res.subImages != null)
 			{
-			stat += formatData(res.subImages.getSize());
+			stat += Util.formatDataSize(res.subImages.getSize());
 			}
 		else
 			{
-			stat += formatData(0);
+			stat += Util.formatDataSize(0);
 			}
 
 		String zoom = new DecimalFormat("#,##0.##").format(getZoom() * 100);

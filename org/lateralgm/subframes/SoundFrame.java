@@ -26,7 +26,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -662,15 +661,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		return status;
 		}
 
-	public static String formatData(long bytes)
-		{
-		if (bytes <= 0) return "0 B";
-		final String[] units = new String[] { "B","KB","MB","GB","TB" };
-		int digits = (int) (Math.log(bytes) / Math.log(1024));
-		return new DecimalFormat("#,##0.##").format(bytes / Math.pow(1024,digits)) + " "
-				+ units[digits];
-		}
-
 	public void loadClip()
 		{
 
@@ -716,17 +706,17 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		String stat = " " + Messages.getString("SoundFrame.FILENAME") + ": "
 				+ res.get(PSound.FILE_NAME) + " | " + Messages.getString("SoundFrame.MEMORY") + ": ";
 
-		if (res.data.length != 0)
+		if (res.data != null && res.data.length != 0)
 			{
-			stat += formatData(res.data.length);
+			stat += Util.formatDataSize(res.data.length);
 			}
 		else if (data != null)
 			{
-			stat += formatData(data.length);
+			stat += Util.formatDataSize(data.length);
 			}
 		else
 			{
-			stat += formatData(0);
+			stat += Util.formatDataSize(0);
 			}
 
 		statusLabel.setText(stat);

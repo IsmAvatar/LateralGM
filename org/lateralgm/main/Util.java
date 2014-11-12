@@ -2,7 +2,7 @@
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
- * Copyright (C) 2013, Robert B. Colton
+ * Copyright (C) 2013, 2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -29,22 +29,29 @@ import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.plugins.bmp.BMPImageWriteParam;
 import javax.imageio.spi.IIORegistry;
+import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -111,7 +118,7 @@ public final class Util
 			throw new Error(e);
 			}
 		}
-
+	
 	public static ByteArrayOutputStream readFully(InputStream in) throws IOException
 		{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -148,6 +155,26 @@ public final class Util
 	public static String rectangleToString(Rectangle r)
 		{
 		return String.format("%d %d %d %d",r.x,r.y,r.width,r.height);
+		}
+	
+	// this is the size on disc in kibibytes
+	public static String formatDataSize(long bytes)
+		{
+		if (bytes <= 0) return "0 B";
+		final String[] units = new String[] { "B","KB","MB","GB","TB" };
+		int digits = (int) (Math.log(bytes) / Math.log(1024));
+		return new DecimalFormat("#,##0.##").format(bytes / Math.pow(1024,digits)) + " "
+				+ units[digits];
+		}
+	
+	// this is the size that Studio will report in kilobytes
+	public static String formatDataSizeAlt(long bytes)
+		{
+		if (bytes <= 0) return "0 B";
+		final String[] units = new String[] { "B","KB","MB","GB","TB" };
+		int digits = (int) (Math.log(bytes) / Math.log(1000));
+		return new DecimalFormat("#,##0.##").format(bytes / Math.pow(1000,digits)) + " "
+				+ units[digits];
 		}
 
 	public static BufferedImage toBufferedImage(Image image)
@@ -279,9 +306,47 @@ public final class Util
 	    }
 	    return name.substring(lastIndexOf + 1);
 	}
+	
+	//TODO: JPEG Writing is bugged in some newer JVM versions causing the RGB color channels to be mixed up.
+	// This is a bug Oracle claims to have fixed but they actually haven't.
+	// http://bugs.java.com/view_bug.do?bug_id=4712797
+	// http://bugs.java.com/view_bug.do?bug_id=4776576
+	// http://stackoverflow.com/questions/13072312/jpeg-image-color-gets-drastically-changed-after-just-imageio-read-and-imageio
+
+	public static void writeImageQualityPrompt(BufferedImage img, String ext, File f) throws FileNotFoundException, IOException {
+		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(ext);
+		ImageWriter writer = (ImageWriter)iter.next();
+		BMPImageWriteParam iwp = (BMPImageWriteParam) writer.getDefaultWriteParam();
+		if (iwp.canWriteCompressed()) {
+			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+			
+			for (String str : iwp.getCompressionTypes()) {
+				System.out.println(str);
+			}
+			if (ext.equals("jpg") || ext.equals("jpeg")) {
+				
+				iwp.setCompressionQuality(1.0f);
+			} else if (ext.equals("bmp")) {
+				iwp = (BMPImageWriteParam) iwp;
+				//iwp.setCompressionType("BI_BITFIELDS");
+				iwp.setCompressionType("BI_RLE4");
+				//iwp.setCompressionType("BI_RLE8");
+				//iwp.setCompressionType("BI_RGB");
+			}
+			
+		}
+		
+		FileImageOutputStream output = new FileImageOutputStream(f);
+		writer.setOutput(output);
+		IIOImage image = new IIOImage(img, null, null);
+		writer.write(null, image, iwp);
+		writer.dispose();
+		output.close();
+	}
 
 	public static void saveImages(ArrayList<BufferedImage> imgs)
 		{
+			if (imgs == null || imgs.size() <= 0) return; 
 			if (imageFc == null)
 			{
 				createImageChooser();
@@ -292,7 +357,6 @@ public final class Util
 					{
 						File f = getSelectedFileWithExtension(imageFc);
 						String ext = getFileExtension(f);
-						System.out.println(f.getName() + " : " + ext);
 						if (ext.equals("apng")) {
 							FileOutputStream os = new FileOutputStream(f);
 							ApngIO.imagesToApng(imgs, os);
@@ -310,6 +374,7 @@ public final class Util
 	
 	public static void saveImage(BufferedImage img)
 		{
+			if (img == null) return;
 			if (imageFc == null)
 			{
 				createImageChooser();
@@ -320,7 +385,6 @@ public final class Util
 					{
 						File f = getSelectedFileWithExtension(imageFc);
 						String ext = getFileExtension(f);
-						System.out.println(f.getName() + " : " + ext);
 						if (ext.equals("apng")) {
 							ArrayList<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
 							imgs.add(img);
@@ -328,7 +392,7 @@ public final class Util
 							ApngIO.imagesToApng(imgs,os);
 							os.close();
 						} else {
-							ImageIO.write(img,ext,f);
+							ImageIO.write(img, ext, f);
 						}
 					}
 				catch (IOException e)
