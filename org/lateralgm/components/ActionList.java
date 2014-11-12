@@ -1173,6 +1173,8 @@ public static class ActionTransferHandler extends TransferHandler
 				setOpaque(true);
 				setBackground(selected ? list.getSelectionBackground() : list.getBackground());
 				actlabel.setForeground(selected ? list.getSelectionForeground() : list.getForeground());
+				linelabel.setBackground(list.getBackground());
+				linelabel.setForeground(list.getForeground());
 				Action a = l.getModel().getElementAt(index);
 				LibAction la = a.getLibAction();
 				if (la.actImage == null)
