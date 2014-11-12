@@ -2028,6 +2028,7 @@ public final class LGM
 				if (decorate != decframe.isUndecorated()) {
 					//System.out.println(decframe.getTitle() + " : " + visible);
 					decframe.dispose();
+					decframe.setShape(null);
 					decframe.setUndecorated(decorate);
 					decframe.setVisible(visible);
 					// check cast to make sure we don't screw with the MDI frames.
@@ -2042,6 +2043,7 @@ public final class LGM
 					visible = decdialog.isVisible();
 					//System.out.println(decdialog.getTitle() + " : " + visible);
 					decdialog.dispose();
+					decdialog.setShape(null);
 					decdialog.setUndecorated(decorate);
 					decdialog.setVisible(visible);
 					// check cast to make sure we don't screw with the MDI frames.
