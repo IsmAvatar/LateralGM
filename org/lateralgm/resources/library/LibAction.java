@@ -29,6 +29,8 @@ public class LibAction
 	//control remove the transparent color when rendering. This allows the action to be written back without
 	//the transparency removed.
 	public boolean useTransparencyKey = false;
+	private BufferedImage transparentImage = null; // cached version of the image with transparency
+	
 	public int id = 0;
 	public int parentId = -1; //Preserves the id when library is unknown
 	public Library parent = null;
@@ -78,7 +80,7 @@ public class LibAction
 		}
 	
 	public BufferedImage getImage() {
-		return (useTransparencyKey ? Util.getTransparentImage(actImage) : actImage);
+		return (useTransparencyKey ? (transparentImage == null ? transparentImage = Util.getTransparentImage(actImage) : transparentImage) : actImage);
 	}
 	
 	}
