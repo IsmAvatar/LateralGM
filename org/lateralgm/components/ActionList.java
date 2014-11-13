@@ -70,6 +70,7 @@ import org.lateralgm.components.ActionListEditor.LibActionButton;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
@@ -1188,7 +1189,7 @@ public static class ActionTransferHandler extends TransferHandler
 						sb.append("<b>");
 					sb.append(escape(parse(la.listText,a)));
 					actlabel.setText(sb.toString());
-					actlabel.setIcon(new ImageIcon(la.actImage));
+					actlabel.setIcon(la.useTransparencyKey ? Util.getTransparentImageIcon(la.actImage) : new ImageIcon(la.actImage));
 
 					if (Prefs.actionToolTipLines > 0 && Prefs.actionToolTipColumns > 0)
 						{

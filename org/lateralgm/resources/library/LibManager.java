@@ -288,9 +288,8 @@ public final class LibManager
 
 			byte[] data = new byte[in.read4()];
 			in.read(data);
-			//TODO: If they are written from here on out the transparency color will have obviously been removed.
-			//This may need to be addressed if LGM ever has to for whatever reason save action libraries.
-			act.actImage = Util.getTransparentIcon(ImageIO.read(new ByteArrayInputStream(data)));
+			act.actImage = ImageIO.read(new ByteArrayInputStream(data));
+			act.useTransparencyKey = true;
 
 			act.hidden = in.readBool();
 			act.advanced = in.readBool();

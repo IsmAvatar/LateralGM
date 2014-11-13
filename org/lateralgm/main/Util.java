@@ -208,6 +208,23 @@ public final class Util
 		ImageProducer ip = new FilteredImageSource(i.getSource(),filter);
 		return toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
 		}
+	
+	public static ImageIcon getTransparentImageIcon(BufferedImage i)
+		{
+		if (i == null) return null;
+		final int t = i.getRGB(0,i.getHeight() - 1) & 0x00FFFFFF;
+		ImageFilter filter = new RGBImageFilter()
+			{
+				@Override
+				public int filterRGB(int x, int y, int rgb)
+					{
+					if ((rgb & 0x00FFFFFF) == t) return t;
+					return rgb;
+					}
+			};
+		ImageProducer ip = new FilteredImageSource(i.getSource(),filter);
+		return new ImageIcon(Toolkit.getDefaultToolkit().createImage(ip));
+		}
 
 	private static void createImageChooser() {
 		imageFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");

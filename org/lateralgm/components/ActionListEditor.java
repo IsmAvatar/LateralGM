@@ -35,6 +35,7 @@ import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.ActionList.LibActionTransferHandler;
 import org.lateralgm.components.visual.VTextIcon;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
@@ -131,7 +132,7 @@ public class ActionListEditor extends JPanel
 
 		public LibActionButton(LibAction la, ActionList list)
 			{
-			super(new ImageIcon(la.actImage));
+			super(la.useTransparencyKey ? Util.getTransparentImageIcon(la.actImage) : new ImageIcon(la.actImage));
 			this.list = list;
 			setToolTipText(la.description);
 			libAction = la;
