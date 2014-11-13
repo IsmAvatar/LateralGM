@@ -760,7 +760,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				}
 			else
 				{
-				l.img = compositeImage(transparencyBackground,Util.getTransparentIcon(img));
+				l.img = compositeImage(transparencyBackground,Util.getTransparentImage(img));
 				}
 
 			l.index = index;

@@ -192,7 +192,7 @@ public final class Util
 		return bimage;
 		}
 
-	public static BufferedImage getTransparentIcon(BufferedImage i)
+	public static BufferedImage getTransparentImage(BufferedImage i)
 		{
 		if (i == null) return null;
 		final int t = i.getRGB(0,i.getHeight() - 1) & 0x00FFFFFF;

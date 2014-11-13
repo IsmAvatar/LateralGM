@@ -261,7 +261,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 			}
 		if (subImages.size() < 1) return null;
 		bi = subImages.get(0);
-		if (get(PSprite.TRANSPARENT)) bi = Util.getTransparentIcon(bi);
+		if (get(PSprite.TRANSPARENT)) bi = Util.getTransparentImage(bi);
 		imageCache = new SoftReference<BufferedImage>(bi);
 		return bi;
 		}

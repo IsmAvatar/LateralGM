@@ -1490,7 +1490,7 @@ public final class LGM
 											SearchResultNode actRoot = new SearchResultNode(formatMatchCountText(act.getLibAction().name.replace("_"," "),actMatches));
 											actRoot.status = SearchResultNode.STATUS_ACTION;
 											actRoot.data = new Object[]{ii};
-											actRoot.setIcon(new ImageIcon(act.getLibAction().actImage.getScaledInstance(16,16,0)));
+											actRoot.setIcon(new ImageIcon(act.getLibAction().getImage().getScaledInstance(16,16,0)));
 											for (SearchResultNode actn : resultNodes) {
 												actRoot.add(actn);
 											}
@@ -1585,7 +1585,7 @@ public final class LGM
 										SearchResultNode actRoot = new SearchResultNode(formatMatchCountText(act.getLibAction().name.replace("_"," "), actMatches));
 										actRoot.status = SearchResultNode.STATUS_ACTION;
 										actRoot.data = new Object[]{ii};
-										actRoot.setIcon(new ImageIcon(act.getLibAction().actImage.getScaledInstance(16,16,0)));
+										actRoot.setIcon(new ImageIcon(act.getLibAction().getImage().getScaledInstance(16,16,0)));
 										for (SearchResultNode actn : resultNodes) {
 											actRoot.add(actn);
 										}

@@ -96,7 +96,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		setTitle(la.name.replace("_"," "));
 		if (la.parent == null) setTitle(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
 		if (la.actImage != null)
-			setFrameIcon(new ImageIcon(la.actImage.getScaledInstance(16,16,Image.SCALE_SMOOTH)));
+			setFrameIcon(new ImageIcon(la.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH)));
 		String s;
 		ResourceReference<GmObject> at = a.getAppliesTo();
 		if (at == GmObject.OBJECT_SELF)
@@ -228,7 +228,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		add(pane);
 		if (la.actImage != null)
 			{
-			lab = new JLabel(new ImageIcon(la.actImage));
+			lab = new JLabel(new ImageIcon(la.getImage()));
 			lab.setBorder(new EmptyBorder(16,16,16,20));
 			pane.add(lab,BorderLayout.LINE_START);
 			}

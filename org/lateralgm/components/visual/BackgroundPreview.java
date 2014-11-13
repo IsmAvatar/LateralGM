@@ -51,7 +51,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		{
 		if (background == null) return null;
 		if (!(Boolean) background.get(PBackground.TRANSPARENT)) return background.getBackgroundImage();
-		return Util.getTransparentIcon(background.getBackgroundImage());
+		return Util.getTransparentImage(background.getBackgroundImage());
 		}
 
 	public BufferedImage paintBackground()

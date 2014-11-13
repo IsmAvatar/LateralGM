@@ -10,6 +10,7 @@ package org.lateralgm.resources.library;
 
 import java.awt.image.BufferedImage;
 
+import org.lateralgm.main.Util;
 import org.lateralgm.resources.sub.Action;
 
 /**
@@ -75,4 +76,9 @@ public class LibAction
 		if (parentId != other.parentId) return false;
 		return true;
 		}
+	
+	public BufferedImage getImage() {
+		return (useTransparencyKey ? Util.getTransparentImage(actImage) : actImage);
+	}
+	
 	}

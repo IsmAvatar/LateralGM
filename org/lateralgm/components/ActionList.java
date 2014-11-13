@@ -1189,7 +1189,7 @@ public static class ActionTransferHandler extends TransferHandler
 						sb.append("<b>");
 					sb.append(escape(parse(la.listText,a)));
 					actlabel.setText(sb.toString());
-					actlabel.setIcon(la.useTransparencyKey ? Util.getTransparentImageIcon(la.actImage) : new ImageIcon(la.actImage));
+					actlabel.setIcon(new ImageIcon(la.getImage()));
 
 					if (Prefs.actionToolTipLines > 0 && Prefs.actionToolTipColumns > 0)
 						{

@@ -279,7 +279,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 		if (s == 0 || subIndex < 0) return null;
 		BufferedImage bi = sprite.subImages.get(subIndex % s);
 		if (!(Boolean) sprite.get(PSprite.TRANSPARENT)) return bi;
-		return Util.getTransparentIcon(bi);
+		return Util.getTransparentImage(bi);
 		}
 
 	public void updated(UpdateEvent e)

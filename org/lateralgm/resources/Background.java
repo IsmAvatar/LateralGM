@@ -71,7 +71,7 @@ public class Background extends InstantiableResource<Background,Background.PBack
 				}
 			}
 		bi = backgroundImage;
-		if (get(PBackground.TRANSPARENT)) bi = Util.getTransparentIcon(bi);
+		if (get(PBackground.TRANSPARENT)) bi = Util.getTransparentImage(bi);
 		imageCache = new SoftReference<BufferedImage>(bi);
 		return bi;
 		}

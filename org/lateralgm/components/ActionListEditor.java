@@ -132,7 +132,7 @@ public class ActionListEditor extends JPanel
 
 		public LibActionButton(LibAction la, ActionList list)
 			{
-			super(la.useTransparencyKey ? Util.getTransparentImageIcon(la.actImage) : new ImageIcon(la.actImage));
+			super(new ImageIcon(la.getImage()));
 			this.list = list;
 			setToolTipText(la.description);
 			libAction = la;
