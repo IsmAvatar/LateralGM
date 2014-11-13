@@ -40,6 +40,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ResourceList;
@@ -134,14 +136,39 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 
 		// build popup menu
 		final JPopupMenu popup = new JPopupMenu();
-		popup.add(makeContextButton(this.text.actUndo));
-		popup.add(makeContextButton(this.text.actRedo));
+		final JMenuItem undoItem = makeContextButton(this.text.actUndo);
+		popup.add(undoItem);
+		final JMenuItem redoItem = makeContextButton(this.text.actRedo);
+		popup.add(redoItem);
 		popup.addSeparator();
 		popup.add(makeContextButton(this.text.actCut));
 		popup.add(makeContextButton(this.text.actCopy));
 		popup.add(makeContextButton(this.text.actPaste));
 		popup.addSeparator();
 		popup.add(makeContextButton(this.text.actSelAll));
+		
+		popup.addPopupMenuListener(new PopupMenuListener() {
+
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent arg0)
+				{
+				// TODO Auto-generated method stub
+				}
+
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0)
+				{
+				// TODO Auto-generated method stub
+				}
+
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0)
+				{
+					undoItem.setEnabled(text.canUndo());
+					redoItem.setEnabled(text.canRedo());
+				}
+		
+		});
 
 		text.setComponentPopupMenu(popup);
 		}
@@ -175,8 +202,32 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		tb.add(makeToolbarButton("SAVE"));
 		tb.add(makeToolbarButton("PRINT"));
 		tb.addSeparator();
-		tb.add(makeToolbarButton("UNDO"));
-		tb.add(makeToolbarButton("REDO"));
+		final JButton undoButton = makeToolbarButton("UNDO");
+		tb.add(undoButton);
+		final JButton redoButton = makeToolbarButton("REDO");
+		tb.add(redoButton);
+		// need to set the default state unlike the component popup
+		undoButton.setEnabled(text.canUndo());
+		redoButton.setEnabled(text.canRedo());
+		text.addLineChangeListener(new LineChangeListener() {
+
+			@Override
+			public void linesChanged(Code code, int start, int end)
+				{
+					SwingUtilities.invokeLater(new Runnable() {
+
+						@Override
+						public void run()
+							{
+							undoButton.setEnabled(text.canUndo());
+							redoButton.setEnabled(text.canRedo());
+							}
+
+					});
+					
+				}
+		
+		});
 		tb.addSeparator();
 		tb.add(makeToolbarButton("FIND"));
 		tb.add(makeToolbarButton("GOTO"));

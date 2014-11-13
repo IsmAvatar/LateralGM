@@ -45,8 +45,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.InternalFrameEvent;
 
 import org.lateralgm.components.CodeTextArea;
@@ -55,7 +58,9 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.impl.TextAreaFocusTraversalPolicy;
 import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
+import org.lateralgm.joshedit.Code;
 import org.lateralgm.joshedit.DefaultTokenMarker;
+import org.lateralgm.joshedit.JoshText.LineChangeListener;
 import org.lateralgm.joshedit.lexers.GLESTokenMarker;
 import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
 import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
@@ -328,8 +333,42 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tb.add(makeToolbarButton("SAVE"));
 		tb.add(makeToolbarButton("PRINT"));
 		tb.addSeparator();
-		tb.add(makeToolbarButton("UNDO"));
-		tb.add(makeToolbarButton("REDO"));
+		final JButton undoButton = makeToolbarButton("UNDO");
+		tb.add(undoButton);
+		final JButton redoButton = makeToolbarButton("REDO");
+		tb.add(redoButton);
+		// need to set the default state unlike the component popup
+		undoButton.setEnabled(vcode.text.canUndo());
+		redoButton.setEnabled(vcode.text.canRedo());
+		LineChangeListener linelistener = new LineChangeListener() {
+
+			@Override
+			public void linesChanged(Code code, int start, int end)
+				{
+					SwingUtilities.invokeLater(new Runnable() {
+		
+						@Override
+						public void run()
+							{
+								CodeTextArea tcode = getSelectedCode();
+								undoButton.setEnabled(tcode.text.canUndo());
+								redoButton.setEnabled(tcode.text.canRedo());
+							}
+		
+					});
+				}
+		};
+		editors.addChangeListener(new ChangeListener() {
+		    public void stateChanged(ChangeEvent e) {
+						CodeTextArea tcode = getSelectedCode();
+						if (tcode == null) return;
+						undoButton.setEnabled(tcode.text.canUndo());
+						redoButton.setEnabled(tcode.text.canRedo());
+		    }
+		});
+		
+		fcode.text.addLineChangeListener(linelistener);
+		vcode.text.addLineChangeListener(linelistener);
 		tb.addSeparator();
 		tb.add(makeToolbarButton("FIND"));
 		tb.add(makeToolbarButton("GOTO"));
@@ -338,6 +377,21 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tb.add(makeToolbarButton("COPY"));
 		tb.add(makeToolbarButton("PASTE"));
 		}
+	
+	public CodeTextArea getSelectedCode() {
+		int stab = editors.getSelectedIndex();
+	
+		if (stab == 0)
+			{
+			return vcode;
+			}
+		else if (stab == 1)
+			{
+			return fcode;
+			}
+		// do not know which tab you have selected
+		return null;
+	}
 
 	public void actionPerformed(ActionEvent ev)
 		{
@@ -360,21 +414,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 
 		String com = ev.getActionCommand();
 
-		CodeTextArea tcode = null;
-		int stab = editors.getSelectedIndex();
-
-		if (stab == 0)
-			{
-			tcode = vcode;
-			}
-		else if (stab == 1)
-			{
-			tcode = fcode;
-			}
-		else
-			{
-			// do not know which tab you have selected
-			}
+		CodeTextArea tcode = getSelectedCode();
 
 		if (com.equals("JoshText.LOAD"))
 			{
