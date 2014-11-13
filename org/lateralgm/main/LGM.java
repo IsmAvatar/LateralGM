@@ -2525,8 +2525,9 @@ public final class LGM
 		// about transitivity when window decorations are disabled.
 		// The exception occurs on Windows 8 at startup from the Event Dispatch Thread with the Swing Look and Feel when
 		// window decorations are disabled.
-		filterPanel.setFocusTraversalPolicyProvider(true);
-		toolbar.setFocusTraversalPolicyProvider(true);
+		filterPanel.setFocusTraversalPolicyProvider(false);
+		toolbar.setFocusTraversalPolicyProvider(false);
+		eventSelect.setFocusTraversalPolicyProvider(false);
 		
 		splashProgress.progress(65,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
 		try
