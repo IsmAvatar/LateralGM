@@ -70,7 +70,6 @@ import org.lateralgm.components.ActionListEditor.LibActionButton;
 import org.lateralgm.components.mdi.MDIFrame;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;

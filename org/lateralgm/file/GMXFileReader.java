@@ -1594,7 +1594,7 @@ public final class GMXFileReader
 						{
 						rmn.put(PRoom.SPEED,Integer.parseInt(pnode.getTextContent()));
 						}
-					else if (pname.equals("pesistent"))
+					else if (pname.equals("persistent"))
 						{
 						rmn.put(PRoom.PERSISTENT,Integer.parseInt(pnode.getTextContent()) < 0);
 						}

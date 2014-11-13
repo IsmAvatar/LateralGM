@@ -30,7 +30,6 @@ import javax.imageio.ImageIO;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;

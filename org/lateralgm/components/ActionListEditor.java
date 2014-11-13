@@ -35,7 +35,6 @@ import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.ActionList.LibActionTransferHandler;
 import org.lateralgm.components.visual.VTextIcon;
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
