@@ -868,8 +868,8 @@ public final class LGM
 		
 		//NOTE: We do this to update the reference to the one now loaded
 		//since we never close these frames, then we simply revert their controls.
-		constantsFrame.res = LGM.currentFile.defaultConstants;
-		constantsFrame.resOriginal = LGM.currentFile.defaultConstants.clone();
+		constantsFrame.res = LGM.currentFile.gameSettings.constants;
+		constantsFrame.resOriginal = LGM.currentFile.gameSettings.constants.clone();
 		constantsFrame.revertResource();
 		constantsFrame.setVisible(false);
 		gameInfo.res = LGM.currentFile.gameInfo;
