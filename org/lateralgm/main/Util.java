@@ -57,6 +57,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -363,7 +364,13 @@ public final class Util
 
 	public static void saveImages(ArrayList<BufferedImage> imgs)
 		{
-			if (imgs == null || imgs.size() <= 0) return; 
+			if (imgs == null || imgs.size() <= 0) {
+				JOptionPane.showMessageDialog(LGM.frame,
+						Messages.getString("Util.NO_IMAGE_MESSAGE"),
+						Messages.getString("Util.NO_IMAGE_TITLE"),
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
 			if (imageFc == null)
 			{
 				createImageChooser();
@@ -391,7 +398,13 @@ public final class Util
 	
 	public static void saveImage(BufferedImage img)
 		{
-			if (img == null) return;
+			if (img == null) {
+				JOptionPane.showMessageDialog(LGM.frame,
+						Messages.getString("Util.NO_IMAGE_MESSAGE"),
+						Messages.getString("Util.NO_IMAGE_TITLE"),
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
 			if (imageFc == null)
 			{
 				createImageChooser();

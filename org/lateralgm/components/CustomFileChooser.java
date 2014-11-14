@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
+ * Copyright (C) 2014 Robert B. Colton
  * 
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.lateralgm.components.impl.CustomFileFilter;
@@ -23,6 +25,7 @@ public class CustomFileChooser extends JFileChooser
 	private static final long serialVersionUID = 1L;
 	private Preferences prefs;
 	private String propertyName;
+	private boolean fileMustExist = true;
 
 	public CustomFileChooser(String node, String propertyName)
 		{
@@ -31,12 +34,34 @@ public class CustomFileChooser extends JFileChooser
 		setCurrentDirectory(new File(prefs.get(propertyName,getCurrentDirectory().getAbsolutePath())));
 		}
 
+	@Override
 	public void approveSelection()
 		{
+		if (fileMustExist && this.getDialogType() == JFileChooser.OPEN_DIALOG) {
+			boolean fileExists = false;
+			if (this.isMultiSelectionEnabled()) {
+				for (File f : this.getSelectedFiles()) {
+					if (f.exists()) {
+						fileExists = true; break;
+					}
+				}
+			} else {
+				fileExists = this.getSelectedFile().exists();
+			}
+			if (!fileExists) {
+				JOptionPane.showMessageDialog(this,
+						Messages.getString("FileChooser.NOT_FOUND_MESSAGE"),
+						Messages.getString("FileChooser.NOT_FOUND_TITLE"),
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+		}
 		super.approveSelection();
+
 		saveDir();
 		}
 
+	@Override
 	public void cancelSelection()
 		{
 		super.cancelSelection();
@@ -48,6 +73,14 @@ public class CustomFileChooser extends JFileChooser
 		prefs.put(propertyName,getCurrentDirectory().getAbsolutePath());
 		}
 
+	public void setFileMustExist(boolean enable) {
+		fileMustExist = enable;
+	}
+	
+	public boolean getFileMustExist() {
+		return fileMustExist;
+	}
+	
 	/**
 	 * Sets the given <code>FilterSet</code> to be the current set
 	 * of chooseable file filters. The first item in the list will be set as

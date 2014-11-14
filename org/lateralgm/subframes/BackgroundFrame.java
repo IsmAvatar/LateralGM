@@ -512,10 +512,9 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		else if (cmd.endsWith(".SAVE"))
 			{
 			BufferedImage img = res.getBackgroundImage();
-			if (img != null)
-				{
-					Util.saveImage(img);
-				}
+			// utility function will check if the image is null and display an appropriate warning
+			// telling the user to create the image before saving
+			Util.saveImage(img);
 			return;
 			}
 		else if (cmd.endsWith(".CREATE"))
