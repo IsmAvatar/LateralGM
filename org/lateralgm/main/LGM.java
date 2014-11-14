@@ -142,6 +142,7 @@ import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.ResourceList;
+import org.lateralgm.joshedit.Runner;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.InstantiableResource;
@@ -2054,11 +2055,23 @@ public final class LGM
 			}
 		}
 	}
+	
+	private static class CustomExceptionHandler implements Runner.ExceptionHandler {
+
+		@Override
+		public void showDefaultExceptionHandler(Throwable e)
+			{
+				LGM.showDefaultExceptionHandler(e);
+			}
+	
+	}
   
 	public static void main(final String[] args) throws InvocationTargetException, InterruptedException
 		{
 		// Set the default uncaught exception handler.
 		LGM.setDefaultExceptionHandler();
+		// Redirect JoshEdit exceptions
+		Runner.exceptionHandler = new CustomExceptionHandler();
 
 		LGM.applyPreferences();
 		
