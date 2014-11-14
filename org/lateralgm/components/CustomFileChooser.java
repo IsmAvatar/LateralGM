@@ -25,8 +25,9 @@ public class CustomFileChooser extends JFileChooser
 	private static final long serialVersionUID = 1L;
 	private Preferences prefs;
 	private String propertyName;
-	private boolean fileMustExist = true;
-
+	private boolean fileMustExist = true; // whether to warn the user that the file they entered does not exist and keep the dialog open
+	private boolean confirmOverwrite = true; // whether to warn the user the file already exists when saving and ask whether to overwrite
+	
 	public CustomFileChooser(String node, String propertyName)
 		{
 		this.propertyName = propertyName;
@@ -34,20 +35,33 @@ public class CustomFileChooser extends JFileChooser
 		setCurrentDirectory(new File(prefs.get(propertyName,getCurrentDirectory().getAbsolutePath())));
 		}
 
+	public void setConfirmOverwrite(boolean enable) {
+		confirmOverwrite = enable;
+	}
+	
+	public boolean getConfirmOverwrite() {
+		return confirmOverwrite;
+	}
+	
+	public boolean getFileExists() {
+		boolean fileExists = false;
+		if (this.isMultiSelectionEnabled()) {
+			for (File f : this.getSelectedFiles()) {
+				if (f.exists()) {
+					fileExists = true; break;
+				}
+			}
+		} else {
+			fileExists = this.getSelectedFile().exists();
+		}
+		return fileExists;
+	}
+
 	@Override
 	public void approveSelection()
-		{
+	{
 		if (fileMustExist && this.getDialogType() == JFileChooser.OPEN_DIALOG) {
-			boolean fileExists = false;
-			if (this.isMultiSelectionEnabled()) {
-				for (File f : this.getSelectedFiles()) {
-					if (f.exists()) {
-						fileExists = true; break;
-					}
-				}
-			} else {
-				fileExists = this.getSelectedFile().exists();
-			}
+			boolean fileExists = getFileExists();
 			if (!fileExists) {
 				JOptionPane.showMessageDialog(this,
 						Messages.getString("FileChooser.NOT_FOUND_MESSAGE"),
@@ -55,11 +69,20 @@ public class CustomFileChooser extends JFileChooser
 						JOptionPane.WARNING_MESSAGE);
 				return;
 			}
+		} else if (confirmOverwrite && this.getDialogType() == JFileChooser.SAVE_DIALOG) {
+			boolean fileExists = getFileExists();
+			if (fileExists) {
+				if (JOptionPane.showConfirmDialog(this,
+					Messages.getString("FileChooser.CONFIRM_OVERWRITE_MESSAGE"),
+					Messages.getString("FileChooser.CONFIRM_OVERWRITE_TITLE"),
+					JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+					return;
+				}
+			}
 		}
 		super.approveSelection();
-
 		saveDir();
-		}
+	}
 
 	@Override
 	public void cancelSelection()
