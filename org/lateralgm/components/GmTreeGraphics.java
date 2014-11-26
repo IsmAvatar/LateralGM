@@ -12,6 +12,7 @@ package org.lateralgm.components;
 
 import static org.lateralgm.main.Util.deRef;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Image;
@@ -38,6 +39,8 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 	private static ImageIcon blankIcon;
 	private DefaultNode last;
 
+	private Color nonSelectColor;
+
 	public GmTreeGraphics()
 		{
 		super();
@@ -47,9 +50,15 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		setBorder(BorderFactory.createEmptyBorder(1,0,0,0));
 		}
 
+	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object val, boolean sel, boolean exp,
 			boolean leaf, int row, boolean focus)
 		{
+		// this is a patch for the DarkEye Synthetica look and feel which for some reason
+		// overrides its own UI property in its paint method, likely a bug on their part
+		// same fix applied in LGM.java for the Search Tree renderer
+		setTextNonSelectionColor(nonSelectColor);
+		
 		last = (DefaultNode) val;
 
 		Component com = super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
@@ -59,17 +68,18 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 			ResNode rn = (ResNode) val;
 			JLabel label = (JLabel) com;
 			if (rn.status == ResNode.STATUS_PRIMARY && Prefs.boldPrimaryNodes) {
-				//TODO: Sometimes causes new secondary nodes to be bold when you go to rename them
-				label.setFont(label.getFont().deriveFont(Font.BOLD));
-				//TODO: Causes nodes under DarkMoon to occasionally turn black instead of white for the foreground
-				//label.setText("<html><b>" + label.getText() + "</b></html>");
-			} else {
-				label.setFont(label.getFont().deriveFont(Font.PLAIN));
+				label.setText("<html><b>" + getText() + "</b></html>");
 			}
 		}
 
 		return com;
 		}
+	
+	@Override 
+	public void updateUI() {
+		super.updateUI();
+		nonSelectColor = this.getTextNonSelectionColor();
+	}
 
 	public static ImageIcon getBlankIcon()
 		{

@@ -29,7 +29,6 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -44,7 +43,6 @@ import java.util.Queue;
 import java.util.zip.DataFormatException;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -196,43 +194,6 @@ public final class GMXFileReader
 						"ProjectFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 
-	private static byte[] ReadBinaryFile(String path)
-		{
-		File file = new File(getUnixPath(path));
-		byte[] fileData = new byte[(int) file.length()];
-		DataInputStream dis = null;
-		try
-			{
-			dis = new DataInputStream(new FileInputStream(file));
-			dis.readFully(fileData);
-			}
-		catch (IOException e)
-			{
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(LGM.frame,"There was an issue opening a data input stream.",
-					"Read Error",JOptionPane.ERROR_MESSAGE);
-			}
-		finally
-			{
-			try
-				{
-				dis.close();
-				}
-			catch (IOException e)
-				{
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(LGM.frame,"There was an issue closing a data input stream.",
-						"Read Error",JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		return fileData;
-		}
-
-	public static String getUnixPath(String path)
-		{
-		return path.replace("\\","/");
-		}
-
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
 			throws GmFormatException
 		{
@@ -382,7 +343,7 @@ public final class GMXFileReader
 			}
 
 		String path = c.f.getPath();
-		path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(setNode.getTextContent());
+		path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(setNode.getTextContent());
 
 		Document setdoc = documentBuilder.parse(path + ".config.gmx");
 		if (setdoc == null)
@@ -478,7 +439,7 @@ public final class GMXFileReader
 
 		String icopath = new File(c.f.getPath()).getParent() + '\\'
 				+ setdoc.getElementsByTagName("option_windows_game_icon").item(0).getTextContent();
-		pSet.put(PGameSettings.GAME_ICON,new ICOFile(ReadBinaryFile(icopath)));
+		pSet.put(PGameSettings.GAME_ICON,new ICOFile(Util.readBinaryFile(icopath)));
 		pSet.put(PGameSettings.GAME_ID,
 				Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent()));
 		pSet.put(
@@ -542,13 +503,13 @@ public final class GMXFileReader
 			else if (cname.equals("sprite"))
 				{
 				Sprite spr = f.resMap.getList(Sprite.class).add();
-				String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				spr.setName(fileName);
 				spr.setNode(rnode);
 				rnode = new ResNode(spr.getName(),ResNode.STATUS_SECONDARY,Sprite.class,spr.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
 
 				Document sprdoc = documentBuilder.parse(path + ".sprite.gmx");
 				spr.put(PSprite.ORIGIN_X,
@@ -598,7 +559,7 @@ public final class GMXFileReader
 					{
 					Node fnode = frList.item(ii);
 					BufferedImage img = null;
-					img = ImageIO.read(new File(path + getUnixPath(fnode.getTextContent())));
+					img = ImageIO.read(new File(path + Util.getUnixPath(fnode.getTextContent())));
 					spr.subImages.add(img);
 					}
 				}
@@ -651,13 +612,13 @@ public final class GMXFileReader
 			else if (cname.equals("sound"))
 				{
 				Sound snd = f.resMap.getList(Sound.class).add();
-				String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				snd.setName(fileName);
 				rnode = new ResNode(snd.getName(),ResNode.STATUS_SECONDARY,Sound.class,snd.reference);
 				node.add(rnode);
 				snd.setNode(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
 
 				Document snddoc = documentBuilder.parse(path + ".sound.gmx");
 
@@ -698,7 +659,7 @@ public final class GMXFileReader
 					path = f.getPath();
 					path = path.substring(0,path.lastIndexOf('/') + 1) + "/sound/audio/" + fname;
 
-					snd.data = ReadBinaryFile(path);
+					snd.data = Util.readBinaryFile(path);
 					}
 				}
 			}
@@ -750,13 +711,13 @@ public final class GMXFileReader
 			else if (cname.equals("background"))
 				{
 				Background bkg = f.resMap.getList(Background.class).add();
-				String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				bkg.setName(fileName);
 				bkg.setNode(rnode);
 				rnode = new ResNode(bkg.getName(),ResNode.STATUS_SECONDARY,Background.class,bkg.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
 
 				Document bkgdoc = documentBuilder.parse(path + ".background.gmx");
 
@@ -792,7 +753,7 @@ public final class GMXFileReader
 				path = path.substring(0,path.lastIndexOf('/') + 1) + "/background/";
 				Node fnode = bkgdoc.getElementsByTagName("data").item(0);
 				BufferedImage img = null;
-				File imgfile = new File(path + getUnixPath(fnode.getTextContent()));
+				File imgfile = new File(path + Util.getUnixPath(fnode.getTextContent()));
 				if (imgfile.exists())
 					{
 					img = ImageIO.read(imgfile);
@@ -848,13 +809,13 @@ public final class GMXFileReader
 			else if (cname.equals("path"))
 				{
 				final Path pth = f.resMap.getList(Path.class).add();
-				String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				pth.setName(fileName);
 				pth.setNode(rnode);
 				rnode = new ResNode(pth.getName(),ResNode.STATUS_SECONDARY,Path.class,pth.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
 
 				Document pthdoc = documentBuilder.parse(path + ".path.gmx");
 				pth.put(PPath.SMOOTH,
@@ -951,14 +912,14 @@ public final class GMXFileReader
 			else if (cname.equals("script"))
 				{
 				Script scr = f.resMap.getList(Script.class).add();
-				String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				scr.setName(fileName.substring(0,fileName.lastIndexOf(".")));
 				scr.setNode(rnode);
 				rnode = new ResNode(scr.getName(),ResNode.STATUS_SECONDARY,Script.class,scr.reference);
 				node.add(rnode);
 				String code = "";
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
 				FileInputStream ins = new FileInputStream(path);
 				BufferedReader reader = null;
 				try
@@ -1027,7 +988,7 @@ public final class GMXFileReader
 			else if (cname.equals("shader"))
 				{
 				Shader shr = f.resMap.getList(Shader.class).add();
-				String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				shr.setName(fileName.substring(0,fileName.lastIndexOf(".")));
 				shr.setNode(rnode);
 				rnode = new ResNode(shr.getName(),ResNode.STATUS_SECONDARY,Shader.class,shr.reference);
@@ -1035,7 +996,7 @@ public final class GMXFileReader
 				shr.put(PShader.TYPE,cNode.getAttributes().item(0).getTextContent());
 				String code = "";
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
 				FileInputStream ins = new FileInputStream(path);
 				BufferedReader reader = null;
 				try
@@ -1106,13 +1067,13 @@ public final class GMXFileReader
 			else if (cname.equals("font"))
 				{
 				Font fnt = f.resMap.getList(Font.class).add();
-				String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				fnt.setName(fileName);
 				fnt.setNode(rnode);
 				rnode = new ResNode(fnt.getName(),ResNode.STATUS_SECONDARY,Font.class,fnt.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
 
 				Document fntdoc = documentBuilder.parse(path + ".font.gmx");
 				fnt.put(PFont.FONT_NAME,fntdoc.getElementsByTagName("name").item(0).getTextContent());
@@ -1208,13 +1169,13 @@ public final class GMXFileReader
 
 				Timeline tml = f.resMap.getList(Timeline.class).add();
 
-				String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				tml.setName(fileName);
 				tml.setNode(rnode);
 				rnode = new ResNode(tml.getName(),ResNode.STATUS_SECONDARY,Timeline.class,tml.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
 
 				Document tmldoc = documentBuilder.parse(path + ".timeline.gmx");
 
@@ -1299,12 +1260,12 @@ public final class GMXFileReader
 
 				final GmObject obj = f.resMap.getList(GmObject.class).add();
 
-				String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				obj.setName(fileName);
 				obj.setNode(rnode);
 
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
 
 				Document objdoc = documentBuilder.parse(path + ".object.gmx");
 
@@ -1545,13 +1506,13 @@ public final class GMXFileReader
 				//f.resMap.getList(Room.class).add(rmn);
 				Room rmn = f.resMap.getList(Room.class).add();
 
-				String fileName = new File(getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				rmn.setName(fileName);
 				rmn.setNode(rnode);
 				rnode = new ResNode(rmn.getName(),ResNode.STATUS_SECONDARY,Room.class,rmn.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
 
 				Document rmndoc = documentBuilder.parse(path + ".room.gmx");
 				String caption = rmndoc.getElementsByTagName("caption").item(0).getTextContent();
@@ -2061,7 +2022,7 @@ public final class GMXFileReader
 		Node rtfNode = rtfNodes.item(rtfNodes.getLength() - 1);
 
 		String path = c.f.getPath();
-		path = path.substring(0,path.lastIndexOf('/') + 1) + getUnixPath(rtfNode.getTextContent());
+		path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(rtfNode.getTextContent());
 
 		String text = "";
 

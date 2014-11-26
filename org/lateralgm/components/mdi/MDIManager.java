@@ -13,6 +13,8 @@ package org.lateralgm.components.mdi;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 import javax.swing.DefaultDesktopManager;
 import javax.swing.JComponent;
@@ -24,12 +26,42 @@ public class MDIManager extends DefaultDesktopManager
 	private static final long serialVersionUID = 1L;
 	public MDIPane pane;
 	public JScrollPane scroll;
-	/**prevents recursion*/
-	public boolean resizing = false;
 
-	public void setScrollPane(JScrollPane scroll)
+	public void setScrollPane(final JScrollPane scroll)
 		{
 		this.scroll = scroll;
+		this.scroll.setAutoscrolls(false);
+		this.scroll.addComponentListener(new ComponentListener() {
+
+			@Override
+			public void componentHidden(ComponentEvent arg0)
+				{
+				// TODO Auto-generated method stub
+				
+				}
+
+			@Override
+			public void componentMoved(ComponentEvent arg0)
+				{
+				// TODO Auto-generated method stub
+				
+				}
+
+			@Override
+			public void componentResized(ComponentEvent arg0)
+				{
+				// TODO Auto-generated method stub
+				//resizeDesktop();
+				}
+
+			@Override
+			public void componentShown(ComponentEvent arg0)
+				{
+				// TODO Auto-generated method stub
+				
+				}
+		
+		});
 		resizeDesktop();
 		}
 
@@ -81,8 +113,11 @@ public class MDIManager extends DefaultDesktopManager
 					}
 				else
 					{
-					pane.setPreferredSize(new Dimension(0,0));
-					f.setSize(viewrect.getSize());		
+					//
+					//scroll.getViewport().setViewSize(scroll.getViewport().getExtentSize());
+					//pane.setPreferredSize(new Dimension((int)viewrect.getWidth(),(int)viewrect.getHeight()-200));
+					f.setSize(pane.getSize());
+					
 					return;
 					}
 				}
@@ -122,6 +157,5 @@ public class MDIManager extends DefaultDesktopManager
 			pane.getParent().invalidate();
 			pane.getParent().validate();
 			pane.repaint();
-			resizing = false;
 		}
 	}

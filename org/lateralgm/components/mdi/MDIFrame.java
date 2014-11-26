@@ -70,7 +70,7 @@ public class MDIFrame extends JInternalFrame
 		{
 		this(title,resizable,closable,maximizable,false);
 		}
-
+	
 	public MDIFrame(String title, boolean resizable, boolean closable, boolean maximizable,
 			boolean iconifiable)
 		{

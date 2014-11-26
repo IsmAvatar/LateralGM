@@ -24,9 +24,12 @@ import java.awt.image.BufferedImage;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
+import java.awt.image.IndexColorModel;
 import java.awt.image.RGBImageFilter;
 import java.awt.image.WritableRaster;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -86,7 +89,8 @@ public final class Util
 		{
 		}
 
-	public static CustomFileChooser imageFc = null;
+	public static CustomFileChooser imageReadFc = null;
+	public static CustomFileChooser imageWriteFc = null;
 
 	public static void tweakIIORegistry()
 		{
@@ -226,15 +230,16 @@ public final class Util
 		ImageProducer ip = new FilteredImageSource(i.getSource(),filter);
 		return new ImageIcon(Toolkit.getDefaultToolkit().createImage(ip));
 		}
-
-	private static void createImageChooser() {
-		imageFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
-		imageFc.setAccessory(new FileChooserImagePreview(imageFc));
-		String[] exts = { "jpg","bmp","tif","jpeg","wbmp","apng","png","ico","TIF","TIFF","gif","tiff" };
+	
+	private static void createImageReadChooser() {
+		imageReadFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
+		imageReadFc.setAccessory(new FileChooserImagePreview(imageReadFc));
+		
+		String[] readexts = { "apng","ico","gif" };
 		if (LGM.javaVersion >= 10600) {
 			String[] internalexts = ImageIO.getReaderFileSuffixes();
 			ArrayList<String> extensions = new ArrayList<String>();
-			for (String ext : exts) {
+			for (String ext : readexts) {
 				extensions.add(ext);
 			}
 			for (String ext : internalexts) {
@@ -242,19 +247,51 @@ public final class Util
 					extensions.add(ext);
 				}
 			}
-			exts = extensions.toArray(new String[extensions.size()]);
+			readexts = extensions.toArray(new String[extensions.size()]);
 		}
-		for (int i = 0; i < exts.length; i++)
-			exts[i] = "." + exts[i]; //$NON-NLS-1$
+		for (int i = 0; i < readexts.length; i++)
+			readexts[i] = "." + readexts[i]; //$NON-NLS-1$
 		String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
-		CustomFileFilter filt = new CustomFileFilter(allSpiImages,exts);
-		imageFc.addChoosableFileFilter(filt);
-		for (String element : exts)
-			{
-			imageFc.addChoosableFileFilter(new CustomFileFilter(Messages.format("Util.FILES", //$NON-NLS-1$
+		
+		CustomFileFilter allSpiFilter = new CustomFileFilter(allSpiImages,readexts);
+		imageReadFc.addChoosableFileFilter(allSpiFilter);
+		for (String element : readexts) {
+			imageReadFc.addChoosableFileFilter(new CustomFileFilter(Messages.format("Util.FILES", //$NON-NLS-1$
 					element),element));
+		}
+		
+		imageReadFc.setFileFilter(allSpiFilter);
+	}
+
+	private static void createImageWriteChooser() {
+		imageWriteFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
+		
+		String[] writeexts = { "apng" };
+		if (LGM.javaVersion >= 10600) {
+			String[] internalexts = ImageIO.getWriterFileSuffixes();
+			ArrayList<String> extensions = new ArrayList<String>();
+			for (String ext : writeexts) {
+				extensions.add(ext);
 			}
-		imageFc.setFileFilter(filt);
+			for (String ext : internalexts) {
+				if (!extensions.contains(ext)) {
+					extensions.add(ext);
+				}
+			}
+			writeexts = extensions.toArray(new String[extensions.size()]);
+		}
+		for (int i = 0; i < writeexts.length; i++)
+			writeexts[i] = "." + writeexts[i]; //$NON-NLS-1$
+		String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
+		
+		CustomFileFilter allSpiFilter = new CustomFileFilter(allSpiImages,writeexts);
+		imageWriteFc.addChoosableFileFilter(allSpiFilter);
+		for (String element : writeexts) {
+			imageWriteFc.addChoosableFileFilter(new CustomFileFilter(Messages.format("Util.FILES", //$NON-NLS-1$
+					element),element));
+		}
+		
+		imageWriteFc.setFileFilter(allSpiFilter);
 	}
 	
 	/**
@@ -265,13 +302,13 @@ public final class Util
 	 */
 	public static File chooseImageFile()
 		{
-		if (imageFc == null)
+		if (imageReadFc == null)
 		{
-			createImageChooser();
+			createImageReadChooser();
 		}
-		imageFc.setMultiSelectionEnabled(false);
-		if (imageFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
-			return imageFc.getSelectedFile();
+		imageReadFc.setMultiSelectionEnabled(false);
+		if (imageReadFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+			return imageReadFc.getSelectedFile();
 		return null;
 		}
 	
@@ -283,13 +320,13 @@ public final class Util
 	 */
 	public static File[] chooseImageFiles()
 		{
-		if (imageFc == null)
+		if (imageReadFc == null)
 			{
-				createImageChooser();
+				createImageReadChooser();
 			}
-		imageFc.setMultiSelectionEnabled(true);
-		if (imageFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
-			return imageFc.getSelectedFiles();
+		imageReadFc.setMultiSelectionEnabled(true);
+		if (imageReadFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+			return imageReadFc.getSelectedFiles();
 		return null;
 		}
 	
@@ -302,8 +339,10 @@ public final class Util
 	    if (c.getFileFilter() instanceof CustomFileFilter) {
 	        String[] exts = ((CustomFileFilter)c.getFileFilter()).getExtensions();
 	        String nameLower = file.getName().toLowerCase();
-	        System.out.println(nameLower);
 	        for (String ext : exts) { // check if it already has a valid extension
+	        		if (ext.startsWith(".")) {
+	        			ext = ext.substring(1);
+	        		}
 	            if (nameLower.endsWith('.' + ext.toLowerCase())) {
 	                return file; // if yes, return as-is
 	            }
@@ -314,8 +353,6 @@ public final class Util
 	    return file;
 	}
 	
-
-
 	private static String getFileExtension(File file) {
 	    String name = file.getName();
 	    int lastIndexOf = name.lastIndexOf(".");
@@ -361,6 +398,26 @@ public final class Util
 		writer.dispose();
 		output.close();
 	}
+	
+	public static BufferedImage convertImage(BufferedImage img, int format, Color col) {
+		BufferedImage bi = new BufferedImage(img.getWidth(),img.getHeight(),format);
+		Graphics gd = bi.getGraphics();
+		if (col != null) {
+			gd.setColor(col);
+			gd.fillRect(0,0,img.getWidth(),img.getHeight());
+		}
+		gd.drawImage(img,0,0,img.getWidth(),img.getHeight(),null);
+		gd.dispose();
+		return bi;
+	}
+	
+	public static BufferedImage convertImage(BufferedImage img, int format) {
+		return convertImage(img, format, null);
+	}
+	
+	public static BufferedImage removeAlpha(BufferedImage img, Color col) {
+		return convertImage(img, BufferedImage.TYPE_BYTE_INDEXED, col);
+	}
 
 	public static void saveImages(ArrayList<BufferedImage> imgs)
 		{
@@ -371,22 +428,27 @@ public final class Util
 						JOptionPane.WARNING_MESSAGE);
 				return;
 			}
-			if (imageFc == null)
+			if (imageWriteFc == null)
 			{
-				createImageChooser();
+				createImageWriteChooser();
 			}
-			imageFc.setMultiSelectionEnabled(false);
-			if (imageFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION) {
+			imageWriteFc.setMultiSelectionEnabled(false);
+			if (imageWriteFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION) {
 				try
 					{
-						File f = getSelectedFileWithExtension(imageFc);
+						File f = getSelectedFileWithExtension(imageWriteFc);
 						String ext = getFileExtension(f);
 						if (ext.equals("apng")) {
 							FileOutputStream os = new FileOutputStream(f);
 							ApngIO.imagesToApng(imgs, os);
 							os.close();
 						} else {
-							ImageIO.write(imgs.get(0),ext,f);
+							// BMP and other formats can not write alpha transparent images, so if writing fails
+							// try to remove the alpha layer and then write
+							if (!ImageIO.write(imgs.get(0), ext, f)) {
+								BufferedImage bi = removeAlpha(imgs.get(0), Color.white);
+								ImageIO.write(bi,ext,f);
+							}
 						}
 					}
 				catch (IOException e)
@@ -405,15 +467,15 @@ public final class Util
 						JOptionPane.WARNING_MESSAGE);
 				return;
 			}
-			if (imageFc == null)
+			if (imageWriteFc == null)
 			{
-				createImageChooser();
+				createImageWriteChooser();
 			}
-			imageFc.setMultiSelectionEnabled(false);
-			if (imageFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION) {
+			imageWriteFc.setMultiSelectionEnabled(false);
+			if (imageWriteFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION) {
 				try
 					{
-						File f = getSelectedFileWithExtension(imageFc);
+						File f = getSelectedFileWithExtension(imageWriteFc);
 						String ext = getFileExtension(f);
 						if (ext.equals("apng")) {
 							ArrayList<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
@@ -421,8 +483,15 @@ public final class Util
 							FileOutputStream os = new FileOutputStream(f);
 							ApngIO.imagesToApng(imgs,os);
 							os.close();
+						//} else if (ext.equalsIgnoreCase("ico")) {
+							//new ICOFile(img.getRGB(startX,startY,w,h,rgbArray,offset,scansize)).write(new FileOutputStream(f));
 						} else {
-							ImageIO.write(img, ext, f);
+							// BMP and other formats can not write alpha transparent images, so if writing fails
+							// try to remove the alpha layer and then write
+							if (!ImageIO.write(img, ext, f)) {
+								BufferedImage bi = removeAlpha(img, Color.white);
+								ImageIO.write(bi,ext,f);
+							}
 						}
 					}
 				catch (IOException e)
@@ -432,19 +501,62 @@ public final class Util
 			}
 		}
 	
-	public static BufferedImage getValidImage()
+	public static byte[] readBinaryFile(String path)
 		{
-		File f = chooseImageFile();
-		if (f == null || !f.exists()) return null;
+		File file = new File(getUnixPath(path));
+		byte[] fileData = new byte[(int) file.length()];
+		DataInputStream dis = null;
 		try
 			{
-			return ImageIO.read(f);
+			dis = new DataInputStream(new FileInputStream(file));
+			dis.readFully(fileData);
 			}
 		catch (IOException e)
 			{
-			LGM.showDefaultExceptionHandler(e);
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(LGM.frame,"There was an issue opening a data input stream.",
+					"Read Error",JOptionPane.ERROR_MESSAGE);
 			}
-		return null;
+		finally
+			{
+			try
+				{
+				dis.close();
+				}
+			catch (IOException e)
+				{
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(LGM.frame,"There was an issue closing a data input stream.",
+						"Read Error",JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		return fileData;
+		}
+	
+	public static void writeBinaryFile(String path, byte[] data) throws IOException
+		{
+		BufferedOutputStream bos = null;
+		FileOutputStream fos = null;
+		try
+			{
+			//create an object of FileOutputStream
+			fos = new FileOutputStream(new File(Util.getUnixPath(path)));
+
+			//create an object of BufferedOutputStream
+			bos = new BufferedOutputStream(fos);
+			bos.write(data);
+			}
+		finally
+			{
+			bos.close();
+			fos.close();
+			}
+		}
+
+
+	public static String getUnixPath(String path)
+		{
+		return path.replace("\\","/");
 		}
 
 	private static ArrayList<BufferedImage> readGIF(File gif) throws IOException
@@ -555,9 +667,44 @@ public final class Util
 				masterGraphics.clearRect(x,y,image.getWidth(),image.getHeight());
 				}
 			}
+		masterGraphics.dispose();
 		reader.dispose();
 
 		return frames;
+		}
+	
+	public static BufferedImage getValidImage()
+		{
+		File f = chooseImageFile();
+		if (f == null || !f.exists()) return null;
+		try
+			{
+				if (f.getName().endsWith(".gif"))
+					{
+					return readGIF(f).get(0);
+					}
+				else if (f.getName().endsWith(".apng"))
+					{
+					FileInputStream is = new FileInputStream(f);
+					List<BufferedImage> imgs = ApngIO.apngToBufferedImages(is);
+					is.close();
+					return imgs.get(0);
+					}
+				else if (f.getName().endsWith(".ico")) 
+					{
+						List<BufferedImage> imgs = new ICOFile(readBinaryFile(f.getPath())).getImages();
+						return imgs.get(0);
+					} 
+				else 
+					{
+						return ImageIO.read(f);
+					}
+			}
+		catch (IOException e)
+			{
+			LGM.showDefaultExceptionHandler(e);
+			}
+		return null;
 		}
 
 	public static BufferedImage[] getValidImages()
@@ -580,6 +727,11 @@ public final class Util
 					FileInputStream is = new FileInputStream(f[i]);
 					subframes.addAll(ApngIO.apngToBufferedImages(is));
 					is.close();
+					}
+				else if (f[i].getName().endsWith(".ico")) 
+					{
+					List<BufferedImage> imgs = new ICOFile(readBinaryFile(f[i].getPath())).getImages();
+					return imgs.toArray(new BufferedImage[imgs.size()]);
 					}
 				else
 					{

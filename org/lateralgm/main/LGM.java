@@ -1924,6 +1924,7 @@ public final class LGM
 	public static class SearchResultsRenderer extends DefaultTreeCellRenderer
 	{
 		SearchResultNode last;
+		private Color nonSelectColor;
 		private static final long serialVersionUID = 1L;
 
 		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel,
@@ -1932,6 +1933,12 @@ public final class LGM
 			if (value instanceof SearchResultNode) {
 				last = (SearchResultNode) value;
 			}
+			
+			// this is a patch for the DarkEye Synthetica look and feel which for some reason
+			// overrides its own UI property in its paint method, likely a bug on their part
+			// same fix applied in GmTreeGraphics.java
+			setTextNonSelectionColor(nonSelectColor);
+			
 			Component com = super.getTreeCellRendererComponent(tree,value,sel,expanded,leaf,row,hasFocus);
 			
 			// Bold primary nodes
@@ -1944,6 +1951,13 @@ public final class LGM
 			}
 	
 			return com;
+		}
+		
+		
+		@Override 
+		public void updateUI() {
+			super.updateUI();
+			nonSelectColor = this.getTextNonSelectionColor();
 		}
 		
 		public Icon getLeafIcon()
