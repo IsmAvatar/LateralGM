@@ -52,7 +52,7 @@ class RTFReaderExt extends RTFParserExt
   /** Miscellaneous information about the parser's state. This
    *  dictionary is saved and restored when an RTF group begins
    *  or ends. */
-  Dictionary parserState;   /* Current parser state */
+  Dictionary<String,Object> parserState;   /* Current parser state */
   /** This is the "dst" item from parserState. rtfDestination
    *  is the current rtf destination. It is cached in an instance
    *  variable for speed. */

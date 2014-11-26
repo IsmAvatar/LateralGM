@@ -64,6 +64,7 @@ import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
+import org.lateralgm.components.visual.FileChooserImagePreview;
 import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
@@ -487,6 +488,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		randomise.addActionListener(this);
 
 		iconFc = new CustomFileChooser("/org/lateralgm","LAST_ICON_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
+		iconFc.setAccessory(new FileChooserImagePreview(iconFc));
 		iconFc.setFileFilter(new CustomFileFilter(
 				Messages.getString("GameSettingFrame.ICO_FILES"),".ico")); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -890,7 +892,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				File f = iconFc.getSelectedFile();
 				if (f.exists()) try
 					{
-					gameIcon = new ICOFile(new FileInputStream(f));
+					FileInputStream fis = new FileInputStream(f);
+					gameIcon = new ICOFile(fis);
+					fis.close();
 					setIconPreviewToGameIcon();
 					imagesChanged = true;
 					}

@@ -110,7 +110,9 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 
 		if (image != null)
 			{
-			if (transparentBackground == null)
+			if (transparentBackground == null || 
+					transparentBackground.getWidth() != image.getWidth() || 
+					transparentBackground.getHeight() != image.getHeight())
 				{
 				transparentBackground = paintBackground();
 				}

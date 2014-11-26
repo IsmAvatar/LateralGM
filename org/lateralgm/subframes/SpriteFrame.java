@@ -750,18 +750,17 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			l.setPreferredSize(new Dimension(61,(int) height));
 			//subList.setFixedCellWidth(61);
 			//subList.setFixedCellHeight(61);
-			if (transparencyBackground == null)
+			if ((Boolean) res.get(PSprite.TRANSPARENT)) {
+				img = Util.getTransparentImage(img);
+			}
+			if (transparencyBackground == null || 
+					transparencyBackground.getWidth() != img.getWidth() || 
+					transparencyBackground.getHeight() != img.getHeight())
 				{
 				transparencyBackground = paintBackground((int) width,(int) height,7);
 				}
-			if (!(Boolean) res.get(PSprite.TRANSPARENT))
-				{
+
 				l.img = compositeImage(transparencyBackground,img);
-				}
-			else
-				{
-				l.img = compositeImage(transparencyBackground,Util.getTransparentImage(img));
-				}
 
 			l.index = index;
 			l.list = list;
@@ -882,9 +881,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			{
 				public void valueChanged(ListSelectionEvent ev)
 					{
+					int ind = subList.getSelectedIndex();
+					if (ind < 0) return;
 					if (timer == null)
 						{
-						setSubIndex(subList.getSelectedIndex());
+						setSubIndex(ind);
 						}
 
 					}

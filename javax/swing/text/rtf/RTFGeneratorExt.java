@@ -567,7 +567,6 @@ void updateParagraphAttributes(MutableAttributeSet current,
                                boolean emitStyleChanges)
     throws IOException
 {
-    Object parm;
     Object oldStyle, newStyle;
 
     /* The only way to get rid of tabs or styles is with the \pard keyword,

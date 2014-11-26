@@ -130,7 +130,9 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 			{
 			Dimension d = getPreferredSize();
 
-			if (transparentBackground == null)
+			if (transparentBackground == null || 
+					transparentBackground.getWidth() != image.getWidth() || 
+					transparentBackground.getHeight() != image.getHeight())
 				{
 				transparentBackground = paintBackground();
 				}

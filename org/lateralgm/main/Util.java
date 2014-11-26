@@ -24,7 +24,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
-import java.awt.image.IndexColorModel;
 import java.awt.image.RGBImageFilter;
 import java.awt.image.WritableRaster;
 import java.io.BufferedOutputStream;
@@ -235,7 +234,7 @@ public final class Util
 		imageReadFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
 		imageReadFc.setAccessory(new FileChooserImagePreview(imageReadFc));
 		
-		String[] readexts = { "apng","ico","gif" };
+		String[] readexts = { "apng","gif" };
 		if (LGM.javaVersion >= 10600) {
 			String[] internalexts = ImageIO.getReaderFileSuffixes();
 			ArrayList<String> extensions = new ArrayList<String>();
@@ -690,11 +689,7 @@ public final class Util
 					is.close();
 					return imgs.get(0);
 					}
-				else if (f.getName().endsWith(".ico")) 
-					{
-						List<BufferedImage> imgs = new ICOFile(readBinaryFile(f.getPath())).getImages();
-						return imgs.get(0);
-					} 
+
 				else 
 					{
 						return ImageIO.read(f);

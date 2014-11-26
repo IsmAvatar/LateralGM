@@ -178,4 +178,5 @@ public class StreamDecoder extends InputStream
 		{
 		return Integer.toString(pos);
 		}
+	
 	}
