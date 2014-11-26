@@ -269,22 +269,22 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		JCheckBox sensorCB = new JCheckBox(Messages.getString("GmObjectFrame.SENSOR"));
 		plf.make(sensorCB,PGmObject.PHYSICS_SENSOR);
 
-		JLabel densityLabel = new JLabel(Messages.getString("GmObjectFrame.DENSITY") + ":");
+		JLabel densityLabel = new JLabel(Messages.getString("GmObjectFrame.DENSITY"));
 		NumberField densityField = new NumberField(0.0);
 		plf.make(densityField,PGmObject.PHYSICS_DENSITY);
-		JLabel restLabel = new JLabel(Messages.getString("GmObjectFrame.RESTITUTION") + ":");
+		JLabel restLabel = new JLabel(Messages.getString("GmObjectFrame.RESTITUTION"));
 		NumberField restField = new NumberField(0.0);
 		plf.make(restField,PGmObject.PHYSICS_RESTITUTION);
-		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP") + ":");
+		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP"));
 		NumberField groupField = new NumberField(0.0);
 		plf.make(groupField,PGmObject.PHYSICS_GROUP);
-		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_LINEAR") + ":");
+		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_LINEAR"));
 		NumberField linearField = new NumberField(0.0);
 		plf.make(linearField,PGmObject.PHYSICS_DAMPING_LINEAR);
-		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_ANGULAR") + ":");
+		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_ANGULAR"));
 		NumberField angularField = new NumberField(0.0);
 		plf.make(angularField,PGmObject.PHYSICS_DAMPING_ANGULAR);
-		JLabel frictionLabel = new JLabel(Messages.getString("GmObjectFrame.FRICTION") + ":");
+		JLabel frictionLabel = new JLabel(Messages.getString("GmObjectFrame.FRICTION"));
 		NumberField frictionField = new NumberField(0.0);
 		plf.make(frictionField,PGmObject.PHYSICS_FRICTION);
 
@@ -296,49 +296,50 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		panel.setLayout(layout);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(shapeBT)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*  */.addComponent(awakeCB)
 		/*  */.addComponent(kinematicCB))
 		/**/.addComponent(sensorCB)
-		/**/.addGroup(layout.createParallelGroup()
-		/*  */.addComponent(densityLabel)
-		/*  */.addComponent(restLabel)
-		/*  */.addComponent(groupLabel)
-		/*  */.addComponent(linearLabel)
-		/*  */.addComponent(angularLabel)
-		/*  */.addComponent(frictionLabel))
-		/**/.addGroup(layout.createParallelGroup()
-		/*  */.addComponent(densityField)
-		/*  */.addComponent(restField)
-		/*  */.addComponent(groupField)
-		/*  */.addComponent(linearField)
-		/*  */.addComponent(angularField)
-		/*  */.addComponent(frictionField))
-		/**/.addComponent(shapeBT));
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
+		/*  	*/.addComponent(densityLabel)
+		/*  	*/.addComponent(restLabel)
+		/*  	*/.addComponent(groupLabel)
+		/*  	*/.addComponent(linearLabel)
+		/*  	*/.addComponent(angularLabel)
+		/*  	*/.addComponent(frictionLabel))
+		/*	*/.addGroup(layout.createParallelGroup()
+		/*  	*/.addComponent(densityField)
+		/*  	*/.addComponent(restField)
+		/* 		*/.addComponent(groupField)
+		/* 	 	*/.addComponent(linearField)
+		/*  	*/.addComponent(angularField)
+		/*  	*/.addComponent(frictionField))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addComponent(shapeBT)
 		/**/.addGroup(layout.createParallelGroup()
 		/*  */.addComponent(awakeCB)
 		/*  */.addComponent(kinematicCB))
 		/**/.addComponent(sensorCB)
-		/**/.addGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
 		/*  */.addComponent(densityLabel)
-		/*  */.addComponent(densityField))
-		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(densityField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
 		/*  */.addComponent(restLabel)
-		/*  */.addComponent(restField))
-		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(restField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
 		/*  */.addComponent(groupLabel)
-		/*  */.addComponent(groupField))
-		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(groupField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
 		/*  */.addComponent(linearLabel)
-		/*  */.addComponent(linearField))
-		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(linearField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
 		/*  */.addComponent(angularLabel)
-		/*  */.addComponent(angularField))
-		/**/.addGroup(layout.createSequentialGroup()
+		/*  */.addComponent(angularField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
 		/*  */.addComponent(frictionLabel)
-		/*  */.addComponent(frictionField))
-		/**/.addComponent(shapeBT));
+		/*  */.addComponent(frictionField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)));
 
 		return panel;
 		}

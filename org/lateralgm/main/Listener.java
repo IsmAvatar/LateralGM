@@ -521,7 +521,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		else if (com.endsWith(".FIND"))
 			{
-			String name = JOptionPane.showInputDialog(null,"Enter the resource name:","Find Resource",
+			String name = JOptionPane.showInputDialog(null,Messages.getString("FindResourceDialog.MESSAGE"),
+					Messages.getString("FindResourceDialog.TITLE"),
 					JOptionPane.PLAIN_MESSAGE);
 			if (name != null)
 				{
