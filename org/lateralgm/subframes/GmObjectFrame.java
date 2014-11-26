@@ -352,7 +352,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		layout.setAutoCreateGaps(true);
 		panel.setLayout(layout);
 
-		JLabel nLabel = new JLabel(Messages.getString("GmObjectFrame.NAME") + ":"); //$NON-NLS-1$
+		JLabel nLabel = new JLabel(Messages.getString("GmObjectFrame.NAME")); //$NON-NLS-1$
 
 		JPanel origin = new JPanel();
 		GroupLayout oLayout = new GroupLayout(origin);
@@ -386,18 +386,18 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		plf.make(visible,PGmObject.VISIBLE);
 		solid = new JCheckBox(Messages.getString("GmObjectFrame.SOLID")); //$NON-NLS-1$
 		plf.make(solid,PGmObject.SOLID);
-		JLabel dLabel = new JLabel(Messages.getString("GmObjectFrame.DEPTH") + ":"); //$NON-NLS-1$
+		JLabel dLabel = new JLabel(Messages.getString("GmObjectFrame.DEPTH")); //$NON-NLS-1$
 		depth = new NumberField(0);
 		plf.make(depth,PGmObject.DEPTH);
 		persistent = new JCheckBox(Messages.getString("GmObjectFrame.PERSISTENT")); //$NON-NLS-1$
 		plf.make(persistent,PGmObject.PERSISTENT);
 		physics = new JCheckBox(Messages.getString("GmObjectFrame.PHYSICS")); //$NON-NLS-1$
 		plf.make(physics,PGmObject.PHYSICS_OBJECT);
-		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT") + ":"); //$NON-NLS-1$
+		JLabel pLabel = new JLabel(Messages.getString("GmObjectFrame.PARENT")); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.NO_PARENT"); //$NON-NLS-1$
 		parent = new ResourceMenu<GmObject>(GmObject.class,t,110);
 		plf.make(parent,PGmObject.PARENT);
-		JLabel mLabel = new JLabel(Messages.getString("GmObjectFrame.MASK") + ":"); //$NON-NLS-1$
+		JLabel mLabel = new JLabel(Messages.getString("GmObjectFrame.MASK")); //$NON-NLS-1$
 		t = Messages.getString("GmObjectFrame.SAME_AS_SPRITE"); //$NON-NLS-1$
 		mask = new ResourceMenu<Sprite>(Sprite.class,t,110);
 		plf.make(mask,PGmObject.MASK);
