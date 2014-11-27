@@ -353,37 +353,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	public BufferedImage backLoadImage;
 	public BufferedImage frontLoadImage;
 	public JCheckBox scaleProgressBar;
-	public JLabel iconPreview;
-	public ICOFile gameIcon;
-	public JButton changeIcon;
 	public NumberField gameId;
 	public JButton randomise;
-	private CustomFileChooser iconFc;
-	
-	private static BufferedImage scale_image(BufferedImage src, int imgType, int destSize) {
-		if(src == null) { return null; }
-			BufferedImage dest = new BufferedImage(destSize, destSize, imgType);
-			Graphics2D g = dest.createGraphics();
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			
-			AffineTransform at = AffineTransform.getScaleInstance(destSize/((float)src.getWidth()), destSize/((float)src.getHeight()));
-			g.drawRenderedImage(src, at);
-
-			return dest;
-	}
-
-	private void setIconPreviewToGameIcon() {
-		BufferedImage src = null;
-		if (gameIcon != null) {
-			src = (BufferedImage)gameIcon.getDisplayImage();
-			if (src!=null) {
-				if (src.getWidth()>32 || src.getHeight()>32) {
-					src = scale_image((BufferedImage)src, BufferedImage.TYPE_INT_ARGB, MAX_VIEWABLE_ICON_SIZE);
-				}
-			}
-		}
-		iconPreview.setIcon(new ImageIcon(src));
-	}
 
 	private JPanel makeLoadingPane()
 		{
@@ -472,13 +443,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/*		*/.addComponent(frontLoad))
 		/**/.addComponent(scaleProgressBar));
 
-		gameIcon = res.properties.get(PGameSettings.GAME_ICON);
-		iconPreview = new JLabel(Messages.getString("GameSettingFrame.GAME_ICON")); //$NON-NLS-1$
-		setIconPreviewToGameIcon();
 
-		iconPreview.setHorizontalTextPosition(SwingConstants.LEFT);
-		changeIcon = new JButton(Messages.getString("GameSettingFrame.CHANGE_ICON")); //$NON-NLS-1$
-		changeIcon.addActionListener(this);
 		JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new CustomFileFilter(Messages.getString("GameSettingFrame.ICO_FILES"),".ico")); //$NON-NLS-1$ //$NON-NLS-2$
 		JLabel lId = new JLabel(Messages.getString("GameSettingFrame.GAME_ID")); //$NON-NLS-1$
@@ -487,29 +452,19 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		randomise = new JButton(Messages.getString("GameSettingFrame.RANDOMIZE")); //$NON-NLS-1$
 		randomise.addActionListener(this);
 
-		iconFc = new CustomFileChooser("/org/lateralgm","LAST_ICON_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
-		iconFc.setAccessory(new FileChooserImagePreview(iconFc));
-		iconFc.setFileFilter(new CustomFileFilter(
-				Messages.getString("GameSettingFrame.ICO_FILES"),".ico")); //$NON-NLS-1$ //$NON-NLS-2$
-
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(loadImage,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addComponent(progBar,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(iconPreview)
 		/*				*/.addGroup(layout.createSequentialGroup()
 		/*						*/.addComponent(lId)
 		/*						*/.addComponent(gameId,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)))
 		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(changeIcon,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*				*/.addComponent(randomise,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(loadImage)
 		/**/.addComponent(progBar)
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(iconPreview)
-		/*		*/.addComponent(changeIcon))
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lId)
 		/*		*/.addComponent(gameId)
@@ -595,10 +550,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		return panel;
 		}
 
-	JTextField product;
 	JTextField author;
 	JTextField version;
-	JTextField copyright;
 	JTextField lastChanged;
 	JTextArea information;
 
@@ -608,16 +561,11 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
-		panel.setLayout(layout);
-
-		JLabel lProduct = new JLabel(Messages.getString("GameSettingFrame.PRODUCT")); //$NON-NLS-1$
-		product = new JTextField();
+		
 		JLabel lAuthor = new JLabel(Messages.getString("GameSettingFrame.AUTHOR")); //$NON-NLS-1$
 		author = new JTextField();
 		JLabel lVersion = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
 		version = new JTextField();
-		JLabel lCopyright = new JLabel(Messages.getString("GameSettingFrame.COPYRIGHT")); //$NON-NLS-1$
-		copyright = new JTextField();
 		JLabel lChanged = new JLabel(Messages.getString("GameSettingFrame.LASTCHANGED")); //$NON-NLS-1$
 		lastChanged = new JTextField(ProjectFile.gmTimeToString(res.getLastChanged()));
 		lastChanged.setEditable(false);
@@ -626,32 +574,23 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		information.setLineWrap(true);
 		JScrollPane infoScroll = new JScrollPane(information);
 
-		plf.make(product.getDocument(),PGameSettings.PRODUCT);
 		plf.make(author.getDocument(),PGameSettings.AUTHOR);
 		plf.make(version.getDocument(),PGameSettings.VERSION);
-		plf.make(copyright.getDocument(),PGameSettings.COPYRIGHT);
 		plf.make(information.getDocument(),PGameSettings.INFORMATION);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(lProduct)
 		/*				*/.addComponent(lAuthor)
 		/*				*/.addComponent(lVersion)
-		/*				*/.addComponent(lCopyright)
 		/*				*/.addComponent(lChanged))
 		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(product,DEFAULT_SIZE,240,MAX_VALUE)
 		/*				*/.addComponent(author,DEFAULT_SIZE,240,MAX_VALUE)
 		/*				*/.addComponent(version,DEFAULT_SIZE,240,MAX_VALUE)
-		/*				*/.addComponent(copyright,DEFAULT_SIZE,240,MAX_VALUE)
 		/*				*/.addComponent(lastChanged,DEFAULT_SIZE,240,MAX_VALUE)))
 		/**/.addComponent(lInfo,DEFAULT_SIZE,320,MAX_VALUE)
 		/**/.addComponent(infoScroll));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lProduct)
-		/*		*/.addComponent(product))
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lAuthor)
 		/*		*/.addComponent(author))
@@ -659,15 +598,158 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/*		*/.addComponent(lVersion)
 		/*		*/.addComponent(version))
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lCopyright)
-		/*		*/.addComponent(copyright))
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(lChanged)
 		/*		*/.addComponent(lastChanged))
 		/**/.addComponent(lInfo)
 		/**/.addComponent(infoScroll));
+		
+		panel.setLayout(layout);
 		return panel;
 		}
+	
+	public JLabel iconPreview;
+	public ICOFile gameIcon;
+	public JButton changeIcon;
+	private CustomFileChooser iconFc;
+	
+	private static BufferedImage scale_image(BufferedImage src, int imgType, int destSize) {
+		if(src == null) { return null; }
+			BufferedImage dest = new BufferedImage(destSize, destSize, imgType);
+			Graphics2D g = dest.createGraphics();
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			
+			AffineTransform at = AffineTransform.getScaleInstance(destSize/((float)src.getWidth()), destSize/((float)src.getHeight()));
+			g.drawRenderedImage(src, at);
+	
+			return dest;
+	}
+	
+	private void setIconPreviewToGameIcon() {
+		BufferedImage src = null;
+		if (gameIcon != null) {
+			src = (BufferedImage)gameIcon.getDisplayImage();
+			if (src!=null) {
+				if (src.getWidth()>32 || src.getHeight()>32) {
+					src = scale_image((BufferedImage)src, BufferedImage.TYPE_INT_ARGB, MAX_VIEWABLE_ICON_SIZE);
+				}
+			}
+		}
+		iconPreview.setIcon(new ImageIcon(src));
+	}
+		
+	NumberField versionMajorField;
+	NumberField versionMinorField;
+	NumberField versionReleaseField;
+	NumberField versionBuildField;
+	JTextField companyField;
+	JTextField productField;
+	JTextField copyrightField;
+	JTextField descriptionField;
+	
+	private JPanel makeWindowsPane() {
+		JPanel panel = new JPanel();
+		
+		gameIcon = res.properties.get(PGameSettings.GAME_ICON);
+		iconPreview = new JLabel(Messages.getString("GameSettingFrame.GAME_ICON")); //$NON-NLS-1$
+		setIconPreviewToGameIcon();
+
+		iconPreview.setHorizontalTextPosition(SwingConstants.LEFT);
+		changeIcon = new JButton(Messages.getString("GameSettingFrame.CHANGE_ICON")); //$NON-NLS-1$
+		changeIcon.addActionListener(this);
+		
+		iconFc = new CustomFileChooser("/org/lateralgm","LAST_ICON_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
+		iconFc.setAccessory(new FileChooserImagePreview(iconFc));
+		iconFc.setFileFilter(new CustomFileFilter(
+				Messages.getString("GameSettingFrame.ICO_FILES"),".ico")); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		JPanel versionPanel = new JPanel();
+		versionPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.VERSION_INFORMATION")));
+		
+		JLabel versionLabel = new JLabel(Messages.getString("GameSettingFrame.VERSION"));
+		versionMajorField = new NumberField(0);
+		plf.make(versionMajorField,PGameSettings.VERSION_MAJOR);
+		versionMinorField = new NumberField(0);
+		plf.make(versionMinorField,PGameSettings.VERSION_MINOR);
+		versionReleaseField = new NumberField(0);
+		plf.make(versionReleaseField,PGameSettings.VERSION_RELEASE);
+		versionBuildField = new NumberField(0);
+		plf.make(versionBuildField,PGameSettings.VERSION_BUILD);
+		JLabel companyLabel = new JLabel(Messages.getString("GameSettingFrame.COMPANY"));
+		companyField = new JTextField("");
+		plf.make(companyField.getDocument(),PGameSettings.COMPANY);
+		JLabel productLabel = new JLabel(Messages.getString("GameSettingFrame.PRODUCT"));
+		productField = new JTextField("");
+		plf.make(productField.getDocument(),PGameSettings.PRODUCT);
+		JLabel copyrightLabel = new JLabel(Messages.getString("GameSettingFrame.COPYRIGHT"));
+		copyrightField = new JTextField("");
+		plf.make(copyrightField.getDocument(),PGameSettings.COPYRIGHT);
+		JLabel descriptionLabel = new JLabel(Messages.getString("GameSettingFrame.DESCRIPTION"));
+		descriptionField = new JTextField("");
+		plf.make(descriptionField.getDocument(),PGameSettings.DESCRIPTION);
+		
+		GroupLayout vl = new GroupLayout(versionPanel);
+		vl.setAutoCreateGaps(true);
+		vl.setAutoCreateContainerGaps(true);
+		
+		vl.setHorizontalGroup(vl.createSequentialGroup()
+		/**/.addGroup(vl.createParallelGroup(Alignment.TRAILING)
+		/*	*/.addComponent(versionLabel)
+		/*	*/.addComponent(companyLabel)
+		/*	*/.addComponent(productLabel)
+		/*	*/.addComponent(copyrightLabel)
+		/*	*/.addComponent(descriptionLabel))
+		/**/.addGroup(vl.createParallelGroup()
+		/*	*/.addGroup(vl.createSequentialGroup()
+		/*		*/.addComponent(versionMajorField)
+		/*		*/.addComponent(versionMinorField)
+		/*		*/.addComponent(versionReleaseField)
+		/*		*/.addComponent(versionBuildField))
+		/*	*/.addComponent(companyField)
+		/*	*/.addComponent(productField)
+		/*	*/.addComponent(copyrightField)
+		/*	*/.addComponent(descriptionField)));
+		vl.setVerticalGroup(vl.createSequentialGroup()
+		/**/.addGroup(vl.createParallelGroup(Alignment.CENTER)
+		/*	*/.addComponent(versionLabel)
+		/*	*/.addComponent(versionMajorField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+		/*	*/.addComponent(versionMinorField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+		/*	*/.addComponent(versionReleaseField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+		/*	*/.addComponent(versionBuildField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(vl.createParallelGroup(Alignment.CENTER)
+		/*	*/.addComponent(companyLabel)
+		/*	*/.addComponent(companyField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(vl.createParallelGroup(Alignment.CENTER)
+		/*	*/.addComponent(productLabel)
+		/*	*/.addComponent(productField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(vl.createParallelGroup(Alignment.CENTER)
+		/*	*/.addComponent(copyrightLabel)
+		/*	*/.addComponent(copyrightField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/**/.addGroup(vl.createParallelGroup(Alignment.CENTER)
+		/*	*/.addComponent(descriptionLabel)
+		/*	*/.addComponent(descriptionField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)));
+		
+		versionPanel.setLayout(vl);
+
+		GroupLayout gl = new GroupLayout(panel);
+		
+		gl.setAutoCreateGaps(true);
+		gl.setAutoCreateContainerGaps(true);
+		
+		gl.setHorizontalGroup(gl.createParallelGroup()
+		/**/.addGroup(gl.createSequentialGroup()
+		/*	*/.addComponent(iconPreview)
+		/*	*/.addComponent(changeIcon))
+		/**/.addComponent(versionPanel));
+		gl.setVerticalGroup(gl.createSequentialGroup()
+		/**/.addGroup(gl.createParallelGroup()
+		/*	*/.addComponent(iconPreview)
+		/*	*/.addComponent(changeIcon))
+		/**/.addComponent(versionPanel));
+		
+		panel.setLayout(gl);
+		
+		return panel;
+	}
 
 	public JButton discardButton;
 
@@ -754,61 +836,34 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		this.setSize(600,500);
 		}
 
+	private DefaultMutableTreeNode buildTab(DefaultMutableTreeNode root, String key, JComponent pane) {
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(Messages.getString(key));
+		root.add(node);
+		if (pane != null) {
+			pane.setName(key);
+			cardPane.add(Messages.getString(key),pane);
+		}
+		return node;
+	}
+	
 	private void buildTabs(DefaultMutableTreeNode root)
 		{
 		cardPane = new JPanel(new CardLayout());
 		
-		JComponent pane = makeGraphicsPane();
+		buildTab(root, "GameSettingFrame.TAB_GRAPHICS", makeGraphicsPane());
+		buildTab(root, "GameSettingFrame.TAB_RESOLUTION", makeResolutionPane());
+		buildTab(root, "GameSettingFrame.TAB_OTHER", makeOtherPane());
+		buildTab(root, "GameSettingFrame.TAB_LOADING", makeLoadingPane());
+		buildTab(root, "GameSettingFrame.TAB_INCLUDE", makeIncludePane());
+		buildTab(root, "GameSettingFrame.TAB_ERRORS", makeErrorPane());
+		buildTab(root, "GameSettingFrame.TAB_INFO", makeInfoPane());
+		buildTab(root, "GameSettingFrame.TAB_TEXTUREATLASES", makeTextureAtlasesPane());
 		
-		DefaultMutableTreeNode node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_GRAPHICS"));
-		root.add(node);
-		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_GRAPHICS"));
-
-		pane = makeResolutionPane();
-		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_RESOLUTION"));
-		root.add(node);
-		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_RESOLUTION"));
-
-		pane = makeOtherPane();
-		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_OTHER"));
-		root.add(node);
-		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_OTHER"));
-
-		pane = makeLoadingPane();
-		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_LOADING"));
-		root.add(node);
-		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_LOADING"));
-
-		pane = makeIncludePane();
-		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_INCLUDE"));
-		root.add(node);
-		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_INCLUDE"));
-
-		pane = makeErrorPane();
-		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_ERRORS"));
-		root.add(node);
-		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_ERRORS"));
-
-		pane = makeInfoPane();
-		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_INFO"));
-		root.add(node);
-		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_INFO"));
-
-		pane = makeTextureAtlasesPane();
-		node = new DefaultMutableTreeNode(Messages.getString("GameSettingFrame.TAB_TEXTUREATLASES"));
-		root.add(node);
-		cardPane.add(pane,Messages.getString("GameSettingFrame.TAB_TEXTUREATLASES"));
+		DefaultMutableTreeNode pnode = buildTab(root, "GameSettingFrame.TAB_PLATFORMS", null);
 		
-		
-		DefaultMutableTreeNode pnode = new DefaultMutableTreeNode("Platforms");
-		root.add(pnode);
-		
-		node = new DefaultMutableTreeNode("Windows");
-		pnode.add(node);
-		node = new DefaultMutableTreeNode("Mac");
-		pnode.add(node);
-		node = new DefaultMutableTreeNode("Ubuntu");
-		pnode.add(node);
+		buildTab(pnode, "GameSettingFrame.TAB_WINDOWS", makeWindowsPane());
+		buildTab(pnode, "GameSettingFrame.TAB_MAC", null);
+		buildTab(pnode, "GameSettingFrame.TAB_UBUNTU", null);
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -822,27 +877,52 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			return;
 			}
 		//TODO: icky way of getting the selected index
-		int index = 0;
+		String name = null;
 		for (Component comp : cardPane.getComponents()) {
-		    if (comp.isVisible() == true) {
-		        break;
-		    }
-		    index++;
+			name = comp.getName();
+	    if (comp.isVisible() == true && name != null) {
+	      break;
+	    }
 		}
-		switch (index)
-			{
-			case 0:
-				if (e.getSource() instanceof JRadioButton) scale.setEnabled(scaling.getValue() > 0);
-				break;
-			case 1:
-				resolutionPane.setVisible(setResolution.isSelected());
-				break;
-			case 3:
-				loadActionPerformed(e);
-				break;
-			}
+		if (name.endsWith(".TAB_GRAPHICS")) {
+			if (e.getSource() instanceof JRadioButton) scale.setEnabled(scaling.getValue() > 0);
+		} else if (name.endsWith(".TAB_RESOLUTION")) {
+			resolutionPane.setVisible(setResolution.isSelected());
+		} else if (name.endsWith(".TAB_LOADING")) {
+			loadActionPerformed(e);
+		} else if (name.endsWith(".TAB_WINDOWS")) {
+			windowsActionPerformed(e);
 		}
-
+		
+		}
+	
+	private void windowsActionPerformed(ActionEvent e)
+		{
+			if (e.getSource() == changeIcon)
+				{
+				if (iconFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+					{
+					File f = iconFc.getSelectedFile();
+					if (f.exists()) try
+						{
+						FileInputStream fis = new FileInputStream(f);
+						gameIcon = new ICOFile(fis);
+						fis.close();
+						setIconPreviewToGameIcon();
+						imagesChanged = true;
+						}
+					catch (FileNotFoundException e1)
+						{
+						e1.printStackTrace();
+						}
+					catch (IOException ex)
+						{
+						ex.printStackTrace();
+						}
+					}
+				}
+		}
+	
 	private void loadActionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == showCustomLoadImage)
@@ -885,29 +965,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				imagesChanged = true;
 				}
 			}
-		else if (e.getSource() == changeIcon)
-			{
-			if (iconFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
-				{
-				File f = iconFc.getSelectedFile();
-				if (f.exists()) try
-					{
-					FileInputStream fis = new FileInputStream(f);
-					gameIcon = new ICOFile(fis);
-					fis.close();
-					setIconPreviewToGameIcon();
-					imagesChanged = true;
-					}
-				catch (FileNotFoundException e1)
-					{
-					e1.printStackTrace();
-					}
-				catch (IOException ex)
-					{
-					ex.printStackTrace();
-					}
-				}
-			}
 		else if (e.getSource() == randomise)
 			{
 			gameId.setValue(new Random().nextInt(100000001));
@@ -916,15 +973,13 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 	public void commitChanges()
 		{
+		// in GMX this is two options binded together into one value
 		//res.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,softwareVertexProcessing.is);
 		res.put(PGameSettings.SCALING,scaling.getValue() > 0 ? scale.getIntValue() : scaling.getValue());
 		res.put(PGameSettings.LOADING_IMAGE,customLoadingImage);
 		res.put(PGameSettings.BACK_LOAD_BAR,backLoadImage);
 		res.put(PGameSettings.FRONT_LOAD_BAR,frontLoadImage);
 		res.put(PGameSettings.GAME_ICON,gameIcon);
-		res.put(PGameSettings.INFORMATION,information.getText());
-		res.put(PGameSettings.COPYRIGHT,copyright.getText());
-		res.put(PGameSettings.PRODUCT,product.getText());
 		//we don't update the lastChanged time - that's only altered on file save/load
 		}
 

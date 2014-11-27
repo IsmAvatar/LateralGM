@@ -160,7 +160,7 @@ public final class GMXFileWriter
 		ProjectFileContext c = new ProjectFileContext(f,dom);
 		Element root = dom.createElement("assets");
 		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
-		writeSettings(c,root);
+		writeConfigurations(c,root);
 
 		LGM.setProgress(10,Messages.getString("ProgressDialog.SPRITES"));
 		writeSprites(c,root);
@@ -248,7 +248,7 @@ public final class GMXFileWriter
 			}
 		}
 
-	public static void writeSettings(ProjectFileContext c, Element root) throws IOException,
+	public static void writeConfigurations(ProjectFileContext c, Element root) throws IOException,
 			TransformerException
 		{
 		Document dom = c.dom;
@@ -350,6 +350,8 @@ public final class GMXFileWriter
 				(String) f.gameSettings.get(PGameSettings.DESCRIPTION)));
 		optNode.appendChild(createElement(dom,"option_version_product",
 				(String) f.gameSettings.get(PGameSettings.PRODUCT)));
+		optNode.appendChild(createElement(dom,"option_information",
+				(String) f.gameSettings.get(PGameSettings.INFORMATION)));
 		optNode.appendChild(createElement(dom,"option_version",
 				f.gameSettings.get(PGameSettings.VERSION).toString()));
 		optNode.appendChild(createElement(dom,"option_version_build",

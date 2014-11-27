@@ -152,6 +152,12 @@ public final class PrefsStore
 		Prefs.openGLAcceleration = s;
 		}
 
+	public static void setPrefixes(String s)
+		{
+		PREFS.put("prefixes",s);
+		Prefs.createPrefixes(s);
+		}
+	
 	public static void setIconPath(String s)
 		{
 		PREFS.put("iconPath",s);

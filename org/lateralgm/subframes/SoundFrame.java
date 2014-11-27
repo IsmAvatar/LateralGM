@@ -285,6 +285,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		tool.setAlignmentX(0);
 
 		tool.add(save);
+		tool.addSeparator();
 
 		load = new JButton(LOAD_ICON);
 		load.setToolTipText(Messages.getString("SoundFrame.LOAD")); //$NON-NLS-1$

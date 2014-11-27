@@ -41,6 +41,7 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 	public static final ArrayList<Class<? extends Resource<?,?>>> kinds = new ArrayList<Class<? extends Resource<?,?>>>();
 	public static final boolean hasNode = true;
 	public boolean changed = false;
+
 	static
 		{
 		Class<?>[] ca = { Sprite.class,Sound.class,Background.class,Path.class,Script.class,
@@ -50,8 +51,13 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 		String[] chr3 = { "SPR","SND","BKG","PTH", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				"SCR","SHR","FNT","TML","OBJ", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				"RMM","INC","EXT","CST","GMI","GMS","PKG" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-
+		
 		int leng = chr3.length;
+		//TODO: Do this separately for now because addKind requires Messages
+		for (int i = 0; i < leng; i++)
+			{
+			kindsByName3.put(chr3[i],(Class<? extends Resource<?,?>>) ca[i]);
+			}
 		for (int i = 0; i < leng; i++)
 			{
 			addKind(chr3[i],ca[i]);

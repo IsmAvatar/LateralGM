@@ -268,7 +268,7 @@ public final class GMXFileReader
 			LGM.setProgress(130,Messages.getString("ProgressDialog.GAMEINFORMATION"));
 			readGameInformation(c,root);
 			LGM.setProgress(140,Messages.getString("ProgressDialog.SETTINGS"));
-			readSettings(c,root);
+			readConfigurations(c,root);
 			LGM.setProgress(150,Messages.getString("ProgressDialog.PACKAGES"));
 			readPackages(c,root);
 
@@ -301,7 +301,7 @@ public final class GMXFileReader
 		LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED"));
 		}
 
-	private static void readSettings(ProjectFileContext c, ResNode root) throws IOException,
+	private static void readConfigurations(ProjectFileContext c, ResNode root) throws IOException,
 			GmFormatException,DataFormatException,SAXException
 		{
 		Document in = c.in;
@@ -449,6 +449,10 @@ public final class GMXFileReader
 
 		pSet.put(PGameSettings.AUTHOR,
 				setdoc.getElementsByTagName("option_author").item(0).getTextContent());
+		pSet.put(PGameSettings.VERSION,
+				setdoc.getElementsByTagName("option_version").item(0).getTextContent());
+		pSet.put(PGameSettings.INFORMATION,
+				setdoc.getElementsByTagName("option_information").item(0).getTextContent());
 		pSet.put(PGameSettings.COMPANY,
 				setdoc.getElementsByTagName("option_version_company").item(0).getTextContent());
 		pSet.put(PGameSettings.COPYRIGHT,
@@ -457,8 +461,6 @@ public final class GMXFileReader
 				setdoc.getElementsByTagName("option_version_description").item(0).getTextContent());
 		pSet.put(PGameSettings.PRODUCT,
 				setdoc.getElementsByTagName("option_version_product").item(0).getTextContent());
-		pSet.put(PGameSettings.VERSION,
-				setdoc.getElementsByTagName("option_version").item(0).getTextContent());
 		pSet.put(
 				PGameSettings.VERSION_BUILD,
 				Integer.parseInt(setdoc.getElementsByTagName("option_version_build").item(0).getTextContent()));

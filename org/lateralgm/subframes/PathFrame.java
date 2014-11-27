@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -133,8 +134,10 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		ResourceMenu<Room> room = new ResourceMenu<Room>(Room.class,
 				Messages.getString("PathFrame.NO_ROOM"),160);
 		plf.make(room,PPath.BACKGROUND_ROOM);
+		JSeparator saveSep = new JSeparator(JSeparator.VERTICAL);
 		layout.setHorizontalGroup(layout.createSequentialGroup()
-		/**/.addComponent(save).addPreferredGap(ComponentPlacement.RELATED)
+		/**/.addComponent(save)
+		/**/.addComponent(saveSep,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addComponent(lsx).addComponent(sx,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addComponent(lsy).addComponent(sy,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
@@ -144,6 +147,7 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		/**/.addComponent(room,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE).addContainerGap());
 		layout.setVerticalGroup(layout.createBaselineGroup(false,false)
 		/**/.addComponent(save)
+		/**/.addComponent(saveSep)
 		/**/.addComponent(lsx).addComponent(sx)
 		/**/.addComponent(lsy).addComponent(sy)
 		/**/.addComponent(grid).addComponent(room));

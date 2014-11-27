@@ -30,8 +30,12 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
@@ -39,6 +43,8 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -46,6 +52,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -73,6 +80,8 @@ import org.lateralgm.main.Prefs;
 import org.lateralgm.main.PrefsStore;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.InstantiableResource;
+import org.lateralgm.resources.Resource;
 
 public class PreferencesFrame extends JFrame implements ActionListener
 	{
@@ -473,30 +482,75 @@ public class PreferencesFrame extends JFrame implements ActionListener
 
 		return p;
 		}
+	
+	protected class PrefixList extends JPanel
+	  {
+	  	/**
+		 * TODO: Change if needed.
+		 */
+		private static final long serialVersionUID = 1L;
+			private Map<Class<? extends Resource<?,?>>, JTextField> prefixMap = new HashMap<Class<? extends Resource<?,?>>,JTextField>();
+	  	
+	  	public PrefixList() {
+				GroupLayout gl = new GroupLayout(this);
+				gl.setAutoCreateGaps(true);
+				gl.setAutoCreateContainerGaps(true);
+	
+				ParallelGroup labelGroup = gl.createParallelGroup(Alignment.TRAILING);
+				ParallelGroup textfieldGroup = gl.createParallelGroup();
+				SequentialGroup verticalGroup = gl.createSequentialGroup();
+				
+				for (Entry<Class<? extends Resource<?,?>>,String> ent : Resource.kindNames.entrySet()) {
+					if (!InstantiableResource.class.isAssignableFrom(ent.getKey())) {
+						continue;
+					}
+					
+					JLabel label = new JLabel(ent.getValue());
+					JTextField textfield = new JTextField(Prefs.prefixes.get(ent.getKey()));
+					prefixMap.put(ent.getKey(),textfield);
+					
+					ParallelGroup vg = gl.createParallelGroup(Alignment.CENTER);
+					
+					labelGroup.addComponent(label);
+					textfieldGroup.addComponent(textfield);
+					vg.addComponent(label);
+					vg.addComponent(textfield,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE);
 
+					verticalGroup.addGroup(vg);
+				}
+				
+				gl.setHorizontalGroup(gl.createSequentialGroup().addGroup(labelGroup).addGroup(textfieldGroup));
+				gl.setVerticalGroup(verticalGroup);
+				
+				this.setLayout(gl);
+	  	}
+	  	
+	  	public String getFormattedPrefixes() {
+	  		String ret = "";
+	  		for (Entry<String,Class<? extends Resource<?,?>>> ent : Resource.kindsByName3.entrySet()) {
+	  			if (!InstantiableResource.class.isAssignableFrom(ent.getValue())) {
+	  				continue;
+	  			}
+	  			ret += ent.getKey() + ">" + prefixMap.get(ent.getValue()).getText() + "\t";
+	  		}
+	  		
+	  		return ret;
+	  	}
+	  
+	  }
+
+	private PrefixList prefixList;
+	
 	private JPanel makeMimePrefixPrefs()
 		{
 		JPanel p = new JPanel();
 
-		JLabel spriteLabel = new JLabel("Sprite:");
-		JTextField spritePrefix = new JTextField("spr_");
-		JLabel soundLabel = new JLabel("Sound:");
-		JTextField soundPrefix = new JTextField("snd_");
-		JLabel backgroundLabel = new JLabel("Background:");
-		JTextField backgroundPrefix = new JTextField("bg_");
-		JLabel pathLabel = new JLabel("Path:");
-		JTextField pathPrefix = new JTextField("pth_");
-		JLabel scriptLabel = new JLabel("Script:");
-		JTextField scriptPrefix = new JTextField("scr_");
-		JLabel fontLabel = new JLabel("Font:");
-		JTextField fontPrefix = new JTextField("fnt_");
-		JLabel timelineLabel = new JLabel("Timeline:");
-		JTextField timelinePrefix = new JTextField("tl_");
-		JLabel objectLabel = new JLabel("Object:");
-		JTextField objectPrefix = new JTextField("obj_");
-		JLabel roomLabel = new JLabel("Room:");
-		JTextField roomPrefix = new JTextField("rm_");
-
+		prefixList = new PrefixList();
+		prefixList.setSize(new Dimension(100,100));
+		JScrollPane prefixScroll = new JScrollPane(prefixList);
+		
+		prefixScroll.setBorder(BorderFactory.createTitledBorder("Prefixes"));
+		
 		JLabel backgroundMIMELabel = new JLabel("Background MIME:");
 		backgroundMIME = new JTextField(Prefs.externalBackgroundExtension);
 		JLabel spriteMIMELabel = new JLabel("Sprite MIME:");
@@ -511,69 +565,24 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		gl.setHorizontalGroup(
 		/**/gl.createParallelGroup(Alignment.LEADING)
 		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addGroup(gl.createParallelGroup(Alignment.TRAILING)
-		/*			*/.addComponent(timelineLabel)
-		/*			*/.addComponent(pathLabel)
-		/*			*/.addComponent(spriteLabel))
-		/*		*/.addGroup(gl.createParallelGroup(Alignment.LEADING)
-		/*			*/.addComponent(spritePrefix)
-		/*			*/.addComponent(timelinePrefix)
-		/*			*/.addComponent(pathPrefix))
-		/*		*/.addGroup(gl.createParallelGroup(Alignment.LEADING,false)
-		/*			*/.addComponent(soundLabel)
-		/*			*/.addComponent(objectLabel)
-		/*			*/.addComponent(scriptLabel))
-		/*		*/.addGroup(gl.createParallelGroup(Alignment.LEADING)
-		/*			*/.addComponent(soundPrefix)
-		/*			*/.addComponent(scriptPrefix)
-		/*			*/.addComponent(objectPrefix))
-		/*		*/.addGroup(gl.createParallelGroup(Alignment.LEADING,false)
-		/*			*/.addComponent(backgroundLabel)
-		/*			*/.addComponent(fontLabel)
-		/*			*/.addComponent(roomLabel))
-		/*		*/.addGroup(gl.createParallelGroup(Alignment.LEADING)
-		/*			*/.addComponent(roomPrefix)
-		/*			*/.addComponent(fontPrefix)
-		/*			*/.addComponent(backgroundPrefix)))
-		/*		*/.addGroup(gl.createSequentialGroup()
-		/*			*/.addComponent(backgroundMIMELabel)
-		/*			*/.addComponent(backgroundMIME)
-		/*			*/.addComponent(spriteMIMELabel)
-		/*			*/.addComponent(spriteMIME)
-		/*			*/.addComponent(scriptMIMELabel)
-		/*			*/.addComponent(scriptMIME)));
+		/*		*/.addComponent(backgroundMIMELabel)
+		/*		*/.addComponent(backgroundMIME)
+		/*		*/.addComponent(spriteMIMELabel)
+		/*		*/.addComponent(spriteMIME)
+		/*		*/.addComponent(scriptMIMELabel)
+		/*		*/.addComponent(scriptMIME))
+		/*	*/.addComponent(prefixScroll));
 
 		gl.setVerticalGroup(
 		/**/gl.createSequentialGroup()
-		/*	*/.addGroup(gl.createSequentialGroup()
-		/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-		/*			*/.addComponent(soundPrefix)
-		/*			*/.addComponent(backgroundLabel)
-		/*			*/.addComponent(backgroundPrefix)
-		/*			*/.addComponent(spritePrefix,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*			*/.addComponent(spriteLabel)
-		/*			*/.addComponent(soundLabel))
-		/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-		/*			*/.addComponent(pathLabel)
-		/*			*/.addComponent(pathPrefix,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*			*/.addComponent(scriptPrefix,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*			*/.addComponent(fontPrefix,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*			*/.addComponent(scriptLabel)
-		/*			*/.addComponent(fontLabel))
-		/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-		/*			*/.addComponent(timelinePrefix,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*			*/.addComponent(objectPrefix,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*			*/.addComponent(roomPrefix,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*			*/.addComponent(timelineLabel)
-		/*			*/.addComponent(objectLabel)
-		/*			*/.addComponent(roomLabel,PREFERRED_SIZE,18,PREFERRED_SIZE)))
-		/*		*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-		/*			*/.addComponent(backgroundMIMELabel)
-		/*			*/.addComponent(backgroundMIME,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*			*/.addComponent(spriteMIMELabel)
-		/*			*/.addComponent(spriteMIME,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*			*/.addComponent(scriptMIMELabel)
-		/*			*/.addComponent(scriptMIME,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)));
+		/*	*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(backgroundMIMELabel)
+		/*		*/.addComponent(backgroundMIME,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*		*/.addComponent(spriteMIMELabel)
+		/*		*/.addComponent(spriteMIME,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*		*/.addComponent(scriptMIMELabel)
+		/*		*/.addComponent(scriptMIME,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/*	*/.addComponent(prefixScroll));
 
 		p.setLayout(gl);
 
@@ -888,10 +897,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*		*/.addComponent(applyBut)
 		/*		*/.addComponent(closeBut)));
 
-
 		add(p,BorderLayout.SOUTH);
 		pack();
-		setSize(800,500);
+		setSize(800,600);
 		setLocationRelativeTo(LGM.frame);
 		}
 
@@ -925,6 +933,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		PrefsStore.setInvertedColorForSelection(useInvertedColorForSelection.isSelected());
 		PrefsStore.setSelectionInsideColor(Util.getGmColorWithAlpha(selectionInsideColor.getSelectedColor()));
 		PrefsStore.setSelectionOutsideColor(Util.getGmColorWithAlpha(selectionOutsideColor.getSelectedColor()));
+		
+		PrefsStore.setPrefixes(prefixList.getFormattedPrefixes());
 		
 		PrefsStore.setDecorateWindowBorders(decorateWindowBordersCheckBox.isSelected());
 		PrefsStore.setAntialiasControlFont(antialiasCombo.getSelectedItem().toString().toLowerCase());

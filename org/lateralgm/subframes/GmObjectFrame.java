@@ -276,7 +276,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		NumberField restField = new NumberField(0.0);
 		plf.make(restField,PGmObject.PHYSICS_RESTITUTION);
 		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP"));
-		NumberField groupField = new NumberField(0.0);
+		NumberField groupField = new NumberField(0);
 		plf.make(groupField,PGmObject.PHYSICS_GROUP);
 		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_LINEAR"));
 		NumberField linearField = new NumberField(0.0);

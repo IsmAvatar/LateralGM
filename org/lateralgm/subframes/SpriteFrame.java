@@ -316,6 +316,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.setAlignmentX(0);
 
 		tool.add(save);
+		
+		tool.addSeparator();
 
 		load = new JButton(LOAD_ICON);
 		load.setToolTipText(Messages.getString("SpriteFrame.LOAD")); //$NON-NLS-1$

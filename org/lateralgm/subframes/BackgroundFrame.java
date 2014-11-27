@@ -253,6 +253,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		tool.setAlignmentX(0);
 
 		tool.add(save);
+		tool.addSeparator();
+		
 		tool.add(makeJButton("BackgroundFrame.CREATE"));
 		tool.add(makeJButton("BackgroundFrame.LOAD"));
 		tool.add(makeJButton("BackgroundFrame.SAVE"));

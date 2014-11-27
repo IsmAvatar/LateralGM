@@ -29,39 +29,42 @@ import org.lateralgm.main.Prefs;
 
 public final class Messages
 	{
-	private static final String BUNDLE_NAME = "org.lateralgm.messages.messages"; //$NON-NLS-1$
-	private static final String KEYBOARD_BUNDLE_NAME = "org.lateralgm.messages.keyboard"; //$NON-NLS-1$
+	private static final String LANGUAGE_BUNDLE_NAME = "org.lateralgm.messages.messages"; //$NON-NLS-1$
+	private static final String INPUT_BUNDLE_NAME = "org.lateralgm.messages.keyboard"; //$NON-NLS-1$
 	
 	// NOTE: See comments about locale below.
-	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, new Locale("",""));
-	private static ResourceBundle KEYBOARD_BUNDLE = ResourceBundle.getBundle(KEYBOARD_BUNDLE_NAME);
+	private static ResourceBundle RESOURCE_BUNDLE = null;
+	private static ResourceBundle KEYBOARD_BUNDLE = ResourceBundle.getBundle(INPUT_BUNDLE_NAME);
 	
-	private static boolean prefsApplied = false;
+	static 
+	{
+		updateLangPack();
+	}
 	
 	private Messages()
 		{
-
+			
 		}
 
 	//TODO: This method is exceedingly verbose, and we also need a way for users to install their own language packages.
 	public static void updateLangPack()
 		{
-		String langbundle = "org.lateralgm.messages.messages";
+		String langbundle = LANGUAGE_BUNDLE_NAME;
 		if (Prefs.languageName.contains("English"))
 			{
-			langbundle = "org.lateralgm.messages.messages"; //$NON-NLS-1$
+			langbundle = LANGUAGE_BUNDLE_NAME; //$NON-NLS-1$
 			}
 		else if (Prefs.languageName.contains("French"))
 			{
-			langbundle = "org.lateralgm.messages.messages_fr"; //$NON-NLS-1$
+			langbundle = LANGUAGE_BUNDLE_NAME + "_fr"; //$NON-NLS-1$
 			}
 		else if (Prefs.languageName.contains("Turkish"))
 			{
-			langbundle = "org.lateralgm.messages.messages_tr_TR"; //$NON-NLS-1$
+			langbundle = LANGUAGE_BUNDLE_NAME + "_tr_TR"; //$NON-NLS-1$
 			}
 		else if (Prefs.languageName.contains("Danish"))
 			{
-			langbundle = "org.lateralgm.messages.messages_da"; //$NON-NLS-1$
+			langbundle = LANGUAGE_BUNDLE_NAME + "_da"; //$NON-NLS-1$
 			}
 		// The bogus locale stops the Operating System Locale from overriding the preference the user
 		// has selected, this was reported by egofree where his OS had French but he wanted all English translations.
@@ -71,10 +74,6 @@ public final class Messages
 
 	public static String getString(String key)
 		{
-		// need to apply the language pack from preferences if we have not done so
-		// because of static loaded messages like for the resource names on the tree
-		//TODO: Find a better way to do this, ask IsmAvatar if we should be loading messages statically.
-		if (!prefsApplied) updateLangPack();
 		try
 			{
 			return RESOURCE_BUNDLE.getString(key);

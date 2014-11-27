@@ -2088,6 +2088,7 @@ public final class LGM
 		Runner.exceptionHandler = new CustomExceptionHandler();
 
 		LGM.applyPreferences();
+		Messages.updateLangPack();
 		
 		//TODO: Should probably make these preferences as well, but I don't have a Mac to test - Robert
 		//Put the Mac menu bar where it belongs (ignored by other systems)

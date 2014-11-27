@@ -29,13 +29,14 @@ public final class Prefs
 	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 	private static final Preferences PREFS = Preferences.userRoot().node("/org/lateralgm");
 
-	static
-		{
+	static 
+	{
 		loadPrefs();
-		}
-
+	}
+	
 	private Prefs()
 		{
+		
 		}
 
 	public static String getString(String key, String def)
@@ -95,21 +96,7 @@ public final class Prefs
 		tabSize = getInt("tabSize",4);
 		String d = "OBJ>obj_	SPR>spr_	SND>snd_	RMM>rm_	 BKG>bkg_  PTH>path_	SCR>scr_"
 				+ "  SHR>shr_	 FNT>font_	TML>time_";
-		String[] p = getString("prefixes",d).split("\\t+");
-		prefixes = new HashMap<Class<? extends Resource<?,?>>,String>();
-		for (int i = 0; i < p.length; i++)
-			{
-			String[] kv = p[i].split(">",2);
-			try
-				{
-				Class<? extends Resource<?,?>> k = Resource.kindsByName3.get(kv[0]);
-				if (k != null) prefixes.put(k,kv[1]);
-				}
-			catch (IllegalArgumentException e)
-				{
-				e.printStackTrace();
-				}
-			}
+		createPrefixes(getString("prefixes",d));
 		languageName = getString("languageName","English");
 		manualPath = getString("manualPath","http://enigma-dev.org/docs/Wiki/Main_Page");
 		enableDragAndDrop = getBoolean("enableDragAndDrop",true);
@@ -166,6 +153,25 @@ public final class Prefs
 		selectionOutsideColor = getInt("selectionOutsideColor",Util.getGmColorWithAlpha(Color.BLACK));
 		useFilledRectangleForSelection = getBoolean("filledRectangleForSelection",false);
 		useInvertedColorForSelection = getBoolean("invertedColorForSelection",false);
+		}
+
+	public static void createPrefixes(String pref)
+		{
+		String[] p = pref.split("\\t+");
+		prefixes = new HashMap<Class<? extends Resource<?,?>>,String>();
+		for (int i = 0; i < p.length; i++)
+			{
+			String[] kv = p[i].split(">",2);
+			try
+				{
+				Class<? extends Resource<?,?>> k = Resource.kindsByName3.get(kv[0]);
+				if (k != null) prefixes.put(k,kv[1]);
+				}
+			catch (IllegalArgumentException e)
+				{
+				e.printStackTrace();
+				}
+			}
 		}
 
 	public static String iconPack;
