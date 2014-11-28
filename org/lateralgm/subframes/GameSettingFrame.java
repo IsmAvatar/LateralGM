@@ -884,6 +884,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	      break;
 	    }
 		}
+		if (name == null) return;
 		if (name.endsWith(".TAB_GRAPHICS")) {
 			if (e.getSource() instanceof JRadioButton) scale.setEnabled(scaling.getValue() > 0);
 		} else if (name.endsWith(".TAB_RESOLUTION")) {
