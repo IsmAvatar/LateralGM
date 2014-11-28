@@ -842,7 +842,7 @@ public final class GMXFileReader
 								{
 								return false;
 								}
-							//pth.put(PPath.BACKGROUND_ROOM, rmn.reference);
+							pth.put(PPath.BACKGROUND_ROOM, rmn.reference);
 
 							return true;
 							}

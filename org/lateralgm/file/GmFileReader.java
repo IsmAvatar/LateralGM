@@ -159,13 +159,13 @@ public final class GmFileReader
 						"ProjectFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 
-	public static ProjectFile readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
+	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
 			throws GmFormatException
 		{
-		return readProjectFile(stream,file,uri,root,null);
+		 	readProjectFile(stream,file,uri,root,null);
 		}
 
-	public static ProjectFile readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
+	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
 		GmStreamDecoder in = null;
@@ -336,7 +336,6 @@ public final class GmFileReader
 				}
 			}
 		LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED"));
-		return file;
 		}
 
 	private static void readSettings(ProjectFileContext c) throws IOException,GmFormatException,
