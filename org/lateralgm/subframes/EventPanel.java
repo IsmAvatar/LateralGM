@@ -51,6 +51,7 @@ import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
+import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
@@ -60,7 +61,7 @@ import org.lateralgm.subframes.GmObjectFrame.EventGroupNode;
 import org.lateralgm.subframes.GmObjectFrame.EventInstanceNode;
 
 public class EventPanel extends CustomJToolBar implements ActionListener,TreeSelectionListener,
-		PropertyChangeListener
+		PropertyChangeListener, UpdateListener
 	{
 	private static final long serialVersionUID = 1L;
 
@@ -563,7 +564,7 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 	public void valueChanged(TreeSelectionEvent e)
 		{
 		selectedNode = (EventNode) e.getPath().getLastPathComponent();
-		//		populate_collision_node();
+		//populate_collision_node();
 		}
 
 	@SuppressWarnings("unchecked")
@@ -595,6 +596,7 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 	public void reload()
 		{
 		LGM.mdi.addPropertyChangeListener(MDIPane.SELECTED_FRAME_PROPERTY,this);
+		LGM.root.updateSource.addListener(this);
 		populate_collision_node();
 		events.updateUI();
 		}
