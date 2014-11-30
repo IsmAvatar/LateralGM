@@ -230,8 +230,6 @@ public final class LGM
 	private static JFrame eventFrame;
 	public static AbstractButton eventButton;
 	public static PreferencesFrame prefFrame;
-	// Window which displays the room controls
-	public static JFrame roomControlsFrame;
 	public static Cursor zoomCursor;
 	public static Cursor zoomInCursor;
 	public static Cursor zoomOutCursor;

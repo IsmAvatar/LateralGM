@@ -33,6 +33,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -538,6 +540,11 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				}
 			return;
 			}
+		else if (cmd.endsWith(".EFFECT")) {
+			List<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
+			imgs.add(res.getBackgroundImage());
+			EffectsFrame.getInstance(imgs).setVisible(true);;
+		}
 		else if (cmd.endsWith(".ZOOM"))
 			{
 			if (zoomButton.isSelected())

@@ -559,7 +559,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addGroup(layout2.createSequentialGroup()
 		/**/.addComponent(oLocked))
 		/**/.addGroup(layout2.createSequentialGroup()
-		/**/.addGroup(layout2.createParallelGroup()
+		/**/.addGroup(layout2.createParallelGroup(Alignment.TRAILING)
 		/*		*/.addComponent(lObjX)
 		/*		*/.addComponent(lObjScaleX)
 		/*		*/.addComponent(lObjColour)
@@ -569,7 +569,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/*		*/.addComponent(objectScaleX)
 		/*		*/.addComponent(objectColour)
 		/*		*/.addComponent(objectRotation))
-		/**/.addGroup(layout2.createParallelGroup()
+		/**/.addGroup(layout2.createParallelGroup(Alignment.TRAILING)
 		/*		*/.addComponent(lObjY)
 		/*		*/.addComponent(lObjScaleY)
 		/*		*/.addComponent(lObjAlpha))
@@ -1598,54 +1598,57 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			}
 		}
 
+	// Window which displays the room controls
+	public static JFrame roomControlsFrame;
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 		{
-		if (editor != null) editor.refresh();
 		Object eventSource = e.getSource();
 
 		// If the user has pressed the 'room controls' button
 		if (eventSource == roomControls)
 			{
 			// If the window is not open
-			if (LGM.roomControlsFrame == null)
+			if (roomControlsFrame == null)
 				{
 				// Create a window and set the properties
-				LGM.roomControlsFrame = new JFrame(Messages.getString("RoomControls.TITLE"));
+				roomControlsFrame = new JFrame(Messages.getString("RoomControls.TITLE"));
+				roomControlsFrame.setIconImage(LGM.getIconForKey("RoomFrame.ROOM_CONTROLS").getImage());
 				Border padding = BorderFactory.createEmptyBorder(15,15,15,15);
 				JPanel contentPanel = new JPanel();
 				contentPanel.setBorder(padding);
-				LGM.roomControlsFrame.setContentPane(contentPanel);
-				LGM.roomControlsFrame.setLayout(new BoxLayout(LGM.roomControlsFrame.getContentPane(),
+				roomControlsFrame.setContentPane(contentPanel);
+				roomControlsFrame.setLayout(new BoxLayout(roomControlsFrame.getContentPane(),
 						BoxLayout.Y_AXIS));
-				LGM.roomControlsFrame.setResizable(false);
-				LGM.roomControlsFrame.setLocationRelativeTo(null);
+				roomControlsFrame.setResizable(false);
+				roomControlsFrame.setLocationRelativeTo(null);
 
 				// Add the labels
-				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON")));
-				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_CTRl")));
-				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_ALT")));
-				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_SHIFT")));
-				LGM.roomControlsFrame.add(Box.createRigidArea(new Dimension(0,5)));
-				LGM.roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.RIGHT_BUTTON")));
+				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON")));
+				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_CTRl")));
+				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_ALT")));
+				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.LEFT_BUTTON_SHIFT")));
+				roomControlsFrame.add(Box.createRigidArea(new Dimension(0,5)));
+				roomControlsFrame.add(new JLabel(Messages.getString("RoomControls.RIGHT_BUTTON")));
 
 				// When closing the window, set the window to null
-				LGM.roomControlsFrame.addWindowListener(new java.awt.event.WindowAdapter()
+				roomControlsFrame.addWindowListener(new java.awt.event.WindowAdapter()
 					{
 						@Override
 						public void windowClosing(java.awt.event.WindowEvent windowEvent)
 							{
-							LGM.roomControlsFrame = null;
+							roomControlsFrame = null;
 							}
 					});
-				LGM.roomControlsFrame.pack();
-				LGM.roomControlsFrame.setVisible(true);
+				roomControlsFrame.pack();
+				roomControlsFrame.setVisible(true);
 				}
 			else
 				{
 				// Make sure the window is visible and not minimized
-				LGM.roomControlsFrame.setState(Frame.NORMAL);
-				LGM.roomControlsFrame.setVisible(true);
+				roomControlsFrame.setState(Frame.NORMAL);
+				roomControlsFrame.setVisible(true);
 				}
 
 			}
