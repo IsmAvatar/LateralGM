@@ -112,10 +112,14 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		afterLabel = new JLabel();
 		afterPanel.add(afterLabel, BorderLayout.CENTER);
 		
-		effects = new ImageEffect[3];
+		effects = new ImageEffect[7];
 		effects[0] = new ImageEffects.BlackAndWhiteEffect();
 		effects[1] = new ImageEffects.OpacityEffect();
 		effects[2] = new ImageEffects.InvertEffect();
+		effects[3] = new ImageEffects.EdgeDetectEffect();
+		effects[4] = new ImageEffects.EmbossEffect();
+		effects[5] = new ImageEffects.BlurEffect();
+		effects[6] = new ImageEffects.SharpenEffect();
 		
 		final JPanel effectsOptions = new JPanel(new CardLayout());
 		for (ImageEffect effect : effects) {
