@@ -414,7 +414,11 @@ public final class Util
 		return convertImage(img, format, null);
 	}
 	
-	public static BufferedImage removeAlpha(BufferedImage img, Color col) {
+	public static BufferedImage clearBackground(BufferedImage img, Color col) {
+		return convertImage(img, BufferedImage.TYPE_INT_ARGB, col);
+	}
+	
+	public static BufferedImage makeOpaque(BufferedImage img, Color col) {
 		return convertImage(img, BufferedImage.TYPE_BYTE_INDEXED, col);
 	}
 
@@ -445,7 +449,7 @@ public final class Util
 							// BMP and other formats can not write alpha transparent images, so if writing fails
 							// try to remove the alpha layer and then write
 							if (!ImageIO.write(imgs.get(0), ext, f)) {
-								BufferedImage bi = removeAlpha(imgs.get(0), Color.white);
+								BufferedImage bi = makeOpaque(imgs.get(0), Color.white);
 								ImageIO.write(bi,ext,f);
 							}
 						}
@@ -488,7 +492,7 @@ public final class Util
 							// BMP and other formats can not write alpha transparent images, so if writing fails
 							// try to remove the alpha layer and then write
 							if (!ImageIO.write(img, ext, f)) {
-								BufferedImage bi = removeAlpha(img, Color.white);
+								BufferedImage bi = makeOpaque(img, Color.white);
 								ImageIO.write(bi,ext,f);
 							}
 						}

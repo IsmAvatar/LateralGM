@@ -23,10 +23,11 @@
 
 package org.lateralgm.subframes;
 
-import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -38,7 +39,6 @@ import java.util.List;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -70,8 +70,8 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 	private AbstractButton closeButton;
 	
 	private List<EffectsFrameListener> listeners = new ArrayList<EffectsFrameListener>();
-	private JLabel beforeLabel;
-	private JLabel afterLabel;
+	private ImageEffectPreview beforePreview;
+	private ImageEffectPreview afterPreview;
 	
 	public abstract interface EffectsFrameListener {
 		public abstract void applyEffects(List<BufferedImage> imgs);
@@ -91,28 +91,75 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		return INSTANCE;
 	}
 	
+	private class ImageEffectPreview extends JPanel {
+	
+		/**
+		 * TODO: Change if needed.
+		 */
+		private static final long serialVersionUID = 1L;
+		BufferedImage image = null;
+	
+		public ImageEffectPreview() {
+		
+			JPanel jp = new JPanel() {
+
+				/**
+				 * TODO: Change if needed.
+				 */
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				public void paint(Graphics g) {
+					if (image == null) return;
+					Rectangle bounds = this.getBounds();
+					int width = image.getWidth();
+					int height = image.getHeight();
+					if (image.getWidth() > bounds.width) {
+						float factor = (float) (bounds.getWidth() / image.getWidth());
+						width = bounds.width;
+						height = (int) (factor * image.getHeight());
+					}
+					if (height > bounds.height) {
+						float factor = (float) (bounds.getHeight() / height);
+						width = (int) (factor * width);
+						height = bounds.height;
+					}
+					g.drawImage(image,(bounds.width - width) / 2,(bounds.height - height) / 2,width,height,null);
+				}
+			
+			};
+			
+			GroupLayout bl = new GroupLayout(this);
+			bl.setHorizontalGroup(bl.createParallelGroup().addComponent(jp));
+			bl.setVerticalGroup(bl.createParallelGroup().addComponent(jp));
+			this.setLayout(bl);
+		}
+
+		public void setImage(BufferedImage img)
+			{
+			image = img;
+			if (image != null) repaint();
+			}
+	
+	}
+	
 	public EffectsFrame()
 		{
 		setAlwaysOnTop(false);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(600,400);
+		setSize(700,500);
 		setLocationRelativeTo(LGM.frame);
 		setTitle(Messages.getString("EffectsFrame.TITLE"));
 		setIconImage(LGM.getIconForKey("EffectsFrame.ICON").getImage());
 		setResizable(true);
 		
-		JPanel beforePanel = new JPanel();
-		beforePanel.setBorder(BorderFactory.createTitledBorder("Before"));
-		//beforePanel.setBackground(Color.RED);
-		beforeLabel = new JLabel();
-		beforePanel.add(beforeLabel, BorderLayout.CENTER);
+		beforePreview = new ImageEffectPreview();
+		beforePreview.setBorder(BorderFactory.createTitledBorder(Messages.getString("EffectsFrame.BEFORE")));
+
+		afterPreview = new ImageEffectPreview();
+		afterPreview.setBorder(BorderFactory.createTitledBorder(Messages.getString("EffectsFrame.AFTER")));
 		
-		JPanel afterPanel = new JPanel();
-		afterPanel.setBorder(BorderFactory.createTitledBorder("After"));
-		afterLabel = new JLabel();
-		afterPanel.add(afterLabel, BorderLayout.CENTER);
-		
-		effects = new ImageEffect[7];
+		effects = new ImageEffect[8];
 		effects[0] = new ImageEffects.BlackAndWhiteEffect();
 		effects[1] = new ImageEffects.OpacityEffect();
 		effects[2] = new ImageEffects.InvertEffect();
@@ -120,6 +167,7 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		effects[4] = new ImageEffects.EmbossEffect();
 		effects[5] = new ImageEffects.BlurEffect();
 		effects[6] = new ImageEffects.SharpenEffect();
+		effects[7] = new ImageEffects.RemoveTransparencyEffect();
 		
 		final JPanel effectsOptions = new JPanel(new CardLayout());
 		for (ImageEffect effect : effects) {
@@ -147,21 +195,20 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 					ImageEffect effect = (ImageEffect) ie.getItem();
 					if (effect == null) return;
 					
-					System.out.println(effect.getKey());
 					CardLayout cl = (CardLayout)(effectsOptions.getLayout());
 			    cl.show(effectsOptions, effect.getKey());
 
 					if (images == null || images.size() <= 0) return;
 					BufferedImage img = images.get(0);
 					if (img == null) return;
-					afterLabel.setIcon(new ImageIcon(effect.getAppliedImage(img)));
+					afterPreview.setImage(effect.getAppliedImage(img));
 				}
 		
 		});
 		
-		applyButton = new JButton("Apply");
+		applyButton = new JButton(Messages.getString("EffectsFrame.APPLY"));
 		applyButton.addActionListener(this);
-		closeButton = new JButton("Close");
+		closeButton = new JButton(Messages.getString("EffectsFrame.CLOSE"));
 		closeButton.addActionListener(this);
 		
 		GroupLayout gl = new GroupLayout(this.getContentPane());
@@ -170,18 +217,18 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()
-		/*	*/.addComponent(beforePanel)
-		/*	*/.addComponent(afterPanel))
+		/*	*/.addComponent(beforePreview)
+		/*	*/.addComponent(afterPreview))
 		/**/.addGroup(gl.createSequentialGroup()
-		/*	*/.addComponent(effectsCombo)
+		/*	*/.addComponent(effectsCombo, PREFERRED_SIZE, PREFERRED_SIZE, effectsCombo.getPreferredSize().width * 2)
 		/*	*/.addComponent(applyButton)
 		/*	*/.addComponent(closeButton))
 		/**/.addComponent(effectsOptions));
 		
 		gl.setVerticalGroup(gl.createSequentialGroup()
 		/**/.addGroup(gl.createParallelGroup()
-		/*	*/.addComponent(beforePanel)
-		/*	*/.addComponent(afterPanel))
+		/*	*/.addComponent(beforePreview)
+		/*	*/.addComponent(afterPreview))
 		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
 		/*	*/.addComponent(effectsCombo, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
 		/*	*/.addComponent(applyButton)
@@ -200,8 +247,8 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		if (images == null || images.size() <= 0) return;
 		BufferedImage img = images.get(0);
 		if (img == null) return;
-		beforeLabel.setIcon(new ImageIcon(img));
-		afterLabel.setIcon(new ImageIcon(effect.getAppliedImage(img)));
+		beforePreview.setImage(img);
+		afterPreview.setImage(effect.getAppliedImage(img));
 	}
 
 	@Override
@@ -226,8 +273,8 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		if (images == null || images.size() <= 0) return;
 		BufferedImage img = images.get(0);
 		if (img == null) return;
-		beforeLabel.setIcon(new ImageIcon(img));
-		afterLabel.setIcon(new ImageIcon(effect.getAppliedImage(img)));
+		beforePreview.setImage(img);
+		afterPreview.setImage(effect.getAppliedImage(img));
 		}
 
 	}

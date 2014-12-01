@@ -1,8 +1,34 @@
+/**
+* @file  ImageEffects.java
+* @brief Class implementing the generic pluggable image effects.
+*
+* @section License
+*
+* Copyright (C) 2014 Robert B. Colton
+* This file is a part of the LateralGM IDE.
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 package org.lateralgm.subframes;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.color.ColorSpace;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorConvertOp;
@@ -13,12 +39,21 @@ import java.awt.image.ShortLookupTable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.GroupLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.lateralgm.components.ColorSelect;
+import org.lateralgm.components.NumberField;
+import org.lateralgm.components.NumberField.ValueChangeEvent;
+import org.lateralgm.components.NumberField.ValueChangeListener;
 import org.lateralgm.main.Util;
+
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 public class ImageEffects
 	{
@@ -111,20 +146,48 @@ public class ImageEffects
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-			alphaSlider = new JSlider();
-			alphaSlider.setMinimum(0);
-			alphaSlider.setMaximum(255);
+			JLabel alphaLabel = new JLabel("Transparency:");
+			alphaSlider = new JSlider(0,255,155);
 			alphaSlider.setPaintTicks(true);
-			alphaSlider.setMajorTickSpacing(5);
+			alphaSlider.setMajorTickSpacing(15);
+			alphaSlider.setMinorTickSpacing(3);
+			final NumberField alphaField = new NumberField(0,255,155);
 			alphaSlider.addChangeListener(new ChangeListener() {
 				@Override
-				public void stateChanged(ChangeEvent arg0)
+				public void stateChanged(ChangeEvent ce)
 					{
+						alphaField.setValue(alphaSlider.getValue());
 						optionsUpdated();
 					}
 			});
+			alphaField.addValueChangeListener(new ValueChangeListener() {
+
+				@Override
+				public void valueChange(ValueChangeEvent evt)
+					{
+						alphaSlider.setValue((int) evt.getNewValue());
+					}
 			
-			pane.add(alphaSlider);
+			});
+			
+			
+			GroupLayout gl = new GroupLayout(pane);
+			gl.setAutoCreateContainerGaps(true);
+			gl.setAutoCreateGaps(true);
+			
+			gl.setHorizontalGroup(gl.createParallelGroup()
+			/**/.addGroup(gl.createSequentialGroup()
+			/*	*/.addComponent(alphaLabel)
+			/*	*/.addComponent(alphaSlider)
+			/*	*/.addComponent(alphaField,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
+			
+			gl.setVerticalGroup(gl.createSequentialGroup()
+			/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+			/*	*/.addComponent(alphaLabel)
+			/*	*/.addComponent(alphaSlider)
+			/*	*/.addComponent(alphaField,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
+			
+			pane.setLayout(gl);
 			return pane;
 			}
 	
@@ -193,7 +256,7 @@ public class ImageEffects
 	                  -1, 8, -1,
 	                  -1, -1, -1});
 	
-			BufferedImageOp op = new ConvolveOp(kernel,ConvolveOp.EDGE_NO_OP,null);
+			BufferedImageOp op = new ConvolveOp(kernel,ConvolveOp.EDGE_ZERO_FILL,null);
 	
 			return op.filter(img, dst);
 			}
@@ -290,29 +353,64 @@ public class ImageEffects
 	
 	public static class BlurEffect extends ImageEffect {
 		private final String key = "BlurEffect";
+		private JSlider repeatSlider;
 		
 		@Override
 		public BufferedImage getAppliedImage(BufferedImage img)
 			{
 			img = Util.convertImage(img,BufferedImage.TYPE_INT_ARGB);
 			BufferedImage dst = new BufferedImage(img.getWidth(),img.getHeight(), img.getType());
-			 
+
 			Kernel kernel = new Kernel(3, 3,
                 new float[]{
                 		1f/9f, 1f/9f, 1f/9f,
                 		1f/9f, 1f/9f, 1f/9f,
                 		1f/9f, 1f/9f, 1f/9f});
  
-			BufferedImageOp op = new ConvolveOp(kernel,ConvolveOp.EDGE_NO_OP,null);
+			BufferedImageOp op = new ConvolveOp(kernel,ConvolveOp.EDGE_ZERO_FILL,null);
  
-			return op.filter(img, dst);
+			dst = op.filter(img, dst);
+			
+			for (int i = 0; i < repeatSlider.getValue() - 1; i++) {
+				dst = op.filter(dst,null);
+			}
+			return dst;
 			}
 	
 		@Override
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-	
+			JLabel alphaLabel = new JLabel("Repetitions:");
+			repeatSlider = new JSlider(1,20,2);
+			repeatSlider.setPaintTicks(true);
+			repeatSlider.setSnapToTicks(true);
+			repeatSlider.setMajorTickSpacing(5);
+			repeatSlider.setMinorTickSpacing(1);
+			repeatSlider.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent ce)
+					{
+						optionsUpdated();
+					}
+			});
+			
+			
+			GroupLayout gl = new GroupLayout(pane);
+			gl.setAutoCreateContainerGaps(true);
+			gl.setAutoCreateGaps(true);
+			
+			gl.setHorizontalGroup(gl.createParallelGroup()
+			/**/.addGroup(gl.createSequentialGroup()
+			/*	*/.addComponent(alphaLabel)
+			/*	*/.addComponent(repeatSlider)));
+			
+			gl.setVerticalGroup(gl.createSequentialGroup()
+			/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+			/*	*/.addComponent(alphaLabel)
+			/*	*/.addComponent(repeatSlider)));
+			
+			pane.setLayout(gl);
 			return pane;
 			}
 	
@@ -331,6 +429,7 @@ public class ImageEffects
 	
 	public static class SharpenEffect extends ImageEffect {
 		private final String key = "SharpenEffect";
+		private JSlider repeatSlider;
 		
 		@Override
 		public BufferedImage getAppliedImage(BufferedImage img)
@@ -344,16 +443,49 @@ public class ImageEffects
                     -1, 9, -1,
                     -1, -1, -1});
  
-			BufferedImageOp op = new ConvolveOp(kernel,ConvolveOp.EDGE_NO_OP,null);
- 
-			return op.filter(img, dst);
+			BufferedImageOp op = new ConvolveOp(kernel,ConvolveOp.EDGE_ZERO_FILL,null);
+			 
+			dst = op.filter(img, dst);
+			for (int i = 0; i < repeatSlider.getValue() - 1; i++) {
+				dst = op.filter(dst,null);
+			}
+			return dst;
 			}
 	
 		@Override
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-	
+			JLabel alphaLabel = new JLabel("Repetitions:");
+			repeatSlider = new JSlider(1,20,2);
+			repeatSlider.setPaintTicks(true);
+			repeatSlider.setSnapToTicks(true);
+			repeatSlider.setMajorTickSpacing(5);
+			repeatSlider.setMinorTickSpacing(1);
+			repeatSlider.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent ce)
+					{
+						optionsUpdated();
+					}
+			});
+			
+			
+			GroupLayout gl = new GroupLayout(pane);
+			gl.setAutoCreateContainerGaps(true);
+			gl.setAutoCreateGaps(true);
+			
+			gl.setHorizontalGroup(gl.createParallelGroup()
+			/**/.addGroup(gl.createSequentialGroup()
+			/*	*/.addComponent(alphaLabel)
+			/*	*/.addComponent(repeatSlider)));
+			
+			gl.setVerticalGroup(gl.createSequentialGroup()
+			/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+			/*	*/.addComponent(alphaLabel)
+			/*	*/.addComponent(repeatSlider)));
+			
+			pane.setLayout(gl);
 			return pane;
 			}
 	
@@ -361,6 +493,62 @@ public class ImageEffects
 		public String getName()
 			{
 			return "Sharpen";
+			}
+		
+		@Override
+		public String getKey()
+			{
+			return key;
+			}
+	}
+	
+	public static class RemoveTransparencyEffect extends ImageEffect {
+		private final String key = "RemoveTransparencyEffect";
+		private ColorSelect colorSelect;
+		
+		@Override
+		public BufferedImage getAppliedImage(BufferedImage img)
+			{
+			BufferedImage dst = Util.clearBackground(img,colorSelect.getSelectedColor());
+			return dst;
+		}
+	
+		@Override
+		public JPanel getOptionsPanel()
+			{
+			JPanel pane = new JPanel();
+			JLabel colorLabel = new JLabel("Color:");
+			colorSelect = new ColorSelect(Color.WHITE,true);
+			colorSelect.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent ie)
+					{
+						optionsUpdated();
+					}
+			});
+			
+			GroupLayout gl = new GroupLayout(pane);
+			gl.setAutoCreateContainerGaps(true);
+			gl.setAutoCreateGaps(true);
+			
+			gl.setHorizontalGroup(gl.createParallelGroup()
+			/**/.addGroup(gl.createSequentialGroup()
+			/*	*/.addComponent(colorLabel)
+			/*	*/.addComponent(colorSelect,120,120,120)));
+			
+			gl.setVerticalGroup(gl.createSequentialGroup()
+			/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
+			/*	*/.addComponent(colorLabel)
+			/*	*/.addComponent(colorSelect,18,18,18)));
+			
+			pane.setLayout(gl);
+			return pane;
+			}
+	
+		@Override
+		public String getName()
+			{
+			return "Remove Transparency";
 			}
 		
 		@Override
