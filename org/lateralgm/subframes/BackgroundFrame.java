@@ -54,7 +54,9 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
 
+import org.lateralgm.components.EffectsFrame;
 import org.lateralgm.components.NumberField;
+import org.lateralgm.components.EffectsFrame.EffectsFrameListener;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.BackgroundPreview;
 import org.lateralgm.file.FileChangeMonitor;
@@ -72,7 +74,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackground> implements
-		UpdateListener
+		UpdateListener, EffectsFrameListener
 	{
 	private static final long serialVersionUID = 1L;
 	public JButton load;
@@ -543,7 +545,10 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		else if (cmd.endsWith(".EFFECT")) {
 			List<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
 			imgs.add(res.getBackgroundImage());
-			EffectsFrame.getInstance(imgs).setVisible(true);;
+			
+			EffectsFrame ef = EffectsFrame.getInstance(imgs);
+			ef.setEffectsListener(this);
+			ef.setVisible(true);
 		}
 		else if (cmd.endsWith(".ZOOM"))
 			{
@@ -723,5 +728,11 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			//side2.setVisible((Boolean) 
 			//res.get(PBackground.USE_AS_TILESET));
 			}
+		}
+
+	@Override
+	public void applyEffects(List<BufferedImage> imgs)
+		{
+		res.setBackgroundImage(imgs.get(0));
 		}
 	}

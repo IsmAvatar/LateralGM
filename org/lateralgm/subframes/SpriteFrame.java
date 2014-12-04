@@ -84,7 +84,9 @@ import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.lateralgm.components.EffectsFrame;
 import org.lateralgm.components.NumberField;
+import org.lateralgm.components.EffectsFrame.EffectsFrameListener;
 import org.lateralgm.components.NumberField.ValueChangeEvent;
 import org.lateralgm.components.NumberField.ValueChangeListener;
 import org.lateralgm.components.impl.IndexButtonGroup;
@@ -109,7 +111,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> implements
-		MouseListener,UpdateListener,ValueChangeListener,ClipboardOwner
+		MouseListener,UpdateListener,ValueChangeListener,ClipboardOwner, EffectsFrameListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -883,6 +885,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			{
 				public void valueChanged(ListSelectionEvent ev)
 					{
+					EffectsFrame.getInstance(getSelectedImages()).setEffectsListener(SpriteFrame.this);
 					int ind = subList.getSelectedIndex();
 					if (ind < 0) return;
 					if (timer == null)
@@ -1288,6 +1291,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				}
 			return;
 			}
+		else if (cmd.endsWith(".EFFECT")) {
+			EffectsFrame ef = EffectsFrame.getInstance(getSelectedImages());
+			ef.setEffectsListener(this);
+			ef.setVisible(true);
+		}
 		else if (cmd.endsWith(".REMOVE")) //$NON-NLS-1$
 			{
 			int[] selections = subList.getSelectedIndices();
@@ -1846,5 +1854,17 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		{
 		// TODO Auto-generated method stub
 		System.out.println("Sprite editor has lost clipboard ownership.");
+		}
+
+	@Override
+	public void applyEffects(List<BufferedImage> imgs)
+		{
+		int[] selection = subList.getSelectedIndices();
+		for (int i = 0; i < selection.length; i++) {
+			res.subImages.set(selection[i],imgs.get(i));
+		}
+		imageChanged = true;
+		subList.setSelectedIndices(selection);
+		preview.repaint();
 		}
 	}
