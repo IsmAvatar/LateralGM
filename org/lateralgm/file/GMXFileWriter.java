@@ -1690,8 +1690,9 @@ public final class GMXFileWriter
 						tileelement.setAttribute("h",Integer.toString((Integer) props.get(PTile.HEIGHT)));
 						tileelement.setAttribute("xo",Integer.toString((Integer) props.get(PTile.BG_X)));
 						tileelement.setAttribute("yo",Integer.toString((Integer) props.get(PTile.BG_Y)));
-						tileelement.setAttribute("id",Integer.toString((Integer) props.get(PTile.ID)));
-						tileelement.setAttribute("name","inst_");
+						String tileId = Integer.toString((Integer) props.get(PTile.ID));
+						tileelement.setAttribute("id",tileId);
+						tileelement.setAttribute("name","inst_" + tileId);
 						tileelement.setAttribute("depth",Integer.toString((Integer) props.get(PTile.DEPTH)));
 						tileelement.setAttribute("locked",boolToString((Boolean) props.get(PTile.LOCKED)));
 						Point2D scale = tile.getScale();
