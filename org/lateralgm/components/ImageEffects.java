@@ -901,7 +901,7 @@ public class ImageEffects
 
         final int w = bi.getWidth();
         final int h = bi.getHeight();
-        final BufferedImage out = new BufferedImage(w, h, bi.getType());
+        final BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
         for (int x = 0; x < w; x++) {
             for (int y = 0; y < h; y++) {
