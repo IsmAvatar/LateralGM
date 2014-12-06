@@ -1474,6 +1474,11 @@ public final class LGM
 										for (int iii = 0; iii < args.size(); iii++) {
 											Argument arg = args.get(iii);
 											String code = arg.getVal();
+											ResourceReference<? extends Resource<?,?>> aref = arg.getRes();
+											if (aref != null) {
+												Resource<?,?> ares = aref.get();
+												code = ares.getName();
+											}
 											List<LineMatch> matches = getMatchingLines(code, pattern);
 											actMatches += matches.size();
 											for (LineMatch match : matches) {
@@ -1568,6 +1573,11 @@ public final class LGM
 									for (int iii = 0; iii < args.size(); iii++) {
 										Argument arg = args.get(iii);
 										String code = arg.getVal();
+										ResourceReference<? extends Resource<?,?>> aref = arg.getRes();
+										if (aref != null) {
+											Resource<?,?> ares = aref.get();
+											code = ares.getName();
+										}
 										List<LineMatch> matches = getMatchingLines(code, pattern);
 										actMatches += matches.size();
 										for (LineMatch match : matches) {
