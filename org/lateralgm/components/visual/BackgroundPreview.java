@@ -18,7 +18,6 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
-import org.lateralgm.main.Prefs;
 import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
@@ -54,37 +53,6 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		return Util.getTransparentImage(background.getBackgroundImage());
 		}
 
-	public BufferedImage paintBackground()
-		{
-		BufferedImage img = getImage();
-		BufferedImage dest = new BufferedImage(img.getWidth(null),img.getHeight(null),
-				BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = dest.createGraphics();
-		
-		int imgwidth = img.getWidth();
-		int imgheight = img.getHeight();
-
-		g.setClip(0,0,imgwidth,imgheight);
-		g.setColor(new Color(Prefs.imagePreviewBackgroundColor));
-		g.fillRect(0,0,imgwidth,imgheight);
-		
-		int TILE = 5;
-		g.setColor(new Color(Prefs.imagePreviewForegroundColor));
-		int w = imgwidth / TILE + 1;
-		int h = imgheight / TILE + 1;
-		for (int row = 0; row < h; row++)
-			{
-			for (int col = 0; col < w; col++)
-				{
-				if ((row + col) % 2 == 0)
-					{
-					g.fillRect(col * TILE,row * TILE,TILE,TILE);
-					}
-				}
-			}
-		return dest;
-		}
-
 	public void paintComponent(Graphics g)
 		{
 		//super.paintComponent(g);
@@ -114,7 +82,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 					transparentBackground.getWidth() != image.getWidth() || 
 					transparentBackground.getHeight() != image.getHeight())
 				{
-				transparentBackground = paintBackground();
+				transparentBackground = Util.paintBackground(image.getWidth()/5,image.getHeight()/5);
 				}
 
 			Graphics2D g2d = (Graphics2D) g;

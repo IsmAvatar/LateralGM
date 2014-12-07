@@ -98,6 +98,64 @@ public final class Util
 		reg.deregisterServiceProvider(reg.getServiceProviderByClass(WBMPImageReaderSpi.class));
 		reg.registerServiceProvider(new WBMPImageReaderSpiFix());
 		}
+	
+	public static BufferedImage paintBackground(int width, int height, Color background, Color foreground)
+	{
+		BufferedImage dest = new BufferedImage(width,height,
+				BufferedImage.TYPE_INT_RGB);
+
+		for (int row = 0; row < height; row++)
+			{
+			for (int col = 0; col < width; col++)
+				{
+				if ((row + col) % 2 == 0)
+					{
+					dest.setRGB(col,row,foreground.getRGB());
+					}
+				else
+					{
+					dest.setRGB(col,row,background.getRGB());
+					}
+				}
+			}
+		return dest;
+	}
+	
+	public static BufferedImage paintBackground(int width, int height) {
+		return paintBackground(width,height,
+				new Color(Prefs.imagePreviewBackgroundColor),new Color(Prefs.imagePreviewForegroundColor));
+	}
+	
+	public static BufferedImage paintBackgroundScaled(int width, int height, int TILE, Color background, Color foreground)
+	{
+		BufferedImage dest = new BufferedImage(width,height,
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = dest.createGraphics();
+	
+		g.setClip(0,0,width,height);
+		g.setColor(background);
+		g.fillRect(0,0,width,height);
+		
+		g.setColor(foreground);
+		int w = width / TILE + 1;
+		int h = height / TILE + 1;
+		for (int row = 0; row < h; row++)
+			{
+			for (int col = 0; col < w; col++)
+				{
+				if ((row + col) % 2 == 0)
+					{
+					g.fillRect(col * TILE,row * TILE,TILE,TILE);
+					}
+				}
+			}
+		return dest;
+	}
+	
+	public static BufferedImage paintBackgroundScaled(int width, int height, int TILE) {
+		return paintBackgroundScaled(width,height,TILE,
+				new Color(Prefs.imagePreviewBackgroundColor),new Color(Prefs.imagePreviewForegroundColor));
+	}
 
 	public static String urlEncode(String s)
 		{
