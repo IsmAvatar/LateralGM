@@ -28,6 +28,9 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -37,7 +40,9 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -51,6 +56,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -68,6 +74,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -116,6 +123,7 @@ import org.lateralgm.ui.swing.propertylink.ButtonModelLink;
 import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
+import org.lateralgm.util.ActiveArrayList;
 import org.lateralgm.util.AddPieceInstance;
 import org.lateralgm.util.ModifyPieceInstance;
 import org.lateralgm.util.PropertyLink;
@@ -429,6 +437,119 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				}
 			}
 		}
+	
+	public static final DataFlavor INSTANCE_FLAVOR = new DataFlavor(Instance.class,"Instance"); //$NON-NLS-1$
+	
+	public static class ObjectListTransferable implements Transferable
+	{
+	private static final DataFlavor[] FLAVORS = { INSTANCE_FLAVOR };
+	private final List<Instance> instanceList;
+
+	public ObjectListTransferable(List<Instance> list)
+		{
+		instanceList = list;
+		}
+
+	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
+		{
+		if (flavor == INSTANCE_FLAVOR)
+			{
+			return instanceList;
+			}
+		throw new UnsupportedFlavorException(flavor);
+		}
+
+	public DataFlavor[] getTransferDataFlavors()
+		{
+		return FLAVORS;
+		}
+
+	public boolean isDataFlavorSupported(DataFlavor flavor)
+		{
+		return flavor == INSTANCE_FLAVOR;
+		}
+	}
+	
+	public class ObjectListTransferHandler extends TransferHandler {
+		/**
+		 * TODO: Change if needed.
+		 */
+		private static final long serialVersionUID = 1L;
+		private int[] indices = null;
+		private ArrayList<Instance> instanceList = null;
+		private int addIndex = -1; //Location where items were added
+		private int addCount = 0;  //Number of items added.
+		      
+		public ObjectListTransferHandler(ActiveArrayList<Instance> insts)
+			{
+			instanceList = insts;
+			}
+
+		public boolean canImport(TransferHandler.TransferSupport info) {
+		    return info.isDataFlavorSupported(INSTANCE_FLAVOR);
+		}
+	
+	  protected Transferable createTransferable(JComponent c) {
+	      JList<Instance> list = (JList<Instance>)c;
+	      indices  = list.getSelectedIndices();
+	      return new ObjectListTransferable(list.getSelectedValuesList());
+	  }
+	  
+	  /**
+	   * We support both copy and move actions.
+	   */
+	  public int getSourceActions(JComponent c) {
+	      return TransferHandler.COPY_OR_MOVE;
+	  }
+	  
+	  /**
+	   * Perform the actual import.  This demo only supports drag and drop.
+	   */
+	  public boolean importData(TransferHandler.TransferSupport info) {
+	      if (!info.isDrop()) {
+	          return false;
+	      }
+	      
+	      JList.DropLocation dl = (JList.DropLocation)info.getDropLocation();
+	      int index = dl.getIndex();
+	      boolean insert = dl.isInsert();
+
+	      // Get the instance that is being dropped.
+	      Transferable t = info.getTransferable();
+	      List<Instance> data = null;
+	      
+	      try {
+	          data = (List<Instance>) t.getTransferData(INSTANCE_FLAVOR);
+	      } 
+	      catch (Exception e) {  LGM.showDefaultExceptionHandler(e); }
+	      
+	      addIndex = index;
+	      addCount = data.size();
+	      
+	      // Perform the actual import.  
+	      for (int i = 0; i < addCount; i++) {
+	      	instanceList.add(index++, data.get(i));
+	      }
+	      return true;
+	  }
+	
+	  /**
+	   * Remove the items moved from the list.
+	   */
+	  protected void exportDone(JComponent c, Transferable data, int action) {
+	      JList<Instance> source = (JList<Instance>)c;
+	      
+	      if (action == TransferHandler.MOVE) {
+	          for (int i = indices.length - 1; i >= 0; i--) {
+	              instanceList.remove(indices[i]);
+	          }
+	      }
+	      
+	      indices = null;
+	      addCount = 0;
+	      addIndex = -1;
+	  }
+	}
 
 	public JPanel makeObjectsPane()
 		{
@@ -461,6 +582,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		oList.setSelectedIndex(0);
 		oList.addListSelectionListener(this);
 		oList.addMouseListener(mouseListenerForInstances);
+		//TODO: Finish
+		//oList.setDragEnabled(true);
+		//oList.setDropMode(DropMode.ON_OR_INSERT);
+		//oList.setTransferHandler(new ObjectListTransferHandler(res.instances));
 		JScrollPane sp = new JScrollPane(oList);
 		addObjectButton = new JButton(Messages.getString("RoomFrame.OBJ_ADD")); //$NON-NLS-1$
 		addObjectButton.addActionListener(this);
@@ -2039,7 +2164,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		// Get the image dimension
 		ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
-		BufferedImage instanceImage = instanceObject.get().getDisplayImage();
+		
+		BufferedImage instanceImage = null;
+		if (instanceObject != null) {
+			GmObject inst = instanceObject.get();
+			if (inst != null)
+				instanceImage = inst.getDisplayImage();
+		}
 
 		if (instanceImage == null) {
 			//TODO: This hard codes the dimensions of the default object sprite/icon which is just the 16x16 pixel ball

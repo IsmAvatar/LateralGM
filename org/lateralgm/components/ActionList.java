@@ -183,12 +183,9 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		this.parent = new WeakReference<MDIFrame>(parent);
 		setActionContainer(null);
 		setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
-		if (LGM.javaVersion >= 10600)
-			{
-			setTransferHandler(new ActionTransferHandler(this.parent,this));
-			setDragEnabled(true);
-			setDropMode(DropMode.ON_OR_INSERT);
-			}
+		setTransferHandler(new ActionTransferHandler(this.parent,this));
+		setDragEnabled(true);
+		setDropMode(DropMode.ON_OR_INSERT);
 		alml = new ActionListMouseListener(this.parent);
 		addMouseListener(alml);
 		addKeyListener(ALKL);
