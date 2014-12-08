@@ -69,6 +69,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -783,7 +784,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		panel.setLayout(layout);
 
 		JLabel layer = new JLabel(Messages.getString("RoomFrame.CURRENT_TILE_LAYER"));
-		taDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+		
+		Room currentRoom = editor.getRoom();
+		int firstTileLayer = 0;
+		
+		// If there is already tiles in the room, use the first tile layer as the current layer
+		if (!currentRoom.tiles.isEmpty())
+			firstTileLayer = currentRoom.tiles.get(0).getDepth();
+		
+		taDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,firstTileLayer);
 		taDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,taDepth.getHeight()));
 
 		JTabbedPane tab = new JTabbedPane();
