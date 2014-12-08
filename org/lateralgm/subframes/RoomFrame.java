@@ -76,6 +76,7 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -899,15 +900,45 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		return pg;
 		}
 
-	public JTabbedPane makeTilesPane()
+	public JPanel makeTilesPane()
 		{
+		JPanel panel = new JPanel();
+		GroupLayout layout = new GroupLayout(panel);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		panel.setLayout(layout);
+
+		JLabel layer = new JLabel(Messages.getString("RoomFrame.CURRENT_TILE_LAYER"));
+		
+		Room currentRoom = editor.getRoom();
+		int firstTileLayer = 0;
+		
+		// If there is already tiles in the room, use the first tile layer as the current layer
+		if (!currentRoom.tiles.isEmpty())
+			firstTileLayer = currentRoom.tiles.get(0).getDepth();
+		
+		taDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,firstTileLayer);
+		taDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,taDepth.getHeight()));
+
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
 		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane());
-		tab.addTab(Messages.getString("RoomFrame.TILE_BATCH"),makeTilesBatchPane());
 		tab.setSelectedIndex(0);
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createSequentialGroup()
+		/*		*/.addComponent(layer)
+		/*		*/.addComponent(taDepth,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addComponent(tab));
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(layer)
+		/*		*/.addComponent(taDepth))
+		/**/.addComponent(tab));
+
 		fireTileUpdate();
-		return tab;
+		return panel;
 		}
 
 	public JPanel makeTilesAddPane()
@@ -926,24 +957,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tScroll.setPreferredSize(tScroll.getSize());
 		tUnderlying = new JCheckBox(Messages.getString("RoomFrame.TILE_UNDERLYING")); //$NON-NLS-1$
 		prelf.make(tUnderlying,PRoomEditor.DELETE_UNDERLYING_TILES);
-		JLabel lab = new JLabel(Messages.getString("RoomFrame.TILE_LAYER"));
-		taDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
-		taDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,taDepth.getHeight()));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(tScroll)
 		/**/.addComponent(taSource)
-		/**/.addComponent(tUnderlying)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(lab)
-		/*	*/.addComponent(taDepth)));
+		/**/.addComponent(tUnderlying));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(tScroll)
 		/**/.addComponent(taSource)
-		/**/.addComponent(tUnderlying)
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(lab)
-		/*	*/.addComponent(taDepth)));
+		/**/.addComponent(tUnderlying));
 
 		return panel;
 		}
@@ -2154,7 +2176,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		// Display the selected instance with white border
 		Instance instance = oList.getSelectedValue();
-		if (instance == null) { return; }
+		if (instance == null)
+			{
+			return;
+			}
 		instance.setSelected(true);
 
 		// Save the selected instance
@@ -2172,12 +2197,16 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				instanceImage = inst.getDisplayImage();
 		}
 
-		if (instanceImage == null) {
+		if (instanceImage == null)
+			{
 			//TODO: This hard codes the dimensions of the default object sprite/icon which is just the 16x16 pixel ball
 			centerObjectInViewport(instancePosition,16,16,null);
-		} else {
-			centerObjectInViewport(instancePosition,instanceImage.getWidth(),instanceImage.getHeight(),null);
-		}
+			}
+		else
+			{
+			centerObjectInViewport(instancePosition,instanceImage.getWidth(),instanceImage.getHeight(),
+					null);
+			}
 		}
 
 	// Center an object in the viewport of the rooms editor
@@ -2345,45 +2374,50 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			}
 		else
 			frame.toTop();
-		
+
 		return frame;
 		}
-	
+
 	public CodeFrame openInstanceCodeFrame(Instance inst)
 		{
-			return openCodeFrame(inst,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
-					Messages.format("RoomFrame.INSTANCE",inst.properties.get(PInstance.ID)));
+		return openCodeFrame(inst,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
+				Messages.format("RoomFrame.INSTANCE",inst.properties.get(PInstance.ID)));
 		}
-	
+
 	public CodeFrame openInstanceCodeFrame(int id, boolean select)
 		{
-			Instance inst = findInstance(id, select);
-			if (inst != null) {
-				return openCodeFrame(inst,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
+		Instance inst = findInstance(id,select);
+		if (inst != null)
+			{
+			return openCodeFrame(inst,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),
 					Messages.format("RoomFrame.INSTANCE",inst.properties.get(PInstance.ID)));
 			}
-			return null;
+		return null;
 		}
-	
+
 	public CodeFrame openRoomCreationCode()
 		{
-			return openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
+		return openCodeFrame(res,Messages.getString("RoomFrame.TITLE_FORMAT_CREATION"),res.getName()); //$NON-NLS-1$
 		}
-	
-	public Instance findInstance(int id, boolean select) {
+
+	public Instance findInstance(int id, boolean select)
+		{
 		ListModel<Instance> model = oList.getModel();
-	
-		for (int i = 0; i < model.getSize(); i++){
-			Instance inst = model.getElementAt(i);  
-			if (inst.getID() == id) {
-				if (select) {
+
+		for (int i = 0; i < model.getSize(); i++)
+			{
+			Instance inst = model.getElementAt(i);
+			if (inst.getID() == id)
+				{
+				if (select)
+					{
 					oList.setSelectedIndex(i);
-				}
+					}
 				return inst;
+				}
 			}
-		}
 		return null;
-	}
+		}
 
 	@Override
 	public void removeUpdate(DocumentEvent e)
