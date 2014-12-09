@@ -33,7 +33,7 @@ public final class Messages
 	private static final String INPUT_BUNDLE_NAME = "org.lateralgm.messages.keyboard"; //$NON-NLS-1$
 	
 	// NOTE: See comments about locale below.
-	private static ResourceBundle RESOURCE_BUNDLE = null;
+	private static ResourceBundle LANGUAGE_BUNDLE = null;
 	private static ResourceBundle KEYBOARD_BUNDLE = ResourceBundle.getBundle(INPUT_BUNDLE_NAME);
 	
 	static 
@@ -69,14 +69,14 @@ public final class Messages
 		// The bogus locale stops the Operating System Locale from overriding the preference the user
 		// has selected, this was reported by egofree where his OS had French but he wanted all English translations.
 		// Another way to solve this was to rename the default messages bundle with the postfix "_en_US"
-		RESOURCE_BUNDLE = ResourceBundle.getBundle(langbundle, new Locale("",""));
+		LANGUAGE_BUNDLE = ResourceBundle.getBundle(langbundle, new Locale("",""));
 		}
 
 	public static String getString(String key)
 		{
 		try
 			{
-			return RESOURCE_BUNDLE.getString(key);
+			return LANGUAGE_BUNDLE.getString(key);
 			}
 		catch (MissingResourceException e)
 			{
@@ -100,7 +100,7 @@ public final class Messages
 		{
 		try
 			{
-			String p = RESOURCE_BUNDLE.getString(key);
+			String p = LANGUAGE_BUNDLE.getString(key);
 			return MessageFormat.format(p,arguments);
 			}
 		catch (MissingResourceException e)
