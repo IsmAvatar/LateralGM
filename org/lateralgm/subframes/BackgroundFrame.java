@@ -53,6 +53,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.text.NumberFormatter;
 
 import org.lateralgm.components.EffectsFrame;
 import org.lateralgm.components.NumberField;
@@ -598,21 +599,23 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		int height = 256;
 		if (askforsize)
 			{
-			JFormattedTextField wField = new JFormattedTextField();
+			NumberFormatter nf = new NumberFormatter();  
+			nf.setMinimum(new Integer(1)); 
+			JFormattedTextField wField = new JFormattedTextField(nf);
 			wField.setValue(new Integer(width));
-			JFormattedTextField hField = new JFormattedTextField();
+			JFormattedTextField hField = new JFormattedTextField(nf);
 			hField.setValue(new Integer(height));
 
 			JPanel myPanel = new JPanel();
 			GridLayout layout = new GridLayout(0,2);
 			myPanel.setLayout(layout);
-			myPanel.add(new JLabel("Width:"));
+			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_WIDTH")));
 			myPanel.add(wField);
 			//myPanel.add(Box.createHorizontalStrut(15)); // a spacer
-			myPanel.add(new JLabel("Height:"));
+			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_HEIGHT")));
 			myPanel.add(hField);
 
-			int result = JOptionPane.showConfirmDialog(null,myPanel,"Enter Size of New Image",
+			int result = JOptionPane.showConfirmDialog(LGM.frame,myPanel,Messages.getString("BackgroundFrame.NEW_TITLE"),
 					JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
 			if (result == JOptionPane.CANCEL_OPTION)
 				{
