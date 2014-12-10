@@ -52,9 +52,9 @@ public final class PrefsStore
 		PREFS.put("FILE_RECENT",newList);
 		}
 
-	public static Rectangle getWindowBounds()
+	public static Rectangle getWindowBounds(Rectangle def)
 		{
-		return Util.stringToRectangle(PREFS.get("WINDOW_BOUNDS",null),new Rectangle(800,600));
+		return Util.stringToRectangle(PREFS.get("WINDOW_BOUNDS",null),def);
 		}
 
 	public static void setWindowBounds(Rectangle r)

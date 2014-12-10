@@ -2604,6 +2604,8 @@ public final class LGM
 
 		frame.setVisible(true);
 		frame.pack();
+		// this makes sure the first time default location of the window that has not been stored is centered
+		frame.setLocationRelativeTo(null);
 		// This needs to be here after the frame is set to visible for some reason,
 		// it was causing the bug with the frame not memorizing its maximized state.
 		new FramePrefsHandler(frame);
