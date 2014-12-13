@@ -43,6 +43,7 @@ import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -56,6 +57,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -173,6 +175,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	private JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
 	//Tiles
+	public JComboBox taDepth;
 	private JButton addLayer, deleteLayer;
 	public JCheckBox tUnderlying, tLocked;
 	private ButtonModelLink<PTile> ltLocked;
@@ -183,7 +186,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private JButton deleteTileButton;
 	public ResourceMenu<Background> taSource, teSource;
 	private PropertyLink<PTile,ResourceReference<Background>> ltSource;
-	public NumberField tsX, tsY, tileHorizontalPosition, tileVerticalPosition, taDepth, teDepth;
+	public NumberField tsX, tsY, tileHorizontalPosition, tileVerticalPosition, teDepth;
 	private FormattedLink<PTile> ltsX, ltsY, ltX, ltY, ltDepth;
 
 	//Backgrounds
@@ -928,13 +931,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		JLabel layer = new JLabel(Messages.getString("RoomFrame.CURRENT_TILE_LAYER"));
 
 		Room currentRoom = editor.getRoom();
-		int firstTileLayer = 0;
-
-		// If there are already tiles in the room, get all distinct depths for all tiles
+		// List of tiles layers in the current room
+		Vector<Integer> layers = new Vector<Integer>();
+		
+		// If there are already tiles in the room, get the list of layers
 		if (!currentRoom.tiles.isEmpty())
 			{
 
-			List<Integer> layers = new ArrayList<Integer>();
+			layers = new Vector<Integer>();
 			int depth;
 
 			for (Tile tile : currentRoom.tiles)
@@ -944,15 +948,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (!layers.contains(depth)) layers.add(depth);
 				}
 
-			System.out.println("layers:" + layers);
-			firstTileLayer = currentRoom.tiles.get(0).getDepth();
+			}
+		else
+			{
+			layers.add(0);
 			}
 
-		taDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,firstTileLayer);
+		//taDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,firstTileLayer);
+		taDepth = new JComboBox(layers);
 		taDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,taDepth.getHeight()));
 
 		addLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_ADD"));
+		addLayer.addActionListener(this);
 		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE"));
+		deleteLayer.addActionListener(this);
 
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
