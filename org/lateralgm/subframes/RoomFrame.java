@@ -175,7 +175,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	private JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
 	//Tiles
-	public JComboBox taDepth;
+	public JComboBox<Integer> tileLayer;
 	private JButton addLayer, deleteLayer;
 	public JCheckBox tUnderlying, tLocked;
 	private ButtonModelLink<PTile> ltLocked;
@@ -933,7 +933,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Room currentRoom = editor.getRoom();
 		// List of tiles layers in the current room
 		Vector<Integer> layers = new Vector<Integer>();
-		
+
 		// If there are already tiles in the room, get the list of layers
 		if (!currentRoom.tiles.isEmpty())
 			{
@@ -944,7 +944,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			for (Tile tile : currentRoom.tiles)
 				{
 				depth = tile.getDepth();
-
 				if (!layers.contains(depth)) layers.add(depth);
 				}
 
@@ -954,9 +953,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			layers.add(0);
 			}
 
-		//taDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,firstTileLayer);
-		taDepth = new JComboBox(layers);
-		taDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,taDepth.getHeight()));
+		tileLayer = new JComboBox<Integer>(layers);
+		tileLayer.setMaximumSize(new Dimension(Integer.MAX_VALUE,tileLayer.getHeight()));
 
 		addLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_ADD"));
 		addLayer.addActionListener(this);
@@ -971,7 +969,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(layer)
-		/*	*/.addComponent(taDepth,DEFAULT_SIZE,120,MAX_VALUE))
+		/*	*/.addComponent(tileLayer,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(addLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*	*/.addComponent(deleteLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
@@ -980,7 +978,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(layer)
-		/*	*/.addComponent(taDepth))
+		/*	*/.addComponent(tileLayer))
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(addLayer)
 		/*	*/.addComponent(deleteLayer))
@@ -1800,7 +1798,49 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	@Override
 	public void actionPerformed(ActionEvent e)
 		{
+
 		Object eventSource = e.getSource();
+
+		// If the user has pressed the 'Add' new layer button
+		if (eventSource == addLayer)
+			{
+			// Create the panel with the depth property
+			JPanel myPanel = new JPanel();
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.TILE_DEPTH")));
+			NumberField depth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+			myPanel.add(depth);
+
+			int result = JOptionPane.showConfirmDialog(null,myPanel,
+					Messages.getString("RoomFrame.ADD_NEW_TILE"),JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.PLAIN_MESSAGE);
+			
+			// If the user has pressed the OK button
+			if (result == JOptionPane.OK_OPTION)
+				{
+				// Get the new layer's depth
+				Integer newDepth = new Integer(depth.getIntValue());
+
+				int numberOfItems = tileLayer.getItemCount();
+				
+				boolean addNewLayer = true;
+
+				// Test if the layer already exists in the combo box
+				for (int i = 0; i < numberOfItems; i++)
+					{
+					Integer currentDepth = (Integer) tileLayer.getItemAt(i);
+
+					if (currentDepth.equals(newDepth))
+						{
+						addNewLayer = false;
+						break;
+						}
+					}
+
+				// If the depth is new, add it 
+				if (addNewLayer) tileLayer.addItem(newDepth);
+				}
+
+			}
 
 		// If the user has pressed the 'room controls' button
 		if (eventSource == roomControls)

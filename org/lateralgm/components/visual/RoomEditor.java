@@ -345,7 +345,7 @@ public class RoomEditor extends VisualPanel
 				t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
 						(Integer) b.get(PBackground.TILE_HEIGHT)));
 
-			t.setDepth((Integer) frame.taDepth.getSelectedItem());
+			t.setDepth((Integer) frame.tileLayer.getSelectedItem());
 			room.tiles.add(t);
 			setCursor(t);
 
@@ -549,7 +549,7 @@ public class RoomEditor extends VisualPanel
 
 	protected int getTileDepth()
 		{
-		return (Integer) frame.taDepth.getSelectedItem();
+		return (Integer) frame.tileLayer.getSelectedItem();
 		}
 
 	public static interface CommandHandler
