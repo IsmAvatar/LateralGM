@@ -41,6 +41,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -176,6 +177,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
 	//Tiles
 	public JComboBox<Integer> tileLayer;
+	// List of tiles layers in the current room
+	Vector<Integer> layers = new Vector<Integer>();
 	private JButton addLayer, deleteLayer;
 	public JCheckBox tUnderlying, tLocked;
 	private ButtonModelLink<PTile> ltLocked;
@@ -931,10 +934,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		JLabel layer = new JLabel(Messages.getString("RoomFrame.CURRENT_TILE_LAYER"));
 
 		Room currentRoom = editor.getRoom();
-		// List of tiles layers in the current room
-		Vector<Integer> layers = new Vector<Integer>();
 
-		// If there are already tiles in the room, get the list of layers
+		// If there are already tiles in the room, get the list of layers and store it in a vector
 		if (!currentRoom.tiles.isEmpty())
 			{
 
@@ -952,6 +953,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			layers.add(0);
 			}
+
+		// Sort the layers in descending order
+		Collections.sort(layers,Collections.reverseOrder());
 
 		tileLayer = new JComboBox<Integer>(layers);
 		tileLayer.setMaximumSize(new Dimension(Integer.MAX_VALUE,tileLayer.getHeight()));
@@ -1813,31 +1817,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			int result = JOptionPane.showConfirmDialog(null,myPanel,
 					Messages.getString("RoomFrame.ADD_NEW_TILE"),JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.PLAIN_MESSAGE);
-			
+
 			// If the user has pressed the OK button
 			if (result == JOptionPane.OK_OPTION)
 				{
 				// Get the new layer's depth
 				Integer newDepth = new Integer(depth.getIntValue());
 
-				int numberOfItems = tileLayer.getItemCount();
-				
-				boolean addNewLayer = true;
-
-				// Test if the layer already exists in the combo box
-				for (int i = 0; i < numberOfItems; i++)
+				// If the layer is new, add it 
+				if (!layers.contains(newDepth))
 					{
-					Integer currentDepth = (Integer) tileLayer.getItemAt(i);
-
-					if (currentDepth.equals(newDepth))
-						{
-						addNewLayer = false;
-						break;
-						}
+					layers.add(newDepth);
+					// Sort the layers in descending order
+					Collections.sort(layers,Collections.reverseOrder());
+					// Select the new layer
+					tileLayer.setSelectedItem(newDepth);
 					}
-
-				// If the depth is new, add it 
-				if (addNewLayer) tileLayer.addItem(newDepth);
 				}
 
 			}
