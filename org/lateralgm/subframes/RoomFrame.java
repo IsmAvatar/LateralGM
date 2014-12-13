@@ -173,6 +173,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	private JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
 	//Tiles
+	private JButton addLayer, deleteLayer;
 	public JCheckBox tUnderlying, tLocked;
 	private ButtonModelLink<PTile> ltLocked;
 	public TileSelector tSelect;
@@ -184,6 +185,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private PropertyLink<PTile,ResourceReference<Background>> ltSource;
 	public NumberField tsX, tsY, tileHorizontalPosition, tileVerticalPosition, taDepth, teDepth;
 	private FormattedLink<PTile> ltsX, ltsY, ltX, ltY, ltDepth;
+
 	//Backgrounds
 	private JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
 	private ButtonModelLink<PBackgroundDef> lbVisible, lbForeground, lbTileH, lbTileV, lbStretch;
@@ -751,6 +753,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/*		*/.addComponent(addObjectButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*		*/.addComponent(deleteObjectButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addComponent(edit));
+
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(oNew)
 		/**/.addComponent(oUnderlying)
@@ -927,11 +930,29 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Room currentRoom = editor.getRoom();
 		int firstTileLayer = 0;
 
-		// If there is already tiles in the room, use the first tile layer as the current layer
-		if (!currentRoom.tiles.isEmpty()) firstTileLayer = currentRoom.tiles.get(0).getDepth();
+		// If there are already tiles in the room, get all distinct depths for all tiles
+		if (!currentRoom.tiles.isEmpty())
+			{
+
+			List<Integer> layers = new ArrayList<Integer>();
+			int depth;
+
+			for (Tile tile : currentRoom.tiles)
+				{
+				depth = tile.getDepth();
+
+				if (!layers.contains(depth)) layers.add(depth);
+				}
+
+			System.out.println("layers:" + layers);
+			firstTileLayer = currentRoom.tiles.get(0).getDepth();
+			}
 
 		taDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,firstTileLayer);
 		taDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,taDepth.getHeight()));
+
+		addLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_ADD"));
+		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE"));
 
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
@@ -940,14 +961,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(layer)
-		/*		*/.addComponent(taDepth,DEFAULT_SIZE,120,MAX_VALUE))
+		/*	*/.addComponent(layer)
+		/*	*/.addComponent(taDepth,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(addLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*	*/.addComponent(deleteLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addComponent(tab));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(layer)
-		/*		*/.addComponent(taDepth))
+		/*	*/.addComponent(layer)
+		/*	*/.addComponent(taDepth))
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(addLayer)
+		/*	*/.addComponent(deleteLayer))
 		/**/.addComponent(tab));
 
 		fireTileUpdate();
