@@ -1837,6 +1837,35 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			}
 
+		// If the user has pressed the 'delete' tile's layer button
+		if (eventSource == deleteLayer)
+			{
+			// Get a confirmation from the user
+			int result = JOptionPane.showConfirmDialog(null,
+					Messages.getString("RoomFrame.DELETE_TILE_LAYER"),
+					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+
+			if (result == JOptionPane.YES_OPTION)
+				{
+				Room currentRoom = editor.getRoom();
+				// Get the selected layer
+				Integer depth = (Integer) tileLayer.getSelectedItem();
+
+				// Remove each tile with the selected layer
+				for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
+					if (currentRoom.tiles.get(i).getDepth() == depth) currentRoom.tiles.remove(i);
+
+				// Remove the layer from the combo box
+				layers.remove(depth);
+				
+				if (layers.size() == 0)
+					layers.add(0);
+				
+				tileLayer.setSelectedIndex(0);
+				resetUndoManager();
+				}
+			}
+
 		// If the user has pressed the 'room controls' button
 		if (eventSource == roomControls)
 			{
