@@ -41,8 +41,10 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -56,6 +58,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -76,7 +79,6 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -173,7 +175,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	private JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
 	//Tiles
-	public JCheckBox tUnderlying, tLocked;
+	public JComboBox<Integer> tileLayer;
+	// List of tiles layers in the current room
+	Vector<Integer> layers = new Vector<Integer>();
+	private JButton addLayer, deleteLayer;
+	public JCheckBox tUnderlying, tLocked, tHideOtherLayers;
 	private ButtonModelLink<PTile> ltLocked;
 	public TileSelector tSelect;
 	private JScrollPane tScroll;
@@ -182,8 +188,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private JButton deleteTileButton;
 	public ResourceMenu<Background> taSource, teSource;
 	private PropertyLink<PTile,ResourceReference<Background>> ltSource;
-	public NumberField tsX, tsY, tileHorizontalPosition, tileVerticalPosition, taDepth, teDepth;
+	public NumberField tsX, tsY, tileHorizontalPosition, tileVerticalPosition, teDepth;
 	private FormattedLink<PTile> ltsX, ltsY, ltX, ltY, ltDepth;
+
 	//Backgrounds
 	private JCheckBox bDrawColor, bVisible, bForeground, bTileH, bTileV, bStretch;
 	private ButtonModelLink<PBackgroundDef> lbVisible, lbForeground, lbTileH, lbTileV, lbStretch;
@@ -438,40 +445,41 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				}
 			}
 		}
-	
+
 	public static final DataFlavor INSTANCE_FLAVOR = new DataFlavor(Instance.class,"Instance"); //$NON-NLS-1$
-	
+
 	public static class ObjectListTransferable implements Transferable
-	{
-	private static final DataFlavor[] FLAVORS = { INSTANCE_FLAVOR };
-	private final List<Instance> instanceList;
-
-	public ObjectListTransferable(List<Instance> list)
 		{
-		instanceList = list;
-		}
+		private static final DataFlavor[] FLAVORS = { INSTANCE_FLAVOR };
+		private final List<Instance> instanceList;
 
-	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
-		{
-		if (flavor == INSTANCE_FLAVOR)
+		public ObjectListTransferable(List<Instance> list)
 			{
-			return instanceList;
+			instanceList = list;
 			}
-		throw new UnsupportedFlavorException(flavor);
+
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
+			{
+			if (flavor == INSTANCE_FLAVOR)
+				{
+				return instanceList;
+				}
+			throw new UnsupportedFlavorException(flavor);
+			}
+
+		public DataFlavor[] getTransferDataFlavors()
+			{
+			return FLAVORS;
+			}
+
+		public boolean isDataFlavorSupported(DataFlavor flavor)
+			{
+			return flavor == INSTANCE_FLAVOR;
+			}
 		}
 
-	public DataFlavor[] getTransferDataFlavors()
+	public class ObjectListTransferHandler extends TransferHandler
 		{
-		return FLAVORS;
-		}
-
-	public boolean isDataFlavorSupported(DataFlavor flavor)
-		{
-		return flavor == INSTANCE_FLAVOR;
-		}
-	}
-	
-	public class ObjectListTransferHandler extends TransferHandler {
 		/**
 		 * TODO: Change if needed.
 		 */
@@ -479,78 +487,91 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		private int[] indices = null;
 		private ArrayList<Instance> instanceList = null;
 		private int addIndex = -1; //Location where items were added
-		private int addCount = 0;  //Number of items added.
-		      
+		private int addCount = 0; //Number of items added.
+
 		public ObjectListTransferHandler(ActiveArrayList<Instance> insts)
 			{
 			instanceList = insts;
 			}
 
-		public boolean canImport(TransferHandler.TransferSupport info) {
-		    return info.isDataFlavorSupported(INSTANCE_FLAVOR);
-		}
-	
-	  protected Transferable createTransferable(JComponent c) {
-	      JList<Instance> list = (JList<Instance>)c;
-	      indices  = list.getSelectedIndices();
-	      return new ObjectListTransferable(list.getSelectedValuesList());
-	  }
-	  
-	  /**
-	   * We support both copy and move actions.
-	   */
-	  public int getSourceActions(JComponent c) {
-	      return TransferHandler.COPY_OR_MOVE;
-	  }
-	  
-	  /**
-	   * Perform the actual import.  This demo only supports drag and drop.
-	   */
-	  public boolean importData(TransferHandler.TransferSupport info) {
-	      if (!info.isDrop()) {
-	          return false;
-	      }
-	      
-	      JList.DropLocation dl = (JList.DropLocation)info.getDropLocation();
-	      int index = dl.getIndex();
-	      boolean insert = dl.isInsert();
+		public boolean canImport(TransferHandler.TransferSupport info)
+			{
+			return info.isDataFlavorSupported(INSTANCE_FLAVOR);
+			}
 
-	      // Get the instance that is being dropped.
-	      Transferable t = info.getTransferable();
-	      List<Instance> data = null;
-	      
-	      try {
-	          data = (List<Instance>) t.getTransferData(INSTANCE_FLAVOR);
-	      } 
-	      catch (Exception e) {  LGM.showDefaultExceptionHandler(e); }
-	      
-	      addIndex = index;
-	      addCount = data.size();
-	      
-	      // Perform the actual import.  
-	      for (int i = 0; i < addCount; i++) {
-	      	instanceList.add(index++, data.get(i));
-	      }
-	      return true;
-	  }
-	
-	  /**
-	   * Remove the items moved from the list.
-	   */
-	  protected void exportDone(JComponent c, Transferable data, int action) {
-	      JList<Instance> source = (JList<Instance>)c;
-	      
-	      if (action == TransferHandler.MOVE) {
-	          for (int i = indices.length - 1; i >= 0; i--) {
-	              instanceList.remove(indices[i]);
-	          }
-	      }
-	      
-	      indices = null;
-	      addCount = 0;
-	      addIndex = -1;
-	  }
-	}
+		protected Transferable createTransferable(JComponent c)
+			{
+			JList<Instance> list = (JList<Instance>) c;
+			indices = list.getSelectedIndices();
+			return new ObjectListTransferable(list.getSelectedValuesList());
+			}
+
+		/**
+		 * We support both copy and move actions.
+		 */
+		public int getSourceActions(JComponent c)
+			{
+			return TransferHandler.COPY_OR_MOVE;
+			}
+
+		/**
+		 * Perform the actual import.  This demo only supports drag and drop.
+		 */
+		public boolean importData(TransferHandler.TransferSupport info)
+			{
+			if (!info.isDrop())
+				{
+				return false;
+				}
+
+			JList.DropLocation dl = (JList.DropLocation) info.getDropLocation();
+			int index = dl.getIndex();
+			boolean insert = dl.isInsert();
+
+			// Get the instance that is being dropped.
+			Transferable t = info.getTransferable();
+			List<Instance> data = null;
+
+			try
+				{
+				data = (List<Instance>) t.getTransferData(INSTANCE_FLAVOR);
+				}
+			catch (Exception e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
+
+			addIndex = index;
+			addCount = data.size();
+
+			// Perform the actual import.  
+			for (int i = 0; i < addCount; i++)
+				{
+				instanceList.add(index++,data.get(i));
+				}
+			return true;
+			}
+
+		/**
+		 * Remove the items moved from the list.
+		 */
+		protected void exportDone(JComponent c, Transferable data, int action)
+			{
+			JList<Instance> source = (JList<Instance>) c;
+
+			if (action == TransferHandler.MOVE)
+				{
+				for (int i = indices.length - 1; i >= 0; i--)
+					{
+					instanceList.remove(indices[i]);
+					}
+				}
+
+			indices = null;
+			addCount = 0;
+			addIndex = -1;
+			}
+		}
 
 	public JPanel makeObjectsPane()
 		{
@@ -737,6 +758,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/*		*/.addComponent(addObjectButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*		*/.addComponent(deleteObjectButton,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
 		/**/.addComponent(edit));
+
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(oNew)
 		/**/.addComponent(oUnderlying)
@@ -909,17 +931,41 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		panel.setLayout(layout);
 
 		JLabel layer = new JLabel(Messages.getString("RoomFrame.CURRENT_TILE_LAYER"));
-		
-		Room currentRoom = editor.getRoom();
-		int firstTileLayer = 0;
-		
-		// If there is already tiles in the room, use the first tile layer as the current layer
-		if (!currentRoom.tiles.isEmpty())
-			firstTileLayer = currentRoom.tiles.get(0).getDepth();
-		
-		taDepth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,firstTileLayer);
-		taDepth.setMaximumSize(new Dimension(Integer.MAX_VALUE,taDepth.getHeight()));
 
+		Room currentRoom = editor.getRoom();
+
+		// If there are already tiles in the room, get the list of layers and store it in a vector
+		if (!currentRoom.tiles.isEmpty())
+			{
+			layers = new Vector<Integer>();
+			int depth;
+
+			for (Tile tile : currentRoom.tiles)
+				{
+				depth = tile.getDepth();
+				if (!layers.contains(depth)) layers.add(depth);
+				}
+
+			}
+		else
+			{
+			layers.add(0);
+			}
+
+		// Sort the layers in descending order
+		Collections.sort(layers,Collections.reverseOrder());
+
+		tileLayer = new JComboBox<Integer>(layers);
+		tileLayer.setMaximumSize(new Dimension(Integer.MAX_VALUE,tileLayer.getHeight()));
+
+		addLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_ADD"));
+		addLayer.addActionListener(this);
+		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE"));
+		deleteLayer.addActionListener(this);
+
+		tHideOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_HIDE_OTHER_LAYERS"));
+		tHideOtherLayers.addActionListener(this);
+		
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
 		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane());
@@ -927,14 +973,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(layer)
-		/*		*/.addComponent(taDepth,DEFAULT_SIZE,120,MAX_VALUE))
+		/*	*/.addComponent(layer)
+		/*	*/.addComponent(tileLayer,DEFAULT_SIZE,120,MAX_VALUE))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(addLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/*	*/.addComponent(deleteLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/**/.addComponent(tHideOtherLayers)
 		/**/.addComponent(tab));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(layer)
-		/*		*/.addComponent(taDepth))
+		/*	*/.addComponent(layer)
+		/*	*/.addComponent(tileLayer))
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(addLayer)
+		/*	*/.addComponent(deleteLayer))
+		/**/.addComponent(tHideOtherLayers)
 		/**/.addComponent(tab));
 
 		fireTileUpdate();
@@ -1747,12 +1801,83 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	// Window which displays the room controls
 	public static JFrame roomControlsFrame;
-	
+
 	@Override
 	public void actionPerformed(ActionEvent e)
 		{
+
 		Object eventSource = e.getSource();
 
+		// If the user has pressed the 'Add' new layer button
+		if (eventSource == addLayer)
+			{
+			// Create the panel with the depth property
+			JPanel myPanel = new JPanel();
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.TILE_DEPTH")));
+			NumberField depth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
+			myPanel.add(depth);
+
+			int result = JOptionPane.showConfirmDialog(null,myPanel,
+					Messages.getString("RoomFrame.ADD_NEW_TILE"),JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.PLAIN_MESSAGE);
+
+			// If the user has pressed the OK button
+			if (result == JOptionPane.OK_OPTION)
+				{
+				// Get the new layer's depth
+				Integer newDepth = new Integer(depth.getIntValue());
+
+				// If the layer is new, add it 
+				if (!layers.contains(newDepth))
+					{
+					layers.add(newDepth);
+					// Sort the layers in descending order
+					Collections.sort(layers,Collections.reverseOrder());
+					// Select the new layer
+					tileLayer.setSelectedItem(newDepth);
+					}
+				}
+
+			}
+
+		// If the user has pressed the 'delete' tile's layer button
+		if (eventSource == deleteLayer)
+			{
+			// Get a confirmation from the user
+			int result = JOptionPane.showConfirmDialog(null,
+					Messages.getString("RoomFrame.DELETE_TILE_LAYER"),
+					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+
+			if (result == JOptionPane.YES_OPTION)
+				{
+				Room currentRoom = editor.getRoom();
+				// Get the selected layer
+				Integer depth = (Integer) tileLayer.getSelectedItem();
+
+				// Remove each tile with the selected layer
+				for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
+					if (currentRoom.tiles.get(i).getDepth() == depth) currentRoom.tiles.remove(i);
+
+				// Remove the layer from the combo box
+				layers.remove(depth);
+				
+				if (layers.size() == 0)
+					layers.add(0);
+				
+				tileLayer.setSelectedIndex(0);
+				resetUndoManager();
+				}
+			}
+		
+		// If the user has clicked on the 'Hide other layers' checkbox
+		if (eventSource == tHideOtherLayers)
+			{
+			if (tHideOtherLayers.isSelected())
+				editor.roomVisual.setVisibleLayer((Integer) tileLayer.getSelectedItem());
+			else
+				editor.roomVisual.setVisibleLayer(null);
+			}
+		
 		// If the user has pressed the 'room controls' button
 		if (eventSource == roomControls)
 			{
@@ -2189,13 +2314,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		// Get the image dimension
 		ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
-		
+
 		BufferedImage instanceImage = null;
-		if (instanceObject != null) {
+		if (instanceObject != null)
+			{
 			GmObject inst = instanceObject.get();
-			if (inst != null)
-				instanceImage = inst.getDisplayImage();
-		}
+			if (inst != null) instanceImage = inst.getDisplayImage();
+			}
 
 		if (instanceImage == null)
 			{
