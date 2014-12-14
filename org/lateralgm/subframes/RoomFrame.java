@@ -1205,7 +1205,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tileVerticalPosition.setColumns(4);
 		tileVerticalPosition.addFocusListener(this);
 		JLabel ltl = new JLabel(Messages.getString("RoomFrame.TILE_LAYER")); //$NON-NLS-1$
-		teDepth = new NumberField(1000000);
+		teDepth = new NumberField(0);
 		teDepth.setColumns(8);
 		ptl.setHorizontalGroup(ptl.createParallelGroup()
 		/**/.addGroup(ptl.createSequentialGroup()
