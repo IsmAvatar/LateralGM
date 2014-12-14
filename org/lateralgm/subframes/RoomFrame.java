@@ -179,7 +179,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// List of tiles layers in the current room
 	Vector<Integer> layers = new Vector<Integer>();
 	private JButton addLayer, deleteLayer;
-	public JCheckBox tUnderlying, tLocked, tHideOtherLayers;
+	public JCheckBox tUnderlying, tLocked, tHideOtherLayers, tEditOtherLayers;
 	private ButtonModelLink<PTile> ltLocked;
 	public TileSelector tSelect;
 	private JScrollPane tScroll;
@@ -962,9 +962,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		addLayer.addActionListener(this);
 		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE"));
 		deleteLayer.addActionListener(this);
-
+		
 		tHideOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_HIDE_OTHER_LAYERS"));
 		tHideOtherLayers.addActionListener(this);
+		
+		tEditOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_EDIT_OTHER_LAYERS"));
+		tEditOtherLayers.addActionListener(this);
 		
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
@@ -974,11 +977,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(layer)
-		/*	*/.addComponent(tileLayer,DEFAULT_SIZE,120,MAX_VALUE))
+		/*	*/.addComponent(tileLayer))
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(addLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*	*/.addComponent(deleteLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
-		/**/.addComponent(tHideOtherLayers)
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(tHideOtherLayers,GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,GroupLayout.PREFERRED_SIZE)
+		/*	*/.addComponent(tEditOtherLayers))
 		/**/.addComponent(tab));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
@@ -988,7 +993,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(addLayer)
 		/*	*/.addComponent(deleteLayer))
-		/**/.addComponent(tHideOtherLayers)
+		/**/.addGroup(layout.createParallelGroup()
+		/*	*/.addComponent(tHideOtherLayers)
+		/*	*/.addComponent(tEditOtherLayers))
 		/**/.addComponent(tab));
 
 		fireTileUpdate();
@@ -1198,7 +1205,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tileVerticalPosition.setColumns(4);
 		tileVerticalPosition.addFocusListener(this);
 		JLabel ltl = new JLabel(Messages.getString("RoomFrame.TILE_LAYER")); //$NON-NLS-1$
-		teDepth = new NumberField(1000000);
+		teDepth = new NumberField(0);
 		teDepth.setColumns(8);
 		ptl.setHorizontalGroup(ptl.createParallelGroup()
 		/**/.addGroup(ptl.createSequentialGroup()
@@ -1867,6 +1874,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				tileLayer.setSelectedIndex(0);
 				resetUndoManager();
 				}
+			}
+		
+		// If the user has clicked on the 'Edit other layers' checkbox
+		if (eventSource == tEditOtherLayers)
+			{
+			if (tEditOtherLayers.isSelected())
+				editor.editOtherLayers(true);
+			else
+				editor.editOtherLayers(false);
 			}
 		
 		// If the user has clicked on the 'Hide other layers' checkbox

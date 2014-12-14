@@ -796,10 +796,12 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					}
 				}
 
-			// If the tile is selected use bigger bounds for border, and make sure the tile is visible
+			binVisual.setDepth(this,piece.getDepth());
+			
+			// If the tile is selected use bigger bounds for border
 			if (piece.isSelected())
 				{
-				binVisual.setDepth(this,Integer.MIN_VALUE);
+				//binVisual.setDepth(this,Integer.MIN_VALUE);
 				Point piecePosition = piece.getPosition();
 				Dimension pieceSize = piece.getSize();
 				setBounds(new Rectangle(piecePosition.x - 2,piecePosition.y - 2,pieceSize.width + 4,
@@ -807,7 +809,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				}
 			else
 				{
-				binVisual.setDepth(this,piece.getDepth());
 				Rectangle r = new Rectangle(piece.getPosition(),piece.getSize());
 				setBounds(r);
 				}

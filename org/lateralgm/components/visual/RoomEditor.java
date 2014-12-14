@@ -80,6 +80,8 @@ public class RoomEditor extends VisualPanel
 
 	// Save the original position of a selected piece (Used when moving an object for the undo)
 	private Point objectFirstPosition = null;
+	// Set if the tiles editing is available for all layers or only for the selected one
+	private boolean editOtherLayers = false;
 
 	public enum PRoomEditor
 		{
@@ -141,6 +143,12 @@ public class RoomEditor extends VisualPanel
 		put(0,roomVisual);
 		setZoom((Integer) properties.get(PRoomEditor.ZOOM));
 		refresh();
+		}
+
+	// Set if the tiles editing is available for all layers or only for the selected one
+	public void editOtherLayers(boolean editOtherLayers)
+		{
+		this.editOtherLayers = editOtherLayers;
 		}
 
 	public Room getRoom()
@@ -485,6 +493,10 @@ public class RoomEditor extends VisualPanel
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
 			{
 			Tile tile = getTopPiece(currentPosition,Tile.class,getTileDepth());
+
+			// If we can edit all layers and no tiles have been found, look for a tile, regardless of its layer
+			if (tile == null && editOtherLayers == true) tile = getTopPiece(currentPosition,Tile.class);
+
 			mc = tile;
 			if (mc != null)
 				{
