@@ -79,7 +79,6 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.TransferHandler;
 import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -180,7 +179,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// List of tiles layers in the current room
 	Vector<Integer> layers = new Vector<Integer>();
 	private JButton addLayer, deleteLayer;
-	public JCheckBox tUnderlying, tLocked;
+	public JCheckBox tUnderlying, tLocked, tHideOtherLayers;
 	private ButtonModelLink<PTile> ltLocked;
 	public TileSelector tSelect;
 	private JScrollPane tScroll;
@@ -938,7 +937,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		// If there are already tiles in the room, get the list of layers and store it in a vector
 		if (!currentRoom.tiles.isEmpty())
 			{
-
 			layers = new Vector<Integer>();
 			int depth;
 
@@ -965,6 +963,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE"));
 		deleteLayer.addActionListener(this);
 
+		tHideOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_HIDE_OTHER_LAYERS"));
+		tHideOtherLayers.addActionListener(this);
+		
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
 		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane());
@@ -977,6 +978,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(addLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*	*/.addComponent(deleteLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/**/.addComponent(tHideOtherLayers)
 		/**/.addComponent(tab));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
@@ -986,6 +988,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(addLayer)
 		/*	*/.addComponent(deleteLayer))
+		/**/.addComponent(tHideOtherLayers)
 		/**/.addComponent(tab));
 
 		fireTileUpdate();
@@ -1865,7 +1868,16 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				resetUndoManager();
 				}
 			}
-
+		
+		// If the user has clicked on the 'Hide other layers' checkbox
+		if (eventSource == tHideOtherLayers)
+			{
+			if (tHideOtherLayers.isSelected())
+				editor.roomVisual.setVisibleLayer((Integer) tileLayer.getSelectedItem());
+			else
+				editor.roomVisual.setVisibleLayer(null);
+			}
+		
 		// If the user has pressed the 'room controls' button
 		if (eventSource == roomControls)
 			{
