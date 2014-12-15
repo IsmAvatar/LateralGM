@@ -338,19 +338,28 @@ public class BinPlane
 		private int binx, biny, binw, binh;
 		private final Rectangle bounds = new Rectangle(-1,-1);
 		private int depth;
+		// If the candidate is selected, it should be always visible
+		private boolean isSelected = false;
 		private Bin[] cBins;
 
 		public void setDepth(int d)
 			{
-			if (depth == d) return;
+			setDepth(d,false);
+			}
+
+		public void setDepth(int d, boolean selected)
+			{
+			//if (depth == d) return;
 			if (cBins == null)
 				{
 				depth = d;
+				isSelected = selected;
 				return;
 				}
 			for (Bin b : cBins)
 				b.candidates.remove(this);
 			depth = d;
+			isSelected = selected;
 			for (Bin b : cBins)
 				b.candidates.add(this);
 			}
@@ -427,6 +436,9 @@ public class BinPlane
 		public int compareTo(Candidate c)
 			{
 			if (this == c) return 0;
+			// If the candidate is selected, it should be always visible
+			if (isSelected) return 1;
+
 			return c.depth > depth ? 1 : c.depth < depth ? -1
 					: new Integer(c.hashCode()).compareTo(hashCode());
 			}

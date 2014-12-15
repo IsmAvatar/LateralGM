@@ -69,8 +69,9 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateListener
 	{
 	protected static final ImageIcon EMPTY_SPRITE = LGM.getIconForKey("Resource.EMPTY_OBJ"); //$NON-NLS-1$
-	protected static final BufferedImage EMPTY_IMAGE = EMPTY_SPRITE.getIconWidth() <= 0 ? null : new BufferedImage(EMPTY_SPRITE.getIconWidth(),
-			EMPTY_SPRITE.getIconHeight(),BufferedImage.TYPE_INT_ARGB);
+	protected static final BufferedImage EMPTY_IMAGE = EMPTY_SPRITE.getIconWidth() <= 0 ? null
+			: new BufferedImage(EMPTY_SPRITE.getIconWidth(),EMPTY_SPRITE.getIconHeight(),
+					BufferedImage.TYPE_INT_ARGB);
 
 	private final BinVisual binVisual;
 	private final GridVisual gridVisual;
@@ -90,6 +91,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 	private boolean viewsVisible;
 	private Integer visibleLayer = null;
+
 	public enum Show
 		{
 		BACKGROUNDS,INSTANCES,TILES,FOREGROUNDS,GRID,VIEWS
@@ -138,7 +140,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		visibleLayer = layer;
 		repaint(null);
 		}
-	
+
 	public void extendBounds(Rectangle b)
 		{
 		b.add(new Rectangle(0,0,(Integer) room.get(PRoom.WIDTH),(Integer) room.get(PRoom.HEIGHT)));
@@ -580,7 +582,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			// If the instance is selected use bigger bounds for border, and make sure the instance is visible
 			if (piece.isSelected())
 				{
-				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE);
+				binVisual.setDepth(this,o == null ? 0 : Integer.MIN_VALUE,true);
 				newWidth += 4;
 				newHeight += 4;
 				borderOffsetx = (int) (2 * scale.getX());
@@ -588,7 +590,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				}
 			else
 				{
-				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH));
+				binVisual.setDepth(this,o == null ? 0 : (Integer) o.get(PGmObject.DEPTH),false);
 				}
 
 			// Apply scaling
@@ -671,13 +673,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 				// Original composite
 				Composite oc = null;
-				
+
 				// Apply alpha
 				if (alpha > 0 && alpha < 255)
 					{
 					// Save the original composite
 					oc = g2.getComposite();
-					
+
 					AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
 							(float) (alpha / 255.0));
 					g2.setComposite(ac);
@@ -690,13 +692,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				else
 					g2.drawImage((image == EMPTY_IMAGE || alpha == 0) ? EMPTY_SPRITE.getImage() : newImage,0,
 							0,null);
-				
+
 				// If the instance is selected, display a border around it
 				if (piece.isSelected())
 					{
 					// If there was an alpha filtering, remove it
 					if (oc != null) g2.setComposite(oc);
-					
+
 					// If the option 'Invert colors' is set
 					if (Prefs.useInvertedColorForSelection)
 						g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
@@ -796,12 +798,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					}
 				}
 
-			binVisual.setDepth(this,piece.getDepth());
-			
 			// If the tile is selected use bigger bounds for border
 			if (piece.isSelected())
 				{
-				//binVisual.setDepth(this,Integer.MIN_VALUE);
+				binVisual.setDepth(this,piece.getDepth(),true);
 				Point piecePosition = piece.getPosition();
 				Dimension pieceSize = piece.getSize();
 				setBounds(new Rectangle(piecePosition.x - 2,piecePosition.y - 2,pieceSize.width + 4,
@@ -809,6 +809,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				}
 			else
 				{
+				binVisual.setDepth(this,piece.getDepth(),false);
 				Rectangle r = new Rectangle(piece.getPosition(),piece.getSize());
 				setBounds(r);
 				}
@@ -822,9 +823,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				Graphics2D g2 = (Graphics2D) g;
 
 				// If we display only the visible layer, test if the current tile is in the visible layer
-				if (visibleLayer != null &&  piece.getDepth() != visibleLayer)
-					return;
-				
+				if (visibleLayer != null && piece.getDepth() != visibleLayer) return;
+
 				// If the tile is selected, display a border around it
 				if (piece.isSelected())
 					{
