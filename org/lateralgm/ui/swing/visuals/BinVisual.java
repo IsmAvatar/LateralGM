@@ -69,9 +69,14 @@ public class BinVisual extends AbstractVisual implements VisualContainer,Bounded
 
 	public void setDepth(Visual v, int d)
 		{
+		setDepth(v,d,false);
+		}
+
+	public void setDepth(Visual v, int d, boolean selected)
+		{
 		Candidate c = getCandidate(v);
 		if (c == null) return;
-		c.setDepth(d);
+		c.setDepth(d,selected);
 		Rectangle ob = c.getBounds(null);
 		if (ob != null && !ob.isEmpty()) repaint(ob);
 		}
