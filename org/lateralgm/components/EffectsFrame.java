@@ -33,6 +33,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractButton;
@@ -172,24 +173,24 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		
 		effects = new ImageEffect[12];
 		effects[0] = new ImageEffects.BlackAndWhiteEffect();
-		effects[1] = new ImageEffects.OpacityEffect();
-		effects[2] = new ImageEffects.InvertEffect();
+		effects[1] = new ImageEffects.BlurEffect();
+		effects[2] = new ImageEffects.ColorizeEffect();
 		effects[3] = new ImageEffects.EdgeDetectEffect();
 		effects[4] = new ImageEffects.EmbossEffect();
-		effects[5] = new ImageEffects.BlurEffect();
-		effects[6] = new ImageEffects.SharpenEffect();
-		effects[7] = new ImageEffects.RemoveTransparencyEffect();
-		effects[8] = new ImageEffects.RemoveColorEffect();
-		effects[9] = new ImageEffects.FadeColorEffect();
-		effects[10] = new ImageEffects.ColorizeEffect();
-		effects[11] = new ImageEffects.IntensityEffect();
-		
+		effects[5] = new ImageEffects.FadeColorEffect();
+		effects[6] = new ImageEffects.InvertEffect();
+		effects[7] = new ImageEffects.IntensityEffect();
+		effects[8] = new ImageEffects.OpacityEffect();
+		effects[9] = new ImageEffects.RemoveColorEffect();
+		effects[10] = new ImageEffects.RemoveTransparencyEffect();
+		effects[11] = new ImageEffects.SharpenEffect();
+
 		final JPanel effectsOptions = new JPanel(new CardLayout());
 		for (ImageEffect effect : effects) {
 			effect.addOptionUpdateListener(this);
 			effectsOptions.add(effect.getOptionsPanel(),effect.getKey());
 		}
-
+		
 		effectsCombo = new JComboBox<ImageEffect>(effects);
 		effectsCombo.setRenderer(new ListCellRenderer<ImageEffect>() {
 
