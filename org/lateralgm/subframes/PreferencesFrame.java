@@ -93,7 +93,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	protected JTree tree;
 
 	JComboBox<String> themeCombo, iconCombo, langCombo, actionsCombo;
-	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter, dockEvent, backupsEnable;
+	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter, dockEvent,
+			backupsEnable;
 	JTextField iconPath, themePath, manualPath, actionsPath;
 
 	JTextField soundEditorPath, backgroundEditorPath, spriteEditorPath, codeEditorPath,
@@ -104,8 +105,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	// Room editor fields
 	NumberField undoHistorySize;
 	JCheckBox useFilledRectangleForViews, useInvertedColorForViews, useFilledRectangleForSelection,
-			useInvertedColorForSelection;
-	ColorSelect viewInsideColor, viewOutsideColor, selectionInsideColor, selectionOutsideColor;
+			useInvertedColorForSelection, useFilledRectangleForMultipleSelection,
+			useInvertedColorForMultipleSelection;
+	ColorSelect viewInsideColor, viewOutsideColor, selectionInsideColor, selectionOutsideColor,
+			multipleSelectionInsideColor, multipleSelectionOutsideColor;
 	private ColorSelect imagePreviewBackgroundColor;
 	private ColorSelect imagePreviewForegroundColor;
 	private ColorSelect matchCountBackgroundColor;
@@ -121,18 +124,18 @@ public class PreferencesFrame extends JFrame implements ActionListener
 	private JComboBox<String> antialiasCombo;
 	private JCheckBox decorateWindowBordersCheckBox;
 
-	private JPanel makeAppearancePrefs() {
+	private JPanel makeAppearancePrefs()
+		{
 		JPanel panel = new JPanel();
-		
-		String[] systemComboItems = { 
-				Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_DEFAULT"),
+
+		String[] systemComboItems = { Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_DEFAULT"),
 				Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_OFF"),
-				Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_ON")
-		};
-		
-		decorateWindowBordersCheckBox = new JCheckBox(Messages.getString("PreferencesFrame.DECORATE_WINDOW_BORDERS"));
+				Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_ON") };
+
+		decorateWindowBordersCheckBox = new JCheckBox(
+				Messages.getString("PreferencesFrame.DECORATE_WINDOW_BORDERS"));
 		decorateWindowBordersCheckBox.setSelected(Prefs.decorateWindowBorders);
-		
+
 		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME") + ":");
 		Vector<String> themeComboItems = new Vector<String>();
 		themeComboItems.add("Swing");
@@ -194,7 +197,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 				{
 				LGM.showDefaultExceptionHandler(e);
 				}
-	    JarEntry jarEntry = null;
+		  JarEntry jarEntry = null;
 			try
 				{
 				jarEntry = jar.getNextJarEntry();
@@ -203,7 +206,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 				{
 				LGM.showDefaultExceptionHandler(e);
 				}
-	    while (jarEntry != null) {
+		  while (jarEntry != null) {
 				if (jarEntry.isDirectory()) {
 					String str = jarEntry.getName();
 				  if (str.replace("\\","/").contains("org/lateralgm/icons")) {
@@ -219,7 +222,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 					{
 						LGM.showDefaultExceptionHandler(e);
 					}
-	    }  
+		  }  
 				
 			directories = res.toArray(new String[res.size()]);
 		}
@@ -230,17 +233,17 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		}
 		*/
 		iconCombo.setSelectedItem(LGM.iconspack);
-		
+
 		JLabel antialiasLabel = new JLabel(Messages.getString("PreferencesFrame.ANTIALIASING") + ":");
 		antialiasCombo = new JComboBox<String>(new DefaultComboBoxModel<String>(systemComboItems));
 		antialiasCombo.setSelectedItem(Prefs.antialiasControlFont);
-		
+
 		JLabel iconPathLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS_PATH") + ":");
 		iconPath = new JTextField(Prefs.iconPath);
-		
+
 		JLabel themePathLabel = new JLabel(Messages.getString("PreferencesFrame.THEME_PATH") + ":");
 		themePath = new JTextField(Prefs.swingThemePath);
-		
+
 		JPanel imagePreviewPanel = new JPanel();
 		GroupLayout imagePreviewLayout = new GroupLayout(imagePreviewPanel);
 		imagePreviewLayout.setAutoCreateGaps(true);
@@ -249,11 +252,13 @@ public class PreferencesFrame extends JFrame implements ActionListener
 
 		imagePreviewPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("PreferencesFrame.IMAGE_PREVIEW")));
 
-		JLabel imagePreviewBackgroundLabel = new JLabel(Messages.getString("PreferencesFrame.IMAGE_PREVIEW_BACKGROUND_COLOR") + ":");
+		JLabel imagePreviewBackgroundLabel = new JLabel(
+				Messages.getString("PreferencesFrame.IMAGE_PREVIEW_BACKGROUND_COLOR") + ":");
 		imagePreviewBackgroundColor = new ColorSelect(new Color(Prefs.imagePreviewBackgroundColor));
-		JLabel imagePreviewForegroundLabel = new JLabel(Messages.getString("PreferencesFrame.IMAGE_PREVIEW_FOREGROUND_COLOR") + ":");
+		JLabel imagePreviewForegroundLabel = new JLabel(
+				Messages.getString("PreferencesFrame.IMAGE_PREVIEW_FOREGROUND_COLOR") + ":");
 		imagePreviewForegroundColor = new ColorSelect(new Color(Prefs.imagePreviewForegroundColor));
-		
+
 		imagePreviewLayout.setHorizontalGroup(imagePreviewLayout.createParallelGroup()
 		/*	*/.addGroup(imagePreviewLayout.createSequentialGroup()
 		/*		*/.addGroup(imagePreviewLayout.createParallelGroup()
@@ -270,7 +275,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*	*/.addGroup(imagePreviewLayout.createParallelGroup()
 		/*		*/.addComponent(imagePreviewForegroundLabel)
 		/*		*/.addComponent(imagePreviewForegroundColor,18,18,18)));
-		
+
 		JPanel hardwareAccelerationPanel = new JPanel();
 		GroupLayout hardwareAccelerationLayout = new GroupLayout(hardwareAccelerationPanel);
 		hardwareAccelerationLayout.setAutoCreateGaps(true);
@@ -285,7 +290,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		JLabel openGLLabel = new JLabel(Messages.getString("PreferencesFrame.OPENGL") + ":");
 		openGLCombo = new JComboBox<String>(new DefaultComboBoxModel<String>(systemComboItems));
 		openGLCombo.setSelectedItem(Prefs.openGLAcceleration);
-		
+
 		hardwareAccelerationLayout.setHorizontalGroup(hardwareAccelerationLayout.createParallelGroup()
 		/*	*/.addGroup(hardwareAccelerationLayout.createSequentialGroup()
 		/*		*/.addGroup(hardwareAccelerationLayout.createParallelGroup(Alignment.TRAILING)
@@ -302,7 +307,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*	*/.addGroup(hardwareAccelerationLayout.createParallelGroup(Alignment.CENTER)
 		/*			*/.addComponent(openGLLabel)
 		/*			*/.addComponent(openGLCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)));
-		
+
 		JPanel searchResultsPanel = new JPanel();
 		GroupLayout searchResultsLayout = new GroupLayout(searchResultsPanel);
 		searchResultsLayout.setAutoCreateGaps(true);
@@ -312,17 +317,25 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		searchResultsPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("PreferencesFrame.SEARCH_RESULTS")));
 
 		JLabel matchCountLable = new JLabel(Messages.getString("PreferencesFrame.MATCH_COUNT"));
-		matchCountBackgroundCheckBox = new JCheckBox(Messages.getString("PreferencesFrame.MATCH_COUNT_BACKGROUND_COLOR") + ":", Prefs.highlightMatchCountBackground);
+		matchCountBackgroundCheckBox = new JCheckBox(
+				Messages.getString("PreferencesFrame.MATCH_COUNT_BACKGROUND_COLOR") + ":",
+				Prefs.highlightMatchCountBackground);
 		matchCountBackgroundColor = new ColorSelect(new Color(Prefs.matchCountBackgroundColor));
-		matchCountForegroundCheckBox = new JCheckBox(Messages.getString("PreferencesFrame.MATCH_COUNT_FOREGROUND_COLOR") + ":", Prefs.highlightMatchCountForeground);
+		matchCountForegroundCheckBox = new JCheckBox(
+				Messages.getString("PreferencesFrame.MATCH_COUNT_FOREGROUND_COLOR") + ":",
+				Prefs.highlightMatchCountForeground);
 		matchCountForegroundColor = new ColorSelect(new Color(Prefs.matchCountForegroundColor));
-		
+
 		JLabel resultMatchLabel = new JLabel(Messages.getString("PreferencesFrame.RESULT_MATCH"));
-		resultMatchBackgroundCheckBox = new JCheckBox(Messages.getString("PreferencesFrame.RESULT_MATCH_BACKGROUND_COLOR") + ":", Prefs.highlightResultMatchBackground);
+		resultMatchBackgroundCheckBox = new JCheckBox(
+				Messages.getString("PreferencesFrame.RESULT_MATCH_BACKGROUND_COLOR") + ":",
+				Prefs.highlightResultMatchBackground);
 		resultMatchBackgroundColor = new ColorSelect(new Color(Prefs.resultMatchBackgroundColor));
-		resultMatchForegroundCheckBox = new JCheckBox(Messages.getString("PreferencesFrame.RESULT_MATCH_FOREGROUND_COLOR") + ":", Prefs.highlightResultMatchForeground);
+		resultMatchForegroundCheckBox = new JCheckBox(
+				Messages.getString("PreferencesFrame.RESULT_MATCH_FOREGROUND_COLOR") + ":",
+				Prefs.highlightResultMatchForeground);
 		resultMatchForegroundColor = new ColorSelect(new Color(Prefs.resultMatchForegroundColor));
-		
+
 		searchResultsLayout.setHorizontalGroup(searchResultsLayout.createParallelGroup()
 		/**/.addComponent(matchCountLable)
 		/*	*/.addGroup(searchResultsLayout.createSequentialGroup()
@@ -357,7 +370,6 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*		*/.addComponent(resultMatchForegroundCheckBox)
 		/*		*/.addComponent(resultMatchForegroundColor,18,18,18)));
 
-		
 		GroupLayout gl = new GroupLayout(panel);
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
@@ -404,10 +416,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/**/.addComponent(searchResultsPanel));
 
 		panel.setLayout(gl);
-		
+
 		return panel;
-	}
-	
+		}
+
 	private JPanel makeGeneralPrefs()
 		{
 		JPanel p = new JPanel();
@@ -482,65 +494,71 @@ public class PreferencesFrame extends JFrame implements ActionListener
 
 		return p;
 		}
-	
-	protected class PrefixList extends JPanel
-	  {
-	  	/**
-		 * TODO: Change if needed.
-		 */
-		private static final long serialVersionUID = 1L;
-			private Map<Class<? extends Resource<?,?>>, JTextField> prefixMap = new HashMap<Class<? extends Resource<?,?>>,JTextField>();
-	  	
-	  	public PrefixList() {
-				GroupLayout gl = new GroupLayout(this);
-				gl.setAutoCreateGaps(true);
-				gl.setAutoCreateContainerGaps(true);
-	
-				ParallelGroup labelGroup = gl.createParallelGroup(Alignment.TRAILING);
-				ParallelGroup textfieldGroup = gl.createParallelGroup();
-				SequentialGroup verticalGroup = gl.createSequentialGroup();
-				
-				for (Entry<Class<? extends Resource<?,?>>,String> ent : Resource.kindNames.entrySet()) {
-					if (!InstantiableResource.class.isAssignableFrom(ent.getKey())) {
-						continue;
-					}
-					
-					JLabel label = new JLabel(ent.getValue());
-					JTextField textfield = new JTextField(Prefs.prefixes.get(ent.getKey()));
-					prefixMap.put(ent.getKey(),textfield);
-					
-					ParallelGroup vg = gl.createParallelGroup(Alignment.CENTER);
-					
-					labelGroup.addComponent(label);
-					textfieldGroup.addComponent(textfield);
-					vg.addComponent(label);
-					vg.addComponent(textfield,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE);
 
-					verticalGroup.addGroup(vg);
+	protected class PrefixList extends JPanel
+		{
+		/**
+		* TODO: Change if needed.
+		*/
+		private static final long serialVersionUID = 1L;
+		private Map<Class<? extends Resource<?,?>>,JTextField> prefixMap = new HashMap<Class<? extends Resource<?,?>>,JTextField>();
+
+		public PrefixList()
+			{
+			GroupLayout gl = new GroupLayout(this);
+			gl.setAutoCreateGaps(true);
+			gl.setAutoCreateContainerGaps(true);
+
+			ParallelGroup labelGroup = gl.createParallelGroup(Alignment.TRAILING);
+			ParallelGroup textfieldGroup = gl.createParallelGroup();
+			SequentialGroup verticalGroup = gl.createSequentialGroup();
+
+			for (Entry<Class<? extends Resource<?,?>>,String> ent : Resource.kindNames.entrySet())
+				{
+				if (!InstantiableResource.class.isAssignableFrom(ent.getKey()))
+					{
+					continue;
+					}
+
+				JLabel label = new JLabel(ent.getValue());
+				JTextField textfield = new JTextField(Prefs.prefixes.get(ent.getKey()));
+				prefixMap.put(ent.getKey(),textfield);
+
+				ParallelGroup vg = gl.createParallelGroup(Alignment.CENTER);
+
+				labelGroup.addComponent(label);
+				textfieldGroup.addComponent(textfield);
+				vg.addComponent(label);
+				vg.addComponent(textfield,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE);
+
+				verticalGroup.addGroup(vg);
 				}
-				
-				gl.setHorizontalGroup(gl.createSequentialGroup().addGroup(labelGroup).addGroup(textfieldGroup));
-				gl.setVerticalGroup(verticalGroup);
-				
-				this.setLayout(gl);
-	  	}
-	  	
-	  	public String getFormattedPrefixes() {
-	  		String ret = "";
-	  		for (Entry<String,Class<? extends Resource<?,?>>> ent : Resource.kindsByName3.entrySet()) {
-	  			if (!InstantiableResource.class.isAssignableFrom(ent.getValue())) {
-	  				continue;
-	  			}
-	  			ret += ent.getKey() + ">" + prefixMap.get(ent.getValue()).getText() + "\t";
-	  		}
-	  		
-	  		return ret;
-	  	}
-	  
-	  }
+
+			gl.setHorizontalGroup(gl.createSequentialGroup().addGroup(labelGroup).addGroup(textfieldGroup));
+			gl.setVerticalGroup(verticalGroup);
+
+			this.setLayout(gl);
+			}
+
+		public String getFormattedPrefixes()
+			{
+			String ret = "";
+			for (Entry<String,Class<? extends Resource<?,?>>> ent : Resource.kindsByName3.entrySet())
+				{
+				if (!InstantiableResource.class.isAssignableFrom(ent.getValue()))
+					{
+					continue;
+					}
+				ret += ent.getKey() + ">" + prefixMap.get(ent.getValue()).getText() + "\t";
+				}
+
+			return ret;
+			}
+
+		}
 
 	private PrefixList prefixList;
-	
+
 	private JPanel makeMimePrefixPrefs()
 		{
 		JPanel p = new JPanel();
@@ -548,9 +566,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		prefixList = new PrefixList();
 		prefixList.setSize(new Dimension(100,100));
 		JScrollPane prefixScroll = new JScrollPane(prefixList);
-		
+
 		prefixScroll.setBorder(BorderFactory.createTitledBorder("Prefixes"));
-		
+
 		JLabel backgroundMIMELabel = new JLabel("Background MIME:");
 		backgroundMIME = new JTextField(Prefs.externalBackgroundExtension);
 		JLabel spriteMIMELabel = new JLabel("Sprite MIME:");
@@ -705,7 +723,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*		*/.addComponent(outsideColorLabel)
 		/*		*/.addComponent(viewOutsideColor,18,18,18)));
 
-		// Selection settings
+		// Single selection settings
 		JPanel selectionPanel = new JPanel();
 		GroupLayout selectionLayout = new GroupLayout(selectionPanel);
 		selectionLayout.setAutoCreateGaps(true);
@@ -732,7 +750,7 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		selectionOutsideColor = new ColorSelect(
 				Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
 
-		// Set the layout for the views
+		// Set the layout for the single selection
 		selectionLayout.setHorizontalGroup(
 		/**/selectionLayout.createParallelGroup()
 		/*	*/.addGroup(selectionLayout.createSequentialGroup()
@@ -757,6 +775,59 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*		*/.addComponent(outsideColorLabelForSelection)
 		/*		*/.addComponent(selectionOutsideColor,18,18,18)));
 
+		// Multiple selection settings
+		JPanel multipleSelectionPanel = new JPanel();
+		GroupLayout multipleSelectionLayout = new GroupLayout(multipleSelectionPanel);
+		multipleSelectionLayout.setAutoCreateGaps(true);
+		multipleSelectionLayout.setAutoCreateContainerGaps(true);
+		multipleSelectionPanel.setLayout(multipleSelectionLayout);
+
+		String multipleSelectionTitle = Messages.getString("PreferencesFrame.MULTIPLE_SELECTION");
+		multipleSelectionPanel.setBorder(BorderFactory.createTitledBorder(multipleSelectionTitle));
+
+		useFilledRectangleForMultipleSelection = new JCheckBox(
+				Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
+		useFilledRectangleForMultipleSelection.setSelected(Prefs.useFilledRectangleForSelection);
+
+		useInvertedColorForMultipleSelection = new JCheckBox(
+				Messages.getString("PreferencesFrame.INVERTED_COLOR"));
+		useInvertedColorForMultipleSelection.setSelected(Prefs.useInvertedColorForSelection);
+
+		JLabel insideColorLabelForMultipleSelection = new JLabel(
+				Messages.getString("PreferencesFrame.INSIDE_COLOR") + " : ");
+		multipleSelectionInsideColor = new ColorSelect(
+				Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+
+		JLabel outsideColorLabelForMultipleSelection = new JLabel(
+				Messages.getString("PreferencesFrame.OUTSIDE_COLOR") + " : ");
+		multipleSelectionOutsideColor = new ColorSelect(
+				Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+
+		// Set the layout for the single selection
+		multipleSelectionLayout.setHorizontalGroup(
+		/**/multipleSelectionLayout.createParallelGroup()
+		/*	*/.addGroup(multipleSelectionLayout.createSequentialGroup()
+		/*		*/.addComponent(useFilledRectangleForMultipleSelection))
+		/*	*/.addGroup(multipleSelectionLayout.createSequentialGroup()
+		/*		*/.addGroup(multipleSelectionLayout.createParallelGroup()
+		/*			*/.addComponent(useInvertedColorForMultipleSelection)
+		/*			*/.addComponent(insideColorLabelForMultipleSelection)
+		/*			*/.addComponent(outsideColorLabelForMultipleSelection))
+		/*		*/.addGroup(multipleSelectionLayout.createParallelGroup()
+		/*			*/.addComponent(multipleSelectionInsideColor,120,120,120)
+		/*			*/.addComponent(multipleSelectionOutsideColor,120,120,120))));
+
+		multipleSelectionLayout.setVerticalGroup(
+		/**/multipleSelectionLayout.createSequentialGroup()
+		/*	*/.addComponent(useFilledRectangleForMultipleSelection)
+		/*	*/.addComponent(useInvertedColorForMultipleSelection).addGap(10)
+		/*	*/.addGroup(multipleSelectionLayout.createParallelGroup()
+		/*		*/.addComponent(insideColorLabelForMultipleSelection)
+		/*		*/.addComponent(multipleSelectionInsideColor,18,18,18))
+		/*	*/.addGroup(multipleSelectionLayout.createParallelGroup()
+		/*		*/.addComponent(outsideColorLabelForMultipleSelection)
+		/*		*/.addComponent(multipleSelectionOutsideColor,18,18,18)));
+
 		// Set the layout for the main panel
 		GroupLayout gl = new GroupLayout(roomEditorPanel);
 		gl.setAutoCreateGaps(true);
@@ -769,7 +840,8 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*		*/.addComponent(undoHistorySize,100,100,100))
 		/*	*/.addGroup(gl.createSequentialGroup()
 		/*		*/.addComponent(viewsPanel,320,320,320))
-		/*		*/.addComponent(selectionPanel,320,320,320));
+		/*		*/.addComponent(selectionPanel,320,320,320)
+		/*		*/.addComponent(multipleSelectionPanel,320,320,320));
 
 		gl.setVerticalGroup(
 		/**/gl.createSequentialGroup()
@@ -777,103 +849,116 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		/*		*/.addComponent(undoHistorySizeLabel)
 		/*		*/.addComponent(undoHistorySize,18,18,18))
 		/*		*/.addComponent(viewsPanel,150,150,150)
-		/*		*/.addComponent(selectionPanel,150,150,150));
+		/*		*/.addComponent(selectionPanel,150,150,150)
+		/*		*/.addComponent(multipleSelectionPanel,150,150,150));
 
 		roomEditorPanel.setLayout(gl);
 
 		return roomEditorPanel;
 		}
-	
+
 	// Simplest way to stop updateUI/setUI calls for changing the look and feel from reverting the tree icons.
-	private class CustomTreeCellRenderer extends DefaultTreeCellRenderer {
+	private class CustomTreeCellRenderer extends DefaultTreeCellRenderer
+		{
 
 		/**
 		 * TODO: Change if needed.
 		 */
 		private static final long serialVersionUID = 1L;
-		
-	}
+
+		}
 
 	public PreferencesFrame()
 		{
 		setAlwaysOnTop(false);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		
+
 		setTitle(Messages.getString("PreferencesFrame.TITLE"));
 		setIconImage(LGM.getIconForKey("Toolbar.PREFERENCES").getImage());
 		setResizable(true);
-		
+
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Preferences");
-		
+
 		tree = new JTree(new DefaultTreeModel(root));
 		tree.setEditable(false);
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		
+
 		CustomTreeCellRenderer renderer = new CustomTreeCellRenderer();
-    renderer.setLeafIcon(null);
-    renderer.setClosedIcon(null);
-    renderer.setOpenIcon(null);
-    tree.setCellRenderer(renderer);
-    
+		renderer.setLeafIcon(null);
+		renderer.setClosedIcon(null);
+		renderer.setOpenIcon(null);
+		tree.setCellRenderer(renderer);
+
 		cardPane = new JPanel(new CardLayout());
 
-		DefaultMutableTreeNode  node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_GENERAL"));
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(
+				Messages.getString("PreferencesFrame.TAB_GENERAL"));
 		root.add(node);
 		cardPane.add(makeGeneralPrefs(),Messages.getString("PreferencesFrame.TAB_GENERAL"));
-		
+
 		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_APPEARANCE"));
 		root.add(node);
 		cardPane.add(makeAppearancePrefs(),Messages.getString("PreferencesFrame.TAB_APPEARANCE"));
-		
+
 		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"));
 		root.add(node);
-		cardPane.add(makeExternalEditorPrefs(),Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"));
-		
+		cardPane.add(makeExternalEditorPrefs(),
+				Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"));
+
 		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_MIME_PREFIX"));
 		root.add(node);
 		cardPane.add(makeMimePrefixPrefs(),Messages.getString("PreferencesFrame.TAB_MIME_PREFIX"));
-		
+
 		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"));
 		root.add(node);
-		DefaultMutableTreeNode cnode = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS"));
+		DefaultMutableTreeNode cnode = new DefaultMutableTreeNode(
+				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS"));
 		node.add(cnode);
-		cnode = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_SYNTAX_HIGHLIGHTING"));
+		cnode = new DefaultMutableTreeNode(
+				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_SYNTAX_HIGHLIGHTING"));
 		node.add(cnode);
-		cardPane.add(new org.lateralgm.joshedit.preferences.KeybindingsPanel(),Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS"));
-		cardPane.add(new org.lateralgm.joshedit.preferences.HighlightPreferences(
-				new TokenMarker.LanguageDescription[][] { GMLTokenMarker.getLanguageDescriptions(), GLSLTokenMarker.getLanguageDescriptions(), GLESTokenMarker.getLanguageDescriptions(), HLSLTokenMarker.getLanguageDescriptions() }, 
-				Preferences.userRoot().node("org/lateralgm/joshedit")),Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_SYNTAX_HIGHLIGHTING"));
-		
+		cardPane.add(new org.lateralgm.joshedit.preferences.KeybindingsPanel(),
+				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS"));
+		cardPane.add(
+				new org.lateralgm.joshedit.preferences.HighlightPreferences(
+						new TokenMarker.LanguageDescription[][] { GMLTokenMarker.getLanguageDescriptions(),
+								GLSLTokenMarker.getLanguageDescriptions(),
+								GLESTokenMarker.getLanguageDescriptions(),HLSLTokenMarker.getLanguageDescriptions() },
+						Preferences.userRoot().node("org/lateralgm/joshedit")),
+				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_SYNTAX_HIGHLIGHTING"));
+
 		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR"));
 		root.add(node);
 		cardPane.add(makeRoomEditorPrefs(),Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR"));
-		
+
 		// reload after adding all root children to make sure its children are visible
-		((DefaultTreeModel)tree.getModel()).reload();
-		
-		tree.addTreeSelectionListener(new TreeSelectionListener() {
-  	public void valueChanged(TreeSelectionEvent e) {
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-				                   tree.getLastSelectedPathComponent();
-				
-				/* if nothing is selected */ 
-				if (node == null) return;
-				
-				/* retrieve the node that was selected */ 
-				String nodeInfo = node.getUserObject().toString();
-				
-				CardLayout cl = (CardLayout)(cardPane.getLayout());
-		    cl.show(cardPane, nodeInfo);
-			}
-		});
-		
-		JSplitPaneExpandable split = new JSplitPaneExpandable(JSplitPane.HORIZONTAL_SPLIT,true,tree,cardPane);
+		((DefaultTreeModel) tree.getModel()).reload();
+
+		tree.addTreeSelectionListener(new TreeSelectionListener()
+			{
+				public void valueChanged(TreeSelectionEvent e)
+					{
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+
+					/* if nothing is selected */
+					if (node == null) return;
+
+					/* retrieve the node that was selected */
+					String nodeInfo = node.getUserObject().toString();
+
+					CardLayout cl = (CardLayout) (cardPane.getLayout());
+					cl.show(cardPane,nodeInfo);
+					}
+			});
+
+		JSplitPaneExpandable split = new JSplitPaneExpandable(JSplitPane.HORIZONTAL_SPLIT,true,tree,
+				cardPane);
 		split.setDividerLocation(200);
 		split.setDoubleClickExpandable(true);
 		add(split);
-		
+
 		JPanel p = new JPanel();
 		GroupLayout gl = new GroupLayout(p);
 		gl.setAutoCreateGaps(true);
@@ -933,9 +1018,9 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		PrefsStore.setInvertedColorForSelection(useInvertedColorForSelection.isSelected());
 		PrefsStore.setSelectionInsideColor(Util.getGmColorWithAlpha(selectionInsideColor.getSelectedColor()));
 		PrefsStore.setSelectionOutsideColor(Util.getGmColorWithAlpha(selectionOutsideColor.getSelectedColor()));
-		
+
 		PrefsStore.setPrefixes(prefixList.getFormattedPrefixes());
-		
+
 		PrefsStore.setDecorateWindowBorders(decorateWindowBordersCheckBox.isSelected());
 		PrefsStore.setAntialiasControlFont(antialiasCombo.getSelectedItem().toString().toLowerCase());
 		PrefsStore.setDirect3DAcceleration(direct3DCombo.getSelectedItem().toString().toLowerCase());

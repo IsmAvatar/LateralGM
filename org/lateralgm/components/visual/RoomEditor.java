@@ -477,6 +477,7 @@ public class RoomEditor extends VisualPanel
 			if (leftButtonPressed)
 				{
 
+				// If the drag process starts, save the position
 				if (selectionOrigin == null)
 					{
 					selectionOrigin = currentPosition;
@@ -484,21 +485,26 @@ public class RoomEditor extends VisualPanel
 					}
 				else
 					{
+					// Calculate the origin and the dimension of the selection
 					int newSelectionOriginX = Math.min(selectionOrigin.x,currentPosition.x);
 					int newSelectionOriginY = Math.min(selectionOrigin.y,currentPosition.y);
 					int width = Math.abs(currentPosition.x - selectionOrigin.x);
 					int height = Math.abs(currentPosition.y - selectionOrigin.y);
+					
 					roomVisual.setSelection(new Rectangle(newSelectionOriginX,newSelectionOriginY,width,
 							height));
+					
 					return;
 					}
 
 				}
 			else
 				{
+				// The drag process ends
 				if (selectionOrigin != null)
 					{
 					selectionOrigin = null;
+					return;
 					}
 				}
 			}
