@@ -29,6 +29,7 @@ import java.util.Iterator;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
@@ -86,7 +87,8 @@ public class RoomEditor extends VisualPanel
 	public enum PRoomEditor
 		{
 		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
-		SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM;
+		SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM,
+		MULTI_SELECTION;
 		final RoomVisual.Show rvBinding;
 
 		private PRoomEditor()
@@ -105,7 +107,7 @@ public class RoomEditor extends VisualPanel
 		}
 
 	private static final EnumMap<PRoomEditor,Object> DEFS = PropertyMap.makeDefaultMap(
-			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1);
+			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,false);
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
@@ -460,6 +462,13 @@ public class RoomEditor extends VisualPanel
 		int x = currentPosition.x;
 		int y = currentPosition.y;
 
+		boolean leftButtonPressed = ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0);
+		boolean rightButtonPressed = ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0);
+		boolean selection_mode = properties.get(PRoomEditor.MULTI_SELECTION);
+		
+		if (selection_mode && leftButtonPressed)
+			JOptionPane.showMessageDialog(null, "My Goodness, this is so concise");
+		
 		// If the alt key is not pressed, apply the 'snapping' to the current position
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
@@ -532,11 +541,11 @@ public class RoomEditor extends VisualPanel
 			if (frame.tabs.getSelectedIndex() != Room.TAB_OBJECTS) return;
 			}
 
-		if ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0)
+		if (leftButtonPressed)
 			processLeftButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,new Point(x,y));
 		else if (cursor != null) releaseCursor(new Point(x,y));
 
-		if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
+		if (rightButtonPressed && mc != null)
 			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,currentPosition); //use mouse point
 		}
 

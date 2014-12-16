@@ -314,6 +314,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		select = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT"));
 		select.setToolTipText(Messages.getString("RoomFrame.SELECT"));
+		prelf.make(select,PRoomEditor.MULTI_SELECTION);
 		tool.add(select);
 		fill = new JButton(LGM.getIconForKey("RoomFrame.FILL"));
 		fill.setToolTipText(Messages.getString("RoomFrame.FILL"));
