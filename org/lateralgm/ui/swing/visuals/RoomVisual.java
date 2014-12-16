@@ -85,6 +85,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 	private final BgDefPropertyListener bdpl = new BgDefPropertyListener();
 	private final ViewPropertyListener viewPropertyListener = new ViewPropertyListener();
 
+	// Contains the region selected by the user
+	private Rectangle selection = null;
 	private EnumSet<Show> show;
 	private int gridFactor = 1;
 	private int gridX, gridY;
@@ -127,6 +129,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		}
 
+	// set the region selected by the user
+	public void setSelection(Rectangle selection)
+		{
+		this.selection = selection;
+		repaint(null);
+		}
+
 	// Set if the views should visible or not (used when the 'views' tab is selected)
 	public void setViewsVisible(boolean visible)
 		{
@@ -153,6 +162,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		int height = (Integer) room.get(PRoom.HEIGHT);
 		Graphics g2 = g.create();
 		g2.clipRect(0,0,width,height);
+
 		if (room.get(PRoom.DRAW_BACKGROUND_COLOR))
 			{
 			g2.setColor((Color) room.get(PRoom.BACKGROUND_COLOR));
@@ -185,7 +195,18 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
 			}
 
+		// If there is a selection, display it
+		if (selection != null)
+			paintSelection(g2);
+		
 		g2.dispose();
+		}
+
+	// Display the selection made by the user
+	private void paintSelection(Graphics g)
+		{
+		g.setColor(Color.BLACK);
+		g.drawRect(selection.x,selection.y,selection.width,selection.height);
 		}
 
 	// Display a view on the panel

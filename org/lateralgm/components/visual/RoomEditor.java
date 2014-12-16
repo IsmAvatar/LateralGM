@@ -15,6 +15,7 @@ import static org.lateralgm.main.Util.gcd;
 import static org.lateralgm.main.Util.negDiv;
 
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -83,6 +84,8 @@ public class RoomEditor extends VisualPanel
 	private Point objectFirstPosition = null;
 	// Set if the tiles editing is available for all layers or only for the selected one
 	private boolean editOtherLayers = false;
+	// Save the original position of the selection
+	private Point selectionOrigin = null;
 
 	public enum PRoomEditor
 		{
@@ -465,10 +468,41 @@ public class RoomEditor extends VisualPanel
 		boolean leftButtonPressed = ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0);
 		boolean rightButtonPressed = ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0);
 		boolean selection_mode = properties.get(PRoomEditor.MULTI_SELECTION);
-		
-		if (selection_mode && leftButtonPressed)
-			JOptionPane.showMessageDialog(null, "My Goodness, this is so concise");
-		
+
+		// If the selection button is pressed
+		if (selection_mode)
+			{
+
+			// If the user has pressed the left button
+			if (leftButtonPressed)
+				{
+
+				if (selectionOrigin == null)
+					{
+					selectionOrigin = currentPosition;
+					return;
+					}
+				else
+					{
+					int newSelectionOriginX = Math.min(selectionOrigin.x,currentPosition.x);
+					int newSelectionOriginY = Math.min(selectionOrigin.y,currentPosition.y);
+					int width = Math.abs(currentPosition.x - selectionOrigin.x);
+					int height = Math.abs(currentPosition.y - selectionOrigin.y);
+					roomVisual.setSelection(new Rectangle(newSelectionOriginX,newSelectionOriginY,width,
+							height));
+					return;
+					}
+
+				}
+			else
+				{
+				if (selectionOrigin != null)
+					{
+					selectionOrigin = null;
+					}
+				}
+			}
+
 		// If the alt key is not pressed, apply the 'snapping' to the current position
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
