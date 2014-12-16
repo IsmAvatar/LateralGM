@@ -787,21 +787,21 @@ public class PreferencesFrame extends JFrame implements ActionListener
 
 		useFilledRectangleForMultipleSelection = new JCheckBox(
 				Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
-		useFilledRectangleForMultipleSelection.setSelected(Prefs.useFilledRectangleForSelection);
+		useFilledRectangleForMultipleSelection.setSelected(Prefs.useFilledRectangleForMultipleSelection);
 
 		useInvertedColorForMultipleSelection = new JCheckBox(
 				Messages.getString("PreferencesFrame.INVERTED_COLOR"));
-		useInvertedColorForMultipleSelection.setSelected(Prefs.useInvertedColorForSelection);
+		useInvertedColorForMultipleSelection.setSelected(Prefs.useInvertedColorForMultipleSelection);
 
 		JLabel insideColorLabelForMultipleSelection = new JLabel(
 				Messages.getString("PreferencesFrame.INSIDE_COLOR") + " : ");
 		multipleSelectionInsideColor = new ColorSelect(
-				Util.convertGmColorWithAlpha(Prefs.selectionInsideColor));
+				Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
 
 		JLabel outsideColorLabelForMultipleSelection = new JLabel(
 				Messages.getString("PreferencesFrame.OUTSIDE_COLOR") + " : ");
 		multipleSelectionOutsideColor = new ColorSelect(
-				Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
+				Util.convertGmColorWithAlpha(Prefs.multipleSelectionOutsideColor));
 
 		// Set the layout for the single selection
 		multipleSelectionLayout.setHorizontalGroup(
@@ -1018,6 +1018,10 @@ public class PreferencesFrame extends JFrame implements ActionListener
 		PrefsStore.setInvertedColorForSelection(useInvertedColorForSelection.isSelected());
 		PrefsStore.setSelectionInsideColor(Util.getGmColorWithAlpha(selectionInsideColor.getSelectedColor()));
 		PrefsStore.setSelectionOutsideColor(Util.getGmColorWithAlpha(selectionOutsideColor.getSelectedColor()));
+		PrefsStore.setFilledRectangleForMultipleSelection(useFilledRectangleForMultipleSelection.isSelected());
+		PrefsStore.setInvertedColorForMultipleSelection(useInvertedColorForMultipleSelection.isSelected());
+		PrefsStore.setMultipleSelectionInsideColor(Util.getGmColorWithAlpha(multipleSelectionInsideColor.getSelectedColor()));
+		PrefsStore.setMultipleSelectionOutsideColor(Util.getGmColorWithAlpha(multipleSelectionOutsideColor.getSelectedColor()));
 
 		PrefsStore.setPrefixes(prefixList.getFormattedPrefixes());
 

@@ -29,14 +29,14 @@ public final class Prefs
 	private static ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 	private static final Preferences PREFS = Preferences.userRoot().node("/org/lateralgm");
 
-	static 
-	{
+	static
+		{
 		loadPrefs();
-	}
-	
+		}
+
 	private Prefs()
 		{
-		
+
 		}
 
 	public static String getString(String key, String def)
@@ -119,7 +119,7 @@ public final class Prefs
 		direct3DAcceleration = getString("direct3DAcceleration","off");
 		openGLAcceleration = getString("openGLAcceleration","off");
 		decorateWindowBorders = getBoolean("decorateWindowBorders",false);
-		
+
 		eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
 		actionToolTipLines = getInt("actionToolTipLines",10);
@@ -153,6 +153,12 @@ public final class Prefs
 		selectionOutsideColor = getInt("selectionOutsideColor",Util.getGmColorWithAlpha(Color.BLACK));
 		useFilledRectangleForSelection = getBoolean("filledRectangleForSelection",false);
 		useInvertedColorForSelection = getBoolean("invertedColorForSelection",false);
+		multipleSelectionInsideColor = getInt("multipleSelectionInsideColor",
+				Util.getGmColorWithAlpha(Color.BLUE,50));
+		multipleSelectionOutsideColor = getInt("multipleSelectionOutsideColor",
+				Util.getGmColorWithAlpha(Color.BLUE,50));
+		useFilledRectangleForMultipleSelection = getBoolean("filledRectangleForMultipleSelection",true);
+		useInvertedColorForMultipleSelection = getBoolean("invertedColorForMultipleSelection",false);
 		}
 
 	public static void createPrefixes(String pref)
@@ -226,7 +232,11 @@ public final class Prefs
 	public static int selectionOutsideColor;
 	public static boolean useFilledRectangleForSelection;
 	public static boolean useInvertedColorForSelection;
-	
+	public static int multipleSelectionInsideColor;
+	public static int multipleSelectionOutsideColor;
+	public static boolean useFilledRectangleForMultipleSelection;
+	public static boolean useInvertedColorForMultipleSelection;
+
 	// Appearance
 	public static int imagePreviewForegroundColor;
 	public static int imagePreviewBackgroundColor;

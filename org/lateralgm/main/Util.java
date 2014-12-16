@@ -98,11 +98,11 @@ public final class Util
 		reg.deregisterServiceProvider(reg.getServiceProviderByClass(WBMPImageReaderSpi.class));
 		reg.registerServiceProvider(new WBMPImageReaderSpiFix());
 		}
-	
-	public static BufferedImage paintBackground(int width, int height, Color background, Color foreground)
-	{
-		BufferedImage dest = new BufferedImage(width,height,
-				BufferedImage.TYPE_INT_RGB);
+
+	public static BufferedImage paintBackground(int width, int height, Color background,
+			Color foreground)
+		{
+		BufferedImage dest = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
 
 		for (int row = 0; row < height; row++)
 			{
@@ -119,23 +119,24 @@ public final class Util
 				}
 			}
 		return dest;
-	}
-	
-	public static BufferedImage paintBackground(int width, int height) {
-		return paintBackground(width,height,
-				new Color(Prefs.imagePreviewBackgroundColor),new Color(Prefs.imagePreviewForegroundColor));
-	}
-	
-	public static BufferedImage paintBackgroundScaled(int width, int height, int TILE, Color background, Color foreground)
-	{
-		BufferedImage dest = new BufferedImage(width,height,
-				BufferedImage.TYPE_INT_RGB);
+		}
+
+	public static BufferedImage paintBackground(int width, int height)
+		{
+		return paintBackground(width,height,new Color(Prefs.imagePreviewBackgroundColor),new Color(
+				Prefs.imagePreviewForegroundColor));
+		}
+
+	public static BufferedImage paintBackgroundScaled(int width, int height, int TILE,
+			Color background, Color foreground)
+		{
+		BufferedImage dest = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = dest.createGraphics();
-	
+
 		g.setClip(0,0,width,height);
 		g.setColor(background);
 		g.fillRect(0,0,width,height);
-		
+
 		g.setColor(foreground);
 		int w = width / TILE + 1;
 		int h = height / TILE + 1;
@@ -150,12 +151,13 @@ public final class Util
 				}
 			}
 		return dest;
-	}
-	
-	public static BufferedImage paintBackgroundScaled(int width, int height, int TILE) {
-		return paintBackgroundScaled(width,height,TILE,
-				new Color(Prefs.imagePreviewBackgroundColor),new Color(Prefs.imagePreviewForegroundColor));
-	}
+		}
+
+	public static BufferedImage paintBackgroundScaled(int width, int height, int TILE)
+		{
+		return paintBackgroundScaled(width,height,TILE,new Color(Prefs.imagePreviewBackgroundColor),
+				new Color(Prefs.imagePreviewForegroundColor));
+		}
 
 	public static String urlEncode(String s)
 		{
@@ -180,7 +182,7 @@ public final class Util
 			throw new Error(e);
 			}
 		}
-	
+
 	public static ByteArrayOutputStream readFully(InputStream in) throws IOException
 		{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -218,7 +220,7 @@ public final class Util
 		{
 		return String.format("%d %d %d %d",r.x,r.y,r.width,r.height);
 		}
-	
+
 	// this is the size on disc in kibibytes
 	public static String formatDataSize(long bytes)
 		{
@@ -228,7 +230,7 @@ public final class Util
 		return new DecimalFormat("#,##0.##").format(bytes / Math.pow(1024,digits)) + " "
 				+ units[digits];
 		}
-	
+
 	// this is the size that Studio will report in kilobytes
 	public static String formatDataSizeAlt(long bytes)
 		{
@@ -270,7 +272,7 @@ public final class Util
 		ImageProducer ip = new FilteredImageSource(i.getSource(),filter);
 		return toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
 		}
-	
+
 	public static ImageIcon getTransparentImageIcon(BufferedImage i)
 		{
 		if (i == null) return null;
@@ -287,70 +289,82 @@ public final class Util
 		ImageProducer ip = new FilteredImageSource(i.getSource(),filter);
 		return new ImageIcon(Toolkit.getDefaultToolkit().createImage(ip));
 		}
-	
-	private static void createImageReadChooser() {
+
+	private static void createImageReadChooser()
+		{
 		imageReadFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
 		imageReadFc.setAccessory(new FileChooserImagePreview(imageReadFc));
-		
+
 		String[] readexts = { "apng","gif" };
-		if (LGM.javaVersion >= 10600) {
+		if (LGM.javaVersion >= 10600)
+			{
 			String[] internalexts = ImageIO.getReaderFileSuffixes();
 			ArrayList<String> extensions = new ArrayList<String>();
-			for (String ext : readexts) {
+			for (String ext : readexts)
+				{
 				extensions.add(ext);
-			}
-			for (String ext : internalexts) {
-				if (!extensions.contains(ext)) {
-					extensions.add(ext);
 				}
-			}
+			for (String ext : internalexts)
+				{
+				if (!extensions.contains(ext))
+					{
+					extensions.add(ext);
+					}
+				}
 			readexts = extensions.toArray(new String[extensions.size()]);
-		}
+			}
 		for (int i = 0; i < readexts.length; i++)
 			readexts[i] = "." + readexts[i]; //$NON-NLS-1$
 		String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
-		
+
 		CustomFileFilter allSpiFilter = new CustomFileFilter(allSpiImages,readexts);
 		imageReadFc.addChoosableFileFilter(allSpiFilter);
-		for (String element : readexts) {
+		for (String element : readexts)
+			{
 			imageReadFc.addChoosableFileFilter(new CustomFileFilter(Messages.format("Util.FILES", //$NON-NLS-1$
 					element),element));
-		}
-		
-		imageReadFc.setFileFilter(allSpiFilter);
-	}
+			}
 
-	private static void createImageWriteChooser() {
+		imageReadFc.setFileFilter(allSpiFilter);
+		}
+
+	private static void createImageWriteChooser()
+		{
 		imageWriteFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
-		
+
 		String[] writeexts = { "apng" };
-		if (LGM.javaVersion >= 10600) {
+		if (LGM.javaVersion >= 10600)
+			{
 			String[] internalexts = ImageIO.getWriterFileSuffixes();
 			ArrayList<String> extensions = new ArrayList<String>();
-			for (String ext : writeexts) {
+			for (String ext : writeexts)
+				{
 				extensions.add(ext);
-			}
-			for (String ext : internalexts) {
-				if (!extensions.contains(ext)) {
-					extensions.add(ext);
 				}
-			}
+			for (String ext : internalexts)
+				{
+				if (!extensions.contains(ext))
+					{
+					extensions.add(ext);
+					}
+				}
 			writeexts = extensions.toArray(new String[extensions.size()]);
-		}
+			}
 		for (int i = 0; i < writeexts.length; i++)
 			writeexts[i] = "." + writeexts[i]; //$NON-NLS-1$
 		String allSpiImages = Messages.getString("Util.ALL_SPI_IMAGES"); //$NON-NLS-1$
-		
+
 		CustomFileFilter allSpiFilter = new CustomFileFilter(allSpiImages,writeexts);
 		imageWriteFc.addChoosableFileFilter(allSpiFilter);
-		for (String element : writeexts) {
+		for (String element : writeexts)
+			{
 			imageWriteFc.addChoosableFileFilter(new CustomFileFilter(Messages.format("Util.FILES", //$NON-NLS-1$
 					element),element));
-		}
-		
+			}
+
 		imageWriteFc.setFileFilter(allSpiFilter);
-	}
-	
+		}
+
 	/**
 	 * Shows a JFileChooser with file filters for all currently registered instances of
 	 * ImageReaderSpi with multiple file selection.
@@ -360,15 +374,15 @@ public final class Util
 	public static File chooseImageFile()
 		{
 		if (imageReadFc == null)
-		{
+			{
 			createImageReadChooser();
-		}
+			}
 		imageReadFc.setMultiSelectionEnabled(false);
 		if (imageReadFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 			return imageReadFc.getSelectedFile();
 		return null;
 		}
-	
+
 	/**
 	 * Shows a JFileChooser with file filters for all currently registered instances of
 	 * ImageReaderSpi with multiple file selection.
@@ -379,189 +393,216 @@ public final class Util
 		{
 		if (imageReadFc == null)
 			{
-				createImageReadChooser();
+			createImageReadChooser();
 			}
 		imageReadFc.setMultiSelectionEnabled(true);
 		if (imageReadFc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 			return imageReadFc.getSelectedFiles();
 		return null;
 		}
-	
+
 	/**
 	 * Returns the selected file from a JFileChooser, including the extension from
 	 * the file filter.
 	 */
-	public static File getSelectedFileWithExtension(JFileChooser c) {
-	    File file = c.getSelectedFile();
-	    if (c.getFileFilter() instanceof CustomFileFilter) {
-	        String[] exts = ((CustomFileFilter)c.getFileFilter()).getExtensions();
-	        String nameLower = file.getName().toLowerCase();
-	        for (String ext : exts) { // check if it already has a valid extension
-	        		if (ext.startsWith(".")) {
-	        			ext = ext.substring(1);
-	        		}
-	            if (nameLower.endsWith('.' + ext.toLowerCase())) {
-	                return file; // if yes, return as-is
-	            }
-	        }
-	        // if not, append the first extension from the selected filter
-	        file = new File(file.toString() + (exts[0].startsWith(".") ? "" : ".") + exts[0]);
-	    }
-	    return file;
-	}
-	
-	private static String getFileExtension(File file) {
-	    String name = file.getName();
-	    int lastIndexOf = name.lastIndexOf(".");
-	    if (lastIndexOf == -1) {
-	        return ""; // empty extension
-	    }
-	    return name.substring(lastIndexOf + 1);
-	}
-	
+	public static File getSelectedFileWithExtension(JFileChooser c)
+		{
+		File file = c.getSelectedFile();
+		if (c.getFileFilter() instanceof CustomFileFilter)
+			{
+			String[] exts = ((CustomFileFilter) c.getFileFilter()).getExtensions();
+			String nameLower = file.getName().toLowerCase();
+			for (String ext : exts)
+				{ // check if it already has a valid extension
+				if (ext.startsWith("."))
+					{
+					ext = ext.substring(1);
+					}
+				if (nameLower.endsWith('.' + ext.toLowerCase()))
+					{
+					return file; // if yes, return as-is
+					}
+				}
+			// if not, append the first extension from the selected filter
+			file = new File(file.toString() + (exts[0].startsWith(".") ? "" : ".") + exts[0]);
+			}
+		return file;
+		}
+
+	private static String getFileExtension(File file)
+		{
+		String name = file.getName();
+		int lastIndexOf = name.lastIndexOf(".");
+		if (lastIndexOf == -1)
+			{
+			return ""; // empty extension
+			}
+		return name.substring(lastIndexOf + 1);
+		}
+
 	//TODO: JPEG Writing is bugged in some newer JVM versions causing the RGB color channels to be mixed up.
 	// This is a bug Oracle claims to have fixed but they actually haven't.
 	// http://bugs.java.com/view_bug.do?bug_id=4712797
 	// http://bugs.java.com/view_bug.do?bug_id=4776576
 	// http://stackoverflow.com/questions/13072312/jpeg-image-color-gets-drastically-changed-after-just-imageio-read-and-imageio
 
-	public static void writeImageQualityPrompt(BufferedImage img, String ext, File f) throws FileNotFoundException, IOException {
+	public static void writeImageQualityPrompt(BufferedImage img, String ext, File f)
+			throws FileNotFoundException,IOException
+		{
 		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName(ext);
-		ImageWriter writer = (ImageWriter)iter.next();
+		ImageWriter writer = (ImageWriter) iter.next();
 		BMPImageWriteParam iwp = (BMPImageWriteParam) writer.getDefaultWriteParam();
-		if (iwp.canWriteCompressed()) {
+		if (iwp.canWriteCompressed())
+			{
 			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-			
-			for (String str : iwp.getCompressionTypes()) {
+
+			for (String str : iwp.getCompressionTypes())
+				{
 				System.out.println(str);
-			}
-			if (ext.equals("jpg") || ext.equals("jpeg")) {
-				
+				}
+			if (ext.equals("jpg") || ext.equals("jpeg"))
+				{
+
 				iwp.setCompressionQuality(1.0f);
-			} else if (ext.equals("bmp")) {
+				}
+			else if (ext.equals("bmp"))
+				{
 				iwp = (BMPImageWriteParam) iwp;
 				//iwp.setCompressionType("BI_BITFIELDS");
 				iwp.setCompressionType("BI_RLE4");
 				//iwp.setCompressionType("BI_RLE8");
 				//iwp.setCompressionType("BI_RGB");
+				}
+
 			}
-			
-		}
-		
+
 		FileImageOutputStream output = new FileImageOutputStream(f);
 		writer.setOutput(output);
-		IIOImage image = new IIOImage(img, null, null);
-		writer.write(null, image, iwp);
+		IIOImage image = new IIOImage(img,null,null);
+		writer.write(null,image,iwp);
 		writer.dispose();
 		output.close();
-	}
-	
-	public static BufferedImage convertImage(BufferedImage img, int format, Color col) {
+		}
+
+	public static BufferedImage convertImage(BufferedImage img, int format, Color col)
+		{
 		BufferedImage bi = new BufferedImage(img.getWidth(),img.getHeight(),format);
 		Graphics gd = bi.getGraphics();
-		if (col != null) {
+		if (col != null)
+			{
 			gd.setColor(col);
 			gd.fillRect(0,0,img.getWidth(),img.getHeight());
-		}
+			}
 		gd.drawImage(img,0,0,img.getWidth(),img.getHeight(),null);
 		gd.dispose();
 		return bi;
-	}
-	
-	public static BufferedImage convertImage(BufferedImage img, int format) {
-		return convertImage(img, format, null);
-	}
-	
-	public static BufferedImage clearBackground(BufferedImage img, Color col) {
-		return convertImage(img, BufferedImage.TYPE_INT_ARGB, col);
-	}
-	
-	public static BufferedImage makeOpaque(BufferedImage img, Color col) {
-		return convertImage(img, BufferedImage.TYPE_BYTE_INDEXED, col);
-	}
+		}
+
+	public static BufferedImage convertImage(BufferedImage img, int format)
+		{
+		return convertImage(img,format,null);
+		}
+
+	public static BufferedImage clearBackground(BufferedImage img, Color col)
+		{
+		return convertImage(img,BufferedImage.TYPE_INT_ARGB,col);
+		}
+
+	public static BufferedImage makeOpaque(BufferedImage img, Color col)
+		{
+		return convertImage(img,BufferedImage.TYPE_BYTE_INDEXED,col);
+		}
 
 	public static void saveImages(ArrayList<BufferedImage> imgs)
 		{
-			if (imgs == null || imgs.size() <= 0) {
-				JOptionPane.showMessageDialog(LGM.frame,
-						Messages.getString("Util.NO_IMAGE_MESSAGE"),
-						Messages.getString("Util.NO_IMAGE_TITLE"),
-						JOptionPane.WARNING_MESSAGE);
-				return;
-			}
-			if (imageWriteFc == null)
+		if (imgs == null || imgs.size() <= 0)
 			{
-				createImageWriteChooser();
+			JOptionPane.showMessageDialog(LGM.frame,Messages.getString("Util.NO_IMAGE_MESSAGE"),
+					Messages.getString("Util.NO_IMAGE_TITLE"),JOptionPane.WARNING_MESSAGE);
+			return;
 			}
-			imageWriteFc.setMultiSelectionEnabled(false);
-			if (imageWriteFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION) {
-				try
+		if (imageWriteFc == null)
+			{
+			createImageWriteChooser();
+			}
+		imageWriteFc.setMultiSelectionEnabled(false);
+		if (imageWriteFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+			{
+			try
+				{
+				File f = getSelectedFileWithExtension(imageWriteFc);
+				String ext = getFileExtension(f);
+				if (ext.equals("apng"))
 					{
-						File f = getSelectedFileWithExtension(imageWriteFc);
-						String ext = getFileExtension(f);
-						if (ext.equals("apng")) {
-							FileOutputStream os = new FileOutputStream(f);
-							ApngIO.imagesToApng(imgs, os);
-							os.close();
-						} else {
-							// BMP and other formats can not write alpha transparent images, so if writing fails
-							// try to remove the alpha layer and then write
-							if (!ImageIO.write(imgs.get(0), ext, f)) {
-								BufferedImage bi = makeOpaque(imgs.get(0), Color.white);
-								ImageIO.write(bi,ext,f);
-							}
+					FileOutputStream os = new FileOutputStream(f);
+					ApngIO.imagesToApng(imgs,os);
+					os.close();
+					}
+				else
+					{
+					// BMP and other formats can not write alpha transparent images, so if writing fails
+					// try to remove the alpha layer and then write
+					if (!ImageIO.write(imgs.get(0),ext,f))
+						{
+						BufferedImage bi = makeOpaque(imgs.get(0),Color.white);
+						ImageIO.write(bi,ext,f);
 						}
 					}
-				catch (IOException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
+				}
+			catch (IOException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
 			}
 		}
-	
+
 	public static void saveImage(BufferedImage img)
 		{
-			if (img == null) {
-				JOptionPane.showMessageDialog(LGM.frame,
-						Messages.getString("Util.NO_IMAGE_MESSAGE"),
-						Messages.getString("Util.NO_IMAGE_TITLE"),
-						JOptionPane.WARNING_MESSAGE);
-				return;
-			}
-			if (imageWriteFc == null)
+		if (img == null)
 			{
-				createImageWriteChooser();
+			JOptionPane.showMessageDialog(LGM.frame,Messages.getString("Util.NO_IMAGE_MESSAGE"),
+					Messages.getString("Util.NO_IMAGE_TITLE"),JOptionPane.WARNING_MESSAGE);
+			return;
 			}
-			imageWriteFc.setMultiSelectionEnabled(false);
-			if (imageWriteFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION) {
-				try
+		if (imageWriteFc == null)
+			{
+			createImageWriteChooser();
+			}
+		imageWriteFc.setMultiSelectionEnabled(false);
+		if (imageWriteFc.showSaveDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
+			{
+			try
+				{
+				File f = getSelectedFileWithExtension(imageWriteFc);
+				String ext = getFileExtension(f);
+				if (ext.equals("apng"))
 					{
-						File f = getSelectedFileWithExtension(imageWriteFc);
-						String ext = getFileExtension(f);
-						if (ext.equals("apng")) {
-							ArrayList<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
-							imgs.add(img);
-							FileOutputStream os = new FileOutputStream(f);
-							ApngIO.imagesToApng(imgs,os);
-							os.close();
-						//} else if (ext.equalsIgnoreCase("ico")) {
-							//new ICOFile(img.getRGB(startX,startY,w,h,rgbArray,offset,scansize)).write(new FileOutputStream(f));
-						} else {
-							// BMP and other formats can not write alpha transparent images, so if writing fails
-							// try to remove the alpha layer and then write
-							if (!ImageIO.write(img, ext, f)) {
-								BufferedImage bi = makeOpaque(img, Color.white);
-								ImageIO.write(bi,ext,f);
-							}
+					ArrayList<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
+					imgs.add(img);
+					FileOutputStream os = new FileOutputStream(f);
+					ApngIO.imagesToApng(imgs,os);
+					os.close();
+					//} else if (ext.equalsIgnoreCase("ico")) {
+					//new ICOFile(img.getRGB(startX,startY,w,h,rgbArray,offset,scansize)).write(new FileOutputStream(f));
+					}
+				else
+					{
+					// BMP and other formats can not write alpha transparent images, so if writing fails
+					// try to remove the alpha layer and then write
+					if (!ImageIO.write(img,ext,f))
+						{
+						BufferedImage bi = makeOpaque(img,Color.white);
+						ImageIO.write(bi,ext,f);
 						}
 					}
-				catch (IOException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
+				}
+			catch (IOException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
 			}
 		}
-	
+
 	public static byte[] readBinaryFile(String path)
 		{
 		File file = new File(getUnixPath(path));
@@ -593,7 +634,7 @@ public final class Util
 			}
 		return fileData;
 		}
-	
+
 	public static void writeBinaryFile(String path, byte[] data) throws IOException
 		{
 		BufferedOutputStream bos = null;
@@ -613,7 +654,6 @@ public final class Util
 			fos.close();
 			}
 		}
-
 
 	public static String getUnixPath(String path)
 		{
@@ -733,29 +773,29 @@ public final class Util
 
 		return frames;
 		}
-	
+
 	public static BufferedImage getValidImage()
 		{
 		File f = chooseImageFile();
 		if (f == null || !f.exists()) return null;
 		try
 			{
-				if (f.getName().endsWith(".gif"))
-					{
-					return readGIF(f).get(0);
-					}
-				else if (f.getName().endsWith(".apng"))
-					{
-					FileInputStream is = new FileInputStream(f);
-					List<BufferedImage> imgs = ApngIO.apngToBufferedImages(is);
-					is.close();
-					return imgs.get(0);
-					}
+			if (f.getName().endsWith(".gif"))
+				{
+				return readGIF(f).get(0);
+				}
+			else if (f.getName().endsWith(".apng"))
+				{
+				FileInputStream is = new FileInputStream(f);
+				List<BufferedImage> imgs = ApngIO.apngToBufferedImages(is);
+				is.close();
+				return imgs.get(0);
+				}
 
-				else 
-					{
-						return ImageIO.read(f);
-					}
+			else
+				{
+				return ImageIO.read(f);
+				}
 			}
 		catch (IOException e)
 			{
@@ -785,7 +825,7 @@ public final class Util
 					subframes.addAll(ApngIO.apngToBufferedImages(is));
 					is.close();
 					}
-				else if (f[i].getName().endsWith(".ico")) 
+				else if (f[i].getName().endsWith(".ico"))
 					{
 					List<BufferedImage> imgs = new ICOFile(readBinaryFile(f[i].getPath())).getImages();
 					return imgs.toArray(new BufferedImage[imgs.size()]);
@@ -845,66 +885,109 @@ public final class Util
 		return new Color((col & 0xFF0000) >> 16,(col & 0xFF00) >> 8,col & 0xFF,
 				(col & 0xFF000000) >>> 24);
 		}
-	
-  public static Color HSL2RGB(float h, float s, float l, int a)
-  {
-	  float c = (1 - Math.abs(2.f * l - 1.f)) * s;
-	  float h_ = h / 60.f;
-	  float h_mod2 = h_;
-	  if (h_mod2 >= 4.f) h_mod2 -= 4.f;
-	  else if (h_mod2 >= 2.f) h_mod2 -= 2.f;
-	  
-	  float x = c * (1 - Math.abs(h_mod2 - 1));
-	  float r_, g_, b_;
-	  if (h_ < 1)      { r_ = c; g_ = x; b_ = 0; }
-	  else if (h_ < 2) { r_ = x; g_ = c; b_ = 0; }
-	  else if (h_ < 3) { r_ = 0; g_ = c; b_ = x; }
-	  else if (h_ < 4) { r_ = 0; g_ = x; b_ = c; }
-	  else if (h_ < 5) { r_ = x; g_ = 0; b_ = c; }
-	  else             { r_ = c; g_ = 0; b_ = x; }
-	  
-	  float m = l - (0.5f * c); 
-	  int r = (int)((r_ + m) * (255.f) + 0.5f);
-	  int g = (int)((g_ + m) * (255.f) + 0.5f);
-	  int b = (int)((b_ + m) * (255.f) + 0.5f);
-	  
-    return new Color(r,g,b,a);
-  }
-  
-  public static void RGB2HSL(int red, int green, int blue, float[] hslvals)
-  {
 
-	  float r = red / 255.f;
-	  float g = green / 255.f;
-	  float b = blue / 255.f;
-	  float max = Math.max(Math.max(r, g), b);
-	  float min = Math.min(Math.min(r, g), b);
-	  float c = max - min;
-	  
-	  float h_ = 0.f;
-	  if (c == 0) {
-	   h_ = 0;
-	  } else if (max == r) {
-	   h_ = (float)(g-b) / c;
-	   if (h_ < 0) h_ += 6.f;
-	  } else if (max == g) {
-	   h_ = (float)(b-r) / c + 2.f;
-	  } else if (max == b) {
-	   h_ = (float)(r-g) / c + 4.f;
-	  }
-	  float h = 60.f * h_;
-	  
-	  float l = (max + min) * 0.5f;
-	  
-	  float s;
-	  if (c == 0) {
-	   s = 0.f;
-	  } else {
-	   s = c / (1 - Math.abs(2.f * l - 1.f));
-	  }
-	  
-	  hslvals[0] = h; hslvals[1] = s; hslvals[2] = l;
-  }
+	public static Color HSL2RGB(float h, float s, float l, int a)
+		{
+		float c = (1 - Math.abs(2.f * l - 1.f)) * s;
+		float h_ = h / 60.f;
+		float h_mod2 = h_;
+		if (h_mod2 >= 4.f)
+			h_mod2 -= 4.f;
+		else if (h_mod2 >= 2.f) h_mod2 -= 2.f;
+
+		float x = c * (1 - Math.abs(h_mod2 - 1));
+		float r_, g_, b_;
+		if (h_ < 1)
+			{
+			r_ = c;
+			g_ = x;
+			b_ = 0;
+			}
+		else if (h_ < 2)
+			{
+			r_ = x;
+			g_ = c;
+			b_ = 0;
+			}
+		else if (h_ < 3)
+			{
+			r_ = 0;
+			g_ = c;
+			b_ = x;
+			}
+		else if (h_ < 4)
+			{
+			r_ = 0;
+			g_ = x;
+			b_ = c;
+			}
+		else if (h_ < 5)
+			{
+			r_ = x;
+			g_ = 0;
+			b_ = c;
+			}
+		else
+			{
+			r_ = c;
+			g_ = 0;
+			b_ = x;
+			}
+
+		float m = l - (0.5f * c);
+		int r = (int) ((r_ + m) * (255.f) + 0.5f);
+		int g = (int) ((g_ + m) * (255.f) + 0.5f);
+		int b = (int) ((b_ + m) * (255.f) + 0.5f);
+
+		return new Color(r,g,b,a);
+		}
+
+	public static void RGB2HSL(int red, int green, int blue, float[] hslvals)
+		{
+
+		float r = red / 255.f;
+		float g = green / 255.f;
+		float b = blue / 255.f;
+		float max = Math.max(Math.max(r,g),b);
+		float min = Math.min(Math.min(r,g),b);
+		float c = max - min;
+
+		float h_ = 0.f;
+		if (c == 0)
+			{
+			h_ = 0;
+			}
+		else if (max == r)
+			{
+			h_ = (float) (g - b) / c;
+			if (h_ < 0) h_ += 6.f;
+			}
+		else if (max == g)
+			{
+			h_ = (float) (b - r) / c + 2.f;
+			}
+		else if (max == b)
+			{
+			h_ = (float) (r - g) / c + 4.f;
+			}
+		float h = 60.f * h_;
+
+		float l = (max + min) * 0.5f;
+
+		float s;
+		if (c == 0)
+			{
+			s = 0.f;
+			}
+		else
+			{
+			s = c / (1 - Math.abs(2.f * l - 1.f));
+			}
+
+		hslvals[0] = h;
+		hslvals[1] = s;
+		hslvals[2] = l;
+		}
 
 	public static int getGmColor(Color col)
 		{
@@ -915,24 +998,35 @@ public final class Util
 		{
 		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16 | col.getAlpha() << 24;
 		}
-	
+
+	public static int getGmColorWithAlpha(Color col, int alpha)
+		{
+		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16 | alpha << 24;
+		}
+
 	//Turns an ARGB Java Color into a rgba(r,g,b,a) CSS string
 	//NOTE: Java's 1.8 HTML implementation does not support opacity.
-	public static String getHTMLColor(int col, boolean hastransparency) {
-		if (hastransparency) {
-			return String.format("rgba(%d,%d,%d,%d)", col >> 16 & 0xFF, col >> 8 & 0xFF, col & 0xFF, col >> 24 & 0xFF);
+	public static String getHTMLColor(int col, boolean hastransparency)
+		{
+		if (hastransparency)
+			{
+			return String.format("rgba(%d,%d,%d,%d)",col >> 16 & 0xFF,col >> 8 & 0xFF,col & 0xFF,
+					col >> 24 & 0xFF);
+			}
+		return String.format("rgb(%d,%d,%d)",col >> 16 & 0xFF,col >> 8 & 0xFF,col & 0xFF);
 		}
-		return String.format("rgb(%d,%d,%d)", col >> 16 & 0xFF, col >> 8 & 0xFF, col & 0xFF);
-	}
-	
+
 	//Turns an AWT Java Color into a rgba(r,g,b,a) CSS string
 	//NOTE: Java's 1.8 HTML implementation does not support opacity.
-	public static String getHTMLColor(Color col, boolean hastransparency) {
-		if (hastransparency) {
-			return String.format("rgba(%d,%d,%d,%d)", col.getRed(), col.getGreen(), col.getBlue(), col.getAlpha());
+	public static String getHTMLColor(Color col, boolean hastransparency)
+		{
+		if (hastransparency)
+			{
+			return String.format("rgba(%d,%d,%d,%d)",col.getRed(),col.getGreen(),col.getBlue(),
+					col.getAlpha());
+			}
+		return String.format("rgb(%d,%d,%d)",col.getRed(),col.getGreen(),col.getBlue());
 		}
-		return String.format("rgb(%d,%d,%d)", col.getRed(), col.getGreen(), col.getBlue());
-	}
 
 	public static long getInstanceColorWithAlpha(Color col, int alpha)
 		{
