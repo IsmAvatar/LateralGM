@@ -15,7 +15,6 @@ import static org.lateralgm.main.Util.gcd;
 import static org.lateralgm.main.Util.negDiv;
 
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -30,7 +29,6 @@ import java.util.Iterator;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
@@ -502,6 +500,14 @@ public class RoomEditor extends VisualPanel
 			if (leftButtonPressed)
 				{
 
+				// Test that the cursor position is inside the room
+				if (x < 0) x = 0;
+				if (y < 0) y = 0;
+				if (x > room.getWidth()) x = room.getWidth();
+				if (y > room.getHeight()) y = room.getHeight();
+
+				System.out.println("x:" + x);
+				System.out.println("y:" + y);
 				// If the drag process starts, save the position
 				if (selectionOrigin == null)
 					{
