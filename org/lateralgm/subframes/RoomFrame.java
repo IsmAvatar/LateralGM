@@ -1830,31 +1830,64 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			{
 			// if the user didn't make any selection 
 			if (editor.selection == null) return;
-			
+
+			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
+			boolean objectsTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_OBJECTS);
+
 			// If no object is selected
-			if (oNew.getSelected() == null) return;
-			
+			if (objectsTabIsSelected && oNew.getSelected() == null) return;
+			if (tilesTabIsSelected && taSource.getSelected() == null) return;
+
 			// If there is a selected piece, deselect it
 			if (selectedPiece != null) selectedPiece.setSelected(false);
 
 			Room currentRoom = editor.getRoom();
 			Rectangle selection = editor.selection;
-			
+
 			// Get the 'snap' properties of the current room
 			int snapX = currentRoom.properties.get(PRoom.SNAP_X);
 			int snapY = currentRoom.properties.get(PRoom.SNAP_Y);
-			
+
 			int numberOfColumns = editor.selection.width / snapX;
 			int numberOfRows = editor.selection.height / snapY;
-			
+
+			// Browse each cell of the selected region
 			for (int i = 0; i < numberOfColumns; i++)
 				for (int j = 0; j < numberOfRows; j++)
 					{
-					Instance newObject = res.addInstance();
-					newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
-					newObject.setPosition(new Point(selection.x + (snapX * i), selection.y  + (snapY * j)));
+					// Get the current position of the cell
+					Point newPosition = new Point(selection.x + (snapX * i),selection.y + (snapY * j));
+					
+					// If object's tab is selected, add a new object
+					if (objectsTabIsSelected)
+						{
+						Instance newObject = res.addInstance();
+						newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
+						newObject.setPosition(newPosition);
+						}
+
+				// If the tile's tab is selected, add a new tile
+					if (tilesTabIsSelected)
+						{
+						ResourceReference<Background> bkg = taSource.getSelected();
+						Background b = bkg.get();
+						Tile t = new Tile(currentRoom,LGM.currentFile);
+						t.properties.put(PTile.BACKGROUND,bkg);
+						t.setBackgroundPosition(new Point(tSelect.tx,tSelect.ty));
+						t.setPosition(newPosition);
+
+						if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
+							t.setSize(new Dimension(b.getWidth(),b.getHeight()));
+						else
+							t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
+									(Integer) b.get(PBackground.TILE_HEIGHT)));
+
+						t.setDepth((Integer) tileLayer.getSelectedItem());
+						currentRoom.tiles.add(t);
+						}
+
 					}
-				
+
 			}
 
 		// If the user has pressed the 'Add' new layer button
