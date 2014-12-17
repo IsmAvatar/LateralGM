@@ -468,7 +468,30 @@ public class RoomEditor extends VisualPanel
 		boolean leftButtonPressed = ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0);
 		boolean rightButtonPressed = ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0);
 		boolean selection_mode = properties.get(PRoomEditor.MULTI_SELECTION);
+		
+		// If the alt key is not pressed, apply the 'snapping' to the current position
+		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
+			{
+			int sx = room.get(PRoom.SNAP_X);
+			int sy = room.get(PRoom.SNAP_Y);
+			int ox = properties.get(PRoomEditor.GRID_OFFSET_X);
+			int oy = properties.get(PRoomEditor.GRID_OFFSET_Y);
 
+			if (room.get(PRoom.ISOMETRIC))
+				{
+				int gx = ox + negDiv(x - ox,sx) * sx;
+				int gy = oy + negDiv(y - oy,sy) * sy;
+				boolean d = (Math.abs(x - gx - sx / 2) * sy + Math.abs(y - gy - sy / 2) * sx) < sx * sy / 2;
+				x = gx + (d ? sx / 2 : x > gx + sx / 2 ? sx : 0);
+				y = gy + (d ? sy / 2 : y > gy + sy / 2 ? sy : 0);
+				}
+			else
+				{
+				x = ox + negDiv(x - ox,sx) * sx;
+				y = oy + negDiv(y - oy,sy) * sy;
+				}
+			}
+		
 		// If the selection button is pressed
 		if (selection_mode)
 			{
@@ -480,7 +503,7 @@ public class RoomEditor extends VisualPanel
 				// If the drag process starts, save the position
 				if (selectionOrigin == null)
 					{
-					selectionOrigin = currentPosition;
+					selectionOrigin = new Point(x,y);
 					return;
 					}
 				else
@@ -506,29 +529,6 @@ public class RoomEditor extends VisualPanel
 					selectionOrigin = null;
 					return;
 					}
-				}
-			}
-
-		// If the alt key is not pressed, apply the 'snapping' to the current position
-		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
-			{
-			int sx = room.get(PRoom.SNAP_X);
-			int sy = room.get(PRoom.SNAP_Y);
-			int ox = properties.get(PRoomEditor.GRID_OFFSET_X);
-			int oy = properties.get(PRoomEditor.GRID_OFFSET_Y);
-
-			if (room.get(PRoom.ISOMETRIC))
-				{
-				int gx = ox + negDiv(x - ox,sx) * sx;
-				int gy = oy + negDiv(y - oy,sy) * sy;
-				boolean d = (Math.abs(x - gx - sx / 2) * sy + Math.abs(y - gy - sy / 2) * sx) < sx * sy / 2;
-				x = gx + (d ? sx / 2 : x > gx + sx / 2 ? sx : 0);
-				y = gy + (d ? sy / 2 : y > gy + sy / 2 ? sy : 0);
-				}
-			else
-				{
-				x = ox + negDiv(x - ox,sx) * sx;
-				y = oy + negDiv(y - oy,sy) * sy;
 				}
 			}
 
