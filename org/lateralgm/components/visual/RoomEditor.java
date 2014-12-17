@@ -686,6 +686,10 @@ public class RoomEditor extends VisualPanel
 				case GRID_OFFSET_Y:
 					roomVisual.setGridYOffset((Integer) v);
 					break;
+				// If the multi selection mode is set to off, reset the selection
+				case MULTI_SELECTION:
+					if (((Boolean) v) == false) roomVisual.setSelection(null);
+					break;
 				case ZOOM:
 					int i = Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,(Integer) v));
 					setZoom(i);

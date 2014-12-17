@@ -1823,7 +1823,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	@Override
 	public void actionPerformed(ActionEvent e)
 		{
-
 		Object eventSource = e.getSource();
 
 		if (eventSource == fill)
