@@ -301,9 +301,24 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(redo);
 		tool.addSeparator();
 
+		// Action fired when the delete instances button is clicked
+		Action deleteAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					deleteAction();
+					}
+			};
+
 		deleteInstances = new JButton(LGM.getIconForKey("RoomFrame.DELETE"));
 		deleteInstances.setToolTipText(Messages.getString("RoomFrame.DELETE"));
-		deleteInstances.addActionListener(this);
+		// Bind the delete keystroke with the delete button
+		KeyStroke deleteKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.DELETE"));
+		deleteInstances.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(deleteKey,"delete");
+		deleteInstances.getActionMap().put("delete",deleteAction);
+		deleteInstances.addActionListener(deleteAction);
 		tool.add(deleteInstances);
 
 		shiftInstances = new JButton(LGM.getIconForKey("RoomFrame.SHIFT"));
@@ -1820,6 +1835,79 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// Window which displays the room controls
 	public static JFrame roomControlsFrame;
 
+	private void deleteAction()
+		{
+		boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
+		boolean objectsTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_OBJECTS);
+
+		String message;
+
+		// Set message
+		if (tilesTabIsSelected)
+			message = Messages.getString("RoomFrame.DELETE_TILES");
+		else
+			message = Messages.getString("RoomFrame.DELETE_OBJECTS");
+
+		// Get a confirmation from the user
+		int result = JOptionPane.showConfirmDialog(null,message,
+				Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+
+		if (result == JOptionPane.YES_OPTION)
+			{
+
+			Piece selectedPiece = editor.getSelectedPiece();
+
+			// If there is a selected piece, deselect it
+			if (selectedPiece != null) selectedPiece.setSelected(false);
+
+			Room currentRoom = editor.getRoom();
+			boolean selectionMode = editor.properties.get(PRoomEditor.MULTI_SELECTION);
+
+			if (selectionMode)
+				{
+				// if the user didn't make any selection 
+				if (editor.selection == null) return;
+
+				Rectangle selection = editor.selection;
+
+				if (objectsTabIsSelected)
+					{
+					// Remove each object in the selection
+					for (int i = currentRoom.instances.size() - 1; i >= 0; i--)
+						{
+
+						Point instancePosition = currentRoom.instances.get(i).getPosition();
+						System.out.println(instancePosition);
+
+						if (instancePosition.x >= selection.x && instancePosition.x <= (selection.x + selection.width)
+								&& instancePosition.y >= selection.y && instancePosition.y <= (selection.y + selection.height))
+							currentRoom.instances.remove(i);
+						}
+					}
+				else
+					{
+					// Get the selected layer
+					Integer depth = (Integer) tileLayer.getSelectedItem();
+
+					// Remove each tile with the selected layer
+					for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
+						if (currentRoom.tiles.get(i).getDepth() == depth) currentRoom.tiles.remove(i);
+					}
+				}
+			else
+				{
+
+				if (tilesTabIsSelected)
+					currentRoom.tiles.clear();
+				else
+					currentRoom.instances.clear();
+				}
+
+			resetUndoManager();
+			}
+
+		}
+
 	@Override
 	public void actionPerformed(ActionEvent e)
 		{
@@ -1856,7 +1944,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					{
 					// Get the current position of the cell
 					Point newPosition = new Point(selection.x + (snapX * i),selection.y + (snapY * j));
-					
+
 					// If object's tab is selected, add a new object
 					if (objectsTabIsSelected)
 						{
@@ -1865,7 +1953,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						newObject.setPosition(newPosition);
 						}
 
-				// If the tile's tab is selected, add a new tile
+					// If the tile's tab is selected, add a new tile
 					if (tilesTabIsSelected)
 						{
 						ResourceReference<Background> bkg = taSource.getSelected();
@@ -2012,43 +2100,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				roomControlsFrame.setVisible(true);
 				}
 
-			}
-
-		// If the user has pressed the delete instances button
-		if (eventSource == deleteInstances)
-			{
-			// If the tiles tab is selected, clear the tiles
-			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
-
-			String message;
-
-			// Set message
-			if (tilesTabIsSelected)
-				message = Messages.getString("RoomFrame.DELETE_TILES");
-			else
-				message = Messages.getString("RoomFrame.DELETE_OBJECTS");
-
-			// Get a confirmation from the user
-			int result = JOptionPane.showConfirmDialog(null,message,
-					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
-
-			if (result == JOptionPane.YES_OPTION)
-				{
-
-				Piece selectedPiece = editor.getSelectedPiece();
-
-				// If there is a selected piece, deselect it
-				if (selectedPiece != null) selectedPiece.setSelected(false);
-
-				Room currentRoom = editor.getRoom();
-
-				if (tilesTabIsSelected)
-					currentRoom.tiles.clear();
-				else
-					currentRoom.instances.clear();
-
-				resetUndoManager();
-				}
 			}
 
 		// If the user has pressed the shift instances button

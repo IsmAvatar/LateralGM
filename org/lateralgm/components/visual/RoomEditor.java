@@ -495,7 +495,6 @@ public class RoomEditor extends VisualPanel
 		// If the selection button is pressed
 		if (selection_mode)
 			{
-
 			// If the user has pressed the left button
 			if (leftButtonPressed)
 				{
@@ -506,8 +505,6 @@ public class RoomEditor extends VisualPanel
 				if (x > room.getWidth()) x = room.getWidth();
 				if (y > room.getHeight()) y = room.getHeight();
 
-				System.out.println("x:" + x);
-				System.out.println("y:" + y);
 				// If the drag process starts, save the position
 				if (selectionOrigin == null)
 					{
