@@ -196,16 +196,33 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 
 		// If there is a selection, display it
-		if (selection != null)
-			paintSelection(g2);
-		
+		if (selection != null) paintSelection(g2);
+
 		g2.dispose();
 		}
 
 	// Display the selection made by the user
 	private void paintSelection(Graphics g)
 		{
-		g.setColor(Color.BLACK);
+		// If the option 'Invert colors' is set
+		if (Prefs.useInvertedColorForMultipleSelection)
+			g.setXORMode(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
+		else
+			g.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
+
+		// If the option 'Fill rectangle' is set
+		if (Prefs.useFilledRectangleForMultipleSelection)
+			g.fillRect(selection.x + 1,selection.y + 1,selection.width-1,selection.height-1);
+		else
+			g.drawRect(selection.x + 1,selection.y + 1,selection.width-2,selection.height-2);
+
+		// If the option 'Invert colors' is set
+		if (Prefs.useInvertedColorForMultipleSelection)
+			g.setXORMode(Util.convertGmColorWithAlpha(Prefs.multipleSelectionOutsideColor));
+		else
+			g.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionOutsideColor));
+
+		// Draw the outside border
 		g.drawRect(selection.x,selection.y,selection.width,selection.height);
 		}
 
