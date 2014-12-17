@@ -86,6 +86,8 @@ public class RoomEditor extends VisualPanel
 	private boolean editOtherLayers = false;
 	// Save the original position of the selection
 	private Point selectionOrigin = null;
+	// Rectangle which stores the user's selection
+	public Rectangle selection = null;
 
 	public enum PRoomEditor
 		{
@@ -468,7 +470,7 @@ public class RoomEditor extends VisualPanel
 		boolean leftButtonPressed = ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0);
 		boolean rightButtonPressed = ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0);
 		boolean selection_mode = properties.get(PRoomEditor.MULTI_SELECTION);
-		
+
 		// If the alt key is not pressed, apply the 'snapping' to the current position
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
 			{
@@ -491,7 +493,7 @@ public class RoomEditor extends VisualPanel
 				y = oy + negDiv(y - oy,sy) * sy;
 				}
 			}
-		
+
 		// If the selection button is pressed
 		if (selection_mode)
 			{
@@ -513,17 +515,18 @@ public class RoomEditor extends VisualPanel
 					int newSelectionOriginY = Math.min(selectionOrigin.y,y);
 					int width = Math.abs(x - selectionOrigin.x);
 					int height = Math.abs(y - selectionOrigin.y);
-					
-					roomVisual.setSelection(new Rectangle(newSelectionOriginX,newSelectionOriginY,width,
-							height));
-					
+
+					// Save the selection and display it
+					selection = new Rectangle(newSelectionOriginX,newSelectionOriginY,width,height);
+					roomVisual.setSelection(selection);
+
 					return;
 					}
 
 				}
 			else
 				{
-				// The drag process ends
+				// if the drag process ends, reset the selection
 				if (selectionOrigin != null)
 					{
 					selectionOrigin = null;

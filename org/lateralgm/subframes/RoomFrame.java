@@ -318,9 +318,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(select);
 		fill = new JButton(LGM.getIconForKey("RoomFrame.FILL"));
 		fill.setToolTipText(Messages.getString("RoomFrame.FILL"));
+		fill.addActionListener(this);
 		tool.add(fill);
 		tool.addSeparator();
-		
+
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
@@ -970,13 +971,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		addLayer.addActionListener(this);
 		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE"));
 		deleteLayer.addActionListener(this);
-		
+
 		tHideOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_HIDE_OTHER_LAYERS"));
 		tHideOtherLayers.addActionListener(this);
-		
+
 		tEditOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_EDIT_OTHER_LAYERS"));
 		tEditOtherLayers.addActionListener(this);
-		
+
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
 		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane());
@@ -989,9 +990,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(addLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*	*/.addComponent(deleteLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(tHideOtherLayers,GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,GroupLayout.PREFERRED_SIZE)
-		/*	*/.addComponent(tEditOtherLayers))
+		/**/.addGroup(
+				layout.createSequentialGroup()
+				/*	*/.addComponent(tHideOtherLayers,GroupLayout.PREFERRED_SIZE,GroupLayout.DEFAULT_SIZE,
+						GroupLayout.PREFERRED_SIZE)
+				/*	*/.addComponent(tEditOtherLayers))
 		/**/.addComponent(tab));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
@@ -1823,6 +1826,37 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		Object eventSource = e.getSource();
 
+		if (eventSource == fill)
+			{
+			// if the user didn't make any selection 
+			if (editor.selection == null) return;
+			
+			// If no object is selected
+			if (oNew.getSelected() == null) return;
+			
+			// If there is a selected piece, deselect it
+			if (selectedPiece != null) selectedPiece.setSelected(false);
+
+			Room currentRoom = editor.getRoom();
+			Rectangle selection = editor.selection;
+			
+			// Get the 'snap' properties of the current room
+			int snapX = currentRoom.properties.get(PRoom.SNAP_X);
+			int snapY = currentRoom.properties.get(PRoom.SNAP_Y);
+			
+			int numberOfColumns = editor.selection.width / snapX;
+			int numberOfRows = editor.selection.height / snapY;
+			
+			for (int i = 0; i < numberOfColumns; i++)
+				for (int j = 0; j < numberOfRows; j++)
+					{
+					Instance newObject = res.addInstance();
+					newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
+					newObject.setPosition(new Point(selection.x + (snapX * i), selection.y  + (snapY * j)));
+					}
+				
+			}
+
 		// If the user has pressed the 'Add' new layer button
 		if (eventSource == addLayer)
 			{
@@ -1875,15 +1909,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				// Remove the layer from the combo box
 				layers.remove(depth);
-				
-				if (layers.size() == 0)
-					layers.add(0);
-				
+
+				if (layers.size() == 0) layers.add(0);
+
 				tileLayer.setSelectedIndex(0);
 				resetUndoManager();
 				}
 			}
-		
+
 		// If the user has clicked on the 'Edit other layers' checkbox
 		if (eventSource == tEditOtherLayers)
 			{
@@ -1892,7 +1925,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			else
 				editor.editOtherLayers(false);
 			}
-		
+
 		// If the user has clicked on the 'Hide other layers' checkbox
 		if (eventSource == tHideOtherLayers)
 			{
@@ -1901,7 +1934,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			else
 				editor.roomVisual.setVisibleLayer(null);
 			}
-		
+
 		// If the user has pressed the 'room controls' button
 		if (eventSource == roomControls)
 			{
