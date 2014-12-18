@@ -341,7 +341,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		snapToGrid.setToolTipText(Messages.getString("RoomFrame.SNAP_TO_GRID"));
 		prelf.make(snapToGrid,PRoomEditor.SNAP_TO_GRID);
 		tool.add(snapToGrid);
-		
+
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
@@ -1901,7 +1901,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
 						{
 						tilePosition = currentRoom.tiles.get(i).getPosition();
-						
+
 						// If the tile is in the selected region
 						if (tilePosition.x >= selection.x && tilePosition.x < (selection.x + selection.width)
 								&& tilePosition.y >= selection.y
@@ -1943,6 +1943,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
 			boolean objectsTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_OBJECTS);
+			boolean snapToGridMode = editor.properties.get(PRoomEditor.SNAP_TO_GRID);
 
 			// If no object is selected
 			if (objectsTabIsSelected && oNew.getSelected() == null) return;
@@ -1958,15 +1959,52 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			int snapX = currentRoom.properties.get(PRoom.SNAP_X);
 			int snapY = currentRoom.properties.get(PRoom.SNAP_Y);
 
-			int numberOfColumns = editor.selection.width / snapX;
-			int numberOfRows = editor.selection.height / snapY;
+			Dimension cellDimension = null;
+			Dimension tileDimension = null;
+			
+			// If the tiles tab is selected, store the tile's dimension
+			if (tilesTabIsSelected)
+				{
+				ResourceReference<Background> bkg = taSource.getSelected();
+				Background b = bkg.get();
+
+				if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
+					tileDimension = new Dimension(b.getWidth(),b.getHeight());
+				else
+					tileDimension = new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
+							(Integer) b.get(PBackground.TILE_HEIGHT));
+				}
+			
+			// If snapping is deactivated, use the piece's width for setting its position
+			if (snapToGridMode == false)
+				{
+				if (objectsTabIsSelected)
+					{
+					ResourceReference<GmObject> instanceObject = oNew.getSelected();
+					BufferedImage image = instanceObject.get().getDisplayImage();
+					cellDimension = new Dimension(image.getWidth(),image.getHeight());
+					}
+				else
+					{
+					cellDimension = tileDimension;
+					}
+				}
+			else
+				{
+				// Use snapping for setting the piece's position
+				cellDimension = new Dimension(snapX,snapY);
+				}
+
+			int numberOfColumns = editor.selection.width / cellDimension.width;
+			int numberOfRows = editor.selection.height / cellDimension.height;
 
 			// Browse each cell of the selected region
 			for (int i = 0; i < numberOfColumns; i++)
 				for (int j = 0; j < numberOfRows; j++)
 					{
-					// Get the current position of the cell
-					Point newPosition = new Point(selection.x + (snapX * i),selection.y + (snapY * j));
+					// Position of the current piece
+					Point newPosition = new Point(selection.x + (cellDimension.width * i),selection.y
+							+ (cellDimension.height * j));
 
 					// If object's tab is selected, add a new object
 					if (objectsTabIsSelected)
@@ -1980,19 +2018,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					if (tilesTabIsSelected)
 						{
 						ResourceReference<Background> bkg = taSource.getSelected();
-						Background b = bkg.get();
+						
 						Tile t = new Tile(currentRoom,LGM.currentFile);
 						t.properties.put(PTile.BACKGROUND,bkg);
 						t.setBackgroundPosition(new Point(tSelect.tx,tSelect.ty));
 						t.setPosition(newPosition);
-
-						if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
-							t.setSize(new Dimension(b.getWidth(),b.getHeight()));
-						else
-							t.setSize(new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
-									(Integer) b.get(PBackground.TILE_HEIGHT)));
-
+						t.setSize(tileDimension);
 						t.setDepth((Integer) tileLayer.getSelectedItem());
+						
 						currentRoom.tiles.add(t);
 						}
 
