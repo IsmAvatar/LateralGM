@@ -1863,6 +1863,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			Room currentRoom = editor.getRoom();
 			boolean selectionMode = editor.properties.get(PRoomEditor.MULTI_SELECTION);
 
+			// If we are in multiple selection mode
 			if (selectionMode)
 				{
 				// if the user didn't make any selection 
@@ -1872,15 +1873,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				if (objectsTabIsSelected)
 					{
+					Point instancePosition;
+
 					// Remove each object in the selection
 					for (int i = currentRoom.instances.size() - 1; i >= 0; i--)
 						{
+						instancePosition = currentRoom.instances.get(i).getPosition();
 
-						Point instancePosition = currentRoom.instances.get(i).getPosition();
-						System.out.println(instancePosition);
-
-						if (instancePosition.x >= selection.x && instancePosition.x <= (selection.x + selection.width)
-								&& instancePosition.y >= selection.y && instancePosition.y <= (selection.y + selection.height))
+						// If the instance is in the selected region
+						if (instancePosition.x >= selection.x
+								&& instancePosition.x < (selection.x + selection.width)
+								&& instancePosition.y >= selection.y
+								&& instancePosition.y < (selection.y + selection.height))
 							currentRoom.instances.remove(i);
 						}
 					}
@@ -1889,9 +1893,25 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					// Get the selected layer
 					Integer depth = (Integer) tileLayer.getSelectedItem();
 
+					Point tilePosition;
+
 					// Remove each tile with the selected layer
 					for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
-						if (currentRoom.tiles.get(i).getDepth() == depth) currentRoom.tiles.remove(i);
+						{
+						tilePosition = currentRoom.tiles.get(i).getPosition();
+						
+						// If the tile is in the selected region
+						if (tilePosition.x >= selection.x && tilePosition.x < (selection.x + selection.width)
+								&& tilePosition.y >= selection.y
+								&& tilePosition.y < (selection.y + selection.height))
+							{
+							if (!tEditOtherLayers.isSelected() && currentRoom.tiles.get(i).getDepth() != depth)
+								continue;
+							currentRoom.tiles.remove(i);
+							}
+
+						}
+
 					}
 				}
 			else
