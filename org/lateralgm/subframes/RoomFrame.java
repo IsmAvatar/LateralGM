@@ -1863,12 +1863,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			Room currentRoom = editor.getRoom();
 			boolean selectionMode = editor.properties.get(PRoomEditor.MULTI_SELECTION);
 
-			// If we are in multiple selection mode
-			if (selectionMode)
+			// If the user draw a region
+			if (editor.selection != null)
 				{
-				// if the user didn't make any selection 
-				if (editor.selection == null) return;
-
 				Rectangle selection = editor.selection;
 
 				if (objectsTabIsSelected)
@@ -1905,6 +1902,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 								&& tilePosition.y >= selection.y
 								&& tilePosition.y < (selection.y + selection.height))
 							{
+							// If the were editing only the current layer, and if the tile is not in the current layer
 							if (!tEditOtherLayers.isSelected() && currentRoom.tiles.get(i).getDepth() != depth)
 								continue;
 							currentRoom.tiles.remove(i);
