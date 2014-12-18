@@ -91,7 +91,7 @@ public class RoomEditor extends VisualPanel
 		{
 		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
 		SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM,
-		MULTI_SELECTION,SNAP_TO_GRID;
+		MULTI_SELECTION,SNAP_TO_GRID,ADD_ON_TOP;
 		final RoomVisual.Show rvBinding;
 
 		private PRoomEditor()
@@ -110,7 +110,7 @@ public class RoomEditor extends VisualPanel
 		}
 
 	private static final EnumMap<PRoomEditor,Object> DEFS = PropertyMap.makeDefaultMap(
-			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,false,true);
+			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,false,true,false);
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
@@ -469,7 +469,7 @@ public class RoomEditor extends VisualPanel
 		boolean rightButtonPressed = ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0);
 		boolean selectionMode = properties.get(PRoomEditor.MULTI_SELECTION);
 		boolean snapToGridMode = properties.get(PRoomEditor.SNAP_TO_GRID);
-		
+
 		// If alt key or button is pressed, apply the snapping
 		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0 && snapToGridMode == true)
 			{

@@ -148,7 +148,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	//ToolBar
 	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances, roomControls, fill;
-	private JToggleButton gridVis, gridIso, select, snapToGrid;
+	private JToggleButton gridVis, gridIso, select, snapToGrid, addOnTop;
 
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
@@ -341,6 +341,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		snapToGrid.setToolTipText(Messages.getString("RoomFrame.SNAP_TO_GRID"));
 		prelf.make(snapToGrid,PRoomEditor.SNAP_TO_GRID);
 		tool.add(snapToGrid);
+
+		addOnTop = new JToggleButton(LGM.getIconForKey("RoomFrame.ADD_ON_TOP"));
+		addOnTop.setToolTipText(Messages.getString("RoomFrame.ADD_ON_TOP"));
+		prelf.make(addOnTop,PRoomEditor.ADD_ON_TOP);
+		tool.add(addOnTop);
 
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
@@ -1961,7 +1966,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			Dimension cellDimension = null;
 			Dimension tileDimension = null;
-			
+
 			// If the tiles tab is selected, store the tile's dimension
 			if (tilesTabIsSelected)
 				{
@@ -1974,7 +1979,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					tileDimension = new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
 							(Integer) b.get(PBackground.TILE_HEIGHT));
 				}
-			
+
 			// If snapping is deactivated, use the piece's width for setting its position
 			if (snapToGridMode == false)
 				{
@@ -2018,14 +2023,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					if (tilesTabIsSelected)
 						{
 						ResourceReference<Background> bkg = taSource.getSelected();
-						
+
 						Tile t = new Tile(currentRoom,LGM.currentFile);
 						t.properties.put(PTile.BACKGROUND,bkg);
 						t.setBackgroundPosition(new Point(tSelect.tx,tSelect.ty));
 						t.setPosition(newPosition);
 						t.setSize(tileDimension);
 						t.setDepth((Integer) tileLayer.getSelectedItem());
-						
+
 						currentRoom.tiles.add(t);
 						}
 
