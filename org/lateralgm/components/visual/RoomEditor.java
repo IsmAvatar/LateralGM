@@ -91,7 +91,7 @@ public class RoomEditor extends VisualPanel
 		{
 		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
 		SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM,
-		MULTI_SELECTION;
+		MULTI_SELECTION,SNAP_TO_GRID;
 		final RoomVisual.Show rvBinding;
 
 		private PRoomEditor()
@@ -110,7 +110,7 @@ public class RoomEditor extends VisualPanel
 		}
 
 	private static final EnumMap<PRoomEditor,Object> DEFS = PropertyMap.makeDefaultMap(
-			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,false);
+			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,false,true);
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
