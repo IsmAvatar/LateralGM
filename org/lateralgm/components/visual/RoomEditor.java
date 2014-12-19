@@ -467,11 +467,17 @@ public class RoomEditor extends VisualPanel
 
 		boolean leftButtonPressed = ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0);
 		boolean rightButtonPressed = ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0);
+		boolean altButtonPressed = ((modifiers & MouseEvent.ALT_DOWN_MASK) != 0);
 		boolean selectionMode = properties.get(PRoomEditor.MULTI_SELECTION);
+
+		// If the alt key is pressed, disable the snapping
+		if (altButtonPressed)
+			properties.put(PRoomEditor.SNAP_TO_GRID,false);
+
 		boolean snapToGridMode = properties.get(PRoomEditor.SNAP_TO_GRID);
 
-		// If alt key or button is pressed, apply the snapping
-		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0 && snapToGridMode == true)
+		// If alt key is not pressed or if the snapping button is pressed, apply the snapping
+		if (snapToGridMode == true)
 			{
 			int sx = room.get(PRoom.SNAP_X);
 			int sy = room.get(PRoom.SNAP_Y);

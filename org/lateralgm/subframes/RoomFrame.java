@@ -1879,48 +1879,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				Rectangle selection = editor.selection;
 
 				if (objectsTabIsSelected)
-					{
-					Point instancePosition;
-
-					// Remove each object in the selection
-					for (int i = currentRoom.instances.size() - 1; i >= 0; i--)
-						{
-						instancePosition = currentRoom.instances.get(i).getPosition();
-
-						// If the instance is in the selected region
-						if (instancePosition.x >= selection.x
-								&& instancePosition.x < (selection.x + selection.width)
-								&& instancePosition.y >= selection.y
-								&& instancePosition.y < (selection.y + selection.height))
-							currentRoom.instances.remove(i);
-						}
-					}
+					deleteInstancesInSelection(selection);
 				else
-					{
-					// Get the selected layer
-					Integer depth = (Integer) tileLayer.getSelectedItem();
+					deleteTilesInSelection(selection);
 
-					Point tilePosition;
-
-					// Remove each tile with the selected layer
-					for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
-						{
-						tilePosition = currentRoom.tiles.get(i).getPosition();
-
-						// If the tile is in the selected region
-						if (tilePosition.x >= selection.x && tilePosition.x < (selection.x + selection.width)
-								&& tilePosition.y >= selection.y
-								&& tilePosition.y < (selection.y + selection.height))
-							{
-							// If the were editing only the current layer, and if the tile is not in the current layer
-							if (!tEditOtherLayers.isSelected() && currentRoom.tiles.get(i).getDepth() != depth)
-								continue;
-							currentRoom.tiles.remove(i);
-							}
-
-						}
-
-					}
 				}
 			else
 				{
@@ -1932,6 +1894,56 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				}
 
 			resetUndoManager();
+			}
+
+		}
+
+	// Delete all instances for a given selection
+	private void deleteInstancesInSelection(Rectangle selection)
+		{
+		Room currentRoom = editor.getRoom();
+
+		Point instancePosition;
+
+		// Remove each object in the selection
+		for (int i = currentRoom.instances.size() - 1; i >= 0; i--)
+			{
+			instancePosition = currentRoom.instances.get(i).getPosition();
+
+			// If the instance is in the selected region
+			if (instancePosition.x >= selection.x && instancePosition.x < (selection.x + selection.width)
+					&& instancePosition.y >= selection.y
+					&& instancePosition.y < (selection.y + selection.height))
+				currentRoom.instances.remove(i);
+			}
+
+		}
+
+	// Delete all tiles for a given selection
+	private void deleteTilesInSelection(Rectangle selection)
+		{
+		Room currentRoom = editor.getRoom();
+
+		// Get the selected layer
+		Integer depth = (Integer) tileLayer.getSelectedItem();
+
+		Point tilePosition;
+
+		// Remove each tile with the selected layer
+		for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
+			{
+			tilePosition = currentRoom.tiles.get(i).getPosition();
+
+			// If the tile is in the selected region
+			if (tilePosition.x >= selection.x && tilePosition.x < (selection.x + selection.width)
+					&& tilePosition.y >= selection.y && tilePosition.y < (selection.y + selection.height))
+				{
+				// If the were editing only the current layer, and if the tile is not in the current layer
+				if (!tEditOtherLayers.isSelected() && currentRoom.tiles.get(i).getDepth() != depth)
+					continue;
+				currentRoom.tiles.remove(i);
+				}
+
 			}
 
 		}
@@ -1949,6 +1961,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
 			boolean objectsTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_OBJECTS);
 			boolean snapToGridMode = editor.properties.get(PRoomEditor.SNAP_TO_GRID);
+			boolean deleteUnderlyingObjects = editor.properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
+			boolean deleteUnderlyingTiles = editor.properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
 
 			// If no object is selected
 			if (objectsTabIsSelected && oNew.getSelected() == null) return;
@@ -1967,9 +1981,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			Dimension cellDimension = null;
 			Dimension tileDimension = null;
 
-			// If the tiles tab is selected, store the tile's dimension
+			// If the tiles tab is selected, 
 			if (tilesTabIsSelected)
 				{
+				// If the 'Delete underlying' option is checked, delete all tiles for the selected region
+				if (deleteUnderlyingTiles) deleteTilesInSelection(selection);
+
+				// Get and store the tile's dimension
 				ResourceReference<Background> bkg = taSource.getSelected();
 				Background b = bkg.get();
 
@@ -1979,6 +1997,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					tileDimension = new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
 							(Integer) b.get(PBackground.TILE_HEIGHT));
 				}
+
+			// If object's tab is selected and the 'Delete underlying' option is checked, delete all instances for the selected region
+			if (objectsTabIsSelected && deleteUnderlyingObjects) deleteInstancesInSelection(selection);
 
 			// If snapping is deactivated, use the piece's width for setting its position
 			if (snapToGridMode == false)
