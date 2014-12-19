@@ -1871,7 +1871,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (selectedPiece != null) selectedPiece.setSelected(false);
 
 			Room currentRoom = editor.getRoom();
-			boolean selectionMode = editor.properties.get(PRoomEditor.MULTI_SELECTION);
 
 			// If the user draw a region
 			if (editor.selection != null)

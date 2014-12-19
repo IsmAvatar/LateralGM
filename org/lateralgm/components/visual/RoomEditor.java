@@ -698,7 +698,11 @@ public class RoomEditor extends VisualPanel
 					break;
 				// If the multi selection mode is set to off, reset the selection
 				case MULTI_SELECTION:
-					if (((Boolean) v) == false) roomVisual.setSelection(null);
+					if (((Boolean) v) == false)
+						{
+						roomVisual.setSelection(null);
+						selection = null;
+						}
 					break;
 				case ZOOM:
 					int i = Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,(Integer) v));
