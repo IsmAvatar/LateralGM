@@ -2008,7 +2008,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					{
 					ResourceReference<GmObject> instanceObject = oNew.getSelected();
 					BufferedImage image = instanceObject.get().getDisplayImage();
-					cellDimension = new Dimension(image.getWidth(),image.getHeight());
+
+					// If there is no image for this instance, use the default sprite image
+					if (image == null)
+						{
+						ImageIcon emptySprite = LGM.getIconForKey("Resource.EMPTY_OBJ");
+						cellDimension = new Dimension(emptySprite.getIconWidth(),emptySprite.getIconHeight());
+						}
+					else
+						{
+						cellDimension = new Dimension(image.getWidth(),image.getHeight());
+						}
+
 					}
 				else
 					{
