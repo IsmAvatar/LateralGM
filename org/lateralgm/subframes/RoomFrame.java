@@ -25,6 +25,7 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -34,6 +35,9 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -48,6 +52,7 @@ import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -55,6 +60,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
@@ -337,8 +343,45 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(fill);
 		tool.addSeparator();
 
+		// if the alt key has been pressed
+		Action altKeyPressedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.altKeyPressed();
+					}
+			};
+
+		// if the alt key has been released
+		Action altKeyReleasedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.altKeyReleased();
+					}
+			};
+
 		snapToGrid = new JToggleButton(LGM.getIconForKey("RoomFrame.SNAP_TO_GRID"));
 		snapToGrid.setToolTipText(Messages.getString("RoomFrame.SNAP_TO_GRID"));
+		snapToGrid.setActionCommand("snapToGrid");
+		// Link the alt key 'pressed'
+		KeyStroke altKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_ALT,InputEvent.ALT_DOWN_MASK,false);
+		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(altKeyPressed,"altKeyPressed");
+		snapToGrid.getActionMap().put("altKeyPressed",altKeyPressedAction);
+		snapToGrid.addActionListener(altKeyPressedAction);
+		// Link the alt key 'released'
+		KeyStroke altKeyReleased = KeyStroke.getKeyStroke(KeyEvent.VK_ALT,0,true);
+		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(altKeyReleased,"altKeyReleased");
+		snapToGrid.getActionMap().put("altKeyReleased",altKeyReleasedAction);
+		snapToGrid.addActionListener(altKeyReleasedAction);
 		prelf.make(snapToGrid,PRoomEditor.SNAP_TO_GRID);
 		tool.add(snapToGrid);
 
@@ -1708,6 +1751,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						super.layoutContainer(parent);
 					}
 			};
+			
 		setLayout(layout);
 
 		JToolBar tools = makeToolBar();

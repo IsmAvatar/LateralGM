@@ -80,12 +80,14 @@ public class RoomEditor extends VisualPanel
 
 	// Save the original position of a selected piece (Used when moving an object for the undo)
 	private Point objectFirstPosition = null;
-	// Set if the tiles editing is available for all layers or only for the selected one
+	// Option which set if the tiles editing is available for all layers or only for the selected one
 	private boolean editOtherLayers = false;
 	// Save the original position of the selection
 	private Point selectionOrigin = null;
 	// Rectangle which stores the user's selection
 	public Rectangle selection = null;
+	// Save if the alt key has been pressed
+	private boolean altKeyHasBeenPressed = false;
 
 	public enum PRoomEditor
 		{
@@ -456,6 +458,29 @@ public class RoomEditor extends VisualPanel
 			}
 		}
 
+	// If the alt key was pressed, disable the snap to grid mode, if needed
+	public void altKeyPressed()
+		{
+		boolean snapToGridMode = properties.get(PRoomEditor.SNAP_TO_GRID);
+
+		// Save that the alt key has been pressed
+		if (snapToGridMode)
+			{
+			altKeyHasBeenPressed = true;
+			properties.put(PRoomEditor.SNAP_TO_GRID,false);
+			}
+		}
+
+	// If the alt key was released, activate the snap to grid mode, if needed
+	public void altKeyReleased()
+		{
+		if (altKeyHasBeenPressed)
+			{
+			altKeyHasBeenPressed = false;
+			properties.put(PRoomEditor.SNAP_TO_GRID,true);
+			}
+		}
+
 	protected void mouseEdit(MouseEvent e)
 		{
 		int modifiers = e.getModifiersEx();
@@ -467,16 +492,10 @@ public class RoomEditor extends VisualPanel
 
 		boolean leftButtonPressed = ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0);
 		boolean rightButtonPressed = ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0);
-		boolean altButtonPressed = ((modifiers & MouseEvent.ALT_DOWN_MASK) != 0);
 		boolean selectionMode = properties.get(PRoomEditor.MULTI_SELECTION);
-
-		// If the alt key is pressed, disable the snapping
-		if (altButtonPressed)
-			properties.put(PRoomEditor.SNAP_TO_GRID,false);
-
 		boolean snapToGridMode = properties.get(PRoomEditor.SNAP_TO_GRID);
 
-		// If alt key is not pressed or if the snapping button is pressed, apply the snapping
+		// If the 'snap to grid' mode is activated
 		if (snapToGridMode == true)
 			{
 			int sx = room.get(PRoom.SNAP_X);
