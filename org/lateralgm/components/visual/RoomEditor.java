@@ -88,6 +88,8 @@ public class RoomEditor extends VisualPanel
 	public Rectangle selection = null;
 	// Save if the alt key has been pressed
 	private boolean altKeyHasBeenPressed = false;
+	// Save if the ctrl key has been pressed
+	private boolean ctrlKeyHasBeenPressed = false;
 
 	public enum PRoomEditor
 		{
@@ -297,10 +299,10 @@ public class RoomEditor extends VisualPanel
 			}
 
 		boolean shiftKeyPressed = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
-		boolean ctrlKeyPressed = ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0);
+		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
 
 		// If the ctrl and shift keys are not pressed
-		if (shiftKeyPressed == false && ctrlKeyPressed == false)
+		if (shiftKeyPressed == false && addOnTopMode == false)
 			{
 			// If left button has been clicked and if there is an object under the cursor, move the object
 			if (pressed && pieceUnderCursor != null && !pieceUnderCursor.isLocked())
@@ -388,7 +390,9 @@ public class RoomEditor extends VisualPanel
 		// If there is a selected piece, deselect it
 		if (selectedPiece != null) selectedPiece.setSelected(false);
 
-		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
+		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
+		
+		if (addOnTopMode == false)
 			{
 			if (!pressed) return;
 
@@ -481,6 +485,29 @@ public class RoomEditor extends VisualPanel
 			}
 		}
 
+	// If the ctrl key was pressed, enable add on top mode, if needed
+	public void ctrlKeyPressed()
+		{
+		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
+
+		// Save that the alt key has been pressed
+		if (addOnTopMode == false)
+			{
+			ctrlKeyHasBeenPressed = true;
+			properties.put(PRoomEditor.ADD_ON_TOP,true);
+			}
+		}
+
+	// If the ctrl key was released, activate the snap to grid mode, if needed
+	public void ctrlKeyReleased()
+		{
+		if (ctrlKeyHasBeenPressed)
+			{
+			ctrlKeyHasBeenPressed = false;
+			properties.put(PRoomEditor.ADD_ON_TOP,false);
+			}
+		}
+	
 	protected void mouseEdit(MouseEvent e)
 		{
 		int modifiers = e.getModifiersEx();

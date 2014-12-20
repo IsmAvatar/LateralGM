@@ -385,8 +385,44 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		prelf.make(snapToGrid,PRoomEditor.SNAP_TO_GRID);
 		tool.add(snapToGrid);
 
+		// if the ctrl key has been pressed
+		Action ctrlKeyPressedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.ctrlKeyPressed();
+					}
+			};
+
+		// if the ctrl key has been released
+		Action ctrlKeyReleasedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.ctrlKeyReleased();
+					}
+			};
+			
 		addOnTop = new JToggleButton(LGM.getIconForKey("RoomFrame.ADD_ON_TOP"));
 		addOnTop.setToolTipText(Messages.getString("RoomFrame.ADD_ON_TOP"));
+		// Link the ctrl key 'pressed'
+		KeyStroke ctrlKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL,InputEvent.CTRL_DOWN_MASK,false);
+		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyPressed,"ctrlKeyPressed");
+		snapToGrid.getActionMap().put("ctrlKeyPressed",ctrlKeyPressedAction);
+		snapToGrid.addActionListener(ctrlKeyPressedAction);
+		// Link the ctrl key 'released'
+		KeyStroke ctrlKeyReleased = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL,0,true);
+		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyReleased,"ctrlKeyReleased");
+		snapToGrid.getActionMap().put("ctrlKeyReleased",ctrlKeyReleasedAction);
+		snapToGrid.addActionListener(ctrlKeyReleasedAction);
 		prelf.make(addOnTop,PRoomEditor.ADD_ON_TOP);
 		tool.add(addOnTop);
 
