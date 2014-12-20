@@ -95,6 +95,16 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		return inst;
 		}
 
+	public int getWidth()
+		{
+		return properties.get(PRoom.WIDTH);
+		}
+
+	public int getHeight()
+		{
+		return properties.get(PRoom.HEIGHT);
+		}
+	
 	public String getCode()
 		{
 		return properties.get(PRoom.CREATION_CODE);
@@ -169,11 +179,11 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		void setRotation(double rotation);
 
 		void setAlpha(int alpha);
-		
+
 		void setColor(Color color);
-		
+
 		int getAlpha();
-		
+
 		void setSelected(boolean l);
 
 		boolean isSelected();

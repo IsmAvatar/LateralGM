@@ -125,27 +125,25 @@ public final class PrefsStore
 		PREFS.put("externalSoundEditorCommand",s);
 		Prefs.externalSoundEditorCommand = s;
 		}
-	
 
 	public static void setDecorateWindowBorders(boolean selected)
 		{
 		PREFS.putBoolean("decorateWindowBorders",selected);
 		Prefs.decorateWindowBorders = selected;
 		}
-	
+
 	public static void setAntialiasControlFont(String s)
 		{
 		PREFS.put("antialiasControlFont",s);
 		Prefs.antialiasControlFont = s;
 		}
-	
-	
+
 	public static void setDirect3DAcceleration(String s)
 		{
 		PREFS.put("direct3DAcceleration",s);
 		Prefs.direct3DAcceleration = s;
 		}
-	
+
 	public static void setOpenGLAcceleration(String s)
 		{
 		PREFS.put("openGLAcceleration",s);
@@ -157,7 +155,7 @@ public final class PrefsStore
 		PREFS.put("prefixes",s);
 		Prefs.createPrefixes(s);
 		}
-	
+
 	public static void setIconPath(String s)
 		{
 		PREFS.put("iconPath",s);
@@ -199,7 +197,7 @@ public final class PrefsStore
 		PREFS.putBoolean("showTreeFilter",selected);
 		Prefs.showTreeFilter = selected;
 		}
-	
+
 	public static void setExtraNodes(boolean selected)
 		{
 		PREFS.putBoolean("extraNodes",selected);
@@ -236,43 +234,43 @@ public final class PrefsStore
 		PREFS.putInt("imagePreviewBackgroundColor",color);
 		Prefs.imagePreviewBackgroundColor = color;
 		}
-	
+
 	public static void setImagePreviewForegroundColor(int color)
 		{
 		PREFS.putInt("imagePreviewForegroundColor",color);
 		Prefs.imagePreviewForegroundColor = color;
 		}
-	
+
 	public static void setHighlightMatchCountBackground(boolean selected)
 		{
 		PREFS.putBoolean("highlightMatchCountBackground",selected);
 		Prefs.highlightMatchCountBackground = selected;
 		}
-	
+
 	public static void setHighlightMatchCountForeground(boolean selected)
 		{
 		PREFS.putBoolean("highlightMatchCountForeground",selected);
 		Prefs.highlightMatchCountForeground = selected;
 		}
-	
+
 	public static void setMatchCountBackgroundColor(int color)
 		{
 		PREFS.putInt("matchCountBackgroundColor",color);
 		Prefs.matchCountBackgroundColor = color;
 		}
-	
+
 	public static void setMatchCountForegroundColor(int color)
 		{
 		PREFS.putInt("matchCountForegroundColor",color);
 		Prefs.matchCountForegroundColor = color;
 		}
-	
+
 	public static void setHighlightResultMatchBackground(boolean selected)
 		{
 		PREFS.putBoolean("highlightResultMatchBackground",selected);
 		Prefs.highlightResultMatchBackground = selected;
 		}
-	
+
 	public static void setHighlightResultMatchForeground(boolean selected)
 		{
 		PREFS.putBoolean("highlightResultMatchForeground",selected);
@@ -284,13 +282,13 @@ public final class PrefsStore
 		PREFS.putInt("resultMatchBackgroundColor",color);
 		Prefs.resultMatchBackgroundColor = color;
 		}
-	
+
 	public static void setResultMatchForegroundColor(int color)
 		{
 		PREFS.putInt("resultMatchForegroundColor",color);
 		Prefs.resultMatchForegroundColor = color;
 		}
-	
+
 	public static void setViewInsideColor(int viewInsideColor)
 		{
 		PREFS.putInt("viewInsideColor",viewInsideColor);
@@ -325,6 +323,30 @@ public final class PrefsStore
 		{
 		PREFS.putInt("selectionOutsideColor",selectionOutsideColor);
 		Prefs.selectionOutsideColor = selectionOutsideColor;
+		}
+
+	public static void setFilledRectangleForMultipleSelection(boolean selected)
+		{
+		PREFS.putBoolean("filledRectangleForMultipleSelection",selected);
+		Prefs.useFilledRectangleForMultipleSelection = selected;
+		}
+
+	public static void setInvertedColorForMultipleSelection(boolean selected)
+		{
+		PREFS.putBoolean("invertedColorForMultipleSelection",selected);
+		Prefs.useInvertedColorForMultipleSelection = selected;
+		}
+
+	public static void setMultipleSelectionInsideColor(int selectionInsideColor)
+		{
+		PREFS.putInt("multipleSelectionInsideColor",selectionInsideColor);
+		Prefs.multipleSelectionInsideColor = selectionInsideColor;
+		}
+
+	public static void setMultipleSelectionOutsideColor(int selectionOutsideColor)
+		{
+		PREFS.putInt("multipleSelectionOutsideColor",selectionOutsideColor);
+		Prefs.multipleSelectionOutsideColor = selectionOutsideColor;
 		}
 
 	public static int getNumberOfBackups()

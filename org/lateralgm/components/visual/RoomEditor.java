@@ -80,13 +80,24 @@ public class RoomEditor extends VisualPanel
 
 	// Save the original position of a selected piece (Used when moving an object for the undo)
 	private Point objectFirstPosition = null;
-	// Set if the tiles editing is available for all layers or only for the selected one
+	// Option which set if the tiles editing is available for all layers or only for the selected one
 	private boolean editOtherLayers = false;
+	// Save the original position of the selection
+	private Point selectionOrigin = null;
+	// Rectangle which stores the user's selection
+	public Rectangle selection = null;
+	// Save if the alt key has been pressed
+	private boolean altKeyHasBeenPressed = false;
+	// Save if the ctrl key has been pressed
+	private boolean ctrlKeyHasBeenPressed = false;
+	// Save if the shift key has been pressed
+	private boolean shiftKeyHasBeenPressed = false;
 
 	public enum PRoomEditor
 		{
 		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
-		SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM;
+		SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM,
+		MULTI_SELECTION,SNAP_TO_GRID,ADD_ON_TOP,ADD_MULTIPLE;
 		final RoomVisual.Show rvBinding;
 
 		private PRoomEditor()
@@ -105,7 +116,7 @@ public class RoomEditor extends VisualPanel
 		}
 
 	private static final EnumMap<PRoomEditor,Object> DEFS = PropertyMap.makeDefaultMap(
-			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1);
+			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,false,true,false,false);
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
@@ -289,11 +300,11 @@ public class RoomEditor extends VisualPanel
 			this.requestFocusInWindow();
 			}
 
-		boolean shiftKeyPressed = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
-		boolean ctrlKeyPressed = ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0);
+		boolean addMultipleMode = properties.get(PRoomEditor.ADD_MULTIPLE);
+		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
 
-		// If the ctrl and shift keys are not pressed
-		if (shiftKeyPressed == false && ctrlKeyPressed == false)
+		// If the 'add multiple' mode and 'add on top' modes are disabled
+		if (addMultipleMode == false && addOnTopMode == false)
 			{
 			// If left button has been clicked and if there is an object under the cursor, move the object
 			if (pressed && pieceUnderCursor != null && !pieceUnderCursor.isLocked())
@@ -308,14 +319,14 @@ public class RoomEditor extends VisualPanel
 			if (pressed && pieceUnderCursor == null)
 				{
 				addNewPieceInstance(position);
-				shiftKeyPressed = true; //prevents unnecessary coordinate update below
+				addMultipleMode = true; //prevents unnecessary coordinate update below
 				}
 
 			}
 		else
 			{
 			// If the shift key is pressed, add objects under the cursor
-			if (shiftKeyPressed && cursor != null)
+			if (addMultipleMode && cursor != null)
 				if (!roomVisual.intersects(new Rectangle(position.x,position.y,1,1),cursor))
 					{
 					releaseCursor(position);
@@ -326,12 +337,12 @@ public class RoomEditor extends VisualPanel
 			if (pressed && cursor == null)
 				{
 				addNewPieceInstance(position);
-				shiftKeyPressed = true; //prevents unnecessary coordinate update below
+				addMultipleMode = true; //prevents unnecessary coordinate update below
 				}
 
 			}
 
-		if (cursor != null && !shiftKeyPressed) cursor.setPosition(position);
+		if (cursor != null && !addMultipleMode) cursor.setPosition(position);
 		}
 
 	private void addNewPieceInstance(Point position)
@@ -381,7 +392,9 @@ public class RoomEditor extends VisualPanel
 		// If there is a selected piece, deselect it
 		if (selectedPiece != null) selectedPiece.setSelected(false);
 
-		if ((modifiers & MouseEvent.CTRL_DOWN_MASK) != 0)
+		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
+
+		if (addOnTopMode == false)
 			{
 			if (!pressed) return;
 
@@ -451,6 +464,75 @@ public class RoomEditor extends VisualPanel
 			}
 		}
 
+	// If the alt key was pressed, disable the snap to grid mode, if needed
+	public void altKeyPressed()
+		{
+		boolean snapToGridMode = properties.get(PRoomEditor.SNAP_TO_GRID);
+
+		// Save that the alt key has been pressed
+		if (snapToGridMode)
+			{
+			altKeyHasBeenPressed = true;
+			properties.put(PRoomEditor.SNAP_TO_GRID,false);
+			}
+		}
+
+	// If the alt key was released, activate the snap to grid mode, if needed
+	public void altKeyReleased()
+		{
+		if (altKeyHasBeenPressed)
+			{
+			altKeyHasBeenPressed = false;
+			properties.put(PRoomEditor.SNAP_TO_GRID,true);
+			}
+		}
+
+	// If the ctrl key was pressed, enable add on top mode, if needed
+	public void ctrlKeyPressed()
+		{
+		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
+
+		// Save that the ctrl key has been pressed
+		if (addOnTopMode == false)
+			{
+			ctrlKeyHasBeenPressed = true;
+			properties.put(PRoomEditor.ADD_ON_TOP,true);
+			}
+		}
+
+	// If the ctrl key was released, disable add on top mode, if needed
+	public void ctrlKeyReleased()
+		{
+		if (ctrlKeyHasBeenPressed)
+			{
+			ctrlKeyHasBeenPressed = false;
+			properties.put(PRoomEditor.ADD_ON_TOP,false);
+			}
+		}
+
+	// If the shift key was pressed, enable add multiple mode, if needed
+	public void shiftKeyPressed()
+		{
+		boolean addMultipleMode = properties.get(PRoomEditor.ADD_MULTIPLE);
+
+		// Save that the shift key has been pressed
+		if (addMultipleMode == false)
+			{
+			shiftKeyHasBeenPressed = true;
+			properties.put(PRoomEditor.ADD_MULTIPLE,true);
+			}
+		}
+
+	// If the shift key was released, disable add multiple mode, if needed
+	public void shiftKeyReleased()
+		{
+		if (shiftKeyHasBeenPressed)
+			{
+			shiftKeyHasBeenPressed = false;
+			properties.put(PRoomEditor.ADD_MULTIPLE,false);
+			}
+		}
+
 	protected void mouseEdit(MouseEvent e)
 		{
 		int modifiers = e.getModifiersEx();
@@ -460,8 +542,13 @@ public class RoomEditor extends VisualPanel
 		int x = currentPosition.x;
 		int y = currentPosition.y;
 
-		// If the alt key is not pressed, apply the 'snapping' to the current position
-		if ((modifiers & MouseEvent.ALT_DOWN_MASK) == 0)
+		boolean leftButtonPressed = ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0);
+		boolean rightButtonPressed = ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0);
+		boolean selectionMode = properties.get(PRoomEditor.MULTI_SELECTION);
+		boolean snapToGridMode = properties.get(PRoomEditor.SNAP_TO_GRID);
+
+		// If the 'snap to grid' mode is activated
+		if (snapToGridMode == true)
 			{
 			int sx = room.get(PRoom.SNAP_X);
 			int sy = room.get(PRoom.SNAP_Y);
@@ -480,6 +567,52 @@ public class RoomEditor extends VisualPanel
 				{
 				x = ox + negDiv(x - ox,sx) * sx;
 				y = oy + negDiv(y - oy,sy) * sy;
+				}
+			}
+
+		// If the selection button is pressed
+		if (selectionMode)
+			{
+			// If the user has pressed the left button
+			if (leftButtonPressed)
+				{
+
+				// Ensure the selection is inside the room
+				if (x < 0) x = 0;
+				if (y < 0) y = 0;
+				if (x > room.getWidth()) x = room.getWidth();
+				if (y > room.getHeight()) y = room.getHeight();
+
+				// If the drag process starts, save the position
+				if (selectionOrigin == null)
+					{
+					selectionOrigin = new Point(x,y);
+					return;
+					}
+				else
+					{
+					// Calculate the origin and the dimension of the selection
+					int newSelectionOriginX = Math.min(selectionOrigin.x,x);
+					int newSelectionOriginY = Math.min(selectionOrigin.y,y);
+					int width = Math.abs(x - selectionOrigin.x);
+					int height = Math.abs(y - selectionOrigin.y);
+
+					// Save the selection and display it
+					selection = new Rectangle(newSelectionOriginX,newSelectionOriginY,width,height);
+					roomVisual.setSelection(selection);
+
+					return;
+					}
+
+				}
+			else
+				{
+				// if the drag process ends, reset the selection
+				if (selectionOrigin != null)
+					{
+					selectionOrigin = null;
+					return;
+					}
 				}
 			}
 
@@ -532,11 +665,11 @@ public class RoomEditor extends VisualPanel
 			if (frame.tabs.getSelectedIndex() != Room.TAB_OBJECTS) return;
 			}
 
-		if ((modifiers & MouseEvent.BUTTON1_DOWN_MASK) != 0)
+		if (leftButtonPressed)
 			processLeftButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,new Point(x,y));
 		else if (cursor != null) releaseCursor(new Point(x,y));
 
-		if ((modifiers & MouseEvent.BUTTON3_DOWN_MASK) != 0 && mc != null)
+		if (rightButtonPressed && mc != null)
 			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,currentPosition); //use mouse point
 		}
 
@@ -634,10 +767,21 @@ public class RoomEditor extends VisualPanel
 				case GRID_OFFSET_Y:
 					roomVisual.setGridYOffset((Integer) v);
 					break;
+				// If the multi selection mode is set to off, reset the selection
+				case MULTI_SELECTION:
+					if (((Boolean) v) == false)
+						{
+						roomVisual.setSelection(null);
+						selection = null;
+						}
+					break;
 				case ZOOM:
 					int i = Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,(Integer) v));
 					setZoom(i);
 					return i;
+				case ADD_MULTIPLE:
+				case ADD_ON_TOP:
+				case SNAP_TO_GRID:
 				case SHOW_BACKGROUNDS:
 				case SHOW_FOREGROUNDS:
 				case SHOW_GRID:

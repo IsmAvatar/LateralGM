@@ -34,6 +34,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -147,9 +149,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public JLabel statX, statY, statId, statSrc;
 
 	//ToolBar
-	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances, roomControls;
-	private JToggleButton gridVis;
-	JToggleButton gridIso;
+	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances, roomControls, fill;
+	private JToggleButton gridVis, gridIso, select, snapToGrid, addOnTop, addMultiple;
 
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
@@ -302,15 +303,170 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(redo);
 		tool.addSeparator();
 
+		// Action fired when the delete instances button is clicked
+		Action deleteAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					deleteAction();
+					}
+			};
+
 		deleteInstances = new JButton(LGM.getIconForKey("RoomFrame.DELETE"));
 		deleteInstances.setToolTipText(Messages.getString("RoomFrame.DELETE"));
-		deleteInstances.addActionListener(this);
+		// Bind the delete keystroke with the delete button
+		KeyStroke deleteKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.DELETE"));
+		deleteInstances.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(deleteKey,"delete");
+		deleteInstances.getActionMap().put("delete",deleteAction);
+		deleteInstances.addActionListener(deleteAction);
 		tool.add(deleteInstances);
 
 		shiftInstances = new JButton(LGM.getIconForKey("RoomFrame.SHIFT"));
 		shiftInstances.setToolTipText(Messages.getString("RoomFrame.SHIFT"));
 		shiftInstances.addActionListener(this);
 		tool.add(shiftInstances);
+		tool.addSeparator();
+
+		select = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT"));
+		select.setToolTipText(Messages.getString("RoomFrame.SELECT"));
+		prelf.make(select,PRoomEditor.MULTI_SELECTION);
+		tool.add(select);
+
+		fill = new JButton(LGM.getIconForKey("RoomFrame.FILL"));
+		fill.setToolTipText(Messages.getString("RoomFrame.FILL"));
+		fill.addActionListener(this);
+		tool.add(fill);
+		tool.addSeparator();
+
+		// if the alt key has been pressed
+		Action altKeyPressedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.altKeyPressed();
+					}
+			};
+
+		// if the alt key has been released
+		Action altKeyReleasedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.altKeyReleased();
+					}
+			};
+
+		snapToGrid = new JToggleButton(LGM.getIconForKey("RoomFrame.SNAP_TO_GRID"));
+		snapToGrid.setToolTipText(Messages.getString("RoomFrame.SNAP_TO_GRID"));
+		snapToGrid.setActionCommand("snapToGrid");
+		// Link the alt key 'pressed'
+		KeyStroke altKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_ALT,InputEvent.ALT_DOWN_MASK,false);
+		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(altKeyPressed,"altKeyPressed");
+		snapToGrid.getActionMap().put("altKeyPressed",altKeyPressedAction);
+		snapToGrid.addActionListener(altKeyPressedAction);
+		// Link the alt key 'released'
+		KeyStroke altKeyReleased = KeyStroke.getKeyStroke(KeyEvent.VK_ALT,0,true);
+		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(altKeyReleased,"altKeyReleased");
+		snapToGrid.getActionMap().put("altKeyReleased",altKeyReleasedAction);
+		snapToGrid.addActionListener(altKeyReleasedAction);
+		prelf.make(snapToGrid,PRoomEditor.SNAP_TO_GRID);
+		tool.add(snapToGrid);
+
+		// if the ctrl key has been pressed
+		Action ctrlKeyPressedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.ctrlKeyPressed();
+					}
+			};
+
+		// if the ctrl key has been released
+		Action ctrlKeyReleasedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.ctrlKeyReleased();
+					}
+			};
+
+		addOnTop = new JToggleButton(LGM.getIconForKey("RoomFrame.ADD_ON_TOP"));
+		addOnTop.setToolTipText(Messages.getString("RoomFrame.ADD_ON_TOP"));
+		addOnTop.setActionCommand("addOnTop");
+		// Link the ctrl key 'pressed'
+		KeyStroke ctrlKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL,
+				InputEvent.CTRL_DOWN_MASK,false);
+		addOnTop.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyPressed,"ctrlKeyPressed");
+		addOnTop.getActionMap().put("ctrlKeyPressed",ctrlKeyPressedAction);
+		addOnTop.addActionListener(ctrlKeyPressedAction);
+		// Link the ctrl key 'released'
+		KeyStroke ctrlKeyReleased = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL,0,true);
+		addOnTop.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyReleased,"ctrlKeyReleased");
+		addOnTop.getActionMap().put("ctrlKeyReleased",ctrlKeyReleasedAction);
+		addOnTop.addActionListener(ctrlKeyReleasedAction);
+		prelf.make(addOnTop,PRoomEditor.ADD_ON_TOP);
+		tool.add(addOnTop);
+
+		// if the shift key has been pressed
+		Action shiftKeyPressedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.shiftKeyPressed();
+					}
+			};
+
+		// if the shift key has been released
+		Action shiftKeyReleasedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.shiftKeyReleased();
+					}
+			};
+
+		addMultiple = new JToggleButton(LGM.getIconForKey("RoomFrame.ADD_MULTIPLE"));
+		addMultiple.setToolTipText(Messages.getString("RoomFrame.ADD_MULTIPLE"));
+		addMultiple.setActionCommand("addMultiple");
+		// Link the shift key 'pressed'
+		KeyStroke shiftKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT,
+				InputEvent.SHIFT_DOWN_MASK,false);
+		addMultiple.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(shiftKeyPressed,"shiftKeyPressed");
+		addMultiple.getActionMap().put("shiftKeyPressed",shiftKeyPressedAction);
+		addMultiple.addActionListener(shiftKeyPressedAction);
+		// Link the shift key 'released'
+		KeyStroke shiftKeyReleased = KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT,0,true);
+		addMultiple.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(shiftKeyReleased,"shiftKeyReleased");
+		addMultiple.getActionMap().put("shiftKeyReleased",shiftKeyReleasedAction);
+		addMultiple.addActionListener(shiftKeyReleasedAction);
+		prelf.make(addMultiple,PRoomEditor.ADD_MULTIPLE);
+		tool.add(addMultiple);
 		tool.addSeparator();
 
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
@@ -962,13 +1118,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		addLayer.addActionListener(this);
 		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE"));
 		deleteLayer.addActionListener(this);
-		
+
 		tHideOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_HIDE_OTHER_LAYERS"));
 		tHideOtherLayers.addActionListener(this);
-		
+
 		tEditOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_EDIT_OTHER_LAYERS"));
 		tEditOtherLayers.addActionListener(this);
-		
+
 		JTabbedPane tab = new JTabbedPane();
 		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
 		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane());
@@ -981,9 +1137,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(addLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/*	*/.addComponent(deleteLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(tHideOtherLayers,GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,GroupLayout.PREFERRED_SIZE)
-		/*	*/.addComponent(tEditOtherLayers))
+		/**/.addGroup(
+				layout.createSequentialGroup()
+				/*	*/.addComponent(tHideOtherLayers,GroupLayout.PREFERRED_SIZE,GroupLayout.DEFAULT_SIZE,
+						GroupLayout.PREFERRED_SIZE)
+				/*	*/.addComponent(tEditOtherLayers))
 		/**/.addComponent(tab));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
@@ -1672,6 +1830,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						super.layoutContainer(parent);
 					}
 			};
+
 		setLayout(layout);
 
 		JToolBar tools = makeToolBar();
@@ -1809,11 +1968,231 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	// Window which displays the room controls
 	public static JFrame roomControlsFrame;
 
+	private void deleteAction()
+		{
+		boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
+		boolean objectsTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_OBJECTS);
+
+		String message;
+
+		// Set message
+		if (tilesTabIsSelected)
+			message = Messages.getString("RoomFrame.DELETE_TILES");
+		else
+			message = Messages.getString("RoomFrame.DELETE_OBJECTS");
+
+		// Get a confirmation from the user
+		int result = JOptionPane.showConfirmDialog(null,message,
+				Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+
+		if (result == JOptionPane.YES_OPTION)
+			{
+
+			Piece selectedPiece = editor.getSelectedPiece();
+
+			// If there is a selected piece, deselect it
+			if (selectedPiece != null) selectedPiece.setSelected(false);
+
+			Room currentRoom = editor.getRoom();
+
+			// If the user draw a region
+			if (editor.selection != null)
+				{
+				Rectangle selection = editor.selection;
+
+				if (objectsTabIsSelected)
+					deleteInstancesInSelection(selection);
+				else
+					deleteTilesInSelection(selection);
+
+				}
+			else
+				{
+
+				if (tilesTabIsSelected)
+					currentRoom.tiles.clear();
+				else
+					currentRoom.instances.clear();
+				}
+
+			resetUndoManager();
+			}
+
+		}
+
+	// Delete all instances for a given selection
+	private void deleteInstancesInSelection(Rectangle selection)
+		{
+		Room currentRoom = editor.getRoom();
+
+		Point instancePosition;
+
+		// Remove each object in the selection
+		for (int i = currentRoom.instances.size() - 1; i >= 0; i--)
+			{
+			instancePosition = currentRoom.instances.get(i).getPosition();
+
+			// If the instance is in the selected region
+			if (instancePosition.x >= selection.x && instancePosition.x < (selection.x + selection.width)
+					&& instancePosition.y >= selection.y
+					&& instancePosition.y < (selection.y + selection.height))
+				currentRoom.instances.remove(i);
+			}
+
+		}
+
+	// Delete all tiles for a given selection
+	private void deleteTilesInSelection(Rectangle selection)
+		{
+		Room currentRoom = editor.getRoom();
+
+		// Get the selected layer
+		Integer depth = (Integer) tileLayer.getSelectedItem();
+
+		Point tilePosition;
+
+		// Remove each tile with the selected layer
+		for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
+			{
+			tilePosition = currentRoom.tiles.get(i).getPosition();
+
+			// If the tile is in the selected region
+			if (tilePosition.x >= selection.x && tilePosition.x < (selection.x + selection.width)
+					&& tilePosition.y >= selection.y && tilePosition.y < (selection.y + selection.height))
+				{
+				// If the were editing only the current layer, and if the tile is not in the current layer
+				if (!tEditOtherLayers.isSelected() && currentRoom.tiles.get(i).getDepth() != depth)
+					continue;
+				currentRoom.tiles.remove(i);
+				}
+
+			}
+
+		}
+
 	@Override
 	public void actionPerformed(ActionEvent e)
 		{
-
 		Object eventSource = e.getSource();
+
+		if (eventSource == fill)
+			{
+			// if the user didn't make any selection 
+			if (editor.selection == null) return;
+
+			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
+			boolean objectsTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_OBJECTS);
+			boolean snapToGridMode = editor.properties.get(PRoomEditor.SNAP_TO_GRID);
+			boolean deleteUnderlyingObjects = editor.properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
+			boolean deleteUnderlyingTiles = editor.properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
+
+			// If no object is selected
+			if (objectsTabIsSelected && oNew.getSelected() == null) return;
+			if (tilesTabIsSelected && taSource.getSelected() == null) return;
+
+			// If there is a selected piece, deselect it
+			if (selectedPiece != null) selectedPiece.setSelected(false);
+
+			Room currentRoom = editor.getRoom();
+			Rectangle selection = editor.selection;
+
+			// Get the 'snap' properties of the current room
+			int snapX = currentRoom.properties.get(PRoom.SNAP_X);
+			int snapY = currentRoom.properties.get(PRoom.SNAP_Y);
+
+			Dimension cellDimension = null;
+			Dimension tileDimension = null;
+
+			// If the tiles tab is selected, 
+			if (tilesTabIsSelected)
+				{
+				// If the 'Delete underlying' option is checked, delete all tiles for the selected region
+				if (deleteUnderlyingTiles) deleteTilesInSelection(selection);
+
+				// Get and store the tile's dimension
+				ResourceReference<Background> bkg = taSource.getSelected();
+				Background b = bkg.get();
+
+				if (!(Boolean) b.get(PBackground.USE_AS_TILESET))
+					tileDimension = new Dimension(b.getWidth(),b.getHeight());
+				else
+					tileDimension = new Dimension((Integer) b.get(PBackground.TILE_WIDTH),
+							(Integer) b.get(PBackground.TILE_HEIGHT));
+				}
+
+			// If object's tab is selected and the 'Delete underlying' option is checked, delete all instances for the selected region
+			if (objectsTabIsSelected && deleteUnderlyingObjects) deleteInstancesInSelection(selection);
+
+			// If snapping is deactivated, use the piece's width for setting its position
+			if (snapToGridMode == false)
+				{
+				if (objectsTabIsSelected)
+					{
+					ResourceReference<GmObject> instanceObject = oNew.getSelected();
+					BufferedImage image = instanceObject.get().getDisplayImage();
+
+					// If there is no image for this instance, use the default sprite image
+					if (image == null)
+						{
+						ImageIcon emptySprite = LGM.getIconForKey("Resource.EMPTY_OBJ");
+						cellDimension = new Dimension(emptySprite.getIconWidth(),emptySprite.getIconHeight());
+						}
+					else
+						{
+						cellDimension = new Dimension(image.getWidth(),image.getHeight());
+						}
+
+					}
+				else
+					{
+					cellDimension = tileDimension;
+					}
+				}
+			else
+				{
+				// Use snapping for setting the piece's position
+				cellDimension = new Dimension(snapX,snapY);
+				}
+
+			int numberOfColumns = editor.selection.width / cellDimension.width;
+			int numberOfRows = editor.selection.height / cellDimension.height;
+
+			// Browse each cell of the selected region
+			for (int i = 0; i < numberOfColumns; i++)
+				for (int j = 0; j < numberOfRows; j++)
+					{
+					// Position of the current piece
+					Point newPosition = new Point(selection.x + (cellDimension.width * i),selection.y
+							+ (cellDimension.height * j));
+
+					// If object's tab is selected, add a new object
+					if (objectsTabIsSelected)
+						{
+						Instance newObject = res.addInstance();
+						newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
+						newObject.setPosition(newPosition);
+						}
+
+					// If the tile's tab is selected, add a new tile
+					if (tilesTabIsSelected)
+						{
+						ResourceReference<Background> bkg = taSource.getSelected();
+
+						Tile t = new Tile(currentRoom,LGM.currentFile);
+						t.properties.put(PTile.BACKGROUND,bkg);
+						t.setBackgroundPosition(new Point(tSelect.tx,tSelect.ty));
+						t.setPosition(newPosition);
+						t.setSize(tileDimension);
+						t.setDepth((Integer) tileLayer.getSelectedItem());
+
+						currentRoom.tiles.add(t);
+						}
+
+					}
+
+			resetUndoManager();
+
+			}
 
 		// If the user has pressed the 'Add' new layer button
 		if (eventSource == addLayer)
@@ -1867,15 +2246,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				// Remove the layer from the combo box
 				layers.remove(depth);
-				
-				if (layers.size() == 0)
-					layers.add(0);
-				
+
+				if (layers.size() == 0) layers.add(0);
+
 				tileLayer.setSelectedIndex(0);
 				resetUndoManager();
 				}
 			}
-		
+
 		// If the user has clicked on the 'Edit other layers' checkbox
 		if (eventSource == tEditOtherLayers)
 			{
@@ -1884,7 +2262,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			else
 				editor.editOtherLayers(false);
 			}
-		
+
 		// If the user has clicked on the 'Hide other layers' checkbox
 		if (eventSource == tHideOtherLayers)
 			{
@@ -1893,7 +2271,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			else
 				editor.roomVisual.setVisibleLayer(null);
 			}
-		
+
 		// If the user has pressed the 'room controls' button
 		if (eventSource == roomControls)
 			{
@@ -1939,43 +2317,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				roomControlsFrame.setVisible(true);
 				}
 
-			}
-
-		// If the user has pressed the delete instances button
-		if (eventSource == deleteInstances)
-			{
-			// If the tiles tab is selected, clear the tiles
-			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
-
-			String message;
-
-			// Set message
-			if (tilesTabIsSelected)
-				message = Messages.getString("RoomFrame.DELETE_TILES");
-			else
-				message = Messages.getString("RoomFrame.DELETE_OBJECTS");
-
-			// Get a confirmation from the user
-			int result = JOptionPane.showConfirmDialog(null,message,
-					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
-
-			if (result == JOptionPane.YES_OPTION)
-				{
-
-				Piece selectedPiece = editor.getSelectedPiece();
-
-				// If there is a selected piece, deselect it
-				if (selectedPiece != null) selectedPiece.setSelected(false);
-
-				Room currentRoom = editor.getRoom();
-
-				if (tilesTabIsSelected)
-					currentRoom.tiles.clear();
-				else
-					currentRoom.instances.clear();
-
-				resetUndoManager();
-				}
 			}
 
 		// If the user has pressed the shift instances button
