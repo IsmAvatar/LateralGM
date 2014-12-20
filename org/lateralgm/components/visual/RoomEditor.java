@@ -779,6 +779,9 @@ public class RoomEditor extends VisualPanel
 					int i = Math.max(ZOOM_MIN,Math.min(ZOOM_MAX,(Integer) v));
 					setZoom(i);
 					return i;
+				case ADD_MULTIPLE:
+				case ADD_ON_TOP:
+				case SNAP_TO_GRID:
 				case SHOW_BACKGROUNDS:
 				case SHOW_FOREGROUNDS:
 				case SHOW_GRID:
