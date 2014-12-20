@@ -90,12 +90,14 @@ public class RoomEditor extends VisualPanel
 	private boolean altKeyHasBeenPressed = false;
 	// Save if the ctrl key has been pressed
 	private boolean ctrlKeyHasBeenPressed = false;
+	// Save if the shift key has been pressed
+	private boolean shiftKeyHasBeenPressed = false;
 
 	public enum PRoomEditor
 		{
 		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
 		SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM,
-		MULTI_SELECTION,SNAP_TO_GRID,ADD_ON_TOP;
+		MULTI_SELECTION,SNAP_TO_GRID,ADD_ON_TOP,ADD_MULTIPLE;
 		final RoomVisual.Show rvBinding;
 
 		private PRoomEditor()
@@ -114,7 +116,7 @@ public class RoomEditor extends VisualPanel
 		}
 
 	private static final EnumMap<PRoomEditor,Object> DEFS = PropertyMap.makeDefaultMap(
-			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,false,true,false);
+			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,false,true,false,false);
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
@@ -298,11 +300,11 @@ public class RoomEditor extends VisualPanel
 			this.requestFocusInWindow();
 			}
 
-		boolean shiftKeyPressed = ((modifiers & MouseEvent.SHIFT_DOWN_MASK) != 0);
+		boolean addMultipleMode = properties.get(PRoomEditor.ADD_MULTIPLE);
 		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
 
-		// If the ctrl and shift keys are not pressed
-		if (shiftKeyPressed == false && addOnTopMode == false)
+		// If the 'add multiple' mode and 'add on top' modes are disabled
+		if (addMultipleMode == false && addOnTopMode == false)
 			{
 			// If left button has been clicked and if there is an object under the cursor, move the object
 			if (pressed && pieceUnderCursor != null && !pieceUnderCursor.isLocked())
@@ -317,14 +319,14 @@ public class RoomEditor extends VisualPanel
 			if (pressed && pieceUnderCursor == null)
 				{
 				addNewPieceInstance(position);
-				shiftKeyPressed = true; //prevents unnecessary coordinate update below
+				addMultipleMode = true; //prevents unnecessary coordinate update below
 				}
 
 			}
 		else
 			{
 			// If the shift key is pressed, add objects under the cursor
-			if (shiftKeyPressed && cursor != null)
+			if (addMultipleMode && cursor != null)
 				if (!roomVisual.intersects(new Rectangle(position.x,position.y,1,1),cursor))
 					{
 					releaseCursor(position);
@@ -335,12 +337,12 @@ public class RoomEditor extends VisualPanel
 			if (pressed && cursor == null)
 				{
 				addNewPieceInstance(position);
-				shiftKeyPressed = true; //prevents unnecessary coordinate update below
+				addMultipleMode = true; //prevents unnecessary coordinate update below
 				}
 
 			}
 
-		if (cursor != null && !shiftKeyPressed) cursor.setPosition(position);
+		if (cursor != null && !addMultipleMode) cursor.setPosition(position);
 		}
 
 	private void addNewPieceInstance(Point position)
@@ -391,7 +393,7 @@ public class RoomEditor extends VisualPanel
 		if (selectedPiece != null) selectedPiece.setSelected(false);
 
 		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
-		
+
 		if (addOnTopMode == false)
 			{
 			if (!pressed) return;
@@ -490,7 +492,7 @@ public class RoomEditor extends VisualPanel
 		{
 		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
 
-		// Save that the alt key has been pressed
+		// Save that the ctrl key has been pressed
 		if (addOnTopMode == false)
 			{
 			ctrlKeyHasBeenPressed = true;
@@ -498,7 +500,7 @@ public class RoomEditor extends VisualPanel
 			}
 		}
 
-	// If the ctrl key was released, activate the snap to grid mode, if needed
+	// If the ctrl key was released, disable add on top mode, if needed
 	public void ctrlKeyReleased()
 		{
 		if (ctrlKeyHasBeenPressed)
@@ -507,7 +509,30 @@ public class RoomEditor extends VisualPanel
 			properties.put(PRoomEditor.ADD_ON_TOP,false);
 			}
 		}
-	
+
+	// If the shift key was pressed, enable add multiple mode, if needed
+	public void shiftKeyPressed()
+		{
+		boolean addMultipleMode = properties.get(PRoomEditor.ADD_MULTIPLE);
+
+		// Save that the shift key has been pressed
+		if (addMultipleMode == false)
+			{
+			shiftKeyHasBeenPressed = true;
+			properties.put(PRoomEditor.ADD_MULTIPLE,true);
+			}
+		}
+
+	// If the shift key was released, disable add multiple mode, if needed
+	public void shiftKeyReleased()
+		{
+		if (shiftKeyHasBeenPressed)
+			{
+			shiftKeyHasBeenPressed = false;
+			properties.put(PRoomEditor.ADD_MULTIPLE,false);
+			}
+		}
+
 	protected void mouseEdit(MouseEvent e)
 		{
 		int modifiers = e.getModifiersEx();

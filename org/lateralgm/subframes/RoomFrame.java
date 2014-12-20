@@ -154,7 +154,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	//ToolBar
 	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances, roomControls, fill;
-	private JToggleButton gridVis, gridIso, select, snapToGrid, addOnTop;
+	private JToggleButton gridVis, gridIso, select, snapToGrid, addOnTop, addMultiple;
 
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
@@ -337,6 +337,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		select.setToolTipText(Messages.getString("RoomFrame.SELECT"));
 		prelf.make(select,PRoomEditor.MULTI_SELECTION);
 		tool.add(select);
+
 		fill = new JButton(LGM.getIconForKey("RoomFrame.FILL"));
 		fill.setToolTipText(Messages.getString("RoomFrame.FILL"));
 		fill.addActionListener(this);
@@ -410,21 +411,67 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					editor.ctrlKeyReleased();
 					}
 			};
-			
+
 		addOnTop = new JToggleButton(LGM.getIconForKey("RoomFrame.ADD_ON_TOP"));
 		addOnTop.setToolTipText(Messages.getString("RoomFrame.ADD_ON_TOP"));
+		addOnTop.setActionCommand("addOnTop");
 		// Link the ctrl key 'pressed'
-		KeyStroke ctrlKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL,InputEvent.CTRL_DOWN_MASK,false);
-		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyPressed,"ctrlKeyPressed");
-		snapToGrid.getActionMap().put("ctrlKeyPressed",ctrlKeyPressedAction);
-		snapToGrid.addActionListener(ctrlKeyPressedAction);
+		KeyStroke ctrlKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL,
+				InputEvent.CTRL_DOWN_MASK,false);
+		addOnTop.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyPressed,"ctrlKeyPressed");
+		addOnTop.getActionMap().put("ctrlKeyPressed",ctrlKeyPressedAction);
+		addOnTop.addActionListener(ctrlKeyPressedAction);
 		// Link the ctrl key 'released'
 		KeyStroke ctrlKeyReleased = KeyStroke.getKeyStroke(KeyEvent.VK_CONTROL,0,true);
-		snapToGrid.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyReleased,"ctrlKeyReleased");
-		snapToGrid.getActionMap().put("ctrlKeyReleased",ctrlKeyReleasedAction);
-		snapToGrid.addActionListener(ctrlKeyReleasedAction);
+		addOnTop.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlKeyReleased,"ctrlKeyReleased");
+		addOnTop.getActionMap().put("ctrlKeyReleased",ctrlKeyReleasedAction);
+		addOnTop.addActionListener(ctrlKeyReleasedAction);
 		prelf.make(addOnTop,PRoomEditor.ADD_ON_TOP);
 		tool.add(addOnTop);
+
+		// if the shift key has been pressed
+		Action shiftKeyPressedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.shiftKeyPressed();
+					}
+			};
+
+		// if the shift key has been released
+		Action shiftKeyReleasedAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					// If bouton was clicked with the mouse
+					if (actionEvent.getActionCommand() != null) return;
+					editor.shiftKeyReleased();
+					}
+			};
+
+		addMultiple = new JToggleButton(LGM.getIconForKey("RoomFrame.ADD_MULTIPLE"));
+		addMultiple.setToolTipText(Messages.getString("RoomFrame.ADD_MULTIPLE"));
+		addMultiple.setActionCommand("addMultiple");
+		// Link the shift key 'pressed'
+		KeyStroke shiftKeyPressed = KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT,
+				InputEvent.SHIFT_DOWN_MASK,false);
+		addMultiple.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(shiftKeyPressed,"shiftKeyPressed");
+		addMultiple.getActionMap().put("shiftKeyPressed",shiftKeyPressedAction);
+		addMultiple.addActionListener(shiftKeyPressedAction);
+		// Link the shift key 'released'
+		KeyStroke shiftKeyReleased = KeyStroke.getKeyStroke(KeyEvent.VK_SHIFT,0,true);
+		addMultiple.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(shiftKeyReleased,"shiftKeyReleased");
+		addMultiple.getActionMap().put("shiftKeyReleased",shiftKeyReleasedAction);
+		addMultiple.addActionListener(shiftKeyReleasedAction);
+		prelf.make(addMultiple,PRoomEditor.ADD_MULTIPLE);
+		tool.add(addMultiple);
+		tool.addSeparator();
 
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
@@ -1787,7 +1834,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						super.layoutContainer(parent);
 					}
 			};
-			
+
 		setLayout(layout);
 
 		JToolBar tools = makeToolBar();
@@ -2146,6 +2193,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						}
 
 					}
+
+			resetUndoManager();
 
 			}
 
