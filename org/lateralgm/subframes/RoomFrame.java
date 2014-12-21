@@ -330,19 +330,64 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(shiftInstances);
 		tool.addSeparator();
 
+		// Action fired when the cut is clicked
+		Action cutAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					System.out.println("Cut");;
+					}
+			};
+			
 		cut = new JButton(LGM.getIconForKey("RoomFrame.CUT"));
 		cut.setToolTipText(Messages.getString("RoomFrame.CUT"));
-		cut.addActionListener(this);
+		// Bind the ctrl X keystroke with the cut button
+		KeyStroke ctrlXKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.CUT"));
+		cut.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlXKey,"cut");
+		cut.getActionMap().put("cut",cutAction);
+		cut.addActionListener(cutAction);
 		tool.add(cut);
 
+		// Action fired when the copy button is clicked
+		Action copyAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					System.out.println("Copy");
+					}
+			};
+			
 		copy = new JButton(LGM.getIconForKey("RoomFrame.COPY"));
 		copy.setToolTipText(Messages.getString("RoomFrame.COPY"));
-		copy.addActionListener(this);
+		// Bind the ctrl C keystroke with the copy button
+		KeyStroke ctrlCKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.COPY"));
+		copy.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlCKey,"copy");
+		copy.getActionMap().put("copy",copyAction);
+		copy.addActionListener(copyAction);
 		tool.add(copy);
 
+		// Action fired when the paste button is clicked
+		Action pasteAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					System.out.println("Paste");
+					}
+			};
+			
 		paste = new JButton(LGM.getIconForKey("RoomFrame.PASTE"));
 		paste.setToolTipText(Messages.getString("RoomFrame.PASTE"));
-		paste.addActionListener(this);
+		// Bind the ctrl V keystroke with the paste button
+		KeyStroke ctrlVKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.PASTE"));
+		paste.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlVKey,"paste");
+		paste.getActionMap().put("paste",pasteAction);
+		paste.addActionListener(pasteAction);
 		tool.add(paste);
 		tool.addSeparator();
 		
