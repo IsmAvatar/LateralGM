@@ -787,6 +787,7 @@ public class RoomEditor extends VisualPanel
 				case SHOW_GRID:
 				case SHOW_OBJECTS:
 				case SHOW_TILES:
+					break;
 				case SHOW_VIEWS:
 					updateViewsObjectFollowingProperty();
 					roomVisual.setVisible(k.rvBinding,(Boolean) v);
