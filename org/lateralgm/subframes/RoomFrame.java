@@ -149,7 +149,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public JLabel statX, statY, statId, statSrc;
 
 	//ToolBar
-	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances, roomControls, fill;
+	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances, roomControls, fill,
+			cut, copy, paste;
 	private JToggleButton gridVis, gridIso, select, snapToGrid, addOnTop, addMultiple;
 
 	//Objects
@@ -329,11 +330,27 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(shiftInstances);
 		tool.addSeparator();
 
+		cut = new JButton(LGM.getIconForKey("RoomFrame.CUT"));
+		cut.setToolTipText(Messages.getString("RoomFrame.CUT"));
+		cut.addActionListener(this);
+		tool.add(cut);
+
+		copy = new JButton(LGM.getIconForKey("RoomFrame.COPY"));
+		copy.setToolTipText(Messages.getString("RoomFrame.COPY"));
+		copy.addActionListener(this);
+		tool.add(copy);
+
+		paste = new JButton(LGM.getIconForKey("RoomFrame.PASTE"));
+		paste.setToolTipText(Messages.getString("RoomFrame.PASTE"));
+		paste.addActionListener(this);
+		tool.add(paste);
+		tool.addSeparator();
+		
 		select = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT"));
 		select.setToolTipText(Messages.getString("RoomFrame.SELECT"));
 		prelf.make(select,PRoomEditor.MULTI_SELECTION);
 		tool.add(select);
-
+		
 		fill = new JButton(LGM.getIconForKey("RoomFrame.FILL"));
 		fill.setToolTipText(Messages.getString("RoomFrame.FILL"));
 		fill.addActionListener(this);
