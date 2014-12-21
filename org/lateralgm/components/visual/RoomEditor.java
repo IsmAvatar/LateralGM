@@ -782,11 +782,13 @@ public class RoomEditor extends VisualPanel
 				case ADD_MULTIPLE:
 				case ADD_ON_TOP:
 				case SNAP_TO_GRID:
+					break;
 				case SHOW_BACKGROUNDS:
 				case SHOW_FOREGROUNDS:
-				case SHOW_GRID:
 				case SHOW_OBJECTS:
 				case SHOW_TILES:
+				case SHOW_GRID:
+					roomVisual.setVisible(k.rvBinding,(Boolean) v);
 					break;
 				case SHOW_VIEWS:
 					updateViewsObjectFollowingProperty();
