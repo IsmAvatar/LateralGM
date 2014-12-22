@@ -337,10 +337,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
-					System.out.println("Cut");;
+					System.out.println("Cut");
 					}
 			};
-			
+
 		cut = new JButton(LGM.getIconForKey("RoomFrame.CUT"));
 		cut.setToolTipText(Messages.getString("RoomFrame.CUT"));
 		// Bind the ctrl X keystroke with the cut button
@@ -360,7 +360,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					System.out.println("Copy");
 					}
 			};
-			
+
 		copy = new JButton(LGM.getIconForKey("RoomFrame.COPY"));
 		copy.setToolTipText(Messages.getString("RoomFrame.COPY"));
 		// Bind the ctrl C keystroke with the copy button
@@ -377,10 +377,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
-					System.out.println("Paste");
+					editor.setCopiedRegion();
 					}
 			};
-			
+
 		paste = new JButton(LGM.getIconForKey("RoomFrame.PASTE"));
 		paste.setToolTipText(Messages.getString("RoomFrame.PASTE"));
 		// Bind the ctrl V keystroke with the paste button
@@ -390,12 +390,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		paste.addActionListener(pasteAction);
 		tool.add(paste);
 		tool.addSeparator();
-		
+
 		select = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT"));
 		select.setToolTipText(Messages.getString("RoomFrame.SELECT"));
 		prelf.make(select,PRoomEditor.MULTI_SELECTION);
 		tool.add(select);
-		
+
 		fill = new JButton(LGM.getIconForKey("RoomFrame.FILL"));
 		fill.setToolTipText(Messages.getString("RoomFrame.FILL"));
 		fill.addActionListener(this);
@@ -3288,4 +3288,5 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			editor.roomVisual.setViewsVisible(false);
 			}
 		}
+
 	}

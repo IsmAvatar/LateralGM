@@ -9,6 +9,7 @@
 
 package org.lateralgm.ui.swing.visuals;
 
+import java.awt.AWTException;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -20,6 +21,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Robot;
 import java.awt.Shape;
 import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
@@ -87,6 +89,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 	// Contains the region selected by the user
 	private Rectangle selection = null;
+	private Point mousePosition = null;
+	private BufferedImage copiedRegion = null;
+	private Dimension copiedRegionDimension = null;
+
 	private EnumSet<Show> show;
 	private int gridFactor = 1;
 	private int gridX, gridY;
@@ -127,6 +133,33 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		for (View view : room.views)
 			view.properties.updateSource.addListener(viewPropertyListener);
 
+		}
+
+	// Make an image of the copied region made by the user
+	public void setCopiedRegion()
+		{
+		int width = (Integer) room.get(PRoom.WIDTH);
+		int height = (Integer) room.get(PRoom.HEIGHT);
+
+		BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+		Graphics g = img.getGraphics();
+		Graphics2D g2 = (Graphics2D) g;
+		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
+		g2.setComposite(ac);
+
+		binVisual.paint(g2);
+
+		copiedRegion = img.getSubimage(selection.x,selection.y,selection.width,selection.height);
+		copiedRegionDimension = new Dimension(copiedRegion.getWidth(),copiedRegion.getHeight());
+		repaint(null);
+		}
+
+	public void setMousePosition(Point mousePosition)
+		{
+
+		this.mousePosition = new Point(mousePosition.x - (copiedRegionDimension.width) / 2,
+				mousePosition.y - (copiedRegionDimension.height / 2));
+		repaint(null);
 		}
 
 	// set the region selected by the user
@@ -177,6 +210,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		if (show.contains(Show.INSTANCES) || show.contains(Show.TILES)) binVisual.paint(g);
 		if (show.contains(Show.FOREGROUNDS)) for (BackgroundDef bd : room.backgroundDefs)
 			if (shouldPaint(bd,true)) paintBackground(g2,bd,width,height);
+
 		if (show.contains(Show.GRID))
 			{
 			g2.translate(gridX
@@ -195,6 +229,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
 			}
 
+		if (copiedRegion != null && mousePosition != null)
+			g2.drawImage(copiedRegion,mousePosition.x,mousePosition.y,null);
+
 		// If there is a selection, display it
 		if (selection != null) paintSelection(g2);
 
@@ -212,9 +249,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		// If the option 'Fill rectangle' is set
 		if (Prefs.useFilledRectangleForMultipleSelection)
-			g.fillRect(selection.x + 1,selection.y + 1,selection.width-1,selection.height-1);
+			g.fillRect(selection.x + 1,selection.y + 1,selection.width - 1,selection.height - 1);
 		else
-			g.drawRect(selection.x + 1,selection.y + 1,selection.width-2,selection.height-2);
+			g.drawRect(selection.x + 1,selection.y + 1,selection.width - 2,selection.height - 2);
 
 		// If the option 'Invert colors' is set
 		if (Prefs.useInvertedColorForMultipleSelection)

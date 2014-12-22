@@ -86,11 +86,13 @@ public class RoomEditor extends VisualPanel
 	private Point selectionOrigin = null;
 	// Rectangle which stores the user's selection
 	public Rectangle selection = null;
-	// Save if the alt key has been pressed
+	// Show if the user has copied a region
+	private boolean copiedRegion = false;
+	// Show if the alt key has been pressed
 	private boolean altKeyHasBeenPressed = false;
 	// Save if the ctrl key has been pressed
 	private boolean ctrlKeyHasBeenPressed = false;
-	// Save if the shift key has been pressed
+	// Show if the shift key has been pressed
 	private boolean shiftKeyHasBeenPressed = false;
 
 	public enum PRoomEditor
@@ -181,6 +183,15 @@ public class RoomEditor extends VisualPanel
 	public void setSelectedPiece(Piece selectedPiece)
 		{
 		this.selectedPiece = selectedPiece;
+		}
+
+	// Set the copy the region selected by the user
+	public void setCopiedRegion()
+		{
+		roomVisual.setCopiedRegion();
+		copiedRegion = true;
+		// Disable the selection tool
+		properties.put(PRoomEditor.MULTI_SELECTION,false);
 		}
 
 	@Override
@@ -576,7 +587,6 @@ public class RoomEditor extends VisualPanel
 			// If the user has pressed the left button
 			if (leftButtonPressed)
 				{
-
 				// Ensure the selection is inside the room
 				if (x < 0) x = 0;
 				if (y < 0) y = 0;
@@ -600,7 +610,6 @@ public class RoomEditor extends VisualPanel
 					// Save the selection and display it
 					selection = new Rectangle(newSelectionOriginX,newSelectionOriginY,width,height);
 					roomVisual.setSelection(selection);
-
 					return;
 					}
 
@@ -620,6 +629,13 @@ public class RoomEditor extends VisualPanel
 		frame.statY.setText(Messages.getString("RoomFrame.STAT_Y") + y); //$NON-NLS-1$
 		frame.statId.setText(""); //$NON-NLS-1$
 		frame.statSrc.setText(""); //$NON-NLS-1$
+
+		// If the user is moving a copied region, update its position
+		if (copiedRegion)
+			{
+			roomVisual.setMousePosition(new Point(x,y));
+			return;
+			}
 
 		Piece mc = null;
 
