@@ -357,7 +357,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
-					System.out.println("Copy");
+					editor.copySelection();
 					}
 			};
 
@@ -377,7 +377,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
-					editor.setCopiedRegion();
+					editor.setSelectionImage();
 					}
 			};
 

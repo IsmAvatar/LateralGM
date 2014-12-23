@@ -25,6 +25,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
@@ -84,10 +85,13 @@ public class RoomEditor extends VisualPanel
 	private boolean editOtherLayers = false;
 	// Save the original position of the selection
 	private Point selectionOrigin = null;
+	// Save the original position of the selected instances
+	private Point selectedInstancesOrigin = null;
 	// Rectangle which stores the user's selection
 	public Rectangle selection = null;
+	private List<Instance> selectedInstances = new ArrayList<Instance>();
 	// Show if the user has copied a region
-	private boolean copiedRegion = false;
+	private boolean imageSelection = false;
 	// Show if the alt key has been pressed
 	private boolean altKeyHasBeenPressed = false;
 	// Save if the ctrl key has been pressed
@@ -185,13 +189,52 @@ public class RoomEditor extends VisualPanel
 		this.selectedPiece = selectedPiece;
 		}
 
-	// Set the copy the region selected by the user
-	public void setCopiedRegion()
+	public void copySelection()
 		{
-		roomVisual.setCopiedRegion();
-		copiedRegion = true;
+		selectedInstances.clear();
+
+		Room currentRoom = getRoom();
+
+		Point instancePosition;
+
+		for (Instance instance : currentRoom.instances)
+			{
+			instancePosition = instance.getPosition();
+
+			// If the instance is in the selected region
+			if (instancePosition.x >= selection.x && instancePosition.x < (selection.x + selection.width)
+					&& instancePosition.y >= selection.y
+					&& instancePosition.y < (selection.y + selection.height))
+				selectedInstances.add(instance);
+			}
+
+		}
+
+	// Set the image for the selection made by the user
+	public void setSelectionImage()
+		{
+		// Save the origin of the selected instances;
+		selectedInstancesOrigin = new Point(selection.x,selection.y);
+		roomVisual.setSelectionImage();
+		imageSelection = true;
 		// Disable the selection tool
 		properties.put(PRoomEditor.MULTI_SELECTION,false);
+		}
+
+	private void pasteInstances(Point mousePosition)
+		{
+		Room currentRoom = getRoom();
+
+		for (Instance instance : selectedInstances)
+			{
+			Point position = instance.getPosition();
+			Point newPosition = new Point(position.x - selectedInstancesOrigin.x + mousePosition.x,
+					position.y - selectedInstancesOrigin.y + mousePosition.y);
+
+			Instance newInstance = room.addInstance();
+			newInstance.properties.put(PInstance.OBJECT,instance.properties.get(PInstance.OBJECT));
+			newInstance.setPosition(newPosition);
+			}
 		}
 
 	@Override
@@ -631,9 +674,12 @@ public class RoomEditor extends VisualPanel
 		frame.statSrc.setText(""); //$NON-NLS-1$
 
 		// If the user is moving a copied region, update its position
-		if (copiedRegion)
+		if (imageSelection)
 			{
 			roomVisual.setMousePosition(new Point(x,y));
+
+			// If the user has selected instances, paste them
+			if (leftButtonPressed && selectedInstances.size() > 0) pasteInstances(new Point(x,y));
 			return;
 			}
 

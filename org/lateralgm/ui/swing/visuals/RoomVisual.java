@@ -90,8 +90,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 	// Contains the region selected by the user
 	private Rectangle selection = null;
 	private Point mousePosition = null;
-	private BufferedImage copiedRegion = null;
-	private Dimension copiedRegionDimension = null;
+	private BufferedImage selectionImage = null;
 
 	private EnumSet<Show> show;
 	private int gridFactor = 1;
@@ -135,8 +134,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		}
 
-	// Make an image of the copied region made by the user
-	public void setCopiedRegion()
+	// Make an image of the region made by the user
+	public void setSelectionImage()
 		{
 		int width = (Integer) room.get(PRoom.WIDTH);
 		int height = (Integer) room.get(PRoom.HEIGHT);
@@ -144,21 +143,30 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		Graphics g = img.getGraphics();
 		Graphics2D g2 = (Graphics2D) g;
+		
+		// If the option 'Invert colors' is set
+		if (Prefs.useInvertedColorForMultipleSelection)
+			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
+		else
+			g2.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
+		
+		g2.fillRect(1,1,width - 1,height - 1);
+		
 		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
 		g2.setComposite(ac);
 
 		binVisual.paint(g2);
 
-		copiedRegion = img.getSubimage(selection.x,selection.y,selection.width,selection.height);
-		copiedRegionDimension = new Dimension(copiedRegion.getWidth(),copiedRegion.getHeight());
+		selectionImage = img.getSubimage(selection.x,selection.y,selection.width,selection.height);
 		repaint(null);
 		}
 
 	public void setMousePosition(Point mousePosition)
 		{
 
-		this.mousePosition = new Point(mousePosition.x - (copiedRegionDimension.width) / 2,
-				mousePosition.y - (copiedRegionDimension.height / 2));
+		//this.mousePosition = new Point(mousePosition.x - (selectionImageDimension.width) / 2,
+		//		mousePosition.y - (selectionImageDimension.height / 2));
+				this.mousePosition = mousePosition;
 		repaint(null);
 		}
 
@@ -229,8 +237,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
 			}
 
-		if (copiedRegion != null && mousePosition != null)
-			g2.drawImage(copiedRegion,mousePosition.x,mousePosition.y,null);
+		// If the user is moving a selected region, display it
+		if (selectionImage != null && mousePosition != null)
+			g2.drawImage(selectionImage,mousePosition.x,mousePosition.y,null);
 
 		// If there is a selection, display it
 		if (selection != null) paintSelection(g2);
