@@ -337,7 +337,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
-					System.out.println("Cut");
+					editor.copySelection();
+					deleteAction(false);
 					}
 			};
 
@@ -377,7 +378,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
-					editor.setSelectionImage();
+					editor.activatePaste();
 					}
 			};
 
@@ -2032,22 +2033,31 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	private void deleteAction()
 		{
+		deleteAction(true);
+		}
+
+	private void deleteAction(boolean askConfirmation)
+		{
 		boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
 		boolean objectsTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_OBJECTS);
 
 		String message;
+		int result = 0;
 
-		// Set message
-		if (tilesTabIsSelected)
-			message = Messages.getString("RoomFrame.DELETE_TILES");
-		else
-			message = Messages.getString("RoomFrame.DELETE_OBJECTS");
+		if (askConfirmation)
+			{
+			// Set message
+			if (tilesTabIsSelected)
+				message = Messages.getString("RoomFrame.DELETE_TILES");
+			else
+				message = Messages.getString("RoomFrame.DELETE_OBJECTS");
 
-		// Get a confirmation from the user
-		int result = JOptionPane.showConfirmDialog(null,message,
-				Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+			// Get a confirmation from the user
+			result = JOptionPane.showConfirmDialog(null,message,
+					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+			}
 
-		if (result == JOptionPane.YES_OPTION)
+		if (result == JOptionPane.YES_OPTION || askConfirmation == false)
 			{
 
 			Piece selectedPiece = editor.getSelectedPiece();
@@ -2062,10 +2072,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				{
 				Rectangle selection = editor.selection;
 
-				if (objectsTabIsSelected)
-					deleteInstancesInSelection(selection);
-				else
+				if (tilesTabIsSelected)
 					deleteTilesInSelection(selection);
+
+				else
+					deleteInstancesInSelection(selection);
 
 				}
 			else

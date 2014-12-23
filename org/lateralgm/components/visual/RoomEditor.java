@@ -90,8 +90,8 @@ public class RoomEditor extends VisualPanel
 	// Rectangle which stores the user's selection
 	public Rectangle selection = null;
 	private List<Instance> selectedInstances = new ArrayList<Instance>();
-	// Show if the user has copied a region
-	private boolean imageSelection = false;
+	// Show if the user has pasted a region
+	private boolean regionPasted = false;
 	// Show if the alt key has been pressed
 	private boolean altKeyHasBeenPressed = false;
 	// Save if the ctrl key has been pressed
@@ -197,6 +197,7 @@ public class RoomEditor extends VisualPanel
 
 		Point instancePosition;
 
+		// Save all instances in the selected region
 		for (Instance instance : currentRoom.instances)
 			{
 			instancePosition = instance.getPosition();
@@ -208,22 +209,23 @@ public class RoomEditor extends VisualPanel
 				selectedInstances.add(instance);
 			}
 
-		}
-
-	// Set the image for the selection made by the user
-	public void setSelectionImage()
-		{
 		// Save the origin of the selected instances;
 		selectedInstancesOrigin = new Point(selection.x,selection.y);
+		// Set the image for the selection made by the user
 		roomVisual.setSelectionImage();
-		imageSelection = true;
+		}
+
+	// Activate the paste mode
+	public void activatePaste()
+		{
+		regionPasted = true;
+		roomVisual.activatePaste();
 		// Disable the selection tool
 		properties.put(PRoomEditor.MULTI_SELECTION,false);
 		}
 
 	private void pasteInstances(Point mousePosition)
 		{
-		Room currentRoom = getRoom();
 
 		for (Instance instance : selectedInstances)
 			{
@@ -673,11 +675,11 @@ public class RoomEditor extends VisualPanel
 		frame.statId.setText(""); //$NON-NLS-1$
 		frame.statSrc.setText(""); //$NON-NLS-1$
 
+		roomVisual.setMousePosition(new Point(x,y));
+		
 		// If the user is moving a copied region, update its position
-		if (imageSelection)
+		if (regionPasted)
 			{
-			roomVisual.setMousePosition(new Point(x,y));
-
 			// If the user has selected instances, paste them
 			if (leftButtonPressed && selectedInstances.size() > 0) pasteInstances(new Point(x,y));
 			return;

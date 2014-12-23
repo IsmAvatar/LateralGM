@@ -91,7 +91,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 	private Rectangle selection = null;
 	private Point mousePosition = null;
 	private BufferedImage selectionImage = null;
-
+	// Show if the user has pasted a region
+	private boolean regionPasted = false;
+	
 	private EnumSet<Show> show;
 	private int gridFactor = 1;
 	private int gridX, gridY;
@@ -134,6 +136,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		}
 
+	// Activate the paste mode
+	public void activatePaste()
+		{
+		regionPasted = true;
+		repaint(null);
+		}
+	
 	// Make an image of the region made by the user
 	public void setSelectionImage()
 		{
@@ -143,30 +152,27 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		Graphics g = img.getGraphics();
 		Graphics2D g2 = (Graphics2D) g;
-		
+
 		// If the option 'Invert colors' is set
 		if (Prefs.useInvertedColorForMultipleSelection)
 			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
 		else
 			g2.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
-		
+
 		g2.fillRect(1,1,width - 1,height - 1);
-		
+
 		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
 		g2.setComposite(ac);
 
 		binVisual.paint(g2);
 
 		selectionImage = img.getSubimage(selection.x,selection.y,selection.width,selection.height);
-		repaint(null);
 		}
 
+	// Update the mouse position. Needed for displaying the selected region
 	public void setMousePosition(Point mousePosition)
 		{
-
-		//this.mousePosition = new Point(mousePosition.x - (selectionImageDimension.width) / 2,
-		//		mousePosition.y - (selectionImageDimension.height / 2));
-				this.mousePosition = mousePosition;
+		this.mousePosition = mousePosition;
 		repaint(null);
 		}
 
@@ -238,7 +244,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 
 		// If the user is moving a selected region, display it
-		if (selectionImage != null && mousePosition != null)
+		if (regionPasted)
 			g2.drawImage(selectionImage,mousePosition.x,mousePosition.y,null);
 
 		// If there is a selection, display it
