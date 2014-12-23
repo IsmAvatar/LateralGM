@@ -14,12 +14,16 @@ import static org.lateralgm.main.Util.deRef;
 import static org.lateralgm.main.Util.gcd;
 import static org.lateralgm.main.Util.negDiv;
 
+import java.awt.AlphaComposite;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -35,6 +39,8 @@ import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
@@ -189,6 +195,7 @@ public class RoomEditor extends VisualPanel
 		this.selectedPiece = selectedPiece;
 		}
 
+	// Save the selected pieces and make a buffer image
 	public void copySelection()
 		{
 		selectedInstances.clear();
@@ -211,8 +218,8 @@ public class RoomEditor extends VisualPanel
 
 		// Save the origin of the selected instances;
 		selectedInstancesOrigin = new Point(selection.x,selection.y);
-		// Set the image for the selection made by the user
-		roomVisual.setSelectionImage();
+		// Make an image of the region made by the user
+		roomVisual.setSelectionImage(selectedInstances);
 		}
 
 	// Activate the paste mode
@@ -226,7 +233,6 @@ public class RoomEditor extends VisualPanel
 
 	private void pasteInstances(Point mousePosition)
 		{
-
 		for (Instance instance : selectedInstances)
 			{
 			Point position = instance.getPosition();
@@ -676,7 +682,7 @@ public class RoomEditor extends VisualPanel
 		frame.statSrc.setText(""); //$NON-NLS-1$
 
 		roomVisual.setMousePosition(new Point(x,y));
-		
+
 		// If the user is moving a copied region, update its position
 		if (regionPasted)
 			{

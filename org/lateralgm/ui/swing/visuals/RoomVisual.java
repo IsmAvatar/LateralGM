@@ -37,6 +37,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
@@ -144,13 +145,14 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		}
 	
 	// Make an image of the region made by the user
-	public void setSelectionImage()
+	public void setSelectionImage(List<Instance> selectedInstances)
 		{
 		int width = (Integer) room.get(PRoom.WIDTH);
 		int height = (Integer) room.get(PRoom.HEIGHT);
 
-		BufferedImage img = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
-		Graphics g = img.getGraphics();
+		BufferedImage selectionImage = new BufferedImage(selection.width,selection.height,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics g = selectionImage.getGraphics();
 		Graphics2D g2 = (Graphics2D) g;
 
 		// If the option 'Invert colors' is set
@@ -159,14 +161,23 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		else
 			g2.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
 
-		g2.fillRect(1,1,width - 1,height - 1);
+		g2.fillRect(0,0,width,height);
 
 		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
 		g2.setComposite(ac);
 
-		binVisual.paint(g2);
-
-		selectionImage = img.getSubimage(selection.x,selection.y,selection.width,selection.height);
+		// Get each selected instance and draw it on the image
+		for (Instance instance : selectedInstances)
+			{
+			Point newPosition = instance.getPosition();
+			// Get the image dimension
+			ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+			BufferedImage instanceImage = instanceObject.get().getDisplayImage();
+			g2.drawImage(instanceImage,newPosition.x - selection.x,newPosition.y - selection.y,
+					instanceImage.getWidth(),instanceImage.getHeight(),null);
+			}
+		
+		this.selectionImage = selectionImage;
 		}
 
 	// Update the mouse position. Needed for displaying the selected region
