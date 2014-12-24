@@ -93,8 +93,8 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 	private Point mousePosition = null;
 	private BufferedImage selectionImage = null;
 	// Show if the user has pasted a region
-	private boolean regionPasted = false;
-	
+	private boolean pasteMode = false;
+
 	private EnumSet<Show> show;
 	private int gridFactor = 1;
 	private int gridX, gridY;
@@ -140,16 +140,14 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 	// Activate the paste mode
 	public void activatePaste()
 		{
-		regionPasted = true;
+		pasteMode = true;
 		repaint(null);
 		}
-	
-	// Make an image of the region made by the user
-	public void setSelectionImage(List<Instance> selectedInstances)
-		{
-		int width = (Integer) room.get(PRoom.WIDTH);
-		int height = (Integer) room.get(PRoom.HEIGHT);
 
+	// Make an image of the region selected by the user
+	public void setSelectionImage(List<Instance> selectedInstances, List<Tile> selectedTiles)
+		{
+		// Create an empty image
 		BufferedImage selectionImage = new BufferedImage(selection.width,selection.height,
 				BufferedImage.TYPE_INT_ARGB);
 		Graphics g = selectionImage.getGraphics();
@@ -161,22 +159,45 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		else
 			g2.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
 
-		g2.fillRect(0,0,width,height);
+		g2.fillRect(0,0,selection.width,selection.height);
 
 		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
 		g2.setComposite(ac);
 
-		// Get each selected instance and draw it on the image
-		for (Instance instance : selectedInstances)
+		// If the user selected instances
+		if (selectedInstances != null)
 			{
-			Point newPosition = instance.getPosition();
-			// Get the image dimension
-			ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
-			BufferedImage instanceImage = instanceObject.get().getDisplayImage();
-			g2.drawImage(instanceImage,newPosition.x - selection.x,newPosition.y - selection.y,
-					instanceImage.getWidth(),instanceImage.getHeight(),null);
+			// Get each selected instance and draw it on the buffer image
+			for (Instance instance : selectedInstances)
+				{
+				Point newPosition = instance.getPosition();
+				// Get the instance's image
+				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+				BufferedImage instanceImage = instanceObject.get().getDisplayImage();
+				g2.drawImage(instanceImage,newPosition.x - selection.x,newPosition.y - selection.y,
+						instanceImage.getWidth(),instanceImage.getHeight(),null);
+				}
 			}
-		
+		else
+			{
+			// Get each selected tile and draw it on the buffer image
+			for (Tile tile : selectedTiles)
+				{
+				Point newPosition = tile.getPosition();
+				// Get tile's background
+				ResourceReference<Background> background = tile.properties.get(PTile.BACKGROUND);
+				BufferedImage backgroundImage = background.get().getDisplayImage();
+				Point tilePosition = tile.getBackgroundPosition();
+				Dimension tileSize = tile.getSize();
+				// Get tile's image
+				BufferedImage tileImage = backgroundImage.getSubimage(tilePosition.x,tilePosition.y,
+						tileSize.width,tileSize.height);
+
+				g2.drawImage(tileImage,newPosition.x - selection.x,newPosition.y - selection.y,
+						tileImage.getWidth(),tileImage.getHeight(),null);
+				}
+			}
+
 		this.selectionImage = selectionImage;
 		}
 
@@ -255,8 +276,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			}
 
 		// If the user is moving a selected region, display it
-		if (regionPasted)
-			g2.drawImage(selectionImage,mousePosition.x,mousePosition.y,null);
+		if (pasteMode) g2.drawImage(selectionImage,mousePosition.x,mousePosition.y,null);
 
 		// If there is a selection, display it
 		if (selection != null) paintSelection(g2);

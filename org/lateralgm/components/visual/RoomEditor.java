@@ -91,13 +91,15 @@ public class RoomEditor extends VisualPanel
 	private boolean editOtherLayers = false;
 	// Save the original position of the selection
 	private Point selectionOrigin = null;
-	// Save the original position of the selected instances
-	private Point selectedInstancesOrigin = null;
+	// Save the original position of the selected instances/tiles
+	private Point selectedPiecesOrigin = null;
 	// Rectangle which stores the user's selection
 	public Rectangle selection = null;
+	// The instances selected by the user
 	private List<Instance> selectedInstances = new ArrayList<Instance>();
+	private List<Tile> selectedTiles = new ArrayList<Tile>();
 	// Show if the user has pasted a region
-	private boolean regionPasted = false;
+	private boolean pasteMode = false;
 	// Show if the alt key has been pressed
 	private boolean altKeyHasBeenPressed = false;
 	// Save if the ctrl key has been pressed
@@ -195,8 +197,34 @@ public class RoomEditor extends VisualPanel
 		this.selectedPiece = selectedPiece;
 		}
 
-	// Save the selected pieces and make a buffer image
-	public void copySelection()
+	// Save the selected tiles and make a buffer image
+	public void copySelectionTiles()
+		{
+		selectedTiles.clear();
+
+		Room currentRoom = getRoom();
+
+		Point tilePosition;
+
+		// Save all tiles in the selected region
+		for (Tile tile : currentRoom.tiles)
+			{
+			tilePosition = tile.getPosition();
+
+			// If the instance is in the selected region
+			if (tilePosition.x >= selection.x && tilePosition.x < (selection.x + selection.width)
+					&& tilePosition.y >= selection.y && tilePosition.y < (selection.y + selection.height))
+				selectedTiles.add(tile);
+			}
+
+		// Save the origin of the selected tiles
+		selectedPiecesOrigin = new Point(selection.x,selection.y);
+		// Make an image of the region made by the user
+		roomVisual.setSelectionImage(null,selectedTiles);
+		}
+
+	// Save the selected instances and make a buffer image
+	public void copySelectionInstances()
 		{
 		selectedInstances.clear();
 
@@ -217,34 +245,54 @@ public class RoomEditor extends VisualPanel
 			}
 
 		// Save the origin of the selected instances;
-		selectedInstancesOrigin = new Point(selection.x,selection.y);
+		selectedPiecesOrigin = new Point(selection.x,selection.y);
 		// Make an image of the region made by the user
-		roomVisual.setSelectionImage(selectedInstances);
+		roomVisual.setSelectionImage(selectedInstances,null);
 		}
 
 	// Activate the paste mode
 	public void activatePaste()
 		{
-		regionPasted = true;
+		pasteMode = true;
 		roomVisual.activatePaste();
 		// Disable the selection tool
 		properties.put(PRoomEditor.MULTI_SELECTION,false);
 		}
 
+	// Paste the selected instances on the given mouse position
 	private void pasteInstances(Point mousePosition)
 		{
 		for (Instance instance : selectedInstances)
 			{
 			Point position = instance.getPosition();
-			Point newPosition = new Point(position.x - selectedInstancesOrigin.x + mousePosition.x,
-					position.y - selectedInstancesOrigin.y + mousePosition.y);
+			Point newPosition = new Point(position.x - selectedPiecesOrigin.x + mousePosition.x,
+					position.y - selectedPiecesOrigin.y + mousePosition.y);
 
 			Instance newInstance = room.addInstance();
 			newInstance.properties.put(PInstance.OBJECT,instance.properties.get(PInstance.OBJECT));
 			newInstance.setPosition(newPosition);
 			}
 		}
+	
+	// Paste the selected tiles on the given mouse position
+	private void pasteTiles(Point mousePosition)
+		{
+		for (Tile tile : selectedTiles)
+			{
+			Point position = tile.getPosition();
+			Point newPosition = new Point(position.x - selectedPiecesOrigin.x + mousePosition.x,
+					position.y - selectedPiecesOrigin.y + mousePosition.y);
 
+			Tile newTile = new Tile(room,LGM.currentFile);
+			newTile.properties.put(PTile.BACKGROUND,tile.properties.get(PTile.BACKGROUND));
+			newTile.setBackgroundPosition(tile.getBackgroundPosition());
+			newTile.setPosition(newPosition);
+			newTile.setSize(tile.getSize());
+			newTile.setDepth(tile.getDepth());
+			room.tiles.add(newTile);
+			}
+		}
+	
 	@Override
 	protected void processMouseEvent(MouseEvent e)
 		{
@@ -681,13 +729,15 @@ public class RoomEditor extends VisualPanel
 		frame.statId.setText(""); //$NON-NLS-1$
 		frame.statSrc.setText(""); //$NON-NLS-1$
 
+		// Update the mouse position in room visual
 		roomVisual.setMousePosition(new Point(x,y));
 
-		// If the user is moving a copied region, update its position
-		if (regionPasted)
+		// If the user is doing a paste
+		if (pasteMode && leftButtonPressed)
 			{
 			// If the user has selected instances, paste them
-			if (leftButtonPressed && selectedInstances.size() > 0) pasteInstances(new Point(x,y));
+			if (selectedInstances.size() > 0) pasteInstances(new Point(x,y));
+			if (selectedTiles.size() > 0) pasteTiles(new Point(x,y));
 			return;
 			}
 

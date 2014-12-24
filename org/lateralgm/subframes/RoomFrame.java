@@ -337,7 +337,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
-					editor.copySelection();
+					if (tabs.getSelectedIndex() == Room.TAB_TILES)
+						editor.copySelectionTiles();
+					else
+						editor.copySelectionInstances();
+					
 					deleteAction(false);
 					}
 			};
@@ -358,7 +362,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
-					editor.copySelection();
+					if (tabs.getSelectedIndex() == Room.TAB_TILES)
+						editor.copySelectionTiles();
+					else
+						editor.copySelectionInstances();
 					}
 			};
 
