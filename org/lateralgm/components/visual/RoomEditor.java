@@ -708,6 +708,8 @@ public class RoomEditor extends VisualPanel
 				// If the drag process starts, save the position
 				if (selectionOrigin == null)
 					{
+					// If there was a selected piece, deselect it
+					if (selectedPiece != null) selectedPiece.setSelected(false);
 					selectionOrigin = new Point(x,y);
 					return;
 					}
