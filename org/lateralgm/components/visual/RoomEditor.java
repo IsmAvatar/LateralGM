@@ -203,9 +203,10 @@ public class RoomEditor extends VisualPanel
 		selectedTiles.clear();
 
 		Room currentRoom = getRoom();
-
 		Point tilePosition;
-
+		// Get the selected layer
+		Integer depth = (Integer) frame.tileLayer.getSelectedItem();
+		
 		// Save all tiles in the selected region
 		for (Tile tile : currentRoom.tiles)
 			{
@@ -214,7 +215,13 @@ public class RoomEditor extends VisualPanel
 			// If the instance is in the selected region
 			if (tilePosition.x >= selection.x && tilePosition.x < (selection.x + selection.width)
 					&& tilePosition.y >= selection.y && tilePosition.y < (selection.y + selection.height))
+				{
+				// If the were editing only the current layer, and if the tile is not in the current layer
+				if (!frame.tEditOtherLayers.isSelected() && tile.getDepth() != depth)
+					continue;
+
 				selectedTiles.add(tile);
+				}
 			}
 
 		// Save the origin of the selected tiles
@@ -279,7 +286,7 @@ public class RoomEditor extends VisualPanel
 			newInstance.setPosition(newPosition);
 			}
 		}
-	
+
 	// Paste the selected tiles on the given mouse position
 	private void pasteTiles(Point mousePosition)
 		{
@@ -298,7 +305,7 @@ public class RoomEditor extends VisualPanel
 			room.tiles.add(newTile);
 			}
 		}
-	
+
 	@Override
 	protected void processMouseEvent(MouseEvent e)
 		{
