@@ -400,7 +400,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(paste);
 		tool.addSeparator();
 
-		// if the select object button has been clicked
+		// if the select object button has been clicked, deactivate the selection region button
 		Action selectObjectAction = new AbstractAction()
 			{
 				private static final long serialVersionUID = 1L;
@@ -420,7 +420,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		prelf.make(selectObject,PRoomEditor.SINGLE_SELECTION);
 		tool.add(selectObject);
 
-		// if the select region button has been clicked
+		// if the select region button has been clicked, deactivate the selection object button
 		Action selectRegionAction = new AbstractAction()
 			{
 				private static final long serialVersionUID = 1L;
