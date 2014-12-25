@@ -262,21 +262,18 @@ public class RoomEditor extends VisualPanel
 	public void activateSelectObjectMode()
 		{
 		properties.put(PRoomEditor.SINGLE_SELECTION,true);
-		deactivatePasteMode();
 		}
 	
 	// Deactivate the object selection mode
 	public void deactivateSelectObjectMode()
 		{
 		properties.put(PRoomEditor.SINGLE_SELECTION,false);
-		deactivatePasteMode();
 		}
 	
 	// Activate the rectangular selection mode
 	public void activateSelectRegionMode()
 		{
 		properties.put(PRoomEditor.MULTI_SELECTION,true);
-		deactivatePasteMode();
 		}
 
 	// Deactivate the rectangular selection mode
@@ -285,7 +282,6 @@ public class RoomEditor extends VisualPanel
 		properties.put(PRoomEditor.MULTI_SELECTION,false);
 		roomVisual.setSelection(null);
 		selection = null;
-		deactivatePasteMode();
 		}
 
 	// Deactivate the paste mode

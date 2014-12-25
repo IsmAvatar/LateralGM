@@ -407,6 +407,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
+					editor.deactivatePasteMode();
+					
 					if (selectObject.isSelected())
 						editor.deactivateSelectRegionMode();
 					else
@@ -427,6 +429,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
+					editor.deactivatePasteMode();
+					
 					if (selectRegion.isSelected())
 						editor.deactivateSelectObjectMode();
 					else
