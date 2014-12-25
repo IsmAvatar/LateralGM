@@ -258,18 +258,44 @@ public class RoomEditor extends VisualPanel
 		roomVisual.setSelectionImage(selectedInstances,null);
 		}
 
+	// Activate the object selection mode
+	public void activateSelectObjectMode()
+		{
+		properties.put(PRoomEditor.SINGLE_SELECTION,true);
+		}
+	
+	// Deactivate the object selection mode
+	public void deactivateSelectObjectMode()
+		{
+		properties.put(PRoomEditor.SINGLE_SELECTION,false);
+		}
+	
+	// Activate the rectangular selection mode
+	public void activateSelectRegionMode()
+		{
+		properties.put(PRoomEditor.MULTI_SELECTION,true);
+		}
+
+	// Deactivate the rectangular selection mode
+	public void deactivateSelectRegionMode()
+		{
+		properties.put(PRoomEditor.MULTI_SELECTION,false);
+		roomVisual.setSelection(null);
+		selection = null;
+		}
+
 	// Deactivate the paste mode
-	public void deactivatePaste()
+	public void deactivatePasteMode()
 		{
 		pasteMode = false;
-		roomVisual.deactivatePaste();
+		roomVisual.deactivatePasteMode();
 		}
 
 	// Activate the paste mode
-	public void activatePaste()
+	public void activatePasteMode()
 		{
 		pasteMode = true;
-		roomVisual.activatePaste();
+		roomVisual.activatePasteMode();
 		// Disable the selection tool
 		properties.put(PRoomEditor.MULTI_SELECTION,false);
 		}
@@ -920,7 +946,7 @@ public class RoomEditor extends VisualPanel
 					else
 						// If the selection tool is activated, deactivate paste mode
 						{
-						deactivatePaste();
+						deactivatePasteMode();
 						}
 					break;
 				case ZOOM:

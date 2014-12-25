@@ -151,7 +151,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	//ToolBar
 	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances, roomControls, fill,
 			cut, copy, paste;
-	private JToggleButton gridVis, gridIso, selectObject, selectRegion, snapToGrid, addOnTop, addMultiple;
+	private JToggleButton gridVis, gridIso, selectObject, selectRegion, snapToGrid, addOnTop,
+			addMultiple;
 
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
@@ -341,7 +342,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						editor.copySelectionTiles();
 					else
 						editor.copySelectionInstances();
-					
+
 					deleteAction(false);
 					}
 			};
@@ -385,7 +386,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 				public void actionPerformed(ActionEvent actionEvent)
 					{
-					editor.activatePaste();
+					editor.activatePasteMode();
 					}
 			};
 
@@ -407,19 +408,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				public void actionPerformed(ActionEvent actionEvent)
 					{
 					if (selectObject.isSelected())
-						selectRegion.setSelected(false);
+						editor.deactivateSelectRegionMode();
 					else
-						selectRegion.setSelected(true);
-					
+						editor.activateSelectRegionMode();
 					}
 			};
-			
+
 		selectObject = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_OBJECT"));
 		selectObject.setToolTipText(Messages.getString("RoomFrame.SELECT_OBJECT"));
 		selectObject.addActionListener(selectObjectAction);
 		prelf.make(selectObject,PRoomEditor.SINGLE_SELECTION);
 		tool.add(selectObject);
-		
+
 		// if the select region button has been clicked
 		Action selectRegionAction = new AbstractAction()
 			{
@@ -428,12 +428,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				public void actionPerformed(ActionEvent actionEvent)
 					{
 					if (selectRegion.isSelected())
-						selectObject.setSelected(false);
+						editor.deactivateSelectObjectMode();
 					else
-						selectObject.setSelected(true);
+						editor.activateSelectObjectMode();
 					}
 			};
-			
+
 		selectRegion = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_REGION"));
 		selectRegion.setToolTipText(Messages.getString("RoomFrame.SELECT_REGION"));
 		selectRegion.addActionListener(selectRegionAction);
