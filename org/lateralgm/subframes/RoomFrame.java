@@ -151,7 +151,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	//ToolBar
 	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances, roomControls, fill,
 			cut, copy, paste;
-	private JToggleButton gridVis, gridIso, select, snapToGrid, addOnTop, addMultiple;
+	private JToggleButton gridVis, gridIso, selectObject, selectRegion, snapToGrid, addOnTop, addMultiple;
 
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
@@ -399,10 +399,15 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(paste);
 		tool.addSeparator();
 
-		select = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT"));
-		select.setToolTipText(Messages.getString("RoomFrame.SELECT"));
-		prelf.make(select,PRoomEditor.MULTI_SELECTION);
-		tool.add(select);
+		selectObject = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_OBJECT"));
+		selectObject.setToolTipText(Messages.getString("RoomFrame.SELECT_OBJECT"));
+		prelf.make(selectObject,PRoomEditor.SINGLE_SELECTION);
+		tool.add(selectObject);
+		
+		selectRegion = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_REGION"));
+		selectRegion.setToolTipText(Messages.getString("RoomFrame.SELECT_REGION"));
+		prelf.make(selectRegion,PRoomEditor.MULTI_SELECTION);
+		tool.add(selectRegion);
 
 		fill = new JButton(LGM.getIconForKey("RoomFrame.FILL"));
 		fill.setToolTipText(Messages.getString("RoomFrame.FILL"));

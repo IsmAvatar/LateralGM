@@ -111,7 +111,7 @@ public class RoomEditor extends VisualPanel
 		{
 		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
 		SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM,
-		MULTI_SELECTION,SNAP_TO_GRID,ADD_ON_TOP,ADD_MULTIPLE;
+		SINGLE_SELECTION,MULTI_SELECTION,SNAP_TO_GRID,ADD_ON_TOP,ADD_MULTIPLE;
 		final RoomVisual.Show rvBinding;
 
 		private PRoomEditor()
@@ -130,7 +130,7 @@ public class RoomEditor extends VisualPanel
 		}
 
 	private static final EnumMap<PRoomEditor,Object> DEFS = PropertyMap.makeDefaultMap(
-			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,false,true,false,false);
+			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,true,false,true,false,false);
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
@@ -918,7 +918,7 @@ public class RoomEditor extends VisualPanel
 						selection = null;
 						}
 					else
-					// If the selection tool is activated, deactivate paste mode
+						// If the selection tool is activated, deactivate paste mode
 						{
 						deactivatePaste();
 						}
