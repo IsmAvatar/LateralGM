@@ -207,7 +207,22 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					g3.rotate(Math.toRadians(-rotation),newPosition.x + offsetx,newPosition.y + offsety);
 				g3.scale(scale.getX(),scale.getY());
 
-				g3.drawImage(instanceImage,newPosition.x,newPosition.y,null);
+				Image newImage;
+				Color selectedColor = instance.getAWTColor();
+
+				// If a color has been selected, apply color blending
+				if (!Color.WHITE.equals(selectedColor))
+					{
+					ImageFilter filter = new ColorFilter(selectedColor);
+					FilteredImageSource filteredSrc = new FilteredImageSource(instanceImage.getSource(),filter);
+					newImage = Toolkit.getDefaultToolkit().createImage(filteredSrc);
+					}
+				else
+					{
+					newImage = instanceImage;
+					}
+				
+				g3.drawImage(newImage,newPosition.x,newPosition.y,null);
 				g3.dispose();
 				}
 			}
