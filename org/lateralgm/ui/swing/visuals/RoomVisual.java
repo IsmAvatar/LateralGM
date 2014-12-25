@@ -137,6 +137,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		}
 
+	// Deactivate the paste mode
+	public void deactivatePaste()
+		{
+		pasteMode = false;
+		repaint(null);
+		}
+	
 	// Activate the paste mode
 	public void activatePaste()
 		{

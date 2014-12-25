@@ -201,12 +201,13 @@ public class RoomEditor extends VisualPanel
 	public void copySelectionTiles()
 		{
 		selectedTiles.clear();
+		selectedInstances.clear();
 
 		Room currentRoom = getRoom();
 		Point tilePosition;
 		// Get the selected layer
 		Integer depth = (Integer) frame.tileLayer.getSelectedItem();
-		
+
 		// Save all tiles in the selected region
 		for (Tile tile : currentRoom.tiles)
 			{
@@ -217,8 +218,7 @@ public class RoomEditor extends VisualPanel
 					&& tilePosition.y >= selection.y && tilePosition.y < (selection.y + selection.height))
 				{
 				// If the were editing only the current layer, and if the tile is not in the current layer
-				if (!frame.tEditOtherLayers.isSelected() && tile.getDepth() != depth)
-					continue;
+				if (!frame.tEditOtherLayers.isSelected() && tile.getDepth() != depth) continue;
 
 				selectedTiles.add(tile);
 				}
@@ -234,6 +234,7 @@ public class RoomEditor extends VisualPanel
 	public void copySelectionInstances()
 		{
 		selectedInstances.clear();
+		selectedTiles.clear();
 
 		Room currentRoom = getRoom();
 
@@ -255,6 +256,13 @@ public class RoomEditor extends VisualPanel
 		selectedPiecesOrigin = new Point(selection.x,selection.y);
 		// Make an image of the region made by the user
 		roomVisual.setSelectionImage(selectedInstances,null);
+		}
+
+	// Deactivate the paste mode
+	public void deactivatePaste()
+		{
+		pasteMode = false;
+		roomVisual.deactivatePaste();
 		}
 
 	// Activate the paste mode
@@ -902,12 +910,17 @@ public class RoomEditor extends VisualPanel
 				case GRID_OFFSET_Y:
 					roomVisual.setGridYOffset((Integer) v);
 					break;
-				// If the multi selection mode is set to off, reset the selection
 				case MULTI_SELECTION:
+					// If the multi selection mode is set to off, reset the selection
 					if (((Boolean) v) == false)
 						{
 						roomVisual.setSelection(null);
 						selection = null;
+						}
+					else
+					// If the selection tool is activated, deactivate paste mode
+						{
+						deactivatePaste();
 						}
 					break;
 				case ZOOM:
