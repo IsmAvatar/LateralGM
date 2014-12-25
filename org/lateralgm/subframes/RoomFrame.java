@@ -399,13 +399,44 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(paste);
 		tool.addSeparator();
 
+		// if the select object button has been clicked
+		Action selectObjectAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					if (selectObject.isSelected())
+						selectRegion.setSelected(false);
+					else
+						selectRegion.setSelected(true);
+					
+					}
+			};
+			
 		selectObject = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_OBJECT"));
 		selectObject.setToolTipText(Messages.getString("RoomFrame.SELECT_OBJECT"));
+		selectObject.addActionListener(selectObjectAction);
 		prelf.make(selectObject,PRoomEditor.SINGLE_SELECTION);
 		tool.add(selectObject);
 		
+		// if the select region button has been clicked
+		Action selectRegionAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					if (selectRegion.isSelected())
+						selectObject.setSelected(false);
+					else
+						selectObject.setSelected(true);
+					}
+			};
+			
 		selectRegion = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_REGION"));
 		selectRegion.setToolTipText(Messages.getString("RoomFrame.SELECT_REGION"));
+		selectRegion.addActionListener(selectRegionAction);
 		prelf.make(selectRegion,PRoomEditor.MULTI_SELECTION);
 		tool.add(selectRegion);
 
