@@ -173,27 +173,28 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				// Get instance's properties
 				Point2D scale = instance.getScale();
 				double rotation = instance.getRotation();
+				// Sprite's origin
+				int originx = 0, originy = 0;
+				// Used to modify the position when scaling
+				int offsetx = 0, offsety = 0;
 
-				int alpha = instance.getAlpha();
 				// Get the instance's image
 				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
 				BufferedImage instanceImage = instanceObject.get().getDisplayImage();
 
-				// Sprite's origin
-				int originx = 0;
-				int originy = 0;
-				// When rotating an instance, used to set the new position
-				int offsetx = 0;
-				int offsety = 0;
-
+				// Get sprite's origin
 				ResourceReference<Sprite> sprite = instanceObject.get().get(PGmObject.SPRITE);
 				originx = (Integer) sprite.get().get(PSprite.ORIGIN_X);
 				originy = (Integer) sprite.get().get(PSprite.ORIGIN_Y);
 
 				Point position = instance.getPosition();
+				// Get the relative position of the instance in the selection
 				Point newPosition = new Point(position.x - selection.x,position.y - selection.y);
 
-				// Apply scaling
+				if (originx != 0 || originy != 0)
+					newPosition.translate(-(int) (originx * scale.getX()),-(int) (originy * scale.getY()));
+
+				// Ensure that the position stays the same when there is a scaling
 				if (scale.getX() != 1.0 || scale.getY() != 1.0)
 					{
 					offsetx = (int) (newPosition.x * scale.getX() - newPosition.x);
@@ -679,11 +680,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		private final InstancePropertyListener ipl = new InstancePropertyListener();
 
 		// When rotating an instance, used to set the new position
-		private int offsetx = 0;
-		private int offsety = 0;
+		private int offsetx = 0, offsety = 0;
 		// Sprite's origin. Used for rotation
-		private int originx = 0;
-		private int originy = 0;
+		private int originx = 0, originy = 0;
 
 		public InstanceVisual(Instance i)
 			{
