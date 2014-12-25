@@ -153,12 +153,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		Graphics g = selectionImage.getGraphics();
 		Graphics2D g2 = (Graphics2D) g;
 
-		// If the option 'Invert colors' is set
-		if (Prefs.useInvertedColorForMultipleSelection)
-			g2.setXORMode(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
-		else
-			g2.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
+		g2.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
 		g2.fillRect(0,0,selection.width,selection.height);
 
 		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
@@ -170,12 +168,46 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			// Get each selected instance and draw it on the buffer image
 			for (Instance instance : selectedInstances)
 				{
-				Point newPosition = instance.getPosition();
+				Graphics2D g3 = (Graphics2D) g2.create();
+
+				// Get instance's properties
+				Point2D scale = instance.getScale();
+				double rotation = instance.getRotation();
+
+				int alpha = instance.getAlpha();
 				// Get the instance's image
 				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
 				BufferedImage instanceImage = instanceObject.get().getDisplayImage();
-				g2.drawImage(instanceImage,newPosition.x - selection.x,newPosition.y - selection.y,
-						instanceImage.getWidth(),instanceImage.getHeight(),null);
+
+				// Sprite's origin
+				int originx = 0;
+				int originy = 0;
+				// When rotating an instance, used to set the new position
+				int offsetx = 0;
+				int offsety = 0;
+
+				ResourceReference<Sprite> sprite = instanceObject.get().get(PGmObject.SPRITE);
+				originx = (Integer) sprite.get().get(PSprite.ORIGIN_X);
+				originy = (Integer) sprite.get().get(PSprite.ORIGIN_Y);
+
+				Point position = instance.getPosition();
+				Point newPosition = new Point(position.x - selection.x,position.y - selection.y);
+
+				// Apply scaling
+				if (scale.getX() != 1.0 || scale.getY() != 1.0)
+					{
+					offsetx = (int) (newPosition.x * scale.getX() - newPosition.x);
+					offsety = (int) (newPosition.y * scale.getY() - newPosition.y);
+					}
+
+				// Apply scaling, rotation and translation
+				if (offsetx != 0 || offsety != 0) g3.translate(-offsetx,-offsety);
+				if (rotation != 0)
+					g3.rotate(Math.toRadians(-rotation),newPosition.x + offsetx,newPosition.y + offsety);
+				g3.scale(scale.getX(),scale.getY());
+
+				g3.drawImage(instanceImage,newPosition.x,newPosition.y,null);
+				g3.dispose();
 				}
 			}
 		else
@@ -193,8 +225,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				BufferedImage tileImage = backgroundImage.getSubimage(tilePosition.x,tilePosition.y,
 						tileSize.width,tileSize.height);
 
-				g2.drawImage(tileImage,newPosition.x - selection.x,newPosition.y - selection.y,
-						tileImage.getWidth(),tileImage.getHeight(),null);
+				g2.drawImage(tileImage,newPosition.x - selection.x,newPosition.y - selection.y,null);
 				}
 			}
 

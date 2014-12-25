@@ -270,6 +270,12 @@ public class RoomEditor extends VisualPanel
 
 			Instance newInstance = room.addInstance();
 			newInstance.properties.put(PInstance.OBJECT,instance.properties.get(PInstance.OBJECT));
+			newInstance.setRotation(instance.getRotation());
+			newInstance.setScale(instance.getScale());
+			newInstance.setColor(instance.getColor());
+			newInstance.setAlpha(instance.getAlpha());
+			newInstance.setCode(instance.getCode());
+			newInstance.setCreationCode(instance.getCreationCode());
 			newInstance.setPosition(newPosition);
 			}
 		}
