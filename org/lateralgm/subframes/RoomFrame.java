@@ -3040,6 +3040,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	@Override
 	public void dispose()
 		{
+		Piece selectedPiece = editor.getSelectedPiece();
+
+		// If there is a selected piece, deselect it
+		if (selectedPiece != null) selectedPiece.setSelected(false);
+		
 		super.dispose();
 		for (CodeFrame cf : codeFrames.values())
 			cf.dispose();
