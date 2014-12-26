@@ -140,22 +140,22 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		}
 
 	public int getSelectionImageWidth()
-	{
+		{
 		return selectionImage.getWidth();
-	}
-	
+		}
+
 	public int getSelectionImageHeight()
-	{
+		{
 		return selectionImage.getHeight();
-	}
-	
+		}
+
 	// Deactivate the paste mode
 	public void deactivatePasteMode()
 		{
 		pasteMode = false;
 		repaint(null);
 		}
-	
+
 	// Activate the paste mode
 	public void activatePasteMode()
 		{
@@ -174,7 +174,6 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
 				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
 		g2.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
 
 		// If the option 'Fill rectangle' is set
@@ -187,7 +186,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		if (Prefs.useFilledRectangleForMultipleSelection)
 			g2.drawRect(0,0,selection.width,selection.height);
 		else
-			g2.drawRect(0,0,selection.width-1,selection.height-1);
+			g2.drawRect(0,0,selection.width - 1,selection.height - 1);
 
 		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
 		g2.setComposite(ac);
@@ -202,6 +201,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 				// Get instance's properties
 				Point2D scale = instance.getScale();
+				int alpha = instance.getAlpha();
 				double rotation = instance.getRotation();
 				// Sprite's origin
 				int originx = 0, originy = 0;
@@ -244,14 +244,23 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				if (!Color.WHITE.equals(selectedColor))
 					{
 					ImageFilter filter = new ColorFilter(selectedColor);
-					FilteredImageSource filteredSrc = new FilteredImageSource(instanceImage.getSource(),filter);
+					FilteredImageSource filteredSrc = new FilteredImageSource(instanceImage.getSource(),
+							filter);
 					newImage = Toolkit.getDefaultToolkit().createImage(filteredSrc);
 					}
 				else
 					{
 					newImage = instanceImage;
 					}
-				
+
+				// If instance's alpha value is lower than the default one, apply alpha
+				if (alpha > 0 && alpha < ac.getAlpha() * 255)
+					{
+					AlphaComposite newAc = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+							(float) (alpha / 255.0));
+					g3.setComposite(newAc);
+					}
+
 				g3.drawImage(newImage,newPosition.x,newPosition.y,null);
 				g3.dispose();
 				}
