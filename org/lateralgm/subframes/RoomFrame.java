@@ -2588,8 +2588,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			// notify the listeners
 			undoSupport.postEdit(edit);
 
-			CodeFrame frame = codeFrames.get(res.instances.remove(selectedIndex));
-			if (frame != null) frame.dispose();
+			CodeFrame codeFrame = codeFrames.get(res.instances.remove(selectedIndex));
+			if (codeFrame != null) codeFrame.dispose();
 			oList.setSelectedIndex(Math.min(res.instances.size() - 1,selectedIndex));
 			return;
 			}

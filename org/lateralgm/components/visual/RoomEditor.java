@@ -567,7 +567,7 @@ public class RoomEditor extends VisualPanel
 
 		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
 
-		if (addOnTopMode == false)
+		if (addOnTopMode == true)
 			{
 			if (!pressed) return;
 
@@ -630,7 +630,7 @@ public class RoomEditor extends VisualPanel
 			UndoableEdit edit = new RemovePieceInstance(frame,mc,pieceIndex);
 			// notify the listeners
 			frame.undoSupport.postEdit(edit);
-
+			
 			int i2 = jlist.getSelectedIndex();
 			alist.remove(pieceIndex);
 			jlist.setSelectedIndex(Math.min(alist.size() - 1,i2));
