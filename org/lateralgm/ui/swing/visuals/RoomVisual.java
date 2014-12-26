@@ -176,13 +176,15 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		// If the option 'Fill rectangle' is set
 		if (Prefs.useFilledRectangleForMultipleSelection)
-			g2.fillRect(1,1,selection.width - 1,selection.height - 1);
+			g2.fillRect(1,1,selection.width - 2,selection.height - 2);
 		else
 			g2.drawRect(1,1,selection.width - 3,selection.height - 3);
 
+		g.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionOutsideColor));
+		
 		// Draw the outside border
 		if (Prefs.useFilledRectangleForMultipleSelection)
-			g2.drawRect(0,0,selection.width,selection.height);
+			g2.drawRect(0,0,selection.width-1,selection.height-1);
 		else
 			g2.drawRect(0,0,selection.width - 1,selection.height - 1);
 
