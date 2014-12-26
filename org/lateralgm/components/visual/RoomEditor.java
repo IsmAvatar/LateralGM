@@ -196,7 +196,7 @@ public class RoomEditor extends VisualPanel
 	public void copySelectionTiles()
 		{
 		if (selection == null) return;
-		
+
 		selectedTiles.clear();
 		selectedInstances.clear();
 
@@ -303,7 +303,7 @@ public class RoomEditor extends VisualPanel
 		{
 		boolean deleteUnderlyingInstances = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 
-	// If the 'Delete underlying' option is checked, delete all instances for the selected region
+		// If the 'Delete underlying' option is checked, delete all instances for the selected region
 		if (deleteUnderlyingInstances)
 			frame.deleteInstancesInSelection(new Rectangle(mousePosition.x,mousePosition.y,
 					roomVisual.getSelectionImageWidth(),roomVisual.getSelectionImageHeight()));
@@ -331,12 +331,12 @@ public class RoomEditor extends VisualPanel
 	private void pasteTiles(Point mousePosition)
 		{
 		boolean deleteUnderlyingTiles = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
-		
+
 		// If the 'Delete underlying' option is checked, delete all tiles for the selected region
 		if (deleteUnderlyingTiles)
 			frame.deleteTilesInSelection(new Rectangle(mousePosition.x,mousePosition.y,
 					roomVisual.getSelectionImageWidth(),roomVisual.getSelectionImageHeight()));
-		
+
 		for (Tile tile : selectedTiles)
 			{
 			Point position = tile.getPosition();
@@ -628,7 +628,7 @@ public class RoomEditor extends VisualPanel
 			UndoableEdit edit = new RemovePieceInstance(frame,mc,pieceIndex);
 			// notify the listeners
 			frame.undoSupport.postEdit(edit);
-			
+
 			int i2 = jlist.getSelectedIndex();
 			alist.remove(pieceIndex);
 			jlist.setSelectedIndex(Math.min(alist.size() - 1,i2));
@@ -804,6 +804,10 @@ public class RoomEditor extends VisualPanel
 			return;
 			}
 
+		// If we are in paste mode and the user has clicked the right button, deactivate the paste mode
+		if (pasteMode && rightButtonPressed) deactivatePasteMode();
+		if (selectionMode && rightButtonPressed) return;
+		
 		Piece mc = null;
 
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
