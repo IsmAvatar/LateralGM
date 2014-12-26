@@ -203,23 +203,30 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				Point2D scale = instance.getScale();
 				int alpha = instance.getAlpha();
 				double rotation = instance.getRotation();
+				Point position = instance.getPosition();
 				// Sprite's origin
 				int originx = 0, originy = 0;
 				// Used to modify the position when scaling
 				int offsetx = 0, offsety = 0;
-
+				// Get the relative position of the instance in the selection
+				Point newPosition = new Point(position.x - selection.x,position.y - selection.y);
+				
 				// Get the instance's image
 				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
 				BufferedImage instanceImage = instanceObject.get().getDisplayImage();
-
+				
+				// If there is no image, draw a sphere
+				if (instanceImage == null || alpha == 0)
+					{
+					g3.drawImage(EMPTY_SPRITE.getImage(),newPosition.x,newPosition.y,null);
+					g3.dispose();
+					continue;
+					}
+				
 				// Get sprite's origin
 				ResourceReference<Sprite> sprite = instanceObject.get().get(PGmObject.SPRITE);
 				originx = (Integer) sprite.get().get(PSprite.ORIGIN_X);
 				originy = (Integer) sprite.get().get(PSprite.ORIGIN_Y);
-
-				Point position = instance.getPosition();
-				// Get the relative position of the instance in the selection
-				Point newPosition = new Point(position.x - selection.x,position.y - selection.y);
 
 				if (originx != 0 || originy != 0)
 					newPosition.translate(-(int) (originx * scale.getX()),-(int) (originy * scale.getY()));
