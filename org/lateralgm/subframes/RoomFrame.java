@@ -343,7 +343,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					else
 						editor.copySelectionInstances();
 
-					deleteAction(false);
+					if (editor.selection != null)
+							deleteAction(false);
 					}
 			};
 

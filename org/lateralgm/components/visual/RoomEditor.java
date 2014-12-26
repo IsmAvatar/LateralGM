@@ -195,6 +195,8 @@ public class RoomEditor extends VisualPanel
 	// Save the selected tiles and make a buffer image
 	public void copySelectionTiles()
 		{
+		if (selection == null) return;
+		
 		selectedTiles.clear();
 		selectedInstances.clear();
 
@@ -228,6 +230,8 @@ public class RoomEditor extends VisualPanel
 	// Save the selected instances and make a buffer image
 	public void copySelectionInstances()
 		{
+		if (selection == null) return;
+
 		selectedInstances.clear();
 		selectedTiles.clear();
 
