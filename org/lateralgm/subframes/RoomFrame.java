@@ -2086,7 +2086,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private void deleteAction(boolean askConfirmation)
 		{
 		boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
-		boolean objectsTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_OBJECTS);
 
 		String message;
 		int result = 0;

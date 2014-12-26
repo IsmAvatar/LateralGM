@@ -14,16 +14,12 @@ import static org.lateralgm.main.Util.deRef;
 import static org.lateralgm.main.Util.gcd;
 import static org.lateralgm.main.Util.negDiv;
 
-import java.awt.AlphaComposite;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -39,8 +35,6 @@ import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
 import org.lateralgm.main.LGM;
-import org.lateralgm.main.Prefs;
-import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
@@ -967,6 +961,7 @@ public class RoomEditor extends VisualPanel
 				case ADD_MULTIPLE:
 				case ADD_ON_TOP:
 				case SNAP_TO_GRID:
+				case SINGLE_SELECTION:
 					break;
 				case SHOW_BACKGROUNDS:
 				case SHOW_FOREGROUNDS:
