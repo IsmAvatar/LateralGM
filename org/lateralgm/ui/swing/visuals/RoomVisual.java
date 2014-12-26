@@ -139,6 +139,16 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		}
 
+	public int getSelectionImageWidth()
+	{
+		return selectionImage.getWidth();
+	}
+	
+	public int getSelectionImageHeight()
+	{
+		return selectionImage.getHeight();
+	}
+	
 	// Deactivate the paste mode
 	public void deactivatePasteMode()
 		{

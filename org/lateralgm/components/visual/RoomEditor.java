@@ -89,12 +89,13 @@ public class RoomEditor extends VisualPanel
 	private Point objectFirstPosition = null;
 	// Option which set if the tiles editing is available for all layers or only for the selected one
 	private boolean editOtherLayers = false;
-	// Save the original position of the selection
+	// Rectangle which stores the user's selection
+	public Rectangle selection = null;
+	// Original position when drawing a selection
 	private Point selectionOrigin = null;
 	// Save the original position of the selected instances/tiles
 	private Point selectedPiecesOrigin = null;
-	// Rectangle which stores the user's selection
-	public Rectangle selection = null;
+
 	// The instances selected by the user
 	private List<Instance> selectedInstances = new ArrayList<Instance>();
 	private List<Tile> selectedTiles = new ArrayList<Tile>();
@@ -262,13 +263,13 @@ public class RoomEditor extends VisualPanel
 		{
 		properties.put(PRoomEditor.SINGLE_SELECTION,true);
 		}
-	
+
 	// Deactivate the object selection mode
 	public void deactivateSelectObjectMode()
 		{
 		properties.put(PRoomEditor.SINGLE_SELECTION,false);
 		}
-	
+
 	// Activate the rectangular selection mode
 	public void activateSelectRegionMode()
 		{
@@ -302,6 +303,13 @@ public class RoomEditor extends VisualPanel
 	// Paste the selected instances on the given mouse position
 	private void pasteInstances(Point mousePosition)
 		{
+		boolean deleteUnderlyingInstances = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
+
+	// If the 'Delete underlying' option is checked, delete all instances for the selected region
+		if (deleteUnderlyingInstances)
+			frame.deleteInstancesInSelection(new Rectangle(mousePosition.x,mousePosition.y,
+					roomVisual.getSelectionImageWidth(),roomVisual.getSelectionImageHeight()));
+
 		for (Instance instance : selectedInstances)
 			{
 			Point position = instance.getPosition();
@@ -324,6 +332,13 @@ public class RoomEditor extends VisualPanel
 	// Paste the selected tiles on the given mouse position
 	private void pasteTiles(Point mousePosition)
 		{
+		boolean deleteUnderlyingTiles = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
+		
+		// If the 'Delete underlying' option is checked, delete all tiles for the selected region
+		if (deleteUnderlyingTiles)
+			frame.deleteTilesInSelection(new Rectangle(mousePosition.x,mousePosition.y,
+					roomVisual.getSelectionImageWidth(),roomVisual.getSelectionImageHeight()));
+		
 		for (Tile tile : selectedTiles)
 			{
 			Point position = tile.getPosition();

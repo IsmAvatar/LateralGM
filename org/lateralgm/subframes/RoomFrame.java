@@ -2141,7 +2141,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		}
 
 	// Delete all instances for a given selection
-	private void deleteInstancesInSelection(Rectangle selection)
+	public void deleteInstancesInSelection(Rectangle selection)
 		{
 		Room currentRoom = editor.getRoom();
 
@@ -2162,7 +2162,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		}
 
 	// Delete all tiles for a given selection
-	private void deleteTilesInSelection(Rectangle selection)
+	public void deleteTilesInSelection(Rectangle selection)
 		{
 		Room currentRoom = editor.getRoom();
 
