@@ -149,8 +149,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public JLabel statX, statY, statId, statSrc;
 
 	//ToolBar
-	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances, roomControls, fill;
-	private JToggleButton gridVis, gridIso, select, snapToGrid, addOnTop, addMultiple;
+	private JButton zoomIn, zoomOut, undo, redo, deleteInstances, shiftInstances, roomControls, fill,
+			cut, copy, paste;
+	private JToggleButton gridVis, gridIso, selectObject, selectRegion, snapToGrid, addOnTop,
+			addMultiple;
 
 	//Objects
 	public JCheckBox oUnderlying, oLocked;
@@ -329,10 +331,119 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(shiftInstances);
 		tool.addSeparator();
 
-		select = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT"));
-		select.setToolTipText(Messages.getString("RoomFrame.SELECT"));
-		prelf.make(select,PRoomEditor.MULTI_SELECTION);
-		tool.add(select);
+		// Action fired when the cut is clicked
+		Action cutAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					if (tabs.getSelectedIndex() == Room.TAB_TILES)
+						editor.copySelectionTiles();
+					else
+						editor.copySelectionInstances();
+
+					if (editor.selection != null)
+							deleteAction(false);
+					}
+			};
+
+		cut = new JButton(LGM.getIconForKey("RoomFrame.CUT"));
+		cut.setToolTipText(Messages.getString("RoomFrame.CUT"));
+		// Bind the ctrl X keystroke with the cut button
+		KeyStroke ctrlXKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.CUT"));
+		cut.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlXKey,"cut");
+		cut.getActionMap().put("cut",cutAction);
+		cut.addActionListener(cutAction);
+		tool.add(cut);
+
+		// Action fired when the copy button is clicked
+		Action copyAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					if (tabs.getSelectedIndex() == Room.TAB_TILES)
+						editor.copySelectionTiles();
+					else
+						editor.copySelectionInstances();
+					}
+			};
+
+		copy = new JButton(LGM.getIconForKey("RoomFrame.COPY"));
+		copy.setToolTipText(Messages.getString("RoomFrame.COPY"));
+		// Bind the ctrl C keystroke with the copy button
+		KeyStroke ctrlCKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.COPY"));
+		copy.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlCKey,"copy");
+		copy.getActionMap().put("copy",copyAction);
+		copy.addActionListener(copyAction);
+		tool.add(copy);
+
+		// Action fired when the paste button is clicked
+		Action pasteAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					editor.activatePasteMode();
+					}
+			};
+
+		paste = new JButton(LGM.getIconForKey("RoomFrame.PASTE"));
+		paste.setToolTipText(Messages.getString("RoomFrame.PASTE"));
+		// Bind the ctrl V keystroke with the paste button
+		KeyStroke ctrlVKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.PASTE"));
+		paste.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(ctrlVKey,"paste");
+		paste.getActionMap().put("paste",pasteAction);
+		paste.addActionListener(pasteAction);
+		tool.add(paste);
+		tool.addSeparator();
+
+		// if the select object button has been clicked, deactivate the selection region button
+		Action selectObjectAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					editor.deactivatePasteMode();
+					
+					if (selectObject.isSelected())
+						editor.deactivateSelectRegionMode();
+					else
+						editor.activateSelectRegionMode();
+					}
+			};
+
+		selectObject = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_OBJECT"));
+		selectObject.setToolTipText(Messages.getString("RoomFrame.SELECT_OBJECT"));
+		selectObject.addActionListener(selectObjectAction);
+		prelf.make(selectObject,PRoomEditor.SINGLE_SELECTION);
+		tool.add(selectObject);
+
+		// if the select region button has been clicked, deactivate the selection object button
+		Action selectRegionAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					editor.deactivatePasteMode();
+					
+					if (selectRegion.isSelected())
+						editor.deactivateSelectObjectMode();
+					else
+						editor.activateSelectObjectMode();
+					}
+			};
+
+		selectRegion = new JToggleButton(LGM.getIconForKey("RoomFrame.SELECT_REGION"));
+		selectRegion.setToolTipText(Messages.getString("RoomFrame.SELECT_REGION"));
+		selectRegion.addActionListener(selectRegionAction);
+		prelf.make(selectRegion,PRoomEditor.MULTI_SELECTION);
+		tool.add(selectRegion);
 
 		fill = new JButton(LGM.getIconForKey("RoomFrame.FILL"));
 		fill.setToolTipText(Messages.getString("RoomFrame.FILL"));
@@ -1970,22 +2081,30 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	private void deleteAction()
 		{
+		deleteAction(true);
+		}
+
+	private void deleteAction(boolean askConfirmation)
+		{
 		boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
-		boolean objectsTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_OBJECTS);
 
 		String message;
+		int result = 0;
 
-		// Set message
-		if (tilesTabIsSelected)
-			message = Messages.getString("RoomFrame.DELETE_TILES");
-		else
-			message = Messages.getString("RoomFrame.DELETE_OBJECTS");
+		if (askConfirmation)
+			{
+			// Set message
+			if (tilesTabIsSelected)
+				message = Messages.getString("RoomFrame.DELETE_TILES");
+			else
+				message = Messages.getString("RoomFrame.DELETE_OBJECTS");
 
-		// Get a confirmation from the user
-		int result = JOptionPane.showConfirmDialog(null,message,
-				Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+			// Get a confirmation from the user
+			result = JOptionPane.showConfirmDialog(null,message,
+					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
+			}
 
-		if (result == JOptionPane.YES_OPTION)
+		if (result == JOptionPane.YES_OPTION || askConfirmation == false)
 			{
 
 			Piece selectedPiece = editor.getSelectedPiece();
@@ -2000,10 +2119,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				{
 				Rectangle selection = editor.selection;
 
-				if (objectsTabIsSelected)
-					deleteInstancesInSelection(selection);
-				else
+				if (tilesTabIsSelected)
 					deleteTilesInSelection(selection);
+
+				else
+					deleteInstancesInSelection(selection);
 
 				}
 			else
@@ -2021,7 +2141,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		}
 
 	// Delete all instances for a given selection
-	private void deleteInstancesInSelection(Rectangle selection)
+	public void deleteInstancesInSelection(Rectangle selection)
 		{
 		Room currentRoom = editor.getRoom();
 
@@ -2042,7 +2162,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		}
 
 	// Delete all tiles for a given selection
-	private void deleteTilesInSelection(Rectangle selection)
+	public void deleteTilesInSelection(Rectangle selection)
 		{
 		Room currentRoom = editor.getRoom();
 
@@ -2468,8 +2588,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			// notify the listeners
 			undoSupport.postEdit(edit);
 
-			CodeFrame frame = codeFrames.get(res.instances.remove(selectedIndex));
-			if (frame != null) frame.dispose();
+			CodeFrame codeFrame = codeFrames.get(res.instances.remove(selectedIndex));
+			if (codeFrame != null) codeFrame.dispose();
 			oList.setSelectedIndex(Math.min(res.instances.size() - 1,selectedIndex));
 			return;
 			}
@@ -2920,6 +3040,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	@Override
 	public void dispose()
 		{
+		Piece selectedPiece = editor.getSelectedPiece();
+
+		// If there is a selected piece, deselect it
+		if (selectedPiece != null) selectedPiece.setSelected(false);
+		
 		super.dispose();
 		for (CodeFrame cf : codeFrames.values())
 			cf.dispose();
@@ -3226,4 +3351,5 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			editor.roomVisual.setViewsVisible(false);
 			}
 		}
+
 	}

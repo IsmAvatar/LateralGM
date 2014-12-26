@@ -25,6 +25,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JList;
@@ -82,22 +83,30 @@ public class RoomEditor extends VisualPanel
 	private Point objectFirstPosition = null;
 	// Option which set if the tiles editing is available for all layers or only for the selected one
 	private boolean editOtherLayers = false;
-	// Save the original position of the selection
-	private Point selectionOrigin = null;
 	// Rectangle which stores the user's selection
 	public Rectangle selection = null;
-	// Save if the alt key has been pressed
+	// Original position when drawing a selection
+	private Point selectionOrigin = null;
+	// Save the original position of the selected instances/tiles
+	private Point selectedPiecesOrigin = null;
+
+	// The instances selected by the user
+	private List<Instance> selectedInstances = new ArrayList<Instance>();
+	private List<Tile> selectedTiles = new ArrayList<Tile>();
+	// Show if the user has pasted a region
+	private boolean pasteMode = false;
+	// Show if the alt key has been pressed
 	private boolean altKeyHasBeenPressed = false;
 	// Save if the ctrl key has been pressed
 	private boolean ctrlKeyHasBeenPressed = false;
-	// Save if the shift key has been pressed
+	// Show if the shift key has been pressed
 	private boolean shiftKeyHasBeenPressed = false;
 
 	public enum PRoomEditor
 		{
 		SHOW_GRID,SHOW_OBJECTS(RoomVisual.Show.INSTANCES),SHOW_TILES,SHOW_BACKGROUNDS,SHOW_FOREGROUNDS,
 		SHOW_VIEWS,DELETE_UNDERLYING_OBJECTS,DELETE_UNDERLYING_TILES,GRID_OFFSET_X,GRID_OFFSET_Y,ZOOM,
-		MULTI_SELECTION,SNAP_TO_GRID,ADD_ON_TOP,ADD_MULTIPLE;
+		SINGLE_SELECTION,MULTI_SELECTION,SNAP_TO_GRID,ADD_ON_TOP,ADD_MULTIPLE;
 		final RoomVisual.Show rvBinding;
 
 		private PRoomEditor()
@@ -116,7 +125,7 @@ public class RoomEditor extends VisualPanel
 		}
 
 	private static final EnumMap<PRoomEditor,Object> DEFS = PropertyMap.makeDefaultMap(
-			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,false,true,false,false);
+			PRoomEditor.class,true,true,true,true,true,false,true,true,0,0,1,true,false,true,false,false);
 
 	public RoomEditor(Room r, RoomFrame frame)
 		{
@@ -181,6 +190,168 @@ public class RoomEditor extends VisualPanel
 	public void setSelectedPiece(Piece selectedPiece)
 		{
 		this.selectedPiece = selectedPiece;
+		}
+
+	// Save the selected tiles and make a buffer image
+	public void copySelectionTiles()
+		{
+		if (selection == null) return;
+		
+		selectedTiles.clear();
+		selectedInstances.clear();
+
+		Room currentRoom = getRoom();
+		Point tilePosition;
+		// Get the selected layer
+		Integer depth = (Integer) frame.tileLayer.getSelectedItem();
+
+		// Save all tiles in the selected region
+		for (Tile tile : currentRoom.tiles)
+			{
+			tilePosition = tile.getPosition();
+
+			// If the instance is in the selected region
+			if (tilePosition.x >= selection.x && tilePosition.x < (selection.x + selection.width)
+					&& tilePosition.y >= selection.y && tilePosition.y < (selection.y + selection.height))
+				{
+				// If the were editing only the current layer, and if the tile is not in the current layer
+				if (!frame.tEditOtherLayers.isSelected() && tile.getDepth() != depth) continue;
+
+				selectedTiles.add(tile);
+				}
+			}
+
+		// Save the origin of the selected tiles
+		selectedPiecesOrigin = new Point(selection.x,selection.y);
+		// Make an image of the region made by the user
+		roomVisual.setSelectionImage(null,selectedTiles);
+		}
+
+	// Save the selected instances and make a buffer image
+	public void copySelectionInstances()
+		{
+		if (selection == null) return;
+
+		selectedInstances.clear();
+		selectedTiles.clear();
+
+		Room currentRoom = getRoom();
+		Point instancePosition;
+
+		// Save all instances in the selected region
+		for (Instance instance : currentRoom.instances)
+			{
+			instancePosition = instance.getPosition();
+
+			// If the instance is in the selected region
+			if (instancePosition.x >= selection.x && instancePosition.x < (selection.x + selection.width)
+					&& instancePosition.y >= selection.y
+					&& instancePosition.y < (selection.y + selection.height))
+				selectedInstances.add(instance);
+			}
+
+		// Save the origin of the selected instances;
+		selectedPiecesOrigin = new Point(selection.x,selection.y);
+		// Make an image of the region made by the user
+		roomVisual.setSelectionImage(selectedInstances,null);
+		}
+
+	// Activate the object selection mode
+	public void activateSelectObjectMode()
+		{
+		properties.put(PRoomEditor.SINGLE_SELECTION,true);
+		}
+
+	// Deactivate the object selection mode
+	public void deactivateSelectObjectMode()
+		{
+		properties.put(PRoomEditor.SINGLE_SELECTION,false);
+		}
+
+	// Activate the rectangular selection mode
+	public void activateSelectRegionMode()
+		{
+		properties.put(PRoomEditor.MULTI_SELECTION,true);
+		}
+
+	// Deactivate the rectangular selection mode
+	public void deactivateSelectRegionMode()
+		{
+		properties.put(PRoomEditor.MULTI_SELECTION,false);
+		roomVisual.setSelection(null);
+		selection = null;
+		}
+
+	// Deactivate the paste mode
+	public void deactivatePasteMode()
+		{
+		pasteMode = false;
+		roomVisual.deactivatePasteMode();
+		}
+
+	// Activate the paste mode
+	public void activatePasteMode()
+		{
+		pasteMode = true;
+		roomVisual.activatePasteMode();
+		// Disable the selection tool
+		properties.put(PRoomEditor.MULTI_SELECTION,false);
+		}
+
+	// Paste the selected instances on the given mouse position
+	private void pasteInstances(Point mousePosition)
+		{
+		boolean deleteUnderlyingInstances = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
+
+	// If the 'Delete underlying' option is checked, delete all instances for the selected region
+		if (deleteUnderlyingInstances)
+			frame.deleteInstancesInSelection(new Rectangle(mousePosition.x,mousePosition.y,
+					roomVisual.getSelectionImageWidth(),roomVisual.getSelectionImageHeight()));
+
+		for (Instance instance : selectedInstances)
+			{
+			Point position = instance.getPosition();
+			// Get the relative position of the instance inside the selected region
+			Point newPosition = new Point(position.x - selectedPiecesOrigin.x + mousePosition.x,
+					position.y - selectedPiecesOrigin.y + mousePosition.y);
+
+			Instance newInstance = room.addInstance();
+			newInstance.properties.put(PInstance.OBJECT,instance.properties.get(PInstance.OBJECT));
+			newInstance.setRotation(instance.getRotation());
+			newInstance.setScale(instance.getScale());
+			newInstance.setColor(instance.getColor());
+			newInstance.setAlpha(instance.getAlpha());
+			newInstance.setCode(instance.getCode());
+			newInstance.setCreationCode(instance.getCreationCode());
+			newInstance.setPosition(newPosition);
+			}
+		}
+
+	// Paste the selected tiles on the given mouse position
+	private void pasteTiles(Point mousePosition)
+		{
+		boolean deleteUnderlyingTiles = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
+		
+		// If the 'Delete underlying' option is checked, delete all tiles for the selected region
+		if (deleteUnderlyingTiles)
+			frame.deleteTilesInSelection(new Rectangle(mousePosition.x,mousePosition.y,
+					roomVisual.getSelectionImageWidth(),roomVisual.getSelectionImageHeight()));
+		
+		for (Tile tile : selectedTiles)
+			{
+			Point position = tile.getPosition();
+			// Get the relative position of the tile inside the selected region
+			Point newPosition = new Point(position.x - selectedPiecesOrigin.x + mousePosition.x,
+					position.y - selectedPiecesOrigin.y + mousePosition.y);
+
+			Tile newTile = new Tile(room,LGM.currentFile);
+			newTile.properties.put(PTile.BACKGROUND,tile.properties.get(PTile.BACKGROUND));
+			newTile.setBackgroundPosition(tile.getBackgroundPosition());
+			newTile.setPosition(newPosition);
+			newTile.setSize(tile.getSize());
+			newTile.setDepth(tile.getDepth());
+			room.tiles.add(newTile);
+			}
 		}
 
 	@Override
@@ -394,7 +565,7 @@ public class RoomEditor extends VisualPanel
 
 		boolean addOnTopMode = properties.get(PRoomEditor.ADD_ON_TOP);
 
-		if (addOnTopMode == false)
+		if (addOnTopMode == true)
 			{
 			if (!pressed) return;
 
@@ -457,7 +628,7 @@ public class RoomEditor extends VisualPanel
 			UndoableEdit edit = new RemovePieceInstance(frame,mc,pieceIndex);
 			// notify the listeners
 			frame.undoSupport.postEdit(edit);
-
+			
 			int i2 = jlist.getSelectedIndex();
 			alist.remove(pieceIndex);
 			jlist.setSelectedIndex(Math.min(alist.size() - 1,i2));
@@ -576,7 +747,6 @@ public class RoomEditor extends VisualPanel
 			// If the user has pressed the left button
 			if (leftButtonPressed)
 				{
-
 				// Ensure the selection is inside the room
 				if (x < 0) x = 0;
 				if (y < 0) y = 0;
@@ -586,6 +756,8 @@ public class RoomEditor extends VisualPanel
 				// If the drag process starts, save the position
 				if (selectionOrigin == null)
 					{
+					// If there was a selected piece, deselect it
+					if (selectedPiece != null) selectedPiece.setSelected(false);
 					selectionOrigin = new Point(x,y);
 					return;
 					}
@@ -600,7 +772,6 @@ public class RoomEditor extends VisualPanel
 					// Save the selection and display it
 					selection = new Rectangle(newSelectionOriginX,newSelectionOriginY,width,height);
 					roomVisual.setSelection(selection);
-
 					return;
 					}
 
@@ -620,6 +791,18 @@ public class RoomEditor extends VisualPanel
 		frame.statY.setText(Messages.getString("RoomFrame.STAT_Y") + y); //$NON-NLS-1$
 		frame.statId.setText(""); //$NON-NLS-1$
 		frame.statSrc.setText(""); //$NON-NLS-1$
+
+		// Update the mouse position in room visual
+		roomVisual.setMousePosition(new Point(x,y));
+
+		// If the user is doing a paste
+		if (pasteMode && leftButtonPressed)
+			{
+			// If the user has selected instances, paste them
+			if (selectedInstances.size() > 0) pasteInstances(new Point(x,y));
+			if (selectedTiles.size() > 0) pasteTiles(new Point(x,y));
+			return;
+			}
 
 		Piece mc = null;
 
@@ -767,8 +950,8 @@ public class RoomEditor extends VisualPanel
 				case GRID_OFFSET_Y:
 					roomVisual.setGridYOffset((Integer) v);
 					break;
-				// If the multi selection mode is set to off, reset the selection
 				case MULTI_SELECTION:
+					// If the multi selection mode is set to off, reset the selection
 					if (((Boolean) v) == false)
 						{
 						roomVisual.setSelection(null);
@@ -782,6 +965,7 @@ public class RoomEditor extends VisualPanel
 				case ADD_MULTIPLE:
 				case ADD_ON_TOP:
 				case SNAP_TO_GRID:
+				case SINGLE_SELECTION:
 					break;
 				case SHOW_BACKGROUNDS:
 				case SHOW_FOREGROUNDS:

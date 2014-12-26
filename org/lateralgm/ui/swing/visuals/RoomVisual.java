@@ -35,6 +35,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
@@ -87,6 +88,13 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 	// Contains the region selected by the user
 	private Rectangle selection = null;
+	// The position of the mouse cursor
+	private Point mousePosition = null;
+	// Image of the region made by the user
+	private BufferedImage selectionImage = null;
+	// Show if the user has pasted a region
+	private boolean pasteMode = false;
+
 	private EnumSet<Show> show;
 	private int gridFactor = 1;
 	private int gridX, gridY;
@@ -127,6 +135,168 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		for (View view : room.views)
 			view.properties.updateSource.addListener(viewPropertyListener);
 
+		}
+
+	public int getSelectionImageWidth()
+		{
+		return selectionImage.getWidth();
+		}
+
+	public int getSelectionImageHeight()
+		{
+		return selectionImage.getHeight();
+		}
+
+	// Deactivate the paste mode
+	public void deactivatePasteMode()
+		{
+		pasteMode = false;
+		repaint(null);
+		}
+
+	// Activate the paste mode
+	public void activatePasteMode()
+		{
+		pasteMode = true;
+		repaint(null);
+		}
+
+	// Make an image of the region selected by the user
+	public void setSelectionImage(List<Instance> selectedInstances, List<Tile> selectedTiles)
+		{
+		// Create an empty image
+		BufferedImage selectionImage = new BufferedImage(selection.width,selection.height,
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics g = selectionImage.getGraphics();
+		Graphics2D g2 = (Graphics2D) g;
+
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g2.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
+
+		// If the option 'Fill rectangle' is set
+		if (Prefs.useFilledRectangleForMultipleSelection)
+			g2.fillRect(1,1,selection.width - 1,selection.height - 1);
+		else
+			g2.drawRect(1,1,selection.width - 3,selection.height - 3);
+
+		// Draw the outside border
+		if (Prefs.useFilledRectangleForMultipleSelection)
+			g2.drawRect(0,0,selection.width,selection.height);
+		else
+			g2.drawRect(0,0,selection.width - 1,selection.height - 1);
+
+		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
+		g2.setComposite(ac);
+
+		// If the user selected instances
+		if (selectedInstances != null)
+			{
+			// Get each selected instance and draw it on the buffer image
+			for (Instance instance : selectedInstances)
+				{
+				Graphics2D g3 = (Graphics2D) g2.create();
+
+				// Get instance's properties
+				Point2D scale = instance.getScale();
+				int alpha = instance.getAlpha();
+				double rotation = instance.getRotation();
+				Point position = instance.getPosition();
+				// Sprite's origin
+				int originx = 0, originy = 0;
+				// Used to modify the position when scaling
+				int offsetx = 0, offsety = 0;
+				// Get the relative position of the instance in the selection
+				Point newPosition = new Point(position.x - selection.x,position.y - selection.y);
+				
+				// Get the instance's image
+				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
+				BufferedImage instanceImage = instanceObject.get().getDisplayImage();
+				
+				// If there is no image, draw a sphere
+				if (instanceImage == null || alpha == 0)
+					{
+					g3.drawImage(EMPTY_SPRITE.getImage(),newPosition.x,newPosition.y,null);
+					g3.dispose();
+					continue;
+					}
+				
+				// Get sprite's origin
+				ResourceReference<Sprite> sprite = instanceObject.get().get(PGmObject.SPRITE);
+				originx = (Integer) sprite.get().get(PSprite.ORIGIN_X);
+				originy = (Integer) sprite.get().get(PSprite.ORIGIN_Y);
+
+				if (originx != 0 || originy != 0)
+					newPosition.translate(-(int) (originx * scale.getX()),-(int) (originy * scale.getY()));
+
+				// Ensure that the position stays the same when there is a scaling
+				if (scale.getX() != 1.0 || scale.getY() != 1.0)
+					{
+					offsetx = (int) (newPosition.x * scale.getX() - newPosition.x);
+					offsety = (int) (newPosition.y * scale.getY() - newPosition.y);
+					}
+
+				// Apply scaling, rotation and translation
+				if (offsetx != 0 || offsety != 0) g3.translate(-offsetx,-offsety);
+				if (rotation != 0)
+					g3.rotate(Math.toRadians(-rotation),newPosition.x + offsetx,newPosition.y + offsety);
+				g3.scale(scale.getX(),scale.getY());
+
+				Image newImage;
+				Color selectedColor = instance.getAWTColor();
+
+				// If a color has been selected, apply color blending
+				if (!Color.WHITE.equals(selectedColor))
+					{
+					ImageFilter filter = new ColorFilter(selectedColor);
+					FilteredImageSource filteredSrc = new FilteredImageSource(instanceImage.getSource(),
+							filter);
+					newImage = Toolkit.getDefaultToolkit().createImage(filteredSrc);
+					}
+				else
+					{
+					newImage = instanceImage;
+					}
+
+				// If instance's alpha value is lower than the default one, apply alpha
+				if (alpha > 0 && alpha < ac.getAlpha() * 255)
+					{
+					AlphaComposite newAc = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+							(float) (alpha / 255.0));
+					g3.setComposite(newAc);
+					}
+
+				g3.drawImage(newImage,newPosition.x,newPosition.y,null);
+				g3.dispose();
+				}
+			}
+		else
+			{
+			// Get each selected tile and draw it on the buffer image
+			for (Tile tile : selectedTiles)
+				{
+				Point newPosition = tile.getPosition();
+				// Get tile's background
+				ResourceReference<Background> background = tile.properties.get(PTile.BACKGROUND);
+				BufferedImage backgroundImage = background.get().getDisplayImage();
+				Point tilePosition = tile.getBackgroundPosition();
+				Dimension tileSize = tile.getSize();
+				// Get tile's image
+				BufferedImage tileImage = backgroundImage.getSubimage(tilePosition.x,tilePosition.y,
+						tileSize.width,tileSize.height);
+
+				g2.drawImage(tileImage,newPosition.x - selection.x,newPosition.y - selection.y,null);
+				}
+			}
+
+		this.selectionImage = selectionImage;
+		}
+
+	// Update the mouse position. Needed for displaying the selected region
+	public void setMousePosition(Point mousePosition)
+		{
+		this.mousePosition = mousePosition;
+		repaint(null);
 		}
 
 	// set the region selected by the user
@@ -177,6 +347,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		if (show.contains(Show.INSTANCES) || show.contains(Show.TILES)) binVisual.paint(g);
 		if (show.contains(Show.FOREGROUNDS)) for (BackgroundDef bd : room.backgroundDefs)
 			if (shouldPaint(bd,true)) paintBackground(g2,bd,width,height);
+
 		if (show.contains(Show.GRID))
 			{
 			g2.translate(gridX
@@ -195,6 +366,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				if (view.properties.get(PView.VISIBLE)) paintView(g2,view);
 			}
 
+		// If the user is moving a selected region, display it
+		if (pasteMode) g2.drawImage(selectionImage,mousePosition.x,mousePosition.y,null);
+
 		// If there is a selection, display it
 		if (selection != null) paintSelection(g2);
 
@@ -212,9 +386,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 		// If the option 'Fill rectangle' is set
 		if (Prefs.useFilledRectangleForMultipleSelection)
-			g.fillRect(selection.x + 1,selection.y + 1,selection.width-1,selection.height-1);
+			g.fillRect(selection.x + 1,selection.y + 1,selection.width - 1,selection.height - 1);
 		else
-			g.drawRect(selection.x + 1,selection.y + 1,selection.width-2,selection.height-2);
+			g.drawRect(selection.x + 1,selection.y + 1,selection.width - 2,selection.height - 2);
 
 		// If the option 'Invert colors' is set
 		if (Prefs.useInvertedColorForMultipleSelection)
@@ -565,11 +739,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 		private final InstancePropertyListener ipl = new InstancePropertyListener();
 
 		// When rotating an instance, used to set the new position
-		private int offsetx = 0;
-		private int offsety = 0;
+		private int offsetx = 0, offsety = 0;
 		// Sprite's origin. Used for rotation
-		private int originx = 0;
-		private int originy = 0;
+		private int originx = 0, originy = 0;
 
 		public InstanceVisual(Instance i)
 			{
