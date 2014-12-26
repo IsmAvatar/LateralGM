@@ -237,7 +237,6 @@ public class RoomEditor extends VisualPanel
 		selectedTiles.clear();
 
 		Room currentRoom = getRoom();
-
 		Point instancePosition;
 
 		// Save all instances in the selected region
@@ -306,6 +305,7 @@ public class RoomEditor extends VisualPanel
 		for (Instance instance : selectedInstances)
 			{
 			Point position = instance.getPosition();
+			// Get the relative position of the instance inside the selected region
 			Point newPosition = new Point(position.x - selectedPiecesOrigin.x + mousePosition.x,
 					position.y - selectedPiecesOrigin.y + mousePosition.y);
 
@@ -327,6 +327,7 @@ public class RoomEditor extends VisualPanel
 		for (Tile tile : selectedTiles)
 			{
 			Point position = tile.getPosition();
+			// Get the relative position of the tile inside the selected region
 			Point newPosition = new Point(position.x - selectedPiecesOrigin.x + mousePosition.x,
 					position.y - selectedPiecesOrigin.y + mousePosition.y);
 

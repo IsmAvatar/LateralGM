@@ -90,7 +90,9 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 
 	// Contains the region selected by the user
 	private Rectangle selection = null;
+	// The position of the mouse cursor
 	private Point mousePosition = null;
+	// Image of the region made by the user
 	private BufferedImage selectionImage = null;
 	// Show if the user has pasted a region
 	private boolean pasteMode = false;
@@ -164,7 +166,18 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
 		g2.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
-		g2.fillRect(0,0,selection.width,selection.height);
+
+		// If the option 'Fill rectangle' is set
+		if (Prefs.useFilledRectangleForMultipleSelection)
+			g2.fillRect(1,1,selection.width - 1,selection.height - 1);
+		else
+			g2.drawRect(1,1,selection.width - 3,selection.height - 3);
+
+		// Draw the outside border
+		if (Prefs.useFilledRectangleForMultipleSelection)
+			g2.drawRect(0,0,selection.width,selection.height);
+		else
+			g2.drawRect(0,0,selection.width-1,selection.height-1);
 
 		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
 		g2.setComposite(ac);
