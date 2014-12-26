@@ -181,10 +181,10 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 			g2.drawRect(1,1,selection.width - 3,selection.height - 3);
 
 		g.setColor(Util.convertGmColorWithAlpha(Prefs.multipleSelectionOutsideColor));
-		
+
 		// Draw the outside border
 		if (Prefs.useFilledRectangleForMultipleSelection)
-			g2.drawRect(0,0,selection.width-1,selection.height-1);
+			g2.drawRect(0,0,selection.width - 1,selection.height - 1);
 		else
 			g2.drawRect(0,0,selection.width - 1,selection.height - 1);
 
@@ -210,11 +210,11 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 				int offsetx = 0, offsety = 0;
 				// Get the relative position of the instance in the selection
 				Point newPosition = new Point(position.x - selection.x,position.y - selection.y);
-				
+
 				// Get the instance's image
 				ResourceReference<GmObject> instanceObject = instance.properties.get(PInstance.OBJECT);
 				BufferedImage instanceImage = instanceObject.get().getDisplayImage();
-				
+
 				// If there is no image, draw a sphere
 				if (instanceImage == null || alpha == 0)
 					{
@@ -222,7 +222,7 @@ public class RoomVisual extends AbstractVisual implements BoundedVisual,UpdateLi
 					g3.dispose();
 					continue;
 					}
-				
+
 				// Get sprite's origin
 				ResourceReference<Sprite> sprite = instanceObject.get().get(PGmObject.SPRITE);
 				originx = (Integer) sprite.get().get(PSprite.ORIGIN_X);
