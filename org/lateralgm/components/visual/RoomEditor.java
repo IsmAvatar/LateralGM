@@ -308,6 +308,9 @@ public class RoomEditor extends VisualPanel
 			frame.deleteInstancesInSelection(new Rectangle(mousePosition.x,mousePosition.y,
 					roomVisual.getSelectionImageWidth(),roomVisual.getSelectionImageHeight()));
 
+		// Stores several actions in one compound action for the undo
+		CompoundEdit compoundEdit = new CompoundEdit();
+
 		for (Instance instance : selectedInstances)
 			{
 			Point position = instance.getPosition();
@@ -324,7 +327,16 @@ public class RoomEditor extends VisualPanel
 			newInstance.setCode(instance.getCode());
 			newInstance.setCreationCode(instance.getCreationCode());
 			newInstance.setPosition(newPosition);
+
+			// Record the effect of adding a new instance for the undo
+			UndoableEdit edit = new AddPieceInstance(frame,newInstance,room.instances.size() - 1);
+			compoundEdit.addEdit(edit);
 			}
+
+		// Save the action for the undo
+		compoundEdit.end();
+		frame.undoSupport.postEdit(compoundEdit);
+
 		}
 
 	// Paste the selected tiles on the given mouse position
@@ -337,6 +349,9 @@ public class RoomEditor extends VisualPanel
 			frame.deleteTilesInSelection(new Rectangle(mousePosition.x,mousePosition.y,
 					roomVisual.getSelectionImageWidth(),roomVisual.getSelectionImageHeight()));
 
+		// Stores several actions in one compound action for the undo
+		CompoundEdit compoundEdit = new CompoundEdit();
+		
 		for (Tile tile : selectedTiles)
 			{
 			Point position = tile.getPosition();
@@ -351,7 +366,16 @@ public class RoomEditor extends VisualPanel
 			newTile.setSize(tile.getSize());
 			newTile.setDepth(tile.getDepth());
 			room.tiles.add(newTile);
+			
+			// Record the effect of adding a new tile for the undo
+			UndoableEdit edit = new AddPieceInstance(frame,newTile,room.tiles.size() - 1);
+			compoundEdit.addEdit(edit);
 			}
+		
+		// Save the action for the undo
+		compoundEdit.end();
+		frame.undoSupport.postEdit(compoundEdit);
+		
 		}
 
 	@Override
