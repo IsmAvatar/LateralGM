@@ -2129,13 +2129,39 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			else
 				{
 
+				// Stores several actions in one compound action for the undo
+				CompoundEdit compoundEdit = new CompoundEdit();
+
 				if (tilesTabIsSelected)
+					{
+					// Record the effect of removing all tiles for the undo
+					for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
+						{
+						UndoableEdit edit = new RemovePieceInstance(this,(Piece) currentRoom.tiles.get(i),i);
+						compoundEdit.addEdit(edit);
+						}
+
+					// Remove all tiles
 					currentRoom.tiles.clear();
+					}
 				else
+					{
+					// Record the effect of removing all instances for the undo
+					for (int i = currentRoom.instances.size() - 1; i >= 0; i--)
+						{
+						UndoableEdit edit = new RemovePieceInstance(this,(Piece) currentRoom.instances.get(i),i);
+						compoundEdit.addEdit(edit);
+						}
+
+					// Remove all instances
 					currentRoom.instances.clear();
+					}
+
+				// Save the action for the undo
+				compoundEdit.end();
+				undoSupport.postEdit(compoundEdit);
 				}
 
-			//resetUndoManager();
 			}
 
 		}
@@ -2149,7 +2175,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		// Stores several actions in one compound action for the undo
 		CompoundEdit compoundEdit = new CompoundEdit();
 
-		// Remove each object in the selection
+		// Remove each instance in the selection
 		for (int i = currentRoom.instances.size() - 1; i >= 0; i--)
 			{
 			instancePosition = currentRoom.instances.get(i).getPosition();
