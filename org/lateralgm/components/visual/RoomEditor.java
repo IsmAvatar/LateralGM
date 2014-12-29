@@ -508,7 +508,7 @@ public class RoomEditor extends VisualPanel
 			{
 			offsetX = 0;
 			offsetY = 0;
-			
+
 			// If the shift key is pressed, add objects under the cursor
 			if (addMultipleMode && cursor != null)
 				if (!roomVisual.intersects(new Rectangle(position.x,position.y,1,1),cursor))
