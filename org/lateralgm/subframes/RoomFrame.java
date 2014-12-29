@@ -90,6 +90,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 import javax.swing.undo.UndoableEditSupport;
@@ -343,8 +344,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					else
 						editor.copySelectionInstances();
 
-					if (editor.selection != null)
-							deleteAction(false);
+					if (editor.selection != null) deleteAction(false);
 					}
 			};
 
@@ -409,7 +409,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				public void actionPerformed(ActionEvent actionEvent)
 					{
 					editor.deactivatePasteMode();
-					
+
 					if (selectObject.isSelected())
 						editor.deactivateSelectRegionMode();
 					else
@@ -431,7 +431,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				public void actionPerformed(ActionEvent actionEvent)
 					{
 					editor.deactivatePasteMode();
-					
+
 					if (selectRegion.isSelected())
 						editor.deactivateSelectObjectMode();
 					else
@@ -2135,7 +2135,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					currentRoom.instances.clear();
 				}
 
-			resetUndoManager();
+			//resetUndoManager();
 			}
 
 		}
@@ -2144,8 +2144,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public void deleteInstancesInSelection(Rectangle selection)
 		{
 		Room currentRoom = editor.getRoom();
-
 		Point instancePosition;
+
+		// Stores several actions in one compound action for the undo
+		CompoundEdit compoundEdit = new CompoundEdit();
 
 		// Remove each object in the selection
 		for (int i = currentRoom.instances.size() - 1; i >= 0; i--)
@@ -2156,8 +2158,18 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (instancePosition.x >= selection.x && instancePosition.x < (selection.x + selection.width)
 					&& instancePosition.y >= selection.y
 					&& instancePosition.y < (selection.y + selection.height))
+				{
+				// Record the effect of removing an instance for the undo
+				UndoableEdit edit = new RemovePieceInstance(this,(Piece) currentRoom.instances.get(i),i);
+				compoundEdit.addEdit(edit);
+
 				currentRoom.instances.remove(i);
+				}
 			}
+
+		// Save the action for the undo
+		compoundEdit.end();
+		undoSupport.postEdit(compoundEdit);
 
 		}
 
@@ -2166,6 +2178,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		{
 		Room currentRoom = editor.getRoom();
 
+		// Stores several actions in one compound action for the undo
+		CompoundEdit compoundEdit = new CompoundEdit();
+		
 		// Get the selected layer
 		Integer depth = (Integer) tileLayer.getSelectedItem();
 
@@ -2183,10 +2198,19 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				// If the were editing only the current layer, and if the tile is not in the current layer
 				if (!tEditOtherLayers.isSelected() && currentRoom.tiles.get(i).getDepth() != depth)
 					continue;
+				
+				// Record the effect of removing a tile for the undo
+				UndoableEdit edit = new RemovePieceInstance(this,(Piece) currentRoom.tiles.get(i),i);
+				compoundEdit.addEdit(edit);
+				
 				currentRoom.tiles.remove(i);
 				}
 
 			}
+		
+		// Save the action for the undo
+		compoundEdit.end();
+		undoSupport.postEdit(compoundEdit);
 
 		}
 
@@ -3044,7 +3068,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		// If there is a selected piece, deselect it
 		if (selectedPiece != null) selectedPiece.setSelected(false);
-		
+
 		super.dispose();
 		for (CodeFrame cf : codeFrames.values())
 			cf.dispose();
