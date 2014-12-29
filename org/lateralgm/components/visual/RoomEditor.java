@@ -461,6 +461,10 @@ public class RoomEditor extends VisualPanel
 		lockBounds();
 		}
 
+	// Distance from the piece's origin
+	int offsetX = 0;
+	int offsetY = 0;
+
 	private void processLeftButton(int modifiers, boolean pressed, Piece pieceUnderCursor,
 			Point position)
 		{
@@ -483,12 +487,18 @@ public class RoomEditor extends VisualPanel
 				// Record the original position of the object (without snapping) for the undo
 				objectFirstPosition = pieceUnderCursor.getPosition();
 
+				// Get distance from the piece's origin to prevent shifting when selecting a piece
+				offsetX = position.x - pieceUnderCursor.getPosition().x;
+				offsetY = position.y - pieceUnderCursor.getPosition().y;
+
 				setCursor(pieceUnderCursor);
 				}
 
 			// If there is no objects under the cursor, add a new object
 			if (pressed && pieceUnderCursor == null)
 				{
+				offsetX = 0;
+				offsetY = 0;
 				addNewPieceInstance(position);
 				addMultipleMode = true; //prevents unnecessary coordinate update below
 				}
@@ -496,6 +506,9 @@ public class RoomEditor extends VisualPanel
 			}
 		else
 			{
+			offsetX = 0;
+			offsetY = 0;
+			
 			// If the shift key is pressed, add objects under the cursor
 			if (addMultipleMode && cursor != null)
 				if (!roomVisual.intersects(new Rectangle(position.x,position.y,1,1),cursor))
@@ -513,7 +526,8 @@ public class RoomEditor extends VisualPanel
 
 			}
 
-		if (cursor != null && !addMultipleMode) cursor.setPosition(position);
+		if (cursor != null && !addMultipleMode)
+			cursor.setPosition(new Point(position.x - offsetX,position.y - offsetY));
 		}
 
 	private void addNewPieceInstance(Point position)
@@ -807,7 +821,7 @@ public class RoomEditor extends VisualPanel
 		// If we are in paste mode and the user has clicked the right button, deactivate the paste mode
 		if (pasteMode && rightButtonPressed) deactivatePasteMode();
 		if (selectionMode && rightButtonPressed) return;
-		
+
 		Piece mc = null;
 
 		if (frame.tabs.getSelectedIndex() == Room.TAB_TILES)
