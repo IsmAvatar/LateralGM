@@ -628,6 +628,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 			catch (PrinterException e)
 				{
 				LGM.showDefaultExceptionHandler(e);
+				}
 			}
 		else if (com.equals("JoshText.UNDO"))
 			{
