@@ -2180,7 +2180,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		// Stores several actions in one compound action for the undo
 		CompoundEdit compoundEdit = new CompoundEdit();
-		
+
 		// Get the selected layer
 		Integer depth = (Integer) tileLayer.getSelectedItem();
 
@@ -2198,16 +2198,16 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				// If the were editing only the current layer, and if the tile is not in the current layer
 				if (!tEditOtherLayers.isSelected() && currentRoom.tiles.get(i).getDepth() != depth)
 					continue;
-				
+
 				// Record the effect of removing a tile for the undo
 				UndoableEdit edit = new RemovePieceInstance(this,(Piece) currentRoom.tiles.get(i),i);
 				compoundEdit.addEdit(edit);
-				
+
 				currentRoom.tiles.remove(i);
 				}
 
 			}
-		
+
 		// Save the action for the undo
 		compoundEdit.end();
 		undoSupport.postEdit(compoundEdit);
@@ -2301,6 +2301,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			int numberOfColumns = editor.selection.width / cellDimension.width;
 			int numberOfRows = editor.selection.height / cellDimension.height;
 
+			// Stores several actions in one compound action for the undo
+			CompoundEdit compoundEdit = new CompoundEdit();
+
 			// Browse each cell of the selected region
 			for (int i = 0; i < numberOfColumns; i++)
 				for (int j = 0; j < numberOfRows; j++)
@@ -2312,9 +2315,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					// If object's tab is selected, add a new object
 					if (objectsTabIsSelected)
 						{
-						Instance newObject = res.addInstance();
-						newObject.properties.put(PInstance.OBJECT,oNew.getSelected());
-						newObject.setPosition(newPosition);
+						Instance newInstance = res.addInstance();
+						newInstance.properties.put(PInstance.OBJECT,oNew.getSelected());
+						newInstance.setPosition(newPosition);
+
+						// Record the effect of adding a new instance for the undo
+						UndoableEdit edit = new AddPieceInstance(this,newInstance,
+								currentRoom.instances.size() - 1);
+						compoundEdit.addEdit(edit);
 						}
 
 					// If the tile's tab is selected, add a new tile
@@ -2322,19 +2330,25 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						{
 						ResourceReference<Background> bkg = taSource.getSelected();
 
-						Tile t = new Tile(currentRoom,LGM.currentFile);
-						t.properties.put(PTile.BACKGROUND,bkg);
-						t.setBackgroundPosition(new Point(tSelect.tx,tSelect.ty));
-						t.setPosition(newPosition);
-						t.setSize(tileDimension);
-						t.setDepth((Integer) tileLayer.getSelectedItem());
+						Tile newTile = new Tile(currentRoom,LGM.currentFile);
+						newTile.properties.put(PTile.BACKGROUND,bkg);
+						newTile.setBackgroundPosition(new Point(tSelect.tx,tSelect.ty));
+						newTile.setPosition(newPosition);
+						newTile.setSize(tileDimension);
+						newTile.setDepth((Integer) tileLayer.getSelectedItem());
 
-						currentRoom.tiles.add(t);
+						currentRoom.tiles.add(newTile);
+
+						// Record the effect of adding a new tile for the undo
+						UndoableEdit edit = new AddPieceInstance(this,newTile,currentRoom.tiles.size() - 1);
+						compoundEdit.addEdit(edit);
 						}
 
 					}
 
-			resetUndoManager();
+			// Save the action for the undo
+			compoundEdit.end();
+			undoSupport.postEdit(compoundEdit);
 
 			}
 
