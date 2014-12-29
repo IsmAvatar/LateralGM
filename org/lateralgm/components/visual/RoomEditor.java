@@ -868,7 +868,7 @@ public class RoomEditor extends VisualPanel
 
 		if (leftButtonPressed)
 			processLeftButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,new Point(x,y));
-		else if (cursor != null) releaseCursor(new Point(x,y));
+		else if (cursor != null) releaseCursor(new Point(x - offsetX,y - offsetY));
 
 		if (rightButtonPressed && mc != null)
 			processRightButton(modifiers,type == MouseEvent.MOUSE_PRESSED,mc,currentPosition); //use mouse point
