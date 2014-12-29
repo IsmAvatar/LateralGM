@@ -2424,9 +2424,25 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				// Get the selected layer
 				Integer depth = (Integer) tileLayer.getSelectedItem();
 
+				// Stores several actions in one compound action for the undo
+				CompoundEdit compoundEdit = new CompoundEdit();
+
 				// Remove each tile with the selected layer
 				for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
-					if (currentRoom.tiles.get(i).getDepth() == depth) currentRoom.tiles.remove(i);
+					{
+					if (currentRoom.tiles.get(i).getDepth() == depth)
+						{
+						// Record the effect of removing a tile for the undo
+						UndoableEdit edit = new RemovePieceInstance(this,(Piece) currentRoom.tiles.get(i),i);
+						compoundEdit.addEdit(edit);
+
+						currentRoom.tiles.remove(i);
+						}
+					}
+
+				// Save the action for the undo
+				compoundEdit.end();
+				undoSupport.postEdit(compoundEdit);
 
 				// Remove the layer from the combo box
 				layers.remove(depth);
@@ -2434,7 +2450,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (layers.size() == 0) layers.add(0);
 
 				tileLayer.setSelectedIndex(0);
-				resetUndoManager();
 				}
 			}
 
