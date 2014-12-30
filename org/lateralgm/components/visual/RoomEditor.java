@@ -465,6 +465,8 @@ public class RoomEditor extends VisualPanel
 	/** Do not call with null */
 	public void setCursor(Piece ds)
 		{
+		boolean addMultipleMode = properties.get(PRoomEditor.ADD_MULTIPLE);
+		
 		// If there was a selected piece, deselect it
 		if (selectedPiece != null) selectedPiece.setSelected(false);
 
@@ -472,7 +474,8 @@ public class RoomEditor extends VisualPanel
 		if (ds != null) selectedPiece = ds;
 
 		cursor = ds;
-		cursor.setSelected(true);
+		// If we are not in 'Add multiple' mode, select the piece
+		if (addMultipleMode == false) cursor.setSelected(true);
 
 		if (ds instanceof Instance)
 			{
