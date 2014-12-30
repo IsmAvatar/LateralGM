@@ -2114,23 +2114,23 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			Room currentRoom = editor.getRoom();
 
+			// Stores several actions in one compound action for the undo
+			CompoundEdit compoundEdit = new CompoundEdit();
+
 			// If the user draw a region
 			if (editor.selection != null)
 				{
 				Rectangle selection = editor.selection;
 
 				if (tilesTabIsSelected)
-					deleteTilesInSelection(selection);
+					deleteTilesInSelection(selection,compoundEdit);
 
 				else
-					deleteInstancesInSelection(selection);
+					deleteInstancesInSelection(selection,compoundEdit);
 
 				}
 			else
 				{
-
-				// Stores several actions in one compound action for the undo
-				CompoundEdit compoundEdit = new CompoundEdit();
 
 				if (tilesTabIsSelected)
 					{
@@ -2157,23 +2157,21 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					currentRoom.instances.clear();
 					}
 
-				// Save the action for the undo
-				compoundEdit.end();
-				undoSupport.postEdit(compoundEdit);
 				}
+
+			// Save the action for the undo
+			compoundEdit.end();
+			undoSupport.postEdit(compoundEdit);
 
 			}
 
 		}
 
 	// Delete all instances for a given selection
-	public void deleteInstancesInSelection(Rectangle selection)
+	public void deleteInstancesInSelection(Rectangle selection, CompoundEdit compoundEdit)
 		{
 		Room currentRoom = editor.getRoom();
 		Point instancePosition;
-
-		// Stores several actions in one compound action for the undo
-		CompoundEdit compoundEdit = new CompoundEdit();
 
 		// Remove each instance in the selection
 		for (int i = currentRoom.instances.size() - 1; i >= 0; i--)
@@ -2193,19 +2191,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				}
 			}
 
-		// Save the action for the undo
-		compoundEdit.end();
-		undoSupport.postEdit(compoundEdit);
-
 		}
 
 	// Delete all tiles for a given selection
-	public void deleteTilesInSelection(Rectangle selection)
+	public void deleteTilesInSelection(Rectangle selection, CompoundEdit compoundEdit)
 		{
 		Room currentRoom = editor.getRoom();
-
-		// Stores several actions in one compound action for the undo
-		CompoundEdit compoundEdit = new CompoundEdit();
 
 		// Get the selected layer
 		Integer depth = (Integer) tileLayer.getSelectedItem();
@@ -2233,10 +2224,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				}
 
 			}
-
-		// Save the action for the undo
-		compoundEdit.end();
-		undoSupport.postEdit(compoundEdit);
 
 		}
 
@@ -2273,11 +2260,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			Dimension cellDimension = null;
 			Dimension tileDimension = null;
 
+			// Stores several actions in one compound action for the undo
+			CompoundEdit compoundEdit = new CompoundEdit();
+
 			// If the tiles tab is selected, 
 			if (tilesTabIsSelected)
 				{
 				// If the 'Delete underlying' option is checked, delete all tiles for the selected region
-				if (deleteUnderlyingTiles) deleteTilesInSelection(selection);
+				if (deleteUnderlyingTiles) deleteTilesInSelection(selection,compoundEdit);
 
 				// Get and store the tile's dimension
 				ResourceReference<Background> bkg = taSource.getSelected();
@@ -2291,7 +2281,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				}
 
 			// If object's tab is selected and the 'Delete underlying' option is checked, delete all instances for the selected region
-			if (objectsTabIsSelected && deleteUnderlyingObjects) deleteInstancesInSelection(selection);
+			if (objectsTabIsSelected && deleteUnderlyingObjects)
+				deleteInstancesInSelection(selection,compoundEdit);
 
 			// If snapping is deactivated, use the piece's width for setting its position
 			if (snapToGridMode == false)
@@ -2326,9 +2317,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			int numberOfColumns = editor.selection.width / cellDimension.width;
 			int numberOfRows = editor.selection.height / cellDimension.height;
-
-			// Stores several actions in one compound action for the undo
-			CompoundEdit compoundEdit = new CompoundEdit();
 
 			// Browse each cell of the selected region
 			for (int i = 0; i < numberOfColumns; i++)
