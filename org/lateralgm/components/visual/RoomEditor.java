@@ -303,13 +303,14 @@ public class RoomEditor extends VisualPanel
 		{
 		boolean deleteUnderlyingInstances = properties.get(PRoomEditor.DELETE_UNDERLYING_OBJECTS);
 
-		// If the 'Delete underlying' option is checked, delete all instances for the selected region
-		if (deleteUnderlyingInstances)
-			frame.deleteInstancesInSelection(new Rectangle(mousePosition.x,mousePosition.y,
-					roomVisual.getSelectionImageWidth(),roomVisual.getSelectionImageHeight()));
-
 		// Stores several actions in one compound action for the undo
 		CompoundEdit compoundEdit = new CompoundEdit();
+
+		// If the 'Delete underlying' option is checked, delete all instances for the selected region
+		if (deleteUnderlyingInstances)
+			frame.deleteInstancesInSelection(
+					new Rectangle(mousePosition.x,mousePosition.y,roomVisual.getSelectionImageWidth(),
+							roomVisual.getSelectionImageHeight()),compoundEdit);
 
 		for (Instance instance : selectedInstances)
 			{
@@ -344,14 +345,15 @@ public class RoomEditor extends VisualPanel
 		{
 		boolean deleteUnderlyingTiles = properties.get(PRoomEditor.DELETE_UNDERLYING_TILES);
 
-		// If the 'Delete underlying' option is checked, delete all tiles for the selected region
-		if (deleteUnderlyingTiles)
-			frame.deleteTilesInSelection(new Rectangle(mousePosition.x,mousePosition.y,
-					roomVisual.getSelectionImageWidth(),roomVisual.getSelectionImageHeight()));
-
 		// Stores several actions in one compound action for the undo
 		CompoundEdit compoundEdit = new CompoundEdit();
-		
+
+		// If the 'Delete underlying' option is checked, delete all tiles for the selected region
+		if (deleteUnderlyingTiles)
+			frame.deleteTilesInSelection(
+					new Rectangle(mousePosition.x,mousePosition.y,roomVisual.getSelectionImageWidth(),
+							roomVisual.getSelectionImageHeight()),compoundEdit);
+
 		for (Tile tile : selectedTiles)
 			{
 			Point position = tile.getPosition();
@@ -366,16 +368,16 @@ public class RoomEditor extends VisualPanel
 			newTile.setSize(tile.getSize());
 			newTile.setDepth(tile.getDepth());
 			room.tiles.add(newTile);
-			
+
 			// Record the effect of adding a new tile for the undo
 			UndoableEdit edit = new AddPieceInstance(frame,newTile,room.tiles.size() - 1);
 			compoundEdit.addEdit(edit);
 			}
-		
+
 		// Save the action for the undo
 		compoundEdit.end();
 		frame.undoSupport.postEdit(compoundEdit);
-		
+
 		}
 
 	@Override
