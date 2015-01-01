@@ -1,3 +1,26 @@
+/**
+* @file  ConfigurationManager.java
+* @brief Class implementing a frame for managing multiple configurations.
+*
+* @section License
+*
+* Copyright (C) 2015 Robert B. Colton
+* This file is a part of the LateralGM IDE.
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+**/
+
 package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
@@ -15,7 +38,13 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+import org.lateralgm.file.ProjectFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameSettings;
@@ -108,17 +137,60 @@ public class ConfigurationManager extends JFrame implements ActionListener
 		JToolBar toolbar = new JToolBar();
 		toolbar.setFloatable(false);
 		
+		configList = new JList<GameSettings>(new VectorListModel<GameSettings>(LGM.currentFile.gameSettings));
+		
 		toolbar.add(makeToolbarButton("ADD"));
+		toolbar.add(makeToolbarButton("COPY"));
 		toolbar.add(makeToolbarButton("DELETE"));
 		toolbar.addSeparator();
+		toolbar.add(makeToolbarButton("EDIT"));
+		toolbar.addSeparator();
 		toolbar.add(new JLabel(Messages.getString("ConfigurationManager.NAME")));
-		JTextField nameField = new JTextField();
+		final JTextField nameField = new JTextField();
 		nameField.setColumns(20);
 		nameField.setMaximumSize(nameField.getPreferredSize());
+		nameField.getDocument().addDocumentListener(new DocumentListener() {
+		  public void changedUpdate(DocumentEvent e) {
+		  	updateNameField(e);
+		  }
+		  
+		  public void removeUpdate(DocumentEvent e) {
+		  	updateNameField(e);
+		  }
+		  
+		  public void insertUpdate(DocumentEvent e) {
+		  	updateNameField(e);
+		  }
+		  
+		  public void updateNameField(DocumentEvent e) {
+				GameSettings sel = configList.getSelectedValue();
+				if (sel == null) return;
+			  sel.setName(nameField.getText());
+		  	SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run()
+						{
+						configList.updateUI();
+						}
+		  		
+		  	});
+		  }
+		});
+		configList.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent ev)
+				{
+					GameSettings sel = configList.getSelectedValue();
+					if (sel == null) return;
+					nameField.setText(sel.getName());
+				}
+		
+		});
 		toolbar.add(nameField);
 		
 		this.add(toolbar, BorderLayout.NORTH);
-		configList = new JList<GameSettings>(new VectorListModel<GameSettings>(LGM.currentFile.gameSettings));
 		
 		JScrollPane scroll = new JScrollPane(configList);
 		this.add(scroll, BorderLayout.CENTER);
@@ -144,11 +216,34 @@ public class ConfigurationManager extends JFrame implements ActionListener
 		String cmd = ev.getActionCommand();
 		VectorListModel<GameSettings> model = (VectorListModel<GameSettings>) configList.getModel();
 		if (cmd.endsWith("ADD")) {
-			GameSettings config = new GameSettings();
-			config.setName("Ass");
+			GameSettings config = ProjectFile.createDefaultConfig();
+			int id = 0;
+			for (GameSettings cfg : LGM.currentFile.gameSettings) {
+				if (cfg.getName().startsWith("Configuration")) {
+					id++;
+				}
+			}
+			config.setName("Configuration" + id);
 			model.addElement(config);
+			configList.setSelectedValue(config,true);
+		} else if (cmd.endsWith("COPY")) {
+			GameSettings sel = configList.getSelectedValue();
+			if (sel == null) return;
+			GameSettings config = new GameSettings();
+			sel.copy(config);
+			int id = 0;
+			for (GameSettings cfg : LGM.currentFile.gameSettings) {
+				if (cfg.getName().startsWith("Configuration")) {
+					id++;
+				}
+			}
+			config.setName("Configuration" + id);
+			model.addElement(config);
+			configList.setSelectedValue(config,true);
 		} else if (cmd.endsWith("DELETE")) {
 			model.removeAll(configList.getSelectedValuesList());
+		} else if (cmd.endsWith("EDIT")) {
+			LGM.showGameSettings(configList.getSelectedValue());
 		}
 		}
 	

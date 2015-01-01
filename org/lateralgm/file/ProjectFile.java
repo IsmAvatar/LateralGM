@@ -338,17 +338,23 @@ public class ProjectFile implements UpdateListener
 		
 		
 		// Default initial configuration
-		GameSettings gs = new GameSettings();
+		GameSettings gs = createDefaultConfig();
 		gs.setName("Default");
 		gameSettings.add(gs);
 		
 		resMap.put(Constants.class,new SingletonResourceHolder<Constants>(defaultConstants));
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
-		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gs));
+		//TODO: We don't need this anymore. It should however still be iteratable, perhaps we should make a Config resource to manage
+		//all game configurations? - Robert
+		//resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gs));
 		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(extPackages));
 		for (ResourceHolder<?> rl : resMap.values())
 			if (rl instanceof ResourceList<?>) ((ResourceList<?>) rl).updateSource.addListener(this);
 
+		}
+	
+	public static GameSettings createDefaultConfig() {
+		GameSettings gs = new GameSettings();
 		Random random = new Random();
 		gs.put(PGameSettings.GAME_ID,random.nextInt(100000001));
 		random.nextBytes((byte[]) gs.get(PGameSettings.GAME_GUID));
@@ -369,7 +375,8 @@ public class ProjectFile implements UpdateListener
 			System.err.println(ex.getMessage());
 			ex.printStackTrace();
 			}
-		}
+		return gs;
+	}
 
 	public static Calendar gmBaseTime()
 		{

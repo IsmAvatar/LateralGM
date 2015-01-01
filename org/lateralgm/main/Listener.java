@@ -403,7 +403,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			return;
 			}
 		else if (com.endsWith(".GMS")) { //$NON-NLS-1$
-			LGM.showGameSettings();
+			LGM.showGameSettings(LGM.getSelectedConfig());
 			return;
 			}
 		else if (com.endsWith(".PKG")) { //$NON-NLS-1$

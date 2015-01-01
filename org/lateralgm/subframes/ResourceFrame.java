@@ -122,8 +122,10 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 				return LGM.getConstantsFrame();
 			else if (kind == GameInformation.class)
 				return LGM.getGameInfo();
-			else if (kind == GameSettings.class)
-				return LGM.getGameSettings();
+			else if (kind == GameSettings.class) {
+				LGM.showGameSettings(LGM.getSelectedConfig());
+				return null;
+			}
 			else if (kind == ExtensionPackages.class)
 				return LGM.getExtensionPackages();
 			else

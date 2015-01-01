@@ -247,6 +247,7 @@ public final class LGM
 	private static JButton closeButton;
 
 	private static JTree searchTree;
+	private static JComboBox<GameSettings> configsCombo;
 
 	public static JDialog getProgressDialog()
 		{
@@ -490,8 +491,13 @@ public final class LGM
 		getGameInfo().toTop();
 		}
 
-	public static void showGameSettings()
+	public static void showGameSettings(GameSettings set)
 		{
+		if (gameSet.res != set && gameSet.resOriginal != set) {
+			gameSet.res = set;
+			gameSet.resOriginal = set;
+			gameSet.revertResource();
+		}
 		getGameSettings().setVisible(true);
 		getGameSettings().toTop();
 		}
@@ -599,9 +605,8 @@ public final class LGM
 		tool.add(makeButton("Toolbar.PKG")); //$NON-NLS-1$
 		tool.addSeparator();
 		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATIONS") + ":"));
-		String strs[] = { "Default" };
-		JComboBox<GameSettings> configsCombo = new JComboBox<GameSettings>(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
-		configsCombo.setMaximumSize(new Dimension(100,20));
+		configsCombo = new JComboBox<GameSettings>(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
+		configsCombo.setMaximumSize(configsCombo.getPreferredSize());
 		tool.add(configsCombo);
 		tool.add(makeButton("Toolbar.CONFIG_MANAGE"));
 		tool.addSeparator();
@@ -2989,6 +2994,11 @@ public final class LGM
 			ErrorDialog.getInstance().setDebugInfo(ErrorDialog.generateAgnosticInformation());
 			}
 		ErrorDialog.getInstance().appendDebugInfo(e); //$NON-NLS-1$
+		}
+
+	public static GameSettings getSelectedConfig()
+		{
+		return (GameSettings) configsCombo.getSelectedItem();
 		}
 
 	}
