@@ -60,6 +60,17 @@ public class ConfigurationManager extends JFrame implements ActionListener
 	 */
 	private static final long serialVersionUID = 1L;
 	JList<GameSettings> configList = null;
+	private VectorListModel<GameSettings> vlm;
+	private JButton deleteButton;
+	private static ConfigurationManager INSTANCE = null;
+	
+	public static ConfigurationManager getInstance() {
+		if (INSTANCE == null) {
+			INSTANCE = new ConfigurationManager();
+			INSTANCE.setConfigList(LGM.currentFile.gameSettings);
+		}
+		return INSTANCE;
+	}
 	
 	// The purpose of this internal class is because Vectors and ArrayLists are handled by reference for Java
 	// so instead of converting to an array and doing all kinds of crazy updating, we can just make a list model
@@ -141,33 +152,9 @@ public class ConfigurationManager extends JFrame implements ActionListener
 		JToolBar toolbar = new JToolBar();
 		toolbar.setFloatable(false);
 		
-		final JButton deleteButton = makeToolbarButton("DELETE");
+		deleteButton = makeToolbarButton("DELETE");
 		
-		final VectorListModel<GameSettings> vlm = new VectorListModel<GameSettings>(LGM.currentFile.gameSettings);
-		vlm.addListDataListener(new ListDataListener() {
-
-			@Override
-			public void contentsChanged(ListDataEvent arg0)
-				{
-					deleteButton.setEnabled(vlm.getSize() > 1);
-				}
-
-			@Override
-			public void intervalAdded(ListDataEvent arg0)
-				{
-					deleteButton.setEnabled(vlm.getSize() > 1);
-				}
-
-			@Override
-			public void intervalRemoved(ListDataEvent arg0)
-				{
-					deleteButton.setEnabled(vlm.getSize() > 1);
-				}
-		
-		});
-		// check at least once
-		deleteButton.setEnabled(vlm.getSize() > 1);
-		configList = new JList<GameSettings>(vlm);
+		configList = new JList<GameSettings>();
 		
 		toolbar.add(makeToolbarButton("ADD"));
 		toolbar.add(makeToolbarButton("COPY"));
@@ -289,6 +276,35 @@ public class ConfigurationManager extends JFrame implements ActionListener
 			sel.constants.setName(sel.getName());
 			LGM.showConstantsFrame(sel.constants);
 		}
+		}
+
+	public void setConfigList(Vector<GameSettings> gameSettings)
+		{
+		vlm = new VectorListModel<GameSettings>(LGM.currentFile.gameSettings);
+		vlm.addListDataListener(new ListDataListener() {
+
+			@Override
+			public void contentsChanged(ListDataEvent arg0)
+				{
+					deleteButton.setEnabled(vlm.getSize() > 1);
+				}
+
+			@Override
+			public void intervalAdded(ListDataEvent arg0)
+				{
+					deleteButton.setEnabled(vlm.getSize() > 1);
+				}
+
+			@Override
+			public void intervalRemoved(ListDataEvent arg0)
+				{
+					deleteButton.setEnabled(vlm.getSize() > 1);
+				}
+		
+		});
+		configList.setModel(vlm);
+		// check at least once
+		deleteButton.setEnabled(vlm.getSize() > 1);
 		}
 	
 	}

@@ -164,6 +164,7 @@ import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.subframes.ActionFrame;
 import org.lateralgm.subframes.CodeFrame;
+import org.lateralgm.subframes.ConfigurationManager;
 import org.lateralgm.subframes.ConstantsFrame;
 import org.lateralgm.subframes.EventPanel;
 import org.lateralgm.subframes.ExtensionPackagesFrame;
@@ -894,6 +895,8 @@ public final class LGM
 		((DefaultTreeModel)searchTree.getModel()).reload();
 
 		LGM.eventSelect.reload();
+		
+		ConfigurationManager.getInstance().setConfigList(LGM.currentFile.gameSettings);
 		
 		//NOTE: We do this to update the reference to the one now loaded
 		//since we never close these frames, then we simply revert their controls.

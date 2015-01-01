@@ -495,7 +495,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			return;
 			}
 		else if (com.endsWith(".CONFIG_MANAGE")) { //$NON-NLS-1$
-			new ConfigurationManager().setVisible(true);
+			ConfigurationManager.getInstance().setVisible(true);
 		return;
 		}
 		else if (com.endsWith(".ABOUT")) { //$NON-NLS-1$
