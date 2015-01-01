@@ -59,6 +59,7 @@ import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
+import org.lateralgm.resources.Constants;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.GameInformation.PGameInformation;
@@ -90,6 +91,7 @@ import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.CharacterRange;
 import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
+import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.GlyphMetric;
 import org.lateralgm.resources.sub.GlyphMetric.PGlyphMetric;
@@ -187,9 +189,11 @@ public final class GMXFileWriter
 		//writeIncludedFiles(c, root);
 		LGM.setProgress(120,Messages.getString("ProgressDialog.PACKAGES"));
 		//writePackages(c, root);
-		LGM.setProgress(130,Messages.getString("ProgressDialog.EXTENSIONS"));
+		LGM.setProgress(130,Messages.getString("ProgressDialog.CONSTANTS"));
+		writeDefaultConstants(c, root);
+		LGM.setProgress(140,Messages.getString("ProgressDialog.EXTENSIONS"));
 		//writeExtensions(c, root);
-		LGM.setProgress(140,Messages.getString("ProgressDialog.GAMEINFORMATION"));
+		LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION"));
 		writeGameInformation(c,root);
 
 		dom.appendChild(root);
@@ -252,22 +256,23 @@ public final class GMXFileWriter
 	public static void writeConfigurations(ProjectFileContext c, Element root) throws IOException,
 			TransformerException
 		{
-		Document dom = c.dom;
+		Document mdom = c.dom;
 		ProjectFile f = c.f;
 
+		Element conNode = mdom.createElement("Configs");
+		conNode.setAttribute("name","configs");
+		root.appendChild(conNode);
+		
 		for (GameSettings gs : LGM.currentFile.gameSettings) {
-			Element conNode = dom.createElement("Configs");
-			Element setNode = dom.createElement("Config");
-			conNode.setAttribute("name","configs");
+			Element setNode = mdom.createElement("Config");
 			setNode.setTextContent("Configs\\" + gs.getName());
 			conNode.appendChild(setNode);
-			root.appendChild(conNode);
 	
-			dom = documentBuilder.newDocument();
-			conNode = dom.createElement("Config");
-			dom.appendChild(conNode);
+			Document dom = documentBuilder.newDocument();
+			Element nconNode = dom.createElement("Config");
+			dom.appendChild(nconNode);
 			Element optNode = dom.createElement("Options");
-			conNode.appendChild(optNode);
+			nconNode.appendChild(optNode);
 	
 			// For some odd reason these two settings are fucked up; combined; and not even combined properly
 			//2147483649 - Both
@@ -364,7 +369,11 @@ public final class GMXFileWriter
 					gs.get(PGameSettings.VERSION_MINOR).toString()));
 			optNode.appendChild(createElement(dom,"option_version_release",
 					gs.get(PGameSettings.VERSION_RELEASE).toString()));
-	
+			
+			Element cce = dom.createElement("ConfigConstants");
+			writeConstants(gs.constants, dom, cce);
+			nconNode.appendChild(cce);
+			
 			String icoPath = "Configs\\Default\\windows\\runner_icon.ico";
 			optNode.appendChild(createElement(dom,"option_windows_game_icon",icoPath));
 	
@@ -405,9 +414,22 @@ public final class GMXFileWriter
 		//TODO: Implement
 		}
 
-	public static void writeConstants(ProjectFile f, ResNode root, int ver) throws IOException
+	public static void writeConstants(Constants cnsts, Document dom, Element node) throws IOException
 		{
-		//TODO: Implement
+			Element base = dom.createElement("constants");
+			base.setAttribute("number",Integer.toString(cnsts.constants.size()));
+			for (Constant cnst : cnsts.constants) {
+				Element celement = dom.createElement("constant");
+				celement.setAttribute("name",cnst.name);
+				celement.setTextContent(cnst.value);;
+				base.appendChild(celement);
+			}
+			node.appendChild(base);
+		}
+	
+	public static void writeDefaultConstants(ProjectFileContext c, Element root) throws IOException
+		{
+			writeConstants(c.f.defaultConstants, c.dom, root);
 		}
 
 	private static void iterateSprites(ProjectFileContext c, ResNode root, Element node)
