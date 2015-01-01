@@ -484,13 +484,12 @@ public final class GMXFileReader
 					readConstants(gSet.constants,cnstNode);
 				}
 				
-				ResNode node = new ResNode("Game Settings",ResNode.STATUS_SECONDARY,GameSettings.class,
-						gSet.reference);
-				root.add(node);
-				
 				}
 			}
 
+		ResNode node = new ResNode("Game Settings",ResNode.STATUS_SECONDARY,GameSettings.class,null);
+		root.add(node);
+		
 		}
 
 	private static void iterateSprites(ProjectFileContext c, NodeList sprList, ResNode node)
@@ -2038,6 +2037,8 @@ public final class GMXFileReader
 	private static void readDefaultConstants(ProjectFileContext c, ResNode root) throws IOException, GmFormatException
 		{
 			readConstants(c.f.defaultConstants, c.in.getElementsByTagName("constants").item(0));
+			ResNode node = new ResNode("Constants",ResNode.STATUS_SECONDARY,Constants.class,null);
+			root.add(node);
 		}
 
 	private static void readGameInformation(ProjectFileContext c, ResNode root) throws IOException, GmFormatException

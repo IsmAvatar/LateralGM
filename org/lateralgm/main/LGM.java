@@ -80,6 +80,7 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.Box;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
@@ -897,6 +898,7 @@ public final class LGM
 		LGM.eventSelect.reload();
 		
 		ConfigurationManager.getInstance().setConfigList(LGM.currentFile.gameSettings);
+		configsCombo.setModel(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
 		
 		//NOTE: We do this to update the reference to the one now loaded
 		//since we never close these frames, then we simply revert their controls.
