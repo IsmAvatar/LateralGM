@@ -759,6 +759,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		{
 		this(res,null);
 		}
+	
+	public void updateTitle() {
+		this.setTitle(Messages.getString("GameSettingFrame.TITLE") + " : " + res.getName());
+	}
 
 	public GameSettingFrame(GameSettings res, ResNode node)
 		{

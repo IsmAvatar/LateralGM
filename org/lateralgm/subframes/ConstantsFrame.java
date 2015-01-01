@@ -127,6 +127,12 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 		this(res,null);
 		}
 
+	public void updateTitle() {
+		String name = res.getName();
+		if (res == LGM.currentFile.defaultConstants) name = "All Configurations";
+		this.setTitle(Messages.getString("ConstantsFrame.TITLE") + " : " + name);
+	}
+	
 	public ConstantsFrame(Constants res, ResNode node)
 		{
 		super(res,node); //$NON-NLS-1$

@@ -487,6 +487,7 @@ public final class LGM
 			constantsFrame.resOriginal = cnsts.clone();
 			constantsFrame.revertResource();
 		}
+		constantsFrame.updateTitle();
 		getConstantsFrame().setVisible(true);
 		getConstantsFrame().toTop();
 		}
@@ -504,6 +505,7 @@ public final class LGM
 			gameSet.resOriginal = set;
 			gameSet.revertResource();
 		}
+		gameSet.updateTitle();
 		getGameSettings().setVisible(true);
 		getGameSettings().toTop();
 		}
