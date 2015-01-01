@@ -41,6 +41,8 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -137,11 +139,37 @@ public class ConfigurationManager extends JFrame implements ActionListener
 		JToolBar toolbar = new JToolBar();
 		toolbar.setFloatable(false);
 		
-		configList = new JList<GameSettings>(new VectorListModel<GameSettings>(LGM.currentFile.gameSettings));
+		final JButton deleteButton = makeToolbarButton("DELETE");
+		
+		final VectorListModel<GameSettings> vlm = new VectorListModel<GameSettings>(LGM.currentFile.gameSettings);
+		vlm.addListDataListener(new ListDataListener() {
+
+			@Override
+			public void contentsChanged(ListDataEvent arg0)
+				{
+					deleteButton.setEnabled(vlm.getSize() > 1);
+				}
+
+			@Override
+			public void intervalAdded(ListDataEvent arg0)
+				{
+					deleteButton.setEnabled(vlm.getSize() > 1);
+				}
+
+			@Override
+			public void intervalRemoved(ListDataEvent arg0)
+				{
+					deleteButton.setEnabled(vlm.getSize() > 1);
+				}
+		
+		});
+		// check at least once
+		deleteButton.setEnabled(vlm.getSize() > 1);
+		configList = new JList<GameSettings>(vlm);
 		
 		toolbar.add(makeToolbarButton("ADD"));
 		toolbar.add(makeToolbarButton("COPY"));
-		toolbar.add(makeToolbarButton("DELETE"));
+		toolbar.add(deleteButton);
 		toolbar.addSeparator();
 		toolbar.add(makeToolbarButton("EDIT"));
 		toolbar.addSeparator();
