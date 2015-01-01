@@ -87,14 +87,15 @@ public class ConfigurationManager extends JFrame implements ActionListener
 		}
 		
 		public boolean remove(T element) {
+			int index = vector.indexOf(element);
 			boolean ret = vector.remove(element);
-			super.fireIntervalRemoved(this,vector.size(),vector.size());
+			super.fireIntervalRemoved(this,index,index);
 			return ret;
 		}
 		
 		public boolean removeAll(List<T> elements) {
 			boolean ret = vector.removeAll(elements);
-			super.fireIntervalRemoved(this,vector.size(),vector.size());
+			super.fireIntervalRemoved(this,0,elements.size());
 			return ret;
 		}
 		
@@ -171,7 +172,8 @@ public class ConfigurationManager extends JFrame implements ActionListener
 		toolbar.add(makeToolbarButton("COPY"));
 		toolbar.add(deleteButton);
 		toolbar.addSeparator();
-		toolbar.add(makeToolbarButton("EDIT"));
+		toolbar.add(makeToolbarButton("EDIT_SETTINGS"));
+		toolbar.add(makeToolbarButton("EDIT_CONSTANTS"));
 		toolbar.addSeparator();
 		toolbar.add(new JLabel(Messages.getString("ConfigurationManager.NAME")));
 		final JTextField nameField = new JTextField();
@@ -224,7 +226,7 @@ public class ConfigurationManager extends JFrame implements ActionListener
 		this.add(scroll, BorderLayout.CENTER);
 		
 		this.pack();
-		this.setSize(300,340);
+		this.setSize(340,340);
 		setLocationRelativeTo(LGM.frame);
 	}
 	
@@ -257,8 +259,7 @@ public class ConfigurationManager extends JFrame implements ActionListener
 		} else if (cmd.endsWith("COPY")) {
 			GameSettings sel = configList.getSelectedValue();
 			if (sel == null) return;
-			GameSettings config = new GameSettings();
-			sel.copy(config);
+			GameSettings config = sel.clone();
 			int id = 0;
 			for (GameSettings cfg : LGM.currentFile.gameSettings) {
 				if (cfg.getName().startsWith("Configuration")) {
@@ -270,8 +271,14 @@ public class ConfigurationManager extends JFrame implements ActionListener
 			configList.setSelectedValue(config,true);
 		} else if (cmd.endsWith("DELETE")) {
 			model.removeAll(configList.getSelectedValuesList());
-		} else if (cmd.endsWith("EDIT")) {
-			LGM.showGameSettings(configList.getSelectedValue());
+		} else if (cmd.endsWith("EDIT_SETTINGS")) {
+			GameSettings sel = configList.getSelectedValue();
+			if (sel == null) return;
+			LGM.showGameSettings(sel);
+		} else if (cmd.endsWith("EDIT_CONSTANTS")) {
+			GameSettings sel = configList.getSelectedValue();
+			if (sel == null) return;
+			LGM.showConstantsFrame(sel.constants);
 		}
 		}
 	

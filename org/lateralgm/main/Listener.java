@@ -395,7 +395,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			return;
 			}
 		else if (com.endsWith(".CST")) { //$NON-NLS-1$
-			LGM.showConstantsFrame();
+			LGM.showConstantsFrame(LGM.currentFile.defaultConstants);
 			return;
 			}
 		else if (com.endsWith(".GMI")) { //$NON-NLS-1$

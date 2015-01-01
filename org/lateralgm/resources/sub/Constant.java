@@ -42,6 +42,11 @@ public class Constant implements Comparable<Constant>
 			if (other.name != null) return false;
 			}
 		else if (!name.equals(other.name)) return false;
+		if (value == null)
+			{
+			if (other.value != null) return false;
+			}
+		else if (!value.equals(other.value)) return false;
 		return true;
 		}
 

@@ -154,12 +154,12 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 		importBut.setToolTipText(Messages.getString("ConstantsFrame.IMPORT"));
 		importBut.addActionListener(this);
 		toolbar.add(importBut);
-		toolbar.addSeparator();
-		toolbar.add(new JLabel("Configuration:"));
-		String strs[] = { "All Configurations","Default" };
-		JComboBox<String> configCombo = new JComboBox<String>(strs);
-		configCombo.setMaximumSize(new Dimension(130,22));
-		toolbar.add(configCombo);
+		//toolbar.addSeparator();
+		//toolbar.add(new JLabel("Configuration:"));
+		//String strs[] = { "All Configurations","Default" };
+		//JComboBox<String> configCombo = new JComboBox<String>(strs);
+		//configCombo.setMaximumSize(new Dimension(130,22));
+		//toolbar.add(configCombo);
 
 		this.add(toolbar,BorderLayout.NORTH);
 		this.add(content,BorderLayout.CENTER);

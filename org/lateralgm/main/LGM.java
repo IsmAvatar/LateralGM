@@ -145,6 +145,7 @@ import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.joshedit.Runner;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.Constants;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.InstantiableResource;
@@ -479,8 +480,13 @@ public final class LGM
 		return extSet;
 		}
 
-	public static void showConstantsFrame()
+	public static void showConstantsFrame(Constants cnsts)
 		{
+		if (constantsFrame.res != cnsts && constantsFrame.resOriginal != cnsts) {
+			constantsFrame.res = cnsts;
+			constantsFrame.resOriginal = cnsts.clone();
+			constantsFrame.revertResource();
+		}
 		getConstantsFrame().setVisible(true);
 		getConstantsFrame().toTop();
 		}
@@ -2340,7 +2346,7 @@ public final class LGM
 		mdi.add(constantsFrame);
 		gameInfo = new GameInformationFrame(currentFile.gameInfo);
 		mdi.add(gameInfo);
-		gameSet = new GameSettingFrame(currentFile.gameSettings.get(0));
+		gameSet = new GameSettingFrame(currentFile.gameSettings.firstElement());
 		mdi.add(gameSet);
 		extSet = new ExtensionPackagesFrame(currentFile.extPackages);
 		mdi.add(extSet);

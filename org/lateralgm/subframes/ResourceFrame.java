@@ -118,8 +118,10 @@ public abstract class ResourceFrame<R extends Resource<R,P>, P extends Enum<P>> 
 				return new IncludeFrame((Include) r,node);
 			else if (kind == Extension.class)
 				return new ExtensionFrame((Extension) r,node);
-			else if (kind == Constants.class)
-				return LGM.getConstantsFrame();
+			else if (kind == Constants.class) {
+				LGM.showConstantsFrame(LGM.currentFile.defaultConstants);
+				return null;
+			}
 			else if (kind == GameInformation.class)
 				return LGM.getGameInfo();
 			else if (kind == GameSettings.class) {
