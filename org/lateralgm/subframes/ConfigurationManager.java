@@ -46,6 +46,7 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.lateralgm.components.impl.NameDocument;
 import org.lateralgm.file.ProjectFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.messages.Messages;
@@ -177,6 +178,7 @@ public class ConfigurationManager extends JFrame implements ActionListener
 		toolbar.addSeparator();
 		toolbar.add(new JLabel(Messages.getString("ConfigurationManager.NAME")));
 		final JTextField nameField = new JTextField();
+		nameField.setDocument(new NameDocument());
 		nameField.setColumns(20);
 		nameField.setMaximumSize(nameField.getPreferredSize());
 		nameField.getDocument().addDocumentListener(new DocumentListener() {
@@ -205,6 +207,9 @@ public class ConfigurationManager extends JFrame implements ActionListener
 						}
 		  		
 		  	});
+		  	sel.constants.setName(nameField.getText());
+		  	LGM.getConstantsFrame().updateTitle();
+		  	LGM.getGameSettings().updateTitle();
 		  }
 		});
 		configList.addListSelectionListener(new ListSelectionListener() {
@@ -270,6 +275,7 @@ public class ConfigurationManager extends JFrame implements ActionListener
 			model.addElement(config);
 			configList.setSelectedValue(config,true);
 		} else if (cmd.endsWith("DELETE")) {
+			//TODO: Stop from select all->delete
 			model.removeAll(configList.getSelectedValuesList());
 		} else if (cmd.endsWith("EDIT_SETTINGS")) {
 			//TODO: Make this fire a check for changes to ask the user if they want to save the current setings frame
