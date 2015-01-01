@@ -204,6 +204,8 @@ public final class GmFileReader
 			progressBar.setMaximum(200);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING"));
 
+			GameSettings gs = c.f.gameSettings.get(0);
+			
 			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
@@ -216,20 +218,20 @@ public final class GmFileReader
 				in.skip(s2 * 4);
 				int b1 = in.read();
 				in.setSeed(seed);
-				file.gameSettings.put(PGameSettings.GAME_ID,b1 | in.read3() << 8);
+				gs.put(PGameSettings.GAME_ID,b1 | in.read3() << 8);
 				}
 			else
-				file.gameSettings.put(PGameSettings.GAME_ID,in.read4());
-			in.read((byte[]) file.gameSettings.get(PGameSettings.GAME_GUID)); //16 bytes
+				gs.put(PGameSettings.GAME_ID,in.read4());
+			in.read((byte[]) gs.get(PGameSettings.GAME_GUID)); //16 bytes
 
-			readSettings(c);
+			readSettings(c,gs);
 
 			if (ver >= 800)
 				{
 				LGM.setProgress(10,Messages.getString("ProgressDialog.TRIGGERS"));
 				readTriggers(c);
 				LGM.setProgress(20,Messages.getString("ProgressDialog.CONSTANTS"));
-				readConstants(c);
+				readConstants(c,gs);
 				}
 
 			LGM.setProgress(30,Messages.getString("ProgressDialog.SOUNDS"));
@@ -338,11 +340,10 @@ public final class GmFileReader
 		LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED"));
 		}
 
-	private static void readSettings(ProjectFileContext c) throws IOException,GmFormatException,
+	private static void readSettings(ProjectFileContext c, GameSettings g) throws IOException,GmFormatException,
 			DataFormatException
 		{
 		GmStreamDecoder in = c.in;
-		GameSettings g = c.f.gameSettings;
 		PropertyMap<PGameSettings> p = g.properties;
 
 		int ver = in.read4();
@@ -465,11 +466,11 @@ public final class GmFileReader
 
 			if (ver >= 800) in.skip(8); //last changed
 			}
-		else if (ver > 530) readSettingsIncludes(c.f,in);
+		else if (ver > 530) readSettingsIncludes(c.f,in,g);
 		in.endInflate();
 		}
 
-	private static void readSettingsIncludes(ProjectFile f, GmStreamDecoder in) throws IOException
+	private static void readSettingsIncludes(ProjectFile f, GmStreamDecoder in, GameSettings gs) throws IOException
 		{
 		int no = in.read4();
 		for (int i = 0; i < no; i++)
@@ -478,15 +479,15 @@ public final class GmFileReader
 			inc.filepath = in.readStr();
 			inc.filename = new File(inc.filepath).getName();
 			}
-		f.gameSettings.put(PGameSettings.INCLUDE_FOLDER,ProjectFile.GS_INCFOLDERS[in.read4()]);
+		gs.put(PGameSettings.INCLUDE_FOLDER,ProjectFile.GS_INCFOLDERS[in.read4()]);
 		//		f.gameSettings.includeFolder = in.read4(); //0 = main, 1 = temp
-		in.readBool(f.gameSettings.properties,PGameSettings.OVERWRITE_EXISTING,
+		in.readBool(gs.properties,PGameSettings.OVERWRITE_EXISTING,
 				PGameSettings.REMOVE_AT_GAME_END);
 		for (Include inc : f.resMap.getList(Include.class))
 			{
-			inc.export = f.gameSettings.get(PGameSettings.INCLUDE_FOLDER) == IncludeFolder.TEMP ? 1 : 2; //1 = temp, 2 = main
-			inc.overwriteExisting = f.gameSettings.get(PGameSettings.OVERWRITE_EXISTING);
-			inc.removeAtGameEnd = f.gameSettings.get(PGameSettings.REMOVE_AT_GAME_END);
+			inc.export = gs.get(PGameSettings.INCLUDE_FOLDER) == IncludeFolder.TEMP ? 1 : 2; //1 = temp, 2 = main
+			inc.overwriteExisting = gs.get(PGameSettings.OVERWRITE_EXISTING);
+			inc.removeAtGameEnd = gs.get(PGameSettings.REMOVE_AT_GAME_END);
 			}
 		}
 
@@ -520,7 +521,7 @@ public final class GmFileReader
 		in.skip(8); //last changed
 		}
 
-	private static void readConstants(ProjectFileContext c) throws IOException,GmFormatException
+	private static void readConstants(ProjectFileContext c, GameSettings gs) throws IOException,GmFormatException
 		{
 		ProjectFile f = c.f;
 		GmStreamDecoder in = c.in;
@@ -532,7 +533,7 @@ public final class GmFileReader
 		for (int i = 0; i < no; i++)
 			{
 			Constant con = new Constant();
-			f.gameSettings.constants.constants.add(con);
+			gs.constants.constants.add(con);
 
 			con.name = in.readStr();
 			con.value = in.readStr();

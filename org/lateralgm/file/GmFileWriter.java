@@ -96,6 +96,8 @@ public final class GmFileWriter
 		progressBar.setMaximum(200);
 		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_SAVING"));
 
+		GameSettings gs = f.gameSettings.get(0);
+		
 		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
 		if (ver >= 810)
 			out.setCharset(Charset.forName("UTF-8"));
@@ -104,7 +106,7 @@ public final class GmFileWriter
 		out.write4(1234321);
 		out.write4(ver);
 		if (ver == 530) out.write4(0);
-		int gameId = f.gameSettings.get(PGameSettings.GAME_ID);
+		int gameId = gs.get(PGameSettings.GAME_ID);
 		if (ver == 701)
 			{
 			out.write4(0); //bob
@@ -116,36 +118,36 @@ public final class GmFileWriter
 			}
 		else
 			out.write4(gameId);
-		out.write((byte[]) f.gameSettings.get(PGameSettings.GAME_GUID)); //16 bytes
+		out.write((byte[]) gs.get(PGameSettings.GAME_GUID)); //16 bytes
 
-		writeSettings(f,out,ver,savetime);
+		writeSettings(f,out,ver,savetime,gs);
 
 		if (ver >= 800)
 			{
 			LGM.setProgress(10,Messages.getString("ProgressDialog.TRIGGERS"));
-			writeTriggers(f,out,ver);
+			writeTriggers(f,out,ver,gs);
 			LGM.setProgress(20,Messages.getString("ProgressDialog.CONSTANTS"));
-			writeConstants(f,out,ver);
+			writeConstants(f,out,ver,gs);
 			}
 
 		LGM.setProgress(30,Messages.getString("ProgressDialog.SOUNDS"));
-		writeSounds(f,out,ver);
+		writeSounds(f,out,ver,gs);
 		LGM.setProgress(40,Messages.getString("ProgressDialog.SPRITES"));
-		writeSprites(f,out,ver);
+		writeSprites(f,out,ver,gs);
 		LGM.setProgress(50,Messages.getString("ProgressDialog.BACKGROUNDS"));
-		writeBackgrounds(f,out,ver);
+		writeBackgrounds(f,out,ver,gs);
 		LGM.setProgress(60,Messages.getString("ProgressDialog.PATHS"));
-		writePaths(f,out,ver);
+		writePaths(f,out,ver,gs);
 		LGM.setProgress(70,Messages.getString("ProgressDialog.SCRIPTS"));
-		writeScripts(f,out,ver);
+		writeScripts(f,out,ver,gs);
 		LGM.setProgress(80,Messages.getString("ProgressDialog.FONTS"));
-		writeFonts(f,out,ver);
+		writeFonts(f,out,ver,gs);
 		LGM.setProgress(90,Messages.getString("ProgressDialog.TIMELINES"));
-		writeTimelines(f,out,ver);
+		writeTimelines(f,out,ver,gs);
 		LGM.setProgress(100,Messages.getString("ProgressDialog.OBJECTS"));
-		writeGmObjects(f,out,ver);
+		writeGmObjects(f,out,ver,gs);
 		LGM.setProgress(110,Messages.getString("ProgressDialog.ROOMS"));
-		writeRooms(f,out,ver);
+		writeRooms(f,out,ver,gs);
 
 		out.write4(f.lastInstanceId);
 		out.write4(f.lastTileId);
@@ -153,13 +155,13 @@ public final class GmFileWriter
 		if (ver >= 700)
 			{
 			LGM.setProgress(120,Messages.getString("ProgressDialog.INCLUDEFILES"));
-			writeIncludedFiles(f,out,ver);
+			writeIncludedFiles(f,out,ver,gs);
 			LGM.setProgress(130,Messages.getString("ProgressDialog.PACKAGES"));
 			writePackages(f,out,ver);
 			}
 
 		LGM.setProgress(140,Messages.getString("ProgressDialog.GAMEINFORMATION"));
-		writeGameInformation(f,out,ver);
+		writeGameInformation(f,out,ver,gs);
 
 		LGM.setProgress(150,Messages.getString("ProgressDialog.LIBRARYCREATION"));
 		//Library Creation Code
@@ -177,13 +179,12 @@ public final class GmFileWriter
 		LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED"));
 		}
 
-	public static void writeSettings(ProjectFile f, GmStreamEncoder out, int ver, long savetime)
+	public static void writeSettings(ProjectFile f, GmStreamEncoder out, int ver, long savetime, GameSettings g)
 			throws IOException
 		{
 		ver = ver >= 810 ? 810 : ver >= 800 ? 800 : ver >= 701 ? 702 : ver;
 		out.write4(ver >= 800 ? 800 : ver);
 		if (ver >= 800) out.beginDeflate();
-		GameSettings g = f.gameSettings;
 		PropertyMap<PGameSettings> p = g.properties;
 		out.writeBool(p,PGameSettings.START_FULLSCREEN);
 		if (ver >= 600) out.writeBool(p,PGameSettings.INTERPOLATE);
@@ -294,7 +295,7 @@ public final class GmFileWriter
 		out.endDeflate();
 		}
 
-	public static void writeTriggers(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeTriggers(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs) throws IOException
 		{
 		if (ver < 800) return;
 
@@ -320,24 +321,24 @@ public final class GmFileWriter
 				}
 			out.endDeflate();
 			}
-		out.writeD(f.gameSettings.getLastChanged());
+		out.writeD(gs.getLastChanged());
 		}
 
-	public static void writeConstants(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeConstants(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs) throws IOException
 		{
 		if (ver < 800) return;
 
 		out.write4(800);
-		out.write4(f.gameSettings.constants.constants.size());
-		for (Constant c : f.gameSettings.constants.constants)
+		out.write4(gs.constants.constants.size());
+		for (Constant c : gs.constants.constants)
 			{
 			out.writeStr(c.name);
 			out.writeStr(c.value);
 			}
-		out.writeD(f.gameSettings.getLastChanged());
+		out.writeD(gs.getLastChanged());
 		}
 
-	public static void writeSounds(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeSounds(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs) throws IOException
 		{
 		ver = ver >= 800 ? 800 : ver >= 600 ? 600 : 440;
 		out.write4(ver == 800 ? 800 : 400);
@@ -350,7 +351,7 @@ public final class GmFileWriter
 			if (snd != null)
 				{
 				out.writeStr(snd.getName());
-				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
+				if (ver == 800) out.writeD(gs.getLastChanged());
 				out.write4(ver);
 				out.write4(ProjectFile.SOUND_CODE.get(snd.get(PSound.KIND)));
 				out.writeStr(snd.properties,PSound.FILE_TYPE,PSound.FILE_NAME);
@@ -382,7 +383,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeSprites(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeSprites(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs) throws IOException
 		{
 		ver = ver >= 800 ? 800 : ver >= 542 ? 542 : 400;
 		out.write4(ver == 800 ? 800 : 400);
@@ -395,7 +396,7 @@ public final class GmFileWriter
 			if (spr != null)
 				{
 				out.writeStr(spr.getName());
-				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
+				if (ver == 800) out.writeD(gs.getLastChanged());
 				out.write4(ver);
 				if (ver < 800)
 					{
@@ -441,7 +442,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeBackgrounds(ProjectFile f, GmStreamEncoder out, int ver)
+	public static void writeBackgrounds(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs)
 			throws IOException
 		{
 		ver = ver >= 710 ? 710 : ver >= 543 ? 543 : 400;
@@ -456,7 +457,7 @@ public final class GmFileWriter
 			if (back != null)
 				{
 				out.writeStr(back.getName());
-				if (ver == 710) out.writeD(f.gameSettings.getLastChanged());
+				if (ver == 710) out.writeD(gs.getLastChanged());
 				out.write4(ver);
 				if (ver < 710)
 					{
@@ -495,7 +496,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writePaths(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writePaths(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs) throws IOException
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 420);
@@ -508,7 +509,7 @@ public final class GmFileWriter
 			if (path != null)
 				{
 				out.writeStr(path.getName());
-				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
+				if (ver == 800) out.writeD(gs.getLastChanged());
 				out.write4(530);
 				out.writeBool(path.properties,PPath.SMOOTH,PPath.CLOSED);
 				out.write4(path.properties,PPath.PRECISION);
@@ -526,7 +527,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeScripts(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeScripts(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs) throws IOException
 		{
 		ver = ver >= 800 ? 800 : 400;
 		out.write4(ver);
@@ -539,7 +540,7 @@ public final class GmFileWriter
 			if (scr != null)
 				{
 				out.writeStr(scr.getName());
-				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
+				if (ver == 800) out.writeD(gs.getLastChanged());
 				out.write4(ver);
 				out.writeStr(scr.properties,PScript.CODE);
 				}
@@ -547,7 +548,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeFonts(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeFonts(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs) throws IOException
 		{
 		out.write4(ver >= 800 ? 800 : 540);
 		out.write4(f.resMap.getList(Font.class).lastId + 1);
@@ -559,7 +560,7 @@ public final class GmFileWriter
 			if (font != null)
 				{
 				out.writeStr(font.getName());
-				if (ver >= 800) out.writeD(f.gameSettings.getLastChanged());
+				if (ver >= 800) out.writeD(gs.getLastChanged());
 				out.write4(ver >= 800 ? 800 : 540);
 				out.writeStr(font.properties,PFont.FONT_NAME);
 				out.write4(font.properties,PFont.SIZE);
@@ -588,7 +589,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeTimelines(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeTimelines(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs) throws IOException
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 500);
@@ -601,7 +602,7 @@ public final class GmFileWriter
 			if (time != null)
 				{
 				out.writeStr(time.getName());
-				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
+				if (ver == 800) out.writeD(gs.getLastChanged());
 				out.write4(500);
 				out.write4(time.moments.size());
 				for (Moment mom : time.moments)
@@ -614,7 +615,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeGmObjects(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeGmObjects(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs) throws IOException
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 400);
@@ -627,7 +628,7 @@ public final class GmFileWriter
 			if (obj != null)
 				{
 				out.writeStr(obj.getName());
-				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
+				if (ver == 800) out.writeD(gs.getLastChanged());
 				out.write4(430);
 				out.writeId((ResourceReference<?>) obj.get(PGmObject.SPRITE));
 				out.writeBool(obj.properties,PGmObject.SOLID,PGmObject.VISIBLE);
@@ -656,7 +657,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeRooms(ProjectFile f, GmStreamEncoder out, int ver) throws IOException
+	public static void writeRooms(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs) throws IOException
 		{
 		if (ver > 800) ver = 800;
 		out.write4(ver == 800 ? 800 : 420);
@@ -669,7 +670,7 @@ public final class GmFileWriter
 			if (rm != null)
 				{
 				out.writeStr(rm.getName());
-				if (ver == 800) out.writeD(f.gameSettings.getLastChanged());
+				if (ver == 800) out.writeD(gs.getLastChanged());
 				out.write4(541);
 				out.writeStr(rm.properties,PRoom.CAPTION);
 				out.write4(rm.properties,PRoom.WIDTH,PRoom.HEIGHT,PRoom.SNAP_Y,PRoom.SNAP_X);
@@ -736,7 +737,7 @@ public final class GmFileWriter
 			}
 		}
 
-	public static void writeIncludedFiles(ProjectFile f, GmStreamEncoder out, int ver)
+	public static void writeIncludedFiles(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs)
 			throws IOException
 		{
 		ver = ver >= 800 ? 800 : ver >= 620 ? 620 : 0;
@@ -750,7 +751,7 @@ public final class GmFileWriter
 			if (ver >= 800)
 				{
 				out.beginDeflate();
-				out.writeD(f.gameSettings.getLastChanged());
+				out.writeD(gs.getLastChanged());
 				}
 			out.write4(ver);
 			out.writeStr(i.filename);
@@ -784,7 +785,7 @@ public final class GmFileWriter
 			out.writeStr(s);
 		}
 
-	public static void writeGameInformation(ProjectFile f, GmStreamEncoder out, int ver)
+	public static void writeGameInformation(ProjectFile f, GmStreamEncoder out, int ver, GameSettings gs)
 			throws IOException
 		{
 		ver = ver >= 800 ? 800 : /*ver >= 620 ? 620 : */ver >= 600 ? 600 : 430;
@@ -802,7 +803,7 @@ public final class GmFileWriter
 				PGameInformation.HEIGHT);
 		out.writeBool(p,PGameInformation.SHOW_BORDER,PGameInformation.ALLOW_RESIZE,
 				PGameInformation.STAY_ON_TOP,PGameInformation.PAUSE_GAME);
-		if (ver >= 800) out.writeD(f.gameSettings.getLastChanged());
+		if (ver >= 800) out.writeD(gs.getLastChanged());
 
 		out.writeStr(p,PGameInformation.TEXT);
 		out.endDeflate();

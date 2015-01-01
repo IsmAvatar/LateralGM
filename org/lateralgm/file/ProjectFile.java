@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
@@ -270,7 +271,7 @@ public class ProjectFile implements UpdateListener
 
 	public Constants defaultConstants = new Constants();
 	public GameInformation gameInfo = new GameInformation();
-	public GameSettings gameSettings = new GameSettings();
+	public Vector<GameSettings> gameSettings = new Vector<GameSettings>();
 	public ExtensionPackages extPackages = new ExtensionPackages();
 	public int lastInstanceId = 100000;
 	public int lastTileId = 10000000;
@@ -335,16 +336,22 @@ public class ProjectFile implements UpdateListener
 		for (Class<?> kind : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(kind)) resMap.addList(kind);
 		
+		
+		// Default initial configuration
+		GameSettings gs = new GameSettings();
+		gs.setName("Default");
+		gameSettings.add(gs);
+		
 		resMap.put(Constants.class,new SingletonResourceHolder<Constants>(defaultConstants));
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
-		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gameSettings));
+		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gs));
 		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(extPackages));
 		for (ResourceHolder<?> rl : resMap.values())
 			if (rl instanceof ResourceList<?>) ((ResourceList<?>) rl).updateSource.addListener(this);
 
 		Random random = new Random();
-		gameSettings.put(PGameSettings.GAME_ID,random.nextInt(100000001));
-		random.nextBytes((byte[]) gameSettings.get(PGameSettings.GAME_GUID));
+		gs.put(PGameSettings.GAME_ID,random.nextInt(100000001));
+		random.nextBytes((byte[]) gs.get(PGameSettings.GAME_GUID));
 		try
 			{
 			String loc = "org/lateralgm/file/default.ico";
@@ -354,7 +361,7 @@ public class ProjectFile implements UpdateListener
 				filein = LGM.class.getClassLoader().getResourceAsStream(loc);
 			else
 				filein = new FileInputStream(file);
-			gameSettings.put(PGameSettings.GAME_ICON,new ICOFile(filein));
+			gs.put(PGameSettings.GAME_ICON,new ICOFile(filein));
 			}
 		catch (Exception ex)
 			{

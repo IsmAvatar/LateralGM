@@ -80,6 +80,7 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
 import javax.swing.Icon;
@@ -144,6 +145,7 @@ import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.joshedit.Runner;
 import org.lateralgm.messages.Messages;
+import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
@@ -596,11 +598,12 @@ public final class LGM
 		tool.add(makeButton("Toolbar.GMI")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.PKG")); //$NON-NLS-1$
 		tool.addSeparator();
-		tool.add(new JLabel(Messages.getString("Toolbar.Configurations") + ":"));
+		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATIONS") + ":"));
 		String strs[] = { "Default" };
-		JComboBox<String> configsCombo = new JComboBox<String>(strs);
+		JComboBox<GameSettings> configsCombo = new JComboBox<GameSettings>(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
 		configsCombo.setMaximumSize(new Dimension(100,20));
 		tool.add(configsCombo);
+		tool.add(makeButton("Toolbar.CONFIG_MANAGE"));
 		tool.addSeparator();
 		tool.add(makeButton("Toolbar.GMS")); //$NON-NLS-1$
 		tool.addSeparator();
@@ -881,16 +884,16 @@ public final class LGM
 		
 		//NOTE: We do this to update the reference to the one now loaded
 		//since we never close these frames, then we simply revert their controls.
-		constantsFrame.res = LGM.currentFile.gameSettings.constants;
-		constantsFrame.resOriginal = LGM.currentFile.gameSettings.constants.clone();
+		constantsFrame.res = LGM.currentFile.gameSettings.get(0).constants;
+		constantsFrame.resOriginal = LGM.currentFile.gameSettings.get(0).constants.clone();
 		constantsFrame.revertResource();
 		constantsFrame.setVisible(false);
 		gameInfo.res = LGM.currentFile.gameInfo;
 		gameInfo.resOriginal = LGM.currentFile.gameInfo.clone();
 		gameInfo.revertResource();
 		gameInfo.setVisible(false);
-		gameSet.res = LGM.currentFile.gameSettings;
-		gameSet.resOriginal = LGM.currentFile.gameSettings.clone();
+		gameSet.res = LGM.currentFile.gameSettings.get(0);
+		gameSet.resOriginal = LGM.currentFile.gameSettings.get(0);
 		gameSet.revertResource();
 		gameSet.setVisible(false);
 
@@ -2332,7 +2335,7 @@ public final class LGM
 		mdi.add(constantsFrame);
 		gameInfo = new GameInformationFrame(currentFile.gameInfo);
 		mdi.add(gameInfo);
-		gameSet = new GameSettingFrame(currentFile.gameSettings);
+		gameSet = new GameSettingFrame(currentFile.gameSettings.get(0));
 		mdi.add(gameSet);
 		extSet = new ExtensionPackagesFrame(currentFile.extPackages);
 		mdi.add(extSet);

@@ -131,7 +131,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tool.add(new JLabel(Messages.getString("ShaderFrame.TYPE")));
 		String[] typeOptions = { "GLSLES","GLSL","HLSL9","HLSL11" };
 		typeCombo = new JComboBox<String>(typeOptions);
-		typeCombo.setMaximumSize(new Dimension(100,20));
+		typeCombo.setMaximumSize(typeCombo.getPreferredSize());
 		typeCombo.addItemListener(new ItemListener()
 			{
 				public void itemStateChanged(ItemEvent arg0)

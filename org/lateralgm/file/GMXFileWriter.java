@@ -62,6 +62,7 @@ import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.GameInformation.PGameInformation;
+import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
@@ -254,146 +255,148 @@ public final class GMXFileWriter
 		Document dom = c.dom;
 		ProjectFile f = c.f;
 
-		Element conNode = dom.createElement("Configs");
-		Element setNode = dom.createElement("Config");
-		conNode.setAttribute("name","configs");
-		setNode.setTextContent("Configs\\Default");
-		conNode.appendChild(setNode);
-		root.appendChild(conNode);
-
-		dom = documentBuilder.newDocument();
-		conNode = dom.createElement("Config");
-		dom.appendChild(conNode);
-		Element optNode = dom.createElement("Options");
-		conNode.appendChild(optNode);
-
-		// For some odd reason these two settings are fucked up; combined; and not even combined properly
-		//2147483649 - Both
-		//2147483648 - Software Vertex Processing only
-		//1 - Synchronization Only
-		//0 - None
-
-		long syncvertex = 0;
-		if (f.gameSettings.get(PGameSettings.USE_SYNCHRONIZATION))
-			{
-			syncvertex += 1;
-			}
-		if (f.gameSettings.get(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING))
-			{
-			syncvertex += 2147483648L;
-			}
-		optNode.appendChild(createElement(dom,"option_sync_vertex",Long.toString(syncvertex)));
-
-		optNode.appendChild(createElement(dom,"option_fullscreen",
-				f.gameSettings.get(PGameSettings.START_FULLSCREEN).toString()));
-		optNode.appendChild(createElement(dom,"option_sizeable",
-				f.gameSettings.get(PGameSettings.ALLOW_WINDOW_RESIZE).toString()));
-		optNode.appendChild(createElement(dom,"option_stayontop",
-				f.gameSettings.get(PGameSettings.ALWAYS_ON_TOP).toString()));
-		optNode.appendChild(createElement(dom,"option_aborterrors",
-				f.gameSettings.get(PGameSettings.ABORT_ON_ERROR).toString()));
-
-		optNode.appendChild(createElement(dom,"option_noscreensaver",
-				f.gameSettings.get(PGameSettings.DISABLE_SCREENSAVERS).toString()));
-		optNode.appendChild(createElement(dom,"option_showcursor",
-				f.gameSettings.get(PGameSettings.DISPLAY_CURSOR).toString()));
-		optNode.appendChild(createElement(dom,"option_displayerrors",
-				f.gameSettings.get(PGameSettings.DISPLAY_ERRORS).toString()));
-		optNode.appendChild(createElement(dom,"option_noborder",
-				f.gameSettings.get(PGameSettings.DONT_DRAW_BORDER).toString()));
-		optNode.appendChild(createElement(dom,"option_nobuttons",
-				f.gameSettings.get(PGameSettings.DONT_SHOW_BUTTONS).toString()));
-		optNode.appendChild(createElement(dom,"option_argumenterrors",
-				f.gameSettings.get(PGameSettings.ERROR_ON_ARGS).toString()));
-		optNode.appendChild(createElement(dom,"option_freeze",
-				f.gameSettings.get(PGameSettings.FREEZE_ON_LOSE_FOCUS).toString()));
-
-		optNode.appendChild(createElement(dom,"option_colordepth",
-				ProjectFile.GS_DEPTH_CODE.get(f.gameSettings.get(PGameSettings.COLOR_DEPTH)).toString()));
-
-		optNode.appendChild(createElement(dom,"option_frequency",
-				ProjectFile.GS_FREQ_CODE.get(f.gameSettings.get(PGameSettings.FREQUENCY)).toString()));
-		optNode.appendChild(createElement(dom,"option_resolution",
-				ProjectFile.GS_RESOL_CODE.get(f.gameSettings.get(PGameSettings.RESOLUTION)).toString()));
-		optNode.appendChild(createElement(dom,"option_changeresolution",
-				f.gameSettings.get(PGameSettings.SET_RESOLUTION).toString()));
-		optNode.appendChild(createElement(
-				dom,
-				"option_priority",
-				ProjectFile.GS_PRIORITY_CODE.get(f.gameSettings.get(PGameSettings.GAME_PRIORITY)).toString()));
-
-		optNode.appendChild(createElement(dom,"option_closeesc",
-				f.gameSettings.get(PGameSettings.LET_ESC_END_GAME).toString()));
-		optNode.appendChild(createElement(dom,"option_interpolate",
-				f.gameSettings.get(PGameSettings.INTERPOLATE).toString()));
-		optNode.appendChild(createElement(dom,"option_scale",
-				f.gameSettings.get(PGameSettings.SCALING).toString()));
-		optNode.appendChild(createElement(dom,"option_closeesc",
-				f.gameSettings.get(PGameSettings.TREAT_CLOSE_AS_ESCAPE).toString()));
-		optNode.appendChild(createElement(dom,"option_lastchanged",
-				f.gameSettings.get(PGameSettings.LAST_CHANGED).toString()));
-
-		optNode.appendChild(createElement(dom,"option_gameid",
-				f.gameSettings.get(PGameSettings.GAME_ID).toString()));
-		String guid = HexBin.encode((byte[]) f.gameSettings.get(PGameSettings.GAME_GUID));
-		optNode.appendChild(createElement(dom,"option_gameguid",
-				"{" + guid.substring(0,8) + "-" + guid.substring(8,12) + "-" + guid.substring(12,16) + "-"
-						+ guid.substring(16,20) + "-" + guid.substring(20,32) + "}"));
-
-		optNode.appendChild(createElement(dom,"option_author",
-				(String) f.gameSettings.get(PGameSettings.AUTHOR)));
-		optNode.appendChild(createElement(dom,"option_version_company",
-				(String) f.gameSettings.get(PGameSettings.COMPANY)));
-		optNode.appendChild(createElement(dom,"option_version_copyright",
-				(String) f.gameSettings.get(PGameSettings.COPYRIGHT)));
-		optNode.appendChild(createElement(dom,"option_version_description",
-				(String) f.gameSettings.get(PGameSettings.DESCRIPTION)));
-		optNode.appendChild(createElement(dom,"option_version_product",
-				(String) f.gameSettings.get(PGameSettings.PRODUCT)));
-		optNode.appendChild(createElement(dom,"option_information",
-				(String) f.gameSettings.get(PGameSettings.INFORMATION)));
-		optNode.appendChild(createElement(dom,"option_version",
-				f.gameSettings.get(PGameSettings.VERSION).toString()));
-		optNode.appendChild(createElement(dom,"option_version_build",
-				f.gameSettings.get(PGameSettings.VERSION_BUILD).toString()));
-		optNode.appendChild(createElement(dom,"option_version_major",
-				f.gameSettings.get(PGameSettings.VERSION_MAJOR).toString()));
-		optNode.appendChild(createElement(dom,"option_version_minor",
-				f.gameSettings.get(PGameSettings.VERSION_MINOR).toString()));
-		optNode.appendChild(createElement(dom,"option_version_release",
-				f.gameSettings.get(PGameSettings.VERSION_RELEASE).toString()));
-
-		String icoPath = "Configs\\Default\\windows\\runner_icon.ico";
-		optNode.appendChild(createElement(dom,"option_windows_game_icon",icoPath));
-
-		icoPath = f.getDirectory() + "\\" + icoPath;
-		File file = new File(Util.getUnixPath(icoPath)).getParentFile();
-		file.mkdirs();
-
-		FileOutputStream fos = new FileOutputStream(Util.getUnixPath(icoPath));
-		((ICOFile) f.gameSettings.get(PGameSettings.GAME_ICON)).write(fos);
-		fos.close();
-
-		fos = null;
-		try
-			{
-			Transformer tr = TransformerFactory.newInstance().newTransformer();
-			tr.setOutputProperty(OutputKeys.INDENT,"yes");
-			tr.setOutputProperty(OutputKeys.METHOD,"xml");
-			;
-			tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","4");
-
-			file = new File(Util.getUnixPath(f.getDirectory() + "/Configs"));
-			file.mkdir();
-
-			// send DOM to file
-			fos = new FileOutputStream(Util.getUnixPath(f.getDirectory() + "/Configs/Default.config.gmx"));
-			tr.transform(new DOMSource(dom),new StreamResult(fos));
-			}
-		finally
-			{
+		for (GameSettings gs : LGM.currentFile.gameSettings) {
+			Element conNode = dom.createElement("Configs");
+			Element setNode = dom.createElement("Config");
+			conNode.setAttribute("name","configs");
+			setNode.setTextContent("Configs\\" + gs.getName());
+			conNode.appendChild(setNode);
+			root.appendChild(conNode);
+	
+			dom = documentBuilder.newDocument();
+			conNode = dom.createElement("Config");
+			dom.appendChild(conNode);
+			Element optNode = dom.createElement("Options");
+			conNode.appendChild(optNode);
+	
+			// For some odd reason these two settings are fucked up; combined; and not even combined properly
+			//2147483649 - Both
+			//2147483648 - Software Vertex Processing only
+			//1 - Synchronization Only
+			//0 - None
+	
+			long syncvertex = 0;
+			if (gs.get(PGameSettings.USE_SYNCHRONIZATION))
+				{
+				syncvertex += 1;
+				}
+			if (gs.get(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING))
+				{
+				syncvertex += 2147483648L;
+				}
+			optNode.appendChild(createElement(dom,"option_sync_vertex",Long.toString(syncvertex)));
+	
+			optNode.appendChild(createElement(dom,"option_fullscreen",
+					gs.get(PGameSettings.START_FULLSCREEN).toString()));
+			optNode.appendChild(createElement(dom,"option_sizeable",
+					gs.get(PGameSettings.ALLOW_WINDOW_RESIZE).toString()));
+			optNode.appendChild(createElement(dom,"option_stayontop",
+					gs.get(PGameSettings.ALWAYS_ON_TOP).toString()));
+			optNode.appendChild(createElement(dom,"option_aborterrors",
+					gs.get(PGameSettings.ABORT_ON_ERROR).toString()));
+	
+			optNode.appendChild(createElement(dom,"option_noscreensaver",
+					gs.get(PGameSettings.DISABLE_SCREENSAVERS).toString()));
+			optNode.appendChild(createElement(dom,"option_showcursor",
+					gs.get(PGameSettings.DISPLAY_CURSOR).toString()));
+			optNode.appendChild(createElement(dom,"option_displayerrors",
+					gs.get(PGameSettings.DISPLAY_ERRORS).toString()));
+			optNode.appendChild(createElement(dom,"option_noborder",
+					gs.get(PGameSettings.DONT_DRAW_BORDER).toString()));
+			optNode.appendChild(createElement(dom,"option_nobuttons",
+					gs.get(PGameSettings.DONT_SHOW_BUTTONS).toString()));
+			optNode.appendChild(createElement(dom,"option_argumenterrors",
+					gs.get(PGameSettings.ERROR_ON_ARGS).toString()));
+			optNode.appendChild(createElement(dom,"option_freeze",
+					gs.get(PGameSettings.FREEZE_ON_LOSE_FOCUS).toString()));
+	
+			optNode.appendChild(createElement(dom,"option_colordepth",
+					ProjectFile.GS_DEPTH_CODE.get(gs.get(PGameSettings.COLOR_DEPTH)).toString()));
+	
+			optNode.appendChild(createElement(dom,"option_frequency",
+					ProjectFile.GS_FREQ_CODE.get(gs.get(PGameSettings.FREQUENCY)).toString()));
+			optNode.appendChild(createElement(dom,"option_resolution",
+					ProjectFile.GS_RESOL_CODE.get(gs.get(PGameSettings.RESOLUTION)).toString()));
+			optNode.appendChild(createElement(dom,"option_changeresolution",
+					gs.get(PGameSettings.SET_RESOLUTION).toString()));
+			optNode.appendChild(createElement(
+					dom,
+					"option_priority",
+					ProjectFile.GS_PRIORITY_CODE.get(gs.get(PGameSettings.GAME_PRIORITY)).toString()));
+	
+			optNode.appendChild(createElement(dom,"option_closeesc",
+					gs.get(PGameSettings.LET_ESC_END_GAME).toString()));
+			optNode.appendChild(createElement(dom,"option_interpolate",
+					gs.get(PGameSettings.INTERPOLATE).toString()));
+			optNode.appendChild(createElement(dom,"option_scale",
+					gs.get(PGameSettings.SCALING).toString()));
+			optNode.appendChild(createElement(dom,"option_closeesc",
+					gs.get(PGameSettings.TREAT_CLOSE_AS_ESCAPE).toString()));
+			optNode.appendChild(createElement(dom,"option_lastchanged",
+					gs.get(PGameSettings.LAST_CHANGED).toString()));
+	
+			optNode.appendChild(createElement(dom,"option_gameid",
+					gs.get(PGameSettings.GAME_ID).toString()));
+			String guid = HexBin.encode((byte[]) gs.get(PGameSettings.GAME_GUID));
+			optNode.appendChild(createElement(dom,"option_gameguid",
+					"{" + guid.substring(0,8) + "-" + guid.substring(8,12) + "-" + guid.substring(12,16) + "-"
+							+ guid.substring(16,20) + "-" + guid.substring(20,32) + "}"));
+	
+			optNode.appendChild(createElement(dom,"option_author",
+					(String) gs.get(PGameSettings.AUTHOR)));
+			optNode.appendChild(createElement(dom,"option_version_company",
+					(String) gs.get(PGameSettings.COMPANY)));
+			optNode.appendChild(createElement(dom,"option_version_copyright",
+					(String) gs.get(PGameSettings.COPYRIGHT)));
+			optNode.appendChild(createElement(dom,"option_version_description",
+					(String) gs.get(PGameSettings.DESCRIPTION)));
+			optNode.appendChild(createElement(dom,"option_version_product",
+					(String) gs.get(PGameSettings.PRODUCT)));
+			optNode.appendChild(createElement(dom,"option_information",
+					(String) gs.get(PGameSettings.INFORMATION)));
+			optNode.appendChild(createElement(dom,"option_version",
+					gs.get(PGameSettings.VERSION).toString()));
+			optNode.appendChild(createElement(dom,"option_version_build",
+					gs.get(PGameSettings.VERSION_BUILD).toString()));
+			optNode.appendChild(createElement(dom,"option_version_major",
+					gs.get(PGameSettings.VERSION_MAJOR).toString()));
+			optNode.appendChild(createElement(dom,"option_version_minor",
+					gs.get(PGameSettings.VERSION_MINOR).toString()));
+			optNode.appendChild(createElement(dom,"option_version_release",
+					gs.get(PGameSettings.VERSION_RELEASE).toString()));
+	
+			String icoPath = "Configs\\Default\\windows\\runner_icon.ico";
+			optNode.appendChild(createElement(dom,"option_windows_game_icon",icoPath));
+	
+			icoPath = f.getDirectory() + "\\" + icoPath;
+			File file = new File(Util.getUnixPath(icoPath)).getParentFile();
+			file.mkdirs();
+	
+			FileOutputStream fos = new FileOutputStream(Util.getUnixPath(icoPath));
+			((ICOFile) gs.get(PGameSettings.GAME_ICON)).write(fos);
 			fos.close();
-			}
+	
+			fos = null;
+			try
+				{
+				Transformer tr = TransformerFactory.newInstance().newTransformer();
+				tr.setOutputProperty(OutputKeys.INDENT,"yes");
+				tr.setOutputProperty(OutputKeys.METHOD,"xml");
+				;
+				tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","4");
+	
+				file = new File(Util.getUnixPath(f.getDirectory() + "/Configs"));
+				file.mkdir();
+	
+				// send DOM to file
+				fos = new FileOutputStream(Util.getUnixPath(f.getDirectory() + "/Configs/" + gs.getName() + ".config.gmx"));
+				tr.transform(new DOMSource(dom),new StreamResult(fos));
+				}
+			finally
+				{
+				fos.close();
+				}
+		}
 		return;
 		}
 
