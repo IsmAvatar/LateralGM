@@ -90,6 +90,7 @@ import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.BackgroundDef;
 import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
+import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.GlyphMetric;
 import org.lateralgm.resources.sub.GlyphMetric.PGlyphMetric;
@@ -264,7 +265,7 @@ public final class GMXFileReader
 			LGM.setProgress(110,Messages.getString("ProgressDialog.EXTENSIONS"));
 			readExtensions(c,root);
 			LGM.setProgress(120,Messages.getString("ProgressDialog.CONSTANTS"));
-			readConstants(c,root);
+			readDefaultConstants(c,root);
 			LGM.setProgress(130,Messages.getString("ProgressDialog.GAMEINFORMATION"));
 			readGameInformation(c,root);
 			LGM.setProgress(140,Messages.getString("ProgressDialog.SETTINGS"));
@@ -306,7 +307,10 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		NodeList configNodes = in.getElementsByTagName("Configs");
+		NodeList configNodes = in.getElementsByTagName("Configs").item(0).getChildNodes();
+		
+		// clear the old/default ones
+		c.f.gameSettings.clear();
 		
 		for (int i = 0; i < configNodes.getLength(); i++)
 			{
@@ -317,15 +321,16 @@ public final class GMXFileReader
 				continue;
 				}
 
-			if (cname.equals("configs"))
+			if (cname.toLowerCase().equals("configs"))
 				{
 					continue;
 				}
-			else if (cname.equals("config"))
+			else if (cname.toLowerCase().equals("config"))
 				{
+				
 				GameSettings gSet = new GameSettings();
 				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
-				gSet.setName(fileName.substring(0,fileName.lastIndexOf(".")));
+				gSet.setName(fileName);
 				
 				c.f.gameSettings.add(gSet);
 				PropertyMap<PGameSettings> pSet = gSet.properties;
@@ -462,6 +467,23 @@ public final class GMXFileReader
 						PGameSettings.VERSION_RELEASE,
 						Integer.parseInt(setdoc.getElementsByTagName("option_version_release").item(0).getTextContent()));
 
+				Node cnstNode = setdoc.getElementsByTagName("ConfigConstants").item(0);
+				NodeList cnstsList = cnstNode.getChildNodes();
+				boolean found = false;
+				for (int ic = 0; ic < cnstsList.getLength(); ic++) {
+					cnstNode = cnstsList.item(ic);
+					String cnstName = cnstNode.getNodeName();
+					if (cnstName.toLowerCase().equals("#text")) {
+						continue;
+					} else if (cnstName.toLowerCase().equals("constants")) {
+						found = true;
+						break;
+					}
+				}
+				if (found) {
+					readConstants(gSet.constants,cnstNode);
+				}
+				
 				ResNode node = new ResNode("Game Settings",ResNode.STATUS_SECONDARY,GameSettings.class,
 						gSet.reference);
 				root.add(node);
@@ -1993,16 +2015,32 @@ public final class GMXFileReader
 		//iterateExtensions(c, extList, node);
 		}
 	
-	private static void readConstants(ProjectFileContext c, ResNode root) throws IOException,GmFormatException
+	private static void readConstants(Constants cnsts, Node node)
 	{
-	Constants cnsts = c.f.defaultConstants;
-	ResNode node = new ResNode(Resource.kindNamesPlural.get(Constants.class),ResNode.STATUS_SECONDARY,Constants.class,
-			cnsts.reference);
-	root.add(node);
+		if (node == null) return;
+		int count = Integer.valueOf(node.getAttributes().getNamedItem("number").getNodeValue());
+		List<Constant> newList = new ArrayList<Constant>(count);
+		NodeList cnstNodes = node.getChildNodes();
+		for (int i = 0; i < cnstNodes.getLength(); i++)
+		{
+			Node cnstNode = cnstNodes.item(i);
+			if (!cnstNode.getNodeName().equals("constant"))
+			{
+				continue;
+			}
+			String name = cnstNode.getAttributes().getNamedItem("name").getTextContent();
+			String value = cnstNode.getTextContent();
+			newList.add(new Constant(name,value));
+		}
+		cnsts.constants = newList;
 	}
+	
+	private static void readDefaultConstants(ProjectFileContext c, ResNode root) throws IOException, GmFormatException
+		{
+			readConstants(c.f.defaultConstants, c.in.getElementsByTagName("constants").item(0));
+		}
 
-	private static void readGameInformation(ProjectFileContext c, ResNode root) throws IOException,
-			GmFormatException
+	private static void readGameInformation(ProjectFileContext c, ResNode root) throws IOException, GmFormatException
 		{
 		Document in = c.in;
 

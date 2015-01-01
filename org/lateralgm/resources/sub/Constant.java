@@ -13,6 +13,15 @@ public class Constant implements Comparable<Constant>
 	public String name = "";
 	public String value = "";
 
+	public Constant() {
+		this("", "");
+	}
+	
+	public Constant(String n, String v) {
+		name = n;
+		value = v;
+	}
+	
 	public Constant copy()
 		{
 		Constant copy = new Constant();
