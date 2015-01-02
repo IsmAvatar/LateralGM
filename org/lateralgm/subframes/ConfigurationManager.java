@@ -293,6 +293,7 @@ public class ConfigurationManager extends JFrame implements ActionListener
 			public void intervalAdded(ListDataEvent arg0)
 				{
 					deleteButton.setEnabled(vlm.getSize() > 1);
+					System.out.println("add");
 				}
 
 			@Override

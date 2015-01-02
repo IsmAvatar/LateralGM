@@ -33,7 +33,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractButton;
