@@ -248,6 +248,7 @@ public class ConfigurationManager extends JFrame implements ActionListener
 			config.setName("Configuration" + id);
 			model.addElement(config);
 			configList.setSelectedValue(config,true);
+			LGM.configsCombo.updateUI();
 		} else if (cmd.endsWith("COPY")) {
 			GameSettings sel = configList.getSelectedValue();
 			if (sel == null) return;
@@ -261,6 +262,7 @@ public class ConfigurationManager extends JFrame implements ActionListener
 			config.setName("Configuration" + id);
 			model.addElement(config);
 			configList.setSelectedValue(config,true);
+			LGM.configsCombo.updateUI();
 		} else if (cmd.endsWith("DELETE")) {
 			//Stop the user from deleting all configs, they must keep at least 1
 			List<GameSettings> selList = configList.getSelectedValuesList();
@@ -268,6 +270,11 @@ public class ConfigurationManager extends JFrame implements ActionListener
 				selList.remove(0);
 			}
 			model.removeAll(selList);
+			// Make sure the JCombo on the main toolbar wasn't selecting what we just deleted
+			if (LGM.configsCombo.getSelectedIndex() >= LGM.configsCombo.getItemCount() || LGM.configsCombo.getSelectedIndex() < 0) {
+				LGM.configsCombo.setSelectedIndex(0);
+			}
+			LGM.configsCombo.updateUI();
 		} else if (cmd.endsWith("EDIT_SETTINGS")) {
 			//TODO: Make this fire a check for changes to ask the user if they want to save the current settings frame
 			//before they switch, same for EDIT_CONSTANTS

@@ -78,6 +78,7 @@ import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
+import javax.swing.AbstractListModel;
 import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.ComboBoxModel;
@@ -252,7 +253,7 @@ public final class LGM
 	private static JButton closeButton;
 
 	private static JTree searchTree;
-	private static JComboBox<GameSettings> configsCombo;
+	public static JComboBox<GameSettings> configsCombo;
 
 	public static JDialog getProgressDialog()
 		{
@@ -618,8 +619,9 @@ public final class LGM
 		tool.addSeparator();
 		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATIONS") + ":"));
 		configsCombo = new JComboBox<GameSettings>();
-		configsCombo.setModel(makeGameSettingsComboBoxModel(configsCombo));
-		configsCombo.setMaximumSize(configsCombo.getPreferredSize());
+		configsCombo.setModel(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
+		configsCombo.setSize(new Dimension(300, configsCombo.getPreferredSize().height));
+		configsCombo.setMaximumSize(new Dimension(300, configsCombo.getPreferredSize().height));
 		tool.add(configsCombo);
 		tool.add(makeButton("Toolbar.CONFIG_MANAGE"));
 		tool.addSeparator();
@@ -634,44 +636,6 @@ public final class LGM
 			tool.setFont(LGM.lnfFont);
 			}
 		return tool;
-		}
-
-	private static ComboBoxModel<GameSettings> makeGameSettingsComboBoxModel(final JComboBox<GameSettings> combo)
-		{
-		DefaultComboBoxModel<GameSettings> ccm = new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings);
-
-
-		ccm.addListDataListener(new ListDataListener() {
-
-			private void validateSelection() {
-				System.out.println("cocksuck");
-				if (configsCombo.getSelectedItem() == null) {
-					configsCombo.setSelectedIndex(0);
-				}
-			}
-			
-			@Override
-			public void contentsChanged(ListDataEvent arg0)
-				{
-					validateSelection();
-				}
-
-			@Override
-			public void intervalAdded(ListDataEvent arg0)
-				{
-				System.out.println("add");
-					validateSelection();
-				}
-
-			@Override
-			public void intervalRemoved(ListDataEvent arg0)
-				{
-				System.out.println("rem");
-					validateSelection();
-				}
-		
-		});
-		return ccm;
 		}
 
 	private static JTree createTree()
@@ -939,7 +903,7 @@ public final class LGM
 		LGM.eventSelect.reload();
 		
 		ConfigurationManager.getInstance().setConfigList(LGM.currentFile.gameSettings);
-		configsCombo.setModel(makeGameSettingsComboBoxModel(configsCombo));
+		configsCombo.setModel(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
 		
 		//NOTE: We do this to update the reference to the one now loaded
 		//since we never close these frames, then we simply revert their controls.
