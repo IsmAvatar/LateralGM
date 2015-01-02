@@ -280,7 +280,7 @@ public class ConfigurationManager extends JFrame implements ActionListener
 			if (sel == null) return;
 			LGM.showGameSettings(sel);
 		} else if (cmd.endsWith("EDIT_CONSTANTS")) {
-			final GameSettings sel = configList.getSelectedValue();
+			GameSettings sel = configList.getSelectedValue();
 			if (sel == null) return;
 			sel.constants.setName(sel.getName());
 			LGM.showConstantsFrame(sel.constants);
