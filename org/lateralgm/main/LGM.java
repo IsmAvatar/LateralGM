@@ -620,8 +620,8 @@ public final class LGM
 		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATIONS") + ":"));
 		configsCombo = new JComboBox<GameSettings>();
 		configsCombo.setModel(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
-		configsCombo.setSize(new Dimension(300, configsCombo.getPreferredSize().height));
-		configsCombo.setMaximumSize(new Dimension(300, configsCombo.getPreferredSize().height));
+		//configsCombo.setSize(new Dimension(300, configsCombo.getPreferredSize().height));
+		configsCombo.setMaximumSize(configsCombo.getPreferredSize());
 		tool.add(configsCombo);
 		tool.add(makeButton("Toolbar.CONFIG_MANAGE"));
 		tool.addSeparator();
