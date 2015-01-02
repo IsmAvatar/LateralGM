@@ -44,12 +44,13 @@ public abstract class RevertableMDIFrame extends MDIFrame
 		super.doDefaultCloseAction();
 		}
 
-	public void doDefaultCloseAction()
+	public void doDefaultCloseAction(final Runnable runnable)
 		{
 		if (!resourceChanged())
 			{
 			revertResource();
 			close();
+			if (runnable != null) runnable.run();
 			return;
 			}
 
@@ -73,7 +74,14 @@ public abstract class RevertableMDIFrame extends MDIFrame
 						revertResource();
 						close();
 						}
+						if (runnable != null) runnable.run();
 					}
 			});
+		}
+	
+	@Override
+	public void doDefaultCloseAction()
+		{
+			doDefaultCloseAction(null);
 		}
 	}

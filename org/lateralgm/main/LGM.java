@@ -3,7 +3,7 @@
 * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
 * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
 * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
-* Copyright (C) 2013, 2014, Robert B. Colton
+* Copyright (C) 2013, 2014, 2015 Robert B. Colton
 *
 * This file is part of LateralGM.
 *
@@ -78,10 +78,8 @@ import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
-import javax.swing.AbstractListModel;
 import javax.swing.Action;
 import javax.swing.Box;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DropMode;
 import javax.swing.GroupLayout;
@@ -119,8 +117,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import javax.swing.plaf.metal.DefaultMetalTheme;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
@@ -485,16 +481,25 @@ public final class LGM
 		return extSet;
 		}
 
-	public static void showConstantsFrame(Constants cnsts)
+	public static void showConstantsFrame(final Constants cnsts)
 		{
-		if (constantsFrame.res != cnsts && constantsFrame.resOriginal != cnsts) {
-			constantsFrame.res = cnsts;
-			constantsFrame.resOriginal = cnsts.clone();
-			constantsFrame.revertResource();
-		}
-		constantsFrame.updateTitle();
-		getConstantsFrame().setVisible(true);
-		getConstantsFrame().toTop();
+		Runnable run = new Runnable() {
+
+			@Override
+			public void run()
+				{
+				if (constantsFrame.res != cnsts && constantsFrame.resOriginal != cnsts) {
+					constantsFrame.res = cnsts;
+					constantsFrame.resOriginal = cnsts.clone();
+					constantsFrame.revertResource();
+				}
+				constantsFrame.updateTitle();
+				getConstantsFrame().setVisible(true);
+				getConstantsFrame().toTop();
+				}
+
+		};
+		constantsFrame.doDefaultCloseAction(run);
 		}
 
 	public static void showGameInformation()
@@ -503,16 +508,25 @@ public final class LGM
 		getGameInfo().toTop();
 		}
 
-	public static void showGameSettings(GameSettings set)
+	public static void showGameSettings(final GameSettings set)
 		{
-		if (gameSet.res != set && gameSet.resOriginal != set) {
-			gameSet.res = set;
-			gameSet.resOriginal = set;
-			gameSet.revertResource();
-		}
-		gameSet.updateTitle();
-		getGameSettings().setVisible(true);
-		getGameSettings().toTop();
+		Runnable run = new Runnable() {
+
+			@Override
+			public void run()
+				{
+				if (gameSet.res != set && gameSet.resOriginal != set) {
+					gameSet.res = set;
+					gameSet.resOriginal = set.clone();
+					gameSet.revertResource();
+				}
+				gameSet.updateTitle();
+				getGameSettings().setVisible(true);
+				getGameSettings().toTop();
+				}
+		
+		};
+		gameSet.doDefaultCloseAction(run);
 		}
 
 	public static void showExtensionPackages()
@@ -620,7 +634,6 @@ public final class LGM
 		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATIONS") + ":"));
 		configsCombo = new JComboBox<GameSettings>();
 		configsCombo.setModel(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
-		//configsCombo.setSize(new Dimension(300, configsCombo.getPreferredSize().height));
 		configsCombo.setMaximumSize(configsCombo.getPreferredSize());
 		tool.add(configsCombo);
 		tool.add(makeButton("Toolbar.CONFIG_MANAGE"));

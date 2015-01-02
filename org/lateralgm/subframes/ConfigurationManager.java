@@ -276,13 +276,11 @@ public class ConfigurationManager extends JFrame implements ActionListener
 			}
 			LGM.configsCombo.updateUI();
 		} else if (cmd.endsWith("EDIT_SETTINGS")) {
-			//TODO: Make this fire a check for changes to ask the user if they want to save the current settings frame
-			//before they switch, same for EDIT_CONSTANTS
 			GameSettings sel = configList.getSelectedValue();
 			if (sel == null) return;
 			LGM.showGameSettings(sel);
 		} else if (cmd.endsWith("EDIT_CONSTANTS")) {
-			GameSettings sel = configList.getSelectedValue();
+			final GameSettings sel = configList.getSelectedValue();
 			if (sel == null) return;
 			sel.constants.setName(sel.getName());
 			LGM.showConstantsFrame(sel.constants);
