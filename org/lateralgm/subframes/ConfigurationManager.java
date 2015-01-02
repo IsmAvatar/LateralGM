@@ -262,10 +262,14 @@ public class ConfigurationManager extends JFrame implements ActionListener
 			model.addElement(config);
 			configList.setSelectedValue(config,true);
 		} else if (cmd.endsWith("DELETE")) {
-			//TODO: Stop from select all->delete
-			model.removeAll(configList.getSelectedValuesList());
+			//Stop the user from deleting all configs, they must keep at least 1
+			List<GameSettings> selList = configList.getSelectedValuesList();
+			if (selList.size() >= model.getSize()) {
+				selList.remove(0);
+			}
+			model.removeAll(selList);
 		} else if (cmd.endsWith("EDIT_SETTINGS")) {
-			//TODO: Make this fire a check for changes to ask the user if they want to save the current setings frame
+			//TODO: Make this fire a check for changes to ask the user if they want to save the current settings frame
 			//before they switch, same for EDIT_CONSTANTS
 			GameSettings sel = configList.getSelectedValue();
 			if (sel == null) return;
@@ -293,7 +297,6 @@ public class ConfigurationManager extends JFrame implements ActionListener
 			public void intervalAdded(ListDataEvent arg0)
 				{
 					deleteButton.setEnabled(vlm.getSize() > 1);
-					System.out.println("add");
 				}
 
 			@Override
