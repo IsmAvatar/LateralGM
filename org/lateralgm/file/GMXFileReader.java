@@ -198,7 +198,7 @@ public final class GMXFileReader
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
 			throws GmFormatException
 		{
-			readProjectFile(stream,file,uri,root,null);
+		readProjectFile(stream,file,uri,root,null);
 		}
 
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
@@ -261,7 +261,7 @@ public final class GMXFileReader
 			LGM.setProgress(90,Messages.getString("ProgressDialog.ROOMS"));
 			readRooms(c,root);
 			LGM.setProgress(100,Messages.getString("ProgressDialog.INCLUDEFILES"));
-			readIncludedFiles(c, root);
+			readIncludedFiles(c,root);
 			LGM.setProgress(110,Messages.getString("ProgressDialog.EXTENSIONS"));
 			readExtensions(c,root);
 			LGM.setProgress(120,Messages.getString("ProgressDialog.CONSTANTS"));
@@ -308,10 +308,10 @@ public final class GMXFileReader
 		Document in = c.in;
 
 		NodeList configNodes = in.getElementsByTagName("Configs").item(0).getChildNodes();
-		
+
 		// clear the old/default ones
 		c.f.gameSettings.clear();
-		
+
 		for (int i = 0; i < configNodes.getLength(); i++)
 			{
 			Node cNode = configNodes.item(i);
@@ -323,20 +323,21 @@ public final class GMXFileReader
 
 			if (cname.toLowerCase().equals("configs"))
 				{
-					continue;
+				continue;
 				}
 			else if (cname.toLowerCase().equals("config"))
 				{
-				
+
 				GameSettings gSet = new GameSettings();
 				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
 				gSet.setName(fileName);
-				
+
 				c.f.gameSettings.add(gSet);
 				PropertyMap<PGameSettings> pSet = gSet.properties;
 
 				String path = c.f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 
 				Document setdoc = documentBuilder.parse(path + ".config.gmx");
 				if (setdoc == null)
@@ -376,7 +377,8 @@ public final class GMXFileReader
 				pSet.put(
 						PGameSettings.ERROR_ON_ARGS,
 						Boolean.parseBoolean(setdoc.getElementsByTagName("option_argumenterrors").item(0).getTextContent()));
-				pSet.put(PGameSettings.FREEZE_ON_LOSE_FOCUS,
+				pSet.put(
+						PGameSettings.FREEZE_ON_LOSE_FOCUS,
 						Boolean.parseBoolean(setdoc.getElementsByTagName("option_freeze").item(0).getTextContent()));
 
 				pSet.put(
@@ -396,8 +398,8 @@ public final class GMXFileReader
 						Boolean.parseBoolean(setdoc.getElementsByTagName("option_changeresolution").item(0).getTextContent()));
 				pSet.put(
 						PGameSettings.GAME_PRIORITY,
-						ProjectFile.GS_PRIORITIES[Integer.parseInt(setdoc.getElementsByTagName("option_priority").item(
-								0).getTextContent())]);
+						ProjectFile.GS_PRIORITIES[Integer.parseInt(setdoc.getElementsByTagName(
+								"option_priority").item(0).getTextContent())]);
 
 				// For some odd reason these two settings are fucked up; combined; and not even combined properly
 				//2147483649 - Both
@@ -468,28 +470,38 @@ public final class GMXFileReader
 						Integer.parseInt(setdoc.getElementsByTagName("option_version_release").item(0).getTextContent()));
 
 				Node cnstNode = setdoc.getElementsByTagName("ConfigConstants").item(0);
-				NodeList cnstsList = cnstNode.getChildNodes();
-				boolean found = false;
-				for (int ic = 0; ic < cnstsList.getLength(); ic++) {
-					cnstNode = cnstsList.item(ic);
-					String cnstName = cnstNode.getNodeName();
-					if (cnstName.toLowerCase().equals("#text")) {
-						continue;
-					} else if (cnstName.toLowerCase().equals("constants")) {
-						found = true;
-						break;
+
+				// If there is a constant section
+				if (cnstNode != null)
+					{
+					NodeList cnstsList = cnstNode.getChildNodes();
+					boolean found = false;
+
+					for (int ic = 0; ic < cnstsList.getLength(); ic++)
+						{
+						cnstNode = cnstsList.item(ic);
+						String cnstName = cnstNode.getNodeName();
+						if (cnstName.toLowerCase().equals("#text"))
+							{
+							continue;
+							}
+						else if (cnstName.toLowerCase().equals("constants"))
+							{
+							found = true;
+							break;
+							}
+						}
+
+					if (found) readConstants(gSet.constants,cnstNode);
+
 					}
-				}
-				if (found) {
-					readConstants(gSet.constants,cnstNode);
-				}
-				
+
 				}
 			}
 
 		ResNode node = new ResNode("Game Settings",ResNode.STATUS_SECONDARY,GameSettings.class,null);
 		root.add(node);
-		
+
 		}
 
 	private static void iterateSprites(ProjectFileContext c, NodeList sprList, ResNode node)
@@ -524,7 +536,8 @@ public final class GMXFileReader
 				rnode = new ResNode(spr.getName(),ResNode.STATUS_SECONDARY,Sprite.class,spr.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 
 				Document sprdoc = documentBuilder.parse(path + ".sprite.gmx");
 				spr.put(PSprite.ORIGIN_X,
@@ -586,7 +599,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Sprite.class),ResNode.STATUS_PRIMARY,Sprite.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Sprite.class),ResNode.STATUS_PRIMARY,
+				Sprite.class,null);
 		root.add(node);
 
 		NodeList sprList = in.getElementsByTagName("sprites");
@@ -633,7 +647,8 @@ public final class GMXFileReader
 				node.add(rnode);
 				snd.setNode(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 
 				Document snddoc = documentBuilder.parse(path + ".sound.gmx");
 
@@ -685,7 +700,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Sound.class),ResNode.STATUS_PRIMARY,Sound.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Sound.class),ResNode.STATUS_PRIMARY,
+				Sound.class,null);
 		root.add(node);
 
 		NodeList sndList = in.getElementsByTagName("sounds");
@@ -732,7 +748,8 @@ public final class GMXFileReader
 				rnode = new ResNode(bkg.getName(),ResNode.STATUS_SECONDARY,Background.class,bkg.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 
 				Document bkgdoc = documentBuilder.parse(path + ".background.gmx");
 
@@ -783,7 +800,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Background.class),ResNode.STATUS_PRIMARY,Background.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Background.class),
+				ResNode.STATUS_PRIMARY,Background.class,null);
 		root.add(node);
 
 		NodeList bkgList = in.getElementsByTagName("backgrounds");
@@ -830,7 +848,8 @@ public final class GMXFileReader
 				rnode = new ResNode(pth.getName(),ResNode.STATUS_SECONDARY,Path.class,pth.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 
 				Document pthdoc = documentBuilder.parse(path + ".path.gmx");
 				pth.put(PPath.SMOOTH,
@@ -855,7 +874,7 @@ public final class GMXFileReader
 								{
 								return false;
 								}
-							pth.put(PPath.BACKGROUND_ROOM, rmn.reference);
+							pth.put(PPath.BACKGROUND_ROOM,rmn.reference);
 
 							return true;
 							}
@@ -886,7 +905,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Path.class),ResNode.STATUS_PRIMARY,Path.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Path.class),ResNode.STATUS_PRIMARY,
+				Path.class,null);
 		root.add(node);
 
 		NodeList pthList = in.getElementsByTagName("paths");
@@ -934,7 +954,8 @@ public final class GMXFileReader
 				node.add(rnode);
 				String code = "";
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 				FileInputStream ins = new FileInputStream(path);
 				BufferedReader reader = null;
 				try
@@ -962,7 +983,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Script.class),ResNode.STATUS_PRIMARY,Script.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Script.class),ResNode.STATUS_PRIMARY,
+				Script.class,null);
 		root.add(node);
 
 		NodeList scrList = in.getElementsByTagName("scripts");
@@ -1011,7 +1033,8 @@ public final class GMXFileReader
 				shr.put(PShader.TYPE,cNode.getAttributes().item(0).getTextContent());
 				String code = "";
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 				FileInputStream ins = new FileInputStream(path);
 				BufferedReader reader = null;
 				try
@@ -1041,7 +1064,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Shader.class),ResNode.STATUS_PRIMARY,Shader.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Shader.class),ResNode.STATUS_PRIMARY,
+				Shader.class,null);
 		root.add(node);
 
 		NodeList shrList = in.getElementsByTagName("shaders");
@@ -1088,7 +1112,8 @@ public final class GMXFileReader
 				rnode = new ResNode(fnt.getName(),ResNode.STATUS_SECONDARY,Font.class,fnt.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 
 				Document fntdoc = documentBuilder.parse(path + ".font.gmx");
 				fnt.put(PFont.FONT_NAME,fntdoc.getElementsByTagName("name").item(0).getTextContent());
@@ -1139,7 +1164,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Font.class),ResNode.STATUS_PRIMARY,Font.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Font.class),ResNode.STATUS_PRIMARY,
+				Font.class,null);
 		root.add(node);
 
 		NodeList fntList = in.getElementsByTagName("fonts");
@@ -1190,7 +1216,8 @@ public final class GMXFileReader
 				rnode = new ResNode(tml.getName(),ResNode.STATUS_SECONDARY,Timeline.class,tml.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 
 				Document tmldoc = documentBuilder.parse(path + ".timeline.gmx");
 
@@ -1230,7 +1257,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Timeline.class),ResNode.STATUS_PRIMARY,Timeline.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Timeline.class),ResNode.STATUS_PRIMARY,
+				Timeline.class,null);
 		root.add(node);
 
 		NodeList tmlList = in.getElementsByTagName("timelines");
@@ -1280,7 +1308,8 @@ public final class GMXFileReader
 				obj.setNode(rnode);
 
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 
 				Document objdoc = documentBuilder.parse(path + ".object.gmx");
 
@@ -1442,17 +1471,16 @@ public final class GMXFileReader
 						Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectAngularDamping").item(0).getTextContent()));
 				//TODO: I guess some versions of the format didn't have these?
 				Node fNode = objdoc.getElementsByTagName("PhysicsObjectFriction").item(0);
-				if (fNode != null) {
-					obj.put(
-							PGmObject.PHYSICS_FRICTION,
-							Double.parseDouble(fNode.getTextContent()));
+				if (fNode != null)
+					{
+					obj.put(PGmObject.PHYSICS_FRICTION,Double.parseDouble(fNode.getTextContent()));
 					obj.put(
 							PGmObject.PHYSICS_AWAKE,
 							Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectAwake").item(0).getTextContent()) < 0);
 					obj.put(
 							PGmObject.PHYSICS_KINEMATIC,
 							Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectKinematic").item(0).getTextContent()) < 0);
-				}
+					}
 
 				NodeList pointNodes = objdoc.getElementsByTagName("point");
 				for (int p = 0; p < pointNodes.getLength(); p++)
@@ -1527,7 +1555,8 @@ public final class GMXFileReader
 				rnode = new ResNode(rmn.getName(),ResNode.STATUS_SECONDARY,Room.class,rmn.reference);
 				node.add(rnode);
 				String path = f.getPath();
-				path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(cNode.getTextContent());
+				path = path.substring(0,path.lastIndexOf('/') + 1)
+						+ Util.getUnixPath(cNode.getTextContent());
 
 				Document rmndoc = documentBuilder.parse(path + ".room.gmx");
 				String caption = rmndoc.getElementsByTagName("caption").item(0).getTextContent();
@@ -1830,8 +1859,8 @@ public final class GMXFileReader
 									Color color = Util.convertInstanceColorWithAlpha((int) col);
 									inst.setColor(color);
 									inst.setAlpha(color.getAlpha());
-								}
-								
+									}
+
 								double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue());
 								//TODO: fuck they use strings we use integers
 								//inst.properties.put(PInstance.ID, inode.getAttributes().getNamedItem("name").getNodeValue());
@@ -1948,7 +1977,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Room.class),ResNode.STATUS_PRIMARY,Room.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Room.class),ResNode.STATUS_PRIMARY,
+				Room.class,null);
 		root.add(node);
 
 		NodeList rmnList = in.getElementsByTagName("rooms");
@@ -1968,7 +1998,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Include.class),ResNode.STATUS_PRIMARY,Include.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Include.class),ResNode.STATUS_PRIMARY,
+				Include.class,null);
 		root.add(node);
 
 		NodeList incList = in.getElementsByTagName("includes");
@@ -1989,8 +2020,8 @@ public final class GMXFileReader
 
 		//iteratePackages(c, extList, node);
 		ExtensionPackages extpkgs = c.f.extPackages;
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(ExtensionPackages.class),ResNode.STATUS_SECONDARY,ExtensionPackages.class,
-				extpkgs.reference);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(ExtensionPackages.class),
+				ResNode.STATUS_SECONDARY,ExtensionPackages.class,extpkgs.reference);
 		root.add(node);
 		}
 
@@ -1999,7 +2030,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Extension.class),ResNode.STATUS_PRIMARY,ExtensionPackages.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Extension.class),
+				ResNode.STATUS_PRIMARY,ExtensionPackages.class,null);
 		root.add(node);
 
 		NodeList extList = in.getElementsByTagName("extensions");
@@ -2013,35 +2045,37 @@ public final class GMXFileReader
 			}
 		//iterateExtensions(c, extList, node);
 		}
-	
+
 	private static void readConstants(Constants cnsts, Node node)
-	{
+		{
 		if (node == null) return;
 		int count = Integer.valueOf(node.getAttributes().getNamedItem("number").getNodeValue());
 		List<Constant> newList = new ArrayList<Constant>(count);
 		NodeList cnstNodes = node.getChildNodes();
 		for (int i = 0; i < cnstNodes.getLength(); i++)
-		{
+			{
 			Node cnstNode = cnstNodes.item(i);
 			if (!cnstNode.getNodeName().equals("constant"))
-			{
+				{
 				continue;
-			}
+				}
 			String name = cnstNode.getAttributes().getNamedItem("name").getTextContent();
 			String value = cnstNode.getTextContent();
 			newList.add(new Constant(name,value));
-		}
+			}
 		cnsts.constants = newList;
-	}
-	
-	private static void readDefaultConstants(ProjectFileContext c, ResNode root) throws IOException, GmFormatException
-		{
-			readConstants(c.f.defaultConstants, c.in.getElementsByTagName("constants").item(0));
-			ResNode node = new ResNode("Constants",ResNode.STATUS_SECONDARY,Constants.class,null);
-			root.add(node);
 		}
 
-	private static void readGameInformation(ProjectFileContext c, ResNode root) throws IOException, GmFormatException
+	private static void readDefaultConstants(ProjectFileContext c, ResNode root) throws IOException,
+			GmFormatException
+		{
+		readConstants(c.f.defaultConstants,c.in.getElementsByTagName("constants").item(0));
+		ResNode node = new ResNode("Constants",ResNode.STATUS_SECONDARY,Constants.class,null);
+		root.add(node);
+		}
+
+	private static void readGameInformation(ProjectFileContext c, ResNode root) throws IOException,
+			GmFormatException
 		{
 		Document in = c.in;
 
@@ -2078,8 +2112,8 @@ public final class GMXFileReader
 
 		gameInfo.put(PGameInformation.TEXT,text);
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(GameInformation.class),ResNode.STATUS_SECONDARY,GameInformation.class,
-				gameInfo.reference);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(GameInformation.class),
+				ResNode.STATUS_SECONDARY,GameInformation.class,gameInfo.reference);
 		root.add(node);
 		}
 
@@ -2222,7 +2256,7 @@ public final class GMXFileReader
 								}
 							else
 								{
-								
+
 								Class<? extends Resource<?,?>> kindc = Argument.getResourceKind(argument.kind);
 								if (kindc != null && Resource.class.isAssignableFrom(kindc)) try
 									{
