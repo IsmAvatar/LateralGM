@@ -920,16 +920,16 @@ public final class LGM
 		
 		//NOTE: We do this to update the reference to the one now loaded
 		//since we never close these frames, then we simply revert their controls.
-		constantsFrame.res = LGM.currentFile.gameSettings.get(0).constants;
-		constantsFrame.resOriginal = LGM.currentFile.gameSettings.get(0).constants.clone();
+		constantsFrame.res = LGM.currentFile.gameSettings.firstElement().constants;
+		constantsFrame.resOriginal = LGM.currentFile.gameSettings.firstElement().constants.clone();
 		constantsFrame.revertResource();
 		constantsFrame.setVisible(false);
 		gameInfo.res = LGM.currentFile.gameInfo;
 		gameInfo.resOriginal = LGM.currentFile.gameInfo.clone();
 		gameInfo.revertResource();
 		gameInfo.setVisible(false);
-		gameSet.res = LGM.currentFile.gameSettings.get(0);
-		gameSet.resOriginal = LGM.currentFile.gameSettings.get(0);
+		gameSet.res = LGM.currentFile.gameSettings.firstElement();
+		gameSet.resOriginal = LGM.currentFile.gameSettings.firstElement().clone();
 		gameSet.revertResource();
 		gameSet.setVisible(false);
 
