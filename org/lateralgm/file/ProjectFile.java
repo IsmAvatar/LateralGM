@@ -346,7 +346,7 @@ public class ProjectFile implements UpdateListener
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
 		//TODO: We don't need this anymore. It should however still be iteratable, perhaps we should make a Config resource to manage
 		//all game configurations? - Robert
-		//resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gs));
+		resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gs));
 		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(extPackages));
 		for (ResourceHolder<?> rl : resMap.values())
 			if (rl instanceof ResourceList<?>) ((ResourceList<?>) rl).updateSource.addListener(this);
