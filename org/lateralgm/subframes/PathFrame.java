@@ -9,6 +9,7 @@
 
 package org.lateralgm.subframes;
 
+import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
@@ -92,7 +93,7 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		JComponent preview = makePreview();
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(tb)
+		/**/.addComponent(tb,PREFERRED_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(side,DEFAULT_SIZE,0,0)
 		/*	*/.addComponent(preview,240,480,DEFAULT_SIZE)));

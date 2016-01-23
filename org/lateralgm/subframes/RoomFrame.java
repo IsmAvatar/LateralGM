@@ -1163,7 +1163,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements 
 		JPanel stats = makeStatsPane();
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(tools)
+		/**/.addComponent(tools,PREFERRED_SIZE,DEFAULT_SIZE,MAX_VALUE)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(tabs,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/*	*/.addGroup(layout.createParallelGroup()
