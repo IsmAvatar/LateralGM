@@ -17,6 +17,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Collections;
 
 import javax.swing.GroupLayout;
@@ -71,6 +74,17 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		moments = new JList(res.moments.toArray());
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
+		MouseListener ml = new MouseAdapter()
+			{
+			public void mousePressed(MouseEvent e) 
+				{
+				if (e.getClickCount() == 2) 
+					{
+					actions.edit();
+					}
+				}
+			};
+		moments.addMouseListener(ml);
 		JScrollPane scroll = new JScrollPane(moments);
 		scroll.setPreferredSize(new Dimension(90,260));
 		side2.add(scroll,BorderLayout.CENTER);

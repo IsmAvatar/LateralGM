@@ -804,6 +804,13 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 					menu.show(e.getComponent(),e.getX(),e.getY());
 					}
 				}
+			else if (button == MouseEvent.BUTTON1)
+				{
+					if (e.getClickCount() == 2)
+						{
+						actions.edit();
+						}
+				}
 			}
 		}
 	}

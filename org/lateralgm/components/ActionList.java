@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EmptyStackException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import java.util.WeakHashMap;
@@ -106,6 +107,28 @@ public class ActionList extends JList
 	public ActionContainer getActionContainer()
 		{
 		return actionContainer;
+		}
+
+	public void edit() 
+		{
+		if (model.list.size() > 1) return;
+
+		Action codeAction = null;
+		if (model.list.size() > 0) 
+			{
+			codeAction = model.list.get(0);
+			} 
+		else 
+			{
+			codeAction = new Action(LibManager.codeAction);
+			model.add(0,codeAction);
+			setSelectedValue(codeAction,true);
+			}
+
+		if (codeAction.getLibAction().actionKind == Action.ACT_CODE) 
+			{
+			ActionList.openActionFrame(this.parent.get(),codeAction);
+			}
 		}
 
 	public void save()
