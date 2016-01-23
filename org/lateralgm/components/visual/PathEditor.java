@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -82,7 +82,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			PPathEditor.class,true,null);
 
 	private final ArrayList<PointVisual> pvList;
-	private final HashMap<PathPoint,PointVisual> pvMap;
+	private final IdentityHashMap<PathPoint,PointVisual> pvMap;
 
 	private PathArrow arrow;
 
@@ -102,7 +102,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 		path.points.updateSource.addListener(pll);
 		int s = path.points.size();
 		pvList = new ArrayList<PointVisual>(s);
-		pvMap = new HashMap<PathPoint,PointVisual>(Math.max((int) (s / .75f) + 1,16));
+		pvMap = new IdentityHashMap<PathPoint,PointVisual>(Math.max((int) (s / .75f) + 1,16));
 		updatePointList();
 		ResourceReference<Room> r = path.get(PPath.BACKGROUND_ROOM);
 		setRoom(r == null ? null : r.get());
@@ -671,8 +671,10 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			}
 		}
 
-	final HashMap<PathPoint,SmoothPathSegment> spsMap = new HashMap<PathPoint,SmoothPathSegment>();
-	final HashMap<PathPoint,LinearPathSegment> lpsMap = new HashMap<PathPoint,LinearPathSegment>();
+	final IdentityHashMap<PathPoint,SmoothPathSegment> spsMap =
+			new IdentityHashMap<PathPoint,SmoothPathSegment>();
+	final IdentityHashMap<PathPoint,LinearPathSegment> lpsMap =
+			new IdentityHashMap<PathPoint,LinearPathSegment>();
 
 	@SuppressWarnings("unchecked")
 	private void updatePointList()
@@ -684,7 +686,7 @@ public class PathEditor extends VisualPanel implements UpdateListener
 			lps.remove();
 		lpsMap.clear();
 		if (arrow != null) arrow.remove();
-		Set<PathPoint> pps = ((HashMap<PathPoint,PointVisual>) pvMap.clone()).keySet();
+		Set<PathPoint> pps = ((IdentityHashMap<PathPoint,PointVisual>) pvMap.clone()).keySet();
 		int s = pvList.size();
 		ActiveArrayList<PathPoint> pp = path.points;
 		int s2 = pp.size();
