@@ -196,6 +196,9 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_DELETE);
 		subkey.add(MainEvent.EV_KEYBOARD,KeyEvent.VK_INSERT);
 
+		keyboard.add(MainEvent.EV_KEYBOARD,Event.EV_NO_KEY);
+		keyboard.add(MainEvent.EV_KEYBOARD,Event.EV_ANY_KEY);
+
 		//MOUSE
 		EventNode mouse = new EventNode(MainEvent.EV_MOUSE);
 		root.add(mouse);
@@ -226,14 +229,29 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		root.add(other);
 		for (int i = Event.EV_OUTSIDE; i <= Event.EV_NO_MORE_HEALTH; i++)
 			other.add(MainEvent.EV_OTHER,i);
+		other.add(MainEvent.EV_OTHER,Event.EV_CLOSE_BUTTON);
+
+		EventNode views = new EventNode(
+				Messages.getString("EventPanel.VIEWS"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
+		other.add(views);
+		for (int i = 0; i <= 7; i++)
+			{
+			views.add(new EventNode(
+					Messages.format("Event.EVENT7_40",i),MainEvent.EV_OTHER,Event.EV_VIEW_OUTSIDE0 + i)); //$NON-NLS-1$
+			}
+		for (int i = 0; i <= 7; i++)
+			{
+			views.add(new EventNode(
+					Messages.format("Event.EVENT7_50",i),MainEvent.EV_OTHER,Event.EV_VIEW_BOUNDARY0 + i)); //$NON-NLS-1$
+			}
 
 		EventNode user = new EventNode(
 				Messages.getString("EventPanel.USER_DEFINED"),MainEvent.EV_OTHER,0); //$NON-NLS-1$
 		other.add(user);
-		for (int i = 0; i <= 14; i++)
+		for (int i = 0; i <= 15; i++)
 			{
 			user.add(new EventNode(
-					Messages.format("Event.EVENT7_X",i),MainEvent.EV_OTHER,Event.EV_USER0 + i)); //$NON-NLS-1$
+					Messages.format("Event.EVENT7_10",i),MainEvent.EV_OTHER,Event.EV_USER0 + i)); //$NON-NLS-1$
 			}
 
 		//DRAW
@@ -289,6 +307,9 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_DELETE);
 		subkey.add(MainEvent.EV_KEYPRESS,KeyEvent.VK_INSERT);
 
+		keypress.add(MainEvent.EV_KEYPRESS,Event.EV_NO_KEY);
+		keypress.add(MainEvent.EV_KEYPRESS,Event.EV_ANY_KEY);
+
 		//KEYRELEASE
 		EventNode keyrelase = new EventNode(MainEvent.EV_KEYRELEASE);
 		root.add(keyrelase);
@@ -338,6 +359,9 @@ public class EventPanel extends JToolBar implements ActionListener,TreeSelection
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_PAGE_DOWN);
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_DELETE);
 		subkey.add(MainEvent.EV_KEYRELEASE,KeyEvent.VK_INSERT);
+
+		keyrelase.add(MainEvent.EV_KEYRELEASE,Event.EV_NO_KEY);
+		keyrelase.add(MainEvent.EV_KEYRELEASE,Event.EV_ANY_KEY);
 
 		events = new JTree(root);
 		events.setCellRenderer(new EventNodeRenderer());

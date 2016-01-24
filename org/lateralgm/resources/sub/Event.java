@@ -23,6 +23,10 @@ import org.lateralgm.resources.ResourceReference;
 
 public class Event extends ActionContainer implements Comparable<Event>
 	{
+	// keyboard event types
+	public static final byte EV_NO_KEY = 0;
+	public static final byte EV_ANY_KEY = 1;
+
 	// mouse event types
 	public static final byte EV_LEFT_BUTTON = 0;
 	public static final byte EV_RIGHT_BUTTON = 1;
@@ -83,6 +87,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 	public static final byte EV_NO_MORE_HEALTH = 9;
 	public static final byte EV_ANIMATION_END = 7;
 	public static final byte EV_END_OF_PATH = 8;
+	public static final byte EV_CLOSE_BUTTON = 30;
 	public static final byte EV_USER0 = 10;
 	public static final byte EV_USER1 = 11;
 	public static final byte EV_USER2 = 12;
@@ -99,6 +104,22 @@ public class Event extends ActionContainer implements Comparable<Event>
 	public static final byte EV_USER13 = 23;
 	public static final byte EV_USER14 = 24;
 	public static final byte EV_USER15 = 25;
+	public static final byte EV_VIEW_OUTSIDE0 = 40;
+	public static final byte EV_VIEW_OUTSIDE1 = 41;
+	public static final byte EV_VIEW_OUTSIDE2 = 42;
+	public static final byte EV_VIEW_OUTSIDE3 = 43;
+	public static final byte EV_VIEW_OUTSIDE4 = 44;
+	public static final byte EV_VIEW_OUTSIDE5 = 45;
+	public static final byte EV_VIEW_OUTSIDE6 = 46;
+	public static final byte EV_VIEW_OUTSIDE7 = 47;
+	public static final byte EV_VIEW_BOUNDARY0 = 50;
+	public static final byte EV_VIEW_BOUNDARY1 = 51;
+	public static final byte EV_VIEW_BOUNDARY2 = 52;
+	public static final byte EV_VIEW_BOUNDARY3 = 53;
+	public static final byte EV_VIEW_BOUNDARY4 = 54;
+	public static final byte EV_VIEW_BOUNDARY5 = 55;
+	public static final byte EV_VIEW_BOUNDARY6 = 56;
+	public static final byte EV_VIEW_BOUNDARY7 = 57;
 
 	// step event types
 	public static final byte EV_STEP_NORMAL = 0;
@@ -258,8 +279,12 @@ public class Event extends ActionContainer implements Comparable<Event>
 			case MainEvent.EV_KEYRELEASE:
 				return Messages.format("Event.EVENT" + mainId + "_X",getGmKeyName(eventId)); //$NON-NLS-1$
 			case MainEvent.EV_OTHER:
-				if (eventId >= EV_USER0)
-					return Messages.format("Event.EVENT" + mainId + "_X",eventId - EV_USER0); //$NON-NLS-1$
+				if (eventId >= EV_USER0 && eventId <= EV_USER15)
+					return Messages.format("Event.EVENT" + mainId + "_10",eventId - EV_USER0); //$NON-NLS-1$
+				if (eventId >= EV_VIEW_OUTSIDE0 && eventId <= EV_VIEW_OUTSIDE7)
+					return Messages.format("Event.EVENT" + mainId + "_40",eventId - EV_VIEW_OUTSIDE0); //$NON-NLS-1$
+				if (eventId >= EV_VIEW_BOUNDARY0 && eventId <= EV_VIEW_BOUNDARY7)
+					return Messages.format("Event.EVENT" + mainId + "_50",eventId - EV_VIEW_BOUNDARY0); //$NON-NLS-1$
 				return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
 			default:
 				return Messages.getString("Event.EVENT" + mainId + "_" + eventId); //$NON-NLS-1$
