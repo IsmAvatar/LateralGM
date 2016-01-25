@@ -30,6 +30,7 @@ import javax.imageio.ImageIO;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
@@ -274,7 +275,7 @@ public final class LibManager
 
 			byte[] data = new byte[in.read4()];
 			in.read(data);
-			act.actImage = ImageIO.read(new ByteArrayInputStream(data));
+			act.actImage = Util.getTransparentIcon(ImageIO.read(new ByteArrayInputStream(data)));
 
 			act.hidden = in.readBool();
 			act.advanced = in.readBool();
