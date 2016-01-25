@@ -275,7 +275,8 @@ public final class LibManager
 
 			byte[] data = new byte[in.read4()];
 			in.read(data);
-			act.actImage = Util.getTransparentIcon(ImageIO.read(new ByteArrayInputStream(data)));
+			act.actImage = Util.getTransparentIcon(
+					ImageIO.read(new ByteArrayInputStream(data))).getSubimage(0,0,24,24);
 
 			act.hidden = in.readBool();
 			act.advanced = in.readBool();

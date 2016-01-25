@@ -79,10 +79,10 @@ public class ActionListEditor extends JPanel
 		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
 
 		tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		JPanel lp = null;
 		for (Library l : LibManager.libs)
 			{
 			JPanel p = new JPanel();
+			JPanel lp = null;
 			GroupLayout layout = new GroupLayout(p);
 			p.setLayout(layout);
 			ParallelGroup hg = layout.createParallelGroup();
