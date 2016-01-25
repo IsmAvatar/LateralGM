@@ -32,6 +32,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.print.PrinterException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -124,6 +125,10 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		menu.add(item);
 		item = addItem("GameInformationFrame.FILESAVE"); //$NON-NLS-1$
 		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,KeyEvent.CTRL_DOWN_MASK));
+		menu.add(item);
+		menu.addSeparator();
+		item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
+		item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,KeyEvent.CTRL_DOWN_MASK));
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
@@ -572,6 +577,18 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{
 			tabs.setSelectedIndex(0);
 			saveToFile();
+			return;
+			}
+		if (com.equals("GameInformationFrame.PRINT")) //$NON-NLS-1$
+			{
+			try
+				{
+				editor.print();
+				}
+			catch (PrinterException e)
+				{
+				e.printStackTrace();
+				}
 			return;
 			}
 		if (com.equals("GameInformationFrame.FONTCOLOR")) //$NON-NLS-1$

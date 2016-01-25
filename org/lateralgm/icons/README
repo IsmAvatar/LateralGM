@@ -20,7 +20,7 @@ This directory contains the following icons (.png extension omitted):
  Nuvola icon theme for KDE 3.x:
    actions/
      accept cancel colorize copy cut find
-     new next open paste previous redo save
+     new next open paste previous print redo save
      save-as sound-play sound-stop undo
    restree/
      gm group group-open info
