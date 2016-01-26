@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2008 Clam <clamisgood@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -27,7 +27,8 @@ public class GameInformation extends Resource<GameInformation,GameInformation.PG
 	/*
 	 * the default rtf text set by Java
 	 */
-	public static final String RTF_TEXT = "{\\rtf1\\ansi\n{\\fonttbl\\f0\\fnil Monospaced;}\n\n\\par\n}\n";
+	public static final String RTF_TEXT =
+		"{\\rtf1\\ansi\n{\\fonttbl\\f0\\fnil Monospaced;}\n\n\\par\n}\n";
 
 	public enum PGameInformation
 		{

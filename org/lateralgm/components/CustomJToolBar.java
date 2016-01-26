@@ -22,19 +22,17 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 **/
 
-
 package org.lateralgm.components;
 
 import java.awt.LayoutManager;
 
 import javax.swing.JToolBar;
 
-// 
 public class CustomJToolBar extends JToolBar {
 	/**
-	 * TODO: Change if needed.
+	 * NOTE: Default UID generated, change if necessary.
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 625036878076896510L;
 
 	public CustomJToolBar(int orientation)
 		{
@@ -48,7 +46,7 @@ public class CustomJToolBar extends JToolBar {
 
 	@Override
 	public void updateUI() {
-		LayoutManager  layout = this.getLayout();
+		LayoutManager layout = this.getLayout();
 		super.updateUI();
 		this.setLayout(layout);
 	}

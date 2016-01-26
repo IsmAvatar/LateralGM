@@ -1,14 +1,14 @@
 /**
-* Record the effect of shifting piece (objects/tiles) instances for the undo
-* 
-* I don't know why, but before moving a piece, the piece must be selected in the list.
-* 
-* Copyright (C) 2014, egofree
-*
-* This file is part of LateralGM.
-* LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
-* See LICENSE for details.
-*/
+ * Record the effect of shifting piece (objects/tiles) instances for the undo
+ *
+ * I don't know why, but before moving a piece, the piece must be selected in the list.
+ *
+ * Copyright (C) 2014, egofree
+ *
+ * This file is part of LateralGM.
+ * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
+ * See LICENSE for details.
+ */
 
 package org.lateralgm.util;
 

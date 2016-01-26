@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -11,7 +11,6 @@ package org.lateralgm.components;
 
 import static org.lateralgm.components.GmMenuBar.setTextAndAlt;
 
-import java.awt.Font;
 import java.awt.event.ActionListener;
 
 import javax.swing.JMenu;
@@ -30,10 +29,6 @@ public class GmMenu extends JMenu
 		{
 		super();
 		setTextAndAlt(this,s);
-		if (LGM.themename.equals("Quantum"))
-			{
-			this.setFont(LGM.lnfFont.deriveFont(Font.ROMAN_BASELINE));
-			}
 		}
 
 	public GmMenu()
@@ -57,10 +52,6 @@ public class GmMenu extends JMenu
 			}
 		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString(key)));
 		item.addActionListener(listener);
-		if (LGM.themename.equals("Quantum"))
-			{
-			item.setFont(LGM.lnfFont);
-			}
 		add(item);
 		return item;
 		}
@@ -81,10 +72,6 @@ public class GmMenu extends JMenu
 			}
 		//item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString(key)));
 		item.addActionListener(listener);
-		if (LGM.themename.equals("Quantum"))
-			{
-			item.setFont(LGM.lnfFont);
-			}
 		add(item);
 		return item;
 		}

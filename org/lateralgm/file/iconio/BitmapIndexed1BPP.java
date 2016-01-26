@@ -10,14 +10,14 @@ import org.lateralgm.file.StreamEncoder;
  * Bitmap with 2 color palette (black and white icon). Not tested, but seems to work.
  * </p>
  * <p>
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public class BitmapIndexed1BPP extends AbstractBitmapIndexed
 	{
 	/**
 	 * Create a 1BPP bitmap.
-	 * 
+	 *
 	 * @param pDescriptor
 	 */
 	public BitmapIndexed1BPP(final BitmapDescriptor pDescriptor)
@@ -55,8 +55,7 @@ public class BitmapIndexed1BPP extends AbstractBitmapIndexed
 				}
 			}
 		}
-	
-	
+
 	void fakeReadBitmap()
 		{
 		int lPixelNo = 0;
@@ -68,7 +67,6 @@ public class BitmapIndexed1BPP extends AbstractBitmapIndexed
 				}
 			}
 		}
-	
 
 	private void writeBits(StreamEncoder out, int offset, int count) throws IOException
 		{

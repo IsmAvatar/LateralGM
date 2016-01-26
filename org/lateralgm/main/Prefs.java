@@ -3,7 +3,7 @@
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013 Robert B.Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -16,6 +16,7 @@ import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -97,16 +98,22 @@ public final class Prefs
 		String d = "OBJ>obj_	SPR>spr_	SND>snd_	RMM>rm_	 BKG>bkg_  PTH>path_	SCR>scr_"
 				+ "  SHR>shr_	 FNT>font_	TML>time_";
 		createPrefixes(getString("prefixes",d));
-		languageName = getString("languageName","English");
-		manualPath = getString("manualPath","http://enigma-dev.org/docs/Wiki/Main_Page");
+		locale = Locale.forLanguageTag(getString("localeTag","und"));
+		documentationURI = getString("documentationURI","http://enigma-dev.org/docs/Wiki/Main_Page");
+		websiteURI = getString("websiteURI","http://github.com/IsmAvatar/LateralGM");
+		communityURI = getString("communityURI","http://enigma-dev.org/forums");
+		issueURI = getString("issueURI","http://github.com/IsmAvatar/LateralGM/issues");
 		enableDragAndDrop = getBoolean("enableDragAndDrop",true);
 		dockEventPanel = getBoolean("dockEventPanel",false);
+		rightOrientation = getBoolean("rightOrientation",true);
 		boldPrimaryNodes = getBoolean("boldPrimaryNodes",true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
 		userLibraryPath = getString("userLibraryPath","./lib");
 
-		imagePreviewBackgroundColor = getInt("imagePreviewBackgroundColor",Color.LIGHT_GRAY.getRGB());
-		imagePreviewForegroundColor = getInt("imagePreviewForegroundColor",Color.GRAY.getRGB());
+		imagePreviewBackgroundColor = getInt("imagePreviewBackgroundColor",
+			new Color(160, 160, 160).getRGB());
+		imagePreviewForegroundColor = getInt("imagePreviewForegroundColor",
+			new Color(140, 140, 140).getRGB());
 		highlightMatchCountBackground = getBoolean("highlightMatchCountBackground",false);
 		highlightMatchCountForeground = getBoolean("highlightMatchCountForeground",true);
 		matchCountBackgroundColor = getInt("matchCountBackgroundColor",Color.BLACK.getRGB());
@@ -124,8 +131,12 @@ public final class Prefs
 		actionToolTipColumns = getInt("actionToolTipColumns",30);
 		actionToolTipLines = getInt("actionToolTipLines",10);
 
-		enableBackupSave = getBoolean("enableBackupSave",true);
-		numberofBackups = getInt("actionToolTipColumns",5);
+		backupSave = getBoolean("backupSave",true);
+		backupExit = getBoolean("backupExit",true);
+		backupInterval = getBoolean("backupInterval",false);
+		backupCopies = getInt("backupCopies",3);
+		backupHours = getInt("backupHours",0);
+		backupMinutes = getInt("backupMinutes",5);
 
 		externalSpriteExtension = getString("externalSpriteExtension","png");
 		externalBackgroundExtension = getString("externalBackgroundExtension","png");
@@ -184,8 +195,8 @@ public final class Prefs
 	public static String iconPath;
 	public static String swingTheme;
 	public static String swingThemePath;
-	public static String manualPath;
-	public static String languageName;
+	public static String documentationURI, websiteURI, communityURI, issueURI;
+	public static Locale locale;
 
 	public static boolean showTreeFilter;
 	public static boolean extraNodes;
@@ -201,14 +212,19 @@ public final class Prefs
 
 	public static boolean boldPrimaryNodes;
 	public static boolean dockEventPanel;
+	public static boolean rightOrientation;
 	public static boolean enableDragAndDrop;
 	public static String actionLibraryPath;
 	public static String userLibraryPath;
 	public static int actionToolTipColumns;
 	public static int actionToolTipLines;
 
-	public static boolean enableBackupSave;
-	public static int numberofBackups;
+	public static int backupCopies;
+	public static int backupHours;
+	public static int backupMinutes;
+	public static boolean backupSave;
+	public static boolean backupExit;
+	public static boolean backupInterval;
 
 	public static boolean useExternalBackgroundEditor;
 	public static String externalBackgroundEditorCommand;

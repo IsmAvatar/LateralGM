@@ -2,7 +2,7 @@
  * Copyright (C) 2008, 2012 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013-2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -136,17 +136,17 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 
 		// build popup menu
 		final JPopupMenu popup = new JPopupMenu();
+		popup.add(makeContextButton(this.text.actCut));
+		popup.add(makeContextButton(this.text.actCopy));
+		popup.add(makeContextButton(this.text.actPaste));
+		popup.addSeparator();
 		final JMenuItem undoItem = makeContextButton(this.text.actUndo);
 		popup.add(undoItem);
 		final JMenuItem redoItem = makeContextButton(this.text.actRedo);
 		popup.add(redoItem);
 		popup.addSeparator();
-		popup.add(makeContextButton(this.text.actCut));
-		popup.add(makeContextButton(this.text.actCopy));
-		popup.add(makeContextButton(this.text.actPaste));
-		popup.addSeparator();
 		popup.add(makeContextButton(this.text.actSelAll));
-		
+
 		popup.addPopupMenuListener(new PopupMenuListener() {
 
 			@Override
@@ -167,7 +167,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 					undoItem.setEnabled(text.canUndo());
 					redoItem.setEnabled(text.canRedo());
 				}
-		
+
 		});
 
 		text.setComponentPopupMenu(popup);
@@ -197,11 +197,18 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 
 	public void addEditorButtons(JToolBar tb)
 		{
-
 		tb.add(makeToolbarButton("LOAD"));
 		tb.add(makeToolbarButton("SAVE"));
 		tb.add(makeToolbarButton("PRINT"));
+
 		tb.addSeparator();
+
+		tb.add(makeToolbarButton("CUT"));
+		tb.add(makeToolbarButton("COPY"));
+		tb.add(makeToolbarButton("PASTE"));
+
+		tb.addSeparator();
+
 		final JButton undoButton = makeToolbarButton("UNDO");
 		tb.add(undoButton);
 		final JButton redoButton = makeToolbarButton("REDO");
@@ -224,17 +231,13 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 							}
 
 					});
-					
+
 				}
-		
+
 		});
 		tb.addSeparator();
 		tb.add(makeToolbarButton("FIND"));
 		tb.add(makeToolbarButton("GOTO"));
-		tb.addSeparator();
-		tb.add(makeToolbarButton("CUT"));
-		tb.add(makeToolbarButton("COPY"));
-		tb.add(makeToolbarButton("PASTE"));
 		}
 
 	public void aGoto()
@@ -347,7 +350,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 			for (DefaultKeywords.Keyword[] a : keywords)
 				l += a.length;
 		}
-		
+
 		completions = new Completion[l];
 		int i = 0;
 		for (Set<String> a : resourceKeywords)
@@ -358,7 +361,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 				i += 1;
 				}
 			}
-		
+
 		if (keywords == null) return;
 		for (DefaultKeywords.Keyword[] a : keywords)
 			for (DefaultKeywords.Keyword k : a)

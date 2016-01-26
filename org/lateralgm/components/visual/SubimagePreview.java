@@ -3,7 +3,7 @@
  * Copyright (C) 2008, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -16,6 +16,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
@@ -90,7 +91,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 			transparentImage = null;
 			}
 
-		//super.paintComponent(g);		
+		//super.paintComponent(g);
 		g.setColor(this.getBackground());
 		g.fillRect(0,0,this.getWidth(),this.getHeight());
 
@@ -98,20 +99,26 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 			{
 			Dimension d = getPreferredSize();
 
-			if (transparentBackground == null || 
-					transparentBackground.getWidth() != image.getWidth() || 
-					transparentBackground.getHeight() != image.getHeight())
-				{
-				transparentBackground = Util.paintBackground(image.getWidth()/5,image.getHeight()/5);
-				}
-
 			Graphics2D g2d = (Graphics2D) g;
 			Point pnt = getTopLeftCentered();
 			g2d.translate(pnt.x,pnt.y);
 
-			g.drawImage(transparentBackground,0,0,d.width,d.height,null);
+			Shape clip = g.getClip();
+			g.clipRect(0,0,d.width,d.height);
+			Dimension size = getPreferredSize();
+			int width = (int)Math.ceil(size.getWidth() / 8f);
+			int height = (int)Math.ceil(size.getHeight() / 8f);
+			width = width < 1 ? 1 : width;
+			height = height < 1 ? 1 : height;
+			if (transparentBackground == null || width != transparentBackground.getWidth() ||
+				height != transparentBackground.getHeight())
+				transparentBackground = Util.paintBackground(width, height);
+
+			g.drawImage(transparentBackground, 0, 0, transparentBackground.getWidth() * 8,
+				transparentBackground.getHeight() * 8, null);
 
 			g.drawImage(image,0,0,d.width,d.height,null);
+			g.setClip(clip);
 			}
 		else
 			{

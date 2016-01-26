@@ -3,7 +3,7 @@
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -19,8 +19,7 @@ import static org.lateralgm.main.Util.deRef;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -161,10 +160,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		//}
 		evtPane.add(scroll,BorderLayout.CENTER);
 
-		JPanel side2bottom = new JPanel(new BorderLayout());
-		//side2bottom.setPreferredSize(new Dimension(200,200));
-		side2bottom.setLayout(new GridBagLayout());
-		GridBagConstraints gbc = new GridBagConstraints();
+		JPanel eventButtonPane = new JPanel(new BorderLayout());
 
 		eventModify = new JButton(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
 		eventModify.addActionListener(this);
@@ -178,31 +174,12 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		eventDelete.addActionListener(this);
 		eventDelete.setToolTipText(Messages.getString("GmObjectFrame.DELETE_EVENT")); //$NON-NLS-1$
 
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.gridwidth = 1;
-		gbc.weightx = 1;
-		gbc.weighty = 1;
-		side2bottom.add(eventModify,gbc);
+		eventButtonPane.setLayout(new GridLayout());
+		eventButtonPane.add(eventModify);
+		eventButtonPane.add(eventEdit);
+		eventButtonPane.add(eventDelete);
 
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 1;
-		gbc.gridy = 0;
-		gbc.gridwidth = 1;
-		gbc.weightx = 1;
-		gbc.weighty = 1;
-		side2bottom.add(eventEdit,gbc);
-
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx = 2;
-		gbc.gridy = 0;
-		gbc.gridwidth = 1;
-		gbc.weightx = 1;
-		gbc.weighty = 1;
-		side2bottom.add(eventDelete,gbc);
-
-		evtPane.add(side2bottom,BorderLayout.SOUTH);
+		evtPane.add(eventButtonPane,BorderLayout.SOUTH);
 
 		actions = new ActionList(this);
 		if (Prefs.enableDragAndDrop)
@@ -211,16 +188,26 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			}
 
 		ParallelGroup pg = null;
-		SequentialGroup sg = null;
+		SequentialGroup sg = layout.createSequentialGroup();
 
-		sg = layout.createSequentialGroup()
-		/**/.addComponent(propPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addComponent(phyPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addComponent(evtPane);
-		if (Prefs.enableDragAndDrop)
+
+		if (Prefs.rightOrientation) {
+			if (Prefs.enableDragAndDrop)
 			{
-			sg.addComponent(editor);
+				sg.addComponent(editor);
 			}
+			sg.addComponent(evtPane)
+				/**/.addComponent(phyPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+				/**/.addComponent(propPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE);
+		} else {
+			sg.addComponent(propPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+				/**/.addComponent(phyPane,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+				/**/.addComponent(evtPane);
+			if (Prefs.enableDragAndDrop)
+			{
+				sg.addComponent(editor);
+			}
+		}
 		layout.setHorizontalGroup(sg);
 
 		pg = layout.createParallelGroup()
@@ -298,48 +285,48 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(shapeBT)
 		/**/.addGroup(layout.createSequentialGroup()
-		/*  */.addComponent(awakeCB)
-		/*  */.addComponent(kinematicCB))
+		/*	*/.addComponent(awakeCB)
+		/*	*/.addComponent(kinematicCB))
 		/**/.addComponent(sensorCB)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
-		/*  	*/.addComponent(densityLabel)
-		/*  	*/.addComponent(restLabel)
-		/*  	*/.addComponent(groupLabel)
-		/*  	*/.addComponent(linearLabel)
-		/*  	*/.addComponent(angularLabel)
-		/*  	*/.addComponent(frictionLabel))
+		/*		*/.addComponent(densityLabel)
+		/*		*/.addComponent(restLabel)
+		/*		*/.addComponent(groupLabel)
+		/*		*/.addComponent(linearLabel)
+		/*		*/.addComponent(angularLabel)
+		/*		*/.addComponent(frictionLabel))
 		/*	*/.addGroup(layout.createParallelGroup()
-		/*  	*/.addComponent(densityField)
-		/*  	*/.addComponent(restField)
-		/* 		*/.addComponent(groupField)
-		/* 	 	*/.addComponent(linearField)
-		/*  	*/.addComponent(angularField)
-		/*  	*/.addComponent(frictionField))));
+		/*		*/.addComponent(densityField)
+		/*		*/.addComponent(restField)
+		/*		*/.addComponent(groupField)
+		/*		*/.addComponent(linearField)
+		/*		*/.addComponent(angularField)
+		/*		*/.addComponent(frictionField))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(shapeBT)
 		/**/.addGroup(layout.createParallelGroup()
-		/*  */.addComponent(awakeCB)
-		/*  */.addComponent(kinematicCB))
+		/*	*/.addComponent(awakeCB)
+		/*	*/.addComponent(kinematicCB))
 		/**/.addComponent(sensorCB)
 		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
-		/*  */.addComponent(densityLabel)
-		/*  */.addComponent(densityField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/*	*/.addComponent(densityLabel)
+		/*	*/.addComponent(densityField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
 		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
-		/*  */.addComponent(restLabel)
-		/*  */.addComponent(restField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/*	*/.addComponent(restLabel)
+		/*	*/.addComponent(restField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
 		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
-		/*  */.addComponent(groupLabel)
-		/*  */.addComponent(groupField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/*	*/.addComponent(groupLabel)
+		/*	*/.addComponent(groupField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
 		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
-		/*  */.addComponent(linearLabel)
-		/*  */.addComponent(linearField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/*	*/.addComponent(linearLabel)
+		/*	*/.addComponent(linearField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
 		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
-		/*  */.addComponent(angularLabel)
-		/*  */.addComponent(angularField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
+		/*	*/.addComponent(angularLabel)
+		/*	*/.addComponent(angularField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE))
 		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
-		/*  */.addComponent(frictionLabel)
-		/*  */.addComponent(frictionField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)));
+		/*	*/.addComponent(frictionLabel)
+		/*	*/.addComponent(frictionField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)));
 
 		return panel;
 		}
@@ -710,8 +697,13 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 	public void functionEvent(int mainId, int id, ResourceReference<GmObject> other, TreePath path)
 		{
-		if (path == null)
+		if (path == null && rootEvent.getChildCount() > 0)
 			{
+			// NOTE: Removing nodes after updating the model does not always remove them from the
+			// selection path history, so this call may return non-null but the node will not actually be
+			// in the tree. The additional check above regarding the child count makes sure this edge case
+			// never occurs. If there are no events in the tree then we add when we try to replace. This
+			// fixed an existing bug from lgm16b4. - Robert
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
 			path = node == null ? null : new TreePath(node.getPath());
 			}
@@ -789,7 +781,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			events.setDropMode(DropMode.ON);
 			events.setTransferHandler(new EventNodeTransferHandler());
 			}
-		// This listener should be added to each node maybe 
+		// This listener should be added to each node maybe
 		// otherwise you can click on the whitespace and open it
 		// but then again I suppose its fine like this because I have
 		// ensured checks to make sure there are no NPE's trying to edit
@@ -913,7 +905,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			}
 		super.actionPerformed(e);
 		}
-	
+
 	private TreeNode[] findEvent(DefaultMutableTreeNode node, int mainid, int id) {
 		Enumeration<?> children = node.children();
 		while (children.hasMoreElements()) {
@@ -931,7 +923,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		}
 		return null;
 	}
-	
+
 	private TreeNode[] findEvent(int mainid, int id) {
 		return findEvent((DefaultMutableTreeNode) events.getModel().getRoot(), mainid, id);
 	}
@@ -940,14 +932,15 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		TreeNode[] nodes = findEvent(mainid, id);
 		if (nodes != null) {
 			TreePath path = new TreePath(nodes);
-			//TODO: Why does this not work? I tried it in a SwingUtilities as well as reloading the tree model.
+			// TODO: Why does this not work? I tried wrapping it in SwingUtilities as well as reloading
+			// the tree model.
 			//events.expandPath(path);
-			//Using this temporarily.
+			// Using this temporarily.
 			events.setExpandsSelectedPaths(true);
 			events.setSelectionPath(path);
 		}
 	}
-	
+
 	private void editSelectedEvent()
 		{
 		if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)
@@ -1001,9 +994,10 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			infoFrame.dispose();
 			}
 		res.properties.updateSource.removeListener(propUpdateListener);
-		if (editor != null) {
+		if (editor != null)
+			{
 			((ActionListEditor) editor).dispose();
-		}
+			}
 		}
 
 	public void valueChanged(TreeSelectionEvent tse)

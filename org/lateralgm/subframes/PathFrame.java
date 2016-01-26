@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -19,6 +19,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -39,6 +40,7 @@ import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.PathEditor;
 import org.lateralgm.components.visual.PathEditor.PPathEditor;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
@@ -78,6 +80,9 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 				@Override
 				public void layoutContainer(Container parent)
 					{
+					// TODO: The layout of the preview/editor does not need to effect the layout of the
+					// toolbar and preview pane. I feel as though this is grossly overengineered for the path
+					// frame and the room editor. Not to mention the path editor feels clunky anyway.
 					Dimension m = PathFrame.this.getMinimumSize();
 					Dimension s = PathFrame.this.getSize();
 					Dimension r = new Dimension(Math.max(m.width,s.width),Math.max(m.height,s.height));
@@ -89,25 +94,34 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 			};
 		setLayout(layout);
 
-		JToolBar tb = makeToolBar();
+		JToolBar toolbar = makeToolBar();
 		JPanel side = makeSide(res);
 		JComponent preview = makePreview();
 
+		SequentialGroup orientationGroup = layout.createSequentialGroup();
+
+		if (Prefs.rightOrientation) {
+			orientationGroup
+			/*	*/.addComponent(preview,240,640,DEFAULT_SIZE)
+			/*	*/.addComponent(side,200,DEFAULT_SIZE,200);
+		} else {
+			orientationGroup
+			/*	*/.addComponent(side,200,DEFAULT_SIZE,200)
+			/*	*/.addComponent(preview,240,640,DEFAULT_SIZE);
+		}
+
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(tb)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(side,DEFAULT_SIZE,0,0)
-		/*	*/.addComponent(preview,240,480,DEFAULT_SIZE)));
+		/**/.addComponent(toolbar, PREFERRED_SIZE, PREFERRED_SIZE, Short.MAX_VALUE)
+		/**/.addGroup(orientationGroup));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addComponent(tb)
+		/**/.addComponent(toolbar,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(side)
-		/*	*/.addComponent(preview,DEFAULT_SIZE,320,DEFAULT_SIZE)));
+		/*	*/.addComponent(preview,DEFAULT_SIZE,480,DEFAULT_SIZE)));
 		pack();
 		list.setSelectedIndex(0);
 		}
 
-	//TODO: add more buttons
 	private JToolBar makeToolBar()
 		{
 		JToolBar tool = new JToolBar();
@@ -128,7 +142,6 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		grid.setToolTipText(Messages.getString("PathFrame.GRID"));
 		grid.setActionCommand("PathFrame.GRID");
 		grid.setIcon(LGM.getIconForKey("PathFrame.GRID"));
-		grid.setOpaque(false);
 
 		peplf.make(grid,PPathEditor.SHOW_GRID);
 		ResourceMenu<Room> room = new ResourceMenu<Room>(Room.class,
@@ -137,7 +150,9 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		JSeparator saveSep = new JSeparator(JSeparator.VERTICAL);
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 		/**/.addComponent(save)
+		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addComponent(saveSep,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addComponent(lsx).addComponent(sx,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/**/.addPreferredGap(ComponentPlacement.RELATED)
 		/**/.addComponent(lsy).addComponent(sy,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
@@ -201,6 +216,10 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(lName).addComponent(name))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(smooth).addComponent(closed))
+		/**/.addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(lpr).addComponent(tpr))
 		/**/.addComponent(p)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(add,DEFAULT_SIZE,DEFAULT_SIZE,Integer.MAX_VALUE)
@@ -210,14 +229,14 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		/*	*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
 		/*		*/.addComponent(lx).addComponent(ly).addComponent(lsp))
 		/*	*/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(tx).addComponent(ty).addComponent(tsp)))
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(smooth).addComponent(closed))
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(lpr).addComponent(tpr)));
+		/*		*/.addComponent(tx).addComponent(ty).addComponent(tsp))));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createBaselineGroup(true,false)
 		/*	*/.addComponent(lName).addComponent(name))
+		/**/.addGroup(layout.createBaselineGroup(true,false)
+		/*	*/.addComponent(smooth).addComponent(closed))
+		/**/.addGroup(layout.createBaselineGroup(true,false)
+		/*	*/.addComponent(lpr).addComponent(tpr))
 		/**/.addComponent(p,PREFERRED_SIZE,DEFAULT_SIZE,DEFAULT_SIZE)
 		/**/.addGroup(layout.createBaselineGroup(true,false)
 		/*	*/.addComponent(add).addComponent(insert))
@@ -227,11 +246,7 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		/**/.addGroup(layout.createBaselineGroup(true,false)
 		/*	*/.addComponent(ly).addComponent(ty))
 		/**/.addGroup(layout.createBaselineGroup(true,false)
-		/*	*/.addComponent(lsp).addComponent(tsp))
-		/**/.addGroup(layout.createBaselineGroup(true,false)
-		/*	*/.addComponent(smooth).addComponent(closed))
-		/**/.addGroup(layout.createBaselineGroup(true,false)
-		/*	*/.addComponent(lpr).addComponent(tpr)));
+		/*	*/.addComponent(lsp).addComponent(tsp)));
 		return side1;
 		}
 

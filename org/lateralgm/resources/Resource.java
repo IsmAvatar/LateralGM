@@ -3,19 +3,19 @@
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
- * 
+ *
  * LateralGM is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * LateralGM is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License (COPYING) for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,7 +24,8 @@ package org.lateralgm.resources;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.lateralgm.components.impl.ResNode;
@@ -35,23 +36,23 @@ import org.lateralgm.util.PropertyMap.PropertyValidator;
 public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> implements
 		PropertyValidator<P>
 	{
-	public static final Map<String,Class<? extends Resource<?,?>>> kindsByName3 = new HashMap<String,Class<? extends Resource<?,?>>>();
-	public static final Map<Class<? extends Resource<?,?>>,String> kindNames = new HashMap<Class<? extends Resource<?,?>>,String>();
-	public static final Map<Class<? extends Resource<?,?>>,String> kindNamesPlural = new HashMap<Class<? extends Resource<?,?>>,String>();
-	public static final ArrayList<Class<? extends Resource<?,?>>> kinds = new ArrayList<Class<? extends Resource<?,?>>>();
+	public static final Map<String,Class<? extends Resource<?,?>>> kindsByName3 = new LinkedHashMap<String,Class<? extends Resource<?,?>>>();
+	public static final Map<Class<? extends Resource<?,?>>,String> kindNames = new LinkedHashMap<Class<? extends Resource<?,?>>,String>();
+	public static final Map<Class<? extends Resource<?,?>>,String> kindNamesPlural = new LinkedHashMap<Class<? extends Resource<?,?>>,String>();
+	public static final List<Class<? extends Resource<?,?>>> kinds = new ArrayList<Class<? extends Resource<?,?>>>();
 	public static final boolean hasNode = true;
 	public boolean changed = false;
 
 	static
 		{
-		Class<?>[] ca = { Sprite.class,Sound.class,Background.class,Path.class,Script.class,
+		Class<?>[] ca = { (Class<?>) Sprite.class,Sound.class,Background.class,Path.class,Script.class,
 				Shader.class,Font.class,Timeline.class,GmObject.class,Room.class,Include.class,
 				Extension.class,Constants.class,GameInformation.class,GameSettings.class,
 				ExtensionPackages.class };
 		String[] chr3 = { "SPR","SND","BKG","PTH", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				"SCR","SHR","FNT","TML","OBJ", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				"RMM","INC","EXT","CST","GMI","GMS","PKG" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		
+
 		int leng = chr3.length;
 		//TODO: Do this separately for now because addKind requires Messages
 		for (int i = 0; i < leng; i++)

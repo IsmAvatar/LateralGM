@@ -9,7 +9,7 @@ import org.lateralgm.file.StreamDecoder;
  * Transparency mask, which is a 1 Bit per pixel information whether a pixel is transparent (1) or
  * opaque (0).
  * </p>
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public class BitmapMask
@@ -33,7 +33,7 @@ public class BitmapMask
 		{
 		mask.readBitmap(pDec);
 		}
-	
+
 	/**
 	 * Fake a read operation, setting all pixels to 1 (full opacity).
 	 */

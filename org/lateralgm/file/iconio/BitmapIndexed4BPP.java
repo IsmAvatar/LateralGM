@@ -9,14 +9,14 @@ import org.lateralgm.file.StreamEncoder;
  * <p>
  * Bitmap with 16 color palette (4 bits per sample).
  * </p>
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public class BitmapIndexed4BPP extends AbstractBitmapIndexed
 	{
 	/**
 	 * Create a 4 BPP bitmap.
-	 * 
+	 *
 	 * @param pDescriptor
 	 */
 	public BitmapIndexed4BPP(final BitmapDescriptor pDescriptor)

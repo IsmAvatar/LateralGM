@@ -5,7 +5,7 @@
  * Copyright (C) 2010 Medo <smaxein@googlemail.com>
  * Copyright (C) 2013, 2014 Robert B. Colton
  * Copyright (C) 2014 egofree
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -57,7 +57,7 @@ import org.lateralgm.subframes.SubframeInformer;
 
 public class ResNode extends DefaultNode implements Transferable,UpdateListener
 	{
-	
+
 	public static final Map<Class<?>,ImageIcon> ICON;
 	static
 		{
@@ -82,7 +82,7 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 	 */
 	private final ResourceReference<? extends Resource<?,?>> res;
 	public ResourceFrame<?,?> frame = null;
-	
+
 	private final NameUpdater nameUpdater = new NameUpdater(this);
 	private final UpdateTrigger trigger = new UpdateTrigger();
 	public final UpdateSource updateSource = new UpdateSource(this,trigger);
@@ -107,21 +107,21 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 			}
 		return null;
 		}
-	
+
 	@Override
 	public Icon getIconisedGroup() {
 		if (status != ResNode.STATUS_PRIMARY && kind == Sprite.class || kind == Background.class || kind == GmObject.class)
 			return getIcon();
 		return null;
 	}
-	
+
 	@Override
 	public Icon getLeafIcon() {
-		if (status == ResNode.STATUS_SECONDARY) 
+		if (status == ResNode.STATUS_SECONDARY)
 			return getIcon();
 		return null;
 	}
-	
+
 	// NOTE: DO NOT use this for tree graphics, format with HTML instead because there is a Java LNF bug that causes this not to work.
 	public Font getFont(Font com) {
 		if (Prefs.boldPrimaryNodes && status == ResNode.STATUS_PRIMARY) {
@@ -131,7 +131,7 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 		}
 		return com;
 	}
-	
+
 	private void updateIcon()
 		{
 		icon = GmTreeGraphics.getResourceIcon(res);
@@ -460,5 +460,4 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 		// TODO Auto-generated method stub
 
 		}
-
 	}

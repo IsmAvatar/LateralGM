@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2013, 2014 Robert B Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -31,6 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
@@ -45,7 +46,7 @@ public class MDIFrame extends JInternalFrame
 	{
 	private static final long serialVersionUID = 1L;
 	private Border border;
-	
+
 	public MDIFrame()
 		{
 		this("",false,false,false,false);
@@ -70,7 +71,7 @@ public class MDIFrame extends JInternalFrame
 		{
 		this(title,resizable,closable,maximizable,false);
 		}
-	
+
 	public MDIFrame(String title, boolean resizable, boolean closable, boolean maximizable,
 			boolean iconifiable)
 		{
@@ -78,8 +79,8 @@ public class MDIFrame extends JInternalFrame
 
 		// real multiple document interfaces hide the window border, it gives us a little extra room and makes it
 		// feel not only more native, but resemble DWM's better
-/*		
-		this.addPropertyChangeListener(IS_MAXIMUM_PROPERTY,new PropertyChangeListener() {	
+/*
+		this.addPropertyChangeListener(IS_MAXIMUM_PROPERTY,new PropertyChangeListener() {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent ev)
@@ -87,7 +88,7 @@ public class MDIFrame extends JInternalFrame
 					if ((boolean) ev.getNewValue()) {
 						System.out.println("wtf");
 						border = getBorder();
-						
+
 						setBorder(null);
 						((BasicInternalFrameUI) getUI()).setNorthPane(null);;
 					} else {
@@ -97,11 +98,11 @@ public class MDIFrame extends JInternalFrame
 						}
 					}
 				}
-		
+
 		});*/
 		}
-	
-	@Override 
+
+	@Override
 	public void updateUI() {
 		super.updateUI();
 		if (LGM.themename.equals("Windows")) {
@@ -223,7 +224,7 @@ public class MDIFrame extends JInternalFrame
 		Rectangle clipRect = this.getRootPane().getBounds();
 		clipRect.setLocation(this.getRootPane().getX(),getRootPane().getY());
 		//Area insideClip = calculateRectOutside(clipRect);
-		//g2d.setClip(insideClip); 
+		//g2d.setClip(insideClip);
 
 		int arcWidth = 10;
 		int arcHeight = 10;
@@ -280,7 +281,7 @@ public class MDIFrame extends JInternalFrame
 			}
 		}
 
-	private class WinInternalFrameUI extends WindowsInternalFrameUI
+	public class WinInternalFrameUI extends WindowsInternalFrameUI
 		{
 
 		public WinInternalFrameUI(JInternalFrame b)
@@ -294,12 +295,12 @@ public class MDIFrame extends JInternalFrame
 			}
 
 		}
-	
+
 	private class WinInternalFrameTitlePane extends WindowsInternalFrameTitlePane
 	{
 
-	 /**
-		 * TODO: Change if needed.
+		/**
+		 * NOTE: Default UID generated, change if necessary.
 		 */
 		private static final long serialVersionUID = -8196008182338058385L;
 
@@ -311,9 +312,9 @@ public class MDIFrame extends JInternalFrame
 		public JButton duplicateButton(JButton button) {
 			JButton ret = new JButton() {
 				/**
-				 * TODO: Change if needed.
+				 * NOTE: Default UID generated, change if necessary.
 				 */
-				private static final long serialVersionUID = 1L;
+				private static final long serialVersionUID = 5193418971949557823L;
 
 				@Override
 				public void setBounds(int x, int y, int w, int h) {
@@ -324,12 +325,12 @@ public class MDIFrame extends JInternalFrame
 			for (ActionListener al : button.getActionListeners()) {
 				ret.addActionListener(al);
 			}
-			
+
 			ret.setText(button.getText());
 			ret.setIcon(button.getIcon());
 			return ret;
 		}
-		
+
 		@Override
 		protected void createButtons() {
 			super.createButtons();
@@ -355,21 +356,21 @@ public class MDIFrame extends JInternalFrame
 		}
 
 	}
-	
+
 	private class QuantumInternalFrameTitlePane extends BasicInternalFrameTitlePane
 		{
 
 		/**
-		 * 
+		 * NOTE: Default UID generated, change if necessary.
 		 */
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = -5091241583179948470L;
 
 		private class JFrameButton extends JButton
 			{
 			/**
-			 * 
+			 * NOTE: Default UID generated, change if necessary.
 			 */
-			private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 5813127198278585013L;
 			private boolean hover = false;
 			private boolean clicked = false;
 

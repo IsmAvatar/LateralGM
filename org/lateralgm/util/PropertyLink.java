@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -38,7 +38,7 @@ public abstract class PropertyLink<K extends Enum<K>, V> extends PropertyUpdateL
 		map.getUpdateSource(key).removeListener(this);
 		factory.removeLinkMapListener(this);
 		}
-	
+
 	public void mapChanged(PropertyMap<K> m) {
 		map.updateSource.removeListener(this);
 		map = m;

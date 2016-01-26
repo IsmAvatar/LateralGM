@@ -33,9 +33,9 @@ import org.lateralgm.joshedit.lexers.GMLTokenMarker;
 import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
 
 /**
- * A non-instantiable token marker cache that avoids instantiating more 
+ * A non-instantiable token marker cache that avoids instantiating more
  * markers than is necessary.
- * 
+ *
  * @author Robert B. Colton
  */
 public final class MarkerCache
@@ -45,7 +45,7 @@ public final class MarkerCache
 
 	/**
 	 * Get one of the cached markers or cache it if it doesn't exist.
-	 * 
+	 *
 	 * @param language
 	 *            One of available token markers, eg. "glsles", "glsl", "gml", "hlsl"
 	 **/

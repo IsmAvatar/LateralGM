@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -27,7 +27,10 @@ public class FramePrefsHandler implements ComponentListener,WindowStateListener
 		this.frame = frame;
 		frame.pack(); // makes the frame displayable, so that maximizing works
 		frame.setMinimumSize(frame.getSize());
-		frame.setMaximizedBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
+		//TODO: This breaks multi-monitor maximize. This patch was to fix the Swing cross-platform
+		//look and feels from covering the task bar when maximized. Should find a better work around.
+		//https://github.com/IsmAvatar/LateralGM/issues/222
+		//frame.setMaximizedBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
 		frame.setBounds(PrefsStore.getWindowBounds(frame.getBounds()));
 		int state = frame.getExtendedState()
 				| (PrefsStore.getWindowMaximized() ? JFrame.MAXIMIZED_BOTH : 0);

@@ -2,7 +2,7 @@
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -15,6 +15,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.EnumMap;
+import java.util.Random;
 
 import org.lateralgm.file.ProjectFile;
 import org.lateralgm.main.UpdateSource;
@@ -43,12 +44,12 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 
 	public enum PTile
 		{
-		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,ID,LOCKED,COLOR,ALPHA,SCALE_X,SCALE_Y,
+		BG_X,BG_Y,ROOM_X,ROOM_Y,WIDTH,HEIGHT,DEPTH,BACKGROUND,NAME,ID,LOCKED,COLOR,ALPHA,SCALE_X,SCALE_Y,
 		ROTATION,SELECTED
 		}
 
 	private static final EnumMap<PTile,Object> DEFS = PropertyMap.makeDefaultMap(PTile.class,0,0,0,0,
-			0,0,0,null,0,false,4294967295L,255,1.0,1.0,0.0,false);
+			0,0,0,null,"tile",0,false,4294967295L,255,1.0,1.0,0.0,false);
 
 	/**
 	 * Do not call this constructor unless you intend
@@ -60,6 +61,7 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		properties = new PropertyMap<PTile>(PTile.class,this,DEFS);
 		properties.getUpdateSource(PTile.BACKGROUND).addListener(tpl);
 		properties.getUpdateSource(PTile.SELECTED).addListener(tpl);
+		properties.put(PTile.NAME, "tile_" + String.format("%08X", new Random().nextInt()));
 		}
 
 	public Tile(Room r, int id)
@@ -83,6 +85,18 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		updateTrigger.fire(e);
 		Room r = room == null ? null : room.get();
 		if (r != null) r.tileUpdated(e);
+		}
+
+	@Override
+	public void setName(String name)
+		{
+		properties.put(PTile.NAME, name);
+		}
+
+	@Override
+	public String getName()
+		{
+		return properties.get(PTile.NAME);
 		}
 
 	public Point getBackgroundPosition()

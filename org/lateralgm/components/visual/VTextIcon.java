@@ -20,12 +20,12 @@ import javax.swing.Icon;
 /**
  VTextIcon is an Icon implementation which draws a short string vertically.
  It's useful for JTabbedPanes with LEFT or RIGHT tabs but can be used in any
- component which supports Icons, such as JLabel or JButton 
- 
- You can provide a hint to indicate whether to rotate the string 
- to the left or right, or not at all, and it checks to make sure 
- that the rotation is legal for the given string 
- (for example, Chinese/Japanese/Korean scripts have special rules when 
+ component which supports Icons, such as JLabel or JButton
+
+ You can provide a hint to indicate whether to rotate the string
+ to the left or right, or not at all, and it checks to make sure
+ that the rotation is legal for the given string
+ (for example, Chinese/Japanese/Korean scripts have special rules when
  drawn vertically and should never be rotated)
  */
 public class VTextIcon implements Icon,PropertyChangeListener
@@ -100,7 +100,7 @@ public class VTextIcon implements Icon,PropertyChangeListener
 			}
 		}
 
-	/** 
+	/**
 	 * Calculates the dimensions.  If they've changed,
 	 * invalidates the component
 	 */
@@ -150,14 +150,14 @@ public class VTextIcon implements Icon,PropertyChangeListener
 			{
 			// if rotated, width is the height of the string
 			fWidth = fCharHeight;
-			// and height is the width, plus some buffer space 
+			// and height is the width, plus some buffer space
 			fHeight = fm.stringWidth(fLabel) + 2 * K_BUFFER_SPACE;
 			}
 		}
 
 	/**
 	 * Draw the icon at the specified location.  Icon implementations
-	 * may use the Component argument to get properties useful for 
+	 * may use the Component argument to get properties useful for
 	 * painting, e.g. the foreground or background color.
 	 */
 	public void paintIcon(Component c, Graphics g, int x, int y)
@@ -184,7 +184,7 @@ public class VTextIcon implements Icon,PropertyChangeListener
 				switch (fPosition[i])
 					{
 					case POSITION_NORMAL:
-						// Roman fonts should be centered. Japanese fonts are always monospaced.  
+						// Roman fonts should be centered. Japanese fonts are always monospaced.
 						g2.drawString(fCharStrings[i],x + ((fWidth - fCharWidths[i]) / 2),yPos);
 						break;
 					case POSITION_TOP_RIGHT:
@@ -240,49 +240,49 @@ public class VTextIcon implements Icon,PropertyChangeListener
 		return fHeight;
 		}
 
-	/** 
+	/**
 	 verifyRotation
-	 
+
 	 returns the best rotation for the string (ROTATE_NONE, ROTATE_LEFT, ROTATE_RIGHT)
-	 
+
 	 This is public static so you can use it to test a string without creating a VTextIcon
-	 
+
 	 from http://www.unicode.org/unicode/reports/tr9/tr9-3.html
-	 When setting text using the Arabic script in vertical lines, 
-	 it is more common to employ a horizontal baseline that 
-	 is rotated by 90 degrees counterclockwise so that the characters 
-	 are ordered from top to bottom. Latin text and numbers 
-	 may be rotated 90 degrees clockwise so that the characters 
+	 When setting text using the Arabic script in vertical lines,
+	 it is more common to employ a horizontal baseline that
+	 is rotated by 90 degrees counterclockwise so that the characters
+	 are ordered from top to bottom. Latin text and numbers
+	 may be rotated 90 degrees clockwise so that the characters
 	 are also ordered from top to bottom.
-	 
+
 	 Rotation rules
 	 - Roman can rotate left, right, or none - default right (counterclockwise)
 	 - CJK can't rotate
 	 - Arabic must rotate - default left (clockwise)
-	 
+
 	 from the online edition of _The Unicode Standard, Version 3.0_, file ch10.pdf page 4
 	 Ideographs are found in three blocks of the Unicode Standard...
 	 U+4E00-U+9FFF, U+3400-U+4DFF, U+F900-U+FAFF
-	 
+
 	 Hiragana is U+3040-U+309F, katakana is U+30A0-U+30FF
-	 
+
 	 from http://www.unicode.org/unicode/faq/writingdirections.html
-	 East Asian scripts are frequently written in vertical lines 
-	 which run from top-to-bottom and are arrange columns either 
-	 from left-to-right (Mongolian) or right-to-left (other scripts). 
-	 Most characters use the same shape and orientation when displayed 
-	 horizontally or vertically, but many punctuation characters 
+	 East Asian scripts are frequently written in vertical lines
+	 which run from top-to-bottom and are arrange columns either
+	 from left-to-right (Mongolian) or right-to-left (other scripts).
+	 Most characters use the same shape and orientation when displayed
+	 horizontally or vertically, but many punctuation characters
 	 will change their shape when displayed vertically.
 
-	 Letters and words from other scripts are generally rotated through 
-	 ninety degree angles so that they, too, will read from top to bottom. 
-	 That is, letters from left-to-right scripts will be rotated clockwise 
-	 and letters from right-to-left scripts counterclockwise, both 
+	 Letters and words from other scripts are generally rotated through
+	 ninety degree angles so that they, too, will read from top to bottom.
+	 That is, letters from left-to-right scripts will be rotated clockwise
+	 and letters from right-to-left scripts counterclockwise, both
 	 through ninety degree angles.
 
-	 Unlike the bidirectional case, the choice of vertical layout 
-	 is usually treated as a formatting style; therefore, 
-	 the Unicode Standard does not define default rendering behavior 
+	 Unlike the bidirectional case, the choice of vertical layout
+	 is usually treated as a formatting style; therefore,
+	 the Unicode Standard does not define default rendering behavior
 	 for vertical text nor provide directionality controls designed to override such behavior
 
 	 */
@@ -319,7 +319,7 @@ public class VTextIcon implements Icon,PropertyChangeListener
 	// The small kana characters and Japanese punctuation that draw in the top right quadrant:
 	// small a, i, u, e, o, tsu, ya, yu, yo, wa  (katakana only) ka ke
 	static final String IN_TOP_RIGHT = "\u3041\u3043\u3045\u3047\u3049\u3063\u3083\u3085\u3087\u308E"
-			+ // hiragana 
+			+ // hiragana
 			"\u30A1\u30A3\u30A5\u30A7\u30A9\u30C3\u30E3\u30E5\u30E7\u30EE\u30F5\u30F6"; // katakana
 	static final String IN_FAR_TOP_RIGHT = "\u3001\u3002"; // comma, full stop
 

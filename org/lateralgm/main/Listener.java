@@ -4,7 +4,7 @@
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, 2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -29,6 +29,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -110,14 +111,14 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 	protected static void addResource(JTree tree, Class<?> r, Resource<?,?> res, ResNode parent)
 		{
-		//TODO: Java selection models allow for -1 meaning no selected item.
-		//This can cause issues here when say a user presses the create script button
-		//on the toolbar after having just deleted a resource.
-		//The assumption is that addResource adds a resource to the trees primary node
-		//that matches the resource kind, this is how it behaves in GM, and that 
-		//insertResource will insert a resource to the last selected path component.
-		//This is why I am changing the behavior of this function, another possible solution
-		//is to add a selection change listener to the tree to ensure that it is never negative.
+		// TODO: Java selection models allow for -1 meaning no selected item.
+		// This can cause issues here when say a user presses the create script button
+		// on the toolbar after having just deleted a resource.
+		// The assumption is that addResource adds a resource to the trees primary node
+		// that matches the resource kind, this is how it behaves in GM, and that
+		// insertResource will insert a resource to the last selected path component.
+		// This is why I am changing the behavior of this function, another possible solution
+		// is to add a selection change listener to the tree to ensure that it is never negative.
 		// - Robert B. Colton
 		if (parent != null)
 			{
@@ -198,7 +199,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		g.openFrame(true);
 		}
 
-	/** Deletes the given resource nodes, including groups, and 
+	/** Deletes the given resource nodes, including groups, and
 	 * returns the index (row) of the last node that was deleted.
 	 * @param resources An array of resource nodes to delete.
 	 */
@@ -270,11 +271,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public DefaultMutableTreeNode findNode(DefaultMutableTreeNode parent, String name,
 			boolean recursive)
 		{
-		ArrayList<DefaultMutableTreeNode> children = (ArrayList<DefaultMutableTreeNode>) Collections.list(parent.children());
-		Iterator<DefaultMutableTreeNode> childrenIterator = children.iterator();
-		while (childrenIterator.hasNext())
+		Enumeration<DefaultMutableTreeNode> enumeration = parent.children();
+		while (enumeration.hasMoreElements())
 			{
-			DefaultMutableTreeNode child = (DefaultMutableTreeNode) childrenIterator.next();
+			DefaultMutableTreeNode child = enumeration.nextElement();
 			if (child.toString().equals(name)) return child;
 			if (recursive && child.getChildCount() > 0)
 				{
@@ -323,30 +323,15 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			return;
 			}
 		else if (com.endsWith(".OPENRECENT")) { //$NON-NLS-1$
-			try
+				try
 				{
-				URI path = new URI("");
-				if (args.length > 1)
-					{
-					path = new URI(args[1]);
-					}
-				File f = new File(path);
-				if (f.exists())
-					{
-					fc.open(path);
-					}
-				else
-					{
-					JOptionPane.showMessageDialog(null,path.getPath(),Messages.getString("Listener.FILE_NOT_FOUND_TITLE"),
-							JOptionPane.ERROR_MESSAGE);
-					}
-
+					fc.open(new File(new URI(args[1])));
 				}
-			catch (URISyntaxException e1)
+				catch (URISyntaxException e1)
 				{
-				e1.printStackTrace();
+					LGM.showDefaultExceptionHandler(e1);
 				}
-			return;
+				return;
 			}
 		else if (com.endsWith(".SAVE")) { //$NON-NLS-1$
 			fc.save(LGM.currentFile.uri,LGM.currentFile.format);
@@ -474,24 +459,35 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			LGM.tree.updateUI();
 			return;
 			}
-		else if (com.endsWith(".DOCUMENTATION")) { //$NON-NLS-1$
+		else if (com.endsWith(".DOCUMENTATION") || com.endsWith(".WEBSITE") //$NON-NLS-1$ //$NON-NLS-2$
+				|| com.endsWith(".COMMUNITY") || com.endsWith(".ISSUE")) { //$NON-NLS-1$ //$NON-NLS-2$
+			String uri = Prefs.documentationURI;
+			if (com.endsWith(".WEBSITE")) {
+				uri = Prefs.websiteURI;
+			} else if (com.endsWith(".COMMUNITY")) {
+				uri = Prefs.communityURI;
+			} else if (com.endsWith(".ISSUE")) {
+				uri = Prefs.issueURI;
+			}
+			//uri = uri.replace('\\','/').replace(" ","%20");
 			try
 				{
-				// Auto detects if path is web url or local file
-				String path = Prefs.manualPath;
-				if (path.startsWith("http://") || path.startsWith("https://"))
-					{
-					Desktop.getDesktop().browse(java.net.URI.create(path));
-					}
-				else
-					{
-					Desktop.getDesktop().open(new File(path));
-					}
+					Desktop.getDesktop().browse(new URI(uri));
 				}
+			catch (URISyntaxException e1)
+			{
+				JOptionPane.showMessageDialog(LGM.frame,
+					Messages.format("HelpDialog.MALFORMED_MESSAGE",uri),
+					Messages.getString("HelpDialog.MALFORMED_TITLE"),
+					JOptionPane.ERROR_MESSAGE);
+			}
 			catch (java.io.IOException ioe)
-				{
-				System.out.println(ioe.getMessage());
-				}
+			{
+				JOptionPane.showMessageDialog(LGM.frame,
+					Messages.format("HelpDialog.UNAVAILABLE_MESSAGE",uri),
+					Messages.getString("HelpDialog.UNAVAILABLE_TITLE"),
+					JOptionPane.INFORMATION_MESSAGE);
+			}
 			return;
 			}
 		else if (com.endsWith(".CONFIG_MANAGE")) { //$NON-NLS-1$
@@ -668,7 +664,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		Iterator<DefaultMutableTreeNode> childrenIterator = children.iterator();
 		while (childrenIterator.hasNext())
 			{
-			DefaultMutableTreeNode child = (DefaultMutableTreeNode) childrenIterator.next();
+			DefaultMutableTreeNode child = childrenIterator.next();
 			node.add(child);
 			if (recursive && child.getChildCount() > 0)
 				{

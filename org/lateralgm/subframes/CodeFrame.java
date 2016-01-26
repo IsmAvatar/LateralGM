@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -140,6 +140,6 @@ public class CodeFrame extends RevertableMDIFrame implements ActionListener
 	public void setResourceChanged()
 		{
 		// TODO: Discussion should be held about closing associated windows.
-		
+
 		}
 	}

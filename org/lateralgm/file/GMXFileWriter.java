@@ -121,7 +121,7 @@ public final class GMXFileWriter
 		{
 		}
 
-	//Workaround for Parameter limit
+	// Workaround for Parameter limit
 	private static class ProjectFileContext
 		{
 		ProjectFile f;
@@ -231,8 +231,8 @@ public final class GMXFileWriter
 		return ret;
 		}
 
-	//This is used to obtain the primary node for a resource type.
-	//TODO: This is rather ugly and doesn't allow multiple primary nodes.
+	// This is used to obtain the primary node for a resource type.
+	// TODO: This is rather ugly and doesn't allow multiple primary nodes.
 	private static ResNode getPrimaryNode(ResNode first)
 		{
 		while (first.status != ResNode.STATUS_PRIMARY)
@@ -240,17 +240,10 @@ public final class GMXFileWriter
 		return first;
 		}
 
-	//This is used to stored booleans since GMX uses -1 and 0 and other times false and true
+	// This is used to store booleans since GMX uses -1 and 0 and other times false and true
 	private static String boolToString(boolean bool)
 		{
-		if (bool)
-			{
-			return "-1";
-			}
-		else
-			{
-			return "0";
-			}
+			return bool ? "-1" : "0";
 		}
 
 	public static void writeConfigurations(ProjectFileContext c, Element root) throws IOException,
@@ -262,24 +255,24 @@ public final class GMXFileWriter
 		Element conNode = mdom.createElement("Configs");
 		conNode.setAttribute("name","configs");
 		root.appendChild(conNode);
-		
+
 		for (GameSettings gs : LGM.currentFile.gameSettings) {
 			Element setNode = mdom.createElement("Config");
 			setNode.setTextContent("Configs\\" + gs.getName());
 			conNode.appendChild(setNode);
-	
+
 			Document dom = documentBuilder.newDocument();
 			Element nconNode = dom.createElement("Config");
 			dom.appendChild(nconNode);
 			Element optNode = dom.createElement("Options");
 			nconNode.appendChild(optNode);
-	
-			// For some odd reason these two settings are fucked up; combined; and not even combined properly
-			//2147483649 - Both
-			//2147483648 - Software Vertex Processing only
-			//1 - Synchronization Only
-			//0 - None
-	
+
+			// For some odd reason these two settings are combined together.
+			// 2147483649 - Both
+			// 2147483648 - Software Vertex Processing only
+			// 1 - Synchronization Only
+			// 0 - None
+
 			long syncvertex = 0;
 			if (gs.get(PGameSettings.USE_SYNCHRONIZATION))
 				{
@@ -290,7 +283,7 @@ public final class GMXFileWriter
 				syncvertex += 2147483648L;
 				}
 			optNode.appendChild(createElement(dom,"option_sync_vertex",Long.toString(syncvertex)));
-	
+
 			optNode.appendChild(createElement(dom,"option_fullscreen",
 					gs.get(PGameSettings.START_FULLSCREEN).toString()));
 			optNode.appendChild(createElement(dom,"option_sizeable",
@@ -299,7 +292,7 @@ public final class GMXFileWriter
 					gs.get(PGameSettings.ALWAYS_ON_TOP).toString()));
 			optNode.appendChild(createElement(dom,"option_aborterrors",
 					gs.get(PGameSettings.ABORT_ON_ERROR).toString()));
-	
+
 			optNode.appendChild(createElement(dom,"option_noscreensaver",
 					gs.get(PGameSettings.DISABLE_SCREENSAVERS).toString()));
 			optNode.appendChild(createElement(dom,"option_showcursor",
@@ -314,10 +307,10 @@ public final class GMXFileWriter
 					gs.get(PGameSettings.ERROR_ON_ARGS).toString()));
 			optNode.appendChild(createElement(dom,"option_freeze",
 					gs.get(PGameSettings.FREEZE_ON_LOSE_FOCUS).toString()));
-	
+
 			optNode.appendChild(createElement(dom,"option_colordepth",
 					ProjectFile.GS_DEPTH_CODE.get(gs.get(PGameSettings.COLOR_DEPTH)).toString()));
-	
+
 			optNode.appendChild(createElement(dom,"option_frequency",
 					ProjectFile.GS_FREQ_CODE.get(gs.get(PGameSettings.FREQUENCY)).toString()));
 			optNode.appendChild(createElement(dom,"option_resolution",
@@ -328,7 +321,7 @@ public final class GMXFileWriter
 					dom,
 					"option_priority",
 					ProjectFile.GS_PRIORITY_CODE.get(gs.get(PGameSettings.GAME_PRIORITY)).toString()));
-	
+
 			optNode.appendChild(createElement(dom,"option_closeesc",
 					gs.get(PGameSettings.LET_ESC_END_GAME).toString()));
 			optNode.appendChild(createElement(dom,"option_interpolate",
@@ -339,14 +332,14 @@ public final class GMXFileWriter
 					gs.get(PGameSettings.TREAT_CLOSE_AS_ESCAPE).toString()));
 			optNode.appendChild(createElement(dom,"option_lastchanged",
 					gs.get(PGameSettings.LAST_CHANGED).toString()));
-	
+
 			optNode.appendChild(createElement(dom,"option_gameid",
 					gs.get(PGameSettings.GAME_ID).toString()));
 			String guid = HexBin.encode((byte[]) gs.get(PGameSettings.GAME_GUID));
 			optNode.appendChild(createElement(dom,"option_gameguid",
 					"{" + guid.substring(0,8) + "-" + guid.substring(8,12) + "-" + guid.substring(12,16) + "-"
 							+ guid.substring(16,20) + "-" + guid.substring(20,32) + "}"));
-	
+
 			optNode.appendChild(createElement(dom,"option_author",
 					(String) gs.get(PGameSettings.AUTHOR)));
 			optNode.appendChild(createElement(dom,"option_version_company",
@@ -369,22 +362,22 @@ public final class GMXFileWriter
 					gs.get(PGameSettings.VERSION_MINOR).toString()));
 			optNode.appendChild(createElement(dom,"option_version_release",
 					gs.get(PGameSettings.VERSION_RELEASE).toString()));
-			
+
 			Element cce = dom.createElement("ConfigConstants");
 			writeConstants(gs.constants, dom, cce);
 			nconNode.appendChild(cce);
-			
+
 			String icoPath = "Configs\\Default\\windows\\runner_icon.ico";
 			optNode.appendChild(createElement(dom,"option_windows_game_icon",icoPath));
-	
+
 			icoPath = f.getDirectory() + "\\" + icoPath;
-			File file = new File(Util.getUnixPath(icoPath)).getParentFile();
+			File file = new File(Util.getPOSIXPath(icoPath)).getParentFile();
 			file.mkdirs();
-	
-			FileOutputStream fos = new FileOutputStream(Util.getUnixPath(icoPath));
+
+			FileOutputStream fos = new FileOutputStream(Util.getPOSIXPath(icoPath));
 			((ICOFile) gs.get(PGameSettings.GAME_ICON)).write(fos);
 			fos.close();
-	
+
 			fos = null;
 			try
 				{
@@ -393,12 +386,12 @@ public final class GMXFileWriter
 				tr.setOutputProperty(OutputKeys.METHOD,"xml");
 				;
 				tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","4");
-	
-				file = new File(Util.getUnixPath(f.getDirectory() + "/Configs"));
+
+				file = new File(Util.getPOSIXPath(f.getDirectory() + "/Configs"));
 				file.mkdir();
-	
+
 				// send DOM to file
-				fos = new FileOutputStream(Util.getUnixPath(f.getDirectory() + "/Configs/" + gs.getName() + ".config.gmx"));
+				fos = new FileOutputStream(Util.getPOSIXPath(f.getDirectory() + "/Configs/" + gs.getName() + ".config.gmx"));
 				tr.transform(new DOMSource(dom),new StreamResult(fos));
 				}
 			finally
@@ -411,7 +404,7 @@ public final class GMXFileWriter
 
 	public static void writeTriggers(ProjectFile f, ResNode root, int ver) throws IOException
 		{
-		//TODO: Implement
+		// TODO: Implement
 		}
 
 	public static void writeConstants(Constants cnsts, Document dom, Element node) throws IOException
@@ -426,7 +419,7 @@ public final class GMXFileWriter
 			}
 			node.appendChild(base);
 		}
-	
+
 	public static void writeDefaultConstants(ProjectFileContext c, Element root) throws IOException
 		{
 			writeConstants(c.f.defaultConstants, c.dom, root);
@@ -467,7 +460,7 @@ public final class GMXFileWriter
 					res = dom.createElement("sprite");
 					String fname = f.getDirectory() + "\\sprites\\";
 					res.setTextContent("sprites\\" + spr.getName());
-					File file = new File(Util.getUnixPath(fname + "\\images"));
+					File file = new File(Util.getPOSIXPath(fname + "\\images"));
 					file.mkdirs();
 
 					Document doc = documentBuilder.newDocument();
@@ -495,7 +488,7 @@ public final class GMXFileWriter
 					sprroot.appendChild(createElement(doc,"VTile",
 							boolToString((Boolean) spr.get(PSprite.TILE_VERTICALLY))));
 
-					//TODO: Write texture groups
+					// TODO: Write texture groups
 
 					sprroot.appendChild(createElement(doc,"For3D",
 							boolToString((Boolean) spr.get(PSprite.FOR3D))));
@@ -510,7 +503,7 @@ public final class GMXFileWriter
 					for (int j = 0; j < spr.subImages.size(); j++)
 						{
 						String framefname = "images\\" + spr.getName() + "_" + j + ".png";
-						File outputfile = new File(Util.getUnixPath(fname + framefname));
+						File outputfile = new File(Util.getPOSIXPath(fname + framefname));
 						Element frameNode = createElement(doc,"frame",framefname);
 						frameNode.setAttribute("index",Integer.toString(j));
 						frameroot.appendChild(frameNode);
@@ -529,7 +522,7 @@ public final class GMXFileWriter
 						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getUnixPath(fname + spr.getName() + ".sprite.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + spr.getName() + ".sprite.gmx"));
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -595,7 +588,7 @@ public final class GMXFileWriter
 					res = dom.createElement("sound");
 					String fname = f.getDirectory() + "\\sound\\";
 					res.setTextContent("sound\\" + snd.getName());
-					File file = new File(Util.getUnixPath(fname + "\\audio"));
+					File file = new File(Util.getPOSIXPath(fname + "\\audio"));
 					file.mkdirs();
 
 					Document doc = documentBuilder.newDocument();
@@ -610,14 +603,15 @@ public final class GMXFileWriter
 					sndroot.appendChild(createElement(doc,"extension",ftype));
 					sndroot.appendChild(createElement(doc,"origname",snd.get(PSound.FILE_NAME).toString()));
 					sndroot.appendChild(createElement(doc,"kind",
-							ProjectFile.SOUND_CODE.get(snd.get(PSound.KIND)).toString()));
+							ProjectFile.SOUND_KIND_CODE.get(snd.get(PSound.KIND)).toString()));
 
 					Element volumeRoot = doc.createElement("volume");
-					volumeRoot.appendChild(createElement(doc,"volume",snd.get(PSound.VOLUME).toString()));
+					volumeRoot.appendChild(createElement(doc,"volume", snd.get(PSound.VOLUME).toString()));
 					sndroot.appendChild(volumeRoot);
 
 					Element bitRateRoot = doc.createElement("bitRates");
-					bitRateRoot.appendChild(createElement(doc,"bitRate",snd.get(PSound.BIT_RATE).toString()));
+					bitRateRoot.appendChild(createElement(doc,"bitRate",
+						snd.get(PSound.BIT_RATE).toString()));
 					sndroot.appendChild(bitRateRoot);
 
 					Element sampleRateRoot = doc.createElement("sampleRates");
@@ -626,7 +620,8 @@ public final class GMXFileWriter
 					sndroot.appendChild(sampleRateRoot);
 
 					Element typesRoot = doc.createElement("types");
-					typesRoot.appendChild(createElement(doc,"type",snd.get(PSound.TYPE).toString()));
+					typesRoot.appendChild(createElement(doc,"type",
+						ProjectFile.SOUND_TYPE_CODE.get(snd.get(PSound.TYPE)).toString()));
 					sndroot.appendChild(typesRoot);
 
 					Element bitDepthRoot = doc.createElement("bitDepths");
@@ -665,7 +660,7 @@ public final class GMXFileWriter
 						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getUnixPath(fname + resNode.getUserObject().toString()
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + resNode.getUserObject().toString()
 								+ ".sound.gmx"));
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
@@ -731,7 +726,7 @@ public final class GMXFileWriter
 					res = dom.createElement("background");
 					String fname = f.getDirectory() + "\\background\\";
 					res.setTextContent("background\\" + bkg.getName());
-					File file = new File(Util.getUnixPath(fname + "\\images"));
+					File file = new File(Util.getPOSIXPath(fname + "\\images"));
 					file.mkdirs();
 
 					Document doc = documentBuilder.newDocument();
@@ -754,7 +749,7 @@ public final class GMXFileWriter
 					bkgroot.appendChild(createElement(doc,"VTile",
 							boolToString((Boolean) bkg.get(PBackground.TILE_VERTICALLY))));
 
-					//TODO: Write texture groups
+					// TODO: Write texture groups
 
 					bkgroot.appendChild(createElement(doc,"For3D",
 							boolToString((Boolean) bkg.get(PBackground.FOR3D))));
@@ -768,7 +763,7 @@ public final class GMXFileWriter
 					bkgroot.appendChild(createElement(doc,"data","images\\" + bkg.getName() + ".png"));
 					if (width > 0 && height > 0)
 						{
-						File outputfile = new File(Util.getUnixPath(fname + "images\\" + bkg.getName() + ".png"));
+						File outputfile = new File(Util.getPOSIXPath(fname + "images\\" + bkg.getName() + ".png"));
 						ImageIO.write(bkg.getBackgroundImage(),"png",outputfile);
 						}
 
@@ -782,7 +777,7 @@ public final class GMXFileWriter
 						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getUnixPath(fname + resNode.getUserObject().toString()
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + resNode.getUserObject().toString()
 								+ ".background.gmx"));
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
@@ -849,7 +844,7 @@ public final class GMXFileWriter
 					res = dom.createElement("path");
 					String fname = f.getDirectory() + "\\paths\\";
 					res.setTextContent("paths\\" + path.getName());
-					File file = new File(Util.getUnixPath(f.getDirectory() + "/paths"));
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/paths"));
 					file.mkdir();
 
 					Document doc = documentBuilder.newDocument();
@@ -894,7 +889,7 @@ public final class GMXFileWriter
 						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getUnixPath(fname + path.getName() + ".path.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + path.getName() + ".path.gmx"));
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -960,13 +955,13 @@ public final class GMXFileWriter
 					res = dom.createElement("script");
 					String fname = "scripts\\" + scr.getName() + ".gml";
 					res.setTextContent(fname);
-					File file = new File(Util.getUnixPath(f.getDirectory() + "/scripts"));
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/scripts"));
 					file.mkdir();
 					Writer out = null;
 					try
 						{
 						out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
-								Util.getUnixPath(f.getDirectory() + "/" + Util.getUnixPath(fname))),"UTF-8"));
+								Util.getPOSIXPath(f.getDirectory() + "/" + Util.getPOSIXPath(fname))),"UTF-8"));
 						out.write((String) scr.properties.get(PScript.CODE));
 						}
 					finally
@@ -1032,13 +1027,13 @@ public final class GMXFileWriter
 					String fname = "shaders\\" + shr.getName() + ".shader";
 					res.setTextContent(fname);
 					res.setAttribute("type",shr.properties.get(PShader.TYPE).toString());
-					File file = new File(Util.getUnixPath(f.getDirectory() + "/shaders"));
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/shaders"));
 					file.mkdir();
 					Writer out = null;
 					try
 						{
 						out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
-								Util.getUnixPath(f.getDirectory() + "/" + fname)),"UTF-8"));
+								Util.getPOSIXPath(f.getDirectory() + "/" + fname)),"UTF-8"));
 						String code = shr.properties.get(PShader.VERTEX)
 								+ "\n//######################_==_YOYO_SHADER_MARKER_==_######################@~"
 								+ shr.properties.get(PShader.FRAGMENT);
@@ -1105,7 +1100,7 @@ public final class GMXFileWriter
 					res = dom.createElement("font");
 					String fname = f.getDirectory() + "\\fonts\\";
 					res.setTextContent("fonts\\" + fnt.getName());
-					File file = new File(Util.getUnixPath(fname));
+					File file = new File(Util.getPOSIXPath(fname));
 					file.mkdirs();
 
 					Document doc = documentBuilder.newDocument();
@@ -1172,7 +1167,7 @@ public final class GMXFileWriter
 						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getUnixPath(fname + fnt.getName() + ".font.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + fnt.getName() + ".font.gmx"));
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -1237,7 +1232,7 @@ public final class GMXFileWriter
 					res = dom.createElement("timeline");
 					String fname = f.getDirectory() + "\\timelines\\";
 					res.setTextContent("timelines\\" + timeline.getName());
-					File file = new File(Util.getUnixPath(f.getDirectory() + "/timelines"));
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/timelines"));
 					file.mkdir();
 
 					Document doc = documentBuilder.newDocument();
@@ -1265,7 +1260,7 @@ public final class GMXFileWriter
 						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getUnixPath(fname + timeline.getName() + ".timeline.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + timeline.getName() + ".timeline.gmx"));
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -1331,7 +1326,7 @@ public final class GMXFileWriter
 					res = dom.createElement("object");
 					String fname = f.getDirectory() + "\\objects\\";
 					res.setTextContent("objects\\" + object.getName());
-					File file = new File(Util.getUnixPath(f.getDirectory() + "/objects"));
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/objects"));
 					file.mkdir();
 
 					Document doc = documentBuilder.newDocument();
@@ -1449,7 +1444,7 @@ public final class GMXFileWriter
 						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getUnixPath(fname + object.getName() + ".object.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + object.getName() + ".object.gmx"));
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -1515,7 +1510,7 @@ public final class GMXFileWriter
 					res = dom.createElement("room");
 					String fname = f.getDirectory() + "\\rooms\\";
 					res.setTextContent("rooms\\" + room.getName());
-					File file = new File(Util.getUnixPath(f.getDirectory() + "/rooms"));
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/rooms"));
 					file.mkdir();
 
 					Document doc = documentBuilder.newDocument();
@@ -1547,8 +1542,8 @@ public final class GMXFileWriter
 					Element mkeroot = doc.createElement("makerSettings");
 					mkeroot.appendChild(createElement(doc,"isSet",
 							boolToString((Boolean) room.get(PRoom.REMEMBER_WINDOW_SIZE))));
-					mkeroot.appendChild(createElement(doc,"w",room.get(PRoom.WIDTH).toString()));
-					mkeroot.appendChild(createElement(doc,"h",room.get(PRoom.HEIGHT).toString()));
+					mkeroot.appendChild(createElement(doc,"w",room.get(PRoom.EDITOR_WIDTH).toString()));
+					mkeroot.appendChild(createElement(doc,"h",room.get(PRoom.EDITOR_HEIGHT).toString()));
 					mkeroot.appendChild(createElement(doc,"showGrid",
 							boolToString((Boolean) room.get(PRoom.SHOW_GRID))));
 					mkeroot.appendChild(createElement(doc,"showObjects",
@@ -1657,7 +1652,8 @@ public final class GMXFileWriter
 							}
 						inselement.setAttribute("x",Integer.toString(in.getPosition().x));
 						inselement.setAttribute("y",Integer.toString(in.getPosition().y));
-						inselement.setAttribute("name","inst_" + Integer.toString(in.getID()));
+						inselement.setAttribute("name",in.getName());
+						inselement.setAttribute("id",Integer.toString(in.getID()));
 						inselement.setAttribute("locked",boolToString(in.isLocked()));
 						inselement.setAttribute("code",in.getCreationCode());
 						inselement.setAttribute("scaleX",Double.toString(in.getScale().getX()));
@@ -1691,34 +1687,33 @@ public final class GMXFileWriter
 						tileelement.setAttribute("h",Integer.toString((Integer) props.get(PTile.HEIGHT)));
 						tileelement.setAttribute("xo",Integer.toString((Integer) props.get(PTile.BG_X)));
 						tileelement.setAttribute("yo",Integer.toString((Integer) props.get(PTile.BG_Y)));
-						String tileId = Integer.toString((Integer) props.get(PTile.ID));
-						tileelement.setAttribute("id",tileId);
-						tileelement.setAttribute("name","inst_" + tileId);
-						tileelement.setAttribute("depth",Integer.toString((Integer) props.get(PTile.DEPTH)));
-						tileelement.setAttribute("locked",boolToString((Boolean) props.get(PTile.LOCKED)));
+						tileelement.setAttribute("id",Integer.toString((Integer) props.get(PTile.ID)));
+						tileelement.setAttribute("name",(String) props.get(PTile.NAME));
+						tileelement.setAttribute("depth",Integer.toString(tile.getDepth()));
+						tileelement.setAttribute("locked",boolToString(tile.isLocked()));
 						Point2D scale = tile.getScale();
 						tileelement.setAttribute("scaleX",Double.toString(scale.getX()));
 						tileelement.setAttribute("scaleY",Double.toString(scale.getY()));
-						tileelement.setAttribute("colour",Long.toString((Long) props.get(PTile.COLOR)));
+						tileelement.setAttribute("colour",Long.toString(tile.getColor()));
 						}
 
 					// Physics properties
 					roomroot.appendChild(createElement(doc,"PhysicsWorld",
-							boolToString((Boolean) room.get(PRoom.PHYSICS_WORLD))));
+						boolToString((Boolean) room.get(PRoom.PHYSICS_WORLD))));
 					roomroot.appendChild(createElement(doc,"PhysicsWorldTop",
-							Integer.toString((Integer) room.get(PRoom.PHYSICS_TOP))));
+						Integer.toString((Integer) room.get(PRoom.PHYSICS_TOP))));
 					roomroot.appendChild(createElement(doc,"PhysicsWorldLeft",
-							Integer.toString((Integer) room.get(PRoom.PHYSICS_LEFT))));
+						Integer.toString((Integer) room.get(PRoom.PHYSICS_LEFT))));
 					roomroot.appendChild(createElement(doc,"PhysicsWorldRight",
-							Integer.toString((Integer) room.get(PRoom.PHYSICS_RIGHT))));
+						Integer.toString((Integer) room.get(PRoom.PHYSICS_RIGHT))));
 					roomroot.appendChild(createElement(doc,"PhysicsWorldBottom",
-							Integer.toString((Integer) room.get(PRoom.PHYSICS_BOTTOM))));
+						Integer.toString((Integer) room.get(PRoom.PHYSICS_BOTTOM))));
 					roomroot.appendChild(createElement(doc,"PhysicsWorldGravityX",
-							Double.toString((Double) room.get(PRoom.PHYSICS_GRAVITY_X))));
+						Double.toString((Double) room.get(PRoom.PHYSICS_GRAVITY_X))));
 					roomroot.appendChild(createElement(doc,"PhysicsWorldGravityY",
-							Double.toString((Double) room.get(PRoom.PHYSICS_GRAVITY_Y))));
+						Double.toString((Double) room.get(PRoom.PHYSICS_GRAVITY_Y))));
 					roomroot.appendChild(createElement(doc,"PhysicsWorldPixToMeters",
-							Double.toString((Double) room.get(PRoom.PHYSICS_PIXTOMETERS))));
+						Double.toString((Double) room.get(PRoom.PHYSICS_PIXTOMETERS))));
 
 					FileOutputStream fos = null;
 					try
@@ -1730,7 +1725,7 @@ public final class GMXFileWriter
 						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getUnixPath(fname + room.getName() + ".room.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + room.getName() + ".room.gmx"));
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -1762,12 +1757,12 @@ public final class GMXFileWriter
 
 	public static void writeIncludedFiles(ProjectFileContext c, Element root) throws IOException
 		{
-		//TODO: Implement
+		// TODO: Implement
 		}
 
 	public static void writePackages(ProjectFileContext c, Element root) throws IOException
 		{
-		//TODO: Implement
+		// TODO: Implement
 		}
 
 	public static void writeGameInformation(ProjectFileContext c, Element root)
@@ -1784,7 +1779,7 @@ public final class GMXFileWriter
 		PrintWriter out = null;
 		try
 			{
-			out = new PrintWriter(Util.getUnixPath(f.getDirectory() + "/help.rtf"));
+			out = new PrintWriter(Util.getPOSIXPath(f.getDirectory() + "/help.rtf"));
 			out.println(f.gameInfo.properties.get(PGameInformation.TEXT));
 			}
 		finally

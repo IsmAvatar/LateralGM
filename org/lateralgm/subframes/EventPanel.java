@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -14,7 +14,6 @@ import static org.lateralgm.main.Util.deRef;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -389,10 +388,6 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 		subkey.add(MainEvent.EV_KEYRELEASE,Event.EV_INSERT_KEY);
 
 		events = new JTree(root);
-		if (LGM.themename.equals("Quantum"))
-			{
-			events.setFont(LGM.lnfFont.deriveFont(Font.PLAIN));
-			}
 		events.setCellRenderer(new EventNodeRenderer());
 		events.setRootVisible(false);
 		events.setShowsRootHandles(true);
@@ -444,6 +439,7 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 		{
 		private static final long serialVersionUID = 1L;
 
+		@Override
 		public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel,
 				boolean expanded, boolean leaf, int row, boolean hasFocus)
 			{
@@ -474,6 +470,7 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 			super();
 			}
 
+		@Override
 		protected Transferable createTransferable(JComponent c)
 			{
 			EventNode n = (EventNode) ((JTree) c).getLastSelectedPathComponent();
@@ -481,11 +478,13 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 			return n;
 			}
 
+		@Override
 		public int getSourceActions(JComponent c)
 			{
 			return COPY;
 			}
 
+		@Override
 		public boolean canImport(TransferHandler.TransferSupport support)
 			{
 			return false;
@@ -494,6 +493,7 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 
 	private class MListener extends MouseAdapter
 		{
+		@Override
 		public void mouseReleased(MouseEvent e)
 			{
 			if (e.getSource() != events) return;
@@ -544,13 +544,14 @@ public class EventPanel extends CustomJToolBar implements ActionListener,TreeSel
 			}
 		}
 
+	@Override
 	public void setVisible(boolean b)
 		{
 		if (b == isVisible()) return;
 		//workaround for java bug 4782243
 		if (((BasicToolBarUI) getUI()).isFloating()) {
 			Container c = this, p = c.getParent();
-			while (p != null && p != LGM.frame && p != LGM.content)
+			while (p != null && p != LGM.frame && p != LGM.contents)
 				{
 				c = p;
 				p = c.getParent();

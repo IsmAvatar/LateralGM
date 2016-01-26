@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -25,7 +25,6 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import org.lateralgm.main.LGM;
@@ -116,7 +115,6 @@ public class AboutBox extends JDialog implements PropertyChangeListener
 			//Desktop not defined in Java 1.5
 			LGM.showDefaultExceptionHandler(e);
 			}
-		((HTMLEditorKit) ep.getEditorKit()).setLinkCursor(null);
 		}
 
 	private void showLicense()

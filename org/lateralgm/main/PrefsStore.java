@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -11,6 +11,8 @@ package org.lateralgm.main;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 public final class PrefsStore
@@ -20,6 +22,17 @@ public final class PrefsStore
 		}
 
 	private static final Preferences PREFS = Preferences.userRoot().node("/org/lateralgm");
+
+	public static void resetToDefaults() {
+		try
+		{
+			PREFS.clear();
+		}
+		catch (BackingStoreException e)
+		{
+			LGM.showDefaultExceptionHandler(e);
+		}
+	}
 
 	public static void clearRecentFiles()
 		{
@@ -174,10 +187,10 @@ public final class PrefsStore
 		Prefs.swingThemePath = s;
 		}
 
-	public static void setLanguageName(String s)
+	public static void setLocale(Locale s)
 		{
-		PREFS.put("languageName",s);
-		Prefs.languageName = s;
+		PREFS.put("localeTag",s.toLanguageTag());
+		Prefs.locale = s;
 		}
 
 	public static void setDNDEnabled(boolean selected)
@@ -186,10 +199,28 @@ public final class PrefsStore
 		Prefs.enableDragAndDrop = selected;
 		}
 
-	public static void setManualPath(String path)
+	public static void setDocumentationURI(String uri)
 		{
-		PREFS.put("manualPath",path);
-		Prefs.manualPath = path;
+		PREFS.put("documentationURI",uri);
+		Prefs.documentationURI = uri;
+		}
+
+	public static void setWebsiteURI(String uri)
+		{
+		PREFS.put("websiteURI",uri);
+		Prefs.websiteURI = uri;
+		}
+
+	public static void setCommunityURI(String uri)
+		{
+		PREFS.put("communityURI",uri);
+		Prefs.communityURI = uri;
+		}
+
+	public static void setIssueURI(String uri)
+		{
+		PREFS.put("issueURI",uri);
+		Prefs.issueURI = uri;
 		}
 
 	public static void setShowTreeFilter(boolean selected)
@@ -206,9 +237,14 @@ public final class PrefsStore
 
 	public static void setDockEventPanel(boolean selected)
 		{
-		// TODO Auto-generated method stub
 		PREFS.putBoolean("dockEventPanel",selected);
 		Prefs.dockEventPanel = selected;
+		}
+
+	public static void setRightOrientation(boolean selected)
+		{
+		PREFS.putBoolean("rightOrientation",selected);
+		Prefs.rightOrientation = selected;
 		}
 
 	public static void setUndoHistorySize(int undoHistorySize)

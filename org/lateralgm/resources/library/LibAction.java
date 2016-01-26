@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -25,12 +25,6 @@ public class LibAction
 	public static final byte INTERFACE_CODE = 5;
 	public static final byte INTERFACE_TEXT = 6;
 
-	//LIB's use a transparency color key in the bottom left, flag this variable to have the ActionList
-	//control remove the transparent color when rendering. This allows the action to be written back without
-	//the transparency removed.
-	public boolean useTransparencyKey = false;
-	private BufferedImage transparentImage = null; // cached version of the image with transparency
-	
 	public int id = 0;
 	public int parentId = -1; //Preserves the id when library is unknown
 	public Library parent = null;
@@ -78,9 +72,5 @@ public class LibAction
 		if (parentId != other.parentId) return false;
 		return true;
 		}
-	
-	public BufferedImage getImage() {
-		return (useTransparencyKey ? (transparentImage == null ? transparentImage = Util.getTransparentImage(actImage) : transparentImage) : actImage);
-	}
-	
+
 	}

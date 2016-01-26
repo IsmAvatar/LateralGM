@@ -38,27 +38,27 @@ public class DefaultNode extends DefaultMutableTreeNode
 	private static final long serialVersionUID = 1L;
 	protected boolean isVisible = true;
 	protected Icon icon;
-	
+
 	public Icon getIcon() {
 		return icon;
 	}
-	
+
 	public Icon getIconisedGroup() {
 		return null;
 	}
-	
+
 	public Icon getLeafIcon() {
 		return getIcon();
 	}
-	
+
 	public void setVisible(boolean visible) {
 		this.isVisible = visible;
 	}
-	
+
 	public boolean isVisible() {
 		return this.isVisible;
 	}
-	
+
   public TreeNode getChildAt(int index, boolean filterIsActive) {
 	  if (!filterIsActive) {
 	    return super.getChildAt(index);
@@ -66,7 +66,7 @@ public class DefaultNode extends DefaultMutableTreeNode
 	  if (children == null) {
 	    throw new ArrayIndexOutOfBoundsException("node has no children");
 	  }
-	
+
 	  int realIndex = -1;
 	  int visibleIndex = -1;
 	  //NOTE: If you really wanted to be safe you could check the cast of e.nextElement()
@@ -83,7 +83,7 @@ public class DefaultNode extends DefaultMutableTreeNode
 	      return (TreeNode) children.elementAt(realIndex);
 	    }
 	  }
-	
+
 	  throw new ArrayIndexOutOfBoundsException("index unmatched");
 	  //return (TreeNode)children.elementAt(index);
 	}
@@ -95,7 +95,7 @@ public class DefaultNode extends DefaultMutableTreeNode
 	  if (children == null) {
 	    return 0;
 	  }
-	
+
 	  int count = 0;
 	  Enumeration<?> e = children.elements();
 	  while (e.hasMoreElements()) {
@@ -104,7 +104,7 @@ public class DefaultNode extends DefaultMutableTreeNode
 	      count++;
 	    }
 	  }
-	
+
 	  return count;
 	}
 
@@ -129,12 +129,16 @@ public class DefaultNode extends DefaultMutableTreeNode
 	public void openFrame()
 		{
 		// TODO Auto-generated method stub
-		
+
 		}
-	
+
 	public class EventNode extends DefaultNode {
-		int emainid, eid;
-		
+	/**
+	 * NOTE: Default UID generated, change if necessary.
+	 */
+	private static final long serialVersionUID = 6408866430274328299L;
+	int emainid, eid;
+
 		public EventNode(String name, int mid, int id)
 			{
 			super(name);
@@ -142,7 +146,5 @@ public class DefaultNode extends DefaultMutableTreeNode
 			eid = id;
 			// TODO Auto-generated constructor stub
 			}
-	
 	}
-
-	}
+}

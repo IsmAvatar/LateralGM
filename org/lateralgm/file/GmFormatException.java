@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -27,5 +27,4 @@ public class GmFormatException extends ProjectFormatException
 		this.e = e;
 		this.file = file;
 		}
-	
 	}

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -30,6 +30,7 @@ import javax.imageio.ImageIO;
 import org.lateralgm.file.GmStreamDecoder;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.Argument;
@@ -64,7 +65,7 @@ public final class LibManager
 		{
 		// We can't do this became EGM has no reflection capabilities in this regard.
 		//if (!Prefs.enableDragAndDrop) {
-		//codeAction = makeCodeAction(); 
+		//codeAction = makeCodeAction();
 		//return;
 		//}
 
@@ -287,8 +288,8 @@ public final class LibManager
 
 			byte[] data = new byte[in.read4()];
 			in.read(data);
-			act.actImage = ImageIO.read(new ByteArrayInputStream(data));
-			act.useTransparencyKey = true;
+			act.actImage = Util.getTransparentImage(
+					ImageIO.read(new ByteArrayInputStream(data))).getSubimage(0,0,24,24);
 
 			act.hidden = in.readBool();
 			act.advanced = in.readBool();

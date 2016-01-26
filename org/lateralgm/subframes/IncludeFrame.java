@@ -141,9 +141,9 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 	@Override
 	public boolean resourceChanged()
 		{
-		//NOTE: commit changes must be the first line because if we don't
-		//the method will be flagged that we handled committing ourselves, 
-		//and the changes wont actually get committed.
+		// NOTE: commit changes must be the first line because if we don't
+		// the method will be flagged that we handled committing ourselves,
+		// and the changes wont actually get committed.
 		commitChanges();
 		return !res.properties.equals(resOriginal.properties);
 		}

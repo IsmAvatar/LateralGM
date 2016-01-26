@@ -4,7 +4,7 @@
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, 2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -13,13 +13,13 @@
 package org.lateralgm.subframes;
 
 /*
- * Stolen from Font Family listener. Not sure what m_monitor was... 
+ * Stolen from Font Family listener. Not sure what m_monitor was...
  * 	String m_fontName = m_cbFonts.getSelectedItem().toString();
  * 	MutableAttributeSet attr = new SimpleAttributeSet();
  * 	StyleConstants.setFontFamily(attr,m_fontName);
  * 	// setAttributeSet(attr);
  * 	// m_monitor.grabFocus();
- * 
+ *
  * TODO: Add left, right, center text alignment
  */
 
@@ -127,8 +127,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		{
 
 		/**
-			 * 
-			 */
+		 * NOTE: Default UID generated, change if necessary.
+		 */
 		private static final long serialVersionUID = 1L;
 
 		public SettingsFrame()
@@ -180,13 +180,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		menu = new JMenu(Messages.getString("GameInformationFrame.MENU_EDIT")); //$NON-NLS-1$
 		menuBar.add(menu);
 
-		item = new JMenuItem(undoManager.getUndoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.UNDO")));
-		menu.add(item);
-		item = new JMenuItem(undoManager.getRedoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.REDO")));
-		menu.add(item);
-		menu.addSeparator();
 		item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
 		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.CUT")));
 		menu.add(item);
@@ -195,6 +188,13 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		menu.add(item);
 		item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
 		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.PASTE")));
+		menu.add(item);
+		menu.addSeparator();
+		item = new JMenuItem(undoManager.getUndoAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.UNDO")));
+		menu.add(item);
+		item = new JMenuItem(undoManager.getRedoAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.REDO")));
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
@@ -242,10 +242,32 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		// Setup the buttons
 		save.setRequestFocusEnabled(false);
 		tool.add(save);
+		tool.addSeparator();
+
+		JButton button;
+
+		button = addToolButton("GameInformationFrame.CUT");
+		tool.add(button);
+		button = addToolButton("GameInformationFrame.COPY");
+		tool.add(button);
+		button = addToolButton("GameInformationFrame.PASTE");
+		tool.add(button);
+
+		tool.addSeparator();
+
+		button = new JButton(undoManager.getUndoAction());//$NON-NLS-1$
+		button.setText("");
+		button.setToolTipText(Messages.getString("GameInformationFrame.UNDO"));
+		tool.add(button);
+		button = new JButton(undoManager.getRedoAction());//$NON-NLS-1$
+		button.setText("");
+		button.setToolTipText(Messages.getString("GameInformationFrame.REDO"));
+		tool.add(button);
+
+		tool.addSeparator();
 
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		String[] fontNames = ge.getAvailableFontFamilyNames();
-		tool.addSeparator();
 		cbFonts = new JComboBox<String>(fontNames);
 		cbFonts.setRequestFocusEnabled(false);
 		cbFonts.setMaximumSize(cbFonts.getPreferredSize());
@@ -323,28 +345,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		but.addActionListener(this);
 		but.setToolTipText(Messages.getString("GameInformationFrame.COLOR"));
 		tool.add(but);
-
-		tool.addSeparator();
-
-		JButton button;
-
-		button = new JButton(undoManager.getUndoAction());//$NON-NLS-1$
-		button.setText("");
-		button.setToolTipText(Messages.getString("GameInformationFrame.UNDO"));
-		tool.add(button);
-		button = new JButton(undoManager.getRedoAction());//$NON-NLS-1$
-		button.setText("");
-		button.setToolTipText(Messages.getString("GameInformationFrame.REDO"));
-		tool.add(button);
-
-		tool.addSeparator();
-
-		button = addToolButton("GameInformationFrame.CUT");
-		tool.add(button);
-		button = addToolButton("GameInformationFrame.COPY");
-		tool.add(button);
-		button = addToolButton("GameInformationFrame.PASTE");
-		tool.add(button);
 
 		return tool;
 		}
@@ -519,7 +519,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		revertResource();
 		//NOTE: DO not add the document listeners until the first time you set the text.
 		addDocumentListeners();
-		
+
 		this.add(new JScrollPane(editor),BorderLayout.CENTER);
 
 		fc = new CustomFileChooser("/org/lateralgm","LAST_GAMEINFO_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -530,13 +530,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem item;
 
-		item = new JMenuItem(undoManager.getUndoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.UNDO")));
-		popup.add(item);
-		item = new JMenuItem(undoManager.getRedoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.REDO")));
-		popup.add(item);
-		popup.addSeparator();
 		item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
 		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.CUT")));
 		popup.add(item);
@@ -547,6 +540,15 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.PASTE")));
 		popup.add(item);
 		popup.addSeparator();
+
+		item = new JMenuItem(undoManager.getUndoAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.UNDO")));
+		popup.add(item);
+		item = new JMenuItem(undoManager.getRedoAction());
+		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.REDO")));
+		popup.add(item);
+		popup.addSeparator();
+
 		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
 		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.SELECTALL")));
 		popup.add(item);
@@ -891,7 +893,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		{
 		return (String) getUserObject();
 		}
-	
+
 	@Override
 	public void setVisible(boolean visible) {
 		if (visible != this.isVisible()) {
@@ -905,17 +907,17 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		}
 		super.setVisible(visible);
 	}
-	
+
 	@Override
 	public boolean resourceChanged()
 		{
 		//NOTE: commit changes must be the first line because if we don't
-		//the method will be flagged that we handled committing ourselves, 
+		//the method will be flagged that we handled committing ourselves,
 		//and the changes wont actually get committed.
 		commitChanges();
 		if (undoManager.canUndo()) return true;
 		for (Entry<PGameInformation,Object> entry : res.properties.entrySet()) {
-			if (entry.getKey() != PGameInformation.TEXT && 
+			if (entry.getKey() != PGameInformation.TEXT &&
 					!entry.getValue().equals(resOriginal.get(entry.getKey()))) {
 						return true;
 			}

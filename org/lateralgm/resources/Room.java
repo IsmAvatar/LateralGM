@@ -3,7 +3,7 @@
  * Copyright (C) 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, 2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -60,7 +60,7 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		}
 
 	private static final EnumMap<PRoom,Object> DEFS = PropertyMap.makeDefaultMap(PRoom.class,"",640,
-			480,16,16,false,30,false,new Color(30,160,230),true,"",true,500,450,true,true,true,true,true,
+			480,16,16,false,30,false,new Color(102,204,255),true,"",true,1024,640,true,true,true,true,true,
 			false,false,false,TAB_OBJECTS,0,0,false,true,false,0,0,640,480,0.0,10.0,0.1);
 
 	public Room()
@@ -104,7 +104,7 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		{
 		return properties.get(PRoom.HEIGHT);
 		}
-	
+
 	public String getCode()
 		{
 		return properties.get(PRoom.CREATION_CODE);
@@ -167,6 +167,10 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		boolean isLocked();
 
 		void setLocked(boolean l);
+
+		void setName(String name);
+
+		String getName();
 
 		void setPosition(Point pos);
 

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -16,12 +16,12 @@ public class Constant implements Comparable<Constant>
 	public Constant() {
 		this("", "");
 	}
-	
+
 	public Constant(String n, String v) {
 		name = n;
 		value = v;
 	}
-	
+
 	public Constant copy()
 		{
 		Constant copy = new Constant();

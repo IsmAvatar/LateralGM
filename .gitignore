@@ -5,3 +5,4 @@ lateralgm.jar
 *.db
 .git/modules
 org/lateralgm/joshedit
+lib/

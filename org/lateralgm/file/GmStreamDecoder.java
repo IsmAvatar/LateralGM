@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2009, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -109,7 +109,7 @@ public class GmStreamDecoder extends StreamDecoder
 		return t;
 		}
 
-	/** 
+	/**
 	 * ISO-8859-1 was the fixed charset in earlier LGM versions, so those parts of the code which
 	 * have not been updated to set the charset explicitly should continue to use it to avoid
 	 * regressions.

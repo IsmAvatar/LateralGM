@@ -245,35 +245,35 @@ private Integer findStyleNumber(AttributeSet a, String domain)
     return null;
 }
 
-static private Object attrDiff(MutableAttributeSet oldAttrs,  
-    AttributeSet newAttrs,  
-    Object key,  
-    Object value,  
-    Object dfl) {  
-	Object oldValue, newValue;  
-	
-	oldValue = oldAttrs.getAttribute(key);  
-	newValue = newAttrs.getAttribute(key);  
-	
-	// AssertiveAttribute have a constant that must match  
-	if (value != null && !value.equals(newValue)) {  
-		return null;  
-	}  
-	if (newValue == oldValue)  
-		return null;  
-	if (newValue == null) {  
-		oldAttrs.removeAttribute(key);  
-		if (dfl != null && !dfl.equals(oldValue))  
-			return dfl;  
-		else  
-			return null;  
-	}  
-	if (oldValue == null || !equalArraysOK(oldValue, newValue)) {  
-		oldAttrs.addAttribute(key, newValue);  
-		return newValue;  
-	}  
-	return null;  
-}  
+static private Object attrDiff(MutableAttributeSet oldAttrs,
+    AttributeSet newAttrs,
+    Object key,
+    Object value,
+    Object dfl) {
+  Object oldValue, newValue;
+
+  oldValue = oldAttrs.getAttribute(key);
+  newValue = newAttrs.getAttribute(key);
+
+  // AssertiveAttribute have a constant that must match
+  if (value != null && !value.equals(newValue)) {
+    return null;
+  }
+  if (newValue == oldValue)
+    return null;
+  if (newValue == null) {
+    oldAttrs.removeAttribute(key);
+    if (dfl != null && !dfl.equals(oldValue))
+      return dfl;
+    else
+      return null;
+  }
+  if (oldValue == null || !equalArraysOK(oldValue, newValue)) {
+    oldAttrs.addAttribute(key, newValue);
+    return newValue;
+  }
+  return null;
+}
 
 static private boolean equalArraysOK(Object a, Object b)
 {
@@ -490,20 +490,21 @@ protected void checkNumericControlWord(MutableAttributeSet currentAttributes,
     }
 }
 
-protected void checkControlWord(MutableAttributeSet currentAttributes,  
-    AttributeSet newAttributes,  
-    RTFAttributeExt word) throws IOException {  
-	Object parm;  
-	Object value = null;  
-	
-	if (word instanceof AssertiveAttribute) {  
-		value = ((AssertiveAttribute) word).swingValue;  
-	}  
-	if ((parm = attrDiff(currentAttributes, newAttributes, word.swingName(), value, MagicToken)) != null) {  
-	if (parm == MagicToken)  
-		parm = null;  
-		word.writeValue(parm, this, true);  
-	}  
+protected void checkControlWord(MutableAttributeSet currentAttributes,
+    AttributeSet newAttributes,
+    RTFAttributeExt word) throws IOException {
+  Object parm;
+  Object value = null;
+
+  if (word instanceof AssertiveAttribute) {
+    value = ((AssertiveAttribute) word).swingValue;
+  }
+  if ((parm = attrDiff(currentAttributes, newAttributes, word.swingName(), value, MagicToken))
+    != null) {
+    if (parm == MagicToken)
+      parm = null;
+    word.writeValue(parm, this, true);
+  }
 }
 
 protected void checkControlWords(MutableAttributeSet currentAttributes,

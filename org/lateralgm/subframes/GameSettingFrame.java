@@ -4,7 +4,7 @@
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2014, Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -69,7 +69,6 @@ import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
-import org.lateralgm.components.JSplitPaneExpandable;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.ColorDepth;
@@ -84,7 +83,7 @@ import org.lateralgm.resources.Include;
 public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	{
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final int MAX_VIEWABLE_ICON_SIZE = 64; //Icons bigger than this are scaled down (for viewing only).
 
 	boolean imagesChanged = false;
@@ -177,7 +176,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addComponent(softwareVertexProcessing)
 		/**/.addGroup(layout.createSequentialGroup()
 		/*	*/.addComponent(backcolor)
-		/*	*/.addComponent(colorbutton,DEFAULT_SIZE,DEFAULT_SIZE,120))
+		/*	*/.addComponent(colorbutton))
 		/**/.addComponent(resizeWindow)
 		/**/.addComponent(stayOnTop)
 		/**/.addComponent(noWindowBorder)
@@ -561,7 +560,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
-		
+
 		JLabel lAuthor = new JLabel(Messages.getString("GameSettingFrame.AUTHOR")); //$NON-NLS-1$
 		author = new JTextField();
 		JLabel lVersion = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
@@ -580,7 +579,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addGroup(layout.createParallelGroup()
+		/*		*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
 		/*				*/.addComponent(lAuthor)
 		/*				*/.addComponent(lVersion)
 		/*				*/.addComponent(lChanged))
@@ -602,28 +601,28 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/*		*/.addComponent(lastChanged))
 		/**/.addComponent(lInfo)
 		/**/.addComponent(infoScroll));
-		
+
 		panel.setLayout(layout);
 		return panel;
 		}
-	
+
 	public JLabel iconPreview;
 	public ICOFile gameIcon;
 	public JButton changeIcon;
 	private CustomFileChooser iconFc;
-	
+
 	private static BufferedImage scale_image(BufferedImage src, int imgType, int destSize) {
 		if(src == null) { return null; }
 			BufferedImage dest = new BufferedImage(destSize, destSize, imgType);
 			Graphics2D g = dest.createGraphics();
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			
+
 			AffineTransform at = AffineTransform.getScaleInstance(destSize/((float)src.getWidth()), destSize/((float)src.getHeight()));
 			g.drawRenderedImage(src, at);
-	
+
 			return dest;
 	}
-	
+
 	private void setIconPreviewToGameIcon() {
 		BufferedImage src = null;
 		if (gameIcon != null) {
@@ -636,7 +635,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		}
 		iconPreview.setIcon(new ImageIcon(src));
 	}
-		
+
 	NumberField versionMajorField;
 	NumberField versionMinorField;
 	NumberField versionReleaseField;
@@ -645,10 +644,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	JTextField productField;
 	JTextField copyrightField;
 	JTextField descriptionField;
-	
+
 	private JPanel makeWindowsPane() {
 		JPanel panel = new JPanel();
-		
+
 		gameIcon = res.properties.get(PGameSettings.GAME_ICON);
 		iconPreview = new JLabel(Messages.getString("GameSettingFrame.GAME_ICON")); //$NON-NLS-1$
 		setIconPreviewToGameIcon();
@@ -656,15 +655,15 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		iconPreview.setHorizontalTextPosition(SwingConstants.LEFT);
 		changeIcon = new JButton(Messages.getString("GameSettingFrame.CHANGE_ICON")); //$NON-NLS-1$
 		changeIcon.addActionListener(this);
-		
+
 		iconFc = new CustomFileChooser("/org/lateralgm","LAST_ICON_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		iconFc.setAccessory(new FileChooserImagePreview(iconFc));
 		iconFc.setFileFilter(new CustomFileFilter(
 				Messages.getString("GameSettingFrame.ICO_FILES"),".ico")); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		JPanel versionPanel = new JPanel();
 		versionPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.VERSION_INFORMATION")));
-		
+
 		JLabel versionLabel = new JLabel(Messages.getString("GameSettingFrame.VERSION"));
 		versionMajorField = new NumberField(0);
 		plf.make(versionMajorField,PGameSettings.VERSION_MAJOR);
@@ -686,11 +685,11 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		JLabel descriptionLabel = new JLabel(Messages.getString("GameSettingFrame.DESCRIPTION"));
 		descriptionField = new JTextField("");
 		plf.make(descriptionField.getDocument(),PGameSettings.DESCRIPTION);
-		
+
 		GroupLayout vl = new GroupLayout(versionPanel);
 		vl.setAutoCreateGaps(true);
 		vl.setAutoCreateContainerGaps(true);
-		
+
 		vl.setHorizontalGroup(vl.createSequentialGroup()
 		/**/.addGroup(vl.createParallelGroup(Alignment.TRAILING)
 		/*	*/.addComponent(versionLabel)
@@ -727,14 +726,14 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/**/.addGroup(vl.createParallelGroup(Alignment.CENTER)
 		/*	*/.addComponent(descriptionLabel)
 		/*	*/.addComponent(descriptionField, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)));
-		
+
 		versionPanel.setLayout(vl);
 
 		GroupLayout gl = new GroupLayout(panel);
-		
+
 		gl.setAutoCreateGaps(true);
 		gl.setAutoCreateContainerGaps(true);
-		
+
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()
 		/*	*/.addComponent(iconPreview)
@@ -745,9 +744,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		/*	*/.addComponent(iconPreview)
 		/*	*/.addComponent(changeIcon))
 		/**/.addComponent(versionPanel));
-		
+
 		panel.setLayout(gl);
-		
+
 		return panel;
 	}
 
@@ -759,7 +758,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		{
 		this(res,null);
 		}
-	
+
 	public void updateTitle() {
 		this.setTitle(Messages.getString("GameSettingFrame.TITLE") + " : " + resOriginal.getName());
 	}
@@ -782,45 +781,48 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		// make discard button the height as save, Win32 look and feel makes
 		// buttons with icons 2x as tall
 		discardButton.setMinimumSize(save.getMaximumSize());
-		
+
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Preferences");
-		
+
 		tree = new JTree(new DefaultTreeModel(root));
 		tree.setEditable(false);
 		//tree.expandRow(0);
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		
-    DefaultTreeCellRenderer renderer = (DefaultTreeCellRenderer) tree.getCellRenderer();
-    renderer.setLeafIcon(null);
-    renderer.setClosedIcon(null);
-    renderer.setOpenIcon(null);
-    
-    buildTabs(root);
-    
-    // reload after adding all root children to make sure its children are visible
-    ((DefaultTreeModel)tree.getModel()).reload();
-    
+
+		// Simplest way to stop updateUI/setUI calls for changing the look and feel from reverting the
+		// tree icons.
+		DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+		renderer.setLeafIcon(null);
+		renderer.setClosedIcon(null);
+		renderer.setOpenIcon(null);
+		tree.setCellRenderer(renderer);
+
+		buildTabs(root);
+
+		// reload after adding all root children to make sure its children are visible
+		((DefaultTreeModel)tree.getModel()).reload();
+
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
-  	public void valueChanged(TreeSelectionEvent e) {
+		public void valueChanged(TreeSelectionEvent e) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-				                   tree.getLastSelectedPathComponent();
-				
-				/* if nothing is selected */ 
+													 tree.getLastSelectedPathComponent();
+
+				// if nothing is selected
 				if (node == null) return;
-				
-				/* retrieve the node that was selected */ 
+
+				// retrieve the node that was selected
 				String nodeInfo = node.getUserObject().toString();
-				
+
 				CardLayout cl = (CardLayout)(cardPane.getLayout());
-		    cl.show(cardPane, nodeInfo);
+				cl.show(cardPane, nodeInfo);
 			}
 		});
-		
-		JSplitPaneExpandable split = new JSplitPaneExpandable(JSplitPane.HORIZONTAL_SPLIT,true,tree,cardPane);
+
+		JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,
+				new JScrollPane(tree),cardPane);
 		split.setDividerLocation(200);
-		split.setDoubleClickExpandable(true);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(split)
@@ -849,11 +851,11 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		}
 		return node;
 	}
-	
+
 	private void buildTabs(DefaultMutableTreeNode root)
 		{
 		cardPane = new JPanel(new CardLayout());
-		
+
 		buildTab(root, "GameSettingFrame.TAB_GRAPHICS", makeGraphicsPane());
 		buildTab(root, "GameSettingFrame.TAB_RESOLUTION", makeResolutionPane());
 		buildTab(root, "GameSettingFrame.TAB_OTHER", makeOtherPane());
@@ -862,9 +864,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		buildTab(root, "GameSettingFrame.TAB_ERRORS", makeErrorPane());
 		buildTab(root, "GameSettingFrame.TAB_INFO", makeInfoPane());
 		buildTab(root, "GameSettingFrame.TAB_TEXTUREATLASES", makeTextureAtlasesPane());
-		
+
 		DefaultMutableTreeNode pnode = buildTab(root, "GameSettingFrame.TAB_PLATFORMS", null);
-		
+
 		buildTab(pnode, "GameSettingFrame.TAB_WINDOWS", makeWindowsPane());
 		buildTab(pnode, "GameSettingFrame.TAB_MAC", null);
 		buildTab(pnode, "GameSettingFrame.TAB_UBUNTU", null);
@@ -884,9 +886,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		String name = null;
 		for (Component comp : cardPane.getComponents()) {
 			name = comp.getName();
-	    if (comp.isVisible() == true && name != null) {
-	      break;
-	    }
+			if (comp.isVisible() == true && name != null) {
+				break;
+			}
 		}
 		if (name == null) return;
 		if (name.endsWith(".TAB_GRAPHICS")) {
@@ -898,9 +900,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		} else if (name.endsWith(".TAB_WINDOWS")) {
 			windowsActionPerformed(e);
 		}
-		
+
 		}
-	
+
 	private void windowsActionPerformed(ActionEvent e)
 		{
 			if (e.getSource() == changeIcon)
@@ -927,7 +929,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 					}
 				}
 		}
-	
+
 	private void loadActionPerformed(ActionEvent e)
 		{
 		if (e.getSource() == showCustomLoadImage)
@@ -985,7 +987,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		res.put(PGameSettings.BACK_LOAD_BAR,backLoadImage);
 		res.put(PGameSettings.FRONT_LOAD_BAR,frontLoadImage);
 		res.put(PGameSettings.GAME_ICON,gameIcon);
-		//we don't update the lastChanged time - that's only altered on file save/load
+		// we don't update the lastChanged time - that's only altered on file save/load
 		}
 
 	public void setComponents(GameSettings g)
@@ -1013,9 +1015,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 	@Override
 	public boolean resourceChanged()
 		{
-		//NOTE: commit changes must be the first line because if we don't
-		//the method will be flagged that we handled committing ourselves, 
-		//and the changes wont actually get committed.
+		// NOTE: commit changes must be the first line because if we don't
+		// the method will be flagged that we handled committing ourselves,
+		// and the changes wont actually get committed.
 		commitChanges();
 		if (frameListener != null && frameListener.resourceChanged()) return true;
 		if (imagesChanged) return true;

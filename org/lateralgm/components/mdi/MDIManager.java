@@ -2,7 +2,7 @@
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -37,14 +37,14 @@ public class MDIManager extends DefaultDesktopManager
 			public void componentHidden(ComponentEvent arg0)
 				{
 				// TODO Auto-generated method stub
-				
+
 				}
 
 			@Override
 			public void componentMoved(ComponentEvent arg0)
 				{
 				// TODO Auto-generated method stub
-				
+
 				}
 
 			@Override
@@ -58,9 +58,9 @@ public class MDIManager extends DefaultDesktopManager
 			public void componentShown(ComponentEvent arg0)
 				{
 				// TODO Auto-generated method stub
-				
+
 				}
-		
+
 		});
 		resizeDesktop();
 		}
@@ -117,7 +117,7 @@ public class MDIManager extends DefaultDesktopManager
 					//scroll.getViewport().setViewSize(scroll.getViewport().getExtentSize());
 					//pane.setPreferredSize(new Dimension((int)viewrect.getWidth(),(int)viewrect.getHeight()-200));
 					f.setSize(pane.getSize());
-					
+
 					return;
 					}
 				}

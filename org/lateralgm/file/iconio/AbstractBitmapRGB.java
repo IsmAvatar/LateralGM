@@ -9,7 +9,7 @@ import org.lateralgm.file.StreamEncoder;
  * <p>
  * Parent class for RGB (16, 24, and 32 bits per pixel) bitmaps.
  * </p>
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public abstract class AbstractBitmapRGB extends AbstractBitmap
@@ -18,7 +18,7 @@ public abstract class AbstractBitmapRGB extends AbstractBitmap
 
 	/**
 	 * Create a RGB bitmap.
-	 * 
+	 *
 	 * @param pDescriptor
 	 */
 	public AbstractBitmapRGB(final BitmapDescriptor pDescriptor)
@@ -43,7 +43,7 @@ public abstract class AbstractBitmapRGB extends AbstractBitmap
 	/**
 	 * This functions is needed b/c all classes read the bitmap, but not always a color table and a
 	 * mask.
-	 * 
+	 *
 	 * @param pDec The decoder.
 	 * @throws IOException
 	 */

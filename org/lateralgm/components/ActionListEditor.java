@@ -2,7 +2,7 @@
  * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -35,6 +35,7 @@ import org.lateralgm.components.ActionList.ActionListModel;
 import org.lateralgm.components.ActionList.LibActionTransferHandler;
 import org.lateralgm.components.visual.VTextIcon;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.library.LibManager;
@@ -52,17 +53,28 @@ public class ActionListEditor extends JPanel
 
 		JLabel lab = new JLabel(Messages.getString("GmObjectFrame.ACTIONS")); //$NON-NLS-1$
 		JScrollPane scroll = new JScrollPane(list);
-		JTabbedPane side4 = makeLibraryTabs(list);
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup()
+		JTabbedPane actionTabs = makeLibraryTabs(list);
+
+		SequentialGroup orientationGroup = layout.createSequentialGroup();
+
+		if (Prefs.rightOrientation) {
+			orientationGroup.addComponent(actionTabs,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE);
+		}
+
+		orientationGroup.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(lab)
-		/*		*/.addComponent(scroll,DEFAULT_SIZE,240,DEFAULT_SIZE))
-		/**/.addComponent(side4,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE));
+		/*		*/.addComponent(scroll,DEFAULT_SIZE,240,DEFAULT_SIZE));
+
+		if (!Prefs.rightOrientation) {
+			orientationGroup.addComponent(actionTabs,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE);
+		}
+
+		layout.setHorizontalGroup(orientationGroup);
 		layout.setVerticalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
 		/*		*/.addComponent(lab)
 		/*		*/.addComponent(scroll))
-		/**/.addComponent(side4));
+		/**/.addComponent(actionTabs));
 		}
 
 	private static JPanel makeLabelPane(String name)
@@ -76,13 +88,13 @@ public class ActionListEditor extends JPanel
 
 	public static JTabbedPane makeLibraryTabs(ActionList actions)
 		{
-		JTabbedPane tp = new JTabbedPane(JTabbedPane.RIGHT);
+		JTabbedPane tp = new JTabbedPane(Prefs.rightOrientation ? JTabbedPane.LEFT : JTabbedPane.RIGHT);
 
 		tp.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-		JPanel lp = null;
 		for (Library l : LibManager.libs)
 			{
 			JPanel p = new JPanel();
+			JPanel lp = null;
 			GroupLayout layout = new GroupLayout(p);
 			p.setLayout(layout);
 			ParallelGroup hg = layout.createParallelGroup();
@@ -117,7 +129,9 @@ public class ActionListEditor extends JPanel
 				}
 			tp.addTab(l.tabCaption,p);
 			if (LGM.javaVersion >= 10600)
-				tp.setTabComponentAt(tp.getTabCount() - 1,new JLabel(new VTextIcon(tp,l.tabCaption)));
+				tp.setTabComponentAt(tp.getTabCount() - 1,new JLabel(new VTextIcon(tp,l.tabCaption,
+						tp.getTabPlacement() == JTabbedPane.LEFT ?
+								VTextIcon.ROTATE_LEFT : VTextIcon.ROTATE_DEFAULT)));
 			}
 		return tp;
 		}
@@ -131,7 +145,7 @@ public class ActionListEditor extends JPanel
 
 		public LibActionButton(LibAction la, ActionList list)
 			{
-			super(new ImageIcon(la.getImage()));
+			super(new ImageIcon(la.actImage));
 			this.list = list;
 			setToolTipText(la.description);
 			libAction = la;

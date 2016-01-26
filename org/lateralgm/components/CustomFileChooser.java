@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -25,9 +25,11 @@ public class CustomFileChooser extends JFileChooser
 	private static final long serialVersionUID = 1L;
 	private Preferences prefs;
 	private String propertyName;
-	private boolean fileMustExist = true; // whether to warn the user that the file they entered does not exist and keep the dialog open
-	private boolean confirmOverwrite = true; // whether to warn the user the file already exists when saving and ask whether to overwrite
-	
+	// whether to warn the user that the file they entered does not exist and keep the dialog open
+	private boolean fileMustExist = true;
+	// whether to warn the user the file already exists when saving and ask whether to overwrite
+	private boolean confirmOverwrite = true;
+
 	public CustomFileChooser(String node, String propertyName)
 		{
 		this.propertyName = propertyName;
@@ -38,11 +40,11 @@ public class CustomFileChooser extends JFileChooser
 	public void setConfirmOverwrite(boolean enable) {
 		confirmOverwrite = enable;
 	}
-	
+
 	public boolean getConfirmOverwrite() {
 		return confirmOverwrite;
 	}
-	
+
 	public boolean getFileExists() {
 		boolean fileExists = false;
 		if (this.isMultiSelectionEnabled()) {
@@ -99,11 +101,11 @@ public class CustomFileChooser extends JFileChooser
 	public void setFileMustExist(boolean enable) {
 		fileMustExist = enable;
 	}
-	
+
 	public boolean getFileMustExist() {
 		return fileMustExist;
 	}
-	
+
 	/**
 	 * Sets the given <code>FilterSet</code> to be the current set
 	 * of chooseable file filters. The first item in the list will be set as

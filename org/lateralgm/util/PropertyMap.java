@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -128,12 +128,6 @@ public class PropertyMap<K extends Enum<K>> extends EnumMap<K,Object>
 		for (K k : ec)
 			m.put(k,values[k.ordinal()]);
 		return m;
-		}
-
-	@Override
-	public boolean equals(Object arg0)
-		{
-		return super.equals(arg0);
 		}
 
 	public static class PropertyUpdateEvent<K extends Enum<K>> extends UpdateEvent

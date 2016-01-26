@@ -4,7 +4,7 @@
  * Copyright (C) 2006, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007 TGMG <thegamemakerguru@gmail.com>
  * Copyright (C) 2013 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -63,6 +63,9 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 		setSize(700,430);
 		setLayout(new BorderLayout());
 
+		code = new CodeTextArea((String) res.get(PScript.CODE),MarkerCache.getMarker("gml"));
+		add(code,BorderLayout.CENTER);
+
 		// Setup the toolbar
 		tool = new JToolBar();
 		tool.setFloatable(false);
@@ -72,18 +75,16 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 		tool.add(save);
 		tool.addSeparator();
 
-		code = new CodeTextArea((String) res.get(PScript.CODE),MarkerCache.getMarker("gml"));
-		add(code,BorderLayout.CENTER);
-
-		if (!Prefs.useExternalScriptEditor)
-			code.addEditorButtons(tool);
-		else
-			{
-			//code.editable = false;
-			edit = new JButton(Messages.getString("ScriptFrame.EDIT")); //$NON-NLS-1$
+		if (Prefs.useExternalScriptEditor) {
+			edit = new JButton(LGM.getIconForKey("ScriptFrame.EDIT")); //$NON-NLS-1$
+			edit.setToolTipText(Messages.getString("ScriptFrame.EDIT"));
 			edit.addActionListener(this);
 			tool.add(edit);
-			}
+
+			tool.addSeparator();
+		}
+
+		code.addEditorButtons(tool);
 
 		tool.addSeparator();
 		name.setColumns(13);
@@ -147,14 +148,12 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 	private class ScriptEditor implements UpdateListener
 		{
 		public final FileChangeMonitor monitor;
+		private File f;
 
 		public ScriptEditor() throws IOException
 			{
-			File f = File.createTempFile(res.getName(),"." + Prefs.externalScriptExtension,LGM.tempDir); //$NON-NLS-1$
+			f = File.createTempFile(res.getName(),"." + Prefs.externalScriptExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
-			FileWriter out = new FileWriter(f);
-			out.write((String) res.get(PScript.CODE));
-			out.close();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this,true);
 			editor = this;
@@ -163,6 +162,19 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 
 		public void start() throws IOException
 			{
+			FileWriter out = null;
+			try
+				{
+				out = new FileWriter(f);
+				out.write(code.getTextCompat());
+				}
+			finally
+				{
+				if (out != null)
+					{
+					out.close();
+					}
+				}
 			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
 				try
 					{
@@ -195,19 +207,33 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 				{
 				case CHANGED:
 					StringBuffer sb = new StringBuffer(1024);
+					BufferedReader reader = null;
 					try
 						{
-						BufferedReader reader = new BufferedReader(new FileReader(monitor.file));
+						reader = new BufferedReader(new FileReader(monitor.file));
 						char[] chars = new char[1024];
 						int len = 0;
 						while ((len = reader.read(chars)) > -1)
 							sb.append(chars,0,len);
-						reader.close();
 						}
 					catch (IOException ioe)
 						{
 						ioe.printStackTrace();
 						return;
+						}
+					finally
+						{
+						if (reader != null)
+							{
+							try
+								{
+								reader.close();
+								}
+							catch (IOException ex)
+								{
+								LGM.showDefaultExceptionHandler(ex);
+								}
+							}
 						}
 					String s = sb.toString();
 					res.put(PScript.CODE,s);
