@@ -181,25 +181,28 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	 */
 	private static final long serialVersionUID = 1716244867900780500L;
 	private ResourceMenu<K> menu;
-		public ResourceTransferHandler(ResourceMenu<K> menu) {
+		public ResourceTransferHandler(ResourceMenu<K> menu) 
+			{
 			this.menu = menu;
-		}
+			}
 
-		public int getSourceActions(JComponent c) {
+		public int getSourceActions(JComponent c) 
+			{
 			return COPY_OR_MOVE;
-		}
+			}
 
 		public boolean canImport(TransferSupport ts) {
-			if (!ts.isDataFlavorSupported(ResNode.NODE_FLAVOR)) {
+			if (!ts.isDataFlavorSupported(ResNode.NODE_FLAVOR))
+				{
 				return false;
-			}
+				}
 			try
 				{
-				ResNode data = (ResNode) ts.getTransferable().getTransferData(
-				 ResNode.NODE_FLAVOR);
-				if (data.kind.equals(menu.kind) && data.status == ResNode.STATUS_SECONDARY) {
+				ResNode data = (ResNode) ts.getTransferable().getTransferData(ResNode.NODE_FLAVOR);
+				if (data.kind.equals(menu.kind) && data.status == ResNode.STATUS_SECONDARY) 
+					{
 					return true;
-				}
+					}
 				}
 			catch (UnsupportedFlavorException | IOException e)
 				{
@@ -210,15 +213,15 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		}
 
 	@SuppressWarnings("unchecked")
-	public boolean importData(TransferSupport ts) {
+	public boolean importData(TransferSupport ts) 
+		{
 			try
-			{
-				ResNode data = (ResNode) ts.getTransferable().getTransferData(
-						 ResNode.NODE_FLAVOR);
+				{
+				ResNode data = (ResNode) ts.getTransferable().getTransferData(ResNode.NODE_FLAVOR);
 				menu.setSelected((ResourceReference<K>) data.getRes());
 				fireActionPerformed();
 				return true;
-			}
+				}
 			catch (UnsupportedFlavorException | IOException e)
 				{
 				// Should never occur.

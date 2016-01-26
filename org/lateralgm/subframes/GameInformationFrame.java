@@ -158,21 +158,24 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		menu.addActionListener(this);
 
 		JMenuItem item = addItem("GameInformationFrame.LOAD"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.LOAD")));
+		item.setAccelerator(
+				KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.LOAD"))); //$NON-NLS-1$
 		menu.add(item);
 		item = addItem("GameInformationFrame.FILESAVE"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.FILESAVE")));
+		item.setAccelerator(
+				KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.FILESAVE"))); //$NON-NLS-1$
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.SETTINGS"); //$NON-NLS-1$
 		menu.add(item);
 		item = addItem("GameInformationFrame.PRINT"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.PRINT")));
+		item.setAccelerator(
+				KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.PRINT"))); //$NON-NLS-1$
 		menu.add(item);
 		menu.addSeparator();
-		item = new JMenuItem(Messages.getString("GameInformationFrame.CLOSESAVE"));
+		item = new JMenuItem(Messages.getString("GameInformationFrame.CLOSESAVE")); //$NON-NLS-1$
 		item.setIcon(save.getIcon());
-		item.setActionCommand("GameInformationFrame.CLOSESAVE");
+		item.setActionCommand("GameInformationFrame.CLOSESAVE"); //$NON-NLS-1$
 		item.addActionListener(this);
 		menu.add(item);
 
@@ -181,24 +184,30 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		menuBar.add(menu);
 
 		item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.CUT")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.CUT"))); //$NON-NLS-1$
 		menu.add(item);
 		item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.COPY")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.COPY"))); //$NON-NLS-1$
 		menu.add(item);
 		item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.PASTE")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.PASTE"))); //$NON-NLS-1$
 		menu.add(item);
 		menu.addSeparator();
 		item = new JMenuItem(undoManager.getUndoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.UNDO")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.UNDO"))); //$NON-NLS-1$
 		menu.add(item);
 		item = new JMenuItem(undoManager.getRedoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.REDO")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.REDO"))); //$NON-NLS-1$
 		menu.add(item);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.SELECTALL")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.SELECTALL"))); //$NON-NLS-1$
 		menu.add(item);
 
 		//Format
@@ -206,24 +215,30 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		menuBar.add(menu);
 
 		miBold = addItem("GameInformationFrame.BOLD"); //$NON-NLS-1$
-		miBold.setActionCommand("GameInformationFrame.MENU_BOLD");
+		miBold.setActionCommand("GameInformationFrame.MENU_BOLD"); //$NON-NLS-1$
+		miBold.setAccelerator(
+				KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.BOLD"))); //$NON-NLS-1$
 		menu.add(miBold);
 		miItalic = addItem("GameInformationFrame.ITALIC"); //$NON-NLS-1$
-		miItalic.setActionCommand("GameInformationFrame.MENU_ITALIC");
+		miItalic.setActionCommand("GameInformationFrame.MENU_ITALIC"); //$NON-NLS-1$
+		miItalic.setAccelerator(
+				KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.ITALIC"))); //$NON-NLS-1$
 		menu.add(miItalic);
 		miUnderline = addItem("GameInformationFrame.UNDERLINE"); //$NON-NLS-1$
-		miUnderline.setActionCommand("GameInformationFrame.MENU_UNDERLINE");
+		miUnderline.setActionCommand("GameInformationFrame.MENU_UNDERLINE"); //$NON-NLS-1$
+		miUnderline.setAccelerator(
+				KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.UNDERLINE"))); //$NON-NLS-1$
 		menu.add(miUnderline);
 		menu.addSeparator();
 		miLeft = addItem("GameInformationFrame.ALIGN_LEFT"); //$NON-NLS-1$
-		miLeft.setActionCommand("GameInformationFrame.ALIGN_LEFT");
+		miLeft.setActionCommand("GameInformationFrame.ALIGN_LEFT"); //$NON-NLS-1$
 		miLeft.setSelected(true);
 		menu.add(miLeft);
 		miCenter = addItem("GameInformationFrame.ALIGN_CENTER"); //$NON-NLS-1$
-		miCenter.setActionCommand("GameInformationFrame.ALIGN_CENTER");
+		miCenter.setActionCommand("GameInformationFrame.ALIGN_CENTER"); //$NON-NLS-1$
 		menu.add(miCenter);
 		miRight = addItem("GameInformationFrame.ALIGN_RIGHT"); //$NON-NLS-1$
-		miRight.setActionCommand("GameInformationFrame.ALIGN_RIGHT");
+		miRight.setActionCommand("GameInformationFrame.ALIGN_RIGHT"); //$NON-NLS-1$
 		menu.add(miRight);
 		menu.addSeparator();
 		item = addItem("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
@@ -246,22 +261,22 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 
 		JButton button;
 
-		button = addToolButton("GameInformationFrame.CUT");
+		button = addToolButton("GameInformationFrame.CUT"); //$NON-NLS-1$
 		tool.add(button);
-		button = addToolButton("GameInformationFrame.COPY");
+		button = addToolButton("GameInformationFrame.COPY"); //$NON-NLS-1$
 		tool.add(button);
-		button = addToolButton("GameInformationFrame.PASTE");
+		button = addToolButton("GameInformationFrame.PASTE"); //$NON-NLS-1$
 		tool.add(button);
 
 		tool.addSeparator();
 
-		button = new JButton(undoManager.getUndoAction());//$NON-NLS-1$
+		button = new JButton(undoManager.getUndoAction());
 		button.setText("");
-		button.setToolTipText(Messages.getString("GameInformationFrame.UNDO"));
+		button.setToolTipText(Messages.getString("GameInformationFrame.UNDO")); //$NON-NLS-1$
 		tool.add(button);
-		button = new JButton(undoManager.getRedoAction());//$NON-NLS-1$
+		button = new JButton(undoManager.getRedoAction());
 		button.setText("");
-		button.setToolTipText(Messages.getString("GameInformationFrame.REDO"));
+		button.setToolTipText(Messages.getString("GameInformationFrame.REDO")); //$NON-NLS-1$
 		tool.add(button);
 
 		tool.addSeparator();
@@ -337,13 +352,13 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		butFontColor.setRequestFocusEnabled(false);
 		butFontColor.setActionCommand("GameInformationFrame.FONTCOLOR"); //$NON-NLS-1$
 		butFontColor.addActionListener(this);
-		butFontColor.setToolTipText(Messages.getString("GameInformationFrame.FONTCOLOR"));
+		butFontColor.setToolTipText(Messages.getString("GameInformationFrame.FONTCOLOR")); //$NON-NLS-1$
 		tool.add(butFontColor);
 		JButton but = new JButton(LGM.getIconForKey("GameInformationFrame.COLOR")); //$NON-NLS-1$
 		but.setRequestFocusEnabled(false);
 		but.setActionCommand("GameInformationFrame.COLOR"); //$NON-NLS-1$
 		but.addActionListener(this);
-		but.setToolTipText(Messages.getString("GameInformationFrame.COLOR"));
+		but.setToolTipText(Messages.getString("GameInformationFrame.COLOR")); //$NON-NLS-1$
 		tool.add(but);
 
 		return tool;
@@ -531,26 +546,32 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		JMenuItem item;
 
 		item = addItem("GameInformationFrame.CUT"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.CUT")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.CUT"))); //$NON-NLS-1$
 		popup.add(item);
 		item = addItem("GameInformationFrame.COPY"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.COPY")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.COPY"))); //$NON-NLS-1$
 		popup.add(item);
 		item = addItem("GameInformationFrame.PASTE"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.PASTE")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.PASTE"))); //$NON-NLS-1$
 		popup.add(item);
 		popup.addSeparator();
 
 		item = new JMenuItem(undoManager.getUndoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.UNDO")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.UNDO"))); //$NON-NLS-1$
 		popup.add(item);
 		item = new JMenuItem(undoManager.getRedoAction());
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.REDO")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.REDO"))); //$NON-NLS-1$
 		popup.add(item);
 		popup.addSeparator();
 
 		item = addItem("GameInformationFrame.SELECTALL"); //$NON-NLS-1$
-		item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("GameInformationFrame.SELECTALL")));
+		item.setAccelerator(KeyStroke.getKeyStroke(
+				Messages.getKeyboardString("GameInformationFrame.SELECTALL"))); //$NON-NLS-1$
 		popup.add(item);
 
 		editor.setComponentPopupMenu(popup);
@@ -732,7 +753,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			}
 			return;
 			}
-		else if (com.equals("GameInformationFrame.SETTINGS"))
+		else if (com.equals("GameInformationFrame.SETTINGS")) //$NON-NLS-1$
 			{
 			if (settings == null)
 				{
@@ -842,7 +863,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 				this.doDefaultSaveAction();
 				return;
 			}
-		else if (com.equals("GameInformationFrame.CLOSE")) {
+		else if (com.equals("GameInformationFrame.CLOSE")) { //$NON-NLS-1$
 				settings.setVisible(false);
 			}
 		}
