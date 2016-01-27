@@ -32,6 +32,7 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
@@ -262,6 +263,42 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			if (JOptionPane.showConfirmDialog(LGM.frame,msg,
 					Messages.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"), //$NON-NLS-1$
 					JOptionPane.YES_NO_OPTION) == 0) LGM.currentFile.defragIds();
+			}
+		if (com.endsWith(".FIND")) //$NON-NLS-1$
+			{
+			String name = JOptionPane.showInputDialog(LGM.frame,
+					Messages.getString("Listener.INPUT_FINDRES"), //$NON-NLS-1$
+					Messages.getString("Listener.INPUT_FINDRES_TITLE"), //$NON-NLS-1$
+					JOptionPane.PLAIN_MESSAGE);
+			if (name == null) return;
+			// find the resource with the name
+			Enumeration<?> enumeration =
+					((DefaultMutableTreeNode) tree.getModel().getRoot()).preorderEnumeration();
+			ResNode resNode = null;
+			while (enumeration.hasMoreElements())
+				{
+				DefaultMutableTreeNode child = (ResNode) enumeration.nextElement();
+				if (child.toString().equals(name))
+					{
+						resNode = (ResNode) child;
+						break;
+					}
+				}
+			if (resNode != null)
+				{
+				tree.expandPath(new TreePath(resNode.getPath()));
+				tree.setSelectionPath(new TreePath(resNode.getPath()));
+				tree.updateUI();
+				if (resNode.status != ResNode.STATUS_GROUP) resNode.openFrame();
+				}
+			else
+				{
+				JOptionPane.showMessageDialog(LGM.frame,
+						Messages.format("Listener.INPUT_FINDRES_NOTFOUND",name), //$NON-NLS-1$
+						Messages.getString("Listener.INPUT_FINDRES_NOTFOUND_TITLE"), //$NON-NLS-1$
+						JOptionPane.WARNING_MESSAGE);
+				}
+			return;
 			}
 		if (com.endsWith(".EXPAND")) //$NON-NLS-1$
 			{
