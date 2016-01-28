@@ -270,7 +270,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		return panel;
 		}
 
-	public JCheckBox esc, f1, f4, f5, f9;
+	public JCheckBox esc, close, f1, f4, f5, f9;
 	public ButtonGroup gamePriority;
 
 	private JPanel makeOtherPane()
@@ -287,16 +287,19 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		dKeys.setLayout(new BoxLayout(dKeys,BoxLayout.PAGE_AXIS));
 
 		esc = new JCheckBox(Messages.getString("GameSettingFrame.KEY_ENDGAME")); //$NON-NLS-1$
+		close = new JCheckBox(Messages.getString("GameSettingFrame.KEY_CLOSEBUTTON")); //$NON-NLS-1$
 		f1 = new JCheckBox(Messages.getString("GameSettingFrame.KEY_INFO")); //$NON-NLS-1$
 		f4 = new JCheckBox(Messages.getString("GameSettingFrame.KEY_SWITCHFULLSCREEN")); //$NON-NLS-1$
 		f5 = new JCheckBox(Messages.getString("GameSettingFrame.SAVELOAD")); //$NON-NLS-1$
 		f9 = new JCheckBox(Messages.getString("GameSettingFrame.KEY_SCREENSHOT")); //$NON-NLS-1$
 		dKeys.add(esc);
+		dKeys.add(close);
 		dKeys.add(f1);
 		dKeys.add(f4);
 		dKeys.add(f5);
 		dKeys.add(f9);
 		plf.make(esc,PGameSettings.LET_ESC_END_GAME);
+		plf.make(close,PGameSettings.TREAT_CLOSE_AS_ESCAPE);
 		plf.make(f1,PGameSettings.LET_F1_SHOW_GAME_INFO);
 		plf.make(f4,PGameSettings.LET_F4_SWITCH_FULLSCREEN);
 		plf.make(f5,PGameSettings.LET_F5_SAVE_F6_LOAD);
