@@ -898,10 +898,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 	public void updateInfo()
 		{
-		width.setText(Messages.getString("SpriteFrame.WIDTH") + res.subImages.getWidth()); //$NON-NLS-1$
-		height.setText(Messages.getString("SpriteFrame.HEIGHT") + res.subImages.getHeight()); //$NON-NLS-1$
-		subCount.setText(Messages.getString("SpriteFrame.NO_OF_SUBIMAGES") //$NON-NLS-1$
-				+ res.subImages.size());
+		width.setText(Messages.format("SpriteFrame.WIDTH",res.subImages.getWidth())); //$NON-NLS-1$
+		height.setText(Messages.format("SpriteFrame.HEIGHT",res.subImages.getHeight())); //$NON-NLS-1$
+		subCount.setText(Messages.format("SpriteFrame.NO_OF_SUBIMAGES",res.subImages.size())); //$NON-NLS-1$
 		}
 
 	private void updateImageControls()
