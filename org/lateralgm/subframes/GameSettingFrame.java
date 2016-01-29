@@ -320,17 +320,20 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		versionInfo.setBorder(BorderFactory.createTitledBorder(t));
 		versionInfo.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		
-		JLabel lMajor = new JLabel(Messages.getString("GameSettingFrame.MAJOR")); //$NON-NLS-1$
-		major = new NumberField(0,100);
-		JLabel lMinor = new JLabel(Messages.getString("GameSettingFrame.MINOR")); //$NON-NLS-1$
-		minor = new NumberField(0,100);
-		JLabel lRelease = new JLabel(Messages.getString("GameSettingFrame.RELEASE")); //$NON-NLS-1$
-		release = new NumberField(0,100);
-		JLabel lBuild = new JLabel(Messages.getString("GameSettingFrame.BUILD")); //$NON-NLS-1$
-		build = new NumberField(0,10000);
 
-		c.fill = GridBagConstraints.NONE;
+		JLabel lMajor = new JLabel(Messages.getString("GameSettingFrame.MAJOR")); //$NON-NLS-1$
+		major = new NumberField(0);
+		major.setColumns(4);
+		JLabel lMinor = new JLabel(Messages.getString("GameSettingFrame.MINOR")); //$NON-NLS-1$
+		minor = new NumberField(0);
+		minor.setColumns(4);
+		JLabel lRelease = new JLabel(Messages.getString("GameSettingFrame.RELEASE")); //$NON-NLS-1$
+		release = new NumberField(0);
+		release.setColumns(4);
+		JLabel lBuild = new JLabel(Messages.getString("GameSettingFrame.BUILD")); //$NON-NLS-1$
+		build = new NumberField(0);
+		build.setColumns(4);
+
 		c.anchor = GridBagConstraints.BASELINE_TRAILING;
 		c.insets = new Insets(2,2,2,2);
 		versionInfo.add(lMajor,c);
