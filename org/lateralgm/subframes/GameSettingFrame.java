@@ -15,6 +15,9 @@ import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -270,6 +273,8 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		return panel;
 		}
 
+	public NumberField major, minor, build, release;
+	public JTextField company, product, copyright, description;
 	public JCheckBox esc, close, f1, f4, f5, f9;
 	public ButtonGroup gamePriority;
 
@@ -310,12 +315,80 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		JPanel priority = makeRadioPane(Messages.getString("GameSettingFrame.TITLE_PRIORITY"), //$NON-NLS-1$
 				gamePriority = new ButtonGroup(),PGameSettings.GAME_PRIORITY,Priority.class,priorities);
 
+		t = Messages.getString("GameSettingFrame.TITLE_VERSION"); //$NON-NLS-1$
+		JPanel versionInfo = new JPanel();
+		versionInfo.setBorder(BorderFactory.createTitledBorder(t));
+		versionInfo.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		
+		JLabel lMajor = new JLabel(Messages.getString("GameSettingFrame.MAJOR")); //$NON-NLS-1$
+		major = new NumberField(0,100);
+		JLabel lMinor = new JLabel(Messages.getString("GameSettingFrame.MINOR")); //$NON-NLS-1$
+		minor = new NumberField(0,100);
+		JLabel lRelease = new JLabel(Messages.getString("GameSettingFrame.RELEASE")); //$NON-NLS-1$
+		release = new NumberField(0,100);
+		JLabel lBuild = new JLabel(Messages.getString("GameSettingFrame.BUILD")); //$NON-NLS-1$
+		build = new NumberField(0,10000);
+
+		c.fill = GridBagConstraints.NONE;
+		c.anchor = GridBagConstraints.BASELINE_TRAILING;
+		c.insets = new Insets(2,2,2,2);
+		versionInfo.add(lMajor,c);
+		versionInfo.add(major,c);
+		versionInfo.add(lMinor,c);
+		versionInfo.add(minor,c);
+		versionInfo.add(lRelease,c);
+		versionInfo.add(release,c);
+		versionInfo.add(lBuild,c);
+		versionInfo.add(build,c);
+
+		plf.make(major,PGameSettings.VERSION_MAJOR);
+		plf.make(minor,PGameSettings.VERSION_MINOR);
+		plf.make(release,PGameSettings.VERSION_RELEASE);
+		plf.make(build,PGameSettings.VERSION_BUILD);
+
+		JLabel lCompany = new JLabel(Messages.getString("GameSettingFrame.COMPANY")); //$NON-NLS-1$
+		company = new JTextField();
+		JLabel lProduct = new JLabel(Messages.getString("GameSettingFrame.PRODUCT")); //$NON-NLS-1$
+		product = new JTextField();
+		JLabel lCopyright = new JLabel(Messages.getString("GameSettingFrame.COPYRIGHT")); //$NON-NLS-1$
+		copyright = new JTextField();
+		JLabel lDescription = new JLabel(Messages.getString("GameSettingFrame.DESCRIPTION")); //$NON-NLS-1$
+		description = new JTextField();
+
+		c.gridy = 1;
+		versionInfo.add(lCompany,c);
+		c.gridy = 2;
+		versionInfo.add(lProduct,c);
+		c.gridy = 3;
+		versionInfo.add(lCopyright,c);
+		c.gridy = 4;
+		versionInfo.add(lDescription,c);
+
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth = 7;
+		c.gridy = 1;
+		versionInfo.add(company,c);
+		c.gridy = 2;
+		versionInfo.add(product,c);
+		c.gridy = 3;
+		versionInfo.add(copyright,c);
+		c.gridy = 4;
+		versionInfo.add(description,c);
+
+		plf.make(company.getDocument(),PGameSettings.COMPANY);
+		plf.make(product.getDocument(),PGameSettings.PRODUCT);
+		plf.make(copyright.getDocument(),PGameSettings.COPYRIGHT);
+		plf.make(description.getDocument(),PGameSettings.DESCRIPTION);
+
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(dKeys,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/**/.addComponent(priority,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+		/**/.addComponent(priority,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
+		/**/.addComponent(versionInfo,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(dKeys)
-		/**/.addComponent(priority));
+		/**/.addComponent(priority)
+		/**/.addComponent(versionInfo));
 		return panel;
 		}
 
