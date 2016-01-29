@@ -154,20 +154,17 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		popup.add(item);
 
 		this.setComponentPopupMenu(popup);
-		popup.addPopupMenuListener(new PopupMenuListener() {
+		popup.addPopupMenuListener(new PopupMenuListener() 
+			{
 
 			@Override
 			public void popupMenuCanceled(PopupMenuEvent arg0)
 				{
-				// TODO Auto-generated method stub
-
 				}
 
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0)
 				{
-				// TODO Auto-generated method stub
-
 				}
 
 			@Override
@@ -177,9 +174,8 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				redoitem.setEnabled(undomanager.canRedo());
 				}
 
-		});
+			});
 
-		//actionContainer.
 		this.parent = new WeakReference<MDIFrame>(parent);
 		setActionContainer(null);
 		setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
@@ -1180,12 +1176,56 @@ public static class ActionTransferHandler extends TransferHandler
 					actlabel.setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
 				else
 					{
-					StringBuilder sb = new StringBuilder("<html>");
-					if (la.listText.contains("@FI")) //$NON-NLS-1$
-						sb.append("<i>");
-					if (la.listText.contains("@FB")) //$NON-NLS-1$
-						sb.append("<b>");
-					sb.append(escape(parse(la.listText,a)));
+					StringBuilder sb = null;
+					if (la.actionKind == Action.ACT_CODE)
+						{
+						String code = a.getArguments().get(0).getVal();
+						int count = 0;
+						for (int i = 0; i < code.length(); i++)
+							{
+							char symbol = code.charAt(i);
+							if (sb == null)
+								{
+								if (symbol == '/')
+									{
+									count++;
+									}
+								else if (symbol != ' ' && symbol != '\t')
+									{
+									if (count == 3 && symbol != '\n' && symbol != '\r')
+										{
+										sb = new StringBuilder(String.valueOf(symbol));
+										}
+									else
+										{
+										break;
+										}
+									}
+								else if (count > 0 && count != 3)
+									{
+									break;
+									}
+								}
+							else
+								{
+								if (symbol == '\n')
+									{
+										break;
+									}
+									sb.append(symbol);
+								}
+							}
+						}
+
+					if (sb == null)
+						{
+						sb = new StringBuilder("<html>");
+						if (la.listText.contains("@FI")) //$NON-NLS-1$
+							sb.append("<i>");
+						if (la.listText.contains("@FB")) //$NON-NLS-1$
+							sb.append("<b>");
+						sb.append(escape(parse(la.listText,a)));
+						}
 					actlabel.setText(sb.toString());
 					actlabel.setIcon(new ImageIcon(la.actImage));
 
