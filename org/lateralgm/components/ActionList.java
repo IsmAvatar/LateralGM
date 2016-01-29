@@ -1184,6 +1184,10 @@ public static class ActionTransferHandler extends TransferHandler
 						for (int i = 0; i < code.length(); i++)
 							{
 							char symbol = code.charAt(i);
+							if (symbol == '\n' || symbol == '\r')
+								{
+									break;
+								}
 							if (sb == null)
 								{
 								if (symbol == '/')
@@ -1192,7 +1196,7 @@ public static class ActionTransferHandler extends TransferHandler
 									}
 								else if (symbol != ' ' && symbol != '\t')
 									{
-									if (count == 3 && symbol != '\n' && symbol != '\r')
+									if (count == 3)
 										{
 										sb = new StringBuilder(String.valueOf(symbol));
 										}
@@ -1208,10 +1212,6 @@ public static class ActionTransferHandler extends TransferHandler
 								}
 							else
 								{
-								if (symbol == '\n')
-									{
-										break;
-									}
 									sb.append(symbol);
 								}
 							}
