@@ -768,7 +768,7 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addGroup(layout.createParallelGroup()
+		/*		*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
 		/*				*/.addComponent(lAuthor)
 		/*				*/.addComponent(lVersion)
 		/*				*/.addComponent(lChanged))
