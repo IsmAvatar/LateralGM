@@ -1181,7 +1181,7 @@ public static class ActionTransferHandler extends TransferHandler
 					StringBuilder sb = null;
 					if (a.getLibAction().actionKind == Action.ACT_CODE)
 						{
-						Pattern r = Pattern.compile("^\\s*//[/!]+\\s*(.+)$");
+						Pattern r = Pattern.compile("^\\s*//[/!]+\\s*(.+)$"); //$NON-NLS-1$
 						Matcher m = r.matcher(a.getArguments().get(0).getVal());
 						if (m.find())
 							{
@@ -1191,11 +1191,11 @@ public static class ActionTransferHandler extends TransferHandler
 
 					if (sb == null)
 						{
-						sb = new StringBuilder("<html>");
+						sb = new StringBuilder("<html>"); //$NON-NLS-1$
 						if (la.listText.contains("@FI")) //$NON-NLS-1$
-							sb.append("<i>");
+							sb.append("<i>"); //$NON-NLS-1$
 						if (la.listText.contains("@FB")) //$NON-NLS-1$
-							sb.append("<b>");
+							sb.append("<b>"); //$NON-NLS-1$
 						sb.append(escape(parse(la.listText,a)));
 						}
 					actlabel.setText(sb.toString());
@@ -1204,7 +1204,7 @@ public static class ActionTransferHandler extends TransferHandler
 					if (Prefs.actionToolTipLines > 0 && Prefs.actionToolTipColumns > 0)
 						{
 						sb = new StringBuilder();
-						String snip = parse(la.hintText.replaceAll("(?<!\\\\)#","\n"),a);
+						String snip = parse(la.hintText.replaceAll("(?<!\\\\)#","\n"),a); //$NON-NLS-1$
 						int last, next = -1;
 						for (int i = 0; i < Prefs.actionToolTipLines; i++)
 							{
@@ -1222,7 +1222,7 @@ public static class ActionTransferHandler extends TransferHandler
 								}
 							else
 								sb.append(snip.substring(last,next));
-							sb.append("\n");
+							sb.append('\n');
 							}
 						if (next != -1) sb.append(Messages.getString("Action.HINT_MORE"));
 						setToolTipText("<html><font face=\"Courier\">" + escape(sb.toString()));
