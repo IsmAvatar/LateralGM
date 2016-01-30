@@ -1183,7 +1183,7 @@ public static class ActionTransferHandler extends TransferHandler
 					// a special comment like in GM8.1 and GMS
 					if (a.getLibAction().actionKind == Action.ACT_CODE)
 						{
-						Pattern r = Pattern.compile("^\\s*//[/!]+\\s*(.+)$"); //$NON-NLS-1$
+						Pattern r = Pattern.compile("^\\s*//[/!]+\\s*(.+)([\r\n]|$)"); //$NON-NLS-1$
 						Matcher m = r.matcher(a.getArguments().get(0).getVal());
 						if (m.find())
 							{
