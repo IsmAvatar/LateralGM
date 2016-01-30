@@ -43,6 +43,8 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
@@ -1177,43 +1179,13 @@ public static class ActionTransferHandler extends TransferHandler
 				else
 					{
 					StringBuilder sb = null;
-					if (la.actionKind == Action.ACT_CODE)
+					if (a.getLibAction().actionKind == Action.ACT_CODE)
 						{
-						String code = a.getArguments().get(0).getVal();
-						int count = 0;
-						for (int i = 0; i < code.length(); i++)
+						Pattern r = Pattern.compile("^\\s*//[/!]+\\s*(.+)$");
+						Matcher m = r.matcher(a.getArguments().get(0).getVal());
+						if (m.find())
 							{
-							char symbol = code.charAt(i);
-							if (symbol == '\n' || symbol == '\r')
-								{
-									break;
-								}
-							if (sb == null)
-								{
-								if (symbol == '/')
-									{
-									count++;
-									}
-								else if (symbol != ' ' && symbol != '\t')
-									{
-									if (count == 3)
-										{
-										sb = new StringBuilder(String.valueOf(symbol));
-										}
-									else
-										{
-										break;
-										}
-									}
-								else if (count > 0 && count != 3)
-									{
-									break;
-									}
-								}
-							else
-								{
-									sb.append(symbol);
-								}
+							sb = new StringBuilder(m.group(1));
 							}
 						}
 
