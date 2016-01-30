@@ -1179,6 +1179,8 @@ public static class ActionTransferHandler extends TransferHandler
 				else
 					{
 					StringBuilder sb = null;
+					// let the user supply their own description using
+					// a special comment like in GM8.1 and GMS
 					if (a.getLibAction().actionKind == Action.ACT_CODE)
 						{
 						Pattern r = Pattern.compile("^\\s*//[/!]+\\s*(.+)$"); //$NON-NLS-1$
