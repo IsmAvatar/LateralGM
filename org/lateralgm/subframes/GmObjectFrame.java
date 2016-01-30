@@ -247,7 +247,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	private JPanel makePhysicsPane()
 		{
 		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder(Messages.getString("GmObjectFrame.PHYSICS_PROPERTIES")));
+		panel.setBorder(BorderFactory.createTitledBorder(
+				Messages.getString("GmObjectFrame.PHYSICS_PROPERTIES")));
 
 		JCheckBox awakeCB = new JCheckBox(Messages.getString("GmObjectFrame.AWAKE"));
 		plf.make(awakeCB,PGmObject.PHYSICS_AWAKE);
