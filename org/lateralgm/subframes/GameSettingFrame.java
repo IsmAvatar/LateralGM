@@ -15,9 +15,6 @@ import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -318,8 +315,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		t = Messages.getString("GameSettingFrame.TITLE_VERSION"); //$NON-NLS-1$
 		JPanel versionInfo = new JPanel();
 		versionInfo.setBorder(BorderFactory.createTitledBorder(t));
-		versionInfo.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
+		GroupLayout vl = new GroupLayout(versionInfo);
+		vl.setAutoCreateGaps(true);
+		vl.setAutoCreateContainerGaps(true);
+		versionInfo.setLayout(vl);
 
 		JLabel lMajor = new JLabel(Messages.getString("GameSettingFrame.MAJOR")); //$NON-NLS-1$
 		major = new NumberField(0);
@@ -333,17 +332,6 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		JLabel lBuild = new JLabel(Messages.getString("GameSettingFrame.BUILD")); //$NON-NLS-1$
 		build = new NumberField(0);
 		build.setColumns(4);
-
-		c.anchor = GridBagConstraints.BASELINE_TRAILING;
-		c.insets = new Insets(2,2,2,2);
-		versionInfo.add(lMajor,c);
-		versionInfo.add(major,c);
-		versionInfo.add(lMinor,c);
-		versionInfo.add(minor,c);
-		versionInfo.add(lRelease,c);
-		versionInfo.add(release,c);
-		versionInfo.add(lBuild,c);
-		versionInfo.add(build,c);
 
 		plf.make(major,PGameSettings.VERSION_MAJOR);
 		plf.make(minor,PGameSettings.VERSION_MINOR);
@@ -359,30 +347,53 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		JLabel lDescription = new JLabel(Messages.getString("GameSettingFrame.DESCRIPTION")); //$NON-NLS-1$
 		description = new JTextField();
 
-		c.gridy = 1;
-		versionInfo.add(lCompany,c);
-		c.gridy = 2;
-		versionInfo.add(lProduct,c);
-		c.gridy = 3;
-		versionInfo.add(lCopyright,c);
-		c.gridy = 4;
-		versionInfo.add(lDescription,c);
-
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridwidth = 7;
-		c.gridy = 1;
-		versionInfo.add(company,c);
-		c.gridy = 2;
-		versionInfo.add(product,c);
-		c.gridy = 3;
-		versionInfo.add(copyright,c);
-		c.gridy = 4;
-		versionInfo.add(description,c);
-
 		plf.make(company.getDocument(),PGameSettings.COMPANY);
 		plf.make(product.getDocument(),PGameSettings.PRODUCT);
 		plf.make(copyright.getDocument(),PGameSettings.COPYRIGHT);
 		plf.make(description.getDocument(),PGameSettings.DESCRIPTION);
+
+		vl.setHorizontalGroup(vl.createSequentialGroup()
+		/**/.addGroup(vl.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(lMajor)
+		/*		*/.addComponent(lCompany)
+		/*		*/.addComponent(lProduct)
+		/*		*/.addComponent(lCopyright)
+		/*		*/.addComponent(lDescription))
+		/**/.addGroup(vl.createParallelGroup()
+		/*		*/.addGroup(vl.createSequentialGroup()
+		/*				*/.addComponent(major)
+		/*				*/.addComponent(lMinor)
+		/*				*/.addComponent(minor)
+		/*				*/.addComponent(lRelease)
+		/*				*/.addComponent(release)
+		/*				*/.addComponent(lBuild)
+		/*				*/.addComponent(build))
+		/*		*/.addComponent(company)
+		/*		*/.addComponent(product)
+		/*		*/.addComponent(copyright)
+		/*		*/.addComponent(description)));
+		vl.setVerticalGroup(vl.createSequentialGroup()
+		/**/.addGroup(vl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lMajor)
+		/*		*/.addComponent(major)
+		/*		*/.addComponent(lMinor)
+		/*		*/.addComponent(minor)
+		/*		*/.addComponent(lRelease)
+		/*		*/.addComponent(release)
+		/*		*/.addComponent(lBuild)
+		/*		*/.addComponent(build))
+		/**/.addGroup(vl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lCompany)
+		/*		*/.addComponent(company))
+		/**/.addGroup(vl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lProduct)
+		/*		*/.addComponent(product))
+		/**/.addGroup(vl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lCopyright)
+		/*		*/.addComponent(copyright))
+		/**/.addGroup(vl.createParallelGroup(Alignment.BASELINE)
+		/*		*/.addComponent(lDescription)
+		/*		*/.addComponent(description)));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addComponent(dKeys,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
