@@ -270,10 +270,10 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		return panel;
 		}
 
-	public NumberField major, minor, build, release;
-	public JTextField company, product, copyright, description;
 	public JCheckBox esc, close, f1, f4, f5, f9;
 	public ButtonGroup gamePriority;
+	public NumberField major, minor, build, release;
+	public JTextField company, product, copyright, description;
 
 	private JPanel makeOtherPane()
 		{
