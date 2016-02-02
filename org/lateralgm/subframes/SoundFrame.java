@@ -306,17 +306,18 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			try
 				{
 				data = fileToBytes(f);
-				String fn = f.getName();
-				res.put(PSound.FILE_NAME,fn);
-				String ft = CustomFileFilter.getExtension(fn);
-				if (ft == null) ft = "";
-				res.put(PSound.FILE_TYPE,ft);
-				filename.setText(Messages.format("SoundFrame.FILE",fn)); //$NON-NLS-1$
 				}
-			catch (Exception ex)
+			catch (IOException ex)
 				{
 				ex.printStackTrace();
+				return;
 				}
+			String fn = f.getName();
+			res.put(PSound.FILE_NAME,fn);
+			String ft = CustomFileFilter.getExtension(fn);
+			if (ft == null) ft = "";
+			res.put(PSound.FILE_TYPE,ft);
+			filename.setText(Messages.format("SoundFrame.FILE",fn)); //$NON-NLS-1$
 			modified = true;
 			cleanup();
 			return;
@@ -428,7 +429,17 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			}
 		finally
 			{
-			if (in != null) in.close();
+			if (in != null)
+				{
+				try
+					{
+					in.close();
+					}
+				catch (IOException ioe)
+					{
+					ioe.printStackTrace();
+					}
+				}
 			}
 		}
 

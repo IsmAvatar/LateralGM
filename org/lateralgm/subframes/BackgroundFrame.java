@@ -384,14 +384,30 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				{
 				case CHANGED:
 					BufferedImage img;
+					FileInputStream fis = null;
 					try
 						{
-						img = ImageIO.read(new FileInputStream(monitor.file));
+						fis = new FileInputStream(monitor.file);
+						img = ImageIO.read(fis);
 						}
 					catch (IOException ioe)
 						{
 						ioe.printStackTrace();
 						return;
+						}
+					finally
+						{
+						if (fis != null)
+							{
+								try
+									{
+									fis.close();
+									}
+								catch (IOException ioe)
+									{
+									ioe.printStackTrace();
+									}
+							}
 						}
 					res.setBackgroundImage(img);
 					imageChanged = true;

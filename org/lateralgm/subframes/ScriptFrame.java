@@ -191,19 +191,33 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 				{
 				case CHANGED:
 					StringBuffer sb = new StringBuffer(1024);
+					BufferedReader reader = null;
 					try
 						{
-						BufferedReader reader = new BufferedReader(new FileReader(monitor.file));
+						reader = new BufferedReader(new FileReader(monitor.file));
 						char[] chars = new char[1024];
 						int len = 0;
 						while ((len = reader.read(chars)) > -1)
 							sb.append(chars,0,len);
-						reader.close();
 						}
 					catch (IOException ioe)
 						{
 						ioe.printStackTrace();
 						return;
+						}
+					finally
+						{
+						if (reader != null)
+							{
+							try
+								{
+								reader.close();
+								}
+							catch (IOException ioe)
+								{
+								ioe.printStackTrace();
+								}
+							}
 						}
 					String s = sb.toString();
 					res.put(PScript.CODE,s);

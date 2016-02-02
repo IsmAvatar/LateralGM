@@ -1070,16 +1070,33 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			switch (((FileUpdateEvent) e).flag)
 				{
 				case CHANGED:
-					BufferedImage img;
+					BufferedImage img = null;
+					FileInputStream fis = null;
 					try
 						{
-						img = ImageIO.read(new FileInputStream(monitor.file));
+						fis = new FileInputStream(monitor.file);
+						img = ImageIO.read(fis);
 						}
 					catch (IOException ioe)
 						{
 						ioe.printStackTrace();
 						return;
 						}
+					finally
+						{
+						if (fis != null)
+							{
+								try
+									{
+									fis.close();
+									}
+								catch (IOException ioe)
+									{
+									ioe.printStackTrace();
+									}
+							}
+						}
+					System.out.println("good");
 					res.subImages.replace(image,img);
 					editors.remove(image);
 					editors.put(img,this);
