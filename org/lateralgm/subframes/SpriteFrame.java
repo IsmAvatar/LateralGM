@@ -1070,7 +1070,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			switch (((FileUpdateEvent) e).flag)
 				{
 				case CHANGED:
-					BufferedImage img = null;
+					BufferedImage img;
 					FileInputStream fis = null;
 					try
 						{
@@ -1096,7 +1096,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 									}
 							}
 						}
-					System.out.println("good");
 					res.subImages.replace(image,img);
 					editors.remove(image);
 					editors.put(img,this);
