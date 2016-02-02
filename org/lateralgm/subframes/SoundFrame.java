@@ -115,9 +115,9 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 		CustomFileFilter soundsFilter = new CustomFileFilter(d[0],s);
 		fc.addChoosableFileFilter(soundsFilter);
-		fc.addChoosableFileFilter(new CustomFileFilter(d[0],s[1]));
-		fc.addChoosableFileFilter(new CustomFileFilter(d[1],s[2]));
-		fc.addChoosableFileFilter(new CustomFileFilter(d[2],s[3]));
+		fc.addChoosableFileFilter(new CustomFileFilter(d[1],s[0]));
+		fc.addChoosableFileFilter(new CustomFileFilter(d[2],s[1]));
+		fc.addChoosableFileFilter(new CustomFileFilter(d[3],s[2]));
 		fc.setFileFilter(soundsFilter);
 
 		edit = new JButton(Messages.getString("SoundFrame.EDIT"),EDIT_ICON); //$NON-NLS-1$
