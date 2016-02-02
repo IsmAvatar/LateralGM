@@ -1086,14 +1086,14 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 						{
 						if (fis != null)
 							{
-								try
-									{
-									fis.close();
-									}
-								catch (IOException ioe)
-									{
-									ioe.printStackTrace();
-									}
+							try
+								{
+								fis.close();
+								}
+							catch (IOException ioe)
+								{
+								ioe.printStackTrace();
+								}
 							}
 						}
 					res.subImages.replace(image,img);

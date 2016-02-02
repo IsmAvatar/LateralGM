@@ -399,14 +399,14 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 						{
 						if (fis != null)
 							{
-								try
-									{
-									fis.close();
-									}
-								catch (IOException ioe)
-									{
-									ioe.printStackTrace();
-									}
+							try
+								{
+								fis.close();
+								}
+							catch (IOException ioe)
+								{
+								ioe.printStackTrace();
+								}
 							}
 						}
 					res.setBackgroundImage(img);
