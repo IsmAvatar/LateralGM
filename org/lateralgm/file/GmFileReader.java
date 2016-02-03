@@ -978,6 +978,12 @@ public final class GmFileReader
 				in.read4(vw.properties,PView.VIEW_X,PView.VIEW_Y,PView.VIEW_W,PView.VIEW_H,PView.PORT_X,
 						PView.PORT_Y);
 				if (ver2 > 520) in.read4(vw.properties,PView.PORT_W,PView.PORT_H);
+				else 
+					{
+					//Older versions of GM assume port_size == view_size
+					vw.properties.put(PView.PORT_W,vw.properties.get(PView.VIEW_W));
+					vw.properties.put(PView.PORT_H,vw.properties.get(PView.VIEW_H));
+					}
 				in.read4(vw.properties,PView.BORDER_H,PView.BORDER_V,PView.SPEED_H,PView.SPEED_V);
 				GmObject temp = f.resMap.getList(GmObject.class).getUnsafe(in.read4());
 				if (temp != null) vw.properties.put(PView.OBJECT,temp.reference);
