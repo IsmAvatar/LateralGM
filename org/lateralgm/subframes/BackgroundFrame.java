@@ -14,11 +14,9 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -587,11 +585,10 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			hField.setValue(new Integer(height));
 
 			JPanel myPanel = new JPanel();
-			GridLayout layout = new GridLayout(0,2);
+			GridLayout layout = new GridLayout(0,2,0,3);
 			myPanel.setLayout(layout);
 			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_WIDTH")));
 			myPanel.add(wField);
-			//myPanel.add(Box.createHorizontalStrut(15)); // a spacer
 			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_HEIGHT")));
 			myPanel.add(hField);
 
@@ -605,10 +602,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			width = (Integer) wField.getValue();
 			height = (Integer) hField.getValue();
 			}
-		BufferedImage bi = new BufferedImage(width,height,BufferedImage.TYPE_3BYTE_BGR);
-		Graphics g = bi.getGraphics();
-		g.setColor(Color.WHITE);
-		g.fillRect(0,0,width,height);
+		BufferedImage bi = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		res.setBackgroundImage(bi);
 		imageChanged = true;
 		return bi;

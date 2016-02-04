@@ -1174,11 +1174,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			hField.setValue(new Integer(height));
 
 			JPanel myPanel = new JPanel();
-			GridLayout layout = new GridLayout(0,2);
+			GridLayout layout = new GridLayout(0,2,0,3);
 			myPanel.setLayout(layout);
 			myPanel.add(new JLabel(Messages.getString("SpriteFrame.NEW_WIDTH")));
 			myPanel.add(wField);
-			//myPanel.add(Box.createHorizontalStrut(15)); // a spacer
 			myPanel.add(new JLabel(Messages.getString("SpriteFrame.NEW_HEIGHT")));
 			myPanel.add(hField);
 
@@ -1192,10 +1191,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			width = (Integer) wField.getValue();
 			height = (Integer) hField.getValue();
 			}
-		BufferedImage bi = new BufferedImage(width,height,BufferedImage.TYPE_3BYTE_BGR);
-		Graphics g = bi.getGraphics();
-		g.setColor(Color.WHITE);
-		g.fillRect(0,0,width,height);
+		BufferedImage bi = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		imageChanged = true;
 
 		return bi;
