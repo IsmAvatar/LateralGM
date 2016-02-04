@@ -10,17 +10,10 @@
 package org.lateralgm.components.mdi;
 
 import java.awt.Container;
-import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.border.Border;
-import javax.swing.plaf.InternalFrameUI;
-import org.lateralgm.main.LGM;
-import com.sun.java.swing.plaf.windows.WindowsInternalFrameTitlePane;
-import com.sun.java.swing.plaf.windows.WindowsInternalFrameUI;
 
 public class MDIFrame extends JInternalFrame
 	{
@@ -82,16 +75,6 @@ public class MDIFrame extends JInternalFrame
 		});*/
 		}
 
-	@Override
-	public void setUI(InternalFrameUI ui) {
-		if (LGM.themename.equals("Windows")) {
-			//TODO: This is a fix for UI bugs mentioned below which have been reported.
-			super.setUI(new WinInternalFrameUI(this));
-		} else {
-			super.setUI(ui);
-		}
-	}
-
 	private MDIPane getMDIPane()
 		{
 		Container c = getParent();
@@ -141,14 +124,6 @@ public class MDIFrame extends JInternalFrame
 		if (pane != null) pane.resizeDesktop();
 		}
 
-	/*
-	private Area calculateRectOutside(Rectangle2D r)
-		{
-		Area outside = new Area(this.getVisibleRect());
-		outside.subtract(new Area(r));
-		return outside;
-		}
-*/
 	@Override
 	public void setVisible(boolean visible)
 		{
@@ -172,67 +147,5 @@ public class MDIFrame extends JInternalFrame
 				}
 			}
 		}
-
-	public class WinInternalFrameUI extends WindowsInternalFrameUI
-		{
-
-		public WinInternalFrameUI(JInternalFrame b)
-			{
-				super(b);
-			}
-
-		protected JComponent createNorthPane(JInternalFrame w)
-			{
-				return new WinInternalFrameTitlePane(w);
-			}
-
-		}
-
-	private class WinInternalFrameTitlePane extends WindowsInternalFrameTitlePane
-	{
-
-		/**
-		 * NOTE: Default UID generated, change if necessary.
-		 */
-		private static final long serialVersionUID = -8196008182338058385L;
-
-		public WinInternalFrameTitlePane(JInternalFrame f)
-			{
-			super(f);
-			}
-
-		public JButton duplicateButton(JButton button) {
-			JButton ret = new JButton() {
-				/**
-				 * NOTE: Default UID generated, change if necessary.
-				 */
-				private static final long serialVersionUID = 5193418971949557823L;
-
-				@Override
-				public void setBounds(int x, int y, int w, int h) {
-					// NOTE: This corrects the buttons from being cut off under the Windows Look and Feel.
-					// It makes them both the correct size and moves them to the left close to where
-					// they are in native Windows Forms.
-					// https://bugs.openjdk.java.net/browse/JDK-8139392
-					super.setBounds(x - 6,y,getIcon().getIconWidth(),getIcon().getIconHeight());
-				}
-			};
-			for (ActionListener al : button.getActionListeners()) {
-				ret.addActionListener(al);
-			}
-
-			ret.setText(button.getText());
-			ret.setIcon(button.getIcon());
-			return ret;
-		}
-
-		@Override
-		protected void createButtons() {
-			super.createButtons();
-			closeButton = duplicateButton(closeButton);
-			maxButton = duplicateButton(maxButton);
-			iconButton = duplicateButton(iconButton);
-		}
-	}
 
 	}
