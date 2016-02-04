@@ -473,6 +473,13 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		/*		*/.addComponent(rightOrientation)
 		/*		*/.addComponent(showTreeFilter))));
 
+		//TODO: Finish backup preferences.
+		backupsPanel.setEnabled(false);
+		Component[] coms = backupsPanel.getComponents();
+		for (int i = 0; i < coms.length; i++) {
+			coms[i].setEnabled(false);
+		}
+
 		return p;
 		}
 
@@ -1249,7 +1256,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			"PreferencesFrame.TAB_MEDIA_PREFIX"));
 
 		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"));
-		root.add(node);
+		//TODO: Fix UI bugs in JoshEdit repo and then use the serialize feature to save them.
+		//root.add(node);
 		DefaultMutableTreeNode cnode = new DefaultMutableTreeNode(
 				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS"));
 		node.add(cnode);
