@@ -507,8 +507,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS"));
 		iconCombo = new JComboBox<String>();
-		//TODO: Do not reactivate, we no longer maintain the Swing icon pack.
-		//iconCombo.addItem("Swing");
 		iconCombo.addItem("Calico");
 		iconCombo.addItem("Contrast");
 		iconCombo.addItem("Custom");
