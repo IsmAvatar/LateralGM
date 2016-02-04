@@ -111,9 +111,9 @@ public final class Prefs
 		userLibraryPath = getString("userLibraryPath","./lib");
 
 		imagePreviewBackgroundColor = getInt("imagePreviewBackgroundColor",
-			new Color(160, 160, 160).getRGB());
+			new Color(204,204,204).getRGB());
 		imagePreviewForegroundColor = getInt("imagePreviewForegroundColor",
-			new Color(140, 140, 140).getRGB());
+			new Color(153,153,153).getRGB());
 		highlightMatchCountBackground = getBoolean("highlightMatchCountBackground",false);
 		highlightMatchCountForeground = getBoolean("highlightMatchCountForeground",true);
 		matchCountBackgroundColor = getInt("matchCountBackgroundColor",Color.BLACK.getRGB());
