@@ -305,6 +305,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		tool.addSeparator();
 
 		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD")); //$NON-NLS-1$
+		preload.setOpaque(false);
 		plf.make(preload,PSound.PRELOAD);
 		tool.add(preload);
 
@@ -611,7 +612,17 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			}
 		finally
 			{
-			if (in != null) in.close();
+			if (in != null)
+				{
+				try
+					{
+					in.close();
+					}
+				catch (IOException ioe)
+					{
+					LGM.showDefaultExceptionHandler(ioe);
+					}
+				}
 			}
 		}
 
@@ -759,7 +770,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 						}
 					catch (IOException ioe)
 						{
-						ioe.printStackTrace();
+						LGM.showDefaultExceptionHandler(ioe);
 						return;
 						}
 					modified = true;

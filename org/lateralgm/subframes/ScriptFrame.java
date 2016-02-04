@@ -218,7 +218,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 						}
 					catch (IOException ioe)
 						{
-						ioe.printStackTrace();
+						LGM.showDefaultExceptionHandler(ioe);
 						return;
 						}
 					finally

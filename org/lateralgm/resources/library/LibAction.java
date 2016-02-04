@@ -10,7 +10,6 @@ package org.lateralgm.resources.library;
 
 import java.awt.image.BufferedImage;
 
-import org.lateralgm.main.Util;
 import org.lateralgm.resources.sub.Action;
 
 /**

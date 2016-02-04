@@ -352,9 +352,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true);
 		showBbox.addActionListener(this);
+		showBbox.setOpaque(false);
 		tool.add(showBbox);
 		showOrigin = new JCheckBox(Messages.getString("SpriteFrame.SHOW_ORIGIN"),true);
 		showOrigin.addActionListener(this);
+		showOrigin.setOpaque(false);
 		tool.add(showOrigin);
 
 		tool.addSeparator();
@@ -856,8 +858,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		shiftBox = new JCheckBox(Messages.getString("SpriteFrame.SHIFT"),true);
 		shiftBox.setSelected(false);
+		shiftBox.setOpaque(false);
 		tool.add(shiftBox);
 		wrapBox = new JCheckBox(Messages.getString("SpriteFrame.WRAP"),true);
+		wrapBox.setOpaque(false);
 		wrapBox.addItemListener(new ItemListener()
 			{
 				public void itemStateChanged(ItemEvent arg0)

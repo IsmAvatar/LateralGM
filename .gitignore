@@ -1,6 +1,5 @@
 *~
 *.class
-lateralgm.jar
 *.jar
 *.db
 .git/modules

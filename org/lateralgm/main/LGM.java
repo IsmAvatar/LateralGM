@@ -362,7 +362,9 @@ public final class LGM
 				{
 				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
 				// Fixes UI bug in the JDK where the buttons look way too big and get cut off.
-				UIManager.put("InternalFrame.titleButtonWidth", 20);
+				// https://bugs.openjdk.java.net/browse/JDK-8140527
+				UIManager.put("InternalFrame.titleButtonWidth", 22);
+				UIManager.put("InternalFrame.titleButtonHeight", 22);
 				}
 			else if (LOOKANDFEEL.equals("CDE/Motif"))
 				{
@@ -2014,7 +2016,8 @@ public final class LGM
 		// this is necessary to make sure open/save dialogs get fixed
 		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
 		JDialog.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
-		// all this code is necessary to make sure toggling window decorations do not cause frameless borders
+		// all this code is necessary to make sure toggling window decorations
+		// do not cause frameless borders
 		Window[] windows = Window.getWindows();
 		for (Window window : windows) {
 			boolean visible = window.isVisible();

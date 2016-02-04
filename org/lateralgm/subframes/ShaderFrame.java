@@ -140,6 +140,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tool.add(typeCombo);
 		precompileCB = new JCheckBox(Messages.getString("ShaderFrame.PRECOMPILE"));
 		precompileCB.setSelected(res.getPrecompile());
+		precompileCB.setOpaque(false);
 		tool.addSeparator();
 		tool.add(precompileCB);
 		tool.addSeparator();
@@ -311,7 +312,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 						}
 					catch (IOException ioe)
 						{
-						ioe.printStackTrace();
+						LGM.showDefaultExceptionHandler(ioe);
 						return;
 						}
 					finally
@@ -399,19 +400,19 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 						@Override
 						public void run()
 							{
-								CodeTextArea tcode = getSelectedCode();
-								undoButton.setEnabled(tcode.text.canUndo());
-								redoButton.setEnabled(tcode.text.canRedo());
+								CodeTextArea selectedCode = getSelectedCode();
+								undoButton.setEnabled(selectedCode.text.canUndo());
+								redoButton.setEnabled(selectedCode.text.canRedo());
 							}
 					});
 				}
 		};
 		editors.addChangeListener(new ChangeListener() {
 		    public void stateChanged(ChangeEvent e) {
-						CodeTextArea tcode = getSelectedCode();
-						if (tcode == null) return;
-						undoButton.setEnabled(tcode.text.canUndo());
-						redoButton.setEnabled(tcode.text.canRedo());
+						CodeTextArea selectedCode = getSelectedCode();
+						if (selectedCode == null) return;
+						undoButton.setEnabled(selectedCode.text.canUndo());
+						redoButton.setEnabled(selectedCode.text.canRedo());
 		    }
 		});
 
@@ -472,21 +473,21 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 
 		String com = ev.getActionCommand();
 
-		CodeTextArea tcode = getSelectedCode();
+		CodeTextArea selectedCode = getSelectedCode();
 
 		if (com.equals("JoshText.LOAD"))
 			{
-			tcode.text.Load();
+			selectedCode.text.Load();
 			}
 		else if (com.equals("JoshText.SAVE"))
 			{
-			tcode.text.Save();
+			selectedCode.text.Save();
 			}
 		else if (com.equals("JoshText.PRINT"))
 			{
 			try
 				{
-				tcode.Print();
+				selectedCode.Print();
 				}
 			catch (PrinterException e)
 				{
@@ -495,35 +496,35 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			}
 		else if (com.equals("JoshText.UNDO"))
 			{
-			tcode.text.Undo();
+			selectedCode.text.Undo();
 			}
 		else if (com.equals("JoshText.REDO"))
 			{
-			tcode.text.Redo();
+			selectedCode.text.Redo();
 			}
 		else if (com.equals("JoshText.CUT"))
 			{
-			tcode.text.Cut();
+			selectedCode.text.Cut();
 			}
 		else if (com.equals("JoshText.COPY"))
 			{
-			tcode.text.Copy();
+			selectedCode.text.Copy();
 			}
 		else if (com.equals("JoshText.PASTE"))
 			{
-			tcode.text.Paste();
+			selectedCode.text.Paste();
 			}
 		else if (com.equals("JoshText.FIND"))
 			{
-			tcode.text.ShowFind();
+			selectedCode.text.ShowFind();
 			}
 		else if (com.equals("JoshText.GOTO"))
 			{
-			tcode.aGoto();
+			selectedCode.aGoto();
 			}
 		else if (com.equals("JoshText.SELALL"))
 			{
-			tcode.text.SelectAll();
+			selectedCode.text.SelectAll();
 			}
 		}
 	}

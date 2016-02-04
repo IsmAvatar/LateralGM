@@ -487,7 +487,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		{
 		super(res,node,Messages.getString("GameInformationFrame.TITLE"),true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(725,500);
 
 		menubar = makeMenuBar();
 		setJMenuBar(menubar);
@@ -575,6 +574,9 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		popup.add(item);
 
 		editor.setComponentPopupMenu(popup);
+
+		pack();
+		setSize(getWidth(), 550);
 		}
 
 	private void addDocumentListeners()
