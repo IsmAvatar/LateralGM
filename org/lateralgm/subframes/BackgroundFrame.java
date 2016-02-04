@@ -218,7 +218,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		updateScrollBars();
 
 		pack();
-		this.setSize(800,450);
+		this.setSize(640,400);
 		}
 
 	private JButton makeJButton(String key)
