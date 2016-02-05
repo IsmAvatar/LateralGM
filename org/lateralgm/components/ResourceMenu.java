@@ -13,6 +13,7 @@ package org.lateralgm.components;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static org.lateralgm.main.Util.deRef;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
@@ -35,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolTip;
 import javax.swing.TransferHandler;
+import javax.swing.border.EtchedBorder;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
@@ -251,7 +253,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		GroupLayout layout = new GroupLayout(this);
 		setLayout(layout);
 		label = new JLabel(def);
-		label.setBorder(BorderFactory.createLoweredSoftBevelBorder());
+		label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		label.addMouseListener(mListener);
 		button = new JButton(ResNode.ICON.get(kind));
 		button.addMouseListener(mListener);
