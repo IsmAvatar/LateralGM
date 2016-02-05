@@ -18,7 +18,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
@@ -436,28 +435,5 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 	public boolean isEditable()
 		{
 		return isInstantiable();
-		}
-
-	public void keyPressed(KeyEvent etv)
-		{
-		// TODO Auto-generated method stub
-
-		}
-
-	public void keyReleased(KeyEvent evt)
-		{
-		//TODO: Whatever this code was, somebody make sure you put the key bindings into the
-		//new properties file if you decide to recover this code.
-		//int keyCode = evt.getKeyCode();
-		// if (keyCode == KeyEvent.VK_DELETE)
-		//add(-d, 0);
-		//LGM.frame.setVisible(false);
-		System.exit(0);
-		}
-
-	public void keyTyped(KeyEvent evt)
-		{
-		// TODO Auto-generated method stub
-
 		}
 	}

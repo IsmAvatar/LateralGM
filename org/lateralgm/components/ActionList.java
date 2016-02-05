@@ -316,13 +316,17 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				JList<Action> l = (JList<Action>) e.getSource();
 
 			 KeyStroke stroke = KeyStroke.getKeyStrokeForEvent(e);
-			 if (stroke != null) {
-				 if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.UNDO")))) {
-				 	ActionsUndo(l);
-				 } else if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.REDO")))) {
-				 	ActionsRedo(l);
-				 }
-			 }
+			if (stroke != null)
+				{
+				if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.UNDO"))))
+					{
+					ActionsUndo(l);
+					}
+				else if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.REDO"))))
+					{
+					ActionsRedo(l);
+					}
+				}
 
 			switch (e.getKeyCode())
 				{
@@ -373,53 +377,53 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 
 	  // Return a reasonable name for this edit.
 		@Override
-	  public String getPresentationName() {
-	    return "Action " + type;
-	  }
+		public String getPresentationName() {
+			return "Action " + type;
+		}
 
-	  @Override
-	  public void redo() throws CannotRedoException {
-	    super.redo();
-	    if (type == ACTION_ADD) {
-	    	if (indices != null) {
-	    		model.addAll(indices,actions,false);
-	    	} else {
-	    		model.addAll(actions,false);
-	    	}
-	    } else if (type == ACTION_REMOVE) {
-	    	if (indices != null) {
-	    		model.removeAll(indices,false);
-	    	} else {
-	    		model.clear(false);
-	    	}
-	    } else if (type == ACTION_MOVE) {
-	    	model.moveAll(indices, indicesmoved, false);
-	    } else if (type == ACTION_EDIT) {
-	    	//TODO: Implement
-	    }
-	  }
+		@Override
+		public void redo() throws CannotRedoException {
+			super.redo();
+			if (type == ACTION_ADD) {
+				if (indices != null) {
+					model.addAll(indices,actions,false);
+				} else {
+					model.addAll(actions,false);
+				}
+			} else if (type == ACTION_REMOVE) {
+				if (indices != null) {
+					model.removeAll(indices,false);
+				} else {
+					model.clear(false);
+				}
+			} else if (type == ACTION_MOVE) {
+				model.moveAll(indices, indicesmoved, false);
+			} else if (type == ACTION_EDIT) {
+				//TODO: Implement
+			}
+		}
 
-	  @Override
-	  public void undo() throws CannotUndoException {
-	    super.undo();
-	    if (type == ACTION_ADD) {
-	    	if (indices != null) {
-	    		model.removeAll(indices,false);
-	    	} else {
-	    		model.clear(false);
-	    	}
-	    } else if (type == ACTION_REMOVE) {
-	    	if (indices != null) {
-	    		model.addAll(indices,actions,false);
-	    	} else {
-	    		model.addAll(actions,false);
-	    	}
-	    } else if (type == ACTION_MOVE) {
-	    	model.moveAll(indicesmoved, indices, false);
-	    } else if (type == ACTION_EDIT) {
-	    	//TODO: Implement
-	    }
-	  }
+		@Override
+		public void undo() throws CannotUndoException {
+			super.undo();
+			if (type == ACTION_ADD) {
+				if (indices != null) {
+					model.removeAll(indices,false);
+				} else {
+					model.clear(false);
+				}
+			} else if (type == ACTION_REMOVE) {
+				if (indices != null) {
+					model.addAll(indices,actions,false);
+				} else {
+					model.addAll(actions,false);
+				}
+			} else if (type == ACTION_MOVE) {
+				model.moveAll(indicesmoved, indices, false);
+			} else if (type == ACTION_EDIT) {
+				//TODO: Implement
+			}
+		}
 	}
 
 	//TODO: Make sure a change actually happened before you store it
@@ -576,10 +580,10 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			// sort large to small to avoid oob
 			List<Integer> copy = new ArrayList<Integer>(indices);
 			Collections.sort(copy, new Comparator<Integer>() {
-			   public int compare(Integer a, Integer b) {
-			      //TODO: handle null
-			      return b.compareTo(a);
-			   }
+			public int compare(Integer a, Integer b) {
+				//TODO: handle null
+				return b.compareTo(a);
+			}
 			});
 			// collect the removed ones in order
 			for (int i = 0; i < indices.size(); i++) {
@@ -1335,12 +1339,12 @@ public static class ActionTransferHandler extends TransferHandler
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
 		/*
-    TreeMap<Integer,Action> map = new TreeMap<Integer,Action>();
-
-    for (int i = 0; i < indices.length; i++) {
-      map.put(indices[i], actions.get(i));
-    }
-    */
+		TreeMap<Integer,Action> map = new TreeMap<Integer,Action>();
+		
+		for (int i = 0; i < indices.length; i++) {
+		  map.put(indices[i], actions.get(i));
+		}
+		*/
 
 		ActionTransferable at = new ActionTransferable(actions);
 
