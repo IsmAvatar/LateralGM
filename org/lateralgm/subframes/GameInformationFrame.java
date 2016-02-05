@@ -576,7 +576,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		editor.setComponentPopupMenu(popup);
 
 		pack();
-		setSize(getWidth(), 550);
+		setSize(getWidth(), 480);
 		}
 
 	private void addDocumentListeners()

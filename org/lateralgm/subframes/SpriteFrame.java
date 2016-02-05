@@ -225,6 +225,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		final JSplitPane previewPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,makePreviewPane(),
 				makeSubimagesPane());
+		previewPane.setResizeWeight(1);
 
 		if (Prefs.rightOrientation) {
 			splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
@@ -291,13 +292,14 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		updateStatusLabel();
 
 		pack();
-		SwingUtilities.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable()
+			{
 			@Override
 			public void run()
-			{
-				previewPane.setDividerLocation(0.5d);
-			}
-		});
+				{
+				previewPane.setDividerLocation(0.6d);
+				}
+			});
 		updateScrollBars();
 		}
 
@@ -689,16 +691,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		return pane;
 		}
 
-	public BufferedImage compositeImage(BufferedImage dst, BufferedImage src)
-		{
-		BufferedImage img = new BufferedImage(src.getWidth(),src.getHeight(),
-				BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = img.createGraphics();
-		g.drawImage(dst,0,0,src.getWidth(),src.getHeight(),null);
-		g.drawImage(src,0,0,null);
-		return img;
-		}
-
 	public class ImageLabel extends JLabel
 		{
 		/**
@@ -714,7 +706,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			g.drawImage(img,0,0,this.getWidth() - 1,this.getHeight() - 1,null);
 			if (list.isSelectedIndex(index))
 				{
-				g.setColor(Color.red);
+				g.setColor(list.getSelectionBackground());
 				g.drawRect(0,0,this.getWidth() - 1,this.getHeight() - 1);
 				}
 			g.dispose();
@@ -736,7 +728,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		public Component getListCellRendererComponent(final JList<? extends ImageIcon> genericlist,
 				final ImageIcon value, final int index, final boolean isSelected, final boolean hasFocus)
 			{
-
 			//create panel
 			final JPanel p = new JPanel(new BorderLayout(0,0));
 			//p.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
@@ -747,41 +738,53 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				{
 				return null;
 				}
-			float imgwidth = img.getWidth();
-			float imgheight = img.getHeight();
-			float width = 61;
-			float height = width / imgwidth * imgheight;
-			l.setPreferredSize(new Dimension(61,(int) height));
-			//subList.setFixedCellWidth(61);
-			//subList.setFixedCellHeight(61);
-			if ((Boolean) res.get(PSprite.TRANSPARENT)) {
+			int imgwidth = img.getWidth();
+			int imgheight = img.getHeight();
+			int width = 64, height = 64;
+			if (imgheight < imgwidth)
+				{
+				width = (int)(height / (float)imgheight * imgwidth);
+				}
+			else if (imgwidth < imgheight)
+				{
+				height = (int)(width / (float)imgwidth * imgheight);
+				}
+			//subList.setFixedCellWidth(width+1);
+			//subList.setFixedCellHeight(height+1);
+			l.setPreferredSize(new Dimension(width+1,height+1));
+
+			if ((Boolean) res.get(PSprite.TRANSPARENT))
+				{
 				img = Util.getTransparentImage(img);
-			}
-			int bwidth = (int)Math.ceil(width/8f);
-			int bheight = (int)Math.ceil(height/8f);
+				}
+			int bwidth = (int)Math.ceil(width/10f);
+			int bheight = (int)Math.ceil(height/10f);
 			bwidth = bwidth < 1 ? 1 : bwidth;
 			bheight = bheight < 1 ? 1 : bheight;
 			if (transparencyBackground == null ||
 				transparencyBackground.getWidth() != bwidth ||
 				transparencyBackground.getHeight() != bheight)
-			{
+				{
 				transparencyBackground = Util.paintBackground(bwidth, bheight);
-			}
+				}
 
-			l.img = compositeImage(transparencyBackground,img);
+			BufferedImage cimg = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+			Graphics2D g = cimg.createGraphics();
+			g.drawImage(transparencyBackground,0,0,bwidth*10,bheight*10,null);
+			g.drawImage(img,0,0,width,height,null);
+
+			l.img = cimg;
 
 			l.index = index;
 			l.list = list;
 			p.add(l);
 
 			return p;
-
 			}
 		}
 
 	private JButton makeJButton(String key)
 		{
-
 		JButton but = new JButton(LGM.getIconForKey(key));
 		but.setToolTipText(Messages.getString(key));
 		but.addActionListener(this);
@@ -911,7 +914,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		subimagesScroll = new JScrollPane(subList);
 		subimagesScroll.getVerticalScrollBar().setUnitIncrement(0);
 		subimagesScroll.getHorizontalScrollBar().setUnitIncrement(0);
-		//scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		subimagesScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		pane.add(subimagesScroll,BorderLayout.CENTER);
 
 		return pane;
@@ -1233,7 +1236,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			clip.setContents(new TransferableImages(new ClipboardImages(images)),this);
 			imageChanged = true;
 			subList.setSelectedIndex(pos - 1);
-
 			return;
 			}
 		else if (cmd.endsWith(".COPY"))
@@ -1271,10 +1273,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				imageChanged = true;
 				res.subImages.addAll(pos + 1,images.bi);
 				subList.setSelectionInterval(pos + 1,pos + images.bi.size());
-				subList.setSelectionInterval(pos + 1,pos + images.bi.size());
 				}
-
-			//subList.setSelectedIndex(pos);
 			return;
 			}
 		else if (cmd.endsWith(".ADD")) //$NON-NLS-1$
@@ -1286,6 +1285,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				imageChanged = true;
 				res.subImages.add(pos,bi);
 				subList.setSelectedIndex(pos);
+				setSubIndex(pos);
 				}
 			return;
 			}
@@ -1589,12 +1589,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		show.setRange(0,res.subImages.size());
 		if (clear) setSubIndex(0);
 		updateStatusLabel();
-
-		Component[] comps = subList.getComponents();
-		for (Component comp : comps)
-			{
-			comp.setSize(50,50);
-			}
 		updateScrollBars();
 		}
 
@@ -1687,7 +1681,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			{
 			updateImageControls();
 			}
-
 		}
 
 	private void updateBoundingBoxEditors()

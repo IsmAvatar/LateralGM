@@ -113,7 +113,7 @@ public final class Prefs
 		imagePreviewBackgroundColor = getInt("imagePreviewBackgroundColor",
 			new Color(204,204,204).getRGB());
 		imagePreviewForegroundColor = getInt("imagePreviewForegroundColor",
-			new Color(153,153,153).getRGB());
+			new Color(172,172,172).getRGB());
 		highlightMatchCountBackground = getBoolean("highlightMatchCountBackground",false);
 		highlightMatchCountForeground = getBoolean("highlightMatchCountForeground",true);
 		matchCountBackgroundColor = getInt("matchCountBackgroundColor",Color.BLACK.getRGB());

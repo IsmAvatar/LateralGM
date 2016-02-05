@@ -106,16 +106,16 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 			Shape clip = g.getClip();
 			g.clipRect(0,0,d.width,d.height);
 			Dimension size = getPreferredSize();
-			int width = (int)Math.ceil(size.getWidth() / 8f);
-			int height = (int)Math.ceil(size.getHeight() / 8f);
+			int width = (int)Math.ceil(size.getWidth() / 10f);
+			int height = (int)Math.ceil(size.getHeight() / 10f);
 			width = width < 1 ? 1 : width;
 			height = height < 1 ? 1 : height;
 			if (transparentBackground == null || width != transparentBackground.getWidth() ||
 				height != transparentBackground.getHeight())
 				transparentBackground = Util.paintBackground(width, height);
 
-			g.drawImage(transparentBackground, 0, 0, transparentBackground.getWidth() * 8,
-				transparentBackground.getHeight() * 8, null);
+			g.drawImage(transparentBackground, 0, 0, transparentBackground.getWidth() * 10,
+				transparentBackground.getHeight() * 10, null);
 
 			g.drawImage(image,0,0,d.width,d.height,null);
 			g.setClip(clip);

@@ -89,16 +89,16 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 			Shape clip = g.getClip();
 			g.clipRect(0,0,prefSize.width,prefSize.height);
 
-			int width = (int)Math.ceil(prefSize.getWidth() / 8f);
-			int height = (int)Math.ceil(prefSize.getHeight() / 8f);
+			int width = (int)Math.ceil(prefSize.getWidth() / 10f);
+			int height = (int)Math.ceil(prefSize.getHeight() / 10f);
 			width = width < 1 ? 1 : width;
 			height = height < 1 ? 1 : height;
 			if (transparentBackground == null || width != transparentBackground.getWidth() ||
 				height != transparentBackground.getHeight())
 				transparentBackground = Util.paintBackground(width, height);
 
-			g.drawImage(transparentBackground, 0, 0, transparentBackground.getWidth() * 8,
-				transparentBackground.getHeight() * 8, null);
+			g.drawImage(transparentBackground, 0, 0, transparentBackground.getWidth() * 10,
+				transparentBackground.getHeight() * 10, null);
 
 			g.drawImage(image,0,0,prefSize.width,prefSize.height,null);
 			g.setClip(clip);
