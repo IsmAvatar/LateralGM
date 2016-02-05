@@ -769,8 +769,11 @@ public final class LGM
 				{
 				String msgInd = "LGM.PLUGIN_LOAD_ERROR"; //$NON-NLS-1$
 				System.out.println(Messages.format(msgInd,f.getName(),e.getClass().getName(),e.getMessage()));
-				//LGM.showDefaultExceptionHandler(e); // not sure about this one it helped me catch an error in the plugin don't know what to do really
-				//TODO: lgm extensions need to be found another way perhaps with a local copy of some sort of digest or somthing like ENIGMA extensions
+				// not sure about this one it helped me catch an error
+				// in the plugin don't know what to do really
+				//LGM.showDefaultExceptionHandler(e);
+				//TODO: lgm extensions need to be found another way perhaps with a local copy of some sort
+				//of digest or somthing like ENIGMA extensions
 				continue;
 				}
 			}
@@ -778,9 +781,9 @@ public final class LGM
 
 	public static void populateTree()
 		{
-		/* TODO: This method here does not give the top level nodes for Game Info, Extensions, and Settings
-		 * a proper resource reference, they get null. My commented code here will give them there
-		 * proper references, but when a reload happens the references are lost again.
+		/* TODO: This method here does not give the top level nodes for Game Info, Extensions, and
+		 * Settings a proper resource reference, they get null. My commented code here will give them
+		 * their proper references, but when a reload happens the references are lost again.
 		 * I seriously do not believe there should be nodes with null references in the tree.
 		for (Class<? extends Resource<?,?>> k : Resource.kinds)
 			{
@@ -2067,9 +2070,6 @@ public final class LGM
 
 	public static void main(final String[] args) throws InvocationTargetException, InterruptedException
 		{
-		//NOTE: this makes you unable to disable antialiasing?
-		//UIManager.put("InternalFrameUI",org.lateralgm.components.mdi.MDIFrame.WinInternalFrameUI.class.getName());
-		//UIManager.put("InternalFrame.border",BorderFactory.createLineBorder(Color.red));
 		// Set the default uncaught exception handler.
 		LGM.setDefaultExceptionHandler();
 		// Redirect JoshEdit exceptions
@@ -2114,10 +2114,10 @@ public final class LGM
 				}
 			}
 
-		splashProgress.progress(10,Messages.getString("LGM.SPLASH_LANG"));
+		splashProgress.progress(10,Messages.getString("LGM.SPLASH_LANG")); //$NON-NLS-1$
 		Messages.updateLangPack();
 
-		splashProgress.progress(15,Messages.getString("LGM.SPLASH_CURSOR"));
+		splashProgress.progress(15,Messages.getString("LGM.SPLASH_CURSOR")); //$NON-NLS-1$
 		createMouseCursors();
 
 		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
@@ -2127,8 +2127,7 @@ public final class LGM
 		JToolBar toolbar = createToolBar();
 		treeTabs = new JTabbedPane();
 		tree = createTree();
-		DefaultMutableTreeNode sroot = new DefaultMutableTreeNode("root");
-		//sroot.add(new DefaultMutableTreeNode("cock"));
+		DefaultMutableTreeNode sroot = new DefaultMutableTreeNode("root"); //$NON-NLS-1$
 
 		searchTree = new JTree(sroot);
 
@@ -2480,7 +2479,8 @@ public final class LGM
 
 		frame.setVisible(true);
 		frame.pack();
-		// this makes sure the first time default location of the window that has not been stored is centered
+		// this makes sure the first time default location of the window
+		// that has not been stored is centered
 		frame.setLocationRelativeTo(null);
 		// This needs to be here after the frame is set to visible for some reason,
 		// it was causing the bug with the frame not memorizing its maximized state.
@@ -2657,12 +2657,13 @@ public final class LGM
 	}
 
 	/*
-	 * When the user saves reset all the resources to their unsaved state. We do not check the frames
-	 * because they commit their changes allowing them to be written, while still allowing the user to revert
-	 * the frame if they so choose.
-	 * If the user has an open frame with changes basically, the save button will save the changes to file
-	 * and if the user saves the frame then they will still be asked to save when they close, if they revert
-	 * the changes to the frame they will exit right out. This is the expected behavior of these functions.
+	 * When the user saves, reset all the resources to their unsaved state. We do not check the frames
+	 * because they commit their changes allowing them to be written, while still allowing the user to
+	 * revert the frame if they so choose.
+	 * If the user has an open frame with changes basically, the save button will save the changes to
+	 * file and if the user saves the frame then they will still be asked to save when they close, if
+	 * they revert the changes to the frame they will exit right out. This is the expected behavior of
+	 * these functions.
 	 */
 	public static void resetChanges() {
 		Iterator<?> it = currentFile.resMap.entrySet().iterator();
@@ -2919,8 +2920,8 @@ public final class LGM
 			});
 		}
 
-	// Adds a default uncaught exception handler to the current thread. This allows LGM to catch most exceptions
-	// and properly display a stack trace for the user to file a bug report.
+	// Adds a default uncaught exception handler to the current thread. This allows LGM to catch most
+	// exceptions and properly display a stack trace for the user to file a bug report.
 	public static void addDefaultExceptionHandler()
 		{
 		Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
@@ -2932,7 +2933,8 @@ public final class LGM
 			});
 		}
 
-	// Show the default uncaught exception handler dialog to the user with a stack trace they can use to submit a bug report.
+	// Show the default uncaught exception handler dialog to the user with a stack trace they can use
+	// to submit a bug report.
 	public static void showDefaultExceptionHandler(Throwable e)
 		{
 		System.out.println(Thread.currentThread().getName() + ": ");
