@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -22,6 +22,8 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JList;
 import javax.swing.text.Document;
 
+import org.lateralgm.ui.swing.propertylink.ComboBoxLink;
+import org.lateralgm.ui.swing.propertylink.ComboBoxLink.DefaultComboBoxConversion;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.ComboBoxConversion;
 import org.lateralgm.util.PropertyEditor;
 import org.lateralgm.util.PropertyLink;
@@ -35,18 +37,18 @@ public class PropertyLinkFactory<K extends Enum<K>>
 	 * and they should thus update their controls.
 	 */
 	private List<PropertyLinkMapListener<K>> mapListeners = new ArrayList<PropertyLinkMapListener<K>>();
-	
+
 	/* Necessary for mass disposing links created by the factory */
 	private List<PropertyLink<K,?>> mapLinks = new ArrayList<PropertyLink<K,?>>();
-	
+
 	public void addLinkMapListener(PropertyLinkMapListener<K> plml) {
 		mapListeners.add(plml);
 	}
-	
+
 	public void removeLinkMapListener(PropertyLinkMapListener<K> plml) {
 		mapListeners.remove(plml);
 	}
-	
+
 	public void removeAllLinks()
 	{
 		for (PropertyLink<?,?> link : mapLinks) {
@@ -55,7 +57,7 @@ public class PropertyLinkFactory<K extends Enum<K>>
 		mapLinks.clear();
 		mapListeners.clear();
 	}
-	
+
 	public void setMap(PropertyMap<K> m) {
 		map = m;
 		for (PropertyLinkMapListener<K> listener : mapListeners) {
@@ -66,7 +68,7 @@ public class PropertyLinkFactory<K extends Enum<K>>
 	public abstract interface PropertyLinkMapListener<K extends Enum<K>> {
 		public abstract void mapChanged(PropertyMap<K> m);
 	}
-	
+
 	public PropertyLinkFactory(PropertyMap<K> m, ExceptionListener el)
 		{
 		map = m;
@@ -75,8 +77,9 @@ public class PropertyLinkFactory<K extends Enum<K>>
 
 	public <L extends PropertyLink<K,?>>L init(L l)
 		{
-		/* This should probably be moved into PropertyLink itself, but either way the PropertyLink needs to know the plf that created it 
-		 * so it knows when to add and remove itself as a listener to revert when the PLF decides to changes its map.
+		/* This should probably be moved into PropertyLink itself, but either way the PropertyLink needs
+		 * to know the plf that created it so it knows when to add and remove itself as a listener to
+		 * revert when the PLF decides to changes its map.
 		 */
 		l.factory = this;
 		addLinkMapListener(l);
@@ -90,14 +93,19 @@ public class PropertyLinkFactory<K extends Enum<K>>
 		return init(pe.getLink(map,k));
 		}
 
-	public <V>ComboBoxLink<K,V> make(JComboBox<V> b, K k, ComboBoxConversion conv)
+	public <V>ComboBoxLink<K,V> make(JComboBox<?> b, K k)
 		{
-		return init(new ComboBoxLink<K,V>((JComboBox<V>) b,map,k,conv));
+		return init(new ComboBoxLink<K,V>(b,map,k, new DefaultComboBoxConversion<V>()));
 		}
 
-	public <V>ListLink<K,V> make(JList<V> l, K k)
+	public <V>ComboBoxLink<K,V> make(JComboBox<?> b, K k, ComboBoxConversion<V> conv)
 		{
-		return init(new ListLink<K,V>((JList<V>) l,map,k));
+		return init(new ComboBoxLink<K,V>(b,map,k,conv));
+		}
+
+	public <V>ListLink<K,V> make(JList<?> l, K k)
+		{
+		return init(new ListLink<K,V>(l,map,k));
 		}
 
 	public FormattedLink<K> make(JFormattedTextField f, K k)

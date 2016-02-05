@@ -2,7 +2,7 @@
  * Copyright (C) 2007, 2008 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -14,11 +14,13 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static org.lateralgm.main.Util.deRef;
 
 import java.awt.Component;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -32,6 +34,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolTip;
+import javax.swing.TransferHandler;
+import javax.swing.border.EtchedBorder;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
@@ -172,17 +176,61 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			}
 		}
 
+	class ResourceTransferHandler<K extends Resource<K,?>> extends TransferHandler {
 	/**
-	 * Creates a Resource Menu of given Resource kind.
-	 * @param kind - One of the kind constants defined in Resource (eg Resource.SPRITE)
-	 * @param def - The default value to display if no resource is selected
-	 * @param showDef - Whether to display the default value as a selectable menu option
-	 * @param width - The component width desired
+	 * NOTE: Default UID generated, change if necessary.
 	 */
-	public ResourceMenu(Class<? extends Resource<?,?>> kind, String def, boolean showDef, int width)
-		{
-		this(kind,def,showDef,width,false,canPreview(kind));
+	private static final long serialVersionUID = 1716244867900780500L;
+	private ResourceMenu<K> menu;
+		public ResourceTransferHandler(ResourceMenu<K> menu) 
+			{
+			this.menu = menu;
+			}
+
+		public int getSourceActions(JComponent c) 
+			{
+			return COPY_OR_MOVE;
+			}
+
+		public boolean canImport(TransferSupport ts) {
+			if (!ts.isDataFlavorSupported(ResNode.NODE_FLAVOR))
+				{
+				return false;
+				}
+			try
+				{
+				ResNode data = (ResNode) ts.getTransferable().getTransferData(ResNode.NODE_FLAVOR);
+				if (data.kind.equals(menu.kind) && data.status == ResNode.STATUS_SECONDARY) 
+					{
+					return true;
+					}
+				}
+			catch (UnsupportedFlavorException | IOException e)
+				{
+				// Should never occur.
+				LGM.showDefaultExceptionHandler(e);
+				}
+			return false;
 		}
+
+	@SuppressWarnings("unchecked")
+	public boolean importData(TransferSupport ts) 
+		{
+			try
+				{
+				ResNode data = (ResNode) ts.getTransferable().getTransferData(ResNode.NODE_FLAVOR);
+				menu.setSelected((ResourceReference<K>) data.getRes());
+				fireActionPerformed();
+				return true;
+				}
+			catch (UnsupportedFlavorException | IOException e)
+				{
+				// Should never occur.
+				LGM.showDefaultExceptionHandler(e);
+				}
+			return false;
+		}
+	}
 
 	/**
 	 * Creates a Resource Menu of given Resource kind.
@@ -196,13 +244,15 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	public ResourceMenu(Class<? extends Resource<?,?>> kind, String def, boolean showDef, int width,
 			boolean onlyOpen, boolean preview)
 		{
+		this.setTransferHandler(new ResourceTransferHandler<R>(this));
+
 		this.kind = kind;
 		this.onlyOpen = onlyOpen;
 		this.defStr = def;
 		GroupLayout layout = new GroupLayout(this);
 		setLayout(layout);
 		label = new JLabel(def);
-		label.setBorder(BorderFactory.createEtchedBorder());
+		label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 		label.addMouseListener(mListener);
 		button = new JButton(ResNode.ICON.get(kind));
 		button.addMouseListener(mListener);
@@ -210,7 +260,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		int freeWidth = width - (preview ? 40 : 20);
 		rPreview = preview ? new Preview() : null;
 		SequentialGroup hg = layout.createSequentialGroup();
-		ParallelGroup vg = layout.createParallelGroup(Alignment.LEADING,false);
+		ParallelGroup vg = layout.createParallelGroup(Alignment.CENTER,false);
 		if (preview)
 			{
 			hg.addComponent(rPreview,PREFERRED_SIZE,20,PREFERRED_SIZE);
@@ -218,10 +268,10 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			}
 		layout.setHorizontalGroup(hg
 		/**/.addComponent(label,PREFERRED_SIZE,freeWidth,Integer.MAX_VALUE)
-		/**/.addComponent(button,PREFERRED_SIZE,20,PREFERRED_SIZE));
+		/**/.addComponent(button,PREFERRED_SIZE,22,PREFERRED_SIZE));
 		layout.setVerticalGroup(vg
 		/**/.addComponent(label,PREFERRED_SIZE,20,PREFERRED_SIZE)
-		/**/.addComponent(button,PREFERRED_SIZE,19,PREFERRED_SIZE));
+		/**/.addComponent(button,PREFERRED_SIZE,22,PREFERRED_SIZE));
 
 		pm = new JPopupMenu();
 		if (showDef)
@@ -231,6 +281,18 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			}
 		populate(kind);
 		LGM.root.updateSource.addListener(ResourceMenu.this);
+		}
+
+	/**
+	 * Creates a Resource Menu of given Resource kind.
+	 * @param kind - One of the kind constants defined in Resource (eg Resource.SPRITE)
+	 * @param def - The default value to display if no resource is selected
+	 * @param showDef - Whether to display the default value as a selectable menu option
+	 * @param width - The component width desired
+	 */
+	public ResourceMenu(Class<? extends Resource<?,?>> kind, String def, boolean showDef, int width)
+		{
+		this(kind,def,showDef,width,false,canPreview(kind));
 		}
 
 	/**

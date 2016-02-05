@@ -2,7 +2,7 @@
  * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2014, Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -10,8 +10,7 @@
 
 package org.lateralgm.subframes;
 
-import static java.lang.Integer.MAX_VALUE;
-import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
@@ -50,6 +49,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -69,9 +69,9 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sound.SoundKind;
-import org.lateralgm.ui.swing.propertylink.ComboBoxLink.ComboBoxConversion;
+import org.lateralgm.resources.Sound.SoundType;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.DefaultComboBoxConversion;
-import org.lateralgm.ui.swing.propertylink.ComboBoxLink.IndexComboBoxConversion;
+import org.lateralgm.ui.swing.propertylink.ComboBoxLink.KeyComboBoxConversion;
 import org.lateralgm.ui.swing.util.SwingExecutor;
 
 public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
@@ -144,15 +144,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		fc.addChoosableFileFilter(new CustomFileFilter(d[4],s[3]));
 		fc.setFileFilter(soundsFilter);
 
-		edit = new JButton(Messages.getString("SoundFrame.EDIT"),EDIT_ICON); //$NON-NLS-1$
-		edit.addActionListener(this);
-		play = new JButton(PLAY_ICON);
-		play.addActionListener(this);
-		play.setEnabled(false);
-		stop = new JButton(STOP_ICON);
-		stop.addActionListener(this);
-		stop.setEnabled(false);
-
 		JPanel pKind = makeAttributesPane();
 		JPanel pEffects = makeEffectsPane();
 		JPanel pAttr = makeFormatPane();
@@ -200,7 +191,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 		/*
 		String positiontxt = "";
-		if (clip != null) { 
+		if (clip != null) {
 			positiontxt = Messages.getString("SoundFrame.POSITION") + ": " + formatTime(clip.getMicrosecondPosition()) + " | " +
 					Messages.getString("SoundFrame.DURATION") + ": " + formatTime(clip.getMicrosecondLength());
 		} else {
@@ -208,8 +199,8 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				Messages.getString("SoundFrame.DURATION") + ": 0m0s";
 		}
 		*/
-		final JLabel lPosition = new JLabel(Messages.getString("SoundFrame.POSITION") + ": 0m0s | "
-				+ Messages.getString("SoundFrame.DURATION") + ": 0m0s"); //$NON-NLS-1$
+		final JLabel lPosition = new JLabel(Messages.getString("SoundFrame.DURATION") + ": 0m0s | "
+				+ Messages.getString("SoundFrame.POSITION") + ": 0m0s"); //$NON-NLS-1$
 		position = new JSlider(0,100,0);
 		//pan.setPaintLabels(true);
 		position.setMajorTickSpacing(10);
@@ -224,10 +215,10 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 						{
 						return;
 						}
-					lPosition.setText(Messages.getString("SoundFrame.POSITION") + ": "
-							+ formatTime(clip.getMicrosecondPosition()) + " | "
-							+ Messages.getString("SoundFrame.DURATION") + ": "
-							+ formatTime(clip.getMicrosecondLength()));
+					lPosition.setText(Messages.getString("SoundFrame.DURATION") + ": "
+							+ formatTime(clip.getMicrosecondLength()) + " | "
+							+ Messages.getString("SoundFrame.POSITION") + ": "
+							+ formatTime(clip.getMicrosecondPosition()));
 					}
 
 			});
@@ -245,35 +236,31 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		loadClip();
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(pKind,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*	*/.addComponent(pEffects,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*	*/.addComponent(pAttr,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*	*/.addComponent(lPosition))
+		/*	*/.addComponent(position).addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(lVolume))
+		/*	*/.addComponent(volume).addGroup(layout.createSequentialGroup()
+		/*	*/.addComponent(lPan))
+		/*	*/.addComponent(pan).addGroup(layout.createSequentialGroup())
 		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(edit)
-		/*	*/.addComponent(stop)
-		/*	*/.addComponent(play)).addGroup(layout.createSequentialGroup()
-		/**/.addComponent(lPosition))
-		/**/.addComponent(position).addGroup(layout.createSequentialGroup()
-		/**/.addComponent(lVolume))
-		/**/.addComponent(volume).addGroup(layout.createSequentialGroup()
-		/**/.addComponent(lPan))
-		/**/.addComponent(pan).addGroup(layout.createSequentialGroup()));
-
-		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(pKind)
 		/*	*/.addComponent(pEffects)
-		/*	*/.addComponent(pAttr))
-		/**/.addGroup(layout.createParallelGroup()
-		/*	*/.addComponent(edit)
-		/*	*/.addComponent(stop)
-		/*	*/.addComponent(play)).addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/**/.addComponent(lPosition).addGap(0))
-		/**/.addComponent(position).addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/**/.addComponent(lVolume).addGap(0))
-		/**/.addComponent(volume).addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/**/.addComponent(lPan).addGap(0))
-		/**/.addComponent(pan));
+		/*	*/.addComponent(pAttr,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
+
+		layout.setVerticalGroup(layout.createSequentialGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(lPosition).addGap(0))
+		/*	*/.addComponent(position).addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(lVolume).addGap(0))
+		/*	*/.addComponent(volume).addGroup(layout.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(lPan).addGap(0))
+		/*	*/.addComponent(pan)
+		/**/.addGroup(layout.createParallelGroup(Alignment.CENTER)
+		/*	*/.addComponent(pKind)
+		/*	*/.addComponent(pEffects)
+		/*	*/.addComponent(pAttr)));
+
+		layout.linkSize(SwingConstants.VERTICAL,pEffects,pAttr);
 
 		pack();
 		}
@@ -282,7 +269,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		{
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
-		tool.setAlignmentX(0);
 
 		tool.add(save);
 		tool.addSeparator();
@@ -299,15 +285,36 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 		tool.addSeparator();
 
+		edit = new JButton(EDIT_ICON); //$NON-NLS-1$
+		edit.setToolTipText(Messages.getString("SoundFrame.EDIT"));
+		edit.addActionListener(this);
+		tool.add(edit);
+
+		play = new JButton(PLAY_ICON);
+		play.setToolTipText(Messages.getString("SoundFrame.PLAY"));
+		play.addActionListener(this);
+		play.setEnabled(false);
+		tool.add(play);
+
+		stop = new JButton(STOP_ICON);
+		stop.setToolTipText(Messages.getString("SoundFrame.STOP"));
+		stop.addActionListener(this);
+		stop.setEnabled(false);
+		tool.add(stop);
+
+		tool.addSeparator();
+
+		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD")); //$NON-NLS-1$
+		preload.setOpaque(false);
+		plf.make(preload,PSound.PRELOAD);
+		tool.add(preload);
+
+		tool.addSeparator();
+
 		name.setColumns(13);
 		name.setMaximumSize(name.getPreferredSize());
 		tool.add(new JLabel(Messages.getString("SoundFrame.NAME"))); //$NON-NLS-1$
 		tool.add(name);
-
-		tool.addSeparator();
-		preload = new JCheckBox(Messages.getString("SoundFrame.PRELOAD")); //$NON-NLS-1$
-		plf.make(preload,PSound.PRELOAD);
-		tool.add(preload);
 
 		return tool;
 		}
@@ -321,19 +328,9 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				Messages.getString("SoundFrame.MULT") };
 
 		JComboBox<String> kindCombo = new JComboBox<String>(kindOptions);
-		plf.make(kindCombo,PSound.KIND,new IndexComboBoxConversion()
-			{
-				public Object convertItem(int ind, Object o)
-					{
-					return ProjectFile.SOUND_KIND[ind];
-					}
-
-				public void select(JComboBox<?> b, Object o)
-					{
-					if (o instanceof SoundKind) b.setSelectedIndex(ProjectFile.SOUND_CODE.get(o));
-					}
-			});
-		JLabel kindLabel = new JLabel(Messages.getString("SoundFrame.KIND") + ":");
+		plf.make(kindCombo,PSound.KIND,new KeyComboBoxConversion<SoundKind>(ProjectFile.SOUND_KIND,
+			ProjectFile.SOUND_KIND_CODE));
+		JLabel kindLabel = new JLabel(Messages.getString("SoundFrame.KIND"));
 
 		JCheckBox compressedCB = new JCheckBox(Messages.getString("SoundFrame.COMPRESSED"));
 		plf.make(compressedCB,PSound.COMPRESSED);
@@ -347,7 +344,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		aLayout.setHorizontalGroup(aLayout.createParallelGroup()
 		/**/.addGroup(aLayout.createSequentialGroup()
 		/*  */.addComponent(kindLabel)
-		/*  */.addComponent(kindCombo))
+		/*  */.addComponent(kindCombo,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
 		/**/.addComponent(compressedCB)
 		/**/.addComponent(streamedCB)
 		/**/.addComponent(decompressCB));
@@ -368,38 +365,16 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		final String typeOptions[] = { Messages.getString("SoundFrame.MONO"),
 				Messages.getString("SoundFrame.STEREO"),Messages.getString("SoundFrame.THREE") };
 		JComboBox<String> typeCombo = new JComboBox<String>(typeOptions);
-		plf.make(typeCombo,PSound.TYPE,new ComboBoxConversion()
-			{
-				public Object convertItem(int index, Object o)
-					{
-					return index;
-					}
-			});
+		plf.make(typeCombo,PSound.TYPE,new KeyComboBoxConversion<SoundType>(ProjectFile.SOUND_TYPE,
+			ProjectFile.SOUND_TYPE_CODE));
 
-		final String depthOptions[] = { "8 bit","16 bit" };
-		JComboBox<String> depthCombo = new JComboBox<String>(depthOptions);
-		plf.make(depthCombo,PSound.BIT_DEPTH,new DefaultComboBoxConversion()
-			{
-				public Object convertItem(int index, Object o)
-					{
-					return ((String) o).substring(0,((String) o).indexOf(' '));
-					}
-
-				public void select(JComboBox<?> b, Object o)
-					{
-					b.setSelectedItem(o + " bit");
-					}
-			});
+		final Integer depthOptions[] = { 8, 16 };
+		JComboBox<Integer> depthCombo = new JComboBox<Integer>(depthOptions);
+		plf.make(depthCombo,PSound.BIT_DEPTH,new DefaultComboBoxConversion<Integer>());
 
 		final Integer sampleOptions[] = { 5512,11025,22050,32000,44100,48000 };
 		JComboBox<Integer> sampleCombo = new JComboBox<Integer>(sampleOptions);
-		plf.make(sampleCombo,PSound.SAMPLE_RATE,new ComboBoxConversion()
-			{
-				public Object convertItem(int index, Object o)
-					{
-					return o;
-					}
-			});
+		plf.make(sampleCombo,PSound.SAMPLE_RATE,new DefaultComboBoxConversion<Integer>());
 		JLabel sampleLabel = new JLabel(Messages.getString("SoundFrame.SAMPLERATE"));
 
 		ArrayList<Integer> bitOptions = new ArrayList<Integer>();
@@ -409,13 +384,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			}
 		JComboBox<Integer> bitCombo = new JComboBox<Integer>(
 				bitOptions.toArray(new Integer[bitOptions.size()]));
-		plf.make(bitCombo,PSound.BIT_RATE,new ComboBoxConversion()
-			{
-				public Object convertItem(int index, Object o)
-					{
-					return o;
-					}
-			});
+		plf.make(bitCombo,PSound.BIT_RATE,new DefaultComboBoxConversion<Integer>());
 		JLabel bitLabel = new JLabel(Messages.getString("SoundFrame.BITRATE"));
 
 		GroupLayout aLayout = new GroupLayout(pFormat);
@@ -426,7 +395,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		/**/.addGroup(aLayout.createParallelGroup()
 		/*  */.addComponent(typeCombo)
 		/*  */.addComponent(depthCombo))
-		/**/.addGroup(aLayout.createParallelGroup()
+		/**/.addGroup(aLayout.createParallelGroup(Alignment.TRAILING)
 		/*  */.addComponent(sampleLabel)
 		/*  */.addComponent(bitLabel))
 		/**/.addGroup(aLayout.createParallelGroup()
@@ -564,7 +533,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			play.setEnabled(false);
 			stop.setEnabled(true);
 			clip.setFramePosition((int) (((float) position.getValue() / 100) * clip.getFrameLength()));
-			//FloatControl gainControl = 
+			//FloatControl gainControl =
 			//(FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 			//gainControl.setValue(-10);
 			clip.start();
@@ -643,7 +612,17 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			}
 		finally
 			{
-			if (in != null) in.close();
+			if (in != null)
+				{
+				try
+					{
+					in.close();
+					}
+				catch (IOException ioe)
+					{
+					LGM.showDefaultExceptionHandler(ioe);
+					}
+				}
 			}
 		}
 
@@ -732,9 +711,19 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			File f = File.createTempFile(res.getName(),
 					new File((String) res.get(PSound.FILE_NAME)).getName(),LGM.tempDir);
 			f.deleteOnExit();
-			FileOutputStream out = new FileOutputStream(f);
-			out.write(data);
-			out.close();
+			FileOutputStream out = null;
+			try
+				{
+				out = new FileOutputStream(f);
+				out.write(data);
+				}
+			finally
+				{
+				if (out != null)
+					{
+					out.close();
+					}
+				}
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this);
 			editor = this;
@@ -781,7 +770,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 						}
 					catch (IOException ioe)
 						{
-						ioe.printStackTrace();
+						LGM.showDefaultExceptionHandler(ioe);
 						return;
 						}
 					modified = true;

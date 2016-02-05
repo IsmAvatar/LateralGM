@@ -30,7 +30,7 @@ import javax.swing.text.*;
 public class AutoComboBox<T> extends JComboBox<T>
 	{
 	/**
-	 * 
+	 * NOTE: Default UID generated, change if necessary.
 	 */
 	private static final long serialVersionUID = -2358279864039989215L;
 
@@ -114,8 +114,8 @@ public class AutoComboBox<T> extends JComboBox<T>
 		{
 
 		/**
-			 * 
-			 */
+		 * NOTE: Default UID generated, change if necessary.
+		 */
 		private static final long serialVersionUID = 7860466445717335935L;
 
 		public void remove(int offs, int len) throws BadLocationException

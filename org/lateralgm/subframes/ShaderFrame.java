@@ -86,13 +86,22 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 	public JComboBox<String> typeCombo;
 	public String currentLang = "";
 
-	private ScriptEditor editor;
+	private ShaderEditor fragmentEditor;
+	private ShaderEditor vertexEditor;
 
 	public ShaderFrame(Shader res, ResNode node)
 		{
 		super(res,node);
 		setSize(700,430);
 		setLayout(new BorderLayout());
+
+		vcode = new CodeTextArea((String) res.get(PShader.VERTEX),MarkerCache.getMarker("glsles"));
+		fcode = new CodeTextArea((String) res.get(PShader.FRAGMENT),MarkerCache.getMarker("glsles"));
+
+		editors = new JTabbedPane();
+		editors.addTab("Vertex",vcode);
+		editors.addTab("Fragment",fcode);
+		add(editors,BorderLayout.CENTER);
 
 		// Setup the toolbar
 		tool = new JToolBar();
@@ -103,30 +112,18 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		tool.add(save);
 		tool.addSeparator();
 
-		vcode = new CodeTextArea((String) res.get(PShader.VERTEX),MarkerCache.getMarker("glsles"));
-		fcode = new CodeTextArea((String) res.get(PShader.FRAGMENT),MarkerCache.getMarker("glsles"));
-
-		editors = new JTabbedPane();
-		editors.addTab("Vertex",vcode);
-		editors.addTab("Fragment",fcode);
-		add(editors,BorderLayout.CENTER);
-
-		if (!Prefs.useExternalScriptEditor)
-			this.addEditorButtons(tool);
-		else
-			{
-			//vcode.editable = false;
-			//fcode.editable = false;
-			edit = new JButton(Messages.getString("ShaderFrame.EDIT")); //$NON-NLS-1$
+		if (Prefs.useExternalScriptEditor) {
+			vcode.setEnabled(false);
+			edit = new JButton(LGM.getIconForKey("ShaderFrame.EDIT")); //$NON-NLS-1$
+			edit.setToolTipText(Messages.getString("ShaderFrame.EDIT"));
 			edit.addActionListener(this);
 			tool.add(edit);
-			}
 
-		tool.addSeparator();
-		name.setColumns(13);
-		name.setMaximumSize(name.getPreferredSize());
-		tool.add(new JLabel(Messages.getString("ShaderFrame.NAME"))); //$NON-NLS-1$
-		tool.add(name);
+			tool.addSeparator();
+		}
+
+		this.addEditorButtons(tool);
+
 		tool.addSeparator();
 		tool.add(new JLabel(Messages.getString("ShaderFrame.TYPE")));
 		String[] typeOptions = { "GLSLES","GLSL","HLSL9","HLSL11" };
@@ -139,12 +136,18 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 					updateLexer();
 					}
 			});
-
+		typeCombo.setSelectedItem(res.getType());
 		tool.add(typeCombo);
 		precompileCB = new JCheckBox(Messages.getString("ShaderFrame.PRECOMPILE"));
 		precompileCB.setSelected(res.getPrecompile());
+		precompileCB.setOpaque(false);
 		tool.addSeparator();
 		tool.add(precompileCB);
+		tool.addSeparator();
+		name.setColumns(13);
+		name.setMaximumSize(name.getPreferredSize());
+		tool.add(new JLabel(Messages.getString("ShaderFrame.NAME"))); //$NON-NLS-1$
+		tool.add(name);
 
 		status = new JPanel(new FlowLayout());
 		BoxLayout layout = new BoxLayout(status,BoxLayout.X_AXIS);
@@ -172,8 +175,6 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		add(status,BorderLayout.SOUTH);
 
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(vcode.text));
-
-		typeCombo.setSelectedItem(res.getType());
 		updateLexer();
 		}
 
@@ -233,26 +234,42 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		super.fireInternalFrameEvent(id);
 		}
 
-	private class ScriptEditor implements UpdateListener
+	private enum EditorType { VERTEX, FRAGMENT };
+
+	private class ShaderEditor implements UpdateListener
 		{
 		public final FileChangeMonitor monitor;
+		private final EditorType type;
+		private final File f;
 
-		public ScriptEditor() throws IOException
+		public ShaderEditor(EditorType type) throws IOException
 			{
-			File f = File.createTempFile(res.getName(),"." + Prefs.externalScriptExtension,LGM.tempDir); //$NON-NLS-1$
+			this.type = type;
+			f = File.createTempFile(res.getName(),"." +
+					(type == EditorType.VERTEX ? "vert" : "frag"), LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
-			FileWriter out = new FileWriter(f);
-			out.write((String) res.get(PShader.VERTEX));
-			out.write((String) res.get(PShader.FRAGMENT));
-			out.close();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this,true);
-			editor = this;
 			start();
 			}
 
 		public void start() throws IOException
 			{
+			FileWriter out = null;
+			try
+				{
+				out = new FileWriter(f);
+				out.write(type == EditorType.VERTEX ? vcode.getTextCompat() : fcode.getTextCompat());
+				}
+			finally
+				{
+				if (out != null)
+					{
+						out.close();
+					}
+				}
+
+			out.close();
 			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
 				try
 					{
@@ -275,7 +292,6 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			{
 			monitor.stop();
 			monitor.file.delete();
-			editor = null;
 			}
 
 		public void updated(UpdateEvent e)
@@ -285,33 +301,63 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 				{
 				case CHANGED:
 					StringBuffer sb = new StringBuffer(1024);
+					BufferedReader reader = null;
 					try
 						{
-						BufferedReader reader = new BufferedReader(new FileReader(monitor.file));
+						reader = new BufferedReader(new FileReader(monitor.file));
 						char[] chars = new char[1024];
 						int len = 0;
 						while ((len = reader.read(chars)) > -1)
 							sb.append(chars,0,len);
-						reader.close();
 						}
 					catch (IOException ioe)
 						{
-						ioe.printStackTrace();
+						LGM.showDefaultExceptionHandler(ioe);
 						return;
 						}
+					finally
+						{
+						if (reader != null)
+							{
+							try
+								{
+								reader.close();
+								}
+								catch (IOException ex)
+								{
+								LGM.showDefaultExceptionHandler(ex);
+								}
+							}
+						}
 					String s = sb.toString();
-					res.put(PShader.VERTEX,s);
-					vcode.setText(s);
+					if (type == EditorType.VERTEX) {
+						res.put(PShader.VERTEX,s);
+						vcode.setText(s);
+					} else {
+						res.put(PShader.FRAGMENT,s);
+						fcode.setText(s);
+					}
 					break;
 				case DELETED:
-					editor = null;
+					if (type == EditorType.VERTEX) {
+						vertexEditor = null;
+					} else {
+						fragmentEditor = null;
+					}
 				}
 			}
 		}
 
 	public void dispose()
 		{
-		if (editor != null) editor.stop();
+		if (fragmentEditor != null) {
+			fragmentEditor.stop();
+			fragmentEditor = null;
+		}
+		if (vertexEditor != null) {
+			vertexEditor.stop();
+			vertexEditor = null;
+		}
 		super.dispose();
 		}
 
@@ -328,11 +374,16 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 
 	public void addEditorButtons(JToolBar tb)
 		{
-
 		tb.add(makeToolbarButton("LOAD"));
 		tb.add(makeToolbarButton("SAVE"));
 		tb.add(makeToolbarButton("PRINT"));
 		tb.addSeparator();
+
+		tb.add(makeToolbarButton("CUT"));
+		tb.add(makeToolbarButton("COPY"));
+		tb.add(makeToolbarButton("PASTE"));
+		tb.addSeparator();
+
 		final JButton undoButton = makeToolbarButton("UNDO");
 		tb.add(undoButton);
 		final JButton redoButton = makeToolbarButton("REDO");
@@ -346,41 +397,35 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			public void linesChanged(Code code, int start, int end)
 				{
 					SwingUtilities.invokeLater(new Runnable() {
-		
 						@Override
 						public void run()
 							{
-								CodeTextArea tcode = getSelectedCode();
-								undoButton.setEnabled(tcode.text.canUndo());
-								redoButton.setEnabled(tcode.text.canRedo());
+								CodeTextArea selectedCode = getSelectedCode();
+								undoButton.setEnabled(selectedCode.text.canUndo());
+								redoButton.setEnabled(selectedCode.text.canRedo());
 							}
-		
 					});
 				}
 		};
 		editors.addChangeListener(new ChangeListener() {
 		    public void stateChanged(ChangeEvent e) {
-						CodeTextArea tcode = getSelectedCode();
-						if (tcode == null) return;
-						undoButton.setEnabled(tcode.text.canUndo());
-						redoButton.setEnabled(tcode.text.canRedo());
+						CodeTextArea selectedCode = getSelectedCode();
+						if (selectedCode == null) return;
+						undoButton.setEnabled(selectedCode.text.canUndo());
+						redoButton.setEnabled(selectedCode.text.canRedo());
 		    }
 		});
-		
+
 		fcode.text.addLineChangeListener(linelistener);
 		vcode.text.addLineChangeListener(linelistener);
 		tb.addSeparator();
 		tb.add(makeToolbarButton("FIND"));
 		tb.add(makeToolbarButton("GOTO"));
-		tb.addSeparator();
-		tb.add(makeToolbarButton("CUT"));
-		tb.add(makeToolbarButton("COPY"));
-		tb.add(makeToolbarButton("PASTE"));
 		}
-	
+
 	public CodeTextArea getSelectedCode() {
 		int stab = editors.getSelectedIndex();
-	
+
 		if (stab == 0)
 			{
 			return vcode;
@@ -393,6 +438,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 		return null;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent ev)
 		{
 		super.actionPerformed(ev);
@@ -400,10 +446,23 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			{
 			try
 				{
-				if (editor == null)
-					new ScriptEditor();
-				else
-					editor.start();
+				int stab = editors.getSelectedIndex();
+				if (stab == 0)
+					{
+						if (vertexEditor == null) {
+							vertexEditor = new ShaderEditor(EditorType.VERTEX);
+						} else {
+							vertexEditor.start();
+						}
+					}
+				else if (stab == 1)
+					{
+						if (fragmentEditor == null) {
+							fragmentEditor = new ShaderEditor(EditorType.FRAGMENT);
+						} else {
+							fragmentEditor.start();
+						}
+					}
 				}
 			catch (IOException ex)
 				{
@@ -414,21 +473,21 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 
 		String com = ev.getActionCommand();
 
-		CodeTextArea tcode = getSelectedCode();
+		CodeTextArea selectedCode = getSelectedCode();
 
 		if (com.equals("JoshText.LOAD"))
 			{
-			tcode.text.Load();
+			selectedCode.text.Load();
 			}
 		else if (com.equals("JoshText.SAVE"))
 			{
-			tcode.text.Save();
+			selectedCode.text.Save();
 			}
 		else if (com.equals("JoshText.PRINT"))
 			{
 			try
 				{
-				tcode.Print();
+				selectedCode.Print();
 				}
 			catch (PrinterException e)
 				{
@@ -437,35 +496,35 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			}
 		else if (com.equals("JoshText.UNDO"))
 			{
-			tcode.text.Undo();
+			selectedCode.text.Undo();
 			}
 		else if (com.equals("JoshText.REDO"))
 			{
-			tcode.text.Redo();
+			selectedCode.text.Redo();
 			}
 		else if (com.equals("JoshText.CUT"))
 			{
-			tcode.text.Cut();
+			selectedCode.text.Cut();
 			}
 		else if (com.equals("JoshText.COPY"))
 			{
-			tcode.text.Copy();
+			selectedCode.text.Copy();
 			}
 		else if (com.equals("JoshText.PASTE"))
 			{
-			tcode.text.Paste();
+			selectedCode.text.Paste();
 			}
 		else if (com.equals("JoshText.FIND"))
 			{
-			tcode.text.ShowFind();
+			selectedCode.text.ShowFind();
 			}
 		else if (com.equals("JoshText.GOTO"))
 			{
-			tcode.aGoto();
+			selectedCode.aGoto();
 			}
 		else if (com.equals("JoshText.SELALL"))
 			{
-			tcode.text.SelectAll();
+			selectedCode.text.SelectAll();
 			}
 		}
 	}

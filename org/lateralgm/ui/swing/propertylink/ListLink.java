@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -19,9 +19,9 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 public class ListLink<K extends Enum<K>, V> extends PropertyLink<K,V> implements
 		ListSelectionListener
 	{
-	public final JList<V> list;
+	public final JList<?> list;
 
-	public ListLink(JList<V> l, PropertyMap<K> m, K k)
+	public ListLink(JList<?> l, PropertyMap<K> m, K k)
 		{
 		super(m,k);
 		list = l;
@@ -45,7 +45,8 @@ public class ListLink<K extends Enum<K>, V> extends PropertyLink<K,V> implements
 	@Override
 	public void updated(PropertyUpdateEvent<K> e)
 		{
-		editComponentIfChanged(list.getSelectedValue());
+		// TODO: Should have a converter interface like ComboBoxLink
+		editComponentIfChanged((V)list.getSelectedValue());
 		}
 
 	public void valueChanged(ListSelectionEvent e)

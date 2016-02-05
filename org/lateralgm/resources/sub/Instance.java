@@ -2,7 +2,7 @@
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.EnumMap;
+import java.util.Random;
 
 import org.lateralgm.main.UpdateSource;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
@@ -43,11 +44,11 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 
 	public enum PInstance
 		{
-		X,Y,OBJECT,ID,CREATION_CODE,LOCKED,SCALE_X,SCALE_Y,COLOR,ROTATION,SELECTED,ALPHA
+		X,Y,OBJECT,NAME,ID,CREATION_CODE,LOCKED,SCALE_X,SCALE_Y,COLOR,ROTATION,SELECTED,ALPHA
 		}
 
 	private static final EnumMap<PInstance,Object> DEFS = PropertyMap.makeDefaultMap(PInstance.class,
-			0,0,null,0,"",false,1.0,1.0,new Color(255,255,255),0.0,false,255);
+			0,0,null,"instance",0,"",false,1.0,1.0,new Color(255,255,255),0.0,false,255);
 
 	public Instance(Room r)
 		{
@@ -60,6 +61,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		properties.getUpdateSource(PInstance.ROTATION).addListener(ipl);
 		properties.getUpdateSource(PInstance.COLOR).addListener(ipl);
 		properties.getUpdateSource(PInstance.ALPHA).addListener(ipl);
+		properties.put(PInstance.NAME, "inst_" + String.format("%08X", new Random().nextInt()));
 		}
 
 	protected void fireUpdate(UpdateEvent e)
@@ -74,7 +76,19 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		{
 		return properties.get(PInstance.ID);
 		}
-	
+
+	@Override
+	public void setName(String name)
+		{
+		properties.put(PInstance.NAME, name);
+		}
+
+	@Override
+	public String getName()
+		{
+		return properties.get(PInstance.NAME);
+		}
+
 	public Point getPosition()
 		{
 		return new Point((Integer) properties.get(PInstance.X),(Integer) properties.get(PInstance.Y));
@@ -87,9 +101,9 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 
 	public void setAlpha(int alpha)
 		{
-		properties.put(PInstance.ALPHA,alpha);		
+		properties.put(PInstance.ALPHA,alpha);
 		}
-	
+
 	public Point2D getScale()
 		{
 		return new Point2D.Double((Double) properties.get(PInstance.SCALE_X),

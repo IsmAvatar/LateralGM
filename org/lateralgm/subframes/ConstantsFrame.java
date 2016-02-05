@@ -4,7 +4,7 @@
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2014, Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -129,7 +129,7 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 		if (res == LGM.currentFile.defaultConstants) name = "All Configurations";
 		this.setTitle(Messages.getString("ConstantsFrame.TITLE") + " : " + name);
 	}
-	
+
 	public ConstantsFrame(Constants res, ResNode node)
 		{
 		super(res,node); //$NON-NLS-1$

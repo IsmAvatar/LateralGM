@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Enumeration class for bitmap compression types.
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public final class TypeCompression
@@ -61,7 +61,7 @@ public final class TypeCompression
 
 	/**
 	 * Returns the name of the type and a comment.
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString()
@@ -71,7 +71,7 @@ public final class TypeCompression
 
 	/**
 	 * Get the symbolic name.
-	 * 
+	 *
 	 * @return Returns the name.
 	 */
 	public String getName()
@@ -81,7 +81,7 @@ public final class TypeCompression
 
 	/**
 	 * Get the numerical value.
-	 * 
+	 *
 	 * @return Returns the value.
 	 */
 	public int getValue()
@@ -91,7 +91,7 @@ public final class TypeCompression
 
 	/**
 	 * Get a type for the specified numerical value.
-	 * 
+	 *
 	 * @param pValue Compression type integer value.
 	 * @return Type for the value specified.
 	 */

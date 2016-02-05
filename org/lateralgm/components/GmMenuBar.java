@@ -2,7 +2,7 @@
  * Copyright (C) 2006, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Quadduc <quadduc@gmail.com>
  * Copyrigth (C) 2013 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -96,10 +96,6 @@ public class GmMenuBar extends JMenuBar
 					{
 					item = new JMenuItem(String.format("%s %s",number,uri),number.codePointAt(0));
 					}
-				if (LGM.themename.equals("Quantum"))
-					{
-					item.setFont(LGM.lnfFont);
-					}
 				item.setActionCommand("GmMenuBar.OPENRECENT " + recentStr); //$NON-NLS-1$
 				item.addActionListener(Listener.getInstance());
 				recentMenu.insert(item,recentFiles.size());
@@ -169,19 +165,11 @@ public class GmMenuBar extends JMenuBar
 				JMenuItem item = new JMenuItem(insNodeName,icon);
 				if (mnemonic != '!') item.setMnemonic(mnemonic);
 				item.addActionListener(new Listener.ResourceAdder(true,k));
-				if (LGM.themename.equals("Quantum"))
-					{
-					item.setFont(LGM.lnfFont);
-					}
 				subIns.add(item);
 
 				item = new JMenuItem(addNodeName,icon);
 				if (mnemonic != '!') item.setMnemonic(mnemonic);
 				item.addActionListener(new Listener.ResourceAdder(false,k));
-				if (LGM.themename.equals("Quantum"))
-					{
-					item.setFont(LGM.lnfFont);
-					}
 				subAdd.add(item);
 				}
 
@@ -211,6 +199,10 @@ public class GmMenuBar extends JMenuBar
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_HELP")); //$NON-NLS-1$
 		add(menu);
 		menu.addItem("GmMenuBar.DOCUMENTATION"); //$NON-NLS-1$
+		menu.addSeparator();
+		menu.addItem("GmMenuBar.WEBSITE"); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.COMMUNITY"); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.ISSUE"); //$NON-NLS-1$
 		menu.addSeparator();
 		menu.addItem("GmMenuBar.EXPLORELATERALGM"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.EXPLOREPROJECT"); //$NON-NLS-1$

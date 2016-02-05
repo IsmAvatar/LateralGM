@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * Contains all the methods for managing the zoom
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -163,6 +163,7 @@ public class VisualPanel extends JPanel
 	public void paintComponent(Graphics g)
 		{
 		super.paintComponent(g);
+
 		Graphics g2 = g.create();
 		if (g2.getClip() == null) g2.setClip(0,0,getWidth(),getHeight());
 		g2.translate(visualOffsetX(zoom),visualOffsetY(zoom));
@@ -172,8 +173,8 @@ public class VisualPanel extends JPanel
 			Graphics2D g3 = ((Graphics2D) g2);
 			g3.scale(s,s);
 			g3.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-					zoom < 1 ? RenderingHints.VALUE_INTERPOLATION_BILINEAR
-							: RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+				zoom < 1 ? RenderingHints.VALUE_INTERPOLATION_BILINEAR
+				: RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 			}
 		g2.translate(-overallBounds.x,-overallBounds.y);
 		paintVisuals(g2);

@@ -42,13 +42,13 @@ public class ProjectFormatException extends Exception
 		this.e = e;
 		this.file = file;
 		}
-	
+
 	@Override
 	public StackTraceElement[] getStackTrace() {
 		if (e != null) return e.getStackTrace();
 		return super.getStackTrace();
 	}
-	
+
 	public String stackAsString()
 		{
 		StackTraceElement[] els = getStackTrace();

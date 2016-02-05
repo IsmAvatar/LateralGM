@@ -1,9 +1,10 @@
 /**
-* @file  ImportExportDialog.java
-* @brief Class implementing the frame with selection box allowing you to mass import and export resources and essentially merge projects.
+* @file	ImportExportDialog.java
+* @brief Class implementing the frame with selection box allowing you to mass import and export
+* resources and essentially merge projects.
 *
 * @section License
-* 
+*
 * Copyright (C) 2014 Robert B. Colton
 * This file is a part of the LateralGM IDE.
 *
@@ -47,66 +48,67 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
 public class PackageResourcesDialog extends JDialog
-	{
-	private static PackageResourcesDialog instance = new PackageResourcesDialog(LGM.frame);
-	
+{
 	/**
-	 * TODO: Change if needed.
+	 * NOTE: Default UID generated, change if necessary.
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 3642639396173517907L;
+
+	private static PackageResourcesDialog instance = new PackageResourcesDialog(LGM.frame);
 
 	public class TypeCheckBox extends JCheckBox {
-		/**
-		 * TODO: Change if needed.
-		 */
-		private static final long serialVersionUID = 1L;
-		public Class<?> kind;
+	/**
+	 * NOTE: Default UID generated, change if necessary.
+	 */
+	private static final long serialVersionUID = -4523040009849657775L;
+
+	public Class<?> kind;
 		public TypeCheckBox(Class<?> k) {
 			super(Resource.kindNamesPlural.get(k),true);
 			kind = k;
 		}
 	}
-	
+
 	public JList<TypeCheckBox> typeList;
-	
+
 	public void setAllSelected(boolean selected) {
 		ListModel<TypeCheckBox> model = typeList.getModel();
-	
+
 		for (int i = 0; i < model.getSize(); i++){
-			TypeCheckBox cb =  model.getElementAt(i);
+			TypeCheckBox cb =	model.getElementAt(i);
 			cb.setSelected(selected);
 		}
 		typeList.repaint();
 	}
-	
+
 	public HashSet<Class<?>> getSelectedTypes() {
 		HashSet<Class<?>> ret = new HashSet<Class<?>>();
 		ListModel<TypeCheckBox> model = typeList.getModel();
 
 		for (int i = 0; i < model.getSize(); i++){
-			TypeCheckBox cb =  model.getElementAt(i);
+			TypeCheckBox cb =	model.getElementAt(i);
 			if (cb.isSelected()) {
 				ret.add(cb.kind);
 			}
 		}
-		
+
 		return ret;
 	}
-	
+
 	public HashSet<Class<?>> getUnselectedTypes() {
 		HashSet<Class<?>> ret = new HashSet<Class<?>>();
 		ListModel<TypeCheckBox> model = typeList.getModel();
-	
+
 		for (int i = 0; i < model.getSize(); i++){
-			TypeCheckBox cb =  model.getElementAt(i);
+			TypeCheckBox cb =	model.getElementAt(i);
 			if (!cb.isSelected()) {
 				ret.add(cb.kind);
 			}
 		}
-		
+
 		return ret;
 	}
-	
+
 	public void populateKindList() {
 		DefaultListModel<TypeCheckBox> model = new DefaultListModel<TypeCheckBox>();
 		for (Class<?> kind : Resource.kinds) {
@@ -114,116 +116,116 @@ public class PackageResourcesDialog extends JDialog
 		}
 		typeList.setModel(model);
 	}
-	
+
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
 		if (visible) {
 			populateKindList();
 		}
 	}
-	
+
 	public PackageResourcesDialog(Frame parent) {
 		super(parent);
 		this.setTitle(Messages.getString("PackageResources.TITLE"));
 		this.setIconImage(LGM.getIconForKey("PackageResources.ICON").getImage());
 		//setResizable(false);
-		
+
 		typeList = new JList<TypeCheckBox>();
-	  typeList.setCellRenderer(new CheckBoxListCellRenderer());
-	
-	  typeList.addMouseListener(new MouseAdapter()
-	     {
-	        public void mousePressed(MouseEvent e)
-	        {
-	           int index = typeList.locationToIndex(e.getPoint());
-	
-	           if (index != -1) {
-	              TypeCheckBox checkbox = (TypeCheckBox)
-	                          typeList.getModel().getElementAt(index);
-	              checkbox.setSelected(
-	                                 !checkbox.isSelected());
-	              repaint();
-	           }
-	        }
-	     }
-	  );
-	
-	  typeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	  
-	  JScrollPane typeScroll = new JScrollPane(typeList);
-	  
-	  JButton selectAllButton = new JButton(Messages.getString("PackageResources.SELECTALL"));
-	  selectAllButton.addActionListener(new ActionListener() {
+		typeList.setCellRenderer(new CheckBoxListCellRenderer());
+
+		typeList.addMouseListener(new MouseAdapter()
+			 {
+					public void mousePressed(MouseEvent e)
+					{
+						 int index = typeList.locationToIndex(e.getPoint());
+
+						 if (index != -1) {
+								TypeCheckBox checkbox = (TypeCheckBox)
+														typeList.getModel().getElementAt(index);
+								checkbox.setSelected(
+																	 !checkbox.isSelected());
+								repaint();
+						 }
+					}
+			 }
+		);
+
+		typeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		JScrollPane typeScroll = new JScrollPane(typeList);
+
+		JButton selectAllButton = new JButton(Messages.getString("PackageResources.SELECTALL"));
+		selectAllButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
 					setAllSelected(true);
 				}
-	  });
-	  JButton selectNoneButton = new JButton(Messages.getString("PackageResources.SELECTNONE"));
-	  selectNoneButton.addActionListener(new ActionListener() {
+		});
+		JButton selectNoneButton = new JButton(Messages.getString("PackageResources.SELECTNONE"));
+		selectNoneButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
 					setAllSelected(false);
 				}
-	  });
-	  
-	  JButton importButton = new JButton(Messages.getString("PackageResources.IMPORT"));
-	  importButton.addActionListener(new ActionListener() {
+		});
+
+		JButton importButton = new JButton(Messages.getString("PackageResources.IMPORT"));
+		importButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
 					//Listener.getInstance().fc.importProject();
 				}
-	  });
-	  
-	  JButton exportButton = new JButton(Messages.getString("PackageResources.EXPORT"));
-	  exportButton.addActionListener(new ActionListener() {
+		});
+
+		JButton exportButton = new JButton(Messages.getString("PackageResources.EXPORT"));
+		exportButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
 					//Listener.getInstance().fc.exportProject();
 				}
-	  });
-	  
-	  JButton closeButton = new JButton(Messages.getString("PackageResources.CLOSE"));
-	  closeButton.addActionListener(new ActionListener() {
+		});
+
+		JButton closeButton = new JButton(Messages.getString("PackageResources.CLOSE"));
+		closeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
 					setVisible(false);
 				}
-	  });
-	  
-	  GroupLayout gl = new GroupLayout(this.getContentPane());
-	  gl.setAutoCreateContainerGaps(true);
-	  gl.setAutoCreateGaps(true);
-	  
-	  gl.setHorizontalGroup(gl.createParallelGroup()
-	  		/**/.addGroup(gl.createSequentialGroup()
-	  		/* */.addComponent(selectAllButton)
-	  		/* */.addComponent(selectNoneButton))
-	  		/**/.addComponent(typeScroll)
-	  		/**/.addGroup(gl.createSequentialGroup()
-	  		/* */.addComponent(importButton)
-	  		/* */.addComponent(exportButton)
-	  		/* */.addComponent(closeButton))
-	  );
-	  
-	  gl.setVerticalGroup(gl.createSequentialGroup()
-	  		/**/.addGroup(gl.createParallelGroup()
-	  		/* */.addComponent(selectAllButton)
-	  		/* */.addComponent(selectNoneButton))
-	  		/**/.addComponent(typeScroll)
-	  		/**/.addGroup(gl.createParallelGroup()
-	  		/* */.addComponent(importButton)
-	  		/* */.addComponent(exportButton)
-	  		/* */.addComponent(closeButton))
-	  );
-	  
-	  this.setLayout(gl);
-	  
-	  this.pack();
-	  setLocationRelativeTo(parent);
+		});
+
+		GroupLayout gl = new GroupLayout(this.getContentPane());
+		gl.setAutoCreateContainerGaps(true);
+		gl.setAutoCreateGaps(true);
+
+		gl.setHorizontalGroup(gl.createParallelGroup()
+		/**/.addGroup(gl.createSequentialGroup()
+		/*	*/.addComponent(selectAllButton)
+		/*	*/.addComponent(selectNoneButton))
+		/**/.addComponent(typeScroll)
+		/**/.addGroup(gl.createSequentialGroup()
+		/*	*/.addComponent(importButton)
+		/*	*/.addComponent(exportButton)
+		/*	*/.addComponent(closeButton))
+		);
+
+		gl.setVerticalGroup(gl.createSequentialGroup()
+		/**/.addGroup(gl.createParallelGroup()
+		/*	*/.addComponent(selectAllButton)
+		/*	*/.addComponent(selectNoneButton))
+		/**/.addComponent(typeScroll)
+		/**/.addGroup(gl.createParallelGroup()
+		/*	*/.addComponent(importButton)
+		/*	*/.addComponent(exportButton)
+		/*	*/.addComponent(closeButton))
+		);
+
+		this.setLayout(gl);
+
+		this.pack();
+		setLocationRelativeTo(parent);
 	}
-	
-  public static PackageResourcesDialog getInstance()
+
+	public static PackageResourcesDialog getInstance()
 		{
 			return instance;
 		}
@@ -234,20 +236,18 @@ public class PackageResourcesDialog extends JDialog
 		}
 
 	protected class CheckBoxListCellRenderer implements ListCellRenderer<JCheckBox>
-  {
-     public Component getListCellRendererComponent(
-                   JList<? extends JCheckBox> list, JCheckBox checkbox, int index,
-                   boolean isSelected, boolean cellHasFocus)
-     {
-        checkbox.setBackground(isSelected ?
-                list.getSelectionBackground() : list.getBackground());
-        checkbox.setForeground(isSelected ?
-        		list.getSelectionForeground() : list.getForeground());
-        checkbox.setEnabled(isEnabled());
-        checkbox.setFont(getFont());
-        checkbox.setFocusPainted(false);
-        return checkbox;
-     }
-  }
-	
+	{
+		public Component getListCellRendererComponent(
+									 JList<? extends JCheckBox> list, JCheckBox checkbox, int index,
+									 boolean isSelected, boolean cellHasFocus)
+		{
+			checkbox.setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
+			checkbox.setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
+			checkbox.setEnabled(isEnabled());
+			checkbox.setFont(getFont());
+			checkbox.setFocusPainted(false);
+			return checkbox;
+		}
 	}
+
+}

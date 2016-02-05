@@ -1,19 +1,19 @@
 /*
  * Copyright (C) 2007-2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2013 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
- * 
+ *
  * LateralGM is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * LateralGM is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License (COPYING) for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -378,6 +378,8 @@ public class FileChooser
 
 		public void read(InputStream is, ProjectFile file, URI uri, ResNode root) throws ProjectFormatException
 			{
+			// TODO: This should not be here. ProjectFile should always have its format set correctly so
+			// we known which one to delegate to.
 			if (uri.getPath().endsWith(".project.gmx"))
 				{
 				GMXFileReader.readProjectFile(is,file,uri,root);
@@ -400,8 +402,7 @@ public class FileChooser
 
 		public void write(OutputStream out, ProjectFile f, ResNode root) throws ProjectFormatException
 			{
-			//TODO: should be a little more graceful than this
-			if (f.getPath().endsWith(".project.gmx"))
+			if (f.format == FormatFlavor.GMX_1200)
 				{
 				try
 					{
@@ -525,6 +526,29 @@ public class FileChooser
 		}
 
 	/** Note that passing in null will cause an open dialog to display */
+	public void open(File file)
+		{
+		if (file == null || !file.exists())
+			{
+			int result = JOptionPane.showConfirmDialog(null,"Would you like to choose a different file?",
+				"File Not Found", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+			if (result == JOptionPane.YES_OPTION) {
+				openNewFile();
+			}
+			return;
+			}
+		FileReader reader = findReader(file.toURI());
+		if (reader == null)
+			{
+			String title = Messages.getString("FileChooser.UNRECOGNIZED_TITLE"); //$NON-NLS-1$
+			String message = Messages.format("FileChooser.UNRECOGNIZED",file); //$NON-NLS-1$
+			JOptionPane.showMessageDialog(LGM.frame,message,title,JOptionPane.WARNING_MESSAGE);
+			return;
+			}
+		open(file.toURI(),reader);
+		}
+
+	/** Note that passing in null will cause an open dialog to display */
 	public void open(URI uri)
 		{
 		if (uri == null)
@@ -532,7 +556,6 @@ public class FileChooser
 			openNewFile();
 			return;
 			}
-
 		FileReader reader = findReader(uri);
 		if (reader == null)
 			{
@@ -551,7 +574,7 @@ public class FileChooser
 	public void open(final URI uri, final FileReader reader)
 		{
 		if (uri == null) return;
-		LGM.getProgressDialog().setVisible(false);
+		LGM.setProgressDialogVisible(true);
 		Thread t = new Thread(new Runnable()
 			{
 				public void run()
@@ -575,8 +598,8 @@ public class FileChooser
 						}
 					catch (Exception e)
 						{
-						//TODO: This catches exceptions in EGM reading without freezing the program with the progress bar
-						// or destroying the tree.
+						// TODO: This catches exceptions in reading without freezing the program with the
+						// progress bar or destroying the tree.
 						LGM.populateTree();
 						rebuildTree();
 						LGM.showDefaultExceptionHandler(e);
@@ -588,12 +611,12 @@ public class FileChooser
 					((GmMenuBar) LGM.frame.getJMenuBar()).updateRecentFiles();
 					selectedWriter = null;
 					LGM.setProgressDialogVisible(false);
-					OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTLOADED") + ": " + new Date().toString() + " " + uri.getPath());
+					OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTLOADED") + ": " +
+							new Date().toString() + " " + uri.getPath());
+					LGM.reload(true);
 					}
 			});
 		t.start();
-		LGM.setProgressDialogVisible(true);
-		LGM.reload(true);
 		}
 
 	public static FileReader findReader(URI uri)
@@ -710,7 +733,7 @@ public class FileChooser
 		{
 		LGM.resetChanges();
 		System.out.println(uri);
-		LGM.getProgressDialog().setVisible(false);
+		LGM.setProgressDialogVisible(true);
 		Thread t = new Thread(new Runnable()
 			{
 				public void run()
@@ -719,7 +742,8 @@ public class FileChooser
 					try
 						{
 						writer.write(new FileOutputStream(new File(uri)),LGM.currentFile,LGM.root);
-						OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTSAVED") + ": " + new Date().toString() + " " + uri.getPath());
+						OutputManager.append("\n" + Messages.getString("FileChooser.PROJECTSAVED") + ": " +
+								new Date().toString() + " " + uri.getPath());
 						LGM.setProgressDialogVisible(false);
 						return;
 						}
@@ -728,7 +752,7 @@ public class FileChooser
 						LGM.showDefaultExceptionHandler(e);
 						}
 					catch (Exception e)
-						{ //Do the stuff below
+						{
 						LGM.showDefaultExceptionHandler(e);
 						}
 					URLConnection uc = null;
@@ -757,7 +781,6 @@ public class FileChooser
 					}
 			});
 		t.start();
-		LGM.setProgressDialogVisible(true);
 		}
 
 	public FileWriter findWriter(FormatFlavor flavor)
@@ -767,9 +790,9 @@ public class FileChooser
 			System.out.println("null flavor");
 			return null;
 			}
-		//Already have a selected writer? Don't need to find one (or worry about ambiguity)
+		// Already have a selected writer? Don't need to find one (or worry about ambiguity)
 		if (selectedWriter != null && selectedWriter.getFlavor() == flavor) return selectedWriter;
-		//Else, look for writers that support our flavor
+		// Else, look for writers that support our flavor
 		FileWriter first = null;
 		for (FileWriter writer : writers)
 			if (writer.getFlavor() == flavor)
@@ -779,8 +802,8 @@ public class FileChooser
 				else
 					{
 					System.out.println("two flavor writers");
-					//we found another writer supporting our flavor, leading to ambiguity
-					//usually, we resolve this by opening a Save As dialog and let the user pick one.
+					// we found another writer supporting our flavor, leading to ambiguity
+					// usually, we resolve this by opening a Save As dialog and let the user pick one.
 					return null;
 					}
 				}
@@ -841,7 +864,7 @@ public class FileChooser
 		p.setLayout(new BoxLayout(p,BoxLayout.PAGE_AXIS));
 		ButtonGroup bg = new ButtonGroup();
 		selectedWriter = findWriter(LGM.currentFile.format);
-		//pick an arbitrary default
+		// pick an arbitrary default
 		if (selectedWriter == null) selectedWriter = writers.get(0);
 		for (final FileWriter writer : writers)
 			{

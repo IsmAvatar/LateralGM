@@ -14,7 +14,7 @@ import org.lateralgm.file.StreamEncoder;
  * Why is creation and read() not one thing? Because we might want to create the object, fill it
  * step by step, and then write it.
  * </p>
- * 
+ *
  * @see com.ctreber.aclib.image.ico.AbstractBitmapIndexed
  * @see com.ctreber.aclib.image.ico.AbstractBitmapRGB
  * @author &copy; Christian Treber, ct@ctreber.com
@@ -36,7 +36,7 @@ public abstract class AbstractBitmap
 
 	/**
 	 * Create an RGB image rendition of this bitmap.
-	 * 
+	 *
 	 * @return A BufferedImage rendition (RGB) of this bitmap.
 	 */
 	public abstract BufferedImage createImageRGB();
@@ -44,7 +44,7 @@ public abstract class AbstractBitmap
 	/**
 	 * Read bitmap from the decoder into class internal data structures. Implemented by specific
 	 * Bitmap classes.
-	 * 
+	 *
 	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
@@ -53,7 +53,7 @@ public abstract class AbstractBitmap
 	/**
 	 * The (manipulated height - read on). I found that a) mostly (but not always) the height reported
 	 * by the header is double the real size, and b) that the descriptor is usually correct.
-	 * 
+	 *
 	 * @return Returns the height.
 	 */
 	protected int getHeight()
@@ -68,7 +68,7 @@ public abstract class AbstractBitmap
 
 	/**
 	 * Get the bitmap width.
-	 * 
+	 *
 	 * @return Returns the width.
 	 */
 	protected int getWidth()
@@ -83,7 +83,7 @@ public abstract class AbstractBitmap
 
 	/**
 	 * Get the bitmap descriptor.
-	 * 
+	 *
 	 * @return Returns the descriptor.
 	 */
 	public BitmapDescriptor getDescriptor()
@@ -101,7 +101,7 @@ public abstract class AbstractBitmap
 
 	/**
 	 * Simply returns the class name which reflects the bitmap type.
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString()
@@ -111,7 +111,7 @@ public abstract class AbstractBitmap
 
 	/**
 	 * Return bytes per scan line rounded up to the next 4 byte boundary.
-	 * 
+	 *
 	 * @param pWidth The image width.
 	 * @param pBPP Bits per pixel.
 	 * @return Bytes per scan line rounded up to the next 4 byte boundar.

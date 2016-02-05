@@ -2,7 +2,7 @@
  * Copyright (C) 2006 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -36,8 +36,8 @@ public class Sound extends InstantiableResource<Sound,Sound.PSound>
 		}
 
 	private static final EnumMap<PSound,Object> DEFS = PropertyMap.makeDefaultMap(PSound.class,
-			SoundKind.NORMAL,"","",false,false,false,false,false,1.0,0.0,true,192,44100,16,0,false,false,
-			false);
+			SoundKind.NORMAL,"","",false,false,false,false,false,1.0,0.0,true,192,44100,SoundType.MONO,
+			16,false,false,false);
 
 	public Sound()
 		{

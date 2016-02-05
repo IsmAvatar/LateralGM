@@ -30,7 +30,7 @@ public class ImageInputStreamAdapter extends InputStream
 		{
 		return in.read(b,off,len);
 		}
-	
+
 	@Override
 	public long skip(long n) throws IOException
 		{

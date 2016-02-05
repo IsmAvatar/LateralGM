@@ -2,7 +2,7 @@
  * Copyright (C) 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -13,8 +13,12 @@ package org.lateralgm.components;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,19 +31,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.messages.Messages;
 
 public class ErrorDialog extends JDialog implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final int DEBUG_HEIGHT = 200;
-	private static ErrorDialog myInstance = new ErrorDialog(
-			LGM.frame,
-			Messages.getString("ErrorDialog.UNCAUGHT_TITLE"), //$NON-NLS-1$
-			Messages.getString("ErrorDialog.UNCAUGHT_MESSAGE"),
-			"https://github.com/IsmAvatar/LateralGM/issues");
+	private static ErrorDialog INSTANCE = null;
 
-	private String submiturl = LGM.trackerURL;
+	private String submitURI = Prefs.issueURI;
 	protected JTextArea debugInfo;
 	protected JButton copy;
 	protected JButton submit;
@@ -49,7 +50,13 @@ public class ErrorDialog extends JDialog implements ActionListener
 
 	public static ErrorDialog getInstance()
 		{
-		return myInstance;
+			if (INSTANCE == null) {
+				INSTANCE = new ErrorDialog(LGM.frame,
+						Messages.getString("ErrorDialog.UNCAUGHT_TITLE"), //$NON-NLS-1$
+						Messages.getString("ErrorDialog.UNCAUGHT_MESSAGE"), //$NON-NLS-1$
+						Prefs.issueURI); //$NON-NLS-1$
+			}
+			return INSTANCE;
 		}
 
 	public static String generateAgnosticInformation()
@@ -58,7 +65,8 @@ public class ErrorDialog extends JDialog implements ActionListener
 		ret += "\nVersion: " + System.getProperty("os.version");
 		ret += "\nArchitecture: " + System.getProperty("os.arch");
 
-		ret += "\n\nJava Vendor: " + System.getProperty("java.vendor");
+		ret += "\n\nJava Name: " + System.getProperty("java.vm.name");
+		ret += "\nJava Vendor: " + System.getProperty("java.vendor");
 		ret += "\nVersion: " + System.getProperty("java.version");
 
 		ret += "\n\nAvailable processors (cores): " + Runtime.getRuntime().availableProcessors();
@@ -82,17 +90,12 @@ public class ErrorDialog extends JDialog implements ActionListener
 		ret += "\n\nStack trace:";
 		return ret;
 		}
-	
+
 	public void setMessage(String message)
 		{
-		optionpane.setMessage(new Object[] { message,scroll });
+		optionpane.setMessage(new Object[] { message, scroll });
 		}
-	
-	public void setDefaults() {
-		setMessage(Messages.getString("ErrorDialog.UNCAUGHT_MESSAGE"));
-		setTitle(Messages.getString("ErrorDialog.UNCAUGHT_TITLE"));
-	}
-	
+
 	public void setDebugInfo(String text)
 		{
 		debugInfo.setText("\n" + text);
@@ -134,21 +137,39 @@ public class ErrorDialog extends JDialog implements ActionListener
 
 	public ErrorDialog(Frame parent, String title, String message, Throwable e)
 		{
-		this(parent,title,message,throwableToString(e),LGM.trackerURL);
+		this(parent,title,message,throwableToString(e),Prefs.issueURI);
 		}
 
-	public ErrorDialog(Frame parent, String title, String message, String debugText, String url)
+	public ErrorDialog(Frame parent, String title, String message, String debugText, String uri)
 		{
-		super(parent,title);
+		super(parent, title);
 		setResizable(false);
-		submiturl = url;
+		setModalExclusionType(ModalExclusionType.TOOLKIT_EXCLUDE);
+		submitURI = uri;
 
 		this.debugInfo = new JTextArea();
 		debugInfo.setEditable(false);
-		debugInfo.getCaret().setVisible(true); // show the caret anyway
+		// show the caret anyway
+		debugInfo.addFocusListener(new FocusListener() {
+
+		@Override
+		public void focusGained(FocusEvent e)
+		{
+			debugInfo.getCaret().setVisible(true);
+			debugInfo.getCaret().setSelectionVisible(true);
+		}
+
+		@Override
+		public void focusLost(FocusEvent e)
+		{
+			debugInfo.getCaret().setVisible(false);
+			debugInfo.getCaret().setSelectionVisible(false);
+		}
+
+		});
 		debugInfo.setText(ErrorDialog.generateAgnosticInformation());
 		this.appendDebugInfo(debugText);
-		scroll = new JScrollPane(this.debugInfo);
+		scroll = new JScrollPane(debugInfo);
 
 		Dimension dim = new Dimension(scroll.getWidth(),DEBUG_HEIGHT);
 		scroll.setPreferredSize(dim);
@@ -156,32 +177,19 @@ public class ErrorDialog extends JDialog implements ActionListener
 		submit = makeButton("ErrorDialog.SUBMIT",this); //$NON-NLS-1$
 		cancel = makeButton("ErrorDialog.CANCEL",this); //$NON-NLS-1$
 
-		dim = new Dimension(Math.max(copy.getPreferredSize().width,cancel.getPreferredSize().width),
-				copy.getPreferredSize().height);
+		dim = new Dimension(Math.max(copy.getPreferredSize().width, cancel.getPreferredSize().width),
+			copy.getPreferredSize().height);
 		submit.setPreferredSize(dim);
 		copy.setPreferredSize(dim);
 		cancel.setPreferredSize(dim);
-		optionpane = new JOptionPane(new Object[] { message,scroll },JOptionPane.ERROR_MESSAGE,
-				JOptionPane.DEFAULT_OPTION,null,new JButton[] { copy,submit,cancel });
-		add(optionpane);
-		pack();
+		optionpane = new JOptionPane(new Object[] { message, scroll },
+			JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION, null,
+			new JButton[] { copy, submit, cancel });
+		setContentPane(optionpane);
+		setSize(640, 480);
 		setLocationRelativeTo(parent);
-		this.addWindowListener(new java.awt.event.WindowAdapter()
-			{
-				@Override
-				public void windowClosing(java.awt.event.WindowEvent windowEvent)
-					{
-					setDefaults();
-					}
-			});
 		}
 
-	@Override
-	public void setVisible(boolean visible) {
-		super.setVisible(visible);
-		setDefaults();
-	}
-	
 	protected static String throwableToString(Throwable e)
 		{
 		StringWriter sw = new StringWriter();
@@ -195,22 +203,22 @@ public class ErrorDialog extends JDialog implements ActionListener
 			{
 			try
 				{
-				Desktop.getDesktop().browse(java.net.URI.create(submiturl));
+					Desktop.getDesktop().browse(java.net.URI.create(submitURI));
 				}
 			catch (IOException e1)
 				{
-				//TODO: Fail silently I guess?
-				e1.printStackTrace();
+					JOptionPane.showMessageDialog(this,
+						Messages.format("ErrorDialog.DESKTOP_MESSAGE", submitURI),
+						Messages.getString("ErrorDialog.DESKTOP_TITLE"), JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		else if (e.getSource() == copy)
 			{
-			debugInfo.selectAll();
-			debugInfo.copy();
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+				new StringSelection(debugInfo.getText()), null);
 			}
 		else if (e.getSource() == cancel)
 			{
-			debugInfo.setText("");
 			dispose();
 			}
 

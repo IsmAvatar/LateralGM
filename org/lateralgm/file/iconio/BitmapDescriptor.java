@@ -12,7 +12,7 @@ import org.lateralgm.file.StreamEncoder;
  * found that the descriptor often "lies" about size, number of colors etc., hence the bitmap header
  * should be used for reference.
  * </p>
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public class BitmapDescriptor
@@ -35,19 +35,19 @@ public class BitmapDescriptor
 
 	/**
 	 * Read the descriptor with the decoder (16 Bytes in total).
-	 * 
+	 *
 	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
 	// @PMD:REVIEWED:CallSuperInConstructor: by Chris on 06.03.06 10:32
 	public BitmapDescriptor(final StreamDecoder pDec) throws IOException
 		{
-		//The ICO format's width/height fields are universally ignored 
-		//(Windows and Linux will both ignore them even if they are clearly set wrong).
-		//Instead, you have to use the internal bitmap/png's width/height.
+		// The ICO format's width/height fields are universally ignored
+		// (Windows and Linux will both ignore them even if they are clearly set wrong).
+		// Instead, you have to use the internal bitmap/png's width/height.
 		/*int ignoredWidth =*/ pDec.read();
 		/*int ignoredHeight =*/ pDec.read();
-		
+
 		colorCount = pDec.read();
 
 		reserved = pDec.read();
@@ -71,7 +71,7 @@ public class BitmapDescriptor
 	 * Image with indexed colors. Returns null if an indexed image can't be created (like, from an RGB
 	 * icon - color mapping and dithering is a bit much for the time being). Transparency information
 	 * that might be present in the ICO file is lost. See {@link #getImageRGB}.
-	 * 
+	 *
 	 * @return Image.
 	 */
 	public Image getImageIndexed()
@@ -87,7 +87,7 @@ public class BitmapDescriptor
 	/**
 	 * Bits per pixel. If the bit count of the entry is 0, the bit count of the header is returned.
 	 * See {@link #getBPPRaw}.
-	 * 
+	 *
 	 * @return Bits per pixel (fudged).
 	 */
 	public int getBPP()
@@ -101,7 +101,7 @@ public class BitmapDescriptor
 
 	/**
 	 * The original bits per pixel count. See {@link #getBPP()}.
-	 * 
+	 *
 	 * @return Bits per pixel (raw).
 	 */
 	public int getBPPRaw()
@@ -112,7 +112,7 @@ public class BitmapDescriptor
 	/**
 	 * Image with ARGB colors. This method works for indexed color and RGB ICO files. Transparency
 	 * information that might be present in the ICO is used. See {@link #getImageIndexed}.
-	 * 
+	 *
 	 * @return Image created from the bitmap.
 	 */
 	public Image getImageRGB()
@@ -122,7 +122,7 @@ public class BitmapDescriptor
 
 	/**
 	 * The original color count (note "0" means "256"). See {@link #getColorCount}.
-	 * 
+	 *
 	 * @return Color count (raw).
 	 */
 	public int getColorCountRaw()
@@ -132,7 +132,7 @@ public class BitmapDescriptor
 
 	/**
 	 * The actual color count. See {@link #getColorCountRaw}.
-	 * 
+	 *
 	 * @return Color count (cooked).
 	 */
 	public int getColorCount()
@@ -142,7 +142,7 @@ public class BitmapDescriptor
 
 	/**
 	 * Bitmap height.
-	 * 
+	 *
 	 * @return Height.
 	 */
 	public int getHeight()
@@ -152,7 +152,7 @@ public class BitmapDescriptor
 
 	/**
 	 * Offset of header in ICO file.
-	 * 
+	 *
 	 * @return Offset.
 	 */
 	public long getOffset()
@@ -167,7 +167,7 @@ public class BitmapDescriptor
 
 	/**
 	 * Number of planes ("1" for bitmaps, as far as I know).
-	 * 
+	 *
 	 * @return Planes.
 	 */
 	public int getPlanes()
@@ -177,7 +177,7 @@ public class BitmapDescriptor
 
 	/**
 	 * Reserved value in the descriptor.
-	 * 
+	 *
 	 * @return Reserved value.
 	 */
 	public int getReserved()
@@ -187,7 +187,7 @@ public class BitmapDescriptor
 
 	/**
 	 * Hm - the size of the header and bitmap maybe?
-	 * 
+	 *
 	 * @return Size.
 	 */
 	public long getSize()
@@ -202,7 +202,7 @@ public class BitmapDescriptor
 
 	/**
 	 * Bitmap width.
-	 * 
+	 *
 	 * @return Width.
 	 */
 	public int getWidth()
@@ -212,7 +212,7 @@ public class BitmapDescriptor
 
 	/**
 	 * The header of the bitmap this descriptor refers to.
-	 * 
+	 *
 	 * @return Header.
 	 */
 	public BitmapHeader getHeader()
@@ -230,7 +230,7 @@ public class BitmapDescriptor
 
 	/**
 	 * Bitmap this descriptor refers to.
-	 * 
+	 *
 	 * @return Bitmap.
 	 */
 	public AbstractBitmap getBitmap()

@@ -274,7 +274,7 @@ public final class GMXFileReader
 			readPackages(c,root);
 
 			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED"));
-			//Resources read. Now we can invoke our postpones.
+			// Resources read, now we can invoke our postponed references.
 			for (PostponedRef i : postpone)
 				i.invoke();
 
@@ -329,7 +329,7 @@ public final class GMXFileReader
 				{
 
 				GameSettings gSet = new GameSettings();
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				gSet.setName(fileName);
 
 				c.f.gameSettings.add(gSet);
@@ -337,7 +337,7 @@ public final class GMXFileReader
 
 				String path = c.f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+						+ Util.getPOSIXPath(cNode.getTextContent());
 
 				Document setdoc = documentBuilder.parse(path + ".config.gmx");
 				if (setdoc == null)
@@ -357,7 +357,12 @@ public final class GMXFileReader
 				pSet.put(
 						PGameSettings.ABORT_ON_ERROR,
 						Boolean.parseBoolean(setdoc.getElementsByTagName("option_aborterrors").item(0).getTextContent()));
-				//TODO: Value in the gmx was clBlack, wtf???
+				// TODO: This value is stored using the Windows native dialog's name for the color value, ie
+				// "clBlack" or "clWhite" meaning black and white respectively. If the user chooses a custom
+				// defined color in the dialog, then the value is in the hexadecimal form "$HHHHHHHH" using
+				// a dollar sign instead of a hash sign as a normal hex color value does in other places in
+				// the same configuration file.
+				// This will not be compatible if they ever try to port their IDE to other platforms.
 				//gSet.put(PGameSettings.COLOR_OUTSIDE_ROOM, Integer.parseInt(setdoc.getElementsByTagName("option_windowcolor").item(0).getTextContent()));
 				pSet.put(
 						PGameSettings.DISABLE_SCREENSAVERS,
@@ -401,11 +406,11 @@ public final class GMXFileReader
 						ProjectFile.GS_PRIORITIES[Integer.parseInt(setdoc.getElementsByTagName(
 								"option_priority").item(0).getTextContent())]);
 
-				// For some odd reason these two settings are fucked up; combined; and not even combined properly
-				//2147483649 - Both
-				//2147483648 - Software Vertex Processing only
-				//1 - Synchronization Only
-				//0 - None
+				// For some odd reason these two settings are combined together.
+				// 2147483649 - Both
+				// 2147483648 - Software Vertex Processing only
+				// 1 - Synchronization Only
+				// 0 - None
 				long syncvertex = Long.parseLong(setdoc.getElementsByTagName("option_sync_vertex").item(0).getTextContent());
 				gSet.put(PGameSettings.USE_SYNCHRONIZATION,(syncvertex == 2147483649L || syncvertex == 1));
 				pSet.put(PGameSettings.FORCE_SOFTWARE_VERTEX_PROCESSING,
@@ -428,9 +433,11 @@ public final class GMXFileReader
 					pSet.put(PGameSettings.LAST_CHANGED,Double.parseDouble(changed));
 					}
 
-				//TODO: Could not find these properties in GMX
-				//gSet.put(PGameSettings.BACK_LOAD_BAR, Boolean.parseBoolean(setdoc.getElementsByTagName("option_stayontop").item(0).getTextContent()));
-				//gSet.put(PGameSettings.FRONT_LOAD_BAR, Boolean.parseBoolean(setdoc.getElementsByTagName("option_showcursor").item(0).getTextContent()));
+				// TODO: Could not find these properties in GMX
+				//gSet.put(PGameSettings.BACK_LOAD_BAR,
+				//	Boolean.parseBoolean(setdoc.getElementsByTagName("option_stayontop").item(0).getTextContent()));
+				//gSet.put(PGameSettings.FRONT_LOAD_BAR,
+				//	Boolean.parseBoolean(setdoc.getElementsByTagName("option_showcursor").item(0).getTextContent()));
 
 				String icopath = new File(c.f.getPath()).getParent() + '\\'
 						+ setdoc.getElementsByTagName("option_windows_game_icon").item(0).getTextContent();
@@ -530,14 +537,14 @@ public final class GMXFileReader
 			else if (cname.equals("sprite"))
 				{
 				Sprite spr = f.resMap.getList(Sprite.class).add();
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				spr.setName(fileName);
 				spr.setNode(rnode);
 				rnode = new ResNode(spr.getName(),ResNode.STATUS_SECONDARY,Sprite.class,spr.reference);
 				node.add(rnode);
 				String path = f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+						+ Util.getPOSIXPath(cNode.getTextContent());
 
 				Document sprdoc = documentBuilder.parse(path + ".sprite.gmx");
 				spr.put(PSprite.ORIGIN_X,
@@ -549,7 +556,7 @@ public final class GMXFileReader
 						ProjectFile.SPRITE_MASK_SHAPE[Integer.parseInt(sprdoc.getElementsByTagName("colkind").item(
 								0).getTextContent())]);
 				spr.put(PSprite.SEPARATE_MASK,
-						Integer.parseInt(sprdoc.getElementsByTagName("sepmasks").item(0).getTextContent()) < 0);
+						Integer.parseInt(sprdoc.getElementsByTagName("sepmasks").item(0).getTextContent()) != 0);
 				spr.put(
 						PSprite.BB_MODE,
 						ProjectFile.SPRITE_BB_MODE[Integer.parseInt(sprdoc.getElementsByTagName("bboxmode").item(
@@ -566,16 +573,16 @@ public final class GMXFileReader
 						Integer.parseInt(sprdoc.getElementsByTagName("coltolerance").item(0).getTextContent()));
 
 				spr.put(PSprite.TILE_HORIZONTALLY,
-						Integer.parseInt(sprdoc.getElementsByTagName("HTile").item(0).getTextContent()) < 0);
+						Integer.parseInt(sprdoc.getElementsByTagName("HTile").item(0).getTextContent()) != 0);
 				spr.put(PSprite.TILE_VERTICALLY,
-						Integer.parseInt(sprdoc.getElementsByTagName("VTile").item(0).getTextContent()) < 0);
+						Integer.parseInt(sprdoc.getElementsByTagName("VTile").item(0).getTextContent()) != 0);
 
-				//TODO: Read texture groups
+				// TODO: Read texture groups
 
 				spr.put(PSprite.FOR3D,
-						Integer.parseInt(sprdoc.getElementsByTagName("For3D").item(0).getTextContent()) < 0);
+						Integer.parseInt(sprdoc.getElementsByTagName("For3D").item(0).getTextContent()) != 0);
 
-				//TODO: Just extra shit stored in the GMX by studio
+				// TODO: Just extra metadata stored in the GMX by studio
 				//int width = Integer.parseInt(sprdoc.getElementsByTagName("width").item(0).getTextContent());
 				//int height = Integer.parseInt(sprdoc.getElementsByTagName("height").item(0).getTextContent());
 
@@ -587,7 +594,7 @@ public final class GMXFileReader
 					{
 					Node fnode = frList.item(ii);
 					BufferedImage img = null;
-					img = ImageIO.read(new File(path + Util.getUnixPath(fnode.getTextContent())));
+					img = ImageIO.read(new File(path + Util.getPOSIXPath(fnode.getTextContent())));
 					spr.subImages.add(img);
 					}
 				}
@@ -641,14 +648,14 @@ public final class GMXFileReader
 			else if (cname.equals("sound"))
 				{
 				Sound snd = f.resMap.getList(Sound.class).add();
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				snd.setName(fileName);
 				rnode = new ResNode(snd.getName(),ResNode.STATUS_SECONDARY,Sound.class,snd.reference);
 				node.add(rnode);
 				snd.setNode(rnode);
 				String path = f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+					+ Util.getPOSIXPath(cNode.getTextContent());
 
 				Document snddoc = documentBuilder.parse(path + ".sound.gmx");
 
@@ -659,25 +666,23 @@ public final class GMXFileReader
 				NodeList nl = snddoc.getElementsByTagName("volume");
 				snd.put(PSound.VOLUME,Double.parseDouble(nl.item(nl.getLength() - 1).getTextContent()));
 				snd.put(PSound.PAN,
-						Double.parseDouble(snddoc.getElementsByTagName("pan").item(0).getTextContent()));
+					Double.parseDouble(snddoc.getElementsByTagName("pan").item(0).getTextContent()));
 				snd.put(PSound.BIT_RATE,
-						Integer.parseInt(snddoc.getElementsByTagName("bitRate").item(0).getTextContent()));
+					Integer.parseInt(snddoc.getElementsByTagName("bitRate").item(0).getTextContent()));
 				snd.put(PSound.SAMPLE_RATE,
-						Integer.parseInt(snddoc.getElementsByTagName("sampleRate").item(0).getTextContent()));
-				snd.put(PSound.TYPE,
-						Integer.parseInt(snddoc.getElementsByTagName("type").item(0).getTextContent()));
+					Integer.parseInt(snddoc.getElementsByTagName("sampleRate").item(0).getTextContent()));
+				int sndtype = Integer.parseInt(snddoc.getElementsByTagName("type").item(0).getTextContent());
+				snd.put(PSound.TYPE, ProjectFile.SOUND_TYPE[sndtype]);
 				snd.put(PSound.BIT_DEPTH,
-						Integer.parseInt(snddoc.getElementsByTagName("bitDepth").item(0).getTextContent()));
+					Integer.parseInt(snddoc.getElementsByTagName("bitDepth").item(0).getTextContent()));
 				snd.put(PSound.PRELOAD,
-						Integer.parseInt(snddoc.getElementsByTagName("preload").item(0).getTextContent()) < 0);
-				snd.put(
-						PSound.COMPRESSED,
-						Integer.parseInt(snddoc.getElementsByTagName("compressed").item(0).getTextContent()) < 0);
+					Integer.parseInt(snddoc.getElementsByTagName("preload").item(0).getTextContent()) != 0);
+				snd.put(PSound.COMPRESSED,
+					Integer.parseInt(snddoc.getElementsByTagName("compressed").item(0).getTextContent()) != 0);
 				snd.put(PSound.STREAMED,
-						Integer.parseInt(snddoc.getElementsByTagName("streamed").item(0).getTextContent()) < 0);
-				snd.put(
-						PSound.DECOMPRESS_ON_LOAD,
-						Integer.parseInt(snddoc.getElementsByTagName("uncompressOnLoad").item(0).getTextContent()) < 0);
+					Integer.parseInt(snddoc.getElementsByTagName("streamed").item(0).getTextContent()) != 0);
+				snd.put(PSound.DECOMPRESS_ON_LOAD,
+					Integer.parseInt(snddoc.getElementsByTagName("uncompressOnLoad").item(0).getTextContent()) != 0);
 				int sndkind = Integer.parseInt(snddoc.getElementsByTagName("kind").item(0).getTextContent());
 				snd.put(PSound.KIND,ProjectFile.SOUND_KIND[sndkind]);
 				snd.put(PSound.FILE_TYPE,snddoc.getElementsByTagName("extension").item(0).getTextContent());
@@ -742,19 +747,19 @@ public final class GMXFileReader
 			else if (cname.equals("background"))
 				{
 				Background bkg = f.resMap.getList(Background.class).add();
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				bkg.setName(fileName);
 				bkg.setNode(rnode);
 				rnode = new ResNode(bkg.getName(),ResNode.STATUS_SECONDARY,Background.class,bkg.reference);
 				node.add(rnode);
 				String path = f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+						+ Util.getPOSIXPath(cNode.getTextContent());
 
 				Document bkgdoc = documentBuilder.parse(path + ".background.gmx");
 
 				bkg.put(PBackground.USE_AS_TILESET,
-						Integer.parseInt(bkgdoc.getElementsByTagName("istileset").item(0).getTextContent()) < 0);
+						Integer.parseInt(bkgdoc.getElementsByTagName("istileset").item(0).getTextContent()) != 0);
 				bkg.put(PBackground.TILE_WIDTH,
 						Integer.parseInt(bkgdoc.getElementsByTagName("tilewidth").item(0).getTextContent()));
 				bkg.put(PBackground.TILE_HEIGHT,
@@ -768,16 +773,16 @@ public final class GMXFileReader
 				bkg.put(PBackground.V_SEP,
 						Integer.parseInt(bkgdoc.getElementsByTagName("tilevsep").item(0).getTextContent()));
 				bkg.put(PBackground.TILE_HORIZONTALLY,
-						Integer.parseInt(bkgdoc.getElementsByTagName("HTile").item(0).getTextContent()) < 0);
+						Integer.parseInt(bkgdoc.getElementsByTagName("HTile").item(0).getTextContent()) != 0);
 				bkg.put(PBackground.TILE_VERTICALLY,
-						Integer.parseInt(bkgdoc.getElementsByTagName("VTile").item(0).getTextContent()) < 0);
+						Integer.parseInt(bkgdoc.getElementsByTagName("VTile").item(0).getTextContent()) != 0);
 
-				//TODO: Read texture groups
+				// TODO: Read texture groups
 
 				bkg.put(PBackground.FOR3D,
-						Integer.parseInt(bkgdoc.getElementsByTagName("For3D").item(0).getTextContent()) < 0);
+						Integer.parseInt(bkgdoc.getElementsByTagName("For3D").item(0).getTextContent()) != 0);
 
-				//TODO: Just extra shit stored in the GMX by studio
+				// NOTE: Just extra metadata stored in the GMX by studio
 				//int width = Integer.parseInt(bkgdoc.getElementsByTagName("width").item(0).getTextContent());
 				//int height = Integer.parseInt(bkgdoc.getElementsByTagName("height").item(0).getTextContent());
 
@@ -785,7 +790,7 @@ public final class GMXFileReader
 				path = path.substring(0,path.lastIndexOf('/') + 1) + "/background/";
 				Node fnode = bkgdoc.getElementsByTagName("data").item(0);
 				BufferedImage img = null;
-				File imgfile = new File(path + Util.getUnixPath(fnode.getTextContent()));
+				File imgfile = new File(path + Util.getPOSIXPath(fnode.getTextContent()));
 				if (imgfile.exists())
 					{
 					img = ImageIO.read(imgfile);
@@ -842,14 +847,14 @@ public final class GMXFileReader
 			else if (cname.equals("path"))
 				{
 				final Path pth = f.resMap.getList(Path.class).add();
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				pth.setName(fileName);
 				pth.setNode(rnode);
 				rnode = new ResNode(pth.getName(),ResNode.STATUS_SECONDARY,Path.class,pth.reference);
 				node.add(rnode);
 				String path = f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+						+ Util.getPOSIXPath(cNode.getTextContent());
 
 				Document pthdoc = documentBuilder.parse(path + ".path.gmx");
 				pth.put(PPath.SMOOTH,
@@ -857,7 +862,7 @@ public final class GMXFileReader
 				pth.put(PPath.PRECISION,
 						Integer.parseInt(pthdoc.getElementsByTagName("precision").item(0).getTextContent()));
 				pth.put(PPath.CLOSED,
-						Integer.parseInt(pthdoc.getElementsByTagName("closed").item(0).getTextContent()) < 0);
+						Integer.parseInt(pthdoc.getElementsByTagName("closed").item(0).getTextContent()) != 0);
 				final String proptext = pthdoc.getElementsByTagName("backroom").item(0).getTextContent();
 
 				PostponedRef pr = new PostponedRef()
@@ -947,7 +952,7 @@ public final class GMXFileReader
 			else if (cname.equals("script"))
 				{
 				Script scr = f.resMap.getList(Script.class).add();
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				scr.setName(fileName.substring(0,fileName.lastIndexOf(".")));
 				scr.setNode(rnode);
 				rnode = new ResNode(scr.getName(),ResNode.STATUS_SECONDARY,Script.class,scr.reference);
@@ -955,7 +960,7 @@ public final class GMXFileReader
 				String code = "";
 				String path = f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+						+ Util.getPOSIXPath(cNode.getTextContent());
 				FileInputStream ins = new FileInputStream(path);
 				BufferedReader reader = null;
 				try
@@ -1025,7 +1030,7 @@ public final class GMXFileReader
 			else if (cname.equals("shader"))
 				{
 				Shader shr = f.resMap.getList(Shader.class).add();
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				shr.setName(fileName.substring(0,fileName.lastIndexOf(".")));
 				shr.setNode(rnode);
 				rnode = new ResNode(shr.getName(),ResNode.STATUS_SECONDARY,Shader.class,shr.reference);
@@ -1034,7 +1039,7 @@ public final class GMXFileReader
 				String code = "";
 				String path = f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+						+ Util.getPOSIXPath(cNode.getTextContent());
 				FileInputStream ins = new FileInputStream(path);
 				BufferedReader reader = null;
 				try
@@ -1106,23 +1111,23 @@ public final class GMXFileReader
 			else if (cname.equals("font"))
 				{
 				Font fnt = f.resMap.getList(Font.class).add();
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				fnt.setName(fileName);
 				fnt.setNode(rnode);
 				rnode = new ResNode(fnt.getName(),ResNode.STATUS_SECONDARY,Font.class,fnt.reference);
 				node.add(rnode);
 				String path = f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+						+ Util.getPOSIXPath(cNode.getTextContent());
 
 				Document fntdoc = documentBuilder.parse(path + ".font.gmx");
 				fnt.put(PFont.FONT_NAME,fntdoc.getElementsByTagName("name").item(0).getTextContent());
 				fnt.put(PFont.SIZE,
 						Integer.parseInt(fntdoc.getElementsByTagName("size").item(0).getTextContent()));
 				fnt.put(PFont.BOLD,
-						Integer.parseInt(fntdoc.getElementsByTagName("bold").item(0).getTextContent()) < 0);
+						Integer.parseInt(fntdoc.getElementsByTagName("bold").item(0).getTextContent()) != 0);
 				fnt.put(PFont.ITALIC,
-						Integer.parseInt(fntdoc.getElementsByTagName("italic").item(0).getTextContent()) < 0);
+						Integer.parseInt(fntdoc.getElementsByTagName("italic").item(0).getTextContent()) != 0);
 				fnt.put(PFont.CHARSET,
 						Integer.parseInt(fntdoc.getElementsByTagName("charset").item(0).getTextContent()));
 				fnt.put(PFont.ANTIALIAS,
@@ -1210,14 +1215,14 @@ public final class GMXFileReader
 
 				Timeline tml = f.resMap.getList(Timeline.class).add();
 
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				tml.setName(fileName);
 				tml.setNode(rnode);
 				rnode = new ResNode(tml.getName(),ResNode.STATUS_SECONDARY,Timeline.class,tml.reference);
 				node.add(rnode);
 				String path = f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+						+ Util.getPOSIXPath(cNode.getTextContent());
 
 				Document tmldoc = documentBuilder.parse(path + ".timeline.gmx");
 
@@ -1303,13 +1308,13 @@ public final class GMXFileReader
 
 				final GmObject obj = f.resMap.getList(GmObject.class).add();
 
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				obj.setName(fileName);
 				obj.setNode(rnode);
 
 				String path = f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+						+ Util.getPOSIXPath(cNode.getTextContent());
 
 				Document objdoc = documentBuilder.parse(path + ".object.gmx");
 
@@ -1398,16 +1403,16 @@ public final class GMXFileReader
 					}
 
 				obj.put(PGmObject.SOLID,
-						Integer.parseInt(objdoc.getElementsByTagName("solid").item(0).getTextContent()) < 0);
+						Integer.parseInt(objdoc.getElementsByTagName("solid").item(0).getTextContent()) != 0);
 				obj.put(PGmObject.VISIBLE,
-						Integer.parseInt(objdoc.getElementsByTagName("visible").item(0).getTextContent()) < 0);
+						Integer.parseInt(objdoc.getElementsByTagName("visible").item(0).getTextContent()) != 0);
 				obj.put(PGmObject.DEPTH,
 						Integer.parseInt(objdoc.getElementsByTagName("depth").item(0).getTextContent()));
 				obj.put(
 						PGmObject.PERSISTENT,
-						Integer.parseInt(objdoc.getElementsByTagName("persistent").item(0).getTextContent()) < 0);
+						Integer.parseInt(objdoc.getElementsByTagName("persistent").item(0).getTextContent()) != 0);
 
-				//Now that properties are loaded iterate the events and load the actions
+				// Now that properties are loaded iterate the events and load the actions
 				NodeList frList = objdoc.getElementsByTagName("event");
 				for (int ii = 0; ii < frList.getLength(); ii++)
 					{
@@ -1448,10 +1453,10 @@ public final class GMXFileReader
 					}
 				obj.put(
 						PGmObject.PHYSICS_OBJECT,
-						Integer.parseInt(objdoc.getElementsByTagName("PhysicsObject").item(0).getTextContent()) < 0);
+						Integer.parseInt(objdoc.getElementsByTagName("PhysicsObject").item(0).getTextContent()) != 0);
 				obj.put(
 						PGmObject.PHYSICS_SENSOR,
-						Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectSensor").item(0).getTextContent()) < 0);
+						Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectSensor").item(0).getTextContent()) != 0);
 				int shapekind = Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectShape").item(0).getTextContent());
 				obj.put(PGmObject.PHYSICS_SHAPE,ProjectFile.PHYSICS_SHAPE[shapekind]);
 				obj.put(
@@ -1469,17 +1474,17 @@ public final class GMXFileReader
 				obj.put(
 						PGmObject.PHYSICS_DAMPING_ANGULAR,
 						Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectAngularDamping").item(0).getTextContent()));
-				//TODO: I guess some versions of the format didn't have these?
+				// TODO: Some versions of the format did not have all of the physics properties.
 				Node fNode = objdoc.getElementsByTagName("PhysicsObjectFriction").item(0);
 				if (fNode != null)
 					{
 					obj.put(PGmObject.PHYSICS_FRICTION,Double.parseDouble(fNode.getTextContent()));
 					obj.put(
 							PGmObject.PHYSICS_AWAKE,
-							Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectAwake").item(0).getTextContent()) < 0);
+							Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectAwake").item(0).getTextContent()) != 0);
 					obj.put(
 							PGmObject.PHYSICS_KINEMATIC,
-							Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectKinematic").item(0).getTextContent()) < 0);
+							Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectKinematic").item(0).getTextContent()) != 0);
 					}
 
 				NodeList pointNodes = objdoc.getElementsByTagName("point");
@@ -1549,14 +1554,14 @@ public final class GMXFileReader
 				//f.resMap.getList(Room.class).add(rmn);
 				Room rmn = f.resMap.getList(Room.class).add();
 
-				String fileName = new File(Util.getUnixPath(cNode.getTextContent())).getName();
+				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				rmn.setName(fileName);
 				rmn.setNode(rnode);
 				rnode = new ResNode(rmn.getName(),ResNode.STATUS_SECONDARY,Room.class,rmn.reference);
 				node.add(rnode);
 				String path = f.getPath();
 				path = path.substring(0,path.lastIndexOf('/') + 1)
-						+ Util.getUnixPath(cNode.getTextContent());
+						+ Util.getPOSIXPath(cNode.getTextContent());
 
 				Document rmndoc = documentBuilder.parse(path + ".room.gmx");
 				String caption = rmndoc.getElementsByTagName("caption").item(0).getTextContent();
@@ -1593,7 +1598,7 @@ public final class GMXFileReader
 						}
 					else if (pname.equals("isometric"))
 						{
-						rmn.put(PRoom.ISOMETRIC,Integer.parseInt(pnode.getTextContent()) < 0);
+						rmn.put(PRoom.ISOMETRIC,Integer.parseInt(pnode.getTextContent()) != 0);
 						}
 					else if (pname.equals("speed"))
 						{
@@ -1601,7 +1606,7 @@ public final class GMXFileReader
 						}
 					else if (pname.equals("persistent"))
 						{
-						rmn.put(PRoom.PERSISTENT,Integer.parseInt(pnode.getTextContent()) < 0);
+						rmn.put(PRoom.PERSISTENT,Integer.parseInt(pnode.getTextContent()) != 0);
 						}
 					else if (pname.equals("colour"))
 						{
@@ -1610,7 +1615,7 @@ public final class GMXFileReader
 						}
 					else if (pname.equals("showcolour"))
 						{
-						rmn.put(PRoom.DRAW_BACKGROUND_COLOR,Integer.parseInt(pnode.getTextContent()) < 0);
+						rmn.put(PRoom.DRAW_BACKGROUND_COLOR,Integer.parseInt(pnode.getTextContent()) != 0);
 						}
 					else if (pname.equals("code"))
 						{
@@ -1618,11 +1623,11 @@ public final class GMXFileReader
 						}
 					else if (pname.equals("enableViews"))
 						{
-						rmn.put(PRoom.VIEWS_ENABLED,Integer.parseInt(pnode.getTextContent()) < 0);
+						rmn.put(PRoom.VIEWS_ENABLED,Integer.parseInt(pnode.getTextContent()) != 0);
 						}
 					else if (pname.equals("clearViewBackground"))
 						{
-						rmn.put(PRoom.VIEWS_CLEAR,Integer.parseInt(pnode.getTextContent()) < 0);
+						rmn.put(PRoom.VIEWS_CLEAR,Integer.parseInt(pnode.getTextContent()) != 0);
 						}
 					else if (pname.equals("makerSettings"))
 						{
@@ -1637,7 +1642,7 @@ public final class GMXFileReader
 								}
 							else if (mname.equals("isSet"))
 								{
-								rmn.put(PRoom.REMEMBER_WINDOW_SIZE,Integer.parseInt(mnode.getTextContent()) < 0);
+								rmn.put(PRoom.REMEMBER_WINDOW_SIZE,Integer.parseInt(mnode.getTextContent()) != 0);
 								}
 							else if (mname.equals("w"))
 								{
@@ -1649,36 +1654,36 @@ public final class GMXFileReader
 								}
 							else if (mname.equals("showGrid"))
 								{
-								rmn.put(PRoom.SHOW_GRID,Integer.parseInt(mnode.getTextContent()) < 0);
+								rmn.put(PRoom.SHOW_GRID,Integer.parseInt(mnode.getTextContent()) != 0);
 								}
 							else if (mname.equals("showObjects"))
 								{
-								rmn.put(PRoom.SHOW_OBJECTS,Integer.parseInt(mnode.getTextContent()) < 0);
+								rmn.put(PRoom.SHOW_OBJECTS,Integer.parseInt(mnode.getTextContent()) != 0);
 								}
 							else if (mname.equals("showTiles"))
 								{
-								rmn.put(PRoom.SHOW_TILES,Integer.parseInt(mnode.getTextContent()) < 0);
+								rmn.put(PRoom.SHOW_TILES,Integer.parseInt(mnode.getTextContent()) != 0);
 								}
 							else if (mname.equals("showBackgrounds"))
 								{
-								rmn.put(PRoom.SHOW_BACKGROUNDS,Integer.parseInt(mnode.getTextContent()) < 0);
+								rmn.put(PRoom.SHOW_BACKGROUNDS,Integer.parseInt(mnode.getTextContent()) != 0);
 								}
 							else if (mname.equals("showForegrounds"))
 								{
-								rmn.put(PRoom.SHOW_FOREGROUNDS,Integer.parseInt(mnode.getTextContent()) < 0);
+								rmn.put(PRoom.SHOW_FOREGROUNDS,Integer.parseInt(mnode.getTextContent()) != 0);
 								}
 							else if (mname.equals("showViews"))
 								{
-								rmn.put(PRoom.SHOW_VIEWS,Integer.parseInt(mnode.getTextContent()) < 0);
+								rmn.put(PRoom.SHOW_VIEWS,Integer.parseInt(mnode.getTextContent()) != 0);
 								}
 							else if (mname.equals("deleteUnderlyingObj"))
 								{
 								rmn.put(PRoom.DELETE_UNDERLYING_OBJECTS,
-										Integer.parseInt(mnode.getTextContent()) < 0);
+										Integer.parseInt(mnode.getTextContent()) != 0);
 								}
 							else if (mname.equals("deleteUnderlyingTiles"))
 								{
-								rmn.put(PRoom.DELETE_UNDERLYING_TILES,Integer.parseInt(mnode.getTextContent()) < 0);
+								rmn.put(PRoom.DELETE_UNDERLYING_TILES,Integer.parseInt(mnode.getTextContent()) != 0);
 								}
 							else if (mname.equals("page"))
 								{
@@ -1694,6 +1699,7 @@ public final class GMXFileReader
 								}
 							}
 						}
+
 					else if (pname.equals("backgrounds"))
 						{
 						NodeList bgnodes = pnode.getChildNodes();
@@ -1711,7 +1717,7 @@ public final class GMXFileReader
 
 							bkg.properties.put(
 									PBackgroundDef.VISIBLE,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("visible").getTextContent()) < 0);
+									Integer.parseInt(bnode.getAttributes().getNamedItem("visible").getTextContent()) != 0);
 							final String bkgname = bnode.getAttributes().getNamedItem("name").getTextContent();
 
 							PostponedRef pr = new PostponedRef()
@@ -1736,16 +1742,16 @@ public final class GMXFileReader
 
 							bkg.properties.put(
 									PBackgroundDef.FOREGROUND,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("foreground").getTextContent()) < 0);
+									Integer.parseInt(bnode.getAttributes().getNamedItem("foreground").getTextContent()) != 0);
 							bkg.properties.put(
 									PBackgroundDef.TILE_HORIZ,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("htiled").getTextContent()) < 0);
+									Integer.parseInt(bnode.getAttributes().getNamedItem("htiled").getTextContent()) != 0);
 							bkg.properties.put(
 									PBackgroundDef.TILE_VERT,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("vtiled").getTextContent()) < 0);
+									Integer.parseInt(bnode.getAttributes().getNamedItem("vtiled").getTextContent()) != 0);
 							bkg.properties.put(
 									PBackgroundDef.STRETCH,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("stretch").getTextContent()) < 0);
+									Integer.parseInt(bnode.getAttributes().getNamedItem("stretch").getTextContent()) != 0);
 							bkg.properties.put(PBackgroundDef.H_SPEED,
 									Integer.parseInt(bnode.getAttributes().getNamedItem("hspeed").getTextContent()));
 							bkg.properties.put(PBackgroundDef.V_SPEED,
@@ -1774,7 +1780,7 @@ public final class GMXFileReader
 
 							vw.properties.put(
 									PView.VISIBLE,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("visible").getTextContent()) < 0);
+									Integer.parseInt(vnode.getAttributes().getNamedItem("visible").getTextContent()) != 0);
 							final String objname = vnode.getAttributes().getNamedItem("objName").getTextContent();
 
 							PostponedRef pr = new PostponedRef()
@@ -1840,10 +1846,10 @@ public final class GMXFileReader
 								{
 								Instance inst = rmn.addInstance();
 
-								//TODO: Replace this with DelayedRef
+								// TODO: Replace this with DelayedRef
 								String objname = inode.getAttributes().getNamedItem("objName").getTextContent();
 
-								//TODO: because of the way this is set up sprites must be loaded before objects
+								// TODO: because of the way this is set up, sprites must be loaded before objects
 								GmObject temp = f.resMap.getList(GmObject.class).get(objname);
 								if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
 								NamedNodeMap attribs = inode.getAttributes();
@@ -1862,13 +1868,29 @@ public final class GMXFileReader
 									}
 
 								double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue());
-								//TODO: fuck they use strings we use integers
-								//inst.properties.put(PInstance.ID, inode.getAttributes().getNamedItem("name").getNodeValue());
+								inst.properties.put(PInstance.NAME, inode.getAttributes().getNamedItem("name").getNodeValue());
+
+								// NOTE: Because LGM still supports GMK, we attempt to preserve the ID which Studio
+								// will remove if it saves over the GMX, so see if the "id" attribute we added is
+								// there otherwise make up a new ID.
+								Node idNode = inode.getAttributes().getNamedItem("id");
+								int instid;
+								if (idNode != null) {
+									instid = Integer.parseInt(idNode.getNodeValue());
+									if (instid > f.lastInstanceId) {
+										f.lastInstanceId = instid;
+									}
+								} else {
+									instid = ++f.lastInstanceId;
+								}
+
+								inst.properties.put(PInstance.ID, instid);
+
 								inst.setPosition(new Point(xx,yy));
 								inst.setScale(new Point2D.Double(sx,sy));
 								inst.setRotation(rot);
 								inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue());
-								inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) < 0);
+								inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) != 0);
 								}
 							}
 						}
@@ -1912,9 +1934,13 @@ public final class GMXFileReader
 								};
 							postpone.add(pr);
 
-							//TODO: Tiles use string names in GMX like instance names
-							tile.properties.put(PTile.ID,
-									Integer.parseInt(attribs.getNamedItem("id").getTextContent()));
+							tile.properties.put(PTile.NAME, attribs.getNamedItem("name").getNodeValue());
+
+							int tileid = Integer.parseInt(attribs.getNamedItem("id").getTextContent());
+							if (tileid > f.lastTileId) {
+								f.lastTileId = tileid;
+							}
+							tile.properties.put(PTile.ID,tileid);
 
 							tile.setBackgroundPosition(new Point(
 									Integer.parseInt(attribs.getNamedItem("xo").getTextContent()),
@@ -1924,7 +1950,7 @@ public final class GMXFileReader
 									Integer.parseInt(attribs.getNamedItem("h").getTextContent())));
 							tile.setDepth(Integer.parseInt(attribs.getNamedItem("depth").getTextContent()));
 
-							tile.setLocked(Integer.parseInt(attribs.getNamedItem("locked").getTextContent()) < 0);
+							tile.setLocked(Integer.parseInt(attribs.getNamedItem("locked").getTextContent()) != 0);
 
 							double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue());
 							double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue());
@@ -1936,7 +1962,7 @@ public final class GMXFileReader
 						}
 					else if (pname.equals("PhysicsWorld"))
 						{
-						rmn.put(PRoom.PHYSICS_WORLD,Integer.parseInt(pnode.getTextContent()) < 0);
+						rmn.put(PRoom.PHYSICS_WORLD,Integer.parseInt(pnode.getTextContent()) != 0);
 						}
 					else if (pname.equals("PhysicsWorldTop"))
 						{
@@ -1977,8 +2003,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Room.class),ResNode.STATUS_PRIMARY,
-				Room.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Room.class), ResNode.STATUS_PRIMARY,
+			Room.class, null);
 		root.add(node);
 
 		NodeList rmnList = in.getElementsByTagName("rooms");
@@ -1998,8 +2024,8 @@ public final class GMXFileReader
 		{
 		Document in = c.in;
 
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Include.class),ResNode.STATUS_PRIMARY,
-				Include.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(Include.class), ResNode.STATUS_PRIMARY,
+			Include.class, null);
 		root.add(node);
 
 		NodeList incList = in.getElementsByTagName("includes");
@@ -2089,7 +2115,7 @@ public final class GMXFileReader
 		Node rtfNode = rtfNodes.item(rtfNodes.getLength() - 1);
 
 		String path = c.f.getPath();
-		path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getUnixPath(rtfNode.getTextContent());
+		path = path.substring(0,path.lastIndexOf('/') + 1) + Util.getPOSIXPath(rtfNode.getTextContent());
 
 		String text = "";
 
@@ -2173,23 +2199,23 @@ public final class GMXFileReader
 					}
 				else if (prop.getNodeName().equals("userelative"))
 					{
-					userelative = Integer.parseInt(prop.getTextContent()) < 0;
+					userelative = Integer.parseInt(prop.getTextContent()) != 0;
 					}
 				else if (prop.getNodeName().equals("relative"))
 					{
-					isrelative = Integer.parseInt(prop.getTextContent()) < 0;
+					isrelative = Integer.parseInt(prop.getTextContent()) != 0;
 					}
 				else if (prop.getNodeName().equals("isquestion"))
 					{
-					isquestion = Integer.parseInt(prop.getTextContent()) < 0;
+					isquestion = Integer.parseInt(prop.getTextContent()) != 0;
 					}
 				else if (prop.getNodeName().equals("isnot"))
 					{
-					isquestiontrue = Integer.parseInt(prop.getTextContent()) < 0;
+					isquestiontrue = Integer.parseInt(prop.getTextContent()) != 0;
 					}
 				else if (prop.getNodeName().equals("useapplyto"))
 					{
-					useapplyto = Integer.parseInt(prop.getTextContent()) < 0;
+					useapplyto = Integer.parseInt(prop.getTextContent()) != 0;
 					}
 				else if (prop.getNodeName().equals("exetype"))
 					{
@@ -2283,8 +2309,8 @@ public final class GMXFileReader
 									}
 								catch (NumberFormatException e)
 									{
-									//Trying to ref a resource without a valid id number?
-									//Fallback to strval (already set)
+									// Trying to ref a resource without a valid id number?
+									// Fallback to strval (already set)
 									}
 								}
 							}
@@ -2294,14 +2320,14 @@ public final class GMXFileReader
 
 			la = LibManager.getLibAction(libid,actid);
 			boolean unknownLib = la == null;
-			//The libAction will have a null parent, among other things
+			// The libAction will have a null parent, among other things
 			if (unknownLib)
 				{
 				la = new LibAction();
 				la.id = actid;
 				la.parentId = libid;
 				la.actionKind = kind;
-				//XXX: Maybe make this more agnostic?"
+				// TODO: Maybe make this more agnostic?"
 				if (la.actionKind == Action.ACT_CODE)
 					{
 					la = LibManager.codeAction;

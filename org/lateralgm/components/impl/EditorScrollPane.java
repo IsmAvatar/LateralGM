@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -9,10 +9,13 @@
 package org.lateralgm.components.impl;
 
 import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.event.MouseWheelEvent;
+import java.awt.image.BufferedImage;
 
 import javax.swing.JScrollPane;
-
+import javax.swing.JViewport;
+import org.lateralgm.main.Util;
 import org.lateralgm.util.PropertyEditor;
 import org.lateralgm.util.PropertyLink;
 import org.lateralgm.util.PropertyMap;
@@ -23,6 +26,11 @@ public class EditorScrollPane extends JScrollPane implements PropertyEditor<Inte
 
 	private ScrollLink<?> link;
 
+	public EditorScrollPane()
+		{
+		this(null);
+		}
+
 	public EditorScrollPane(Component view)
 		{
 		super(view);
@@ -30,6 +38,45 @@ public class EditorScrollPane extends JScrollPane implements PropertyEditor<Inte
 		verticalScrollBar.setBlockIncrement(64);
 		horizontalScrollBar.setUnitIncrement(16);
 		horizontalScrollBar.setBlockIncrement(64);
+		}
+
+	public EditorScrollPane(Component view, boolean transparencyBackground)
+		{
+		this(transparencyBackground ? null : view);
+		if (transparencyBackground) { createTransparencyViewport(view); }
+		}
+
+	public void createTransparencyViewport(Component view)
+		{
+		JViewport viewport = new JViewport() {
+		/**
+		 * NOTE: Default UID generated, change if necessary.
+		 */
+		private static final long serialVersionUID = -488286791453210520L;
+
+		private BufferedImage componentBackground = null;
+
+		@Override
+		public void paintComponent(Graphics g)
+			{
+			super.paintComponent(g);
+
+			int width = (int)Math.ceil(this.getWidth() / 16f);
+			int height = (int)Math.ceil(this.getHeight() / 16f);
+
+			width = width < 1 ? 1 : width;
+			height = height < 1 ? 1 : height;
+
+			if (componentBackground == null || componentBackground.getWidth() != width |
+				componentBackground.getHeight() != height) {
+				componentBackground = Util.paintBackground(width, height);
+			}
+			g.drawImage(componentBackground, 0, 0,
+				componentBackground.getWidth() * 16, componentBackground.getHeight() * 16, null);
+			}
+		};
+		viewport.setView(view);
+		this.setViewport(viewport);
 		}
 
 	public void processMouseWheelEvent(MouseWheelEvent e)
@@ -63,8 +110,8 @@ public class EditorScrollPane extends JScrollPane implements PropertyEditor<Inte
 
 		protected void setComponent(Integer i)
 			{
-			//Currently only used for Room zoom. Since RoomFrame
-			//only sets components at init, this is never called.
+			// Currently only used for Room zoom. Since RoomFrame
+			// only sets components at init, this is never called.
 			}
 
 		@Override

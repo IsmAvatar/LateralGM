@@ -2,7 +2,7 @@
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, 2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -14,19 +14,14 @@ import static javax.swing.GroupLayout.DEFAULT_SIZE;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,10 +33,11 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -52,21 +48,20 @@ import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.text.NumberFormatter;
 
 import org.lateralgm.components.EffectsFrame;
-import org.lateralgm.components.NumberField;
 import org.lateralgm.components.EffectsFrame.EffectsFrameListener;
+import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.visual.BackgroundPreview;
 import org.lateralgm.file.FileChangeMonitor;
 import org.lateralgm.file.FileChangeMonitor.FileUpdateEvent;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
@@ -79,7 +74,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	{
 	private static final long serialVersionUID = 1L;
 	public JButton load;
-	public JLabel statusLabel;
+	public JLabel positionLabel, dimensionLabel, memoryLabel, zoomLabel;
 	public JCheckBox transparent;
 	public JButton edit, zoomIn, zoomOut;
 	public JToggleButton zoomButton;
@@ -87,7 +82,6 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	public JCheckBox preload;
 	public JCheckBox tileset;
 
-	public MouseMotionListener mouseMotionListener = null;
 	public MouseListener mouseListener = null;
 
 	public NumberField tWidth;
@@ -106,11 +100,12 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	/** Zoom in, centering around a specific point, usually the mouse. */
 	public void zoomIn(Point point)
 		{
-		this.setZoom(this.getZoom() * 1.2f);
+		if (this.getZoom() >= 32) return;
+		this.setZoom(this.getZoom() * 2);
 		Dimension size = previewScroll.getViewport().getSize();
 
-		int newX = (int) (point.x * 1.2) - size.width / 2;
-		int newY = (int) (point.y * 1.2) - size.height / 2;
+		int newX = (int) (point.x * 2) - size.width / 2;
+		int newY = (int) (point.y * 2) - size.height / 2;
 		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
 
 		previewScroll.revalidate();
@@ -120,17 +115,18 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	/** Zoom out, centering around a specific point, usually the mouse. */
 	public void zoomOut(Point point)
 		{
-		this.setZoom(this.getZoom() * 0.8f);
+		if (this.getZoom() <= 0.04) return;
+		this.setZoom(this.getZoom() / 2);
 		Dimension size = previewScroll.getViewport().getSize();
 
-		int newX = (int) (point.x * 0.8) - size.width / 2;
-		int newY = (int) (point.y * 0.8) - size.height / 2;
+		int newX = (int) (point.x / 2) - size.width / 2;
+		int newY = (int) (point.y / 2) - size.height / 2;
 		previewScroll.getViewport().setViewPosition(new Point(newX,newY));
 
 		previewScroll.revalidate();
 		previewScroll.repaint();
 		}
-	
+
 	public void zoomIn()
 		{
 		Dimension size = previewScroll.getViewport().getViewSize();
@@ -154,55 +150,30 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		preview = new BackgroundPreview(res);
 		preview.setVerticalAlignment(SwingConstants.TOP);
 
-		mouseMotionListener = new MouseMotionListener()
-			{
-
-				public void mouseMoved(MouseEvent e)
-					{
-					final int x = e.getX();
-					final int y = e.getY();
-					// only display a hand if the cursor is over the items
-					final Rectangle cellBounds = preview.getBounds();
-					if (cellBounds != null && cellBounds.contains(x,y))
-						{
-						//preview.setCursor(new Cursor(Cursor.HAND_CURSOR));
-						}
-					else
-						{
-						// 
-						}
-					}
-
-				public void mouseDragged(MouseEvent e)
-					{
-					}
-			};
-
 		mouseListener = new MouseListener()
 			{
 
+				@Override
 				public void mouseClicked(MouseEvent ev)
 					{
-					// TODO Auto-generated method stub
-
+					//preview.setCursor(LGM.zoomCursor);
 					}
 
+				@Override
 				public void mouseEntered(MouseEvent ev)
 					{
-					// TODO Auto-generated method stub
-
-					preview.setCursor(LGM.zoomCursor);
+					//preview.setCursor(LGM.zoomCursor);
 					}
 
+				@Override
 				public void mouseExited(MouseEvent ev)
 					{
-					// TODO Auto-generated method stub
-					preview.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+					//preview.setCursor(Cursor.getDefaultCursor());
 					}
 
+				@Override
 				public void mousePressed(MouseEvent ev)
 					{
-					// TODO Auto-generated method stub
 					if (ev.getButton() == MouseEvent.BUTTON1)
 						{
 						preview.setCursor(LGM.zoomInCursor);
@@ -213,9 +184,9 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 						}
 					}
 
+				@Override
 				public void mouseReleased(MouseEvent ev)
 					{
-					// TODO Auto-generated method stub
 					if (ev.getButton() == MouseEvent.BUTTON1)
 						{
 						zoomIn(ev.getPoint());
@@ -231,15 +202,23 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		previewScroll = new JScrollPane(preview);
 
 		this.add(makeToolBar(),BorderLayout.NORTH);
-		this.add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,makeOptionsPanel(),previewScroll),
-				BorderLayout.CENTER);
+		JSplitPane orientationSplit = new JSplitPane();
+		if (Prefs.rightOrientation) {
+			orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+					previewScroll,makeOptionsPanel());
+			orientationSplit.setResizeWeight(1d);
+		} else {
+			orientationSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+					makeOptionsPanel(),previewScroll);
+		}
+		this.add(orientationSplit, BorderLayout.CENTER);
 		this.add(makeStatusBar(),BorderLayout.SOUTH);
 
-		updateStatusLabel();
+		updateStatusBar();
 		updateScrollBars();
 
 		pack();
-		this.setSize(800,450);
+		this.setSize(640,400);
 		}
 
 	private JButton makeJButton(String key)
@@ -259,7 +238,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 		tool.add(save);
 		tool.addSeparator();
-		
+
 		tool.add(makeJButton("BackgroundFrame.CREATE"));
 		tool.add(makeJButton("BackgroundFrame.LOAD"));
 		tool.add(makeJButton("BackgroundFrame.SAVE"));
@@ -268,10 +247,11 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 		tool.addSeparator();
 
-		tool.add(makeJButton("BackgroundFrame.UNDO"));
-		tool.add(makeJButton("BackgroundFrame.REDO"));
+		// TODO: Implement undo/redo
+		//tool.add(makeJButton("BackgroundFrame.UNDO"));
+		//tool.add(makeJButton("BackgroundFrame.REDO"));
 
-		tool.addSeparator();
+		//tool.addSeparator();
 
 		zoomButton = new JToggleButton(LGM.getIconForKey("BackgroundFrame.ZOOM"));
 		zoomButton.setToolTipText(Messages.getString("BackgroundFrame.ZOOM"));
@@ -291,16 +271,19 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		return tool;
 		}
 
-	private JPanel makeStatusBar()
+	private JComponent makeStatusBar()
 		{
-		JPanel status = new JPanel(new FlowLayout());
-		BoxLayout layout = new BoxLayout(status,BoxLayout.X_AXIS);
-		status.setLayout(layout);
-		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
+		JPanel status = new JPanel();
+		status.setLayout(new GridLayout());
+		status.setBorder(BorderFactory.createLoweredSoftBevelBorder());
 
-		statusLabel = new JLabel();
+		dimensionLabel = new JLabel();
+		memoryLabel = new JLabel();
+		zoomLabel = new JLabel();
 
-		status.add(statusLabel);
+		status.add(zoomLabel);
+		status.add(dimensionLabel);
+		status.add(memoryLabel);
 
 		return status;
 		}
@@ -433,23 +416,23 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		return panel;
 		}
 
-	private void realizeScrollBarIncrement(JScrollPane scroll, Dimension size)
+	private void realizeScrollBarIncrement(JScrollPane scroll)
 		{
 		JScrollBar vertical = scroll.getVerticalScrollBar();
 		JScrollBar horizontal = scroll.getHorizontalScrollBar();
 		if (vertical != null)
 			{
-			vertical.setUnitIncrement((int) (size.getHeight() / 5));
+			vertical.setUnitIncrement((int) getZoom());
 			}
 		if (horizontal != null)
 			{
-			horizontal.setUnitIncrement((int) (size.getHeight() / 5));
+			horizontal.setUnitIncrement((int) getZoom());
 			}
 		}
 
 	private void updateScrollBars()
 		{
-		realizeScrollBarIncrement(previewScroll,previewScroll.getPreferredSize());
+		realizeScrollBarIncrement(previewScroll);
 		}
 
 	public double getZoom()
@@ -460,28 +443,23 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	public void setZoom(double nzoom)
 		{
 		preview.setZoom(nzoom);
-		updateStatusLabel();
+		updateStatusBar();
 		updateScrollBars();
 		}
 
-	private void updateStatusLabel()
+	private void updateStatusBar()
 		{
-		String stat = " " + Messages.getString("BackgroundFrame.WIDTH") + ": " + res.getWidth() + " | "
-				+ Messages.getString("BackgroundFrame.HEIGHT") + ": " + res.getHeight() + " | "
-				+ Messages.getString("BackgroundFrame.MEMORY") + ": ";
-
 		if (res.getBackgroundImage() != null)
 			{
-			stat += Util.formatDataSize(res.getSize());
+			memoryLabel.setText(Util.formatDataSize(res.getSize()));
 			}
 		else
 			{
-			stat += Util.formatDataSize(0);
+			memoryLabel.setText(Util.formatDataSize(0));
 			}
-		String zoom = new DecimalFormat("#,##0.##").format(getZoom() * 100);
-		stat += " | " + Messages.getString("BackgroundFrame.ZOOM") + ": " + zoom + "%";
 
-		statusLabel.setText(stat);
+		dimensionLabel.setText(res.getWidth() + " x " + res.getHeight());
+		zoomLabel.setText(new DecimalFormat("#,##0.##").format(getZoom() * 100) + "%");
 		}
 
 	protected boolean areResourceFieldsEqual()
@@ -499,7 +477,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		{
 		super.updateResource(commit);
 		imageChanged = false;
-		updateStatusLabel();
+		updateStatusBar();
 		updateScrollBars();
 		}
 
@@ -539,14 +517,14 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				}
 			catch (IOException ex)
 				{
-				ex.printStackTrace();
+				LGM.showDefaultExceptionHandler(ex);
 				}
 			return;
 			}
 		else if (cmd.endsWith(".EFFECT")) {
 			List<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
 			imgs.add(res.getBackgroundImage());
-			
+
 			EffectsFrame ef = EffectsFrame.getInstance(imgs);
 			ef.setEffectsListener(this);
 			ef.setVisible(true);
@@ -555,13 +533,13 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			{
 			if (zoomButton.isSelected())
 				{
+				preview.setCursor(LGM.zoomCursor);
 				preview.addMouseListener(mouseListener);
-				preview.addMouseMotionListener(mouseMotionListener);
 				}
 			else
 				{
 				preview.removeMouseListener(mouseListener);
-				preview.removeMouseMotionListener(mouseMotionListener);
+				preview.setCursor(Cursor.getDefaultCursor());
 				}
 			}
 		else if (cmd.endsWith(".ZOOM_IN"))
@@ -599,19 +577,18 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		int height = 256;
 		if (askforsize)
 			{
-			NumberFormatter nf = new NumberFormatter();  
-			nf.setMinimum(new Integer(1)); 
+			NumberFormatter nf = new NumberFormatter();
+			nf.setMinimum(new Integer(1));
 			JFormattedTextField wField = new JFormattedTextField(nf);
 			wField.setValue(new Integer(width));
 			JFormattedTextField hField = new JFormattedTextField(nf);
 			hField.setValue(new Integer(height));
 
 			JPanel myPanel = new JPanel();
-			GridLayout layout = new GridLayout(0,2);
+			GridLayout layout = new GridLayout(0,2,0,3);
 			myPanel.setLayout(layout);
 			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_WIDTH")));
 			myPanel.add(wField);
-			//myPanel.add(Box.createHorizontalStrut(15)); // a spacer
 			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_HEIGHT")));
 			myPanel.add(hField);
 
@@ -625,10 +602,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			width = (Integer) wField.getValue();
 			height = (Integer) hField.getValue();
 			}
-		BufferedImage bi = new BufferedImage(width,height,BufferedImage.TYPE_3BYTE_BGR);
-		Graphics g = bi.getGraphics();
-		g.setColor(Color.WHITE);
-		g.fillRect(0,0,width,height);
+		BufferedImage bi = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 		res.setBackgroundImage(bi);
 		imageChanged = true;
 		return bi;
@@ -637,20 +611,13 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	private class BackgroundEditor implements UpdateListener
 		{
 		public final FileChangeMonitor monitor;
+		private final File f;
 
 		public BackgroundEditor() throws IOException
 			{
-			BufferedImage bi = res.getBackgroundImage();
-			if (bi == null)
-				{
-				bi = createNewImage(false);
-				}
-			File f = File.createTempFile(res.getName(),
+			f = File.createTempFile(res.getName(),
 					"." + Prefs.externalBackgroundExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
-			FileOutputStream out = new FileOutputStream(f);
-			ImageIO.write(bi,Prefs.externalBackgroundExtension,out);
-			out.close();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this);
 			editor = this;
@@ -659,6 +626,24 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 		public void start() throws IOException
 			{
+			BufferedImage bi = res.getBackgroundImage();
+			if (bi == null)
+				{
+				bi = createNewImage(false);
+				}
+			FileOutputStream out = null;
+			try
+				{
+				out = new FileOutputStream(f);
+				ImageIO.write(bi,Prefs.externalBackgroundExtension,out);
+				}
+			finally
+				{
+				if (out != null)
+					{
+					out.close();
+					}
+				}
 			if (!Prefs.useExternalBackgroundEditor || Prefs.externalBackgroundEditorCommand == null)
 				try
 					{
@@ -687,14 +672,29 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				{
 				case CHANGED:
 					BufferedImage img;
+					FileInputStream stream = null;
 					try
 						{
-						img = ImageIO.read(new FileInputStream(monitor.file));
+							stream = new FileInputStream(monitor.file);
+							img = ImageIO.read(stream);
 						}
 					catch (IOException ioe)
 						{
-						ioe.printStackTrace();
-						return;
+							LGM.showDefaultExceptionHandler(ioe);
+							return;
+						}
+					finally
+						{
+							if (stream != null) {
+								try
+								{
+									stream.close();
+								}
+								catch (IOException ex)
+								{
+									LGM.showDefaultExceptionHandler(ex);
+								}
+							}
 						}
 					res.setBackgroundImage(img);
 					imageChanged = true;
@@ -718,7 +718,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	public void updated(UpdateEvent e)
 		{
-		updateStatusLabel();
+		updateStatusBar();
 		updateScrollBars();
 		}
 
@@ -728,7 +728,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			{
 			//TODO: Maybe remove this
 			//USE_AS_TILESET
-			//side2.setVisible((Boolean) 
+			//side2.setVisible((Boolean)
 			//res.get(PBackground.USE_AS_TILESET));
 			}
 		}

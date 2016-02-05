@@ -3,19 +3,19 @@
  * Copyright (C) 2006, 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
- * 
+ *
  * LateralGM is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * LateralGM is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License (COPYING) for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -71,6 +71,7 @@ import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sound.SoundKind;
+import org.lateralgm.resources.Sound.SoundType;
 import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.BBMode;
 import org.lateralgm.resources.Sprite.MaskShape;
@@ -153,13 +154,23 @@ public class ProjectFile implements UpdateListener
 			PSound.GARGLE,PSound.REVERB };
 	public static final SoundKind[] SOUND_KIND = { SoundKind.NORMAL,SoundKind.BACKGROUND,
 			SoundKind.SPATIAL,SoundKind.MULTIMEDIA };
-	public static final Map<SoundKind,Integer> SOUND_CODE;
+	public static final SoundType[] SOUND_TYPE = { SoundType.MONO, SoundType.STEREO,
+			SoundType.THREED };
+	public static final Map<SoundKind,Integer> SOUND_KIND_CODE;
 	static
 		{
 		EnumMap<SoundKind,Integer> m = new EnumMap<SoundKind,Integer>(SoundKind.class);
 		for (int i = 0; i < SOUND_KIND.length; i++)
 			m.put(SOUND_KIND[i],i);
-		SOUND_CODE = Collections.unmodifiableMap(m);
+		SOUND_KIND_CODE = Collections.unmodifiableMap(m);
+		}
+	public static final Map<SoundType,Integer> SOUND_TYPE_CODE;
+	static
+		{
+		EnumMap<SoundType,Integer> m = new EnumMap<SoundType,Integer>(SoundType.class);
+		for (int i = 0; i < SOUND_TYPE.length; i++)
+			m.put(SOUND_TYPE[i],i);
+		SOUND_TYPE_CODE = Collections.unmodifiableMap(m);
 		}
 	public static final PhysicsShape[] PHYSICS_SHAPE = { PhysicsShape.CIRCLE,PhysicsShape.BOX,
 			PhysicsShape.SHAPE };
@@ -335,24 +346,24 @@ public class ProjectFile implements UpdateListener
 		resMap = new ResourceMap();
 		for (Class<?> kind : Resource.kinds)
 			if (InstantiableResource.class.isAssignableFrom(kind)) resMap.addList(kind);
-		
-		
+
+
 		// Default initial configuration
 		GameSettings gs = createDefaultConfig();
 		gs.setName("Default");
 		gameSettings.add(gs);
-		
+
 		resMap.put(Constants.class,new SingletonResourceHolder<Constants>(defaultConstants));
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
-		//TODO: We don't need this anymore. It should however still be iteratable, perhaps we should make a Config resource to manage
-		//all game configurations? - Robert
+		// TODO: We don't need this anymore. It should however still be iteratable, perhaps we should
+		// make a Config resource to manage all game configurations? - Robert
 		//resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gs));
 		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(extPackages));
 		for (ResourceHolder<?> rl : resMap.values())
 			if (rl instanceof ResourceList<?>) ((ResourceList<?>) rl).updateSource.addListener(this);
 
 		}
-	
+
 	public static GameSettings createDefaultConfig() {
 		GameSettings gs = new GameSettings();
 		Random random = new Random();

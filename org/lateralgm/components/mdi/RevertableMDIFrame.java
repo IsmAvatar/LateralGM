@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -32,7 +32,7 @@ public abstract class RevertableMDIFrame extends MDIFrame
 	public abstract boolean resourceChanged();
 
 	public abstract void updateResource(boolean commit);
-	
+
 	public abstract void setResourceChanged();
 
 	public abstract void revertResource();
@@ -78,7 +78,7 @@ public abstract class RevertableMDIFrame extends MDIFrame
 					}
 			});
 		}
-	
+
 	@Override
 	public void doDefaultCloseAction()
 		{

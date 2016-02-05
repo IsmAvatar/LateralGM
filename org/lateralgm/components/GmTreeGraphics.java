@@ -2,7 +2,7 @@
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2013 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -57,7 +57,7 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 		// overrides its own UI property in its paint method, likely a bug on their part
 		// same fix applied in LGM.java for the Search Tree renderer
 		setTextNonSelectionColor(nonSelectColor);
-		
+
 		last = (DefaultNode) val;
 
 		Component com = super.getTreeCellRendererComponent(tree,val,sel,exp,leaf,row,focus);
@@ -73,8 +73,8 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 
 		return com;
 		}
-	
-	@Override 
+
+	@Override
 	public void updateUI() {
 		super.updateUI();
 		nonSelectColor = this.getTextNonSelectionColor();
@@ -144,7 +144,7 @@ public class GmTreeGraphics extends DefaultTreeCellRenderer
 	{
 		if (Prefs.iconizeGroup && last != null)
 			return last.getIconisedGroup();
-	
+
 		return null;
 	}
 

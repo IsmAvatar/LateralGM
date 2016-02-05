@@ -2,8 +2,8 @@
  * Copyright (C) 2007, 2008, 2010 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
- * Copyright (C) 2013, 2014 Robert B. Colton
- * 
+ * Copyright (C) 2013, 2014, 2016 Robert B. Colton
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -43,6 +43,8 @@ import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
@@ -115,7 +117,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		// build popup menu
 		final JPopupMenu popup = new JPopupMenu();
 		JMenuItem item;
-		
+
 		item = makeContextButton("ActionList.EDIT");
 		popup.add(item);
 		popup.addSeparator();
@@ -154,20 +156,17 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		popup.add(item);
 
 		this.setComponentPopupMenu(popup);
-		popup.addPopupMenuListener(new PopupMenuListener() {
+		popup.addPopupMenuListener(new PopupMenuListener() 
+			{
 
 			@Override
 			public void popupMenuCanceled(PopupMenuEvent arg0)
 				{
-				// TODO Auto-generated method stub
-				
 				}
 
 			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0)
 				{
-				// TODO Auto-generated method stub
-				
 				}
 
 			@Override
@@ -176,10 +175,9 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				undoitem.setEnabled(undomanager.canUndo());
 				redoitem.setEnabled(undomanager.canRedo());
 				}
-		
-		});
 
-		//actionContainer.
+			});
+
 		this.parent = new WeakReference<MDIFrame>(parent);
 		setActionContainer(null);
 		setBorder(BorderFactory.createEmptyBorder(0,0,24,0));
@@ -196,7 +194,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		{
 		save();
 		actionContainer = ac;
-		
+
 		model = new ActionListModel(undomanager);
 		model.renderer = renderer;
 		setModel(model);
@@ -266,7 +264,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		for (Map.Entry<Action,WeakReference<ActionFrame>> entry : FRAMES.entrySet())
 			{
 				ActionFrame frame = entry.getValue().get();
-				
+
 				if (frame != null) {
 					frame.dispose();
 				}
@@ -316,16 +314,20 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			 }
 			 @SuppressWarnings("unchecked")
 				JList<Action> l = (JList<Action>) e.getSource();
-			 
+
 			 KeyStroke stroke = KeyStroke.getKeyStrokeForEvent(e);
-			 if (stroke != null) {
-				 if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.UNDO")))) {
-				 	ActionsUndo(l);
-				 } else if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.REDO")))) {
-				 	ActionsRedo(l);
-				 }
-			 }
-			
+			if (stroke != null)
+				{
+				if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.UNDO"))))
+					{
+					ActionsUndo(l);
+					}
+				else if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.REDO"))))
+					{
+					ActionsRedo(l);
+					}
+				}
+
 			switch (e.getKeyCode())
 				{
 				case KeyEvent.VK_DELETE:
@@ -335,94 +337,95 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				}
 			}
 		}
-	
+
 	public class UndoableActionEdit extends AbstractUndoableEdit {
 		/**
-		 * TODO: Change if needed.
+		 * NOTE: Default UID generated, change if necessary.
 		 */
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 3005489569659632528L;
+
 		public static final byte ACTION_ADD = 0;
 		public static final byte ACTION_REMOVE = 1;
 		public static final byte ACTION_MOVE = 2;
 		public static final byte ACTION_EDIT = 3;
-	
+
 		public int type;
-		
+
 		List<Action> actions = null;
 		List<Integer> indices = null;
 		List<Integer> indicesmoved = null;
-		
+
 		public UndoableActionEdit(int t, List<Action> acts) {
 			super();
 			type = t;
 			actions = acts;
 		}
-		
+
 		public UndoableActionEdit(int t, List<Integer> inds, List<Action> acts) {
 			super();
 			type = t;
 			actions = acts;
 			indices = inds;
 		}
-		
+
 		public UndoableActionEdit(int t, List<Integer> inds, List<Integer> moved, List<Action> acts) {
 			super();
 			type = t;
 			indices = inds;
 			indicesmoved = moved;
 		}
-		
+
 	  // Return a reasonable name for this edit.
 		@Override
-	  public String getPresentationName() {
-	    return "Action " + type;
-	  }
+		public String getPresentationName() {
+			return "Action " + type;
+		}
 
-	  @Override
-	  public void redo() throws CannotRedoException {
-	    super.redo();
-	    if (type == ACTION_ADD) {
-	    	if (indices != null) {
-	    		model.addAll(indices,actions,false);
-	    	} else {
-	    		model.addAll(actions,false);
-	    	}
-	    } else if (type == ACTION_REMOVE) {
-	    	if (indices != null) {
-	    		model.removeAll(indices,false);
-	    	} else {
-	    		model.clear(false);
-	    	}
-	    } else if (type == ACTION_MOVE) {
-	    	model.moveAll(indices, indicesmoved, false);
-	    } else if (type == ACTION_EDIT) {
-	    	//TODO: Implement
-	    }
-	  }
+		@Override
+		public void redo() throws CannotRedoException {
+			super.redo();
+			if (type == ACTION_ADD) {
+				if (indices != null) {
+					model.addAll(indices,actions,false);
+				} else {
+					model.addAll(actions,false);
+				}
+			} else if (type == ACTION_REMOVE) {
+				if (indices != null) {
+					model.removeAll(indices,false);
+				} else {
+					model.clear(false);
+				}
+			} else if (type == ACTION_MOVE) {
+				model.moveAll(indices, indicesmoved, false);
+			} else if (type == ACTION_EDIT) {
+				//TODO: Implement
+			}
+		}
 
-	  @Override
-	  public void undo() throws CannotUndoException {
-	    super.undo();
-	    if (type == ACTION_ADD) {
-	    	if (indices != null) {
-	    		model.removeAll(indices,false);
-	    	} else {
-	    		model.clear(false);
-	    	}
-	    } else if (type == ACTION_REMOVE) {
-	    	if (indices != null) {
-	    		model.addAll(indices,actions,false);
-	    	} else {
-	    		model.addAll(actions,false);
-	    	}
-	    } else if (type == ACTION_MOVE) {
-	    	model.moveAll(indicesmoved, indices, false);
-	    } else if (type == ACTION_EDIT) {
-	    	//TODO: Implement
-	    }
-	  }
+		@Override
+		public void undo() throws CannotUndoException {
+			super.undo();
+			if (type == ACTION_ADD) {
+				if (indices != null) {
+					model.removeAll(indices,false);
+				} else {
+					model.clear(false);
+				}
+			} else if (type == ACTION_REMOVE) {
+				if (indices != null) {
+					model.addAll(indices,actions,false);
+				} else {
+					model.addAll(actions,false);
+				}
+			} else if (type == ACTION_MOVE) {
+				model.moveAll(indicesmoved, indices, false);
+			} else if (type == ACTION_EDIT) {
+				//TODO: Implement
+			}
+		}
 	}
-	
+
 	//TODO: Make sure a change actually happened before you store it
 	public class ActionListModel extends AbstractListModel<Action> implements UpdateListener
 		{
@@ -455,7 +458,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		{
 			add(a, true);
 		}
-		
+
 		public void add(int index, Action a, boolean updateundo)
 		{
 			if (updateundo) {
@@ -470,7 +473,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			updateIndentation();
 			fireIntervalAdded(this,index,index);
 		}
-		
+
 		public void add(int index, Action a)
 		{
 			add(index, a, true);
@@ -494,12 +497,12 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_ADD, indices, c));
 			}
 		}
-		
+
 		public void addAll(int index, List<Action> c)
 		{
 			addAll(index, c, true);
 		}
-		
+
 		public void addAll(List<Action> c, boolean updateundo)
 		{
 			int s = c.size();
@@ -515,16 +518,16 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_ADD, c));
 			}
 		}
-		
+
 		public void addAll(List<Action> c) {
 			addAll(c, true);
 		}
-		
+
 		public void addAll(List<Integer> indices, List<Action> c, boolean updateundo)
 		{
 			int s = c.size();
 			if (s <= 0) return;
-			
+
 			// sort small to large to avoid oob
 			TreeMap<Integer,Action> map = new TreeMap<Integer,Action>();
 			for (int i = 0; i < indices.size(); i++) {
@@ -539,19 +542,19 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				list.add(ind, a);
 				fireIntervalAdded(this,ind,ind);
 			}
-			
+
 			updateIndentation();
-			
+
 			if (updateundo) {
 				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_ADD, indices, c));
 			}
 		}
-		
+
 		public void addAll(List<Integer> indices, List<Action> c)
 		{
 			addAll(indices, c, true);
 		}
-		
+
 		public void remove(int index, boolean updateundo)
 		{
 			if (updateundo) {
@@ -565,22 +568,22 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			updateIndentation();
 			fireIntervalRemoved(this,index,index);
 		}
-		
+
 		public void remove(int index)
 		{
 			remove(index, true);
 		}
-		
+
 		public void removeAll(List<Integer> indices, boolean updateundo)
 		{
 			List<Action> removed = new ArrayList<Action>();
 			// sort large to small to avoid oob
 			List<Integer> copy = new ArrayList<Integer>(indices);
 			Collections.sort(copy, new Comparator<Integer>() {
-			   public int compare(Integer a, Integer b) {
-			      //TODO: handle null
-			      return b.compareTo(a);
-			   }
+			public int compare(Integer a, Integer b) {
+				//TODO: handle null
+				return b.compareTo(a);
+			}
 			});
 			// collect the removed ones in order
 			for (int i = 0; i < indices.size(); i++) {
@@ -593,19 +596,19 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				list.remove(ind).updateSource.removeListener(this);
 				fireIntervalRemoved(this,ind,ind);
 			}
-			
+
 			if (updateundo) {
 				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_REMOVE, indices, removed));
 			}
 
 			updateIndentation();
 		}
-		
+
 		public void removeAll(List<Integer> indices)
 		{
 			removeAll(indices, true);
 		}
-		
+
 		public void clear(boolean updateundo)
 		{
 			ArrayList<Action> removed = new ArrayList<Action>(list);
@@ -615,24 +618,24 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_REMOVE, removed));
 			}
 		}
-		
+
 		public void clear() {
 			clear(true);
 		}
-		
+
 		public int move(int prev, int next, ArrayList<Action> unchanged, boolean updateundo) {
 			Action a = unchanged.get(prev);
-			
+
 			list.remove(prev).updateSource.removeListener(this);
 			fireIntervalRemoved(this,prev,prev);
-			
+
 			if (next > list.size()) {
 				next = list.size();
 			}
 			a.updateSource.addListener(this);
 			list.add(next,a);
 			fireIntervalAdded(this,next,next);
-			
+
 			if (updateundo) {
 				ArrayList<Integer> indices = new ArrayList<Integer>(1);
 				ArrayList<Integer> indicesmoved = new ArrayList<Integer>(1);
@@ -642,7 +645,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			}
 			return next;
 		}
-		
+
 		public void move(int prev, int next) {
 			move(prev, next, new ArrayList<Action>(list), true);
 		}
@@ -672,17 +675,17 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				}
 			}
 			fireContentsChanged(this, 0, list.size());
-			
+
 			if (updateundo) {
 				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_MOVE, indices, indicesmoved, null));
 			}
 		}
-		
+
 		public void moveAll(List<Integer> indices, List<Integer> indicesmoved)
 		{
 			moveAll(indices, indicesmoved, true);
 		}
-		
+
 		public void moveAll(List<Integer> indices, int index)
 		{
 			List<Integer> indicesmoved = new ArrayList<Integer>();
@@ -691,7 +694,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			}
 			moveAll(indices, indicesmoved, true);
 		}
-		
+
 		public Action getElementAt(int index)
 		{
 			return list.get(index);
@@ -1107,16 +1110,17 @@ public static class ActionTransferHandler extends TransferHandler
 			s = s.replaceAll("\n","&#35;"); //$NON-NLS-1$ //$NON-NLS-2$
 			return s.replaceAll(" ","&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-		
+
 		private static class ActionLineComponent extends JLabel {
 			/**
-			 * TODO: Change if needed.
+			 * NOTE: Default UID generated, change if necessary.
 			 */
-			private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 4152567649770789101L;
+
 			private JList<Action> list = null;
 			private int index = 0;
 			private int maxwidth = 0;
-			
+
 			public ActionLineComponent(int ind, JList<Action> l)
 				{
 					super();
@@ -1178,19 +1182,35 @@ public static class ActionTransferHandler extends TransferHandler
 					actlabel.setText(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
 				else
 					{
-					StringBuilder sb = new StringBuilder("<html>");
-					if (la.listText.contains("@FI")) //$NON-NLS-1$
-						sb.append("<i>");
-					if (la.listText.contains("@FB")) //$NON-NLS-1$
-						sb.append("<b>");
-					sb.append(escape(parse(la.listText,a)));
+					StringBuilder sb = null;
+					// let the user supply their own description using
+					// a special comment like in GM8.1 and GMS
+					if (a.getLibAction().actionKind == Action.ACT_CODE)
+						{
+						Pattern r = Pattern.compile("^\\s*//[/!]+\\s*(.+)([\r\n]|$)"); //$NON-NLS-1$
+						Matcher m = r.matcher(a.getArguments().get(0).getVal());
+						if (m.find())
+							{
+							sb = new StringBuilder(m.group(1));
+							}
+						}
+
+					if (sb == null)
+						{
+						sb = new StringBuilder("<html>"); //$NON-NLS-1$
+						if (la.listText.contains("@FI")) //$NON-NLS-1$
+							sb.append("<i>"); //$NON-NLS-1$
+						if (la.listText.contains("@FB")) //$NON-NLS-1$
+							sb.append("<b>"); //$NON-NLS-1$
+						sb.append(escape(parse(la.listText,a)));
+						}
 					actlabel.setText(sb.toString());
-					actlabel.setIcon(new ImageIcon(la.getImage()));
+					actlabel.setIcon(new ImageIcon(la.actImage));
 
 					if (Prefs.actionToolTipLines > 0 && Prefs.actionToolTipColumns > 0)
 						{
 						sb = new StringBuilder();
-						String snip = parse(la.hintText.replaceAll("(?<!\\\\)#","\n"),a);
+						String snip = parse(la.hintText.replaceAll("(?<!\\\\)#","\n"),a); //$NON-NLS-1$
 						int last, next = -1;
 						for (int i = 0; i < Prefs.actionToolTipLines; i++)
 							{
@@ -1208,18 +1228,18 @@ public static class ActionTransferHandler extends TransferHandler
 								}
 							else
 								sb.append(snip.substring(last,next));
-							sb.append("\n");
+							sb.append('\n');
 							}
 						if (next != -1) sb.append(Messages.getString("Action.HINT_MORE"));
 						setToolTipText("<html><font face=\"Courier\">" + escape(sb.toString()));
 						}
 					}
-				
+
 				linelabel.setPreferredSize(new Dimension(linelabel.getPreferredSize().width, actlabel.getPreferredSize().height + 4));
-				
+
 				this.add(linelabel);
 				this.add(actlabel);
-				
+
 				}
 
 			//			public JToolTip createToolTip()
@@ -1319,13 +1339,13 @@ public static class ActionTransferHandler extends TransferHandler
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
 		/*
-    TreeMap<Integer,Action> map = new TreeMap<Integer,Action>();
-
-    for (int i = 0; i < indices.length; i++) {
-      map.put(indices[i], actions.get(i));
-    }
-    */
+		TreeMap<Integer,Action> map = new TreeMap<Integer,Action>();
 		
+		for (int i = 0; i < indices.length; i++) {
+		  map.put(indices[i], actions.get(i));
+		}
+		*/
+
 		ActionTransferable at = new ActionTransferable(actions);
 
 		clipboard.setContents(at,this);

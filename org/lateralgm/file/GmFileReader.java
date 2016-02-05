@@ -3,7 +3,7 @@
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -205,7 +205,7 @@ public final class GmFileReader
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING"));
 
 			GameSettings gs = c.f.gameSettings.get(0);
-			
+
 			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
@@ -255,7 +255,7 @@ public final class GmFileReader
 			readGmObjects(c);
 			LGM.setProgress(120,Messages.getString("ProgressDialog.ROOMS"));
 			readRooms(c);
-			
+
 			//If the "use as tileset" flag was not part of this version, try to infer it from the backgrounds used in room tiles.
 			if (bgVer <= 400) {
 				for (Room rm : file.resMap.getList(Room.class)) {
@@ -358,7 +358,7 @@ public final class GmFileReader
 		in.readBool(p,PGameSettings.DONT_DRAW_BORDER,PGameSettings.DISPLAY_CURSOR);
 		in.read4(p,PGameSettings.SCALING);
 		if (ver == 530)
-			in.skip(8); //"fullscreen scale" & "only scale w/ hardware support" 
+			in.skip(8); //"fullscreen scale" & "only scale w/ hardware support"
 		else
 			{
 			in.readBool(p,PGameSettings.ALLOW_WINDOW_RESIZE,PGameSettings.ALWAYS_ON_TOP);
@@ -747,7 +747,7 @@ public final class GmFileReader
 				}
 			in.endInflate();
 			}
-		
+
 			return ver;
 		}
 

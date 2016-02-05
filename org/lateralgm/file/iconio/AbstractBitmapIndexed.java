@@ -14,7 +14,7 @@ import org.lateralgm.file.StreamEncoder;
  * entry in the color palette. The bitmap has a mask which is a 1 BPP bitmap specifiying whether a
  * pixel is transparent or opaque.
  * </p>
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public abstract class AbstractBitmapIndexed extends AbstractBitmap
@@ -33,7 +33,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 
 	/**
 	 * Create a bitmap with a color table and a mask.
-	 * 
+	 *
 	 * @param pDescriptor The descriptor.
 	 */
 	public AbstractBitmapIndexed(final BitmapDescriptor pDescriptor)
@@ -46,7 +46,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 	/**
 	 * Needed to be replaced for indexed images because they contain a color palette and a mask which
 	 * needs to be read as well.
-	 * 
+	 *
 	 * @param in The decoder.
 	 * @throws IOException
 	 */
@@ -60,7 +60,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 	/**
 	 * This functions is needed b/c all classes read the bitmap, but not always a color table and a
 	 * mask.
-	 * 
+	 *
 	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
@@ -94,7 +94,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 	/**
 	 * Thanks to eml@ill.com for pointing out that official color count might not be what it should:
 	 * 2^BPP specifies the miminum size for the color palette!
-	 * 
+	 *
 	 * @return The verified color count.
 	 */
 	private int getVerifiedColorCount()
@@ -178,7 +178,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 
 	/**
 	 * Get the color for the specified point.
-	 * 
+	 *
 	 * @param pXPos The x position.
 	 * @param pYPos The y position.
 	 * @return Color of the selected point.
@@ -190,7 +190,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 
 	/**
 	 * Index into the color palette for the specified point.
-	 * 
+	 *
 	 * @param pXPos The x position.
 	 * @param pYPos The y position.
 	 * @return Palette index for pixel x, y
@@ -202,7 +202,7 @@ public abstract class AbstractBitmapIndexed extends AbstractBitmap
 
 	/**
 	 * Get the color for the specified color palette index.
-	 * 
+	 *
 	 * @param pIndex of the color requested.
 	 * @return Requested color.
 	 */

@@ -10,7 +10,7 @@ import org.lateralgm.file.StreamEncoder;
  * Icon header. Describes the dimensions and properties of the icon.
  * </p>
  * <p>
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public class BitmapHeader
@@ -33,7 +33,7 @@ public class BitmapHeader
 
 	/**
 	 * Create a header from decoded information.
-	 * 
+	 *
 	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
@@ -77,7 +77,7 @@ public class BitmapHeader
 
 	/**
 	 * Bits per pixel.
-	 * 
+	 *
 	 * @return Bits per pixel.
 	 */
 	public int getBPP()
@@ -87,7 +87,7 @@ public class BitmapHeader
 
 	/**
 	 * Number of important colors (0: All).
-	 * 
+	 *
 	 * @return Important colors.
 	 */
 	public long getColorsImportant()
@@ -97,7 +97,7 @@ public class BitmapHeader
 
 	/**
 	 * Number of colors used (often not set properly).
-	 * 
+	 *
 	 * @return Colors used.
 	 */
 	public long getColorsUsed()
@@ -107,7 +107,7 @@ public class BitmapHeader
 
 	/**
 	 * The bitmap compression type.
-	 * 
+	 *
 	 * @return Compression type.
 	 * @see TypeCompression
 	 */
@@ -118,7 +118,7 @@ public class BitmapHeader
 
 	/**
 	 * Bitmap height. Note: It seems the mask gets reported as well, so divide this number by two.
-	 * 
+	 *
 	 * @return Height.
 	 */
 	public long getHeight()
@@ -128,7 +128,7 @@ public class BitmapHeader
 
 	/**
 	 * Bitmap size in bytes.
-	 * 
+	 *
 	 * @return Bitmap size.
 	 */
 	public long getBitmapSize()
@@ -138,7 +138,7 @@ public class BitmapHeader
 
 	/**
 	 * Number of planes (always 1 in bitmaps, right?).
-	 * 
+	 *
 	 * @return Planes.
 	 */
 	public int getPlanes()
@@ -148,7 +148,7 @@ public class BitmapHeader
 
 	/**
 	 * Header size (40 + 4 * color count, right?).
-	 * 
+	 *
 	 * @return Hease size.
 	 */
 	public long getHeaderSize()
@@ -158,7 +158,7 @@ public class BitmapHeader
 
 	/**
 	 * Bitmap width.
-	 * 
+	 *
 	 * @return Width.
 	 */
 	public long getWidth()
@@ -168,7 +168,7 @@ public class BitmapHeader
 
 	/**
 	 * I'm not sure what this is.
-	 * 
+	 *
 	 * @return ???
 	 */
 	public long getXPixelsPerM()
@@ -178,7 +178,7 @@ public class BitmapHeader
 
 	/**
 	 * I'm not sure what this is.
-	 * 
+	 *
 	 * @return ???
 	 */
 	public long getYPixelsPerM()
@@ -188,7 +188,7 @@ public class BitmapHeader
 
 	/**
 	 * The number of colors (based on BPP).
-	 * 
+	 *
 	 * @return Colors.
 	 */
 	public int getColorCount()

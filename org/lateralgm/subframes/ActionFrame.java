@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2007, 2009, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -96,7 +96,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		setTitle(la.name.replace("_"," "));
 		if (la.parent == null) setTitle(Messages.getString("Action.UNKNOWN")); //$NON-NLS-1$
 		if (la.actImage != null)
-			setFrameIcon(new ImageIcon(la.getImage().getScaledInstance(16,16,Image.SCALE_SMOOTH)));
+			setFrameIcon(new ImageIcon(la.actImage.getScaledInstance(16,16,Image.SCALE_SMOOTH)));
 		String s;
 		ResourceReference<GmObject> at = a.getAppliesTo();
 		if (at == GmObject.OBJECT_SELF)
@@ -228,7 +228,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 		add(pane);
 		if (la.actImage != null)
 			{
-			lab = new JLabel(new ImageIcon(la.getImage()));
+			lab = new JLabel(new ImageIcon(la.actImage));
 			lab.setBorder(new EmptyBorder(16,16,16,20));
 			pane.add(lab,BorderLayout.LINE_START);
 			}
@@ -534,7 +534,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 				}
 			}
 		}
-	
+
 	public Action getAction() {
 		return act;
 	}
@@ -555,15 +555,15 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 
 	@Override
 	public void revertResource()
-		{ //updatable only, no revert
+		{ // updatable only, no revert
 		}
 
 	@Override
 	public void updateResource(boolean commit)
 		{
-		//NOTE: Ignore commit parameter, this is simply a flag to let us know if
-		//resourceChanged() was called recently as some resources commit before
-		//checking changes and we want to avoid resources committing twice.
+		// NOTE: Ignore commit parameter, this is simply a flag to let us know if
+		// resourceChanged() was called recently as some resources commit before
+		// checking changes and we want to avoid resources committing twice.
 		commitChanges();
 		}
 
@@ -571,7 +571,7 @@ public class ActionFrame extends RevertableMDIFrame implements ActionListener
 	public void setResourceChanged()
 		{
 		// TODO: Discussion should be held about closing associated windows.
-		
+
 		}
 
 	public void focusArgumentComponent(int id) {

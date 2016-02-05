@@ -49,7 +49,7 @@ import org.lateralgm.file.StreamEncoder;
  * Put some more effort into supporting mask; all in all I would say this took me 4:00h. Had to add
  * another 4:00h for research into 24 and 32 BPP.
  * </p>
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public class ICOFile implements Comparable<ICOFile>
@@ -66,7 +66,7 @@ public class ICOFile implements Comparable<ICOFile>
 	/**
 	 * Create ICOFile object from an ICO file. Use {@link #getDescriptors()}to access the icon(s).
 	 * Yes, ICO files might contain more than one icon).
-	 * 
+	 *
 	 * @param pFileName Name of the file to read (derived decoder automatically closed).
 	 * @throws IOException
 	 */
@@ -77,7 +77,7 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/**
 	 * Create ICO file from an input stream.
-	 * 
+	 *
 	 * @param pInput (automatically closed)
 	 * @throws IOException
 	 */
@@ -88,7 +88,7 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/**
 	 * Create ICO file from an URL.
-	 * 
+	 *
 	 * @param pURL
 	 * @throws IOException
 	 */
@@ -99,7 +99,7 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/**
 	 * Create ICOFile from a byte array.
-	 * 
+	 *
 	 * @param pBuffer
 	 * @throws IOException
 	 */
@@ -110,7 +110,7 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/**
 	 * Create ICO file.
-	 * 
+	 *
 	 * @param pFileName Just serves as information for toString() output; input is obtained through
 	 *          pFileDecoder.
 	 * @param pFileDecoder Decoder to read from (will remain unclosed).
@@ -147,7 +147,7 @@ public class ICOFile implements Comparable<ICOFile>
 	 * entries (describing image properties and offsets into the ICO file), and the image data itself.
 	 * The image data for each image consists of a header (describing some more image properties) and
 	 * the bitmap.
-	 * 
+	 *
 	 * @param pDec Decoder to read from.
 	 * @throws IOException
 	 */
@@ -304,7 +304,7 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/**
 	 * Get all contained images (comfort method).
-	 * 
+	 *
 	 * @return Images (type Image).
 	 */
 	public List<BufferedImage> getImages()
@@ -323,7 +323,7 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/**
 	 * Get the list of BitmapDescriptors contained in the ICO file.
-	 * 
+	 *
 	 * @return List of {@link BitmapDescriptor}in same order as in the ICO file (use methods on
 	 *         ICOEntry to get the actual images).
 	 */
@@ -334,7 +334,7 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/**
 	 * Get the speicified BitmapDescriptor.
-	 * 
+	 *
 	 * @param pDescriptorNo Number of the descriptor to get.
 	 * @return BitmapDescriptor.
 	 */
@@ -345,7 +345,7 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/**
 	 * Get the image type.
-	 * 
+	 *
 	 * @return The image type (any ideas what that is?).
 	 */
 	public int getType()
@@ -355,7 +355,7 @@ public class ICOFile implements Comparable<ICOFile>
 
 	/**
 	 * Get the number of contained images.
-	 * 
+	 *
 	 * @return Number of contained images.
 	 */
 	public int getImageCount()

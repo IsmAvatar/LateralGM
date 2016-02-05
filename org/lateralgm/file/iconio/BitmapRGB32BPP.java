@@ -10,14 +10,14 @@ import org.lateralgm.file.StreamEncoder;
  * <p>
  * ARGB bitmap with 8 bits per color (32 bits per sample).
  * </p>
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public class BitmapRGB32BPP extends AbstractBitmapRGB
 	{
 	///How far can we read before the next image? If <=0, read as far as necessary.
 	protected long readStreamLimit;
-	
+
 	/**
 	 * @param pDescriptor The image descriptor.
 	 */
@@ -30,7 +30,7 @@ public class BitmapRGB32BPP extends AbstractBitmapRGB
 	/**
 	 * According to Microsoft, the topmost byte simply is not used, but I found the fourth byte seems
 	 * to be the alpha channel.
-	 * 
+	 *
 	 * @param pDec The decoder.
 	 * @throws IOException
 	 */
@@ -51,14 +51,13 @@ public class BitmapRGB32BPP extends AbstractBitmapRGB
 			}
 
 		}
-	
-	
+
 	/**
 	 * 32BPP Bitmaps can optionally have NO mask.
 	 */
 	protected void readMask(final StreamDecoder pDec) throws IOException
 	{
-	if (readStreamLimit<=0 || pDec.getPos()<readStreamLimit) 
+	if (readStreamLimit<=0 || pDec.getPos()<readStreamLimit)
 		{
 		super.readMask(pDec);
 		} else {
@@ -66,7 +65,6 @@ public class BitmapRGB32BPP extends AbstractBitmapRGB
 			transparencyMask.fakeRead();
 		}
 	}
-	
 
 	/**
 	 * @return Create an ARGB image.

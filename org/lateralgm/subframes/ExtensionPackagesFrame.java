@@ -24,13 +24,13 @@
 package org.lateralgm.subframes;
 
 /*
- * Stolen from Font Family listener. Not sure what m_monitor was... 
+ * Taken from Font Family listener. Not sure what m_monitor was...
  * 	String m_fontName = m_cbFonts.getSelectedItem().toString();
  * 	MutableAttributeSet attr = new SimpleAttributeSet();
  * 	StyleConstants.setFontFamily(attr,m_fontName);
  * 	// setAttributeSet(attr);
  * 	// m_monitor.grabFocus();
- * 
+ *
  * TODO: Add left, right, center text alignment
  */
 
@@ -181,11 +181,6 @@ public class ExtensionPackagesFrame extends
 
 	private class CheckBoxListRenderer implements ListCellRenderer<JCheckBox>
 		{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 2378731430979001755L;
-
 		public Component getListCellRendererComponent(JList<? extends JCheckBox> comp, JCheckBox value,
 				int index, boolean isSelected, boolean hasFocus)
 			{

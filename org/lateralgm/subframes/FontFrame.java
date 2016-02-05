@@ -3,7 +3,7 @@
  * Copyright (C) 2008 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2014, Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -40,6 +40,7 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListDataEvent;
@@ -52,6 +53,7 @@ import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.NumberField;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.main.LGM;
+import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
@@ -140,26 +142,30 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		for (int i = 0; i < aalevels.length; i++)
 			aalevels[i] = Messages.getString(aaprefix + i);
 		aa = new JComboBox<String>(aalevels);
-		plf.make(aa,PFont.ANTIALIAS,new IndexComboBoxConversion());
+		plf.make(aa, PFont.ANTIALIAS, new IndexComboBoxConversion());
+
 		JLabel aaLabel = new JLabel(Messages.getString("FontFrame.ANTIALIAS")); //$NON-NLS-1$
-		//		aa.addActionListener(this);
 
 		JPanel crPane = makeCRPane();
 
 		previewText = new JEditorPane();
 		previewRange = new JTextArea();
 		previewRange.setEditable(false);
-		previewRange.getCaret().setVisible(true); // show the caret anyway
+		// show the caret anyway
 		previewRange.addFocusListener(new FocusListener()
 			{
-				public void focusLost(FocusEvent e)
-					{
-					return;
-					}
-
+				@Override
 				public void focusGained(FocusEvent e)
 					{
-					previewRange.getCaret().setVisible(true); // show the caret anyway
+						previewRange.getCaret().setVisible(true);
+						previewRange.getCaret().setSelectionVisible(true);
+					}
+
+				@Override
+				public void focusLost(FocusEvent e)
+					{
+						previewRange.getCaret().setVisible(false);
+						previewRange.getCaret().setSelectionVisible(false);
 					}
 			});
 		previewRange.setWrapStyleWord(false);
@@ -206,12 +212,18 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		previewText.setSize(500,500);
 		updatePreviewText();
 		updatePreviewRange();
-		//prev.setBorder(BorderFactory.createEtchedBorder());
 
 		save.setText(Messages.getString("FontFrame.SAVE")); //$NON-NLS-1$
 
-		layout.setHorizontalGroup(layout.createSequentialGroup().addGroup(layout.createParallelGroup()
-		/**/.addGroup(layout.createSequentialGroup()
+		SequentialGroup orientationGroup = layout.createSequentialGroup();
+
+		if (Prefs.rightOrientation) {
+			orientationGroup.addGroup(
+					layout.createParallelGroup().addComponent(previewTextScroll,0,500,MAX_VALUE).addComponent(
+							previewRangeScroll,0,500,MAX_VALUE));
+		}
+
+		orientationGroup.addGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
 		/*		*/.addGroup(layout.createParallelGroup(Alignment.TRAILING)
 		/*				*/.addComponent(lName)
 		/*				*/.addComponent(lFont)
@@ -235,9 +247,15 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		/*		*/.addComponent(clearRange))
 		/**/.addGroup(layout.createSequentialGroup()
 		/**/.addComponent(listScroller,120,220,MAX_VALUE))
-		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)).addGroup(
-				layout.createParallelGroup().addComponent(previewTextScroll,0,500,MAX_VALUE).addComponent(
-						previewRangeScroll,0,500,MAX_VALUE)));
+		/**/.addComponent(save,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
+
+		if (!Prefs.rightOrientation) {
+			orientationGroup.addGroup(
+					layout.createParallelGroup().addComponent(previewTextScroll,0,500,MAX_VALUE).addComponent(
+							previewRangeScroll,0,500,MAX_VALUE));
+		}
+
+		layout.setHorizontalGroup(orientationGroup);
 
 		layout.setVerticalGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
@@ -520,15 +538,15 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 			{
 			int min = cr.properties.get(PCharacterRange.RANGE_MIN);
 			int max = cr.properties.get(PCharacterRange.RANGE_MAX);
-			//NOTE: Arbitrarily limit a single range to no more than 1000 sequential characters to stop
-			//our editor from lagging like GM's
+			// NOTE: Arbitrarily limit a single range to no more than 1000 sequential characters to stop
+			// our editor from lagging like GM's
 			if (max - min > 1000 || max < min)
 				{
 				max = min + 1000;
 				}
 			for (int i = min; i <= max; i++)
 				{
-				//TODO: Replace new line character with just an empty space, 
+				// TODO: Replace new line character with just an empty space,
 				// otherwise it will screw up word wrapping in the preview area.
 				if (i == '\n')
 					{

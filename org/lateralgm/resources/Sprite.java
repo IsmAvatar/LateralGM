@@ -3,7 +3,7 @@
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2013 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -80,6 +80,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		{
 		super(r);
 		properties.getUpdateSource(PSprite.TRANSPARENT).addListener(spl);
+		properties.getUpdateSource(PSprite.ALPHA_TOLERANCE).addListener(spl);
 		properties.getUpdateSource(PSprite.BB_MODE).addListener(spl);
 		}
 
@@ -130,7 +131,8 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		switch (mode)
 			{
 			case AUTO:
-				Rectangle r = getOverallBounds(subImages,(Boolean) get(PSprite.TRANSPARENT));
+				Rectangle r = getOverallBounds(subImages,(Boolean) get(PSprite.TRANSPARENT),
+						(int) get(PSprite.ALPHA_TOLERANCE));
 				put(PSprite.BB_LEFT,r.x);
 				put(PSprite.BB_RIGHT,r.x + r.width);
 				put(PSprite.BB_TOP,r.y);
@@ -157,11 +159,11 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		return subImages.getHeight();
 		}
 
-	public static Rectangle getOverallBounds(ImageList l, boolean transPixel)
+	public static Rectangle getOverallBounds(ImageList l, boolean transPixel, int tolerance)
 		{
 		Rectangle r = new Rectangle();
 		for (BufferedImage bi : l)
-			getCropBounds(bi,r,transPixel);
+			getCropBounds(bi,r,transPixel,tolerance);
 		if (r.width > 0 && r.height > 0)
 			{
 			r.width--;
@@ -170,12 +172,13 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		return r;
 		}
 
-	public static void getCropBounds(BufferedImage img, Rectangle u, boolean transPixel)
+	public static void getCropBounds(BufferedImage img, Rectangle u,
+			boolean transPixel, int tolerance)
 		{
 		if (transPixel)
 			getCropBoundsPixel(img,u);
 		else
-			getCropBoundsAlpha(img,u,0);
+			getCropBoundsAlpha(img,u,tolerance);
 		}
 
 	public static void getCropBoundsAlpha(BufferedImage img, Rectangle u, int tolerance)
@@ -188,25 +191,25 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 		int y2 = height - 1;
 		y2loop: for (; y2 > uy2; y2--)
 			for (int i = 0; i < width; i++)
-				if (img.getRGB(i,y2) >> 24 < tolerance) break y2loop;
+				if (((img.getRGB(i,y2) >> 24) & 0xff) > tolerance) break y2loop;
 
 		int ux2 = unz ? u.x + u.width - 1 : -1;
 		int x2 = width - 1;
 		x2loop: for (; x2 > ux2; x2--)
 			for (int j = 0; j <= y2; j++)
-				if (img.getRGB(x2,j) >> 24 < tolerance) break x2loop;
+				if (((img.getRGB(x2,j) >> 24) & 0xff) > tolerance) break x2loop;
 
 		int uy1 = unz ? u.y : y2;
 		int y1 = 0;
 		y1loop: for (; y1 < uy1; y1++)
 			for (int i = 0; i <= x2; i++)
-				if (img.getRGB(i,y1) >> 24 < tolerance) break y1loop;
+				if (((img.getRGB(i,y1) >> 24) & 0xff) > tolerance) break y1loop;
 
 		int ux1 = unz ? u.x : x2;
 		int x1 = 0;
 		x1loop: for (; x1 < ux1; x1++)
 			for (int j = y1; j <= y2; j++)
-				if (img.getRGB(x1,j) >> 24 < tolerance) break x1loop;
+				if (((img.getRGB(x1,j) >> 24) & 0xff) > tolerance) break x1loop;
 
 		u.x = x1;
 		u.y = y1;
@@ -475,6 +478,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 					fireUpdate();
 					break;
 				case BB_MODE:
+				case ALPHA_TOLERANCE:
 					updateBoundingBox();
 					break;
 				default:

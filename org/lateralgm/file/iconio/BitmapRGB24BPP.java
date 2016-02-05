@@ -10,7 +10,7 @@ import org.lateralgm.file.StreamEncoder;
  * <p>
  * RGB bitmap with 8 bits per color (24 bits per sample).
  * </p>
- * 
+ *
  * @author &copy; Christian Treber, ct@ctreber.com
  */
 public class BitmapRGB24BPP extends AbstractBitmapRGB

@@ -3,7 +3,7 @@
 * @brief Class implementing the output log and symbolic message feedback.
 *
 * @section License
-* 
+*
 * Copyright (C) 2008, 2009 IsmAvatar <IsmAvatar@gmail.com>
 * Copyright (C) 2013, 2014 Robert B. Colton
 * This file is a part of the LateralGM IDE.
@@ -55,7 +55,7 @@ public class OutputManager
 	public static JTabbedPane outputTabs;
 	private static JTextPane logPane;
 	private static JTable messageTable;
-	
+
 	private static final SimpleAttributeSet ORANGE = new SimpleAttributeSet();
 	private static final SimpleAttributeSet RED = new SimpleAttributeSet();
 
@@ -68,13 +68,13 @@ public class OutputManager
 
 	private static JMenuItem makeContextButton(Action a)
 	{
-	  String key = "OutputManager." + a.getValue(Action.NAME);
-	  JMenuItem b = new JMenuItem();
-	  b.setIcon(LGM.getIconForKey(key));
-	  b.setText(Messages.getString(key));
-	  b.setRequestFocusEnabled(false);
-	  b.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString(key)));
-	  b.addActionListener(a);
+		String key = "OutputManager." + a.getValue(Action.NAME);
+		JMenuItem b = new JMenuItem();
+		b.setIcon(LGM.getIconForKey(key));
+		b.setText(Messages.getString(key));
+		b.setRequestFocusEnabled(false);
+		b.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString(key)));
+		b.addActionListener(a);
 		return b;
 	}
 
@@ -85,97 +85,96 @@ public class OutputManager
 		logPane.getCaret().setVisible(true); // show the caret anyway
 		logPane.setCaretPosition(0);
 		logPane.addFocusListener(new FocusListener() {
-	  public void focusLost(FocusEvent e) {
-		    return;
-		  }
-		
-		  public void focusGained(FocusEvent e) {
-		  	logPane.getCaret().setVisible(true); // show the caret anyway
-		  }
+			public void focusLost(FocusEvent e) {
+				return;
+			}
+
+			public void focusGained(FocusEvent e) {
+				logPane.getCaret().setVisible(true); // show the caret anyway
+			}
 		});
-	
+
 		AbstractAction aCopy = new AbstractAction("COPY")
 		{
 			private static final long serialVersionUID = 1L;
-		
+
 			/** @see AbstractAction#actionPerformed(ActionEvent) */
-		//r@Override
+			//r@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				logPane.copy();
 			}
 		};
-		
+
 		AbstractAction aSelAll = new AbstractAction("SELALL")
 		{
 			private static final long serialVersionUID = 1L;
-		
+
 			/** @see AbstractAction#actionPerformed(ActionEvent) */
-		//r@Override
+			//r@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				logPane.selectAll();
 			}
 		};
-		
+
 		final JPopupMenu popup = new JPopupMenu();
 	  popup.add(makeContextButton(aCopy));
 		popup.addSeparator();
 		popup.add(makeContextButton(aSelAll));
 		logPane.setComponentPopupMenu(popup);
-		
+
 		JScrollPane logScroll = new JScrollPane(logPane);
-		
+
 		outputTabs = new JTabbedPane();
 		outputTabs.addTab("Log",logScroll);
 		DefaultTableModel model = new DefaultTableModel() {
-
-	    /**
-			 * TODO: Change if needed.
+			/**
+			 * NOTE: Default UID generated, change if necessary.
 			 */
-			private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = -6256028089398003469L;
 
 			@Override
-	    public boolean isCellEditable(int row, int column) {
-	       //all cells false
-	       return false;
-	    }
+			public boolean isCellEditable(int row, int column) {
+				//all cells false
+				return false;
+			}
 		};
 		model.addColumn("Type");
 		model.addColumn("Origin");
 		model.addColumn("Description");
-		
+
     Object[] data = {LGM.getIconForKey("OutputManager.NOTICE"), "obj_0", "Lorem ipsum dollor sit amet..."};
 		model.addRow(data);
     Object[] data2 = {LGM.getIconForKey("OutputManager.WARNING"), "obj_0", "Lorem ipsum dollor sit amet..."};
 		model.addRow(data2);
     Object[] data3 = {LGM.getIconForKey("OutputManager.ERROR"), "obj_0", "Lorem ipsum dollor sit amet..."};
 		model.addRow(data3);
-		
+
 		messageTable = new JTable(model)
     {
-      /**
-			 * TODO: change if needed
+			/**
+			 * NOTE: Default UID generated, change if necessary.
 			 */
-			private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = -1963784072451574899L;
 
-			//  Returning the Class of each column will allow different
-      //  renderers to be used based on Class
-      public Class<?> getColumnClass(int column)
-      {
-          return getValueAt(0, column).getClass();
-      }
+			// Returning the Class of each column will allow different
+			// renderers to be used based on Class
+			public Class<?> getColumnClass(int column)
+			{
+				return getValueAt(0, column).getClass();
+			}
     };
 		outputTabs.addTab("Messages",new JScrollPane(messageTable));
-		
+
 		messageTable.setRowHeight(24);
 		messageTable.getColumnModel().getColumn(0).setPreferredWidth(50);
 		messageTable.getColumnModel().getColumn(1).setPreferredWidth(150);
 		messageTable.getColumnModel().getColumn(2).setPreferredWidth(800);
-		
+
 		outputTabs.setPreferredSize(new Dimension(100, 250));
 	}
-	
+
 	public static void append(String text)
 		{
 		if (logPane == null) return;
@@ -218,12 +217,12 @@ public class OutputManager
 		DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
 		model.addRow(data);
 		}
-	
+
 	public void clearLog()
 		{
 			logPane.setText(null);
 		}
-	
+
 	public static void setVisible(boolean visible) {
 		outputTabs.setVisible(visible);
 	}

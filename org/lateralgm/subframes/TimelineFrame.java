@@ -2,7 +2,7 @@
  * Copyright (C) 2007 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2008 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -78,18 +78,18 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		GroupLayout layout = new GroupLayout(getContentPane());
 		setLayout(layout);
 
-		JPanel side1 = new JPanel();
-		makeSide1(side1);
+		JPanel propertiesSide = new JPanel();
+		makeProperties(propertiesSide);
 
-		JPanel side2 = new JPanel(new BorderLayout());
+		JPanel momentsSide = new JPanel(new BorderLayout());
 		//side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
 		JLabel lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
-		side2.add(lab,BorderLayout.NORTH);
+		momentsSide.add(lab,BorderLayout.NORTH);
 		moments = new JList<Moment>(res.moments.toArray(new Moment[res.moments.size()]));
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
 
-		// This listener should be added to each node maybe 
+		// This listener should be added to each node maybe
 		// otherwise you can click on the whitespace and open it
 		// but then again I suppose its fine like this because I have
 		// ensured checks to make sure there are no NPE's trying to edit
@@ -109,13 +109,13 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		JScrollPane scroll = new JScrollPane(moments);
 		if (Prefs.enableDragAndDrop)
 			{
-			scroll.setPreferredSize(new Dimension(90,300));
+			scroll.setPreferredSize(new Dimension(100,300));
 			}
 		else
 			{
 			scroll.setPreferredSize(new Dimension(200,400));
 			}
-		side2.add(scroll,BorderLayout.CENTER);
+		momentsSide.add(scroll,BorderLayout.CENTER);
 
 		actions = new ActionList(this);
 		if (Prefs.enableDragAndDrop)
@@ -123,30 +123,41 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			editor = new ActionListEditor(actions);
 			}
 
-		SequentialGroup sg = layout.createSequentialGroup()
-		/**/.addComponent(side1,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/**/.addComponent(side2);
-		if (Prefs.enableDragAndDrop)
-			{
-			sg.addComponent(editor);
-			}
-		layout.setHorizontalGroup(sg);
+		SequentialGroup orientationGroup = layout.createSequentialGroup();
 
-		ParallelGroup pg = layout.createParallelGroup()
-		/**/.addComponent(side1)
-		/**/.addComponent(side2);
+		if (Prefs.rightOrientation) {
+			if (Prefs.enableDragAndDrop)
+			{
+				orientationGroup.addComponent(editor);
+			}
+			orientationGroup.addComponent(momentsSide)
+			/**/.addComponent(propertiesSide,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE);
+		} else {
+			orientationGroup.addComponent(propertiesSide,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
+			/**/.addComponent(momentsSide);
+			if (Prefs.enableDragAndDrop)
+			{
+				orientationGroup.addComponent(editor);
+			}
+		}
+
+		layout.setHorizontalGroup(orientationGroup);
+
+		ParallelGroup verticalGroup = layout.createParallelGroup()
+		/**/.addComponent(propertiesSide)
+		/**/.addComponent(momentsSide);
 		if (Prefs.enableDragAndDrop)
 			{
-			pg.addComponent(editor);
+			verticalGroup.addComponent(editor);
 			}
-		layout.setVerticalGroup(pg);
+		layout.setVerticalGroup(verticalGroup);
 
 		pack();
 
 		moments.setSelectedIndex(0);
 		}
 
-	private void makeSide1(JPanel side1)
+	private void makeProperties(JPanel side1)
 		{
 		GroupLayout layout = new GroupLayout(side1);
 		layout.setAutoCreateGaps(true);
@@ -233,19 +244,19 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 		actions.save();
 		res.setName(name.getText());
 		}
-	
+
 	public int findMoment(int step) {
 		ListModel<Moment> model = moments.getModel();
-		
+
 		for (int i = 0; i < model.getSize(); i++){
-			Moment mom =  model.getElementAt(i);  
+			Moment mom =  model.getElementAt(i);
 		  if (mom.stepNo == step) {
 		  	return i;
 		  }
 		}
 		return -1;
 	}
-	
+
 	public void setSelectedMoment(int step) {
 		int index = findMoment(step);
 		if (index != -1) {

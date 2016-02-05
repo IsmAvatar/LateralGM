@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.

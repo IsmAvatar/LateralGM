@@ -3,7 +3,7 @@
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2013 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -16,6 +16,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.image.BufferedImage;
 
 import org.lateralgm.main.Util;
@@ -46,6 +47,10 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 		b.reference.updateSource.addListener(this);
 		}
 
+	@Override public void setSize(Dimension d) {
+		super.setSize(d);
+	}
+
 	protected BufferedImage getTransparentImage()
 		{
 		if (background == null) return null;
@@ -74,23 +79,29 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 			transparentImage = null;
 			}
 
-		Dimension d = getPreferredSize();
+		Dimension prefSize = getPreferredSize();
 
 		if (image != null)
 			{
-			if (transparentBackground == null || 
-					transparentBackground.getWidth() != image.getWidth() || 
-					transparentBackground.getHeight() != image.getHeight())
-				{
-				transparentBackground = Util.paintBackground(image.getWidth()/5,image.getHeight()/5);
-				}
-
 			Graphics2D g2d = (Graphics2D) g;
-			g2d.translate(this.getWidth() / 2 - d.width / 2,this.getHeight() / 2 - d.height / 2);
+			g2d.translate(this.getWidth() / 2 - prefSize.width / 2,this.getHeight() / 2 - prefSize.height / 2);
 
-			g.drawImage(transparentBackground,0,0,d.width,d.height,null);
+			Shape clip = g.getClip();
+			g.clipRect(0,0,prefSize.width,prefSize.height);
 
-			g.drawImage(image,0,0,d.width,d.height,null);
+			int width = (int)Math.ceil(prefSize.getWidth() / 10f);
+			int height = (int)Math.ceil(prefSize.getHeight() / 10f);
+			width = width < 1 ? 1 : width;
+			height = height < 1 ? 1 : height;
+			if (transparentBackground == null || width != transparentBackground.getWidth() ||
+				height != transparentBackground.getHeight())
+				transparentBackground = Util.paintBackground(width, height);
+
+			g.drawImage(transparentBackground, 0, 0, transparentBackground.getWidth() * 10,
+				transparentBackground.getHeight() * 10, null);
+
+			g.drawImage(image,0,0,prefSize.width,prefSize.height,null);
+			g.setClip(clip);
 			}
 		else
 			setPreferredSize(new Dimension(0,0));
@@ -116,7 +127,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 					vsep *= zoom;
 
 					Rectangle r = g.getClipBounds().intersection(
-							new Rectangle(hoffset,voffset,d.width - hoffset,d.height - voffset));
+							new Rectangle(hoffset,voffset,prefSize.width - hoffset,prefSize.height - voffset));
 
 					int newx = ((r.x - hoffset) / (width + hsep)) * (width + hsep) + hoffset;
 					r.width += r.x - newx;
@@ -126,7 +137,7 @@ public class BackgroundPreview extends AbstractImagePreview implements UpdateLis
 					r.height += r.y - newy;
 					r.y = newy;
 
-					g.setClip(0,0,d.width,d.height);
+					g.setClip(0,0,prefSize.width,prefSize.height);
 					g.setXORMode(Color.BLACK);
 					g.setColor(Color.WHITE);
 					for (int i = r.x; i < r.x + r.width; i += width + hsep)

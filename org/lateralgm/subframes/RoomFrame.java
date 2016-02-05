@@ -4,7 +4,7 @@
  * Copyright (C) 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2013, 2014 Robert B. Colton
  * Copyright (C) 2014, egofree
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -35,10 +35,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
@@ -55,6 +56,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -126,6 +128,7 @@ import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.subframes.CodeFrame.CodeHolder;
 import org.lateralgm.ui.swing.propertylink.ButtonModelLink;
+import org.lateralgm.ui.swing.propertylink.DocumentLink;
 import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.util.ArrayListModel;
@@ -163,18 +166,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	private JButton addObjectButton, deleteObjectButton;
 	public ResourceMenu<GmObject> oNew, oSource;
 	private PropertyLink<PInstance,ResourceReference<GmObject>> loSource;
+	private JTextField objectName;
 	public NumberField objectHorizontalPosition, objectVerticalPosition, objectScaleX, objectScaleY,
 			objectRotation, objectAlpha;
-	public ColorSelect objectColour;
+	public ColorSelect objectColor;
 	public PropertyLink<PInstance,Color> loColour;
 	private FormattedLink<PInstance> loX, loY, loScaleX, loScaleY, loRotation, loAlpha;
+	private DocumentLink<PInstance> loName;
 	private JButton oCreationCode;
 
 	//Settings
 	private JTextField sCaption;
 	private JCheckBox sPersistent;
-	private JButton sCreationCode, sShow;
-	private JPopupMenu sShowMenu;
+	private JButton sCreationCode, showButton;
+	private JPopupMenu showMenu;
 	public HashMap<CodeHolder,CodeFrame> codeFrames = new HashMap<CodeHolder,CodeFrame>();
 
 	private JCheckBoxMenuItem sSObj, sSTile, sSBack, sSFore, sSView;
@@ -229,6 +234,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public UndoManager undoManager;
 	public UndoableEditSupport undoSupport;
 	// Save the object's properties for the undo
+	private String pieceOriginalName = null;
 	private Point pieceOriginalPosition = null;
 	private Point2D pieceOriginalScale = null;
 	private Double pieceOriginalRotation = null;
@@ -248,64 +254,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(save);
 		tool.addSeparator();
 
-		zoomIn = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_IN")); //$NON-NLS-1$
-		zoomIn.setToolTipText(Messages.getString("RoomFrame.ZOOM_IN"));
-		prelf.make(zoomIn,PRoomEditor.ZOOM,1,RoomEditor.ZOOM_MAX);
-		tool.add(zoomIn);
-		zoomOut = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_OUT")); //$NON-NLS-1$
-		zoomOut.setToolTipText(Messages.getString("RoomFrame.ZOOM_OUT"));
-		prelf.make(zoomOut,PRoomEditor.ZOOM,-1,RoomEditor.ZOOM_MIN);
-		tool.add(zoomOut);
-		tool.addSeparator();
-
-		// Action fired when the undo button is clicked
-		Action undoAction = new AbstractAction()
-			{
-				private static final long serialVersionUID = 1L;
-
-				public void actionPerformed(ActionEvent actionEvent)
-					{
-					Piece selectedPiece = editor.getSelectedPiece();
-
-					// If there is a selected piece, deselect it
-					if (selectedPiece != null) selectedPiece.setSelected(false);
-
-					undoManager.undo();
-					refreshUndoRedoButtons();
-					}
-			};
-
-		undo = new JButton(LGM.getIconForKey("RoomFrame.UNDO"));
-		undo.setToolTipText(Messages.getString("RoomFrame.UNDO"));
-		// Bind the undo keystroke with the undo button
-		KeyStroke undoKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.UNDO"));
-		undo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(undoKey,"ctrlZ");
-		undo.getActionMap().put("ctrlZ",undoAction);
-		undo.addActionListener(undoAction);
-		tool.add(undo);
-
-		// Action fired when the redo button is clicked
-		Action redoAction = new AbstractAction()
-			{
-				private static final long serialVersionUID = 1L;
-
-				public void actionPerformed(ActionEvent actionEvent)
-					{
-					undoManager.redo();
-					refreshUndoRedoButtons();
-					}
-			};
-
-		redo = new JButton(LGM.getIconForKey("RoomFrame.REDO"));
-		redo.setToolTipText(Messages.getString("RoomFrame.REDO"));
-		// Bind the redo keystroke with the undo button
-		KeyStroke redoKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.REDO"));
-		redo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(redoKey,"ctrlY");
-		redo.getActionMap().put("ctrlY",redoAction);
-		redo.addActionListener(redoAction);
-		tool.add(redo);
-		tool.addSeparator();
-
 		// Action fired when the delete instances button is clicked
 		Action deleteAction = new AbstractAction()
 			{
@@ -316,21 +264,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					deleteAction();
 					}
 			};
-
-		deleteInstances = new JButton(LGM.getIconForKey("RoomFrame.DELETE"));
-		deleteInstances.setToolTipText(Messages.getString("RoomFrame.DELETE"));
-		// Bind the delete keystroke with the delete button
-		KeyStroke deleteKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.DELETE"));
-		deleteInstances.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(deleteKey,"delete");
-		deleteInstances.getActionMap().put("delete",deleteAction);
-		deleteInstances.addActionListener(deleteAction);
-		tool.add(deleteInstances);
-
-		shiftInstances = new JButton(LGM.getIconForKey("RoomFrame.SHIFT"));
-		shiftInstances.setToolTipText(Messages.getString("RoomFrame.SHIFT"));
-		shiftInstances.addActionListener(this);
-		tool.add(shiftInstances);
-		tool.addSeparator();
 
 		// Action fired when the cut is clicked
 		Action cutAction = new AbstractAction()
@@ -401,6 +334,54 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(paste);
 		tool.addSeparator();
 
+		// Action fired when the undo button is clicked
+		Action undoAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					Piece selectedPiece = editor.getSelectedPiece();
+
+					// If there is a selected piece, deselect it
+					if (selectedPiece != null) selectedPiece.setSelected(false);
+
+					undoManager.undo();
+					refreshUndoRedoButtons();
+					}
+			};
+
+		undo = new JButton(LGM.getIconForKey("RoomFrame.UNDO"));
+		undo.setToolTipText(Messages.getString("RoomFrame.UNDO"));
+		// Bind the undo keystroke with the undo button
+		KeyStroke undoKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.UNDO"));
+		undo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(undoKey,"ctrlZ");
+		undo.getActionMap().put("ctrlZ",undoAction);
+		undo.addActionListener(undoAction);
+		tool.add(undo);
+
+		// Action fired when the redo button is clicked
+		Action redoAction = new AbstractAction()
+			{
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent actionEvent)
+					{
+					undoManager.redo();
+					refreshUndoRedoButtons();
+					}
+			};
+
+		redo = new JButton(LGM.getIconForKey("RoomFrame.REDO"));
+		redo.setToolTipText(Messages.getString("RoomFrame.REDO"));
+		// Bind the redo keystroke with the undo button
+		KeyStroke redoKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.REDO"));
+		redo.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(redoKey,"ctrlY");
+		redo.getActionMap().put("ctrlY",redoAction);
+		redo.addActionListener(redoAction);
+		tool.add(redo);
+		tool.addSeparator();
+
 		// if the select object button has been clicked, deactivate the selection region button
 		Action selectObjectAction = new AbstractAction()
 			{
@@ -449,6 +430,21 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		fill.setToolTipText(Messages.getString("RoomFrame.FILL"));
 		fill.addActionListener(this);
 		tool.add(fill);
+		tool.addSeparator();
+
+		deleteInstances = new JButton(LGM.getIconForKey("RoomFrame.DELETE"));
+		deleteInstances.setToolTipText(Messages.getString("RoomFrame.DELETE"));
+		// Bind the delete keystroke with the delete button
+		KeyStroke deleteKey = KeyStroke.getKeyStroke(Messages.getKeyboardString("RoomFrame.DELETE"));
+		deleteInstances.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(deleteKey,"delete");
+		deleteInstances.getActionMap().put("delete",deleteAction);
+		deleteInstances.addActionListener(deleteAction);
+		tool.add(deleteInstances);
+
+		shiftInstances = new JButton(LGM.getIconForKey("RoomFrame.SHIFT"));
+		shiftInstances.setToolTipText(Messages.getString("RoomFrame.SHIFT"));
+		shiftInstances.addActionListener(this);
+		tool.add(shiftInstances);
 		tool.addSeparator();
 
 		// if the alt key has been pressed
@@ -580,6 +576,16 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(addMultiple);
 		tool.addSeparator();
 
+		zoomIn = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_IN")); //$NON-NLS-1$
+		zoomIn.setToolTipText(Messages.getString("RoomFrame.ZOOM_IN"));
+		prelf.make(zoomIn,PRoomEditor.ZOOM,1,RoomEditor.ZOOM_MAX);
+		tool.add(zoomIn);
+		zoomOut = new JButton(LGM.getIconForKey("RoomFrame.ZOOM_OUT")); //$NON-NLS-1$
+		zoomOut.setToolTipText(Messages.getString("RoomFrame.ZOOM_OUT"));
+		prelf.make(zoomOut,PRoomEditor.ZOOM,-1,RoomEditor.ZOOM_MIN);
+		tool.add(zoomOut);
+		tool.addSeparator();
+
 		gridVis = new JToggleButton(LGM.getIconForKey("RoomFrame.GRID_VISIBLE"));
 		gridVis.setToolTipText(Messages.getString("RoomFrame.GRID_VISIBLE"));
 		prelf.make(gridVis,PRoomEditor.SHOW_GRID);
@@ -588,7 +594,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		gridIso.setToolTipText(Messages.getString("RoomFrame.GRID_ISOMETRIC"));
 		plf.make(gridIso,PRoom.ISOMETRIC);
 		tool.add(gridIso);
-		tool.addSeparator();
+		//tool.addSeparator();
 
 		// Add the grid sizers
 		JLabel lab = new JLabel(Messages.getString("RoomFrame.GRID_X")); //$NON-NLS-1$
@@ -620,10 +626,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tool.add(nf);
 
 		tool.addSeparator();
-		sShowMenu = makeShowMenu();
-		sShow = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
-		sShow.addActionListener(this);
-		tool.add(sShow);
+		showMenu = makeShowMenu();
+		showButton = new JButton(Messages.getString("RoomFrame.SHOW")); //$NON-NLS-1$
+		showButton.addActionListener(this);
+		tool.add(showButton);
 		tool.addSeparator();
 
 		roomControls = new JButton(LGM.getIconForKey("RoomFrame.ROOM_CONTROLS"));
@@ -652,7 +658,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			GmObject o = deRef(ro);
 			String name = o == null ? Messages.getString("RoomFrame.NO_OBJECT") : o.getName();
 			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-			lab.setText(name + " " + i.properties.get(PInstance.ID));
+			lab.setText(name + "  " + i.properties.get(PInstance.ID) + "  " +
+				i.properties.get(PInstance.NAME));
+			lab.setText(String.format("%10s %6s %s", name, i.properties.get(PInstance.ID),
+				i.properties.get(PInstance.NAME)));
+			lab.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 10));
 			ResNode rn = o == null ? null : o.getNode();
 			lab.setIcon(rn == null ? null : rn.getIcon());
 			return lab;
@@ -678,7 +688,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			ResourceReference<Background> rb = t.properties.get(PTile.BACKGROUND);
 			Background bg = deRef(rb);
 			String name = bg == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : bg.getName();
-			lab.setText(name + " " + t.properties.get(PTile.ID));
+			lab.setText(name + " " + t.properties.get(PTile.ID) + " " + t.properties.get(PTile.NAME));
 			ti.tile = t;
 			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
 			return lab;
@@ -748,9 +758,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public class ObjectListTransferHandler extends TransferHandler
 		{
 		/**
-		 * TODO: Change if needed.
+		 * NOTE: Default UID generated, change if necessary.
 		 */
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = -5228856790388285912L;
 		private int[] indices = null;
 		private ArrayList<Instance> instanceList = null;
 		private int addIndex = -1; //Location where items were added
@@ -811,7 +821,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			addIndex = index;
 			addCount = data.size();
 
-			// Perform the actual import.  
+			// Perform the actual import.
 			for (int i = 0; i < addCount; i++)
 				{
 				instanceList.add(index++,data.get(i));
@@ -890,9 +900,12 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		edit.setLayout(layout2);
 
 		oSource = new ResourceMenu<GmObject>(GmObject.class,
-				Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
+			Messages.getString("RoomFrame.NO_OBJECT"),true,110); //$NON-NLS-1$
 
 		oLocked = new JCheckBox(Messages.getString("RoomFrame.OBJ_LOCKED")); //$NON-NLS-1$
+		JLabel lObjName = new JLabel(Messages.getString("RoomFrame.OBJ_NAME")); //$NON-NLS-1$
+		objectName = new JTextField();
+		objectName.addFocusListener(this);
 		JLabel lObjX = new JLabel(Messages.getString("RoomFrame.OBJ_X")); //$NON-NLS-1$
 		objectHorizontalPosition = new NumberField(-99999,99999);
 		objectHorizontalPosition.setColumns(4);
@@ -911,55 +924,35 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		objectRotation = new NumberField(0.0,360.0,0.0,2);
 		objectRotation.addFocusListener(this);
 		JLabel lObjColour = new JLabel(Messages.getString("RoomFrame.COLOUR")); //$NON-NLS-1$
-		objectColour = new ColorSelect(Color.WHITE,false);
-		objectColour.addMouseListener(new MouseListener()
-			{
-				Color originalColor;
+		objectColor = new ColorSelect(Color.WHITE,false);
+		objectColor.addItemListener(new ItemListener() {
+		Color originalColor = objectColor.getSelectedColor();
+		@Override
+		public void itemStateChanged(ItemEvent e)
+		{
+			// If no object is selected, return
+			int selectedIndex = oList.getSelectedIndex();
+			if (selectedIndex == -1) return;
 
-				public void mouseClicked(MouseEvent event)
-					{
-					if (selectedPiece == null) return;
+			// Save the selected instance
+			selectedPiece = oList.getSelectedValue();
+			if (selectedPiece == null) return;
 
-					Color newColour = objectColour.getSelectedColor();
+			Color newColour = objectColor.getSelectedColor();
 
-					// If the color has changed, save it in the undo
-					if (!originalColor.equals(newColour))
-						{
-						// Record the effect of modifying the color of an object for the undo
-						UndoableEdit edit = new ModifyPieceInstance(RoomFrame.this,selectedPiece,originalColor,
-								newColour);
-						// notify the listeners
-						undoSupport.postEdit(edit);
-						}
-					}
+			// If the color has changed, save it in the undo
+			if (!originalColor.equals(newColour))
+				{
+				// Record the effect of modifying the color of an object for the undo
+				UndoableEdit edit = new ModifyPieceInstance(RoomFrame.this,selectedPiece,originalColor,
+						newColour);
+				// notify the listeners
+				undoSupport.postEdit(edit);
+				originalColor = objectColor.getSelectedColor();
+				}
+		}
 
-				public void mousePressed(MouseEvent arg0)
-					{
-					selectedPiece = null;
-
-					// If no object is selected, return
-					int selectedIndex = oList.getSelectedIndex();
-					if (selectedIndex == -1) return;
-
-					// Save the selected instance
-					selectedPiece = oList.getSelectedValue();
-					// Save the original colour
-					originalColor = objectColour.getSelectedColor();
-					}
-
-				public void mouseEntered(MouseEvent arg0)
-					{
-					}
-
-				public void mouseExited(MouseEvent arg0)
-					{
-					}
-
-				public void mouseReleased(MouseEvent arg0)
-					{
-					}
-
-			});
+		});
 
 		JLabel lObjAlpha = new JLabel(Messages.getString("RoomFrame.ALPHA")); //$NON-NLS-1$
 		objectAlpha = new NumberField(0,255,255);
@@ -971,50 +964,56 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		layout2.setHorizontalGroup(layout2.createParallelGroup()
 		/**/.addComponent(oSource)
 		/**/.addGroup(layout2.createSequentialGroup()
-		/**/.addComponent(oLocked))
-		/**/.addGroup(layout2.createSequentialGroup()
-		/**/.addGroup(layout2.createParallelGroup(Alignment.TRAILING)
+		/*	*/.addGroup(layout2.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(lObjName)
 		/*		*/.addComponent(lObjX)
 		/*		*/.addComponent(lObjScaleX)
-		/*		*/.addComponent(lObjColour)
-		/*		*/.addComponent(lObjRotation))
-		/**/.addGroup(layout2.createParallelGroup()
-		/*		*/.addComponent(objectHorizontalPosition)
-		/*		*/.addComponent(objectScaleX)
-		/*		*/.addComponent(objectColour)
-		/*		*/.addComponent(objectRotation))
-		/**/.addGroup(layout2.createParallelGroup(Alignment.TRAILING)
-		/*		*/.addComponent(lObjY)
-		/*		*/.addComponent(lObjScaleY)
-		/*		*/.addComponent(lObjAlpha))
-		/**/.addGroup(layout2.createParallelGroup()
-		/*		*/.addComponent(objectVerticalPosition)
-		/*		*/.addComponent(objectScaleY)
-		/*		*/.addComponent(objectAlpha)))
+		/*		*/.addComponent(lObjRotation)
+		/*		*/.addComponent(lObjColour))
+		/*	*/.addGroup(layout2.createParallelGroup()
+		/*		*/.addComponent(oLocked)
+		/*		*/.addComponent(objectName)
+		/*		*/.addGroup(layout2.createSequentialGroup()
+		/*			*/.addGroup(layout2.createParallelGroup()
+		/*				*/.addComponent(objectHorizontalPosition)
+		/*				*/.addComponent(objectScaleX)
+		/*				*/.addComponent(objectRotation))
+		/*			*/.addGroup(layout2.createParallelGroup(Alignment.TRAILING)
+		/*				*/.addComponent(lObjY)
+		/*				*/.addComponent(lObjScaleY)
+		/*				*/.addComponent(lObjAlpha))
+		/*			*/.addGroup(layout2.createParallelGroup()
+		/*				*/.addComponent(objectVerticalPosition)
+		/*				*/.addComponent(objectScaleY)
+		/*				*/.addComponent(objectAlpha)))
+		/*		*/.addGroup(layout2.createSequentialGroup()
+		/*			*/.addComponent(objectColor))))
 		/**/.addComponent(oCreationCode,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE));
 
 		layout2.setVerticalGroup(layout2.createSequentialGroup()
 		/**/.addComponent(oSource)
+		/**/.addComponent(oLocked)
 		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
-		/**/.addComponent(oLocked))
+		/*	*/.addComponent(lObjName)
+		/*	*/.addComponent(objectName))
 		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lObjX)
-		/*		*/.addComponent(objectHorizontalPosition)
-		/*		*/.addComponent(lObjY)
-		/*		*/.addComponent(objectVerticalPosition))
+		/*	*/.addComponent(lObjX)
+		/*	*/.addComponent(objectHorizontalPosition)
+		/*	*/.addComponent(lObjY)
+		/*	*/.addComponent(objectVerticalPosition))
 		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lObjScaleX)
-		/*		*/.addComponent(objectScaleX)
-		/*		*/.addComponent(lObjScaleY)
-		/*		*/.addComponent(objectScaleY))
-		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(lObjAlpha)
-		/*		*/.addComponent(objectAlpha)
-		/*		*/.addComponent(lObjColour)
-		/*		*/.addComponent(objectColour,18,18,18))
+		/*	*/.addComponent(lObjScaleX)
+		/*	*/.addComponent(objectScaleX)
+		/*	*/.addComponent(lObjScaleY)
+		/*	*/.addComponent(objectScaleY))
 		/**/.addGroup(layout2.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(lObjRotation)
-		/*		*/.addComponent(objectRotation))
+		/*	*/.addComponent(objectRotation)
+		/*	*/.addComponent(lObjAlpha)
+		/*	*/.addComponent(objectAlpha))
+		/**/.addGroup(layout2.createParallelGroup(Alignment.CENTER)
+		/*	*/.addComponent(lObjColour)
+		/*	*/.addComponent(objectColor))
 		/**/.addComponent(oCreationCode));
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -1033,7 +1032,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/**/.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(addObjectButton)
 		/*		*/.addComponent(deleteObjectButton))
-		/**/.addComponent(edit));
+		/**/.addComponent(edit,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE));
 
 		// Make sure the selected object in the list is activated
 		fireObjUpdate();
@@ -1641,17 +1640,17 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		JCheckBox phyWorldCB = new JCheckBox(Messages.getString("RoomFrame.PHY_WORLD_ENABLED"));
 		plf.make(phyWorldCB,PRoom.PHYSICS_WORLD);
 
-		JLabel pixMetersLabel = new JLabel(Messages.getString("RoomFrame.PHY_PIXELSPERMETER") + ":");
+		JLabel pixMetersLabel = new JLabel(Messages.getString("RoomFrame.PHY_PIXELSPERMETER"));
 		NumberField pixMetersField = new NumberField(0.1000);
 		plf.make(pixMetersField,PRoom.PHYSICS_PIXTOMETERS);
 		pixMetersField.setColumns(16);
 
-		JLabel gravityXLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_X") + ":");
+		JLabel gravityXLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_X"));
 		NumberField gravityXField = new NumberField(0.0);
 		plf.make(gravityXField,PRoom.PHYSICS_GRAVITY_X);
 		gravityXField.setColumns(16);
 
-		JLabel gravityYLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_Y") + ":");
+		JLabel gravityYLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_Y"));
 		NumberField gravityYField = new NumberField(10.0);
 		plf.make(gravityYField,PRoom.PHYSICS_GRAVITY_Y);
 		gravityYField.setColumns(16);
@@ -1964,7 +1963,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		res.instanceUpdateSource.addListener(this);
 		res.tileUpdateSource.addListener(this);
 
-		editorPane = new EditorScrollPane(editor);
+		editorPane = new EditorScrollPane(editor, true);
 		prelf.make(editorPane,PRoomEditor.ZOOM);
 
 		// If the view tab is selected, display the first selected view centered
@@ -1976,13 +1975,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		JPanel stats = makeStatsPane();
 
-		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addComponent(tools)
-		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(tabs,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/*	*/.addGroup(layout.createParallelGroup()
+		SequentialGroup orientationGroup = layout.createSequentialGroup();
+		if (!Prefs.rightOrientation) {
+			orientationGroup.addComponent(tabs,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE);
+		}
+		orientationGroup.addGroup(layout.createParallelGroup()
 		/*		*/.addComponent(editorPane,200,640,DEFAULT_SIZE)
-		/*		*/.addComponent(stats))));
+		/*		*/.addComponent(stats));
+		if (Prefs.rightOrientation) {
+			orientationGroup.addComponent(tabs,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE);
+		}
+
+		layout.setHorizontalGroup(layout.createParallelGroup()
+		/**/.addComponent(tools,PREFERRED_SIZE,PREFERRED_SIZE,MAX_VALUE)
+		/**/.addGroup(orientationGroup));
 		layout.setVerticalGroup(layout.createSequentialGroup()
 		/**/.addComponent(tools,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addGroup(layout.createParallelGroup()
@@ -2003,10 +2009,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			int h = res.get(PRoom.EDITOR_HEIGHT);
 			int w = res.get(PRoom.EDITOR_WIDTH);
 			Dimension d = LGM.mdi.getSize();
-			if (d.width <= w && d.height <= h)
+			if (d.width <= w && d.height <= h) {
 				maximize = true;
-			else
-				setSize(1200,720);
+			} else {
+				setSize(w, h);
+			}
 			}
 		else
 			pack();
@@ -2014,8 +2021,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 	private boolean maximize;
 
-	//maximizes over-sized RoomFrames, since setMaximum can't
-	//be called until after it's been added to the MDI
+	// maximizes over-sized RoomFrames, since setMaximum can't
+	// be called until after it's been added to the MDI
 	@Override
 	public void setVisible(boolean b)
 		{
@@ -2234,7 +2241,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		if (eventSource == fill)
 			{
-			// if the user didn't make any selection 
+			// if the user didn't make any selection
 			if (editor.selection == null) return;
 
 			boolean tilesTabIsSelected = (tabs.getSelectedIndex() == Room.TAB_TILES);
@@ -2263,7 +2270,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			// Stores several actions in one compound action for the undo
 			CompoundEdit compoundEdit = new CompoundEdit();
 
-			// If the tiles tab is selected, 
+			// If the tiles tab is selected,
 			if (tilesTabIsSelected)
 				{
 				// If the 'Delete underlying' option is checked, delete all tiles for the selected region
@@ -2385,7 +2392,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				// Get the new layer's depth
 				Integer newDepth = new Integer(depth.getIntValue());
 
-				// If the layer is new, add it 
+				// If the layer is new, add it
 				if (!layers.contains(newDepth))
 					{
 					layers.add(newDepth);
@@ -2521,10 +2528,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			// Create the panel with the shift properties
 			JPanel myPanel = new JPanel();
-			myPanel.add(new JLabel(Messages.getString("RoomFrame.HORIZONTAL_SHIFT") + ":"));
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.HORIZONTAL_SHIFT")));
 			myPanel.add(txtHorizontalShift);
 			myPanel.add(Box.createHorizontalStrut(7));
-			myPanel.add(new JLabel(Messages.getString("RoomFrame.VERTICAL_SHIFT") + ":"));
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.VERTICAL_SHIFT")));
 			myPanel.add(txtVerticalShift);
 
 			// If the tiles tab is selected, shift the tiles
@@ -2602,9 +2609,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			return;
 			}
 
-		if (eventSource == sShow)
+		if (eventSource == showButton)
 			{
-			sShowMenu.show(sShow,0,sShow.getHeight());
+			showMenu.show(showButton,0,showButton.getHeight());
 			return;
 			}
 
@@ -2708,7 +2715,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		Instance selectedInstance = oList.getSelectedValue();
 		if (lastObj == selectedInstance) return;
 		lastObj = selectedInstance;
-		PropertyLink.removeAll(loLocked,loSource,loX,loY,loScaleX,loScaleY,loColour,loRotation,loAlpha);
+		PropertyLink.removeAll(loLocked,loSource,loName,loX,loY,loScaleX,loScaleY,loColour,loRotation,loAlpha);
 
 		if (selectedInstance != null)
 			{
@@ -2716,12 +2723,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					selectedInstance.properties,this);
 			loLocked = iplf.make(oLocked,PInstance.LOCKED);
 			loSource = iplf.make(oSource,PInstance.OBJECT);
+			loName = iplf.make(objectName.getDocument(), PInstance.NAME);
 			loX = iplf.make(objectHorizontalPosition,PInstance.X);
 			loY = iplf.make(objectVerticalPosition,PInstance.Y);
 			loScaleX = iplf.make(objectScaleX,PInstance.SCALE_X);
 			loScaleY = iplf.make(objectScaleY,PInstance.SCALE_Y);
 			loRotation = iplf.make(objectRotation,PInstance.ROTATION);
-			loColour = iplf.make(objectColour,PInstance.COLOR);
+			loColour = iplf.make(objectColor,PInstance.COLOR);
 			loAlpha = iplf.make(objectAlpha,PInstance.ALPHA);
 			}
 		}
@@ -2868,13 +2876,14 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 		if (instanceImage == null)
 			{
-			//TODO: This hard codes the dimensions of the default object sprite/icon which is just the 16x16 pixel ball
-			centerObjectInViewport(instancePosition,16,16,null);
+			ImageIcon emptySprite = LGM.getIconForKey("Resource.EMPTY_OBJ");
+			centerObjectInViewport(instancePosition, emptySprite.getIconWidth(),
+				emptySprite.getIconHeight(), null);
 			}
 		else
 			{
-			centerObjectInViewport(instancePosition,instanceImage.getWidth(),instanceImage.getHeight(),
-					null);
+			centerObjectInViewport(instancePosition, instanceImage.getWidth(), instanceImage.getHeight(),
+				null);
 			}
 		}
 
@@ -3124,7 +3133,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		deleteObjectButton.removeActionListener(this);
 		oCreationCode.removeActionListener(this);
 		sCreationCode.removeActionListener(this);
-		sShow.removeActionListener(this);
+		showButton.removeActionListener(this);
 		taSource.removeActionListener(this);
 		tList.removeListSelectionListener(this);
 		deleteTileButton.removeActionListener(this);
@@ -3235,7 +3244,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		selectedPiece = null;
 
 		// If we are modifying objects
-		if (event.getSource() == objectHorizontalPosition
+		if (event.getSource() == objectName || event.getSource() == objectHorizontalPosition
 				|| event.getSource() == objectVerticalPosition || event.getSource() == objectScaleX
 				|| event.getSource() == objectScaleY || event.getSource() == objectRotation
 				|| event.getSource() == objectAlpha)
@@ -3246,6 +3255,13 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 
 			// Save the selected instance
 			selectedPiece = oList.getSelectedValue();
+
+			// If we are modifying the name, save it for the undo
+			if (event.getSource() == objectName)
+				{
+				pieceOriginalName = selectedPiece.getName();
+				return;
+				}
 
 			// If we are modifying the position, save it for the undo
 			if (event.getSource() == objectHorizontalPosition
@@ -3310,6 +3326,23 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			// If no object is selected, return
 			int selectedIndex = oList.getSelectedIndex();
 			if (selectedIndex == -1) return;
+
+			// If we have changed the name
+			if (pieceOriginalName != null)
+				{
+				// Get the new name of the object
+				String objectNewName = new String(selectedPiece.getName());
+
+				// If the rotation of the object has been changed
+				if (objectNewName != pieceOriginalName)
+					{
+					// Record the effect of rotating an object for the undo
+					UndoableEdit edit = new ModifyPieceInstance(this,selectedPiece,pieceOriginalName,
+							objectNewName);
+					// notify the listeners
+					undoSupport.postEdit(edit);
+					}
+				}
 
 			// If we have changed the position
 			if (pieceOriginalPosition != null)

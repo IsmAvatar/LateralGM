@@ -23,13 +23,14 @@
 
 package org.lateralgm.main;
 
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -44,27 +45,25 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
-import java.awt.event.FocusListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -75,7 +74,6 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
@@ -113,8 +111,9 @@ import javax.swing.LookAndFeel;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.metal.DefaultMetalTheme;
@@ -133,16 +132,17 @@ import org.lateralgm.components.CustomJToolBar;
 import org.lateralgm.components.ErrorDialog;
 import org.lateralgm.components.GmMenuBar;
 import org.lateralgm.components.GmTreeGraphics;
-import org.lateralgm.components.JSplitPaneExpandable;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.impl.FramePrefsHandler;
 import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
+import org.lateralgm.components.visual.HintTextField;
 import org.lateralgm.file.ProjectFile;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.ResourceList;
+import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.joshedit.Runner;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Constants;
@@ -159,9 +159,9 @@ import org.lateralgm.resources.library.LibManager;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
-import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.subframes.ActionFrame;
 import org.lateralgm.subframes.CodeFrame;
 import org.lateralgm.subframes.ConfigurationManager;
@@ -181,21 +181,15 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
-	//TODO: This list holds the class loader for any loaded plugins which should be
-	//cleaned up and closed when the application closes.
+	// TODO: This list holds the class loader for any loaded plugins which should be
+	// cleaned up and closed when the application closes.
 	public static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
 	public static boolean LOADING_PROJECT = false;
 	public static JDialog progressDialog = null;
 	public static JProgressBar progressDialogBar = null;
-	public static String trackerURL = "https://github.com/IsmAvatar/LateralGM/issues";
 	public static String iconspath = "org/lateralgm/icons/";
 	public static String iconspack = "Calico";
 	public static String themename = "Swing";
-	// this font is used on some controls in my Quantum theme
-	// for the time being to fix the GTK bug with it not
-	// using the UIManager resources for font and color on controls
-	// in its look and feel classes, this is Java's fault not ours
-	public static Font lnfFont = new Font("Ubuntu",Font.PLAIN,14);
 	public static boolean themechanged = false;
 
 	public static int javaVersion;
@@ -220,7 +214,7 @@ public final class LGM
 			}
 		}
 	public static JFrame frame;
-	public static JPanel content;
+	public static JPanel contents;
 	public static JToolBar tool;
 	public static JTree tree;
 	public static ResNode root;
@@ -239,7 +233,7 @@ public final class LGM
 	public static Cursor zoomOutCursor;
 	private static String progressTitle;
 	public static GmMenuBar menuBar;
-	
+
 	public static JToolBar filterPanel;
 	private static JTextField filterText;
 	private static JCheckBox wholeWordCB;
@@ -271,22 +265,26 @@ public final class LGM
 
 	public static JProgressBar getProgressDialogBar()
 		{
+		getProgressDialog();
 		return progressDialogBar;
 		}
 
-	public static void setProgressDialogVisible(boolean visible)
+	public static void setProgressDialogVisible(final boolean visible)
 		{
-		if (!visible)
+		SwingUtilities.invokeLater(new Runnable() {
+		@Override
+		public void run()
 			{
 			if (progressDialog != null)
 				{
-				progressDialog.setVisible(false);
 				progressTitle = "Progress Dialog";
 				progressDialogBar.setValue(0);
+				progressDialog.setVisible(visible);
+				return;
 				}
-			return;
+			getProgressDialog().setVisible(visible);
 			}
-		getProgressDialog().setVisible(true);
+		});
 		}
 
 	public static void setProgressTitle(String title)
@@ -294,10 +292,16 @@ public final class LGM
 		progressTitle = title;
 		}
 
-	public static void setProgress(int value, String message)
+	public static void setProgress(final int value, final String message)
 		{
-		progressDialog.setTitle(progressTitle + " - " + message);
-		progressDialogBar.setValue(value);
+		SwingUtilities.invokeLater(new Runnable() {
+		@Override
+		public void run()
+			{
+			progressDialog.setTitle(progressTitle + " - " + message);
+			progressDialogBar.setValue(value);
+			}
+		});
 		}
 
 	private static void createMouseCursors()
@@ -357,8 +361,10 @@ public final class LGM
 			else if (LOOKANDFEEL.equals("Windows Classic"))
 				{
 				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
-				//NOTE: Fixes UI bug in the JDK where the buttons look way too big and get cut off.
-				UIManager.put("InternalFrame.titleButtonWidth", 20);
+				// Fixes UI bug in the JDK where the buttons look way too big and get cut off.
+				// https://bugs.openjdk.java.net/browse/JDK-8140527
+				UIManager.put("InternalFrame.titleButtonWidth", 22);
+				UIManager.put("InternalFrame.titleButtonHeight", 22);
 				}
 			else if (LOOKANDFEEL.equals("CDE/Motif"))
 				{
@@ -375,10 +381,6 @@ public final class LGM
 				MetalLookAndFeel.setCurrentTheme(new OceanTheme());
 				}
 			else if (LOOKANDFEEL.equals("GTK+"))
-				{
-				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-				}
-			else if (LOOKANDFEEL.equals("Quantum"))
 				{
 				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 				}
@@ -418,14 +420,12 @@ public final class LGM
 				System.err.println("Did you include the L&F library in the class path?");
 				System.err.println("Using the default look and feel.");
 				}
-
 			catch (UnsupportedLookAndFeelException e)
 				{
 				System.err.println("Can't use the specified look and feel (" + lookAndFeel
 						+ ") on this platform.");
 				System.err.println("Using the default look and feel.");
 				}
-
 			catch (Exception e)
 				{
 				System.err.println("Couldn't get specified look and feel (" + lookAndFeel
@@ -524,7 +524,7 @@ public final class LGM
 				getGameSettings().setVisible(true);
 				getGameSettings().toTop();
 				}
-		
+
 		};
 		gameSet.doDefaultCloseAction(run);
 		}
@@ -631,12 +631,12 @@ public final class LGM
 		tool.add(makeButton("Toolbar.GMI")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.PKG")); //$NON-NLS-1$
 		tool.addSeparator();
-		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATIONS") + ":"));
+		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATIONS"))); //$NON-NLS-1$
 		configsCombo = new JComboBox<GameSettings>();
 		configsCombo.setModel(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
 		configsCombo.setMaximumSize(configsCombo.getPreferredSize());
 		tool.add(configsCombo);
-		tool.add(makeButton("Toolbar.CONFIG_MANAGE"));
+		tool.add(makeButton("Toolbar.CONFIG_MANAGE")); //$NON-NLS-1$
 		tool.addSeparator();
 		tool.add(makeButton("Toolbar.GMS")); //$NON-NLS-1$
 		tool.addSeparator();
@@ -644,10 +644,6 @@ public final class LGM
 		tool.add(makeButton("Toolbar.DOCUMENTATION")); //$NON-NLS-1$
 		tool.add(Box.createHorizontalGlue()); //right align after this
 		tool.add(eventButton = makeButton(new JToggleButton(),"Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
-		if (LGM.themename.equals("Quantum"))
-			{
-			tool.setFont(LGM.lnfFont);
-			}
 		return tool;
 		}
 
@@ -661,10 +657,6 @@ public final class LGM
 		InvisibleTreeModel ml = new InvisibleTreeModel(newroot);
 		ml.activateFilter(false);
 		tree = new JTree(ml);
-		if (LGM.themename.equals("Quantum"))
-			{
-			tree.setFont(lnfFont);
-			}
 
 		GmTreeGraphics renderer = new GmTreeGraphics();
 
@@ -718,24 +710,24 @@ public final class LGM
 	  URLClassLoader classLoader
 	         = (URLClassLoader) ClassLoader.getSystemClassLoader();
 	  Class<?> clazz = URLClassLoader.class;
-	
+
 	  // Use reflection
 	  Method method= clazz.getDeclaredMethod("addURL", new Class[] { URL.class });
 	  method.setAccessible(true);
 	  method.invoke(classLoader, new Object[] { url });
 	}
-	
+
 	public static void loadLookAndFeels()
 		{
 		if (workDir == null) return;
-		
+
 		File dir = new File(workDir,"lookandfeels"); //$NON-NLS-1$
 		if (!dir.exists()) {
 			dir = new File(workDir.getParent(),"lookandfeels"); //$NON-NLS-1$
 		}
 		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$
 		if (ps == null) return;
-		
+
 		for (File f : ps)
 			{
 			if (!f.exists()) continue;
@@ -749,7 +741,7 @@ public final class LGM
 				}
 			}
 		}
-	
+
 	public static void loadPlugins()
 		{
 		if (workDir == null) return;
@@ -777,8 +769,11 @@ public final class LGM
 				{
 				String msgInd = "LGM.PLUGIN_LOAD_ERROR"; //$NON-NLS-1$
 				System.out.println(Messages.format(msgInd,f.getName(),e.getClass().getName(),e.getMessage()));
-				//LGM.showDefaultExceptionHandler(e); // not sure about this one it helped me catch an error in the plugin don't know what to do really
-				//TODO: lgm extensions need to be found another way perhaps with a local copy of some sort of digest or somthing like ENIGMA extensions
+				// not sure about this one it helped me catch an error
+				// in the plugin don't know what to do really
+				//LGM.showDefaultExceptionHandler(e);
+				//TODO: lgm extensions need to be found another way perhaps with a local copy of some sort
+				//of digest or somthing like ENIGMA extensions
 				continue;
 				}
 			}
@@ -786,9 +781,9 @@ public final class LGM
 
 	public static void populateTree()
 		{
-		/* TODO: This method here does not give the top level nodes for Game Info, Extensions, and Settings
-		 * a proper resource reference, they get null. My commented code here will give them there
-		 * proper references, but when a reload happens the references are lost again.
+		/* TODO: This method here does not give the top level nodes for Game Info, Extensions, and
+		 * Settings a proper resource reference, they get null. My commented code here will give them
+		 * their proper references, but when a reload happens the references are lost again.
 		 * I seriously do not believe there should be nodes with null references in the tree.
 		for (Class<? extends Resource<?,?>> k : Resource.kinds)
 			{
@@ -807,7 +802,7 @@ public final class LGM
 					root.addChild(name,status,k);
 				}
 			}
-			
+
 		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
 		}
 		 */
@@ -850,7 +845,7 @@ public final class LGM
 			String name = Resource.kindNamesPlural.get(k);
 			byte status = InstantiableResource.class.isAssignableFrom(k) ? ResNode.STATUS_PRIMARY
 					: ResNode.STATUS_SECONDARY;
-			
+
 			root.addChild(name,status,k);
 			}
 		tree.setSelectionPath(new TreePath(root).pathByAddingChild(root.getChildAt(0)));
@@ -883,9 +878,9 @@ public final class LGM
 		{
 		LGM.mdi.closeAll();
 
-		//TODO: Swing code must be executed on the Swing thread, 
-		//without delaying this passing a GMX to the main method 
-		//when launching will sometimes, about once every 5 loads, 
+		//TODO: Swing code must be executed on the Swing thread,
+		//without delaying this passing a GMX to the main method
+		//when launching will sometimes, about once every 5 loads,
 		//throw an exception when setModel is called.
 		//After several hours and days of testing I still haven't figured out why
 		//the GMK reader doesn't have this but the GMX reader does, I believe because the GMX
@@ -894,19 +889,18 @@ public final class LGM
 
 			@Override
 			public void run()
-				{
-					InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
-					LGM.tree.setModel(ml);
-			   	ml.activateFilter(pruneResultsCB.isSelected());
-			   	if (ml.isActivatedFilter()) {
-			 			applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
-			   	}
+			{
+				InvisibleTreeModel ml = new InvisibleTreeModel(LGM.root);
+				LGM.tree.setModel(ml);
+				ml.activateFilter(pruneResultsCB.isSelected());
+				if (ml.isActivatedFilter()) {
+					applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
 				}
-		
+				LGM.tree.setSelectionRow(0);
+			}
+
 		});
-		
-		LGM.tree.setSelectionRow(0);
-		
+
 		// Reload the search tree so that orphaned references can be dumped.
 		DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
 		searchRoot.removeAllChildren();
@@ -914,12 +908,12 @@ public final class LGM
 		((DefaultTreeModel)searchTree.getModel()).reload();
 
 		LGM.eventSelect.reload();
-		
+
 		ConfigurationManager.getInstance().setConfigList(LGM.currentFile.gameSettings);
 		configsCombo.setModel(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
-		
-		//NOTE: We do this to update the reference to the one now loaded
-		//since we never close these frames, then we simply revert their controls.
+
+		// NOTE: We do this to update the reference to the one now loaded
+		// since we never close these frames, then we simply revert their controls.
 		constantsFrame.res = LGM.currentFile.gameSettings.firstElement().constants;
 		constantsFrame.resOriginal = LGM.currentFile.gameSettings.firstElement().constants.clone();
 		constantsFrame.revertResource();
@@ -954,20 +948,19 @@ public final class LGM
 
 	protected static ArrayList<ReloadListener> reloadListeners = new ArrayList<ReloadListener>();
 	static Action treeCopyAction = new AbstractAction("COPY") {
+		/**
+		 * NOTE: Default UID generated, change if necessary.
+		 */
+		private static final long serialVersionUID = 2505969552404421504L;
 
-			 /**
-				 * TODO: Change if needed.
-				 */
-			private static final long serialVersionUID = 1L;
-
-			public void actionPerformed(ActionEvent ev)
+		public void actionPerformed(ActionEvent ev)
 				{
 				Object obj = ev.getSource();
 				if (obj == null) return;
 				JTree tree = null;
 				if (!(obj instanceof JTree)) tree = LGM.searchTree;
 				else tree = (JTree) obj;
-				
+
 				String text = "";
 				int[] rows = tree.getSelectionRows();
 				java.util.Arrays.sort(rows);
@@ -975,14 +968,14 @@ public final class LGM
 					TreePath path = tree.getPathForRow(rows[i]);
 					text += (i > 0 ? "\n" : "") + path.getLastPathComponent().toString().replaceAll("\\<[^>]*>","");
 				}
-				
+
 			  StringSelection selection = new StringSelection(text);
 		    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		    clipboard.setContents(selection, selection);
 				}
 		};
 	private static JTabbedPane treeTabs;
-	
+
 	public static void addReloadListener(ReloadListener l)
 		{
 		reloadListeners.add(l);
@@ -1051,112 +1044,37 @@ public final class LGM
 
 		public abstract T getInstance();
 		}
-	
-	public static class HintTextField extends JTextField implements FocusListener {
-		    /**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-			private String hint;
-	    private boolean hideOnFocus;
-	    private Color color;
 
-	    public Color getColor() {
-	        return color;
-	    }
-
-	    public void setColor(Color color) {
-	        this.color = color;
-	        repaint();
-	    }
-
-	    public boolean isHideOnFocus() {
-	        return hideOnFocus;
-	    }
-
-	    public void setHideOnFocus(boolean hideOnFocus) {
-	        this.hideOnFocus = hideOnFocus;
-	        repaint();
-	    }
-
-	    public String getHint() {
-	        return hint;
-	    }
-
-	    public void setHint(String hint) {
-	        this.hint = hint;
-	        repaint();
-	    }
-	    
-	    public HintTextField(String hint) {
-	        this(hint,false);
-	    }
-
-	    public HintTextField(String hint, boolean hideOnFocus) {
-	        this(hint,hideOnFocus, null);
-	    }
-
-	    public HintTextField(String hint, boolean hideOnFocus, Color color) {
-	        this.hint = hint;
-	        this.hideOnFocus = hideOnFocus;
-	        this.color = color;
-	       addFocusListener(this);
-	    }
-
-	    @Override
-			public void paint(Graphics g) {
-	        super.paint(g);
-	        if (hint != null && getText().length() == 0 && (!(hideOnFocus && hasFocus()))){
-	            if (color != null) {
-	                g.setColor(color);
-	            } else {
-	                g.setColor(getForeground().brighter().brighter().brighter());              
-	            }
-	            int padding = (getHeight() - getFont().getSize())/2;
-	            //g.setFont(g.getFont().deriveFont(Font.ITALIC));
-	            g.drawString(hint, 2, getHeight()-padding-1);          
-	        }
-	    }
-
-	    public void focusGained(FocusEvent e) {
-	        if (hideOnFocus) repaint();
-	    }
-
-	    public void focusLost(FocusEvent e) {
-	        if (hideOnFocus) repaint();
-	    }
-	}
-	
 	public static class InvisibleTreeModel extends DefaultTreeModel {
 
 	  /**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = 1L;
 		protected boolean filterIsActive;
-	
+
 	  public InvisibleTreeModel(TreeNode root) {
 	    this(root, false);
 	  }
-	
+
 	  public InvisibleTreeModel(TreeNode root, boolean asksAllowsChildren) {
 	    this(root, false, false);
 	  }
-	
+
 	  public InvisibleTreeModel(TreeNode root, boolean asksAllowsChildren,
 	      boolean filterIsActive) {
 	    super(root, asksAllowsChildren);
 	    this.filterIsActive = filterIsActive;
 	  }
-	
+
 	  public void activateFilter(boolean newValue) {
 	    filterIsActive = newValue;
 	  }
-	
+
 	  public boolean isActivatedFilter() {
 	    return filterIsActive;
 	  }
-	
+
 	  public Object getChild(Object parent, int index) {
 	    if (filterIsActive) {
 	      if (parent instanceof ResNode) {
@@ -1166,7 +1084,7 @@ public final class LGM
 	    }
 	    return ((TreeNode) parent).getChildAt(index);
 	  }
-	
+
 	  public int getChildCount(Object parent) {
 	    if (filterIsActive) {
 	      if (parent instanceof ResNode) {
@@ -1175,9 +1093,9 @@ public final class LGM
 	    }
 	    return ((TreeNode) parent).getChildCount();
 	  }
-	
+
 	}
-	
+
   private static boolean expressionMatch(String token, String expression, boolean matchCase, boolean wholeWord) {
   	if (!matchCase) {
   		token = token.toLowerCase();
@@ -1186,12 +1104,12 @@ public final class LGM
   	if (wholeWord) {
   		return token.equals(expression);
   	} else {
-  		//if (expression.length() == 0) { return false; } // without this all of your folders will be open by default, we don't want to 
+  		//if (expression.length() == 0) { return false; } // without this all of your folders will be open by default, we don't want to
   		// check matches with an empty string - don't touch this as everything works so just leave it here in case I come back to it - Robert B. Colton
   		return token.contains(expression);
   	}
   }
-  
+
   public static DefaultMutableTreeNode applyFilterRecursion(Vector<ResNode> children, boolean filter, String expression, boolean matchCase, boolean wholeWord) {
   	if (children == null) { return null; }
   	DefaultMutableTreeNode firstResult = null;
@@ -1213,7 +1131,7 @@ public final class LGM
 		}
 		return firstResult;
   }
-  
+
 	public static boolean applyFilter(Vector<ResNode> children, boolean filter, String expression, boolean matchCase, boolean wholeWord, boolean selectFirst) {
 		if (children == null) { return false; }
 		DefaultMutableTreeNode firstResult = applyFilterRecursion(children, filter, expression, matchCase, wholeWord);
@@ -1226,7 +1144,7 @@ public final class LGM
   	tree.updateUI();
   	return false;
   }
-	
+
 	public static boolean searchFilter(ResNode child, String expression, boolean matchCase, boolean wholeWord, boolean backwards) {
 		ResNode firstResult = null;
 		while (child != null) {
@@ -1287,7 +1205,7 @@ public final class LGM
 			return text;
 			}
 	}
-	
+
 	private static String formatMatchCountText(String pretext, int matches) {
 		boolean enablehtml = Prefs.highlightMatchCountBackground || Prefs.highlightMatchCountForeground;
 		String text = (enablehtml ? "<html>" : "") + pretext + " " + (enablehtml ? "<font" : "");
@@ -1298,10 +1216,10 @@ public final class LGM
 			text += " color='" + Util.getHTMLColor(Prefs.matchCountForegroundColor,false) + "'";
 		}
 		text += (enablehtml ? ">" : "") + "(" + matches + " " + Messages.getString("TreeFilter.MATCHES") + ")" + (enablehtml ? "</font></html>" : "");
-	
+
 		return text;
 	}
-	
+
 	private static final Pattern NEWLINE = Pattern.compile("\r\n|\r|\n");
 	static List<LineMatch> getMatchingLines(String code, Pattern content) {
 	  List<LineMatch> res = new ArrayList<LineMatch>();
@@ -1350,8 +1268,8 @@ public final class LGM
 	  }
 	  return res;
 	}
-	
-	
+
+
 	/*
 	public static void assertEquals(Object obj1, Object obj2) {
 		if (obj1.equals(obj2)) {
@@ -1378,7 +1296,7 @@ public final class LGM
           assertEquals("sandthen", matches[1].matchedText.get(2).content);
   }
   */
-	
+
 	public static void buildSearchHierarchy(ResNode resNode, SearchResultNode resultRoot) {
 		DefaultMutableTreeNode searchNode = (DefaultMutableTreeNode) LGM.searchTree.getModel().getRoot();
 		if (resNode == null) { searchNode.add(resultRoot); return; }
@@ -1405,8 +1323,8 @@ public final class LGM
 			}
 		}
 	}
-	
-	
+
+
 	public static void searchInResourcesRecursion(DefaultMutableTreeNode node, Pattern pattern) {
 		int numChildren = node.getChildCount();
 	  for (int i = 0; i < numChildren; ++i) {
@@ -1418,14 +1336,14 @@ public final class LGM
 				} else {
 					SearchResultNode resultRoot = null;
 					ResourceReference<?> ref = resNode.getRes();
-					
+
 					if (ref != null) {
 						Resource<?,?> resderef = ref.get();
 						if (resNode.frame != null) {
 							resNode.frame.commitChanges();
 							resderef = resNode.frame.res;
 						}
-						
+
 						if (resNode.kind == Script.class)	{
 							Script res = (Script) resderef;
 							String code = res.getCode();
@@ -1438,7 +1356,7 @@ public final class LGM
 								for (LineMatch match : matches) {
 									if (match.matchedText.size() > 0) {
 										String text = match.toHighlightableString();
-										
+
 										SearchResultNode resultNode = new SearchResultNode(text);
 										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 										resultNode.status = SearchResultNode.STATUS_RESULT;
@@ -1458,7 +1376,7 @@ public final class LGM
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
-								
+
 								SearchResultNode resultGroupNode = new SearchResultNode(formatMatchCountText(
 										Messages.getString("TreeFilter.VERTEX_CODE") + ":",vertexmatches.size()));
 								resultGroupNode.status = SearchResultNode.STATUS_VERTEX_CODE;
@@ -1466,7 +1384,7 @@ public final class LGM
 								for (LineMatch match : vertexmatches) {
 									if (match.matchedText.size() > 0) {
 										String text = match.toHighlightableString();
-										
+
 										SearchResultNode resultNode = new SearchResultNode(text);
 										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 										resultNode.status = SearchResultNode.STATUS_RESULT;
@@ -1474,7 +1392,7 @@ public final class LGM
 										resultGroupNode.add(resultNode);
 									}
 								}
-								
+
 								resultGroupNode = new SearchResultNode(formatMatchCountText(
 										Messages.getString("TreeFilter.FRAGMENT_CODE") + ":",fragmentmatches.size()));
 								resultGroupNode.status = SearchResultNode.STATUS_FRAGMENT_CODE;
@@ -1482,7 +1400,7 @@ public final class LGM
 								for (LineMatch match : fragmentmatches) {
 									if (match.matchedText.size() > 0) {
 										String text = match.toHighlightableString();
-										
+
 										SearchResultNode resultNode = new SearchResultNode(text);
 										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 										resultNode.status = SearchResultNode.STATUS_RESULT;
@@ -1493,7 +1411,7 @@ public final class LGM
 							}
 						} else if (resNode.kind == GmObject.class) {
 							GmObject res = (GmObject) resderef;
-							
+
 							ArrayList<SearchResultNode> meNodes = new ArrayList<>();
 							int matchCount = 0;
 							for (MainEvent me : res.mainEvents) {
@@ -1534,7 +1452,7 @@ public final class LGM
 														resultNode = new SearchResultNode(text);
 														resultNode.data = new Object[]{match.lineNum};
 													}
-													
+
 													resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 													resultNode.status = SearchResultNode.STATUS_RESULT;
 													resultNodes.add(resultNode);
@@ -1547,7 +1465,7 @@ public final class LGM
 											SearchResultNode actRoot = new SearchResultNode(formatMatchCountText(act.getLibAction().name.replace("_"," "),actMatches));
 											actRoot.status = SearchResultNode.STATUS_ACTION;
 											actRoot.data = new Object[]{ii};
-											actRoot.setIcon(new ImageIcon(act.getLibAction().getImage().getScaledInstance(16,16,0)));
+											actRoot.setIcon(new ImageIcon(act.getLibAction().actImage.getScaledInstance(16,16,0)));
 											for (SearchResultNode actn : resultNodes) {
 												actRoot.add(actn);
 											}
@@ -1583,21 +1501,21 @@ public final class LGM
 									}
 								}
 							}
-							
+
 							if (meNodes.size() > 0) {
 								resultRoot = new SearchResultNode(formatMatchCountText(res.getName(), matchCount));
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
 							}
-							
+
 							for (SearchResultNode resn : meNodes) {
 								resultRoot.add(resn);
 							}
-	
+
 						} else if (resNode.kind == Timeline.class) {
 							Timeline res = (Timeline) resderef;
-							
+
 							ArrayList<SearchResultNode> momentNodes = new ArrayList<>();
 							int matchCount = 0;
 							for (Moment mom : res.moments) {
@@ -1622,7 +1540,7 @@ public final class LGM
 										for (LineMatch match : matches) {
 											if (match.matchedText.size() > 0) {
 												String text = match.toHighlightableString();
-	
+
 												SearchResultNode resultNode = null;
 												if (act.getLibAction().actionKind != org.lateralgm.resources.sub.Action.ACT_CODE) {
 													boolean enablehtml = Prefs.highlightResultMatchBackground || Prefs.highlightResultMatchForeground;
@@ -1633,21 +1551,21 @@ public final class LGM
 													resultNode = new SearchResultNode(text);
 													resultNode.data = new Object[]{match.lineNum};
 												}
-												
+
 												resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 												resultNode.status = SearchResultNode.STATUS_RESULT;
 												resultNodes.add(resultNode);
 											}
 										}
 									}
-								
+
 									momentMatches += actMatches;
 									if (resultNodes.size() > 0) {
 										// Uses the same method of getting the Action name as ActionFrame
 										SearchResultNode actRoot = new SearchResultNode(formatMatchCountText(act.getLibAction().name.replace("_"," "), actMatches));
 										actRoot.status = SearchResultNode.STATUS_ACTION;
 										actRoot.data = new Object[]{ii};
-										actRoot.setIcon(new ImageIcon(act.getLibAction().getImage().getScaledInstance(16,16,0)));
+										actRoot.setIcon(new ImageIcon(act.getLibAction().actImage.getScaledInstance(16,16,0)));
 										for (SearchResultNode actn : resultNodes) {
 											actRoot.add(actn);
 										}
@@ -1667,24 +1585,24 @@ public final class LGM
 									momentNodes.add(momentRoot);
 								}
 							}
-							
+
 							if (momentNodes.size() > 0) {
 								resultRoot = new SearchResultNode(formatMatchCountText(res.getName(), matchCount));
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
 							}
-							
+
 							for (SearchResultNode momn : momentNodes) {
 								resultRoot.add(momn);
 							}
-		
+
 						} else if (resNode.kind == Room.class) {
 							Room res = (Room) resderef;
-							
+
 							ArrayList<SearchResultNode> resultNodes = new ArrayList<>();
 							int matchCount = 0;
-							
+
 							String code = res.getCode();
 							List<LineMatch> matches = getMatchingLines(code, pattern);
 							matchCount += matches.size();
@@ -1692,7 +1610,7 @@ public final class LGM
 							for (LineMatch match : matches) {
 								if (match.matchedText.size() > 0) {
 									String text = match.toHighlightableString();
-									
+
 									SearchResultNode resultNode = new SearchResultNode(text);
 									resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 									resultNode.status = SearchResultNode.STATUS_RESULT;
@@ -1700,18 +1618,18 @@ public final class LGM
 									codeNodes.add(resultNode);
 								}
 							}
-							
+
 							if (codeNodes.size() > 0) {
 								SearchResultNode resultNode = new SearchResultNode(formatMatchCountText(Messages.getString("TreeFilter.CREATION_CODE"), matches.size()));
 								resultNode.setIcon(null);
 								resultNode.status = SearchResultNode.STATUS_ROOM_CREATION;
 								resultNodes.add(resultNode);
-								
+
 								for (SearchResultNode codeNode : codeNodes) {
 									resultNode.add(codeNode);
 								}
 							}
-							
+
 							for (Instance inst : res.instances) {
 								code = inst.getCode();
 								matches = getMatchingLines(code, pattern);
@@ -1720,7 +1638,7 @@ public final class LGM
 								for (LineMatch match : matches) {
 									if (match.matchedText.size() > 0) {
 										String text = match.toHighlightableString();
-										
+
 										SearchResultNode resultNode = new SearchResultNode(text);
 										resultNode.setIcon(LGM.getIconForKey("TreeFilter.RESULT"));
 										resultNode.data = new Object[]{match.lineNum};
@@ -1728,7 +1646,7 @@ public final class LGM
 										codeNodes.add(resultNode);
 									}
 								}
-								
+
 								if (codeNodes.size() > 0) {
 									SearchResultNode resultNode = new SearchResultNode(formatMatchCountText(
 											Messages.getString("TreeFilter.INSTANCE") + " " + inst.getID(), matches.size()));
@@ -1738,25 +1656,25 @@ public final class LGM
 									resultNode.status = SearchResultNode.STATUS_INSTANCE_CREATION;
 									resultNode.data = new Object[]{inst.getID()};
 									resultNodes.add(resultNode);
-									
+
 									for (SearchResultNode codeNode : codeNodes) {
 										resultNode.add(codeNode);
 									}
 								}
 							}
-							
+
 							if (resultNodes.size() > 0) {
 								resultRoot = new SearchResultNode(formatMatchCountText(res.getName(),matchCount));
 								resultRoot.ref = res.reference;
 								resultRoot.status = ResNode.STATUS_SECONDARY;
 								resultRoot.setIcon(res.getNode().getIcon());
 							}
-							
+
 							for (SearchResultNode resultNode : resultNodes) {
 								resultRoot.add(resultNode);
 							}
 						}
-						
+
 						if (resultRoot != null) {
 							TreeNode[] paths = resNode.getPath();
 							DefaultMutableTreeNode searchNode = (DefaultMutableTreeNode) LGM.searchTree.getModel().getRoot();
@@ -1781,14 +1699,14 @@ public final class LGM
 									searchNode.add(resultRoot);
 								}
 							}
-							
+
 						}
 					}
 				}
 			}
-		}	
+		}
 	}
-	
+
 	public static void searchInResources(DefaultMutableTreeNode node, String expression, boolean regex, boolean matchCase, boolean wholeWord) {
 		DefaultMutableTreeNode searchRoot = (DefaultMutableTreeNode) searchTree.getModel().getRoot();
 		searchRoot.removeAllChildren();
@@ -1797,12 +1715,13 @@ public final class LGM
 		// Reload because root is invisible.
 		((DefaultTreeModel)searchTree.getModel()).reload();
 	}
-	
+
 	static class SearchResultNode extends DefaultMutableTreeNode {
 		/**
-		 * TODO: Change if needed.
+		 * NOTE: Default UID generated, change if necessary.
 		 */
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = -8827316922729826331L;
+
 		public static final byte STATUS_RESULT = 4;
 		public static final byte STATUS_MAIN_EVENT = 5;
 		public static final byte STATUS_EVENT = 6;
@@ -1812,19 +1731,19 @@ public final class LGM
 		public static final byte STATUS_ACTION = 10;
 		public static final byte STATUS_ROOM_CREATION = 11;
 		public static final byte STATUS_INSTANCE_CREATION = 12;
-		
+
 		public byte status;
 		ResourceReference<?> ref;
 		private Icon icon = null;
-		
+
 		Object[] data;
 		Object[] parentdata;
-		
+
 		public SearchResultNode()
 			{
 				super();
 			}
-		
+
 		public SearchResultNode(Object text)
 			{
 			super(text);
@@ -1833,7 +1752,7 @@ public final class LGM
 		public void setIcon(Icon ico) {
 			icon = ico;
 		}
-		
+
 		public ResourceReference<?> getRef() {
 			SearchResultNode par = (SearchResultNode) this.getParent();
 			ResourceReference<?> ret = par.ref;
@@ -1843,7 +1762,7 @@ public final class LGM
 			}
 			return ret;
 		}
-		
+
 		public void threadCaretUpdate(final CodeTextArea code, int row, int col) {
 			SwingUtilities.invokeLater(new Runnable(){
 				@Override
@@ -1855,14 +1774,14 @@ public final class LGM
 					}
 			});
 		}
-		
+
 		public void openFrame() {
 			if (status >= STATUS_RESULT) {
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) this.getParent();
 				if (node instanceof SearchResultNode) {
 					SearchResultNode parNode = (SearchResultNode) node;
 					parNode.openFrame();
-					
+
 					ResourceReference<?> parentRef = this.getRef();
 					if (parentRef != null) {
 						Resource<?,?> res = parentRef.get();
@@ -1981,7 +1900,7 @@ public final class LGM
 			}
 		}
 	}
-	
+
 	public static class SearchResultsRenderer extends DefaultTreeCellRenderer
 	{
 		SearchResultNode last;
@@ -1994,14 +1913,14 @@ public final class LGM
 			if (value instanceof SearchResultNode) {
 				last = (SearchResultNode) value;
 			}
-			
+
 			// this is a patch for the DarkEye Synthetica look and feel which for some reason
 			// overrides its own UI property in its paint method, likely a bug on their part
 			// same fix applied in GmTreeGraphics.java
 			setTextNonSelectionColor(nonSelectColor);
-			
+
 			Component com = super.getTreeCellRendererComponent(tree,value,sel,expanded,leaf,row,hasFocus);
-			
+
 			// Bold primary nodes
 			if (value instanceof SearchResultNode && com instanceof JLabel) {
 				SearchResultNode rn = (SearchResultNode) value;
@@ -2010,17 +1929,17 @@ public final class LGM
 					label.setText("<html><b>" + label.getText() + "</b></html>");
 				}
 			}
-	
+
 			return com;
 		}
-		
-		
-		@Override 
+
+
+		@Override
 		public void updateUI() {
 			super.updateUI();
 			nonSelectColor = this.getTextNonSelectionColor();
 		}
-		
+
 		public Icon getLeafIcon()
 		{
 			if (last != null) {
@@ -2056,8 +1975,13 @@ public final class LGM
 			return null;
 		}
 	}
-  
+
 	public static void applyPreferences() {
+		if (!Prefs.locale.toLanguageTag().equals("und")) {
+			Locale.setDefault(Prefs.locale);
+		}
+		System.out.println(Locale.getDefault());
+
 		if (Prefs.direct3DAcceleration.equals("off")) { //$NON-NLS-1$
 			//java6u10 regression causes graphical xor to be very slow
 			System.setProperty("sun.java2d.d3d","false"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -2066,16 +1990,16 @@ public final class LGM
 			System.setProperty("sun.java2d.d3d","true"); //$NON-NLS-1$ //$NON-NLS-2$
 			System.setProperty("sun.java2d.ddscale", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		
+
 		if (Prefs.openGLAcceleration.equals("off")) { //$NON-NLS-1$
 			System.setProperty("sun.java2d.opengl","false"); //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (Prefs.openGLAcceleration.equals("on")) { //$NON-NLS-1$
 			System.setProperty("sun.java2d.opengl","true"); //$NON-NLS-1$ //$NON-NLS-2$
-			//TODO: Causes JFrame's other than the main JFrame to be white on Windows 8 
+			//TODO: Causes JFrame's other than the main JFrame to be white on Windows 8
 			//under all Look and Feels with AMD graphics card, seems to be a known issue
 			//with OpenGL for Java on Windows, as usual Oracle is unlikely to fix it.
 			//https://community.oracle.com/thread/1263741?start=0&tstart=0
-			if (System.getProperty("os.name").toLowerCase().startsWith("windows")) {
+			if (System.getProperty("os.name").toLowerCase().startsWith("windows")) { //$NON-NLS-1$ //$NON-NLS-2$
 				//force directx completely off
 				System.setProperty("sun.java2d.noddraw","true"); //$NON-NLS-1$ //$NON-NLS-2$
 				System.setProperty("sun.java2d.opengl.fbobject","false"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -2083,17 +2007,20 @@ public final class LGM
 		}
 		if (!Prefs.antialiasControlFont.equals("default")) { //$NON-NLS-1$
 			// Set antialiasing mode
-			System.setProperty("awt.useSystemAAFontSettings",Prefs.antialiasControlFont);
+			System.setProperty("awt.useSystemAAFontSettings",Prefs.antialiasControlFont); //$NON-NLS-1$
 			// if the other antialiasing option is not off then assume this one is on as well
-			if (!Prefs.antialiasControlFont.equals("off")) { //$NON-NLS-1$
-				System.setProperty("swing.aatext","true");
+			if (Prefs.antialiasControlFont.equals("off")) { //$NON-NLS-1$
+				System.setProperty("swing.aatext","false"); //$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				System.setProperty("swing.aatext","true"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
-		
+
 		// this is necessary to make sure open/save dialogs get fixed
 		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
 		JDialog.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
-		// all this code is necessary to make sure toggling window decorations do not cause frameless borders
+		// all this code is necessary to make sure toggling window decorations
+		// do not cause frameless borders
 		Window[] windows = Window.getWindows();
 		for (Window window : windows) {
 			boolean visible = window.isVisible();
@@ -2126,11 +2053,11 @@ public final class LGM
 					if (decdialog instanceof RootPaneContainer) {
 						((RootPaneContainer) decdialog).getRootPane().setWindowDecorationStyle(decorate ? JRootPane.FRAME : JRootPane.NONE);
 					}
-				}	
+				}
 			}
 		}
 	}
-	
+
 	private static class CustomExceptionHandler implements Runner.ExceptionHandler {
 
 		@Override
@@ -2138,9 +2065,9 @@ public final class LGM
 			{
 				LGM.showDefaultExceptionHandler(e);
 			}
-	
+
 	}
-  
+
 	public static void main(final String[] args) throws InvocationTargetException, InterruptedException
 		{
 		// Set the default uncaught exception handler.
@@ -2150,7 +2077,7 @@ public final class LGM
 
 		LGM.applyPreferences();
 		Messages.updateLangPack();
-		
+
 		//TODO: Should probably make these preferences as well, but I don't have a Mac to test - Robert
 		//Put the Mac menu bar where it belongs (ignored by other systems)
 		System.setProperty("apple.laf.useScreenMenuBar","true"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -2158,12 +2085,12 @@ public final class LGM
 		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
-		if (javaVersion <= 10600)
+		if (javaVersion <= 10700)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
 
 		// Load external look and feels the user has plugged in
 		loadLookAndFeels();
-		
+
 		iconspack = Prefs.iconPack;
 		setLookAndFeel(Prefs.swingTheme);
 		themechanged = false;
@@ -2187,10 +2114,10 @@ public final class LGM
 				}
 			}
 
-		splashProgress.progress(10,Messages.getString("LGM.SPLASH_LANG"));
+		splashProgress.progress(10,Messages.getString("LGM.SPLASH_LANG")); //$NON-NLS-1$
 		Messages.updateLangPack();
 
-		splashProgress.progress(15,Messages.getString("LGM.SPLASH_CURSOR"));
+		splashProgress.progress(15,Messages.getString("LGM.SPLASH_CURSOR")); //$NON-NLS-1$
 		createMouseCursors();
 
 		splashProgress.progress(20,Messages.getString("LGM.SPLASH_LIBS")); //$NON-NLS-1$
@@ -2200,9 +2127,8 @@ public final class LGM
 		JToolBar toolbar = createToolBar();
 		treeTabs = new JTabbedPane();
 		tree = createTree();
-		DefaultMutableTreeNode sroot = new DefaultMutableTreeNode("root");
-		//sroot.add(new DefaultMutableTreeNode("cock"));
-		
+		DefaultMutableTreeNode sroot = new DefaultMutableTreeNode("root"); //$NON-NLS-1$
+
 		searchTree = new JTree(sroot);
 
 		// Create tree context menu
@@ -2235,7 +2161,7 @@ public final class LGM
 			public void actionPerformed(ActionEvent ev)
 				{
 					//NOTE: The code for expanding all nodes does not work here because collapsing a child node
-				  //will expand its parent, so you have to do it in reverse. For now I will just reload the tree.
+					//will expand its parent, so you have to do it in reverse. For now I will just reload the tree.
 					((DefaultTreeModel)searchTree.getModel()).reload();
 				}
 		});
@@ -2247,21 +2173,21 @@ public final class LGM
 		copyItem.setIcon(LGM.getIconForKey("TreeFilter.COPY"));
 		copyItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.COPY")));
 
-    searchTree.getActionMap().put("COPY", treeCopyAction);
-    searchTree.getInputMap().put(copyItem.getAccelerator(), "COPY");
-    // Add it to the main tree as well to remove HTML formatting
-    tree.getActionMap().put("COPY", treeCopyAction);
-    tree.getInputMap().put(copyItem.getAccelerator(), "COPY");
-    
+		searchTree.getActionMap().put("COPY", treeCopyAction);
+		searchTree.getInputMap().put(copyItem.getAccelerator(), "COPY");
+		// Add it to the main tree as well to remove HTML formatting
+		tree.getActionMap().put("COPY", treeCopyAction);
+		tree.getInputMap().put(copyItem.getAccelerator(), "COPY");
+
 		searchMenu.add(copyItem);
 		searchMenu.addSeparator();
 		JMenuItem selectAllItem = new JMenuItem(Messages.getString("TreeFilter.SELECTALL"));
-		
+
 		selectAllItem.setIcon(LGM.getIconForKey("TreeFilter.SELECTALL"));
 		selectAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.SELECTALL")));
 		//NOTE: It's possible to grab the trees built in Select All action.
 		//selectAllItem.setAction(searchTree.getActionMap().get(searchTree.getInputMap().get(selectAllItem.getAccelerator())));
-		
+
 		selectAllItem.addActionListener(new ActionListener() {
 		public void selectAllChildren(JTree tree, DefaultMutableTreeNode node) {
 			Enumeration<?> children = node.children();
@@ -2287,16 +2213,16 @@ public final class LGM
 		searchTree.setShowsRootHandles(true);
 		searchTree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		searchTree.addMouseListener(new MouseAdapter() {
-	    public void mouseReleased(MouseEvent me) {
-	    	TreePath path = LGM.searchTree.getPathForLocation(me.getX(),me.getY());
-	    	
-	    	boolean inpath = false;
-	    	if (path != null) {
+			public void mouseReleased(MouseEvent me) {
+				TreePath path = LGM.searchTree.getPathForLocation(me.getX(),me.getY());
+
+				boolean inpath = false;
+					if (path != null) {
 					//Check to see if we have clicked on a different node then the one
 					//currently selected.
 					TreePath[] paths = LGM.searchTree.getSelectionPaths();
-					
-	
+
+
 					if (paths != null)
 						{
 						for (int i = 0; i < paths.length; i++)
@@ -2307,12 +2233,12 @@ public final class LGM
 								}
 							}
 						}
-					
+
 					if (me.getModifiers() == InputEvent.BUTTON1_MASK && inpath)
 						{
 						LGM.searchTree.setSelectionPath(path);
 						}
-	    	}
+				}
 				//Isn't Java supposed to handle ctrl+click for us? For some reason it doesn't.
 				if (me.getModifiers() == InputEvent.BUTTON3_MASK && me.getClickCount() == 1)
 					{
@@ -2328,14 +2254,14 @@ public final class LGM
 					searchMenu.show((Component)me.getSource(), me.getX(), me.getY());
 					return;
 					}
-				
+
 				if (path == null) return;
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
 				if (node == null) return;
 				if (me.getModifiers() == InputEvent.BUTTON1_MASK && me.getClickCount() >= 2 && ((me.getClickCount() & 1) == 0)) {
 					if (node instanceof SearchResultNode) {
 						SearchResultNode srn = (SearchResultNode) node;
-						
+
 						if (srn.status >= ResNode.STATUS_SECONDARY) {
 							srn.openFrame();
 							return;
@@ -2354,11 +2280,10 @@ public final class LGM
 						}
 					}
 				}
-	    }
-	  });
-		content = new JPanel(new BorderLayout());
-		content.add(BorderLayout.CENTER,createMDI());
-		content.setPreferredSize(new Dimension(640, 640));
+			}
+		});
+		contents = new JPanel(new BorderLayout());
+		contents.add(BorderLayout.CENTER,createMDI());
 		eventSelect = new EventPanel();
 
 		// could possibly be used to force the toolbar with event panel to popout
@@ -2380,10 +2305,6 @@ public final class LGM
 		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
 				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
 		menuBar = new GmMenuBar();
-		if (LGM.themename.equals("Quantum"))
-			{
-			menuBar.setFont(lnfFont);
-			}
 		frame.setJMenuBar(menuBar);
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
 		JPanel f = new JPanel(new BorderLayout());
@@ -2397,49 +2318,232 @@ public final class LGM
 					}
 			});
 
+		final JFrame filterSettingsFrame = createFilterSettingsFrame();
+
+		filterText = new HintTextField(Messages.getString("TreeFilter.SEARCHFOR"),true);
+
+		JButton prevButton = new JButton(LGM.getIconForKey("TreeFilter.PREV"));
+		prevButton.setToolTipText(Messages.getString("TreeFilter.PREV"));
+		prevButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0)
+			{
+				searchFilter((ResNode)tree.getLastSelectedPathComponent(),filterText.getText(),
+						matchCaseCB.isSelected(), wholeWordCB.isSelected(), true);
+			}
+		});
+
+		JButton nextButton = new JButton(LGM.getIconForKey("TreeFilter.NEXT"));
+		nextButton.setToolTipText(Messages.getString("TreeFilter.NEXT"));
+		nextButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0)
+			{
+				searchFilter((ResNode)tree.getLastSelectedPathComponent(), filterText.getText(),
+						matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
+			}
+		});
+
+		JButton searchInButton = new JButton(LGM.getIconForKey("TreeFilter.SEARCHIN"));
+		searchInButton.setToolTipText(Messages.getString("TreeFilter.SEARCHIN"));
+		searchInButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0)
+			{
+		 		if (filterText.getText().length() <= 0) return;
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+				searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(),
+						matchCaseCB.isSelected(), wholeWordCB.isSelected());
+				setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS"));
+			}
+		});
+
+		JButton setButton = new JButton(LGM.getIconForKey("TreeFilter.SET"));
+		setButton.setToolTipText(Messages.getString("TreeFilter.SET"));
+		setButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0)
+			{
+				filterSettingsFrame.setVisible(true);
+			}
+		});
+
+		filterText.getDocument().addDocumentListener(new DocumentListener() {
+			public void changedUpdate(DocumentEvent e) {
+
+			}
+			public void removeUpdate(DocumentEvent e) {
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+				if (ml.isActivatedFilter()) {
+					applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
+				} else {
+					searchFilter(root, filterText.getText(), matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
+			 	}
+			}
+
+			public void insertUpdate(DocumentEvent e) {
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+			 	if (ml.isActivatedFilter()) {
+					applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
+				} else {
+			 		searchFilter(root, filterText.getText(), matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
+				}
+			}
+		});
+
+		filterText.addActionListener(new ActionListener() {
+		public void actionPerformed(ActionEvent evt) {
+			if (filterText.getText().length() <= 0) return;
+			InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+			searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(),
+					matchCaseCB.isSelected(), wholeWordCB.isSelected());
+			setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS"));
+	  }
+		});
+
+		// Use a toolbar so that the buttons render like tool buttons and smaller.
+		filterPanel = new CustomJToolBar();
+
+		// Use a custom layout so that the filterText control will stretch horizontally under
+		// all Look and Feels.
+		GroupLayout filterLayout = new GroupLayout(filterPanel);
+
+		filterLayout.setHorizontalGroup(filterLayout.createSequentialGroup()
+		/**/.addComponent(filterText)
+		/**/.addComponent(prevButton)
+		/**/.addComponent(nextButton)
+		/**/.addComponent(searchInButton)
+		/**/.addComponent(setButton));
+
+		filterLayout.setVerticalGroup(filterLayout.createParallelGroup(Alignment.CENTER)
+		/**/.addComponent(filterText, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+		/**/.addComponent(prevButton)
+		/**/.addComponent(nextButton)
+		/**/.addComponent(searchInButton)
+		/**/.addComponent(setButton));
+
+		filterPanel.setLayout(filterLayout);
+		filterPanel.setFloatable(true);
+		filterPanel.setVisible(Prefs.showTreeFilter);
+
+		treeTabs.addTab(Messages.getString("TreeFilter.TAB_RESOURCES"),new JScrollPane(tree));
+		treeTabs.addTab(Messages.getString("TreeFilter.TAB_SEARCHRESULTS"),new JScrollPane(searchTree));
+		if (Prefs.dockEventPanel) {
+			treeTabs.addTab(Messages.getString("TreeFilter.TAB_EVENTS"),eventSelect);
+		} else {
+			eventSelect.setVisible(false); // must occur after adding split
+		}
+
+		JPanel hierarchyPanel = new JPanel();
+		hierarchyPanel.setLayout(new BorderLayout(0, 0));
+		hierarchyPanel.add(filterPanel, BorderLayout.NORTH);
+		hierarchyPanel.add(treeTabs,BorderLayout.CENTER);
+		hierarchyPanel.setPreferredSize(new Dimension(320, 320));
+
+		//OutputManager.initialize();
+
+		JSplitPane verSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT,true,contents,OutputManager.outputTabs);
+		final JSplitPane horSplit;
+		if (Prefs.rightOrientation) {
+			horSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,verSplit,hierarchyPanel);
+			horSplit.setResizeWeight(1d);
+		} else {
+			horSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,true,hierarchyPanel,verSplit);
+		}
+		f.add(horSplit);
+
+		frame.setContentPane(f);
+		frame.setTransferHandler(Listener.getInstance().fc.new LGMDropHandler());
+		f.add(BorderLayout.NORTH,toolbar);
+		f.setOpaque(true);
+
+		splashProgress.progress(65,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
+		try
+			{
+			ICOFile icoFile = new ICOFile(LGM.class.getClassLoader().getResource(
+					"org/lateralgm/main/lgm-logo.ico")); //$NON-NLS-1$
+			frame.setIconImages(icoFile.getImages());
+			}
+		catch (Exception e)
+			{
+			LGM.showDefaultExceptionHandler(e);
+			}
+		// let the user specify their own background
+		if (new File("lookandfeels/lgmbackground.png").exists()) {
+			applyBackground("lookandfeels/lgmbackground.png"); //$NON-NLS-1$
+		} else {
+			applyBackground("org/lateralgm/main/lgmbackground.png"); //$NON-NLS-1$
+		}
+		splashProgress.progress(70,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
+		populateTree();
+		splashProgress.progress(80,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
+		LOADING_PROJECT = true;
+		loadPlugins();
+		splashProgress.complete();
+
+		frame.setVisible(true);
+		frame.pack();
+		// this makes sure the first time default location of the window
+		// that has not been stored is centered
+		frame.setLocationRelativeTo(null);
+		// This needs to be here after the frame is set to visible for some reason,
+		// it was causing the bug with the frame not memorizing its maximized state.
+		new FramePrefsHandler(frame);
+		// Load any projects entered on the command line
+		if (args.length > 0 && args[0].length() > 0)
+			{
+			Listener.getInstance().fc.open(new File(args[0]));
+			}
+		else
+			{
+			LOADING_PROJECT = false;
+			}
+		}
+
+	private static JFrame createFilterSettingsFrame() {
 		final JFrame filterSettings = new JFrame();
-		
+
 		filterSettings.setIconImage(LGM.getIconForKey("TreeFilter.ICON").getImage());
 		filterSettings.setTitle(Messages.getString("TreeFilter.TITLE"));
 		filterSettings.setResizable(false);
-		
-    wholeWordCB = new JCheckBox(Messages.getString("TreeFilter.WHOLEWORD"));
+
+		wholeWordCB = new JCheckBox(Messages.getString("TreeFilter.WHOLEWORD"));
 		wholeWordCB.addItemListener(new ItemListener() {
-		  public void itemStateChanged(ItemEvent e) {
-		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-		   	applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),matchCaseCB.isSelected(),wholeWordCB.isSelected(),false);
-		  }
+			public void itemStateChanged(ItemEvent e) {
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+				applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),
+					matchCaseCB.isSelected(),wholeWordCB.isSelected(),false);
+			}
 		});
-  	regexCB = new JCheckBox(Messages.getString("TreeFilter.REGEX"));
+		regexCB = new JCheckBox(Messages.getString("TreeFilter.REGEX"));
 		regexCB.addItemListener(new ItemListener() {
-		  public void itemStateChanged(ItemEvent e) {
-		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-		   	applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),matchCaseCB.isSelected(),wholeWordCB.isSelected(),false);
-		  }
+			public void itemStateChanged(ItemEvent e) {
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+				applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),
+					matchCaseCB.isSelected(),wholeWordCB.isSelected(),false);
+			}
 		});
-  	matchCaseCB = new JCheckBox(Messages.getString("TreeFilter.MATCHCASE"));
+		matchCaseCB = new JCheckBox(Messages.getString("TreeFilter.MATCHCASE"));
 		matchCaseCB.addItemListener(new ItemListener() {
-		  public void itemStateChanged(ItemEvent e) {
-		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-		   	applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),matchCaseCB.isSelected(),wholeWordCB.isSelected(),false);
-		  }
+			public void itemStateChanged(ItemEvent e) {
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+				applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),
+					matchCaseCB.isSelected(),wholeWordCB.isSelected(),false);
+			}
 		});
-  	pruneResultsCB = new JCheckBox(Messages.getString("TreeFilter.PRUNERESULTS"));
+		pruneResultsCB = new JCheckBox(Messages.getString("TreeFilter.PRUNERESULTS"));
 		pruneResultsCB.addItemListener(new ItemListener() {
-		  public void itemStateChanged(ItemEvent e) {
-		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-		   	ml.activateFilter(pruneResultsCB.isSelected());
-	   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),false);
-		  }
+			public void itemStateChanged(ItemEvent e) {
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+				ml.activateFilter(pruneResultsCB.isSelected());
+				applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,
+					wholeWordCB.isSelected(),false);
+			}
 		});
-  	closeButton = new JButton(Messages.getString("TreeFilter.CLOSE"));
+		closeButton = new JButton(Messages.getString("TreeFilter.CLOSE"));
 		closeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 				{
 					filterSettings.setVisible(false);
 				}
 		});
-		
+
 		JPanel panel = new JPanel();
 		GroupLayout gl = new GroupLayout(panel);
 		gl.setAutoCreateGaps(true);
@@ -2447,7 +2551,7 @@ public final class LGM
 		panel.setLayout(gl);
 		filterSettings.getContentPane().setLayout(new GridBagLayout());
 		filterSettings.add(panel);
-		
+
 		gl.setHorizontalGroup(gl.createParallelGroup(GroupLayout.Alignment.CENTER)
 		/**/.addGroup(gl.createSequentialGroup()
 		/* */.addGroup(gl.createParallelGroup()
@@ -2466,202 +2570,15 @@ public final class LGM
 		/*  */.addComponent(regexCB)
 		/*  */.addComponent(pruneResultsCB)))
 		/**/.addComponent(closeButton));
-		
-		
+
+
 		filterSettings.pack();
 		filterSettings.setSize(280, 140);
 		filterSettings.setLocationRelativeTo(LGM.frame);
 
-  	filterText = new HintTextField(Messages.getString("TreeFilter.SEARCHFOR"),true);
-    
-    JButton prevButton = new JButton(LGM.getIconForKey("TreeFilter.PREV"));
-    prevButton.setToolTipText(Messages.getString("TreeFilter.PREV"));
-		prevButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0)
-			{
-				searchFilter((ResNode)tree.getLastSelectedPathComponent(),filterText.getText(),
-						matchCaseCB.isSelected(), wholeWordCB.isSelected(), true);
-			}
-		});
-    
-    JButton nextButton = new JButton(LGM.getIconForKey("TreeFilter.NEXT"));
-    nextButton.setToolTipText(Messages.getString("TreeFilter.NEXT"));
-		nextButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0)
-			{
-				searchFilter((ResNode)tree.getLastSelectedPathComponent(), filterText.getText(),
-						matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
-			}
-		});
-		
-    JButton searchInButton = new JButton(LGM.getIconForKey("TreeFilter.SEARCHIN"));
-    searchInButton.setToolTipText(Messages.getString("TreeFilter.SEARCHIN"));
-    searchInButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0)
-			{
-	  		if (filterText.getText().length() <= 0) return;
-				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-				searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(), 
-						matchCaseCB.isSelected(), wholeWordCB.isSelected());
-				setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS"));
-			}
-		});
-		
-    JButton setButton = new JButton(LGM.getIconForKey("TreeFilter.SET"));
-    setButton.setToolTipText(Messages.getString("TreeFilter.SET"));
-		setButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0)
-			{
-				filterSettings.setVisible(true);
-			}
-		});
-    
-		filterText.getDocument().addDocumentListener(new DocumentListener() {
-		  public void changedUpdate(DocumentEvent e) {
+		return filterSettings;
+	}
 
-		  }
-		  public void removeUpdate(DocumentEvent e) {
-		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-		   	if (ml.isActivatedFilter()) {
-		   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
-		   	} else {
-		   		searchFilter(root, filterText.getText(), matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
-		   	}
-		  }
-		  
-		  public void insertUpdate(DocumentEvent e) {
-		  	InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-		   	if (ml.isActivatedFilter()) {
-		   		applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
-		   	} else {
-		   		searchFilter(root, filterText.getText(), matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
-		   	}
-		  }
-		});
-		
-		filterText.addActionListener(new ActionListener() {
-	  public void actionPerformed(ActionEvent evt) {
-	  	if (filterText.getText().length() <= 0) return;
-			InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-			searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(), 
-					matchCaseCB.isSelected(), wholeWordCB.isSelected());
-			setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS"));
-	  }
-		});
-		
-		// Use a toolbar so that the buttons render like tool buttons and smaller.
-		filterPanel = new CustomJToolBar();
-		
-		// Use a custom layout so that the filterText control will stretch horizontally under all Look and Feels.
-		GroupLayout filterLayout = new GroupLayout(filterPanel);
-		
-		filterLayout.setHorizontalGroup(filterLayout.createSequentialGroup()
-		/**/.addComponent(filterText)
-		/**/.addComponent(prevButton)
-		/**/.addComponent(nextButton)
-		/**/.addComponent(searchInButton)
-		/**/.addComponent(setButton));
-		
-		filterLayout.setVerticalGroup(filterLayout.createParallelGroup()
-		/**/.addComponent(filterText)
-		/**/.addComponent(prevButton)
-		/**/.addComponent(nextButton)
-		/**/.addComponent(searchInButton)
-		/**/.addComponent(setButton));
-		
-		filterPanel.setLayout(filterLayout);
-		filterPanel.setFloatable(true);
-		filterPanel.setVisible(Prefs.showTreeFilter);
-
-		JScrollPane scroll = new JScrollPane(tree);
-		scroll.setPreferredSize(new Dimension(250,100));
-		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
-		
-		//TODO: DO NOT remove this line, believe it or not it fixes a look and feel bug when you switch to
-		//nimbus and back to native on Windows.
-		treeTabs.setFont(treeTabs.getFont().deriveFont(Font.BOLD));
-		treeTabs.addTab(Messages.getString("TreeFilter.TAB_RESOURCES"),scroll);
-		scroll = new JScrollPane(searchTree);
-		scroll.setPreferredSize(new Dimension(250,100));
-		scroll.setAlignmentX(JScrollPane.RIGHT_ALIGNMENT);
-		treeTabs.addTab(Messages.getString("TreeFilter.TAB_SEARCHRESULTS"),scroll);
-		if (Prefs.dockEventPanel) {
-			treeTabs.addTab(Messages.getString("TreeFilter.TAB_EVENTS"),eventSelect);
-		} else {
-			eventSelect.setVisible(false); //must occur after adding split
-		}
-		
-    JPanel hierarchyPanel = new JPanel();
-    hierarchyPanel.setLayout(new BorderLayout(0, 0));
-    hierarchyPanel.add(filterPanel, BorderLayout.NORTH);
-    hierarchyPanel.add(treeTabs,BorderLayout.CENTER);
-    
-    //OutputManager.initialize();
-		
-		JSplitPaneExpandable verSplit = new JSplitPaneExpandable(JSplitPane.VERTICAL_SPLIT,true,content,OutputManager.outputTabs);
-		verSplit.setDoubleClickExpandable(true);
-		final JSplitPaneExpandable horSplit = new JSplitPaneExpandable(JSplitPane.HORIZONTAL_SPLIT,true,hierarchyPanel,verSplit);
-		horSplit.setDividerLocation(320);
-		horSplit.setDoubleClickExpandable(true);
-		f.add(horSplit);
-
-		frame.setContentPane(f);
-		frame.setTransferHandler(Listener.getInstance().fc.new LGMDropHandler());
-		f.add(BorderLayout.NORTH,toolbar);
-		f.setOpaque(true);
-
-		// This fixes an issue with Swing traversal comparator. Basically, Swing likes to throw false positives
-		// about transitivity when window decorations are disabled.
-		// The exception occurs on Windows 8 at startup from the Event Dispatch Thread with the Swing Look and Feel when
-		// window decorations are disabled.
-		filterPanel.setFocusTraversalPolicyProvider(true);
-		toolbar.setFocusTraversalPolicyProvider(true);
-		eventSelect.setFocusTraversalPolicyProvider(true);
-		
-		splashProgress.progress(65,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
-		try
-			{
-			frame.setIconImage(ImageIO.read(LGM.class.getClassLoader().getResource(
-					"org/lateralgm/main/lgm-logo.png"))); //$NON-NLS-1$
-			}
-		catch (Exception e)
-			{
-			e.printStackTrace();
-			}
-		// let the user specify their own background
-		if (new File("lookandfeels/lgmbackground.png").exists()) {
-			applyBackground("lookandfeels/lgmbackground.png"); //$NON-NLS-1$
-		} else {
-			applyBackground("org/lateralgm/main/lgmbackground.png"); //$NON-NLS-1$
-		}
-		splashProgress.progress(70,Messages.getString("LGM.SPLASH_TREE")); //$NON-NLS-1$
-		populateTree();
-		splashProgress.progress(80,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
-		LOADING_PROJECT = true;
-		loadPlugins();
-		splashProgress.complete();
-
-		frame.setVisible(true);
-		frame.pack();
-		// this makes sure the first time default location of the window that has not been stored is centered
-		frame.setLocationRelativeTo(null);
-		// This needs to be here after the frame is set to visible for some reason,
-		// it was causing the bug with the frame not memorizing its maximized state.
-		new FramePrefsHandler(frame);
-
-		// Load any projects entered on the command line
-		if (args.length > 0 && args[0].length() > 1)
-			{
-			String path = args[0].replace("\\","/");
-			URI uri = new File(path).toURI();
-			Listener.getInstance().fc.open(uri);
-			}
-		else
-			{
-			LOADING_PROJECT = false;
-			}
-		}
-	
 	public static int getTabIndex(JTabbedPane tabs, String title) {
 		for (int i = 0; i < tabs.getTabCount(); i++) {
 			if (tabs.getTitleAt(i).equals(title))
@@ -2669,7 +2586,7 @@ public final class LGM
 		}
 		return -1;
 	}
-	
+
 	public static void setSelectedTab(JTabbedPane tabs, String title)
 		{
 			if (tabs.getTitleAt(tabs.getSelectedIndex()).equals(title)) return;
@@ -2686,26 +2603,26 @@ public final class LGM
 	 */
 	public static boolean checkForChangesInTree(DefaultMutableTreeNode node) {
 		Enumeration<?> e = node.children();
-	  while (e.hasMoreElements()){
-	  	ResNode rnode = (ResNode) e.nextElement();
-	  	if (rnode.status != ResNode.STATUS_SECONDARY) {
-	  		if (checkForChangesInTree(rnode))
-	  			return true;
-	  	}
-	    if (rnode.newRes) {
-	    	return true;
-	    }
-	    ResourceReference<?> ref = rnode.getRes();
-	    if (ref != null) {
-	    	Resource<?,?> res = ref.get();
-	    	if (res != null && res.changed) {
-	    		return true;
-	    	}
-	    }
-	  }
-	  return false;
+		while (e.hasMoreElements()){
+			ResNode rnode = (ResNode) e.nextElement();
+			if (rnode.status != ResNode.STATUS_SECONDARY) {
+				if (checkForChangesInTree(rnode))
+					return true;
+			}
+			if (rnode.newRes) {
+				return true;
+			}
+			ResourceReference<?> ref = rnode.getRes();
+			if (ref != null) {
+				Resource<?,?> res = ref.get();
+				if (res != null && res.changed) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
-	
+
 	public static boolean checkForChanges() {
 		for (JInternalFrame f : mdi.getAllFrames())
 		{
@@ -2715,55 +2632,56 @@ public final class LGM
 				}
 			}
 		}
-		
+
 		//TODO: See comment above.
 		//return checkForChangesInTree(LGM.root);
 
 		Iterator<?> it = currentFile.resMap.entrySet().iterator();
 		while (it.hasNext()) {
-	    Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
-	    if (pairs.getValue() instanceof ResourceList) {
-	    	ResourceList<?> list = (ResourceList<?>) pairs.getValue();
-	    	for (Resource<?,?> res : list) {
-	    		if (res.changed)
-	    			return true;
-	    	}
-	    } else if (pairs.getValue() instanceof SingletonResourceHolder) {
-	    	SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
-	    	Resource<?,?> res = rh.getResource();
-	    	if (res.changed) {
-	    		return true;
-	    	}
-	    }
+			Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
+			if (pairs.getValue() instanceof ResourceList) {
+				ResourceList<?> list = (ResourceList<?>) pairs.getValue();
+				for (Resource<?,?> res : list) {
+					if (res.changed)
+						return true;
+				}
+			} else if (pairs.getValue() instanceof SingletonResourceHolder) {
+				SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
+				Resource<?,?> res = rh.getResource();
+				if (res.changed) {
+					return true;
+				}
+			}
 		}
 		return false;
 	}
 
 	/*
-	 * When the user saves reset all the resources to their unsaved state. We do not check the frames
-	 * because they commit their changes allowing them to be written, while still allowing the user to revert
-	 * the frame if they so choose.
-	 * If the user has an open frame with changes basically, the save button will save the changes to file
-	 * and if the user saves the frame then they will still be asked to save when they close, if they revert
-	 * the changes to the frame they will exit right out. This is the expected behavior of these functions.
+	 * When the user saves, reset all the resources to their unsaved state. We do not check the frames
+	 * because they commit their changes allowing them to be written, while still allowing the user to
+	 * revert the frame if they so choose.
+	 * If the user has an open frame with changes basically, the save button will save the changes to
+	 * file and if the user saves the frame then they will still be asked to save when they close, if
+	 * they revert the changes to the frame they will exit right out. This is the expected behavior of
+	 * these functions.
 	 */
 	public static void resetChanges() {
 		Iterator<?> it = currentFile.resMap.entrySet().iterator();
 		while (it.hasNext()) {
 			Entry<?,?> pairs = (Map.Entry<?,?>)it.next();
-	    if (pairs.getValue() instanceof ResourceList) {
-	    	ResourceList<?> list = (ResourceList<?>) pairs.getValue();
-	    	for (Resource<?,?> res : list) {
-	    		res.changed = false;
-	    	}
-	    } else if (pairs.getValue() instanceof SingletonResourceHolder) {
-	    	SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
-	    	Resource<?,?> res = rh.getResource();
-	    	res.changed = false;
-	    }
+			if (pairs.getValue() instanceof ResourceList) {
+				ResourceList<?> list = (ResourceList<?>) pairs.getValue();
+				for (Resource<?,?> res : list) {
+					res.changed = false;
+				}
+			} else if (pairs.getValue() instanceof SingletonResourceHolder) {
+				SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) pairs.getValue();
+				Resource<?,?> res = rh.getResource();
+				res.changed = false;
+			}
 		}
 	}
-	
+
 	public static void askToSaveProject()
 		{
 		FileChooser fc = new FileChooser();
@@ -2863,6 +2781,7 @@ public final class LGM
 				System.out.println();
 				}
 			}
+
 
 		void progress(int p)
 			{
@@ -3001,8 +2920,8 @@ public final class LGM
 			});
 		}
 
-	// Adds a default uncaught exception handler to the current thread. This allows LGM to catch most exceptions
-	// and properly display a stack trace for the user to file a bug report.
+	// Adds a default uncaught exception handler to the current thread. This allows LGM to catch most
+	// exceptions and properly display a stack trace for the user to file a bug report.
 	public static void addDefaultExceptionHandler()
 		{
 		Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
@@ -3014,17 +2933,19 @@ public final class LGM
 			});
 		}
 
-	// Show the default uncaught exception handler dialog to the user with a stack trace they can use to submit a bug report.
+	// Show the default uncaught exception handler dialog to the user with a stack trace they can use
+	// to submit a bug report.
 	public static void showDefaultExceptionHandler(Throwable e)
 		{
 		System.out.println(Thread.currentThread().getName() + ": ");
 		e.printStackTrace();
-		if (!ErrorDialog.getInstance().isVisible())
+		ErrorDialog errorDialog = ErrorDialog.getInstance();
+		if (!errorDialog.isVisible())
 			{
-			ErrorDialog.getInstance().setVisible(true);
-			ErrorDialog.getInstance().setDebugInfo(ErrorDialog.generateAgnosticInformation());
+			errorDialog.setVisible(true);
+			errorDialog.setDebugInfo(ErrorDialog.generateAgnosticInformation());
 			}
-		ErrorDialog.getInstance().appendDebugInfo(e); //$NON-NLS-1$
+		errorDialog.appendDebugInfo(e);
 		}
 
 	public static GameSettings getSelectedConfig()

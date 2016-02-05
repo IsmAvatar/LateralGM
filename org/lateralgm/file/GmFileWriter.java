@@ -2,7 +2,7 @@
  * Copyright (C) 2006-2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2006, 2007, 2008 Clam <clamisgood@gmail.com>
  * Copyright (C) 2007, 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -97,7 +97,7 @@ public final class GmFileWriter
 		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_SAVING"));
 
 		GameSettings gs = f.gameSettings.get(0);
-		
+
 		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
 		if (ver >= 810)
 			out.setCharset(Charset.forName("UTF-8"));
@@ -353,7 +353,7 @@ public final class GmFileWriter
 				out.writeStr(snd.getName());
 				if (ver == 800) out.writeD(gs.getLastChanged());
 				out.write4(ver);
-				out.write4(ProjectFile.SOUND_CODE.get(snd.get(PSound.KIND)));
+				out.write4(ProjectFile.SOUND_KIND_CODE.get(snd.get(PSound.KIND)));
 				out.writeStr(snd.properties,PSound.FILE_TYPE,PSound.FILE_NAME);
 				if (snd.data != null)
 					{

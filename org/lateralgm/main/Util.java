@@ -3,7 +3,7 @@
  * Copyright (C) 2007, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007 Clam <clamisgood@gmail.com>
  * Copyright (C) 2013, 2014 Robert B. Colton
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -102,6 +102,8 @@ public final class Util
 	public static BufferedImage paintBackground(int width, int height, Color background,
 			Color foreground)
 		{
+		if (width < 1) width = 1;
+		if (height < 1) height = 1;
 		BufferedImage dest = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
 
 		for (int row = 0; row < height; row++)
@@ -273,23 +275,6 @@ public final class Util
 		return toBufferedImage(Toolkit.getDefaultToolkit().createImage(ip));
 		}
 
-	public static ImageIcon getTransparentImageIcon(BufferedImage i)
-		{
-		if (i == null) return null;
-		final int t = i.getRGB(0,i.getHeight() - 1) & 0x00FFFFFF;
-		ImageFilter filter = new RGBImageFilter()
-			{
-				@Override
-				public int filterRGB(int x, int y, int rgb)
-					{
-					if ((rgb & 0x00FFFFFF) == t) return t;
-					return rgb;
-					}
-			};
-		ImageProducer ip = new FilteredImageSource(i.getSource(),filter);
-		return new ImageIcon(Toolkit.getDefaultToolkit().createImage(ip));
-		}
-
 	private static void createImageReadChooser()
 		{
 		imageReadFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
@@ -368,7 +353,7 @@ public final class Util
 	/**
 	 * Shows a JFileChooser with file filters for all currently registered instances of
 	 * ImageReaderSpi with multiple file selection.
-	 * 
+	 *
 	 * @return The selected image, or null if one is not chosen
 	 */
 	public static File chooseImageFile()
@@ -386,7 +371,7 @@ public final class Util
 	/**
 	 * Shows a JFileChooser with file filters for all currently registered instances of
 	 * ImageReaderSpi with multiple file selection.
-	 * 
+	 *
 	 * @return The selected image, or null if one is not chosen
 	 */
 	public static File[] chooseImageFiles()
@@ -605,7 +590,7 @@ public final class Util
 
 	public static byte[] readBinaryFile(String path)
 		{
-		File file = new File(getUnixPath(path));
+		File file = new File(getPOSIXPath(path));
 		byte[] fileData = new byte[(int) file.length()];
 		DataInputStream dis = null;
 		try
@@ -623,7 +608,9 @@ public final class Util
 			{
 			try
 				{
-				dis.close();
+				if (dis != null) {
+					dis.close();
+				}
 				}
 			catch (IOException e)
 				{
@@ -642,7 +629,7 @@ public final class Util
 		try
 			{
 			//create an object of FileOutputStream
-			fos = new FileOutputStream(new File(Util.getUnixPath(path)));
+			fos = new FileOutputStream(new File(Util.getPOSIXPath(path)));
 
 			//create an object of BufferedOutputStream
 			bos = new BufferedOutputStream(fos);
@@ -655,7 +642,7 @@ public final class Util
 			}
 		}
 
-	public static String getUnixPath(String path)
+	public static String getPOSIXPath(String path)
 		{
 		return path.replace("\\","/");
 		}
@@ -1004,11 +991,16 @@ public final class Util
 		return col.getRed() | col.getGreen() << 8 | col.getBlue() << 16 | alpha << 24;
 		}
 
-	//Turns an ARGB Java Color into a rgba(r,g,b,a) CSS string
-	//NOTE: Java's 1.8 HTML implementation does not support opacity.
-	public static String getHTMLColor(int col, boolean hastransparency)
+	/** Turns an AWT Java Color into an rgba(r,g,b,a) CSS formatted string.
+	 * NOTE: Java's 1.8 HTML implementation does not support opacity.
+	 *
+	 * @param col The integer value of the color.
+	 * @param hasTransparency Whether the integer color value has transparency.
+	 * @return The CSS encoded string representing the color value.
+	 */
+	public static String getHTMLColor(int col, boolean hasTransparency)
 		{
-		if (hastransparency)
+		if (hasTransparency)
 			{
 			return String.format("rgba(%d,%d,%d,%d)",col >> 16 & 0xFF,col >> 8 & 0xFF,col & 0xFF,
 					col >> 24 & 0xFF);
@@ -1016,8 +1008,13 @@ public final class Util
 		return String.format("rgb(%d,%d,%d)",col >> 16 & 0xFF,col >> 8 & 0xFF,col & 0xFF);
 		}
 
-	//Turns an AWT Java Color into a rgba(r,g,b,a) CSS string
-	//NOTE: Java's 1.8 HTML implementation does not support opacity.
+	/** Turns an AWT Java Color into an rgba(r,g,b,a) CSS formatted string.
+	 * NOTE: Java's 1.8 HTML implementation does not support opacity.
+	 *
+	 * @param col The integer value of the color.
+	 * @param hasTransparency Whether the integer color value has transparency.
+	 * @return The CSS encoded string representing the color value.
+	 */
 	public static String getHTMLColor(Color col, boolean hastransparency)
 		{
 		if (hastransparency)
@@ -1027,6 +1024,30 @@ public final class Util
 			}
 		return String.format("rgb(%d,%d,%d)",col.getRed(),col.getGreen(),col.getBlue());
 		}
+
+	/** Formats the given color to a hexadecimal encoded string.
+	 *
+	 * @param col The color value that should be formatted to a hexadecimal string.
+	 * @param includeAlpha Whether the alpha of the color value should be formated.
+	 * @return The hexadecimal encoded string for the color.
+	 */
+	public static String formatColortoHex(Color col, boolean includeAlpha) {
+		if (includeAlpha) {
+			return String.format("%02X%02X%02X%02X", col.getRed(), col.getGreen(), col.getBlue(),
+				col.getAlpha());
+		}
+		return String.format("%02X%02X%02X", col.getRed(), col.getGreen(), col.getBlue());
+	}
+
+	/** Formats the given color to a hexadecimal encoded string.
+	 *
+	 * @param col The color value that should be formatted to a hexadecimal string.
+	 * @return The hexadecimal encoded string for the color.
+	 */
+	public static String formatColortoHex(Color col) {
+		return String.format("%02X%02X%02X%02X", col.getRed(), col.getGreen(), col.getBlue(),
+			col.getAlpha());
+	}
 
 	public static long getInstanceColorWithAlpha(Color col, int alpha)
 		{
@@ -1159,7 +1180,7 @@ public final class Util
 	 * onto the resource table of the exe, causing a crash. If required,
 	 * this function will do its best to choose the image with the best resolution
 	 * and colour depth possible, discarding all the other images.
-	 * 
+	 *
 	 * @param ico the icon to (possibly) modify
 	 * @param ver the version to make the icon suitable for
 	 */

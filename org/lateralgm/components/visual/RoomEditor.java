@@ -2,7 +2,7 @@
  * Copyright (C) 2007, 2008, 2010, 2011 IsmAvatar <IsmAvatar@gmail.com>
  * Copyright (C) 2007, 2008, 2009 Quadduc <quadduc@gmail.com>
  * Copyright (C) 2014, egofree
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -161,6 +161,7 @@ public class RoomEditor extends VisualPanel
 		roomVisual = new RoomVisual(container,r,s);
 		unlockBounds();
 		put(0,roomVisual);
+		setOpaque(false); // so the EditorScrollPane's transparency pattern shows through
 		setZoom((Integer) properties.get(PRoomEditor.ZOOM));
 		refresh();
 		}
@@ -466,7 +467,7 @@ public class RoomEditor extends VisualPanel
 	public void setCursor(Piece ds)
 		{
 		boolean addMultipleMode = properties.get(PRoomEditor.ADD_MULTIPLE);
-		
+
 		// If there was a selected piece, deselect it
 		if (selectedPiece != null) selectedPiece.setSelected(false);
 

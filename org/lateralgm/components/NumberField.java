@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 Quadduc <quadduc@gmail.com>
- * 
+ *
  * This file is part of LateralGM.
  * LateralGM is free software and comes with ABSOLUTELY NO WARRANTY.
  * See LICENSE for details.
@@ -53,7 +53,7 @@ public class NumberField extends JFormattedTextField
 		{
 		this(min,max,value,getFormatter(getNumberFormat(fractionDigits)));
 		}
-	
+
 	public <T extends Number & Comparable<T>> NumberField(T min, T max, T value, NumberFormatter f)
 		{
 		super(f);
@@ -174,13 +174,13 @@ public class NumberField extends JFormattedTextField
 	private static NumberFormat getNumberFormat(int fractionDigits)
 		{
 		NumberFormat f = NumberFormat.getNumberInstance();
-		
+
 		if (fractionDigits !=0)
 			{
 			f.setMinimumFractionDigits(fractionDigits);
 			f.setMaximumFractionDigits(fractionDigits);
 			}
-		
+
 		f.setGroupingUsed(false);
 		return f;
 		}
