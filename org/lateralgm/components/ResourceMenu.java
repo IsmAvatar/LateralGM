@@ -13,7 +13,6 @@ package org.lateralgm.components;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import static org.lateralgm.main.Util.deRef;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
