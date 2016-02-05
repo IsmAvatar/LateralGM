@@ -988,7 +988,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		gl.setAutoCreateContainerGaps(true);
 		p.setLayout(gl);
 
-		// TODO: Fix this layout so that it resizes the text fields properly
 		gl.setHorizontalGroup(
 		/**/gl.createSequentialGroup()
 		/*	*/.addGroup(gl.createParallelGroup(Alignment.TRAILING)
