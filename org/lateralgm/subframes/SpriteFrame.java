@@ -363,7 +363,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		tool.addSeparator();
 		JLabel lab2 = new JLabel(Messages.getString("SpriteFrame.ANIM_SPEED")); //$NON-NLS-1$
-		//lab2.setHorizontalAlignment(SwingConstants.CENTER);
 		tool.add(lab2);
 
 		speed = new NumberField(1,Integer.MAX_VALUE,30);
