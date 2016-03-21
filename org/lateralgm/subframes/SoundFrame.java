@@ -505,7 +505,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				if (ft == null) ft = "";
 				res.put(PSound.FILE_TYPE,ft);
 				updateStatusLabel();
-				play.setEnabled(false);
 				if (clip != null)
 					{
 					clip.stop();
