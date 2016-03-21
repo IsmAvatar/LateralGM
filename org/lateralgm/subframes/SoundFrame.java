@@ -677,7 +677,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			}
 		catch (UnsupportedAudioFileException e)
 			{
-			// do nothing, file was unsupported
+			play.setEnabled(false);
 			}
 		}
 
