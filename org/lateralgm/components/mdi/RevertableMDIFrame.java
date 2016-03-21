@@ -59,10 +59,10 @@ public abstract class RevertableMDIFrame extends MDIFrame
 			{
 				public void run()
 					{
-					int ret = JOptionPane.showConfirmDialog(
-							LGM.frame,
+					int ret = JOptionPane.showConfirmDialog(LGM.frame,
 							Messages.format("RevertableMDIFrame.KEEPCHANGES",getConfirmationName()), //$NON-NLS-1$
-							Messages.getString("RevertableMDIFrame.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
+							Messages.getString("RevertableMDIFrame.KEEPCHANGES_TITLE"), //$NON-NLS-1$
+							JOptionPane.YES_NO_CANCEL_OPTION);
 					if (ret == JOptionPane.YES_OPTION)
 						{
 						updateResource(false);
