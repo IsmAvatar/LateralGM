@@ -193,11 +193,11 @@ public class ActionList extends JList
 
 		public void mouseClicked(MouseEvent e)
 			{
-			if (e.getClickCount() != 2 || !(e.getSource() instanceof JList)) return;
-			JList l = (JList) e.getSource();
+			if (e.getClickCount() != 2 || !(e.getSource() instanceof ActionList)) return;
+			ActionList l = (ActionList) e.getSource();
 			Object o = l.getSelectedValue();
 
-			if (o == null && l.getModel().getSize() == 0)
+			if (o == null && l.getModel().getSize() == 0 && l.getActionContainer() != null)
 				{
 				o = new Action(LibManager.codeAction);
 				((ActionListModel) l.getModel()).add((Action) o);
