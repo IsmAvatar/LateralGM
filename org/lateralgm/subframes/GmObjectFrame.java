@@ -326,9 +326,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
 			if (t == null || !t.isValid()) return false;
 			Object n = (Object) events.getLastSelectedPathComponent();
-			if (LGM.eventSelect.function.getValue() != EventPanel.FUNCTION_ADD &&
-					!isValidEventInstanceNode(n))
-					return false;
+			if (LGM.eventSelect.function.getValue() != EventPanel.FUNCTION_ADD
+					&& !isValidEventInstanceNode(n))
+				return false;
 			if (rootEvent.contains(new Event(t.mainId,t.eventId,t.other))) return false;
 			for (DataFlavor f : support.getDataFlavors())
 				if (f == EventNode.EVENTNODE_FLAVOR) return true;
@@ -689,7 +689,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			{
 			Object comp = events.getLastSelectedPathComponent();
 			if (!isValidEventInstanceNode(comp))
-					return;
+				return;
 			removeEvent((EventInstanceNode) comp);
 			return;
 			}
