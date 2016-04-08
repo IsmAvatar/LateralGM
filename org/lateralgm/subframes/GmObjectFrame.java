@@ -706,7 +706,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	 * 
 	 * @return Whether the node is valid.
 	 */
-	public static boolean isValidEventInstanceNode(Object node)
+	private static boolean isValidEventInstanceNode(Object node)
 		{
 		return (node != null && node instanceof EventInstanceNode
 				&& ((EventInstanceNode) node).getParent() != null);
