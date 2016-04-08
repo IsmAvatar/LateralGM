@@ -20,10 +20,10 @@ This directory contains the following icons (.png extension omitted):
  Nuvola icon theme for KDE 3.x:
    actions/
      accept cancel colorize copy cut find
-     new next open paste previous print redo save
-     save-as sound-play sound-stop undo
+     help new next open paste previous print
+     redo save save-as sound-play sound-stop undo
    restree/
-     gm group group-open info
+     extension gm group group-open info
  Copyright 2003-2004 David Vignoni
 
  Stock icons for OpenOffice.org:
