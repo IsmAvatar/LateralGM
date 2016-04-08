@@ -325,6 +325,11 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			if (!support.isDataFlavorSupported(EventNode.EVENTNODE_FLAVOR)) return false;
 			EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
 			if (t == null || !t.isValid()) return false;
+			Object n = (Object) events.getLastSelectedPathComponent();
+			if (LGM.eventSelect.function.getValue() != EventPanel.FUNCTION_ADD &&
+					(n == null || !(n instanceof EventInstanceNode) ||
+					((EventInstanceNode) n).getParent() == null))
+					return false;
 			if (rootEvent.contains(new Event(t.mainId,t.eventId,t.other))) return false;
 			for (DataFlavor f : support.getDataFlavors())
 				if (f == EventNode.EVENTNODE_FLAVOR) return true;
@@ -491,6 +496,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public void removeEvent(EventInstanceNode n)
 		{
 		DefaultMutableTreeNode p = (DefaultMutableTreeNode) n.getParent();
+		if (p == null) return;
 
 		DefaultMutableTreeNode next = n.getNextSibling();
 		if (next == null) next = n.getPreviousSibling();
@@ -539,7 +545,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 				break;
 			case EventPanel.FUNCTION_REPLACE:
 				DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-				if (!(dropNode instanceof EventInstanceNode)) return;
+				if (!(dropNode instanceof EventInstanceNode) || dropNode.getParent() == null) return;
 				EventInstanceNode drop = (EventInstanceNode) dropNode;
 				removeEvent(drop);
 				Event ev = drop.getUserObject();
@@ -550,7 +556,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 				break;
 			case EventPanel.FUNCTION_DUPLICATE:
 				dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-				if (!(dropNode instanceof EventInstanceNode)) return;
+				if (!(dropNode instanceof EventInstanceNode) || dropNode.getParent() == null) return;
 				drop = (EventInstanceNode) dropNode;
 				ev = drop.getUserObject();
 				actions.save();
@@ -683,7 +689,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
 			{
 			Object comp = events.getLastSelectedPathComponent();
-			if (!(comp instanceof EventInstanceNode)) return;
+			if (comp == null || !(comp instanceof EventInstanceNode) ||
+					((EventInstanceNode) comp).getParent() == null)
+					return;
 			removeEvent((EventInstanceNode) comp);
 			return;
 			}
@@ -711,7 +719,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
 		if (node == null || !node.isLeaf() || !(node.getUserObject() instanceof Event))
 			{
-			if (node != null && !node.isLeaf())
+			if (node != null && !node.isLeaf() && node.getParent() != null)
 				{
 				TreePath path = new TreePath(node.getPath());
 				if (events.isExpanded(path))

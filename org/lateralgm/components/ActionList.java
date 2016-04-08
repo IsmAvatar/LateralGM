@@ -110,7 +110,7 @@ public class ActionList extends JList
 
 	public void edit() 
 		{
-		if (model.list.size() > 1) return;
+		if (model.list.size() > 1 || getActionContainer() == null) return;
 
 		Action codeAction = null;
 		if (model.list.size() > 0) 
