@@ -110,7 +110,7 @@ public class ActionList extends JList
 
 	public void edit() 
 		{
-		if (model.list.size() > 1) return;
+		if (model.list.size() > 1 || getActionContainer() == null) return;
 
 		Action codeAction = null;
 		if (model.list.size() > 0) 
@@ -121,7 +121,6 @@ public class ActionList extends JList
 			{
 			codeAction = new Action(LibManager.codeAction);
 			model.add(0,codeAction);
-			setSelectedValue(codeAction,true);
 			}
 
 		if (codeAction.getLibAction().actionKind == Action.ACT_CODE) 
