@@ -327,8 +327,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			if (t == null || !t.isValid()) return false;
 			Object n = (Object) events.getLastSelectedPathComponent();
 			if (LGM.eventSelect.function.getValue() != EventPanel.FUNCTION_ADD &&
-					(n == null || !(n instanceof EventInstanceNode) ||
-					((EventInstanceNode) n).getParent() == null))
+					!isValidEventInstanceNode(n))
 					return false;
 			if (rootEvent.contains(new Event(t.mainId,t.eventId,t.other))) return false;
 			for (DataFlavor f : support.getDataFlavors())
@@ -689,13 +688,18 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
 			{
 			Object comp = events.getLastSelectedPathComponent();
-			if (comp == null || !(comp instanceof EventInstanceNode) ||
-					((EventInstanceNode) comp).getParent() == null)
+			if (!isValidEventInstanceNode(comp))
 					return;
 			removeEvent((EventInstanceNode) comp);
 			return;
 			}
 		super.actionPerformed(e);
+		}
+
+	private static boolean isValidEventInstanceNode(Object node)
+		{
+		return (node != null && node instanceof EventInstanceNode
+				&& ((EventInstanceNode) node).getParent() != null);
 		}
 
 	@Override
