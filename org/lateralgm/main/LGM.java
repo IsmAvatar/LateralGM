@@ -74,6 +74,7 @@ import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.GmFile;
+import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Resource;
@@ -476,8 +477,9 @@ public final class LGM
 		splashProgress.progress(70,Messages.getString("LGM.SPLASH_LOGO")); //$NON-NLS-1$
 		try
 			{
-			frame.setIconImage(ImageIO.read(LGM.class.getClassLoader().getResource(
-					"org/lateralgm/main/lgm-logo.png"))); //$NON-NLS-1$
+			ICOFile icoFile = new ICOFile(LGM.class.getClassLoader().getResource(
+					"org/lateralgm/main/lgm-logo.ico")); //$NON-NLS-1$
+			frame.setIconImages(icoFile.getImages());
 			}
 		catch (Exception e)
 			{
