@@ -121,7 +121,6 @@ public class ActionList extends JList
 			{
 			codeAction = new Action(LibManager.codeAction);
 			model.add(0,codeAction);
-			setSelectedValue(codeAction,true);
 			}
 
 		if (codeAction.getLibAction().actionKind == Action.ACT_CODE) 
