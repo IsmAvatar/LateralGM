@@ -517,6 +517,15 @@ public class ActionList extends JList
 			return true;
 			}
 
+		private void stashImportRange(int addIndex, int addCount)
+			{
+			if (indices != null)
+				{
+				this.addIndex = addIndex;
+				this.addCount = addCount;
+				}
+			}
+
 		public boolean importData(TransferHandler.TransferSupport info)
 			{
 			if (!canImport(info)) return false;
@@ -541,11 +550,7 @@ public class ActionList extends JList
 				//clone properly for drag-copy or clipboard paste
 				if (!info.isDrop() || info.getDropAction() == COPY) a = a.copy();
 				//now add
-				if (indices != null)
-					{
-					addIndex = index;
-					addCount = 1;
-					}
+				stashImportRange(index, 1);
 				alm.add(index,a);
 				list.setSelectedIndex(index);
 				return true;
@@ -566,11 +571,7 @@ public class ActionList extends JList
 				if (!info.isDrop() || info.getDropAction() == COPY) for (int i = 0; i < a.length; i++)
 					a[i] = a[i].copy();
 				//now add
-				if (indices != null)
-					{
-					addIndex = index;
-					addCount = a.length;
-					}
+				stashImportRange(index, a.length);
 				alm.addAll(index,Arrays.asList(a));
 				list.setSelectionInterval(index,index + a.length - 1);
 				return true;
@@ -589,11 +590,7 @@ public class ActionList extends JList
 					{
 					return false;
 					}
-				if (indices != null)
-					{
-					addIndex = index;
-					addCount = 1;
-					}
+				stashImportRange(index, 1);
 				alm.add(index,a);
 				list.setSelectedIndex(index);
 				return true;
