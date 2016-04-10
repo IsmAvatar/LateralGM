@@ -608,11 +608,11 @@ public class ActionList extends JList
 
 		protected Transferable createTransferable(JComponent c)
 			{
-			JList<Action> list = (JList<Action>) c;
+			JList list = (JList) c;
 			indices = list.getSelectedIndices();
-			List<Action> o = list.getSelectedValuesList();
-			Action[] a = new Action[o.size()];
-			a = (Action[]) o.toArray(a);
+			Object[] o = list.getSelectedValues();
+			Action[] a = new Action[o.length];
+			a = Arrays.asList(o).toArray(a);
 			return new ActionTransferable(a);
 			}
 		}
