@@ -427,7 +427,7 @@ public class ActionList extends JList
 			ArrayList<DataFlavor> fl = new ArrayList<DataFlavor>(2);
 			fl.add(ACTION_ARRAY_FLAVOR);
 			if (a.length == 1) fl.add(ACTION_FLAVOR);
-			flavors = fl.toArray(new DataFlavor[2]);
+			flavors = fl.toArray(new DataFlavor[fl.size()]);
 			}
 
 		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
@@ -484,7 +484,7 @@ public class ActionList extends JList
 					{
 					for (int i = 0; i < indices.length; i++)
 						{
-						if (indices[i] > addIndex)
+						if (indices[i] >= addIndex)
 							{
 							indices[i] += addCount;
 							}
@@ -517,6 +517,15 @@ public class ActionList extends JList
 			return true;
 			}
 
+		private void stashImportRange(int addIndex, int addCount)
+			{
+			if (indices != null)
+				{
+				this.addIndex = addIndex;
+				this.addCount = addCount;
+				}
+			}
+
 		public boolean importData(TransferHandler.TransferSupport info)
 			{
 			if (!canImport(info)) return false;
@@ -524,7 +533,8 @@ public class ActionList extends JList
 			ActionListModel alm = (ActionListModel) list.getModel();
 			Transferable t = info.getTransferable();
 
-			int index = alm.list.size();
+			int index = list.getSelectedIndex();
+			if (index < 0) index = alm.getSize();
 			if (info.isDrop()) index = ((JList.DropLocation) info.getDropLocation()).getIndex();
 			if (info.isDataFlavorSupported(ACTION_FLAVOR))
 				{
@@ -540,8 +550,7 @@ public class ActionList extends JList
 				//clone properly for drag-copy or clipboard paste
 				if (!info.isDrop() || info.getDropAction() == COPY) a = a.copy();
 				//now add
-				addIndex = index;
-				addCount = 1;
+				stashImportRange(index, 1);
 				alm.add(index,a);
 				list.setSelectedIndex(index);
 				return true;
@@ -562,8 +571,7 @@ public class ActionList extends JList
 				if (!info.isDrop() || info.getDropAction() == COPY) for (int i = 0; i < a.length; i++)
 					a[i] = a[i].copy();
 				//now add
-				addIndex = index;
-				addCount = a.length;
+				stashImportRange(index, a.length);
 				alm.addAll(index,Arrays.asList(a));
 				list.setSelectionInterval(index,index + a.length - 1);
 				return true;
@@ -582,8 +590,7 @@ public class ActionList extends JList
 					{
 					return false;
 					}
-				addIndex = index;
-				addCount = 1;
+				stashImportRange(index, 1);
 				alm.add(index,a);
 				list.setSelectedIndex(index);
 				return true;
