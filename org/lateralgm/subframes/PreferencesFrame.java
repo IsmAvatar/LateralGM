@@ -467,7 +467,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		}
 
 	private class ComboBoxItem {
-		
+
 	}
 
 	private JPanel makeAppearancePrefs()
@@ -480,7 +480,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_OFF"),
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_ON") };
 
-		
 		decorateWindowBordersCheckBox = new JCheckBox(
 				Messages.getString("PreferencesFrame.DECORATE_WINDOW_BORDERS"));
 		decorateWindowBordersCheckBox.setSelected(Prefs.decorateWindowBorders);
