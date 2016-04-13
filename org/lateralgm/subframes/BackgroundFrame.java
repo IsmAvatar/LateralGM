@@ -33,11 +33,11 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -74,7 +74,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	{
 	private static final long serialVersionUID = 1L;
 	public JButton load;
-	public JLabel positionLabel, dimensionLabel, memoryLabel, zoomLabel;
+	public JLabel statusLabel;
 	public JCheckBox transparent;
 	public JButton edit, zoomIn, zoomOut;
 	public JToggleButton zoomButton;
@@ -271,19 +271,16 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		return tool;
 		}
 
-	private JComponent makeStatusBar()
+	private JPanel makeStatusBar()
 		{
 		JPanel status = new JPanel();
-		status.setLayout(new GridLayout());
-		status.setBorder(BorderFactory.createLoweredSoftBevelBorder());
+		BoxLayout layout = new BoxLayout(status,BoxLayout.X_AXIS);
+		status.setLayout(layout);
+		status.setMaximumSize(new Dimension(Integer.MAX_VALUE,11));
 
-		dimensionLabel = new JLabel();
-		memoryLabel = new JLabel();
-		zoomLabel = new JLabel();
+		statusLabel = new JLabel();
 
-		status.add(zoomLabel);
-		status.add(dimensionLabel);
-		status.add(memoryLabel);
+		status.add(statusLabel);
 
 		return status;
 		}
@@ -449,17 +446,22 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	private void updateStatusBar()
 		{
+		String stat = " " + Messages.getString("BackgroundFrame.WIDTH") + ": " + res.getWidth() + " | "
+				+ Messages.getString("BackgroundFrame.HEIGHT") + ": " + res.getHeight() + " | "
+				+ Messages.getString("BackgroundFrame.MEMORY") + ": ";
+
 		if (res.getBackgroundImage() != null)
 			{
-			memoryLabel.setText(Util.formatDataSize(res.getSize()));
+			stat += Util.formatDataSize(res.getSize());
 			}
 		else
 			{
-			memoryLabel.setText(Util.formatDataSize(0));
+			stat += Util.formatDataSize(0);
 			}
+		String zoom = new DecimalFormat("#,##0.##").format(getZoom() * 100);
+		stat += " | " + Messages.getString("BackgroundFrame.ZOOM") + ": " + zoom + "%";
 
-		dimensionLabel.setText(res.getWidth() + " x " + res.getHeight());
-		zoomLabel.setText(new DecimalFormat("#,##0.##").format(getZoom() * 100) + "%");
+		statusLabel.setText(stat);
 		}
 
 	protected boolean areResourceFieldsEqual()

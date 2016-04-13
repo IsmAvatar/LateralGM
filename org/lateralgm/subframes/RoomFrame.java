@@ -662,7 +662,6 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				i.properties.get(PInstance.NAME));
 			lab.setText(String.format("%10s %6s %s", name, i.properties.get(PInstance.ID),
 				i.properties.get(PInstance.NAME)));
-			lab.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 10));
 			ResNode rn = o == null ? null : o.getNode();
 			lab.setIcon(rn == null ? null : rn.getIcon());
 			return lab;
