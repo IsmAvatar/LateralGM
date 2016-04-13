@@ -182,12 +182,12 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 	 */
 	private static final long serialVersionUID = 1716244867900780500L;
 	private ResourceMenu<K> menu;
-		public ResourceTransferHandler(ResourceMenu<K> menu) 
+		public ResourceTransferHandler(ResourceMenu<K> menu)
 			{
 			this.menu = menu;
 			}
 
-		public int getSourceActions(JComponent c) 
+		public int getSourceActions(JComponent c)
 			{
 			return COPY_OR_MOVE;
 			}
@@ -200,7 +200,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			try
 				{
 				ResNode data = (ResNode) ts.getTransferable().getTransferData(ResNode.NODE_FLAVOR);
-				if (data.kind.equals(menu.kind) && data.status == ResNode.STATUS_SECONDARY) 
+				if (data.kind.equals(menu.kind) && data.status == ResNode.STATUS_SECONDARY)
 					{
 					return true;
 					}
@@ -214,7 +214,7 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 		}
 
 	@SuppressWarnings("unchecked")
-	public boolean importData(TransferSupport ts) 
+	public boolean importData(TransferSupport ts)
 		{
 			try
 				{

@@ -440,7 +440,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			position = clip.getMicrosecondPosition();
 			}
 
-		lPosition.setText(Messages.getString("SoundFrame.DURATION") + ": " + formatTime(length) 
+		lPosition.setText(Messages.getString("SoundFrame.DURATION") + ": " + formatTime(length)
 				+ " | " + Messages.getString("SoundFrame.POSITION") + ": " + formatTime(position));
 		}
 

@@ -156,7 +156,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		popup.add(item);
 
 		this.setComponentPopupMenu(popup);
-		popup.addPopupMenuListener(new PopupMenuListener() 
+		popup.addPopupMenuListener(new PopupMenuListener()
 			{
 
 			@Override
@@ -1335,19 +1335,9 @@ public static class ActionTransferHandler extends TransferHandler
 		if (indices.length <= 0) return;
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
-		/*
-		TreeMap<Integer,Action> map = new TreeMap<Integer,Action>();
-		
-		for (int i = 0; i < indices.length; i++) {
-		  map.put(indices[i], actions.get(i));
-		}
-		*/
-
 		ActionTransferable at = new ActionTransferable(actions);
 
 		clipboard.setContents(at,this);
-
-		//DataFlavor[] flavors = clipboardContent.setTransferDataFlavors();
 		}
 
 	public void ActionsPaste(JList<Action> list)
@@ -1479,10 +1469,10 @@ public static class ActionTransferHandler extends TransferHandler
 	public void lostOwnership(Clipboard arg0, Transferable arg1)
 		{
 		// TODO Auto-generated method stub
-		// You could hold the transferable in like a lastTransferable field
-		// so if the user hits paste it uses the last transferable
-		// instead of doing nothing, assuming this is the purpose
-		// of this lost ownership method in Java.
+		// You could hold the transferable in something like a lastTransferable
+		// field so if the user hits paste it uses the last transferable instead
+		// of doing nothing, assuming this is the purpose of this lost ownership
+		// method in Java.
 		}
 
 	}
