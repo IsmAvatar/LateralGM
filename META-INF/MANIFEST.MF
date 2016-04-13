@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Main-Class: org.lateralgm.main.LGM
-Class-Path: 
+Class-Path:
 SplashScreen-Image: org/lateralgm/main/lgm-splash.png

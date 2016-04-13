@@ -426,7 +426,8 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		}
 	}
 
-	//TODO: Make sure a change actually happened before you store it
+	//TODO: Make sure a change actually happened before you store it, i.e. when you just
+	//drag and drop an action to the same location it shouldn't create an unecessary undo
 	public class ActionListModel extends AbstractListModel<Action> implements UpdateListener
 		{
 		private static final long serialVersionUID = 1L;
@@ -442,21 +443,19 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			undoManager = um;
 		}
 
-		public void add(Action a, boolean updateundo)
-		{
-			if (updateundo) {
-				ArrayList<Integer> indices = new ArrayList<Integer>();
-				ArrayList<Action> actions = new ArrayList<Action>();
-				indices.add(getSize());
-				actions.add(a);
-				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_ADD, indices, actions));
-			}
-			add(getSize(),a);
-		}
-
 		public void add(Action a)
 		{
 			add(a, true);
+		}
+
+		public void add(Action a, boolean updateundo)
+		{
+			add(getSize(),a,updateundo);
+		}
+
+		public void add(int index, Action a)
+		{
+			add(index, a, true);
 		}
 
 		public void add(int index, Action a, boolean updateundo)
@@ -472,11 +471,6 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			list.add(index,a);
 			updateIndentation();
 			fireIntervalAdded(this,index,index);
-		}
-
-		public void add(int index, Action a)
-		{
-			add(index, a, true);
 		}
 
 		public void addAll(int index, List<Action> c, boolean updateundo)
