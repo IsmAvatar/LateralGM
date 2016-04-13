@@ -19,9 +19,9 @@ This directory contains the following icons (.png extension omitted):
 
  Nuvola icon theme for KDE 3.x:
    actions/
-     accept cancel colorize copy cut find
-     help new next open paste previous print
-     redo save save-as sound-play sound-stop undo
+     accept cancel cascade colorize copy cut find
+     help new next open paste previous print redo
+     save save-as sound-play sound-stop undo
    restree/
      extension gm group group-open info
  Copyright 2003-2004 David Vignoni
