@@ -271,16 +271,12 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	public DefaultMutableTreeNode findNode(DefaultMutableTreeNode parent, String name,
 			boolean recursive)
 		{
-		Enumeration<DefaultMutableTreeNode> enumeration = parent.children();
+		Enumeration<DefaultMutableTreeNode> enumeration =
+				recursive ? parent.preorderEnumeration() : parent.children();
 		while (enumeration.hasMoreElements())
 			{
 			DefaultMutableTreeNode child = enumeration.nextElement();
 			if (child.toString().equals(name)) return child;
-			if (recursive && child.getChildCount() > 0)
-				{
-				DefaultMutableTreeNode ret = findNode(child,name,recursive);
-				if (ret != null) return ret;
-				}
 			}
 
 		return null;

@@ -97,7 +97,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	private CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_SOUND_DIR");
 	private SoundEditor editor;
 	private Clip clip;
-	private JLabel statusLabel;
+	private JLabel statusLabel, lPosition;
 	private JPanel statusBar;
 	//private JSlider pitch;
 	private JSlider position;
@@ -181,25 +181,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			});
 		plf.make(pan.getModel(),PSound.PAN,100.0);
 
-		/* TODO: Implement Pitch
-		JLabel lPitch = new JLabel(Messages.getString("SoundFrame.PITCH") + ": 0"); //$NON-NLS-1$
-		pitch = new JSlider(-100,100,0);
-		//pan.setPaintLabels(true);
-		pitch.setMajorTickSpacing(20);
-		pitch.setPaintTicks(true);
-		*/
-
-		/*
-		String positiontxt = "";
-		if (clip != null) {
-			positiontxt = Messages.getString("SoundFrame.POSITION") + ": " + formatTime(clip.getMicrosecondPosition()) + " | " +
-					Messages.getString("SoundFrame.DURATION") + ": " + formatTime(clip.getMicrosecondLength());
-		} else {
-			positiontxt = Messages.getString("SoundFrame.POSITION") + ": 0m0s | " +
-				Messages.getString("SoundFrame.DURATION") + ": 0m0s";
-		}
-		*/
-		final JLabel lPosition = new JLabel(Messages.getString("SoundFrame.DURATION") + ": 0m0s | "
+		lPosition = new JLabel(Messages.getString("SoundFrame.DURATION") + ": 0m0s | "
 				+ Messages.getString("SoundFrame.POSITION") + ": 0m0s"); //$NON-NLS-1$
 		position = new JSlider(0,100,0);
 		//pan.setPaintLabels(true);
@@ -211,14 +193,12 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 				public void stateChanged(ChangeEvent ev)
 					{
-					if (clip == null)
+					if (clip != null && position.getValueIsAdjusting())
 						{
-						return;
+						clip.setFramePosition(
+								(int) (((float) position.getValue() / 100) * clip.getFrameLength()));
 						}
-					lPosition.setText(Messages.getString("SoundFrame.DURATION") + ": "
-							+ formatTime(clip.getMicrosecondLength()) + " | "
-							+ Messages.getString("SoundFrame.POSITION") + ": "
-							+ formatTime(clip.getMicrosecondPosition()));
+					updatePositionLabel();
 					}
 
 			});
@@ -451,6 +431,19 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 		return pEffects;
 		}
 
+	private void updatePositionLabel()
+		{
+		long length = 0, position = 0;
+		if (clip != null)
+			{
+			length = clip.getMicrosecondLength();
+			position = clip.getMicrosecondPosition();
+			}
+
+		lPosition.setText(Messages.getString("SoundFrame.DURATION") + ": " + formatTime(length) 
+				+ " | " + Messages.getString("SoundFrame.POSITION") + ": " + formatTime(position));
+		}
+
 	protected boolean areResourceFieldsEqual()
 		{
 		return !modified;
@@ -505,13 +498,13 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				if (ft == null) ft = "";
 				res.put(PSound.FILE_TYPE,ft);
 				updateStatusLabel();
-				if (clip != null)
+				if (clip != null && clip.isOpen())
 					{
 					clip.stop();
 					clip.close();
 					clip.flush();
-					clip = null;
 					}
+				clip = null;
 				loadClip();
 				}
 			catch (Exception ex)
@@ -532,26 +525,33 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			play.setEnabled(false);
 			stop.setEnabled(true);
 			clip.setFramePosition((int) (((float) position.getValue() / 100) * clip.getFrameLength()));
-			//FloatControl gainControl =
-			//(FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-			//gainControl.setValue(-10);
 			clip.start();
 			new Thread()
 				{
 					public void run()
 						{
 						LGM.addDefaultExceptionHandler();
-						while (clip.isActive())
+						while (clip != null && clip.isActive())
 							{
-							//NOTE: Fuck you Java for actually making me have to cast like this.
 							float pos = (float) clip.getLongFramePosition() / (float) clip.getFrameLength();
 
 							position.setValue((int) (pos * position.getMaximum()));
+							try
+								{
+								Thread.sleep(50);
+								}
+							catch (InterruptedException e)
+								{
+								if (clip.isOpen()) clip.stop();
+								break;
+								}
 							}
 
-						clip.setFramePosition(0);
+						if (clip != null) {
+							clip.setFramePosition(0);
+							play.setEnabled(true);
+						}
 						position.setValue(0);
-						play.setEnabled(true);
 						stop.setEnabled(false);
 						}
 				}.start();
@@ -559,8 +559,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			}
 		if (e.getSource() == stop)
 			{
-			if (clip != null) clip.stop();
-			stop.setEnabled(false);
+			if (clip != null && clip.isOpen()) clip.stop();
 			return;
 			}
 		if (e.getSource() == store)
@@ -642,7 +641,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 	public void loadClip()
 		{
-
+		play.setEnabled(false);
 		if (data == null || data.length <= 0)
 			{
 			return;
@@ -676,8 +675,9 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			}
 		catch (UnsupportedAudioFileException e)
 			{
-			play.setEnabled(false);
+			// do nothing, file was unsupported
 			}
+		updatePositionLabel();
 		}
 
 	private void updateStatusLabel()
@@ -789,11 +789,11 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 	protected void cleanup()
 		{
 		if (editor != null) editor.stop();
-		if (clip != null)
+		if (clip != null && clip.isOpen())
 			{
 			clip.stop();
 			clip.close();
-			clip = null;
 			}
+		clip = null;
 		}
 	}

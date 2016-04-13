@@ -49,7 +49,6 @@ import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.SequentialGroup;
@@ -61,7 +60,6 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -69,7 +67,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.LayoutStyle;
-import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
@@ -392,20 +389,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 				}
 		});
 		localeCombo = new JComboBox<Locale>(locales);
-		localeCombo.setRenderer(new ListCellRenderer<Locale>() {
-			DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
-			@Override
-			public Component getListCellRendererComponent(JList<? extends Locale> list, Locale value,
-				int index, boolean isSelected, boolean cellHasFocus)
-			{
-			String text = value.getDisplayName();
-			if (value.toLanguageTag().equals("und")) {
-				text = Messages.getString("PreferencesFrame.LOCALE_UNDEFINED");
-			}
-			return defaultRenderer.getListCellRendererComponent(list, text, index, isSelected,
-				cellHasFocus);
-			}
-		});
 		localeCombo.setSelectedItem(Prefs.locale);
 
 		GroupLayout gl = new GroupLayout(p);
@@ -483,6 +466,9 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		return p;
 		}
 
+	private class ComboBoxItem {
+		
+	}
 
 	private JPanel makeAppearancePrefs()
 		{
@@ -494,6 +480,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_OFF"),
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_ON") };
 
+		
 		decorateWindowBordersCheckBox = new JCheckBox(
 				Messages.getString("PreferencesFrame.DECORATE_WINDOW_BORDERS"));
 		decorateWindowBordersCheckBox.setSelected(Prefs.decorateWindowBorders);
@@ -513,10 +500,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		themeCombo = new JComboBox<String>(model);
 		themeCombo.setSelectedItem(LGM.themename);
 		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS"));
-		iconCombo = new JComboBox<String>();
-		iconCombo.addItem("Calico");
-		iconCombo.addItem("Contrast");
-		iconCombo.addItem("Custom");
+		String[] iconItems = new String[] { "Calico", "Contrast", "Custom" };
+		iconCombo = new JComboBox<String>(iconItems);
 		/*  TODO: This is a failed experiment, the code for inside
 		 *  Eclipse works, but outside the IDE we can't properly
 		 *  get directories from the Jar.
@@ -655,10 +640,10 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			"PreferencesFrame.HARDWARE_ACCELERATION")));
 
 		JLabel direct3DLabel = new JLabel(Messages.getString("PreferencesFrame.DIRECT3D"));
-		direct3DCombo = new JComboBox<String>(new DefaultComboBoxModel<String>(systemItemsLocalized));
+		direct3DCombo = new JComboBox<String>(systemItems);
 		direct3DCombo.setSelectedItem(Prefs.direct3DAcceleration);
 		JLabel openGLLabel = new JLabel(Messages.getString("PreferencesFrame.OPENGL"));
-		openGLCombo = new JComboBox<String>(new DefaultComboBoxModel<String>(systemItemsLocalized));
+		openGLCombo = new JComboBox<String>(systemItems);
 		openGLCombo.setSelectedItem(Prefs.openGLAcceleration);
 
 		hardwareAccelerationLayout.setHorizontalGroup(hardwareAccelerationLayout.createParallelGroup()

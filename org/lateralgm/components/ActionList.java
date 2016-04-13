@@ -283,11 +283,11 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 
 		public void mouseClicked(MouseEvent e)
 			{
-			if (e.getClickCount() != 2 || !(e.getSource() instanceof JList<?>)) return;
-			JList<?> l = (JList<?>) e.getSource();
+			if (e.getClickCount() != 2 || !(e.getSource() instanceof ActionList)) return;
+			ActionList l = (ActionList) e.getSource();
 			Object o = l.getSelectedValue();
 
-			if (o == null && l.getModel().getSize() == 0)
+			if (o == null && l.getModel().getSize() == 0 && l.getActionContainer() != null)
 				{
 				o = new Action(LibManager.codeAction);
 				((ActionListModel) l.getModel()).add((Action) o);
@@ -426,7 +426,8 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		}
 	}
 
-	//TODO: Make sure a change actually happened before you store it
+	//TODO: Make sure a change actually happened before you store it, i.e. when you just
+	//drag and drop an action to the same location it shouldn't create an unecessary undo
 	public class ActionListModel extends AbstractListModel<Action> implements UpdateListener
 		{
 		private static final long serialVersionUID = 1L;
@@ -442,21 +443,19 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			undoManager = um;
 		}
 
-		public void add(Action a, boolean updateundo)
-		{
-			if (updateundo) {
-				ArrayList<Integer> indices = new ArrayList<Integer>();
-				ArrayList<Action> actions = new ArrayList<Action>();
-				indices.add(getSize());
-				actions.add(a);
-				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_ADD, indices, actions));
-			}
-			add(getSize(),a);
-		}
-
 		public void add(Action a)
 		{
 			add(a, true);
+		}
+
+		public void add(Action a, boolean updateundo)
+		{
+			add(getSize(),a,updateundo);
+		}
+
+		public void add(int index, Action a)
+		{
+			add(index, a, true);
 		}
 
 		public void add(int index, Action a, boolean updateundo)
@@ -472,11 +471,6 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			list.add(index,a);
 			updateIndentation();
 			fireIntervalAdded(this,index,index);
-		}
-
-		public void add(int index, Action a)
-		{
-			add(index, a, true);
 		}
 
 		public void addAll(int index, List<Action> c, boolean updateundo)
@@ -629,20 +623,22 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			list.remove(prev).updateSource.removeListener(this);
 			fireIntervalRemoved(this,prev,prev);
 
-			if (next > list.size()) {
+			if (next > list.size())
+				{
 				next = list.size();
-			}
+				}
 			a.updateSource.addListener(this);
 			list.add(next,a);
 			fireIntervalAdded(this,next,next);
 
-			if (updateundo) {
+			if (updateundo)
+				{
 				ArrayList<Integer> indices = new ArrayList<Integer>(1);
 				ArrayList<Integer> indicesmoved = new ArrayList<Integer>(1);
 				indices.add(prev);
 				indicesmoved.add(next);
 				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_MOVE, indices, indicesmoved, null));
-			}
+				}
 			return next;
 		}
 
@@ -651,35 +647,23 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		}
 
 		public void moveAll(List<Integer> indices, List<Integer> indicesmoved, boolean updateundo)
-		{
+			{
 			ArrayList<Action> unchanged = new ArrayList<Action>(list);
 			removeAll(indices, false);
-			for (int i = 0; i < indices.size(); i++) {
+			for (int i = 0; i < indices.size(); i++)
+				{
 				Integer prev = indices.get(i);
 				Integer next = indicesmoved.get(i);
-				if (next > prev && updateundo) {
-					next -= indices.size();
-				}
-				if (next > list.size()) {
-					next = list.size();
-				}
 				add(next,unchanged.get(prev),false);
-				if (updateundo) {
-					for (int ii = 0; ii < i; ii++) {
-						Integer old = indicesmoved.get(ii);
-						if (next < old) {
-							indicesmoved.set(ii, old + 1);
-						}
-					}
-					indicesmoved.set(i,next);
 				}
-			}
 			fireContentsChanged(this, 0, list.size());
 
-			if (updateundo) {
-				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_MOVE, indices, indicesmoved, null));
+			if (updateundo)
+				{
+				undoManager.addEdit(new UndoableActionEdit(UndoableActionEdit.ACTION_MOVE, indices,
+						indicesmoved, null));
+				}
 			}
-		}
 
 		public void moveAll(List<Integer> indices, List<Integer> indicesmoved)
 		{
@@ -896,17 +880,24 @@ public static class ActionTransferHandler extends TransferHandler
 		{
 			ActionListModel model = (ActionListModel) list.getModel();
 			List<Integer> inds = new ArrayList<Integer>(indices.length);
+			int index = addIndex;
 			for (int i = 0; i < indices.length; i++)
-			{
+				{
 				inds.add(indices[i]);
-			}
-			if (action == MOVE) {
-				if (addIndex != -1) {
-					model.moveAll(inds, addIndex);
-				} else {
-					model.removeAll(inds);
+				if (indices[i] < addIndex) index--;
 				}
-			}
+			if (action == MOVE)
+				{
+				if (addIndex != -1)
+					{
+					model.moveAll(inds, index);
+					list.setSelectionInterval(index, index + inds.size() - 1);
+					}
+				else
+					{
+					model.removeAll(inds);
+					}
+				}
 		}
 		indices = null;
 		addIndex = -1;
@@ -953,12 +944,15 @@ public static class ActionTransferHandler extends TransferHandler
 				}
 			//clone properly for drag-copy or clipboard paste
 			if (!info.isDrop() || info.getDropAction() == COPY) a = a.copy();
-			if (info.isDrop() && info.getDropAction() == MOVE) {
+			if (info.isDrop() && info.getDropAction() == MOVE && indices != null)
+				{
 				addIndex = index;
-			} else {
+				}
+			else
+				{
 				alm.add(index, a);
 				list.setSelectionInterval(index,index);
-			}
+				}
 			return true;
 			}
 		if (info.isDataFlavorSupported(ACTION_ARRAY_FLAVOR))
@@ -976,12 +970,15 @@ public static class ActionTransferHandler extends TransferHandler
 			//clone properly for drag-copy or clipboard paste
 			if (!info.isDrop() || info.getDropAction() == COPY) for (int i = 0; i < a.size(); i++)
 				a.set(i,a.get(i).copy());
-			if (info.isDrop() && info.getDropAction() == MOVE) {
+			if (info.isDrop() && info.getDropAction() == MOVE && indices != null)
+				{
 				addIndex = index;
-			} else {
+				}
+			else
+				{
 				alm.addAll(index, a);
 				list.setSelectionInterval(index,index + a.size() - 1);
-			}
+				}
 			return true;
 			}
 		if (info.isDataFlavorSupported(LIB_ACTION_FLAVOR))

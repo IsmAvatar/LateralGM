@@ -55,6 +55,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		room = r.reference;
 		properties = new PropertyMap<PInstance>(PInstance.class,this,DEFS);
 		properties.getUpdateSource(PInstance.OBJECT).addListener(ipl);
+		properties.getUpdateSource(PInstance.NAME).addListener(ipl);
 		properties.getUpdateSource(PInstance.SELECTED).addListener(ipl);
 		properties.getUpdateSource(PInstance.SCALE_X).addListener(ipl);
 		properties.getUpdateSource(PInstance.SCALE_Y).addListener(ipl);
@@ -218,6 +219,7 @@ public class Instance implements Room.Piece,UpdateListener,CodeHolder,
 		public void updated(PropertyUpdateEvent<PInstance> e)
 			{
 			if (e.key == PInstance.OBJECT) fireUpdate(null);
+			if (e.key == PInstance.NAME) fireUpdate(null);
 			if (e.key == PInstance.SELECTED) fireUpdate(null);
 			if (e.key == PInstance.SCALE_X) fireUpdate(null);
 			if (e.key == PInstance.SCALE_Y) fireUpdate(null);

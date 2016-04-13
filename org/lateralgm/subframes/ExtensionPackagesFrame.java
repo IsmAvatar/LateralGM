@@ -76,7 +76,6 @@ public class ExtensionPackagesFrame extends
 		{
 		super(res,node,Messages.getString("ExtensionPackagesFrame.TITLE"),true); //$NON-NLS-1$
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
-		setSize(300,400);
 
 		closeButton = new JButton(Messages.getString("ExtensionPackagesFrame.CLOSE"));
 		closeButton.addActionListener(this);
@@ -90,7 +89,6 @@ public class ExtensionPackagesFrame extends
 		packageList = new JList<JCheckBox>(cbArray);
 		packageList.setCellRenderer(new CheckBoxListRenderer());
 		JScrollPane listScroll = new JScrollPane(packageList);
-		//Messages.getString("ExtensionPackagesFrame.")
 
 		JPanel descPanel = new JPanel();
 		descPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("ExtensionPackagesFrame.ABOUT")));
@@ -117,7 +115,8 @@ public class ExtensionPackagesFrame extends
 		/**/.addComponent(descPanel));
 
 		this.add(centerPanel,BorderLayout.CENTER);
-		//this.pack();
+		this.pack();
+		setSize(this.getWidth(),400);
 		}
 
 	public Object getUserObject()
