@@ -498,6 +498,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			if (!support.isDataFlavorSupported(EventNode.EVENTNODE_FLAVOR)) return false;
 			EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
 			if (t == null || !t.isValid()) return false;
+			if (LGM.eventSelect.function.getValue() != EventPanel.FUNCTION_ADD
+					&& !isValidEventInstanceNode(events.getLastSelectedPathComponent()))
+				return false;
 			if (rootEvent.contains(new Event(t.mainId,t.eventId,t.other))) return false;
 			for (DataFlavor f : support.getDataFlavors())
 				if (f == EventNode.EVENTNODE_FLAVOR) return true;
@@ -664,6 +667,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public void removeEvent(EventInstanceNode n)
 		{
 		DefaultMutableTreeNode p = (DefaultMutableTreeNode) n.getParent();
+		if (p == null) return;
 
 		DefaultMutableTreeNode next = n.getNextSibling();
 		if (next == null) next = n.getPreviousSibling();
@@ -698,13 +702,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 	public void functionEvent(int mainId, int id, ResourceReference<GmObject> other, TreePath path)
 		{
-		if (path == null && rootEvent.getChildCount() > 0)
+		if (path == null)
 			{
-			// NOTE: Removing nodes after updating the model does not always remove them from the
-			// selection path history, so this call may return non-null but the node will not actually be
-			// in the tree. The additional check above regarding the child count makes sure this edge case
-			// never occurs. If there are no events in the tree then we add when we try to replace. This
-			// fixed an existing bug from lgm16b4. - Robert
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
 			path = node == null ? null : new TreePath(node.getPath());
 			}
@@ -718,7 +717,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 				break;
 			case EventPanel.FUNCTION_REPLACE:
 				DefaultMutableTreeNode dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-				if (!(dropNode instanceof EventInstanceNode)) return;
+				if (!(dropNode instanceof EventInstanceNode) || dropNode.getParent() == null) return;
 				EventInstanceNode drop = (EventInstanceNode) dropNode;
 				removeEvent(drop);
 				Event ev = drop.getUserObject();
@@ -729,7 +728,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 				break;
 			case EventPanel.FUNCTION_DUPLICATE:
 				dropNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-				if (!(dropNode instanceof EventInstanceNode)) return;
+				if (!(dropNode instanceof EventInstanceNode) || dropNode.getParent() == null) return;
 				drop = (EventInstanceNode) dropNode;
 				ev = drop.getUserObject();
 				actions.save();
@@ -900,7 +899,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
 			{
 			DefaultMutableTreeNode comp = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
-			if (!(comp instanceof EventInstanceNode) || comp == null || comp.isRoot()) return;
+			if (!isValidEventInstanceNode(comp)) return;
 			removeEvent((EventInstanceNode) comp);
 			return;
 			}
@@ -977,6 +976,23 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		return;
 		}
 
+	/**
+	 * Check if a node is non-null, is an instance of EventInstanceNode, and that it has a parent and
+	 * still exists in the events tree. This is useful with 
+	 * {@link javax.swing.JTree#getLastSelectedPathComponent() getLastSelectedPathComponent()} or
+	 * {@link javax.swing.tree.TreePath#getLastPathComponent() getLastPathComponent()} because they
+	 * can return nodes already removed from the tree.
+	 * 
+	 * @param node The node to check for validity.
+	 * 
+	 * @return Whether the node is valid.
+	 */
+	private static boolean isValidEventInstanceNode(Object node)
+		{
+		return (node != null && node instanceof EventInstanceNode
+				&& ((EventInstanceNode) node).getParent() != null);
+		}
+
 	@Override
 	public void dispose()
 		{
@@ -1006,7 +1022,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
 		if (node == null || !node.isLeaf() || !(node.getUserObject() instanceof Event))
 			{
-			if (node != null && !node.isLeaf())
+			if (node != null && !node.isLeaf() && node.getParent() != null)
 				{
 				TreePath path = new TreePath(node.getPath());
 				if (events.isExpanded(path))
