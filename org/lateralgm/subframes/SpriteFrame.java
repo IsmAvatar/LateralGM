@@ -292,6 +292,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		updateStatusLabel();
 
 		pack();
+		// this must be here or for some reason l.setPreferredSize() for the subimage list
+		// will cause a height of 13,000 with some elongated subimages (8 x 56 as an example)
+		// setFixedCellWidth/Height is not an alternative because it does not work with subimages
+		// of varying dimensions
+		this.setSize(getWidth(),650);
 		SwingUtilities.invokeLater(new Runnable()
 			{
 			@Override
