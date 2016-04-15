@@ -2464,16 +2464,17 @@ public final class LGM
 		loadPlugins();
 		splashProgress.complete();
 
-		frame.setVisible(true);
 		// this is necessary for the next call to properly center the frame or
-		// the method won't have the width/height of the window and instead use
-		// the top-left corner of the window instead of the center of the window
+		// the method won't have the width/height of the window and instead the
+		// top-left corner of the window will be in the exact center of the screen
 		frame.pack();
 		// this makes sure the first time default location of the window that has
-		// not been stored is centered to the monitor
+		// not been stored is centered to the screen
 		frame.setLocationRelativeTo(null);
-		// call this after packing the frame and settings its default location
+		// call this after packing the frame and setting its default location
 		new FramePrefsHandler(frame);
+
+		frame.setVisible(true);
 		// Load any projects entered on the command line
 		if (args.length > 0 && args[0].length() > 0)
 			{
