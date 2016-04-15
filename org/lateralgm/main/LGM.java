@@ -265,26 +265,19 @@ public final class LGM
 
 	public static JProgressBar getProgressDialogBar()
 		{
-		getProgressDialog();
 		return progressDialogBar;
 		}
 
 	public static void setProgressDialogVisible(final boolean visible)
 		{
-		SwingUtilities.invokeLater(new Runnable() {
-		@Override
-		public void run()
+		if (progressDialog != null)
 			{
-			if (progressDialog != null)
-				{
-				progressTitle = "Progress Dialog";
-				progressDialogBar.setValue(0);
-				progressDialog.setVisible(visible);
-				return;
-				}
-			getProgressDialog().setVisible(visible);
+			progressTitle = "Progress Dialog";
+			progressDialogBar.setValue(0);
+			progressDialog.setVisible(visible);
+			return;
 			}
-		});
+		getProgressDialog().setVisible(visible);
 		}
 
 	public static void setProgressTitle(String title)
@@ -294,14 +287,8 @@ public final class LGM
 
 	public static void setProgress(final int value, final String message)
 		{
-		SwingUtilities.invokeLater(new Runnable() {
-		@Override
-		public void run()
-			{
-			progressDialog.setTitle(progressTitle + " - " + message);
-			progressDialogBar.setValue(value);
-			}
-		});
+		progressDialog.setTitle(progressTitle + " - " + message);
+		progressDialogBar.setValue(value);
 		}
 
 	private static void createMouseCursors()
@@ -2478,12 +2465,14 @@ public final class LGM
 		splashProgress.complete();
 
 		frame.setVisible(true);
+		// this is necessary for the next call to properly center the frame or
+		// the method won't have the width/height of the window and instead use
+		// the top-left corner of the window instead of the center of the window
 		frame.pack();
-		// this makes sure the first time default location of the window
-		// that has not been stored is centered
+		// this makes sure the first time default location of the window that has
+		// not been stored is centered to the monitor
 		frame.setLocationRelativeTo(null);
-		// This needs to be here after the frame is set to visible for some reason,
-		// it was causing the bug with the frame not memorizing its maximized state.
+		// call this after packing the frame and settings its default location
 		new FramePrefsHandler(frame);
 		// Load any projects entered on the command line
 		if (args.length > 0 && args[0].length() > 0)
