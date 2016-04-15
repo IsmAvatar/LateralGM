@@ -45,9 +45,7 @@ import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -72,7 +70,6 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.event.ListDataListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -134,141 +131,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		resultMatchBackgroundCheckBox, resultMatchForegroundCheckBox;
 	private JComboBox<String> direct3DCombo, openGLCombo, antialiasCombo;
 	private JCheckBox decorateWindowBordersCheckBox;
-
-	private class LocalizedComboItem<T>
-		{
-		private T key;
-		private String value;
-
-		public LocalizedComboItem(T key, String value)
-			{
-			this.key = key;
-			this.value = value;
-			}
-
-		public LocalizedComboItem(T key)
-			{
-			this(key, null);
-			}
-
-		@Override
-		public String toString()
-			{
-			return value == null ? (key == null ? null : key.toString()) : value;
-			}
-
-		@Override
-		public int hashCode()
-			{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((key == null) ? 0 : key.hashCode());
-			return result;
-			}
-
-		@Override
-		public boolean equals(Object obj)
-			{
-			if (this == obj) return true;
-			if (obj == null) return false;
-			if (getClass() != obj.getClass()) return false;
-			LocalizedComboItem<?> other = (LocalizedComboItem<?>) obj;
-			if (key == null)
-			{
-			if (other.key != null) return false;
-			}
-			else if (!key.equals(other.key)) return false;
-			return true;
-			}
-		}
-
-	private class LocalizedComboBoxModel<T> extends AbstractListModel<String> implements
-		ComboBoxModel<String> {
-
-		/**
-		 * Default UID generated, change if necessary.
-		 */
-		private static final long serialVersionUID = -3434054212462470871L;
-
-		private T items[] = null;
-		private String localized[] = null;
-		private Object selectedItem = null;
-
-		public LocalizedComboBoxModel(T items[], String localized[]) {
-			this.items = items;
-			this.localized = localized;
-			selectedItem = localized[0];
-			DefaultComboBoxModel test;
-		}
-
-		@Override
-		public int getSize()
-			{
-				return items.length;
-			}
-
-		@Override
-		public String getElementAt(int index)
-			{
-				return localized[index];
-			}
-
-		@Override
-		public void setSelectedItem(Object anItem)
-			{
-				selectedItem = anItem;
-			}
-
-		@Override
-		public Object getSelectedItem()
-			{
-				return selectedItem;
-			}
-	}
-
-	private <T> ComboBoxModel<String> getLocalizedComboBoxModel(final T items[], final String localized[])
-	{
-		return new ComboBoxModel<String>() {
-
-		@Override
-		public int getSize()
-			{
-			return items.length;
-			}
-
-		@Override
-		public String getElementAt(int index)
-			{
-			return localized[index];
-			}
-
-		@Override
-		public void addListDataListener(ListDataListener l)
-			{
-			// TODO Auto-generated method stub
-			}
-
-		@Override
-		public void removeListDataListener(ListDataListener l)
-			{
-			// TODO Auto-generated method stub
-			}
-
-		private Object selectedItem = items[0];
-		@Override
-		public void setSelectedItem(Object anItem)
-			{
-			selectedItem = anItem;
-			}
-
-		@Override
-		public Object getSelectedItem()
-			{
-			return selectedItem;
-			}
-
-		};
-	}
 
 	private JButton getURIBrowseButton(final JTextField textField) {
 		JButton button = new JButton(Messages.getString("PreferencesFrame.BROWSE"));
@@ -587,8 +449,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_LCD_VBGR"),
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_LCD_VRGB")
 		};
-		antialiasCombo = new JComboBox<String>(getLocalizedComboBoxModel(antialiasItems,
-				antialiasItemsLocalized));
+		antialiasCombo = new JComboBox<String>(antialiasItems);
 		antialiasCombo.setSelectedItem(Prefs.antialiasControlFont);
 
 		JLabel iconPathLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS_PATH"));

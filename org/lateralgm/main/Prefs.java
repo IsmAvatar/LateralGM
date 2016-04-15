@@ -105,7 +105,7 @@ public final class Prefs
 		issueURI = getString("issueURI","http://github.com/IsmAvatar/LateralGM/issues");
 		enableDragAndDrop = getBoolean("enableDragAndDrop",true);
 		dockEventPanel = getBoolean("dockEventPanel",false);
-		rightOrientation = getBoolean("rightOrientation",true);
+		rightOrientation = getBoolean("rightOrientation",false);
 		boldPrimaryNodes = getBoolean("boldPrimaryNodes",true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
 		userLibraryPath = getString("userLibraryPath","./lib");
