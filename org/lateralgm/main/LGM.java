@@ -1964,10 +1964,10 @@ public final class LGM
 	}
 
 	public static void applyPreferences() {
-		if (!Prefs.locale.toLanguageTag().equals("und")) {
+		if (javaVersion >= 10700 && !Prefs.locale.toLanguageTag().equals("und")) {
 			Locale.setDefault(Prefs.locale);
+			System.out.println(Locale.getDefault());
 		}
-		System.out.println(Locale.getDefault());
 
 		if (Prefs.direct3DAcceleration.equals("off")) { //$NON-NLS-1$
 			//java6u10 regression causes graphical xor to be very slow
