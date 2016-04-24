@@ -2072,7 +2072,7 @@ public final class LGM
 		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
-		if (javaVersion <= 10700)
+		if (javaVersion < 10700)
 			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
 
 		// Load external look and feels the user has plugged in
