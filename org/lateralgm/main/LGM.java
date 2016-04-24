@@ -1964,7 +1964,7 @@ public final class LGM
 	}
 
 	public static void applyPreferences() {
-		if (!Prefs.locale.toLanguageTag().equals("und") && javaVersion >= 10700) {
+		if (javaVersion >= 10700 && !Prefs.locale.toLanguageTag().equals("und")) {
 			Locale.setDefault(Prefs.locale);
 			System.out.println(Locale.getDefault());
 		}
