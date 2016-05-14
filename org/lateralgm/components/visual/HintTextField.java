@@ -69,25 +69,25 @@ public class HintTextField extends JTextField implements FocusListener {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		Shape clip = g.getClip();
-		Rectangle bounds = this.getBounds();
-		Insets insets = this.getInsets();
+		if (hint != null && getText().length() == 0 && hideOnFocus && !hasFocus()) {
+			Shape clip = g.getClip();
+			Rectangle bounds = this.getBounds();
+			Insets insets = this.getInsets();
+	
+			g.clipRect(insets.left, insets.top, bounds.width - insets.left - insets.right,
+				bounds.height - insets.top - insets.bottom);
 
-		g.clipRect(insets.left, insets.top, bounds.width - insets.left - insets.right,
-			bounds.height - insets.top - insets.bottom);
-		if (hint != null && getText().length() == 0 && (!(hideOnFocus && hasFocus()))){
-				int padding = (getHeight() - getFont().getSize())/2;
+			// this allows the control to get the global property for antialiasing
+			// thus making it affected by the preference in the preferences window
+			Object map = Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints");
+			if (map != null) {
+				((Graphics2D) g).addRenderingHints((Map<?,?>) map);
+			}
 
-				// this allows the control to get the global property for antialiasing
-				// thus making it affected by the preference in the preferences window
-				Object map = Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints");
-				if (map != null) {
-					((Graphics2D) g).addRenderingHints((Map<?,?>) map);
-				}
+			g.drawString(hint, insets.left, g.getFontMetrics().getAscent() + insets.top);
 
-				g.drawString(hint, insets.left, getHeight() - padding - 1);
+			g.setClip(clip);
 		}
-		g.setClip(clip);
 	}
 
 	public void focusGained(FocusEvent e) {
