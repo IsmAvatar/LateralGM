@@ -70,9 +70,11 @@ public class HintTextField extends JTextField implements FocusListener {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Shape clip = g.getClip();
-		Rectangle bounds = g.getClipBounds();
+		Rectangle bounds = this.getBounds();
 		Insets insets = this.getInsets();
-		g.clipRect(insets.left, 0, bounds.width - insets.left - insets.right, bounds.height);
+
+		g.clipRect(insets.left, insets.top, bounds.width - insets.left - insets.right,
+			bounds.height - insets.top - insets.bottom);
 		if (hint != null && getText().length() == 0 && (!(hideOnFocus && hasFocus()))){
 				int padding = (getHeight() - getFont().getSize())/2;
 
@@ -82,6 +84,7 @@ public class HintTextField extends JTextField implements FocusListener {
 				if (map != null) {
 					((Graphics2D) g).addRenderingHints((Map<?,?>) map);
 				}
+
 				g.drawString(hint, insets.left, getHeight() - padding - 1);
 		}
 		g.setClip(clip);
