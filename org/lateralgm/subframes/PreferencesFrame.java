@@ -296,22 +296,22 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		/*	*/.addComponent(localeWarningLabel))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(documentationLabel)
-		/*	*/.addComponent(documentationURI,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*	*/.addComponent(documentationURI)
 		/*	*/.addComponent(documentationBrowse))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(websiteLabel)
-		/*	*/.addComponent(websiteURI,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*	*/.addComponent(websiteURI)
 		/*	*/.addComponent(websiteBrowse))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(communityLabel)
-		/*	*/.addComponent(communityURI,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*	*/.addComponent(communityURI)
 		/*	*/.addComponent(communityBrowse))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(issueLabel)
-		/*	*/.addComponent(issueURI,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*	*/.addComponent(issueURI)
 		/*	*/.addComponent(issueBrowse))
 		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
-		/*	*/.addComponent(backupsPanel,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*	*/.addComponent(backupsPanel)
 		/*	*/.addGroup(gl.createSequentialGroup()
 		/*		*/.addComponent(dndEnable)
 		/*		*/.addComponent(dockEvent)
@@ -518,10 +518,10 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		hardwareAccelerationLayout.setVerticalGroup(hardwareAccelerationLayout.createSequentialGroup()
 		/*	*/.addGroup(hardwareAccelerationLayout.createParallelGroup(Alignment.BASELINE)
 		/*			*/.addComponent(direct3DLabel)
-		/*			*/.addComponent(direct3DCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/*			*/.addComponent(direct3DCombo))
 		/*	*/.addGroup(hardwareAccelerationLayout.createParallelGroup(Alignment.BASELINE)
 		/*			*/.addComponent(openGLLabel)
-		/*			*/.addComponent(openGLCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)));
+		/*			*/.addComponent(openGLCombo)));
 
 		hardwareAccelerationPanel.setLayout(hardwareAccelerationLayout);
 
@@ -622,22 +622,22 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		gl.setVerticalGroup(gl.createSequentialGroup()
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/* */.addComponent(themeLabel)
-		/* */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/* */.addComponent(themeCombo)
 		/* */.addComponent(iconLabel)
-		/* */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/* */.addComponent(iconCombo)
 		/* */.addComponent(antialiasLabel)
-		/* */.addComponent(antialiasCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/* */.addComponent(antialiasCombo)
 		/* */.addComponent(decorateWindowBordersCheckBox))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/* */.addComponent(themePathLabel)
-		/* */.addComponent(themePath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/* */.addComponent(themePath))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/* */.addComponent(iconPathLabel)
-		/* */.addComponent(iconPath,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE))
+		/* */.addComponent(iconPath))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/* */.addComponent(imagePreviewPanel)
-		/* */.addComponent(hardwareAccelerationPanel,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
-		/**/.addComponent(searchResultsPanel,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE));
+		/* */.addComponent(hardwareAccelerationPanel))
+		/**/.addComponent(searchResultsPanel));
 
 		gl.linkSize(SwingConstants.VERTICAL, imagePreviewPanel, hardwareAccelerationPanel);
 
@@ -680,7 +680,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 				labelGroup.addComponent(label);
 				textfieldGroup.addComponent(textfield);
 				vg.addComponent(label);
-				vg.addComponent(textfield,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE);
+				vg.addComponent(textfield);
 
 				verticalGroup.addGroup(vg);
 				}
@@ -1058,11 +1058,11 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		/**/gl.createSequentialGroup()
 		/*	*/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
 		/*		*/.addComponent(undoHistorySizeLabel)
-		/*		*/.addComponent(undoHistorySize,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
+		/*		*/.addComponent(undoHistorySize))
 		/*	*/.addGroup(gl.createParallelGroup()
-		/*		*/.addComponent(selectionPanel,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
-		/*		*/.addComponent(multipleSelectionPanel,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE))
-		/*	*/.addComponent(viewsPanel,PREFERRED_SIZE,PREFERRED_SIZE,PREFERRED_SIZE));
+		/*		*/.addComponent(selectionPanel)
+		/*		*/.addComponent(multipleSelectionPanel))
+		/*	*/.addComponent(viewsPanel));
 
 		return roomEditorPanel;
 		}
