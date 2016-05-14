@@ -275,7 +275,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		/*	*/.addComponent(f))
 		/**/.addComponent(b,Alignment.CENTER));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup()
+		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/*	*/.addComponent(l)
 		/*	*/.addComponent(f))
 		/**/.addComponent(b));
