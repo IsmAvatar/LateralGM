@@ -661,7 +661,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			{
 			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			if (fc.getSelectedFile().exists()) break;
-			JOptionPane.showMessageDialog(null,
+			JOptionPane.showMessageDialog(fc,
 					fc.getSelectedFile().getName() + Messages.getString("GameInformationFrame.FILE_MISSING"), //$NON-NLS-1$
 					Messages.getString("GameInformationFrame.LOAD_TITLE"), //$NON-NLS-1$
 					JOptionPane.WARNING_MESSAGE);

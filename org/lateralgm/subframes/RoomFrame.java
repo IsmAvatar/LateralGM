@@ -2106,7 +2106,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				message = Messages.getString("RoomFrame.DELETE_OBJECTS");
 
 			// Get a confirmation from the user
-			result = JOptionPane.showConfirmDialog(null,message,
+			result = JOptionPane.showConfirmDialog(this,message,
 					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
 			}
 
@@ -2381,7 +2381,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			NumberField depth = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,0);
 			myPanel.add(depth);
 
-			int result = JOptionPane.showConfirmDialog(null,myPanel,
+			int result = JOptionPane.showConfirmDialog(this,myPanel,
 					Messages.getString("RoomFrame.ADD_NEW_TILE"),JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.PLAIN_MESSAGE);
 
@@ -2408,7 +2408,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		if (eventSource == deleteLayer)
 			{
 			// Get a confirmation from the user
-			int result = JOptionPane.showConfirmDialog(null,
+			int result = JOptionPane.showConfirmDialog(this,
 					Messages.getString("RoomFrame.DELETE_TILE_LAYER"),
 					Messages.getString("RoomFrame.DELETE_TITLE"),JOptionPane.YES_NO_OPTION);
 
@@ -2544,7 +2544,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			else
 				panelTitle = Messages.getString("RoomFrame.SHIFT_OBJECTS_TITLE");
 
-			int result = JOptionPane.showConfirmDialog(null,myPanel,panelTitle,
+			int result = JOptionPane.showConfirmDialog(this,myPanel,panelTitle,
 					JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
 
 			if (result == JOptionPane.OK_OPTION)

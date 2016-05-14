@@ -2681,7 +2681,7 @@ public final class LGM
 	public static void onMainFrameClosed()
 		{
 		if (!checkForChanges()) { System.exit(0); }
-		int n = JOptionPane.showConfirmDialog(null,Messages.getString("LGM.KEEPCHANGES_MESSAGE"),
+		int n = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES_MESSAGE"),
 				Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE,null);
 

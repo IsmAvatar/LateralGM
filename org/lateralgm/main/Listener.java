@@ -171,7 +171,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		if (r == null)
 			{
 			String msg = Messages.getString("Listener.INPUT_GROUPNAME"); //$NON-NLS-1$
-			String name = JOptionPane.showInputDialog(msg,
+			String name = JOptionPane.showInputDialog(LGM.frame,msg,
 					Messages.getString("Listener.DEFAULT_GROUPNAME")); //$NON-NLS-1$
 			if (name == null || name.isEmpty()) return;
 			ResNode g = new ResNode(name,ResNode.STATUS_GROUP,parent.kind);
@@ -243,7 +243,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	protected static void deleteSelectedResources(JTree tree)
 		{
 		String msg = Messages.getString("Listener.CONFIRM_DELETERESOURCE"); //$NON-NLS-1$
-		if (JOptionPane.showConfirmDialog(null,msg,
+		if (JOptionPane.showConfirmDialog(LGM.frame,msg,
 				Messages.getString("Listener.CONFIRM_DELETERESOURCE_TITLE"), //$NON-NLS-1$
 				JOptionPane.YES_NO_OPTION) == 0)
 			{
@@ -518,9 +518,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		else if (com.endsWith(".FIND"))
 			{
-			String name = JOptionPane.showInputDialog(null,Messages.getString("FindResourceDialog.MESSAGE"),
-					Messages.getString("FindResourceDialog.TITLE"),
-					JOptionPane.PLAIN_MESSAGE);
+			String name = JOptionPane.showInputDialog(LGM.frame,
+				Messages.getString("FindResourceDialog.MESSAGE"),
+				Messages.getString("FindResourceDialog.TITLE"),
+				JOptionPane.PLAIN_MESSAGE);
 			if (name != null)
 				{
 				// find the resource with the name
@@ -535,7 +536,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 					}
 				else
 					{
-					JOptionPane.showMessageDialog(null,"Resource not found: " + name);
+					JOptionPane.showMessageDialog(LGM.frame,"Resource not found: " + name);
 					}
 				}
 			return;
