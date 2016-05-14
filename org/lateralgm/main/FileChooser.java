@@ -530,8 +530,9 @@ public class FileChooser
 		{
 		if (file == null || !file.exists())
 			{
-			int result = JOptionPane.showConfirmDialog(null,"Would you like to choose a different file?",
-				"File Not Found", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+			int result = JOptionPane.showConfirmDialog(LGM.frame,
+					"Would you like to choose a different file?","File Not Found",JOptionPane.YES_NO_OPTION,
+					JOptionPane.ERROR_MESSAGE);
 			if (result == JOptionPane.YES_OPTION) {
 				openNewFile();
 			}

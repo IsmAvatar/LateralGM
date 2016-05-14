@@ -75,9 +75,9 @@ public class CustomFileChooser extends JFileChooser
 			boolean fileExists = getFileExists();
 			if (fileExists) {
 				if (JOptionPane.showConfirmDialog(this,
-					Messages.getString("FileChooser.CONFIRM_OVERWRITE_MESSAGE"),
-					Messages.getString("FileChooser.CONFIRM_OVERWRITE_TITLE"),
-					JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+						Messages.getString("FileChooser.CONFIRM_OVERWRITE_MESSAGE"),
+						Messages.getString("FileChooser.CONFIRM_OVERWRITE_TITLE"),
+						JOptionPane.WARNING_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 					return;
 				}
 			}

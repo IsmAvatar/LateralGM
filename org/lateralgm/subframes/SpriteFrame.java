@@ -1188,8 +1188,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			myPanel.add(new JLabel(Messages.getString("SpriteFrame.NEW_HEIGHT")));
 			myPanel.add(hField);
 
-			int result = JOptionPane.showConfirmDialog(LGM.frame,myPanel,Messages.getString("SpriteFrame.NEW_TITLE"),
-					JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
+			int result = JOptionPane.showConfirmDialog(this,
+					myPanel,Messages.getString("SpriteFrame.NEW_TITLE"),JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.PLAIN_MESSAGE);
 			if (result == JOptionPane.CANCEL_OPTION)
 				{
 				return null;

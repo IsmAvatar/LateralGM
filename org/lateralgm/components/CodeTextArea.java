@@ -280,7 +280,6 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		/*	*/.addComponent(f))
 		/**/.addComponent(b));
 
-		//					JOptionPane.showMessageDialog(null,p);
 		d.setContentPane(p);
 		d.pack();
 		d.setResizable(false);
