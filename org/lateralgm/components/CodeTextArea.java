@@ -10,10 +10,6 @@
 
 package org.lateralgm.components;
 
-import static java.lang.Integer.MAX_VALUE;
-import static javax.swing.GroupLayout.DEFAULT_SIZE;
-import static javax.swing.GroupLayout.PREFERRED_SIZE;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Frame;
