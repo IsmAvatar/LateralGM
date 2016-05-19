@@ -399,7 +399,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 				{
 				LGM.showDefaultExceptionHandler(e);
 				}
-		  JarEntry jarEntry = null;
+			JarEntry jarEntry = null;
 			try
 				{
 				jarEntry = jar.getNextJarEntry();
@@ -408,23 +408,23 @@ public class PreferencesFrame extends JDialog implements ActionListener
 				{
 				LGM.showDefaultExceptionHandler(e);
 				}
-		  while (jarEntry != null) {
+			while (jarEntry != null) {
 				if (jarEntry.isDirectory()) {
 					String str = jarEntry.getName();
-				  if (str.replace("\\","/").contains("org/lateralgm/icons")) {
+					if (str.replace("\\","/").contains("org/lateralgm/icons")) {
 						JOptionPane.showMessageDialog(null,str);
 						res.add(str);
-				  }
-				 }
-				 try
+					}
+				}
+				try
 					{
 					jarEntry = jar.getNextJarEntry();
 					}
 				catch (IOException e)
 					{
-						LGM.showDefaultExceptionHandler(e);
+					LGM.showDefaultExceptionHandler(e);
 					}
-		  }
+			}
 
 			directories = res.toArray(new String[res.size()]);
 		}

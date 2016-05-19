@@ -1,5 +1,5 @@
 /**
-* @file	ImportExportDialog.java
+* @file ImportExportDialog.java
 * @brief Class implementing the frame with selection box allowing you to mass import and export
 * resources and essentially merge projects.
 *

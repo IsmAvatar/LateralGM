@@ -408,12 +408,12 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 				}
 		};
 		editors.addChangeListener(new ChangeListener() {
-		    public void stateChanged(ChangeEvent e) {
-						CodeTextArea selectedCode = getSelectedCode();
-						if (selectedCode == null) return;
-						undoButton.setEnabled(selectedCode.text.canUndo());
-						redoButton.setEnabled(selectedCode.text.canRedo());
-		    }
+			public void stateChanged(ChangeEvent e) {
+				CodeTextArea selectedCode = getSelectedCode();
+				if (selectedCode == null) return;
+				undoButton.setEnabled(selectedCode.text.canUndo());
+				redoButton.setEnabled(selectedCode.text.canRedo());
+			}
 		});
 
 		fcode.text.addLineChangeListener(linelistener);

@@ -375,7 +375,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 			indicesmoved = moved;
 		}
 
-	  // Return a reasonable name for this edit.
+		// Return a reasonable name for this edit.
 		@Override
 		public String getPresentationName() {
 			return "Action " + type;

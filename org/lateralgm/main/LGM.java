@@ -693,14 +693,13 @@ public final class LGM
 		}
 
 	public static void addURL(URL url) throws Exception {
-	  URLClassLoader classLoader
-	         = (URLClassLoader) ClassLoader.getSystemClassLoader();
-	  Class<?> clazz = URLClassLoader.class;
+		URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+		Class<?> clazz = URLClassLoader.class;
 
-	  // Use reflection
-	  Method method= clazz.getDeclaredMethod("addURL", new Class[] { URL.class });
-	  method.setAccessible(true);
-	  method.invoke(classLoader, new Object[] { url });
+		// Use reflection
+		Method method= clazz.getDeclaredMethod("addURL", new Class[] { URL.class });
+		method.setAccessible(true);
+		method.invoke(classLoader, new Object[] { url });
 	}
 
 	public static void loadLookAndFeels()
@@ -955,9 +954,9 @@ public final class LGM
 					text += (i > 0 ? "\n" : "") + path.getLastPathComponent().toString().replaceAll("\\<[^>]*>","");
 				}
 
-			  StringSelection selection = new StringSelection(text);
-		    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-		    clipboard.setContents(selection, selection);
+				StringSelection selection = new StringSelection(text);
+				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clipboard.setContents(selection, selection);
 				}
 		};
 	private static JTabbedPane treeTabs;
@@ -1032,54 +1031,51 @@ public final class LGM
 		}
 
 	public static class InvisibleTreeModel extends DefaultTreeModel {
-
-	  /**
+		/**
 		 *
 		 */
 		private static final long serialVersionUID = 1L;
 		protected boolean filterIsActive;
 
-	  public InvisibleTreeModel(TreeNode root) {
-	    this(root, false);
-	  }
+		public InvisibleTreeModel(TreeNode root) {
+			this(root, false);
+		}
 
-	  public InvisibleTreeModel(TreeNode root, boolean asksAllowsChildren) {
-	    this(root, false, false);
-	  }
+		public InvisibleTreeModel(TreeNode root, boolean asksAllowsChildren) {
+			this(root, false, false);
+		}
 
-	  public InvisibleTreeModel(TreeNode root, boolean asksAllowsChildren,
-	      boolean filterIsActive) {
-	    super(root, asksAllowsChildren);
-	    this.filterIsActive = filterIsActive;
-	  }
+		public InvisibleTreeModel(TreeNode root, boolean asksAllowsChildren,
+				boolean filterIsActive) {
+			super(root, asksAllowsChildren);
+			this.filterIsActive = filterIsActive;
+		}
 
-	  public void activateFilter(boolean newValue) {
-	    filterIsActive = newValue;
-	  }
+		public void activateFilter(boolean newValue) {
+			filterIsActive = newValue;
+		}
 
-	  public boolean isActivatedFilter() {
-	    return filterIsActive;
-	  }
+		public boolean isActivatedFilter() {
+			return filterIsActive;
+		}
 
-	  public Object getChild(Object parent, int index) {
-	    if (filterIsActive) {
-	      if (parent instanceof ResNode) {
-	        return ((ResNode) parent).getChildAt(index,
-	            filterIsActive);
-	      }
-	    }
-	    return ((TreeNode) parent).getChildAt(index);
-	  }
+		public Object getChild(Object parent, int index) {
+			if (filterIsActive) {
+				if (parent instanceof ResNode) {
+					return ((ResNode) parent).getChildAt(index, filterIsActive);
+				}
+			}
+			return ((TreeNode) parent).getChildAt(index);
+		}
 
-	  public int getChildCount(Object parent) {
-	    if (filterIsActive) {
-	      if (parent instanceof ResNode) {
-	        return ((ResNode) parent).getChildCount(filterIsActive);
-	      }
-	    }
-	    return ((TreeNode) parent).getChildCount();
-	  }
-
+		public int getChildCount(Object parent) {
+			if (filterIsActive) {
+				if (parent instanceof ResNode) {
+					return ((ResNode) parent).getChildCount(filterIsActive);
+				}
+			}
+			return ((TreeNode) parent).getChildCount();
+		}
 	}
 
 	private static boolean expressionMatch(String token, String expression, boolean matchCase, boolean wholeWord) {
@@ -1116,7 +1112,7 @@ public final class LGM
 			}
 		}
 		return firstResult;
-  }
+	}
 
 	public static boolean applyFilter(Vector<ResNode> children, boolean filter, String expression, boolean matchCase, boolean wholeWord, boolean selectFirst) {
 		if (children == null) { return false; }
@@ -1129,7 +1125,7 @@ public final class LGM
 		}
 		tree.updateUI();
 		return false;
-  }
+	}
 
 	public static boolean searchFilter(ResNode child, String expression, boolean matchCase, boolean wholeWord, boolean backwards) {
 		ResNode firstResult = null;
@@ -1154,17 +1150,21 @@ public final class LGM
 		}
 		return false;
 	}
+
 	public static class MatchBlock {
-	  public String content;
-	  public boolean highlighted;
-	  MatchBlock(String content, boolean highlighted) {
-	    this.content = content;
-	    this.highlighted = highlighted;
-	  }
+		public String content;
+		public boolean highlighted;
+
+		MatchBlock(String content, boolean highlighted) {
+			this.content = content;
+			this.highlighted = highlighted;
+		}
 	}
+
 	public static class LineMatch {
-	  public int lineNum;
-	  public List<MatchBlock> matchedText = new ArrayList<MatchBlock>();
+		public int lineNum;
+		public List<MatchBlock> matchedText = new ArrayList<MatchBlock>();
+
 		public String toHighlightableString()
 			{
 			boolean enablehtml = Prefs.highlightResultMatchBackground || Prefs.highlightResultMatchForeground;
@@ -1208,51 +1208,51 @@ public final class LGM
 
 	private static final Pattern NEWLINE = Pattern.compile("\r\n|\r|\n");
 	static List<LineMatch> getMatchingLines(String code, Pattern content) {
-	  List<LineMatch> res = new ArrayList<LineMatch>();
-	  Matcher m = content.matcher(code), nl = NEWLINE.matcher(code);
-	  // code editor starts at line 0 so we need to here as well
-	  int lineNum = 0, lineAt = 0, lastEnd = -1;
-	  LineMatch lastMatch = null;
-	  while (m.find()) {
-	    nl.region(lineAt, m.start());
-	    int firstSkippedLineAt = lineAt;
-	    if (nl.find()) {
-	      firstSkippedLineAt = nl.start();
-	      lineAt = nl.end();
-	      ++lineNum;
-	      while (nl.find()) {
-	        ++lineNum;
-	        lineAt = nl.end();
-	      }
-	    }
-	    if (lastMatch != null) {
-	      // We have to add the rest of the line to the old match, either way.
-	      // And if we're matching on the same line, we add that match, too.
-	      if (lineNum == lastMatch.lineNum) {
-	        lastMatch.matchedText.add(new MatchBlock(code.substring(lastEnd, m.start()), false));
-	        lastMatch.matchedText.add(new MatchBlock(code.substring(m.start(), m.end()), true));
-	      } else {
-	        lastMatch.matchedText.add(
-	            new MatchBlock(code.substring(lastEnd, firstSkippedLineAt), false));
-	      }
-	    }
-	    if (lastMatch == null || lineNum != lastMatch.lineNum) {
-	      lastMatch = new LineMatch();
-	      lastMatch.lineNum = lineNum;
-	      if (m.start() > lineAt) {
-	        lastMatch.matchedText.add(new MatchBlock(code.substring(lineAt, m.start()), false));
-	      }
-	      lastMatch.matchedText.add(new MatchBlock(code.substring(m.start(), m.end()), true));
-	      res.add(lastMatch);
-	    }
-	    lastEnd = m.end();
-	  }
-	  if (lastMatch != null) {
-	    nl.region(lastEnd, code.length());
-	    int indTo = (nl.find())? nl.start() : code.length();
-	    lastMatch.matchedText.add(new MatchBlock(code.substring(lastEnd, indTo), false));
-	  }
-	  return res;
+		List<LineMatch> res = new ArrayList<LineMatch>();
+		Matcher m = content.matcher(code), nl = NEWLINE.matcher(code);
+		// code editor starts at line 0 so we need to here as well
+		int lineNum = 0, lineAt = 0, lastEnd = -1;
+		LineMatch lastMatch = null;
+		while (m.find()) {
+			nl.region(lineAt, m.start());
+			int firstSkippedLineAt = lineAt;
+			if (nl.find()) {
+				firstSkippedLineAt = nl.start();
+				lineAt = nl.end();
+				++lineNum;
+				while (nl.find()) {
+					++lineNum;
+					lineAt = nl.end();
+				}
+			}
+			if (lastMatch != null) {
+				// We have to add the rest of the line to the old match, either way.
+				// And if we're matching on the same line, we add that match, too.
+				if (lineNum == lastMatch.lineNum) {
+					lastMatch.matchedText.add(new MatchBlock(code.substring(lastEnd, m.start()), false));
+					lastMatch.matchedText.add(new MatchBlock(code.substring(m.start(), m.end()), true));
+				} else {
+					lastMatch.matchedText.add(
+							new MatchBlock(code.substring(lastEnd, firstSkippedLineAt), false));
+				}
+			}
+			if (lastMatch == null || lineNum != lastMatch.lineNum) {
+				lastMatch = new LineMatch();
+				lastMatch.lineNum = lineNum;
+				if (m.start() > lineAt) {
+					lastMatch.matchedText.add(new MatchBlock(code.substring(lineAt, m.start()), false));
+				}
+				lastMatch.matchedText.add(new MatchBlock(code.substring(m.start(), m.end()), true));
+				res.add(lastMatch);
+			}
+			lastEnd = m.end();
+		}
+		if (lastMatch != null) {
+			nl.region(lastEnd, code.length());
+			int indTo = (nl.find())? nl.start() : code.length();
+			lastMatch.matchedText.add(new MatchBlock(code.substring(lastEnd, indTo), false));
+		}
+		return res;
 	}
 
 
@@ -2378,13 +2378,13 @@ public final class LGM
 		});
 
 		filterText.addActionListener(new ActionListener() {
-		public void actionPerformed(ActionEvent evt) {
-			if (filterText.getText().length() <= 0) return;
-			InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-			searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(),
-					matchCaseCB.isSelected(), wholeWordCB.isSelected());
-			setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS"));
-	  }
+			public void actionPerformed(ActionEvent evt) {
+				if (filterText.getText().length() <= 0) return;
+				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
+				searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(),
+						regexCB.isSelected(), matchCaseCB.isSelected(), wholeWordCB.isSelected());
+				setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS"));
+			}
 		});
 
 		// Use a toolbar so that the buttons render like tool buttons and smaller.

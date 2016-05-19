@@ -119,7 +119,7 @@ public class OutputManager
 		};
 
 		final JPopupMenu popup = new JPopupMenu();
-	  popup.add(makeContextButton(aCopy));
+		popup.add(makeContextButton(aCopy));
 		popup.addSeparator();
 		popup.add(makeContextButton(aSelAll));
 		logPane.setComponentPopupMenu(popup);

@@ -978,13 +978,13 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 	/**
 	 * Check if a node is non-null, is an instance of EventInstanceNode, and that it has a parent and
-	 * still exists in the events tree. This is useful with 
+	 * still exists in the events tree. This is useful with
 	 * {@link javax.swing.JTree#getLastSelectedPathComponent() getLastSelectedPathComponent()} or
 	 * {@link javax.swing.tree.TreePath#getLastPathComponent() getLastPathComponent()} because they
 	 * can return nodes already removed from the tree.
-	 * 
+	 *
 	 * @param node The node to check for validity.
-	 * 
+	 *
 	 * @return Whether the node is valid.
 	 */
 	private static boolean isValidEventInstanceNode(Object node)
