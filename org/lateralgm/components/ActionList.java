@@ -309,9 +309,9 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		@Override
 		public void keyPressed(KeyEvent e)
 			{
-			if (!(e.getSource() instanceof ActionList)) {
+			if (!(e.getSource() instanceof ActionList))
 				return;
-			}
+
 			@SuppressWarnings("unchecked")
 			JList<Action> l = (JList<Action>) e.getSource();
 

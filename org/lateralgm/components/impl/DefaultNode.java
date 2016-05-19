@@ -125,7 +125,7 @@ public class DefaultNode extends DefaultMutableTreeNode
 		if (isRoot()) return false;
 		return true;
 		}
-	
+
 	public void openFrame()
 		{
 		// TODO Auto-generated method stub
