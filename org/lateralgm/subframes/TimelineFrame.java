@@ -250,9 +250,9 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 
 		for (int i = 0; i < model.getSize(); i++){
 			Moment mom =  model.getElementAt(i);
-		  if (mom.stepNo == step) {
-		  	return i;
-		  }
+			if (mom.stepNo == step) {
+				return i;
+			}
 		}
 		return -1;
 	}

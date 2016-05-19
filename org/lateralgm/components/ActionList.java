@@ -309,13 +309,13 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		@Override
 		public void keyPressed(KeyEvent e)
 			{
-			 if (!(e.getSource() instanceof ActionList)) {
-			 	return;
-			 }
-			 @SuppressWarnings("unchecked")
-				JList<Action> l = (JList<Action>) e.getSource();
+			if (!(e.getSource() instanceof ActionList)) {
+				return;
+			}
+			@SuppressWarnings("unchecked")
+			JList<Action> l = (JList<Action>) e.getSource();
 
-			 KeyStroke stroke = KeyStroke.getKeyStrokeForEvent(e);
+			KeyStroke stroke = KeyStroke.getKeyStrokeForEvent(e);
 			if (stroke != null)
 				{
 				if (stroke.equals(KeyStroke.getKeyStroke(Messages.getKeyboardString("ActionList.UNDO"))))

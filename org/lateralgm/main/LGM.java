@@ -779,7 +779,7 @@ public final class LGM
 				if (status == ResNode.STATUS_SECONDARY) {
 					SingletonResourceHolder<?> rh = (SingletonResourceHolder<?>) LGM.currentFile.resMap.get(k);
 					if (rh != null) {
-	    			Resource<?,?> res = rh.getResource();
+						Resource<?,?> res = rh.getResource();
 						root.add(new ResNode(name,status,k,res.reference));
 					} else {
 						root.addChild(name,status,k);
@@ -1082,23 +1082,23 @@ public final class LGM
 
 	}
 
-  private static boolean expressionMatch(String token, String expression, boolean matchCase, boolean wholeWord) {
-  	if (!matchCase) {
-  		token = token.toLowerCase();
-  		expression = expression.toLowerCase();
-  	}
-  	if (wholeWord) {
-  		return token.equals(expression);
-  	} else {
-  		//if (expression.length() == 0) { return false; } // without this all of your folders will be open by default, we don't want to
-  		// check matches with an empty string - don't touch this as everything works so just leave it here in case I come back to it - Robert B. Colton
-  		return token.contains(expression);
-  	}
-  }
+	private static boolean expressionMatch(String token, String expression, boolean matchCase, boolean wholeWord) {
+		if (!matchCase) {
+			token = token.toLowerCase();
+			expression = expression.toLowerCase();
+		}
+		if (wholeWord) {
+			return token.equals(expression);
+		} else {
+			//if (expression.length() == 0) { return false; } // without this all of your folders will be open by default, we don't want to
+			// check matches with an empty string - don't touch this as everything works so just leave it here in case I come back to it - Robert B. Colton
+			return token.contains(expression);
+		}
+	}
 
-  public static DefaultMutableTreeNode applyFilterRecursion(Vector<ResNode> children, boolean filter, String expression, boolean matchCase, boolean wholeWord) {
-  	if (children == null) { return null; }
-  	DefaultMutableTreeNode firstResult = null;
+	public static DefaultMutableTreeNode applyFilterRecursion(Vector<ResNode> children, boolean filter, String expression, boolean matchCase, boolean wholeWord) {
+		if (children == null) { return null; }
+		DefaultMutableTreeNode firstResult = null;
 		for (ResNode child : children) {
 			boolean match = expressionMatch(child.toString(), expression, matchCase, wholeWord);
 			if (firstResult == null && match) {
@@ -1122,13 +1122,13 @@ public final class LGM
 		if (children == null) { return false; }
 		DefaultMutableTreeNode firstResult = applyFilterRecursion(children, filter, expression, matchCase, wholeWord);
 
-  	if (firstResult != null && selectFirst) {
-  		tree.setSelectionPath(new TreePath(firstResult.getPath()));
-  		tree.updateUI();
-  		return true;
-  	}
-  	tree.updateUI();
-  	return false;
+		if (firstResult != null && selectFirst) {
+			tree.setSelectionPath(new TreePath(firstResult.getPath()));
+			tree.updateUI();
+			return true;
+		}
+		tree.updateUI();
+		return false;
   }
 
 	public static boolean searchFilter(ResNode child, String expression, boolean matchCase, boolean wholeWord, boolean backwards) {
@@ -1293,10 +1293,10 @@ public final class LGM
 			ResNode pathNode = (ResNode) paths[n];
 			boolean found = false;
 			for (int y = 0; y < searchNode.getChildCount(); y++) {
-			 DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) searchNode.getChildAt(y);
-			 if (childNode.getUserObject() == pathNode.getUserObject()) {
-			 		searchNode = childNode; found = true; break;
-			 }
+				DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) searchNode.getChildAt(y);
+				if (childNode.getUserObject() == pathNode.getUserObject()) {
+						searchNode = childNode; found = true; break;
+				}
 			}
 			if (!found) {
 				SearchResultNode newSearchNode = new SearchResultNode(pathNode.getUserObject());
@@ -1313,8 +1313,8 @@ public final class LGM
 
 	public static void searchInResourcesRecursion(DefaultMutableTreeNode node, Pattern pattern) {
 		int numChildren = node.getChildCount();
-	  for (int i = 0; i < numChildren; ++i) {
-	  	DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
+		for (int i = 0; i < numChildren; ++i) {
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(i);
 			if (child instanceof ResNode) {
 				ResNode resNode = (ResNode)child;
 				if (resNode.status != ResNode.STATUS_SECONDARY) {
@@ -1670,10 +1670,10 @@ public final class LGM
 								ResNode pathNode = (ResNode) paths[n];
 								boolean found = false;
 								for (int y = 0; y < searchNode.getChildCount(); y++) {
-								 DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) searchNode.getChildAt(y);
-								 if (childNode.getUserObject() == pathNode.getUserObject()) {
-								 		searchNode = childNode; found = true; break;
-								 }
+									DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) searchNode.getChildAt(y);
+									if (childNode.getUserObject() == pathNode.getUserObject()) {
+										searchNode = childNode; found = true; break;
+									}
 								}
 								if (!found) {
 									SearchResultNode newSearchNode = new SearchResultNode(pathNode.getUserObject());
@@ -2213,7 +2213,6 @@ public final class LGM
 					//currently selected.
 					TreePath[] paths = LGM.searchTree.getSelectionPaths();
 
-
 					if (paths != null)
 						{
 						for (int i = 0; i < paths.length; i++)
@@ -2338,7 +2337,7 @@ public final class LGM
 		searchInButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
-		 		if (filterText.getText().length() <= 0) return;
+				if (filterText.getText().length() <= 0) return;
 				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
 				searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(),
 						matchCaseCB.isSelected(), wholeWordCB.isSelected());
@@ -2365,15 +2364,15 @@ public final class LGM
 					applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
 				} else {
 					searchFilter(root, filterText.getText(), matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
-			 	}
+				}
 			}
 
 			public void insertUpdate(DocumentEvent e) {
 				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
-			 	if (ml.isActivatedFilter()) {
+				if (ml.isActivatedFilter()) {
 					applyFilter(root.getChildren(),ml.isActivatedFilter(),filterText.getText(),false,wholeWordCB.isSelected(),true);
 				} else {
-			 		searchFilter(root, filterText.getText(), matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
+					searchFilter(root, filterText.getText(), matchCaseCB.isSelected(), wholeWordCB.isSelected(), false);
 				}
 			}
 		});
@@ -2477,8 +2476,9 @@ public final class LGM
 		frame.setLocationRelativeTo(null);
 		// call this after packing the frame and setting its default location
 		new FramePrefsHandler(frame);
-
+		// finally, set the frame visible
 		frame.setVisible(true);
+
 		// Load any projects entered on the command line
 		if (args.length > 0 && args[0].length() > 0)
 			{
