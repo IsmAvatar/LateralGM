@@ -59,53 +59,53 @@ public class DefaultNode extends DefaultMutableTreeNode
 		return this.isVisible;
 	}
 
-  public TreeNode getChildAt(int index, boolean filterIsActive) {
-	  if (!filterIsActive) {
-	    return super.getChildAt(index);
-	  }
-	  if (children == null) {
-	    throw new ArrayIndexOutOfBoundsException("node has no children");
-	  }
+	public TreeNode getChildAt(int index, boolean filterIsActive) {
+		if (!filterIsActive) {
+			return super.getChildAt(index);
+		}
+		if (children == null) {
+			throw new ArrayIndexOutOfBoundsException("node has no children");
+		}
 
-	  int realIndex = -1;
-	  int visibleIndex = -1;
-	  //NOTE: If you really wanted to be safe you could check the cast of e.nextElement()
-	  //and count every node that is not DefaultNode based as visible.
-	  //For now we know we are safe though.
-	  Enumeration<?> e = children.elements();
-	  while (e.hasMoreElements()) {
-	    DefaultNode node = (DefaultNode) e.nextElement();
-	    if (node.isVisible()) {
-	      visibleIndex++;
-	    }
-	    realIndex++;
-	    if (visibleIndex == index) {
-	      return (TreeNode) children.elementAt(realIndex);
-	    }
-	  }
+		int realIndex = -1;
+		int visibleIndex = -1;
+		//NOTE: If you really wanted to be safe you could check the cast of e.nextElement()
+		//and count every node that is not DefaultNode based as visible.
+		//For now we know we are safe though.
+		Enumeration<?> e = children.elements();
+		while (e.hasMoreElements()) {
+			DefaultNode node = (DefaultNode) e.nextElement();
+			if (node.isVisible()) {
+				visibleIndex++;
+			}
+			realIndex++;
+			if (visibleIndex == index) {
+				return (TreeNode) children.elementAt(realIndex);
+			}
+		}
 
-	  throw new ArrayIndexOutOfBoundsException("index unmatched");
-	  //return (TreeNode)children.elementAt(index);
+		throw new ArrayIndexOutOfBoundsException("index unmatched");
+		//return (TreeNode)children.elementAt(index);
 	}
 
 	public int getChildCount(boolean filterIsActive) {
-	  if (!filterIsActive) {
-	    return super.getChildCount();
-	  }
-	  if (children == null) {
-	    return 0;
-	  }
+		if (!filterIsActive) {
+			return super.getChildCount();
+		}
+		if (children == null) {
+			return 0;
+		}
 
-	  int count = 0;
-	  Enumeration<?> e = children.elements();
-	  while (e.hasMoreElements()) {
-	    DefaultNode node = (DefaultNode) e.nextElement();
-	    if (node.isVisible()) {
-	      count++;
-	    }
-	  }
+		int count = 0;
+		Enumeration<?> e = children.elements();
+		while (e.hasMoreElements()) {
+			DefaultNode node = (DefaultNode) e.nextElement();
+			if (node.isVisible()) {
+				count++;
+			}
+		}
 
-	  return count;
+		return count;
 	}
 
 	public DefaultNode(String name)
@@ -126,12 +126,6 @@ public class DefaultNode extends DefaultMutableTreeNode
 		return true;
 		}
 
-	public void openFrame()
-		{
-		// TODO Auto-generated method stub
-
-		}
-
 	public class EventNode extends DefaultNode {
 	/**
 	 * NOTE: Default UID generated, change if necessary.
@@ -144,7 +138,6 @@ public class DefaultNode extends DefaultMutableTreeNode
 			super(name);
 			emainid = mid;
 			eid = id;
-			// TODO Auto-generated constructor stub
 			}
 	}
 }

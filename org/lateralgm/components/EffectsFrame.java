@@ -221,7 +221,7 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 					if (effect == null) return;
 
 					CardLayout cl = (CardLayout)(effectsOptions.getLayout());
-			    cl.show(effectsOptions, effect.getKey());
+					cl.show(effectsOptions, effect.getKey());
 
 					if (images == null || images.size() <= 0) return;
 					BufferedImage img = images.get(0);

@@ -73,7 +73,7 @@ public class HintTextField extends JTextField implements FocusListener {
 			Shape clip = g.getClip();
 			Rectangle bounds = this.getBounds();
 			Insets insets = this.getInsets();
-	
+
 			g.clipRect(insets.left, insets.top, bounds.width - insets.left - insets.right,
 				bounds.height - insets.top - insets.bottom);
 
