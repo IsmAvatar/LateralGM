@@ -196,7 +196,6 @@ public final class LGM
 	public static File tempDir, workDir;
 	static
 		{
-
 		//Get Java Version
 		String jv = System.getProperty("java.version"); //$NON-NLS-1$
 		Scanner s = new Scanner(jv);
@@ -2006,40 +2005,45 @@ public final class LGM
 		// this is necessary to make sure open/save dialogs get fixed
 		JFrame.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
 		JDialog.setDefaultLookAndFeelDecorated(Prefs.decorateWindowBorders);
-		// all this code is necessary to make sure toggling window decorations
-		// do not cause frameless borders
+
 		Window[] windows = Window.getWindows();
+		LookAndFeel laf = UIManager.getLookAndFeel();
 		for (Window window : windows) {
-			boolean visible = window.isVisible();
-			LookAndFeel laf = UIManager.getLookAndFeel();
-			boolean decorate = Prefs.decorateWindowBorders && laf.getSupportsWindowDecorations();
+			final boolean visible = window.isVisible();
+			final boolean decorate = Prefs.decorateWindowBorders && laf.getSupportsWindowDecorations();
 			if (window instanceof Frame) {
-				Frame decframe = (Frame) window;
+				final Frame decframe = (Frame) window;
 				if (decorate != decframe.isUndecorated()) {
-					//System.out.println(decframe.getTitle() + " : " + visible);
-					decframe.dispose();
-					decframe.setShape(null);
-					decframe.setUndecorated(decorate);
-					decframe.setVisible(visible);
-					// check cast to make sure we don't screw with the MDI frames.
-					if (decframe instanceof RootPaneContainer) {
-						((RootPaneContainer) decframe).getRootPane().setWindowDecorationStyle(decorate ? JRootPane.FRAME : JRootPane.NONE);
-					}
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run()
+							{
+							decframe.dispose();
+							decframe.setShape(null);
+							decframe.setUndecorated(decorate);
+							if (decframe instanceof RootPaneContainer)
+								((RootPaneContainer) decframe).getRootPane().setWindowDecorationStyle(
+										decorate ? JRootPane.FRAME : JRootPane.NONE);
+							decframe.setVisible(visible);
+							}
+					});
 				}
 			} else if (window instanceof Dialog) {
-				Dialog decdialog = (Dialog) window;
+				final Dialog decdialog = (Dialog) window;
 				if (decorate != decdialog.isUndecorated()) {
-					//TODO: isVisible()/isShowing() for Dialog does not work at all
-					visible = decdialog.isVisible();
-					//System.out.println(decdialog.getTitle() + " : " + visible);
-					decdialog.dispose();
-					decdialog.setShape(null);
-					decdialog.setUndecorated(decorate);
-					decdialog.setVisible(visible);
-					// check cast to make sure we don't screw with the MDI frames.
-					if (decdialog instanceof RootPaneContainer) {
-						((RootPaneContainer) decdialog).getRootPane().setWindowDecorationStyle(decorate ? JRootPane.FRAME : JRootPane.NONE);
-					}
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run()
+							{
+							decdialog.dispose();
+							decdialog.setShape(null);
+							decdialog.setUndecorated(decorate);
+							if (decdialog instanceof RootPaneContainer)
+								((RootPaneContainer) decdialog).getRootPane().setWindowDecorationStyle(
+										decorate ? JRootPane.PLAIN_DIALOG : JRootPane.NONE);
+							decdialog.setVisible(visible);
+							}
+					});
 				}
 			}
 		}
