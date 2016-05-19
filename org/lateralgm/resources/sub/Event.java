@@ -334,7 +334,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 		keys.put(KeyEvent.VK_DIVIDE,111); //vk_divide
 		keys.put(KeyEvent.VK_MULTIPLY,106); //vk_multiply
 		keys.put(KeyEvent.VK_SUBTRACT,109); //vk_subtract
-		keys.put(KeyEvent.VK_ADD,107); //vk_add		
+		keys.put(KeyEvent.VK_ADD,107); //vk_add
 		keys.put(KeyEvent.VK_DECIMAL,110); //vk_decimal
 
 		//VK_0-9 and VK_A-Z are the same as ASCII
@@ -365,7 +365,7 @@ public class Event extends ActionContainer implements Comparable<Event>
 		keys.put(KeyEvent.VK_HOME,36); //vk_home
 		keys.put(KeyEvent.VK_END,35); //vk_end
 		keys.put(KeyEvent.VK_PAGE_UP,33); //vk_pageup
-		keys.put(KeyEvent.VK_PAGE_DOWN,34); //vk_pagedown	
+		keys.put(KeyEvent.VK_PAGE_DOWN,34); //vk_pagedown
 		keys.put(KeyEvent.VK_DELETE,46); //vk_delete
 		keys.put(KeyEvent.VK_INSERT,45); //vk_insert
 
