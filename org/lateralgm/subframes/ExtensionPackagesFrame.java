@@ -23,17 +23,6 @@
 
 package org.lateralgm.subframes;
 
-/*
- * Taken from Font Family listener. Not sure what m_monitor was...
- * 	String m_fontName = m_cbFonts.getSelectedItem().toString();
- * 	MutableAttributeSet attr = new SimpleAttributeSet();
- * 	StyleConstants.setFontFamily(attr,m_fontName);
- * 	// setAttributeSet(attr);
- * 	// m_monitor.grabFocus();
- *
- * TODO: Add left, right, center text alignment
- */
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;

@@ -381,8 +381,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			directories = dir.list(new FilenameFilter() {
 				public boolean accept(File current, String name) {
 					JOptionPane.showMessageDialog(null,name);
-			  	return new File(current, name).isDirectory();
-			  }
+					return new File(current, name).isDirectory();
+				}
 			});
 		} else {
 			List<String> res = new ArrayList<String>();
@@ -597,46 +597,46 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 		gl.setHorizontalGroup(gl.createParallelGroup()
 		/**/.addGroup(gl.createSequentialGroup()
-		/* */.addGroup(gl.createParallelGroup(Alignment.TRAILING)
-		/*  */.addComponent(themeLabel)
-		/*  */.addComponent(themePathLabel)
-		/*  */.addComponent(iconPathLabel))
-		/* */.addGroup(gl.createParallelGroup()
-		/*  */.addComponent(themePath)
-		/*  */.addComponent(iconPath)
-		/*  */.addGroup(gl.createSequentialGroup()
-		/*   */.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*   */.addComponent(iconLabel)
-		/*   */.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*   */.addComponent(antialiasLabel)
-		/*   */.addComponent(antialiasCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
-		/*   */.addComponent(decorateWindowBordersCheckBox))))
+		/*	*/.addGroup(gl.createParallelGroup(Alignment.TRAILING)
+		/*		*/.addComponent(themeLabel)
+		/*		*/.addComponent(themePathLabel)
+		/*		*/.addComponent(iconPathLabel))
+		/*	*/.addGroup(gl.createParallelGroup()
+		/*		*/.addComponent(themePath)
+		/*		*/.addComponent(iconPath)
+		/*		*/.addGroup(gl.createSequentialGroup()
+		/*			*/.addComponent(themeCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*			*/.addComponent(iconLabel)
+		/*			*/.addComponent(iconCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*			*/.addComponent(antialiasLabel)
+		/*			*/.addComponent(antialiasCombo,PREFERRED_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
+		/*			*/.addComponent(decorateWindowBordersCheckBox))))
 		/**/.addGroup(gl.createSequentialGroup()
-		/* */.addGroup(gl.createParallelGroup()
-		/* 	*/.addComponent(imagePreviewPanel)
-		/* 	*/.addComponent(searchResultsPanel))
-		/* */.addComponent(hardwareAccelerationPanel)));
+		/*	*/.addGroup(gl.createParallelGroup()
+		/*		*/.addComponent(imagePreviewPanel)
+		/*		*/.addComponent(searchResultsPanel))
+		/*	*/.addComponent(hardwareAccelerationPanel)));
 
 		gl.linkSize(SwingConstants.HORIZONTAL, imagePreviewPanel, searchResultsPanel);
 
 		gl.setVerticalGroup(gl.createSequentialGroup()
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-		/* */.addComponent(themeLabel)
-		/* */.addComponent(themeCombo)
-		/* */.addComponent(iconLabel)
-		/* */.addComponent(iconCombo)
-		/* */.addComponent(antialiasLabel)
-		/* */.addComponent(antialiasCombo)
-		/* */.addComponent(decorateWindowBordersCheckBox))
+		/*	*/.addComponent(themeLabel)
+		/*	*/.addComponent(themeCombo)
+		/*	*/.addComponent(iconLabel)
+		/*	*/.addComponent(iconCombo)
+		/*	*/.addComponent(antialiasLabel)
+		/*	*/.addComponent(antialiasCombo)
+		/*	*/.addComponent(decorateWindowBordersCheckBox))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-		/* */.addComponent(themePathLabel)
-		/* */.addComponent(themePath))
+		/*	*/.addComponent(themePathLabel)
+		/*	*/.addComponent(themePath))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-		/* */.addComponent(iconPathLabel)
-		/* */.addComponent(iconPath))
+		/*	*/.addComponent(iconPathLabel)
+		/*	*/.addComponent(iconPath))
 		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
-		/* */.addComponent(imagePreviewPanel)
-		/* */.addComponent(hardwareAccelerationPanel))
+		/*	*/.addComponent(imagePreviewPanel)
+		/*	*/.addComponent(hardwareAccelerationPanel))
 		/**/.addComponent(searchResultsPanel));
 
 		gl.linkSize(SwingConstants.VERTICAL, imagePreviewPanel, hardwareAccelerationPanel);
@@ -1193,8 +1193,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		p.add(closeBut);
 
 		add(p,BorderLayout.SOUTH);
+
 		pack();
-		//setSize(800,600);
 		setLocationRelativeTo(LGM.frame);
 		}
 
@@ -1273,15 +1273,16 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		if (com.equals("PreferencesFrame.APPLY_CHANGES")) //$NON-NLS-1$
 			{
 			LGM.filterPanel.setVisible(showTreeFilter.isSelected());
+
 			savePreferences();
 			LGM.setLookAndFeel((String) themeCombo.getSelectedItem());
 			LGM.updateLookAndFeel();
 			// must be called after updating the look and feel so that laf can be asked if window borders
 			// should be decorated
 			LGM.applyPreferences();
-
 			// refocus the window in case a LAF change occurred
 			this.requestFocus();
+
 			// show the restart notice once we've applied the changes to indicate they have been saved
 			applyChangesLabel.setVisible(true);
 			if (blinkTimer == null) {

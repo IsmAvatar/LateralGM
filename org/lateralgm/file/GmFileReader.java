@@ -162,7 +162,7 @@ public final class GmFileReader
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
 			throws GmFormatException
 		{
-		 	readProjectFile(stream,file,uri,root,null);
+			readProjectFile(stream,file,uri,root,null);
 		}
 
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
