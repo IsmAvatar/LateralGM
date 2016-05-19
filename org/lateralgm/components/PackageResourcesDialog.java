@@ -54,7 +54,7 @@ public class PackageResourcesDialog extends JDialog
 	 */
 	private static final long serialVersionUID = 3642639396173517907L;
 
-	private static PackageResourcesDialog instance = new PackageResourcesDialog(LGM.frame);
+	private static PackageResourcesDialog instance;
 
 	public class TypeCheckBox extends JCheckBox {
 	/**
@@ -78,6 +78,7 @@ public class PackageResourcesDialog extends JDialog
 			TypeCheckBox cb =	model.getElementAt(i);
 			cb.setSelected(selected);
 		}
+
 		typeList.repaint();
 	}
 
@@ -111,14 +112,17 @@ public class PackageResourcesDialog extends JDialog
 
 	public void populateKindList() {
 		DefaultListModel<TypeCheckBox> model = new DefaultListModel<TypeCheckBox>();
+
 		for (Class<?> kind : Resource.kinds) {
 			model.addElement(new TypeCheckBox(kind));
 		}
+
 		typeList.setModel(model);
 	}
 
 	public void setVisible(boolean visible) {
 		super.setVisible(visible);
+
 		if (visible) {
 			populateKindList();
 		}
@@ -128,10 +132,11 @@ public class PackageResourcesDialog extends JDialog
 		super(parent);
 		this.setTitle(Messages.getString("PackageResources.TITLE"));
 		this.setIconImage(LGM.getIconForKey("PackageResources.ICON").getImage());
-		//setResizable(false);
+		this.setResizable(false);
 
 		typeList = new JList<TypeCheckBox>();
 		typeList.setCellRenderer(new CheckBoxListCellRenderer());
+		typeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		typeList.addMouseListener(new MouseAdapter()
 			 {
@@ -140,17 +145,13 @@ public class PackageResourcesDialog extends JDialog
 						 int index = typeList.locationToIndex(e.getPoint());
 
 						 if (index != -1) {
-								TypeCheckBox checkbox = (TypeCheckBox)
-														typeList.getModel().getElementAt(index);
-								checkbox.setSelected(
-																	 !checkbox.isSelected());
+								TypeCheckBox checkbox = (TypeCheckBox) typeList.getModel().getElementAt(index);
+								checkbox.setSelected(!checkbox.isSelected());
 								repaint();
 						 }
 					}
 			 }
 		);
-
-		typeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		JScrollPane typeScroll = new JScrollPane(typeList);
 
@@ -222,17 +223,12 @@ public class PackageResourcesDialog extends JDialog
 		this.setLayout(gl);
 
 		this.pack();
-		setLocationRelativeTo(parent);
+		this.setLocationRelativeTo(parent);
 	}
 
 	public static PackageResourcesDialog getInstance()
 		{
-			return instance;
-		}
-
-	public static void setInstance(PackageResourcesDialog instance)
-		{
-			PackageResourcesDialog.instance = instance;
+			return instance == null ? instance = new PackageResourcesDialog(LGM.frame) : instance;
 		}
 
 	protected class CheckBoxListCellRenderer implements ListCellRenderer<JCheckBox>
