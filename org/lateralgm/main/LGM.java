@@ -2049,22 +2049,10 @@ public final class LGM
 		}
 	}
 
-	private static class CustomExceptionHandler implements Runner.ExceptionHandler {
-
-		@Override
-		public void showDefaultExceptionHandler(Throwable e)
-			{
-				LGM.showDefaultExceptionHandler(e);
-			}
-
-	}
-
 	public static void main(final String[] args) throws InvocationTargetException, InterruptedException
 		{
 		// Set the default uncaught exception handler.
 		LGM.setDefaultExceptionHandler();
-		// Redirect JoshEdit exceptions
-		Runner.exceptionHandler = new CustomExceptionHandler();
 
 		LGM.applyPreferences();
 		Messages.updateLangPack();
