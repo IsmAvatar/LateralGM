@@ -122,7 +122,7 @@ public final class GmFileReader
 		}
 
 	//Workaround for Parameter limit
-	public static class ProjectFileContext
+	private static class ProjectFileContext
 		{
 		ProjectFile f;
 		GmStreamDecoder in;

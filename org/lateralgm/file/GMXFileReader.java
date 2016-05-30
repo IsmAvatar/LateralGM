@@ -1503,7 +1503,6 @@ public final class GMXFileReader
 				node.add(rnode);
 				}
 			}
-
 		}
 
 	private static void readGmObjects(ProjectFileContext c, ResNode root) throws IOException,

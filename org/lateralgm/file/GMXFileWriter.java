@@ -114,8 +114,8 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 public final class GMXFileWriter
 	{
 
-	static DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-	static DocumentBuilder documentBuilder;
+	private static DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+	private static DocumentBuilder documentBuilder;
 
 	private GMXFileWriter()
 		{
@@ -538,8 +538,9 @@ public final class GMXFileWriter
 						BufferedImage sub = spr.subImages.get(j);
 						// GMX does have a backwards compatibility property for transparency pixel so we write
 						// the image with the transparency removed when that setting is checked
-						ImageIO.write((Boolean) spr.get(
-								PSprite.TRANSPARENT) ? Util.getTransparentImage(sub) : sub,"png",outputfile);
+						ImageIO.write(
+								(Boolean) spr.get(PSprite.TRANSPARENT) ? Util.getTransparentImage(sub) : sub,
+								"png",outputfile);
 						}
 					sprroot.appendChild(frameroot);
 
@@ -628,7 +629,7 @@ public final class GMXFileWriter
 					doc.appendChild(sndroot);
 
 					// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
-					// There is a special clause here, every one of those tags after volume, the nested
+					// There is an exception here. In every one of those tags after volume the nested
 					// tag is singular, where its parent is plural.
 					String ftype = snd.get(PSound.FILE_TYPE).toString();
 					sndroot.appendChild(createElement(doc,"extension",ftype));
@@ -907,7 +908,6 @@ public final class GMXFileWriter
 						Transformer tr = TransformerFactory.newInstance().newTransformer();
 						tr.setOutputProperty(OutputKeys.INDENT,"yes");
 						tr.setOutputProperty(OutputKeys.METHOD,"xml");
-						;
 						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
 
 						// send DOM to file
