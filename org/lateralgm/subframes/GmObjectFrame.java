@@ -797,7 +797,6 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 					}
 			};
 		events.addMouseListener(ml);
-
 		}
 
 	public void showInfoFrame()
