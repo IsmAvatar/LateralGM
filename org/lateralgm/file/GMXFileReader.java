@@ -863,10 +863,12 @@ public final class GMXFileReader
 						Integer.parseInt(pthdoc.getElementsByTagName("precision").item(0).getTextContent()));
 				pth.put(PPath.CLOSED,
 						Integer.parseInt(pthdoc.getElementsByTagName("closed").item(0).getTextContent()) != 0);
-				final String proptext = pthdoc.getElementsByTagName("backroom").item(0).getTextContent();
+				final int backroom = Integer.parseInt(pthdoc.getElementsByTagName("backroom").item(0).getTextContent());
 
-				PostponedRef pr = new PostponedRef()
+				if (backroom >= 0)
 					{
+					PostponedRef pr = new PostponedRef()
+						{
 						public boolean invoke()
 							{
 							ResourceList<Room> list = f.resMap.getList(Room.class);
@@ -874,17 +876,19 @@ public final class GMXFileReader
 								{
 								return false;
 								}
-							Room rmn = list.get(proptext);
+
+							Room rmn = list.getUnsafe(backroom);
 							if (rmn == null)
 								{
 								return false;
 								}
-							pth.put(PPath.BACKGROUND_ROOM,rmn.reference);
 
+							pth.put(PPath.BACKGROUND_ROOM,rmn.reference);
 							return true;
 							}
-					};
-				postpone.add(pr);
+						};
+					postpone.add(pr);
+					}
 
 				pth.put(PPath.SNAP_X,
 						Integer.parseInt(pthdoc.getElementsByTagName("hsnap").item(0).getTextContent()));
