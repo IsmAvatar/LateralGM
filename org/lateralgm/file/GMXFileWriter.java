@@ -536,7 +536,10 @@ public final class GMXFileWriter
 						frameNode.setAttribute("index",Integer.toString(j));
 						frameroot.appendChild(frameNode);
 						BufferedImage sub = spr.subImages.get(j);
-						ImageIO.write(sub,"png",outputfile);
+						// GMX does have a backwards compatibility property for transparency pixel so we write
+						// the image with the transparency removed when that setting is checked
+						ImageIO.write((Boolean) spr.get(
+								PSprite.TRANSPARENT) ? Util.getTransparentImage(sub) : sub,"png",outputfile);
 						}
 					sprroot.appendChild(frameroot);
 
