@@ -49,7 +49,7 @@ public class AboutBox extends JDialog implements PropertyChangeListener
 		{
 		super(owner,Messages.getString("AboutBox.TITLE"),true);
 		setResizable(false);
-		JEditorPane ep = new JEditorPane("text/html",Messages.getString("AboutBox.ABOUT"));
+		JEditorPane ep = new JEditorPane("text/html",Messages.format("AboutBox.ABOUT",LGM.version));
 		addSSRules(((HTMLDocument) ep.getDocument()).getStyleSheet());
 		ep.setOpaque(false);
 		ep.setEditable(false);

@@ -143,7 +143,6 @@ import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.file.iconio.ICOFile;
-import org.lateralgm.joshedit.Runner;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Constants;
 import org.lateralgm.resources.GameSettings;
@@ -181,6 +180,8 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
+	public static final String version = "1.8.7.11";
+
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
 	public static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
