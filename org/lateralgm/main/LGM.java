@@ -185,9 +185,11 @@ public final class LGM
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
 	public static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
+
 	public static boolean LOADING_PROJECT = false;
 	public static JDialog progressDialog = null;
 	public static JProgressBar progressDialogBar = null;
+
 	public static String iconspath = "org/lateralgm/icons/";
 	public static String iconspack = "Calico";
 	public static String themename = "Swing";
