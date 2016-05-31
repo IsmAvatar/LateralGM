@@ -119,9 +119,8 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 // There is a downside to SAX such as incompatibility with UTF-8
 public final class GMXFileReader
 	{
-
-	static DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-	static DocumentBuilder documentBuilder;
+	private static DocumentBuilderFactory documentBuilderFactory;
+	private static DocumentBuilder documentBuilder;
 
 	private GMXFileReader()
 		{
@@ -205,6 +204,8 @@ public final class GMXFileReader
 			Charset forceCharset) throws GmFormatException
 		{
 		file.format = ProjectFile.FormatFlavor.getVersionFlavor(1200); // GMX will have version numbers in the future
+		if (documentBuilderFactory == null)
+			documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		Document document = null;
 		try
 			{

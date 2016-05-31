@@ -113,8 +113,7 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 
 public final class GMXFileWriter
 	{
-
-	private static DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+	private static DocumentBuilderFactory documentBuilderFactory;
 	private static DocumentBuilder documentBuilder;
 
 	private GMXFileWriter()
@@ -145,6 +144,8 @@ public final class GMXFileWriter
 		f.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 		long savetime = System.currentTimeMillis();
 
+		if (documentBuilderFactory == null)
+			documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		Document dom = null;
 		try
 			{
@@ -629,8 +630,8 @@ public final class GMXFileWriter
 					doc.appendChild(sndroot);
 
 					// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
-					// There is an exception here. In every one of those tags after volume the nested
-					// tag is singular, where its parent is plural.
+					// There is an exception to this however. In every one of those tags after volume the
+					// nested tag is singular, where its parent is plural.
 					String ftype = snd.get(PSound.FILE_TYPE).toString();
 					sndroot.appendChild(createElement(doc,"extension",ftype));
 					sndroot.appendChild(createElement(doc,"origname",snd.get(PSound.FILE_NAME).toString()));
