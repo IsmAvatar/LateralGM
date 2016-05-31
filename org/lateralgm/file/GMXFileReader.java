@@ -119,9 +119,8 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 // There is a downside to SAX such as incompatibility with UTF-8
 public final class GMXFileReader
 	{
-
-	static DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-	static DocumentBuilder documentBuilder;
+	private static DocumentBuilderFactory documentBuilderFactory;
+	private static DocumentBuilder documentBuilder;
 
 	private GMXFileReader()
 		{
@@ -205,26 +204,29 @@ public final class GMXFileReader
 			Charset forceCharset) throws GmFormatException
 		{
 		file.format = ProjectFile.FormatFlavor.getVersionFlavor(1200); // GMX will have version numbers in the future
+		if (documentBuilderFactory == null)
+			documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		if (documentBuilder == null)
+			try
+				{
+				documentBuilder = documentBuilderFactory.newDocumentBuilder();
+				}
+			catch (ParserConfigurationException e1)
+				{
+				throw new GmFormatException(file,e1);
+				}
 		Document document = null;
 		try
 			{
-			documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			try
-				{
-				document = documentBuilder.parse(new File(uri));
-				}
-			catch (SAXException e)
-				{
-				throw new GmFormatException(file,e);
-				}
-			catch (IOException e)
-				{
-				throw new GmFormatException(file,e);
-				}
+			document = documentBuilder.parse(new File(uri));
 			}
-		catch (ParserConfigurationException e1)
+		catch (SAXException e)
 			{
-			throw new GmFormatException(file,e1);
+			throw new GmFormatException(file,e);
+			}
+		catch (IOException e)
+			{
+			throw new GmFormatException(file,e);
 			}
 
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
@@ -863,10 +865,12 @@ public final class GMXFileReader
 						Integer.parseInt(pthdoc.getElementsByTagName("precision").item(0).getTextContent()));
 				pth.put(PPath.CLOSED,
 						Integer.parseInt(pthdoc.getElementsByTagName("closed").item(0).getTextContent()) != 0);
-				final String proptext = pthdoc.getElementsByTagName("backroom").item(0).getTextContent();
+				final int backroom = Integer.parseInt(pthdoc.getElementsByTagName("backroom").item(0).getTextContent());
 
-				PostponedRef pr = new PostponedRef()
+				if (backroom >= 0)
 					{
+					PostponedRef pr = new PostponedRef()
+						{
 						public boolean invoke()
 							{
 							ResourceList<Room> list = f.resMap.getList(Room.class);
@@ -874,17 +878,19 @@ public final class GMXFileReader
 								{
 								return false;
 								}
-							Room rmn = list.get(proptext);
+
+							Room rmn = list.getUnsafe(backroom);
 							if (rmn == null)
 								{
 								return false;
 								}
-							pth.put(PPath.BACKGROUND_ROOM,rmn.reference);
 
+							pth.put(PPath.BACKGROUND_ROOM,rmn.reference);
 							return true;
 							}
-					};
-				postpone.add(pr);
+						};
+					postpone.add(pr);
+					}
 
 				pth.put(PPath.SNAP_X,
 						Integer.parseInt(pthdoc.getElementsByTagName("hsnap").item(0).getTextContent()));
@@ -1499,7 +1505,6 @@ public final class GMXFileReader
 				node.add(rnode);
 				}
 			}
-
 		}
 
 	private static void readGmObjects(ProjectFileContext c, ResNode root) throws IOException,

@@ -245,7 +245,7 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		/*	*/.addComponent(beforePreview)
 		/*	*/.addComponent(afterPreview))
 		/**/.addGroup(gl.createSequentialGroup()
-		/*	*/.addComponent(effectsCombo, PREFERRED_SIZE, PREFERRED_SIZE, effectsCombo.getPreferredSize().width * 2)
+		/*	*/.addComponent(effectsCombo, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
 		/*	*/.addComponent(applyButton)
 		/*	*/.addComponent(closeButton))
 		/**/.addComponent(effectsOptions));
@@ -254,8 +254,8 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		/**/.addGroup(gl.createParallelGroup()
 		/*	*/.addComponent(beforePreview)
 		/*	*/.addComponent(afterPreview))
-		/**/.addGroup(gl.createParallelGroup(Alignment.CENTER)
-		/*	*/.addComponent(effectsCombo, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE)
+		/**/.addGroup(gl.createParallelGroup(Alignment.BASELINE)
+		/*	*/.addComponent(effectsCombo)
 		/*	*/.addComponent(applyButton)
 		/*	*/.addComponent(closeButton))
 		/**/.addComponent(effectsOptions, PREFERRED_SIZE, PREFERRED_SIZE, PREFERRED_SIZE));

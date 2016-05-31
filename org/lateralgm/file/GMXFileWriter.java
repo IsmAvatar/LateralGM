@@ -113,9 +113,8 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
 
 public final class GMXFileWriter
 	{
-
-	static DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-	static DocumentBuilder documentBuilder;
+	private static DocumentBuilderFactory documentBuilderFactory;
+	private static DocumentBuilder documentBuilder;
 
 	private GMXFileWriter()
 		{
@@ -145,16 +144,18 @@ public final class GMXFileWriter
 		f.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 		long savetime = System.currentTimeMillis();
 
-		Document dom = null;
-		try
-			{
-			documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			dom = documentBuilder.newDocument();
-			}
-		catch (ParserConfigurationException pce)
-			{
-			throw new GmFormatException(f,pce);
-			}
+		if (documentBuilderFactory == null)
+			documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		if (documentBuilder == null)
+			try
+				{
+				documentBuilder = documentBuilderFactory.newDocumentBuilder();
+				}
+			catch (ParserConfigurationException pce)
+				{
+				throw new GmFormatException(f,pce);
+				}
+		Document dom = documentBuilder.newDocument();
 
 		JProgressBar progressBar = LGM.getProgressDialogBar();
 		progressBar.setMaximum(160);
@@ -163,7 +164,7 @@ public final class GMXFileWriter
 		ProjectFileContext c = new ProjectFileContext(f,dom);
 		Element root = dom.createElement("assets");
 		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
-		writeConfigurations(c,root);
+		writeConfigurations(c,root,savetime);
 
 		LGM.setProgress(10,Messages.getString("ProgressDialog.SPRITES"));
 		writeSprites(c,root);
@@ -246,7 +247,35 @@ public final class GMXFileWriter
 			return bool ? "-1" : "0";
 		}
 
-	public static void writeConfigurations(ProjectFileContext c, Element root) throws IOException,
+	public static <R extends Resource<R,?>> String getName(ResourceReference<R> ref)
+		{
+		return getName(ref,"<undefined>");
+		}
+
+	public static <R extends Resource<R,?>> String getName(ResourceReference<R> ref, String noneval)
+		{
+		Resource<?,?> res = deRef(ref);
+		if (res != null && res instanceof InstantiableResource<?,?>)
+			return ((InstantiableResource<?,?>) res).getName();
+		else
+			return noneval;
+		}
+
+	public static <R extends Resource<R,?>> int getId(ResourceReference<R> ref)
+		{
+		return getId(ref,-1);
+		}
+
+	public static <R extends Resource<R,?>> int getId(ResourceReference<R> ref, int noneval)
+		{
+		Resource<?,?> res = deRef(ref);
+		if (res != null && res instanceof InstantiableResource<?,?>)
+			return ((InstantiableResource<?,?>) res).getId();
+		else
+			return noneval;
+		}
+
+	public static void writeConfigurations(ProjectFileContext c, Element root, long savetime) throws IOException,
 			TransformerException
 		{
 		Document mdom = c.dom;
@@ -330,6 +359,7 @@ public final class GMXFileWriter
 					gs.get(PGameSettings.SCALING).toString()));
 			optNode.appendChild(createElement(dom,"option_closeesc",
 					gs.get(PGameSettings.TREAT_CLOSE_AS_ESCAPE).toString()));
+			gs.put(PGameSettings.LAST_CHANGED,ProjectFile.longTimeToGmTime(savetime));
 			optNode.appendChild(createElement(dom,"option_lastchanged",
 					gs.get(PGameSettings.LAST_CHANGED).toString()));
 
@@ -508,7 +538,11 @@ public final class GMXFileWriter
 						frameNode.setAttribute("index",Integer.toString(j));
 						frameroot.appendChild(frameNode);
 						BufferedImage sub = spr.subImages.get(j);
-						ImageIO.write(sub,"png",outputfile);
+						// GMX does have a backwards compatibility property for transparency pixel so we write
+						// the image with the transparency removed when that setting is checked
+						ImageIO.write(
+								(Boolean) spr.get(PSprite.TRANSPARENT) ? Util.getTransparentImage(sub) : sub,
+								"png",outputfile);
 						}
 					sprroot.appendChild(frameroot);
 
@@ -597,8 +631,8 @@ public final class GMXFileWriter
 					doc.appendChild(sndroot);
 
 					// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
-					// There is a special clause here, every one of those tags after volume, the nested
-					// tag is singular, where its parent is plural.
+					// There is an exception to this however. In every one of those tags after volume the
+					// nested tag is singular, where its parent is plural.
 					String ftype = snd.get(PSound.FILE_TYPE).toString();
 					sndroot.appendChild(createElement(doc,"extension",ftype));
 					sndroot.appendChild(createElement(doc,"origname",snd.get(PSound.FILE_NAME).toString()));
@@ -857,17 +891,8 @@ public final class GMXFileWriter
 					int closed = path.get(PPath.CLOSED) ? -1 : 0;
 					pathroot.appendChild(createElement(doc,"closed",Integer.toString(closed)));
 					pathroot.appendChild(createElement(doc,"precision",path.get(PPath.PRECISION).toString()));
-
-					ResourceReference<Room> bgroom = path.get(PPath.BACKGROUND_ROOM);
-					if (bgroom != null)
-						{
-						pathroot.appendChild(createElement(doc,"backroom",bgroom.get().getName()));
-						}
-					else
-						{
-						pathroot.appendChild(createElement(doc,"backroom","-1"));
-						}
-
+					pathroot.appendChild(createElement(doc,"backroom",
+							Integer.toString(getId((ResourceReference<?>)path.get(PPath.BACKGROUND_ROOM)))));
 					pathroot.appendChild(createElement(doc,"hsnap",path.get(PPath.SNAP_X).toString()));
 					pathroot.appendChild(createElement(doc,"vsnap",path.get(PPath.SNAP_Y).toString()));
 
@@ -885,7 +910,6 @@ public final class GMXFileWriter
 						Transformer tr = TransformerFactory.newInstance().newTransformer();
 						tr.setOutputProperty(OutputKeys.INDENT,"yes");
 						tr.setOutputProperty(OutputKeys.METHOD,"xml");
-						;
 						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
 
 						// send DOM to file
@@ -1333,16 +1357,8 @@ public final class GMXFileWriter
 
 					Element objroot = doc.createElement("object");
 					doc.appendChild(objroot);
-
-					ResourceReference<?> spr = object.get(PGmObject.SPRITE);
-					if (spr != null)
-						{
-						objroot.appendChild(createElement(doc,"spriteName",spr.get().getName()));
-						}
-					else
-						{
-						objroot.appendChild(createElement(doc,"spriteName","<undefined>"));
-						}
+					objroot.appendChild(createElement(doc,"spriteName",
+							getName((ResourceReference<?>)object.get(PGmObject.SPRITE))));
 					objroot.appendChild(createElement(doc,"solid",
 							boolToString((Boolean) object.get(PGmObject.SOLID))));
 					objroot.appendChild(createElement(doc,"visible",
@@ -1350,25 +1366,10 @@ public final class GMXFileWriter
 					objroot.appendChild(createElement(doc,"depth",object.get(PGmObject.DEPTH).toString()));
 					objroot.appendChild(createElement(doc,"persistent",
 							boolToString((Boolean) object.get(PGmObject.PERSISTENT))));
-					spr = object.get(PGmObject.MASK);
-					if (spr != null)
-						{
-						objroot.appendChild(createElement(doc,"maskName",spr.get().getName()));
-						}
-					else
-						{
-						objroot.appendChild(createElement(doc,"maskName","<undefined>"));
-						}
-
-					ResourceReference<?> par = object.get(PGmObject.PARENT);
-					if (par != null)
-						{
-						objroot.appendChild(createElement(doc,"parentName",par.get().getName()));
-						}
-					else
-						{
-						objroot.appendChild(createElement(doc,"parentName","<undefined>"));
-						}
+					objroot.appendChild(createElement(doc,"maskName",
+							getName((ResourceReference<?>)object.get(PGmObject.MASK))));
+					objroot.appendChild(createElement(doc,"parentName",
+							getName((ResourceReference<?>)object.get(PGmObject.PARENT))));
 
 					Element evtroot = doc.createElement("events");
 					for (int i = 0; i < object.mainEvents.size(); i++)
@@ -1381,15 +1382,8 @@ public final class GMXFileWriter
 							evtelement.setAttribute("eventtype",Integer.toString(ev.mainId));
 							if (ev.mainId == MainEvent.EV_COLLISION)
 								{
-								ResourceReference<GmObject> other = ev.other;
-								if (other != null)
-									{
-									evtelement.setAttribute("ename",other.get().getName());
-									}
-								else
-									{
-									evtelement.setAttribute("ename","<undefined>");
-									}
+								evtelement.setAttribute("ename",
+										getName((ResourceReference<GmObject>)ev.other));
 								}
 							else
 								{
@@ -1578,15 +1572,8 @@ public final class GMXFileWriter
 								boolToString((Boolean) props.get(PBackgroundDef.VISIBLE)));
 						bckelement.setAttribute("foreground",
 								boolToString((Boolean) props.get(PBackgroundDef.FOREGROUND)));
-						ResourceReference<?> br = props.get(PBackgroundDef.BACKGROUND);
-						if (br != null)
-							{
-							bckelement.setAttribute("name",br.get().getName());
-							}
-						else
-							{
-							bckelement.setAttribute("name","");
-							}
+						bckelement.setAttribute("name",
+								getName((ResourceReference<?>)props.get(PBackgroundDef.BACKGROUND),""));
 						bckelement.setAttribute("x",Integer.toString((Integer) props.get(PBackgroundDef.X)));
 						bckelement.setAttribute("y",Integer.toString((Integer) props.get(PBackgroundDef.Y)));
 						bckelement.setAttribute("htiled",
@@ -1611,15 +1598,8 @@ public final class GMXFileWriter
 						viewroot.appendChild(vwelement);
 
 						vwelement.setAttribute("visible",boolToString((Boolean) props.get(PView.VISIBLE)));
-						ResourceReference<?> or = (ResourceReference<?>) props.get(PView.OBJECT);
-						if (or != null)
-							{
-							vwelement.setAttribute("objName",or.get().getName());
-							}
-						else
-							{
-							vwelement.setAttribute("objName","<undefined>");
-							}
+						vwelement.setAttribute("objName",
+								getName((ResourceReference<?>) props.get(PView.OBJECT)));
 						vwelement.setAttribute("xview",Integer.toString((Integer) props.get(PView.VIEW_X)));
 						vwelement.setAttribute("yview",Integer.toString((Integer) props.get(PView.VIEW_Y)));
 						vwelement.setAttribute("wview",Integer.toString((Integer) props.get(PView.VIEW_W)));
@@ -1641,15 +1621,8 @@ public final class GMXFileWriter
 						{
 						Element inselement = doc.createElement("instance");
 						insroot.appendChild(inselement);
-						ResourceReference<GmObject> or = in.properties.get(PInstance.OBJECT);
-						if (or != null)
-							{
-							inselement.setAttribute("objName",or.get().getName());
-							}
-						else
-							{
-							inselement.setAttribute("objName","<undefined>");
-							}
+						inselement.setAttribute("objName",
+								getName((ResourceReference<?>) in.properties.get(PInstance.OBJECT)));
 						inselement.setAttribute("x",Integer.toString(in.getPosition().x));
 						inselement.setAttribute("y",Integer.toString(in.getPosition().y));
 						inselement.setAttribute("name",in.getName());
@@ -1672,15 +1645,8 @@ public final class GMXFileWriter
 						Element tileelement = doc.createElement("tile");
 						tileroot.appendChild(tileelement);
 
-						ResourceReference<?> br = props.get(PTile.BACKGROUND);
-						if (br != null)
-							{
-							tileelement.setAttribute("bgName",br.get().getName());
-							}
-						else
-							{
-							tileelement.setAttribute("bgName","");
-							}
+						tileelement.setAttribute("bgName",
+								getName((ResourceReference<?>) props.get(PTile.BACKGROUND),""));
 						tileelement.setAttribute("x",Integer.toString((Integer) props.get(PTile.ROOM_X)));
 						tileelement.setAttribute("y",Integer.toString((Integer) props.get(PTile.ROOM_Y)));
 						tileelement.setAttribute("w",Integer.toString((Integer) props.get(PTile.WIDTH)));
@@ -1827,7 +1793,7 @@ public final class GMXFileWriter
 				else if (at == GmObject.OBJECT_SELF)
 					actelement.appendChild(createElement(doc,"whoName","self"));
 				else
-					actelement.appendChild(createElement(doc,"whoName",at.get().getName()));
+					actelement.appendChild(createElement(doc,"whoName",getName(at)));
 				}
 			else
 				actelement.appendChild(createElement(doc,"whoName","self"));
@@ -1849,13 +1815,8 @@ public final class GMXFileWriter
 				Class<? extends Resource<?,?>> kind = Argument.getResourceKind(arg.kind);
 				if (kind != null && InstantiableResource.class.isAssignableFrom(kind))
 					{
-					Resource<?,?> r = deRef((ResourceReference<?>) arg.getRes());
-					String name = "<undefined>";
-					if (r != null && r instanceof InstantiableResource<?,?>)
-						{
-						name = ((InstantiableResource<?,?>) r).getName();
-						}
-					argelement.appendChild(createElement(doc,Resource.kindNames.get(kind).toLowerCase(),name));
+					argelement.appendChild(createElement(doc,Resource.kindNames.get(kind).toLowerCase(),
+							getName((ResourceReference<?>)arg.getRes())));
 					}
 				else
 					{
