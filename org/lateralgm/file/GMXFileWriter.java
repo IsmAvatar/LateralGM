@@ -146,16 +146,16 @@ public final class GMXFileWriter
 
 		if (documentBuilderFactory == null)
 			documentBuilderFactory = DocumentBuilderFactory.newInstance();
-		Document dom = null;
-		try
-			{
-			documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			dom = documentBuilder.newDocument();
-			}
-		catch (ParserConfigurationException pce)
-			{
-			throw new GmFormatException(f,pce);
-			}
+		if (documentBuilder == null)
+			try
+				{
+				documentBuilder = documentBuilderFactory.newDocumentBuilder();
+				}
+			catch (ParserConfigurationException pce)
+				{
+				throw new GmFormatException(f,pce);
+				}
+		Document dom = documentBuilder.newDocument();
 
 		JProgressBar progressBar = LGM.getProgressDialogBar();
 		progressBar.setMaximum(160);
@@ -164,7 +164,7 @@ public final class GMXFileWriter
 		ProjectFileContext c = new ProjectFileContext(f,dom);
 		Element root = dom.createElement("assets");
 		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
-		writeConfigurations(c,root);
+		writeConfigurations(c,root,savetime);
 
 		LGM.setProgress(10,Messages.getString("ProgressDialog.SPRITES"));
 		writeSprites(c,root);
@@ -275,7 +275,7 @@ public final class GMXFileWriter
 			return noneval;
 		}
 
-	public static void writeConfigurations(ProjectFileContext c, Element root) throws IOException,
+	public static void writeConfigurations(ProjectFileContext c, Element root, long savetime) throws IOException,
 			TransformerException
 		{
 		Document mdom = c.dom;
@@ -359,6 +359,7 @@ public final class GMXFileWriter
 					gs.get(PGameSettings.SCALING).toString()));
 			optNode.appendChild(createElement(dom,"option_closeesc",
 					gs.get(PGameSettings.TREAT_CLOSE_AS_ESCAPE).toString()));
+			gs.put(PGameSettings.LAST_CHANGED,ProjectFile.longTimeToGmTime(savetime));
 			optNode.appendChild(createElement(dom,"option_lastchanged",
 					gs.get(PGameSettings.LAST_CHANGED).toString()));
 

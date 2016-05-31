@@ -206,26 +206,27 @@ public final class GMXFileReader
 		file.format = ProjectFile.FormatFlavor.getVersionFlavor(1200); // GMX will have version numbers in the future
 		if (documentBuilderFactory == null)
 			documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		if (documentBuilder == null)
+			try
+				{
+				documentBuilder = documentBuilderFactory.newDocumentBuilder();
+				}
+			catch (ParserConfigurationException e1)
+				{
+				throw new GmFormatException(file,e1);
+				}
 		Document document = null;
 		try
 			{
-			documentBuilder = documentBuilderFactory.newDocumentBuilder();
-			try
-				{
-				document = documentBuilder.parse(new File(uri));
-				}
-			catch (SAXException e)
-				{
-				throw new GmFormatException(file,e);
-				}
-			catch (IOException e)
-				{
-				throw new GmFormatException(file,e);
-				}
+			document = documentBuilder.parse(new File(uri));
 			}
-		catch (ParserConfigurationException e1)
+		catch (SAXException e)
 			{
-			throw new GmFormatException(file,e1);
+			throw new GmFormatException(file,e);
+			}
+		catch (IOException e)
+			{
+			throw new GmFormatException(file,e);
 			}
 
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
