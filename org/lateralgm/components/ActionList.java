@@ -62,18 +62,14 @@ import org.lateralgm.subframes.ActionFrame;
 public class ActionList extends JList
 	{
 	private static final long serialVersionUID = 1L;
-	private static final WeakHashMap<Action,WeakReference<ActionFrame>> FRAMES;
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
+	private final WeakHashMap<Action,WeakReference<ActionFrame>> FRAMES =
+			new WeakHashMap<Action,WeakReference<ActionFrame>>();
 	protected ActionContainer actionContainer;
 	private ActionListModel model;
 	private final ActionRenderer renderer = new ActionRenderer();
 	public final WeakReference<MDIFrame> parent;
 	private final ActionListMouseListener alml;
-
-	static
-		{
-		FRAMES = new WeakHashMap<Action,WeakReference<ActionFrame>>();
-		}
 
 	public ActionList(MDIFrame parent)
 		{
@@ -125,7 +121,7 @@ public class ActionList extends JList
 
 		if (codeAction.getLibAction().actionKind == Action.ACT_CODE) 
 			{
-			ActionList.openActionFrame(this.parent.get(),codeAction);
+			openActionFrame(this.parent.get(),codeAction);
 			}
 		}
 
@@ -150,7 +146,7 @@ public class ActionList extends JList
 	 * @return The frame opened or <code>null</code> if no
 	 * frame was opened.
 	 */
-	public static MDIFrame openActionFrame(MDIFrame parent, Action a)
+	public MDIFrame openActionFrame(MDIFrame parent, Action a)
 		{
 		LibAction la = a.getLibAction();
 		if ((la.libArguments == null || la.libArguments.length == 0) && !la.canApplyTo
@@ -204,7 +200,7 @@ public class ActionList extends JList
 				}
 
 			if (o == null || !(o instanceof Action)) return;
-			openActionFrame(parent.get(),(Action) o);
+			l.openActionFrame(parent.get(),(Action) o);
 			}
 		}
 
@@ -584,7 +580,7 @@ public class ActionList extends JList
 					{
 					la = (LibAction) t.getTransferData(LIB_ACTION_FLAVOR);
 					a = new Action(la);
-					ActionList.openActionFrame(parent.get(),a);
+					list.openActionFrame(parent.get(),a);
 					}
 				catch (Exception e)
 					{
