@@ -130,10 +130,10 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		tool.setLayout(layout);
 		tool.setFloatable(false);
 		JLabel lsx = new JLabel(Messages.getString("PathFrame.SNAP_X"));
-		NumberField sx = new NumberField(0,999);
+		NumberField sx = new NumberField(1,999);
 		plf.make(sx,PPath.SNAP_X);
 		JLabel lsy = new JLabel(Messages.getString("PathFrame.SNAP_Y"));
-		NumberField sy = new NumberField(0,999);
+		NumberField sy = new NumberField(1,999);
 		plf.make(sy,PPath.SNAP_Y);
 		// For some reason, JToolBar + GroupLayout makes the button too small to show all the text.
 		// Using a JCheckBox instead. This also mathces the other components better.
