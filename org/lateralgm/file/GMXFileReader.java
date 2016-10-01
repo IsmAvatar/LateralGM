@@ -547,7 +547,6 @@ public final class GMXFileReader
 				Sprite spr = f.resMap.getList(Sprite.class).add();
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				spr.setName(fileName);
-				spr.setNode(rnode);
 				rnode = new ResNode(spr.getName(),ResNode.STATUS_SECONDARY,Sprite.class,spr.reference);
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
@@ -759,7 +758,6 @@ public final class GMXFileReader
 				Background bkg = f.resMap.getList(Background.class).add();
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				bkg.setName(fileName);
-				bkg.setNode(rnode);
 				rnode = new ResNode(bkg.getName(),ResNode.STATUS_SECONDARY,Background.class,bkg.reference);
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
@@ -862,7 +860,6 @@ public final class GMXFileReader
 				final Path pth = f.resMap.getList(Path.class).add();
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				pth.setName(fileName);
-				pth.setNode(rnode);
 				rnode = new ResNode(pth.getName(),ResNode.STATUS_SECONDARY,Path.class,pth.reference);
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
@@ -965,22 +962,44 @@ public final class GMXFileReader
 				}
 			else if (cname.equals("script"))
 				{
+				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
 				Script scr = f.resMap.getList(Script.class).add();
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				scr.setName(fileName.substring(0,fileName.lastIndexOf(".")));
-				scr.setNode(rnode);
 				rnode = new ResNode(scr.getName(),ResNode.STATUS_SECONDARY,Script.class,scr.reference);
 				node.add(rnode);
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				String code = "";
+				
 				try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
 					{
-					String line = "";
-					while ((line = reader.readLine()) != null)
+					String code = "";
+					String line = reader.readLine();
+					if (line == null) continue;
+					if (line.startsWith("#define"))
 						{
-						code += line + "\n";
+						line = reader.readLine();
+						if (line == null) continue;
 						}
+					do 
+						{
+						if (line.startsWith("#define"))
+							{
+							scr.put(PScript.CODE,code);
+							code = "";
+
+							scr = f.resMap.getList(Script.class).add();
+							scr.setName(line.substring(8, line.length()));
+							rnode = new ResNode(scr.getName(),ResNode.STATUS_SECONDARY,Script.class,scr.reference);
+							node.add(rnode);
+							code = "";
+							}
+						else
+							code += line + "\n";
+						}
+					while ((line = reader.readLine()) != null);
+
+					scr.put(PScript.CODE,code);
 					}
 				catch (FileNotFoundException e)
 					{
@@ -990,8 +1009,6 @@ public final class GMXFileReader
 					{
 					LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
 					}
-				scr.put(PScript.CODE,code);
-
 				}
 			}
 
@@ -1044,7 +1061,6 @@ public final class GMXFileReader
 				Shader shr = f.resMap.getList(Shader.class).add();
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				shr.setName(fileName.substring(0,fileName.lastIndexOf(".")));
-				shr.setNode(rnode);
 				rnode = new ResNode(shr.getName(),ResNode.STATUS_SECONDARY,Shader.class,shr.reference);
 				node.add(rnode);
 				shr.put(PShader.TYPE,cNode.getAttributes().item(0).getTextContent());
@@ -1123,7 +1139,6 @@ public final class GMXFileReader
 				Font fnt = f.resMap.getList(Font.class).add();
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				fnt.setName(fileName);
-				fnt.setNode(rnode);
 				rnode = new ResNode(fnt.getName(),ResNode.STATUS_SECONDARY,Font.class,fnt.reference);
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
@@ -1225,7 +1240,6 @@ public final class GMXFileReader
 
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				tml.setName(fileName);
-				tml.setNode(rnode);
 				rnode = new ResNode(tml.getName(),ResNode.STATUS_SECONDARY,Timeline.class,tml.reference);
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
@@ -1315,7 +1329,6 @@ public final class GMXFileReader
 
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				obj.setName(fileName);
-				obj.setNode(rnode);
 
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
@@ -1503,7 +1516,6 @@ public final class GMXFileReader
 
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				rmn.setName(fileName);
-				rmn.setNode(rnode);
 				rnode = new ResNode(rmn.getName(),ResNode.STATUS_SECONDARY,Room.class,rmn.reference);
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
