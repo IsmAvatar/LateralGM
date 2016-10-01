@@ -756,12 +756,7 @@ public final class LGM
 			catch (Exception e)
 				{
 				String msgInd = "LGM.PLUGIN_LOAD_ERROR"; //$NON-NLS-1$
-				System.out.println(Messages.format(msgInd,f.getName(),e.getClass().getName(),e.getMessage()));
-				// not sure about this one it helped me catch an error
-				// in the plugin don't know what to do really
-				//LGM.showDefaultExceptionHandler(e);
-				//TODO: lgm extensions need to be found another way perhaps with a local copy of some sort
-				//of digest or somthing like ENIGMA extensions
+				LGM.showDefaultExceptionHandler(new Exception(Messages.format(msgInd,f.getName()), e));
 				continue;
 				}
 			}
