@@ -962,15 +962,13 @@ public final class GMXFileReader
 				}
 			else if (cname.equals("script"))
 				{
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
 				Script scr = f.resMap.getList(Script.class).add();
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				scr.setName(fileName.substring(0,fileName.lastIndexOf(".")));
 				rnode = new ResNode(scr.getName(),ResNode.STATUS_SECONDARY,Script.class,scr.reference);
 				node.add(rnode);
+				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				
 				try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
 					{
 					String code = "";
