@@ -1259,7 +1259,7 @@ public final class GmFileReader
 				la.id = actid;
 				la.parentId = libid;
 				la.actionKind = (byte) in.read4();
-				//XXX: Maybe make this more agnostic?"
+				//TODO: Maybe make this more agnostic?"
 				if (la.actionKind == Action.ACT_CODE)
 					{
 					la = LibManager.codeAction;
