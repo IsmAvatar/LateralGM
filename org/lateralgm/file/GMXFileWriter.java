@@ -159,55 +159,54 @@ public final class GMXFileWriter
 
 		JProgressBar progressBar = LGM.getProgressDialogBar();
 		progressBar.setMaximum(160);
-		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_SAVING"));
+		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_SAVING")); //$NON-NLS-1$
 
 		ProjectFileContext c = new ProjectFileContext(f,dom);
-		Element root = dom.createElement("assets");
-		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
+		Element root = dom.createElement("assets"); //$NON-NLS-1$
+		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
 		writeConfigurations(c,root,savetime);
 
-		LGM.setProgress(10,Messages.getString("ProgressDialog.SPRITES"));
+		LGM.setProgress(10,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
 		writeSprites(c,root);
-		LGM.setProgress(20,Messages.getString("ProgressDialog.SOUNDS"));
+		LGM.setProgress(20,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
 		writeSounds(c,root);
-		LGM.setProgress(30,Messages.getString("ProgressDialog.BACKGROUNDS"));
+		LGM.setProgress(30,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
 		writeBackgrounds(c,root);
-		LGM.setProgress(40,Messages.getString("ProgressDialog.PATHS"));
+		LGM.setProgress(40,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
 		writePaths(c,root);
-		LGM.setProgress(50,Messages.getString("ProgressDialog.SCRIPTS"));
+		LGM.setProgress(50,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
 		writeScripts(c,root);
-		LGM.setProgress(60,Messages.getString("ProgressDialog.SHADERS"));
+		LGM.setProgress(60,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
 		writeShaders(c,root);
-		LGM.setProgress(70,Messages.getString("ProgressDialog.FONTS"));
+		LGM.setProgress(70,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
 		writeFonts(c,root);
-		LGM.setProgress(80,Messages.getString("ProgressDialog.TIMELINES"));
+		LGM.setProgress(80,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
 		writeTimelines(c,root);
-		LGM.setProgress(90,Messages.getString("ProgressDialog.OBJECTS"));
+		LGM.setProgress(90,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
 		writeGmObjects(c,root);
-		LGM.setProgress(100,Messages.getString("ProgressDialog.ROOMS"));
+		LGM.setProgress(100,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
 		writeRooms(c,root);
-		LGM.setProgress(110,Messages.getString("ProgressDialog.INCLUDEFILES"));
+		LGM.setProgress(110,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
 		//writeIncludedFiles(c, root);
-		LGM.setProgress(120,Messages.getString("ProgressDialog.PACKAGES"));
+		LGM.setProgress(120,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
 		//writePackages(c, root);
-		LGM.setProgress(130,Messages.getString("ProgressDialog.CONSTANTS"));
+		LGM.setProgress(130,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
 		writeDefaultConstants(c, root);
-		LGM.setProgress(140,Messages.getString("ProgressDialog.EXTENSIONS"));
+		LGM.setProgress(140,Messages.getString("ProgressDialog.EXTENSIONS")); //$NON-NLS-1$
 		//writeExtensions(c, root);
-		LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION"));
+		LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
 		writeGameInformation(c,root);
 
 		dom.appendChild(root);
 
 		// Now take the serialized XML data and format and write it to the actual file
-		LGM.setProgress(150,Messages.getString("ProgressDialog.DOCUMENT"));
+		LGM.setProgress(150,Messages.getString("ProgressDialog.DOCUMENT")); //$NON-NLS-1$
 		try
 			{
 			Transformer tr = TransformerFactory.newInstance().newTransformer();
-			tr.setOutputProperty(OutputKeys.INDENT,"yes");
-			tr.setOutputProperty(OutputKeys.METHOD,"xml");
-			;
-			tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+			tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+			tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
+			tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			// send DOM to file
 			tr.transform(new DOMSource(dom),new StreamResult(os));
@@ -221,8 +220,7 @@ public final class GMXFileWriter
 			// close up the stream and release the lock on the file
 			os.close();
 			}
-		LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED"));
-		return;
+		LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
 		}
 
 	private static Element createElement(Document dom, String name, String value)
@@ -244,12 +242,12 @@ public final class GMXFileWriter
 	// This is used to store booleans since GMX uses -1 and 0 and other times false and true
 	private static String boolToString(boolean bool)
 		{
-			return bool ? "-1" : "0";
+			return bool ? "-1" : "0"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 	public static <R extends Resource<R,?>> String getName(ResourceReference<R> ref)
 		{
-		return getName(ref,"<undefined>");
+		return getName(ref,"<undefined>"); //$NON-NLS-1$
 		}
 
 	public static <R extends Resource<R,?>> String getName(ResourceReference<R> ref, String noneval)
@@ -281,19 +279,19 @@ public final class GMXFileWriter
 		Document mdom = c.dom;
 		ProjectFile f = c.f;
 
-		Element conNode = mdom.createElement("Configs");
-		conNode.setAttribute("name","configs");
+		Element conNode = mdom.createElement("Configs"); //$NON-NLS-1$
+		conNode.setAttribute("name","configs");  //$NON-NLS-1$//$NON-NLS-2$
 		root.appendChild(conNode);
 
 		for (GameSettings gs : LGM.currentFile.gameSettings) {
-			Element setNode = mdom.createElement("Config");
-			setNode.setTextContent("Configs\\" + gs.getName());
+			Element setNode = mdom.createElement("Config"); //$NON-NLS-1$
+			setNode.setTextContent("Configs\\" + gs.getName()); //$NON-NLS-1$
 			conNode.appendChild(setNode);
 
 			Document dom = documentBuilder.newDocument();
-			Element nconNode = dom.createElement("Config");
+			Element nconNode = dom.createElement("Config"); //$NON-NLS-1$
 			dom.appendChild(nconNode);
-			Element optNode = dom.createElement("Options");
+			Element optNode = dom.createElement("Options"); //$NON-NLS-1$
 			nconNode.appendChild(optNode);
 
 			// For some odd reason these two settings are combined together.
@@ -311,96 +309,96 @@ public final class GMXFileWriter
 				{
 				syncvertex += 2147483648L;
 				}
-			optNode.appendChild(createElement(dom,"option_sync_vertex",Long.toString(syncvertex)));
+			optNode.appendChild(createElement(dom,"option_sync_vertex",Long.toString(syncvertex))); //$NON-NLS-1$
 
-			optNode.appendChild(createElement(dom,"option_fullscreen",
+			optNode.appendChild(createElement(dom,"option_fullscreen", //$NON-NLS-1$
 					gs.get(PGameSettings.START_FULLSCREEN).toString()));
-			optNode.appendChild(createElement(dom,"option_sizeable",
+			optNode.appendChild(createElement(dom,"option_sizeable", //$NON-NLS-1$
 					gs.get(PGameSettings.ALLOW_WINDOW_RESIZE).toString()));
-			optNode.appendChild(createElement(dom,"option_stayontop",
+			optNode.appendChild(createElement(dom,"option_stayontop", //$NON-NLS-1$
 					gs.get(PGameSettings.ALWAYS_ON_TOP).toString()));
-			optNode.appendChild(createElement(dom,"option_aborterrors",
+			optNode.appendChild(createElement(dom,"option_aborterrors", //$NON-NLS-1$
 					gs.get(PGameSettings.ABORT_ON_ERROR).toString()));
 
-			optNode.appendChild(createElement(dom,"option_noscreensaver",
+			optNode.appendChild(createElement(dom,"option_noscreensaver", //$NON-NLS-1$
 					gs.get(PGameSettings.DISABLE_SCREENSAVERS).toString()));
-			optNode.appendChild(createElement(dom,"option_showcursor",
+			optNode.appendChild(createElement(dom,"option_showcursor", //$NON-NLS-1$
 					gs.get(PGameSettings.DISPLAY_CURSOR).toString()));
-			optNode.appendChild(createElement(dom,"option_displayerrors",
+			optNode.appendChild(createElement(dom,"option_displayerrors", //$NON-NLS-1$
 					gs.get(PGameSettings.DISPLAY_ERRORS).toString()));
-			optNode.appendChild(createElement(dom,"option_noborder",
+			optNode.appendChild(createElement(dom,"option_noborder", //$NON-NLS-1$
 					gs.get(PGameSettings.DONT_DRAW_BORDER).toString()));
-			optNode.appendChild(createElement(dom,"option_nobuttons",
+			optNode.appendChild(createElement(dom,"option_nobuttons", //$NON-NLS-1$
 					gs.get(PGameSettings.DONT_SHOW_BUTTONS).toString()));
-			optNode.appendChild(createElement(dom,"option_argumenterrors",
+			optNode.appendChild(createElement(dom,"option_argumenterrors", //$NON-NLS-1$
 					gs.get(PGameSettings.ERROR_ON_ARGS).toString()));
-			optNode.appendChild(createElement(dom,"option_freeze",
+			optNode.appendChild(createElement(dom,"option_freeze", //$NON-NLS-1$
 					gs.get(PGameSettings.FREEZE_ON_LOSE_FOCUS).toString()));
 
-			optNode.appendChild(createElement(dom,"option_colordepth",
+			optNode.appendChild(createElement(dom,"option_colordepth", //$NON-NLS-1$
 					ProjectFile.GS_DEPTH_CODE.get(gs.get(PGameSettings.COLOR_DEPTH)).toString()));
 
-			optNode.appendChild(createElement(dom,"option_frequency",
+			optNode.appendChild(createElement(dom,"option_frequency", //$NON-NLS-1$
 					ProjectFile.GS_FREQ_CODE.get(gs.get(PGameSettings.FREQUENCY)).toString()));
-			optNode.appendChild(createElement(dom,"option_resolution",
+			optNode.appendChild(createElement(dom,"option_resolution", //$NON-NLS-1$
 					ProjectFile.GS_RESOL_CODE.get(gs.get(PGameSettings.RESOLUTION)).toString()));
-			optNode.appendChild(createElement(dom,"option_changeresolution",
+			optNode.appendChild(createElement(dom,"option_changeresolution", //$NON-NLS-1$
 					gs.get(PGameSettings.SET_RESOLUTION).toString()));
 			optNode.appendChild(createElement(
 					dom,
-					"option_priority",
+					"option_priority", //$NON-NLS-1$
 					ProjectFile.GS_PRIORITY_CODE.get(gs.get(PGameSettings.GAME_PRIORITY)).toString()));
 
-			optNode.appendChild(createElement(dom,"option_closeesc",
+			optNode.appendChild(createElement(dom,"option_closeesc", //$NON-NLS-1$
 					gs.get(PGameSettings.LET_ESC_END_GAME).toString()));
-			optNode.appendChild(createElement(dom,"option_interpolate",
+			optNode.appendChild(createElement(dom,"option_interpolate", //$NON-NLS-1$
 					gs.get(PGameSettings.INTERPOLATE).toString()));
-			optNode.appendChild(createElement(dom,"option_scale",
+			optNode.appendChild(createElement(dom,"option_scale", //$NON-NLS-1$
 					gs.get(PGameSettings.SCALING).toString()));
-			optNode.appendChild(createElement(dom,"option_closeesc",
+			optNode.appendChild(createElement(dom,"option_closeesc", //$NON-NLS-1$
 					gs.get(PGameSettings.TREAT_CLOSE_AS_ESCAPE).toString()));
 			gs.put(PGameSettings.LAST_CHANGED,ProjectFile.longTimeToGmTime(savetime));
-			optNode.appendChild(createElement(dom,"option_lastchanged",
+			optNode.appendChild(createElement(dom,"option_lastchanged", //$NON-NLS-1$
 					gs.get(PGameSettings.LAST_CHANGED).toString()));
 
-			optNode.appendChild(createElement(dom,"option_gameid",
+			optNode.appendChild(createElement(dom,"option_gameid", //$NON-NLS-1$
 					gs.get(PGameSettings.GAME_ID).toString()));
 			String guid = HexBin.encode((byte[]) gs.get(PGameSettings.GAME_GUID));
-			optNode.appendChild(createElement(dom,"option_gameguid",
-					"{" + guid.substring(0,8) + "-" + guid.substring(8,12) + "-" + guid.substring(12,16) + "-"
-							+ guid.substring(16,20) + "-" + guid.substring(20,32) + "}"));
+			optNode.appendChild(createElement(dom,"option_gameguid", //$NON-NLS-1$
+					'{' + guid.substring(0,8) + '-' + guid.substring(8,12) + '-' + guid.substring(12,16) + '-'
+							+ guid.substring(16,20) + '-' + guid.substring(20,32) + '}'));
 
-			optNode.appendChild(createElement(dom,"option_author",
+			optNode.appendChild(createElement(dom,"option_author", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.AUTHOR)));
-			optNode.appendChild(createElement(dom,"option_version_company",
+			optNode.appendChild(createElement(dom,"option_version_company", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.COMPANY)));
-			optNode.appendChild(createElement(dom,"option_version_copyright",
+			optNode.appendChild(createElement(dom,"option_version_copyright", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.COPYRIGHT)));
-			optNode.appendChild(createElement(dom,"option_version_description",
+			optNode.appendChild(createElement(dom,"option_version_description", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.DESCRIPTION)));
-			optNode.appendChild(createElement(dom,"option_version_product",
+			optNode.appendChild(createElement(dom,"option_version_product", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.PRODUCT)));
-			optNode.appendChild(createElement(dom,"option_information",
+			optNode.appendChild(createElement(dom,"option_information", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.INFORMATION)));
-			optNode.appendChild(createElement(dom,"option_version",
+			optNode.appendChild(createElement(dom,"option_version", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION).toString()));
-			optNode.appendChild(createElement(dom,"option_version_build",
+			optNode.appendChild(createElement(dom,"option_version_build", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION_BUILD).toString()));
-			optNode.appendChild(createElement(dom,"option_version_major",
+			optNode.appendChild(createElement(dom,"option_version_major", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION_MAJOR).toString()));
-			optNode.appendChild(createElement(dom,"option_version_minor",
+			optNode.appendChild(createElement(dom,"option_version_minor", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION_MINOR).toString()));
-			optNode.appendChild(createElement(dom,"option_version_release",
+			optNode.appendChild(createElement(dom,"option_version_release", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION_RELEASE).toString()));
 
-			Element cce = dom.createElement("ConfigConstants");
+			Element cce = dom.createElement("ConfigConstants"); //$NON-NLS-1$
 			writeConstants(gs.constants, dom, cce);
 			nconNode.appendChild(cce);
 
-			String icoPath = "Configs\\Default\\windows\\runner_icon.ico";
-			optNode.appendChild(createElement(dom,"option_windows_game_icon",icoPath));
+			String icoPath = "Configs\\Default\\windows\\runner_icon.ico"; //$NON-NLS-1$
+			optNode.appendChild(createElement(dom,"option_windows_game_icon",icoPath)); //$NON-NLS-1$
 
-			icoPath = f.getDirectory() + "\\" + icoPath;
+			icoPath = f.getDirectory() + '\\' + icoPath;
 			File file = new File(Util.getPOSIXPath(icoPath)).getParentFile();
 			file.mkdirs();
 
@@ -412,16 +410,16 @@ public final class GMXFileWriter
 			try
 				{
 				Transformer tr = TransformerFactory.newInstance().newTransformer();
-				tr.setOutputProperty(OutputKeys.INDENT,"yes");
-				tr.setOutputProperty(OutputKeys.METHOD,"xml");
+				tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+				tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
 				;
-				tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","4");
+				tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
 
-				file = new File(Util.getPOSIXPath(f.getDirectory() + "/Configs"));
+				file = new File(Util.getPOSIXPath(f.getDirectory() + "/Configs")); //$NON-NLS-1$
 				file.mkdir();
 
 				// send DOM to file
-				fos = new FileOutputStream(Util.getPOSIXPath(f.getDirectory() + "/Configs/" + gs.getName() + ".config.gmx"));
+				fos = new FileOutputStream(Util.getPOSIXPath(f.getDirectory() + "/Configs/" + gs.getName() + ".config.gmx")); //$NON-NLS-1$ //$NON-NLS-2$
 				tr.transform(new DOMSource(dom),new StreamResult(fos));
 				}
 			finally
@@ -439,11 +437,11 @@ public final class GMXFileWriter
 
 	public static void writeConstants(Constants cnsts, Document dom, Element node) throws IOException
 		{
-			Element base = dom.createElement("constants");
-			base.setAttribute("number",Integer.toString(cnsts.constants.size()));
+			Element base = dom.createElement("constants"); //$NON-NLS-1$
+			base.setAttribute("number",Integer.toString(cnsts.constants.size())); //$NON-NLS-1$
 			for (Constant cnst : cnsts.constants) {
-				Element celement = dom.createElement("constant");
-				celement.setAttribute("name",cnst.name);
+				Element celement = dom.createElement("constant"); //$NON-NLS-1$
+				celement.setAttribute("name",cnst.name); //$NON-NLS-1$
 				celement.setTextContent(cnst.value);;
 				base.appendChild(celement);
 			}
@@ -476,73 +474,73 @@ public final class GMXFileWriter
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("sprites");
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase());
+					res = dom.createElement("sprites"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
 					iterateSprites(c,resNode,res);
 					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("sprites");
-					res.setAttribute("name",resNode.getUserObject().toString());
+					res = dom.createElement("sprites"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
 					iterateSprites(c,resNode,res);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Sprite spr = (Sprite) resNode.getRes().get();
-					res = dom.createElement("sprite");
-					String fname = f.getDirectory() + "\\sprites\\";
-					res.setTextContent("sprites\\" + spr.getName());
-					File file = new File(Util.getPOSIXPath(fname + "\\images"));
+					res = dom.createElement("sprite"); //$NON-NLS-1$
+					String fname = f.getDirectory() + "\\sprites\\"; //$NON-NLS-1$
+					res.setTextContent("sprites\\" + spr.getName()); //$NON-NLS-1$
+					File file = new File(Util.getPOSIXPath(fname + "\\images")); //$NON-NLS-1$
 					file.mkdirs();
 
 					Document doc = documentBuilder.newDocument();
 
-					Element sprroot = doc.createElement("sprite");
+					Element sprroot = doc.createElement("sprite"); //$NON-NLS-1$
 					doc.appendChild(sprroot);
 
-					sprroot.appendChild(createElement(doc,"xorig",spr.get(PSprite.ORIGIN_X).toString()));
-					sprroot.appendChild(createElement(doc,"yorigin",spr.get(PSprite.ORIGIN_Y).toString()));
-					sprroot.appendChild(createElement(doc,"colkind",
+					sprroot.appendChild(createElement(doc,"xorig",spr.get(PSprite.ORIGIN_X).toString())); //$NON-NLS-1$
+					sprroot.appendChild(createElement(doc,"yorigin",spr.get(PSprite.ORIGIN_Y).toString())); //$NON-NLS-1$
+					sprroot.appendChild(createElement(doc,"colkind", //$NON-NLS-1$
 							ProjectFile.SPRITE_MASK_CODE.get(spr.get(PSprite.SHAPE)).toString()));
-					sprroot.appendChild(createElement(doc,"sepmasks",
+					sprroot.appendChild(createElement(doc,"sepmasks", //$NON-NLS-1$
 							boolToString((Boolean) spr.get(PSprite.SEPARATE_MASK))));
-					sprroot.appendChild(createElement(doc,"bbox_left",spr.get(PSprite.BB_LEFT).toString()));
-					sprroot.appendChild(createElement(doc,"bbox_right",spr.get(PSprite.BB_RIGHT).toString()));
-					sprroot.appendChild(createElement(doc,"bbox_top",spr.get(PSprite.BB_TOP).toString()));
-					sprroot.appendChild(createElement(doc,"bbox_bottom",spr.get(PSprite.BB_BOTTOM).toString()));
-					sprroot.appendChild(createElement(doc,"bboxmode",
+					sprroot.appendChild(createElement(doc,"bbox_left",spr.get(PSprite.BB_LEFT).toString())); //$NON-NLS-1$
+					sprroot.appendChild(createElement(doc,"bbox_right",spr.get(PSprite.BB_RIGHT).toString())); //$NON-NLS-1$
+					sprroot.appendChild(createElement(doc,"bbox_top",spr.get(PSprite.BB_TOP).toString())); //$NON-NLS-1$
+					sprroot.appendChild(createElement(doc,"bbox_bottom",spr.get(PSprite.BB_BOTTOM).toString())); //$NON-NLS-1$
+					sprroot.appendChild(createElement(doc,"bboxmode", //$NON-NLS-1$
 							ProjectFile.SPRITE_BB_CODE.get(spr.get(PSprite.BB_MODE)).toString()));
-					sprroot.appendChild(createElement(doc,"coltolerance",
+					sprroot.appendChild(createElement(doc,"coltolerance", //$NON-NLS-1$
 							spr.get(PSprite.ALPHA_TOLERANCE).toString()));
 
-					sprroot.appendChild(createElement(doc,"HTile",
+					sprroot.appendChild(createElement(doc,"HTile", //$NON-NLS-1$
 							boolToString((Boolean) spr.get(PSprite.TILE_HORIZONTALLY))));
-					sprroot.appendChild(createElement(doc,"VTile",
+					sprroot.appendChild(createElement(doc,"VTile", //$NON-NLS-1$
 							boolToString((Boolean) spr.get(PSprite.TILE_VERTICALLY))));
 
 					// TODO: Write texture groups
 
-					sprroot.appendChild(createElement(doc,"For3D",
+					sprroot.appendChild(createElement(doc,"For3D", //$NON-NLS-1$
 							boolToString((Boolean) spr.get(PSprite.FOR3D))));
 
 					int width = spr.getWidth(),
 					height = spr.getHeight();
 
-					sprroot.appendChild(createElement(doc,"width",Integer.toString(width)));
-					sprroot.appendChild(createElement(doc,"height",Integer.toString(height)));
+					sprroot.appendChild(createElement(doc,"width",Integer.toString(width))); //$NON-NLS-1$
+					sprroot.appendChild(createElement(doc,"height",Integer.toString(height))); //$NON-NLS-1$
 
-					Element frameroot = doc.createElement("frames");
+					Element frameroot = doc.createElement("frames"); //$NON-NLS-1$
 					for (int j = 0; j < spr.subImages.size(); j++)
 						{
-						String framefname = "images\\" + spr.getName() + "_" + j + ".png";
+						String framefname = "images\\" + spr.getName() + ' ' + j + ".png";  //$NON-NLS-1$//$NON-NLS-2$
 						File outputfile = new File(Util.getPOSIXPath(fname + framefname));
-						Element frameNode = createElement(doc,"frame",framefname);
-						frameNode.setAttribute("index",Integer.toString(j));
+						Element frameNode = createElement(doc,"frame",framefname); //$NON-NLS-1$
+						frameNode.setAttribute("index",Integer.toString(j)); //$NON-NLS-1$
 						frameroot.appendChild(frameNode);
 						BufferedImage sub = spr.subImages.get(j);
 						// GMX does have a backwards compatibility property for transparency pixel so we write
 						// the image with the transparency removed when that setting is checked
 						ImageIO.write(
 								(Boolean) spr.get(PSprite.TRANSPARENT) ? Util.getTransparentImage(sub) : sub,
-								"png",outputfile);
+								"png",outputfile); //$NON-NLS-1$
 						}
 					sprroot.appendChild(frameroot);
 
@@ -550,13 +548,13 @@ public final class GMXFileWriter
 					try
 						{
 						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes");
-						tr.setOutputProperty(OutputKeys.METHOD,"xml");
+						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
 						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + spr.getName() + ".sprite.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + spr.getName() + ".sprite.gmx")); //$NON-NLS-1$
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -574,8 +572,8 @@ public final class GMXFileWriter
 		{
 		Document dom = c.dom;
 
-		Element node = dom.createElement("sprites");
-		node.setAttribute("name","sprites");
+		Element node = dom.createElement("sprites"); //$NON-NLS-1$
+		node.setAttribute("name","sprites");  //$NON-NLS-1$//$NON-NLS-2$
 		root.appendChild(node);
 
 		ResourceList<Sprite> sprList = c.f.resMap.getList(Sprite.class);
@@ -608,69 +606,69 @@ public final class GMXFileWriter
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("sounds");
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase());
+					res = dom.createElement("sounds"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
 					iterateSounds(c,resNode,res);
 					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("sounds");
-					res.setAttribute("name",resNode.getUserObject().toString());
+					res = dom.createElement("sounds"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
 					iterateSounds(c,resNode,res);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Sound snd = (Sound) resNode.getRes().get();
-					res = dom.createElement("sound");
-					String fname = f.getDirectory() + "\\sound\\";
-					res.setTextContent("sound\\" + snd.getName());
-					File file = new File(Util.getPOSIXPath(fname + "\\audio"));
+					res = dom.createElement("sound"); //$NON-NLS-1$
+					String fname = f.getDirectory() + "\\sound\\"; //$NON-NLS-1$
+					res.setTextContent("sound\\" + snd.getName()); //$NON-NLS-1$
+					File file = new File(Util.getPOSIXPath(fname + "\\audio")); //$NON-NLS-1$
 					file.mkdirs();
 
 					Document doc = documentBuilder.newDocument();
 
-					Element sndroot = doc.createElement("sound");
+					Element sndroot = doc.createElement("sound"); //$NON-NLS-1$
 					doc.appendChild(sndroot);
 
 					// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
 					// There is an exception to this however. In every one of those tags after volume the
 					// nested tag is singular, where its parent is plural.
 					String ftype = snd.get(PSound.FILE_TYPE).toString();
-					sndroot.appendChild(createElement(doc,"extension",ftype));
-					sndroot.appendChild(createElement(doc,"origname",snd.get(PSound.FILE_NAME).toString()));
-					sndroot.appendChild(createElement(doc,"kind",
+					sndroot.appendChild(createElement(doc,"extension",ftype)); //$NON-NLS-1$
+					sndroot.appendChild(createElement(doc,"origname",snd.get(PSound.FILE_NAME).toString())); //$NON-NLS-1$
+					sndroot.appendChild(createElement(doc,"kind", //$NON-NLS-1$
 							ProjectFile.SOUND_KIND_CODE.get(snd.get(PSound.KIND)).toString()));
 
-					Element volumeRoot = doc.createElement("volume");
-					volumeRoot.appendChild(createElement(doc,"volume", snd.get(PSound.VOLUME).toString()));
+					Element volumeRoot = doc.createElement("volume"); //$NON-NLS-1$
+					volumeRoot.appendChild(createElement(doc,"volume", snd.get(PSound.VOLUME).toString())); //$NON-NLS-1$
 					sndroot.appendChild(volumeRoot);
 
-					Element bitRateRoot = doc.createElement("bitRates");
-					bitRateRoot.appendChild(createElement(doc,"bitRate",
+					Element bitRateRoot = doc.createElement("bitRates"); //$NON-NLS-1$
+					bitRateRoot.appendChild(createElement(doc,"bitRate", //$NON-NLS-1$
 						snd.get(PSound.BIT_RATE).toString()));
 					sndroot.appendChild(bitRateRoot);
 
-					Element sampleRateRoot = doc.createElement("sampleRates");
-					sampleRateRoot.appendChild(createElement(doc,"sampleRate",
+					Element sampleRateRoot = doc.createElement("sampleRates"); //$NON-NLS-1$
+					sampleRateRoot.appendChild(createElement(doc,"sampleRate", //$NON-NLS-1$
 							snd.get(PSound.SAMPLE_RATE).toString()));
 					sndroot.appendChild(sampleRateRoot);
 
-					Element typesRoot = doc.createElement("types");
-					typesRoot.appendChild(createElement(doc,"type",
+					Element typesRoot = doc.createElement("types"); //$NON-NLS-1$
+					typesRoot.appendChild(createElement(doc,"type", //$NON-NLS-1$
 						ProjectFile.SOUND_TYPE_CODE.get(snd.get(PSound.TYPE)).toString()));
 					sndroot.appendChild(typesRoot);
 
-					Element bitDepthRoot = doc.createElement("bitDepths");
-					bitDepthRoot.appendChild(createElement(doc,"bitDepth",
+					Element bitDepthRoot = doc.createElement("bitDepths"); //$NON-NLS-1$
+					bitDepthRoot.appendChild(createElement(doc,"bitDepth", //$NON-NLS-1$
 							snd.get(PSound.BIT_DEPTH).toString()));
 					sndroot.appendChild(bitDepthRoot);
 
-					sndroot.appendChild(createElement(doc,"pan",snd.get(PSound.PAN).toString()));
-					sndroot.appendChild(createElement(doc,"preload",
+					sndroot.appendChild(createElement(doc,"pan",snd.get(PSound.PAN).toString())); //$NON-NLS-1$
+					sndroot.appendChild(createElement(doc,"preload", //$NON-NLS-1$
 							boolToString((Boolean) snd.get(PSound.PRELOAD))));
-					sndroot.appendChild(createElement(doc,"compressed",
+					sndroot.appendChild(createElement(doc,"compressed", //$NON-NLS-1$
 							boolToString((Boolean) snd.get(PSound.COMPRESSED))));
-					sndroot.appendChild(createElement(doc,"streamed",
+					sndroot.appendChild(createElement(doc,"streamed", //$NON-NLS-1$
 							boolToString((Boolean) snd.get(PSound.STREAMED))));
-					sndroot.appendChild(createElement(doc,"uncompressOnLoad",
+					sndroot.appendChild(createElement(doc,"uncompressOnLoad", //$NON-NLS-1$
 							boolToString((Boolean) snd.get(PSound.DECOMPRESS_ON_LOAD))));
 					int effects = 0;
 					int n = 1;
@@ -679,23 +677,23 @@ public final class GMXFileWriter
 						if (snd.get(k)) effects |= n;
 						n <<= 1;
 						}
-					sndroot.appendChild(createElement(doc,"effects",Integer.toString(effects)));
+					sndroot.appendChild(createElement(doc,"effects",Integer.toString(effects))); //$NON-NLS-1$
 
-					sndroot.appendChild(createElement(doc,"data",snd.getName() + ftype));
-					Util.writeBinaryFile(fname + "audio\\" + snd.getName() + ftype,snd.data);
+					sndroot.appendChild(createElement(doc,"data",snd.getName() + ftype)); //$NON-NLS-1$
+					Util.writeBinaryFile(fname + "audio\\" + snd.getName() + ftype,snd.data); //$NON-NLS-1$
 
 					FileOutputStream fos = null;
 					try
 						{
 						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes");
-						tr.setOutputProperty(OutputKeys.METHOD,"xml");
+						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
 						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 						// send DOM to file
 						fos = new FileOutputStream(Util.getPOSIXPath(fname + resNode.getUserObject().toString()
-								+ ".sound.gmx"));
+								+ ".sound.gmx")); //$NON-NLS-1$
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -713,8 +711,8 @@ public final class GMXFileWriter
 		{
 		Document dom = c.dom;
 
-		Element node = dom.createElement("sounds");
-		node.setAttribute("name","sound");
+		Element node = dom.createElement("sounds"); //$NON-NLS-1$
+		node.setAttribute("name","sound"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.appendChild(node);
 
 		ResourceList<Sound> sndList = c.f.resMap.getList(Sound.class);
@@ -746,73 +744,73 @@ public final class GMXFileWriter
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("backgrounds");
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase());
+					res = dom.createElement("backgrounds"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
 					iterateBackgrounds(c,resNode,res);
 					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("backgrounds");
-					res.setAttribute("name",resNode.getUserObject().toString());
+					res = dom.createElement("backgrounds"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
 					iterateBackgrounds(c,resNode,res);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Background bkg = (Background) resNode.getRes().get();
-					res = dom.createElement("background");
-					String fname = f.getDirectory() + "\\background\\";
-					res.setTextContent("background\\" + bkg.getName());
-					File file = new File(Util.getPOSIXPath(fname + "\\images"));
+					res = dom.createElement("background"); //$NON-NLS-1$
+					String fname = f.getDirectory() + "\\background\\"; //$NON-NLS-1$
+					res.setTextContent("background\\" + bkg.getName()); //$NON-NLS-1$
+					File file = new File(Util.getPOSIXPath(fname + "\\images")); //$NON-NLS-1$
 					file.mkdirs();
 
 					Document doc = documentBuilder.newDocument();
 
-					Element bkgroot = doc.createElement("background");
+					Element bkgroot = doc.createElement("background"); //$NON-NLS-1$
 					doc.appendChild(bkgroot);
 
-					bkgroot.appendChild(createElement(doc,"istileset",
+					bkgroot.appendChild(createElement(doc,"istileset", //$NON-NLS-1$
 							boolToString((Boolean) bkg.get(PBackground.USE_AS_TILESET))));
-					bkgroot.appendChild(createElement(doc,"tilewidth",
+					bkgroot.appendChild(createElement(doc,"tilewidth", //$NON-NLS-1$
 							bkg.get(PBackground.TILE_WIDTH).toString()));
-					bkgroot.appendChild(createElement(doc,"tileheight",
+					bkgroot.appendChild(createElement(doc,"tileheight", //$NON-NLS-1$
 							bkg.get(PBackground.TILE_HEIGHT).toString()));
-					bkgroot.appendChild(createElement(doc,"tilexoff",bkg.get(PBackground.H_OFFSET).toString()));
-					bkgroot.appendChild(createElement(doc,"tileyoff",bkg.get(PBackground.V_OFFSET).toString()));
-					bkgroot.appendChild(createElement(doc,"tilehsep",bkg.get(PBackground.H_SEP).toString()));
-					bkgroot.appendChild(createElement(doc,"tilevsep",bkg.get(PBackground.V_SEP).toString()));
-					bkgroot.appendChild(createElement(doc,"HTile",
+					bkgroot.appendChild(createElement(doc,"tilexoff",bkg.get(PBackground.H_OFFSET).toString())); //$NON-NLS-1$
+					bkgroot.appendChild(createElement(doc,"tileyoff",bkg.get(PBackground.V_OFFSET).toString())); //$NON-NLS-1$
+					bkgroot.appendChild(createElement(doc,"tilehsep",bkg.get(PBackground.H_SEP).toString())); //$NON-NLS-1$
+					bkgroot.appendChild(createElement(doc,"tilevsep",bkg.get(PBackground.V_SEP).toString())); //$NON-NLS-1$
+					bkgroot.appendChild(createElement(doc,"HTile", //$NON-NLS-1$
 							boolToString((Boolean) bkg.get(PBackground.TILE_HORIZONTALLY))));
-					bkgroot.appendChild(createElement(doc,"VTile",
+					bkgroot.appendChild(createElement(doc,"VTile", //$NON-NLS-1$
 							boolToString((Boolean) bkg.get(PBackground.TILE_VERTICALLY))));
 
 					// TODO: Write texture groups
 
-					bkgroot.appendChild(createElement(doc,"For3D",
+					bkgroot.appendChild(createElement(doc,"For3D", //$NON-NLS-1$
 							boolToString((Boolean) bkg.get(PBackground.FOR3D))));
 
 					int width = bkg.getWidth(),
 					height = bkg.getHeight();
 
-					bkgroot.appendChild(createElement(doc,"width",Integer.toString(width)));
-					bkgroot.appendChild(createElement(doc,"height",Integer.toString(height)));
+					bkgroot.appendChild(createElement(doc,"width",Integer.toString(width))); //$NON-NLS-1$
+					bkgroot.appendChild(createElement(doc,"height",Integer.toString(height))); //$NON-NLS-1$
 
-					bkgroot.appendChild(createElement(doc,"data","images\\" + bkg.getName() + ".png"));
+					bkgroot.appendChild(createElement(doc,"data","images\\" + bkg.getName() + ".png")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					if (width > 0 && height > 0)
 						{
-						File outputfile = new File(Util.getPOSIXPath(fname + "images\\" + bkg.getName() + ".png"));
-						ImageIO.write(bkg.getBackgroundImage(),"png",outputfile);
+						File outputfile = new File(Util.getPOSIXPath(fname + "images\\" + bkg.getName() + ".png")); //$NON-NLS-1$ //$NON-NLS-2$
+						ImageIO.write(bkg.getBackgroundImage(),"png",outputfile); //$NON-NLS-1$
 						}
 
 					FileOutputStream fos = null;
 					try
 						{
 						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes");
-						tr.setOutputProperty(OutputKeys.METHOD,"xml");
+						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
 						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 						// send DOM to file
 						fos = new FileOutputStream(Util.getPOSIXPath(fname + resNode.getUserObject().toString()
-								+ ".background.gmx"));
+								+ ".background.gmx")); //$NON-NLS-1$
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -830,8 +828,8 @@ public final class GMXFileWriter
 		{
 		Document dom = c.dom;
 
-		Element node = dom.createElement("backgrounds");
-		node.setAttribute("name","background");
+		Element node = dom.createElement("backgrounds"); //$NON-NLS-1$
+		node.setAttribute("name","background"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.appendChild(node);
 
 		ResourceList<Background> bkgList = c.f.resMap.getList(Background.class);
@@ -864,56 +862,56 @@ public final class GMXFileWriter
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("paths");
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase());
+					res = dom.createElement("paths"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
 					iteratePaths(c,resNode,res);
 					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("paths");
-					res.setAttribute("name",resNode.getUserObject().toString());
+					res = dom.createElement("paths"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
 					iteratePaths(c,resNode,res);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Path path = (Path) resNode.getRes().get();
-					res = dom.createElement("path");
-					String fname = f.getDirectory() + "\\paths\\";
-					res.setTextContent("paths\\" + path.getName());
-					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/paths"));
+					res = dom.createElement("path"); //$NON-NLS-1$
+					String fname = f.getDirectory() + "\\paths\\"; //$NON-NLS-1$
+					res.setTextContent("paths\\" + path.getName()); //$NON-NLS-1$
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/paths")); //$NON-NLS-1$
 					file.mkdir();
 
 					Document doc = documentBuilder.newDocument();
 
-					Element pathroot = doc.createElement("path");
+					Element pathroot = doc.createElement("path"); //$NON-NLS-1$
 					doc.appendChild(pathroot);
 
 					int kind = path.get(PPath.SMOOTH) ? 1 : 0;
-					pathroot.appendChild(createElement(doc,"kind",Integer.toString(kind)));
+					pathroot.appendChild(createElement(doc,"kind",Integer.toString(kind))); //$NON-NLS-1$
 					int closed = path.get(PPath.CLOSED) ? -1 : 0;
-					pathroot.appendChild(createElement(doc,"closed",Integer.toString(closed)));
-					pathroot.appendChild(createElement(doc,"precision",path.get(PPath.PRECISION).toString()));
-					pathroot.appendChild(createElement(doc,"backroom",
+					pathroot.appendChild(createElement(doc,"closed",Integer.toString(closed))); //$NON-NLS-1$
+					pathroot.appendChild(createElement(doc,"precision",path.get(PPath.PRECISION).toString())); //$NON-NLS-1$
+					pathroot.appendChild(createElement(doc,"backroom", //$NON-NLS-1$
 							Integer.toString(getId((ResourceReference<?>)path.get(PPath.BACKGROUND_ROOM)))));
-					pathroot.appendChild(createElement(doc,"hsnap",path.get(PPath.SNAP_X).toString()));
-					pathroot.appendChild(createElement(doc,"vsnap",path.get(PPath.SNAP_Y).toString()));
+					pathroot.appendChild(createElement(doc,"hsnap",path.get(PPath.SNAP_X).toString())); //$NON-NLS-1$
+					pathroot.appendChild(createElement(doc,"vsnap",path.get(PPath.SNAP_Y).toString())); //$NON-NLS-1$
 
-					Element rootpoint = doc.createElement("points");
+					Element rootpoint = doc.createElement("points"); //$NON-NLS-1$
 					pathroot.appendChild(rootpoint);
 					for (PathPoint p : path.points)
 						{
-						rootpoint.appendChild(createElement(doc,"point",
-								p.getX() + "," + p.getY() + "," + p.getSpeed()));
+						rootpoint.appendChild(createElement(doc,"point", //$NON-NLS-1$
+								p.getX() + "," + p.getY() + ',' + p.getSpeed())); //$NON-NLS-1$
 						}
 
 					FileOutputStream fos = null;
 					try
 						{
 						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes");
-						tr.setOutputProperty(OutputKeys.METHOD,"xml");
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
+						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + path.getName() + ".path.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + path.getName() + ".path.gmx")); //$NON-NLS-1$
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -931,8 +929,8 @@ public final class GMXFileWriter
 		{
 		Document dom = c.dom;
 
-		Element node = dom.createElement("paths");
-		node.setAttribute("name","paths");
+		Element node = dom.createElement("paths"); //$NON-NLS-1$
+		node.setAttribute("name","paths"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.appendChild(node);
 
 		ResourceList<Path> pthList = c.f.resMap.getList(Path.class);
@@ -965,27 +963,27 @@ public final class GMXFileWriter
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("scripts");
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase());
+					res = dom.createElement("scripts"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
 					iterateScripts(c,resNode,res);
 					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("scripts");
-					res.setAttribute("name",resNode.getUserObject().toString());
+					res = dom.createElement("scripts"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
 					iterateScripts(c,resNode,res);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Script scr = (Script) resNode.getRes().get();
-					res = dom.createElement("script");
-					String fname = "scripts\\" + scr.getName() + ".gml";
+					res = dom.createElement("script"); //$NON-NLS-1$
+					String fname = "scripts\\" + scr.getName() + ".gml"; //$NON-NLS-1$ //$NON-NLS-2$
 					res.setTextContent(fname);
-					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/scripts"));
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/scripts")); //$NON-NLS-1$
 					file.mkdir();
 					Writer out = null;
 					try
 						{
 						out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
-								Util.getPOSIXPath(f.getDirectory() + "/" + Util.getPOSIXPath(fname))),"UTF-8"));
+								Util.getPOSIXPath(f.getDirectory() + '/' + Util.getPOSIXPath(fname))),"UTF-8")); //$NON-NLS-1$
 						out.write((String) scr.properties.get(PScript.CODE));
 						}
 					finally
@@ -1002,8 +1000,8 @@ public final class GMXFileWriter
 		{
 		Document dom = c.dom;
 
-		Element node = dom.createElement("scripts");
-		node.setAttribute("name","scripts");
+		Element node = dom.createElement("scripts"); //$NON-NLS-1$
+		node.setAttribute("name","scripts"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.appendChild(node);
 
 		ResourceList<Script> scrList = c.f.resMap.getList(Script.class);
@@ -1036,30 +1034,30 @@ public final class GMXFileWriter
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("shaders");
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase());
+					res = dom.createElement("shaders"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
 					iterateShaders(c,resNode,res);
 					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("shaders");
-					res.setAttribute("name",resNode.getUserObject().toString());
+					res = dom.createElement("shaders"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
 					iterateShaders(c,resNode,res);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Shader shr = (Shader) resNode.getRes().get();
-					res = dom.createElement("shader" + "");
-					String fname = "shaders\\" + shr.getName() + ".shader";
+					res = dom.createElement("shader"); //$NON-NLS-1$
+					String fname = "shaders\\" + shr.getName() + ".shader"; //$NON-NLS-1$ //$NON-NLS-2$
 					res.setTextContent(fname);
-					res.setAttribute("type",shr.properties.get(PShader.TYPE).toString());
-					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/shaders"));
+					res.setAttribute("type",shr.properties.get(PShader.TYPE).toString()); //$NON-NLS-1$
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/shaders")); //$NON-NLS-1$
 					file.mkdir();
 					Writer out = null;
 					try
 						{
 						out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
-								Util.getPOSIXPath(f.getDirectory() + "/" + fname)),"UTF-8"));
+								Util.getPOSIXPath(f.getDirectory() + '/' + fname)),"UTF-8"));
 						String code = shr.properties.get(PShader.VERTEX)
-								+ "\n//######################_==_YOYO_SHADER_MARKER_==_######################@~"
+								+ ('\n' + GMXFileReader.STUPID_SHADER_MARKER)
 								+ shr.properties.get(PShader.FRAGMENT);
 						out.write(code);
 						}
@@ -1077,8 +1075,8 @@ public final class GMXFileWriter
 		{
 		Document dom = c.dom;
 
-		Element node = dom.createElement("shaders");
-		node.setAttribute("name","shaders");
+		Element node = dom.createElement("shaders"); //$NON-NLS-1$
+		node.setAttribute("name","shaders"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.appendChild(node);
 
 		ResourceList<Shader> shrList = c.f.resMap.getList(Shader.class);
@@ -1110,64 +1108,64 @@ public final class GMXFileWriter
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("fonts");
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase());
+					res = dom.createElement("fonts"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
 					iterateFonts(c,resNode,res);
 					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("fonts");
-					res.setAttribute("name",resNode.getUserObject().toString());
+					res = dom.createElement("fonts"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
 					iterateFonts(c,resNode,res);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Font fnt = (Font) resNode.getRes().get();
-					res = dom.createElement("font");
-					String fname = f.getDirectory() + "\\fonts\\";
-					res.setTextContent("fonts\\" + fnt.getName());
+					res = dom.createElement("font"); //$NON-NLS-1$
+					String fname = f.getDirectory() + "\\fonts\\"; //$NON-NLS-1$
+					res.setTextContent("fonts\\" + fnt.getName()); //$NON-NLS-1$
 					File file = new File(Util.getPOSIXPath(fname));
 					file.mkdirs();
 
 					Document doc = documentBuilder.newDocument();
 
-					Element fntroot = doc.createElement("font");
+					Element fntroot = doc.createElement("font"); //$NON-NLS-1$
 					doc.appendChild(fntroot);
 
-					fntroot.appendChild(createElement(doc,"name",fnt.get(PFont.FONT_NAME).toString()));
-					fntroot.appendChild(createElement(doc,"size",fnt.get(PFont.SIZE).toString()));
-					fntroot.appendChild(createElement(doc,"bold",boolToString((Boolean) fnt.get(PFont.BOLD))));
-					fntroot.appendChild(createElement(doc,"italic",
+					fntroot.appendChild(createElement(doc,"name",fnt.get(PFont.FONT_NAME).toString())); //$NON-NLS-1$
+					fntroot.appendChild(createElement(doc,"size",fnt.get(PFont.SIZE).toString())); //$NON-NLS-1$
+					fntroot.appendChild(createElement(doc,"bold",boolToString((Boolean) fnt.get(PFont.BOLD)))); //$NON-NLS-1$
+					fntroot.appendChild(createElement(doc,"italic", //$NON-NLS-1$
 							boolToString((Boolean) fnt.get(PFont.ITALIC))));
-					fntroot.appendChild(createElement(doc,"charset",fnt.get(PFont.CHARSET).toString()));
-					fntroot.appendChild(createElement(doc,"aa",fnt.get(PFont.ANTIALIAS).toString()));
+					fntroot.appendChild(createElement(doc,"charset",fnt.get(PFont.CHARSET).toString())); //$NON-NLS-1$
+					fntroot.appendChild(createElement(doc,"aa",fnt.get(PFont.ANTIALIAS).toString())); //$NON-NLS-1$
 
-					Element rangeroot = doc.createElement("ranges");
+					Element rangeroot = doc.createElement("ranges"); //$NON-NLS-1$
 					fntroot.appendChild(rangeroot);
 					for (CharacterRange cr : fnt.characterRanges)
 						{
 						rangeroot.appendChild(createElement(
 								doc,
-								"range0",
-								cr.properties.get(PCharacterRange.RANGE_MIN).toString() + ","
-										+ cr.properties.get(PCharacterRange.RANGE_MAX).toString()));
+								"range0", //$NON-NLS-1$
+								cr.properties.get(PCharacterRange.RANGE_MIN) + "," //$NON-NLS-1$
+										+ cr.properties.get(PCharacterRange.RANGE_MAX)));
 						}
 
-					Element glyphroot = doc.createElement("glyphs");
+					Element glyphroot = doc.createElement("glyphs"); //$NON-NLS-1$
 					fntroot.appendChild(glyphroot);
 					for (GlyphMetric gm : fnt.glyphMetrics)
 						{
-						Element gelement = doc.createElement("glyph");
-						gelement.setAttribute("character",gm.properties.get(PGlyphMetric.CHARACTER).toString());
-						gelement.setAttribute("x",gm.properties.get(PGlyphMetric.X).toString());
-						gelement.setAttribute("y",gm.properties.get(PGlyphMetric.Y).toString());
-						gelement.setAttribute("w",gm.properties.get(PGlyphMetric.W).toString());
-						gelement.setAttribute("h",gm.properties.get(PGlyphMetric.H).toString());
-						gelement.setAttribute("shift",gm.properties.get(PGlyphMetric.SHIFT).toString());
-						gelement.setAttribute("offset",gm.properties.get(PGlyphMetric.OFFSET).toString());
+						Element gelement = doc.createElement("glyph"); //$NON-NLS-1$
+						gelement.setAttribute("character",gm.properties.get(PGlyphMetric.CHARACTER).toString()); //$NON-NLS-1$
+						gelement.setAttribute("x",gm.properties.get(PGlyphMetric.X).toString()); //$NON-NLS-1$
+						gelement.setAttribute("y",gm.properties.get(PGlyphMetric.Y).toString()); //$NON-NLS-1$
+						gelement.setAttribute("w",gm.properties.get(PGlyphMetric.W).toString()); //$NON-NLS-1$
+						gelement.setAttribute("h",gm.properties.get(PGlyphMetric.H).toString()); //$NON-NLS-1$
+						gelement.setAttribute("shift",gm.properties.get(PGlyphMetric.SHIFT).toString()); //$NON-NLS-1$
+						gelement.setAttribute("offset",gm.properties.get(PGlyphMetric.OFFSET).toString()); //$NON-NLS-1$
 						glyphroot.appendChild(gelement);
 						}
 
 					// TODO: Move glyph renderer from the plugin to LGM and write glyphs here
-					fntroot.appendChild(createElement(doc,"image",fnt.getName() + ".png"));
+					fntroot.appendChild(createElement(doc,"image",fnt.getName() + ".png")); //$NON-NLS-1$ //$NON-NLS-2$
 					//File outputfile = new File(getUnixPath(fname + fnt.getName() + ".png"));
 					/*
 					try
@@ -1185,13 +1183,13 @@ public final class GMXFileWriter
 					try
 						{
 						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes");
-						tr.setOutputProperty(OutputKeys.METHOD,"xml");
+						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
 						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + fnt.getName() + ".font.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + fnt.getName() + ".font.gmx")); //$NON-NLS-1$
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -1209,8 +1207,8 @@ public final class GMXFileWriter
 		{
 		Document dom = c.dom;
 
-		Element node = dom.createElement("fonts");
-		node.setAttribute("name","fonts");
+		Element node = dom.createElement("fonts"); //$NON-NLS-1$
+		node.setAttribute("name","fonts"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.appendChild(node);
 
 		ResourceList<Font> fntList = c.f.resMap.getList(Font.class);
@@ -1242,34 +1240,34 @@ public final class GMXFileWriter
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("timelines");
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase());
+					res = dom.createElement("timelines"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
 					iterateTimelines(c,resNode,res);
 					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("timelines");
-					res.setAttribute("name",resNode.getUserObject().toString());
+					res = dom.createElement("timelines"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
 					iterateTimelines(c,resNode,res);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Timeline timeline = (Timeline) resNode.getRes().get();
-					res = dom.createElement("timeline");
-					String fname = f.getDirectory() + "\\timelines\\";
-					res.setTextContent("timelines\\" + timeline.getName());
-					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/timelines"));
+					res = dom.createElement("timeline"); //$NON-NLS-1$
+					String fname = f.getDirectory() + "\\timelines\\"; //$NON-NLS-1$
+					res.setTextContent("timelines\\" + timeline.getName()); //$NON-NLS-1$
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/timelines")); //$NON-NLS-1$
 					file.mkdir();
 
 					Document doc = documentBuilder.newDocument();
 
-					Element tmlroot = doc.createElement("timeline");
+					Element tmlroot = doc.createElement("timeline"); //$NON-NLS-1$
 					doc.appendChild(tmlroot);
 
 					for (Moment mom : timeline.moments)
 						{
-						Element entroot = doc.createElement("entry");
+						Element entroot = doc.createElement("entry"); //$NON-NLS-1$
 						tmlroot.appendChild(entroot);
-						entroot.appendChild(createElement(doc,"step",Integer.toString(mom.stepNo)));
-						Element evtroot = doc.createElement("event");
+						entroot.appendChild(createElement(doc,"step",Integer.toString(mom.stepNo))); //$NON-NLS-1$
+						Element evtroot = doc.createElement("event"); //$NON-NLS-1$
 						entroot.appendChild(evtroot);
 						writeActions(doc,evtroot,mom);
 						}
@@ -1278,13 +1276,13 @@ public final class GMXFileWriter
 					try
 						{
 						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes");
-						tr.setOutputProperty(OutputKeys.METHOD,"xml");
+						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
 						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + timeline.getName() + ".timeline.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + timeline.getName() + ".timeline.gmx")); //$NON-NLS-1$
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -1302,8 +1300,8 @@ public final class GMXFileWriter
 		{
 		Document dom = c.dom;
 
-		Element node = dom.createElement("timelines");
-		node.setAttribute("name","timelines");
+		Element node = dom.createElement("timelines"); //$NON-NLS-1$
+		node.setAttribute("name","timelines"); //$NON-NLS-1$//$NON-NLS-2$
 		root.appendChild(node);
 
 		ResourceList<Timeline> tmlList = c.f.resMap.getList(Timeline.class);
@@ -1336,58 +1334,58 @@ public final class GMXFileWriter
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("objects");
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase());
+					res = dom.createElement("objects"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
 					iterateGmObjects(c,resNode,res);
 					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("objects");
-					res.setAttribute("name",resNode.getUserObject().toString());
+					res = dom.createElement("objects"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
 					iterateGmObjects(c,resNode,res);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					GmObject object = (GmObject) resNode.getRes().get();
-					res = dom.createElement("object");
-					String fname = f.getDirectory() + "\\objects\\";
-					res.setTextContent("objects\\" + object.getName());
-					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/objects"));
+					res = dom.createElement("object"); //$NON-NLS-1$
+					String fname = f.getDirectory() + "\\objects\\"; //$NON-NLS-1$
+					res.setTextContent("objects\\" + object.getName()); //$NON-NLS-1$
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/objects")); //$NON-NLS-1$
 					file.mkdir();
 
 					Document doc = documentBuilder.newDocument();
 
-					Element objroot = doc.createElement("object");
+					Element objroot = doc.createElement("object"); //$NON-NLS-1$
 					doc.appendChild(objroot);
-					objroot.appendChild(createElement(doc,"spriteName",
+					objroot.appendChild(createElement(doc,"spriteName", //$NON-NLS-1$
 							getName((ResourceReference<?>)object.get(PGmObject.SPRITE))));
-					objroot.appendChild(createElement(doc,"solid",
+					objroot.appendChild(createElement(doc,"solid", //$NON-NLS-1$
 							boolToString((Boolean) object.get(PGmObject.SOLID))));
-					objroot.appendChild(createElement(doc,"visible",
+					objroot.appendChild(createElement(doc,"visible", //$NON-NLS-1$
 							boolToString((Boolean) object.get(PGmObject.VISIBLE))));
-					objroot.appendChild(createElement(doc,"depth",object.get(PGmObject.DEPTH).toString()));
-					objroot.appendChild(createElement(doc,"persistent",
+					objroot.appendChild(createElement(doc,"depth",object.get(PGmObject.DEPTH).toString())); //$NON-NLS-1$
+					objroot.appendChild(createElement(doc,"persistent", //$NON-NLS-1$
 							boolToString((Boolean) object.get(PGmObject.PERSISTENT))));
-					objroot.appendChild(createElement(doc,"maskName",
+					objroot.appendChild(createElement(doc,"maskName", //$NON-NLS-1$
 							getName((ResourceReference<?>)object.get(PGmObject.MASK))));
-					objroot.appendChild(createElement(doc,"parentName",
+					objroot.appendChild(createElement(doc,"parentName", //$NON-NLS-1$
 							getName((ResourceReference<?>)object.get(PGmObject.PARENT))));
 
-					Element evtroot = doc.createElement("events");
+					Element evtroot = doc.createElement("events"); //$NON-NLS-1$
 					for (int i = 0; i < object.mainEvents.size(); i++)
 						{
 						MainEvent me = object.mainEvents.get(i);
 						for (int k = me.events.size(); k > 0; k--)
 							{
 							Event ev = me.events.get(k - 1);
-							Element evtelement = doc.createElement("event");
-							evtelement.setAttribute("eventtype",Integer.toString(ev.mainId));
+							Element evtelement = doc.createElement("event"); //$NON-NLS-1$
+							evtelement.setAttribute("eventtype",Integer.toString(ev.mainId)); //$NON-NLS-1$
 							if (ev.mainId == MainEvent.EV_COLLISION)
 								{
-								evtelement.setAttribute("ename",
+								evtelement.setAttribute("ename", //$NON-NLS-1$
 										getName((ResourceReference<GmObject>)ev.other));
 								}
 							else
 								{
-								evtelement.setAttribute("enumb",Integer.toString(ev.id));
+								evtelement.setAttribute("enumb",Integer.toString(ev.id)); //$NON-NLS-1$
 								}
 							evtroot.appendChild(evtelement);
 							writeActions(doc,evtelement,ev);
@@ -1396,33 +1394,33 @@ public final class GMXFileWriter
 					objroot.appendChild(evtroot);
 
 					// Physics Properties
-					objroot.appendChild(createElement(doc,"PhysicsObject",
+					objroot.appendChild(createElement(doc,"PhysicsObject", //$NON-NLS-1$
 							boolToString((Boolean) object.get(PGmObject.PHYSICS_OBJECT))));
-					objroot.appendChild(createElement(doc,"PhysicsObjectSensor",
+					objroot.appendChild(createElement(doc,"PhysicsObjectSensor", //$NON-NLS-1$
 							boolToString((Boolean) object.get(PGmObject.PHYSICS_SENSOR))));
-					objroot.appendChild(createElement(doc,"PhysicsObjectShape",
+					objroot.appendChild(createElement(doc,"PhysicsObjectShape", //$NON-NLS-1$
 							ProjectFile.SHAPE_CODE.get(object.get(PGmObject.PHYSICS_SHAPE)).toString()));
-					objroot.appendChild(createElement(doc,"PhysicsObjectDensity",
+					objroot.appendChild(createElement(doc,"PhysicsObjectDensity", //$NON-NLS-1$
 							Double.toString((Double) object.get(PGmObject.PHYSICS_DENSITY))));
-					objroot.appendChild(createElement(doc,"PhysicsObjectRestitution",
+					objroot.appendChild(createElement(doc,"PhysicsObjectRestitution", //$NON-NLS-1$
 							Double.toString((Double) object.get(PGmObject.PHYSICS_RESTITUTION))));
-					objroot.appendChild(createElement(doc,"PhysicsObjectGroup",
+					objroot.appendChild(createElement(doc,"PhysicsObjectGroup", //$NON-NLS-1$
 							Integer.toString((Integer) object.get(PGmObject.PHYSICS_GROUP))));
-					objroot.appendChild(createElement(doc,"PhysicsObjectLinearDamping",
+					objroot.appendChild(createElement(doc,"PhysicsObjectLinearDamping", //$NON-NLS-1$
 							Double.toString((Double) object.get(PGmObject.PHYSICS_DAMPING_LINEAR))));
-					objroot.appendChild(createElement(doc,"PhysicsObjectAngularDamping",
+					objroot.appendChild(createElement(doc,"PhysicsObjectAngularDamping", //$NON-NLS-1$
 							Double.toString((Double) object.get(PGmObject.PHYSICS_DAMPING_ANGULAR))));
-					objroot.appendChild(createElement(doc,"PhysicsObjectFriction",
+					objroot.appendChild(createElement(doc,"PhysicsObjectFriction", //$NON-NLS-1$
 							Double.toString((Double) object.get(PGmObject.PHYSICS_FRICTION))));
-					objroot.appendChild(createElement(doc,"PhysicsObjectAwake",
+					objroot.appendChild(createElement(doc,"PhysicsObjectAwake", //$NON-NLS-1$
 							boolToString((Boolean) object.get(PGmObject.PHYSICS_AWAKE))));
-					objroot.appendChild(createElement(doc,"PhysicsObjectKinematic",
+					objroot.appendChild(createElement(doc,"PhysicsObjectKinematic", //$NON-NLS-1$
 							boolToString((Boolean) object.get(PGmObject.PHYSICS_KINEMATIC))));
 
-					Element pointsroot = doc.createElement("PhysicsShapePoints");
+					Element pointsroot = doc.createElement("PhysicsShapePoints"); //$NON-NLS-1$
 					for (ShapePoint point : object.shapePoints)
 						{
-						pointsroot.appendChild(createElement(doc,"point",point.getX() + "," + point.getY()));
+						pointsroot.appendChild(createElement(doc,"point",point.getX() + "," + point.getY())); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 					objroot.appendChild(pointsroot);
 
@@ -1430,15 +1428,15 @@ public final class GMXFileWriter
 					try
 						{
 						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes");
-						tr.setOutputProperty(OutputKeys.METHOD,"xml");
+						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
 						;
-						tr.setOutputProperty(OutputKeys.ENCODING,"UTF-8");
+						tr.setOutputProperty(OutputKeys.ENCODING,"UTF-8"); //$NON-NLS-1$
 						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + object.getName() + ".object.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + object.getName() + ".object.gmx")); //$NON-NLS-1$
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -1456,8 +1454,8 @@ public final class GMXFileWriter
 		{
 		Document dom = c.dom;
 
-		Element node = dom.createElement("objects");
-		node.setAttribute("name","objects");
+		Element node = dom.createElement("objects"); //$NON-NLS-1$
+		node.setAttribute("name","objects"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.appendChild(node);
 
 		ResourceList<GmObject> objList = c.f.resMap.getList(GmObject.class);
@@ -1490,208 +1488,208 @@ public final class GMXFileWriter
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("rooms");
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase());
+					res = dom.createElement("rooms"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
 					iterateRooms(c,resNode,res);
 					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("rooms");
-					res.setAttribute("name",resNode.getUserObject().toString());
+					res = dom.createElement("rooms"); //$NON-NLS-1$
+					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
 					iterateRooms(c,resNode,res);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Room room = (Room) resNode.getRes().get();
-					res = dom.createElement("room");
-					String fname = f.getDirectory() + "\\rooms\\";
-					res.setTextContent("rooms\\" + room.getName());
-					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/rooms"));
+					res = dom.createElement("room"); //$NON-NLS-1$
+					String fname = f.getDirectory() + "\\rooms\\"; //$NON-NLS-1$
+					res.setTextContent("rooms\\" + room.getName()); //$NON-NLS-1$
+					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/rooms")); //$NON-NLS-1$
 					file.mkdir();
 
 					Document doc = documentBuilder.newDocument();
 
-					Element roomroot = doc.createElement("room");
+					Element roomroot = doc.createElement("room"); //$NON-NLS-1$
 					doc.appendChild(roomroot);
 
-					roomroot.appendChild(createElement(doc,"caption",room.get(PRoom.CAPTION).toString()));
-					roomroot.appendChild(createElement(doc,"width",room.get(PRoom.WIDTH).toString()));
-					roomroot.appendChild(createElement(doc,"height",room.get(PRoom.HEIGHT).toString()));
-					roomroot.appendChild(createElement(doc,"hsnap",room.get(PRoom.SNAP_X).toString()));
-					roomroot.appendChild(createElement(doc,"vsnap",room.get(PRoom.SNAP_Y).toString()));
-					roomroot.appendChild(createElement(doc,"isometric",
+					roomroot.appendChild(createElement(doc,"caption",room.get(PRoom.CAPTION).toString())); //$NON-NLS-1$
+					roomroot.appendChild(createElement(doc,"width",room.get(PRoom.WIDTH).toString())); //$NON-NLS-1$
+					roomroot.appendChild(createElement(doc,"height",room.get(PRoom.HEIGHT).toString())); //$NON-NLS-1$
+					roomroot.appendChild(createElement(doc,"hsnap",room.get(PRoom.SNAP_X).toString())); //$NON-NLS-1$
+					roomroot.appendChild(createElement(doc,"vsnap",room.get(PRoom.SNAP_Y).toString())); //$NON-NLS-1$
+					roomroot.appendChild(createElement(doc,"isometric", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.ISOMETRIC))));
-					roomroot.appendChild(createElement(doc,"speed",room.get(PRoom.SPEED).toString()));
-					roomroot.appendChild(createElement(doc,"persistent",
+					roomroot.appendChild(createElement(doc,"speed",room.get(PRoom.SPEED).toString())); //$NON-NLS-1$
+					roomroot.appendChild(createElement(doc,"persistent", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.PERSISTENT))));
-					roomroot.appendChild(createElement(doc,"colour",
+					roomroot.appendChild(createElement(doc,"colour", //$NON-NLS-1$
 							Integer.toString(Util.getGmColor((Color) room.get(PRoom.BACKGROUND_COLOR)))));
-					roomroot.appendChild(createElement(doc,"showcolour",
+					roomroot.appendChild(createElement(doc,"showcolour", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.DRAW_BACKGROUND_COLOR))));
-					roomroot.appendChild(createElement(doc,"code",room.get(PRoom.CREATION_CODE).toString()));
-					roomroot.appendChild(createElement(doc,"enableViews",
+					roomroot.appendChild(createElement(doc,"code",room.get(PRoom.CREATION_CODE).toString())); //$NON-NLS-1$
+					roomroot.appendChild(createElement(doc,"enableViews", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.VIEWS_ENABLED))));
-					roomroot.appendChild(createElement(doc,"clearViewBackground",
+					roomroot.appendChild(createElement(doc,"clearViewBackground", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.VIEWS_CLEAR))));
 
 					// Write the maker settings, or basically the settings of the editor.
-					Element mkeroot = doc.createElement("makerSettings");
-					mkeroot.appendChild(createElement(doc,"isSet",
+					Element mkeroot = doc.createElement("makerSettings"); //$NON-NLS-1$
+					mkeroot.appendChild(createElement(doc,"isSet", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.REMEMBER_WINDOW_SIZE))));
-					mkeroot.appendChild(createElement(doc,"w",room.get(PRoom.EDITOR_WIDTH).toString()));
-					mkeroot.appendChild(createElement(doc,"h",room.get(PRoom.EDITOR_HEIGHT).toString()));
-					mkeroot.appendChild(createElement(doc,"showGrid",
+					mkeroot.appendChild(createElement(doc,"w",room.get(PRoom.EDITOR_WIDTH).toString())); //$NON-NLS-1$
+					mkeroot.appendChild(createElement(doc,"h",room.get(PRoom.EDITOR_HEIGHT).toString())); //$NON-NLS-1$
+					mkeroot.appendChild(createElement(doc,"showGrid", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.SHOW_GRID))));
-					mkeroot.appendChild(createElement(doc,"showObjects",
+					mkeroot.appendChild(createElement(doc,"showObjects", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.SHOW_OBJECTS))));
-					mkeroot.appendChild(createElement(doc,"showTiles",
+					mkeroot.appendChild(createElement(doc,"showTiles", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.SHOW_TILES))));
-					mkeroot.appendChild(createElement(doc,"showBackgrounds",
+					mkeroot.appendChild(createElement(doc,"showBackgrounds", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.SHOW_BACKGROUNDS))));
-					mkeroot.appendChild(createElement(doc,"showForegrounds",
+					mkeroot.appendChild(createElement(doc,"showForegrounds", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.SHOW_FOREGROUNDS))));
-					mkeroot.appendChild(createElement(doc,"showViews",
+					mkeroot.appendChild(createElement(doc,"showViews", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.SHOW_VIEWS))));
-					mkeroot.appendChild(createElement(doc,"deleteUnderlyingObj",
+					mkeroot.appendChild(createElement(doc,"deleteUnderlyingObj", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.DELETE_UNDERLYING_OBJECTS))));
-					mkeroot.appendChild(createElement(doc,"deleteUnderlyingTiles",
+					mkeroot.appendChild(createElement(doc,"deleteUnderlyingTiles", //$NON-NLS-1$
 							boolToString((Boolean) room.get(PRoom.DELETE_UNDERLYING_TILES))));
-					mkeroot.appendChild(createElement(doc,"page",room.get(PRoom.CURRENT_TAB).toString()));
-					mkeroot.appendChild(createElement(doc,"xoffset",room.get(PRoom.SCROLL_BAR_X).toString()));
-					mkeroot.appendChild(createElement(doc,"yoffset",room.get(PRoom.SCROLL_BAR_Y).toString()));
+					mkeroot.appendChild(createElement(doc,"page",room.get(PRoom.CURRENT_TAB).toString())); //$NON-NLS-1$
+					mkeroot.appendChild(createElement(doc,"xoffset",room.get(PRoom.SCROLL_BAR_X).toString())); //$NON-NLS-1$
+					mkeroot.appendChild(createElement(doc,"yoffset",room.get(PRoom.SCROLL_BAR_Y).toString())); //$NON-NLS-1$
 					roomroot.appendChild(mkeroot);
 
 					// Write Backgrounds
-					Element backroot = doc.createElement("backgrounds");
+					Element backroot = doc.createElement("backgrounds"); //$NON-NLS-1$
 					roomroot.appendChild(backroot);
-					for (BackgroundDef back : room.backgroundDefs)
+					for (BackgroundDef back : room.backgroundDefs) 
 						{
 						PropertyMap<PBackgroundDef> props = back.properties;
-						Element bckelement = doc.createElement("background");
+						Element bckelement = doc.createElement("background"); //$NON-NLS-1$
 						backroot.appendChild(bckelement);
 
-						bckelement.setAttribute("visible",
+						bckelement.setAttribute("visible", //$NON-NLS-1$
 								boolToString((Boolean) props.get(PBackgroundDef.VISIBLE)));
-						bckelement.setAttribute("foreground",
+						bckelement.setAttribute("foreground", //$NON-NLS-1$
 								boolToString((Boolean) props.get(PBackgroundDef.FOREGROUND)));
-						bckelement.setAttribute("name",
+						bckelement.setAttribute("name", //$NON-NLS-1$
 								getName((ResourceReference<?>)props.get(PBackgroundDef.BACKGROUND),""));
-						bckelement.setAttribute("x",Integer.toString((Integer) props.get(PBackgroundDef.X)));
-						bckelement.setAttribute("y",Integer.toString((Integer) props.get(PBackgroundDef.Y)));
-						bckelement.setAttribute("htiled",
+						bckelement.setAttribute("x",Integer.toString((Integer) props.get(PBackgroundDef.X))); //$NON-NLS-1$
+						bckelement.setAttribute("y",Integer.toString((Integer) props.get(PBackgroundDef.Y))); //$NON-NLS-1$
+						bckelement.setAttribute("htiled", //$NON-NLS-1$
 								boolToString((Boolean) props.get(PBackgroundDef.TILE_HORIZ)));
-						bckelement.setAttribute("vtiled",
+						bckelement.setAttribute("vtiled", //$NON-NLS-1$
 								boolToString((Boolean) props.get(PBackgroundDef.TILE_VERT)));
-						bckelement.setAttribute("hspeed",
+						bckelement.setAttribute("hspeed", //$NON-NLS-1$
 								Integer.toString((Integer) props.get(PBackgroundDef.H_SPEED)));
-						bckelement.setAttribute("vspeed",
+						bckelement.setAttribute("vspeed", //$NON-NLS-1$
 								Integer.toString((Integer) props.get(PBackgroundDef.V_SPEED)));
-						bckelement.setAttribute("stretch",
+						bckelement.setAttribute("stretch", //$NON-NLS-1$
 								boolToString((Boolean) props.get(PBackgroundDef.STRETCH)));
 						}
 
 					// Write Views
-					Element viewroot = doc.createElement("views");
+					Element viewroot = doc.createElement("views"); //$NON-NLS-1$
 					roomroot.appendChild(viewroot);
 					for (View view : room.views)
 						{
 						PropertyMap<PView> props = view.properties;
-						Element vwelement = doc.createElement("view");
+						Element vwelement = doc.createElement("view"); //$NON-NLS-1$
 						viewroot.appendChild(vwelement);
 
-						vwelement.setAttribute("visible",boolToString((Boolean) props.get(PView.VISIBLE)));
-						vwelement.setAttribute("objName",
+						vwelement.setAttribute("visible",boolToString((Boolean) props.get(PView.VISIBLE))); //$NON-NLS-1$
+						vwelement.setAttribute("objName", //$NON-NLS-1$
 								getName((ResourceReference<?>) props.get(PView.OBJECT)));
-						vwelement.setAttribute("xview",Integer.toString((Integer) props.get(PView.VIEW_X)));
-						vwelement.setAttribute("yview",Integer.toString((Integer) props.get(PView.VIEW_Y)));
-						vwelement.setAttribute("wview",Integer.toString((Integer) props.get(PView.VIEW_W)));
-						vwelement.setAttribute("hview",Integer.toString((Integer) props.get(PView.VIEW_H)));
-						vwelement.setAttribute("xport",Integer.toString((Integer) props.get(PView.PORT_X)));
-						vwelement.setAttribute("yport",Integer.toString((Integer) props.get(PView.PORT_Y)));
-						vwelement.setAttribute("wport",Integer.toString((Integer) props.get(PView.PORT_W)));
-						vwelement.setAttribute("hport",Integer.toString((Integer) props.get(PView.PORT_H)));
-						vwelement.setAttribute("hborder",Integer.toString((Integer) props.get(PView.BORDER_H)));
-						vwelement.setAttribute("vborder",Integer.toString((Integer) props.get(PView.BORDER_V)));
-						vwelement.setAttribute("hspeed",Integer.toString((Integer) props.get(PView.SPEED_H)));
-						vwelement.setAttribute("vspeed",Integer.toString((Integer) props.get(PView.SPEED_V)));
+						vwelement.setAttribute("xview",Integer.toString((Integer) props.get(PView.VIEW_X))); //$NON-NLS-1$
+						vwelement.setAttribute("yview",Integer.toString((Integer) props.get(PView.VIEW_Y))); //$NON-NLS-1$
+						vwelement.setAttribute("wview",Integer.toString((Integer) props.get(PView.VIEW_W))); //$NON-NLS-1$
+						vwelement.setAttribute("hview",Integer.toString((Integer) props.get(PView.VIEW_H))); //$NON-NLS-1$
+						vwelement.setAttribute("xport",Integer.toString((Integer) props.get(PView.PORT_X))); //$NON-NLS-1$
+						vwelement.setAttribute("yport",Integer.toString((Integer) props.get(PView.PORT_Y))); //$NON-NLS-1$
+						vwelement.setAttribute("wport",Integer.toString((Integer) props.get(PView.PORT_W))); //$NON-NLS-1$
+						vwelement.setAttribute("hport",Integer.toString((Integer) props.get(PView.PORT_H))); //$NON-NLS-1$
+						vwelement.setAttribute("hborder",Integer.toString((Integer) props.get(PView.BORDER_H))); //$NON-NLS-1$
+						vwelement.setAttribute("vborder",Integer.toString((Integer) props.get(PView.BORDER_V))); //$NON-NLS-1$
+						vwelement.setAttribute("hspeed",Integer.toString((Integer) props.get(PView.SPEED_H))); //$NON-NLS-1$
+						vwelement.setAttribute("vspeed",Integer.toString((Integer) props.get(PView.SPEED_V))); //$NON-NLS-1$
 						}
 
 					// Write instances
-					Element insroot = doc.createElement("instances");
+					Element insroot = doc.createElement("instances"); //$NON-NLS-1$
 					roomroot.appendChild(insroot);
 					for (Instance in : room.instances)
 						{
-						Element inselement = doc.createElement("instance");
+						Element inselement = doc.createElement("instance"); //$NON-NLS-1$
 						insroot.appendChild(inselement);
-						inselement.setAttribute("objName",
+						inselement.setAttribute("objName", //$NON-NLS-1$
 								getName((ResourceReference<?>) in.properties.get(PInstance.OBJECT)));
-						inselement.setAttribute("x",Integer.toString(in.getPosition().x));
-						inselement.setAttribute("y",Integer.toString(in.getPosition().y));
-						inselement.setAttribute("name",in.getName());
-						inselement.setAttribute("id",Integer.toString(in.getID()));
-						inselement.setAttribute("locked",boolToString(in.isLocked()));
-						inselement.setAttribute("code",in.getCreationCode());
-						inselement.setAttribute("scaleX",Double.toString(in.getScale().getX()));
-						inselement.setAttribute("scaleY",Double.toString(in.getScale().getY()));
+						inselement.setAttribute("x",Integer.toString(in.getPosition().x)); //$NON-NLS-1$
+						inselement.setAttribute("y",Integer.toString(in.getPosition().y)); //$NON-NLS-1$
+						inselement.setAttribute("name",in.getName()); //$NON-NLS-1$
+						inselement.setAttribute("id",Integer.toString(in.getID())); //$NON-NLS-1$
+						inselement.setAttribute("locked",boolToString(in.isLocked())); //$NON-NLS-1$
+						inselement.setAttribute("code",in.getCreationCode()); //$NON-NLS-1$
+						inselement.setAttribute("scaleX",Double.toString(in.getScale().getX())); //$NON-NLS-1$
+						inselement.setAttribute("scaleY",Double.toString(in.getScale().getY())); //$NON-NLS-1$
 						String color = Long.toString(Util.getInstanceColorWithAlpha(in.getColor(),in.getAlpha()));
-						inselement.setAttribute("colour",color);// default white
-						inselement.setAttribute("rotation",Double.toString(in.getRotation()));
+						inselement.setAttribute("colour",color); // default white //$NON-NLS-1$
+						inselement.setAttribute("rotation",Double.toString(in.getRotation())); //$NON-NLS-1$
 						}
 
 					// Write Tiles
-					Element tileroot = doc.createElement("tiles");
+					Element tileroot = doc.createElement("tiles"); //$NON-NLS-1$
 					roomroot.appendChild(tileroot);
 					for (Tile tile : room.tiles)
 						{
 						PropertyMap<PTile> props = tile.properties;
-						Element tileelement = doc.createElement("tile");
+						Element tileelement = doc.createElement("tile"); //$NON-NLS-1$
 						tileroot.appendChild(tileelement);
 
-						tileelement.setAttribute("bgName",
+						tileelement.setAttribute("bgName", //$NON-NLS-1$
 								getName((ResourceReference<?>) props.get(PTile.BACKGROUND),""));
-						tileelement.setAttribute("x",Integer.toString((Integer) props.get(PTile.ROOM_X)));
-						tileelement.setAttribute("y",Integer.toString((Integer) props.get(PTile.ROOM_Y)));
-						tileelement.setAttribute("w",Integer.toString((Integer) props.get(PTile.WIDTH)));
-						tileelement.setAttribute("h",Integer.toString((Integer) props.get(PTile.HEIGHT)));
-						tileelement.setAttribute("xo",Integer.toString((Integer) props.get(PTile.BG_X)));
-						tileelement.setAttribute("yo",Integer.toString((Integer) props.get(PTile.BG_Y)));
-						tileelement.setAttribute("id",Integer.toString((Integer) props.get(PTile.ID)));
-						tileelement.setAttribute("name",(String) props.get(PTile.NAME));
-						tileelement.setAttribute("depth",Integer.toString(tile.getDepth()));
-						tileelement.setAttribute("locked",boolToString(tile.isLocked()));
+						tileelement.setAttribute("x",Integer.toString((Integer) props.get(PTile.ROOM_X))); //$NON-NLS-1$
+						tileelement.setAttribute("y",Integer.toString((Integer) props.get(PTile.ROOM_Y))); //$NON-NLS-1$
+						tileelement.setAttribute("w",Integer.toString((Integer) props.get(PTile.WIDTH))); //$NON-NLS-1$
+						tileelement.setAttribute("h",Integer.toString((Integer) props.get(PTile.HEIGHT))); //$NON-NLS-1$
+						tileelement.setAttribute("xo",Integer.toString((Integer) props.get(PTile.BG_X))); //$NON-NLS-1$
+						tileelement.setAttribute("yo",Integer.toString((Integer) props.get(PTile.BG_Y))); //$NON-NLS-1$
+						tileelement.setAttribute("id",Integer.toString((Integer) props.get(PTile.ID))); //$NON-NLS-1$
+						tileelement.setAttribute("name",(String) props.get(PTile.NAME)); //$NON-NLS-1$
+						tileelement.setAttribute("depth",Integer.toString(tile.getDepth())); //$NON-NLS-1$
+						tileelement.setAttribute("locked",boolToString(tile.isLocked())); //$NON-NLS-1$
 						Point2D scale = tile.getScale();
-						tileelement.setAttribute("scaleX",Double.toString(scale.getX()));
-						tileelement.setAttribute("scaleY",Double.toString(scale.getY()));
-						tileelement.setAttribute("colour",Long.toString(tile.getColor()));
+						tileelement.setAttribute("scaleX",Double.toString(scale.getX())); //$NON-NLS-1$
+						tileelement.setAttribute("scaleY",Double.toString(scale.getY())); //$NON-NLS-1$
+						tileelement.setAttribute("colour",Long.toString(tile.getColor())); //$NON-NLS-1$
 						}
 
 					// Physics properties
-					roomroot.appendChild(createElement(doc,"PhysicsWorld",
+					roomroot.appendChild(createElement(doc,"PhysicsWorld", //$NON-NLS-1$
 						boolToString((Boolean) room.get(PRoom.PHYSICS_WORLD))));
-					roomroot.appendChild(createElement(doc,"PhysicsWorldTop",
+					roomroot.appendChild(createElement(doc,"PhysicsWorldTop", //$NON-NLS-1$
 						Integer.toString((Integer) room.get(PRoom.PHYSICS_TOP))));
-					roomroot.appendChild(createElement(doc,"PhysicsWorldLeft",
+					roomroot.appendChild(createElement(doc,"PhysicsWorldLeft", //$NON-NLS-1$
 						Integer.toString((Integer) room.get(PRoom.PHYSICS_LEFT))));
-					roomroot.appendChild(createElement(doc,"PhysicsWorldRight",
+					roomroot.appendChild(createElement(doc,"PhysicsWorldRight", //$NON-NLS-1$
 						Integer.toString((Integer) room.get(PRoom.PHYSICS_RIGHT))));
-					roomroot.appendChild(createElement(doc,"PhysicsWorldBottom",
+					roomroot.appendChild(createElement(doc,"PhysicsWorldBottom", //$NON-NLS-1$
 						Integer.toString((Integer) room.get(PRoom.PHYSICS_BOTTOM))));
-					roomroot.appendChild(createElement(doc,"PhysicsWorldGravityX",
+					roomroot.appendChild(createElement(doc,"PhysicsWorldGravityX", //$NON-NLS-1$
 						Double.toString((Double) room.get(PRoom.PHYSICS_GRAVITY_X))));
-					roomroot.appendChild(createElement(doc,"PhysicsWorldGravityY",
+					roomroot.appendChild(createElement(doc,"PhysicsWorldGravityY", //$NON-NLS-1$
 						Double.toString((Double) room.get(PRoom.PHYSICS_GRAVITY_Y))));
-					roomroot.appendChild(createElement(doc,"PhysicsWorldPixToMeters",
+					roomroot.appendChild(createElement(doc,"PhysicsWorldPixToMeters", //$NON-NLS-1$
 						Double.toString((Double) room.get(PRoom.PHYSICS_PIXTOMETERS))));
 
 					FileOutputStream fos = null;
 					try
 						{
 						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes");
-						tr.setOutputProperty(OutputKeys.METHOD,"xml");
+						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
 						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
 
 						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + room.getName() + ".room.gmx"));
+						fos = new FileOutputStream(Util.getPOSIXPath(fname + room.getName() + ".room.gmx")); //$NON-NLS-1$
 						tr.transform(new DOMSource(doc),new StreamResult(fos));
 						}
 					finally
@@ -1709,8 +1707,8 @@ public final class GMXFileWriter
 		{
 		Document dom = c.dom;
 
-		Element node = dom.createElement("rooms");
-		node.setAttribute("name","rooms");
+		Element node = dom.createElement("rooms"); //$NON-NLS-1$
+		node.setAttribute("name","rooms"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.appendChild(node);
 
 		ResourceList<Room> rmnList = c.f.resMap.getList(Room.class);
@@ -1737,15 +1735,15 @@ public final class GMXFileWriter
 		Document dom = c.dom;
 		ProjectFile f = c.f;
 
-		Element helpNode = dom.createElement("help");
-		Element rtfNode = dom.createElement("rtf");
-		rtfNode.setTextContent("help.rtf");
+		Element helpNode = dom.createElement("help"); //$NON-NLS-1$
+		Element rtfNode = dom.createElement("rtf"); //$NON-NLS-1$
+		rtfNode.setTextContent("help.rtf"); //$NON-NLS-1$
 		helpNode.appendChild(rtfNode);
 
 		PrintWriter out = null;
 		try
 			{
-			out = new PrintWriter(Util.getPOSIXPath(f.getDirectory() + "/help.rtf"));
+			out = new PrintWriter(Util.getPOSIXPath(f.getDirectory() + "/help.rtf")); //$NON-NLS-1$
 			out.println(f.gameInfo.properties.get(PGameInformation.TEXT));
 			}
 		finally
@@ -1760,58 +1758,58 @@ public final class GMXFileWriter
 		{
 		for (Action act : container.actions)
 			{
-			Element actelement = doc.createElement("action");
+			Element actelement = doc.createElement("action"); //$NON-NLS-1$
 			root.appendChild(actelement);
 			LibAction la = act.getLibAction();
 
-			actelement.appendChild(createElement(doc,"libid",
+			actelement.appendChild(createElement(doc,"libid", //$NON-NLS-1$
 					Integer.toString(la.parent != null ? la.parent.id : la.parentId)));
-			actelement.appendChild(createElement(doc,"id",Integer.toString(la.id)));
-			actelement.appendChild(createElement(doc,"kind",Integer.toString(la.actionKind)));
-			actelement.appendChild(createElement(doc,"userelative",boolToString(la.allowRelative)));
-			actelement.appendChild(createElement(doc,"useapplyto",boolToString(la.canApplyTo)));
-			actelement.appendChild(createElement(doc,"isquestion",boolToString(la.question)));
-			actelement.appendChild(createElement(doc,"exetype",Integer.toString(la.execType)));
+			actelement.appendChild(createElement(doc,"id",Integer.toString(la.id))); //$NON-NLS-1$
+			actelement.appendChild(createElement(doc,"kind",Integer.toString(la.actionKind))); //$NON-NLS-1$
+			actelement.appendChild(createElement(doc,"userelative",boolToString(la.allowRelative))); //$NON-NLS-1$
+			actelement.appendChild(createElement(doc,"useapplyto",boolToString(la.canApplyTo))); //$NON-NLS-1$
+			actelement.appendChild(createElement(doc,"isquestion",boolToString(la.question))); //$NON-NLS-1$
+			actelement.appendChild(createElement(doc,"exetype",Integer.toString(la.execType))); //$NON-NLS-1$
 			String execinfo = "";
 			if (la.execType == Action.EXEC_FUNCTION)
 				{
 				execinfo = la.execInfo;
 				}
-			actelement.appendChild(createElement(doc,"functionname",execinfo));
-			execinfo = "";
+			actelement.appendChild(createElement(doc,"functionname",execinfo)); //$NON-NLS-1$
+			execinfo = ""; //$NON-NLS-1$
 			if (la.execType == Action.EXEC_CODE)
 				{
 				execinfo = la.execInfo;
 				}
-			actelement.appendChild(createElement(doc,"codestring",execinfo));
+			actelement.appendChild(createElement(doc,"codestring",execinfo)); //$NON-NLS-1$
 
 			ResourceReference<GmObject> at = act.getAppliesTo();
 			if (at != null)
 				{
 				if (at == GmObject.OBJECT_OTHER)
-					actelement.appendChild(createElement(doc,"whoName","other"));
+					actelement.appendChild(createElement(doc,"whoName","other")); //$NON-NLS-1$ //$NON-NLS-2$
 				else if (at == GmObject.OBJECT_SELF)
-					actelement.appendChild(createElement(doc,"whoName","self"));
+					actelement.appendChild(createElement(doc,"whoName","self")); //$NON-NLS-1$ //$NON-NLS-2$
 				else
-					actelement.appendChild(createElement(doc,"whoName",getName(at)));
+					actelement.appendChild(createElement(doc,"whoName",getName(at))); //$NON-NLS-1$
 				}
 			else
-				actelement.appendChild(createElement(doc,"whoName","self"));
+				actelement.appendChild(createElement(doc,"whoName","self")); //$NON-NLS-1$ //$NON-NLS-2$
 
-			actelement.appendChild(createElement(doc,"relative",boolToString(act.isRelative())));
-			actelement.appendChild(createElement(doc,"isnot",boolToString(act.isNot())));
+			actelement.appendChild(createElement(doc,"relative",boolToString(act.isRelative()))); //$NON-NLS-1$
+			actelement.appendChild(createElement(doc,"isnot",boolToString(act.isNot()))); //$NON-NLS-1$
 
 			// Now we write the arguments
-			Element argsroot = doc.createElement("arguments");
+			Element argsroot = doc.createElement("arguments"); //$NON-NLS-1$
 			actelement.appendChild(argsroot);
 
 			List<Argument> args = act.getArguments();
 			for (Argument arg : args)
 				{
-				Element argelement = doc.createElement("argument");
+				Element argelement = doc.createElement("argument"); //$NON-NLS-1$
 				argsroot.appendChild(argelement);
 
-				argelement.appendChild(createElement(doc,"kind",Integer.toString(arg.kind)));
+				argelement.appendChild(createElement(doc,"kind",Integer.toString(arg.kind))); //$NON-NLS-1$
 				Class<? extends Resource<?,?>> kind = Argument.getResourceKind(arg.kind);
 				if (kind != null && InstantiableResource.class.isAssignableFrom(kind))
 					{
@@ -1820,7 +1818,7 @@ public final class GMXFileWriter
 					}
 				else
 					{
-					argelement.appendChild(createElement(doc,"string",arg.getVal()));
+					argelement.appendChild(createElement(doc,"string",arg.getVal())); //$NON-NLS-1$
 					}
 				}
 			}
