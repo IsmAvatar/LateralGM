@@ -154,22 +154,36 @@ public final class GMXFileReader
 			}
 		}
 
-	private static Document parseDocument(ProjectFileContext c, String uri)
+	private static Document parseDocumentUnchecked(ProjectFile f, String path) throws GmFormatException
 		{
 		Document doc = null;
 		try
 			{
-			doc = documentBuilder.parse(uri);
+			doc = documentBuilder.parse(path);
 			}
 		catch (SAXException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to parse: " + uri, e));
+			throw new GmFormatException(f, "failed to parse: " + path, e);
 			}
 		catch (IOException e)
 			{
-			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + uri, e));
+			throw new GmFormatException(f, "failed to read: " + path, e);
 			}
 		return doc;
+		}
+
+	private static Document parseDocumentChecked(ProjectFile f, String path)
+		{
+			Document doc = null;
+			try
+				{
+				doc = parseDocumentUnchecked(f, path);
+				}
+			catch (GmFormatException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
+			return doc;
 		}
 
 	//Workaround for Parameter limit
@@ -231,83 +245,84 @@ public final class GMXFileReader
 				{
 				throw new GmFormatException(file,e1);
 				}
-		Document document = null;
-		try
-			{
-			document = documentBuilder.parse(new File(uri));
-			}
-		catch (SAXException e)
-			{
-			throw new GmFormatException(file,e);
-			}
-		catch (IOException e)
-			{
-			throw new GmFormatException(file,e);
-			}
-
 		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
 		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
 		RefList<Room> rmids = new RefList<Room>(Room.class); // room id
 		long startTime = System.currentTimeMillis();
 
-		ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
-
-		JProgressBar progressBar = LGM.getProgressDialogBar();
-		progressBar.setMaximum(160);
-		LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING"));
-
-		LGM.setProgress(0,Messages.getString("ProgressDialog.SPRITES"));
-		readSprites(c,root);
-		LGM.setProgress(10,Messages.getString("ProgressDialog.SOUNDS"));
-		readSounds(c,root);
-		LGM.setProgress(20,Messages.getString("ProgressDialog.BACKGROUNDS"));
-		readBackgrounds(c,root);
-		LGM.setProgress(30,Messages.getString("ProgressDialog.PATHS"));
-		readPaths(c,root);
-		LGM.setProgress(40,Messages.getString("ProgressDialog.SCRIPTS"));
-		readScripts(c,root);
-		LGM.setProgress(50,Messages.getString("ProgressDialog.SHADERS"));
-		readShaders(c,root);
-		LGM.setProgress(60,Messages.getString("ProgressDialog.FONTS"));
-		readFonts(c,root);
-		LGM.setProgress(70,Messages.getString("ProgressDialog.TIMELINES"));
-		readTimelines(c,root);
-		LGM.setProgress(80,Messages.getString("ProgressDialog.OBJECTS"));
-		readGmObjects(c,root);
-		LGM.setProgress(90,Messages.getString("ProgressDialog.ROOMS"));
-		readRooms(c,root);
-		LGM.setProgress(100,Messages.getString("ProgressDialog.INCLUDEFILES"));
-		readIncludedFiles(c,root);
-		LGM.setProgress(110,Messages.getString("ProgressDialog.EXTENSIONS"));
-		readExtensions(c,root);
-		LGM.setProgress(120,Messages.getString("ProgressDialog.CONSTANTS"));
-		readDefaultConstants(c,root);
-		LGM.setProgress(130,Messages.getString("ProgressDialog.GAMEINFORMATION"));
-		readGameInformation(c,root);
-		LGM.setProgress(140,Messages.getString("ProgressDialog.SETTINGS"));
-		readConfigurations(c,root);
-		LGM.setProgress(150,Messages.getString("ProgressDialog.PACKAGES"));
-		readPackages(c,root);
-
-		LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED"));
-		// All resources read, now we can invoke our postponed references.
-		for (PostponedRef i : postpone)
-			i.invoke();
-
-		System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
-				- startTime));
-
 		try
 			{
-			stream.close();
+			Document document = GMXFileReader.parseDocumentUnchecked(file, uri.toString());
+	
+			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
+	
+			JProgressBar progressBar = LGM.getProgressDialogBar();
+			progressBar.setMaximum(160);
+			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING")); //$NON-NLS-1$
+	
+			LGM.setProgress(0,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
+			readSprites(c,root);
+			LGM.setProgress(10,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
+			readSounds(c,root);
+			LGM.setProgress(20,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
+			readBackgrounds(c,root);
+			LGM.setProgress(30,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
+			readPaths(c,root);
+			LGM.setProgress(40,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
+			readScripts(c,root);
+			LGM.setProgress(50,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
+			readShaders(c,root);
+			LGM.setProgress(60,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
+			readFonts(c,root);
+			LGM.setProgress(70,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
+			readTimelines(c,root);
+			LGM.setProgress(80,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
+			readGmObjects(c,root);
+			LGM.setProgress(90,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
+			readRooms(c,root);
+			LGM.setProgress(100,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
+			readIncludedFiles(c,root);
+			LGM.setProgress(110,Messages.getString("ProgressDialog.EXTENSIONS")); //$NON-NLS-1$
+			readExtensions(c,root);
+			LGM.setProgress(120,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
+			readDefaultConstants(c,root);
+			LGM.setProgress(130,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
+			readGameInformation(c,root);
+			LGM.setProgress(140,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
+			readConfigurations(c,root);
+			LGM.setProgress(150,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
+			readPackages(c,root);
+	
+			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
+			// All resources read, now we can invoke our postponed references.
+			for (PostponedRef i : postpone)
+				i.invoke();
+	
+			LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
+			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
+					- startTime));
 			}
-		catch (Exception ex) //IOException
+		catch (Exception e)
 			{
-			String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
-			throw new GmFormatException(file,key);
+			if ((e instanceof GmFormatException)) throw (GmFormatException) e;
+			throw new GmFormatException(file,e);
 			}
-
-		LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED"));
+		finally
+			{
+			try
+				{
+				if (stream != null)
+					{
+					stream.close();
+					stream = null;
+					}
+				}
+			catch (IOException ex)
+				{
+				String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
+				throw new GmFormatException(file,key);
+				}
+			}
 		}
 
 	private static void readConfigurations(ProjectFileContext c, ResNode root)
@@ -344,7 +359,7 @@ public final class GMXFileReader
 
 				String path = c.f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document setdoc = GMXFileReader.parseDocument(c, path + ".config.gmx");
+				Document setdoc = GMXFileReader.parseDocumentChecked(c.f, path + ".config.gmx");
 				if (setdoc == null) continue;
 
 				pSet.put(
@@ -551,7 +566,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document sprdoc = GMXFileReader.parseDocument(c, path + ".sprite.gmx");
+				Document sprdoc = GMXFileReader.parseDocumentChecked(f, path + ".sprite.gmx");
 				if (sprdoc == null) continue;
 
 				spr.put(PSprite.ORIGIN_X,
@@ -670,7 +685,7 @@ public final class GMXFileReader
 				snd.setNode(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document snddoc = GMXFileReader.parseDocument(c, path + ".sound.gmx");
+				Document snddoc = GMXFileReader.parseDocumentChecked(f, path + ".sound.gmx");
 				if (snddoc == null) continue;
 
 				snd.put(PSound.FILE_NAME,snddoc.getElementsByTagName("origname").item(0).getTextContent());
@@ -762,7 +777,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document bkgdoc = GMXFileReader.parseDocument(c, path + ".background.gmx");
+				Document bkgdoc = GMXFileReader.parseDocumentChecked(f, path + ".background.gmx");
 				if (bkgdoc == null) continue;
 
 				bkg.put(PBackground.USE_AS_TILESET,
@@ -864,7 +879,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document pthdoc = GMXFileReader.parseDocument(c, path + ".path.gmx");
+				Document pthdoc = GMXFileReader.parseDocumentChecked(f, path + ".path.gmx");
 				if (pthdoc == null) continue;
 
 				pth.put(PPath.SMOOTH,
@@ -1141,7 +1156,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document fntdoc = GMXFileReader.parseDocument(c, path + ".font.gmx");
+				Document fntdoc = GMXFileReader.parseDocumentChecked(f, path + ".font.gmx");
 				if (fntdoc == null) continue;
 
 				fnt.put(PFont.FONT_NAME,fntdoc.getElementsByTagName("name").item(0).getTextContent());
@@ -1242,7 +1257,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document tmldoc = GMXFileReader.parseDocument(c, path + ".timeline.gmx");
+				Document tmldoc = GMXFileReader.parseDocumentChecked(f, path + ".timeline.gmx");
 				if (tmldoc == null) continue;
 
 				//Iterate the moments and load the actions
@@ -1330,7 +1345,7 @@ public final class GMXFileReader
 
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document objdoc = GMXFileReader.parseDocument(c, path + ".object.gmx");
+				Document objdoc = GMXFileReader.parseDocumentChecked(f, path + ".object.gmx");
 				if (objdoc == null) continue;
 
 				final String sprname = objdoc.getElementsByTagName("spriteName").item(0).getTextContent();
@@ -1518,7 +1533,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document rmndoc = GMXFileReader.parseDocument(c, path + ".room.gmx");
+				Document rmndoc = GMXFileReader.parseDocumentChecked(f, path + ".room.gmx");
 				if (rmndoc == null) continue;
 
 				String caption = rmndoc.getElementsByTagName("caption").item(0).getTextContent();
