@@ -180,7 +180,7 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
-	public static final String version = "1.8.7.11";
+	public static final String version = "1.8.7.14";
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -756,12 +756,7 @@ public final class LGM
 			catch (Exception e)
 				{
 				String msgInd = "LGM.PLUGIN_LOAD_ERROR"; //$NON-NLS-1$
-				System.out.println(Messages.format(msgInd,f.getName(),e.getClass().getName(),e.getMessage()));
-				// not sure about this one it helped me catch an error
-				// in the plugin don't know what to do really
-				//LGM.showDefaultExceptionHandler(e);
-				//TODO: lgm extensions need to be found another way perhaps with a local copy of some sort
-				//of digest or somthing like ENIGMA extensions
+				LGM.showDefaultExceptionHandler(new Exception(Messages.format(msgInd,f.getName()), e));
 				continue;
 				}
 			}
@@ -1968,7 +1963,6 @@ public final class LGM
 	public static void applyPreferences() {
 		if (javaVersion >= 10700 && !Prefs.locale.toLanguageTag().equals("und")) {
 			Locale.setDefault(Prefs.locale);
-			System.out.println(Locale.getDefault());
 		}
 
 		if (Prefs.direct3DAcceleration.equals("off")) { //$NON-NLS-1$
@@ -2922,7 +2916,7 @@ public final class LGM
 	// to submit a bug report.
 	public static void showDefaultExceptionHandler(Throwable e)
 		{
-		System.out.println(Thread.currentThread().getName() + ": ");
+		System.err.println(Thread.currentThread().getName() + ": ");
 		e.printStackTrace();
 		ErrorDialog errorDialog = ErrorDialog.getInstance();
 		if (!errorDialog.isVisible())

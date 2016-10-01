@@ -28,11 +28,19 @@ public class ProjectFormatException extends Exception
 	private static final long serialVersionUID = 1L;
 	public ProjectFile file;
 	public Exception e;
+	public Throwable cause;
 
 	public ProjectFormatException(ProjectFile file, String message)
 		{
 		super(message);
 		this.file = file;
+		}
+
+	public ProjectFormatException(ProjectFile file, String message, Throwable cause)
+		{
+		super(message, cause);
+		this.file = file;
+		this.cause = cause;
 		}
 
 	public ProjectFormatException(ProjectFile file, Exception e)
