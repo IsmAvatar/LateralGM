@@ -290,7 +290,7 @@ public final class GMXFileReader
 		readPackages(c,root);
 
 		LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED"));
-		// Resources read, now we can invoke our postponed references.
+		// All resources read, now we can invoke our postponed references.
 		for (PostponedRef i : postpone)
 			i.invoke();
 
@@ -299,7 +299,6 @@ public final class GMXFileReader
 
 		try
 			{
-			// close up the stream and release the lock on the file
 			stream.close();
 			}
 		catch (Exception ex) //IOException
