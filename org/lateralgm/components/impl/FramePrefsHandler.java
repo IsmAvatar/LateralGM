@@ -8,7 +8,6 @@
 
 package org.lateralgm.components.impl;
 
-import java.awt.GraphicsEnvironment;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowEvent;

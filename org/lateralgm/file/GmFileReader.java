@@ -155,7 +155,7 @@ public final class GmFileReader
 			int ver)
 		{
 		return new GmFormatException(f,Messages.format(
-				"ProjectFileReader.ERROR_UNSUPPORTED",Messages.format(//$NON-NLS-1$
+				"ProjectFileReader.ERROR_UNSUPPORTED",Messages.format( //$NON-NLS-1$
 						"ProjectFileReader." + error,Messages.getString("LGM." + res),i),ver)); //$NON-NLS-1$  //$NON-NLS-2$
 		}
 
@@ -185,7 +185,7 @@ public final class GmFileReader
 			file.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 			if (ver != 530 && ver != 600 && ver != 701 && ver != 800 && ver != 810)
 				{
-				String msg = Messages.format("ProjectFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$ //$NON-NLS-2$
+				String msg = Messages.format("ProjectFileReader.ERROR_UNSUPPORTED",uri,ver); //$NON-NLS-1$
 				throw new GmFormatException(file,msg);
 				}
 
@@ -202,11 +202,11 @@ public final class GmFileReader
 			//TODO: fix exception here caused by trying to open file too soon after loading LGM
 			JProgressBar progressBar = LGM.getProgressDialogBar();
 			progressBar.setMaximum(200);
-			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING"));
+			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING")); //$NON-NLS-1$
 
 			GameSettings gs = c.f.gameSettings.get(0);
 
-			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS"));
+			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
 				{
@@ -228,32 +228,32 @@ public final class GmFileReader
 
 			if (ver >= 800)
 				{
-				LGM.setProgress(10,Messages.getString("ProgressDialog.TRIGGERS"));
+				LGM.setProgress(10,Messages.getString("ProgressDialog.TRIGGERS")); //$NON-NLS-1$
 				readTriggers(c);
-				LGM.setProgress(20,Messages.getString("ProgressDialog.CONSTANTS"));
+				LGM.setProgress(20,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
 				readConstants(c,gs);
 				}
 
-			LGM.setProgress(30,Messages.getString("ProgressDialog.SOUNDS"));
+			LGM.setProgress(30,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
 			readSounds(c);
-			LGM.setProgress(40,Messages.getString("ProgressDialog.SPRITES"));
+			LGM.setProgress(40,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
 			readSprites(c);
-			LGM.setProgress(50,Messages.getString("ProgressDialog.BACKGROUNDS"));
+			LGM.setProgress(50,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
 			int bgVer = readBackgrounds(c);
-			LGM.setProgress(60,Messages.getString("ProgressDialog.PATHS"));
+			LGM.setProgress(60,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
 			readPaths(c);
-			LGM.setProgress(70,Messages.getString("ProgressDialog.SCRIPTS"));
+			LGM.setProgress(70,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
 			readScripts(c);
-			LGM.setProgress(80,Messages.getString("ProgressDialog.SHADERS"));
+			LGM.setProgress(80,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
 			//TODO: GMK 820 reads shaders first
-			LGM.setProgress(90,Messages.getString("ProgressDialog.FONTS"));
+			LGM.setProgress(90,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
 			int rver = in.read4();
 			readFonts(c,rver);
-			LGM.setProgress(100,Messages.getString("ProgressDialog.TIMELINES"));
+			LGM.setProgress(100,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
 			readTimelines(c);
-			LGM.setProgress(110,Messages.getString("ProgressDialog.OBJECTS"));
+			LGM.setProgress(110,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
 			readGmObjects(c);
-			LGM.setProgress(120,Messages.getString("ProgressDialog.ROOMS"));
+			LGM.setProgress(120,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
 			readRooms(c);
 
 			//If the "use as tileset" flag was not part of this version, try to infer it from the backgrounds used in room tiles.
@@ -273,16 +273,16 @@ public final class GmFileReader
 
 			if (ver >= 700)
 				{
-				LGM.setProgress(130,Messages.getString("ProgressDialog.INCLUDEFILES"));
+				LGM.setProgress(130,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
 				readIncludedFiles(c);
-				LGM.setProgress(140,Messages.getString("ProgressDialog.PACKAGES"));
+				LGM.setProgress(140,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
 				readPackages(c);
 				}
 
-			LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION"));
+			LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
 			readGameInformation(c);
 
-			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED"));
+			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 			//Resources read. Now we can invoke our postpones.
 			int percent = 0;
 			for (PostponedRef i : postpone)
@@ -290,10 +290,10 @@ public final class GmFileReader
 				i.invoke();
 				percent += 1;
 				LGM.setProgress(160 + percent / postpone.size(),
-						Messages.getString("ProgressDialog.POSTPONED"));
+						Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 				}
 
-			LGM.setProgress(170,Messages.getString("ProgressDialog.LIBRARYCREATION"));
+			LGM.setProgress(170,Messages.getString("ProgressDialog.LIBRARYCREATION")); //$NON-NLS-1$
 			//Library Creation Code
 			ver = in.read4();
 			if (ver != 500)
@@ -303,7 +303,7 @@ public final class GmFileReader
 			for (int j = 0; j < no; j++)
 				in.skip(in.read4());
 
-			LGM.setProgress(180,Messages.getString("ProgressDialog.ROOMEXECUTION"));
+			LGM.setProgress(180,Messages.getString("ProgressDialog.ROOMEXECUTION")); //$NON-NLS-1$
 			//Room Execution Order
 			ver = in.read4();
 			if (ver != 500 && ver != 540 && ver != 700)
@@ -311,8 +311,10 @@ public final class GmFileReader
 						Messages.getString("ProjectFileReader.AFTERINFO2"),ver)); //$NON-NLS-1$
 			in.skip(in.read4() * 4);
 
-			LGM.setProgress(190,Messages.getString("ProgressDialog.FILETREE"));
+			LGM.setProgress(190,Messages.getString("ProgressDialog.FILETREE")); //$NON-NLS-1$
 			readTree(c,root,ver);
+
+			LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
 			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
 					- startTime));
 			}
@@ -337,7 +339,6 @@ public final class GmFileReader
 				throw new GmFormatException(file,key);
 				}
 			}
-		LGM.setProgress(200,Messages.getString("ProgressDialog.FINISHED"));
 		}
 
 	private static void readSettings(ProjectFileContext c, GameSettings g) throws IOException,GmFormatException,
