@@ -180,7 +180,7 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
-	public static final String version = "1.8.7.14";
+	public static final String version = "1.8.7.15"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -190,9 +190,9 @@ public final class LGM
 	public static JDialog progressDialog = null;
 	public static JProgressBar progressDialogBar = null;
 
-	public static String iconspath = "org/lateralgm/icons/";
-	public static String iconspack = "Calico";
-	public static String themename = "Swing";
+	public static String iconspath = "org/lateralgm/icons/"; //$NON-NLS-1$
+	public static String iconspack = "Calico"; //$NON-NLS-1$
+	public static String themename = "Swing"; //$NON-NLS-1$
 	public static boolean themechanged = false;
 
 	public static int javaVersion;
@@ -212,7 +212,7 @@ public final class LGM
 			}
 		catch (Exception e)
 			{
-			System.err.println(Messages.format("LGM.NO_WORKDIR",e.getClass(),e.getLocalizedMessage()));
+			System.err.println(Messages.format("LGM.NO_WORKDIR",e.getClass(),e.getLocalizedMessage())); //$NON-NLS-1$
 			}
 		}
 	public static JFrame frame;
@@ -251,7 +251,7 @@ public final class LGM
 		{
 		if (progressDialog == null)
 			{
-			progressDialog = new JDialog(LGM.frame,"Progress Dialog",true);
+			progressDialog = new JDialog(LGM.frame,true);
 			progressDialogBar = new JProgressBar(0,140);
 			progressDialogBar.setStringPainted(true);
 			progressDialogBar.setPreferredSize(new Dimension(240,20));
@@ -274,7 +274,6 @@ public final class LGM
 		{
 		if (progressDialog != null)
 			{
-			progressTitle = "Progress Dialog";
 			progressDialogBar.setValue(0);
 			progressDialog.setVisible(visible);
 			return;
@@ -289,7 +288,7 @@ public final class LGM
 
 	public static void setProgress(final int value, final String message)
 		{
-		progressDialog.setTitle(progressTitle + " - " + message);
+		progressDialog.setTitle(progressTitle + " - " + message); //$NON-NLS-1$
 		progressDialogBar.setValue(value);
 		}
 
@@ -297,19 +296,19 @@ public final class LGM
 		{
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 
-		Image cimg = LGM.getIconForKey("CursorDisplay.ZOOM").getImage();
+		Image cimg = LGM.getIconForKey("CursorDisplay.ZOOM").getImage(); //$NON-NLS-1$
 		BufferedImage img = new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);
 		Graphics g = img.createGraphics();
 		g.drawImage(cimg,0,0,null);
 		zoomCursor = toolkit.createCustomCursor(img,new Point(0,0),"Zoom");
 
-		cimg = LGM.getIconForKey("CursorDisplay.ZOOM_IN").getImage();
+		cimg = LGM.getIconForKey("CursorDisplay.ZOOM_IN").getImage(); //$NON-NLS-1$
 		img = new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
 		g.drawImage(cimg,0,0,null);
 		zoomInCursor = toolkit.createCustomCursor(img,new Point(0,0),"ZoomIn");
 
-		cimg = LGM.getIconForKey("CursorDisplay.ZOOM_OUT").getImage();
+		cimg = LGM.getIconForKey("CursorDisplay.ZOOM_OUT").getImage(); //$NON-NLS-1$
 		img = new BufferedImage(32,32,BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
 		g.drawImage(cimg,0,0,null);
@@ -332,7 +331,7 @@ public final class LGM
 				{
 				lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
 				// This theme is also known as Metal - Ocean
-				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
+				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel"; //$NON-NLS-1$
 				MetalLookAndFeel.setCurrentTheme(new OceanTheme());
 				}
 			else if (LOOKANDFEEL.equals("Native"))
@@ -341,37 +340,37 @@ public final class LGM
 				}
 			else if (LOOKANDFEEL.equals("Nimbus"))
 				{
-				lookAndFeel = "javax.swing.plaf.nimbus.NimbusLookAndFeel";
+				lookAndFeel = "javax.swing.plaf.nimbus.NimbusLookAndFeel"; //$NON-NLS-1$
 				}
 			else if (LOOKANDFEEL.equals("Windows"))
 				{
-				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel"; //$NON-NLS-1$
 				}
 			else if (LOOKANDFEEL.equals("Windows Classic"))
 				{
-				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel";
+				lookAndFeel = "com.sun.java.swing.plaf.windows.WindowsClassicLookAndFeel"; //$NON-NLS-1$
 				// Fixes UI bug in the JDK where the buttons look way too big and get cut off.
 				// https://bugs.openjdk.java.net/browse/JDK-8140527
-				UIManager.put("InternalFrame.titleButtonWidth", 22);
-				UIManager.put("InternalFrame.titleButtonHeight", 22);
+				UIManager.put("InternalFrame.titleButtonWidth", 22); //$NON-NLS-1$
+				UIManager.put("InternalFrame.titleButtonHeight", 22); //$NON-NLS-1$
 				}
 			else if (LOOKANDFEEL.equals("CDE/Motif"))
 				{
-				lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
+				lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel"; //$NON-NLS-1$
 				}
 			else if (LOOKANDFEEL.equals("Metal"))
 				{
-				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
+				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel"; //$NON-NLS-1$
 				MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
 				}
 			else if (LOOKANDFEEL.equals("Ocean"))
 				{
-				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel";
+				lookAndFeel = "javax.swing.plaf.metal.MetalLookAndFeel"; //$NON-NLS-1$
 				MetalLookAndFeel.setCurrentTheme(new OceanTheme());
 				}
 			else if (LOOKANDFEEL.equals("GTK+"))
 				{
-				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+				lookAndFeel = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel"; //$NON-NLS-1$
 				}
 			else if (LOOKANDFEEL.equals("Custom"))
 				{
@@ -531,7 +530,7 @@ public final class LGM
 	public static ImageIcon findIcon(String filename)
 		{
 		String custompath = Prefs.iconPath + filename;
-		String jarpath = iconspath + iconspack + "/" + filename;
+		String jarpath = iconspath + iconspack + '/' + filename;
 		String location = ""; //$NON-NLS-1$
 		if (Prefs.iconPack.equals("Custom"))
 		{
@@ -568,7 +567,7 @@ public final class LGM
 			}
 		catch (IOException e)
 			{
-			System.err.println("Unable to read icons.properties"); //$NON-NLS-1$
+			System.err.println("Unable to read icons.properties");
 			}
 		String filename = iconProps.getProperty(key,""); //$NON-NLS-1$
 		if (!filename.isEmpty()) return findIcon(filename);
@@ -611,7 +610,7 @@ public final class LGM
 				Icon ico = ResNode.ICON.get(k);
 				if (ico == null) ico = GmTreeGraphics.getBlankIcon();
 				JButton but = new JButton(ico);
-				but.setToolTipText(Messages.format("Toolbar.ADD",Resource.kindNames.get(k)));
+				but.setToolTipText(Messages.format("Toolbar.ADD",Resource.kindNames.get(k))); //$NON-NLS-1$
 				but.addActionListener(new Listener.ResourceAdder(false,k));
 				tool.add(but);
 				}
@@ -700,7 +699,7 @@ public final class LGM
 		Class<?> clazz = URLClassLoader.class;
 
 		// Use reflection
-		Method method= clazz.getDeclaredMethod("addURL", new Class[] { URL.class });
+		Method method= clazz.getDeclaredMethod("addURL", new Class[] { URL.class }); //$NON-NLS-1$
 		method.setAccessible(true);
 		method.invoke(classLoader, new Object[] { url });
 	}
@@ -748,7 +747,7 @@ public final class LGM
 				jar.close();
 				String clastr = mf.getMainAttributes().getValue(pluginEntry);
 				if (clastr == null)
-					throw new Exception(Messages.format("LGM.PLUGIN_MISSING_ENTRY",pluginEntry));
+					throw new Exception(Messages.format("LGM.PLUGIN_MISSING_ENTRY",pluginEntry)); //$NON-NLS-1$
 				URLClassLoader ucl = new URLClassLoader(new URL[] { f.toURI().toURL() });
 				ucl.loadClass(clastr).newInstance();
 				classLoaders.add(ucl);
@@ -806,7 +805,7 @@ public final class LGM
 				{
 				//NOTE: Use reflection on the class to see if it has a variable telling us whether to create
 				//a node in the tree for the resource type.
-				hasNode = k.getField("hasNode").getBoolean(hasNode);
+				hasNode = k.getField("hasNode").getBoolean(hasNode); //$NON-NLS-1$
 				}
 			catch (IllegalArgumentException e)
 				{
@@ -930,7 +929,7 @@ public final class LGM
 		}
 
 	protected static ArrayList<ReloadListener> reloadListeners = new ArrayList<ReloadListener>();
-	static Action treeCopyAction = new AbstractAction("COPY") {
+	static Action treeCopyAction = new AbstractAction("COPY") { //$NON-NLS-1$
 		/**
 		 * NOTE: Default UID generated, change if necessary.
 		 */
@@ -944,12 +943,12 @@ public final class LGM
 				if (!(obj instanceof JTree)) tree = LGM.searchTree;
 				else tree = (JTree) obj;
 
-				String text = "";
+				String text = ""; //$NON-NLS-1$
 				int[] rows = tree.getSelectionRows();
 				java.util.Arrays.sort(rows);
 				for (int i = 0; i < rows.length; i++) {
 					TreePath path = tree.getPathForRow(rows[i]);
-					text += (i > 0 ? "\n" : "") + path.getLastPathComponent().toString().replaceAll("\\<[^>]*>","");
+					text += (i > 0 ? "\n" : "") + path.getLastPathComponent().toString().replaceAll("\\<[^>]*>","");  //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 				}
 
 				StringSelection selection = new StringSelection(text);
