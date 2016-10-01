@@ -90,11 +90,11 @@ public class GmMenuBar extends JMenuBar
 					{
 					File file = new File(uri).getAbsoluteFile();
 					item = new JMenuItem(String.format("%s %s  [%s]",number,file.getName(),file.getParent()),
-							number.codePointAt(0));
+							number.codePointAt(number.length() - 1));
 					}
 				catch (IllegalArgumentException e)
 					{
-					item = new JMenuItem(String.format("%s %s",number,uri),number.codePointAt(0));
+					item = new JMenuItem(String.format("%s %s",number,uri),number.codePointAt(number.length() - 1));
 					}
 				item.setActionCommand("GmMenuBar.OPENRECENT " + recentStr); //$NON-NLS-1$
 				item.addActionListener(Listener.getInstance());

@@ -24,6 +24,7 @@ package org.lateralgm.subframes;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -358,8 +359,7 @@ public class ResourceInfoFrame extends JFrame implements ActionListener
 		JScrollPane scrollable = new JScrollPane(editor);
 		add(scrollable,BorderLayout.CENTER);
 		setFocusTraversalPolicy(new TextAreaFocusTraversalPolicy(editor));
-		//NOTE: Use monospaced font
-		editor.setFont(editor.getFont().deriveFont(12.0f));
+		editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 		editor.setText("object info will be displayed here when loaded");
 		editor.setEditable(false);
 		editor.getCaret().setVisible(true); // show the caret anyway
