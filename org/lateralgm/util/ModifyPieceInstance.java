@@ -28,7 +28,7 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 	{
 	private static final long serialVersionUID = 1L;
 
-	private Piece piece;
+	public final Piece piece;
 	private RoomFrame roomFrame;
 	private String oldName = null;
 	private String newName = null;
@@ -96,9 +96,8 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		this.oldColor = oldColor;
 		this.newColor = newColor;
 		}
-
-	@Override
-	public void undo() throws CannotUndoException
+	
+	private void selectPiece()
 		{
 		// Select the current piece
 		if (piece instanceof Instance)
@@ -111,7 +110,12 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 			roomFrame.tList.setSelectedValue(piece,true);
 			roomFrame.fireTileUpdate();
 			}
+		}
 
+	@Override
+	public void undo() throws CannotUndoException
+		{
+		selectPiece();
 		if (oldName != null) piece.setName(oldName);
 		if (oldPosition != null) piece.setPosition(oldPosition);
 		if (oldScale != null) piece.setScale(oldScale);
@@ -123,18 +127,7 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 	@Override
 	public void redo() throws CannotRedoException
 		{
-		// Select the current piece
-		if (piece instanceof Instance)
-			{
-			roomFrame.oList.setSelectedValue(piece,true);
-			roomFrame.fireObjUpdate();
-			}
-		else
-			{
-			roomFrame.tList.setSelectedValue(piece,true);
-			roomFrame.fireTileUpdate();
-			}
-
+		selectPiece();
 		if (newName != null) piece.setName(newName);
 		if (newPosition != null) piece.setPosition(newPosition);
 		if (newScale != null) piece.setScale(newScale);
