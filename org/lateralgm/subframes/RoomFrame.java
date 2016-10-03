@@ -92,6 +92,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
@@ -187,7 +190,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 	public JComboBox<Integer> tileLayer;
 	// List of tiles layers in the current room
 	Vector<Integer> layers = new Vector<Integer>();
-	private JButton addLayer, deleteLayer;
+	private JButton addLayer, deleteLayer, changeLayer;
 	public JCheckBox tUnderlying, tLocked, tHideOtherLayers, tEditOtherLayers;
 	private ButtonModelLink<PTile> ltLocked;
 	public TileSelector tSelect;
@@ -1227,6 +1230,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		addLayer.addActionListener(this);
 		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE"));
 		deleteLayer.addActionListener(this);
+		changeLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_CHANGE"));
+		changeLayer.addActionListener(this);
 
 		tHideOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_HIDE_OTHER_LAYERS"));
 		tHideOtherLayers.addActionListener(this);
@@ -1244,8 +1249,9 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/*	*/.addComponent(layer)
 		/*	*/.addComponent(tileLayer))
 		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(addLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE)
-		/*	*/.addComponent(deleteLayer,DEFAULT_SIZE,DEFAULT_SIZE,MAX_VALUE))
+		/*	*/.addComponent(addLayer,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE)
+		/*	*/.addComponent(deleteLayer,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE)
+		/*	*/.addComponent(changeLayer,DEFAULT_SIZE,PREFERRED_SIZE,MAX_VALUE))
 		/**/.addGroup(
 				layout.createSequentialGroup()
 				/*	*/.addComponent(tHideOtherLayers,GroupLayout.PREFERRED_SIZE,GroupLayout.DEFAULT_SIZE,
@@ -1259,7 +1265,8 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		/*	*/.addComponent(tileLayer))
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(addLayer)
-		/*	*/.addComponent(deleteLayer))
+		/*	*/.addComponent(deleteLayer)
+		/*	*/.addComponent(changeLayer))
 		/**/.addGroup(layout.createParallelGroup()
 		/*	*/.addComponent(tHideOtherLayers)
 		/*	*/.addComponent(tEditOtherLayers))
@@ -2444,6 +2451,54 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 				if (layers.size() == 0) layers.add(0);
 
 				tileLayer.setSelectedIndex(0);
+				}
+			}
+
+		// If the user has pressed the 'Change' tile's layer button
+		if (eventSource == changeLayer)
+			{
+			JPanel myPanel = new JPanel();
+			myPanel.add(new JLabel(Messages.getString("RoomFrame.TILE_DEPTH")));
+			// Get the selected layer
+			final Integer depth = (Integer) tileLayer.getSelectedItem();
+			NumberField depthField = new NumberField(Integer.MIN_VALUE,Integer.MAX_VALUE,depth);
+			myPanel.add(depthField);
+
+			int result = JOptionPane.showConfirmDialog(this,myPanel,
+					Messages.getString("RoomFrame.CHANGE_TILE_LAYER"),JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.PLAIN_MESSAGE);
+
+			// Get the new layer's depth
+			final Integer newDepth = new Integer(depthField.getIntValue());
+
+			if (result == JOptionPane.OK_OPTION && newDepth != depth)
+				{
+				Room currentRoom = editor.getRoom();
+	
+				// Stores several actions in one compound action for the undo
+				//CompoundEdit compoundEdit = new CompoundEdit();
+	
+				// Update each tile with the selected layer
+				for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
+					{
+					final Tile tile = currentRoom.tiles.get(i);
+					if (tile.getDepth() == depth)
+						{
+						tile.setDepth(newDepth);
+						}
+					}
+	
+				//TODO: Save the action for the undo
+				//compoundEdit.end();
+				//undoSupport.postEdit(compoundEdit);
+	
+				// Replace the layer from the combo box
+				layers.remove(depth);
+				if (!layers.contains(newDepth)) layers.add(newDepth);
+				// Sort the layers in descending order
+				Collections.sort(layers,Collections.reverseOrder());
+				// Select the new layer
+				tileLayer.setSelectedItem(newDepth);
 				}
 			}
 
