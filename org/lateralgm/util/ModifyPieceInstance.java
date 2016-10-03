@@ -28,7 +28,7 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 	{
 	private static final long serialVersionUID = 1L;
 
-	public final Piece piece;
+	private final Piece piece;
 	private RoomFrame roomFrame;
 	private String oldName = null;
 	private String newName = null;
