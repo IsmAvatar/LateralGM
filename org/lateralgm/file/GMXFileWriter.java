@@ -604,7 +604,7 @@ public final class GMXFileWriter
 					sprroot.appendChild(frameroot);
 
 					transformDocumentUnchecked(
-							f, doc, new File(Util.getPOSIXPath(fname + spr.getName() + ".sprite.gmx")));  //$NON-NLS-1$ //$NON-NLS-2$
+							f, doc, new File(Util.getPOSIXPath(fname + spr.getName() + ".sprite.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
@@ -727,7 +727,7 @@ public final class GMXFileWriter
 
 					transformDocumentUnchecked(
 							f, doc, new File(
-									Util.getPOSIXPath(fname + resNode.getUserObject().toString() + ".sound.gmx")));  //$NON-NLS-1$ //$NON-NLS-2$
+									Util.getPOSIXPath(fname + resNode.getUserObject().toString() + ".sound.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
@@ -829,7 +829,7 @@ public final class GMXFileWriter
 					transformDocumentUnchecked(
 							f, doc, new File(
 									Util.getPOSIXPath(
-											fname + resNode.getUserObject().toString() + ".background.gmx")));  //$NON-NLS-1$ //$NON-NLS-2$
+											fname + resNode.getUserObject().toString() + ".background.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
