@@ -41,15 +41,15 @@ public class AboutBox extends JDialog implements PropertyChangeListener
 		LICENSE,CLOSE;
 		public String toString()
 			{
-			return Messages.getString("AboutBox.OPTION_" + name());
+			return Messages.getString("AboutBox.OPTION_" + name()); //$NON-NLS-1$
 			}
 		}
 
 	public AboutBox(Frame owner)
 		{
-		super(owner,Messages.getString("AboutBox.TITLE"),true);
+		super(owner,Messages.getString("AboutBox.TITLE"),true); //$NON-NLS-1$
 		setResizable(false);
-		JEditorPane ep = new JEditorPane("text/html",Messages.format("AboutBox.ABOUT",LGM.version));
+		JEditorPane ep = new JEditorPane("text/html",Messages.format("AboutBox.ABOUT",LGM.version));  //$NON-NLS-1$ //$NON-NLS-2$
 		addSSRules(((HTMLDocument) ep.getDocument()).getStyleSheet());
 		ep.setOpaque(false);
 		ep.setEditable(false);
@@ -65,7 +65,7 @@ public class AboutBox extends JDialog implements PropertyChangeListener
 
 	protected static void addSSRules(StyleSheet s)
 		{
-		s.addRule("body { font-size: 12pt; font-family: Dialog; }");
+		s.addRule("body { font-size: 12pt; font-family: Dialog; }"); //$NON-NLS-1$
 		}
 
 	protected static void lockWidth(JTextComponent c, int width)
@@ -149,10 +149,10 @@ public class AboutBox extends JDialog implements PropertyChangeListener
 
 		public LicenseDialog(JDialog owner)
 			{
-			super(owner,Messages.getString("AboutBox.LICENSE_TITLE"),true);
+			super(owner,Messages.getString("AboutBox.LICENSE_TITLE"),true); //$NON-NLS-1$
 			setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 			setResizable(false);
-			JEditorPane ep = new JEditorPane("text/html",Messages.getString("AboutBox.LICENSE"));
+			JEditorPane ep = new JEditorPane("text/html",Messages.getString("AboutBox.LICENSE")); //$NON-NLS-1$ //$NON-NLS-2$
 			addSSRules(((HTMLDocument) ep.getDocument()).getStyleSheet());
 			ep.setOpaque(false);
 			ep.setEditable(false);
