@@ -157,7 +157,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static Document parseDocumentUnchecked(ProjectFile f, String path) throws GmFormatException
+	private static Document parseDocumentWrapped(ProjectFile f, String path) throws GmFormatException
 		{
 		Document doc = null;
 		try
@@ -175,12 +175,12 @@ public final class GMXFileReader
 		return doc;
 		}
 
-	private static Document parseDocumentChecked(ProjectFile f, String path)
+	private static Document parseDocumentUnchecked(ProjectFile f, String path)
 		{
 			Document doc = null;
 			try
 				{
-				doc = parseDocumentUnchecked(f, path);
+				doc = parseDocumentWrapped(f, path);
 				}
 			catch (GmFormatException e)
 				{
@@ -255,7 +255,7 @@ public final class GMXFileReader
 
 		try
 			{
-			Document document = GMXFileReader.parseDocumentUnchecked(file, uri.toString());
+			Document document = GMXFileReader.parseDocumentWrapped(file, uri.toString());
 
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
 
@@ -362,7 +362,7 @@ public final class GMXFileReader
 
 				String path = c.f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document setdoc = GMXFileReader.parseDocumentChecked(c.f, path + ".config.gmx"); //$NON-NLS-1$
+				Document setdoc = GMXFileReader.parseDocumentUnchecked(c.f, path + ".config.gmx"); //$NON-NLS-1$
 				if (setdoc == null) continue;
 
 				pSet.put(
@@ -568,7 +568,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document sprdoc = GMXFileReader.parseDocumentChecked(f, path + ".sprite.gmx"); //$NON-NLS-1$
+				Document sprdoc = GMXFileReader.parseDocumentUnchecked(f, path + ".sprite.gmx"); //$NON-NLS-1$
 				if (sprdoc == null) continue;
 
 				spr.put(PSprite.ORIGIN_X,
@@ -687,7 +687,7 @@ public final class GMXFileReader
 				snd.setNode(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document snddoc = GMXFileReader.parseDocumentChecked(f, path + ".sound.gmx"); //$NON-NLS-1$
+				Document snddoc = GMXFileReader.parseDocumentUnchecked(f, path + ".sound.gmx"); //$NON-NLS-1$
 				if (snddoc == null) continue;
 
 				snd.put(PSound.FILE_NAME,snddoc.getElementsByTagName("origname").item(0).getTextContent()); //$NON-NLS-1$
@@ -779,7 +779,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document bkgdoc = GMXFileReader.parseDocumentChecked(f, path + ".background.gmx"); //$NON-NLS-1$
+				Document bkgdoc = GMXFileReader.parseDocumentUnchecked(f, path + ".background.gmx"); //$NON-NLS-1$
 				if (bkgdoc == null) continue;
 
 				bkg.put(PBackground.USE_AS_TILESET,
@@ -881,7 +881,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document pthdoc = GMXFileReader.parseDocumentChecked(f, path + ".path.gmx"); //$NON-NLS-1$
+				Document pthdoc = GMXFileReader.parseDocumentUnchecked(f, path + ".path.gmx"); //$NON-NLS-1$
 				if (pthdoc == null) continue;
 
 				pth.put(PPath.SMOOTH,
@@ -1157,7 +1157,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document fntdoc = GMXFileReader.parseDocumentChecked(f, path + ".font.gmx"); //$NON-NLS-1$
+				Document fntdoc = GMXFileReader.parseDocumentUnchecked(f, path + ".font.gmx"); //$NON-NLS-1$
 				if (fntdoc == null) continue;
 
 				fnt.put(PFont.FONT_NAME,fntdoc.getElementsByTagName("name").item(0).getTextContent()); //$NON-NLS-1$
@@ -1258,7 +1258,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document tmldoc = GMXFileReader.parseDocumentChecked(f, path + ".timeline.gmx"); //$NON-NLS-1$
+				Document tmldoc = GMXFileReader.parseDocumentUnchecked(f, path + ".timeline.gmx"); //$NON-NLS-1$
 				if (tmldoc == null) continue;
 
 				//Iterate the moments and load the actions
@@ -1346,7 +1346,7 @@ public final class GMXFileReader
 
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document objdoc = GMXFileReader.parseDocumentChecked(f, path + ".object.gmx"); //$NON-NLS-1$
+				Document objdoc = GMXFileReader.parseDocumentUnchecked(f, path + ".object.gmx"); //$NON-NLS-1$
 				if (objdoc == null) continue;
 
 				final String sprname = objdoc.getElementsByTagName("spriteName").item(0).getTextContent(); //$NON-NLS-1$
@@ -1534,7 +1534,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				Document rmndoc = GMXFileReader.parseDocumentChecked(f, path + ".room.gmx"); //$NON-NLS-1$
+				Document rmndoc = GMXFileReader.parseDocumentUnchecked(f, path + ".room.gmx"); //$NON-NLS-1$
 				if (rmndoc == null) continue;
 
 				String caption = rmndoc.getElementsByTagName("caption").item(0).getTextContent(); //$NON-NLS-1$
