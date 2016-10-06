@@ -908,6 +908,9 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		//the method will be flagged that we handled committing ourselves,
 		//and the changes wont actually get committed.
 		commitChanges();
+		// because we only clear the undo manager when showing or reverting the frame
+		// and load from file should not clear the undo manager
+		// we can simply check if the undo manager has any changes instead of using a document listener
 		if (undoManager.canUndo()) return true;
 		for (Entry<PGameInformation,Object> entry : res.properties.entrySet()) {
 			if (entry.getKey() != PGameInformation.TEXT &&
@@ -915,7 +918,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 						return true;
 			}
 		}
-		//TODO: We can not just check differences in the properties because Java sucks at formatting RTF
+		//NOTE: We can not just check differences in the properties because Java sucks at formatting RTF
 		//return !res.properties.equals(resOriginal.properties);
 		return false;
 		}
