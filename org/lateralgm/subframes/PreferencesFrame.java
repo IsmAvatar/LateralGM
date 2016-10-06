@@ -798,11 +798,12 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			if (fc.showOpenDialog(PreferencesFrame.this) == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
 				if (file != null) {
-					String commandText = '\"' + file.getAbsolutePath() + "\" %s";
-					if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+					String commandText = '\"' + file.getAbsolutePath() + "\" %s"; //$NON-NLS-1$
+					String osName = System.getProperty("os.name").toLowerCase(); //$NON-NLS-1$
+					if (osName.contains("windows")) { //$NON-NLS-1$
 						// NOTE: Running this through the Windows Command Interpreter enables the use of *.lnk
 						// for external editors by letting the OS resolve the shortcut. - Robert
-						textField.setText("cmd /c " + commandText);
+						textField.setText("cmd /c " + commandText); //$NON-NLS-1$
 					} else {
 						textField.setText(commandText);
 					}
