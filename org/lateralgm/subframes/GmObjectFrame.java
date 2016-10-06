@@ -162,11 +162,11 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 		JPanel eventButtonPane = new JPanel(new BorderLayout());
 
-		eventModify = new JButton(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
+		eventModify = new JButton(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1$
 		eventModify.addActionListener(this);
 		eventModify.setToolTipText(Messages.getString("GmObjectFrame.MODIFY_EVENT")); //$NON-NLS-1$
 
-		eventEdit = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
+		eventEdit = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1$
 		eventEdit.addActionListener(this);
 		eventEdit.setToolTipText(Messages.getString("GmObjectFrame.EDIT_EVENT")); //$NON-NLS-1$
 
@@ -248,35 +248,35 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		{
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder(
-				Messages.getString("GmObjectFrame.PHYSICS_PROPERTIES")));
+				Messages.getString("GmObjectFrame.PHYSICS_PROPERTIES"))); //$NON-NLS-1$
 
-		JCheckBox awakeCB = new JCheckBox(Messages.getString("GmObjectFrame.AWAKE"));
+		JCheckBox awakeCB = new JCheckBox(Messages.getString("GmObjectFrame.AWAKE")); //$NON-NLS-1$
 		plf.make(awakeCB,PGmObject.PHYSICS_AWAKE);
-		JCheckBox kinematicCB = new JCheckBox(Messages.getString("GmObjectFrame.KINEMATIC"));
+		JCheckBox kinematicCB = new JCheckBox(Messages.getString("GmObjectFrame.KINEMATIC")); //$NON-NLS-1$
 		plf.make(kinematicCB,PGmObject.PHYSICS_KINEMATIC);
-		JCheckBox sensorCB = new JCheckBox(Messages.getString("GmObjectFrame.SENSOR"));
+		JCheckBox sensorCB = new JCheckBox(Messages.getString("GmObjectFrame.SENSOR")); //$NON-NLS-1$
 		plf.make(sensorCB,PGmObject.PHYSICS_SENSOR);
 
-		JLabel densityLabel = new JLabel(Messages.getString("GmObjectFrame.DENSITY"));
+		JLabel densityLabel = new JLabel(Messages.getString("GmObjectFrame.DENSITY")); //$NON-NLS-1$
 		NumberField densityField = new NumberField(0.0);
 		plf.make(densityField,PGmObject.PHYSICS_DENSITY);
-		JLabel restLabel = new JLabel(Messages.getString("GmObjectFrame.RESTITUTION"));
+		JLabel restLabel = new JLabel(Messages.getString("GmObjectFrame.RESTITUTION")); //$NON-NLS-1$
 		NumberField restField = new NumberField(0.0);
 		plf.make(restField,PGmObject.PHYSICS_RESTITUTION);
-		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP"));
+		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP")); //$NON-NLS-1$
 		NumberField groupField = new NumberField(0);
 		plf.make(groupField,PGmObject.PHYSICS_GROUP);
-		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_LINEAR"));
+		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_LINEAR")); //$NON-NLS-1$
 		NumberField linearField = new NumberField(0.0);
 		plf.make(linearField,PGmObject.PHYSICS_DAMPING_LINEAR);
-		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_ANGULAR"));
+		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_ANGULAR")); //$NON-NLS-1$
 		NumberField angularField = new NumberField(0.0);
 		plf.make(angularField,PGmObject.PHYSICS_DAMPING_ANGULAR);
-		JLabel frictionLabel = new JLabel(Messages.getString("GmObjectFrame.FRICTION"));
+		JLabel frictionLabel = new JLabel(Messages.getString("GmObjectFrame.FRICTION")); //$NON-NLS-1$
 		NumberField frictionField = new NumberField(0.0);
 		plf.make(frictionField,PGmObject.PHYSICS_FRICTION);
 
-		JButton shapeBT = new JButton(Messages.getString("GmObjectFrame.COLLISION_SHAPE"));
+		JButton shapeBT = new JButton(Messages.getString("GmObjectFrame.COLLISION_SHAPE")); //$NON-NLS-1$
 
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateContainerGaps(true);
@@ -970,8 +970,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 		MDIFrame af = ActionList.openActionFrame(actions.parent.get(),a);
 		EventInstanceNode evnode = (EventInstanceNode) events.getLastSelectedPathComponent();
-		af.setTitle(this.name.getText() + " : " + evnode.toString());
-		af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId));
+		af.setTitle(this.name.getText() + " : " + evnode.toString()); //$NON-NLS-1$
+		af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId)); //$NON-NLS-1$
 		return;
 		}
 
@@ -1074,7 +1074,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			if (value instanceof EventInstanceNode)
 				mid = ((EventInstanceNode) value).getUserObject().mainId;
 			if (value instanceof EventGroupNode) mid = ((EventGroupNode) value).mainId;
-			Icon i = LGM.getIconForKey("EventNode." + (leaf ? "EVENT" : "GROUP") + mid);
+			Icon i = LGM.getIconForKey("EventNode." + (leaf ? "EVENT" : "GROUP") + mid); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (i != null && i.getIconWidth() != -1) setIcon(i);
 			return this;
 			}
@@ -1099,24 +1099,24 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 					events.setSelectionPath(path);
 
 					JPopupMenu menu = new JPopupMenu();
-					eventModifyItem = new JMenu(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
+					eventModifyItem = new JMenu(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1$
 					menu.add(eventModifyItem);
 					eventModifyItem.addActionListener(GmObjectFrame.this);
 
-					eventAddItem = new JMenuItem(Messages.getString("GmObjectFrame.ADD")); //$NON-NLS-1
+					eventAddItem = new JMenuItem(Messages.getString("GmObjectFrame.ADD")); //$NON-NLS-1$
 					eventModifyItem.add(eventAddItem);
 					eventAddItem.addActionListener(GmObjectFrame.this);
-					eventReplaceItem = new JMenuItem(Messages.getString("GmObjectFrame.REPLACE")); //$NON-NLS-1
+					eventReplaceItem = new JMenuItem(Messages.getString("GmObjectFrame.REPLACE")); //$NON-NLS-1$
 					eventModifyItem.add(eventReplaceItem);
 					eventReplaceItem.addActionListener(GmObjectFrame.this);
-					eventDuplicateItem = new JMenuItem(Messages.getString("GmObjectFrame.DUPLICATE")); //$NON-NLS-1
+					eventDuplicateItem = new JMenuItem(Messages.getString("GmObjectFrame.DUPLICATE")); //$NON-NLS-1$
 					eventModifyItem.add(eventDuplicateItem);
 					eventDuplicateItem.addActionListener(GmObjectFrame.this);
 
-					eventEditItem = new JMenuItem(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
+					eventEditItem = new JMenuItem(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1$
 					menu.add(eventEditItem);
 					eventEditItem.addActionListener(GmObjectFrame.this);
-					eventDeleteItem = new JMenuItem(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1
+					eventDeleteItem = new JMenuItem(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
 					menu.add(eventDeleteItem);
 					eventDeleteItem.addActionListener(GmObjectFrame.this);
 					menu.show(e.getComponent(),e.getX(),e.getY());

@@ -61,7 +61,8 @@ public class ErrorDialog extends JDialog implements ActionListener
 
 	public static String generateAgnosticInformation()
 		{
-		String ret = "Operating System: " + System.getProperty("os.name");
+		String ret = "LateralGM Version: " + LGM.version + '\n';
+		ret += "\nOperating System: " + System.getProperty("os.name");
 		ret += "\nVersion: " + System.getProperty("os.version");
 		ret += "\nArchitecture: " + System.getProperty("os.arch");
 

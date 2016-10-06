@@ -662,9 +662,9 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 				Messages.getString("GameSettingFrame.ICO_FILES"),".ico")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		JPanel versionPanel = new JPanel();
-		versionPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.VERSION_INFORMATION")));
+		versionPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString("GameSettingFrame.VERSION_INFORMATION"))); //$NON-NLS-1$
 
-		JLabel versionLabel = new JLabel(Messages.getString("GameSettingFrame.VERSION"));
+		JLabel versionLabel = new JLabel(Messages.getString("GameSettingFrame.VERSION")); //$NON-NLS-1$
 		versionMajorField = new NumberField(0);
 		plf.make(versionMajorField,PGameSettings.VERSION_MAJOR);
 		versionMinorField = new NumberField(0);
@@ -673,17 +673,17 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		plf.make(versionReleaseField,PGameSettings.VERSION_RELEASE);
 		versionBuildField = new NumberField(0);
 		plf.make(versionBuildField,PGameSettings.VERSION_BUILD);
-		JLabel companyLabel = new JLabel(Messages.getString("GameSettingFrame.COMPANY"));
-		companyField = new JTextField("");
+		JLabel companyLabel = new JLabel(Messages.getString("GameSettingFrame.COMPANY")); //$NON-NLS-1$
+		companyField = new JTextField();
 		plf.make(companyField.getDocument(),PGameSettings.COMPANY);
-		JLabel productLabel = new JLabel(Messages.getString("GameSettingFrame.PRODUCT"));
-		productField = new JTextField("");
+		JLabel productLabel = new JLabel(Messages.getString("GameSettingFrame.PRODUCT")); //$NON-NLS-1$
+		productField = new JTextField();
 		plf.make(productField.getDocument(),PGameSettings.PRODUCT);
-		JLabel copyrightLabel = new JLabel(Messages.getString("GameSettingFrame.COPYRIGHT"));
-		copyrightField = new JTextField("");
+		JLabel copyrightLabel = new JLabel(Messages.getString("GameSettingFrame.COPYRIGHT")); //$NON-NLS-1$
+		copyrightField = new JTextField();
 		plf.make(copyrightField.getDocument(),PGameSettings.COPYRIGHT);
-		JLabel descriptionLabel = new JLabel(Messages.getString("GameSettingFrame.DESCRIPTION"));
-		descriptionField = new JTextField("");
+		JLabel descriptionLabel = new JLabel(Messages.getString("GameSettingFrame.DESCRIPTION")); //$NON-NLS-1$
+		descriptionField = new JTextField();
 		plf.make(descriptionField.getDocument(),PGameSettings.DESCRIPTION);
 
 		GroupLayout vl = new GroupLayout(versionPanel);
@@ -777,12 +777,13 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		t = Messages.getString("GameSettingFrame.BUTTON_DISCARD"); //$NON-NLS-1$
 		discardButton = new JButton(t);
 		discardButton.addActionListener(this);
-		discardButton.setIcon(LGM.getIconForKey("GameSettingFrame.BUTTON_DISCARD"));
+		discardButton.setIcon(LGM.getIconForKey("GameSettingFrame.BUTTON_DISCARD")); //$NON-NLS-1$
 		// make discard button the height as save, Win32 look and feel makes
 		// buttons with icons 2x as tall
 		discardButton.setMinimumSize(save.getMaximumSize());
 
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Preferences");
+		// this is never visible, so no need to translate it
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("root"); //$NON-NLS-1$
 
 		tree = new JTree(new DefaultTreeModel(root));
 		tree.setEditable(false);
@@ -856,22 +857,23 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		{
 		cardPane = new JPanel(new CardLayout());
 
-		buildTab(root, "GameSettingFrame.TAB_GRAPHICS", makeGraphicsPane());
-		buildTab(root, "GameSettingFrame.TAB_RESOLUTION", makeResolutionPane());
-		buildTab(root, "GameSettingFrame.TAB_OTHER", makeOtherPane());
-		buildTab(root, "GameSettingFrame.TAB_LOADING", makeLoadingPane());
-		buildTab(root, "GameSettingFrame.TAB_INCLUDE", makeIncludePane());
-		buildTab(root, "GameSettingFrame.TAB_ERRORS", makeErrorPane());
-		buildTab(root, "GameSettingFrame.TAB_INFO", makeInfoPane());
-		buildTab(root, "GameSettingFrame.TAB_TEXTUREATLASES", makeTextureAtlasesPane());
+		buildTab(root, "GameSettingFrame.TAB_GRAPHICS", makeGraphicsPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_RESOLUTION", makeResolutionPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_OTHER", makeOtherPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_LOADING", makeLoadingPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_INCLUDE", makeIncludePane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_ERRORS", makeErrorPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_INFO", makeInfoPane()); //$NON-NLS-1$
+		buildTab(root, "GameSettingFrame.TAB_TEXTUREATLASES", makeTextureAtlasesPane()); //$NON-NLS-1$
 
-		DefaultMutableTreeNode pnode = buildTab(root, "GameSettingFrame.TAB_PLATFORMS", null);
+		DefaultMutableTreeNode pnode = buildTab(root, "GameSettingFrame.TAB_PLATFORMS", null); //$NON-NLS-1$
 
-		buildTab(pnode, "GameSettingFrame.TAB_WINDOWS", makeWindowsPane());
-		buildTab(pnode, "GameSettingFrame.TAB_MAC", null);
-		buildTab(pnode, "GameSettingFrame.TAB_UBUNTU", null);
+		buildTab(pnode, "GameSettingFrame.TAB_WINDOWS", makeWindowsPane()); //$NON-NLS-1$
+		buildTab(pnode, "GameSettingFrame.TAB_MAC", null); //$NON-NLS-1$
+		buildTab(pnode, "GameSettingFrame.TAB_UBUNTU", null); //$NON-NLS-1$
 		}
 
+	@Override
 	public void actionPerformed(ActionEvent e)
 		{
 		super.actionPerformed(e);
@@ -891,16 +893,15 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 			}
 		}
 		if (name == null) return;
-		if (name.endsWith(".TAB_GRAPHICS")) {
+		if (name.endsWith(".TAB_GRAPHICS")) { //$NON-NLS-1$
 			if (e.getSource() instanceof JRadioButton) scale.setEnabled(scaling.getValue() > 0);
-		} else if (name.endsWith(".TAB_RESOLUTION")) {
+		} else if (name.endsWith(".TAB_RESOLUTION")) { //$NON-NLS-1$
 			resolutionPane.setVisible(setResolution.isSelected());
-		} else if (name.endsWith(".TAB_LOADING")) {
+		} else if (name.endsWith(".TAB_LOADING")) { //$NON-NLS-1$
 			loadActionPerformed(e);
-		} else if (name.endsWith(".TAB_WINDOWS")) {
+		} else if (name.endsWith(".TAB_WINDOWS")) { //$NON-NLS-1$
 			windowsActionPerformed(e);
 		}
-
 		}
 
 	private void windowsActionPerformed(ActionEvent e)

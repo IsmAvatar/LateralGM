@@ -33,7 +33,7 @@ public class GmMenu extends JMenu
 
 	public GmMenu()
 		{
-		// TODO Auto-generated constructor stub
+		super();
 		}
 
 	public JMenuItem addItem(String key)
@@ -70,7 +70,6 @@ public class GmMenu extends JMenu
 			item.setIcon(LGM.getIconForKey(key));
 			item.setActionCommand(key);
 			}
-		//item.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString(key)));
 		item.addActionListener(listener);
 		add(item);
 		return item;

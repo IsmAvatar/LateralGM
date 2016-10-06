@@ -47,8 +47,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -139,7 +141,7 @@ public final class GMXFileWriter
 		}
 
 	public static void writeProjectFile(OutputStream os, ProjectFile f, ResNode rootRes, int ver)
-			throws IOException,GmFormatException,TransformerException
+			throws IOException,GmFormatException
 		{
 		f.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
 		long savetime = System.currentTimeMillis();
@@ -211,9 +213,9 @@ public final class GMXFileWriter
 			// send DOM to file
 			tr.transform(new DOMSource(dom),new StreamResult(os));
 			}
-		catch (TransformerException te)
+		catch (Exception e)
 			{
-			throw new GmFormatException(f,te);
+			throw new GmFormatException(f,e);
 			}
 		finally
 			{
@@ -273,8 +275,64 @@ public final class GMXFileWriter
 			return noneval;
 		}
 
-	public static void writeConfigurations(ProjectFileContext c, Element root, long savetime) throws IOException,
-			TransformerException
+	private static void transformDocumentWrapped(ProjectFile f, Document document, File file) throws GmFormatException
+		{
+		FileOutputStream fos = null;
+		try
+			{
+			Transformer tr = TransformerFactory.newInstance().newTransformer();
+			tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
+			tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
+
+			tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			file.getParentFile().mkdirs();
+			fos = new FileOutputStream(file);
+			tr.transform(new DOMSource(document),new StreamResult(fos));
+			}
+		catch (TransformerConfigurationException e)
+			{
+			throw new GmFormatException(f, "failed to configure transformer: " + file.getAbsolutePath(), e);
+			}
+		catch (TransformerFactoryConfigurationError e)
+			{
+			throw new GmFormatException(f, "failed to configure transformer factory: " + file.getAbsolutePath(), e);
+			}
+		catch (TransformerException e)
+			{
+			throw new GmFormatException(f, "failed to transform: " + file.getAbsolutePath(), e);
+			}
+		catch (FileNotFoundException e)
+			{
+			throw new GmFormatException(f, "file not found: " + file.getAbsolutePath(), e);
+			}
+		finally
+			{
+			if (fos != null)
+				try
+					{
+					fos.close();
+					}
+				catch (IOException e)
+					{
+					throw new GmFormatException(f, "failed to close: " + file.getAbsolutePath(), e);
+					}
+			}
+		}
+
+	private static void transformDocumentUnchecked(ProjectFile f, Document document, File file)
+		{
+			try
+				{
+				transformDocumentWrapped(f, document, file);
+				}
+			catch (GmFormatException e)
+				{
+				LGM.showDefaultExceptionHandler(e);
+				}
+		}
+
+	public static void writeConfigurations(ProjectFileContext c, Element root, long savetime)
 		{
 		Document mdom = c.dom;
 		ProjectFile f = c.f;
@@ -288,10 +346,10 @@ public final class GMXFileWriter
 			setNode.setTextContent("Configs\\" + gs.getName()); //$NON-NLS-1$
 			conNode.appendChild(setNode);
 
-			Document dom = documentBuilder.newDocument();
-			Element nconNode = dom.createElement("Config"); //$NON-NLS-1$
-			dom.appendChild(nconNode);
-			Element optNode = dom.createElement("Options"); //$NON-NLS-1$
+			Document doc = documentBuilder.newDocument();
+			Element nconNode = doc.createElement("Config"); //$NON-NLS-1$
+			doc.appendChild(nconNode);
+			Element optNode = doc.createElement("Options"); //$NON-NLS-1$
 			nconNode.appendChild(optNode);
 
 			// For some odd reason these two settings are combined together.
@@ -309,133 +367,134 @@ public final class GMXFileWriter
 				{
 				syncvertex += 2147483648L;
 				}
-			optNode.appendChild(createElement(dom,"option_sync_vertex",Long.toString(syncvertex))); //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_sync_vertex",Long.toString(syncvertex))); //$NON-NLS-1$
 
-			optNode.appendChild(createElement(dom,"option_fullscreen", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_fullscreen", //$NON-NLS-1$
 					gs.get(PGameSettings.START_FULLSCREEN).toString()));
-			optNode.appendChild(createElement(dom,"option_sizeable", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_sizeable", //$NON-NLS-1$
 					gs.get(PGameSettings.ALLOW_WINDOW_RESIZE).toString()));
-			optNode.appendChild(createElement(dom,"option_stayontop", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_stayontop", //$NON-NLS-1$
 					gs.get(PGameSettings.ALWAYS_ON_TOP).toString()));
-			optNode.appendChild(createElement(dom,"option_aborterrors", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_aborterrors", //$NON-NLS-1$
 					gs.get(PGameSettings.ABORT_ON_ERROR).toString()));
 
-			optNode.appendChild(createElement(dom,"option_noscreensaver", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_noscreensaver", //$NON-NLS-1$
 					gs.get(PGameSettings.DISABLE_SCREENSAVERS).toString()));
-			optNode.appendChild(createElement(dom,"option_showcursor", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_showcursor", //$NON-NLS-1$
 					gs.get(PGameSettings.DISPLAY_CURSOR).toString()));
-			optNode.appendChild(createElement(dom,"option_displayerrors", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_displayerrors", //$NON-NLS-1$
 					gs.get(PGameSettings.DISPLAY_ERRORS).toString()));
-			optNode.appendChild(createElement(dom,"option_noborder", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_noborder", //$NON-NLS-1$
 					gs.get(PGameSettings.DONT_DRAW_BORDER).toString()));
-			optNode.appendChild(createElement(dom,"option_nobuttons", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_nobuttons", //$NON-NLS-1$
 					gs.get(PGameSettings.DONT_SHOW_BUTTONS).toString()));
-			optNode.appendChild(createElement(dom,"option_argumenterrors", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_argumenterrors", //$NON-NLS-1$
 					gs.get(PGameSettings.ERROR_ON_ARGS).toString()));
-			optNode.appendChild(createElement(dom,"option_freeze", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_freeze", //$NON-NLS-1$
 					gs.get(PGameSettings.FREEZE_ON_LOSE_FOCUS).toString()));
 
-			optNode.appendChild(createElement(dom,"option_colordepth", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_colordepth", //$NON-NLS-1$
 					ProjectFile.GS_DEPTH_CODE.get(gs.get(PGameSettings.COLOR_DEPTH)).toString()));
 
-			optNode.appendChild(createElement(dom,"option_frequency", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_frequency", //$NON-NLS-1$
 					ProjectFile.GS_FREQ_CODE.get(gs.get(PGameSettings.FREQUENCY)).toString()));
-			optNode.appendChild(createElement(dom,"option_resolution", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_resolution", //$NON-NLS-1$
 					ProjectFile.GS_RESOL_CODE.get(gs.get(PGameSettings.RESOLUTION)).toString()));
-			optNode.appendChild(createElement(dom,"option_changeresolution", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_changeresolution", //$NON-NLS-1$
 					gs.get(PGameSettings.SET_RESOLUTION).toString()));
 			optNode.appendChild(createElement(
-					dom,
+					doc,
 					"option_priority", //$NON-NLS-1$
 					ProjectFile.GS_PRIORITY_CODE.get(gs.get(PGameSettings.GAME_PRIORITY)).toString()));
 
-			optNode.appendChild(createElement(dom,"option_closeesc", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_closeesc", //$NON-NLS-1$
 					gs.get(PGameSettings.LET_ESC_END_GAME).toString()));
-			optNode.appendChild(createElement(dom,"option_interpolate", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_interpolate", //$NON-NLS-1$
 					gs.get(PGameSettings.INTERPOLATE).toString()));
-			optNode.appendChild(createElement(dom,"option_scale", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_scale", //$NON-NLS-1$
 					gs.get(PGameSettings.SCALING).toString()));
-			optNode.appendChild(createElement(dom,"option_closeesc", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_closeesc", //$NON-NLS-1$
 					gs.get(PGameSettings.TREAT_CLOSE_AS_ESCAPE).toString()));
 			gs.put(PGameSettings.LAST_CHANGED,ProjectFile.longTimeToGmTime(savetime));
-			optNode.appendChild(createElement(dom,"option_lastchanged", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_lastchanged", //$NON-NLS-1$
 					gs.get(PGameSettings.LAST_CHANGED).toString()));
 
-			optNode.appendChild(createElement(dom,"option_gameid", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_gameid", //$NON-NLS-1$
 					gs.get(PGameSettings.GAME_ID).toString()));
 			String guid = HexBin.encode((byte[]) gs.get(PGameSettings.GAME_GUID));
-			optNode.appendChild(createElement(dom,"option_gameguid", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_gameguid", //$NON-NLS-1$
 					'{' + guid.substring(0,8) + '-' + guid.substring(8,12) + '-' + guid.substring(12,16) + '-'
 							+ guid.substring(16,20) + '-' + guid.substring(20,32) + '}'));
 
-			optNode.appendChild(createElement(dom,"option_author", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_author", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.AUTHOR)));
-			optNode.appendChild(createElement(dom,"option_version_company", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_version_company", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.COMPANY)));
-			optNode.appendChild(createElement(dom,"option_version_copyright", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_version_copyright", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.COPYRIGHT)));
-			optNode.appendChild(createElement(dom,"option_version_description", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_version_description", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.DESCRIPTION)));
-			optNode.appendChild(createElement(dom,"option_version_product", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_version_product", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.PRODUCT)));
-			optNode.appendChild(createElement(dom,"option_information", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_information", //$NON-NLS-1$
 					(String) gs.get(PGameSettings.INFORMATION)));
-			optNode.appendChild(createElement(dom,"option_version", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_version", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION).toString()));
-			optNode.appendChild(createElement(dom,"option_version_build", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_version_build", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION_BUILD).toString()));
-			optNode.appendChild(createElement(dom,"option_version_major", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_version_major", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION_MAJOR).toString()));
-			optNode.appendChild(createElement(dom,"option_version_minor", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_version_minor", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION_MINOR).toString()));
-			optNode.appendChild(createElement(dom,"option_version_release", //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_version_release", //$NON-NLS-1$
 					gs.get(PGameSettings.VERSION_RELEASE).toString()));
 
-			Element cce = dom.createElement("ConfigConstants"); //$NON-NLS-1$
-			writeConstants(gs.constants, dom, cce);
+			Element cce = doc.createElement("ConfigConstants"); //$NON-NLS-1$
+			writeConstants(gs.constants, doc, cce);
 			nconNode.appendChild(cce);
 
-			String icoPath = "Configs\\Default\\windows\\runner_icon.ico"; //$NON-NLS-1$
-			optNode.appendChild(createElement(dom,"option_windows_game_icon",icoPath)); //$NON-NLS-1$
+			String iconPath = "Configs\\Default\\windows\\runner_icon.ico"; //$NON-NLS-1$
+			optNode.appendChild(createElement(doc,"option_windows_game_icon",iconPath)); //$NON-NLS-1$
 
-			icoPath = f.getDirectory() + '\\' + icoPath;
-			File file = new File(Util.getPOSIXPath(icoPath)).getParentFile();
-			file.mkdirs();
+			iconPath = f.getDirectory() + '\\' + iconPath;
+			File iconFile = new File(Util.getPOSIXPath(iconPath));
+			iconFile.getParentFile().mkdirs();
 
-			FileOutputStream fos = new FileOutputStream(Util.getPOSIXPath(icoPath));
-			((ICOFile) gs.get(PGameSettings.GAME_ICON)).write(fos);
-			fos.close();
-
-			fos = null;
+			FileOutputStream fos = null;
 			try
 				{
-				Transformer tr = TransformerFactory.newInstance().newTransformer();
-				tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
-				tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
-				;
-				tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
-
-				file = new File(Util.getPOSIXPath(f.getDirectory() + "/Configs")); //$NON-NLS-1$
-				file.mkdir();
-
-				// send DOM to file
-				fos = new FileOutputStream(Util.getPOSIXPath(f.getDirectory() + "/Configs/" + gs.getName() + ".config.gmx")); //$NON-NLS-1$ //$NON-NLS-2$
-				tr.transform(new DOMSource(dom),new StreamResult(fos));
+				fos = new FileOutputStream(iconFile);
+				((ICOFile) gs.get(PGameSettings.GAME_ICON)).write(fos);
+				}
+			catch (IOException e)
+				{
+				LGM.showDefaultExceptionHandler(new GmFormatException(f, "failed to write: " + iconPath, e));
 				}
 			finally
 				{
-				fos.close();
+				try
+					{
+					fos.close();
+					}
+				catch (IOException e)
+					{
+					LGM.showDefaultExceptionHandler(new GmFormatException(f, "failed to close: " + iconPath, e));
+					}
 				}
+
+			transformDocumentUnchecked(
+					f, doc, new File(
+							Util.getPOSIXPath(f.getDirectory() + "/Configs/" + gs.getName() + ".config.gmx")));  //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return;
 		}
 
-	public static void writeTriggers(ProjectFile f, ResNode root, int ver) throws IOException
+	public static void writeTriggers(ProjectFile f, ResNode root, int ver)
 		{
 		// TODO: Implement
 		}
 
-	public static void writeConstants(Constants cnsts, Document dom, Element node) throws IOException
+	public static void writeConstants(Constants cnsts, Document dom, Element node)
 		{
 			Element base = dom.createElement("constants"); //$NON-NLS-1$
 			base.setAttribute("number",Integer.toString(cnsts.constants.size())); //$NON-NLS-1$
@@ -448,13 +507,13 @@ public final class GMXFileWriter
 			node.appendChild(base);
 		}
 
-	public static void writeDefaultConstants(ProjectFileContext c, Element root) throws IOException
+	public static void writeDefaultConstants(ProjectFileContext c, Element root)
 		{
 			writeConstants(c.f.defaultConstants, c.dom, root);
 		}
 
 	private static void iterateSprites(ProjectFileContext c, ResNode root, Element node)
-			throws IOException,TransformerException
+			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
@@ -544,31 +603,15 @@ public final class GMXFileWriter
 						}
 					sprroot.appendChild(frameroot);
 
-					FileOutputStream fos = null;
-					try
-						{
-						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
-						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
-						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
-
-						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + spr.getName() + ".sprite.gmx")); //$NON-NLS-1$
-						tr.transform(new DOMSource(doc),new StreamResult(fos));
-						}
-					finally
-						{
-						fos.close();
-						}
+					transformDocumentUnchecked(
+							f, doc, new File(Util.getPOSIXPath(fname + spr.getName() + ".sprite.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
 			}
 		}
 
-	public static void writeSprites(ProjectFileContext c, Element root) throws IOException,
-			TransformerException
+	public static void writeSprites(ProjectFileContext c, Element root) throws IOException
 		{
 		Document dom = c.dom;
 
@@ -586,7 +629,7 @@ public final class GMXFileWriter
 		}
 
 	private static void iterateSounds(ProjectFileContext c, ResNode root, Element node)
-			throws IOException,TransformerException
+			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
@@ -682,32 +725,16 @@ public final class GMXFileWriter
 					sndroot.appendChild(createElement(doc,"data",snd.getName() + ftype)); //$NON-NLS-1$
 					Util.writeBinaryFile(fname + "audio\\" + snd.getName() + ftype,snd.data); //$NON-NLS-1$
 
-					FileOutputStream fos = null;
-					try
-						{
-						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
-						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
-						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
-
-						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + resNode.getUserObject().toString()
-								+ ".sound.gmx")); //$NON-NLS-1$
-						tr.transform(new DOMSource(doc),new StreamResult(fos));
-						}
-					finally
-						{
-						fos.close();
-						}
+					transformDocumentUnchecked(
+							f, doc, new File(
+									Util.getPOSIXPath(fname + resNode.getUserObject().toString() + ".sound.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
 			}
 		}
 
-	public static void writeSounds(ProjectFileContext c, Element root) throws IOException,
-			TransformerException
+	public static void writeSounds(ProjectFileContext c, Element root) throws IOException
 		{
 		Document dom = c.dom;
 
@@ -724,7 +751,7 @@ public final class GMXFileWriter
 		}
 
 	private static void iterateBackgrounds(ProjectFileContext c, ResNode root, Element node)
-			throws IOException,TransformerException
+			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
@@ -799,32 +826,17 @@ public final class GMXFileWriter
 						ImageIO.write(bkg.getBackgroundImage(),"png",outputfile); //$NON-NLS-1$
 						}
 
-					FileOutputStream fos = null;
-					try
-						{
-						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
-						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
-						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
-
-						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + resNode.getUserObject().toString()
-								+ ".background.gmx")); //$NON-NLS-1$
-						tr.transform(new DOMSource(doc),new StreamResult(fos));
-						}
-					finally
-						{
-						fos.close();
-						}
+					transformDocumentUnchecked(
+							f, doc, new File(
+									Util.getPOSIXPath(
+											fname + resNode.getUserObject().toString() + ".background.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
 			}
 		}
 
-	public static void writeBackgrounds(ProjectFileContext c, Element root) throws IOException,
-			TransformerException
+	public static void writeBackgrounds(ProjectFileContext c, Element root) throws IOException
 		{
 		Document dom = c.dom;
 
@@ -841,8 +853,7 @@ public final class GMXFileWriter
 		iterateBackgrounds(c,getPrimaryNode(bkgList.first().getNode()),node);
 		}
 
-	private static void iteratePaths(ProjectFileContext c, ResNode root, Element node)
-			throws TransformerException,IOException
+	private static void iteratePaths(ProjectFileContext c, ResNode root, Element node) throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
@@ -902,30 +913,16 @@ public final class GMXFileWriter
 								p.getX() + "," + p.getY() + ',' + p.getSpeed())); //$NON-NLS-1$
 						}
 
-					FileOutputStream fos = null;
-					try
-						{
-						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
-						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
-
-						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + path.getName() + ".path.gmx")); //$NON-NLS-1$
-						tr.transform(new DOMSource(doc),new StreamResult(fos));
-						}
-					finally
-						{
-						fos.close();
-						}
+					transformDocumentUnchecked(
+							f, doc, new File(
+									Util.getPOSIXPath(fname + path.getName() + ".path.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
 			}
 		}
 
-	public static void writePaths(ProjectFileContext c, Element root) throws IOException,
-			TransformerException
+	public static void writePaths(ProjectFileContext c, Element root) throws IOException
 		{
 		Document dom = c.dom;
 
@@ -1088,7 +1085,7 @@ public final class GMXFileWriter
 		}
 
 	private static void iterateFonts(ProjectFileContext c, ResNode root, Element node)
-			throws IOException,TransformerException
+			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
@@ -1179,31 +1176,16 @@ public final class GMXFileWriter
 						}
 					*/
 
-					FileOutputStream fos = null;
-					try
-						{
-						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
-						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
-						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
-
-						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + fnt.getName() + ".font.gmx")); //$NON-NLS-1$
-						tr.transform(new DOMSource(doc),new StreamResult(fos));
-						}
-					finally
-						{
-						fos.close();
-						}
+					transformDocumentUnchecked(
+							f, doc, new File(
+									Util.getPOSIXPath(fname + fnt.getName() + ".font.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
 			}
 		}
 
-	public static void writeFonts(ProjectFileContext c, Element root) throws IOException,
-			TransformerException
+	public static void writeFonts(ProjectFileContext c, Element root) throws IOException
 		{
 		Document dom = c.dom;
 
@@ -1220,7 +1202,7 @@ public final class GMXFileWriter
 		}
 
 	private static void iterateTimelines(ProjectFileContext c, ResNode root, Element node)
-			throws IOException,TransformerException
+			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
@@ -1272,31 +1254,16 @@ public final class GMXFileWriter
 						writeActions(doc,evtroot,mom);
 						}
 
-					FileOutputStream fos = null;
-					try
-						{
-						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
-						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
-						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
-
-						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + timeline.getName() + ".timeline.gmx")); //$NON-NLS-1$
-						tr.transform(new DOMSource(doc),new StreamResult(fos));
-						}
-					finally
-						{
-						fos.close();
-						}
+					transformDocumentUnchecked(
+							f, doc, new File(
+									Util.getPOSIXPath(fname + timeline.getName() + ".timeline.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
 			}
 		}
 
-	public static void writeTimelines(ProjectFileContext c, Element root) throws IOException,
-			TransformerException
+	public static void writeTimelines(ProjectFileContext c, Element root) throws IOException
 		{
 		Document dom = c.dom;
 
@@ -1314,7 +1281,7 @@ public final class GMXFileWriter
 		}
 
 	private static void iterateGmObjects(ProjectFileContext c, ResNode root, Element node)
-			throws IOException,TransformerException
+			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
@@ -1424,33 +1391,16 @@ public final class GMXFileWriter
 						}
 					objroot.appendChild(pointsroot);
 
-					FileOutputStream fos = null;
-					try
-						{
-						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
-						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
-						;
-						tr.setOutputProperty(OutputKeys.ENCODING,"UTF-8"); //$NON-NLS-1$
-						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
-
-						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + object.getName() + ".object.gmx")); //$NON-NLS-1$
-						tr.transform(new DOMSource(doc),new StreamResult(fos));
-						}
-					finally
-						{
-						fos.close();
-						}
+					transformDocumentUnchecked(
+							f, doc, new File(
+									Util.getPOSIXPath(fname + object.getName() + ".object.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
 			}
 		}
 
-	public static void writeGmObjects(ProjectFileContext c, Element root) throws IOException,
-			TransformerException
+	public static void writeGmObjects(ProjectFileContext c, Element root) throws IOException
 		{
 		Document dom = c.dom;
 
@@ -1468,7 +1418,7 @@ public final class GMXFileWriter
 		}
 
 	private static void iterateRooms(ProjectFileContext c, ResNode root, Element node)
-			throws IOException,TransformerException
+			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
@@ -1560,7 +1510,7 @@ public final class GMXFileWriter
 					// Write Backgrounds
 					Element backroot = doc.createElement("backgrounds"); //$NON-NLS-1$
 					roomroot.appendChild(backroot);
-					for (BackgroundDef back : room.backgroundDefs) 
+					for (BackgroundDef back : room.backgroundDefs)
 						{
 						PropertyMap<PBackgroundDef> props = back.properties;
 						Element bckelement = doc.createElement("background"); //$NON-NLS-1$
@@ -1679,31 +1629,16 @@ public final class GMXFileWriter
 					roomroot.appendChild(createElement(doc,"PhysicsWorldPixToMeters", //$NON-NLS-1$
 						Double.toString((Double) room.get(PRoom.PHYSICS_PIXTOMETERS))));
 
-					FileOutputStream fos = null;
-					try
-						{
-						Transformer tr = TransformerFactory.newInstance().newTransformer();
-						tr.setOutputProperty(OutputKeys.INDENT,"yes"); //$NON-NLS-1$
-						tr.setOutputProperty(OutputKeys.METHOD,"xml"); //$NON-NLS-1$
-						;
-						tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2"); //$NON-NLS-1$ //$NON-NLS-2$
-
-						// send DOM to file
-						fos = new FileOutputStream(Util.getPOSIXPath(fname + room.getName() + ".room.gmx")); //$NON-NLS-1$
-						tr.transform(new DOMSource(doc),new StreamResult(fos));
-						}
-					finally
-						{
-						fos.close();
-						}
+					transformDocumentUnchecked(
+							f, doc, new File(
+									Util.getPOSIXPath(fname + room.getName() + ".room.gmx")));  //$NON-NLS-1$
 					break;
 				}
 			node.appendChild(res);
 			}
 		}
 
-	public static void writeRooms(ProjectFileContext c, Element root) throws IOException,
-			TransformerException
+	public static void writeRooms(ProjectFileContext c, Element root) throws IOException
 		{
 		Document dom = c.dom;
 
@@ -1719,12 +1654,12 @@ public final class GMXFileWriter
 		iterateRooms(c,getPrimaryNode(rmnList.first().getNode()),node);
 		}
 
-	public static void writeIncludedFiles(ProjectFileContext c, Element root) throws IOException
+	public static void writeIncludedFiles(ProjectFileContext c, Element root)
 		{
 		// TODO: Implement
 		}
 
-	public static void writePackages(ProjectFileContext c, Element root) throws IOException
+	public static void writePackages(ProjectFileContext c, Element root)
 		{
 		// TODO: Implement
 		}

@@ -63,7 +63,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 		setSize(700,430);
 		setLayout(new BorderLayout());
 
-		code = new CodeTextArea((String) res.get(PScript.CODE),MarkerCache.getMarker("gml"));
+		code = new CodeTextArea((String) res.get(PScript.CODE),MarkerCache.getMarker("gml")); //$NON-NLS-1$
 		add(code,BorderLayout.CENTER);
 
 		// Setup the toolbar
@@ -77,7 +77,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 
 		if (Prefs.useExternalScriptEditor) {
 			edit = new JButton(LGM.getIconForKey("ScriptFrame.EDIT")); //$NON-NLS-1$
-			edit.setToolTipText(Messages.getString("ScriptFrame.EDIT"));
+			edit.setToolTipText(Messages.getString("ScriptFrame.EDIT")); //$NON-NLS-1$
 			edit.addActionListener(this);
 			tool.add(edit);
 
@@ -178,10 +178,6 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
 				try
 					{
-					System.out.println(Desktop.getDesktop());
-					//					Desktop d = Desktop.getDesktop();
-					//					Desktop.Action.EDIT;
-					//					Toolkit.getDefaultToolkit().createDesktopPeer(d);
 					Desktop.getDesktop().edit(monitor.file);
 					}
 				catch (UnsupportedOperationException e)

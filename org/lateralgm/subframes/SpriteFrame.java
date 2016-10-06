@@ -114,7 +114,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> implements
-		MouseListener,UpdateListener,ValueChangeListener,ClipboardOwner, EffectsFrameListener
+		UpdateListener,ValueChangeListener,ClipboardOwner, EffectsFrameListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -240,26 +240,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		add(splitPane,BorderLayout.CENTER);
 		add(makeStatusBar(),BorderLayout.SOUTH);
 
-		mouseListener = new MouseListener()
+		mouseListener = new MouseAdapter()
 			{
-				@Override
-				public void mouseClicked(MouseEvent ev)
-					{
-					//preview.setCursor(LGM.zoomCursor);
-					}
-
-				@Override
-				public void mouseEntered(MouseEvent ev)
-					{
-					//preview.setCursor(LGM.zoomCursor);
-					}
-
-				@Override
-				public void mouseExited(MouseEvent ev)
-					{
-					//preview.setCursor(Cursor.getDefaultCursor());
-					}
-
 				@Override
 				public void mousePressed(MouseEvent ev)
 					{
@@ -341,7 +323,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.addSeparator();
 
 		zoomButton = new JToggleButton(ZOOM_ICON);
-		zoomButton.setToolTipText(Messages.getString("SpriteFrame.ZOOM"));
+		zoomButton.setToolTipText(Messages.getString("SpriteFrame.ZOOM")); //$NON-NLS-1$
 		zoomButton.addActionListener(this);
 		tool.add(zoomButton);
 
@@ -357,11 +339,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		tool.addSeparator();
 
-		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true);
+		showBbox = new JCheckBox(Messages.getString("SpriteFrame.SHOW_BBOX"),true); //$NON-NLS-1$
 		showBbox.addActionListener(this);
 		showBbox.setOpaque(false);
 		tool.add(showBbox);
-		showOrigin = new JCheckBox(Messages.getString("SpriteFrame.SHOW_ORIGIN"),true);
+		showOrigin = new JCheckBox(Messages.getString("SpriteFrame.SHOW_ORIGIN"),true); //$NON-NLS-1$
 		showOrigin.addActionListener(this);
 		showOrigin.setOpaque(false);
 		tool.add(showOrigin);
@@ -377,6 +359,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		speed.addValueChangeListener(this);
 		speed.addMouseListener(new MouseAdapter()
 			{
+				@Override
 				public void mouseClicked(MouseEvent e)
 					{
 					//works for all mouse buttons
@@ -813,29 +796,29 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		final JPopupMenu popup = new JPopupMenu();
 
-		popup.add(makeJMenuItem("SpriteFrame.EDIT"));
+		popup.add(makeJMenuItem("SpriteFrame.EDIT")); //$NON-NLS-1$
 
 		popup.addSeparator();
 
-		popup.add(makeJMenuItem("SpriteFrame.SELECT_ALL"));
+		popup.add(makeJMenuItem("SpriteFrame.SELECT_ALL")); //$NON-NLS-1$
 
 		JToolBar tool = new JToolBar();
 		tool.setFloatable(false);
 		pane.add(tool,BorderLayout.NORTH);
 
-		tool.add(makeJButton("SpriteFrame.ADD"));
-		tool.add(makeJButton("SpriteFrame.REMOVE"));
+		tool.add(makeJButton("SpriteFrame.ADD")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.REMOVE")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
-		tool.add(makeJButton("SpriteFrame.EDIT"));
-		tool.add(makeJButton("SpriteFrame.EFFECT"));
+		tool.add(makeJButton("SpriteFrame.EDIT")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.EFFECT")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
-		tool.add(makeJButton("SpriteFrame.CUT"));
-		tool.add(makeJButton("SpriteFrame.COPY"));
-		tool.add(makeJButton("SpriteFrame.PASTE"));
+		tool.add(makeJButton("SpriteFrame.CUT")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.COPY")); //$NON-NLS-1$
+		tool.add(makeJButton("SpriteFrame.PASTE")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
@@ -854,6 +837,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		show.addValueChangeListener(this);
 		show.setColumns(10);
 		show.setMaximumSize(show.getPreferredSize());
+		show.setToolTipText(Messages.getString("SpriteFrame.ANIM_SUBIMG")); //$NON-NLS-1$
 		//		show.setValue(0);
 		tool.add(show);
 
@@ -861,13 +845,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		subRight.addActionListener(this);
 		tool.add(subRight);
 
-		//JLabel lab = new JLabel(Messages.getString("SpriteFrame.ANIM_SUBIMG")); //$NON-NLS-1$
-
-		shiftBox = new JCheckBox(Messages.getString("SpriteFrame.SHIFT"),true);
+		shiftBox = new JCheckBox(Messages.getString("SpriteFrame.SHIFT"),true); //$NON-NLS-1$
 		shiftBox.setSelected(false);
 		shiftBox.setOpaque(false);
 		tool.add(shiftBox);
-		wrapBox = new JCheckBox(Messages.getString("SpriteFrame.WRAP"),true);
+		wrapBox = new JCheckBox(Messages.getString("SpriteFrame.WRAP"),true); //$NON-NLS-1$
 		wrapBox.setOpaque(false);
 		wrapBox.addItemListener(new ItemListener()
 			{
@@ -888,13 +870,25 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		tool.add(wrapBox);
 
 		subList = new JList<ImageIcon>();
+		currSub = subList.getSelectedIndex();
 		subList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		subList.setVisibleRowCount(-1);
 		subList.setBackground(Color.LIGHT_GRAY);
 		subList.setDragEnabled(true);
 		subList.setDropMode(DropMode.INSERT);
 		subList.setTransferHandler(new SubImageTransfer());
-		subList.addMouseListener(this);
+		subList.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e)
+				{
+				Object s = e.getSource();
+				if (e.getClickCount() == 2 && s == subList)
+					{
+					int i = subList.getSelectedIndex();
+					if (i == -1 || i >= res.subImages.size()) return;
+					editSubimage(res.subImages.get(i));
+					}
+				}
+		});
 		subList.setDragEnabled(true);
 
 		subList.addListSelectionListener(new ListSelectionListener()
@@ -1183,13 +1177,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			JPanel myPanel = new JPanel();
 			GridLayout layout = new GridLayout(0,2,0,3);
 			myPanel.setLayout(layout);
-			myPanel.add(new JLabel(Messages.getString("SpriteFrame.NEW_WIDTH")));
+			myPanel.add(new JLabel(Messages.getString("SpriteFrame.NEW_WIDTH"))); //$NON-NLS-1$
 			myPanel.add(wField);
-			myPanel.add(new JLabel(Messages.getString("SpriteFrame.NEW_HEIGHT")));
+			myPanel.add(new JLabel(Messages.getString("SpriteFrame.NEW_HEIGHT"))); //$NON-NLS-1$
 			myPanel.add(hField);
 
 			int result = JOptionPane.showConfirmDialog(this,
-					myPanel,Messages.getString("SpriteFrame.NEW_TITLE"),JOptionPane.OK_CANCEL_OPTION,
+					myPanel,Messages.getString("SpriteFrame.NEW_TITLE"),JOptionPane.OK_CANCEL_OPTION, //$NON-NLS-1$
 					JOptionPane.PLAIN_MESSAGE);
 			if (result == JOptionPane.CANCEL_OPTION)
 				{
@@ -1208,22 +1202,22 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public void editActionsPerformed(String cmd)
 		{
 		int pos = subList.getSelectedIndex();
-		if (cmd.endsWith(".UNDO"))
+		if (cmd.endsWith(".UNDO")) //$NON-NLS-1$
 			{
 
 			return;
 			}
-		else if (cmd.endsWith(".REDO"))
+		else if (cmd.endsWith(".REDO")) //$NON-NLS-1$
 			{
 
 			return;
 			}
-		else if (cmd.endsWith(".SELECT_ALL"))
+		else if (cmd.endsWith(".SELECT_ALL")) //$NON-NLS-1$
 			{
 			subList.setSelectionInterval(0,res.subImages.size() - 1);
 			return;
 			}
-		else if (cmd.endsWith(".CUT"))
+		else if (cmd.endsWith(".CUT")) //$NON-NLS-1$
 			{
 			int[] selections = subList.getSelectedIndices();
 			if (selections.length == 0)
@@ -1243,7 +1237,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			subList.setSelectedIndex(pos - 1);
 			return;
 			}
-		else if (cmd.endsWith(".COPY"))
+		else if (cmd.endsWith(".COPY")) //$NON-NLS-1$
 			{
 			int[] selections = subList.getSelectedIndices();
 			List<BufferedImage> images = new ArrayList<BufferedImage>(selections.length);
@@ -1256,7 +1250,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			clip.setContents(new TransferableImages(new ClipboardImages(images)),this);
 			return;
 			}
-		else if (cmd.endsWith(".PASTE"))
+		else if (cmd.endsWith(".PASTE")) //$NON-NLS-1$
 			{
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			Transferable content = clipboard.getContents(this);
@@ -1303,7 +1297,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				}
 			return;
 			}
-		else if (cmd.endsWith(".EFFECT")) {
+		else if (cmd.endsWith(".EFFECT")) { //$NON-NLS-1$
 			EffectsFrame ef = EffectsFrame.getInstance(getSelectedImages());
 			ef.setEffectsListener(this);
 			ef.setVisible(true);
@@ -1496,13 +1490,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			{
 			if (zoomButton.isSelected())
 				{
-				preview.enablemouse = false;
+				preview.enableMouse = false;
 				preview.setCursor(LGM.zoomCursor);
 				preview.addMouseListener(mouseListener);
 				}
 			else
 				{
-				preview.enablemouse = true;
+				preview.enableMouse = true;
 				preview.removeMouseListener(mouseListener);
 				preview.setCursor(Cursor.getDefaultCursor());
 				}
@@ -1725,17 +1719,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		}
 
-	public void mousePressed(MouseEvent e)
-		{
-		Object s = e.getSource();
-		if (e.getClickCount() == 2 && s == subList)
-			{
-			int i = subList.getSelectedIndex();
-			if (i == -1 || i >= res.subImages.size()) return;
-			editSubimage(res.subImages.get(i));
-			}
-		}
-
 	public void updated(UpdateEvent e)
 		{
 		updateStatusLabel();
@@ -1763,27 +1746,30 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			image = i;
 			f = File.createTempFile(res.getName(),"." + Prefs.externalSpriteExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
+			this.write();
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this,true);
 			if (editors == null) editors = new HashMap<BufferedImage,ImageEditor>();
 			editors.put(i,this);
-			start();
+			this.open();
 			}
 
-		public void start() throws IOException,UnsupportedOperationException
+		private void write() throws IOException
 			{
 			FileOutputStream out = null;
 			try
 				{
 				out = new FileOutputStream(f);
-				ImageIO.write(image,Prefs.externalSpriteExtension,out); //$NON-NLS-1$
+				ImageIO.write(image,Prefs.externalSpriteExtension,out);
 				}
 			finally
 				{
-				if (out != null) {
-					out.close();
+				if (out != null) out.close();
 				}
-				}
+			}
+
+		private void open() throws IOException
+			{
 			if (!Prefs.useExternalSpriteEditor || Prefs.externalSpriteEditorCommand == null)
 				try
 					{
@@ -1796,6 +1782,14 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			else
 				Runtime.getRuntime().exec(
 						String.format(Prefs.externalSpriteEditorCommand,monitor.file.getAbsolutePath()));
+			}
+
+		public void start() throws IOException,UnsupportedOperationException
+			{
+			monitor.beginReset();
+			this.write();
+			monitor.endReset();
+			this.open();
 			}
 
 		public void stop()
@@ -1862,23 +1856,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		if (editors != null)
 			for (ImageEditor ie : editors.values().toArray(new ImageEditor[editors.size()]))
 				ie.stop();
-		}
-
-	//unused
-	public void mouseClicked(MouseEvent e)
-		{ //unused
-		}
-
-	public void mouseEntered(MouseEvent e)
-		{ //unused
-		}
-
-	public void mouseExited(MouseEvent e)
-		{ //unused
-		}
-
-	public void mouseReleased(MouseEvent e)
-		{ //unused
 		}
 
 	public void lostOwnership(Clipboard arg0, Transferable arg1)

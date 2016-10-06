@@ -127,8 +127,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			setDefaultCloseOperation(HIDE_ON_CLOSE);
 			setLocationRelativeTo(LGM.getGameInfo());
 
-			setTitle(Messages.getString("GameInformationFrame.SETTINGS"));
-			setIconImage(LGM.getIconForKey("GameInformationFrame.SETTINGS").getImage());
+			setTitle(Messages.getString("GameInformationFrame.SETTINGS")); //$NON-NLS-1$
+			setIconImage(LGM.getIconForKey("GameInformationFrame.SETTINGS").getImage()); //$NON-NLS-1$
 			setResizable(false);
 			this.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 			this.add(makeSettings());
@@ -436,8 +436,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/*				*/.addComponent(lHeight)
 		/*				*/.addComponent(sHeight,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
 
-		JButton closeButton = new JButton(Messages.getString("GameInformationFrame.CLOSE"));
-		closeButton.setActionCommand("GameInformationFrame.CLOSE");
+		JButton closeButton = new JButton(Messages.getString("GameInformationFrame.CLOSE")); //$NON-NLS-1$
+		closeButton.setActionCommand("GameInformationFrame.CLOSE"); //$NON-NLS-1$
 		closeButton.addActionListener(this);
 
 		gl.setHorizontalGroup(gl.createParallelGroup()
@@ -521,7 +521,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 
 		revertResource();
 		//NOTE: DO not add the document listeners until the first time you set the text.
-		addDocumentListeners();
+		editor.getDocument().addUndoableEditListener(undoManager);
 
 		this.add(new JScrollPane(editor),BorderLayout.CENTER);
 
@@ -566,25 +566,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 
 		pack();
 		setSize(getWidth(), 480);
-		}
-
-	private void addDocumentListeners()
-		{
-		editor.getDocument().addDocumentListener(new DocumentListener()
-			{
-				public void removeUpdate(DocumentEvent e)
-					{
-					}
-
-				public void changedUpdate(DocumentEvent e)
-					{
-					}
-
-				public void insertUpdate(DocumentEvent e)
-					{
-					}
-			});
-		editor.getDocument().addUndoableEditListener(undoManager);
 		}
 
 	public void setEditorBackground(Color c)
@@ -927,6 +908,9 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		//the method will be flagged that we handled committing ourselves,
 		//and the changes wont actually get committed.
 		commitChanges();
+		// because we only clear the undo manager when showing or reverting the frame
+		// and load from file should not clear the undo manager
+		// we can simply check if the undo manager has any changes instead of using a document listener
 		if (undoManager.canUndo()) return true;
 		for (Entry<PGameInformation,Object> entry : res.properties.entrySet()) {
 			if (entry.getKey() != PGameInformation.TEXT &&
@@ -934,7 +918,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 						return true;
 			}
 		}
-		//TODO: We can not just check differences in the properties because Java sucks at formatting RTF
+		//NOTE: We can not just check differences in the properties because Java sucks at formatting RTF
 		//return !res.properties.equals(resOriginal.properties);
 		return false;
 		}
