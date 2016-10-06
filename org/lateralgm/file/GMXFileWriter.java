@@ -1560,7 +1560,7 @@ public final class GMXFileWriter
 					// Write Backgrounds
 					Element backroot = doc.createElement("backgrounds"); //$NON-NLS-1$
 					roomroot.appendChild(backroot);
-					for (BackgroundDef back : room.backgroundDefs) 
+					for (BackgroundDef back : room.backgroundDefs)
 						{
 						PropertyMap<PBackgroundDef> props = back.properties;
 						Element bckelement = doc.createElement("background"); //$NON-NLS-1$

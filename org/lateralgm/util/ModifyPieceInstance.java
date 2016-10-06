@@ -96,7 +96,7 @@ public class ModifyPieceInstance extends AbstractUndoableEdit
 		this.oldColor = oldColor;
 		this.newColor = newColor;
 		}
-	
+
 	private void selectPiece()
 		{
 		// Select the current piece

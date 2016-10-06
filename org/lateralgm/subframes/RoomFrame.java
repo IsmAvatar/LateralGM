@@ -1198,7 +1198,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		layout.setAutoCreateContainerGaps(true);
 		panel.setLayout(layout);
 
-		JLabel layer = new JLabel(Messages.getString("RoomFrame.CURRENT_TILE_LAYER"));
+		JLabel layer = new JLabel(Messages.getString("RoomFrame.CURRENT_TILE_LAYER")); //$NON-NLS-1$
 
 		Room currentRoom = editor.getRoom();
 
@@ -1226,22 +1226,22 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		tileLayer = new JComboBox<Integer>(layers);
 		tileLayer.setMaximumSize(new Dimension(Integer.MAX_VALUE,tileLayer.getHeight()));
 
-		addLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_ADD"));
+		addLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_ADD")); //$NON-NLS-1$
 		addLayer.addActionListener(this);
-		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE"));
+		deleteLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_DELETE")); //$NON-NLS-1$
 		deleteLayer.addActionListener(this);
-		changeLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_CHANGE"));
+		changeLayer = new JButton(Messages.getString("RoomFrame.TILE_LAYER_CHANGE")); //$NON-NLS-1$
 		changeLayer.addActionListener(this);
 
-		tHideOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_HIDE_OTHER_LAYERS"));
+		tHideOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_HIDE_OTHER_LAYERS")); //$NON-NLS-1$
 		tHideOtherLayers.addActionListener(this);
 
-		tEditOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_EDIT_OTHER_LAYERS"));
+		tEditOtherLayers = new JCheckBox(Messages.getString("RoomFrame.TILE_EDIT_OTHER_LAYERS")); //$NON-NLS-1$
 		tEditOtherLayers.addActionListener(this);
 
 		JTabbedPane tab = new JTabbedPane();
-		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane());
-		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane());
+		tab.addTab(Messages.getString("RoomFrame.TILE_ADD"),makeTilesAddPane()); //$NON-NLS-1$
+		tab.addTab(Messages.getString("RoomFrame.TILE_EDIT"),makeTilesEditPane()); //$NON-NLS-1$
 		tab.setSelectedIndex(0);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
@@ -1643,20 +1643,20 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		{
 		JPanel panel = new JPanel();
 
-		JCheckBox phyWorldCB = new JCheckBox(Messages.getString("RoomFrame.PHY_WORLD_ENABLED"));
+		JCheckBox phyWorldCB = new JCheckBox(Messages.getString("RoomFrame.PHY_WORLD_ENABLED")); //$NON-NLS-1$
 		plf.make(phyWorldCB,PRoom.PHYSICS_WORLD);
 
-		JLabel pixMetersLabel = new JLabel(Messages.getString("RoomFrame.PHY_PIXELSPERMETER"));
+		JLabel pixMetersLabel = new JLabel(Messages.getString("RoomFrame.PHY_PIXELSPERMETER")); //$NON-NLS-1$
 		NumberField pixMetersField = new NumberField(0.1000);
 		plf.make(pixMetersField,PRoom.PHYSICS_PIXTOMETERS);
 		pixMetersField.setColumns(16);
 
-		JLabel gravityXLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_X"));
+		JLabel gravityXLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_X")); //$NON-NLS-1$
 		NumberField gravityXField = new NumberField(0.0);
 		plf.make(gravityXField,PRoom.PHYSICS_GRAVITY_X);
 		gravityXField.setColumns(16);
 
-		JLabel gravityYLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_Y"));
+		JLabel gravityYLabel = new JLabel(Messages.getString("RoomFrame.PHY_GRAVITY_Y")); //$NON-NLS-1$
 		NumberField gravityYField = new NumberField(10.0);
 		plf.make(gravityYField,PRoom.PHYSICS_GRAVITY_Y);
 		gravityYField.setColumns(16);
@@ -2474,10 +2474,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (result == JOptionPane.OK_OPTION && newDepth != depth)
 				{
 				Room currentRoom = editor.getRoom();
-	
+
 				// Stores several actions in one compound action for the undo
 				//CompoundEdit compoundEdit = new CompoundEdit();
-	
+
 				// Update each tile with the selected layer
 				for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
 					{
@@ -2487,11 +2487,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						tile.setDepth(newDepth);
 						}
 					}
-	
+
 				//TODO: Save the action for the undo
 				//compoundEdit.end();
 				//undoSupport.postEdit(compoundEdit);
-	
+
 				// Replace the layer from the combo box
 				layers.remove(depth);
 				if (!layers.contains(newDepth)) layers.add(newDepth);

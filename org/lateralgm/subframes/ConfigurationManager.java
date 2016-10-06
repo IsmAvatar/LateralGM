@@ -253,7 +253,7 @@ public class ConfigurationManager extends JDialog implements ActionListener
 			GameSettings config = sel.clone();
 			int id = 0;
 			for (GameSettings cfg : LGM.currentFile.gameSettings) {
-				if (cfg.getName().startsWith("Configuration")) { 
+				if (cfg.getName().startsWith("Configuration")) {
 					id++;
 				}
 			}

@@ -256,13 +256,13 @@ public final class GMXFileReader
 		try
 			{
 			Document document = GMXFileReader.parseDocumentUnchecked(file, uri.toString());
-	
+
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
-	
+
 			JProgressBar progressBar = LGM.getProgressDialogBar();
 			progressBar.setMaximum(160);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING")); //$NON-NLS-1$
-	
+
 			LGM.setProgress(0,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
 			readSprites(c,root);
 			LGM.setProgress(10,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
@@ -295,12 +295,12 @@ public final class GMXFileReader
 			readConfigurations(c,root);
 			LGM.setProgress(150,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
 			readPackages(c,root);
-	
+
 			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 			// All resources read, now we can invoke our postponed references.
 			for (PostponedRef i : postpone)
 				i.invoke();
-	
+
 			LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
 			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
 					- startTime));
@@ -986,7 +986,7 @@ public final class GMXFileReader
 				node.add(rnode);
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
+				try (BufferedReader reader = new BufferedReader(new FileReader(path)))
 					{
 					String code = ""; //$NON-NLS-1$
 					String line = reader.readLine();
@@ -996,7 +996,7 @@ public final class GMXFileReader
 						line = reader.readLine();
 						if (line == null) continue;
 						}
-					do 
+					do
 						{
 						if (line.startsWith("#define")) //$NON-NLS-1$
 							{
@@ -1081,7 +1081,7 @@ public final class GMXFileReader
 				String code = ""; //$NON-NLS-1$
 				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-				try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
+				try (BufferedReader reader = new BufferedReader(new FileReader(path)))
 					{
 					String line = ""; //$NON-NLS-1$
 					while ((line = reader.readLine()) != null)
@@ -2030,7 +2030,7 @@ public final class GMXFileReader
 
 		String text = ""; //$NON-NLS-1$
 
-		try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
+		try (BufferedReader reader = new BufferedReader(new FileReader(path)))
 			{
 			String line = ""; //$NON-NLS-1$
 			while ((line = reader.readLine()) != null)
