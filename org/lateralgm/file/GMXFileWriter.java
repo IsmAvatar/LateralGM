@@ -308,7 +308,7 @@ public final class GMXFileWriter
 			}
 		finally
 			{
-			if (fos != null) 
+			if (fos != null)
 				try
 					{
 					fos.close();
