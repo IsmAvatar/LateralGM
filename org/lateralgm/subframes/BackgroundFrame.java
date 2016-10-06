@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -150,27 +151,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		preview = new BackgroundPreview(res);
 		preview.setVerticalAlignment(SwingConstants.TOP);
 
-		mouseListener = new MouseListener()
+		mouseListener = new MouseAdapter()
 			{
-
-				@Override
-				public void mouseClicked(MouseEvent ev)
-					{
-					//preview.setCursor(LGM.zoomCursor);
-					}
-
-				@Override
-				public void mouseEntered(MouseEvent ev)
-					{
-					//preview.setCursor(LGM.zoomCursor);
-					}
-
-				@Override
-				public void mouseExited(MouseEvent ev)
-					{
-					//preview.setCursor(Cursor.getDefaultCursor());
-					}
-
 				@Override
 				public void mousePressed(MouseEvent ev)
 					{
