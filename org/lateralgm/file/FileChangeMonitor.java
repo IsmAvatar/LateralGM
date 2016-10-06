@@ -47,8 +47,7 @@ public class FileChangeMonitor implements Runnable
 		executor = e;
 		changedRunnable = new UpdateRunnable(new FileUpdateEvent(updateSource,Flag.CHANGED));
 		deletedRunnable = new UpdateRunnable(new FileUpdateEvent(updateSource,Flag.DELETED));
-		lastModified = file.lastModified();
-		length = file.length();
+		endReset();
 		future = monitorService.scheduleWithFixedDelay(this,POLL_INTERVAL,POLL_INTERVAL,
 				TimeUnit.MILLISECONDS);
 		}
@@ -64,10 +63,24 @@ public class FileChangeMonitor implements Runnable
 		}
 
 	private long lastModified, length;
-	private boolean changed;
+	private boolean changed, isResetting;
 
+	public void beginReset()
+		{
+		isResetting = true;
+		}
+
+	public void endReset()
+		{
+		lastModified = file.lastModified();
+		length = file.length();
+		isResetting = false;
+		}
+
+	@Override
 	public void run()
 		{
+		if (isResetting) return;
 		if (!file.exists())
 			{
 			executor.execute(deletedRunnable);
@@ -109,6 +122,7 @@ public class FileChangeMonitor implements Runnable
 			event = e;
 			}
 
+		@Override
 		public void run()
 			{
 			trigger.fire(event);

@@ -220,7 +220,7 @@ public final class Util
 
 	public static String rectangleToString(Rectangle r)
 		{
-		return String.format("%d %d %d %d",r.x,r.y,r.width,r.height);
+		return String.format("%d %d %d %d",r.x,r.y,r.width,r.height); //$NON-NLS-1$
 		}
 
 	// this is the size on disc in kibibytes
@@ -277,10 +277,10 @@ public final class Util
 
 	private static void createImageReadChooser()
 		{
-		imageReadFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
+		imageReadFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 		imageReadFc.setAccessory(new FileChooserImagePreview(imageReadFc));
 
-		String[] readexts = { "apng","gif" };
+		String[] readexts = { "apng","gif" }; //$NON-NLS-1$ //$NON-NLS-2$
 		if (LGM.javaVersion >= 10600)
 			{
 			String[] internalexts = ImageIO.getReaderFileSuffixes();
@@ -315,9 +315,9 @@ public final class Util
 
 	private static void createImageWriteChooser()
 		{
-		imageWriteFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR");
+		imageWriteFc = new CustomFileChooser("/org/lateralgm","LAST_IMAGE_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		String[] writeexts = { "apng" };
+		String[] writeexts = { "apng" }; //$NON-NLS-1$
 		if (LGM.javaVersion >= 10600)
 			{
 			String[] internalexts = ImageIO.getWriterFileSuffixes();
@@ -417,10 +417,10 @@ public final class Util
 	private static String getFileExtension(File file)
 		{
 		String name = file.getName();
-		int lastIndexOf = name.lastIndexOf(".");
+		int lastIndexOf = name.lastIndexOf('.');
 		if (lastIndexOf == -1)
 			{
-			return ""; // empty extension
+			return ""; // empty extension //$NON-NLS-1$
 			}
 		return name.substring(lastIndexOf + 1);
 		}

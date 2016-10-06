@@ -740,10 +740,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 					{
 					throw new UnsupportedOperationException("no internal or system sound editor",e);
 					}
-				catch (IOException e)
-					{
-					e.printStackTrace();
-					}
 			else
 				Runtime.getRuntime().exec(
 						String.format(Prefs.externalSoundEditorCommand,monitor.file.getAbsolutePath()));

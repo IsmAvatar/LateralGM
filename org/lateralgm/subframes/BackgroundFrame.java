@@ -239,11 +239,11 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		tool.add(save);
 		tool.addSeparator();
 
-		tool.add(makeJButton("BackgroundFrame.CREATE"));
-		tool.add(makeJButton("BackgroundFrame.LOAD"));
-		tool.add(makeJButton("BackgroundFrame.SAVE"));
-		tool.add(makeJButton("BackgroundFrame.EDIT"));
-		tool.add(makeJButton("BackgroundFrame.EFFECT"));
+		tool.add(makeJButton("BackgroundFrame.CREATE")); //$NON-NLS-1$
+		tool.add(makeJButton("BackgroundFrame.LOAD")); //$NON-NLS-1$
+		tool.add(makeJButton("BackgroundFrame.SAVE")); //$NON-NLS-1$
+		tool.add(makeJButton("BackgroundFrame.EDIT")); //$NON-NLS-1$
+		tool.add(makeJButton("BackgroundFrame.EFFECT")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
@@ -253,13 +253,13 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 		//tool.addSeparator();
 
-		zoomButton = new JToggleButton(LGM.getIconForKey("BackgroundFrame.ZOOM"));
-		zoomButton.setToolTipText(Messages.getString("BackgroundFrame.ZOOM"));
+		zoomButton = new JToggleButton(LGM.getIconForKey("BackgroundFrame.ZOOM")); //$NON-NLS-1$
+		zoomButton.setToolTipText(Messages.getString("BackgroundFrame.ZOOM")); //$NON-NLS-1$
 		zoomButton.addActionListener(this);
-		zoomButton.setActionCommand("BackgroundFrame.ZOOM");
+		zoomButton.setActionCommand("BackgroundFrame.ZOOM"); //$NON-NLS-1$
 		tool.add(zoomButton);
-		tool.add(makeJButton("BackgroundFrame.ZOOM_IN"));
-		tool.add(makeJButton("BackgroundFrame.ZOOM_OUT"));
+		tool.add(makeJButton("BackgroundFrame.ZOOM_IN")); //$NON-NLS-1$
+		tool.add(makeJButton("BackgroundFrame.ZOOM_OUT")); //$NON-NLS-1$
 
 		tool.addSeparator();
 
@@ -485,7 +485,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	public void handleToolBar(String cmd)
 		{
-		if (cmd.endsWith(".LOAD"))
+		if (cmd.endsWith(".LOAD")) //$NON-NLS-1$
 			{
 			BufferedImage img = Util.getValidImage();
 			if (img != null)
@@ -496,7 +496,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				}
 			return;
 			}
-		else if (cmd.endsWith(".SAVE"))
+		else if (cmd.endsWith(".SAVE")) //$NON-NLS-1$
 			{
 			BufferedImage img = res.getBackgroundImage();
 			// utility function will check if the image is null and display an appropriate warning
@@ -504,11 +504,11 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			Util.saveImage(img);
 			return;
 			}
-		else if (cmd.endsWith(".CREATE"))
+		else if (cmd.endsWith(".CREATE")) //$NON-NLS-1$
 			{
 			createNewImage(true);
 			}
-		else if (cmd.endsWith(".EDIT"))
+		else if (cmd.endsWith(".EDIT")) //$NON-NLS-1$
 			{
 			try
 				{
@@ -523,7 +523,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				}
 			return;
 			}
-		else if (cmd.endsWith(".EFFECT")) {
+		else if (cmd.endsWith(".EFFECT")) { //$NON-NLS-1$
 			List<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
 			imgs.add(res.getBackgroundImage());
 
@@ -531,7 +531,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			ef.setEffectsListener(this);
 			ef.setVisible(true);
 		}
-		else if (cmd.endsWith(".ZOOM"))
+		else if (cmd.endsWith(".ZOOM")) //$NON-NLS-1$
 			{
 			if (zoomButton.isSelected())
 				{
@@ -544,12 +544,12 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				preview.setCursor(Cursor.getDefaultCursor());
 				}
 			}
-		else if (cmd.endsWith(".ZOOM_IN"))
+		else if (cmd.endsWith(".ZOOM_IN")) //$NON-NLS-1$
 			{
 			zoomIn();
 			return;
 			}
-		else if (cmd.endsWith(".ZOOM_OUT"))
+		else if (cmd.endsWith(".ZOOM_OUT")) //$NON-NLS-1$
 			{
 			zoomOut();
 			return;
@@ -589,12 +589,12 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			JPanel myPanel = new JPanel();
 			GridLayout layout = new GridLayout(0,2,0,3);
 			myPanel.setLayout(layout);
-			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_WIDTH")));
+			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_WIDTH"))); //$NON-NLS-1$
 			myPanel.add(wField);
-			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_HEIGHT")));
+			myPanel.add(new JLabel(Messages.getString("BackgroundFrame.NEW_HEIGHT"))); //$NON-NLS-1$
 			myPanel.add(hField);
 
-			int result = JOptionPane.showConfirmDialog(LGM.frame,myPanel,Messages.getString("BackgroundFrame.NEW_TITLE"),
+			int result = JOptionPane.showConfirmDialog(LGM.frame,myPanel,Messages.getString("BackgroundFrame.NEW_TITLE"), //$NON-NLS-1$
 					JOptionPane.OK_CANCEL_OPTION,JOptionPane.PLAIN_MESSAGE);
 			if (result == JOptionPane.CANCEL_OPTION)
 				{

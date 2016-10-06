@@ -72,6 +72,7 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -132,8 +133,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 	private JComboBox<String> direct3DCombo, openGLCombo, antialiasCombo;
 	private JCheckBox decorateWindowBordersCheckBox;
 
-	private JButton getURIBrowseButton(final JTextField textField) {
-		JButton button = new JButton(Messages.getString("PreferencesFrame.BROWSE"));
+	private JButton createURIBrowseButton(final JTextField textField) {
+		JButton button = new JButton(Messages.getString("PreferencesFrame.BROWSE")); //$NON-NLS-1$
 		button.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -143,7 +144,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			fc.showOpenDialog(PreferencesFrame.this);
 			File file = fc.getSelectedFile();
 			if (file != null) {
-				documentationURI.setText(file.toURI().toString());
+				textField.setText(file.toURI().toString());
 			}
 		}
 		});
@@ -154,35 +155,35 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		{
 		JPanel p = new JPanel();
 
-		dndEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_DND"));
+		dndEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_DND")); //$NON-NLS-1$
 		dndEnable.setSelected(Prefs.enableDragAndDrop);
-		restrictTreeEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_TREE_RESTRICT"));
+		restrictTreeEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_TREE_RESTRICT")); //$NON-NLS-1$
 		restrictTreeEnable.setSelected(Prefs.restrictHierarchy);
-		extraNodesEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_EXTRA_NODES"));
+		extraNodesEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_EXTRA_NODES")); //$NON-NLS-1$
 		extraNodesEnable.setSelected(Prefs.extraNodes);
-		showTreeFilter = new JCheckBox(Messages.getString("PreferencesFrame.SHOW_TREE_FILTER"));
+		showTreeFilter = new JCheckBox(Messages.getString("PreferencesFrame.SHOW_TREE_FILTER")); //$NON-NLS-1$
 		showTreeFilter.setSelected(Prefs.showTreeFilter);
-		dockEvent = new JCheckBox(Messages.getString("PreferencesFrame.DOCK_EVENT_PANEL"));
+		dockEvent = new JCheckBox(Messages.getString("PreferencesFrame.DOCK_EVENT_PANEL")); //$NON-NLS-1$
 		dockEvent.setSelected(Prefs.dockEventPanel);
-		rightOrientation = new JCheckBox(Messages.getString("PreferencesFrame.RIGHT_ORIENTATION"));
+		rightOrientation = new JCheckBox(Messages.getString("PreferencesFrame.RIGHT_ORIENTATION")); //$NON-NLS-1$
 		rightOrientation.setSelected(Prefs.rightOrientation);
 
 		JLabel documentationLabel = new JLabel(
-			Messages.getString("PreferencesFrame.DOCUMENTATION_URI"));
+			Messages.getString("PreferencesFrame.DOCUMENTATION_URI")); //$NON-NLS-1$
 		documentationURI = new JTextField(Prefs.documentationURI);
-		JButton documentationBrowse = getURIBrowseButton(documentationURI);
+		JButton documentationBrowse = createURIBrowseButton(documentationURI);
 		JLabel websiteLabel = new JLabel(
-			Messages.getString("PreferencesFrame.WEBSITE_URI"));
+			Messages.getString("PreferencesFrame.WEBSITE_URI")); //$NON-NLS-1$
 		websiteURI = new JTextField(Prefs.websiteURI);
-		JButton websiteBrowse = getURIBrowseButton(websiteURI);
+		JButton websiteBrowse = createURIBrowseButton(websiteURI);
 		JLabel communityLabel = new JLabel(
-			Messages.getString("PreferencesFrame.COMMUNITY_URI"));
+			Messages.getString("PreferencesFrame.COMMUNITY_URI")); //$NON-NLS-1$
 		communityURI = new JTextField(Prefs.communityURI);
-		JButton communityBrowse = getURIBrowseButton(communityURI);
+		JButton communityBrowse = createURIBrowseButton(communityURI);
 		JLabel issueLabel = new JLabel(
-			Messages.getString("PreferencesFrame.ISSUE_URI"));
+			Messages.getString("PreferencesFrame.ISSUE_URI")); //$NON-NLS-1$
 		issueURI = new JTextField(Prefs.issueURI);
-		JButton issueBrowse = getURIBrowseButton(issueURI);
+		JButton issueBrowse = createURIBrowseButton(issueURI);
 
 		//JLabel actionsLabel = new JLabel(Messages.getString("PreferencesFrame.ACTIONLIBRARY"));
 		String[] actionsOptions = { "Standard","Logic","Custom" };
@@ -238,8 +239,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		/*	*/.addComponent(minutesField)
 		/*	*/.addComponent(backupFrequently)));
 
-		JLabel localeLabel = new JLabel(Messages.getString("PreferencesFrame.LOCALE"));
-		JLabel localeWarningLabel = new JLabel(Messages.getString("PreferencesFrame.LOCALE_WARNING"));
+		JLabel localeLabel = new JLabel(Messages.getString("PreferencesFrame.LOCALE")); //$NON-NLS-1$
+		JLabel localeWarningLabel = new JLabel(Messages.getString("PreferencesFrame.LOCALE_WARNING")); //$NON-NLS-1$
 
 		Locale[] locales = Locale.getAvailableLocales();
 		// sort our list of locales by display name
@@ -336,17 +337,19 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		{
 		JPanel panel = new JPanel();
 
+		@SuppressWarnings("nls")
 		String[] systemItems = { "default", "off", "on" };
+		@SuppressWarnings("nls")
 		String[] systemItemsLocalized = {
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_DEFAULT"),
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_OFF"),
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_ON") };
 
 		decorateWindowBordersCheckBox = new JCheckBox(
-				Messages.getString("PreferencesFrame.DECORATE_WINDOW_BORDERS"));
+				Messages.getString("PreferencesFrame.DECORATE_WINDOW_BORDERS")); //$NON-NLS-1$
 		decorateWindowBordersCheckBox.setSelected(Prefs.decorateWindowBorders);
 
-		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME"));
+		JLabel themeLabel = new JLabel(Messages.getString("PreferencesFrame.THEME")); //$NON-NLS-1$
 		Vector<String> themeComboItems = new Vector<String>();
 		themeComboItems.add("Swing");
 		themeComboItems.add("Native");
@@ -360,7 +363,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 		themeCombo = new JComboBox<String>(model);
 		themeCombo.setSelectedItem(LGM.themename);
-		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS"));
+		JLabel iconLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS")); //$NON-NLS-1$
 		String[] iconItems = new String[] { "Calico", "Contrast", "Custom" };
 		iconCombo = new JComboBox<String>(iconItems);
 		/*  TODO: This is a failed experiment, the code for inside
@@ -436,9 +439,11 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		*/
 		iconCombo.setSelectedItem(LGM.iconspack);
 
-		JLabel antialiasLabel = new JLabel(Messages.getString("PreferencesFrame.ANTIALIASING"));
+		JLabel antialiasLabel = new JLabel(Messages.getString("PreferencesFrame.ANTIALIASING")); //$NON-NLS-1$
+		@SuppressWarnings("nls")
 		String[] antialiasItems = { "default", "off", "on", "gasp", "lcd_hrgb", "lcd_hbgr",
 				"lcd_vrgb", "lcd_vbgr" };
+		@SuppressWarnings("nls")
 		String[] antialiasItemsLocalized = {
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_DEFAULT"),
 			Messages.getString("PreferencesFrame.SYSTEM_PROPERTY_OFF"),
@@ -452,10 +457,10 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		antialiasCombo = new JComboBox<String>(antialiasItems);
 		antialiasCombo.setSelectedItem(Prefs.antialiasControlFont);
 
-		JLabel iconPathLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS_PATH"));
+		JLabel iconPathLabel = new JLabel(Messages.getString("PreferencesFrame.ICONS_PATH")); //$NON-NLS-1$
 		iconPath = new JTextField(Prefs.iconPath);
 
-		JLabel themePathLabel = new JLabel(Messages.getString("PreferencesFrame.THEME_PATH"));
+		JLabel themePathLabel = new JLabel(Messages.getString("PreferencesFrame.THEME_PATH")); //$NON-NLS-1$
 		themePath = new JTextField(Prefs.swingThemePath);
 
 		JPanel imagePreviewPanel = new JPanel();
@@ -468,10 +473,10 @@ public class PreferencesFrame extends JDialog implements ActionListener
 			"PreferencesFrame.IMAGE_PREVIEW")));
 
 		JLabel imagePreviewBackgroundLabel = new JLabel(
-				Messages.getString("PreferencesFrame.IMAGE_PREVIEW_BACKGROUND_COLOR"));
+				Messages.getString("PreferencesFrame.IMAGE_PREVIEW_BACKGROUND_COLOR")); //$NON-NLS-1$
 		imagePreviewBackgroundColor = new ColorSelect(new Color(Prefs.imagePreviewBackgroundColor));
 		JLabel imagePreviewForegroundLabel = new JLabel(
-				Messages.getString("PreferencesFrame.IMAGE_PREVIEW_FOREGROUND_COLOR"));
+				Messages.getString("PreferencesFrame.IMAGE_PREVIEW_FOREGROUND_COLOR")); //$NON-NLS-1$
 		imagePreviewForegroundColor = new ColorSelect(new Color(Prefs.imagePreviewForegroundColor));
 
 		imagePreviewLayout.setHorizontalGroup(imagePreviewLayout.createSequentialGroup()
@@ -497,12 +502,12 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		hardwareAccelerationLayout.setAutoCreateContainerGaps(true);
 
 		hardwareAccelerationPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString(
-			"PreferencesFrame.HARDWARE_ACCELERATION")));
+			"PreferencesFrame.HARDWARE_ACCELERATION"))); //$NON-NLS-1$
 
-		JLabel direct3DLabel = new JLabel(Messages.getString("PreferencesFrame.DIRECT3D"));
+		JLabel direct3DLabel = new JLabel(Messages.getString("PreferencesFrame.DIRECT3D")); //$NON-NLS-1$
 		direct3DCombo = new JComboBox<String>(systemItems);
 		direct3DCombo.setSelectedItem(Prefs.direct3DAcceleration);
-		JLabel openGLLabel = new JLabel(Messages.getString("PreferencesFrame.OPENGL"));
+		JLabel openGLLabel = new JLabel(Messages.getString("PreferencesFrame.OPENGL")); //$NON-NLS-1$
 		openGLCombo = new JComboBox<String>(systemItems);
 		openGLCombo.setSelectedItem(Prefs.openGLAcceleration);
 
@@ -532,25 +537,25 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		searchResultsPanel.setLayout(searchResultsLayout);
 
 		searchResultsPanel.setBorder(BorderFactory.createTitledBorder(Messages.getString(
-			"PreferencesFrame.SEARCH_RESULTS")));
+			"PreferencesFrame.SEARCH_RESULTS"))); //$NON-NLS-1$
 
-		JLabel matchCountLable = new JLabel(Messages.getString("PreferencesFrame.MATCH_COUNT"));
+		JLabel matchCountLable = new JLabel(Messages.getString("PreferencesFrame.MATCH_COUNT")); //$NON-NLS-1$
 		matchCountBackgroundCheckBox = new JCheckBox(
-				Messages.getString("PreferencesFrame.MATCH_COUNT_BACKGROUND_COLOR"),
+				Messages.getString("PreferencesFrame.MATCH_COUNT_BACKGROUND_COLOR"), //$NON-NLS-1$
 				Prefs.highlightMatchCountBackground);
 		matchCountBackgroundColor = new ColorSelect(new Color(Prefs.matchCountBackgroundColor));
 		matchCountForegroundCheckBox = new JCheckBox(
-				Messages.getString("PreferencesFrame.MATCH_COUNT_FOREGROUND_COLOR"),
+				Messages.getString("PreferencesFrame.MATCH_COUNT_FOREGROUND_COLOR"), //$NON-NLS-1$
 				Prefs.highlightMatchCountForeground);
 		matchCountForegroundColor = new ColorSelect(new Color(Prefs.matchCountForegroundColor));
 
-		JLabel resultMatchLabel = new JLabel(Messages.getString("PreferencesFrame.RESULT_MATCH"));
+		JLabel resultMatchLabel = new JLabel(Messages.getString("PreferencesFrame.RESULT_MATCH")); //$NON-NLS-1$
 		resultMatchBackgroundCheckBox = new JCheckBox(
-				Messages.getString("PreferencesFrame.RESULT_MATCH_BACKGROUND_COLOR"),
+				Messages.getString("PreferencesFrame.RESULT_MATCH_BACKGROUND_COLOR"), //$NON-NLS-1$
 				Prefs.highlightResultMatchBackground);
 		resultMatchBackgroundColor = new ColorSelect(new Color(Prefs.resultMatchBackgroundColor));
 		resultMatchForegroundCheckBox = new JCheckBox(
-				Messages.getString("PreferencesFrame.RESULT_MATCH_FOREGROUND_COLOR"),
+				Messages.getString("PreferencesFrame.RESULT_MATCH_FOREGROUND_COLOR"), //$NON-NLS-1$
 				Prefs.highlightResultMatchForeground);
 		resultMatchForegroundColor = new ColorSelect(new Color(Prefs.resultMatchForegroundColor));
 
@@ -670,7 +675,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 					continue;
 					}
 
-				JLabel label = new JLabel(Messages.format("PreferencesFrame.PREFIX_FORMAT",ent.getValue()));
+				JLabel label = new JLabel(Messages.format("PreferencesFrame.PREFIX_FORMAT",ent.getValue())); //$NON-NLS-1$
 
 				JTextField textfield = new JTextField(Prefs.prefixes.get(ent.getKey()));
 				prefixMap.put(ent.getKey(),textfield);
@@ -694,14 +699,14 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 		public String getFormattedPrefixes()
 		{
-			String ret = "";
+			String ret = ""; //$NON-NLS-1$
 			for (Entry<String,Class<? extends Resource<?,?>>> ent : Resource.kindsByName3.entrySet())
 				{
 				if (!InstantiableResource.class.isAssignableFrom(ent.getValue()))
 					{
 					continue;
 					}
-				ret += ent.getKey() + ">" + prefixMap.get(ent.getValue()).getText() + "\t";
+				ret += ent.getKey() + '>' + prefixMap.get(ent.getValue()).getText() + '\t';
 				}
 			return ret;
 		}
@@ -719,22 +724,22 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		JScrollPane prefixScroll = new JScrollPane(prefixList);
 
 		prefixScroll.setBorder(BorderFactory.createTitledBorder(
-				Messages.getString("PreferencesFrame.PREFIXES")));
+				Messages.getString("PreferencesFrame.PREFIXES"))); //$NON-NLS-1$
 
 		JLabel backgroundExtensionLabel = new JLabel(
-			Messages.format("PreferencesFrame.EXTENSION_FORMAT",
+			Messages.format("PreferencesFrame.EXTENSION_FORMAT", //$NON-NLS-1$
 			Resource.kindNames.get(Background.class)));
 		backgroundExtension = new JTextField(Prefs.externalBackgroundExtension);
 		JLabel spriteExtensionLabel = new JLabel(
-			Messages.format("PreferencesFrame.EXTENSION_FORMAT",Resource.kindNames.get(Sprite.class)));
+			Messages.format("PreferencesFrame.EXTENSION_FORMAT",Resource.kindNames.get(Sprite.class))); //$NON-NLS-1$
 		spriteExtension = new JTextField(Prefs.externalSpriteExtension);
 		JLabel scriptExtensionLabel = new JLabel(
-			Messages.format("PreferencesFrame.EXTENSION_FORMAT",Resource.kindNames.get(Script.class)));
+			Messages.format("PreferencesFrame.EXTENSION_FORMAT",Resource.kindNames.get(Script.class))); //$NON-NLS-1$
 		scriptExtension = new JTextField(Prefs.externalScriptExtension);
 
 		JPanel extensionsPanel = new JPanel();
 		extensionsPanel.setBorder(BorderFactory.createTitledBorder(
-			Messages.getString("PreferencesFrame.EXTENSIONS")));
+			Messages.getString("PreferencesFrame.EXTENSIONS"))); //$NON-NLS-1$
 
 		GroupLayout el = new GroupLayout(extensionsPanel);
 		el.setAutoCreateGaps(true);
@@ -780,26 +785,21 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		return p;
 		}
 
-	private JButton makeEditorBrowseButton(final JTextField textField) {
-		JButton button = new JButton(Messages.getString("PreferencesFrame.BROWSE"));
+	private JButton createEditorBrowseButton(final JTextField textField) {
+		JButton button = new JButton(Messages.getString("PreferencesFrame.BROWSE")); //$NON-NLS-1$
 		button.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			JFileChooser fc = new JFileChooser();
+			fc.addChoosableFileFilter(new FileNameExtensionFilter("Executable Files (*.exe)", "exe")); //$NON-NLS-2$
 			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			fc.setMultiSelectionEnabled(false);
 			if (fc.showOpenDialog(PreferencesFrame.this) == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
 				if (file != null) {
-					String commandText = '\"' + file.getAbsolutePath() + "\" %s";
-					if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-						// NOTE: Running this through the Windows Command Interpreter enables the use of *.lnk
-						// for external editors by letting the OS resolve the shortcut. - Robert
-						textField.setText("cmd /c " + commandText);
-					} else {
-						textField.setText(commandText);
-					}
+					String commandText = file.getAbsolutePath() + " %s"; //$NON-NLS-1$
+					textField.setText(commandText);
 				}
 			}
 		}
@@ -811,22 +811,22 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		{
 		JPanel p = new JPanel();
 
-		JLabel codeEditorLabel = new JLabel(Messages.getString("PreferencesFrame.CODE_EDITOR"));
+		JLabel codeEditorLabel = new JLabel(Messages.getString("PreferencesFrame.CODE_EDITOR")); //$NON-NLS-1$
 		codeEditorPath = new JTextField(Prefs.externalScriptEditorCommand);
-		JButton codeEditorBrowse = makeEditorBrowseButton(codeEditorPath);
+		JButton codeEditorBrowse = createEditorBrowseButton(codeEditorPath);
 
-		JLabel spriteEditorLabel = new JLabel(Messages.getString("PreferencesFrame.SPRITE_EDITOR"));
+		JLabel spriteEditorLabel = new JLabel(Messages.getString("PreferencesFrame.SPRITE_EDITOR")); //$NON-NLS-1$
 		spriteEditorPath = new JTextField(Prefs.externalSpriteEditorCommand);
-		JButton spriteEditorBrowse = makeEditorBrowseButton(spriteEditorPath);
+		JButton spriteEditorBrowse = createEditorBrowseButton(spriteEditorPath);
 
 		JLabel backgroundEditorLabel = new JLabel(
-				Messages.getString("PreferencesFrame.BACKGROUND_EDITOR"));
+				Messages.getString("PreferencesFrame.BACKGROUND_EDITOR")); //$NON-NLS-1$
 		backgroundEditorPath = new JTextField(Prefs.externalBackgroundEditorCommand);
-		JButton backgroundEditorBrowse = makeEditorBrowseButton(backgroundEditorPath);
+		JButton backgroundEditorBrowse = createEditorBrowseButton(backgroundEditorPath);
 
-		JLabel soundEditorLabel = new JLabel(Messages.getString("PreferencesFrame.SOUND_EDITOR"));
+		JLabel soundEditorLabel = new JLabel(Messages.getString("PreferencesFrame.SOUND_EDITOR")); //$NON-NLS-1$
 		soundEditorPath = new JTextField(Prefs.externalSoundEditorCommand);
-		JButton soundEditorBrowse = makeEditorBrowseButton(soundEditorPath);
+		JButton soundEditorBrowse = createEditorBrowseButton(soundEditorPath);
 
 		GroupLayout gl = new GroupLayout(p);
 		gl.setAutoCreateGaps(true);
@@ -880,7 +880,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 		// Undo settings
 		JLabel undoHistorySizeLabel = new JLabel(
-				Messages.getString("PreferencesFrame.UNDO_HISTORY_SIZE"));
+				Messages.getString("PreferencesFrame.UNDO_HISTORY_SIZE")); //$NON-NLS-1$
 		undoHistorySize = new NumberField(-1,999999,Prefs.undoHistorySize);
 
 		// Views settings
@@ -890,20 +890,20 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		viewsLayout.setAutoCreateContainerGaps(true);
 		viewsPanel.setLayout(viewsLayout);
 
-		String title = Messages.getString("PreferencesFrame.VIEWS_TITLE");
+		String title = Messages.getString("PreferencesFrame.VIEWS_TITLE"); //$NON-NLS-1$
 		viewsPanel.setBorder(BorderFactory.createTitledBorder(title));
 
 		useFilledRectangleForViews = new JCheckBox(
-				Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
+				Messages.getString("PreferencesFrame.FILLED_RECTANGLE")); //$NON-NLS-1$
 		useFilledRectangleForViews.setSelected(Prefs.useFilledRectangleForViews);
 
-		useInvertedColorForViews = new JCheckBox(Messages.getString("PreferencesFrame.INVERTED_COLOR"));
+		useInvertedColorForViews = new JCheckBox(Messages.getString("PreferencesFrame.INVERTED_COLOR")); //$NON-NLS-1$
 		useInvertedColorForViews.setSelected(Prefs.useInvertedColorForViews);
 
-		JLabel insideColorLabel = new JLabel(Messages.getString("PreferencesFrame.INSIDE_COLOR"));
+		JLabel insideColorLabel = new JLabel(Messages.getString("PreferencesFrame.INSIDE_COLOR")); //$NON-NLS-1$
 		viewInsideColor = new ColorSelect(Util.convertGmColorWithAlpha(Prefs.viewInsideColor));
 
-		JLabel outsideColorLabel = new JLabel(Messages.getString("PreferencesFrame.OUTSIDE_COLOR"));
+		JLabel outsideColorLabel = new JLabel(Messages.getString("PreferencesFrame.OUTSIDE_COLOR")); //$NON-NLS-1$
 		viewOutsideColor = new ColorSelect(Util.convertGmColorWithAlpha(Prefs.viewOutsideColor));
 
 		// Set the layout for the views
@@ -938,24 +938,24 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		selectionLayout.setAutoCreateContainerGaps(true);
 		selectionPanel.setLayout(selectionLayout);
 
-		String selectionTitle = Messages.getString("PreferencesFrame.SELECTION");
+		String selectionTitle = Messages.getString("PreferencesFrame.SELECTION"); //$NON-NLS-1$
 		selectionPanel.setBorder(BorderFactory.createTitledBorder(selectionTitle));
 
 		useFilledRectangleForSelection = new JCheckBox(
-				Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
+				Messages.getString("PreferencesFrame.FILLED_RECTANGLE")); //$NON-NLS-1$
 		useFilledRectangleForSelection.setSelected(Prefs.useFilledRectangleForSelection);
 
 		useInvertedColorForSelection = new JCheckBox(
-				Messages.getString("PreferencesFrame.INVERTED_COLOR"));
+				Messages.getString("PreferencesFrame.INVERTED_COLOR")); //$NON-NLS-1$
 		useInvertedColorForSelection.setSelected(Prefs.useInvertedColorForSelection);
 
 		JLabel insideColorLabelForSelection = new JLabel(
-				Messages.getString("PreferencesFrame.INSIDE_COLOR"));
+				Messages.getString("PreferencesFrame.INSIDE_COLOR")); //$NON-NLS-1$
 		selectionInsideColor = new ColorSelect(Util.convertGmColorWithAlpha(
 			Prefs.selectionInsideColor));
 
 		JLabel outsideColorLabelForSelection = new JLabel(
-				Messages.getString("PreferencesFrame.OUTSIDE_COLOR"));
+				Messages.getString("PreferencesFrame.OUTSIDE_COLOR")); //$NON-NLS-1$
 		selectionOutsideColor = new ColorSelect(
 				Util.convertGmColorWithAlpha(Prefs.selectionOutsideColor));
 
@@ -991,25 +991,25 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		multipleSelectionLayout.setAutoCreateContainerGaps(true);
 		multipleSelectionPanel.setLayout(multipleSelectionLayout);
 
-		String multipleSelectionTitle = Messages.getString("PreferencesFrame.MULTIPLE_SELECTION");
+		String multipleSelectionTitle = Messages.getString("PreferencesFrame.MULTIPLE_SELECTION"); //$NON-NLS-1$
 		multipleSelectionPanel.setBorder(BorderFactory.createTitledBorder(multipleSelectionTitle));
 
 		useFilledRectangleForMultipleSelection = new JCheckBox(
-				Messages.getString("PreferencesFrame.FILLED_RECTANGLE"));
+				Messages.getString("PreferencesFrame.FILLED_RECTANGLE")); //$NON-NLS-1$
 		useFilledRectangleForMultipleSelection.setSelected(
 			Prefs.useFilledRectangleForMultipleSelection);
 
 		useInvertedColorForMultipleSelection = new JCheckBox(
-				Messages.getString("PreferencesFrame.INVERTED_COLOR"));
+				Messages.getString("PreferencesFrame.INVERTED_COLOR")); //$NON-NLS-1$
 		useInvertedColorForMultipleSelection.setSelected(Prefs.useInvertedColorForMultipleSelection);
 
 		JLabel insideColorLabelForMultipleSelection = new JLabel(
-				Messages.getString("PreferencesFrame.INSIDE_COLOR"));
+				Messages.getString("PreferencesFrame.INSIDE_COLOR")); //$NON-NLS-1$
 		multipleSelectionInsideColor = new ColorSelect(
 				Util.convertGmColorWithAlpha(Prefs.multipleSelectionInsideColor));
 
 		JLabel outsideColorLabelForMultipleSelection = new JLabel(
-				Messages.getString("PreferencesFrame.OUTSIDE_COLOR"));
+				Messages.getString("PreferencesFrame.OUTSIDE_COLOR")); //$NON-NLS-1$
 		multipleSelectionOutsideColor = new ColorSelect(
 				Util.convertGmColorWithAlpha(Prefs.multipleSelectionOutsideColor));
 
@@ -1072,55 +1072,56 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		super(LGM.frame);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 
-		setTitle(Messages.getString("PreferencesFrame.TITLE"));
-		setIconImage(LGM.getIconForKey("Toolbar.PREFERENCES").getImage());
+		setTitle(Messages.getString("PreferencesFrame.TITLE")); //$NON-NLS-1$
+		setIconImage(LGM.getIconForKey("Toolbar.PREFERENCES").getImage()); //$NON-NLS-1$
 		setResizable(true);
 
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Preferences");
+		// not visible, so does not need translated
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("root"); //$NON-NLS-1$
 
 		cardPane = new JPanel(new CardLayout());
 
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode(
-				Messages.getString("PreferencesFrame.TAB_GENERAL"));
+				Messages.getString("PreferencesFrame.TAB_GENERAL")); //$NON-NLS-1$
 		root.add(node);
-		cardPane.add(makeGeneralPrefs(),Messages.getString("PreferencesFrame.TAB_GENERAL"));
+		cardPane.add(makeGeneralPrefs(),Messages.getString("PreferencesFrame.TAB_GENERAL")); //$NON-NLS-1$
 
-		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_APPEARANCE"));
+		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_APPEARANCE")); //$NON-NLS-1$
 		root.add(node);
-		cardPane.add(makeAppearancePrefs(),Messages.getString("PreferencesFrame.TAB_APPEARANCE"));
+		cardPane.add(makeAppearancePrefs(),Messages.getString("PreferencesFrame.TAB_APPEARANCE")); //$NON-NLS-1$
 
-		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"));
+		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR")); //$NON-NLS-1$
 		root.add(node);
 		cardPane.add(makeExternalEditorPrefs(),
-				Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR"));
+				Messages.getString("PreferencesFrame.TAB_EXTERNAL_EDITOR")); //$NON-NLS-1$
 
-		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_MEDIA_PREFIX"));
+		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_MEDIA_PREFIX")); //$NON-NLS-1$
 		root.add(node);
 		cardPane.add(makeExtensionPrefixPrefs(),Messages.getString(
-			"PreferencesFrame.TAB_MEDIA_PREFIX"));
+			"PreferencesFrame.TAB_MEDIA_PREFIX")); //$NON-NLS-1$
 
-		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR"));
+		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_CODE_EDITOR")); //$NON-NLS-1$
 		//TODO: Fix UI bugs in JoshEdit repo and then use the serialize feature to save them.
 		//root.add(node);
 		DefaultMutableTreeNode cnode = new DefaultMutableTreeNode(
-				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS"));
+				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS")); //$NON-NLS-1$
 		node.add(cnode);
 		cnode = new DefaultMutableTreeNode(
-				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_SYNTAX_HIGHLIGHTING"));
+				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_SYNTAX_HIGHLIGHTING")); //$NON-NLS-1$
 		node.add(cnode);
 		cardPane.add(new org.lateralgm.joshedit.preferences.KeybindingsPanel(),
-				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS"));
+				Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_KEYBINDINGS")); //$NON-NLS-1$
 		cardPane.add(
 			new org.lateralgm.joshedit.preferences.HighlightPreferences(
 					new TokenMarker.LanguageDescription[][] { GMLTokenMarker.getLanguageDescriptions(),
 							GLSLTokenMarker.getLanguageDescriptions(),
 							GLESTokenMarker.getLanguageDescriptions(),HLSLTokenMarker.getLanguageDescriptions() },
-					Preferences.userRoot().node("org/lateralgm/joshedit")),
-			Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_SYNTAX_HIGHLIGHTING"));
+					Preferences.userRoot().node("org/lateralgm/joshedit")), //$NON-NLS-1$
+			Messages.getString("PreferencesFrame.TAB_CODE_EDITOR_SYNTAX_HIGHLIGHTING")); //$NON-NLS-1$
 
-		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR"));
+		node = new DefaultMutableTreeNode(Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR")); //$NON-NLS-1$
 		root.add(node);
-		cardPane.add(makeRoomEditorPrefs(),Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR"));
+		cardPane.add(makeRoomEditorPrefs(),Messages.getString("PreferencesFrame.TAB_ROOM_EDITOR")); //$NON-NLS-1$
 
 		tree = new JTree(new DefaultTreeModel(root));
 		tree.setEditable(false);
@@ -1167,24 +1168,24 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 		String key;
 
-		key = "PreferencesFrame.APPLY_CHANGES";
+		key = "PreferencesFrame.APPLY_CHANGES"; //$NON-NLS-1$
 		JButton applyBut = new JButton(Messages.getString(key));
 		applyBut.addActionListener(this);
 		applyBut.setActionCommand(key);
 
-		key = "PreferencesFrame.RESET_DEFAULTS";
+		key = "PreferencesFrame.RESET_DEFAULTS"; //$NON-NLS-1$
 		JButton resetDefaultsBut = new JButton(Messages.getString(key));
 		resetDefaultsBut.addActionListener(this);
 		resetDefaultsBut.setActionCommand(key);
 
-		key = "PreferencesFrame.CLOSE";
+		key = "PreferencesFrame.CLOSE"; //$NON-NLS-1$
 		JButton closeBut = new JButton(Messages.getString(key));
 		closeBut.addActionListener(this);
 		closeBut.setActionCommand(key);
 
 		applyChangesLabel = new JLabel(Messages.getString(
-			"PreferencesFrame.APPLY_NOTICE"));
-		applyChangesLabel.setIcon(LGM.getIconForKey("PreferencesFrame.APPLY_NOTICE"));
+			"PreferencesFrame.APPLY_NOTICE")); //$NON-NLS-1$
+		applyChangesLabel.setIcon(LGM.getIconForKey("PreferencesFrame.APPLY_NOTICE")); //$NON-NLS-1$
 		applyChangesLabel.setVisible(false);
 
 		p.add(applyChangesLabel);

@@ -129,23 +129,23 @@ public class PathFrame extends InstantiableResourceFrame<Path,PPath>
 		GroupLayout layout = new GroupLayout(tool);
 		tool.setLayout(layout);
 		tool.setFloatable(false);
-		JLabel lsx = new JLabel(Messages.getString("PathFrame.SNAP_X"));
+		JLabel lsx = new JLabel(Messages.getString("PathFrame.SNAP_X")); //$NON-NLS-1$
 		NumberField sx = new NumberField(1,999);
 		plf.make(sx,PPath.SNAP_X);
-		JLabel lsy = new JLabel(Messages.getString("PathFrame.SNAP_Y"));
+		JLabel lsy = new JLabel(Messages.getString("PathFrame.SNAP_Y")); //$NON-NLS-1$
 		NumberField sy = new NumberField(1,999);
 		plf.make(sy,PPath.SNAP_Y);
 		// For some reason, JToolBar + GroupLayout makes the button too small to show all the text.
 		// Using a JCheckBox instead. This also mathces the other components better.
 
 		JToggleButton grid = new JToggleButton();
-		grid.setToolTipText(Messages.getString("PathFrame.GRID"));
-		grid.setActionCommand("PathFrame.GRID");
-		grid.setIcon(LGM.getIconForKey("PathFrame.GRID"));
+		grid.setToolTipText(Messages.getString("PathFrame.GRID")); //$NON-NLS-1$
+		grid.setActionCommand("PathFrame.GRID"); //$NON-NLS-1$
+		grid.setIcon(LGM.getIconForKey("PathFrame.GRID")); //$NON-NLS-1$
 
 		peplf.make(grid,PPathEditor.SHOW_GRID);
 		ResourceMenu<Room> room = new ResourceMenu<Room>(Room.class,
-				Messages.getString("PathFrame.NO_ROOM"),160);
+				Messages.getString("PathFrame.NO_ROOM"),160); //$NON-NLS-1$
 		plf.make(room,PPath.BACKGROUND_ROOM);
 		JSeparator saveSep = new JSeparator(JSeparator.VERTICAL);
 		layout.setHorizontalGroup(layout.createSequentialGroup()

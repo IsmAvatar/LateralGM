@@ -829,15 +829,15 @@ public class FileChooser
 		int nb = PrefsStore.getNumberOfBackups();
 		if (nb <= 0 || !new File(fn).exists()) return true;
 		String bn;
-		if (fn.endsWith(".gm6") || fn.endsWith(".gmk"))
+		if (fn.endsWith(".gm6") || fn.endsWith(".gmk")) //$NON-NLS-1$ //$NON-NLS-2$
 			bn = fn.substring(0,fn.length() - 4);
-		else if (fn.endsWith(".gm81"))
+		else if (fn.endsWith(".gm81")) //$NON-NLS-1$
 			bn = fn.substring(0,fn.length() - 5);
 		else
 			bn = fn;
 		block:
 			{
-			String ff = "%s.gb%d";
+			String ff = "%s.gb%d"; //$NON-NLS-1$
 			int i;
 			for (i = 1; i <= nb; i++)
 				{

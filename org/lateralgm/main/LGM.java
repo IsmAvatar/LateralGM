@@ -180,7 +180,7 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
-	public static final String version = "1.8.7.18"; //$NON-NLS-1$
+	public static final String version = "1.8.7.21"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -619,7 +619,7 @@ public final class LGM
 		tool.add(makeButton("Toolbar.GMI")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.PKG")); //$NON-NLS-1$
 		tool.addSeparator();
-		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATIONS"))); //$NON-NLS-1$
+		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATION"))); //$NON-NLS-1$
 		configsCombo = new JComboBox<GameSettings>();
 		configsCombo.setModel(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
 		configsCombo.setMaximumSize(configsCombo.getPreferredSize());
@@ -755,7 +755,7 @@ public final class LGM
 			catch (Exception e)
 				{
 				String msgInd = "LGM.PLUGIN_LOAD_ERROR"; //$NON-NLS-1$
-				LGM.showDefaultExceptionHandler(new Exception(Messages.format(msgInd,f.getName()), e));
+				System.out.println(Messages.format(msgInd,f.getName(),e.getClass().getName(),e.getMessage()));
 				continue;
 				}
 			}
@@ -1936,7 +1936,7 @@ public final class LGM
 		{
 			if (last != null) {
 				if (last.status == ResNode.STATUS_PRIMARY || last.status == ResNode.STATUS_GROUP) {
-					return LGM.getIconForKey("GmTreeGraphics.GROUP");
+					return LGM.getIconForKey("GmTreeGraphics.GROUP"); //$NON-NLS-1$
 				} else {
 					Icon icon = last.icon;
 					if (icon != null) return icon;
@@ -1949,7 +1949,7 @@ public final class LGM
 		{
 			if (last != null) {
 				if (last.status == ResNode.STATUS_PRIMARY || last.status == ResNode.STATUS_GROUP) {
-					return LGM.getIconForKey("GmTreeGraphics.GROUP_OPEN");
+					return LGM.getIconForKey("GmTreeGraphics.GROUP_OPEN"); //$NON-NLS-1$
 				} else {
 					Icon icon = last.icon;
 					if (icon != null) return icon;
@@ -2059,9 +2059,9 @@ public final class LGM
 		//Set the Mac menu bar title to the correct name (also adds a useless About entry, so disabled)
 		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
 
-		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-1$
+		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-2$
 		if (javaVersion < 10700)
-			System.out.println("Some program functionality will be limited due to your outdated Java version"); //$NON-NLS-1$
+			System.out.println("WARNING: Some program functionality will be limited due to your outdated Java version.");
 
 		// Load external look and feels the user has plugged in
 		loadLookAndFeels();
@@ -2129,9 +2129,9 @@ public final class LGM
 				}
 		});
 		searchMenu.add(expandAllItem);
-		JMenuItem collapseAllItem = new JMenuItem(Messages.getString("TreeFilter.COLLAPSEALL"));
-		collapseAllItem.setIcon(LGM.getIconForKey("TreeFilter.COLLAPSEALL"));
-		collapseAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.COLLAPSEALL")));
+		JMenuItem collapseAllItem = new JMenuItem(Messages.getString("TreeFilter.COLLAPSEALL")); //$NON-NLS-1$
+		collapseAllItem.setIcon(LGM.getIconForKey("TreeFilter.COLLAPSEALL")); //$NON-NLS-1$
+		collapseAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.COLLAPSEALL"))); //$NON-NLS-1$
 		collapseAllItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev)
 				{
@@ -2144,22 +2144,22 @@ public final class LGM
 		searchMenu.addSeparator();
 		JMenuItem copyItem = new JMenuItem();
 		copyItem.setAction(treeCopyAction);
-		copyItem.setText(Messages.getString("TreeFilter.COPY"));
-		copyItem.setIcon(LGM.getIconForKey("TreeFilter.COPY"));
-		copyItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.COPY")));
+		copyItem.setText(Messages.getString("TreeFilter.COPY")); //$NON-NLS-1$
+		copyItem.setIcon(LGM.getIconForKey("TreeFilter.COPY")); //$NON-NLS-1$
+		copyItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.COPY"))); //$NON-NLS-1$
 
-		searchTree.getActionMap().put("COPY", treeCopyAction);
-		searchTree.getInputMap().put(copyItem.getAccelerator(), "COPY");
+		searchTree.getActionMap().put("COPY", treeCopyAction); //$NON-NLS-1$
+		searchTree.getInputMap().put(copyItem.getAccelerator(), "COPY"); //$NON-NLS-1$
 		// Add it to the main tree as well to remove HTML formatting
-		tree.getActionMap().put("COPY", treeCopyAction);
-		tree.getInputMap().put(copyItem.getAccelerator(), "COPY");
+		tree.getActionMap().put("COPY", treeCopyAction); //$NON-NLS-1$
+		tree.getInputMap().put(copyItem.getAccelerator(), "COPY"); //$NON-NLS-1$
 
 		searchMenu.add(copyItem);
 		searchMenu.addSeparator();
-		JMenuItem selectAllItem = new JMenuItem(Messages.getString("TreeFilter.SELECTALL"));
+		JMenuItem selectAllItem = new JMenuItem(Messages.getString("TreeFilter.SELECTALL")); //$NON-NLS-1$
 
-		selectAllItem.setIcon(LGM.getIconForKey("TreeFilter.SELECTALL"));
-		selectAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.SELECTALL")));
+		selectAllItem.setIcon(LGM.getIconForKey("TreeFilter.SELECTALL")); //$NON-NLS-1$
+		selectAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.SELECTALL"))); //$NON-NLS-1$
 		//NOTE: It's possible to grab the trees built in Select All action.
 		//selectAllItem.setAction(searchTree.getActionMap().get(searchTree.getInputMap().get(selectAllItem.getAccelerator())));
 
@@ -2294,10 +2294,10 @@ public final class LGM
 
 		final JFrame filterSettingsFrame = createFilterSettingsFrame();
 
-		filterText = new HintTextField(Messages.getString("TreeFilter.SEARCHFOR"),true);
+		filterText = new HintTextField(Messages.getString("TreeFilter.SEARCHFOR"),true); //$NON-NLS-1$
 
-		JButton prevButton = new JButton(LGM.getIconForKey("TreeFilter.PREV"));
-		prevButton.setToolTipText(Messages.getString("TreeFilter.PREV"));
+		JButton prevButton = new JButton(LGM.getIconForKey("TreeFilter.PREV")); //$NON-NLS-1$
+		prevButton.setToolTipText(Messages.getString("TreeFilter.PREV")); //$NON-NLS-1$
 		prevButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
@@ -2306,8 +2306,8 @@ public final class LGM
 			}
 		});
 
-		JButton nextButton = new JButton(LGM.getIconForKey("TreeFilter.NEXT"));
-		nextButton.setToolTipText(Messages.getString("TreeFilter.NEXT"));
+		JButton nextButton = new JButton(LGM.getIconForKey("TreeFilter.NEXT")); //$NON-NLS-1$
+		nextButton.setToolTipText(Messages.getString("TreeFilter.NEXT")); //$NON-NLS-1$
 		nextButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
@@ -2316,8 +2316,8 @@ public final class LGM
 			}
 		});
 
-		JButton searchInButton = new JButton(LGM.getIconForKey("TreeFilter.SEARCHIN"));
-		searchInButton.setToolTipText(Messages.getString("TreeFilter.SEARCHIN"));
+		JButton searchInButton = new JButton(LGM.getIconForKey("TreeFilter.SEARCHIN")); //$NON-NLS-1$
+		searchInButton.setToolTipText(Messages.getString("TreeFilter.SEARCHIN")); //$NON-NLS-1$
 		searchInButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
@@ -2325,12 +2325,12 @@ public final class LGM
 				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
 				searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(), regexCB.isSelected(),
 						matchCaseCB.isSelected(), wholeWordCB.isSelected());
-				setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS"));
+				setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS")); //$NON-NLS-1$
 			}
 		});
 
-		JButton setButton = new JButton(LGM.getIconForKey("TreeFilter.SET"));
-		setButton.setToolTipText(Messages.getString("TreeFilter.SET"));
+		JButton setButton = new JButton(LGM.getIconForKey("TreeFilter.SET")); //$NON-NLS-1$
+		setButton.setToolTipText(Messages.getString("TreeFilter.SET")); //$NON-NLS-1$
 		setButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
@@ -2367,7 +2367,7 @@ public final class LGM
 				InvisibleTreeModel ml = (InvisibleTreeModel) LGM.tree.getModel();
 				searchInResources((DefaultMutableTreeNode) ml.getRoot(), filterText.getText(),
 						regexCB.isSelected(), matchCaseCB.isSelected(), wholeWordCB.isSelected());
-				setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS"));
+				setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_SEARCHRESULTS")); //$NON-NLS-1$
 			}
 		});
 
@@ -2396,10 +2396,10 @@ public final class LGM
 		filterPanel.setFloatable(true);
 		filterPanel.setVisible(Prefs.showTreeFilter);
 
-		treeTabs.addTab(Messages.getString("TreeFilter.TAB_RESOURCES"),new JScrollPane(tree));
-		treeTabs.addTab(Messages.getString("TreeFilter.TAB_SEARCHRESULTS"),new JScrollPane(searchTree));
+		treeTabs.addTab(Messages.getString("TreeFilter.TAB_RESOURCES"),new JScrollPane(tree)); //$NON-NLS-1$
+		treeTabs.addTab(Messages.getString("TreeFilter.TAB_SEARCHRESULTS"),new JScrollPane(searchTree)); //$NON-NLS-1$
 		if (Prefs.dockEventPanel) {
-			treeTabs.addTab(Messages.getString("TreeFilter.TAB_EVENTS"),eventSelect);
+			treeTabs.addTab(Messages.getString("TreeFilter.TAB_EVENTS"),eventSelect); //$NON-NLS-1$
 		} else {
 			eventSelect.setVisible(false); // must occur after adding split
 		}
@@ -2439,7 +2439,7 @@ public final class LGM
 			LGM.showDefaultExceptionHandler(e);
 			}
 		// let the user specify their own background
-		if (new File("lookandfeels/lgmbackground.png").exists()) {
+		if (new File("lookandfeels/lgmbackground.png").exists()) { //$NON-NLS-1$
 			applyBackground("lookandfeels/lgmbackground.png"); //$NON-NLS-1$
 		} else {
 			applyBackground("org/lateralgm/main/lgmbackground.png"); //$NON-NLS-1$
@@ -2451,14 +2451,7 @@ public final class LGM
 		loadPlugins();
 		splashProgress.complete();
 
-		// this is necessary for the next call to properly center the frame or
-		// the method won't have the width/height of the window and instead the
-		// top-left corner of the window will be in the exact center of the screen
-		frame.pack();
-		// this makes sure the first time default location of the window that has
-		// not been stored is centered to the screen
-		frame.setLocationRelativeTo(null);
-		// call this after packing the frame and setting its default location
+		// remembers our window bounds and state between sessions
 		new FramePrefsHandler(frame);
 		// finally, set the frame visible
 		frame.setVisible(true);

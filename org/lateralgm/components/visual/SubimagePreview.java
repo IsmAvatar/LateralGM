@@ -48,7 +48,7 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 	public UpdateListener mouseListener;
 
-	public boolean enablemouse = true;
+	public boolean enableMouse = true;
 
 	public SubimagePreview(Sprite s)
 		{
@@ -214,20 +214,22 @@ public class SubimagePreview extends AbstractImagePreview implements UpdateListe
 
 	protected void processMouseEvent(MouseEvent e)
 		{
-		if (enablemouse)
+		if (enableMouse)
 			{
-			Point pnt = getTopLeftCentered();
-			int mx = (int) Math.floor((e.getX() / zoom) - (pnt.x / zoom));
-			int my = (int) Math.floor((e.getY() / zoom) - (pnt.y / zoom));
 			if (e.getID() == MouseEvent.MOUSE_PRESSED && e.getButton() == MouseEvent.BUTTON1)
+				{
+				Point pnt = getTopLeftCentered();
+				int mx = (int) Math.floor((e.getX() / zoom) - (pnt.x / zoom));
+				int my = (int) Math.floor((e.getY() / zoom) - (pnt.y / zoom));
 				setBoundedOrigin(mx,my);
+				}
 			}
 		super.processMouseEvent(e);
 		}
 
 	protected void processMouseMotionEvent(MouseEvent e)
 		{
-		if (enablemouse)
+		if (enableMouse)
 			{
 			if (e.getID() == MouseEvent.MOUSE_DRAGGED
 					&& (e.getModifiers() & MouseEvent.BUTTON1_MASK) != 0)

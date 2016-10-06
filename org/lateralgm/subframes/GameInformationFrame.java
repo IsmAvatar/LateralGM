@@ -127,8 +127,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 			setDefaultCloseOperation(HIDE_ON_CLOSE);
 			setLocationRelativeTo(LGM.getGameInfo());
 
-			setTitle(Messages.getString("GameInformationFrame.SETTINGS"));
-			setIconImage(LGM.getIconForKey("GameInformationFrame.SETTINGS").getImage());
+			setTitle(Messages.getString("GameInformationFrame.SETTINGS")); //$NON-NLS-1$
+			setIconImage(LGM.getIconForKey("GameInformationFrame.SETTINGS").getImage()); //$NON-NLS-1$
 			setResizable(false);
 			this.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 			this.add(makeSettings());
@@ -436,8 +436,8 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 		/*				*/.addComponent(lHeight)
 		/*				*/.addComponent(sHeight,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)));
 
-		JButton closeButton = new JButton(Messages.getString("GameInformationFrame.CLOSE"));
-		closeButton.setActionCommand("GameInformationFrame.CLOSE");
+		JButton closeButton = new JButton(Messages.getString("GameInformationFrame.CLOSE")); //$NON-NLS-1$
+		closeButton.setActionCommand("GameInformationFrame.CLOSE"); //$NON-NLS-1$
 		closeButton.addActionListener(this);
 
 		gl.setHorizontalGroup(gl.createParallelGroup()
