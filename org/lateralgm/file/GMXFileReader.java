@@ -1662,8 +1662,8 @@ public final class GMXFileReader
 							bkg.properties.put(
 									PBackgroundDef.VISIBLE,
 									Integer.parseInt(bnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
-							final String bkgname = bnode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
 
+							final String bkgname = bnode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
 							postpone.add(new DefaultPostponedRef(f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, bkgname));
 
 							bkg.properties.put(
@@ -1706,8 +1706,8 @@ public final class GMXFileReader
 							vw.properties.put(
 									PView.VISIBLE,
 									Integer.parseInt(vnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
-							final String objname = vnode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
 
+							final String objname = vnode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
 							postpone.add(new DefaultPostponedRef(f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, objname));
 
 							vw.properties.put(PView.SPEED_H,
@@ -1751,12 +1751,11 @@ public final class GMXFileReader
 
 							Instance inst = rmn.addInstance();
 
-							// TODO: Replace this with DelayedRef
 							String objname = inode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
-
-							// because of the way this is set up, sprites must be loaded before objects
+							// because of the way this is set up, objects must be loaded before rooms
 							GmObject temp = f.resMap.getList(GmObject.class).get(objname);
 							if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
+
 							NamedNodeMap attribs = inode.getAttributes();
 							int xx = Integer.parseInt(attribs.getNamedItem("x").getNodeValue()); //$NON-NLS-1$
 							int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue()); //$NON-NLS-1$
@@ -1926,7 +1925,6 @@ public final class GMXFileReader
 
 	private static void readPackages(ProjectFileContext c, ResNode root)
 		{
-
 		//iteratePackages(c, extList, node);
 		ExtensionPackages extpkgs = c.f.extPackages;
 		ResNode node = new ResNode(Resource.kindNamesPlural.get(ExtensionPackages.class),
@@ -1997,7 +1995,6 @@ public final class GMXFileReader
 		String path = c.f.getDirectory() + '/' + Util.getPOSIXPath(rtfNode.getTextContent());
 
 		String text = ""; //$NON-NLS-1$
-
 		try (BufferedReader reader = new BufferedReader(new FileReader(path)))
 			{
 			String line = ""; //$NON-NLS-1$
@@ -2005,6 +2002,8 @@ public final class GMXFileReader
 				{
 				text += line + '\n';
 				}
+
+			gameInfo.put(PGameInformation.TEXT,text);
 			}
 		catch (FileNotFoundException e)
 			{
@@ -2014,8 +2013,6 @@ public final class GMXFileReader
 			{
 			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
 			}
-
-		gameInfo.put(PGameInformation.TEXT,text);
 
 		ResNode node = new ResNode(Resource.kindNamesPlural.get(GameInformation.class),
 				ResNode.STATUS_SECONDARY,GameInformation.class,gameInfo.reference);
