@@ -340,11 +340,9 @@ public final class GMXFileReader
 		for (int i = 0; i < configNodes.getLength(); i++)
 			{
 			Node cNode = configNodes.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
 
 			if (cname.toLowerCase().equals("configs")) //$NON-NLS-1$
 				{
@@ -352,7 +350,6 @@ public final class GMXFileReader
 				}
 			else if (cname.toLowerCase().equals("config")) //$NON-NLS-1$
 				{
-
 				GameSettings gSet = new GameSettings();
 				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
 				gSet.setName(fileName);
@@ -514,12 +511,11 @@ public final class GMXFileReader
 					for (int ic = 0; ic < cnstsList.getLength(); ic++)
 						{
 						cnstNode = cnstsList.item(ic);
+						if (cnstNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 						String cnstName = cnstNode.getNodeName();
-						if (cnstName.toLowerCase().equals("#text")) //$NON-NLS-1$
-							{
-							continue;
-							}
-						else if (cnstName.toLowerCase().equals("constants")) //$NON-NLS-1$
+
+						if (cnstName.toLowerCase().equals("constants")) //$NON-NLS-1$
 							{
 							found = true;
 							break;
@@ -529,7 +525,6 @@ public final class GMXFileReader
 					if (found) readConstants(gSet.constants,cnstNode);
 
 					}
-
 				}
 			}
 
@@ -544,11 +539,9 @@ public final class GMXFileReader
 		for (int i = 0; i < sprList.getLength(); i++)
 			{
 			Node cNode = sprList.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
 
 			ResNode rnode = null;
 
@@ -662,11 +655,9 @@ public final class GMXFileReader
 		for (int i = 0; i < sndList.getLength(); i++)
 			{
 			Node cNode = sndList.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
 
 			ResNode rnode = null;
 
@@ -755,11 +746,9 @@ public final class GMXFileReader
 		for (int i = 0; i < bkgList.getLength(); i++)
 			{
 			Node cNode = bkgList.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
 
 			ResNode rnode = null;
 
@@ -857,11 +846,9 @@ public final class GMXFileReader
 		for (int i = 0; i < pthList.getLength(); i++)
 			{
 			Node cNode = pthList.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
 
 			ResNode rnode = null;
 
@@ -962,11 +949,9 @@ public final class GMXFileReader
 		for (int i = 0; i < scrList.getLength(); i++)
 			{
 			Node cNode = scrList.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
 
 			ResNode rnode = null;
 
@@ -1055,11 +1040,9 @@ public final class GMXFileReader
 		for (int i = 0; i < shrList.getLength(); i++)
 			{
 			Node cNode = shrList.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
 
 			ResNode rnode = null;
 
@@ -1133,11 +1116,9 @@ public final class GMXFileReader
 		for (int i = 0; i < fntList.getLength(); i++)
 			{
 			Node cNode = fntList.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
 
 			ResNode rnode = null;
 
@@ -1230,11 +1211,9 @@ public final class GMXFileReader
 		for (int i = 0; i < tmlList.getLength(); i++)
 			{
 			Node cNode = tmlList.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
 
 			ResNode rnode = null;
 
@@ -1272,11 +1251,9 @@ public final class GMXFileReader
 					for (int x = 0; x < children.getLength(); x++)
 						{
 						Node cnode = children.item(x);
-						if (cnode.getNodeName().equals("#text")) //$NON-NLS-1$
-							{
-							continue;
-							}
-						else if (cnode.getNodeName().equals("step")) //$NON-NLS-1$
+						if (cnode.getNodeType() != Node.ELEMENT_NODE) continue;
+
+						if (cnode.getNodeName().equals("step")) //$NON-NLS-1$
 							{
 							mom.stepNo = Integer.parseInt(cnode.getTextContent());
 							}
@@ -1319,11 +1296,10 @@ public final class GMXFileReader
 		for (int i = 0; i < objList.getLength(); i++)
 			{
 			Node cNode = objList.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
+
 			ResNode rnode = null;
 
 			if (cname.equals("objects")) //$NON-NLS-1$
@@ -1506,11 +1482,9 @@ public final class GMXFileReader
 		for (int i = 0; i < rmnList.getLength(); i++)
 			{
 			Node cNode = rmnList.item(i);
+			if (cNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
 
 			ResNode rnode = null;
 
@@ -1544,12 +1518,11 @@ public final class GMXFileReader
 				for (int x = 0; x < cnodes.getLength(); x++)
 					{
 					Node pnode = cnodes.item(x);
+					if (pnode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 					String pname = pnode.getNodeName();
-					if (pname.equals("#text")) //$NON-NLS-1$
-						{
-						continue;
-						}
-					else if (pname.equals("caption")) //$NON-NLS-1$
+
+					if (pname.equals("caption")) //$NON-NLS-1$
 						{
 						rmn.put(PRoom.CAPTION,pnode.getTextContent());
 						}
@@ -1608,12 +1581,11 @@ public final class GMXFileReader
 						for (int y = 0; y < msnodes.getLength(); y++)
 							{
 							Node mnode = msnodes.item(y);
+							if (mnode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 							String mname = mnode.getNodeName();
-							if (mname.equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
-							else if (mname.equals("isSet")) //$NON-NLS-1$
+
+							if (mname.equals("isSet")) //$NON-NLS-1$
 								{
 								rmn.put(PRoom.REMEMBER_WINDOW_SIZE,Integer.parseInt(mnode.getTextContent()) != 0);
 								}
@@ -1679,11 +1651,10 @@ public final class GMXFileReader
 						for (int y = 0; y < bgnodes.getLength(); y++)
 							{
 							Node bnode = bgnodes.item(y);
+							if (bnode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 							String bname = bnode.getNodeName();
-							if (bname.equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
+
 							final BackgroundDef bkg = rmn.backgroundDefs.get(bkgnum);
 							bkgnum += 1;
 
@@ -1724,11 +1695,10 @@ public final class GMXFileReader
 						for (int y = 0; y < vinodes.getLength(); y++)
 							{
 							Node vnode = vinodes.item(y);
+							if (vnode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 							String vname = vnode.getNodeName();
-							if (vname.equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
+
 							final View vw = rmn.views.get(viewnum);
 							viewnum += 1;
 
@@ -1773,12 +1743,11 @@ public final class GMXFileReader
 						for (int y = 0; y < insnodes.getLength(); y++)
 							{
 							Node inode = insnodes.item(y);
+							if (inode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 							String iname = inode.getNodeName();
-							if (iname.equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
-							else if (iname.equals("instance") && inode.getAttributes().getLength() > 0) //$NON-NLS-1$
+
+							if (iname.equals("instance") && inode.getAttributes().getLength() > 0) //$NON-NLS-1$
 								{
 								Instance inst = rmn.addInstance();
 
@@ -1836,11 +1805,10 @@ public final class GMXFileReader
 						for (int p = 0; p < tinodes.getLength(); p++)
 							{
 							Node tnode = tinodes.item(p);
+							if (tnode.getNodeType() != Node.ELEMENT_NODE) continue;
+
 							String tname = tnode.getNodeName();
-							if (tname.equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
+
 							final Tile tile = new Tile(rmn);
 
 							NamedNodeMap attribs = tnode.getAttributes();
@@ -2062,11 +2030,7 @@ public final class GMXFileReader
 		for (int i = 0; i < actList.getLength(); i++)
 			{
 			Node actNode = actList.item(i);
-
-			if (actNode.getNodeName().equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
+			if (actNode.getNodeType() != Node.ELEMENT_NODE) continue;
 
 			int libid = 0;
 			int actid = 0;
@@ -2090,11 +2054,7 @@ public final class GMXFileReader
 			for (int ii = 0; ii < propList.getLength(); ii++)
 				{
 				Node prop = propList.item(ii);
-
-				if (prop.getNodeName().equals("#text")) //$NON-NLS-1$
-					{
-					continue;
-					}
+				if (prop.getNodeType() != Node.ELEMENT_NODE) continue;
 
 				if (prop.getNodeName().equals("libid")) //$NON-NLS-1$
 					{
@@ -2148,41 +2108,22 @@ public final class GMXFileReader
 					{
 					NodeList targList = prop.getChildNodes();
 
-					List<Node> argList = new ArrayList<Node>();
+					List<Argument> argList = new ArrayList<Argument>();
 					for (int x = 0; x < targList.getLength(); x++)
 						{
-						Node arg = targList.item(x);
-						if (!arg.getNodeName().equals("#text")) //$NON-NLS-1$
-							{
-							argList.add(arg);
-							}
-						}
+						Node argNode = targList.item(x);
+						if (!argNode.getNodeName().equals("argument")) continue; //$NON-NLS-1$
 
-					args = new Argument[argList.size()];
+						final Argument argument = new Argument((byte) 0);
 
-					for (int x = 0; x < argList.size(); x++)
-						{
-						Node arg = argList.get(x);
-
-						if (arg.getNodeName().equals("#text")) //$NON-NLS-1$
-							{
-							continue;
-							}
-
-						args[x] = new Argument((byte) 0);
-
-						NodeList argproplist = arg.getChildNodes();
+						NodeList argproplist = argNode.getChildNodes();
 						for (int xx = 0; xx < argproplist.getLength(); xx++)
 							{
 							Node argprop = argproplist.item(xx);
-
-							if (prop.getNodeName().equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
+							if (argprop.getNodeType() != Node.ELEMENT_NODE) continue;
 
 							final String proptext = argprop.getTextContent();
-							final Argument argument = args[x];
+
 							if (argprop.getNodeName().equals("kind")) //$NON-NLS-1$
 								{
 								argument.kind = Byte.parseByte(argprop.getTextContent());
@@ -2193,7 +2134,6 @@ public final class GMXFileReader
 								}
 							else
 								{
-
 								Class<? extends Resource<?,?>> kindc = Argument.getResourceKind(argument.kind);
 								if (kindc != null && Resource.class.isAssignableFrom(kindc)) try
 									{
@@ -2225,7 +2165,11 @@ public final class GMXFileReader
 									}
 								}
 							}
+
+						argList.add(argument);
 						}
+
+					args = argList.toArray(new Argument[argList.size()]);
 					}
 				}
 
