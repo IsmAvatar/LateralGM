@@ -40,7 +40,6 @@ public final class Messages
 
 	private Messages()
 		{
-
 		}
 
 	//TODO: This method is exceedingly verbose, and we also need a way for users to install their own language packages.
