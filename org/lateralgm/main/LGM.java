@@ -197,13 +197,26 @@ public final class LGM
 
 	public static int javaVersion;
 	public static File tempDir, workDir;
+
+	private static int getInt(Scanner s)
+		{
+		try
+			{
+			return s.nextInt();
+			}
+		catch (Exception e)
+			{
+			return 0;
+			}
+		}
+
 	static
 		{
 		//Get Java Version
 		String jv = System.getProperty("java.version"); //$NON-NLS-1$
 		Scanner s = new Scanner(jv);
 		s.useDelimiter("[\\._-]"); //$NON-NLS-1$
-		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
+		javaVersion = getInt(s) * 10000 + getInt(s) * 100 + getInt(s);
 		s.close();
 
 		try
@@ -2060,8 +2073,10 @@ public final class LGM
 		//System.setProperty("com.apple.mrj.application.apple.menu.about.name",Messages.getString("LGM.NAME")); //$NON-NLS-1$ //$NON-NLS-2$
 
 		System.out.format("Java Version: %d (%s)\n",javaVersion,System.getProperty("java.version")); //$NON-NLS-2$
-		if (javaVersion < 10700)
-			System.out.println("WARNING: Some program functionality will be limited due to your outdated Java version.");
+		if (javaVersion == 0)
+			System.out.println("WARNING: Could not determine Java version. Some program functionality will be limited.");
+		else if (javaVersion < 10700)
+			System.out.println("WARNING: Your Java version is outdated. Some program functionality will be limited.");
 
 		// Load external look and feels the user has plugged in
 		loadLookAndFeels();
