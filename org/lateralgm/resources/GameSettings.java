@@ -28,7 +28,7 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 		{
 		try
 			{
-			String loc = "org/lateralgm/file/default.ico";
+			String loc = "org/lateralgm/file/default.ico"; //$NON-NLS-1$
 			InputStream filein;
 			File file = new File(loc);
 			if (!file.exists())
