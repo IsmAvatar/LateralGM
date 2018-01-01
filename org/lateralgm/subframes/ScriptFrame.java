@@ -178,10 +178,6 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
 				try
 					{
-					System.out.println(Desktop.getDesktop());
-					//					Desktop d = Desktop.getDesktop();
-					//					Desktop.Action.EDIT;
-					//					Toolkit.getDefaultToolkit().createDesktopPeer(d);
 					Desktop.getDesktop().edit(monitor.file);
 					}
 				catch (UnsupportedOperationException e)
