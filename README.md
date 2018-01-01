@@ -1,8 +1,6 @@
 LateralGM
 =========
-A cross-platform editor for Game Maker project files written in Java using Swing. You can find the latest build on the releases page.
-
-The source code is doxygen commented but [online documentation](http://enigma-dev.org/docs/Wiki/LateralGM) of the internals is available, including format specification details.
+A cross-platform editor for Game Maker project files written in Java using Swing. You can find the latest build on the releases page. The source code is doxygen commented but [online documentation](http://enigma-dev.org/docs/Wiki/LateralGM) of the internals is available, including format specification details.
 
 License
 -------
