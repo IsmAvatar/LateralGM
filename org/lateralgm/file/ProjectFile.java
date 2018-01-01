@@ -355,7 +355,7 @@ public class ProjectFile implements UpdateListener
 
 		resMap.put(Constants.class,new SingletonResourceHolder<Constants>(defaultConstants));
 		resMap.put(GameInformation.class,new SingletonResourceHolder<GameInformation>(gameInfo));
-		// TODO: We don't need this anymore. It should however still be iteratable, perhaps we should
+		// TODO: We don't need this anymore. It should however still be iterable, perhaps we should
 		// make a Config resource to manage all game configurations? - Robert
 		//resMap.put(GameSettings.class,new SingletonResourceHolder<GameSettings>(gs));
 		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(extPackages));
@@ -369,23 +369,6 @@ public class ProjectFile implements UpdateListener
 		Random random = new Random();
 		gs.put(PGameSettings.GAME_ID,random.nextInt(100000001));
 		random.nextBytes((byte[]) gs.get(PGameSettings.GAME_GUID));
-		try
-			{
-			String loc = "org/lateralgm/file/default.ico";
-			InputStream filein;
-			File file = new File(loc);
-			if (!file.exists())
-				filein = LGM.class.getClassLoader().getResourceAsStream(loc);
-			else
-				filein = new FileInputStream(file);
-			gs.put(PGameSettings.GAME_ICON,new ICOFile(filein));
-			}
-		catch (Exception ex)
-			{
-			System.err.println(Messages.getString("GmFile.NOICON")); //$NON-NLS-1$
-			System.err.println(ex.getMessage());
-			ex.printStackTrace();
-			}
 		return gs;
 	}
 
