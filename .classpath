@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="modules/" including="javax/|org/" kind="src" path=""/>
+	<classpathentry excluding="modules/" kind="src" path=""/>
 	<classpathentry kind="src" path="modules/joshedit"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
