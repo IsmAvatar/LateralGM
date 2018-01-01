@@ -180,7 +180,7 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
-	public static final String version = "1.8.10"; //$NON-NLS-1$
+	public static final String version = "1.8.22"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -622,7 +622,7 @@ public final class LGM
 		tool.add(makeButton("Toolbar.GMI")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.PKG")); //$NON-NLS-1$
 		tool.addSeparator();
-		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATIONS"))); //$NON-NLS-1$
+		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATION"))); //$NON-NLS-1$
 		configsCombo = new JComboBox<GameSettings>();
 		configsCombo.setModel(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
 		configsCombo.setMaximumSize(configsCombo.getPreferredSize());
@@ -2454,14 +2454,7 @@ public final class LGM
 		loadPlugins();
 		splashProgress.complete();
 
-		// this is necessary for the next call to properly center the frame or
-		// the method won't have the width/height of the window and instead the
-		// top-left corner of the window will be in the exact center of the screen
-		frame.pack();
-		// this makes sure the first time default location of the window that has
-		// not been stored is centered to the screen
-		frame.setLocationRelativeTo(null);
-		// call this after packing the frame and setting its default location
+		// remembers our window bounds and state between sessions
 		new FramePrefsHandler(frame);
 		// finally, set the frame visible
 		frame.setVisible(true);

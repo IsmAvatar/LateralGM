@@ -35,7 +35,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -114,7 +113,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> implements
-		MouseListener,UpdateListener,ValueChangeListener,ClipboardOwner, EffectsFrameListener
+		UpdateListener,ValueChangeListener,ClipboardOwner, EffectsFrameListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -171,7 +170,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private final SpritePropertyListener spl = new SpritePropertyListener();
 
 	private Map<BufferedImage,ImageEditor> editors;
-	private MouseListener mouseListener;
+	private MouseAdapter previewMouseAdapter;
 
 	/** Zoom in, centering around a specific point, usually the mouse. */
 	public void zoomIn(Point point)
@@ -240,26 +239,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		add(splitPane,BorderLayout.CENTER);
 		add(makeStatusBar(),BorderLayout.SOUTH);
 
-		mouseListener = new MouseListener()
+		previewMouseAdapter = new MouseAdapter()
 			{
-				@Override
-				public void mouseClicked(MouseEvent ev)
-					{
-					//preview.setCursor(LGM.zoomCursor);
-					}
-
-				@Override
-				public void mouseEntered(MouseEvent ev)
-					{
-					//preview.setCursor(LGM.zoomCursor);
-					}
-
-				@Override
-				public void mouseExited(MouseEvent ev)
-					{
-					//preview.setCursor(Cursor.getDefaultCursor());
-					}
-
 				@Override
 				public void mousePressed(MouseEvent ev)
 					{
@@ -894,7 +875,19 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		subList.setDragEnabled(true);
 		subList.setDropMode(DropMode.INSERT);
 		subList.setTransferHandler(new SubImageTransfer());
-		subList.addMouseListener(this);
+		subList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e)
+				{
+				Object s = e.getSource();
+				if (e.getClickCount() == 2 && s == subList)
+					{
+					int i = subList.getSelectedIndex();
+					if (i == -1 || i >= res.subImages.size()) return;
+					editSubimage(res.subImages.get(i));
+					}
+				}
+		});
 		subList.setDragEnabled(true);
 
 		subList.addListSelectionListener(new ListSelectionListener()
@@ -1496,14 +1489,14 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			{
 			if (zoomButton.isSelected())
 				{
-				preview.enablemouse = false;
+				preview.enableMouse = false;
 				preview.setCursor(LGM.zoomCursor);
-				preview.addMouseListener(mouseListener);
+				preview.addMouseListener(previewMouseAdapter);
 				}
 			else
 				{
-				preview.enablemouse = true;
-				preview.removeMouseListener(mouseListener);
+				preview.enableMouse = true;
+				preview.removeMouseListener(previewMouseAdapter);
 				preview.setCursor(Cursor.getDefaultCursor());
 				}
 			}
@@ -1725,17 +1718,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		}
 
-	public void mousePressed(MouseEvent e)
-		{
-		Object s = e.getSource();
-		if (e.getClickCount() == 2 && s == subList)
-			{
-			int i = subList.getSelectedIndex();
-			if (i == -1 || i >= res.subImages.size()) return;
-			editSubimage(res.subImages.get(i));
-			}
-		}
-
 	public void updated(UpdateEvent e)
 		{
 		updateStatusLabel();
@@ -1862,23 +1844,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		if (editors != null)
 			for (ImageEditor ie : editors.values().toArray(new ImageEditor[editors.size()]))
 				ie.stop();
-		}
-
-	//unused
-	public void mouseClicked(MouseEvent e)
-		{ //unused
-		}
-
-	public void mouseEntered(MouseEvent e)
-		{ //unused
-		}
-
-	public void mouseExited(MouseEvent e)
-		{ //unused
-		}
-
-	public void mouseReleased(MouseEvent e)
-		{ //unused
 		}
 
 	public void lostOwnership(Clipboard arg0, Transferable arg1)

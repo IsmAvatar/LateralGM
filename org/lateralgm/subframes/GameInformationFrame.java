@@ -57,8 +57,6 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
@@ -521,7 +519,7 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 
 		revertResource();
 		//NOTE: DO not add the document listeners until the first time you set the text.
-		addDocumentListeners();
+		editor.getDocument().addUndoableEditListener(undoManager);
 
 		this.add(new JScrollPane(editor),BorderLayout.CENTER);
 
@@ -566,25 +564,6 @@ public class GameInformationFrame extends ResourceFrame<GameInformation,PGameInf
 
 		pack();
 		setSize(getWidth(), 480);
-		}
-
-	private void addDocumentListeners()
-		{
-		editor.getDocument().addDocumentListener(new DocumentListener()
-			{
-				public void removeUpdate(DocumentEvent e)
-					{
-					}
-
-				public void changedUpdate(DocumentEvent e)
-					{
-					}
-
-				public void insertUpdate(DocumentEvent e)
-					{
-					}
-			});
-		editor.getDocument().addUndoableEditListener(undoManager);
 		}
 
 	public void setEditorBackground(Color c)

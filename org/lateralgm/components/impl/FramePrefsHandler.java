@@ -25,7 +25,8 @@ public class FramePrefsHandler implements ComponentListener,WindowStateListener
 		{
 		this.frame = frame;
 		frame.pack(); // makes the frame displayable, so that maximizing works
-		frame.setMinimumSize(frame.getSize());
+		frame.setSize(800, 600); // give a nice default minimized size
+		frame.setLocationRelativeTo(null); // center on the screen by default
 		//TODO: This breaks multi-monitor maximize. This patch was to fix the Swing cross-platform
 		//look and feels from covering the task bar when maximized. Should find a better work around.
 		//https://github.com/IsmAvatar/LateralGM/issues/222
