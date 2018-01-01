@@ -38,7 +38,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -64,7 +63,6 @@ import org.lateralgm.resources.sub.ShapePoint;
 public class ResourceInfoFrame extends JFrame implements ActionListener
 	{
 	private static final long serialVersionUID = 1L;
-	protected JSpinner sSizes;
 	protected JTextArea editor;
 	protected Color fgColor;
 	private CustomFileChooser fc;
