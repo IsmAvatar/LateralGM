@@ -622,7 +622,7 @@ public final class LGM
 		tool.add(makeButton("Toolbar.GMI")); //$NON-NLS-1$
 		tool.add(makeButton("Toolbar.PKG")); //$NON-NLS-1$
 		tool.addSeparator();
-		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATIONS"))); //$NON-NLS-1$
+		tool.add(new JLabel(Messages.getString("Toolbar.CONFIGURATION"))); //$NON-NLS-1$
 		configsCombo = new JComboBox<GameSettings>();
 		configsCombo.setModel(new DefaultComboBoxModel<GameSettings>(LGM.currentFile.gameSettings));
 		configsCombo.setMaximumSize(configsCombo.getPreferredSize());
