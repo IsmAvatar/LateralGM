@@ -20,8 +20,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -82,7 +82,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 	public JCheckBox preload;
 	public JCheckBox tileset;
 
-	public MouseListener mouseListener = null;
+	public MouseAdapter mouseAdapter = null;
 
 	public NumberField tWidth;
 	public NumberField tHeight;
@@ -150,27 +150,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 		preview = new BackgroundPreview(res);
 		preview.setVerticalAlignment(SwingConstants.TOP);
 
-		mouseListener = new MouseListener()
+		mouseAdapter = new MouseAdapter()
 			{
-
-				@Override
-				public void mouseClicked(MouseEvent ev)
-					{
-					//preview.setCursor(LGM.zoomCursor);
-					}
-
-				@Override
-				public void mouseEntered(MouseEvent ev)
-					{
-					//preview.setCursor(LGM.zoomCursor);
-					}
-
-				@Override
-				public void mouseExited(MouseEvent ev)
-					{
-					//preview.setCursor(Cursor.getDefaultCursor());
-					}
-
 				@Override
 				public void mousePressed(MouseEvent ev)
 					{
@@ -536,11 +517,11 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			if (zoomButton.isSelected())
 				{
 				preview.setCursor(LGM.zoomCursor);
-				preview.addMouseListener(mouseListener);
+				preview.addMouseListener(mouseAdapter);
 				}
 			else
 				{
-				preview.removeMouseListener(mouseListener);
+				preview.removeMouseListener(mouseAdapter);
 				preview.setCursor(Cursor.getDefaultCursor());
 				}
 			}
