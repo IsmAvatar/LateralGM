@@ -180,7 +180,7 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
-	public static final String version = "1.8.10"; //$NON-NLS-1$
+	public static final String version = "1.8.22"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
