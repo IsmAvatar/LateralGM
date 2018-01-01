@@ -35,7 +35,7 @@ import javax.swing.text.*;
  *
  * @author  Timothy Prinzing (of this class, not the package!)
  */
-public class RTFEditorKitExt extends StyledEditorKit {
+public class RTFEditorKit extends StyledEditorKit {
 
    /**
     * NOTE: Default UID generated, change if necessary.
@@ -45,7 +45,7 @@ public class RTFEditorKitExt extends StyledEditorKit {
     /**
      * Constructs an RTFEditorKit.
      */
-    public RTFEditorKitExt() {
+    public RTFEditorKit() {
         super();
     }
 

@@ -101,6 +101,8 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 	public FontFrame(Font res, ResNode node)
 		{
 		super(res,node);
+
+		this.getRootPane().setDefaultButton(save);
 		((JComponent) getContentPane()).setBorder(new EmptyBorder(4,4,4,4));
 
 		propUpdateListener = new PropertyUpdateListener<PFont>()

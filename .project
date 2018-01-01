@@ -20,4 +20,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>net.sf.eclipsecs.core.CheckstyleNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>joshedit</name>
+			<type>2</type>
+			<location>C:/Users/Owner/Documents/Eclipse Workspace/LateralGM/modules/joshedit</location>
+		</link>
+	</linkedResources>
 </projectDescription>
