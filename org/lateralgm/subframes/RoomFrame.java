@@ -2474,10 +2474,10 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			if (result == JOptionPane.OK_OPTION && newDepth != depth)
 				{
 				Room currentRoom = editor.getRoom();
-	
+
 				// Stores several actions in one compound action for the undo
 				//CompoundEdit compoundEdit = new CompoundEdit();
-	
+
 				// Update each tile with the selected layer
 				for (int i = currentRoom.tiles.size() - 1; i >= 0; i--)
 					{
@@ -2487,11 +2487,11 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 						tile.setDepth(newDepth);
 						}
 					}
-	
+
 				//TODO: Save the action for the undo
 				//compoundEdit.end();
 				//undoSupport.postEdit(compoundEdit);
-	
+
 				// Replace the layer from the combo box
 				layers.remove(depth);
 				if (!layers.contains(newDepth)) layers.add(newDepth);
