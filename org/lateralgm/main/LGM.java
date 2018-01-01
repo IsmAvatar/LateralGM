@@ -180,7 +180,7 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
-	public static final String version = "1.8.7.18"; //$NON-NLS-1$
+	public static final String version = "1.8.8"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -203,7 +203,10 @@ public final class LGM
 		String jv = System.getProperty("java.version"); //$NON-NLS-1$
 		Scanner s = new Scanner(jv);
 		s.useDelimiter("[\\._-]"); //$NON-NLS-1$
-		javaVersion = s.nextInt() * 10000 + s.nextInt() * 100 + s.nextInt();
+		int major = s.hasNextInt() ? s.nextInt() * 10000 : 0;
+		int minor = s.hasNextInt() ? s.nextInt() * 100 : 0;
+		int patch = s.hasNextInt() ? s.nextInt() : 0;
+		javaVersion = major + minor + patch;
 		s.close();
 
 		try

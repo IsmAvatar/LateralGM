@@ -357,7 +357,7 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 	//generic tree node children.
 	public Vector<ResNode> getChildren()
 		{
-		return children;
+		return (Vector)children;
 		}
 
 	public ResourceReference<? extends Resource<?,?>> getRes()

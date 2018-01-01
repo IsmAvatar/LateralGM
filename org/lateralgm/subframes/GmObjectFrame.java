@@ -142,6 +142,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		{
 		super(res,node);
 
+		this.getRootPane().setDefaultButton(save);
 		GroupLayout layout = new GroupLayout(getContentPane());
 		setLayout(layout);
 
@@ -579,7 +580,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		public void sortChildren()
 			{
 			// This doesn't seem to have any unwanted effects (directly sorting the protected field)
-			Collections.sort((java.util.Vector<EventInstanceNode>) children);
+			Collections.sort((List)children);
 			}
 
 		public TreePath childPath(Event e)

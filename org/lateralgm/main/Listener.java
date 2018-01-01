@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -43,6 +44,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.text.Position;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.lateralgm.components.AboutBox;
@@ -268,14 +270,14 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		}
 
-	public DefaultMutableTreeNode findNode(DefaultMutableTreeNode parent, String name,
+	public TreeNode findNode(DefaultMutableTreeNode parent, String name,
 			boolean recursive)
 		{
-		Enumeration<DefaultMutableTreeNode> enumeration =
+		Enumeration<TreeNode> enumeration =
 				recursive ? parent.preorderEnumeration() : parent.children();
 		while (enumeration.hasMoreElements())
 			{
-			DefaultMutableTreeNode child = enumeration.nextElement();
+			TreeNode child = enumeration.nextElement();
 			if (child.toString().equals(name)) return child;
 			}
 
@@ -646,23 +648,25 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		return true;
 		}
 
-	public static void sortNodeChildrenAlphabetically(DefaultMutableTreeNode node, boolean recursive)
+	public static void sortNodeChildrenAlphabetically(TreeNode node, boolean recursive)
 		{
-		ArrayList<DefaultMutableTreeNode> children = (ArrayList<DefaultMutableTreeNode>) Collections.list(node.children());
-		Comparator<DefaultMutableTreeNode> comp = new Comparator<DefaultMutableTreeNode>()
+		DefaultMutableTreeNode defaultNode = (DefaultMutableTreeNode) node;
+		List<TreeNode> children = (List<TreeNode>) Collections.list(node.children());
+		Comparator<TreeNode> comp = new Comparator<TreeNode>()
 			{
-				public int compare(DefaultMutableTreeNode o1, DefaultMutableTreeNode o2)
+				public int compare(TreeNode o1, TreeNode o2)
 					{
 					return o1.toString().compareTo(o2.toString());
 					}
 			};
 		Collections.sort(children,comp);
-		node.removeAllChildren();
-		Iterator<DefaultMutableTreeNode> childrenIterator = children.iterator();
+
+		defaultNode.removeAllChildren();
+		Iterator<TreeNode> childrenIterator = children.iterator();
 		while (childrenIterator.hasNext())
 			{
-			DefaultMutableTreeNode child = childrenIterator.next();
-			node.add(child);
+			TreeNode child = childrenIterator.next();
+			defaultNode.add((DefaultMutableTreeNode)child);
 			if (recursive && child.getChildCount() > 0)
 				{
 				sortNodeChildrenAlphabetically(child,recursive);

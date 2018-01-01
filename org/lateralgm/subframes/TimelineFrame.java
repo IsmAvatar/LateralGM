@@ -75,6 +75,8 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 	public TimelineFrame(Timeline res, ResNode node)
 		{
 		super(res,node);
+
+		this.getRootPane().setDefaultButton(save);
 		GroupLayout layout = new GroupLayout(getContentPane());
 		setLayout(layout);
 
