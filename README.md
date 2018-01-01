@@ -1,13 +1,12 @@
 LateralGM
 =========
-A Java Swing based cross-platform editor for Game Maker project files.
-The source code is doxygen commented but more documentation of the internals including format specifications are available online at http://enigma-dev.org/docs/Wiki/LateralGM
+A cross-platform editor for Game Maker project files written in Java using Swing. You can find the latest build on the releases page.
 
-A C++11 compliant library for reading LGM's Action Library format is also available online at https://github.com/enigma-dev/ActionLibraryReader
+The source code is doxygen commented but [online documentation](http://enigma-dev.org/docs/Wiki/LateralGM) of the internals is available, including format specification details.
 
 License
 -------
-This project is licensed under the GNU GPL v3 License for more information please read the included LICENSE file or visit http://www.gnu.org/licenses
+This project is licensed under the GNU GPL v3 License. Please read the included LICENSE file or visit http://www.gnu.org/licenses for more information.
 
 Contributors
 -------
