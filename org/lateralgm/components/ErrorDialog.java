@@ -54,14 +54,16 @@ public class ErrorDialog extends JDialog implements ActionListener
 				INSTANCE = new ErrorDialog(LGM.frame,
 						Messages.getString("ErrorDialog.UNCAUGHT_TITLE"), //$NON-NLS-1$
 						Messages.getString("ErrorDialog.UNCAUGHT_MESSAGE"), //$NON-NLS-1$
-						Prefs.issueURI); //$NON-NLS-1$
+						Prefs.issueURI);
 			}
 			return INSTANCE;
 		}
 
 	public static String generateAgnosticInformation()
 		{
-		String ret = "Operating System: " + System.getProperty("os.name");
+		String ret = "LateralGM Version: " + LGM.version;
+
+		ret += "\n\nOperating System: " + System.getProperty("os.name");
 		ret += "\nVersion: " + System.getProperty("os.version");
 		ret += "\nArchitecture: " + System.getProperty("os.arch");
 

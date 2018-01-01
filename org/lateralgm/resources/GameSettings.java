@@ -10,13 +10,40 @@
 package org.lateralgm.resources;
 
 import java.awt.Color;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.EnumMap;
 
 import org.lateralgm.file.ProjectFile;
+import org.lateralgm.file.iconio.ICOFile;
+import org.lateralgm.main.LGM;
+import org.lateralgm.messages.Messages;
 import org.lateralgm.util.PropertyMap;
 
 public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettings>
 	{
+	public static ICOFile DEFAULT_ICON = null;
+	static
+		{
+		try
+			{
+			String loc = "org/lateralgm/file/default.ico"; //$NON-NLS-1$
+			InputStream filein;
+			File file = new File(loc);
+			if (!file.exists())
+				filein = LGM.class.getClassLoader().getResourceAsStream(loc);
+			else
+				filein = new FileInputStream(file);
+			DEFAULT_ICON = new ICOFile(filein);
+			}
+		catch (Exception ex)
+			{
+			System.err.println(Messages.getString("GmFile.NOICON")); //$NON-NLS-1$
+			System.err.println(ex.getMessage());
+			ex.printStackTrace();
+			}
+		}
 
 	public Constants constants = new Constants();
 
@@ -75,7 +102,7 @@ public class GameSettings extends Resource<GameSettings,GameSettings.PGameSettin
 			true,ProgressBar.DEFAULT,null,null,false,null,false,255,true,/**/
 			true,false,false,false,true,
 			"","100",ProjectFile.longTimeToGmTime(System.currentTimeMillis()),"",/**///$NON-NLS-1$ //$NON-NLS-3$
-			IncludeFolder.MAIN,false,false,1,0,0,0,"","","","",null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			IncludeFolder.MAIN,false,false,1,0,0,0,"","","","",DEFAULT_ICON); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 	@Override
 	public GameSettings makeInstance(ResourceReference<GameSettings> ref)
