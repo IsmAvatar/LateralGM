@@ -359,7 +359,6 @@ public class ProjectFile implements UpdateListener
 			if (ref != null) props.put(key,ref);
 			return ref != null;
 			}
-
 		}
 
 	public static class IdMapPostponedRef<R extends InstantiableResource<R,?>,K extends Enum<K>> extends IdPostponedRef<R>
@@ -380,8 +379,6 @@ public class ProjectFile implements UpdateListener
 			if (ref != null) props.put(key,ref);
 			return ref != null;
 			}
-
-
 		}
 
 	public SortedMap<Integer,Trigger> triggers = new TreeMap<Integer,Trigger>();
