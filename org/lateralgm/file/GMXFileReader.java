@@ -977,8 +977,7 @@ public final class GMXFileReader
 				for (int y = 0; y < bgnodes.getLength(); y++)
 					{
 					Node bnode = bgnodes.item(y);
-					if (!(bnode instanceof Element)) continue;
-					String bname = bnode.getNodeName();
+					if (!bnode.getNodeName().equals("background")) continue; //$NON-NLS-1$
 
 					final BackgroundDef bkg = rmn.backgroundDefs.get(bkgnum);
 					bkgnum += 1;
@@ -1010,7 +1009,6 @@ public final class GMXFileReader
 							Integer.parseInt(bnode.getAttributes().getNamedItem("x").getTextContent())); //$NON-NLS-1$
 					bkg.properties.put(PBackgroundDef.Y,
 							Integer.parseInt(bnode.getAttributes().getNamedItem("y").getTextContent())); //$NON-NLS-1$
-
 					}
 				}
 			else if (pname.equals("views")) //$NON-NLS-1$
@@ -1020,8 +1018,7 @@ public final class GMXFileReader
 				for (int y = 0; y < vinodes.getLength(); y++)
 					{
 					Node vnode = vinodes.item(y);
-					if (!(vnode instanceof Element)) continue;
-					String vname = vnode.getNodeName();
+					if (!vnode.getNodeName().equals("view")) continue; //$NON-NLS-1$
 
 					final View vw = rmn.views.get(viewnum);
 					viewnum += 1;
@@ -1067,57 +1064,53 @@ public final class GMXFileReader
 				for (int y = 0; y < insnodes.getLength(); y++)
 					{
 					Node inode = insnodes.item(y);
-					if (!(inode instanceof Element)) continue;
-					String iname = inode.getNodeName();
+					if (!inode.getNodeName().equals("instance")) continue; //$NON-NLS-1$
 
-					if (iname.equals("instance") && inode.getAttributes().getLength() > 0) //$NON-NLS-1$
+					Instance inst = rmn.addInstance();
+
+					String objname = inode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
+					postpone.add(new NamedMapPostponedRef(GmObject.class, objname, inst.properties, PInstance.OBJECT));
+
+					NamedNodeMap attribs = inode.getAttributes();
+					int xx = Integer.parseInt(attribs.getNamedItem("x").getNodeValue()); //$NON-NLS-1$
+					int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue()); //$NON-NLS-1$
+					double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue()); //$NON-NLS-1$
+					double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue()); //$NON-NLS-1$
+
+					// Read the color blending
+					if (attribs.getNamedItem("colour") != null) //$NON-NLS-1$
 						{
-						Instance inst = rmn.addInstance();
-
-						String objname = inode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
-						postpone.add(new NamedMapPostponedRef(GmObject.class, objname, inst.properties, PInstance.OBJECT));
-
-						NamedNodeMap attribs = inode.getAttributes();
-						int xx = Integer.parseInt(attribs.getNamedItem("x").getNodeValue()); //$NON-NLS-1$
-						int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue()); //$NON-NLS-1$
-						double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue()); //$NON-NLS-1$
-						double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue()); //$NON-NLS-1$
-
-						// Read the color blending
-						if (attribs.getNamedItem("colour") != null) //$NON-NLS-1$
-							{
-							long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue()); //$NON-NLS-1$
-							Color color = Util.convertInstanceColorWithAlpha((int) col);
-							inst.setColor(color);
-							inst.setAlpha(color.getAlpha());
-							}
-
-						double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue()); //$NON-NLS-1$
-						inst.properties.put(PInstance.NAME, inode.getAttributes().getNamedItem("name").getNodeValue()); //$NON-NLS-1$
-
-						// NOTE: Because LGM still supports GMK, we attempt to preserve the ID which Studio
-						// will remove if it saves over the GMX, so see if the "id" attribute we added is
-						// there otherwise make up a new ID.
-						/*
-						Node idNode = inode.getAttributes().getNamedItem("id"); //$NON-NLS-1$
-						int instid;
-						if (idNode != null) {
-							instid = Integer.parseInt(idNode.getNodeValue());
-							if (instid > f.lastInstanceId) {
-								f.lastInstanceId = instid;
-							}
-						} else {
-							instid = ++f.lastInstanceId;
+						long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue()); //$NON-NLS-1$
+						Color color = Util.convertInstanceColorWithAlpha((int) col);
+						inst.setColor(color);
+						inst.setAlpha(color.getAlpha());
 						}
 
-						inst.properties.put(PInstance.ID, instid);*/
+					double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue()); //$NON-NLS-1$
+					inst.properties.put(PInstance.NAME, inode.getAttributes().getNamedItem("name").getNodeValue()); //$NON-NLS-1$
 
-						inst.setPosition(new Point(xx,yy));
-						inst.setScale(new Point2D.Double(sx,sy));
-						inst.setRotation(rot);
-						inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue()); //$NON-NLS-1$
-						inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) != 0); //$NON-NLS-1$
+					// NOTE: Because LGM still supports GMK, we attempt to preserve the ID which Studio
+					// will remove if it saves over the GMX, so see if the "id" attribute we added is
+					// there otherwise make up a new ID.
+					/*
+					Node idNode = inode.getAttributes().getNamedItem("id"); //$NON-NLS-1$
+					int instid;
+					if (idNode != null) {
+						instid = Integer.parseInt(idNode.getNodeValue());
+						if (instid > f.lastInstanceId) {
+							f.lastInstanceId = instid;
 						}
+					} else {
+						instid = ++f.lastInstanceId;
+					}
+
+					inst.properties.put(PInstance.ID, instid);*/
+
+					inst.setPosition(new Point(xx,yy));
+					inst.setScale(new Point2D.Double(sx,sy));
+					inst.setRotation(rot);
+					inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue()); //$NON-NLS-1$
+					inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) != 0); //$NON-NLS-1$
 					}
 				}
 			else if (pname.equals("tiles")) //$NON-NLS-1$
@@ -1126,8 +1119,7 @@ public final class GMXFileReader
 				for (int p = 0; p < tinodes.getLength(); p++)
 					{
 					Node tnode = tinodes.item(p);
-					if (!(tnode instanceof Element)) continue;
-					String tname = tnode.getNodeName();
+					if (!tnode.getNodeName().equals("tile")) continue; //$NON-NLS-1$
 
 					final Tile tile = new Tile(rmn);
 

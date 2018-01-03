@@ -1177,7 +1177,7 @@ public final class GmFileReader
 			int contents = in.read4();
 			if (contents > 0)
 				{
-				left.push(new Integer(rootnodes));
+				left.push(rootnodes);
 				rootnodes = contents;
 				path.push(node);
 				}

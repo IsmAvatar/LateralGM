@@ -1167,11 +1167,11 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 		if (askforsize)
 			{
 			NumberFormatter nf = new NumberFormatter();
-			nf.setMinimum(new Integer(1));
+			nf.setMinimum(1);
 			JFormattedTextField wField = new JFormattedTextField(nf);
-			wField.setValue(new Integer(width));
+			wField.setValue(width);
 			JFormattedTextField hField = new JFormattedTextField(nf);
-			hField.setValue(new Integer(height));
+			hField.setValue(height);
 
 			JPanel myPanel = new JPanel();
 			GridLayout layout = new GridLayout(0,2,0,3);
