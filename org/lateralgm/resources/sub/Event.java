@@ -350,7 +350,7 @@ public class Event extends ActionContainer implements Comparable<Event>,Inherent
 		//Numpad happens to map 1:1 (96..105)
 		for (int c = KeyEvent.VK_NUMPAD0; c <= KeyEvent.VK_NUMPAD9; c++)
 			keys.put(c,c);
-		/*		keys.put(KeyEvent.VK_NUMPAD0,96); //vk_numpad0
+		/*	keys.put(KeyEvent.VK_NUMPAD0,96); //vk_numpad0
 				keys.put(KeyEvent.VK_97); //vk_numpad1
 				keys.put(KeyEvent.VK_98); //vk_numpad2
 				keys.put(KeyEvent.VK_99); //vk_numpad3
@@ -377,7 +377,7 @@ public class Event extends ActionContainer implements Comparable<Event>,Inherent
 		//F1-12 happen to map 1:1 (112..123)
 		for (int c = KeyEvent.VK_F1; c <= KeyEvent.VK_F12; c++)
 			keys.put(c,c);
-		/*		keys.put(KeyEvent.VK_F1,112); //vk_f1
+		/*	keys.put(KeyEvent.VK_F1,112); //vk_f1
 				keys.put(KeyEvent.VK_113); //vk_f2
 				keys.put(KeyEvent.VK_114); //vk_f3
 				keys.put(KeyEvent.VK_115); //vk_f4

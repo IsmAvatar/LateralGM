@@ -131,11 +131,6 @@ public final class GMXFileWriter
 			this.f = f;
 			this.dom = d;
 			}
-
-		public ProjectFileContext copy()
-			{
-			return new ProjectFileContext(f,dom);
-			}
 		}
 
 	public static void writeProjectFile(OutputStream os, ProjectFile f, ResNode rootRes, int ver)

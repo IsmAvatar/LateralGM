@@ -26,7 +26,8 @@ import java.util.zip.DataFormatException;
 import javax.swing.JProgressBar;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.ProjectFile.ResourceHolder;
+import org.lateralgm.file.ProjectFile.IdPostponedRef;
+import org.lateralgm.file.ProjectFile.PostponedRef;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -49,7 +50,6 @@ import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
@@ -57,6 +57,7 @@ import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Script.PScript;
+import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sprite;
@@ -91,35 +92,7 @@ public final class GmFileReader
 		{
 		}
 
-	static Queue<PostponedRef> postpone = new LinkedList<PostponedRef>();
-
-	static interface PostponedRef
-		{
-		boolean invoke();
-		}
-
-	static class DefaultPostponedRef<K extends Enum<K>> implements PostponedRef
-		{
-		ResourceList<?> list;
-		String name;
-		PropertyMap<K> p;
-		K key;
-
-		DefaultPostponedRef(ResourceList<?> list, PropertyMap<K> p, K key, String name)
-			{
-			this.list = list;
-			this.p = p;
-			this.key = key;
-			this.name = name;
-			}
-
-		public boolean invoke()
-			{
-			Resource<?,?> temp = list.get(name);
-			if (temp != null) p.put(key,temp.reference);
-			return temp != null;
-			}
-		}
+	private static Queue<PostponedRef<?>> postpone = new LinkedList<>();
 
 	//Workaround for Parameter limit
 	private static class ProjectFileContext
@@ -203,10 +176,10 @@ public final class GmFileReader
 			JProgressBar progressBar = LGM.getProgressDialogBar();
 			progressBar.setMaximum(200);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING")); //$NON-NLS-1$
+			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
 
 			GameSettings gs = c.f.gameSettings.get(0);
 
-			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
 				{
@@ -285,13 +258,15 @@ public final class GmFileReader
 			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 			//Resources read. Now we can invoke our postpones.
 			int percent = 0;
-			for (PostponedRef i : postpone)
+			for (PostponedRef ref : postpone)
 				{
-				i.invoke();
+				ref.invoke(file.resMap);
+
 				percent += 1;
-				LGM.setProgress(160 + percent / postpone.size(),
+				LGM.setProgress(160 + (percent / postpone.size()) * 10,
 						Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 				}
+			postpone.clear();
 
 			LGM.setProgress(170,Messages.getString("ProgressDialog.LIBRARYCREATION")); //$NON-NLS-1$
 			//Library Creation Code
@@ -627,7 +602,6 @@ public final class GmFileReader
 				}
 			Sprite spr = f.resMap.getList(Sprite.class).add();
 			//temporarily set bbmode to manual so bbox doesn't get recalculated until bbmode is ready
-			//TODO: This should be made a little less retarded, I added a null check to bbmode call - Robert
 			spr.put(PSprite.BB_MODE,BBMode.MANUAL);
 			BBMode actualBBMode = null;
 			spr.setName(in.readStr());
@@ -1230,7 +1204,6 @@ public final class GmFileReader
 			}
 		node = new ResNode("Constants",ResNode.STATUS_SECONDARY,Constants.class);
 		root.insert(node,12);
-
 		}
 
 	private static void readActions(ProjectFileContext c, ActionContainer container, String errorKey,
@@ -1260,7 +1233,7 @@ public final class GmFileReader
 				la.id = actid;
 				la.parentId = libid;
 				la.actionKind = (byte) in.read4();
-				//TODO: Maybe make this more agnostic?"
+
 				if (la.actionKind == Action.ACT_CODE)
 					{
 					la = LibManager.codeAction;
@@ -1336,21 +1309,16 @@ public final class GmFileReader
 					{
 					final int id = Integer.parseInt(strval);
 					final Argument arg = args[l];
-					PostponedRef pr = new PostponedRef()
+					PostponedRef pr = new IdPostponedRef(Argument.getResourceKind(arg.kind), id)
 						{
-							public boolean invoke()
+							@Override
+							public boolean set(ResourceReference ref)
 								{
-								ResourceHolder<?> rh = f.resMap.get(Argument.getResourceKind(arg.kind));
-								Resource<?,?> temp = null;
-								if (rh instanceof ResourceList<?>)
-									temp = ((ResourceList<?>) rh).getUnsafe(id);
-								else
-									temp = rh.getResource();
-								if (temp != null) arg.setRes(temp.reference);
-								return temp != null;
+								if (ref != null) arg.setRes(ref);
+								return ref != null;
 								}
 						};
-					if (!pr.invoke()) postpone.add(pr);
+					postpone.add(pr);
 					}
 				catch (NumberFormatException e)
 					{
