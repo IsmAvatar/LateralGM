@@ -81,6 +81,7 @@ import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Shader;
+import org.lateralgm.resources.Shader.PShader;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sprite;
@@ -436,7 +437,9 @@ public final class GMXFileReader
 					else if (kind.equals(Shader.class))
 						{
 						Shader shr = (Shader)resource;
-						//TODO: shr.put(PShader.TYPE,cNode.getAttributes().item(0).getTextContent());
+						Node typeAttribute = node.hasAttributes() ?
+								node.getAttributes().getNamedItem("type") : null; //$NON-NLS-1$
+						shr.put(PShader.TYPE,typeAttribute.getNodeValue());
 
 						String[] split = text.split(STUPID_SHADER_MARKER);
 
