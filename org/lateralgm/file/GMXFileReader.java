@@ -123,6 +123,46 @@ public final class GMXFileReader
 	public static final String STUPID_SHADER_MARKER =
 			"//######################_==_YOYO_SHADER_MARKER_==_######################@~"; //$NON-NLS-1$
 
+	// this map is used for picking the .resource.gmx file extension
+	// it exists because some resources, i.e. Config, use names different from LGM
+	// config also must be lowercase, as written by GMS, which we must copy
+	// because operating systems like Linux are case-sensitive
+	public static Map<Class<? extends Resource<?,?>>, String> gmxNames = new HashMap<>();
+	static
+		{
+		gmxNames.put(Sprite.class,"sprite"); //$NON-NLS-1$
+		gmxNames.put(Sound.class,"sound"); //$NON-NLS-1$
+		gmxNames.put(Background.class,"background"); //$NON-NLS-1$
+		gmxNames.put(Path.class,"path"); //$NON-NLS-1$
+		//gmxNames.put(Script.class,"gml"); //$NON-NLS-1$
+		//gmxNames.put(Shader.class,"shader"); //$NON-NLS-1$
+		gmxNames.put(Font.class,"font"); //$NON-NLS-1$
+		gmxNames.put(Timeline.class,"timeline"); //$NON-NLS-1$
+		gmxNames.put(GmObject.class,"object"); //$NON-NLS-1$
+		gmxNames.put(Room.class,"room"); //$NON-NLS-1$
+		gmxNames.put(GameSettings.class,"config"); //$NON-NLS-1$
+		//gmxNames.put(GameInformation.class,"rtf"); //$NON-NLS-1$
+		}
+
+	// this map is used to construct the tree in the appropriate order
+	// it maps the GMX Node names, different from LGM, to the kinds
+	public static Map<String, Class<? extends Resource<?,?>>> gmxNamesPlural = new LinkedHashMap<>();
+	static
+		{
+		gmxNamesPlural.put("sprites",Sprite.class); //$NON-NLS-1$
+		gmxNamesPlural.put("sounds",Sound.class); //$NON-NLS-1$
+		gmxNamesPlural.put("backgrounds",Background.class); //$NON-NLS-1$
+		gmxNamesPlural.put("paths",Path.class); //$NON-NLS-1$
+		gmxNamesPlural.put("scripts",Script.class); //$NON-NLS-1$
+		gmxNamesPlural.put("shaders",Shader.class); //$NON-NLS-1$
+		gmxNamesPlural.put("fonts",Font.class); //$NON-NLS-1$
+		gmxNamesPlural.put("timelines",Timeline.class); //$NON-NLS-1$
+		gmxNamesPlural.put("objects",GmObject.class); //$NON-NLS-1$
+		gmxNamesPlural.put("rooms",Room.class); //$NON-NLS-1$
+		gmxNamesPlural.put("Configs",GameSettings.class); //$NON-NLS-1$
+		gmxNamesPlural.put("help",GameInformation.class); //$NON-NLS-1$
+		}
+
 	private static DocumentBuilderFactory documentBuilderFactory;
 	private static DocumentBuilder documentBuilder;
 
@@ -225,7 +265,47 @@ public final class GMXFileReader
 			progressBar.setMaximum(180);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING")); //$NON-NLS-1$
 
-			GMXFileReader.readTree(c,root);
+			Document in = c.in;
+			Map<Class<? extends Resource<?,?>>, ResNode> primaryNodes = new HashMap<>();
+			NodeList nodes = in.getDocumentElement().getChildNodes();
+
+			// walk the tree loading resources as we go
+			int progress = 0; // i has fake elements like "#text" so we need a separate counter
+			for (int i = 0; i < nodes.getLength(); ++i)
+				{
+				Node node = nodes.item(i);
+				if (!(node instanceof Element)) continue;
+				String name = node.getNodeName();
+				Class<? extends Resource<?,?>> kind = gmxNamesPlural.get(name);
+				if (kind == null) continue;
+				String kindName = Resource.kindNamesPlural.get(kind);
+				byte status = InstantiableResource.class.isAssignableFrom(kind) ?
+						ResNode.STATUS_PRIMARY : ResNode.STATUS_SECONDARY;
+
+				float percentage = (float) progress / gmxNamesPlural.size();
+				LGM.setProgress((int)(percentage * 160),kindName); //$NON-NLS-1$
+
+				ResNode resNode = new ResNode(kindName,status,kind,null);
+				GMXFileReader.readTree(c,node.getChildNodes(), resNode, kind);
+				primaryNodes.put(kind, resNode);
+				++progress;
+				}
+
+			// now add the root nodes in the correct order
+			LGM.setProgress(170,Messages.getString("ProgressDialog.FILETREE")); //$NON-NLS-1$
+			for (Class<? extends Resource<?,?>> kind : Resource.kinds)
+				{
+				ResNode resNode = primaryNodes.get(kind);
+				if (resNode == null)
+					{
+					String kindName = Resource.kindNamesPlural.get(kind);
+					byte status = InstantiableResource.class.isAssignableFrom(kind) ?
+							ResNode.STATUS_PRIMARY : ResNode.STATUS_SECONDARY;
+
+					resNode = new ResNode(kindName,status,kind,null);
+					}
+				root.add(resNode);
+				}
 
 			LGM.setProgress(170,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 			// All resources read, now we can invoke our postponed references.
@@ -259,89 +339,6 @@ public final class GMXFileReader
 				String key = Messages.getString("GmFileReader.ERROR_CLOSEFAILED"); //$NON-NLS-1$
 				throw new GmFormatException(file,key);
 				}
-			}
-		}
-
-	// this map is used for picking the .resource.gmx file extension
-	// it exists because some resources, i.e. Config, use names different from LGM
-	// config also must be lowercase, as written by GMS, which we must copy
-	// because operating systems like Linux are case-sensitive
-	public static Map<Class<? extends Resource<?,?>>, String> gmxNames = new HashMap<>();
-	static
-		{
-		gmxNames.put(Sprite.class,"sprite"); //$NON-NLS-1$
-		gmxNames.put(Sound.class,"sound"); //$NON-NLS-1$
-		gmxNames.put(Background.class,"background"); //$NON-NLS-1$
-		gmxNames.put(Path.class,"path"); //$NON-NLS-1$
-		//gmxNames.put(Script.class,"gml"); //$NON-NLS-1$
-		//gmxNames.put(Shader.class,"shader"); //$NON-NLS-1$
-		gmxNames.put(Font.class,"font"); //$NON-NLS-1$
-		gmxNames.put(Timeline.class,"timeline"); //$NON-NLS-1$
-		gmxNames.put(GmObject.class,"object"); //$NON-NLS-1$
-		gmxNames.put(Room.class,"room"); //$NON-NLS-1$
-		gmxNames.put(GameSettings.class,"config"); //$NON-NLS-1$
-		//gmxNames.put(GameInformation.class,"rtf"); //$NON-NLS-1$
-		}
-
-	// this map is used to construct the tree in the appropriate order
-	// it maps the GMX Node names, different from LGM, to the kinds
-	public static Map<String, Class<? extends Resource<?,?>>> gmxNamesPlural = new LinkedHashMap<>();
-	static
-		{
-		gmxNamesPlural.put("sprites",Sprite.class); //$NON-NLS-1$
-		gmxNamesPlural.put("sounds",Sound.class); //$NON-NLS-1$
-		gmxNamesPlural.put("backgrounds",Background.class); //$NON-NLS-1$
-		gmxNamesPlural.put("paths",Path.class); //$NON-NLS-1$
-		gmxNamesPlural.put("scripts",Script.class); //$NON-NLS-1$
-		gmxNamesPlural.put("shaders",Shader.class); //$NON-NLS-1$
-		gmxNamesPlural.put("fonts",Font.class); //$NON-NLS-1$
-		gmxNamesPlural.put("timelines",Timeline.class); //$NON-NLS-1$
-		gmxNamesPlural.put("objects",GmObject.class); //$NON-NLS-1$
-		gmxNamesPlural.put("rooms",Room.class); //$NON-NLS-1$
-		gmxNamesPlural.put("Configs",GameSettings.class); //$NON-NLS-1$
-		gmxNamesPlural.put("help",GameInformation.class); //$NON-NLS-1$
-		}
-
-	private static void readTree(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-		Map<Class<? extends Resource<?,?>>, ResNode> primaryNodes = new HashMap<>();
-		NodeList nodes = in.getDocumentElement().getChildNodes();
-
-		int progress = 0; // i has fake elements like "#text" so we need a separate counter
-		for (int i = 0; i < nodes.getLength(); ++i)
-			{
-			Node node = nodes.item(i);
-			if (!(node instanceof Element)) continue;
-			String name = node.getNodeName();
-			Class<? extends Resource<?,?>> kind = gmxNamesPlural.get(name);
-			if (kind == null) continue;
-			String kindName = Resource.kindNamesPlural.get(kind);
-			byte status = InstantiableResource.class.isAssignableFrom(kind) ?
-					ResNode.STATUS_PRIMARY : ResNode.STATUS_SECONDARY;
-
-			float percentage = (float) progress / gmxNamesPlural.size();
-			LGM.setProgress((int)(percentage * 160),kindName); //$NON-NLS-1$
-
-			ResNode resNode = new ResNode(kindName,status,kind,null);
-			GMXFileReader.readTree(c,node.getChildNodes(), resNode, kind);
-			primaryNodes.put(kind, resNode);
-			++progress;
-			}
-
-		LGM.setProgress(170,Messages.getString("ProgressDialog.FILETREE")); //$NON-NLS-1$
-		for (Class<? extends Resource<?,?>> kind : Resource.kinds)
-			{
-			ResNode resNode = primaryNodes.get(kind);
-			if (resNode == null)
-				{
-				String kindName = Resource.kindNamesPlural.get(kind);
-				byte status = InstantiableResource.class.isAssignableFrom(kind) ?
-						ResNode.STATUS_PRIMARY : ResNode.STATUS_SECONDARY;
-
-				resNode = new ResNode(kindName,status,kind,null);
-				}
-			root.add(resNode);
 			}
 		}
 
