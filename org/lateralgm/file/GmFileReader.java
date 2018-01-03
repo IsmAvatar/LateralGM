@@ -255,16 +255,14 @@ public final class GmFileReader
 			LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
 			readGameInformation(c);
 
-			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 			//Resources read. Now we can invoke our postpones.
-			int percent = 0;
+			int progress = 0;
 			for (PostponedRef ref : postpone)
 				{
+				float percentage = ((float) progress / postpone.size()) * 10;
+				LGM.setProgress((int)(160 + percentage),Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 				ref.invoke(file.resMap);
-
-				percent += 1;
-				LGM.setProgress(160 + (percent / postpone.size()) * 10,
-						Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
+				++progress;
 				}
 			postpone.clear();
 
