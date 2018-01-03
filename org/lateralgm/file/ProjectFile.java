@@ -283,12 +283,18 @@ public class ProjectFile implements UpdateListener
 			this.kind = kind;
 			}
 
-		public void invoke(ResourceMap resMap)
+		public boolean invoke(ResourceMap resMap)
 			{
-			ResourceHolder<R> holder = resMap.get(kind);
-			this.find(holder);
+			ResourceHolder<R> rh = resMap.get(kind);
+			R temp = null;
+			if (rh instanceof ResourceList<?>)
+				temp = this.find((ResourceList<R>) rh);
+			else
+				temp = rh.getResource();
+			if (temp != null) return this.set(temp.reference);
+			return temp != null;
 			}
-		public abstract boolean find(ResourceHolder<R> rh);
+		public abstract R find(ResourceList<R> list);
 		public abstract boolean set(ResourceReference<R> ref);
 		}
 
@@ -303,15 +309,9 @@ public class ProjectFile implements UpdateListener
 			}
 
 		@Override
-		public boolean find(ResourceHolder<R> rh)
+		public R find(ResourceList<R> list)
 			{
-			R temp = null;
-			if (rh instanceof ResourceList<?>)
-				temp = ((ResourceList<R>) rh).get(name);
-			else
-				temp = rh.getResource();
-			if (temp != null) return this.set(temp.reference);
-			return temp != null;
+			return list.get(name);
 			}
 		}
 
@@ -326,15 +326,9 @@ public class ProjectFile implements UpdateListener
 			}
 
 		@Override
-		public boolean find(ResourceHolder<R> rh)
+		public R find(ResourceList<R> list)
 			{
-			R temp = null;
-			if (rh instanceof ResourceList<?>)
-				temp = ((ResourceList<R>) rh).getUnsafe(id);
-			else
-				temp = rh.getResource();
-			if (temp != null) return this.set(temp.reference);
-			return temp != null;
+			return list.getUnsafe(id);
 			}
 		}
 
