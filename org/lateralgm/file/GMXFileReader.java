@@ -222,12 +222,12 @@ public final class GMXFileReader
 			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
 
 			JProgressBar progressBar = LGM.getProgressDialogBar();
-			progressBar.setMaximum(170);
+			progressBar.setMaximum(180);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING")); //$NON-NLS-1$
 
 			GMXFileReader.readTree(c,root);
 
-			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
+			LGM.setProgress(170,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 			// All resources read, now we can invoke our postponed references.
 			for (PostponedRef<?> ref : postpone)
 				{
@@ -235,7 +235,7 @@ public final class GMXFileReader
 				}
 			postpone.clear();
 
-			LGM.setProgress(170,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
+			LGM.setProgress(180,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
 			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
 					- startTime));
 			}
@@ -308,6 +308,7 @@ public final class GMXFileReader
 		Map<Class<? extends Resource<?,?>>, ResNode> primaryNodes = new HashMap<>();
 		NodeList nodes = in.getDocumentElement().getChildNodes();
 
+		int progress = 0; // i has fake elements like "#text" so we need a separate counter
 		for (int i = 0; i < nodes.getLength(); ++i)
 			{
 			Node node = nodes.item(i);
@@ -319,13 +320,16 @@ public final class GMXFileReader
 			byte status = InstantiableResource.class.isAssignableFrom(kind) ?
 					ResNode.STATUS_PRIMARY : ResNode.STATUS_SECONDARY;
 
-			LGM.setProgress(i * 10,Messages.format("ProgressDialog.LOADING",kindName)); //$NON-NLS-1$
-			
+			float percentage = (float) progress / gmxNamesPlural.size();
+			LGM.setProgress((int)(percentage * 160),kindName); //$NON-NLS-1$
+
 			ResNode resNode = new ResNode(kindName,status,kind,null);
 			GMXFileReader.readTree(c,node.getChildNodes(), resNode, kind);
 			primaryNodes.put(kind, resNode);
+			++progress;
 			}
 
+		LGM.setProgress(170,Messages.getString("ProgressDialog.FILETREE")); //$NON-NLS-1$
 		for (Class<? extends Resource<?,?>> kind : Resource.kinds)
 			{
 			ResNode resNode = primaryNodes.get(kind);
