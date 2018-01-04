@@ -204,31 +204,6 @@ public final class GMXFileReader
 			return doc;
 		}
 
-	//Workaround for Parameter limit
-	private static class ProjectFileContext
-		{
-		ProjectFile f;
-		Document in;
-		RefList<Timeline> timeids;
-		RefList<GmObject> objids;
-		RefList<Room> rmids;
-
-		public ProjectFileContext(ProjectFile f, Document d, RefList<Timeline> timeids,
-				RefList<GmObject> objids, RefList<Room> rmids)
-			{
-			this.f = f;
-			this.in = d;
-			this.timeids = timeids;
-			this.objids = objids;
-			this.rmids = rmids;
-			}
-
-		public ProjectFileContext copy()
-			{
-			return new ProjectFileContext(f,in,timeids,objids,rmids);
-			}
-		}
-
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root)
 			throws GmFormatException
 		{
@@ -250,24 +225,19 @@ public final class GMXFileReader
 				{
 				throw new GmFormatException(file,e1);
 				}
-		RefList<Timeline> timeids = new RefList<Timeline>(Timeline.class); // timeline ids
-		RefList<GmObject> objids = new RefList<GmObject>(GmObject.class); // object ids
-		RefList<Room> rmids = new RefList<Room>(Room.class); // room id
+
 		long startTime = System.currentTimeMillis();
 
 		try
 			{
 			Document document = GMXFileReader.parseDocumentUnchecked(file, uri.toString());
 
-			ProjectFileContext c = new ProjectFileContext(file,document,timeids,objids,rmids);
-
 			JProgressBar progressBar = LGM.getProgressDialogBar();
 			progressBar.setMaximum(180);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING")); //$NON-NLS-1$
 
-			Document in = c.in;
 			Map<Class<? extends Resource<?,?>>, ResNode> primaryNodes = new HashMap<>();
-			NodeList nodes = in.getDocumentElement().getChildNodes();
+			NodeList nodes = document.getDocumentElement().getChildNodes();
 
 			// walk the tree loading resources as we go
 			int progress = 0; // i has fake elements like "#text" so we need a separate counter
@@ -286,7 +256,7 @@ public final class GMXFileReader
 				LGM.setProgress((int)(percentage * 160),kindName); //$NON-NLS-1$
 
 				ResNode resNode = new ResNode(kindName,status,kind,null);
-				GMXFileReader.readTree(c,node.getChildNodes(), resNode, kind);
+				GMXFileReader.readTree(file, node.getChildNodes(), resNode, kind);
 				primaryNodes.put(kind, resNode);
 				++progress;
 				}
@@ -342,9 +312,8 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readTree(ProjectFileContext c, NodeList nodes, ResNode root, Class kind)
+	private static void readTree(ProjectFile projectFile, NodeList nodes, ResNode root, Class kind)
 		{
-		ProjectFile f = c.f;
 		for (int i = 0; i < nodes.getLength(); ++i)
 			{
 			Node node = nodes.item(i);
@@ -356,12 +325,12 @@ public final class GMXFileReader
 				{
 				resNode = new ResNode(nameAttribute.getTextContent(),
 						ResNode.STATUS_GROUP,kind,null);
-				GMXFileReader.readTree(c,node.getChildNodes(),resNode,kind);
+				GMXFileReader.readTree(projectFile,node.getChildNodes(),resNode,kind);
 				}
 			else
 				{
 				Resource<?,?> resource = null;
-				ResourceHolder holder = f.resMap.get(kind);
+				ResourceHolder holder = projectFile.resMap.get(kind);
 				if (holder instanceof ResourceList)
 					{
 					ResourceList list = (ResourceList) holder;
@@ -375,7 +344,7 @@ public final class GMXFileReader
 					{
 					continue;
 					}
-				String filePath = f.getDirectory() + '/' + node.getTextContent();
+				String filePath = projectFile.getDirectory() + '/' + node.getTextContent();
 				resource.setName(new File(Util.getPOSIXPath(filePath)).getName());
 				String kindName = gmxNames.get(kind);
 				File file = null;
@@ -383,7 +352,7 @@ public final class GMXFileReader
 				if (kindName != null)
 					{
 					file = new File(filePath + '.' + gmxNames.get(kind) + ".gmx"); //$NON-NLS-1$
-					doc = GMXFileReader.parseDocumentChecked(f, file.getAbsolutePath());
+					doc = GMXFileReader.parseDocumentChecked(projectFile, file.getAbsolutePath());
 					}
 
 				boolean skipNode = false;
@@ -420,11 +389,11 @@ public final class GMXFileReader
 						}
 					catch (FileNotFoundException e)
 						{
-						LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + filePath, e));
+						LGM.showDefaultExceptionHandler(new GmFormatException(projectFile, "file not found: " + filePath, e));
 						}
 					catch (IOException e)
 						{
-						LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + filePath, e));
+						LGM.showDefaultExceptionHandler(new GmFormatException(projectFile, "unable to read file: " + filePath, e));
 						}
 
 					if (kind.equals(Script.class))

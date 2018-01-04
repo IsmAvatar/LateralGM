@@ -19,20 +19,15 @@ public class GmFormatException extends ProjectFormatException
 	public GmFormatException(ProjectFile file, String message)
 		{
 		super(file,message);
-		this.file = file;
 		}
 
 	public GmFormatException(ProjectFile file, String message, Throwable cause)
 		{
 		super(file,message,cause);
-		this.file = file;
-		this.cause = cause;
 		}
 
 	public GmFormatException(ProjectFile file, Exception e)
 		{
 		super(file,e);
-		this.e = e;
-		this.file = file;
 		}
 	}
