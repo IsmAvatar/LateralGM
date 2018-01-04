@@ -1178,7 +1178,7 @@ public final class GMXFileReader
 		cgf.put(
 				PGameSettings.ABORT_ON_ERROR,
 				Boolean.parseBoolean(setdoc.getElementsByTagName("option_aborterrors").item(0).getTextContent())); //$NON-NLS-1$
-		// TODO: This value is stored using the Windows native dialog's name for the color value, ie
+		// TODO: This value is stored using the Delphi dialog's name for the color value, ie
 		// "clBlack" or "clWhite" meaning black and white respectively. If the user chooses a custom
 		// defined color in the dialog, then the value is in the hexadecimal form "$HHHHHHHH" using
 		// a dollar sign instead of a hash sign as a normal hex color value does in other places in
@@ -1327,7 +1327,6 @@ public final class GMXFileReader
 				}
 
 			if (found) readConstants(cgf.constants,cnstNode);
-
 			}
 		}
 
