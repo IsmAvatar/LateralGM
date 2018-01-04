@@ -1339,10 +1339,8 @@ public final class GMXFileReader
 		for (int i = 0; i < cnstNodes.getLength(); i++)
 			{
 			Node cnstNode = cnstNodes.item(i);
-			if (!cnstNode.getNodeName().equals("constant")) //$NON-NLS-1$
-				{
-				continue;
-				}
+			if (!cnstNode.getNodeName().equals("constant")) continue; //$NON-NLS-1$
+
 			String name = cnstNode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
 			String value = cnstNode.getTextContent();
 			newList.add(new Constant(name,value));
