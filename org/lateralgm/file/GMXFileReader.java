@@ -471,8 +471,6 @@ public final class GMXFileReader
 		spr.put(PSprite.TILE_VERTICALLY,
 				Integer.parseInt(doc.getElementsByTagName("VTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
 
-		// TODO: Read texture groups
-
 		spr.put(PSprite.FOR3D,
 				Integer.parseInt(doc.getElementsByTagName("For3D").item(0).getTextContent()) != 0); //$NON-NLS-1$
 
@@ -557,8 +555,6 @@ public final class GMXFileReader
 				Integer.parseInt(doc.getElementsByTagName("HTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
 		bkg.put(PBackground.TILE_VERTICALLY,
 				Integer.parseInt(doc.getElementsByTagName("VTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
-
-		// TODO: Read texture groups
 
 		bkg.put(PBackground.FOR3D,
 				Integer.parseInt(doc.getElementsByTagName("For3D").item(0).getTextContent()) != 0); //$NON-NLS-1$
