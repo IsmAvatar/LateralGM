@@ -781,7 +781,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readRoom(Room rmn, Document rmndoc, ProjectFile f)
+	private static void readRoom(Room rmn, Document rmndoc, ProjectFile projectFile)
 		{
 		String caption = rmndoc.getElementsByTagName("caption").item(0).getTextContent(); //$NON-NLS-1$
 		rmn.put(PRoom.CAPTION,caption);
@@ -1022,11 +1022,11 @@ public final class GMXFileReader
 					int instid;
 					if (idNode != null) {
 						instid = Integer.parseInt(idNode.getNodeValue());
-						if (instid > f.lastInstanceId) {
-							f.lastInstanceId = instid;
+						if (instid > projectFile.lastInstanceId) {
+							projectFile.lastInstanceId = instid;
 						}
 					} else {
-						instid = ++f.lastInstanceId;
+						instid = ++projectFile.lastInstanceId;
 					}
 
 					inst.properties.put(PInstance.ID, instid);
@@ -1072,8 +1072,8 @@ public final class GMXFileReader
 					tile.properties.put(PTile.NAME, attribs.getNamedItem("name").getNodeValue()); //$NON-NLS-1$
 
 					int tileid = Integer.parseInt(attribs.getNamedItem("id").getTextContent()); //$NON-NLS-1$
-					if (tileid > f.lastTileId) {
-						f.lastTileId = tileid;
+					if (tileid > projectFile.lastTileId) {
+						projectFile.lastTileId = tileid;
 					}
 					tile.properties.put(PTile.ID,tileid);
 
