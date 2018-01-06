@@ -312,7 +312,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readTree(NodeList nodes, ResNode root, Class kind, ProjectFile projectFile)
+	private static void readTree(NodeList nodes, ResNode root, Class<?> kind, ProjectFile projectFile)
 		{
 		for (int i = 0; i < nodes.getLength(); ++i)
 			{
@@ -329,7 +329,7 @@ public final class GMXFileReader
 				}
 			else
 				{
-				ResourceHolder holder = projectFile.resMap.get(kind);
+				ResourceHolder<?> holder = projectFile.resMap.get(kind);
 				if (holder == null) continue;
 				Resource<?,?> resource = holder.getResource();
 
@@ -1229,8 +1229,8 @@ public final class GMXFileReader
 				Integer.parseInt(setdoc.getElementsByTagName("option_gameid").item(0).getTextContent())); //$NON-NLS-1$
 		cgf.put(
 				PGameSettings.GAME_GUID,
-				HexBin.decode(setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent().replace( //$NON-NLS-1$
-						"-","").replace("{","").replace("}","")));
+				HexBin.decode(setdoc.getElementsByTagName("option_gameguid").item(0).getTextContent() //$NON-NLS-1$
+						.replaceAll("[-{}]",""))); //$NON-NLS-1$ //$NON-NLS-2$
 
 		cgf.put(PGameSettings.AUTHOR,
 				setdoc.getElementsByTagName("option_author").item(0).getTextContent()); //$NON-NLS-1$
