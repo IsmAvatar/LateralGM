@@ -79,6 +79,7 @@ import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Shader.PShader;
 import org.lateralgm.resources.Sound;
@@ -344,8 +345,6 @@ public final class GMXFileReader
 					doc = GMXFileReader.parseDocumentChecked(projectFile, file.getAbsolutePath());
 					}
 
-				boolean skipNode = false;
-
 				if (kind.equals(Sprite.class))
 					{
 					readSprite((Sprite)resource, doc, file);
@@ -366,14 +365,64 @@ public final class GMXFileReader
 								|| kind.equals(Shader.class)
 								|| kind.equals(GameInformation.class))
 					{
-					String text = ""; //$NON-NLS-1$
 					try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) 
 						{
 						String line = ""; //$NON-NLS-1$
+						String text = ""; //$NON-NLS-1$
 
-						while ((line = reader.readLine()) != null)
+						if (kind.equals(Script.class))
 							{
-							text += line + '\n';
+							line = reader.readLine();
+							if (line != null)
+								{
+								if (line.startsWith("#define")) //$NON-NLS-1$
+									line = reader.readLine();
+								do
+									{
+									if (line.startsWith("#define")) //$NON-NLS-1$
+										{
+										((Script)resource).setCode(text);
+										text = ""; //$NON-NLS-1$
+										// put this script in the tree
+										resNode = new ResNode(resource.getName(),ResNode.STATUS_SECONDARY,Script.class,resource.reference);
+										root.add(resNode);
+										// get the next script to read
+										resource = holder.getResource();
+										resource.setName(line.substring(8, line.length()));
+										}
+									else
+										{
+										text += line + '\n';
+										}
+									}
+								while ((line = reader.readLine()) != null);
+								((Script)resource).setCode(text);
+								}
+							}
+						else // shader or game info so just read all
+							{
+							while ((line = reader.readLine()) != null)
+								{
+								text += line + '\n';
+								}
+
+							if (kind.equals(Shader.class))
+								{
+								Shader shr = (Shader)resource;
+								Node typeAttribute = node.hasAttributes() ?
+										node.getAttributes().getNamedItem("type") : null; //$NON-NLS-1$
+								shr.put(PShader.TYPE,typeAttribute.getNodeValue());
+
+								String[] split = text.split(STUPID_SHADER_MARKER);
+
+								shr.setVertexCode(split[0]);
+								if (split.length > 0) shr.setFragmentCode(split[1]);
+								}
+							else // then it's game info
+								{
+								GameInformation gameInfo = (GameInformation) resource;
+								gameInfo.put(PGameInformation.TEXT, text);
+								}
 							}
 						}
 					catch (FileNotFoundException e)
@@ -383,32 +432,6 @@ public final class GMXFileReader
 					catch (IOException e)
 						{
 						LGM.showDefaultExceptionHandler(new GmFormatException(projectFile, "unable to read file: " + filePath, e));
-						}
-
-					if (kind.equals(Script.class))
-						{
-						Script scr = (Script) resource;
-
-						//TODO: String[] split = text.split(arg0);
-
-						scr.setCode(text);
-						}
-					else if (kind.equals(Shader.class))
-						{
-						Shader shr = (Shader)resource;
-						Node typeAttribute = node.hasAttributes() ?
-								node.getAttributes().getNamedItem("type") : null; //$NON-NLS-1$
-						shr.put(PShader.TYPE,typeAttribute.getNodeValue());
-
-						String[] split = text.split(STUPID_SHADER_MARKER);
-
-						shr.setVertexCode(split[0]);
-						if (split.length > 0) shr.setFragmentCode(split[1]);
-						}
-					else if (kind.equals(GameInformation.class))
-						{
-						GameInformation gameInfo = (GameInformation) resource;
-						gameInfo.put(PGameInformation.TEXT, text);
 						}
 					}
 				else if (kind.equals(Font.class))
@@ -432,7 +455,7 @@ public final class GMXFileReader
 					readConfig((GameSettings)resource, doc, file);
 					}
 
-				if (skipNode || kind.equals(GameInformation.class)) continue; // already has a node
+				if (kind.equals(GameInformation.class)) continue; // already has a node
 
 				resNode = new ResNode(resource.getName(),
 						ResNode.STATUS_SECONDARY,kind,resource.reference);
