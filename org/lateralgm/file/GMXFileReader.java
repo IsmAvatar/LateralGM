@@ -330,21 +330,10 @@ public final class GMXFileReader
 				}
 			else
 				{
-				Resource<?,?> resource = null;
 				ResourceHolder holder = projectFile.resMap.get(kind);
-				if (holder instanceof ResourceList)
-					{
-					ResourceList list = (ResourceList) holder;
-					resource = list.add();
-					}
-				else if (holder instanceof SingletonResourceHolder)
-					{
-					resource = holder.getResource();
-					}
-				else
-					{
-					continue;
-					}
+				if (holder == null) continue;
+				Resource<?,?> resource = holder.getResource();
+
 				String filePath = projectFile.getDirectory() + '/' + node.getTextContent();
 				resource.setName(new File(Util.getPOSIXPath(filePath)).getName());
 				String kindName = gmxNames.get(kind);
