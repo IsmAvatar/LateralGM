@@ -79,7 +79,6 @@ import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Script;
-import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Shader.PShader;
 import org.lateralgm.resources.Sound;
