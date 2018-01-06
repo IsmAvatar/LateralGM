@@ -126,7 +126,7 @@ public final class GMXFileReader
 	// it exists because some resources, i.e. Config, use names different from LGM
 	// config also must be lowercase, as written by GMS, which we must copy
 	// because operating systems like Linux are case-sensitive
-	public static Map<Class<? extends Resource<?,?>>, String> gmxNames = new HashMap<>();
+	public static final Map<Class<? extends Resource<?,?>>, String> gmxNames = new HashMap<>();
 	static
 		{
 		gmxNames.put(Sprite.class,"sprite"); //$NON-NLS-1$
@@ -145,7 +145,7 @@ public final class GMXFileReader
 
 	// this map is used to construct the tree in the appropriate order
 	// it maps the GMX Node names, different from LGM, to the kinds
-	public static Map<String, Class<? extends Resource<?,?>>> gmxNamesPlural = new LinkedHashMap<>();
+	public static final Map<String, Class<? extends Resource<?,?>>> gmxNamesPlural = new LinkedHashMap<>();
 	static
 		{
 		gmxNamesPlural.put("sprites",Sprite.class); //$NON-NLS-1$
