@@ -23,7 +23,6 @@
 
 package org.lateralgm.file;
 
-import java.util.List;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -41,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -51,12 +51,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.ProjectFile.PostponedRef;
-import org.lateralgm.file.ProjectFile.NamedPostponedRef;
 import org.lateralgm.file.ProjectFile.IdMapPostponedRef;
 import org.lateralgm.file.ProjectFile.NamedMapPostponedRef;
+import org.lateralgm.file.ProjectFile.NamedPostponedRef;
+import org.lateralgm.file.ProjectFile.PostponedRef;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
-import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
