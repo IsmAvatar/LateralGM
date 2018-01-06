@@ -1208,12 +1208,6 @@ public final class GMXFileReader
 			cgf.put(PGameSettings.LAST_CHANGED,Double.parseDouble(changed));
 			}
 
-		// TODO: Could not find these properties in GMX
-		//gSet.put(PGameSettings.BACK_LOAD_BAR,
-		//	Boolean.parseBoolean(setdoc.getElementsByTagName("option_stayontop").item(0).getTextContent()));
-		//gSet.put(PGameSettings.FRONT_LOAD_BAR,
-		//	Boolean.parseBoolean(setdoc.getElementsByTagName("option_showcursor").item(0).getTextContent()));
-
 		String icopath = file.getParentFile().getParent() + '/'
 				+ setdoc.getElementsByTagName("option_windows_game_icon").item(0).getTextContent(); //$NON-NLS-1$
 		try
