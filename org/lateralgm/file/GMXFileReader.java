@@ -240,7 +240,8 @@ public final class GMXFileReader
 			NodeList nodes = document.getDocumentElement().getChildNodes();
 
 			// walk the tree loading resources as we go
-			int progress = 0; // i has fake elements like "#text" so we need a separate counter
+			// NOTE: nodes has fake elements like "#text" so we need a separate counter
+			int progress = 0;
 			for (int i = 0; i < nodes.getLength(); ++i)
 				{
 				Node node = nodes.item(i);
@@ -253,10 +254,10 @@ public final class GMXFileReader
 						ResNode.STATUS_PRIMARY : ResNode.STATUS_SECONDARY;
 
 				float percentage = (float) progress / gmxNamesPlural.size();
-				LGM.setProgress((int)(percentage * 160),kindName); //$NON-NLS-1$
+				LGM.setProgress((int)(percentage * 160), kindName);
 
-				ResNode resNode = new ResNode(kindName,status,kind,null);
-				GMXFileReader.readTree(file, node.getChildNodes(), resNode, kind);
+				ResNode resNode = new ResNode(kindName, status, kind, null);
+				GMXFileReader.readTree(node.getChildNodes(), resNode, kind, file);
 				primaryNodes.put(kind, resNode);
 				++progress;
 				}
@@ -312,7 +313,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readTree(ProjectFile projectFile, NodeList nodes, ResNode root, Class kind)
+	private static void readTree(NodeList nodes, ResNode root, Class kind, ProjectFile projectFile)
 		{
 		for (int i = 0; i < nodes.getLength(); ++i)
 			{
@@ -325,7 +326,7 @@ public final class GMXFileReader
 				{
 				resNode = new ResNode(nameAttribute.getTextContent(),
 						ResNode.STATUS_GROUP,kind,null);
-				GMXFileReader.readTree(projectFile,node.getChildNodes(),resNode,kind);
+				GMXFileReader.readTree(node.getChildNodes(),resNode,kind,projectFile);
 				}
 			else
 				{
@@ -359,19 +360,19 @@ public final class GMXFileReader
 
 				if (kind.equals(Sprite.class))
 					{
-					readSprite((Sprite)resource,doc,file);
+					readSprite((Sprite)resource, doc, file);
 					}
 				else if (kind.equals(Sound.class))
 					{
-					readSound((Sound)resource,doc,file);
+					readSound((Sound)resource, doc, file);
 					}
 				else if (kind.equals(Background.class))
 					{
-					readBackground((Background)resource,doc,file);
+					readBackground((Background)resource, doc, file);
 					}
 				else if (kind.equals(Path.class))
 					{
-					readPath((Path)resource,doc,file);
+					readPath((Path)resource, doc);
 					}
 				else if (kind.equals(Script.class)
 								|| kind.equals(Shader.class)
@@ -424,23 +425,23 @@ public final class GMXFileReader
 					}
 				else if (kind.equals(Font.class))
 					{
-					readFont((Font)resource,doc,file);
+					readFont((Font)resource, doc);
 					}
 				else if (kind.equals(Timeline.class))
 					{
-					readTimeline((Timeline)resource,doc,file);
+					readTimeline((Timeline)resource, doc);
 					}
 				else if (kind.equals(GmObject.class))
 					{
-					readGmObject((GmObject)resource,doc,file);
+					readGmObject((GmObject)resource, doc);
 					}
 				else if (kind.equals(Room.class))
 					{
-					readRoom((Room)resource,doc,file);
+					readRoom((Room)resource, doc, projectFile);
 					}
 				else if (kind.equals(GameSettings.class))
 					{
-					readConfig((GameSettings)resource,doc,file);
+					readConfig((GameSettings)resource, doc, file);
 					}
 
 				if (skipNode || kind.equals(GameInformation.class)) continue; // already has a node
@@ -592,7 +593,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readPath(Path pth, Document pthdoc, File file)
+	private static void readPath(Path pth, Document pthdoc)
 		{
 		pth.put(PPath.SMOOTH,
 				Integer.parseInt(pthdoc.getElementsByTagName("kind").item(0).getTextContent()) != 0); //$NON-NLS-1$
@@ -623,7 +624,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readFont(Font fnt, Document doc, File file)
+	private static void readFont(Font fnt, Document doc)
 		{
 		fnt.put(PFont.FONT_NAME,doc.getElementsByTagName("name").item(0).getTextContent()); //$NON-NLS-1$
 		fnt.put(PFont.SIZE,
@@ -665,7 +666,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readTimeline(Timeline tml, Document doc, File file)
+	private static void readTimeline(Timeline tml, Document doc)
 		{
 		//Iterate the moments and load the actions
 		NodeList frList = doc.getElementsByTagName("entry"); //$NON-NLS-1$
@@ -692,37 +693,19 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readGmObject(GmObject obj, Document doc, File file)
+	private static void readGmObject(GmObject obj, Document doc)
 		{
 		String sprname = doc.getElementsByTagName("spriteName").item(0).getTextContent(); //$NON-NLS-1$
 		if (!sprname.equals("<undefined>"))
-			{
 			postpone.add(new NamedMapPostponedRef(Sprite.class, sprname, obj.properties, PGmObject.SPRITE));
-			}
-		else
-			{
-			obj.put(PGmObject.SPRITE,null);
-			}
 
 		String mskname = doc.getElementsByTagName("maskName").item(0).getTextContent(); //$NON-NLS-1$
 		if (!mskname.equals("<undefined>"))
-			{
 			postpone.add(new NamedMapPostponedRef(Sprite.class, mskname, obj.properties, PGmObject.MASK));
-			}
-		else
-			{
-			obj.put(PGmObject.MASK,null);
-			}
 
 		String parname = doc.getElementsByTagName("parentName").item(0).getTextContent(); //$NON-NLS-1$
 		if (!parname.equals("<undefined>") && !parname.equals("self"))
-			{
 			postpone.add(new NamedMapPostponedRef(GmObject.class, parname, obj.properties, PGmObject.PARENT));
-			}
-		else
-			{
-			obj.put(PGmObject.PARENT,null);
-			}
 
 		obj.put(PGmObject.SOLID,
 				Integer.parseInt(doc.getElementsByTagName("solid").item(0).getTextContent()) != 0); //$NON-NLS-1$
@@ -730,8 +713,7 @@ public final class GMXFileReader
 				Integer.parseInt(doc.getElementsByTagName("visible").item(0).getTextContent()) != 0); //$NON-NLS-1$
 		obj.put(PGmObject.DEPTH,
 				Integer.parseInt(doc.getElementsByTagName("depth").item(0).getTextContent())); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PERSISTENT,
+		obj.put(PGmObject.PERSISTENT,
 				Integer.parseInt(doc.getElementsByTagName("persistent").item(0).getTextContent()) != 0); //$NON-NLS-1$
 
 		// Now that properties are loaded iterate the events and load the actions
@@ -762,39 +744,31 @@ public final class GMXFileReader
 				}
 			readActions(ev,fnode.getChildNodes());
 			}
-		obj.put(
-				PGmObject.PHYSICS_OBJECT,
+
+		obj.put(PGmObject.PHYSICS_OBJECT,
 				Integer.parseInt(doc.getElementsByTagName("PhysicsObject").item(0).getTextContent()) != 0); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PHYSICS_SENSOR,
+		obj.put(PGmObject.PHYSICS_SENSOR,
 				Integer.parseInt(doc.getElementsByTagName("PhysicsObjectSensor").item(0).getTextContent()) != 0); //$NON-NLS-1$
 		int shapekind = Integer.parseInt(doc.getElementsByTagName("PhysicsObjectShape").item(0).getTextContent()); //$NON-NLS-1$
 		obj.put(PGmObject.PHYSICS_SHAPE,ProjectFile.PHYSICS_SHAPE[shapekind]);
-		obj.put(
-				PGmObject.PHYSICS_DENSITY,
+		obj.put(PGmObject.PHYSICS_DENSITY,
 				Double.parseDouble(doc.getElementsByTagName("PhysicsObjectDensity").item(0).getTextContent())); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PHYSICS_RESTITUTION,
+		obj.put(PGmObject.PHYSICS_RESTITUTION,
 				Double.parseDouble(doc.getElementsByTagName("PhysicsObjectRestitution").item(0).getTextContent())); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PHYSICS_GROUP,
+		obj.put(PGmObject.PHYSICS_GROUP,
 				Integer.parseInt(doc.getElementsByTagName("PhysicsObjectGroup").item(0).getTextContent())); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PHYSICS_DAMPING_LINEAR,
+		obj.put(PGmObject.PHYSICS_DAMPING_LINEAR,
 				Double.parseDouble(doc.getElementsByTagName("PhysicsObjectLinearDamping").item(0).getTextContent())); //$NON-NLS-1$
-		obj.put(
-				PGmObject.PHYSICS_DAMPING_ANGULAR,
+		obj.put(PGmObject.PHYSICS_DAMPING_ANGULAR,
 				Double.parseDouble(doc.getElementsByTagName("PhysicsObjectAngularDamping").item(0).getTextContent())); //$NON-NLS-1$
 		//NOTE: Some versions of the format did not have all of the physics properties.
 		Node fNode = doc.getElementsByTagName("PhysicsObjectFriction").item(0); //$NON-NLS-1$
 		if (fNode != null)
 			{
 			obj.put(PGmObject.PHYSICS_FRICTION,Double.parseDouble(fNode.getTextContent()));
-			obj.put(
-					PGmObject.PHYSICS_AWAKE,
+			obj.put(PGmObject.PHYSICS_AWAKE,
 					Integer.parseInt(doc.getElementsByTagName("PhysicsObjectAwake").item(0).getTextContent()) != 0); //$NON-NLS-1$
-			obj.put(
-					PGmObject.PHYSICS_KINEMATIC,
+			obj.put(PGmObject.PHYSICS_KINEMATIC,
 					Integer.parseInt(doc.getElementsByTagName("PhysicsObjectKinematic").item(0).getTextContent()) != 0); //$NON-NLS-1$
 			}
 
@@ -807,7 +781,7 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readRoom(Room rmn, Document rmndoc, File file)
+	private static void readRoom(Room rmn, Document rmndoc, ProjectFile f)
 		{
 		String caption = rmndoc.getElementsByTagName("caption").item(0).getTextContent(); //$NON-NLS-1$
 		rmn.put(PRoom.CAPTION,caption);
@@ -1042,28 +1016,9 @@ public final class GMXFileReader
 					postpone.add(new NamedMapPostponedRef(GmObject.class, objname, inst.properties, PInstance.OBJECT));
 
 					NamedNodeMap attribs = inode.getAttributes();
-					int xx = Integer.parseInt(attribs.getNamedItem("x").getNodeValue()); //$NON-NLS-1$
-					int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue()); //$NON-NLS-1$
-					double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue()); //$NON-NLS-1$
-					double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue()); //$NON-NLS-1$
-
-					// Read the color blending
-					if (attribs.getNamedItem("colour") != null) //$NON-NLS-1$
-						{
-						long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue()); //$NON-NLS-1$
-						Color color = Util.convertInstanceColorWithAlpha((int) col);
-						inst.setColor(color);
-						inst.setAlpha(color.getAlpha());
-						}
-
-					double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue()); //$NON-NLS-1$
-					inst.properties.put(PInstance.NAME, inode.getAttributes().getNamedItem("name").getNodeValue()); //$NON-NLS-1$
-
-					// NOTE: Because LGM still supports GMK, we attempt to preserve the ID which Studio
-					// will remove if it saves over the GMX, so see if the "id" attribute we added is
-					// there otherwise make up a new ID.
-					/*
-					Node idNode = inode.getAttributes().getNamedItem("id"); //$NON-NLS-1$
+					inst.properties.put(PInstance.NAME, attribs.getNamedItem("name").getNodeValue()); //$NON-NLS-1$
+					// Use the id attribute if it is present or make up a new one.
+					Node idNode = attribs.getNamedItem("id"); //$NON-NLS-1$
 					int instid;
 					if (idNode != null) {
 						instid = Integer.parseInt(idNode.getNodeValue());
@@ -1074,13 +1029,25 @@ public final class GMXFileReader
 						instid = ++f.lastInstanceId;
 					}
 
-					inst.properties.put(PInstance.ID, instid);*/
-
+					inst.properties.put(PInstance.ID, instid);
+					int xx = Integer.parseInt(attribs.getNamedItem("x").getNodeValue()); //$NON-NLS-1$
+					int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue()); //$NON-NLS-1$
+					double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue()); //$NON-NLS-1$
+					double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue()); //$NON-NLS-1$
 					inst.setPosition(new Point(xx,yy));
 					inst.setScale(new Point2D.Double(sx,sy));
+					// Read the color blending
+					if (attribs.getNamedItem("colour") != null) //$NON-NLS-1$
+						{
+						long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue()); //$NON-NLS-1$
+						Color color = Util.convertInstanceColorWithAlpha((int) col);
+						inst.setColor(color);
+						inst.setAlpha(color.getAlpha());
+						}
+					double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue()); //$NON-NLS-1$
 					inst.setRotation(rot);
-					inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue()); //$NON-NLS-1$
-					inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) != 0); //$NON-NLS-1$
+					inst.setCreationCode(attribs.getNamedItem("code").getNodeValue()); //$NON-NLS-1$
+					inst.setLocked(Integer.parseInt(attribs.getNamedItem("locked").getNodeValue()) != 0); //$NON-NLS-1$
 					}
 				}
 			else if (pname.equals("tiles")) //$NON-NLS-1$
@@ -1104,12 +1071,11 @@ public final class GMXFileReader
 
 					tile.properties.put(PTile.NAME, attribs.getNamedItem("name").getNodeValue()); //$NON-NLS-1$
 
-					/*
 					int tileid = Integer.parseInt(attribs.getNamedItem("id").getTextContent()); //$NON-NLS-1$
 					if (tileid > f.lastTileId) {
 						f.lastTileId = tileid;
 					}
-					tile.properties.put(PTile.ID,tileid);*/
+					tile.properties.put(PTile.ID,tileid);
 
 					tile.setBackgroundPosition(new Point(
 							Integer.parseInt(attribs.getNamedItem("xo").getTextContent()), //$NON-NLS-1$
@@ -1249,7 +1215,7 @@ public final class GMXFileReader
 				PGameSettings.TREAT_CLOSE_AS_ESCAPE,
 				Boolean.parseBoolean(setdoc.getElementsByTagName("option_closeesc").item(0).getTextContent())); //$NON-NLS-1$
 		String changed = setdoc.getElementsByTagName("option_lastchanged").item(0).getTextContent(); //$NON-NLS-1$
-		if (changed != "")
+		if (!changed.isEmpty())
 			{
 			cgf.put(PGameSettings.LAST_CHANGED,Double.parseDouble(changed));
 			}
@@ -1306,27 +1272,20 @@ public final class GMXFileReader
 				Integer.parseInt(setdoc.getElementsByTagName("option_version_release").item(0).getTextContent())); //$NON-NLS-1$
 
 		Node cnstNode = setdoc.getElementsByTagName("ConfigConstants").item(0); //$NON-NLS-1$
-
-		// If there is a constant section
-		if (cnstNode != null)
+		// if there's no constants we can just skip the rest of this
+		if (cnstNode == null) return;
+			
+		NodeList cnstsList = cnstNode.getChildNodes();
+		for (int ic = 0; ic < cnstsList.getLength(); ic++)
 			{
-			NodeList cnstsList = cnstNode.getChildNodes();
-			boolean found = false;
+			cnstNode = cnstsList.item(ic);
+			if (!(cnstNode instanceof Element)) continue;
+			String cnstName = cnstNode.getNodeName();
 
-			for (int ic = 0; ic < cnstsList.getLength(); ic++)
+			if (cnstName.toLowerCase().equals("constants")) //$NON-NLS-1$
 				{
-				cnstNode = cnstsList.item(ic);
-				if (!(cnstNode instanceof Element)) continue;
-				String cnstName = cnstNode.getNodeName();
-
-				if (cnstName.toLowerCase().equals("constants")) //$NON-NLS-1$
-					{
-					found = true;
-					break;
-					}
+				readConstants(cgf.constants,cnstNode);
 				}
-
-			if (found) readConstants(cgf.constants,cnstNode);
 			}
 		}
 
@@ -1491,9 +1450,8 @@ public final class GMXFileReader
 				}
 
 			la = LibManager.getLibAction(libid,actid);
-			boolean unknownLib = la == null;
-			// The libAction will have a null parent, among other things
-			if (unknownLib)
+			//The unknown libAction will have a null parent, among other things
+			if (la == null)
 				{
 				la = new LibAction();
 				la.id = actid;

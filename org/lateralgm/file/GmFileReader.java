@@ -1224,7 +1224,7 @@ public final class GmFileReader
 			int actid = in.read4();
 			LibAction la = LibManager.getLibAction(libid,actid);
 			boolean unknownLib = la == null;
-			//The libAction will have a null parent, among other things
+			//The unknown libAction will have a null parent, among other things
 			if (unknownLib)
 				{
 				la = new LibAction();
