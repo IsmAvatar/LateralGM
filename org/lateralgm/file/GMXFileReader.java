@@ -334,7 +334,10 @@ public final class GMXFileReader
 				Resource<?,?> resource = holder.getResource();
 
 				String filePath = projectFile.getDirectory() + '/' + node.getTextContent();
-				resource.setName(new File(Util.getPOSIXPath(filePath)).getName());
+				String fileName = new File(Util.getPOSIXPath(filePath)).getName();
+				int subExtStart = fileName.indexOf('.');
+				if (subExtStart < 0) subExtStart = fileName.length();
+				resource.setName(fileName.substring(0, subExtStart));
 				String kindName = gmxNames.get(kind);
 				File file = null;
 				Document doc = null;
