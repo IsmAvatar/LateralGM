@@ -257,7 +257,7 @@ public final class GmFileReader
 
 			//Resources read. Now we can invoke our postpones.
 			int progress = 0;
-			for (PostponedRef ref : postpone)
+			for (PostponedRef<?> ref : postpone)
 				{
 				float percentage = ((float) progress / postpone.size()) * 10;
 				LGM.setProgress((int)(160 + percentage),Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
