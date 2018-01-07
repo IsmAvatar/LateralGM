@@ -165,7 +165,7 @@ public final class GmFileReader
 			if (forceCharset == null)
 				{
 				if (ver >= 810)
-					in.setCharset(Charset.forName("UTF-8"));
+					in.setCharset(Charset.forName("UTF-8")); //$NON-NLS-1$
 				else
 					in.setCharset(Charset.defaultCharset());
 				}
