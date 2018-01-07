@@ -54,7 +54,7 @@ public abstract class Resource<R extends Resource<R,P>, P extends Enum<P>> imple
 				"RMM","INC","EXT","CST","GMI","GMS","PKG" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 
 		int leng = chr3.length;
-		//TODO: Do this separately for now because addKind requires Messages
+		//NOTE: Do this separately for now because addKind requires Messages
 		for (int i = 0; i < leng; i++)
 			{
 			kindsByName3.put(chr3[i],(Class<? extends Resource<?,?>>) ca[i]);

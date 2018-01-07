@@ -176,7 +176,7 @@ public final class GmFileReader
 			JProgressBar progressBar = LGM.getProgressDialogBar();
 			progressBar.setMaximum(200);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING")); //$NON-NLS-1$
-			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
+			LGM.setProgress(0,Resource.kindNamesPlural.get(GameSettings.class));
 
 			GameSettings gs = c.f.gameSettings.get(0);
 
@@ -203,30 +203,30 @@ public final class GmFileReader
 				{
 				LGM.setProgress(10,Messages.getString("ProgressDialog.TRIGGERS")); //$NON-NLS-1$
 				readTriggers(c);
-				LGM.setProgress(20,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
+				LGM.setProgress(20,Resource.kindNamesPlural.get(Constants.class));
 				readConstants(c,gs);
 				}
 
-			LGM.setProgress(30,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
+			LGM.setProgress(30,Resource.kindNamesPlural.get(Sound.class));
 			readSounds(c);
-			LGM.setProgress(40,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
+			LGM.setProgress(40,Resource.kindNamesPlural.get(Sprite.class));
 			readSprites(c);
-			LGM.setProgress(50,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
+			LGM.setProgress(50,Resource.kindNamesPlural.get(Background.class));
 			int bgVer = readBackgrounds(c);
-			LGM.setProgress(60,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
+			LGM.setProgress(60,Resource.kindNamesPlural.get(Path.class));
 			readPaths(c);
-			LGM.setProgress(70,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
+			LGM.setProgress(70,Resource.kindNamesPlural.get(Script.class));
 			readScripts(c);
-			LGM.setProgress(80,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
+			LGM.setProgress(80,Resource.kindNamesPlural.get(Shader.class));
 			//TODO: GMK 820 reads shaders first
-			LGM.setProgress(90,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
+			LGM.setProgress(90,Resource.kindNamesPlural.get(Font.class));
 			int rver = in.read4();
 			readFonts(c,rver);
-			LGM.setProgress(100,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
+			LGM.setProgress(100,Resource.kindNamesPlural.get(Timeline.class));
 			readTimelines(c);
-			LGM.setProgress(110,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
+			LGM.setProgress(110,Resource.kindNamesPlural.get(GmObject.class));
 			readGmObjects(c);
-			LGM.setProgress(120,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
+			LGM.setProgress(120,Resource.kindNamesPlural.get(Room.class));
 			readRooms(c);
 
 			//If the "use as tileset" flag was not part of this version, try to infer it from the backgrounds used in room tiles.
@@ -246,13 +246,13 @@ public final class GmFileReader
 
 			if (ver >= 700)
 				{
-				LGM.setProgress(130,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
+				LGM.setProgress(130,Resource.kindNamesPlural.get(Include.class));
 				readIncludedFiles(c);
-				LGM.setProgress(140,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
+				LGM.setProgress(140,Resource.kindNamesPlural.get(ExtensionPackages.class));
 				readPackages(c);
 				}
 
-			LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
+			LGM.setProgress(150,Resource.kindNamesPlural.get(GameInformation.class));
 			readGameInformation(c);
 
 			//Resources read. Now we can invoke our postpones.
