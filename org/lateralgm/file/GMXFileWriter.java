@@ -390,7 +390,7 @@ public final class GMXFileWriter
 			writeConstants(gs.constants, dom, cce);
 			nconNode.appendChild(cce);
 
-			String icoPath = "Configs\\Default\\windows\\runner_icon.ico"; //$NON-NLS-1$
+			String icoPath = "Configs\\" + gs.getName() + "\\windows\\runner_icon.ico"; //$NON-NLS-1$ //$NON-NLS-2$
 			optNode.appendChild(createElement(dom,"option_windows_game_icon",icoPath)); //$NON-NLS-1$
 
 			icoPath = f.getDirectory() + '\\' + icoPath;
