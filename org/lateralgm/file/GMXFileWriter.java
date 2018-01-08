@@ -60,13 +60,17 @@ import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
 import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Constants;
+import org.lateralgm.resources.Extension;
+import org.lateralgm.resources.ExtensionPackages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
+import org.lateralgm.resources.GameInformation;
 import org.lateralgm.resources.GameInformation.PGameInformation;
 import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
+import org.lateralgm.resources.Include;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
@@ -131,11 +135,6 @@ public final class GMXFileWriter
 			this.f = f;
 			this.dom = d;
 			}
-
-		public ProjectFileContext copy()
-			{
-			return new ProjectFileContext(f,dom);
-			}
 		}
 
 	public static void writeProjectFile(OutputStream os, ProjectFile f, ResNode rootRes, int ver)
@@ -163,38 +162,38 @@ public final class GMXFileWriter
 
 		ProjectFileContext c = new ProjectFileContext(f,dom);
 		Element root = dom.createElement("assets"); //$NON-NLS-1$
-		LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
+		LGM.setProgress(0,Resource.kindNamesPlural.get(GameSettings.class));
 		writeConfigurations(c,root,savetime);
 
-		LGM.setProgress(10,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
+		LGM.setProgress(10,Resource.kindNamesPlural.get(Sprite.class));
 		writeSprites(c,root);
-		LGM.setProgress(20,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
+		LGM.setProgress(20,Resource.kindNamesPlural.get(Sound.class));
 		writeSounds(c,root);
-		LGM.setProgress(30,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
+		LGM.setProgress(30,Resource.kindNamesPlural.get(Background.class));
 		writeBackgrounds(c,root);
-		LGM.setProgress(40,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
+		LGM.setProgress(40,Resource.kindNamesPlural.get(Path.class));
 		writePaths(c,root);
-		LGM.setProgress(50,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
+		LGM.setProgress(50,Resource.kindNamesPlural.get(Script.class));
 		writeScripts(c,root);
-		LGM.setProgress(60,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
+		LGM.setProgress(60,Resource.kindNamesPlural.get(Shader.class));
 		writeShaders(c,root);
-		LGM.setProgress(70,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
+		LGM.setProgress(70,Resource.kindNamesPlural.get(Font.class));
 		writeFonts(c,root);
-		LGM.setProgress(80,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
+		LGM.setProgress(80,Resource.kindNamesPlural.get(Timeline.class));
 		writeTimelines(c,root);
-		LGM.setProgress(90,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
+		LGM.setProgress(90,Resource.kindNamesPlural.get(GmObject.class));
 		writeGmObjects(c,root);
-		LGM.setProgress(100,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
+		LGM.setProgress(100,Resource.kindNamesPlural.get(Room.class));
 		writeRooms(c,root);
-		LGM.setProgress(110,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
+		LGM.setProgress(110,Resource.kindNamesPlural.get(Include.class));
 		//writeIncludedFiles(c, root);
-		LGM.setProgress(120,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
+		LGM.setProgress(120,Resource.kindNamesPlural.get(Extension.class));
 		//writePackages(c, root);
-		LGM.setProgress(130,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
+		LGM.setProgress(130,Resource.kindNamesPlural.get(Constants.class));
 		writeDefaultConstants(c, root);
-		LGM.setProgress(140,Messages.getString("ProgressDialog.EXTENSIONS")); //$NON-NLS-1$
+		LGM.setProgress(140,Resource.kindNamesPlural.get(ExtensionPackages.class));
 		//writeExtensions(c, root);
-		LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
+		LGM.setProgress(150,Resource.kindNamesPlural.get(GameInformation.class));
 		writeGameInformation(c,root);
 
 		dom.appendChild(root);
@@ -395,7 +394,7 @@ public final class GMXFileWriter
 			writeConstants(gs.constants, dom, cce);
 			nconNode.appendChild(cce);
 
-			String icoPath = "Configs\\Default\\windows\\runner_icon.ico"; //$NON-NLS-1$
+			String icoPath = "Configs\\" + gs.getName() + "\\windows\\runner_icon.ico"; //$NON-NLS-1$ //$NON-NLS-2$
 			optNode.appendChild(createElement(dom,"option_windows_game_icon",icoPath)); //$NON-NLS-1$
 
 			icoPath = f.getDirectory() + '\\' + icoPath;

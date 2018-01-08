@@ -440,7 +440,7 @@ public class BinPlane
 			if (isSelected) return 1;
 
 			return c.depth > depth ? 1 : c.depth < depth ? -1
-					: new Integer(c.hashCode()).compareTo(hashCode());
+					: Integer.valueOf(c.hashCode()).compareTo(hashCode());
 			}
 		}
 

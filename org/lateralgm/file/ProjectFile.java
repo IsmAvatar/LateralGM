@@ -60,6 +60,7 @@ import org.lateralgm.resources.GmObject.PhysicsShape;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
+import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Shader;
@@ -76,6 +77,7 @@ import org.lateralgm.resources.sub.Instance;
 import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.resources.sub.Tile.PTile;
+import org.lateralgm.util.PropertyMap;
 import org.lateralgm.resources.sub.Trigger;
 
 public class ProjectFile implements UpdateListener
@@ -271,6 +273,104 @@ public class ProjectFile implements UpdateListener
 		}
 
 	public final ResourceMap resMap;
+
+	public static abstract class PostponedRef<R extends InstantiableResource<R,?>>
+		{
+		Class<R> kind;
+
+		PostponedRef(Class<R> kind)
+			{
+			this.kind = kind;
+			}
+
+		public boolean invoke(ResourceMap resMap)
+			{
+			ResourceHolder<R> rh = resMap.get(kind);
+			R temp = null;
+			if (rh instanceof ResourceList<?>)
+				temp = this.find((ResourceList<R>) rh);
+			else
+				temp = rh.getResource();
+			if (temp != null) return this.set(temp.reference);
+			return temp != null;
+			}
+		public abstract R find(ResourceList<R> list);
+		public abstract boolean set(ResourceReference<R> ref);
+		}
+
+	public static abstract class NamedPostponedRef<R extends InstantiableResource<R,?>> extends PostponedRef<R>
+		{
+		String name;
+
+		NamedPostponedRef(Class<R> kind, String name)
+			{
+			super(kind);
+			this.name = name;
+			}
+
+		@Override
+		public R find(ResourceList<R> list)
+			{
+			return list.get(name);
+			}
+		}
+
+	public static abstract class IdPostponedRef<R extends InstantiableResource<R,?>> extends PostponedRef<R>
+		{
+		int id;
+
+		IdPostponedRef(Class<R> kind, int id)
+			{
+			super(kind);
+			this.id = id;
+			}
+
+		@Override
+		public R find(ResourceList<R> list)
+			{
+			return list.getUnsafe(id);
+			}
+		}
+
+	public static class NamedMapPostponedRef<R extends InstantiableResource<R,?>,K extends Enum<K>> extends NamedPostponedRef<R>
+		{
+		PropertyMap<K> props;
+		K key;
+
+		NamedMapPostponedRef(Class<R> kind, String name, PropertyMap<K> props, K key)
+			{
+			super(kind, name);
+			this.props = props;
+			this.key = key;
+			}
+
+		@Override
+		public boolean set(ResourceReference<R> ref)
+			{
+			if (ref != null) props.put(key,ref);
+			return ref != null;
+			}
+		}
+
+	public static class IdMapPostponedRef<R extends InstantiableResource<R,?>,K extends Enum<K>> extends IdPostponedRef<R>
+		{
+		PropertyMap<K> props;
+		K key;
+
+		IdMapPostponedRef(Class<R> kind, int id, PropertyMap<K> props, K key)
+			{
+			super(kind, id);
+			this.props = props;
+			this.key = key;
+			}
+
+		@Override
+		public boolean set(ResourceReference<R> ref)
+			{
+			if (ref != null) props.put(key,ref);
+			return ref != null;
+			}
+		}
 
 	public SortedMap<Integer,Trigger> triggers = new TreeMap<Integer,Trigger>();
 	public List<String> packages = new ArrayList<String>();

@@ -26,7 +26,8 @@ import java.util.zip.DataFormatException;
 import javax.swing.JProgressBar;
 
 import org.lateralgm.components.impl.ResNode;
-import org.lateralgm.file.ProjectFile.ResourceHolder;
+import org.lateralgm.file.ProjectFile.IdPostponedRef;
+import org.lateralgm.file.ProjectFile.PostponedRef;
 import org.lateralgm.file.iconio.ICOFile;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
@@ -49,7 +50,6 @@ import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Include;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
@@ -57,6 +57,7 @@ import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Script.PScript;
+import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sprite;
@@ -91,35 +92,7 @@ public final class GmFileReader
 		{
 		}
 
-	static Queue<PostponedRef> postpone = new LinkedList<PostponedRef>();
-
-	static interface PostponedRef
-		{
-		boolean invoke();
-		}
-
-	static class DefaultPostponedRef<K extends Enum<K>> implements PostponedRef
-		{
-		ResourceList<?> list;
-		String name;
-		PropertyMap<K> p;
-		K key;
-
-		DefaultPostponedRef(ResourceList<?> list, PropertyMap<K> p, K key, String name)
-			{
-			this.list = list;
-			this.p = p;
-			this.key = key;
-			this.name = name;
-			}
-
-		public boolean invoke()
-			{
-			Resource<?,?> temp = list.get(name);
-			if (temp != null) p.put(key,temp.reference);
-			return temp != null;
-			}
-		}
+	private static Queue<PostponedRef<?>> postpone = new LinkedList<>();
 
 	//Workaround for Parameter limit
 	private static class ProjectFileContext
@@ -192,7 +165,7 @@ public final class GmFileReader
 			if (forceCharset == null)
 				{
 				if (ver >= 810)
-					in.setCharset(Charset.forName("UTF-8"));
+					in.setCharset(Charset.forName("UTF-8")); //$NON-NLS-1$
 				else
 					in.setCharset(Charset.defaultCharset());
 				}
@@ -203,10 +176,10 @@ public final class GmFileReader
 			JProgressBar progressBar = LGM.getProgressDialogBar();
 			progressBar.setMaximum(200);
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMK_LOADING")); //$NON-NLS-1$
+			LGM.setProgress(0,Resource.kindNamesPlural.get(GameSettings.class));
 
 			GameSettings gs = c.f.gameSettings.get(0);
 
-			LGM.setProgress(0,Messages.getString("ProgressDialog.SETTINGS")); //$NON-NLS-1$
 			if (ver == 530) in.skip(4); //reserved 0
 			if (ver == 701)
 				{
@@ -230,30 +203,30 @@ public final class GmFileReader
 				{
 				LGM.setProgress(10,Messages.getString("ProgressDialog.TRIGGERS")); //$NON-NLS-1$
 				readTriggers(c);
-				LGM.setProgress(20,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
+				LGM.setProgress(20,Resource.kindNamesPlural.get(Constants.class));
 				readConstants(c,gs);
 				}
 
-			LGM.setProgress(30,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
+			LGM.setProgress(30,Resource.kindNamesPlural.get(Sound.class));
 			readSounds(c);
-			LGM.setProgress(40,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
+			LGM.setProgress(40,Resource.kindNamesPlural.get(Sprite.class));
 			readSprites(c);
-			LGM.setProgress(50,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
+			LGM.setProgress(50,Resource.kindNamesPlural.get(Background.class));
 			int bgVer = readBackgrounds(c);
-			LGM.setProgress(60,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
+			LGM.setProgress(60,Resource.kindNamesPlural.get(Path.class));
 			readPaths(c);
-			LGM.setProgress(70,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
+			LGM.setProgress(70,Resource.kindNamesPlural.get(Script.class));
 			readScripts(c);
-			LGM.setProgress(80,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
+			LGM.setProgress(80,Resource.kindNamesPlural.get(Shader.class));
 			//TODO: GMK 820 reads shaders first
-			LGM.setProgress(90,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
+			LGM.setProgress(90,Resource.kindNamesPlural.get(Font.class));
 			int rver = in.read4();
 			readFonts(c,rver);
-			LGM.setProgress(100,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
+			LGM.setProgress(100,Resource.kindNamesPlural.get(Timeline.class));
 			readTimelines(c);
-			LGM.setProgress(110,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
+			LGM.setProgress(110,Resource.kindNamesPlural.get(GmObject.class));
 			readGmObjects(c);
-			LGM.setProgress(120,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
+			LGM.setProgress(120,Resource.kindNamesPlural.get(Room.class));
 			readRooms(c);
 
 			//If the "use as tileset" flag was not part of this version, try to infer it from the backgrounds used in room tiles.
@@ -273,25 +246,25 @@ public final class GmFileReader
 
 			if (ver >= 700)
 				{
-				LGM.setProgress(130,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
+				LGM.setProgress(130,Resource.kindNamesPlural.get(Include.class));
 				readIncludedFiles(c);
-				LGM.setProgress(140,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
+				LGM.setProgress(140,Resource.kindNamesPlural.get(ExtensionPackages.class));
 				readPackages(c);
 				}
 
-			LGM.setProgress(150,Messages.getString("ProgressDialog.GAMEINFORMATION")); //$NON-NLS-1$
+			LGM.setProgress(150,Resource.kindNamesPlural.get(GameInformation.class));
 			readGameInformation(c);
 
-			LGM.setProgress(160,Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 			//Resources read. Now we can invoke our postpones.
-			int percent = 0;
-			for (PostponedRef i : postpone)
+			int progress = 0;
+			for (PostponedRef<?> ref : postpone)
 				{
-				i.invoke();
-				percent += 1;
-				LGM.setProgress(160 + percent / postpone.size(),
-						Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
+				float percentage = ((float) progress / postpone.size()) * 10;
+				LGM.setProgress((int)(160 + percentage),Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
+				ref.invoke(file.resMap);
+				++progress;
 				}
+			postpone.clear();
 
 			LGM.setProgress(170,Messages.getString("ProgressDialog.LIBRARYCREATION")); //$NON-NLS-1$
 			//Library Creation Code
@@ -627,7 +600,6 @@ public final class GmFileReader
 				}
 			Sprite spr = f.resMap.getList(Sprite.class).add();
 			//temporarily set bbmode to manual so bbox doesn't get recalculated until bbmode is ready
-			//TODO: This should be made a little less retarded, I added a null check to bbmode call - Robert
 			spr.put(PSprite.BB_MODE,BBMode.MANUAL);
 			BBMode actualBBMode = null;
 			spr.setName(in.readStr());
@@ -1203,7 +1175,7 @@ public final class GmFileReader
 			int contents = in.read4();
 			if (contents > 0)
 				{
-				left.push(new Integer(rootnodes));
+				left.push(rootnodes);
 				rootnodes = contents;
 				path.push(node);
 				}
@@ -1230,7 +1202,6 @@ public final class GmFileReader
 			}
 		node = new ResNode("Constants",ResNode.STATUS_SECONDARY,Constants.class);
 		root.insert(node,12);
-
 		}
 
 	private static void readActions(ProjectFileContext c, ActionContainer container, String errorKey,
@@ -1253,14 +1224,14 @@ public final class GmFileReader
 			int actid = in.read4();
 			LibAction la = LibManager.getLibAction(libid,actid);
 			boolean unknownLib = la == null;
-			//The libAction will have a null parent, among other things
+			//The unknown libAction will have a null parent, among other things
 			if (unknownLib)
 				{
 				la = new LibAction();
 				la.id = actid;
 				la.parentId = libid;
 				la.actionKind = (byte) in.read4();
-				//TODO: Maybe make this more agnostic?"
+
 				if (la.actionKind == Action.ACT_CODE)
 					{
 					la = LibManager.codeAction;
@@ -1336,21 +1307,16 @@ public final class GmFileReader
 					{
 					final int id = Integer.parseInt(strval);
 					final Argument arg = args[l];
-					PostponedRef pr = new PostponedRef()
+					PostponedRef pr = new IdPostponedRef(Argument.getResourceKind(arg.kind), id)
 						{
-							public boolean invoke()
+							@Override
+							public boolean set(ResourceReference ref)
 								{
-								ResourceHolder<?> rh = f.resMap.get(Argument.getResourceKind(arg.kind));
-								Resource<?,?> temp = null;
-								if (rh instanceof ResourceList<?>)
-									temp = ((ResourceList<?>) rh).getUnsafe(id);
-								else
-									temp = rh.getResource();
-								if (temp != null) arg.setRes(temp.reference);
-								return temp != null;
+								if (ref != null) arg.setRes(ref);
+								return ref != null;
 								}
 						};
-					if (!pr.invoke()) postpone.add(pr);
+					postpone.add(pr);
 					}
 				catch (NumberFormatException e)
 					{
