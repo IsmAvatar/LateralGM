@@ -162,7 +162,7 @@ public final class GMXFileWriter
 
 		ProjectFileContext c = new ProjectFileContext(f,dom);
 		Element root = dom.createElement("assets"); //$NON-NLS-1$
-		LGM.setProgress(0,Resource.kindNamesPlural.get(GameSettings.class)); //$NON-NLS-1$
+		LGM.setProgress(0,Resource.kindNamesPlural.get(GameSettings.class));
 		writeConfigurations(c,root,savetime);
 
 		LGM.setProgress(10,Resource.kindNamesPlural.get(Sprite.class));
