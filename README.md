@@ -6,6 +6,21 @@ License
 -------
 This project is licensed under the GNU GPL v3 License. Please read the included LICENSE file or visit http://www.gnu.org/licenses for more information.
 
+Building
+--------
+
+First, ensure you have initialized and updated the git submodules:
+
+    git submodule update --init
+
+This project can be built with Maven:
+
+    mvn package
+
+LateralGM can then be launched by running the created `.jar` file:
+
+    java -jar target/LateralGM-1.8.10.jar
+
 Contributors
 -------
 * IsmAvatar <IsmAvatar@gmail.com> as project leader, lead programmer, file format expert,
