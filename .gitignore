@@ -1,10 +1,10 @@
-*
-*.log
-*.class
-*.jar
-*.db
-.git/modules
-org/lateralgm/joshedit
-lib/
-plugins/
-lookandfeels/
+# Build files
+/target/
+
+# Eclipse files (auto-generated from pom.xml)
+/.project
+/.classpath
+
+# IDEA files
+/LateralGM.iml
+/.idea/
