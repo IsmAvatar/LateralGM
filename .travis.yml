@@ -1,0 +1,10 @@
+language: java
+
+dist: trusty
+sudo: false
+
+before_install:
+  - mvn -f lib/joshedit install
+
+script:
+  - mvn test
