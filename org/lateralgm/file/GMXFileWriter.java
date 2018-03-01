@@ -285,7 +285,8 @@ public final class GMXFileWriter
 
 		for (GameSettings gs : LGM.currentFile.gameSettings) {
 			Element setNode = mdom.createElement("Config"); //$NON-NLS-1$
-			setNode.setTextContent("Configs\\" + gs.getName()); //$NON-NLS-1$
+			String configDir = "Configs\\" + gs.getName();
+			setNode.setTextContent(configDir); //$NON-NLS-1$
 			conNode.appendChild(setNode);
 
 			Document dom = documentBuilder.newDocument();
@@ -395,7 +396,7 @@ public final class GMXFileWriter
 			writeConstants(gs.constants, dom, cce);
 			nconNode.appendChild(cce);
 
-			String icoPath = "Configs\\Default\\windows\\runner_icon.ico"; //$NON-NLS-1$
+			String icoPath = configDir + "\\windows\\runner_icon.ico"; //$NON-NLS-1$
 			optNode.appendChild(createElement(dom,"option_windows_game_icon",icoPath)); //$NON-NLS-1$
 
 			icoPath = f.getDirectory() + '\\' + icoPath;
@@ -530,7 +531,7 @@ public final class GMXFileWriter
 					Element frameroot = doc.createElement("frames"); //$NON-NLS-1$
 					for (int j = 0; j < spr.subImages.size(); j++)
 						{
-						String framefname = "images\\" + spr.getName() + ' ' + j + ".png";  //$NON-NLS-1$//$NON-NLS-2$
+						String framefname = "images\\" + spr.getName() + '_' + j + ".png";  //$NON-NLS-1$//$NON-NLS-2$
 						File outputfile = new File(Util.getPOSIXPath(fname + framefname));
 						Element frameNode = createElement(doc,"frame",framefname); //$NON-NLS-1$
 						frameNode.setAttribute("index",Integer.toString(j)); //$NON-NLS-1$
@@ -631,9 +632,10 @@ public final class GMXFileWriter
 					// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
 					// There is an exception to this however. In every one of those tags after volume the
 					// nested tag is singular, where its parent is plural.
-					String ftype = snd.get(PSound.FILE_TYPE).toString();
-					sndroot.appendChild(createElement(doc,"extension",ftype)); //$NON-NLS-1$
-					sndroot.appendChild(createElement(doc,"origname",snd.get(PSound.FILE_NAME).toString())); //$NON-NLS-1$
+					String fileType = snd.get(PSound.FILE_TYPE).toString();
+					String fileName = snd.getName() + fileType;
+					sndroot.appendChild(createElement(doc,"extension",fileType)); //$NON-NLS-1$
+					sndroot.appendChild(createElement(doc,"origname","sound\\audio\\" + fileName)); //$NON-NLS-1$
 					sndroot.appendChild(createElement(doc,"kind", //$NON-NLS-1$
 							ProjectFile.SOUND_KIND_CODE.get(snd.get(PSound.KIND)).toString()));
 
@@ -679,8 +681,8 @@ public final class GMXFileWriter
 						}
 					sndroot.appendChild(createElement(doc,"effects",Integer.toString(effects))); //$NON-NLS-1$
 
-					sndroot.appendChild(createElement(doc,"data",snd.getName() + ftype)); //$NON-NLS-1$
-					Util.writeBinaryFile(fname + "audio\\" + snd.getName() + ftype,snd.data); //$NON-NLS-1$
+					sndroot.appendChild(createElement(doc,"data",fileName)); //$NON-NLS-1$
+					Util.writeBinaryFile(fname + "audio\\" + fileName,snd.data); //$NON-NLS-1$
 
 					FileOutputStream fos = null;
 					try
