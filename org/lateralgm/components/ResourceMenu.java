@@ -176,12 +176,14 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			}
 		}
 
-	class ResourceTransferHandler<K extends Resource<K,?>> extends TransferHandler {
-	/**
-	 * NOTE: Default UID generated, change if necessary.
-	 */
-	private static final long serialVersionUID = 1716244867900780500L;
-	private ResourceMenu<K> menu;
+	class ResourceTransferHandler<K extends Resource<K,?>> extends TransferHandler
+		{
+		/**
+		 * NOTE: Default UID generated, change if necessary.
+		 */
+		private static final long serialVersionUID = 1716244867900780500L;
+
+		private ResourceMenu<K> menu;
 		public ResourceTransferHandler(ResourceMenu<K> menu)
 			{
 			this.menu = menu;
@@ -189,17 +191,18 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 
 		public int getSourceActions(JComponent c)
 			{
-			return COPY_OR_MOVE;
+			return COPY;
 			}
 
-		public boolean canImport(TransferSupport ts) {
-			if (!ts.isDataFlavorSupported(ResNode.NODE_FLAVOR))
+		public boolean canImport(TransferSupport ts)
+			{
+			if (!ts.isDataFlavorSupported(ResNode.DATA_FLAVOR))
 				{
 				return false;
 				}
 			try
 				{
-				ResNode data = (ResNode) ts.getTransferable().getTransferData(ResNode.NODE_FLAVOR);
+				ResNode data = (ResNode) ts.getTransferable().getTransferData(ResNode.DATA_FLAVOR);
 				if (data.kind.equals(menu.kind) && data.status == ResNode.STATUS_SECONDARY)
 					{
 					return true;
@@ -213,24 +216,24 @@ public class ResourceMenu<R extends Resource<R,?>> extends JPanel implements Act
 			return false;
 		}
 
-	@SuppressWarnings("unchecked")
-	public boolean importData(TransferSupport ts)
-		{
-			try
-				{
-				ResNode data = (ResNode) ts.getTransferable().getTransferData(ResNode.NODE_FLAVOR);
-				menu.setSelected((ResourceReference<K>) data.getRes());
-				fireActionPerformed();
-				return true;
-				}
-			catch (UnsupportedFlavorException | IOException e)
-				{
-				// Should never occur.
-				LGM.showDefaultExceptionHandler(e);
-				}
-			return false;
+		@SuppressWarnings("unchecked")
+		public boolean importData(TransferSupport ts)
+			{
+				try
+					{
+					ResNode data = (ResNode) ts.getTransferable().getTransferData(ResNode.DATA_FLAVOR);
+					menu.setSelected((ResourceReference<K>) data.getRes());
+					fireActionPerformed();
+					return true;
+					}
+				catch (UnsupportedFlavorException | IOException e)
+					{
+					// Should never occur.
+					LGM.showDefaultExceptionHandler(e);
+					}
+				return false;
+			}
 		}
-	}
 
 	/**
 	 * Creates a Resource Menu of given Resource kind.

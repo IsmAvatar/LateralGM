@@ -56,6 +56,24 @@ import org.lateralgm.subframes.SubframeInformer;
 
 public class ResNode extends DefaultNode implements Transferable,UpdateListener
 	{
+	/**
+	 * NOTE: Default UID generated, change if necessary.
+	 */
+	private static final long serialVersionUID = -2072032756973999470L;
+
+	public static DataFlavor DATA_FLAVOR;
+	static
+		{
+		try
+			{
+			DATA_FLAVOR = Util.createJVMLocalDataFlavor(ResNode.class);
+			}
+		catch (ClassNotFoundException e)
+			{
+			LGM.showDefaultExceptionHandler(e);
+			}
+		}
+	private static final DataFlavor[] flavors = { DATA_FLAVOR };
 
 	public static final Map<Class<?>,ImageIcon> ICON;
 	static
@@ -65,10 +83,6 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 			ICON.put(k.getValue(),LGM.getIconForKey("Resource." + k.getKey()));
 		}
 
-	private static final long serialVersionUID = 1L;
-	public static final DataFlavor NODE_FLAVOR = new DataFlavor(
-			DataFlavor.javaJVMLocalObjectMimeType,"Node");
-	private DataFlavor[] flavors = { NODE_FLAVOR };
 	public static final byte STATUS_PRIMARY = 1;
 	public static final byte STATUS_GROUP = 2;
 	public static final byte STATUS_SECONDARY = 3;
@@ -178,12 +192,12 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 
 	public boolean isDataFlavorSupported(DataFlavor flavor)
 		{
-		return flavor == NODE_FLAVOR;
+		return flavor.equals(DATA_FLAVOR);
 		}
 
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 		{
-		if (flavor != NODE_FLAVOR) throw new UnsupportedFlavorException(flavor);
+		if (flavor != DATA_FLAVOR) throw new UnsupportedFlavorException(flavor);
 		return this;
 		}
 

@@ -180,7 +180,7 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
-	public static final String version = "1.8.25"; //$NON-NLS-1$
+	public static final String version = "1.8.27"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -230,7 +230,7 @@ public final class LGM
 	private static GameSettingFrame gameSet;
 	private static ExtensionPackagesFrame extSet;
 	public static EventPanel eventSelect;
-	private static JFrame eventFrame;
+	private static JDialog eventDialog;
 	public static AbstractButton eventButton;
 	public static PreferencesFrame prefFrame;
 	public static Cursor zoomCursor;
@@ -436,14 +436,14 @@ public final class LGM
 			return;
 			}
 		SwingUtilities.updateComponentTreeUI(tree);
-		if (eventFrame == null)
+		if (eventDialog == null)
 			{
 			SwingUtilities.updateComponentTreeUI(eventSelect);
 			eventSelect.updateUI();
 			}
 		else
 			{
-			SwingUtilities.updateComponentTreeUI(eventFrame);
+			SwingUtilities.updateComponentTreeUI(eventDialog);
 			}
 		Window windows[] = Window.getWindows();
 		for (Window window : windows)
@@ -2790,36 +2790,35 @@ public final class LGM
 
 	public static void showEventPanel()
 		{
+		eventVisible = !eventVisible;
 		if (Prefs.dockEventPanel)
 			{
-			eventVisible = !eventVisible;
 			eventSelect.setVisible(eventVisible);
 			setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_EVENTS"));
 			}
 		else
 			{
-			if (eventFrame == null)
+			if (eventDialog == null)
 				{
-				eventFrame = new JFrame();
-				eventFrame.setAlwaysOnTop(true);
-				eventFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-				eventFrame.setSize(new Dimension(250,300));
-				eventFrame.setIconImage(LGM.getIconForKey("Toolbar.EVENT_BUTTON").getImage());
-				eventFrame.setTitle(Messages.getString("Toolbar.EVENT_BUTTON"));
-				eventFrame.add(eventSelect);
+				eventDialog = new JDialog(LGM.frame);
+				eventDialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+				eventDialog.setIconImage(LGM.getIconForKey("Toolbar.EVENT_BUTTON").getImage());
+				eventDialog.setTitle(Messages.getString("Toolbar.EVENT_BUTTON"));
+				eventDialog.add(eventSelect);
 				eventSelect.setVisible(true);
 				eventSelect.setFloatable(false);
-				eventFrame.setLocationRelativeTo(frame);
+				eventDialog.pack();
+				eventDialog.setLocationRelativeTo(frame);
 				}
-			eventFrame.setVisible(true);
+			eventDialog.setVisible(eventVisible);
 			}
 		}
 
 	public static void hideEventPanel()
 		{
-		if (eventFrame != null)
+		if (eventDialog != null)
 			{
-			eventFrame.setVisible(false);
+			eventDialog.setVisible(false);
 			}
 		else
 			{

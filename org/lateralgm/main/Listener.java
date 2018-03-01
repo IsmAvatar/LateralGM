@@ -578,10 +578,10 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	// imported.
 	public boolean canImport(TransferHandler.TransferSupport support)
 		{
-		if (!support.isDataFlavorSupported(ResNode.NODE_FLAVOR)) return false;
+		if (!support.isDataFlavorSupported(ResNode.DATA_FLAVOR)) return false;
 		// the above method uses equals(), which does not work as expected
 		for (DataFlavor f : support.getDataFlavors())
-			if (f != ResNode.NODE_FLAVOR) return false;
+			if (f != ResNode.DATA_FLAVOR) return false;
 		TreePath drop = ((JTree.DropLocation) support.getDropLocation()).getPath();
 		if (drop == null) return false;
 		ResNode dropNode = (ResNode) drop.getLastPathComponent();

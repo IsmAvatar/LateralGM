@@ -20,6 +20,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.image.BufferedImage;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
@@ -99,6 +100,16 @@ public final class Util
 		reg.registerServiceProvider(new WBMPImageReaderSpiFix());
 		}
 
+	public static DataFlavor createJVMLocalDataFlavor(Class<?> dataClass) throws ClassNotFoundException
+		{
+		return new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=" + dataClass.getName()); //$NON-NLS-1$
+		}
+
+	public static DataFlavor createJVMLocalDataFlavor(String className) throws ClassNotFoundException
+		{
+		return new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=" + className); //$NON-NLS-1$
+		}
+
 	public static BufferedImage paintBackground(int width, int height, Color background,
 			Color foreground)
 		{
@@ -165,7 +176,7 @@ public final class Util
 		{
 		try
 			{
-			return URLEncoder.encode(s,"UTF-8");
+			return URLEncoder.encode(s,"UTF-8"); //$NON-NLS-1$
 			}
 		catch (UnsupportedEncodingException e)
 			{
@@ -177,7 +188,7 @@ public final class Util
 		{
 		try
 			{
-			return URLDecoder.decode(s,"UTF-8");
+			return URLDecoder.decode(s,"UTF-8"); //$NON-NLS-1$
 			}
 		catch (UnsupportedEncodingException e)
 			{

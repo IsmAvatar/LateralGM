@@ -496,7 +496,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 		public boolean canImport(TransferHandler.TransferSupport support)
 			{
-			if (!support.isDataFlavorSupported(EventNode.EVENTNODE_FLAVOR)) return false;
+			if (!support.isDataFlavorSupported(EventNode.DATA_FLAVOR)) return false;
 			EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
 			if (t == null || !t.isValid()) return false;
 			if (LGM.eventSelect.function.getValue() != EventPanel.FUNCTION_ADD
@@ -504,7 +504,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 				return false;
 			if (rootEvent.contains(new Event(t.mainId,t.eventId,t.other))) return false;
 			for (DataFlavor f : support.getDataFlavors())
-				if (f == EventNode.EVENTNODE_FLAVOR) return true;
+				if (f == EventNode.DATA_FLAVOR) return true;
 			return false;
 			}
 
@@ -514,7 +514,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			try
 				{
 				EventNode t = (EventNode) support.getTransferable().getTransferData(
-						EventNode.EVENTNODE_FLAVOR);
+						EventNode.DATA_FLAVOR);
 				if (!t.isValid()) return false;
 
 				Point p = support.getDropLocation().getDropPoint();

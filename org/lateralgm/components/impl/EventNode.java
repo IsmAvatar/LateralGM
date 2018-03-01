@@ -16,6 +16,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.lateralgm.main.LGM;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.Resource;
@@ -25,10 +27,25 @@ import org.lateralgm.resources.sub.MainEvent;
 
 public class EventNode extends DefaultMutableTreeNode implements Transferable
 	{
-	private static final long serialVersionUID = 1L;
-	public static final DataFlavor EVENTNODE_FLAVOR = new DataFlavor(
-			DataFlavor.javaJVMLocalObjectMimeType,"Event Node");
-	private DataFlavor[] flavors = { EVENTNODE_FLAVOR };
+	/**
+	 * NOTE: Default UID generated, change if necessary.
+	 */
+	private static final long serialVersionUID = -8464210873818954481L;
+
+	public static DataFlavor DATA_FLAVOR;
+	static
+		{
+		try
+			{
+			DATA_FLAVOR = Util.createJVMLocalDataFlavor(EventNode.class);
+			}
+		catch (ClassNotFoundException e)
+			{
+			LGM.showDefaultExceptionHandler(e);
+			}
+		}
+	public static final DataFlavor[] flavors = { DATA_FLAVOR };
+
 	public int mainId;
 	public int eventId;
 	public ResourceReference<GmObject> other;
@@ -90,7 +107,7 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 
 	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
 		{
-		if (flavor != EVENTNODE_FLAVOR) throw new UnsupportedFlavorException(flavor);
+		if (flavor != DATA_FLAVOR) throw new UnsupportedFlavorException(flavor);
 		return this;
 		}
 
@@ -101,12 +118,6 @@ public class EventNode extends DefaultMutableTreeNode implements Transferable
 
 	public boolean isDataFlavorSupported(DataFlavor flavor)
 		{
-		return flavor.equals(EVENTNODE_FLAVOR);
+		return flavor.equals(DATA_FLAVOR);
 		}
-
-	/*public void setIcon(Icon ico)
-		{
-		if (ico == null) return;
-		super.setIcon(ico);
-		}*/
 	}

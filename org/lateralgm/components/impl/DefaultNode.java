@@ -31,11 +31,11 @@ import javax.swing.tree.TreeNode;
 
 public class DefaultNode extends DefaultMutableTreeNode
 	{
-
 	/**
-	 * TODO: Fix if needed.
+	 * NOTE: Default UID generated, change if necessary.
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -6294943318574589195L;
+
 	protected boolean isVisible = true;
 	protected Icon icon;
 
