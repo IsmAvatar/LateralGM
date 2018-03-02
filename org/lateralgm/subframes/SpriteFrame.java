@@ -1270,9 +1270,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				imageChanged = true;
 				for (int i = 0; i < images.bi.size(); i++)
 					{
-					images.bi.set(i, Util.cloneImage(images.bi.get(i)));
+					res.subImages.add(pos + 1 + i, Util.cloneImage(images.bi.get(i)));
 					}
-				res.subImages.addAll(pos + 1,images.bi);
 				subList.setSelectionInterval(pos + 1,pos + images.bi.size());
 				}
 			return;
