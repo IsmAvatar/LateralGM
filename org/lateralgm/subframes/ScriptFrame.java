@@ -154,14 +154,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 			{
 			f = File.createTempFile(res.getName(),"." + Prefs.externalScriptExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
-			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
-			monitor.updateSource.addListener(this,true);
-			editor = this;
-			start();
-			}
 
-		public void start() throws IOException
-			{
 			FileWriter out = null;
 			try
 				{
@@ -175,6 +168,15 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 					out.close();
 					}
 				}
+
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this,true);
+			editor = this;
+			start();
+			}
+
+		public void start() throws IOException
+			{
 			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
 				try
 					{

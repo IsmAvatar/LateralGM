@@ -248,13 +248,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			f = File.createTempFile(res.getName(),"." +
 					(type == EditorType.VERTEX ? "vert" : "frag"), LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
-			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
-			monitor.updateSource.addListener(this,true);
-			start();
-			}
 
-		public void start() throws IOException
-			{
 			FileWriter out = null;
 			try
 				{
@@ -269,7 +263,13 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 					}
 				}
 
-			out.close();
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this,true);
+			start();
+			}
+
+		public void start() throws IOException
+			{
 			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
 				try
 					{

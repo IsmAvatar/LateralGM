@@ -601,14 +601,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			f = File.createTempFile(res.getName(),
 					"." + Prefs.externalBackgroundExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
-			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
-			monitor.updateSource.addListener(this);
-			editor = this;
-			start();
-			}
 
-		public void start() throws IOException
-			{
 			BufferedImage bi = res.getBackgroundImage();
 			if (bi == null)
 				{
@@ -627,6 +620,15 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 					out.close();
 					}
 				}
+
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this);
+			editor = this;
+			start();
+			}
+
+		public void start() throws IOException
+			{
 			if (!Prefs.useExternalBackgroundEditor || Prefs.externalBackgroundEditorCommand == null)
 				try
 					{
