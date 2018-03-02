@@ -1123,7 +1123,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 	private static class TransferableImages implements Transferable
 		{
-
 		ClipboardImages ci;
 
 		public TransferableImages(ClipboardImages images)
@@ -1269,6 +1268,10 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 					LGM.showDefaultExceptionHandler(e);
 					}
 				imageChanged = true;
+				for (int i = 0; i < images.bi.size(); i++)
+					{
+					images.bi.set(i, Util.cloneImage(images.bi.get(i)));
+					}
 				res.subImages.addAll(pos + 1,images.bi);
 				subList.setSelectionInterval(pos + 1,pos + images.bi.size());
 				}
