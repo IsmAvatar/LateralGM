@@ -710,6 +710,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			File f = File.createTempFile(res.getName(),
 					new File((String) res.get(PSound.FILE_NAME)).getName(),LGM.tempDir);
 			f.deleteOnExit();
+
 			FileOutputStream out = null;
 			try
 				{
@@ -723,6 +724,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 					out.close();
 					}
 				}
+
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this);
 			editor = this;

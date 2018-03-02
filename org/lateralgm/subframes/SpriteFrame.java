@@ -113,7 +113,7 @@ import org.lateralgm.util.PropertyMap.PropertyUpdateEvent;
 import org.lateralgm.util.PropertyMap.PropertyUpdateListener;
 
 public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> implements
-		UpdateListener,ValueChangeListener,ClipboardOwner, EffectsFrameListener
+		UpdateListener,ValueChangeListener,ClipboardOwner,EffectsFrameListener
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ImageIcon LOAD_ICON = LGM.getIconForKey("SpriteFrame.LOAD"); //$NON-NLS-1$
@@ -152,7 +152,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public JScrollPane previewScroll, subimagesScroll;
 	public SubimagePreview preview;
 	public NumberField show, speed;
-	public JButton subLeft, subRight, play, cut, copy, paste, undo, redo;
+	public JButton subLeft, subRight, play, cut, copy, paste;
 	public JLabel showLab;
 	public int currSub;
 	public JCheckBox showBbox, showOrigin;
@@ -820,12 +820,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		tool.addSeparator();
 
-		// TODO: Implement undo/redo
-		//tool.add(makeJButton("SpriteFrame.UNDO"));
-		//tool.add(makeJButton("SpriteFrame.REDO"));
-
-		//tool.addSeparator();
-
 		subLeft = new JButton(LGM.getIconForKey("SpriteFrame.PREVIOUS")); //$NON-NLS-1$
 		subLeft.addActionListener(this);
 		tool.add(subLeft);
@@ -1200,17 +1194,8 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	public void editActionsPerformed(String cmd)
 		{
 		int pos = subList.getSelectedIndex();
-		if (cmd.endsWith(".UNDO"))
-			{
-
-			return;
-			}
-		else if (cmd.endsWith(".REDO"))
-			{
-
-			return;
-			}
-		else if (cmd.endsWith(".SELECT_ALL"))
+		pos = pos >= 0 ? pos + 1 : res.subImages.size();
+		if (cmd.endsWith(".SELECT_ALL"))
 			{
 			subList.setSelectionInterval(0,res.subImages.size() - 1);
 			return;
@@ -1232,7 +1217,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
 			clip.setContents(new TransferableImages(new ClipboardImages(images)),this);
 			imageChanged = true;
-			subList.setSelectedIndex(pos - 1);
 			return;
 			}
 		else if (cmd.endsWith(".COPY"))
@@ -1281,7 +1265,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			BufferedImage bi = createNewImage(res.subImages.size() == 0);
 			if (bi != null)
 				{
-				pos = pos >= 0 ? pos + 1 : res.subImages.size();
 				imageChanged = true;
 				res.subImages.add(pos,bi);
 				subList.setSelectedIndex(pos);
@@ -1313,7 +1296,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				res.subImages.remove(selections[i] - i);
 				if (ie != null) ie.stop();
 				}
-			subList.setSelectedIndex(Math.min(res.subImages.size() - 1,pos));
+			subList.setSelectedIndex(Math.min(res.subImages.size() - 1, pos));
 			return;
 			}
 		}
@@ -1747,6 +1730,19 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			image = i;
 			f = File.createTempFile(res.getName(),"." + Prefs.externalSpriteExtension,LGM.tempDir); //$NON-NLS-1$
 			f.deleteOnExit();
+
+			FileOutputStream out = null;
+			try
+				{
+				out = new FileOutputStream(f);
+				ImageIO.write(image,Prefs.externalSpriteExtension,out);
+				}
+			finally
+				{
+				if (out != null)
+					out.close();
+				}
+
 			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
 			monitor.updateSource.addListener(this,true);
 			if (editors == null) editors = new HashMap<BufferedImage,ImageEditor>();
@@ -1756,18 +1752,6 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		public void start() throws IOException,UnsupportedOperationException
 			{
-			FileOutputStream out = null;
-			try
-				{
-				out = new FileOutputStream(f);
-				ImageIO.write(image,Prefs.externalSpriteExtension,out); //$NON-NLS-1$
-				}
-			finally
-				{
-				if (out != null) {
-					out.close();
-				}
-				}
 			if (!Prefs.useExternalSpriteEditor || Prefs.externalSpriteEditorCommand == null)
 				try
 					{
@@ -1844,7 +1828,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	protected void cleanup()
 		{
 		if (editors != null)
-			for (ImageEditor ie : editors.values().toArray(new ImageEditor[editors.size()]))
+			for (ImageEditor ie : editors.values())
 				ie.stop();
 		}
 
