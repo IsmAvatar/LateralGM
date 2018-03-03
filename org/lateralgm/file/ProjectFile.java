@@ -30,10 +30,12 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -356,7 +358,6 @@ public class ProjectFile implements UpdateListener
 		resMap.put(ExtensionPackages.class,new SingletonResourceHolder<ExtensionPackages>(extPackages));
 		for (ResourceHolder<?> rl : resMap.values())
 			if (rl instanceof ResourceList<?>) ((ResourceList<?>) rl).updateSource.addListener(this);
-
 		}
 
 	public static GameSettings createDefaultConfig() {
@@ -384,6 +385,40 @@ public class ProjectFile implements UpdateListener
 		Calendar base = gmBaseTime();
 		base.setTimeInMillis(base.getTimeInMillis() + ((long) (time * 86400000)));
 		return DateFormat.getDateTimeInstance().format(base.getTime());
+		}
+
+	public boolean checkIds()
+		{
+		Iterator<ResourceHolder<?>> iter = resMap.values().iterator();
+		while (iter.hasNext())
+			{
+			ResourceHolder<?> rh = iter.next();
+			if (!(rh instanceof ResourceList<?>)) continue;
+			Set<Integer> set = new HashSet<Integer>();
+			ResourceList<?> rl = (ResourceList<?>) rh;
+			for (Object o : rl)
+				{
+				if (!(o instanceof InstantiableResource<?,?>)) continue;
+				InstantiableResource<?,?> r = (InstantiableResource<?,?>) o;
+				if (set.contains(r.getId()))
+					{
+					return true;
+					}
+				set.add(r.getId());
+				}
+			}
+		Set<Integer> instancesSet = new HashSet<Integer>();
+		Set<Integer> tilesSet = new HashSet<Integer>();
+		for (Room r : resMap.getList(Room.class))
+			{
+			for (Instance j : r.instances)
+				if (instancesSet.contains(j.getID())) return true;
+				else instancesSet.add(j.getID());
+			for (Tile j : r.tiles)
+				if (tilesSet.contains(j.getID())) return true;
+				else tilesSet.add(j.getID());
+			}
+		return false;
 		}
 
 	public void defragIds()

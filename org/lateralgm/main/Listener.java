@@ -283,6 +283,25 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 
 		return null;
 		}
+	
+	public static void checkIdsInteractive(boolean promptOk)
+		{
+		if (LGM.currentFile.checkIds())
+			{
+			if (JOptionPane.showConfirmDialog(LGM.frame,
+					Messages.getString("Listener.CHECKIDS_DEFRAG"), //$NON-NLS-1$
+					Messages.getString("Listener.CHECKIDS_DEFRAG_TITLE"), //$NON-NLS-1$
+					JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
+				LGM.currentFile.defragIds();
+			}
+		else if (promptOk)
+			{
+			JOptionPane.showMessageDialog(LGM.frame,
+					Messages.getString("Listener.CHECKIDS_OK"), //$NON-NLS-1$
+					Messages.getString("Listener.CHECKIDS_OK_TITLE"), //$NON-NLS-1$
+					JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
 
 	public void actionPerformed(ActionEvent e)
 		{
@@ -431,11 +450,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 		else if (com.endsWith(".PACKAGE")) { //$NON-NLS-1$
 			PackageResourcesDialog.getInstance().setVisible(true);
 		}
-		else if (com.endsWith(".DEFRAGIDS")) { //$NON-NLS-1$
-			String msg = Messages.getString("Listener.CONFIRM_DEFRAGIDS"); //$NON-NLS-1$
-			if (JOptionPane.showConfirmDialog(LGM.frame,msg,
-					Messages.getString("Listener.CONFIRM_DEFRAGIDS_TITLE"), //$NON-NLS-1$
-					JOptionPane.YES_NO_OPTION) == 0) LGM.currentFile.defragIds();
+		else if (com.endsWith(".CHECKIDS")) //$NON-NLS-1$
+			{
+			Listener.checkIdsInteractive(true);
 			}
 		else if (com.endsWith(".EXPAND")) { //$NON-NLS-1$
 			for (int m = 0; m < tree.getRowCount(); m++)
