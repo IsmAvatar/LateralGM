@@ -184,9 +184,7 @@ public class GmMenuBar extends JMenuBar
 		add(menu);
 
 		menu.addItem("GmMenuBar.PACKAGE"); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.DEFRAGIDS"); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.VERIFYNAMES"); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.SYNTAXCHECK"); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.CHECKIDS"); //$NON-NLS-1$
 		menu.addSeparator();
 		menu.addItem("GmMenuBar.FIND"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.ANNOTATE"); //$NON-NLS-1$

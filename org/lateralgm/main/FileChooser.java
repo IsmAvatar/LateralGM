@@ -619,6 +619,7 @@ public class FileChooser
 		t.start();
 		LGM.setProgressDialogVisible(true);
 		LGM.reload(true);
+		Listener.checkIdsInteractive(false);
 		}
 
 	public static FileReader findReader(URI uri)

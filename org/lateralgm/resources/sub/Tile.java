@@ -87,6 +87,11 @@ public class Tile implements Room.Piece,UpdateListener,PropertyValidator<Tile.PT
 		if (r != null) r.tileUpdated(e);
 		}
 
+	public int getID()
+		{
+		return properties.get(PTile.ID);
+		}
+
 	@Override
 	public void setName(String name)
 		{
