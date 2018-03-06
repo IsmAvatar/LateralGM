@@ -35,8 +35,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
@@ -61,7 +59,6 @@ import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
 import org.lateralgm.resources.sub.Instance;
-import org.lateralgm.resources.sub.Tile;
 import org.lateralgm.subframes.ConfigurationManager;
 
 public class Listener extends TransferHandler implements ActionListener,CellEditorListener
