@@ -328,7 +328,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			}
 		if (result == JOptionPane.NO_OPTION)
 			{
-			boolean valid = (dupName == null) ? false : dupName.matches("^(?!__|_[A-Z])([a-zA-Z]|_).*$"); //$NON-NLS-1$
+			boolean valid = (dupName == null) ? false : dupName.matches("^(?!.*__.*)([\\p{Alpha}]).*$"); //$NON-NLS-1$
 			if (!valid)
 				{
 				String invalid = Messages.format("Listener.CHECKNAMES_INVALID", dupKindName, dupName); //$NON-NLS-1$
