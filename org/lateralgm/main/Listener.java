@@ -309,17 +309,29 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			((Instance)res).setName(name);
 		}
 
+	private static String getKindName(Object res)
+		{
+		if (res instanceof InstantiableResource<?,?>)
+			return Resource.kindNames.get(res.getClass());
+		else if (res instanceof Instance)
+			return Messages.getString("LGM.INSTANCE");
+		else if (res == null)
+			return null;
+		else
+			return res.getClass().getName();
+		}
+
 	private static int checkNameInteractive(Map<String, Object> map, Object dup)
 		{
 		boolean validAndUnique = true;
 		String dupName = Listener.getResourceName(dup);
-		String dupKindName = Resource.kindNames.get(dup.getClass());
+		String dupKindName = Listener.getKindName(dup);
 		Object orig = map.get(dupName);
 		int result = JOptionPane.NO_OPTION;
 		if (orig != null)
 			{
 			String origName = Listener.getResourceName(orig);
-			String origKindName = Resource.kindNames.get(orig.getClass());
+			String origKindName = Listener.getKindName(orig);
 			String duplicate = Messages.format("Listener.CHECKNAMES_DUPLICATE", dupKindName, dupName, origKindName, origName); //$NON-NLS-1$
 			String duplicateTitle = Messages.getString("Listener.CHECKNAMES_DUPLICATE_TITLE"); //$NON-NLS-1$
 			result = JOptionPane.showConfirmDialog(LGM.frame, duplicate, duplicateTitle, JOptionPane.YES_NO_CANCEL_OPTION);
