@@ -309,8 +309,9 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			((Instance)res).setName(name);
 		}
 
-	private static boolean checkNameInteractive(Map<String, Object> map, Object dup)
+	private static int checkNameInteractive(Map<String, Object> map, Object dup)
 		{
+		boolean validAndUnique = true;
 		String dupName = Listener.getResourceName(dup);
 		String dupKindName = Resource.kindNames.get(dup.getClass());
 		Object orig = map.get(dupName);
@@ -322,7 +323,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 			String duplicate = Messages.format("Listener.CHECKNAMES_DUPLICATE", dupKindName, dupName, origKindName, origName); //$NON-NLS-1$
 			String duplicateTitle = Messages.getString("Listener.CHECKNAMES_DUPLICATE_TITLE"); //$NON-NLS-1$
 			result = JOptionPane.showConfirmDialog(LGM.frame, duplicate, duplicateTitle, JOptionPane.YES_NO_CANCEL_OPTION);
-			if (result == JOptionPane.CANCEL_OPTION) return true;
+			if (result == JOptionPane.CANCEL_OPTION) return -1;
+			validAndUnique = false;
 			}
 		if (result == JOptionPane.NO_OPTION)
 			{
@@ -332,7 +334,8 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				String invalid = Messages.format("Listener.CHECKNAMES_INVALID", dupKindName, dupName); //$NON-NLS-1$
 				String invalidTitle = Messages.getString("Listener.CHECKNAMES_INVALID_TITLE"); //$NON-NLS-1$
 				result = JOptionPane.showConfirmDialog(LGM.frame, invalid, invalidTitle, JOptionPane.YES_NO_CANCEL_OPTION);
-				if (result == JOptionPane.CANCEL_OPTION) return true;
+				if (result == JOptionPane.CANCEL_OPTION) return -1;
+				validAndUnique = false;
 				}
 			}
 		if (result == JOptionPane.YES_OPTION)
@@ -344,25 +347,41 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 				Listener.setResourceName(dup, dupName = newName);
 			}
 		map.put(dupName, dup);
-		return false;
+		return validAndUnique ? 0 : 1;
 		}
 
 	private static void checkNamesInteractive()
 		{
 		Iterator<ResourceHolder<?>> iter = LGM.currentFile.resMap.values().iterator();
 		Map<String, Object> map = new HashMap<>();
+		int invalidCount = 0;
 		while (iter.hasNext())
 			{
 			ResourceHolder<?> rh = iter.next();
 			if (!(rh instanceof ResourceList<?>)) continue;
 			ResourceList<?> rl = (ResourceList<?>) rh;
 			for (InstantiableResource<?,?> dup : rl)
-				if (Listener.checkNameInteractive(map, dup)) return;
+				{
+				int result = Listener.checkNameInteractive(map, dup);
+				if (result == -1) return;
+				invalidCount += result;
+				}
 			}
 
 		for (Room r : LGM.currentFile.resMap.getList(Room.class))
 			for (Instance j : r.instances)
-				if (Listener.checkNameInteractive(map, j)) return;
+				{
+				int result = Listener.checkNameInteractive(map, j);
+				if (result == -1) return;
+				invalidCount += result;
+				}
+
+		if (invalidCount == 0)
+			{
+			String unique = Messages.getString("Listener.CHECKNAMES_OK"); //$NON-NLS-1$
+			String uniqueTitle = Messages.getString("Listener.CHECKNAMES_OK_TITLE"); //$NON-NLS-1$
+			JOptionPane.showMessageDialog(LGM.frame, unique, uniqueTitle, JOptionPane.INFORMATION_MESSAGE);
+			}
 		}
 
 	public static void checkIdsInteractive(boolean promptOk)
