@@ -400,10 +400,7 @@ public class ProjectFile implements UpdateListener
 				{
 				if (!(o instanceof InstantiableResource<?,?>)) continue;
 				InstantiableResource<?,?> r = (InstantiableResource<?,?>) o;
-				if (set.contains(r.getId()))
-					{
-					return true;
-					}
+				if (set.contains(r.getId())) return true;
 				set.add(r.getId());
 				}
 			}

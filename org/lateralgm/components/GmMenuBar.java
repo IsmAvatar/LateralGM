@@ -183,11 +183,10 @@ public class GmMenuBar extends JMenuBar
 		menu = new GmMenu(Messages.getString("GmMenuBar.MENU_RESOURCES")); //$NON-NLS-1$
 		add(menu);
 
-		menu.addItem("GmMenuBar.PACKAGE"); //$NON-NLS-1$
+		menu.addItem("GmMenuBar.CHECKNAMES"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.CHECKIDS"); //$NON-NLS-1$
 		menu.addSeparator();
 		menu.addItem("GmMenuBar.FIND"); //$NON-NLS-1$
-		menu.addItem("GmMenuBar.ANNOTATE"); //$NON-NLS-1$
 		menu.addSeparator();
 		menu.addItem("GmMenuBar.EXPAND"); //$NON-NLS-1$
 		menu.addItem("GmMenuBar.COLLAPSE"); //$NON-NLS-1$
