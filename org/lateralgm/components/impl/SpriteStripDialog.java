@@ -69,7 +69,7 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 
 		ParallelGroup g1 = layout.createParallelGroup();
 		ParallelGroup g2 = layout.createParallelGroup();
-		SequentialGroup g3 = layout.createSequentialGroup().addContainerGap();
+		SequentialGroup g3 = layout.createSequentialGroup();
 
 		preview = new SpriteStripPreview(this);
 
