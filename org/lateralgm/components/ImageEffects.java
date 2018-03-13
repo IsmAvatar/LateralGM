@@ -209,12 +209,6 @@ public class ImageEffects
 				for (int ii = 0; ii < height; ii++) {
 					int rgba = img.getRGB(i,ii);
 					Color col = new Color(rgba, true);
-					/* Monochrome
-					col = new Color(Math.abs(255 - col.getRed()),
-													Math.abs(255 - col.getRed()),
-													Math.abs(255 - col.getRed()),
-													col.getAlpha()); */
-
 					col = new Color(255 - col.getRed(),
 													255 - col.getGreen(),
 													255 - col.getBlue(),
