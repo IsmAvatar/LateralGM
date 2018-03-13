@@ -864,7 +864,7 @@ public final class Util
 		WritableRaster nr = or.createCompatibleWritableRaster();
 		nr.setRect(or);
 		//construct with cloned raster, assume it has no special properties
-		return new BufferedImage(bi.getColorModel(),or,bi.isAlphaPremultiplied(),null);
+		return new BufferedImage(bi.getColorModel(),nr,bi.isAlphaPremultiplied(),null);
 		}
 
 	public static Color convertGmColor(int col)

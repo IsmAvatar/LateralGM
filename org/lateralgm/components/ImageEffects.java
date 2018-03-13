@@ -71,7 +71,7 @@ public class ImageEffects
 		public abstract BufferedImage getAppliedImage(BufferedImage img);
 		public abstract JPanel getOptionsPanel();
 		public String getName() {
-			return Messages.getString("ImageEffects." + getKey());
+			return Messages.getString("ImageEffects." + getKey()); //$NON-NLS-1$
 		}
 		public abstract String getKey();
 
@@ -92,16 +92,14 @@ public class ImageEffects
 	}
 
 	public static class BlackAndWhiteEffect extends ImageEffect {
-		private final String key = "BlackAndWhiteEffect";
+		private final String key = "BlackAndWhiteEffect"; //$NON-NLS-1$
 
 		@Override
 		public BufferedImage getAppliedImage(BufferedImage img)
 			{
-			BufferedImage ret = new BufferedImage(img.getColorModel(), img.copyData(null),
-					img.isAlphaPremultiplied(), null);
 			ColorConvertOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
-			op.filter(img, ret);
-			return ret;
+			BufferedImage dest = op.createCompatibleDestImage(img, img.getColorModel());
+			return op.filter(img, dest);
 			}
 
 		@Override
@@ -120,7 +118,7 @@ public class ImageEffects
 	}
 
 	public static class OpacityEffect extends ImageEffect {
-		private final String key = "OpacityEffect";
+		private final String key = "OpacityEffect"; //$NON-NLS-1$
 
 		private JSlider alphaSlider = null;
 
@@ -128,7 +126,7 @@ public class ImageEffects
 		public BufferedImage getAppliedImage(BufferedImage img)
 			{
 			BufferedImage target = new BufferedImage(img.getWidth(),
-					img.getHeight(), java.awt.Transparency.TRANSLUCENT);
+					img.getHeight(), BufferedImage.TYPE_INT_ARGB);
 			// Get the images graphics
 			Graphics2D g = target.createGraphics();
 			// Set the Graphics composite to Alpha
@@ -146,7 +144,7 @@ public class ImageEffects
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-			JLabel alphaLabel = new JLabel(Messages.getString("ImageEffects.TRANSPARENCY"));
+			JLabel alphaLabel = new JLabel(Messages.getString("ImageEffects.TRANSPARENCY")); //$NON-NLS-1$
 			alphaSlider = new JSlider(0,255,155);
 			alphaSlider.setPaintTicks(true);
 			alphaSlider.setMajorTickSpacing(15);
@@ -199,7 +197,7 @@ public class ImageEffects
 	}
 
 	public static class InvertEffect extends ImageEffect {
-		private final String key = "InvertEffect";
+		private final String key = "InvertEffect"; //$NON-NLS-1$
 
 		@Override
 		public BufferedImage getAppliedImage(BufferedImage img)
@@ -243,7 +241,7 @@ public class ImageEffects
 	}
 
 	public static class EdgeDetectEffect extends ImageEffect {
-		private final String key = "EdgeDetectEffect";
+		private final String key = "EdgeDetectEffect"; //$NON-NLS-1$
 
 		@Override
 		public BufferedImage getAppliedImage(BufferedImage img)
@@ -278,7 +276,7 @@ public class ImageEffects
 	}
 
 	public static class EmbossEffect extends ImageEffect {
-		private final String key = "EmbossColorEffect";
+		private final String key = "EmbossColorEffect"; //$NON-NLS-1$
 
 		@Override
 		public BufferedImage getAppliedImage(BufferedImage img)
@@ -339,7 +337,7 @@ public class ImageEffects
 	}
 
 	public static class BlurEffect extends ImageEffect {
-		private final String key = "BlurEffect";
+		private final String key = "BlurEffect"; //$NON-NLS-1$
 		private JSlider repeatSlider;
 
 		@Override
@@ -368,7 +366,7 @@ public class ImageEffects
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-			JLabel alphaLabel = new JLabel(Messages.getString("ImageEffects.REPETITIONS"));
+			JLabel alphaLabel = new JLabel(Messages.getString("ImageEffects.REPETITIONS")); //$NON-NLS-1$
 			repeatSlider = new JSlider(1,20,2);
 			repeatSlider.setPaintTicks(true);
 			repeatSlider.setSnapToTicks(true);
@@ -409,7 +407,7 @@ public class ImageEffects
 	}
 
 	public static class SharpenEffect extends ImageEffect {
-		private final String key = "SharpenEffect";
+		private final String key = "SharpenEffect"; //$NON-NLS-1$
 		private JSlider repeatSlider;
 
 		@Override
@@ -437,7 +435,7 @@ public class ImageEffects
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-			JLabel alphaLabel = new JLabel(Messages.getString("ImageEffects.REPETITIONS"));
+			JLabel alphaLabel = new JLabel(Messages.getString("ImageEffects.REPETITIONS")); //$NON-NLS-1$
 			repeatSlider = new JSlider(1,20,2);
 			repeatSlider.setPaintTicks(true);
 			repeatSlider.setSnapToTicks(true);
@@ -478,7 +476,7 @@ public class ImageEffects
 	}
 
 	public static class RemoveTransparencyEffect extends ImageEffect {
-		private final String key = "RemoveTransparencyEffect";
+		private final String key = "RemoveTransparencyEffect"; //$NON-NLS-1$
 		private ColorSelect colorSelect;
 
 		@Override
@@ -492,7 +490,7 @@ public class ImageEffects
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-			JLabel colorLabel = new JLabel(Messages.getString("ImageEffects.COLOR"));
+			JLabel colorLabel = new JLabel(Messages.getString("ImageEffects.COLOR")); //$NON-NLS-1$
 			colorSelect = new ColorSelect(Color.WHITE,true);
 			colorSelect.addItemListener(new ItemListener() {
 				@Override
@@ -540,7 +538,7 @@ public class ImageEffects
 		}
 
 	public static class RemoveColorEffect extends ImageEffect {
-		private final String key = "RemoveColorEffect";
+		private final String key = "RemoveColorEffect"; //$NON-NLS-1$
 		private ColorSelect colorSelect;
 		private JSlider toleranceSlider;
 
@@ -567,7 +565,7 @@ public class ImageEffects
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-			JLabel colorLabel = new JLabel(Messages.getString("ImageEffects.COLOR"));
+			JLabel colorLabel = new JLabel(Messages.getString("ImageEffects.COLOR")); //$NON-NLS-1$
 			colorSelect = new ColorSelect(Color.WHITE,true);
 			colorSelect.addItemListener(new ItemListener() {
 				@Override
@@ -577,7 +575,7 @@ public class ImageEffects
 					}
 			});
 
-			JLabel toleranceLabel = new JLabel(Messages.getString("ImageEffects.TOLERANCE"));
+			JLabel toleranceLabel = new JLabel(Messages.getString("ImageEffects.TOLERANCE")); //$NON-NLS-1$
 			toleranceSlider = new JSlider(0,255,15);
 			toleranceSlider.setPaintTicks(true);
 			toleranceSlider.setSnapToTicks(true);
@@ -623,7 +621,7 @@ public class ImageEffects
 	}
 
 	public static class FadeColorEffect extends ImageEffect {
-		private final String key = "FadeColorEffect";
+		private final String key = "FadeColorEffect"; //$NON-NLS-1$
 		private ColorSelect colorSelect;
 		private JSlider intensitySlider;
 
@@ -631,7 +629,7 @@ public class ImageEffects
 		public BufferedImage getAppliedImage(BufferedImage img)
 			{
 			BufferedImage target = new BufferedImage(img.getWidth(),
-					img.getHeight(), java.awt.Transparency.TRANSLUCENT);
+					img.getHeight(), BufferedImage.TYPE_INT_ARGB);
 			// Get the images graphics
 			Graphics2D g = target.createGraphics();
 			// Draw the image into the prepared reciver image
@@ -651,7 +649,7 @@ public class ImageEffects
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-			JLabel colorLabel = new JLabel(Messages.getString("ImageEffects.COLOR"));
+			JLabel colorLabel = new JLabel(Messages.getString("ImageEffects.COLOR")); //$NON-NLS-1$
 			colorSelect = new ColorSelect(Color.YELLOW,false);
 			colorSelect.addItemListener(new ItemListener() {
 				@Override
@@ -661,7 +659,7 @@ public class ImageEffects
 					}
 			});
 
-			JLabel toleranceLabel = new JLabel(Messages.getString("ImageEffects.INTENSITY"));
+			JLabel toleranceLabel = new JLabel(Messages.getString("ImageEffects.INTENSITY")); //$NON-NLS-1$
 			intensitySlider = new JSlider(0,255,155);
 			intensitySlider.setPaintTicks(true);
 			intensitySlider.setSnapToTicks(true);
@@ -718,7 +716,7 @@ public class ImageEffects
 	}
 
 	public static class ColorizeEffect extends ImageEffect {
-		private final String key = "ColorizeEffect";
+		private final String key = "ColorizeEffect"; //$NON-NLS-1$
 		private JSlider hueSlider;
 		private JCheckBox hueShift;
 		private JSlider satSlider;
@@ -759,7 +757,7 @@ public class ImageEffects
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-			JLabel hueLabel = new JLabel(Messages.getString("ImageEffects.HUE"));
+			JLabel hueLabel = new JLabel(Messages.getString("ImageEffects.HUE")); //$NON-NLS-1$
 			hueSlider = new JSlider(-180,180,0);
 			hueSlider.setPaintTicks(true);
 			hueSlider.setSnapToTicks(false);
@@ -773,7 +771,7 @@ public class ImageEffects
 					}
 			});
 
-			hueShift = new JCheckBox(Messages.getString("ImageEffects.RELATIVE"), true);
+			hueShift = new JCheckBox(Messages.getString("ImageEffects.RELATIVE"), true); //$NON-NLS-1$
 			hueShift.addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent arg0)
@@ -782,7 +780,7 @@ public class ImageEffects
 					}
 			});
 
-			JLabel satLabel = new JLabel(Messages.getString("ImageEffects.SATURATION"));
+			JLabel satLabel = new JLabel(Messages.getString("ImageEffects.SATURATION")); //$NON-NLS-1$
 			satSlider = new JSlider(-100,100,0);
 			satSlider.setPaintTicks(true);
 			satSlider.setSnapToTicks(false);
@@ -796,7 +794,7 @@ public class ImageEffects
 					}
 			});
 
-			satShift = new JCheckBox(Messages.getString("ImageEffects.RELATIVE"), true);
+			satShift = new JCheckBox(Messages.getString("ImageEffects.RELATIVE"), true); //$NON-NLS-1$
 			satShift.addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent arg0)
@@ -805,7 +803,7 @@ public class ImageEffects
 					}
 			});
 
-			JLabel valLabel = new JLabel(Messages.getString("ImageEffects.VALUE"));
+			JLabel valLabel = new JLabel(Messages.getString("ImageEffects.VALUE")); //$NON-NLS-1$
 			valSlider = new JSlider(-100,100,0);
 			valSlider.setPaintTicks(true);
 			valSlider.setSnapToTicks(false);
@@ -819,7 +817,7 @@ public class ImageEffects
 					}
 			});
 
-			valShift = new JCheckBox(Messages.getString("ImageEffects.RELATIVE"), true);
+			valShift = new JCheckBox(Messages.getString("ImageEffects.RELATIVE"), true); //$NON-NLS-1$
 			valShift.addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent arg0)
@@ -875,7 +873,7 @@ public class ImageEffects
 	}
 
 	public static class IntensityEffect extends ImageEffect {
-		private final String key = "IntensityEffect";
+		private final String key = "IntensityEffect"; //$NON-NLS-1$
 		private JSlider brightnessSlider;
 		private JSlider contrastSlider;
 
@@ -977,7 +975,7 @@ public class ImageEffects
 		public JPanel getOptionsPanel()
 			{
 			JPanel pane = new JPanel();
-			JLabel hueLabel = new JLabel(Messages.getString("ImageEffects.BRIGHTNESS"));
+			JLabel hueLabel = new JLabel(Messages.getString("ImageEffects.BRIGHTNESS")); //$NON-NLS-1$
 			brightnessSlider = new JSlider(-100,100,0);
 			brightnessSlider.setPaintTicks(true);
 			brightnessSlider.setSnapToTicks(false);
@@ -991,7 +989,7 @@ public class ImageEffects
 					}
 			});
 
-			JLabel satLabel = new JLabel(Messages.getString("ImageEffects.CONTRAST"));
+			JLabel satLabel = new JLabel(Messages.getString("ImageEffects.CONTRAST")); //$NON-NLS-1$
 			contrastSlider = new JSlider(-100,100,0);
 			contrastSlider.setPaintTicks(true);
 			contrastSlider.setSnapToTicks(false);
