@@ -888,14 +888,13 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			{
 				public void valueChanged(ListSelectionEvent ev)
 					{
-					EffectsFrame.getInstance(getSelectedImages()).setEffectsListener(SpriteFrame.this);
+					EffectsFrame.getInstance().setEffectsListener(SpriteFrame.this, getSelectedImages());
 					int ind = subList.getSelectedIndex();
 					if (ind < 0) return;
 					if (timer == null)
 						{
 						setSubIndex(ind);
 						}
-
 					}
 			});
 
@@ -1200,7 +1199,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			subList.setSelectionInterval(0,res.subImages.size() - 1);
 			return;
 			}
-		else if (cmd.endsWith(".CUT"))
+		else if (cmd.endsWith(".CUT")) //$NON-NLS-1$
 			{
 			int[] selections = subList.getSelectedIndices();
 			if (selections.length == 0)
@@ -1219,7 +1218,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			imageChanged = true;
 			return;
 			}
-		else if (cmd.endsWith(".COPY"))
+		else if (cmd.endsWith(".COPY")) //$NON-NLS-1$
 			{
 			int[] selections = subList.getSelectedIndices();
 			List<BufferedImage> images = new ArrayList<BufferedImage>(selections.length);
@@ -1232,7 +1231,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			clip.setContents(new TransferableImages(new ClipboardImages(images)),this);
 			return;
 			}
-		else if (cmd.endsWith(".PASTE"))
+		else if (cmd.endsWith(".PASTE")) //$NON-NLS-1$
 			{
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			Transferable content = clipboard.getContents(this);
@@ -1281,9 +1280,9 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				}
 			return;
 			}
-		else if (cmd.endsWith(".EFFECT")) {
-			EffectsFrame ef = EffectsFrame.getInstance(getSelectedImages());
-			ef.setEffectsListener(this);
+		else if (cmd.endsWith(".EFFECT")) { //$NON-NLS-1$
+			EffectsFrame ef = EffectsFrame.getInstance();
+			ef.setEffectsListener(this, getSelectedImages());
 			ef.setVisible(true);
 		}
 		else if (cmd.endsWith(".REMOVE")) //$NON-NLS-1$

@@ -64,11 +64,12 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 
 		JPanel p = new JPanel();
 		GroupLayout layout = new GroupLayout(p);
+		layout.setAutoCreateContainerGaps(true);
 		p.setLayout(layout);
 
 		ParallelGroup g1 = layout.createParallelGroup();
 		ParallelGroup g2 = layout.createParallelGroup();
-		SequentialGroup g3 = layout.createSequentialGroup().addContainerGap();
+		SequentialGroup g3 = layout.createSequentialGroup();
 
 		preview = new SpriteStripPreview(this);
 
@@ -97,6 +98,8 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 
 			if ((i > 1 && i % 2 == 0) || i == 1)
 				g3.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED);
+			else
+				g3.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
 			g3.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 			/**/.addComponent(l[i])
 			/**/.addComponent(fields[i]));
@@ -113,18 +116,18 @@ public class SpriteStripDialog extends JDialog implements Iterable<Rectangle>,Ac
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
 		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addContainerGap()
 		/*	*/.addGroup(g1)
 		/*	*/.addPreferredGap(ComponentPlacement.RELATED)
-		/*	*/.addGroup(g2)
-		/*	*/.addContainerGap())
+		/*	*/.addGroup(g2))
 		/**/.addGroup(layout.createSequentialGroup()
-		/*	*/.addComponent(ok).addComponent(cancel)));
+		/*	*/.addComponent(ok)
+		/*	*/.addPreferredGap(ComponentPlacement.RELATED)
+		/*	*/.addComponent(cancel)));
 
 		g3.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED);
 		g3.addGroup(layout.createParallelGroup()
 		/**/.addComponent(ok)
-		/**/.addComponent(cancel)).addContainerGap();
+		/**/.addComponent(cancel));
 
 		layout.setVerticalGroup(g3);
 

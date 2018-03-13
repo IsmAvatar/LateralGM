@@ -508,8 +508,8 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			List<BufferedImage> imgs = new ArrayList<BufferedImage>(1);
 			imgs.add(res.getBackgroundImage());
 
-			EffectsFrame ef = EffectsFrame.getInstance(imgs);
-			ef.setEffectsListener(this);
+			EffectsFrame ef = EffectsFrame.getInstance();
+			ef.setEffectsListener(this, imgs);
 			ef.setVisible(true);
 		}
 		else if (cmd.endsWith(".ZOOM"))

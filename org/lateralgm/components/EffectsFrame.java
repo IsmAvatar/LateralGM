@@ -77,13 +77,13 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		public abstract void applyEffects(List<BufferedImage> imgs);
 	}
 
-	public void setEffectsListener(EffectsFrameListener ln) {
+	public void setEffectsListener(EffectsFrameListener ln, List<BufferedImage> imgs) {
 		listener = ln;
+		INSTANCE.setImages(imgs);
 	}
 
-	public static EffectsFrame getInstance(List<BufferedImage> imgs) {
+	public static EffectsFrame getInstance() {
 		if (INSTANCE == null) INSTANCE = new EffectsFrame();
-		INSTANCE.setImages(imgs);
 		return INSTANCE;
 	}
 
@@ -170,15 +170,15 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(700,400);
 		setLocationRelativeTo(LGM.frame);
-		setTitle(Messages.getString("EffectsFrame.TITLE"));
-		setIconImage(LGM.getIconForKey("EffectsFrame.ICON").getImage());
+		setTitle(Messages.getString("EffectsFrame.TITLE")); //$NON-NLS-1$
+		setIconImage(LGM.getIconForKey("EffectsFrame.ICON").getImage()); //$NON-NLS-1$
 		setResizable(true);
 
 		beforePreview = new ImageEffectPreview();
-		beforePreview.setBorder(BorderFactory.createTitledBorder(Messages.getString("EffectsFrame.BEFORE")));
+		beforePreview.setBorder(BorderFactory.createTitledBorder(Messages.getString("EffectsFrame.BEFORE"))); //$NON-NLS-1$
 
 		afterPreview = new ImageEffectPreview();
-		afterPreview.setBorder(BorderFactory.createTitledBorder(Messages.getString("EffectsFrame.AFTER")));
+		afterPreview.setBorder(BorderFactory.createTitledBorder(Messages.getString("EffectsFrame.AFTER"))); //$NON-NLS-1$
 
 		effects = new ImageEffect[12];
 		effects[0] = new ImageEffects.BlackAndWhiteEffect();
@@ -231,9 +231,9 @@ public class EffectsFrame extends JFrame implements ActionListener, EffectOption
 
 		});
 
-		applyButton = new JButton(Messages.getString("EffectsFrame.APPLY"));
+		applyButton = new JButton(Messages.getString("EffectsFrame.APPLY")); //$NON-NLS-1$
 		applyButton.addActionListener(this);
-		closeButton = new JButton(Messages.getString("EffectsFrame.CLOSE"));
+		closeButton = new JButton(Messages.getString("EffectsFrame.CLOSE")); //$NON-NLS-1$
 		closeButton.addActionListener(this);
 
 		GroupLayout gl = new GroupLayout(this.getContentPane());
