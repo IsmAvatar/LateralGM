@@ -238,50 +238,52 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 
 	private class ShaderEditor implements UpdateListener
 		{
-		public final FileChangeMonitor monitor;
-		private final EditorType type;
-		private final File f;
+		private FileChangeMonitor monitor;
+		private EditorType type;
+		private File f;
 
 		public ShaderEditor(EditorType type) throws IOException
 			{
 			this.type = type;
-			f = File.createTempFile(res.getName(),"." +
-					(type == EditorType.VERTEX ? "vert" : "frag"), LGM.tempDir); //$NON-NLS-1$
-			f.deleteOnExit();
-
-			FileWriter out = null;
-			try
+			if (type == EditorType.VERTEX)
 				{
-				out = new FileWriter(f);
-				out.write(type == EditorType.VERTEX ? vcode.getTextCompat() : fcode.getTextCompat());
+				vertexEditor = this;
 				}
-			finally
+			else
 				{
-				if (out != null)
-					{
-						out.close();
-					}
+				fragmentEditor = this;
 				}
-
-			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
-			monitor.updateSource.addListener(this,true);
 			start();
 			}
 
 		public void start() throws IOException
 			{
+			if (monitor != null)
+				monitor.stop();
+
+			if (f == null || !f.exists())
+				{
+				f = File.createTempFile(res.getName(),'.' +
+						(type == EditorType.VERTEX ? "vert" : "frag"), LGM.tempDir); //$NON-NLS-1$ //$NON-NLS-2$
+				f.deleteOnExit();
+				}
+
+			try (FileWriter out = new FileWriter(f))
+				{
+				out.write(type == EditorType.VERTEX ? vcode.getTextCompat() : fcode.getTextCompat());
+				}
+
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this,true);
+
 			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
 				try
 					{
-					System.out.println(Desktop.getDesktop());
-					//					Desktop d = Desktop.getDesktop();
-					//					Desktop.Action.EDIT;
-					//					Toolkit.getDefaultToolkit().createDesktopPeer(d);
 					Desktop.getDesktop().edit(monitor.file);
 					}
 				catch (UnsupportedOperationException e)
 					{
-					throw new UnsupportedOperationException("no internal or system script editor",e);
+					LGM.showDefaultExceptionHandler(e);
 					}
 			else
 				Runtime.getRuntime().exec(
@@ -292,6 +294,14 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			{
 			monitor.stop();
 			monitor.file.delete();
+			if (type == EditorType.VERTEX)
+				{
+				vertexEditor = null;
+				}
+			else
+				{
+				fragmentEditor = null;
+				}
 			}
 
 		public void updated(UpdateEvent e)
@@ -301,10 +311,8 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 				{
 				case CHANGED:
 					StringBuffer sb = new StringBuffer(1024);
-					BufferedReader reader = null;
-					try
+					try (BufferedReader reader = new BufferedReader(new FileReader(monitor.file)))
 						{
-						reader = new BufferedReader(new FileReader(monitor.file));
 						char[] chars = new char[1024];
 						int len = 0;
 						while ((len = reader.read(chars)) > -1)
@@ -314,20 +322,6 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 						{
 						LGM.showDefaultExceptionHandler(ioe);
 						return;
-						}
-					finally
-						{
-						if (reader != null)
-							{
-							try
-								{
-								reader.close();
-								}
-								catch (IOException ex)
-								{
-								LGM.showDefaultExceptionHandler(ex);
-								}
-							}
 						}
 					String s = sb.toString();
 					if (type == EditorType.VERTEX) {
@@ -350,14 +344,10 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 
 	public void dispose()
 		{
-		if (fragmentEditor != null) {
+		if (fragmentEditor != null)
 			fragmentEditor.stop();
-			fragmentEditor = null;
-		}
-		if (vertexEditor != null) {
+		if (vertexEditor != null)
 			vertexEditor.stop();
-			vertexEditor = null;
-		}
 		super.dispose();
 		}
 
@@ -441,7 +431,6 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 	@Override
 	public void actionPerformed(ActionEvent ev)
 		{
-		super.actionPerformed(ev);
 		if (ev.getSource() == edit)
 			{
 			try
@@ -449,82 +438,87 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 				int stab = editors.getSelectedIndex();
 				if (stab == 0)
 					{
-						if (vertexEditor == null) {
-							vertexEditor = new ShaderEditor(EditorType.VERTEX);
-						} else {
-							vertexEditor.start();
-						}
+					if (vertexEditor == null)
+						new ShaderEditor(EditorType.VERTEX);
+					else
+						vertexEditor.start();
 					}
 				else if (stab == 1)
 					{
-						if (fragmentEditor == null) {
-							fragmentEditor = new ShaderEditor(EditorType.FRAGMENT);
-						} else {
-							fragmentEditor.start();
-						}
+					if (fragmentEditor == null)
+						new ShaderEditor(EditorType.FRAGMENT);
+					else
+						fragmentEditor.start();
 					}
 				}
 			catch (IOException ex)
 				{
-				ex.printStackTrace();
+				LGM.showDefaultExceptionHandler(ex);
 				}
 			return;
 			}
-
-		String com = ev.getActionCommand();
-
-		CodeTextArea selectedCode = getSelectedCode();
-
-		if (com.equals("JoshText.LOAD"))
+		else
 			{
-			selectedCode.text.Load();
-			}
-		else if (com.equals("JoshText.SAVE"))
-			{
-			selectedCode.text.Save();
-			}
-		else if (com.equals("JoshText.PRINT"))
-			{
-			try
+			String com = ev.getActionCommand();
+
+			CodeTextArea selectedCode = getSelectedCode();
+
+			if (com.equals("JoshText.LOAD"))
 				{
-				selectedCode.Print();
+				selectedCode.text.Load();
 				}
-			catch (PrinterException e)
+			else if (com.equals("JoshText.SAVE"))
 				{
-				LGM.showDefaultExceptionHandler(e);
+				selectedCode.text.Save();
+				}
+			else if (com.equals("JoshText.PRINT"))
+				{
+				try
+					{
+					selectedCode.Print();
+					}
+				catch (PrinterException e)
+					{
+					LGM.showDefaultExceptionHandler(e);
+					}
+				}
+			else if (com.equals("JoshText.UNDO"))
+				{
+				selectedCode.text.Undo();
+				}
+			else if (com.equals("JoshText.REDO"))
+				{
+				selectedCode.text.Redo();
+				}
+			else if (com.equals("JoshText.CUT"))
+				{
+				selectedCode.text.Cut();
+				}
+			else if (com.equals("JoshText.COPY"))
+				{
+				selectedCode.text.Copy();
+				}
+			else if (com.equals("JoshText.PASTE"))
+				{
+				selectedCode.text.Paste();
+				}
+			else if (com.equals("JoshText.FIND"))
+				{
+				selectedCode.text.ShowFind();
+				}
+			else if (com.equals("JoshText.GOTO"))
+				{
+				selectedCode.aGoto();
+				}
+			else if (com.equals("JoshText.SELALL"))
+				{
+				selectedCode.text.SelectAll();
+				}
+			else
+				{
+				super.actionPerformed(ev);
 				}
 			}
-		else if (com.equals("JoshText.UNDO"))
-			{
-			selectedCode.text.Undo();
-			}
-		else if (com.equals("JoshText.REDO"))
-			{
-			selectedCode.text.Redo();
-			}
-		else if (com.equals("JoshText.CUT"))
-			{
-			selectedCode.text.Cut();
-			}
-		else if (com.equals("JoshText.COPY"))
-			{
-			selectedCode.text.Copy();
-			}
-		else if (com.equals("JoshText.PASTE"))
-			{
-			selectedCode.text.Paste();
-			}
-		else if (com.equals("JoshText.FIND"))
-			{
-			selectedCode.text.ShowFind();
-			}
-		else if (com.equals("JoshText.GOTO"))
-			{
-			selectedCode.aGoto();
-			}
-		else if (com.equals("JoshText.SELALL"))
-			{
-			selectedCode.text.SelectAll();
-			}
+		
 		}
 	}

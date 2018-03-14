@@ -28,14 +28,12 @@ import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.awt.image.WritableRaster;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -196,19 +194,34 @@ public final class Util
 			}
 		}
 
-	public static ByteArrayOutputStream readFully(InputStream in) throws IOException
+	public static byte[] readFully(File file) throws FileNotFoundException, IOException
 		{
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] fileData = new byte[(int) file.length()];
+		try (FileInputStream fis = new FileInputStream(file);
+				DataInputStream dis = new DataInputStream(fis))
+			{
+			dis.readFully(fileData);
+			}
+		return fileData;
+		}
 
-		byte[] buffer = new byte[4096];
+	public static byte[] readFully(String path) throws FileNotFoundException, IOException
+		{
+			return Util.readFully(new File(path));
+		}
 
-		// Read in the bytes
-		int numRead = 0;
-		while ((numRead = in.read(buffer)) >= 0)
-			baos.write(buffer,0,numRead);
+	public static void writeFully(File file, byte[] data) throws FileNotFoundException, IOException 
+		{
+		try (FileOutputStream fos = new FileOutputStream(file);
+				BufferedOutputStream bos = new BufferedOutputStream(fos))
+			{
+			bos.write(data);
+			}
+		}
 
-		// Close the input stream and return bytes
-		return baos;
+	public static void writeFully(String path, byte[] data) throws FileNotFoundException, IOException
+		{
+			Util.writeFully(new File(path), data);
 		}
 
 	public static Rectangle stringToRectangle(String s, Rectangle defaultValue)
@@ -599,63 +612,9 @@ public final class Util
 			}
 		}
 
-	public static byte[] readBinaryFile(String path)
-		{
-		File file = new File(getPOSIXPath(path));
-		byte[] fileData = new byte[(int) file.length()];
-		DataInputStream dis = null;
-		try
-			{
-			dis = new DataInputStream(new FileInputStream(file));
-			dis.readFully(fileData);
-			}
-		catch (IOException e)
-			{
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(LGM.frame,"There was an issue opening a data input stream.",
-					"Read Error",JOptionPane.ERROR_MESSAGE);
-			}
-		finally
-			{
-			try
-				{
-				if (dis != null) {
-					dis.close();
-				}
-				}
-			catch (IOException e)
-				{
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(LGM.frame,"There was an issue closing a data input stream.",
-						"Read Error",JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		return fileData;
-		}
-
-	public static void writeBinaryFile(String path, byte[] data) throws IOException
-		{
-		BufferedOutputStream bos = null;
-		FileOutputStream fos = null;
-		try
-			{
-			//create an object of FileOutputStream
-			fos = new FileOutputStream(new File(Util.getPOSIXPath(path)));
-
-			//create an object of BufferedOutputStream
-			bos = new BufferedOutputStream(fos);
-			bos.write(data);
-			}
-		finally
-			{
-			bos.close();
-			fos.close();
-			}
-		}
-
 	public static String getPOSIXPath(String path)
 		{
-		return path.replace("\\","/");
+		return path.replace("\\","/"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 	private static ArrayList<BufferedImage> readGIF(File gif) throws IOException
@@ -813,19 +772,19 @@ public final class Util
 			for (int i = 0; i < f.length; i++)
 				{
 				if (!f[i].exists()) continue;
-				if (f[i].getName().endsWith(".gif"))
+				if (f[i].getName().endsWith(".gif")) //$NON-NLS-1$
 					{
 					subframes.addAll(readGIF(f[i]));
 					}
-				else if (f[i].getName().endsWith(".apng"))
+				else if (f[i].getName().endsWith(".apng")) //$NON-NLS-1$
 					{
 					FileInputStream is = new FileInputStream(f[i]);
 					subframes.addAll(ApngIO.apngToBufferedImages(is));
 					is.close();
 					}
-				else if (f[i].getName().endsWith(".ico"))
+				else if (f[i].getName().endsWith(".ico")) //$NON-NLS-1$
 					{
-					List<BufferedImage> imgs = new ICOFile(readBinaryFile(f[i].getPath())).getImages();
+					List<BufferedImage> imgs = new ICOFile(readFully(f[i])).getImages();
 					return imgs.toArray(new BufferedImage[imgs.size()]);
 					}
 				else

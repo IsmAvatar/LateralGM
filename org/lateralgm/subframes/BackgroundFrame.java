@@ -593,42 +593,38 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 
 	private class BackgroundEditor implements UpdateListener
 		{
-		public final FileChangeMonitor monitor;
-		private final File f;
+		private FileChangeMonitor monitor;
+		private File f;
 
 		public BackgroundEditor() throws IOException
 			{
-			f = File.createTempFile(res.getName(),
-					"." + Prefs.externalBackgroundExtension,LGM.tempDir); //$NON-NLS-1$
-			f.deleteOnExit();
-
-			BufferedImage bi = res.getBackgroundImage();
-			if (bi == null)
-				{
-				bi = createNewImage(false);
-				}
-			FileOutputStream out = null;
-			try
-				{
-				out = new FileOutputStream(f);
-				ImageIO.write(bi,Prefs.externalBackgroundExtension,out);
-				}
-			finally
-				{
-				if (out != null)
-					{
-					out.close();
-					}
-				}
-
-			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
-			monitor.updateSource.addListener(this);
 			editor = this;
 			start();
 			}
 
 		public void start() throws IOException
 			{
+			if (monitor != null)
+				monitor.stop();
+
+			if (f == null || !f.exists())
+				{
+				f = File.createTempFile(res.getName(),'.' + Prefs.externalBackgroundExtension,LGM.tempDir);
+				f.deleteOnExit();
+				}
+
+			BufferedImage bi = res.getBackgroundImage();
+			if (bi == null)
+				bi = createNewImage(false);
+
+			try (FileOutputStream out = new FileOutputStream(f))
+				{
+				ImageIO.write(bi,Prefs.externalBackgroundExtension,out);
+				}
+
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this);
+
 			if (!Prefs.useExternalBackgroundEditor || Prefs.externalBackgroundEditorCommand == null)
 				try
 					{
@@ -636,7 +632,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 					}
 				catch (UnsupportedOperationException e)
 					{
-					throw new UnsupportedOperationException("no internal or system background editor",e);
+					LGM.showDefaultExceptionHandler(e);
 					}
 			else
 				Runtime.getRuntime().exec(
@@ -657,29 +653,14 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 				{
 				case CHANGED:
 					BufferedImage img;
-					FileInputStream stream = null;
-					try
+					try (FileInputStream stream = new FileInputStream(monitor.file))
 						{
-							stream = new FileInputStream(monitor.file);
 							img = ImageIO.read(stream);
 						}
 					catch (IOException ioe)
 						{
 							LGM.showDefaultExceptionHandler(ioe);
 							return;
-						}
-					finally
-						{
-							if (stream != null) {
-								try
-								{
-									stream.close();
-								}
-								catch (IOException ex)
-								{
-									LGM.showDefaultExceptionHandler(ex);
-								}
-							}
 						}
 					res.setBackgroundImage(img);
 					imageChanged = true;
