@@ -180,7 +180,7 @@ import org.lateralgm.subframes.TimelineFrame;
 
 public final class LGM
 	{
-	public static final String version = "1.8.34"; //$NON-NLS-1$
+	public static final String version = "1.8.35"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -2295,7 +2295,7 @@ public final class LGM
 					}
 			});
 
-		final JFrame filterSettingsFrame = createFilterSettingsFrame();
+		final JDialog filterSettingsDialog = createFilterSettingsDialog();
 
 		filterText = new HintTextField(Messages.getString("TreeFilter.SEARCHFOR"),true);
 
@@ -2337,7 +2337,7 @@ public final class LGM
 		setButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0)
 			{
-				filterSettingsFrame.setVisible(true);
+				filterSettingsDialog.setVisible(true);
 			}
 		});
 
@@ -2470,11 +2470,11 @@ public final class LGM
 			}
 		}
 
-	private static JFrame createFilterSettingsFrame() {
-		final JFrame filterSettings = new JFrame();
+	private static JDialog createFilterSettingsDialog() {
+		String title = Messages.getString("TreeFilter.TITLE");
+		final JDialog filterSettings = new JDialog(LGM.frame, title, false);
 
 		filterSettings.setIconImage(LGM.getIconForKey("TreeFilter.ICON").getImage());
-		filterSettings.setTitle(Messages.getString("TreeFilter.TITLE"));
 		filterSettings.setResizable(false);
 
 		wholeWordCB = new JCheckBox(Messages.getString("TreeFilter.WHOLEWORD"));
@@ -2547,7 +2547,6 @@ public final class LGM
 
 
 		filterSettings.pack();
-		filterSettings.setSize(280, 140);
 		filterSettings.setLocationRelativeTo(LGM.frame);
 
 		return filterSettings;
