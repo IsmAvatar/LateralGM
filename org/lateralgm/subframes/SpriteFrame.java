@@ -1721,29 +1721,12 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 	private class ImageEditor implements UpdateListener
 		{
 		private BufferedImage image;
-		public final FileChangeMonitor monitor;
-		private final File f;
+		private FileChangeMonitor monitor;
+		private File f;
 
 		public ImageEditor(BufferedImage i) throws IOException,UnsupportedOperationException
 			{
 			image = i;
-			f = File.createTempFile(res.getName(),"." + Prefs.externalSpriteExtension,LGM.tempDir); //$NON-NLS-1$
-			f.deleteOnExit();
-
-			FileOutputStream out = null;
-			try
-				{
-				out = new FileOutputStream(f);
-				ImageIO.write(image,Prefs.externalSpriteExtension,out);
-				}
-			finally
-				{
-				if (out != null)
-					out.close();
-				}
-
-			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
-			monitor.updateSource.addListener(this,true);
 			if (editors == null) editors = new HashMap<BufferedImage,ImageEditor>();
 			editors.put(i,this);
 			start();
@@ -1751,6 +1734,23 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 
 		public void start() throws IOException,UnsupportedOperationException
 			{
+			if (monitor != null)
+				monitor.stop();
+
+			if (f == null || !f.exists())
+				{
+				f = File.createTempFile(res.getName(),'.' + Prefs.externalSpriteExtension,LGM.tempDir);
+				f.deleteOnExit();
+				}
+
+			try (FileOutputStream out = new FileOutputStream(f))
+				{
+				ImageIO.write(image,Prefs.externalSpriteExtension,out);
+				}
+
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this,true);
+
 			if (!Prefs.useExternalSpriteEditor || Prefs.externalSpriteEditorCommand == null)
 				try
 					{
@@ -1758,7 +1758,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 					}
 				catch (UnsupportedOperationException e)
 					{
-					throw new UnsupportedOperationException("no internal or system sprite editor",e);
+					LGM.showDefaultExceptionHandler(e);
 					}
 			else
 				Runtime.getRuntime().exec(
@@ -1779,30 +1779,14 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 				{
 				case CHANGED:
 					BufferedImage img;
-					FileInputStream stream = null;
-					try
+					try (FileInputStream stream = new FileInputStream(monitor.file))
 						{
-						stream = new FileInputStream(monitor.file);
 						img = ImageIO.read(stream);
 						}
 					catch (IOException ioe)
 						{
 						LGM.showDefaultExceptionHandler(ioe);
 						return;
-						}
-					finally
-						{
-						if (stream != null)
-							{
-							try
-								{
-								stream.close();
-								}
-							catch (IOException ex)
-								{
-								LGM.showDefaultExceptionHandler(ex);
-								}
-							}
 						}
 					res.subImages.replace(image,img);
 					editors.remove(image);

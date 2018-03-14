@@ -682,7 +682,7 @@ public final class GMXFileWriter
 					sndroot.appendChild(createElement(doc,"effects",Integer.toString(effects))); //$NON-NLS-1$
 
 					sndroot.appendChild(createElement(doc,"data",fileName)); //$NON-NLS-1$
-					Util.writeBinaryFile(fname + "audio\\" + fileName,snd.data); //$NON-NLS-1$
+					Util.writeFully(fname + "audio\\" + fileName,snd.data); //$NON-NLS-1$
 
 					FileOutputStream fos = null;
 					try

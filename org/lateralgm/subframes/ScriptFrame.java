@@ -138,45 +138,45 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 				}
 			catch (IOException ex)
 				{
-				ex.printStackTrace();
+				LGM.showDefaultExceptionHandler(ex);
 				}
-			return;
 			}
-		super.actionPerformed(e);
+		else
+			{
+			super.actionPerformed(e);
+			}
 		}
 
 	private class ScriptEditor implements UpdateListener
 		{
-		public final FileChangeMonitor monitor;
+		private FileChangeMonitor monitor;
 		private File f;
 
 		public ScriptEditor() throws IOException
 			{
-			f = File.createTempFile(res.getName(),"." + Prefs.externalScriptExtension,LGM.tempDir); //$NON-NLS-1$
-			f.deleteOnExit();
-
-			FileWriter out = null;
-			try
-				{
-				out = new FileWriter(f);
-				out.write(code.getTextCompat());
-				}
-			finally
-				{
-				if (out != null)
-					{
-					out.close();
-					}
-				}
-
-			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
-			monitor.updateSource.addListener(this,true);
 			editor = this;
 			start();
 			}
 
 		public void start() throws IOException
 			{
+			if (monitor != null)
+				monitor.stop();
+
+			if (f == null || !f.exists())
+				{
+				f = File.createTempFile(res.getName(),'.' + Prefs.externalScriptExtension,LGM.tempDir);
+				f.deleteOnExit();
+				}
+
+			try (FileWriter out = new FileWriter(f))
+				{
+				out.write(code.getTextCompat());
+				}
+
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this,true);
+
 			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
 				try
 					{
@@ -184,7 +184,7 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 					}
 				catch (UnsupportedOperationException e)
 					{
-					throw new UnsupportedOperationException("no internal or system script editor",e);
+					LGM.showDefaultExceptionHandler(e);
 					}
 			else
 				Runtime.getRuntime().exec(
@@ -205,10 +205,8 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 				{
 				case CHANGED:
 					StringBuffer sb = new StringBuffer(1024);
-					BufferedReader reader = null;
-					try
+					try (BufferedReader reader = new BufferedReader(new FileReader(monitor.file)))
 						{
-						reader = new BufferedReader(new FileReader(monitor.file));
 						char[] chars = new char[1024];
 						int len = 0;
 						while ((len = reader.read(chars)) > -1)
@@ -218,20 +216,6 @@ public class ScriptFrame extends InstantiableResourceFrame<Script,PScript>
 						{
 						LGM.showDefaultExceptionHandler(ioe);
 						return;
-						}
-					finally
-						{
-						if (reader != null)
-							{
-							try
-								{
-								reader.close();
-								}
-							catch (IOException ex)
-								{
-								LGM.showDefaultExceptionHandler(ex);
-								}
-							}
 						}
 					String s = sb.toString();
 					res.put(PScript.CODE,s);

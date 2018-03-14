@@ -721,8 +721,15 @@ public final class GMXFileReader
 				if (data.item(0) != null)
 					{
 					String fname = data.item(0).getTextContent();
-
-					snd.data = Util.readBinaryFile(f.getDirectory() + "/sound/audio/" + fname); //$NON-NLS-1$
+					fname = f.getDirectory() + "/sound/audio/" + fname;
+					try
+						{
+						snd.data = Util.readFully(fname); //$NON-NLS-1$
+						}
+					catch (IOException e)
+						{
+						LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + fname, e));
+						}
 					}
 				}
 			}

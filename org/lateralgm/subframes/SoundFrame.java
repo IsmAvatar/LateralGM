@@ -21,7 +21,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -477,7 +476,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				}
 			try
 				{
-				data = fileToBytes(f);
+				data = Util.readFully(f);
 				//loadClip();
 				String fn = f.getName();
 				String extension = "";
@@ -589,7 +588,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				}
 			catch (IOException ex)
 				{
-				ex.printStackTrace();
+				LGM.showDefaultExceptionHandler(ex);
 				}
 			return;
 			}
@@ -599,29 +598,6 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			return;
 			}
 		super.actionPerformed(e);
-		}
-
-	public static byte[] fileToBytes(File f) throws IOException
-		{
-		InputStream in = null;
-		try
-			{
-			return Util.readFully(in = new FileInputStream(f)).toByteArray();
-			}
-		finally
-			{
-			if (in != null)
-				{
-				try
-					{
-					in.close();
-					}
-				catch (IOException ioe)
-					{
-					LGM.showDefaultExceptionHandler(ioe);
-					}
-				}
-			}
 		}
 
 	private JPanel makeStatusBar()
@@ -703,36 +679,35 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 	private class SoundEditor implements UpdateListener
 		{
-		public final FileChangeMonitor monitor;
+		private FileChangeMonitor monitor;
+		private File f;
 
-		public SoundEditor() throws IOException,UnsupportedOperationException
+		public SoundEditor() throws IOException
 			{
-			File f = File.createTempFile(res.getName(),
-					new File((String) res.get(PSound.FILE_NAME)).getName(),LGM.tempDir);
-			f.deleteOnExit();
-
-			FileOutputStream out = null;
-			try
-				{
-				out = new FileOutputStream(f);
-				out.write(data);
-				}
-			finally
-				{
-				if (out != null)
-					{
-					out.close();
-					}
-				}
-
-			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
-			monitor.updateSource.addListener(this);
 			editor = this;
 			start();
 			}
 
 		public void start() throws IOException
 			{
+			if (monitor != null)
+				monitor.stop();
+
+			if (f == null || !f.exists())
+				{
+				f = File.createTempFile(res.getName(),
+						new File((String) res.get(PSound.FILE_NAME)).getName(),LGM.tempDir);
+				f.deleteOnExit();
+				}
+
+			try (FileOutputStream out = new FileOutputStream(f))
+				{
+				out.write(data);
+				}
+
+			monitor = new FileChangeMonitor(f,SwingExecutor.INSTANCE);
+			monitor.updateSource.addListener(this);
+
 			if (!Prefs.useExternalSoundEditor || Prefs.externalSoundEditorCommand == null)
 				try
 					{
@@ -740,7 +715,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 					}
 				catch (UnsupportedOperationException e)
 					{
-					throw new UnsupportedOperationException("no internal or system sound editor",e);
+					LGM.showDefaultExceptionHandler(e);
 					}
 			else
 				Runtime.getRuntime().exec(
@@ -762,7 +737,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 				case CHANGED:
 					try
 						{
-						data = fileToBytes(monitor.file);
+						data = Util.readFully(monitor.file);
 						updateStatusLabel();
 						}
 					catch (IOException ioe)
