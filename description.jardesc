@@ -38,8 +38,8 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{LGM.java"/>
         <javaElement handleIdentifier="=LateralGM/modules\/joshedit&lt;org.lateralgm.joshedit.preferences"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.subframes"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;javax.swing.text.rtf"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.propertylink"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;javax.swing.text.rtf"/>
         <javaElement handleIdentifier="=LateralGM/modules\/joshedit&lt;org.lateralgm.joshedit.icons"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.library"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{PrefsStore.java"/>
