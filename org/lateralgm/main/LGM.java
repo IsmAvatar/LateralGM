@@ -1317,17 +1317,25 @@ public final class LGM
 
 	public static void onMainFrameClosed()
 		{
-		if (!checkForChanges()) { System.exit(0); }
-		int n = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES_MESSAGE"),
-				Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE,null);
+		int result = JOptionPane.CANCEL_OPTION;
+		try
+			{
+			if (!checkForChanges()) { System.exit(0); }
+			result = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES"), //$NON-NLS-1$
+					Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
+			}
+		catch (Exception e)
+			{
+			LGM.showDefaultExceptionHandler(e);
+			result = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES_ERROR"), //$NON-NLS-1$
+					Messages.getString("LGM.KEEPCHANGES_ERROR_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
+					JOptionPane.ERROR_MESSAGE);
+			}
 
-		switch (n)
+		switch (result)
 			{
 			case JOptionPane.YES_OPTION:
 				askToSaveProject();
-				System.exit(0);
-				break;
 			case JOptionPane.NO_OPTION:
 				System.exit(0);
 				break;
