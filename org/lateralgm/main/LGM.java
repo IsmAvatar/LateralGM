@@ -134,7 +134,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.36"; //$NON-NLS-1$
+	public static final String version = "1.8.37"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -213,6 +213,10 @@ public final class LGM
 	public static GmMenuBar menuBar;
 
 	public static JComboBox<GameSettings> configsCombo;
+
+	private LGM()
+		{
+		}
 
 	public static JDialog getProgressDialog()
 		{
@@ -490,10 +494,6 @@ public final class LGM
 		getExtensionPackages().toTop();
 		}
 
-	private LGM()
-		{
-
-		}
 	public static ImageIcon findIcon(String filename)
 		{
 		String custompath = Prefs.iconPath + filename;
@@ -1309,25 +1309,27 @@ public final class LGM
 		}
 	}
 
-	public static void askToSaveProject()
-		{
-		FileChooser fc = new FileChooser();
-		fc.save(LGM.currentFile.uri,LGM.currentFile.format);
-		}
-
 	public static void onMainFrameClosed()
 		{
-		if (!checkForChanges()) { System.exit(0); }
-		int n = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES_MESSAGE"),
-				Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE,null);
+		int result = JOptionPane.CANCEL_OPTION;
+		try
+			{
+			if (!checkForChanges()) { System.exit(0); }
+			result = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES"), //$NON-NLS-1$
+					Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
+			}
+		catch (Throwable t)
+			{
+			LGM.showDefaultExceptionHandler(t);
+			result = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES_ERROR"), //$NON-NLS-1$
+					Messages.getString("LGM.KEEPCHANGES_ERROR_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
+					JOptionPane.ERROR_MESSAGE);
+			}
 
-		switch (n)
+		switch (result)
 			{
 			case JOptionPane.YES_OPTION:
-				askToSaveProject();
-				System.exit(0);
-				break;
+				Listener.fc.save(LGM.currentFile.uri,LGM.currentFile.format);
 			case JOptionPane.NO_OPTION:
 				System.exit(0);
 				break;

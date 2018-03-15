@@ -65,7 +65,7 @@ public class Listener extends TransferHandler implements ActionListener,CellEdit
 	{
 	private static final long serialVersionUID = 1L;
 	MListener mListener = new MListener();
-	public FileChooser fc = new FileChooser();
+	static FileChooser fc = new FileChooser();
 
 	private Listener()
 		{
