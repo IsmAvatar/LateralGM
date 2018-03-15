@@ -51,7 +51,6 @@ import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.plugins.bmp.BMPImageWriteParam;
-import javax.imageio.spi.IIORegistry;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
@@ -68,16 +67,12 @@ import org.lateralgm.components.visual.FileChooserImagePreview;
 import org.lateralgm.file.ApngIO;
 import org.lateralgm.file.iconio.BitmapDescriptor;
 import org.lateralgm.file.iconio.ICOFile;
-import org.lateralgm.file.iconio.ICOImageReaderSPI;
-import org.lateralgm.file.iconio.WBMPImageReaderSpiFix;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class Util
 	{
@@ -89,14 +84,6 @@ public final class Util
 
 	public static CustomFileChooser imageReadFc = null;
 	public static CustomFileChooser imageWriteFc = null;
-
-	public static void tweakIIORegistry()
-		{
-		IIORegistry reg = IIORegistry.getDefaultInstance();
-		reg.registerServiceProvider(new ICOImageReaderSPI());
-		reg.deregisterServiceProvider(reg.getServiceProviderByClass(WBMPImageReaderSpi.class));
-		reg.registerServiceProvider(new WBMPImageReaderSpiFix());
-		}
 
 	public static DataFlavor createJVMLocalDataFlavor(Class<?> dataClass) throws ClassNotFoundException
 		{

@@ -132,6 +132,7 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.subframes{SpriteFrame.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.util{PropertyEditor.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.subframes{SubframeInformer.java"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{Search.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources{Font.java"/>
         <file path="/LateralGM/org/lateralgm/main/lgm-splash.png"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.visuals{VisualContainer.java"/>
