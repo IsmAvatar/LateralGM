@@ -91,9 +91,10 @@ public class Search
 	public static class InvisibleTreeModel extends DefaultTreeModel
 		{
 		/**
-		 *
+		 * NOTE: Default UID generated, change if necessary.
 		 */
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = -7759731037386264163L;
+
 		protected boolean filterIsActive;
 
 		public InvisibleTreeModel(TreeNode root)
