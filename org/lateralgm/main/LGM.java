@@ -214,6 +214,10 @@ public final class LGM
 
 	public static JComboBox<GameSettings> configsCombo;
 
+	private LGM()
+		{
+		}
+
 	public static JDialog getProgressDialog()
 		{
 		if (progressDialog == null)
@@ -490,10 +494,6 @@ public final class LGM
 		getExtensionPackages().toTop();
 		}
 
-	private LGM()
-		{
-
-		}
 	public static ImageIcon findIcon(String filename)
 		{
 		String custompath = Prefs.iconPath + filename;
@@ -1309,12 +1309,6 @@ public final class LGM
 		}
 	}
 
-	public static void askToSaveProject()
-		{
-		FileChooser fc = new FileChooser();
-		fc.save(LGM.currentFile.uri,LGM.currentFile.format);
-		}
-
 	public static void onMainFrameClosed()
 		{
 		int result = JOptionPane.CANCEL_OPTION;
@@ -1335,7 +1329,7 @@ public final class LGM
 		switch (result)
 			{
 			case JOptionPane.YES_OPTION:
-				askToSaveProject();
+				Listener.fc.save(LGM.currentFile.uri,LGM.currentFile.format);
 			case JOptionPane.NO_OPTION:
 				System.exit(0);
 				break;
