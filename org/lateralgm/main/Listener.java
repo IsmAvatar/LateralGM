@@ -64,8 +64,9 @@ import org.lateralgm.subframes.ConfigurationManager;
 public class Listener extends TransferHandler implements ActionListener,CellEditorListener
 	{
 	private static final long serialVersionUID = 1L;
+
 	MListener mListener = new MListener();
-	static FileChooser fc = new FileChooser();
+	public FileChooser fc = new FileChooser();
 
 	private Listener()
 		{

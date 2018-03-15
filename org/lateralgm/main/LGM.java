@@ -134,7 +134,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.37"; //$NON-NLS-1$
+	public static final String version = "1.8.38"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -1329,7 +1329,7 @@ public final class LGM
 		switch (result)
 			{
 			case JOptionPane.YES_OPTION:
-				Listener.fc.save(LGM.currentFile.uri,LGM.currentFile.format);
+				Listener.getInstance().fc.save(LGM.currentFile.uri,LGM.currentFile.format);
 			case JOptionPane.NO_OPTION:
 				System.exit(0);
 				break;
