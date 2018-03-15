@@ -448,10 +448,8 @@ public final class GMXFileReader
 						PGameSettings.TREAT_CLOSE_AS_ESCAPE,
 						Boolean.parseBoolean(setdoc.getElementsByTagName("option_closeesc").item(0).getTextContent())); //$NON-NLS-1$
 				String changed = setdoc.getElementsByTagName("option_lastchanged").item(0).getTextContent(); //$NON-NLS-1$
-				if (changed != "")
-					{
+				if (!changed.isEmpty())
 					pSet.put(PGameSettings.LAST_CHANGED,Double.parseDouble(changed));
-					}
 
 				// TODO: Could not find these properties in GMX
 				//gSet.put(PGameSettings.BACK_LOAD_BAR,
@@ -463,7 +461,7 @@ public final class GMXFileReader
 						+ setdoc.getElementsByTagName("option_windows_game_icon").item(0).getTextContent(); //$NON-NLS-1$
 				try
 					{
-					pSet.put(PGameSettings.GAME_ICON,new ICOFile(icopath));
+					pSet.put(PGameSettings.GAME_ICON,new ICOFile(Util.getPOSIXPath(icopath)));
 					}
 				catch (IOException e)
 					{
