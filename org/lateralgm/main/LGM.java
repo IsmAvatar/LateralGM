@@ -1324,9 +1324,9 @@ public final class LGM
 			result = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES"), //$NON-NLS-1$
 					Messages.getString("LGM.KEEPCHANGES_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
 			}
-		catch (Exception e)
+		catch (Throwable t)
 			{
-			LGM.showDefaultExceptionHandler(e);
+			LGM.showDefaultExceptionHandler(t);
 			result = JOptionPane.showConfirmDialog(frame,Messages.getString("LGM.KEEPCHANGES_ERROR"), //$NON-NLS-1$
 					Messages.getString("LGM.KEEPCHANGES_ERROR_TITLE"),JOptionPane.YES_NO_CANCEL_OPTION, //$NON-NLS-1$
 					JOptionPane.ERROR_MESSAGE);
