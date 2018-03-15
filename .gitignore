@@ -4,6 +4,7 @@
 *.db
 .git/modules
 org/lateralgm/joshedit
+bin/
 lib/
 plugins/
 lookandfeels/
