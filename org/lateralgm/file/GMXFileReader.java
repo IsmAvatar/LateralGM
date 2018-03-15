@@ -463,7 +463,7 @@ public final class GMXFileReader
 						+ setdoc.getElementsByTagName("option_windows_game_icon").item(0).getTextContent(); //$NON-NLS-1$
 				try
 					{
-					pSet.put(PGameSettings.GAME_ICON,new ICOFile(icopath));
+					pSet.put(PGameSettings.GAME_ICON,new ICOFile(Util.getPOSIXPath(icopath)));
 					}
 				catch (IOException e)
 					{
