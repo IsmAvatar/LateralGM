@@ -134,7 +134,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.38"; //$NON-NLS-1$
+	public static final String version = "1.8.39"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -1081,6 +1081,8 @@ public final class LGM
 
 		SplashProgress splashProgress = new SplashProgress();
 		splashProgress.start();
+		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
+				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
 
 		splashProgress.progress(10,Messages.getString("LGM.SPLASH_LANG")); //$NON-NLS-1$
 		Messages.updateLangPack();
@@ -1133,8 +1135,6 @@ public final class LGM
 		mdi.add(extSet);
 
 		splashProgress.progress(50,Messages.getString("LGM.SPLASH_MENU")); //$NON-NLS-1$
-		frame = new JFrame(Messages.format("LGM.TITLE", //$NON-NLS-1$
-				Messages.getString("LGM.NEWGAME"))); //$NON-NLS-1$
 		menuBar = new GmMenuBar();
 		frame.setJMenuBar(menuBar);
 		splashProgress.progress(60,Messages.getString("LGM.SPLASH_UI")); //$NON-NLS-1$
