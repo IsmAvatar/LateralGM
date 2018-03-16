@@ -71,12 +71,15 @@ import org.lateralgm.file.ResourceList;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Resource;
 
+import static org.lateralgm.file.ProjectFile.FormatFlavor.*;
+
 public class FileChooser
 	{
 	public static List<FileReader> readers = new ArrayList<FileReader>();
 	public static List<FileWriter> writers = new ArrayList<FileWriter>();
 	public static List<FileView> fileViews = new ArrayList<FileView>();
 	static ProjectReader projectReader;
+	static GMXIO gmxIO;
 	FileWriter selectedWriter;
 	CustomFileChooser fc = new CustomFileChooser("/org/lateralgm","LAST_FILE_DIR"); //$NON-NLS-1$ //$NON-NLS-2$
 	FilterSet openFs = new FilterSet(), saveFs = new FilterSet();
@@ -84,11 +87,16 @@ public class FileChooser
 
 	public static void addDefaultReadersAndWriters()
 		{
-		if (projectReader != null) return;
+		if (gmxIO == null)
+			{
+			readers.add(gmxIO = new GMXIO());
+			writers.add(gmxIO);
+			}
 
+		if (projectReader != null) return;
 		readers.add(projectReader = new ProjectReader());
 
-		int[] gmvers = { 1200,810,800,701,600 };
+		int[] gmvers = { 810,800,701,600 };
 		for (int gmver : gmvers)
 			writers.add(new ProjectWriter(gmver));
 		}
@@ -147,9 +155,11 @@ public class FileChooser
 		fc.setFileView(new FileViewUnion());
 
 		addDefaultReadersAndWriters();
+		addOpenFilters(gmxIO);
 		addOpenFilters(projectReader);
 		selectedWriter = writers.get(0); //TODO: need a better way to pick a default...
 
+		addSaveFilters(gmxIO);
 		addSaveFilters(new ProjectWriterFilter());
 		}
 
@@ -181,7 +191,7 @@ public class FileChooser
 		{
 		private static final long serialVersionUID = 1L;
 
-		public static final String MIME_URI_LIST = "uri-list";
+		public static final String MIME_URI_LIST = "uri-list"; //$NON-NLS-1$
 
 		@SuppressWarnings("static-method")
 		public boolean isDataFlavorSupported(DataFlavor df)
@@ -352,8 +362,8 @@ public class FileChooser
 
 		protected ProjectReader()
 			{
-			String[] exts = { ".gm81",".gmk",".gm6",".gmd",".gmx" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			String[] descs = { "GM81","GMK","GM6","GMD","GMX" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			String[] exts = { ".gm81",".gmk",".gm6",".gmd", }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			String[] descs = { "GM81","GMK","GM6","GMD" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			groupFilter = new CustomFileFilter(Messages.getString("FileChooser.FORMAT_READERS_GM"),exts); //$NON-NLS-1$
 			filters = new CustomFileFilter[exts.length];
 			for (int i = 0; i < exts.length; i++)
@@ -378,22 +388,13 @@ public class FileChooser
 
 		public void read(InputStream is, ProjectFile file, URI uri, ResNode root) throws ProjectFormatException
 			{
-			// TODO: This should not be here. ProjectFile should always have its format set correctly so
-			// we known which one to delegate to.
-			if (uri.getPath().endsWith(".project.gmx"))
-				{
-				GMXFileReader.readProjectFile(is,file,uri,root);
-				}
-			else
-				{
-				GmFileReader.readProjectFile(is,file,uri,root);
-				}
+			GmFileReader.readProjectFile(is,file,uri,root);
 			}
 		}
 
 	protected static class ProjectWriter implements FileWriter
 		{
-		int ver;
+		private int ver;
 
 		public ProjectWriter(int ver)
 			{
@@ -402,19 +403,6 @@ public class FileChooser
 
 		public void write(OutputStream out, ProjectFile f, ResNode root) throws ProjectFormatException
 			{
-			if (f.format == FormatFlavor.GMX_1200)
-				{
-				try
-					{
-					GMXFileWriter.writeProjectFile(out,f,root,ver);
-					}
-				catch (Exception e)
-					{
-					throw new GmFormatException(f,e);
-					}
-				}
-			else
-				{
 				try
 					{
 					GmFileWriter.writeProjectFile(out,f,root,ver);
@@ -423,7 +411,6 @@ public class FileChooser
 					{
 					throw new GmFormatException(f,e);
 					}
-				}
 			}
 
 		public String getSelectionName()
@@ -442,16 +429,14 @@ public class FileChooser
 			switch (ver)
 				{
 				case 530:
-					return ".gmd";
+					return ".gmd"; //$NON-NLS-1$
 				case 600:
-					return ".gm6";
+					return ".gm6"; //$NON-NLS-1$
 				case 701:
 				case 800:
-					return ".gmk";
+					return ".gmk"; //$NON-NLS-1$
 				case 810:
-					return ".gm81";
-				case 1200:
-					return ".project.gmx";
+					return ".gm81"; //$NON-NLS-1$
 				default:
 					throw new IllegalArgumentException(Integer.toString(ver));
 				}
@@ -465,8 +450,8 @@ public class FileChooser
 
 		protected ProjectWriterFilter()
 			{
-			final String exts[] = { ".gm81",".gmk",".gm6",".gmx" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			final String[] descs = { "GM81","GMK","GM6","GMX" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			final String exts[] = { ".gm81",".gmk",".gm6" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			final String[] descs = { "GM81","GMK","GM6" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			groupFilter = new CustomFileFilter(Messages.getString("FileChooser.FORMAT_WRITERS_GM"),exts); //$NON-NLS-1$
 			filters = new CustomFileFilter[exts.length];
 			for (int i = 0; i < exts.length; i++)
@@ -484,6 +469,64 @@ public class FileChooser
 			return groupFilter;
 			}
 		}
+
+	protected static class GMXIO extends FileView implements FileReader,FileWriter,GroupFilter
+	{
+	static final String ext = ".project.gmx"; //$NON-NLS-1$
+	CustomFileFilter filter = new CustomFileFilter(
+			Messages.getString("FileChooser.FORMAT_GMX"),ext); //$NON-NLS-1$
+
+	public FileFilter getGroupFilter()
+		{
+		return filter;
+		}
+
+	public FileFilter[] getFilters()
+		{
+		return new FileFilter[0];
+		}
+
+	public boolean canRead(URI uri)
+		{
+		return filter.accept(new File(uri));
+		}
+
+	public void read(InputStream in, ProjectFile file, URI uri, ResNode root) throws GmFormatException
+		{
+		GMXFileReader.readProjectFile(in,file,uri,root);
+		}
+
+	@Override
+	public String getExtension()
+		{
+		return ext;
+		}
+
+	@Override
+	public String getSelectionName()
+		{
+		return "GMX"; //$NON-NLS-1$
+		}
+
+	@Override
+	public void write(OutputStream out, ProjectFile f, ResNode root) throws ProjectFormatException
+		{
+		try
+			{
+			GMXFileWriter.writeProjectFile(out,f,root);
+			}
+		catch (Exception e)
+			{
+			throw new GmFormatException(f,e);
+			}
+		}
+
+	@Override
+	public FormatFlavor getFlavor()
+		{
+		return FormatFlavor.GMX;
+		}
+	}
 
 	public static void setTitleURI(URI uri)
 		{
@@ -533,9 +576,8 @@ public class FileChooser
 			int result = JOptionPane.showConfirmDialog(LGM.frame,
 					"Would you like to choose a different file?","File Not Found",JOptionPane.YES_NO_OPTION,
 					JOptionPane.ERROR_MESSAGE);
-			if (result == JOptionPane.YES_OPTION) {
+			if (result == JOptionPane.YES_OPTION)
 				openNewFile();
-			}
 			return;
 			}
 		FileReader reader = findReader(file.toURI());
@@ -594,8 +636,8 @@ public class FileChooser
 						LGM.populateTree();
 						rebuildTree();
 						LGM.showDefaultExceptionHandler(ex);
-						ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD"));
-						ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE"));
+						ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD")); //$NON-NLS-1$
+						ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE")); //$NON-NLS-1$
 						}
 					catch (Exception e)
 						{
@@ -604,8 +646,8 @@ public class FileChooser
 						LGM.populateTree();
 						rebuildTree();
 						LGM.showDefaultExceptionHandler(e);
-						ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD"));
-						ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE"));
+						ErrorDialog.getInstance().setMessage(Messages.getString("FileChooser.ERROR_LOAD")); //$NON-NLS-1$
+						ErrorDialog.getInstance().setTitle(Messages.getString("FileChooser.ERROR_LOAD_TITLE")); //$NON-NLS-1$
 						}
 					setTitleURI(uri);
 					PrefsStore.addRecentFile(uri.toString());
@@ -662,9 +704,9 @@ public class FileChooser
 				if (!file.getName().endsWith(ext)) file = new File(file.getPath() + ext);
 				}
 			// Create the folder for the user, otherwise people get confused.
-			if (file.getName().endsWith(".project.gmx"))
+			if (selectedWriter.getFlavor().equals(GMX) && file.getName().endsWith(".project.gmx")) //$NON-NLS-1$
 				{
-				file = new File(file.getAbsolutePath().replace(".project.gmx",".gmx") + "/"
+				file = new File(file.getAbsolutePath().replace(".project.gmx",".gmx") + '/' //$NON-NLS-1$ //$NON-NLS-2$
 						+ file.getName());
 				file.getParentFile().mkdir();
 				}
