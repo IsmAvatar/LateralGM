@@ -49,9 +49,10 @@ public class CustomFileFilter extends FileFilter implements FilenameFilter
 		{
 		if (ext.size() == 0) return true;
 		//if (f.isDirectory()) return true;
-		String s = getExtension(name);
-		if (s == null) return false;
-		return ext.contains(s);
+		for (String e : ext)
+			if (name.endsWith(e))
+				return true;
+		return false;
 		}
 
 	public String getDescription()

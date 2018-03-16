@@ -290,12 +290,13 @@ public class ProjectFile implements UpdateListener
 	public static class FormatFlavor
 		{
 		public static final String GM_OWNER = "GM";
+		public static final String GMX_OWNER = "GMX";
 		public static final FormatFlavor GM_530 = new FormatFlavor(GM_OWNER,530);
 		public static final FormatFlavor GM_600 = new FormatFlavor(GM_OWNER,600);
 		public static final FormatFlavor GM_701 = new FormatFlavor(GM_OWNER,701);
 		public static final FormatFlavor GM_800 = new FormatFlavor(GM_OWNER,800);
 		public static final FormatFlavor GM_810 = new FormatFlavor(GM_OWNER,810);
-		public static final FormatFlavor GMX_1200 = new FormatFlavor(GM_OWNER,1200);
+		public static final FormatFlavor GMX = new FormatFlavor(GMX_OWNER,1);
 
 		protected Object owner;
 		protected int version;
@@ -320,8 +321,6 @@ public class ProjectFile implements UpdateListener
 					return FormatFlavor.GM_800;
 				case 810:
 					return FormatFlavor.GM_810;
-				case 1200:
-					return FormatFlavor.GMX_1200;
 				default:
 					return null;
 				}

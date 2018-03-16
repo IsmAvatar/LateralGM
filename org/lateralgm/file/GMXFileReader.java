@@ -236,7 +236,7 @@ public final class GMXFileReader
 	public static void readProjectFile(InputStream stream, ProjectFile file, URI uri, ResNode root,
 			Charset forceCharset) throws GmFormatException
 		{
-		file.format = ProjectFile.FormatFlavor.getVersionFlavor(1200); // GMX will have version numbers in the future
+		file.format = ProjectFile.FormatFlavor.GMX;
 		if (documentBuilderFactory == null)
 			documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		if (documentBuilder == null)

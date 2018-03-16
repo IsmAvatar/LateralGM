@@ -138,10 +138,10 @@ public final class GMXFileWriter
 			}
 		}
 
-	public static void writeProjectFile(OutputStream os, ProjectFile f, ResNode rootRes, int ver)
+	public static void writeProjectFile(OutputStream os, ProjectFile f, ResNode rootRes)
 			throws IOException,GmFormatException,TransformerException
 		{
-		f.format = ProjectFile.FormatFlavor.getVersionFlavor(ver);
+		f.format = ProjectFile.FormatFlavor.GMX;
 		long savetime = System.currentTimeMillis();
 
 		if (documentBuilderFactory == null)
