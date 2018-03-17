@@ -23,11 +23,12 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Collections;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -55,6 +56,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -121,22 +123,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 	private ResourceInfoFrame infoFrame;
 
-	private DefaultMutableTreeNode lastValidEventSelection;
 	private JCheckBox physics;
 	private JPanel phyPane;
 	private PropertyUpdateListener<PGmObject> propUpdateListener;
-
-	// if drag and drop is not enabled the frame will not create or show
-	// the action list editor but still create the action list, and add
-	// an extra edit button for events, which when clicked checks the first
-	// action of the action list to be a code window and if it is opens it
-	// otherwise it creates one and opens it
-	// this was the safest way I could think to do it, because it could get
-	// tricky opening a DND game when you have it turned off, so I abstracted it
-	// so that they are still there and you can see them if you just go to
-	// the prefs panel and turn em back on, it will ensure the system doesnt
-	// mess anything up or screw up somebodies game without giving them
-	// a chance to fix it, very safe - Robert B. Colton
 
 	public GmObjectFrame(GmObject res, ResNode node)
 		{
@@ -163,11 +152,11 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 		JPanel eventButtonPane = new JPanel(new BorderLayout());
 
-		eventModify = new JButton(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
+		eventModify = new JButton(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1$
 		eventModify.addActionListener(this);
 		eventModify.setToolTipText(Messages.getString("GmObjectFrame.MODIFY_EVENT")); //$NON-NLS-1$
 
-		eventEdit = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
+		eventEdit = new JButton(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1$
 		eventEdit.addActionListener(this);
 		eventEdit.setToolTipText(Messages.getString("GmObjectFrame.EDIT_EVENT")); //$NON-NLS-1$
 
@@ -249,35 +238,35 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		{
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder(
-				Messages.getString("GmObjectFrame.PHYSICS_PROPERTIES")));
+				Messages.getString("GmObjectFrame.PHYSICS_PROPERTIES"))); //$NON-NLS-1$
 
-		JCheckBox awakeCB = new JCheckBox(Messages.getString("GmObjectFrame.AWAKE"));
+		JCheckBox awakeCB = new JCheckBox(Messages.getString("GmObjectFrame.AWAKE")); //$NON-NLS-1$
 		plf.make(awakeCB,PGmObject.PHYSICS_AWAKE);
-		JCheckBox kinematicCB = new JCheckBox(Messages.getString("GmObjectFrame.KINEMATIC"));
+		JCheckBox kinematicCB = new JCheckBox(Messages.getString("GmObjectFrame.KINEMATIC")); //$NON-NLS-1$
 		plf.make(kinematicCB,PGmObject.PHYSICS_KINEMATIC);
-		JCheckBox sensorCB = new JCheckBox(Messages.getString("GmObjectFrame.SENSOR"));
+		JCheckBox sensorCB = new JCheckBox(Messages.getString("GmObjectFrame.SENSOR")); //$NON-NLS-1$
 		plf.make(sensorCB,PGmObject.PHYSICS_SENSOR);
 
-		JLabel densityLabel = new JLabel(Messages.getString("GmObjectFrame.DENSITY"));
+		JLabel densityLabel = new JLabel(Messages.getString("GmObjectFrame.DENSITY")); //$NON-NLS-1$
 		NumberField densityField = new NumberField(0.0);
 		plf.make(densityField,PGmObject.PHYSICS_DENSITY);
-		JLabel restLabel = new JLabel(Messages.getString("GmObjectFrame.RESTITUTION"));
+		JLabel restLabel = new JLabel(Messages.getString("GmObjectFrame.RESTITUTION")); //$NON-NLS-1$
 		NumberField restField = new NumberField(0.0);
 		plf.make(restField,PGmObject.PHYSICS_RESTITUTION);
-		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP"));
+		JLabel groupLabel = new JLabel(Messages.getString("GmObjectFrame.COLLISION_GROUP")); //$NON-NLS-1$
 		NumberField groupField = new NumberField(0);
 		plf.make(groupField,PGmObject.PHYSICS_GROUP);
-		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_LINEAR"));
+		JLabel linearLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_LINEAR")); //$NON-NLS-1$
 		NumberField linearField = new NumberField(0.0);
 		plf.make(linearField,PGmObject.PHYSICS_DAMPING_LINEAR);
-		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_ANGULAR"));
+		JLabel angularLabel = new JLabel(Messages.getString("GmObjectFrame.DAMPING_ANGULAR")); //$NON-NLS-1$
 		NumberField angularField = new NumberField(0.0);
 		plf.make(angularField,PGmObject.PHYSICS_DAMPING_ANGULAR);
-		JLabel frictionLabel = new JLabel(Messages.getString("GmObjectFrame.FRICTION"));
+		JLabel frictionLabel = new JLabel(Messages.getString("GmObjectFrame.FRICTION")); //$NON-NLS-1$
 		NumberField frictionField = new NumberField(0.0);
 		plf.make(frictionField,PGmObject.PHYSICS_FRICTION);
 
-		JButton shapeBT = new JButton(Messages.getString("GmObjectFrame.COLLISION_SHAPE"));
+		JButton shapeBT = new JButton(Messages.getString("GmObjectFrame.COLLISION_SHAPE")); //$NON-NLS-1$
 
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateContainerGaps(true);
@@ -496,38 +485,63 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 		public boolean canImport(TransferHandler.TransferSupport support)
 			{
-			if (!support.isDataFlavorSupported(EventNode.DATA_FLAVOR)) return false;
-			EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
-			if (t == null || !t.isValid()) return false;
-			if (LGM.eventSelect.function.getValue() != EventPanel.FUNCTION_ADD
-					&& !isValidEventInstanceNode(events.getLastSelectedPathComponent()))
-				return false;
-			if (rootEvent.contains(new Event(t.mainId,t.eventId,t.other))) return false;
-			for (DataFlavor f : support.getDataFlavors())
-				if (f == EventNode.DATA_FLAVOR) return true;
+			if (support.isDataFlavorSupported(EventNode.DATA_FLAVOR))
+				{
+				EventNode t = (EventNode) LGM.eventSelect.events.getLastSelectedPathComponent();
+				if (t == null || !t.isValid()) return false;
+				if (LGM.eventSelect.function.getValue() != EventPanel.FUNCTION_ADD
+						&& !isValidEventInstanceNode(events.getLastSelectedPathComponent()))
+					return false;
+				if (rootEvent.contains(new Event(t.mainId,t.eventId,t.other))) return false;
+				for (DataFlavor f : support.getDataFlavors())
+					if (f == EventNode.DATA_FLAVOR) return true;
+				}
+			else if (support.isDataFlavorSupported(ActionList.ACTION_ARRAY_FLAVOR) ||
+					support.isDataFlavorSupported(ActionList.ACTION_FLAVOR) ||
+					support.isDataFlavorSupported(ActionList.LIB_ACTION_FLAVOR))
+				{
+				JTree.DropLocation dl = (JTree.DropLocation)support.getDropLocation();
+				TreePath path = dl.getPath();
+				if (path == null) return false;
+				Object com = path.getLastPathComponent();
+				if (com == null || !(com instanceof EventInstanceNode)) return false;
+				return true;
+				}
+
 			return false;
 			}
 
 		public boolean importData(TransferHandler.TransferSupport support)
 			{
 			if (!canImport(support)) return false;
-			try
+			if (support.isDataFlavorSupported(EventNode.DATA_FLAVOR))
 				{
-				EventNode t = (EventNode) support.getTransferable().getTransferData(
-						EventNode.DATA_FLAVOR);
-				if (!t.isValid()) return false;
+				EventNode t;
+				try
+					{
+					t = (EventNode) support.getTransferable().getTransferData(
+							EventNode.DATA_FLAVOR);
+					}
+				catch (UnsupportedFlavorException | IOException e)
+					{
+					LGM.showDefaultExceptionHandler(e);
+					return false;
+					}
+				if (t == null || !t.isValid()) return false;
 
 				Point p = support.getDropLocation().getDropPoint();
 				TreePath path = events.getPathForLocation(p.x,p.y);
 				functionEvent(t.mainId,t.eventId,t.other,path);
 				return true;
 				}
-			catch (Throwable e)
+			else if (support.isDataFlavorSupported(ActionList.ACTION_ARRAY_FLAVOR) ||
+					support.isDataFlavorSupported(ActionList.ACTION_FLAVOR) ||
+					support.isDataFlavorSupported(ActionList.LIB_ACTION_FLAVOR))
 				{
-				// This is just to stop the dnd system from silencing exceptions
-				e.printStackTrace();
+				
 				}
-			return false;
+
+				return false;
 			}
 		}
 
@@ -579,8 +593,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		@SuppressWarnings("unchecked")
 		public void sortChildren()
 			{
-			// This doesn't seem to have any unwanted effects (directly sorting the protected field)
-			Collections.sort((List)children);
+			children.sort(null);
 			}
 
 		public TreePath childPath(Event e)
@@ -665,7 +678,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		rootEvent.select(e);
 		}
 
-	public void removeEvent(EventInstanceNode n)
+	public void removeEvent(DefaultMutableTreeNode n)
 		{
 		DefaultMutableTreeNode p = (DefaultMutableTreeNode) n.getParent();
 		if (p == null) return;
@@ -673,18 +686,19 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		DefaultMutableTreeNode next = n.getNextSibling();
 		if (next == null) next = n.getPreviousSibling();
 
+		DefaultTreeModel model = (DefaultTreeModel)events.getModel();
 		if (p == rootEvent)
-			n.removeFromParent();
+			model.removeNodeFromParent(n);
 		else
 			{
 			if (p.getChildCount() < 3) //thunder
 				{
-				n.removeFromParent();
-				rootEvent.insert((DefaultMutableTreeNode) p.getChildAt(0),rootEvent.getIndex(p));
-				p.removeFromParent();
+				model.removeNodeFromParent(n);
+				model.insertNodeInto((DefaultMutableTreeNode) p.getChildAt(0),rootEvent,rootEvent.getIndex(p));
+				model.removeNodeFromParent(p);
 				}
 			else
-				n.removeFromParent();
+				model.removeNodeFromParent(n);
 			}
 
 		if (next == null && rootEvent.getChildCount() != 0)
@@ -698,7 +712,6 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			events.setSelectionPath(path);
 			events.scrollPathToVisible(path);
 			}
-		events.updateUI();
 		}
 
 	public void functionEvent(int mainId, int id, ResourceReference<GmObject> other, TreePath path)
@@ -713,7 +726,6 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		switch (func)
 			{
 			case EventPanel.FUNCTION_ADD:
-
 				addEvent(new Event(mainId,id,other));
 				break;
 			case EventPanel.FUNCTION_REPLACE:
@@ -772,7 +784,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		events.setCellRenderer(new EventNodeRenderer());
 		events.setRootVisible(false);
 		events.setShowsRootHandles(true);
-		events.setExpandsSelectedPaths(false);
+		events.setExpandsSelectedPaths(true);
+		events.setToggleClickCount(1);
 		events.addMouseListener(mListener);
 		events.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		events.addTreeSelectionListener(this);
@@ -782,20 +795,15 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			events.setDropMode(DropMode.ON);
 			events.setTransferHandler(new EventNodeTransferHandler());
 			}
-		// This listener should be added to each node maybe
-		// otherwise you can click on the whitespace and open it
-		// but then again I suppose its fine like this because I have
-		// ensured checks to make sure there are no NPE's trying to edit
-		// an event that don't exist. Meh, this is fine as is.
 		MouseListener ml = new MouseAdapter()
 			{
-				public void mousePressed(MouseEvent e)
+			public void mousePressed(MouseEvent e)
+				{
+				if (e.getClickCount() == 2)
 					{
-					if (e.getClickCount() == 2)
-						{
-						editSelectedEvent();
-						}
+					editSelectedEvent();
 					}
+				}
 			};
 		events.addMouseListener(ml);
 		}
@@ -898,9 +906,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			}
 		if (e.getSource() == eventDelete || e.getSource() == eventDeleteItem)
 			{
-			DefaultMutableTreeNode comp = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
-			if (!isValidEventInstanceNode(comp)) return;
-			removeEvent((EventInstanceNode) comp);
+			Object comp = events.getLastSelectedPathComponent();
+			if (comp == null || !(comp instanceof DefaultMutableTreeNode)) return;
+			removeEvent((DefaultMutableTreeNode) comp);
 			return;
 			}
 		super.actionPerformed(e);
@@ -930,23 +938,19 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 
 	public void setSelectedEvent(int mainid, int id) {
 		TreeNode[] nodes = findEvent(mainid, id);
-		if (nodes != null) {
-			TreePath path = new TreePath(nodes);
-			// TODO: Why does this not work? I tried wrapping it in SwingUtilities as well as reloading
-			// the tree model.
-			//events.expandPath(path);
-			// Using this temporarily.
-			events.setExpandsSelectedPaths(true);
-			events.setSelectionPath(path);
-		}
+		if (nodes == null) return;
+		TreePath path = new TreePath(nodes);
+		events.expandPath(path.getParentPath());
+		events.setSelectionPath(path);
 	}
 
 	private void editSelectedEvent()
 		{
-		if (events.getModel().getChildCount(events.getModel().getRoot()) == 0)
-			{
+		Object lastSelectedPathComponent = events.getLastSelectedPathComponent();
+		if (lastSelectedPathComponent == null || !(lastSelectedPathComponent instanceof EventInstanceNode))
 			return;
-			}
+		EventInstanceNode evnode = (EventInstanceNode) lastSelectedPathComponent;
+
 		Action a = null;
 		LibAction la = null;
 		Boolean prependNew = true;
@@ -970,10 +974,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			}
 
 		MDIFrame af = ActionList.openActionFrame(actions.parent.get(),a);
-		EventInstanceNode evnode = (EventInstanceNode) events.getLastSelectedPathComponent();
 		af.setTitle(this.name.getText() + " : " + evnode.toString());
-		af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId));
-		return;
+		af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId)); //$NON-NLS-1$
 		}
 
 	/**
@@ -1022,19 +1024,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) events.getLastSelectedPathComponent();
 		if (node == null || !node.isLeaf() || !(node.getUserObject() instanceof Event))
 			{
-			if (node != null && !node.isLeaf() && node.getParent() != null)
-				{
-				TreePath path = new TreePath(node.getPath());
-				if (events.isExpanded(path))
-					events.collapsePath(path);
-				else
-					events.expandPath(path);
-				}
-			if (lastValidEventSelection != null)
-				events.setSelectionPath(new TreePath(lastValidEventSelection.getPath()));
 			return;
 			}
-		lastValidEventSelection = node;
 		actions.setActionContainer((Event) node.getUserObject());
 		}
 
@@ -1075,7 +1066,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			if (value instanceof EventInstanceNode)
 				mid = ((EventInstanceNode) value).getUserObject().mainId;
 			if (value instanceof EventGroupNode) mid = ((EventGroupNode) value).mainId;
-			Icon i = LGM.getIconForKey("EventNode." + (leaf ? "EVENT" : "GROUP") + mid);
+			Icon i = LGM.getIconForKey("EventNode." + (leaf ? "EVENT" : "GROUP") + mid);  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (i != null && i.getIconWidth() != -1) setIcon(i);
 			return this;
 			}
@@ -1095,29 +1086,28 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
 				if (node.isLeaf())
 					{
-					lastValidEventSelection = node;
 					actions.setActionContainer((Event) node.getUserObject());
 					events.setSelectionPath(path);
 
 					JPopupMenu menu = new JPopupMenu();
-					eventModifyItem = new JMenu(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1
+					eventModifyItem = new JMenu(Messages.getString("GmObjectFrame.MODIFY")); //$NON-NLS-1$
 					menu.add(eventModifyItem);
 					eventModifyItem.addActionListener(GmObjectFrame.this);
 
-					eventAddItem = new JMenuItem(Messages.getString("GmObjectFrame.ADD")); //$NON-NLS-1
+					eventAddItem = new JMenuItem(Messages.getString("GmObjectFrame.ADD")); //$NON-NLS-1$
 					eventModifyItem.add(eventAddItem);
 					eventAddItem.addActionListener(GmObjectFrame.this);
-					eventReplaceItem = new JMenuItem(Messages.getString("GmObjectFrame.REPLACE")); //$NON-NLS-1
+					eventReplaceItem = new JMenuItem(Messages.getString("GmObjectFrame.REPLACE")); //$NON-NLS-1$
 					eventModifyItem.add(eventReplaceItem);
 					eventReplaceItem.addActionListener(GmObjectFrame.this);
-					eventDuplicateItem = new JMenuItem(Messages.getString("GmObjectFrame.DUPLICATE")); //$NON-NLS-1
+					eventDuplicateItem = new JMenuItem(Messages.getString("GmObjectFrame.DUPLICATE")); //$NON-NLS-1$
 					eventModifyItem.add(eventDuplicateItem);
 					eventDuplicateItem.addActionListener(GmObjectFrame.this);
 
-					eventEditItem = new JMenuItem(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1
+					eventEditItem = new JMenuItem(Messages.getString("GmObjectFrame.EDIT")); //$NON-NLS-1$
 					menu.add(eventEditItem);
 					eventEditItem.addActionListener(GmObjectFrame.this);
-					eventDeleteItem = new JMenuItem(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1
+					eventDeleteItem = new JMenuItem(Messages.getString("GmObjectFrame.DELETE")); //$NON-NLS-1$
 					menu.add(eventDeleteItem);
 					eventDeleteItem.addActionListener(GmObjectFrame.this);
 					menu.show(e.getComponent(),e.getX(),e.getY());
