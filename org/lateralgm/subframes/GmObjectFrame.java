@@ -503,8 +503,8 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 				JTree.DropLocation dl = (JTree.DropLocation)support.getDropLocation();
 				TreePath path = dl.getPath();
 				if (path == null) return false;
-				events.expandPath(path);
-				events.setSelectionPath(path);
+				Object com = path.getLastPathComponent();
+				if (com == null || !(com instanceof EventInstanceNode)) return false;
 				return true;
 				}
 
