@@ -28,12 +28,14 @@ import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.awt.image.WritableRaster;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -190,6 +192,21 @@ public final class Util
 			dis.readFully(fileData);
 			}
 		return fileData;
+		}
+
+	public static ByteArrayOutputStream readFully(InputStream in) throws IOException
+		{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+		byte[] buffer = new byte[4096];
+
+		// Read in the bytes
+		int numRead = 0;
+		while ((numRead = in.read(buffer)) >= 0)
+			baos.write(buffer,0,numRead);
+
+		// Close the input stream and return bytes
+		return baos;
 		}
 
 	public static byte[] readFully(String path) throws FileNotFoundException, IOException
