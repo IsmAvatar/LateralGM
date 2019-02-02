@@ -1,22 +1,24 @@
-JC = ecj -1.6 -nowarn -cp .
-JFLAGS = -cp /usr/share/java/eclipse-ecj.jar:/usr/share/java/ecj.jar
+JC = javac
+JFLAGS = -source 1.7 -target 1.7 -cp .:modules/joshedit
 OUTPUT_FILE = lateralgm.jar
 
-.SUFFIXES: .java .class
-
-.java.class:
+%.class: %.java
 	$(JC) $(JFLAGS) $*.java
 
 JAVA_FILES = $(shell find org -name "*.java")
-JAR_INC_FILES = $(shell find org -type f \( -not -wholename '*/.git/*' \) -a \( -not -name "*.java" \) | sed 's/\$$/\\\$$/g')
+JAR_INC_FILES = $(shell find org -type f \( -not -wholename '*/.git/*' \) -a \( -not -name "*.java" \))
+BASE_CLASSES = $(JAVA_FILES:.java=.class)
 
 default: classes jar
 
-classes: $(JAVA_FILES:.java=.class)
+classes: $(BASE_CLASSES)
 
 clean:
 	find org/lateralgm -name "*.class" -exec rm {} \;
 	rm -f $(OUTPUT_FILE)
 
-jar:
-	@jar cfm $(OUTPUT_FILE) META-INF/MANIFEST.MF COPYING README LICENSE $(JAR_INC_FILES)
+jar: $(BASE_CLASSES)
+	@echo JAR $(OUTPUT_FILE)
+	@jar cfm $(OUTPUT_FILE) META-INF/MANIFEST.MF COPYING README.md LICENSE $(subst $$,\$$,$(JAR_INC_FILES))
+
+.PHONY: clean jar default classes
