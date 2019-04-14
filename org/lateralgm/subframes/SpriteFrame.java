@@ -1371,7 +1371,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			}
 		else if (e.getSource() == loadStrip)
 			{
-			addFromStrip(true);
+			addFromStrip(false);
 			return;
 			}
 		else if (e.getSource() == loadSubimages)
