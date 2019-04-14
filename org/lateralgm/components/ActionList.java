@@ -1325,12 +1325,14 @@ public static class ActionTransferHandler extends TransferHandler
 
 	public void ActionsCut(JList<Action> list)
 		{
+		if (list.isSelectionEmpty()) return;
 		ActionsCopy(list);
 		ActionsDelete(list);
 		}
 
 	public void ActionsCopy(JList<Action> list)
 		{
+		if (list.isSelectionEmpty()) return;
 		int[] indices = list.getSelectedIndices();
 		ArrayList<Action> actions = (ArrayList<Action>) list.getSelectedValuesList();
 		if (indices.length <= 0) return;
