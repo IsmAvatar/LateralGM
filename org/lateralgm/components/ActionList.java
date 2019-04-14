@@ -1014,8 +1014,8 @@ public static class ActionTransferHandler extends TransferHandler
 	@Override
 	protected Transferable createTransferable(JComponent c)
 		{
-		indices = list.getSelectedIndices();
 		if (list.isSelectionEmpty()) return null;
+		indices = list.getSelectedIndices();
 		return new ActionTransferable((ArrayList<Action>) list.getSelectedValuesList());
 		}
 	}
