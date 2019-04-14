@@ -942,7 +942,7 @@ public static class ActionTransferHandler extends TransferHandler
 				LGM.showDefaultExceptionHandler(e);
 				return false;
 				}
-			//clone properly for drag-copy or clipboard paste
+			// deep copy for drag-copy or clipboard paste
 			if (!info.isDrop() || info.getDropAction() == COPY) a = a.copy();
 			if (info.isDrop() && info.getDropAction() == MOVE && indices != null)
 				{
@@ -967,9 +967,10 @@ public static class ActionTransferHandler extends TransferHandler
 				LGM.showDefaultExceptionHandler(e);
 				return false;
 				}
-			//clone properly for drag-copy or clipboard paste
-			if (!info.isDrop() || info.getDropAction() == COPY) for (int i = 0; i < a.size(); i++)
-				a.set(i,a.get(i).copy());
+			// deep copy for drag-copy or clipboard paste
+			if (!info.isDrop() || info.getDropAction() == COPY)
+				for (int i = 0; i < a.size(); i++)
+					a.set(i,a.get(i).copy());
 			if (info.isDrop() && info.getDropAction() == MOVE && indices != null)
 				{
 				addIndex = index;
@@ -1369,6 +1370,11 @@ public static class ActionTransferHandler extends TransferHandler
 				if (ind < 0) {
 					ind = alm.getSize();
 				}
+				// perform a deep copy of the actions so editing them
+				// does not change the original ones we transferred
+				for (int i = 0; i < actions.size(); i++)
+					actions.set(i,actions.get(i).copy());
+
 				alm.addAll(ind, (List<Action>) actions);
 				list.setSelectionInterval(ind,ind += actions.size() - 1);
 				}
