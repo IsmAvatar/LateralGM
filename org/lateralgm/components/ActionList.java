@@ -1014,6 +1014,7 @@ public static class ActionTransferHandler extends TransferHandler
 	@Override
 	protected Transferable createTransferable(JComponent c)
 		{
+		if (list.isSelectionEmpty()) return null;
 		indices = list.getSelectedIndices();
 		return new ActionTransferable((ArrayList<Action>) list.getSelectedValuesList());
 		}
@@ -1325,15 +1326,15 @@ public static class ActionTransferHandler extends TransferHandler
 
 	public void ActionsCut(JList<Action> list)
 		{
+		if (list.isSelectionEmpty()) return;
 		ActionsCopy(list);
 		ActionsDelete(list);
 		}
 
 	public void ActionsCopy(JList<Action> list)
 		{
-		int[] indices = list.getSelectedIndices();
+		if (list.isSelectionEmpty()) return;
 		ArrayList<Action> actions = (ArrayList<Action>) list.getSelectedValuesList();
-		if (indices.length <= 0) return;
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
 		ActionTransferable at = new ActionTransferable(actions);
