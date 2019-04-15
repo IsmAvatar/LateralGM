@@ -392,7 +392,7 @@ public class Search
 			Debug.println("assertEquals: ","false");
 		}
 	}
-	
+
 	public static void testThing() {
 	        String CODE = "runatestinatestwith\nsomemoretestsandthen\nyou'redone";
 	        List<LineMatch> match  = getMatchingLines(CODE, Pattern.compile("test"));
