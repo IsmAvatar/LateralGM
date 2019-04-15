@@ -871,7 +871,7 @@ public class ImageEffects
 		private JSlider brightnessSlider;
 		private JSlider contrastSlider;
 
-			//from David Fichtmüller
+			//from David FichtmÃ¼ller
 			public BufferedImage applyBrightnessAndContrast(BufferedImage bi, double brightness,
 					double contrast) {
 				final double gamma = 0.25;

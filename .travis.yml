@@ -1,0 +1,22 @@
+language: java
+
+dist: trusty
+sudo: false
+
+before_install:
+  - mvn -f lib/joshedit install
+
+script:
+  - mvn package
+  - mvn test
+
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: drAjLZLE1vwliQe59ZS2SWKJzdu52MOYTKC+x/LhLyWfO+sSLLcRqXj1AIu1G+r7nz6dZW2z//sgTR+OLsutERirhhrfkww1mu5ERPPjQmSNjzvKZRg9ZiCVcSwuVfuNoTvYhl5AF4XLNLrNSW04moYRrF7muQYaxI3ib5lVyB57gMX7iEPppelZG81ufL2hmX0iobY2Ny4UmjCIw9hjHDQIfJYIT5eCBpZUmYEiIDMvtIBC8q8EPjX8i39aHth2TXdRKb2lDNQ7Nh99YrHQ/nLWBbp14z7t+i4KI7bqV+J4e3CYhsgqV3NhD+kuJfKV56yus0VDUr2h1wT9Goh3Mgee1bPDlMxfxljPNBZ+PNsTeOnL/bcf1CLI1KyVkOhwMtoIEbizFMLf15X9BjLZsaQ+psyxfDGH2uaXrbdnoHdujcEazU4ZK032RwkFVRU3YNtVSVQbTE8CCCyMM0oHaTDk9uPEn5KoZtm/BG+ea0iymI1EDKpjCrw4Inp1YD1U3ath69xNKPPvBf1uJ8Oej5MvgcSM8hTKes9zZpdEjdiPeiI2V8iXFufXC5fPMsTeNNXy6yIrxJ6J8XrNe6c2MB1owIQT7GxqZhWK2iDJa8QZFN4jWPIojoZqLQIG9K9Ytn9JHbAYXkRQKUKZmECYv/D6nHx49nD8MG0BcFczETs=
+  file_glob: true
+  file: target/LateralGM-*.jar
+  on:
+    repo: CyberShadow/LateralGM
+    tags: true
