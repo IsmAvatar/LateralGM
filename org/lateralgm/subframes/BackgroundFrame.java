@@ -15,7 +15,6 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Point;
@@ -626,14 +625,7 @@ public class BackgroundFrame extends InstantiableResourceFrame<Background,PBackg
 			monitor.updateSource.addListener(this);
 
 			if (!Prefs.useExternalBackgroundEditor || Prefs.externalBackgroundEditorCommand == null)
-				try
-					{
-					Desktop.getDesktop().edit(monitor.file);
-					}
-				catch (UnsupportedOperationException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
+				Util.OpenDesktopEditor(monitor.file);
 			else
 				Runtime.getRuntime().exec(
 						String.format(Prefs.externalBackgroundEditorCommand,monitor.file.getAbsolutePath()));

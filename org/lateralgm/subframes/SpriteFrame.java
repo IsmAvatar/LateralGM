@@ -17,7 +17,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -1752,14 +1751,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			monitor.updateSource.addListener(this,true);
 
 			if (!Prefs.useExternalSpriteEditor || Prefs.externalSpriteEditorCommand == null)
-				try
-					{
-					Desktop.getDesktop().edit(monitor.file);
-					}
-				catch (UnsupportedOperationException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
+				Util.OpenDesktopEditor(monitor.file);
 			else
 				Runtime.getRuntime().exec(
 						String.format(Prefs.externalSpriteEditorCommand,monitor.file.getAbsolutePath()));

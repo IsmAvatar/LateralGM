@@ -13,7 +13,6 @@ package org.lateralgm.subframes;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 import java.awt.BorderLayout;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -709,14 +708,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			monitor.updateSource.addListener(this);
 
 			if (!Prefs.useExternalSoundEditor || Prefs.externalSoundEditorCommand == null)
-				try
-					{
-					Desktop.getDesktop().edit(monitor.file);
-					}
-				catch (UnsupportedOperationException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
+				Util.OpenDesktopEditor(monitor.file);
 			else
 				Runtime.getRuntime().exec(
 						String.format(Prefs.externalSoundEditorCommand,monitor.file.getAbsolutePath()));
