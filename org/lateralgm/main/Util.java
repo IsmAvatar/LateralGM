@@ -14,6 +14,7 @@ package org.lateralgm.main;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -1198,6 +1199,28 @@ public final class Util
 			BitmapDescriptor bmd = ico.getDescriptor(maxind);
 			ico.getDescriptors().clear();
 			ico.getDescriptors().add(bmd);
+			}
+		}
+	
+	public static void OpenDesktopEditor(File file)
+		{
+		try
+			{
+			Desktop.getDesktop().edit(file);
+			}
+		catch (UnsupportedOperationException e)
+			{
+			JOptionPane.showMessageDialog(LGM.frame,
+					Messages.getString("ExternalEditorDialog.NOT_SUPPORTED_MESSAGE"), //$NON-NLS-1$
+					Messages.getString("ExternalEditorDialog.NOT_SUPPORTED_TITLE"), //$NON-NLS-1$
+					JOptionPane.ERROR_MESSAGE);
+			}
+		catch (IOException e)
+			{
+			JOptionPane.showMessageDialog(LGM.frame,
+					Messages.getString("ExternalEditorDialog.FAILED_MESSAGE"), //$NON-NLS-1$
+					Messages.getString("ExternalEditorDialog.FAILED_TITLE"), //$NON-NLS-1$
+					JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}

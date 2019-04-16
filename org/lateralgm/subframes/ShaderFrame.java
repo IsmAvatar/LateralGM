@@ -66,6 +66,7 @@ import org.lateralgm.joshedit.lexers.GLSLTokenMarker;
 import org.lateralgm.joshedit.lexers.HLSLTokenMarker;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
+import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
 import org.lateralgm.messages.Messages;
@@ -277,14 +278,7 @@ public class ShaderFrame extends InstantiableResourceFrame<Shader,PShader>
 			monitor.updateSource.addListener(this,true);
 
 			if (!Prefs.useExternalScriptEditor || Prefs.externalScriptEditorCommand == null)
-				try
-					{
-					Desktop.getDesktop().edit(monitor.file);
-					}
-				catch (UnsupportedOperationException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
+				Util.OpenDesktopEditor(monitor.file);
 			else
 				Runtime.getRuntime().exec(
 						String.format(Prefs.externalScriptEditorCommand,monitor.file.getAbsolutePath()));

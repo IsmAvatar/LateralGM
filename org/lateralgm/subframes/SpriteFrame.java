@@ -1752,14 +1752,7 @@ public class SpriteFrame extends InstantiableResourceFrame<Sprite,PSprite> imple
 			monitor.updateSource.addListener(this,true);
 
 			if (!Prefs.useExternalSpriteEditor || Prefs.externalSpriteEditorCommand == null)
-				try
-					{
-					Desktop.getDesktop().edit(monitor.file);
-					}
-				catch (UnsupportedOperationException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
+				Util.OpenDesktopEditor(monitor.file);
 			else
 				Runtime.getRuntime().exec(
 						String.format(Prefs.externalSpriteEditorCommand,monitor.file.getAbsolutePath()));

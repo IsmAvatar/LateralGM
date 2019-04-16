@@ -709,14 +709,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 			monitor.updateSource.addListener(this);
 
 			if (!Prefs.useExternalSoundEditor || Prefs.externalSoundEditorCommand == null)
-				try
-					{
-					Desktop.getDesktop().edit(monitor.file);
-					}
-				catch (UnsupportedOperationException e)
-					{
-					LGM.showDefaultExceptionHandler(e);
-					}
+				Util.OpenDesktopEditor(monitor.file);
 			else
 				Runtime.getRuntime().exec(
 						String.format(Prefs.externalSoundEditorCommand,monitor.file.getAbsolutePath()));
