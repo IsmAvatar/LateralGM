@@ -114,25 +114,29 @@ public class GmStreamEncoder extends StreamEncoder
 		write4(val ? 1 : 0);
 		}
 
-	public <P extends Enum<P>>void write4(PropertyMap<P> map, P...keys) throws IOException
+	@SafeVarargs
+	public final <P extends Enum<P>>void write4(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			write4((Integer) map.get(key));
 		}
 
-	public <P extends Enum<P>>void writeStr(PropertyMap<P> map, P...keys) throws IOException
+	@SafeVarargs
+	public final <P extends Enum<P>>void writeStr(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			writeStr((String) map.get(key));
 		}
 
-	public <P extends Enum<P>>void writeBool(PropertyMap<P> map, P...keys) throws IOException
+	@SafeVarargs
+	public final <P extends Enum<P>>void writeBool(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			writeBool((Boolean) map.get(key));
 		}
 
-	public <P extends Enum<P>>void writeD(PropertyMap<P> map, P...keys) throws IOException
+	@SafeVarargs
+	public final <P extends Enum<P>>void writeD(PropertyMap<P> map, P...keys) throws IOException
 		{
 		for (P key : keys)
 			writeD((Double) map.get(key));
