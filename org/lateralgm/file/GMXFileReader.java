@@ -722,7 +722,7 @@ public final class GMXFileReader
 					fname = f.getDirectory() + "/sound/audio/" + fname;
 					try
 						{
-						snd.data = Util.readFully(fname); //$NON-NLS-1$
+						snd.data = Util.readFully(fname);
 						}
 					catch (IOException e)
 						{

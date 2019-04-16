@@ -260,7 +260,7 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 		if (!isInstantiable())
 			{
 			JMenuItem editItem = makeMenuItem("Listener.TREE_PROPERTIES",al,true);
-			popup.add(editItem); //$NON-NLS-1$
+			popup.add(editItem);
 			editItem.setFocusable(true);
 			editItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_PROPERTIES")));
 			popup.show(e.getComponent(),e.getX(),e.getY());
@@ -270,11 +270,11 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 			{
 			JMenuItem insertItem = makeMenuItem("Listener.TREE_INSERT_RESOURCE",al,true);
 			insertItem.setFocusable(true);
-			popup.add(insertItem); //$NON-NLS-1$
+			popup.add(insertItem);
 			insertItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_INSERT_RESOURCE")));
 			JMenuItem duplicateItem = makeMenuItem("Listener.TREE_DUPLICATE_RESOURCE",al,true);
 			duplicateItem.setFocusable(true);
-			popup.add(duplicateItem); //$NON-NLS-1$
+			popup.add(duplicateItem);
 			duplicateItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_DUPLICATE_RESOURCE")));
 			popup.add(makeMenuItem("Listener.TREE_INSERT_GROUP",al,true)); //$NON-NLS-1$
 			}
@@ -290,19 +290,19 @@ public class ResNode extends DefaultNode implements Transferable,UpdateListener
 			JMenuItem deleteItem = makeMenuItem("Listener.TREE_DELETE",al,true);
 			deleteItem.setFocusable(true);
 			deleteItem.requestFocus();
-			popup.add(deleteItem); //$NON-NLS-1$
+			popup.add(deleteItem);
 			// KeyStroke.getKeyStroke("BACK_SPACE"); for delete key on mac
 			deleteItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_DELETE")));
 			JMenuItem renameItem = makeMenuItem("Listener.TREE_RENAME",al,true);
 			renameItem.setFocusable(true);
-			popup.add(renameItem); //$NON-NLS-1$
+			popup.add(renameItem);
 			renameItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_RENAME")));
 			}
 		if (status == ResNode.STATUS_SECONDARY)
 			{
 			JMenuItem editItem = makeMenuItem("Listener.TREE_PROPERTIES",al,true);
 			editItem.setFocusable(true);
-			popup.add(editItem); //$NON-NLS-1$
+			popup.add(editItem);
 			editItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("Listener.TREE_PROPERTIES")));
 			}
 		popup.show(e.getComponent(),e.getX(),e.getY());

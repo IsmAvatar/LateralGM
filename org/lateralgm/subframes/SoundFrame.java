@@ -263,7 +263,7 @@ public class SoundFrame extends InstantiableResourceFrame<Sound,PSound>
 
 		tool.addSeparator();
 
-		edit = new JButton(EDIT_ICON); //$NON-NLS-1$
+		edit = new JButton(EDIT_ICON);
 		edit.setToolTipText(Messages.getString("SoundFrame.EDIT"));
 		edit.addActionListener(this);
 		tool.add(edit);

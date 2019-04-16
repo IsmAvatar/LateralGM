@@ -286,7 +286,7 @@ public final class GMXFileWriter
 		for (GameSettings gs : LGM.currentFile.gameSettings) {
 			Element setNode = mdom.createElement("Config"); //$NON-NLS-1$
 			String configDir = "Configs\\" + gs.getName();
-			setNode.setTextContent(configDir); //$NON-NLS-1$
+			setNode.setTextContent(configDir);
 			conNode.appendChild(setNode);
 
 			Document dom = documentBuilder.newDocument();

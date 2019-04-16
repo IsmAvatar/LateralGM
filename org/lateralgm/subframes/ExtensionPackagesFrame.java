@@ -116,18 +116,18 @@ public class ExtensionPackagesFrame extends
 			ResNode n = (ResNode) LGM.root.getChildAt(m);
 			if (n.kind == ExtensionPackages.class) return n.getUserObject();
 			}
-		return 0;//Messages.getString("LGM.EXT"); //$NON-NLS-1$
+		return 0;//Messages.getString("LGM.EXT");
 		}
 
 	public void actionPerformed(ActionEvent ev)
 		{
 		super.actionPerformed(ev);
-		if (ev.getSource() == closeButton) //$NON-NLS-1$
+		if (ev.getSource() == closeButton)
 			{
 			this.setVisible(false);
 			return;
 			}
-		if (ev.getSource() == installButton) //$NON-NLS-1$
+		if (ev.getSource() == installButton)
 			{
 			return;
 			}
