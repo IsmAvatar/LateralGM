@@ -132,7 +132,7 @@ public class ConstantsFrame extends ResourceFrame<Constants,PConstants>
 
 	public ConstantsFrame(Constants res, ResNode node)
 		{
-		super(res,node); //$NON-NLS-1$
+		super(res,node);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setTitle(Messages.getString("ConstantsFrame.TITLE"));
 

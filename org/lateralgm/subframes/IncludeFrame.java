@@ -58,7 +58,7 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 	public IncludeFrame(Include r, ResNode node)
 		{
 		//,Messages.getString("IncludeFrame.TITLE"),true
-		super(r,node); //$NON-NLS-1$
+		super(r,node);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(300,350);
 		this.setLayout(new BorderLayout());
@@ -100,14 +100,14 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 			ResNode n = (ResNode) LGM.root.getChildAt(m);
 			if (n.kind == ExtensionPackages.class) return n.getUserObject();
 			}
-		return 0;//Messages.getString("LGM.EXT"); //$NON-NLS-1$
+		return 0;//Messages.getString("LGM.EXT");
 		}
 
 	public void actionPerformed(ActionEvent ev)
 		{
 		super.actionPerformed(ev);
 		Object source = ev.getSource();
-		if (source == importBut) //$NON-NLS-1$
+		if (source == importBut)
 			{
 			if (fc.showOpenDialog(LGM.frame) != JFileChooser.APPROVE_OPTION) return;
 			File f = fc.getSelectedFile();
@@ -116,7 +116,7 @@ public class IncludeFrame extends InstantiableResourceFrame<Include,Include.PInc
 			res.setName(f.getName());
 			return;
 			}
-		if (source == exportBut) //$NON-NLS-1$
+		if (source == exportBut)
 			{
 			return;
 			}

@@ -61,7 +61,7 @@ public class ExtensionFrame extends InstantiableResourceFrame<Extension,Extensio
 	public ExtensionFrame(Extension res, ResNode node)
 		{
 		//,Messages.getString("ExtensionFrame.TITLE"),true
-		super(res,node); //$NON-NLS-1$
+		super(res,node);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		setSize(600,400);
 		JTabbedPane tabPane = new JTabbedPane();
@@ -80,7 +80,7 @@ public class ExtensionFrame extends InstantiableResourceFrame<Extension,Extensio
 			ResNode n = (ResNode) LGM.root.getChildAt(m);
 			if (n.kind == ExtensionPackages.class) return n.getUserObject();
 			}
-		return 0;//Messages.getString("LGM.EXT"); //$NON-NLS-1$
+		return 0;//Messages.getString("LGM.EXT");
 		}
 
 	public void actionPerformed(ActionEvent ev)

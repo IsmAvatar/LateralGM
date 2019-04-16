@@ -106,7 +106,7 @@ public class ColorSelect extends JPanel implements ItemSelectable,PropertyEditor
 
 		MaskFormatter formatter = new MaskFormatter();
 		formatter.setPlaceholder("FFFFFFFF"); //$NON-NLS-1$
-		formatter.setPlaceholderCharacter('F'); //$NON-NLS-1$
+		formatter.setPlaceholderCharacter('F');
 
 		try
 		{
