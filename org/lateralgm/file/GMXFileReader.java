@@ -569,6 +569,7 @@ public final class GMXFileReader
 				Document sprdoc = GMXFileReader.parseDocumentChecked(f, path + ".sprite.gmx"); //$NON-NLS-1$
 				if (sprdoc == null) continue;
 
+				spr.put(PSprite.TRANSPARENT,false);
 				spr.put(PSprite.ORIGIN_X,
 						Integer.parseInt(sprdoc.getElementsByTagName("xorig").item(0).getTextContent())); //$NON-NLS-1$
 				spr.put(PSprite.ORIGIN_Y,

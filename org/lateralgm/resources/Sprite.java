@@ -461,9 +461,15 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 	@Override
 	protected PropertyMap<PSprite> makePropertyMap()
 		{
+		// NOTE: this only effects new sprites created after project read
+		// LGM.currentFile is not replaced until after a project is read
+		boolean defTransparency = (boolean)DEFS.get(PSprite.TRANSPARENT);
 		if (LGM.currentFile.format != null
 				&& LGM.currentFile.format.getOwner() == ProjectFile.FormatFlavor.GM_OWNER)
-			DEFS.put(PSprite.TRANSPARENT,LGM.currentFile.format.getVersion() <= 600);
+				defTransparency = (LGM.currentFile.format.getVersion() <= 600);
+		else
+				defTransparency = false; // GM7, GM8, GMX, YYP or New Project
+		DEFS.put(PSprite.TRANSPARENT,defTransparency);
 		return new PropertyMap<PSprite>(PSprite.class,this,DEFS);
 		}
 
