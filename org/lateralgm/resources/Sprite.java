@@ -468,7 +468,7 @@ public class Sprite extends InstantiableResource<Sprite,Sprite.PSprite> implemen
 				&& LGM.currentFile.format.getOwner() == ProjectFile.FormatFlavor.GM_OWNER)
 				defTransparency = (LGM.currentFile.format.getVersion() <= 600);
 		else
-				defTransparency = false; // GM7, GM8, GMX, YYP
+				defTransparency = false; // GM7, GM8, GMX, YYP or New Project
 		DEFS.put(PSprite.TRANSPARENT,defTransparency);
 		return new PropertyMap<PSprite>(PSprite.class,this,DEFS);
 		}
