@@ -331,9 +331,9 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 			{
 			if (!(e.getValue() instanceof ResourceList<?>)) continue;
 			ResourceList<?> rl = (ResourceList<?>) e.getValue();
-			KeywordSet ks = e.getKey() == Script.class ? scrNames : resNames;
-
 			if (rl.isEmpty()) continue;
+			
+			KeywordSet ks = e.getKey() == Script.class ? scrNames : resNames;
 
 			// create a set used for the completion window
 			SortedSet<String> resSet = new TreeSet<String>();
