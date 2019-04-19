@@ -88,7 +88,8 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
-	private final Map<Action,WeakReference<ActionFrame>> frames = new WeakHashMap<Action,WeakReference<ActionFrame>>();
+	private final Map<Action,WeakReference<ActionFrame>> frames =
+			new WeakHashMap<Action,WeakReference<ActionFrame>>();
 	protected ActionContainer actionContainer;
 	public ActionListModel model;
 	private final ActionRenderer renderer = new ActionRenderer(this);
