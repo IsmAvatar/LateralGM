@@ -87,19 +87,14 @@ import org.lateralgm.subframes.ActionFrame;
 public class ActionList extends JList<Action> implements ActionListener,ClipboardOwner
 	{
 	private static final long serialVersionUID = 1L;
-	private static final Map<Action,WeakReference<ActionFrame>> FRAMES;
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
+	private final Map<Action,WeakReference<ActionFrame>> FRAMES = new WeakHashMap<Action,WeakReference<ActionFrame>>();
 	protected ActionContainer actionContainer;
 	public ActionListModel model;
 	private final ActionRenderer renderer = new ActionRenderer(this);
 	public final WeakReference<MDIFrame> parent;
 	private final ActionListMouseListener alml;
 	public UndoManager undomanager;
-
-	static
-		{
-		FRAMES = new WeakHashMap<Action,WeakReference<ActionFrame>>();
-		}
 
 	private JMenuItem makeContextButton(String key)
 		{
@@ -228,7 +223,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 	 * @return The frame opened or <code>null</code> if no
 	 * frame was opened.
 	 */
-	public static MDIFrame openActionFrame(MDIFrame parent, Action a)
+	public MDIFrame openActionFrame(MDIFrame parent, Action a)
 		{
 		LibAction la = a.getLibAction();
 		if ((la.libArguments == null || la.libArguments.length == 0) && !la.canApplyTo
@@ -259,7 +254,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		return af;
 		}
 
-	public static void closeFrames()
+	public void closeFrames()
 		{
 		for (Map.Entry<Action,WeakReference<ActionFrame>> entry : FRAMES.entrySet())
 			{
@@ -269,6 +264,11 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 					frame.dispose();
 				}
 			}
+		}
+
+	public void dispose()
+		{
+		closeFrames();
 		}
 
 	private static class ActionListMouseListener extends MouseAdapter
@@ -295,7 +295,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 				}
 
 			if (o == null || !(o instanceof Action)) return;
-			openActionFrame(parent.get(),(Action) o);
+			l.openActionFrame(parent.get(),(Action) o);
 			}
 		}
 
@@ -990,7 +990,7 @@ public static class ActionTransferHandler extends TransferHandler
 				{
 				la = (LibAction) t.getTransferData(LIB_ACTION_FLAVOR);
 				a = new Action(la);
-				ActionList.openActionFrame(parent.get(),a);
+				list.openActionFrame(parent.get(),a);
 				}
 			catch (Exception e)
 				{
@@ -1316,22 +1316,22 @@ public static class ActionTransferHandler extends TransferHandler
 			}
 		}
 
-	public void ActionsEdit(JList<Action> list)
+	public void ActionsEdit(ActionList list)
 		{
 		int index = list.getSelectedIndex();
 		if (index == -1) return;
 		ActionListModel alm = (ActionListModel) list.getModel();
-		ActionList.openActionFrame(parent.get(),(Action) alm.getElementAt(index));
+		list.openActionFrame(parent.get(),(Action) alm.getElementAt(index));
 		}
 
-	public void ActionsCut(JList<Action> list)
+	public void ActionsCut(ActionList list)
 		{
 		if (list.isSelectionEmpty()) return;
 		ActionsCopy(list);
 		ActionsDelete(list);
 		}
 
-	public void ActionsCopy(JList<Action> list)
+	public void ActionsCopy(ActionList list)
 		{
 		if (list.isSelectionEmpty()) return;
 		ArrayList<Action> actions = (ArrayList<Action>) list.getSelectedValuesList();
@@ -1342,7 +1342,7 @@ public static class ActionTransferHandler extends TransferHandler
 		clipboard.setContents(at,this);
 		}
 
-	public void ActionsPaste(JList<Action> list)
+	public void ActionsPaste(ActionList list)
 		{
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		Transferable clipboardContents = clipboard.getContents(this);
