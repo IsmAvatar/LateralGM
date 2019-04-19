@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -97,7 +98,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 
 	protected static Timer timer;
 	protected Integer lastUpdateTaskID = 0;
-	private Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
+	private static Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
 	protected Completion[] completions;
 	protected DefaultTokenMarker tokenMarker;
 
@@ -325,13 +326,25 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 		{
 		resNames.words.clear();
 		scrNames.words.clear();
+		resourceKeywords.clear();
 		for (Entry<Class<?>,ResourceHolder<?>> e : LGM.currentFile.resMap.entrySet())
 			{
 			if (!(e.getValue() instanceof ResourceList<?>)) continue;
 			ResourceList<?> rl = (ResourceList<?>) e.getValue();
 			KeywordSet ks = e.getKey() == Script.class ? scrNames : resNames;
+
+			if (rl.isEmpty()) continue;
+
+			// create a set used for the completion window
+			SortedSet<String> resSet = new TreeSet<String>();
+
 			for (Resource<?,?> r : rl)
+				{
 				ks.words.add(r.getName());
+				resSet.add(r.getName());
+				}
+
+			resourceKeywords.add(resSet);
 			}
 		}
 
@@ -504,7 +517,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 				String lt = getLineText(row);
 				int x1 = pos - find(lt.substring(0,pos),W_BEFORE).length();
 				int x2 = pos + find(lt.substring(pos),W_AFTER).length();
-				if (completions == null) updateCompletions(tokenMarker);
+				updateCompletions(tokenMarker);
 				new CompletionMenu(LGM.frame,text,row,x1,x2,pos,completions);
 				}
 		};
