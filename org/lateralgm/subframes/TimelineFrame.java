@@ -297,7 +297,10 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			{
 			infoFrame.dispose();
 			}
-		((ActionListEditor) editor).dispose();
+		if (editor != null)
+			{
+			((ActionListEditor) editor).dispose();
+			}
 		}
 
 	public void actionPerformed(ActionEvent e)
@@ -486,7 +489,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 			actions.setSelectedValue(a,true);
 			}
 
-		MDIFrame af = ActionList.openActionFrame(actions.parent.get(),a);
+		MDIFrame af = actions.openActionFrame(actions.parent.get(),a);
 		Object momentitem = moments.getSelectedValue();
 		af.setTitle(this.name.getText() + " : " + momentitem.toString());
 		af.setFrameIcon(LGM.getIconForKey("MomentNode.STEP"));

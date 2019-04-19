@@ -46,8 +46,11 @@ public class ActionListEditor extends JPanel
 	{
 	private static final long serialVersionUID = 1L;
 
+	private final ActionList list;
+
 	public ActionListEditor(ActionList list)
 		{
+		this.list = list;
 		GroupLayout layout = new GroupLayout(this);
 		setLayout(layout);
 
@@ -166,7 +169,7 @@ public class ActionListEditor extends JPanel
 				Action act = new Action(libAction);
 				((ActionListModel) list.getModel()).add(act);
 				list.setSelectedValue(act,true);
-				ActionList.openActionFrame(list.parent.get(),act);
+				list.openActionFrame(list.parent.get(),act);
 				}
 			super.processMouseEvent(e);
 			}
@@ -179,7 +182,7 @@ public class ActionListEditor extends JPanel
 
 	public void dispose()
 		{
-		ActionList.closeFrames();
+		list.dispose();
 		}
 
 	}

@@ -969,7 +969,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 			actions.setSelectedValue(a,true);
 			}
 
-		MDIFrame af = ActionList.openActionFrame(actions.parent.get(),a);
+		MDIFrame af = actions.openActionFrame(actions.parent.get(),a);
 		EventInstanceNode evnode = (EventInstanceNode) events.getLastSelectedPathComponent();
 		af.setTitle(this.name.getText() + " : " + evnode.toString());
 		af.setFrameIcon(LGM.getIconForKey("EventNode.EVENT" + evnode.getUserObject().mainId));

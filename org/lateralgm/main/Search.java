@@ -49,7 +49,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.lateralgm.components.ActionList;
 import org.lateralgm.components.CodeTextArea;
 import org.lateralgm.components.CustomJToolBar;
 import org.lateralgm.components.impl.ResNode;
@@ -1026,7 +1025,7 @@ public class Search
 											org.lateralgm.resources.sub.Action act = objframe.actions.getSelectedValue();
 											if (act != null)
 												{
-												ActionFrame af = (ActionFrame) ActionList.openActionFrame(objframe,act);
+												ActionFrame af = (ActionFrame) objframe.actions.openActionFrame(objframe,act);
 												parentdata = new Object[] { af };
 												}
 											}
@@ -1058,7 +1057,7 @@ public class Search
 											org.lateralgm.resources.sub.Action act = tmlframe.actions.getSelectedValue();
 											if (act != null)
 												{
-												ActionFrame af = (ActionFrame) ActionList.openActionFrame(tmlframe,act);
+												ActionFrame af = (ActionFrame) tmlframe.actions.openActionFrame(tmlframe,act);
 												parentdata = new Object[] { af };
 												}
 											}
