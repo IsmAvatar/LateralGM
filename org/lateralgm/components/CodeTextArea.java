@@ -99,7 +99,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 	protected static Timer timer;
 	protected Integer lastUpdateTaskID = 0;
 	private static Set<SortedSet<String>> resourceKeywords = new HashSet<SortedSet<String>>();
-	protected Completion[] completions;
+	protected static Completion[] completions;
 	protected DefaultTokenMarker tokenMarker;
 
 	private static final Color PURPLE = new Color(138,54,186);
@@ -346,6 +346,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 
 			resourceKeywords.add(resSet);
 			}
+		if (!resourceKeywords.isEmpty()) completions = null;
 		}
 
 	protected void updateCompletions(DefaultTokenMarker tokenMarker2)
@@ -517,7 +518,7 @@ public class CodeTextArea extends JoshTextPanel implements UpdateListener,Action
 				String lt = getLineText(row);
 				int x1 = pos - find(lt.substring(0,pos),W_BEFORE).length();
 				int x2 = pos + find(lt.substring(pos),W_AFTER).length();
-				updateCompletions(tokenMarker);
+				if (completions == null) updateCompletions(tokenMarker);
 				new CompletionMenu(LGM.frame,text,row,x1,x2,pos,completions);
 				}
 		};
