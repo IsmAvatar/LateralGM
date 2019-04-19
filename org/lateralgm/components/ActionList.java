@@ -88,7 +88,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 	{
 	private static final long serialVersionUID = 1L;
 	private static final ActionListKeyListener ALKL = new ActionListKeyListener();
-	private final Map<Action,WeakReference<ActionFrame>> FRAMES = new WeakHashMap<Action,WeakReference<ActionFrame>>();
+	private final Map<Action,WeakReference<ActionFrame>> frames = new WeakHashMap<Action,WeakReference<ActionFrame>>();
 	protected ActionContainer actionContainer;
 	public ActionListModel model;
 	private final ActionRenderer renderer = new ActionRenderer(this);
@@ -205,7 +205,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 	public void save()
 		{
 		if (actionContainer == null) return;
-		for (WeakReference<ActionFrame> a : FRAMES.values())
+		for (WeakReference<ActionFrame> a : frames.values())
 			{
 			if (a != null)
 				{
@@ -228,14 +228,14 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 		LibAction la = a.getLibAction();
 		if ((la.libArguments == null || la.libArguments.length == 0) && !la.canApplyTo
 				&& !la.allowRelative && !la.question) return null;
-		WeakReference<ActionFrame> fr = FRAMES.get(a);
+		WeakReference<ActionFrame> fr = frames.get(a);
 		ActionFrame af = fr == null ? null : fr.get();
 		if (af == null || af.isClosed())
 			{
 			af = new ActionFrame(a);
 			LGM.mdi.add(af);
 			if (parent != null) LGM.mdi.addZChild(parent,af);
-			FRAMES.put(a,new WeakReference<ActionFrame>(af));
+			frames.put(a,new WeakReference<ActionFrame>(af));
 			}
 		af.setVisible(true);
 		//FIXME: Find out why parent is sent to back. This is a workaround.
@@ -256,7 +256,7 @@ public class ActionList extends JList<Action> implements ActionListener,Clipboar
 
 	public void closeFrames()
 		{
-		for (Map.Entry<Action,WeakReference<ActionFrame>> entry : FRAMES.entrySet())
+		for (Map.Entry<Action,WeakReference<ActionFrame>> entry : frames.entrySet())
 			{
 				ActionFrame frame = entry.getValue().get();
 
