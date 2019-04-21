@@ -134,7 +134,7 @@ import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.48"; //$NON-NLS-1$
+	public static final String version = "1.8.49"; //$NON-NLS-1$
 
 	// TODO: This list holds the class loader for any loaded plugins which should be
 	// cleaned up and closed when the application closes.
@@ -202,9 +202,9 @@ public final class LGM
 	private static GameInformationFrame gameInfo;
 	private static GameSettingFrame gameSet;
 	private static ExtensionPackagesFrame extSet;
-	public static EventPanel eventSelect;
+	private static EventPanel eventSelect;
 	private static JDialog eventDialog;
-	public static AbstractButton eventButton;
+	private static AbstractButton eventButton;
 	public static PreferencesFrame prefFrame;
 	public static Cursor zoomCursor;
 	public static Cursor zoomInCursor;
@@ -1105,11 +1105,6 @@ public final class LGM
 		contents = new JPanel(new BorderLayout());
 		contents.add(BorderLayout.CENTER,createMDI());
 		eventSelect = new EventPanel();
-		if (Prefs.dockEventPanel) {
-			treeTabs.addTab(Messages.getString("TreeFilter.TAB_EVENTS"),eventSelect);
-		} else {
-			eventSelect.setVisible(false); // must occur after adding split
-		}
 
 		filterPanel = Search.createSearchToolbar();
 
@@ -1118,10 +1113,6 @@ public final class LGM
 		hierarchyPanel.add(filterPanel, BorderLayout.NORTH);
 		hierarchyPanel.add(treeTabs,BorderLayout.CENTER);
 		hierarchyPanel.setPreferredSize(new Dimension(320, 320));
-
-		// could possibly be used to force the toolbar with event panel to popout
-		// reducing code, i can not get it to work right however
-		//((BasicToolBarUI) eventSelect.getUI()).setFloating(true, new Point(500,50));
 
 		splashProgress.progress(40,Messages.getString("LGM.SPLASH_THREAD")); //$NON-NLS-1$
 
@@ -1441,44 +1432,52 @@ public final class LGM
 			}
 		}
 
-	private static boolean eventVisible = false;
-
 	public static void showEventPanel()
 		{
-		eventVisible = !eventVisible;
-		if (Prefs.dockEventPanel)
+		if (eventDialog == null)
 			{
-			eventSelect.setVisible(eventVisible);
-			setSelectedTab(treeTabs, Messages.getString("TreeFilter.TAB_EVENTS"));
+			eventDialog = new JDialog(LGM.frame) {
+				/**
+				 * TODO: Default UID generated, change if necessary.
+				 */
+				private static final long serialVersionUID = -5724054718126872483L;
+
+				@Override
+				public void setVisible(boolean visible)
+					{
+					super.setVisible(visible);
+					LGM.eventButton.setSelected(visible);
+					}
+			};
+			eventDialog.setResizable(false);
+			eventDialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+			eventDialog.setIconImage(LGM.getIconForKey("Toolbar.EVENT_BUTTON").getImage()); //$NON-NLS-1$
+			eventDialog.setTitle(Messages.getString("Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
+			eventDialog.add(eventSelect);
+			eventDialog.pack();
+			eventDialog.setLocationRelativeTo(frame);
 			}
-		else
-			{
-			if (eventDialog == null)
-				{
-				eventDialog = new JDialog(LGM.frame);
-				eventDialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-				eventDialog.setIconImage(LGM.getIconForKey("Toolbar.EVENT_BUTTON").getImage());
-				eventDialog.setTitle(Messages.getString("Toolbar.EVENT_BUTTON"));
-				eventDialog.add(eventSelect);
-				eventSelect.setVisible(true);
-				eventSelect.setFloatable(false);
-				eventDialog.pack();
-				eventDialog.setLocationRelativeTo(frame);
-				}
-			eventDialog.setVisible(eventVisible);
-			}
+		eventDialog.setVisible(true);
+		}
+
+	public static void showEventPanel(int function)
+		{
+		eventSelect.function.setValue(function);
+		showEventPanel();
 		}
 
 	public static void hideEventPanel()
 		{
 		if (eventDialog != null)
-			{
 			eventDialog.setVisible(false);
-			}
+		}
+
+	public static void toggleEventPanel()
+		{
+		if (eventDialog == null || !eventDialog.isVisible())
+			showEventPanel();
 		else
-			{
-			eventSelect.setVisible(false);
-			}
+			hideEventPanel();
 		}
 
 	public static void showPreferences()

@@ -18,6 +18,7 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -63,7 +64,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-
+import javax.swing.border.Border;
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.visual.FileChooserImagePreview;
@@ -96,6 +97,15 @@ public final class Util
 	public static DataFlavor createJVMLocalDataFlavor(String className) throws ClassNotFoundException
 		{
 		return new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=" + className); //$NON-NLS-1$
+		}
+
+	public static JPanel makeLabelPane(String name)
+		{
+		JPanel lp = new JPanel(new GridLayout(0,3,0,0));
+		Border mb = BorderFactory.createMatteBorder(1,0,0,0,new Color(184,184,184));
+		Border tb = BorderFactory.createTitledBorder(mb,name);
+		lp.setBorder(tb);
+		return lp;
 		}
 
 	public static BufferedImage paintBackground(int width, int height, Color background,

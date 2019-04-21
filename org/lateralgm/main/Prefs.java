@@ -104,7 +104,6 @@ public final class Prefs
 		communityURI = getString("communityURI","http://enigma-dev.org/forums");
 		issueURI = getString("issueURI","http://github.com/IsmAvatar/LateralGM/issues");
 		enableDragAndDrop = getBoolean("enableDragAndDrop",true);
-		dockEventPanel = getBoolean("dockEventPanel",false);
 		rightOrientation = getBoolean("rightOrientation",false);
 		boldPrimaryNodes = getBoolean("boldPrimaryNodes",true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
@@ -211,7 +210,6 @@ public final class Prefs
 	public static int eventKeyInputAddKey = KeyEvent.VK_BACK_SLASH;
 
 	public static boolean boldPrimaryNodes;
-	public static boolean dockEventPanel;
 	public static boolean rightOrientation;
 	public static boolean enableDragAndDrop;
 	public static String actionLibraryPath;

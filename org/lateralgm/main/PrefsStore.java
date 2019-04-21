@@ -235,12 +235,6 @@ public final class PrefsStore
 		Prefs.extraNodes = selected;
 		}
 
-	public static void setDockEventPanel(boolean selected)
-		{
-		PREFS.putBoolean("dockEventPanel",selected);
-		Prefs.dockEventPanel = selected;
-		}
-
 	public static void setRightOrientation(boolean selected)
 		{
 		PREFS.putBoolean("rightOrientation",selected);

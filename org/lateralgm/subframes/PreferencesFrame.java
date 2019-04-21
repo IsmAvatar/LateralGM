@@ -108,8 +108,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 	JComboBox<Locale> localeCombo;
 	JComboBox<String> themeCombo, iconCombo, actionsCombo;
-	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter, dockEvent,
-		rightOrientation, backupsEnable;
+	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter, rightOrientation,
+			backupsEnable;
 	JTextField iconPath, themePath, documentationURI, websiteURI, communityURI, issueURI, actionsPath;
 
 	JTextField soundEditorPath, backgroundEditorPath, spriteEditorPath, codeEditorPath,
@@ -162,8 +162,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		extraNodesEnable.setSelected(Prefs.extraNodes);
 		showTreeFilter = new JCheckBox(Messages.getString("PreferencesFrame.SHOW_TREE_FILTER"));
 		showTreeFilter.setSelected(Prefs.showTreeFilter);
-		dockEvent = new JCheckBox(Messages.getString("PreferencesFrame.DOCK_EVENT_PANEL"));
-		dockEvent.setSelected(Prefs.dockEventPanel);
 		rightOrientation = new JCheckBox(Messages.getString("PreferencesFrame.RIGHT_ORIENTATION"));
 		rightOrientation.setSelected(Prefs.rightOrientation);
 
@@ -285,7 +283,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		/*	*/.addComponent(backupsPanel,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/*	*/.addGroup(gl.createParallelGroup()
 		/*		*/.addComponent(dndEnable)
-		/*		*/.addComponent(dockEvent)
 		/*		*/.addComponent(rightOrientation)
 		/*		*/.addComponent(showTreeFilter))));
 
@@ -314,7 +311,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		/*	*/.addComponent(backupsPanel)
 		/*	*/.addGroup(gl.createSequentialGroup()
 		/*		*/.addComponent(dndEnable)
-		/*		*/.addComponent(dockEvent)
 		/*		*/.addComponent(rightOrientation)
 		/*		*/.addComponent(showTreeFilter))));
 
@@ -1222,7 +1218,6 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		PrefsStore.setSpriteEditorCommand(spriteEditorPath.getText());
 		PrefsStore.setSoundEditorCommand(soundEditorPath.getText());
 		PrefsStore.setScriptEditorCommand(codeEditorPath.getText());
-		PrefsStore.setDockEventPanel(dockEvent.isSelected());
 		PrefsStore.setUndoHistorySize(undoHistorySize.getIntValue());
 		PrefsStore.setFilledRectangleForViews(useFilledRectangleForViews.isSelected());
 		PrefsStore.setInvertedColorForViews(useInvertedColorForViews.isSelected());

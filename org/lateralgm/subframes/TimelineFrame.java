@@ -85,8 +85,8 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 
 		JPanel momentsSide = new JPanel(new BorderLayout());
 		//side2.setMaximumSize(new Dimension(90,Integer.MAX_VALUE));
-		JLabel lab = new JLabel(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
-		momentsSide.add(lab,BorderLayout.NORTH);
+		JPanel labPane = Util.makeLabelPane(Messages.getString("TimelineFrame.MOMENTS")); //$NON-NLS-1$
+		momentsSide.add(labPane,BorderLayout.NORTH);
 		moments = new JList<Moment>(res.moments.toArray(new Moment[res.moments.size()]));
 		moments.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		moments.addListSelectionListener(this);
@@ -189,7 +189,7 @@ public class TimelineFrame extends InstantiableResourceFrame<Timeline,PTimeline>
 
 		showInfo = new JButton(Messages.getString("TimelineFrame.SHOWINFORMATION")); //$NON-NLS-1$
 		showInfo.addActionListener(this);
-		showInfo.setIcon(LGM.getIconForKey("TimelineFrame.SHOWINFORMATION"));
+		showInfo.setIcon(LGM.getIconForKey("TimelineFrame.SHOWINFORMATION")); //$NON-NLS-1$
 
 		save.setText(Messages.getString("TimelineFrame.SAVE")); //$NON-NLS-1$
 
