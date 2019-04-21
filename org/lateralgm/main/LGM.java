@@ -1452,7 +1452,7 @@ public final class LGM
 			eventDialog.setResizable(false);
 			eventDialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 			eventDialog.setIconImage(LGM.getIconForKey("Toolbar.EVENT_BUTTON").getImage()); //$NON-NLS-1$
-			eventDialog.setTitle(Messages.getString("Toolbar.EVENT_BUTTON")); //$NON-NLS-1$
+			eventDialog.setTitle(Messages.getString("EventPanel.TITLE")); //$NON-NLS-1$
 			eventDialog.add(eventSelect);
 			eventDialog.pack();
 			eventDialog.setLocationRelativeTo(frame);
