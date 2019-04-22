@@ -184,27 +184,27 @@ public final class GMXFileWriter
 		writeConfigurations(c,root,savetime);
 
 		LGM.setProgress(10,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
-		writeSprites(c,root);
+		writeGroup(c,root,Sprite.class);
 		LGM.setProgress(20,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
-		writeSounds(c,root);
+		writeGroup(c,root,Sound.class);
 		LGM.setProgress(30,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
-		writeBackgrounds(c,root);
+		writeGroup(c,root,Background.class);
 		LGM.setProgress(40,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
-		writePaths(c,root);
+		writeGroup(c,root,Path.class);
 		LGM.setProgress(50,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
-		writeScripts(c,root);
+		writeGroup(c,root,Script.class);
 		LGM.setProgress(60,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
-		writeShaders(c,root);
+		writeGroup(c,root,Shader.class);
 		LGM.setProgress(70,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
-		writeFonts(c,root);
+		writeGroup(c,root,Font.class);
 		LGM.setProgress(80,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
-		writeTimelines(c,root);
+		writeGroup(c,root,Timeline.class);
 		LGM.setProgress(90,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
-		writeGmObjects(c,root);
+		writeGroup(c,root,GmObject.class);
 		LGM.setProgress(100,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
-		writeRooms(c,root);
+		writeGroup(c,root,Room.class);
 		LGM.setProgress(110,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
-		//writeIncludedFiles(c, root);
+		//writeGroup(c,root,Include.class);
 		LGM.setProgress(120,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
 		//writePackages(c, root);
 		LGM.setProgress(130,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
@@ -326,6 +326,34 @@ public final class GMXFileWriter
 			return ((InstantiableResource<?,?>) res).getId();
 		else
 			return noneval;
+		}
+
+	public static <R extends InstantiableResource<R,?>> void writeGroup(ProjectFileContext c, Element root,
+			Class<R> kind) throws IOException
+		{
+		ResourceList<R> list = c.f.resMap.getList(kind);
+		if (list.isEmpty()) return;
+
+		if (kind == Sprite.class)
+			writeSprites(c,getPrimaryNode(list.first().getNode()),root);
+		else if (kind == Sound.class)
+			writeSounds(c,getPrimaryNode(list.first().getNode()),root);
+		else if (kind == Background.class)
+			writeBackgrounds(c,getPrimaryNode(list.first().getNode()),root);
+		else if (kind == Path.class)
+			writePaths(c,getPrimaryNode(list.first().getNode()),root);
+		else if (kind == Script.class)
+			writeScripts(c,getPrimaryNode(list.first().getNode()),root);
+		else if (kind == Shader.class)
+			writeShaders(c,getPrimaryNode(list.first().getNode()),root);
+		else if (kind == Font.class)
+			writeFonts(c,getPrimaryNode(list.first().getNode()),root);
+		else if (kind == Timeline.class)
+			writeTimelines(c,getPrimaryNode(list.first().getNode()),root);
+		else if (kind == GmObject.class)
+			writeGmObjects(c,getPrimaryNode(list.first().getNode()),root);
+		else if (kind == Room.class)
+			writeRooms(c,getPrimaryNode(list.first().getNode()),root);
 		}
 
 	public static void writeConfigurations(ProjectFileContext c, Element root, long savetime) throws IOException
@@ -490,39 +518,36 @@ public final class GMXFileWriter
 			writeConstants(c.f.defaultConstants, c.dom, root);
 		}
 
-	private static void iterateSprites(ProjectFileContext c, ResNode root, Element node)
+	private static void writeSprites(ProjectFileContext c, ResNode root, Element domRoot)
 			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
+
+		String name = root.getUserObject().toString();
+		if (root.status == ResNode.STATUS_PRIMARY) name = "sprites"; //$NON-NLS-1$
+
+		Element pnode = dom.createElement("sprites"); //$NON-NLS-1$
+		pnode.setAttribute("name",name); //$NON-NLS-1$
+		domRoot.appendChild(pnode);
+		domRoot = pnode;
+
 		Vector<ResNode> children = root.getChildren();
-		if (children == null)
-			{
-			return;
-			}
+		if (children == null) return;
 		for (Object obj : children)
 			{
-			if (!(obj instanceof ResNode))
-				{
-				continue;
-				}
+			if (!(obj instanceof ResNode)) continue;
+
 			ResNode resNode = (ResNode) obj;
-			Element res = null;
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("sprites"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
-					iterateSprites(c,resNode,res);
-					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("sprites"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
-					iterateSprites(c,resNode,res);
+					writeSprites(c,resNode,domRoot);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Sprite spr = (Sprite) resNode.getRes().get();
-					res = dom.createElement("sprite"); //$NON-NLS-1$
+					Element res = dom.createElement("sprite"); //$NON-NLS-1$
 					String fname = f.getDirectory() + "\\sprites\\"; //$NON-NLS-1$
 					res.setTextContent("sprites\\" + spr.getName()); //$NON-NLS-1$
 					File imagesFile = new File(Util.getPOSIXPath(fname + "\\images")); //$NON-NLS-1$
@@ -583,62 +608,43 @@ public final class GMXFileWriter
 
 					File file = new File(Util.getPOSIXPath(fname + spr.getName() + ".sprite.gmx")); //$NON-NLS-1$
 					transformDocumentUnchecked(f, doc, file);
+
+					domRoot.appendChild(res);
 					break;
 				}
-			node.appendChild(res);
 			}
 		}
 
-	public static void writeSprites(ProjectFileContext c, Element root) throws IOException
-		{
-		Document dom = c.dom;
-
-		Element node = dom.createElement("sprites"); //$NON-NLS-1$
-		node.setAttribute("name","sprites");  //$NON-NLS-1$//$NON-NLS-2$
-		root.appendChild(node);
-
-		ResourceList<Sprite> sprList = c.f.resMap.getList(Sprite.class);
-		if (sprList.size() == 0)
-			{
-			return;
-			}
-
-		iterateSprites(c,getPrimaryNode(sprList.first().getNode()),node);
-		}
-
-	private static void iterateSounds(ProjectFileContext c, ResNode root, Element node)
+	private static void writeSounds(ProjectFileContext c, ResNode root, Element domRoot)
 			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
+
+		String name = root.getUserObject().toString();
+		if (root.status == ResNode.STATUS_PRIMARY) name = "sound"; //$NON-NLS-1$
+
+		Element pnode = dom.createElement("sounds"); //$NON-NLS-1$
+		pnode.setAttribute("name",name); //$NON-NLS-1$
+		domRoot.appendChild(pnode);
+		domRoot = pnode;
+
 		Vector<ResNode> children = root.getChildren();
-		if (children == null)
-			{
-			return;
-			}
+		if (children == null) return;
 		for (Object obj : children)
 			{
-			if (!(obj instanceof ResNode))
-				{
-				continue;
-				}
+			if (!(obj instanceof ResNode)) continue;
+
 			ResNode resNode = (ResNode) obj;
-			Element res = null;
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("sounds"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
-					iterateSounds(c,resNode,res);
-					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("sounds"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
-					iterateSounds(c,resNode,res);
+					writeSounds(c,resNode,domRoot);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Sound snd = (Sound) resNode.getRes().get();
-					res = dom.createElement("sound"); //$NON-NLS-1$
+					Element res = dom.createElement("sound"); //$NON-NLS-1$
 					String fname = f.getDirectory() + "\\sound\\"; //$NON-NLS-1$
 					res.setTextContent("sound\\" + snd.getName()); //$NON-NLS-1$
 					File audioFile = new File(Util.getPOSIXPath(fname + "\\audio")); //$NON-NLS-1$
@@ -706,61 +712,43 @@ public final class GMXFileWriter
 
 					File file = new File(Util.getPOSIXPath(fname + resNode.getUserObject().toString() + ".sound.gmx")); //$NON-NLS-1$
 					transformDocumentUnchecked(f, doc, file);
+
+					domRoot.appendChild(res);
 					break;
 				}
-			node.appendChild(res);
 			}
 		}
 
-	public static void writeSounds(ProjectFileContext c, Element root) throws IOException
-		{
-		Document dom = c.dom;
-
-		Element node = dom.createElement("sounds"); //$NON-NLS-1$
-		node.setAttribute("name","sound"); //$NON-NLS-1$ //$NON-NLS-2$
-		root.appendChild(node);
-
-		ResourceList<Sound> sndList = c.f.resMap.getList(Sound.class);
-		if (sndList.size() == 0)
-			{
-			return;
-			}
-		iterateSounds(c,getPrimaryNode(sndList.first().getNode()),node);
-		}
-
-	private static void iterateBackgrounds(ProjectFileContext c, ResNode root, Element node)
+	private static void writeBackgrounds(ProjectFileContext c, ResNode root, Element domRoot)
 			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
+
+		String name = root.getUserObject().toString();
+		if (root.status == ResNode.STATUS_PRIMARY) name = "background"; //$NON-NLS-1$
+
+		Element pnode = dom.createElement("backgrounds"); //$NON-NLS-1$
+		pnode.setAttribute("name",name); //$NON-NLS-1$
+		domRoot.appendChild(pnode);
+		domRoot = pnode;
+
 		Vector<ResNode> children = root.getChildren();
-		if (children == null)
-			{
-			return;
-			}
+		if (children == null) return;
 		for (Object obj : children)
 			{
-			if (!(obj instanceof ResNode))
-				{
-				continue;
-				}
+			if (!(obj instanceof ResNode)) continue;
+
 			ResNode resNode = (ResNode) obj;
-			Element res = null;
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("backgrounds"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
-					iterateBackgrounds(c,resNode,res);
-					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("backgrounds"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
-					iterateBackgrounds(c,resNode,res);
+					writeBackgrounds(c,resNode,domRoot);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Background bkg = (Background) resNode.getRes().get();
-					res = dom.createElement("background"); //$NON-NLS-1$
+					Element res = dom.createElement("background"); //$NON-NLS-1$
 					String fname = f.getDirectory() + "\\background\\"; //$NON-NLS-1$
 					res.setTextContent("background\\" + bkg.getName()); //$NON-NLS-1$
 					File imagesFile = new File(Util.getPOSIXPath(fname + "\\images")); //$NON-NLS-1$
@@ -806,62 +794,43 @@ public final class GMXFileWriter
 
 					File file = new File(Util.getPOSIXPath(fname + resNode.getUserObject().toString() + ".background.gmx")); //$NON-NLS-1$
 					transformDocumentUnchecked(f, doc, file);
+
+					domRoot.appendChild(res);
 					break;
 				}
-			node.appendChild(res);
 			}
 		}
 
-	public static void writeBackgrounds(ProjectFileContext c, Element root) throws IOException
-		{
-		Document dom = c.dom;
-
-		Element node = dom.createElement("backgrounds"); //$NON-NLS-1$
-		node.setAttribute("name","background"); //$NON-NLS-1$ //$NON-NLS-2$
-		root.appendChild(node);
-
-		ResourceList<Background> bkgList = c.f.resMap.getList(Background.class);
-		if (bkgList.size() == 0)
-			{
-			return;
-			}
-
-		iterateBackgrounds(c,getPrimaryNode(bkgList.first().getNode()),node);
-		}
-
-	private static void iteratePaths(ProjectFileContext c, ResNode root, Element node)
+	private static void writePaths(ProjectFileContext c, ResNode root, Element domRoot)
 			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
+
+		String name = root.getUserObject().toString();
+		if (root.status == ResNode.STATUS_PRIMARY) name = "paths"; //$NON-NLS-1$
+
+		Element pnode = dom.createElement("paths"); //$NON-NLS-1$
+		pnode.setAttribute("name",name); //$NON-NLS-1$
+		domRoot.appendChild(pnode);
+		domRoot = pnode;
+
 		Vector<ResNode> children = root.getChildren();
-		if (children == null)
-			{
-			return;
-			}
+		if (children == null) return;
 		for (Object obj : children)
 			{
-			if (!(obj instanceof ResNode))
-				{
-				continue;
-				}
+			if (!(obj instanceof ResNode)) continue;
+
 			ResNode resNode = (ResNode) obj;
-			Element res = null;
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("paths"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
-					iteratePaths(c,resNode,res);
-					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("paths"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
-					iteratePaths(c,resNode,res);
+					writePaths(c,resNode,domRoot);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Path path = (Path) resNode.getRes().get();
-					res = dom.createElement("path"); //$NON-NLS-1$
+					Element res = dom.createElement("path"); //$NON-NLS-1$
 					String fname = f.getDirectory() + "\\paths\\"; //$NON-NLS-1$
 					res.setTextContent("paths\\" + path.getName()); //$NON-NLS-1$
 					File pathsFile = new File(Util.getPOSIXPath(f.getDirectory() + "/paths")); //$NON-NLS-1$
@@ -892,62 +861,43 @@ public final class GMXFileWriter
 
 					File file = new File(Util.getPOSIXPath(fname + path.getName() + ".path.gmx")); //$NON-NLS-1$
 					transformDocumentUnchecked(f, doc, file);
+
+					domRoot.appendChild(res);
 					break;
 				}
-			node.appendChild(res);
 			}
 		}
 
-	public static void writePaths(ProjectFileContext c, Element root) throws IOException
-		{
-		Document dom = c.dom;
-
-		Element node = dom.createElement("paths"); //$NON-NLS-1$
-		node.setAttribute("name","paths"); //$NON-NLS-1$ //$NON-NLS-2$
-		root.appendChild(node);
-
-		ResourceList<Path> pthList = c.f.resMap.getList(Path.class);
-		if (pthList.size() == 0)
-			{
-			return;
-			}
-
-		iteratePaths(c,getPrimaryNode(pthList.first().getNode()),node);
-		}
-
-	private static void iterateScripts(ProjectFileContext c, ResNode root, Element node)
+	private static void writeScripts(ProjectFileContext c, ResNode root, Element domRoot)
 			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
+
+		String name = root.getUserObject().toString();
+		if (root.status == ResNode.STATUS_PRIMARY) name = "scripts"; //$NON-NLS-1$
+
+		Element pnode = dom.createElement("scripts"); //$NON-NLS-1$
+		pnode.setAttribute("name",name); //$NON-NLS-1$
+		domRoot.appendChild(pnode);
+		domRoot = pnode;
+
 		Vector<ResNode> children = root.getChildren();
-		if (children == null)
-			{
-			return;
-			}
+		if (children == null) return;
 		for (Object obj : children)
 			{
-			if (!(obj instanceof ResNode))
-				{
-				continue;
-				}
+			if (!(obj instanceof ResNode)) continue;
+
 			ResNode resNode = (ResNode) obj;
-			Element res = null;
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("scripts"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
-					iterateScripts(c,resNode,res);
-					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("scripts"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
-					iterateScripts(c,resNode,res);
+					writeScripts(c,resNode,domRoot);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Script scr = (Script) resNode.getRes().get();
-					res = dom.createElement("script"); //$NON-NLS-1$
+					Element res = dom.createElement("script"); //$NON-NLS-1$
 					String fname = "scripts\\" + scr.getName() + ".gml"; //$NON-NLS-1$ //$NON-NLS-2$
 					res.setTextContent(fname);
 					File file = new File(Util.getPOSIXPath(f.getDirectory() + "/scripts")); //$NON-NLS-1$
@@ -963,62 +913,43 @@ public final class GMXFileWriter
 						{
 						out.close();
 						}
+
+					domRoot.appendChild(res);
 					break;
 				}
-			node.appendChild(res);
 			}
 		}
 
-	public static void writeScripts(ProjectFileContext c, Element root) throws IOException
-		{
-		Document dom = c.dom;
-
-		Element node = dom.createElement("scripts"); //$NON-NLS-1$
-		node.setAttribute("name","scripts"); //$NON-NLS-1$ //$NON-NLS-2$
-		root.appendChild(node);
-
-		ResourceList<Script> scrList = c.f.resMap.getList(Script.class);
-		if (scrList.size() == 0)
-			{
-			return;
-			}
-
-		iterateScripts(c,getPrimaryNode(scrList.first().getNode()),node);
-		}
-
-	private static void iterateShaders(ProjectFileContext c, ResNode root, Element node)
+	private static void writeShaders(ProjectFileContext c, ResNode root, Element domRoot)
 			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
+
+		String name = root.getUserObject().toString();
+		if (root.status == ResNode.STATUS_PRIMARY) name = "shaders"; //$NON-NLS-1$
+
+		Element pnode = dom.createElement("shaders"); //$NON-NLS-1$
+		pnode.setAttribute("name",name); //$NON-NLS-1$
+		domRoot.appendChild(pnode);
+		domRoot = pnode;
+
 		Vector<ResNode> children = root.getChildren();
-		if (children == null)
-			{
-			return;
-			}
+		if (children == null) return;
 		for (Object obj : children)
 			{
-			if (!(obj instanceof ResNode))
-				{
-				continue;
-				}
+			if (!(obj instanceof ResNode)) continue;
+
 			ResNode resNode = (ResNode) obj;
-			Element res = null;
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("shaders"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
-					iterateShaders(c,resNode,res);
-					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("shaders"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
-					iterateShaders(c,resNode,res);
+					writeShaders(c,resNode,domRoot);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Shader shr = (Shader) resNode.getRes().get();
-					res = dom.createElement("shader"); //$NON-NLS-1$
+					Element res = dom.createElement("shader"); //$NON-NLS-1$
 					String fname = "shaders\\" + shr.getName() + ".shader"; //$NON-NLS-1$ //$NON-NLS-2$
 					res.setTextContent(fname);
 					res.setAttribute("type",shr.properties.get(PShader.TYPE).toString()); //$NON-NLS-1$
@@ -1038,61 +969,43 @@ public final class GMXFileWriter
 						{
 						out.close();
 						}
+
+					domRoot.appendChild(res);
 					break;
 				}
-			node.appendChild(res);
 			}
 		}
 
-	public static void writeShaders(ProjectFileContext c, Element root) throws IOException
-		{
-		Document dom = c.dom;
-
-		Element node = dom.createElement("shaders"); //$NON-NLS-1$
-		node.setAttribute("name","shaders"); //$NON-NLS-1$ //$NON-NLS-2$
-		root.appendChild(node);
-
-		ResourceList<Shader> shrList = c.f.resMap.getList(Shader.class);
-		if (shrList.size() == 0)
-			{
-			return;
-			}
-		iterateShaders(c,getPrimaryNode(shrList.first().getNode()),node);
-		}
-
-	private static void iterateFonts(ProjectFileContext c, ResNode root, Element node)
+	private static void writeFonts(ProjectFileContext c, ResNode root, Element domRoot)
 			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
+
+		String name = root.getUserObject().toString();
+		if (root.status == ResNode.STATUS_PRIMARY) name = "fonts"; //$NON-NLS-1$
+
+		Element pnode = dom.createElement("fonts"); //$NON-NLS-1$
+		pnode.setAttribute("name",name); //$NON-NLS-1$
+		domRoot.appendChild(pnode);
+		domRoot = pnode;
+
 		Vector<ResNode> children = root.getChildren();
-		if (children == null)
-			{
-			return;
-			}
+		if (children == null) return;
 		for (Object obj : children)
 			{
-			if (!(obj instanceof ResNode))
-				{
-				continue;
-				}
+			if (!(obj instanceof ResNode)) continue;
+
 			ResNode resNode = (ResNode) obj;
-			Element res = null;
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("fonts"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
-					iterateFonts(c,resNode,res);
-					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("fonts"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
-					iterateFonts(c,resNode,res);
+					writeFonts(c,resNode,domRoot);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Font fnt = (Font) resNode.getRes().get();
-					res = dom.createElement("font"); //$NON-NLS-1$
+					Element res = dom.createElement("font"); //$NON-NLS-1$
 					String fname = f.getDirectory() + "\\fonts\\"; //$NON-NLS-1$
 					res.setTextContent("fonts\\" + fnt.getName()); //$NON-NLS-1$
 					File fontsFile = new File(Util.getPOSIXPath(fname));
@@ -1154,61 +1067,43 @@ public final class GMXFileWriter
 
 					File file = new File(Util.getPOSIXPath(fname + fnt.getName() + ".font.gmx")); //$NON-NLS-1$
 					transformDocumentUnchecked(f, doc, file);
+
+					domRoot.appendChild(res);
 					break;
 				}
-			node.appendChild(res);
 			}
 		}
 
-	public static void writeFonts(ProjectFileContext c, Element root) throws IOException
-		{
-		Document dom = c.dom;
-
-		Element node = dom.createElement("fonts"); //$NON-NLS-1$
-		node.setAttribute("name","fonts"); //$NON-NLS-1$ //$NON-NLS-2$
-		root.appendChild(node);
-
-		ResourceList<Font> fntList = c.f.resMap.getList(Font.class);
-		if (fntList.size() == 0)
-			{
-			return;
-			}
-		iterateFonts(c,getPrimaryNode(fntList.first().getNode()),node);
-		}
-
-	private static void iterateTimelines(ProjectFileContext c, ResNode root, Element node)
+	private static void writeTimelines(ProjectFileContext c, ResNode root, Element domRoot)
 			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
+
+		String name = root.getUserObject().toString();
+		if (root.status == ResNode.STATUS_PRIMARY) name = "timelines"; //$NON-NLS-1$
+
+		Element pnode = dom.createElement("timelines"); //$NON-NLS-1$
+		pnode.setAttribute("name",name); //$NON-NLS-1$
+		domRoot.appendChild(pnode);
+		domRoot = pnode;
+
 		Vector<ResNode> children = root.getChildren();
-		if (children == null)
-			{
-			return;
-			}
+		if (children == null) return;
 		for (Object obj : children)
 			{
-			if (!(obj instanceof ResNode))
-				{
-				continue;
-				}
+			if (!(obj instanceof ResNode)) continue;
+
 			ResNode resNode = (ResNode) obj;
-			Element res = null;
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("timelines"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
-					iterateTimelines(c,resNode,res);
-					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("timelines"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
-					iterateTimelines(c,resNode,res);
+					writeTimelines(c,resNode,domRoot);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Timeline timeline = (Timeline) resNode.getRes().get();
-					res = dom.createElement("timeline"); //$NON-NLS-1$
+					Element res = dom.createElement("timeline"); //$NON-NLS-1$
 					String fname = f.getDirectory() + "\\timelines\\"; //$NON-NLS-1$
 					res.setTextContent("timelines\\" + timeline.getName()); //$NON-NLS-1$
 					File timelinesFile = new File(Util.getPOSIXPath(f.getDirectory() + "/timelines")); //$NON-NLS-1$
@@ -1231,62 +1126,43 @@ public final class GMXFileWriter
 
 					File file = new File(Util.getPOSIXPath(fname + timeline.getName() + ".timeline.gmx")); //$NON-NLS-1$
 					transformDocumentUnchecked(f, doc, file);
+
+					domRoot.appendChild(res);
 					break;
 				}
-			node.appendChild(res);
 			}
 		}
 
-	public static void writeTimelines(ProjectFileContext c, Element root) throws IOException
-		{
-		Document dom = c.dom;
-
-		Element node = dom.createElement("timelines"); //$NON-NLS-1$
-		node.setAttribute("name","timelines"); //$NON-NLS-1$//$NON-NLS-2$
-		root.appendChild(node);
-
-		ResourceList<Timeline> tmlList = c.f.resMap.getList(Timeline.class);
-		if (tmlList.size() == 0)
-			{
-			return;
-			}
-
-		iterateTimelines(c,getPrimaryNode(tmlList.first().getNode()),node);
-		}
-
-	private static void iterateGmObjects(ProjectFileContext c, ResNode root, Element node)
+	private static void writeGmObjects(ProjectFileContext c, ResNode root, Element domRoot)
 			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
+
+		String name = root.getUserObject().toString();
+		if (root.status == ResNode.STATUS_PRIMARY) name = "objects"; //$NON-NLS-1$
+
+		Element pnode = dom.createElement("objects"); //$NON-NLS-1$
+		pnode.setAttribute("name",name); //$NON-NLS-1$
+		domRoot.appendChild(pnode);
+		domRoot = pnode;
+
 		Vector<ResNode> children = root.getChildren();
-		if (children == null)
-			{
-			return;
-			}
+		if (children == null) return;
 		for (Object obj : children)
 			{
-			if (!(obj instanceof ResNode))
-				{
-				continue;
-				}
+			if (!(obj instanceof ResNode)) continue;
+
 			ResNode resNode = (ResNode) obj;
-			Element res = null;
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("objects"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
-					iterateGmObjects(c,resNode,res);
-					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("objects"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
-					iterateGmObjects(c,resNode,res);
+					writeGmObjects(c,resNode,domRoot);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					GmObject object = (GmObject) resNode.getRes().get();
-					res = dom.createElement("object"); //$NON-NLS-1$
+					Element res = dom.createElement("object"); //$NON-NLS-1$
 					String fname = f.getDirectory() + "\\objects\\"; //$NON-NLS-1$
 					res.setTextContent("objects\\" + object.getName()); //$NON-NLS-1$
 					File objectsFile = new File(Util.getPOSIXPath(f.getDirectory() + "/objects")); //$NON-NLS-1$
@@ -1367,62 +1243,43 @@ public final class GMXFileWriter
 
 					File file = new File(Util.getPOSIXPath(fname + object.getName() + ".object.gmx")); //$NON-NLS-1$
 					transformDocumentUnchecked(f, doc, file);
+
+					domRoot.appendChild(res);
 					break;
 				}
-			node.appendChild(res);
 			}
 		}
 
-	public static void writeGmObjects(ProjectFileContext c, Element root) throws IOException
-		{
-		Document dom = c.dom;
-
-		Element node = dom.createElement("objects"); //$NON-NLS-1$
-		node.setAttribute("name","objects"); //$NON-NLS-1$ //$NON-NLS-2$
-		root.appendChild(node);
-
-		ResourceList<GmObject> objList = c.f.resMap.getList(GmObject.class);
-		if (objList.size() == 0)
-			{
-			return;
-			}
-
-		iterateGmObjects(c,getPrimaryNode(objList.first().getNode()),node);
-		}
-
-	private static void iterateRooms(ProjectFileContext c, ResNode root, Element node)
+	private static void writeRooms(ProjectFileContext c, ResNode root, Element domRoot)
 			throws IOException
 		{
 		ProjectFile f = c.f;
 		Document dom = c.dom;
+
+		String name = root.getUserObject().toString();
+		if (root.status == ResNode.STATUS_PRIMARY) name = "rooms"; //$NON-NLS-1$
+
+		Element pnode = dom.createElement("rooms"); //$NON-NLS-1$
+		pnode.setAttribute("name",name); //$NON-NLS-1$
+		domRoot.appendChild(pnode);
+		domRoot = pnode;
+
 		Vector<ResNode> children = root.getChildren();
-		if (children == null)
-			{
-			return;
-			}
+		if (children == null) return;
 		for (Object obj : children)
 			{
-			if (!(obj instanceof ResNode))
-				{
-				continue;
-				}
+			if (!(obj instanceof ResNode)) continue;
+
 			ResNode resNode = (ResNode) obj;
-			Element res = null;
 			switch (resNode.status)
 				{
 				case ResNode.STATUS_PRIMARY:
-					res = dom.createElement("rooms"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString().toLowerCase()); //$NON-NLS-1$
-					iterateRooms(c,resNode,res);
-					break;
 				case ResNode.STATUS_GROUP:
-					res = dom.createElement("rooms"); //$NON-NLS-1$
-					res.setAttribute("name",resNode.getUserObject().toString()); //$NON-NLS-1$
-					iterateRooms(c,resNode,res);
+					writeRooms(c,resNode,domRoot);
 					break;
 				case ResNode.STATUS_SECONDARY:
 					Room room = (Room) resNode.getRes().get();
-					res = dom.createElement("room"); //$NON-NLS-1$
+					Element res = dom.createElement("room"); //$NON-NLS-1$
 					String fname = f.getDirectory() + "\\rooms\\"; //$NON-NLS-1$
 					res.setTextContent("rooms\\" + room.getName()); //$NON-NLS-1$
 					File roomsFile = new File(Util.getPOSIXPath(f.getDirectory() + "/rooms")); //$NON-NLS-1$
@@ -1604,26 +1461,11 @@ public final class GMXFileWriter
 
 					File file = new File(Util.getPOSIXPath(fname + room.getName() + ".room.gmx")); //$NON-NLS-1$
 					transformDocumentUnchecked(f, doc, file);
+
+					domRoot.appendChild(res);
 					break;
 				}
-			node.appendChild(res);
 			}
-		}
-
-	public static void writeRooms(ProjectFileContext c, Element root) throws IOException
-		{
-		Document dom = c.dom;
-
-		Element node = dom.createElement("rooms"); //$NON-NLS-1$
-		node.setAttribute("name","rooms"); //$NON-NLS-1$ //$NON-NLS-2$
-		root.appendChild(node);
-
-		ResourceList<Room> rmnList = c.f.resMap.getList(Room.class);
-		if (rmnList.size() == 0)
-			{
-			return;
-			}
-		iterateRooms(c,getPrimaryNode(rmnList.first().getNode()),node);
 		}
 
 	public static void writeIncludedFiles(ProjectFileContext c, Element root) throws IOException
