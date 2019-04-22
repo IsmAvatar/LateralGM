@@ -54,8 +54,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import javax.imageio.spi.IIORegistry;
 import javax.swing.AbstractButton;
 import javax.swing.Box;
@@ -106,7 +104,6 @@ import org.lateralgm.components.impl.GmTreeEditor;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.file.ProjectFile;
-import org.lateralgm.file.ProjectFile.ResourceHolder;
 import org.lateralgm.file.ProjectFile.SingletonResourceHolder;
 import org.lateralgm.file.ResourceList;
 import org.lateralgm.file.iconio.ICOFile;
@@ -128,17 +125,11 @@ import org.lateralgm.subframes.GameInformationFrame;
 import org.lateralgm.subframes.GameSettingFrame;
 import org.lateralgm.subframes.PreferencesFrame;
 import org.lateralgm.subframes.ResourceFrame;
-import org.lateralgm.subframes.ResourceFrame.ResourceFrameFactory;
-
 import com.sun.imageio.plugins.wbmp.WBMPImageReaderSpi;
 
 public final class LGM
 	{
-	public static final String version = "1.8.50"; //$NON-NLS-1$
-
-	// TODO: This list holds the class loader for any loaded plugins which should be
-	// cleaned up and closed when the application closes.
-	public final static ArrayList<URLClassLoader> classLoaders = new ArrayList<URLClassLoader>();
+	public static final String version = "1.8.51"; //$NON-NLS-1$
 
 	public static boolean LOADING_PROJECT = false;
 	public static JDialog progressDialog = null;
@@ -696,38 +687,6 @@ public final class LGM
 			}
 		}
 
-	public static void loadPlugins()
-		{
-		if (workDir == null) return;
-		File dir = new File(workDir.getParent(),"plugins"); //$NON-NLS-1$
-		if (!dir.exists()) dir = new File(workDir.getParent(),"Plugins"); //$NON-NLS-1$
-		File[] ps = dir.listFiles(new CustomFileFilter(null,".jar")); //$NON-NLS-1$
-		if (ps == null) return;
-		for (File f : ps)
-			{
-			if (!f.exists()) continue;
-			try
-				{
-				String pluginEntry = "LGM-Plugin"; //$NON-NLS-1$
-				JarFile jar = new JarFile(f);
-				Manifest mf = jar.getManifest();
-				jar.close();
-				String clastr = mf.getMainAttributes().getValue(pluginEntry);
-				if (clastr == null)
-					throw new Exception(Messages.format("LGM.PLUGIN_MISSING_ENTRY",pluginEntry)); //$NON-NLS-1$
-				URLClassLoader ucl = new URLClassLoader(new URL[] { f.toURI().toURL() });
-				ucl.loadClass(clastr).newInstance();
-				classLoaders.add(ucl);
-				}
-			catch (Exception e)
-				{
-				String msgInd = "LGM.PLUGIN_LOAD_ERROR"; //$NON-NLS-1$
-				LGM.showDefaultExceptionHandler(new Exception(Messages.format(msgInd,f.getName()), e));
-				continue;
-				}
-			}
-		}
-
 	public static void populateTree()
 		{
 		/* TODO: This method here does not give the top level nodes for Game Info, Extensions, and
@@ -911,58 +870,6 @@ public final class LGM
 		for (ReloadListener rl : reloadListeners)
 			rl.reloadPerformed(newRoot);
 		LGM.LOADING_PROJECT = false;
-		}
-
-	public static void addPluginResource(PluginResource pr)
-		{
-		ImageIcon i = pr.getIcon();
-		if (i != null) ResNode.ICON.put(pr.getKind(),i);
-		String p = pr.getPrefix();
-		if (p != null) Prefs.prefixes.put(pr.getKind(),p);
-		Resource.addKind(pr.getKind(),pr.getName3(),pr.getName(),pr.getPlural());
-		LGM.currentFile.resMap.put(pr.getKind(),pr.getResourceHolder());
-		ResourceFrame.factories.put(pr.getKind(),pr.getResourceFrameFactory());
-		}
-
-	public static interface PluginResource
-		{
-		Class<? extends Resource<?,?>> getKind();
-
-		/** Can be null, in which case the default icon is used. */
-		ImageIcon getIcon();
-
-		String getName3();
-
-		String getName();
-
-		String getPlural();
-
-		String getPrefix();
-
-		ResourceHolder<?> getResourceHolder();
-
-		ResourceFrameFactory getResourceFrameFactory();
-		}
-
-	public static abstract class SingletonPluginResource<T extends Resource<T,?>> implements
-			PluginResource
-		{
-		public String getPlural()
-			{
-			return getName();
-			}
-
-		public String getPrefix()
-			{
-			return null;
-			}
-
-		public ResourceHolder<?> getResourceHolder()
-			{
-			return new SingletonResourceHolder<T>(getInstance());
-			}
-
-		public abstract T getInstance();
 		}
 
 	public static void applyPreferences() {
@@ -1187,7 +1094,7 @@ public final class LGM
 		populateTree();
 		splashProgress.progress(80,Messages.getString("LGM.SPLASH_PLUGINS")); //$NON-NLS-1$
 		LOADING_PROJECT = true;
-		loadPlugins();
+		PluginManager.loadPlugins();
 		splashProgress.complete();
 
 		// remembers our window bounds and state between sessions

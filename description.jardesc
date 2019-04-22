@@ -24,13 +24,13 @@
         <file path="/LateralGM/org/lateralgm/main/icons.properties"/>
         <javaElement handleIdentifier="=LateralGM/modules\/joshedit&lt;org.lateralgm.joshedit"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.impl"/>
+        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{PluginManager.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{Util.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.resources.sub"/>
         <file path="/LateralGM/org/lateralgm/main/lgm-logo.ico"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{Listener.java"/>
         <file path="/LateralGM/org/lateralgm/main/lgm-splash.png"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Contrast.actions"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{WeakArrayList.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.visuals"/>
         <folder path="/LateralGM/META-INF"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.visual"/>
