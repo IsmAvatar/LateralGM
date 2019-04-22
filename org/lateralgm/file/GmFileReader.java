@@ -91,7 +91,7 @@ public final class GmFileReader
 		{
 		}
 
-	static Queue<PostponedRef> postpone = new LinkedList<PostponedRef>();
+	private static Queue<PostponedRef> postpone = new LinkedList<PostponedRef>();
 
 	static interface PostponedRef
 		{
@@ -292,6 +292,7 @@ public final class GmFileReader
 				LGM.setProgress(160 + percent / postpone.size(),
 						Messages.getString("ProgressDialog.POSTPONED")); //$NON-NLS-1$
 				}
+			postpone.clear();
 
 			LGM.setProgress(170,Messages.getString("ProgressDialog.LIBRARYCREATION")); //$NON-NLS-1$
 			//Library Creation Code
