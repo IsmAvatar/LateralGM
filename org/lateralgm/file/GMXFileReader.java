@@ -127,7 +127,7 @@ public final class GMXFileReader
 		{
 		}
 
-	static Queue<PostponedRef> postpone = new LinkedList<PostponedRef>();
+	private static Queue<PostponedRef> postpone = new LinkedList<PostponedRef>();
 
 	static interface PostponedRef
 		{
@@ -300,6 +300,7 @@ public final class GMXFileReader
 			// All resources read, now we can invoke our postponed references.
 			for (PostponedRef i : postpone)
 				i.invoke();
+			postpone.clear();
 
 			LGM.setProgress(160,Messages.getString("ProgressDialog.FINISHED")); //$NON-NLS-1$
 			System.out.println(Messages.format("ProjectFileReader.LOADTIME",System.currentTimeMillis() //$NON-NLS-1$
