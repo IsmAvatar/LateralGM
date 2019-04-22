@@ -30,7 +30,6 @@
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{Listener.java"/>
         <file path="/LateralGM/org/lateralgm/main/lgm-splash.png"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.icons.Contrast.actions"/>
-        <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.main{WeakArrayList.java"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.ui.swing.visuals"/>
         <folder path="/LateralGM/META-INF"/>
         <javaElement handleIdentifier="=LateralGM/&lt;org.lateralgm.components.visual"/>
