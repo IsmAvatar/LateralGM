@@ -1,4 +1,4 @@
-package org.lateralgm.main;
+package org.lateralgm.util;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
