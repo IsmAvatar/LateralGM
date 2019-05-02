@@ -183,6 +183,10 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		rangeList.setSelectedIndex(0);
 		rangeList.setLayoutOrientation(JList.VERTICAL);
 		rangeList.setVisibleRowCount(6);
+		if (res.getNode().newRes && res.characterRanges.isEmpty())
+			{
+			res.addRange();
+			}
 
 		String keyString = Messages.getKeyboardString("FontFrame.REM_RANGE"); //$NON-NLS-1$
 		KeyStroke stroke = KeyStroke.getKeyStroke(keyString);
