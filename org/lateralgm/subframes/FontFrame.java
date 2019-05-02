@@ -205,11 +205,13 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		JButton fromFile = new JButton(Messages.getString("FontFrame.FROMFILE"));
 		fromFile.setActionCommand("FromFile"); //$NON-NLS-1$
 		fromFile.addActionListener(this);
-		JButton addRange = new JButton("+");
+		JButton addRange = new JButton();
+		addRange.setIcon(LGM.getIconForKey("FontFrame.ADD_RANGE"));
 		makeComponentSquarish(addRange);
 		addRange.setActionCommand("Add"); //$NON-NLS-1$
 		addRange.addActionListener(this);
-		JButton remRange = new JButton("-");
+		JButton remRange = new JButton();
+		remRange.setIcon(LGM.getIconForKey("FontFrame.REMOVE_RANGE"));
 		makeComponentSquarish(remRange);
 		remRange.setActionCommand("Remove"); //$NON-NLS-1$
 		remRange.addActionListener(this);
