@@ -19,8 +19,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.text.MessageFormat;
-
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -589,8 +587,8 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 			{
 			CharacterRange i = (CharacterRange) val;
 			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-			lab.setText(MessageFormat.format(" {0} {1} {2}",i.properties.get(PCharacterRange.RANGE_MIN), //$NON-NLS-1$
-					Messages.getString("FontFrame.TO"),i.properties.get(PCharacterRange.RANGE_MAX))); //$NON-NLS-1$
+			lab.setText(Messages.format("FontFrame.CHARRANGE_FORMAT",i.properties.get(PCharacterRange.RANGE_MIN), //$NON-NLS-1$
+					i.properties.get(PCharacterRange.RANGE_MAX)));
 			return lab;
 			}
 		}
