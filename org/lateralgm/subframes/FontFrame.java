@@ -196,33 +196,33 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 				}
 			});
 
-		JButton fromPreview = new JButton(Messages.getString("FontFrame.FROMPREVIEW"));
+		JButton fromPreview = new JButton(Messages.getString("FontFrame.FROMPREVIEW")); //$NON-NLS-1$
 		fromPreview.setActionCommand("FromPreview"); //$NON-NLS-1$
 		fromPreview.addActionListener(this);
-		JButton fromString = new JButton(Messages.getString("FontFrame.FROMSTRING"));
+		JButton fromString = new JButton(Messages.getString("FontFrame.FROMSTRING")); //$NON-NLS-1$
 		fromString.setActionCommand("FromString"); //$NON-NLS-1$
 		fromString.addActionListener(this);
-		JButton fromFile = new JButton(Messages.getString("FontFrame.FROMFILE"));
+		JButton fromFile = new JButton(Messages.getString("FontFrame.FROMFILE")); //$NON-NLS-1$
 		fromFile.setActionCommand("FromFile"); //$NON-NLS-1$
 		fromFile.addActionListener(this);
 		JButton addRange = new JButton();
-		addRange.setIcon(LGM.getIconForKey("FontFrame.ADD_RANGE"));
+		addRange.setIcon(LGM.getIconForKey("FontFrame.ADD_RANGE")); //$NON-NLS-1$
 		makeComponentSquarish(addRange);
 		addRange.setActionCommand("Add"); //$NON-NLS-1$
 		addRange.addActionListener(this);
 		JButton remRange = new JButton();
-		remRange.setIcon(LGM.getIconForKey("FontFrame.REMOVE_RANGE"));
+		remRange.setIcon(LGM.getIconForKey("FontFrame.REMOVE_RANGE")); //$NON-NLS-1$
 		makeComponentSquarish(remRange);
 		remRange.setActionCommand("Remove"); //$NON-NLS-1$
 		remRange.addActionListener(this);
-		JButton clearRange = new JButton(Messages.getString("FontFrame.CLEAR"));
+		JButton clearRange = new JButton(Messages.getString("FontFrame.CLEAR")); //$NON-NLS-1$
 		clearRange.setActionCommand("Clear"); //$NON-NLS-1$
 		clearRange.addActionListener(this);
 
 		JScrollPane listScroller = new JScrollPane(rangeList);
 		listScroller.setPreferredSize(new Dimension(250,80));
 		add(listScroller);
-		previewText.setText(Messages.getString("FontFrame.PREVIEW_DEFAULT"));
+		previewText.setText(Messages.getString("FontFrame.PREVIEW_DEFAULT")); //$NON-NLS-1$
 		makeContextMenu();
 
 		JScrollPane previewTextScroll = new JScrollPane(previewText);
