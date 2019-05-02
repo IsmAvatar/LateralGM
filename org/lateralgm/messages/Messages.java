@@ -24,6 +24,8 @@ import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import javax.swing.KeyStroke;
+
 public final class Messages
 	{
 	private static final String LANGUAGE_BUNDLE_NAME = "org.lateralgm.messages.messages"; //$NON-NLS-1$
@@ -71,6 +73,12 @@ public final class Messages
 			{
 			return '!' + key + '!';
 			}
+		}
+
+	public static KeyStroke getKeyboardStroke(String key)
+		{
+		String keyString = getKeyboardString(key);
+		return KeyStroke.getKeyStroke(keyString);
 		}
 
 	public static String format(String key, Object...arguments)

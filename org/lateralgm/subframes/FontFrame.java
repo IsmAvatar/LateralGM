@@ -337,17 +337,17 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		JPopupMenu popup = new JPopupMenu();
 
 		cutItem = addItem("FontFrame.CUT"); //$NON-NLS-1$
-		cutItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("FontFrame.CUT")));
+		cutItem.setAccelerator(Messages.getKeyboardStroke("FontFrame.CUT")); //$NON-NLS-1$
 		popup.add(cutItem);
 		copyItem = addItem("FontFrame.COPY"); //$NON-NLS-1$
-		copyItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("FontFrame.COPY")));
+		copyItem.setAccelerator(Messages.getKeyboardStroke("FontFrame.COPY")); //$NON-NLS-1$
 		popup.add(copyItem);
 		pasteItem = addItem("FontFrame.PASTE"); //$NON-NLS-1$
-		pasteItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("FontFrame.PASTE")));
+		pasteItem.setAccelerator(Messages.getKeyboardStroke("FontFrame.PASTE")); //$NON-NLS-1$
 		popup.add(pasteItem);
 		popup.addSeparator();
 		selAllItem = addItem("FontFrame.SELECTALL"); //$NON-NLS-1$
-		selAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("FontFrame.SELECTALL")));
+		selAllItem.setAccelerator(Messages.getKeyboardStroke("FontFrame.SELECTALL")); //$NON-NLS-1$
 		popup.add(selAllItem);
 
 		previewText.setComponentPopupMenu(popup);
@@ -355,12 +355,12 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		popup = new JPopupMenu();
 
 		copyItem = addItem("FontFrame.COPY"); //$NON-NLS-1$
-		copyItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("FontFrame.CUT")));
+		copyItem.setAccelerator(Messages.getKeyboardStroke("FontFrame.CUT")); //$NON-NLS-1$
 		copyItem.setActionCommand("COPYRANGE");
 		popup.add(copyItem);
 		popup.addSeparator();
 		selAllItem = addItem("FontFrame.SELECTALL"); //$NON-NLS-1$
-		selAllItem.setAccelerator(KeyStroke.getKeyStroke(Messages.getKeyboardString("FontFrame.SELECTALL")));
+		selAllItem.setAccelerator(Messages.getKeyboardStroke("FontFrame.SELECTALL")); //$NON-NLS-1$
 		selAllItem.setActionCommand("SELECTALLRANGE");
 		popup.add(selAllItem);
 
