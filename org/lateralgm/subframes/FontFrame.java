@@ -41,6 +41,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -216,17 +217,17 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		fromFile.addActionListener(this);
 		JButton addRange = new JButton();
 		addRange.setIcon(LGM.getIconForKey("FontFrame.ADD_RANGE")); //$NON-NLS-1$
-		makeComponentSquarish(addRange);
 		addRange.setActionCommand("Add"); //$NON-NLS-1$
 		addRange.addActionListener(this);
 		JButton remRange = new JButton();
 		remRange.setIcon(LGM.getIconForKey("FontFrame.REMOVE_RANGE")); //$NON-NLS-1$
-		makeComponentSquarish(remRange);
 		remRange.setActionCommand("Remove"); //$NON-NLS-1$
 		remRange.addActionListener(this);
 		JButton clearRange = new JButton(Messages.getString("FontFrame.CLEAR")); //$NON-NLS-1$
 		clearRange.setActionCommand("Clear"); //$NON-NLS-1$
 		clearRange.addActionListener(this);
+
+		layout.linkSize(SwingConstants.VERTICAL,addRange,remRange,clearRange);
 
 		JScrollPane listScroller = new JScrollPane(rangeList);
 		listScroller.setPreferredSize(new Dimension(250,80));
@@ -315,13 +316,6 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 						previewRangeScroll,DEFAULT_SIZE,100,MAX_VALUE)));
 		Util.setComponentTreeEnabled(crPane,!rangeList.isSelectionEmpty());
 		pack();
-		}
-
-	private static void makeComponentSquarish(Component addRange)
-		{
-		Dimension addRangeSize = addRange.getPreferredSize();
-		addRangeSize.setSize(Math.max(addRangeSize.width, addRangeSize.height) * 1.2, addRangeSize.height);
-		addRange.setMinimumSize(addRangeSize);
 		}
 
 	public JMenuItem addItem(String key)
