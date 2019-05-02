@@ -60,6 +60,7 @@ import javax.imageio.stream.ImageInputStream;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -97,6 +98,18 @@ public final class Util
 	public static DataFlavor createJVMLocalDataFlavor(String className) throws ClassNotFoundException
 		{
 		return new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + ";class=" + className); //$NON-NLS-1$
+		}
+
+	public static void setComponentTreeEnabled(JComponent comp, boolean enabled)
+		{
+		comp.setIgnoreRepaint(true);
+		comp.setEnabled(enabled);
+		for (Component child: comp.getComponents())
+			{
+			child.setEnabled(enabled);
+			}
+		comp.setIgnoreRepaint(false);
+		comp.repaint();
 		}
 
 	public static JPanel makeLabelPane(String name)

@@ -57,6 +57,7 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
@@ -310,7 +311,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		/**/.addComponent(save)).addGroup(
 				layout.createSequentialGroup().addComponent(previewTextScroll,DEFAULT_SIZE,100,MAX_VALUE).addComponent(
 						previewRangeScroll,DEFAULT_SIZE,100,MAX_VALUE)));
-		setAllEnabled(crPane, !rangeList.isSelectionEmpty());
+		Util.setComponentTreeEnabled(crPane,!rangeList.isSelectionEmpty());
 		pack();
 		}
 
@@ -622,21 +623,9 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		if (e.getSource() == rangeList)
 			{
 			fireRangeUpdate();
-			setAllEnabled(crPane, !rangeList.isSelectionEmpty());
+			Util.setComponentTreeEnabled(crPane,!rangeList.isSelectionEmpty());
 			}
 
-		}
-
-	private static void setAllEnabled(JPanel panel, boolean enabled)
-		{
-		panel.setIgnoreRepaint(true);
-		panel.setEnabled(enabled);
-		for (Component component: panel.getComponents())
-			{
-			component.setEnabled(enabled);
-			}
-		panel.setIgnoreRepaint(false);
-		panel.repaint();
 		}
 
 	public void contentsChanged(ListDataEvent arg0)
