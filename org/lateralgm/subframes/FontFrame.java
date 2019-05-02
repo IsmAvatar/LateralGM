@@ -186,9 +186,16 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		rangeList.setLayoutOrientation(JList.VERTICAL);
 		rangeList.setVisibleRowCount(6);
 
-		rangeList.getInputMap().put(KeyStroke.getKeyStroke(VK_DELETE, 0), "delete selected");
-		rangeList.getActionMap().put("delete selected", new AbstractAction()
+		String keyString = Messages.getKeyboardString("FontFrame.REM_RANGE"); //$NON-NLS-1$
+		KeyStroke stroke = KeyStroke.getKeyStroke(keyString);
+		rangeList.getInputMap().put(stroke, "REM_RANGE"); //$NON-NLS-1$
+		rangeList.getActionMap().put("REM_RANGE", new AbstractAction() //$NON-NLS-1$
 			{
+			/**
+			 * TODO: Default UID generated, change if necessary.
+			 */
+			private static final long serialVersionUID = 5308536583486764117L;
+
 			@Override
 			public void actionPerformed(ActionEvent e)
 				{
