@@ -315,11 +315,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		/*		*/.addComponent(showTreeFilter))));
 
 		//TODO: Finish backup preferences.
-		backupsPanel.setEnabled(false);
-		Component[] coms = backupsPanel.getComponents();
-		for (int i = 0; i < coms.length; i++) {
-			coms[i].setEnabled(false);
-		}
+		Util.setComponentTreeEnabled(backupsPanel,false);
 
 		return p;
 		}
