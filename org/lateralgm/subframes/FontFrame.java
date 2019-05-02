@@ -355,13 +355,13 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		popup = new JPopupMenu();
 
 		copyItem = addItem("FontFrame.COPY"); //$NON-NLS-1$
-		copyItem.setAccelerator(Messages.getKeyboardStroke("FontFrame.CUT")); //$NON-NLS-1$
-		copyItem.setActionCommand("COPYRANGE");
+		copyItem.setAccelerator(Messages.getKeyboardStroke("FontFrame.COPY")); //$NON-NLS-1$
+		copyItem.setActionCommand("COPYRANGE"); //$NON-NLS-1$
 		popup.add(copyItem);
 		popup.addSeparator();
 		selAllItem = addItem("FontFrame.SELECTALL"); //$NON-NLS-1$
 		selAllItem.setAccelerator(Messages.getKeyboardStroke("FontFrame.SELECTALL")); //$NON-NLS-1$
-		selAllItem.setActionCommand("SELECTALLRANGE");
+		selAllItem.setActionCommand("SELECTALLRANGE"); //$NON-NLS-1$
 		popup.add(selAllItem);
 
 		previewRange.setComponentPopupMenu(popup);
@@ -370,7 +370,8 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 	private JPanel makeCRPane()
 		{
 		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder(Messages.getString("FontFrame.CHARRANGE")));
+		String title = Messages.getString("FontFrame.CHARRANGE"); //$NON-NLS-1$
+		panel.setBorder(BorderFactory.createTitledBorder(title));
 		GroupLayout layout = new GroupLayout(panel);
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
