@@ -13,8 +13,6 @@ package org.lateralgm.subframes;
 
 import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
-import static java.awt.event.KeyEvent.VK_DELETE;
-
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
