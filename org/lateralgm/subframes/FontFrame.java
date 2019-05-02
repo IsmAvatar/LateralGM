@@ -21,6 +21,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.text.MessageFormat;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -485,10 +486,10 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 			case "Letters": //$NON-NLS-1$
 				setRange('A', 'z');
 				break;
-			case "FromPreview":
+			case "FromPreview": //$NON-NLS-1$
 				res.addRangesFromString(previewText.getText());
 				break;
-			case "FromString":
+			case "FromString": //$NON-NLS-1$
 				{
 				String result = JOptionPane.showInputDialog(this, "", "Character Sequence",
 						JOptionPane.PLAIN_MESSAGE);
@@ -498,21 +499,21 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 					}
 				break;
 				}
-			case "FromFile":
+			case "FromFile": //$NON-NLS-1$
 				{
-				CustomFileChooser fc = new CustomFileChooser("/org/lateralgm", "LAST_FILE_DIR");
+				CustomFileChooser fc = new CustomFileChooser("/org/lateralgm", "LAST_FILE_DIR");  //$NON-NLS-1$//$NON-NLS-2$
 				fc.setMultiSelectionEnabled(false);
 				if (fc.showOpenDialog(LGM.frame) == JFileChooser.APPROVE_OPTION)
 					res.addRangesFromFile(fc.getSelectedFile());
 				break;
 				}
-			case "Add":
+			case "Add": //$NON-NLS-1$
 				res.addRange();
 				break;
-			case "Remove":
+			case "Remove": //$NON-NLS-1$
 				deleteSelectedRange();
 				break;
-			case "Clear":
+			case "Clear": //$NON-NLS-1$
 				res.characterRanges.clear();
 				rangeList.clearSelection();
 				return;
@@ -568,7 +569,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 					}
 				text.append(Character.toChars(i));
 				}
-			text.append("\n");
+			text.append('\n');
 			}
 		previewRange.setText(text.toString());
 		previewRange.setFont(res.getAWTFont());
@@ -589,11 +590,10 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 			{
 			CharacterRange i = (CharacterRange) val;
 			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-			lab.setText(" " + i.properties.get(PCharacterRange.RANGE_MIN) + " "
-					+ Messages.getString("FontFrame.TO") + " " + i.properties.get(PCharacterRange.RANGE_MAX));
+			lab.setText(MessageFormat.format(" {0} {1} {2}",i.properties.get(PCharacterRange.RANGE_MIN), //$NON-NLS-1$
+					Messages.getString("FontFrame.TO"),i.properties.get(PCharacterRange.RANGE_MAX))); //$NON-NLS-1$
 			return lab;
 			}
-
 		}
 
 	public void fireRangeUpdate()
