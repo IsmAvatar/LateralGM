@@ -21,6 +21,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -62,7 +63,6 @@ import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.sub.CharacterRange;
 import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
-import org.lateralgm.subframes.RoomFrame.ListComponentRenderer;
 import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.IndexComboBoxConversion;
@@ -572,22 +572,16 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 
 	private static class RangeListComponentRenderer implements ListCellRenderer<CharacterRange>
 		{
-		private final JLabel lab = new JLabel();
-		private final ListComponentRenderer lcr = new ListComponentRenderer();
+		private final DefaultListCellRenderer lcr = new DefaultListCellRenderer();
 
-		public RangeListComponentRenderer()
-			{
-			lab.setOpaque(true);
-			}
-
+		@Override
 		public Component getListCellRendererComponent(JList<? extends CharacterRange> list,
 				CharacterRange val, int ind, boolean selected, boolean focus)
 			{
-			CharacterRange i = (CharacterRange) val;
-			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-			lab.setText(Messages.format("FontFrame.CHARRANGE_FORMAT",i.properties.get(PCharacterRange.RANGE_MIN), //$NON-NLS-1$
-					i.properties.get(PCharacterRange.RANGE_MAX)));
-			return lab;
+			lcr.getListCellRendererComponent(list,val,ind,selected,focus);
+			lcr.setText(Messages.format("FontFrame.CHARRANGE_FORMAT",val.properties.get(PCharacterRange.RANGE_MIN), //$NON-NLS-1$
+					val.properties.get(PCharacterRange.RANGE_MAX)));
+			return lcr;
 			}
 		}
 
