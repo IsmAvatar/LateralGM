@@ -54,6 +54,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.SequentialGroup;
@@ -640,57 +641,53 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		return tool;
 		}
 
-	private static class ObjectListComponentRenderer implements ListCellRenderer<Instance>
+	private static class ObjectListComponentRenderer extends DefaultListCellRenderer
 		{
-		private final JLabel lab = new JLabel();
-		private final ListComponentRenderer lcr = new ListComponentRenderer();
+		/**
+		 * Default UID generated, change if necessary.
+		 */
+		private static final long serialVersionUID = -5630452177056734243L;
 
-		public ObjectListComponentRenderer()
-			{
-			lab.setOpaque(true);
-			}
-
-		public Component getListCellRendererComponent(JList<? extends Instance> list, Instance val,
+		public Component getListCellRendererComponent(JList<?> list, Object val,
 				int ind, boolean selected, boolean focus)
 			{
-			Instance i = val;
+			super.getListCellRendererComponent(list,val,ind,selected,focus);
+			if (!(val instanceof Instance)) return this;
+			Instance i = (Instance)val;
 			ResourceReference<GmObject> ro = i.properties.get(PInstance.OBJECT);
 			GmObject o = deRef(ro);
 			String name = o == null ? Messages.getString("RoomFrame.NO_OBJECT") : o.getName();
-			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-			lab.setText(name + "  " + i.properties.get(PInstance.ID) + "  " +
+			this.setText(name + "  " + i.properties.get(PInstance.ID) + "  " +
 				i.properties.get(PInstance.NAME));
-			lab.setText(String.format("%10s %6s %s", name, i.properties.get(PInstance.ID),
+			this.setText(String.format("%10s %6s %s", name, i.properties.get(PInstance.ID),
 				i.properties.get(PInstance.NAME)));
 			ResNode rn = o == null ? null : o.getNode();
-			lab.setIcon(rn == null ? null : rn.getIcon());
-			return lab;
+			this.setIcon(rn == null ? null : rn.getIcon());
+			return this;
 			}
 		}
 
-	private static class TileListComponentRenderer implements ListCellRenderer<Tile>
+	private static class TileListComponentRenderer extends DefaultListCellRenderer
 		{
-		private final JLabel lab = new JLabel();
-		private final TileIcon ti = new TileIcon();
-		private final ListComponentRenderer lcr = new ListComponentRenderer();
+		/**
+		 * Default UID generated, change if necessary.
+		 */
+		private static final long serialVersionUID = -3949686932502303475L;
+		private TileIcon ti = new TileIcon();
 
-		public TileListComponentRenderer()
-			{
-			lab.setOpaque(true);
-			lab.setIcon(ti);
-			}
-
-		public Component getListCellRendererComponent(JList<? extends Tile> list, Tile val, int ind,
+		public Component getListCellRendererComponent(JList<?> list, Object val, int ind,
 				boolean selected, boolean focus)
 			{
-			Tile t = val;
+			super.getListCellRendererComponent(list,val,ind,selected,focus);
+			if (!(val instanceof Tile)) return this;
+			Tile t = (Tile)val;
 			ResourceReference<Background> rb = t.properties.get(PTile.BACKGROUND);
 			Background bg = deRef(rb);
 			String name = bg == null ? Messages.getString("RoomFrame.NO_BACKGROUND") : bg.getName();
-			lab.setText(name + " " + t.properties.get(PTile.ID) + " " + t.properties.get(PTile.NAME));
+			this.setText(name + " " + t.properties.get(PTile.ID) + " " + t.properties.get(PTile.NAME));
 			ti.tile = t;
-			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-			return lab;
+			this.setIcon(ti);
+			return this;
 			}
 
 		static class TileIcon implements Icon
@@ -716,7 +713,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 					{
 					Point p = tile.getBackgroundPosition();
 					Dimension d = tile.getSize();
-					g.drawImage(bi,0,0,d.width,d.height,p.x,p.y,p.x + d.width,p.y + d.height,c);
+					g.drawImage(bi,x,y,x+d.width,y+d.height,p.x,p.y,p.x + d.width,p.y + d.height,c);
 					}
 				}
 			}
