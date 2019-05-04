@@ -673,7 +673,7 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 		 * Default UID generated, change if necessary.
 		 */
 		private static final long serialVersionUID = -3949686932502303475L;
-		private TileIcon ti = new TileIcon();
+		private final TileIcon ti = new TileIcon();
 
 		public Component getListCellRendererComponent(JList<?> list, Object val, int ind,
 				boolean selected, boolean focus)
