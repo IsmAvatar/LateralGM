@@ -39,7 +39,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-import javax.swing.ListCellRenderer;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.ScrollPaneConstants;
@@ -570,18 +569,23 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		previewRange.setFont(res.getAWTFont());
 		}
 
-	private static class RangeListComponentRenderer implements ListCellRenderer<CharacterRange>
+	private static class RangeListComponentRenderer extends DefaultListCellRenderer
 		{
-		private final DefaultListCellRenderer lcr = new DefaultListCellRenderer();
+		/**
+		 * Default UID generated, change if necessary.
+		 */
+		private static final long serialVersionUID = 6095060644468207193L;
 
 		@Override
-		public Component getListCellRendererComponent(JList<? extends CharacterRange> list,
-				CharacterRange val, int ind, boolean selected, boolean focus)
+		public Component getListCellRendererComponent(JList<?> list,
+				Object val, int ind, boolean selected, boolean focus)
 			{
-			lcr.getListCellRendererComponent(list,val,ind,selected,focus);
-			lcr.setText(Messages.format("FontFrame.CHARRANGE_FORMAT",val.properties.get(PCharacterRange.RANGE_MIN), //$NON-NLS-1$
-					val.properties.get(PCharacterRange.RANGE_MAX)));
-			return lcr;
+			Component comp = super.getListCellRendererComponent(list,val,ind,selected,focus);
+			if (!(val instanceof CharacterRange)) return comp;
+			CharacterRange cr = (CharacterRange) val;
+			this.setText(Messages.format("FontFrame.CHARRANGE_FORMAT",cr.properties.get(PCharacterRange.RANGE_MIN), //$NON-NLS-1$
+					cr.properties.get(PCharacterRange.RANGE_MAX)));
+			return comp;
 			}
 		}
 
