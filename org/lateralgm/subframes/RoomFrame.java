@@ -2039,23 +2039,19 @@ public class RoomFrame extends InstantiableResourceFrame<Room,PRoom> implements
 			}
 		}
 
-	public static class ListComponentRenderer implements ListCellRenderer<Object>
+	private static class ListComponentRenderer extends DefaultListCellRenderer
 		{
-		public Component getListCellRendererComponent(JList<? extends Object> list, Object val,
+		public Component getListCellRendererComponent(JList<?> list, Object val,
 				int ind, boolean selected, boolean focus)
 			{
-			Component lab = (Component) val;
-			if (selected)
-				{
-				lab.setBackground(list.getSelectionBackground());
-				lab.setForeground(list.getSelectionForeground());
-				}
-			else
-				{
-				lab.setBackground(list.getBackground());
-				lab.setForeground(list.getForeground());
-				}
-			return lab;
+			super.getListCellRendererComponent(list,val,ind,selected,focus);
+			JLabel lab = (JLabel) val;
+			this.setText(lab.getText());
+			Font font = this.getFont();
+			if (lab.getFont().isBold())
+				font = font.deriveFont(Font.BOLD);
+			this.setFont(font);
+			return this;
 			}
 		}
 
