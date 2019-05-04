@@ -21,6 +21,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -38,7 +39,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-import javax.swing.ListCellRenderer;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.ScrollPaneConstants;
@@ -62,7 +62,6 @@ import org.lateralgm.resources.Font;
 import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.sub.CharacterRange;
 import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
-import org.lateralgm.subframes.RoomFrame.ListComponentRenderer;
 import org.lateralgm.ui.swing.propertylink.FormattedLink;
 import org.lateralgm.ui.swing.propertylink.PropertyLinkFactory;
 import org.lateralgm.ui.swing.propertylink.ComboBoxLink.IndexComboBoxConversion;
@@ -570,24 +569,23 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		previewRange.setFont(res.getAWTFont());
 		}
 
-	private static class RangeListComponentRenderer implements ListCellRenderer<CharacterRange>
+	private static class RangeListComponentRenderer extends DefaultListCellRenderer
 		{
-		private final JLabel lab = new JLabel();
-		private final ListComponentRenderer lcr = new ListComponentRenderer();
+		/**
+		 * Default UID generated, change if necessary.
+		 */
+		private static final long serialVersionUID = 6095060644468207193L;
 
-		public RangeListComponentRenderer()
+		@Override
+		public Component getListCellRendererComponent(JList<?> list,
+				Object val, int ind, boolean selected, boolean focus)
 			{
-			lab.setOpaque(true);
-			}
-
-		public Component getListCellRendererComponent(JList<? extends CharacterRange> list,
-				CharacterRange val, int ind, boolean selected, boolean focus)
-			{
-			CharacterRange i = (CharacterRange) val;
-			lcr.getListCellRendererComponent(list,lab,ind,selected,focus);
-			lab.setText(Messages.format("FontFrame.CHARRANGE_FORMAT",i.properties.get(PCharacterRange.RANGE_MIN), //$NON-NLS-1$
-					i.properties.get(PCharacterRange.RANGE_MAX)));
-			return lab;
+			Component comp = super.getListCellRendererComponent(list,val,ind,selected,focus);
+			if (!(val instanceof CharacterRange)) return comp;
+			CharacterRange cr = (CharacterRange) val;
+			this.setText(Messages.format("FontFrame.CHARRANGE_FORMAT",cr.properties.get(PCharacterRange.RANGE_MIN), //$NON-NLS-1$
+					cr.properties.get(PCharacterRange.RANGE_MAX)));
+			return comp;
 			}
 		}
 
