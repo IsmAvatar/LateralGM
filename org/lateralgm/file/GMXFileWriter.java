@@ -4,7 +4,7 @@
 *
 * @section License
 *
-* Copyright (C) 2013-2015 Robert B. Colton
+* Copyright (C) 2013-2015,2019 Robert B. Colton
 * This file is a part of the LateralGM IDE.
 *
 * This program is free software: you can redistribute it and/or modify
