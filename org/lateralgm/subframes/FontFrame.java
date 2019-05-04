@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.GroupLayout.Alignment;
@@ -183,6 +184,10 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		rangeList.setSelectedIndex(0);
 		rangeList.setLayoutOrientation(JList.VERTICAL);
 		rangeList.setVisibleRowCount(6);
+		if (res.getNode().newRes && res.characterRanges.isEmpty())
+			{
+			res.addRange();
+			}
 
 		String keyString = Messages.getKeyboardString("FontFrame.REM_RANGE"); //$NON-NLS-1$
 		KeyStroke stroke = KeyStroke.getKeyStroke(keyString);
@@ -201,6 +206,9 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 				}
 			});
 
+		JToolBar rangesTB = new JToolBar();
+		rangesTB.setFloatable(false);
+
 		JButton fromPreview = new JButton(Messages.getString("FontFrame.FROMPREVIEW")); //$NON-NLS-1$
 		fromPreview.setActionCommand("FromPreview"); //$NON-NLS-1$
 		fromPreview.addActionListener(this);
@@ -212,17 +220,27 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		fromFile.addActionListener(this);
 		JButton addRange = new JButton();
 		addRange.setIcon(LGM.getIconForKey("FontFrame.ADD_RANGE")); //$NON-NLS-1$
-		makeComponentSquarish(addRange);
 		addRange.setActionCommand("Add"); //$NON-NLS-1$
 		addRange.addActionListener(this);
 		JButton remRange = new JButton();
 		remRange.setIcon(LGM.getIconForKey("FontFrame.REMOVE_RANGE")); //$NON-NLS-1$
-		makeComponentSquarish(remRange);
 		remRange.setActionCommand("Remove"); //$NON-NLS-1$
 		remRange.addActionListener(this);
 		JButton clearRange = new JButton(Messages.getString("FontFrame.CLEAR")); //$NON-NLS-1$
 		clearRange.setActionCommand("Clear"); //$NON-NLS-1$
 		clearRange.addActionListener(this);
+
+		rangesTB.add(addRange);
+		rangesTB.addSeparator();
+		rangesTB.add(fromPreview);
+		rangesTB.addSeparator();
+		rangesTB.add(fromString);
+		rangesTB.addSeparator();
+		rangesTB.add(fromFile);
+		rangesTB.addSeparator();
+		rangesTB.add(remRange);
+		rangesTB.addSeparator();
+		rangesTB.add(clearRange);
 
 		JScrollPane listScroller = new JScrollPane(rangeList);
 		listScroller.setPreferredSize(new Dimension(250,80));
@@ -260,14 +278,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		/*		*/.addComponent(aaLabel).addComponent(aa)
 		/*		*/.addComponent(bold)
 		/*		*/.addComponent(italic))
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(fromPreview)
-		/*		*/.addComponent(fromString)
-		/*		*/.addComponent(fromFile))
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(addRange)
-		/*		*/.addComponent(remRange)
-		/*		*/.addComponent(clearRange))
+		/**/.addComponent(rangesTB)
 		/**/.addGroup(layout.createSequentialGroup()
 		/**/.addComponent(listScroller,120,220,MAX_VALUE))
 		/**/.addComponent(crPane)
@@ -295,29 +306,16 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		/*		*/.addComponent(aa).addComponent(aaLabel)
 		/*		*/.addComponent(bold)
 		/*		*/.addComponent(italic))
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(fromPreview)
-		/*		*/.addComponent(fromString)
-		/*		*/.addComponent(fromFile))
-		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-		/*		*/.addComponent(addRange)
-		/*		*/.addComponent(remRange)
-		/*		*/.addComponent(clearRange))
+		/**/.addComponent(rangesTB)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/**/.addComponent(listScroller,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addComponent(crPane)
 		/**/.addComponent(save)).addGroup(
 				layout.createSequentialGroup().addComponent(previewTextScroll,DEFAULT_SIZE,100,MAX_VALUE).addComponent(
 						previewRangeScroll,DEFAULT_SIZE,100,MAX_VALUE)));
+
 		Util.setComponentTreeEnabled(crPane,!rangeList.isSelectionEmpty());
 		pack();
-		}
-
-	private static void makeComponentSquarish(Component addRange)
-		{
-		Dimension addRangeSize = addRange.getPreferredSize();
-		addRangeSize.setSize(Math.max(addRangeSize.width, addRangeSize.height) * 1.2, addRangeSize.height);
-		addRange.setMinimumSize(addRangeSize);
 		}
 
 	public JMenuItem addItem(String key)
