@@ -579,7 +579,8 @@ public final class GmFileWriter
 					{
 					out.write2(rangemin);
 					out.write((Integer) font.get(PFont.CHARSET));
-					out.write((Integer) font.get(PFont.ANTIALIAS));
+					// AA is not 0-based in GM8.1, off==1 and 3==4
+					out.write((Integer) font.get(PFont.ANTIALIAS)+1);
 					}
 				else
 					out.write4(rangemin);
