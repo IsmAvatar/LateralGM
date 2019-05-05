@@ -13,6 +13,7 @@ package org.lateralgm.subframes;
 
 import static java.lang.Integer.MAX_VALUE;
 import static javax.swing.GroupLayout.DEFAULT_SIZE;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
@@ -305,7 +306,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		/*		*/.addComponent(aa).addComponent(aaLabel)
 		/*		*/.addComponent(bold)
 		/*		*/.addComponent(italic))
-		/**/.addComponent(rangesTB)
+		/**/.addComponent(rangesTB,DEFAULT_SIZE,PREFERRED_SIZE,PREFERRED_SIZE)
 		/**/.addGroup(layout.createParallelGroup(Alignment.BASELINE)
 		/**/.addComponent(listScroller,DEFAULT_SIZE,120,MAX_VALUE))
 		/**/.addComponent(crPane)
