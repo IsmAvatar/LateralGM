@@ -933,11 +933,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		TreeNode[] nodes = findEvent(mainid, id);
 		if (nodes != null) {
 			TreePath path = new TreePath(nodes);
-			// TODO: Why does this not work? I tried wrapping it in SwingUtilities as well as reloading
-			// the tree model.
-			//events.expandPath(path);
-			// Using this temporarily.
-			events.setExpandsSelectedPaths(true);
+			events.makeVisible(path);
 			events.setSelectionPath(path);
 		}
 	}
