@@ -60,7 +60,7 @@ public class Room extends InstantiableResource<Room,Room.PRoom> implements CodeH
 		}
 
 	private static final EnumMap<PRoom,Object> DEFS = PropertyMap.makeDefaultMap(PRoom.class,"",640,
-			480,16,16,false,30,false,new Color(102,204,255),true,"",true,1024,640,true,true,true,true,true,
+			480,16,16,false,30,false,Color.LIGHT_GRAY,true,"",true,1024,640,true,true,true,true,true,
 			false,false,false,TAB_OBJECTS,0,0,false,true,false,0,0,640,480,0.0,10.0,0.1);
 
 	public Room()
