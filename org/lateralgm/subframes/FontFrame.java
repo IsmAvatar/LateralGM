@@ -195,7 +195,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		rangeList.getActionMap().put("REM_RANGE", new AbstractAction() //$NON-NLS-1$
 			{
 			/**
-			 * TODO: Default UID generated, change if necessary.
+			 * NOTE: Default UID generated, change if necessary.
 			 */
 			private static final long serialVersionUID = 5308536583486764117L;
 

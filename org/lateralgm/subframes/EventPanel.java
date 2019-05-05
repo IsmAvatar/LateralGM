@@ -53,7 +53,7 @@ import org.lateralgm.resources.sub.MainEvent;
 public class EventPanel extends JPanel implements ActionListener,PropertyChangeListener,UpdateListener
 	{
 	/**
-	 * TODO: Default UID generated, change if necessary.
+	 * NOTE: Default UID generated, change if necessary.
 	 */
 	private static final long serialVersionUID = 4801776050696461727L;
 
@@ -71,7 +71,7 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 	private class EventAction extends AbstractAction
 		{
 		/**
-		 * TODO: Default UID generated, change if necessary.
+		 * NOTE: Default UID generated, change if necessary.
 		 */
 		private static final long serialVersionUID = -3612891952734251981L;
 

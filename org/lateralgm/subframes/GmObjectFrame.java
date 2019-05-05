@@ -117,7 +117,7 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 	public class EventAction extends AbstractAction
 		{
 		/**
-		 * TODO: Default UID generated, change if necessary.
+		 * NOTE: Default UID generated, change if necessary.
 		 */
 		private static final long serialVersionUID = -6590532160318334567L;
 

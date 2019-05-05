@@ -1438,7 +1438,7 @@ public final class LGM
 			{
 			eventDialog = new JDialog(LGM.frame) {
 				/**
-				 * TODO: Default UID generated, change if necessary.
+				 * NOTE: Default UID generated, change if necessary.
 				 */
 				private static final long serialVersionUID = -5724054718126872483L;
 
