@@ -876,9 +876,11 @@ public final class GmFileReader
 			in.readBool(font.properties,PFont.BOLD,PFont.ITALIC);
 			int rangemin = in.read2();
 			font.put(PFont.CHARSET,in.read());
-			// AA is not 0-based in GM8.1, off==1 and 3==4
-			int aa = in.read()-1;
+			int aa = in.read();
+			// If GM8.0 or lower project doesn't have AA, use highest level
 			if (aa == 0 && f.format != ProjectFile.FormatFlavor.GM_810) aa = 3;
+			// AA is not 0-based in GM8.1, off==1 and 3==4
+			else --aa;
 			font.put(PFont.ANTIALIAS,aa);
 			font.addRange(rangemin,in.read4());
 			in.endInflate();
