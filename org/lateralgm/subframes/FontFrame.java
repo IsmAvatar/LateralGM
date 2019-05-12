@@ -187,6 +187,7 @@ public class FontFrame extends InstantiableResourceFrame<Font,PFont> implements
 		if (res.getNode().newRes && res.characterRanges.isEmpty())
 			{
 			res.addRange();
+			this.updateResource(false);
 			}
 
 		String keyString = Messages.getKeyboardString("FontFrame.REM_RANGE"); //$NON-NLS-1$
