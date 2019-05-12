@@ -1230,7 +1230,7 @@ public final class GmFileReader
 		root.insert(node,10);
 		for (Include inc : f.resMap.getList(Include.class))
 			{
-			node.add(new ResNode(inc.getName(),ResNode.STATUS_SECONDARY,Include.class));
+			node.add(new ResNode(inc.getName(),ResNode.STATUS_SECONDARY,Include.class,inc.reference));
 			}
 		node = new ResNode("Constants",ResNode.STATUS_SECONDARY,Constants.class);
 		root.insert(node,12);
