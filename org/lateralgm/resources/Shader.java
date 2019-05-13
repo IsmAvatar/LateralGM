@@ -35,7 +35,7 @@ public class Shader extends InstantiableResource<Shader,Shader.PShader>
 		}
 
 	private static final EnumMap<PShader,Object> DEFS = PropertyMap.makeDefaultMap(PShader.class,"",
-			"","GLSLES",false);
+			"","GLSLES",true);
 
 	public Shader()
 		{
