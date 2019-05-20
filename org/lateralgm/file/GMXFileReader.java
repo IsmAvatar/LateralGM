@@ -1978,7 +1978,7 @@ public final class GMXFileReader
 		Document in = c.in;
 
 		ResNode node = new ResNode(Resource.kindNamesPlural.get(Extension.class),
-				ResNode.STATUS_PRIMARY,ExtensionPackages.class,null);
+				ResNode.STATUS_PRIMARY,Extension.class,null);
 		root.add(node);
 
 		NodeList extList = in.getElementsByTagName("extensions"); //$NON-NLS-1$
