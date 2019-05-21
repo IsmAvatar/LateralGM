@@ -1470,24 +1470,10 @@ public class Search
 				KeyStroke.getKeyStroke(Messages.getKeyboardString("TreeFilter.EXPANDALL")));
 		expandAllItem.addActionListener(new ActionListener()
 			{
-			public void expandChildren(JTree tree, DefaultMutableTreeNode node)
-				{
-				Enumeration<?> children = node.children();
-				DefaultMutableTreeNode it = null;
-				while (children.hasMoreElements())
-					{
-					it = (DefaultMutableTreeNode) children.nextElement();
-					tree.expandPath(new TreePath(it.getPath()));
-					if (it.getChildCount() > 0)
-						{
-						expandChildren(tree,it);
-						}
-					}
-				}
-
 			public void actionPerformed(ActionEvent ev)
 				{
-				expandChildren(tree,(DefaultMutableTreeNode) tree.getModel().getRoot());
+				for (int i = 0; i < tree.getRowCount(); ++i)
+					tree.expandRow(i);
 				}
 			});
 		searchMenu.add(expandAllItem);

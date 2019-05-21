@@ -108,8 +108,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 	JComboBox<Locale> localeCombo;
 	JComboBox<String> themeCombo, iconCombo, actionsCombo;
-	JCheckBox dndEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter, rightOrientation,
-			backupsEnable;
+	JCheckBox dndEnable, expandEventsEnable, restrictTreeEnable, extraNodesEnable, showTreeFilter,
+			rightOrientation, backupsEnable;
 	JTextField iconPath, themePath, documentationURI, websiteURI, communityURI, issueURI, actionsPath;
 
 	JTextField soundEditorPath, backgroundEditorPath, spriteEditorPath, codeEditorPath,
@@ -156,6 +156,8 @@ public class PreferencesFrame extends JDialog implements ActionListener
 
 		dndEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_DND"));
 		dndEnable.setSelected(Prefs.enableDragAndDrop);
+		expandEventsEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_EXPAND_EVENTS"));
+		expandEventsEnable.setSelected(Prefs.expandEventTree);
 		restrictTreeEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_TREE_RESTRICT"));
 		restrictTreeEnable.setSelected(Prefs.restrictHierarchy);
 		extraNodesEnable = new JCheckBox(Messages.getString("PreferencesFrame.ENABLE_EXTRA_NODES"));
@@ -283,6 +285,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		/*	*/.addComponent(backupsPanel,DEFAULT_SIZE,DEFAULT_SIZE,PREFERRED_SIZE)
 		/*	*/.addGroup(gl.createParallelGroup()
 		/*		*/.addComponent(dndEnable)
+		/*		*/.addComponent(expandEventsEnable)
 		/*		*/.addComponent(rightOrientation)
 		/*		*/.addComponent(showTreeFilter))));
 
@@ -311,6 +314,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		/*	*/.addComponent(backupsPanel)
 		/*	*/.addGroup(gl.createSequentialGroup()
 		/*		*/.addComponent(dndEnable)
+		/*		*/.addComponent(expandEventsEnable)
 		/*		*/.addComponent(rightOrientation)
 		/*		*/.addComponent(showTreeFilter))));
 
@@ -1203,6 +1207,7 @@ public class PreferencesFrame extends JDialog implements ActionListener
 		PrefsStore.setCommunityURI(communityURI.getText());
 		PrefsStore.setIssueURI(issueURI.getText());
 		PrefsStore.setDNDEnabled(dndEnable.isSelected());
+		PrefsStore.setExpandEventTree(expandEventsEnable.isSelected());
 		PrefsStore.setExtraNodes(extraNodesEnable.isSelected());
 		PrefsStore.setShowTreeFilter(showTreeFilter.isSelected());
 		PrefsStore.setRightOrientation(rightOrientation.isSelected());

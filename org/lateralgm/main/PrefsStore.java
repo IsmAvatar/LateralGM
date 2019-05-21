@@ -199,6 +199,12 @@ public final class PrefsStore
 		Prefs.enableDragAndDrop = selected;
 		}
 
+	public static void setExpandEventTree(boolean selected)
+		{
+		PREFS.putBoolean("expandEventTree",selected);
+		Prefs.expandEventTree = selected;
+		}
+
 	public static void setDocumentationURI(String uri)
 		{
 		PREFS.put("documentationURI",uri);
