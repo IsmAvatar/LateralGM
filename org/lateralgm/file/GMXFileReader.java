@@ -329,6 +329,63 @@ public final class GMXFileReader
 			}
 		}
 
+	private static void readGroup(ProjectFileContext c, ResNode root, Class<?> kind)
+		{
+		Document in = c.in;
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(kind),ResNode.STATUS_PRIMARY,kind,null);
+		root.add(node);
+		
+		String kindTagName = GMXFileWriter.tagNames.get(kind);
+		if (kindTagName == null) return;
+		NodeList list = in.getElementsByTagName(kindTagName);
+		if (list == null || list.getLength() <= 0) return;
+		list = list.item(0).getChildNodes();
+		readTree(c,list,node,kind);
+		}
+
+	private static void readTree(ProjectFileContext c, NodeList list, ResNode node, Class<?> kind)
+		{
+		for (int i = 0; i < list.getLength(); i++)
+			{
+			Node cNode = list.item(i);
+			String tagName = cNode.getNodeName();
+			if (tagName.equals("#text")) continue; //$NON-NLS-1$
+
+			if (tagName.equals(GMXFileWriter.tagNames.get(kind)))
+				{
+				String groupName = cNode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
+				ResNode rnode = new ResNode(groupName,ResNode.STATUS_GROUP,kind,null);
+				node.add(rnode);
+				readTree(c,cNode.getChildNodes(),rnode, kind);
+				}
+			else
+				{
+				if (tagName.equals("sprite")) //$NON-NLS-1$
+					readSprite(c,node,cNode);
+				else if (tagName.equals("sound")) //$NON-NLS-1$
+					readSound(c,node,cNode);
+				else if (tagName.equals("background")) //$NON-NLS-1$
+					readBackground(c,node,cNode);
+				else if (tagName.equals("path")) //$NON-NLS-1$
+					readPath(c,node,cNode);
+				else if (tagName.equals("script")) //$NON-NLS-1$
+					readScript(c,node,cNode);
+				else if (tagName.equals("shader")) //$NON-NLS-1$
+					readShader(c,node,cNode);
+				else if (tagName.equals("font")) //$NON-NLS-1$
+					readFont(c,node,cNode);
+				else if (tagName.equals("timeline")) //$NON-NLS-1$
+					readTimeline(c,node,cNode);
+				else if (tagName.equals("object")) //$NON-NLS-1$
+					readGmObject(c,node,cNode);
+				else if (tagName.equals("room")) //$NON-NLS-1$
+					readRoom(c,node,cNode);
+				//else if (tagName.equals("include")) //$NON-NLS-1$
+				//readInclude(c,node,cNode);
+				}
+			}
+		}
+
 	private static void readConfigurations(ProjectFileContext c, ResNode root)
 		{
 		Document in = c.in;
@@ -536,1245 +593,986 @@ public final class GMXFileReader
 		root.add(node);
 		}
 
-	private static void iterateSprites(ProjectFileContext c, NodeList sprList, ResNode node)
+	private static void readSprite(ProjectFileContext c, ResNode node, Node cNode)
 		{
 		ProjectFile f = c.f;
 
-		for (int i = 0; i < sprList.getLength(); i++)
+		Sprite spr = f.resMap.getList(Sprite.class).add();
+		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		spr.setName(fileName);
+		ResNode rnode = new ResNode(spr.getName(),ResNode.STATUS_SECONDARY,Sprite.class,spr.reference);
+		node.add(rnode);
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
+		Document sprdoc = GMXFileReader.parseDocumentChecked(f, path + ".sprite.gmx"); //$NON-NLS-1$
+		if (sprdoc == null) return;
+
+		spr.put(PSprite.TRANSPARENT,false);
+		spr.put(PSprite.ORIGIN_X,
+				Integer.parseInt(sprdoc.getElementsByTagName("xorig").item(0).getTextContent())); //$NON-NLS-1$
+		spr.put(PSprite.ORIGIN_Y,
+				Integer.parseInt(sprdoc.getElementsByTagName("yorigin").item(0).getTextContent())); //$NON-NLS-1$
+		spr.put(
+				PSprite.SHAPE,
+				ProjectFile.SPRITE_MASK_SHAPE[Integer.parseInt(sprdoc.getElementsByTagName("colkind").item( //$NON-NLS-1$
+						0).getTextContent())]);
+		spr.put(PSprite.SEPARATE_MASK,
+				Integer.parseInt(sprdoc.getElementsByTagName("sepmasks").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		spr.put(
+				PSprite.BB_MODE,
+				ProjectFile.SPRITE_BB_MODE[Integer.parseInt(sprdoc.getElementsByTagName("bboxmode").item( //$NON-NLS-1$
+						0).getTextContent())]);
+		spr.put(PSprite.BB_LEFT,
+				Integer.parseInt(sprdoc.getElementsByTagName("bbox_left").item(0).getTextContent())); //$NON-NLS-1$
+		spr.put(PSprite.BB_RIGHT,
+				Integer.parseInt(sprdoc.getElementsByTagName("bbox_right").item(0).getTextContent())); //$NON-NLS-1$
+		spr.put(PSprite.BB_TOP,
+				Integer.parseInt(sprdoc.getElementsByTagName("bbox_top").item(0).getTextContent())); //$NON-NLS-1$
+		spr.put(PSprite.BB_BOTTOM,
+				Integer.parseInt(sprdoc.getElementsByTagName("bbox_bottom").item(0).getTextContent())); //$NON-NLS-1$
+		spr.put(PSprite.ALPHA_TOLERANCE,
+				Integer.parseInt(sprdoc.getElementsByTagName("coltolerance").item(0).getTextContent())); //$NON-NLS-1$
+
+		spr.put(PSprite.TILE_HORIZONTALLY,
+				Integer.parseInt(sprdoc.getElementsByTagName("HTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		spr.put(PSprite.TILE_VERTICALLY,
+				Integer.parseInt(sprdoc.getElementsByTagName("VTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
+
+		// TODO: Read texture groups
+
+		spr.put(PSprite.FOR3D,
+				Integer.parseInt(sprdoc.getElementsByTagName("For3D").item(0).getTextContent()) != 0); //$NON-NLS-1$
+
+		// TODO: Just extra metadata stored in the GMX by studio
+		//int width = Integer.parseInt(sprdoc.getElementsByTagName("width").item(0).getTextContent());
+		//int height = Integer.parseInt(sprdoc.getElementsByTagName("height").item(0).getTextContent());
+
+		// iterate and load the sprites subimages
+		NodeList frList = sprdoc.getElementsByTagName("frame"); //$NON-NLS-1$
+		path = f.getDirectory() + "/sprites/"; //$NON-NLS-1$
+		for (int ii = 0; ii < frList.getLength(); ii++)
 			{
-			Node cNode = sprList.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
+			Node fnode = frList.item(ii);
+			BufferedImage img = null;
+			File imgfile = new File(path + Util.getPOSIXPath(fnode.getTextContent()));
+			if (imgfile.exists())
 				{
-				continue;
-				}
-
-			ResNode rnode = null;
-
-			if (cname.equals("sprites")) //$NON-NLS-1$
-				{
-				rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(),ResNode.STATUS_GROUP,
-						Sprite.class,null);
-				node.add(rnode);
-				iterateSprites(c,cNode.getChildNodes(),rnode);
-				}
-			else if (cname.equals("sprite")) //$NON-NLS-1$
-				{
-				Sprite spr = f.resMap.getList(Sprite.class).add();
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				spr.setName(fileName);
-				rnode = new ResNode(spr.getName(),ResNode.STATUS_SECONDARY,Sprite.class,spr.reference);
-				node.add(rnode);
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				Document sprdoc = GMXFileReader.parseDocumentChecked(f, path + ".sprite.gmx"); //$NON-NLS-1$
-				if (sprdoc == null) continue;
-
-				spr.put(PSprite.TRANSPARENT,false);
-				spr.put(PSprite.ORIGIN_X,
-						Integer.parseInt(sprdoc.getElementsByTagName("xorig").item(0).getTextContent())); //$NON-NLS-1$
-				spr.put(PSprite.ORIGIN_Y,
-						Integer.parseInt(sprdoc.getElementsByTagName("yorigin").item(0).getTextContent())); //$NON-NLS-1$
-				spr.put(
-						PSprite.SHAPE,
-						ProjectFile.SPRITE_MASK_SHAPE[Integer.parseInt(sprdoc.getElementsByTagName("colkind").item( //$NON-NLS-1$
-								0).getTextContent())]);
-				spr.put(PSprite.SEPARATE_MASK,
-						Integer.parseInt(sprdoc.getElementsByTagName("sepmasks").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				spr.put(
-						PSprite.BB_MODE,
-						ProjectFile.SPRITE_BB_MODE[Integer.parseInt(sprdoc.getElementsByTagName("bboxmode").item( //$NON-NLS-1$
-								0).getTextContent())]);
-				spr.put(PSprite.BB_LEFT,
-						Integer.parseInt(sprdoc.getElementsByTagName("bbox_left").item(0).getTextContent())); //$NON-NLS-1$
-				spr.put(PSprite.BB_RIGHT,
-						Integer.parseInt(sprdoc.getElementsByTagName("bbox_right").item(0).getTextContent())); //$NON-NLS-1$
-				spr.put(PSprite.BB_TOP,
-						Integer.parseInt(sprdoc.getElementsByTagName("bbox_top").item(0).getTextContent())); //$NON-NLS-1$
-				spr.put(PSprite.BB_BOTTOM,
-						Integer.parseInt(sprdoc.getElementsByTagName("bbox_bottom").item(0).getTextContent())); //$NON-NLS-1$
-				spr.put(PSprite.ALPHA_TOLERANCE,
-						Integer.parseInt(sprdoc.getElementsByTagName("coltolerance").item(0).getTextContent())); //$NON-NLS-1$
-
-				spr.put(PSprite.TILE_HORIZONTALLY,
-						Integer.parseInt(sprdoc.getElementsByTagName("HTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				spr.put(PSprite.TILE_VERTICALLY,
-						Integer.parseInt(sprdoc.getElementsByTagName("VTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
-
-				// TODO: Read texture groups
-
-				spr.put(PSprite.FOR3D,
-						Integer.parseInt(sprdoc.getElementsByTagName("For3D").item(0).getTextContent()) != 0); //$NON-NLS-1$
-
-				// TODO: Just extra metadata stored in the GMX by studio
-				//int width = Integer.parseInt(sprdoc.getElementsByTagName("width").item(0).getTextContent());
-				//int height = Integer.parseInt(sprdoc.getElementsByTagName("height").item(0).getTextContent());
-
-				// iterate and load the sprites subimages
-				NodeList frList = sprdoc.getElementsByTagName("frame"); //$NON-NLS-1$
-				path = f.getDirectory() + "/sprites/"; //$NON-NLS-1$
-				for (int ii = 0; ii < frList.getLength(); ii++)
+				try
 					{
-					Node fnode = frList.item(ii);
-					BufferedImage img = null;
-					File imgfile = new File(path + Util.getPOSIXPath(fnode.getTextContent()));
-					if (imgfile.exists())
-						{
-						try
-							{
-							img = ImageIO.read(imgfile);
-							spr.subImages.add(img);
-							}
-						catch (IOException e)
-							{
-							LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
-							}
-						}
+					img = ImageIO.read(imgfile);
+					spr.subImages.add(img);
+					}
+				catch (IOException e)
+					{
+					LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
 					}
 				}
 			}
 		}
 
-	private static void readGroup(ProjectFileContext c, ResNode root, Class<?> kind)
-		{
-		Document in = c.in;
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(kind),ResNode.STATUS_PRIMARY,kind,null);
-		root.add(node);
-		
-		String kindTagName = GMXFileWriter.tagNames.get(kind);
-		if (kindTagName == null) return;
-		NodeList list = in.getElementsByTagName(kindTagName);
-		if (list == null || list.getLength() <= 0) return;
-		list = list.item(0).getChildNodes();
-		if (kind == Sprite.class)
-			iterateSprites(c,list,node);
-		else if (kind == Sound.class)
-			iterateSounds(c,list,node);
-		else if (kind == Background.class)
-			iterateBackgrounds(c,list,node);
-		else if (kind == Path.class)
-			iteratePaths(c,list,node);
-		else if (kind == Script.class)
-			iterateScripts(c,list,node);
-		else if (kind == Shader.class)
-			iterateShaders(c,list,node);
-		else if (kind == Font.class)
-			iterateFonts(c,list,node);
-		else if (kind == Timeline.class)
-			iterateTimelines(c,list,node);
-		else if (kind == GmObject.class)
-			iterateGmObjects(c,list,node);
-		else if (kind == Room.class)
-			iterateRooms(c,list,node);
-		//else if (kind == Include.class)
-			//iterateIncludes(c, list, node);
-		}
-
-	private static void iterateSounds(ProjectFileContext c, NodeList sndList, ResNode node)
+	private static void readSound(ProjectFileContext c, ResNode node, Node cNode)
 		{
 		ProjectFile f = c.f;
 
-		for (int i = 0; i < sndList.getLength(); i++)
+		Sound snd = f.resMap.getList(Sound.class).add();
+		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		snd.setName(fileName);
+		ResNode rnode = new ResNode(snd.getName(),ResNode.STATUS_SECONDARY,Sound.class,snd.reference);
+		node.add(rnode);
+		snd.setNode(rnode);
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
+		Document snddoc = GMXFileReader.parseDocumentChecked(f, path + ".sound.gmx"); //$NON-NLS-1$
+		if (snddoc == null) return;
+
+		snd.put(PSound.FILE_NAME,snddoc.getElementsByTagName("origname").item(0).getTextContent()); //$NON-NLS-1$
+		// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
+		// There is a special clause here, every one of those tags after volume, the nested
+		// tag is singular, where its parent is plural.
+		NodeList nl = snddoc.getElementsByTagName("volume"); //$NON-NLS-1$
+		snd.put(PSound.VOLUME,Double.parseDouble(nl.item(nl.getLength() - 1).getTextContent()));
+		snd.put(PSound.PAN,
+			Double.parseDouble(snddoc.getElementsByTagName("pan").item(0).getTextContent())); //$NON-NLS-1$
+		snd.put(PSound.BIT_RATE,
+			Integer.parseInt(snddoc.getElementsByTagName("bitRate").item(0).getTextContent())); //$NON-NLS-1$
+		snd.put(PSound.SAMPLE_RATE,
+			Integer.parseInt(snddoc.getElementsByTagName("sampleRate").item(0).getTextContent())); //$NON-NLS-1$
+		int sndtype = Integer.parseInt(snddoc.getElementsByTagName("type").item(0).getTextContent()); //$NON-NLS-1$
+		snd.put(PSound.TYPE, ProjectFile.SOUND_TYPE[sndtype]);
+		snd.put(PSound.BIT_DEPTH,
+			Integer.parseInt(snddoc.getElementsByTagName("bitDepth").item(0).getTextContent())); //$NON-NLS-1$
+		snd.put(PSound.PRELOAD,
+			Integer.parseInt(snddoc.getElementsByTagName("preload").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		snd.put(PSound.COMPRESSED,
+			Integer.parseInt(snddoc.getElementsByTagName("compressed").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		snd.put(PSound.STREAMED,
+			Integer.parseInt(snddoc.getElementsByTagName("streamed").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		snd.put(PSound.DECOMPRESS_ON_LOAD,
+			Integer.parseInt(snddoc.getElementsByTagName("uncompressOnLoad").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		int sndkind = Integer.parseInt(snddoc.getElementsByTagName("kind").item(0).getTextContent()); //$NON-NLS-1$
+		snd.put(PSound.KIND,ProjectFile.SOUND_KIND[sndkind]);
+		snd.put(PSound.FILE_TYPE,snddoc.getElementsByTagName("extension").item(0).getTextContent()); //$NON-NLS-1$
+		NodeList data = snddoc.getElementsByTagName("data"); //$NON-NLS-1$
+		if (data.item(0) != null)
 			{
-			Node cNode = sndList.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
+			String fname = data.item(0).getTextContent();
+			fname = f.getDirectory() + "/sound/audio/" + fname;
+			try
 				{
-				continue;
+				snd.data = Util.readFully(fname);
 				}
-
-			ResNode rnode = null;
-
-			if (cname.equals("sounds")) //$NON-NLS-1$
+			catch (IOException e)
 				{
-				rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(),ResNode.STATUS_GROUP,
-						Sound.class,null);
-				node.add(rnode);
-				iterateSounds(c,cNode.getChildNodes(),rnode);
-				}
-			else if (cname.equals("sound")) //$NON-NLS-1$
-				{
-				Sound snd = f.resMap.getList(Sound.class).add();
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				snd.setName(fileName);
-				rnode = new ResNode(snd.getName(),ResNode.STATUS_SECONDARY,Sound.class,snd.reference);
-				node.add(rnode);
-				snd.setNode(rnode);
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				Document snddoc = GMXFileReader.parseDocumentChecked(f, path + ".sound.gmx"); //$NON-NLS-1$
-				if (snddoc == null) continue;
-
-				snd.put(PSound.FILE_NAME,snddoc.getElementsByTagName("origname").item(0).getTextContent()); //$NON-NLS-1$
-				// GMX uses double nested tags for volume, bit rate, sample rate, type, and bit depth
-				// There is a special clause here, every one of those tags after volume, the nested
-				// tag is singular, where its parent is plural.
-				NodeList nl = snddoc.getElementsByTagName("volume"); //$NON-NLS-1$
-				snd.put(PSound.VOLUME,Double.parseDouble(nl.item(nl.getLength() - 1).getTextContent()));
-				snd.put(PSound.PAN,
-					Double.parseDouble(snddoc.getElementsByTagName("pan").item(0).getTextContent())); //$NON-NLS-1$
-				snd.put(PSound.BIT_RATE,
-					Integer.parseInt(snddoc.getElementsByTagName("bitRate").item(0).getTextContent())); //$NON-NLS-1$
-				snd.put(PSound.SAMPLE_RATE,
-					Integer.parseInt(snddoc.getElementsByTagName("sampleRate").item(0).getTextContent())); //$NON-NLS-1$
-				int sndtype = Integer.parseInt(snddoc.getElementsByTagName("type").item(0).getTextContent()); //$NON-NLS-1$
-				snd.put(PSound.TYPE, ProjectFile.SOUND_TYPE[sndtype]);
-				snd.put(PSound.BIT_DEPTH,
-					Integer.parseInt(snddoc.getElementsByTagName("bitDepth").item(0).getTextContent())); //$NON-NLS-1$
-				snd.put(PSound.PRELOAD,
-					Integer.parseInt(snddoc.getElementsByTagName("preload").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				snd.put(PSound.COMPRESSED,
-					Integer.parseInt(snddoc.getElementsByTagName("compressed").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				snd.put(PSound.STREAMED,
-					Integer.parseInt(snddoc.getElementsByTagName("streamed").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				snd.put(PSound.DECOMPRESS_ON_LOAD,
-					Integer.parseInt(snddoc.getElementsByTagName("uncompressOnLoad").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				int sndkind = Integer.parseInt(snddoc.getElementsByTagName("kind").item(0).getTextContent()); //$NON-NLS-1$
-				snd.put(PSound.KIND,ProjectFile.SOUND_KIND[sndkind]);
-				snd.put(PSound.FILE_TYPE,snddoc.getElementsByTagName("extension").item(0).getTextContent()); //$NON-NLS-1$
-				NodeList data = snddoc.getElementsByTagName("data"); //$NON-NLS-1$
-				if (data.item(0) != null)
-					{
-					String fname = data.item(0).getTextContent();
-					fname = f.getDirectory() + "/sound/audio/" + fname;
-					try
-						{
-						snd.data = Util.readFully(fname);
-						}
-					catch (IOException e)
-						{
-						LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + fname, e));
-						}
-					}
+				LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + fname, e));
 				}
 			}
 		}
 
-	private static void iterateBackgrounds(ProjectFileContext c, NodeList bkgList, ResNode node)
+	private static void readBackground(ProjectFileContext c, ResNode node, Node cNode)
 		{
 		ProjectFile f = c.f;
 
-		for (int i = 0; i < bkgList.getLength(); i++)
+		Background bkg = f.resMap.getList(Background.class).add();
+		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		bkg.setName(fileName);
+		ResNode rnode = new ResNode(bkg.getName(),ResNode.STATUS_SECONDARY,Background.class,bkg.reference);
+		node.add(rnode);
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
+		Document bkgdoc = GMXFileReader.parseDocumentChecked(f, path + ".background.gmx"); //$NON-NLS-1$
+		if (bkgdoc == null) return;
+
+		bkg.put(PBackground.USE_AS_TILESET,
+				Integer.parseInt(bkgdoc.getElementsByTagName("istileset").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		bkg.put(PBackground.TILE_WIDTH,
+				Integer.parseInt(bkgdoc.getElementsByTagName("tilewidth").item(0).getTextContent())); //$NON-NLS-1$
+		bkg.put(PBackground.TILE_HEIGHT,
+				Integer.parseInt(bkgdoc.getElementsByTagName("tileheight").item(0).getTextContent())); //$NON-NLS-1$
+		bkg.put(PBackground.H_OFFSET,
+				Integer.parseInt(bkgdoc.getElementsByTagName("tilexoff").item(0).getTextContent())); //$NON-NLS-1$
+		bkg.put(PBackground.V_OFFSET,
+				Integer.parseInt(bkgdoc.getElementsByTagName("tileyoff").item(0).getTextContent())); //$NON-NLS-1$
+		bkg.put(PBackground.H_SEP,
+				Integer.parseInt(bkgdoc.getElementsByTagName("tilehsep").item(0).getTextContent())); //$NON-NLS-1$
+		bkg.put(PBackground.V_SEP,
+				Integer.parseInt(bkgdoc.getElementsByTagName("tilevsep").item(0).getTextContent())); //$NON-NLS-1$
+		bkg.put(PBackground.TILE_HORIZONTALLY,
+				Integer.parseInt(bkgdoc.getElementsByTagName("HTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		bkg.put(PBackground.TILE_VERTICALLY,
+				Integer.parseInt(bkgdoc.getElementsByTagName("VTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
+
+		// TODO: Read texture groups
+
+		bkg.put(PBackground.FOR3D,
+				Integer.parseInt(bkgdoc.getElementsByTagName("For3D").item(0).getTextContent()) != 0); //$NON-NLS-1$
+
+		// NOTE: Just extra metadata stored in the GMX by studio
+		//int width = Integer.parseInt(bkgdoc.getElementsByTagName("width").item(0).getTextContent());
+		//int height = Integer.parseInt(bkgdoc.getElementsByTagName("height").item(0).getTextContent());
+
+		path = f.getDirectory() + "/background/"; //$NON-NLS-1$
+		Node fnode = bkgdoc.getElementsByTagName("data").item(0); //$NON-NLS-1$
+		BufferedImage img = null;
+		File imgfile = new File(path + Util.getPOSIXPath(fnode.getTextContent()));
+		if (imgfile.exists())
 			{
-			Node cNode = bkgList.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
+			try
 				{
-				continue;
+				img = ImageIO.read(imgfile);
+				bkg.setBackgroundImage(img);
 				}
-
-			ResNode rnode = null;
-
-			if (cname.equals("backgrounds")) //$NON-NLS-1$
+			catch (IOException e)
 				{
-				rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(),ResNode.STATUS_GROUP,
-						Background.class,null);
-				node.add(rnode);
-				iterateBackgrounds(c,cNode.getChildNodes(),rnode);
-				}
-			else if (cname.equals("background")) //$NON-NLS-1$
-				{
-				Background bkg = f.resMap.getList(Background.class).add();
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				bkg.setName(fileName);
-				rnode = new ResNode(bkg.getName(),ResNode.STATUS_SECONDARY,Background.class,bkg.reference);
-				node.add(rnode);
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				Document bkgdoc = GMXFileReader.parseDocumentChecked(f, path + ".background.gmx"); //$NON-NLS-1$
-				if (bkgdoc == null) continue;
-
-				bkg.put(PBackground.USE_AS_TILESET,
-						Integer.parseInt(bkgdoc.getElementsByTagName("istileset").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				bkg.put(PBackground.TILE_WIDTH,
-						Integer.parseInt(bkgdoc.getElementsByTagName("tilewidth").item(0).getTextContent())); //$NON-NLS-1$
-				bkg.put(PBackground.TILE_HEIGHT,
-						Integer.parseInt(bkgdoc.getElementsByTagName("tileheight").item(0).getTextContent())); //$NON-NLS-1$
-				bkg.put(PBackground.H_OFFSET,
-						Integer.parseInt(bkgdoc.getElementsByTagName("tilexoff").item(0).getTextContent())); //$NON-NLS-1$
-				bkg.put(PBackground.V_OFFSET,
-						Integer.parseInt(bkgdoc.getElementsByTagName("tileyoff").item(0).getTextContent())); //$NON-NLS-1$
-				bkg.put(PBackground.H_SEP,
-						Integer.parseInt(bkgdoc.getElementsByTagName("tilehsep").item(0).getTextContent())); //$NON-NLS-1$
-				bkg.put(PBackground.V_SEP,
-						Integer.parseInt(bkgdoc.getElementsByTagName("tilevsep").item(0).getTextContent())); //$NON-NLS-1$
-				bkg.put(PBackground.TILE_HORIZONTALLY,
-						Integer.parseInt(bkgdoc.getElementsByTagName("HTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				bkg.put(PBackground.TILE_VERTICALLY,
-						Integer.parseInt(bkgdoc.getElementsByTagName("VTile").item(0).getTextContent()) != 0); //$NON-NLS-1$
-
-				// TODO: Read texture groups
-
-				bkg.put(PBackground.FOR3D,
-						Integer.parseInt(bkgdoc.getElementsByTagName("For3D").item(0).getTextContent()) != 0); //$NON-NLS-1$
-
-				// NOTE: Just extra metadata stored in the GMX by studio
-				//int width = Integer.parseInt(bkgdoc.getElementsByTagName("width").item(0).getTextContent());
-				//int height = Integer.parseInt(bkgdoc.getElementsByTagName("height").item(0).getTextContent());
-
-				path = f.getDirectory() + "/background/"; //$NON-NLS-1$
-				Node fnode = bkgdoc.getElementsByTagName("data").item(0); //$NON-NLS-1$
-				BufferedImage img = null;
-				File imgfile = new File(path + Util.getPOSIXPath(fnode.getTextContent()));
-				if (imgfile.exists())
-					{
-					try
-						{
-						img = ImageIO.read(imgfile);
-						bkg.setBackgroundImage(img);
-						}
-					catch (IOException e)
-						{
-						LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
-						}
-					}
+				LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + imgfile.getAbsolutePath(), e));
 				}
 			}
 		}
 
-	private static void iteratePaths(ProjectFileContext c, NodeList pthList, ResNode node)
+	private static void readPath(ProjectFileContext c, ResNode node, Node cNode)
 		{
 		final ProjectFile f = c.f;
 
-		for (int i = 0; i < pthList.getLength(); i++)
+		final Path pth = f.resMap.getList(Path.class).add();
+		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		pth.setName(fileName);
+		ResNode rnode = new ResNode(pth.getName(),ResNode.STATUS_SECONDARY,Path.class,pth.reference);
+		node.add(rnode);
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
+		Document pthdoc = GMXFileReader.parseDocumentChecked(f, path + ".path.gmx"); //$NON-NLS-1$
+		if (pthdoc == null) return;
+
+		pth.put(PPath.SMOOTH,
+				Integer.parseInt(pthdoc.getElementsByTagName("kind").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		pth.put(PPath.PRECISION,
+				Integer.parseInt(pthdoc.getElementsByTagName("precision").item(0).getTextContent())); //$NON-NLS-1$
+		pth.put(PPath.CLOSED,
+				Integer.parseInt(pthdoc.getElementsByTagName("closed").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		final int backroom = Integer.parseInt(pthdoc.getElementsByTagName("backroom").item(0).getTextContent()); //$NON-NLS-1$
+
+		if (backroom >= 0)
 			{
-			Node cNode = pthList.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
+			PostponedRef pr = new PostponedRef()
 				{
-				continue;
-				}
-
-			ResNode rnode = null;
-
-			if (cname.equals("paths")) //$NON-NLS-1$
-				{
-				rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(),ResNode.STATUS_GROUP,
-						Path.class,null);
-				node.add(rnode);
-				iteratePaths(c,cNode.getChildNodes(),rnode);
-				}
-			else if (cname.equals("path")) //$NON-NLS-1$
-				{
-				final Path pth = f.resMap.getList(Path.class).add();
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				pth.setName(fileName);
-				rnode = new ResNode(pth.getName(),ResNode.STATUS_SECONDARY,Path.class,pth.reference);
-				node.add(rnode);
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				Document pthdoc = GMXFileReader.parseDocumentChecked(f, path + ".path.gmx"); //$NON-NLS-1$
-				if (pthdoc == null) continue;
-
-				pth.put(PPath.SMOOTH,
-						Integer.parseInt(pthdoc.getElementsByTagName("kind").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				pth.put(PPath.PRECISION,
-						Integer.parseInt(pthdoc.getElementsByTagName("precision").item(0).getTextContent())); //$NON-NLS-1$
-				pth.put(PPath.CLOSED,
-						Integer.parseInt(pthdoc.getElementsByTagName("closed").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				final int backroom = Integer.parseInt(pthdoc.getElementsByTagName("backroom").item(0).getTextContent()); //$NON-NLS-1$
-
-				if (backroom >= 0)
+				public boolean invoke()
 					{
-					PostponedRef pr = new PostponedRef()
+					ResourceList<Room> list = f.resMap.getList(Room.class);
+					if (list == null)
 						{
+						return false;
+						}
+
+					Room rmn = list.getUnsafe(backroom);
+					if (rmn == null)
+						{
+						return false;
+						}
+
+					pth.put(PPath.BACKGROUND_ROOM,rmn.reference);
+					return true;
+					}
+				};
+				postpone.add(pr);
+			}
+
+		pth.put(PPath.SNAP_X,
+				Integer.parseInt(pthdoc.getElementsByTagName("hsnap").item(0).getTextContent())); //$NON-NLS-1$
+		pth.put(PPath.SNAP_Y,
+				Integer.parseInt(pthdoc.getElementsByTagName("vsnap").item(0).getTextContent())); //$NON-NLS-1$
+
+		// iterate and add each path point
+		NodeList frList = pthdoc.getElementsByTagName("point"); //$NON-NLS-1$
+		for (int ii = 0; ii < frList.getLength(); ii++)
+			{
+			Node fnode = frList.item(ii);
+			String[] coords = fnode.getTextContent().split(","); //$NON-NLS-1$
+			pth.points.add(new PathPoint(Integer.parseInt(coords[0]),Integer.parseInt(coords[1]),
+					Integer.parseInt(coords[2])));
+			}
+		}
+
+	private static void readScript(ProjectFileContext c, ResNode node, Node cNode)
+		{
+		ProjectFile f = c.f;
+
+		Script scr = f.resMap.getList(Script.class).add();
+		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		scr.setName(fileName.substring(0,fileName.lastIndexOf('.')));
+		ResNode rnode = new ResNode(scr.getName(),ResNode.STATUS_SECONDARY,Script.class,scr.reference);
+		node.add(rnode);
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
+		try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
+			{
+			String code = ""; //$NON-NLS-1$
+			String line = reader.readLine();
+			if (line == null) return;
+			if (line.startsWith("#define")) //$NON-NLS-1$
+				{
+				line = reader.readLine();
+				if (line == null) return;
+				}
+			do 
+				{
+				if (line.startsWith("#define")) //$NON-NLS-1$
+					{
+					scr.put(PScript.CODE,code);
+					code = ""; //$NON-NLS-1$
+
+					scr = f.resMap.getList(Script.class).add();
+					scr.setName(line.substring(8, line.length()));
+					rnode = new ResNode(scr.getName(),ResNode.STATUS_SECONDARY,Script.class,scr.reference);
+					node.add(rnode);
+					}
+				else
+					code += line + '\n';
+				}
+			while ((line = reader.readLine()) != null);
+
+			scr.put(PScript.CODE,code);
+			}
+		catch (FileNotFoundException e)
+			{
+			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + path, e));
+			}
+		catch (IOException e)
+			{
+			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
+			}
+		}
+
+	private static void readShader(ProjectFileContext c, ResNode node, Node cNode)
+		{
+		ProjectFile f = c.f;
+
+		Shader shr = f.resMap.getList(Shader.class).add();
+		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		shr.setName(fileName.substring(0,fileName.lastIndexOf('.')));
+		ResNode rnode = new ResNode(shr.getName(),ResNode.STATUS_SECONDARY,Shader.class,shr.reference);
+		node.add(rnode);
+		shr.put(PShader.TYPE,cNode.getAttributes().item(0).getTextContent());
+		String code = ""; //$NON-NLS-1$
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
+		try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
+			{
+			String line = ""; //$NON-NLS-1$
+			while ((line = reader.readLine()) != null)
+				{
+				code += line + '\n';
+				}
+			}
+		catch (FileNotFoundException e)
+			{
+			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + path, e));
+			}
+		catch (IOException e)
+			{
+			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
+			}
+
+		String[] splitcode = code.split(STUPID_SHADER_MARKER);
+		shr.put(PShader.VERTEX,splitcode[0]);
+		shr.put(PShader.FRAGMENT,splitcode[1]);
+		}
+
+	private static void readFont(ProjectFileContext c, ResNode node, Node cNode)
+		{
+		ProjectFile f = c.f;
+
+		Font fnt = f.resMap.getList(Font.class).add();
+		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		fnt.setName(fileName);
+		ResNode rnode = new ResNode(fnt.getName(),ResNode.STATUS_SECONDARY,Font.class,fnt.reference);
+		node.add(rnode);
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
+		Document fntdoc = GMXFileReader.parseDocumentChecked(f, path + ".font.gmx"); //$NON-NLS-1$
+		if (fntdoc == null) return;
+
+		fnt.put(PFont.FONT_NAME,fntdoc.getElementsByTagName("name").item(0).getTextContent()); //$NON-NLS-1$
+		fnt.put(PFont.SIZE,
+				Integer.parseInt(fntdoc.getElementsByTagName("size").item(0).getTextContent())); //$NON-NLS-1$
+		fnt.put(PFont.BOLD,
+				Integer.parseInt(fntdoc.getElementsByTagName("bold").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		fnt.put(PFont.ITALIC,
+				Integer.parseInt(fntdoc.getElementsByTagName("italic").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		fnt.put(PFont.CHARSET,
+				Integer.parseInt(fntdoc.getElementsByTagName("charset").item(0).getTextContent())); //$NON-NLS-1$
+		fnt.put(PFont.ANTIALIAS,
+				Integer.parseInt(fntdoc.getElementsByTagName("aa").item(0).getTextContent())); //$NON-NLS-1$
+		NodeList ranges = fntdoc.getElementsByTagName("range0"); //$NON-NLS-1$
+		for (int item = 0; item < ranges.getLength(); item++)
+			{
+			String[] range = ranges.item(item).getTextContent().split(","); //$NON-NLS-1$
+			fnt.addRange(Integer.parseInt(range[0]),Integer.parseInt(range[1]));
+			}
+
+		NodeList glyphs = fntdoc.getElementsByTagName("glyph"); //$NON-NLS-1$
+		for (int item = 0; item < glyphs.getLength(); item++)
+			{
+			NamedNodeMap attribs = glyphs.item(item).getAttributes();
+			GlyphMetric gm = fnt.addGlyph();
+			gm.properties.put(PGlyphMetric.CHARACTER,
+					Integer.parseInt(attribs.getNamedItem("character").getTextContent())); //$NON-NLS-1$
+			gm.properties.put(PGlyphMetric.X,
+					Integer.parseInt(attribs.getNamedItem("x").getTextContent())); //$NON-NLS-1$
+			gm.properties.put(PGlyphMetric.Y,
+					Integer.parseInt(attribs.getNamedItem("y").getTextContent())); //$NON-NLS-1$
+			gm.properties.put(PGlyphMetric.W,
+					Integer.parseInt(attribs.getNamedItem("w").getTextContent())); //$NON-NLS-1$
+			gm.properties.put(PGlyphMetric.H,
+					Integer.parseInt(attribs.getNamedItem("h").getTextContent())); //$NON-NLS-1$
+			gm.properties.put(PGlyphMetric.SHIFT,
+					Integer.parseInt(attribs.getNamedItem("shift").getTextContent())); //$NON-NLS-1$
+			gm.properties.put(PGlyphMetric.OFFSET,
+					Integer.parseInt(attribs.getNamedItem("offset").getTextContent())); //$NON-NLS-1$
+			}
+		}
+
+	private static void readTimeline(ProjectFileContext c, ResNode node, Node cNode)
+		{
+		ProjectFile f = c.f;
+
+		//ResourceReference<Timeline> r = c.timeids.get(i); //includes ID
+		//Timeline tml = r.get();
+		//f.resMap.getList(Timeline.class).add(tml);
+
+		Timeline tml = f.resMap.getList(Timeline.class).add();
+
+		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		tml.setName(fileName);
+		ResNode rnode = new ResNode(tml.getName(),ResNode.STATUS_SECONDARY,Timeline.class,tml.reference);
+		node.add(rnode);
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
+		Document tmldoc = GMXFileReader.parseDocumentChecked(f, path + ".timeline.gmx"); //$NON-NLS-1$
+		if (tmldoc == null) return;
+
+		//Iterate the moments and load the actions
+		NodeList frList = tmldoc.getElementsByTagName("entry"); //$NON-NLS-1$
+		for (int ii = 0; ii < frList.getLength(); ii++)
+			{
+			Node fnode = frList.item(ii);
+			Moment mom = tml.addMoment();
+
+			NodeList children = fnode.getChildNodes();
+			for (int x = 0; x < children.getLength(); x++)
+				{
+				Node cnode = children.item(x);
+				if (cnode.getNodeName().equals("#text")) //$NON-NLS-1$
+					{
+					continue;
+					}
+				else if (cnode.getNodeName().equals("step")) //$NON-NLS-1$
+					{
+					mom.stepNo = Integer.parseInt(cnode.getTextContent());
+					}
+				else if (cnode.getNodeName().equals("event")) //$NON-NLS-1$
+					{
+					readActions(c,mom,"INTIMELINEACTION",tml.getId(),mom.stepNo,cnode.getChildNodes()); //$NON-NLS-1$
+					}
+				}
+			}
+		}
+
+	private static void readGmObject(ProjectFileContext c, ResNode node, Node cNode)
+		{
+		final ProjectFile f = c.f;
+
+		//ResourceReference<GmObject> r = c.objids.get(int); //includes ID
+		//final GmObject obj = r.get();
+		//f.resMap.getList(GmObject.class).add(obj);
+
+		final GmObject obj = f.resMap.getList(GmObject.class).add();
+
+		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		obj.setName(fileName);
+
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
+		Document objdoc = GMXFileReader.parseDocumentChecked(f, path + ".object.gmx"); //$NON-NLS-1$
+		if (objdoc == null) return;
+
+		final String sprname = objdoc.getElementsByTagName("spriteName").item(0).getTextContent(); //$NON-NLS-1$
+		if (!sprname.equals("<undefined>"))
+			{
+			postpone.add(new DefaultPostponedRef(f.resMap.getList(Sprite.class), obj.properties, PGmObject.SPRITE, sprname));
+			}
+		else
+			{
+			obj.put(PGmObject.SPRITE,null);
+			}
+
+		final String mskname = objdoc.getElementsByTagName("maskName").item(0).getTextContent(); //$NON-NLS-1$
+		if (!mskname.equals("<undefined>"))
+			{
+			postpone.add(new DefaultPostponedRef(f.resMap.getList(Sprite.class), obj.properties, PGmObject.MASK, mskname));
+			}
+		else
+			{
+			obj.put(PGmObject.MASK,null);
+			}
+
+		final String parname = objdoc.getElementsByTagName("parentName").item(0).getTextContent(); //$NON-NLS-1$
+		if (!parname.equals("<undefined>") && !parname.equals("self"))
+			{
+			postpone.add(new DefaultPostponedRef(f.resMap.getList(GmObject.class), obj.properties, PGmObject.PARENT, parname));
+			}
+		else
+			{
+			obj.put(PGmObject.PARENT,null);
+			}
+
+		obj.put(PGmObject.SOLID,
+				Integer.parseInt(objdoc.getElementsByTagName("solid").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		obj.put(PGmObject.VISIBLE,
+				Integer.parseInt(objdoc.getElementsByTagName("visible").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		obj.put(PGmObject.DEPTH,
+				Integer.parseInt(objdoc.getElementsByTagName("depth").item(0).getTextContent())); //$NON-NLS-1$
+		obj.put(
+				PGmObject.PERSISTENT,
+				Integer.parseInt(objdoc.getElementsByTagName("persistent").item(0).getTextContent()) != 0); //$NON-NLS-1$
+
+		// Now that properties are loaded iterate the events and load the actions
+		NodeList frList = objdoc.getElementsByTagName("event"); //$NON-NLS-1$
+		for (int ii = 0; ii < frList.getLength(); ii++)
+			{
+			Node fnode = frList.item(ii);
+			final Event ev = new Event();
+
+			ev.mainId = Integer.parseInt(fnode.getAttributes().getNamedItem("eventtype").getTextContent()); //$NON-NLS-1$
+			MainEvent me = obj.mainEvents.get(ev.mainId);
+			me.events.add(0,ev);
+			if (ev.mainId == MainEvent.EV_COLLISION)
+				{
+				final String colname = fnode.getAttributes().getNamedItem("ename").getTextContent(); //$NON-NLS-1$
+				PostponedRef pr = new PostponedRef()
+					{
 						public boolean invoke()
 							{
-							ResourceList<Room> list = f.resMap.getList(Room.class);
+							ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
 							if (list == null)
 								{
 								return false;
 								}
-
-							Room rmn = list.getUnsafe(backroom);
-							if (rmn == null)
+							GmObject col = list.get(colname);
+							if (col == null)
 								{
 								return false;
 								}
-
-							pth.put(PPath.BACKGROUND_ROOM,rmn.reference);
+							ev.other = col.reference;
 							return true;
 							}
-						};
-						postpone.add(pr);
-					}
-
-				pth.put(PPath.SNAP_X,
-						Integer.parseInt(pthdoc.getElementsByTagName("hsnap").item(0).getTextContent())); //$NON-NLS-1$
-				pth.put(PPath.SNAP_Y,
-						Integer.parseInt(pthdoc.getElementsByTagName("vsnap").item(0).getTextContent())); //$NON-NLS-1$
-
-				// iterate and add each path point
-				NodeList frList = pthdoc.getElementsByTagName("point"); //$NON-NLS-1$
-				for (int ii = 0; ii < frList.getLength(); ii++)
-					{
-					Node fnode = frList.item(ii);
-					String[] coords = fnode.getTextContent().split(","); //$NON-NLS-1$
-					pth.points.add(new PathPoint(Integer.parseInt(coords[0]),Integer.parseInt(coords[1]),
-							Integer.parseInt(coords[2])));
-					}
+					};
+				postpone.add(pr);
 				}
+			else
+				{
+				ev.id = Integer.parseInt(fnode.getAttributes().getNamedItem("enumb").getTextContent()); //$NON-NLS-1$
+				}
+			readActions(c,ev,"INOBJECTACTION",obj.getId(),ii * 1000 + ev.id,fnode.getChildNodes()); //$NON-NLS-1$
 			}
-		}
-
-	private static void iterateScripts(ProjectFileContext c, NodeList scrList, ResNode node)
-		{
-		ProjectFile f = c.f;
-
-		for (int i = 0; i < scrList.getLength(); i++)
+		obj.put(
+				PGmObject.PHYSICS_OBJECT,
+				Integer.parseInt(objdoc.getElementsByTagName("PhysicsObject").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		obj.put(
+				PGmObject.PHYSICS_SENSOR,
+				Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectSensor").item(0).getTextContent()) != 0); //$NON-NLS-1$
+		int shapekind = Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectShape").item(0).getTextContent()); //$NON-NLS-1$
+		obj.put(PGmObject.PHYSICS_SHAPE,ProjectFile.PHYSICS_SHAPE[shapekind]);
+		obj.put(
+				PGmObject.PHYSICS_DENSITY,
+				Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectDensity").item(0).getTextContent())); //$NON-NLS-1$
+		obj.put(
+				PGmObject.PHYSICS_RESTITUTION,
+				Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectRestitution").item(0).getTextContent())); //$NON-NLS-1$
+		obj.put(
+				PGmObject.PHYSICS_GROUP,
+				Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectGroup").item(0).getTextContent())); //$NON-NLS-1$
+		obj.put(
+				PGmObject.PHYSICS_DAMPING_LINEAR,
+				Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectLinearDamping").item(0).getTextContent())); //$NON-NLS-1$
+		obj.put(
+				PGmObject.PHYSICS_DAMPING_ANGULAR,
+				Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectAngularDamping").item(0).getTextContent())); //$NON-NLS-1$
+		// TODO: Some versions of the format did not have all of the physics properties.
+		Node fNode = objdoc.getElementsByTagName("PhysicsObjectFriction").item(0); //$NON-NLS-1$
+		if (fNode != null)
 			{
-			Node cNode = scrList.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
-
-			ResNode rnode = null;
-
-			if (cname.equals("scripts")) //$NON-NLS-1$
-				{
-				rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(),ResNode.STATUS_GROUP,
-						Script.class,null);
-				node.add(rnode);
-				iterateScripts(c,cNode.getChildNodes(),rnode);
-				}
-			else if (cname.equals("script")) //$NON-NLS-1$
-				{
-				Script scr = f.resMap.getList(Script.class).add();
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				scr.setName(fileName.substring(0,fileName.lastIndexOf('.')));
-				rnode = new ResNode(scr.getName(),ResNode.STATUS_SECONDARY,Script.class,scr.reference);
-				node.add(rnode);
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
-					{
-					String code = ""; //$NON-NLS-1$
-					String line = reader.readLine();
-					if (line == null) continue;
-					if (line.startsWith("#define")) //$NON-NLS-1$
-						{
-						line = reader.readLine();
-						if (line == null) continue;
-						}
-					do 
-						{
-						if (line.startsWith("#define")) //$NON-NLS-1$
-							{
-							scr.put(PScript.CODE,code);
-							code = ""; //$NON-NLS-1$
-
-							scr = f.resMap.getList(Script.class).add();
-							scr.setName(line.substring(8, line.length()));
-							rnode = new ResNode(scr.getName(),ResNode.STATUS_SECONDARY,Script.class,scr.reference);
-							node.add(rnode);
-							}
-						else
-							code += line + '\n';
-						}
-					while ((line = reader.readLine()) != null);
-
-					scr.put(PScript.CODE,code);
-					}
-				catch (FileNotFoundException e)
-					{
-					LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + path, e));
-					}
-				catch (IOException e)
-					{
-					LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
-					}
-				}
+			obj.put(PGmObject.PHYSICS_FRICTION,Double.parseDouble(fNode.getTextContent()));
+			obj.put(
+					PGmObject.PHYSICS_AWAKE,
+					Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectAwake").item(0).getTextContent()) != 0); //$NON-NLS-1$
+			obj.put(
+					PGmObject.PHYSICS_KINEMATIC,
+					Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectKinematic").item(0).getTextContent()) != 0); //$NON-NLS-1$
 			}
 
-		}
-
-	private static void iterateShaders(ProjectFileContext c, NodeList shrList, ResNode node)
-		{
-		ProjectFile f = c.f;
-
-		for (int i = 0; i < shrList.getLength(); i++)
+		NodeList pointNodes = objdoc.getElementsByTagName("point"); //$NON-NLS-1$
+		for (int p = 0; p < pointNodes.getLength(); p++)
 			{
-			Node cNode = shrList.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
-
-			ResNode rnode = null;
-
-			if (cname.equals("shaders")) //$NON-NLS-1$
-				{
-				rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(),ResNode.STATUS_GROUP,
-						Shader.class,null);
-				node.add(rnode);
-				iterateScripts(c,cNode.getChildNodes(),rnode);
-				}
-			else if (cname.equals("shader")) //$NON-NLS-1$
-				{
-				Shader shr = f.resMap.getList(Shader.class).add();
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				shr.setName(fileName.substring(0,fileName.lastIndexOf('.')));
-				rnode = new ResNode(shr.getName(),ResNode.STATUS_SECONDARY,Shader.class,shr.reference);
-				node.add(rnode);
-				shr.put(PShader.TYPE,cNode.getAttributes().item(0).getTextContent());
-				String code = ""; //$NON-NLS-1$
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
-					{
-					String line = ""; //$NON-NLS-1$
-					while ((line = reader.readLine()) != null)
-						{
-						code += line + '\n';
-						}
-					}
-				catch (FileNotFoundException e)
-					{
-					LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "file not found: " + path, e));
-					}
-				catch (IOException e)
-					{
-					LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "unable to read file: " + path, e));
-					}
-
-				String[] splitcode = code.split(STUPID_SHADER_MARKER);
-				shr.put(PShader.VERTEX,splitcode[0]);
-				shr.put(PShader.FRAGMENT,splitcode[1]);
-				}
+			String[] coords = pointNodes.item(p).getTextContent().split(","); //$NON-NLS-1$
+			obj.shapePoints.add(new ShapePoint(Integer.parseInt(coords[0]),
+					Integer.parseInt(coords[1])));
 			}
 
+		ResNode rnode = new ResNode(obj.getName(),ResNode.STATUS_SECONDARY,GmObject.class,obj.reference);
+		node.add(rnode);
 		}
 
-	private static void iterateFonts(ProjectFileContext c, NodeList fntList, ResNode node)
-		{
-		ProjectFile f = c.f;
-
-		for (int i = 0; i < fntList.getLength(); i++)
-			{
-			Node cNode = fntList.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
-
-			ResNode rnode = null;
-
-			if (cname.equals("fonts")) //$NON-NLS-1$
-				{
-				rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(),ResNode.STATUS_GROUP,
-						Font.class,null);
-				node.add(rnode);
-				iterateFonts(c,cNode.getChildNodes(),rnode);
-				}
-			else if (cname.equals("font")) //$NON-NLS-1$
-				{
-				Font fnt = f.resMap.getList(Font.class).add();
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				fnt.setName(fileName);
-				rnode = new ResNode(fnt.getName(),ResNode.STATUS_SECONDARY,Font.class,fnt.reference);
-				node.add(rnode);
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				Document fntdoc = GMXFileReader.parseDocumentChecked(f, path + ".font.gmx"); //$NON-NLS-1$
-				if (fntdoc == null) continue;
-
-				fnt.put(PFont.FONT_NAME,fntdoc.getElementsByTagName("name").item(0).getTextContent()); //$NON-NLS-1$
-				fnt.put(PFont.SIZE,
-						Integer.parseInt(fntdoc.getElementsByTagName("size").item(0).getTextContent())); //$NON-NLS-1$
-				fnt.put(PFont.BOLD,
-						Integer.parseInt(fntdoc.getElementsByTagName("bold").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				fnt.put(PFont.ITALIC,
-						Integer.parseInt(fntdoc.getElementsByTagName("italic").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				fnt.put(PFont.CHARSET,
-						Integer.parseInt(fntdoc.getElementsByTagName("charset").item(0).getTextContent())); //$NON-NLS-1$
-				fnt.put(PFont.ANTIALIAS,
-						Integer.parseInt(fntdoc.getElementsByTagName("aa").item(0).getTextContent())); //$NON-NLS-1$
-				NodeList ranges = fntdoc.getElementsByTagName("range0"); //$NON-NLS-1$
-				for (int item = 0; item < ranges.getLength(); item++)
-					{
-					String[] range = ranges.item(item).getTextContent().split(","); //$NON-NLS-1$
-					fnt.addRange(Integer.parseInt(range[0]),Integer.parseInt(range[1]));
-					}
-
-				NodeList glyphs = fntdoc.getElementsByTagName("glyph"); //$NON-NLS-1$
-				for (int item = 0; item < glyphs.getLength(); item++)
-					{
-					NamedNodeMap attribs = glyphs.item(item).getAttributes();
-					GlyphMetric gm = fnt.addGlyph();
-					gm.properties.put(PGlyphMetric.CHARACTER,
-							Integer.parseInt(attribs.getNamedItem("character").getTextContent())); //$NON-NLS-1$
-					gm.properties.put(PGlyphMetric.X,
-							Integer.parseInt(attribs.getNamedItem("x").getTextContent())); //$NON-NLS-1$
-					gm.properties.put(PGlyphMetric.Y,
-							Integer.parseInt(attribs.getNamedItem("y").getTextContent())); //$NON-NLS-1$
-					gm.properties.put(PGlyphMetric.W,
-							Integer.parseInt(attribs.getNamedItem("w").getTextContent())); //$NON-NLS-1$
-					gm.properties.put(PGlyphMetric.H,
-							Integer.parseInt(attribs.getNamedItem("h").getTextContent())); //$NON-NLS-1$
-					gm.properties.put(PGlyphMetric.SHIFT,
-							Integer.parseInt(attribs.getNamedItem("shift").getTextContent())); //$NON-NLS-1$
-					gm.properties.put(PGlyphMetric.OFFSET,
-							Integer.parseInt(attribs.getNamedItem("offset").getTextContent())); //$NON-NLS-1$
-					}
-				}
-			}
-
-		}
-
-	private static void iterateTimelines(ProjectFileContext c, NodeList tmlList, ResNode node)
-		{
-		ProjectFile f = c.f;
-
-		for (int i = 0; i < tmlList.getLength(); i++)
-			{
-			Node cNode = tmlList.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
-				{
-				continue;
-				}
-
-			ResNode rnode = null;
-
-			if (cname.equals("timelines")) //$NON-NLS-1$
-				{
-				rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(),ResNode.STATUS_GROUP,
-						Timeline.class,null);
-				node.add(rnode);
-				}
-			else if (cname.equals("timeline")) //$NON-NLS-1$
-				{
-				//ResourceReference<Timeline> r = c.timeids.get(i); //includes ID
-				//Timeline tml = r.get();
-				//f.resMap.getList(Timeline.class).add(tml);
-
-				Timeline tml = f.resMap.getList(Timeline.class).add();
-
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				tml.setName(fileName);
-				rnode = new ResNode(tml.getName(),ResNode.STATUS_SECONDARY,Timeline.class,tml.reference);
-				node.add(rnode);
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				Document tmldoc = GMXFileReader.parseDocumentChecked(f, path + ".timeline.gmx"); //$NON-NLS-1$
-				if (tmldoc == null) continue;
-
-				//Iterate the moments and load the actions
-				NodeList frList = tmldoc.getElementsByTagName("entry"); //$NON-NLS-1$
-				for (int ii = 0; ii < frList.getLength(); ii++)
-					{
-					Node fnode = frList.item(ii);
-					Moment mom = tml.addMoment();
-
-					NodeList children = fnode.getChildNodes();
-					for (int x = 0; x < children.getLength(); x++)
-						{
-						Node cnode = children.item(x);
-						if (cnode.getNodeName().equals("#text")) //$NON-NLS-1$
-							{
-							continue;
-							}
-						else if (cnode.getNodeName().equals("step")) //$NON-NLS-1$
-							{
-							mom.stepNo = Integer.parseInt(cnode.getTextContent());
-							}
-						else if (cnode.getNodeName().equals("event")) //$NON-NLS-1$
-							{
-							readActions(c,mom,"INTIMELINEACTION",i,mom.stepNo,cnode.getChildNodes()); //$NON-NLS-1$
-							}
-						}
-					}
-				}
-			iterateTimelines(c,cNode.getChildNodes(),rnode);
-			}
-
-		}
-
-	private static void iterateGmObjects(ProjectFileContext c, NodeList objList, ResNode node)
+	private static void readRoom(ProjectFileContext c, ResNode node, Node cNode)
 		{
 		final ProjectFile f = c.f;
 
-		for (int i = 0; i < objList.getLength(); i++)
+		//ResourceReference<Room> r = c.rmids.get(i); //includes ID
+		//Room rmn = r.get();
+		//f.resMap.getList(Room.class).add(rmn);
+		Room rmn = f.resMap.getList(Room.class).add();
+
+		String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
+		rmn.setName(fileName);
+		ResNode rnode = new ResNode(rmn.getName(),ResNode.STATUS_SECONDARY,Room.class,rmn.reference);
+		node.add(rnode);
+		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
+
+		Document rmndoc = GMXFileReader.parseDocumentChecked(f, path + ".room.gmx"); //$NON-NLS-1$
+		if (rmndoc == null) return;
+
+		String caption = rmndoc.getElementsByTagName("caption").item(0).getTextContent(); //$NON-NLS-1$
+		rmn.put(PRoom.CAPTION,caption);
+
+		NodeList cnodes = rmndoc.getElementsByTagName("room").item(0).getChildNodes(); //$NON-NLS-1$
+		for (int x = 0; x < cnodes.getLength(); x++)
 			{
-			Node cNode = objList.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
+			Node pnode = cnodes.item(x);
+			String pname = pnode.getNodeName();
+			if (pname.equals("#text")) //$NON-NLS-1$
 				{
 				continue;
 				}
-			ResNode rnode = null;
-
-			if (cname.equals("objects")) //$NON-NLS-1$
+			else if (pname.equals("caption")) //$NON-NLS-1$
 				{
-				rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(),ResNode.STATUS_GROUP,
-						GmObject.class,null);
-				node.add(rnode);
-				iterateGmObjects(c,cNode.getChildNodes(),rnode);
+				rmn.put(PRoom.CAPTION,pnode.getTextContent());
 				}
-			else if (cname.equals("object")) //$NON-NLS-1$
+			else if (pname.equals("width")) //$NON-NLS-1$
 				{
-				//ResourceReference<GmObject> r = c.objids.get(int); //includes ID
-				//final GmObject obj = r.get();
-				//f.resMap.getList(GmObject.class).add(obj);
-
-				final GmObject obj = f.resMap.getList(GmObject.class).add();
-
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				obj.setName(fileName);
-
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				Document objdoc = GMXFileReader.parseDocumentChecked(f, path + ".object.gmx"); //$NON-NLS-1$
-				if (objdoc == null) continue;
-
-				final String sprname = objdoc.getElementsByTagName("spriteName").item(0).getTextContent(); //$NON-NLS-1$
-				if (!sprname.equals("<undefined>"))
-					{
-					postpone.add(new DefaultPostponedRef(f.resMap.getList(Sprite.class), obj.properties, PGmObject.SPRITE, sprname));
-					}
-				else
-					{
-					obj.put(PGmObject.SPRITE,null);
-					}
-
-				final String mskname = objdoc.getElementsByTagName("maskName").item(0).getTextContent(); //$NON-NLS-1$
-				if (!mskname.equals("<undefined>"))
-					{
-					postpone.add(new DefaultPostponedRef(f.resMap.getList(Sprite.class), obj.properties, PGmObject.MASK, mskname));
-					}
-				else
-					{
-					obj.put(PGmObject.MASK,null);
-					}
-
-				final String parname = objdoc.getElementsByTagName("parentName").item(0).getTextContent(); //$NON-NLS-1$
-				if (!parname.equals("<undefined>") && !parname.equals("self"))
-					{
-					postpone.add(new DefaultPostponedRef(f.resMap.getList(GmObject.class), obj.properties, PGmObject.PARENT, parname));
-					}
-				else
-					{
-					obj.put(PGmObject.PARENT,null);
-					}
-
-				obj.put(PGmObject.SOLID,
-						Integer.parseInt(objdoc.getElementsByTagName("solid").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				obj.put(PGmObject.VISIBLE,
-						Integer.parseInt(objdoc.getElementsByTagName("visible").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				obj.put(PGmObject.DEPTH,
-						Integer.parseInt(objdoc.getElementsByTagName("depth").item(0).getTextContent())); //$NON-NLS-1$
-				obj.put(
-						PGmObject.PERSISTENT,
-						Integer.parseInt(objdoc.getElementsByTagName("persistent").item(0).getTextContent()) != 0); //$NON-NLS-1$
-
-				// Now that properties are loaded iterate the events and load the actions
-				NodeList frList = objdoc.getElementsByTagName("event"); //$NON-NLS-1$
-				for (int ii = 0; ii < frList.getLength(); ii++)
-					{
-					Node fnode = frList.item(ii);
-					final Event ev = new Event();
-
-					ev.mainId = Integer.parseInt(fnode.getAttributes().getNamedItem("eventtype").getTextContent()); //$NON-NLS-1$
-					MainEvent me = obj.mainEvents.get(ev.mainId);
-					me.events.add(0,ev);
-					if (ev.mainId == MainEvent.EV_COLLISION)
-						{
-						final String colname = fnode.getAttributes().getNamedItem("ename").getTextContent(); //$NON-NLS-1$
-						PostponedRef pr = new PostponedRef()
-							{
-								public boolean invoke()
-									{
-									ResourceList<GmObject> list = f.resMap.getList(GmObject.class);
-									if (list == null)
-										{
-										return false;
-										}
-									GmObject col = list.get(colname);
-									if (col == null)
-										{
-										return false;
-										}
-									ev.other = col.reference;
-									return true;
-									}
-							};
-						postpone.add(pr);
-						}
-					else
-						{
-						ev.id = Integer.parseInt(fnode.getAttributes().getNamedItem("enumb").getTextContent()); //$NON-NLS-1$
-						}
-					readActions(c,ev,"INOBJECTACTION",i,ii * 1000 + ev.id,fnode.getChildNodes()); //$NON-NLS-1$
-					}
-				obj.put(
-						PGmObject.PHYSICS_OBJECT,
-						Integer.parseInt(objdoc.getElementsByTagName("PhysicsObject").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				obj.put(
-						PGmObject.PHYSICS_SENSOR,
-						Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectSensor").item(0).getTextContent()) != 0); //$NON-NLS-1$
-				int shapekind = Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectShape").item(0).getTextContent()); //$NON-NLS-1$
-				obj.put(PGmObject.PHYSICS_SHAPE,ProjectFile.PHYSICS_SHAPE[shapekind]);
-				obj.put(
-						PGmObject.PHYSICS_DENSITY,
-						Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectDensity").item(0).getTextContent())); //$NON-NLS-1$
-				obj.put(
-						PGmObject.PHYSICS_RESTITUTION,
-						Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectRestitution").item(0).getTextContent())); //$NON-NLS-1$
-				obj.put(
-						PGmObject.PHYSICS_GROUP,
-						Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectGroup").item(0).getTextContent())); //$NON-NLS-1$
-				obj.put(
-						PGmObject.PHYSICS_DAMPING_LINEAR,
-						Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectLinearDamping").item(0).getTextContent())); //$NON-NLS-1$
-				obj.put(
-						PGmObject.PHYSICS_DAMPING_ANGULAR,
-						Double.parseDouble(objdoc.getElementsByTagName("PhysicsObjectAngularDamping").item(0).getTextContent())); //$NON-NLS-1$
-				// TODO: Some versions of the format did not have all of the physics properties.
-				Node fNode = objdoc.getElementsByTagName("PhysicsObjectFriction").item(0); //$NON-NLS-1$
-				if (fNode != null)
-					{
-					obj.put(PGmObject.PHYSICS_FRICTION,Double.parseDouble(fNode.getTextContent()));
-					obj.put(
-							PGmObject.PHYSICS_AWAKE,
-							Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectAwake").item(0).getTextContent()) != 0); //$NON-NLS-1$
-					obj.put(
-							PGmObject.PHYSICS_KINEMATIC,
-							Integer.parseInt(objdoc.getElementsByTagName("PhysicsObjectKinematic").item(0).getTextContent()) != 0); //$NON-NLS-1$
-					}
-
-				NodeList pointNodes = objdoc.getElementsByTagName("point"); //$NON-NLS-1$
-				for (int p = 0; p < pointNodes.getLength(); p++)
-					{
-					String[] coords = pointNodes.item(p).getTextContent().split(","); //$NON-NLS-1$
-					obj.shapePoints.add(new ShapePoint(Integer.parseInt(coords[0]),
-							Integer.parseInt(coords[1])));
-					}
-
-				rnode = new ResNode(obj.getName(),ResNode.STATUS_SECONDARY,GmObject.class,obj.reference);
-				node.add(rnode);
+				rmn.put(PRoom.WIDTH,Integer.parseInt(pnode.getTextContent()));
 				}
-			}
-		}
-
-	private static void iterateRooms(ProjectFileContext c, NodeList rmnList, ResNode node)
-		{
-		final ProjectFile f = c.f;
-
-		for (int i = 0; i < rmnList.getLength(); i++)
-			{
-			Node cNode = rmnList.item(i);
-			String cname = cNode.getNodeName();
-			if (cname.equals("#text")) //$NON-NLS-1$
+			else if (pname.equals("height")) //$NON-NLS-1$
 				{
-				continue;
+				rmn.put(PRoom.HEIGHT,Integer.parseInt(pnode.getTextContent()));
 				}
-
-			ResNode rnode = null;
-
-			if (cname.equals("rooms")) //$NON-NLS-1$
+			else if (pname.equals("vsnap")) //$NON-NLS-1$
 				{
-				rnode = new ResNode(cNode.getAttributes().item(0).getTextContent(),ResNode.STATUS_GROUP,
-						Room.class,null);
-				node.add(rnode);
-				iterateRooms(c,cNode.getChildNodes(),rnode);
+				rmn.put(PRoom.SNAP_Y,Integer.parseInt(pnode.getTextContent()));
 				}
-			else if (cname.equals("room")) //$NON-NLS-1$
+			else if (pname.equals("hsnap")) //$NON-NLS-1$
 				{
-				//ResourceReference<Room> r = c.rmids.get(i); //includes ID
-				//Room rmn = r.get();
-				//f.resMap.getList(Room.class).add(rmn);
-				Room rmn = f.resMap.getList(Room.class).add();
-
-				String fileName = new File(Util.getPOSIXPath(cNode.getTextContent())).getName();
-				rmn.setName(fileName);
-				rnode = new ResNode(rmn.getName(),ResNode.STATUS_SECONDARY,Room.class,rmn.reference);
-				node.add(rnode);
-				String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
-
-				Document rmndoc = GMXFileReader.parseDocumentChecked(f, path + ".room.gmx"); //$NON-NLS-1$
-				if (rmndoc == null) continue;
-
-				String caption = rmndoc.getElementsByTagName("caption").item(0).getTextContent(); //$NON-NLS-1$
-				rmn.put(PRoom.CAPTION,caption);
-
-				NodeList cnodes = rmndoc.getElementsByTagName("room").item(0).getChildNodes(); //$NON-NLS-1$
-				for (int x = 0; x < cnodes.getLength(); x++)
+				rmn.put(PRoom.SNAP_X,Integer.parseInt(pnode.getTextContent()));
+				}
+			else if (pname.equals("isometric")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.ISOMETRIC,Integer.parseInt(pnode.getTextContent()) != 0);
+				}
+			else if (pname.equals("speed")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.SPEED,Integer.parseInt(pnode.getTextContent()));
+				}
+			else if (pname.equals("persistent")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.PERSISTENT,Integer.parseInt(pnode.getTextContent()) != 0);
+				}
+			else if (pname.equals("colour")) //$NON-NLS-1$
+				{
+				int col = Integer.parseInt(pnode.getTextContent());
+				rmn.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(col));
+				}
+			else if (pname.equals("showcolour")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.DRAW_BACKGROUND_COLOR,Integer.parseInt(pnode.getTextContent()) != 0);
+				}
+			else if (pname.equals("code")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.CREATION_CODE,pnode.getTextContent());
+				}
+			else if (pname.equals("enableViews")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.VIEWS_ENABLED,Integer.parseInt(pnode.getTextContent()) != 0);
+				}
+			else if (pname.equals("clearViewBackground")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.VIEWS_CLEAR,Integer.parseInt(pnode.getTextContent()) != 0);
+				}
+			else if (pname.equals("makerSettings")) //$NON-NLS-1$
+				{
+				NodeList msnodes = pnode.getChildNodes();
+				for (int y = 0; y < msnodes.getLength(); y++)
 					{
-					Node pnode = cnodes.item(x);
-					String pname = pnode.getNodeName();
-					if (pname.equals("#text")) //$NON-NLS-1$
+					Node mnode = msnodes.item(y);
+					String mname = mnode.getNodeName();
+					if (mname.equals("#text")) //$NON-NLS-1$
 						{
 						continue;
 						}
-					else if (pname.equals("caption")) //$NON-NLS-1$
+					else if (mname.equals("isSet")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.CAPTION,pnode.getTextContent());
+						rmn.put(PRoom.REMEMBER_WINDOW_SIZE,Integer.parseInt(mnode.getTextContent()) != 0);
 						}
-					else if (pname.equals("width")) //$NON-NLS-1$
+					else if (mname.equals("w")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.WIDTH,Integer.parseInt(pnode.getTextContent()));
+						rmn.put(PRoom.EDITOR_WIDTH,Integer.parseInt(mnode.getTextContent()));
 						}
-					else if (pname.equals("height")) //$NON-NLS-1$
+					else if (mname.equals("h")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.HEIGHT,Integer.parseInt(pnode.getTextContent()));
+						rmn.put(PRoom.EDITOR_HEIGHT,Integer.parseInt(mnode.getTextContent()));
 						}
-					else if (pname.equals("vsnap")) //$NON-NLS-1$
+					else if (mname.equals("showGrid")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.SNAP_Y,Integer.parseInt(pnode.getTextContent()));
+						rmn.put(PRoom.SHOW_GRID,Integer.parseInt(mnode.getTextContent()) != 0);
 						}
-					else if (pname.equals("hsnap")) //$NON-NLS-1$
+					else if (mname.equals("showObjects")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.SNAP_X,Integer.parseInt(pnode.getTextContent()));
+						rmn.put(PRoom.SHOW_OBJECTS,Integer.parseInt(mnode.getTextContent()) != 0);
 						}
-					else if (pname.equals("isometric")) //$NON-NLS-1$
+					else if (mname.equals("showTiles")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.ISOMETRIC,Integer.parseInt(pnode.getTextContent()) != 0);
+						rmn.put(PRoom.SHOW_TILES,Integer.parseInt(mnode.getTextContent()) != 0);
 						}
-					else if (pname.equals("speed")) //$NON-NLS-1$
+					else if (mname.equals("showBackgrounds")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.SPEED,Integer.parseInt(pnode.getTextContent()));
+						rmn.put(PRoom.SHOW_BACKGROUNDS,Integer.parseInt(mnode.getTextContent()) != 0);
 						}
-					else if (pname.equals("persistent")) //$NON-NLS-1$
+					else if (mname.equals("showForegrounds")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.PERSISTENT,Integer.parseInt(pnode.getTextContent()) != 0);
+						rmn.put(PRoom.SHOW_FOREGROUNDS,Integer.parseInt(mnode.getTextContent()) != 0);
 						}
-					else if (pname.equals("colour")) //$NON-NLS-1$
+					else if (mname.equals("showViews")) //$NON-NLS-1$
 						{
-						int col = Integer.parseInt(pnode.getTextContent());
-						rmn.put(PRoom.BACKGROUND_COLOR,Util.convertGmColor(col));
+						rmn.put(PRoom.SHOW_VIEWS,Integer.parseInt(mnode.getTextContent()) != 0);
 						}
-					else if (pname.equals("showcolour")) //$NON-NLS-1$
+					else if (mname.equals("deleteUnderlyingObj")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.DRAW_BACKGROUND_COLOR,Integer.parseInt(pnode.getTextContent()) != 0);
+						rmn.put(PRoom.DELETE_UNDERLYING_OBJECTS,
+								Integer.parseInt(mnode.getTextContent()) != 0);
 						}
-					else if (pname.equals("code")) //$NON-NLS-1$
+					else if (mname.equals("deleteUnderlyingTiles")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.CREATION_CODE,pnode.getTextContent());
+						rmn.put(PRoom.DELETE_UNDERLYING_TILES,Integer.parseInt(mnode.getTextContent()) != 0);
 						}
-					else if (pname.equals("enableViews")) //$NON-NLS-1$
+					else if (mname.equals("page")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.VIEWS_ENABLED,Integer.parseInt(pnode.getTextContent()) != 0);
+						rmn.put(PRoom.CURRENT_TAB,Integer.parseInt(mnode.getTextContent()));
 						}
-					else if (pname.equals("clearViewBackground")) //$NON-NLS-1$
+					else if (mname.equals("xoffset")) //$NON-NLS-1$
 						{
-						rmn.put(PRoom.VIEWS_CLEAR,Integer.parseInt(pnode.getTextContent()) != 0);
+						rmn.put(PRoom.SCROLL_BAR_X,Integer.parseInt(mnode.getTextContent()));
 						}
-					else if (pname.equals("makerSettings")) //$NON-NLS-1$
+					else if (mname.equals("yoffset")) //$NON-NLS-1$
 						{
-						NodeList msnodes = pnode.getChildNodes();
-						for (int y = 0; y < msnodes.getLength(); y++)
-							{
-							Node mnode = msnodes.item(y);
-							String mname = mnode.getNodeName();
-							if (mname.equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
-							else if (mname.equals("isSet")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.REMEMBER_WINDOW_SIZE,Integer.parseInt(mnode.getTextContent()) != 0);
-								}
-							else if (mname.equals("w")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.EDITOR_WIDTH,Integer.parseInt(mnode.getTextContent()));
-								}
-							else if (mname.equals("h")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.EDITOR_HEIGHT,Integer.parseInt(mnode.getTextContent()));
-								}
-							else if (mname.equals("showGrid")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.SHOW_GRID,Integer.parseInt(mnode.getTextContent()) != 0);
-								}
-							else if (mname.equals("showObjects")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.SHOW_OBJECTS,Integer.parseInt(mnode.getTextContent()) != 0);
-								}
-							else if (mname.equals("showTiles")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.SHOW_TILES,Integer.parseInt(mnode.getTextContent()) != 0);
-								}
-							else if (mname.equals("showBackgrounds")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.SHOW_BACKGROUNDS,Integer.parseInt(mnode.getTextContent()) != 0);
-								}
-							else if (mname.equals("showForegrounds")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.SHOW_FOREGROUNDS,Integer.parseInt(mnode.getTextContent()) != 0);
-								}
-							else if (mname.equals("showViews")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.SHOW_VIEWS,Integer.parseInt(mnode.getTextContent()) != 0);
-								}
-							else if (mname.equals("deleteUnderlyingObj")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.DELETE_UNDERLYING_OBJECTS,
-										Integer.parseInt(mnode.getTextContent()) != 0);
-								}
-							else if (mname.equals("deleteUnderlyingTiles")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.DELETE_UNDERLYING_TILES,Integer.parseInt(mnode.getTextContent()) != 0);
-								}
-							else if (mname.equals("page")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.CURRENT_TAB,Integer.parseInt(mnode.getTextContent()));
-								}
-							else if (mname.equals("xoffset")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.SCROLL_BAR_X,Integer.parseInt(mnode.getTextContent()));
-								}
-							else if (mname.equals("yoffset")) //$NON-NLS-1$
-								{
-								rmn.put(PRoom.SCROLL_BAR_Y,Integer.parseInt(mnode.getTextContent()));
-								}
-							}
-						}
-					else if (pname.equals("backgrounds")) //$NON-NLS-1$
-						{
-						NodeList bgnodes = pnode.getChildNodes();
-						int bkgnum = 0;
-						for (int y = 0; y < bgnodes.getLength(); y++)
-							{
-							Node bnode = bgnodes.item(y);
-							String bname = bnode.getNodeName();
-							if (bname.equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
-							final BackgroundDef bkg = rmn.backgroundDefs.get(bkgnum);
-							bkgnum += 1;
-
-							bkg.properties.put(
-									PBackgroundDef.VISIBLE,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
-							final String bkgname = bnode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
-
-							postpone.add(new DefaultPostponedRef(f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, bkgname));
-
-							bkg.properties.put(
-									PBackgroundDef.FOREGROUND,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("foreground").getTextContent()) != 0); //$NON-NLS-1$
-							bkg.properties.put(
-									PBackgroundDef.TILE_HORIZ,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("htiled").getTextContent()) != 0); //$NON-NLS-1$
-							bkg.properties.put(
-									PBackgroundDef.TILE_VERT,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("vtiled").getTextContent()) != 0); //$NON-NLS-1$
-							bkg.properties.put(
-									PBackgroundDef.STRETCH,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("stretch").getTextContent()) != 0); //$NON-NLS-1$
-							bkg.properties.put(PBackgroundDef.H_SPEED,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("hspeed").getTextContent())); //$NON-NLS-1$
-							bkg.properties.put(PBackgroundDef.V_SPEED,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("vspeed").getTextContent())); //$NON-NLS-1$
-							bkg.properties.put(PBackgroundDef.X,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("x").getTextContent())); //$NON-NLS-1$
-							bkg.properties.put(PBackgroundDef.Y,
-									Integer.parseInt(bnode.getAttributes().getNamedItem("y").getTextContent())); //$NON-NLS-1$
-
-							}
-						}
-					else if (pname.equals("views")) //$NON-NLS-1$
-						{
-						NodeList vinodes = pnode.getChildNodes();
-						int viewnum = 0;
-						for (int y = 0; y < vinodes.getLength(); y++)
-							{
-							Node vnode = vinodes.item(y);
-							String vname = vnode.getNodeName();
-							if (vname.equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
-							final View vw = rmn.views.get(viewnum);
-							viewnum += 1;
-
-							vw.properties.put(
-									PView.VISIBLE,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
-							final String objname = vnode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
-
-							postpone.add(new DefaultPostponedRef(f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, objname));
-
-							vw.properties.put(PView.SPEED_H,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("hspeed").getTextContent())); //$NON-NLS-1$
-							vw.properties.put(PView.SPEED_V,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("vspeed").getTextContent())); //$NON-NLS-1$
-							vw.properties.put(PView.BORDER_H,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("hborder").getTextContent())); //$NON-NLS-1$
-							vw.properties.put(PView.BORDER_V,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("vborder").getTextContent())); //$NON-NLS-1$
-
-							vw.properties.put(PView.PORT_H,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("hport").getTextContent())); //$NON-NLS-1$
-							vw.properties.put(PView.PORT_W,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("wport").getTextContent())); //$NON-NLS-1$
-							vw.properties.put(PView.PORT_X,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("xport").getTextContent())); //$NON-NLS-1$
-							vw.properties.put(PView.PORT_Y,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("yport").getTextContent())); //$NON-NLS-1$
-
-							vw.properties.put(PView.VIEW_H,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("hview").getTextContent())); //$NON-NLS-1$
-							vw.properties.put(PView.VIEW_W,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("wview").getTextContent())); //$NON-NLS-1$
-							vw.properties.put(PView.VIEW_X,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("xview").getTextContent())); //$NON-NLS-1$
-							vw.properties.put(PView.VIEW_Y,
-									Integer.parseInt(vnode.getAttributes().getNamedItem("yview").getTextContent())); //$NON-NLS-1$
-							}
-						}
-					else if (pname.equals("instances")) //$NON-NLS-1$
-						{
-						NodeList insnodes = pnode.getChildNodes();
-						for (int y = 0; y < insnodes.getLength(); y++)
-							{
-							Node inode = insnodes.item(y);
-							String iname = inode.getNodeName();
-							if (iname.equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
-							else if (iname.equals("instance") && inode.getAttributes().getLength() > 0) //$NON-NLS-1$
-								{
-								Instance inst = rmn.addInstance();
-
-								// TODO: Replace this with DelayedRef
-								String objname = inode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
-
-								// because of the way this is set up, sprites must be loaded before objects
-								GmObject temp = f.resMap.getList(GmObject.class).get(objname);
-								if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
-								NamedNodeMap attribs = inode.getAttributes();
-								int xx = Integer.parseInt(attribs.getNamedItem("x").getNodeValue()); //$NON-NLS-1$
-								int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue()); //$NON-NLS-1$
-								double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue()); //$NON-NLS-1$
-								double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue()); //$NON-NLS-1$
-
-								// Read the color blending
-								if (attribs.getNamedItem("colour") != null) //$NON-NLS-1$
-									{
-									long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue()); //$NON-NLS-1$
-									Color color = Util.convertInstanceColorWithAlpha((int) col);
-									inst.setColor(color);
-									inst.setAlpha(color.getAlpha());
-									}
-
-								double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue()); //$NON-NLS-1$
-								inst.properties.put(PInstance.NAME, inode.getAttributes().getNamedItem("name").getNodeValue()); //$NON-NLS-1$
-
-								// NOTE: Because LGM still supports GMK, we attempt to preserve the ID which Studio
-								// will remove if it saves over the GMX, so see if the "id" attribute we added is
-								// there otherwise make up a new ID.
-								Node idNode = inode.getAttributes().getNamedItem("id"); //$NON-NLS-1$
-								int instid;
-								if (idNode != null) {
-									instid = Integer.parseInt(idNode.getNodeValue());
-									if (instid > f.lastInstanceId) {
-										f.lastInstanceId = instid;
-									}
-								} else {
-									instid = ++f.lastInstanceId;
-								}
-
-								inst.properties.put(PInstance.ID, instid);
-
-								inst.setPosition(new Point(xx,yy));
-								inst.setScale(new Point2D.Double(sx,sy));
-								inst.setRotation(rot);
-								inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue()); //$NON-NLS-1$
-								inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) != 0); //$NON-NLS-1$
-								}
-							}
-						}
-					else if (pname.equals("tiles")) //$NON-NLS-1$
-						{
-						NodeList tinodes = pnode.getChildNodes();
-						for (int p = 0; p < tinodes.getLength(); p++)
-							{
-							Node tnode = tinodes.item(p);
-							String tname = tnode.getNodeName();
-							if (tname.equals("#text")) //$NON-NLS-1$
-								{
-								continue;
-								}
-							final Tile tile = new Tile(rmn);
-
-							NamedNodeMap attribs = tnode.getAttributes();
-
-							tile.setPosition(new Point(
-									Integer.parseInt(attribs.getNamedItem("x").getTextContent()), //$NON-NLS-1$
-									Integer.parseInt(attribs.getNamedItem("y").getTextContent()))); //$NON-NLS-1$
-
-							final String bkgname = tnode.getAttributes().getNamedItem("bgName").getTextContent(); //$NON-NLS-1$
-							postpone.add(new DefaultPostponedRef(f.resMap.getList(Background.class), tile.properties, PTile.BACKGROUND, bkgname));
-
-							tile.properties.put(PTile.NAME, attribs.getNamedItem("name").getNodeValue()); //$NON-NLS-1$
-
-							int tileid = Integer.parseInt(attribs.getNamedItem("id").getTextContent()); //$NON-NLS-1$
-							if (tileid > f.lastTileId) {
-								f.lastTileId = tileid;
-							}
-							tile.properties.put(PTile.ID,tileid);
-
-							tile.setBackgroundPosition(new Point(
-									Integer.parseInt(attribs.getNamedItem("xo").getTextContent()), //$NON-NLS-1$
-									Integer.parseInt(attribs.getNamedItem("yo").getTextContent()))); //$NON-NLS-1$
-							tile.setSize(new Dimension(
-									Integer.parseInt(attribs.getNamedItem("w").getTextContent()), //$NON-NLS-1$
-									Integer.parseInt(attribs.getNamedItem("h").getTextContent()))); //$NON-NLS-1$
-							tile.setDepth(Integer.parseInt(attribs.getNamedItem("depth").getTextContent())); //$NON-NLS-1$
-
-							tile.setLocked(Integer.parseInt(attribs.getNamedItem("locked").getTextContent()) != 0); //$NON-NLS-1$
-
-							double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue()); //$NON-NLS-1$
-							double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue()); //$NON-NLS-1$
-							tile.setScale(new Point2D.Double(sx,sy));
-							tile.setColor(Long.parseLong(attribs.getNamedItem("colour").getNodeValue())); //$NON-NLS-1$
-
-							rmn.tiles.add(tile);
-							}
-						}
-					else if (pname.equals("PhysicsWorld")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.PHYSICS_WORLD,Integer.parseInt(pnode.getTextContent()) != 0);
-						}
-					else if (pname.equals("PhysicsWorldTop")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.PHYSICS_TOP,Integer.parseInt(pnode.getTextContent()));
-						}
-					else if (pname.equals("PhysicsWorldLeft")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.PHYSICS_LEFT,Integer.parseInt(pnode.getTextContent()));
-						}
-					else if (pname.equals("PhysicsWorldRight")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.PHYSICS_RIGHT,Integer.parseInt(pnode.getTextContent()));
-						}
-					else if (pname.equals("PhysicsWorldBottom")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.PHYSICS_BOTTOM,Integer.parseInt(pnode.getTextContent()));
-						}
-					else if (pname.equals("PhysicsWorldGravityX")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.PHYSICS_GRAVITY_X,Double.parseDouble(pnode.getTextContent()));
-						}
-					else if (pname.equals("PhysicsWorldGravityY")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.PHYSICS_GRAVITY_Y,Double.parseDouble(pnode.getTextContent()));
-						}
-					else if (pname.equals("PhysicsWorldPixToMeters")) //$NON-NLS-1$
-						{
-						rmn.put(PRoom.PHYSICS_PIXTOMETERS,Double.parseDouble(pnode.getTextContent()));
+						rmn.put(PRoom.SCROLL_BAR_Y,Integer.parseInt(mnode.getTextContent()));
 						}
 					}
 				}
-			}
+			else if (pname.equals("backgrounds")) //$NON-NLS-1$
+				{
+				NodeList bgnodes = pnode.getChildNodes();
+				int bkgnum = 0;
+				for (int y = 0; y < bgnodes.getLength(); y++)
+					{
+					Node bnode = bgnodes.item(y);
+					String bname = bnode.getNodeName();
+					if (bname.equals("#text")) //$NON-NLS-1$
+						{
+						continue;
+						}
+					final BackgroundDef bkg = rmn.backgroundDefs.get(bkgnum);
+					bkgnum += 1;
 
+					bkg.properties.put(
+							PBackgroundDef.VISIBLE,
+							Integer.parseInt(bnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
+					final String bkgname = bnode.getAttributes().getNamedItem("name").getTextContent(); //$NON-NLS-1$
+
+					postpone.add(new DefaultPostponedRef(f.resMap.getList(Background.class), bkg.properties, PBackgroundDef.BACKGROUND, bkgname));
+
+					bkg.properties.put(
+							PBackgroundDef.FOREGROUND,
+							Integer.parseInt(bnode.getAttributes().getNamedItem("foreground").getTextContent()) != 0); //$NON-NLS-1$
+					bkg.properties.put(
+							PBackgroundDef.TILE_HORIZ,
+							Integer.parseInt(bnode.getAttributes().getNamedItem("htiled").getTextContent()) != 0); //$NON-NLS-1$
+					bkg.properties.put(
+							PBackgroundDef.TILE_VERT,
+							Integer.parseInt(bnode.getAttributes().getNamedItem("vtiled").getTextContent()) != 0); //$NON-NLS-1$
+					bkg.properties.put(
+							PBackgroundDef.STRETCH,
+							Integer.parseInt(bnode.getAttributes().getNamedItem("stretch").getTextContent()) != 0); //$NON-NLS-1$
+					bkg.properties.put(PBackgroundDef.H_SPEED,
+							Integer.parseInt(bnode.getAttributes().getNamedItem("hspeed").getTextContent())); //$NON-NLS-1$
+					bkg.properties.put(PBackgroundDef.V_SPEED,
+							Integer.parseInt(bnode.getAttributes().getNamedItem("vspeed").getTextContent())); //$NON-NLS-1$
+					bkg.properties.put(PBackgroundDef.X,
+							Integer.parseInt(bnode.getAttributes().getNamedItem("x").getTextContent())); //$NON-NLS-1$
+					bkg.properties.put(PBackgroundDef.Y,
+							Integer.parseInt(bnode.getAttributes().getNamedItem("y").getTextContent())); //$NON-NLS-1$
+
+					}
+				}
+			else if (pname.equals("views")) //$NON-NLS-1$
+				{
+				NodeList vinodes = pnode.getChildNodes();
+				int viewnum = 0;
+				for (int y = 0; y < vinodes.getLength(); y++)
+					{
+					Node vnode = vinodes.item(y);
+					String vname = vnode.getNodeName();
+					if (vname.equals("#text")) //$NON-NLS-1$
+						{
+						continue;
+						}
+					final View vw = rmn.views.get(viewnum);
+					viewnum += 1;
+
+					vw.properties.put(
+							PView.VISIBLE,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("visible").getTextContent()) != 0); //$NON-NLS-1$
+					final String objname = vnode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
+
+					postpone.add(new DefaultPostponedRef(f.resMap.getList(GmObject.class), vw.properties, PView.OBJECT, objname));
+
+					vw.properties.put(PView.SPEED_H,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("hspeed").getTextContent())); //$NON-NLS-1$
+					vw.properties.put(PView.SPEED_V,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("vspeed").getTextContent())); //$NON-NLS-1$
+					vw.properties.put(PView.BORDER_H,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("hborder").getTextContent())); //$NON-NLS-1$
+					vw.properties.put(PView.BORDER_V,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("vborder").getTextContent())); //$NON-NLS-1$
+
+					vw.properties.put(PView.PORT_H,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("hport").getTextContent())); //$NON-NLS-1$
+					vw.properties.put(PView.PORT_W,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("wport").getTextContent())); //$NON-NLS-1$
+					vw.properties.put(PView.PORT_X,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("xport").getTextContent())); //$NON-NLS-1$
+					vw.properties.put(PView.PORT_Y,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("yport").getTextContent())); //$NON-NLS-1$
+
+					vw.properties.put(PView.VIEW_H,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("hview").getTextContent())); //$NON-NLS-1$
+					vw.properties.put(PView.VIEW_W,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("wview").getTextContent())); //$NON-NLS-1$
+					vw.properties.put(PView.VIEW_X,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("xview").getTextContent())); //$NON-NLS-1$
+					vw.properties.put(PView.VIEW_Y,
+							Integer.parseInt(vnode.getAttributes().getNamedItem("yview").getTextContent())); //$NON-NLS-1$
+					}
+				}
+			else if (pname.equals("instances")) //$NON-NLS-1$
+				{
+				NodeList insnodes = pnode.getChildNodes();
+				for (int y = 0; y < insnodes.getLength(); y++)
+					{
+					Node inode = insnodes.item(y);
+					String iname = inode.getNodeName();
+					if (iname.equals("#text")) //$NON-NLS-1$
+						{
+						continue;
+						}
+					else if (iname.equals("instance") && inode.getAttributes().getLength() > 0) //$NON-NLS-1$
+						{
+						Instance inst = rmn.addInstance();
+
+						// TODO: Replace this with DelayedRef
+						String objname = inode.getAttributes().getNamedItem("objName").getTextContent(); //$NON-NLS-1$
+
+						// because of the way this is set up, sprites must be loaded before objects
+						GmObject temp = f.resMap.getList(GmObject.class).get(objname);
+						if (temp != null) inst.properties.put(PInstance.OBJECT,temp.reference);
+						NamedNodeMap attribs = inode.getAttributes();
+						int xx = Integer.parseInt(attribs.getNamedItem("x").getNodeValue()); //$NON-NLS-1$
+						int yy = Integer.parseInt(attribs.getNamedItem("y").getNodeValue()); //$NON-NLS-1$
+						double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue()); //$NON-NLS-1$
+						double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue()); //$NON-NLS-1$
+
+						// Read the color blending
+						if (attribs.getNamedItem("colour") != null) //$NON-NLS-1$
+							{
+							long col = Long.parseLong(attribs.getNamedItem("colour").getNodeValue()); //$NON-NLS-1$
+							Color color = Util.convertInstanceColorWithAlpha((int) col);
+							inst.setColor(color);
+							inst.setAlpha(color.getAlpha());
+							}
+
+						double rot = Double.parseDouble(attribs.getNamedItem("rotation").getNodeValue()); //$NON-NLS-1$
+						inst.properties.put(PInstance.NAME, inode.getAttributes().getNamedItem("name").getNodeValue()); //$NON-NLS-1$
+
+						// NOTE: Because LGM still supports GMK, we attempt to preserve the ID which Studio
+						// will remove if it saves over the GMX, so see if the "id" attribute we added is
+						// there otherwise make up a new ID.
+						Node idNode = inode.getAttributes().getNamedItem("id"); //$NON-NLS-1$
+						int instid;
+						if (idNode != null) {
+							instid = Integer.parseInt(idNode.getNodeValue());
+							if (instid > f.lastInstanceId) {
+								f.lastInstanceId = instid;
+							}
+						} else {
+							instid = ++f.lastInstanceId;
+						}
+
+						inst.properties.put(PInstance.ID, instid);
+
+						inst.setPosition(new Point(xx,yy));
+						inst.setScale(new Point2D.Double(sx,sy));
+						inst.setRotation(rot);
+						inst.setCreationCode(inode.getAttributes().getNamedItem("code").getNodeValue()); //$NON-NLS-1$
+						inst.setLocked(Integer.parseInt(inode.getAttributes().getNamedItem("locked").getNodeValue()) != 0); //$NON-NLS-1$
+						}
+					}
+				}
+			else if (pname.equals("tiles")) //$NON-NLS-1$
+				{
+				NodeList tinodes = pnode.getChildNodes();
+				for (int p = 0; p < tinodes.getLength(); p++)
+					{
+					Node tnode = tinodes.item(p);
+					String tname = tnode.getNodeName();
+					if (tname.equals("#text")) //$NON-NLS-1$
+						{
+						continue;
+						}
+					final Tile tile = new Tile(rmn);
+
+					NamedNodeMap attribs = tnode.getAttributes();
+
+					tile.setPosition(new Point(
+							Integer.parseInt(attribs.getNamedItem("x").getTextContent()), //$NON-NLS-1$
+							Integer.parseInt(attribs.getNamedItem("y").getTextContent()))); //$NON-NLS-1$
+
+					final String bkgname = tnode.getAttributes().getNamedItem("bgName").getTextContent(); //$NON-NLS-1$
+					postpone.add(new DefaultPostponedRef(f.resMap.getList(Background.class), tile.properties, PTile.BACKGROUND, bkgname));
+
+					tile.properties.put(PTile.NAME, attribs.getNamedItem("name").getNodeValue()); //$NON-NLS-1$
+
+					int tileid = Integer.parseInt(attribs.getNamedItem("id").getTextContent()); //$NON-NLS-1$
+					if (tileid > f.lastTileId) {
+						f.lastTileId = tileid;
+					}
+					tile.properties.put(PTile.ID,tileid);
+
+					tile.setBackgroundPosition(new Point(
+							Integer.parseInt(attribs.getNamedItem("xo").getTextContent()), //$NON-NLS-1$
+							Integer.parseInt(attribs.getNamedItem("yo").getTextContent()))); //$NON-NLS-1$
+					tile.setSize(new Dimension(
+							Integer.parseInt(attribs.getNamedItem("w").getTextContent()), //$NON-NLS-1$
+							Integer.parseInt(attribs.getNamedItem("h").getTextContent()))); //$NON-NLS-1$
+					tile.setDepth(Integer.parseInt(attribs.getNamedItem("depth").getTextContent())); //$NON-NLS-1$
+
+					tile.setLocked(Integer.parseInt(attribs.getNamedItem("locked").getTextContent()) != 0); //$NON-NLS-1$
+
+					double sx = Double.parseDouble(attribs.getNamedItem("scaleX").getNodeValue()); //$NON-NLS-1$
+					double sy = Double.parseDouble(attribs.getNamedItem("scaleY").getNodeValue()); //$NON-NLS-1$
+					tile.setScale(new Point2D.Double(sx,sy));
+					tile.setColor(Long.parseLong(attribs.getNamedItem("colour").getNodeValue())); //$NON-NLS-1$
+
+					rmn.tiles.add(tile);
+					}
+				}
+			else if (pname.equals("PhysicsWorld")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.PHYSICS_WORLD,Integer.parseInt(pnode.getTextContent()) != 0);
+				}
+			else if (pname.equals("PhysicsWorldTop")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.PHYSICS_TOP,Integer.parseInt(pnode.getTextContent()));
+				}
+			else if (pname.equals("PhysicsWorldLeft")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.PHYSICS_LEFT,Integer.parseInt(pnode.getTextContent()));
+				}
+			else if (pname.equals("PhysicsWorldRight")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.PHYSICS_RIGHT,Integer.parseInt(pnode.getTextContent()));
+				}
+			else if (pname.equals("PhysicsWorldBottom")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.PHYSICS_BOTTOM,Integer.parseInt(pnode.getTextContent()));
+				}
+			else if (pname.equals("PhysicsWorldGravityX")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.PHYSICS_GRAVITY_X,Double.parseDouble(pnode.getTextContent()));
+				}
+			else if (pname.equals("PhysicsWorldGravityY")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.PHYSICS_GRAVITY_Y,Double.parseDouble(pnode.getTextContent()));
+				}
+			else if (pname.equals("PhysicsWorldPixToMeters")) //$NON-NLS-1$
+				{
+				rmn.put(PRoom.PHYSICS_PIXTOMETERS,Double.parseDouble(pnode.getTextContent()));
+				}
+			}
 		}
 
 	private static void readPackages(ProjectFileContext c, ResNode root)
@@ -2124,7 +1922,5 @@ public final class GMXFileReader
 				}
 			act.setNot(isquestiontrue);
 			}
-
 		}
-
 	}
