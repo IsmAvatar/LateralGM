@@ -4,7 +4,7 @@
 *
 * @section License
 *
-* Copyright (C) 2013-2015 Robert B. Colton
+* Copyright (C) 2013-2015,2019 Robert B. Colton
 * This file is a part of the LateralGM IDE.
 *
 * This program is free software: you can redistribute it and/or modify
@@ -264,27 +264,27 @@ public final class GMXFileReader
 			LGM.setProgressTitle(Messages.getString("ProgressDialog.GMX_LOADING")); //$NON-NLS-1$
 
 			LGM.setProgress(0,Messages.getString("ProgressDialog.SPRITES")); //$NON-NLS-1$
-			readSprites(c,root);
+			readGroup(c,root,Sprite.class);
 			LGM.setProgress(10,Messages.getString("ProgressDialog.SOUNDS")); //$NON-NLS-1$
-			readSounds(c,root);
+			readGroup(c,root,Sound.class);
 			LGM.setProgress(20,Messages.getString("ProgressDialog.BACKGROUNDS")); //$NON-NLS-1$
-			readBackgrounds(c,root);
+			readGroup(c,root,Background.class);
 			LGM.setProgress(30,Messages.getString("ProgressDialog.PATHS")); //$NON-NLS-1$
-			readPaths(c,root);
+			readGroup(c,root,Path.class);
 			LGM.setProgress(40,Messages.getString("ProgressDialog.SCRIPTS")); //$NON-NLS-1$
-			readScripts(c,root);
+			readGroup(c,root,Script.class);
 			LGM.setProgress(50,Messages.getString("ProgressDialog.SHADERS")); //$NON-NLS-1$
-			readShaders(c,root);
+			readGroup(c,root,Shader.class);
 			LGM.setProgress(60,Messages.getString("ProgressDialog.FONTS")); //$NON-NLS-1$
-			readFonts(c,root);
+			readGroup(c,root,Font.class);
 			LGM.setProgress(70,Messages.getString("ProgressDialog.TIMELINES")); //$NON-NLS-1$
-			readTimelines(c,root);
+			readGroup(c,root,Timeline.class);
 			LGM.setProgress(80,Messages.getString("ProgressDialog.OBJECTS")); //$NON-NLS-1$
-			readGmObjects(c,root);
+			readGroup(c,root,GmObject.class);
 			LGM.setProgress(90,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
-			readRooms(c,root);
+			readGroup(c,root,Room.class);
 			LGM.setProgress(100,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
-			readIncludedFiles(c,root);
+			readGroup(c,root,Include.class);
 			LGM.setProgress(110,Messages.getString("ProgressDialog.EXTENSIONS")); //$NON-NLS-1$
 			readExtensions(c,root);
 			LGM.setProgress(120,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
@@ -635,24 +635,39 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readSprites(ProjectFileContext c, ResNode root)
+	private static void readGroup(ProjectFileContext c, ResNode root, Class<?> kind)
 		{
 		Document in = c.in;
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Sprite.class),ResNode.STATUS_PRIMARY,
-				Sprite.class,null);
+		ResNode node = new ResNode(Resource.kindNamesPlural.get(kind),ResNode.STATUS_PRIMARY,kind,null);
 		root.add(node);
-
-		NodeList sprList = in.getElementsByTagName("sprites"); //$NON-NLS-1$
-		if (sprList.getLength() > 0)
-			{
-			sprList = sprList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		iterateSprites(c,sprList,node);
+		
+		String kindTagName = GMXFileWriter.tagNames.get(kind);
+		if (kindTagName == null) return;
+		NodeList list = in.getElementsByTagName(kindTagName);
+		if (list == null || list.getLength() <= 0) return;
+		list = list.item(0).getChildNodes();
+		if (kind == Sprite.class)
+			iterateSprites(c,list,node);
+		else if (kind == Sound.class)
+			iterateSounds(c,list,node);
+		else if (kind == Background.class)
+			iterateBackgrounds(c,list,node);
+		else if (kind == Path.class)
+			iteratePaths(c,list,node);
+		else if (kind == Script.class)
+			iterateScripts(c,list,node);
+		else if (kind == Shader.class)
+			iterateShaders(c,list,node);
+		else if (kind == Font.class)
+			iterateFonts(c,list,node);
+		else if (kind == Timeline.class)
+			iterateTimelines(c,list,node);
+		else if (kind == GmObject.class)
+			iterateGmObjects(c,list,node);
+		else if (kind == Room.class)
+			iterateRooms(c,list,node);
+		//else if (kind == Include.class)
+			//iterateIncludes(c, list, node);
 		}
 
 	private static void iterateSounds(ProjectFileContext c, NodeList sndList, ResNode node)
@@ -735,26 +750,6 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readSounds(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Sound.class),ResNode.STATUS_PRIMARY,
-				Sound.class,null);
-		root.add(node);
-
-		NodeList sndList = in.getElementsByTagName("sounds"); //$NON-NLS-1$
-		if (sndList.getLength() > 0)
-			{
-			sndList = sndList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		iterateSounds(c,sndList,node);
-		}
-
 	private static void iterateBackgrounds(ProjectFileContext c, NodeList bkgList, ResNode node)
 		{
 		ProjectFile f = c.f;
@@ -835,26 +830,6 @@ public final class GMXFileReader
 					}
 				}
 			}
-		}
-
-	private static void readBackgrounds(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Background.class),
-				ResNode.STATUS_PRIMARY,Background.class,null);
-		root.add(node);
-
-		NodeList bkgList = in.getElementsByTagName("backgrounds"); //$NON-NLS-1$
-		if (bkgList.getLength() > 0)
-			{
-			bkgList = bkgList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		iterateBackgrounds(c,bkgList,node);
 		}
 
 	private static void iteratePaths(ProjectFileContext c, NodeList pthList, ResNode node)
@@ -942,26 +917,6 @@ public final class GMXFileReader
 			}
 		}
 
-	private static void readPaths(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Path.class),ResNode.STATUS_PRIMARY,
-				Path.class,null);
-		root.add(node);
-
-		NodeList pthList = in.getElementsByTagName("paths"); //$NON-NLS-1$
-		if (pthList.getLength() > 0)
-			{
-			pthList = pthList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		iteratePaths(c,pthList,node);
-		}
-
 	private static void iterateScripts(ProjectFileContext c, NodeList scrList, ResNode node)
 		{
 		ProjectFile f = c.f;
@@ -1035,26 +990,6 @@ public final class GMXFileReader
 
 		}
 
-	private static void readScripts(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Script.class),ResNode.STATUS_PRIMARY,
-				Script.class,null);
-		root.add(node);
-
-		NodeList scrList = in.getElementsByTagName("scripts"); //$NON-NLS-1$
-		if (scrList.getLength() > 0)
-			{
-			scrList = scrList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		iterateScripts(c,scrList,node);
-		}
-
 	private static void iterateShaders(ProjectFileContext c, NodeList shrList, ResNode node)
 		{
 		ProjectFile f = c.f;
@@ -1111,26 +1046,6 @@ public final class GMXFileReader
 				}
 			}
 
-		}
-
-	private static void readShaders(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Shader.class),ResNode.STATUS_PRIMARY,
-				Shader.class,null);
-		root.add(node);
-
-		NodeList shrList = in.getElementsByTagName("shaders"); //$NON-NLS-1$
-		if (shrList.getLength() > 0)
-			{
-			shrList = shrList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		iterateShaders(c,shrList,node);
 		}
 
 	private static void iterateFonts(ProjectFileContext c, NodeList fntList, ResNode node)
@@ -1210,26 +1125,6 @@ public final class GMXFileReader
 
 		}
 
-	private static void readFonts(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Font.class),ResNode.STATUS_PRIMARY,
-				Font.class,null);
-		root.add(node);
-
-		NodeList fntList = in.getElementsByTagName("fonts"); //$NON-NLS-1$
-		if (fntList.getLength() > 0)
-			{
-			fntList = fntList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		iterateFonts(c,fntList,node);
-		}
-
 	private static void iterateTimelines(ProjectFileContext c, NodeList tmlList, ResNode node)
 		{
 		ProjectFile f = c.f;
@@ -1297,26 +1192,6 @@ public final class GMXFileReader
 			iterateTimelines(c,cNode.getChildNodes(),rnode);
 			}
 
-		}
-
-	private static void readTimelines(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Timeline.class),ResNode.STATUS_PRIMARY,
-				Timeline.class,null);
-		root.add(node);
-
-		NodeList tmlList = in.getElementsByTagName("timelines"); //$NON-NLS-1$
-		if (tmlList.getLength() > 0)
-			{
-			tmlList = tmlList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		iterateTimelines(c,tmlList,node);
 		}
 
 	private static void iterateGmObjects(ProjectFileContext c, NodeList objList, ResNode node)
@@ -1483,27 +1358,6 @@ public final class GMXFileReader
 				node.add(rnode);
 				}
 			}
-		}
-
-	private static void readGmObjects(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-		ProjectFile f = c.f;
-		ResNode node = new ResNode("Objects",ResNode.STATUS_PRIMARY,GmObject.class,null); //$NON-NLS-1$
-		root.add(node);
-
-		NodeList objList = in.getElementsByTagName("objects"); //$NON-NLS-1$
-		if (objList.getLength() > 0)
-			{
-			objList = objList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		iterateGmObjects(c,objList,node);
-
-		f.resMap.getList(GmObject.class).lastId = objList.getLength() - 1;
 		}
 
 	private static void iterateRooms(ProjectFileContext c, NodeList rmnList, ResNode node)
@@ -1923,49 +1777,8 @@ public final class GMXFileReader
 
 		}
 
-	private static void readRooms(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Room.class), ResNode.STATUS_PRIMARY,
-			Room.class, null);
-		root.add(node);
-
-		NodeList rmnList = in.getElementsByTagName("rooms"); //$NON-NLS-1$
-		if (rmnList.getLength() > 0)
-			{
-			rmnList = rmnList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		iterateRooms(c,rmnList,node);
-		}
-
-	private static void readIncludedFiles(ProjectFileContext c, ResNode root)
-		{
-		Document in = c.in;
-
-		ResNode node = new ResNode(Resource.kindNamesPlural.get(Include.class), ResNode.STATUS_PRIMARY,
-			Include.class, null);
-		root.add(node);
-
-		NodeList incList = in.getElementsByTagName("includes"); //$NON-NLS-1$
-		if (incList.getLength() > 0)
-			{
-			incList = incList.item(0).getChildNodes();
-			}
-		else
-			{
-			return;
-			}
-		//iterateIncludes(c, incList, node);
-		}
-
 	private static void readPackages(ProjectFileContext c, ResNode root)
 		{
-
 		//iteratePackages(c, extList, node);
 		ExtensionPackages extpkgs = c.f.extPackages;
 		ResNode node = new ResNode(Resource.kindNamesPlural.get(ExtensionPackages.class),
