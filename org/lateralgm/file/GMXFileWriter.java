@@ -118,7 +118,7 @@ public final class GMXFileWriter
 	{
 	private static DocumentBuilder documentBuilder;
 	private static Transformer transformer;
-	private static HashMap<Class<?>,String> tagNames = new HashMap<>(), rootNames = new HashMap<>();
+	public static HashMap<Class<?>,String> tagNames = new HashMap<>(), rootNames = new HashMap<>();
 
 	static
 		{
