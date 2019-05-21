@@ -104,6 +104,7 @@ public final class Prefs
 		communityURI = getString("communityURI","http://enigma-dev.org/forums");
 		issueURI = getString("issueURI","http://github.com/IsmAvatar/LateralGM/issues");
 		enableDragAndDrop = getBoolean("enableDragAndDrop",true);
+		expandEventTree = getBoolean("expandEventTree",true);
 		rightOrientation = getBoolean("rightOrientation",false);
 		boldPrimaryNodes = getBoolean("boldPrimaryNodes",true);
 		actionLibraryPath = getString("actionLibraryPath","org/lateralgm/resources/library/default");
@@ -212,6 +213,7 @@ public final class Prefs
 	public static boolean boldPrimaryNodes;
 	public static boolean rightOrientation;
 	public static boolean enableDragAndDrop;
+	public static boolean expandEventTree;
 	public static String actionLibraryPath;
 	public static String userLibraryPath;
 	public static int actionToolTipColumns;

@@ -812,6 +812,9 @@ public class GmObjectFrame extends InstantiableResourceFrame<GmObject,PGmObject>
 		events.addMouseListener(mListener);
 		events.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 		events.addTreeSelectionListener(this);
+		if (Prefs.expandEventTree)
+			for (int i = 0; i < events.getRowCount(); ++i)
+				events.expandRow(i);
 		if (LGM.javaVersion >= 10600)
 			{
 			events.setDragEnabled(true);
