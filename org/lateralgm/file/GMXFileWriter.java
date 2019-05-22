@@ -70,6 +70,7 @@ import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
+import org.lateralgm.resources.Include;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
@@ -134,6 +135,7 @@ public final class GMXFileWriter
 		tagNames.put(Timeline.class,"timelines"); //$NON-NLS-1$
 		tagNames.put(GmObject.class,"objects"); //$NON-NLS-1$
 		tagNames.put(Room.class,"rooms"); //$NON-NLS-1$
+		tagNames.put(Include.class,"datafiles"); //$NON-NLS-1$
 
 		rootNames.put(Sprite.class,"sprites"); //$NON-NLS-1$
 		rootNames.put(Sound.class,"sound"); //$NON-NLS-1$
@@ -145,6 +147,7 @@ public final class GMXFileWriter
 		rootNames.put(Timeline.class,"timelines"); //$NON-NLS-1$
 		rootNames.put(GmObject.class,"objects"); //$NON-NLS-1$
 		rootNames.put(Room.class,"rooms"); //$NON-NLS-1$
+		rootNames.put(Include.class,"datafiles"); //$NON-NLS-1$
 		}
 
 	private GMXFileWriter()

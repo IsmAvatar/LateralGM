@@ -66,6 +66,7 @@ import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Include;
+import org.lateralgm.resources.Include.PInclude;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Resource;
@@ -107,6 +108,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
@@ -380,8 +382,8 @@ public final class GMXFileReader
 					readGmObject(c,node,cNode);
 				else if (tagName.equals("room")) //$NON-NLS-1$
 					readRoom(c,node,cNode);
-				//else if (tagName.equals("include")) //$NON-NLS-1$
-				//readInclude(c,node,cNode);
+				else if (tagName.equals("datafile")) //$NON-NLS-1$
+					readInclude(c,node,cNode);
 				}
 			}
 		}
@@ -1573,6 +1575,37 @@ public final class GMXFileReader
 				rmn.put(PRoom.PHYSICS_PIXTOMETERS,Double.parseDouble(pnode.getTextContent()));
 				}
 			}
+		}
+
+	private static void readInclude(ProjectFileContext c, ResNode node, Node cNode)
+		{
+		if (!(cNode instanceof Element)) return;
+		Element el = (Element)cNode;
+
+		final ProjectFile f = c.f;
+
+		final Include inc = f.resMap.getList(Include.class).add();
+		String name = el.getElementsByTagName("name").item(0).getTextContent(); //$NON-NLS-1$
+		inc.setName(name);
+		ResNode rnode = new ResNode(inc.getName(),ResNode.STATUS_SECONDARY,Include.class,inc.reference);
+		node.add(rnode);
+
+		boolean overwrite = Integer.parseInt(el.getElementsByTagName("overwrite").item(0).getTextContent()) != 0; //$NON-NLS-1$
+		inc.put(PInclude.OVERWRITE,overwrite);
+		boolean freeMemory = Integer.parseInt(el.getElementsByTagName("freeData").item(0).getTextContent()) != 0; //$NON-NLS-1$
+		inc.put(PInclude.FREEMEMORY,freeMemory);
+		boolean removeEnd = Integer.parseInt(el.getElementsByTagName("removeEnd").item(0).getTextContent()) != 0; //$NON-NLS-1$
+		inc.put(PInclude.REMOVEATGAMEEND,removeEnd);
+		boolean store = Integer.parseInt(el.getElementsByTagName("store").item(0).getTextContent()) != 0; //$NON-NLS-1$
+		inc.put(PInclude.STORE,store);
+		int size = Integer.parseInt(el.getElementsByTagName("size").item(0).getTextContent()); //$NON-NLS-1$
+		inc.put(PInclude.SIZE,size);
+		String exportFolder = el.getElementsByTagName("exportDir").item(0).getTextContent(); //$NON-NLS-1$
+		inc.put(PInclude.EXPORTFOLDER,exportFolder);
+		int exportAction = Integer.parseInt(el.getElementsByTagName("exportAction").item(0).getTextContent()); //$NON-NLS-1$
+		inc.put(PInclude.EXPORTACTION,exportAction);
+		String filename = el.getElementsByTagName("filename").item(0).getTextContent(); //$NON-NLS-1$
+		inc.put(PInclude.FILENAME,filename);
 		}
 
 	private static void readPackages(ProjectFileContext c, ResNode root)
