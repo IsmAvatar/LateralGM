@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -1606,6 +1607,23 @@ public final class GMXFileReader
 		inc.put(PInclude.EXPORTACTION,exportAction);
 		String filename = el.getElementsByTagName("filename").item(0).getTextContent(); //$NON-NLS-1$
 		inc.put(PInclude.FILENAME,filename);
+
+		String filePath = filename;
+		ResNode parent = node;
+		while (parent != null && parent.status == ResNode.STATUS_GROUP) {
+			filePath = parent.toString() + '/' + filePath;
+			parent = (ResNode) parent.getParent();
+		}
+		filePath = f.getDirectory() + "/datafiles/" + filePath; //$NON-NLS-1$
+		File dataFile = new File(filePath);
+		try
+			{
+			inc.data = Files.readAllBytes(dataFile.toPath());
+			}
+		catch (IOException e)
+			{
+			LGM.showDefaultExceptionHandler(new GmFormatException(c.f, "failed to read: " + dataFile.getAbsolutePath(), e));
+			}
 		}
 
 	private static void readPackages(ProjectFileContext c, ResNode root)

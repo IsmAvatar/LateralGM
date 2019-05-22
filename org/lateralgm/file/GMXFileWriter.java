@@ -37,6 +37,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -1309,9 +1310,16 @@ public final class GMXFileWriter
 				boolToString((Boolean)include.get(PInclude.REMOVEATGAMEEND))));
 		domRoot.appendChild(incRoot);
 
-		String folderName = f.getDirectory() + "/datafiles"; //$NON-NLS-1$
-		File folderFile = new File(Util.getPOSIXPath(folderName));
-		folderFile.mkdir();
+		String filePath = include.get(PInclude.FILENAME).toString();
+		ResNode parent = (ResNode) resNode.getParent();
+		while (parent != null && parent.status == ResNode.STATUS_GROUP) {
+			filePath = parent.toString() + '/' + filePath;
+			parent = (ResNode) parent.getParent();
+		}
+		filePath = f.getDirectory() + "/datafiles/" + filePath; //$NON-NLS-1$
+		File dataFile = new File(filePath);
+		dataFile.getParentFile().mkdirs();
+		Files.write(dataFile.toPath(),include.data);
 		}
 
 	public static void writePackages(ProjectFileContext c, Element root) throws IOException
