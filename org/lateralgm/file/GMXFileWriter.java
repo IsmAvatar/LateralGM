@@ -37,6 +37,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -70,6 +71,8 @@ import org.lateralgm.resources.GameSettings;
 import org.lateralgm.resources.GameSettings.PGameSettings;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
+import org.lateralgm.resources.Include;
+import org.lateralgm.resources.Include.PInclude;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Path.PPath;
@@ -134,6 +137,7 @@ public final class GMXFileWriter
 		tagNames.put(Timeline.class,"timelines"); //$NON-NLS-1$
 		tagNames.put(GmObject.class,"objects"); //$NON-NLS-1$
 		tagNames.put(Room.class,"rooms"); //$NON-NLS-1$
+		tagNames.put(Include.class,"datafiles"); //$NON-NLS-1$
 
 		rootNames.put(Sprite.class,"sprites"); //$NON-NLS-1$
 		rootNames.put(Sound.class,"sound"); //$NON-NLS-1$
@@ -145,6 +149,7 @@ public final class GMXFileWriter
 		rootNames.put(Timeline.class,"timelines"); //$NON-NLS-1$
 		rootNames.put(GmObject.class,"objects"); //$NON-NLS-1$
 		rootNames.put(Room.class,"rooms"); //$NON-NLS-1$
+		rootNames.put(Include.class,"datafiles"); //$NON-NLS-1$
 		}
 
 	private GMXFileWriter()
@@ -233,7 +238,7 @@ public final class GMXFileWriter
 		LGM.setProgress(100,Messages.getString("ProgressDialog.ROOMS")); //$NON-NLS-1$
 		writeGroup(c,root,Room.class);
 		LGM.setProgress(110,Messages.getString("ProgressDialog.INCLUDEFILES")); //$NON-NLS-1$
-		//writeGroup(c,root,Include.class);
+		writeGroup(c,root,Include.class);
 		LGM.setProgress(120,Messages.getString("ProgressDialog.PACKAGES")); //$NON-NLS-1$
 		//writePackages(c, root);
 		LGM.setProgress(130,Messages.getString("ProgressDialog.CONSTANTS")); //$NON-NLS-1$
@@ -324,7 +329,7 @@ public final class GMXFileWriter
 		}
 
 	// This is used to store booleans since GMX uses -1 and 0 and other times false and true
-	private static String boolToString(boolean bool)
+	private static String boolToString(Boolean bool)
 		{
 			return bool ? "-1" : "0"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -414,6 +419,8 @@ public final class GMXFileWriter
 						writeGmObject(c,resNode,domRoot);
 					else if (kind == Room.class)
 						writeRoom(c,resNode,domRoot);
+					else if (kind == Include.class)
+						writeInclude(c,resNode,domRoot);
 					break;
 				}
 			}
@@ -1276,9 +1283,43 @@ public final class GMXFileWriter
 		domRoot.appendChild(res);
 		}
 
-	public static void writeIncludedFiles(ProjectFileContext c, Element root) throws IOException
+	private static void writeInclude(ProjectFileContext c, ResNode resNode, Element domRoot)
+			throws IOException
 		{
-		// TODO: Implement
+		ProjectFile f = c.f;
+		Document dom = c.dom;
+
+		Include include = (Include) resNode.getRes().get();
+		Element incRoot = dom.createElement("datafile"); //$NON-NLS-1$
+		incRoot.appendChild(createElement(dom,"name", include.getName())); //$NON-NLS-1$
+		incRoot.appendChild(createElement(dom,"filename", //$NON-NLS-1$
+				include.get(PInclude.FILENAME).toString()));
+		incRoot.appendChild(createElement(dom,"size", //$NON-NLS-1$
+				include.get(PInclude.SIZE).toString()));
+		incRoot.appendChild(createElement(dom,"exportDir", //$NON-NLS-1$
+				include.get(PInclude.EXPORTFOLDER).toString()));
+		incRoot.appendChild(createElement(dom,"exportAction", //$NON-NLS-1$
+				include.get(PInclude.EXPORTACTION).toString()));
+		incRoot.appendChild(createElement(dom,"overwrite", //$NON-NLS-1$
+				boolToString((Boolean)include.get(PInclude.OVERWRITE))));
+		incRoot.appendChild(createElement(dom,"store", //$NON-NLS-1$
+				boolToString((Boolean)include.get(PInclude.STORE))));
+		incRoot.appendChild(createElement(dom,"freeData", //$NON-NLS-1$
+				boolToString((Boolean)include.get(PInclude.FREEMEMORY))));
+		incRoot.appendChild(createElement(dom,"removeEnd", //$NON-NLS-1$
+				boolToString((Boolean)include.get(PInclude.REMOVEATGAMEEND))));
+		domRoot.appendChild(incRoot);
+
+		String filePath = include.get(PInclude.FILENAME).toString();
+		ResNode parent = (ResNode) resNode.getParent();
+		while (parent != null && parent.status == ResNode.STATUS_GROUP) {
+			filePath = parent.toString() + '/' + filePath;
+			parent = (ResNode) parent.getParent();
+		}
+		filePath = f.getDirectory() + "/datafiles/" + filePath; //$NON-NLS-1$
+		File dataFile = new File(filePath);
+		dataFile.getParentFile().mkdirs();
+		Files.write(dataFile.toPath(),include.data);
 		}
 
 	public static void writePackages(ProjectFileContext c, Element root) throws IOException

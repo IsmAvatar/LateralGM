@@ -14,7 +14,6 @@ import org.lateralgm.util.PropertyMap;
 
 public class Include extends InstantiableResource<Include,Include.PInclude>
 	{
-
 	public byte[] data = new byte[0];
 
 	public enum PInclude
