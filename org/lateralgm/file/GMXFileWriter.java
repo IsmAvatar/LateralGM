@@ -1158,7 +1158,7 @@ public final class GMXFileWriter
 		// Write Backgrounds
 		Element backroot = doc.createElement("backgrounds"); //$NON-NLS-1$
 		roomroot.appendChild(backroot);
-		for (BackgroundDef back : room.backgroundDefs) 
+		for (BackgroundDef back : room.backgroundDefs)
 			{
 			PropertyMap<PBackgroundDef> props = back.properties;
 			Element bckelement = doc.createElement("background"); //$NON-NLS-1$
@@ -1298,8 +1298,9 @@ public final class GMXFileWriter
 				include.get(PInclude.SIZE).toString()));
 		incRoot.appendChild(createElement(dom,"exportDir", //$NON-NLS-1$
 				include.get(PInclude.EXPORTFOLDER).toString()));
+		int exportCode = ProjectFile.INCLUDE_EXPORT_CODE.get(include.get(PInclude.EXPORTACTION));
 		incRoot.appendChild(createElement(dom,"exportAction", //$NON-NLS-1$
-				include.get(PInclude.EXPORTACTION).toString()));
+				Integer.toString(exportCode)));
 		incRoot.appendChild(createElement(dom,"overwrite", //$NON-NLS-1$
 				boolToString((Boolean)include.get(PInclude.OVERWRITE))));
 		incRoot.appendChild(createElement(dom,"store", //$NON-NLS-1$

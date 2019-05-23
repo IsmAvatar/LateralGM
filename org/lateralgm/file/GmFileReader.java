@@ -24,6 +24,7 @@ import java.util.Stack;
 import java.util.zip.DataFormatException;
 
 import javax.swing.JProgressBar;
+import javax.swing.tree.TreeNode;
 
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.file.ProjectFile.ResourceHolder;
@@ -47,9 +48,10 @@ import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Include;
+import org.lateralgm.resources.Include.ExportAction;
+import org.lateralgm.resources.Include.PInclude;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
-import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
@@ -57,6 +59,7 @@ import org.lateralgm.resources.Room;
 import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Script;
 import org.lateralgm.resources.Script.PScript;
+import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Sound;
 import org.lateralgm.resources.Sound.PSound;
 import org.lateralgm.resources.Sprite;
@@ -478,18 +481,23 @@ public final class GmFileReader
 		for (int i = 0; i < no; i++)
 			{
 			Include inc = f.resMap.getList(Include.class).add();
-			inc.filepath = in.readStr();
-			inc.filename = new File(inc.filepath).getName();
+			String filepath = in.readStr();
+			String filename = new File(filepath).getName();
+			inc.put(PInclude.FILEPATH,filepath);
+			inc.put(PInclude.FILENAME,filename);
 			}
 		gs.put(PGameSettings.INCLUDE_FOLDER,ProjectFile.GS_INCFOLDERS[in.read4()]);
 		//		f.gameSettings.includeFolder = in.read4(); //0 = main, 1 = temp
 		in.readBool(gs.properties,PGameSettings.OVERWRITE_EXISTING,
 				PGameSettings.REMOVE_AT_GAME_END);
+		 //1 = temp, 2 = main
+		ExportAction exportAction = gs.get(PGameSettings.INCLUDE_FOLDER) == IncludeFolder.TEMP
+				? ExportAction.TEMP_DIRECTORY : ExportAction.SAME_FOLDER;
 		for (Include inc : f.resMap.getList(Include.class))
 			{
-			inc.export = gs.get(PGameSettings.INCLUDE_FOLDER) == IncludeFolder.TEMP ? 1 : 2; //1 = temp, 2 = main
-			inc.overwriteExisting = gs.get(PGameSettings.OVERWRITE_EXISTING);
-			inc.removeAtGameEnd = gs.get(PGameSettings.REMOVE_AT_GAME_END);
+			inc.put(PInclude.EXPORTACTION,exportAction);
+			inc.put(PInclude.OVERWRITE,gs.get(PGameSettings.OVERWRITE_EXISTING));
+			inc.put(PInclude.REMOVEATGAMEEND,gs.get(PGameSettings.REMOVE_AT_GAME_END));
 			}
 		}
 
@@ -819,7 +827,7 @@ public final class GmFileReader
 			}
 		}
 
-	private static void readFonts(ProjectFileContext c, int ver) throws IOException,GmFormatException
+	private static void readFonts(ProjectFileContext c, int ver) throws IOException,GmFormatException,DataFormatException
 		{
 		ProjectFile f = c.f;
 		GmStreamDecoder in = c.in;
@@ -838,20 +846,22 @@ public final class GmFileReader
 					throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 							Messages.getString("ProjectFileReader.INDATAFILES"),ver)); //$NON-NLS-1$
 				Include inc = f.resMap.getList(Include.class).add();
-				inc.filepath = in.readStr();
-				inc.filename = new File(inc.filepath).getName();
+				String filepath = in.readStr();
+				String filename = new File(filepath).getName();
+				inc.put(PInclude.FILEPATH,filepath);
+				inc.put(PInclude.FILENAME,filename);
 				if (in.readBool()) //file data exists?
 					{
-					inc.size = in.read4();
-					inc.data = new byte[inc.size];
-					in.read(inc.data,0,inc.size);
+					inc.data = in.decompress(in.read4());
+					if (inc.data != null)
+						inc.put(PInclude.SIZE,inc.data.length);
 					}
-				inc.export = in.read4();
+				inc.put(PInclude.EXPORTACTION,ProjectFile.INCLUDE_EXPORT_ACTION[in.read4()]);
 				//FIXME: Deal with Font Includes
 				//if (inc.export == 3) inc.exportFolder = Font Folder?
-				inc.overwriteExisting = in.readBool();
-				inc.freeMemAfterExport = in.readBool();
-				inc.removeAtGameEnd = in.readBool();
+				inc.put(PInclude.OVERWRITE,in.readBool());
+				inc.put(PInclude.FREEMEMORY,in.readBool());
+				inc.put(PInclude.REMOVEATGAMEEND,in.readBool());
 				}
 			return;
 			}
@@ -1113,21 +1123,24 @@ public final class GmFileReader
 				throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("ProjectFileReader.ININCLUDEDFILES"),ver)); //$NON-NLS-1$
 			Include inc = f.resMap.getList(Include.class).add();
-			inc.filename = in.readStr();
-			inc.filepath = in.readStr();
-			inc.isOriginal = in.readBool();
-			inc.size = in.read4();
-			if (in.readBool()) //store in editable?
+			inc.put(PInclude.FILENAME,in.readStr());
+			inc.put(PInclude.FILEPATH,in.readStr());
+			inc.put(PInclude.ORIGINAL,in.readBool());
+			int size = in.read4();
+			inc.put(PInclude.SIZE,size);
+			boolean store = in.readBool();
+			inc.put(PInclude.STORE,store);
+			if (store)
 				{
 				int s = in.read4();
 				inc.data = new byte[s];
 				in.read(inc.data,0,s);
 				}
-			inc.export = in.read4();
-			inc.exportFolder = in.readStr();
-			inc.overwriteExisting = in.readBool();
-			inc.freeMemAfterExport = in.readBool();
-			inc.removeAtGameEnd = in.readBool();
+			inc.put(PInclude.EXPORTACTION,ProjectFile.INCLUDE_EXPORT_ACTION[in.read4()]);
+			inc.put(PInclude.EXPORTFOLDER,in.readStr());
+			inc.put(PInclude.OVERWRITE,in.readBool());
+			inc.put(PInclude.FREEMEMORY,in.readBool());
+			inc.put(PInclude.REMOVEATGAMEEND,in.readBool());
 			in.endInflate();
 			}
 		}
@@ -1189,6 +1202,9 @@ public final class GmFileReader
 			{
 			byte status = (byte) in.read4();
 			Class<?> type = ProjectFile.RESOURCE_KIND[in.read4()];
+			// It's "Data Files" in GM5, some of which are fonts.
+			if (ver == 500 && type == Font.class)
+				type = Include.class;
 			int ind = in.read4();
 			String name = in.readStr();
 			boolean hasRef;
@@ -1199,11 +1215,18 @@ public final class GmFileReader
 				hasRef = false;
 			ResourceList<?> rl = hasRef ? (ResourceList<?>) f.resMap.get(type) : null;
 			ResNode node = new ResNode(name,status,type,hasRef ? rl.getUnsafe(ind).reference : null);
+			if (ver == 500 && type == Include.class)
+				{
+				// Included files don't redundantly store the name with the metadata
+				// so we need to sync the resource name with the tree name.
+				if (hasRef) rl.getUnsafe(ind).setName(name);
 
-			if (ver == 500 && status == ResNode.STATUS_PRIMARY && type == Font.class)
-				path.peek().addChild(Messages.getString("LGM.FNT"),status,type); //$NON-NLS-1$
-			else
-				path.peek().add(node);
+				// GameMaker 5 did not have a dedicated primary fonts group, let's add one.
+				if (status == ResNode.STATUS_PRIMARY)
+					path.peek().addChild(Messages.getString("LGM.FNT"),status,Font.class); //$NON-NLS-1$
+				}
+
+			path.peek().add(node);
 			int contents = in.read4();
 			if (contents > 0)
 				{
@@ -1216,25 +1239,46 @@ public final class GmFileReader
 				rootnodes = left.pop().intValue();
 				path.pop();
 				}
-
 			}
-		if (ver <= 540) root.addChild(Messages.getString("LGM.EXT"), //$NON-NLS-1$
+
+		ResNode incRoot = null;
+		if (ver == 500)
+			{
+			// For GameMaker 5 we need to move the "Data Files" folder
+			// to the place of the "Includes" folder in LGM's default tree
+			TreeNode dataFileNode = root.getChildAt(6);
+			if (dataFileNode instanceof ResNode)
+				{
+				incRoot = (ResNode)dataFileNode;
+				incRoot.setUserObject("Includes");
+				root.remove(incRoot);
+				}
+			}
+		else
+			{
+			// All newer GameMaker versions don't have a primary node for included files.
+			// Therefore we need to create a primary node for them and construct a tree.
+			incRoot = new ResNode("Includes",ResNode.STATUS_PRIMARY,Include.class);
+			for (Include inc : f.resMap.getList(Include.class))
+				{
+				String filename = inc.get(PInclude.FILENAME).toString();
+				if (!filename.isEmpty())
+					inc.setName(Util.fileNameWithoutExtension(filename));
+				incRoot.add(new ResNode(inc.getName(),ResNode.STATUS_SECONDARY,Include.class,inc.reference));
+				}
+			}
+		root.insert(incRoot,9);
+
+		if (ver <= 540) root.addChild("Extension Packages",
 				ResNode.STATUS_SECONDARY,ExtensionPackages.class);
 
-		//TODO: This just makes the GMK arrange to the modern version of the IDE
+		//This just makes the GMK arrange to the modern version of the IDE
 		ResNode node = new ResNode("Shaders",ResNode.STATUS_PRIMARY,Shader.class);
 		root.insert(node,5);
 		node = new ResNode("Extensions",ResNode.STATUS_PRIMARY,Extension.class);
-		root.insert(node,10);
-		node = new ResNode("Includes",ResNode.STATUS_PRIMARY,Include.class);
-		root.insert(node,10);
-		for (Include inc : f.resMap.getList(Include.class))
-			{
-			node.add(new ResNode(inc.getName(),ResNode.STATUS_SECONDARY,Include.class,inc.reference));
-			}
+		root.insert(node,11);
 		node = new ResNode("Constants",ResNode.STATUS_SECONDARY,Constants.class);
 		root.insert(node,12);
-
 		}
 
 	private static void readActions(ProjectFileContext c, ActionContainer container, String errorKey,

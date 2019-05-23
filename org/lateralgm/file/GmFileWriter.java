@@ -16,8 +16,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -29,53 +29,54 @@ import org.lateralgm.main.LGM;
 import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.Background;
+import org.lateralgm.resources.Background.PBackground;
 import org.lateralgm.resources.Constants;
 import org.lateralgm.resources.Extension;
 import org.lateralgm.resources.Font;
+import org.lateralgm.resources.Font.PFont;
 import org.lateralgm.resources.GameInformation;
+import org.lateralgm.resources.GameInformation.PGameInformation;
 import org.lateralgm.resources.GameSettings;
+import org.lateralgm.resources.GameSettings.PGameSettings;
+import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GmObject;
+import org.lateralgm.resources.GmObject.PGmObject;
 import org.lateralgm.resources.Include;
+import org.lateralgm.resources.Include.PInclude;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
+import org.lateralgm.resources.Path.PPath;
 import org.lateralgm.resources.Resource;
 import org.lateralgm.resources.ResourceReference;
 import org.lateralgm.resources.Room;
+import org.lateralgm.resources.Room.PRoom;
 import org.lateralgm.resources.Script;
+import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.resources.Shader;
 import org.lateralgm.resources.Sound;
-import org.lateralgm.resources.Sprite;
-import org.lateralgm.resources.Timeline;
-import org.lateralgm.resources.Background.PBackground;
-import org.lateralgm.resources.Font.PFont;
-import org.lateralgm.resources.GameInformation.PGameInformation;
-import org.lateralgm.resources.GameSettings.PGameSettings;
-import org.lateralgm.resources.GameSettings.ProgressBar;
-import org.lateralgm.resources.GmObject.PGmObject;
-import org.lateralgm.resources.Path.PPath;
-import org.lateralgm.resources.Room.PRoom;
-import org.lateralgm.resources.Script.PScript;
 import org.lateralgm.resources.Sound.PSound;
+import org.lateralgm.resources.Sprite;
 import org.lateralgm.resources.Sprite.PSprite;
+import org.lateralgm.resources.Timeline;
 import org.lateralgm.resources.library.LibAction;
 import org.lateralgm.resources.sub.Action;
 import org.lateralgm.resources.sub.ActionContainer;
 import org.lateralgm.resources.sub.Argument;
 import org.lateralgm.resources.sub.BackgroundDef;
-import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
+import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
 import org.lateralgm.resources.sub.CharacterRange;
+import org.lateralgm.resources.sub.CharacterRange.PCharacterRange;
 import org.lateralgm.resources.sub.Constant;
 import org.lateralgm.resources.sub.Event;
 import org.lateralgm.resources.sub.Instance;
+import org.lateralgm.resources.sub.Instance.PInstance;
 import org.lateralgm.resources.sub.MainEvent;
 import org.lateralgm.resources.sub.Moment;
 import org.lateralgm.resources.sub.PathPoint;
 import org.lateralgm.resources.sub.Tile;
+import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.Trigger;
 import org.lateralgm.resources.sub.View;
-import org.lateralgm.resources.sub.BackgroundDef.PBackgroundDef;
-import org.lateralgm.resources.sub.Instance.PInstance;
-import org.lateralgm.resources.sub.Tile.PTile;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.PropertyMap;
 
@@ -278,7 +279,7 @@ public final class GmFileWriter
 				ResourceList<Include> includes = f.resMap.getList(Include.class);
 				out.write4(includes.size());
 				for (Include inc : includes)
-					out.writeStr(inc.filepath);
+					out.writeStr(inc.properties,PInclude.FILEPATH);
 				out.write4(ProjectFile.GS_INCFOLDER_CODE.get(p.get(PGameSettings.INCLUDE_FOLDER)));
 				out.writeBool(p,PGameSettings.OVERWRITE_EXISTING,PGameSettings.REMOVE_AT_GAME_END);
 				}
@@ -755,23 +756,22 @@ public final class GmFileWriter
 				out.writeD(gs.getLastChanged());
 				}
 			out.write4(ver);
-			out.writeStr(i.filename);
-			out.writeStr(i.filepath);
-			out.writeBool(i.isOriginal);
-			out.write4(i.size);
-			if (i.data != null)
+			out.writeStr(i.properties,PInclude.FILENAME);
+			out.writeStr(i.properties,PInclude.FILEPATH);
+			out.writeBool(i.properties,PInclude.ORIGINAL);
+			out.write4(i.properties,PInclude.SIZE);
+			boolean store = i.get(PInclude.STORE);
+			out.writeBool(store);
+			if (store)
 				{
-				out.writeBool(true);
 				out.write4(i.data.length);
 				out.write(i.data);
 				}
-			else
-				out.writeBool(false);
-			out.write4(i.export);
-			out.writeStr(i.exportFolder);
-			out.writeBool(i.overwriteExisting);
-			out.writeBool(i.freeMemAfterExport);
-			out.writeBool(i.removeAtGameEnd);
+			out.write4(ProjectFile.INCLUDE_EXPORT_CODE.get(i.get(PInclude.EXPORTACTION)));
+			out.writeStr(i.properties,PInclude.EXPORTFOLDER);
+			out.writeBool(i.properties,PInclude.OVERWRITE);
+			out.writeBool(i.properties,PInclude.FREEMEMORY);
+			out.writeBool(i.properties,PInclude.REMOVEATGAMEEND);
 			out.endDeflate();
 			}
 		}

@@ -16,61 +16,46 @@ public class Include extends InstantiableResource<Include,Include.PInclude>
 	{
 	public byte[] data = new byte[0];
 
+	public enum ExportAction
+		{
+		DONT_EXPORT,TEMP_DIRECTORY,SAME_FOLDER,CUSTOM_FOLDER
+		}
+
 	public enum PInclude
 		{
 		FILENAME,FILEPATH,ORIGINAL,SIZE,EXPORTACTION,EXPORTFOLDER,OVERWRITE,FREEMEMORY,REMOVEATGAMEEND,
 		STORE
 		}
 
-	private static final EnumMap<PInclude,Object> DEF = PropertyMap.makeDefaultMap(PInclude.class,"",
-			"",true,0,2,"",false,true,true,false);
+	private static final EnumMap<PInclude,Object> DEFS = PropertyMap.makeDefaultMap(PInclude.class,"", //$NON-NLS-1$
+			"",true,0,ExportAction.SAME_FOLDER,"",false,true,true,false);  //$NON-NLS-1$//$NON-NLS-2$
 
-	public String filename = ""; //$NON-NLS-1$
-	public String filepath = ""; //$NON-NLS-1$
-	public boolean isOriginal;
-	public int size = 0;
-	public int export = 2;
-	public String exportFolder = ""; //$NON-NLS-1$
-	public boolean overwriteExisting = false;
-	public boolean freeMemAfterExport = true;
-	public boolean removeAtGameEnd = true;
-
-	public Include copy()
+	public Include()
 		{
-		Include inc = new Include();
-		inc.filename = filename;
-		inc.filepath = filepath;
-		inc.isOriginal = isOriginal;
-		inc.size = size;
-		inc.data = data;
-		inc.export = export;
-		inc.exportFolder = exportFolder;
-		inc.overwriteExisting = overwriteExisting;
-		inc.freeMemAfterExport = freeMemAfterExport;
-		inc.removeAtGameEnd = removeAtGameEnd;
-		return inc;
+		this(null);
 		}
 
-	public String toString()
+	public Include(ResourceReference<Include> ref)
 		{
-		return filepath;
+		super(ref);
 		}
 
 	@Override
 	public Include makeInstance(ResourceReference<Include> ref)
 		{
-		return new Include();
+		return new Include(ref);
 		}
 
 	@Override
 	protected PropertyMap<PInclude> makePropertyMap()
 		{
-		return new PropertyMap<PInclude>(PInclude.class,this,DEF);
+		return new PropertyMap<PInclude>(PInclude.class,this,DEFS);
 		}
 
 	@Override
 	protected void postCopy(Include dest)
-		{ //Nothing else to copy
-
+		{
+		super.postCopy(dest);
+		dest.data = data.clone();
 		}
 	}
