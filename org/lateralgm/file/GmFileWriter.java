@@ -760,14 +760,13 @@ public final class GmFileWriter
 			out.writeStr(i.properties,PInclude.FILEPATH);
 			out.writeBool(i.properties,PInclude.ORIGINAL);
 			out.write4(i.properties,PInclude.SIZE);
-			if (i.data != null)
+			boolean store = i.get(PInclude.STORE);
+			out.writeBool(store);
+			if (store)
 				{
-				out.writeBool(true);
 				out.write4(i.data.length);
 				out.write(i.data);
 				}
-			else
-				out.writeBool(false);
 			out.write4(ProjectFile.INCLUDE_EXPORT_CODE.get(i.get(PInclude.EXPORTACTION)));
 			out.writeStr(i.properties,PInclude.EXPORTFOLDER);
 			out.writeBool(i.properties,PInclude.OVERWRITE);
