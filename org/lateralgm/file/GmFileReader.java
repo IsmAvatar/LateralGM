@@ -1261,7 +1261,9 @@ public final class GmFileReader
 			incRoot = new ResNode("Includes",ResNode.STATUS_PRIMARY,Include.class);
 			for (Include inc : f.resMap.getList(Include.class))
 				{
-				inc.setName(Util.fileNameWithoutExtension(inc.get(PInclude.FILENAME).toString()));
+				String filename = inc.get(PInclude.FILENAME).toString();
+				if (!filename.isEmpty())
+					inc.setName(Util.fileNameWithoutExtension(filename));
 				incRoot.add(new ResNode(inc.getName(),ResNode.STATUS_SECONDARY,Include.class,inc.reference));
 				}
 			}
