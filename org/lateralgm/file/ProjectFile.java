@@ -59,6 +59,7 @@ import org.lateralgm.resources.GameSettings.ProgressBar;
 import org.lateralgm.resources.GameSettings.Resolution;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.GmObject.PhysicsShape;
+import org.lateralgm.resources.Include.ExportAction;
 import org.lateralgm.resources.InstantiableResource;
 import org.lateralgm.resources.Path;
 import org.lateralgm.resources.Resource;
@@ -199,6 +200,16 @@ public class ProjectFile implements UpdateListener
 		m.put(MaskShape.POLYGON,m.get(MaskShape.RECTANGLE));
 		SPRITE_MASK_CODE = Collections.unmodifiableMap(m);
 		}
+	public static final ExportAction[] INCLUDE_EXPORT_ACTION = { ExportAction.DONT_EXPORT, ExportAction.TEMP_DIRECTORY,
+			ExportAction.SAME_FOLDER, ExportAction.CUSTOM_FOLDER };
+	public static final Map<ExportAction,Integer> INCLUDE_EXPORT_CODE;
+	static
+		{
+		EnumMap<ExportAction,Integer> m = new EnumMap<ExportAction,Integer>(ExportAction.class);
+		for (int i = 0; i < INCLUDE_EXPORT_ACTION.length; i++)
+			m.put(INCLUDE_EXPORT_ACTION[i],i);
+		INCLUDE_EXPORT_CODE = Collections.unmodifiableMap(m);
+		}
 
 	public String getPath()
 		{
@@ -289,8 +300,8 @@ public class ProjectFile implements UpdateListener
 
 	public static class FormatFlavor
 		{
-		public static final String GM_OWNER = "GM";
-		public static final String GMX_OWNER = "GMX";
+		public static final String GM_OWNER = "GM"; //$NON-NLS-1$
+		public static final String GMX_OWNER = "GMX"; //$NON-NLS-1$
 		public static final FormatFlavor GM_530 = new FormatFlavor(GM_OWNER,530);
 		public static final FormatFlavor GM_600 = new FormatFlavor(GM_OWNER,600);
 		public static final FormatFlavor GM_701 = new FormatFlavor(GM_OWNER,701);

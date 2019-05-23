@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+
 import javax.imageio.ImageIO;
 import javax.swing.JProgressBar;
 import javax.xml.parsers.DocumentBuilder;
@@ -106,10 +107,10 @@ import org.lateralgm.resources.sub.View;
 import org.lateralgm.resources.sub.View.PView;
 import org.lateralgm.util.PropertyMap;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.sun.org.apache.xerces.internal.impl.dv.util.HexBin;
@@ -337,7 +338,7 @@ public final class GMXFileReader
 		Document in = c.in;
 		ResNode node = new ResNode(Resource.kindNamesPlural.get(kind),ResNode.STATUS_PRIMARY,kind,null);
 		root.add(node);
-		
+
 		String kindTagName = GMXFileWriter.tagNames.get(kind);
 		if (kindTagName == null) return;
 		NodeList list = in.getElementsByTagName(kindTagName);
@@ -865,7 +866,7 @@ public final class GMXFileReader
 		node.add(rnode);
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-		try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
+		try (BufferedReader reader = new BufferedReader(new FileReader(path)))
 			{
 			String code = ""; //$NON-NLS-1$
 			String line = reader.readLine();
@@ -875,7 +876,7 @@ public final class GMXFileReader
 				line = reader.readLine();
 				if (line == null) return;
 				}
-			do 
+			do
 				{
 				if (line.startsWith("#define")) //$NON-NLS-1$
 					{
@@ -917,7 +918,7 @@ public final class GMXFileReader
 		String code = ""; //$NON-NLS-1$
 		String path = f.getDirectory() + '/' + Util.getPOSIXPath(cNode.getTextContent());
 
-		try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
+		try (BufferedReader reader = new BufferedReader(new FileReader(path)))
 			{
 			String line = ""; //$NON-NLS-1$
 			while ((line = reader.readLine()) != null)
@@ -1587,7 +1588,9 @@ public final class GMXFileReader
 
 		final Include inc = f.resMap.getList(Include.class).add();
 		String name = el.getElementsByTagName("name").item(0).getTextContent(); //$NON-NLS-1$
-		inc.setName(name);
+		//NOTE: we don't yet allow file extensions in the resource tree at all
+		//and it really might not be a good idea to allow that anyway
+		inc.setName(Util.fileNameWithoutExtension(name));
 		ResNode rnode = new ResNode(inc.getName(),ResNode.STATUS_SECONDARY,Include.class,inc.reference);
 		node.add(rnode);
 
@@ -1604,17 +1607,18 @@ public final class GMXFileReader
 		String exportFolder = el.getElementsByTagName("exportDir").item(0).getTextContent(); //$NON-NLS-1$
 		inc.put(PInclude.EXPORTFOLDER,exportFolder);
 		int exportAction = Integer.parseInt(el.getElementsByTagName("exportAction").item(0).getTextContent()); //$NON-NLS-1$
-		inc.put(PInclude.EXPORTACTION,exportAction);
+		inc.put(PInclude.EXPORTACTION,ProjectFile.INCLUDE_EXPORT_ACTION[exportAction]);
 		String filename = el.getElementsByTagName("filename").item(0).getTextContent(); //$NON-NLS-1$
 		inc.put(PInclude.FILENAME,filename);
 
 		String filePath = filename;
 		ResNode parent = node;
 		while (parent != null && parent.status == ResNode.STATUS_GROUP) {
-			filePath = parent.toString() + '/' + filePath;
+			filePath = parent.toString() + File.separatorChar + filePath;
 			parent = (ResNode) parent.getParent();
 		}
-		filePath = f.getDirectory() + "/datafiles/" + filePath; //$NON-NLS-1$
+		filePath = f.getDirectory() + File.separatorChar + "datafiles" + File.separatorChar + filePath; //$NON-NLS-1$
+		inc.put(PInclude.FILEPATH,filePath);
 		File dataFile = new File(filePath);
 		try
 			{
@@ -1699,7 +1703,7 @@ public final class GMXFileReader
 
 		String text = ""; //$NON-NLS-1$
 
-		try (BufferedReader reader = new BufferedReader(new FileReader(path))) 
+		try (BufferedReader reader = new BufferedReader(new FileReader(path)))
 			{
 			String line = ""; //$NON-NLS-1$
 			while ((line = reader.readLine()) != null)
