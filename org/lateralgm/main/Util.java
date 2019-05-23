@@ -66,6 +66,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+
 import org.lateralgm.components.CustomFileChooser;
 import org.lateralgm.components.impl.CustomFileFilter;
 import org.lateralgm.components.visual.FileChooserImagePreview;
@@ -238,7 +239,7 @@ public final class Util
 			return Util.readFully(new File(path));
 		}
 
-	public static void writeFully(File file, byte[] data) throws FileNotFoundException, IOException 
+	public static void writeFully(File file, byte[] data) throws FileNotFoundException, IOException
 		{
 		try (FileOutputStream fos = new FileOutputStream(file);
 				BufferedOutputStream bos = new BufferedOutputStream(fos))
@@ -475,6 +476,15 @@ public final class Util
 			return ""; // empty extension
 			}
 		return name.substring(lastIndexOf + 1);
+		}
+
+	public static String fileNameWithoutExtension(String fileName)
+		{
+		if (fileName.indexOf('.') > 0)
+			{
+			return fileName.substring(0,fileName.indexOf('.'));
+			}
+		return fileName;
 		}
 
 	//TODO: JPEG Writing is bugged in some newer JVM versions causing the RGB color channels to be mixed up.
@@ -1224,7 +1234,7 @@ public final class Util
 			ico.getDescriptors().add(bmd);
 			}
 		}
-	
+
 	public static void OpenDesktopEditor(File file)
 		{
 		try
