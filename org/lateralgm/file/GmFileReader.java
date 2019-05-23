@@ -481,9 +481,9 @@ public final class GmFileReader
 		for (int i = 0; i < no; i++)
 			{
 			Include inc = f.resMap.getList(Include.class).add();
-			inc.put(PInclude.FILEPATH,in.readStr());
-			String filepath = inc.get(PInclude.FILEPATH).toString();
+			String filepath = in.readStr();
 			String filename = new File(filepath).getName();
+			inc.put(PInclude.FILEPATH,filepath);
 			inc.put(PInclude.FILENAME,filename);
 			}
 		gs.put(PGameSettings.INCLUDE_FOLDER,ProjectFile.GS_INCFOLDERS[in.read4()]);
@@ -846,9 +846,9 @@ public final class GmFileReader
 					throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 							Messages.getString("ProjectFileReader.INDATAFILES"),ver)); //$NON-NLS-1$
 				Include inc = f.resMap.getList(Include.class).add();
-				inc.put(PInclude.FILEPATH,in.readStr());
-				String filepath = inc.get(PInclude.FILEPATH).toString();
+				String filepath = in.readStr();
 				String filename = new File(filepath).getName();
+				inc.put(PInclude.FILEPATH,filepath);
 				inc.put(PInclude.FILENAME,filename);
 				if (in.readBool()) //file data exists?
 					{
@@ -1123,8 +1123,7 @@ public final class GmFileReader
 				throw new GmFormatException(f,Messages.format("ProjectFileReader.ERROR_UNSUPPORTED", //$NON-NLS-1$
 						Messages.getString("ProjectFileReader.ININCLUDEDFILES"),ver)); //$NON-NLS-1$
 			Include inc = f.resMap.getList(Include.class).add();
-			String filename = in.readStr();
-			inc.put(PInclude.FILENAME,filename);
+			inc.put(PInclude.FILENAME,in.readStr());
 			inc.put(PInclude.FILEPATH,in.readStr());
 			inc.put(PInclude.ORIGINAL,in.readBool());
 			int size = in.read4();
