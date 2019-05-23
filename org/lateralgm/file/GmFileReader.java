@@ -490,11 +490,12 @@ public final class GmFileReader
 		//		f.gameSettings.includeFolder = in.read4(); //0 = main, 1 = temp
 		in.readBool(gs.properties,PGameSettings.OVERWRITE_EXISTING,
 				PGameSettings.REMOVE_AT_GAME_END);
+		 //1 = temp, 2 = main
+		ExportAction exportAction = gs.get(PGameSettings.INCLUDE_FOLDER) == IncludeFolder.TEMP
+				? ExportAction.TEMP_DIRECTORY : ExportAction.SAME_FOLDER;
 		for (Include inc : f.resMap.getList(Include.class))
 			{
-			 //1 = temp, 2 = main
-			ExportAction exportAction = gs.get(PGameSettings.INCLUDE_FOLDER) == IncludeFolder.TEMP
-					? ExportAction.TEMP_DIRECTORY : ExportAction.SAME_FOLDER;
+			inc.put(PInclude.EXPORTACTION,exportAction);
 			inc.put(PInclude.OVERWRITE,gs.get(PGameSettings.OVERWRITE_EXISTING));
 			inc.put(PInclude.REMOVEATGAMEEND,gs.get(PGameSettings.REMOVE_AT_GAME_END));
 			}
