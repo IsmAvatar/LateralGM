@@ -50,13 +50,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingConstants;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
-import javax.swing.SwingConstants;
 
 import org.lateralgm.components.ColorSelect;
 import org.lateralgm.components.CustomFileChooser;
@@ -500,17 +500,15 @@ public class GameSettingFrame extends ResourceFrame<GameSettings,PGameSettings>
 		includesFc.setMultiSelectionEnabled(true);
 
 		layout.setHorizontalGroup(layout.createParallelGroup()
-		/**/.addGroup(layout.createSequentialGroup()
-		/*		*/.addComponent(folderPanel).addGap(4,8,MAX_VALUE)
-		/*		*/.addGroup(layout.createParallelGroup()
-		/*				*/.addComponent(overwriteExisting)
-		/*				*/.addComponent(removeAtGameEnd))));
+		/*	*/.addComponent(folderPanel).addGap(4,8,MAX_VALUE)
+		/*	*/.addGroup(layout.createParallelGroup()
+		/*			*/.addComponent(overwriteExisting)
+		/*			*/.addComponent(removeAtGameEnd)));
 		layout.setVerticalGroup(layout.createSequentialGroup()
-		/**/.addGroup(layout.createParallelGroup()
-		/*		*/.addComponent(folderPanel)
-		/*		*/.addGroup(layout.createSequentialGroup()
-		/*				*/.addComponent(overwriteExisting)
-		/*				*/.addComponent(removeAtGameEnd))));
+		/*	*/.addComponent(folderPanel)
+		/*	*/.addGroup(layout.createSequentialGroup()
+		/*			*/.addComponent(overwriteExisting)
+		/*			*/.addComponent(removeAtGameEnd)));
 		return panel;
 		}
 
