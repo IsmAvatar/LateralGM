@@ -325,15 +325,18 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 
 		keyMenu.add(new EventAction(mid,Event.EV_NO_KEY));
 		keyMenu.add(new EventAction(mid,Event.EV_ANY_KEY));
+		keyMenu.addSeparator();
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_LEFT));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_RIGHT));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_UP));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_DOWN));
+		keyMenu.addSeparator();
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_CONTROL));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_ALT));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_SHIFT));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_SPACE));
 		keyMenu.add(new EventAction(mid,Event.EV_ENTER_KEY));
+		keyMenu.addSeparator();
 
 		JMenu keypadMenu = new JMenu(Messages.getString("EventPanel.KEYPAD")); //$NON-NLS-1$
 		keypadMenu.setIcon(keyGroupIcon);
