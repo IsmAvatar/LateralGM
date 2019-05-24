@@ -222,12 +222,14 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 		JMenu drawMenu = new JMenu();
 		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_NORMAL));
 		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_GUI));
-		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_BEGIN));
-		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_END));
-		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_GUI_BEGIN));
-		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_GUI_END));
-		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_PRE));
-		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_POST));
+		drawMenu.addSeparator();
+
+		for (int i = Event.EV_DRAW_BEGIN; i <= Event.EV_DRAW_POST; i++)
+			drawMenu.add(new EventAction(MainEvent.EV_DRAW,i));
+		drawMenu.insertSeparator(5); // after "Draw Begin"/"Draw End"
+		drawMenu.insertSeparator(8); // after "Draw GUI Begin"/"Draw GUI End"
+		drawMenu.addSeparator(); // after "Pre Draw"/"Post Draw"
+
 		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_RESIZE));
 		drawBt.setEventMenu(drawMenu);
 
