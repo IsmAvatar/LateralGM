@@ -35,15 +35,16 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JToolBar;
+
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
@@ -77,7 +78,7 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 
 		private int mid = 0, sid = 0;
 		private ResourceReference<GmObject> other;
-		
+
 		private JMenu subevtMenu = null;
 
 		public EventAction(int id, int sid, ResourceReference<GmObject> other)
@@ -221,6 +222,12 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 		JMenu drawMenu = new JMenu();
 		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_NORMAL));
 		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_GUI));
+		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_BEGIN));
+		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_END));
+		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_GUI_BEGIN));
+		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_GUI_END));
+		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_PRE));
+		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_POST));
 		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_RESIZE));
 		drawBt.setEventMenu(drawMenu);
 
