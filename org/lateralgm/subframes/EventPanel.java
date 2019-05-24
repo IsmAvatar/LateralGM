@@ -35,15 +35,16 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JToolBar;
+
 import org.lateralgm.components.ResourceMenu;
 import org.lateralgm.components.impl.IndexButtonGroup;
 import org.lateralgm.components.impl.ResNode;
 import org.lateralgm.components.mdi.MDIPane;
 import org.lateralgm.main.LGM;
 import org.lateralgm.main.Prefs;
-import org.lateralgm.main.Util;
 import org.lateralgm.main.UpdateSource.UpdateEvent;
 import org.lateralgm.main.UpdateSource.UpdateListener;
+import org.lateralgm.main.Util;
 import org.lateralgm.messages.Messages;
 import org.lateralgm.resources.GmObject;
 import org.lateralgm.resources.ResourceReference;
@@ -77,7 +78,7 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 
 		private int mid = 0, sid = 0;
 		private ResourceReference<GmObject> other;
-		
+
 		private JMenu subevtMenu = null;
 
 		public EventAction(int id, int sid, ResourceReference<GmObject> other)
@@ -221,6 +222,14 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 		JMenu drawMenu = new JMenu();
 		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_NORMAL));
 		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_GUI));
+		drawMenu.addSeparator();
+
+		for (int i = Event.EV_DRAW_BEGIN; i <= Event.EV_DRAW_POST; i++)
+			drawMenu.add(new EventAction(MainEvent.EV_DRAW,i));
+		drawMenu.insertSeparator(5); // after "Draw Begin"/"Draw End"
+		drawMenu.insertSeparator(8); // after "Draw GUI Begin"/"Draw GUI End"
+		drawMenu.addSeparator(); // after "Pre Draw"/"Post Draw"
+
 		drawMenu.add(new EventAction(MainEvent.EV_DRAW,Event.EV_DRAW_RESIZE));
 		drawBt.setEventMenu(drawMenu);
 
@@ -252,31 +261,40 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 		alarmBt.setEventMenu(alarmMenu);
 
 		//OTHER
+		ImageIcon otherGroupIcon = LGM.getIconForKey("EventNode.GROUP" + MainEvent.EV_OTHER); //$NON-NLS-1$
 		EventAction otherBt = new EventAction(MainEvent.EV_OTHER);
 		JMenu otherMenu = new JMenu();
-		for (int i = Event.EV_OUTSIDE; i <= Event.EV_NO_MORE_HEALTH; i++)
+		for (int i = Event.EV_OUTSIDE; i <= Event.EV_ROOM_END; i++)
 			otherMenu.add(new EventAction(MainEvent.EV_OTHER,i));
-		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_CLOSEWINDOW));
+		otherMenu.insertSeparator(2); // after "Outside Room"/"Intersect Boundary"
 
-		ImageIcon otherGroupIcon = LGM.getIconForKey("EventNode.GROUP" + MainEvent.EV_OTHER); //$NON-NLS-1$
+		JMenu viewsMenu = new JMenu(Messages.getString("EventPanel.VIEWS")); //$NON-NLS-1$
+		viewsMenu.setIcon(otherGroupIcon);
+		for (int i = 0; i <= 7; i++)
+			viewsMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_OUTSIDEVIEW0 + i));
+		viewsMenu.addSeparator();
+		for (int i = 0; i <= 7; i++)
+			viewsMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_BOUNDARYVIEW0 + i));
+		otherMenu.insert(viewsMenu,3);
+
+		otherMenu.insertSeparator(4); // after "Views" menu
+		otherMenu.insertSeparator(7); // after "Game Start"/"Game End"
+		otherMenu.insertSeparator(10); // after "Room Start"/"Room End"
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_NO_MORE_LIVES));
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_NO_MORE_HEALTH));
+		otherMenu.addSeparator();
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_ANIMATION_END));
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_END_OF_PATH));
+		otherMenu.addSeparator();
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_CLOSEWINDOW));
+		otherMenu.addSeparator();
 
 		JMenu userMenu = new JMenu(Messages.getString("EventPanel.USER_DEFINED")); //$NON-NLS-1$
 		userMenu.setIcon(otherGroupIcon);
 		for (int i = 0; i <= 15; i++)
 			userMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_USER0 + i));
 		otherMenu.add(userMenu);
-
-		JMenu outsideMenu = new JMenu(Messages.getString("EventPanel.OUTSIDE_VIEW")); //$NON-NLS-1$
-		outsideMenu.setIcon(otherGroupIcon);
-		for (int i = 0; i <= 7; i++)
-			outsideMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_OUTSIDEVIEW0 + i));
-		otherMenu.add(outsideMenu);
-
-		JMenu boundaryMenu = new JMenu(Messages.getString("EventPanel.BOUNDARY_VIEW")); //$NON-NLS-1$
-		boundaryMenu.setIcon(otherGroupIcon);
-		for (int i = 0; i <= 7; i++)
-			boundaryMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_BOUNDARYVIEW0 + i));
-		otherMenu.add(boundaryMenu);
+		otherMenu.addSeparator();
 
 		JMenu asynchronousMenu = new JMenu(Messages.getString("EventPanel.ASYNCHRONOUS")); //$NON-NLS-1$
 		asynchronousMenu.setIcon(otherGroupIcon);
@@ -307,15 +325,18 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 
 		keyMenu.add(new EventAction(mid,Event.EV_NO_KEY));
 		keyMenu.add(new EventAction(mid,Event.EV_ANY_KEY));
+		keyMenu.addSeparator();
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_LEFT));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_RIGHT));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_UP));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_DOWN));
+		keyMenu.addSeparator();
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_CONTROL));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_ALT));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_SHIFT));
 		keyMenu.add(new EventAction(mid,KeyEvent.VK_SPACE));
 		keyMenu.add(new EventAction(mid,Event.EV_ENTER_KEY));
+		keyMenu.addSeparator();
 
 		JMenu keypadMenu = new JMenu(Messages.getString("EventPanel.KEYPAD")); //$NON-NLS-1$
 		keypadMenu.setIcon(keyGroupIcon);
@@ -383,25 +404,36 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 		ImageIcon mouseGroupIcon = LGM.getIconForKey("EventNode.GROUP" + MainEvent.EV_MOUSE); //$NON-NLS-1$
 		for (int i = Event.EV_LEFT_BUTTON; i <= Event.EV_MOUSE_LEAVE; i++)
 			mouseMenu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		mouseMenu.insertSeparator(3); // after "Left Button"/"Right Button"/"Middle Button"
+		mouseMenu.insertSeparator(5); // after "No Button"
+		mouseMenu.insertSeparator(9); // after "Left Pressed"/"Right Pressed"/"Middle Pressed"
+		mouseMenu.insertSeparator(13); // after "Left Released"/"Right Released"/"Middle Released"
+		mouseMenu.addSeparator(); // after "Mouse Enter"/"Mouse Leave"
 		for (int i = Event.EV_MOUSE_WHEEL_UP; i <= Event.EV_MOUSE_WHEEL_DOWN; i++)
 			mouseMenu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		mouseMenu.addSeparator();
 
 		JMenu globalMenu = new JMenu(Messages.getString("EventPanel.GLOBAL_MOUSE")); //$NON-NLS-1$
 		globalMenu.setIcon(mouseGroupIcon);
 		for (int i = Event.EV_GLOBAL_LEFT_BUTTON; i <= Event.EV_GLOBAL_MIDDLE_RELEASE; i++)
 			globalMenu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		globalMenu.insertSeparator(3); // after "Global Left Button"/"Global Right Button"/"Global Middle Button"
+		globalMenu.insertSeparator(7); // after "Global Left Pressed"/"Global Right Pressed"/"Global Middle Pressed"
 		mouseMenu.add(globalMenu);
+		mouseMenu.addSeparator();
 
 		JMenu joy1Menu = new JMenu(Messages.getString("EventPanel.JOYSTICK_1")); //$NON-NLS-1$
 		joy1Menu.setIcon(mouseGroupIcon);
 		for (int i = Event.EV_JOYSTICK1_LEFT; i <= Event.EV_JOYSTICK1_BUTTON8; i++)
 			if (i != 20) joy1Menu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		joy1Menu.insertSeparator(4); // after Joystick 1 "Left"/"Right"/"Up"/"Down"
 		mouseMenu.add(joy1Menu);
 
 		JMenu joy2Menu = new JMenu(Messages.getString("EventPanel.JOYSTICK_2")); //$NON-NLS-1$
 		joy2Menu.setIcon(mouseGroupIcon);
 		for (int i = Event.EV_JOYSTICK2_LEFT; i <= Event.EV_JOYSTICK2_BUTTON8; i++)
 			if (i != 35) joy2Menu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		joy2Menu.insertSeparator(4); // after Joystick 2 "Left"/"Right"/"Up"/"Down"
 		mouseMenu.add(joy2Menu);
 
 		mouseBt.setEventMenu(mouseMenu);
