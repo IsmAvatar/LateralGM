@@ -404,25 +404,36 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 		ImageIcon mouseGroupIcon = LGM.getIconForKey("EventNode.GROUP" + MainEvent.EV_MOUSE); //$NON-NLS-1$
 		for (int i = Event.EV_LEFT_BUTTON; i <= Event.EV_MOUSE_LEAVE; i++)
 			mouseMenu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		mouseMenu.insertSeparator(3); // after "Left Button"/"Right Button"/"Middle Button"
+		mouseMenu.insertSeparator(5); // after "No Button"
+		mouseMenu.insertSeparator(9); // after "Left Pressed"/"Right Pressed"/"Middle Pressed"
+		mouseMenu.insertSeparator(13); // after "Left Released"/"Right Released"/"Middle Released"
+		mouseMenu.addSeparator(); // after "Mouse Enter"/"Mouse Leave"
 		for (int i = Event.EV_MOUSE_WHEEL_UP; i <= Event.EV_MOUSE_WHEEL_DOWN; i++)
 			mouseMenu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		mouseMenu.addSeparator();
 
 		JMenu globalMenu = new JMenu(Messages.getString("EventPanel.GLOBAL_MOUSE")); //$NON-NLS-1$
 		globalMenu.setIcon(mouseGroupIcon);
 		for (int i = Event.EV_GLOBAL_LEFT_BUTTON; i <= Event.EV_GLOBAL_MIDDLE_RELEASE; i++)
 			globalMenu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		globalMenu.insertSeparator(3); // after "Global Left Button"/"Global Right Button"/"Global Middle Button"
+		globalMenu.insertSeparator(7); // after "Global Left Pressed"/"Global Right Pressed"/"Global Middle Pressed"
 		mouseMenu.add(globalMenu);
+		mouseMenu.addSeparator();
 
 		JMenu joy1Menu = new JMenu(Messages.getString("EventPanel.JOYSTICK_1")); //$NON-NLS-1$
 		joy1Menu.setIcon(mouseGroupIcon);
 		for (int i = Event.EV_JOYSTICK1_LEFT; i <= Event.EV_JOYSTICK1_BUTTON8; i++)
 			if (i != 20) joy1Menu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		joy1Menu.insertSeparator(4); // after Joystick 1 "Left"/"Right"/"Up"/"Down"
 		mouseMenu.add(joy1Menu);
 
 		JMenu joy2Menu = new JMenu(Messages.getString("EventPanel.JOYSTICK_2")); //$NON-NLS-1$
 		joy2Menu.setIcon(mouseGroupIcon);
 		for (int i = Event.EV_JOYSTICK2_LEFT; i <= Event.EV_JOYSTICK2_BUTTON8; i++)
 			if (i != 35) joy2Menu.add(new EventAction(MainEvent.EV_MOUSE,i));
+		joy2Menu.insertSeparator(4); // after Joystick 2 "Left"/"Right"/"Up"/"Down"
 		mouseMenu.add(joy2Menu);
 
 		mouseBt.setEventMenu(mouseMenu);
