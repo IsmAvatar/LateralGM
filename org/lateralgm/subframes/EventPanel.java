@@ -273,17 +273,14 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 			userMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_USER0 + i));
 		otherMenu.add(userMenu);
 
-		JMenu outsideMenu = new JMenu(Messages.getString("EventPanel.OUTSIDE_VIEW")); //$NON-NLS-1$
+		JMenu outsideMenu = new JMenu(Messages.getString("EventPanel.VIEWS")); //$NON-NLS-1$
 		outsideMenu.setIcon(otherGroupIcon);
 		for (int i = 0; i <= 7; i++)
 			outsideMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_OUTSIDEVIEW0 + i));
-		otherMenu.add(outsideMenu);
-
-		JMenu boundaryMenu = new JMenu(Messages.getString("EventPanel.BOUNDARY_VIEW")); //$NON-NLS-1$
-		boundaryMenu.setIcon(otherGroupIcon);
+		outsideMenu.addSeparator();
 		for (int i = 0; i <= 7; i++)
-			boundaryMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_BOUNDARYVIEW0 + i));
-		otherMenu.add(boundaryMenu);
+			outsideMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_BOUNDARYVIEW0 + i));
+		otherMenu.add(outsideMenu);
 
 		JMenu asynchronousMenu = new JMenu(Messages.getString("EventPanel.ASYNCHRONOUS")); //$NON-NLS-1$
 		asynchronousMenu.setIcon(otherGroupIcon);
