@@ -259,28 +259,40 @@ public class EventPanel extends JPanel implements ActionListener,PropertyChangeL
 		alarmBt.setEventMenu(alarmMenu);
 
 		//OTHER
+		ImageIcon otherGroupIcon = LGM.getIconForKey("EventNode.GROUP" + MainEvent.EV_OTHER); //$NON-NLS-1$
 		EventAction otherBt = new EventAction(MainEvent.EV_OTHER);
 		JMenu otherMenu = new JMenu();
-		for (int i = Event.EV_OUTSIDE; i <= Event.EV_NO_MORE_HEALTH; i++)
+		for (int i = Event.EV_OUTSIDE; i <= Event.EV_ROOM_END; i++)
 			otherMenu.add(new EventAction(MainEvent.EV_OTHER,i));
-		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_CLOSEWINDOW));
+		otherMenu.insertSeparator(2); // after "Outside Room"/"Intersect Boundary"
 
-		ImageIcon otherGroupIcon = LGM.getIconForKey("EventNode.GROUP" + MainEvent.EV_OTHER); //$NON-NLS-1$
+		JMenu viewsMenu = new JMenu(Messages.getString("EventPanel.VIEWS")); //$NON-NLS-1$
+		viewsMenu.setIcon(otherGroupIcon);
+		for (int i = 0; i <= 7; i++)
+			viewsMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_OUTSIDEVIEW0 + i));
+		viewsMenu.addSeparator();
+		for (int i = 0; i <= 7; i++)
+			viewsMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_BOUNDARYVIEW0 + i));
+		otherMenu.insert(viewsMenu,3);
+
+		otherMenu.insertSeparator(4); // after "Views" menu
+		otherMenu.insertSeparator(7); // after "Game Start"/"Game End"
+		otherMenu.insertSeparator(10); // after "Room Start"/"Room End"
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_NO_MORE_LIVES));
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_NO_MORE_HEALTH));
+		otherMenu.addSeparator();
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_ANIMATION_END));
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_END_OF_PATH));
+		otherMenu.addSeparator();
+		otherMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_CLOSEWINDOW));
+		otherMenu.addSeparator();
 
 		JMenu userMenu = new JMenu(Messages.getString("EventPanel.USER_DEFINED")); //$NON-NLS-1$
 		userMenu.setIcon(otherGroupIcon);
 		for (int i = 0; i <= 15; i++)
 			userMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_USER0 + i));
 		otherMenu.add(userMenu);
-
-		JMenu outsideMenu = new JMenu(Messages.getString("EventPanel.VIEWS")); //$NON-NLS-1$
-		outsideMenu.setIcon(otherGroupIcon);
-		for (int i = 0; i <= 7; i++)
-			outsideMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_OUTSIDEVIEW0 + i));
-		outsideMenu.addSeparator();
-		for (int i = 0; i <= 7; i++)
-			outsideMenu.add(new EventAction(MainEvent.EV_OTHER,Event.EV_BOUNDARYVIEW0 + i));
-		otherMenu.add(outsideMenu);
+		otherMenu.addSeparator();
 
 		JMenu asynchronousMenu = new JMenu(Messages.getString("EventPanel.ASYNCHRONOUS")); //$NON-NLS-1$
 		asynchronousMenu.setIcon(otherGroupIcon);
